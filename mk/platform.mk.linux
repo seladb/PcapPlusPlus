@@ -1,0 +1,15 @@
+LINUX := 1
+
+BIN_EXT :=
+
+LIB_PREFIX := lib
+
+LIB_EXT := .a
+
+G++ := g++
+
+AR := ar
+
+RM := rm
+
+CP := cp
