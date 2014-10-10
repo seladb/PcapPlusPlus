@@ -1,10 +1,10 @@
 WIN32 := 1
 
-MINGW_HOME := C:/mingw
+MINGW_HOME :=
 
 MSYS_HOME := $(MINGW_HOME)/msys/1.0
 
-WINPCAP_HOME := D:/PrivateFolders/Elad/WpdPack
+WINPCAP_HOME :=
 
 export PATH := $(MINGW_HOME)/bin;$(MSYS_HOME)/bin:$(PATH)
 
