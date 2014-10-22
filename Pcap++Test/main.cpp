@@ -6,6 +6,7 @@
 #include <Packet.h>
 #include <IPv4Layer.h>
 #include <TcpLayer.h>
+#include <HttpLayer.h>
 #include <PcapFileDevice.h>
 #include <PcapLiveDeviceList.h>
 #include <WinPcapLiveDevice.h>
@@ -697,6 +698,157 @@ PCAPP_TEST(TestRemoteCaptue)
 	PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestHttpRequestParsing)
+{
+    PcapFileReaderDevice readerDev("PcapExamples/4KHttpRequests.pcap");
+    PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
+
+    RawPacket rawPacket;
+    int packetCount = 0;
+
+    int httpPackets = 0;
+    int getReqs = 0;
+    int postReqs = 0;
+    int headReqs = 0;
+    int optionsReqs = 0;
+    int otherMethodReqs = 0;
+
+    int swfReqs = 0;
+    int homeReqs = 0;
+
+    int winwinReqs = 0;
+    int yad2Reqs = 0;
+    int wcdnReqs = 0;
+
+    int ieReqs = 0;
+    int ffReqs = 0;
+    int chromeReqs = 0;
+
+    while (readerDev.getNextPacket(rawPacket))
+    {
+    	packetCount++;
+    	Packet packet(&rawPacket);
+		if (packet.isPacketOfType(HTTPRequest))
+			httpPackets++;
+		else
+			continue;
+
+		HttpRequestLayer* httpReqLayer = (HttpRequestLayer*)packet.getLayerOfType(HTTPRequest);
+		PCAPP_ASSERT(httpReqLayer->getFirstLine() != NULL, "HTTP first line is null in packet #%d, HTTP request #%d", packetCount, httpPackets);
+		switch (httpReqLayer->getFirstLine()->getMethod())
+		{
+		case HttpRequestLayer::HttpGET:
+			getReqs++;
+			break;
+		case HttpRequestLayer::HttpPOST:
+			postReqs++;
+			break;
+		case HttpRequestLayer::HttpOPTIONS:
+			optionsReqs++;
+			break;
+		case HttpRequestLayer::HttpHEAD:
+			headReqs++;
+			break;
+		default:
+			otherMethodReqs++;
+		}
+
+
+		if (httpReqLayer->getFirstLine()->isComplete())
+		{
+			PCAPP_ASSERT(httpReqLayer->getFirstLine()->getVersion() == OneDotOne, "HTTP version is different than 1.1 in packet #%d, HTTP request #%d", packetCount, httpPackets);
+		}
+
+		if (httpReqLayer->getFirstLine()->getUri().find(".swf") != std::string::npos)
+			swfReqs++;
+		else if (httpReqLayer->getFirstLine()->getUri().find("home") != std::string::npos)
+			homeReqs++;
+
+		HttpField* hostField = httpReqLayer->getFieldByName("Host");
+		if (hostField != NULL)
+		{
+			std::string host = hostField->getFieldValue();
+			if (host == "www.winwin.co.il")
+				winwinReqs++;
+			else if (host == "www.yad2.co.il")
+				yad2Reqs++;
+			else if (host == "msc.wcdn.co.il")
+				wcdnReqs++;
+		}
+
+		HttpField* userAgentField = httpReqLayer->getFieldByName("User-Agent");
+		if (userAgentField == NULL)
+			continue;
+
+		std::string userAgent = userAgentField->getFieldValue();
+		if (userAgent.find("Trident/7.0") != std::string::npos)
+			ieReqs++;
+		else if (userAgent.find("Firefox/33.0") != std::string::npos)
+			ffReqs++;
+		else if (userAgent.find("Chrome/38.0") != std::string::npos)
+			chromeReqs++;
+    }
+
+    readerDev.close();
+
+    printf("packetCount: %d (7299)\n", packetCount);
+    printf("httpPackets: %d (3579)\n", httpPackets);
+    printf("otherMethodReqs: %d (0)\n", otherMethodReqs);
+    printf("getReqs: %d (3411)\n", getReqs);
+    printf("postReqs: %d (156)\n", postReqs);
+    printf("optionsReqs: %d (7)\n", optionsReqs);
+    printf("headReqs: %d (5)\n", headReqs);
+    printf("homeReqs: %d (118)\n", homeReqs);
+    printf("swfReqs: %d (74)\n", swfReqs);
+    printf("wcdnReqs: %d (20)\n", wcdnReqs);
+    printf("yad2Reqs: %d (102)\n", yad2Reqs);
+    printf("winwinReqs: %d (306)\n", winwinReqs);
+    printf("ieReqs: %d (719)\n", ieReqs);
+    printf("ffReqs: %d (1053)\n", ffReqs);
+    printf("chromeReqs: %d (1702)\n", chromeReqs);
+
+
+    PCAPP_ASSERT(packetCount == 7299, "Packet count is wrong. Actual: %d; Expected: %d", packetCount, 7299);
+
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ")
+    PCAPP_ASSERT(httpPackets == 3579, "HTTP packet count is wrong. Actual: %d; Expected: %d", httpPackets, 3579);
+
+
+    PCAPP_ASSERT(otherMethodReqs == 0, "Parsed %d HTTP requests with unexpected method", otherMethodReqs);
+
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET ")
+    PCAPP_ASSERT(getReqs == 3411, "Number of GET requests different than expected. Actual: %d; Expected: %d", getReqs, 3411);
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "POST ")
+    PCAPP_ASSERT(postReqs == 156, "Number of POST requests different than expected. Actual: %d; Expected: %d", postReqs, 156);
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "OPTIONS ")
+    PCAPP_ASSERT(optionsReqs == 7, "Number of OPTIONS requests different than expected. Actual: %d; Expected: %d", optionsReqs, 7);
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "HEAD ")
+    PCAPP_ASSERT(headReqs == 5, "Number of HEAD requests different than expected. Actual: %d; Expected: %d", headReqs, 5);
+
+
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST ") && (tcp matches "home.*HTTP/1.1")
+    PCAPP_ASSERT(homeReqs == 118, "Number of requests with URI contains 'home' is different than expected. Actual: %d; Expected: %d", homeReqs, 118);
+    // Wireshark filter: http.request.full_uri contains .swf
+    PCAPP_ASSERT(swfReqs == 74, "Number of requests with URI contains '.swf' is different than expected. Actual: %d; Expected: %d", swfReqs, 74);
+
+    // Wireshark filter: http.host == msc.wcdn.co.il
+    PCAPP_ASSERT(wcdnReqs == 20, "Number of requests from msc.wcdn.co.il is different than expected. Actual: %d; Expected: %d", wcdnReqs, 20);
+    // Wireshark filter: http.host == www.yad2.co.il
+    PCAPP_ASSERT(yad2Reqs == 102, "Number of requests from www.yad2.co.il is different than expected. Actual: %d; Expected: %d", yad2Reqs, 102);
+    // Wireshark filter: http.host == www.winwin.co.il
+    PCAPP_ASSERT(winwinReqs == 306, "Number of requests from www.winwin.co.il is different than expected. Actual: %d; Expected: %d", winwinReqs, 306);
+
+
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Firefox/33.0")
+    PCAPP_ASSERT(ffReqs == 1053, "Number of Firefox requests is different than expected. Actual: %d; Expected: %d", ffReqs, 1053);
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Chrome/38.0")
+    PCAPP_ASSERT(chromeReqs == 1702, "Number of Chrome requests is different than expected. Actual: %d; Expected: %d", chromeReqs, 1702);
+    // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Trident/7.0")
+    PCAPP_ASSERT(ieReqs == 719, "Number of IE requests is different than expected. Actual: %d; Expected: %d", ieReqs, 719);
+
+	PCAPP_TEST_PASSED;
+}
+
 static struct option PcapTestOptions[] =
 {
 	{"debug-mode", no_argument, 0, 'd'},
@@ -778,6 +930,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestSendPacket, args);
 	PCAPP_RUN_TEST(TestSendPackets, args);
 	PCAPP_RUN_TEST(TestRemoteCaptue, args);
+	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
 
 	PCAPP_END_RUNNING_TESTS;
 }

@@ -25,7 +25,7 @@ enum LogModule
 	PacketLogModuleTcpLayer,
 	PacketLogModuleUdpLayer,
 	PacketLogModuleVlanLayer,
-	PacketLogModuleNumOfModules,
+	PacketLogModuleHttpLayer,
 	PcapLogModuleWinPcapLiveDevice,
 	PcapLogModuleRemoteDevice,
 	PcapLogModuleLiveDevice,

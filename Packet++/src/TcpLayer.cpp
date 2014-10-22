@@ -4,6 +4,7 @@
 #include <IPv4Layer.h>
 #include <IPv6Layer.h>
 #include <PayloadLayer.h>
+#include <HttpLayer.h>
 #include <IpUtils.h>
 #include <Logger.h>
 #include <string.h>
@@ -197,7 +198,12 @@ void TcpLayer::parseNextLayer()
 	if (m_DataLen <= m_HeaderLen)
 		return;
 
-	m_NextLayer = new PayloadLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this);
+	tcphdr* tcpHder = getTcpHeader();
+	uint16_t portDst = ntohs(tcpHder->portDst);
+	if ((portDst == 80 || portDst == 8080) && HttpRequestFirstLine::parseMethod((char*)(m_Data + m_HeaderLen), m_DataLen - m_HeaderLen) != HttpRequestLayer::HttpMethodUnknown)
+		m_NextLayer = new HttpRequestLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this);
+	else
+		m_NextLayer = new PayloadLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this);
 }
 
 void TcpLayer::computeCalculateFields()

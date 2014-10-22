@@ -1,4 +1,4 @@
-#define LOG_MODULE eLayer
+#define LOG_MODULE PacketLogModuleLayer
 
 #include <Layer.h>
 #include <string.h>

@@ -1,4 +1,4 @@
-#define LOG_MODULE ePayloadLayer
+#define LOG_MODULE PacketLogModulePayloadLayer
 
 #include <PayloadLayer.h>
 #include <string.h>

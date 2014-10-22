@@ -1,4 +1,4 @@
-#define LOG_MODULE eArpLayer
+#define LOG_MODULE PacketLogModuleArpLayer
 
 #include <ArpLayer.h>
 #include <EthLayer.h>

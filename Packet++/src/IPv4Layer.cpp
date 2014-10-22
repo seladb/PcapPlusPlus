@@ -1,4 +1,4 @@
-#define LOG_MODULE eIPv4Layer
+#define LOG_MODULE PacketLogModuleIPv4Layer
 
 #include <IPv4Layer.h>
 #include <PayloadLayer.h>
