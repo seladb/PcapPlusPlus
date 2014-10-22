@@ -1,4 +1,4 @@
-#define LOG_MODULE eVlanLayer
+#define LOG_MODULE PacketLogModuleVlanLayer
 
 #include <VlanLayer.h>
 #include <IPv4Layer.h>

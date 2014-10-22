@@ -1,4 +1,4 @@
-#define LOG_MODULE eRawPacket
+#define LOG_MODULE PacketLogModuleRawPacket
 
 #include <RawPacket.h>
 #include <string.h>

@@ -1,4 +1,4 @@
-#define LOG_MODULE eEthLayer
+#define LOG_MODULE PacketLogModuleEthLayer
 
 #include <EthLayer.h>
 #include <IPv4Layer.h>
