@@ -791,21 +791,21 @@ PCAPP_TEST(TestHttpRequestParsing)
 
     readerDev.close();
 
-    printf("packetCount: %d (7299)\n", packetCount);
-    printf("httpPackets: %d (3579)\n", httpPackets);
-    printf("otherMethodReqs: %d (0)\n", otherMethodReqs);
-    printf("getReqs: %d (3411)\n", getReqs);
-    printf("postReqs: %d (156)\n", postReqs);
-    printf("optionsReqs: %d (7)\n", optionsReqs);
-    printf("headReqs: %d (5)\n", headReqs);
-    printf("homeReqs: %d (118)\n", homeReqs);
-    printf("swfReqs: %d (74)\n", swfReqs);
-    printf("wcdnReqs: %d (20)\n", wcdnReqs);
-    printf("yad2Reqs: %d (102)\n", yad2Reqs);
-    printf("winwinReqs: %d (306)\n", winwinReqs);
-    printf("ieReqs: %d (719)\n", ieReqs);
-    printf("ffReqs: %d (1053)\n", ffReqs);
-    printf("chromeReqs: %d (1702)\n", chromeReqs);
+//    printf("packetCount: %d (7299)\n", packetCount);
+//    printf("httpPackets: %d (3579)\n", httpPackets);
+//    printf("otherMethodReqs: %d (0)\n", otherMethodReqs);
+//    printf("getReqs: %d (3411)\n", getReqs);
+//    printf("postReqs: %d (156)\n", postReqs);
+//    printf("optionsReqs: %d (7)\n", optionsReqs);
+//    printf("headReqs: %d (5)\n", headReqs);
+//    printf("homeReqs: %d (118)\n", homeReqs);
+//    printf("swfReqs: %d (74)\n", swfReqs);
+//    printf("wcdnReqs: %d (20)\n", wcdnReqs);
+//    printf("yad2Reqs: %d (102)\n", yad2Reqs);
+//    printf("winwinReqs: %d (306)\n", winwinReqs);
+//    printf("ieReqs: %d (719)\n", ieReqs);
+//    printf("ffReqs: %d (1053)\n", ffReqs);
+//    printf("chromeReqs: %d (1702)\n", chromeReqs);
 
 
     PCAPP_ASSERT(packetCount == 7299, "Packet count is wrong. Actual: %d; Expected: %d", packetCount, 7299);
