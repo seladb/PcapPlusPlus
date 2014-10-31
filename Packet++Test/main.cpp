@@ -1017,6 +1017,9 @@ PACKETPP_TEST(HttpLayerEditTest)
 
 	PACKETPP_ASSERT(memcmp(buffer2, httpRequest.getRawPacket()->getRawData(), buffer2Length) == 0, "Constructed packet data is different than expected");
 
+	delete [] buffer;
+	delete [] buffer2;
+
 	PACKETPP_TEST_PASSED;
 }
 
