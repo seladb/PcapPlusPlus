@@ -39,13 +39,13 @@ void IPv6Layer::parseNextLayer()
 	switch (ipHdr->nextHeader)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		m_NextLayer = new UdpLayer(m_Data + sizeof(ip6_hdr), m_DataLen - sizeof(ip6_hdr), this);
+		m_NextLayer = new UdpLayer(m_Data + sizeof(ip6_hdr), m_DataLen - sizeof(ip6_hdr), this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_TCP:
-		m_NextLayer = new TcpLayer(m_Data + sizeof(ip6_hdr), m_DataLen - sizeof(ip6_hdr), this);
+		m_NextLayer = new TcpLayer(m_Data + sizeof(ip6_hdr), m_DataLen - sizeof(ip6_hdr), this, m_Packet);
 		break;
 	default:
-		m_NextLayer = new PayloadLayer(m_Data + sizeof(ip6_hdr), m_DataLen - sizeof(ip6_hdr), this);
+		m_NextLayer = new PayloadLayer(m_Data + sizeof(ip6_hdr), m_DataLen - sizeof(ip6_hdr), this, m_Packet);
 		return;
 	}
 }

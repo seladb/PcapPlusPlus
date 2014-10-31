@@ -67,9 +67,15 @@ uint16_t compute_checksum(ScalarBuffer vec[], size_t vecSize)
 			++(vec[i].buffer);
 			buff_len -= 2;
 		}
+		LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
 
 		if (buff_len == 1)
-			local_sum += uint16_t(*(vec[i].buffer));
+		{
+			uint8_t lastByte = *(vec[i].buffer);
+			LOG_DEBUG("1 byte left, adding value: 0x%4X", lastByte);
+			local_sum += lastByte;
+			LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
+		}
 
 		while (local_sum>>16) {
 			local_sum = (local_sum & 0xffff) + (local_sum >> 16);

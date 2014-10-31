@@ -13,7 +13,7 @@
 class PayloadLayer : public Layer
 {
 public:
-	PayloadLayer(uint8_t* data, size_t dataLen, Layer* prevLayer) : Layer(data, dataLen, prevLayer) {}
+	PayloadLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) {}
 	PayloadLayer(const uint8_t* data, size_t dataLen, bool selfAllocated);
 	~PayloadLayer() {}
 

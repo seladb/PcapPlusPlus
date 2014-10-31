@@ -25,7 +25,7 @@ struct vlan_header {
 class VlanLayer : public Layer
 {
 public:
-	VlanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer) : Layer(data, dataLen, prevLayer) { m_Protocol = VLAN; }
+	VlanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = VLAN; }
 	VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t etherType);
 	~VlanLayer() {}
 

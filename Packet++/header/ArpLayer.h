@@ -28,7 +28,7 @@ enum ArpOpcode
 class ArpLayer : public Layer
 {
 public:
-	ArpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer) : Layer(data, dataLen, prevLayer) { m_Protocol = ARP; }
+	ArpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = ARP; }
 	ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr, const IPv4Address senderIpAddr, const IPv4Address& targetIpAddr);
 	~ArpLayer() {}
 

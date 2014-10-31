@@ -34,19 +34,19 @@ void EthLayer::parseNextLayer()
 	switch (ntohs(hdr->etherType))
 	{
 	case ETHERTYPE_IP:
-		m_NextLayer = new IPv4Layer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this);
+		m_NextLayer = new IPv4Layer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
 	case ETHERTYPE_IPV6:
-		m_NextLayer = new IPv6Layer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this);
+		m_NextLayer = new IPv6Layer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
 	case ETHERTYPE_ARP:
-		m_NextLayer = new ArpLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this);
+		m_NextLayer = new ArpLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
 	case ETHERTYPE_VLAN:
-		m_NextLayer = new VlanLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this);
+		m_NextLayer = new VlanLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
 	default:
-		m_NextLayer = new PayloadLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this);
+		m_NextLayer = new PayloadLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 	}
 
 }

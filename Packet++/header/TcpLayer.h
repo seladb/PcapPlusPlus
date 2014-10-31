@@ -126,7 +126,7 @@ struct TcpOptionData
 class TcpLayer : public Layer
 {
 public:
-	TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer);
+	TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	TcpLayer(int tcpOptionsCount, ...);
 	TcpLayer(uint16_t portSrc, uint16_t portDst, int tcpOptionsCount, ...);
 	~TcpLayer();

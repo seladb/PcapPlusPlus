@@ -53,7 +53,7 @@ enum IPProtocolTypes
 class IPv4Layer : public Layer
 {
 public:
-	IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer) : Layer(data, dataLen, prevLayer) { m_Protocol = IPv4; }
+	IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = IPv4; }
 	IPv4Layer();
 	IPv4Layer(const IPv4Address& srcIP, const IPv4Address& dstIP);
 

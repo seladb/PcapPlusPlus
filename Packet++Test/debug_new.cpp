@@ -170,7 +170,6 @@ static char* canReadAndEexcAddr(unsigned long addr, unsigned long *pStartAddr)
 
     if(!pmap_line_head)
     {
-    	printf("Elad: pmap_line_head is 0\n");
         return 0;
     }
 
@@ -184,7 +183,6 @@ static char* canReadAndEexcAddr(unsigned long addr, unsigned long *pStartAddr)
             } else {
                 *pStartAddr = line->vm_start;
             }
-            printf("Elad: returning line->path: %s\n", line->path);
             return line->path;
         }
         line=line->next;
@@ -192,7 +190,6 @@ static char* canReadAndEexcAddr(unsigned long addr, unsigned long *pStartAddr)
 
     printf("cannot read address %#08lx\n",addr);
 
-    printf("Elad: returning null\n");
     return NULL;
 
 }
@@ -269,7 +266,6 @@ bool locate_addr(char* file, int* line)
     char* colon_index = NULL;
     bool  result = false;
 
-    printf("Elad: got to locate_addr\n");
     if (!pmap_line_head) {
         getpmaps(getpid());
     }
@@ -282,7 +278,6 @@ bool locate_addr(char* file, int* line)
             colon_index = strrchr(last_info, ':');
             if (!colon_index) {
                 printf("ERR:last_info: %s\n", last_info);
-                printf("Elad: !colon_index\n");
                 return false;
             }
             *line = atoi(colon_index + 1);
@@ -290,7 +285,6 @@ bool locate_addr(char* file, int* line)
             slash_index = strrchr(last_info, '/');
             if (!slash_index) {
                 printf("ERR:last_info: %s\n", last_info);
-                printf("Elad: !slash_index\n");
                 return false;
             }
             strcpy(file, slash_index + 1);
@@ -301,10 +295,8 @@ bool locate_addr(char* file, int* line)
             *line = 0;
         }
     } else {
-    	printf("Elad: program_path is null\n");
         return false;
     }
-    printf("Elad: return true\n");
     return true;
 }
 
@@ -326,10 +318,8 @@ bool check_leaks()
                     	ret = locate_addr(ptr->file, &ptr->line);
                     }
                     else {
-                    	printf("Elad: !ptr->line\n");
                     }
 					if (ret) {
-						printf("Elad: ret returned true\n");
 								printf("Leaked object at %p (size %u, %s:%d)\n",
 												(char*)ptr + sizeof(new_ptr_list_t),
 												ptr->size,
@@ -337,7 +327,6 @@ bool check_leaks()
 												ptr->line);
 					}
 					else {
-						printf("Elad: ret returned false\n");
 								printf("Leaked object at %p (size %u, %s:%d)\n",
 												(char*)ptr + sizeof(new_ptr_list_t),
 												ptr->size,

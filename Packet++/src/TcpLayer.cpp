@@ -150,7 +150,7 @@ void TcpLayer::initLayer(int tcpOptionsCount, va_list paramsList)
 	}
 }
 
-TcpLayer::TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer) : Layer(data, dataLen, prevLayer)
+TcpLayer::TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 {
 	m_Protocol = TCP;
 	m_TcpOptionsInLayerLen = 0;
@@ -201,9 +201,9 @@ void TcpLayer::parseNextLayer()
 	tcphdr* tcpHder = getTcpHeader();
 	uint16_t portDst = ntohs(tcpHder->portDst);
 	if ((portDst == 80 || portDst == 8080) && HttpRequestFirstLine::parseMethod((char*)(m_Data + m_HeaderLen), m_DataLen - m_HeaderLen) != HttpRequestLayer::HttpMethodUnknown)
-		m_NextLayer = new HttpRequestLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this);
+		m_NextLayer = new HttpRequestLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
 	else
-		m_NextLayer = new PayloadLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this);
+		m_NextLayer = new PayloadLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
 }
 
 void TcpLayer::computeCalculateFields()

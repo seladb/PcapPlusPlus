@@ -8,6 +8,7 @@
 #include <ArpLayer.h>
 #include <UdpLayer.h>
 #include <TcpLayer.h>
+#include <HttpLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -44,9 +45,9 @@
 #define PACKETPP_RUN_TEST(TestName) allTestsPassed &= TestName()
 #define PACKETPP_END_RUNNING_TESTS \
 		if (allTestsPassed) \
-			printf("ALL TESTS PASSED!!\n"); \
+			printf("ALL TESTS PASSED!!\n\n\n"); \
 		else \
-			printf("NOT ALL TESTS PASSED!!\n");
+			printf("NOT ALL TESTS PASSED!!\n\n\n");
 
 int getFileLength(const char* filename)
 {
@@ -852,6 +853,174 @@ PACKETPP_TEST(RemoveLayerTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(HttpLayerParsingTest)
+{
+	// This is a basic parsing test
+	// A much wider test is in Pcap++Test
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet httpPacket(&rawPacket);
+
+	PACKETPP_ASSERT(httpPacket.isPacketOfType(HTTPRequest), "Packet isn't of type HTTPRequest");
+	HttpRequestLayer* requestLayer = (HttpRequestLayer*)httpPacket.getLayerOfType(HTTPRequest);
+	PACKETPP_ASSERT(requestLayer != NULL, "Couldn't get HttpRequestLayer from packet");
+
+	PACKETPP_ASSERT(requestLayer->getFirstLine()->getMethod() == HttpRequestLayer::HttpGET, "Request method isn't GET");
+	PACKETPP_ASSERT(requestLayer->getFirstLine()->getVersion() == OneDotOne, "Request version isn't HTTP/1.1");
+	PACKETPP_ASSERT(requestLayer->getFirstLine()->getUri() == "/home/0,7340,L-8,00.html", "Parsed URI is different than expected");
+
+	HttpField* userAgent = requestLayer->getFieldByName(HTTP_USER_AGENT_FIELD);
+	PACKETPP_ASSERT(userAgent != NULL, "Couldn't retrieve user-agent field");
+	PACKETPP_ASSERT(userAgent->getFieldValue().find("Safari/537.36") != std::string::npos, "User-agent field doesn't contain 'Safari/537.36'");
+
+	PACKETPP_ASSERT(requestLayer->getUrl() == "www.ynet.co.il/home/0,7340,L-8,00.html", "Got wrong URL from layer, url is: '%s'", requestLayer->getUrl().c_str());
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(HttpLayerCreationTest)
+{
+	Packet httpPacket(10);
+
+	MacAddress srcMac("6c:f0:49:b2:de:6e");
+	MacAddress dstMac("30:46:9a:23:fb:fa");
+	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	PACKETPP_ASSERT(httpPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
+
+	IPv4Address ipSrc(string("10.0.0.1"));
+	IPv4Address ipDst(string("212.199.202.60"));
+	IPv4Layer ip4Layer(ipSrc, ipDst);
+	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
+	ip4Layer.getIPv4Header()->ipId = htons(0x758d);
+	ip4Layer.getIPv4Header()->timeToLive = 128;
+	ip4Layer.getIPv4Header()->fragmentOffset = htons(0x4000);
+	PACKETPP_ASSERT(httpPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
+
+	TcpLayer tcpLayer((uint16_t)60378, (uint16_t)80, 0);
+	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x205a2eac);
+	tcpLayer.getTcpHeader()->ackNumber = htonl(0x1c57aab9);
+	tcpLayer.getTcpHeader()->windowSize = htons(16600);
+	tcpLayer.getTcpHeader()->pshFlag = 1;
+	tcpLayer.getTcpHeader()->ackFlag = 1;
+	PACKETPP_ASSERT(httpPacket.addLayer(&tcpLayer), "Adding TCP layer failed");
+
+	HttpRequestLayer httpLayer(HttpRequestLayer::HttpOPTIONS, "/home/0,7340,L-8,00", OneDotOne);
+	PACKETPP_ASSERT(httpLayer.addField(HTTP_ACCEPT_FIELD, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8") != NULL, "Couldn't add ACCEPT field");
+	PACKETPP_ASSERT(httpLayer.addField("Dummy-Field", "some value") != NULL, "Couldn't add Dummy-Field field");
+	HttpField* hostField = httpLayer.insertField(NULL, HTTP_HOST_FIELD, "www.ynet-ynet.co.il");
+	PACKETPP_ASSERT(hostField != NULL, "Couldn't insert HOST field");
+	PACKETPP_ASSERT(httpLayer.insertField(hostField, HTTP_CONNECTION_FIELD, "keep-alive") != NULL, "Couldn't add CONNECTION field");
+	HttpField* userAgentField = httpLayer.addField(HTTP_USER_AGENT_FIELD, "(Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
+	httpLayer.getFirstLine()->setUri("bla.php");
+	PACKETPP_ASSERT(userAgentField != NULL, "Couldn't add USER-AGENT field");
+	PACKETPP_ASSERT(httpLayer.addField(HTTP_ACCEPT_LANGUAGE_FIELD, "en-US,en;q=0.8") != NULL, "Couldn't add ACCEPT-LANGUAGE field");
+	PACKETPP_ASSERT(httpLayer.addField("Dummy-Field2", "Dummy Value2") != NULL, "Couldn't add Dummy-Field2");
+	PACKETPP_ASSERT(httpLayer.removeField("Dummy-Field") == true, "Couldn't remove Dummy-Field");
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(httpLayer.removeField("Kuku") == false, "Wrongly succeeded to delete a field that doesn't exist");
+	LoggerPP::getInstance().enableErrors();
+	PACKETPP_ASSERT(httpLayer.addEndOfHeader() != NULL, "Couldn't add end of HTTP header");
+	PACKETPP_ASSERT(httpLayer.insertField(userAgentField, HTTP_ACCEPT_ENCODING_FIELD, "gzip,deflate,sdch"), "Couldn't insert ACCEPT-ENCODING field");
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(httpLayer.addField("Kuku", "Muku") == NULL, "Wrongly succeeded to add a field after end of header");
+	LoggerPP::getInstance().enableErrors();
+	hostField->setFieldValue("www.walla.co.il");
+
+
+	PACKETPP_ASSERT(httpPacket.addLayer(&httpLayer), "Adding HTTP request layer failed");
+	hostField->setFieldValue("www.ynet.co.il");
+	httpLayer.getFirstLine()->setMethod(HttpRequestLayer::HttpGET);
+	httpLayer.getFirstLine()->setUri("/home/0,7340,L-8,00.html");
+	PACKETPP_ASSERT(httpLayer.removeField("Dummy-Field2") == true, "Couldn't remove Dummy-Field2");
+	userAgentField->setFieldValue("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
+
+	httpPacket.computeCalculateFields();
+
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+//	printf("\n\n\n");
+//	for(int i = 54; i<bufferLength; i++)
+//	{
+//		if (buffer[i] == '\r')
+//			printf("\\r");
+//		else if (buffer[i] == '\n')
+//			printf("\\n\n");
+//		else
+//			printf("%c", buffer[i]);
+//	}
+//	printf("\n\n\n");
+//	for(int i = 54; i<httpPacket.getRawPacket()->getRawDataLen(); i++)
+//	{
+//		if (httpPacket.getRawPacket()->getRawData()[i] == '\r')
+//			printf("\\r");
+//		else if (httpPacket.getRawPacket()->getRawData()[i] == '\n')
+//			printf("\\n\n");
+//		else
+//			printf("%c", httpPacket.getRawPacket()->getRawData()[i]);
+//	}
+//	printf("\n\n\n");
+
+	PACKETPP_ASSERT(bufferLength == httpPacket.getRawPacket()->getRawDataLen(), "Raw packet length (%d) != expected length (%d)", httpPacket.getRawPacket()->getRawDataLen(), bufferLength);
+
+	PACKETPP_ASSERT(memcmp(buffer, httpPacket.getRawPacket()->getRawData(), bufferLength) == 0, "Constructed packet data is different than expected");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(HttpLayerEditTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet httpRequest(&rawPacket);
+
+	IPv4Layer* ip4Layer = (IPv4Layer*)httpRequest.getLayerOfType(IPv4);
+	ip4Layer->getIPv4Header()->ipId = htons(30170);
+
+	TcpLayer* tcpLayer = (TcpLayer*)httpRequest.getLayerOfType(TCP);
+	tcpLayer->getTcpHeader()->portSrc = htons(60383);
+	tcpLayer->getTcpHeader()->sequenceNumber = htonl(0x876143cb);
+	tcpLayer->getTcpHeader()->ackNumber = htonl(0xa66ed328);
+	tcpLayer->getTcpHeader()->windowSize = htons(16660);
+
+	HttpRequestLayer* httpReqLayer = (HttpRequestLayer*)httpRequest.getLayerOfType(HTTPRequest);
+	PACKETPP_ASSERT(httpReqLayer->getFirstLine()->setUri("/Common/Api/Video/CmmLightboxPlayerJs/0,14153,061014181713,00.js") == true, "Couldn't change URI");
+	HttpField* acceptField = httpReqLayer->getFieldByName(HTTP_ACCEPT_FIELD);
+	PACKETPP_ASSERT(acceptField != NULL, "Cannot find ACCEPT field");
+	acceptField->setFieldValue("*/*");
+	HttpField* userAgentField = httpReqLayer->getFieldByName(HTTP_USER_AGENT_FIELD);
+	PACKETPP_ASSERT(userAgentField != NULL, "Cannot find USER-AGENT field");
+	httpReqLayer->insertField(userAgentField, HTTP_REFERER_FIELD, "http://www.ynet.co.il/home/0,7340,L-8,00.html");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/TwoHttpRequests2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file");
+
+	PACKETPP_ASSERT(buffer2Length == httpRequest.getRawPacket()->getRawDataLen(), "Raw packet length (%d) != expected length (%d)", httpRequest.getRawPacket()->getRawDataLen(), buffer2Length);
+
+	httpRequest.computeCalculateFields();
+
+	PACKETPP_ASSERT(memcmp(buffer2, httpRequest.getRawPacket()->getRawData(), buffer2Length) == 0, "Constructed packet data is different than expected");
+
+	PACKETPP_TEST_PASSED;
+}
+
+
 int main(int argc, char* argv[]) {
 	PACKETPP_START_RUNNING_TESTS;
 
@@ -870,7 +1039,9 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(InsertDataToPacket);
 	PACKETPP_RUN_TEST(InsertVlanToPacket);
 	PACKETPP_RUN_TEST(RemoveLayerTest);
+	PACKETPP_RUN_TEST(HttpLayerParsingTest);
+	PACKETPP_RUN_TEST(HttpLayerCreationTest);
+	PACKETPP_RUN_TEST(HttpLayerEditTest);
 
-	check_leaks();
 	PACKETPP_END_RUNNING_TESTS;
 }

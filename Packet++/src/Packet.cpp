@@ -29,7 +29,7 @@ Packet::Packet(RawPacket* rawPacket) :
 	m_FreeRawPacket(false)
 {
 	m_RawPacket = rawPacket;
-	m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen());
+	m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	m_LastLayer = m_FirstLayer;
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != NULL)
@@ -76,7 +76,13 @@ bool Packet::addLayer(Layer* newLayer)
 
 bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer)
 {
-	if (newLayer->m_DataAllocatedToPacket)
+	if (newLayer == NULL)
+	{
+		LOG_ERROR("Layer to add is NULL");
+		return false;
+	}
+
+	if (newLayer->isAllocatedToPacket())
 	{
 		LOG_ERROR("Layer is already allocated to another packet. Cannot use layer in more than one packet");
 		return false;
@@ -121,7 +127,7 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer)
 		m_LastLayer = newLayer;
 
 	// assign layer with this packet only
-	newLayer->m_DataAllocatedToPacket = true;
+	newLayer->m_Packet = this;
 
 	// re-calculate all layers data ptr and data length
 	const uint8_t* dataPtr = m_RawPacket->getRawData();
@@ -151,7 +157,7 @@ bool Packet::removeLayer(Layer* layer)
 	}
 
 	// verify layer is allocated to a packet
-	if (!layer->m_DataAllocatedToPacket)
+	if (!layer->isAllocatedToPacket())
 	{
 		LOG_ERROR("Layer isn't allocated to any packet");
 		return false;
@@ -214,6 +220,97 @@ bool Packet::removeLayer(Layer* layer)
 	return true;
 }
 
+bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExtend)
+{
+	if (layer == NULL)
+	{
+		LOG_ERROR("Layer is NULL");
+		return false;
+	}
+
+	// verify layer is allocated to this packet
+	if (!(layer->m_Packet == this))
+	{
+		LOG_ERROR("Layer isn't allocated to this packet");
+		return false;
+	}
+
+	if (m_RawPacket->getRawDataLen() + numOfBytesToExtend > m_MaxPacketLen)
+	{
+		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
+		if (m_RawPacket->getRawDataLen() + numOfBytesToExtend > m_MaxPacketLen*2)
+			reallocateRawData(m_RawPacket->getRawDataLen() + numOfBytesToExtend + m_MaxPacketLen);
+		else
+			reallocateRawData(m_MaxPacketLen*2);
+	}
+
+	// insert layer data to raw packet
+	int indexToInsertData = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
+	uint8_t tempData[numOfBytesToExtend];
+	m_RawPacket->insertData(indexToInsertData, tempData, numOfBytesToExtend);
+
+	// re-calculate all layers data ptr and data length
+	const uint8_t* dataPtr = m_RawPacket->getRawData();
+	int dataLen = m_RawPacket->getRawDataLen();
+
+	Layer* curLayer = m_FirstLayer;
+	while (curLayer != NULL)
+	{
+		curLayer->m_Data = (uint8_t*)dataPtr;
+		curLayer->m_DataLen = dataLen;
+		// assuming header length of the layer that requested to be extended hasn't been enlarged yet
+		size_t headerLen = curLayer->getHeaderLen() + (curLayer == layer ? numOfBytesToExtend : 0);
+		dataPtr += headerLen;
+		dataLen -= headerLen;
+		curLayer = curLayer->getNextLayer();
+	}
+
+	return true;
+}
+
+bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToShorten)
+{
+	if (layer == NULL)
+	{
+		LOG_ERROR("Layer is NULL");
+		return false;
+	}
+
+	// verify layer is allocated to this packet
+	if (!(layer->m_Packet == this))
+	{
+		LOG_ERROR("Layer isn't allocated to this packet");
+		return false;
+	}
+
+	// remove data from raw packet
+	int indexOfDataToRemove = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
+	if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToShorten))
+	{
+		LOG_ERROR("Couldn't remove data from packet");
+		return false;
+	}
+
+	// re-calculate all layers data ptr and data length
+	const uint8_t* dataPtr = m_RawPacket->getRawData();
+	int dataLen = m_RawPacket->getRawDataLen();
+
+	Layer* curLayer = m_FirstLayer;
+	while (curLayer != NULL)
+	{
+		curLayer->m_Data = (uint8_t*)dataPtr;
+		curLayer->m_DataLen = dataLen;
+		// assuming header length of the layer that requested to be extended hasn't been enlarged yet
+		size_t headerLen = curLayer->getHeaderLen() - (curLayer == layer ? numOfBytesToShorten : 0);
+		dataPtr += headerLen;
+		dataLen -= headerLen;
+		curLayer = curLayer->getNextLayer();
+	}
+
+	return true;
+}
+
+
 Layer* Packet::getLayerOfType(ProtocolType type)
 {
 	if (m_FirstLayer->m_Protocol == type)
@@ -241,11 +338,13 @@ Layer* Packet::getNextLayerOfType(Layer* after, ProtocolType type)
 
 void Packet::computeCalculateFields()
 {
-	Layer* curLayer = m_FirstLayer;
+	// calculated fields should be calculated from top layer to bottom layer
+
+	Layer* curLayer = m_LastLayer;
 	while (curLayer != NULL)
 	{
 		curLayer->computeCalculateFields();
-		curLayer = curLayer->getNextLayer();
+		curLayer = curLayer->getPrevLayer();
 	}
 }
 

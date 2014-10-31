@@ -4,13 +4,18 @@
 #include "HttpLayer.h"
 #include "PayloadLayer.h"
 #include <string.h>
+#include <algorithm>
 
-HttpMessage::HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer) : Layer(data, dataLen, prevLayer),
-						m_FieldList(NULL), m_LastField(NULL) {}
 
-void HttpMessage::parseFields(int fieldsOffset)
+// -------- Class HttpMessage -----------------
+
+
+HttpMessage::HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet),
+						m_FieldList(NULL), m_LastField(NULL), m_FieldsOffset(0) {}
+
+void HttpMessage::parseFields()
 {
-	HttpField* firstField = new HttpField(this, fieldsOffset);
+	HttpField* firstField = new HttpField(this, m_FieldsOffset);
 	LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", firstField->getFieldName().c_str(), firstField->m_NameOffsetInMessage, firstField->getFieldSize());
 	LOG_DEBUG("     Field value = %s", firstField->getFieldValue().c_str());
 
@@ -19,9 +24,13 @@ void HttpMessage::parseFields(int fieldsOffset)
 	else
 		m_FieldList->setNextField(firstField);
 
+	std::string fieldName = firstField->getFieldName();
+	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
+	m_FieldNameToFieldMap[fieldName] = firstField;
+
 	// Last field will be empty and contain just "\n" or "\r\n". This field will mark the end of the header
 	HttpField* curField = m_FieldList;
-	int curOffset = fieldsOffset;
+	int curOffset = m_FieldsOffset;
 	// last field can be one of:
 	// a.) \r\n\r\n or \n\n marking the end of the header
 	// b.) the end of the packet
@@ -33,10 +42,14 @@ void HttpMessage::parseFields(int fieldsOffset)
 		LOG_DEBUG("     Field value = %s", newField->getFieldValue().c_str());
 		curField->setNextField(newField);
 		curField = curField->getNextField();
+		fieldName = newField->getFieldName();
+		std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
+		m_FieldNameToFieldMap[fieldName] = newField;
 	}
 
 	m_LastField = curField;
 }
+
 
 HttpMessage::~HttpMessage()
 {
@@ -48,34 +61,199 @@ HttpMessage::~HttpMessage()
 	}
 }
 
-HttpField* HttpMessage::getFieldByName(std::string fieldName)
-{
-	//TODO make it better and more efficient
 
-	HttpField* curField = m_FieldList;
-	while (curField != NULL)
+HttpField* HttpMessage::addField(const std::string& fieldName, const std::string& fieldValue)
+{
+	HttpField newField(fieldName, fieldValue);
+	return addField(newField);
+}
+
+HttpField* HttpMessage::addField(const HttpField& newField)
+{
+	// field will always be added before the last field, assuming last field is the end of header
+	// TODO: needed to change this behavior??
+//
+//	if (m_FieldList == m_LastField)
+//		return insertField(NULL, newField);
+//
+//	HttpField* curField = m_FieldList;
+//	while (curField->getNextField() != m_LastField)
+//		curField = curField->getNextField();
+//
+//	return insertField(curField, newField);
+
+	return insertField(m_LastField, newField);
+}
+
+HttpField* HttpMessage::addEndOfHeader()
+{
+	HttpField endOfHeaderField(END_OF_HTTP_HEADER, "");
+	return insertField(m_LastField, endOfHeaderField);
+}
+
+
+HttpField* HttpMessage::insertField(HttpField* prevField, const std::string& fieldName, const std::string& fieldValue)
+{
+	HttpField newField(fieldName, fieldValue);
+	return insertField(prevField, newField);
+}
+
+
+HttpField* HttpMessage::insertField(HttpField* prevField, const HttpField& newField)
+{
+	if (newField.m_HttpMessage != NULL)
 	{
-		if (curField->getFieldName() == fieldName)
-			return curField;
-		curField = curField->getNextField();
+		LOG_ERROR("This field is already associated with another message");
+		return NULL;
 	}
 
-	return NULL;
+	if (prevField != NULL && prevField->getFieldName() == END_OF_HTTP_HEADER)
+	{
+		LOG_ERROR("Cannot add a field after end of header");
+		return NULL;
+	}
+
+	HttpField* newFieldToAdd = new HttpField(newField);
+
+	int newFieldOffset = m_FieldsOffset;
+	if (prevField != NULL)
+		newFieldOffset = prevField->m_NameOffsetInMessage + prevField->getFieldSize();
+
+	// extend layer to make room for the new field. Field will be added just before the last field
+	extendLayer(newFieldOffset, newFieldToAdd->getFieldSize());
+
+	HttpField* curField = m_FieldList;
+	if (prevField != NULL)
+		curField = prevField->getNextField();
+
+	// go over all fields after prevField and update their offsets
+	shiftFieldsOffset(curField, newFieldToAdd->getFieldSize());
+
+	// copy new field data to message
+	memcpy(m_Data + newFieldOffset, newFieldToAdd->m_NewFieldData, newFieldToAdd->getFieldSize());
+
+	// attach new field to message
+	newFieldToAdd->attachToHttpMessage(this, newFieldOffset);
+
+	// insert field into fields link list
+	if (prevField == NULL)
+	{
+		newFieldToAdd->setNextField(m_FieldList);
+		m_FieldList = newFieldToAdd;
+	}
+	else
+	{
+		newFieldToAdd->setNextField(prevField->getNextField());
+		prevField->setNextField(newFieldToAdd);
+	}
+
+	// if newField is the last field, update m_LastField
+	if (newFieldToAdd->getNextField() == NULL)
+		m_LastField = newFieldToAdd;
+
+	// insert the new field into name to field map
+	std::string fieldName = newFieldToAdd->getFieldName();
+	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
+	m_FieldNameToFieldMap[fieldName] = newFieldToAdd;
+
+	return newFieldToAdd;
 }
 
-void HttpMessage::addField(HttpField& newField)
+bool HttpMessage::removeField(std::string fieldName)
 {
-	//TODO
+	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
+	HttpField* fieldToRemove = m_FieldNameToFieldMap[fieldName];
+	if (fieldToRemove != NULL)
+		return removeField(fieldToRemove);
+	else
+	{
+		LOG_ERROR("Cannot find field '%s'", fieldName.c_str());
+		return false;
+	}
 }
 
-void HttpMessage::insertField(const HttpField* prevField, HttpField& newField)
+bool HttpMessage::removeField(HttpField* fieldToRemove)
 {
-	//TODO
+	if (fieldToRemove == NULL)
+		return true;
+
+	if (fieldToRemove->m_HttpMessage != this)
+	{
+		LOG_ERROR("Field isn't associated with this HTTP message");
+		return false;
+	}
+
+	// shorten layer and delete this field
+	if (!shortenLayer(fieldToRemove->m_NameOffsetInMessage, fieldToRemove->getFieldSize()))
+	{
+		LOG_ERROR("Cannot shorten layer");
+		return false;
+	}
+
+	// update offsets of all fields after this field
+	HttpField* curField = fieldToRemove->getNextField();
+	shiftFieldsOffset(curField, 0-fieldToRemove->getFieldSize());
+//	while (curField != NULL)
+//	{
+//		curField->m_NameOffsetInMessage -= fieldToRemove->getFieldSize();
+//		if (curField->m_ValueOffsetInMessage != -1)
+//			curField->m_ValueOffsetInMessage -= fieldToRemove->getFieldSize();
+//
+//		curField = curField->getNextField();
+//	}
+
+	// update fields link list
+	if (fieldToRemove == m_FieldList)
+		m_FieldList = m_FieldList->getNextField();
+	else
+	{
+		curField = m_FieldList;
+		while (curField->getNextField() != fieldToRemove)
+			curField = curField->getNextField();
+
+		curField->setNextField(fieldToRemove->getNextField());
+	}
+
+	// re-calculate m_LastField if needed
+	if (fieldToRemove == m_LastField)
+	{
+		if (m_FieldList == NULL)
+			m_LastField = NULL;
+		else
+		{
+			curField = m_FieldList;
+			while (curField->getNextField() != NULL)
+				curField = curField->getNextField();
+			m_LastField = curField;
+		}
+	}
+
+	// remove the hash entry for this field
+	std::string fieldName = fieldToRemove->getFieldName();
+	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
+	m_FieldNameToFieldMap.erase(fieldName);
+
+	// finally - delete this field
+	delete fieldToRemove;
+
+	return true;
 }
 
-void HttpMessage::removeField(HttpField* fieldToRemove)
+void HttpMessage::shiftFieldsOffset(HttpField* fromField, int numOfBytesToShift)
 {
-	//TODO
+	while (fromField != NULL)
+	{
+		fromField->m_NameOffsetInMessage += numOfBytesToShift;
+		if (fromField->m_ValueOffsetInMessage != -1)
+			fromField->m_ValueOffsetInMessage += numOfBytesToShift;
+		fromField = fromField->getNextField();
+	}
+}
+
+HttpField* HttpMessage::getFieldByName(std::string fieldName)
+{
+	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
+	return m_FieldNameToFieldMap[fieldName];
 }
 
 void HttpMessage::parseNextLayer()
@@ -89,15 +267,20 @@ void HttpMessage::parseNextLayer()
 
 size_t HttpMessage::getHeaderLen()
 {
-	return (m_LastField->m_NewFieldData + m_LastField->m_FieldSize - m_Data);
+	return m_LastField->m_NameOffsetInMessage + m_LastField->m_FieldSize;
 }
 
 void HttpMessage::computeCalculateFields()
 {
-	//TODO
+	//nothing to do for now
 }
 
 
+
+
+
+
+// -------- Class HttpField -----------------
 
 
 HttpField::HttpField(HttpMessage* httpMessage, int offsetInMessage) : m_NewFieldData(NULL), m_HttpMessage(httpMessage), m_NameOffsetInMessage(offsetInMessage), m_NextField(NULL)
@@ -158,25 +341,45 @@ HttpField::HttpField(HttpMessage* httpMessage, int offsetInMessage) : m_NewField
 				if ((*(--fieldEndPtr)) == '\r')
 					m_FieldValueSize--;
 			}
-
-
 		}
 	}
-
-
 }
 
-HttpField::HttpField(std::string name, std::string value) : m_HttpMessage(NULL), m_NameOffsetInMessage(0), m_NextField(NULL)
+HttpField::HttpField(std::string name, std::string value)
 {
-	// Field size is: name_length + ':' + space + value_length + '\n'
-	m_FieldSize = name.length() + value.length() + 3;
+	initNewField(name, value);
+}
+
+void HttpField::initNewField(std::string name, std::string value)
+{
+	m_HttpMessage = NULL;
+	m_NameOffsetInMessage = 0;
+	m_NextField = NULL;
+
+	// Field size is: name_length + ':' + space + value_length + '\r\n'
+	if (name != END_OF_HTTP_HEADER)
+		m_FieldSize = name.length() + value.length() + 4;
+	else
+	// Field is \r\n (2B)
+		m_FieldSize = 2;
 	m_NewFieldData = new uint8_t[m_FieldSize];
-	std::string fieldData = name + ": " + value + "\n";
+	std::string fieldData;
+	if (name != END_OF_HTTP_HEADER)
+		fieldData = name + ": " + value + "\r\n";
+	else
+		fieldData = "\r\n";
 	memcpy(m_NewFieldData, fieldData.c_str(), m_FieldSize);
-	m_ValueOffsetInMessage = name.length() + 2;
+	if (name != END_OF_HTTP_HEADER)
+		m_ValueOffsetInMessage = name.length() + 2;
+	else
+		m_ValueOffsetInMessage = 0;
 	m_FieldNameSize = name.length();
 	m_FieldValueSize = value.length();
-	m_IsEndOfHeaderField = false;
+
+	if (name != END_OF_HTTP_HEADER)
+		m_IsEndOfHeaderField = false;
+	else
+		m_IsEndOfHeaderField = true;
 }
 
 HttpField::~HttpField()
@@ -185,49 +388,148 @@ HttpField::~HttpField()
 		delete [] m_NewFieldData;
 }
 
-char* HttpField::getFieldData()
+HttpField::HttpField(const HttpField& other)
+{
+	initNewField(other.getFieldName(), other.getFieldValue());
+}
+
+char* HttpField::getData()
 {
 	if (m_HttpMessage == NULL)
 		return (char*)m_NewFieldData;
 	else
-		return (char*)(m_HttpMessage->m_Data + m_NameOffsetInMessage);
+		return (char*)(m_HttpMessage->m_Data);
 }
 
-std::string HttpField::getFieldName()
+std::string HttpField::getFieldName() const
 {
 	std::string result;
-	if (m_FieldNameSize != -1)
-		result.assign((const char*)getFieldData(), m_FieldNameSize);
-	else
-		result = "END OF HEADER";
+
+	if (m_FieldNameSize != (size_t)-1)
+		result.assign((const char*)(((HttpField*)this)->getData() + m_NameOffsetInMessage), m_FieldNameSize);
 
 	return result;
 }
 
-std::string HttpField::getFieldValue()
+std::string HttpField::getFieldValue() const
 {
 	std::string result;
 	if (m_ValueOffsetInMessage != -1)
-		result.assign((const char*)(m_HttpMessage->m_Data + m_ValueOffsetInMessage), m_FieldValueSize);
+		result.assign((const char*)(((HttpField*)this)->getData() + m_ValueOffsetInMessage), m_FieldValueSize);
 	return result;
 }
 
-void HttpField::setFieldValue(std::string newValue)
+bool HttpField::setFieldValue(std::string newValue)
 {
-	//TODO
+	// Field isn't linked with any http message yet
+	if (m_HttpMessage == NULL)
+	{
+		std::string name = getFieldName();
+		delete [] m_NewFieldData;
+		initNewField(name, newValue);
+		return true;
+	}
+
+	std::string curValue = getFieldValue();
+	int lengthDifference = newValue.length() - curValue.length();
+	// new value is longer than current value
+	if (lengthDifference > 0)
+	{
+		if (!m_HttpMessage->extendLayer(m_ValueOffsetInMessage, lengthDifference))
+		{
+			LOG_ERROR("Could not extend HTTP layer");
+			return false;
+		}
+	}
+	// new value is shorter than current value
+	else if (lengthDifference < 0)
+	{
+		if (!m_HttpMessage->shortenLayer(m_ValueOffsetInMessage, 0-lengthDifference))
+		{
+			LOG_ERROR("Could not shorten HTTP layer");
+			return false;
+		}
+	}
+
+	if (lengthDifference != 0)
+		m_HttpMessage->shiftFieldsOffset(getNextField(), lengthDifference);
+
+	// update sizes
+	m_FieldValueSize += lengthDifference;
+	m_FieldSize += lengthDifference;
+
+	// write new value to field data
+	memcpy(getData() + m_ValueOffsetInMessage, newValue.c_str(), newValue.length());
+
+	return true;
+}
+
+void HttpField::attachToHttpMessage(HttpMessage* message, int fieldOffsetInMessage)
+{
+	if (m_HttpMessage != NULL && m_HttpMessage != message)
+	{
+		LOG_ERROR("HTTP field already associated with another message");
+		return;
+	}
+
+	if (m_NewFieldData == NULL)
+	{
+		LOG_ERROR("HTTP field doesn't have new field data");
+		return;
+	}
+
+	delete [] m_NewFieldData;
+	m_NewFieldData = NULL;
+	m_HttpMessage = message;
+
+	int valueAndNameDifference = m_ValueOffsetInMessage - m_NameOffsetInMessage;
+	m_NameOffsetInMessage = fieldOffsetInMessage;
+	m_ValueOffsetInMessage = m_NameOffsetInMessage + valueAndNameDifference;
 }
 
 
 
 
-HttpRequestLayer::HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer) : HttpMessage(data, dataLen, prevLayer)
+
+
+// -------- Class HttpRequestLayer -----------------
+
+HttpRequestLayer::HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : HttpMessage(data, dataLen, prevLayer, packet)
 {
 	m_Protocol = HTTPRequest;
 	m_FirstLine = new HttpRequestFirstLine(this);
-	parseFields(m_FirstLine->getSize());
+	m_FieldsOffset = m_FirstLine->getSize();
+	parseFields();
+}
+
+HttpRequestLayer::HttpRequestLayer(HttpMethod method, std::string uri, HttpVersion version)
+{
+	m_Protocol = HTTPRequest;
+	m_FirstLine = new HttpRequestFirstLine(this, method, version, uri);
+	m_FieldsOffset = m_FirstLine->getSize();
+}
+
+std::string HttpRequestLayer::getUrl()
+{
+	HttpField* hostField = getFieldByName(HTTP_HOST_FIELD);
+	if (hostField == NULL)
+		return m_FirstLine->getUri();
+
+	return hostField->getFieldValue() + m_FirstLine->getUri();
+}
+
+HttpRequestLayer::~HttpRequestLayer()
+{
+	delete m_FirstLine;
 }
 
 
+
+
+
+
+
+// -------- Class HttpRequestFirstLine -----------------
 
 
 const std::string MethodEnumToString[9] = {
@@ -276,11 +578,38 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	LOG_DEBUG("Method='%s'; HTTP version='%s'; URI='%s'", MethodEnumToString[m_Method].c_str(), VersionEnumToString[m_Version].c_str(), getUri().c_str());
 }
 
-//HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpMethod method, std::string uri = "", HttpVersion version)
-//{
-//
-//
-//}
+HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, std::string uri)
+		throw(HttpRequestFirstLineException)
+{
+	if (method == HttpRequestLayer::HttpMethodUnknown)
+	{
+		m_Exception.setMessage("Method supplied was HttpMethodUnknown");
+		throw m_Exception;
+	}
+
+	if (version == HttpVersionUnknown)
+	{
+		m_Exception.setMessage("Version supplied was HttpVersionUnknown");
+		throw m_Exception;
+	}
+
+	m_HttpRequest = httpRequest;
+
+	m_Method = method;
+	m_Version = version;
+
+	std::string firstLine = MethodEnumToString[m_Method] + " " + uri + " "  + "HTTP/" + VersionEnumToString[m_Version] + "\r\n";
+
+	m_UriOffset =  MethodEnumToString[m_Method].length() + 1;
+	m_FirstLineEndOffset = firstLine.length();
+	m_VersionOffset = m_UriOffset + uri.length() + 6;
+
+	m_HttpRequest->m_DataLen = firstLine.length();
+	m_HttpRequest->m_Data = new uint8_t[m_HttpRequest->m_DataLen];
+	memcpy(m_HttpRequest->m_Data, firstLine.c_str(), m_HttpRequest->m_DataLen);
+
+	m_IsComplete = true;
+}
 
 
 HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(char* data, size_t dataLen)
@@ -429,9 +758,43 @@ void HttpRequestFirstLine::parseVersion()
 	m_VersionOffset = verPos - (char*)m_HttpRequest->m_Data;
 }
 
-void HttpRequestFirstLine::setMethod()
+bool HttpRequestFirstLine::setMethod(HttpRequestLayer::HttpMethod newMethod)
 {
-	//TODO
+	if (newMethod == HttpRequestLayer::HttpMethodUnknown)
+	{
+		LOG_ERROR("Requested method is HttpMethodUnknown");
+		return false;
+	}
+
+	//extend or shorten layer
+	int lengthDifference = MethodEnumToString[newMethod].length() - MethodEnumToString[m_Method].length();
+	if (lengthDifference > 0)
+	{
+		if (!m_HttpRequest->extendLayer(0, lengthDifference))
+		{
+			LOG_ERROR("Cannot change layer size");
+			return false;
+		}
+	}
+	else if (lengthDifference < 0)
+	{
+		if (!m_HttpRequest->shortenLayer(0, 0-lengthDifference))
+		{
+			LOG_ERROR("Cannot change layer size");
+			return false;
+
+		}
+	}
+
+	if (lengthDifference != 0)
+		m_HttpRequest->shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
+
+	memcpy(m_HttpRequest->m_Data, MethodEnumToString[newMethod].c_str(), MethodEnumToString[newMethod].length());
+
+	m_UriOffset += lengthDifference;
+	m_VersionOffset += lengthDifference;
+
+	return true;
 }
 
 std::string HttpRequestFirstLine::getUri()
@@ -445,9 +808,40 @@ std::string HttpRequestFirstLine::getUri()
 	return result;
 }
 
-void HttpRequestFirstLine::setUri(std::string newUri)
+bool HttpRequestFirstLine::setUri(std::string newUri)
 {
-	//TODO
+	// make sure the new URI begins with "/"
+	if (newUri.compare(0, 1, "/") != 0)
+		newUri = "/" + newUri;
+
+	//extend or shorten layer
+	std::string currentUri = getUri();
+	int lengthDifference = newUri.length() - currentUri.length();
+	if (lengthDifference > 0)
+	{
+		if (!m_HttpRequest->extendLayer(m_UriOffset, lengthDifference))
+		{
+			LOG_ERROR("Cannot change layer size");
+			return false;
+		}
+	}
+	else if (lengthDifference < 0)
+	{
+		if (!m_HttpRequest->shortenLayer(m_UriOffset, 0-lengthDifference))
+		{
+			LOG_ERROR("Cannot change layer size");
+			return false;
+		}
+	}
+
+	if (lengthDifference != 0)
+		m_HttpRequest->shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
+
+	memcpy(m_HttpRequest->m_Data + m_UriOffset, newUri.c_str(), newUri.length());
+
+	m_VersionOffset += lengthDifference;
+
+	return true;
 }
 
 void HttpRequestFirstLine::setVersion(HttpVersion newVersion)

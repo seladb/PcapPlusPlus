@@ -28,7 +28,7 @@ struct ip6_hdr {
 class IPv6Layer : public Layer
 {
 public:
-	IPv6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer) : Layer(data, dataLen, prevLayer) { m_Protocol = IPv6; }
+	IPv6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = IPv6; }
 	IPv6Layer();
 	IPv6Layer(const IPv6Address& srcIP, const IPv6Address& dstIP);
 

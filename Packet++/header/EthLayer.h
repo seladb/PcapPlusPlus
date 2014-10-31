@@ -28,7 +28,7 @@ struct ether_header {
 class EthLayer : public Layer
 {
 public:
-	EthLayer(uint8_t* data, size_t dataLen) : Layer(data, dataLen, NULL) { m_Protocol = Ethernet; }
+	EthLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = Ethernet; }
 	EthLayer(MacAddress& sourceMac, MacAddress& destMac, uint16_t etherType);
 	~EthLayer() {}
 

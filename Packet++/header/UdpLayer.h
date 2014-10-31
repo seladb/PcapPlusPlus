@@ -15,7 +15,7 @@ struct udphdr {
 class UdpLayer : public Layer
 {
 public:
-	UdpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer) : Layer(data, dataLen, prevLayer) { m_Protocol = UDP; }
+	UdpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = UDP; }
 	UdpLayer(uint16_t portSrc, uint16_t portDst);
 
 	inline udphdr* getUdpHeader() { return (udphdr*)m_Data; };

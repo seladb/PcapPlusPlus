@@ -38,13 +38,13 @@ void IPv4Layer::parseNextLayer()
 	switch (ipHdr->protocol)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		m_NextLayer = new UdpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this);
+		m_NextLayer = new UdpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_TCP:
-		m_NextLayer = new TcpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this);
+		m_NextLayer = new TcpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;
 	default:
-		m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this);
+		m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		return;
 	}
 }
