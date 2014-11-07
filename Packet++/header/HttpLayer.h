@@ -16,15 +16,21 @@ enum HttpVersion
 
 // some popular HTTP fields
 
-#define HTTP_HOST_FIELD 			"Host"
-#define HTTP_CONNECTION_FIELD 		"Connection"
-#define HTTP_USER_AGENT_FIELD		"User-Agent"
-#define HTTP_REFERER_FIELD			"Referer"
-#define HTTP_ACCEPT_FIELD 			"Accept"
-#define HTTP_ACCEPT_ENCODING_FIELD	"Accept-Encoding"
-#define HTTP_ACCEPT_LANGUAGE_FIELD	"Accept-Language"
-#define HTTP_COOKIE_FIELD 			"Cookie"
-#define HTTP_CONTENT_LENGTH_FIELD	"Content-Length"
+#define HTTP_HOST_FIELD 				"Host"
+#define HTTP_CONNECTION_FIELD 			"Connection"
+#define HTTP_USER_AGENT_FIELD			"User-Agent"
+#define HTTP_REFERER_FIELD				"Referer"
+#define HTTP_ACCEPT_FIELD 				"Accept"
+#define HTTP_ACCEPT_ENCODING_FIELD		"Accept-Encoding"
+#define HTTP_ACCEPT_LANGUAGE_FIELD		"Accept-Language"
+#define HTTP_COOKIE_FIELD 				"Cookie"
+#define HTTP_CONTENT_LENGTH_FIELD		"Content-Length"
+#define HTTP_CONTENT_ENCODING_FIELD 	"Content-Encoding"
+#define HTTP_CONTENT_TYPE_FIELD			"Content-Type"
+#define HTTP_TRANSFER_ENCODING_FIELD	"Transfer-Encoding"
+#define HTTP_SERVER_FIELD				"Server"
+
+
 
 
 class HttpMessage;
@@ -153,11 +159,110 @@ private:
 
 // -------- Class HttpResponseLayer -----------------
 
+class HttpResponseFirstLine;
 
-//class HttpResponseLayer : public HttpMessage
-//{
-//
-//};
+
+class HttpResponseLayer : public HttpMessage
+{
+	friend class HttpResponseFirstLine;
+public:
+	enum HttpResponseStatusCode
+	{
+		Http100Continue,
+		Http101SwitchingProtocols,
+		Http102Processing,
+		Http200OK,
+		Http201Created,
+		Http202Accepted,
+		Http203NonAuthoritativeInformation, //Non-Authoritative Information
+		Http204NoContent,
+		http205ResetContent,
+		Http206PartialContent,
+		Http207MultiStatus,	//Multi-Status
+		Http208AlreadyReported,
+		Http226IMUsed,
+		Http300MultipleChoices,
+		Http301MovedPermanently,
+		Http302,
+		Http303SeeOther,
+		Http304NotModified,
+		Http305UseProxy,
+		Http306SwitchProxy,
+		Http307TemporaryRedirect,
+		Http308PermanentRedirect,
+		Http400BadRequest,
+		Http401Unauthorized,
+		Http402PaymentRequired,
+		Http403Forbidden,
+		Http404NotFound,
+		Http405MethodNotAllowed,
+		Http406NotAcceptable,
+		Http407ProxyAuthenticationRequired,
+		Http408RequestTimeout,
+		Http409Conflict,
+		Http410Gone,
+		Http411LengthRequired,
+		Http412PreconditionFailed,
+		Http413RequestEntityTooLarge,
+		Http414RequestURITooLong, // Request-URI Too Long
+		Http415UnsupportedMediaType,
+		Http416RequestedRangeNotSatisfiable,
+		Http417ExpectationFailed,
+		Http418Imateapot, // I'm a teapot
+		Http419AuthenticationTimeout,
+		Http420,
+		Http422UnprocessableEntity,
+		Http423Locked,
+		Http424FailedDependency,
+		Http426UpgradeRequired,
+		Http428PreconditionRequired,
+		Http429TooManyRequests,
+		Http431RequestHeaderFieldsTooLarge,
+		Http440LoginTimeout,
+		Http444NoResponse,
+		Http449RetryWith,
+		Http450BlockedByWindowsParentalControls, // Blocked by Windows Parental Controls
+		Http451,
+		Http494RequestHeaderTooLarge,
+		Http495CertError,
+		Http496NoCert,
+		Http497HTTPtoHTTPS,
+		Http498TokenExpiredInvalid, // Token expired/invalid
+		Http499,
+		Http500InternalServerError,
+		Http501NotImplemented,
+		Http502BadGateway,
+		Http503ServiceUnavailable,
+		Http504GatewayTimeout,
+		Http505HTTPVersionNotSupported,
+		Http506VariantAlsoNegotiates,
+		Http507InsufficientStorage,
+		Http508LoopDetected,
+		Http509BandwidthLimitExceeded,
+		Http510NotExtended,
+		Http511NetworkAuthenticationRequired,
+		Http520OriginError,
+		Http521WebServerIsDown, // Web server is down
+		Http522ConnectionTimedOut, // Connection timed out
+		Http523ProxyDeclinedRequest,
+		Http524aTimeoutOccurred, // A timeout occurred
+		Http598NetworkReadTimeoutError, // Network read timeout error
+		Http599NetworkConnectTimeoutError, // Network connect timeout error
+		HttpStatusCodeUnknown
+	};
+
+	HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+	HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statuCode, std::string statusCodeString = "");
+	~HttpResponseLayer();
+	inline HttpResponseFirstLine* getFirstLine() { return m_FirstLine; }
+
+	HttpField* setContentLength(int contentLength, const std::string prevFieldName = "");
+	int getContentLength();
+
+private:
+	HttpResponseFirstLine* m_FirstLine;
+
+};
 
 
 
@@ -202,6 +307,7 @@ private:
 		throw(HttpRequestFirstLineException);
 
 	void parseVersion();
+
 	HttpRequestLayer* m_HttpRequest;
 	HttpRequestLayer::HttpMethod m_Method;
 	HttpVersion m_Version;
@@ -211,5 +317,58 @@ private:
 	bool m_IsComplete;
 	HttpRequestFirstLineException m_Exception;
 };
+
+
+
+
+
+// -------- Class HttpResponseFirstLine -----------------
+
+class HttpResponseFirstLine
+{
+	friend class HttpResponseLayer;
+public:
+	inline HttpResponseLayer::HttpResponseStatusCode getStatusCode() { return m_StatusCode; }
+	int getStatusCodeAsInt();
+	std::string getStatusCodeString();
+	bool setStatusCode(HttpResponseLayer::HttpResponseStatusCode newStatusCode, std::string statusCodeString = "");
+
+	inline HttpVersion getVersion() { return m_Version; }
+	void setVersion(HttpVersion newVersion);
+
+	static HttpResponseLayer::HttpResponseStatusCode parseStatusCode(char* data, size_t dataLen);
+	inline int getSize() { return m_FirstLineEndOffset; }
+
+	inline bool isComplete() { return m_IsComplete; }
+
+	class HttpResponseFirstLineException : public std::exception
+	{
+	public:
+		~HttpResponseFirstLineException() throw() {}
+		void setMessage(std::string message) { m_Message = message; }
+		virtual const char* what() const throw()
+		{
+			return m_Message.c_str();
+		}
+	private:
+		std::string m_Message;
+	};
+
+private:
+	HttpResponseFirstLine(HttpResponseLayer* httpResponse);
+	HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString = "");
+
+	static HttpVersion parseVersion(char* data, size_t dataLen);
+	static HttpResponseLayer::HttpResponseStatusCode validateStatusCode(char* data, size_t dataLen, HttpResponseLayer::HttpResponseStatusCode potentialCode);
+
+
+	HttpResponseLayer* m_HttpResponse;
+	HttpVersion m_Version;
+	HttpResponseLayer::HttpResponseStatusCode m_StatusCode;
+	int m_FirstLineEndOffset;
+	bool m_IsComplete;
+	HttpResponseFirstLineException m_Exception;
+};
+
 
 #endif /* PACKETPP_HTTP_LAYER */

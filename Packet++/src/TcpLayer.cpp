@@ -200,8 +200,11 @@ void TcpLayer::parseNextLayer()
 
 	tcphdr* tcpHder = getTcpHeader();
 	uint16_t portDst = ntohs(tcpHder->portDst);
+	uint16_t portSrc = ntohs(tcpHder->portSrc);
 	if ((portDst == 80 || portDst == 8080) && HttpRequestFirstLine::parseMethod((char*)(m_Data + m_HeaderLen), m_DataLen - m_HeaderLen) != HttpRequestLayer::HttpMethodUnknown)
 		m_NextLayer = new HttpRequestLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
+	else if ((portSrc == 80 || portSrc == 8080) && HttpResponseFirstLine::parseStatusCode((char*)(m_Data + m_HeaderLen), m_DataLen - m_HeaderLen) != HttpResponseLayer::HttpStatusCodeUnknown)
+		m_NextLayer = new HttpResponseLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
 }

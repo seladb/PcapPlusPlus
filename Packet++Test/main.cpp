@@ -425,7 +425,7 @@ PACKETPP_TEST(TcpPacketNoOptionsParsing)
 
 	Layer* afterTcpLayer = tcpLayer->getNextLayer();
 	PACKETPP_ASSERT(afterTcpLayer != NULL, "Layer after TCP is NULL");
-	PACKETPP_ASSERT(afterTcpLayer->getProtocol() == Unknown, "Protocol layer after TCP isn't Unknown");
+	PACKETPP_ASSERT(afterTcpLayer->getProtocol() == HTTPResponse, "Protocol layer after TCP isn't HTTPResponse");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -853,7 +853,7 @@ PACKETPP_TEST(RemoveLayerTest)
 	PACKETPP_TEST_PASSED;
 }
 
-PACKETPP_TEST(HttpLayerParsingTest)
+PACKETPP_TEST(HttpRequestLayerParsingTest)
 {
 	// This is a basic parsing test
 	// A much wider test is in Pcap++Test
@@ -885,7 +885,7 @@ PACKETPP_TEST(HttpLayerParsingTest)
 	PACKETPP_TEST_PASSED;
 }
 
-PACKETPP_TEST(HttpLayerCreationTest)
+PACKETPP_TEST(HttpRequestLayerCreationTest)
 {
 	Packet httpPacket(10);
 
@@ -977,7 +977,7 @@ PACKETPP_TEST(HttpLayerCreationTest)
 	PACKETPP_TEST_PASSED;
 }
 
-PACKETPP_TEST(HttpLayerEditTest)
+PACKETPP_TEST(HttpRequestLayerEditTest)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", bufferLength);
@@ -1017,8 +1017,156 @@ PACKETPP_TEST(HttpLayerEditTest)
 
 	PACKETPP_ASSERT(memcmp(buffer2, httpRequest.getRawPacket()->getRawData(), buffer2Length) == 0, "Constructed packet data is different than expected");
 
-	delete [] buffer;
 	delete [] buffer2;
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(HttpResponseLayerParsingTest)
+{
+
+	// This is a basic parsing test
+	// A much wider test is in Pcap++Test
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet httpPacket(&rawPacket);
+
+	PACKETPP_ASSERT(httpPacket.isPacketOfType(HTTPResponse), "Packet isn't of type HTTPResponse");
+	HttpResponseLayer* responseLayer = (HttpResponseLayer*)httpPacket.getLayerOfType(HTTPResponse);
+	PACKETPP_ASSERT(responseLayer != NULL, "Couldn't get HttpResponseLayer from packet");
+
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCode() == HttpResponseLayer::Http200OK, "Response status code isn't 200 OK");
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->getVersion() == OneDotOne, "Response version isn't HTTP/1.1");
+
+	HttpField* contentLengthField = responseLayer->getFieldByName(HTTP_CONTENT_LENGTH_FIELD);
+	PACKETPP_ASSERT(contentLengthField != NULL, "Couldn't retrieve content-length field");
+	int contentLength = atoi(contentLengthField->getFieldValue().c_str());
+	PACKETPP_ASSERT(contentLength == 1616, "Content length != 1616, it's %d", contentLength);
+
+	HttpField* contentTypeField = responseLayer->getFieldByName(HTTP_CONTENT_TYPE_FIELD);
+	PACKETPP_ASSERT(contentTypeField != NULL, "Couldn't retrieve content-type field");
+	PACKETPP_ASSERT(contentTypeField->getFieldValue() == "application/x-javascript", "Content type isn't 'application/x-javascript'");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(HttpResponseLayerCreationTest)
+{
+	Packet httpPacket(100);
+
+	MacAddress srcMac("30:46:9a:23:fb:fa");
+	MacAddress dstMac("6c:f0:49:b2:de:6e");
+	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	PACKETPP_ASSERT(httpPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
+
+	IPv4Address ipSrc(string("212.199.202.60"));
+	IPv4Address ipDst(string("10.0.0.1"));
+	IPv4Layer ip4Layer(ipSrc, ipDst);
+	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
+	ip4Layer.getIPv4Header()->ipId = htons(60239);
+	ip4Layer.getIPv4Header()->timeToLive = 60;
+	ip4Layer.getIPv4Header()->fragmentOffset = htons(0x4000);
+	PACKETPP_ASSERT(httpPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
+
+	TcpLayer tcpLayer((uint16_t)80, (uint16_t)60379, 0);
+	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x434bbb5f);
+	tcpLayer.getTcpHeader()->ackNumber = htonl(0xde269603);
+	tcpLayer.getTcpHeader()->windowSize = htons(490);
+	tcpLayer.getTcpHeader()->ackFlag = 1;
+	PACKETPP_ASSERT(httpPacket.addLayer(&tcpLayer), "Adding TCP layer failed");
+
+	HttpResponseLayer httpResponse(OneDotOne, HttpResponseLayer::Http200OK);
+	PACKETPP_ASSERT(httpResponse.addField(HTTP_SERVER_FIELD, "Microsoft-IIS/5.0") != NULL, "Cannot add server field");
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(httpResponse.addField(HTTP_SERVER_FIELD, "Microsoft-IIS/6.0") == NULL, "Added the same field twice");
+	LoggerPP::getInstance().enableErrors();
+	PACKETPP_ASSERT(httpResponse.addField(HTTP_CONTENT_ENCODING_FIELD, "gzip") != NULL, "Cannot add content-encoding field");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName(HTTP_SERVER_FIELD), HTTP_CONTENT_TYPE_FIELD, "application/x-javascript") != NULL, "Cannot insert content-type field");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName(HTTP_CONTENT_TYPE_FIELD), "Accept-Ranges", "bytes") != NULL, "Cannot insert accept-ranges field");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("Accept-Ranges"), "KuKu", "BlaBla") != NULL, "Cannot insert KuKu field");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("kuku"), "Last-Modified", "Wed, 19 Dec 2012 14:06:29 GMT") != NULL, "Cannot insert last-modified field");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("last-Modified"), "ETag", "\"3b846daf2ddcd1:e29\"") != NULL, "Cannot insert etag field");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("etag"), "Vary", "Accept-Encoding") != NULL, "Cannot insert vary field");
+	PACKETPP_ASSERT(httpResponse.setContentLength(1616, HTTP_CONTENT_ENCODING_FIELD) != NULL, "Cannot set content-length");
+	PACKETPP_ASSERT(httpResponse.addField("Kuku2", "blibli2") != NULL, "Cannot add Kuku2 field");
+	PACKETPP_ASSERT(httpResponse.addField("Cache-Control", "max-age=66137") != NULL, "Cannot add cache-control field");
+	PACKETPP_ASSERT(httpResponse.removeField("KUKU") == true, "Couldn't remove kuku field");
+
+	PACKETPP_ASSERT(httpPacket.addLayer(&httpResponse) == true, "Cannot add HTTP response layer");
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+	PayloadLayer payloadLayer(buffer+54+382, bufferLength-54-382, true);
+	PACKETPP_ASSERT(httpPacket.addLayer(&payloadLayer) == true, "Cannot add payload layer");
+
+	PACKETPP_ASSERT(httpResponse.addField(HTTP_CONNECTION_FIELD, "keep-alive") != NULL, "Cannot add connection field");
+	PACKETPP_ASSERT(httpResponse.addEndOfHeader() != NULL, "Cannot add end of header");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("Cache-Control"), "Expires", "Mon, 20 Oct 2014 13:34:26 GMT") != NULL, "Cannot insert expires field");
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(httpResponse.addField("kuku3", "kuka") == NULL, "Added a field after end of header");
+	LoggerPP::getInstance().enableErrors();
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("ExpIRes"), "Date", "Sun, 19 Oct 2014 19:12:09 GMT") != NULL, "Cannot insert date field");
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(httpResponse.removeField("kuku5") == false, "Managed to remove a field that doesn't exist");
+	LoggerPP::getInstance().enableErrors();
+	PACKETPP_ASSERT(httpResponse.removeField("kuku2") == true, "Cannot remove kuku2 field");
+
+
+	httpPacket.computeCalculateFields();
+
+	PACKETPP_ASSERT(httpResponse.getHeaderLen() == 382, "HTTP header length is different than expected. Expected: %d; Actual: %d", 382, httpResponse.getHeaderLen());
+
+	PACKETPP_ASSERT(memcmp(buffer, httpPacket.getRawPacket()->getRawData(), ethLayer.getHeaderLen()+ip4Layer.getHeaderLen()+tcpLayer.getHeaderLen()+httpResponse.getHeaderLen()) == 0, "Constructed packet data is different than expected");
+
+	delete [] buffer;
+
+	PACKETPP_TEST_PASSED;
+}
+
+
+PACKETPP_TEST(HttpResponseLayerEditTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses2.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet httpPacket(&rawPacket);
+
+	PACKETPP_ASSERT(httpPacket.isPacketOfType(HTTPResponse), "Packet isn't of type HTTPResponse");
+	HttpResponseLayer* responseLayer = (HttpResponseLayer*)httpPacket.getLayerOfType(HTTPResponse);
+	PACKETPP_ASSERT(responseLayer != NULL, "Couldn't get HttpResponseLayer from packet");
+
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->isComplete() == true, "Http response not complete");
+	responseLayer->getFirstLine()->setVersion(OneDotOne);
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->setStatusCode(HttpResponseLayer::Http505HTTPVersionNotSupported) == true, "Couldn't change status code to 505");
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCode() == HttpResponseLayer::Http505HTTPVersionNotSupported, "Status code isn't HttpResponseLayer::Http505HTTPVersionNotSupported");
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCodeAsInt() == 505, "Status code isn't 505");
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCodeString() == "HTTP Version Not Supported", "Status isn't 'HTTP Version Not Supported'");
+
+	PACKETPP_ASSERT(responseLayer->setContentLength(345) != NULL, "Couldn't change content length");
+
+	std::string expectedHttpResponse("HTTP/1.1 505 HTTP Version Not Supported\r\nContent-Length: 345\r\n");
+
+	PACKETPP_ASSERT(memcmp(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length()) == 0, "Edited HTTP response is different than expected");
+
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->setStatusCode(HttpResponseLayer::Http413RequestEntityTooLarge, "This is a test") == true, "Couldn't change status code to 413");
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCodeAsInt() == 413, "Status code isn't 413");
+	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCodeString() == "This is a test", "Status isn't 'HTTP Version Not Supported'");
+
+	expectedHttpResponse = "HTTP/1.1 413 This is a test\r\nContent-Length: 345\r\n";
+	PACKETPP_ASSERT(memcmp(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length()) == 0, "Edited HTTP response is different than expected (2)");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -1042,9 +1190,12 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(InsertDataToPacket);
 	PACKETPP_RUN_TEST(InsertVlanToPacket);
 	PACKETPP_RUN_TEST(RemoveLayerTest);
-	PACKETPP_RUN_TEST(HttpLayerParsingTest);
-	PACKETPP_RUN_TEST(HttpLayerCreationTest);
-	PACKETPP_RUN_TEST(HttpLayerEditTest);
+	PACKETPP_RUN_TEST(HttpRequestLayerParsingTest);
+	PACKETPP_RUN_TEST(HttpRequestLayerCreationTest);
+	PACKETPP_RUN_TEST(HttpRequestLayerEditTest);
+	PACKETPP_RUN_TEST(HttpResponseLayerParsingTest);
+	PACKETPP_RUN_TEST(HttpResponseLayerCreationTest);
+	PACKETPP_RUN_TEST(HttpResponseLayerEditTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

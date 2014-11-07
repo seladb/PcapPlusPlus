@@ -15,6 +15,7 @@ public:
 	inline Layer* getNextLayer() { return m_NextLayer; }
 	inline Layer* getPrevLayer() { return m_PrevLayer; }
 	inline ProtocolType getProtocol() { return m_Protocol; }
+	inline uint8_t* getData() { return m_Data; }
 	inline size_t getDataLen() { return m_DataLen; }
 
 	inline bool isAllocatedToPacket() { return m_Packet != NULL; }

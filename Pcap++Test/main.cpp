@@ -849,6 +849,111 @@ PCAPP_TEST(TestHttpRequestParsing)
 	PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestHttpResponseParsing)
+{
+    PcapFileReaderDevice readerDev("PcapExamples/4KHttpResponses.pcap");
+    PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
+
+    RawPacket rawPacket;
+    int packetCount = 0;
+    int httpResponsePackets = 0;
+
+	int statusCodes[80];
+
+	int textHtmlCount = 0;
+	int imageCount = 0;
+	int gzipCount = 0;
+	int chunkedCount = 0;
+
+	int bigResponses = 0;
+
+	memset(statusCodes, 0, 80*sizeof(int));
+
+    while (readerDev.getNextPacket(rawPacket))
+    {
+    	packetCount++;
+    	Packet packet(&rawPacket);
+		if (packet.isPacketOfType(HTTPResponse))
+			httpResponsePackets++;
+		else
+			continue;
+
+		HttpResponseLayer* httpResLayer = (HttpResponseLayer*)packet.getLayerOfType(HTTPResponse);
+		PCAPP_ASSERT(httpResLayer->getFirstLine() != NULL, "HTTP first line is null in packet #%d, HTTP request #%d", packetCount, httpResponsePackets);
+		statusCodes[httpResLayer->getFirstLine()->getStatusCode()]++;
+
+		HttpField* contentTypeField = httpResLayer->getFieldByName(HTTP_CONTENT_TYPE_FIELD);
+		if (contentTypeField != NULL)
+		{
+			std::string contentType = contentTypeField->getFieldValue();
+			if (contentType.find("image/") != std::string::npos)
+				imageCount++;
+			else if (contentType == "text/html")
+				textHtmlCount++;
+		}
+
+		HttpField* contentEncodingField = httpResLayer->getFieldByName(HTTP_CONTENT_ENCODING_FIELD);
+		if (contentEncodingField != NULL && contentEncodingField->getFieldValue() == "gzip")
+			gzipCount++;
+
+		HttpField* transferEncodingField = httpResLayer->getFieldByName(HTTP_TRANSFER_ENCODING_FIELD);
+		if (transferEncodingField != NULL && transferEncodingField->getFieldValue() == "chunked")
+			chunkedCount++;
+
+		HttpField* contentLengthField = httpResLayer->getFieldByName(HTTP_CONTENT_LENGTH_FIELD);
+		if (contentLengthField != NULL)
+		{
+			std::string lengthAsString = contentLengthField->getFieldValue();
+			int length = atoi(lengthAsString.c_str());
+			if (length > 100000)
+				bigResponses++;
+		}
+
+
+    }
+
+    PCAPP_ASSERT(packetCount == 44897, "Packet count is different than expected. Found: %d; Expected: 44897", packetCount);
+
+    // *** wireshark has a bug there and displays 1 less packet as http response. Missing packet IP ID is 10419 ***
+    // ************************************************************************************************************
+
+    // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080)
+    PCAPP_ASSERT(httpResponsePackets == 3458, "HTTP response count is different than expected. Found: %d; Expected: 3458", httpResponsePackets);
+    // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 200
+    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http200OK] == 3159, "HTTP response with 200 OK count is different than expected. Found: %d; Expected: 3159", statusCodes[HttpResponseLayer::Http200OK]);
+    // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 302
+    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http302] == 121, "HTTP response with 302 count is different than expected. Found: %d; Expected: 121", statusCodes[HttpResponseLayer::Http302]);
+    // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 304
+    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http304NotModified] == 85, "HTTP response with 304 count is different than expected. Found: %d; Expected: 85", statusCodes[HttpResponseLayer::Http304NotModified]);
+
+    // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type == "text/html"
+    PCAPP_ASSERT(textHtmlCount == 142, "HTTP responses with content-type=='text/html' is different than expected. Expected: %d; Actual: %d", 142, textHtmlCount);
+    // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type contains "image/"
+    PCAPP_ASSERT(imageCount == 1931, "HTTP responses with content-type=='image/*' is different than expected. Expected: %d; Actual: %d", 1931, imageCount);
+
+    // wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && (tcp contains "Transfer-Encoding:  chunked" || tcp contains "Transfer-Encoding: chunked" || tcp contains "transfer-encoding: chunked")
+    PCAPP_ASSERT(chunkedCount == 159, "HTTP responses with transfer-encoding=='chunked' is different than expected. Expected: %d; Actual: %d", 159, chunkedCount);
+    // wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && tcp contains "Content-Encoding: gzip"
+    PCAPP_ASSERT(gzipCount == 838, "HTTP responses with content-encoding=='gzip' is different than expected. Expected: %d; Actual: %d", 838, gzipCount);
+
+    // wireshark filter: http.content_length > 100000
+    PCAPP_ASSERT(bigResponses == 91, "HTTP responses with content-length > 100K is different than expected. Expected: %d; Actual: %d", 91, bigResponses);
+
+//    printf("Total HTTP response packets: %d\n", httpResponsePackets);
+//    printf("200 OK packets: %d\n", statusCodes[HttpResponseLayer::Http200OK]);
+//    printf("302 packets: %d\n", statusCodes[HttpResponseLayer::Http302]);
+//    printf("304 Not Modified packets: %d\n", statusCodes[HttpResponseLayer::Http304NotModified]);
+//    printf("text/html responses: %d\n", textHtmlCount);
+//    printf("image responses: %d\n", imageCount);
+//    printf("gzip responses: %d\n", gzipCount);
+//    printf("chunked responses: %d\n", chunkedCount);
+//    printf("big responses: %d\n", bigResponses);
+
+	PCAPP_TEST_PASSED;
+}
+
+
+
 static struct option PcapTestOptions[] =
 {
 	{"debug-mode", no_argument, 0, 'd'},
@@ -931,6 +1036,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestSendPackets, args);
 	PCAPP_RUN_TEST(TestRemoteCaptue, args);
 	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
+	PCAPP_RUN_TEST(TestHttpResponseParsing, args);
 
 	PCAPP_END_RUNNING_TESTS;
 }
