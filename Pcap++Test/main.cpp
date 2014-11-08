@@ -851,7 +851,7 @@ PCAPP_TEST(TestHttpRequestParsing)
 
 PCAPP_TEST(TestHttpResponseParsing)
 {
-    PcapFileReaderDevice readerDev("PcapExamples/4KHttpResponses.pcap");
+    PcapFileReaderDevice readerDev("PcapExamples/650HttpResponses.pcap");
     PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
 
     RawPacket rawPacket;
@@ -912,32 +912,32 @@ PCAPP_TEST(TestHttpResponseParsing)
 
     }
 
-    PCAPP_ASSERT(packetCount == 44897, "Packet count is different than expected. Found: %d; Expected: 44897", packetCount);
+    PCAPP_ASSERT(packetCount == 7435, "Packet count is different than expected. Found: %d; Expected: 7435", packetCount);
 
     // *** wireshark has a bug there and displays 1 less packet as http response. Missing packet IP ID is 10419 ***
     // ************************************************************************************************************
 
     // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080)
-    PCAPP_ASSERT(httpResponsePackets == 3458, "HTTP response count is different than expected. Found: %d; Expected: 3458", httpResponsePackets);
+    PCAPP_ASSERT(httpResponsePackets == 682, "HTTP response count is different than expected. Found: %d; Expected: 682", httpResponsePackets);
     // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 200
-    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http200OK] == 3159, "HTTP response with 200 OK count is different than expected. Found: %d; Expected: 3159", statusCodes[HttpResponseLayer::Http200OK]);
+    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http200OK] == 592, "HTTP response with 200 OK count is different than expected. Found: %d; Expected: 592", statusCodes[HttpResponseLayer::Http200OK]);
     // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 302
-    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http302] == 121, "HTTP response with 302 count is different than expected. Found: %d; Expected: 121", statusCodes[HttpResponseLayer::Http302]);
+    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http302] == 15, "HTTP response with 302 count is different than expected. Found: %d; Expected: 15", statusCodes[HttpResponseLayer::Http302]);
     // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 304
-    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http304NotModified] == 85, "HTTP response with 304 count is different than expected. Found: %d; Expected: 85", statusCodes[HttpResponseLayer::Http304NotModified]);
+    PCAPP_ASSERT(statusCodes[HttpResponseLayer::Http304NotModified] == 26, "HTTP response with 304 count is different than expected. Found: %d; Expected: 26", statusCodes[HttpResponseLayer::Http304NotModified]);
 
     // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type == "text/html"
-    PCAPP_ASSERT(textHtmlCount == 142, "HTTP responses with content-type=='text/html' is different than expected. Expected: %d; Actual: %d", 142, textHtmlCount);
+    PCAPP_ASSERT(textHtmlCount == 38, "HTTP responses with content-type=='text/html' is different than expected. Expected: %d; Actual: %d", 38, textHtmlCount);
     // wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type contains "image/"
-    PCAPP_ASSERT(imageCount == 1931, "HTTP responses with content-type=='image/*' is different than expected. Expected: %d; Actual: %d", 1931, imageCount);
+    PCAPP_ASSERT(imageCount == 369, "HTTP responses with content-type=='image/*' is different than expected. Expected: %d; Actual: %d", 369, imageCount);
 
     // wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && (tcp contains "Transfer-Encoding:  chunked" || tcp contains "Transfer-Encoding: chunked" || tcp contains "transfer-encoding: chunked")
-    PCAPP_ASSERT(chunkedCount == 159, "HTTP responses with transfer-encoding=='chunked' is different than expected. Expected: %d; Actual: %d", 159, chunkedCount);
+    PCAPP_ASSERT(chunkedCount == 45, "HTTP responses with transfer-encoding=='chunked' is different than expected. Expected: %d; Actual: %d", 45, chunkedCount);
     // wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && tcp contains "Content-Encoding: gzip"
-    PCAPP_ASSERT(gzipCount == 838, "HTTP responses with content-encoding=='gzip' is different than expected. Expected: %d; Actual: %d", 838, gzipCount);
+    PCAPP_ASSERT(gzipCount == 148, "HTTP responses with content-encoding=='gzip' is different than expected. Expected: %d; Actual: %d", 148, gzipCount);
 
     // wireshark filter: http.content_length > 100000
-    PCAPP_ASSERT(bigResponses == 91, "HTTP responses with content-length > 100K is different than expected. Expected: %d; Actual: %d", 91, bigResponses);
+    PCAPP_ASSERT(bigResponses == 14, "HTTP responses with content-length > 100K is different than expected. Expected: %d; Actual: %d", 14, bigResponses);
 
 //    printf("Total HTTP response packets: %d\n", httpResponsePackets);
 //    printf("200 OK packets: %d\n", statusCodes[HttpResponseLayer::Http200OK]);
