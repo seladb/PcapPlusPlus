@@ -7,6 +7,7 @@
 #include <algorithm>
 
 
+
 // -------- Class HttpMessage -----------------
 
 
@@ -1053,7 +1054,7 @@ HttpResponseLayer::~HttpResponseLayer()
 HttpField* HttpResponseLayer::setContentLength(int contentLength, const std::string prevFieldName)
 {
 	char contentLengthAsString[20];
-	itoa(contentLength, contentLengthAsString, 10);
+	snprintf (contentLengthAsString, sizeof(contentLengthAsString), "%d",contentLength);
 	std::string contentLengthFieldName(HTTP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
 	HttpField* contentLengthField = m_FieldNameToFieldMap[contentLengthFieldName];
@@ -1154,7 +1155,8 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseLayer::HttpResponseStatusC
 	// change status code
 	char statusCodeAsString[4];
 	// convert code to string
-	itoa(StatusCodeEnumToInt[newStatusCode], statusCodeAsString, 10);
+	snprintf (statusCodeAsString, sizeof(statusCodeAsString), "%d",StatusCodeEnumToInt[newStatusCode]);
+
 	memcpy(m_HttpResponse->m_Data+9, statusCodeAsString, 3);
 
 	m_StatusCode = newStatusCode;
@@ -1589,7 +1591,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  H
 	m_Version = version;
 
 	char statusCodeAsString[4];
-	itoa(StatusCodeEnumToInt[m_StatusCode], statusCodeAsString, 10);
+	snprintf (statusCodeAsString, sizeof(statusCodeAsString), "%d",StatusCodeEnumToInt[m_StatusCode]);
 	if (statusCodeString == "")
 		statusCodeString = StatusCodeEnumToString[m_StatusCode];
 	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + std::string(statusCodeAsString) + " " +  statusCodeString +  "\r\n";
