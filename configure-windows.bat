@@ -36,7 +36,7 @@ set WINPCAP_HOME=%WINPCAP_HOME:\=/%
 :: set MinGW and WinPcap locations in platform.mk.win32 and create platform.mk
 for /F "tokens=1* delims=]" %%A in ('type "mk\platform.mk.win32"') do (
 	echo. >>%PLATFORM%
-	if "%%A" EQU "MINGW_HOME :=" (echo %%A %MINGW_HOME% >>%PLATFORM%) else (if "%%A" EQU "WINPCAP_HOME :=" (echo %%A %WINPCAP_HOME% >>%PLATFORM%) else (echo %%A >>%PLATFORM%))
+	if "%%A" EQU "MINGW_HOME :=" (echo %%A %MINGW_HOME%>>%PLATFORM%) else (if "%%A" EQU "WINPCAP_HOME :=" (echo %%A %WINPCAP_HOME%>>%PLATFORM%) else (echo %%A>>%PLATFORM%))
 )
 
 echo.
