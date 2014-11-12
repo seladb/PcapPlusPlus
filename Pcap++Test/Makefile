@@ -12,7 +12,7 @@ ifdef WIN32
 DEPS := -DWPCAP -DHAVE_REMOTE
 endif
 
-INCLUDES := -I$(PCAPP_HOME)/header -I$(PACKETPP_HOME)/header -I$(COMMONPP_HOME)/header
+INCLUDES := -I$(PCAPP_HOME)/header -I$(PACKETPP_HOME)/header -I$(COMMONPP_HOME)/header -I../Pcap++Test
 ifdef WIN32
 INCLUDES += -I$(WINPCAP_HOME)/Include
 endif

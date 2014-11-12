@@ -7,6 +7,7 @@
 #include <string.h>
 #include "IpAddress.h"
 #include <Packet.h>
+#include "PointerVector.h"
 
 using namespace std;
 
@@ -17,12 +18,13 @@ typedef void (*OnStatsUpdateCallback)(pcap_stat& stats, void* userCookie);
 
 typedef void* (*ThreadStart)(void*);
 
+typedef PointerVector<RawPacket> RawPacketVector;
+
 struct PcapThread;
 
 class PcapLiveDevice : public IPcapDevice
 {
 	friend class PcapLiveDeviceList;
-
 protected:
 	const char* m_pName;
 	const char* m_pDescription;
@@ -40,7 +42,7 @@ protected:
 	OnStatsUpdateCallback m_cbOnStatsUpdate;
 	void* m_cbOnStatsUpdateUserCookie;
 	int m_IntervalToUpdateStats;
-	vector<RawPacket*>* m_pCapturedPackets;
+	RawPacketVector* m_pCapturedPackets;
 	bool m_CaptureCallbackMode;
 
 	PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU);
@@ -77,7 +79,7 @@ public:
 	virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie);
 	virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
 	virtual bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
-	virtual bool startCapture(vector<RawPacket*>* pCapturedPacketsVector);
+	virtual bool startCapture(RawPacketVector& rCpapturedPacketsVector);
 	void stopCapture();
 	bool sendPacket(RawPacket const& rawPacket);
 	bool sendPacket(const uint8_t* packetData, int packetDataLength);

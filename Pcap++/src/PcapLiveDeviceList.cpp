@@ -9,25 +9,14 @@
 #endif
 
 
-bool PcapLiveDeviceList::m_IsInitialized = false;
-vector<PcapLiveDevice*> PcapLiveDeviceList::m_xLiveDeviceList;
-
-
-const vector<PcapLiveDevice*>& PcapLiveDeviceList::getPcapLiveDevicesList()
+PcapLiveDeviceList::PcapLiveDeviceList()
 {
-	if (PcapLiveDeviceList::m_IsInitialized)
-	{
-		LOG_DEBUG("Device list already initialized");
-		return PcapLiveDeviceList::m_xLiveDeviceList;
-	}
-
 	pcap_if_t* interfaceList;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int err = pcap_findalldevs(&interfaceList, errbuf);
 	if (err < 0)
 	{
 		LOG_ERROR("Error searching for devices: %s", errbuf);
-		return PcapLiveDeviceList::m_xLiveDeviceList;
 	}
 
 	pcap_if_t* currInterface = interfaceList;
@@ -39,15 +28,20 @@ const vector<PcapLiveDevice*>& PcapLiveDeviceList::getPcapLiveDevicesList()
 		PcapLiveDevice* pDev = new PcapLiveDevice(currInterface, true);
 #endif
 		currInterface = currInterface->next;
-		PcapLiveDeviceList::m_xLiveDeviceList.insert(PcapLiveDeviceList::m_xLiveDeviceList.end(), pDev);
+		m_xLiveDeviceList.insert(m_xLiveDeviceList.end(), pDev);
 	}
 
 	LOG_DEBUG("Freeing live device data");
 	pcap_freealldevs(interfaceList);
+}
 
-	PcapLiveDeviceList::m_IsInitialized = true;
+PcapLiveDeviceList::~PcapLiveDeviceList()
+{
+	for(vector<PcapLiveDevice*>::iterator devIter = m_xLiveDeviceList.begin(); devIter != m_xLiveDeviceList.end(); devIter++)
+	{
+		delete (*devIter);
+	}
 
-	return PcapLiveDeviceList::m_xLiveDeviceList;
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* pIPAddr)
@@ -66,14 +60,8 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* pIPAddr)
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr)
 {
-	if (!PcapLiveDeviceList::m_IsInitialized)
-	{
-		LOG_DEBUG("PcapLiveDeviceList not initialized. Initializing first...");
-		PcapLiveDeviceList::getPcapLiveDevicesList();
-	}
-
 	LOG_DEBUG("Searching all live devices...");
-	for(vector<PcapLiveDevice*>::iterator devIter = PcapLiveDeviceList::m_xLiveDeviceList.begin(); devIter != PcapLiveDeviceList::m_xLiveDeviceList.end(); devIter++)
+	for(vector<PcapLiveDevice*>::iterator devIter = m_xLiveDeviceList.begin(); devIter != m_xLiveDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_pName);
 		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_xAddresses.begin(); addrIter != (*devIter)->m_xAddresses.end(); addrIter++)
@@ -105,14 +93,8 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr)
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr)
 {
-	if (!PcapLiveDeviceList::m_IsInitialized)
-	{
-		LOG_DEBUG("PcapLiveDeviceList not initialized. Initializing first...");
-		PcapLiveDeviceList::getPcapLiveDevicesList();
-	}
-
 	LOG_DEBUG("Searching all live devices...");
-	for(vector<PcapLiveDevice*>::iterator devIter = PcapLiveDeviceList::m_xLiveDeviceList.begin(); devIter != PcapLiveDeviceList::m_xLiveDeviceList.end(); devIter++)
+	for(vector<PcapLiveDevice*>::iterator devIter = m_xLiveDeviceList.begin(); devIter != m_xLiveDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_pName);
 		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_xAddresses.begin(); addrIter != (*devIter)->m_xAddresses.end(); addrIter++)
