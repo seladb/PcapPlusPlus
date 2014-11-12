@@ -11,14 +11,21 @@ using namespace std;
 class PcapLiveDeviceList
 {
 private:
-	static bool m_IsInitialized;
-	static vector<PcapLiveDevice*> m_xLiveDeviceList;
+	vector<PcapLiveDevice*> m_xLiveDeviceList;
+	PcapLiveDeviceList();
+	~PcapLiveDeviceList();
 public:
-	static const vector<PcapLiveDevice*>& getPcapLiveDevicesList();
-	static PcapLiveDevice* getPcapLiveDeviceByIp(IPAddress* pIPAddr);
-	static PcapLiveDevice* getPcapLiveDeviceByIp(IPv4Address ipAddr);
-	static PcapLiveDevice* getPcapLiveDeviceByIp(IPv6Address ip6Addr);
-	static PcapLiveDevice* getPcapLiveDeviceByIp(const char* ipAddrAsString);
+	static inline PcapLiveDeviceList& getInstance()
+	{
+		static PcapLiveDeviceList instance;
+		return instance;
+	}
+
+	inline const vector<PcapLiveDevice*>& getPcapLiveDevicesList() { return m_xLiveDeviceList; }
+	PcapLiveDevice* getPcapLiveDeviceByIp(IPAddress* pIPAddr);
+	PcapLiveDevice* getPcapLiveDeviceByIp(IPv4Address ipAddr);
+	PcapLiveDevice* getPcapLiveDeviceByIp(IPv6Address ip6Addr);
+	PcapLiveDevice* getPcapLiveDeviceByIp(const char* ipAddrAsString);
 };
 
 #endif

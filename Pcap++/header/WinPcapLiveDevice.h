@@ -17,7 +17,7 @@ public:
 
 	bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie);
 	bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
-	bool startCapture(vector<RawPacket*>* pCapturedPacketsVector) { return PcapLiveDevice::startCapture(pCapturedPacketsVector); }
+	bool startCapture(RawPacketVector& rCapturedPacketsVector) { return PcapLiveDevice::startCapture(rCapturedPacketsVector); }
 
 	virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
 

@@ -21,6 +21,7 @@
 #include <PlatformSpecificUtils.h>
 #include <getopt.h>
 #include <stdlib.h>
+#include <debug_new.h>
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
@@ -252,6 +253,8 @@ PCAPP_TEST(TestMacAddress)
 	macAddr3.copyTo(&arrToCopyTo);
 	PCAPP_ASSERT(arrToCopyTo[0] == 0x11 && arrToCopyTo[1] == 0x02 && arrToCopyTo[2] == 0x33 && arrToCopyTo[3] == 0x04 && arrToCopyTo[4] == 0x55 && arrToCopyTo[5] == 0x06, "Copy MacAddress to array failed");
 
+	delete [] arrToCopyTo;
+
 	PCAPP_TEST_PASSED;
 }
 
@@ -309,7 +312,7 @@ PCAPP_TEST(TestPcapFileReadWrite)
 
 PCAPP_TEST(TestPcapLiveDeviceList)
 {
-    vector<PcapLiveDevice*> devList = PcapLiveDeviceList::getPcapLiveDevicesList();
+    vector<PcapLiveDevice*> devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
     PCAPP_ASSERT(!devList.empty(), "Device list is empty");
 
     for(vector<PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
@@ -323,10 +326,10 @@ PCAPP_TEST(TestPcapLiveDeviceList)
 PCAPP_TEST(TestPcapLiveDeviceListSearch)
 {
 	PcapLiveDevice* liveDev = NULL;
-    liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+    liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
     PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
 
-    liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp("255.255.255.250");
+    liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250");
     PCAPP_ASSERT(liveDev == NULL, "Illegal device found with IP=255.255.255.250");
 
     PCAPP_TEST_PASSED;
@@ -336,7 +339,7 @@ PCAPP_TEST(TestPcapLiveDevice)
 {
 	PcapLiveDevice* liveDev = NULL;
     IPv4Address ipToSearch(args.ipToSendReceivePackets.c_str());
-    liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp(ipToSearch);
+    liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
     PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
     PCAPP_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
     PCAPP_ASSERT(liveDev->open(), "Cannot open live device");
@@ -357,7 +360,7 @@ PCAPP_TEST(TestPcapLiveDevice)
 
 PCAPP_TEST(TestPcapLiveDeviceStatsMode)
 {
-	PcapLiveDevice* liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
 	PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
 	PCAPP_ASSERT(liveDev->open(), "Cannot open live device");
 	int numOfTimeStatsWereInvoked = 0;
@@ -377,7 +380,7 @@ PCAPP_TEST(TestPcapLiveDeviceStatsMode)
 PCAPP_TEST(TestWinPcapLiveDevice)
 {
 #ifdef WIN32
-	PcapLiveDevice* liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
 	PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
 	PCAPP_ASSERT(liveDev->getDeviceType() == PcapLiveDevice::WinPcapDevice, "Live device is not of type LibPcapDevice");
 
@@ -399,7 +402,7 @@ PCAPP_TEST(TestWinPcapLiveDevice)
 	PCAPP_ASSERT(pWinPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(defaultDataToCopy), "Could not set data to copy back to default value. Error string: %s", args.errString);
 	pWinPcapLiveDevice->close();
 #else
-	PcapLiveDevice* liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
 	PCAPP_ASSERT(liveDev->getDeviceType() == PcapLiveDevice::LibPcapDevice, "Live device is not of type LibPcapDevice");
 #endif
 
@@ -410,12 +413,12 @@ PCAPP_TEST(TestPcapFilters)
 {
 	PcapLiveDevice* liveDev = NULL;
     IPv4Address ipToSearch(args.ipToSendReceivePackets.c_str());
-    liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp(ipToSearch);
+    liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
     PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
 
     string filterAsString;
     PCAPP_ASSERT(liveDev->open(), "Cannot open live device");
-    vector<RawPacket*> capturedPackets;
+    RawPacketVector capturedPackets;
 
     //---------
     //IP filter
@@ -424,14 +427,14 @@ PCAPP_TEST(TestPcapFilters)
     IPFilter ipFilter(filterAddrAsString, DST);
     ipFilter.parseToString(filterAsString);
     PCAPP_ASSERT(liveDev->setFilter(ipFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(&capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
     PCAPP_ASSERT(sendURLRequest("www.google.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
     //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PCAPP_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
 
-	for (vector<RawPacket*>::iterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
+	for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "Filter '%s', Packet captured isn't of type IP", filterAsString.c_str());
@@ -446,13 +449,13 @@ PCAPP_TEST(TestPcapFilters)
     PortFilter portFilter(filterPort, SRC);
     portFilter.parseToString(filterAsString);
     PCAPP_ASSERT(liveDev->setFilter(portFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(&capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
     PCAPP_ASSERT(sendURLRequest("www.yahoo.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
     //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PCAPP_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
-	for (vector<RawPacket*>::iterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
+	for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(TCP), "Filter '%s', Packet captured isn't of type TCP", filterAsString.c_str());
@@ -470,13 +473,13 @@ PCAPP_TEST(TestPcapFilters)
     AndFilter andFilter(andFilterFilters);
     andFilter.parseToString(filterAsString);
     PCAPP_ASSERT(liveDev->setFilter(andFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(&capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
     PCAPP_ASSERT(sendURLRequest("www.walla.co.il"), "Could not send URL request for filter '%s'", filterAsString.c_str());
     //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PCAPP_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
-	for (vector<RawPacket*>::iterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
+	for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(TCP), "Filter '%s', Packet captured isn't of type TCP", filterAsString.c_str());
@@ -497,13 +500,13 @@ PCAPP_TEST(TestPcapFilters)
     OrFilter orFilter(orFilterFilters);
     orFilter.parseToString(filterAsString);
     PCAPP_ASSERT(liveDev->setFilter(orFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(&capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
     PCAPP_ASSERT(sendURLRequest("www.youtube.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
     //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PCAPP_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
-	for (vector<RawPacket*>::iterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
+	for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		Packet packet(*iter);
 		if (packet.isPacketOfType(TCP))
@@ -530,13 +533,13 @@ PCAPP_TEST(TestPcapFilters)
     NotFilter notFilter(&ipFilter);
     notFilter.parseToString(filterAsString);
     PCAPP_ASSERT(liveDev->setFilter(notFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(&capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
     PCAPP_ASSERT(sendURLRequest("www.ebay.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
     //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PCAPP_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
-	for (vector<RawPacket*>::iterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
+	for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(IP), "Filter '%s', Packet captured isn't of type IP", filterAsString.c_str());
@@ -556,7 +559,7 @@ PCAPP_TEST(TestSendPacket)
 {
 	PcapLiveDevice* liveDev = NULL;
 	IPv4Address ipToSearch(args.ipToSendReceivePackets.c_str());
-	liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp(ipToSearch);
+	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
     PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
     PCAPP_ASSERT(liveDev->open(), "Cannot open live device");
 
@@ -602,7 +605,7 @@ PCAPP_TEST(TestSendPackets)
 {
 	PcapLiveDevice* liveDev = NULL;
 	IPv4Address ipToSearch(args.ipToSendReceivePackets.c_str());
-	liveDev = PcapLiveDeviceList::getPcapLiveDeviceByIp(ipToSearch);
+	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
     PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
     PCAPP_ASSERT(liveDev->open(), "Cannot open live device");
 
@@ -610,11 +613,12 @@ PCAPP_TEST(TestSendPackets)
     PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
 
     RawPacket rawPacketArr[10000];
+    PointerVector<Packet> packetVec;
     Packet* packetArr[10000];
     int packetsRead = 0;
     while(fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
     {
-    	packetArr[packetsRead] = new Packet(&rawPacketArr[packetsRead]);
+    	packetVec.pushBack(new Packet(&rawPacketArr[packetsRead]));
     	packetsRead++;
     }
 
@@ -622,15 +626,11 @@ PCAPP_TEST(TestSendPackets)
     int packetsSentAsRaw = liveDev->sendPackets(rawPacketArr, packetsRead);
 
     //send packets as parsed EthPacekt array
+    std::copy(packetVec.begin(), packetVec.end(), packetArr);
     int packetsSentAsParsed = liveDev->sendPackets(packetArr, packetsRead);
 
     PCAPP_ASSERT(packetsSentAsRaw == packetsRead, "Not all packets were sent as raw. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsRaw);
     PCAPP_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsParsed);
-
-//    for (int i = 0; i < packetsRead; i++)
-//    {
-//    	delete (ethPacketArr[i]);
-//    }
 
     liveDev->close();
     fileReaderDev.close();
@@ -657,8 +657,8 @@ PCAPP_TEST(TestRemoteCaptue)
 	PCAPP_ASSERT_AND_RUN_COMMAND(PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIP, remoteDevicePort, remoteDevices), terminateRpcapdServer(rpcapdHandle), "Error on retrieving remote devices on IP: %s port: %d. Error string was: %s", remoteDeviceIP.c_str(), remoteDevicePort, args.errString);
 	PcapRemoteDevice* pRemoteDevice = remoteDevices.getRemoteDeviceByIP(remoteDeviceIP.c_str());
 	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->open(), terminateRpcapdServer(rpcapdHandle), "Could not open the remote device. Error was: %s", args.errString);
-	vector<RawPacket*> capturedPackets;
-	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->startCapture(&capturedPackets), terminateRpcapdServer(rpcapdHandle), "Couldn't start capturing on remote device '%s'. Error was: %s", pRemoteDevice->getName(), args.errString);
+	RawPacketVector capturedPackets;
+	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->startCapture(capturedPackets), terminateRpcapdServer(rpcapdHandle), "Couldn't start capturing on remote device '%s'. Error was: %s", pRemoteDevice->getName(), args.errString);
 
 	if (!useRemoteDevicesFromArgs)
 		PCAPP_ASSERT_AND_RUN_COMMAND(sendURLRequest("www.yahoo.com"), terminateRpcapdServer(rpcapdHandle), "Couldn't send URL");
@@ -667,7 +667,7 @@ PCAPP_TEST(TestRemoteCaptue)
 	pRemoteDevice->stopCapture();
 
 	//send single packet
-	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->sendPacket(*capturedPackets[0]), terminateRpcapdServer(rpcapdHandle), "Couldn't send a packet. Error was: %s", args.errString);
+	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->sendPacket(*capturedPackets.front()), terminateRpcapdServer(rpcapdHandle), "Couldn't send a packet. Error was: %s", args.errString);
 
 	//send multiple packet
 	RawPacket rawPacketArr[capturedPackets.size()];

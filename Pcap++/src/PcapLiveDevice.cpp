@@ -26,6 +26,7 @@ struct PcapThread
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU) : IPcapDevice(),
 		m_xMacAddress("")
 {
+
 	m_pName = NULL;
 	m_pDescription = NULL;
 	m_DeviceMtu = 0;
@@ -108,8 +109,8 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t *user, const struct pcap_
 		return;
 	}
 
-	RawPacket* pRawPacket = new RawPacket(packet, pkthdr->caplen, pkthdr->ts, false);
-	pThis->m_pCapturedPackets->push_back(pRawPacket);
+	RawPacket* rawPacketPtr = new RawPacket(packet, pkthdr->caplen, pkthdr->ts, false);
+	pThis->m_pCapturedPackets->pushBack(rawPacketPtr);
 }
 
 void* PcapLiveDevice::captureThreadMain(void *ptr)
@@ -240,9 +241,9 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	return true;
 }
 
-bool PcapLiveDevice::startCapture(vector<RawPacket*>* pCapturedPacketsVector)
+bool PcapLiveDevice::startCapture(RawPacketVector& rCapturedPacketsVector)
 {
-	m_pCapturedPackets = pCapturedPacketsVector;
+	m_pCapturedPackets = &rCapturedPacketsVector;
 	m_pCapturedPackets->clear();
 
 	if (m_CaptureThreadStarted || m_pPcapDescriptor == NULL)
@@ -506,6 +507,10 @@ ThreadStart PcapLiveDevice::getCaptureThreadStart()
 
 PcapLiveDevice::~PcapLiveDevice()
 {
+	if (m_pName != NULL)
+		delete [] m_pName;
+	if (m_pDescription != NULL)
+		delete [] m_pDescription;
 	delete m_pCaptureThread;
 	delete m_pStatsThread;
 }
