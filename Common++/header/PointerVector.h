@@ -34,6 +34,7 @@ public:
 	inline VectorIterator begin() { return m_Vector.begin(); }
 	inline VectorIterator end() { return m_Vector.end(); }
 	inline size_t size() { return m_Vector.size(); }
+	inline T* front() { return m_Vector.front(); }
 
 private:
 	std::vector<T*> m_Vector;

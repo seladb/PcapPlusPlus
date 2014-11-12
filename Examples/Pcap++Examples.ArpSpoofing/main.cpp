@@ -57,8 +57,8 @@ MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 
 	//send the arp request and wait for arp reply
 	pDevice->sendPacket(&arpRequest);
-	vector<RawPacket*> capturedPackets;
-	pDevice->startCapture(&capturedPackets);
+	RawPacketVector capturedPackets;
+	pDevice->startCapture(capturedPackets);
 	PCAP_SLEEP(2);
 	pDevice->stopCapture();
 
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
 	IPv4Address victimAddr(victim);
 	IPv4Address gatewayAddr(gateway);
 
-	PcapLiveDevice* pIfaceDevice = PcapLiveDeviceList::getPcapLiveDeviceByIp(ifaceAddr);
+	PcapLiveDevice* pIfaceDevice = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr);
 
 	//Verifying interface is valid
 	if (pIfaceDevice == NULL)
