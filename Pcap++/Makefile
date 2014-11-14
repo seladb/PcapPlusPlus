@@ -1,8 +1,7 @@
 -include ../mk/platform.mk
 
-SOURCES := $(wildcard ./src/*.cpp)
-OBJS_FILENAMES := $(patsubst ./src/%.cpp,%.o,$(SOURCES))
-OBJS := $(patsubst ./src/%.cpp,./Obj/%.o,$(SOURCES))
+SOURCES := $(wildcard src/*.cpp)
+OBJS_FILENAMES := $(patsubst src/%.cpp,Obj/%.o,$(SOURCES))
 
 COMMONPP_HOME := ../Common++
 PACKETPP_HOME := ../Packet++
@@ -24,11 +23,11 @@ ifdef LINUX
 INCLUDES += -I/usr/include/netinet
 endif
 			
-$(OBJS_FILENAMES):
-	@echo 'Building file: $(@:%.o=./src/%.cpp)'
+Obj/%.o: src/%.cpp
+	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=./Obj/%.d)" -MT"$(@:%.o=./Obj/%.d)" -o "./Obj/$@" "$(@:%.o=./src/%.cpp)"
-	@echo 'Finished building: $(@:%.o=./src/%.cpp)'
+	$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	@echo 'Finished building: $<'
 	@echo ' '
 
 # All Target
@@ -38,7 +37,7 @@ all: Pcap++.lib
 Pcap++.lib: $(OBJS_FILENAMES)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC Archiver'
-	$(AR) -r  "Lib/$(LIB_PREFIX)Pcap++$(LIB_EXT)" $(OBJS)
+	$(AR) -r  "Lib/$(LIB_PREFIX)Pcap++$(LIB_EXT)" $(OBJS_FILENAMES)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 

@@ -1,8 +1,7 @@
 -include ../../mk/platform.mk
 
 SOURCES := $(wildcard *.cpp)
-OBJS_FILENAMES := $(patsubst %.cpp,%.o,$(SOURCES))
-OBJS := $(patsubst %.cpp,./Obj/%.o,$(SOURCES))
+OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
 COMMONPP_HOME := ../../Common++
 PACKETPP_HOME := ../../Packet++
@@ -21,11 +20,11 @@ INCLUDES += -I/usr/include/netinet
 endif
 		
 		
-$(OBJS_FILENAMES):
-	@echo 'Building file: $(@:%.o=%.cpp)'
+Obj/%.o: %.cpp
+	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=./Obj/%.d)" -MT"$(@:%.o=./Obj/%.d)" -o "./Obj/$@" "$(@:%.o=%.cpp)"
-	@echo 'Finished building: $(@:%.o=%.cpp)'
+	$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	@echo 'Finished building: $<'
 	@echo ' '
 
 LIBS_DIR := -L$(PCAPP_HOME)/Lib -L$(PACKETPP_HOME)/Lib -L$(COMMONPP_HOME)/Lib
@@ -67,7 +66,7 @@ Pcap++Examples.ArpSpoofing: $(OBJS_FILENAMES) dependents
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
-	$(G++) $(LIBS_DIR) -static-libgcc -static-libstdc++ -o "./Bin/Pcap++Examples.ArpSpoofing$(BIN_EXT)" $(OBJS) $(USER_OBJS) $(LIBS)
+	$(G++) $(LIBS_DIR) -static-libgcc -static-libstdc++ -o "./Bin/Pcap++Examples.ArpSpoofing$(BIN_EXT)" $(OBJS_FILENAMES) $(USER_OBJS) $(LIBS)
 	$(POST_BUILD)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
