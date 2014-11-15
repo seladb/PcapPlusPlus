@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <unordered_map>
 #include <math.h>
+#include <map>
 #include <Logger.h>
 #include <Packet.h>
 #include <IPv4Layer.h>
@@ -41,7 +41,7 @@ void printPacketsToFile(char* fileName, vector<Packet*>& packets, char* errStrin
 		return;
 	}
 
-	for (auto packetIter = packets.begin(); packetIter != packets.end(); packetIter++)
+	for (vector<Packet*>::iterator packetIter = packets.begin(); packetIter != packets.end(); packetIter++)
 	{
 		writerDevice.writePacket(*(*packetIter)->getRawPacket());
 	}
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 {
 	char errorString[1000];
 	LoggerPP::getInstance().setErrorString(errorString, 1000);
-	unordered_map<size_t,vector<Packet*>> tcpStreamsMap;
+	map<size_t,vector<Packet*> > tcpStreamsMap;
 	PcapFileReaderDevice readerDevice("example.pcap");
 	if (!readerDevice.open())
 	{
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
 	printf("Number of streams found: %d\n", tcpStreamsMap.size());
 	i = 0;
-	for(auto iter = tcpStreamsMap.begin(); iter != tcpStreamsMap.end(); iter++)
+	for(map<size_t,vector<Packet*> >::iterator iter = tcpStreamsMap.begin(); iter != tcpStreamsMap.end(); iter++)
 	{
 		// Print stream size
 		printf("Stream #%d: %d packets\n", ++i, iter->second.size());
