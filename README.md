@@ -86,7 +86,7 @@ such as apt-get:
 To ensure configuration and compilation went smoothly, you can run the unit-test applications for both Packet++ and Pcap++:
 
 ```shell
-D:\PcapPlusPlus\Packet++Test> Bin\Packet++Test.exe
+elad@elad:~/home/PcapPlusPlus/Packet++Test$ Bin/Packet++Test.exe
 EthPacketCreation             : PASSED
 EthAndArpPacketParsing        : PASSED
 ArpPacketCreation             : PASSED
@@ -110,7 +110,7 @@ HttpResponseLayerCreationTest : PASSED
 HttpResponseLayerEditTest     : PASSED
 ALL TESTS PASSED!!
 
-D:\PcapPlusPlus\Pcap++Test> Bin\Pcap++Test.exe -i 10.0.0.1
+elad@elad:~/PcapPlusPlus/Pcap++Test$ sudo Bin/Pcap++Test.exe -i 10.0.0.1
 Using ip: 10.0.0.1
 Debug mode: off
 Starting tests...
@@ -130,3 +130,5 @@ TestHttpRequestParsing        : PASSED
 TestHttpResponseParsing       : PASSED
 ALL TESTS PASSED!!
 ```
+
+*Notice:* Pcap++Test must be run with **sudo** on Linux to have access to all NICs
