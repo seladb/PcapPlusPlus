@@ -43,6 +43,22 @@ PcapPlusPlus currently works with the following engines:
 1. libPcap (on Linux)
 2. WinPcap (on Windows)
 
+
+## Download ##
+
+In order to download PcapPlusPlus, please visit the github [page](https://github.com/seladb/PcapPlusPlus/).
+
+You can also download it using these links:
+
+- [ZIP format](https://github.com/seladb/PcapPlusPlus/archive/master.zip)
+- [tat.gz format](https://github.com/seladb/PcapPlusPlus/archive/master.tar.gz)
+ 
+Or clone the git repository by:
+
+```shell
+git clone https://github.com/seladb/PcapPlusPlus.git
+```
+
 ## Compiling ##
 
 #### Prerequisutes - Windows ####
