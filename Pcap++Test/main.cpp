@@ -542,7 +542,6 @@ PCAPP_TEST(TestPcapFilters)
 	for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		Packet packet(*iter);
-		PCAPP_ASSERT(packet.isPacketOfType(IP), "Filter '%s', Packet captured isn't of type IP", filterAsString.c_str());
 		if (packet.isPacketOfType(IPv4))
 		{
 			IPv4Layer* ipv4Layer = (IPv4Layer*)packet.getLayerOfType(IPv4);
