@@ -59,19 +59,19 @@ AndFilter::AndFilter(vector<GeneralFilter*>& filters)
 {
 	for(vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
 	{
-		m_xFilterList.push_back(*it);
+		m_FilterList.push_back(*it);
 	}
 }
 
 void AndFilter::parseToString(string& result)
 {
 	result = "";
-	for(vector<GeneralFilter*>::iterator it = m_xFilterList.begin(); it != m_xFilterList.end(); ++it)
+	for(vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
 	{
 		string innerFilter;
 		(*it)->parseToString(innerFilter);
 		result += "(" + innerFilter + ")";
-		if (m_xFilterList.back() != *it)
+		if (m_FilterList.back() != *it)
 		{
 			result += " and ";
 		}
@@ -82,19 +82,19 @@ OrFilter::OrFilter(vector<GeneralFilter*>& filters)
 {
 	for(vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
 	{
-		m_xFilterList.push_back(*it);
+		m_FilterList.push_back(*it);
 	}
 }
 
 void OrFilter::parseToString(string& result)
 {
 	result = "";
-	for(vector<GeneralFilter*>::iterator it = m_xFilterList.begin(); it != m_xFilterList.end(); ++it)
+	for(vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
 	{
 		string innerFilter;
 		(*it)->parseToString(innerFilter);
 		result += "(" + innerFilter + ")";
-		if (m_xFilterList.back() != *it)
+		if (m_FilterList.back() != *it)
 		{
 			result += " or ";
 		}
@@ -104,7 +104,7 @@ void OrFilter::parseToString(string& result)
 void NotFilter::parseToString(string& result)
 {
 	string innerFilterAsString;
-	m_pFilterToInverse->parseToString(innerFilterAsString);
+	m_FilterToInverse->parseToString(innerFilterAsString);
 	result = "not (" + innerFilterAsString + ")";
 }
 

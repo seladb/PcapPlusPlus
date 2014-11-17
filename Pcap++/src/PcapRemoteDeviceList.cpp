@@ -14,7 +14,7 @@ const bool PcapRemoteDeviceList::getRemoteDeviceList(string ipAddress, uint16_t 
 	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, NULL, resultList);
 }
 
-const bool PcapRemoteDeviceList::getRemoteDeviceList(string ipAddress, uint16_t port, PcapRemoteAuthentication* pRemoteAuth, PcapRemoteDeviceList& resultList)
+const bool PcapRemoteDeviceList::getRemoteDeviceList(string ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth, PcapRemoteDeviceList& resultList)
 {
 	char portAsCharArr[5];
 	sprintf(portAsCharArr, "%d", port);
@@ -30,15 +30,15 @@ const bool PcapRemoteDeviceList::getRemoteDeviceList(string ipAddress, uint16_t 
 	LOG_DEBUG("Remote capture string: %s", remoteCaptureString);
 
 	pcap_rmtauth* pRmAuth = NULL;
-	if (pRemoteAuth != NULL)
+	if (remoteAuth != NULL)
 	{
-		LOG_DEBUG("Authentication requested. Username: %s, Password: %s", pRemoteAuth->userName, pRemoteAuth->password);
+		LOG_DEBUG("Authentication requested. Username: %s, Password: %s", remoteAuth->userName, remoteAuth->password);
 		pRmAuth = new pcap_rmtauth();
 		pRmAuth->type = RPCAP_RMTAUTH_PWD;
-		pRmAuth->username = new char[1+strlen(pRemoteAuth->userName)];
-		strncpy(pRmAuth->username, pRemoteAuth->userName, 1+strlen(pRemoteAuth->userName));
-		pRmAuth->password = new char[1+strlen(pRemoteAuth->password)];
-		strncpy(pRmAuth->password, pRemoteAuth->password, 1+strlen(pRemoteAuth->password));
+		pRmAuth->username = new char[1+strlen(remoteAuth->userName)];
+		strncpy(pRmAuth->username, remoteAuth->userName, 1+strlen(remoteAuth->userName));
+		pRmAuth->password = new char[1+strlen(remoteAuth->password)];
+		strncpy(pRmAuth->password, remoteAuth->password, 1+strlen(remoteAuth->password));
 	}
 
 	pcap_if_t* interfaceList;
@@ -74,17 +74,17 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAs
 	return result;
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* pIPAddr)
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* ipAddr)
 {
-	if (pIPAddr->getType() == IPAddress::IPv4AddressType)
+	if (ipAddr->getType() == IPAddress::IPv4AddressType)
 	{
-		IPv4Address* pIp4Addr = static_cast<IPv4Address*>(pIPAddr);
-		return getRemoteDeviceByIP(*pIp4Addr);
+		IPv4Address* ip4Addr = static_cast<IPv4Address*>(ipAddr);
+		return getRemoteDeviceByIP(*ip4Addr);
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		IPv6Address* pIp6Addr = static_cast<IPv6Address*>(pIPAddr);
-		return getRemoteDeviceByIP(*pIp6Addr);
+		IPv6Address* ip6Addr = static_cast<IPv6Address*>(ipAddr);
+		return getRemoteDeviceByIP(*ip6Addr);
 	}
 }
 
@@ -94,8 +94,8 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 	LOG_DEBUG("Searching all remote devices in list...");
 	for(vector<PcapRemoteDevice*>::iterator devIter = begin(); devIter != end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_pName);
-		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_xAddresses.begin(); addrIter != (*devIter)->m_xAddresses.end(); addrIter++)
+		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
+		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{
@@ -128,8 +128,8 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr)
 	LOG_DEBUG("Searching all remote devices in list...");
 	for(vector<PcapRemoteDevice*>::iterator devIter = begin(); devIter != end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_pName);
-		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_xAddresses.begin(); addrIter != (*devIter)->m_xAddresses.end(); addrIter++)
+		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
+		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{

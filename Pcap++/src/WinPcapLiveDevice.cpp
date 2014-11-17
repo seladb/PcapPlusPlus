@@ -5,7 +5,7 @@
 #include <WinPcapLiveDevice.h>
 #include <Logger.h>
 
-WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU) : PcapLiveDevice(pInterface, calculateMTU)
+WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU) : PcapLiveDevice(iface, calculateMTU)
 {
 	m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
 }
@@ -13,9 +13,9 @@ WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU) :
 bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie)
 {
     //Put the interface in capture mode
-    if (pcap_setmode(m_pPcapDescriptor, MODE_CAPT) < 0)
+    if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
     {
-        LOG_ERROR("Error setting the capture mode for device '%s'", m_pName);
+        LOG_ERROR("Error setting the capture mode for device '%s'", m_Name);
         return false;
     }
 
@@ -25,9 +25,9 @@ bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, vo
 bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
     //Put the interface in statistics mode
-    if (pcap_setmode(m_pPcapDescriptor, MODE_STAT) < 0)
+    if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
     {
-        LOG_ERROR("Error setting the statistics mode for device '%s'", m_pName);
+        LOG_ERROR("Error setting the statistics mode for device '%s'", m_Name);
         return false;
     }
 
@@ -41,7 +41,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	for (int i = 0; i < arrLength; i++)
 		dataSize += rawPacketsArr[i].getRawDataLen();
 
-	pcap_send_queue* pSendQueue = pcap_sendqueue_alloc(dataSize + arrLength*sizeof(pcap_pkthdr));
+	pcap_send_queue* sendQueue = pcap_sendqueue_alloc(dataSize + arrLength*sizeof(pcap_pkthdr));
 	LOG_DEBUG("Allocated send queue of size %d", dataSize + arrLength*sizeof(pcap_pkthdr));
 	struct pcap_pkthdr packetHeader[arrLength];
 	for (int i = 0; i < arrLength; i++)
@@ -49,7 +49,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		packetHeader[i].caplen = rawPacketsArr[i].getRawDataLen();
 		packetHeader[i].len = rawPacketsArr[i].getRawDataLen();
 		packetHeader[i].ts = rawPacketsArr[i].getPacketTimeStamp();
-		if (pcap_sendqueue_queue(pSendQueue, &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
+		if (pcap_sendqueue_queue(sendQueue, &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
 		{
 			LOG_ERROR("pcap_send_queue is too small for all packets. Sending only %d packets", i);
 			break;
@@ -59,9 +59,9 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	LOG_DEBUG("%d packets were queued successfully", packetsSent);
 
 	int res;
-	if ((res = pcap_sendqueue_transmit(m_pPcapDescriptor, pSendQueue, 0)) < pSendQueue->len)
+	if ((res = pcap_sendqueue_transmit(m_PcapDescriptor, sendQueue, 0)) < sendQueue->len)
     {
-        LOG_ERROR("An error occurred sending the packets: %s. Only %d bytes were sent\n", pcap_geterr(m_pPcapDescriptor), res);
+        LOG_ERROR("An error occurred sending the packets: %s. Only %d bytes were sent\n", pcap_geterr(m_PcapDescriptor), res);
         packetsSent = 0;
         dataSize = 0;
     	for (int i = 0; i < arrLength; i++)
@@ -78,7 +78,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
     }
 	LOG_DEBUG("Packets were sent successfully");
 
-	pcap_sendqueue_destroy(pSendQueue);
+	pcap_sendqueue_destroy(sendQueue);
 	LOG_DEBUG("Send queue destroyed");
 	return packetsSent;
 }
@@ -91,7 +91,7 @@ bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size
 		return false;
 	}
 
-	if (pcap_setmintocopy(m_pPcapDescriptor, size) != 0)
+	if (pcap_setmintocopy(m_PcapDescriptor, size) != 0)
 	{
 		LOG_ERROR("pcap_setmintocopy failed");
 		return false;

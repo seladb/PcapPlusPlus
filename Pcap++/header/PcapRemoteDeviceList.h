@@ -11,19 +11,19 @@ class PcapRemoteDeviceList : public vector<PcapRemoteDevice*>
 private:
 	string m_RemoteMachineIpAddress;
 	uint16_t m_RemoteMachinePort;
-	pcap_rmtauth* m_pRemoteAuthentication;
+	pcap_rmtauth* m_RemoteAuthentication;
 public:
 	~PcapRemoteDeviceList();
 
 	static const bool getRemoteDeviceList(string ipAddress, uint16_t port, PcapRemoteDeviceList& resultList);
-	static const bool getRemoteDeviceList(string ipAddress, uint16_t port, PcapRemoteAuthentication* pRemoteAuth, PcapRemoteDeviceList& resultList);
+	static const bool getRemoteDeviceList(string ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth, PcapRemoteDeviceList& resultList);
 
 	string getRemoteMachineIpAddress() { return m_RemoteMachineIpAddress; }
 	uint16_t getRemoteMachinePort() { return m_RemoteMachinePort; }
 
 	PcapRemoteDevice* getRemoteDeviceByIP(IPv4Address ip4Addr);
 	PcapRemoteDevice* getRemoteDeviceByIP(IPv6Address ip6Addr);
-	PcapRemoteDevice* getRemoteDeviceByIP(IPAddress* pIPAddr);
+	PcapRemoteDevice* getRemoteDeviceByIP(IPAddress* ipAddr);
 	PcapRemoteDevice* getRemoteDeviceByIP(const char* ipAddrAsString);
 };
 

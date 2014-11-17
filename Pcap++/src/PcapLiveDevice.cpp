@@ -24,32 +24,32 @@ struct PcapThread
 };
 
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU) : IPcapDevice(),
-		m_xMacAddress("")
+		m_MacAddress("")
 {
 
-	m_pName = NULL;
-	m_pDescription = NULL;
+	m_Name = NULL;
+	m_Description = NULL;
 	m_DeviceMtu = 0;
 
 	m_IsLoopback = (pInterface->flags & 0x1) == PCAP_IF_LOOPBACK;
 
 	int strLength = strlen(pInterface->name)+1;
-	m_pName = new char[strLength];
-	strncpy((char*)m_pName, pInterface->name, strLength);
+	m_Name = new char[strLength];
+	strncpy((char*)m_Name, pInterface->name, strLength);
 
 	strLength = 1;
 	if (pInterface->description != NULL)
 		strLength += strlen(pInterface->description);
-	m_pDescription = new char[strLength];
+	m_Description = new char[strLength];
 	if (pInterface->description != NULL)
-		strncpy((char*)m_pDescription, pInterface->description, strLength);
+		strncpy((char*)m_Description, pInterface->description, strLength);
 	else
-		strncpy((char*)m_pDescription, "", strLength);
-	LOG_DEBUG("Added live device: name=%s; desc=%s", m_pName, m_pDescription);
+		strncpy((char*)m_Description, "", strLength);
+	LOG_DEBUG("Added live device: name=%s; desc=%s", m_Name, m_Description);
 	LOG_DEBUG("   Addresses:");
 	while (pInterface->addresses != NULL)
 	{
-		m_xAddresses.insert(m_xAddresses.end(), *(pInterface->addresses));
+		m_Addresses.insert(m_Addresses.end(), *(pInterface->addresses));
 		pInterface->addresses = pInterface->addresses->next;
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != NULL && pInterface->addresses->addr != NULL)
 		{
@@ -69,20 +69,20 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU) : IPcap
 	m_CaptureThreadStarted = false;
 	m_StatsThreadStarted = false;  m_IsLoopback = false;
 	m_StopThread = false;
-	m_pCaptureThread = new PcapThread();
-	m_pStatsThread = new PcapThread();
-	memset(m_pCaptureThread, 0, sizeof(PcapThread));
-	memset(m_pStatsThread, 0, sizeof(PcapThread));
+	m_CaptureThread = new PcapThread();
+	m_StatsThread = new PcapThread();
+	memset(m_CaptureThread, 0, sizeof(PcapThread));
+	memset(m_StatsThread, 0, sizeof(PcapThread));
 	m_cbOnPacketArrives = NULL;
 	m_cbOnStatsUpdate = NULL;
 	m_IntervalToUpdateStats = 0;
 	m_cbOnPacketArrivesUserCookie = NULL;
 	m_cbOnStatsUpdateUserCookie = NULL;
 	m_CaptureCallbackMode = true;
-	m_pCapturedPackets = NULL;
+	m_CapturedPackets = NULL;
 	setDeviceMacAddress();
-	if (m_xMacAddress.isValid())
-		LOG_DEBUG("   MAC addr: %s", m_xMacAddress.toString().c_str());
+	if (m_MacAddress.isValid())
+		LOG_DEBUG("   MAC addr: %s", m_MacAddress.toString().c_str());
 }
 
 void PcapLiveDevice::onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet)
@@ -110,7 +110,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t *user, const struct pcap_
 	}
 
 	RawPacket* rawPacketPtr = new RawPacket(packet, pkthdr->caplen, pkthdr->ts, false);
-	pThis->m_pCapturedPackets->pushBack(rawPacketPtr);
+	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 }
 
 void* PcapLiveDevice::captureThreadMain(void *ptr)
@@ -122,19 +122,19 @@ void* PcapLiveDevice::captureThreadMain(void *ptr)
 		return 0;
 	}
 
-	LOG_DEBUG("Started capture thread for device '%s'", pThis->m_pName);
+	LOG_DEBUG("Started capture thread for device '%s'", pThis->m_Name);
 	if (pThis->m_CaptureCallbackMode)
 	{
 		while (!pThis->m_StopThread)
-			pcap_dispatch(pThis->m_pPcapDescriptor, -1, onPacketArrives, (uint8_t*)pThis);
+			pcap_dispatch(pThis->m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)pThis);
 	}
 	else
 	{
 		while (!pThis->m_StopThread)
-			pcap_dispatch(pThis->m_pPcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)pThis);
+			pcap_dispatch(pThis->m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)pThis);
 
 	}
-	LOG_DEBUG("Ended capture thread for device '%s'", pThis->m_pName);
+	LOG_DEBUG("Ended capture thread for device '%s'", pThis->m_Name);
 	return 0;
 }
 
@@ -147,7 +147,7 @@ void* PcapLiveDevice::statsThreadMain(void *ptr)
 		return 0;
 	}
 
-	LOG_DEBUG("Started stats thread for device '%s'", pThis->m_pName);
+	LOG_DEBUG("Started stats thread for device '%s'", pThis->m_Name);
 	while (!pThis->m_StopThread)
 	{
 		pcap_stat stats;
@@ -155,22 +155,22 @@ void* PcapLiveDevice::statsThreadMain(void *ptr)
 		pThis->m_cbOnStatsUpdate(stats, pThis->m_cbOnStatsUpdateUserCookie);
 		PCAP_SLEEP(pThis->m_IntervalToUpdateStats);
 	}
-	LOG_DEBUG("Ended stats thread for device '%s'", pThis->m_pName);
+	LOG_DEBUG("Ended stats thread for device '%s'", pThis->m_Name);
 	return 0;
 }
 
 bool PcapLiveDevice::open(DeviceMode mode)
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
-	m_pPcapDescriptor = pcap_open_live(m_pName, BUFSIZ, mode, -1, errbuf);
-	if (m_pPcapDescriptor == NULL)
+	m_PcapDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, -1, errbuf);
+	if (m_PcapDescriptor == NULL)
 	{
 		LOG_ERROR("%s", errbuf);
 		m_DeviceOpened = false;
 		return false;
 	}
 
-	LOG_DEBUG("Device '%s' opened", m_pName);
+	LOG_DEBUG("Device '%s' opened", m_Name);
 
 	m_DeviceOpened = true;
 	return true;
@@ -183,13 +183,13 @@ bool PcapLiveDevice::open()
 
 void PcapLiveDevice::close()
 {
-	if (m_pPcapDescriptor == NULL)
+	if (m_PcapDescriptor == NULL)
 	{
-		LOG_DEBUG("Device '%s' already closed", m_pName);
+		LOG_DEBUG("Device '%s' already closed", m_Name);
 		return;
 	}
-	pcap_close(m_pPcapDescriptor);
-	LOG_DEBUG("Device '%s' closed", m_pName);
+	pcap_close(m_PcapDescriptor);
+	LOG_DEBUG("Device '%s' closed", m_Name);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
@@ -206,61 +206,61 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 {
 	m_IntervalToUpdateStats = intervalInSecondsToUpdateStats;
 
-	if (m_CaptureThreadStarted || m_pPcapDescriptor == NULL)
+	if (m_CaptureThreadStarted || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' already capturing or not opened", m_pName);
+		LOG_ERROR("Device '%s' already capturing or not opened", m_Name);
 		return false;
 	}
 
 	m_CaptureCallbackMode = true;
 	m_cbOnPacketArrives = onPacketArrives;
 	m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
-	int err = pthread_create(&(m_pCaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
+	int err = pthread_create(&(m_CaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
 	if (err != 0)
 	{
-		LOG_ERROR("Cannot create LiveCapture thread for device '%s': [%s]", m_pName, strerror(err));
+		LOG_ERROR("Cannot create LiveCapture thread for device '%s': [%s]", m_Name, strerror(err));
 		return false;
 	}
 	m_CaptureThreadStarted = true;
-	LOG_DEBUG("Successfully created capture thread for device '%s'. Thread id: %s", m_pName, printThreadId(m_pCaptureThread).c_str());
+	LOG_DEBUG("Successfully created capture thread for device '%s'. Thread id: %s", m_Name, printThreadId(m_CaptureThread).c_str());
 
 	if (onStatsUpdate != NULL && intervalInSecondsToUpdateStats > 0)
 	{
 		m_cbOnStatsUpdate = onStatsUpdate;
 		m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
-		int err = pthread_create(&(m_pStatsThread->pthread), NULL, &statsThreadMain, (void*)this);
+		int err = pthread_create(&(m_StatsThread->pthread), NULL, &statsThreadMain, (void*)this);
 		if (err != 0)
 		{
-			LOG_ERROR("Cannot create LiveCapture Statistics thread for device '%s': [%s]", m_pName, strerror(err));
+			LOG_ERROR("Cannot create LiveCapture Statistics thread for device '%s': [%s]", m_Name, strerror(err));
 			return false;
 		}
 		m_StatsThreadStarted = true;
-		LOG_DEBUG("Successfully created stats thread for device '%s'. Thread id: %s", m_pName, printThreadId(m_pStatsThread).c_str());
+		LOG_DEBUG("Successfully created stats thread for device '%s'. Thread id: %s", m_Name, printThreadId(m_StatsThread).c_str());
 	}
 
 	return true;
 }
 
-bool PcapLiveDevice::startCapture(RawPacketVector& rCapturedPacketsVector)
+bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 {
-	m_pCapturedPackets = &rCapturedPacketsVector;
-	m_pCapturedPackets->clear();
+	m_CapturedPackets = &capturedPacketsVector;
+	m_CapturedPackets->clear();
 
-	if (m_CaptureThreadStarted || m_pPcapDescriptor == NULL)
+	if (m_CaptureThreadStarted || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' already capturing or not opened", m_pName);
+		LOG_ERROR("Device '%s' already capturing or not opened", m_Name);
 		return false;
 	}
 
 	m_CaptureCallbackMode = false;
-	int err = pthread_create(&(m_pCaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
+	int err = pthread_create(&(m_CaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
 	if (err != 0)
 	{
-		LOG_ERROR("Cannot create LiveCapture thread for device '%s': [%s]", m_pName, strerror(err));
+		LOG_ERROR("Cannot create LiveCapture thread for device '%s': [%s]", m_Name, strerror(err));
 		return false;
 	}
 	m_CaptureThreadStarted = true;
-	LOG_DEBUG("Successfully created capture thread for device '%s'. Thread id: %s", m_pName, printThreadId(m_pCaptureThread).c_str());
+	LOG_DEBUG("Successfully created capture thread for device '%s'. Thread id: %s", m_Name, printThreadId(m_CaptureThread).c_str());
 
 	return true;
 }
@@ -269,15 +269,15 @@ void PcapLiveDevice::stopCapture()
 {
 	m_StopThread = true;
 	LOG_DEBUG("Stopping capture thread, waiting for it to join...");
-	pthread_join(m_pCaptureThread->pthread, NULL);
+	pthread_join(m_CaptureThread->pthread, NULL);
 	m_CaptureThreadStarted = false;
-	LOG_DEBUG("Capture thread stopped for device '%s'", m_pName);
+	LOG_DEBUG("Capture thread stopped for device '%s'", m_Name);
 	if (m_StatsThreadStarted)
 	{
 		LOG_DEBUG("Stopping stats thread, waiting for it to join...");
-		pthread_join(m_pStatsThread->pthread, NULL);
+		pthread_join(m_StatsThread->pthread, NULL);
 		m_StatsThreadStarted = false;
-		LOG_DEBUG("Stats thread stopped for device '%s'", m_pName);
+		LOG_DEBUG("Stats thread stopped for device '%s'", m_Name);
 	}
 	PCAP_SLEEP(1);
 	m_StopThread = false;
@@ -285,9 +285,9 @@ void PcapLiveDevice::stopCapture()
 
 void PcapLiveDevice::getStatistics(pcap_stat& stats)
 {
-	if(pcap_stats(m_pPcapDescriptor, &stats) < 0)
+	if(pcap_stats(m_PcapDescriptor, &stats) < 0)
 	{
-		LOG_ERROR("Error getting statistics from live device '%s'", m_pName);
+		LOG_ERROR("Error getting statistics from live device '%s'", m_Name);
 	}
 }
 
@@ -300,7 +300,7 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 {
 	if (!m_DeviceOpened)
 	{
-		LOG_ERROR("Device '%s' not opened!", m_pName);
+		LOG_ERROR("Device '%s' not opened!", m_Name);
 		return false;
 	}
 
@@ -316,9 +316,9 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 		return false;
 	}
 
-	if (pcap_sendpacket(m_pPcapDescriptor, packetData, packetDataLength) == -1)
+	if (pcap_sendpacket(m_PcapDescriptor, packetData, packetDataLength) == -1)
 	{
-		LOG_ERROR("Error sending packet: %s\n", pcap_geterr(m_pPcapDescriptor));
+		LOG_ERROR("Error sending packet: %s\n", pcap_geterr(m_PcapDescriptor));
 		return false;
 	}
 
@@ -378,8 +378,8 @@ void PcapLiveDevice::setDeviceMtu()
 #ifdef WIN32
 
 	uint32_t mtuValue = 0;
-	LPADAPTER pAdapter = PacketOpenAdapter((char*)m_pName);
-	if (pAdapter == NULL)
+	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name);
+	if (adapter == NULL)
 	{
 		LOG_ERROR("Error in retrieving MTU: Adapter is NULL");
 		return;
@@ -388,7 +388,7 @@ void PcapLiveDevice::setDeviceMtu()
     oidData.Oid = OID_GEN_MAXIMUM_TOTAL_SIZE;
     oidData.Length = sizeof(uint32_t);
     memcpy(oidData.Data, &mtuValue, sizeof(uint32_t));
-    bool status = PacketRequest(pAdapter, false, &oidData);
+    bool status = PacketRequest(adapter, false, &oidData);
     if(status)
     {
         if(oidData.Length <= sizeof(uint32_t))
@@ -412,7 +412,7 @@ void PcapLiveDevice::setDeviceMtu()
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
-	strncpy(ifr.ifr_name, m_pName, sizeof(ifr.ifr_name));
+	strncpy(ifr.ifr_name, m_Name, sizeof(ifr.ifr_name));
 
 	int socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 	if (ioctl(socketfd, SIOCGIFMTU, &ifr) == -1)
@@ -430,8 +430,8 @@ void PcapLiveDevice::setDeviceMacAddress()
 {
 #ifdef WIN32
 
-	LPADAPTER pAdapter = PacketOpenAdapter((char*)m_pName);
-	if (pAdapter == NULL)
+	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name);
+	if (adapter == NULL)
 	{
 		LOG_ERROR("Error in retrieving MAC address: Adapter is NULL");
 		return;
@@ -440,14 +440,14 @@ void PcapLiveDevice::setDeviceMacAddress()
     oidData.Oid = OID_802_3_CURRENT_ADDRESS;
     oidData.Length = 6;
     oidData.Data[0] = 0;
-    bool status = PacketRequest(pAdapter, false, &oidData);
+    bool status = PacketRequest(adapter, false, &oidData);
     if(status)
     {
         if(oidData.Length == 6)
         {
             /* copy value from driver */
-        	m_xMacAddress = MacAddress(oidData.Data[0], oidData.Data[1], oidData.Data[2], oidData.Data[3], oidData.Data[4], oidData.Data[5]);
-        	LOG_DEBUG("   MAC address: %s", m_xMacAddress.toString().c_str());
+        	m_MacAddress = MacAddress(oidData.Data[0], oidData.Data[1], oidData.Data[2], oidData.Data[3], oidData.Data[4], oidData.Data[5]);
+        	LOG_DEBUG("   MAC address: %s", m_MacAddress.toString().c_str());
         } else
         {
             /* the driver returned a value that is longer than expected (and longer than the given buffer) */
@@ -463,7 +463,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
-	strncpy(ifr.ifr_name, m_pName, sizeof(ifr.ifr_name));
+	strncpy(ifr.ifr_name, m_Name, sizeof(ifr.ifr_name));
 
 	int socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 	if (ioctl(socketfd, SIOCGIFHWADDR, &ifr) == -1)
@@ -472,13 +472,13 @@ void PcapLiveDevice::setDeviceMacAddress()
 		return;
 	}
 
-    m_xMacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
+    m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
 #endif
 }
 
 IPv4Address PcapLiveDevice::getIPv4Address()
 {
-	for(vector<pcap_addr_t>::iterator addrIter = m_xAddresses.begin(); addrIter != m_xAddresses.end(); addrIter++)
+	for(vector<pcap_addr_t>::iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
 	{
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 		{
@@ -507,10 +507,10 @@ ThreadStart PcapLiveDevice::getCaptureThreadStart()
 
 PcapLiveDevice::~PcapLiveDevice()
 {
-	if (m_pName != NULL)
-		delete [] m_pName;
-	if (m_pDescription != NULL)
-		delete [] m_pDescription;
-	delete m_pCaptureThread;
-	delete m_pStatsThread;
+	if (m_Name != NULL)
+		delete [] m_Name;
+	if (m_Description != NULL)
+		delete [] m_Description;
+	delete m_CaptureThread;
+	delete m_StatsThread;
 }

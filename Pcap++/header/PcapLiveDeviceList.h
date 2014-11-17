@@ -11,7 +11,7 @@ using namespace std;
 class PcapLiveDeviceList
 {
 private:
-	vector<PcapLiveDevice*> m_xLiveDeviceList;
+	vector<PcapLiveDevice*> m_LiveDeviceList;
 	PcapLiveDeviceList();
 	~PcapLiveDeviceList();
 public:
@@ -21,8 +21,8 @@ public:
 		return instance;
 	}
 
-	inline const vector<PcapLiveDevice*>& getPcapLiveDevicesList() { return m_xLiveDeviceList; }
-	PcapLiveDevice* getPcapLiveDeviceByIp(IPAddress* pIPAddr);
+	inline const vector<PcapLiveDevice*>& getPcapLiveDevicesList() { return m_LiveDeviceList; }
+	PcapLiveDevice* getPcapLiveDeviceByIp(IPAddress* ipAddr);
 	PcapLiveDevice* getPcapLiveDeviceByIp(IPv4Address ipAddr);
 	PcapLiveDevice* getPcapLiveDeviceByIp(IPv6Address ip6Addr);
 	PcapLiveDevice* getPcapLiveDeviceByIp(const char* ipAddrAsString);

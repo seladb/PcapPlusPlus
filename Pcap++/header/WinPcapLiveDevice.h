@@ -11,13 +11,13 @@ class WinPcapLiveDevice : public PcapLiveDevice
 protected:
 	int m_MinAmountOfDataToCopyFromKernelToApplication;
 	//WinPcapLiveDevice();
-	WinPcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU);
+	WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU);
 public:
 	virtual LiveDeviceType getDeviceType() { return WinPcapDevice; }
 
 	bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie);
 	bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
-	bool startCapture(RawPacketVector& rCapturedPacketsVector) { return PcapLiveDevice::startCapture(rCapturedPacketsVector); }
+	bool startCapture(RawPacketVector& capturedPacketsVector) { return PcapLiveDevice::startCapture(capturedPacketsVector); }
 
 	virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
 

@@ -26,15 +26,15 @@ class PcapLiveDevice : public IPcapDevice
 {
 	friend class PcapLiveDeviceList;
 protected:
-	const char* m_pName;
-	const char* m_pDescription;
+	const char* m_Name;
+	const char* m_Description;
 	bool m_IsLoopback;
 	uint16_t m_DeviceMtu;
-	vector<pcap_addr_t> m_xAddresses;
-	MacAddress m_xMacAddress;
-	PcapThread* m_pCaptureThread;
+	vector<pcap_addr_t> m_Addresses;
+	MacAddress m_MacAddress;
+	PcapThread* m_CaptureThread;
 	bool m_CaptureThreadStarted;
-	PcapThread* m_pStatsThread;
+	PcapThread* m_StatsThread;
 	bool m_StatsThreadStarted;
 	bool m_StopThread;
 	OnPacketArrivesCallback m_cbOnPacketArrives;
@@ -42,7 +42,7 @@ protected:
 	OnStatsUpdateCallback m_cbOnStatsUpdate;
 	void* m_cbOnStatsUpdateUserCookie;
 	int m_IntervalToUpdateStats;
-	RawPacketVector* m_pCapturedPackets;
+	RawPacketVector* m_CapturedPackets;
 	bool m_CaptureCallbackMode;
 
 	PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU);
@@ -68,18 +68,18 @@ public:
 	~PcapLiveDevice();
 
 	virtual LiveDeviceType getDeviceType() { return LibPcapDevice; }
-	inline const char* getName() { return m_pName; }
-	inline const char* getDesc() { return m_pDescription; }
+	inline const char* getName() { return m_Name; }
+	inline const char* getDesc() { return m_Description; }
 	inline bool getLoopback() { return m_IsLoopback; }
 	inline uint16_t getMtu() { return m_DeviceMtu; }
-	inline vector<pcap_addr_t>& getAddresses() { return m_xAddresses; }
-	inline MacAddress getMacAddress() { return m_xMacAddress; }
+	inline vector<pcap_addr_t>& getAddresses() { return m_Addresses; }
+	inline MacAddress getMacAddress() { return m_MacAddress; }
 	IPv4Address getIPv4Address();
 
 	virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie);
 	virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
 	virtual bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
-	virtual bool startCapture(RawPacketVector& rCpapturedPacketsVector);
+	virtual bool startCapture(RawPacketVector& capturedPacketsVector);
 	void stopCapture();
 	bool sendPacket(RawPacket const& rawPacket);
 	bool sendPacket(const uint8_t* packetData, int packetDataLength);

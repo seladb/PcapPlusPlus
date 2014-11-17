@@ -6,9 +6,9 @@
 class IPcapFileDevice : public IPcapDevice
 {
 protected:
-	char* m_pFileName;
+	char* m_FileName;
 public:
-	IPcapFileDevice(const char* pFileName);
+	IPcapFileDevice(const char* fileName);
 	~IPcapFileDevice();
 
 	//override methods
@@ -22,10 +22,10 @@ private:
 	uint32_t m_NumOfPacketsRead;
 	uint32_t m_NumOfPacketsNotParsed;
 public:
-	PcapFileReaderDevice(const char* pFileName);
+	PcapFileReaderDevice(const char* fileName);
 	~PcapFileReaderDevice();
 
-	bool getNextPacket(RawPacket& rRawPacket);
+	bool getNextPacket(RawPacket& rawPacket);
 
 	//override methods
 
@@ -36,14 +36,14 @@ public:
 class PcapFileWriterDevice : public IPcapFileDevice
 {
 private:
-	pcap_dumper_t* m_pPcapDumpHandler;
+	pcap_dumper_t* m_PcapDumpHandler;
 	uint32_t m_NumOfPacketsWritten;
 	uint32_t m_NumOfPacketsNotWritten;
 public:
-	PcapFileWriterDevice(const char* pFileName);
+	PcapFileWriterDevice(const char* fileName);
 	~PcapFileWriterDevice();
 
-	bool writePacket(RawPacket const& pPacket);
+	bool writePacket(RawPacket const& packet);
 
 	//override methods
 

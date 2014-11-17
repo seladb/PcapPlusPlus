@@ -23,9 +23,9 @@ class PcapRemoteDevice : public PcapLiveDevice
 private:
 	string m_RemoteMachineIpAddress;
 	uint16_t m_RemoteMachinePort;
-	pcap_rmtauth* m_pRemoteAuthentication;
+	pcap_rmtauth* m_RemoteAuthentication;
 
-	PcapRemoteDevice(pcap_if_t* pInterface, pcap_rmtauth* pRemoteAuthentication);
+	PcapRemoteDevice(pcap_if_t* iface, pcap_rmtauth* remoteAuthentication);
 	static void* remoteDeviceCaptureThreadMain(void *ptr);
 
 	//overridden methods

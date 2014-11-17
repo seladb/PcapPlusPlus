@@ -53,7 +53,7 @@ public:
 class AndFilter : public GeneralFilter
 {
 private:
-	vector<GeneralFilter*> m_xFilterList;
+	vector<GeneralFilter*> m_FilterList;
 public:
 	AndFilter(vector<GeneralFilter*>& filters);
 	void parseToString(string& result);
@@ -62,7 +62,7 @@ public:
 class OrFilter : public GeneralFilter
 {
 private:
-	vector<GeneralFilter*> m_xFilterList;
+	vector<GeneralFilter*> m_FilterList;
 public:
 	OrFilter(vector<GeneralFilter*>& filters);
 	void parseToString(string& result);
@@ -71,11 +71,11 @@ public:
 class NotFilter : public GeneralFilter
 {
 private:
-	GeneralFilter* m_pFilterToInverse;
+	GeneralFilter* m_FilterToInverse;
 public:
-	NotFilter(GeneralFilter* filterToInverse) { m_pFilterToInverse = filterToInverse; }
+	NotFilter(GeneralFilter* filterToInverse) { m_FilterToInverse = filterToInverse; }
 	void parseToString(string& result);
-	void setFilter(GeneralFilter* filterToInverse) { m_pFilterToInverse = filterToInverse; }
+	void setFilter(GeneralFilter* filterToInverse) { m_FilterToInverse = filterToInverse; }
 };
 
 class ProtoFilter : public GeneralFilter

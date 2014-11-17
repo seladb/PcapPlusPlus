@@ -8,10 +8,10 @@
 class IPcapDevice
 {
 protected:
-	pcap_t* m_pPcapDescriptor;
+	pcap_t* m_PcapDescriptor;
 	bool m_DeviceOpened;
 public:
-	IPcapDevice() { m_DeviceOpened = false; m_pPcapDescriptor = NULL; }
+	IPcapDevice() { m_DeviceOpened = false; m_PcapDescriptor = NULL; }
 	virtual ~IPcapDevice();
 	virtual bool open() = 0;
 	virtual void close() = 0;

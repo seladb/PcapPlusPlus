@@ -23,12 +23,12 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 	while (currInterface != NULL)
 	{
 #ifdef WIN32
-		PcapLiveDevice* pDev = new WinPcapLiveDevice(currInterface, true);
+		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true);
 #else //LINUX
-		PcapLiveDevice* pDev = new PcapLiveDevice(currInterface, true);
+		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true);
 #endif
 		currInterface = currInterface->next;
-		m_xLiveDeviceList.insert(m_xLiveDeviceList.end(), pDev);
+		m_LiveDeviceList.insert(m_LiveDeviceList.end(), dev);
 	}
 
 	LOG_DEBUG("Freeing live device data");
@@ -37,34 +37,34 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 
 PcapLiveDeviceList::~PcapLiveDeviceList()
 {
-	for(vector<PcapLiveDevice*>::iterator devIter = m_xLiveDeviceList.begin(); devIter != m_xLiveDeviceList.end(); devIter++)
+	for(vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
 		delete (*devIter);
 	}
 
 }
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* pIPAddr)
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* ipAddr)
 {
-	if (pIPAddr->getType() == IPAddress::IPv4AddressType)
+	if (ipAddr->getType() == IPAddress::IPv4AddressType)
 	{
-		IPv4Address* pIp4Addr = static_cast<IPv4Address*>(pIPAddr);
-		return getPcapLiveDeviceByIp(*pIp4Addr);
+		IPv4Address* ip4Addr = static_cast<IPv4Address*>(ipAddr);
+		return getPcapLiveDeviceByIp(*ip4Addr);
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		IPv6Address* pIp6Addr = static_cast<IPv6Address*>(pIPAddr);
-		return getPcapLiveDeviceByIp(*pIp6Addr);
+		IPv6Address* ip6Addr = static_cast<IPv6Address*>(ipAddr);
+		return getPcapLiveDeviceByIp(*ip6Addr);
 	}
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr)
 {
 	LOG_DEBUG("Searching all live devices...");
-	for(vector<PcapLiveDevice*>::iterator devIter = m_xLiveDeviceList.begin(); devIter != m_xLiveDeviceList.end(); devIter++)
+	for(vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_pName);
-		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_xAddresses.begin(); addrIter != (*devIter)->m_xAddresses.end(); addrIter++)
+		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
+		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 			{
@@ -94,10 +94,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr)
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr)
 {
 	LOG_DEBUG("Searching all live devices...");
-	for(vector<PcapLiveDevice*>::iterator devIter = m_xLiveDeviceList.begin(); devIter != m_xLiveDeviceList.end(); devIter++)
+	for(vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_pName);
-		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_xAddresses.begin(); addrIter != (*devIter)->m_xAddresses.end(); addrIter++)
+		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
+		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 			{
