@@ -58,6 +58,7 @@ struct new_ptr_list_t
 #endif
         int                                     line;
         size_t                          size;
+        char							is_static;
 };
 
 typedef struct pmap_line {
@@ -86,6 +87,8 @@ static new_ptr_list_t* new_ptr_list[DEBUG_NEW_HASHTABLESIZE];
 
 bool new_verbose_flag = false;
 bool new_autocheck_flag = true;
+bool new_start_check = false;
+int	 static_alloc_counter = 0;
 
 static void getpmaps(pid_t  pid)
 {
@@ -100,8 +103,8 @@ static void getpmaps(pid_t  pid)
     int minor;
     int inode;
 
-    //sprintf(fname, "/proc/%ld/maps", (long)pid);
-    sprintf(fname, "D:\\proc\\maps");
+    sprintf(fname, "/proc/%ld/maps", (long)pid);
+    //sprintf(fname, "D:\\proc\\maps");
     f = fopen(fname, "r");
     if(!f) {
         printf("open file : %s failed \n", fname);
@@ -301,6 +304,14 @@ bool locate_addr(char* file, int* line)
 }
 
 
+
+void start_leak_check()
+{
+	new_start_check = true;
+}
+
+
+
 bool check_leaks()
 {
         bool fLeaked = false;
@@ -311,20 +322,24 @@ bool check_leaks()
                 new_ptr_list_t* ptr = new_ptr_list[i];
                 if (ptr == NULL)
                         continue;
+
+                if (ptr->is_static != 0)
+                	continue;
+
                 fLeaked = true;
                 while (ptr)
                 {
                     if (!ptr->line) {
                     	ret = locate_addr(ptr->file, &ptr->line);
                     }
-                    else {
-                    }
-					if (ret) {
+
+                    if (ret) {
 								printf("Leaked object at %p (size %u, %s:%d)\n",
 												(char*)ptr + sizeof(new_ptr_list_t),
 												ptr->size,
 												ptr->file,
 												ptr->line);
+								ptr = ptr->next;
 					}
 					else {
 								printf("Leaked object at %p (size %u, %s:%d)\n",
@@ -333,7 +348,7 @@ bool check_leaks()
 												ptr->file,
 												ptr->line);
 
-						ptr = ptr->next;
+								ptr = ptr->next;
 					}
                 }
         }
@@ -394,6 +409,13 @@ void* operator new(size_t size, const char* file, int line)
 #endif
         ptr->line = line;
         ptr->size = size;
+        if (new_start_check)
+        	ptr->is_static = 0;
+        else
+        {
+        	ptr->is_static = 1;
+        	static_alloc_counter++;
+        }
         new_ptr_list[hash_index] = ptr;
         if (new_verbose_flag) {
         printf("new:  allocated  %p (size %u)\n", pointer, size);
@@ -438,9 +460,17 @@ void operator delete(void* pointer)
                 if ((char*)ptr + sizeof(new_ptr_list_t) == pointer)
                 {
                     total_size = total_size - ptr->size;
-                        if (new_verbose_flag) {
+                        if (new_verbose_flag && ptr->is_static == 0) {
                                 printf("delete: freeing  %p (size %u)\n", pointer, ptr->size);
-            }
+						}
+                        if (ptr->is_static != 0)
+                        {
+                        	static_alloc_counter--;
+                        	if (static_alloc_counter == 0 && new_verbose_flag)
+                        		printf("Memory leaks check: all STATIC variables were freed\n");
+                        	else if (static_alloc_counter != 0 && new_verbose_flag)
+                        		printf("static_alloc_counter = %d\n", static_alloc_counter);
+                        }
 
                         if (ptr_last == NULL)
                                 new_ptr_list[hash_index] = ptr->next;
@@ -505,24 +535,24 @@ unsigned int PrintMemTotalSize()
 
 #endif // NO_PLACEMENT_DELETE
 
-// Proxy class to automatically call check_leaks if new_autocheck_flag is set
-class new_check_t
-{
-public:
-        new_check_t() {}
-        ~new_check_t()
-        {
-                if (new_autocheck_flag)
-                {
-                        // Check for leakage.
-                        // If any leaks are found, set new_verbose_flag so that any
-                        // delete operations in the destruction of global/static
-                        // objects will display information to compensate for
-                        // possible false leakage reports.
-                        if (check_leaks())
-                                new_verbose_flag = true;
-                }
-        }
-};
-static new_check_t new_check_object;
+//// Proxy class to automatically call check_leaks if new_autocheck_flag is set
+//class new_check_t
+//{
+//public:
+//        new_check_t() {}
+//        ~new_check_t()
+//        {
+//                if (new_autocheck_flag)
+//                {
+//                        // Check for leakage.
+//                        // If any leaks are found, set new_verbose_flag so that any
+//                        // delete operations in the destruction of global/static
+//                        // objects will display information to compensate for
+//                        // possible false leakage reports.
+//                        if (check_leaks())
+//                                new_verbose_flag = true;
+//                }
+//        }
+//};
+//static new_check_t new_check_object;
 

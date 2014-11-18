@@ -1175,6 +1175,8 @@ PACKETPP_TEST(HttpResponseLayerEditTest)
 
 
 int main(int argc, char* argv[]) {
+	start_leak_check();
+
 	PACKETPP_START_RUNNING_TESTS;
 
 	PACKETPP_RUN_TEST(EthPacketCreation);

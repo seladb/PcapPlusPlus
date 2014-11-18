@@ -1,5 +1,6 @@
 #include <memory>
 #include <fstream>
+#include <debug_new.h>
 #include <Logger.h>
 #include <IpAddress.h>
 #include <MacAddress.h>
@@ -21,7 +22,6 @@
 #include <PlatformSpecificUtils.h>
 #include <getopt.h>
 #include <stdlib.h>
-#include <debug_new.h>
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
@@ -973,6 +973,7 @@ void print_usage() {
 
 int main(int argc, char* argv[])
 {
+	start_leak_check();
 	PcapTestArgs args;
 	args.ipToSendReceivePackets = "";
 	args.debugMode = false;
