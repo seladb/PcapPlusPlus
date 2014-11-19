@@ -27,7 +27,7 @@
 #endif
 
 #ifndef DEBUG_NEW_HASH
-#define DEBUG_NEW_HASH(p) (((unsigned)(p) >> 8) % DEBUG_NEW_HASHTABLESIZE)
+#define DEBUG_NEW_HASH(p) (((unsigned long)(p) >> 8) % DEBUG_NEW_HASHTABLESIZE)
 #endif
 
 // The default behaviour now is to copy the file name, because we found
