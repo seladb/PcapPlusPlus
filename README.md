@@ -5,7 +5,7 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 
 PcapPlusPlus is currently supported on Windows and Linux operating systems.
 It was tested on Windows (32bit and 64bit), Ubuntu and Fedora, but it should work on other Linux distributions as well.
-Other opeating systems such as FreeBSD and Mac OS were never tested but it should theoretically compile and work with no problems
+Other opeating systems such as FreeBSD and Mac OS were never tested and compilation on those platform would probably fail
 
 ## Package Content ##
 
@@ -82,6 +82,8 @@ such as apt-get:
   ```shell
   sudo yum install libpcap-devel
   ```
+  
+2. Make sure you have the libstdc++-static package. If not, you can install it via *yum* or *apt-get*
 
 #### Configuration and Compilation ####
 
