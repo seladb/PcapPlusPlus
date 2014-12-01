@@ -28,8 +28,12 @@ Obj/%.o: src/%.cpp
 # All Target
 all: Common++.lib
 
+create-directories:
+	@mkdir -p Obj
+	@mkdir -p Lib
+
 # Tool invocations
-Common++.lib: $(OBJS_FILENAMES)
+Common++.lib: create-directories $(OBJS_FILENAMES)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC Archiver'
 	$(AR) -r  "Lib/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES)

@@ -50,6 +50,10 @@ UNAME := $(shell uname)
 # All Target
 all: Pcap++Examples.PacketParsing
 
+create-directories:
+	@mkdir -p Obj
+	@mkdir -p Bin
+
 dependents:
 	-cd $(COMMONPP_HOME) && $(MAKE) all
 	-cd $(PACKETPP_HOME) && $(MAKE) all
@@ -59,7 +63,7 @@ dependents-clean:
 	-cd $(PACKETPP_HOME) && $(MAKE) clean
 	
 # Tool invocations
-Pcap++Examples.PacketParsing: $(OBJS_FILENAMES) dependents
+Pcap++Examples.PacketParsing: create-directories $(OBJS_FILENAMES) dependents
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'

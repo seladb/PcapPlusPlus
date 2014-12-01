@@ -31,8 +31,12 @@ Obj/%.o: src/%.cpp
 # All Target
 all: Packet++
 
+create-directories:
+	@mkdir -p Obj
+	@mkdir -p Lib
+
 # Tool invocations
-Packet++: $(OBJS_FILENAMES)
+Packet++: create-directories $(OBJS_FILENAMES)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC Archiver'
 	$(AR) -r  "Lib/$(LIB_PREFIX)Packet++$(LIB_EXT)" $(OBJS_FILENAMES)

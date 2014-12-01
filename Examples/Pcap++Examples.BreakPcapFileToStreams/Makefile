@@ -51,6 +51,10 @@ UNAME := $(shell uname)
 # All Target
 all: Pcap++Examples.BreakPcapFileToStreams
 
+create-directories:
+	@mkdir -p Obj
+	@mkdir -p Bin
+
 dependents:
 	-cd $(COMMONPP_HOME) && $(MAKE) all
 	-cd $(PACKETPP_HOME) && $(MAKE) all
@@ -62,7 +66,7 @@ dependents-clean:
 	-cd $(PCAPP_HOME) && $(MAKE) clean
 	
 # Tool invocations
-Pcap++Examples.BreakPcapFileToStreams: $(OBJS_FILENAMES) dependents
+Pcap++Examples.BreakPcapFileToStreams: create-directories $(OBJS_FILENAMES) dependents
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'

@@ -50,6 +50,10 @@ UNAME := $(shell uname)
 # All Target
 all: Packet++Test
 
+create-directories:
+	@mkdir -p Obj
+	@mkdir -p Bin
+
 dependents:
 	-cd $(COMMONPP_HOME) && $(MAKE) all
 	-cd $(PACKTPP_HOME) && $(MAKE) all
@@ -59,7 +63,7 @@ dependents-clean:
 	-cd $(PACKTPP_HOME) && $(MAKE) clean
 	
 # Tool invocations
-Packet++Test: $(OBJS_FILENAMES) dependents
+Packet++Test: create-directories $(OBJS_FILENAMES) dependents
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'

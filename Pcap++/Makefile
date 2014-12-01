@@ -33,8 +33,12 @@ Obj/%.o: src/%.cpp
 # All Target
 all: Pcap++.lib
 
+create-directories:
+	@mkdir -p Obj
+	@mkdir -p Lib
+
 # Tool invocations
-Pcap++.lib: $(OBJS_FILENAMES)
+Pcap++.lib: create-directories $(OBJS_FILENAMES)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC Archiver'
 	$(AR) -r  "Lib/$(LIB_PREFIX)Pcap++$(LIB_EXT)" $(OBJS_FILENAMES)
