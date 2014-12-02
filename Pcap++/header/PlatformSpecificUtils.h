@@ -3,6 +3,8 @@
 
 #ifdef WIN32
 #include <winbase.h>
+#else
+#include <unistd.h>
 #endif
 
 #ifdef WIN32
