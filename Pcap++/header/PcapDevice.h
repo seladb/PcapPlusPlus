@@ -3,7 +3,11 @@
 
 #include <RawPacket.h>
 #include <PcapFilter.h>
+#include <PointerVector.h>
 #include <pcap.h>
+
+
+typedef PointerVector<RawPacket> RawPacketVector;
 
 class IPcapDevice
 {

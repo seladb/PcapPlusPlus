@@ -109,7 +109,9 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t *user, const struct pcap_
 		return;
 	}
 
-	RawPacket* rawPacketPtr = new RawPacket(packet, pkthdr->caplen, pkthdr->ts, false);
+	uint8_t* packetData = new uint8_t[pkthdr->caplen];
+	memcpy(packetData, packet, pkthdr->caplen);
+	RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true);
 	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 }
 
@@ -355,6 +357,19 @@ int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength)
 	}
 
 	LOG_DEBUG("%d packets sent successfully. %d packets not sent", packetsSent, arrLength-packetsSent);
+	return packetsSent;
+}
+
+int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets)
+{
+	int packetsSent = 0;
+	for (RawPacketVector::ConstVectorIterator iter = rawPackets.begin(); iter != rawPackets.end(); iter++)
+	{
+		if (sendPacket(**iter))
+			packetsSent++;
+	}
+
+	LOG_DEBUG("%d packets sent successfully. %d packets not sent", packetsSent, rawPackets.size()-packetsSent);
 	return packetsSent;
 }
 

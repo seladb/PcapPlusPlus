@@ -32,7 +32,7 @@ public:
 	inline vlan_header* getVlanHeader() { return (vlan_header*)m_Data; }
 
 	//TODO: solve this to big endian as well
-	inline uint16_t getVlanID() { return (getVlanHeader()->vlanID >> 4) | ((getVlanHeader()->vlanID & 0x00f) << 8); }
+	inline uint16_t getVlanID() { return getVlanHeader()->vlanID >> 4;  }
 	//TODO: solve this to big endian as well
 	inline void setVlanID(uint16_t id) { getVlanHeader()->vlanID = ((id << 4) & 0xff0) | (id >> 8); }
 

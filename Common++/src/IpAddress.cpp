@@ -1,3 +1,6 @@
+#define LOG_MODULE CommonLogModuleIpUtils
+
+#include <Logger.h>
 #include <IpAddress.h>
 #include <IpUtils.h>
 #include <string.h>
@@ -94,6 +97,20 @@ uint32_t IPv4Address::toInt() const
 	return result;
 }
 
+bool IPv4Address::matchSubnet(const IPv4Address& subnet, const string& subnetMask)
+{
+	IPv4Address maskAsIpAddr(subnetMask);
+	if (!maskAsIpAddr.isValid())
+	{
+		LOG_ERROR("Subnet mask '%s' is in illegal format", subnetMask.c_str());
+		return false;
+	}
+
+	int thisAddrAfterMask = toInt() & maskAsIpAddr.toInt();
+	int subnetAddrAfterMask = subnet.toInt() & maskAsIpAddr.toInt();
+	return (thisAddrAfterMask == subnetAddrAfterMask);
+}
+
 IPv6Address::IPv6Address(const IPv6Address& other)
 {
 	m_pInAddr = new in6_addr();
@@ -140,21 +157,11 @@ IPv6Address::IPv6Address(string addressAsString)
 	init((char*)addressAsString.c_str());
 }
 
-uint8_t* IPv6Address::toByteArray(int& length)
+void IPv6Address::copyTo(uint8_t** arr, size_t& length)
 {
 	length = 16;
-	return toByteArray();
-}
-
-uint8_t* IPv6Address::toByteArray()
-{
-	return (uint8_t*)m_pInAddr;
-}
-
-void IPv6Address::copyTo(uint8_t** arr)
-{
-	(*arr) = new uint8_t[16];
-	memcpy((*arr), m_pInAddr, 16);
+	(*arr) = new uint8_t[length];
+	memcpy((*arr), m_pInAddr, length);
 }
 
 void IPv6Address::copyTo(uint8_t* arr) const

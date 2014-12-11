@@ -126,6 +126,17 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	return true;
 }
 
+bool PcapFileWriterDevice::writePackets(const RawPacketVector& packets)
+{
+	for (RawPacketVector::ConstVectorIterator iter = packets.begin(); iter != packets.end(); iter++)
+	{
+		if (!writePacket(**iter))
+			return false;
+	}
+
+	return true;
+}
+
 bool PcapFileWriterDevice::open()
 {
 	m_NumOfPacketsNotWritten = 0;

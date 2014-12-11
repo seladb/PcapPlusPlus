@@ -113,11 +113,15 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr)
 				continue;
 			}
 
-			if (memcmp(currAddr, ip6Addr.toByteArray(), sizeof(struct in6_addr)) == 0)
+			uint8_t* addrAsArr; size_t addrLen;
+			ip6Addr.copyTo(&addrAsArr, addrLen);
+			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
 			{
 				LOG_DEBUG("Found matched address!");
 				return (*devIter);
 			}
+
+			delete [] addrAsArr;
 		}
 	}
 

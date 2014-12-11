@@ -44,6 +44,7 @@ public:
 	~PcapFileWriterDevice();
 
 	bool writePacket(RawPacket const& packet);
+	bool writePackets(const RawPacketVector& packets);
 
 	//override methods
 

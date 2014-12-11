@@ -7,7 +7,6 @@
 #include <string.h>
 #include "IpAddress.h"
 #include <Packet.h>
-#include "PointerVector.h"
 
 using namespace std;
 
@@ -17,8 +16,6 @@ typedef void (*OnPacketArrivesCallback)(RawPacket* pPacket, PcapLiveDevice* pDev
 typedef void (*OnStatsUpdateCallback)(pcap_stat& stats, void* userCookie);
 
 typedef void* (*ThreadStart)(void*);
-
-typedef PointerVector<RawPacket> RawPacketVector;
 
 struct PcapThread;
 
@@ -86,6 +83,7 @@ public:
 	bool sendPacket(Packet* packet);
 	virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
 	virtual int sendPackets(Packet** packetsArr, int arrLength);
+	virtual int sendPackets(const RawPacketVector& rawPackets);
 
 	//override methods
 

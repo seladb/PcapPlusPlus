@@ -46,6 +46,7 @@ public:
 	uint32_t toInt() const;
 	in_addr* toInAddr() { return m_pInAddr; }
 	bool operator==(const IPv4Address& other) const { return toInt() == other.toInt(); }
+	bool matchSubnet(const IPv4Address& subnet, const string& subnetMask);
 };
 
 struct in6_addr;
@@ -62,10 +63,8 @@ public:
 	IPv6Address(char* addressAsString);
 	IPv6Address(string addressAsString);
 	AddressType getType() { return IPv6AddressType; }
-	uint8_t* toByteArray(int& length);
-	uint8_t* toByteArray();
 	in6_addr* toIn6Addr() { return m_pInAddr; }
-	void copyTo(uint8_t** arr);
+	void copyTo(uint8_t** arr, size_t& length);
 	void copyTo(uint8_t* arr) const;
 	bool operator==(const IPv6Address& other);
 };
