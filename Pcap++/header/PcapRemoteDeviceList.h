@@ -12,7 +12,13 @@ private:
 	string m_RemoteMachineIpAddress;
 	uint16_t m_RemoteMachinePort;
 	pcap_rmtauth* m_RemoteAuthentication;
+
+	// private copy c'tor
+	PcapRemoteDeviceList(const PcapRemoteDeviceList& other);
+	PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other);
+
 public:
+	PcapRemoteDeviceList() :m_RemoteMachineIpAddress(""), m_RemoteMachinePort(0), m_RemoteAuthentication(NULL) {}
 	~PcapRemoteDeviceList();
 
 	static const bool getRemoteDeviceList(string ipAddress, uint16_t port, PcapRemoteDeviceList& resultList);

@@ -14,6 +14,9 @@ class IPAddress
 protected:
 	bool m_IsValid;
 	char m_AddressAsString[MAX_ADDR_STRING_LEN];
+
+	// protected c'tor
+	IPAddress();
 public:
 	enum AddressType {
 		IPv4AddressType,
@@ -36,12 +39,15 @@ private:
 	in_addr* m_pInAddr;
 	void init(char* addressAsString);
 public:
-	IPv4Address(const IPv4Address& other);
 	IPv4Address(uint32_t addressAsInt); //TODO: consider endianess?
 	IPv4Address(char* addressAsString);
 	IPv4Address(string addressAsString);
 	IPv4Address(in_addr* inAddr);
 	~IPv4Address();
+
+	//copy c'tor
+	IPv4Address(const IPv4Address& other);
+
 	AddressType getType() { return IPv4AddressType; }
 	uint32_t toInt() const;
 	in_addr* toInAddr() { return m_pInAddr; }
@@ -57,11 +63,14 @@ private:
 	in6_addr* m_pInAddr;
 	void init(char* addressAsString);
 public:
-	IPv6Address(const IPv6Address& other);
 	~IPv6Address();
 	IPv6Address(uint8_t* addressAsUintArr);
 	IPv6Address(char* addressAsString);
 	IPv6Address(string addressAsString);
+
+	//copy c'tor
+	IPv6Address(const IPv6Address& other);
+
 	AddressType getType() { return IPv6AddressType; }
 	in6_addr* toIn6Addr() { return m_pInAddr; }
 	void copyTo(uint8_t** arr, size_t& length);

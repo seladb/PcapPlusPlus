@@ -42,7 +42,12 @@ protected:
 	RawPacketVector* m_CapturedPackets;
 	bool m_CaptureCallbackMode;
 
+	// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 	PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU);
+	// copy c'tor is not public
+	PcapLiveDevice( const PcapLiveDevice& other );
+	PcapLiveDevice& operator=(const PcapLiveDevice& other);
+
 	void setDeviceMtu();
 	void setDeviceMacAddress();
 	static void* captureThreadMain(void *ptr);

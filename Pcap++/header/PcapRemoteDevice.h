@@ -25,7 +25,13 @@ private:
 	uint16_t m_RemoteMachinePort;
 	pcap_rmtauth* m_RemoteAuthentication;
 
+	// c'tor is not public, there should be only one for every remote interface (created by PcapRemoteDeviceList)
 	PcapRemoteDevice(pcap_if_t* iface, pcap_rmtauth* remoteAuthentication);
+	// copy c'tor is not public
+	PcapRemoteDevice( const PcapRemoteDevice& other );
+	PcapRemoteDevice& operator=(const PcapRemoteDevice& other);
+
+
 	static void* remoteDeviceCaptureThreadMain(void *ptr);
 
 	//overridden methods
