@@ -23,6 +23,10 @@ class PcapLiveDevice : public IPcapDevice
 {
 	friend class PcapLiveDeviceList;
 protected:
+	// This is a second descriptor for the same device. It is needed because of a bug
+	// that occurs in libpcap on Linux (on Windows using WinPcap it works well):
+	// It's impossible to capture packets sent by the same descriptor
+	pcap_t* m_PcapSendDescriptor;
 	const char* m_Name;
 	const char* m_Description;
 	bool m_IsLoopback;

@@ -165,7 +165,8 @@ bool PcapLiveDevice::open(DeviceMode mode)
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	m_PcapDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, -1, errbuf);
-	if (m_PcapDescriptor == NULL)
+	m_PcapSendDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, -1, errbuf);
+	if (m_PcapDescriptor == NULL || m_PcapSendDescriptor == NULL)
 	{
 		LOG_ERROR("%s", errbuf);
 		m_DeviceOpened = false;
@@ -185,12 +186,13 @@ bool PcapLiveDevice::open()
 
 void PcapLiveDevice::close()
 {
-	if (m_PcapDescriptor == NULL)
+	if (m_PcapDescriptor == NULL && m_PcapSendDescriptor == NULL)
 	{
 		LOG_DEBUG("Device '%s' already closed", m_Name);
 		return;
 	}
 	pcap_close(m_PcapDescriptor);
+	pcap_close(m_PcapSendDescriptor);
 	LOG_DEBUG("Device '%s' closed", m_Name);
 }
 
@@ -318,9 +320,9 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 		return false;
 	}
 
-	if (pcap_sendpacket(m_PcapDescriptor, packetData, packetDataLength) == -1)
+	if (pcap_sendpacket(m_PcapSendDescriptor, packetData, packetDataLength) == -1)
 	{
-		LOG_ERROR("Error sending packet: %s\n", pcap_geterr(m_PcapDescriptor));
+		LOG_ERROR("Error sending packet: %s\n", pcap_geterr(m_PcapSendDescriptor));
 		return false;
 	}
 
