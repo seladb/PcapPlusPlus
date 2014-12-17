@@ -447,7 +447,7 @@ PCAPP_TEST(TestPcapFilters)
 	{
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "Filter '%s', Packet captured isn't of type IP", filterAsString.c_str());
-		IPv4Layer* ipv4Layer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
 		PCAPP_ASSERT(ipv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "'IP Filter' failed. Packet IP dst is %X, expected %X", ipv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
 	}
 
@@ -468,7 +468,7 @@ PCAPP_TEST(TestPcapFilters)
 	{
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(TCP), "Filter '%s', Packet captured isn't of type TCP", filterAsString.c_str());
-		TcpLayer* pTcpLayer = (TcpLayer*)packet.getLayerOfType(TCP);
+		TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
 		PCAPP_ASSERT(ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80, "'Port Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
 	}
 	capturedPackets.clear();
@@ -492,8 +492,8 @@ PCAPP_TEST(TestPcapFilters)
 	{
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(TCP), "Filter '%s', Packet captured isn't of type TCP", filterAsString.c_str());
-		TcpLayer* pTcpLayer = (TcpLayer*)packet.getLayerOfType(TCP);
-		IPv4Layer* pIPv4Layer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+		TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
+		IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
 		PCAPP_ASSERT(ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80, "'And Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
 		PCAPP_ASSERT(pIPv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "Filter failed. Packet IP dst is %X, expected %X", pIPv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
 	}
@@ -520,15 +520,15 @@ PCAPP_TEST(TestPcapFilters)
 		Packet packet(*iter);
 		if (packet.isPacketOfType(TCP))
 		{
-			TcpLayer* pTcpLayer = (TcpLayer*)packet.getLayerOfType(TCP);
+			TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
 			bool srcPortMatch = ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80;
-			IPv4Layer* pIPv4Layer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+			IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
 			bool srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt();
 			PCAPP_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", ntohs(pTcpLayer->getTcpHeader()->portSrc), pIPv4Layer->getIPv4Header()->ipSrc, args.ipToSendReceivePackets.c_str());
 		} else
 		if (packet.isPacketOfType(IP))
 		{
-			IPv4Layer* pIPv4Layer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+			IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
 			PCAPP_ASSERT(pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt(), "Filter failed. Packet IP src is %X, expected %X", pIPv4Layer->getIPv4Header()->ipSrc, ipToSearch.toInt());
 		}
 		else
@@ -553,7 +553,7 @@ PCAPP_TEST(TestPcapFilters)
 		Packet packet(*iter);
 		if (packet.isPacketOfType(IPv4))
 		{
-			IPv4Layer* ipv4Layer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+			IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
 			PCAPP_ASSERT(ipv4Layer->getIPv4Header()->ipSrc != ipToSearch.toInt(), "'Not Filter' failed. Packet IP src is %X, the same as %X", ipv4Layer->getIPv4Header()->ipSrc, ipToSearch.toInt());
 		}
 	}
@@ -582,7 +582,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(VLAN), "VLAN filter test: one of the captured packets isn't of type VLAN");
-    	VlanLayer* vlanLayer = (VlanLayer*)packet.getLayerOfType(VLAN);
+    	VlanLayer* vlanLayer = packet.getLayerOfType<VlanLayer>();
     	PCAPP_ASSERT(vlanLayer->getVlanID() == 118, "VLAN filter test: VLAN ID != 118, it's: %d", vlanLayer->getVlanID());
     }
 
@@ -609,7 +609,7 @@ PCAPP_TEST(TestPcapFilters)
     for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
     {
     	Packet packet(*iter);
-    	EthLayer* ethLayer = (EthLayer*)packet.getLayerOfType(Ethernet);
+    	EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
     	PCAPP_ASSERT(ethLayer->getDestMac() == macAddrToFilter, "MacAddress test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
     }
 
@@ -660,7 +660,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IpV4IDFilter test: one of the captured packets isn't of type IPv4");
-		IPv4Layer* ipv4Layer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
 		PCAPP_ASSERT(ntohs(ipv4Layer->getIPv4Header()->ipId) > ipID, "IpV4IDFilter test: IP ID less than %d, it's %d", ipID, ntohs(ipv4Layer->getIPv4Header()->ipId));
     }
 
@@ -686,7 +686,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IpV4TotalLengthFilter test: one of the captured packets isn't of type IPv4");
-		IPv4Layer* ipv4Layer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
 		PCAPP_ASSERT(ntohs(ipv4Layer->getIPv4Header()->totalLength) <= totalLength, "IpV4TotalLengthFilter test: IP total length more than %d, it's %d", totalLength, ntohs(ipv4Layer->getIPv4Header()->totalLength));
     }
 
@@ -713,7 +713,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpWindowSizeFilter test: one of the captured packets isn't of type TCP");
-		TcpLayer* tcpLayer = (TcpLayer*)packet.getLayerOfType(TCP);
+		TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
 		PCAPP_ASSERT(ntohs(tcpLayer->getTcpHeader()->windowSize) != windowSize, "TcpWindowSizeFilter test: TCP window size equals %d", windowSize);
     }
 
@@ -740,7 +740,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(UDP), "UdpLengthFilter test: one of the captured packets isn't of type UDP");
-    	UdpLayer* udpLayer = (UdpLayer*)packet.getLayerOfType(UDP);
+    	UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
 		PCAPP_ASSERT(ntohs(udpLayer->getUdpHeader()->length) == udpLength, "UdpLengthFilter test: UDP length != %d, it's %d", udpLength, ntohs(udpLayer->getUdpHeader()->length));
     }
 
@@ -763,7 +763,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpFlagsFilter test #1: one of the captured packets isn't of type TCP");
-    	TcpLayer* tcpLayer = (TcpLayer*)packet.getLayerOfType(TCP);
+    	TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
     	PCAPP_ASSERT(tcpLayer->getTcpHeader()->synFlag == 1 && tcpLayer->getTcpHeader()->ackFlag == 1, "TcpFlagsFilter test #1: TCP packet isn't a SYN/ACK packet");
     }
 
@@ -780,7 +780,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpFlagsFilter test #2: one of the captured packets isn't of type TCP");
-    	TcpLayer* tcpLayer = (TcpLayer*)packet.getLayerOfType(TCP);
+    	TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
     	PCAPP_ASSERT(tcpLayer->getTcpHeader()->synFlag == 1 || tcpLayer->getTcpHeader()->ackFlag == 1, "TcpFlagsFilter test #2: TCP packet isn't a SYN or ACK packet");
     }
 
@@ -805,7 +805,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test: one of the captured packets isn't of type IPv4");
-    	IPv4Layer* ipLayer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+    	IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
 		PCAPP_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), "255.255.255.0"), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
     }
 
@@ -828,7 +828,7 @@ PCAPP_TEST(TestPcapFilters)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test #2: one of the captured packets isn't of type IPv4");
-    	IPv4Layer* ipLayer = (IPv4Layer*)packet.getLayerOfType(IPv4);
+    	IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
 		PCAPP_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), "255.255.255.0"), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
     }
     capturedPackets.clear();
@@ -855,13 +855,13 @@ PCAPP_TEST(TestPcapFilters)
     	PCAPP_ASSERT(packet.isPacketOfType(TCP) || packet.isPacketOfType(UDP), "PortRangeFilter: one of the captured packets isn't of type TCP or UDP");
     	if (packet.isPacketOfType(TCP))
     	{
-    		TcpLayer* tcpLayer = (TcpLayer*)packet.getLayerOfType(TCP);
+    		TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
     		uint16_t portSrc = ntohs(tcpLayer->getTcpHeader()->portSrc);
     		PCAPP_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: TCP packet source port is out of range (40000-50000). Src port: %d", portSrc);
     	}
     	else if (packet.isPacketOfType(UDP))
     	{
-    		UdpLayer* udpLayer = (UdpLayer*)packet.getLayerOfType(UDP);
+    		UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
     		uint16_t portSrc = ntohs(udpLayer->getUdpHeader()->portSrc);
     		PCAPP_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: UDP packet source port is out of range (40000-50000). Src port: %d", portSrc);
     	}
@@ -1053,7 +1053,7 @@ PCAPP_TEST(TestHttpRequestParsing)
 		else
 			continue;
 
-		HttpRequestLayer* httpReqLayer = (HttpRequestLayer*)packet.getLayerOfType(HTTPRequest);
+		HttpRequestLayer* httpReqLayer = packet.getLayerOfType<HttpRequestLayer>();
 		PCAPP_ASSERT(httpReqLayer->getFirstLine() != NULL, "HTTP first line is null in packet #%d, HTTP request #%d", packetCount, httpPackets);
 		switch (httpReqLayer->getFirstLine()->getMethod())
 		{
@@ -1198,7 +1198,7 @@ PCAPP_TEST(TestHttpResponseParsing)
 		else
 			continue;
 
-		HttpResponseLayer* httpResLayer = (HttpResponseLayer*)packet.getLayerOfType(HTTPResponse);
+		HttpResponseLayer* httpResLayer = packet.getLayerOfType<HttpResponseLayer>();
 		PCAPP_ASSERT(httpResLayer->getFirstLine() != NULL, "HTTP first line is null in packet #%d, HTTP request #%d", packetCount, httpResponsePackets);
 		statusCodes[httpResLayer->getFirstLine()->getStatusCode()]++;
 

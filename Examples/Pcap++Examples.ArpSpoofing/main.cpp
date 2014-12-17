@@ -72,7 +72,7 @@ MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 	Packet arpReply(capturedPackets.front());
 	if (arpReply.isPacketOfType(ARP))
 	{
-		return ((ArpLayer*)arpReply.getLayerOfType(ARP))->getSenderMacAddress();
+		return arpReply.getLayerOfType<ArpLayer>()->getSenderMacAddress();
 	}
 	printf("No arp reply was captured. Couldn't retrieve MAC address for IP %s\n", ipAddr.toString().c_str());
 	return MacAddress("");

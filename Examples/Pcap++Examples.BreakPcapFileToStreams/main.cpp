@@ -11,8 +11,8 @@ using namespace std;
 
 size_t hash5Tuple(Packet* packet)
 {
-	IPv4Layer* ipv4Layer = (IPv4Layer*)packet->getLayerOfType(IPv4);
-	TcpLayer* tcpLayer = (TcpLayer*)packet->getLayerOfType(TCP);
+	IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
+	TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>();
 	if (ipv4Layer->getIPv4Header()->ipSrc < ipv4Layer->getIPv4Header()->ipDst)
 	{
 		return 	((size_t)(ipv4Layer->getIPv4Header()->ipSrc) * 59) ^

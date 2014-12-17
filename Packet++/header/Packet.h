@@ -28,8 +28,12 @@ public:
 	bool addLayer(Layer* newLayer);
 	bool insertLayer(Layer* prevLayer, Layer* newLayer);
 	bool removeLayer(Layer* layer);
-	Layer* getLayerOfType(ProtocolType type);
-	Layer* getNextLayerOfType(Layer* after, ProtocolType type);
+
+	template<class TLayer>
+	TLayer* getLayerOfType();
+	template<class TLayer>
+	TLayer* getNextLayerOfType(Layer* after);
+
 	inline bool isPacketOfType(ProtocolType protocolType) { return m_ProtocolTypes & protocolType; }
 	void computeCalculateFields();
 
@@ -43,5 +47,29 @@ private:
 
 	void reallocateRawData(size_t newSize);
 };
+
+template<class TLayer>
+TLayer* Packet::getLayerOfType()
+{
+	if (dynamic_cast<TLayer*>(m_FirstLayer) != NULL)
+		return (TLayer*)m_FirstLayer;
+
+	return getNextLayerOfType<TLayer>(m_FirstLayer);
+}
+
+template<class TLayer>
+TLayer* Packet::getNextLayerOfType(Layer* after)
+{
+	if (after == NULL)
+		return NULL;
+
+	Layer* curLayer = after->getNextLayer();
+	while ((curLayer != NULL) && (dynamic_cast<TLayer*>(curLayer) == NULL))
+	{
+		curLayer = curLayer->getNextLayer();
+	}
+
+	return (TLayer*)curLayer;
+}
 
 #endif /* PACKETPP_PACKET */

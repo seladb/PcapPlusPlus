@@ -100,11 +100,11 @@ PACKETPP_TEST(EthPacketCreation) {
 	PACKETPP_ASSERT(ethPacket.addLayer(&payloadLayer), "Adding payload layer failed");
 
 	PACKETPP_ASSERT(ethPacket.isPacketOfType(Ethernet), "Packet is not of type Ethernet");
-	PACKETPP_ASSERT(ethPacket.getLayerOfType(Ethernet) != NULL, "Ethernet layer doesn't exist");
-	PACKETPP_ASSERT(ethPacket.getLayerOfType(Ethernet) == &ethLayer, "Ethernet layer doesn't equal to inserted layer");
-	PACKETPP_ASSERT(((EthLayer*)ethPacket.getLayerOfType(Ethernet))->getDestMac() == dstMac, "Packet dest mac isn't equal to intserted dest mac");
-	PACKETPP_ASSERT(((EthLayer*)ethPacket.getLayerOfType(Ethernet))->getSourceMac() == srcMac, "Packet src mac isn't equal to intserted src mac");
-	PACKETPP_ASSERT(((EthLayer*)ethPacket.getLayerOfType(Ethernet))->getEthHeader()->etherType == ntohs(ETHERTYPE_IP), "Packet ether type isn't equal to ETHERTYPE_IP");
+	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>() != NULL, "Ethernet layer doesn't exist");
+	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>() == &ethLayer, "Ethernet layer doesn't equal to inserted layer");
+	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getDestMac() == dstMac, "Packet dest mac isn't equal to intserted dest mac");
+	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getSourceMac() == srcMac, "Packet src mac isn't equal to intserted src mac");
+	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getEthHeader()->etherType == ntohs(ETHERTYPE_IP), "Packet ether type isn't equal to ETHERTYPE_IP");
 
 	RawPacket* rawPacket = ethPacket.getRawPacket();
 	PACKETPP_ASSERT(rawPacket != NULL, "Raw packet is NULL");
@@ -129,11 +129,11 @@ PACKETPP_TEST(EthAndArpPacketParsing) {
 
 	Packet ethPacket(&rawPacket);
 	PACKETPP_ASSERT(ethPacket.isPacketOfType(Ethernet), "Packet is not of type Ethernet");
-	PACKETPP_ASSERT(ethPacket.getLayerOfType(Ethernet) != NULL, "Ethernet layer doesn't exist");
+	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>() != NULL, "Ethernet layer doesn't exist");
 
 	MacAddress expectedSrcMac(0x30, 0x46, 0x9a, 0x23, 0xfb, 0xfa);
 	MacAddress expectedDstMac(0x6c, 0xf0, 0x49, 0xb2, 0xde, 0x6e);
-	EthLayer* ethLayer = (EthLayer*)ethPacket.getLayerOfType(Ethernet);
+	EthLayer* ethLayer = ethPacket.getLayerOfType<EthLayer>();
 	PACKETPP_ASSERT(ethLayer->getDestMac() == expectedDstMac, "Packet dest mac isn't equal to intserted dest mac");
 	PACKETPP_ASSERT(ethLayer->getSourceMac() == expectedSrcMac, "Packet src mac isn't equal to intserted src mac");
 	PACKETPP_ASSERT(ethLayer->getEthHeader()->etherType == ntohs(ETHERTYPE_ARP), "Packet ether type isn't equal to ETHERTYPE_ARP, it's 0x%x", ethLayer->getEthHeader()->etherType);
@@ -165,7 +165,7 @@ PACKETPP_TEST(ArpPacketCreation)
 	arpRequestPacket.computeCalculateFields();
 	PACKETPP_ASSERT(arpRequestPacket.getRawPacket()->getRawDataLen() == 42, "arp packet size != 42 bytes, Actual: %d", arpRequestPacket.getRawPacket()->getRawDataLen());
 
-	ArpLayer* pArpLayer = (ArpLayer*)arpRequestPacket.getLayerOfType(ARP);
+	ArpLayer* pArpLayer = arpRequestPacket.getLayerOfType<ArpLayer>();
 	PACKETPP_ASSERT(pArpLayer != NULL, "Packet doesn't contain arp layer");
 
 	arphdr* arpHeader = pArpLayer->getArpHeader();
@@ -194,12 +194,12 @@ PACKETPP_TEST(VlanParseAndCreation)
 	Packet arpWithVlan(&rawPacket);
 	VlanLayer* pFirstVlanLayer = NULL;
 	VlanLayer* pSecondVlanLayer = NULL;
-	PACKETPP_ASSERT((pFirstVlanLayer = (VlanLayer*)arpWithVlan.getLayerOfType(VLAN)) != NULL, "Couldn't get first vlan layer from packet");
+	PACKETPP_ASSERT((pFirstVlanLayer = arpWithVlan.getLayerOfType<VlanLayer>()) != NULL, "Couldn't get first vlan layer from packet");
 	vlan_header* vlanHeader = pFirstVlanLayer->getVlanHeader();
 	PACKETPP_ASSERT(pFirstVlanLayer->getVlanID() == 100, "first vlan ID != 100, it's 0x%2X", pFirstVlanLayer->getVlanID());
 	PACKETPP_ASSERT(vlanHeader->cfi == htons(0), "first vlan CFI != 0");
 	PACKETPP_ASSERT(vlanHeader->priority == htons(0), "first vlan priority != 0");
-	PACKETPP_ASSERT((pSecondVlanLayer = (VlanLayer*)arpWithVlan.getNextLayerOfType(pFirstVlanLayer, VLAN)) != NULL, "Couldn't get second vlan layer from packet");
+	PACKETPP_ASSERT((pSecondVlanLayer = arpWithVlan.getNextLayerOfType<VlanLayer>(pFirstVlanLayer)) != NULL, "Couldn't get second vlan layer from packet");
 	vlanHeader = pSecondVlanLayer->getVlanHeader();
 	PACKETPP_ASSERT(pSecondVlanLayer->getVlanID() == 200, "second vlan ID != 200");
 	PACKETPP_ASSERT(vlanHeader->cfi == htons(0), "second vlan CFI != 0");
@@ -256,8 +256,8 @@ PACKETPP_TEST(Ipv4PacketCreation)
 
 	ip4Packet.computeCalculateFields();
 
-	PACKETPP_ASSERT(ip4Packet.getLayerOfType(Ethernet)->getDataLen() == 44, "Eth Layer data len != 44, it's %d", ip4Packet.getLayerOfType(Ethernet)->getDataLen());
-	PACKETPP_ASSERT(ip4Packet.getLayerOfType(IPv4) != NULL, "Packet doesn't contain IPv4 layer");
+	PACKETPP_ASSERT(ip4Packet.getLayerOfType<EthLayer>()->getDataLen() == 44, "Eth Layer data len != 44, it's %d", ip4Packet.getLayerOfType<EthLayer>()->getDataLen());
+	PACKETPP_ASSERT(ip4Packet.getLayerOfType<IPv4Layer>() != NULL, "Packet doesn't contain IPv4 layer");
 	iphdr* ipHeader = ip4Layer.getIPv4Header();
 	PACKETPP_ASSERT(ip4Layer.getSrcIpAddress() == ipSrc, "IPv4 Layer src IP isn't equal to inserted src IP");
 	PACKETPP_ASSERT(ip4Layer.getDstIpAddress() == ipDst, "IPv4 Layer dst IP isn't equal to inserted dst IP");
@@ -282,14 +282,14 @@ PACKETPP_TEST(Ipv4PacketParsing)
 
 	Packet ip4Packet(&rawPacket);
 	PACKETPP_ASSERT(ip4Packet.isPacketOfType(Ethernet), "Packet is not of type Ethernet");
-	PACKETPP_ASSERT(ip4Packet.getLayerOfType(Ethernet) != NULL, "Ethernet layer doesn't exist");
+	PACKETPP_ASSERT(ip4Packet.getLayerOfType<EthLayer>() != NULL, "Ethernet layer doesn't exist");
 	PACKETPP_ASSERT(ip4Packet.isPacketOfType(IPv4), "Packet is not of type IPv4");
-	PACKETPP_ASSERT(ip4Packet.getLayerOfType(IPv4) != NULL, "IPv4 layer doesn't exist");
+	PACKETPP_ASSERT(ip4Packet.getLayerOfType<IPv4Layer>() != NULL, "IPv4 layer doesn't exist");
 
-	EthLayer* ethLayer = (EthLayer*)ip4Packet.getLayerOfType(Ethernet);
+	EthLayer* ethLayer = ip4Packet.getLayerOfType<EthLayer>();
 	PACKETPP_ASSERT(ntohs(ethLayer->getEthHeader()->etherType) == ETHERTYPE_IP, "Packet ether type isn't equal to ETHERTYPE_IP");
 
-	IPv4Layer* ipv4Layer = (IPv4Layer*)ip4Packet.getLayerOfType(IPv4);
+	IPv4Layer* ipv4Layer = ip4Packet.getLayerOfType<IPv4Layer>();
 	IPv4Address ip4addr1(string("10.0.0.4"));
 	IPv4Address ip4addr2(string("1.1.1.1"));
 	PACKETPP_ASSERT(ipv4Layer->getIPv4Header()->protocol == 1, "Protocol read from packet isnt ICMP (=1). Protocol is: %d", ipv4Layer->getIPv4Header()->protocol);
@@ -317,7 +317,7 @@ PACKETPP_TEST(Ipv4UdpChecksum)
 
 		Packet udpPacket(&rawPacket);
 		UdpLayer* udpLayer = NULL;
-		PACKETPP_ASSERT((udpLayer = (UdpLayer*)udpPacket.getLayerOfType(UDP)) != NULL, "UDP layer doesn't exist");
+		PACKETPP_ASSERT((udpLayer = udpPacket.getLayerOfType<UdpLayer>()) != NULL, "UDP layer doesn't exist");
 		uint16_t packetChecksum = udpLayer->getUdpHeader()->headerChecksum;
 		udpLayer->computeCalculateFields();
 		PACKETPP_ASSERT(udpLayer->getUdpHeader()->headerChecksum == packetChecksum, "Calculated checksum (0x%4X) != original checksum (0x%4X)", udpLayer->getUdpHeader()->headerChecksum, packetChecksum);
@@ -340,7 +340,7 @@ PACKETPP_TEST(Ipv6UdpPacketParseAndCreate)
 	PACKETPP_ASSERT(!ip6UdpPacket.isPacketOfType(IPv4), "Packet is of type IPv4 instead IPv6");
 	PACKETPP_ASSERT(!ip6UdpPacket.isPacketOfType(TCP), "Packet is of type TCP where it shouldn't");
 	IPv6Layer* ipv6Layer = NULL;
-	PACKETPP_ASSERT((ipv6Layer = (IPv6Layer*)ip6UdpPacket.getLayerOfType(IPv6)) != NULL, "IPv6 layer doesn't exist");
+	PACKETPP_ASSERT((ipv6Layer = ip6UdpPacket.getLayerOfType<IPv6Layer>()) != NULL, "IPv6 layer doesn't exist");
 	PACKETPP_ASSERT(ipv6Layer->getIPv6Header()->nextHeader == 17, "Protocol read from packet isnt UDP (17). Protocol is: %d", ipv6Layer->getIPv6Header()->nextHeader);
 	PACKETPP_ASSERT(ipv6Layer->getIPv6Header()->ipVersion == 6, "IP version isn't 6. Version is: %d", ipv6Layer->getIPv6Header()->ipVersion);
 	IPv6Address srcIP(string("fe80::4dc7:f593:1f7b:dc11"));
@@ -348,7 +348,7 @@ PACKETPP_TEST(Ipv6UdpPacketParseAndCreate)
 	PACKETPP_ASSERT(ipv6Layer->getSrcIpAddress() == srcIP, "incorrect source address");
 	PACKETPP_ASSERT(ipv6Layer->getDstIpAddress() == dstIP, "incorrect dest address");
 	UdpLayer* pUdpLayer = NULL;
-	PACKETPP_ASSERT((pUdpLayer = (UdpLayer*)ip6UdpPacket.getLayerOfType(UDP)) != NULL, "UDP layer doesn't exist");
+	PACKETPP_ASSERT((pUdpLayer = ip6UdpPacket.getLayerOfType<UdpLayer>()) != NULL, "UDP layer doesn't exist");
 	PACKETPP_ASSERT(pUdpLayer->getUdpHeader()->portDst == htons(1900), "UDP dest port != 1900");
 	PACKETPP_ASSERT(pUdpLayer->getUdpHeader()->portSrc == htons(63628), "UDP dest port != 63628");
 	PACKETPP_ASSERT(pUdpLayer->getUdpHeader()->length == htons(154), "UDP dest port != 154");
@@ -397,7 +397,7 @@ PACKETPP_TEST(TcpPacketNoOptionsParsing)
 	PACKETPP_ASSERT(tcpPaketNoOptions.isPacketOfType(IPv4), "Packet isn't of type IPv4");
 	PACKETPP_ASSERT(tcpPaketNoOptions.isPacketOfType(TCP), "Packet isn't of type TCP");
 	TcpLayer* tcpLayer = NULL;
-	PACKETPP_ASSERT((tcpLayer = (TcpLayer*)tcpPaketNoOptions.getLayerOfType(TCP)) != NULL, "TCP layer is NULL");
+	PACKETPP_ASSERT((tcpLayer = tcpPaketNoOptions.getLayerOfType<TcpLayer>()) != NULL, "TCP layer is NULL");
 
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->portDst == htons(60388), "Dest port != 60388, it's %d", ntohs(tcpLayer->getTcpHeader()->portDst));
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->portSrc == htons(80), "Src port != 80, it's %d", ntohs(tcpLayer->getTcpHeader()->portSrc));
@@ -444,7 +444,7 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing)
 	PACKETPP_ASSERT(tcpPaketWithOptions.isPacketOfType(IPv4), "Packet isn't of type IPv4");
 	PACKETPP_ASSERT(tcpPaketWithOptions.isPacketOfType(TCP), "Packet isn't of type TCP");
 	TcpLayer* tcpLayer = NULL;
-	PACKETPP_ASSERT((tcpLayer = (TcpLayer*)tcpPaketWithOptions.getLayerOfType(TCP)) != NULL, "TCP layer is NULL");
+	PACKETPP_ASSERT((tcpLayer = tcpPaketWithOptions.getLayerOfType<TcpLayer>()) != NULL, "TCP layer is NULL");
 
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->portSrc == htons(44147), "Src port != 44147, it's %d", ntohs(tcpLayer->getTcpHeader()->portSrc));
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->portDst == htons(80), "Dest port != 80, it's %d", ntohs(tcpLayer->getTcpHeader()->portDst));
@@ -483,7 +483,7 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing2)
 	Packet tcpPaketWithOptions(&rawPacket);
 
 	TcpLayer* tcpLayer = NULL;
-	PACKETPP_ASSERT((tcpLayer = (TcpLayer*)tcpPaketWithOptions.getLayerOfType(TCP)) != NULL, "TCP layer is NULL");
+	PACKETPP_ASSERT((tcpLayer = tcpPaketWithOptions.getLayerOfType<TcpLayer>()) != NULL, "TCP layer is NULL");
 
 	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 5, "TCP options count != 5, it's %d", tcpLayer->getTcpOptionsCount());
 	TcpOptionData* mssOptionData = NULL;
@@ -718,11 +718,11 @@ PACKETPP_TEST(RemoveLayerTest)
 	// a. Remove layer from the middle
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	IPv4Layer* ipLayer = (IPv4Layer*)tcpPacket.getLayerOfType(IPv4);
+	IPv4Layer* ipLayer = tcpPacket.getLayerOfType<IPv4Layer>();
 	PACKETPP_ASSERT(tcpPacket.removeLayer(ipLayer), "Remove IPv4 layer failed");
 	PACKETPP_ASSERT(tcpPacket.isPacketOfType(IPv4) == false, "Packet is still of type IPv4");
 	PACKETPP_ASSERT(tcpPacket.isPacketOfType(Ethernet) == true, "Packet isn't of type Ethernet");
-	PACKETPP_ASSERT(tcpPacket.getLayerOfType(IPv4) == NULL, "Can still retrieve IPv4 layer");
+	PACKETPP_ASSERT(tcpPacket.getLayerOfType<IPv4Layer>() == NULL, "Can still retrieve IPv4 layer");
 	PACKETPP_ASSERT(tcpPacket.getFirstLayer()->getNextLayer()->getProtocol() == TCP, "Layer next to Ethernet isn't TCP");
 	PACKETPP_ASSERT(tcpPacket.getRawPacket()->getRawDataLen() == 271, "Data length != 271, it's %d", tcpPacket.getRawPacket()->getRawDataLen());
 
@@ -869,7 +869,7 @@ PACKETPP_TEST(HttpRequestLayerParsingTest)
 	Packet httpPacket(&rawPacket);
 
 	PACKETPP_ASSERT(httpPacket.isPacketOfType(HTTPRequest), "Packet isn't of type HTTPRequest");
-	HttpRequestLayer* requestLayer = (HttpRequestLayer*)httpPacket.getLayerOfType(HTTPRequest);
+	HttpRequestLayer* requestLayer = httpPacket.getLayerOfType<HttpRequestLayer>();
 	PACKETPP_ASSERT(requestLayer != NULL, "Couldn't get HttpRequestLayer from packet");
 
 	PACKETPP_ASSERT(requestLayer->getFirstLine()->getMethod() == HttpRequestLayer::HttpGET, "Request method isn't GET");
@@ -991,16 +991,16 @@ PACKETPP_TEST(HttpRequestLayerEditTest)
 
 	Packet httpRequest(&rawPacket);
 
-	IPv4Layer* ip4Layer = (IPv4Layer*)httpRequest.getLayerOfType(IPv4);
+	IPv4Layer* ip4Layer = httpRequest.getLayerOfType<IPv4Layer>();
 	ip4Layer->getIPv4Header()->ipId = htons(30170);
 
-	TcpLayer* tcpLayer = (TcpLayer*)httpRequest.getLayerOfType(TCP);
+	TcpLayer* tcpLayer = httpRequest.getLayerOfType<TcpLayer>();
 	tcpLayer->getTcpHeader()->portSrc = htons(60383);
 	tcpLayer->getTcpHeader()->sequenceNumber = htonl(0x876143cb);
 	tcpLayer->getTcpHeader()->ackNumber = htonl(0xa66ed328);
 	tcpLayer->getTcpHeader()->windowSize = htons(16660);
 
-	HttpRequestLayer* httpReqLayer = (HttpRequestLayer*)httpRequest.getLayerOfType(HTTPRequest);
+	HttpRequestLayer* httpReqLayer = httpRequest.getLayerOfType<HttpRequestLayer>();
 	PACKETPP_ASSERT(httpReqLayer->getFirstLine()->setUri("/Common/Api/Video/CmmLightboxPlayerJs/0,14153,061014181713,00.js") == true, "Couldn't change URI");
 	HttpField* acceptField = httpReqLayer->getFieldByName(HTTP_ACCEPT_FIELD);
 	PACKETPP_ASSERT(acceptField != NULL, "Cannot find ACCEPT field");
@@ -1041,7 +1041,7 @@ PACKETPP_TEST(HttpResponseLayerParsingTest)
 	Packet httpPacket(&rawPacket);
 
 	PACKETPP_ASSERT(httpPacket.isPacketOfType(HTTPResponse), "Packet isn't of type HTTPResponse");
-	HttpResponseLayer* responseLayer = (HttpResponseLayer*)httpPacket.getLayerOfType(HTTPResponse);
+	HttpResponseLayer* responseLayer = httpPacket.getLayerOfType<HttpResponseLayer>();
 	PACKETPP_ASSERT(responseLayer != NULL, "Couldn't get HttpResponseLayer from packet");
 
 	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCode() == HttpResponseLayer::Http200OK, "Response status code isn't 200 OK");
@@ -1147,7 +1147,7 @@ PACKETPP_TEST(HttpResponseLayerEditTest)
 	Packet httpPacket(&rawPacket);
 
 	PACKETPP_ASSERT(httpPacket.isPacketOfType(HTTPResponse), "Packet isn't of type HTTPResponse");
-	HttpResponseLayer* responseLayer = (HttpResponseLayer*)httpPacket.getLayerOfType(HTTPResponse);
+	HttpResponseLayer* responseLayer = httpPacket.getLayerOfType<HttpResponseLayer>();
 	PACKETPP_ASSERT(responseLayer != NULL, "Couldn't get HttpResponseLayer from packet");
 
 	PACKETPP_ASSERT(responseLayer->getFirstLine()->isComplete() == true, "Http response not complete");

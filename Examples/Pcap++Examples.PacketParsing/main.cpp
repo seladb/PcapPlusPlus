@@ -90,10 +90,10 @@ int main(int argc, char* argv[])
 	printf("Src MAC: %s\n", ((EthLayer*)packet.getFirstLayer())->getSourceMac().toString().c_str());
 
 	// Access L3 fields
-	printf("Dst IP: %s\n", ((IPv6Layer*)packet.getLayerOfType(IPv6))->getDstIpAddress().toString().c_str());
+	printf("Dst IP: %s\n", packet.getLayerOfType<IPv6Layer>()->getDstIpAddress().toString().c_str());
 
 	// Access L4 fields
-	UdpLayer* udpLayer = (UdpLayer*)packet.getLayerOfType(UDP);
+	UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
 	printf("Port Dst: %d\n", ntohs(udpLayer->getUdpHeader()->portDst));
 
 	// Access packet properties

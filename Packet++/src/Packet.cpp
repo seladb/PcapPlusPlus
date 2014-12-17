@@ -311,31 +311,6 @@ bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToSh
 }
 
 
-Layer* Packet::getLayerOfType(ProtocolType type)
-{
-	if (m_FirstLayer->m_Protocol == type)
-		return m_FirstLayer;
-
-	return getNextLayerOfType(m_FirstLayer, type);
-}
-
-Layer* Packet::getNextLayerOfType(Layer* after, ProtocolType type)
-{
-	if (after == NULL)
-		return NULL;
-
-	Layer* curLayer = after->getNextLayer();
-	while (curLayer != NULL)
-	{
-		if (curLayer->m_Protocol == type)
-			return curLayer;
-		else
-			curLayer = curLayer->getNextLayer();
-	}
-
-	return NULL;
-}
-
 void Packet::computeCalculateFields()
 {
 	// calculated fields should be calculated from top layer to bottom layer
