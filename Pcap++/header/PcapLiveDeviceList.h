@@ -12,7 +12,13 @@ class PcapLiveDeviceList
 {
 private:
 	vector<PcapLiveDevice*> m_LiveDeviceList;
+
+	// private c'tor
 	PcapLiveDeviceList();
+	// private copy c'tor
+	PcapLiveDeviceList( const PcapLiveDeviceList& other );
+	PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other);
+	// private d'tor
 	~PcapLiveDeviceList();
 public:
 	static inline PcapLiveDeviceList& getInstance()

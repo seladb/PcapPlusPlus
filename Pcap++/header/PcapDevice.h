@@ -14,8 +14,11 @@ class IPcapDevice
 protected:
 	pcap_t* m_PcapDescriptor;
 	bool m_DeviceOpened;
-public:
+
+	// c'tor should not be public
 	IPcapDevice() { m_DeviceOpened = false; m_PcapDescriptor = NULL; }
+
+public:
 	virtual ~IPcapDevice();
 	virtual bool open() = 0;
 	virtual void close() = 0;

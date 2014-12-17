@@ -10,8 +10,13 @@ class WinPcapLiveDevice : public PcapLiveDevice
 	friend class PcapLiveDeviceList;
 protected:
 	int m_MinAmountOfDataToCopyFromKernelToApplication;
-	//WinPcapLiveDevice();
+
+	// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 	WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU);
+	// copy c'tor is not public
+	WinPcapLiveDevice( const WinPcapLiveDevice& other );
+	WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other);
+
 public:
 	virtual LiveDeviceType getDeviceType() { return WinPcapDevice; }
 
