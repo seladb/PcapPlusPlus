@@ -38,6 +38,9 @@ bool PcapRemoteDevice::open()
 		return false;
 	}
 
+	//in Remote devices there shouldn't be 2 separate descriptors
+	m_PcapSendDescriptor = m_PcapDescriptor;
+
 	//setFilter requires that m_DeviceOpened == true
 	m_DeviceOpened = true;
 
