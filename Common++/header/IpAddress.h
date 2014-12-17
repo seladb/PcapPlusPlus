@@ -16,7 +16,7 @@ protected:
 	char m_AddressAsString[MAX_ADDR_STRING_LEN];
 
 	// protected c'tor
-	IPAddress();
+	IPAddress() : m_IsValid(false) {}
 public:
 	enum AddressType {
 		IPv4AddressType,
