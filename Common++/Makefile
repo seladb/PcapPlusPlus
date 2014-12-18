@@ -29,8 +29,8 @@ Obj/%.o: src/%.cpp
 all: Common++.lib
 
 create-directories:
-	@mkdir -p Obj
-	@mkdir -p Lib
+	$(MKDIR) -p Obj
+	$(MKDIR) -p Lib
 
 # Tool invocations
 Common++.lib: create-directories $(OBJS_FILENAMES)

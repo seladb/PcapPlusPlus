@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 {
 	// Read file into buffer (byte array)
 	int bufferLength = 0;
-	uint8_t* buffer = readFileIntoBuffer("../UdpPacket.dat", bufferLength);
+	uint8_t* buffer = readFileIntoBuffer("UdpPacket.dat", bufferLength);
 	if (buffer == NULL)
 	{
 		printf("Cannot read file!\n");

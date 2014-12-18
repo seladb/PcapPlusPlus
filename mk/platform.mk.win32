@@ -21,3 +21,5 @@ AR := ar.exe
 RM := rm.exe
 
 CP := cp.exe
+
+MKDIR := mkdir.exe

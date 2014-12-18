@@ -13,22 +13,39 @@ UNAME := $(shell uname)
 
 # All Target
 all:
-	-cd $(COMMONPP_HOME)	&& $(MAKE) all
-	-cd $(PACKETPP_HOME)	&& $(MAKE) all
-	-cd $(PCAPPP_HOME)		&& $(MAKE) all
-	-cd $(PACKETPP_TEST)	&& $(MAKE) all
-	-cd $(PCAPPP_TEST)		&& $(MAKE) all
-	-cd $(EXAMPLE_PARSE)	&& $(MAKE) all
-	-cd $(EXAMPLE_STREAMS)	&& $(MAKE) all
-	-cd $(EXAMPLE_ARPSPOOF)	&& $(MAKE) all
+	$(RM) -rf Dist
+	cd $(COMMONPP_HOME)		&& $(MAKE) all
+	cd $(PACKETPP_HOME)		&& $(MAKE) all
+	cd $(PCAPPP_HOME)		&& $(MAKE) all
+	cd $(PACKETPP_TEST)		&& $(MAKE) all
+	cd $(PCAPPP_TEST)		&& $(MAKE) all
+	cd $(EXAMPLE_PARSE)		&& $(MAKE) all
+	cd $(EXAMPLE_STREAMS)	&& $(MAKE) all
+	cd $(EXAMPLE_ARPSPOOF)	&& $(MAKE) all
+	$(MKDIR) -p Dist
+	$(MKDIR) -p Dist/header
+	$(MKDIR) -p Dist/examples
+	$(CP) $(PACKETPP_HOME)/Lib/* ./Dist
+	$(CP) $(PCAPPP_HOME)/Lib/* ./Dist
+	$(CP) $(COMMONPP_HOME)/header/* ./Dist/header
+	$(CP) $(PACKETPP_HOME)/header/* ./Dist/header
+	$(CP) $(PCAPPP_HOME)/header/* ./Dist/header
+	$(CP) $(EXAMPLE_PARSE)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_PARSE)/UdpPacket.dat ./Dist/examples
+	$(CP) $(EXAMPLE_STREAMS)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_STREAMS)/example.pcap ./Dist/examples
+	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
+	@echo 'Finished successfully building PcapPlusPlus'
 
 # Clean
 clean:
-	-cd $(COMMONPP_HOME)	&& $(MAKE) clean
-	-cd $(PACKETPP_HOME)	&& $(MAKE) clean
-	-cd $(PCAPPP_HOME)		&& $(MAKE) clean
-	-cd $(PACKETPP_TEST)	&& $(MAKE) clean
-	-cd $(PCAPPP_TEST)		&& $(MAKE) clean
-	-cd $(EXAMPLE_PARSE)	&& $(MAKE) clean
-	-cd $(EXAMPLE_STREAMS)	&& $(MAKE) clean
-	-cd $(EXAMPLE_ARPSPOOF)	&& $(MAKE) clean
+	cd $(COMMONPP_HOME)		&& $(MAKE) clean
+	cd $(PACKETPP_HOME)		&& $(MAKE) clean
+	cd $(PCAPPP_HOME)		&& $(MAKE) clean
+	cd $(PACKETPP_TEST)		&& $(MAKE) clean
+	cd $(PCAPPP_TEST)		&& $(MAKE) clean
+	cd $(EXAMPLE_PARSE)		&& $(MAKE) clean
+	cd $(EXAMPLE_STREAMS)	&& $(MAKE) clean
+	cd $(EXAMPLE_ARPSPOOF)	&& $(MAKE) clean
+	$(RM) -rf Dist
+	@echo 'Finished successfully cleaning PcapPlusPlus'

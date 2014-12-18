@@ -13,3 +13,5 @@ AR := ar
 RM := rm
 
 CP := cp
+
+MKDIR := mkdir

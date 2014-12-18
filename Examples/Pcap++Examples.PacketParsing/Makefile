@@ -51,16 +51,16 @@ UNAME := $(shell uname)
 all: Pcap++Examples.PacketParsing
 
 create-directories:
-	@mkdir -p Obj
-	@mkdir -p Bin
+	$(MKDIR) -p Obj
+	$(MKDIR) -p Bin
 
 dependents:
-	-cd $(COMMONPP_HOME) && $(MAKE) all
-	-cd $(PACKETPP_HOME) && $(MAKE) all
+	cd $(COMMONPP_HOME) && $(MAKE) all
+	cd $(PACKETPP_HOME) && $(MAKE) all
 
 dependents-clean:
-	-cd $(COMMONPP_HOME) && $(MAKE) clean
-	-cd $(PACKETPP_HOME) && $(MAKE) clean
+	cd $(COMMONPP_HOME) && $(MAKE) clean
+	cd $(PACKETPP_HOME) && $(MAKE) clean
 	
 # Tool invocations
 Pcap++Examples.PacketParsing: create-directories $(OBJS_FILENAMES) dependents

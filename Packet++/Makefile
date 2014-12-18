@@ -32,8 +32,8 @@ Obj/%.o: src/%.cpp
 all: Packet++
 
 create-directories:
-	@mkdir -p Obj
-	@mkdir -p Lib
+	$(MKDIR) -p Obj
+	$(MKDIR) -p Lib
 
 # Tool invocations
 Packet++: create-directories $(OBJS_FILENAMES)

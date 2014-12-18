@@ -34,8 +34,8 @@ Obj/%.o: src/%.cpp
 all: Pcap++.lib
 
 create-directories:
-	@mkdir -p Obj
-	@mkdir -p Lib
+	$(MKDIR) -p Obj
+	$(MKDIR) -p Lib
 
 # Tool invocations
 Pcap++.lib: create-directories $(OBJS_FILENAMES)

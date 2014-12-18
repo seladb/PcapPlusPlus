@@ -6,6 +6,7 @@
 #include <IPv4Layer.h>
 #include <TcpLayer.h>
 #include <PcapFileDevice.h>
+#include <PlatformSpecificUtils.h>
 
 using namespace std;
 
@@ -77,6 +78,7 @@ int main(int argc, char* argv[])
 
 	readerDevice.close();
 
+	CREATE_DIRECTORY("Output");
 	printf("Number of streams found: %d\n", tcpStreamsMap.size());
 	i = 0;
 	for(map<size_t,vector<Packet*> >::iterator iter = tcpStreamsMap.begin(); iter != tcpStreamsMap.end(); iter++)

@@ -51,16 +51,16 @@ UNAME := $(shell uname)
 all: Packet++Test
 
 create-directories:
-	@mkdir -p Obj
-	@mkdir -p Bin
+	$(MKDIR) -p Obj
+	$(MKDIR) -p Bin
 
 dependents:
-	-cd $(COMMONPP_HOME) && $(MAKE) all
-	-cd $(PACKTPP_HOME) && $(MAKE) all
+	cd $(COMMONPP_HOME) && $(MAKE) all
+	cd $(PACKTPP_HOME) && $(MAKE) all
 
 dependents-clean:
-	-cd $(COMMONPP_HOME) && $(MAKE) clean
-	-cd $(PACKTPP_HOME) && $(MAKE) clean
+	cd $(COMMONPP_HOME) && $(MAKE) clean
+	cd $(PACKTPP_HOME) && $(MAKE) clean
 	
 # Tool invocations
 Packet++Test: create-directories $(OBJS_FILENAMES) dependents
