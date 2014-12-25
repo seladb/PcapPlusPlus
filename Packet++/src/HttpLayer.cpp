@@ -14,6 +14,62 @@
 HttpMessage::HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet),
 						m_FieldList(NULL), m_LastField(NULL), m_FieldsOffset(0) {}
 
+HttpMessage::HttpMessage(const HttpMessage& other) : Layer(other)
+{
+	copyDataFrom(other);
+
+}
+
+HttpMessage& HttpMessage::operator=(const HttpMessage& other)
+{
+	Layer::operator=(other);
+	HttpField* curField = m_FieldList;
+	while (curField != NULL)
+	{
+		HttpField* temp = curField;
+		curField = curField->getNextField();
+		delete temp;
+	}
+
+	copyDataFrom(other);
+
+	return *this;
+}
+
+void HttpMessage::copyDataFrom(const HttpMessage& other)
+{
+	// copy field list
+	if (other.m_FieldList != NULL)
+	{
+		m_FieldList = new HttpField(*(other.m_FieldList));
+		HttpField* curField = m_FieldList;
+		HttpField* curOtherField = other.m_FieldList;
+		while (curOtherField->getNextField() != NULL)
+		{
+			curField->setNextField(new HttpField(*(curOtherField->getNextField())));
+			curField = curField->getNextField();
+			curOtherField = curOtherField->getNextField();
+		}
+
+		m_LastField = curField;
+	}
+	else
+	{
+		m_FieldList = NULL;
+		m_LastField = NULL;
+	}
+
+	m_FieldsOffset = other.m_FieldsOffset;
+
+	// copy map
+	for(HttpField* field = m_FieldList; field != NULL; field = field->getNextField())
+	{
+		m_FieldNameToFieldMap[field->getFieldName()] = field;
+	}
+
+}
+
+
 void HttpMessage::parseFields()
 {
 	HttpField* firstField = new HttpField(this, m_FieldsOffset);
@@ -505,6 +561,24 @@ HttpRequestLayer::HttpRequestLayer(HttpMethod method, std::string uri, HttpVersi
 	m_FirstLine = new HttpRequestFirstLine(this, method, version, uri);
 	m_FieldsOffset = m_FirstLine->getSize();
 }
+
+HttpRequestLayer::HttpRequestLayer(const HttpRequestLayer& other) : HttpMessage(other)
+{
+	m_FirstLine = new HttpRequestFirstLine(this);
+}
+
+HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
+{
+	HttpMessage::operator=(other);
+
+	if (m_FirstLine != NULL)
+		delete m_FirstLine;
+
+	m_FirstLine = new HttpRequestFirstLine(this);
+
+	return *this;
+}
+
 
 std::string HttpRequestLayer::getUrl()
 {
@@ -1050,6 +1124,25 @@ HttpResponseLayer::~HttpResponseLayer()
 {
 	delete m_FirstLine;
 }
+
+
+HttpResponseLayer::HttpResponseLayer(const HttpResponseLayer& other) : HttpMessage(other)
+{
+	m_FirstLine = new HttpResponseFirstLine(this);
+}
+
+HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
+{
+	HttpMessage::operator=(other);
+
+	if (m_FirstLine != NULL)
+		delete m_FirstLine;
+
+	m_FirstLine = new HttpResponseFirstLine(this);
+
+	return *this;
+}
+
 
 HttpField* HttpResponseLayer::setContentLength(int contentLength, const std::string prevFieldName)
 {

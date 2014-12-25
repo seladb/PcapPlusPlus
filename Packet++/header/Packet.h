@@ -13,13 +13,17 @@ private:
 	Layer* m_LastLayer;
 	uint64_t m_ProtocolTypes;
 	size_t m_MaxPacketLen;
-	std::vector<Layer*> m_LayersInitialized;
+	std::vector<Layer*> m_LayersAllocatedInPacket;
 	bool m_FreeRawPacket;
 
 public:
 	Packet(size_t maxPacketLen);
 	Packet(RawPacket* rawPacket);
 	virtual ~Packet();
+
+	// copy c'tor
+	Packet(const Packet& other);
+	Packet& operator=(const Packet& other);
 
 	inline RawPacket* getRawPacket() { return m_RawPacket; }
 
@@ -38,9 +42,7 @@ public:
 	void computeCalculateFields();
 
 private:
-	// can't use copy c'tor and assignment operator
-	Packet(const Packet& other );
-	Packet& operator=(const Packet& other);
+	void copyDataFrom(const Packet& other);
 
 	bool extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExtend);
 	bool shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToShorten);

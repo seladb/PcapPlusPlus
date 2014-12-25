@@ -14,10 +14,16 @@ private:
 	bool m_DeleteRawDataAtDestructor;
 	bool m_RawPacketSet;
 	void Init();
+	void copyDataFrom(const RawPacket& other);
 public:
 	RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor);
 	RawPacket();
 	~RawPacket();
+
+	// copy c'tor
+	RawPacket(const RawPacket& other);
+	RawPacket& operator=(const RawPacket& other);
+
 	void setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp);
 	const uint8_t* getRawData();
 	int getRawDataLen();

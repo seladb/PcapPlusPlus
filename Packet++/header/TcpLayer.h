@@ -131,9 +131,13 @@ public:
 	TcpLayer(uint16_t portSrc, uint16_t portDst, int tcpOptionsCount, ...);
 	~TcpLayer();
 
+	// copy c'tor
+	TcpLayer(const TcpLayer& other);
+	TcpLayer& operator=(const TcpLayer& other);
+
 	inline tcphdr* getTcpHeader() { return (tcphdr*)m_Data; };
 	TcpOptionData* getTcpOptionData(TcpOption option);
-	inline size_t getTcpOptionsCount() { return m_TcpOptionsInLayerLen; }
+	inline size_t getTcpOptionsCount() { return m_TcpOptionsInLayerCount; }
 	uint16_t calculateChecksum(bool writeResultToPacket);
 
 	// implement abstract methods
@@ -149,11 +153,12 @@ private:
 		int dataOffset;
 	};
 	TcpOptionPtr* m_TcpOptionsInLayer;
-	size_t m_TcpOptionsInLayerLen;
+	size_t m_TcpOptionsInLayerCount;
 	size_t m_HeaderLen;
 
 	void initLayer(int tcpOptionsCount, va_list paramsList);
 	const TcpOptionData& getTcpOptionRawData(TcpOption option);
+	void copyLayerData(const TcpLayer& other);
 };
 
 

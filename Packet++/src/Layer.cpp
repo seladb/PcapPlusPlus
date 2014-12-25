@@ -5,6 +5,38 @@
 #include "Logger.h"
 #include "Packet.h"
 
+
+Layer::~Layer()
+{
+	if (!isAllocatedToPacket())
+		delete m_Data;
+}
+
+Layer::Layer(const Layer& other) : m_DataLen(other.m_DataLen), m_Packet(NULL), m_Protocol(other.m_Protocol), m_NextLayer(NULL), m_PrevLayer(NULL)
+{
+	m_Data = new uint8_t[other.m_DataLen];
+	memcpy(m_Data, other.m_Data, other.m_DataLen);
+}
+
+Layer& Layer::operator=(const Layer& other)
+{
+	if (this == &other)
+		return *this;
+
+	if (m_Data != NULL)
+		delete [] m_Data;
+
+	m_DataLen = other.m_DataLen;
+	m_Packet = NULL;
+	m_Protocol = other.m_Protocol;
+	m_NextLayer = NULL;
+	m_PrevLayer = NULL;
+	m_Data = new uint8_t[other.m_DataLen];
+	memcpy(m_Data, other.m_Data, other.m_DataLen);
+
+	return *this;
+}
+
 void Layer::copyData(uint8_t* toArr)
 {
 	memcpy(toArr, m_Data, m_DataLen);

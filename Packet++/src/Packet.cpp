@@ -36,12 +36,49 @@ Packet::Packet(RawPacket* rawPacket) :
 	{
 		m_ProtocolTypes |= curLayer->getProtocol();
 		curLayer->parseNextLayer();
-		m_LayersInitialized.push_back(curLayer);
+		m_LayersAllocatedInPacket.push_back(curLayer);
 		curLayer = curLayer->getNextLayer();
 		if (curLayer != NULL)
 			m_LastLayer = curLayer;
 	}
 
+}
+
+Packet::Packet(const Packet& other)
+{
+	copyDataFrom(other);
+}
+
+Packet& Packet::operator=(const Packet& other)
+{
+	for(std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin(); iter != m_LayersAllocatedInPacket.end(); ++iter)
+		delete (*iter);
+
+	if (m_RawPacket != NULL)
+		delete m_RawPacket;
+
+	copyDataFrom(other);
+
+	return *this;
+}
+
+void Packet::copyDataFrom(const Packet& other)
+{
+	m_RawPacket = new RawPacket(*(other.m_RawPacket));
+	m_FreeRawPacket = true;
+	m_MaxPacketLen = other.m_MaxPacketLen;
+	m_ProtocolTypes = other.m_ProtocolTypes;
+	m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+	m_LastLayer = m_FirstLayer;
+	Layer* curLayer = m_FirstLayer;
+	while (curLayer != NULL)
+	{
+		curLayer->parseNextLayer();
+		m_LayersAllocatedInPacket.push_back(curLayer);
+		curLayer = curLayer->getNextLayer();
+		if (curLayer != NULL)
+			m_LastLayer = curLayer;
+	}
 }
 
 void Packet::reallocateRawData(size_t newSize)
@@ -325,7 +362,7 @@ void Packet::computeCalculateFields()
 
 Packet::~Packet()
 {
-	for(std::vector<Layer*>::iterator iter = m_LayersInitialized.begin(); iter != m_LayersInitialized.end(); ++iter)
+	for(std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin(); iter != m_LayersAllocatedInPacket.end(); ++iter)
 		delete (*iter);
 
 	if (m_FreeRawPacket)

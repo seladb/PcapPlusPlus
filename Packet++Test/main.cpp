@@ -887,28 +887,26 @@ PACKETPP_TEST(HttpRequestLayerParsingTest)
 
 PACKETPP_TEST(HttpRequestLayerCreationTest)
 {
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket sampleRawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet sampleHttpPacket(&sampleRawPacket);
+
 	Packet httpPacket(10);
 
-	MacAddress srcMac("6c:f0:49:b2:de:6e");
-	MacAddress dstMac("30:46:9a:23:fb:fa");
-	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	EthLayer ethLayer(*sampleHttpPacket.getLayerOfType<EthLayer>());
 	PACKETPP_ASSERT(httpPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
 
-	IPv4Address ipSrc(string("10.0.0.1"));
-	IPv4Address ipDst(string("212.199.202.60"));
-	IPv4Layer ip4Layer(ipSrc, ipDst);
-	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
-	ip4Layer.getIPv4Header()->ipId = htons(0x758d);
-	ip4Layer.getIPv4Header()->timeToLive = 128;
-	ip4Layer.getIPv4Header()->fragmentOffset = htons(0x4000);
+	IPv4Layer ip4Layer;
+	ip4Layer = *(sampleHttpPacket.getLayerOfType<IPv4Layer>());
 	PACKETPP_ASSERT(httpPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
 
-	TcpLayer tcpLayer((uint16_t)60378, (uint16_t)80, 0);
-	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x205a2eac);
-	tcpLayer.getTcpHeader()->ackNumber = htonl(0x1c57aab9);
-	tcpLayer.getTcpHeader()->windowSize = htons(16600);
-	tcpLayer.getTcpHeader()->pshFlag = 1;
-	tcpLayer.getTcpHeader()->ackFlag = 1;
+	TcpLayer tcpLayer = *(sampleHttpPacket.getLayerOfType<TcpLayer>());
 	PACKETPP_ASSERT(httpPacket.addLayer(&tcpLayer), "Adding TCP layer failed");
 
 	HttpRequestLayer httpLayer(HttpRequestLayer::HttpOPTIONS, "/home/0,7340,L-8,00", OneDotOne);
@@ -943,11 +941,6 @@ PACKETPP_TEST(HttpRequestLayerCreationTest)
 
 	httpPacket.computeCalculateFields();
 
-
-	int bufferLength = 0;
-	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", bufferLength);
-	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
-
 //	printf("\n\n\n");
 //	for(int i = 54; i<bufferLength; i++)
 //	{
@@ -973,8 +966,6 @@ PACKETPP_TEST(HttpRequestLayerCreationTest)
 	PACKETPP_ASSERT(bufferLength == httpPacket.getRawPacket()->getRawDataLen(), "Raw packet length (%d) != expected length (%d)", httpPacket.getRawPacket()->getRawDataLen(), bufferLength);
 
 	PACKETPP_ASSERT(memcmp(buffer, httpPacket.getRawPacket()->getRawData(), bufferLength) == 0, "Constructed packet data is different than expected");
-
-	delete [] buffer;
 
 	PACKETPP_TEST_PASSED;
 }
@@ -1026,7 +1017,6 @@ PACKETPP_TEST(HttpRequestLayerEditTest)
 
 PACKETPP_TEST(HttpResponseLayerParsingTest)
 {
-
 	// This is a basic parsing test
 	// A much wider test is in Pcap++Test
 
@@ -1061,27 +1051,25 @@ PACKETPP_TEST(HttpResponseLayerParsingTest)
 
 PACKETPP_TEST(HttpResponseLayerCreationTest)
 {
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket sampleRawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet sampleHttpPacket(&sampleRawPacket);
+
 	Packet httpPacket(100);
 
-	MacAddress srcMac("30:46:9a:23:fb:fa");
-	MacAddress dstMac("6c:f0:49:b2:de:6e");
-	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	EthLayer ethLayer = *sampleHttpPacket.getLayerOfType<EthLayer>();
 	PACKETPP_ASSERT(httpPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
 
-	IPv4Address ipSrc(string("212.199.202.60"));
-	IPv4Address ipDst(string("10.0.0.1"));
-	IPv4Layer ip4Layer(ipSrc, ipDst);
-	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
-	ip4Layer.getIPv4Header()->ipId = htons(60239);
-	ip4Layer.getIPv4Header()->timeToLive = 60;
-	ip4Layer.getIPv4Header()->fragmentOffset = htons(0x4000);
+	IPv4Layer ip4Layer(*sampleHttpPacket.getLayerOfType<IPv4Layer>());
 	PACKETPP_ASSERT(httpPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
 
-	TcpLayer tcpLayer((uint16_t)80, (uint16_t)60379, 0);
-	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x434bbb5f);
-	tcpLayer.getTcpHeader()->ackNumber = htonl(0xde269603);
-	tcpLayer.getTcpHeader()->windowSize = htons(490);
-	tcpLayer.getTcpHeader()->ackFlag = 1;
+	TcpLayer tcpLayer(*sampleHttpPacket.getLayerOfType<TcpLayer>());
 	PACKETPP_ASSERT(httpPacket.addLayer(&tcpLayer), "Adding TCP layer failed");
 
 	HttpResponseLayer httpResponse(OneDotOne, HttpResponseLayer::Http200OK);
@@ -1103,10 +1091,7 @@ PACKETPP_TEST(HttpResponseLayerCreationTest)
 
 	PACKETPP_ASSERT(httpPacket.addLayer(&httpResponse) == true, "Cannot add HTTP response layer");
 
-	int bufferLength = 0;
-	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses1.dat", bufferLength);
-	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
-	PayloadLayer payloadLayer(buffer+54+382, bufferLength-54-382, true);
+	PayloadLayer payloadLayer = *sampleHttpPacket.getLayerOfType<PayloadLayer>();
 	PACKETPP_ASSERT(httpPacket.addLayer(&payloadLayer) == true, "Cannot add payload layer");
 
 	PACKETPP_ASSERT(httpResponse.addField(HTTP_CONNECTION_FIELD, "keep-alive") != NULL, "Cannot add connection field");
@@ -1127,8 +1112,6 @@ PACKETPP_TEST(HttpResponseLayerCreationTest)
 	PACKETPP_ASSERT(httpResponse.getHeaderLen() == 382, "HTTP header length is different than expected. Expected: %d; Actual: %d", 382, httpResponse.getHeaderLen());
 
 	PACKETPP_ASSERT(memcmp(buffer, httpPacket.getRawPacket()->getRawData(), ethLayer.getHeaderLen()+ip4Layer.getHeaderLen()+tcpLayer.getHeaderLen()+httpResponse.getHeaderLen()) == 0, "Constructed packet data is different than expected");
-
-	delete [] buffer;
 
 	PACKETPP_TEST_PASSED;
 }
@@ -1173,6 +1156,126 @@ PACKETPP_TEST(HttpResponseLayerEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(CopyLayerAndPacketTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket sampleRawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet sampleHttpPacket(&sampleRawPacket);
+
+	//RawPacket copy c'tor / assignment operator test
+	//-----------------------------------------------
+	RawPacket copyRawPacket;
+	copyRawPacket = sampleRawPacket;
+	PACKETPP_ASSERT(copyRawPacket.getRawDataLen() == sampleRawPacket.getRawDataLen(), "Original and copy RawPacket data length differs");
+	PACKETPP_ASSERT(copyRawPacket.getRawData() != sampleRawPacket.getRawData(), "Original and copy RawPacket data pointers are the same");
+	PACKETPP_ASSERT(memcmp(copyRawPacket.getRawData(), sampleRawPacket.getRawData(), sampleRawPacket.getRawDataLen()) == 0, "Original and copy RawPacket data differs");
+
+	//EthLayer copy c'tor test
+	//------------------------
+	EthLayer ethLayer = *sampleHttpPacket.getLayerOfType<EthLayer>();
+	PACKETPP_ASSERT(sampleHttpPacket.getLayerOfType<EthLayer>()->getLayerPayload() != ethLayer.getLayerPayload(),
+			"EthLayer copy c'tor didn't actually copy the data, payload data pointer of original and copied layers are equal");
+	PACKETPP_ASSERT(memcmp(sampleHttpPacket.getLayerOfType<EthLayer>()->getLayerPayload(), ethLayer.getLayerPayload(), sampleHttpPacket.getLayerOfType<EthLayer>()->getLayerPayloadSize()) == 0,
+			"EthLayer copy c'tor didn't copy data properly, original and copied payload data isn't equal");
+
+
+	//TcpLayer copy c'tor test
+	//------------------------
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/TcpPacketWithOptions2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file");
+
+	RawPacket sampleRawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet sampleTcpPacketWithOptions(&sampleRawPacket2);
+	TcpLayer tcpLayer = *sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>();
+	PACKETPP_ASSERT(sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getData() != tcpLayer.getData(),
+			"TcpLayer copy c'tor didn't actually copy the data, data pointer of original and copied layers are equal");
+	PACKETPP_ASSERT(memcmp(sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getData(), tcpLayer.getData(), sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getDataLen()) == 0,
+			"TcpLayer copy c'tor didn't copy data properly, original and copied data isn't equal");
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionsCount() == sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getTcpOptionsCount(),
+			"TcpLayer copy and original TCP options count is not equal");
+	PACKETPP_ASSERT(sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getTcpOptionData(TCPOPT_TIMESTAMP) != tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP),
+			"TcpLayer copy and original TCP Timestamp option pointer is the same");
+	PACKETPP_ASSERT(memcmp(sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getTcpOptionData(TCPOPT_TIMESTAMP), tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP), TCPOLEN_TIMESTAMP) == 0,
+			"TcpLayer copy and original TCP Timestamp option data differs");
+
+
+	//HttpLayer copy c'tor test
+	//--------------------------
+
+	HttpResponseLayer* sampleHttpLayer = sampleHttpPacket.getLayerOfType<HttpResponseLayer>();
+	HttpResponseLayer httpResLayer = *sampleHttpPacket.getLayerOfType<HttpResponseLayer>();
+	PACKETPP_ASSERT(sampleHttpLayer->getFirstLine() != httpResLayer.getFirstLine(), "HttpResponseLayer copy c'tor didn't actually copy first line, pointers are the same");
+	PACKETPP_ASSERT(sampleHttpLayer->getFirstLine()->getStatusCode() == httpResLayer.getFirstLine()->getStatusCode(), "HttpResponseLayer copy c'tor: status codes differ between original and copy");
+	PACKETPP_ASSERT(sampleHttpLayer->getFirstLine()->getSize() == httpResLayer.getFirstLine()->getSize(), "HttpResponseLayer copy c'tor: sizes differ between original and copy");
+	PACKETPP_ASSERT(sampleHttpLayer->getFirstLine()->getVersion() == httpResLayer.getFirstLine()->getVersion(), "HttpResponseLayer copy c'tor: versions differ between original and copy");
+
+	HttpField* curFieldInSample = sampleHttpLayer->getFirstField();
+	HttpField* curFieldInCopy = httpResLayer.getFirstField();
+	while (curFieldInSample != NULL && curFieldInCopy != NULL)
+	{
+		PACKETPP_ASSERT(curFieldInCopy != curFieldInSample, "HttpRequestLayer copy c'tor didn't actually copy the field '%s'", curFieldInSample->getFieldName().c_str());
+		PACKETPP_ASSERT(curFieldInSample->getFieldName() == curFieldInCopy->getFieldName(),
+				"HttpResponseLayer copy c'tor: different field names between original and copy. Original: '%s', Copy: '%s'",
+				curFieldInSample->getFieldName().c_str(), curFieldInCopy->getFieldName().c_str());
+		PACKETPP_ASSERT(curFieldInSample->getFieldValue() == curFieldInCopy->getFieldValue(),
+				"HttpResponseLayer copy c'tor: different field value between original and copy. Original: '%s', Copy: '%s'",
+				curFieldInSample->getFieldValue().c_str(), curFieldInCopy->getFieldValue().c_str());
+		PACKETPP_ASSERT(curFieldInSample->getFieldSize() == curFieldInCopy->getFieldSize(),
+				"HttpResponseLayer copy c'tor: different field size between original and copy. Original: '%d', Copy: '%d'",
+				curFieldInSample->getFieldSize(), curFieldInCopy->getFieldSize());
+
+		curFieldInSample = sampleHttpLayer->getNextField(curFieldInSample);
+		curFieldInCopy = sampleHttpLayer->getNextField(curFieldInCopy);
+	}
+
+	PACKETPP_ASSERT(curFieldInSample == NULL, "HttpResponseLayer copy c'tor: number of fields differs between original and copy");
+	PACKETPP_ASSERT(curFieldInCopy == NULL, "HttpResponseLayer copy c'tor: number of fields differs between original and copy");
+
+
+	//Packet copy c'tor test
+	//----------------------
+
+	Packet samplePacketCopy(sampleHttpPacket);
+	PACKETPP_ASSERT(samplePacketCopy.getFirstLayer() != sampleHttpPacket.getFirstLayer(), "Packet copy c'tor didn't actually copy first layer");
+	PACKETPP_ASSERT(samplePacketCopy.getLastLayer() != sampleHttpPacket.getLastLayer(), "Packet copy c'tor didn't actually last layer");
+	PACKETPP_ASSERT(samplePacketCopy.getRawPacket() != sampleHttpPacket.getRawPacket(), "Packet copy c'tor didn't actually copy raw packet");
+	PACKETPP_ASSERT(samplePacketCopy.getRawPacket()->getRawDataLen() == sampleHttpPacket.getRawPacket()->getRawDataLen(),
+			"Packet copy c'tor: raw packet length differs");
+	PACKETPP_ASSERT(memcmp(samplePacketCopy.getRawPacket()->getRawData(), sampleHttpPacket.getRawPacket()->getRawData(), sampleHttpPacket.getRawPacket()->getRawDataLen()) == 0,
+			"Packet copy c'tor: raw packet data differs");
+	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(Ethernet) == true, "Packet copy isn't of type ethernet");
+	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(IPv4) == true, "Packet copy isn't of type IPv4");
+	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(TCP) == true, "Packet copy isn't of type TCP");
+	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(HTTPResponse) == true, "Packet copy isn't of type HTTP response");
+	Layer* curSamplePacketLayer = sampleHttpPacket.getFirstLayer();
+	Layer* curPacketCopyLayer = samplePacketCopy.getFirstLayer();
+	while (curSamplePacketLayer != NULL && curPacketCopyLayer != NULL)
+	{
+		PACKETPP_ASSERT(curSamplePacketLayer->getProtocol() == curPacketCopyLayer->getProtocol(), "Packet copy c'tor: layer protocol is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getHeaderLen() == curPacketCopyLayer->getHeaderLen(), "Packet copy c'tor: layer header len is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getLayerPayloadSize() == curPacketCopyLayer->getLayerPayloadSize(), "Packet copy c'tor: layer payload size is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getDataLen() == curPacketCopyLayer->getDataLen(), "Packet copy c'tor: data len is different");
+		PACKETPP_ASSERT(memcmp(curSamplePacketLayer->getData(), curPacketCopyLayer->getData(), curSamplePacketLayer->getDataLen()) == 0, "Packet copy c'tor: layer data differs");
+		curSamplePacketLayer = curSamplePacketLayer->getNextLayer();
+		curPacketCopyLayer = curPacketCopyLayer->getNextLayer();
+	}
+
+	PACKETPP_ASSERT(curSamplePacketLayer == NULL, "Packet copy c'tor: number of layers differs between original and copy");
+	PACKETPP_ASSERT(curPacketCopyLayer == NULL, "Packet copy c'tor: number of layers differs between original and copy");
+
+
+
+	PACKETPP_TEST_PASSED;
+}
+
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -1200,6 +1303,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(HttpResponseLayerParsingTest);
 	PACKETPP_RUN_TEST(HttpResponseLayerCreationTest);
 	PACKETPP_RUN_TEST(HttpResponseLayerEditTest);
+	PACKETPP_RUN_TEST(CopyLayerAndPacketTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

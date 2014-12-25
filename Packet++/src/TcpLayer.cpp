@@ -51,7 +51,7 @@ const TcpOptionData& TcpLayer::getTcpOptionRawData(TcpOption option)
 TcpOptionData* TcpLayer::getTcpOptionData(TcpOption option)
 {
 	uint8_t* tcpOptionStartPtr = m_Data + sizeof(tcphdr);
-	for (size_t i = 0; i < m_TcpOptionsInLayerLen; i++)
+	for (size_t i = 0; i < m_TcpOptionsInLayerCount; i++)
 	{
 		if (m_TcpOptionsInLayer[i].option == option)
 			return (TcpOptionData*)(tcpOptionStartPtr + m_TcpOptionsInLayer[i].dataOffset);
@@ -121,7 +121,7 @@ void TcpLayer::initLayer(int tcpOptionsCount, va_list paramsList)
 		m_TcpOptionsInLayer = new TcpOptionPtr[tcpOptionsCount];
 	else
 		m_TcpOptionsInLayer = NULL;
-	m_TcpOptionsInLayerLen = tcpOptionsCount;
+	m_TcpOptionsInLayerCount = tcpOptionsCount;
 	for (int i = 0; i < tcpOptionsCount; i++)
 	{
 		TcpOption param = (TcpOption)va_arg(paramsList, int);
@@ -138,7 +138,7 @@ void TcpLayer::initLayer(int tcpOptionsCount, va_list paramsList)
 
 	int optionOffset = 0;
 	uint8_t* optionPtr = m_Data + sizeof(tcphdr);
-	for (size_t i = 0; i < m_TcpOptionsInLayerLen; i++)
+	for (size_t i = 0; i < m_TcpOptionsInLayerCount; i++)
 	{
 		m_TcpOptionsInLayer[i].dataOffset = optionOffset;
 		const TcpOptionData rawOptionData = getTcpOptionRawData(m_TcpOptionsInLayer[i].option);
@@ -153,7 +153,7 @@ void TcpLayer::initLayer(int tcpOptionsCount, va_list paramsList)
 TcpLayer::TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 {
 	m_Protocol = TCP;
-	m_TcpOptionsInLayerLen = 0;
+	m_TcpOptionsInLayerCount = 0;
 	m_TcpOptionsInLayer = NULL;
 
 	uint16_t headerLength = ((tcphdr*)m_Data)->dataOffset*4;
@@ -165,17 +165,17 @@ TcpLayer::TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pack
 		int optionPtrOffset = 0;
 		while (optionsPtr < m_Data + m_HeaderLen)
 		{
-			m_TcpOptionsInLayer[m_TcpOptionsInLayerLen].option = (TcpOption)*optionsPtr;
-			const TcpOptionData rawOptionData = getTcpOptionRawData(m_TcpOptionsInLayer[m_TcpOptionsInLayerLen].option);
-			m_TcpOptionsInLayer[m_TcpOptionsInLayerLen].dataOffset = optionPtrOffset;
+			m_TcpOptionsInLayer[m_TcpOptionsInLayerCount].option = (TcpOption)*optionsPtr;
+			const TcpOptionData rawOptionData = getTcpOptionRawData(m_TcpOptionsInLayer[m_TcpOptionsInLayerCount].option);
+			m_TcpOptionsInLayer[m_TcpOptionsInLayerCount].dataOffset = optionPtrOffset;
 			optionsPtr += rawOptionData.len;
 			optionPtrOffset += rawOptionData.len;
-			m_TcpOptionsInLayerLen++;
+			m_TcpOptionsInLayerCount++;
 		}
 	}
 }
 
-TcpLayer::TcpLayer(int tcpOptionsCount, ...) : m_TcpOptionsInLayer(NULL), m_TcpOptionsInLayerLen(0), m_HeaderLen(0)
+TcpLayer::TcpLayer(int tcpOptionsCount, ...) : m_TcpOptionsInLayer(NULL), m_TcpOptionsInLayerCount(0), m_HeaderLen(0)
 {
 	va_list paramList;
 	va_start(paramList, tcpOptionsCount);
@@ -191,6 +191,37 @@ TcpLayer::TcpLayer(uint16_t portSrc, uint16_t portDst, int tcpOptionsCount, ...)
 	va_end(paramList);
 	getTcpHeader()->portDst = htons(portDst);
 	getTcpHeader()->portSrc = htons(portSrc);
+}
+
+void TcpLayer::copyLayerData(const TcpLayer& other)
+{
+	m_TcpOptionsInLayerCount = other.m_TcpOptionsInLayerCount;
+	m_HeaderLen = other.m_HeaderLen;
+
+	if (other.m_TcpOptionsInLayerCount > 0)
+		m_TcpOptionsInLayer = new TcpOptionPtr[other.m_TcpOptionsInLayerCount];
+	else
+		m_TcpOptionsInLayer = NULL;
+
+	for (size_t i = 0; i < other.m_TcpOptionsInLayerCount; i++)
+		m_TcpOptionsInLayer[i] = other.m_TcpOptionsInLayer[i];
+}
+
+TcpLayer::TcpLayer(const TcpLayer& other) : Layer(other)
+{
+	copyLayerData(other);
+}
+
+TcpLayer& TcpLayer::operator=(const TcpLayer& other)
+{
+	Layer::operator=(other);
+
+	if (m_TcpOptionsInLayer != NULL)
+		delete [] m_TcpOptionsInLayer;
+
+	copyLayerData(other);
+
+	return *this;
 }
 
 void TcpLayer::parseNextLayer()

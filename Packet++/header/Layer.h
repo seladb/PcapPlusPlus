@@ -10,13 +10,15 @@ class Packet;
 class Layer {
 	friend class Packet;
 public:
-	virtual ~Layer() { if (!isAllocatedToPacket()) delete m_Data; }
+	virtual ~Layer();
 
 	inline Layer* getNextLayer() { return m_NextLayer; }
 	inline Layer* getPrevLayer() { return m_PrevLayer; }
 	inline ProtocolType getProtocol() { return m_Protocol; }
 	inline uint8_t* getData() { return m_Data; }
 	inline size_t getDataLen() { return m_DataLen; }
+	uint8_t* getLayerPayload() { return m_Data + getHeaderLen(); }
+	size_t getLayerPayloadSize() { return m_DataLen - getHeaderLen(); }
 
 	inline bool isAllocatedToPacket() { return m_Packet != NULL; }
 
@@ -42,16 +44,15 @@ protected:
 		m_Packet(packet), m_Protocol(Unknown),
 		m_NextLayer(NULL), m_PrevLayer(prevLayer) {}
 
+	// Copy c'tor
+	Layer(const Layer& other);
+	Layer& operator=(const Layer& other);
+
 	inline void setNextLayer(Layer* nextLayer) { m_NextLayer = nextLayer; }
 	inline void setPrevLayer(Layer* prevLayer) { m_PrevLayer = prevLayer; }
 
 	virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 	virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
-
-private:
-	// can't use copy c'tor and assignment operator
-	Layer(const Layer& other );
-	Layer& operator=(const Layer& other);
 };
 
 #endif /* PACKETPP_LAYER */

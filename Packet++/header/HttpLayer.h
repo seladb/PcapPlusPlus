@@ -106,6 +106,13 @@ public:
 protected:
 	HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	HttpMessage() : m_FieldList(NULL), m_LastField(NULL), m_FieldsOffset(0) {}
+
+	// copy c'tor
+	HttpMessage(const HttpMessage& other);
+	HttpMessage& operator=(const HttpMessage& other);
+
+	void copyDataFrom(const HttpMessage& other);
+
 	void parseFields();
 	void shiftFieldsOffset(HttpField* fromField, int numOfBytesToShift);
 
@@ -147,6 +154,11 @@ public:
 	HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	HttpRequestLayer(HttpMethod method, std::string uri, HttpVersion version);
 	~HttpRequestLayer();
+
+	// copy c'tor
+	HttpRequestLayer(const HttpRequestLayer& other);
+	HttpRequestLayer& operator=(const HttpRequestLayer& other);
+
 	inline HttpRequestFirstLine* getFirstLine() { return m_FirstLine; }
 	std::string getUrl();
 private:
@@ -254,6 +266,11 @@ public:
 	HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statuCode, std::string statusCodeString = "");
 	~HttpResponseLayer();
+
+	// copy c'tor
+	HttpResponseLayer(const HttpResponseLayer& other);
+	HttpResponseLayer& operator=(const HttpResponseLayer& other);
+
 	inline HttpResponseFirstLine* getFirstLine() { return m_FirstLine; }
 
 	HttpField* setContentLength(int contentLength, const std::string prevFieldName = "");

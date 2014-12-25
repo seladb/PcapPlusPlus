@@ -32,6 +32,37 @@ RawPacket::~RawPacket()
 	}
 }
 
+RawPacket::RawPacket(const RawPacket& other)
+{
+	copyDataFrom(other);
+}
+
+RawPacket& RawPacket::operator=(const RawPacket& other)
+{
+	if (m_pRawData != NULL)
+		delete [] m_pRawData;
+
+	m_RawPacketSet = false;
+
+	copyDataFrom(other);
+
+	return *this;
+}
+
+
+void RawPacket::copyDataFrom(const RawPacket& other)
+{
+	if (!other.m_RawPacketSet)
+		return;
+
+	m_DeleteRawDataAtDestructor = other.m_DeleteRawDataAtDestructor;
+	m_RawDataLen = other.m_RawDataLen;
+	m_TimeStamp = other.m_TimeStamp;
+	m_pRawData = new uint8_t[other.m_RawDataLen];
+	memcpy(m_pRawData, other.m_pRawData, other.m_RawDataLen);
+	m_RawPacketSet = true;
+}
+
 void RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp)
 {
 	if (m_pRawData != 0 && m_DeleteRawDataAtDestructor)
