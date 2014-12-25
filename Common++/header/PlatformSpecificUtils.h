@@ -5,6 +5,7 @@
 #include <winbase.h>
 #else
 #include <unistd.h>
+#include <sys/stat.h>
 #endif
 
 #ifdef WIN32
@@ -16,7 +17,7 @@
 #ifdef WIN32
 #define CREATE_DIRECTORY(dir) CreateDirectory(dir, NULL)
 #else
-#define CREATE_DIRECTORY(dir) mkdir(dir, NULL)
+#define CREATE_DIRECTORY(dir) mkdir(dir, 0777)
 #endif
 
 #endif /* PCAPPP_PLATFORM_SPECIFIC_UTILS */

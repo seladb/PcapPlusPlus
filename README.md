@@ -3,6 +3,12 @@ PcapPlusPlus
 
 PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and manipulation framework. PcapPlusPlus is meant to be lightweight, efficient and easy to use.
 
+**What makes PcapPlusPlus different from similar C++ wrappers for libpcap/WinPcap?**
+- Designed to be lightweight and efficient
+- Support for many protocols, including HTTP protocol parsing and editing
+- Support for Remote Capture capabilities on Windows (using RPCAP protocol supported in WinPcap)
+- Vast object-oriented filteting mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
+
 PcapPlusPlus is currently supported on Windows and Linux operating systems.
 It was tested on Windows (32bit and 64bit), Ubuntu and Fedora, but it should work on other Linux distributions as well.
 Other opeating systems such as FreeBSD and Mac OS were never tested and compilation on those platform would probably fail
@@ -36,12 +42,14 @@ The Packet++ library currently supports parsing, editing and creation of packets
 9. HTTP response header
 10. Generic payload
 
-#### Supported Engines ####
+#### Supported Engines and Devices ####
 
-PcapPlusPlus currently works with the following engines:
+PcapPlusPlus currently works with the following devices:
 
-1. libPcap (on Linux)
-2. WinPcap (on Windows)
+1. libpcap live device (on Linux)
+2. WinPcap live device (on Windows)
+3. Remote live device (on Windows)
+4. File devices
 
 
 ## Download ##
