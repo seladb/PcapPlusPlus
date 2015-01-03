@@ -33,6 +33,7 @@ using namespace std;
 
 #define EXAMPLE_PCAP_WRITE_PATH "PcapExamples/example_copy.pcap"
 #define EXAMPLE_PCAP_PATH "PcapExamples/example.pcap"
+#define EXAMPLE2_PCAP_PATH "PcapExamples/example2.pcap"
 #define EXAMPLE_PCAP_HTTP_REQUEST "PcapExamples/4KHttpRequests.pcap"
 #define EXAMPLE_PCAP_HTTP_RESPONSE "PcapExamples/650HttpResponses.pcap"
 #define EXAMPLE_PCAP_VLAN "PcapExamples/VlanPackets.pcap"
@@ -1272,6 +1273,28 @@ PCAPP_TEST(TestHttpResponseParsing)
 	PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestPrintPacketAndLayers)
+{
+	PcapFileReaderDevice reader(EXAMPLE2_PCAP_PATH);
+	PCAPP_ASSERT(reader.open(), "Cannot open reader device for '%s'", EXAMPLE2_PCAP_PATH);
+	RawPacket rawPacket;
+	ostringstream outputStream;
+	while (reader.getNextPacket(rawPacket))
+	{
+		Packet packet(&rawPacket);
+		outputStream << packet.printToString() << "\n\n";
+	}
+
+	ifstream referenceFile("PcapExamples/example2_summary.txt");
+	stringstream referenceBuffer;
+	referenceBuffer << referenceFile.rdbuf();
+	referenceFile.close();
+
+	PCAPP_ASSERT(referenceBuffer.str() == outputStream.str(), "Output is different than reference file");
+
+	PCAPP_TEST_PASSED;
+}
+
 
 
 static struct option PcapTestOptions[] =
@@ -1358,6 +1381,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestRemoteCapture, args);
 	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
 	PCAPP_RUN_TEST(TestHttpResponseParsing, args);
+	PCAPP_RUN_TEST(TestPrintPacketAndLayers, args);
 
 	PCAPP_END_RUNNING_TESTS;
 }

@@ -24,6 +24,7 @@ public:
 	void parseNextLayer() {}
 	inline size_t getHeaderLen() { return m_DataLen; }
 	void computeCalculateFields() {}
+	std::string toString();
 
 };
 

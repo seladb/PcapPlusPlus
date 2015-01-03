@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "ProtocolType.h"
+#include <string>
 
 class Packet;
 
@@ -28,6 +29,7 @@ public:
 	virtual void parseNextLayer() = 0;
 	virtual size_t getHeaderLen() = 0;
 	virtual void computeCalculateFields() = 0;
+	virtual std::string toString() = 0;
 
 protected:
 	uint8_t* m_Data;

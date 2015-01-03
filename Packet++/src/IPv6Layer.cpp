@@ -74,3 +74,8 @@ void IPv6Layer::computeCalculateFields()
 		}
 	}
 }
+
+string IPv6Layer::toString()
+{
+	return "IPv6 Layer, Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
+}

@@ -8,6 +8,7 @@
 #include <IpUtils.h>
 #include <Logger.h>
 #include <string.h>
+#include <sstream>
 
 const TcpOptionData TcpLayer::TcpOptions[TCP_OPTIONS_COUNT] = {
 	{ TCPOPT_NOP,		1						},
@@ -255,3 +256,32 @@ TcpLayer::~TcpLayer()
 }
 
 
+std::string TcpLayer::toString()
+{
+	tcphdr* hdr = getTcpHeader();
+	string result = "TCP Layer, ";
+	if (hdr->synFlag)
+	{
+		if (hdr->ackFlag)
+			result += "[SYN, ACK], ";
+		else
+			result += "[SYN], ";
+	}
+	else if (hdr->finFlag)
+	{
+		if (hdr->ackFlag)
+			result += "[FIN, ACK], ";
+		else
+			result += "[FIN], ";
+	}
+	else if (hdr->ackFlag)
+		result += "[ACK], ";
+
+	ostringstream srcPortStream;
+	srcPortStream << ntohs(hdr->portSrc);
+	ostringstream dstPortStream;
+	dstPortStream << ntohs(hdr->portDst);
+	result += "Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
+
+	return result;
+}

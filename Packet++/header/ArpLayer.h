@@ -42,6 +42,7 @@ public:
 	void parseNextLayer() {}
 	inline size_t getHeaderLen() { return sizeof(arphdr); }
 	void computeCalculateFields();
+	string toString();
 };
 
 #endif /* PACKETPP_ARP_LAYER */

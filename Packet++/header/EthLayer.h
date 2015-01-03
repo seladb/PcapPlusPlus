@@ -40,6 +40,7 @@ public:
 	void parseNextLayer();
 	inline size_t getHeaderLen() { return sizeof(ether_header); }
 	void computeCalculateFields();
+	string toString();
 };
 
 #endif /* PACKETPP_ETH_LAYER */

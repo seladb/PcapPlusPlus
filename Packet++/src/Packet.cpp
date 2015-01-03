@@ -5,6 +5,7 @@
 #include <Logger.h>
 #include <string.h>
 #include <typeinfo>
+#include <sstream>
 
 Packet::Packet(size_t maxPacketLen) :
 	m_RawPacket(NULL),
@@ -367,6 +368,48 @@ Packet::~Packet()
 
 	if (m_FreeRawPacket)
 		delete m_RawPacket;
+}
+
+std::string Packet::printPacketInfo()
+{
+	std::ostringstream dataLenStream;
+	dataLenStream << m_RawPacket->getRawDataLen();
+
+	// convert raw packet timestamp to printable format
+	timeval timestamp = m_RawPacket->getPacketTimeStamp();
+	time_t nowtime = timestamp.tv_sec;
+	struct tm *nowtm;
+	nowtm = localtime(&nowtime);
+	char tmbuf[64], buf[64];
+	strftime(tmbuf, sizeof tmbuf, "%Y-%m-%d %H:%M:%S", nowtm);
+	snprintf(buf, sizeof buf, "%s.%06lu", tmbuf, timestamp.tv_usec);
+
+	return "Packet length: " + dataLenStream.str() + " [Bytes], Arrival time: " + string(buf);
+}
+
+std::string Packet::printToString()
+{
+	std::vector<string> stringList;
+	std::string result;
+	printToStringList(stringList);
+	for (std::vector<string>::iterator iter = stringList.begin(); iter != stringList.end(); iter++)
+	{
+		result += *iter + "\n";
+	}
+
+	return result;
+}
+
+void Packet::printToStringList(std::vector<std::string>& result)
+{
+	result.clear();
+	result.push_back(printPacketInfo());
+	Layer* curLayer = m_FirstLayer;
+	while (curLayer != NULL)
+	{
+		result.push_back(curLayer->toString());
+		curLayer = curLayer->getNextLayer();
+	}
 }
 
 

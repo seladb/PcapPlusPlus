@@ -161,6 +161,10 @@ public:
 
 	inline HttpRequestFirstLine* getFirstLine() { return m_FirstLine; }
 	std::string getUrl();
+
+	// implement Layer's abstract methods
+	std::string toString();
+
 private:
 	HttpRequestFirstLine* m_FirstLine;
 };
@@ -275,6 +279,9 @@ public:
 
 	HttpField* setContentLength(int contentLength, const std::string prevFieldName = "");
 	int getContentLength();
+
+	// implement Layer's abstract methods
+	std::string toString();
 
 private:
 	HttpResponseFirstLine* m_FirstLine;

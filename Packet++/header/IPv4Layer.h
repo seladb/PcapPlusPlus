@@ -65,6 +65,7 @@ public:
 	void parseNextLayer();
 	inline size_t getHeaderLen() { return sizeof(iphdr); }
 	void computeCalculateFields();
+	string toString();
 
 private:
 	void initLayer();

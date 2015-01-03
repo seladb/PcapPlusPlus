@@ -7,6 +7,7 @@
 #include <IPv6Layer.h>
 #include <Logger.h>
 #include <string.h>
+#include <sstream>
 
 UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst)
 {
@@ -84,4 +85,14 @@ void UdpLayer::computeCalculateFields()
 	udphdr* udpHdr = (udphdr*)m_Data;
 	udpHdr->length = htons(m_DataLen);
 	calculateChecksum(true);
+}
+
+string UdpLayer::toString()
+{
+	ostringstream srcPortStream;
+	srcPortStream << ntohs(getUdpHeader()->portSrc);
+	ostringstream dstPortStream;
+	dstPortStream << ntohs(getUdpHeader()->portDst);
+
+	return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
 }

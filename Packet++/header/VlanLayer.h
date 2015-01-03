@@ -40,6 +40,7 @@ public:
 	void parseNextLayer();
 	inline size_t getHeaderLen() { return sizeof(vlan_header); }
 	void computeCalculateFields() {}
+	string toString();
 };
 
 

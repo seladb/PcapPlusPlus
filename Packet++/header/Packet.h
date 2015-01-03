@@ -41,6 +41,9 @@ public:
 	inline bool isPacketOfType(ProtocolType protocolType) { return m_ProtocolTypes & protocolType; }
 	void computeCalculateFields();
 
+	std::string printToString();
+	void printToStringList(std::vector<std::string>& result);
+
 private:
 	void copyDataFrom(const Packet& other);
 
@@ -48,6 +51,8 @@ private:
 	bool shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToShorten);
 
 	void reallocateRawData(size_t newSize);
+
+	std::string printPacketInfo();
 };
 
 template<class TLayer>

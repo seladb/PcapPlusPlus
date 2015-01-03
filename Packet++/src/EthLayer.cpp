@@ -74,3 +74,8 @@ void EthLayer::computeCalculateFields()
 			return;
 	}
 }
+
+string EthLayer::toString()
+{
+	return "Ethernet II Layer, Src: " + getSourceMac().toString() + ", Dst: " + getDestMac().toString();
+}

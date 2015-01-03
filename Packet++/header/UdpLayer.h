@@ -25,6 +25,7 @@ public:
 	void parseNextLayer();
 	inline size_t getHeaderLen() { return sizeof(udphdr); }
 	void computeCalculateFields();
+	std::string toString();
 };
 
 

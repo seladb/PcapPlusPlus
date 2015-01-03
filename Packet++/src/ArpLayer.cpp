@@ -38,3 +38,15 @@ void ArpLayer::computeCalculateFields()
 		targetMacAddress.copyTo(arpHeader->targetMacAddr);
 	}
 }
+
+string ArpLayer::toString()
+{
+	if (ntohs(getArpHeader()->opcode) == ARP_REQUEST)
+	{
+		return "ARP Layer, ARP request, who has " + getTargetIpAddr().toString() + " ? Tell " + getSenderIpAddr().toString();
+	}
+	else
+	{
+		return "ARP Layer, ARP reply, " + getSenderIpAddr().toString() + " is at " + getSenderMacAddress().toString();
+	}
+}

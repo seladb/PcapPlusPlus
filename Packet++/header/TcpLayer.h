@@ -144,6 +144,8 @@ public:
 	void parseNextLayer();
 	inline size_t getHeaderLen() { return m_HeaderLen;}
 	void computeCalculateFields();
+	std::string toString();
+
 private:
 	static const TcpOptionData TcpOptions[TCP_OPTIONS_COUNT];
 

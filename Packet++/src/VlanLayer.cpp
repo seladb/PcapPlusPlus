@@ -6,6 +6,7 @@
 #include <PayloadLayer.h>
 #include <ArpLayer.h>
 #include <string.h>
+#include <sstream>
 #ifdef WIN32
 #include <winsock2.h>
 #else
@@ -50,4 +51,16 @@ void VlanLayer::parseNextLayer()
 	default:
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 	}
+}
+
+string VlanLayer::toString()
+{
+	ostringstream cfiStream;
+	cfiStream << ntohs(getVlanHeader()->cfi);
+	ostringstream priStream;
+	priStream << ntohs(getVlanHeader()->priority);
+	ostringstream idStream;
+	idStream << getVlanID();
+
+	return "VLAN Layer, Priority: " + priStream.str() + ", Vlan ID: " + idStream.str() + ", CFI: " + cfiStream.str();
 }

@@ -594,6 +594,32 @@ HttpRequestLayer::~HttpRequestLayer()
 	delete m_FirstLine;
 }
 
+std::string HttpRequestLayer::toString()
+{
+	static const int maxLengthToPrint = 120;
+	std::string result = "HTTP request, ";
+	int size = m_FirstLine->getSize();
+	if (size <= maxLengthToPrint)
+	{
+		char firstLine[size+1];
+		strncpy(firstLine, (char*)m_Data, size);
+		firstLine[size] = 0;
+		result += std::string(firstLine);
+	}
+	else
+	{
+		char firstLine[maxLengthToPrint+1];
+		strncpy(firstLine, (char*)m_Data, maxLengthToPrint-3);
+		firstLine[maxLengthToPrint-3] = '.';
+		firstLine[maxLengthToPrint-2] = '.';
+		firstLine[maxLengthToPrint-1] = '.';
+		firstLine[maxLengthToPrint] = 0;
+		result += std::string(firstLine);
+	}
+
+	return result;
+}
+
 
 
 
@@ -1172,6 +1198,32 @@ int HttpResponseLayer::getContentLength()
 	if (contentLengthField != NULL)
 		return atoi(contentLengthField->getFieldValue().c_str());
 	return 0;
+}
+
+std::string HttpResponseLayer::toString()
+{
+	static const int maxLengthToPrint = 120;
+	std::string result = "HTTP response, ";
+	int size = m_FirstLine->getSize();
+	if (size <= maxLengthToPrint)
+	{
+		char firstLine[size+1];
+		strncpy(firstLine, (char*)m_Data, size);
+		firstLine[size] = 0;
+		result += std::string(firstLine);
+	}
+	else
+	{
+		char firstLine[maxLengthToPrint+1];
+		strncpy(firstLine, (char*)m_Data, maxLengthToPrint-3);
+		firstLine[maxLengthToPrint-3] = '.';
+		firstLine[maxLengthToPrint-2] = '.';
+		firstLine[maxLengthToPrint-1] = '.';
+		firstLine[maxLengthToPrint] = 0;
+		result += std::string(firstLine);
+	}
+
+	return result;
 }
 
 

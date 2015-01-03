@@ -78,3 +78,8 @@ void IPv4Layer::computeCalculateFields()
 	ScalarBuffer scalar = { (uint16_t*)ipHdr, ipHdr->internetHeaderLength*4 } ;
 	ipHdr->headerChecksum = htons(compute_checksum(&scalar, 1));
 }
+
+string IPv4Layer::toString()
+{
+	return "IPv4 Layer, Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
+}
