@@ -1290,7 +1290,19 @@ PCAPP_TEST(TestPrintPacketAndLayers)
 	referenceBuffer << referenceFile.rdbuf();
 	referenceFile.close();
 
-	PCAPP_ASSERT(referenceBuffer.str() == outputStream.str(), "Output is different than reference file");
+	// example2_summary.txt was written with Windows so every '\n' is translated to '\r\n'
+	// in Linux '\n' stays '\n' in writing to files. So these lines of code are meant to remove the '\r' so
+	// files can be later compared
+	std::string referenceBufferAsString = referenceBuffer.str();
+	size_t index = 0;
+	while (true) {
+	     index = referenceBufferAsString.find("\r\n", index);
+	     if (index == string::npos) break;
+	     referenceBufferAsString.replace(index, 2, "\n");
+	     index += 1;
+	}
+
+	PCAPP_ASSERT(referenceBufferAsString == outputStream.str(), "Output is different than reference file");
 
 	PCAPP_TEST_PASSED;
 }
