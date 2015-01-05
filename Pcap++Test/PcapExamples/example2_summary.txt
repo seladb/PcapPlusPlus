@@ -215,7 +215,7 @@ Payload Layer, Data length: 6 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:04:44.827834
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -251,7 +251,7 @@ Payload Layer, Data length: 40 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:04:47.827824
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -270,7 +270,7 @@ Payload Layer, Data length: 40 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:04:50.827919
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -352,7 +352,7 @@ Payload Layer, Data length: 40 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:04:54.828127
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -493,8 +493,7 @@ Packet length: 413 [Bytes], Arrival time: 2015-01-03 15:04:55.598210
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.232
 TCP Layer, [ACK], Src port: 55195, Dst port: 80
-HTTP request, POST /ocsp HTTP/1.1
-
+HTTP request, POST /ocsp HTTP/1.1
 
 
 Packet length: 129 [Bytes], Arrival time: 2015-01-03 15:04:55.598999
@@ -555,8 +554,7 @@ Packet length: 837 [Bytes], Arrival time: 2015-01-03 15:04:55.714747
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.219.232, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55195
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 463 [Bytes]
 
 
@@ -1162,16 +1160,14 @@ Packet length: 358 [Bytes], Arrival time: 2015-01-03 15:04:56.452432
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.112.43
 TCP Layer, [ACK], Src port: 55198, Dst port: 80
-HTTP request, GET /s2/favicons?domain=en.wikipedia.org HTTP/1.1
-
+HTTP request, GET /s2/favicons?domain=en.wikipedia.org HTTP/1.1
 
 
 Packet length: 357 [Bytes], Arrival time: 2015-01-03 15:04:56.453648
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.112.43
 TCP Layer, [ACK], Src port: 55199, Dst port: 80
-HTTP request, GET /s2/favicons?domain=www.youtube.com HTTP/1.1
-
+HTTP request, GET /s2/favicons?domain=www.youtube.com HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:56.453972
@@ -1190,32 +1186,28 @@ Packet length: 365 [Bytes], Arrival time: 2015-01-03 15:04:56.455408
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.112.43
 TCP Layer, [ACK], Src port: 55200, Dst port: 80
-HTTP request, GET /s2/favicons?domain=www.urbandictionary.com HTTP/1.1
-
+HTTP request, GET /s2/favicons?domain=www.urbandictionary.com HTTP/1.1
 
 
 Packet length: 363 [Bytes], Arrival time: 2015-01-03 15:04:56.456708
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.112.43
 TCP Layer, [ACK], Src port: 55197, Dst port: 80
-HTTP request, GET /s2/favicons?domain=www.internetslang.com HTTP/1.1
-
+HTTP request, GET /s2/favicons?domain=www.internetslang.com HTTP/1.1
 
 
 Packet length: 354 [Bytes], Arrival time: 2015-01-03 15:04:56.457293
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.112.43
 TCP Layer, [ACK], Src port: 55201, Dst port: 80
-HTTP request, GET /s2/favicons?domain=www.yelp.com HTTP/1.1
-
+HTTP request, GET /s2/favicons?domain=www.yelp.com HTTP/1.1
 
 
 Packet length: 358 [Bytes], Arrival time: 2015-01-03 15:04:56.459092
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.112.43
 TCP Layer, [ACK], Src port: 55196, Dst port: 80
-HTTP request, GET /s2/favicons?domain=www.ynbarnyc.com HTTP/1.1
-
+HTTP request, GET /s2/favicons?domain=www.ynbarnyc.com HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:56.558884
@@ -1235,8 +1227,7 @@ Packet length: 913 [Bytes], Arrival time: 2015-01-03 15:04:56.562464
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55198
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 488 [Bytes]
 
 
@@ -1251,8 +1242,7 @@ Packet length: 769 [Bytes], Arrival time: 2015-01-03 15:04:56.567472
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55200
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 344 [Bytes]
 
 
@@ -1260,8 +1250,7 @@ Packet length: 366 [Bytes], Arrival time: 2015-01-03 15:04:56.573103
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.112.43
 TCP Layer, [ACK], Src port: 55198, Dst port: 80
-HTTP request, GET /s2/favicons?domain=www.nationaltrust.org.uk HTTP/1.1
-
+HTTP request, GET /s2/favicons?domain=www.nationaltrust.org.uk HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:56.575977
@@ -1282,8 +1271,7 @@ Packet length: 356 [Bytes], Arrival time: 2015-01-03 15:04:56.578582
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.112.43
 TCP Layer, [ACK], Src port: 55200, Dst port: 80
-HTTP request, GET /s2/favicons?domain=www.ynet.co.il HTTP/1.1
-
+HTTP request, GET /s2/favicons?domain=www.ynet.co.il HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:56.584201
@@ -1304,8 +1292,7 @@ Packet length: 897 [Bytes], Arrival time: 2015-01-03 15:04:56.592557
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55199
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 472 [Bytes]
 
 
@@ -1313,8 +1300,7 @@ Packet length: 640 [Bytes], Arrival time: 2015-01-03 15:04:56.611966
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55197
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 219 [Bytes]
 
 
@@ -1322,8 +1308,7 @@ Packet length: 857 [Bytes], Arrival time: 2015-01-03 15:04:56.615203
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55201
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 436 [Bytes]
 
 
@@ -1377,8 +1362,7 @@ Packet length: 960 [Bytes], Arrival time: 2015-01-03 15:04:56.722919
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55200
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 539 [Bytes]
 
 
@@ -1386,8 +1370,7 @@ Packet length: 1210 [Bytes], Arrival time: 2015-01-03 15:04:56.723697
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55198
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 789 [Bytes]
 
 
@@ -1458,8 +1441,7 @@ Packet length: 421 [Bytes], Arrival time: 2015-01-03 15:04:57.763030
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55196
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 
 
 Packet length: 787 [Bytes], Arrival time: 2015-01-03 15:04:57.763763
@@ -1484,7 +1466,7 @@ Payload Layer, Data length: 6 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:04:57.828216
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -1545,8 +1527,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.033027
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55202, Dst port: 80
-HTTP request, GET / HTTP/1.1
-
+HTTP request, GET / HTTP/1.1
 
 
 Packet length: 239 [Bytes], Arrival time: 2015-01-03 15:04:58.033036
@@ -1574,16 +1555,14 @@ Packet length: 291 [Bytes], Arrival time: 2015-01-03 15:04:58.064052
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55202
-HTTP response, HTTP/1.1 301 Moved Permanently
-
+HTTP response, HTTP/1.1 301 Moved Permanently
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.081123
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55202, Dst port: 80
-HTTP request, GET /home/0,7340,L-8,00.html HTTP/1.1
-
+HTTP request, GET /home/0,7340,L-8,00.html HTTP/1.1
 
 
 Packet length: 312 [Bytes], Arrival time: 2015-01-03 15:04:58.081137
@@ -1604,8 +1583,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.113811
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55202
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 979 [Bytes]
 
 
@@ -2529,8 +2507,7 @@ Packet length: 1352 [Bytes], Arrival time: 2015-01-03 15:04:58.238319
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.59
 TCP Layer, [ACK], Src port: 55204, Dst port: 80
-HTTP request, GET /scripts/8765235/api.js HTTP/1.1
-
+HTTP request, GET /scripts/8765235/api.js HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.264188
@@ -2557,8 +2534,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.268318
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.59, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55204
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1079 [Bytes]
 
 
@@ -2606,8 +2582,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.273553
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55203, Dst port: 80
-HTTP request, GET /Cmn/App/Video/CmmAppVideoApi_Js/0,13777,051114181928,00.html HTTP/1.1
-
+HTTP request, GET /Cmn/App/Video/CmmAppVideoApi_Js/0,13777,051114181928,00.html HTTP/1.1
 
 
 Packet length: 295 [Bytes], Arrival time: 2015-01-03 15:04:58.273558
@@ -2655,8 +2630,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.275495
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55205, Dst port: 80
-HTTP request, GET /Cmn/App/Video/CmmAppVideoApi_Js_Content/0,13943,051114181928,00.html HTTP/1.1
-
+HTTP request, GET /Cmn/App/Video/CmmAppVideoApi_Js_Content/0,13943,051114181928,00.html HTTP/1.1
 
 
 Packet length: 303 [Bytes], Arrival time: 2015-01-03 15:04:58.275500
@@ -2786,8 +2760,7 @@ Packet length: 463 [Bytes], Arrival time: 2015-01-03 15:04:58.286411
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55207, Dst port: 80
-HTTP request, GET /dmp/exposebox-categories-cache.js?c=17 HTTP/1.1
-
+HTTP request, GET /dmp/exposebox-categories-cache.js?c=17 HTTP/1.1
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:04:58.287413
@@ -2999,8 +2972,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.319042
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55203
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1049 [Bytes]
 
 
@@ -3188,8 +3160,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.332043
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55205
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1049 [Bytes]
 
 
@@ -3872,8 +3843,7 @@ Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:04:58.433047
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55207
-HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
-
+HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.445360
@@ -3931,8 +3901,7 @@ Packet length: 463 [Bytes], Arrival time: 2015-01-03 15:04:58.518606
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55208, Dst port: 80
-HTTP request, GET /dmp/exposebox-categories-cache.js?c=17 HTTP/1.1
-
+HTTP request, GET /dmp/exposebox-categories-cache.js?c=17 HTTP/1.1
 
 
 Packet length: 187 [Bytes], Arrival time: 2015-01-03 15:04:58.522842
@@ -3946,8 +3915,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.531114
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55203, Dst port: 80
-HTTP request, GET /Ext/App/RedAlert/CdaRedAlert_iframe/0,12639,84-234-208-20,00.html HTTP/1.1
-
+HTTP request, GET /Ext/App/RedAlert/CdaRedAlert_iframe/0,12639,84-234-208-20,00.html HTTP/1.1
 
 
 Packet length: 360 [Bytes], Arrival time: 2015-01-03 15:04:58.531122
@@ -3987,8 +3955,7 @@ Packet length: 338 [Bytes], Arrival time: 2015-01-03 15:04:58.566051
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55203
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 
 
 Packet length: 169 [Bytes], Arrival time: 2015-01-03 15:04:58.568051
@@ -4054,8 +4021,7 @@ Packet length: 350 [Bytes], Arrival time: 2015-01-03 15:04:58.605653
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 195.245.125.153
 TCP Layer, [ACK], Src port: 55213, Dst port: 80
-HTTP request, GET /vrs.js HTTP/1.1
-
+HTTP request, GET /vrs.js HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.627087
@@ -4092,8 +4058,7 @@ Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:04:58.642076
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55208
-HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
-
+HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
 
 
 Packet length: 81 [Bytes], Arrival time: 2015-01-03 15:04:58.646297
@@ -4126,8 +4091,7 @@ Packet length: 453 [Bytes], Arrival time: 2015-01-03 15:04:58.657613
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.66.157
 TCP Layer, [ACK], Src port: 55214, Dst port: 80
-HTTP request, GET /dc.js HTTP/1.1
-
+HTTP request, GET /dc.js HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.659998
@@ -4146,8 +4110,7 @@ Packet length: 463 [Bytes], Arrival time: 2015-01-03 15:04:58.660732
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55207, Dst port: 80
-HTTP request, GET /dmp/exposebox-categories-cache.js?c=17 HTTP/1.1
-
+HTTP request, GET /dmp/exposebox-categories-cache.js?c=17 HTTP/1.1
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:04:58.662202
@@ -4193,8 +4156,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.698498
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 195.245.125.153, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55213
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 965 [Bytes]
 
 
@@ -4275,8 +4237,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.770426
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.66.157, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55214
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 953 [Bytes]
 
 
@@ -4351,8 +4312,7 @@ Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:04:58.776045
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55207
-HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
-
+HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:04:58.776071
@@ -4418,8 +4378,7 @@ Packet length: 338 [Bytes], Arrival time: 2015-01-03 15:04:58.829358
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55203
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.829381
@@ -4662,8 +4621,7 @@ Packet length: 278 [Bytes], Arrival time: 2015-01-03 15:04:59.108456
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.74.232.44, Dst: 10.0.0.1
 TCP Layer, [FIN, ACK], Src port: 80, Dst port: 55218
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 6 [Bytes]
 
 
@@ -4683,8 +4641,7 @@ Packet length: 400 [Bytes], Arrival time: 2015-01-03 15:04:59.120026
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.74.232.40, Dst: 10.0.0.1
 TCP Layer, [FIN, ACK], Src port: 80, Dst port: 55217
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 49 [Bytes]
 
 
@@ -4827,8 +4784,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.299875
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55226, Dst port: 80
-HTTP request, GET /dmp.js?c=17 HTTP/1.1
-
+HTTP request, GET /dmp.js?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.299880
@@ -4842,8 +4798,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.301328
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55227, Dst port: 80
-HTTP request, GET /dmp/categories?c=17&m=cc HTTP/1.1
-
+HTTP request, GET /dmp/categories?c=17&m=cc HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.301334
@@ -4906,16 +4861,14 @@ Packet length: 463 [Bytes], Arrival time: 2015-01-03 15:04:59.413795
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55208, Dst port: 80
-HTTP request, GET /dmp/exposebox-categories-cache.js?c=17 HTTP/1.1
-
+HTTP request, GET /dmp/exposebox-categories-cache.js?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.415787
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55202, Dst port: 80
-HTTP request, GET /Ext/Comp/Ticker/Dhtml_Flash_Ticker/0,12114,L-184-204-132,00.html HTTP/1.1
-
+HTTP request, GET /Ext/Comp/Ticker/Dhtml_Flash_Ticker/0,12114,L-184-204-132,00.html HTTP/1.1
 
 
 Packet length: 409 [Bytes], Arrival time: 2015-01-03 15:04:59.415793
@@ -4950,8 +4903,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.450461
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55203, Dst port: 80
-HTTP request, GET /PicServer4/2015/01/01/5790221/159_120_special_70735.jpg HTTP/1.1
-
+HTTP request, GET /PicServer4/2015/01/01/5790221/159_120_special_70735.jpg HTTP/1.1
 
 
 Packet length: 404 [Bytes], Arrival time: 2015-01-03 15:04:59.450468
@@ -4972,8 +4924,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.451175
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55205, Dst port: 80
-HTTP request, GET /Ext/Comp/Teaser/Cda_MarketTeaser_Schedules/0,10169,8-1-1,00.html HTTP/1.1
-
+HTTP request, GET /Ext/Comp/Teaser/Cda_MarketTeaser_Schedules/0,10169,8-1-1,00.html HTTP/1.1
 
 
 Packet length: 359 [Bytes], Arrival time: 2015-01-03 15:04:59.451180
@@ -5008,8 +4959,7 @@ Packet length: 297 [Bytes], Arrival time: 2015-01-03 15:04:59.464432
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55202
-HTTP response, HTTP/1.1 304 Not Modified
-
+HTTP response, HTTP/1.1 304 Not Modified
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:59.466318
@@ -5042,16 +4992,14 @@ Packet length: 1318 [Bytes], Arrival time: 2015-01-03 15:04:59.475292
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55223, Dst port: 80
-HTTP request, GET /Ext/App/Teaser/CdaTeaserPreview/0,15116,,00.html HTTP/1.1
-
+HTTP request, GET /Ext/App/Teaser/CdaTeaserPreview/0,15116,,00.html HTTP/1.1
 
 
 Packet length: 525 [Bytes], Arrival time: 2015-01-03 15:04:59.477793
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 54.231.140.80
 TCP Layer, [ACK], Src port: 55224, Dst port: 80
-HTTP request, GET /exposebox/winwin/ynet-winwin-widget-new.html HTTP/1.1
-
+HTTP request, GET /exposebox/winwin/ynet-winwin-widget-new.html HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:59.481134
@@ -5065,8 +5013,7 @@ Packet length: 320 [Bytes], Arrival time: 2015-01-03 15:04:59.481930
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55203
-HTTP response, HTTP/1.1 304 Not Modified
-
+HTTP response, HTTP/1.1 304 Not Modified
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:59.482662
@@ -5099,8 +5046,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.506650
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55205
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1049 [Bytes]
 
 
@@ -5128,8 +5074,7 @@ Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:04:59.528824
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55208
-HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
-
+HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:59.529556
@@ -5143,8 +5088,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.530507
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55223
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1077 [Bytes]
 
 
@@ -5199,8 +5143,7 @@ Packet length: 1377 [Bytes], Arrival time: 2015-01-03 15:04:59.558778
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 991 [Bytes]
 
 
@@ -5214,8 +5157,7 @@ Packet length: 466 [Bytes], Arrival time: 2015-01-03 15:04:59.603974
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.66.157, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55214
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 35 [Bytes]
 
 
@@ -5230,8 +5172,7 @@ Packet length: 398 [Bytes], Arrival time: 2015-01-03 15:04:59.614454
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55227
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -5252,8 +5193,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.644968
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55226, Dst port: 80
-HTTP request, GET /dmp.js?c=17 HTTP/1.1
-
+HTTP request, GET /dmp.js?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.644975
@@ -5299,8 +5239,7 @@ Packet length: 626 [Bytes], Arrival time: 2015-01-03 15:04:59.664645
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 54.231.140.80, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55224
-HTTP response, HTTP/1.1 404 Not Found
-
+HTTP response, HTTP/1.1 404 Not Found
 Payload Layer, Data length: 306 [Bytes]
 
 
@@ -5341,8 +5280,7 @@ Packet length: 459 [Bytes], Arrival time: 2015-01-03 15:04:59.716349
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55207, Dst port: 80
-HTTP request, GET /widget/exposebox.js HTTP/1.1
-
+HTTP request, GET /widget/exposebox.js HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.716872
@@ -5361,8 +5299,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.740885
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55225, Dst port: 80
-HTTP request, GET /dmp/categories?c=17&m=cc HTTP/1.1
-
+HTTP request, GET /dmp/categories?c=17&m=cc HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.740891
@@ -5376,8 +5313,7 @@ Packet length: 1375 [Bytes], Arrival time: 2015-01-03 15:04:59.743148
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55230, Dst port: 80
-HTTP request, GET /TipIsraeli/pics/teaser_ynet/2009/items/3_1_2015_14_8_21YE1701722_jpg_S.jpg HTTP/1.1
-
+HTTP request, GET /TipIsraeli/pics/teaser_ynet/2009/items/3_1_2015_14_8_21YE1701722_jpg_S.jpg HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.784659
@@ -5403,8 +5339,7 @@ Packet length: 1377 [Bytes], Arrival time: 2015-01-03 15:04:59.794631
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 991 [Bytes]
 
 
@@ -5419,8 +5354,7 @@ Packet length: 246 [Bytes], Arrival time: 2015-01-03 15:04:59.796481
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55230
-HTTP response, HTTP/1.0 304 Not Modified
-
+HTTP response, HTTP/1.0 304 Not Modified
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.803719
@@ -5465,8 +5399,7 @@ Packet length: 1164 [Bytes], Arrival time: 2015-01-03 15:04:59.823654
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55223, Dst port: 80
-HTTP request, GET /scripts/xnet.js HTTP/1.1
-
+HTTP request, GET /scripts/xnet.js HTTP/1.1
 
 
 Packet length: 147 [Bytes], Arrival time: 2015-01-03 15:04:59.823854
@@ -5480,16 +5413,14 @@ Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:04:59.827377
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55207
-HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
-
+HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.854319
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55223
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 919 [Bytes]
 
 
@@ -5537,8 +5468,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.887765
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55226, Dst port: 80
-HTTP request, GET /dmp.js?c=17 HTTP/1.1
-
+HTTP request, GET /dmp.js?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.887776
@@ -5559,8 +5489,7 @@ Packet length: 451 [Bytes], Arrival time: 2015-01-03 15:04:59.905753
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55208, Dst port: 80
-HTTP request, GET /widget/exposebox.js HTTP/1.1
-
+HTTP request, GET /widget/exposebox.js HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.909389
@@ -5579,8 +5508,7 @@ Packet length: 441 [Bytes], Arrival time: 2015-01-03 15:04:59.911822
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 151.249.89.198
 TCP Layer, [ACK], Src port: 55233, Dst port: 80
-HTTP request, GET /www02/ptc/e7acffbd-66c9-4d89-a5ec-99c74916726e.js HTTP/1.1
-
+HTTP request, GET /www02/ptc/e7acffbd-66c9-4d89-a5ec-99c74916726e.js HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:59.928107
@@ -5615,8 +5543,7 @@ Packet length: 398 [Bytes], Arrival time: 2015-01-03 15:04:59.949630
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55227
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -5683,8 +5610,7 @@ Packet length: 398 [Bytes], Arrival time: 2015-01-03 15:04:59.991277
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55225
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -5712,16 +5638,14 @@ Packet length: 473 [Bytes], Arrival time: 2015-01-03 15:05:00.027807
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55207, Dst port: 80
-HTTP request, GET /widget/exposebox-layout.js?v=1.45 HTTP/1.1
-
+HTTP request, GET /widget/exposebox-layout.js?v=1.45 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.028072
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55228, Dst port: 80
-HTTP request, GET /dmp/categories?c=17&m=cc HTTP/1.1
-
+HTTP request, GET /dmp/categories?c=17&m=cc HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.028077
@@ -5735,8 +5659,7 @@ Packet length: 1377 [Bytes], Arrival time: 2015-01-03 15:05:00.032186
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 991 [Bytes]
 
 
@@ -5765,8 +5688,7 @@ Packet length: 285 [Bytes], Arrival time: 2015-01-03 15:05:00.037855
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 151.249.89.198, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55233
-HTTP response, HTTP/1.1 304 Not Modified
-
+HTTP response, HTTP/1.1 304 Not Modified
 
 
 Packet length: 88 [Bytes], Arrival time: 2015-01-03 15:05:00.040352
@@ -5787,8 +5709,7 @@ Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:05:00.041923
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55208
-HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
-
+HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
 
 
 Packet length: 85 [Bytes], Arrival time: 2015-01-03 15:05:00.044057
@@ -5809,8 +5730,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.053453
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55226, Dst port: 80
-HTTP request, GET /dmp.js?c=17 HTTP/1.1
-
+HTTP request, GET /dmp.js?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.053461
@@ -5916,8 +5836,7 @@ Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:05:00.144745
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55207
-HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
-
+HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.146747
@@ -6082,8 +6001,7 @@ Packet length: 1377 [Bytes], Arrival time: 2015-01-03 15:05:00.213430
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 991 [Bytes]
 
 
@@ -6141,8 +6059,7 @@ Packet length: 398 [Bytes], Arrival time: 2015-01-03 15:05:00.295981
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55228
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -6157,16 +6074,14 @@ Packet length: 465 [Bytes], Arrival time: 2015-01-03 15:05:00.336942
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55208, Dst port: 80
-HTTP request, GET /widget/exposebox-layout.js?v=1.45 HTTP/1.1
-
+HTTP request, GET /widget/exposebox-layout.js?v=1.45 HTTP/1.1
 
 
 Packet length: 285 [Bytes], Arrival time: 2015-01-03 15:05:00.336971
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 151.249.89.198, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55233
-HTTP response, HTTP/1.1 304 Not Modified
-
+HTTP response, HTTP/1.1 304 Not Modified
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.336986
@@ -6179,8 +6094,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.337769
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55205, Dst port: 80
-HTTP request, GET /Ext/Comp/Ticker/Flash_Ticker_Data/0,12115,L-184,00.html?timestamp=282222907?rand=undefined HTTP/1.1
-
+HTTP request, GET /Ext/Comp/Ticker/Flash_Ticker_Data/0,12115,L-184,00.html?timestamp=282222907?rand=undefined HTTP/1.1
 
 
 Packet length: 420 [Bytes], Arrival time: 2015-01-03 15:05:00.337774
@@ -6194,8 +6108,7 @@ Packet length: 959 [Bytes], Arrival time: 2015-01-03 15:05:00.340020
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.113.58, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55237
-HTTP response, HTTP/1.1 302 Found
-
+HTTP response, HTTP/1.1 302 Found
 Payload Layer, Data length: 42 [Bytes]
 
 
@@ -6209,8 +6122,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.362091
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55226, Dst port: 80
-HTTP request, GET /dmp/categories?c=17&m=cc HTTP/1.1
-
+HTTP request, GET /dmp/categories?c=17&m=cc HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.362100
@@ -6251,8 +6163,7 @@ Packet length: 1032 [Bytes], Arrival time: 2015-01-03 15:05:00.379239
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55205
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 669 [Bytes]
 
 
@@ -6354,8 +6265,7 @@ Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:05:00.457129
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55208
-HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
-
+HTTP response, HTTP/1.1 304 The condition specified using HTTP conditional header(s) is not met.
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:00.491155
@@ -6394,8 +6304,7 @@ Packet length: 398 [Bytes], Arrival time: 2015-01-03 15:05:00.509268
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -6461,8 +6370,7 @@ Packet length: 479 [Bytes], Arrival time: 2015-01-03 15:05:00.588827
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 54.89.173.29
 TCP Layer, [ACK], Src port: 55239, Dst port: 80
-HTTP request, GET /ast?sec=8765235&l=main HTTP/1.1
-
+HTTP request, GET /ast?sec=8765235&l=main HTTP/1.1
 
 
 Packet length: 195 [Bytes], Arrival time: 2015-01-03 15:05:00.593135
@@ -6540,8 +6448,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.625711
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55226, Dst port: 80
-HTTP request, GET /dmp/iftags?c=17 HTTP/1.1
-
+HTTP request, GET /dmp/iftags?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.625717
@@ -6737,8 +6644,7 @@ Packet length: 216 [Bytes], Arrival time: 2015-01-03 15:05:00.772420
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -6765,8 +6671,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.794751
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55225, Dst port: 80
-HTTP request, GET /dmp/iftags?c=17 HTTP/1.1
-
+HTTP request, GET /dmp/iftags?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.794758
@@ -6808,8 +6713,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.810022
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 54.89.173.29, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55239
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 917 [Bytes]
 
 
@@ -6889,7 +6793,7 @@ Payload Layer, Data length: 83 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:00.828257
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -6949,8 +6853,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.852162
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55246, Dst port: 80
-HTTP request, GET /crossdomain.xml HTTP/1.1
-
+HTTP request, GET /crossdomain.xml HTTP/1.1
 
 
 Packet length: 1014 [Bytes], Arrival time: 2015-01-03 15:05:00.852171
@@ -7097,8 +7000,7 @@ Packet length: 637 [Bytes], Arrival time: 2015-01-03 15:05:00.928788
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55246
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 205 [Bytes]
 
 
@@ -7106,8 +7008,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.931923
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55227
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.934148
@@ -7162,8 +7063,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.997150
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.997151
@@ -7316,8 +7216,7 @@ Packet length: 800 [Bytes], Arrival time: 2015-01-03 15:05:01.104943
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.112.122, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55244
-HTTP response, HTTP/1.1 302 Found
-
+HTTP response, HTTP/1.1 302 Found
 Payload Layer, Data length: 42 [Bytes]
 
 
@@ -7351,8 +7250,7 @@ Packet length: 408 [Bytes], Arrival time: 2015-01-03 15:05:01.146189
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55207, Dst port: 80
-HTTP request, GET /images/uploads/21/i4e7myio.jpg HTTP/1.1
-
+HTTP request, GET /images/uploads/21/i4e7myio.jpg HTTP/1.1
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:01.201182
@@ -7385,8 +7283,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.261656
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55207
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 916 [Bytes]
 
 
@@ -7582,8 +7479,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.340307
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.69
 TCP Layer, [ACK], Src port: 55246, Dst port: 80
-HTTP request, GET /Ext/CdaYnetCalcalistTickerXML/0,,,00.html HTTP/1.1
-
+HTTP request, GET /Ext/CdaYnetCalcalistTickerXML/0,,,00.html HTTP/1.1
 
 
 Packet length: 1040 [Bytes], Arrival time: 2015-01-03 15:05:01.340314
@@ -7666,8 +7562,7 @@ Packet length: 692 [Bytes], Arrival time: 2015-01-03 15:05:01.379415
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.69, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55246
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 371 [Bytes]
 
 
@@ -7754,8 +7649,7 @@ Packet length: 453 [Bytes], Arrival time: 2015-01-03 15:05:01.387555
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 168.61.58.14
 TCP Layer, [ACK], Src port: 55251, Dst port: 80
-HTTP request, GET /images/535/6d7b35725b5dac7fcc3664bb9c9aec713tui2.jpg HTTP/1.1
-
+HTTP request, GET /images/535/6d7b35725b5dac7fcc3664bb9c9aec713tui2.jpg HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:01.399714
@@ -7793,8 +7687,7 @@ Packet length: 1054 [Bytes], Arrival time: 2015-01-03 15:05:01.499970
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55253
-HTTP response, HTTP/1.1 302 Found
-
+HTTP response, HTTP/1.1 302 Found
 Payload Layer, Data length: 448 [Bytes]
 
 
@@ -7822,8 +7715,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.513099
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 168.61.58.14, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55251
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 917 [Bytes]
 
 
@@ -7931,8 +7823,7 @@ Packet length: 216 [Bytes], Arrival time: 2015-01-03 15:05:01.567509
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55225
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -7940,8 +7831,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.572697
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55226, Dst port: 80
-HTTP request, GET /dmp/iftags?c=17 HTTP/1.1
-
+HTTP request, GET /dmp/iftags?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.572703
@@ -7968,8 +7858,7 @@ Packet length: 320 [Bytes], Arrival time: 2015-01-03 15:05:01.577616
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 54.92.201.39, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55250
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 12 [Bytes]
 
 
@@ -8173,8 +8062,7 @@ Packet length: 216 [Bytes], Arrival time: 2015-01-03 15:05:01.718822
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -8182,8 +8070,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.724874
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 137.116.210.57
 TCP Layer, [ACK], Src port: 55226, Dst port: 80
-HTTP request, GET /dmp/iftags?c=17 HTTP/1.1
-
+HTTP request, GET /dmp/iftags?c=17 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.724885
@@ -8211,8 +8098,7 @@ Packet length: 433 [Bytes], Arrival time: 2015-01-03 15:05:01.733855
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 74.125.71.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55256
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 42 [Bytes]
 
 
@@ -8239,8 +8125,7 @@ Packet length: 216 [Bytes], Arrival time: 2015-01-03 15:05:01.871557
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 137.116.210.57, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55226
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -8531,8 +8416,7 @@ Packet length: 360 [Bytes], Arrival time: 2015-01-03 15:05:02.028017
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 185.31.17.185
 TCP Layer, [ACK], Src port: 55258, Dst port: 80
-HTTP request, GET /js/chartbeat.js HTTP/1.1
-
+HTTP request, GET /js/chartbeat.js HTTP/1.1
 
 
 Packet length: 179 [Bytes], Arrival time: 2015-01-03 15:05:02.029629
@@ -8657,8 +8541,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:02.135194
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 185.31.17.185, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55258
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 941 [Bytes]
 
 
@@ -8754,8 +8637,7 @@ Packet length: 267 [Bytes], Arrival time: 2015-01-03 15:05:02.369982
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 23.21.122.142, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55193
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 43 [Bytes]
 
 
@@ -8836,8 +8718,7 @@ Packet length: 311 [Bytes], Arrival time: 2015-01-03 15:05:03.293743
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 54.92.201.39, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55250
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 3 [Bytes]
 
 
@@ -9133,8 +9014,7 @@ Packet length: 241 [Bytes], Arrival time: 2015-01-03 15:05:04.622600
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.74.232.40, Dst: 10.0.0.1
 TCP Layer, [FIN, ACK], Src port: 80, Dst port: 55220
-HTTP response, HTTP/1.0 400 Bad request
-
+HTTP response, HTTP/1.0 400 Bad request
 Payload Layer, Data length: 90 [Bytes]
 
 
@@ -9148,8 +9028,7 @@ Packet length: 241 [Bytes], Arrival time: 2015-01-03 15:05:04.624070
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.74.232.44, Dst: 10.0.0.1
 TCP Layer, [FIN, ACK], Src port: 80, Dst port: 55219
-HTTP response, HTTP/1.0 400 Bad request
-
+HTTP response, HTTP/1.0 400 Bad request
 Payload Layer, Data length: 90 [Bytes]
 
 
@@ -9382,7 +9261,7 @@ Payload Layer, Data length: 6 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:04.828527
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -9797,8 +9676,7 @@ Packet length: 336 [Bytes], Arrival time: 2015-01-03 15:05:05.783878
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.244.20
 TCP Layer, [ACK], Src port: 55259, Dst port: 80
-HTTP request, GET / HTTP/1.1
-
+HTTP request, GET / HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:05.873713
@@ -9812,8 +9690,7 @@ Packet length: 224 [Bytes], Arrival time: 2015-01-03 15:05:05.873714
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.20, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55259
-HTTP response, HTTP/1.1 301 Moved Permanently
-
+HTTP response, HTTP/1.1 301 Moved Permanently
 
 
 Packet length: 71 [Bytes], Arrival time: 2015-01-03 15:05:05.876546
@@ -9858,8 +9735,7 @@ Packet length: 340 [Bytes], Arrival time: 2015-01-03 15:05:05.986096
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.244.71
 TCP Layer, [ACK], Src port: 55260, Dst port: 80
-HTTP request, GET / HTTP/1.1
-
+HTTP request, GET / HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:06.058787
@@ -9898,8 +9774,7 @@ Packet length: 224 [Bytes], Arrival time: 2015-01-03 15:05:06.161356
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.20, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55259
-HTTP response, HTTP/1.1 301 Moved Permanently
-
+HTTP response, HTTP/1.1 301 Moved Permanently
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:06.161390
@@ -9919,8 +9794,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.251486
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.71, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55260
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 737 [Bytes]
 
 
@@ -10086,8 +9960,7 @@ Packet length: 385 [Bytes], Arrival time: 2015-01-03 15:05:06.328638
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55261, Dst port: 80
-HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/style/main.css HTTP/1.1
-
+HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/style/main.css HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:06.328663
@@ -10106,8 +9979,7 @@ Packet length: 376 [Bytes], Arrival time: 2015-01-03 15:05:06.330860
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55262, Dst port: 80
-HTTP request, GET /wwhp/1.58.0/desktop/css/homepage-compiled.css HTTP/1.1
-
+HTTP request, GET /wwhp/1.58.0/desktop/css/homepage-compiled.css HTTP/1.1
 
 
 Packet length: 131 [Bytes], Arrival time: 2015-01-03 15:05:06.337076
@@ -10285,8 +10157,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.354364
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55261
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 956 [Bytes]
 
 
@@ -10307,8 +10178,7 @@ Packet length: 375 [Bytes], Arrival time: 2015-01-03 15:05:06.355807
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/script/barlesque.js HTTP/1.1
-
+HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/script/barlesque.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.356364
@@ -10349,8 +10219,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.358365
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55262
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 956 [Bytes]
 
 
@@ -10432,8 +10301,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.377363
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 942 [Bytes]
 
 
@@ -10537,8 +10405,7 @@ Packet length: 353 [Bytes], Arrival time: 2015-01-03 15:05:06.428607
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.244.66
 TCP Layer, [ACK], Src port: 55266, Dst port: 80
-HTTP request, GET /favicon.ico HTTP/1.1
-
+HTTP request, GET /favicon.ico HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:06.431469
@@ -10729,8 +10596,7 @@ Packet length: 338 [Bytes], Arrival time: 2015-01-03 15:05:06.475380
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.43
 TCP Layer, [ACK], Src port: 55268, Dst port: 80
-HTTP request, GET /glow/gloader.0.1.6.js HTTP/1.1
-
+HTTP request, GET /glow/gloader.0.1.6.js HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:06.492345
@@ -10744,8 +10610,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.493641
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55268
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1015 [Bytes]
 
 
@@ -10847,8 +10712,7 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 15:05:06.520219
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.66, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55266
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 958 [Bytes]
 
 
@@ -11109,8 +10973,7 @@ Packet length: 415 [Bytes], Arrival time: 2015-01-03 15:05:06.702325
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55262, Dst port: 80
-HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/img/blq-blocks_grey_alpha.png HTTP/1.1
-
+HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/img/blq-blocks_grey_alpha.png HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.703329
@@ -11151,8 +11014,7 @@ Packet length: 415 [Bytes], Arrival time: 2015-01-03 15:05:06.706956
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55261, Dst port: 80
-HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/img/blq-search_grey_alpha.png HTTP/1.1
-
+HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/img/blq-search_grey_alpha.png HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.713473
@@ -11239,8 +11101,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.722378
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55262
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1003 [Bytes]
 
 
@@ -11268,8 +11129,7 @@ Packet length: 597 [Bytes], Arrival time: 2015-01-03 15:05:06.726731
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55261
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 188 [Bytes]
 
 
@@ -11364,8 +11224,7 @@ Packet length: 339 [Bytes], Arrival time: 2015-01-03 15:05:06.736828
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.43
 TCP Layer, [ACK], Src port: 55268, Dst port: 80
-HTTP request, GET /glow/glow/map.1.7.7.js HTTP/1.1
-
+HTTP request, GET /glow/glow/map.1.7.7.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.736851
@@ -11574,8 +11433,7 @@ Packet length: 1326 [Bytes], Arrival time: 2015-01-03 15:05:06.756503
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55268
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 928 [Bytes]
 
 
@@ -11661,16 +11519,14 @@ Packet length: 397 [Bytes], Arrival time: 2015-01-03 15:05:06.761740
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55270, Dst port: 80
-HTTP request, GET /wwhp/ic/news/624-351/80033000/jpg/_80033441_body.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/624-351/80033000/jpg/_80033441_body.jpg HTTP/1.1
 
 
 Packet length: 400 [Bytes], Arrival time: 2015-01-03 15:05:06.763147
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55271, Dst port: 80
-HTTP request, GET /wwhp/ic/news/144-81/80033000/png/_80033845_facupjan.png HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/144-81/80033000/png/_80033845_facupjan.png HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.763380
@@ -11690,24 +11546,21 @@ Packet length: 405 [Bytes], Arrival time: 2015-01-03 15:05:06.763974
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55272, Dst port: 80
-HTTP request, GET /wwhp/ic/ibroadcast/624-351/images/live/p0/29/bk/p029bkt5.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/ibroadcast/624-351/images/live/p0/29/bk/p029bkt5.jpg HTTP/1.1
 
 
 Packet length: 405 [Bytes], Arrival time: 2015-01-03 15:05:06.764462
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55274, Dst port: 80
-HTTP request, GET /wwhp/ic/ibroadcast/624-351/images/live/p0/2f/mk/p02fmkhb.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/ibroadcast/624-351/images/live/p0/2f/mk/p02fmkhb.jpg HTTP/1.1
 
 
 Packet length: 403 [Bytes], Arrival time: 2015-01-03 15:05:06.765281
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55273, Dst port: 80
-HTTP request, GET /wwhp/ic/news/144-81/80009000/jpg/_80009317_025225835-1.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/144-81/80009000/jpg/_80009317_025225835-1.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.766380
@@ -11721,8 +11574,7 @@ Packet length: 404 [Bytes], Arrival time: 2015-01-03 15:05:06.766451
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55275, Dst port: 80
-HTTP request, GET /wwhp/ic/news/304-171/80033000/jpg/_80033703_000229183-1.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/304-171/80033000/jpg/_80033703_000229183-1.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.767209
@@ -11966,8 +11818,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.785199
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55270
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1055 [Bytes]
 
 
@@ -12042,8 +11893,7 @@ Packet length: 343 [Bytes], Arrival time: 2015-01-03 15:05:06.792736
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55262, Dst port: 80
-HTTP request, GET /frameworks/requirejs/lib.js HTTP/1.1
-
+HTTP request, GET /frameworks/requirejs/lib.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.794382
@@ -12151,8 +12001,7 @@ Packet length: 416 [Bytes], Arrival time: 2015-01-03 15:05:06.800124
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55261, Dst port: 80
-HTTP request, GET /weather/0.5.284/images/icons/individual_56_icons/en_on_light_bg/12.gif HTTP/1.1
-
+HTTP request, GET /weather/0.5.284/images/icons/individual_56_icons/en_on_light_bg/12.gif HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:06.800716
@@ -12172,8 +12021,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.801381
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55271
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -12201,8 +12049,7 @@ Packet length: 415 [Bytes], Arrival time: 2015-01-03 15:05:06.801717
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /weather/0.5.284/images/icons/individual_56_icons/en_on_light_bg/7.gif HTTP/1.1
-
+HTTP request, GET /weather/0.5.284/images/icons/individual_56_icons/en_on_light_bg/7.gif HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.803380
@@ -12325,8 +12172,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.812382
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55272
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1006 [Bytes]
 
 
@@ -12500,8 +12346,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.825384
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55274
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1007 [Bytes]
 
 
@@ -12651,8 +12496,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.835385
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55273
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -12687,8 +12531,7 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 15:05:06.837385
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.66, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55266
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 958 [Bytes]
 
 
@@ -12715,8 +12558,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.839384
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55275
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -12771,8 +12613,7 @@ Packet length: 400 [Bytes], Arrival time: 2015-01-03 15:05:06.842331
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55273, Dst port: 80
-HTTP request, GET /wwhp/ic/news/144-81/80035000/jpg/_80035922_80035921.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/144-81/80035000/jpg/_80035922_80035921.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.842433
@@ -12859,8 +12700,7 @@ Packet length: 400 [Bytes], Arrival time: 2015-01-03 15:05:06.846815
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55275, Dst port: 80
-HTTP request, GET /wwhp/ic/news/144-81/80033000/jpg/_80033532_80033530.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/144-81/80033000/jpg/_80033532_80033530.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.847503
@@ -12907,8 +12747,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.852384
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55262
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 946 [Bytes]
 
 
@@ -12936,8 +12775,7 @@ Packet length: 402 [Bytes], Arrival time: 2015-01-03 15:05:06.852535
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55270, Dst port: 80
-HTTP request, GET /wwhp/ic/news/304-171/80025000/jpg/_80025834_022056199.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/304-171/80025000/jpg/_80025834_022056199.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.852562
@@ -12983,8 +12821,7 @@ Packet length: 898 [Bytes], Arrival time: 2015-01-03 15:05:06.854169
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55261
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 488 [Bytes]
 
 
@@ -13038,8 +12875,7 @@ Packet length: 690 [Bytes], Arrival time: 2015-01-03 15:05:06.857911
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 280 [Bytes]
 
 
@@ -13080,8 +12916,7 @@ Packet length: 406 [Bytes], Arrival time: 2015-01-03 15:05:06.861348
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55276, Dst port: 80
-HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/img/blocks/light.png HTTP/1.1
-
+HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/img/blocks/light.png HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.862384
@@ -13186,8 +13021,7 @@ Packet length: 407 [Bytes], Arrival time: 2015-01-03 15:05:06.866795
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55271, Dst port: 80
-HTTP request, GET /wwhp/ic/news/304-171/80035000/jpg/_80035716_gerrard2_getty.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/304-171/80035000/jpg/_80035716_gerrard2_getty.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.868274
@@ -13207,8 +13041,7 @@ Packet length: 401 [Bytes], Arrival time: 2015-01-03 15:05:06.870080
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55272, Dst port: 80
-HTTP request, GET /wwhp/ic/news/400-225/80026000/jpg/_80026231_80025564.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/400-225/80026000/jpg/_80026231_80025564.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.870100
@@ -13235,8 +13068,7 @@ Packet length: 415 [Bytes], Arrival time: 2015-01-03 15:05:06.871723
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55261, Dst port: 80
-HTTP request, GET /weather/0.5.284/images/icons/individual_56_icons/en_on_light_bg/8.gif HTTP/1.1
-
+HTTP request, GET /weather/0.5.284/images/icons/individual_56_icons/en_on_light_bg/8.gif HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.871746
@@ -13399,8 +13231,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.881388
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55273
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -13441,8 +13272,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.885388
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55275
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -13477,8 +13307,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.887386
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55270
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1055 [Bytes]
 
 
@@ -13499,8 +13328,7 @@ Packet length: 399 [Bytes], Arrival time: 2015-01-03 15:05:06.888334
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55273, Dst port: 80
-HTTP request, GET /wwhp/ic/news/96-54/80023000/jpg/_80023312_80021914.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/96-54/80023000/jpg/_80023312_80021914.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.889386
@@ -13541,8 +13369,7 @@ Packet length: 376 [Bytes], Arrival time: 2015-01-03 15:05:06.890885
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55262, Dst port: 80
-HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/script/vendor/edr.js HTTP/1.1
-
+HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/script/vendor/edr.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.891385
@@ -13576,16 +13403,14 @@ Packet length: 399 [Bytes], Arrival time: 2015-01-03 15:05:06.893306
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55275, Dst port: 80
-HTTP request, GET /wwhp/ic/news/96-54/80017000/jpg/_80017519_musician.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/96-54/80017000/jpg/_80017519_musician.jpg HTTP/1.1
 
 
 Packet length: 957 [Bytes], Arrival time: 2015-01-03 15:05:06.893386
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55276
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 547 [Bytes]
 
 
@@ -13606,24 +13431,21 @@ Packet length: 399 [Bytes], Arrival time: 2015-01-03 15:05:06.895099
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55274, Dst port: 80
-HTTP request, GET /wwhp/ic/news/96-54/80026000/jpg/_80026231_80025564.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/96-54/80026000/jpg/_80026231_80025564.jpg HTTP/1.1
 
 
 Packet length: 369 [Bytes], Arrival time: 2015-01-03 15:05:06.896629
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /frameworks/jquery/0.3.0/sharedmodules/jquery-1.9.1.js HTTP/1.1
-
+HTTP request, GET /frameworks/jquery/0.3.0/sharedmodules/jquery-1.9.1.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.896650
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55271
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1055 [Bytes]
 
 
@@ -13631,8 +13453,7 @@ Packet length: 409 [Bytes], Arrival time: 2015-01-03 15:05:06.897614
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55270, Dst port: 80
-HTTP request, GET /wwhp/ic/news/96-54/48351000/gif/_48351578_640x360-world-news.gif HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/96-54/48351000/gif/_48351578_640x360-world-news.gif HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.898386
@@ -13733,8 +13554,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.904030
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55272
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1055 [Bytes]
 
 
@@ -13802,8 +13622,7 @@ Packet length: 399 [Bytes], Arrival time: 2015-01-03 15:05:06.910137
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55271, Dst port: 80
-HTTP request, GET /wwhp/ic/news/96-54/80007000/jpg/_80007703_80007701.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/96-54/80007000/jpg/_80007703_80007701.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.910170
@@ -13945,8 +13764,7 @@ Packet length: 783 [Bytes], Arrival time: 2015-01-03 15:05:06.921390
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55261
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 373 [Bytes]
 
 
@@ -13954,8 +13772,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.921391
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55273
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -13989,8 +13806,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.924649
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55262
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 941 [Bytes]
 
 
@@ -14011,8 +13827,7 @@ Packet length: 405 [Bytes], Arrival time: 2015-01-03 15:05:06.924726
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55272, Dst port: 80
-HTTP request, GET /wwhp/ic/news/144-81/80034000/jpg/_80034031_jimmy-dickens.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/144-81/80034000/jpg/_80034031_jimmy-dickens.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.926387
@@ -14039,8 +13854,7 @@ Packet length: 419 [Bytes], Arrival time: 2015-01-03 15:05:06.928344
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55273, Dst port: 80
-HTTP request, GET /wwhp/ic/news/144-81/80000000/jpg/_80000434_m1320644-lung_cancer_cell_d.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/144-81/80000000/jpg/_80000434_m1320644-lung_cancer_cell_d.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.928386
@@ -14113,8 +13927,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.930898
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55275
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1097 [Bytes]
 
 
@@ -14142,8 +13955,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.934192
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55274
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -14184,8 +13996,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.940388
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 972 [Bytes]
 
 
@@ -14213,8 +14024,7 @@ Packet length: 401 [Bytes], Arrival time: 2015-01-03 15:05:06.940548
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55275, Dst port: 80
-HTTP request, GET /wwhp/ic/news/144-81/80022000/jpg/_80022214_454447451.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/144-81/80022000/jpg/_80022214_454447451.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.942389
@@ -14307,8 +14117,7 @@ Packet length: 400 [Bytes], Arrival time: 2015-01-03 15:05:06.947340
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55274, Dst port: 80
-HTTP request, GET /wwhp/ic/news/144-81/79998000/jpg/_79998564_dsc_1054.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/news/144-81/79998000/jpg/_79998564_dsc_1054.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.948388
@@ -14376,8 +14185,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.952393
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55270
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1057 [Bytes]
 
 
@@ -14418,8 +14226,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.956390
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55271
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -14447,24 +14254,21 @@ Packet length: 397 [Bytes], Arrival time: 2015-01-03 15:05:06.964680
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55271, Dst port: 80
-HTTP request, GET /wwfeatures/304_171/images/live/p0/2f/tt/p02ftts4.jpg HTTP/1.1
-
+HTTP request, GET /wwfeatures/304_171/images/live/p0/2f/tt/p02ftts4.jpg HTTP/1.1
 
 
 Packet length: 397 [Bytes], Arrival time: 2015-01-03 15:05:06.965060
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55270, Dst port: 80
-HTTP request, GET /wwfeatures/304_171/images/live/p0/28/cw/p028cwqv.jpg HTTP/1.1
-
+HTTP request, GET /wwfeatures/304_171/images/live/p0/28/cw/p028cwqv.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.965389
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55272
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -14512,8 +14316,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.972390
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55273
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1097 [Bytes]
 
 
@@ -14534,8 +14337,7 @@ Packet length: 397 [Bytes], Arrival time: 2015-01-03 15:05:06.973333
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55272, Dst port: 80
-HTTP request, GET /wwfeatures/304_171/images/live/p0/2g/59/p02g597n.jpg HTTP/1.1
-
+HTTP request, GET /wwfeatures/304_171/images/live/p0/2g/59/p02g597n.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.974388
@@ -14596,8 +14398,7 @@ Packet length: 397 [Bytes], Arrival time: 2015-01-03 15:05:06.980698
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55273, Dst port: 80
-HTTP request, GET /wwfeatures/304_171/images/live/p0/2g/3l/p02g3l32.jpg HTTP/1.1
-
+HTTP request, GET /wwfeatures/304_171/images/live/p0/2g/3l/p02g3l32.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.980728
@@ -14657,8 +14458,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.987389
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55275
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1056 [Bytes]
 
 
@@ -14719,8 +14519,7 @@ Packet length: 326 [Bytes], Arrival time: 2015-01-03 15:05:06.989635
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.244.66
 TCP Layer, [ACK], Src port: 55266, Dst port: 80
-HTTP request, GET /wwscripts/flag HTTP/1.1
-
+HTTP request, GET /wwscripts/flag HTTP/1.1
 
 
 Packet length: 217 [Bytes], Arrival time: 2015-01-03 15:05:06.991388
@@ -14740,8 +14539,7 @@ Packet length: 1326 [Bytes], Arrival time: 2015-01-03 15:05:06.993390
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55268
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 928 [Bytes]
 
 
@@ -14755,8 +14553,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.995391
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55274
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1097 [Bytes]
 
 
@@ -14791,24 +14588,21 @@ Packet length: 360 [Bytes], Arrival time: 2015-01-03 15:05:06.996474
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55262, Dst port: 80
-HTTP request, GET /frameworks/istats/0.23.1/modules/istats-1.js HTTP/1.1
-
+HTTP request, GET /frameworks/istats/0.23.1/modules/istats-1.js HTTP/1.1
 
 
 Packet length: 397 [Bytes], Arrival time: 2015-01-03 15:05:06.997167
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55275, Dst port: 80
-HTTP request, GET /wwfeatures/304_171/images/live/p0/1t/jj/p01tjjff.jpg HTTP/1.1
-
+HTTP request, GET /wwfeatures/304_171/images/live/p0/1t/jj/p01tjjff.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.001390
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55271
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 972 [Bytes]
 
 
@@ -14816,8 +14610,7 @@ Packet length: 395 [Bytes], Arrival time: 2015-01-03 15:05:07.002151
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55274, Dst port: 80
-HTTP request, GET /wwtravel/432_258/images/live/p0/2f/fy/p02ffyth.jpg HTTP/1.1
-
+HTTP request, GET /wwtravel/432_258/images/live/p0/2f/fy/p02ffyth.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.003390
@@ -15006,8 +14799,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.016391
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55270
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 974 [Bytes]
 
 
@@ -15075,8 +14867,7 @@ Packet length: 405 [Bytes], Arrival time: 2015-01-03 15:05:07.020530
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55271, Dst port: 80
-HTTP request, GET /wwhp/ic/ibroadcast/336-189/images/live/p0/28/qt/p028qtrd.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/ibroadcast/336-189/images/live/p0/28/qt/p028qtrd.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.021390
@@ -15157,8 +14948,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.026151
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55272
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 974 [Bytes]
 
 
@@ -15219,8 +15009,7 @@ Packet length: 405 [Bytes], Arrival time: 2015-01-03 15:05:07.029446
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55270, Dst port: 80
-HTTP request, GET /wwhp/ic/ibroadcast/336-189/images/live/p0/2f/qg/p02fqgs4.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/ibroadcast/336-189/images/live/p0/2f/qg/p02fqgs4.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.030128
@@ -15254,8 +15043,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.034390
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55273
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 975 [Bytes]
 
 
@@ -15276,8 +15064,7 @@ Packet length: 405 [Bytes], Arrival time: 2015-01-03 15:05:07.035220
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 82.102.137.164
 TCP Layer, [ACK], Src port: 55272, Dst port: 80
-HTTP request, GET /wwhp/ic/ibroadcast/336-189/images/live/p0/2g/4c/p02g4c8m.jpg HTTP/1.1
-
+HTTP request, GET /wwhp/ic/ibroadcast/336-189/images/live/p0/2g/4c/p02g4c8m.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.036390
@@ -15512,8 +15299,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.052391
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55262
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 943 [Bytes]
 
 
@@ -15541,8 +15327,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.054391
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55275
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1006 [Bytes]
 
 
@@ -15590,8 +15375,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.056647
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55274
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1004 [Bytes]
 
 
@@ -15808,8 +15592,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.073502
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55271
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1006 [Bytes]
 
 
@@ -15930,8 +15713,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.082014
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55270
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1007 [Bytes]
 
 
@@ -16079,8 +15861,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.091785
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 82.102.137.164, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55272
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1008 [Bytes]
 
 
@@ -16168,8 +15949,7 @@ Packet length: 463 [Bytes], Arrival time: 2015-01-03 15:05:07.105691
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.66, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55266
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 24 [Bytes]
 
 
@@ -16196,8 +15976,7 @@ Packet length: 350 [Bytes], Arrival time: 2015-01-03 15:05:07.115276
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /bbcdotcom/0.3.296/script/bbccom.js HTTP/1.1
-
+HTTP request, GET /bbcdotcom/0.3.296/script/bbccom.js HTTP/1.1
 
 
 Packet length: 1302 [Bytes], Arrival time: 2015-01-03 15:05:07.118215
@@ -16230,8 +16009,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.133109
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 941 [Bytes]
 
 
@@ -16384,16 +16162,14 @@ Packet length: 345 [Bytes], Arrival time: 2015-01-03 15:05:07.202554
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.43
 TCP Layer, [ACK], Src port: 55268, Dst port: 80
-HTTP request, GET /glow/glow/1.7.7/core/core.js HTTP/1.1
-
+HTTP request, GET /glow/glow/1.7.7/core/core.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.221482
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.43, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55268
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1014 [Bytes]
 
 
@@ -16640,8 +16416,7 @@ Packet length: 363 [Bytes], Arrival time: 2015-01-03 15:05:07.348766
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /bbcdotcom/0.3.296/script/zones/3pt_zone_file.js HTTP/1.1
-
+HTTP request, GET /bbcdotcom/0.3.296/script/zones/3pt_zone_file.js HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.349840
@@ -16666,8 +16441,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.367292
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 940 [Bytes]
 
 
@@ -16780,8 +16554,7 @@ Packet length: 350 [Bytes], Arrival time: 2015-01-03 15:05:07.452141
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /bbcdotcom/0.3.296/script/s_code.js HTTP/1.1
-
+HTTP request, GET /bbcdotcom/0.3.296/script/s_code.js HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.458639
@@ -16812,8 +16585,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.470613
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 940 [Bytes]
 
 
@@ -17125,48 +16897,42 @@ Packet length: 357 [Bytes], Arrival time: 2015-01-03 15:05:07.687191
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /wwhp/1.58.0/modules/desktop/utils/date.js HTTP/1.1
-
+HTTP request, GET /wwhp/1.58.0/modules/desktop/utils/date.js HTTP/1.1
 
 
 Packet length: 361 [Bytes], Arrival time: 2015-01-03 15:05:07.688249
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55262, Dst port: 80
-HTTP request, GET /wwhp/1.58.0/modules/desktop/ui/videoplayer.js HTTP/1.1
-
+HTTP request, GET /wwhp/1.58.0/modules/desktop/ui/videoplayer.js HTTP/1.1
 
 
 Packet length: 354 [Bytes], Arrival time: 2015-01-03 15:05:07.689108
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55261, Dst port: 80
-HTTP request, GET /wwhp/1.58.0/modules/desktop/ui/tabs.js HTTP/1.1
-
+HTTP request, GET /wwhp/1.58.0/modules/desktop/ui/tabs.js HTTP/1.1
 
 
 Packet length: 358 [Bytes], Arrival time: 2015-01-03 15:05:07.690987
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55276, Dst port: 80
-HTTP request, GET /wwhp/1.58.0/modules/desktop/utils/popup.js HTTP/1.1
-
+HTTP request, GET /wwhp/1.58.0/modules/desktop/utils/popup.js HTTP/1.1
 
 
 Packet length: 357 [Bytes], Arrival time: 2015-01-03 15:05:07.691990
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55277, Dst port: 80
-HTTP request, GET /wwhp/1.58.0/modules/desktop/ui/weather.js HTTP/1.1
-
+HTTP request, GET /wwhp/1.58.0/modules/desktop/ui/weather.js HTTP/1.1
 
 
 Packet length: 470 [Bytes], Arrival time: 2015-01-03 15:05:07.696732
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55278, Dst port: 80
-HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/img/blq-sprite_alpha.png HTTP/1.1
-
+HTTP request, GET /frameworks/barlesque/2.82.1/desktop/3.5/img/blq-sprite_alpha.png HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.699418
@@ -17204,8 +16970,7 @@ Packet length: 766 [Bytes], Arrival time: 2015-01-03 15:05:07.706421
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 296 [Bytes]
 
 
@@ -17245,16 +17010,14 @@ Packet length: 456 [Bytes], Arrival time: 2015-01-03 15:05:07.712085
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /wwhp/1.58.0/desktop/img/languages-sprite.png?jcb=1392907241 HTTP/1.1
-
+HTTP request, GET /wwhp/1.58.0/desktop/img/languages-sprite.png?jcb=1392907241 HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.712418
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55262
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 943 [Bytes]
 
 
@@ -17275,8 +17038,7 @@ Packet length: 664 [Bytes], Arrival time: 2015-01-03 15:05:07.715418
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55261
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 194 [Bytes]
 
 
@@ -17284,8 +17046,7 @@ Packet length: 933 [Bytes], Arrival time: 2015-01-03 15:05:07.719419
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55276
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 463 [Bytes]
 
 
@@ -17300,8 +17061,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.723419
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55277
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 943 [Bytes]
 
 
@@ -17329,8 +17089,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.728418
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55278
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1003 [Bytes]
 
 
@@ -17397,8 +17156,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.738182
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1002 [Bytes]
 
 
@@ -17528,8 +17286,7 @@ Packet length: 503 [Bytes], Arrival time: 2015-01-03 15:05:07.819884
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55289, Dst port: 80
-HTTP request, GET /wwhp/1.58.0/fonts/wwhp-icons.woff?jcb=1408543923 HTTP/1.1
-
+HTTP request, GET /wwhp/1.58.0/fonts/wwhp-icons.woff?jcb=1408543923 HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.822035
@@ -17559,7 +17316,7 @@ TCP Layer, [ACK], Src port: 55284, Dst port: 80
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:07.828540
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -17582,8 +17339,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.840168
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 66.117.29.38, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55281
-HTTP response, HTTP/1.1 302 Found
-
+HTTP response, HTTP/1.1 302 Found
 
 
 Packet length: 288 [Bytes], Arrival time: 2015-01-03 15:05:07.840901
@@ -17603,8 +17359,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.841637
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55289
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 927 [Bytes]
 
 
@@ -17632,8 +17387,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.866090
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 77.72.118.213, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55282
-HTTP response, HTTP/1.1 302 Found
-
+HTTP response, HTTP/1.1 302 Found
 Payload Layer, Data length: 534 [Bytes]
 
 
@@ -17698,8 +17452,7 @@ Packet length: 513 [Bytes], Arrival time: 2015-01-03 15:05:07.870809
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 2.19.157.190
 TCP Layer, [ACK], Src port: 55287, Dst port: 80
-HTTP request, GET /survey/dynamic/suites/133/bbcwglobalprod/list.js?152172185492 HTTP/1.1
-
+HTTP request, GET /survey/dynamic/suites/133/bbcwglobalprod/list.js?152172185492 HTTP/1.1
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.874765
@@ -17743,8 +17496,7 @@ Packet length: 517 [Bytes], Arrival time: 2015-01-03 15:05:07.967186
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 2.19.157.190, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55287
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 66 [Bytes]
 
 
@@ -17752,8 +17504,7 @@ Packet length: 367 [Bytes], Arrival time: 2015-01-03 15:05:07.970616
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /frameworks/jquery/0.3.0/sharedmodules/jquery-1.4.js HTTP/1.1
-
+HTTP request, GET /frameworks/jquery/0.3.0/sharedmodules/jquery-1.4.js HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:07.980259
@@ -17767,8 +17518,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:07.989510
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 972 [Bytes]
 
 
@@ -18015,8 +17765,7 @@ Packet length: 302 [Bytes], Arrival time: 2015-01-03 15:05:08.048018
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.10, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55283
-HTTP response, HTTP/1.1 204 No Content
-
+HTTP response, HTTP/1.1 204 No Content
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:05:08.093741
@@ -18030,24 +17779,21 @@ Packet length: 358 [Bytes], Arrival time: 2015-01-03 15:05:08.096830
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /bbcdotcom/0.3.296/script/av/emp/adverts.js HTTP/1.1
-
+HTTP request, GET /bbcdotcom/0.3.296/script/av/emp/adverts.js HTTP/1.1
 
 
 Packet length: 360 [Bytes], Arrival time: 2015-01-03 15:05:08.097903
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55262, Dst port: 80
-HTTP request, GET /bbcdotcom/0.3.296/script/av/emp/analytics.js HTTP/1.1
-
+HTTP request, GET /bbcdotcom/0.3.296/script/av/emp/analytics.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:08.116435
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 942 [Bytes]
 
 
@@ -18089,8 +17835,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:08.120437
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55262
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 942 [Bytes]
 
 
@@ -18165,8 +17910,7 @@ Packet length: 369 [Bytes], Arrival time: 2015-01-03 15:05:08.173716
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /frameworks/jquery/0.3.0/sharedmodules/jquery-1.7.2.js HTTP/1.1
-
+HTTP request, GET /frameworks/jquery/0.3.0/sharedmodules/jquery-1.7.2.js HTTP/1.1
 
 
 Packet length: 247 [Bytes], Arrival time: 2015-01-03 15:05:08.179490
@@ -18192,8 +17936,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:08.200175
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 940 [Bytes]
 
 
@@ -18462,8 +18205,7 @@ Packet length: 464 [Bytes], Arrival time: 2015-01-03 15:05:08.245447
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.219.217, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55286
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 35 [Bytes]
 
 
@@ -18484,8 +18226,7 @@ Packet length: 414 [Bytes], Arrival time: 2015-01-03 15:05:08.275535
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 77.72.118.213, Dst: 10.0.0.1
 TCP Layer, [FIN, ACK], Src port: 80, Dst port: 55284
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 43 [Bytes]
 
 
@@ -18512,8 +18253,7 @@ Packet length: 754 [Bytes], Arrival time: 2015-01-03 15:05:08.279005
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 66.117.29.38, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55285
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 43 [Bytes]
 
 
@@ -18545,8 +18285,7 @@ Packet length: 333 [Bytes], Arrival time: 2015-01-03 15:05:08.296076
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 54.192.94.30
 TCP Layer, [ACK], Src port: 55291, Dst port: 80
-HTTP request, GET /emp/bump-3/bump-3.js HTTP/1.1
-
+HTTP request, GET /emp/bump-3/bump-3.js HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:08.389982
@@ -18574,8 +18313,7 @@ Packet length: 559 [Bytes], Arrival time: 2015-01-03 15:05:08.405229
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 54.192.94.30, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55291
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:08.406045
@@ -18858,16 +18596,14 @@ Packet length: 372 [Bytes], Arrival time: 2015-01-03 15:05:08.834387
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /frameworks/swfobject/0.1.10/sharedmodules/swfobject-2.js HTTP/1.1
-
+HTTP request, GET /frameworks/swfobject/0.1.10/sharedmodules/swfobject-2.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:08.853506
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 974 [Bytes]
 
 
@@ -18946,8 +18682,7 @@ Packet length: 395 [Bytes], Arrival time: 2015-01-03 15:05:08.989331
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.246.112
 TCP Layer, [ACK], Src port: 55293, Dst port: 80
-HTTP request, GET /wurfldemi/network.jsonp?callback=bumpDemiNetwork HTTP/1.1
-
+HTTP request, GET /wurfldemi/network.jsonp?callback=bumpDemiNetwork HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:09.084022
@@ -18961,8 +18696,7 @@ Packet length: 345 [Bytes], Arrival time: 2015-01-03 15:05:09.089040
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.246.112, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55293
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 64 [Bytes]
 
 
@@ -18970,16 +18704,14 @@ Packet length: 334 [Bytes], Arrival time: 2015-01-03 15:05:09.176472
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 185.31.17.185
 TCP Layer, [ACK], Src port: 55258, Dst port: 80
-HTTP request, GET /js/chartbeat.js HTTP/1.1
-
+HTTP request, GET /js/chartbeat.js HTTP/1.1
 
 
 Packet length: 427 [Bytes], Arrival time: 2015-01-03 15:05:09.210345
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 54.192.94.30
 TCP Layer, [ACK], Src port: 55291, Dst port: 80
-HTTP request, GET /emp/SMPf/1.10.8/StandardMediaPlayerChromelessFlash.swf HTTP/1.1
-
+HTTP request, GET /emp/SMPf/1.10.8/StandardMediaPlayerChromelessFlash.swf HTTP/1.1
 
 
 Packet length: 72 [Bytes], Arrival time: 2015-01-03 15:05:09.211489
@@ -19153,8 +18885,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:09.284017
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 185.31.17.185, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55258
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 941 [Bytes]
 
 
@@ -19269,8 +19000,7 @@ Packet length: 536 [Bytes], Arrival time: 2015-01-03 15:05:09.318469
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 54.192.94.30, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55291
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:09.319521
@@ -19415,8 +19145,7 @@ Packet length: 345 [Bytes], Arrival time: 2015-01-03 15:05:09.380237
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.246.112, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55293
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 64 [Bytes]
 
 
@@ -19605,8 +19334,7 @@ Packet length: 389 [Bytes], Arrival time: 2015-01-03 15:05:09.424012
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.246.107
 TCP Layer, [ACK], Src port: 55297, Dst port: 80
-HTTP request, GET /nkdata/echoclient/2.0.0/sharedmodules/echo.js HTTP/1.1
-
+HTTP request, GET /nkdata/echoclient/2.0.0/sharedmodules/echo.js HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:09.427487
@@ -19654,8 +19382,7 @@ Packet length: 332 [Bytes], Arrival time: 2015-01-03 15:05:09.463299
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 46.236.9.36, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55294
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 5 [Bytes]
 
 
@@ -19868,8 +19595,7 @@ Packet length: 267 [Bytes], Arrival time: 2015-01-03 15:05:09.515272
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 23.21.122.142, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55193
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 43 [Bytes]
 
 
@@ -19911,8 +19637,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:09.519217
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.246.107, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55297
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 925 [Bytes]
 
 
@@ -23168,8 +22893,7 @@ Packet length: 448 [Bytes], Arrival time: 2015-01-03 15:05:10.451541
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.53
 TCP Layer, [ACK], Src port: 55264, Dst port: 80
-HTTP request, GET /crossdomain.xml HTTP/1.1
-
+HTTP request, GET /crossdomain.xml HTTP/1.1
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 15:05:10.455549
@@ -23183,8 +22907,7 @@ Packet length: 672 [Bytes], Arrival time: 2015-01-03 15:05:10.470759
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.53, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55264
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 212 [Bytes]
 
 
@@ -23235,8 +22958,7 @@ Packet length: 448 [Bytes], Arrival time: 2015-01-03 15:05:10.492064
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.59
 TCP Layer, [ACK], Src port: 55298, Dst port: 80
-HTTP request, GET /crossdomain.xml HTTP/1.1
-
+HTTP request, GET /crossdomain.xml HTTP/1.1
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:10.510060
@@ -23250,8 +22972,7 @@ Packet length: 685 [Bytes], Arrival time: 2015-01-03 15:05:10.511122
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.59, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55298
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 324 [Bytes]
 
 
@@ -23296,16 +23017,14 @@ Packet length: 481 [Bytes], Arrival time: 2015-01-03 15:05:10.691495
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.59
 TCP Layer, [ACK], Src port: 55298, Dst port: 80
-HTTP request, GET /media/images/80026000/jpg/_80026231_80025564.jpg HTTP/1.1
-
+HTTP request, GET /media/images/80026000/jpg/_80026231_80025564.jpg HTTP/1.1
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:10.713014
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.59, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55298
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 1096 [Bytes]
 
 
@@ -23931,7 +23650,7 @@ Payload Layer, Data length: 1 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:10.828686
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -23979,8 +23698,7 @@ Packet length: 414 [Bytes], Arrival time: 2015-01-03 15:05:10.917365
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 77.72.118.213, Dst: 10.0.0.1
 TCP Layer, [FIN, ACK], Src port: 80, Dst port: 55300
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 43 [Bytes]
 
 
@@ -24051,8 +23769,7 @@ Packet length: 302 [Bytes], Arrival time: 2015-01-03 15:05:11.035618
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.246.42, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55303
-HTTP response, HTTP/1.1 204 No Content
-
+HTTP response, HTTP/1.1 204 No Content
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 15:05:11.054590
@@ -24776,8 +24493,7 @@ Packet length: 311 [Bytes], Arrival time: 2015-01-03 15:05:13.337857
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 54.92.201.39, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55250
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 3 [Bytes]
 
 
@@ -25438,7 +25154,7 @@ Payload Layer, Data length: 6 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:14.828930
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -25720,8 +25436,7 @@ Packet length: 669 [Bytes], Arrival time: 2015-01-03 15:05:15.781661
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55253, Dst port: 80
-HTTP request, GET / HTTP/1.1
-
+HTTP request, GET / HTTP/1.1
 
 
 Packet length: 869 [Bytes], Arrival time: 2015-01-03 15:05:15.781704
@@ -25749,8 +25464,7 @@ Packet length: 584 [Bytes], Arrival time: 2015-01-03 15:05:15.894252
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55253
-HTTP response, HTTP/1.1 302 Found
-
+HTTP response, HTTP/1.1 302 Found
 Payload Layer, Data length: 261 [Bytes]
 
 
@@ -25765,8 +25479,7 @@ Packet length: 663 [Bytes], Arrival time: 2015-01-03 15:05:15.903912
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 74.125.71.94
 TCP Layer, [ACK], Src port: 55256, Dst port: 80
-HTTP request, GET /?gfe_rd=cr&ei=PumnVLrjJcGF8wPui4HACg HTTP/1.1
-
+HTTP request, GET /?gfe_rd=cr&ei=PumnVLrjJcGF8wPui4HACg HTTP/1.1
 
 
 Packet length: 108 [Bytes], Arrival time: 2015-01-03 15:05:15.952765
@@ -25986,8 +25699,7 @@ Packet length: 864 [Bytes], Arrival time: 2015-01-03 15:05:16.023725
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 74.125.71.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55256
-HTTP response, HTTP/1.1 302 Found
-
+HTTP response, HTTP/1.1 302 Found
 Payload Layer, Data length: 277 [Bytes]
 
 
@@ -26073,8 +25785,7 @@ Packet length: 413 [Bytes], Arrival time: 2015-01-03 15:05:16.264718
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.232
 TCP Layer, [ACK], Src port: 55195, Dst port: 80
-HTTP request, POST /ocsp HTTP/1.1
-
+HTTP request, POST /ocsp HTTP/1.1
 
 
 Packet length: 129 [Bytes], Arrival time: 2015-01-03 15:05:16.265891
@@ -26557,8 +26268,7 @@ Packet length: 837 [Bytes], Arrival time: 2015-01-03 15:05:16.382490
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.219.232, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55195
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 463 [Bytes]
 
 
@@ -28128,7 +27838,7 @@ TCP Layer, [ACK], Src port: 80, Dst port: 55278
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:17.828998
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -29830,7 +29540,7 @@ Payload Layer, Data length: 6 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:20.829049
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -30047,8 +29757,7 @@ Packet length: 427 [Bytes], Arrival time: 2015-01-03 15:05:20.988989
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.10
 TCP Layer, [ACK], Src port: 55312, Dst port: 80
-HTTP request, POST /sub/class2/server/ca HTTP/1.1
-
+HTTP request, POST /sub/class2/server/ca HTTP/1.1
 
 
 Packet length: 124 [Bytes], Arrival time: 2015-01-03 15:05:20.990269
@@ -30208,8 +29917,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:21.447924
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.10, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 80, Dst port: 55312
-HTTP response, HTTP/1.1 200 OK
-
+HTTP response, HTTP/1.1 200 OK
 Payload Layer, Data length: 982 [Bytes]
 
 
@@ -31213,7 +30921,7 @@ Payload Layer, Data length: 40 [Bytes]
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:24.829437
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -31509,7 +31217,7 @@ TCP Layer, [ACK], Src port: 80, Dst port: 55278
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 15:05:27.829396
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:00:00:0c
-IPv6 Layer, Src: , Dst: ff02::c
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::c
 UDP Layer, Src port: 59537, Dst port: 1900
 Payload Layer, Data length: 146 [Bytes]
 
@@ -31613,7 +31321,7 @@ TCP Layer, [ACK], Src port: 80, Dst port: 55204
 
 Packet length: 149 [Bytes], Arrival time: 2015-01-03 15:05:28.545894
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:01:00:02
-IPv6 Layer, Src: , Dst: ff02::1:2
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::1:2
 UDP Layer, Src port: 546, Dst port: 547
 Payload Layer, Data length: 87 [Bytes]
 
@@ -31652,7 +31360,7 @@ TCP Layer, [ACK], Src port: 80, Dst port: 55213
 
 Packet length: 149 [Bytes], Arrival time: 2015-01-03 15:05:29.545371
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:01:00:02
-IPv6 Layer, Src: , Dst: ff02::1:2
+IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::1:2
 UDP Layer, Src port: 546, Dst port: 547
 Payload Layer, Data length: 87 [Bytes]
 

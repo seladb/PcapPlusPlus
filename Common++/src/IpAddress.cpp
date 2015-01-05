@@ -48,7 +48,7 @@ IPv4Address::IPv4Address(uint32_t addressAsInt)
 {
 	m_pInAddr = new in_addr();
 	memcpy(m_pInAddr, &addressAsInt, sizeof(addressAsInt));
-	if (inet_ntop(AF_INET, m_pInAddr, m_AddressAsString, 16) == 0)
+	if (inet_ntop(AF_INET, m_pInAddr, m_AddressAsString, MAX_ADDR_STRING_LEN) == 0)
 		m_IsValid = false;
 	m_IsValid = true;
 }
@@ -57,7 +57,7 @@ IPv4Address::IPv4Address(in_addr* inAddr)
 {
 	m_pInAddr = new in_addr();
 	memcpy(m_pInAddr, inAddr, sizeof(in_addr));
-	if (inet_ntop(AF_INET, m_pInAddr, m_AddressAsString, 16) == 0)
+	if (inet_ntop(AF_INET, m_pInAddr, m_AddressAsString, MAX_ADDR_STRING_LEN) == 0)
 		m_IsValid = false;
 	m_IsValid = true;
 }
@@ -142,7 +142,7 @@ IPv6Address::IPv6Address(uint8_t* addressAsUintArr)
 {
 	m_pInAddr = new in6_addr();
 	memcpy(m_pInAddr, addressAsUintArr, 16);
-	if (inet_ntop(AF_INET6, m_pInAddr, m_AddressAsString, 16) == 0)
+	if (inet_ntop(AF_INET6, m_pInAddr, m_AddressAsString, MAX_ADDR_STRING_LEN) == 0)
 		m_IsValid = false;
 	m_IsValid = true;
 }

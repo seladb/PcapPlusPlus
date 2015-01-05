@@ -598,7 +598,7 @@ std::string HttpRequestLayer::toString()
 {
 	static const int maxLengthToPrint = 120;
 	std::string result = "HTTP request, ";
-	int size = m_FirstLine->getSize();
+	int size = m_FirstLine->getSize() - 2; // the -2 is to remove \r\n at the end of the first line
 	if (size <= maxLengthToPrint)
 	{
 		char firstLine[size+1];
@@ -1204,7 +1204,7 @@ std::string HttpResponseLayer::toString()
 {
 	static const int maxLengthToPrint = 120;
 	std::string result = "HTTP response, ";
-	int size = m_FirstLine->getSize();
+	int size = m_FirstLine->getSize() - 2; // the -2 is to remove \r\n at the end of the first line
 	if (size <= maxLengthToPrint)
 	{
 		char firstLine[size+1];
