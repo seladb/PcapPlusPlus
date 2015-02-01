@@ -1,5 +1,5 @@
-#ifndef COMMONPP_LOGGER
-#define COMMONPP_LOGGER
+#ifndef PCAPPP_LOGGER
+#define PCAPPP_LOGGER
 
 #include <stdio.h>
 #include <stdint.h>
@@ -30,6 +30,7 @@ enum LogModule
 	PcapLogModuleRemoteDevice,
 	PcapLogModuleLiveDevice,
 	PcapLogModuleFileDevice,
+	PcapLogModulePfRingDevice,
 	NumOfLogModules
 };
 
@@ -85,4 +86,4 @@ private:
 		} \
     } while (0)
 
-#endif /* COMMONPP_LOGGER */
+#endif /* PCAPPP_LOGGER */

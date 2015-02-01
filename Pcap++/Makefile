@@ -9,6 +9,9 @@ PACKETPP_HOME := ../Packet++
 ifdef WIN32
 DEPS := -DWPCAP -DHAVE_REMOTE
 endif
+ifdef PF_RING_HOME
+DEPS := -DUSE_PF_RING
+endif
 
 INCLUDES := -I"./src" \
 			-I"./header" \
@@ -21,6 +24,9 @@ INCLUDES += -I$(MINGW_HOME)/include/ddk \
 endif
 ifdef LINUX
 INCLUDES += -I/usr/include/netinet
+endif
+ifdef PF_RING_HOME
+INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
 endif
 			
 Obj/%.o: src/%.cpp

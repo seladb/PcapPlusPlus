@@ -3,6 +3,8 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+MacAddress MacAddress::Zero(0,0,0,0,0,0);
+
 MacAddress::MacAddress(uint8_t* addr)
 {
 	memcpy(m_Address, addr, 6);

@@ -55,7 +55,7 @@ void RawPacket::copyDataFrom(const RawPacket& other)
 	if (!other.m_RawPacketSet)
 		return;
 
-	m_DeleteRawDataAtDestructor = other.m_DeleteRawDataAtDestructor;
+	m_DeleteRawDataAtDestructor = true;
 	m_RawDataLen = other.m_RawDataLen;
 	m_TimeStamp = other.m_TimeStamp;
 	m_pRawData = new uint8_t[other.m_RawDataLen];

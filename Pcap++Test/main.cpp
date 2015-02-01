@@ -17,6 +17,8 @@
 #include <PcapLiveDevice.h>
 #include <PcapRemoteDevice.h>
 #include <PcapRemoteDeviceList.h>
+#include <PfRingDevice.h>
+#include <PfRingDeviceList.h>
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
@@ -25,6 +27,7 @@
 #include <PlatformSpecificUtils.h>
 #include <getopt.h>
 #include <stdlib.h>
+#include <SystemUtils.h>
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
@@ -55,6 +58,18 @@ using namespace std;
 		return false; \
 	}
 
+bool isUnitTestDebugMode = false;
+
+#define PCAPP_IS_UNIT_TEST_DEBUG_ENABLED isUnitTestDebugMode
+
+#define PCAPP_UNIT_TEST_SET_DEBUG_MODE(flag) isUnitTestDebugMode = flag
+
+#define PCAPP_DEBUG_PRINT(format, ...) do { \
+		if(isUnitTestDebugMode) { \
+			printf(format "\n", ## __VA_ARGS__); \
+		} \
+} while(0)
+
 #define PCAPP_TEST_PASSED printf("%-30s: PASSED\n", __FUNCTION__); return true
 
 #define PCAPP_START_RUNNING_TESTS bool allTestsPassed = true
@@ -76,39 +91,114 @@ struct PcapTestArgs
 
 void packetArrives(RawPacket* pRawPacket, PcapLiveDevice* pDevice, void* userCookie)
 {
-//	EthPacket* pPacket = PacketParser::parsePacket(pRawPacket);
-//	if (pPacket->isPacketOfType(IP))
-//	{
-//		IpPacket* ipPacket = static_cast<IpPacket*>(pPacket);
-//		if (ipPacket->getIpVersion() == 4)
-//		{
-//			iphdr* ip_header = ipPacket->getIPv4Header();
-//			uint32_t src_ip = htonl(ip_header->saddr);
-//			uint32_t dst_ip = htonl(ip_header->daddr);
-//
-//			printf("<");
-//			PRINT_IPV4_ADDRESS(src_ip);
-//			printf("> - ");
-//			printf("<");
-//			PRINT_IPV4_ADDRESS(dst_ip);
-//			printf(">\n");
-//		}
-//		else if (ipPacket->getIpVersion() == 6)
-//		{
-//			ip6_hdr* ip_header = ipPacket->getIPv6Header();
-//			uint8_t* src_ip = ip_header->src_addr;
-//			uint8_t* dst_ip = ip_header->dst_addr;
-//
-//			printf("<");
-//			PRINT_IPV6_ADDRESS(src_ip);
-//			printf("> - ");
-//			printf("<");
-//			PRINT_IPV6_ADDRESS(dst_ip);
-//			printf(">\n");
-//		}
-//	}
-
 	(*(int*)userCookie)++;
+}
+
+size_t hash5Tuple(Packet* packet)
+{
+	IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
+	TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>();
+
+	uint8_t* ipSrcAsByteArr = static_cast<uint8_t*>(static_cast<void*>(&ipv4Layer->getIPv4Header()->ipSrc));
+	uint8_t* ipDstAsByteArr = static_cast<uint8_t*>(static_cast<void*>(&ipv4Layer->getIPv4Header()->ipDst));
+	return(ipv4Layer->getIPv4Header()->protocol+
+			ipSrcAsByteArr[0]+
+			ipSrcAsByteArr[1]+
+			ipSrcAsByteArr[2]+
+			ipSrcAsByteArr[3]+
+			ipDstAsByteArr[0]+
+			ipDstAsByteArr[1]+
+			ipDstAsByteArr[2]+
+			ipDstAsByteArr[3]+
+			tcpLayer->getTcpHeader()->portSrc+
+			tcpLayer->getTcpHeader()->portDst);
+}
+
+#ifdef USE_PF_RING
+struct PfRingPacketData
+{
+	uint8_t ThreadId;
+	int PacketCount;
+	int EthCount;
+	int IpCount;
+	int TcpCount;
+	int UdpCount;
+	map<size_t, RawPacketVector> FlowKeys;
+
+	PfRingPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), IpCount(0), TcpCount(0), UdpCount(0) {}
+	void clear() { ThreadId = -1; PacketCount = 0; EthCount = 0; IpCount = 0; TcpCount = 0; UdpCount = 0; FlowKeys.clear(); }
+};
+
+void pfRingPacketsArrive(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, PfRingDevice* device, void* userCookie)
+{
+	PfRingPacketData* data = (PfRingPacketData*)userCookie;
+
+	data->ThreadId = threadId;
+	data->PacketCount += numOfPackets;
+
+	for (int i = 0; i < (int)numOfPackets; i++)
+	{
+		Packet packet(&packets[i]);
+		if (packet.isPacketOfType(Ethernet))
+			data->EthCount++;
+		if (packet.isPacketOfType(IPv4))
+			data->IpCount++;
+		if (packet.isPacketOfType(TCP))
+			data->TcpCount++;
+		if (packet.isPacketOfType(UDP))
+			data->UdpCount++;
+	}
+}
+
+void pfRingPacketsArriveMultiThread(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, PfRingDevice* device, void* userCookie)
+{
+	PfRingPacketData* data = (PfRingPacketData*)userCookie;
+
+	data[threadId].ThreadId = threadId;
+	data[threadId].PacketCount += numOfPackets;
+
+	for (int i = 0; i < (int)numOfPackets; i++)
+	{
+		Packet packet(&packets[i]);
+		if (packet.isPacketOfType(Ethernet))
+			data[threadId].EthCount++;
+		if (packet.isPacketOfType(IPv4))
+			data[threadId].IpCount++;
+		if (packet.isPacketOfType(TCP))
+		{
+			data[threadId].TcpCount++;
+			if (packet.isPacketOfType(IPv4))
+			{
+				RawPacket* newRawPacket = new RawPacket(packets[i]);
+				data[threadId].FlowKeys[hash5Tuple(&packet)].pushBack(newRawPacket);
+			}
+		}
+		if (packet.isPacketOfType(UDP))
+			data[threadId].UdpCount++;
+
+	}
+}
+
+#endif
+
+template<typename KeyType, typename LeftValue, typename RightValue>
+void intersectMaps(const map<KeyType, LeftValue> & left, const map<KeyType, RightValue> & right, map<KeyType, pair<LeftValue, RightValue> >& result)
+{
+    typename map<KeyType, LeftValue>::const_iterator il = left.begin();
+    typename map<KeyType, RightValue>::const_iterator ir = right.begin();
+    while (il != left.end() && ir != right.end())
+    {
+        if (il->first < ir->first)
+            ++il;
+        else if (ir->first < il->first)
+            ++ir;
+        else
+        {
+            result.insert(make_pair(il->first, make_pair(il->second, ir->second)));
+            ++il;
+            ++ir;
+        }
+    }
 }
 
 void statsUpdate(pcap_stat& stats, void* userCookie)
@@ -1307,6 +1397,257 @@ PCAPP_TEST(TestPrintPacketAndLayers)
 	PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestPfRingDevice)
+{
+#ifdef USE_PF_RING
+
+	PfRingDeviceList& devList = PfRingDeviceList::getInstance();
+	PCAPP_ASSERT(devList.getPfRingDevicesList().size() > 0, "PF_RING device list contains 0 devices");
+	PCAPP_ASSERT(devList.getPfRingVersion() != "", "Couldn't retrieve PF_RING version");
+	PcapLiveDevice* pcapLiveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(pcapLiveDev != NULL, "Couldn't find the pcap device matching to IP address '%s'", args.ipToSendReceivePackets.c_str());
+	PfRingDevice* dev = devList.getPfRingDeviceByName(string(pcapLiveDev->getName()));
+
+	PCAPP_ASSERT(dev != NULL, "Couldn't find PF_RING device with name '%s'", pcapLiveDev->getName());
+	PCAPP_ASSERT(dev->getMacAddress().isValid() == true, "Dev MAC addr isn't valid");
+	PCAPP_ASSERT(dev->getMacAddress() != MacAddress::Zero, "Dev MAC addr is zero");
+	PCAPP_ASSERT(dev->getInterfaceIndex() > 0, "Dev interface index is zero");
+	PCAPP_ASSERT(dev->getTotalNumOfRxChannels() > 0, "Number of RX channels is zero");
+	PCAPP_ASSERT(dev->getNumOfOpenedRxChannels() == 0, "Number of open RX channels isn't zero");
+	PCAPP_ASSERT(dev->open() == true, "Cannot open PF_RING device");
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(dev->open() == false, "Managed to open the device twice");
+	LoggerPP::getInstance().enableErrors();
+	PCAPP_ASSERT(dev->getNumOfOpenedRxChannels() == 1, "After device is open number of open RX channels != 1, it's %d", dev->getNumOfOpenedRxChannels());
+
+	PfRingPacketData packetData;
+	PCAPP_ASSERT(dev->startCaptureSingleThread(pfRingPacketsArrive, &packetData), "Couldn't start capturing");
+	PCAP_SLEEP(5); //TODO: put this on 10-20 sec
+	dev->stopCapture();
+	PCAPP_ASSERT(packetData.PacketCount > 0, "No packets were captured");
+	PCAPP_ASSERT(packetData.ThreadId != -1, "Couldn't retrieve thread ID");
+
+	pcap_stat stats;
+	stats.ps_recv = 0;
+	stats.ps_drop = 0;
+	stats.ps_ifdrop = 0;
+	dev->getStatistics(stats);
+	PCAPP_ASSERT(stats.ps_recv == (uint32_t)packetData.PacketCount, "Stats received packet count is different than calculated packet count");
+	dev->close();
+
+	PCAPP_DEBUG_PRINT("Thread ID: %d", packetData.ThreadId);
+	PCAPP_DEBUG_PRINT("Total packets captured: %d", packetData.PacketCount);
+	PCAPP_DEBUG_PRINT("Eth packets: %d", packetData.EthCount);
+	PCAPP_DEBUG_PRINT("IP packets: %d", packetData.IpCount);
+	PCAPP_DEBUG_PRINT("TCP packets: %d", packetData.TcpCount);
+	PCAPP_DEBUG_PRINT("UDP packets: %d", packetData.UdpCount);
+	PCAPP_DEBUG_PRINT("Device statistics:");
+	PCAPP_DEBUG_PRINT("Packets captured: %d", stats.ps_recv);
+	PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.ps_drop);
+
+//	test filters
+//  test sendPackets
+
+#endif
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPfRingDeviceSingleChannel)
+{
+#ifdef USE_PF_RING
+
+	PfRingDeviceList& devList = PfRingDeviceList::getInstance();
+	PcapLiveDevice* pcapLiveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(pcapLiveDev != NULL, "Couldn't find the pcap device matching to IP address '%s'", args.ipToSendReceivePackets.c_str());
+	PfRingDevice* dev = devList.getPfRingDeviceByName(string(pcapLiveDev->getName()));
+
+	PfRingPacketData packetData;
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(dev->openSingleRxChannel(dev->getTotalNumOfRxChannels()+1) == false, "Wrongly succeeded opening the device on a RX channel [%d] that doesn't exist open device on RX channel", dev->getTotalNumOfRxChannels()+1);
+	LoggerPP::getInstance().enableErrors();
+	PCAPP_ASSERT(dev->openSingleRxChannel(dev->getTotalNumOfRxChannels()-1) == true, "Couldn't open device on RX channel %d", dev->getTotalNumOfRxChannels());
+	PCAPP_ASSERT(dev->startCaptureSingleThread(pfRingPacketsArrive, &packetData), "Couldn't start capturing");
+	PCAP_SLEEP(5); //TODO: put this on 10-20 sec
+	dev->stopCapture();
+	PCAPP_ASSERT(packetData.PacketCount > 0, "No packets were captured");
+	PCAPP_ASSERT(packetData.ThreadId != -1, "Couldn't retrieve thread ID");
+	pcap_stat stats;
+	dev->getStatistics(stats);
+	PCAPP_ASSERT(stats.ps_recv == (uint32_t)packetData.PacketCount, "Stats received packet count is different than calculated packet count");
+	PCAPP_DEBUG_PRINT("Thread ID: %d", packetData.ThreadId);
+	PCAPP_DEBUG_PRINT("Total packets captured: %d", packetData.PacketCount);
+	PCAPP_DEBUG_PRINT("Eth packets: %d", packetData.EthCount);
+	PCAPP_DEBUG_PRINT("IP packets: %d", packetData.IpCount);
+	PCAPP_DEBUG_PRINT("TCP packets: %d", packetData.TcpCount);
+	PCAPP_DEBUG_PRINT("UDP packets: %d", packetData.UdpCount);
+	PCAPP_DEBUG_PRINT("Packets captured: %d", stats.ps_recv);
+	PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.ps_drop);
+
+	dev->close();
+	PCAPP_ASSERT(dev->getNumOfOpenedRxChannels() == 0, "There are still open RX channels after device close");
+
+#endif
+	PCAPP_TEST_PASSED;
+}
+
+
+bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
+{
+#ifdef USE_PF_RING
+	PfRingDeviceList& devList = PfRingDeviceList::getInstance();
+	PcapLiveDevice* pcapLiveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(pcapLiveDev != NULL, "Couldn't find the pcap device matching to IP address '%s'", args.ipToSendReceivePackets.c_str());
+	PfRingDevice* dev = devList.getPfRingDeviceByName(string(pcapLiveDev->getName()));
+
+	uint8_t numOfChannels = dev->getTotalNumOfRxChannels();
+	PCAPP_ASSERT(dev->openMultiRxChannels(numOfChannels*2.5, PfRingDevice::PerFlow) == true, "Couldn't open device with %d channels", (int)(numOfChannels*2.5));
+	dev->close();
+	PCAPP_ASSERT(dev->getNumOfOpenedRxChannels() == 0, "There are still open RX channels after device close");
+	int totalnumOfCores = getNumOfCores();
+	int numOfCoresInUse = 0;
+	CoreMask tempCoreMaske = coreMask;
+	int i = 0;
+	while ((tempCoreMaske != 0) && (i < totalnumOfCores))
+	{
+		if (tempCoreMaske & 1)
+		{
+			numOfCoresInUse++;
+		}
+
+		tempCoreMaske = tempCoreMaske >> 1;
+		i++;
+	}
+
+	PCAPP_ASSERT(dev->openMultiRxChannels((uint8_t)numOfCoresInUse, PfRingDevice::PerFlow) == true, "Couldn't open device with %d channels", totalnumOfCores);
+	PfRingPacketData packetDataMultiThread[totalnumOfCores];
+	PCAPP_ASSERT(dev->startCaptureMultiThread(pfRingPacketsArriveMultiThread, packetDataMultiThread, coreMask), "Couldn't start capturing multi-thread");
+	PCAP_SLEEP(10);
+	dev->stopCapture();
+	pcap_stat aggrStats;
+	aggrStats.ps_recv = 0;
+	aggrStats.ps_drop = 0;
+	aggrStats.ps_ifdrop = 0;
+
+	pcap_stat stats;
+	for (int i = 0; i < totalnumOfCores; i++)
+	{
+		if ((SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
+			continue;
+
+		PCAPP_DEBUG_PRINT("Thread ID: %d", packetDataMultiThread[i].ThreadId);
+		PCAPP_DEBUG_PRINT("Total packets captured: %d", packetDataMultiThread[i].PacketCount);
+		PCAPP_DEBUG_PRINT("Eth packets: %d", packetDataMultiThread[i].EthCount);
+		PCAPP_DEBUG_PRINT("IP packets: %d", packetDataMultiThread[i].IpCount);
+		PCAPP_DEBUG_PRINT("TCP packets: %d", packetDataMultiThread[i].TcpCount);
+		PCAPP_DEBUG_PRINT("UDP packets: %d", packetDataMultiThread[i].UdpCount);
+		dev->getThreadStatistics(SystemCores::IdToSystemCore[i], stats);
+		aggrStats.ps_recv += stats.ps_recv;
+		aggrStats.ps_drop += stats.ps_drop;
+		PCAPP_DEBUG_PRINT("Packets captured: %d", stats.ps_recv);
+		PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.ps_drop);
+		PCAPP_ASSERT(stats.ps_recv == (uint32_t)packetDataMultiThread[i].PacketCount, "Stats received packet count is different than calculated packet count on thread %d", packetDataMultiThread[i].ThreadId);
+	}
+
+	dev->getStatistics(stats);
+	PCAPP_ASSERT(aggrStats.ps_recv == stats.ps_recv, "Aggregated stats weren't calculated correctly: aggr recv = %d, calc recv = %d", stats.ps_recv, aggrStats.ps_recv);
+	PCAPP_ASSERT(aggrStats.ps_drop == stats.ps_drop, "Aggregated stats weren't calculated correctly: aggr drop = %d, calc drop = %d", stats.ps_drop, aggrStats.ps_drop);
+
+	for (int firstCoreId = 0; firstCoreId < totalnumOfCores; firstCoreId++)
+	{
+		for (int secondCoreId = firstCoreId+1; secondCoreId < totalnumOfCores; secondCoreId++)
+		{
+			map<size_t, pair<RawPacketVector, RawPacketVector> > res;
+			intersectMaps<size_t, RawPacketVector, RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
+			PCAPP_ASSERT(res.size() == 0, "%d flows appear in core %d and core %d", res.size(), firstCoreId, secondCoreId);
+			if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
+			{
+				for (map<size_t, pair<RawPacketVector, RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
+				{
+					PCAPP_DEBUG_PRINT("Same flow exists in core %d and core %d. Flow key = %X", firstCoreId, secondCoreId, iter->first);
+					ostringstream stream;
+					stream << "Core" << firstCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
+					PcapFileWriterDevice writerDev(stream.str().c_str());
+					writerDev.open();
+					writerDev.writePackets(iter->second.first);
+					writerDev.close();
+
+					ostringstream stream2;
+					stream2 << "Core" << secondCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
+					PcapFileWriterDevice writerDev2(stream2.str().c_str());
+					writerDev2.open();
+					writerDev2.writePackets(iter->second.second);
+					writerDev2.close();
+
+					iter->second.first.clear();
+					iter->second.second.clear();
+
+				}
+			}
+		}
+		PCAPP_DEBUG_PRINT("Core %d\n========", firstCoreId);
+		PCAPP_DEBUG_PRINT("Total flows: %d", packetDataMultiThread[firstCoreId].FlowKeys.size());
+
+		if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
+		{
+			for(map<size_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
+				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", iter->first, iter->second.size());
+				iter->second.clear();
+			}
+		}
+
+		packetDataMultiThread[firstCoreId].FlowKeys.clear();
+	}
+#endif
+
+	return true;
+}
+
+PCAPP_TEST(TestPfRingMultiThreadAllCores)
+{
+#ifdef USE_PF_RING
+	int numOfCores = getNumOfCores();
+	CoreMask coreMask = 0;
+	for (int i = 0; i < numOfCores; i++)
+	{
+		coreMask |= SystemCores::IdToSystemCore[i].Mask;
+	}
+
+	if (TestPfRingDeviceMultiThread(coreMask, args))
+	{
+		PCAPP_TEST_PASSED;
+	}
+
+	return false;
+#else
+	PCAPP_TEST_PASSED;
+#endif
+
+}
+
+PCAPP_TEST(TestPfRingMultiThreadSomeCores)
+{
+#ifdef USE_PF_RING
+	int numOfCores = getNumOfCores();
+	CoreMask coreMask = 0;
+	for (int i = 0; i < numOfCores; i++)
+	{
+		if (i % 2 != 0)
+			continue;
+		coreMask |= SystemCores::IdToSystemCore[i].Mask;
+	}
+
+	if (TestPfRingDeviceMultiThread(coreMask, args))
+	{
+		PCAPP_TEST_PASSED;
+	}
+
+	return false;
+#else
+	PCAPP_TEST_PASSED;
+#endif
+}
+
 
 
 static struct option PcapTestOptions[] =
@@ -1394,6 +1735,9 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
 	PCAPP_RUN_TEST(TestHttpResponseParsing, args);
 	PCAPP_RUN_TEST(TestPrintPacketAndLayers, args);
-
+	PCAPP_RUN_TEST(TestPfRingDevice, args);
+	PCAPP_RUN_TEST(TestPfRingDeviceSingleChannel, args);
+	PCAPP_RUN_TEST(TestPfRingMultiThreadAllCores, args);
+	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args);
 	PCAPP_END_RUNNING_TESTS;
 }

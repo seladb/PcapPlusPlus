@@ -21,6 +21,16 @@ public:
 		}
 	}
 
+	// Copy c'tor
+	PointerVector(const PointerVector& other)
+	{
+		for (ConstVectorIterator iter = other.begin(); iter != other.end(); iter++)
+		{
+			T* objCopy = new T(**iter);
+			m_Vector.push_back(objCopy);
+		}
+	}
+
 	void clear()
 	{
 		for (VectorIterator iter = m_Vector.begin(); iter != m_Vector.end(); iter++)

@@ -30,6 +30,8 @@ public:
 	string toString();
 	void copyTo(uint8_t** arr);
 	void copyTo(uint8_t* arr) const;
+
+	static MacAddress Zero;
 private:
 	uint8_t m_Address[6];
 	bool m_IsValid;

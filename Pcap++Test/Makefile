@@ -10,6 +10,9 @@ PCAPP_HOME := ../Pcap++
 ifdef WIN32
 DEPS := -DWPCAP -DHAVE_REMOTE
 endif
+ifdef PF_RING_HOME
+DEPS := -DUSE_PF_RING
+endif
 
 INCLUDES := -I$(PCAPP_HOME)/header -I$(PACKETPP_HOME)/header -I$(COMMONPP_HOME)/header -I../Pcap++Test
 ifdef WIN32
@@ -18,7 +21,9 @@ endif
 ifdef LINUX
 INCLUDES += -I/usr/include/netinet
 endif
-		
+ifdef PF_RING_HOME
+INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
+endif		
 		
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
@@ -32,6 +37,9 @@ ifdef WIN32
 LIBS_DIR += -L$(WINPCAP_HOME)/lib \
 		-L$(MINGW_HOME)/lib
 endif
+ifdef PF_RING_HOME
+LIBS_DIR += -L$(PF_RING_HOME)/userland/lib
+endif
 
 LIBS := -lPcap++ -lPacket++ -lCommon++
 ifdef WIN32
@@ -39,6 +47,9 @@ LIBS += -lwpcap -lPacket -lpthread -lws2_32
 endif
 ifdef LINUX
 LIBS += -lpcap -lpthread
+endif
+ifdef PF_RING_HOME
+LIBS += -Wl,-Bstatic -lpfring -lnuma -lrt
 endif
 
 POST_BUILD :=
