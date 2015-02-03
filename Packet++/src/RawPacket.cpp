@@ -81,7 +81,12 @@ const uint8_t* RawPacket::getRawData()
 	return m_pRawData;
 }
 
-int RawPacket::getRawDataLen()
+const uint8_t* RawPacket::getRawDataReadOnly() const
+{
+	return m_pRawData;
+}
+
+int RawPacket::getRawDataLen() const
 {
 	return m_RawDataLen;
 }

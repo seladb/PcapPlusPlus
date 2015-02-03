@@ -26,6 +26,7 @@ public:
 	Packet& operator=(const Packet& other);
 
 	inline RawPacket* getRawPacket() { return m_RawPacket; }
+	inline RawPacket* getRawPacketReadOnly() const { return m_RawPacket; }
 
 	inline Layer* getFirstLayer() { return m_FirstLayer; }
 	inline Layer* getLastLayer() { return m_LastLayer; }

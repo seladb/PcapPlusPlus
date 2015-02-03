@@ -6,6 +6,8 @@
 #include <PcapDevice.h>
 #include <MacAddress.h>
 #include <SystemUtils.h>
+#include <RawPacket.h>
+#include <Packet.h>
 #include <pfring.h>
 #include <pthread.h>
 
@@ -35,6 +37,7 @@ private:
 	char m_DeviceName[30];
 	int m_InterfaceIndex;
 	MacAddress m_MacAddress;
+	int m_DeviceMTU;
 	CoreConfiguration m_CoreConfiguration[MAX_NUM_OF_CORES];
 	bool m_StopThread;
 	OnPfRingPacketsArriveCallback m_OnPacketsArriveCallback;
@@ -56,6 +59,8 @@ private:
 	int getCoresInUseCount();
 
 	void setPfRingDeviceAttributes();
+
+	bool sendData(const uint8_t* packetData, int packetDataLength, bool flushTxQueues);
 public:
 
 	/**
@@ -73,16 +78,22 @@ public:
 	~PfRingDevice();
 
 	/**
-	 * Gets the MAC address of the current device
+	 * Get the MAC address of the current device
 	 * @return The MAC address of the current device
 	 */
 	MacAddress getMacAddress() { setPfRingDeviceAttributes(); return m_MacAddress; }
 
 	/**
-	 * Gets PF_RING interface index of the current device
+	 * Get PF_RING interface index of the current device
 	 * @return PF_RING interface index of the current device
 	 */
 	int getInterfaceIndex() { setPfRingDeviceAttributes(); return m_InterfaceIndex; }
+
+	/**
+	 * Get MTU of the current device
+	 * @return Upon success return the device MTU, 0 otherwise
+	 */
+	int getMtu() { setPfRingDeviceAttributes(); return m_DeviceMTU; }
 
 	/**
 	 * Return true if device supports hardware timestamping. If it does, this feature will be automatically set
@@ -230,12 +241,73 @@ public:
 	 */
 	bool setFilter(string filterAsString);
 
-//	bool sendPacket(RawPacket const& rawPacket);
-//	bool sendPacket(const uint8_t* packetData, int packetDataLength);
-//	bool sendPacket(Packet const& packet);
-//	virtual int sendPackets(const RawPacket* rawPacketsArr, int arrLength);
-//	virtual int sendPackets(const Packet* packetsArr, int arrLength);
-//	virtual int sendPackets(const RawPacketVector& rawPackets);
+
+	/**
+	 * Send a raw packet. This packet must be fully specified (the MAC address up)
+	 * and it will be transmitted as-is without any further manipulation.
+	 * This method doesn't change or manipulate the data in any way (hence the "const" declaration).
+	 * Note this method flushes the TX queues after the data is sent. So if you want to send several packets
+	 * In the burst please use @see sendPackets
+	 * @param[in] rawPacket The raw packet to send
+	 * @return True if raw packet was sent completely, false otherwise
+	 */
+	bool sendPacket(const RawPacket& rawPacket);
+
+	/**
+	 * Send raw data. This data must be a valid and fully specified packet (the MAC address up);
+	 * it will be transmitted as-is without any further manipulation.
+	 * This method doesn't change or manipulate the data in any way (hence the "const" declaration).
+	 * Note this method flushes the TX queues after the data is sent. So if you want to send several packets
+	 * in the burst please use @see sendPackets
+	 * @param[in] packetData The raw data to send
+	 * @param[in] packetDataLength the length of packetData
+	 * @return True if raw packet was sent completely, false otherwise
+	 *
+	 */
+	bool sendPacket(const uint8_t* packetData, int packetDataLength);
+
+	/**
+	 * Send a packet. This packet must be fully specified (the MAC address up)
+	 * and it will be transmitted as-is without any further manipulation.
+	 * This method doesn't change or manipulate the data in any way (hence the "const" declaration).
+	 * Note this method flushes the TX queues after the data is sent. So if you want to send several packets
+	 * In the burst please use @see sendPackets
+	 * @param[in] packet The packet to send
+	 * @return True if raw packet was sent completely, false otherwise
+	 */
+	bool sendPacket(const Packet& packet);
+
+	/**
+	 * Send raw packets. All raw packets must be fully specified (the MAC address up)
+	 * and it will be transmitted as-is without any further manipulation.
+	 * This method doesn't change or manipulate the raw packets data in any way (hence the "const" declaration).
+	 * This method flushes the TX queues only when the last packet is sent
+	 * @param[in] rawPacketsArr The RawPacket array
+	 * @param[in] arrLength RawPacket array length
+	 * @return Number of packets that were sent completely
+	 */
+	int sendPackets(const RawPacket* rawPacketsArr, int arrLength);
+
+	/**
+	 * Send packets. All packets must be fully specified (the MAC address up)
+	 * and it will be transmitted as-is without any further manipulation.
+	 * This method doesn't change or manipulate the packets data in any way (hence the "const" declaration).
+	 * This method flushes the TX queues only when the last packet is sent
+	 * @param[in] packetsArr An array of pointers to Packet objects
+	 * @param[in] arrLength Packet pointers array length
+	 * @return Number of packets that were sent completely
+	 */
+	int sendPackets(const Packet** packetsArr, int arrLength);
+
+	/**
+	 * Send all raw packets pointed by the @see RawPacketVector. All packets must be fully specified (the MAC address up)
+	 * and it will be transmitted as-is without any further manipulation.
+	 * This method doesn't change or manipulate the packets data in any way (hence the "const" declaration).
+	 * This method flushes the TX queues only when the last packet is sent
+	 * @param[in] rawPackets The raw packet vector
+	 * @return Number of raw packets that were sent completely
+	 */
+	int sendPackets(const RawPacketVector& rawPackets);
 };
 
 #endif /* USE_PF_RING */

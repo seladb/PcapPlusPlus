@@ -26,7 +26,8 @@ public:
 
 	void setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp);
 	const uint8_t* getRawData();
-	int getRawDataLen();
+	const uint8_t* getRawDataReadOnly() const;
+	int getRawDataLen() const;
 	timeval getPacketTimeStamp();
 	bool isPacketSet() { return m_RawPacketSet; }
 	void clear();

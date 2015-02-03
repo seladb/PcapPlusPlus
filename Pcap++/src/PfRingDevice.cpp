@@ -3,6 +3,8 @@
 #define LOG_MODULE PcapLogModulePfRingDevice
 
 #include <PfRingDevice.h>
+#include <EthLayer.h>
+#include <VlanLayer.h>
 #include <Logger.h>
 #include <PlatformSpecificUtils.h>
 #include <errno.h>
@@ -23,6 +25,7 @@ PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Ze
 	m_OnPacketsArriveUserCookie = NULL;
 	m_ReentrantMode = false;
 	m_HwClockEnabled = false;
+	m_DeviceMTU = 0;
 }
 
 PfRingDevice::~PfRingDevice()
@@ -628,17 +631,156 @@ void PfRingDevice::setPfRingDeviceAttributes()
 			LOG_ERROR("Unable to read interface index of device");
 		else
 		{
+			// try to set hardware device clock
 			m_HwClockEnabled = setPfRingDeviceClock(ring);
+
+			// set interface MTU
+			int mtu = pfring_get_mtu_size(ring);
+			if (mtu < 0)
+				LOG_ERROR("Could not get MTU. pfring_get_mtu_size returned an error: %d", mtu);
+			else
+				m_DeviceMTU = mtu + sizeof(ether_header) + sizeof(vlan_header);
 		}
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
 		{
 			string hwEnabled = (m_HwClockEnabled ? "enabled" : "disabled");
-			LOG_DEBUG("Capturing from %s [%s][ifIndex: %d], HW clock %s", m_DeviceName, m_MacAddress.toString().c_str(), m_InterfaceIndex, hwEnabled.c_str());
+			LOG_DEBUG("Capturing from %s [%s][ifIndex: %d][MTU: %d], HW clock %s", m_DeviceName, m_MacAddress.toString().c_str(), m_InterfaceIndex, m_DeviceMTU, hwEnabled.c_str());
 		}
 	}
 
 	if (closeRing)
 		pfring_close(ring);
+}
+
+
+bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, bool flushTxQueues)
+{
+	if (!m_DeviceOpened)
+	{
+		LOG_ERROR("Device is not opened. Cannot send packets");
+		return false;
+	}
+
+	uint8_t flushTxAsUint = (flushTxQueues? 1 : 0);
+
+	#define MAX_TRIES 5
+
+	int tries = 0;
+	int res = 0;
+	while (tries < MAX_TRIES)
+	{
+		// if the device is opened, m_PfRingDescriptors[0] will always be set and enables
+		res = pfring_send(m_PfRingDescriptors[0], (char*)packetData, packetDataLength, flushTxAsUint);
+
+		// res == -1 means it's an error coming from "sendto" which is the Linux API PF_RING is using to send packets
+		// errno == ENOBUFS means write buffer is full. PF_RING driver expects the userspace to handle this case
+		// My implementation is to sleep for 10 usec and try again
+		if (res == -1 && errno == ENOBUFS)
+		{
+			tries++;
+			LOG_DEBUG("Try #%d: Got ENOBUFS (write buffer full) error while sending packet. Sleeping 20 usec and trying again", tries);
+			usleep(20);
+		}
+		else
+			break;
+	}
+
+	if (tries >= MAX_TRIES)
+	{
+		LOG_ERROR("Tried to send data %d times but write buffer is full", MAX_TRIES);
+		return false;
+	}
+
+	if (res < 0)
+	{
+		// res == -1 means it's an error coming from "sendto" which is the Linux API PF_RING is using to send packets
+		if (res == -1)
+			LOG_ERROR("Error sending packet: Linux errno: %d", errno);
+		else
+			LOG_ERROR("Error sending packet: pfring_send returned an error: %d", res);
+		return false;
+	} else if (res != packetDataLength)
+	{
+		LOG_ERROR("Couldn't send all bytes, only %d bytes out of %d bytes were sent", res, packetDataLength);
+		return false;
+	}
+
+	return true;
+}
+
+bool PfRingDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
+{
+	return sendData(packetData, packetDataLength, true);
+}
+
+
+bool PfRingDevice::sendPacket(const RawPacket& rawPacket)
+{
+	return sendData(rawPacket.getRawDataReadOnly(), rawPacket.getRawDataLen(), true);
+}
+
+
+bool PfRingDevice::sendPacket(const Packet& packet)
+{
+	return sendData(packet.getRawPacketReadOnly()->getRawDataReadOnly(), packet.getRawPacketReadOnly()->getRawDataLen(), true);
+}
+
+
+int PfRingDevice::sendPackets(const RawPacket* rawPacketsArr, int arrLength)
+{
+	int packetsSent = 0;
+	for (int i = 0; i < arrLength; i++)
+	{
+		if (!sendData(rawPacketsArr[i].getRawDataReadOnly(), rawPacketsArr[i].getRawDataLen(), false))
+			break;
+		else
+			packetsSent++;
+	}
+
+	// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+	pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+
+	LOG_DEBUG("%d out of %d raw packets were sent successfully", packetsSent, arrLength);
+
+	return packetsSent;
+}
+
+int PfRingDevice::sendPackets(const Packet** packetsArr, int arrLength)
+{
+	int packetsSent = 0;
+	for (int i = 0; i < arrLength; i++)
+	{
+		if (!sendData(packetsArr[i]->getRawPacketReadOnly()->getRawDataReadOnly(), packetsArr[i]->getRawPacketReadOnly()->getRawDataLen(), false))
+			break;
+		else
+			packetsSent++;
+	}
+
+	// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+	pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+
+	LOG_DEBUG("%d out of %d packets were sent successfully", packetsSent, arrLength);
+
+	return packetsSent;
+}
+
+int PfRingDevice::sendPackets(const RawPacketVector& rawPackets)
+{
+	int packetsSent = 0;
+	for (RawPacketVector::ConstVectorIterator iter = rawPackets.begin(); iter != rawPackets.end(); iter++)
+	{
+		if (!sendData((*iter)->getRawDataReadOnly(), (*iter)->getRawDataLen(), false))
+			break;
+		else
+			packetsSent++;
+	}
+
+	// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
+	pfring_flush_tx_packets(m_PfRingDescriptors[0]);
+
+	LOG_DEBUG("%d out of %d raw packets were sent successfully", packetsSent, rawPackets.size());
+
+	return packetsSent;
 }
 
 #endif /* USE_PF_RING */

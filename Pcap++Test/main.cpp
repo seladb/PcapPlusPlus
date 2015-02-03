@@ -1446,8 +1446,6 @@ PCAPP_TEST(TestPfRingDevice)
 	PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.ps_drop);
 
 //	test filters
-//  test sendPackets
-
 #endif
 
 	PCAPP_TEST_PASSED;
@@ -1597,6 +1595,8 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 		}
 
 		packetDataMultiThread[firstCoreId].FlowKeys.clear();
+
+		dev->close();
 	}
 #endif
 
@@ -1646,6 +1646,107 @@ PCAPP_TEST(TestPfRingMultiThreadSomeCores)
 #else
 	PCAPP_TEST_PASSED;
 #endif
+}
+
+PCAPP_TEST(TestPfRingSendPacket)
+{
+#ifdef USE_PF_RING
+	PfRingDeviceList& devList = PfRingDeviceList::getInstance();
+	PcapLiveDevice* pcapLiveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(pcapLiveDev != NULL, "Couldn't find the pcap device matching to IP address '%s'", args.ipToSendReceivePackets.c_str());
+	PfRingDevice* dev = devList.getPfRingDeviceByName(string(pcapLiveDev->getName()));
+	PCAPP_ASSERT(dev->open(), "Could not open PF_RING device");
+
+    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
+    PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
+
+    PCAPP_ASSERT(dev->getMtu() > 0, "Could not get device MTU");
+    uint16_t mtu = dev->getMtu();
+    int buffLen = mtu+1;
+    uint8_t buff[buffLen];
+    memset(buff, 0, buffLen);
+    LoggerPP::getInstance().supressErrors();
+    PCAPP_ASSERT(!dev->sendPacket(buff, buffLen), "Defected packet was sent successfully");
+    LoggerPP::getInstance().enableErrors();
+
+    RawPacket rawPacket;
+    int packetsSent = 0;
+    int packetsRead = 0;
+    while(fileReaderDev.getNextPacket(rawPacket))
+    {
+    	packetsRead++;
+
+    	RawPacket origRawPacket = rawPacket;
+    	//send packet as RawPacket
+    	PCAPP_ASSERT(dev->sendPacket(rawPacket), "Could not send raw packet");
+
+    	//send packet as raw data
+    	PCAPP_ASSERT(dev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()), "Could not send raw data");
+
+    	//send packet as parsed EthPacekt
+    	Packet packet(&rawPacket);
+    	PCAPP_ASSERT(dev->sendPacket(packet), "Could not send parsed packet");
+
+   		packetsSent++;
+    }
+
+    PCAPP_ASSERT(packetsRead == packetsSent, "Unexpected number of packets sent. Expected (read from file): %d; Sent: %d", packetsRead, packetsSent);
+
+    dev->close();
+
+    fileReaderDev.close();
+
+    // send some packets with single channel open
+    PCAPP_ASSERT(dev->openSingleRxChannel(0), "Could not open PF_RING device with single channel 0");
+    fileReaderDev.open();
+    while(fileReaderDev.getNextPacket(rawPacket))
+    	PCAPP_ASSERT(dev->sendPacket(rawPacket), "Could not send raw packet");
+
+    dev->close();
+
+    fileReaderDev.close();
+
+#endif
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPfRingSendPackets)
+{
+#ifdef USE_PF_RING
+	PfRingDeviceList& devList = PfRingDeviceList::getInstance();
+	PcapLiveDevice* pcapLiveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(pcapLiveDev != NULL, "Couldn't find the pcap device matching to IP address '%s'", args.ipToSendReceivePackets.c_str());
+	PfRingDevice* dev = devList.getPfRingDeviceByName(string(pcapLiveDev->getName()));
+	PCAPP_ASSERT(dev->open(), "Could not open PF_RING device");
+
+    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
+    PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
+
+    RawPacket rawPacketArr[10000];
+    PointerVector<Packet> packetVec;
+    const Packet* packetArr[10000];
+    int packetsRead = 0;
+    while(fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
+    {
+    	packetVec.pushBack(new Packet(&rawPacketArr[packetsRead]));
+      	packetsRead++;
+    }
+
+    //send packets as RawPacket array
+    int packetsSentAsRaw = dev->sendPackets(rawPacketArr, packetsRead);
+
+    //send packets as parsed EthPacekt array
+    std::copy(packetVec.begin(), packetVec.end(), packetArr);
+    int packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead);
+
+    PCAPP_ASSERT(packetsSentAsRaw == packetsRead, "Not all packets were sent as raw. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsRaw);
+    PCAPP_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsParsed);
+
+    dev->close();
+    fileReaderDev.close();
+
+#endif
+    PCAPP_TEST_PASSED;
 }
 
 
@@ -1739,5 +1840,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPfRingDeviceSingleChannel, args);
 	PCAPP_RUN_TEST(TestPfRingMultiThreadAllCores, args);
 	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args);
+	PCAPP_RUN_TEST(TestPfRingSendPacket, args);
+	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
 	PCAPP_END_RUNNING_TESTS;
 }
