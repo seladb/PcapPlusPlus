@@ -179,6 +179,50 @@ void pfRingPacketsArriveMultiThread(RawPacket* packets, uint32_t numOfPackets, u
 	}
 }
 
+struct SetFilterInstruction
+{
+	int Instruction;
+	string Data;
+};
+
+void pfRingPacketsArriveSetFilter(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, PfRingDevice* device, void* userCookie)
+{
+	SetFilterInstruction* instruction = (SetFilterInstruction*)userCookie;
+	switch(instruction->Instruction)
+	{
+	case 1: //verify TCP packet
+		for (uint32_t i = 0; i < numOfPackets; i++)
+		{
+			Packet packet(&packets[i]);
+			if (!packet.isPacketOfType(TCP))
+			{
+				instruction->Instruction = 0;
+				//printf("Packet:\n%s\n", packet.printToString().c_str());
+			}
+		}
+		break;
+
+	case 2: //verify IP filter
+		IPv4Address addr(instruction->Data);
+		for (uint32_t i = 0; i < numOfPackets; i++)
+		{
+			Packet packet(&packets[i]);
+			if (!packet.isPacketOfType(IPv4))
+			{
+				instruction->Instruction = 0;
+				//printf("Packet:\n%s\n", packet.printToString().c_str());
+			}
+			IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
+			if (!(ipv4Layer->getSrcIpAddress() == addr))
+			{
+				instruction->Instruction = 0;
+				//printf("Packet:\n%s\n", packet.printToString().c_str());
+			}
+		}
+		break;
+	}
+}
+
 #endif
 
 template<typename KeyType, typename LeftValue, typename RightValue>
@@ -1749,6 +1793,54 @@ PCAPP_TEST(TestPfRingSendPackets)
     PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestPfRingFilters)
+{
+#ifdef USE_PF_RING
+	PfRingDeviceList& devList = PfRingDeviceList::getInstance();
+	PcapLiveDevice* pcapLiveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(pcapLiveDev != NULL, "Couldn't find the pcap device matching to IP address '%s'", args.ipToSendReceivePackets.c_str());
+	PfRingDevice* dev = devList.getPfRingDeviceByName(string(pcapLiveDev->getName()));
+
+	PCAPP_ASSERT(dev->isFilterCurrentlySet() == false, "Device indicating filter is set although we didn't set any filters yet");
+	PCAPP_ASSERT(dev->removeFilter() == true, "RemoveFilter returned false although no filter was set yet");
+	ProtoFilter protocolFilter(TCP);
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(dev->setFilter(protocolFilter) == false, "Succeed setting a filter while device is closed");
+	LoggerPP::getInstance().enableErrors();
+
+	PCAPP_ASSERT(dev->open(), "Could not open PF_RING device");
+	PCAPP_ASSERT(dev->setFilter(protocolFilter) == true, "Couldn't set TCP filter");
+
+	// verfiy TCP filter
+	SetFilterInstruction instruction = { 1, "" }; // instruction #1: verify all packets are of type TCP
+	PCAPP_ASSERT(dev->startCaptureSingleThread(pfRingPacketsArriveSetFilter, &instruction), "Couldn't start capturing");
+	PCAP_SLEEP(10);
+	dev->stopCapture();
+	PCAPP_ASSERT(instruction.Instruction == 1, "TCP protocol filter failed: some of the packets aren't of protocol TCP");
+
+	instruction.Instruction = 2;
+	instruction.Data = args.ipToSendReceivePackets;
+	IPFilter ipFilter(args.ipToSendReceivePackets, SRC);
+	PCAPP_ASSERT(dev->setFilter(ipFilter) == true, "Couldn't set IP filter");
+	PCAPP_ASSERT(dev->startCaptureSingleThread(pfRingPacketsArriveSetFilter, &instruction), "Couldn't start capturing");
+	PCAP_SLEEP(10);
+	dev->stopCapture();
+	PCAPP_ASSERT(instruction.Instruction == 2, "IP filter failed: some of the packets doens't match IP src filter");
+
+	// remove filter and test again
+	instruction.Instruction = 1;
+	instruction.Data = "";
+	PCAPP_ASSERT(dev->isFilterCurrentlySet() == true, "Device indicating filter isn't set although we set a filter");
+	PCAPP_ASSERT(dev->removeFilter() == true, "Remove filter failed");
+	PCAPP_ASSERT(dev->isFilterCurrentlySet() == false, "Device indicating filter still exists although we removed it");
+	PCAPP_ASSERT(dev->startCaptureSingleThread(pfRingPacketsArriveSetFilter, &instruction), "Couldn't start capturing");
+	PCAP_SLEEP(10);
+	dev->stopCapture();
+	PCAPP_ASSERT(instruction.Instruction == 0, "All packet are still of type TCP although filter was removed");
+#endif
+	PCAPP_TEST_PASSED;
+}
+
 
 
 static struct option PcapTestOptions[] =
@@ -1816,7 +1908,7 @@ int main(int argc, char* argv[])
 	printf("Starting tests...\n");
 
 	char errString[1000];
-	LoggerPP::getInstance().setErrorString(errString, 1000);
+	//LoggerPP::getInstance().setErrorString(errString, 1000);
 	args.errString = errString;
 
 	PCAPP_START_RUNNING_TESTS;
@@ -1842,5 +1934,6 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args);
 	PCAPP_RUN_TEST(TestPfRingSendPacket, args);
 	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
+	PCAPP_RUN_TEST(TestPfRingFilters, args);
 	PCAPP_END_RUNNING_TESTS;
 }

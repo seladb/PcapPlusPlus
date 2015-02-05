@@ -10,6 +10,17 @@
 PfRingDeviceList::PfRingDeviceList()
 {
 	m_PfRingVersion = "";
+
+	FILE *fd = popen("lsmod | grep pf_ring", "r");
+	char buf[16];
+	if (fread (buf, 1, sizeof (buf), fd) <= 0) // if there is some result the module must be loaded
+	{
+		LOG_ERROR("PF_RING kernel module isn't loaded. Please run: 'sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko'");
+		return;
+	}
+
+	LOG_DEBUG("PF_RING kernel module is loaded");
+
 	pcap_if_t* interfaceList;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	LOG_DEBUG("PfRingDeviceList init: searching all interfaces on machine");

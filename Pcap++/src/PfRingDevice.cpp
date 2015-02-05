@@ -26,6 +26,7 @@ PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Ze
 	m_ReentrantMode = false;
 	m_HwClockEnabled = false;
 	m_DeviceMTU = 0;
+	m_IsFilterCurrentlySet = false;
 }
 
 PfRingDevice::~PfRingDevice()
@@ -311,18 +312,65 @@ uint8_t PfRingDevice::getTotalNumOfRxChannels()
 
 bool PfRingDevice::setFilter(string filterAsString)
 {
+	if (!m_DeviceOpened)
+	{
+		LOG_ERROR("Device not opened");
+		return false;
+	}
+
 	for (int i = 0; i < m_NumOfOpenedRxChannels; i++)
 	{
 		int res = pfring_set_bpf_filter(m_PfRingDescriptors[i], (char*)filterAsString.c_str());
 		if(res < 0)
 		{
-			LOG_ERROR("Couldn't set filter '%s'", filterAsString.c_str());
+			if (res == PF_RING_ERROR_NOT_SUPPORTED)
+				LOG_ERROR("BPF filtering isn't supported on current PF_RING version. Please re-compile PF_RING with the --enable-bpf flag");
+			else
+				LOG_ERROR("Couldn't set filter '%s'", filterAsString.c_str());
 			return false;
 		}
 	}
 
+	m_IsFilterCurrentlySet = true;
+
     LOG_DEBUG("Successfully set filter '%s'", filterAsString.c_str());
     return true;
+}
+
+
+bool PfRingDevice::setFilter(GeneralFilter& filter)
+{
+	string filterAsString = "";
+	filter.parseToString(filterAsString);
+	return setFilter(filterAsString);
+}
+
+
+bool PfRingDevice::removeFilter()
+{
+	if (!m_IsFilterCurrentlySet)
+		return true;
+
+	for (int i = 0; i < m_NumOfOpenedRxChannels; i++)
+	{
+		int res = pfring_remove_bpf_filter(m_PfRingDescriptors[i]);
+		if(res < 0)
+		{
+			LOG_ERROR("Couldn't remove filter");
+			return false;
+		}
+	}
+
+	m_IsFilterCurrentlySet = false;
+
+    LOG_DEBUG("Successfully removed filter from all open RX channels");
+    return true;
+}
+
+
+bool PfRingDevice::isFilterCurrentlySet()
+{
+	return m_IsFilterCurrentlySet;
 }
 
 
@@ -333,6 +381,7 @@ void PfRingDevice::close()
 	m_DeviceOpened = false;
 	clearCoreConfiguration();
 	m_NumOfOpenedRxChannels = 0;
+	m_IsFilterCurrentlySet = false;
 	LOG_DEBUG("Device [%s] closed", m_DeviceName);
 }
 

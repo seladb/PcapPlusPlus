@@ -4,6 +4,7 @@
 #ifdef USE_PF_RING
 
 #include <PcapDevice.h>
+#include <PcapFilter.h>
 #include <MacAddress.h>
 #include <SystemUtils.h>
 #include <RawPacket.h>
@@ -44,6 +45,7 @@ private:
 	void* m_OnPacketsArriveUserCookie;
 	bool m_ReentrantMode;
 	bool m_HwClockEnabled;
+	bool m_IsFilterCurrentlySet;
 
 	PfRingDevice(const char* deviceName);
 
@@ -117,13 +119,13 @@ public:
 	 */
 	bool startCaptureSingleThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie);
 
-	/**
-	 * Start single-threaded capturing where all packets will be written to a RawPacket vector.
-	 * Works with @see open or @see openSingleRxChannel
-	 * @param[in] capturedPacketsVector The RawPacket vector all packets will be written to
-	 * @return True if this action succeeds, false otherwise
-	 */
-	bool startCaptureSingleThread(RawPacketVector& capturedPacketsVector);
+//	/**
+//	 * Start single-threaded capturing where all packets will be written to a RawPacket vector.
+//	 * Works with @see open or @see openSingleRxChannel
+//	 * @param[in] capturedPacketsVector The RawPacket vector all packets will be written to
+//	 * @return True if this action succeeds, false otherwise
+//	 */
+//	bool startCaptureSingleThread(RawPacketVector& capturedPacketsVector);
 
 	/**
 	 * Start multi-threaded (multi-core) capturing with callback. Works with @see openMultiRxChannels.
@@ -235,11 +237,30 @@ public:
 	 */
 	void getStatistics(pcap_stat& stats);
 
+
+	/**
+	 * Sets a filter to the device
+	 * @param[in] filter The filter to set
+	 */
+	bool setFilter(GeneralFilter& filter);
+
 	/**
 	 * Sets a BPF filter to the device
 	 * @param[in] filterAsString The BPF filter in string format
 	 */
 	bool setFilter(string filterAsString);
+
+	/**
+	 * Remove a filter if currently set
+	 * @return True if filter was removed successfully or if no filter was set, false otherwise
+	 */
+	bool removeFilter();
+
+	/**
+	 * Return true if filter is currently set
+	 * @return True if filter is currently set, false otherwise
+	 */
+	bool isFilterCurrentlySet();
 
 
 	/**
