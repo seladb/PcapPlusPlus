@@ -1,5 +1,8 @@
 #include <SystemUtils.h>
 #include <unistd.h>
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 const SystemCore SystemCores::Core0 = { 0x01, 0 };
 const SystemCore SystemCores::Core1 = { 0x02, 1 };
@@ -79,6 +82,7 @@ int getNumOfCores()
 	return sysinfo.dwNumberOfProcessors;
 #else
 	return sysconf(_SC_NPROCESSORS_ONLN);
-}
 #endif
+}
+
 
