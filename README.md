@@ -5,9 +5,10 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 
 **What makes PcapPlusPlus different from similar C++ wrappers for libpcap/WinPcap?**
 - Designed to be lightweight and efficient
+- Support for ntop's PF_RING packet capturing engine that dramatically improves the packet capture speed
 - Support for many protocols, including HTTP protocol parsing and editing
 - Support for Remote Capture capabilities on Windows (using RPCAP protocol supported in WinPcap)
-- Vast object-oriented filteting mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
+- Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
 
 PcapPlusPlus is currently supported on Windows and Linux operating systems.
 It was tested on Windows (32bit and 64bit), Ubuntu and Fedora, but it should work on other Linux distributions as well.
@@ -48,8 +49,27 @@ PcapPlusPlus currently works with the following devices:
 
 1. libpcap live device (on Linux)
 2. WinPcap live device (on Windows)
-3. Remote live device (on Windows)
-4. File devices
+3. Vanilla PF_RING device (on Linux)
+4. Remote live device (on Windows)
+5. File devices
+
+
+#### PF_RING support ####
+
+PcapPlusPlus provides a clean and simple C++ wrapper API for Vanilla PF_RING. Currently only Vanilla PF_RING is supported which provides significant performance improvement in comparison to libpcap or Linux kernel, but PF_RING DNA or ZC (which allows kernel bypass and zero-copy of packets from NIC to user-space) isn't supported yet. I hope I'll be able to add this support in the future.
+
+You can read more about PF_RING in ntop web-site: [http://www.ntop.org/products/pf_ring/](http://www.ntop.org/products/pf_ring/) and in PF_RING user guide: [https://svn.ntop.org/svn/ntop/trunk/PF_RING/doc/UsersGuide.pdf](https://svn.ntop.org/svn/ntop/trunk/PF_RING/doc/UsersGuide.pdf)
+
+In order to compile PcapPlusPlus with PF_RING you need to:
+
+1. Download PF_RING from ntop's web-site: [http://www.ntop.org/get-started/download/#PF_RING](http://www.ntop.org/get-started/download/#PF_RING)
+2. Note that I used PcapPlusPlus with PF_RING version 6.0.2. I can't guarantee it'll work with previous versions
+3. Once PF_RING is compiled successfully, you need to run PcapPlusPlus **configure-linux.sh** and type "y" in "Compile PcapPlusPlus with PF_RING?"
+4. Then you can compile PcapPlusPlus as usual (using make, see below)
+5. Before you activate any PcapPlusPlus program that uses PF_RING, don't forget to enable PF_RING kernel module. If you forget to do that, PcapPlusPlus will output an appropriate error on startup which will remind you:
+```shell
+sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko
+```
 
 
 ## Download ##
@@ -104,6 +124,7 @@ such as apt-get:
 *On Linux:*
 
 1. run the **configure-linux.sh** script from PcapPlusPlus main directory
+2. If you'd like to compile it with PF_RING please follow the instructions in the "PF_RING support" section above and type "y" in "Compile PcapPlusPlus with PF_RING?"
 2. Run **make all** from PcapPlusPlus main directory
 3. This should compile all libraries, unit-tests and examples
  
@@ -112,7 +133,7 @@ such as apt-get:
 To ensure configuration and compilation went smoothly, you can run the unit-test applications for both Packet++ and Pcap++:
 
 ```shell
-elad@elad:~/home/PcapPlusPlus/Packet++Test$ Bin/Packet++Test.exe
+seladb@seladb:~/home/PcapPlusPlus/Packet++Test$ Bin/Packet++Test.exe
 EthPacketCreation             : PASSED
 EthAndArpPacketParsing        : PASSED
 ArpPacketCreation             : PASSED
@@ -134,9 +155,10 @@ HttpRequestLayerEditTest      : PASSED
 HttpResponseLayerParsingTest  : PASSED
 HttpResponseLayerCreationTest : PASSED
 HttpResponseLayerEditTest     : PASSED
+CopyLayerAndPacketTest        : PASSED
 ALL TESTS PASSED!!
 
-elad@elad:~/PcapPlusPlus/Pcap++Test$ sudo Bin/Pcap++Test.exe -i 10.0.0.1
+seladb@seladb:~/PcapPlusPlus/Pcap++Test$ sudo Bin/Pcap++Test.exe -i 10.0.0.1
 Using ip: 10.0.0.1
 Debug mode: off
 Starting tests...
@@ -154,6 +176,14 @@ TestSendPackets               : PASSED
 TestRemoteCaptue              : PASSED
 TestHttpRequestParsing        : PASSED
 TestHttpResponseParsing       : PASSED
+TestPrintPacketAndLayers      : PASSED
+TestPfRingDevice              : PASSED
+TestPfRingDeviceSingleChannel : PASSED
+TestPfRingMultiThreadAllCores : PASSED
+TestPfRingMultiThreadSomeCores: PASSED
+TestPfRingSendPacket          : PASSED
+TestPfRingSendPackets         : PASSED
+TestPfRingFilters             : PASSED
 ALL TESTS PASSED!!
 ```
 
