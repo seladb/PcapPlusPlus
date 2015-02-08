@@ -71,6 +71,12 @@ bool PfRingDevice::openSingleRxChannel(uint8_t channelId)
 
 int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring** ring)
 {
+	if (m_DeviceOpened)
+	{
+		LOG_ERROR("Device already opened");
+		return false;
+	}
+
 	uint32_t flags = PF_RING_PROMISC | PF_RING_HW_TIMESTAMP | PF_RING_DNA_SYMMETRIC_RSS;
 	*ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
 
@@ -181,7 +187,10 @@ bool PfRingDevice::openMultiRxChannels(const uint8_t* channelIds, int numOfChann
 bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDistribution dist)
 {
 	if (m_DeviceOpened)
-		return true;
+	{
+		LOG_ERROR("Device already opened");
+		return false;
+	}
 
 	m_NumOfOpenedRxChannels = 0;
 
@@ -413,6 +422,12 @@ bool PfRingDevice::initCoreConfigurationByCoreMask(CoreMask coreMask)
 
 bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie, CoreMask coreMask)
 {
+	if (!m_StopThread)
+	{
+		LOG_ERROR("Device already capturing. Cannot start 2 capture sessions at the same time");
+		return false;
+	}
+
 	if (!initCoreConfigurationByCoreMask(coreMask))
 		return false;
 
@@ -463,6 +478,12 @@ bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacke
 
 bool PfRingDevice::startCaptureSingleThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie)
 {
+	if (!m_StopThread)
+	{
+		LOG_ERROR("Device already capturing. Cannot start 2 capture sessions at the same time");
+		return false;
+	}
+
 	if (m_NumOfOpenedRxChannels != 1)
 	{
 		LOG_ERROR("Cannot start capturing on a single thread when more than 1 RX channel is opened");
