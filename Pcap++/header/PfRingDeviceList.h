@@ -5,6 +5,8 @@
 
 #include <PfRingDevice.h>
 
+/// @file
+
 class PfRingDeviceList
 {
 private:

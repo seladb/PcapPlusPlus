@@ -12,6 +12,8 @@
 #include <pfring.h>
 #include <pthread.h>
 
+/// @file
+
 class PfRingDevice;
 
 typedef void (*OnPfRingPacketsArriveCallback)(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, PfRingDevice* device, void* userCookie);
@@ -70,8 +72,14 @@ public:
 	 */
 	enum ChannelDistribution
 	{
-		RoundRobin, /**Packets are distributed between channels in a round-robin manner*/
-		PerFlow		/**Packets are distributed between channels per flow (each flow goes for different channel)*/
+		/**
+		 * Packets are distributed between channels in a round-robin manner
+		 */
+		RoundRobin,
+		/**
+		 * Packets are distributed between channels per flow (each flow goes for different channel)
+		 */
+		PerFlow
 	};
 
 	/**
@@ -112,7 +120,7 @@ public:
 
 
 	/**
-	 * Start single-threaded capturing with callback. Works with @see open or @see openSingleRxChannel
+	 * Start single-threaded capturing with callback. Works with open() or openSingleRxChannel().
 	 * @param[in] onPacketsArrive A callback to call whenever a packet arrives
 	 * @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every packet
 	 * @return True if this action succeeds, false otherwise
@@ -121,14 +129,14 @@ public:
 
 //	/**
 //	 * Start single-threaded capturing where all packets will be written to a RawPacket vector.
-//	 * Works with @see open or @see openSingleRxChannel
+//	 * Works with open() or openSingleRxChannel().
 //	 * @param[in] capturedPacketsVector The RawPacket vector all packets will be written to
 //	 * @return True if this action succeeds, false otherwise
 //	 */
 //	bool startCaptureSingleThread(RawPacketVector& capturedPacketsVector);
 
 	/**
-	 * Start multi-threaded (multi-core) capturing with callback. Works with @see openMultiRxChannels.
+	 * Start multi-threaded (multi-core) capturing with callback. Works with openMultiRxChannels().
 	 * This method will return an error if the number of opened channels is different than the number of threads/cores
 	 * requested
 	 * @param[in] onPacketsArrive A callback to call whenever a packet arrives
@@ -180,7 +188,7 @@ public:
 	/**
 	 * Gets the number of RX channels currently open. RX channels aren't necessary interface's RX queues
 	 * because in some cases the user asks to open several channels on the same queue. For example: if the user uses
-	 * @see openMultiRxChannels and asks to open 8 channels but interface has only 4 RX queues, 2 channels will be
+	 * openMultiRxChannels() and asks to open 8 channels but interface has only 4 RX queues, 2 channels will be
 	 * opened for each RX queue
 	 * @return Number of opened RX channels
 	 */
@@ -268,7 +276,7 @@ public:
 	 * and it will be transmitted as-is without any further manipulation.
 	 * This method doesn't change or manipulate the data in any way (hence the "const" declaration).
 	 * Note this method flushes the TX queues after the data is sent. So if you want to send several packets
-	 * In the burst please use @see sendPackets
+	 * In the burst please use sendPackets()
 	 * @param[in] rawPacket The raw packet to send
 	 * @return True if raw packet was sent completely, false otherwise
 	 */
@@ -279,7 +287,7 @@ public:
 	 * it will be transmitted as-is without any further manipulation.
 	 * This method doesn't change or manipulate the data in any way (hence the "const" declaration).
 	 * Note this method flushes the TX queues after the data is sent. So if you want to send several packets
-	 * in the burst please use @see sendPackets
+	 * in the burst please use sendPackets()
 	 * @param[in] packetData The raw data to send
 	 * @param[in] packetDataLength the length of packetData
 	 * @return True if raw packet was sent completely, false otherwise
@@ -292,7 +300,7 @@ public:
 	 * and it will be transmitted as-is without any further manipulation.
 	 * This method doesn't change or manipulate the data in any way (hence the "const" declaration).
 	 * Note this method flushes the TX queues after the data is sent. So if you want to send several packets
-	 * In the burst please use @see sendPackets
+	 * In the burst please use sendPackets()
 	 * @param[in] packet The packet to send
 	 * @return True if raw packet was sent completely, false otherwise
 	 */
@@ -321,7 +329,7 @@ public:
 	int sendPackets(const Packet** packetsArr, int arrLength);
 
 	/**
-	 * Send all raw packets pointed by the @see RawPacketVector. All packets must be fully specified (the MAC address up)
+	 * Send all raw packets pointed by the RawPacketVector. All packets must be fully specified (the MAC address up)
 	 * and it will be transmitted as-is without any further manipulation.
 	 * This method doesn't change or manipulate the packets data in any way (hence the "const" declaration).
 	 * This method flushes the TX queues only when the last packet is sent
