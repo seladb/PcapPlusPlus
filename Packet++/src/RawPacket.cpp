@@ -112,17 +112,17 @@ void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 	m_RawDataLen += dataToAppendLen;
 }
 
-void RawPacket::insertData(int atIndex, const uint8_t* dataToAppend, size_t dataToAppendLen)
+void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 {
 	int index = m_RawDataLen;
 	while (index >= atIndex)
 	{
-		m_pRawData[index+dataToAppendLen] = m_pRawData[index];
+		m_pRawData[index+dataToInsertLen] = m_pRawData[index];
 		index--;
 	}
 
-	memcpy((uint8_t*)m_pRawData+atIndex, dataToAppend, dataToAppendLen);
-	m_RawDataLen += dataToAppendLen;
+	memcpy((uint8_t*)m_pRawData+atIndex, dataToInsert, dataToInsertLen);
+	m_RawDataLen += dataToInsertLen;
 }
 
 void RawPacket::reallocateData(uint8_t* newBuffer)

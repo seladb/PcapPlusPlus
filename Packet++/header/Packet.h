@@ -5,6 +5,17 @@
 #include "Layer.h"
 #include <vector>
 
+/// @file
+
+/**
+ * @class Packet
+ * This class represents a parsed packet. It contains the raw data (RawPacket instance), and a linked list of layers, each layer is a parsed
+ * protocol that this packet contains. The layers linked list is ordered where the first layer is the lowest in the packet (currently it's always
+ * Ethernet protocol as PcapPlusPlus supports only Ethernet packets), the next layer will be L2.5 or L3 (e.g VLAN, IPv4, IPv6, etc.), and so on.
+ * etc.), etc. The last layer in the linked list will be the highest in the packet.
+ * For example: for a standard HTTP request packet the layer will look like this: EthLayer -> IPv4Layer -> TcpLayer -> HttpRequestLayer <BR>
+ * Packet instance isn't read only. The user can add or remove layers, update current layer, etc.
+ */
 class Packet {
 	friend class Layer;
 private:
@@ -17,32 +28,114 @@ private:
 	bool m_FreeRawPacket;
 
 public:
+	/**
+	 * A constructor for creating a new packet. Very useful when creating packets.
+	 * When using this constructor an empty raw buffer is allocated (with the size of maxPacketLen) and a new RawPacket is created
+	 * @param[in] maxPacketLen The expected packet length in bytes
+	 */
 	Packet(size_t maxPacketLen);
+
+	/**
+	 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.
+	 * When using this constructor a pointer to the RawPacket is saved (data isn't copied) and the RawPacket is parsed, meaning all layers
+	 * are created and linked to each other in the right order
+	 * @param[in] rawPacket A pointer to the raw packet
+	 */
 	Packet(RawPacket* rawPacket);
+
+	/**
+	 * A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers that weren't allocated by this
+	 * class, for example layers that were added by addLayer() or insertLayer() ). In addition it frees the raw packet if it was allocated by
+	 * this instance (meaning if it was allocated by this instance constructor)
+	 */
 	virtual ~Packet();
 
-	// copy c'tor
+	/**
+	 * A copy constructor for this class. This copy constructor copies all the raw data and re-create all layers. So when the original Packet
+	 * is being freed, no data will be lost in the copied instance
+	 * @param[in] other The instance to copy from
+	 */
 	Packet(const Packet& other);
+
+	/**
+	 * Assignment operator overloading. It first frees all layers allocated by this instance (Notice: it doesn't free layers that weren't allocated by this
+	 * class, for example layers that were added by addLayer() or insertLayer() ). In addition it frees the raw packet if it was allocated by
+	 * this instance (meaning if it was allocated by this instance constructor).
+	 * Afterwards it copies the data from the other packet in the same way used in the copy constructor.
+	 * @param[in] other The instance to copy from
+	 */
 	Packet& operator=(const Packet& other);
 
+	/**
+	 * Get a pointer to the Packet's RawPacket
+	 * @return A pointer to the Packet's RawPacket
+	 */
 	inline RawPacket* getRawPacket() { return m_RawPacket; }
+
+	/**
+	 * Get a pointer to the Packet's RawPacket in a read-only manner
+	 * @return A pointer to the Packet's RawPacket
+	 */
 	inline RawPacket* getRawPacketReadOnly() const { return m_RawPacket; }
 
+	/**
+	 * Get a pointer to the first (lowest) layer in the packet
+	 * @return A pointer to the first (lowest) layer in the packet
+	 */
 	inline Layer* getFirstLayer() { return m_FirstLayer; }
+
+	/**
+	 * Get a pointer to the last (highest) layer in the packet
+	 * @return A pointer to the last (highest) layer in the packet
+	 */
 	inline Layer* getLastLayer() { return m_LastLayer; }
+
 	bool addLayer(Layer* newLayer);
 	bool insertLayer(Layer* prevLayer, Layer* newLayer);
 	bool removeLayer(Layer* layer);
 
+	/**
+	 * A templated method to get a layer of a certain type (protocol). If no layer of such type is found, NULL is returned
+	 * @return A pointer to the layer of the requested type, NULL if not found
+	 */
 	template<class TLayer>
 	TLayer* getLayerOfType();
+
+	/**
+	 * A templated method to get the first layer of a certain type (protocol), start searching from a certain layer.
+	 * For example: if a packet looks like: EthLayer -> VlanLayer(1) -> VlanLayer(2) -> VlanLayer(3) -> IPv4Layer
+	 * and the user put VlanLayer(2) as a parameter and wishes to search for a VlanLayer, VlanLayer(3) will be returned
+	 * If no layer of such type is found, NULL is returned
+	 * @param[in] after A pointer to the layer to start search from
+	 * @return A pointer to the layer of the requested type, NULL if not found
+	 */
 	template<class TLayer>
 	TLayer* getNextLayerOfType(Layer* after);
 
+	/**
+	 * Check whether the packet contains a certain protocol
+	 * @param[in] protocolType The protocol type to search
+	 * @return True if the packet contains the protocol, false otherwise
+	 */
 	inline bool isPacketOfType(ProtocolType protocolType) { return m_ProtocolTypes & protocolType; }
+
+	/**
+	 * Each layer can have fields that can be calculate automatically from other fields using Layer#computeCalculateFields(). This method forces all layers to calculate these
+	 * fields values
+	 */
 	void computeCalculateFields();
 
+	/**
+	 * Each layer can print a string representation of the layer most important data using Layer#toString(). This method aggregates this string from all layers and
+	 * print it to a complete string containing all packet's relevant data
+	 * @return A string containing most relevant data from all layers (looks like the packet description in Wireshark)
+	 */
 	std::string printToString();
+
+	/**
+	 * Similar to printToString(), but instead of one string it outputs a list of strings, one string for every layer
+	 * @param[out] result A string vector that will contain all strings
+	 */
 	void printToStringList(std::vector<std::string>& result);
 
 private:
