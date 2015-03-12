@@ -6,6 +6,8 @@
 #include <exception>
 #include <map>
 
+/// @file
+
 enum HttpVersion
 {
 	ZeroDotNine,
