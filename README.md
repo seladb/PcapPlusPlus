@@ -14,6 +14,10 @@ PcapPlusPlus is currently supported on Windows and Linux operating systems.
 It was tested on Windows (32bit and 64bit), Ubuntu and Fedora, but it should work on other Linux distributions as well.
 Other opeating systems such as FreeBSD and Mac OS were never tested and compilation on those platform would probably fail
 
+For more information including detailed class documentation, please visit PcapPlusPlus web-site:
+
+http://seladb.github.io/PcapPlusPlus-Doc
+
 ## Package Content ##
 
 The PcapPlusPlus package contains several libraries, unit-tests and example utilities:
