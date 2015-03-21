@@ -292,6 +292,14 @@ bool HttpMessage::removeField(HttpField* fieldToRemove)
 	return true;
 }
 
+bool HttpMessage::isHeaderComplete()
+{
+	if (m_LastField == NULL)
+		return false;
+
+	return (m_LastField->getFieldName() == END_OF_HTTP_HEADER);
+}
+
 void HttpMessage::shiftFieldsOffset(HttpField* fromField, int numOfBytesToShift)
 {
 	while (fromField != NULL)
