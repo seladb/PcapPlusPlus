@@ -12,6 +12,7 @@
 typedef PointerVector<RawPacket> RawPacketVector;
 
 /**
+ * @class IPcapDevice
  * An abstract class representing all possible packet capturing devices: files, libPcap, WinPcap, RemoteCapture, PF_RING, etc.
  * This class cannot obviously be instantiated
  */
