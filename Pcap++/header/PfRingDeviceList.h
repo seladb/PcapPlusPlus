@@ -7,6 +7,11 @@
 
 /// @file
 
+/**
+ * @class PfRingDeviceList
+ * A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING devices or find a specific
+ * device by name
+ */
 class PfRingDeviceList
 {
 private:

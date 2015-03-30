@@ -139,6 +139,12 @@ bool PcapFileWriterDevice::writePackets(const RawPacketVector& packets)
 
 bool PcapFileWriterDevice::open()
 {
+	if (m_PcapDescriptor != NULL)
+	{
+		LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
+		return true;
+	}
+
 	m_NumOfPacketsNotWritten = 0;
 	m_NumOfPacketsWritten = 0;
 

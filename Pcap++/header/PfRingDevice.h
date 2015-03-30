@@ -19,6 +19,10 @@ class PfRingDevice;
 typedef void (*OnPfRingPacketsArriveCallback)(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, PfRingDevice* device, void* userCookie);
 
 
+/**
+ * @class PfRingDevice
+ * A class representing a PF_RING port
+ */
 class PfRingDevice : public IPcapDevice
 {
 	friend class PfRingDeviceList;
@@ -130,8 +134,8 @@ public:
 //	/**
 //	 * Start single-threaded capturing where all packets will be written to a RawPacket vector.
 //	 * Works with open() or openSingleRxChannel().
-//	 * @param[in] capturedPacketsVector The RawPacket vector all packets will be written to
-//	 * @return True if this action succeeds, false otherwise
+//	 * ||@||param[in] capturedPacketsVector The RawPacket vector all packets will be written to
+//	 * ||@||return True if this action succeeds, false otherwise
 //	 */
 //	bool startCaptureSingleThread(RawPacketVector& capturedPacketsVector);
 
