@@ -3,14 +3,10 @@ echo "****************************************"
 echo "PcapPlusPlus Linux configuration script "
 echo "****************************************"
 echo ""
-
 PLATFORM="mk/platform.mk"
 
 cp -f mk/platform.mk.linux $PLATFORM
-
-
 COMPILE_WITH_PF_RING=0
-
 while true; do
     read -p "Compile PcapPlusPlus with PF_RING? " yn
     case $yn in
