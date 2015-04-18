@@ -23,7 +23,7 @@ struct PcapThread
 	pthread_t pthread;
 };
 
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU) : IPcapDevice(),
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress) : IPcapDevice(),
 		m_MacAddress("")
 {
 
@@ -80,9 +80,12 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU) : IPcap
 	m_cbOnStatsUpdateUserCookie = NULL;
 	m_CaptureCallbackMode = true;
 	m_CapturedPackets = NULL;
-	setDeviceMacAddress();
-	if (m_MacAddress.isValid())
-		LOG_DEBUG("   MAC addr: %s", m_MacAddress.toString().c_str());
+	if (calculateMacAddress)
+	{
+		setDeviceMacAddress();
+		if (m_MacAddress.isValid())
+			LOG_DEBUG("   MAC addr: %s", m_MacAddress.toString().c_str());
+	}
 }
 
 void PcapLiveDevice::onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet)
@@ -514,7 +517,7 @@ IPv4Address PcapLiveDevice::getIPv4Address()
 		return IPv4Address(currAddr);
 	}
 
-	return IPv4Address((uint32_t)0);
+	return IPv4Address::Zero;
 }
 
 ThreadStart PcapLiveDevice::getCaptureThreadStart()

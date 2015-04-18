@@ -9,6 +9,7 @@
 #include <ws2tcpip.h>
 #endif
 
+
 IPAddress::~IPAddress()
 {
 
@@ -34,6 +35,9 @@ auto_ptr<IPAddress> IPAddress::fromString(string addressAsString)
 {
 	return fromString((char*)addressAsString.c_str());
 }
+
+
+IPv4Address IPv4Address::Zero((uint32_t)0);
 
 IPv4Address::IPv4Address(const IPv4Address& other)
 {
@@ -110,6 +114,9 @@ bool IPv4Address::matchSubnet(const IPv4Address& subnet, const string& subnetMas
 	int subnetAddrAfterMask = subnet.toInt() & maskAsIpAddr.toInt();
 	return (thisAddrAfterMask == subnetAddrAfterMask);
 }
+
+
+IPv6Address IPv6Address::Zero("0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0");
 
 IPv6Address::IPv6Address(const IPv6Address& other)
 {

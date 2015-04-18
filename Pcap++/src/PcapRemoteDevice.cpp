@@ -6,31 +6,41 @@
 #include <Logger.h>
 #include <pcap.h>
 
- PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, pcap_rmtauth* remoteAuthentication) : PcapLiveDevice(iface, false)
- {
-	 LOG_DEBUG("MTU calculation isn't supported for remote devices. Setting MTU to 1514");
-	 m_DeviceMtu = 1514;
-	 m_RemoteMachineIpAddress = "";
-	 m_RemoteMachinePort = 0;
-	 m_RemoteAuthentication = remoteAuthentication;
- }
 
- PcapRemoteDevice::~PcapRemoteDevice()
- {
-	 if (m_RemoteAuthentication != NULL)
-	 {
-		 delete [] m_RemoteAuthentication->username;
-		 delete [] m_RemoteAuthentication->password;
-		 delete m_RemoteAuthentication;
-	 }
- }
+pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth()
+{
+	pcap_rmtauth result;
+	result.type = RPCAP_RMTAUTH_PWD;
+	result.username = (char*)userName.c_str();
+	result.password = (char*)password.c_str();
+	return result;
+}
+
+PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, IPAddress* remoteMachineIP, uint16_t remoteMachinePort)
+	: PcapLiveDevice(iface, false, false)
+{
+	LOG_DEBUG("MTU calculation isn't supported for remote devices. Setting MTU to 1514");
+	m_DeviceMtu = 1514;
+	m_RemoteMachineIpAddress = remoteMachineIP;
+	m_RemoteMachinePort = remoteMachinePort;
+	m_RemoteAuthentication = remoteAuthentication;
+}
+
 
 bool PcapRemoteDevice::open()
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
 	LOG_DEBUG("Opening device '%s'", m_Name);
-	m_PcapDescriptor = pcap_open(m_Name, MAX_PACKET_SIZE, flags, 250, m_RemoteAuthentication, errbuf);
+	pcap_rmtauth* pRmAuth = NULL;
+	pcap_rmtauth rmAuth;
+	if (m_RemoteAuthentication != NULL)
+	{
+		rmAuth = m_RemoteAuthentication->getPcapRmAuth();
+		pRmAuth = &rmAuth;
+	}
+
+	m_PcapDescriptor = pcap_open(m_Name, MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
 	if (m_PcapDescriptor == NULL)
 	{
 		LOG_ERROR("Error opening device. Error was: %s", errbuf);
@@ -109,5 +119,19 @@ void PcapRemoteDevice::getStatistics(pcap_stat& stats)
 	stats.ps_drop = tempStats->ps_drop + tempStats->ps_netdrop;
 	stats.ps_ifdrop = tempStats->ps_ifdrop;
 }
+
+uint16_t PcapRemoteDevice::getMtu()
+{
+	LOG_DEBUG("MTU isn't supported for remote devices");
+	return 0;
+}
+
+MacAddress PcapRemoteDevice::getMacAddress()
+{
+	LOG_ERROR("MAC address isn't supported for remote devices");
+	return MacAddress::Zero;
+}
+
+
 
 #endif // WIN32

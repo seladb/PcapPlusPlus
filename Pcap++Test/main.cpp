@@ -1093,7 +1093,6 @@ PCAPP_TEST(TestSendPackets)
 PCAPP_TEST(TestRemoteCapture)
 {
 #ifdef WIN32
-	PcapRemoteDeviceList remoteDevices;
 	bool useRemoteDevicesFromArgs = (args.remoteIp != "") && (args.remotePort > 0);
 	string remoteDeviceIP = (useRemoteDevicesFromArgs ? args.remoteIp : args.ipToSendReceivePackets);
 	uint16_t remoteDevicePort = (useRemoteDevicesFromArgs ? args.remotePort : 12321);
@@ -1106,8 +1105,24 @@ PCAPP_TEST(TestRemoteCapture)
 
 	}
 
-	PCAPP_ASSERT_AND_RUN_COMMAND(PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIP, remoteDevicePort, remoteDevices), terminateRpcapdServer(rpcapdHandle), "Error on retrieving remote devices on IP: %s port: %d. Error string was: %s", remoteDeviceIP.c_str(), remoteDevicePort, args.errString);
-	PcapRemoteDevice* pRemoteDevice = remoteDevices.getRemoteDeviceByIP(remoteDeviceIP.c_str());
+	IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
+	PcapRemoteDeviceList* remoteDevices = PcapRemoteDeviceList::getRemoteDeviceList(&remoteDeviceIPAddr, remoteDevicePort);
+	PCAPP_ASSERT_AND_RUN_COMMAND(remoteDevices != NULL, terminateRpcapdServer(rpcapdHandle), "Error on retrieving remote devices on IP: %s port: %d. Error string was: %s", remoteDeviceIP.c_str(), remoteDevicePort, args.errString);
+	for (PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
+	{
+		PCAPP_ASSERT_AND_RUN_COMMAND((*remoteDevIter)->getName() != NULL, terminateRpcapdServer(rpcapdHandle), "One of the remote devices has no name");
+	}
+	PCAPP_ASSERT_AND_RUN_COMMAND(remoteDevices->getRemoteMachineIpAddress()->toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device list doesn't match provided IP");
+	PCAPP_ASSERT_AND_RUN_COMMAND(remoteDevices->getRemoteMachinePort() == remoteDevicePort, terminateRpcapdServer(rpcapdHandle), "Remote machine port got from device list doesn't match provided port");
+
+	PcapRemoteDevice* pRemoteDevice = remoteDevices->getRemoteDeviceByIP(&remoteDeviceIPAddr);
+	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getDeviceType() == PcapLiveDevice::RemoteDevice, terminateRpcapdServer(rpcapdHandle), "Remote device type isn't 'RemoteDevice'");
+	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getMtu() == 0, terminateRpcapdServer(rpcapdHandle), "MTU of remote device isn't 0");
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getMacAddress() == MacAddress::Zero, terminateRpcapdServer(rpcapdHandle), "MAC address of remote device isn't zero");
+	LoggerPP::getInstance().enableErrors();
+	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getRemoteMachineIpAddress()->toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device doesn't match provided IP");
+	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getRemoteMachinePort() == remoteDevicePort, terminateRpcapdServer(rpcapdHandle), "Remote machine port got from device doesn't match provided port");
 	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->open(), terminateRpcapdServer(rpcapdHandle), "Could not open the remote device. Error was: %s", args.errString);
 	RawPacketVector capturedPackets;
 	PCAPP_ASSERT_AND_RUN_COMMAND(pRemoteDevice->startCapture(capturedPackets), terminateRpcapdServer(rpcapdHandle), "Couldn't start capturing on remote device '%s'. Error was: %s", pRemoteDevice->getName(), args.errString);
@@ -1148,6 +1163,8 @@ PCAPP_TEST(TestRemoteCapture)
 	pRemoteDevice->close();
 
 	terminateRpcapdServer(rpcapdHandle);
+
+	delete remoteDevices;
 #endif
 
 	PCAPP_TEST_PASSED;

@@ -46,7 +46,7 @@ public:
 	 * Gets the address type: IPv4 or IPv6
 	 * @return The address type
 	 */
-	virtual AddressType getType() = 0;
+	virtual AddressType getType() const = 0;
 
 	/**
 	 * Returns a std::string representation of the address
@@ -128,7 +128,7 @@ public:
 	/**
 	 * @return IPv4AddressType
 	 */
-	AddressType getType() { return IPv4AddressType; }
+	AddressType getType() const { return IPv4AddressType; }
 
 	/**
 	 * Converts the IPv4 address into a 4B integer
@@ -158,6 +158,11 @@ public:
 	 *
 	 */
 	bool matchSubnet(const IPv4Address& subnet, const string& subnetMask);
+
+	/**
+	 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0"
+	 */
+	static IPv4Address Zero;
 };
 
 struct in6_addr;
@@ -205,7 +210,7 @@ public:
 	/**
 	 * @return IPv6AddressType
 	 */
-	AddressType getType() { return IPv6AddressType; }
+	AddressType getType() const { return IPv6AddressType; }
 
 	/**
 	 * Returns a in6_addr struct pointer representing the IPv6 address
@@ -232,6 +237,12 @@ public:
 	 * @return true if 2 addresses are equal. False otherwise
 	 */
 	bool operator==(const IPv6Address& other);
+
+	/**
+	 * A static value representing a zero value of IPv6 address, meaning address of value
+	 * "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
+	 */
+	static IPv6Address Zero;
 };
 
 

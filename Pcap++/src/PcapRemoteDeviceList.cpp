@@ -9,36 +9,40 @@
 #include <ws2tcpip.h>
 #endif
 
-const bool PcapRemoteDeviceList::getRemoteDeviceList(string ipAddress, uint16_t port, PcapRemoteDeviceList& resultList)
+
+PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAddress, uint16_t port)
 {
-	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, NULL, resultList);
+	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, NULL);
 }
 
-const bool PcapRemoteDeviceList::getRemoteDeviceList(string ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth, PcapRemoteDeviceList& resultList)
+PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
+	if (ipAddress == NULL || !ipAddress->isValid())
+	{
+		LOG_ERROR("IP address is NULL or not valid");
+		return NULL;
+	}
+
 	char portAsCharArr[5];
 	sprintf(portAsCharArr, "%d", port);
-	LOG_DEBUG("Searching remote devices on IP: %s and port: %d", ipAddress.c_str(), port);
+	LOG_DEBUG("Searching remote devices on IP: %s and port: %d", ipAddress->toString().c_str(), port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
 	char errbuf[PCAP_ERRBUF_SIZE];
-	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.c_str(), portAsCharArr, NULL, errbuf) != 0)
+	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress->toString().c_str(), portAsCharArr, NULL, errbuf) != 0)
 	{
 		LOG_ERROR("Error in creating the remote connection string. Error was: %s", errbuf);
-		return false;
+		return NULL;
 	}
 
 	LOG_DEBUG("Remote capture string: %s", remoteCaptureString);
 
 	pcap_rmtauth* pRmAuth = NULL;
+	pcap_rmtauth rmAuth;
 	if (remoteAuth != NULL)
 	{
-		LOG_DEBUG("Authentication requested. Username: %s, Password: %s", remoteAuth->userName, remoteAuth->password);
-		pRmAuth = new pcap_rmtauth();
-		pRmAuth->type = RPCAP_RMTAUTH_PWD;
-		pRmAuth->username = new char[1+strlen(remoteAuth->userName)];
-		strncpy(pRmAuth->username, remoteAuth->userName, 1+strlen(remoteAuth->userName));
-		pRmAuth->password = new char[1+strlen(remoteAuth->password)];
-		strncpy(pRmAuth->password, remoteAuth->password, 1+strlen(remoteAuth->password));
+		LOG_DEBUG("Authentication requested. Username: %s, Password: %s", remoteAuth->userName.c_str(), remoteAuth->password.c_str());
+		rmAuth = remoteAuth->getPcapRmAuth();
+		pRmAuth = &rmAuth;
 	}
 
 	pcap_if_t* interfaceList;
@@ -46,19 +50,25 @@ const bool PcapRemoteDeviceList::getRemoteDeviceList(string ipAddress, uint16_t 
 	if (pcap_findalldevs_ex(remoteCaptureString, pRmAuth, &interfaceList, errorBuf) < 0)
 	{
 		LOG_ERROR("Error retrieving device on remote machine. Error string is: %s", errorBuf);
-		return false;
+		return NULL;
 	}
+
+	PcapRemoteDeviceList* resultList = new PcapRemoteDeviceList();
+	resultList->setRemoteMachineIpAddress(ipAddress);
+	resultList->setRemoteMachinePort(port);
+	resultList->setRemoteAuthentication(remoteAuth);
 
 	pcap_if_t* currInterface = interfaceList;
 	while (currInterface != NULL)
 	{
-		PcapRemoteDevice* pNewRemoteDevice = new PcapRemoteDevice(currInterface, pRmAuth);
-		resultList.push_back(pNewRemoteDevice);
+		PcapRemoteDevice* pNewRemoteDevice = new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication,
+				resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort());
+		resultList->m_RemoteDeviceList.push_back(pNewRemoteDevice);
 		currInterface = currInterface->next;
 	}
 
 	pcap_freealldevs(interfaceList);
-	return true;
+	return resultList;
 }
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString)
@@ -92,7 +102,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* ipAddr)
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 {
 	LOG_DEBUG("Searching all remote devices in list...");
-	for(vector<PcapRemoteDevice*>::iterator devIter = begin(); devIter != end(); devIter++)
+	for(RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
 		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
@@ -126,7 +136,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr)
 {
 	LOG_DEBUG("Searching all remote devices in list...");
-	for(vector<PcapRemoteDevice*>::iterator devIter = begin(); devIter != end(); devIter++)
+	for(RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
 		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
@@ -160,12 +170,61 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr)
 
 }
 
+void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress* ipAddress)
+{
+	if (ipAddress == NULL)
+	{
+		LOG_ERROR("Trying to set a NULL IP address to PcapRemoteDeviceList");
+		return;
+	}
+
+	if (m_RemoteMachineIpAddress != NULL)
+		delete m_RemoteMachineIpAddress;
+
+	if (ipAddress->getType() == IPAddress::IPv4AddressType)
+	{
+		m_RemoteMachineIpAddress = new IPv4Address(ipAddress->toString());
+	}
+	else //IPAddress::IPv6AddressType
+	{
+		m_RemoteMachineIpAddress = new IPv6Address(ipAddress->toString());
+	}
+}
+
+void PcapRemoteDeviceList::setRemoteMachinePort(uint16_t port)
+{
+	m_RemoteMachinePort = port;
+}
+
+void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth)
+{
+	if (remoteAuth != NULL)
+		m_RemoteAuthentication = new PcapRemoteAuthentication(*remoteAuth);
+	else
+	{
+		if (m_RemoteAuthentication != NULL)
+			delete m_RemoteAuthentication;
+		m_RemoteAuthentication = NULL;
+	}
+}
+
 PcapRemoteDeviceList::~PcapRemoteDeviceList()
 {
-	for(vector<PcapRemoteDevice*>::iterator devIter = begin(); devIter != end(); )
+	while (m_RemoteDeviceList.size() > 0)
 	{
-	   delete (*devIter);
-	   erase(devIter);
+		RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin();
+		delete (*devIter);
+		m_RemoteDeviceList.erase(devIter);
+	}
+
+	if (m_RemoteMachineIpAddress != NULL)
+	{
+		delete m_RemoteMachineIpAddress;
+	}
+
+	if (m_RemoteAuthentication != NULL)
+	{
+		delete m_RemoteAuthentication;
 	}
 }
 

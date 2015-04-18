@@ -23,9 +23,9 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 	while (currInterface != NULL)
 	{
 #ifdef WIN32
-		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true);
+		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true, true);
 #else //LINUX
-		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true);
+		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true, true);
 #endif
 		currInterface = currInterface->next;
 		m_LiveDeviceList.insert(m_LiveDeviceList.end(), dev);
