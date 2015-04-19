@@ -211,7 +211,7 @@ void MacAddressFilter::parseToString(string& result)
 void EtherTypeFilter::parseToString(string& result)
 {
 	ostringstream stream;
-	stream << m_EtherType;
+	stream << "0x" << std::hex << m_EtherType;
 	result = "ether proto " + stream.str();
 }
 

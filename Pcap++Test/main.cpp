@@ -763,6 +763,7 @@ PCAPP_TEST(TestPcapFilters)
     	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
     }
     fileReaderDev.close();
+    PCAP_SLEEP(2);
     liveDev->stopCapture();
     PCAPP_ASSERT(capturedPackets.size() >= 24, "EthTypeFilter test: Captured less than %d packets", 24);
     for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
