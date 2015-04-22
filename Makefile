@@ -19,7 +19,6 @@ libs:
 	cd $(PCAPPP_HOME)		&& $(MAKE) all
 	$(MKDIR) -p Dist
 	$(MKDIR) -p Dist/header
-	$(MKDIR) -p Dist/examples
 	$(CP) $(COMMONPP_HOME)/Lib/* ./Dist
 	$(CP) $(PACKETPP_HOME)/Lib/* ./Dist
 	$(CP) $(PCAPPP_HOME)/Lib/* ./Dist
@@ -35,11 +34,15 @@ all: libs
 	cd $(EXAMPLE_PARSE)		&& $(MAKE) all
 	cd $(EXAMPLE_STREAMS)		&& $(MAKE) all
 	cd $(EXAMPLE_ARPSPOOF)		&& $(MAKE) all
+	$(MKDIR) -p Dist/examples
+	$(MKDIR) -p Dist/mk
 	$(CP) $(EXAMPLE_PARSE)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_PARSE)/UdpPacket.dat ./Dist/examples
 	$(CP) $(EXAMPLE_STREAMS)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_STREAMS)/example.pcap ./Dist/examples
 	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
+	$(CP) mk/platform.mk ./Dist/mk
+	$(CP) mk/PcapPlusPlus.mk ./Dist/mk
 	@echo 'Finished successfully building PcapPlusPlus'
 
 # Clean
