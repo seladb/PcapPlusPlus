@@ -6,8 +6,16 @@ echo PcapPlusPlus Windows configuration script
 echo ******************************************
 echo.
 
-set PLATFORM=mk\platform.mk
-if exist %PLATFORM% (del %PLATFORM%)
+set PLATFORM_MK=mk\platform.mk
+set PCAPPLUSPLUS_MK=mk\PcapPlusPlus.mk
+if exist %PLATFORM_MK% (del %PLATFORM_MK%)
+if exist %PCAPPLUSPLUS_MK% (del %PCAPPLUSPLUS_MK%)
+
+set CUR_DIR=%cd:\=/%
+echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PLATFORM_MK%
+echo. >> %PLATFORM_MK%
+echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PCAPPLUSPLUS_MK%
+echo. >> %PCAPPLUSPLUS_MK%
 
 :: get MinGW location from user and verify it exists
 echo MinGW is required for compiling PcapPlusPlus. 
@@ -35,9 +43,12 @@ set WINPCAP_HOME=%WINPCAP_HOME:\=/%
 
 :: set MinGW and WinPcap locations in platform.mk.win32 and create platform.mk
 for /F "tokens=1* delims=]" %%A in ('type "mk\platform.mk.win32"') do (
-	echo. >>%PLATFORM%
-	if "%%A" EQU "MINGW_HOME :=" (echo %%A %MINGW_HOME%>>%PLATFORM%) else (if "%%A" EQU "WINPCAP_HOME :=" (echo %%A %WINPCAP_HOME%>>%PLATFORM%) else (echo %%A>>%PLATFORM%))
+	echo. >>%PLATFORM_MK%
+	if "%%A" EQU "MINGW_HOME :=" (echo %%A %MINGW_HOME%>>%PLATFORM_MK%) else (if "%%A" EQU "WINPCAP_HOME :=" (echo %%A %WINPCAP_HOME%>>%PLATFORM_MK%) else (echo %%A>>%PLATFORM_MK%))
 )
 
+type mk\PcapPlusPlus.mk.common >> %PCAPPLUSPLUS_MK%
+type mk\PcapPlusPlus.mk.win32 >> %PCAPPLUSPLUS_MK%
+
 echo.
-echo PcapPlusPlus configuration is complete. File created (or modified): %PLATFORM%
+echo PcapPlusPlus configuration is complete. Files created (or modified): %PLATFORM_MK%, %PCAPPLUSPLUS_MK%

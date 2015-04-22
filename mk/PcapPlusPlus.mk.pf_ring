@@ -1,0 +1,12 @@
+### PF_RING ###
+
+# includes
+PCAPPP_INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
+
+# libs dir
+PCAPPP_LIBS_DIR += -L$(PF_RING_HOME)/userland/lib
+
+# libs
+PCAPPP_LIBS += -Wl,-Bstatic -lpfring -lnuma -lrt
+
+

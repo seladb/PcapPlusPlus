@@ -3,10 +3,20 @@ echo "****************************************"
 echo "PcapPlusPlus Linux configuration script "
 echo "****************************************"
 echo ""
-PLATFORM="mk/platform.mk"
 
-cp -f mk/platform.mk.linux $PLATFORM
+PLATFORM_MK="mk/platform.mk"
+PCAPPLUSPLUS_MK="mk/PcapPlusPlus.mk"
+
+cp -f mk/platform.mk.linux $PLATFORM_MK
+cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
+cat mk/PcapPlusPlus.mk.linux >> $PCAPPLUSPLUS_MK
+
+echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
+
+sed -i "1s|^|PCAPPLUSPLUS_HOME := $PWD\n\n|" $PCAPPLUSPLUS_MK
+
 COMPILE_WITH_PF_RING=0
+
 while true; do
     read -p "Compile PcapPlusPlus with PF_RING? " yn
     case $yn in
@@ -26,7 +36,11 @@ if (( $COMPILE_WITH_PF_RING > 0 )) ; then
         fi
     done
 
-    echo -e "\n\nPF_RING_HOME := "$PF_RING_HOME >> $PLATFORM
+    cat mk/PcapPlusPlus.mk.pf_ring >> $PCAPPLUSPLUS_MK
+
+    echo -e "\n\nPF_RING_HOME := "$PF_RING_HOME >> $PLATFORM_MK
+    
+    sed -i "2s|^|PF_RING_HOME := $PF_RING_HOME\n\n|" $PCAPPLUSPLUS_MK
 fi
 
-echo "PcapPlusPlus configuration is complete. File created (or modified): $PLATFORM"
+echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK"
