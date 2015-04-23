@@ -32,6 +32,8 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   2. **Break Pcap FileTo Streams** - an application that takes a pcap file and breaks it into several pcap files, each containing one stream
   3. **ARP Spoofing** - an application that does ARP spoofing using Packet++ and Pcap++
 
+After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
+
 #### Supported Protocols ####
 
 The Packet++ library currently supports parsing, editing and creation of packets of the following protocols:
@@ -192,3 +194,50 @@ ALL TESTS PASSED!!
 ```
 
 *Notice:* Pcap++Test must be run with **sudo** on Linux to have access to all NICs
+
+
+## Creating Applications With PcapPlusPlus ##
+
+Creating applications that uses PcapPlusPlus is rather easy. To do this, please follow these steps:
+
+1. First make sure PcapPlusPlus is configured and compiles successfully
+2. All you need is under the **Dist/** directory. You can find the PcapPlusPlus libraries, header files, code examples and helpful makefiles
+3. In order to compile your application with PcapPlusPlus libraries you should use the makefiles under the **mk/** directory. There are 2 makefiles there:
+  1. *platform.mk* - contains mainly platform-dependent variables such as MinGW and WinPcap directory in Windows, binary files extensions (.lib/.exe for Windows, .a/none for Linux), compile utilities names (g++/g++.exe, ar/ar.exe), etc. 
+  2. *PcapPlusPlus.mk* - contains variables that encapsulate all you need in order to compile your application with PcapPlusPlus:
+    1. *PCAPPP_INCLUDES* - all includes needed
+    2. *PCAPPP_LIBS_DIR* - location of all libraries needed for compiling and linking with PcapPlusPlus
+    3. *PCAPPP_LIBS* - all libraries needed for compiling and linking with PcapPlusPlus
+    4. *PCAPPP_POST_BUILD* - all post-build actions needed after compiling with PcapPlusPlus
+    5. *PCAPPLUSPLUS_HOME* - PcapPlusPlus home directory
+4. As an example, here is a simple Makefile needed for compiling the ArpSpoofing example on Windows (you can find this example under the **Examples/ArpSpoofing-SimpleMakefile-Windows** directory):
+  ```makefile
+  -include ../../Dist/mk/platform.mk
+  -include ../../Dist/mk/PcapPlusPlus.mk
+  
+  # All Target
+  all:
+  	g++.exe $(PCAPPP_INCLUDES) -c -o main.o main.cpp
+  	g++.exe $(PCAPPP_LIBS_DIR) -static-libgcc -static-libstdc++ -o ArpSpoofing.exe main.o $(PCAPPP_LIBS)
+  
+  # Clean Target
+  clean:
+  	del main.o
+  	del ArpSpoofing.exe
+  ```
+
+5. And the same example on Linux (you can find it in **Examples/ArpSpoofing-SimpleMakefile-Linux**):
+  ```makefile
+  -include ../../Dist/mk/PcapPlusPlus.mk
+  
+  # All Target
+  all:
+  	g++ $(PCAPPP_INCLUDES) -c -o main.o main.cpp
+  	g++ $(PCAPPP_LIBS_DIR) -static-libstdc++ -o ArpSpoofing main.o $(PCAPPP_LIBS)
+  
+  # Clean Target
+  clean:
+  	rm main.o
+  	rm ArpSpoofing
+  ```
+6. Rather easy, doesn't it?
