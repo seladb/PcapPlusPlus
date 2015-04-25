@@ -31,6 +31,8 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   1. **Packet Parsing** - a short guide for parsing packets using Pcap++ and Packet++
   2. **Break Pcap FileTo Streams** - an application that takes a pcap file and breaks it into several pcap files, each containing one stream
   3. **ARP Spoofing** - an application that does ARP spoofing using Packet++ and Pcap++
+  4. **ARP Spoofing with simple Windows makefile** - same code as ARP spoofing but with simple Windows makefile (see "Creating Applications With PcapPlusPlus" section)
+  5. **ARP Spoofing with simple Linux makefile** - same code as ARP spoofing but with simple Linux makefile (see "Creating Applications With PcapPlusPlus" section)
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 
@@ -240,4 +242,4 @@ Creating applications that uses PcapPlusPlus is rather easy. To do this, please 
   	rm main.o
   	rm ArpSpoofing
   ```
-6. Rather easy, doesn't it?
+6. Rather easy, isn't it?
