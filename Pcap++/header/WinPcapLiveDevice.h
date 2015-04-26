@@ -3,6 +3,8 @@
 
 #ifdef WIN32
 
+/// @file
+
 #include <PcapLiveDevice.h>
 
 /**
