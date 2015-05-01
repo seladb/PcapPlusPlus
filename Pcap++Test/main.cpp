@@ -479,6 +479,12 @@ PCAPP_TEST(TestPcapLiveDeviceListSearch)
     liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
     PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
 
+    string devName(liveDev->getName());
+    PcapLiveDevice* liveDev2 = NULL;
+    liveDev2 = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName);
+    PCAPP_ASSERT(liveDev2 != NULL, "Couldn't find device by name (search returned null)");
+    PCAPP_ASSERT(strcmp(liveDev->getName(), liveDev2->getName()) == 0, "Search by device name didn't bring the right result");
+
     liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250");
     PCAPP_ASSERT(liveDev == NULL, "Illegal device found with IP=255.255.255.250");
 
@@ -1939,26 +1945,26 @@ int main(int argc, char* argv[])
 	PCAPP_START_RUNNING_TESTS;
 
 	PCAPP_RUN_TEST(TestIPAddress, args);
-//	PCAPP_RUN_TEST(TestMacAddress, args);
-//	PCAPP_RUN_TEST(TestPcapFileReadWrite, args);
-//	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args);
-//	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args);
-//	PCAPP_RUN_TEST(TestPcapLiveDevice, args);
-//	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args);
-//	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args);
-//	PCAPP_RUN_TEST(TestPcapFilters, args);
-//	PCAPP_RUN_TEST(TestSendPacket, args);
-//	PCAPP_RUN_TEST(TestSendPackets, args);
-//	PCAPP_RUN_TEST(TestRemoteCapture, args);
-//	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
-//	PCAPP_RUN_TEST(TestHttpResponseParsing, args);
-//	PCAPP_RUN_TEST(TestPrintPacketAndLayers, args);
-//	PCAPP_RUN_TEST(TestPfRingDevice, args);
-//	PCAPP_RUN_TEST(TestPfRingDeviceSingleChannel, args);
-//	PCAPP_RUN_TEST(TestPfRingMultiThreadAllCores, args);
-//	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args);
-//	PCAPP_RUN_TEST(TestPfRingSendPacket, args);
-//	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
-//	PCAPP_RUN_TEST(TestPfRingFilters, args);
+	PCAPP_RUN_TEST(TestMacAddress, args);
+	PCAPP_RUN_TEST(TestPcapFileReadWrite, args);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args);
+	PCAPP_RUN_TEST(TestPcapLiveDevice, args);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args);
+	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args);
+	PCAPP_RUN_TEST(TestPcapFilters, args);
+	PCAPP_RUN_TEST(TestSendPacket, args);
+	PCAPP_RUN_TEST(TestSendPackets, args);
+	PCAPP_RUN_TEST(TestRemoteCapture, args);
+	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
+	PCAPP_RUN_TEST(TestHttpResponseParsing, args);
+	PCAPP_RUN_TEST(TestPrintPacketAndLayers, args);
+	PCAPP_RUN_TEST(TestPfRingDevice, args);
+	PCAPP_RUN_TEST(TestPfRingDeviceSingleChannel, args);
+	PCAPP_RUN_TEST(TestPfRingMultiThreadAllCores, args);
+	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args);
+	PCAPP_RUN_TEST(TestPfRingSendPacket, args);
+	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
+	PCAPP_RUN_TEST(TestPfRingFilters, args);
 	PCAPP_END_RUNNING_TESTS;
 }

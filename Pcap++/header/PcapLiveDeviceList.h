@@ -71,6 +71,14 @@ public:
 	 * @return A pointer to the live device if this IP address is valid and exists. NULL otherwise
 	 */
 	PcapLiveDevice* getPcapLiveDeviceByIp(const char* ipAddrAsString);
+
+	/**
+	 * Get a pointer to the live device by its name
+	 * @param[in] name The name of the interface (e.g eth0)
+	 * @return A pointer to the live device if this name exists. NULL otherwise
+	 */
+	PcapLiveDevice* getPcapLiveDeviceByName(const string& name);
+
 };
 
 #endif

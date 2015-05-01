@@ -142,3 +142,18 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsSt
 	PcapLiveDevice* result = PcapLiveDeviceList::getPcapLiveDeviceByIp(apAddr.get());
 	return result;
 }
+
+
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const string& name)
+{
+	LOG_DEBUG("Searching all live devices...");
+	for(vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	{
+		string devName((*devIter)->getName());
+		if (name == devName)
+			return (*devIter);
+	}
+
+	return NULL;
+
+}
