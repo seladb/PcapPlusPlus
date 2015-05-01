@@ -101,6 +101,20 @@ uint32_t IPv4Address::toInt() const
 	return result;
 }
 
+IPv4Address& IPv4Address::operator=(const IPv4Address& other)
+{
+	if (m_pInAddr != NULL)
+		delete m_pInAddr;
+
+	m_pInAddr = new in_addr();
+	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in_addr));
+
+    strncpy(m_AddressAsString, other.m_AddressAsString, 40);
+    m_IsValid = true;
+
+    return *this;
+}
+
 bool IPv4Address::matchSubnet(const IPv4Address& subnet, const string& subnetMask)
 {
 	IPv4Address maskAsIpAddr(subnetMask);
@@ -116,12 +130,12 @@ bool IPv4Address::matchSubnet(const IPv4Address& subnet, const string& subnetMas
 }
 
 
-IPv6Address IPv6Address::Zero("0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0");
+IPv6Address IPv6Address::Zero(string("0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"));
 
 IPv6Address::IPv6Address(const IPv6Address& other)
 {
 	m_pInAddr = new in6_addr();
-	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in_addr));
+	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in6_addr));
 
     strncpy(m_AddressAsString, other.m_AddressAsString, 40);
     m_IsValid = true;
@@ -179,4 +193,23 @@ void IPv6Address::copyTo(uint8_t* arr) const
 bool IPv6Address::operator==(const IPv6Address& other)
 {
 	return (memcmp(m_pInAddr, other.m_pInAddr, 16) == 0);
+}
+
+bool IPv6Address::operator!=(const IPv6Address& other)
+{
+	return !(*this == other);
+}
+
+IPv6Address& IPv6Address::operator=(const IPv6Address& other)
+{
+	if (m_pInAddr != NULL)
+		delete m_pInAddr;
+
+	m_pInAddr = new in6_addr();
+	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in6_addr));
+
+    strncpy(m_AddressAsString, other.m_AddressAsString, 40);
+    m_IsValid = true;
+
+    return *this;
 }

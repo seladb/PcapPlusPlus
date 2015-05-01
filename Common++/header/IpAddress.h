@@ -149,6 +149,17 @@ public:
 	bool operator==(const IPv4Address& other) const { return toInt() == other.toInt(); }
 
 	/**
+	 * Overload of the non-equal operator
+	 * @return true if 2 addresses are not equal. False otherwise
+	 */
+	bool operator!=(const IPv4Address& other) const { return toInt() != other.toInt(); }
+
+	/**
+	 * Overload of the assignment operator
+	 */
+	IPv4Address& operator=(const IPv4Address& other);
+
+	/**
 	 * Checks whether the address matches a subnet.
 	 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
 	 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
@@ -237,6 +248,17 @@ public:
 	 * @return true if 2 addresses are equal. False otherwise
 	 */
 	bool operator==(const IPv6Address& other);
+
+	/**
+	 * Overload of the non-equal operator
+	 * @return true if 2 addresses are not equal. False otherwise
+	 */
+	bool operator!=(const IPv6Address& other);
+
+	/**
+	 * Overload of the assignment operator
+	 */
+	IPv6Address& operator=(const IPv6Address& other);
 
 	/**
 	 * A static value representing a zero value of IPv6 address, meaning address of value
