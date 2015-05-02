@@ -7,7 +7,7 @@ PACKETPP_TEST	:=	Packet++Test
 PCAPPP_TEST		:=	Pcap++Test
 EXAMPLE_PARSE	:=	Examples/Pcap++Examples.PacketParsing
 EXAMPLE_STREAMS	:=	Examples/Pcap++Examples.BreakPcapFileToStreams
-EXAMPLE_ARPSPOOF:=	Examples/Pcap++Examples.ArpSpoofing
+EXAMPLE_ARPSPOOF:=	Examples/ArpSpoofing
 EXAMPLE_ARPING	:=	Examples/Arping
 
 UNAME := $(shell uname)

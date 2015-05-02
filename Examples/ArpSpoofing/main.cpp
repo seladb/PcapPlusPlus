@@ -29,7 +29,7 @@ static struct option L3FwdOptions[] =
 };
 
 void print_usage() {
-	printf("Usage: Pcap++Examples.ArpSpoofing -i <INTERFACE_IP> -v <VICTIM_IP> -g <GATEWAY_IP> \n\n");
+	printf("Usage: ArpSpoofing -i <INTERFACE_IP> -v <VICTIM_IP> -g <GATEWAY_IP> \n\n");
 }
 
 MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
