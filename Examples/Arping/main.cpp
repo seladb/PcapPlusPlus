@@ -16,6 +16,7 @@
 #include <Logger.h>
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
+#include <errno.h>
 #endif
 
 using namespace std;
@@ -99,7 +100,7 @@ void packetRecieved(RawPacket* rawPacket, PcapLiveDevice* pDevice, void* userCoo
 
 	// measure response time
 	double diffticks = recieveTime-data->start;
-	double diffms = (diffticks*10)/CLOCKS_PER_SEC;
+	double diffms = (diffticks*1000)/CLOCKS_PER_SEC;
 
 	// output ARP ping data
 	printf("Reply from %s [%s]  %.3fms  index=%d\n",

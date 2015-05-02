@@ -7,7 +7,8 @@ PACKETPP_TEST	:=	Packet++Test
 PCAPPP_TEST		:=	Pcap++Test
 EXAMPLE_PARSE	:=	Examples/Pcap++Examples.PacketParsing
 EXAMPLE_STREAMS	:=	Examples/Pcap++Examples.BreakPcapFileToStreams
-EXAMPLE_ARPSPOOF := Examples/Pcap++Examples.ArpSpoofing
+EXAMPLE_ARPSPOOF:=	Examples/Pcap++Examples.ArpSpoofing
+EXAMPLE_ARPING	:=	Examples/Arping
 
 UNAME := $(shell uname)
 
@@ -34,6 +35,7 @@ all: libs
 	cd $(EXAMPLE_PARSE)		&& $(MAKE) all
 	cd $(EXAMPLE_STREAMS)		&& $(MAKE) all
 	cd $(EXAMPLE_ARPSPOOF)		&& $(MAKE) all
+	cd $(EXAMPLE_ARPING)		&& $(MAKE) all
 	$(MKDIR) -p Dist/examples
 	$(MKDIR) -p Dist/mk
 	$(CP) $(EXAMPLE_PARSE)/Bin/* ./Dist/examples
@@ -41,6 +43,7 @@ all: libs
 	$(CP) $(EXAMPLE_STREAMS)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_STREAMS)/example.pcap ./Dist/examples
 	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_ARPING)/Bin/* ./Dist/examples
 	$(CP) mk/platform.mk ./Dist/mk
 	$(CP) mk/PcapPlusPlus.mk ./Dist/mk
 	@echo 'Finished successfully building PcapPlusPlus'
@@ -55,5 +58,6 @@ clean:
 	cd $(EXAMPLE_PARSE)		&& $(MAKE) clean
 	cd $(EXAMPLE_STREAMS)	&& $(MAKE) clean
 	cd $(EXAMPLE_ARPSPOOF)	&& $(MAKE) clean
+	cd $(EXAMPLE_ARPING)	&& $(MAKE) clean
 	$(RM) -rf Dist
 	@echo 'Finished successfully cleaning PcapPlusPlus'
