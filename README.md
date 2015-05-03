@@ -33,6 +33,7 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   3. **ARP Spoofing** - an application that does ARP spoofing using Packet++ and Pcap++
   4. **ARP Spoofing with simple Windows makefile** - same code as ARP spoofing but with simple Windows makefile (see "Creating Applications With PcapPlusPlus" section)
   5. **ARP Spoofing with simple Linux makefile** - same code as ARP spoofing but with simple Linux makefile (see "Creating Applications With PcapPlusPlus" section)
+  6. **Arping** - an implementation of the arping utility using PcapPlusPlus
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 
