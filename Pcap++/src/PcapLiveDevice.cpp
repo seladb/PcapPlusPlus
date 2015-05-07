@@ -17,6 +17,8 @@
 #include <sys/ioctl.h>
 #include <sys/sysctl.h>
 #include <net/if.h>
+#endif
+#ifdef MAC_OS_X
 #include <net/if_dl.h>
 #endif
 
