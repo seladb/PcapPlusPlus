@@ -2,10 +2,15 @@
 #define PCAPPP_IP_UTILS
 
 #include <stdint.h>
-#ifndef WIN32
+#ifdef LINUX
 #include <in.h>
 #include <arpa/inet.h>
-#else
+#endif
+#ifdef MAC_OS_X
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
+#ifdef WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #endif

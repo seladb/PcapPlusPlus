@@ -15,7 +15,17 @@
 #else
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
+#include <sys/sysctl.h>
 #include <net/if.h>
+#include <net/if_dl.h>
+#endif
+
+// On Mac OS X timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
+// On Linux and Windows this is not the case so we keep the -1 value
+#ifdef MAC_OS_X
+#define LIBPCAP_OPEN_LIVE_TIMEOUT 1
+#else
+#define LIBPCAP_OPEN_LIVE_TIMEOUT -1
 #endif
 
 struct PcapThread
@@ -167,8 +177,8 @@ void* PcapLiveDevice::statsThreadMain(void *ptr)
 bool PcapLiveDevice::open(DeviceMode mode)
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
-	m_PcapDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, -1, errbuf);
-	m_PcapSendDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, -1, errbuf);
+	m_PcapDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, LIBPCAP_OPEN_LIVE_TIMEOUT, errbuf);
+	m_PcapSendDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, LIBPCAP_OPEN_LIVE_TIMEOUT, errbuf);
 	if (m_PcapDescriptor == NULL || m_PcapSendDescriptor == NULL)
 	{
 		LOG_ERROR("%s", errbuf);
@@ -479,7 +489,7 @@ void PcapLiveDevice::setDeviceMacAddress()
     {
     	LOG_DEBUG("Error in retrieving MAC address: PacketRequest failed");
     }
-#else
+#elif LINUX
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
@@ -493,6 +503,38 @@ void PcapLiveDevice::setDeviceMacAddress()
 	}
 
     m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
+#elif MAC_OS_X
+    int	mib[6];
+    size_t len;
+
+	mib[0] = CTL_NET;
+	mib[1] = AF_ROUTE;
+	mib[2] = 0;
+	mib[3] = AF_LINK;
+	mib[4] = NET_RT_IFLIST;
+	mib[5] = if_nametoindex("en1");
+
+	if ((mib[5] == 0)){
+		LOG_ERROR("Error in retrieving MAC address: if_nametoindex error");
+		return;
+	}
+
+	if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0) {
+		LOG_ERROR("Error in retrieving MAC address: sysctl 1 error");
+		return;
+	}
+
+	uint8_t buf[len];
+
+	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
+		LOG_ERROR("Error in retrieving MAC address: sysctl 2 error");
+		return;
+	}
+
+	struct if_msghdr*ifm = (struct if_msghdr *)buf;
+	struct sockaddr_dl* sdl = (struct sockaddr_dl *)(ifm + 1);
+	uint8_t* ptr = (uint8_t*)LLADDR(sdl);
+	m_MacAddress = MacAddress(ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5]);
 #endif
 }
 

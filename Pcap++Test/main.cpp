@@ -290,8 +290,10 @@ bool sendURLRequest(string url)
 	//TODO: what about windows 64?
 #ifdef WIN32
 	string cmd = "cUrl\\curl_win32.exe -s -o cUrl\\curl_output.txt";
-#else
+#elif LINUX
 	string cmd = "cUrl/curl.linux32 -s -o cUrl/curl_output.txt";
+#elif MAC_OS_X
+	string cmd = "curl -s -o cUrl/curl_output.txt";
 #endif
 
 	cmd += " " + url;

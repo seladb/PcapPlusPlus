@@ -12,6 +12,12 @@ endif
 ifdef PF_RING_HOME
 DEPS := -DUSE_PF_RING
 endif
+ifdef LINUX
+DEPS := -DLINUX
+endif
+ifdef MAC_OS_X
+DEPS := -DMAC_OS_X
+endif
 
 INCLUDES := -I"./src" \
 			-I"./header" \

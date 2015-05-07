@@ -76,7 +76,7 @@ struct tcphdr {
 /**
  * TCP options enum
  */
-enum TcpOption : uint8_t {
+enum TcpOption {
 	/** Padding */
 	TCPOPT_NOP = 			1,
 	/** End of options */
@@ -183,7 +183,7 @@ enum TcpOption : uint8_t {
 struct TcpOptionData
 {
 	/** TCP option type, should be on of ::TcpOption */
-	TcpOption option;
+	uint8_t option;
 	/** TCP option length */
 	uint8_t len;
 	/** TCP option value */

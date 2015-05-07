@@ -3,10 +3,10 @@
 #include "PcapFilter.h"
 #include "Logger.h"
 #include <sstream>
-#ifndef WIN32 //for using ntohl, ntohs, etc.
-#include <in.h>
-#else
+#ifdef WIN32 //for using ntohl, ntohs, etc.
 #include <winsock2.h>
+#elif LINUX
+#include <in.h>
 #endif
 
 GeneralFilter::~GeneralFilter()

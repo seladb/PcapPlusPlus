@@ -9,7 +9,7 @@
 #include <sstream>
 #ifdef WIN32
 #include <winsock2.h>
-#else
+#elif LINUX
 #include <in.h>
 #endif
 
