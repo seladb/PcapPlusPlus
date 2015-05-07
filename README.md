@@ -10,9 +10,9 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 - Support for Remote Capture capabilities on Windows (using RPCAP protocol supported in WinPcap)
 - Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
 
-PcapPlusPlus is currently supported on Windows and Linux operating systems.
-It was tested on Windows (32bit and 64bit), Ubuntu and Fedora, but it should work on other Linux distributions as well.
-Other opeating systems such as FreeBSD and Mac OS were never tested and compilation on those platform would probably fail
+PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X** operating systems.
+It was tested on Windows (32bit and 64bit), Ubuntu and Fedora, but it should work on other Linux distributions as well. Regarding Mac OS X - I tested it on Snow Leopard (10.6) 32bit only, but I assume it would work on newer Mac OS X versions as well.
+Other opeating systems such as FreeBSD were never tested and compilation on those platform would probably fail
 
 For more information including detailed class documentation, please visit PcapPlusPlus web-site:
 
@@ -56,7 +56,7 @@ The Packet++ library currently supports parsing, editing and creation of packets
 
 PcapPlusPlus currently works with the following devices:
 
-1. libpcap live device (on Linux)
+1. libpcap live device (on Linux and Mac OS X)
 2. WinPcap live device (on Windows)
 3. Vanilla PF_RING device (on Linux)
 4. Remote live device (on Windows)
@@ -122,6 +122,13 @@ such as apt-get:
   
 2. Make sure you have the libstdc++-static package. If not, you can install it via *yum* or *apt-get*
 
+#### Prerequisutes - Mac OS X ####
+
+In order to compile PacpPlusPlus on Mac OS X you need to make sure [Xcode](https://developer.apple.com/xcode/) is installed. Xcode contains all prerequisites required for PcapPlusPlus:
+
+1. gcc/g++ compiler
+2. libpcap with all relevant H files
+
 #### Configuration and Compilation ####
 
 *On Windows:*
@@ -134,6 +141,12 @@ such as apt-get:
 
 1. run the **configure-linux.sh** script from PcapPlusPlus main directory
 2. If you'd like to compile it with PF_RING please follow the instructions in the "PF_RING support" section above and type "y" in "Compile PcapPlusPlus with PF_RING?"
+2. Run **make all** from PcapPlusPlus main directory
+3. This should compile all libraries, unit-tests and examples
+
+*On Mac OS X:*
+
+1. run the **configure-mac_os_x.sh** script from PcapPlusPlus main directory
 2. Run **make all** from PcapPlusPlus main directory
 3. This should compile all libraries, unit-tests and examples
  
@@ -206,7 +219,7 @@ Creating applications that uses PcapPlusPlus is rather easy. To do this, please 
 1. First make sure PcapPlusPlus is configured and compiles successfully
 2. All you need is under the **Dist/** directory. You can find the PcapPlusPlus libraries, header files, code examples and helpful makefiles
 3. In order to compile your application with PcapPlusPlus libraries you should use the makefiles under the **mk/** directory. There are 2 makefiles there:
-  1. *platform.mk* - contains mainly platform-dependent variables such as MinGW and WinPcap directory in Windows, binary files extensions (.lib/.exe for Windows, .a/none for Linux), compile utilities names (g++/g++.exe, ar/ar.exe), etc. 
+  1. *platform.mk* - contains mainly platform-dependent variables such as MinGW and WinPcap directory in Windows, binary files extensions (.lib/.exe for Windows, .a/none for Linux and Mac OS X), compile utilities names (g++/g++.exe, ar/ar.exe), etc. 
   2. *PcapPlusPlus.mk* - contains variables that encapsulate all you need in order to compile your application with PcapPlusPlus:
     1. *PCAPPP_INCLUDES* - all includes needed
     2. *PCAPPP_LIBS_DIR* - location of all libraries needed for compiling and linking with PcapPlusPlus
