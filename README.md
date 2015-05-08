@@ -18,6 +18,10 @@ For more information including detailed class documentation, please visit PcapPl
 
 http://seladb.github.io/PcapPlusPlus-Doc
 
+Also, there is a Google group for questions, suggestions and support:
+
+https://groups.google.com/d/forum/pcapplusplus-support
+
 ## Package Content ##
 
 The PcapPlusPlus package contains several libraries, unit-tests and example utilities:
