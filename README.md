@@ -50,6 +50,7 @@ The Packet++ library currently supports parsing, editing and creation of packets
 3. IPv6
 4. ARP
 5. VLAN
+6. PPPoE
 6. TCP
 7. UDP
 8. HTTP request header
@@ -181,6 +182,10 @@ HttpRequestLayerEditTest      : PASSED
 HttpResponseLayerParsingTest  : PASSED
 HttpResponseLayerCreationTest : PASSED
 HttpResponseLayerEditTest     : PASSED
+PPPoESessionLayerParsingTest  : PASSED
+PPPoESessionLayerCreationTest : PASSED
+PPPoEDiscoveryLayerParsingTest: PASSED
+PPPoEDiscoveryLayerCreateTest : PASSED
 CopyLayerAndPacketTest        : PASSED
 ALL TESTS PASSED!!
 
