@@ -6,6 +6,7 @@
 #include <PayloadLayer.h>
 #include <ArpLayer.h>
 #include <VlanLayer.h>
+#include <PPPoELayer.h>
 #include <string.h>
 #ifdef WIN32
 #include <winsock2.h>
@@ -44,6 +45,12 @@ void EthLayer::parseNextLayer()
 		break;
 	case ETHERTYPE_VLAN:
 		m_NextLayer = new VlanLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
+		break;
+	case ETHERTYPE_PPPOES:
+		m_NextLayer = new PPPoESessionLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
+		break;
+	case ETHERTYPE_PPPOED:
+		m_NextLayer = new PPPoEDiscoveryLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
 	default:
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);

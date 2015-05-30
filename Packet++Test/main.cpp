@@ -9,6 +9,7 @@
 #include <UdpLayer.h>
 #include <TcpLayer.h>
 #include <HttpLayer.h>
+#include <PPPoELayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -1156,6 +1157,222 @@ PACKETPP_TEST(HttpResponseLayerEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(PPPoESessionLayerParsingTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/PPPoESession1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet pppoesPacket(&rawPacket);
+
+	PACKETPP_ASSERT(pppoesPacket.isPacketOfType(PPPoE), "Packet isn't of type PPPoE");
+	PACKETPP_ASSERT(pppoesPacket.isPacketOfType(PPPoESession), "Packet isn't of type PPPoESession");
+	PPPoESessionLayer* pppoeSessionLayer = pppoesPacket.getLayerOfType<PPPoESessionLayer>();
+	PACKETPP_ASSERT(pppoeSessionLayer != NULL, "Couldn't find PPPoESessionLayer, returned NULL");
+
+	PACKETPP_ASSERT(pppoeSessionLayer->getPrevLayer() != NULL, "PPPoESession layer is the first layer");
+	PACKETPP_ASSERT(pppoeSessionLayer->getPrevLayer()->getProtocol() == Ethernet, "PPPoESession prev layer isn't Eth");
+	PACKETPP_ASSERT(pppoeSessionLayer->getNextLayer() != NULL, "PPPoESession layer is the last layer");
+	PACKETPP_ASSERT(pppoeSessionLayer->getNextLayer()->getProtocol() == Unknown, "PPPoESession layer next layer isn't PayloadLayer");
+
+	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->code == PPPoELayer::PPPOE_CODE_SESSION, "PPPoE code isn't PPPOE_CODE_SESSION");
+	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->version == 1, "PPPoE version isn't 1");
+	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->type == 1, "PPPoE type isn't 1");
+	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->sessionId == htons(0x0011), "PPPoE session ID isn't 0x0011");
+	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->payloadLength == htons(20), "PPPoE payload length isn't 20");
+
+	PACKETPP_ASSERT(pppoeSessionLayer->toString() == string("PPP-over-Ethernet Session"), "PPPoESession toString failed");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(PPPoESessionLayerCreationTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/PPPoESession2.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet samplePacket(&rawPacket);
+
+	Packet pppoesPacket(1);
+
+	EthLayer ethLayer(*samplePacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(pppoesPacket.addLayer(&ethLayer), "Add EthLayer failed");
+
+	PPPoESessionLayer pppoesLayer(1, 1, 0x0011);
+	PACKETPP_ASSERT(pppoesPacket.addLayer(&pppoesLayer), "Add PPPoESession layer failed");
+
+	PayloadLayer payloadLayer(*samplePacket.getLayerOfType<PayloadLayer>());
+	PACKETPP_ASSERT(pppoesPacket.addLayer(&payloadLayer), "Add PayloadLayer failed");
+
+	pppoesPacket.computeCalculateFields();
+
+	PACKETPP_ASSERT(bufferLength == pppoesPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", pppoesPacket.getRawPacket()->getRawDataLen(), bufferLength);
+	PACKETPP_ASSERT(memcmp(pppoesPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(PPPoEDiscoveryLayerParsingTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/PPPoEDiscovery2.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet pppoedPacket(&rawPacket);
+
+	PACKETPP_ASSERT(pppoedPacket.isPacketOfType(PPPoE), "Packet isn't of type PPPoE");
+	PACKETPP_ASSERT(pppoedPacket.isPacketOfType(PPPoEDiscovery), "Packet isn't of type PPPoEDiscovery");
+	PACKETPP_ASSERT(!pppoedPacket.isPacketOfType(PPPoESession), "Packet is of type PPPoESession");
+
+	PPPoEDiscoveryLayer* pppoeDiscoveryLayer = pppoedPacket.getLayerOfType<PPPoEDiscoveryLayer>();
+	PACKETPP_ASSERT(pppoeDiscoveryLayer != NULL, "Couldn't find PPPoEDiscoveryLayer, returned NULL");
+
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getPrevLayer() != NULL, "PPPoEDiscovery layer is the first layer");
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getNextLayer() == NULL, "PPPoEDiscovery layer isn't the last layer");
+
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->code == PPPoELayer::PPPOE_CODE_PADS, "PPPoE code isn't PPPOE_CODE_PADS");
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->version == 1, "PPPoE version isn't 1");
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->type == 1, "PPPoE type isn't 1");
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->sessionId == htons(0x0011), "PPPoE session ID isn't 0x0011");
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->payloadLength == htons(40), "PPPoE payload length isn't 40");
+
+	PPPoEDiscoveryLayer::PPPoETag* firstTag = pppoeDiscoveryLayer->getFirstTag();
+	PACKETPP_ASSERT(firstTag != NULL, "Couldn't retrieve first tag, NULL returned");
+	PACKETPP_ASSERT(firstTag->getType() == PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME, "First tag type isn't PPPOE_TAG_SVC_NAME");
+	PACKETPP_ASSERT(firstTag->tagDataLength == 0, "first tag length != 0");
+
+	PPPoEDiscoveryLayer::PPPoETag* secondTag = pppoeDiscoveryLayer->getNextTag(firstTag);
+	PACKETPP_ASSERT(secondTag != NULL, "Couldn't retrieve second tag, NULL returned");
+	PACKETPP_ASSERT(secondTag->getType() == PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, "Second tag type isn't PPPOE_TAG_HOST_UNIQ");
+	PACKETPP_ASSERT(secondTag->tagDataLength == htons(4), "Second tag length != 4");
+	PACKETPP_ASSERT(ntohl(secondTag->getTagDataAs<uint32_t>()) == 0x64138518, "Second tag data is wrong");
+
+	PPPoEDiscoveryLayer::PPPoETag* thirdTag = pppoeDiscoveryLayer->getTag(PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME);
+	PACKETPP_ASSERT(thirdTag != NULL, "Couldn't retrieve tag PPPOE_TAG_AC_NAME by name, NULL returned");
+	PACKETPP_ASSERT(thirdTag == pppoeDiscoveryLayer->getNextTag(secondTag), "getTag and getNextTag returned different results for third tag");
+	PACKETPP_ASSERT(thirdTag->getType() == PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, "Third tag type isn't PPPOE_TAG_AC_NAME");
+	PACKETPP_ASSERT(thirdTag->tagDataLength == htons(4), "Third tag length != 4");
+	PACKETPP_ASSERT(ntohl(thirdTag->getTagDataAs<uint32_t>()) == 0x42524153, "Third tag data is wrong");
+
+	PPPoEDiscoveryLayer::PPPoETag* fourthTag = pppoeDiscoveryLayer->getTag(PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE);
+	PACKETPP_ASSERT(fourthTag != NULL, "Couldn't retrieve tag PPPOE_TAG_AC_COOKIE by name, NULL returned");
+	PACKETPP_ASSERT(fourthTag == pppoeDiscoveryLayer->getNextTag(thirdTag), "getTag and getNextTag returned different results for fourth tag");
+	PACKETPP_ASSERT(fourthTag->getType() == PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, "Fourth tag type isn't PPPOE_TAG_AC_COOKIE");
+	PACKETPP_ASSERT(fourthTag->tagDataLength == htons(16), "Fourth tag length != 16");
+	PACKETPP_ASSERT(fourthTag->getTagDataAs<uint64_t>() == 0xf284240687050f3d, "Fourth tag data is wrong in first 8 bytes");
+	PACKETPP_ASSERT(fourthTag->getTagDataAs<uint64_t>(8) == 0x5bbd77fdddb932df, "Fourth tag data is wrong in last 8 bytes");
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getNextTag(fourthTag) == NULL, "Fourth tag should be the last one but it isn't");
+
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->getTagCount() == 4, "Number of tags != 4, it's %d", pppoeDiscoveryLayer->getTagCount());
+
+	PACKETPP_ASSERT(pppoeDiscoveryLayer->toString() == string("PPP-over-Ethernet Discovery (PADS)"), "PPPoEDiscovery toString returned unexpected result");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(PPPoEDiscoveryLayerCreateTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/PPPoEDiscovery1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file PPPoEDiscovery1.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet samplePacket(&rawPacket);
+
+	Packet pppoedPacket(1);
+
+	EthLayer ethLayer(*samplePacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(pppoedPacket.addLayer(&ethLayer), "Add EthLayer failed");
+
+	PPPoEDiscoveryLayer pppoedLayer(1, 1, PPPoELayer::PPPOE_CODE_PADI, 0);
+
+	PACKETPP_ASSERT(pppoedPacket.addLayer(&pppoedLayer), "Add PPPoEDiscovery layer failed");
+
+	PPPoEDiscoveryLayer::PPPoETag* svcNamePtr = pppoedLayer.addTag(PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME, 0, NULL);
+
+	uint32_t hostUniqData = htonl(0x64138518);
+	pppoedLayer.addTagAfter(PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, sizeof(uint32_t), (uint8_t*)(&hostUniqData), svcNamePtr);
+
+	pppoedPacket.computeCalculateFields();
+
+	PACKETPP_ASSERT(bufferLength == pppoedPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength);
+	PACKETPP_ASSERT(memcmp(pppoedPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected PPPoEDiscovery1");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/PPPoEDiscovery2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file PPPoEDiscovery2.dat");
+
+	EthLayer* ethLayerPtr = pppoedPacket.getLayerOfType<EthLayer>();
+	PACKETPP_ASSERT(ethLayerPtr != NULL, "Couldn't retrieve Eth layer");
+	ethLayerPtr->setSoureMac(MacAddress("ca:01:0e:88:00:06"));
+	ethLayerPtr->setDestMac(MacAddress("cc:05:0e:88:00:00"));
+
+	pppoedLayer.getPPPoEHeader()->code = PPPoELayer::PPPOE_CODE_PADS;
+	pppoedLayer.getPPPoEHeader()->sessionId = htons(0x11);
+
+	PPPoEDiscoveryLayer::PPPoETag* acCookieTag = pppoedLayer.addTag(PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, 16, NULL);
+	acCookieTag->setTagData<uint64_t>(0xf284240687050f3d);
+	acCookieTag->setTagData<uint64_t>(0x5bbd77fdddb932df, 8);
+
+	pppoedLayer.addTagAfter(PPPoEDiscoveryLayer::PPPOE_TAG_HURL, sizeof(uint32_t), (uint8_t*)(&hostUniqData), acCookieTag);
+
+	PPPoEDiscoveryLayer::PPPoETag* hostUniqTag = pppoedLayer.getTag(PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ);
+	PACKETPP_ASSERT(hostUniqTag != NULL, "Couldn't retrieve tag PPPOE_TAG_HOST_UNIQ");
+	PPPoEDiscoveryLayer::PPPoETag* acNameTag = pppoedLayer.addTagAfter(PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, 4, NULL, hostUniqTag);
+	acNameTag->setTagData<uint32_t>(htonl(0x42524153));
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(pppoedLayer.removeTag(PPPoEDiscoveryLayer::PPPOE_TAG_CREDITS) == false, "Managed to remove a tag that doesn't exist");
+	LoggerPP::getInstance().enableErrors();
+
+	PACKETPP_ASSERT(pppoedLayer.removeTag(PPPoEDiscoveryLayer::PPPOE_TAG_HURL) == true, "Couldn't remove tag PPPOE_TAG_HURL");
+	PACKETPP_ASSERT(pppoedLayer.getTag(PPPoEDiscoveryLayer::PPPOE_TAG_HURL) == NULL, "Found a tag that was removed");
+
+	pppoedPacket.computeCalculateFields();
+
+//	printf("\n\n\n");
+//	for(int i = 0; i<buffer2Length; i++)
+//		printf(" 0x%2X  ", buffer2[i]);
+//	printf("\n\n\n");
+//	for(int i = 0; i<buffer2Length; i++)
+//	{
+//		if (pppoedPacket.getRawPacket()->getRawData()[i] != buffer2[i])
+//			printf("*0x%2X* ", pppoedPacket.getRawPacket()->getRawData()[i]);
+//		else
+//			printf(" 0x%2X  ", pppoedPacket.getRawPacket()->getRawData()[i]);
+//	}
+//	printf("\n\n\n");
+
+	PACKETPP_ASSERT(buffer2Length == pppoedPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", pppoedPacket.getRawPacket()->getRawDataLen(), buffer2Length);
+	PACKETPP_ASSERT(memcmp(pppoedPacket.getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "Raw packet data is different than expected PPPoEDiscovery2");
+
+	delete [] buffer2;
+
+	PACKETPP_ASSERT(pppoedLayer.removeAllTags() == true, "Couldn't remove all tags");
+	pppoedPacket.computeCalculateFields();
+
+	PACKETPP_ASSERT(pppoedLayer.getHeaderLen() == sizeof(pppoe_header), "PPPoED layer after removing all tags doesn't equal sizeof(pppoe_header)");
+	PACKETPP_ASSERT(pppoedLayer.getPPPoEHeader()->payloadLength == 0, "PayloadLength after removing all tags isn't 0");
+
+	PACKETPP_TEST_PASSED;
+}
+
 PACKETPP_TEST(CopyLayerAndPacketTest)
 {
 	int bufferLength = 0;
@@ -1303,6 +1520,10 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(HttpResponseLayerParsingTest);
 	PACKETPP_RUN_TEST(HttpResponseLayerCreationTest);
 	PACKETPP_RUN_TEST(HttpResponseLayerEditTest);
+	PACKETPP_RUN_TEST(PPPoESessionLayerParsingTest);
+	PACKETPP_RUN_TEST(PPPoESessionLayerCreationTest);
+	PACKETPP_RUN_TEST(PPPoEDiscoveryLayerParsingTest);
+	PACKETPP_RUN_TEST(PPPoEDiscoveryLayerCreateTest);
 	PACKETPP_RUN_TEST(CopyLayerAndPacketTest);
 
 	PACKETPP_END_RUNNING_TESTS;

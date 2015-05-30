@@ -45,6 +45,10 @@ struct ether_header {
 #define	ETHERTYPE_IPV6		0x86dd
 /** used to test interfaces */
 #define ETHERTYPE_LOOPBACK	0x9000
+/** PPPoE discovery */
+#define ETHERTYPE_PPPOED	0x8863
+/** PPPoE session */
+#define ETHERTYPE_PPPOES	0x8864
 
 
 /**
@@ -85,15 +89,28 @@ public:
 	inline MacAddress getSourceMac() { return MacAddress(getEthHeader()->srcMac); };
 
 	/**
+	 * Set source MAC address
+	 * @param sourceMac Source MAC to set
+	 */
+	inline void setSoureMac(const MacAddress& sourceMac) { sourceMac.copyTo(getEthHeader()->srcMac); }
+
+	/**
 	 * Get the destination MAC address
 	 * @return The destination MAC address
 	 */
 	inline MacAddress getDestMac() { return MacAddress(getEthHeader()->dstMac); };
 
+	/**
+	 * Set destination MAC address
+	 * @param destMac Destination MAC to set
+	 */
+	void setDestMac(const MacAddress& destMac) { destMac.copyTo(getEthHeader()->dstMac); }
+
 	// implement abstract methods
 
 	/**
-	 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer. Otherwise sets PayloadLayer
+	 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer.
+	 * Otherwise sets PayloadLayer
 	 */
 	void parseNextLayer();
 

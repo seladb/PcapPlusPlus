@@ -56,7 +56,7 @@ enum ProtocolType
 	/**
 	 * HTTP protocol (aggregation bitmask of HTTP request and HTTP response protocols)
 	 */
-	HTTP = 0x20 & 0x40,
+	HTTP = 0x20 | 0x40,
 
 	/**
 	 * ARP protocol
@@ -71,7 +71,22 @@ enum ProtocolType
 	/**
 	 * ICMP protocol (currently not supported by PcapPlusPlus)
 	 */
-	ICMP = 0x200
+	ICMP = 0x200,
+
+	/**
+	 * PPPoE session protocol
+	 */
+	PPPoESession = 0x400,
+
+	/**
+	 * PPPoE discovery protocol
+	 */
+	PPPoEDiscovery = 0x800,
+
+	/**
+	 * PPPoE protocol (aggregation bitmask of PPPoESession PPPoEDiscovery protocols)
+	 */
+	PPPoE = 0x400 | 0x800
 };
 
 #endif
