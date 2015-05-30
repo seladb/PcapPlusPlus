@@ -1272,8 +1272,8 @@ PACKETPP_TEST(PPPoEDiscoveryLayerParsingTest)
 	PACKETPP_ASSERT(fourthTag == pppoeDiscoveryLayer->getNextTag(thirdTag), "getTag and getNextTag returned different results for fourth tag");
 	PACKETPP_ASSERT(fourthTag->getType() == PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, "Fourth tag type isn't PPPOE_TAG_AC_COOKIE");
 	PACKETPP_ASSERT(fourthTag->tagDataLength == htons(16), "Fourth tag length != 16");
-	PACKETPP_ASSERT(fourthTag->getTagDataAs<uint64_t>() == 0xf284240687050f3d, "Fourth tag data is wrong in first 8 bytes");
-	PACKETPP_ASSERT(fourthTag->getTagDataAs<uint64_t>(8) == 0x5bbd77fdddb932df, "Fourth tag data is wrong in last 8 bytes");
+	PACKETPP_ASSERT(fourthTag->getTagDataAs<uint64_t>() == 0xf284240687050f3dULL, "Fourth tag data is wrong in first 8 bytes");
+	PACKETPP_ASSERT(fourthTag->getTagDataAs<uint64_t>(8) == 0x5bbd77fdddb932dfULL, "Fourth tag data is wrong in last 8 bytes");
 	PACKETPP_ASSERT(pppoeDiscoveryLayer->getNextTag(fourthTag) == NULL, "Fourth tag should be the last one but it isn't");
 
 	PACKETPP_ASSERT(pppoeDiscoveryLayer->getTagCount() == 4, "Number of tags != 4, it's %d", pppoeDiscoveryLayer->getTagCount());
@@ -1327,8 +1327,8 @@ PACKETPP_TEST(PPPoEDiscoveryLayerCreateTest)
 	pppoedLayer.getPPPoEHeader()->sessionId = htons(0x11);
 
 	PPPoEDiscoveryLayer::PPPoETag* acCookieTag = pppoedLayer.addTag(PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, 16, NULL);
-	acCookieTag->setTagData<uint64_t>(0xf284240687050f3d);
-	acCookieTag->setTagData<uint64_t>(0x5bbd77fdddb932df, 8);
+	acCookieTag->setTagData<uint64_t>(0xf284240687050f3dULL);
+	acCookieTag->setTagData<uint64_t>(0x5bbd77fdddb932dfULL, 8);
 
 	pppoedLayer.addTagAfter(PPPoEDiscoveryLayer::PPPOE_TAG_HURL, sizeof(uint32_t), (uint8_t*)(&hostUniqData), acCookieTag);
 

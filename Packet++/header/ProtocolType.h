@@ -84,7 +84,7 @@ enum ProtocolType
 	PPPoEDiscovery = 0x800,
 
 	/**
-	 * PPPoE protocol (aggregation bitmask of PPPoESession PPPoEDiscovery protocols)
+	 * PPPoE protocol (aggregation bitmask of PPPoESession and PPPoEDiscovery protocols)
 	 */
 	PPPoE = 0x400 | 0x800
 };
