@@ -3,6 +3,7 @@
 
 #include <Layer.h>
 #include <vector>
+#include <string.h>
 
 using namespace std;
 
@@ -95,7 +96,7 @@ protected:
 	PPPoELayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { }
 
 	// protected c'tor as this class shouldn't be instantiated
-	PPPoELayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code, uint16_t sessionId);
+	PPPoELayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code, uint16_t sessionId, size_t additionalBytesToAllocate = 0);
 
 };
 
@@ -119,13 +120,26 @@ public:
 
 	/**
 	 * A constructor that allocates a new PPPoE Session header with version, type and session ID
-	 * @param version PPPoE version
-	 * @param type PPPoE type
-	 * @param sessionId PPPoE session ID
+	 * @param[in] version PPPoE version
+	 * @param[in] type PPPoE type
+	 * @param[in] sessionId PPPoE session ID
+	 * @param[in] pppNextProtocol The next protocol to come after the PPPoE session header. Should be one of the PPP_* macros listed below
 	 */
-	PPPoESessionLayer(uint8_t version, uint8_t type, uint16_t sessionId) : PPPoELayer(version, type, PPPoELayer::PPPOE_CODE_SESSION, sessionId) {}
+	PPPoESessionLayer(uint8_t version, uint8_t type, uint16_t sessionId, uint16_t pppNextProtocol) : PPPoELayer(version, type, PPPoELayer::PPPOE_CODE_SESSION, sessionId, sizeof(uint16_t)) { setPPPNextProtocol(pppNextProtocol); }
 
 	virtual ~PPPoESessionLayer() {}
+
+	/**
+	 * @return The protocol after the PPPoE session header. The return value is one of the PPP_* macros listed below. This method is also
+	 * used when parsing a packet (this way we know which layer comes after the PPPoE session)
+	 */
+	uint16_t getPPPNextProtocol();
+
+	/**
+	 * Set the field that describes which header comes after the PPPoE session header
+	 * @param[in] nextProtocol The protocol value. Should be one of the PPP_* macros listed below
+	 */
+	void setPPPNextProtocol(uint16_t nextProtocol);
 
 	// abstract methods implementation
 
@@ -137,9 +151,9 @@ public:
 	/**
 	 * @return Size of @ref pppoe_header
 	 */
-	virtual size_t getHeaderLen() { return sizeof(pppoe_header); }
+	virtual size_t getHeaderLen() { return sizeof(pppoe_header) + sizeof(uint16_t); }
 
-	virtual std::string toString() { return "PPP-over-Ethernet Session"; }
+	virtual std::string toString();
 };
 
 
@@ -213,7 +227,7 @@ public:
 		 * A templated method to retrieve the tag data as a certain type T. For example, if tag data is 4B (integer) then this method
 		 * should be used as getTagDataAs<int>() and it will return the tag data as integer.<BR>
 		 * Notice this return value is a copy of the data, not a pointer to the actual data
-		 * @param tagDataOffset An optional parameter that specifies where to start copy the tag data. For example: if tag data is 20 bytes
+		 * @param[in] tagDataOffset An optional parameter that specifies where to start copy the tag data. For example: if tag data is 20 bytes
 		 * and you need only the 4 last bytes as integer then use this method like this: getTagDataAs<int>(16). The default is 0 - start copy
 		 * from the beginning of tag data
 		 * @return The tag data as type T
@@ -229,8 +243,8 @@ public:
 		/**
 		 * A templated method to copy data of type T into the tag data. For example: if tag data is 4[Bytes] long use this method like
 		 * this to set an integer "num" into tag data: setTagData<int>(num)
-		 * @param value The value of type T to copy to tag data
-		 * @param tagDataOffset An optional parameter that specifies where to start set the tag data. For example: if tag data is 20 bytes
+		 * @param[in] value The value of type T to copy to tag data
+		 * @param[in] tagDataOffset An optional parameter that specifies where to start set the tag data. For example: if tag data is 20 bytes
 		 * and you only need to set the 4 last bytes as integer then use this method like this: setTagDataAs<int>(num, 16).
 		 * The default is 0 - start copy to the beginning of tag data
 		 */
@@ -265,18 +279,23 @@ public:
 
 	/**
 	 * A constructor that allocates a new PPPoE Discovery header with version, type, PPPoE code and session ID
-	 * @param version PPPoE version
-	 * @param type PPPoE type
-	 * @param code PPPoE code enum
-	 * @param sessionId PPPoE session ID
+	 * @param[in] version PPPoE version
+	 * @param[in] type PPPoE type
+	 * @param[in] code PPPoE code enum
+	 * @param[in] sessionId PPPoE session ID
 	 */
 	PPPoEDiscoveryLayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code, uint16_t sessionId) : PPPoELayer(version, type, code, sessionId) { m_Protocol = PPPoEDiscovery; m_TagCount = -1; }
+
+	/**
+	 * A copy constructor that copies the entire header from the other PPPoEDiscoveryLayer
+	 */
+	PPPoEDiscoveryLayer(const PPPoEDiscoveryLayer& other) : PPPoELayer(other) { m_TagCount = other.m_TagCount; }
 
 	/**
 	 * Retrieve a PPPoE tag by tag type. If packet consists of multiple tags of the same type, the first tag will be returned. If packet contains
 	 * no tags of the tag type NULL will be returned. Notice the return value is a pointer to the real data casted to PPPoETag type (as opposed
 	 * to a copy of the tag data). So changes in the return value will affect the packet data
-	 * @param tagType The type of the tag to search
+	 * @param[in] tagType The type of the tag to search
 	 * @return A pointer to the tag data casted to PPPoETag*
 	 */
 	PPPoETag* getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType);
@@ -291,7 +310,7 @@ public:
 	 * Get the tag which come next to "tag" parameter. If "tag" is NULL or then NULL will be returned. If "tag" is the last tag NULL will be
 	 * returned. Notice the return value is a pointer to the real data casted to PPPoETag type (as opposed to a copy of the tag data).
 	 * So changes in the return value will affect the packet data
-	 * @param tag The tag to start search
+	 * @param[in] tag The tag to start search
 	 * @return The next tag or NULL if "tag" is NULL or "tag" is the last tag
 	 */
 	PPPoETag* getNextTag(PPPoETag* tag);
@@ -303,9 +322,9 @@ public:
 
 	/**
 	 * Add a new tag at the end of the layer (after the last tag)
-	 * @param tagType The type of the added tag
-	 * @param tagLength The length of the tag data
-	 * @param tagData A pointer to the tag data. This data will be copied to added tag data. Notice the length of tagData must be tagLength
+	 * @param[in] tagType The type of the added tag
+	 * @param[in] tagLength The length of the tag data
+	 * @param[in] tagData A pointer to the tag data. This data will be copied to added tag data. Notice the length of tagData must be tagLength
 	 * @return A pointer to the new added tag. Notice this is a pointer to the real data casted to PPPoETag type (as opposed to a copy of
 	 * the tag data). So changes in this return value will affect the packet data
 	 */
@@ -313,10 +332,10 @@ public:
 
 	/**
 	 * Add a new tag after an existing tag
-	 * @param tagType The type of the added tag
-	 * @param tagLength The length of the tag data
-	 * @param tagData A pointer to the tag data. This data will be copied to added tag data. Notice the length of tagData must be tagLength
-	 * @param prevTag The tag which the new added tag will come after
+	 * @param[in] tagType The type of the added tag
+	 * @param[in] tagLength The length of the tag data
+	 * @param[in] tagData A pointer to the tag data. This data will be copied to added tag data. Notice the length of tagData must be tagLength
+	 * @param[in] prevTag The tag which the new added tag will come after
 	 * @return A pointer to the new added tag. Notice this is a pointer to the real data casted to PPPoETag type (as opposed to a copy of
 	 * the tag data). So changes in this return value will affect the packet data
 	 */
@@ -324,7 +343,7 @@ public:
 
 	/**
 	 * Remove an existing tag. Tag will be found by the tag type
-	 * @param tagType The tag type to remove
+	 * @param[in] tagType The tag type to remove
 	 * @return True if tag was removed or false if tag wasn't found or if tag removal failed (in each case a proper error will be written
 	 * to log)
 	 */
@@ -359,5 +378,276 @@ private:
 
 	std::string codeToString(PPPoECode code);
 };
+
+
+// Copied from Wireshark: ppptypes.h
+
+/** Padding Protocol */
+#define PPP_PADDING		0x1
+/** ROHC small-CID */
+#define PPP_ROHC_SCID	0x3
+/** ROHC large-CID */
+#define PPP_ROHC_LCID	0x5
+/** Internet Protocol version 4 */
+#define PPP_IP			0x21
+/** OSI Network Layer */
+#define PPP_OSI			0x23
+/** Xerox NS IDP */
+#define PPP_XNSIDP		0x25
+/** DECnet Phase IV */
+#define PPP_DEC4		0x27
+/** AppleTalk */
+#define PPP_AT			0x29
+/** Novell IPX */
+#define PPP_IPX			0x2b
+/** Van Jacobson Compressed TCP/IP */
+#define PPP_VJC_COMP	0x2d
+/** Van Jacobson Uncompressed TCP/IP */
+#define PPP_VJC_UNCOMP	0x2f
+/** Bridging PDU */
+#define PPP_BCP			0x31
+/** Stream Protocol (ST-II) */
+#define PPP_ST			0x33
+/** Banyan Vines */
+#define PPP_VINES		0x35
+/** AppleTalk EDDP */
+#define PPP_AT_EDDP		0x39
+/** AppleTalk SmartBuffered */
+#define PPP_AT_SB		0x3b
+/** Multi-Link */
+#define PPP_MP			0x3d
+/** NETBIOS Framing */
+#define PPP_NB			0x3f
+/** Cisco Systems */
+#define PPP_CISCO		0x41
+/** Ascom Timeplex */
+#define PPP_ASCOM		0x43
+/** Fujitsu Link Backup and Load Balancing */
+#define PPP_LBLB		0x45
+/** DCA Remote Lan */
+#define PPP_RL			0x47
+/** Serial Data Transport Protocol */
+#define PPP_SDTP		0x49
+/** SNA over 802.2 */
+#define PPP_LLC			0x4b
+/** SNA */
+#define PPP_SNA			0x4d
+/** IPv6 Header Compression  */
+#define PPP_IPV6HC		0x4f
+/** KNX Bridging Data */
+#define PPP_KNX			0x51
+/** Encryption */
+#define PPP_ENCRYPT		0x53
+/** Individual Link Encryption */
+#define PPP_ILE			0x55
+/** Internet Protocol version 6 */
+#define PPP_IPV6		0x57
+/** PPP Muxing */
+#define PPP_MUX			0x59
+/** Vendor-Specific Network Protocol (VSNP) */
+#define PPP_VSNP		0x5b
+/** TRILL Network Protocol (TNP) */
+#define PPP_TNP			0x5d
+/** RTP IPHC Full Header */
+#define PPP_RTP_FH		0x61
+/** RTP IPHC Compressed TCP */
+#define PPP_RTP_CTCP	0x63
+/** RTP IPHC Compressed Non TCP */
+#define PPP_RTP_CNTCP	0x65
+/** RTP IPHC Compressed UDP 8 */
+#define PPP_RTP_CUDP8	0x67
+/** RTP IPHC Compressed RTP 8 */
+#define PPP_RTP_CRTP8	0x69
+/** Stampede Bridging */
+#define PPP_STAMPEDE	0x6f
+/** MP+ Protocol */
+#define PPP_MPPLUS		0x73
+/** NTCITS IPI */
+#define PPP_NTCITS_IPI	0xc1
+/** Single link compression in multilink */
+#define PPP_ML_SLCOMP	0xfb
+/** Compressed datagram */
+#define PPP_COMP		0xfd
+/** 802.1d Hello Packets */
+#define PPP_STP_HELLO	0x0201
+/** IBM Source Routing BPDU */
+#define PPP_IBM_SR		0x0203
+/** DEC LANBridge100 Spanning Tree */
+#define PPP_DEC_LB		0x0205
+/** Cisco Discovery Protocol */
+#define PPP_CDP			0x0207
+/** Netcs Twin Routing */
+#define PPP_NETCS		0x0209
+/** STP - Scheduled Transfer Protocol */
+#define PPP_STP			0x020b
+/** EDP - Extreme Discovery Protocol */
+#define PPP_EDP			0x020d
+/** Optical Supervisory Channel Protocol */
+#define PPP_OSCP		0x0211
+/** Optical Supervisory Channel Protocol */
+#define PPP_OSCP2		0x0213
+/** Luxcom */
+#define PPP_LUXCOM		0x0231
+/** Sigma Network Systems */
+#define PPP_SIGMA		0x0233
+/** Apple Client Server Protocol */
+#define PPP_ACSP		0x0235
+/** MPLS Unicast */
+#define PPP_MPLS_UNI	0x0281
+/** MPLS Multicast */
+#define PPP_MPLS_MULTI	0x0283
+/** IEEE p1284.4 standard - data packets */
+#define PPP_P12844		0x0285
+/** ETSI TETRA Network Procotol Type 1 */
+#define PPP_TETRA		0x0287
+/** Multichannel Flow Treatment Protocol */
+#define PPP_MFTP		0x0289
+/** RTP IPHC Compressed TCP No Delta */
+#define PPP_RTP_CTCPND	0x2063
+/** RTP IPHC Context State */
+#define PPP_RTP_CS		0x2065
+/** RTP IPHC Compressed UDP 16 */
+#define PPP_RTP_CUDP16	0x2067
+/** RTP IPHC Compressed RTP 16 */
+#define PPP_RTP_CRDP16	0x2069
+/** Cray Communications Control Protocol */
+#define PPP_CCCP		0x4001
+/** CDPD Mobile Network Registration Protocol */
+#define PPP_CDPD_MNRP	0x4003
+/** Expand accelerator protocol */
+#define PPP_EXPANDAP	0x4005
+/** ODSICP NCP */
+#define PPP_ODSICP		0x4007
+/** DOCSIS DLL */
+#define PPP_DOCSIS		0x4009
+/** Cetacean Network Detection Protocol */
+#define PPP_CETACEANNDP	0x400b
+/** Stacker LZS */
+#define PPP_LZS			0x4021
+/** RefTek Protocol */
+#define PPP_REFTEK		0x4023
+/** Fibre Channel */
+#define PPP_FC			0x4025
+/** EMIT Protocols */
+#define PPP_EMIT		0x4027
+/** Vendor-Specific Protocol (VSP) */
+#define PPP_VSP			0x405b
+/** TRILL Link State Protocol (TLSP) */
+#define PPP_TLSP		0x405d
+/** Internet Protocol Control Protocol */
+#define PPP_IPCP		0x8021
+/** OSI Network Layer Control Protocol */
+#define PPP_OSINLCP		0x8023
+/** Xerox NS IDP Control Protocol */
+#define PPP_XNSIDPCP	0x8025
+/** DECnet Phase IV Control Protocol */
+#define PPP_DECNETCP	0x8027
+/** AppleTalk Control Protocol */
+#define PPP_ATCP		0x8029
+/** Novell IPX Control Protocol */
+#define PPP_IPXCP		0x802b
+/** Bridging NCP */
+#define PPP_BRIDGENCP	0x8031
+/** Stream Protocol Control Protocol */
+#define PPP_SPCP		0x8033
+/** Banyan Vines Control Protocol */
+#define PPP_BVCP		0x8035
+/** Multi-Link Control Protocol */
+#define PPP_MLCP		0x803d
+/** NETBIOS Framing Control Protocol */
+#define PPP_NBCP		0x803f
+/** Cisco Systems Control Protocol */
+#define PPP_CISCOCP		0x8041
+/** Ascom Timeplex Control Protocol (?) */
+#define PPP_ASCOMCP		0x8043
+/** Fujitsu LBLB Control Protocol */
+#define PPP_LBLBCP		0x8045
+/** DCA Remote Lan Network Control Protocol */
+#define PPP_RLNCP		0x8047
+/** Serial Data Control Protocol */
+#define PPP_SDCP		0x8049
+/** SNA over 802.2 Control Protocol */
+#define PPP_LLCCP		0x804b
+/** SNA Control Protocol */
+#define PPP_SNACP		0x804d
+/** IP6 Header Compression Control Protocol */
+#define PPP_IP6HCCP		0x804f
+/** KNX Bridging Control Protocol */
+#define PPP_KNXCP		0x8051
+/** Encryption Control Protocol */
+#define PPP_ECP			0x8053
+/** Individual Link Encryption Control Protocol */
+#define PPP_ILECP		0x8055
+/** IPv6 Control Protocol */
+#define PPP_IPV6CP		0x8057
+/** PPP Muxing Control Protocol */
+#define PPP_MUXCP		0x8059
+/** Vendor-Specific Network Control Protocol (VSNCP)   [RFC3772] */
+#define PPP_VSNCP		0x805b
+/** TRILL Network Control Protocol (TNCP) */
+#define PPP_TNCP		0x805d
+/** Stampede Bridging Control Protocol */
+#define PPP_STAMPEDECP	0x806f
+/** MP+ Contorol Protocol */
+#define PPP_MPPCP		0x8073
+/** NTCITS IPI Control Protocol */
+#define PPP_IPICP		0x80c1
+/** Single link compression in multilink control */
+#define PPP_SLCC		0x80fb
+/** Compression Control Protocol */
+#define PPP_CCP			0x80fd
+/** Cisco Discovery Protocol Control Protocol */
+#define PPP_CDPCP		0x8207
+/** Netcs Twin Routing */
+#define PPP_NETCSCP		0x8209
+/** STP - Control Protocol */
+#define PPP_STPCP		0x820b
+/** EDPCP - Extreme Discovery Protocol Control Protocol */
+#define PPP_EDPCP		0x820d
+/** Apple Client Server Protocol Control */
+#define PPP_ACSPC		0x8235
+/** MPLS Control Protocol */
+#define PPP_MPLSCP		0x8281
+/** IEEE p1284.4 standard - Protocol Control */
+#define PPP_P12844CP	0x8285
+/** ETSI TETRA TNP1 Control Protocol */
+#define PPP_TETRACP		0x8287
+/** Multichannel Flow Treatment Protocol */
+#define PPP_MFTPCP		0x8289
+/** Link Control Protocol */
+#define PPP_LCP			0xc021
+/** Password Authentication Protocol */
+#define PPP_PAP			0xc023
+/** Link Quality Report */
+#define PPP_LQR			0xc025
+/** Shiva Password Authentication Protocol */
+#define PPP_SPAP		0xc027
+/** CallBack Control Protocol (CBCP) */
+#define PPP_CBCP		0xc029
+/** BACP Bandwidth Allocation Control Protocol */
+#define PPP_BACP		0xc02b
+/** BAP Bandwidth Allocation Protocol */
+#define PPP_BAP			0xc02d
+/** Vendor-Specific Authentication Protocol (VSAP) */
+#define PPP_VSAP		0xc05b
+/** Container Control Protocol */
+#define PPP_CONTCP		0xc081
+/** Challenge Handshake Authentication Protocol */
+#define PPP_CHAP		0xc223
+/** RSA Authentication Protocol */
+#define PPP_RSAAP		0xc225
+/** Extensible Authentication Protocol */
+#define PPP_EAP			0xc227
+/** Mitsubishi Security Information Exchange Protocol (SIEP) */
+#define PPP_SIEP		0xc229
+/** Stampede Bridging Authorization Protocol */
+#define PPP_SBAP		0xc26f
+/** Proprietary Authentication Protocol */
+#define PPP_PRPAP		0xc281
+/** Proprietary Authentication Protocol */
+#define PPP_PRPAP2		0xc283
+/** Proprietary Node ID Authentication Protocol */
+#define PPP_PRPNIAP		0xc481
+
 
 #endif /* PACKETPP_PPPOE_LAYER */

@@ -1184,8 +1184,9 @@ PACKETPP_TEST(PPPoESessionLayerParsingTest)
 	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->type == 1, "PPPoE type isn't 1");
 	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->sessionId == htons(0x0011), "PPPoE session ID isn't 0x0011");
 	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->payloadLength == htons(20), "PPPoE payload length isn't 20");
+	PACKETPP_ASSERT(pppoeSessionLayer->getPPPNextProtocol() == PPP_LCP, "PPPoE next protocol isn't LCP");
 
-	PACKETPP_ASSERT(pppoeSessionLayer->toString() == string("PPP-over-Ethernet Session"), "PPPoESession toString failed");
+	PACKETPP_ASSERT(pppoeSessionLayer->toString() == string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"), "PPPoESession toString failed");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -1207,8 +1208,14 @@ PACKETPP_TEST(PPPoESessionLayerCreationTest)
 	EthLayer ethLayer(*samplePacket.getLayerOfType<EthLayer>());
 	PACKETPP_ASSERT(pppoesPacket.addLayer(&ethLayer), "Add EthLayer failed");
 
-	PPPoESessionLayer pppoesLayer(1, 1, 0x0011);
+	PPPoESessionLayer pppoesLayer(1, 1, 0x0011, PPP_IPV6);
 	PACKETPP_ASSERT(pppoesPacket.addLayer(&pppoesLayer), "Add PPPoESession layer failed");
+
+	IPv6Layer ipv6Layer(*samplePacket.getLayerOfType<IPv6Layer>());
+	PACKETPP_ASSERT(pppoesPacket.addLayer(&ipv6Layer), "Add IPv6Layer failed");
+
+	UdpLayer udpLayer(*samplePacket.getLayerOfType<UdpLayer>());
+	PACKETPP_ASSERT(pppoesPacket.addLayer(&udpLayer), "Add UdpLayer failed");
 
 	PayloadLayer payloadLayer(*samplePacket.getLayerOfType<PayloadLayer>());
 	PACKETPP_ASSERT(pppoesPacket.addLayer(&payloadLayer), "Add PayloadLayer failed");
