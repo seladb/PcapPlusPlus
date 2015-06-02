@@ -144,7 +144,7 @@ public:
 	// abstract methods implementation
 
 	/**
-	 * Currently set only PayloadLayer for the rest of the data
+	 * Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
 	 */
 	virtual void parseNextLayer();
 
