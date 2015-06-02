@@ -6,6 +6,7 @@
 #include <PayloadLayer.h>
 #include <Logger.h>
 #include <map>
+#include <sstream>
 #ifdef WIN32
 #include <winsock2.h>
 #elif LINUX
@@ -229,7 +230,18 @@ const std::map<uint16_t, std::string> PPPNextProtoToString = createPPPNextProtoT
 
 std::string PPPoESessionLayer::toString()
 {
-	return "PPP-over-Ethernet Session (followed by '" + PPPNextProtoToString.find(getPPPNextProtocol())->second  + "')";
+	std::map<uint16_t, std::string>::const_iterator iter = PPPNextProtoToString.find(getPPPNextProtocol());
+	std::string nextProtocol;
+	if (iter != PPPNextProtoToString.end())
+		nextProtocol = iter->second;
+	else
+	{
+		ostringstream stream;
+		stream << "Unknown (0x" << std::hex << getPPPNextProtocol() << ")";
+		nextProtocol = stream.str();
+	}
+
+	return "PPP-over-Ethernet Session (followed by '" + nextProtocol +  "')";
 }
 
 
