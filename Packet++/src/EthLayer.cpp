@@ -12,6 +12,8 @@
 #include <winsock2.h>
 #elif LINUX
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
 
 EthLayer::EthLayer(MacAddress& sourceMac, MacAddress& destMac, uint16_t etherType) : Layer()

@@ -13,4 +13,7 @@ PCAPPP_LIBS += -lwpcap -lPacket -lpthread -lws2_32
 # post build
 PCAPPP_POST_BUILD += $(CP) $(MINGW_HOME)/bin/pthreadGC2.dll ./Bin
 
+# flags
+PCAPPP_BUILD_FLAGS += -static-libgcc -static-libstdc++
+
 

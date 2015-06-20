@@ -29,7 +29,7 @@ Pcap++Examples.BreakPcapFileToStreams: create-directories dependents $(OBJS_FILE
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
-	$(G++) $(PCAPPP_LIBS_DIR) -static-libgcc -static-libstdc++ -o "./Bin/Pcap++Examples.BreakPcapFileToStreams$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
+	$(G++) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Examples.BreakPcapFileToStreams$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
 	$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '

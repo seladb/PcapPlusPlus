@@ -7,8 +7,9 @@
 #include <winsock2.h>
 #elif LINUX
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
-
 
 ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr, const IPv4Address senderIpAddr, const IPv4Address& targetIpAddr)
 {

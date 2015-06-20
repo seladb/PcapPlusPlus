@@ -12,4 +12,5 @@ PCAPPP_LIBS := -lPcap++ -lPacket++ -lCommon++
 # post build
 PCAPPP_POST_BUILD :=
 
-
+# build flags
+PCAPPP_BUILD_FLAGS :=

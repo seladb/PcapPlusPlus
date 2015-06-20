@@ -23,6 +23,9 @@ endif
 ifdef LINUX
 INCLUDES += -I/usr/include/netinet
 endif
+ifdef MAC_OS_X
+INCLUDES += -I/usr/include/malloc
+endif
 			
 Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
