@@ -22,6 +22,10 @@ Also, there is a Google group for questions, suggestions and support:
 
 https://groups.google.com/d/forum/pcapplusplus-support
 
+Or you can send an email to:
+
+pcapplusplus@gmail.com
+
 ## Package Content ##
 
 The PcapPlusPlus package contains several libraries, unit-tests and example utilities:
