@@ -62,7 +62,7 @@ public:
 	// implement abstract methods
 
 	/**
-	 * Currently set only PayloadLayer for the rest of the data
+	 * Currently identifies the following next layers: DnsLayer. Otherwise sets PayloadLayer
 	 */
 	void parseNextLayer();
 

@@ -10,6 +10,7 @@
 #include <TcpLayer.h>
 #include <HttpLayer.h>
 #include <PPPoELayer.h>
+#include <DnsLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -1380,6 +1381,160 @@ PACKETPP_TEST(PPPoEDiscoveryLayerCreateTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(DnsLayerParsingTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/Dns3.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file Dns3.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet dnsPacket(&rawPacket);
+
+	DnsLayer* dnsLayer = dnsPacket.getLayerOfType<DnsLayer>();
+
+	PACKETPP_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
+	PACKETPP_ASSERT(dnsLayer->getQueryCount() == 2, "Number of DNS queries != 2");
+	PACKETPP_ASSERT(dnsLayer->getAnswerCount() == 0, "Number of DNS answers != 0");
+	PACKETPP_ASSERT(dnsLayer->getAuthorityCount() == 2, "Number of DNS authority != 2");
+	PACKETPP_ASSERT(dnsLayer->getAdditionalRecordCount() == 1, "Number of DNS additional != 1");
+	PACKETPP_ASSERT(ntohs(dnsLayer->getDnsHeader()->transactionID) == 0, "DNS transaction ID != 0");
+	PACKETPP_ASSERT(dnsLayer->getDnsHeader()->queryOrResponse == 0, "Packet isn't a query");
+
+	DnsQuery* firstQuery = dnsLayer->getFirstQuery();
+	PACKETPP_ASSERT(firstQuery != NULL, "First query returned NULL");
+	PACKETPP_ASSERT(firstQuery->getName() == "Yaels-iPhone.local", "First query name != 'Yaels-iPhone.local'");
+	PACKETPP_ASSERT(firstQuery->getDnsType() == DNS_TYPE_ALL, "First query type != DNS_TYPE_ALL, it's %d", firstQuery->getDnsType());
+	PACKETPP_ASSERT(firstQuery->getDnsClass() == DNS_CLASS_IN, "First query class != DNS_CLASS_IN");
+
+	DnsQuery* secondQuery = dnsLayer->getNextQuery(firstQuery);
+	PACKETPP_ASSERT(secondQuery != NULL, "Second query returned NULL");
+	PACKETPP_ASSERT(secondQuery->getName() == "Yaels-iPhone.local", "Second query name != 'Yaels-iPhone.local'");
+	PACKETPP_ASSERT(secondQuery->getDnsType() == DNS_TYPE_ALL, "Second query type != DNS_TYPE_ALL");
+	PACKETPP_ASSERT(secondQuery->getDnsClass() == DNS_CLASS_IN, "Second query class != DNS_CLASS_IN");
+	PACKETPP_ASSERT(dnsLayer->getNextQuery(secondQuery) == NULL, "Unexpected third query in packet");
+
+	DnsQuery* queryByName = dnsLayer->getQuery(string("Yaels-iPhone.local"));
+	PACKETPP_ASSERT(queryByName != NULL, "Query by name returned NULL");
+	PACKETPP_ASSERT(queryByName == firstQuery, "Query by name returned a query different from first query");
+	PACKETPP_ASSERT(dnsLayer->getQuery(string("www.seladb.com")) == NULL, "Query by wrong name returned a result");
+
+	DnsResource* firstAuthority = dnsLayer->getFirstAuthority();
+	PACKETPP_ASSERT(firstAuthority != NULL, "Get first authority returned NULL");
+	PACKETPP_ASSERT(firstAuthority->getDnsType() == DNS_TYPE_A, "First authority type isn't A");
+	PACKETPP_ASSERT(firstAuthority->getDnsClass() == DNS_CLASS_IN, "First authority class isn't IN");
+	PACKETPP_ASSERT(firstAuthority->getTTL() == 120, "First authority TTL != 120");
+	PACKETPP_ASSERT(firstAuthority->getName() == "Yaels-iPhone.local", "First authority name isn't 'Yaels-iPhone.local'");
+	PACKETPP_ASSERT(firstAuthority->getDataLength() == 4, "First authority data size != 4");
+	PACKETPP_ASSERT(firstAuthority->getDataAsString() == "10.0.0.2", "First authority data != 10.0.0.2");
+	PACKETPP_ASSERT(firstAuthority->getSize() == 16, "First authority total size != 16");
+
+	DnsResource* secondAuthority = dnsLayer->getNextAuthority(firstAuthority);
+	PACKETPP_ASSERT(secondAuthority != NULL, "Get next authority returned NULL");
+	PACKETPP_ASSERT(secondAuthority->getDnsType() == DNS_TYPE_AAAA, "Second authority type isn't AAAA");
+	PACKETPP_ASSERT(secondAuthority->getDnsClass() == DNS_CLASS_IN, "Second authority class isn't IN");
+	PACKETPP_ASSERT(secondAuthority->getTTL() == 120, "Second authority TTL != 120");
+	PACKETPP_ASSERT(secondAuthority->getName() == "Yaels-iPhone.local", "Second authority name isn't 'Yaels-iPhone.local'");
+	PACKETPP_ASSERT(secondAuthority->getDataLength() == 16, "Second authority data size != 16");
+	PACKETPP_ASSERT(secondAuthority->getDataAsString() == "fe80::5a1f:aaff:fe4f:3f9d", "Second authority data != fe80::5a1f:aaff:fe4f:3f9d");
+	PACKETPP_ASSERT(secondAuthority->getSize() == 28, "Second authority total size != 28");
+
+	DnsResource* thirdAuthority = dnsLayer->getNextAuthority(secondAuthority);
+	PACKETPP_ASSERT(thirdAuthority == NULL, "Found an imaginary third authority");
+
+	PACKETPP_ASSERT(dnsLayer->getAuthority("Yaels-iPhone.local") == firstAuthority, "Get authority by name didn't return the first authority");
+	PACKETPP_ASSERT(dnsLayer->getAuthority("www.google.com") == NULL, "Found imaginary authority record");
+
+	DnsResource* additionalRecord = dnsLayer->getFirstAdditionalRecord();
+	PACKETPP_ASSERT(additionalRecord != NULL, "Couldn't find additional record");
+	PACKETPP_ASSERT(additionalRecord->getDnsType() == DNS_TYPE_OPT, "Additional record type isn't OPT");
+	PACKETPP_ASSERT(additionalRecord->getDnsClass() == 0x05a0, "Additional record 'class' isn't 0x05a0, it's 0x%X", additionalRecord->getDnsClass());
+	PACKETPP_ASSERT(additionalRecord->getTTL() == 0x1194, "Additional record 'TTL' != 0x1194, it's 0x%X", additionalRecord->getTTL());
+	PACKETPP_ASSERT(additionalRecord->getName() == "", "Additional record name isn't empty");
+	PACKETPP_ASSERT(additionalRecord->getDataLength() == 12, "Second authority data size != 12");
+	PACKETPP_ASSERT(additionalRecord->getDataAsString() == "0x0004000800df581faa4f3f9d", "Additional record unexpected data: %s", additionalRecord->getDataAsString().c_str());
+	PACKETPP_ASSERT(additionalRecord->getSize() == 23, "Second authority total size != 23");
+	PACKETPP_ASSERT(dnsLayer->getNextAdditionalRecord(additionalRecord) == NULL, "Found imaginary additional record");
+	PACKETPP_ASSERT(dnsLayer->getAdditionalRecord("") == additionalRecord, "Couldn't find additional record by (empty) name");
+
+	PACKETPP_ASSERT(dnsLayer->toString() == "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", "Dns3 toString gave the wrong output");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/Dns1.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file Dns1.dat");
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet dnsPacket2(&rawPacket2);
+
+	dnsLayer = dnsPacket2.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
+	PACKETPP_ASSERT(ntohs(dnsLayer->getDnsHeader()->transactionID) == 0x2d6d, "DNS transaction ID != 0x2d6d");
+	PACKETPP_ASSERT(dnsLayer->getDnsHeader()->queryOrResponse == 1, "Packet isn't a response");
+	PACKETPP_ASSERT(dnsLayer->getDnsHeader()->recursionAvailable == 1, "recursionAvailable flag != 1");
+	PACKETPP_ASSERT(dnsLayer->getDnsHeader()->recursionDesired == 1, "recursionDesired flag != 1");
+	PACKETPP_ASSERT(dnsLayer->getDnsHeader()->opcode == 0, "opCode flag != 0");
+	PACKETPP_ASSERT(dnsLayer->getDnsHeader()->authoritativeAnswer == 0, "authoritativeAnswer flag != 0");
+	PACKETPP_ASSERT(dnsLayer->getDnsHeader()->checkingDisabled == 0, "checkingDisabled flag != 0");
+	firstQuery = dnsLayer->getFirstQuery();
+	PACKETPP_ASSERT(firstQuery != NULL, "First query returned NULL for Dns1.dat");
+	PACKETPP_ASSERT(firstQuery->getName() == "www.google-analytics.com", "First query name != 'www.google-analytics.com'");
+	PACKETPP_ASSERT(firstQuery->getDnsType() == DNS_TYPE_A, "DNS type != DNS_TYPE_A");
+
+	DnsResource* curAnswer = dnsLayer->getFirstAnswer();
+	PACKETPP_ASSERT(curAnswer != NULL, "Couldn't find first answer");
+	PACKETPP_ASSERT(curAnswer->getDnsType() == DNS_TYPE_CNAME, "First answer type isn't CNAME");
+	PACKETPP_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "First answer class isn't IN");
+	PACKETPP_ASSERT(curAnswer->getTTL() == 57008, "First answer TTL != 57008");
+	PACKETPP_ASSERT(curAnswer->getName() == "www.google-analytics.com", "First answer name isn't 'www.google-analytics.com'");
+	PACKETPP_ASSERT(curAnswer->getDataLength() == 32, "First answer data size != 32");
+	PACKETPP_ASSERT(curAnswer->getDataAsString() == "www-google-analytics.l.google.com", "First answer data != 'www-google-analytics.l.google.com'. It's '%s'", curAnswer->getDataAsString().c_str());
+	PACKETPP_ASSERT(curAnswer->getSize() == 44, "First authority total size != 44");
+
+	curAnswer = dnsLayer->getNextAnswer(curAnswer);
+	int answerCount = 2;
+	string addrPrefix = "212.199.219.";
+	while (curAnswer != NULL)
+	{
+		PACKETPP_ASSERT(curAnswer->getDnsType() == DNS_TYPE_A, "Answer #%d type isn't A", answerCount);
+		PACKETPP_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "Answer #%d class isn't IN", answerCount);
+		PACKETPP_ASSERT(curAnswer->getTTL() == 117, "Answer #%d TTL != 117", answerCount);
+		PACKETPP_ASSERT(curAnswer->getName() == "www-google-analytics.L.google.com", "Answer #%d name isn't 'www-google-analytics.L.google.com'", answerCount);
+		PACKETPP_ASSERT(curAnswer->getDataLength() == 4, "Answer #%d data size != 4", answerCount);
+		PACKETPP_ASSERT(curAnswer->getDataAsString().substr(0, addrPrefix.size()) == addrPrefix, "Answer #%d data != '212.199.219.X'", answerCount);
+
+		curAnswer = dnsLayer->getNextAnswer(curAnswer);
+		answerCount++;
+	}
+
+	PACKETPP_ASSERT(answerCount == 18, "Found more/less than 17 answers");
+
+	PACKETPP_ASSERT(dnsLayer->getAnswer("www.google-analytics.com") == dnsLayer->getFirstAnswer(), "Couldn't find answer by name 1");
+	PACKETPP_ASSERT(dnsLayer->getAnswer("www-google-analytics.L.google.com") == dnsLayer->getNextAnswer(dnsLayer->getFirstAnswer()), "Couldn't find answer by name 2");
+
+	PACKETPP_ASSERT(dnsLayer->toString() == "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0", "Dns1 toString gave the wrong output");
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/Dns2.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file Dns2.dat");
+
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+
+	Packet dnsPacket3(&rawPacket3);
+
+	dnsLayer = dnsPacket3.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
+	queryByName = dnsLayer->getQuery(string("Yaels-iPhone.local"));
+	PACKETPP_ASSERT(queryByName != NULL, "Query by name returned NULL for Dns2.dat");
+	PACKETPP_ASSERT(queryByName->getDnsClass() == DNS_CLASS_IN_QU, "Query class != DNS_CLASS_IN_QU");
+
+	PACKETPP_ASSERT(dnsLayer->toString() == "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", "Dns2 toString gave the wrong output");
+
+	PACKETPP_TEST_PASSED;
+}
+
 PACKETPP_TEST(CopyLayerAndPacketTest)
 {
 	int bufferLength = 0;
@@ -1531,6 +1686,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(PPPoESessionLayerCreationTest);
 	PACKETPP_RUN_TEST(PPPoEDiscoveryLayerParsingTest);
 	PACKETPP_RUN_TEST(PPPoEDiscoveryLayerCreateTest);
+	PACKETPP_RUN_TEST(DnsLayerParsingTest);
 	PACKETPP_RUN_TEST(CopyLayerAndPacketTest);
 
 	PACKETPP_END_RUNNING_TESTS;

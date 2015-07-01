@@ -361,14 +361,14 @@ Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:04:55.310477
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 64286, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 380; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 170 [Bytes], Arrival time: 2015-01-03 15:04:55.327947
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 64286
-Payload Layer, Data length: 128 [Bytes]
+DNS query response, ID: 380; queries: 1, answers: 6, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:55.328843
@@ -434,7 +434,7 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:04:55.557784
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 51843, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 5374; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:04:55.559023
@@ -454,21 +454,21 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:04:55.562799
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59681, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 41092; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 359 [Bytes], Arrival time: 2015-01-03 15:04:55.577602
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 51843
-Payload Layer, Data length: 317 [Bytes]
+DNS query response, ID: 5374; queries: 1, answers: 17, authorities: 0, additional record: 0
 
 
 Packet length: 359 [Bytes], Arrival time: 2015-01-03 15:04:55.581300
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59681
-Payload Layer, Data length: 317 [Bytes]
+DNS query response, ID: 41092; queries: 1, answers: 17, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:55.581891
@@ -1050,14 +1050,14 @@ Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:04:56.324861
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 50598, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 12071; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 161 [Bytes], Arrival time: 2015-01-03 15:04:56.343765
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 50598
-Payload Layer, Data length: 119 [Bytes]
+DNS query response, ID: 12071; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:56.344195
@@ -1481,21 +1481,21 @@ Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:04:57.998313
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 51825, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 65081; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:04:57.998453
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57684, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 6816; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 165 [Bytes], Arrival time: 2015-01-03 15:04:58.016443
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 51825
-Payload Layer, Data length: 123 [Bytes]
+DNS query response, ID: 65081; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.017023
@@ -1508,7 +1508,7 @@ Packet length: 165 [Bytes], Arrival time: 2015-01-03 15:04:58.019030
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57684
-Payload Layer, Data length: 123 [Bytes]
+DNS query response, ID: 6816; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.031148
@@ -2089,7 +2089,7 @@ Packet length: 73 [Bytes], Arrival time: 2015-01-03 15:04:58.156452
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 55547, Dst port: 53
-Payload Layer, Data length: 31 [Bytes]
+DNS query, ID: 28263; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.156549
@@ -2148,7 +2148,7 @@ Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:04:58.159445
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57361, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 51073; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.162036
@@ -2175,7 +2175,7 @@ Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:04:58.163806
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 62570, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 14462; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.164035
@@ -2189,7 +2189,7 @@ Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:04:58.164314
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63540, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 37348; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.164990
@@ -2209,7 +2209,7 @@ Packet length: 78 [Bytes], Arrival time: 2015-01-03 15:04:58.165321
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61462, Dst port: 53
-Payload Layer, Data length: 36 [Bytes]
+DNS query, ID: 19060; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.165731
@@ -2434,7 +2434,7 @@ Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:04:58.178844
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 55788, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 492; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.178872
@@ -2459,42 +2459,42 @@ Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:04:58.189600
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 51325, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 9087; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:04:58.189646
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63344, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 17196; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 175 [Bytes], Arrival time: 2015-01-03 15:04:58.199979
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 55547
-Payload Layer, Data length: 133 [Bytes]
+DNS query response, ID: 28263; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 175 [Bytes], Arrival time: 2015-01-03 15:04:58.201468
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57361
-Payload Layer, Data length: 133 [Bytes]
+DNS query response, ID: 51073; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 148 [Bytes], Arrival time: 2015-01-03 15:04:58.203163
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 62570
-Payload Layer, Data length: 106 [Bytes]
+DNS query response, ID: 14462; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 176 [Bytes], Arrival time: 2015-01-03 15:04:58.211540
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 51325
-Payload Layer, Data length: 134 [Bytes]
+DNS query response, ID: 9087; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.212030
@@ -2520,7 +2520,7 @@ Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:04:58.264204
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 52804, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 6182; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:58.266394
@@ -2864,7 +2864,7 @@ Packet length: 196 [Bytes], Arrival time: 2015-01-03 15:04:58.299041
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 52804
-Payload Layer, Data length: 154 [Bytes]
+DNS query response, ID: 6182; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:58.303042
@@ -3868,14 +3868,14 @@ Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:04:58.498063
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 49856, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 16884; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:04:58.503391
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 62771, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 18818; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.513722
@@ -3894,7 +3894,7 @@ Packet length: 144 [Bytes], Arrival time: 2015-01-03 15:04:58.518050
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 49856
-Payload Layer, Data length: 102 [Bytes]
+DNS query response, ID: 16884; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 463 [Bytes], Arrival time: 2015-01-03 15:04:58.518606
@@ -3908,7 +3908,7 @@ Packet length: 187 [Bytes], Arrival time: 2015-01-03 15:04:58.522842
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 62771
-Payload Layer, Data length: 145 [Bytes]
+DNS query response, ID: 18818; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:58.531114
@@ -3935,7 +3935,7 @@ Packet length: 83 [Bytes], Arrival time: 2015-01-03 15:04:58.543540
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 51525, Dst port: 53
-Payload Layer, Data length: 41 [Bytes]
+DNS query, ID: 56715; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:04:58.560101
@@ -3962,7 +3962,7 @@ Packet length: 169 [Bytes], Arrival time: 2015-01-03 15:04:58.568051
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 51525
-Payload Layer, Data length: 127 [Bytes]
+DNS query response, ID: 56715; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.570181
@@ -3981,28 +3981,28 @@ Packet length: 83 [Bytes], Arrival time: 2015-01-03 15:04:58.570613
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63900, Dst port: 53
-Payload Layer, Data length: 41 [Bytes]
+DNS query, ID: 12724; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:04:58.570883
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 58793, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 48855; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 169 [Bytes], Arrival time: 2015-01-03 15:04:58.590438
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63900
-Payload Layer, Data length: 127 [Bytes]
+DNS query response, ID: 12724; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 187 [Bytes], Arrival time: 2015-01-03 15:04:58.596052
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 58793
-Payload Layer, Data length: 145 [Bytes]
+DNS query response, ID: 48855; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.604052
@@ -4065,14 +4065,14 @@ Packet length: 81 [Bytes], Arrival time: 2015-01-03 15:04:58.646297
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61258, Dst port: 53
-Payload Layer, Data length: 39 [Bytes]
+DNS query, ID: 49213; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:04:58.647074
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 62639, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 15355; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.656152
@@ -4123,14 +4123,14 @@ Packet length: 172 [Bytes], Arrival time: 2015-01-03 15:04:58.664909
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61258
-Payload Layer, Data length: 130 [Bytes]
+DNS query response, ID: 49213; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 170 [Bytes], Arrival time: 2015-01-03 15:04:58.666593
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 62639
-Payload Layer, Data length: 128 [Bytes]
+DNS query response, ID: 15355; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.671597
@@ -4203,7 +4203,7 @@ Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:04:58.732939
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57376, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 47825; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.735449
@@ -4216,14 +4216,14 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:04:58.735479
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 65139, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 39638; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 15:04:58.755544
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 65139
-Payload Layer, Data length: 53 [Bytes]
+DNS query response, ID: 39638; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:58.768942
@@ -4331,7 +4331,7 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:04:58.778141
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 49229, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 12980; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.778266
@@ -4344,21 +4344,21 @@ Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:04:58.778391
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 54971, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 17255; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 15:04:58.797925
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 49229
-Payload Layer, Data length: 53 [Bytes]
+DNS query response, ID: 12980; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 113 [Bytes], Arrival time: 2015-01-03 15:04:58.800143
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 54971
-Payload Layer, Data length: 71 [Bytes]
+DNS query response, ID: 17255; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:04:58.817097
@@ -4371,7 +4371,7 @@ Packet length: 113 [Bytes], Arrival time: 2015-01-03 15:04:58.819843
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57376
-Payload Layer, Data length: 71 [Bytes]
+DNS query response, ID: 47825; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 338 [Bytes], Arrival time: 2015-01-03 15:04:58.829358
@@ -4487,7 +4487,7 @@ Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:04:58.960621
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 65491, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 65264; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.961378
@@ -4512,7 +4512,7 @@ Packet length: 78 [Bytes], Arrival time: 2015-01-03 15:04:58.963154
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61059, Dst port: 53
-Payload Layer, Data length: 36 [Bytes]
+DNS query, ID: 44493; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:58.965475
@@ -4555,14 +4555,14 @@ Packet length: 116 [Bytes], Arrival time: 2015-01-03 15:04:58.981654
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 65491
-Payload Layer, Data length: 74 [Bytes]
+DNS query response, ID: 65264; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 169 [Bytes], Arrival time: 2015-01-03 15:04:58.983355
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61059
-Payload Layer, Data length: 127 [Bytes]
+DNS query response, ID: 44493; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.038125
@@ -4575,7 +4575,7 @@ Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:04:59.038307
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 51909, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 46753; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.051215
@@ -4588,7 +4588,7 @@ Packet length: 86 [Bytes], Arrival time: 2015-01-03 15:04:59.051240
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59792, Dst port: 53
-Payload Layer, Data length: 44 [Bytes]
+DNS query, ID: 5879; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.055073
@@ -4607,14 +4607,14 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 15:04:59.059073
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 51909
-Payload Layer, Data length: 138 [Bytes]
+DNS query response, ID: 46753; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 102 [Bytes], Arrival time: 2015-01-03 15:04:59.070420
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59792
-Payload Layer, Data length: 60 [Bytes]
+DNS query response, ID: 5879; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 278 [Bytes], Arrival time: 2015-01-03 15:04:59.108456
@@ -4673,28 +4673,28 @@ Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:04:59.164114
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63540, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 37348; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 78 [Bytes], Arrival time: 2015-01-03 15:04:59.165115
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61462, Dst port: 53
-Payload Layer, Data length: 36 [Bytes]
+DNS query, ID: 19060; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:04:59.178104
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 55788, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 492; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 148 [Bytes], Arrival time: 2015-01-03 15:04:59.184078
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63540
-Payload Layer, Data length: 106 [Bytes]
+DNS query response, ID: 37348; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.184511
@@ -4725,28 +4725,28 @@ Packet length: 140 [Bytes], Arrival time: 2015-01-03 15:04:59.186077
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61462
-Payload Layer, Data length: 98 [Bytes]
+DNS query response, ID: 19060; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:04:59.189103
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63344, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 17196; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 175 [Bytes], Arrival time: 2015-01-03 15:04:59.195106
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 55788
-Payload Layer, Data length: 133 [Bytes]
+DNS query response, ID: 492; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 176 [Bytes], Arrival time: 2015-01-03 15:04:59.207173
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63344
-Payload Layer, Data length: 134 [Bytes]
+DNS query response, ID: 17196; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.297932
@@ -5186,7 +5186,7 @@ Packet length: 73 [Bytes], Arrival time: 2015-01-03 15:04:59.636344
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 50436, Dst port: 53
-Payload Layer, Data length: 31 [Bytes]
+DNS query, ID: 62791; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:04:59.644968
@@ -5226,7 +5226,7 @@ Packet length: 164 [Bytes], Arrival time: 2015-01-03 15:04:59.656097
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 50436
-Payload Layer, Data length: 122 [Bytes]
+DNS query response, ID: 62791; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:04:59.661797
@@ -5260,7 +5260,7 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:04:59.682528
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 62818, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 50639; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.682540
@@ -5273,7 +5273,7 @@ Packet length: 129 [Bytes], Arrival time: 2015-01-03 15:04:59.703101
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 62818
-Payload Layer, Data length: 87 [Bytes]
+DNS query response, ID: 50639; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 459 [Bytes], Arrival time: 2015-01-03 15:04:59.716349
@@ -5367,7 +5367,7 @@ Packet length: 77 [Bytes], Arrival time: 2015-01-03 15:04:59.803896
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 62362, Dst port: 53
-Payload Layer, Data length: 35 [Bytes]
+DNS query, ID: 29104; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:04:59.806119
@@ -5406,7 +5406,7 @@ Packet length: 147 [Bytes], Arrival time: 2015-01-03 15:04:59.823854
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 62362
-Payload Layer, Data length: 105 [Bytes]
+DNS query response, ID: 29104; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:04:59.827377
@@ -5536,7 +5536,7 @@ Packet length: 85 [Bytes], Arrival time: 2015-01-03 15:04:59.935542
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 53699, Dst port: 53
-Payload Layer, Data length: 43 [Bytes]
+DNS query, ID: 52608; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 398 [Bytes], Arrival time: 2015-01-03 15:04:59.949630
@@ -5557,7 +5557,7 @@ Packet length: 173 [Bytes], Arrival time: 2015-01-03 15:04:59.955181
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 53699
-Payload Layer, Data length: 131 [Bytes]
+DNS query response, ID: 52608; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:04:59.967538
@@ -5590,7 +5590,7 @@ Packet length: 85 [Bytes], Arrival time: 2015-01-03 15:04:59.977489
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 62540, Dst port: 53
-Payload Layer, Data length: 43 [Bytes]
+DNS query, ID: 19941; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:04:59.985477
@@ -5618,7 +5618,7 @@ Packet length: 173 [Bytes], Arrival time: 2015-01-03 15:05:00.004945
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 62540
-Payload Layer, Data length: 131 [Bytes]
+DNS query response, ID: 19941; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.005409
@@ -5695,14 +5695,14 @@ Packet length: 88 [Bytes], Arrival time: 2015-01-03 15:05:00.040352
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 52283, Dst port: 53
-Payload Layer, Data length: 46 [Bytes]
+DNS query, ID: 47677; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 88 [Bytes], Arrival time: 2015-01-03 15:05:00.040434
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61930, Dst port: 53
-Payload Layer, Data length: 46 [Bytes]
+DNS query, ID: 9599; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 330 [Bytes], Arrival time: 2015-01-03 15:05:00.041923
@@ -5716,14 +5716,14 @@ Packet length: 85 [Bytes], Arrival time: 2015-01-03 15:05:00.044057
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 53225, Dst port: 53
-Payload Layer, Data length: 43 [Bytes]
+DNS query, ID: 30130; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 85 [Bytes], Arrival time: 2015-01-03 15:05:00.044057
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57696, Dst port: 53
-Payload Layer, Data length: 43 [Bytes]
+DNS query, ID: 33424; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.053453
@@ -5751,7 +5751,7 @@ Packet length: 177 [Bytes], Arrival time: 2015-01-03 15:05:00.078114
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 52283
-Payload Layer, Data length: 135 [Bytes]
+DNS query response, ID: 47677; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.078670
@@ -5771,21 +5771,21 @@ Packet length: 177 [Bytes], Arrival time: 2015-01-03 15:05:00.081182
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61930
-Payload Layer, Data length: 135 [Bytes]
+DNS query response, ID: 9599; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 176 [Bytes], Arrival time: 2015-01-03 15:05:00.081856
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 53225
-Payload Layer, Data length: 134 [Bytes]
+DNS query response, ID: 30130; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 176 [Bytes], Arrival time: 2015-01-03 15:05:00.082590
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57696
-Payload Layer, Data length: 134 [Bytes]
+DNS query response, ID: 33424; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.082963
@@ -5849,7 +5849,7 @@ Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:05:00.146815
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59564, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 14474; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.163485
@@ -5950,7 +5950,7 @@ Packet length: 170 [Bytes], Arrival time: 2015-01-03 15:05:00.170099
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59564
-Payload Layer, Data length: 128 [Bytes]
+DNS query response, ID: 14474; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:00.175205
@@ -6149,7 +6149,7 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:00.362742
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61632, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 21516; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:00.374536
@@ -6171,49 +6171,49 @@ Packet length: 82 [Bytes], Arrival time: 2015-01-03 15:05:00.385130
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 50427, Dst port: 53
-Payload Layer, Data length: 40 [Bytes]
+DNS query, ID: 42015; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 82 [Bytes], Arrival time: 2015-01-03 15:05:00.385270
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59410, Dst port: 53
-Payload Layer, Data length: 40 [Bytes]
+DNS query, ID: 38290; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:05:00.395153
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63116, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 21765; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:05:00.395175
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57536, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 50606; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 118 [Bytes], Arrival time: 2015-01-03 15:05:00.416056
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61632
-Payload Layer, Data length: 76 [Bytes]
+DNS query response, ID: 21516; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 195 [Bytes], Arrival time: 2015-01-03 15:05:00.416787
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59410
-Payload Layer, Data length: 153 [Bytes]
+DNS query response, ID: 38290; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 195 [Bytes], Arrival time: 2015-01-03 15:05:00.417519
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 50427
-Payload Layer, Data length: 153 [Bytes]
+DNS query response, ID: 42015; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.417922
@@ -6226,7 +6226,7 @@ Packet length: 186 [Bytes], Arrival time: 2015-01-03 15:05:00.418254
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57536
-Payload Layer, Data length: 144 [Bytes]
+DNS query response, ID: 50606; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.418621
@@ -6239,7 +6239,7 @@ Packet length: 186 [Bytes], Arrival time: 2015-01-03 15:05:00.420425
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63116
-Payload Layer, Data length: 144 [Bytes]
+DNS query response, ID: 21765; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.432331
@@ -6350,14 +6350,14 @@ Packet length: 83 [Bytes], Arrival time: 2015-01-03 15:05:00.571358
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 52629, Dst port: 53
-Payload Layer, Data length: 41 [Bytes]
+DNS query, ID: 41293; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 83 [Bytes], Arrival time: 2015-01-03 15:05:00.571379
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 58958, Dst port: 53
-Payload Layer, Data length: 41 [Bytes]
+DNS query, ID: 10248; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:00.581169
@@ -6377,7 +6377,7 @@ Packet length: 195 [Bytes], Arrival time: 2015-01-03 15:05:00.593135
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 58958
-Payload Layer, Data length: 153 [Bytes]
+DNS query response, ID: 10248; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.593704
@@ -6390,7 +6390,7 @@ Packet length: 195 [Bytes], Arrival time: 2015-01-03 15:05:00.597134
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 52629
-Payload Layer, Data length: 153 [Bytes]
+DNS query response, ID: 41293; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.610135
@@ -6530,14 +6530,14 @@ Packet length: 87 [Bytes], Arrival time: 2015-01-03 15:05:00.742179
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 56158, Dst port: 53
-Payload Layer, Data length: 45 [Bytes]
+DNS query, ID: 62496; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:00.750615
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 58702, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 33292; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.751322
@@ -6550,7 +6550,7 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:00.751398
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59621, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 11852; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.751519
@@ -6569,7 +6569,7 @@ Packet length: 160 [Bytes], Arrival time: 2015-01-03 15:05:00.761142
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 56158
-Payload Layer, Data length: 118 [Bytes]
+DNS query response, ID: 62496; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:00.763073
@@ -6637,7 +6637,7 @@ Packet length: 170 [Bytes], Arrival time: 2015-01-03 15:05:00.771685
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 58702
-Payload Layer, Data length: 128 [Bytes]
+DNS query response, ID: 33292; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 216 [Bytes], Arrival time: 2015-01-03 15:05:00.772420
@@ -6652,7 +6652,7 @@ Packet length: 170 [Bytes], Arrival time: 2015-01-03 15:05:00.773574
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59621
-Payload Layer, Data length: 128 [Bytes]
+DNS query response, ID: 11852; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.773987
@@ -6904,7 +6904,7 @@ Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:00.870397
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57215, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 60037; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:00.870962
@@ -7035,7 +7035,7 @@ Packet length: 113 [Bytes], Arrival time: 2015-01-03 15:05:00.945148
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57215
-Payload Layer, Data length: 71 [Bytes]
+DNS query response, ID: 60037; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:00.952148
@@ -7230,7 +7230,7 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:01.112660
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59668, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 24638; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:01.128186
@@ -7243,7 +7243,7 @@ Packet length: 109 [Bytes], Arrival time: 2015-01-03 15:05:01.133156
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59668
-Payload Layer, Data length: 67 [Bytes]
+DNS query response, ID: 24638; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 408 [Bytes], Arrival time: 2015-01-03 15:05:01.146189
@@ -7263,14 +7263,14 @@ Packet length: 91 [Bytes], Arrival time: 2015-01-03 15:05:01.241887
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 50883, Dst port: 53
-Payload Layer, Data length: 49 [Bytes]
+DNS query, ID: 65313; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 91 [Bytes], Arrival time: 2015-01-03 15:05:01.241922
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61087, Dst port: 53
-Payload Layer, Data length: 49 [Bytes]
+DNS query, ID: 61284; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:01.251184
@@ -7291,7 +7291,7 @@ Packet length: 145 [Bytes], Arrival time: 2015-01-03 15:05:01.261657
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 50883
-Payload Layer, Data length: 103 [Bytes]
+DNS query response, ID: 65313; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.261934
@@ -7391,7 +7391,7 @@ Packet length: 145 [Bytes], Arrival time: 2015-01-03 15:05:01.269295
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61087
-Payload Layer, Data length: 103 [Bytes]
+DNS query response, ID: 61284; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:01.269768
@@ -7472,7 +7472,7 @@ Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:05:01.321730
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 56792, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 34213; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.340307
@@ -7541,7 +7541,7 @@ Packet length: 170 [Bytes], Arrival time: 2015-01-03 15:05:01.347742
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 56792
-Payload Layer, Data length: 128 [Bytes]
+DNS query response, ID: 34213; queries: 1, answers: 6, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:01.368076
@@ -7695,7 +7695,7 @@ Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:01.504816
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 50327, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 10663; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:01.505052
@@ -7796,21 +7796,21 @@ Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:01.519618
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 53707, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 10699; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 92 [Bytes], Arrival time: 2015-01-03 15:05:01.523555
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 50327
-Payload Layer, Data length: 50 [Bytes]
+DNS query response, ID: 10663; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 92 [Bytes], Arrival time: 2015-01-03 15:05:01.540173
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 53707
-Payload Layer, Data length: 50 [Bytes]
+DNS query response, ID: 10699; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:05:01.562247
@@ -8133,42 +8133,42 @@ Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:01.902449
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 62932, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 11439; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:01.902460
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63610, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 6971; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:01.914145
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57260, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 62575; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:01.914145
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60776, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 35614; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:01.914151
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60209, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 22431; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 195 [Bytes], Arrival time: 2015-01-03 15:05:01.922254
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 62932
-Payload Layer, Data length: 153 [Bytes]
+DNS query response, ID: 11439; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:01.922690
@@ -8181,21 +8181,21 @@ Packet length: 195 [Bytes], Arrival time: 2015-01-03 15:05:01.923937
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63610
-Payload Layer, Data length: 153 [Bytes]
+DNS query response, ID: 6971; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 181 [Bytes], Arrival time: 2015-01-03 15:05:01.933136
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57260
-Payload Layer, Data length: 139 [Bytes]
+DNS query response, ID: 62575; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:05:01.933642
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57122, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 40205; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:01.934205
@@ -8208,196 +8208,196 @@ Packet length: 166 [Bytes], Arrival time: 2015-01-03 15:05:01.935677
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60776
-Payload Layer, Data length: 124 [Bytes]
+DNS query response, ID: 35614; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:01.936157
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59042, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 46266; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 129 [Bytes], Arrival time: 2015-01-03 15:05:01.938868
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60209
-Payload Layer, Data length: 87 [Bytes]
+DNS query response, ID: 22431; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 78 [Bytes], Arrival time: 2015-01-03 15:05:01.939328
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 49469, Dst port: 53
-Payload Layer, Data length: 36 [Bytes]
+DNS query, ID: 15086; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 165 [Bytes], Arrival time: 2015-01-03 15:05:01.954054
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57122
-Payload Layer, Data length: 123 [Bytes]
+DNS query response, ID: 40205; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:01.954523
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 55903, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 32587; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 138 [Bytes], Arrival time: 2015-01-03 15:05:01.957700
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59042
-Payload Layer, Data length: 96 [Bytes]
+DNS query response, ID: 46266; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 185 [Bytes], Arrival time: 2015-01-03 15:05:01.958869
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 49469
-Payload Layer, Data length: 143 [Bytes]
+DNS query response, ID: 15086; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:01.959105
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57110, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 39821; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 77 [Bytes], Arrival time: 2015-01-03 15:05:01.959315
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 65216, Dst port: 53
-Payload Layer, Data length: 35 [Bytes]
+DNS query, ID: 50307; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 178 [Bytes], Arrival time: 2015-01-03 15:05:01.973249
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 55903
-Payload Layer, Data length: 136 [Bytes]
+DNS query response, ID: 32587; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 77 [Bytes], Arrival time: 2015-01-03 15:05:01.973715
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 53564, Dst port: 53
-Payload Layer, Data length: 35 [Bytes]
+DNS query, ID: 2744; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 91 [Bytes], Arrival time: 2015-01-03 15:05:01.977425
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57110
-Payload Layer, Data length: 49 [Bytes]
+DNS query response, ID: 39821; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:01.977857
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60219, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 56928; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 183 [Bytes], Arrival time: 2015-01-03 15:05:01.979465
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 65216
-Payload Layer, Data length: 141 [Bytes]
+DNS query response, ID: 50307; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 73 [Bytes], Arrival time: 2015-01-03 15:05:01.979908
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59010, Dst port: 53
-Payload Layer, Data length: 31 [Bytes]
+DNS query, ID: 9609; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 190 [Bytes], Arrival time: 2015-01-03 15:05:01.991939
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 53564
-Payload Layer, Data length: 148 [Bytes]
+DNS query response, ID: 2744; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 78 [Bytes], Arrival time: 2015-01-03 15:05:01.992595
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 54413, Dst port: 53
-Payload Layer, Data length: 36 [Bytes]
+DNS query, ID: 5507; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 167 [Bytes], Arrival time: 2015-01-03 15:05:01.997079
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60219
-Payload Layer, Data length: 125 [Bytes]
+DNS query response, ID: 56928; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:05:01.997898
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 49693, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 18029; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 164 [Bytes], Arrival time: 2015-01-03 15:05:01.999815
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59010
-Payload Layer, Data length: 122 [Bytes]
+DNS query response, ID: 9609; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:02.000280
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61808, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 39574; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 94 [Bytes], Arrival time: 2015-01-03 15:05:02.010706
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 54413
-Payload Layer, Data length: 52 [Bytes]
+DNS query response, ID: 5507; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:05:02.011311
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61432, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 6901; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 90 [Bytes], Arrival time: 2015-01-03 15:05:02.017367
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 49693
-Payload Layer, Data length: 48 [Bytes]
+DNS query response, ID: 18029; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 72 [Bytes], Arrival time: 2015-01-03 15:05:02.018168
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63015, Dst port: 53
-Payload Layer, Data length: 30 [Bytes]
+DNS query, ID: 63919; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 92 [Bytes], Arrival time: 2015-01-03 15:05:02.019777
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61808
-Payload Layer, Data length: 50 [Bytes]
+DNS query response, ID: 39574; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:02.020240
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 58019, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 47475; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:02.026189
@@ -8423,91 +8423,91 @@ Packet length: 179 [Bytes], Arrival time: 2015-01-03 15:05:02.029629
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61432
-Payload Layer, Data length: 137 [Bytes]
+DNS query response, ID: 6901; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:02.030204
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61682, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 12550; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 172 [Bytes], Arrival time: 2015-01-03 15:05:02.037818
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63015
-Payload Layer, Data length: 130 [Bytes]
+DNS query response, ID: 63919; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:02.038982
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 62950, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 51274; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 137 [Bytes], Arrival time: 2015-01-03 15:05:02.040291
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 58019
-Payload Layer, Data length: 95 [Bytes]
+DNS query response, ID: 47475; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 85 [Bytes], Arrival time: 2015-01-03 15:05:02.041202
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59416, Dst port: 53
-Payload Layer, Data length: 43 [Bytes]
+DNS query, ID: 18311; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 190 [Bytes], Arrival time: 2015-01-03 15:05:02.048725
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61682
-Payload Layer, Data length: 148 [Bytes]
+DNS query response, ID: 12550; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:05:02.049614
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61191, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 3122; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 180 [Bytes], Arrival time: 2015-01-03 15:05:02.058269
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 62950
-Payload Layer, Data length: 138 [Bytes]
+DNS query response, ID: 51274; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:02.059019
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57702, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 38820; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 101 [Bytes], Arrival time: 2015-01-03 15:05:02.060812
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59416
-Payload Layer, Data length: 59 [Bytes]
+DNS query response, ID: 18311; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:02.061459
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60470, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 51017; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 90 [Bytes], Arrival time: 2015-01-03 15:05:02.068041
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61191
-Payload Layer, Data length: 48 [Bytes]
+DNS query response, ID: 3122; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:02.068212
@@ -8520,14 +8520,14 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 15:05:02.078600
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57702
-Payload Layer, Data length: 53 [Bytes]
+DNS query response, ID: 38820; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 15:05:02.080104
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60470
-Payload Layer, Data length: 53 [Bytes]
+DNS query response, ID: 51017; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:02.133967
@@ -9430,7 +9430,7 @@ Packet length: 67 [Bytes], Arrival time: 2015-01-03 15:05:05.676210
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 54411, Dst port: 53
-Payload Layer, Data length: 25 [Bytes]
+DNS query, ID: 8529; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:05.688338
@@ -9444,7 +9444,7 @@ Packet length: 131 [Bytes], Arrival time: 2015-01-03 15:05:05.695337
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 54411
-Payload Layer, Data length: 89 [Bytes]
+DNS query response, ID: 8529; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:05.695826
@@ -9697,14 +9697,14 @@ Packet length: 71 [Bytes], Arrival time: 2015-01-03 15:05:05.876546
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57296, Dst port: 53
-Payload Layer, Data length: 29 [Bytes]
+DNS query, ID: 49725; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 139 [Bytes], Arrival time: 2015-01-03 15:05:05.896347
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57296
-Payload Layer, Data length: 97 [Bytes]
+DNS query response, ID: 49725; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:05.896922
@@ -9889,21 +9889,21 @@ Packet length: 77 [Bytes], Arrival time: 2015-01-03 15:05:06.290613
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 55091, Dst port: 53
-Payload Layer, Data length: 35 [Bytes]
+DNS query, ID: 44043; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 73 [Bytes], Arrival time: 2015-01-03 15:05:06.299154
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 56428, Dst port: 53
-Payload Layer, Data length: 31 [Bytes]
+DNS query, ID: 57801; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 217 [Bytes], Arrival time: 2015-01-03 15:05:06.310364
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 55091
-Payload Layer, Data length: 175 [Bytes]
+DNS query response, ID: 44043; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:06.311367
@@ -9922,14 +9922,14 @@ Packet length: 73 [Bytes], Arrival time: 2015-01-03 15:05:06.315104
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 56147, Dst port: 53
-Payload Layer, Data length: 31 [Bytes]
+DNS query, ID: 3072; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 131 [Bytes], Arrival time: 2015-01-03 15:05:06.319362
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 56428
-Payload Layer, Data length: 89 [Bytes]
+DNS query response, ID: 57801; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:06.319872
@@ -9986,7 +9986,7 @@ Packet length: 131 [Bytes], Arrival time: 2015-01-03 15:05:06.337076
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 56147
-Payload Layer, Data length: 89 [Bytes]
+DNS query response, ID: 3072; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:06.337716
@@ -10090,7 +10090,7 @@ Packet length: 78 [Bytes], Arrival time: 2015-01-03 15:05:06.348945
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60747, Dst port: 53
-Payload Layer, Data length: 36 [Bytes]
+DNS query, ID: 21179; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.350364
@@ -10506,7 +10506,7 @@ Packet length: 211 [Bytes], Arrival time: 2015-01-03 15:05:06.452368
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60747
-Payload Layer, Data length: 169 [Bytes]
+DNS query response, ID: 21179; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:06.452926
@@ -11007,7 +11007,7 @@ Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:06.706318
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 65202, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 12324; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 415 [Bytes], Arrival time: 2015-01-03 15:05:06.706956
@@ -11238,7 +11238,7 @@ Packet length: 214 [Bytes], Arrival time: 2015-01-03 15:05:06.736852
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 65202
-Payload Layer, Data length: 172 [Bytes]
+DNS query response, ID: 12324; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:06.737470
@@ -12014,7 +12014,7 @@ Packet length: 77 [Bytes], Arrival time: 2015-01-03 15:05:06.800906
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57563, Dst port: 53
-Payload Layer, Data length: 35 [Bytes]
+DNS query, ID: 63129; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:06.801381
@@ -14526,7 +14526,7 @@ Packet length: 217 [Bytes], Arrival time: 2015-01-03 15:05:06.991388
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57563
-Payload Layer, Data length: 175 [Bytes]
+DNS query response, ID: 63129; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:06.991410
@@ -16817,21 +16817,21 @@ Packet length: 70 [Bytes], Arrival time: 2015-01-03 15:05:07.590103
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 65438, Dst port: 53
-Payload Layer, Data length: 28 [Bytes]
+DNS query, ID: 48806; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 72 [Bytes], Arrival time: 2015-01-03 15:05:07.601747
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 52838, Dst port: 53
-Payload Layer, Data length: 30 [Bytes]
+DNS query, ID: 65333; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 259 [Bytes], Arrival time: 2015-01-03 15:05:07.611696
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 65438
-Payload Layer, Data length: 217 [Bytes]
+DNS query response, ID: 48806; queries: 1, answers: 11, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.612288
@@ -16844,7 +16844,7 @@ Packet length: 136 [Bytes], Arrival time: 2015-01-03 15:05:07.619175
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 52838
-Payload Layer, Data length: 94 [Bytes]
+DNS query response, ID: 65333; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.619527
@@ -16863,14 +16863,14 @@ Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:05:07.677905
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 56848, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 31617; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 84 [Bytes], Arrival time: 2015-01-03 15:05:07.677905
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 51438, Dst port: 53
-Payload Layer, Data length: 42 [Bytes]
+DNS query, ID: 44793; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.682311
@@ -16883,14 +16883,14 @@ Packet length: 83 [Bytes], Arrival time: 2015-01-03 15:05:07.682322
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 58475, Dst port: 53
-Payload Layer, Data length: 41 [Bytes]
+DNS query, ID: 36952; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 78 [Bytes], Arrival time: 2015-01-03 15:05:07.684045
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 58540, Dst port: 53
-Payload Layer, Data length: 36 [Bytes]
+DNS query, ID: 58442; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 357 [Bytes], Arrival time: 2015-01-03 15:05:07.687191
@@ -16963,7 +16963,7 @@ Packet length: 384 [Bytes], Arrival time: 2015-01-03 15:05:07.706419
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 51438
-Payload Layer, Data length: 342 [Bytes]
+DNS query response, ID: 44793; queries: 1, answers: 17, authorities: 0, additional record: 0
 
 
 Packet length: 766 [Bytes], Arrival time: 2015-01-03 15:05:07.706421
@@ -16978,14 +16978,14 @@ Packet length: 197 [Bytes], Arrival time: 2015-01-03 15:05:07.708421
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 58475
-Payload Layer, Data length: 155 [Bytes]
+DNS query response, ID: 36952; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 384 [Bytes], Arrival time: 2015-01-03 15:05:07.708421
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 56848
-Payload Layer, Data length: 342 [Bytes]
+DNS query response, ID: 31617; queries: 1, answers: 17, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.708896
@@ -17231,7 +17231,7 @@ Packet length: 168 [Bytes], Arrival time: 2015-01-03 15:05:07.776993
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 58540
-Payload Layer, Data length: 126 [Bytes]
+DNS query response, ID: 58442; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:07.777436
@@ -17772,7 +17772,7 @@ Packet length: 74 [Bytes], Arrival time: 2015-01-03 15:05:08.093741
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 56517, Dst port: 53
-Payload Layer, Data length: 32 [Bytes]
+DNS query, ID: 31066; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 358 [Bytes], Arrival time: 2015-01-03 15:05:08.096830
@@ -17917,7 +17917,7 @@ Packet length: 247 [Bytes], Arrival time: 2015-01-03 15:05:08.179490
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 56517
-Payload Layer, Data length: 205 [Bytes]
+DNS query response, ID: 31066; queries: 1, answers: 9, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:08.180056
@@ -18644,14 +18644,14 @@ Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:08.877994
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 64813, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 36150; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 143 [Bytes], Arrival time: 2015-01-03 15:05:08.895776
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 64813
-Payload Layer, Data length: 101 [Bytes]
+DNS query response, ID: 36150; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:08.896265
@@ -18718,21 +18718,21 @@ Packet length: 72 [Bytes], Arrival time: 2015-01-03 15:05:09.211489
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 55186, Dst port: 53
-Payload Layer, Data length: 30 [Bytes]
+DNS query, ID: 22478; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:09.211802
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 61047, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 29001; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:09.211911
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60136, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 28800; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:09.228393
@@ -18746,63 +18746,63 @@ Packet length: 78 [Bytes], Arrival time: 2015-01-03 15:05:09.228939
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60211, Dst port: 53
-Payload Layer, Data length: 36 [Bytes]
+DNS query, ID: 14377; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:09.231550
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60762, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 26691; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 96 [Bytes], Arrival time: 2015-01-03 15:05:09.232982
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 61047
-Payload Layer, Data length: 54 [Bytes]
+DNS query response, ID: 29001; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:09.233468
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 54432, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 20938; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 159 [Bytes], Arrival time: 2015-01-03 15:05:09.236415
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 55186
-Payload Layer, Data length: 117 [Bytes]
+DNS query response, ID: 22478; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:09.236884
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 50411, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 19559; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 186 [Bytes], Arrival time: 2015-01-03 15:05:09.239374
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60136
-Payload Layer, Data length: 144 [Bytes]
+DNS query response, ID: 28800; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 73 [Bytes], Arrival time: 2015-01-03 15:05:09.239852
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59132, Dst port: 53
-Payload Layer, Data length: 31 [Bytes]
+DNS query, ID: 59434; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 94 [Bytes], Arrival time: 2015-01-03 15:05:09.247526
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60211
-Payload Layer, Data length: 52 [Bytes]
+DNS query response, ID: 14377; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:09.247884
@@ -18815,70 +18815,70 @@ Packet length: 184 [Bytes], Arrival time: 2015-01-03 15:05:09.254546
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 54432
-Payload Layer, Data length: 142 [Bytes]
+DNS query response, ID: 20938; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 80 [Bytes], Arrival time: 2015-01-03 15:05:09.255224
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 56416, Dst port: 53
-Payload Layer, Data length: 38 [Bytes]
+DNS query, ID: 12709; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 185 [Bytes], Arrival time: 2015-01-03 15:05:09.258441
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 50411
-Payload Layer, Data length: 143 [Bytes]
+DNS query response, ID: 19559; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:09.258929
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60613, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 11839; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 169 [Bytes], Arrival time: 2015-01-03 15:05:09.262189
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59132
-Payload Layer, Data length: 127 [Bytes]
+DNS query response, ID: 59434; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:09.262761
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 65442, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 33065; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 186 [Bytes], Arrival time: 2015-01-03 15:05:09.276498
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 56416
-Payload Layer, Data length: 144 [Bytes]
+DNS query response, ID: 12709; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 79 [Bytes], Arrival time: 2015-01-03 15:05:09.277083
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 50414, Dst port: 53
-Payload Layer, Data length: 37 [Bytes]
+DNS query, ID: 4127; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 176 [Bytes], Arrival time: 2015-01-03 15:05:09.278192
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60613
-Payload Layer, Data length: 134 [Bytes]
+DNS query response, ID: 11839; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 71 [Bytes], Arrival time: 2015-01-03 15:05:09.278676
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59569, Dst port: 53
-Payload Layer, Data length: 29 [Bytes]
+DNS query, ID: 9830; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:09.284017
@@ -18953,14 +18953,14 @@ Packet length: 178 [Bytes], Arrival time: 2015-01-03 15:05:09.293687
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 65442
-Payload Layer, Data length: 136 [Bytes]
+DNS query response, ID: 33065; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 88 [Bytes], Arrival time: 2015-01-03 15:05:09.294241
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 60322, Dst port: 53
-Payload Layer, Data length: 46 [Bytes]
+DNS query, ID: 12011; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 15:05:09.295502
@@ -18973,14 +18973,14 @@ Packet length: 187 [Bytes], Arrival time: 2015-01-03 15:05:09.298605
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 50414
-Payload Layer, Data length: 145 [Bytes]
+DNS query response, ID: 4127; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 153 [Bytes], Arrival time: 2015-01-03 15:05:09.299379
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59569
-Payload Layer, Data length: 111 [Bytes]
+DNS query response, ID: 9830; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:09.310838
@@ -18993,7 +18993,7 @@ Packet length: 104 [Bytes], Arrival time: 2015-01-03 15:05:09.313354
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60322
-Payload Layer, Data length: 62 [Bytes]
+DNS query response, ID: 12011; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 536 [Bytes], Arrival time: 2015-01-03 15:05:09.318469
@@ -19087,7 +19087,7 @@ Packet length: 168 [Bytes], Arrival time: 2015-01-03 15:05:09.326060
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 60762
-Payload Layer, Data length: 126 [Bytes]
+DNS query response, ID: 26691; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:09.326545
@@ -22886,7 +22886,7 @@ Packet length: 77 [Bytes], Arrival time: 2015-01-03 15:05:10.451521
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 57583, Dst port: 53
-Payload Layer, Data length: 35 [Bytes]
+DNS query, ID: 37373; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 448 [Bytes], Arrival time: 2015-01-03 15:05:10.451541
@@ -22915,7 +22915,7 @@ Packet length: 210 [Bytes], Arrival time: 2015-01-03 15:05:10.476219
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 57583
-Payload Layer, Data length: 168 [Bytes]
+DNS query response, ID: 37373; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:10.476680
@@ -23010,7 +23010,7 @@ Packet length: 72 [Bytes], Arrival time: 2015-01-03 15:05:10.682730
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59198, Dst port: 53
-Payload Layer, Data length: 30 [Bytes]
+DNS query, ID: 31121; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 481 [Bytes], Arrival time: 2015-01-03 15:05:10.691495
@@ -23611,14 +23611,14 @@ Packet length: 72 [Bytes], Arrival time: 2015-01-03 15:05:10.767662
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 65239, Dst port: 53
-Payload Layer, Data length: 30 [Bytes]
+DNS query, ID: 21561; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 120 [Bytes], Arrival time: 2015-01-03 15:05:10.786692
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 65239
-Payload Layer, Data length: 78 [Bytes]
+DNS query response, ID: 21561; queries: 1, answers: 2, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:10.790514
@@ -23659,7 +23659,7 @@ Packet length: 128 [Bytes], Arrival time: 2015-01-03 15:05:10.839991
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59198
-Payload Layer, Data length: 86 [Bytes]
+DNS query response, ID: 31121; queries: 1, answers: 3, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:10.840511
@@ -26634,7 +26634,7 @@ Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:16.717980
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 64564, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 37972; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:16.719903
@@ -26667,7 +26667,7 @@ Packet length: 331 [Bytes], Arrival time: 2015-01-03 15:05:16.737849
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 64564
-Payload Layer, Data length: 289 [Bytes]
+DNS query response, ID: 37972; queries: 1, answers: 16, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:16.748691
@@ -27143,7 +27143,7 @@ Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:17.008338
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63594, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 23499; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 15:05:17.009498
@@ -27291,7 +27291,7 @@ Packet length: 331 [Bytes], Arrival time: 2015-01-03 15:05:17.034503
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63594
-Payload Layer, Data length: 289 [Bytes]
+DNS query response, ID: 23499; queries: 1, answers: 16, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:17.035147
@@ -27310,7 +27310,7 @@ Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:17.041874
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63653, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 31663; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 15:05:17.048813
@@ -27369,7 +27369,7 @@ Packet length: 352 [Bytes], Arrival time: 2015-01-03 15:05:17.060142
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63653
-Payload Layer, Data length: 310 [Bytes]
+DNS query response, ID: 31663; queries: 1, answers: 17, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:17.063990
@@ -29002,14 +29002,14 @@ Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:20.226820
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 54038, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 21683; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 168 [Bytes], Arrival time: 2015-01-03 15:05:20.245754
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 54038
-Payload Layer, Data length: 126 [Bytes]
+DNS query response, ID: 21683; queries: 1, answers: 5, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:20.246660
@@ -29042,7 +29042,7 @@ Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:20.421479
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 56011, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 19992; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 15:05:20.445951
@@ -29161,7 +29161,7 @@ Packet length: 75 [Bytes], Arrival time: 2015-01-03 15:05:20.671390
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 59828, Dst port: 53
-Payload Layer, Data length: 33 [Bytes]
+DNS query, ID: 51861; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:20.674205
@@ -29199,7 +29199,7 @@ Packet length: 352 [Bytes], Arrival time: 2015-01-03 15:05:20.692935
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 59828
-Payload Layer, Data length: 310 [Bytes]
+DNS query response, ID: 51861; queries: 1, answers: 17, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:20.704938
@@ -29213,7 +29213,7 @@ Packet length: 92 [Bytes], Arrival time: 2015-01-03 15:05:20.714938
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 56011
-Payload Layer, Data length: 50 [Bytes]
+DNS query response, ID: 19992; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:20.715477
@@ -29684,7 +29684,7 @@ Packet length: 77 [Bytes], Arrival time: 2015-01-03 15:05:20.945067
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 63509, Dst port: 53
-Payload Layer, Data length: 35 [Bytes]
+DNS query, ID: 2300; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 300 [Bytes], Arrival time: 2015-01-03 15:05:20.963950
@@ -29718,7 +29718,7 @@ Packet length: 183 [Bytes], Arrival time: 2015-01-03 15:05:20.965949
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 63509
-Payload Layer, Data length: 141 [Bytes]
+DNS query response, ID: 2300; queries: 1, answers: 4, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:20.970307
@@ -30083,7 +30083,7 @@ Packet length: 76 [Bytes], Arrival time: 2015-01-03 15:05:21.688902
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 10.0.0.138
 UDP Layer, Src port: 53324, Dst port: 53
-Payload Layer, Data length: 34 [Bytes]
+DNS query, ID: 19309; queries: 1, answers: 0, authorities: 0, additional record: 0
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 15:05:21.688977
@@ -30279,7 +30279,7 @@ Packet length: 92 [Bytes], Arrival time: 2015-01-03 15:05:21.845643
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 10.0.0.138, Dst: 10.0.0.1
 UDP Layer, Src port: 53, Dst port: 53324
-Payload Layer, Data length: 50 [Bytes]
+DNS query response, ID: 19309; queries: 1, answers: 1, authorities: 0, additional record: 0
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 15:05:21.923935

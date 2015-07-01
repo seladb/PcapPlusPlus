@@ -11,6 +11,7 @@
 #include <HttpLayer.h>
 #include <VlanLayer.h>
 #include <UdpLayer.h>
+#include <DnsLayer.h>
 #include <PcapFileDevice.h>
 #include <PcapLiveDeviceList.h>
 #include <WinPcapLiveDevice.h>
@@ -40,6 +41,7 @@ using namespace std;
 #define EXAMPLE_PCAP_HTTP_REQUEST "PcapExamples/4KHttpRequests.pcap"
 #define EXAMPLE_PCAP_HTTP_RESPONSE "PcapExamples/650HttpResponses.pcap"
 #define EXAMPLE_PCAP_VLAN "PcapExamples/VlanPackets.pcap"
+#define EXAMPLE_PCAP_DNS "PcapExamples/DnsPackets.pcap"
 
 #define PCAPP_TEST(TestName) bool TestName(PcapTestArgs const& args)
 
@@ -1874,6 +1876,192 @@ PCAPP_TEST(TestPfRingFilters)
 	PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestDnsParsing)
+{
+    PcapFileReaderDevice readerDev(EXAMPLE_PCAP_DNS);
+    PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
+
+    RawPacket rawPacket;
+    int dnsPackets = 0;
+
+    int packetsContainingDnsQuery = 0;
+    int packetsContainingDnsAnswer = 0;
+    int packetsContainingDnsAuthority = 0;
+    int packetsContainingDnsAdditional = 0;
+
+    int queriesWithNameGoogle = 0;
+    int queriesWithNameMozillaOrg = 0; //aus3.mozilla.org
+    int queriesWithTypeA = 0;
+    int queriesWithTypeNotA = 0;
+    int queriesWithClassIN = 0;
+
+    int answersWithTypeCNAME = 0;
+    int answersWithTypePTR = 0;
+    int answersWithNameGoogleAnalytics = 0;
+    int answersWithTtlLessThan30 = 0;
+    int answersWithDataCertainIPv6 = 0;
+
+    int authoritiesWithNameYaelPhone = 0;
+    int authoritiesWithData10_0_0_2 = 0;
+
+    int additionalWithEmptyName = 0;
+    int additionalWithLongUglyName = 0;
+    int additionalWithTypeNSEC = 0;
+
+    while (readerDev.getNextPacket(rawPacket))
+    {
+    	dnsPackets++;
+    	Packet packet(&rawPacket);
+    	PCAPP_ASSERT_AND_RUN_COMMAND(packet.isPacketOfType(DNS), readerDev.close(), "Packet isn't of type DNS");
+
+		DnsLayer* dnsLayer = packet.getLayerOfType<DnsLayer>();
+		if (dnsLayer->getQueryCount() > 0)
+		{
+			packetsContainingDnsQuery++;
+
+			if (dnsLayer->getQuery("aus3.mozilla.org") != NULL)
+				queriesWithNameMozillaOrg++;
+			if (dnsLayer->getQuery("www.google.com") != NULL)
+				queriesWithNameGoogle++;
+
+			bool isTypeA = false;
+			bool isClassIN = false;
+
+			for (DnsQuery* query = dnsLayer->getFirstQuery(); query != NULL; query = dnsLayer->getNextQuery(query))
+			{
+				if (query->getDnsType() == DNS_TYPE_A)
+					isTypeA = true;
+				if (query->getDnsClass() == DNS_CLASS_IN || query->getDnsClass() == DNS_CLASS_IN_QU)
+					isClassIN = true;
+			}
+
+			if (isTypeA)
+				queriesWithTypeA++;
+			else
+				queriesWithTypeNotA++;
+			if (isClassIN)
+				queriesWithClassIN++;
+		}
+
+		if (dnsLayer->getAnswerCount() > 0)
+		{
+			packetsContainingDnsAnswer++;
+
+			if (dnsLayer->getAnswer("www.google-analytics.com") != NULL)
+				answersWithNameGoogleAnalytics++;
+
+			bool isTypeCNAME = false;
+			bool isTypePTR = false;
+			bool isTtlLessThan30 = false;
+
+			for (DnsResource* answer = dnsLayer->getFirstAnswer(); answer != NULL; answer = dnsLayer->getNextAnswer(answer))
+			{
+				if (answer->getTTL() < 30)
+					isTtlLessThan30 = true;
+				if (answer->getDnsType() == DNS_TYPE_CNAME)
+					isTypeCNAME = true;
+				if (answer->getDnsType() == DNS_TYPE_PTR)
+					isTypePTR = true;
+				if (answer->getDataAsString() == "fe80::5a1f:aaff:fe4f:3f9d")
+					answersWithDataCertainIPv6++;
+			}
+
+			if (isTypeCNAME)
+				answersWithTypeCNAME++;
+			if (isTypePTR)
+				answersWithTypePTR++;
+			if (isTtlLessThan30)
+				answersWithTtlLessThan30++;
+		}
+
+		if (dnsLayer->getAuthorityCount() > 0)
+		{
+			packetsContainingDnsAuthority++;
+
+			if (dnsLayer->getAuthority("Yaels-iPhone.local") != NULL)
+				authoritiesWithNameYaelPhone++;
+
+			for (DnsResource* auth = dnsLayer->getFirstAuthority(); auth != NULL; auth = dnsLayer->getNextAuthority(auth))
+			{
+				if (auth->getDataAsString() == "10.0.0.2")
+				{
+					authoritiesWithData10_0_0_2++;
+					break;
+				}
+			}
+		}
+
+		if (dnsLayer->getAdditionalRecordCount() > 0)
+		{
+			packetsContainingDnsAdditional++;
+
+			if (dnsLayer->getAdditionalRecord("") != NULL)
+				additionalWithEmptyName++;
+
+			if (dnsLayer->getAdditionalRecord("D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa") != NULL)
+				additionalWithLongUglyName++;
+
+			bool isTypeNSEC = false;
+
+			for (DnsResource* add = dnsLayer->getFirstAdditionalRecord(); add != NULL; add = dnsLayer->getNextAdditionalRecord(add))
+			{
+				if (add->getDnsType() == DNS_TYPE_NSEC)
+					isTypeNSEC = true;
+			}
+
+			if (isTypeNSEC)
+				additionalWithTypeNSEC++;
+		}
+    }
+
+    PCAPP_ASSERT(dnsPackets == 464, "Number of DNS packets different than expected. Found: %d; Expected: 464", dnsPackets);
+
+    // wireshark filter: dns.count.queries > 0
+    PCAPP_ASSERT(packetsContainingDnsQuery == 450, "DNS query count different than expected. Found: %d; Expected: 450", packetsContainingDnsQuery);
+    // wireshark filter: dns.count.answers > 0
+    PCAPP_ASSERT(packetsContainingDnsAnswer == 224, "DNS answer count different than expected. Found: %d; Expected: 224", packetsContainingDnsAnswer);
+    // wireshark filter: dns.count.auth_rr > 0
+    PCAPP_ASSERT(packetsContainingDnsAuthority == 11, "DNS authority count different than expected. Found: %d; Expected: 11", packetsContainingDnsAuthority);
+    // wireshark filter: dns.count.add_rr > 0
+    PCAPP_ASSERT(packetsContainingDnsAdditional == 23, "DNS additional record count different than expected. Found: %d; Expected: 23", packetsContainingDnsAdditional);
+
+    // wireshark filter: dns.qry.name == www.google.com
+    PCAPP_ASSERT(queriesWithNameGoogle == 14, "DNS queries with name 'www.google.com' different than expected. Found: %d; Expected: 14", queriesWithNameGoogle);
+    // wireshark filter: dns.qry.name == aus3.mozilla.org
+    PCAPP_ASSERT(queriesWithNameMozillaOrg == 2, "DNS queries with name 'aus3.mozilla.org' different than expected. Found: %d; Expected: 2", queriesWithNameMozillaOrg);
+    // wireshark filter: dns.qry.type == 1
+    PCAPP_ASSERT(queriesWithTypeA == 436, "DNS queries with type A different than expected. Found: %d; Expected: 436", queriesWithTypeA);
+    // wireshark filter: dns.qry.type > 0 and not (dns.qry.type == 1)
+    PCAPP_ASSERT(queriesWithTypeNotA == 14, "DNS queries with type not A different than expected. Found: %d; Expected: 14", queriesWithTypeNotA);
+    // wireshark filter: dns.qry.class == 1
+    PCAPP_ASSERT(queriesWithClassIN == 450, "DNS queries with class IN different than expected. Found: %d; Expected: 450", queriesWithClassIN);
+
+    // wireshark filter: dns.count.answers > 0 and dns.resp.type == 12
+    PCAPP_ASSERT(answersWithTypePTR == 14, "DNS answers with type PTR different than expected. Found: %d; Expected: 14", answersWithTypePTR);
+    // wireshark filter: dns.count.answers > 0 and dns.resp.type == 5
+    PCAPP_ASSERT(answersWithTypeCNAME == 90, "DNS answers with type CNAME different than expected. Found: %d; Expected: 90", answersWithTypeCNAME);
+    // wireshark filter: dns.count.answers > 0 and dns.resp.name == www.google-analytics.com
+    PCAPP_ASSERT(answersWithNameGoogleAnalytics == 7, "DNS answers with name 'www.google-analytics.com' different than expected. Found: %d; Expected: 7", answersWithNameGoogleAnalytics);
+    // wireshark filter: dns.count.answers > 0 and dns.aaaa == fe80::5a1f:aaff:fe4f:3f9d
+    PCAPP_ASSERT(answersWithDataCertainIPv6 == 12, "DNS answers with IPv6 data of 'fe80::5a1f:aaff:fe4f:3f9d' different than expected. Found: %d; Expected: 12", answersWithDataCertainIPv6);
+    // wireshark filter: dns.count.answers > 0 and dns.resp.ttl < 30
+    PCAPP_ASSERT(answersWithTtlLessThan30 == 17, "DNS answers with TTL less than 30 different than expected. Found: %d; Expected: 17", answersWithTtlLessThan30);
+
+    // wireshark filter: dns.count.auth_rr > 0 and dns.resp.name == Yaels-iPhone.local
+    PCAPP_ASSERT(authoritiesWithNameYaelPhone == 9, "DNS authorities with name 'Yaels-iPhone.local' different than expected. Found: %d; Expected: 9", authoritiesWithNameYaelPhone);
+    // wireshark filter: dns.count.auth_rr > 0 and dns.a == 10.0.0.2
+    PCAPP_ASSERT(authoritiesWithData10_0_0_2 == 9, "DNS authorities with IPv4 data of '10.0.0.2' different than expected. Found: %d; Expected: 9", authoritiesWithData10_0_0_2);
+
+    // wireshark filter: dns.count.add_rr > 0 and dns.resp.name == "<Root>"
+    PCAPP_ASSERT(additionalWithEmptyName == 23, "DNS additional records with empty name different than expected. Found: %d; Expected: 23", additionalWithEmptyName);
+    // wireshark filter: dns.count.add_rr > 0 and dns.resp.name == D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa
+    PCAPP_ASSERT(additionalWithLongUglyName == 12, "DNS additional records with long ugly name different than expected. Found: %d; Expected: 12", additionalWithLongUglyName);
+    // wireshark filter: dns.count.add_rr > 0 and dns.resp.type == 47
+    PCAPP_ASSERT(additionalWithTypeNSEC == 14, "DNS additional records with type NSEC different than expected. Found: %d; Expected: 14", additionalWithTypeNSEC);
+
+	PCAPP_TEST_PASSED;
+}
+
 
 
 static struct option PcapTestOptions[] =
@@ -1968,5 +2156,6 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPfRingSendPacket, args);
 	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
 	PCAPP_RUN_TEST(TestPfRingFilters, args);
+	PCAPP_RUN_TEST(TestDnsParsing, args);
 	PCAPP_END_RUNNING_TESTS;
 }
