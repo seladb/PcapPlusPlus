@@ -1535,6 +1535,268 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(DnsLayerQueryCreationTest)
+{
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/DnsEdit2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file DnsEdit2.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket raw2Packet((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet dnsEdit2RefPacket(&raw2Packet);
+
+	Packet dnsEdit2Packet(1);
+
+	EthLayer ethLayer2(*dnsEdit2RefPacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(dnsEdit2Packet.addLayer(&ethLayer2), "Add EthLayer failed");
+
+	IPv4Layer ipLayer2(*dnsEdit2RefPacket.getLayerOfType<IPv4Layer>());
+	PACKETPP_ASSERT(dnsEdit2Packet.addLayer(&ipLayer2), "Add IPv4Layer failed");
+
+	UdpLayer udpLayer2(*dnsEdit2RefPacket.getLayerOfType<UdpLayer>());
+	PACKETPP_ASSERT(dnsEdit2Packet.addLayer(&udpLayer2), "Add UdpLayer failed");
+
+	DnsLayer dns2Layer;
+	dns2Layer.getDnsHeader()->recursionDesired = true;
+	dns2Layer.getDnsHeader()->transactionID = htons(0xb179);
+	DnsQuery* newQuery = dns2Layer.addQuery("mail-attachment.googleusercontent.com", DNS_TYPE_A, DNS_CLASS_IN);
+	PACKETPP_ASSERT(newQuery != NULL, "Couldn't add query for DnsEdit2");
+	PACKETPP_ASSERT(dns2Layer.getQueryCount() == 1, "Query count != 1 after adding a query for DnsEdit2");
+	PACKETPP_ASSERT(newQuery->getName() == "mail-attachment.googleusercontent.com", "Name of new query is wrong");
+
+	dnsEdit2Packet.addLayer(&dns2Layer);
+
+	dnsEdit2Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(buffer2Length == dnsEdit2Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit2Packet.getRawPacket()->getRawDataLen(), buffer2Length);
+
+	PACKETPP_ASSERT(memcmp(dnsEdit2Packet.getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "Raw packet data is different than expected DnsEdit2");
+
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/DnsEdit1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file DnsEdit1.dat");
+
+	gettimeofday(&time, NULL);
+	RawPacket raw1Packet((const uint8_t*)buffer1, buffer1Length, time, true);
+
+	Packet dnsEdit1RefPacket(&raw1Packet);
+
+	Packet dnsEdit1Packet(1);
+
+	EthLayer ethLayer1(*dnsEdit1RefPacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(dnsEdit1Packet.addLayer(&ethLayer1), "Add EthLayer failed");
+
+	IPv4Layer ipLayer1(*dnsEdit1RefPacket.getLayerOfType<IPv4Layer>());
+	PACKETPP_ASSERT(dnsEdit1Packet.addLayer(&ipLayer1), "Add IPv4Layer failed");
+
+	UdpLayer udpLayer1(*dnsEdit1RefPacket.getLayerOfType<UdpLayer>());
+	PACKETPP_ASSERT(dnsEdit1Packet.addLayer(&udpLayer1), "Add UdpLayer failed");
+
+	DnsLayer dns1Layer;
+
+	dnsEdit1Packet.addLayer(&dns1Layer);
+
+	newQuery = dns1Layer.addQuery("_apple-mobdev._tcp.local", DNS_TYPE_PTR, DNS_CLASS_IN);
+	PACKETPP_ASSERT(newQuery != NULL, "Couldn't add query for DnsEdit1");
+	PACKETPP_ASSERT(dns1Layer.getQueryCount() == 1, "Query count != 1 after adding a query for DnsEdit1");
+
+	newQuery = dns1Layer.addQuery(newQuery);
+	PACKETPP_ASSERT(newQuery != NULL, "Couldn't add second query for DnsEdit1");
+	PACKETPP_ASSERT(dns1Layer.getQueryCount() == 2, "Query count != 2 after adding a second query for DnsEdit1");
+
+	PACKETPP_ASSERT(newQuery->setName("_sleep-proxy._udp.local") == true, "Couldn't set name for DnsEdit1");
+
+	PACKETPP_ASSERT(dns1Layer.addQuery(NULL) == NULL, "adding a null record accidently succeeded");
+	PACKETPP_ASSERT(dns1Layer.getQueryCount() == 2, "Query count != 2 after adding a second query and null query for DnsEdit1");
+
+	dnsEdit1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(buffer1Length == dnsEdit1Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit1Packet.getRawPacket()->getRawDataLen(), buffer1Length);
+
+	PACKETPP_ASSERT(memcmp(dnsEdit1Packet.getRawPacket()->getRawData(), buffer1, buffer1Length) == 0, "Raw packet data is different than expected DnsEdit1");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(DnsLayerResourceCreationTest)
+{
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/DnsEdit4.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file DnsEdit4.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket raw4Packet((const uint8_t*)buffer4, buffer4Length, time, true);
+
+	Packet dnsEdit4RefPacket(&raw4Packet);
+
+	Packet dnsEdit4Packet(1);
+
+	EthLayer ethLayer4(*dnsEdit4RefPacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(dnsEdit4Packet.addLayer(&ethLayer4), "Add EthLayer failed");
+
+	IPv4Layer ipLayer4(*dnsEdit4RefPacket.getLayerOfType<IPv4Layer>());
+	PACKETPP_ASSERT(dnsEdit4Packet.addLayer(&ipLayer4), "Add IPv4Layer failed");
+
+	UdpLayer udpLayer4(*dnsEdit4RefPacket.getLayerOfType<UdpLayer>());
+	PACKETPP_ASSERT(dnsEdit4Packet.addLayer(&udpLayer4), "Add UdpLayer failed");
+
+	DnsLayer dns4Layer;
+	dns4Layer.getDnsHeader()->transactionID = htons(14627);
+	dns4Layer.getDnsHeader()->queryOrResponse = 1;
+	dns4Layer.getDnsHeader()->recursionDesired = 1;
+	dns4Layer.getDnsHeader()->recursionAvailable = 1;
+
+	DnsResource* firstAnswer = dns4Layer.addAnswer("assets.pinterest.com", DNS_TYPE_CNAME, DNS_CLASS_IN, 228, "assets.pinterest.com.cdngc.net");
+	PACKETPP_ASSERT(firstAnswer != NULL, "Couldn't add first answer");
+	PACKETPP_ASSERT(dns4Layer.getFirstAnswer() == firstAnswer, "Couldn't retrieve first answer from layer");
+	PACKETPP_ASSERT(firstAnswer->getDataAsString() == "assets.pinterest.com.cdngc.net", "Couldn't retrieve data for first answer");
+
+	PACKETPP_ASSERT(dnsEdit4Packet.addLayer(&dns4Layer), "Add DnsLayer failed");
+
+	PACKETPP_ASSERT(dnsEdit4Packet.getLayerOfType<DnsLayer>()->getFirstAnswer() == firstAnswer, "Couldn't retrieve first answer from layer after adding layer to packet");
+
+	DnsResource* secondAnswer = dns4Layer.addAnswer("assets.pinterest.com.cdngc.net", DNS_TYPE_A, DNS_CLASS_IN, 3, "151.249.90.217");
+	PACKETPP_ASSERT(secondAnswer != NULL, "Couldn't add second answer");
+	PACKETPP_ASSERT(secondAnswer->getDataAsString() == "151.249.90.217", "Couldn't retrieve data for second answer");
+
+	DnsQuery* query = dns4Layer.addQuery("assets.pinterest.com", DNS_TYPE_A, DNS_CLASS_IN);
+	PACKETPP_ASSERT(query != NULL, "Couldn't add query");
+
+	PACKETPP_ASSERT(dnsEdit4Packet.getLayerOfType<DnsLayer>()->getFirstAnswer() == firstAnswer, "Couldn't retrieve first answer from layer after adding query");
+	PACKETPP_ASSERT(dnsEdit4Packet.getLayerOfType<DnsLayer>()->getNextAnswer(firstAnswer) == secondAnswer, "Couldn't retrieve second answer from layer after adding query");
+
+	DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
+	PACKETPP_ASSERT(thirdAnswer != NULL, "Couldn't add third answer");
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(thirdAnswer->setData("256.249.90.238") == false, "Managed to set illegal IPv4 address in third answer");
+	LoggerPP::getInstance().enableErrors();
+	PACKETPP_ASSERT(thirdAnswer->setData("151.249.90.238") == true, "Couldn't set data for third answer");
+
+	PACKETPP_ASSERT(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net")->getDataAsString() == "151.249.90.217", "Couldn't retrieve data for second answer after adding third answer");
+	PACKETPP_ASSERT(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net"))->getDataAsString() == "151.249.90.238", "Couldn't retrieve data for third answer after adding third answer");
+
+	dnsEdit4Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(buffer4Length == dnsEdit4Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit4Packet.getRawPacket()->getRawDataLen(), buffer4Length);
+
+	PACKETPP_ASSERT(memcmp(dnsEdit4Packet.getRawPacket()->getRawData(), buffer4, buffer4Length) == 0, "Raw packet data is different than expected DnsEdit4");
+
+
+
+	int buffer6Length = 0;
+	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/DnsEdit6.dat", buffer6Length);
+	PACKETPP_ASSERT(!(buffer6 == NULL), "cannot read file DnsEdit6.dat");
+
+	gettimeofday(&time, NULL);
+	RawPacket raw6Packet((const uint8_t*)buffer6, buffer6Length, time, true);
+
+	Packet dnsEdit6RefPacket(&raw6Packet);
+
+	Packet dnsEdit6Packet(52);
+
+	EthLayer ethLayer6(*dnsEdit6RefPacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(dnsEdit6Packet.addLayer(&ethLayer6), "Add EthLayer failed");
+
+	IPv6Layer ipLayer6(*dnsEdit6RefPacket.getLayerOfType<IPv6Layer>());
+	PACKETPP_ASSERT(dnsEdit6Packet.addLayer(&ipLayer6), "Add IPv6Layer failed");
+
+	UdpLayer udpLayer6(*dnsEdit6RefPacket.getLayerOfType<UdpLayer>());
+	PACKETPP_ASSERT(dnsEdit6Packet.addLayer(&udpLayer6), "Add UdpLayer failed");
+
+	DnsLayer dnsLayer6;
+
+	DnsResource* authority = dnsLayer6.addAuthority("Yaels-iPhone.local", DNS_TYPE_A, DNS_CLASS_IN, 120, "10.0.0.2");
+	PACKETPP_ASSERT(authority != NULL, "Couldn't add first authority");
+
+	query = dnsLayer6.addQuery(query);
+	PACKETPP_ASSERT(query->setName("Yaels-iPhone.local") == true, "Couldn't set name for first query in DnsEdit6");
+	query->setDnsClass(DNS_CLASS_CH);
+	query->setDnsType(DNS_TYPE_ALL);
+
+	PACKETPP_ASSERT(dnsEdit6Packet.addLayer(&dnsLayer6), "Couldn't set DNS layer for packet DnsEdit6");
+
+	PACKETPP_ASSERT(dnsLayer6.getAuthority("Yaels-iPhone.local")->getDataAsString() == "10.0.0.2", "Couldn't retrieve data from first authority");
+
+	authority = dnsLayer6.addAuthority(authority);
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(authority->setData("fe80::5a1f:aaff:fe4f:3f9d") == false, "Managed to set IPv6 data for DNS authority record of type IPv4");
+	LoggerPP::getInstance().enableErrors();
+	authority->setDnsType(DNS_TYPE_AAAA);
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(authority->setData("fe80::5a1f:aaff.fe4f:3f9d") == false, "Managed to set malformed IPv6 data for DNS authority record");
+	LoggerPP::getInstance().enableErrors();
+	PACKETPP_ASSERT(authority->setData("fe80::5a1f:aaff:fe4f:3f9d") == true, "Couldn't IPv6 data for DNS authority record");
+
+	query = dnsLayer6.addQuery(query);
+	query->setDnsClass(DNS_CLASS_ANY);
+
+	PACKETPP_ASSERT(dnsLayer6.getQueryCount() == 2, "Query count != 2, it's %d", dnsLayer6.getQueryCount());
+	PACKETPP_ASSERT(dnsLayer6.getAuthorityCount() == 2, "Authority count != 2");
+	PACKETPP_ASSERT(dnsLayer6.getAnswerCount() == 0, "Answers count != 0");
+	PACKETPP_ASSERT(dnsLayer6.getAdditionalRecordCount() == 0, "Additional record count != 0");
+
+	DnsResource* additional = dnsLayer6.addAdditionalRecord("", DNS_TYPE_OPT, 0xa005, 0x1194, "0x0004000800df581faa4f3f9d");
+	PACKETPP_ASSERT(additional != NULL, "Couldn't add additional record");
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(additional->setData("a01234") == false, "Managed to set hex data with no '0x' at the beginning");
+	PACKETPP_ASSERT(additional->setData("0xa0123") == false, "Managed to set hex data with odd number of characters");
+	PACKETPP_ASSERT(additional->setData("0xa01j34") == false, "Managed to set hex data with illegal hex characters");
+	LoggerPP::getInstance().enableErrors();
+
+	dnsEdit6Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(buffer6Length == dnsEdit6Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit6Packet.getRawPacket()->getRawDataLen(), buffer6Length);
+
+	PACKETPP_ASSERT(memcmp(dnsEdit6Packet.getRawPacket()->getRawData(), buffer6, buffer6Length) == 0, "Raw packet data is different than expected");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(DnsLayerEditTest)
+{
+	int buffer3Length = 0;
+	int buffer5Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/DnsEdit3.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file DnsEdit3.dat");
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/DnsEdit5.dat", buffer5Length);
+	PACKETPP_ASSERT(!(buffer5 == NULL), "cannot read file DnsEdit5.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket raw3Packet((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket raw3PacketCopy(raw3Packet);
+	RawPacket raw5Packet((const uint8_t*)buffer5, buffer5Length, time, true);
+
+	Packet dnsEdit3(&raw3Packet);
+	Packet dnsEdit5(&raw5Packet);
+
+	DnsLayer* dnsLayer3 = dnsEdit3.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(dnsLayer3 != NULL, "Couldn't retrieve DnsLayer for DnsEdit3");
+
+	DnsLayer* dnsLayer5 = dnsEdit5.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(dnsLayer5 != NULL, "Couldn't retrieve DnsLayer for DnsEdit5");
+
+	PACKETPP_ASSERT(dnsLayer3->getFirstQuery()->setName("www.mora.fr") == true, "Couldn't set name for DnsEdit3");
+	dnsLayer3->getDnsHeader()->transactionID = htons(35240);
+	PACKETPP_ASSERT(dnsLayer3->getHeaderLen() == dnsLayer5->getHeaderLen(), "DNS layers length of DnsEdit3 and DnsEdit5 after edit differ");
+	PACKETPP_ASSERT(memcmp(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen()) == 0, "Raw data for DNS layers of DnsEdit3 and DnsEdit5 differ");
+
+	dnsEdit3 = Packet(&raw3PacketCopy);
+	dnsLayer3 = dnsEdit3.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(dnsLayer3 != NULL, "Couldn't retrieve DnsLayer for DnsEdit3");
+
+	dnsLayer5->getDnsHeader()->transactionID = htons(14627);
+	PACKETPP_ASSERT(dnsLayer5->getFirstQuery()->setName("assets.pinterest.com") == true, "Couldn't set name for DnsEdit5");
+	PACKETPP_ASSERT(dnsLayer3->getHeaderLen() == dnsLayer5->getHeaderLen(), "DNS layers length of DnsEdit3 and DnsEdit5 after edit differ");
+	PACKETPP_ASSERT(memcmp(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen()) == 0, "Raw data for DNS layers of DnsEdit3 and DnsEdit5 differ");
+
+	PACKETPP_TEST_PASSED;
+}
+
 PACKETPP_TEST(CopyLayerAndPacketTest)
 {
 	int bufferLength = 0;
@@ -1651,6 +1913,45 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 	PACKETPP_ASSERT(curPacketCopyLayer == NULL, "Packet copy c'tor: number of layers differs between original and copy");
 
 
+	//DnsLayer copy c'tor and operator= test
+	//--------------------------------------
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/Dns2.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file Dns2.dat");
+
+	RawPacket sampleRawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+
+	Packet sampleDnsPacket(&sampleRawPacket3);
+
+	DnsLayer* origDnsLayer = sampleDnsPacket.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(origDnsLayer != NULL, "Couldn't find DNS layer in file");
+	DnsLayer copyDnsLayer(*origDnsLayer);
+	PACKETPP_ASSERT(copyDnsLayer.getQueryCount() == origDnsLayer->getQueryCount(), "Query count differs");
+	PACKETPP_ASSERT(copyDnsLayer.getFirstQuery()->getName() == origDnsLayer->getFirstQuery()->getName(), "Name for first query differs");
+	PACKETPP_ASSERT(copyDnsLayer.getFirstQuery()->getDnsType() == origDnsLayer->getFirstQuery()->getDnsType(), "DNS type for first query differs");
+
+	PACKETPP_ASSERT(copyDnsLayer.getAuthorityCount() == origDnsLayer->getAuthorityCount(), "Authority count differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAuthority("Yaels-iPhone.local")->getDataAsString() == origDnsLayer->getAuthority("Yaels-iPhone.local")->getDataAsString(), "Authority data differs");
+
+	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("")->getDataAsString() == origDnsLayer->getAdditionalRecord("")->getDataAsString(), "Additional data differs");
+
+	copyDnsLayer.addQuery("bla", DNS_TYPE_A, DNS_CLASS_ANY);
+	copyDnsLayer.addAnswer("bla", DNS_TYPE_A, DNS_CLASS_ANY, 123, "1.1.1.1");
+
+	copyDnsLayer = *origDnsLayer;
+
+	PACKETPP_ASSERT(copyDnsLayer.getQueryCount() == origDnsLayer->getQueryCount(), "Query count differs");
+	PACKETPP_ASSERT(copyDnsLayer.getFirstQuery()->getName() == origDnsLayer->getFirstQuery()->getName(), "Name for first query differs");
+	PACKETPP_ASSERT(copyDnsLayer.getFirstQuery()->getDnsType() == origDnsLayer->getFirstQuery()->getDnsType(), "DNS type for first query differs");
+
+	PACKETPP_ASSERT(copyDnsLayer.getAuthorityCount() == origDnsLayer->getAuthorityCount(), "Authority count differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAuthority("Yaels-iPhone.local")->getDataAsString() == origDnsLayer->getAuthority("Yaels-iPhone.local")->getDataAsString(), "Authority data differs");
+
+	PACKETPP_ASSERT(copyDnsLayer.getAnswerCount() == origDnsLayer->getAnswerCount(), "Answer count differs");
+
+	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("")->getDataAsString() == origDnsLayer->getAdditionalRecord("")->getDataAsString(), "Additional data differs");
+
+
 
 	PACKETPP_TEST_PASSED;
 }
@@ -1687,6 +1988,9 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(PPPoEDiscoveryLayerParsingTest);
 	PACKETPP_RUN_TEST(PPPoEDiscoveryLayerCreateTest);
 	PACKETPP_RUN_TEST(DnsLayerParsingTest);
+	PACKETPP_RUN_TEST(DnsLayerQueryCreationTest);
+	PACKETPP_RUN_TEST(DnsLayerResourceCreationTest);
+	PACKETPP_RUN_TEST(DnsLayerEditTest);
 	PACKETPP_RUN_TEST(CopyLayerAndPacketTest);
 
 	PACKETPP_END_RUNNING_TESTS;

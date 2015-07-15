@@ -14,8 +14,16 @@ IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
 	m_NameLength = decodeName((const char*)getRawData(), m_DecodedName);
 }
 
+IDnsResource::IDnsResource(uint8_t* emptyRawData)
+	: m_DnsLayer(NULL), m_OffsetInLayer(0), m_NextResource(NULL), m_DecodedName(""), m_NameLength(0), m_ExternalRawData(emptyRawData)
+{
+}
+
 uint8_t* IDnsResource::getRawData()
 {
+	if (m_DnsLayer == NULL)
+		return m_ExternalRawData;
+
 	return m_DnsLayer->m_Data + m_OffsetInLayer;
 }
 
@@ -110,51 +118,50 @@ void IDnsResource::setDnsClass(DnsClass newClass)
 	memcpy(getRawData() + m_NameLength + sizeof(uint16_t), &newClassAsInt, sizeof(uint16_t));
 }
 
-
-//DnsQuery::DnsQuery(std::string name, DnsType dnsType, DnsClass dnsClass) : IDnsResource()
-//{
-//	m_ParsedName = name;
-//	// DNS name has the following structure for name field: [LengthUntilTheNextDot][string][LengthUntilTheNextDot][string]...[\0]
-//	// For example: www.google.com will look like: [3][www][6][google][3][com][\0]
-//	// So need to allocate data as follows:
-//	// - Trailing length - 1 byte
-//	// - Name length
-//	// - \0 in the end- 1 byte
-//	// - Type field - 2 bytes
-//	// - Class field - 2 bytes
-//	m_NameLength = m_ParsedName.length() + 2;
-//	m_TempData = new uint8_t[m_NameLength + 4];
-//	unparseName(m_ParsedName, (char*)m_TempData);
-//	memcpy(m_TempData + m_NameLength, )
-//
-//}
-
 bool IDnsResource::setName(const std::string& newName)
 {
 	char encodedName[256];
 	size_t encodedNameLen = 0;
 	encodeName(newName, encodedName, encodedNameLen);
-	if (encodedNameLen > m_NameLength)
+	if (m_DnsLayer != NULL)
 	{
-		if (!m_DnsLayer->extendLayer(m_OffsetInLayer, encodedNameLen-m_NameLength, this))
+		if (encodedNameLen > m_NameLength)
 		{
-			LOG_ERROR("Couldn't set name for DNS query, unable to extend layer");
-			return false;
+			if (!m_DnsLayer->extendLayer(m_OffsetInLayer, encodedNameLen-m_NameLength, this))
+			{
+				LOG_ERROR("Couldn't set name for DNS query, unable to extend layer");
+				return false;
+			}
+		}
+		else if (encodedNameLen < m_NameLength)
+		{
+			if (!m_DnsLayer->shortenLayer(m_OffsetInLayer, m_NameLength-encodedNameLen, this))
+			{
+				LOG_ERROR("Couldn't set name for DNS query, unable to shorten layer");
+				return false;
+			}
 		}
 	}
-	else if (encodedNameLen < m_NameLength)
+	else
 	{
-		if (!m_DnsLayer->shortenLayer(m_OffsetInLayer, m_NameLength-encodedNameLen, this))
-		{
-			LOG_ERROR("Couldn't set name for DNS query, unable to shorten layer");
-			return false;
-		}
+		char tempData[getSize()];
+		memcpy(tempData, m_ExternalRawData, getSize());
+		memcpy(m_ExternalRawData + encodedNameLen, tempData, getSize());
 	}
 
-	memcpy(getRawData() + m_OffsetInLayer, encodedName, encodedNameLen);
+	memcpy(getRawData(), encodedName, encodedNameLen);
 	m_NameLength = encodedNameLen;
 	m_DecodedName = newName;
+
 	return true;
+}
+
+void IDnsResource::setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer)
+{
+	memcpy(dnsLayer->m_Data + offsetInLayer, m_ExternalRawData, getSize());
+	m_DnsLayer = dnsLayer;
+	m_OffsetInLayer = offsetInLayer;
+	m_ExternalRawData = NULL;
 }
 
 uint32_t DnsResource::getTTL()
@@ -251,6 +258,131 @@ string DnsResource::getDataAsString()
 
 }
 
+bool DnsResource::setData(const string& dataAsString)
+{
+	// convert data to byte array according to the DNS type
+	size_t dataLength = 0;
+	uint8_t dataAsByteArr[256];
+
+	switch (getDnsType())
+	{
+	case DNS_TYPE_A:
+	{
+		IPv4Address ip4Addr((string)dataAsString);
+		if (!ip4Addr.isValid())
+		{
+			LOG_ERROR("Requested DNS type is A but data '%s' is an illegal IPv4 address. Couldn't set data for resource", dataAsString.c_str());
+			return false;
+		}
+		dataLength = 4;
+		uint32_t addrAsInt = ip4Addr.toInt();
+		memcpy(dataAsByteArr, &addrAsInt, dataLength);
+		break;
+	}
+
+	case DNS_TYPE_AAAA:
+	{
+		IPv6Address ip6Addr((string)dataAsString);
+		if (!ip6Addr.isValid())
+		{
+			LOG_ERROR("Requested DNS type is AAAA but data '%s' is an illegal IPv6 address. Couldn't set data for resource", dataAsString.c_str());
+			return false;
+		}
+		dataLength = 16;
+		ip6Addr.copyTo(dataAsByteArr);
+		break;
+	}
+
+	case DNS_TYPE_NS:
+	case DNS_TYPE_CNAME:
+	case DNS_TYPE_DNAM:
+	case DNS_TYPE_PTR:
+	case DNS_TYPE_MX:
+	{
+		encodeName(dataAsString, (char*)dataAsByteArr, dataLength);
+		break;
+	}
+
+	default:
+	{
+		if (dataAsString.substr(0, 2) != "0x")
+		{
+			LOG_ERROR("DNS data for DNS type %d should be an hex stream and begin with '0x'", getDnsType());
+			return false;
+		}
+		if (dataAsString.length() % 2 != 0)
+		{
+			LOG_ERROR("DNS data for DNS type %d should be an hex stream with an even number of character. "
+					"Current character count is an odd number: %d", getDnsType(), dataAsString.length());
+			return false;
+		}
+		char* dataAsCharPtr = (char*)dataAsString.c_str();
+		dataAsCharPtr += 2; //skip the '0x' prefix
+		char strtolBuf[5] = { '0', 'x', 0, 0, 0 };
+		char* strtolEndPtr;
+		while (*dataAsCharPtr != 0)
+		{
+			strtolBuf[2] = dataAsCharPtr[0];
+			strtolBuf[3] = dataAsCharPtr[1];
+			dataAsByteArr[dataLength] = strtol(strtolBuf, &strtolEndPtr, 0);
+
+	        if (strtolEndPtr[0] != '\0') {
+	        	//non-hexadecimal character encountered
+	        	LOG_ERROR("DNS data for DNS type %d should be a valid hex stream", getDnsType());
+	            return false;
+	        }
+
+	        dataAsCharPtr += 2 * sizeof(char);
+	        dataLength++;
+		}
+		break;
+	}
+	}
+
+	size_t dataLengthOffset = m_NameLength + (2*sizeof(uint16_t)) + sizeof(uint32_t);
+	size_t dataOffset = dataLengthOffset + sizeof(uint16_t);
+
+	if (m_DnsLayer != NULL)
+	{
+		size_t curLength = getDataLength();
+		if (dataLength > curLength)
+		{
+			if (!m_DnsLayer->extendLayer(m_OffsetInLayer + dataOffset, dataLength-curLength, this))
+			{
+				LOG_ERROR("Couldn't set data for DNS query, unable to extend layer");
+				return false;
+			}
+		}
+		else if (dataLength < curLength)
+		{
+			if (!m_DnsLayer->shortenLayer(m_OffsetInLayer + dataOffset, curLength-dataLength, this))
+			{
+				LOG_ERROR("Couldn't set data for DNS query, unable to shorten layer");
+				return false;
+			}
+		}
+	}
+
+	// write data to resource
+	memcpy(getRawData() + dataOffset, dataAsByteArr, dataLength);
+	//update data length in resource
+	dataLength = htons(dataLength);
+	memcpy(getRawData() + dataLengthOffset, &dataLength, sizeof(uint16_t));
+
+	return true;
+}
+
+uint16_t DnsResource::getCustomDnsClass()
+{
+	uint16_t value = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
+	return ntohs(value);
+}
+
+void DnsResource::setCustomDnsClass(uint16_t customValue)
+{
+	memcpy(getRawData() + m_NameLength + sizeof(uint16_t), &customValue, sizeof(uint16_t));
+}
+
 DnsLayer::DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	: Layer(data, dataLen, prevLayer, packet)
 {
@@ -263,6 +395,59 @@ DnsLayer::DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pack
 	m_FirstAdditional = NULL;
 
 	parseResources();
+}
+
+DnsLayer::DnsLayer()
+{
+	m_DataLen = sizeof(dnshdr);
+	m_Data = new uint8_t[m_DataLen];
+	memset(m_Data, 0, m_DataLen);
+	m_Protocol = DNS;
+
+	m_ResourceList = NULL;
+
+	m_FirstQuery = NULL;
+	m_FirstAnswer = NULL;
+	m_FirstAuthority = NULL;
+	m_FirstAdditional = NULL;
+}
+
+DnsLayer::DnsLayer(const DnsLayer& other) : Layer(other)
+{
+	m_Protocol = DNS;
+
+	m_ResourceList = NULL;
+
+	m_FirstQuery = NULL;
+	m_FirstAnswer = NULL;
+	m_FirstAuthority = NULL;
+	m_FirstAdditional = NULL;
+
+	parseResources();
+}
+
+DnsLayer& DnsLayer::operator=(const DnsLayer& other)
+{
+	Layer::operator=(other);
+
+	IDnsResource* curResource = m_ResourceList;
+	while (curResource != NULL)
+	{
+		IDnsResource* temp = curResource->getNextResource();
+		delete curResource;
+		curResource = temp;
+	}
+
+	m_ResourceList = NULL;
+
+	m_FirstQuery = NULL;
+	m_FirstAnswer = NULL;
+	m_FirstAuthority = NULL;
+	m_FirstAdditional = NULL;
+
+	parseResources();
+
+	return (*this);
 }
 
 DnsLayer::~DnsLayer()
@@ -560,4 +745,257 @@ string DnsLayer::toString()
 				", authorities: " + authorityCount.str() +
 				", additional record: " + additionalCount.str();
 	}
+}
+
+void DnsLayer::setFirstResource(IDnsResource::ResourceType resType, IDnsResource* resource)
+{
+	switch (resType)
+	{
+	case IDnsResource::DnsQuery:
+	{
+		m_FirstQuery = dynamic_cast<DnsQuery*>(resource);
+		break;
+	}
+	case IDnsResource::DnsAnswer:
+	{
+		m_FirstAnswer = dynamic_cast<DnsResource*>(resource);
+		break;
+	}
+	case IDnsResource::DnsAuthority:
+	{
+		m_FirstAuthority = dynamic_cast<DnsResource*>(resource);
+		break;
+	}
+	case IDnsResource::DnsAdditional:
+	{
+		m_FirstAdditional = dynamic_cast<DnsResource*>(resource);
+		break;
+	}
+	default:
+		return;
+	}
+}
+
+DnsResource* DnsLayer::addResource(IDnsResource::ResourceType resType, const string& name, DnsType dnsType, DnsClass dnsClass,
+		uint32_t ttl, const string& data)
+{
+	// create new query on temporary buffer
+	uint8_t newResourceRawData[256];
+	memset(newResourceRawData, 0, 256);
+
+	DnsResource* newResource = new DnsResource(newResourceRawData, resType);
+
+	newResource->setDnsClass(dnsClass);
+
+	newResource->setDnsType(dnsType);
+
+	// cannot return false since layer shouldn't be extended or shortened in this stage
+	newResource->setName(name);
+
+	newResource->setTTL(ttl);
+
+	if (!newResource->setData(data))
+	{
+		delete newResource;
+		LOG_ERROR("Couldn't set new resource data");
+		return NULL;
+	}
+
+	size_t newResourceOffsetInLayer = sizeof(dnshdr);
+	IDnsResource* curResource = m_ResourceList;
+	while (curResource != NULL && curResource->getType() <= resType)
+	{
+		newResourceOffsetInLayer += curResource->getSize();
+		IDnsResource* nextResource = curResource->getNextResource();
+		if (nextResource == NULL || nextResource->getType() > resType)
+			break;
+		curResource = nextResource;
+	}
+
+
+	// set next resource for new resource. This must happen here for extendLayer to succeed
+	if (curResource != NULL)
+	{
+		if (curResource->getType() > newResource->getType())
+			newResource->setNexResource(m_ResourceList);
+		else
+			newResource->setNexResource(curResource->getNextResource());
+	}
+	else //curResource != NULL
+		newResource->setNexResource(m_ResourceList);
+
+	// extend layer to make room for the new query
+	if (!extendLayer(newResourceOffsetInLayer, newResource->getSize(), newResource))
+	{
+		LOG_ERROR("Couldn't extend DNS layer, addResource failed");
+		delete newResource;
+		return NULL;
+	}
+
+	// connect the new query to layer
+	newResource->setDnsLayer(this, newResourceOffsetInLayer);
+
+	// connect the new resource to the layer's resource list
+	if (curResource != NULL)
+	{
+		curResource->setNexResource(newResource);
+		// this means the new resource is the first of it's type
+		if (curResource->getType() < newResource->getType())
+		{
+			setFirstResource(resType, newResource);
+		}
+		// this means the new resource should be the first resource in the packet
+		else if (curResource->getType() > newResource->getType())
+		{
+			m_ResourceList = newResource;
+
+			setFirstResource(resType, newResource);
+		}
+	}
+	else // curResource != NULL, meaning this is the first resource in layer
+	{
+		m_ResourceList = newResource;
+
+		setFirstResource(resType, newResource);
+	}
+
+	return newResource;
+}
+
+
+DnsQuery* DnsLayer::addQuery(const string& name, DnsType dnsType, DnsClass dnsClass)
+{
+	// create new query on temporary buffer
+	uint8_t newQueryRawData[256];
+	DnsQuery* newQuery = new DnsQuery(newQueryRawData);
+
+	newQuery->setDnsClass(dnsClass);
+	newQuery->setDnsType(dnsType);
+
+	// cannot return false since layer shouldn't be extended or shortened in this stage
+	newQuery->setName(name);
+
+
+	// find the offset in the layer to insert the new query
+	size_t newQueryOffsetInLayer = sizeof(dnshdr);
+	DnsQuery* curQuery = getFirstQuery();
+	while (curQuery != NULL)
+	{
+		newQueryOffsetInLayer += curQuery->getSize();
+		DnsQuery* nextQuery = getNextQuery(curQuery);
+		if (nextQuery == NULL)
+			break;
+		curQuery = nextQuery;
+
+	}
+
+	// set next resource for new query. This must happen here for extendLayer to succeed
+	if (curQuery != NULL)
+		newQuery->setNexResource(curQuery->getNextResource());
+	else
+		newQuery->setNexResource(m_ResourceList);
+
+	// extend layer to make room for the new query
+	if (!extendLayer(newQueryOffsetInLayer, newQuery->getSize(), newQuery))
+	{
+		LOG_ERROR("Couldn't extend DNS layer, addQuery failed");
+		delete newQuery;
+		return NULL;
+	}
+
+	// connect the new query to layer
+	newQuery->setDnsLayer(this, newQueryOffsetInLayer);
+
+	// connect the new query to the layer's resource list
+	if (curQuery != NULL)
+		curQuery->setNexResource(newQuery);
+	else // curQuery == NULL, meaning this is the first query
+	{
+		m_ResourceList = newQuery;
+		m_FirstQuery = newQuery;
+	}
+
+	// increase number of queries
+	getDnsHeader()->numberOfQuestions = htons(getQueryCount() + 1);
+
+	return newQuery;
+}
+
+DnsQuery* DnsLayer::addQuery(DnsQuery* const copyQuery)
+{
+	if (copyQuery == NULL)
+		return NULL;
+
+	return addQuery(copyQuery->getName(), copyQuery->getDnsType(), copyQuery->getDnsClass());
+}
+
+DnsResource* DnsLayer::addAnswer(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
+{
+	DnsResource* res = addResource(IDnsResource::DnsAnswer, name, dnsType, dnsClass, ttl, data);
+	if (res != NULL)
+	{
+		// increase number of answer records
+		getDnsHeader()->numberOfAnswers = htons(getAnswerCount() + 1);
+	}
+
+	return res;
+}
+
+DnsResource* DnsLayer::addAnswer(DnsResource* const copyAnswer)
+{
+	if (copyAnswer == NULL)
+		return NULL;
+
+	return addAnswer(copyAnswer->getName(), copyAnswer->getDnsType(), copyAnswer->getDnsClass(), copyAnswer->getTTL(), copyAnswer->getDataAsString());
+}
+
+DnsResource* DnsLayer::addAuthority(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
+{
+	DnsResource* res = addResource(IDnsResource::DnsAuthority, name, dnsType, dnsClass, ttl, data);
+	if (res != NULL)
+	{
+		// increase number of authority records
+		getDnsHeader()->numberOfAuthority = htons(getAuthorityCount() + 1);
+	}
+
+	return res;
+}
+
+DnsResource* DnsLayer::addAuthority(DnsResource* const copyAuthority)
+{
+	if (copyAuthority == NULL)
+		return NULL;
+
+	return addAuthority(copyAuthority->getName(), copyAuthority->getDnsType(), copyAuthority->getDnsClass(), copyAuthority->getTTL(), copyAuthority->getDataAsString());
+}
+
+DnsResource* DnsLayer::addAdditionalRecord(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
+{
+	DnsResource* res = addResource(IDnsResource::DnsAdditional, name, dnsType, dnsClass, ttl, data);
+	if (res != NULL)
+	{
+		// increase number of authority records
+		getDnsHeader()->numberOfAdditional = htons(getAdditionalRecordCount() + 1);
+	}
+
+	return res;
+}
+
+DnsResource* DnsLayer::addAdditionalRecord(const string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, const string& data)
+{
+	DnsResource* res = addAdditionalRecord(name, dnsType, DNS_CLASS_ANY, customData2, data);
+	if (res != NULL)
+	{
+		res->setCustomDnsClass(customData1);
+	}
+
+	return res;
+}
+
+DnsResource* DnsLayer::addAdditionalRecord(DnsResource* const copyAdditionalRecord)
+{
+	if (copyAdditionalRecord == NULL)
+		return NULL;
+
+	return addAdditionalRecord(copyAdditionalRecord->getName(), copyAdditionalRecord->getDnsType(), copyAdditionalRecord->getCustomDnsClass(), copyAdditionalRecord->getTTL(), copyAdditionalRecord->getDataAsString());
 }

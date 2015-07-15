@@ -229,8 +229,11 @@ protected:
 	IDnsResource* m_NextResource;
 	string m_DecodedName;
 	size_t m_NameLength;
+	uint8_t* m_ExternalRawData;
 
 	IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer);
+
+	IDnsResource(uint8_t* emptyRawData);
 
 	size_t decodeName(const char* encodedName, string& result);
 	void encodeName(const string& decodedName, char* result, size_t& resultLen);
@@ -240,6 +243,8 @@ protected:
 
 	uint8_t* getRawData();
 
+	void setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer);
+
 public:
 	/**
 	 * An enum for representing the 4 types of possible DNS records
@@ -247,13 +252,13 @@ public:
 	enum ResourceType
 	{
 		/** DNS query record */
-		DnsQuery,
+		DnsQuery = 0,
 		/** DNS answer record */
-		DnsAnswer,
+		DnsAnswer = 1,
 		/** DNS authority record */
-		DnsAuthority,
+		DnsAuthority = 2,
 		/** DNS additional record */
-		DnsAdditional
+		DnsAdditional = 3
 	};
 
 	virtual ~IDnsResource() {}
@@ -318,6 +323,8 @@ class DnsQuery : public IDnsResource
 private:
 	DnsQuery(DnsLayer* dnsLayer, size_t offsetInLayer) : IDnsResource(dnsLayer, offsetInLayer) {}
 
+	DnsQuery(uint8_t* emptyRawData) : IDnsResource(emptyRawData) {}
+
 public:
 	virtual ~DnsQuery() {}
 
@@ -339,6 +346,8 @@ private:
 	ResourceType m_ResourceType;
 
 	DnsResource(DnsLayer* dnsLayer, size_t offsetInLayer, ResourceType resourceType) : IDnsResource(dnsLayer, offsetInLayer) { m_ResourceType = resourceType; }
+
+	DnsResource(uint8_t* emptyRawData, ResourceType resType) : IDnsResource(emptyRawData), m_ResourceType(resType) {}
 
 public:
 	virtual ~DnsResource() {}
@@ -369,6 +378,36 @@ public:
 	 */
 	string getDataAsString();
 
+	/**
+	 * Set resource data. Data is parse from string and is validated against the DNS type of the resource. For example: if DNS type is A
+	 * and data isn't a valid IPv4 address a log error will be printed and the method will return false. This method currently supports the
+	 * following DNS types:<BR>
+	 * - ::DNS_TYPE_A (IPv4 address) - data is expected to be a valid IPv4 address
+	 * - ::DNS_TYPE_AAAA (IPv6 address) - data is expected to be a valid IPv6 address
+	 * - ::DNS_TYPE_NS, ::DNS_TYPE_CNAME, ::DNS_TYPE_DNAM, ::DNS_TYPE_PTR, ::DNS_TYPE_MX (name data) - data is expected to be a valid host
+	 * name, e.g: 'www.google.com'
+	 * - else: data is expected to be a valid hex string which starts with '0x' followed by the an even number of characters representing
+	 * a valid hex data. e.g: '0x0d0a45569a9b'
+	 * @param[in] dataAsString The string representation of the relevant data
+	 * @return True if data was properly set or false if data is illegal or method couldn't extend or shorted the packet
+	 * (appropriate error log is printed in all cases)
+	 */
+	bool setData(const string& dataAsString);
+
+	/**
+	 * Some records don't have a DNS class and the bytes used for storing the DNS class are used for other purpose. This method enables the
+	 * user to receive these bytes
+	 * @return The value stored in this place
+	 */
+	uint16_t getCustomDnsClass();
+
+	/**
+	 * Some records don't have a DNS class and the bytes used for storing the DNS class are used for other purpose. This method enables the
+	 * user to set these bytes
+	 * @param[in] customValue The value to set
+	 */
+	void setCustomDnsClass(uint16_t customValue);
+
 	// abstract methods
 	virtual size_t getSize() { return m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
 	virtual ResourceType getType() { return m_ResourceType; }
@@ -385,6 +424,7 @@ class DnsLayer : public Layer
 {
 	friend class IDnsResource;
 	friend class DnsQuery;
+	friend class DnsResource;
 
 public:
 
@@ -396,6 +436,21 @@ public:
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
 	DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+	/**
+	 * A constructor that creates an empty DNS layer: all members of dnshdr are set to 0 and layer will contain no records
+	 */
+	DnsLayer();
+
+	/**
+	 * A copy constructor for this layer
+	 */
+	DnsLayer(const DnsLayer& other);
+
+	/**
+	 * An assignment operator for this layer
+	 */
+	DnsLayer& operator=(const DnsLayer& other);
 
 	virtual ~DnsLayer();
 
@@ -432,6 +487,24 @@ public:
 	size_t getQueryCount();
 
 	/**
+	 * Add a new DNS query to the layer
+	 * @param[in] name The value that shall be set in the name field of the query
+	 * @param[in] dnsType The value that shall be set in the DNS type field of the query
+	 * @param[in] dnsClass The value that shall be set in the DNS class field of the query
+	 * @return A pointer to the newly created DNS query or NULL if query could not be created (an appropriate error log message will be
+	 * printed in this case)
+	 */
+	DnsQuery* addQuery(const string& name, DnsType dnsType, DnsClass dnsClass);
+
+	/**
+	 * Add a new DNS query similar to an already existing DNS query. All query fields will be copied from the existing query
+	 * param[in] copyQuery The record to create the new record from. copyQuery won't be changed in any way
+	 * @return A pointer to the newly created DNS query or NULL if query could not be created (an appropriate error log message will be
+	 * printed in this case)
+	 */
+	DnsQuery* addQuery(DnsQuery* const copyQuery);
+
+	/**
 	 * Searches for a DNS answer by its name field. Notice this method returns only an answer which its name equals to the requested name. If
 	 * several answers match the requested name, the first one will be returned. If no answers match the requested name, NULL will be returned
 	 * @param[in] name The name of the answer to search
@@ -457,6 +530,27 @@ public:
 	size_t getAnswerCount();
 
 	/**
+	 * Add a new DNS answer to the layer
+	 * @param[in] name The value that shall be set in the name field of the answer
+	 * @param[in] dnsType The value that shall be set in the DNS type field of the answer
+	 * @param[in] dnsClass The value that shall be set in the DNS class field of the answer
+	 * @param[in] ttl The value that shall be set in the 'time-to-leave' field of the answer
+	 * @param[in] data The answer data to be set. see DnsResource#setData for more info of this field legal values
+	 * @return A pointer to the newly created DNS answer or NULL if answer could not be created (an appropriate error log message will be
+	 * printed in this case)
+	 */
+	DnsResource* addAnswer(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data);
+
+	/**
+	 * Add a new DNS answer similar to an already existing DNS answer. All answer fields will be copied from the existing answer
+	 * param[in] copyAnswer The record to create the new record from. copyAnswer won't be changed in any way
+	 * @return A pointer to the newly created DNS answer or NULL if query could not be created (an appropriate error log message will be
+	 * printed in this case)
+	 */
+	DnsResource* addAnswer(DnsResource* const copyAnswer);
+
+
+	/**
 	 * Searches for a DNS authority by its name field. Notice this method returns only an authority which its name equals to the requested name. If
 	 * several authorities match the requested name, the first one will be returned. If no authorities match the requested name, NULL will be returned
 	 * @param[in] name The name of the authority to search
@@ -480,6 +574,27 @@ public:
 	 * @return The number of DNS authorities in the packet
 	 */
 	size_t getAuthorityCount();
+
+	/**
+	 * Add a new DNS authority to the layer
+	 * @param[in] name The value that shall be set in the name field of the authority
+	 * @param[in] dnsType The value that shall be set in the DNS type field of the authority
+	 * @param[in] dnsClass The value that shall be set in the DNS class field of the authority
+	 * @param[in] ttl The value that shall be set in the 'time-to-leave' field of the authority
+	 * @param[in] data The authority data to be set. see DnsResource#setData for more info of this field legal values
+	 * @return A pointer to the newly created DNS authority or NULL if authority could not be created (an appropriate error log message will be
+	 * printed in this case)
+	 */
+	DnsResource* addAuthority(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data);
+
+	/**
+	 * Add a new DNS authority similar to an already existing DNS authority. All authority fields will be copied from the existing authority
+	 * param[in] copyAuthority The record to create the new record from. copyAuthority won't be changed in any way
+	 * @return A pointer to the newly created DNS authority or NULL if query could not be created (an appropriate error log message will be
+	 * printed in this case)
+	 */
+	DnsResource* addAuthority(DnsResource* const copyAuthority);
+
 
 	/**
 	 * Searches for a DNS additional record by its name field. Notice this method returns only an additional record which its name equals to
@@ -508,6 +623,41 @@ public:
 	 */
 	size_t getAdditionalRecordCount();
 
+	/**
+	 * Add a new DNS additional record to the layer
+	 * @param[in] name The value that shall be set in the name field of the additional record
+	 * @param[in] dnsType The value that shall be set in the DNS type field of the additional record
+	 * @param[in] dnsClass The value that shall be set in the DNS class field of the additional record
+	 * @param[in] ttl The value that shall be set in the 'time-to-leave' field of the additional record
+	 * @param[in] data The additional record data to be set. see DnsResource#setData for more info of this field legal values
+	 * @return A pointer to the newly created DNS additional record or NULL if additional record could not be created (an appropriate error
+	 * log message will be printed in this case)
+	 */
+	DnsResource* addAdditionalRecord(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data);
+
+	/**
+	 * Add a new DNS additional record to the layer that doesn't have DNS class and TTL. Instead these bytes may contains some arbitrary
+	 * data. In the future I may add support for these kinds of additional data records. For now, these bytes are set as raw
+	 * @param[in] name The value that shall be set in the name field of the additional record
+	 * @param[in] dnsType The value that shall be set in the DNS type field of the additional record
+	 * @param[in] customData1 Two bytes of the arbitrary data that will be set in the offset usually used for the DNS class
+	 * @param[in] customData2 Four bytes of the arbitrary data that will be set in the offset usually used for the TTL
+	 * @param[in] data The additional record data to be set. see DnsResource#setData for more info of this field legal values
+	 * @return A pointer to the newly created DNS additional record or NULL if additional record could not be created (an appropriate error
+	 * log message will be printed in this case)
+	 */
+	DnsResource* addAdditionalRecord(const string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, const string& data);
+
+	/**
+	 * Add a new DNS additional record similar to an already existing DNS additional record. All additional record fields will be copied from the
+	 * existing additional record
+	 * param[in] copyAdditionalRecord The record to create the new record from. copyAdditionalRecord won't be changed in any way
+	 * @return A pointer to the newly created DNS additional record or NULL if query could not be created (an appropriate error log message will
+	 * be printed in this case)
+	 */
+	DnsResource* addAdditionalRecord(DnsResource* const copyAdditionalRecord);
+
+
 	// implement abstract methods
 
 	/**
@@ -528,16 +678,17 @@ public:
 
 	string toString();
 
-	//	DnsQuery* addQuery(const string& name, DnsType dnsType, DnsClass dnsClass);
 	//	void removeQuery(DnsQuery* queryToRemove);
 	//	void removeQuery(const string& name);
 
 private:
-	IDnsResource* m_ResourceList;
-	DnsQuery* m_FirstQuery;
-	DnsResource* m_FirstAnswer;
-	DnsResource* m_FirstAuthority;
-	DnsResource* m_FirstAdditional;
+	IDnsResource* 	m_ResourceList;
+	DnsQuery* 		m_FirstQuery;
+	DnsResource* 	m_FirstAnswer;
+	DnsResource* 	m_FirstAuthority;
+	DnsResource* 	m_FirstAdditional;
+
+	void setFirstResource(IDnsResource::ResourceType resType, IDnsResource* resource);
 
 	bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend, IDnsResource* resource);
 	bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten, IDnsResource* resource);
@@ -545,6 +696,9 @@ private:
 	IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const string& name);
 
 	void parseResources();
+
+	DnsResource* addResource(IDnsResource::ResourceType resType, const string& name, DnsType dnsType, DnsClass dnsClass,
+			uint32_t ttl, const string& data);
 
 };
 

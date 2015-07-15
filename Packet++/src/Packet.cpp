@@ -52,11 +52,17 @@ Packet::Packet(const Packet& other)
 
 Packet& Packet::operator=(const Packet& other)
 {
-	for(std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin(); iter != m_LayersAllocatedInPacket.end(); ++iter)
+	std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin();
+	while (iter != m_LayersAllocatedInPacket.end())
+	{
 		delete (*iter);
+		iter = m_LayersAllocatedInPacket.erase(iter);
+	}
 
-	if (m_RawPacket != NULL)
+	if (m_RawPacket != NULL && m_FreeRawPacket)
+	{
 		delete m_RawPacket;
+	}
 
 	copyDataFrom(other);
 
@@ -363,8 +369,12 @@ void Packet::computeCalculateFields()
 
 Packet::~Packet()
 {
-	for(std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin(); iter != m_LayersAllocatedInPacket.end(); ++iter)
+	std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin();
+	while (iter != m_LayersAllocatedInPacket.end())
+	{
 		delete (*iter);
+		iter = m_LayersAllocatedInPacket.erase(iter);
+	}
 
 	if (m_FreeRawPacket)
 		delete m_RawPacket;
