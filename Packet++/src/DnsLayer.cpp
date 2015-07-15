@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string.h>
 #include <iomanip>
+#include <stdlib.h>
 
 
 IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
