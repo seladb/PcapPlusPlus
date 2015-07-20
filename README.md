@@ -72,6 +72,13 @@ PcapPlusPlus currently works with the following devices:
 5. File devices
 
 
+#### API Documentation ####
+
+The entire API of PcapPlusPlus is documented using doxygen. You can find the documentation here: [http://seladb.github.io/PcapPlusPlus-Doc/Documentation/index.html](http://seladb.github.io/PcapPlusPlus-Doc/Documentation/index.html)
+
+If you see any missing information please tell me
+
+
 #### PF_RING support ####
 
 PcapPlusPlus provides a clean and simple C++ wrapper API for Vanilla PF_RING. Currently only Vanilla PF_RING is supported which provides significant performance improvement in comparison to libpcap or Linux kernel, but PF_RING DNA or ZC (which allows kernel bypass and zero-copy of packets from NIC to user-space) isn't supported yet. I hope I'll be able to add this support in the future.
