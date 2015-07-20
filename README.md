@@ -10,9 +10,9 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 - Support for Remote Capture capabilities on Windows (using RPCAP protocol supported in WinPcap)
 - Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
 
-PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X** operating systems.
+PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**.
 It was tested on Windows (32bit and 64bit), Ubuntu and Fedora, but it should work on other Linux distributions as well. Regarding Mac OS X - I tested it on Snow Leopard (10.6) 32bit, Mavericks (10.9.5) and Yosemite (10.10). I hope it would work on other Mac OS X versions as well (>= 10.6).
-Other opeating systems such as FreeBSD were never tested and compilation on those platform would probably fail
+Other opeating systems such as FreeBSD were never tested and compilation on those platforms would probably fail
 
 For more information including detailed class documentation, please visit PcapPlusPlus web-site:
 
@@ -31,7 +31,7 @@ pcapplusplus@gmail.com
 The PcapPlusPlus package contains several libraries, unit-tests and example utilities:
 
 1. **Packet++ library** - a library for parsing, creating and editing packets
-2. **Pcap++ library** - a library for intercepting and sending packets. This library is actually a C++ wrapper for the libPcap and WinPcap libraries
+2. **Pcap++ library** - a library for intercepting and sending packets. This library is actually a C++ wrapper for packet capturing engines such as libPcap, WinPcap and PF_RING
 3. **Common++ library** - a library with some common code utilities used both by Packet++ and Pcap++
 4. **Packet++Test unit-test** - a unit-test application for testing the Packet++ library
 5. **Pcap++Test unit-test** - a unit-test application for testing the Pcap++ library
@@ -58,8 +58,7 @@ The Packet++ library currently supports parsing, editing and creation of packets
 6. TCP
 7. UDP
 8. DNS (currently only parsing capabilities are available. Editing capabilities will be added soon)
-8. HTTP request header
-9. HTTP response header
+8. HTTP headers (request & response)
 10. Generic payload
 
 #### Supported Engines and Devices ####
@@ -232,9 +231,9 @@ ALL TESTS PASSED!!
 
 Creating applications that uses PcapPlusPlus is rather easy. To do this, please follow these steps:
 
-1. First make sure PcapPlusPlus is configured and compiles successfully
+1. First make sure PcapPlusPlus is configured and compiled successfully
 2. All you need is under the **Dist/** directory. You can find the PcapPlusPlus libraries, header files, code examples and helpful makefiles
-3. In order to compile your application with PcapPlusPlus libraries you should use the makefiles under the **mk/** directory. There are 2 makefiles there:
+3. In order to compile your application with PcapPlusPlus libraries you should use the makefiles under the **Dist/mk/** directory. There are 2 makefiles there:
   1. *platform.mk* - contains mainly platform-dependent variables such as MinGW and WinPcap directory in Windows, binary files extensions (.lib/.exe for Windows, .a/none for Linux and Mac OS X), compile utilities names (g++/g++.exe, ar/ar.exe), etc. 
   2. *PcapPlusPlus.mk* - contains variables that encapsulate all you need in order to compile your application with PcapPlusPlus:
     1. *PCAPPP_INCLUDES* - all includes needed
