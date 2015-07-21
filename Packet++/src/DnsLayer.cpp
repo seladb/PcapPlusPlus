@@ -566,7 +566,7 @@ void DnsLayer::parseResources()
 
 }
 
-IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resourceCount, const string& name)
+IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resourceCount, const string& name, bool exactMatch)
 {
 	uint16_t i = 0;
 	while (i < resourceCount)
@@ -574,7 +574,10 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 		if (startFrom == NULL)
 			return NULL;
 
-		if (startFrom->getName() == name)
+		string resourceName = startFrom->getName();
+		if (exactMatch && resourceName == name)
+			return startFrom;
+		else if (!exactMatch && resourceName.find(name) != string::npos)
 			return startFrom;
 
 		startFrom = startFrom->getNextResource();
@@ -585,10 +588,10 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 	return NULL;
 }
 
-DnsQuery* DnsLayer::getQuery(const string& name)
+DnsQuery* DnsLayer::getQuery(const string& name, bool exactMatch)
 {
 	uint16_t numOfQueries = ntohs(getDnsHeader()->numberOfQuestions);
-	IDnsResource* res = getResourceByName(m_FirstQuery, numOfQueries, name);
+	IDnsResource* res = getResourceByName(m_FirstQuery, numOfQueries, name, exactMatch);
 	if (res != NULL)
 		return dynamic_cast<DnsQuery*>(res);
 	return NULL;
@@ -614,10 +617,10 @@ size_t DnsLayer::getQueryCount()
 	return ntohs(getDnsHeader()->numberOfQuestions);
 }
 
-DnsResource* DnsLayer::getAnswer(const string& name)
+DnsResource* DnsLayer::getAnswer(const string& name, bool exactMatch)
 {
 	uint16_t numOfAnswers = ntohs(getDnsHeader()->numberOfAnswers);
-	IDnsResource* res = getResourceByName(m_FirstAnswer, numOfAnswers, name);
+	IDnsResource* res = getResourceByName(m_FirstAnswer, numOfAnswers, name, exactMatch);
 	if (res != NULL)
 		return dynamic_cast<DnsResource*>(res);
 	return NULL;
@@ -644,10 +647,10 @@ size_t DnsLayer::getAnswerCount()
 	return ntohs(getDnsHeader()->numberOfAnswers);
 }
 
-DnsResource* DnsLayer::getAuthority(const string& name)
+DnsResource* DnsLayer::getAuthority(const string& name, bool exactMatch)
 {
 	uint16_t numOfAuthorities = ntohs(getDnsHeader()->numberOfAuthority);
-	IDnsResource* res = getResourceByName(m_FirstAuthority, numOfAuthorities, name);
+	IDnsResource* res = getResourceByName(m_FirstAuthority, numOfAuthorities, name, exactMatch);
 	if (res != NULL)
 		return dynamic_cast<DnsResource*>(res);
 	return NULL;
@@ -674,10 +677,10 @@ size_t DnsLayer::getAuthorityCount()
 	return ntohs(getDnsHeader()->numberOfAuthority);
 }
 
-DnsResource* DnsLayer::getAdditionalRecord(const string& name)
+DnsResource* DnsLayer::getAdditionalRecord(const string& name, bool exactMatch)
 {
 	uint16_t numOfAdditionalRecords = ntohs(getDnsHeader()->numberOfAdditional);
-	IDnsResource* res = getResourceByName(m_FirstAdditional, numOfAdditionalRecords, name);
+	IDnsResource* res = getResourceByName(m_FirstAdditional, numOfAdditionalRecords, name, exactMatch);
 	if (res != NULL)
 		return dynamic_cast<DnsResource*>(res);
 	return NULL;
@@ -745,6 +748,31 @@ string DnsLayer::toString()
 				", answers: " + answerCount.str() +
 				", authorities: " + authorityCount.str() +
 				", additional record: " + additionalCount.str();
+	}
+}
+
+IDnsResource* DnsLayer::getFirstResource(IDnsResource::ResourceType resType)
+{
+	switch (resType)
+	{
+	case IDnsResource::DnsQuery:
+	{
+		return m_FirstQuery;
+	}
+	case IDnsResource::DnsAnswer:
+	{
+		return m_FirstAnswer;
+	}
+	case IDnsResource::DnsAuthority:
+	{
+		return m_FirstAuthority;
+	}
+	case IDnsResource::DnsAdditional:
+	{
+		return m_FirstAdditional;
+	}
+	default:
+		return NULL;
 	}
 }
 
@@ -825,7 +853,7 @@ DnsResource* DnsLayer::addResource(IDnsResource::ResourceType resType, const str
 	else //curResource != NULL
 		newResource->setNexResource(m_ResourceList);
 
-	// extend layer to make room for the new query
+	// extend layer to make room for the new resource
 	if (!extendLayer(newResourceOffsetInLayer, newResource->getSize(), newResource))
 	{
 		LOG_ERROR("Couldn't extend DNS layer, addResource failed");
@@ -833,7 +861,7 @@ DnsResource* DnsLayer::addResource(IDnsResource::ResourceType resType, const str
 		return NULL;
 	}
 
-	// connect the new query to layer
+	// connect the new resource to layer
 	newResource->setDnsLayer(this, newResourceOffsetInLayer);
 
 	// connect the new resource to the layer's resource list
@@ -930,6 +958,30 @@ DnsQuery* DnsLayer::addQuery(DnsQuery* const copyQuery)
 	return addQuery(copyQuery->getName(), copyQuery->getDnsType(), copyQuery->getDnsClass());
 }
 
+bool DnsLayer::removeQuery(const string& queryNameToRemove, bool exactMatch)
+{
+	DnsQuery* queryToRemove = getQuery(queryNameToRemove, exactMatch);
+	if (queryToRemove == NULL)
+	{
+		LOG_DEBUG("Query not found");
+		return false;
+	}
+
+	return removeQuery(queryToRemove);
+}
+
+bool DnsLayer::removeQuery(DnsQuery* queryToRemove)
+{
+	bool res = removeResource(queryToRemove);
+	if (res)
+	{
+		// decrease number of query records
+		getDnsHeader()->numberOfQuestions = htons(getQueryCount() - 1);
+	}
+
+	return res;
+}
+
 DnsResource* DnsLayer::addAnswer(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
 {
 	DnsResource* res = addResource(IDnsResource::DnsAnswer, name, dnsType, dnsClass, ttl, data);
@@ -950,6 +1002,31 @@ DnsResource* DnsLayer::addAnswer(DnsResource* const copyAnswer)
 	return addAnswer(copyAnswer->getName(), copyAnswer->getDnsType(), copyAnswer->getDnsClass(), copyAnswer->getTTL(), copyAnswer->getDataAsString());
 }
 
+bool DnsLayer::removeAnswer(const string& answerNameToRemove, bool exactMatch)
+{
+	DnsResource* answerToRemove = getAnswer(answerNameToRemove, exactMatch);
+	if (answerToRemove == NULL)
+	{
+		LOG_DEBUG("Answer record not found");
+		return false;
+	}
+
+	return removeAnswer(answerToRemove);
+}
+
+bool DnsLayer::removeAnswer(DnsResource* answerToRemove)
+{
+	bool res = removeResource(answerToRemove);
+	if (res)
+	{
+		// decrease number of answer records
+		getDnsHeader()->numberOfAnswers = htons(getAnswerCount() - 1);
+	}
+
+	return res;
+}
+
+
 DnsResource* DnsLayer::addAuthority(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
 {
 	DnsResource* res = addResource(IDnsResource::DnsAuthority, name, dnsType, dnsClass, ttl, data);
@@ -969,6 +1046,31 @@ DnsResource* DnsLayer::addAuthority(DnsResource* const copyAuthority)
 
 	return addAuthority(copyAuthority->getName(), copyAuthority->getDnsType(), copyAuthority->getDnsClass(), copyAuthority->getTTL(), copyAuthority->getDataAsString());
 }
+
+bool DnsLayer::removeAuthority(const string& authorityNameToRemove, bool exactMatch)
+{
+	DnsResource* authorityToRemove = getAuthority(authorityNameToRemove, exactMatch);
+	if (authorityToRemove == NULL)
+	{
+		LOG_DEBUG("Authority not found");
+		return false;
+	}
+
+	return removeAuthority(authorityToRemove);
+}
+
+bool DnsLayer::removeAuthority(DnsResource* authorityToRemove)
+{
+	bool res = removeResource(authorityToRemove);
+	if (res)
+	{
+		// decrease number of authority records
+		getDnsHeader()->numberOfAuthority = htons(getAuthorityCount() - 1);
+	}
+
+	return res;
+}
+
 
 DnsResource* DnsLayer::addAdditionalRecord(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
 {
@@ -999,4 +1101,90 @@ DnsResource* DnsLayer::addAdditionalRecord(DnsResource* const copyAdditionalReco
 		return NULL;
 
 	return addAdditionalRecord(copyAdditionalRecord->getName(), copyAdditionalRecord->getDnsType(), copyAdditionalRecord->getCustomDnsClass(), copyAdditionalRecord->getTTL(), copyAdditionalRecord->getDataAsString());
+}
+
+bool DnsLayer::removeAdditionalRecord(const string& additionalRecordNameToRemove, bool exactMatch)
+{
+	DnsResource* additionalRecordToRemove = getAdditionalRecord(additionalRecordNameToRemove, exactMatch);
+	if (additionalRecordToRemove == NULL)
+	{
+		LOG_DEBUG("Additional record not found");
+		return false;
+	}
+
+	return removeAdditionalRecord(additionalRecordToRemove);
+}
+
+bool DnsLayer::removeAdditionalRecord(DnsResource* additionalRecordToRemove)
+{
+	bool res = removeResource(additionalRecordToRemove);
+	if (res)
+	{
+		// decrease number of additional records
+		getDnsHeader()->numberOfAdditional = htons(getAdditionalRecordCount() - 1);
+	}
+
+	return res;
+}
+
+bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
+{
+	if (resourceToRemove == NULL)
+	{
+		LOG_DEBUG("resourceToRemove cannot be NULL");
+		return false;
+	}
+
+	// find the resource preceding resourceToRemove
+	IDnsResource* prevResource = m_ResourceList;
+
+	if (m_ResourceList != resourceToRemove)
+	{
+		while (prevResource != NULL)
+		{
+			IDnsResource* temp = prevResource->getNextResource();
+			if (temp == resourceToRemove)
+				break;
+
+			prevResource = temp;
+		}
+	}
+
+	if (prevResource == NULL)
+	{
+		LOG_DEBUG("Resource not found");
+		return false;
+	}
+
+	// shorten the layer and fix offset in layer for all next DNS resources in the packet
+	if (!shortenLayer(resourceToRemove->m_OffsetInLayer, resourceToRemove->getSize(), resourceToRemove))
+	{
+		LOG_ERROR("Couldn't shorten the DNS layer, resource cannot be removed");
+		return false;
+	}
+
+	// remove resourceToRemove from the resources linked list
+	if (m_ResourceList != resourceToRemove)
+	{
+		prevResource->setNexResource(resourceToRemove->getNextResource());
+	}
+	else
+	{
+		m_ResourceList = resourceToRemove->getNextResource();
+	}
+
+	// check whether resourceToRemove was the first of its type
+	if (getFirstResource(resourceToRemove->getType()) == resourceToRemove)
+	{
+		IDnsResource* nextResource = resourceToRemove->getNextResource();
+		if (nextResource != NULL && nextResource->getType() == resourceToRemove->getType())
+			setFirstResource(resourceToRemove->getType(), nextResource);
+		else
+			setFirstResource(resourceToRemove->getType(), NULL);
+	}
+
+	// free resourceToRemove memory
+	delete resourceToRemove;
+
+	return true;
 }

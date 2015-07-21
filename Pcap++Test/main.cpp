@@ -1919,9 +1919,9 @@ PCAPP_TEST(TestDnsParsing)
 		{
 			packetsContainingDnsQuery++;
 
-			if (dnsLayer->getQuery("aus3.mozilla.org") != NULL)
+			if (dnsLayer->getQuery("aus3.mozilla.org", true) != NULL)
 				queriesWithNameMozillaOrg++;
-			if (dnsLayer->getQuery("www.google.com") != NULL)
+			if (dnsLayer->getQuery("www.google.com", true) != NULL)
 				queriesWithNameGoogle++;
 
 			bool isTypeA = false;
@@ -1947,7 +1947,7 @@ PCAPP_TEST(TestDnsParsing)
 		{
 			packetsContainingDnsAnswer++;
 
-			if (dnsLayer->getAnswer("www.google-analytics.com") != NULL)
+			if (dnsLayer->getAnswer("www.google-analytics.com", true) != NULL)
 				answersWithNameGoogleAnalytics++;
 
 			bool isTypeCNAME = false;
@@ -1978,7 +1978,7 @@ PCAPP_TEST(TestDnsParsing)
 		{
 			packetsContainingDnsAuthority++;
 
-			if (dnsLayer->getAuthority("Yaels-iPhone.local") != NULL)
+			if (dnsLayer->getAuthority("Yaels-iPhone.local", true) != NULL)
 				authoritiesWithNameYaelPhone++;
 
 			for (DnsResource* auth = dnsLayer->getFirstAuthority(); auth != NULL; auth = dnsLayer->getNextAuthority(auth))
@@ -1995,10 +1995,10 @@ PCAPP_TEST(TestDnsParsing)
 		{
 			packetsContainingDnsAdditional++;
 
-			if (dnsLayer->getAdditionalRecord("") != NULL)
+			if (dnsLayer->getAdditionalRecord("", true) != NULL)
 				additionalWithEmptyName++;
 
-			if (dnsLayer->getAdditionalRecord("D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa") != NULL)
+			if (dnsLayer->getAdditionalRecord("D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa", true) != NULL)
 				additionalWithLongUglyName++;
 
 			bool isTypeNSEC = false;

@@ -465,9 +465,10 @@ public:
 	 * Searches for a DNS query by its name field. Notice this method returns only a query which its name equals to the requested name. If
 	 * several queries match the requested name, the first one will be returned. If no queries match the requested name, NULL will be returned
 	 * @param[in] name The name of the query to search
+	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return The first matching DNS query or NULL if no queries were found
 	 */
-	DnsQuery* getQuery(const string& name);
+	DnsQuery* getQuery(const string& name, bool exactMatch);
 
 	/**
 	 * @return The first DNS query in the packet or NULL if packet doesn't contain any queries
@@ -505,12 +506,28 @@ public:
 	DnsQuery* addQuery(DnsQuery* const copyQuery);
 
 	/**
+	 * Remove an existing query by name. If several queries matches the name, the first match will be removed
+	 * @param[in] queryNameToRemove The name of the query to remove
+	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
+	 * @return True if query was found and successfully removed or false if query was not found or couldn't be removed
+	 */
+	bool removeQuery(const string& queryNameToRemove, bool exactMatch);
+
+	/**
+	 * Remove an existing query
+	 * @param[in] queryToRemove A pointer to the query to remove
+	 * @return True if query was found and successfully removed or false if query was not found or couldn't be removed
+	 */
+	bool removeQuery(DnsQuery* queryToRemove);
+
+	/**
 	 * Searches for a DNS answer by its name field. Notice this method returns only an answer which its name equals to the requested name. If
 	 * several answers match the requested name, the first one will be returned. If no answers match the requested name, NULL will be returned
 	 * @param[in] name The name of the answer to search
+	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return The first matching DNS answer or NULL if no answers were found
 	 */
-	DnsResource* getAnswer(const string& name);
+	DnsResource* getAnswer(const string& name, bool exactMatch);
 
 	/**
 	 * @return The first DNS answer in the packet or NULL if packet doesn't contain any answers
@@ -549,14 +566,30 @@ public:
 	 */
 	DnsResource* addAnswer(DnsResource* const copyAnswer);
 
+	/**
+	 * Remove an existing answer by name. If several answers matches the name, the first match will be removed
+	 * @param[in] answerNameToRemove The name of the answer to remove
+	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
+	 * @return True if answer was found and successfully removed or false if answer was not found or couldn't be removed
+	 */
+	bool removeAnswer(const string& answerNameToRemove, bool exactMatch);
+
+	/**
+	 * Remove an existing answer
+	 * @param[in] answerToRemove A pointer to the answer to remove
+	 * @return True if answer was found and successfully removed or false if answer was not found or couldn't be removed
+	 */
+	bool removeAnswer(DnsResource* answerToRemove);
+
 
 	/**
 	 * Searches for a DNS authority by its name field. Notice this method returns only an authority which its name equals to the requested name. If
 	 * several authorities match the requested name, the first one will be returned. If no authorities match the requested name, NULL will be returned
 	 * @param[in] name The name of the authority to search
+	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return The first matching DNS authority or NULL if no authorities were found
 	 */
-	DnsResource* getAuthority(const string& name);
+	DnsResource* getAuthority(const string& name, bool exactMatch);
 
 	/**
 	 * @return The first DNS authority in the packet or NULL if packet doesn't contain any authorities
@@ -595,15 +628,31 @@ public:
 	 */
 	DnsResource* addAuthority(DnsResource* const copyAuthority);
 
+	/**
+	 * Remove an existing authority by name. If several authorities matches the name, the first match will be removed
+	 * @param[in] authorityNameToRemove The name of the authority to remove
+	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
+	 * @return True if authority was found and successfully removed or false if authority was not found or couldn't be removed
+	 */
+	bool removeAuthority(const string& authorityNameToRemove, bool exactMatch);
+
+	/**
+	 * Remove an existing authority
+	 * @param[in] authorityToRemove A pointer to the authority to remove
+	 * @return True if authority was found and successfully removed or false if authority was not found or couldn't be removed
+	 */
+	bool removeAuthority(DnsResource* authorityToRemove);
+
 
 	/**
 	 * Searches for a DNS additional record by its name field. Notice this method returns only an additional record which its name equals to
 	 * the requested name. If several additional records match the requested name, the first one will be returned. If no additional records
 	 * match the requested name, NULL will be returned
 	 * @param[in] name The name of the additional record to search
+	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return The first matching DNS additional record or NULL if no additional records were found
 	 */
-	DnsResource* getAdditionalRecord(const string& name);
+	DnsResource* getAdditionalRecord(const string& name, bool exactMatch);
 
 	/**
 	 * @return The first DNS additional record in the packet or NULL if packet doesn't contain any additional records
@@ -657,6 +706,20 @@ public:
 	 */
 	DnsResource* addAdditionalRecord(DnsResource* const copyAdditionalRecord);
 
+	/**
+	 * Remove an existing additional record by name. If several additional records matches the name, the first match will be removed
+	 * @param[in] additionalRecordNameToRemove The name of the additional record to remove
+	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
+	 * @return True if additional record was found and successfully removed or false if additional record was not found or couldn't be removed
+	 */
+	bool removeAdditionalRecord(const string& additionalRecordNameToRemove, bool exactMatch);
+
+	/**
+	 * Remove an existing additional record
+	 * @param[in] additionalRecordToRemove A pointer to the additional record to remove
+	 * @return True if additional record was found and successfully removed or false if additional record was not found or couldn't be removed
+	 */
+	bool removeAdditionalRecord(DnsResource* additionalRecordToRemove);
 
 	// implement abstract methods
 
@@ -678,9 +741,6 @@ public:
 
 	string toString();
 
-	//	void removeQuery(DnsQuery* queryToRemove);
-	//	void removeQuery(const string& name);
-
 private:
 	IDnsResource* 	m_ResourceList;
 	DnsQuery* 		m_FirstQuery;
@@ -688,17 +748,20 @@ private:
 	DnsResource* 	m_FirstAuthority;
 	DnsResource* 	m_FirstAdditional;
 
+	IDnsResource* getFirstResource(IDnsResource::ResourceType resType);
 	void setFirstResource(IDnsResource::ResourceType resType, IDnsResource* resource);
 
 	bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend, IDnsResource* resource);
 	bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten, IDnsResource* resource);
 
-	IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const string& name);
+	IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const string& name, bool exactMatch);
 
 	void parseResources();
 
 	DnsResource* addResource(IDnsResource::ResourceType resType, const string& name, DnsType dnsType, DnsClass dnsClass,
 			uint32_t ttl, const string& data);
+
+	bool removeResource(IDnsResource* resourceToRemove);
 
 };
 

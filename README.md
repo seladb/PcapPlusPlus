@@ -57,7 +57,7 @@ The Packet++ library currently supports parsing, editing and creation of packets
 6. PPPoE
 6. TCP
 7. UDP
-8. DNS (currently only parsing capabilities are available. Editing capabilities will be added soon)
+8. DNS
 8. HTTP request header
 9. HTTP response header
 10. Generic payload

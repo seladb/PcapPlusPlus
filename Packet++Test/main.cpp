@@ -1416,10 +1416,10 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_ASSERT(secondQuery->getDnsClass() == DNS_CLASS_IN, "Second query class != DNS_CLASS_IN");
 	PACKETPP_ASSERT(dnsLayer->getNextQuery(secondQuery) == NULL, "Unexpected third query in packet");
 
-	DnsQuery* queryByName = dnsLayer->getQuery(string("Yaels-iPhone.local"));
+	DnsQuery* queryByName = dnsLayer->getQuery(string("Yaels-iPhone.local"), true);
 	PACKETPP_ASSERT(queryByName != NULL, "Query by name returned NULL");
 	PACKETPP_ASSERT(queryByName == firstQuery, "Query by name returned a query different from first query");
-	PACKETPP_ASSERT(dnsLayer->getQuery(string("www.seladb.com")) == NULL, "Query by wrong name returned a result");
+	PACKETPP_ASSERT(dnsLayer->getQuery(string("www.seladb.com"), true) == NULL, "Query by wrong name returned a result");
 
 	DnsResource* firstAuthority = dnsLayer->getFirstAuthority();
 	PACKETPP_ASSERT(firstAuthority != NULL, "Get first authority returned NULL");
@@ -1444,8 +1444,8 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	DnsResource* thirdAuthority = dnsLayer->getNextAuthority(secondAuthority);
 	PACKETPP_ASSERT(thirdAuthority == NULL, "Found an imaginary third authority");
 
-	PACKETPP_ASSERT(dnsLayer->getAuthority("Yaels-iPhone.local") == firstAuthority, "Get authority by name didn't return the first authority");
-	PACKETPP_ASSERT(dnsLayer->getAuthority("www.google.com") == NULL, "Found imaginary authority record");
+	PACKETPP_ASSERT(dnsLayer->getAuthority("Yaels-iPhon", false) == firstAuthority, "Get authority by name didn't return the first authority");
+	PACKETPP_ASSERT(dnsLayer->getAuthority("www.google.com", false) == NULL, "Found imaginary authority record");
 
 	DnsResource* additionalRecord = dnsLayer->getFirstAdditionalRecord();
 	PACKETPP_ASSERT(additionalRecord != NULL, "Couldn't find additional record");
@@ -1457,7 +1457,7 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_ASSERT(additionalRecord->getDataAsString() == "0x0004000800df581faa4f3f9d", "Additional record unexpected data: %s", additionalRecord->getDataAsString().c_str());
 	PACKETPP_ASSERT(additionalRecord->getSize() == 23, "Second authority total size != 23");
 	PACKETPP_ASSERT(dnsLayer->getNextAdditionalRecord(additionalRecord) == NULL, "Found imaginary additional record");
-	PACKETPP_ASSERT(dnsLayer->getAdditionalRecord("") == additionalRecord, "Couldn't find additional record by (empty) name");
+	PACKETPP_ASSERT(dnsLayer->getAdditionalRecord("", true) == additionalRecord, "Couldn't find additional record by (empty) name");
 
 	PACKETPP_ASSERT(dnsLayer->toString() == "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", "Dns3 toString gave the wrong output");
 
@@ -1511,8 +1511,8 @@ PACKETPP_TEST(DnsLayerParsingTest)
 
 	PACKETPP_ASSERT(answerCount == 18, "Found more/less than 17 answers");
 
-	PACKETPP_ASSERT(dnsLayer->getAnswer("www.google-analytics.com") == dnsLayer->getFirstAnswer(), "Couldn't find answer by name 1");
-	PACKETPP_ASSERT(dnsLayer->getAnswer("www-google-analytics.L.google.com") == dnsLayer->getNextAnswer(dnsLayer->getFirstAnswer()), "Couldn't find answer by name 2");
+	PACKETPP_ASSERT(dnsLayer->getAnswer("www.google-analytics.com", false) == dnsLayer->getFirstAnswer(), "Couldn't find answer by name 1");
+	PACKETPP_ASSERT(dnsLayer->getAnswer("www-google-analytics.L.google.com", true) == dnsLayer->getNextAnswer(dnsLayer->getFirstAnswer()), "Couldn't find answer by name 2");
 
 	PACKETPP_ASSERT(dnsLayer->toString() == "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0", "Dns1 toString gave the wrong output");
 
@@ -1526,7 +1526,7 @@ PACKETPP_TEST(DnsLayerParsingTest)
 
 	dnsLayer = dnsPacket3.getLayerOfType<DnsLayer>();
 	PACKETPP_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
-	queryByName = dnsLayer->getQuery(string("Yaels-iPhone.local"));
+	queryByName = dnsLayer->getQuery(string("Yaels-iPhone.loca"), false);
 	PACKETPP_ASSERT(queryByName != NULL, "Query by name returned NULL for Dns2.dat");
 	PACKETPP_ASSERT(queryByName->getDnsClass() == DNS_CLASS_IN_QU, "Query class != DNS_CLASS_IN_QU");
 
@@ -1676,8 +1676,8 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 	LoggerPP::getInstance().enableErrors();
 	PACKETPP_ASSERT(thirdAnswer->setData("151.249.90.238") == true, "Couldn't set data for third answer");
 
-	PACKETPP_ASSERT(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net")->getDataAsString() == "151.249.90.217", "Couldn't retrieve data for second answer after adding third answer");
-	PACKETPP_ASSERT(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net"))->getDataAsString() == "151.249.90.238", "Couldn't retrieve data for third answer after adding third answer");
+	PACKETPP_ASSERT(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", true)->getDataAsString() == "151.249.90.217", "Couldn't retrieve data for second answer after adding third answer");
+	PACKETPP_ASSERT(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", false))->getDataAsString() == "151.249.90.238", "Couldn't retrieve data for third answer after adding third answer");
 
 	dnsEdit4Packet.computeCalculateFields();
 
@@ -1719,7 +1719,7 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 
 	PACKETPP_ASSERT(dnsEdit6Packet.addLayer(&dnsLayer6), "Couldn't set DNS layer for packet DnsEdit6");
 
-	PACKETPP_ASSERT(dnsLayer6.getAuthority("Yaels-iPhone.local")->getDataAsString() == "10.0.0.2", "Couldn't retrieve data from first authority");
+	PACKETPP_ASSERT(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getDataAsString() == "10.0.0.2", "Couldn't retrieve data from first authority");
 
 	authority = dnsLayer6.addAuthority(authority);
 	LoggerPP::getInstance().supressErrors();
@@ -1793,6 +1793,131 @@ PACKETPP_TEST(DnsLayerEditTest)
 	PACKETPP_ASSERT(dnsLayer5->getFirstQuery()->setName("assets.pinterest.com") == true, "Couldn't set name for DnsEdit5");
 	PACKETPP_ASSERT(dnsLayer3->getHeaderLen() == dnsLayer5->getHeaderLen(), "DNS layers length of DnsEdit3 and DnsEdit5 after edit differ");
 	PACKETPP_ASSERT(memcmp(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen()) == 0, "Raw data for DNS layers of DnsEdit3 and DnsEdit5 differ");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(DnsLayerRemoveResourceTest)
+{
+	int buffer6Length = 0;
+	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/DnsEdit6.dat", buffer6Length);
+	PACKETPP_ASSERT(!(buffer6 == NULL), "cannot read file DnsEdit6.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket raw6Packet((const uint8_t*)buffer6, buffer6Length, time, true);
+
+	Packet dnsEdit6Packet(&raw6Packet);
+
+	DnsLayer* dnsLayer6 = dnsEdit6Packet.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(dnsLayer6 != NULL, "Couldn't retrieve DnsLayer for DnsEdit6");
+
+	DnsLayer origDnsLayer6(*dnsLayer6);
+
+	DnsQuery* firstQuery = dnsLayer6->getFirstQuery();
+	size_t firstQuerySize = firstQuery->getSize();
+	DnsQuery* secondQuery = dnsLayer6->getNextQuery(firstQuery);
+	PACKETPP_ASSERT(firstQuery != NULL, "Couldn't find first query in DnsEdit6");
+	PACKETPP_ASSERT(secondQuery != NULL, "Couldn't find second query in DnsEdit6");
+	PACKETPP_ASSERT(dnsLayer6->removeQuery(firstQuery) == true, "Couldn't remove first query from DnsEdit6");
+
+	PACKETPP_ASSERT(dnsLayer6->getFirstQuery() == secondQuery, "Remove query didn't remove the query properly from the resources linked list");
+	PACKETPP_ASSERT(dnsLayer6->getFirstQuery()->getDnsType() == DNS_TYPE_ALL, "Remove query didn't properly removed query data from layer");
+	PACKETPP_ASSERT(dnsLayer6->getQueryCount() == 1, "Query count after removing the first query != 1");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAuthority()->getDataAsString() == "10.0.0.2", "Remove query didn't properly removed query data from layer");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAdditionalRecord()->getDnsType() == DNS_TYPE_OPT, "Remove query didn't properly removed query data from layer");
+
+	PACKETPP_ASSERT(dnsLayer6->getHeaderLen() == origDnsLayer6.getHeaderLen()-firstQuerySize, "DNS layer size after removing the first query is wrong");
+
+//	printf("\n\n\n");
+//	for(int i = 0; i<dnsLayer6->getHeaderLen(); i++)
+//		printf(" 0x%2X  ", (origDnsLayer6.getData()+firstQuerySize)[i]);
+//	printf("\n\n\n");
+//	for(int i = 0; i<dnsLayer6->getHeaderLen(); i++)
+//	{
+//		if (dnsLayer6->getData()[i] != (origDnsLayer6.getData()+firstQuerySize)[i])
+//			printf("*0x%2X* ", dnsLayer6->getData()[i]);
+//		else
+//			printf(" 0x%2X  ", dnsLayer6->getData()[i]);
+//	}
+//	printf("\n\n\n");
+
+	PACKETPP_ASSERT(memcmp(dnsLayer6->getData()+sizeof(dnshdr), origDnsLayer6.getData()+sizeof(dnshdr)+firstQuerySize , dnsLayer6->getHeaderLen()-sizeof(dnshdr)) == 0, "Raw data for DNS layer of DnsEdit6 after removing first query isn't as expected");
+
+	DnsResource* firstAuthority = dnsLayer6->getFirstAuthority();
+	DnsResource* secondAuthority = dnsLayer6->getNextAuthority(firstAuthority);
+	PACKETPP_ASSERT(secondAuthority != NULL, "Couldn't find second authority in DnsEdit6");
+	size_t secondAuthoritySize = secondAuthority->getSize();
+
+	PACKETPP_ASSERT(dnsLayer6->removeAuthority(secondAuthority) == true, "Couldn't remove second authority from DnsEdit6");
+	PACKETPP_ASSERT(dnsLayer6->getAuthorityCount() == 1, "Authority count after removing the second authority != 1");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAuthority() == firstAuthority, "Cannot find first authority after removing second authority");
+	PACKETPP_ASSERT(dnsLayer6->getNextAuthority(firstAuthority) == NULL, "Authority list after removing second authority contains more than 1 element");
+	PACKETPP_ASSERT(firstAuthority->getTTL() == 120, "First authority TTL after removing second authority != 120");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAdditionalRecord()->getDnsType() == DNS_TYPE_OPT, "Remove query didn't properly removed query data from layer");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAdditionalRecord()->getDataLength() == 12, "Remove authority didn't properly removed query data from layer");
+	PACKETPP_ASSERT(dnsLayer6->getHeaderLen() == origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize, "DNS layer size after removing the second authority is wrong");
+
+	PACKETPP_ASSERT(dnsLayer6->removeQuery("BlaBla", true) == false, "Managed to remove a query which doesn't exist");
+	PACKETPP_ASSERT(dnsLayer6->removeAuthority(secondAuthority) == false, "Managed to remove an authority which was already removed");
+	PACKETPP_ASSERT(dnsLayer6->removeAdditionalRecord(NULL) == false, "Managed to remove a NULL additional record");
+
+	size_t additionalRecordSize = dnsLayer6->getFirstAdditionalRecord()->getSize();
+	PACKETPP_ASSERT(dnsLayer6->removeAdditionalRecord(dnsLayer6->getFirstAdditionalRecord()) == true, "Couldn't remove additional record");
+	PACKETPP_ASSERT(dnsLayer6->getAdditionalRecordCount() == 0, "Additional record count after removing the additional record != 0");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAdditionalRecord() == NULL, "Getting first additional record after removing all records gave result != NULL");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAuthority()->getDataAsString() == "10.0.0.2", "First authority data after removing additional record is different than expected");
+	PACKETPP_ASSERT(dnsLayer6->getHeaderLen() == origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize-additionalRecordSize, "DNS layer size after removing the additional record is wrong");
+
+
+
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/DnsEdit4.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file DnsEdit4.dat");
+
+	gettimeofday(&time, NULL);
+	RawPacket raw4Packet((const uint8_t*)buffer4, buffer4Length, time, true);
+
+	Packet dnsEdit4Packet(&raw4Packet);
+
+	DnsLayer* dnsLayer4 = dnsEdit4Packet.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(dnsLayer4 != NULL, "Couldn't retrieve DnsLayer for DnsEdit4");
+
+	DnsLayer origDnsLayer4(*dnsLayer4);
+
+	firstQuerySize = dnsLayer4->getFirstQuery()->getSize();
+	PACKETPP_ASSERT(dnsLayer4->removeQuery("pinter", false) == true, "Couldn't remove query in DnsEdit4");
+	PACKETPP_ASSERT(dnsLayer4->getQueryCount() == 0, "Query count after removing the only query > 0");
+	PACKETPP_ASSERT(dnsLayer4->getHeaderLen() == origDnsLayer4.getHeaderLen()-firstQuerySize, "DNS layer size after removing the first query is wrong");
+
+	DnsResource* firstAnswer = dnsLayer4->getFirstAnswer();
+	PACKETPP_ASSERT(firstAnswer != NULL, "Couldn't find first answer");
+	size_t firstAnswerSize = firstAnswer->getSize();
+	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer()->getDataAsString() == "assets.pinterest.com.cdngc.net", "First answer data after removing first query is wrong");
+
+	DnsResource* secondAnswer = dnsLayer4->getNextAnswer(firstAnswer);
+	PACKETPP_ASSERT(secondAnswer != NULL, "Couldn't find second answer");
+	size_t secondAnswerSize = secondAnswer->getSize();
+
+	DnsResource* thirdAnswer = dnsLayer4->getNextAnswer(secondAnswer);
+	PACKETPP_ASSERT(thirdAnswer != NULL, "Couldn't find third answer");
+
+	PACKETPP_ASSERT(dnsLayer4->removeAnswer("assets.pinterest.com.cdngc.net", true) == true, "Couldn't remove second answer by name");
+	PACKETPP_ASSERT(dnsLayer4->getAnswerCount() == 2, "Answer count after removing the second answer != 2");
+	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer() == firstAnswer, "First answer after removing the second answer isn't as expected");
+	PACKETPP_ASSERT(dnsLayer4->getNextAnswer(dnsLayer4->getFirstAnswer()) == thirdAnswer, "Second answer after removing the second answer isn't as expected");
+	PACKETPP_ASSERT(dnsLayer4->getHeaderLen() == origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize, "DNS layer size after removing the second answer is wrong");
+
+	PACKETPP_ASSERT(dnsLayer4->removeAnswer(firstAnswer) == true, "Couldn't remove first answer");
+	PACKETPP_ASSERT(dnsLayer4->getAnswerCount() == 1, "Answer count after removing the first answer != 1");
+	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer() == thirdAnswer, "First answer after removing the first answer isn't as expected");
+	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer()->getDataAsString() == "151.249.90.238", "Third answer data isn't as expected");
+	PACKETPP_ASSERT(dnsLayer4->getHeaderLen() == origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize-firstAnswerSize, "DNS layer size after removing the first answer is wrong");
+
+	PACKETPP_ASSERT(dnsLayer4->removeAnswer(thirdAnswer) == true, "Couldn't remove third answer");
+	PACKETPP_ASSERT(dnsLayer4->removeAdditionalRecord("blabla", false) == false, "Managed to remove an additional record that doesn't exist");
+	PACKETPP_ASSERT(dnsLayer4->getHeaderLen() == sizeof(dnshdr), "After removing all resources, header size is expected to be sizeof(dnshdr), but this is not the case");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -1931,9 +2056,9 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 	PACKETPP_ASSERT(copyDnsLayer.getFirstQuery()->getDnsType() == origDnsLayer->getFirstQuery()->getDnsType(), "DNS type for first query differs");
 
 	PACKETPP_ASSERT(copyDnsLayer.getAuthorityCount() == origDnsLayer->getAuthorityCount(), "Authority count differs");
-	PACKETPP_ASSERT(copyDnsLayer.getAuthority("Yaels-iPhone.local")->getDataAsString() == origDnsLayer->getAuthority("Yaels-iPhone.local")->getDataAsString(), "Authority data differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAuthority("Yaels-iPhone.local", true)->getDataAsString() == origDnsLayer->getAuthority("Yaels-iPhone.local", true)->getDataAsString(), "Authority data differs");
 
-	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("")->getDataAsString() == origDnsLayer->getAdditionalRecord("")->getDataAsString(), "Additional data differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("", true)->getDataAsString() == origDnsLayer->getAdditionalRecord("", true)->getDataAsString(), "Additional data differs");
 
 	copyDnsLayer.addQuery("bla", DNS_TYPE_A, DNS_CLASS_ANY);
 	copyDnsLayer.addAnswer("bla", DNS_TYPE_A, DNS_CLASS_ANY, 123, "1.1.1.1");
@@ -1945,11 +2070,11 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 	PACKETPP_ASSERT(copyDnsLayer.getFirstQuery()->getDnsType() == origDnsLayer->getFirstQuery()->getDnsType(), "DNS type for first query differs");
 
 	PACKETPP_ASSERT(copyDnsLayer.getAuthorityCount() == origDnsLayer->getAuthorityCount(), "Authority count differs");
-	PACKETPP_ASSERT(copyDnsLayer.getAuthority("Yaels-iPhone.local")->getDataAsString() == origDnsLayer->getAuthority("Yaels-iPhone.local")->getDataAsString(), "Authority data differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAuthority(".local", false)->getDataAsString() == origDnsLayer->getAuthority("iPhone.local", false)->getDataAsString(), "Authority data differs");
 
 	PACKETPP_ASSERT(copyDnsLayer.getAnswerCount() == origDnsLayer->getAnswerCount(), "Answer count differs");
 
-	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("")->getDataAsString() == origDnsLayer->getAdditionalRecord("")->getDataAsString(), "Additional data differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("", true)->getDataAsString() == origDnsLayer->getAdditionalRecord("", true)->getDataAsString(), "Additional data differs");
 
 
 
@@ -1991,6 +2116,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(DnsLayerQueryCreationTest);
 	PACKETPP_RUN_TEST(DnsLayerResourceCreationTest);
 	PACKETPP_RUN_TEST(DnsLayerEditTest);
+	PACKETPP_RUN_TEST(DnsLayerRemoveResourceTest);
 	PACKETPP_RUN_TEST(CopyLayerAndPacketTest);
 
 	PACKETPP_END_RUNNING_TESTS;
