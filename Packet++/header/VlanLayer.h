@@ -84,7 +84,7 @@ public:
 	// implement abstract methods
 
 	/**
-	 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer. Otherwise sets PayloadLayer
+	 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, MplsLayer. Otherwise sets PayloadLayer
 	 */
 	void parseNextLayer();
 

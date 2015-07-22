@@ -49,6 +49,8 @@ struct ether_header {
 #define ETHERTYPE_PPPOED	0x8863
 /** PPPoE session */
 #define ETHERTYPE_PPPOES	0x8864
+/** MPLS */
+#define ETHERTYPE_MPLS		0x8847
 
 
 /**
@@ -109,7 +111,8 @@ public:
 	// implement abstract methods
 
 	/**
-	 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer.
+	 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer,
+	 * MplsLayer.
 	 * Otherwise sets PayloadLayer
 	 */
 	void parseNextLayer();

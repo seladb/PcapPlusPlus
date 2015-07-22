@@ -6,6 +6,7 @@
 #include <PayloadLayer.h>
 #include <ArpLayer.h>
 #include <PPPoELayer.h>
+#include <MplsLayer.h>
 #include <string.h>
 #include <sstream>
 #ifdef WIN32
@@ -54,6 +55,9 @@ void VlanLayer::parseNextLayer()
 		break;
 	case ETHERTYPE_PPPOED:
 		m_NextLayer = new PPPoEDiscoveryLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
+		break;
+	case ETHERTYPE_MPLS:
+		m_NextLayer = new MplsLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 		break;
 	default:
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);

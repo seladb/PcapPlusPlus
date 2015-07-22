@@ -91,7 +91,12 @@ enum ProtocolType
 	/**
 	 * DNS protocol
 	 */
-	DNS = 0x1000
+	DNS = 0x1000,
+
+	/**
+	 * MPLS protocol
+	 */
+	MPLS = 0x2000
 };
 
 #endif

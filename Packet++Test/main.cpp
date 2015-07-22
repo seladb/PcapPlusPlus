@@ -11,6 +11,7 @@
 #include <HttpLayer.h>
 #include <PPPoELayer.h>
 #include <DnsLayer.h>
+#include <MplsLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -1922,6 +1923,79 @@ PACKETPP_TEST(DnsLayerRemoveResourceTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(MplsLayerTest)
+{
+	int buffer1Length = 0;
+	int buffer2Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/MplsPackets1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file MplsPackets1.dat");
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/MplsPackets2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file MplsPackets2.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet mplsPacket1(&rawPacket1);
+	Packet mplsPacket2(&rawPacket2);
+
+	MplsLayer* mplsLayer = mplsPacket1.getLayerOfType<MplsLayer>();
+	PACKETPP_ASSERT(mplsLayer != NULL, "Couldn't find MPLS layer for MplsPackets1.dat");
+
+	PACKETPP_ASSERT(mplsLayer->getTTL() == 126, "TTL != 126 for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->isBottomOfStack() == true, "Bottom of stack != true for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->getExperimentalUseValue() == 0, "expermentalUse != 0 for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->getMplsLabel() == 16000, "label != 16000 for MplsPackets1.dat");
+
+	PACKETPP_ASSERT(mplsLayer->getNextLayer() != NULL, "Layer after MPLS is NULL");
+	PACKETPP_ASSERT(mplsLayer->getNextLayer()->getProtocol() == IPv4, "Layer after MPLS isn't IPv4");
+
+	mplsLayer = mplsPacket2.getLayerOfType<MplsLayer>();
+	PACKETPP_ASSERT(mplsLayer != NULL, "Couldn't find MPLS layer for MplsPackets2.dat");
+
+	PACKETPP_ASSERT(mplsLayer->getTTL() == 254, "TTL != 254 for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->isBottomOfStack() == false, "Bottom of stack != false for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->getExperimentalUseValue() == 0, "expermentalUse != 0 for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->getMplsLabel() == 18, "label != 18 for MplsPackets1.dat");
+
+	mplsLayer = mplsPacket2.getNextLayerOfType<MplsLayer>(mplsLayer);
+	PACKETPP_ASSERT(mplsLayer != NULL, "Couldn't find second MPLS layer for MplsPackets2.dat");
+
+	PACKETPP_ASSERT(mplsLayer->getTTL() == 255, "TTL != 255 for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->isBottomOfStack() == true, "Bottom of stack != true for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->getExperimentalUseValue() == 0, "expermentalUse != 0 for MplsPackets1.dat");
+	PACKETPP_ASSERT(mplsLayer->getMplsLabel() == 16, "label != 16 for MplsPackets1.dat");
+
+	PACKETPP_ASSERT(mplsLayer->getNextLayer() != NULL, "Layer after MPLS is NULL");
+	PACKETPP_ASSERT(mplsLayer->getNextLayer()->getProtocol() == Unknown, "Layer after MPLS isn't general payload");
+
+	mplsLayer->setBottomOfStack(true);
+	PACKETPP_ASSERT(mplsLayer->setExperimentalUseValue(6) == true, "Couldn't set a legal exp value");
+	mplsLayer->setTTL(111);
+	PACKETPP_ASSERT(mplsLayer->setMplsLabel(100000), "Couldn't set a legal label value");
+	uint8_t expectedResult[4] = { 0x18, 0x6A, 0x0d, 0x6f };
+	PACKETPP_ASSERT(memcmp(mplsLayer->getData(), expectedResult , 4) == 0, "MPLS data is wrong, got 0x%X 0x%X 0x%X 0x%X",
+			mplsLayer->getData()[0], mplsLayer->getData()[1], mplsLayer->getData()[2], mplsLayer->getData()[3]);
+	PACKETPP_ASSERT(mplsLayer->getTTL() == 111, "Read the set TTL gave different result");
+	PACKETPP_ASSERT(mplsLayer->getMplsLabel() == 100000, "Read the set MPLS labek gave different result");
+	PACKETPP_ASSERT(mplsLayer->getExperimentalUseValue() == 6, "Read the set exp value gave different result");
+	PACKETPP_ASSERT(mplsLayer->isBottomOfStack() == true, "Read the set bottom-of-stack value gave different result");
+
+	MplsLayer mplsLayer2(0xdff0f, 20, 7, false);
+	uint8_t expectedResult2[4] = { 0xdf, 0xf0, 0xfe, 0x14 };
+	PACKETPP_ASSERT(memcmp(mplsLayer2.getData(), expectedResult2 , 4) == 0, "MPLS data2 is wrong, got 0x%X 0x%X 0x%X 0x%X",
+			mplsLayer2.getData()[0], mplsLayer2.getData()[1], mplsLayer2.getData()[2], mplsLayer2.getData()[3]);
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(mplsLayer->setExperimentalUseValue(600) == false, "Managed to set an out-of-range exp value");
+	PACKETPP_ASSERT(mplsLayer->setMplsLabel(0xFFFFFF) == false, "Managed to set an out-of-range MPLS label value");
+	LoggerPP::getInstance().enableErrors();
+
+
+	PACKETPP_TEST_PASSED;
+}
+
 PACKETPP_TEST(CopyLayerAndPacketTest)
 {
 	int bufferLength = 0;
@@ -2117,6 +2191,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(DnsLayerResourceCreationTest);
 	PACKETPP_RUN_TEST(DnsLayerEditTest);
 	PACKETPP_RUN_TEST(DnsLayerRemoveResourceTest);
+	PACKETPP_RUN_TEST(MplsLayerTest);
 	PACKETPP_RUN_TEST(CopyLayerAndPacketTest);
 
 	PACKETPP_END_RUNNING_TESTS;

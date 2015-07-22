@@ -31,6 +31,7 @@ enum LogModule
 	PacketLogModuleHttpLayer, ///< HttpLayer module (Packet++)
 	PacketLogModulePPPoELayer, ///< PPPoELayer module (Packet++)
 	PacketLogModuleDnsLayer, ///< DnsLayer module (Packet++)
+	PacketLogModuleMplsLayer, ///< MplsLayer module (Packet++)
 	PcapLogModuleWinPcapLiveDevice, ///< WinPcapLiveDevice module (Pcap++)
 	PcapLogModuleRemoteDevice, ///< WinPcapRemoteDevice module (Pcap++)
 	PcapLogModuleLiveDevice, ///< PcapLiveDevice module (Pcap++)
