@@ -54,12 +54,13 @@ The Packet++ library currently supports parsing, editing and creation of packets
 3. IPv6
 4. ARP
 5. VLAN
-6. PPPoE
-7. TCP
-8. UDP
-9. DNS
-10. HTTP headers (request & response)
-11. Generic payload
+6. MPLS
+7. PPPoE
+8. TCP
+9. UDP
+10. DNS
+11. HTTP headers (request & response)
+12. Generic payload
 
 #### Supported Engines and Devices ####
 
