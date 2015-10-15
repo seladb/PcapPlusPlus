@@ -20,4 +20,16 @@
 #define CREATE_DIRECTORY(dir) mkdir(dir, 0777)
 #endif
 
+#ifdef WIN32
+#define POPEN _popen
+#else
+#define POPEN popen
+#endif
+
+#ifdef WIN32
+#define PCLOSE _pclose
+#else
+#define PCLOSE pclose
+#endif
+
 #endif /* PCAPPP_PLATFORM_SPECIFIC_UTILS */

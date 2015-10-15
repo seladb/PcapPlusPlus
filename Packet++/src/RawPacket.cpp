@@ -50,20 +50,25 @@ RawPacket& RawPacket::operator=(const RawPacket& other)
 }
 
 
-void RawPacket::copyDataFrom(const RawPacket& other)
+void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 {
 	if (!other.m_RawPacketSet)
 		return;
 
-	m_DeleteRawDataAtDestructor = true;
-	m_RawDataLen = other.m_RawDataLen;
 	m_TimeStamp = other.m_TimeStamp;
-	m_pRawData = new uint8_t[other.m_RawDataLen];
+
+	if (allocateData)
+	{
+		m_DeleteRawDataAtDestructor = true;
+		m_pRawData = new uint8_t[other.m_RawDataLen];
+		m_RawDataLen = other.m_RawDataLen;
+	}
+
 	memcpy(m_pRawData, other.m_pRawData, other.m_RawDataLen);
 	m_RawPacketSet = true;
 }
 
-void RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp)
+bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp)
 {
 	if (m_pRawData != 0 && m_DeleteRawDataAtDestructor)
 	{
@@ -74,6 +79,8 @@ void RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval time
 	m_RawDataLen = rawDataLen;
 	m_TimeStamp = timestamp;
 	m_RawPacketSet = true;
+
+	return true;
 }
 
 const uint8_t* RawPacket::getRawData()
@@ -125,12 +132,27 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 	m_RawDataLen += dataToInsertLen;
 }
 
-void RawPacket::reallocateData(uint8_t* newBuffer)
+bool RawPacket::reallocateData(size_t newBufferLength)
 {
+	if (newBufferLength == m_RawDataLen)
+		return true;
+
+	if (newBufferLength < m_RawDataLen)
+	{
+		LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: %d; requested length: %d", m_RawDataLen, newBufferLength);
+		return false;
+	}
+
+	uint8_t* newBuffer = new uint8_t[newBufferLength];
+	memset(newBuffer, 0, newBufferLength);
 	memcpy(newBuffer, m_pRawData, m_RawDataLen);
 	if (m_DeleteRawDataAtDestructor)
 		delete [] m_pRawData;
+
+	m_DeleteRawDataAtDestructor = true;
 	m_pRawData = newBuffer;
+
+	return true;
 }
 
 bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)

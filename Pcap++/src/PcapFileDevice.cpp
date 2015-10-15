@@ -91,7 +91,11 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 
 	uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 	memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
-	rawPacket.setRawData(pMyPacketData, pkthdr.caplen, pkthdr.ts);
+	if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, pkthdr.ts))
+	{
+		LOG_ERROR("Couldn't set data to raw packet");
+		return false;
+	}
 	m_NumOfPacketsRead++;
 	return true;
 }

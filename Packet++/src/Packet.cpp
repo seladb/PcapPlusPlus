@@ -22,13 +22,15 @@ Packet::Packet(size_t maxPacketLen) :
 	m_RawPacket = new RawPacket((const uint8_t*)data, 0, time, true);
 }
 
-Packet::Packet(RawPacket* rawPacket) :
-	m_FirstLayer(NULL),
-	m_LastLayer(NULL),
-	m_ProtocolTypes(Unknown),
-	m_MaxPacketLen(rawPacket->getRawDataLen()),
-	m_FreeRawPacket(false)
+void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
 {
+	destructPacketData();
+
+	m_FirstLayer = NULL;
+	m_LastLayer = NULL;
+	m_ProtocolTypes = Unknown;
+	m_MaxPacketLen = rawPacket->getRawDataLen();
+	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
 	m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	m_LastLayer = m_FirstLayer;
@@ -42,15 +44,30 @@ Packet::Packet(RawPacket* rawPacket) :
 		if (curLayer != NULL)
 			m_LastLayer = curLayer;
 	}
-
 }
+
+Packet::Packet(RawPacket* rawPacket, bool freeRawPacket)
+{
+	m_FreeRawPacket = false;
+	m_RawPacket = NULL;
+	setRawPacket(rawPacket, freeRawPacket);
+}
+
+
+Packet::Packet(RawPacket* rawPacket)
+{
+	m_FreeRawPacket = false;
+	m_RawPacket = NULL;
+	setRawPacket(rawPacket, false);
+}
+
 
 Packet::Packet(const Packet& other)
 {
 	copyDataFrom(other);
 }
 
-Packet& Packet::operator=(const Packet& other)
+void Packet::destructPacketData()
 {
 	std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin();
 	while (iter != m_LayersAllocatedInPacket.end())
@@ -63,6 +80,11 @@ Packet& Packet::operator=(const Packet& other)
 	{
 		delete m_RawPacket;
 	}
+}
+
+Packet& Packet::operator=(const Packet& other)
+{
+	destructPacketData();
 
 	copyDataFrom(other);
 
@@ -94,11 +116,13 @@ void Packet::reallocateRawData(size_t newSize)
 
 	// allocate a new array with size newSize
 	m_MaxPacketLen = newSize;
-	uint8_t* newData = new uint8_t[m_MaxPacketLen];
-	memset(newData, 0, m_MaxPacketLen);
 
 	// set the new array to RawPacket
-	m_RawPacket->reallocateData(newData);
+	if (!m_RawPacket->reallocateData(m_MaxPacketLen))
+	{
+		LOG_ERROR("Couldn't reallocate data of raw packet to %d bytes", m_MaxPacketLen);
+		return;
+	}
 
 	// set all data pointers in layers to the new array address
 	const uint8_t* dataPtr = m_RawPacket->getRawData();
@@ -369,15 +393,7 @@ void Packet::computeCalculateFields()
 
 Packet::~Packet()
 {
-	std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin();
-	while (iter != m_LayersAllocatedInPacket.end())
-	{
-		delete (*iter);
-		iter = m_LayersAllocatedInPacket.erase(iter);
-	}
-
-	if (m_FreeRawPacket)
-		delete m_RawPacket;
+	destructPacketData();
 }
 
 std::string Packet::printPacketInfo()

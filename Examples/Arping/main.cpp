@@ -23,7 +23,7 @@ using namespace std;
 
 #define EXIT_WITH_ERROR(reason, ...) do { \
 	printf("Arping terminated in error: " reason "\n", ## __VA_ARGS__); \
-	exit(0); \
+	exit(1); \
 	} while(0)
 
 #define DEFAULT_MAX_TRIES	1000000

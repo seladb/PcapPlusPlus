@@ -28,12 +28,13 @@ private:
 	bool m_FreeRawPacket;
 
 public:
+
 	/**
 	 * A constructor for creating a new packet. Very useful when creating packets.
 	 * When using this constructor an empty raw buffer is allocated (with the size of maxPacketLen) and a new RawPacket is created
 	 * @param[in] maxPacketLen The expected packet length in bytes
 	 */
-	Packet(size_t maxPacketLen);
+	Packet(size_t maxPacketLen = 1);
 
 	/**
 	 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.
@@ -42,6 +43,16 @@ public:
 	 * @param[in] rawPacket A pointer to the raw packet
 	 */
 	Packet(RawPacket* rawPacket);
+
+	/**
+	 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.
+	 * When using this constructor a pointer to the RawPacket is saved (data isn't copied) and the RawPacket is parsed, meaning all layers
+	 * are created and linked to each other in the right order. In this overload of the constructor the user can specify whether to free
+	 * the instance of raw packet when the Packet is free or not
+	 * @param[in] rawPacket A pointer to the raw packet
+	 * @param[in] freeRawPacket A flag indicating if the destructor should also call the raw packet destructor or not
+	 */
+	Packet(RawPacket* rawPacket, bool freeRawPacket);
 
 	/**
 	 * A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers that weren't allocated by this
@@ -71,6 +82,13 @@ public:
 	 * @return A pointer to the Packet's RawPacket
 	 */
 	inline RawPacket* getRawPacket() { return m_RawPacket; }
+
+	/**
+	 * Set a RawPacket and re-construct all packet layers
+	 * @param[in] rawPacket Raw packet to set
+	 * @param[in] freeRawPacket A flag indicating if the destructor should also call the raw packet destructor or not
+	 */
+	void setRawPacket(RawPacket* rawPacket, bool freeRawPacket);
 
 	/**
 	 * Get a pointer to the Packet's RawPacket in a read-only manner
@@ -140,6 +158,8 @@ public:
 
 private:
 	void copyDataFrom(const Packet& other);
+
+	void destructPacketData();
 
 	bool extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExtend);
 	bool shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToShorten);

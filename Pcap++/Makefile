@@ -15,6 +15,9 @@ endif
 ifdef LINUX
 DEPS := -DLINUX
 endif
+ifdef RTE_SDK
+DEPS += -DUSE_DPDK
+endif
 ifdef MAC_OS_X
 DEPS := -DMAC_OS_X
 endif
@@ -34,11 +37,19 @@ endif
 ifdef PF_RING_HOME
 INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
 endif
-			
+ifdef RTE_SDK
+INCLUDES += -I"$(RTE_SDK)/$(RTE_TARGET)/include"
+endif
+
+
+ifdef RTE_SDK
+FLAGS := -msse -msse2 -msse3 -mssse3
+endif		
+	
 Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	$(G++) $(DEPS) $(INCLUDES) $(FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

@@ -138,6 +138,16 @@ public:
 		return result;
 	}
 
+	/**
+	 * Return a pointer to the element in a certain index
+	 * @param[in] index The index to retrieve the element from
+	 * @return The element at the specified position in the vector
+	 */
+	inline T* at(int index)
+	{
+		return m_Vector.at(index);
+	}
+
 private:
 	std::vector<T*> m_Vector;
 };

@@ -2,6 +2,8 @@
 #define PCAPPP_SYSTEM_UTILS
 
 #include <stdint.h>
+#include <string>
+#include <vector>
 
 /// @file
 
@@ -24,6 +26,12 @@ struct SystemCore
 	 * Core ID - a value between 0 and 31
 	 */
 	uint8_t Id;
+
+	/**
+	* Overload of the comparison operator
+	* @return true if 2 addresses are equal. False otherwise
+	*/
+	bool operator==(const SystemCore& other) const { return Id == other.Id; }
 };
 
 /**
@@ -174,5 +182,42 @@ typedef uint32_t CoreMask;
  * @return Total number of CPU cores on device
  */
 int getNumOfCores();
+
+/**
+ * Create a core mask for all cores available on machine
+ * @return A core mask for all cores available on machine
+ */
+CoreMask getCoreMaskForAllMachineCores();
+
+
+/**
+ * Create a core mask from a vector of system cores
+ * @param[in] cores A vector of SystemCore instances
+ * @return A core mask representing these cores
+ */
+CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores);
+
+
+/**
+ * Create a core mask from a vector of core IDs
+ * @param[in] cores A vector of core IDs
+ * @return A core mask representing these cores
+ */
+CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds);
+
+
+/**
+ * Covert a core mask into a vector of its appropriate system cores
+ * @param[in] coreMask The input core mask
+ * @param[out] resultVec The vector that will contain the system cores
+ */
+void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& resultVec);
+
+/**
+ * Execute a shell command and return its output
+ * @param[in] command The command to run
+ * @return The output of the command (both stdout and stderr)
+ */
+std::string executeShellCommand(const std::string command);
 
 #endif /* PCAPPP_SYSTEM_UTILS */

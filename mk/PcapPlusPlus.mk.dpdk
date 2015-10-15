@@ -1,0 +1,15 @@
+### DPDK ###
+
+# includes
+PCAPPP_INCLUDES += -I$(RTE_SDK)/$(RTE_TARGET)/include
+
+# libs dir
+PCAPPP_LIBS_DIR += -L$(RTE_SDK)/$(RTE_TARGET)/lib
+
+#flags
+PCAPPP_BUILD_FLAGS += -msse -msse2 -msse3 -Wall
+
+# libs
+PCAPPP_LIBS += -Wl,--whole-archive -lrte_pmd_bond -lrte_pmd_vmxnet3_uio -lrte_pmd_virtio_uio -lrte_pmd_enic -lrte_pmd_i40e -lrte_pmd_fm10k -lrte_pmd_ixgbe -lrte_pmd_e1000 -lrte_pmd_ring -lrte_pmd_af_packet -lethdev -lrte_eal -lrte_mbuf -lrte_mempool -lrte_malloc -lrte_ring -lrte_kvargs -lrte_hash -lrte_cmdline -lrt -lm -ldl -Wl,--no-whole-archive
+
+

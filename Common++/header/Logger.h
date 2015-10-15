@@ -37,6 +37,7 @@ enum LogModule
 	PcapLogModuleLiveDevice, ///< PcapLiveDevice module (Pcap++)
 	PcapLogModuleFileDevice, ///< FileDevice module (Pcap++)
 	PcapLogModulePfRingDevice, ///< PfRingDevice module (Pcap++)
+	PcapLogModuleDpdkDevice, ///< DpdkDevice module (Pcap++)
 	NumOfLogModules
 };
 
@@ -169,5 +170,7 @@ private:
 				fprintf(stderr, format "\n", ## __VA_ARGS__); \
 		} \
     } while (0)
+
+#define IS_DEBUG LoggerPP::getInstance().isDebugEnabled(LOG_MODULE)
 
 #endif /* PCAPPP_LOGGER */

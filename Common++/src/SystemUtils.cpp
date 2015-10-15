@@ -1,8 +1,11 @@
 #include <SystemUtils.h>
+#include <PlatformSpecificUtils.h>
 #include <unistd.h>
 #ifdef WIN32
 #include <windows.h>
 #endif
+#include <stdio.h>
+#include <iostream>
 
 const SystemCore SystemCores::Core0 = { 0x01, 0 };
 const SystemCore SystemCores::Core1 = { 0x02, 1 };
@@ -83,6 +86,69 @@ int getNumOfCores()
 #else
 	return sysconf(_SC_NPROCESSORS_ONLN);
 #endif
+}
+
+CoreMask getCoreMaskForAllMachineCores()
+{
+	int numOfCores = getNumOfCores();
+	CoreMask result = 0;
+	for (int i = 0; i < numOfCores; i++)
+	{
+		result = result | SystemCores::IdToSystemCore[i].Mask;
+	}
+
+	return result;
+}
+
+CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores)
+{
+	CoreMask result = 0;
+	for (std::vector<SystemCore>::iterator iter = cores.begin(); iter != cores.end(); iter++)
+	{
+		result |= iter->Mask;
+	}
+
+	return result;
+}
+
+CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds)
+{
+	CoreMask result = 0;
+	for (std::vector<int>::iterator iter = coreIds.begin(); iter != coreIds.end(); iter++)
+	{
+		result |= SystemCores::IdToSystemCore[*iter].Mask;
+	}
+
+	return result;
+}
+
+void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& resultVec)
+{
+	int i = 0;
+	while (coreMask != 0)
+	{
+		if (1 & coreMask)
+		{
+			resultVec.push_back(SystemCores::IdToSystemCore[i]);
+		}
+
+		coreMask = coreMask >> 1;
+		i++;
+	}
+}
+
+std::string executeShellCommand(const std::string command)
+{
+    FILE* pipe = POPEN(command.c_str(), "r");
+    if (!pipe) return "ERROR";
+    char buffer[128];
+    std::string result = "";
+    while(!feof(pipe)) {
+    	if(fgets(buffer, 128, pipe) != NULL)
+    		result += buffer;
+    }
+    PCLOSE(pipe);
+    return result;
 }
 
 

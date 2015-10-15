@@ -6,6 +6,7 @@
 #include <IpAddress.h>
 #include <MacAddress.h>
 #include <Packet.h>
+#include <PacketUtils.h>
 #include <IPv4Layer.h>
 #include <TcpLayer.h>
 #include <HttpLayer.h>
@@ -29,6 +30,8 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <SystemUtils.h>
+#include <DpdkDeviceList.h>
+#include <DpdkDevice.h>
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
@@ -42,6 +45,7 @@ using namespace std;
 #define EXAMPLE_PCAP_HTTP_RESPONSE "PcapExamples/650HttpResponses.pcap"
 #define EXAMPLE_PCAP_VLAN "PcapExamples/VlanPackets.pcap"
 #define EXAMPLE_PCAP_DNS "PcapExamples/DnsPackets.pcap"
+#define DPDK_PCAP_WRITE_PATH "PcapExamples/DpdkPackets.pcap"
 
 #define PCAPP_TEST(TestName) bool TestName(PcapTestArgs const& args)
 
@@ -88,32 +92,13 @@ struct PcapTestArgs
 	bool debugMode;
 	string remoteIp;
 	uint16_t remotePort;
+	int dpdkPort;
 	char* errString;
 };
 
 void packetArrives(RawPacket* pRawPacket, PcapLiveDevice* pDevice, void* userCookie)
 {
 	(*(int*)userCookie)++;
-}
-
-size_t hash5Tuple(Packet* packet)
-{
-	IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
-	TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>();
-
-	uint8_t* ipSrcAsByteArr = static_cast<uint8_t*>(static_cast<void*>(&ipv4Layer->getIPv4Header()->ipSrc));
-	uint8_t* ipDstAsByteArr = static_cast<uint8_t*>(static_cast<void*>(&ipv4Layer->getIPv4Header()->ipDst));
-	return(ipv4Layer->getIPv4Header()->protocol+
-			ipSrcAsByteArr[0]+
-			ipSrcAsByteArr[1]+
-			ipSrcAsByteArr[2]+
-			ipSrcAsByteArr[3]+
-			ipDstAsByteArr[0]+
-			ipDstAsByteArr[1]+
-			ipDstAsByteArr[2]+
-			ipDstAsByteArr[3]+
-			tcpLayer->getTcpHeader()->portSrc+
-			tcpLayer->getTcpHeader()->portDst);
 }
 
 #ifdef USE_PF_RING
@@ -225,6 +210,165 @@ void pfRingPacketsArriveSetFilter(RawPacket* packets, uint32_t numOfPackets, uin
 	}
 }
 
+#endif
+
+#ifdef USE_DPDK
+struct DpdkPacketData
+{
+	uint8_t ThreadId;
+	int PacketCount;
+	int EthCount;
+	int ArpCount;
+	int Ip4Count;
+	int Ip6Count;
+	int TcpCount;
+	int UdpCount;
+	int HttpCount;
+
+	map<size_t, RawPacketVector> FlowKeys;
+
+	DpdkPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0), TcpCount(0), UdpCount(0), HttpCount(0) {}
+	void clear() { ThreadId = -1; PacketCount = 0; EthCount = 0; ArpCount = 0; Ip4Count = 0; Ip6Count = 0; TcpCount = 0; UdpCount = 0; HttpCount = 0; FlowKeys.clear(); }
+};
+
+void dpdkPacketsArrive(MBufRawPacket* packets, uint32_t numOfPackets, uint8_t threadId, DpdkDevice* device, void* userCookie)
+{
+	DpdkPacketData* data = (DpdkPacketData*)userCookie;
+
+	data->ThreadId = threadId;
+	data->PacketCount += numOfPackets;
+
+	for (int i = 0; i < (int)numOfPackets; i++)
+	{
+		Packet packet(&packets[i]);
+		if (packet.isPacketOfType(Ethernet))
+			data->EthCount++;
+		if (packet.isPacketOfType(ARP))
+			data->ArpCount++;
+		if (packet.isPacketOfType(IPv4))
+			data->Ip4Count++;
+		if (packet.isPacketOfType(IPv6))
+			data->Ip6Count++;
+		if (packet.isPacketOfType(TCP))
+			data->TcpCount++;
+		if (packet.isPacketOfType(UDP))
+			data->UdpCount++;
+		if (packet.isPacketOfType(HTTP))
+			data->HttpCount++;
+
+	}
+}
+
+void dpdkPacketsArriveMultiThread(MBufRawPacket* packets, uint32_t numOfPackets, uint8_t threadId, DpdkDevice* device, void* userCookie)
+{
+	DpdkPacketData* data = (DpdkPacketData*)userCookie;
+
+	data[threadId].ThreadId = threadId;
+	data[threadId].PacketCount += numOfPackets;
+
+	for (int i = 0; i < (int)numOfPackets; i++)
+	{
+		Packet packet(&packets[i]);
+		if (packet.isPacketOfType(Ethernet))
+			data[threadId].EthCount++;
+		if (packet.isPacketOfType(ARP))
+			data[threadId].ArpCount++;
+		if (packet.isPacketOfType(IPv4))
+			data[threadId].Ip4Count++;
+		if (packet.isPacketOfType(IPv6))
+			data[threadId].Ip6Count++;
+		if (packet.isPacketOfType(TCP))
+		{
+			data[threadId].TcpCount++;
+			if (packet.isPacketOfType(IPv4))
+			{
+				RawPacket* newRawPacket = new RawPacket(packets[i]);
+				data[threadId].FlowKeys[hash5Tuple(&packet)].pushBack(newRawPacket);
+			}
+		}
+		if (packet.isPacketOfType(UDP))
+		{
+			data[threadId].UdpCount++;
+			if (packet.isPacketOfType(IPv4))
+			{
+				RawPacket* newRawPacket = new RawPacket(packets[i]);
+				data[threadId].FlowKeys[hash5Tuple(&packet)].pushBack(newRawPacket);
+			}
+		}
+		if (packet.isPacketOfType(HTTP))
+			data[threadId].HttpCount++;
+
+
+	}
+}
+
+class DpdkTestWorkerThread : public DpdkWorkerThread
+{
+private:
+	uint32_t m_CoreId;
+	DpdkDevice* m_DpdkDevice;
+	bool m_Stop;
+	pthread_mutex_t* m_QueueLock;
+	uint16_t m_QueueId;
+	int m_PacketCount;
+	bool m_Initialized;
+	bool m_RanAndStopped;
+public:
+	DpdkTestWorkerThread()
+	{
+		m_DpdkDevice = NULL;
+		m_QueueId = -1;
+		m_QueueLock = NULL;
+		m_CoreId = -1;
+		m_Stop = false;
+		m_PacketCount = 0;
+		m_Initialized = false;
+		m_RanAndStopped = false;
+	}
+
+	void init(DpdkDevice* dpdkDevice, uint16_t queueId, pthread_mutex_t* queueLock)
+	{
+		m_DpdkDevice = dpdkDevice;
+		m_QueueId = queueId;
+		m_QueueLock = queueLock;
+		m_Initialized = true;
+	}
+
+	bool run(uint32_t coreId)
+	{
+		PCAPP_ASSERT(m_Initialized == true, "Thread %d was not initialized", coreId);
+
+		m_CoreId = coreId;
+
+		PCAPP_ASSERT(m_DpdkDevice != NULL, "DpdkDevice is NULL");
+
+		PCAPP_DEBUG_PRINT("Worker thread on core %d is starting", m_CoreId);
+
+		m_PacketCount = 0;
+		while (!m_Stop)
+		{
+			RawPacketVector packetVec;
+			pthread_mutex_lock(m_QueueLock);
+			bool res = m_DpdkDevice->receivePackets(packetVec, m_QueueId);
+			pthread_mutex_unlock(m_QueueLock);
+			PCAPP_ASSERT(res == true, "Couldn't receive packets on thread %d", m_CoreId);
+			m_PacketCount += packetVec.size();
+		}
+
+		PCAPP_DEBUG_PRINT("Worker thread on %d stopped", m_CoreId);
+
+		m_RanAndStopped = true;
+		return true;
+	}
+
+	void stop() { m_Stop = true; }
+
+	uint32_t getCoreId() { return m_CoreId; }
+
+	int getPacketCount() { return m_PacketCount; }
+
+	bool threadRanAndStopped() { return m_RanAndStopped; }
+};
 #endif
 
 template<typename KeyType, typename LeftValue, typename RightValue>
@@ -2063,6 +2207,653 @@ PCAPP_TEST(TestDnsParsing)
 }
 
 
+PCAPP_TEST(TestDpdkDevice)
+{
+#ifdef USE_DPDK
+	LoggerPP::getInstance().supressErrors();
+	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
+	PCAPP_ASSERT(devList.getDpdkDeviceList().size() == 0, "DpdkDevices initialized before DPDK is initialized");
+	LoggerPP::getInstance().enableErrors();
+
+	if(devList.getDpdkDeviceList().size() == 0)
+	{
+		CoreMask coreMask = 0;
+		for (int i = 0; i < getNumOfCores(); i++)
+			coreMask |= SystemCores::IdToSystemCore[i].Mask;
+		printf("****** CORE MASK IS %d\n", coreMask);
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	}
+
+	PCAPP_ASSERT(devList.getDpdkLogLevel() == LoggerPP::Normal, "DPDK log level is in Debug and should be on Normal");
+	devList.setDpdkLogLevel(LoggerPP::Debug);
+	PCAPP_ASSERT(devList.getDpdkLogLevel() == LoggerPP::Debug, "DPDK log level is in Normal and should be on Debug");
+	devList.setDpdkLogLevel(LoggerPP::Normal);
+
+	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(args.dpdkPort);
+	PCAPP_ASSERT(dev != NULL, "DpdkDevice is NULL");
+
+	PCAPP_ASSERT(dev->getMacAddress().isValid() == true, "Dev MAC addr isn't valid");
+	PCAPP_ASSERT(dev->getMacAddress() != MacAddress::Zero, "Dev MAC addr is zero");
+	PCAPP_ASSERT(dev->getTotalNumOfRxQueues() > 0, "Number of RX queues is zero");
+	PCAPP_ASSERT(dev->getNumOfOpenedRxQueues() == 0, "Number of open RX queues isn't zero, it's %d", dev->getNumOfOpenedRxQueues());
+	PCAPP_ASSERT(dev->getNumOfOpenedTxQueues() == 0, "Number of open TX queues isn't zero, it's %d", dev->getNumOfOpenedTxQueues());
+	PCAPP_ASSERT(dev->getMtu() > 0, "Couldn't retrieve MTU");
+	uint16_t origMtu = dev->getMtu();
+	uint16_t newMtu = origMtu > 1600 ? 1500 : 9000;
+	PCAPP_ASSERT(dev->setMtu(newMtu) == true, "Couldn't set MTU to %d", newMtu);
+	PCAPP_ASSERT(dev->getMtu() == newMtu, "MTU isn't properly set");
+	PCAPP_ASSERT(dev->setMtu(origMtu) == true, "Couldn't set MTU back to original");
+	PCAPP_ASSERT(dev->open() == true, "Cannot open DPDK device");
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(dev->open() == false, "Managed to open the device twice");
+	LoggerPP::getInstance().enableErrors();
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->getNumOfOpenedRxQueues() == 1, dev->close(), "More than 1 RX queues were opened");
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->getNumOfOpenedTxQueues() == 1, dev->close(), "More than 1 TX queues were opened");
+	DpdkDevice::LinkStatus linkStatus;
+	dev->getLinkStatus(linkStatus);
+	PCAPP_ASSERT_AND_RUN_COMMAND(linkStatus.linkUp == true, dev->close(), "Link is down");
+	PCAPP_ASSERT_AND_RUN_COMMAND(linkStatus.linkSpeedMbps > 0, dev->close(), "Link speed is 0");
+
+	DpdkPacketData packetData;
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->startCaptureSingleThread(dpdkPacketsArrive, &packetData), dev->close(), "Could not start capturing on DpdkDevice[0]");
+	PCAP_SLEEP(10);
+	dev->stopCapture();
+
+	PCAPP_DEBUG_PRINT("Thread ID: %d", packetData.ThreadId);
+	PCAPP_DEBUG_PRINT("Total packets captured: %d", packetData.PacketCount);
+	PCAPP_DEBUG_PRINT("Eth packets: %d", packetData.EthCount);
+	PCAPP_DEBUG_PRINT("ARP packets: %d", packetData.ArpCount);
+	PCAPP_DEBUG_PRINT("IPv4 packets: %d", packetData.Ip4Count);
+	PCAPP_DEBUG_PRINT("IPv6 packets: %d", packetData.Ip6Count);
+	PCAPP_DEBUG_PRINT("TCP packets: %d", packetData.TcpCount);
+	PCAPP_DEBUG_PRINT("UDP packets: %d", packetData.UdpCount);
+	PCAPP_DEBUG_PRINT("HTTP packets: %d", packetData.HttpCount);
+
+	pcap_stat stats;
+	stats.ps_recv = 0;
+	stats.ps_drop = 0;
+	stats.ps_ifdrop = 0;
+	dev->getStatistics(stats);
+	PCAPP_DEBUG_PRINT("Packets captured according to stats: %d", stats.ps_recv);
+	PCAPP_DEBUG_PRINT("Packets dropped according to stats: %d", stats.ps_drop);
+
+	PCAPP_ASSERT_AND_RUN_COMMAND(packetData.PacketCount > 0, dev->close(), "No packets were captured");
+	PCAPP_ASSERT_AND_RUN_COMMAND(packetData.ThreadId != -1, dev->close(), "Couldn't retrieve thread ID");
+
+	PCAPP_ASSERT_AND_RUN_COMMAND(stats.ps_recv >= (uint32_t)packetData.PacketCount, dev->close(),
+			"Stats received packet count (%d) is different than calculated packet count (%d)",
+			stats.ps_recv,
+			packetData.PacketCount);
+	dev->close();
+	dev->close();
+#endif
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestDpdkMultiThread)
+{
+#ifdef USE_DPDK
+	LoggerPP::getInstance().supressErrors();
+	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
+	LoggerPP::getInstance().enableErrors();
+
+	if(devList.getDpdkDeviceList().size() == 0)
+	{
+		CoreMask coreMask = 0;
+		for (int i = 0; i < getNumOfCores(); i++)
+			coreMask |= SystemCores::IdToSystemCore[i].Mask;
+
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	}
+	PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(args.dpdkPort);
+	PCAPP_ASSERT(dev != NULL, "DpdkDevice is NULL");
+
+	// take min value between number of cores and number of available RX queues
+	int numOfRxQueuesToOpen = getNumOfCores()-1; //using num of cores minus one since 1 core is the master core and cannot be used
+	if (dev->getTotalNumOfRxQueues() < numOfRxQueuesToOpen)
+		numOfRxQueuesToOpen = dev->getTotalNumOfRxQueues();
+
+	// verfiy num of RX queues is power of 2 due to DPDK limitation
+	bool isRxQueuePowerOfTwo = !(numOfRxQueuesToOpen == 0) && !(numOfRxQueuesToOpen & (numOfRxQueuesToOpen - 1));
+	while (!isRxQueuePowerOfTwo)
+	{
+		numOfRxQueuesToOpen--;
+		isRxQueuePowerOfTwo = !(numOfRxQueuesToOpen == 0) && !(numOfRxQueuesToOpen & (numOfRxQueuesToOpen - 1));
+	}
+
+	if (dev->getTotalNumOfRxQueues() > 1)
+		PCAPP_ASSERT(dev->openMultiQueues(numOfRxQueuesToOpen+1, 1) == false, "Managed to open DPDK device with number of RX queues which isn't power of 2");
+
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->openMultiQueues(numOfRxQueuesToOpen, 1) == true, dev->close(), "Cannot open DPDK device '%s' with %d RX queues", dev->getDeviceName().c_str(), numOfRxQueuesToOpen);
+
+	if (numOfRxQueuesToOpen > 1)
+	{
+		DpdkPacketData dummyPacketData;
+		PCAPP_ASSERT_AND_RUN_COMMAND(dev->startCaptureSingleThread(dpdkPacketsArrive, &dummyPacketData) == false, dev->close(), "Managed to start capture on single thread although more than 1 RX queue is opened");
+	}
+
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->getNumOfOpenedRxQueues() == numOfRxQueuesToOpen, dev->close(), "Num of opened RX queues is different from requested RX queues");
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->getNumOfOpenedTxQueues() == 1, dev->close(), "Num of opened TX queues is different than 1");
+
+	DpdkPacketData packetDataMultiThread[getNumOfCores()];
+	for (int i = 0; i < getNumOfCores(); i++)
+		packetDataMultiThread[i].PacketCount = 0;
+
+	CoreMask coreMask = 0;
+	SystemCore masterCore = devList.getDpdkMasterCore();
+	int j = 0;
+	for (int i = 0; i < getNumOfCores(); i++)
+	{
+		if (j == numOfRxQueuesToOpen)
+			break;
+
+		if (i != masterCore.Id)
+		{
+			coreMask |= SystemCores::IdToSystemCore[i].Mask;
+			j++;
+		}
+	}
+
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->startCaptureMultiThreads(dpdkPacketsArriveMultiThread, packetDataMultiThread, coreMask), dev->close(), "Cannot start capturing on multi threads");
+	PCAP_SLEEP(20);
+	dev->stopCapture();
+	pcap_stat aggrStats;
+	aggrStats.ps_recv = 0;
+	aggrStats.ps_drop = 0;
+	aggrStats.ps_ifdrop = 0;
+
+
+	for (int i = 0; i < getNumOfCores(); i++)
+	{
+		if ((SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
+			continue;
+
+		PCAPP_DEBUG_PRINT("Thread ID: %d", packetDataMultiThread[i].ThreadId);
+		PCAPP_DEBUG_PRINT("Total packets captured: %d", packetDataMultiThread[i].PacketCount);
+		PCAPP_DEBUG_PRINT("Eth packets: %d", packetDataMultiThread[i].EthCount);
+		PCAPP_DEBUG_PRINT("ARP packets: %d", packetDataMultiThread[i].ArpCount);
+		PCAPP_DEBUG_PRINT("IPv4 packets: %d", packetDataMultiThread[i].Ip4Count);
+		PCAPP_DEBUG_PRINT("IPv6 packets: %d", packetDataMultiThread[i].Ip6Count);
+		PCAPP_DEBUG_PRINT("TCP packets: %d", packetDataMultiThread[i].TcpCount);
+		PCAPP_DEBUG_PRINT("UDP packets: %d", packetDataMultiThread[i].UdpCount);
+		aggrStats.ps_recv += packetDataMultiThread[i].PacketCount;
+	}
+
+	PCAPP_ASSERT_AND_RUN_COMMAND(aggrStats.ps_recv > 0, dev->close(), "No packets were captured on any thread");
+
+	pcap_stat stats;
+	dev->getStatistics(stats);
+	PCAPP_DEBUG_PRINT("Packets captured according to stats: %d", stats.ps_recv);
+	PCAPP_DEBUG_PRINT("Packets dropped according to stats: %d", stats.ps_drop);
+	PCAPP_ASSERT_AND_RUN_COMMAND(stats.ps_recv >= aggrStats.ps_recv, dev->close(), "Statistics from device differ from aggregated statistics on all threads");
+	PCAPP_ASSERT_AND_RUN_COMMAND(stats.ps_drop == 0, dev->close(), "Some packets were dropped");
+
+	for (int firstCoreId = 0; firstCoreId < getNumOfCores(); firstCoreId++)
+	{
+		if ((SystemCores::IdToSystemCore[firstCoreId].Mask & coreMask) == 0)
+			continue;
+
+		for (int secondCoreId = firstCoreId+1; secondCoreId < getNumOfCores(); secondCoreId++)
+		{
+			if ((SystemCores::IdToSystemCore[secondCoreId].Mask & coreMask) == 0)
+				continue;
+
+			map<size_t, pair<RawPacketVector, RawPacketVector> > res;
+			intersectMaps<size_t, RawPacketVector, RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
+			PCAPP_ASSERT(res.size() == 0, "%d flows appear in core %d and core %d", res.size(), firstCoreId, secondCoreId);
+			if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
+			{
+				for (map<size_t, pair<RawPacketVector, RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
+				{
+					PCAPP_DEBUG_PRINT("Same flow exists in core %d and core %d. Flow key = %X", firstCoreId, secondCoreId, iter->first);
+					ostringstream stream;
+					stream << "Core" << firstCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
+					PcapFileWriterDevice writerDev(stream.str().c_str());
+					writerDev.open();
+					writerDev.writePackets(iter->second.first);
+					writerDev.close();
+
+					ostringstream stream2;
+					stream2 << "Core" << secondCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
+					PcapFileWriterDevice writerDev2(stream2.str().c_str());
+					writerDev2.open();
+					writerDev2.writePackets(iter->second.second);
+					writerDev2.close();
+
+					iter->second.first.clear();
+					iter->second.second.clear();
+
+				}
+			}
+		}
+		PCAPP_DEBUG_PRINT("Core %d\n========", firstCoreId);
+		PCAPP_DEBUG_PRINT("Total flows: %d", packetDataMultiThread[firstCoreId].FlowKeys.size());
+
+		if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
+		{
+			for(map<size_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
+				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", iter->first, iter->second.size());
+				iter->second.clear();
+			}
+		}
+
+		packetDataMultiThread[firstCoreId].FlowKeys.clear();
+	}
+
+
+
+	dev->close();
+#endif
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestDpdkDeviceSendPackets)
+{
+#ifdef USE_DPDK
+	LoggerPP::getInstance().supressErrors();
+	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
+	LoggerPP::getInstance().enableErrors();
+
+	if(devList.getDpdkDeviceList().size() == 0)
+	{
+		CoreMask coreMask = 0;
+		for (int i = 0; i < getNumOfCores(); i++)
+			coreMask |= SystemCores::IdToSystemCore[i].Mask;
+
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	}
+	PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(args.dpdkPort);
+	PCAPP_ASSERT(dev != NULL, "DpdkDevice is NULL");
+
+
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(dev->openMultiQueues(1, 255) == false, "Managed to open a DPDK device with 255 TX queues");
+	LoggerPP::getInstance().enableErrors();
+
+	DpdkDevice::DpdkDeviceConfiguration customConfig(128, 1024);
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->openMultiQueues(1, dev->getTotalNumOfTxQueues(), customConfig) == true, dev->close(), "Cannot open DPDK device '%s' with %d TX queues", dev->getDeviceName().c_str(), dev->getTotalNumOfTxQueues());
+
+    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
+    PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
+
+    RawPacket rawPacketArr[10000];
+    PointerVector<Packet> packetVec;
+    RawPacketVector rawPacketVec;
+    const Packet* packetArr[10000];
+    int packetsRead = 0;
+    while(fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
+    {
+    	packetVec.pushBack(new Packet(&rawPacketArr[packetsRead]));
+    	rawPacketVec.pushBack(new RawPacket(rawPacketArr[packetsRead]));
+      	packetsRead++;
+    }
+
+    //send packets as RawPacket array
+    int packetsSentAsRaw = dev->sendPackets(rawPacketArr, packetsRead);
+
+    //send packets as parsed EthPacekt array
+    std::copy(packetVec.begin(), packetVec.end(), packetArr);
+    int packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead);
+
+    //send packets are RawPacketVector
+    int packetsSentAsRawVector = dev->sendPackets(rawPacketVec);
+
+    PCAPP_ASSERT(packetsSentAsRaw == packetsRead, "Not all packets were sent as raw. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsRaw);
+    PCAPP_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsParsed);
+    PCAPP_ASSERT(packetsSentAsRawVector == packetsRead, "Not all packets were sent as raw vector. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsRawVector);
+
+    if (dev->getTotalNumOfTxQueues() > 1)
+    {
+        packetsSentAsRaw = dev->sendPackets(rawPacketArr, packetsRead, dev->getTotalNumOfTxQueues()-1);
+        packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead, dev->getTotalNumOfTxQueues()-1);
+        packetsSentAsRawVector = dev->sendPackets(rawPacketVec, dev->getTotalNumOfTxQueues()-1);
+        PCAPP_ASSERT(packetsSentAsRaw == packetsRead, "Not all packets were sent as raw to TX queue %d. Expected (read from file): %d; Sent: %d",
+        		dev->getTotalNumOfTxQueues()-1, packetsRead, packetsSentAsRaw);
+        PCAPP_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed to TX queue %d. Expected (read from file): %d; Sent: %d",
+        		dev->getTotalNumOfTxQueues()-1, packetsRead, packetsSentAsParsed);
+        PCAPP_ASSERT(packetsSentAsRawVector == packetsRead, "Not all packets were sent as raw vector to TX queue %d. Expected (read from file): %d; Sent: %d",
+        		dev->getTotalNumOfTxQueues()-1, packetsRead, packetsSentAsRawVector);
+
+    }
+
+    LoggerPP::getInstance().supressErrors();
+    PCAPP_ASSERT(dev->sendPackets(rawPacketArr, packetsRead, dev->getTotalNumOfTxQueues()+1) == 0, "Managed to send packets on TX queue that doesn't exist");
+    LoggerPP::getInstance().enableErrors();
+
+    PCAPP_ASSERT(dev->sendPacket(rawPacketArr[2000], 0) == true, "Couldn't send 1 raw packet");
+    PCAPP_ASSERT(dev->sendPacket(*(packetArr[3000]), 0) == true, "Couldn't send 1 parsed packet");
+
+    dev->close();
+    fileReaderDev.close();
+#endif
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestDpdkDeviceWorkerThreads)
+{
+#ifdef USE_DPDK
+	LoggerPP::getInstance().supressErrors();
+	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
+	LoggerPP::getInstance().enableErrors();
+
+	CoreMask coreMask = 0;
+	for (int i = 0; i < getNumOfCores(); i++)
+		coreMask |= SystemCores::IdToSystemCore[i].Mask;
+
+	if(devList.getDpdkDeviceList().size() == 0)
+	{
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	}
+	PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+
+	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(args.dpdkPort);
+	PCAPP_ASSERT(dev != NULL, "DpdkDevice is NULL");
+
+	RawPacketVector rawPacketVec;
+	MBufRawPacket* mBufRawPacketArr = NULL;
+	int mBufRawPacketArrLen = 0;
+	Packet* packetArr = NULL;
+	int packetArrLen = 0;
+
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(dev->receivePackets(rawPacketVec, 0) == false, "Managed to receive packets although device isn't opened");
+	PCAPP_ASSERT(dev->receivePackets(&packetArr, packetArrLen, 0) == false, "Managed to receive packets although device isn't opened");
+	PCAPP_ASSERT(dev->receivePackets(&mBufRawPacketArr, mBufRawPacketArrLen, 0) == false, "Managed to receive packets although device isn't opened");
+
+	dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues());
+	PCAPP_ASSERT(dev->receivePackets(rawPacketVec, dev->getTotalNumOfRxQueues()+1) == false, "Managed to receive packets for RX queue that doesn't exist");
+	PCAPP_ASSERT(dev->receivePackets(&packetArr, packetArrLen, dev->getTotalNumOfRxQueues()+1) == false, "Managed to receive packets for RX queue that doesn't exist");
+	PCAPP_ASSERT(dev->receivePackets(&mBufRawPacketArr, mBufRawPacketArrLen, dev->getTotalNumOfRxQueues()+1) == false, "Managed to receive packets for RX queue that doesn't exist");
+
+	DpdkPacketData packetData;
+	PCAPP_ASSERT_AND_RUN_COMMAND(dev->startCaptureSingleThread(dpdkPacketsArrive, &packetData), dev->close(), "Could not start capturing on DpdkDevice");
+	PCAPP_ASSERT(dev->receivePackets(rawPacketVec, 0) == false, "Managed to receive packets although device is in capture mode");
+	PCAPP_ASSERT(dev->receivePackets(&packetArr, packetArrLen, 0) == false, "Managed to receive packets although device is in capture mode");
+	PCAPP_ASSERT(dev->receivePackets(&mBufRawPacketArr, mBufRawPacketArrLen, 0) == false, "Managed to receive packets although device is in capture mode");
+	LoggerPP::getInstance().enableErrors();
+	dev->stopCapture();
+
+	int numOfAttempts = 0;
+	while (numOfAttempts < 10)
+	{
+		PCAPP_ASSERT(dev->receivePackets(rawPacketVec, 0) == true, "Couldn't receive packets");
+		PCAP_SLEEP(1);
+		if (rawPacketVec.size() > 0)
+			break;
+		numOfAttempts++;
+	}
+
+	PCAPP_ASSERT(numOfAttempts < 10, "No packets were received using RawPacketVector");
+	PCAPP_DEBUG_PRINT("Captured %d packets in %d attempts using RawPacketVector", rawPacketVec.size(), numOfAttempts);
+
+	numOfAttempts = 0;
+	while (numOfAttempts < 10)
+	{
+		PCAPP_ASSERT(dev->receivePackets(&mBufRawPacketArr, mBufRawPacketArrLen, 0) == true, "Couldn't receive packets");
+		PCAP_SLEEP(1);
+		if (mBufRawPacketArrLen > 0 && mBufRawPacketArr != NULL)
+			break;
+		numOfAttempts++;
+	}
+
+	PCAPP_ASSERT(numOfAttempts < 10, "No packets were received using mBuf raw packet arr");
+	PCAPP_DEBUG_PRINT("Captured %d packets in %d attempts using mBuf raw packet arr", mBufRawPacketArrLen, numOfAttempts);
+	delete [] mBufRawPacketArr;
+
+	numOfAttempts = 0;
+	while (numOfAttempts < 10)
+	{
+		PCAPP_ASSERT(dev->receivePackets(&packetArr, packetArrLen, 0) == true, "Couldn't receive packets");
+		PCAP_SLEEP(1);
+		if (packetArrLen > 0 && packetArr != NULL)
+			break;
+		numOfAttempts++;
+	}
+
+	PCAPP_ASSERT(numOfAttempts < 10, "No packets were received using packet arr");
+	PCAPP_DEBUG_PRINT("Captured %d packets in %d attempts using packet arr", packetArrLen, numOfAttempts);
+	delete [] packetArr;
+
+	int numOfRxQueues = dev->getTotalNumOfRxQueues();
+	pthread_mutex_t queueMutexArr[numOfRxQueues];
+	for (int i = 0; i < numOfRxQueues; i++)
+		pthread_mutex_init(&queueMutexArr[i], NULL);
+
+	vector<DpdkWorkerThread*> workerThreadVec;
+	CoreMask workerThreadCoreMask = 0;
+	for (int i = 0; i < getNumOfCores(); i++)
+	{
+		SystemCore core = SystemCores::IdToSystemCore[i];
+		if (core == devList.getDpdkMasterCore())
+			continue;
+		DpdkTestWorkerThread* newWorkerThread = new DpdkTestWorkerThread();
+		int queueId = core.Id % numOfRxQueues;
+		PCAPP_DEBUG_PRINT("Assigning queue #%d to core %d", queueId, core.Id);
+		newWorkerThread->init(dev, queueId, &queueMutexArr[queueId]);
+		workerThreadVec.push_back((DpdkWorkerThread*)newWorkerThread);
+		workerThreadCoreMask |= core.Mask;
+	}
+	PCAPP_DEBUG_PRINT("Initiating %d worker threads", workerThreadVec.size());
+
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(devList.startDpdkWorkerThreads(0, workerThreadVec) == false, "Managed to start DPDK worker thread with core mask 0");
+	LoggerPP::getInstance().enableErrors();
+
+	PCAPP_ASSERT(devList.startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec) == true, "Couldn't start DPDK worker threads");
+	PCAPP_DEBUG_PRINT("Worker threads started");
+
+	PCAP_SLEEP(10);
+
+	PCAPP_DEBUG_PRINT("Worker threads stopping");
+	devList.stopDpdkWorkerThreads();
+	PCAPP_DEBUG_PRINT("Worker threads stopped");
+
+	// we can't guarantee all threads receive packets, it depends on the NIC load balancing and the traffic. So we check that all threads were run and
+	// that total amount of packets received by all threads is greater than zero
+
+	int packetCount = 0;
+	for (vector<DpdkWorkerThread*>::iterator iter = workerThreadVec.begin(); iter != workerThreadVec.end(); iter++)
+	{
+		DpdkTestWorkerThread* thread = (DpdkTestWorkerThread*)(*iter);
+		PCAPP_ASSERT(thread->threadRanAndStopped() == true, "Thread on core %d didn't run", thread->getCoreId());
+		packetCount += thread->getPacketCount();
+		PCAPP_DEBUG_PRINT("Worker thread on core %d captured %d packets", thread->getCoreId(), thread->getPacketCount());
+		delete thread;
+	}
+
+	for (int i = 0; i < numOfRxQueues; i++)
+		pthread_mutex_destroy(&queueMutexArr[i]);
+
+
+	PCAPP_DEBUG_PRINT("Total packet count for all worker threads: %d", packetCount);
+
+	PCAPP_ASSERT(packetCount > 0, "No packet were captured on any of the worker threads");
+
+	dev->close();
+
+#endif
+	PCAPP_TEST_PASSED;
+}
+
+
+PCAPP_TEST(TestDpdkMbufRawPacket)
+{
+#ifdef USE_DPDK
+
+	LoggerPP::getInstance().supressErrors();
+	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
+	LoggerPP::getInstance().enableErrors();
+
+	if(devList.getDpdkDeviceList().size() == 0)
+	{
+		CoreMask coreMask = 0;
+		for (int i = 0; i < getNumOfCores(); i++)
+			coreMask |= SystemCores::IdToSystemCore[i].Mask;
+
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	}
+	PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(args.dpdkPort);
+	PCAPP_ASSERT(dev != NULL, "DpdkDevice is NULL");
+
+	PCAPP_ASSERT(dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues()) == true, "Cannot open DPDK device");
+
+
+	// Test load from PCAP to MBufRawPacket
+	// ------------------------------------
+	PcapFileReaderDevice reader(EXAMPLE2_PCAP_PATH);
+	PCAPP_ASSERT(reader.open() == true, "Cannot open file '%s'", EXAMPLE2_PCAP_PATH);
+
+	int tcpCount = 0;
+	int udpCount = 0;
+	int ip6Count = 0;
+	int vlanCount = 0;
+	int numOfPackets = 0;
+	while (true)
+	{
+		MBufRawPacket mBufRawPacket;
+		PCAPP_ASSERT(mBufRawPacket.init(dev) == true, "Couldn't init MBufRawPacket");
+		if (!(reader.getNextPacket(mBufRawPacket)))
+			break;
+
+		numOfPackets++;
+
+		Packet packet(&mBufRawPacket);
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+		if (packet.isPacketOfType(IPv6))
+			ip6Count++;
+		if (packet.isPacketOfType(VLAN))
+			vlanCount++;
+
+		PCAPP_ASSERT(dev->sendPacket(packet, 0) == true, "Couldn't send packet");
+	}
+
+	PCAPP_ASSERT(numOfPackets == 4709, "Wrong num of packets read. Expected 4709 got %d", numOfPackets);
+
+	PCAPP_ASSERT(tcpCount == 4321, "TCP count doesn't match: expected %d, got %d", 4321, tcpCount);
+	PCAPP_ASSERT(udpCount == 269, "UDP count doesn't match: expected %d, got %d", 269, udpCount);
+	PCAPP_ASSERT(ip6Count == 16, "IPv6 count doesn't match: expected %d, got %d", 16, ip6Count);
+	PCAPP_ASSERT(vlanCount == 24, "VLAN count doesn't match: expected %d, got %d", 24, vlanCount);
+
+	reader.close();
+
+	// Test save MBufRawPacket to PCAP
+	// -------------------------------
+	RawPacketVector rawPacketVec;
+	int numOfAttempts = 0;
+	while (numOfAttempts < 10)
+	{
+		PCAPP_ASSERT(dev->receivePackets(rawPacketVec, 0) == true, "Couldn't receive packets");
+		PCAP_SLEEP(1);
+		if (rawPacketVec.size() > 0)
+			break;
+		numOfAttempts++;
+	}
+
+	PCAPP_ASSERT(numOfAttempts < 10, "No packets were received");
+
+	PcapFileWriterDevice writer(DPDK_PCAP_WRITE_PATH);
+	PCAPP_ASSERT(writer.open() == true, "Couldn't open pcap writer");
+	PCAPP_ASSERT(writer.writePackets(rawPacketVec) == true, "Couldn't write raw packets to file");
+	writer.close();
+
+	PcapFileReaderDevice reader2(DPDK_PCAP_WRITE_PATH);
+	PCAPP_ASSERT(reader2.open() == true, "Cannot open file '%s'", DPDK_PCAP_WRITE_PATH);
+	RawPacket rawPacket;
+	int readerPacketCount = 0;
+	while (reader2.getNextPacket(rawPacket))
+		readerPacketCount++;
+	reader2.close();
+
+	PCAPP_ASSERT(readerPacketCount == (int)rawPacketVec.size(), "Not all packets captures were written successfully to pcap file");
+
+	// Test packet manipulation
+	// ------------------------
+
+	MBufRawPacket* rawPacketToManipulate = NULL;
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		if (packet.isPacketOfType(TCP) && packet.isPacketOfType(IPv4))
+		{
+			TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
+			if (tcpLayer->getNextLayer() != NULL)
+			{
+				rawPacketToManipulate = (MBufRawPacket*)*iter;
+				break;
+			}
+		}
+	}
+
+	PCAPP_ASSERT(rawPacketToManipulate != NULL, "Couldn't find TCP packet to manipulate");
+	int initialRawPacketLen = rawPacketToManipulate->getRawDataLen();
+	Packet packetToManipulate(rawPacketToManipulate);
+	IPv4Layer* ipLayer = packetToManipulate.getLayerOfType<IPv4Layer>();
+	Layer* layerToDelete = ipLayer->getNextLayer();
+	// remove all layers above IP
+	while (layerToDelete != NULL)
+	{
+		Layer* nextLayer = layerToDelete->getNextLayer();
+		PCAPP_ASSERT(packetToManipulate.removeLayer(layerToDelete) == true, "Couldn't remove layer");
+		layerToDelete = nextLayer;
+	}
+	PCAPP_ASSERT(ipLayer->getNextLayer() == NULL, "Couldn't remove all layers after TCP");
+	PCAPP_ASSERT(rawPacketToManipulate->getRawDataLen() < initialRawPacketLen, "Raw packet size wasn't changed after removing layers");
+
+	// create DNS packet out of this packet
+
+	UdpLayer udpLayer(2233, 53);
+	PCAPP_ASSERT(packetToManipulate.addLayer(&udpLayer), "Failed to add UdpLayer");
+
+	DnsLayer dnsQueryLayer;
+	dnsQueryLayer.getDnsHeader()->recursionDesired = true;
+	dnsQueryLayer.getDnsHeader()->transactionID = htons(0xb179);
+	DnsQuery* newQuery = dnsQueryLayer.addQuery("no-name", DNS_TYPE_A, DNS_CLASS_IN);
+	PCAPP_ASSERT(newQuery != NULL, "Couldn't add query for dns layer");
+
+	packetToManipulate.addLayer(&dnsQueryLayer);
+
+	// change the query name and transmit the generated packet
+	for (int i = 0; i < 10; i++)
+	{
+		// generate random string with random length < 40
+		int nameLength = rand()%60;
+		char name[nameLength+1];
+		for (int j = 0; j < nameLength; ++j)
+		{
+			int randomChar = rand()%(26+26+10);
+			if (randomChar < 26)
+				name[j] = 'a' + randomChar;
+	         else if (randomChar < 26+26)
+				 name[j] = 'A' + randomChar - 26;
+	         else
+	        	 name[j] = '0' + randomChar - 26 - 26;
+	     }
+	     name[nameLength] = 0;
+
+	     //set name for query
+	     newQuery->setName(string(name));
+	     packetToManipulate.computeCalculateFields();
+
+	     //transmit packet
+	     PCAPP_ASSERT(dev->sendPacket(packetToManipulate, 0) == true, "Couldn't send generated DNS packet #%d", i);
+	}
+
+	dev->close();
+
+#endif
+	PCAPP_TEST_PASSED;
+}
 
 static struct option PcapTestOptions[] =
 {
@@ -2070,6 +2861,7 @@ static struct option PcapTestOptions[] =
 	{"use-ip",  required_argument, 0, 'i'},
 	{"remote-ip", required_argument, 0, 'r'},
 	{"remote-port", required_argument, 0, 'p'},
+	{"dpdk-port", required_argument, 0, 'k' },
     {0, 0, 0, 0}
 };
 
@@ -2079,7 +2871,8 @@ void print_usage() {
     		"-i --use-ip		IP to use for sending and receiving packets\n"
     		"-d --debug-mode		Set log level to DEBUG\n"
     		"-r --remote-ip		IP of remote machine running rpcapd to test remote capture\n"
-    		"-p --remote-port	Port of remote machine running rpcapd to test remote capture\n");
+    		"-p --remote-port	Port of remote machine running rpcapd to test remote capture\n"
+    		"-k --dpdk-port		The DPDK NIC port to test. Required if compiling with DPDK\n");
 }
 
 int main(int argc, char* argv[])
@@ -2088,10 +2881,11 @@ int main(int argc, char* argv[])
 	PcapTestArgs args;
 	args.ipToSendReceivePackets = "";
 	args.debugMode = false;
+	args.dpdkPort = -1;
 
 	int optionIndex = 0;
 	char opt = 0;
-	while((opt = getopt_long (argc, argv, "di:r:p:", PcapTestOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "di:r:p:k:", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -2109,6 +2903,9 @@ int main(int argc, char* argv[])
 			case 'p':
 				args.remotePort = (uint16_t)atoi(optarg);
 				break;
+			case 'k':
+				args.dpdkPort = (int)atoi(optarg);
+				break;
 			default:
 				print_usage();
 				exit(-1);
@@ -2120,6 +2917,14 @@ int main(int argc, char* argv[])
 		print_usage();
 		exit(-1);
 	}
+#ifdef USE_DPDK
+	if (args.dpdkPort == -1)
+	{
+		printf("When testing with DPDK you must supply the DPDK NIC port to test\n\n");
+		print_usage();
+		exit(-1);
+	}
+#endif
 
 	if (args.debugMode)
 		LoggerPP::getInstance().setAllModlesToLogLevel(LoggerPP::Debug);
@@ -2134,28 +2939,36 @@ int main(int argc, char* argv[])
 
 	PCAPP_START_RUNNING_TESTS;
 
-	PCAPP_RUN_TEST(TestIPAddress, args);
-	PCAPP_RUN_TEST(TestMacAddress, args);
-	PCAPP_RUN_TEST(TestPcapFileReadWrite, args);
-	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args);
-	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args);
-	PCAPP_RUN_TEST(TestPcapLiveDevice, args);
-	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args);
-	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args);
-	PCAPP_RUN_TEST(TestPcapFilters, args);
-	PCAPP_RUN_TEST(TestSendPacket, args);
-	PCAPP_RUN_TEST(TestSendPackets, args);
-	PCAPP_RUN_TEST(TestRemoteCapture, args);
-	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
-	PCAPP_RUN_TEST(TestHttpResponseParsing, args);
-	PCAPP_RUN_TEST(TestPrintPacketAndLayers, args);
-	PCAPP_RUN_TEST(TestPfRingDevice, args);
-	PCAPP_RUN_TEST(TestPfRingDeviceSingleChannel, args);
-	PCAPP_RUN_TEST(TestPfRingMultiThreadAllCores, args);
-	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args);
-	PCAPP_RUN_TEST(TestPfRingSendPacket, args);
-	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
-	PCAPP_RUN_TEST(TestPfRingFilters, args);
-	PCAPP_RUN_TEST(TestDnsParsing, args);
+//	PCAPP_RUN_TEST(TestIPAddress, args);
+//	PCAPP_RUN_TEST(TestMacAddress, args);
+//	PCAPP_RUN_TEST(TestPcapFileReadWrite, args);
+//	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args);
+//	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args);
+//	PCAPP_RUN_TEST(TestPcapLiveDevice, args);
+//	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args);
+//	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args);
+//	PCAPP_RUN_TEST(TestPcapFilters, args);
+//	PCAPP_RUN_TEST(TestSendPacket, args);
+//	PCAPP_RUN_TEST(TestSendPackets, args);
+//	PCAPP_RUN_TEST(TestRemoteCapture, args);
+//	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
+//	PCAPP_RUN_TEST(TestHttpResponseParsing, args);
+//	PCAPP_RUN_TEST(TestPrintPacketAndLayers, args);
+//	PCAPP_RUN_TEST(TestPfRingDevice, args);
+//	PCAPP_RUN_TEST(TestPfRingDeviceSingleChannel, args);
+//	PCAPP_RUN_TEST(TestPfRingMultiThreadAllCores, args);
+//	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args);
+//	PCAPP_RUN_TEST(TestPfRingSendPacket, args);
+//	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
+//	PCAPP_RUN_TEST(TestPfRingFilters, args);
+//	PCAPP_RUN_TEST(TestDnsParsing, args);
+//	PCAPP_UNIT_TEST_SET_DEBUG_MODE(true);
+//	LoggerPP::getInstance().setLogLevel(PcapLogModuleDpdkDevice, LoggerPP::Debug);
+//	DpdkDeviceList::getInstance().setDpdkLogLevel(LoggerPP::Debug);
+	PCAPP_RUN_TEST(TestDpdkDevice, args);
+	PCAPP_RUN_TEST(TestDpdkMultiThread, args);
+	PCAPP_RUN_TEST(TestDpdkDeviceSendPackets, args);
+	PCAPP_RUN_TEST(TestDpdkMbufRawPacket, args);
+	PCAPP_RUN_TEST(TestDpdkDeviceWorkerThreads, args);
 	PCAPP_END_RUNNING_TESTS;
 }

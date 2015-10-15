@@ -20,14 +20,14 @@
  */
 class RawPacket
 {
-private:
+protected:
 	uint8_t* m_pRawData;
 	int m_RawDataLen;
 	timeval m_TimeStamp;
 	bool m_DeleteRawDataAtDestructor;
 	bool m_RawPacketSet;
 	void Init();
-	void copyDataFrom(const RawPacket& other);
+	void copyDataFrom(const RawPacket& other, bool allocateData = true);
 public:
 	/**
 	 * A constructor that receives a pointer to the raw data (allocated elsewhere). This constructor is usually used when packet
@@ -53,7 +53,7 @@ public:
 	/**
 	 * A destructor for this class. Frees the raw data if deleteRawDataAtDestructor was set to 'true'
 	 */
-	~RawPacket();
+	virtual ~RawPacket();
 
 	/**
 	 * A copy constructor that copies all data from another instance. Notice all raw data is copied (using memcpy), so when the original or
@@ -75,8 +75,9 @@ public:
 	 * @param[in] pRawData A pointer to the new raw data
 	 * @param[in] rawDataLen The new raw data length in bytes
 	 * @param[in] timestamp The timestamp packet was received by the NIC
+	 * @return True if raw data was set successfully, false otherwise
 	 */
-	void setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp);
+	virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp);
 
 	/**
 	 * Get raw data pointer
@@ -108,7 +109,7 @@ public:
 	 * the copy constructor or using the assignment operator. Returns false otherwise, for example: if the instance was created using the
 	 * default constructor or clear() was called
 	 */
-	bool isPacketSet() { return m_RawPacketSet; }
+	inline bool isPacketSet() { return m_RawPacketSet; }
 
 	/**
 	 * Clears all members of this instance, meaning setting raw data to NULL, raw data length to 0, etc. Currently raw data is always freed,
@@ -116,7 +117,7 @@ public:
 	 * @todo deleteRawDataAtDestructor was set to 'true', don't free the raw data
 	 * @todo set timestamp to a default value as well
 	 */
-	void clear();
+	virtual void clear();
 
 	/**
 	 * Append data to the end of current data. This method works without allocating more memory, it just uses memcpy() to copy dataToAppend at
@@ -125,7 +126,7 @@ public:
 	 * @param[in] dataToAppend A pointer to the data to append to current raw data
 	 * @param[in] dataToAppendLen Length in bytes of dataToAppend
 	 */
-	void appendData(const uint8_t* dataToAppend, size_t dataToAppendLen);
+	virtual void appendData(const uint8_t* dataToAppend, size_t dataToAppendLen);
 
 	/**
 	 * Insert new data at some index of the current data and shift the remaining old data to the end. This method works without allocating more memory,
@@ -135,7 +136,7 @@ public:
 	 * @param[in] dataToInsert A pointer to the new data to insert
 	 * @param[in] dataToInsertLen Length in bytes of dataToInsert
 	 */
-	void insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen);
+	virtual void insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen);
 
 	/**
 	 * Remove certain number of bytes from current raw data buffer. All data after the removed bytes will be shifted back
@@ -143,16 +144,17 @@ public:
 	 * @param[in] numOfBytesToRemove Number of bytes to remove
 	 * @return True if all bytes were removed successfully, or false if atIndex+numOfBytesToRemove is out-of-bounds of the raw data buffer
 	 */
-	bool removeData(int atIndex, size_t numOfBytesToRemove);
+	virtual bool removeData(int atIndex, size_t numOfBytesToRemove);
 
 	/**
-	 * Copy the raw data from the current allocated memory buffer to another allocated memory buffer given by the user. This method can be
-	 * useful if the user want to insert or append data to the raw data, and the previous allocated buffer is too small, so the user wants
-	 * to allocate a larget buffer and get RawPacket instance to point to it
-	 * @param[in,out] newBuffer The new buffer, allocated by the user. All current raw data will be copied from current buffer to this buffer
-	 * and raw buffer will point to this new buffer. Old buffer will be freed if deleteRawDataAtDestructor was set to 'true'
+	 * Re-allocate raw packet buffer meaning add size to it without losing the current packet data. This method allocates the required buffer size as instructed
+	 * by the use and then copies the raw data from the current allocated buffer to the new one. This method can become useful if the user wants to insert or
+	 * append data to the raw data, and the previous allocated buffer is too small, so the user wants to allocate a larger buffer and get RawPacket instance to
+	 * point to it
+	 * @param[in] newBufferLength The new buffer length as required by the user. The method is responsible to allocate the memory
+	 * @return True if data was reallocated successfully, false otherwise
 	 */
-	void reallocateData(uint8_t* newBuffer);
+	virtual bool reallocateData(size_t newBufferLength);
 };
 
 #endif

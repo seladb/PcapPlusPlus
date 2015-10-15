@@ -1,31 +1,20 @@
--include ../mk/platform.mk
--include ../mk/PcapPlusPlus.mk
+-include ../../mk/platform.mk
+-include ../../mk/PcapPlusPlus.mk
 
 SOURCES := $(wildcard *.cpp)
 OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
-ifdef LINUX
-DEPS := -DLINUX
-endif
-ifdef RTE_SDK
-DEPS += -DUSE_DPDK
-endif
-ifdef MAC_OS_X
-DEPS := -DMAC_OS_X
-endif
-
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(DEPS) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	$(G++) -DUSE_DPDK $(PCAPPP_INCLUDES) -O0 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
-	
 
 UNAME := $(shell uname)
 
 # All Target
-all: Pcap++Test
+all: TrafficFilter
 
 create-directories:
 	$(MKDIR) -p Obj
@@ -33,13 +22,13 @@ create-directories:
 
 dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
-	
+
 # Tool invocations
-Pcap++Test: create-directories dependents $(OBJS_FILENAMES)
+TrafficFilter: create-directories dependents $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
-	$(G++) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
+	$(G++) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/TrafficFilter$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
 	$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '

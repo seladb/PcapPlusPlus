@@ -9,8 +9,15 @@ EXAMPLE_PARSE	:=	Examples/Pcap++Examples.PacketParsing
 EXAMPLE_STREAMS	:=	Examples/Pcap++Examples.BreakPcapFileToStreams
 EXAMPLE_ARPSPOOF:=	Examples/ArpSpoofing
 EXAMPLE_ARPING	:=	Examples/Arping
+EXAMPLE_DPDK1	:=	Examples/DpdkExample-FilterTraffic
 
 UNAME := $(shell uname)
+
+ifdef RTE_SDK
+COMPILE_DPDK_EXAMPLE=1
+else
+COMPILE_DPDK_EXAMPLE=0
+endif
 
 # capPlusPlus libs only
 libs:
@@ -36,6 +43,9 @@ all: libs
 	cd $(EXAMPLE_STREAMS)		&& $(MAKE) all
 	cd $(EXAMPLE_ARPSPOOF)		&& $(MAKE) all
 	cd $(EXAMPLE_ARPING)		&& $(MAKE) all
+ifeq ($(COMPILE_DPDK_EXAMPLE),1)
+	cd $(EXAMPLE_DPDK1)		&& $(MAKE) all
+endif
 	$(MKDIR) -p Dist/examples
 	$(MKDIR) -p Dist/mk
 	$(CP) $(EXAMPLE_PARSE)/Bin/* ./Dist/examples
@@ -44,6 +54,9 @@ all: libs
 	$(CP) $(EXAMPLE_STREAMS)/example.pcap ./Dist/examples
 	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_ARPING)/Bin/* ./Dist/examples
+ifeq ($(COMPILE_DPDK_EXAMPLE),1)
+	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
+endif
 	$(CP) mk/platform.mk ./Dist/mk
 	$(CP) mk/PcapPlusPlus.mk ./Dist/mk
 	@echo 'Finished successfully building PcapPlusPlus'
@@ -59,5 +72,8 @@ clean:
 	cd $(EXAMPLE_STREAMS)	&& $(MAKE) clean
 	cd $(EXAMPLE_ARPSPOOF)	&& $(MAKE) clean
 	cd $(EXAMPLE_ARPING)	&& $(MAKE) clean
+ifeq ($(COMPILE_DPDK_EXAMPLE),1)
+	cd $(EXAMPLE_DPDK1)		&& $(MAKE) clean
+endif
 	$(RM) -rf Dist
 	@echo 'Finished successfully cleaning PcapPlusPlus'
