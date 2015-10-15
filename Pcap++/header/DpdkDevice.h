@@ -406,6 +406,7 @@ public:
 	/**
 	 * Receive packets from the network as raw packets
 	 * @param[out] rawPacketsArr An array of MBufRawPacket pointers where all received packets will be written into
+	 * @param[out] rawPacketArrLength A variable where MBufRawPacket pointers array length will be written into
 	 * @param[in] rxQueueId The RX queue to receive packets from
 	 * @return True if packets were received and no error occurred or false if device isn't opened, or if device is currently capturing
 	 * (using startCaptureSingleThread() or startCaptureMultiThreads(), or if rxQueueId doesn't exist on device, or DPDK receive packets method returned
@@ -416,6 +417,7 @@ public:
 	/**
 	 * Receive packets from the network as parsed packets
 	 * @param[out] packetsArr An array of Packet pointers where all received packets will be written into
+	 * @param[out] packetsArrLength A variable where Packet pointers array length will be written into
 	 * @param[in] rxQueueId The RX queue to receive packets from
 	 * @return True if packets were received and no error occurred or false if device isn't opened, or if device is currently capturing
 	 * (using startCaptureSingleThread() or startCaptureMultiThreads(), or if rxQueueId doesn't exist on device, or DPDK receive packets method returned

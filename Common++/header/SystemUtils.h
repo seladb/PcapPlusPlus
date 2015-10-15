@@ -200,7 +200,7 @@ CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores);
 
 /**
  * Create a core mask from a vector of core IDs
- * @param[in] cores A vector of core IDs
+ * @param[in] coreIds A vector of core IDs
  * @return A core mask representing these cores
  */
 CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds);

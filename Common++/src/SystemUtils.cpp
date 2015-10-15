@@ -1,9 +1,9 @@
-#include <SystemUtils.h>
-#include <PlatformSpecificUtils.h>
-#include <unistd.h>
 #ifdef WIN32
 #include <windows.h>
 #endif
+#include <SystemUtils.h>
+#include <PlatformSpecificUtils.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <iostream>
 

@@ -10,6 +10,10 @@
 
 /// @file
 
+/**
+ * @class DpdkWorkerThread
+ * TODO
+ */
 class DpdkWorkerThread
 {
 public:
@@ -20,6 +24,10 @@ public:
 };
 
 
+/**
+ * @class DpdkDeviceList
+ * TODO
+ */
 class DpdkDeviceList
 {
 private:
