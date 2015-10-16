@@ -9,13 +9,56 @@
 #include <RawPacket.h>
 #include <PcapLiveDevice.h>
 
-/// @file
+/**
+ * @file
+ * This file and DpdkDeviceList.h provide PcapPlusPlus C++ wrapper for Intel DPDK (stands for data-plan development kit). What is
+ * DPDK? as quoting from http://dpdk.org: "DPDK is a set of libraries and drivers for fast packet processing... These libraries can be used to:
+ * receive and send packets within the minimum number of CPU cycles (usually less than 80 cycles)... develop fast packet capture algorithms
+ * (tcpdump-like)... run third-party fast path stacks... Some packet processing functions have been benchmarked up to hundreds million
+ * frames per second, using 64-byte packets with a PCIe NIC"<BR>
+ * As DPDK API is written in C, PcapPlusPlus wraps the main functionality in a C++ easy-to-use classes which should have minimum affect
+ * on performance and packet processing rate. In addition it brings DPDK to the PcapPlusPlus framework and API so you can use DPDK
+ * together with other PcapPlusPlus features such as packet parsing and editing, etc.<BR>
+ * So how DPDK basically works? in order to boost packet processing performance on a commodity server DPDK is bypassing the Linux kernel.
+ * All the packet processing activity happens in the user space so basically packets are delivered from NIC hardware queues directly
+ * to user-space shared memory without going through the kernel. In addition DPDK uses polling instead of handling interrupts for each
+ * arrived packet (as interupts create some delays). Other methods to boost packets processing implemented by DPDK are using Hugepages to
+ * decrease the size of TLB that results in a much faster virtual to physical page conversion, thread affinity to bind threads to a
+ * specific core, lock-free user-space multi-core synchronization using rings data structures and NUMA awareness to avoid expensive data
+ * transfers between sockets.<BR>
+ * Not every NIC supports kernel-bypass capabilities so DPDK cannot work with any NIC. The list of supported NICs are in DPDK's web-site
+ * http://dpdk.org/doc/nics . For each such NIC the DPDK framework provides a module that called poll-mode-driver (PMD in short) that
+ * enables this NIC to the working with DPDK. PcapPlusPlus wasn't tested with most PMDs but all of them should theoretically work as
+ * PcapPlusPlus doesn't change the PMD behavior<BR>
+ * DPDK has another basic data-structure called mbuf. An mbuf is DPDK wrapper struct for network packets. When working with packets
+ * in DPDK you actually work with mbufs. The mbuf contains the packet data (obviously) but also some metadata on the packet such
+ * as the DPDK port it was captured on, packet ref-count (which allows it to be referenced by several objects), etc. One important
+ * concept is that DPDK doesn't allocate mbufs on-the-fly but uses mbuf pools. These pools is allocated on application startup and
+ * used throughout the application. The goal of this, of course, is increasing packet processing performance as allocating memory has
+ * its cost. So pool size is important and varies between applications. For example: an application that stores packets in memory
+ * has to have a large pool of mbufs so mbufs doesn't run-out. PcapPlusPlus enables to choose the pool size at startup<BR>
+ * <BR>
+ * PcapPlusPlus main wrapper classes for DPDK are:
+ * - DpdkDevice - a class that wraps a DPDK port and provides all capabilities of receiving and sending packets to this port
+ * - DpdkDeviceList - a singleton class that initializes the DPDK infrastructure and creates DpdkDevice instances to all available ports.
+ * In addition it allows starting and stopping of worker threads
+ * - MBufRawPacket - a child class to RawPacket which customizes it for working with mbuf
+ * - In addition PcapPlusPlus provides a shell script to initialize DPDK prerequisites: setup-dpdk.sh. This is an easy-to-use script
+ * that sets up huge-pages, loads DPDK kernel module and sets up the NICs that will be used by DPDK. This script must run before an
+ * application that uses DPDK runs. If you forgot to run it the application will fail with an appropriate error that will remind
+ * <BR>
+ * DPDK initialization using PcapPlusPlus:
+ * - Before application runs: run the setup-dpdk.sh script
+ * - On application startup call DpdkDeviceList#initDpdk() static method to initialize DPDK infrastructure and DpdkDevice instances
+ * - Open the relevant DpdkDevice(s)
+ * - Send & receive packets...
+ */
 
 class DpdkDeviceList;
 class DpdkDevice;
 
 /**
- * An enum describing all PMD (poll mode driver) type supported by DPDK
+ * An enum describing all PMD (poll mode driver) types supported by DPDK
  */
 enum DpdkPMDType {
 	/** Unknown PMD type */
@@ -78,7 +121,11 @@ class DpdkDevice;
  * MBufRawPacket
  * - Creating MBufRawPacket from scratch (in order to send it with DpdkDevice, for example). In this case the user should call
  * the init() method after constructing the object in order to allocate a new mbuf from DPDK (using the mbuf pool inside a certain
- * DpdkDevice)
+ * DpdkDevice)<BR>
+ * Limitations of this class:
+ * - Currently chained mbufs are not supported. An mbuf has the capability to be linked to another mbuf and create a linked list
+ * of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support this capability so there is no way to
+ * access mbufs linked to the mbuf wrapped by MBufRawPacket instance. I hope I'll be able to add this support in the future
  */
 class MBufRawPacket : public RawPacket
 {
@@ -254,7 +301,30 @@ public:
 
 /**
  * @class DpdkDevice
- * TODO
+ * Encapsulates a DPDK port and enables to receive and send packets using DPDK. This class have no public c'tor, it's constructed
+ * by DpdkDeviceList during initialization.<BR>
+ * __RX/TX queues__: modern NICs provide hardware load-balancing for packets. This means that each packet received by the NIC is hashed
+ * by one or more parameter (IP address, port, etc.) and goes into one of several RX queues provided by the NIC. This enables
+ * applications to work in a multi-core environment where each core can read packets from different RX queue(s). Same goes for TX
+ * queues: it's possible to write packets to different TX queues and the NIC is taking care of sending them to the network.
+ * Different NICs provide different number of RX and TX queues. DPDK supports this NIC capability and enables the user to open the
+ * DPDK port (DpdkDevice) in a single or multiple RX and TX queues. When receiving packets the user can decide from which RX queue
+ * to read packets from, and when transmitting packets the user can decide to which TX queue to send them to. RX/TX queue is configured
+ * when opening the DpdkDevice (openMultiQueues())<BR>
+ * __Capturing packets__: there are two ways to capture packets using DpdkDevice:
+ * - using worker threads (see DpdkDeviceList#startDpdkWorkerThreads() ). When using this method the worker should use the
+ * DpdkDevice#receivePackets() methods to get packets from the DpdkDevice
+ * - by setting a callback which is invoked each time a burst of packets. For more details see
+ * DpdkDevice#startCaptureSingleThread()<BR>
+ * __Sending packets:__ DpdkDevice has various methods for sending packets. They enable sending raw packets, parsed packets, etc.
+ * for all TX queues opened. See DpdkDevice#sendPackets()<BR>
+ * __Get interface info__: DpdkDevice provides all kind of information on the interface/device such as MAC address, MTU, link status,
+ * PCI address, PMD (poll-mode-driver) used for this port, etc. In addition it provides RX/TX statistics when receiving or sending
+ * packets<BR>
+ * __Known limitations:__
+ * - Currently BPF filters are not supported by this device. This means the device cannot filter packets before they get to the user
+ * - Currently it's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still not
+ * supported by DpdkDevice
  */
 class DpdkDevice : public IPcapDevice
 {
@@ -281,7 +351,7 @@ public:
 		uint16_t transmitDescriptorsNumber;
 
 		/**
-		 * The c'tor for this strcut
+		 * A c'tor for this strcut
 		 * @param[in] receiveDescriptorsNumber An optional parameter for defining the number of RX descriptors that will be allocated for each RX queue.
 		 * Default value is 128
 		 * @param[in] transmitDescriptorsNumber An optional parameter for defining the number of TX descriptors that will be allocated for each TX queue.
@@ -522,7 +592,7 @@ public:
 
 	/**
 	 * There are two ways to capture packets using DpdkDevice: one of them is using worker threads (@see DpdkDeviceList#startDpdkWorkerThreads() ) and
-	 * the other way is using a callback which is invoked on each a burst of packets are captured. This method implements the second way.
+	 * the other way is setting a callback which is invoked each time a burst of packets is captured. This method implements the second way.
 	 * After invoking this method the DpdkDevice enters capture mode and starts capturing packets.
 	 * This method assumes there is only 1 RX queue opened for this device, otherwise an error is returned. It then allocates a core and creates 1 thread
 	 * that runs in an endless loop and tries to capture packets using DPDK. Each time a burst of packets is captured a user callback is invoked with the user
