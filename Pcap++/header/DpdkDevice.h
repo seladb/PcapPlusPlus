@@ -721,6 +721,8 @@ private:
 	void* m_OnPacketsArriveUserCookie;
 	bool m_StopThread;
 
+	bool m_WasOpened;
+
 	 // RSS key used by the NIC for load balancing the packets between cores
 	static uint8_t m_RSSKey[40];
 };

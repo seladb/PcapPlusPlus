@@ -323,6 +323,7 @@ DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize)
 	setDeviceInfo();
 
 	m_DeviceOpened = false;
+	m_WasOpened = false;
 	m_StopThread = true;
 }
 
@@ -351,6 +352,17 @@ bool DpdkDevice::openMultiQueues(uint16_t numOfRxQueuesToOpen, uint16_t numOfTxQ
 	{
 		LOG_ERROR("Device already opened");
 		return false;
+	}
+
+	// There is a VMXNET3 limitation that when opening a device with a certain number of RX+TX queues
+	// it's impossible to close it and open it again with a larger number of RX+TX queues. So for this
+	// PMD I made a patch to open the device in the first time with maximum RX & TX queue, close it
+	// immediately and open it again with number of queues the user wanted to
+	if (!m_WasOpened && m_PMDType == PMD_VMXNET3)
+	{
+		m_WasOpened = true;
+		openMultiQueues(getTotalNumOfRxQueues(), getTotalNumOfTxQueues(), config);
+		close();
 	}
 
 	if (!configurePort(numOfRxQueuesToOpen, numOfTxQueuesToOpen))
@@ -485,7 +497,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 					0, NULL);
 		if (ret < 0)
 		{
-		    LOG_ERROR("Failed to init TX queue for port %d. Error was: '%s' [Error code: %d]", m_Id, rte_strerror(ret), ret);
+			LOG_ERROR("Failed to init TX queue #%d for port %d. Error was: '%s' [Error code: %d]", i, m_Id, rte_strerror(ret), ret);
 			return false;
 		}
 	}

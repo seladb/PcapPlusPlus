@@ -2239,11 +2239,15 @@ PCAPP_TEST(TestDpdkDevice)
 	PCAPP_ASSERT(dev->getNumOfOpenedRxQueues() == 0, "Number of open RX queues isn't zero, it's %d", dev->getNumOfOpenedRxQueues());
 	PCAPP_ASSERT(dev->getNumOfOpenedTxQueues() == 0, "Number of open TX queues isn't zero, it's %d", dev->getNumOfOpenedTxQueues());
 	PCAPP_ASSERT(dev->getMtu() > 0, "Couldn't retrieve MTU");
-	uint16_t origMtu = dev->getMtu();
-	uint16_t newMtu = origMtu > 1600 ? 1500 : 9000;
-	PCAPP_ASSERT(dev->setMtu(newMtu) == true, "Couldn't set MTU to %d", newMtu);
-	PCAPP_ASSERT(dev->getMtu() == newMtu, "MTU isn't properly set");
-	PCAPP_ASSERT(dev->setMtu(origMtu) == true, "Couldn't set MTU back to original");
+
+	// Changing the MTU isn't supported for all PMDs so I can't use it in the unit-tests, as they may
+	// fail on environment using such PMDs. I tested it on EM PMD and verified it works
+//	uint16_t origMtu = dev->getMtu();
+//	uint16_t newMtu = origMtu > 1600 ? 1500 : 9000;
+//	PCAPP_ASSERT(dev->setMtu(newMtu) == true, "Couldn't set MTU to %d", newMtu);
+//	PCAPP_ASSERT(dev->getMtu() == newMtu, "MTU isn't properly set");
+//	PCAPP_ASSERT(dev->setMtu(origMtu) == true, "Couldn't set MTU back to original");
+
 	PCAPP_ASSERT(dev->open() == true, "Cannot open DPDK device");
 	LoggerPP::getInstance().supressErrors();
 	PCAPP_ASSERT(dev->open() == false, "Managed to open the device twice");
@@ -2325,14 +2329,20 @@ PCAPP_TEST(TestDpdkMultiThread)
 	}
 
 	if (dev->getTotalNumOfRxQueues() > 1)
+	{
+		LoggerPP::getInstance().supressErrors();
 		PCAPP_ASSERT(dev->openMultiQueues(numOfRxQueuesToOpen+1, 1) == false, "Managed to open DPDK device with number of RX queues which isn't power of 2");
+		LoggerPP::getInstance().enableErrors();
+	}
 
 	PCAPP_ASSERT_AND_RUN_COMMAND(dev->openMultiQueues(numOfRxQueuesToOpen, 1) == true, dev->close(), "Cannot open DPDK device '%s' with %d RX queues", dev->getDeviceName().c_str(), numOfRxQueuesToOpen);
 
 	if (numOfRxQueuesToOpen > 1)
 	{
+		LoggerPP::getInstance().supressErrors();
 		DpdkPacketData dummyPacketData;
 		PCAPP_ASSERT_AND_RUN_COMMAND(dev->startCaptureSingleThread(dpdkPacketsArrive, &dummyPacketData) == false, dev->close(), "Managed to start capture on single thread although more than 1 RX queue is opened");
+		LoggerPP::getInstance().enableErrors();
 	}
 
 	PCAPP_ASSERT_AND_RUN_COMMAND(dev->getNumOfOpenedRxQueues() == numOfRxQueuesToOpen, dev->close(), "Num of opened RX queues is different from requested RX queues");
@@ -2566,7 +2576,7 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 	PCAPP_ASSERT(dev->receivePackets(&packetArr, packetArrLen, 0) == false, "Managed to receive packets although device isn't opened");
 	PCAPP_ASSERT(dev->receivePackets(&mBufRawPacketArr, mBufRawPacketArrLen, 0) == false, "Managed to receive packets although device isn't opened");
 
-	dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues());
+	PCAPP_ASSERT(dev->open() == true, "Couldn't open DPDK device");
 	PCAPP_ASSERT(dev->receivePackets(rawPacketVec, dev->getTotalNumOfRxQueues()+1) == false, "Managed to receive packets for RX queue that doesn't exist");
 	PCAPP_ASSERT(dev->receivePackets(&packetArr, packetArrLen, dev->getTotalNumOfRxQueues()+1) == false, "Managed to receive packets for RX queue that doesn't exist");
 	PCAPP_ASSERT(dev->receivePackets(&mBufRawPacketArr, mBufRawPacketArrLen, dev->getTotalNumOfRxQueues()+1) == false, "Managed to receive packets for RX queue that doesn't exist");
@@ -2578,6 +2588,9 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 	PCAPP_ASSERT(dev->receivePackets(&mBufRawPacketArr, mBufRawPacketArrLen, 0) == false, "Managed to receive packets although device is in capture mode");
 	LoggerPP::getInstance().enableErrors();
 	dev->stopCapture();
+	dev->close();
+	
+	PCAPP_ASSERT(dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues()) == true, "Cannot open DPDK device");
 
 	int numOfAttempts = 0;
 	while (numOfAttempts < 10)
