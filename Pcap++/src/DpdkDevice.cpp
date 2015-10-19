@@ -478,19 +478,11 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 
 	LOG_DEBUG("Successfully initialized %d RX queues for device [%s]", numOfRxQueuesToInit, m_DeviceName);
 
-// TODO: delete this part
-	struct rte_eth_txconf tx_conf;
-	memset(&tx_conf, 0, sizeof(rte_eth_txconf));
-	tx_conf.tx_thresh.pthresh = 36;
-	tx_conf.tx_thresh.hthresh = 0;
-	tx_conf.tx_thresh.wthresh = 0;
-	tx_conf.tx_free_thresh = 0;
-	tx_conf.tx_rs_thresh = 0;
 	for (uint8_t i = 0; i < numOfTxQueuesToInit; i++)
 	{
 		int ret = rte_eth_tx_queue_setup((uint8_t) m_Id, i,
 				m_Config.transmitDescriptorsNumber,
-					0, &tx_conf);
+					0, NULL);
 		if (ret < 0)
 		{
 		    LOG_ERROR("Failed to init TX queue for port %d. Error was: '%s' [Error code: %d]", m_Id, rte_strerror(ret), ret);

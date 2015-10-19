@@ -3,6 +3,8 @@
 
 #include <Layer.h>
 
+/// @file
+
 using namespace std;
 
 /**

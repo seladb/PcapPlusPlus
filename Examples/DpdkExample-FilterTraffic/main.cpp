@@ -174,7 +174,7 @@ void prepareCoreConfiguration(vector<DpdkDevice*>& dpdkDevicesToUse, vector<Syst
 			printf("      DPDK device#%d: ", iter->first->getDeviceId());
 			for (vector<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
 			{
-				printf("RX Queue#%d ", *iter2);
+				printf("RX-Queue#%d;  ", *iter2);
 
 			}
 			printf("\n");

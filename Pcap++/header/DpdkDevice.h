@@ -39,26 +39,26 @@
  * has to have a large pool of mbufs so mbufs doesn't run-out. PcapPlusPlus enables to choose the pool size at startup<BR>
  * <BR>
  * PcapPlusPlus main wrapper classes for DPDK are:
- * - DpdkDevice - a class that wraps a DPDK port and provides all capabilities of receiving and sending packets to this port
- * - DpdkDeviceList - a singleton class that initializes the DPDK infrastructure and creates DpdkDevice instances to all available ports.
- * In addition it allows starting and stopping of worker threads
- * - MBufRawPacket - a child class to RawPacket which customizes it for working with mbuf
- * - In addition PcapPlusPlus provides a shell script to initialize DPDK prerequisites: setup-dpdk.sh. This is an easy-to-use script
- * that sets up huge-pages, loads DPDK kernel module and sets up the NICs that will be used by DPDK. This script must run before an
- * application that uses DPDK runs. If you forgot to run it the application will fail with an appropriate error that will remind
- * <BR>
+ *    - DpdkDevice - a class that wraps a DPDK port and provides all capabilities of receiving and sending packets to this port
+ *    - DpdkDeviceList - a singleton class that initializes the DPDK infrastructure and creates DpdkDevice instances to all available ports.
+ *      In addition it allows starting and stopping of worker threads
+ *    - MBufRawPacket - a child class to RawPacket which customizes it for working with mbuf
+ *    - In addition PcapPlusPlus provides a shell script to initialize DPDK prerequisites: setup-dpdk.sh. This is an easy-to-use script
+ *      that sets up huge-pages, loads DPDK kernel module and sets up the NICs that will be used by DPDK. This script must run before an
+ *      application that uses DPDK runs. If you forgot to run it the application will fail with an appropriate error that will remind
+ * 
  * DPDK initialization using PcapPlusPlus:
- * - Before application runs: run the setup-dpdk.sh script
- * - On application startup call DpdkDeviceList#initDpdk() static method to initialize DPDK infrastructure and DpdkDevice instances
- * - Open the relevant DpdkDevice(s)
- * - Send & receive packets...
+ *    - Before application runs: run the setup-dpdk.sh script
+ *    - On application startup call DpdkDeviceList#initDpdk() static method to initialize DPDK infrastructure and DpdkDevice instances
+ *    - Open the relevant DpdkDevice(s)
+ *    - Send & receive packets...
  */
 
 class DpdkDeviceList;
 class DpdkDevice;
 
 /**
- * An enum describing all PMD (poll mode driver) types supported by DPDK
+ * An enum describing all PMD (poll mode driver) types supported by DPDK. For more info about these PMDs please visit the DPDK web-site
  */
 enum DpdkPMDType {
 	/** Unknown PMD type */
@@ -109,23 +109,23 @@ class DpdkDevice;
 
 /**
  * @class MBufRawPacket
- * A class that inherits RawPacket and wraps DPDK's mbuf object (which wraps a network raw packet) and still is compatible with
- * PcapPlusPlus framework. Using MBufRawPacket is be almost similar as using RawPacket, the implementation differences are
- * encapsulated in class implementation. For example: user can create and manipulate a Packet object from MBufRawPacket the
- * same way it is done with RawPacket; User can use PcapFileWriterDevice to save MBufRawPacket to pcap the same way it's used with
- * RawPacket; etc.
+ * A class that inherits RawPacket and wraps DPDK's mbuf object (see some info about mbuf in DpdkDevice.h) but is
+ * compatible with PcapPlusPlus framework. Using MBufRawPacket is be almost similar to using RawPacket, the implementation 
+ * differences are encapsulated in the class implementation. For example: user can create and manipulate a Packet object from 
+ * MBufRawPacket the same way it is done with RawPacket; User can use PcapFileWriterDevice to save MBufRawPacket to pcap the 
+ * same way it's used with RawPacket; etc.<BR>
  * The main difference is that RawPacket contains a pointer to the data itself and MBufRawPacket is holding a pointer to an mbuf
- * object that contains a pointer to the data. This implies that MBufRawPacket without an mbuf allocated to it is worthless.
- * Getting instances of MBufRawPacket can be done in one to two ways:
- * - Receiving packets with DpdkDevice. In this case DpdkDevice takes care of getting the mbuf from DPDK and wrapping it with
- * MBufRawPacket
- * - Creating MBufRawPacket from scratch (in order to send it with DpdkDevice, for example). In this case the user should call
- * the init() method after constructing the object in order to allocate a new mbuf from DPDK (using the mbuf pool inside a certain
- * DpdkDevice)<BR>
+ * object which contains a pointer to the data. This implies that MBufRawPacket without an mbuf allocated to it is not usable.
+ * Getting instances of MBufRawPacket can be done in one to the following ways:
+ *    - Receiving packets from DpdkDevice. In this case DpdkDevice takes care of getting the mbuf from DPDK and wrapping it with
+ *      MBufRawPacket
+ *    - Creating MBufRawPacket from scratch (in order to send it with DpdkDevice, for example). In this case the user should call
+ *      the init() method after constructing the object in order to allocate a new mbuf from DPDK port pool (encapsulated by DpdkDevice)
+ * 
  * Limitations of this class:
- * - Currently chained mbufs are not supported. An mbuf has the capability to be linked to another mbuf and create a linked list
- * of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support this capability so there is no way to
- * access mbufs linked to the mbuf wrapped by MBufRawPacket instance. I hope I'll be able to add this support in the future
+ *    - Currently chained mbufs are not supported. An mbuf has the capability to be linked to another mbuf and create a linked list
+ *      of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support this capability so there is no way to
+ *      access the mbufs linked to the mbuf wrapped by MBufRawPacket instance. I hope I'll be able to add this support in the future
  */
 class MBufRawPacket : public RawPacket
 {
@@ -139,8 +139,8 @@ private:
 public:
 
 	/**
-	 * A default c'tor for this class. Initializes an instance of this class without an mbuf attached to it. In order to allocate
-	 * an mbuf the user should call the init() method. Without calling init() the instance of this class is worthless.
+	 * A default c'tor for this class. Constructs an instance of this class without an mbuf attached to it. In order to allocate
+	 * an mbuf the user should call the init() method. Without calling init() the instance of this class is not usable.
 	 * This c'tor can be used for initializing an array of MBufRawPacket (which requires an empty c'tor)
 	 */
 	MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Device(NULL) { m_DeleteRawDataAtDestructor = false; }
@@ -159,7 +159,7 @@ public:
 	MBufRawPacket(const MBufRawPacket& other);
 
 	/**
-	 * Initialize an instance of this class. Initialization includes allocating an mbuf from the pool resides in the DpdkDevice.
+	 * Initialize an instance of this class. Initialization includes allocating an mbuf from the pool that resides in DpdkDevice.
 	 * The user should call this method only once per instance. Calling it more than once will result with an error
 	 * @param[in] device The DpdkDevice which has the pool to allocate the mbuf from
 	 * @return True if initialization succeeded and false if this method was already called for this instance (and an mbuf is
@@ -196,15 +196,15 @@ public:
 	void clear();
 
 	/**
-	 * Append data to the end of current data. This method uses the same mbuf already allocated and tries to append more space and
-	 * then copy the data to it. If MBufRawPacket is not initialize (mbuf is NULL) or mbuf append failed an error is printed to log
-	 * @param[in] dataToAppend A pointer to the data to append to current raw data
+	 * Append packet data at the end of current data. This method uses the same mbuf already allocated and tries to append more space and
+	 * copy the data to it. If MBufRawPacket is not initialize (mbuf is NULL) or mbuf append failed an error is printed to log
+	 * @param[in] dataToAppend A pointer to the data to append
 	 * @param[in] dataToAppendLen Length in bytes of dataToAppend
 	 */
 	void appendData(const uint8_t* dataToAppend, size_t dataToAppendLen);
 
 	/**
-	 * Insert new data at some index of the current data and shift the remaining old data to the end. This method uses the
+	 * Insert raw data at some index of the current data and shift the remaining data to the end. This method uses the
 	 * same mbuf already allocated and tries to append more space to it. Then it just copies dataToAppend at the relevant index and shifts
 	 * the remaining data to the end. If MBufRawPacket is not initialize (mbuf is NULL) or mbuf append failed an error is printed to log
 	 * @param[in] atIndex The index to insert the new data to
@@ -256,7 +256,7 @@ public:
 	PciAddress() { domain = 0; bus = 0; devid = 0; function = 0; }
 
 	/**
-	 * A c'tor that initialized all PCI address fields
+	 * A c'tor that initializes all PCI address fields
 	 * @param[in] domain Device domain
 	 * @param[in] bus Device bus id
 	 * @param[in] devid Device ID
@@ -290,7 +290,7 @@ public:
 	}
 
 	/**
-	 * Comparison operator overload. Two PCI addresses are equal if all of their members (domain, bus, devid, function) are equal
+	 * Comparison operator overload. Two PCI addresses are equal if all of their address parts (domain, bus, devid, function) are equal
 	 */
 	bool operator==(const PciAddress &other) const
 	{
@@ -301,30 +301,36 @@ public:
 
 /**
  * @class DpdkDevice
- * Encapsulates a DPDK port and enables to receive and send packets using DPDK. This class have no public c'tor, it's constructed
- * by DpdkDeviceList during initialization.<BR>
+ * Encapsulates a DPDK port and enables receiving and sending packets using DPDK as well as getting interface info & status, packet
+ * statistics, etc. This class has no public c'tor as it's constructed by DpdkDeviceList during initialization.<BR>
+ *
  * __RX/TX queues__: modern NICs provide hardware load-balancing for packets. This means that each packet received by the NIC is hashed
  * by one or more parameter (IP address, port, etc.) and goes into one of several RX queues provided by the NIC. This enables
  * applications to work in a multi-core environment where each core can read packets from different RX queue(s). Same goes for TX
  * queues: it's possible to write packets to different TX queues and the NIC is taking care of sending them to the network.
- * Different NICs provide different number of RX and TX queues. DPDK supports this NIC capability and enables the user to open the
- * DPDK port (DpdkDevice) in a single or multiple RX and TX queues. When receiving packets the user can decide from which RX queue
- * to read packets from, and when transmitting packets the user can decide to which TX queue to send them to. RX/TX queue is configured
- * when opening the DpdkDevice (openMultiQueues())<BR>
+ * Different NICs provide different number of RX and TX queues. DPDK supports this capability and enables the user to open the
+ * DPDK port (DpdkDevice) with a single or multiple RX and TX queues. When receiving packets the user can decide from which RX queue
+ * to read from, and when transmitting packets the user can decide to which TX queue to send them to. RX/TX queues are configured
+ * when opening the DpdkDevice (see openMultiQueues())<BR>
+ * 
  * __Capturing packets__: there are two ways to capture packets using DpdkDevice:
- * - using worker threads (see DpdkDeviceList#startDpdkWorkerThreads() ). When using this method the worker should use the
- * DpdkDevice#receivePackets() methods to get packets from the DpdkDevice
- * - by setting a callback which is invoked each time a burst of packets. For more details see
- * DpdkDevice#startCaptureSingleThread()<BR>
+ *    - using worker threads (see DpdkDeviceList#startDpdkWorkerThreads() ). When using this method the worker should use the
+ *      DpdkDevice#receivePackets() methods to get packets from the DpdkDevice
+ *    - by setting a callback which is invoked each time a burst of packets arrives. For more details see 
+ *      DpdkDevice#startCaptureSingleThread()
+ *
  * __Sending packets:__ DpdkDevice has various methods for sending packets. They enable sending raw packets, parsed packets, etc.
- * for all TX queues opened. See DpdkDevice#sendPackets()<BR>
+ * for all opened TX queues. See DpdkDevice#sendPackets()<BR>
+ *
  * __Get interface info__: DpdkDevice provides all kind of information on the interface/device such as MAC address, MTU, link status,
  * PCI address, PMD (poll-mode-driver) used for this port, etc. In addition it provides RX/TX statistics when receiving or sending
  * packets<BR>
+ *
  * __Known limitations:__
- * - Currently BPF filters are not supported by this device. This means the device cannot filter packets before they get to the user
- * - Currently it's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still not
- * supported by DpdkDevice
+ *    - BPF filters are currently not supported by this device (as opposed to other PcapPlusPlus device types. This means that the 
+ *      device cannot filter packets before they get to the user
+ *    - It's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still not
+ *      supported by DpdkDevice
  */
 class DpdkDevice : public IPcapDevice
 {
@@ -334,18 +340,19 @@ public:
 
 	/**
 	 * @struct DpdkDeviceConfiguration
-	 * A struct that contains the user configurable parameters for a DpdkDevice. If the user wants the default parameters, they exist in the c'tor
+	 * A struct that contains user configurable parameters for opening a DpdkDevice. All of these parameters have default values so 
+	 * the user doesn't have to use these parameters or understand exactly what is their effect
 	 */
 	struct DpdkDeviceConfiguration
 	{
 		/**
-		 * When configuring a DPDK RX queue, DPDK creates descriptors it will be using for receiving packets from the network to this RX queue.
+		 * When configuring a DPDK RX queue, DPDK creates descriptors it will use for receiving packets from the network to this RX queue.
 		 * This parameter enables to configure the number of descriptors that will be created for each RX queue
 		 */
 		uint16_t receiveDescriptorsNumber;
 
 		/**
-		 * When configuring a DPDK TX queue, DPDK creates descriptors it will be using for transmitting packets to the network through this TX queue.
+		 * When configuring a DPDK TX queue, DPDK creates descriptors it will use for transmitting packets to the network through this TX queue.
 		 * This parameter enables to configure the number of descriptors that will be created for each TX queue
 		 */
 		uint16_t transmitDescriptorsNumber;
@@ -366,16 +373,22 @@ public:
 
 	/**
 	 * @struct LinkStatus
-	 * A struct that contains the link status of a DpdkDevice (DPDK port). Should be used with DpdkDevice#getLinkStatus()
+	 * A struct that contains the link status of a DpdkDevice (DPDK port). Returned from DpdkDevice#getLinkStatus()
 	 */
 	struct LinkStatus
 	{
 		/** Enum for describing link duplex */
-		enum LinkDuplex { FULL_DUPLEX, HALF_DUPLEX };
+		enum LinkDuplex 
+		{
+			/** Full duplex */
+			FULL_DUPLEX, 
+			/** Half duplex */
+			HALF_DUPLEX 
+		};
 
-		/** Link up or down */
+		/** True if link is up, false if it's down */
 		bool linkUp;
-		/** Link speed in Mbps (for example: 10Gbe will show 10000 */
+		/** Link speed in Mbps (for example: 10Gbe will show 10000) */
 		int linkSpeedMbps;
 		/** Link duplex (half/full duplex) */
 		LinkDuplex linkDuplex;
@@ -384,7 +397,7 @@ public:
 	virtual ~DpdkDevice() {}
 
 	/**
-	 * @return The device (DPDK port) ID
+	 * @return The device ID (DPDK port ID)
 	 */
 	inline int getDeviceId() { return m_Id; }
 	/**
@@ -398,19 +411,19 @@ public:
 	inline MacAddress getMacAddress() { return m_MacAddress; }
 
 	/**
-	 * @return The name of the PMD (poll mode driver) DPDK is using for this device (DPDK port). You can read about PMDs in the DPDK documentation:
+	 * @return The name of the PMD (poll mode driver) DPDK is using for this device. You can read about PMDs in the DPDK documentation:
 	 * http://dpdk.org/doc/guides/prog_guide/poll_mode_drv.html
 	 */
 	inline string getPMDName() { return m_PMDName; }
 
 	/**
-	 * @return The enum type of the PMD (poll mode driver) DPDK is using for this device (DPDK port). You can read about PMDs in the DPDK documentation:
+	 * @return The enum type of the PMD (poll mode driver) DPDK is using for this device. You can read about PMDs in the DPDK documentation:
 	 * http://dpdk.org/doc/guides/prog_guide/poll_mode_drv.html
 	 */
 	inline DpdkPMDType getPMDType() { return m_PMDType; }
 
 	/**
-	 * @return The PCI address of this device
+	 * @return The PCI address of the device
 	 */
 	inline PciAddress getPciAddress() { return m_PciAddress; }
 
@@ -422,7 +435,7 @@ public:
 	/**
 	 * Set a new maximum transmission unit (MTU) for this device
 	 * @param[in] newMtu The new MTU in bytes
-	 * @return True if MTU was set successfully, false otherwise with appropriate error
+	 * @return True if MTU was set successfully, false if operation failed or if PMD doesn't support changing the MTU
 	 */
 	bool setMtu(uint16_t newMtu);
 
@@ -433,7 +446,7 @@ public:
 
 	/**
 	 * Get the link status (link up/down, link speed and link duplex)
-	 * @param[out] linkStatus The object the result shall be written into
+	 * @param[out] linkStatus A reference to object the result shall be written to
 	 */
 	void getLinkStatus(LinkStatus& linkStatus);
 
@@ -443,54 +456,58 @@ public:
 	uint32_t getCurrentCoreId();
 
 	/**
-	 * @return The number of RX queues currently opened for this device (were configured in openMultiQueues() )
+	 * @return The number of RX queues currently opened for this device (as configured in openMultiQueues() )
 	 */
 	uint16_t getNumOfOpenedRxQueues() { return m_NumOfRxQueuesOpened; }
 
 	/**
-	 * @return The number of TX queues currently opened for this device (were configured in openMultiQueues() )
+	 * @return The number of TX queues currently opened for this device (as configured in openMultiQueues() )
 	 */
 	uint16_t getNumOfOpenedTxQueues() { return m_NumOfTxQueuesOpened; }
 
 	/**
-	 * @return The total number of RX queues available for this device
+	 * @return The total number of RX queues available on this device
 	 */
 	uint16_t getTotalNumOfRxQueues() { return m_TotalAvailableRxQueues; }
 
 	/**
-	 * @return The total number of TX queues available for this device
+	 * @return The total number of TX queues available on this device
 	 */
 	uint16_t getTotalNumOfTxQueues() { return m_TotalAvailableTxQueues; }
 
 
 	/**
-	 * Receive packets from the network
+	 * Receive raw packets from the network
 	 * @param[out] rawPacketsArr A vector where all received packets will be written into
 	 * @param[in] rxQueueId The RX queue to receive packets from
-	 * @return True if packets were received and no error occurred or false if device isn't opened, or if device is currently capturing
-	 * (using startCaptureSingleThread() or startCaptureMultiThreads(), or if rxQueueId doesn't exist on device, or DPDK receive packets method returned
+	 * @return True if packets were received and no error occurred or false if device isn't opened, if device is currently capturing
+	 * (using startCaptureSingleThread() or startCaptureMultiThreads() ), if rxQueueId doesn't exist on device, or if DPDK receive packets method returned
 	 * an error
 	 */
 	bool receivePackets(RawPacketVector& rawPacketsArr, uint16_t rxQueueId);
 
 	/**
-	 * Receive packets from the network as raw packets
-	 * @param[out] rawPacketsArr An array of MBufRawPacket pointers where all received packets will be written into
-	 * @param[out] rawPacketArrLength A variable where MBufRawPacket pointers array length will be written into
+	 * Receive raw packets from the network
+	 * @param[out] rawPacketsArr A pointer to a non-allocated array of MBufRawPacket pointers where all received packets will be written into. The array
+	 * will be allocated by this method and its length will be written into rawPacketArrLength. Notice it's the user responsibility to free the array and
+	 * its content when done using it
+	 * @param[out] rawPacketArrLength The length of MBufRawPacket pointers array will be written into
 	 * @param[in] rxQueueId The RX queue to receive packets from
-	 * @return True if packets were received and no error occurred or false if device isn't opened, or if device is currently capturing
-	 * (using startCaptureSingleThread() or startCaptureMultiThreads(), or if rxQueueId doesn't exist on device, or DPDK receive packets method returned
+	 * @return True if packets were received and no error occurred or false if device isn't opened, if device is currently in capture mode
+	 * (using startCaptureSingleThread() or startCaptureMultiThreads() ), if rxQueueId doesn't exist on device, or if DPDK receive packets method returned
 	 * an error
 	 */
 	bool receivePackets(MBufRawPacket** rawPacketsArr, int& rawPacketArrLength, uint16_t rxQueueId);
 
 	/**
-	 * Receive packets from the network as parsed packets
-	 * @param[out] packetsArr An array of Packet pointers where all received packets will be written into
-	 * @param[out] packetsArrLength A variable where Packet pointers array length will be written into
+	 * Receive parsed packets from the network
+	 * @param[out] packetsArr A pointer to a non-allocated array of Packet pointers where all received packets will be written into. The array
+	 * will be allocated by this method and its length will be written into packetsArrLength. Notice it's the user responsibility to free the array and
+	 * its content when done using it
+	 * @param[out] packetsArrLength The length of Packet pointers array will be written into
 	 * @param[in] rxQueueId The RX queue to receive packets from
-	 * @return True if packets were received and no error occurred or false if device isn't opened, or if device is currently capturing
-	 * (using startCaptureSingleThread() or startCaptureMultiThreads(), or if rxQueueId doesn't exist on device, or DPDK receive packets method returned
+	 * @return True if packets were received and no error occurred or false if device isn't opened, if device is currently capturing
+	 * (using startCaptureSingleThread() or startCaptureMultiThreads() ), if rxQueueId doesn't exist on device, or if DPDK receive packets method returned
 	 * an error
 	 */
 	bool receivePackets(Packet** packetsArr, int& packetsArrLength, uint16_t rxQueueId);
@@ -498,16 +515,18 @@ public:
 	/**
 	 * Send an array of raw packets to the network.<BR><BR>
 	 * The sending algorithm works as follows: the algorithm tries to allocate a
-	 * group of mbufs from the device's pool. For each mbuf allocated a raw packet data is copied to the mbuf. The algorithm will
-	 * continue allocating mbufs until: no more raw packets to send OR cannot allocate mbufs because pool is empty OR number
-	 * of allocated mbuf is higher than 80% of TX descriptors. When one of these happen the algorithm will try to send the mbufs
-	 * through DPDK API. DPDK will free the allocated mbufs. Then the algorithm will try to allocate mbufs again and send them
-	 * again until no more raw packets to send or it failed to allocated an mbuf 3 times in a raw. Raw packets that are bigger
-	 * than the size of an mbuf or with length 0 will be skipped. Same goes for raw packets that their data could not be copied
-	 * to the allocated mbuf for some reason. An error will be printed to each such packet
+	 * group of mbufs from the device mbuf pool. For each mbuf allocated a raw packet data is copied to the mbuf. This means that 
+	 * the packets sent as input to this method aren't affected (aren't freed, changed, or anything like that). The algorithm will
+	 * continue allocating mbufs until: no more raw packets to send; OR cannot allocate mbufs because mbug pool is empty; OR number
+	 * of allocated mbufs is higher than a threshold of 80% of total TX descriptors. When one of these happen the algorithm will 
+	 * try to send the mbufs it already got through DPDK API. DPDK will free these mbufs after sending them. Then the algorithm will 
+	 * try to allocate mbufs again and send them again until no more raw packets are left to send to send or mbuf allocation failed 
+	 * 3 times in a raw. Raw packets that are bigger than the size of an mbuf or with length 0 will be skipped. Same goes for raw 
+	 * packets whose data could not be copied to the allocated mbuf for some reason. An appropriate error will be printed for 
+	 * each such packet
 	 * @param[in] rawPacketsArr A pointer to an array of raw packets
 	 * @param[in] arrLength The length of the array
-	 * @param[in] txQueueId An optional parameter which indicate to which TX queue the packets will be sent on. The default is
+	 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 	 * TX queue 0
 	 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 	 */
@@ -517,7 +536,7 @@ public:
 	 * Send an array of parsed packets to the network. For the send packets algorithm see sendPackets()
 	 * @param[in] packetsArr A pointer to an array of parsed packet pointers
 	 * @param[in] arrLength The length of the array
-	 * @param[in] txQueueId An optional parameter which indicate to which TX queue the packets will be sent on. The default is
+	 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 	 * TX queue 0
 	 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 	 */
@@ -526,64 +545,64 @@ public:
 	/**
 	 * Send a vector of raw packets to the network. For the send packets algorithm see sendPackets()
 	 * @param[in] rawPacketsVec The vector of raw packet
-	 * @param[in] txQueueId An optional parameter which indicate to which TX queue the packets will be sent on. The default is
+	 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 	 * TX queue 0
 	 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 	 */
 	int sendPackets(const RawPacketVector& rawPacketsVec, uint16_t txQueueId = 0);
 
 	/**
-	 * Send packet raw data to the network. For the send packets algorithm see sendPackets(), but keep in mind this method send
+	 * Send packet raw data to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
 	 * only 1 packet
 	 * @param[in] packetData The packet raw data to send
 	 * @param[in] packetDataLength The length of the raw data
-	 * @param[in] txQueueId An optional parameter which indicate to which TX queue the packet will be sent on. The default is
+	 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent to. The default is
 	 * TX queue 0
-	 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't open or the sending algorithm
+	 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
 	 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
 	 */
 	bool sendPacket(const uint8_t* packetData, int packetDataLength, uint16_t txQueueId = 0);
 
 	/**
-	 * Send a raw packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method send
+	 * Send a raw packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
 	 * only 1 packet
 	 * @param[in] rawPacket The raw packet to send
-	 * @param[in] txQueueId An optional parameter which indicate to which TX queue the packet will be sent on. The default is
+	 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent to. The default is
 	 * TX queue 0
-	 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't open or the sending algorithm
+	 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
 	 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
 	 */
 	bool sendPacket(const RawPacket& rawPacket, uint16_t txQueueId = 0);
 
 	/**
-	 * Send a parsed packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method send
+	 * Send a parsed packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
 	 * only 1 packet
-	 * @param[in] packet The packet to send
-	 * @param[in] txQueueId An optional parameter which indicate to which TX queue the packet will be sent on. The default is
+	 * @param[in] packet The parsed packet to send
+	 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent on. The default is
 	 * TX queue 0
-	 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't open or the sending algorithm
+	 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
 	 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
 	 */
 	bool sendPacket(const Packet& packet, uint16_t txQueueId = 0);
 
 	/**
-	 * Overridden method from IPcapDevice, working with filters is currently not implemented for DpdkDevice
+	 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
 	 * @return Always false with a "Filters aren't supported in DPDK device" error message
 	 */
 	bool setFilter(GeneralFilter& filter);
 
 	/**
-	 * Overridden method from IPcapDevice, working with filters is currently not implemented for DpdkDevice
+	 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
 	 * @return Always false with a "Filters aren't supported in DPDK device" error message
 	 */
 	bool setFilter(string filterAsString);
 
 	/**
-	 * Open the DPDK device. Notice opening the device only makes the device ready for use, it doesn't start packet capturing.
-	 * The device is opened in promiscuous mode
+	 * Open the DPDK device. Notice opening the device only makes it ready to use, it doesn't start packet capturing. This method initializes RX and TX queues,
+	 * configures the DPDK port and starts it. Call close() to close the device. The device is opened in promiscuous mode
 	 * @param[in] numOfRxQueuesToOpen Number of RX queues to setup. This number must be smaller or equal to the return value of getTotalNumOfRxQueues()
 	 * @param[in] numOfTxQueuesToOpen Number of TX queues to setup. This number must be smaller or equal to the return value of getTotalNumOfTxQueues()
-	 * @param[in] config Optional param for defining special port configuration parameters such as number of receive/transmit descriptors. If not set the default
+	 * @param[in] config Optional parameter for defining special port configuration parameters such as number of receive/transmit descriptors. If not set the default
 	 * parameters will be set (see DpdkDeviceConfiguration)
 	 * @return True if the device was opened successfully, false if device is already opened, if RX/TX queues configuration failed or of DPDK port
 	 * configuration and startup failed
@@ -591,14 +610,14 @@ public:
 	bool openMultiQueues(uint16_t numOfRxQueuesToOpen, uint16_t numOfTxQueuesToOpen, const DpdkDeviceConfiguration& config = DpdkDeviceConfiguration());
 
 	/**
-	 * There are two ways to capture packets using DpdkDevice: one of them is using worker threads (@see DpdkDeviceList#startDpdkWorkerThreads() ) and
+	 * There are two ways to capture packets using DpdkDevice: one of them is using worker threads (see DpdkDeviceList#startDpdkWorkerThreads() ) and
 	 * the other way is setting a callback which is invoked each time a burst of packets is captured. This method implements the second way.
 	 * After invoking this method the DpdkDevice enters capture mode and starts capturing packets.
 	 * This method assumes there is only 1 RX queue opened for this device, otherwise an error is returned. It then allocates a core and creates 1 thread
-	 * that runs in an endless loop and tries to capture packets using DPDK. Each time a burst of packets is captured a user callback is invoked with the user
-	 * cookie as a parameter. This loop continue until stopCapture() is called. Notice: since the callback is invoked for packet burst captured
-	 * using this method to can be slower than using worker threads. On the other hand, it's a simpler way comparing to worker threads
-	 * @param[in] onPacketsArrive The user callback which will be invoked each time packet burst is captured by the device
+	 * that runs in an endless loop and tries to capture packets using DPDK. Each time a burst of packets is captured the user callback is invoked with the user
+	 * cookie as a parameter. This loop continues until stopCapture() is called. Notice: since the callback is invoked for every packet burst
+	 * using this method can be slower than using worker threads. On the other hand, it's a simpler way comparing to worker threads
+	 * @param[in] onPacketsArrive The user callback which will be invoked each time a packet burst is captured by the device
 	 * @param[in] onPacketsArriveUserCookie The user callback is invoked with this cookie as a parameter. It can be used to pass
 	 * information from the user application to the callback
 	 * @return True if capture thread started successfully or false if device is already in capture mode, number of opened RX queues isn't equal
@@ -608,8 +627,8 @@ public:
 	bool startCaptureSingleThread(OnDpdkPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie);
 
 	/**
-	 * This method does exactly what @see startCaptureSingleThread() does, but with more than one RX queue / capturing thread. It's called
-	 * with a core mask as a parameter and creates a packet capture thread on every core. Each thread is assigned with a specific
+	 * This method does exactly what startCaptureSingleThread() does, but with more than one RX queue / capturing thread. It's called
+	 * with a core mask as a parameter and creates a packet capture thread on every core. Each capturing thread is assigned with a specific
 	 * RX queue. This method assumes all cores in the core-mask are available and there are enough opened RX queues to match for each thread.
 	 * If these assumptions are not true an error is returned. After invoking all threads, all of them run in an endless loop
 	 * and try to capture packets from their designated RX queues. Each time a burst of packets is captured the callback is invoked with the user
@@ -626,28 +645,28 @@ public:
 
 	/**
 	 * If device is in capture mode started by invoking startCaptureSingleThread() or startCaptureMultiThreads(), this method
-	 * will stop all capturing threads and turn the device to non-capturing mode
+	 * will stop all capturing threads and set the device to non-capturing mode
 	 */
 	void stopCapture();
 
 	//overridden methods
 
 	/**
-	 * Overridden method from IPcapDevice. It calls openMultiQueues() with 1 RX queue and 1 TX queue
-	 * Notice opening the device only makes the device ready for use, it doesn't start packet capturing. The device is opened in promiscuous mode
+	 * Overridden method from IPcapDevice. It calls openMultiQueues() with 1 RX queue and 1 TX queue. 
+	 * Notice opening the device only makes it ready to use, it doesn't start packet capturing. The device is opened in promiscuous mode
 	 * @return True if the device was opened successfully, false if device is already opened, if RX/TX queues configuration failed or of DPDK port
 	 * configuration and startup failed
 	 */
 	bool open() { return openMultiQueues(1, 1); };
 
 	/**
-	 * Close the DpdkDevice. When device is closed it's not possible to do any work with it
+	 * Close the DpdkDevice. When device is closed it's not possible work with it
 	 */
 	void close();
 
 	/**
-	 * Receive statistics from device
-	 * @todo pcap_stat is poor struct that doesn't contain all the information DPDK can provide. Consider using a more extensive struct
+	 * Retrieve RX packet statistics from device
+	 * @todo pcap_stat is a poor struct that doesn't contain all the information DPDK can provide. Consider using a more extensive struct
 	 */
 	void getStatistics(pcap_stat& stats);
 
