@@ -649,6 +649,16 @@ public:
 	 */
 	void stopCapture();
 
+	/**
+	 * @return The number of free mbufs in device's mbufs pool
+	 */
+	int getAmountOfFreeMbufs();
+
+	/**
+	 * @return The number of mbufs currently in use in device's mbufs pool
+	 */
+	int getAmountOfMbufsInUse();
+
 	//overridden methods
 
 	/**

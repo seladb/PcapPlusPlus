@@ -9,11 +9,11 @@ PACKETPP_HOME := ../Packet++
 ifdef WIN32
 DEPS := -DWPCAP -DHAVE_REMOTE
 endif
-ifdef PF_RING_HOME
-DEPS := -DUSE_PF_RING
-endif
 ifdef LINUX
 DEPS := -DLINUX
+endif
+ifdef PF_RING_HOME
+DEPS += -DUSE_PF_RING
 endif
 ifdef RTE_SDK
 DEPS += -DUSE_DPDK

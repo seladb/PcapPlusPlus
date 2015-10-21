@@ -548,12 +548,6 @@ bool DpdkDevice::startDevice()
 
 	LinkStatus status;
 	getLinkStatus(status);
-	if (!status.linkUp)
-	{
-		LOG_ERROR("Link is down for device [%s]", m_DeviceName);
-		return false;
-	}
-
 	LOG_DEBUG("Device [%s] : Link %s; Speed: %d Mbps; %s",
 			m_DeviceName,
 			(status.linkUp ? "up" : "down"),
@@ -1193,5 +1187,16 @@ bool DpdkDevice::sendPacket(const Packet& packet, uint16_t txQueueId)
 	const Packet* tempArr[1] = { &packet };
 	return (sendPackets(tempArr, 1, txQueueId) == 1);
 }
+
+int DpdkDevice::getAmountOfFreeMbufs()
+{
+	return (int)rte_mempool_count(m_MBufMempool);
+}
+
+int DpdkDevice::getAmountOfMbufsInUse()
+{
+	return (int)rte_mempool_free_count(m_MBufMempool);
+}
+
 
 #endif /* USE_DPDK */

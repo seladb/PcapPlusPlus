@@ -2222,7 +2222,7 @@ PCAPP_TEST(TestDpdkDevice)
 		CoreMask coreMask = 0;
 		for (int i = 0; i < getNumOfCores(); i++)
 			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
 		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	}
 
@@ -2310,7 +2310,7 @@ PCAPP_TEST(TestDpdkMultiThread)
 		for (int i = 0; i < getNumOfCores(); i++)
 			coreMask |= SystemCores::IdToSystemCore[i].Mask;
 
-		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
 		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	}
 	PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
@@ -2475,7 +2475,7 @@ PCAPP_TEST(TestDpdkDeviceSendPackets)
 		for (int i = 0; i < getNumOfCores(); i++)
 			coreMask |= SystemCores::IdToSystemCore[i].Mask;
 
-		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
 		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	}
 	PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
@@ -2559,7 +2559,7 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 
 	if(devList.getDpdkDeviceList().size() == 0)
 	{
-		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
 		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	}
 	PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
@@ -2711,7 +2711,7 @@ PCAPP_TEST(TestDpdkMbufRawPacket)
 		for (int i = 0; i < getNumOfCores(); i++)
 			coreMask |= SystemCores::IdToSystemCore[i].Mask;
 
-		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 4095) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
+		PCAPP_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
 		PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	}
 	PCAPP_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
@@ -2766,16 +2766,31 @@ PCAPP_TEST(TestDpdkMbufRawPacket)
 	// -------------------------------
 	RawPacketVector rawPacketVec;
 	int numOfAttempts = 0;
-	while (numOfAttempts < 10)
+	while (numOfAttempts < 30)
 	{
-		PCAPP_ASSERT(dev->receivePackets(rawPacketVec, 0) == true, "Couldn't receive packets");
-		PCAP_SLEEP(1);
-		if (rawPacketVec.size() > 0)
+		bool foundTcpOrUdpPacket = false;
+		for (int i = 0; i < dev->getNumOfOpenedRxQueues(); i++)
+		{
+			PCAPP_ASSERT(dev->receivePackets(rawPacketVec, 0) == true, "Couldn't receive packets");
+			PCAP_SLEEP(1);
+			for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+			{
+				Packet packet(*iter);
+				if ((packet.isPacketOfType(TCP) || packet.isPacketOfType(UDP)) && packet.isPacketOfType(IPv4))
+				{
+					foundTcpOrUdpPacket = true;
+					break;
+				}
+			}
+		}
+
+		if (foundTcpOrUdpPacket)
 			break;
+
 		numOfAttempts++;
 	}
 
-	PCAPP_ASSERT(numOfAttempts < 10, "No packets were received");
+	PCAPP_ASSERT(numOfAttempts < 30, "No packets were received");
 
 	PcapFileWriterDevice writer(DPDK_PCAP_WRITE_PATH);
 	PCAPP_ASSERT(writer.open() == true, "Couldn't open pcap writer");
@@ -2799,10 +2814,17 @@ PCAPP_TEST(TestDpdkMbufRawPacket)
 	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		Packet packet(*iter);
-		if (packet.isPacketOfType(TCP) && packet.isPacketOfType(IPv4))
+		if ((packet.isPacketOfType(TCP) || packet.isPacketOfType(UDP)) && packet.isPacketOfType(IPv4))
 		{
 			TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
-			if (tcpLayer->getNextLayer() != NULL)
+			if (tcpLayer != NULL && tcpLayer->getNextLayer() != NULL)
+			{
+				rawPacketToManipulate = (MBufRawPacket*)*iter;
+				break;
+			}
+
+			UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
+			if (udpLayer != NULL && udpLayer->getNextLayer() != NULL)
 			{
 				rawPacketToManipulate = (MBufRawPacket*)*iter;
 				break;
@@ -2810,7 +2832,7 @@ PCAPP_TEST(TestDpdkMbufRawPacket)
 		}
 	}
 
-	PCAPP_ASSERT(rawPacketToManipulate != NULL, "Couldn't find TCP packet to manipulate");
+	PCAPP_ASSERT(rawPacketToManipulate != NULL, "Couldn't find TCP or UDP packet to manipulate");
 	int initialRawPacketLen = rawPacketToManipulate->getRawDataLen();
 	Packet packetToManipulate(rawPacketToManipulate);
 	IPv4Layer* ipLayer = packetToManipulate.getLayerOfType<IPv4Layer>();

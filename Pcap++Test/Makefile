@@ -7,6 +7,9 @@ OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 ifdef LINUX
 DEPS := -DLINUX
 endif
+ifdef PF_RING_HOME
+DEPS += -DUSE_PF_RING
+endif
 ifdef RTE_SDK
 DEPS += -DUSE_DPDK
 endif
