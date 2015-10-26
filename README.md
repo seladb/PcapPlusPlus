@@ -85,36 +85,50 @@ If you see any missing information please tell me
 
 #### DPDK support ####
 
-The Data Plane Development Kit (DPDK) is a set of data plane libraries and network interface controller drivers for fast packet processing. The DPDK provides a programming framework for Intel x86 processors and enables faster development of high speed data packet networking applications. It is provided and supported under the open source BSD license (taken from [Wikipedia](https://en.wikipedia.org/wiki/Data_Plane_Development_Kit) )
+The Data Plane Development Kit (DPDK) is a set of data plane libraries and network interface controller drivers for fast packet processing. The DPDK provides a programming framework for Intel x86 processors and enables faster development of high speed data packet networking applications. It is provided and supported under the open source BSD license (taken from [Wikipedia](https://en.wikipedia.org/wiki/Data_Plane_Development_Kit))
+
 DPDK provides packet processing in line rate using kernel bypass for a large range of network interface cards. Notice that not every NIC supports DPDK as the NIC needs to support the kernel bypass feature. You can read more about DPDK in [DPDK's web-site](http://dpdk.org/) and get a list of supported NICs [here](http://dpdk.org/doc/nics).
 
 Also, you can get more details about DPDK and PcapPlusPlus wrap for DPDK in the documentation of DpdkDevice.h and DpdkDeviceList.h header files.
 
+
+**_Download and install:_**
+
 Download and install instructions for DPDK are on this page: [http://dpdk.org/download](http://dpdk.org/download)
 
-*So what does PcapPlusPlus offer for DPDK?*
+
+**_So what does PcapPlusPlus offer for DPDK?_**
+
 - An easy-to-use C++ wrapper (as DPDK is written in C) that encapsulates DPDK's main functionality but doesn't hit packet procssing performance
 - Encapsulation of DPDK's initialization process - both outside and inside the application - using simple scripts and methods
 - A C++ class wrapper for DPDK's packet struct (mbuf) which offers most common functionality
 - A seamless integration to other PcapPlusPlus capabilities, for example: receivce packets with DPDK, parse them with Packet++ protocol layers and save them to a pcap file
 
-*PcapPlusPlus configuration for DPDK:*
+
+**_PcapPlusPlus configuration for DPDK:_**
+
 1. Download and compile DPDK on your system (see the link above)
 2. Note that PcapPlusPlus supports DPDK version 2.1, previous (and most probably newer) versions won't work
 3. Once DPDK compiles successfully you need to run PcapPlusPlus **configure-linux.sh** and type "y" in "Compile PcapPlusPlus with DPDK?"
 4. **configure-linux.sh** will ask for DPDK's path (i.e /home/user/dpdk-2.1.0) and build path (i.e i686-native-linuxapp-gcc)
 5. Then you can compile PcapPlusPlus as usual (using make, see below)
 
-*DPDK initialization with PcapPlusPlus:*
+
+**_DPDK initialization with PcapPlusPlus:_**
+
 DPDK has 2 steps of initialization: one that configures Linux to support DPDK applications and the other at application startup that configures DPDK. PcapPlusPlus wraps both of them in an easy-to-use interfaces:
-1. Before application is run - DPDK requires several Linux configurations to run:
+
+*Before application is run* - DPDK requires several Linux configurations to run:
   1. DPDK uses the Linux huge-pages mechanism for faster virtual to physical page conversion resulting in better performance. So huge-pages must be set before a DPDK application is run
   2. DPDK uses a designated kernel module for the kernel-bypass mechanism. This module should be loaded into the kernel
   3. The user needs to state which NICs will move to DPDK control and which will stay under Linux control
-PcapPlusPlus offers a simple script that automatically configures all of these. The script is under PcapPlusPlus root directory and is called **setup-dpdk.sh**. The script takes as an input the    following parameters:
+
+PcapPlusPlus offers a simple script that automatically configures all of these. The script is under PcapPlusPlus root directory and is called **setup-dpdk.sh**. The script takes as an input the following parameters:
+
   1. -p	   : the amount of huge pages to allocate. By default each huge-page size is 2048KB
   2. -n    : a comma-separated list of all NICs that will be unbinded from Linux and move to DPDK control. Only these NICs will be used by DPDK, the others will stay under Linux control. For example: eth0,eth1 will move these 2 interfaces under DPDK control - assuming this NIC is supported by DPDK
 You can use the -h switch for help.
+
 If everything went well the system is ready to run a DPDK application and the script output should look like this:
 
 ```shell
@@ -142,7 +156,7 @@ Other network devices
 Setup DPDK completed
 ```
 
-2.  At application startup - before using DPDK inside the application DPDK should be configured on application startup. This configuration includes:
+*At application startup* - before using DPDK inside the application DPDK should be configured on application startup. This configuration includes:
   1. Verify huge-pages, kernel module and NICs are set
   2. Initialize DPDK internal structures and memory, poll-mode-drivers etc.
   3. Prepare CPU cores that will be used by the application
@@ -153,14 +167,16 @@ These steps are wrapped in one static method that should be called once in appli
 ```shell
 DpdkDeviceList::initDpdk()
 ```
-*Tests and limitations:*
+
+
+**_Tests and limitations:_**
 - All unit-tests I perfromed are in Pcap++Test
 - In addition you try the DPDK example application (Examples/DpdkExample-FilterTraffic)
 - The only DPDK version supported is version 2.1 (currently the latest version)
 - So far I managed to test the code on 2 virtual PMDs only: 
   1. VMXNET3 - a VMWare guest driver
   2. E1000/EM - 1GbE Intel NIC but I tested it as virtual NIC in VirtualBox guest
-  I hope I'll be able to test it on some more (preferebly non-virtual) NICs soon - I'll update if/when I do
+- I hope I'll be able to test it on some more (preferebly non-virtual) NICs soon - I'll update if/when I do
 - Operating systems: it was tested in Ubuntu and Fedora
 
 
