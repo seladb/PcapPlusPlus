@@ -11,7 +11,7 @@
 
 /**
  * @file
- * This file and DpdkDeviceList.h provide PcapPlusPlus C++ wrapper for Intel DPDK (stands for data-plan development kit). What is
+ * This file and DpdkDeviceList.h provide PcapPlusPlus C++ wrapper for DPDK (stands for data-plan development kit). What is
  * DPDK? as quoting from http://dpdk.org: "DPDK is a set of libraries and drivers for fast packet processing... These libraries can be used to:
  * receive and send packets within the minimum number of CPU cycles (usually less than 80 cycles)... develop fast packet capture algorithms
  * (tcpdump-like)... run third-party fast path stacks... Some packet processing functions have been benchmarked up to hundreds million

@@ -5,6 +5,7 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 
 **What makes PcapPlusPlus different from similar C++ wrappers for libpcap/WinPcap?**
 - Designed to be lightweight and efficient
+- Support for **DPDK** fast packet processing engine which enables packet capturing and transmition in line rate using kernel bypass
 - Support for ntop's **PF_RING** packet capturing engine that dramatically improves the packet capture speed
 - Support for many protocols, including HTTP protocol parsing and editing
 - Support for Remote Capture capabilities on Windows (using RPCAP protocol supported in WinPcap)
@@ -42,6 +43,7 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   4. **ARP Spoofing with simple Windows makefile** - same code as ARP spoofing but with simple Windows makefile (see "Creating Applications With PcapPlusPlus" section)
   5. **ARP Spoofing with simple Linux makefile** - same code as ARP spoofing but with simple Linux makefile (see "Creating Applications With PcapPlusPlus" section)
   6. **Arping** - an implementation of the arping utility using PcapPlusPlus
+  7. **DpdkExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus DPDK APIs
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 
@@ -69,8 +71,9 @@ PcapPlusPlus currently works with the following devices:
 1. libpcap live device (on Linux and Mac OS X)
 2. WinPcap live device (on Windows)
 3. Vanilla PF_RING device (on Linux)
-4. Remote live device (on Windows)
-5. File devices
+4. DPDK device (on Linux)
+5. Remote live device (on Windows)
+6. File devices
 
 
 #### API Documentation ####
@@ -78,6 +81,87 @@ PcapPlusPlus currently works with the following devices:
 The entire API of PcapPlusPlus is documented using doxygen. You can find the documentation here: [http://seladb.github.io/PcapPlusPlus-Doc/Documentation/index.html](http://seladb.github.io/PcapPlusPlus-Doc/Documentation/index.html)
 
 If you see any missing information please tell me
+
+
+#### DPDK support ####
+
+The Data Plane Development Kit (DPDK) is a set of data plane libraries and network interface controller drivers for fast packet processing. The DPDK provides a programming framework for Intel x86 processors and enables faster development of high speed data packet networking applications. It is provided and supported under the open source BSD license (taken from [Wikipedia](https://en.wikipedia.org/wiki/Data_Plane_Development_Kit) )
+DPDK provides packet processing in line rate using kernel bypass for a large range of network interface cards. Notice that not every NIC supports DPDK as the NIC needs to support the kernel bypass feature. You can read more about DPDK in [DPDK's web-site](http://dpdk.org/) and get a list of supported NICs [here](http://dpdk.org/doc/nics).
+
+Also, you can get more details about DPDK and PcapPlusPlus wrap for DPDK in the documentation of DpdkDevice.h and DpdkDeviceList.h header files.
+
+Download and install instructions for DPDK are on this page: [http://dpdk.org/download](http://dpdk.org/download)
+
+*So what does PcapPlusPlus offer for DPDK?*
+- An easy-to-use C++ wrapper (as DPDK is written in C) that encapsulates DPDK's main functionality but doesn't hit packet procssing performance
+- Encapsulation of DPDK's initialization process - both outside and inside the application - using simple scripts and methods
+- A C++ class wrapper for DPDK's packet struct (mbuf) which offers most common functionality
+- A seamless integration to other PcapPlusPlus capabilities, for example: receivce packets with DPDK, parse them with Packet++ protocol layers and save them to a pcap file
+
+*PcapPlusPlus configuration for DPDK:*
+1. Download and compile DPDK on your system (see the link above)
+2. Note that PcapPlusPlus supports DPDK version 2.1, previous (and most probably newer) versions won't work
+3. Once DPDK compiles successfully you need to run PcapPlusPlus **configure-linux.sh** and type "y" in "Compile PcapPlusPlus with DPDK?"
+4. **configure-linux.sh** will ask for DPDK's path (i.e /home/user/dpdk-2.1.0) and build path (i.e i686-native-linuxapp-gcc)
+5. Then you can compile PcapPlusPlus as usual (using make, see below)
+
+*DPDK initialization with PcapPlusPlus:*
+DPDK has 2 steps of initialization: one that configures Linux to support DPDK applications and the other at application startup that configures DPDK. PcapPlusPlus wraps both of them in an easy-to-use interfaces:
+1. Before application is run - DPDK requires several Linux configurations to run:
+  1. DPDK uses the Linux huge-pages mechanism for faster virtual to physical page conversion resulting in better performance. So huge-pages must be set before a DPDK application is run
+  2. DPDK uses a designated kernel module for the kernel-bypass mechanism. This module should be loaded into the kernel
+  3. The user needs to state which NICs will move to DPDK control and which will stay under Linux control
+PcapPlusPlus offers a simple script that automatically configures all of these. The script is under PcapPlusPlus root directory and is called **setup-dpdk.sh**. The script takes as an input the    following parameters:
+  1. -p	   : the amount of huge pages to allocate. By default each huge-page size is 2048KB
+  2. -n    : a comma-separated list of all NICs that will be unbinded from Linux and move to DPDK control. Only these NICs will be used by DPDK, the others will stay under Linux control. For example: eth0,eth1 will move these 2 interfaces under DPDK control - assuming this NIC is supported by DPDK
+You can use the -h switch for help.
+If everything went well the system is ready to run a DPDK application and the script output should look like this:
+
+```shell
+*******************************
+PcapPlusPlus setup DPDK script 
+*******************************
+
+1. Reserve huge-pages - DONE!
+2. Install kernel module - DONE!
+3. Bind network adapters - DONE!
+
+Network devices using DPDK-compatible driver
+============================================
+0000:00:03.0 '82540EM Gigabit Ethernet Controller' drv=igb_uio unused=e1000
+0000:00:08.0 '82545EM Gigabit Ethernet Controller (Copper)' drv=igb_uio unused=e1000
+
+Network devices using kernel driver
+===================================
+0000:00:09.0 '82545EM Gigabit Ethernet Controller (Copper)' if=eth2 drv=e1000 unused=igb_uio *Active*
+0000:00:0a.0 '82545EM Gigabit Ethernet Controller (Copper)' if=eth3 drv=e1000 unused=igb_uio 
+
+Other network devices
+=====================
+<none>
+Setup DPDK completed
+```
+
+2.  At application startup - before using DPDK inside the application DPDK should be configured on application startup. This configuration includes:
+  1. Verify huge-pages, kernel module and NICs are set
+  2. Initialize DPDK internal structures and memory, poll-mode-drivers etc.
+  3. Prepare CPU cores that will be used by the application
+  4. Initialize packet memory pool 
+  5. Configure each NIC controlled by DPDK
+
+These steps are wrapped in one static method that should be called once in application startup:
+```shell
+DpdkDeviceList::initDpdk()
+```
+*Tests and limitations:*
+- All unit-tests I perfromed are in Pcap++Test
+- In addition you try the DPDK example application (Examples/DpdkExample-FilterTraffic)
+- The only DPDK version supported is version 2.1 (currently the latest version)
+- So far I managed to test the code on 2 virtual PMDs only: 
+  1. VMXNET3 - a VMWare guest driver
+  2. E1000/EM - 1GbE Intel NIC but I tested it as virtual NIC in VirtualBox guest
+  I hope I'll be able to test it on some more (preferebly non-virtual) NICs soon - I'll update if/when I do
+- Operating systems: it was tested in Ubuntu and Fedora
 
 
 #### PF_RING support ####
@@ -158,8 +242,9 @@ In order to compile PacpPlusPlus on Mac OS X you need to make sure [Xcode](https
 
 1. run the **configure-linux.sh** script from PcapPlusPlus main directory
 2. If you'd like to compile it with PF_RING please follow the instructions in the "PF_RING support" section above and type "y" in "Compile PcapPlusPlus with PF_RING?"
-2. Run **make all** from PcapPlusPlus main directory
-3. This should compile all libraries, unit-tests and examples
+3. If you'd like to compile it with DPDK please follow the instructions in the "DPDK support" section above and type "y" in "Compile PcapPlusPlus with DPDK?"
+4. Run **make all** from PcapPlusPlus main directory
+5. This should compile all libraries, unit-tests and examples
 
 *On Mac OS X:*
 
@@ -229,6 +314,11 @@ TestPfRingSendPacket          : PASSED
 TestPfRingSendPackets         : PASSED
 TestPfRingFilters             : PASSED
 TestDnsParsing                : PASSED
+TestDpdkDevice                : PASSED
+TestDpdkMultiThread           : PASSED
+TestDpdkDeviceSendPackets     : PASSED
+TestDpdkMbufRawPacket         : PASSED
+TestDpdkDeviceWorkerThreads   : PASSED
 ALL TESTS PASSED!!
 ```
 
