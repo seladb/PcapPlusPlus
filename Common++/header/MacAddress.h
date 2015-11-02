@@ -5,8 +5,6 @@
 #include <string>
 #include <memory>
 
-using namespace std;
-
 /// @file
 
 /**
@@ -36,7 +34,7 @@ public:
 	 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
 *  	 *	@param[in] addr A pointer to the string
 	 */
-	MacAddress(const string& addr);
+	MacAddress(const std::string& addr);
 
 	/**
 	 *  A constructor that creates an instance of 6 bytes representing the MAC address
@@ -83,7 +81,7 @@ public:
 	 * Returns a std::string representation of the address
 	 * @return A string representation of the address
 	 */
-	string toString();
+	std::string toString();
 
 	/**
 	 * Allocates a byte array of length 6 and copies address value into it. Array deallocation is user responsibility

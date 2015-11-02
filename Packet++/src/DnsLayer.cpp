@@ -28,7 +28,7 @@ uint8_t* IDnsResource::getRawData()
 	return m_DnsLayer->m_Data + m_OffsetInLayer;
 }
 
-size_t IDnsResource::decodeName(const char* encodedName, string& result)
+size_t IDnsResource::decodeName(const char* encodedName, std::string& result)
 {
 	size_t encodedNameLength = 0;
 	result = "";
@@ -48,7 +48,7 @@ size_t IDnsResource::decodeName(const char* encodedName, string& result)
 				return 0;
 			}
 
-			string tempResult;
+			std::string tempResult;
 			decodeName((const char*)(m_DnsLayer->m_Data + offsetInLayer), tempResult);
 			result += tempResult;
 
@@ -78,8 +78,8 @@ size_t IDnsResource::decodeName(const char* encodedName, string& result)
 void IDnsResource::encodeName(const std::string& decodedName, char* result, size_t& resultLen)
 {
 	resultLen = 0;
-    stringstream strstream(decodedName);
-    string word;
+	std::stringstream strstream(decodedName);
+    std::string word;
     while (getline(strstream, word, '.'))
     {
     	result[0] = word.length();
@@ -183,14 +183,14 @@ size_t DnsResource::getDataLength()
 	return ntohs(dataLength);
 }
 
-string DnsResource::getDataAsString()
+std::string DnsResource::getDataAsString()
 {
 	uint8_t* resourceRawData = getRawData() + m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t);
 	size_t dataLength = getDataLength();
 
 	DnsType dnsType = getDnsType();
 
-	string result = "";
+	std::string result = "";
 
 	switch (dnsType)
 	{
@@ -244,7 +244,7 @@ string DnsResource::getDataAsString()
 
 	default:
 	{
-	    stringstream sstream;
+		std::stringstream sstream;
 	    sstream << "0x" << std::hex;
 	    for(size_t i = 0; i < dataLength; i++)
 	        sstream << std::setw(2) << std::setfill('0') << (int)resourceRawData[i];
@@ -259,7 +259,7 @@ string DnsResource::getDataAsString()
 
 }
 
-bool DnsResource::setData(const string& dataAsString)
+bool DnsResource::setData(const std::string& dataAsString)
 {
 	// convert data to byte array according to the DNS type
 	size_t dataLength = 0;
@@ -269,7 +269,7 @@ bool DnsResource::setData(const string& dataAsString)
 	{
 	case DNS_TYPE_A:
 	{
-		IPv4Address ip4Addr((string)dataAsString);
+		IPv4Address ip4Addr((std::string)dataAsString);
 		if (!ip4Addr.isValid())
 		{
 			LOG_ERROR("Requested DNS type is A but data '%s' is an illegal IPv4 address. Couldn't set data for resource", dataAsString.c_str());
@@ -283,7 +283,7 @@ bool DnsResource::setData(const string& dataAsString)
 
 	case DNS_TYPE_AAAA:
 	{
-		IPv6Address ip6Addr((string)dataAsString);
+		IPv6Address ip6Addr((std::string)dataAsString);
 		if (!ip6Addr.isValid())
 		{
 			LOG_ERROR("Requested DNS type is AAAA but data '%s' is an illegal IPv6 address. Couldn't set data for resource", dataAsString.c_str());
@@ -566,7 +566,7 @@ void DnsLayer::parseResources()
 
 }
 
-IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resourceCount, const string& name, bool exactMatch)
+IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name, bool exactMatch)
 {
 	uint16_t i = 0;
 	while (i < resourceCount)
@@ -574,10 +574,10 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 		if (startFrom == NULL)
 			return NULL;
 
-		string resourceName = startFrom->getName();
+		std::string resourceName = startFrom->getName();
 		if (exactMatch && resourceName == name)
 			return startFrom;
-		else if (!exactMatch && resourceName.find(name) != string::npos)
+		else if (!exactMatch && resourceName.find(name) != std::string::npos)
 			return startFrom;
 
 		startFrom = startFrom->getNextResource();
@@ -588,7 +588,7 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 	return NULL;
 }
 
-DnsQuery* DnsLayer::getQuery(const string& name, bool exactMatch)
+DnsQuery* DnsLayer::getQuery(const std::string& name, bool exactMatch)
 {
 	uint16_t numOfQueries = ntohs(getDnsHeader()->numberOfQuestions);
 	IDnsResource* res = getResourceByName(m_FirstQuery, numOfQueries, name, exactMatch);
@@ -617,7 +617,7 @@ size_t DnsLayer::getQueryCount()
 	return ntohs(getDnsHeader()->numberOfQuestions);
 }
 
-DnsResource* DnsLayer::getAnswer(const string& name, bool exactMatch)
+DnsResource* DnsLayer::getAnswer(const std::string& name, bool exactMatch)
 {
 	uint16_t numOfAnswers = ntohs(getDnsHeader()->numberOfAnswers);
 	IDnsResource* res = getResourceByName(m_FirstAnswer, numOfAnswers, name, exactMatch);
@@ -647,7 +647,7 @@ size_t DnsLayer::getAnswerCount()
 	return ntohs(getDnsHeader()->numberOfAnswers);
 }
 
-DnsResource* DnsLayer::getAuthority(const string& name, bool exactMatch)
+DnsResource* DnsLayer::getAuthority(const std::string& name, bool exactMatch)
 {
 	uint16_t numOfAuthorities = ntohs(getDnsHeader()->numberOfAuthority);
 	IDnsResource* res = getResourceByName(m_FirstAuthority, numOfAuthorities, name, exactMatch);
@@ -677,7 +677,7 @@ size_t DnsLayer::getAuthorityCount()
 	return ntohs(getDnsHeader()->numberOfAuthority);
 }
 
-DnsResource* DnsLayer::getAdditionalRecord(const string& name, bool exactMatch)
+DnsResource* DnsLayer::getAdditionalRecord(const std::string& name, bool exactMatch)
 {
 	uint16_t numOfAdditionalRecords = ntohs(getDnsHeader()->numberOfAdditional);
 	IDnsResource* res = getResourceByName(m_FirstAdditional, numOfAdditionalRecords, name, exactMatch);
@@ -707,21 +707,21 @@ size_t DnsLayer::getAdditionalRecordCount()
 	return ntohs(getDnsHeader()->numberOfAdditional);
 }
 
-string DnsLayer::toString()
+std::string DnsLayer::toString()
 {
-	ostringstream tidAsString;
+	std::ostringstream tidAsString;
 	tidAsString << ntohs(getDnsHeader()->transactionID);
 
-	ostringstream queryCount;
+	std::ostringstream queryCount;
 	queryCount << getQueryCount();
 
-	ostringstream answerCount;
+	std::ostringstream answerCount;
 	answerCount << getAnswerCount();
 
-	ostringstream authorityCount;
+	std::ostringstream authorityCount;
 	authorityCount << getAuthorityCount();
 
-	ostringstream additionalCount;
+	std::ostringstream additionalCount;
 	additionalCount << getAdditionalRecordCount();
 
 	if (getAnswerCount() > 0)
@@ -805,8 +805,8 @@ void DnsLayer::setFirstResource(IDnsResource::ResourceType resType, IDnsResource
 	}
 }
 
-DnsResource* DnsLayer::addResource(IDnsResource::ResourceType resType, const string& name, DnsType dnsType, DnsClass dnsClass,
-		uint32_t ttl, const string& data)
+DnsResource* DnsLayer::addResource(IDnsResource::ResourceType resType, const std::string& name, DnsType dnsType, DnsClass dnsClass,
+		uint32_t ttl, const std::string& data)
 {
 	// create new query on temporary buffer
 	uint8_t newResourceRawData[256];
@@ -892,7 +892,7 @@ DnsResource* DnsLayer::addResource(IDnsResource::ResourceType resType, const str
 }
 
 
-DnsQuery* DnsLayer::addQuery(const string& name, DnsType dnsType, DnsClass dnsClass)
+DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass dnsClass)
 {
 	// create new query on temporary buffer
 	uint8_t newQueryRawData[256];
@@ -958,7 +958,7 @@ DnsQuery* DnsLayer::addQuery(DnsQuery* const copyQuery)
 	return addQuery(copyQuery->getName(), copyQuery->getDnsType(), copyQuery->getDnsClass());
 }
 
-bool DnsLayer::removeQuery(const string& queryNameToRemove, bool exactMatch)
+bool DnsLayer::removeQuery(const std::string& queryNameToRemove, bool exactMatch)
 {
 	DnsQuery* queryToRemove = getQuery(queryNameToRemove, exactMatch);
 	if (queryToRemove == NULL)
@@ -982,7 +982,7 @@ bool DnsLayer::removeQuery(DnsQuery* queryToRemove)
 	return res;
 }
 
-DnsResource* DnsLayer::addAnswer(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
+DnsResource* DnsLayer::addAnswer(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data)
 {
 	DnsResource* res = addResource(IDnsResource::DnsAnswer, name, dnsType, dnsClass, ttl, data);
 	if (res != NULL)
@@ -1002,7 +1002,7 @@ DnsResource* DnsLayer::addAnswer(DnsResource* const copyAnswer)
 	return addAnswer(copyAnswer->getName(), copyAnswer->getDnsType(), copyAnswer->getDnsClass(), copyAnswer->getTTL(), copyAnswer->getDataAsString());
 }
 
-bool DnsLayer::removeAnswer(const string& answerNameToRemove, bool exactMatch)
+bool DnsLayer::removeAnswer(const std::string& answerNameToRemove, bool exactMatch)
 {
 	DnsResource* answerToRemove = getAnswer(answerNameToRemove, exactMatch);
 	if (answerToRemove == NULL)
@@ -1027,7 +1027,7 @@ bool DnsLayer::removeAnswer(DnsResource* answerToRemove)
 }
 
 
-DnsResource* DnsLayer::addAuthority(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
+DnsResource* DnsLayer::addAuthority(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data)
 {
 	DnsResource* res = addResource(IDnsResource::DnsAuthority, name, dnsType, dnsClass, ttl, data);
 	if (res != NULL)
@@ -1047,7 +1047,7 @@ DnsResource* DnsLayer::addAuthority(DnsResource* const copyAuthority)
 	return addAuthority(copyAuthority->getName(), copyAuthority->getDnsType(), copyAuthority->getDnsClass(), copyAuthority->getTTL(), copyAuthority->getDataAsString());
 }
 
-bool DnsLayer::removeAuthority(const string& authorityNameToRemove, bool exactMatch)
+bool DnsLayer::removeAuthority(const std::string& authorityNameToRemove, bool exactMatch)
 {
 	DnsResource* authorityToRemove = getAuthority(authorityNameToRemove, exactMatch);
 	if (authorityToRemove == NULL)
@@ -1072,7 +1072,7 @@ bool DnsLayer::removeAuthority(DnsResource* authorityToRemove)
 }
 
 
-DnsResource* DnsLayer::addAdditionalRecord(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data)
+DnsResource* DnsLayer::addAdditionalRecord(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data)
 {
 	DnsResource* res = addResource(IDnsResource::DnsAdditional, name, dnsType, dnsClass, ttl, data);
 	if (res != NULL)
@@ -1084,7 +1084,7 @@ DnsResource* DnsLayer::addAdditionalRecord(const string& name, DnsType dnsType, 
 	return res;
 }
 
-DnsResource* DnsLayer::addAdditionalRecord(const string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, const string& data)
+DnsResource* DnsLayer::addAdditionalRecord(const std::string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, const std::string& data)
 {
 	DnsResource* res = addAdditionalRecord(name, dnsType, DNS_CLASS_ANY, customData2, data);
 	if (res != NULL)
@@ -1103,7 +1103,7 @@ DnsResource* DnsLayer::addAdditionalRecord(DnsResource* const copyAdditionalReco
 	return addAdditionalRecord(copyAdditionalRecord->getName(), copyAdditionalRecord->getDnsType(), copyAdditionalRecord->getCustomDnsClass(), copyAdditionalRecord->getTTL(), copyAdditionalRecord->getDataAsString());
 }
 
-bool DnsLayer::removeAdditionalRecord(const string& additionalRecordNameToRemove, bool exactMatch)
+bool DnsLayer::removeAdditionalRecord(const std::string& additionalRecordNameToRemove, bool exactMatch)
 {
 	DnsResource* additionalRecordToRemove = getAdditionalRecord(additionalRecordNameToRemove, exactMatch);
 	if (additionalRecordToRemove == NULL)

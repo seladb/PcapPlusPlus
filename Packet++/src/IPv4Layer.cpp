@@ -79,7 +79,7 @@ void IPv4Layer::computeCalculateFields()
 	ipHdr->headerChecksum = htons(compute_checksum(&scalar, 1));
 }
 
-string IPv4Layer::toString()
+std::string IPv4Layer::toString()
 {
 	return "IPv4 Layer, Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 }

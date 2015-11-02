@@ -6,7 +6,6 @@
 #include <vector>
 #include <PcapLiveDevice.h>
 
-using namespace std;
 
 /// @file
 
@@ -26,7 +25,7 @@ public:
 	 * @param[in] username The username for authentication with the remote daemon
 	 * @param[in] password The password for authentication with the remote daemon
 	 */
-	PcapRemoteAuthentication(const string username, const string password) { userName = username; this->password = password; }
+	PcapRemoteAuthentication(const std::string username, const std::string password) { userName = username; this->password = password; }
 
 	/**
 	 * A copy c'tor for this object
@@ -37,12 +36,12 @@ public:
 	/**
 	 * The username for authentication
 	 */
-	string userName;
+	std::string userName;
 
 	/**
 	 * The password for authentication
 	 */
-	string password;
+	std::string password;
 
 	/**
 	 * A conversion method from PcapRemoteAuthentication to pcap_rmtauth. Note: the char* pointers of the returned pcap_rmtauth points

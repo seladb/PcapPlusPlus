@@ -15,23 +15,23 @@ IPAddress::~IPAddress()
 
 }
 
-auto_ptr<IPAddress> IPAddress::fromString(char* addressAsString)
+std::auto_ptr<IPAddress> IPAddress::fromString(char* addressAsString)
 {
 	in_addr ip4Addr;
 	in6_addr ip6Addr;
     if (inet_pton(AF_INET, addressAsString, &ip4Addr) != 0)
     {
-    	return auto_ptr<IPAddress>(new IPv4Address(addressAsString));
+    	return std::auto_ptr<IPAddress>(new IPv4Address(addressAsString));
     }
     else if (inet_pton(AF_INET6, addressAsString, &ip6Addr) != 0)
     {
-    	return auto_ptr<IPAddress>(new IPv6Address(addressAsString));
+    	return std::auto_ptr<IPAddress>(new IPv6Address(addressAsString));
     }
 
-    return auto_ptr<IPAddress>(NULL);
+    return std::auto_ptr<IPAddress>(NULL);
 }
 
-auto_ptr<IPAddress> IPAddress::fromString(string addressAsString)
+std::auto_ptr<IPAddress> IPAddress::fromString(std::string addressAsString)
 {
 	return fromString((char*)addressAsString.c_str());
 }
@@ -89,7 +89,7 @@ IPv4Address::IPv4Address(char* addressAsString)
 	init(addressAsString);
 }
 
-IPv4Address::IPv4Address(string addressAsString)
+IPv4Address::IPv4Address(std::string addressAsString)
 {
 	init((char*)addressAsString.c_str());
 }
@@ -115,7 +115,7 @@ IPv4Address& IPv4Address::operator=(const IPv4Address& other)
     return *this;
 }
 
-bool IPv4Address::matchSubnet(const IPv4Address& subnet, const string& subnetMask)
+bool IPv4Address::matchSubnet(const IPv4Address& subnet, const std::string& subnetMask)
 {
 	IPv4Address maskAsIpAddr(subnetMask);
 	if (!maskAsIpAddr.isValid())
@@ -130,7 +130,7 @@ bool IPv4Address::matchSubnet(const IPv4Address& subnet, const string& subnetMas
 }
 
 
-IPv6Address IPv6Address::Zero(string("0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"));
+IPv6Address IPv6Address::Zero(std::string("0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"));
 
 IPv6Address::IPv6Address(const IPv6Address& other)
 {
@@ -173,7 +173,7 @@ IPv6Address::IPv6Address(char* addressAsString)
 	init(addressAsString);
 }
 
-IPv6Address::IPv6Address(string addressAsString)
+IPv6Address::IPv6Address(std::string addressAsString)
 {
 	init((char*)addressAsString.c_str());
 }

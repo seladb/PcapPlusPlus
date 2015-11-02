@@ -15,8 +15,8 @@
 class PfRingDeviceList
 {
 private:
-	vector<PfRingDevice*> m_PfRingDeviceList;
-	string m_PfRingVersion;
+	std::vector<PfRingDevice*> m_PfRingDeviceList;
+	std::string m_PfRingVersion;
 
 	PfRingDeviceList();
 	// private copy c'tor
@@ -41,21 +41,21 @@ public:
 	 * Return a list of all available PF_RING devices
 	 * @return a list of all available PF_RING devices
 	 */
-	inline const vector<PfRingDevice*>& getPfRingDevicesList() { return m_PfRingDeviceList; }
+	inline const std::vector<PfRingDevice*>& getPfRingDevicesList() { return m_PfRingDeviceList; }
 
 	/**
 	 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
 	 * (e.g eth0, eth1, etc.)
 	 * @return A pointer to the PF_RING device
 	 */
-	PfRingDevice* getPfRingDeviceByName(const string devName);
+	PfRingDevice* getPfRingDeviceByName(const std::string devName);
 
 
 	/**
 	 * Get installed PF_RING version
 	 * @return A string representing PF_RING version
 	 */
-	inline string getPfRingVersion() { return m_PfRingVersion; }
+	inline std::string getPfRingVersion() { return m_PfRingVersion; }
 };
 
 #endif /* USE_PF_RING */

@@ -6,7 +6,6 @@
 #include <WinPcapLiveDevice.h>
 #include <vector>
 
-using namespace std;
 
 /// @file
 
@@ -19,7 +18,7 @@ using namespace std;
 class PcapLiveDeviceList
 {
 private:
-	vector<PcapLiveDevice*> m_LiveDeviceList;
+	std::vector<PcapLiveDevice*> m_LiveDeviceList;
 
 	// private c'tor
 	PcapLiveDeviceList();
@@ -42,7 +41,7 @@ public:
 	/**
 	 * @return A vector containing pointers to all live devices currently installed on the machine
 	 */
-	inline const vector<PcapLiveDevice*>& getPcapLiveDevicesList() { return m_LiveDeviceList; }
+	inline const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() { return m_LiveDeviceList; }
 
 	/**
 	 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
@@ -77,7 +76,7 @@ public:
 	 * @param[in] name The name of the interface (e.g eth0)
 	 * @return A pointer to the live device if this name exists. NULL otherwise
 	 */
-	PcapLiveDevice* getPcapLiveDeviceByName(const string& name);
+	PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name);
 
 };
 

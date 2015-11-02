@@ -49,7 +49,7 @@ DpdkDeviceList::DpdkDeviceList()
 
 DpdkDeviceList::~DpdkDeviceList()
 {
-	for (vector<DpdkDevice*>::iterator iter = m_DpdkDeviceList.begin(); iter != m_DpdkDeviceList.end(); iter++)
+	for (std::vector<DpdkDevice*>::iterator iter = m_DpdkDeviceList.begin(); iter != m_DpdkDeviceList.end(); iter++)
 	{
 		delete (*iter);
 	}
@@ -88,7 +88,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice)
 	}
 
 
-	stringstream dpdkParamsStream;
+	std::stringstream dpdkParamsStream;
 	dpdkParamsStream << "pcapplusplusapp ";
 	dpdkParamsStream << "-n ";
 	dpdkParamsStream << "2 ";
@@ -97,7 +97,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice)
 	dpdkParamsStream << "--master-lcore ";
 	dpdkParamsStream << "0";
 
-	string dpdkParamsArray[initDpdkArgc];
+	std::string dpdkParamsArray[initDpdkArgc];
 	initDpdkArgv = new char*[initDpdkArgc];
 	uint32_t i = 0;
     while (dpdkParamsStream.good() && i < initDpdkArgc){
@@ -199,7 +199,7 @@ DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const PciAddress& pciAddr)
 		return NULL;
 	}
 
-	for (vector<DpdkDevice*>::iterator iter = m_DpdkDeviceList.begin(); iter != m_DpdkDeviceList.end(); iter++)
+	for (std::vector<DpdkDevice*>::iterator iter = m_DpdkDeviceList.begin(); iter != m_DpdkDeviceList.end(); iter++)
 	{
 		if ((*iter)->getPciAddress() == pciAddr)
 			return (*iter);
@@ -210,7 +210,7 @@ DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const PciAddress& pciAddr)
 
 bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 {
-	string execResult = executeShellCommand("cat /proc/meminfo | grep -s HugePages_Total | awk '{print $2}'");
+	std::string execResult = executeShellCommand("cat /proc/meminfo | grep -s HugePages_Total | awk '{print $2}'");
 	// trim '\n' at the end
 	execResult.erase(std::remove(execResult.begin(), execResult.end(), '\n'), execResult.end());
 
@@ -272,7 +272,7 @@ int DpdkDeviceList::dpdkWorkerThreadStart(void *ptr)
 	return 0;
 }
 
-bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, vector<DpdkWorkerThread*>& workerThreadsVec)
+bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkWorkerThread*>& workerThreadsVec)
 {
 	if (!isInitialized())
 	{
@@ -319,7 +319,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, vector<DpdkWorker
 
 	m_WorkerThreads.clear();
 	uint32_t index = 0;
-	vector<DpdkWorkerThread*>::iterator iter = workerThreadsVec.begin();
+	std::vector<DpdkWorkerThread*>::iterator iter = workerThreadsVec.begin();
 	while (iter != workerThreadsVec.end())
 	{
 		SystemCore core = SystemCores::IdToSystemCore[index];
@@ -332,7 +332,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, vector<DpdkWorker
 		int err = rte_eal_remote_launch(dpdkWorkerThreadStart, *iter, core.Id);
 		if (err != 0)
 		{
-			for (vector<DpdkWorkerThread*>::iterator iter2 = workerThreadsVec.begin(); iter2 != iter; iter2++)
+			for (std::vector<DpdkWorkerThread*>::iterator iter2 = workerThreadsVec.begin(); iter2 != iter; iter2++)
 			{
 				(*iter)->stop();
 				rte_eal_wait_lcore((*iter)->getCoreId());
@@ -358,7 +358,7 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 		return;
 	}
 
-	for (vector<DpdkWorkerThread*>::iterator iter = m_WorkerThreads.begin(); iter != m_WorkerThreads.end(); iter++)
+	for (std::vector<DpdkWorkerThread*>::iterator iter = m_WorkerThreads.begin(); iter != m_WorkerThreads.end(); iter++)
 	{
 		(*iter)->stop();
 		rte_eal_wait_lcore((*iter)->getCoreId());

@@ -390,10 +390,10 @@ int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets)
 	return packetsSent;
 }
 
-string PcapLiveDevice::printThreadId(PcapThread* id)
+std::string PcapLiveDevice::printThreadId(PcapThread* id)
 {
     size_t i;
-    string result("");
+    std::string result("");
     pthread_t pthread = id->pthread;
     for (i = sizeof(pthread); i; --i)
     {
@@ -416,22 +416,24 @@ void PcapLiveDevice::setDeviceMtu()
 		LOG_ERROR("Error in retrieving MTU: Adapter is NULL");
 		return;
 	}
-	PACKET_OID_DATA oidData;
-    oidData.Oid = OID_GEN_MAXIMUM_TOTAL_SIZE;
-    oidData.Length = sizeof(uint32_t);
-    memcpy(oidData.Data, &mtuValue, sizeof(uint32_t));
-    bool status = PacketRequest(adapter, false, &oidData);
+
+	uint8_t buffer[512];
+	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
+    oidData->Oid = OID_GEN_MAXIMUM_TOTAL_SIZE;
+    oidData->Length = sizeof(uint32_t);
+    memcpy(oidData->Data, &mtuValue, sizeof(uint32_t));
+    bool status = PacketRequest(adapter, false, oidData);
     if(status)
     {
-        if(oidData.Length <= sizeof(uint32_t))
+        if(oidData->Length <= sizeof(uint32_t))
         {
             /* copy value from driver */
-            memcpy(&mtuValue, oidData.Data, oidData.Length);
+            memcpy(&mtuValue, oidData->Data, oidData->Length);
             m_DeviceMtu = mtuValue;
         } else
         {
             /* the driver returned a value that is longer than expected (and longer than the given buffer) */
-            LOG_ERROR("Error in retrieving MTU: Size of Oid larger than uint32_t, OidLen:%lu", oidData.Length);
+            LOG_ERROR("Error in retrieving MTU: Size of Oid larger than uint32_t, OidLen:%lu", oidData->Length);
             return;
         }
     }
@@ -468,22 +470,24 @@ void PcapLiveDevice::setDeviceMacAddress()
 		LOG_ERROR("Error in retrieving MAC address: Adapter is NULL");
 		return;
 	}
-	PACKET_OID_DATA oidData;
-    oidData.Oid = OID_802_3_CURRENT_ADDRESS;
-    oidData.Length = 6;
-    oidData.Data[0] = 0;
-    bool status = PacketRequest(adapter, false, &oidData);
+
+	uint8_t buffer[512];
+	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
+    oidData->Oid = OID_802_3_CURRENT_ADDRESS;
+    oidData->Length = 6;
+    oidData->Data[0] = 0;
+    bool status = PacketRequest(adapter, false, oidData);
     if(status)
     {
-        if(oidData.Length == 6)
+        if(oidData->Length == 6)
         {
             /* copy value from driver */
-        	m_MacAddress = MacAddress(oidData.Data[0], oidData.Data[1], oidData.Data[2], oidData.Data[3], oidData.Data[4], oidData.Data[5]);
+        	m_MacAddress = MacAddress(oidData->Data[0], oidData->Data[1], oidData->Data[2], oidData->Data[3], oidData->Data[4], oidData->Data[5]);
         	LOG_DEBUG("   MAC address: %s", m_MacAddress.toString().c_str());
         } else
         {
             /* the driver returned a value that is longer than expected (and longer than the given buffer) */
-        	LOG_DEBUG("Error in retrieving MAC address: Size of Oid larger than 6, OidLen:%lu", oidData.Length);
+        	LOG_DEBUG("Error in retrieving MAC address: Size of Oid larger than 6, OidLen:%lu", oidData->Length);
             return;
         }
     }
@@ -542,7 +546,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 
 IPv4Address PcapLiveDevice::getIPv4Address()
 {
-	for(vector<pcap_addr_t>::iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
+	for(std::vector<pcap_addr_t>::iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
 	{
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 		{

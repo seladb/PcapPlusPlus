@@ -5,7 +5,6 @@
 
 /// @file
 
-using namespace std;
 
 /**
  * @class MplsLayer
@@ -111,7 +110,7 @@ public:
 	 */
 	void computeCalculateFields();
 
-	string toString();
+	std::string toString();
 };
 
 #endif /* PACKETPP_MPLS_LAYER */

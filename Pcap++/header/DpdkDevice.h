@@ -282,11 +282,11 @@ public:
 	/**
 	 * @return The string format of the PCI address (xxxx:xx:xx.x)
 	 */
-	string toString()
+	std::string toString()
 	{
 		char pciString[15];
 		snprintf(pciString, 15, "%04x:%02x:%02x.%x", domain, bus, devid, function);
-		return string(pciString);
+		return std::string(pciString);
 	}
 
 	/**
@@ -403,7 +403,7 @@ public:
 	/**
 	 * @return The device name which is in the format of 'DPDK_[PORT-ID]'
 	 */
-	inline string getDeviceName() { return string(m_DeviceName); }
+	inline std::string getDeviceName() { return std::string(m_DeviceName); }
 
 	/**
 	 * @return The MAC address of the device (DPDK port)
@@ -414,7 +414,7 @@ public:
 	 * @return The name of the PMD (poll mode driver) DPDK is using for this device. You can read about PMDs in the DPDK documentation:
 	 * http://dpdk.org/doc/guides/prog_guide/poll_mode_drv.html
 	 */
-	inline string getPMDName() { return m_PMDName; }
+	inline std::string getPMDName() { return m_PMDName; }
 
 	/**
 	 * @return The enum type of the PMD (poll mode driver) DPDK is using for this device. You can read about PMDs in the DPDK documentation:
@@ -595,7 +595,7 @@ public:
 	 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
 	 * @return Always false with a "Filters aren't supported in DPDK device" error message
 	 */
-	bool setFilter(string filterAsString);
+	bool setFilter(std::string filterAsString);
 
 	/**
 	 * Open the DPDK device. Notice opening the device only makes it ready to use, it doesn't start packet capturing. This method initializes RX and TX queues,
@@ -712,7 +712,7 @@ private:
 
 	char m_DeviceName[30];
 	DpdkPMDType m_PMDType;
-	string m_PMDName;
+	std::string m_PMDName;
 	PciAddress m_PciAddress;
 
 	DpdkDeviceConfiguration m_Config;

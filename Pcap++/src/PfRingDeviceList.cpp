@@ -57,16 +57,16 @@ PfRingDeviceList::PfRingDeviceList()
 
 PfRingDeviceList::~PfRingDeviceList()
 {
-	for(vector<PfRingDevice*>::iterator devIter = m_PfRingDeviceList.begin(); devIter != m_PfRingDeviceList.end(); devIter++)
+	for(std::vector<PfRingDevice*>::iterator devIter = m_PfRingDeviceList.begin(); devIter != m_PfRingDeviceList.end(); devIter++)
 	{
 		delete (*devIter);
 	}
 }
 
-PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const string devName)
+PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string devName)
 {
 	LOG_DEBUG("Searching all live devices...");
-	for(vector<PfRingDevice*>::iterator devIter = m_PfRingDeviceList.begin(); devIter != m_PfRingDeviceList.end(); devIter++)
+	for(std::vector<PfRingDevice*>::iterator devIter = m_PfRingDeviceList.begin(); devIter != m_PfRingDeviceList.end(); devIter++)
 	{
 		if ((*devIter)->getDeviceName() == devName)
 			return (*devIter);
@@ -93,7 +93,7 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
 	   version & 0x000000FF);
 
     LOG_DEBUG("PF_RING version is: %s", versionAsString);
-    m_PfRingVersion = string(versionAsString);
+    m_PfRingVersion = std::string(versionAsString);
 }
 
 #endif /* USE_PF_RING */

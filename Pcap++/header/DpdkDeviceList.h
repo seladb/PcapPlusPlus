@@ -69,8 +69,8 @@ private:
 	static bool m_IsDpdkInitialized;
 	static uint32_t m_MBufPoolSizePerDevice;
 	static CoreMask m_CoreMask;
-	vector<DpdkDevice*> m_DpdkDeviceList;
-	vector<DpdkWorkerThread*> m_WorkerThreads;
+	std::vector<DpdkDevice*> m_DpdkDeviceList;
+	std::vector<DpdkWorkerThread*> m_WorkerThreads;
 
 	DpdkDeviceList();
 
@@ -135,7 +135,7 @@ public:
 	/**
 	 * @return A vector of all DpdkDevice instances
 	 */
-	inline const vector<DpdkDevice*>& getDpdkDeviceList() { return m_DpdkDeviceList; }
+	inline const std::vector<DpdkDevice*>& getDpdkDeviceList() { return m_DpdkDeviceList; }
 
 	/**
 	 * @return DPDK master core which is the core that initializes the application
@@ -179,7 +179,7 @@ public:
 	 * returned false), number of cores differs from number of workers, core mask includes DPDK master core or if one of the 
 	 * worker threads couldn't be run
 	 */
-	bool startDpdkWorkerThreads(CoreMask coreMask, vector<DpdkWorkerThread*>& workerThreadsVec);
+	bool startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkWorkerThread*>& workerThreadsVec);
 
 	/**
 	 * Assuming worker threads are running, this method orders them to stop by calling DpdkWorkerThread#stop(). Then it waits until

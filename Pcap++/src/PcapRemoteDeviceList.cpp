@@ -73,7 +73,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString)
 {
-	auto_ptr<IPAddress> apAddr = IPAddress::fromString(ipAddrAsString);
+	std::auto_ptr<IPAddress> apAddr = IPAddress::fromString(ipAddrAsString);
 	if (!apAddr->isValid())
 	{
 		LOG_ERROR("IP address illegal");
@@ -105,7 +105,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 	for(RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
-		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
+		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{
@@ -139,7 +139,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr)
 	for(RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
-		for(vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
+		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{

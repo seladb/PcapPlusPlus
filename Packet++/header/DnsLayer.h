@@ -11,7 +11,6 @@
 
 /// @file
 
-using namespace std;
 
 /**
  * @struct dnshdr
@@ -227,7 +226,7 @@ protected:
 	DnsLayer* m_DnsLayer;
 	size_t m_OffsetInLayer;
 	IDnsResource* m_NextResource;
-	string m_DecodedName;
+	std::string m_DecodedName;
 	size_t m_NameLength;
 	uint8_t* m_ExternalRawData;
 
@@ -235,8 +234,8 @@ protected:
 
 	IDnsResource(uint8_t* emptyRawData);
 
-	size_t decodeName(const char* encodedName, string& result);
-	void encodeName(const string& decodedName, char* result, size_t& resultLen);
+	size_t decodeName(const char* encodedName, std::string& result);
+	void encodeName(const std::string& decodedName, char* result, size_t& resultLen);
 
 	inline IDnsResource* getNextResource() { return m_NextResource; }
 	inline void setNexResource(IDnsResource* next) { m_NextResource = next; }
@@ -288,14 +287,14 @@ public:
 	/**
 	 * @return The name of this record
 	 */
-	string getName() { return m_DecodedName; }
+	std::string getName() { return m_DecodedName; }
 
 	/**
 	 * Set the name of this record. Note the new name can be shorter or longer of the old name, so this method can cause the packet to be
 	 * shorten or extended
 	 * @param[in] newName The name to set
 	 */
-	bool setName(const string& newName);
+	bool setName(const std::string& newName);
 
 
 	// abstract methods
@@ -376,7 +375,7 @@ public:
 	 * ::DNS_TYPE_MX): the return value is the name<BR>
 	 * - For all other types: the return value is a hex stream of the data
 	 */
-	string getDataAsString();
+	std::string getDataAsString();
 
 	/**
 	 * Set resource data. Data is parse from string and is validated against the DNS type of the resource. For example: if DNS type is A
@@ -392,7 +391,7 @@ public:
 	 * @return True if data was properly set or false if data is illegal or method couldn't extend or shorted the packet
 	 * (appropriate error log is printed in all cases)
 	 */
-	bool setData(const string& dataAsString);
+	bool setData(const std::string& dataAsString);
 
 	/**
 	 * Some records don't have a DNS class and the bytes used for storing the DNS class are used for other purpose. This method enables the
@@ -468,7 +467,7 @@ public:
 	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return The first matching DNS query or NULL if no queries were found
 	 */
-	DnsQuery* getQuery(const string& name, bool exactMatch);
+	DnsQuery* getQuery(const std::string& name, bool exactMatch);
 
 	/**
 	 * @return The first DNS query in the packet or NULL if packet doesn't contain any queries
@@ -495,7 +494,7 @@ public:
 	 * @return A pointer to the newly created DNS query or NULL if query could not be created (an appropriate error log message will be
 	 * printed in this case)
 	 */
-	DnsQuery* addQuery(const string& name, DnsType dnsType, DnsClass dnsClass);
+	DnsQuery* addQuery(const std::string& name, DnsType dnsType, DnsClass dnsClass);
 
 	/**
 	 * Add a new DNS query similar to an already existing DNS query. All query fields will be copied from the existing query
@@ -511,7 +510,7 @@ public:
 	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return True if query was found and successfully removed or false if query was not found or couldn't be removed
 	 */
-	bool removeQuery(const string& queryNameToRemove, bool exactMatch);
+	bool removeQuery(const std::string& queryNameToRemove, bool exactMatch);
 
 	/**
 	 * Remove an existing query
@@ -527,7 +526,7 @@ public:
 	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return The first matching DNS answer or NULL if no answers were found
 	 */
-	DnsResource* getAnswer(const string& name, bool exactMatch);
+	DnsResource* getAnswer(const std::string& name, bool exactMatch);
 
 	/**
 	 * @return The first DNS answer in the packet or NULL if packet doesn't contain any answers
@@ -556,7 +555,7 @@ public:
 	 * @return A pointer to the newly created DNS answer or NULL if answer could not be created (an appropriate error log message will be
 	 * printed in this case)
 	 */
-	DnsResource* addAnswer(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data);
+	DnsResource* addAnswer(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data);
 
 	/**
 	 * Add a new DNS answer similar to an already existing DNS answer. All answer fields will be copied from the existing answer
@@ -572,7 +571,7 @@ public:
 	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return True if answer was found and successfully removed or false if answer was not found or couldn't be removed
 	 */
-	bool removeAnswer(const string& answerNameToRemove, bool exactMatch);
+	bool removeAnswer(const std::string& answerNameToRemove, bool exactMatch);
 
 	/**
 	 * Remove an existing answer
@@ -589,7 +588,7 @@ public:
 	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return The first matching DNS authority or NULL if no authorities were found
 	 */
-	DnsResource* getAuthority(const string& name, bool exactMatch);
+	DnsResource* getAuthority(const std::string& name, bool exactMatch);
 
 	/**
 	 * @return The first DNS authority in the packet or NULL if packet doesn't contain any authorities
@@ -618,7 +617,7 @@ public:
 	 * @return A pointer to the newly created DNS authority or NULL if authority could not be created (an appropriate error log message will be
 	 * printed in this case)
 	 */
-	DnsResource* addAuthority(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data);
+	DnsResource* addAuthority(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data);
 
 	/**
 	 * Add a new DNS authority similar to an already existing DNS authority. All authority fields will be copied from the existing authority
@@ -634,7 +633,7 @@ public:
 	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return True if authority was found and successfully removed or false if authority was not found or couldn't be removed
 	 */
-	bool removeAuthority(const string& authorityNameToRemove, bool exactMatch);
+	bool removeAuthority(const std::string& authorityNameToRemove, bool exactMatch);
 
 	/**
 	 * Remove an existing authority
@@ -652,7 +651,7 @@ public:
 	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return The first matching DNS additional record or NULL if no additional records were found
 	 */
-	DnsResource* getAdditionalRecord(const string& name, bool exactMatch);
+	DnsResource* getAdditionalRecord(const std::string& name, bool exactMatch);
 
 	/**
 	 * @return The first DNS additional record in the packet or NULL if packet doesn't contain any additional records
@@ -682,7 +681,7 @@ public:
 	 * @return A pointer to the newly created DNS additional record or NULL if additional record could not be created (an appropriate error
 	 * log message will be printed in this case)
 	 */
-	DnsResource* addAdditionalRecord(const string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const string& data);
+	DnsResource* addAdditionalRecord(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data);
 
 	/**
 	 * Add a new DNS additional record to the layer that doesn't have DNS class and TTL. Instead these bytes may contains some arbitrary
@@ -695,7 +694,7 @@ public:
 	 * @return A pointer to the newly created DNS additional record or NULL if additional record could not be created (an appropriate error
 	 * log message will be printed in this case)
 	 */
-	DnsResource* addAdditionalRecord(const string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, const string& data);
+	DnsResource* addAdditionalRecord(const std::string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, const std::string& data);
 
 	/**
 	 * Add a new DNS additional record similar to an already existing DNS additional record. All additional record fields will be copied from the
@@ -712,7 +711,7 @@ public:
 	 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 	 * @return True if additional record was found and successfully removed or false if additional record was not found or couldn't be removed
 	 */
-	bool removeAdditionalRecord(const string& additionalRecordNameToRemove, bool exactMatch);
+	bool removeAdditionalRecord(const std::string& additionalRecordNameToRemove, bool exactMatch);
 
 	/**
 	 * Remove an existing additional record
@@ -739,7 +738,7 @@ public:
 	 */
 	void computeCalculateFields() {}
 
-	string toString();
+	std::string toString();
 
 private:
 	IDnsResource* 	m_ResourceList;
@@ -754,12 +753,12 @@ private:
 	bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend, IDnsResource* resource);
 	bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten, IDnsResource* resource);
 
-	IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const string& name, bool exactMatch);
+	IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name, bool exactMatch);
 
 	void parseResources();
 
-	DnsResource* addResource(IDnsResource::ResourceType resType, const string& name, DnsType dnsType, DnsClass dnsClass,
-			uint32_t ttl, const string& data);
+	DnsResource* addResource(IDnsResource::ResourceType resType, const std::string& name, DnsType dnsType, DnsClass dnsClass,
+			uint32_t ttl, const std::string& data);
 
 	bool removeResource(IDnsResource* resourceToRemove);
 

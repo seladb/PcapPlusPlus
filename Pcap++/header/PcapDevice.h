@@ -60,7 +60,7 @@ public:
 	 * @param[in] filterAsString The filter to be set in Berkeley %Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
 	 * @return True if filter set successfully, false otherwise
 	 */
-	bool setFilter(string filterAsString);
+	bool setFilter(std::string filterAsString);
 };
 
 #endif

@@ -23,7 +23,6 @@
  * h olds IPFilter and PortFilter inside it
  */
 
-using namespace std;
 
 /**
  * An enum that contains direction (source or destination)
@@ -71,7 +70,7 @@ public:
 	 * A method that parses the class instance into BPF string format
 	 * @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its content will be overridden
 	 */
-	virtual void parseToString(string& result) = 0;
+	virtual void parseToString(std::string& result) = 0;
 
 	/**
 	 * Virtual destructor, does nothing for this class
@@ -90,7 +89,7 @@ class IFilterWithDirection : public GeneralFilter
 private:
 	Direction m_Dir;
 protected:
-	void parseDirection(string& directionAsString);
+	void parseDirection(std::string& directionAsString);
 	inline Direction getDir() { return m_Dir; }
 	IFilterWithDirection(Direction dir) { m_Dir = dir; }
 public:
@@ -113,7 +112,7 @@ class IFilterWithOperator : public GeneralFilter
 private:
 	FilterOperator m_Operator;
 protected:
-	string parseOperator();
+	std::string parseOperator();
 	inline FilterOperator getOperator() { return m_Operator; }
 	IFilterWithOperator(FilterOperator op) { m_Operator = op; }
 public:
@@ -135,11 +134,11 @@ public:
 class IPFilter : public IFilterWithDirection
 {
 private:
-	string m_Address;
-	string m_IPv4Mask;
+	std::string m_Address;
+	std::string m_IPv4Mask;
 	int m_Len;
-	void convertToIPAddressWithMask(string& ipAddrmodified, string& mask);
-	void convertToIPAddressWithLen(string& ipAddrmodified, int& len);
+	void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask);
+	void convertToIPAddressWithLen(std::string& ipAddrmodified, int& len);
 public:
 	/**
 	 * The basic constructor that creates the filter from an IPv4 address and direction (source or destination)
@@ -147,7 +146,7 @@ public:
 	 * written to log and parsing this filter will fail
 	 * @param[in] dir The address direction to filter (source or destination)
 	 */
-	IPFilter(const string& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
+	IPFilter(const std::string& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
 
 	/**
 	 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
@@ -158,7 +157,7 @@ public:
 	 * @param[in] dir The address direction to filter (source or destination)
 	 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 	 */
-	IPFilter(const string& ipAddress, Direction dir, const string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
+	IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
 
 	/**
 	 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
@@ -169,22 +168,22 @@ public:
 	 * @param[in] dir The address direction to filter (source or destination)
 	 * @param[in] len The subnet to use (e.g "/24")
 	 */
-	IPFilter(const string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
+	IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the IPv4 address
 	 * @param[in] ipAddress The IPv4 address to build the filter with. If this address is not a valid IPv4 address an error will be
 	 * written to log and parsing this filter will fail
 	 */
-	void setAddr(const string& ipAddress) { m_Address = ipAddress; }
+	void setAddr(const std::string& ipAddress) { m_Address = ipAddress; }
 
 	/**
 	 * Set the IPv4 mask
 	 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 	 */
-	void setMask(const string& ipv4Mask) { m_IPv4Mask = ipv4Mask; m_Len = 0; }
+	void setMask(const std::string& ipv4Mask) { m_IPv4Mask = ipv4Mask; m_Len = 0; }
 
 	/**
 	 * Set the subnet
@@ -213,7 +212,7 @@ public:
 	 */
 	IpV4IDFilter(uint16_t ipID, FilterOperator op) : IFilterWithOperator(op), m_IpID(ipID) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the IP ID to filter
@@ -242,7 +241,7 @@ public:
 	 */
 	IpV4TotalLengthFilter(uint16_t totalLength, FilterOperator op) : IFilterWithOperator(op), m_TotalLength(totalLength) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the total length value
@@ -261,7 +260,7 @@ public:
 class PortFilter : public IFilterWithDirection
 {
 private:
-	string m_Port;
+	std::string m_Port;
 	void portToString(uint16_t portAsInt);
 public:
 	/**
@@ -271,7 +270,7 @@ public:
 	 */
 	PortFilter(uint16_t port, Direction dir);
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the port
@@ -302,7 +301,7 @@ public:
 	 */
 	PortRangeFilter(uint16_t fromPort, uint16_t toPort, Direction dir) : IFilterWithDirection(dir), m_FromPort(fromPort), m_ToPort(toPort) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the lower end of the port range
@@ -336,7 +335,7 @@ public:
 	 */
 	MacAddressFilter(MacAddress address, Direction dir) : IFilterWithDirection(dir), m_MacAddress(address) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the MAC address
@@ -364,7 +363,7 @@ public:
 	 */
 	EtherTypeFilter(uint16_t etherType) : m_EtherType(etherType) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the EtherType value
@@ -386,15 +385,15 @@ public:
 class AndFilter : public GeneralFilter
 {
 private:
-	vector<GeneralFilter*> m_FilterList;
+	std::vector<GeneralFilter*> m_FilterList;
 public:
 	/**
 	 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "and" between them
 	 * @param[in] filters The list of pointers to filters
 	 */
-	AndFilter(vector<GeneralFilter*>& filters);
+	AndFilter(std::vector<GeneralFilter*>& filters);
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 };
 
 
@@ -410,15 +409,15 @@ public:
 class OrFilter : public GeneralFilter
 {
 private:
-	vector<GeneralFilter*> m_FilterList;
+	std::vector<GeneralFilter*> m_FilterList;
 public:
 	/**
 	 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "or" between them
 	 * @param[in] filters The list of pointers to filters
 	 */
-	OrFilter(vector<GeneralFilter*>& filters);
+	OrFilter(std::vector<GeneralFilter*>& filters);
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 };
 
 
@@ -439,7 +438,7 @@ public:
 	 */
 	NotFilter(GeneralFilter* filterToInverse) { m_FilterToInverse = filterToInverse; }
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set a filter to create an inverse filter from
@@ -468,7 +467,7 @@ public:
 	 */
 	ProtoFilter(ProtocolType proto) { m_Proto = proto; }
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the protocol to filter with
@@ -497,7 +496,7 @@ public:
 	 */
 	ArpFilter(ArpOpcode opCode) { m_OpCode = opCode; }
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the ARP opcode
@@ -525,7 +524,7 @@ public:
 	 */
 	VlanFilter(uint16_t vlanId) : m_VlanID(vlanId) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set the VLAN ID of the filter
@@ -595,7 +594,7 @@ public:
 	 */
 	void setTcpFlagsBitMask(uint8_t tcpFlagBitMask, MatchOptions matchOption) { m_TcpFlagsBitMask = tcpFlagBitMask; m_MatchOption = matchOption; }
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 };
 
 
@@ -618,7 +617,7 @@ public:
 	 */
 	TcpWindowSizeFilter(uint16_t windowSize, FilterOperator op) : IFilterWithOperator(op), m_WindowSize(windowSize) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set window-size value
@@ -647,7 +646,7 @@ public:
 	 */
 	UdpLengthFilter(uint16_t legnth, FilterOperator op) : IFilterWithOperator(op), m_Length(legnth) {}
 
-	void parseToString(string& result);
+	void parseToString(std::string& result);
 
 	/**
 	 * Set legnth value

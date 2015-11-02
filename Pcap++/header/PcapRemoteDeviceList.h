@@ -21,7 +21,7 @@
 class PcapRemoteDeviceList
 {
 private:
-	vector<PcapRemoteDevice*> m_RemoteDeviceList;
+	std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
 	IPAddress* m_RemoteMachineIpAddress;
 	uint16_t m_RemoteMachinePort;
 	PcapRemoteAuthentication* m_RemoteAuthentication;

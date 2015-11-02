@@ -8,7 +8,6 @@
 #include "IpAddress.h"
 #include <Packet.h>
 
-using namespace std;
 
 /// @file
 
@@ -68,7 +67,7 @@ protected:
 	const char* m_Description;
 	bool m_IsLoopback;
 	uint16_t m_DeviceMtu;
-	vector<pcap_addr_t> m_Addresses;
+	std::vector<pcap_addr_t> m_Addresses;
 	MacAddress m_MacAddress;
 	PcapThread* m_CaptureThread;
 	bool m_CaptureThreadStarted;
@@ -95,7 +94,7 @@ protected:
 	static void* statsThreadMain(void *ptr);
 	static void onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
 	static void onPacketArrivesNoCallback(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
-	string printThreadId(PcapThread* id);
+	std::string printThreadId(PcapThread* id);
 	virtual ThreadStart getCaptureThreadStart();
 public:
 	/**
@@ -153,7 +152,7 @@ public:
 	/**
 	 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
 	 */
-	inline vector<pcap_addr_t>& getAddresses() { return m_Addresses; }
+	inline std::vector<pcap_addr_t>& getAddresses() { return m_Addresses; }
 
 	/**
 	 * @return The MAC address for this interface

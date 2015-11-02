@@ -120,7 +120,7 @@ public:
 	 * Gets the interface name (e.g eth0, eth1, etc.)
 	 * @return The interface name
 	 */
-	inline string getDeviceName() { return string(m_DeviceName); }
+	inline std::string getDeviceName() { return std::string(m_DeviceName); }
 
 
 	/**
@@ -260,7 +260,7 @@ public:
 	 * Sets a BPF filter to the device
 	 * @param[in] filterAsString The BPF filter in string format
 	 */
-	bool setFilter(string filterAsString);
+	bool setFilter(std::string filterAsString);
 
 	/**
 	 * Remove a filter if currently set

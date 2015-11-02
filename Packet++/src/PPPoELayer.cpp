@@ -236,7 +236,7 @@ std::string PPPoESessionLayer::toString()
 		nextProtocol = iter->second;
 	else
 	{
-		ostringstream stream;
+		std::ostringstream stream;
 		stream << "Unknown (0x" << std::hex << getPPPNextProtocol() << ")";
 		nextProtocol = stream.str();
 	}
@@ -393,18 +393,18 @@ std::string PPPoEDiscoveryLayer::codeToString(PPPoECode code)
 {
 	switch (code)
 	{
-	case PPPoELayer::PPPOE_CODE_SESSION:return string("PPPoE Session");
-	case PPPoELayer::PPPOE_CODE_PADO:	return string("PADO");
-	case PPPoELayer::PPPOE_CODE_PADI:	return string("PADI");
-	case PPPoELayer::PPPOE_CODE_PADG:	return string("PADG");
-	case PPPoELayer::PPPOE_CODE_PADC:	return string("PADC");
-	case PPPoELayer::PPPOE_CODE_PADQ:	return string("PADQ");
-	case PPPoELayer::PPPOE_CODE_PADR:	return string("PADR");
-	case PPPoELayer::PPPOE_CODE_PADS:	return string("PADS");
-	case PPPoELayer::PPPOE_CODE_PADT:	return string("PADT");
-	case PPPoELayer::PPPOE_CODE_PADM:	return string("PADM");
-	case PPPoELayer::PPPOE_CODE_PADN:	return string("PADN");
-	default:							return string("Unknown PPPoE code");
+	case PPPoELayer::PPPOE_CODE_SESSION:return std::string("PPPoE Session");
+	case PPPoELayer::PPPOE_CODE_PADO:	return std::string("PADO");
+	case PPPoELayer::PPPOE_CODE_PADI:	return std::string("PADI");
+	case PPPoELayer::PPPOE_CODE_PADG:	return std::string("PADG");
+	case PPPoELayer::PPPOE_CODE_PADC:	return std::string("PADC");
+	case PPPoELayer::PPPOE_CODE_PADQ:	return std::string("PADQ");
+	case PPPoELayer::PPPOE_CODE_PADR:	return std::string("PADR");
+	case PPPoELayer::PPPOE_CODE_PADS:	return std::string("PADS");
+	case PPPoELayer::PPPOE_CODE_PADT:	return std::string("PADT");
+	case PPPoELayer::PPPOE_CODE_PADM:	return std::string("PADM");
+	case PPPoELayer::PPPOE_CODE_PADN:	return std::string("PADN");
+	default:							return std::string("Unknown PPPoE code");
 	}
 }
 

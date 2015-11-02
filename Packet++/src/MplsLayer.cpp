@@ -131,15 +131,15 @@ void MplsLayer::computeCalculateFields()
 	}
 }
 
-string MplsLayer::toString()
+std::string MplsLayer::toString()
 {
-	ostringstream labelStream;
+	std::ostringstream labelStream;
 	labelStream << getMplsLabel();
-	ostringstream expStream;
+	std::ostringstream expStream;
 	expStream << (int)getExperimentalUseValue();
-	ostringstream ttlStream;
+	std::ostringstream ttlStream;
 	ttlStream << (int)getTTL();
-	string bottomOfStack = isBottomOfStack() ? "true" : "false";
+	std::string bottomOfStack = isBottomOfStack() ? "true" : "false";
 
 	return "MPLS Layer, Label: " + labelStream.str() + ", Exp: " + expStream.str() + ", TTL: " + ttlStream.str() +
 			", Bottom of stack: " + bottomOfStack;

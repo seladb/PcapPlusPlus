@@ -160,7 +160,7 @@ public:
 	 */
 	void computeCalculateFields();
 
-	string toString();
+	std::string toString();
 
 private:
 	void initLayer();

@@ -64,13 +64,13 @@ void VlanLayer::parseNextLayer()
 	}
 }
 
-string VlanLayer::toString()
+std::string VlanLayer::toString()
 {
-	ostringstream cfiStream;
+	std::ostringstream cfiStream;
 	cfiStream << ntohs(getVlanHeader()->cfi);
-	ostringstream priStream;
+	std::ostringstream priStream;
 	priStream << ntohs(getVlanHeader()->priority);
-	ostringstream idStream;
+	std::ostringstream idStream;
 	idStream << getVlanID();
 
 	return "VLAN Layer, Priority: " + priStream.str() + ", Vlan ID: " + idStream.str() + ", CFI: " + cfiStream.str();

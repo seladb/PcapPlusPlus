@@ -319,7 +319,7 @@ uint8_t PfRingDevice::getTotalNumOfRxChannels()
 }
 
 
-bool PfRingDevice::setFilter(string filterAsString)
+bool PfRingDevice::setFilter(std::string filterAsString)
 {
 	if (!m_DeviceOpened)
 	{
@@ -349,7 +349,7 @@ bool PfRingDevice::setFilter(string filterAsString)
 
 bool PfRingDevice::setFilter(GeneralFilter& filter)
 {
-	string filterAsString = "";
+	std::string filterAsString = "";
 	filter.parseToString(filterAsString);
 	return setFilter(filterAsString);
 }
@@ -713,7 +713,7 @@ void PfRingDevice::setPfRingDeviceAttributes()
 		}
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
 		{
-			string hwEnabled = (m_HwClockEnabled ? "enabled" : "disabled");
+			std::string hwEnabled = (m_HwClockEnabled ? "enabled" : "disabled");
 			LOG_DEBUG("Capturing from %s [%s][ifIndex: %d][MTU: %d], HW clock %s", m_DeviceName, m_MacAddress.toString().c_str(), m_InterfaceIndex, m_DeviceMTU, hwEnabled.c_str());
 		}
 	}

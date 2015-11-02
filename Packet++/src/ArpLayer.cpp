@@ -40,7 +40,7 @@ void ArpLayer::computeCalculateFields()
 	}
 }
 
-string ArpLayer::toString()
+std::string ArpLayer::toString()
 {
 	if (ntohs(getArpHeader()->opcode) == ARP_REQUEST)
 	{

@@ -127,7 +127,7 @@ public:
 	 */
 	void computeCalculateFields();
 
-	string toString();
+	std::string toString();
 };
 
 #endif /* PACKETPP_ETH_LAYER */

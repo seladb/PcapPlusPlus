@@ -584,7 +584,7 @@ void DpdkDevice::setDeviceInfo()
 {
 	rte_eth_dev_info portInfo;
 	rte_eth_dev_info_get(m_Id, &portInfo);
-	m_PMDName = string(portInfo.driver_name);
+	m_PMDName = std::string(portInfo.driver_name);
 
 	if (m_PMDName == "eth_bond")
 		m_PMDType = PMD_BOND;
@@ -872,7 +872,7 @@ bool DpdkDevice::setFilter(GeneralFilter& filter)
 	return false;
 }
 
-bool DpdkDevice::setFilter(string filterAsString)
+bool DpdkDevice::setFilter(std::string filterAsString)
 {
 	//TODO: I think DPDK supports filters
 	LOG_ERROR("Filters aren't supported in DPDK device");

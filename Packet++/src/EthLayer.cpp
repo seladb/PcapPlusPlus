@@ -88,7 +88,7 @@ void EthLayer::computeCalculateFields()
 	}
 }
 
-string EthLayer::toString()
+std::string EthLayer::toString()
 {
 	return "Ethernet II Layer, Src: " + getSourceMac().toString() + ", Dst: " + getDestMac().toString();
 }

@@ -124,7 +124,7 @@ public:
 	 */
 	void computeCalculateFields();
 
-	string toString();
+	std::string toString();
 };
 
 #endif /* PACKETPP_ARP_LAYER */

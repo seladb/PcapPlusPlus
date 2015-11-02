@@ -410,15 +410,15 @@ std::string Packet::printPacketInfo()
 	strftime(tmbuf, sizeof tmbuf, "%Y-%m-%d %H:%M:%S", nowtm);
 	snprintf(buf, sizeof buf, "%s.%06lu", tmbuf, timestamp.tv_usec);
 
-	return "Packet length: " + dataLenStream.str() + " [Bytes], Arrival time: " + string(buf);
+	return "Packet length: " + dataLenStream.str() + " [Bytes], Arrival time: " + std::string(buf);
 }
 
 std::string Packet::printToString()
 {
-	std::vector<string> stringList;
+	std::vector<std::string> stringList;
 	std::string result;
 	printToStringList(stringList);
-	for (std::vector<string>::iterator iter = stringList.begin(); iter != stringList.end(); iter++)
+	for (std::vector<std::string>::iterator iter = stringList.begin(); iter != stringList.end(); iter++)
 	{
 		result += *iter + "\n";
 	}

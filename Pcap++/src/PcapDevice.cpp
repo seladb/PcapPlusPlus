@@ -6,7 +6,7 @@ IPcapDevice::~IPcapDevice()
 {
 }
 
-bool IPcapDevice::setFilter(string filterAsString)
+bool IPcapDevice::setFilter(std::string filterAsString)
 {
 	LOG_DEBUG("Filter to be set: '%s'", filterAsString.c_str());
 	if (!m_DeviceOpened)
@@ -46,7 +46,7 @@ bool IPcapDevice::setFilter(string filterAsString)
 
 bool IPcapDevice::setFilter(GeneralFilter& filter)
 {
-	string filterAsString;
+	std::string filterAsString;
 	filter.parseToString(filterAsString);
 	return setFilter(filterAsString);
 }

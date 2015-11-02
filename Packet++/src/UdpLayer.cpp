@@ -94,11 +94,11 @@ void UdpLayer::computeCalculateFields()
 	calculateChecksum(true);
 }
 
-string UdpLayer::toString()
+std::string UdpLayer::toString()
 {
-	ostringstream srcPortStream;
+	std::ostringstream srcPortStream;
 	srcPortStream << ntohs(getUdpHeader()->portSrc);
-	ostringstream dstPortStream;
+	std::ostringstream dstPortStream;
 	dstPortStream << ntohs(getUdpHeader()->portDst);
 
 	return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();

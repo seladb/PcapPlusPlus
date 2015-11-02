@@ -25,6 +25,8 @@
 #include <in.h>
 #endif
 
+using namespace std;
+
 #define PACKETPP_TEST(TestName) bool TestName()
 
 #define PACKETPP_ASSERT(exp, assertFailedFormat, ...) \

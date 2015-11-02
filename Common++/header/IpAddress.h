@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <string>
 
-using namespace std;
-
 #define MAX_ADDR_STRING_LEN 40 //xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx
 
 /// @file
@@ -52,7 +50,7 @@ public:
 	 * Returns a std::string representation of the address
 	 * @return A string representation of the address
 	 */
-	string toString() const { return string(m_AddressAsString); }
+	std::string toString() const { return std::string(m_AddressAsString); }
 
 	/**
 	 * Get an indication if the address is valid. An address can be invalid if it was constructed from illegal input, for example:
@@ -67,7 +65,7 @@ public:
 	 * @return an auto-pointer to IPv4Address or IPv6Address instance that the string address represents, or an auto-pointer to NULL if
 	 * the string doesn't represent either of types
 	 */
-	static auto_ptr<IPAddress> fromString(char* addressAsString);
+	static std::auto_ptr<IPAddress> fromString(char* addressAsString);
 
 	/**
 	 * Constructs an IP address of type IPv4 or IPv6 from a std::string representation
@@ -75,7 +73,7 @@ public:
 	 * @return an auto-pointer to IPv4Address or IPv6Address instance that the string address represents, or an auto-pointer to NULL if
 	 * the string doesn't represent either of types
 	 */
-	static auto_ptr<IPAddress> fromString(string addressAsString);
+	static std::auto_ptr<IPAddress> fromString(std::string addressAsString);
 };
 
 struct in_addr;
@@ -110,7 +108,7 @@ public:
 	 * If the string doesn't represent a valid IPv4 address, instance will be invalid, meaning isValid() will return false
 	 * @param[in] addressAsString The std::string representation of the address
 	 */
-	IPv4Address(string addressAsString);
+	IPv4Address(std::string addressAsString);
 
 	/**
 	 * A constructor that creates an instance of the class out of in_addr struct pointer
@@ -168,7 +166,7 @@ public:
 	 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
 	 *
 	 */
-	bool matchSubnet(const IPv4Address& subnet, const string& subnetMask);
+	bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask);
 
 	/**
 	 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0"
@@ -211,7 +209,7 @@ public:
 	 * If the string doesn't represent a valid IPv6 address, instance will be invalid, meaning isValid() will return false
 	 * @param[in] addressAsString The string std::string representation of the address
 	 */
-	IPv6Address(string addressAsString);
+	IPv6Address(std::string addressAsString);
 
 	/**
 	 * A copy constructor for this class

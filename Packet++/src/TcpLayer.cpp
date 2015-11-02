@@ -259,7 +259,7 @@ TcpLayer::~TcpLayer()
 std::string TcpLayer::toString()
 {
 	tcphdr* hdr = getTcpHeader();
-	string result = "TCP Layer, ";
+	std::string result = "TCP Layer, ";
 	if (hdr->synFlag)
 	{
 		if (hdr->ackFlag)
@@ -277,9 +277,9 @@ std::string TcpLayer::toString()
 	else if (hdr->ackFlag)
 		result += "[ACK], ";
 
-	ostringstream srcPortStream;
+	std::ostringstream srcPortStream;
 	srcPortStream << ntohs(hdr->portSrc);
-	ostringstream dstPortStream;
+	std::ostringstream dstPortStream;
 	dstPortStream << ntohs(hdr->portDst);
 	result += "Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
 

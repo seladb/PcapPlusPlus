@@ -16,7 +16,7 @@ MacAddress::MacAddress(const char* addr)
 	init(addr);
 }
 
-MacAddress::MacAddress(const string& addr)
+MacAddress::MacAddress(const std::string& addr)
 {
 	init(addr.c_str());
 }
@@ -38,11 +38,11 @@ MacAddress::MacAddress(const MacAddress& other)
 	m_IsValid = true;
 }
 
-string MacAddress::toString()
+std::string MacAddress::toString()
 {
 	char str[19];
 	sprintf(str, "%02x:%02x:%02x:%02x:%02x:%02x",m_Address[0], m_Address[1], m_Address[2], m_Address[3], m_Address[4],m_Address[5]);
-	return string(str);
+	return std::string(str);
 }
 
 void MacAddress::copyTo(uint8_t** arr)
