@@ -498,7 +498,13 @@ PCAPP_TEST(TestIPAddress)
 	PCAPP_ASSERT(ntohl(ip4AddrAfterCast->toInt()) == 0x0A000004, "toInt() gave wrong result: %X", ip4AddrAfterCast->toInt());
 	IPv4Address secondIPv4Address(string("1.1.1.1"));
 	secondIPv4Address = *ip4AddrAfterCast;
+	PCAPP_ASSERT(secondIPv4Address.isValid() == true, "Valid address identified as non-valid");
 	PCAPP_ASSERT((*ip4AddrAfterCast) == secondIPv4Address, "IPv4Address assignment operator didn't work");
+
+	IPv4Address badAddress("sdgdfgd");
+	PCAPP_ASSERT(badAddress.isValid() == false, "Non-valid address identified as valid");
+	IPv4Address anotherBadAddress = IPv4Address("321.123.1000.1");
+	PCAPP_ASSERT(anotherBadAddress.isValid() == false, "Non-valid address copied by copy c'tor identified as valid");
 
 	string ip6AddrString("2607:f0d0:1002:51::4");
 	auto_ptr<IPAddress> ip6Addr = IPAddress::fromString(ip6AddrString);
@@ -522,7 +528,13 @@ PCAPP_TEST(TestIPAddress)
 	IPv6Address secondIPv6Address(string("2607:f0d0:1002:52::5"));
 	ip6AddrAfterCast = static_cast<IPv6Address*>(ip6Addr.get());
 	secondIPv6Address = *ip6AddrAfterCast;
+	PCAPP_ASSERT(ip6Addr->isValid() == true, "Valid IPv6 address identified as non-valid");
 	PCAPP_ASSERT((*ip6AddrAfterCast) == secondIPv6Address, "IPv6Address assignment operator didn't work");
+
+	IPv6Address badIp6Address("lasdfklsdkfdls");
+	PCAPP_ASSERT(badIp6Address.isValid() == false, "Non-valid IPv6 address identified as valid");
+	IPv6Address anotherBadIp6Address = badIp6Address;
+	PCAPP_ASSERT(anotherBadIp6Address.isValid() == false, "Non-valid IPv6 address copied by copy c'tor identified as valid");
 
 	PCAPP_TEST_PASSED;
 }

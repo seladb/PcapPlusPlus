@@ -45,7 +45,7 @@ IPv4Address::IPv4Address(const IPv4Address& other)
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in_addr));
 
     strncpy(m_AddressAsString, other.m_AddressAsString, 40);
-    m_IsValid = true;
+    m_IsValid = other.m_IsValid;
 }
 
 IPv4Address::IPv4Address(uint32_t addressAsInt)
@@ -54,7 +54,8 @@ IPv4Address::IPv4Address(uint32_t addressAsInt)
 	memcpy(m_pInAddr, &addressAsInt, sizeof(addressAsInt));
 	if (inet_ntop(AF_INET, m_pInAddr, m_AddressAsString, MAX_ADDR_STRING_LEN) == 0)
 		m_IsValid = false;
-	m_IsValid = true;
+	else
+		m_IsValid = true;
 }
 
 IPv4Address::IPv4Address(in_addr* inAddr)
@@ -63,7 +64,8 @@ IPv4Address::IPv4Address(in_addr* inAddr)
 	memcpy(m_pInAddr, inAddr, sizeof(in_addr));
 	if (inet_ntop(AF_INET, m_pInAddr, m_AddressAsString, MAX_ADDR_STRING_LEN) == 0)
 		m_IsValid = false;
-	m_IsValid = true;
+	else
+		m_IsValid = true;
 }
 
 void IPv4Address::init(char* addressAsString)
@@ -110,7 +112,7 @@ IPv4Address& IPv4Address::operator=(const IPv4Address& other)
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in_addr));
 
     strncpy(m_AddressAsString, other.m_AddressAsString, 40);
-    m_IsValid = true;
+    m_IsValid = other.m_IsValid;
 
     return *this;
 }
@@ -138,7 +140,7 @@ IPv6Address::IPv6Address(const IPv6Address& other)
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in6_addr));
 
     strncpy(m_AddressAsString, other.m_AddressAsString, 40);
-    m_IsValid = true;
+    m_IsValid = other.m_IsValid;
 }
 
 IPv6Address::~IPv6Address()
@@ -165,7 +167,8 @@ IPv6Address::IPv6Address(uint8_t* addressAsUintArr)
 	memcpy(m_pInAddr, addressAsUintArr, 16);
 	if (inet_ntop(AF_INET6, m_pInAddr, m_AddressAsString, MAX_ADDR_STRING_LEN) == 0)
 		m_IsValid = false;
-	m_IsValid = true;
+	else
+		m_IsValid = true;
 }
 
 IPv6Address::IPv6Address(char* addressAsString)
