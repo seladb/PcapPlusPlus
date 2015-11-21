@@ -1,3 +1,11 @@
+/**
+ * DNS spoofing example application
+ * ================================
+ * This application does simple DNS spoofing. It's provided with interface name or IP and starts capturing DNS requests on that
+ * interface. Each DNS request that matches is edited and turned into a DNS response with a user-provided IPv4 as the resolved IP.
+ * Then it's sent back on the network on the same interface
+ */
+
 #include <vector>
 #include <algorithm>
 #include <getopt.h>
@@ -332,6 +340,11 @@ int main(int argc, char* argv[])
 	PcapLiveDevice* dev = NULL;
 
 	// check if interface argument is IP or name and extract the device
+	if (interfaceNameOrIP == "")
+	{
+		EXIT_WITH_ERROR("Interface name or IP weren't provided. Please use the -i switch or -h for help");
+	}
+
 	IPv4Address interfaceIP(interfaceNameOrIP);
 	if (interfaceIP.isValid())
 	{
