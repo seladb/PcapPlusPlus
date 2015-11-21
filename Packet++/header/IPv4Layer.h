@@ -133,10 +133,23 @@ public:
 	inline IPv4Address getSrcIpAddress() { return IPv4Address(getIPv4Header()->ipSrc); }
 
 	/**
+	 * Set the source IP address
+	 * @param[in] ipAddr The IP address to set
+	 */
+	inline void setSrcIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toInt(); }
+
+	/**
 	 * Get the destination IP address in the form of IPv4Address
 	 * @return An IPv4Address containing the destination address
 	 */
 	inline IPv4Address getDstIpAddress() { return IPv4Address(getIPv4Header()->ipDst); }
+
+	/**
+	 * Set the dest IP address
+	 * @param[in] ipAddr The IP address to set
+	 */
+	inline void setDstIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toInt(); }
+
 
 	// implement abstract methods
 

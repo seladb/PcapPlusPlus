@@ -44,6 +44,7 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   5. **ARP Spoofing with simple Linux makefile** - same code as ARP spoofing but with simple Linux makefile (see "Creating Applications With PcapPlusPlus" section)
   6. **Arping** - an implementation of the arping utility using PcapPlusPlus
   7. **DpdkExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus DPDK APIs
+  8. **DNS Spoofing** - a command-line application that does DNS spoofing using Packet++ and Pcap++
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 

@@ -1,11 +1,10 @@
-#ifdef WIN32
-#include <windows.h>
-#endif
 #include <SystemUtils.h>
 #include <PlatformSpecificUtils.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <iostream>
+#include <signal.h>
+#include <string.h>
 
 const SystemCore SystemCores::Core0 = { 0x01, 0 };
 const SystemCore SystemCores::Core1 = { 0x02, 1 };
@@ -151,4 +150,62 @@ std::string executeShellCommand(const std::string command)
     return result;
 }
 
+#ifdef WIN32
+BOOL WINAPI ApplicationEventHandler::handlerRoutine(DWORD fdwCtrlType)
+{
+	switch (fdwCtrlType)
+	{
+		case CTRL_C_EVENT:
+		case CTRL_BREAK_EVENT:
+		{
+			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
+				ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+			return TRUE;
+		}
 
+		default:
+			return FALSE;
+	}
+
+}
+#else
+void ApplicationEventHandler::handlerRoutine(int signum)
+{
+	switch (signum)
+	{
+	case SIGINT:
+	{
+		if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
+			ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+		return;
+	}
+	default:
+	{
+		return;
+	}
+	}
+}
+#endif
+
+
+ApplicationEventHandler::ApplicationEventHandler() :
+		m_ApplicationInterruptedHandler(NULL), m_ApplicationInterruptedCookie(NULL)
+{
+}
+
+
+void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback handler, void* cookie)
+{
+	m_ApplicationInterruptedHandler = handler;
+	m_ApplicationInterruptedCookie = cookie;
+
+#ifdef WIN32
+	SetConsoleCtrlHandler((PHANDLER_ROUTINE)handlerRoutine, TRUE);
+#else
+	struct sigaction action;
+	memset(&action, 0, sizeof(struct sigaction));
+	action.sa_handler = handlerRoutine;
+	sigemptyset(&action.sa_mask);
+	sigaction(SIGINT, &action, NULL);
+#endif
+}

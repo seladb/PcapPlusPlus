@@ -10,6 +10,7 @@ EXAMPLE_STREAMS	:=	Examples/Pcap++Examples.BreakPcapFileToStreams
 EXAMPLE_ARPSPOOF:=	Examples/ArpSpoofing
 EXAMPLE_ARPING	:=	Examples/Arping
 EXAMPLE_DPDK1	:=	Examples/DpdkExample-FilterTraffic
+EXAMPLE_DNSSPOOF:=	Examples/DnsSpoofing
 
 UNAME := $(shell uname)
 
@@ -43,6 +44,7 @@ all: libs
 	cd $(EXAMPLE_STREAMS)		&& $(MAKE) all
 	cd $(EXAMPLE_ARPSPOOF)		&& $(MAKE) all
 	cd $(EXAMPLE_ARPING)		&& $(MAKE) all
+	cd $(EXAMPLE_DNSSPOOF)		&& $(MAKE) all
 ifeq ($(COMPILE_DPDK_EXAMPLE),1)
 	cd $(EXAMPLE_DPDK1)		&& $(MAKE) all
 endif
@@ -54,6 +56,7 @@ endif
 	$(CP) $(EXAMPLE_STREAMS)/example.pcap ./Dist/examples
 	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_ARPING)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_DNSSPOOF)/Bin/* ./Dist/examples
 ifeq ($(COMPILE_DPDK_EXAMPLE),1)
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
 endif
@@ -72,6 +75,7 @@ clean:
 	cd $(EXAMPLE_STREAMS)	&& $(MAKE) clean
 	cd $(EXAMPLE_ARPSPOOF)	&& $(MAKE) clean
 	cd $(EXAMPLE_ARPING)	&& $(MAKE) clean
+	cd $(EXAMPLE_DNSSPOOF)	&& $(MAKE) clean
 ifeq ($(COMPILE_DPDK_EXAMPLE),1)
 	cd $(EXAMPLE_DPDK1)		&& $(MAKE) clean
 endif

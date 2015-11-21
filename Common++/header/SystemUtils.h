@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 /// @file
 
@@ -219,5 +222,54 @@ void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& re
  * @return The output of the command (both stdout and stderr)
  */
 std::string executeShellCommand(const std::string command);
+
+
+/**
+ * @class ApplicationEventHandler
+ * A singleton class that provides callbacks for events that occur during application life-cycle such as ctrl+c pressed,
+ * application closed, killed, etc.
+ */
+class ApplicationEventHandler
+{
+public:
+	/**
+	 * @typedef EventHandlerCallback
+	 * The callback to be activated when the event occurs
+	 */
+	typedef void (*EventHandlerCallback)(void* cookie);
+
+	/**
+	 * As ApplicationEventHandler is a singleton, this is the static getter to retrieve its instance
+	 * @return The singleton instance of ApplicationEventHandler
+	 */
+	static ApplicationEventHandler& getInstance()
+	{
+		static ApplicationEventHandler instance;
+		return instance;
+	}
+
+	/**
+	 * Register for an application-interrupted event, meaning ctrl+c was pressed
+	 * @param[in] handler The callback to be activated when the event occurs
+	 * @param[in] cookie A pointer to a user provided object. This object will be transferred to the EventHandlerCallback callback.
+	 * This cookie is very useful for transferring objects that give context to the event callback
+	 */
+	void onApplicationInterrupted(EventHandlerCallback handler, void* cookie);
+
+private:
+
+	EventHandlerCallback m_ApplicationInterruptedHandler;
+	void* m_ApplicationInterruptedCookie;
+
+	// private c'tor
+	ApplicationEventHandler();
+
+#ifdef WIN32
+	static BOOL WINAPI handlerRoutine(DWORD fdwCtrlType);
+#else
+	static void handlerRoutine(int signum);
+#endif
+};
+
 
 #endif /* PCAPPP_SYSTEM_UTILS */
