@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <pthread.h>
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -257,7 +258,6 @@ public:
 	void onApplicationInterrupted(EventHandlerCallback handler, void* cookie);
 
 private:
-
 	EventHandlerCallback m_ApplicationInterruptedHandler;
 	void* m_ApplicationInterruptedCookie;
 
@@ -267,6 +267,7 @@ private:
 #ifdef WIN32
 	static BOOL WINAPI handlerRoutine(DWORD fdwCtrlType);
 #else
+	pthread_mutex_t m_HandlerRoutineMutex;
 	static void handlerRoutine(int signum);
 #endif
 };

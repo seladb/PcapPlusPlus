@@ -169,14 +169,24 @@ BOOL WINAPI ApplicationEventHandler::handlerRoutine(DWORD fdwCtrlType)
 
 }
 #else
+
 void ApplicationEventHandler::handlerRoutine(int signum)
 {
 	switch (signum)
 	{
 	case SIGINT:
 	{
+		// Most calls are unsafe in a signal handler, and this includes printf(). In particular,
+		// if the signal is caught while inside printf() it may be called twice at the same time which might not be a good idea
+		// The way to make sure the signal is called only once is using this lock and putting NULL in m_ApplicationInterruptedHandler
+		pthread_mutex_lock(&ApplicationEventHandler::getInstance().m_HandlerRoutineMutex);
+
 		if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
 			ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+
+		ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler = NULL;
+
+		pthread_mutex_unlock(&ApplicationEventHandler::getInstance().m_HandlerRoutineMutex);
 		return;
 	}
 	default:
@@ -189,10 +199,12 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 
 
 ApplicationEventHandler::ApplicationEventHandler() :
-		m_ApplicationInterruptedHandler(NULL), m_ApplicationInterruptedCookie(NULL)
+		 m_ApplicationInterruptedHandler(NULL), m_ApplicationInterruptedCookie(NULL)
 {
+#ifndef WIN32
+	pthread_mutex_init(&m_HandlerRoutineMutex, 0);
+#endif
 }
-
 
 void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback handler, void* cookie)
 {

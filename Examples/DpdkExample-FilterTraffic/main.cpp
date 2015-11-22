@@ -37,7 +37,6 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
 
 #define DEFAULT_MBUF_POOL_SIZE 4095
 
@@ -148,7 +147,7 @@ void prepareCoreConfiguration(vector<DpdkDevice*>& dpdkDevicesToUse, vector<Syst
 		workerConfigArr[i].CoreId = iter->Id;
 		workerConfigArr[i].WriteMatchedPacketsToFile = writePacketsToDisk;
 
-		stringstream packetFileName;
+		std::stringstream packetFileName;
 		packetFileName << packetFilePath << "Core" << workerConfigArr[i].CoreId << ".pcap";
 		workerConfigArr[i].PathToWritePackets = packetFileName.str();
 
@@ -187,14 +186,42 @@ void prepareCoreConfiguration(vector<DpdkDevice*>& dpdkDevicesToUse, vector<Syst
 	}
 }
 
-volatile sig_atomic_t stopApp = 0;
+
+struct FiltetTrafficArgs
+{
+	bool shouldStop;
+	std::vector<DpdkWorkerThread*>* workerThreadsVector;
+
+	FiltetTrafficArgs() : shouldStop(false), workerThreadsVector(NULL) {}
+};
 
 /**
- * The callback to be called when application is terminated by ctrl-c
+ * The callback to be called when application is terminated by ctrl-c. Do cleanup and print summary stats
  */
-void terminteApp(int signum)
+void onApplicationInterrupted(void* cookie)
 {
-	stopApp = 1;
+	FiltetTrafficArgs* args = (FiltetTrafficArgs*)cookie;
+
+	printf("\n\nApplication stopped\n");
+
+	// stop worker threads
+	DpdkDeviceList::getInstance().stopDpdkWorkerThreads();
+
+	// print final stats for every worker thread plus sum of all threads and free worker threads memory
+	PacketStats aggregatedStats;
+	for (std::vector<DpdkWorkerThread*>::iterator iter = args->workerThreadsVector->begin(); iter != args->workerThreadsVector->end(); iter++)
+	{
+		AppWorkerThread* thread = (AppWorkerThread*)(*iter);
+		PacketStats threadStats = thread->getStats();
+		aggregatedStats.collectStats(threadStats);
+		if (iter == args->workerThreadsVector->begin())
+			threadStats.printStatsHeadline();
+		threadStats.printStats();
+		delete thread;
+	}
+	aggregatedStats.printStats();
+
+	args->shouldStop = true;
 }
 
 
@@ -421,35 +448,14 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Couldn't start worker threads");
 	}
 
-	// catch the termination signal (ctrl-c) to close the application gracefully
-	struct sigaction action;
-	memset(&action, 0, sizeof(struct sigaction));
-	action.sa_handler = terminteApp;
-	sigemptyset(&action.sa_mask);
-	sigaction(SIGINT, &action, NULL);
+	// register the on app close event to print summary stats on app termination
+	FiltetTrafficArgs args;
+	args.workerThreadsVector = &workerThreadVec;
+	ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &args);
 
 	// infinite loop (until program is terminated)
-	while (!stopApp)
+	while (!args.shouldStop)
 	{
 		sleep(5);
 	}
-
-	printf("\n\nApplication stopped\n");
-
-	// stop worker threads
-	DpdkDeviceList::getInstance().stopDpdkWorkerThreads();
-
-	// print final stats for every worker thread plus sum of all threads and free worker threads memory
-	PacketStats aggregatedStats;
-	for (vector<DpdkWorkerThread*>::iterator iter = workerThreadVec.begin(); iter != workerThreadVec.end(); iter++)
-	{
-		AppWorkerThread* thread = (AppWorkerThread*)(*iter);
-		PacketStats threadStats = thread->getStats();
-		aggregatedStats.collectStats(threadStats);
-		if (iter == workerThreadVec.begin())
-			threadStats.printStatsHeadline();
-		threadStats.printStats();
-		delete thread;
-	}
-	aggregatedStats.printStats();
 }
