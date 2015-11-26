@@ -1,6 +1,7 @@
 #include <memory>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <debug_new.h>
 #include <Logger.h>
 #include <IpAddress.h>
@@ -32,6 +33,7 @@
 #include <SystemUtils.h>
 #include <DpdkDeviceList.h>
 #include <DpdkDevice.h>
+#include <NetworkUtils.h>
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
@@ -2904,6 +2906,51 @@ PCAPP_TEST(TestDpdkMbufRawPacket)
 	PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestGetMacAddress)
+{
+	PcapLiveDevice* liveDev = NULL;
+	IPv4Address ipToSearch(args.ipToSendReceivePackets.c_str());
+	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+    PCAPP_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
+    PCAPP_ASSERT(liveDev->open(), "Cannot open live device");
+
+    //fetch all IP addresses from arp table
+    std::string ipsInArpTableAsString;
+#ifdef WIN32
+    ipsInArpTableAsString = executeShellCommand("arp -a | for /f \"tokens=1\" \%i in ('findstr dynamic') do @echo \%i");
+    ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
+#else
+    ipsInArpTableAsString = executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
+#endif
+
+    PCAPP_ASSERT(ipsInArpTableAsString != "", "Couldn't find IP addresses in arp-table to compare the result to. Aborting");
+
+    // iterate all IP addresses and arping each one until one of them answers
+    MacAddress result = MacAddress::Zero;
+    std::stringstream sstream(ipsInArpTableAsString);
+    std::string ip;
+    double time = -1;
+    while (std::getline(sstream, ip, '\n'))
+    {
+    	IPv4Address ipAddr(ip);
+    	PCAPP_ASSERT(ipAddr.isValid(), "Got non-valid ip from arp-table: '%s'", ip.c_str());
+    	result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+    	if (result != MacAddress::Zero)
+    	{
+    		PCAPP_ASSERT_AND_RUN_COMMAND(time >= 0, liveDev->close(), "Time is zero");
+    		result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
+    		PCAPP_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping with MAC address and IPv4 address failed");
+    		break;
+    	}
+    }
+
+    PCAPP_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping to all IPs in arp-table failed");
+
+    liveDev->close();
+
+	PCAPP_TEST_PASSED;
+}
+
 static struct option PcapTestOptions[] =
 {
 	{"debug-mode", no_argument, 0, 'd'},
@@ -3011,13 +3058,11 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
 	PCAPP_RUN_TEST(TestPfRingFilters, args);
 	PCAPP_RUN_TEST(TestDnsParsing, args);
-//	PCAPP_UNIT_TEST_SET_DEBUG_MODE(true);
-//	LoggerPP::getInstance().setLogLevel(PcapLogModuleDpdkDevice, LoggerPP::Debug);
-//	DpdkDeviceList::getInstance().setDpdkLogLevel(LoggerPP::Debug);
 	PCAPP_RUN_TEST(TestDpdkDevice, args);
 	PCAPP_RUN_TEST(TestDpdkMultiThread, args);
 	PCAPP_RUN_TEST(TestDpdkDeviceSendPackets, args);
 	PCAPP_RUN_TEST(TestDpdkMbufRawPacket, args);
 	PCAPP_RUN_TEST(TestDpdkDeviceWorkerThreads, args);
+	PCAPP_RUN_TEST(TestGetMacAddress, args);
 	PCAPP_END_RUNNING_TESTS;
 }

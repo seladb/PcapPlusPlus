@@ -40,6 +40,11 @@ public:
 	virtual void close() = 0;
 
 	/**
+	 * @return True if the file is opened, false otherwise
+	 */
+	inline bool isOpened() { return m_DeviceOpened; }
+
+	/**
 	 * Get statistics from device:
 	 * - pcap_stat#ps_recv: number of packets received
 	 * - pcap_stat#ps_drop: number of packets dropped

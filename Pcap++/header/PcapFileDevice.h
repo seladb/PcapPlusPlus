@@ -24,11 +24,6 @@ public:
 	 * Close the pcap file
 	 */
 	virtual void close();
-
-	/**
-	 * @return True if the file is opened, false otherwise
-	 */
-	inline bool isOpened() { return m_DeviceOpened; }
 };
 
 /**
