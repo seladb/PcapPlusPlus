@@ -5,6 +5,10 @@
 #include "ArpLayer.h"
 #include "PcapFilter.h"
 #include "NetworkUtils.h"
+#ifndef WIN32 //for using ntohl, ntohs, etc.
+#include <in.h>
+#include <errno.h>
+#endif
 
 #define DEFAULT_ARPING_TIMEOUT		5
 
