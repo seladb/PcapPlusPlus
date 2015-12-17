@@ -53,7 +53,12 @@ void listInterfaces()
 	printf("\nNetwork interfaces:\n");
 	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName(), (*iter)->getIPv4Address().toString().c_str());
+		std::string defaultGateway = ((*iter)->getDefaultGateway() != IPv4Address::Zero ? (*iter)->getDefaultGateway().toString() : "None");
+
+		printf("    -> Name: '%s'   IP address: %s   Default gateway: %s\n",
+				(*iter)->getName(),
+				(*iter)->getIPv4Address().toString().c_str(),
+				defaultGateway.c_str());
 	}
 	exit(0);
 }
@@ -169,6 +174,8 @@ int main(int argc, char* argv[])
 		if (dev == NULL)
 			EXIT_WITH_ERROR("Couldn't find an interface with a default gateway");
 	}
+
+	printf("Using interface '%s'\n", dev->getIPv4Address().toString().c_str());
 
 	// find the IPv4 address for provided hostname
 	double responseTime = 0;
