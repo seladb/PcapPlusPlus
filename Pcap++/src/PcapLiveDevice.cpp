@@ -4,14 +4,18 @@
 #include <pthread.h>
 #include <Logger.h>
 #include <PlatformSpecificUtils.h>
+#include <SystemUtils.h>
 #include <string.h>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <unistd.h>
 #include <IpUtils.h>
 #ifdef WIN32
 #include <ws2tcpip.h>
 #include <Packet32.h>
 #include <ntddndis.h>
+#include <iphlpapi.h>
 #else
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
@@ -35,8 +39,8 @@ struct PcapThread
 	pthread_t pthread;
 };
 
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress) : IPcapDevice(),
-		m_MacAddress("")
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
+		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
 {
 
 	m_Name = NULL;
@@ -75,6 +79,12 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	{
 		setDeviceMtu();
 		LOG_DEBUG("   MTU: %d", m_DeviceMtu);
+	}
+
+	if (calculateDefaultGateway)
+	{
+		setDefaultGateway();
+		LOG_DEBUG("   Default Gateway: %s", m_DefaultGateway.toString().c_str());
 	}
 
 	//init all other members
@@ -179,8 +189,8 @@ void* PcapLiveDevice::statsThreadMain(void *ptr)
 bool PcapLiveDevice::open(DeviceMode mode)
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
-	m_PcapDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, LIBPCAP_OPEN_LIVE_TIMEOUT, errbuf);
-	m_PcapSendDescriptor = pcap_open_live(m_Name, BUFSIZ, mode, LIBPCAP_OPEN_LIVE_TIMEOUT, errbuf);
+	m_PcapDescriptor = pcap_open_live(m_Name, 9000, mode, LIBPCAP_OPEN_LIVE_TIMEOUT, errbuf);
+	m_PcapSendDescriptor = pcap_open_live(m_Name, 9000, mode, LIBPCAP_OPEN_LIVE_TIMEOUT, errbuf);
 	if (m_PcapDescriptor == NULL || m_PcapSendDescriptor == NULL)
 	{
 		LOG_ERROR("%s", errbuf);
@@ -544,6 +554,86 @@ void PcapLiveDevice::setDeviceMacAddress()
 #endif
 }
 
+void PcapLiveDevice::setDefaultGateway()
+{
+#ifdef WIN32
+	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
+	uint8_t buffer[outBufLen];
+	PIP_ADAPTER_INFO adapterInfo = (IP_ADAPTER_INFO*)buffer;
+	DWORD retVal = 0;
+
+	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
+	uint8_t buffer2[outBufLen];
+    if (retVal == ERROR_BUFFER_OVERFLOW)
+        adapterInfo = (IP_ADAPTER_INFO *)buffer2;
+
+    retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
+
+	if (retVal == NO_ERROR)
+	{
+		PIP_ADAPTER_INFO curAdapterInfo = adapterInfo;
+		while (curAdapterInfo != NULL)
+		{
+			std::string name(m_Name);
+			if (name.find(curAdapterInfo->AdapterName) != std::string::npos)
+				m_DefaultGateway = IPv4Address(curAdapterInfo->GatewayList.IpAddress.String);
+
+            curAdapterInfo = curAdapterInfo->Next;
+		}
+	}
+	else
+	{
+		LOG_ERROR("Error retrieving default gateway address");
+	}
+#elif LINUX
+	std::ifstream routeFile("/proc/net/route");
+	std::string line;
+	while (std::getline(routeFile, line))
+	{
+	    std::stringstream lineStream(line);
+	    std::string interfaceName;
+	    std::getline(lineStream, interfaceName, '\t');
+	    if (interfaceName != std::string(m_Name))
+	    	continue;
+
+	    std::string interfaceDest;
+	    std::getline(lineStream, interfaceDest, '\t');
+	    if (interfaceDest != "00000000")
+	    	continue;
+
+	    std::string interfaceGateway;
+	    std::getline(lineStream, interfaceGateway, '\t');
+
+	    uint32_t interfaceGatewayIPInt;
+	    std::stringstream interfaceGatewayStream;
+	    interfaceGatewayStream << std::hex << interfaceGateway;
+	    interfaceGatewayStream >> interfaceGatewayIPInt;
+	    m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
+	}
+#elif MAC_OS_X
+	std::string ifaceStr = std::string(m_Name);
+	std::string command = "netstat -nr | grep default | grep " + ifaceStr;
+	std::string ifaceInfo = executeShellCommand(command);
+	if (ifaceInfo == "")
+	{
+		LOG_ERROR("Error retrieving default gateway address: couldn't get netstat output");
+		return;
+	}
+
+	// remove the word "default"
+	ifaceInfo.erase(0, 7);
+
+	// remove spaces
+	while (ifaceInfo.at(0) == ' ')
+		ifaceInfo.erase(0,1);
+
+	// erase string after gateway IP address
+	ifaceInfo.resize(ifaceInfo.find(' ', 0));
+
+	m_DefaultGateway = IPv4Address(ifaceInfo);
+#endif
+}
+
 IPv4Address PcapLiveDevice::getIPv4Address()
 {
 	for(std::vector<pcap_addr_t>::iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
@@ -566,6 +656,12 @@ IPv4Address PcapLiveDevice::getIPv4Address()
 	}
 
 	return IPv4Address::Zero;
+}
+
+
+IPv4Address PcapLiveDevice::getDefaultGateway()
+{
+	return m_DefaultGateway;
 }
 
 ThreadStart PcapLiveDevice::getCaptureThreadStart()

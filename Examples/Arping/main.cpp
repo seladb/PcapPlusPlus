@@ -22,7 +22,7 @@
 	} while (0)
 
 #define DEFAULT_MAX_TRIES	1000000
-#define DEFAULT_TIMEOUT		5
+
 
 static struct option ArpingOptions[] =
 {
@@ -83,9 +83,9 @@ int main(int argc, char* argv[])
 	IPv4Address sourceIP = IPv4Address::Zero;
 	IPv4Address targetIP = IPv4Address::Zero;
 	bool targetIpProvided = false;
-	std::string ifaceName = "";
-	bool ifaceOrSourceIpProvided = false;
-	int timeoutSec = DEFAULT_TIMEOUT;
+	std::string ifaceNameOrIP = "";
+	bool ifaceNameOrIpProvided = false;
+	int timeoutSec = NetworkUtils::DefaultTimeout;
 	int optionIndex = 0;
 	char opt = 0;
 
@@ -96,15 +96,14 @@ int main(int argc, char* argv[])
 			case 0:
 				break;
 			case 'i':
-				ifaceName = optarg;
-				ifaceOrSourceIpProvided = true;
+				ifaceNameOrIP = optarg;
+				ifaceNameOrIpProvided = true;
 				break;
 			case 's':
 				sourceMac = MacAddress(optarg);
 				break;
 			case 'S':
 				sourceIP = IPv4Address(optarg);
-				ifaceOrSourceIpProvided = true;
 				break;
 			case 'T':
 				targetIP = IPv4Address(optarg);
@@ -128,9 +127,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// verify that either interface name or source IP were provided
-	if (!ifaceOrSourceIpProvided)
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("You must provide at least interface name (-i switch) or source IP (-S switch)");
+	// verify that interface name or IP were provided
+	if (!ifaceNameOrIpProvided)
+		EXIT_WITH_ERROR_AND_PRINT_USAGE("You must provide at least interface name or interface IP (-i switch)");
 
 	// verify target IP was provided
 	if (!targetIpProvided)
@@ -143,27 +142,25 @@ int main(int argc, char* argv[])
 
 	PcapLiveDevice* dev = NULL;
 
-	// if -i switch exists, search interface by name
-	if (ifaceName != "")
+	// Search interface by name or IP
+	if (ifaceNameOrIP != "")
 	{
-		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ifaceName);
-		// if couldn't find the interface by name exit
-		if (dev == NULL)
+		IPv4Address interfaceIP(ifaceNameOrIP);
+		if (interfaceIP.isValid())
 		{
-			EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface '%s'", ifaceName.c_str());
+			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
+			if (dev == NULL)
+				EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided IP");
+		}
+		else
+		{
+			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ifaceNameOrIP);
+			if (dev == NULL)
+				EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided name");
 		}
 	}
-	// if -i switch doesn't exist but -S switch exists, try to search the interface by the source IP
-	else if (sourceIP.isValid())
-	{
-		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(sourceIP);
-	}
-
-	// couldn't find interface either by name or by source IP, exit with error
-	if (dev == NULL)
-	{
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by name or by source IP");
-	}
+	else
+		EXIT_WITH_ERROR_AND_PRINT_USAGE("Interface name or IP empty");
 
 	// open device in promiscuous mode
 	if (!dev->open())

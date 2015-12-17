@@ -69,6 +69,7 @@ protected:
 	uint16_t m_DeviceMtu;
 	std::vector<pcap_addr_t> m_Addresses;
 	MacAddress m_MacAddress;
+	IPv4Address m_DefaultGateway;
 	PcapThread* m_CaptureThread;
 	bool m_CaptureThreadStarted;
 	PcapThread* m_StatsThread;
@@ -83,13 +84,14 @@ protected:
 	bool m_CaptureCallbackMode;
 
 	// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
-	PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress);
+	PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 	// copy c'tor is not public
 	PcapLiveDevice( const PcapLiveDevice& other );
 	PcapLiveDevice& operator=(const PcapLiveDevice& other);
 
 	void setDeviceMtu();
 	void setDeviceMacAddress();
+	void setDefaultGateway();
 	static void* captureThreadMain(void *ptr);
 	static void* statsThreadMain(void *ptr);
 	static void onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
@@ -164,6 +166,12 @@ public:
 	 * If no IPv4 addresses are defined, a zeroed IPv4 address (IPv4Address#Zero) will be returned
 	 */
 	IPv4Address getIPv4Address();
+
+	/**
+	 * @return The default gateway defined for this interface. If no default gateway is defined, if it's not IPv4 or if couldn't extract
+	 * default gateway IPv4Address#Zero will be returned. If multiple gateways were defined the first one will be returned
+	 */
+	IPv4Address getDefaultGateway();
 
 	/**
 	 * Start capturing packets on this network interface (device). Each time a packet is captured the onPacketArrives callback is called.

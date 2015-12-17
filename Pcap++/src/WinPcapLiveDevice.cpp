@@ -5,7 +5,7 @@
 #include <WinPcapLiveDevice.h>
 #include <Logger.h>
 
-WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress) : PcapLiveDevice(iface, calculateMTU, calculateMacAddress)
+WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : PcapLiveDevice(iface, calculateMTU, calculateMacAddress, calculateDefaultGateway)
 {
 	m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
 }

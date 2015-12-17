@@ -627,10 +627,16 @@ PCAPP_TEST(TestPcapLiveDeviceList)
     vector<PcapLiveDevice*> devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
     PCAPP_ASSERT(!devList.empty(), "Device list is empty");
 
+    IPv4Address defaultGateway = IPv4Address::Zero;
     for(vector<PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
     {
     	PCAPP_ASSERT(!((*iter)->getName() == NULL), "Device name is NULL");
+    	if (defaultGateway == IPv4Address::Zero)
+    		defaultGateway = (*iter)->getDefaultGateway();
+
     }
+
+    PCAPP_ASSERT(defaultGateway != IPv4Address::Zero, "Couldn't find default gateway for any of the interfaces");
 
     PCAPP_TEST_PASSED;
 }
@@ -2934,7 +2940,9 @@ PCAPP_TEST(TestGetMacAddress)
     {
     	IPv4Address ipAddr(ip);
     	PCAPP_ASSERT(ipAddr.isValid(), "Got non-valid ip from arp-table: '%s'", ip.c_str());
+    	LoggerPP::getInstance().supressErrors();
     	result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+    	LoggerPP::getInstance().enableErrors();
     	if (result != MacAddress::Zero)
     	{
     		PCAPP_ASSERT_AND_RUN_COMMAND(time >= 0, liveDev->close(), "Time is zero");

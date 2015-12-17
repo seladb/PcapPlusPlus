@@ -28,6 +28,11 @@ public:
 	}
 
 	/**
+	 * Default timeout used for several utilities. Currently set to 5 seconds
+	 */
+	static const int DefaultTimeout;
+
+	/**
 	 * Resolve the MAC address for a given IPv4 address. It's done using the ARP protocol: send an ARP request and interpret the response
 	 * @param[in] ipAddr The IPv4 address to resolve MAC address to
 	 * @param[in] device The interface to send and receive the ARP packets on
@@ -43,6 +48,29 @@ public:
 	 */
 	MacAddress getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device, double& arpResponseTimeMS,
 			MacAddress sourceMac = MacAddress::Zero, IPv4Address sourceIP = IPv4Address::Zero, int arpTimeout = -1);
+
+
+	/**
+	 * Resolve an IPv4 address for a given hostname. Resolving is done in multiple phases: first resolving the LAN gateway MAC address
+	 * (or default gateway if a gateway isn't provided) using ARP protocol (by using NetworkUtils#getMacAddress() ). Then a DNS request
+	 * is sent to a DNS server (if specified) or to the LAN gateway (if DNS server is not specified). The DNS response is decoded and
+	 * the IPv4 address is determined. In addition the method outputs the time it took the DNS response to arrive and the DNS TTL
+	 * written on the DNS response. If DNS response doesn't contain an IPv4 address resolving an IPv4Address#Zero will be returned.
+	 * @param[in] hostname The hostname to resolve
+	 * @param[in] device The interface to send and receive packets on
+	 * @param[out] dnsResponseTimeMS When method returns successfully will contain the time it took to receive the DNS response
+	 * (in milli-seconds)
+	 * @param[out] dnsTTL When method returns successfully will contain The DNS TTL written in the DNS response
+	 * @param[in] dnsTimeout An optional parameter to specify the timeout to wait for a DNS response. If not specified the default timeout
+	 * is 5 sec
+	 * @param[in] dnsServerIP An optional parameter to specify the DNS server IP to send the DNS request to. If not specified
+	 * or specified with IPv4Address#Zero the DNS request will be sent to the LAN gateway
+	 * @param[in] gatewayIP An optional parameter to specify the LAN gateway to send the DNS request through. If not specified
+	 * or specified with IPv4Address#Zero the interface's default gateway will be used
+	 * @return The resolved IPv4 address or IPv4Address#Zero if something went wrong (in this case an error will be printed to log)
+	 */
+	IPv4Address getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
+			int dnsTimeout = -1, IPv4Address dnsServerIP = IPv4Address::Zero, IPv4Address gatewayIP = IPv4Address::Zero);
 
 private:
 

@@ -38,6 +38,7 @@ enum LogModule
 	PcapLogModuleFileDevice, ///< FileDevice module (Pcap++)
 	PcapLogModulePfRingDevice, ///< PfRingDevice module (Pcap++)
 	PcapLogModuleDpdkDevice, ///< DpdkDevice module (Pcap++)
+	NetworkUtils, ///< NetworkUtils module (Pcap++)
 	NumOfLogModules
 };
 

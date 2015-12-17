@@ -17,7 +17,7 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth()
 }
 
 PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, IPAddress* remoteMachineIP, uint16_t remoteMachinePort)
-	: PcapLiveDevice(iface, false, false)
+	: PcapLiveDevice(iface, false, false, false)
 {
 	LOG_DEBUG("MTU calculation isn't supported for remote devices. Setting MTU to 1514");
 	m_DeviceMtu = 1514;
