@@ -1,5 +1,6 @@
 #define LOG_MODULE NetworkUtils
 
+#include <stdlib.h>
 #include <pthread.h>
 #include "Logger.h"
 #include "Packet.h"

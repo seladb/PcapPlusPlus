@@ -616,7 +616,7 @@ void PcapLiveDevice::setDefaultGateway()
 	std::string ifaceInfo = executeShellCommand(command);
 	if (ifaceInfo == "")
 	{
-		LOG_ERROR("Error retrieving default gateway address: couldn't get netstat output");
+		LOG_DEBUG("Error retrieving default gateway address: couldn't get netstat output");
 		return;
 	}
 
