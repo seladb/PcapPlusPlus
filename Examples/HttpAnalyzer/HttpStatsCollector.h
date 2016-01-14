@@ -153,7 +153,7 @@ public:
 		}
 
 		// calculate current sample time which is the time-span from start time until current time
-		m_GeneralStats.sampleTime = (double)(clock() - m_StartTime) / (double)CLOCKS_PER_SEC;
+		m_GeneralStats.sampleTime = getCurTime() - m_StartTime;
 	}
 
 	/**
@@ -162,11 +162,10 @@ public:
 	void calcRates()
 	{
 		// getting current machine time
-		clock_t curTime = clock();
+		double curTime = getCurTime();
 
 		// getting time from last rate calculation until now
-		double diffTicks = curTime - m_LastCalcRateTime;
-		double diffSec = diffTicks / CLOCKS_PER_SEC;
+		double diffSec = curTime - m_LastCalcRateTime;
 
 		// calculating current rates which are the changes from last rate calculation until now divided by the time passed from
 		// last rate calculation until now
@@ -181,8 +180,7 @@ public:
 		}
 
 		// getting the time from the beginning of stats collection until now
-		double diffTicksTotal = curTime - m_StartTime;
-		double diffSecTotal = diffTicksTotal / CLOCKS_PER_SEC;
+		double diffSecTotal = curTime - m_StartTime;
 
 		// calculating total rate which is the change from beginning of stats collection until now divided by time passed from
 		// beginning of stats collection until now
@@ -202,7 +200,7 @@ public:
 		m_PrevResponseStats = m_ResponseStats;
 
 		// saving the current time for using in the next rate calculation
-		m_LastCalcRateTime = clock();
+		m_LastCalcRateTime = curTime;
 	}
 
 	/**
@@ -216,7 +214,7 @@ public:
 		m_PrevRequestStats.clear();
 		m_ResponseStats.clear();
 		m_PrevResponseStats.clear();
-		m_LastCalcRateTime = clock();
+		m_LastCalcRateTime = getCurTime();
 		m_StartTime = m_LastCalcRateTime;
 	}
 
@@ -425,6 +423,15 @@ private:
 		m_ResponseStats.statusCodeCount[statusCode]++;
 	}
 
+	double getCurTime(void)
+	{
+	    struct timeval tv;
+
+	    gettimeofday(&tv, NULL);
+
+	    return (((double) tv.tv_sec) + (double) (tv.tv_usec / 1000000.0));
+	}
+
 	HttpGeneralStats m_GeneralStats;
 	HttpGeneralStats m_PrevGeneralStats;
 	HttpRequestStats m_RequestStats;
@@ -434,6 +441,6 @@ private:
 
 	std::map<size_t, HttpFlowData> m_FlowTable;
 
-	clock_t m_LastCalcRateTime;
-	clock_t m_StartTime;
+	double m_LastCalcRateTime;
+	double m_StartTime;
 };
