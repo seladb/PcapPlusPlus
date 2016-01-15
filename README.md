@@ -46,6 +46,7 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   7. **DpdkExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus DPDK APIs
   8. **DNS Spoofing** - a command-line application that does DNS spoofing using Packet++ and Pcap++
   9. **DNS Resolver** - a command-line application that resolves IPv4 address for an hostname using DNS protocol
+  10. **HTTP Analyzer** - an application that analyzes HTTP traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 
