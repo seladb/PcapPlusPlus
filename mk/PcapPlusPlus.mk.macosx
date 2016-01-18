@@ -4,6 +4,6 @@
 PCAPPP_INCLUDES += -I/usr/include/netinet
 
 # libs
-PCAPPP_LIBS += -lpcap -lpthread
+PCAPPP_LIBS += -lpcap -lpthread -framework SystemConfiguration -framework CoreFoundation
 
 

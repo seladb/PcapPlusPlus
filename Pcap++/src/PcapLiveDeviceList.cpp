@@ -10,6 +10,8 @@
 #ifdef WIN32
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
+#elif MAC_OS_X
+#include <systemconfiguration/scdynamicstore.h>
 #endif
 
 
@@ -114,7 +116,51 @@ void PcapLiveDeviceList::setDnsServers()
 			LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, dnsIPAddr.toString().c_str());
 		}
 	}
+#elif MAC_OS_X
 
+	SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("iked"), NULL, NULL);
+	if (dynRef == NULL)
+	{
+		LOG_DEBUG("Couldn't set DNS server list: failed to retrieve SCDynamicStore");
+		return;
+	}
+
+	CFDictionaryRef dnsDict = (CFDictionaryRef)SCDynamicStoreCopyValue(dynRef,CFSTR("State:/Network/Global/DNS"));
+
+	if (dnsDict == NULL)
+	{
+		LOG_DEBUG("Couldn't set DNS server list: failed to get DNS dictionary");
+		CFRelease(dynRef);
+		return;
+	}
+
+	CFArrayRef serverAddresses = (CFArrayRef)CFDictionaryGetValue(dnsDict, CFSTR("ServerAddresses"));
+
+	if (serverAddresses == NULL)
+	{
+		LOG_DEBUG("Couldn't set DNS server list: server addresses array is null");
+		CFRelease(dynRef);
+		CFRelease(dnsDict);
+		return;
+	}
+
+	CFIndex count = CFArrayGetCount(serverAddresses);
+	for (CFIndex i = 0; i < count; i++)
+	{
+		CFStringRef serverAddress = (CFStringRef)CFArrayGetValueAtIndex(serverAddresses, i);
+
+		if (serverAddress == NULL)
+			continue;
+
+		uint8_t buf[20];
+		char* serverAddressCString = (char*)buf;
+		CFStringGetCString(serverAddress, serverAddressCString, 20, kCFStringEncodingUTF8);
+		m_DnsServers.push_back(IPv4Address(serverAddressCString));
+		LOG_DEBUG("Default DNS server IP #%d: %s\n", (int)(i+1), serverAddressCString);
+	}
+
+	CFRelease(dynRef);
+	CFRelease(dnsDict);
 #endif
 }
 
