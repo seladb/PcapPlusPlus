@@ -3,7 +3,10 @@
 #include <IpUtils.h>
 #include <PcapLiveDeviceList.h>
 #include <Logger.h>
+#include <SystemUtils.h>
 #include <string.h>
+#include <sstream>
+#include <algorithm>
 #ifdef WIN32
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
@@ -82,6 +85,36 @@ void PcapLiveDeviceList::setDnsServers()
 			pIPAddr = pIPAddr -> Next;
 		}
 	}
+#elif LINUX
+	std::string command = "nmcli dev list | grep IP4.DNS";
+	std::string dnsServersInfo = executeShellCommand(command);
+	if (dnsServersInfo == "")
+	{
+		LOG_DEBUG("Error retrieving DNS server list: call to nmcli gave no output");
+		return;
+	}
+
+	std::istringstream stream(dnsServersInfo);
+	std::string line;
+	int i = 1;
+	while(std::getline(stream, line))
+	{
+		std::istringstream lineStream(line);
+		std::string headline;
+		std::string dnsIP;
+		lineStream >> headline;
+		lineStream >> dnsIP;
+		IPv4Address dnsIPAddr(dnsIP);
+		if (!dnsIPAddr.isValid())
+			continue;
+
+		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
+		{
+			m_DnsServers.push_back(dnsIPAddr);
+			LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, dnsIPAddr.toString().c_str());
+		}
+	}
+
 #endif
 }
 
