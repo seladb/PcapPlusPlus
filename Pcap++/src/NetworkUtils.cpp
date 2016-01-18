@@ -346,9 +346,11 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	if (dnsTimeout <= 0)
 		dnsTimeout = NetworkUtils::DefaultTimeout;
 
-	// validate DNS server IP. If it wasn't provided - set the default gateway as DNS server
-	if (dnsServerIP == IPv4Address::Zero)
-		dnsServerIP = gatewayIP;
+	// validate DNS server IP. If it wasn't provided - set the system-configured DNS server
+	if (dnsServerIP == IPv4Address::Zero && device->getDnsServers().size() > 0)
+	{
+		dnsServerIP = device->getDnsServers().at(0);
+	}
 
 	if (!dnsServerIP.isValid())
 	{
