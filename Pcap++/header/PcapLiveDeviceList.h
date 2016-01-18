@@ -20,6 +20,8 @@ class PcapLiveDeviceList
 private:
 	std::vector<PcapLiveDevice*> m_LiveDeviceList;
 
+	std::vector<IPv4Address> m_DnsServers;
+
 	// private c'tor
 	PcapLiveDeviceList();
 	// private copy c'tor
@@ -27,6 +29,8 @@ private:
 	PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other);
 	// private d'tor
 	~PcapLiveDeviceList();
+
+	void setDnsServers();
 public:
 	/**
 	 * The access method to the singleton
@@ -78,6 +82,11 @@ public:
 	 */
 	PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name);
 
+	/**
+	 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
+	 * couldn't be extracted from some reason
+	 */
+	std::vector<IPv4Address>& getDnsServers();
 };
 
 #endif

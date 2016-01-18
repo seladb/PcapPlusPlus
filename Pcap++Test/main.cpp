@@ -638,6 +638,9 @@ PCAPP_TEST(TestPcapLiveDeviceList)
 
     PCAPP_ASSERT(defaultGateway != IPv4Address::Zero, "Couldn't find default gateway for any of the interfaces");
 
+    std::vector<IPv4Address> dnsServers = PcapLiveDeviceList::getInstance().getDnsServers();
+    PCAPP_ASSERT(dnsServers.size() > 0, "DNS server list is empty");
+
     PCAPP_TEST_PASSED;
 }
 

@@ -1,6 +1,7 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
 #include <PcapLiveDevice.h>
+#include <PcapLiveDeviceList.h>
 #include <pthread.h>
 #include <Logger.h>
 #include <PlatformSpecificUtils.h>
@@ -662,6 +663,11 @@ IPv4Address PcapLiveDevice::getIPv4Address()
 IPv4Address PcapLiveDevice::getDefaultGateway()
 {
 	return m_DefaultGateway;
+}
+
+std::vector<IPv4Address>& PcapLiveDevice::getDnsServers()
+{
+	return PcapLiveDeviceList::getInstance().getDnsServers();
 }
 
 ThreadStart PcapLiveDevice::getCaptureThreadStart()

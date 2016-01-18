@@ -174,6 +174,13 @@ public:
 	IPv4Address getDefaultGateway();
 
 	/**
+	 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
+	 * couldn't be extracted from some reason. This list is created in PcapLiveDeviceList class and can be also retrieved from there.
+	 * This method exists for convenience - so it'll be possible to get this list from PcapLiveDevice as well
+	 */
+	std::vector<IPv4Address>& getDnsServers();
+
+	/**
 	 * Start capturing packets on this network interface (device). Each time a packet is captured the onPacketArrives callback is called.
 	 * The capture is done on a new thread created by this method, meaning all callback calls are done in a thread other than the
 	 * caller thread. Capture process will stop and this capture thread will be terminated when calling stopCapture(). This method must be

@@ -6,6 +6,7 @@
 #include <string.h>
 #ifdef WIN32
 #include <ws2tcpip.h>
+#include <iphlpapi.h>
 #endif
 
 
@@ -31,6 +32,8 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 		m_LiveDeviceList.insert(m_LiveDeviceList.end(), dev);
 	}
 
+	setDnsServers();
+
 	LOG_DEBUG("Freeing live device data");
 	pcap_freealldevs(interfaceList);
 }
@@ -42,6 +45,44 @@ PcapLiveDeviceList::~PcapLiveDeviceList()
 		delete (*devIter);
 	}
 
+}
+
+void PcapLiveDeviceList::setDnsServers()
+{
+#ifdef WIN32
+	FIXED_INFO * fixedInfo;
+	ULONG    ulOutBufLen;
+	DWORD    dwRetVal;
+	IP_ADDR_STRING * pIPAddr;
+
+	uint8_t buf1[sizeof(FIXED_INFO)];
+	fixedInfo = (FIXED_INFO *) buf1;
+	ulOutBufLen = sizeof( FIXED_INFO );
+
+	dwRetVal = GetNetworkParams( fixedInfo, &ulOutBufLen );
+	uint8_t buf2[ulOutBufLen];
+	if(ERROR_BUFFER_OVERFLOW == dwRetVal)
+	{
+		fixedInfo = (FIXED_INFO *)buf2;
+	}
+
+	if ((dwRetVal = GetNetworkParams( fixedInfo, &ulOutBufLen )) != 0)
+		LOG_ERROR("Call to GetNetworkParams failed. Return Value: %08lx\n", dwRetVal);
+	else
+	{
+		m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
+		int i = 1;
+		LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, fixedInfo->DnsServerList.IpAddress.String );
+
+		pIPAddr = fixedInfo->DnsServerList.Next;
+		while ( pIPAddr )
+		{
+			m_DnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
+			LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, pIPAddr->IpAddress.String);
+			pIPAddr = pIPAddr -> Next;
+		}
+	}
+#endif
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* ipAddr)
@@ -128,7 +169,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr)
 	return NULL;
 }
 
-
+std::vector<IPv4Address>& PcapLiveDeviceList::getDnsServers()
+{
+	return m_DnsServers;
+}
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsString)
 {
