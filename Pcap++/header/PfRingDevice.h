@@ -36,8 +36,8 @@ private:
 		bool IsInUse;
 		bool IsAffinitySet;
 
-		CoreConfiguration() : RxThread(0), Channel(NULL), IsInUse(false), IsAffinitySet(true) {}
-		void clear() { RxThread = 0; Channel = NULL; IsInUse = false; IsAffinitySet = true; }
+		CoreConfiguration();
+		void clear();
 	};
 
 	pfring** m_PfRingDescriptors;
@@ -132,14 +132,6 @@ public:
 	 */
 	bool startCaptureSingleThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie);
 
-//	/**
-//	 * Start single-threaded capturing where all packets will be written to a RawPacket vector.
-//	 * Works with open() or openSingleRxChannel().
-//	 * ||@||param[in] capturedPacketsVector The RawPacket vector all packets will be written to
-//	 * ||@||return True if this action succeeds, false otherwise
-//	 */
-//	bool startCaptureSingleThread(RawPacketVector& capturedPacketsVector);
-
 	/**
 	 * Start multi-threaded (multi-core) capturing with callback. Works with openMultiRxChannels().
 	 * This method will return an error if the number of opened channels is different than the number of threads/cores
@@ -189,7 +181,6 @@ public:
 	 */
 	bool openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDistribution dist);
 
-
 	/**
 	 * Gets the number of RX channels currently open. RX channels aren't necessary interface's RX queues
 	 * because in some cases the user asks to open several channels on the same queue. For example: if the user uses
@@ -205,13 +196,11 @@ public:
 	 */
 	uint8_t getTotalNumOfRxChannels();
 
-
-
 	/**
 	 * Gets the core used in the current thread context
 	 * @return The system core used in the current thread context
 	 */
-	inline SystemCore getCurrentCoreId() { return SystemCores::IdToSystemCore[sched_getcpu()]; }
+	SystemCore getCurrentCoreId();
 
 	/**
 	 * Get the statistics of a specific thread/core (=RX channel)

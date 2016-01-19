@@ -322,6 +322,12 @@ uint8_t PfRingDevice::getTotalNumOfRxChannels()
 }
 
 
+SystemCore PfRingDevice::getCurrentCoreId()
+{
+	return SystemCores::IdToSystemCore[sched_getcpu()];
+}
+
+
 bool PfRingDevice::setFilter(std::string filterAsString)
 {
 	if (!m_DeviceOpened)
@@ -854,6 +860,19 @@ int PfRingDevice::sendPackets(const RawPacketVector& rawPackets)
 	LOG_DEBUG("%d out of %d raw packets were sent successfully", packetsSent, rawPackets.size());
 
 	return packetsSent;
+}
+
+PfRingDevice::CoreConfiguration::CoreConfiguration()
+	: RxThread(0), Channel(NULL), IsInUse(false), IsAffinitySet(true)
+{
+}
+
+void PfRingDevice::CoreConfiguration::clear()
+{
+	RxThread = 0;
+	Channel = NULL;
+	IsInUse = false;
+	IsAffinitySet = true;
 }
 
 #endif /* USE_PF_RING */
