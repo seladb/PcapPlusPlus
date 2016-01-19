@@ -1,8 +1,6 @@
 #ifndef PCAPPP_DPDK_DEVICE
 #define PCAPPP_DPDK_DEVICE
 
-#ifdef USE_DPDK
-
 #include <pthread.h>
 #include <MacAddress.h>
 #include <SystemUtils.h>
@@ -736,7 +734,5 @@ private:
 	 // RSS key used by the NIC for load balancing the packets between cores
 	static uint8_t m_RSSKey[40];
 };
-
-#endif /* USE_DPDK */
 
 #endif /* PCAPPP_DPDK_DEVICE */

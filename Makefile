@@ -16,18 +16,12 @@ EXAMPLE_HTTPANALYZE :=  Examples/HttpAnalyzer
 
 UNAME := $(shell uname)
 
-ifdef RTE_SDK
-COMPILE_DPDK_EXAMPLE=1
-else
-COMPILE_DPDK_EXAMPLE=0
-endif
-
 # capPlusPlus libs only
 libs:
 	$(RM) -rf Dist
-	cd $(COMMONPP_HOME)		&& $(MAKE) all
-	cd $(PACKETPP_HOME)		&& $(MAKE) all
-	cd $(PCAPPP_HOME)		&& $(MAKE) all
+	cd $(COMMONPP_HOME)             && $(MAKE) all
+	cd $(PACKETPP_HOME)             && $(MAKE) all
+	cd $(PCAPPP_HOME)               && $(MAKE) all
 	$(MKDIR) -p Dist
 	$(MKDIR) -p Dist/header
 	$(CP) $(COMMONPP_HOME)/Lib/* ./Dist
@@ -40,17 +34,17 @@ libs:
 
 # All Target
 all: libs
-	cd $(PACKETPP_TEST)			&& $(MAKE) all
-	cd $(PCAPPP_TEST)			&& $(MAKE) all
-	cd $(EXAMPLE_PARSE)			&& $(MAKE) all
-	cd $(EXAMPLE_STREAMS)		&& $(MAKE) all
-	cd $(EXAMPLE_ARPSPOOF)		&& $(MAKE) all
-	cd $(EXAMPLE_ARPING)		&& $(MAKE) all
-	cd $(EXAMPLE_DNSSPOOF)		&& $(MAKE) all
-	cd $(EXAMPLE_DNSRESOLVER)	&& $(MAKE) all
-	cd $(EXAMPLE_HTTPANALYZE)	&& $(MAKE) all
-ifeq ($(COMPILE_DPDK_EXAMPLE),1)
-	cd $(EXAMPLE_DPDK1)			&& $(MAKE) all
+	cd $(PACKETPP_TEST)             && $(MAKE) all
+	cd $(PCAPPP_TEST)               && $(MAKE) all
+	cd $(EXAMPLE_PARSE)             && $(MAKE) all
+	cd $(EXAMPLE_STREAMS)           && $(MAKE) all
+	cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) all
+	cd $(EXAMPLE_ARPING)            && $(MAKE) all
+	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) all
+	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) all
+	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) all
+ifdef USE_DPDK
+	cd $(EXAMPLE_DPDK1)             && $(MAKE) all
 endif
 	$(MKDIR) -p Dist/examples
 	$(MKDIR) -p Dist/mk
@@ -63,7 +57,7 @@ endif
 	$(CP) $(EXAMPLE_DNSSPOOF)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_DNSRESOLVER)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_HTTPANALYZE)/Bin/* ./Dist/examples
-ifeq ($(COMPILE_DPDK_EXAMPLE),1)
+ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
 endif
 	$(CP) mk/platform.mk ./Dist/mk
@@ -72,20 +66,21 @@ endif
 
 # Clean
 clean:
-	cd $(COMMONPP_HOME)			&& $(MAKE) clean
-	cd $(PACKETPP_HOME)			&& $(MAKE) clean
-	cd $(PCAPPP_HOME)			&& $(MAKE) clean
-	cd $(PACKETPP_TEST)			&& $(MAKE) clean
-	cd $(PCAPPP_TEST)			&& $(MAKE) clean
-	cd $(EXAMPLE_PARSE)			&& $(MAKE) clean
-	cd $(EXAMPLE_STREAMS)		&& $(MAKE) clean
-	cd $(EXAMPLE_ARPSPOOF)		&& $(MAKE) clean
-	cd $(EXAMPLE_ARPING)		&& $(MAKE) clean
-	cd $(EXAMPLE_DNSSPOOF)		&& $(MAKE) clean
-	cd $(EXAMPLE_DNSRESOLVER)	&& $(MAKE) clean
-	cd $(EXAMPLE_HTTPANALYZE)	&& $(MAKE) clean
-ifeq ($(COMPILE_DPDK_EXAMPLE),1)
-	cd $(EXAMPLE_DPDK1)			&& $(MAKE) clean
+	cd $(COMMONPP_HOME)             && $(MAKE) clean
+	cd $(PACKETPP_HOME)             && $(MAKE) clean
+	cd $(PCAPPP_HOME)               && $(MAKE) clean
+	cd $(PACKETPP_TEST)             && $(MAKE) clean
+	cd $(PCAPPP_TEST)               && $(MAKE) clean
+	cd $(EXAMPLE_PARSE)             && $(MAKE) clean
+	cd $(EXAMPLE_STREAMS)           && $(MAKE) clean
+	cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) clean
+	cd $(EXAMPLE_ARPING)            && $(MAKE) clean
+	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) clean
+	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) clean
+	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) clean
+ifdef USE_DPDK
+	cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 endif
+
 	$(RM) -rf Dist
 	@echo 'Finished successfully cleaning PcapPlusPlus'

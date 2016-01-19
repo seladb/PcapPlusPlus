@@ -64,7 +64,7 @@ public:
 	 * @param[in] dnsTimeout An optional parameter to specify the timeout to wait for a DNS response. If not specified the default timeout
 	 * is 5 sec
 	 * @param[in] dnsServerIP An optional parameter to specify the DNS server IP to send the DNS request to. If not specified
-	 * or specified with IPv4Address#Zero the DNS request will be sent to the LAN gateway
+	 * or specified with IPv4Address#Zero the DNS request will be sent to the default DNS server configured in the system
 	 * @param[in] gatewayIP An optional parameter to specify the LAN gateway to send the DNS request through. If not specified
 	 * or specified with IPv4Address#Zero the interface's default gateway will be used
 	 * @return The resolved IPv4 address or IPv4Address#Zero if something went wrong (in this case an error will be printed to log)

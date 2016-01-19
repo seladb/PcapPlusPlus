@@ -10,7 +10,7 @@ endif
 ifdef PF_RING_HOME
 DEPS += -DUSE_PF_RING
 endif
-ifdef RTE_SDK
+ifdef USE_DPDK
 DEPS += -DUSE_DPDK
 endif
 ifdef MAC_OS_X

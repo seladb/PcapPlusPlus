@@ -1,20 +1,21 @@
 #ifndef PCAPPP_PF_RING_DEVICE
 #define PCAPPP_PF_RING_DEVICE
 
-#ifdef USE_PF_RING
-
 #include <PcapDevice.h>
 #include <PcapFilter.h>
 #include <MacAddress.h>
 #include <SystemUtils.h>
 #include <RawPacket.h>
 #include <Packet.h>
-#include <pfring.h>
 #include <pthread.h>
 
 /// @file
 
 class PfRingDevice;
+
+// forward declaration of PF_RING structs
+struct __pfring;
+typedef struct __pfring pfring;
 
 typedef void (*OnPfRingPacketsArriveCallback)(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, PfRingDevice* device, void* userCookie);
 
@@ -39,7 +40,7 @@ private:
 		void clear() { RxThread = 0; Channel = NULL; IsInUse = false; IsAffinitySet = true; }
 	};
 
-	pfring* m_PfRingDescriptors[MAX_NUM_RX_CHANNELS];
+	pfring** m_PfRingDescriptors;
 	uint8_t m_NumOfOpenedRxChannels;
 	char m_DeviceName[30];
 	int m_InterfaceIndex;
@@ -342,7 +343,5 @@ public:
 	 */
 	int sendPackets(const RawPacketVector& rawPackets);
 };
-
-#endif /* USE_PF_RING */
 
 #endif /* PCAPPP_PF_RING_DEVICE */

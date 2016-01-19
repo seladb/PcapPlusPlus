@@ -15,7 +15,7 @@ endif
 ifdef PF_RING_HOME
 DEPS += -DUSE_PF_RING
 endif
-ifdef RTE_SDK
+ifdef USE_DPDK
 DEPS += -DUSE_DPDK
 endif
 ifdef MAC_OS_X
@@ -37,12 +37,12 @@ endif
 ifdef PF_RING_HOME
 INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
 endif
-ifdef RTE_SDK
+ifdef USE_DPDK
 INCLUDES += -I"$(RTE_SDK)/$(RTE_TARGET)/include"
 endif
 
 
-ifdef RTE_SDK
+ifdef USE_DPDK
 FLAGS := -msse -msse2 -msse3 -mssse3
 endif		
 	

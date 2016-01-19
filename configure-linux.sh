@@ -75,9 +75,13 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
 
     cat mk/PcapPlusPlus.mk.dpdk >> $PCAPPLUSPLUS_MK
 
+    echo -e "\n\nUSE_DPDK := 1" >> $PLATFORM_MK
+
     echo -e "\n\nRTE_SDK := "$DPDK_HOME >> $PLATFORM_MK
 
     echo -e "\n\nRTE_TARGET := "$DPDK_TARGET >> $PLATFORM_MK
+
+    sed -i "2s|^|USE_DPDK := 1\n\n|" $PCAPPLUSPLUS_MK
     
     sed -i "2s|^|RTE_TARGET := $DPDK_TARGET\n\n|" $PCAPPLUSPLUS_MK
 

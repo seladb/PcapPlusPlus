@@ -1,8 +1,6 @@
 #ifndef PCAPPP_PF_RING_DEVICE_LIST
 #define PCAPPP_PF_RING_DEVICE_LIST
 
-#ifdef USE_PF_RING
-
 #include <PfRingDevice.h>
 
 /// @file
@@ -57,7 +55,5 @@ public:
 	 */
 	inline std::string getPfRingVersion() { return m_PfRingVersion; }
 };
-
-#endif /* USE_PF_RING */
 
 #endif /* PCAPPP_PF_RING_DEVICE_LIST */

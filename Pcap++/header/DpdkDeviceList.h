@@ -1,8 +1,6 @@
 #ifndef PCAPPP_DPDK_DEVICE_LIST
 #define PCAPPP_DPDK_DEVICE_LIST
 
-#ifdef USE_DPDK
-
 #include <SystemUtils.h>
 #include <DpdkDevice.h>
 #include <Logger.h>
@@ -187,7 +185,5 @@ public:
 	 */
 	void stopDpdkWorkerThreads();
 };
-
-#endif /* USE_DPDK */
 
 #endif /* PCAPPP_DPDK_DEVICE_LIST */

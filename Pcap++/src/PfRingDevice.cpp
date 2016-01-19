@@ -8,9 +8,10 @@
 #include <Logger.h>
 #include <PlatformSpecificUtils.h>
 #include <errno.h>
+#include <pfring.h>
 
 
-#define DEFAULT_PF_RING_SNAPLEN 128
+#define DEFAULT_PF_RING_SNAPLEN 1600
 
 
 PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Zero)
@@ -27,6 +28,8 @@ PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Ze
 	m_HwClockEnabled = false;
 	m_DeviceMTU = 0;
 	m_IsFilterCurrentlySet = false;
+
+	m_PfRingDescriptors = new pfring*[MAX_NUM_RX_CHANNELS];
 }
 
 PfRingDevice::~PfRingDevice()
