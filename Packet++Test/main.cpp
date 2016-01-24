@@ -2304,7 +2304,7 @@ PACKETPP_TEST(IcmpParsingTest)
 	PACKETPP_ASSERT(reqData->header->checksum == 0xb3bb, "Echo request checksum isn't 0xb3bb");
 	PACKETPP_ASSERT(reqData->header->id == 0x3bd7, "Echo request id isn't 0x3bd7");
 	PACKETPP_ASSERT(reqData->header->sequence == 0, "Echo request sequence isn't 0");
-	PACKETPP_ASSERT(reqData->header->timestamp == 0xE45104007DD6A751, "Echo request timestamp is wrong");
+	PACKETPP_ASSERT(reqData->header->timestamp == 0xE45104007DD6A751ULL, "Echo request timestamp is wrong");
 	PACKETPP_ASSERT(reqData->dataLength == 48, "Echo request data length isn't 48");
 	PACKETPP_ASSERT(reqData->data[5] == 0x0d && reqData->data[43] == 0x33, "Echo request data is wrong");
 
@@ -2532,7 +2532,7 @@ PACKETPP_TEST(IcmpCreationTest)
 	// Echo request creation
 	Packet echoRequestPacket(1);
 	IcmpLayer echoReqLayer;
-	PACKETPP_ASSERT(echoReqLayer.setEchoRequestData(0xd73b, 0, 0xe45104007dd6a751, data, 48) != NULL, "Couldn't set echo request data");
+	PACKETPP_ASSERT(echoReqLayer.setEchoRequestData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48) != NULL, "Couldn't set echo request data");
 	echoRequestPacket.addLayer(&ethLayer);
 	echoRequestPacket.addLayer(&ipLayer);
 	echoRequestPacket.addLayer(&echoReqLayer);
@@ -2548,7 +2548,7 @@ PACKETPP_TEST(IcmpCreationTest)
 	echoReplyPacket.addLayer(&ethLayer2);
 	echoReplyPacket.addLayer(&ipLayer2);
 	echoReplyPacket.addLayer(&echoRepLayer);
-	PACKETPP_ASSERT(echoRepLayer.setEchoReplyData(0xd73b, 0, 0xe45104007dd6a751, data, 48) != NULL, "Couldn't set echo reply data");
+	PACKETPP_ASSERT(echoRepLayer.setEchoReplyData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48) != NULL, "Couldn't set echo reply data");
 	echoReplyPacket.computeCalculateFields();
 	PACKETPP_ASSERT(echoReplyPacket.getRawPacket()->getRawDataLen() == buffer2Length, "Echo reply data len is different than expected");
 	PACKETPP_ASSERT(memcmp(echoReplyPacket.getRawPacket()->getRawData()+34, buffer2+34, buffer2Length-34) == 0, "Echo reply raw data is different than expected");
@@ -2569,7 +2569,7 @@ PACKETPP_TEST(IcmpCreationTest)
 	ipLayerForTimeExceeded.getIPv4Header()->timeToLive = 1;
 	ipLayerForTimeExceeded.getIPv4Header()->ipId = ntohs(2846);
 	IcmpLayer icmpLayerForTimeExceeded;
-	icmpLayerForTimeExceeded.setEchoRequestData(3175, 1, 0x00058bbd569f3d49, data, 48);
+	icmpLayerForTimeExceeded.setEchoRequestData(3175, 1, 0x00058bbd569f3d49ULL, data, 48);
 	PACKETPP_ASSERT(timeExceededLayer.setTimeExceededData(0, &ipLayerForTimeExceeded, &icmpLayerForTimeExceeded) != NULL, "Failed to set time exceeded data");
 	timeExceededPacket.computeCalculateFields();
 	PACKETPP_ASSERT(timeExceededPacket.getRawPacket()->getRawDataLen() == buffer11Length, "Time exceeded data len is different than expected");
@@ -2724,7 +2724,7 @@ PACKETPP_TEST(IcmpEditTest)
 
 	PACKETPP_ASSERT(icmpLayer->getRouterAdvertisementData() != NULL, "Couldn't extract router adv data");
 	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Managed to extract echo request data although packet is router adv");
-	icmp_echo_request* echoReq = icmpLayer->setEchoRequestData(55099, 0, 0xe45104007dd6a751, data, 48);
+	icmp_echo_request* echoReq = icmpLayer->setEchoRequestData(55099, 0, 0xe45104007dd6a751ULL, data, 48);
 	PACKETPP_ASSERT(echoReq != NULL, "Couldn't convert router adv to echo request");
 	PACKETPP_ASSERT(icmpLayer->getHeaderLen() == 64, "Echo request length != 64");
 	PACKETPP_ASSERT(echoReq->header->id == htons(55099), "Echo request id != 55099");
@@ -2736,7 +2736,7 @@ PACKETPP_TEST(IcmpEditTest)
 
 	// convert echo request to echo reply
 
-	icmp_echo_reply* echoReply = icmpLayer->setEchoReplyData(55099, 0, 0xe45104007dd6a751, data, 48);
+	icmp_echo_reply* echoReply = icmpLayer->setEchoReplyData(55099, 0, 0xe45104007dd6a751ULL, data, 48);
 	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Managed to extract echo request data although packet converted to echo reply");
 	icmpRouterAdv1.computeCalculateFields();
 	PACKETPP_ASSERT(echoReply->header->checksum == htons(0xc3b3), "Wrong checksum for echo reply");
@@ -2751,7 +2751,7 @@ PACKETPP_TEST(IcmpEditTest)
 	PACKETPP_ASSERT(icmpLayer != NULL, "Cannot extract ICMP layer from time exceeded udp");
 	PACKETPP_ASSERT(icmpLayer->getTimeExceededData() != NULL, "Couldn't extract time exceeded data");
 	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Managed to extract echo request data although packet is time exceeded");
-	echoReq = icmpLayer->setEchoRequestData(55090, 0, 0xe45104007dd6a751, data, 48);
+	echoReq = icmpLayer->setEchoRequestData(55090, 0, 0xe45104007dd6a751ULL, data, 48);
 	PACKETPP_ASSERT(echoReq != NULL, "Couldn't convert time exceeded to echo request");
 	PACKETPP_ASSERT(icmpLayer->getHeaderLen() == 64, "Echo request length != 64");
 	PACKETPP_ASSERT(echoReq->header->id == htons(55090), "Echo request id != 55090");
@@ -2769,7 +2769,7 @@ PACKETPP_TEST(IcmpEditTest)
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 64;
 	ipLayerForDestUnreachable.getIPv4Header()->ipId = ntohs(10203);
 	IcmpLayer icmpLayerForDestUnreachable;
-	icmpLayerForDestUnreachable.setEchoRequestData(3189, 4, 0x000809f2569f3e41, data, 48);
+	icmpLayerForDestUnreachable.setEchoRequestData(3189, 4, 0x000809f2569f3e41ULL, data, 48);
 	icmp_destination_unreachable* destUnreachable = icmpLayer->setDestUnreachableData(IcmpHostUnreachable, 0, &ipLayerForDestUnreachable, &icmpLayerForDestUnreachable);
 	PACKETPP_ASSERT(destUnreachable != NULL, "Couldn't convert echo request to dest unreachable");
 	PACKETPP_ASSERT(icmpLayer->getHeaderLen() == 8, "Echo request length != 8");
