@@ -108,8 +108,34 @@ public:
 	 */
 	inline Layer* getLastLayer() { return m_LastLayer; }
 
+	/**
+	 * Add a new layer as the last layer in the packet. This method gets a pointer to the new layer as a parameter
+	 * and attaches it to the packet. Notice after calling this method the input layer is attached to the packet so
+	 * every change you make in it affect the packet; Also it cannot be attached to other packets
+	 * @param[in] newLayer A pointer to the new layer to be added to the packet
+	 * @return True if everything went well or false otherwise (an appropriate error log message will be printed in
+	 * such cases)
+	 */
 	bool addLayer(Layer* newLayer);
+
+	/**
+	 * Insert a new layer after an existing layer in the packet. This method gets a pointer to the new layer as a
+	 * parameter and attaches it to the packet. Notice after calling this method the input layer is attached to the
+	 * packet so every change you make in it affect the packet; Also it cannot be attached to other packets
+	 * @param[in] prevLayer A pointer to an existing layer in the packet which the new layer should followed by. If
+	 * this layer isn't attached to a packet and error will be printed to log and false will be returned
+	 * @param[in] newLayer A pointer to the new layer to be added to the packet
+	 * @return True if everything went well or false otherwise (an appropriate error log message will be printed in
+	 * such cases)
+	 */
 	bool insertLayer(Layer* prevLayer, Layer* newLayer);
+
+	/**
+	 * Remove an existing layer from the packet
+	 * @param[in] layer The layer to remove
+	 * @return True if everything went well or false otherwise (an appropriate error log message will be printed in
+	 * such cases)
+	 */
 	bool removeLayer(Layer* layer);
 
 	/**

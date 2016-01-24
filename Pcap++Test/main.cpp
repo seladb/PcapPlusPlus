@@ -1623,6 +1623,10 @@ PCAPP_TEST(TestPrintPacketAndLayers)
 		outputStream << packet.printToString() << "\n\n";
 	}
 
+//	ofstream outputFile("output.txt");
+//	outputFile << outputStream.str();
+//	outputFile.close();
+
 	ifstream referenceFile("PcapExamples/example2_summary.txt");
 	stringstream referenceBuffer;
 	referenceBuffer << referenceFile.rdbuf();

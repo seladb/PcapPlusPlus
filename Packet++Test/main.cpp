@@ -12,6 +12,7 @@
 #include <PPPoELayer.h>
 #include <DnsLayer.h>
 #include <MplsLayer.h>
+#include <IcmpLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -24,6 +25,9 @@
 #else
 #include <in.h>
 #endif
+
+// For debug purpose only
+//#include <pcap.h>
 
 using namespace std;
 
@@ -90,6 +94,34 @@ uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength)
 	bufferLength -= 2;
 	return result;
 }
+
+// For debug purpose only
+//void createPcapFile(Packet& packet, std::string fileName)
+//{
+//    pcap_t *pcap;
+//    pcap = pcap_open_dead(1, 65565);
+//
+//    pcap_dumper_t *d;
+//    /* open output file */
+//    d = pcap_dump_open(pcap, fileName.c_str());
+//    if (d == NULL)
+//    {
+//        pcap_perror(pcap, "pcap_dump_fopen");
+//        return;
+//    }
+//
+//    /* prepare for writing */
+//    struct pcap_pkthdr hdr;
+//    hdr.ts.tv_sec = 0;  /* sec */
+//    hdr.ts.tv_usec = 0; /* ms */
+//    hdr.caplen = hdr.len = packet.getRawPacket()->getRawDataLen();
+//    /* write single IP packet */
+//    pcap_dump((u_char *)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
+//
+//    /* finish up */
+//    pcap_dump_close(d);
+//    return;
+//}
 
 
 PACKETPP_TEST(EthPacketCreation) {
@@ -2157,6 +2189,610 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(IcmpParsingTest)
+{
+	IcmpLayer* icmpLayer = NULL;
+	int buffer1Length = 0;
+	int buffer2Length = 0;
+	int buffer3Length = 0;
+	int buffer4Length = 0;
+	int buffer5Length = 0;
+	int buffer6Length = 0;
+	int buffer7Length = 0;
+	int buffer8Length = 0;
+	int buffer9Length = 0;
+	int buffer10Length = 0;
+	int buffer11Length = 0;
+	int buffer12Length = 0;
+	int buffer13Length = 0;
+	int buffer14Length = 0;
+	int buffer15Length = 0;
+
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IcmpEchoRequest.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file IcmpEchoRequest.dat");
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IcmpEchoReply.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IcmpEchoReply.dat");
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IcmpTimestampRequest.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file IcmpTimestampRequest.dat");
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IcmpTimestampReply.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file IcmpTimestampReply.dat");
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/IcmpRedirect.dat", buffer5Length);
+	PACKETPP_ASSERT(!(buffer5 == NULL), "cannot read file IcmpRedirect.dat");
+	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IcmpRouterAdv1.dat", buffer6Length);
+	PACKETPP_ASSERT(!(buffer6 == NULL), "cannot read file IcmpRouterAdv1.dat");
+	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/IcmpRouterAdv2.dat", buffer7Length);
+	PACKETPP_ASSERT(!(buffer7 == NULL), "cannot read file IcmpRouterAdv2.dat");
+	uint8_t* buffer8 = readFileIntoBuffer("PacketExamples/IcmpRouterSol.dat", buffer8Length);
+	PACKETPP_ASSERT(!(buffer8 == NULL), "cannot read file IcmpRouterSol.dat");
+	uint8_t* buffer9 = readFileIntoBuffer("PacketExamples/IcmpTimeExceededUdp.dat", buffer9Length);
+	PACKETPP_ASSERT(!(buffer9 == NULL), "cannot read file IcmpTimeExceededUdp.dat");
+	uint8_t* buffer10 = readFileIntoBuffer("PacketExamples/IcmpDestUnreachableUdp.dat", buffer10Length);
+	PACKETPP_ASSERT(!(buffer10 == NULL), "cannot read file IcmpDestUnreachableUdp.dat");
+	uint8_t* buffer11 = readFileIntoBuffer("PacketExamples/IcmpTimeExceededEcho.dat", buffer11Length);
+	PACKETPP_ASSERT(!(buffer11 == NULL), "cannot read file IcmpTimeExceededEcho.dat");
+	uint8_t* buffer12 = readFileIntoBuffer("PacketExamples/IcmpDestUnreachableEcho.dat", buffer12Length);
+	PACKETPP_ASSERT(!(buffer12 == NULL), "cannot read file IcmpDestUnreachableEcho.dat");
+	uint8_t* buffer13 = readFileIntoBuffer("PacketExamples/IcmpSourceQuench.dat", buffer13Length);
+	PACKETPP_ASSERT(!(buffer13 == NULL), "cannot read file IcmpSourceQuench.dat");
+	uint8_t* buffer14 = readFileIntoBuffer("PacketExamples/IcmpAddrMaskReq.dat", buffer14Length);
+	PACKETPP_ASSERT(!(buffer14 == NULL), "cannot read file IcmpAddrMaskReq.dat");
+	uint8_t* buffer15 = readFileIntoBuffer("PacketExamples/IcmpAddrMaskRep.dat", buffer15Length);
+	PACKETPP_ASSERT(!(buffer15 == NULL), "cannot read file IcmpAddrMaskRep.dat");
+
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+	RawPacket rawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
+	RawPacket rawPacket6((const uint8_t*)buffer6, buffer6Length, time, true);
+	RawPacket rawPacket7((const uint8_t*)buffer7, buffer7Length, time, true);
+	RawPacket rawPacket8((const uint8_t*)buffer8, buffer8Length, time, true);
+	RawPacket rawPacket9((const uint8_t*)buffer9, buffer9Length, time, true);
+	RawPacket rawPacket10((const uint8_t*)buffer10, buffer10Length, time, true);
+	RawPacket rawPacket11((const uint8_t*)buffer11, buffer11Length, time, true);
+	RawPacket rawPacket12((const uint8_t*)buffer12, buffer12Length, time, true);
+	RawPacket rawPacket13((const uint8_t*)buffer13, buffer13Length, time, true);
+	RawPacket rawPacket14((const uint8_t*)buffer14, buffer14Length, time, true);
+	RawPacket rawPacket15((const uint8_t*)buffer15, buffer15Length, time, true);
+
+
+	Packet icmpEchoRequest(&rawPacket1);
+	Packet icmpEchoReply(&rawPacket2);
+	Packet icmpTimestampReq(&rawPacket3);
+	Packet icmpTimestampReply(&rawPacket4);
+	Packet icmpRedirect(&rawPacket5);
+	Packet icmpRouterAdv1(&rawPacket6);
+	Packet icmpRouterAdv2(&rawPacket7);
+	Packet icmpRouterSol(&rawPacket8);
+	Packet icmpTimeExceededUdp(&rawPacket9);
+	Packet icmpDestUnreachableUdp(&rawPacket10);
+	Packet icmpTimeExceededEcho(&rawPacket11);
+	Packet icmpDestUnreachableEcho(&rawPacket12);
+	Packet icmpSourceQuench(&rawPacket13);
+	Packet icmpAddrMaskReq(&rawPacket14);
+	Packet icmpAddrMaskRep(&rawPacket15);
+
+
+	PACKETPP_ASSERT(icmpEchoRequest.isPacketOfType(ICMP) == true, "ICMP echo request isn't of type ICMP");
+	PACKETPP_ASSERT(icmpEchoReply.isPacketOfType(ICMP) == true, "ICMP echo reply isn't of type ICMP");
+	PACKETPP_ASSERT(icmpTimestampReq.isPacketOfType(ICMP) == true, "ICMP ts request isn't of type ICMP");
+	PACKETPP_ASSERT(icmpTimestampReply.isPacketOfType(ICMP) == true, "ICMP ts reply isn't of type ICMP");
+	PACKETPP_ASSERT(icmpRedirect.isPacketOfType(ICMP) == true, "ICMP redirect isn't of type ICMP");
+	PACKETPP_ASSERT(icmpRouterAdv1.isPacketOfType(ICMP) == true, "ICMP router adv1 isn't of type ICMP");
+	PACKETPP_ASSERT(icmpRouterAdv2.isPacketOfType(ICMP) == true, "ICMP router adv2 isn't of type ICMP");
+	PACKETPP_ASSERT(icmpRouterSol.isPacketOfType(ICMP) == true, "ICMP router sol isn't of type ICMP");
+	PACKETPP_ASSERT(icmpTimeExceededUdp.isPacketOfType(ICMP) == true, "ICMP time exceeded isn't of type ICMP");
+	PACKETPP_ASSERT(icmpDestUnreachableUdp.isPacketOfType(ICMP) == true, "ICMP dest unreachable isn't of type ICMP");
+	PACKETPP_ASSERT(icmpTimeExceededEcho.isPacketOfType(ICMP) == true, "ICMP dest unreachable isn't of type ICMP");
+	PACKETPP_ASSERT(icmpDestUnreachableEcho.isPacketOfType(ICMP) == true, "ICMP dest unreachable isn't of type ICMP");
+	PACKETPP_ASSERT(icmpSourceQuench.isPacketOfType(ICMP) == true, "ICMP dest unreachable isn't of type ICMP");
+	PACKETPP_ASSERT(icmpAddrMaskReq.isPacketOfType(ICMP) == true, "ICMP dest unreachable isn't of type ICMP");
+	PACKETPP_ASSERT(icmpAddrMaskRep.isPacketOfType(ICMP) == true, "ICMP dest unreachable isn't of type ICMP");
+
+
+	// Echo request
+	icmpLayer = icmpEchoRequest.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP echo request layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_ECHO_REQUEST) == true, "ICMP echo request isn't of type ICMP_ECHO_REQUEST");
+	PACKETPP_ASSERT(icmpLayer->getEchoReplyData() == NULL, "Echo reply data isn't NULL for echo request");
+	icmp_echo_request* reqData = icmpLayer->getEchoRequestData();
+	PACKETPP_ASSERT(reqData != NULL, "Echo request data is NULL");
+	PACKETPP_ASSERT(reqData->header->code == 0, "Echo request code isn't 0");
+	PACKETPP_ASSERT(reqData->header->checksum == 0xb3bb, "Echo request checksum isn't 0xb3bb");
+	PACKETPP_ASSERT(reqData->header->id == 0x3bd7, "Echo request id isn't 0x3bd7");
+	PACKETPP_ASSERT(reqData->header->sequence == 0, "Echo request sequence isn't 0");
+	PACKETPP_ASSERT(reqData->header->timestamp == 0xE45104007DD6A751, "Echo request timestamp is wrong");
+	PACKETPP_ASSERT(reqData->dataLength == 48, "Echo request data length isn't 48");
+	PACKETPP_ASSERT(reqData->data[5] == 0x0d && reqData->data[43] == 0x33, "Echo request data is wrong");
+
+	// Echo reply
+	icmpLayer = icmpEchoReply.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP echo reply layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_ECHO_REPLY) == true, "ICMP echo reply isn't of type ICMP_ECHO_REPLY");
+	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Echo request data isn't NULL for echo reply");
+	icmp_echo_reply* repData = icmpLayer->getEchoReplyData();
+	PACKETPP_ASSERT(repData != NULL, "Echo reply data is NULL");
+	PACKETPP_ASSERT(repData->header->checksum == 0xb3c3, "Echo reply checksum isn't 0xb3c3");
+	PACKETPP_ASSERT(repData->dataLength == 48, "Echo reply data length isn't 48");
+	PACKETPP_ASSERT(repData->data[5] == 0x0d && reqData->data[43] == 0x33, "Echo reply data is wrong");
+
+	// Timestamp request
+	icmpLayer = icmpTimestampReq.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP ts request layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_TIMESTAMP_REQUEST) == true, "ICMP ts request isn't of type ICMP_TIMESTAMP_REQUEST");
+	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Echo request data isn't NULL for ts request");
+	icmp_timestamp_request* tsReqData = icmpLayer->getTimestampRequestData();
+	PACKETPP_ASSERT(tsReqData != NULL, "ts request data is NULL");
+	PACKETPP_ASSERT(tsReqData->code == 0, "ts req code isn't 0");
+	PACKETPP_ASSERT(tsReqData->originateTimestamp == 0x6324f600, "ts req originate ts is wrong, it's 0x%X", tsReqData->originateTimestamp);
+	PACKETPP_ASSERT(tsReqData->transmitTimestamp == 0, "ts req transmit ts isn't 0");
+
+	// Timestamp reply
+	icmpLayer = icmpTimestampReply.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP ts reply layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_TIMESTAMP_REPLY) == true, "ICMP ts reply isn't of type ICMP_TIMESTAMP_REPLY");
+	PACKETPP_ASSERT(icmpLayer->getSourceQuenchdata() == NULL, "Source quench data isn't NULL for ts reply");
+	icmp_timestamp_reply* tsRepData = icmpLayer->getTimestampReplyData();
+	PACKETPP_ASSERT(tsRepData != NULL, "ts reply data is NULL");
+	PACKETPP_ASSERT(tsRepData->checksum == 0x19e3, "ts rep wrong checksum");
+	PACKETPP_ASSERT(tsRepData->receiveTimestamp == 0x00f62d62, "ts rep data wrong receive ts");
+	PACKETPP_ASSERT(tsRepData->transmitTimestamp == 0x00f62d62, "ts rep data wrong transmit ts");
+
+	// Address mask request
+	icmpLayer = icmpAddrMaskReq.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP mask request layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_ADDRESS_MASK_REQUEST) == true, "ICMP mask request isn't of type ICMP_ADDRESS_MASK_REQUEST");
+	PACKETPP_ASSERT(icmpLayer->getRouterAdvertisementData() == NULL, "Router adv data isn't NULL for mask request");
+	icmp_address_mask_request* maskReqData = icmpLayer->getAddressMaskRequestData();
+	PACKETPP_ASSERT(maskReqData != NULL, "mask request data is NULL");
+	PACKETPP_ASSERT(maskReqData->id == 0x0cb0, "mask request id is wrong");
+	PACKETPP_ASSERT(maskReqData->sequence == 0x6, "mask request sequence is wrong");
+	PACKETPP_ASSERT(maskReqData->addressMask == 0, "mask request mask is wrong");
+
+	// Address mask reply
+	icmpLayer = icmpAddrMaskRep.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP mask reply layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_ADDRESS_MASK_REPLY) == true, "ICMP mask reply isn't of type ICMP_ADDRESS_MASK_REPLY");
+	PACKETPP_ASSERT(icmpLayer->getSourceQuenchdata() == NULL, "Source quench data isn't NULL for mask reply");
+	PACKETPP_ASSERT(icmpLayer->getAddressMaskRequestData() == NULL, "Mask request data isn't NULL for mask reply");
+	icmp_address_mask_reply* maskRepData = icmpLayer->getAddressMaskReplyData();
+	PACKETPP_ASSERT(maskRepData != NULL, "mask reply data is NULL");
+	PACKETPP_ASSERT(maskRepData->id == 0x0cb2, "mask reply id is wrong");
+	PACKETPP_ASSERT(maskRepData->type == (uint8_t)ICMP_ADDRESS_MASK_REPLY, "mask reply type is wrong");
+	PACKETPP_ASSERT(maskRepData->addressMask == 0, "mask request mask is wrong");
+
+	// Router solicitation
+	icmpLayer = icmpRouterSol.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP router solicitation layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_ROUTER_SOL) == true, "ICMP router solicitation isn't of type ICMP_ROUTER_SOL");
+	PACKETPP_ASSERT(icmpLayer->getSourceQuenchdata() == NULL, "Source quench data isn't NULL for router solicitation");
+	PACKETPP_ASSERT(icmpLayer->getAddressMaskRequestData() == NULL, "Mask request data isn't NULL for router solicitation");
+	icmp_router_solicitation* solData = icmpLayer->getRouterSolicitationData();
+	PACKETPP_ASSERT(solData != NULL, "Router solicitation data is NULL");
+	PACKETPP_ASSERT(solData->checksum == 0xfff5, "Router soliciation checksum is wrong");
+
+	// Destination unreachable
+	icmpLayer = icmpDestUnreachableUdp.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP dest unreachable (udp) layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_DEST_UNREACHABLE) == true, "ICMP dest unreachable (udp) isn't of type ICMP_DEST_UNREACHABLE");
+	icmp_destination_unreachable* destUnreachData = icmpLayer->getDestUnreachableData();
+	PACKETPP_ASSERT(destUnreachData != NULL, "dest unreachable (udp) data is NULL");
+	PACKETPP_ASSERT(destUnreachData->nextHopMTU == 0, "dest unreachable (udp) next hop mtu isn't 0");
+	PACKETPP_ASSERT(destUnreachData->code == IcmpPortUnreachable, "dest unreachable (udp) code isn't IcmpPortUnreachable");
+	PACKETPP_ASSERT(icmpLayer->getNextLayer() != NULL && icmpLayer->getNextLayer()->getProtocol() == IPv4, "dest unreachable (udp) next layer is null or not IPv4");
+	IPv4Layer* ipLayer = (IPv4Layer*)icmpLayer->getNextLayer();
+	PACKETPP_ASSERT(ipLayer->getSrcIpAddress() == IPv4Address(std::string("10.0.1.2")), "dest unreachable (udp) IP source isn't 10.0.1.12");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == UDP, "dest unreachable (udp) next layer is not UDP");
+
+	icmpLayer = icmpDestUnreachableEcho.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP dest unreachable (echo) layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_DEST_UNREACHABLE) == true, "ICMP dest unreachable (echo) isn't of type ICMP_DEST_UNREACHABLE");
+	destUnreachData = icmpLayer->getDestUnreachableData();
+	PACKETPP_ASSERT(destUnreachData != NULL, "dest unreachable (echo) data is NULL");
+	PACKETPP_ASSERT(destUnreachData->nextHopMTU == 0, "dest unreachable (echo) next hop mtu isn't 0");
+	PACKETPP_ASSERT(destUnreachData->code == IcmpHostUnreachable, "dest unreachable (echo) code isn't IcmpHostUnreachable");
+	PACKETPP_ASSERT(icmpLayer->getNextLayer() != NULL && icmpLayer->getNextLayer()->getProtocol() == IPv4, "dest unreachable (echo) next layer is null or not IPv4");
+	ipLayer = (IPv4Layer*)icmpLayer->getNextLayer();
+	PACKETPP_ASSERT(ipLayer->getDstIpAddress() == IPv4Address(std::string("10.0.0.111")), "dest unreachable (udp) IP dest isn't 10.0.0.111");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == ICMP, "dest unreachable (echo) next layer is not ICMP");
+
+	// Time exceeded
+	icmpLayer = icmpTimeExceededUdp.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP time exceeded (udp) layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_TIME_EXCEEDED) == true, "ICMP time exceeded (udp) isn't of type ICMP_TIME_EXCEEDED");
+	icmp_time_exceeded* timeExData = icmpLayer->getTimeExceededData();
+	PACKETPP_ASSERT(timeExData != NULL, "ICMP time exceeded (udp) data is NULL");
+	PACKETPP_ASSERT(timeExData->checksum == 0x2dac, "ICMP time exceeded (udp) checksum is wrong");
+	PACKETPP_ASSERT(icmpLayer->getNextLayer() != NULL && icmpLayer->getNextLayer()->getProtocol() == IPv4, "ICMP time exceeded (udp) next layer is null or not IPv4");
+	ipLayer = (IPv4Layer*)icmpLayer->getNextLayer();
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == UDP, "ICMP time exceeded (udp) next layer is not UDP");
+
+	icmpLayer = icmpTimeExceededEcho.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP time exceeded (echo) layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_TIME_EXCEEDED) == true, "ICMP time exceeded (echo) isn't of type ICMP_TIME_EXCEEDED");
+	timeExData = icmpLayer->getTimeExceededData();
+	PACKETPP_ASSERT(timeExData != NULL, "ICMP time exceeded (echo) data is NULL");
+	PACKETPP_ASSERT(timeExData->code == 0, "ICMP time exceeded (echo) code != 0");
+	PACKETPP_ASSERT(icmpLayer->getNextLayer() != NULL && icmpLayer->getNextLayer()->getProtocol() == IPv4, "ICMP time exceeded (echo) next layer is null or not IPv4");
+	ipLayer = (IPv4Layer*)icmpLayer->getNextLayer();
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == ICMP, "ICMP time exceeded (echo) next layer is not ICMP");
+	icmpLayer = (IcmpLayer*)ipLayer->getNextLayer();
+	PACKETPP_ASSERT(icmpLayer->getMessageType() == ICMP_ECHO_REQUEST, "ICMP time exceeded (echo) inner ICMP message isn't of type ICMP_ECHO_REQUEST");
+	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() != NULL && icmpLayer->getEchoRequestData()->header->id == 0x670c, "ICMP time exceeded (echo) inner ICMP message id is wrong");
+
+	// Redirect
+	icmpLayer = icmpRedirect.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP redirect layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_REDIRECT) == true, "ICMP redirect isn't of type ICMP_REDIRECT");
+	icmp_redirect* redirectData = icmpLayer->getRedirectData();
+	PACKETPP_ASSERT(redirectData != NULL, "ICMP redirect data is NULL");
+	PACKETPP_ASSERT(icmpLayer->getEchoReplyData() == NULL && icmpLayer->getInfoRequestData() == NULL && icmpLayer->getParamProblemData() == NULL, "ICMP redirect other message types not null");
+	PACKETPP_ASSERT(IPv4Address(redirectData->gatewayAddress).toString() == "10.2.99.98", "ICMP redirect gw addr != 10.2.99.98");
+	PACKETPP_ASSERT(icmpLayer->getNextLayer() != NULL && icmpLayer->getNextLayer()->getProtocol() == IPv4, "ICMP redirect next layer is null or not IPv4");
+	ipLayer = (IPv4Layer*)icmpLayer->getNextLayer();
+	PACKETPP_ASSERT(ipLayer != NULL && ipLayer->getSrcIpAddress().toString() == "10.2.10.2", "ICMP redirect inner IP layer source IP != 10.2.10.2");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == ICMP, "ICMP redirect next layer is not ICMP");
+	icmpLayer = (IcmpLayer*)ipLayer->getNextLayer();
+	PACKETPP_ASSERT(icmpLayer->getMessageType() == ICMP_ECHO_REQUEST, "ICMP redirect inner ICMP message isn't of type ICMP_ECHO_REQUEST");
+	PACKETPP_ASSERT(icmpLayer->getEchoRequestData()->header->id == 0x2, "ICMP redirect inner ICMP message id != 2");
+
+	// Router advertisement
+	icmpLayer = icmpRouterAdv1.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP router adv1 layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_ROUTER_ADV) == true, "ICMP router adv1 isn't of type ICMP_ROUTER_ADV");
+	icmp_router_advertisement* routerAdvData = icmpLayer->getRouterAdvertisementData();
+	PACKETPP_ASSERT(routerAdvData != NULL, "ICMP router adv1 data is NULL");
+	PACKETPP_ASSERT(routerAdvData->header->advertisementCount == 1, "ICMP router adv1 count != 1");
+	PACKETPP_ASSERT(routerAdvData->header->lifetime == htons(200), "ICMP router adv1 lifetime != 200");
+	PACKETPP_ASSERT(routerAdvData->getRouterAddress(1) == NULL && routerAdvData->getRouterAddress(100) == NULL, "ICMP router adv1 managed to get addr in indices > 0");
+	icmp_router_address_structure* routerAddr = routerAdvData->getRouterAddress(0);
+	PACKETPP_ASSERT(routerAddr != NULL, "ICMP router adv1 router addr #0 is null");
+	PACKETPP_ASSERT(IPv4Address(routerAddr->routerAddress) == IPv4Address(std::string("192.168.144.2")), "ICMP router adv1 router addr #0 != 192.168.144.2");
+	PACKETPP_ASSERT(routerAddr->preferenceLevel == 0x80, "ICMP router adv1 router addr #0 preference level != 0x80");
+
+	icmpLayer = icmpRouterAdv2.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Couldn't retrieve ICMP router adv2 layer");
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_ROUTER_ADV) == true, "ICMP router adv2 isn't of type ICMP_ROUTER_ADV");
+	routerAdvData = icmpLayer->getRouterAdvertisementData();
+	PACKETPP_ASSERT(routerAdvData != NULL, "ICMP router adv2 data is NULL");
+	PACKETPP_ASSERT(routerAdvData->header->advertisementCount == 1, "ICMP router adv2 count != 1");
+	PACKETPP_ASSERT(routerAdvData->header->addressEntrySize == 2, "ICMP router adv2 entry size != 2");
+	PACKETPP_ASSERT(routerAdvData->getRouterAddress(1) == NULL && routerAdvData->getRouterAddress(20) == NULL, "ICMP router adv2 managed to get addr in indices > 0");
+	routerAddr = routerAdvData->getRouterAddress(0);
+	PACKETPP_ASSERT(routerAddr != NULL, "ICMP router adv1 router addr #0 is null");
+	PACKETPP_ASSERT(IPv4Address(routerAddr->routerAddress) == IPv4Address(std::string("14.80.84.66")), "ICMP router adv2 router addr #0 != 14.80.84.66");
+	PACKETPP_ASSERT(routerAddr->preferenceLevel == 0, "ICMP router adv2 router addr #0 preference level != 0");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(IcmpCreationTest)
+{
+	int buffer1Length = 0;
+	int buffer2Length = 0;
+	int buffer3Length = 0;
+	int buffer4Length = 0;
+	int buffer5Length = 0;
+	int buffer6Length = 0;
+	int buffer7Length = 0;
+	int buffer8Length = 0;
+	int buffer9Length = 0;
+	int buffer10Length = 0;
+	int buffer11Length = 0;
+	int buffer12Length = 0;
+	int buffer13Length = 0;
+	int buffer14Length = 0;
+	int buffer15Length = 0;
+
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IcmpEchoRequest.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file IcmpEchoRequest.dat");
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IcmpEchoReply.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IcmpEchoReply.dat");
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IcmpTimestampRequest.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file IcmpTimestampRequest.dat");
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IcmpTimestampReply.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file IcmpTimestampReply.dat");
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/IcmpRedirect.dat", buffer5Length);
+	PACKETPP_ASSERT(!(buffer5 == NULL), "cannot read file IcmpRedirect.dat");
+	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IcmpRouterAdv1.dat", buffer6Length);
+	PACKETPP_ASSERT(!(buffer6 == NULL), "cannot read file IcmpRouterAdv1.dat");
+	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/IcmpRouterAdv2.dat", buffer7Length);
+	PACKETPP_ASSERT(!(buffer7 == NULL), "cannot read file IcmpRouterAdv2.dat");
+	uint8_t* buffer8 = readFileIntoBuffer("PacketExamples/IcmpRouterSol.dat", buffer8Length);
+	PACKETPP_ASSERT(!(buffer8 == NULL), "cannot read file IcmpRouterSol.dat");
+	uint8_t* buffer9 = readFileIntoBuffer("PacketExamples/IcmpTimeExceededUdp.dat", buffer9Length);
+	PACKETPP_ASSERT(!(buffer9 == NULL), "cannot read file IcmpTimeExceededUdp.dat");
+	uint8_t* buffer10 = readFileIntoBuffer("PacketExamples/IcmpDestUnreachableUdp.dat", buffer10Length);
+	PACKETPP_ASSERT(!(buffer10 == NULL), "cannot read file IcmpDestUnreachableUdp.dat");
+	uint8_t* buffer11 = readFileIntoBuffer("PacketExamples/IcmpTimeExceededEcho.dat", buffer11Length);
+	PACKETPP_ASSERT(!(buffer11 == NULL), "cannot read file IcmpTimeExceededEcho.dat");
+	uint8_t* buffer12 = readFileIntoBuffer("PacketExamples/IcmpDestUnreachableEcho.dat", buffer12Length);
+	PACKETPP_ASSERT(!(buffer12 == NULL), "cannot read file IcmpDestUnreachableEcho.dat");
+	uint8_t* buffer13 = readFileIntoBuffer("PacketExamples/IcmpSourceQuench.dat", buffer13Length);
+	PACKETPP_ASSERT(!(buffer13 == NULL), "cannot read file IcmpSourceQuench.dat");
+	uint8_t* buffer14 = readFileIntoBuffer("PacketExamples/IcmpAddrMaskReq.dat", buffer14Length);
+	PACKETPP_ASSERT(!(buffer14 == NULL), "cannot read file IcmpAddrMaskReq.dat");
+	uint8_t* buffer15 = readFileIntoBuffer("PacketExamples/IcmpAddrMaskRep.dat", buffer15Length);
+	PACKETPP_ASSERT(!(buffer15 == NULL), "cannot read file IcmpAddrMaskRep.dat");
+
+
+	MacAddress srcMac(std::string("11:22:33:44:55:66"));
+	MacAddress destMac(std::string("66:55:44:33:22:11"));
+	EthLayer ethLayer(srcMac, destMac, ETHERTYPE_IP);
+	IPv4Layer ipLayer(IPv4Address(std::string("1.1.1.1")), IPv4Address(std::string("2.2.2.2")));
+
+
+	uint8_t data[48] = { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a,
+			0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+			0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37 };
+
+	// Echo request creation
+	Packet echoRequestPacket(1);
+	IcmpLayer echoReqLayer;
+	PACKETPP_ASSERT(echoReqLayer.setEchoRequestData(0xd73b, 0, 0xe45104007dd6a751, data, 48) != NULL, "Couldn't set echo request data");
+	echoRequestPacket.addLayer(&ethLayer);
+	echoRequestPacket.addLayer(&ipLayer);
+	echoRequestPacket.addLayer(&echoReqLayer);
+	echoRequestPacket.computeCalculateFields();
+	PACKETPP_ASSERT(echoRequestPacket.getRawPacket()->getRawDataLen() == buffer1Length, "Echo request data len is different than expected");
+	PACKETPP_ASSERT(memcmp(echoRequestPacket.getRawPacket()->getRawData()+34, buffer1+34, buffer1Length-34) == 0, "Echo request raw data is different than expected");
+
+	// Echo reply creation
+	EthLayer ethLayer2(ethLayer);
+	IPv4Layer ipLayer2(ipLayer);
+	IcmpLayer echoRepLayer;
+	Packet echoReplyPacket(10);
+	echoReplyPacket.addLayer(&ethLayer2);
+	echoReplyPacket.addLayer(&ipLayer2);
+	echoReplyPacket.addLayer(&echoRepLayer);
+	PACKETPP_ASSERT(echoRepLayer.setEchoReplyData(0xd73b, 0, 0xe45104007dd6a751, data, 48) != NULL, "Couldn't set echo reply data");
+	echoReplyPacket.computeCalculateFields();
+	PACKETPP_ASSERT(echoReplyPacket.getRawPacket()->getRawDataLen() == buffer2Length, "Echo reply data len is different than expected");
+	PACKETPP_ASSERT(memcmp(echoReplyPacket.getRawPacket()->getRawData()+34, buffer2+34, buffer2Length-34) == 0, "Echo reply raw data is different than expected");
+
+	// Time exceeded creation
+	EthLayer ethLayer3(ethLayer);
+	IPv4Layer ipLayer3(ipLayer);
+	IcmpLayer timeExceededLayer;
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(timeExceededLayer.setTimeExceededData(1, NULL, NULL) == NULL, "Managed to set time exceeded data on a layer not attached to a packet");
+	LoggerPP::getInstance().enableErrors();
+	Packet timeExceededPacket(10);
+	timeExceededPacket.addLayer(&ethLayer3);
+	timeExceededPacket.addLayer(&ipLayer3);
+	timeExceededPacket.addLayer(&timeExceededLayer);
+	IPv4Layer ipLayerForTimeExceeded(IPv4Address(std::string("10.0.0.6")), IPv4Address(std::string("8.8.8.8")));
+	ipLayerForTimeExceeded.getIPv4Header()->fragmentOffset = 0x40;
+	ipLayerForTimeExceeded.getIPv4Header()->timeToLive = 1;
+	ipLayerForTimeExceeded.getIPv4Header()->ipId = ntohs(2846);
+	IcmpLayer icmpLayerForTimeExceeded;
+	icmpLayerForTimeExceeded.setEchoRequestData(3175, 1, 0x00058bbd569f3d49, data, 48);
+	PACKETPP_ASSERT(timeExceededLayer.setTimeExceededData(0, &ipLayerForTimeExceeded, &icmpLayerForTimeExceeded) != NULL, "Failed to set time exceeded data");
+	timeExceededPacket.computeCalculateFields();
+	PACKETPP_ASSERT(timeExceededPacket.getRawPacket()->getRawDataLen() == buffer11Length, "Time exceeded data len is different than expected");
+	PACKETPP_ASSERT(memcmp(timeExceededPacket.getRawPacket()->getRawData()+34, buffer11+34, buffer11Length-34) == 0, "Time exceeded raw data is different than expected");
+
+	// Dest unreachable creation
+	EthLayer ethLayer4(ethLayer);
+	IPv4Layer ipLayer4(ipLayer);
+	IcmpLayer destUnreachableLayer;
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(destUnreachableLayer.setDestUnreachableData(IcmpHostUnreachable, 0, NULL, NULL) == NULL, "Managed to set dest unreachable data on a layer not attached to a packet");
+	LoggerPP::getInstance().enableErrors();
+	Packet destUnreachablePacket(10);
+	destUnreachablePacket.addLayer(&ethLayer4);
+	destUnreachablePacket.addLayer(&ipLayer4);
+	destUnreachablePacket.addLayer(&destUnreachableLayer);
+	IPv4Layer ipLayerForDestUnreachable(IPv4Address(std::string("10.0.1.2")), IPv4Address(std::string("172.16.0.2")));
+	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
+	ipLayerForDestUnreachable.getIPv4Header()->ipId = ntohs(230);
+	UdpLayer udpLayerForDestUnreachable(49182, 33446);
+	PACKETPP_ASSERT(destUnreachableLayer.setDestUnreachableData(IcmpPortUnreachable, 0, &ipLayerForDestUnreachable, &udpLayerForDestUnreachable) != NULL, "Failed to set dest unreachable data");
+	destUnreachablePacket.computeCalculateFields();
+	PACKETPP_ASSERT(destUnreachablePacket.getRawPacket()->getRawDataLen() == buffer10Length, "Dest unreachable data len is different than expected");
+	PACKETPP_ASSERT(memcmp(destUnreachablePacket.getRawPacket()->getRawData()+34, buffer10+34, buffer10Length-34) == 0, "Dest unreachable raw data is different than expected");
+
+	// Timestamp reply
+	EthLayer ethLayer5(ethLayer);
+	IPv4Layer ipLayer5(ipLayer);
+	IcmpLayer timestampReplyLayer;
+	Packet timestampReplyPacket(20);
+	timestampReplyPacket.addLayer(&ethLayer5);
+	timestampReplyPacket.addLayer(&ipLayer5);
+	timeval orig = { 16131, 171000 };
+	timeval recv = { 16133, 474000 };
+	timeval tran = { 16133, 474000 };
+	PACKETPP_ASSERT(timestampReplyLayer.setTimestampReplyData(14640, 0, orig, recv, tran) != NULL, "Couldn't set timestamp reply data");
+	timestampReplyPacket.addLayer(&timestampReplyLayer);
+	timestampReplyPacket.computeCalculateFields();
+	PACKETPP_ASSERT(timestampReplyPacket.getRawPacket()->getRawDataLen() == buffer4Length-6, "Timestamp reply data len is different than expected");
+
+	// Address mask request
+	EthLayer ethLayer6(ethLayer);
+	IPv4Layer ipLayer6(ipLayer);
+	IcmpLayer addressMaskRequestLayer;
+	Packet addressMaskRequestPacket(30);
+	addressMaskRequestPacket.addLayer(&ethLayer6);
+	addressMaskRequestPacket.addLayer(&ipLayer6);
+	PACKETPP_ASSERT(addressMaskRequestLayer.setAddressMaskRequestData(45068, 1536, IPv4Address::Zero) != NULL, "Couldn't set address mask request data");
+	addressMaskRequestPacket.addLayer(&addressMaskRequestLayer);
+	addressMaskRequestPacket.computeCalculateFields();
+	PACKETPP_ASSERT(addressMaskRequestPacket.getRawPacket()->getRawDataLen() == buffer14Length-14, "Address mask request data len is different than expected");
+	PACKETPP_ASSERT(memcmp(addressMaskRequestPacket.getRawPacket()->getRawData()+34, buffer14+34, buffer14Length-34-14) == 0, "Address mask request raw data is different than expected");
+
+	// Redirect creation
+	EthLayer ethLayer7(ethLayer);
+	IPv4Layer ipLayer7(ipLayer);
+	IcmpLayer redirectLayer;
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(redirectLayer.setDestUnreachableData(IcmpHostUnreachable, 0, NULL, NULL) == NULL, "Managed to set redirect data on a layer not attached to a packet");
+	LoggerPP::getInstance().enableErrors();
+	Packet redirectPacket(13);
+	redirectPacket.addLayer(&ethLayer7);
+	redirectPacket.addLayer(&ipLayer7);
+	redirectPacket.addLayer(&redirectLayer);
+	IPv4Layer ipLayerForRedirect(IPv4Address(std::string("10.2.10.2")), IPv4Address(std::string("10.3.71.7")));
+	ipLayerForRedirect.getIPv4Header()->ipId = ntohs(14848);
+	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;
+	IcmpLayer icmpLayerForRedirect;
+	icmpLayerForRedirect.setEchoRequestData(512, 12544, 0, NULL, 0);
+	PACKETPP_ASSERT(redirectLayer.setRedirectData(1, IPv4Address(std::string("10.2.99.98")), &ipLayerForRedirect, &icmpLayerForRedirect) != NULL, "Failed to set redirect data");
+	redirectPacket.computeCalculateFields();
+	PACKETPP_ASSERT(redirectPacket.getRawPacket()->getRawDataLen() == buffer5Length+8, "Redirect data len is different than expected");
+
+	// Router advertisement creation
+	EthLayer ethLayer8(ethLayer);
+	IPv4Layer ipLayer8(ipLayer);
+	IcmpLayer routerAdvLayer;
+	Packet routerAdvPacket(23);
+	routerAdvPacket.addLayer(&ethLayer8);
+	routerAdvPacket.addLayer(&ipLayer8);
+	routerAdvPacket.addLayer(&routerAdvLayer);
+	icmp_router_address_structure addr1;
+	addr1.setRouterAddress(IPv4Address(std::string("192.168.144.2")), (uint32_t)0x08000000);
+	icmp_router_address_structure addr2;
+	addr2.setRouterAddress(IPv4Address(std::string("1.1.1.1")), (uint32_t)1000);
+	icmp_router_address_structure addr3;
+	addr3.setRouterAddress(IPv4Address(std::string("10.0.0.138")), (uint32_t)30000);
+	std::vector<icmp_router_address_structure> routerAddresses;
+	routerAddresses.push_back(addr1);
+	routerAddresses.push_back(addr2);
+	routerAddresses.push_back(addr3);
+	PACKETPP_ASSERT(routerAdvLayer.setRouterAdvertisementData(16, 200, routerAddresses) != NULL, "Failed to set router adv data");
+	routerAdvPacket.computeCalculateFields();
+	PACKETPP_ASSERT(routerAdvLayer.getHeaderLen() == 32, "Router adv header len != 32");
+	PACKETPP_ASSERT(routerAdvPacket.getRawPacket()->getRawDataLen() == buffer6Length-18, "Router adv len is different than expected");
+
+
+	delete [] buffer1;
+	delete [] buffer2;
+	delete [] buffer3;
+	delete [] buffer4;
+	delete [] buffer5;
+	delete [] buffer6;
+	delete [] buffer7;
+	delete [] buffer8;
+	delete [] buffer9;
+	delete [] buffer10;
+	delete [] buffer11;
+	delete [] buffer12;
+	delete [] buffer13;
+	delete [] buffer14;
+	delete [] buffer15;
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(IcmpEditTest)
+{
+	int buffer1Length = 0;
+	int buffer2Length = 0;
+	int buffer3Length = 0;
+	int buffer4Length = 0;
+	int buffer5Length = 0;
+
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IcmpRouterAdv1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file IcmpRouterAdv1.dat");
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IcmpEchoRequest.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IcmpEchoRequest.dat");
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IcmpEchoReply.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file IcmpEchoReply.dat");
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IcmpTimeExceededUdp.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file IcmpTimeExceededUdp.dat");
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/IcmpDestUnreachableEcho.dat", buffer5Length);
+	PACKETPP_ASSERT(!(buffer5 == NULL), "cannot read file IcmpDestUnreachableEcho.dat");
+
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+
+	// convert router adv to echo request
+
+	Packet icmpRouterAdv1(&rawPacket1);
+
+	IcmpLayer* icmpLayer = icmpRouterAdv1.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Cannot extract ICMP layer from router adv1");
+
+	uint8_t data[48] = { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a,
+			0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+			0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37 };
+
+	PACKETPP_ASSERT(icmpLayer->getRouterAdvertisementData() != NULL, "Couldn't extract router adv data");
+	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Managed to extract echo request data although packet is router adv");
+	icmp_echo_request* echoReq = icmpLayer->setEchoRequestData(55099, 0, 0xe45104007dd6a751, data, 48);
+	PACKETPP_ASSERT(echoReq != NULL, "Couldn't convert router adv to echo request");
+	PACKETPP_ASSERT(icmpLayer->getHeaderLen() == 64, "Echo request length != 64");
+	PACKETPP_ASSERT(echoReq->header->id == htons(55099), "Echo request id != 55099");
+	PACKETPP_ASSERT(echoReq->dataLength == 48, "Echo request data len != 48");
+	icmpRouterAdv1.computeCalculateFields();
+	PACKETPP_ASSERT(icmpLayer->getRouterAdvertisementData() == NULL, "Managed to extract router adv data although packet converted to echo request");
+	PACKETPP_ASSERT(memcmp(icmpRouterAdv1.getRawPacket()->getRawData()+34, buffer2+34, buffer2Length-34) == 0, "Echo request raw data is different than expected");
+
+
+	// convert echo request to echo reply
+
+	icmp_echo_reply* echoReply = icmpLayer->setEchoReplyData(55099, 0, 0xe45104007dd6a751, data, 48);
+	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Managed to extract echo request data although packet converted to echo reply");
+	icmpRouterAdv1.computeCalculateFields();
+	PACKETPP_ASSERT(echoReply->header->checksum == htons(0xc3b3), "Wrong checksum for echo reply");
+	PACKETPP_ASSERT(memcmp(icmpRouterAdv1.getRawPacket()->getRawData()+34, buffer3+34, buffer3Length-34) == 0, "Echo reply raw data is different than expected");
+
+
+	// convert time exceeded to echo request
+
+	Packet icmpTimeExceededUdp(&rawPacket4);
+
+	icmpLayer = icmpTimeExceededUdp.getLayerOfType<IcmpLayer>();
+	PACKETPP_ASSERT(icmpLayer != NULL, "Cannot extract ICMP layer from time exceeded udp");
+	PACKETPP_ASSERT(icmpLayer->getTimeExceededData() != NULL, "Couldn't extract time exceeded data");
+	PACKETPP_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Managed to extract echo request data although packet is time exceeded");
+	echoReq = icmpLayer->setEchoRequestData(55090, 0, 0xe45104007dd6a751, data, 48);
+	PACKETPP_ASSERT(echoReq != NULL, "Couldn't convert time exceeded to echo request");
+	PACKETPP_ASSERT(icmpLayer->getHeaderLen() == 64, "Echo request length != 64");
+	PACKETPP_ASSERT(echoReq->header->id == htons(55090), "Echo request id != 55090");
+	echoReq->header->id = htons(55099);
+	PACKETPP_ASSERT(echoReq->header->id == htons(55099), "Echo request id != 55099");
+	PACKETPP_ASSERT(echoReq->dataLength == 48, "Echo request data len != 48");
+	icmpTimeExceededUdp.computeCalculateFields();
+	PACKETPP_ASSERT(memcmp(icmpTimeExceededUdp.getRawPacket()->getRawData()+34, buffer2+34, buffer2Length-34) == 0, "Echo request raw data is different than expected");
+
+
+	// convert echo request to dest unreachable
+
+	IPv4Layer ipLayerForDestUnreachable(IPv4Address(std::string("10.0.0.7")), IPv4Address(std::string("10.0.0.111")));
+	ipLayerForDestUnreachable.getIPv4Header()->fragmentOffset = 0x0040;
+	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 64;
+	ipLayerForDestUnreachable.getIPv4Header()->ipId = ntohs(10203);
+	IcmpLayer icmpLayerForDestUnreachable;
+	icmpLayerForDestUnreachable.setEchoRequestData(3189, 4, 0x000809f2569f3e41, data, 48);
+	icmp_destination_unreachable* destUnreachable = icmpLayer->setDestUnreachableData(IcmpHostUnreachable, 0, &ipLayerForDestUnreachable, &icmpLayerForDestUnreachable);
+	PACKETPP_ASSERT(destUnreachable != NULL, "Couldn't convert echo request to dest unreachable");
+	PACKETPP_ASSERT(icmpLayer->getHeaderLen() == 8, "Echo request length != 8");
+	PACKETPP_ASSERT(destUnreachable->code == (uint8_t)IcmpHostUnreachable, "Dest unreachable code != IcmpHostUnreachable");
+	PACKETPP_ASSERT(icmpLayer->getNextLayer() != NULL && icmpLayer->getNextLayer()->getProtocol() == IPv4, "Dest unreachable doesn't have a next IP layer or it's not IPv4");
+	IPv4Layer* ipLayer = (IPv4Layer*)icmpLayer->getNextLayer();
+	PACKETPP_ASSERT(ipLayer->getDstIpAddress() == IPv4Address(std::string("10.0.0.111")), "Dest unreachable IP header dest addr != 10.0.0.111");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == ICMP, "Dest unreachable doesn't have a next ICMP layer or it's not ICMP");
+	icmpLayer = (IcmpLayer*)ipLayer->getNextLayer();
+	PACKETPP_ASSERT(icmpLayer->isMessageOfType(ICMP_ECHO_REQUEST) == true, "Dest unreachable ICMP layer isn't of type echo request");
+	echoReq = icmpLayer->getEchoRequestData();
+	PACKETPP_ASSERT(echoReq != NULL, "Coulnd't extract echo request data from dest unreachable ICMP layer");
+	PACKETPP_ASSERT(echoReq->header->sequence == htons(4), "Dest unreachable ICMP layer sequence != 4");
+	icmpTimeExceededUdp.computeCalculateFields();
+	PACKETPP_ASSERT(memcmp(icmpTimeExceededUdp.getRawPacket()->getRawData()+34, buffer5+34, buffer5Length-34) == 0, "Dest unreachable raw data is different than expected");
+
+	delete [] buffer2;
+	delete [] buffer3;
+	delete [] buffer5;
+
+	PACKETPP_TEST_PASSED;
+}
+
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -2195,6 +2831,9 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(DnsLayerRemoveResourceTest);
 	PACKETPP_RUN_TEST(MplsLayerTest);
 	PACKETPP_RUN_TEST(CopyLayerAndPacketTest);
+	PACKETPP_RUN_TEST(IcmpParsingTest);
+	PACKETPP_RUN_TEST(IcmpCreationTest);
+	PACKETPP_RUN_TEST(IcmpEditTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

@@ -4,6 +4,7 @@
 #include <PayloadLayer.h>
 #include <UdpLayer.h>
 #include <TcpLayer.h>
+#include <IcmpLayer.h>
 #include <string.h>
 #include <IpUtils.h>
 
@@ -42,6 +43,9 @@ void IPv4Layer::parseNextLayer()
 		break;
 	case PACKETPP_IPPROTO_TCP:
 		m_NextLayer = new TcpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		break;
+	case PACKETPP_IPPROTO_ICMP:
+		m_NextLayer = new IcmpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;
 	default:
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
