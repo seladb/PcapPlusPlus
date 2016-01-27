@@ -65,7 +65,8 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
     done
 
     while true; do
-        read -e -p "Enter DPDK build path: $DPDK_HOME/" DPDK_TARGET
+        read -e -p "Enter DPDK build path: " -i $DPDK_HOME/ DPDK_TARGET
+        DPDK_TARGET="$(basename $DPDK_TARGET)"
         if [ -d "$DPDK_HOME/$DPDK_TARGET" ]; then
             break;
         else
