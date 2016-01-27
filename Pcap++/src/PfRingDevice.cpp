@@ -701,31 +701,30 @@ void PfRingDevice::setPfRingDeviceAttributes()
 
 	uint8_t macAddress[6];
 	if (pfring_get_bound_device_address(ring, macAddress) < 0)
-		LOG_ERROR("Unable to read the device MAC address");
+		LOG_ERROR("Unable to read the device MAC address for interface '%s'", m_DeviceName);
 	else
-	{
-		// set interface ID
 		m_MacAddress = MacAddress(macAddress);
-		if (pfring_get_bound_device_ifindex(ring, &m_InterfaceIndex) < 0)
-			LOG_ERROR("Unable to read interface index of device");
-		else
-		{
-			// try to set hardware device clock
-			m_HwClockEnabled = setPfRingDeviceClock(ring);
 
-			// set interface MTU
-			int mtu = pfring_get_mtu_size(ring);
-			if (mtu < 0)
-				LOG_ERROR("Could not get MTU. pfring_get_mtu_size returned an error: %d", mtu);
-			else
-				m_DeviceMTU = mtu + sizeof(ether_header) + sizeof(vlan_header);
-		}
-		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
-		{
-			std::string hwEnabled = (m_HwClockEnabled ? "enabled" : "disabled");
-			LOG_DEBUG("Capturing from %s [%s][ifIndex: %d][MTU: %d], HW clock %s", m_DeviceName, m_MacAddress.toString().c_str(), m_InterfaceIndex, m_DeviceMTU, hwEnabled.c_str());
-		}
+	// set interface ID
+	if (pfring_get_bound_device_ifindex(ring, &m_InterfaceIndex) < 0)
+		LOG_ERROR("Unable to read interface index of device");
+
+	// try to set hardware device clock
+	m_HwClockEnabled = setPfRingDeviceClock(ring);
+
+	// set interface MTU
+	int mtu = pfring_get_mtu_size(ring);
+	if (mtu < 0)
+		LOG_ERROR("Could not get MTU. pfring_get_mtu_size returned an error: %d", mtu);
+	else
+		m_DeviceMTU = mtu + sizeof(ether_header) + sizeof(vlan_header);
+
+	if (LoggerPP::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
+	{
+		std::string hwEnabled = (m_HwClockEnabled ? "enabled" : "disabled");
+		LOG_DEBUG("Capturing from %s [%s][ifIndex: %d][MTU: %d], HW clock %s", m_DeviceName, m_MacAddress.toString().c_str(), m_InterfaceIndex, m_DeviceMTU, hwEnabled.c_str());
 	}
+
 
 	if (closeRing)
 		pfring_close(ring);
@@ -774,7 +773,7 @@ bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, boo
 	{
 		// res == -1 means it's an error coming from "sendto" which is the Linux API PF_RING is using to send packets
 		if (res == -1)
-			LOG_ERROR("Error sending packet: Linux errno: %d", errno);
+			LOG_ERROR("Error sending packet: Linux errno: %s [%d]", strerror(errno), errno);
 		else
 			LOG_ERROR("Error sending packet: pfring_send returned an error: %d", res);
 		return false;

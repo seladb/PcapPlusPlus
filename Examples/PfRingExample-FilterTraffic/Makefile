@@ -15,7 +15,7 @@ Obj/%.o: %.cpp
 UNAME := $(shell uname)
 
 # All Target
-all: DpdkTrafficFilter
+all: PfRingTrafficFilter
 
 create-directories:
 	$(MKDIR) -p Obj
@@ -25,11 +25,11 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
 # Tool invocations
-DpdkTrafficFilter: create-directories dependents $(OBJS_FILENAMES)
+PfRingTrafficFilter: create-directories dependents $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
-	$(G++) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/DpdkTrafficFilter$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
+	$(G++) -DUSE_PF_RING $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/PfRingTrafficFilter$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
 	$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '

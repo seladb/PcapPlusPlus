@@ -13,6 +13,7 @@ EXAMPLE_DPDK1		:=	Examples/DpdkExample-FilterTraffic
 EXAMPLE_DNSSPOOF	:=	Examples/DnsSpoofing
 EXAMPLE_DNSRESOLVER	:=	Examples/DNSResolver
 EXAMPLE_HTTPANALYZE :=  Examples/HttpAnalyzer
+EXAMPLE_PF_RING1    :=  Examples/PfRingExample-FilterTraffic
 
 UNAME := $(shell uname)
 
@@ -46,6 +47,9 @@ all: libs
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) all
 endif
+ifdef PF_RING_HOME
+	cd $(EXAMPLE_PF_RING1)          && $(MAKE) all
+endif
 	$(MKDIR) -p Dist/examples
 	$(MKDIR) -p Dist/mk
 	$(CP) $(EXAMPLE_PARSE)/Bin/* ./Dist/examples
@@ -59,6 +63,9 @@ endif
 	$(CP) $(EXAMPLE_HTTPANALYZE)/Bin/* ./Dist/examples
 ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
+endif
+ifdef PF_RING_HOME
+	$(CP) $(EXAMPLE_PF_RING1)/Bin/* ./Dist/examples
 endif
 	$(CP) mk/platform.mk ./Dist/mk
 	$(CP) mk/PcapPlusPlus.mk ./Dist/mk
@@ -80,6 +87,9 @@ clean:
 	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) clean
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
+endif
+ifdef PF_RING_HOME
+	cd $(EXAMPLE_PF_RING1)          && $(MAKE) clean
 endif
 
 	$(RM) -rf Dist
