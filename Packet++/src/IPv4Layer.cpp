@@ -1,10 +1,12 @@
 #define LOG_MODULE PacketLogModuleIPv4Layer
 
 #include <IPv4Layer.h>
+#include <IPv6Layer.h>
 #include <PayloadLayer.h>
 #include <UdpLayer.h>
 #include <TcpLayer.h>
 #include <IcmpLayer.h>
+#include <GreLayer.h>
 #include <string.h>
 #include <IpUtils.h>
 
@@ -36,6 +38,10 @@ void IPv4Layer::parseNextLayer()
 
 	iphdr* ipHdr = getIPv4Header();
 
+	ProtocolType greVer = Unknown;
+
+	uint8_t ipVersion = 0;
+
 	switch (ipHdr->protocol)
 	{
 	case PACKETPP_IPPROTO_UDP:
@@ -46,6 +52,24 @@ void IPv4Layer::parseNextLayer()
 		break;
 	case PACKETPP_IPPROTO_ICMP:
 		m_NextLayer = new IcmpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		break;
+	case PACKETPP_IPPROTO_IPIP:
+		ipVersion = *(m_Data + sizeof(iphdr));
+		if (ipVersion >> 4 == 4)
+			m_NextLayer = new IPv4Layer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		else if (ipVersion >> 4 == 6)
+			m_NextLayer = new IPv6Layer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		else
+			m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		break;
+	case PACKETPP_IPPROTO_GRE:
+		greVer = GreLayer::getGREVersion(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr));
+		if (greVer == GREv0)
+			m_NextLayer = new GREv0Layer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		else if (greVer == GREv1)
+			m_NextLayer = new GREv1Layer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		else
+			m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;
 	default:
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
@@ -73,6 +97,10 @@ void IPv4Layer::computeCalculateFields()
 			break;
 		case ICMP:
 			ipHdr->protocol = PACKETPP_IPPROTO_ICMP;
+			break;
+		case GREv0:
+		case GREv1:
+			ipHdr->protocol = PACKETPP_IPPROTO_GRE;
 			break;
 		default:
 			break;

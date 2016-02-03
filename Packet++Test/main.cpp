@@ -13,6 +13,7 @@
 #include <DnsLayer.h>
 #include <MplsLayer.h>
 #include <IcmpLayer.h>
+#include <GreLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -27,7 +28,7 @@
 #endif
 
 // For debug purpose only
-//#include <pcap.h>
+// #include <pcap.h>
 
 using namespace std;
 
@@ -2793,6 +2794,418 @@ PACKETPP_TEST(IcmpEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(GreParsingTest)
+{
+	GREv0Layer* grev0Layer = NULL;
+	GREv1Layer* grev1Layer = NULL;
+	int buffer1Length = 0;
+	int buffer2Length = 0;
+	int buffer3Length = 0;
+	int buffer4Length = 0;
+
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/GREv0_1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file GREv0_1.dat");
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/GREv0_2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file GREv0_2.dat");
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/GREv1_1.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file GREv1_1.dat");
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/GREv1_2.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file GREv1_2.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+
+	Packet grev0Packet1(&rawPacket1);
+	Packet grev0Packet2(&rawPacket2);
+	Packet grev1Packet1(&rawPacket3);
+	Packet grev1Packet2(&rawPacket4);
+
+	uint16_t value16 = 0;
+	uint32_t value32 = 0;
+
+	// GREv0 packet 1
+	PACKETPP_ASSERT(grev0Packet1.isPacketOfType(GRE) && grev0Packet1.isPacketOfType(GREv0), "GREv0 Packet 1 isn't of type GREv0");
+	grev0Layer = grev0Packet1.getLayerOfType<GREv0Layer>();
+	PACKETPP_ASSERT(grev0Layer != NULL, "Couldn't retrieve GREv0 layer for GREv0 Packet 1");
+	PACKETPP_ASSERT(grev0Layer->getHeaderLen() == 8, "GREv0 Packet 1 header len isn't 8");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 1, "GREv0 Packet 1 checksum bit not set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->routingBit == 0, "GREv0 Packet 1 routing bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->ackSequenceNumBit == 0, "GREv0 Packet 1 ack bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 1 seq bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 1 recursion isn't 0");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->flags == 0, "GREv0 Packet 1 flags isn't 0");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(ETHERTYPE_IP), "GREv0 Packet 1 protocol isn't IPv4");
+	PACKETPP_ASSERT(grev0Layer->getChecksum(value16) == true, "GREv0 Packet 1 couldn't retrieve checksum");
+	PACKETPP_ASSERT(value16 == 30719, "GREv0 Packet 1 checksum isn't 30719");
+	value16 = 40000;
+	value32 = 40000;
+	PACKETPP_ASSERT(grev0Layer->getOffset(value16) == false, "GREv0 Packet 1 offset is valid");
+	PACKETPP_ASSERT(value16 == 40000, "GREv0 Packet 1 value isn't 40000");
+	PACKETPP_ASSERT(grev0Layer->getKey(value32) == false, "GREv0 Packet 1 key is valid");
+	PACKETPP_ASSERT(value32 == 40000, "GREv0 Packet 1 value isn't 40000");
+	PACKETPP_ASSERT(grev0Layer->getSequenceNumber(value32) == false, "GREv0 Packet 1 seq is valid");
+	PACKETPP_ASSERT(value32 == 40000, "GREv0 Packet 1 value isn't 40000");
+	PACKETPP_ASSERT(grev0Layer->getNextLayer() != NULL && grev0Layer->getNextLayer()->getProtocol() == IPv4, "GREv0 Packet 1 next protocol isn't IPv4");
+	grev0Layer = NULL;
+
+	// GREv0 packet 2
+	PACKETPP_ASSERT(grev0Packet2.isPacketOfType(GRE) && grev0Packet2.isPacketOfType(GREv0), "GREv0 Packet 2 isn't of type GREv0");
+	grev0Layer = grev0Packet2.getLayerOfType<GREv0Layer>();
+	PACKETPP_ASSERT(grev0Layer != NULL, "Couldn't retrieve GREv0 layer for GREv0 Packet 2");
+	PACKETPP_ASSERT(grev0Layer->getHeaderLen() == 4, "GREv0 Packet 2 header len isn't 4");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 0, "GREv0 Packet 2 checksum bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 2 seq bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 2 recursion isn't 0");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(ETHERTYPE_IP), "GREv0 Packet 2 protocol isn't IPv4");
+	value16 = 40000;
+	value32 = 40000;
+	PACKETPP_ASSERT(grev0Layer->getChecksum(value16) == false, "GREv0 Packet 2 checksum valid");
+	PACKETPP_ASSERT(value16 == 40000, "GREv0 Packet 2 value isn't 40000");
+	PACKETPP_ASSERT(grev0Layer->getKey(value32) == false, "GREv0 Packet 2 key is valid");
+	PACKETPP_ASSERT(value32 == 40000, "GREv0 Packet 1 value isn't 40000");
+	PACKETPP_ASSERT(grev0Layer->getNextLayer() != NULL && grev0Layer->getNextLayer()->getProtocol() == IPv4, "GREv0 Packet 2 next protocol isn't IPv4");
+	grev0Layer = grev0Packet2.getNextLayerOfType<GREv0Layer>(grev0Layer);
+	PACKETPP_ASSERT(grev0Layer != NULL, "Couldn't retrieve second GREv0 layer for GREv0 Packet 2");
+	PACKETPP_ASSERT(grev0Layer->getHeaderLen() == 4, "GREv0 Packet 2 2nd GRE header len isn't 4");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 0, "GREv0 Packet 2 2nd GRE checksum bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 2 2nd GRE seq bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 2 2nd GRE recursion isn't 0");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(ETHERTYPE_IP), "GREv0 Packet 2 2nd GRE protocol isn't IPv4");
+	PACKETPP_ASSERT(grev0Layer->getNextLayer() != NULL && grev0Layer->getNextLayer()->getProtocol() == IPv4, "GREv0 Packet 2 2nd GRE next protocol isn't IPv4");
+	grev0Layer = NULL;
+
+	// GREv1 packet 1
+	PACKETPP_ASSERT(grev1Packet1.isPacketOfType(GRE) && grev1Packet1.isPacketOfType(GREv1), "GREv1 Packet 1 isn't of type GREv1");
+	grev1Layer = grev1Packet1.getLayerOfType<GREv1Layer>();
+	PACKETPP_ASSERT(grev1Layer != NULL, "Couldn't retrieve GREv1 layer for GREv1 Packet 1");
+	PACKETPP_ASSERT(grev1Layer->getHeaderLen() == 12, "GREv1 Packet 1 header len isn't 12");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->checksumBit == 0, "GREv1 Packet 1 checksum bit set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->sequenceNumBit == 0, "GREv1 Packet 1 seq bit set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->keyBit == 1, "GREv1 Packet 1 key bit not set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->ackSequenceNumBit == 1, "GREv1 Packet 1 ack bit not set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->callID == htons(6), "GREv1 Packet 1 call id isn't 6");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->payloadLength == 0, "GREv1 Packet 1 payload length isn't 0");
+	value16 = 40000;
+	value32 = 40000;
+	PACKETPP_ASSERT(grev1Layer->getSequenceNumber(value32) == false, "GREv1 Packet 1 seq is valid");
+	PACKETPP_ASSERT(value32 == 40000, "GREv1 Packet 1 value isn't 40000");
+	PACKETPP_ASSERT(grev1Layer->getAcknowledgmentNum(value32) == true, "GREv1 Packet 1 couldn't retrieve ack");
+	PACKETPP_ASSERT(value32 == 26, "GREv1 Packet 1 ack value isn't 26");
+	PACKETPP_ASSERT(grev1Layer->getNextLayer() == NULL, "GREv1 Packet 1 next protocol isn't null");
+	grev1Layer = NULL;
+
+	// GREv1 packet 2
+	PACKETPP_ASSERT(grev1Packet2.isPacketOfType(GRE) && grev1Packet2.isPacketOfType(GREv1), "GREv1 Packet 2 isn't of type GREv1");
+	PACKETPP_ASSERT(grev1Packet2.isPacketOfType(PPP_PPTP), "GREv1 Packet 2 isn't of type PPP_PPTP");
+	grev1Layer = grev1Packet2.getLayerOfType<GREv1Layer>();
+	PACKETPP_ASSERT(grev1Layer != NULL, "Couldn't retrieve GREv1 layer for GREv1 Packet 2");
+	PACKETPP_ASSERT(grev1Layer->getHeaderLen() == 12, "GREv1 Packet 2 header len isn't 12");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->checksumBit == 0, "GREv1 Packet 2 checksum bit set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->routingBit == 0, "GREv1 Packet 2 routing bit set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->sequenceNumBit == 1, "GREv1 Packet 2 seq bit not set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->keyBit == 1, "GREv1 Packet 1 key bit not set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->ackSequenceNumBit == 0, "GREv1 Packet 1 ack bit set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->callID == htons(17), "GREv1 Packet 1 call id isn't 17");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->payloadLength == htons(178), "GREv1 Packet 1 payload length isn't 178");
+	value16 = 40000;
+	value32 = 40000;
+	PACKETPP_ASSERT(grev1Layer->getAcknowledgmentNum(value32) == false, "GREv1 Packet 2 ack valid");
+	PACKETPP_ASSERT(value32 == 40000, "GREv1 Packet 2 value isn't 40000");
+	PACKETPP_ASSERT(grev1Layer->getSequenceNumber(value32) == true, "GREv1 Packet 2 couldn't retrieve seq num");
+	PACKETPP_ASSERT(value32 == 539320, "GREv1 Packet 2 seq value isn't 539320");
+	PACKETPP_ASSERT(grev1Layer->getNextLayer() != NULL && grev1Layer->getNextLayer()->getProtocol() == PPP_PPTP, "GREv1 Packet 2 next protocol isn't PPP_PPTP");
+	PPP_PPTPLayer* pppLayer = grev1Packet2.getLayerOfType<PPP_PPTPLayer>();
+	PACKETPP_ASSERT(pppLayer != NULL, "Couldn't retrieve PPP layer for GREv1 Packet 2");
+	PACKETPP_ASSERT(pppLayer->getHeaderLen() == 4, "GREv1 Packet 2 PPP layer header len isn't 4");
+	PACKETPP_ASSERT(pppLayer ==  grev1Layer->getNextLayer(), "GREv1 Packet 2 PPP layer from packet isn't equal to PPP layer after GRE");
+	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->address == 0xff, "GREv1 Packet 2 PPP layer address != 0xff");
+	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->control == 3, "GREv1 Packet 2 PPP layer control != 3");
+	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htons(PPP_IP), "GREv1 Packet 2 PPP layer protocol isn't PPP_IP");
+	PACKETPP_ASSERT(pppLayer->getNextLayer() != NULL && pppLayer->getNextLayer()->getProtocol() == IPv4, "GREv1 Packet 2 PPP layer next protocol isn't IPv4");
+	grev1Layer = NULL;
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(GreCreationTest)
+{
+	int buffer1Length = 0;
+	int buffer2Length = 0;
+
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/GREv1_3.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file GREv1_3.dat");
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/GREv0_3.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file GREv0_3.dat");
+
+
+	// GREv1 packet creation
+
+	MacAddress srcMac(std::string("00:90:4b:1f:a4:f7"));
+	MacAddress destMac(std::string("00:0d:ed:7b:48:f4"));
+	EthLayer ethLayer(srcMac, destMac, ETHERTYPE_IP);
+	IPv4Layer ipLayer(IPv4Address(std::string("192.168.2.65")), IPv4Address(std::string("192.168.2.254")));
+	ipLayer.getIPv4Header()->ipId = htons(1660);
+	ipLayer.getIPv4Header()->timeToLive = 128;
+
+	GREv1Layer grev1Layer(6);
+
+	PPP_PPTPLayer pppLayer(0xff, 3);
+	pppLayer.getPPP_PPTPHeader()->protocol = htons(PPP_CCP);
+
+	uint8_t data[4] = { 0x06, 0x04, 0x00, 0x04 };
+	PayloadLayer payloadLayer(data, 4, true);
+
+	Packet grev1Packet(1);
+	grev1Packet.addLayer(&ethLayer);
+	grev1Packet.addLayer(&ipLayer);
+	grev1Packet.addLayer(&grev1Layer);
+	grev1Packet.addLayer(&pppLayer);
+	grev1Packet.addLayer(&payloadLayer);
+
+	PACKETPP_ASSERT(grev1Layer.setAcknowledgmentNum(17), "Couldn't set ack num");
+	PACKETPP_ASSERT(grev1Layer.setSequenceNumber(34), "Couldn't set seq num");
+
+	grev1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev1Packet.getRawPacket()->getRawDataLen() == buffer1Length, "GREv1 packet raw data length is different than expected");
+	PACKETPP_ASSERT(memcmp(grev1Packet.getRawPacket()->getRawData(), buffer1, buffer1Length) == 0, "GREv1 packet raw data is different than expected");
+
+
+	// GREv0 packet creation
+
+	MacAddress srcMac2(std::string("00:01:01:00:00:01"));
+	MacAddress destMac2(std::string("00:01:01:00:00:02"));
+	EthLayer ethLayer2(srcMac2, destMac2, ETHERTYPE_IP);
+	IPv4Layer ipLayer2(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
+	ipLayer2.getIPv4Header()->ipId = htons(1);
+	ipLayer2.getIPv4Header()->timeToLive = 64;
+	IPv4Layer ipLayer3(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
+	ipLayer3.getIPv4Header()->ipId = htons(46845);
+	ipLayer3.getIPv4Header()->timeToLive = 64;
+
+	GREv0Layer grev0Layer1;
+	PACKETPP_ASSERT(grev0Layer1.setChecksum(1), "Couldn't set checksum");
+
+	GREv0Layer grev0Layer2;
+
+	Packet grev0Packet(12);
+	grev0Packet.addLayer(&ethLayer2);
+	grev0Packet.addLayer(&ipLayer2);
+	grev0Packet.addLayer(&grev0Layer1);
+	grev0Packet.addLayer(&ipLayer3);
+	grev0Packet.addLayer(&grev0Layer2);
+	grev0Packet.computeCalculateFields();
+
+
+	PACKETPP_ASSERT(grev0Packet.getRawPacket()->getRawDataLen() == buffer2Length, "GREv0 packet raw data length is different than expected");
+	PACKETPP_ASSERT(memcmp(grev0Packet.getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "GREv0 packet raw data is different than expected");
+
+
+	delete [] buffer1;
+	delete [] buffer2;
+
+	PACKETPP_TEST_PASSED;
+}
+
+
+PACKETPP_TEST(GreEditTest)
+{
+	// GREv0 packet edit
+
+	int buffer1Length = 0;
+
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/GREv0_3.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file GREv0_3.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+
+	Packet grev0Packet(&rawPacket1);
+
+	PACKETPP_ASSERT(grev0Packet.isPacketOfType(GRE) && grev0Packet.isPacketOfType(GREv0), "GREv0 Packet isn't of type GREv0");
+	GREv0Layer* grev0Layer = grev0Packet.getLayerOfType<GREv0Layer>();
+	PACKETPP_ASSERT(grev0Layer != NULL, "GREv0 layer is null");
+	PACKETPP_ASSERT(grev0Layer->setSequenceNumber(1234), "Couldn't set seq num");
+	PACKETPP_ASSERT(grev0Layer->setKey(2341), "Couldn't set offset");
+	grev0Packet.computeCalculateFields();
+
+
+	uint16_t value16 = 0;
+	uint32_t value32 = 0;
+	grev0Layer = grev0Packet.getLayerOfType<GREv0Layer>();
+	PACKETPP_ASSERT(grev0Layer != NULL, "GREv0 layer after editing is null");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 1, "GREv0 layer checksum bit not set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 1, "GREv0 layer seq bit not set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->keyBit == 1, "GREv0 layer key bit not set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->strictSourceRouteBit == 0, "GREv0 layer strict bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->routingBit == 0, "GREv0 layer routing bit set");
+	PACKETPP_ASSERT(grev0Layer->getHeaderLen() == 16, "GREv0 layer after editing wrong header len");
+	PACKETPP_ASSERT(grev0Layer->getChecksum(value16), "GREv0 layer after editing checksum not set");
+	PACKETPP_ASSERT(value16 == 14856, "GREv0 layer after editing wrong checksum");
+	PACKETPP_ASSERT(grev0Layer->getSequenceNumber(value32), "GREv0 layer after editing seq not set");
+	PACKETPP_ASSERT(value32 == 1234, "GREv0 layer after editing wrong seq");
+	PACKETPP_ASSERT(grev0Layer->getKey(value32), "GREv0 layer after editing key not set");
+	PACKETPP_ASSERT(value32 == 2341, "GREv0 layer after editing wrong key");
+	PACKETPP_ASSERT(!grev0Layer->getOffset(value16), "GREv0 layer after editing offset set");
+	grev0Layer->getGreHeader()->routingBit = 1;
+	PACKETPP_ASSERT(grev0Layer->getOffset(value16), "GREv0 layer after editing offset not set");
+	PACKETPP_ASSERT(value16 == 0, "GREv0 layer after editing wrong offset");
+	grev0Layer->getGreHeader()->routingBit = 0;
+
+	PACKETPP_ASSERT(grev0Layer->setSequenceNumber(5678), "Couldn't set seq num");
+	grev0Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev0Layer->getSequenceNumber(value32), "GREv0 layer after editing seq not set");
+	PACKETPP_ASSERT(value32 == 5678, "GREv0 layer after editing wrong seq");
+	PACKETPP_ASSERT(grev0Layer->getChecksum(value16), "GREv0 layer after editing checksum not set");
+	PACKETPP_ASSERT(value16 == 10412, "GREv0 layer after editing wrong checksum");
+	PACKETPP_ASSERT(grev0Layer->getKey(value32), "GREv0 layer after editing key not set");
+	PACKETPP_ASSERT(value32 == 2341, "GREv0 layer after editing wrong key");
+
+	PACKETPP_ASSERT(grev0Layer->unsetSequenceNumber(), "Couldn't unset seq num");
+	grev0Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 layer after seq unset seq bit still set");
+	PACKETPP_ASSERT(grev0Layer->getHeaderLen() == 12, "GREv0 layer after seq unset wrong header len");
+	PACKETPP_ASSERT(!grev0Layer->getSequenceNumber(value32), "GREv0 layer after seq unset seq still valid");
+	PACKETPP_ASSERT(grev0Layer->getKey(value32), "GREv0 layer after seq unset key not set");
+	PACKETPP_ASSERT(value32 == 2341, "GREv0 layer after seq unset wrong key");
+	PACKETPP_ASSERT(grev0Layer->getChecksum(value16), "GREv0 layer after seq unset checksum not set");
+	PACKETPP_ASSERT(value16 == 20186, "GREv0 layer after seq unset wrong checksum");
+
+	PACKETPP_ASSERT(grev0Layer->unsetChecksum(), "Couldn't unset checksum");
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(!grev0Layer->unsetSequenceNumber(), "Managed to unset seq num although already unset");
+	LoggerPP::getInstance().enableErrors();
+	grev0Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 0, "GREv0 layer after checksum unset checksum bit still set");
+	PACKETPP_ASSERT(!grev0Layer->getChecksum(value16), "GREv0 layer after checksum unset checksum still valid");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 layer after checksum unset seq bit set");
+	PACKETPP_ASSERT(grev0Layer->getHeaderLen() == 8, "GREv0 layer after checksum unset wrong header len");
+	PACKETPP_ASSERT(!grev0Layer->getSequenceNumber(value32), "GREv0 layer after checksum unset seq valid");
+	PACKETPP_ASSERT(grev0Layer->getKey(value32), "GREv0 layer after checksum unset key not set");
+	PACKETPP_ASSERT(value32 == 2341, "GREv0 layer after checksum unset wrong key");
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(!grev0Layer->unsetChecksum(), "Managed to unset checksum although already unset");
+	PACKETPP_ASSERT(!grev0Layer->unsetSequenceNumber(), "Managed to unset seq num although already unset");
+	LoggerPP::getInstance().enableErrors();
+	PACKETPP_ASSERT(grev0Layer->unsetKey(), "Couldn't unset key");
+	grev0Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->keyBit == 0, "GREv0 layer after key unset key bit still set");
+	PACKETPP_ASSERT(!grev0Layer->getKey(value32), "GREv0 layer after key unset key still valid");
+	PACKETPP_ASSERT(grev0Layer->getHeaderLen() == 4, "GREv0 layer after key unset wrong header len");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 0, "GREv0 layer after key unset checksum bit set");
+	PACKETPP_ASSERT(!grev0Layer->getChecksum(value16), "GREv0 layer after key unset checksum valid");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 layer after key unset seq bit set");
+
+	PACKETPP_ASSERT(grev0Layer->setChecksum(0), "Couldn't re-add checksum");
+	grev0Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 1, "GREv0 layer after re-add checksum checksum bit unset");
+	PACKETPP_ASSERT(grev0Layer->getHeaderLen() == 8, "GREv0 layer after re-add checksum wrong header len");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->keyBit == 0, "GREv0 layer after re-add checksum key bit set");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 layer after re-add checksum seq bit set");
+	PACKETPP_ASSERT(grev0Layer->getChecksum(value16), "GREv0 layer after re-add checksum checksum not valid");
+	PACKETPP_ASSERT(value16 == 30719, "GREv0 layer after re-add checksum wrong checksum");
+
+
+	// GREv1 packet edit
+
+	int buffer2Length = 0;
+
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/GREv1_2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file GREv1_2.dat");
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet grev1Packet(&rawPacket2);
+
+	value16 = 0;
+	value32 = 0;
+	GREv1Layer* grev1Layer = grev1Packet.getLayerOfType<GREv1Layer>();
+	PACKETPP_ASSERT(grev1Layer->setAcknowledgmentNum(56789), "GREv1 layer couldn't add ack num");
+	grev1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev1Layer->getHeaderLen() == 16, "GREv1 layer after set ack wrong header len");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->ackSequenceNumBit == 1, "GREv1 layer after set ack ack bit still unset");
+	PACKETPP_ASSERT(grev1Layer->getAcknowledgmentNum(value32), "GREv1 layer after set ack ack is not valid");
+	PACKETPP_ASSERT(value32 == 56789, "GREv1 layer after set ack wrong ack");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->keyBit == 1, "GREv1 layer after set ack key bit unset");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->checksumBit == 0, "GREv1 layer after set ack checksun bit set");
+	PACKETPP_ASSERT(grev1Layer->getSequenceNumber(value32), "GREv1 layer after set ack seq num is not valid");
+	PACKETPP_ASSERT(value32 == 539320, "GREv1 layer after set ack wrong seq num");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->callID == htons(17), "GREv1 layer after set ack wrong call id");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->payloadLength == htons(178), "GREv1 layer after set ack wrong payload length");
+
+	PACKETPP_ASSERT(grev1Layer->setSequenceNumber(12345), "GREv1 layer couldn't set seq num");
+	grev1Layer->getGreHeader()->callID = htons(123);
+	grev1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev1Layer->getHeaderLen() == 16, "GREv1 layer after set seq num wrong header len");
+	PACKETPP_ASSERT(grev1Layer->getSequenceNumber(value32), "GREv1 layer after set seq num seq num is not valid");
+	PACKETPP_ASSERT(value32 == 12345, "GREv1 layer after set seq num wrong seq num");
+	PACKETPP_ASSERT(grev1Layer->getAcknowledgmentNum(value32), "GREv1 layer after set seq num ack is not valid");
+	PACKETPP_ASSERT(value32 == 56789, "GREv1 layer after set seq num wrong ack");
+
+	PACKETPP_ASSERT(grev1Layer->unsetSequenceNumber(), "GREv1 layer couldn't unset seq num");
+	grev1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev1Layer->getHeaderLen() == 12, "GREv1 layer after unset seq num wrong header len");
+	PACKETPP_ASSERT(!grev1Layer->getSequenceNumber(value32), "GREv1 layer after unset seq num seq num still valid");
+	PACKETPP_ASSERT(grev1Layer->getAcknowledgmentNum(value32), "GREv1 layer after unset seq num ack is not valid");
+	PACKETPP_ASSERT(value32 == 56789, "GREv1 layer after unset seq num wrong ack");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->callID == htons(123), "GREv1 layer after unset seq num wrong call id");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->payloadLength == htons(178), "GREv1 layer after unset seq num wrong payload length");
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(!grev0Layer->unsetSequenceNumber(), "GREv1 layer managed to unset seq num although already unset");
+	LoggerPP::getInstance().enableErrors();
+	PACKETPP_ASSERT(grev1Layer->unsetAcknowledgmentNum(), "GREv1 layer couldn't unset ack num");
+	grev1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(grev1Layer->getHeaderLen() == 8, "GREv1 layer after unset ack num wrong header len");
+	PACKETPP_ASSERT(!grev1Layer->getAcknowledgmentNum(value32), "GREv1 layer after unset ack num ack is still valid");
+	PACKETPP_ASSERT(!grev1Layer->getSequenceNumber(value32), "GREv1 layer after unset ack num seq num valid");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->ackSequenceNumBit == 0, "GREv1 layer after unset ack num bit still set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->sequenceNumBit == 0, "GREv1 layer after unset ack num seq bit set");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->keyBit == 1, "GREv1 layer after unset ack num key bit unset");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->callID == htons(123), "GREv1 layer after unset ack num wrong call id");
+	PACKETPP_ASSERT(grev1Layer->getGreHeader()->payloadLength == htons(178), "GREv1 layer after unset ack num wrong payload length");
+
+	PACKETPP_ASSERT(grev1Layer->getNextLayer() != NULL && grev1Layer->getNextLayer()->getProtocol() == PPP_PPTP, "GREv1 layer next protocol isn't PPP");
+	PPP_PPTPLayer* pppLayer = dynamic_cast<PPP_PPTPLayer*>(grev1Layer->getNextLayer());
+	PACKETPP_ASSERT(pppLayer != NULL, "GREv1 PPP layer is null");
+	pppLayer->getPPP_PPTPHeader()->control = 255;
+
+	Layer* curLayer = pppLayer->getNextLayer();
+	while (curLayer != NULL)
+	{
+		Layer* temp = curLayer->getNextLayer();
+		grev1Packet.removeLayer(curLayer);
+		curLayer = temp;
+	}
+
+	grev1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == 0, "PPP protocol isn't 0 after removing top layers");
+
+	IPv6Layer ipv6Layer(IPv6Address(std::string("2402:f000:1:8e01::5555")), IPv6Address(std::string("2607:fcd0:100:2300::b108:2a6b")));
+	PACKETPP_ASSERT(grev1Packet.addLayer(&ipv6Layer), "Couldn't add IPv6 layer to GREv1 packet");
+	grev1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(pppLayer->getNextLayer() != NULL && pppLayer->getNextLayer()->getProtocol() == IPv6, "PPP next layer isnt' IPv6");
+	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htons(PPP_IPV6), "PPP layer protocol isn't IPv6");
+
+	PACKETPP_TEST_PASSED;
+}
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -2834,6 +3247,9 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(IcmpParsingTest);
 	PACKETPP_RUN_TEST(IcmpCreationTest);
 	PACKETPP_RUN_TEST(IcmpEditTest);
+	PACKETPP_RUN_TEST(GreParsingTest);
+	PACKETPP_RUN_TEST(GreCreationTest);
+	PACKETPP_RUN_TEST(GreEditTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

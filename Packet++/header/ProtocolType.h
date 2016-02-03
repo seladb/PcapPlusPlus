@@ -96,7 +96,27 @@ enum ProtocolType
 	/**
 	 * MPLS protocol
 	 */
-	MPLS = 0x2000
+	MPLS = 0x2000,
+
+	/**
+	 * GRE version 0 protocol
+	 */
+	GREv0 = 0x4000,
+
+	/**
+	 * GRE version 1 protocol
+	 */
+	GREv1 = 0x8000,
+
+	/**
+	 * GRE protocol (aggregation bitmask of GREv0 and GREv1 protocols)
+	 */
+	GRE = 0x4000 | 0x8000,
+
+	/**
+	 * PPP for PPTP protocol
+	 */
+	PPP_PPTP = 0x10000
 };
 
 #endif

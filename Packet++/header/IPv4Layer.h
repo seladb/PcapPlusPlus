@@ -76,6 +76,8 @@ enum IPProtocolTypes
 	PACKETPP_IPPROTO_ROUTING = 43,
 	/** IPv6 fragmentation header		*/
 	PACKETPP_IPPROTO_FRAGMENT = 44,
+	/** GRE protocol */
+	PACKETPP_IPPROTO_GRE = 47,
 	/** encapsulating security payload	*/
 	PACKETPP_IPPROTO_ESP = 50,
 	/** authentication header		*/

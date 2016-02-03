@@ -51,6 +51,8 @@ struct ether_header {
 #define ETHERTYPE_PPPOES	0x8864
 /** MPLS */
 #define ETHERTYPE_MPLS		0x8847
+/** Point-to-point protocol (PPP) */
+#define ETHERTYPE_PPP		0x880B
 
 
 /**
