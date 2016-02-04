@@ -25,7 +25,7 @@ libs:
 	cd $(PCAPPP_HOME)               && $(MAKE) all
 	$(MKDIR) -p Dist
 	$(MKDIR) -p Dist/header
-	$(CP) $(COMMONPP_HOME)/Lib/* ./Dist
+	$(CP) $(COMMONPP_HOME)/Lib/Release/* ./Dist
 	$(CP) $(PACKETPP_HOME)/Lib/* ./Dist
 	$(CP) $(PCAPPP_HOME)/Lib/* ./Dist
 	$(CP) $(COMMONPP_HOME)/header/* ./Dist/header
