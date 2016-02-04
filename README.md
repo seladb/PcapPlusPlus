@@ -219,6 +219,14 @@ Or clone the git repository by:
 git clone https://github.com/seladb/PcapPlusPlus.git
 ```
 
+#### Compiled Binaries ####
+
+If you want an already compiled version of PcapPlusPlus chekcout the latest release:
+[https://github.com/seladb/PcapPlusPlus/releases/latest](https://github.com/seladb/PcapPlusPlus/releases/latest)
+
+It currently contains compiled binaries for Win32, Ubuntu 14.10 32-bit and Mac OSX Snow Leopard 32-bit
+
+
 ## Compiling ##
 
 #### Prerequisutes - Windows ####
