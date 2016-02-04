@@ -17,9 +17,7 @@ ifdef MAC_OS_X
 DEPS := -DMAC_OS_X
 endif
 
-COMMON_DEBUG_LIB := ../Common++/Lib/Debug
-PACKET_LIB := ../Packet++/Lib
-PCAP_LIB := ../Pcap++/Lib
+COMMON_DEBUG_LIB_DIR := -L../Common++/Lib/Debug
 
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
@@ -46,7 +44,7 @@ Pcap++Test: create-directories dependents $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
-	$(G++) $(PCAPPP_BUILD_FLAGS) -L$(COMMON_DEBUG_LIB) -L$(PACKET_LIB) -L$(PCAP_LIB) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
+	$(G++) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
 	$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
