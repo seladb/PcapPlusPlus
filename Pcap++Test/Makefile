@@ -30,7 +30,7 @@ Obj/%.o: %.cpp
 UNAME := $(shell uname)
 
 # All Target
-all: Pcap++Test
+all: dependents Pcap++Test
 
 create-directories:
 	$(MKDIR) -p Obj
@@ -40,7 +40,7 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 	
 # Tool invocations
-Pcap++Test: create-directories dependents $(OBJS_FILENAMES)
+Pcap++Test: create-directories $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'

@@ -15,7 +15,7 @@ Obj/%.o: %.cpp
 UNAME := $(shell uname)
 
 # All Target
-all: PfRingTrafficFilter
+all: dependents PfRingTrafficFilter
 
 create-directories:
 	$(MKDIR) -p Obj
@@ -25,7 +25,7 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
 # Tool invocations
-PfRingTrafficFilter: create-directories dependents $(OBJS_FILENAMES)
+PfRingTrafficFilter: create-directories $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'

@@ -4,7 +4,7 @@ COMMONPP_HOME 		:=	Common++
 PACKETPP_HOME 		:=	Packet++
 PCAPPP_HOME 		:=	Pcap++
 PACKETPP_TEST		:=	Packet++Test
-PCAPPP_TEST			:=	Pcap++Test
+PCAPPP_TEST		:=	Pcap++Test
 EXAMPLE_PARSE		:=	Examples/Pcap++Examples.PacketParsing
 EXAMPLE_STREAMS		:=	Examples/Pcap++Examples.BreakPcapFileToStreams
 EXAMPLE_ARPSPOOF	:=	Examples/ArpSpoofing
@@ -12,8 +12,8 @@ EXAMPLE_ARPING		:=	Examples/Arping
 EXAMPLE_DPDK1		:=	Examples/DpdkExample-FilterTraffic
 EXAMPLE_DNSSPOOF	:=	Examples/DnsSpoofing
 EXAMPLE_DNSRESOLVER	:=	Examples/DNSResolver
-EXAMPLE_HTTPANALYZE :=  Examples/HttpAnalyzer
-EXAMPLE_PF_RING1    :=  Examples/PfRingExample-FilterTraffic
+EXAMPLE_HTTPANALYZE 	:=  	Examples/HttpAnalyzer
+EXAMPLE_PF_RING1    	:=  	Examples/PfRingExample-FilterTraffic
 
 UNAME := $(shell uname)
 
@@ -35,20 +35,20 @@ libs:
 
 # All Target
 all: libs
-	cd $(PACKETPP_TEST)             && $(MAKE) all
-	cd $(PCAPPP_TEST)               && $(MAKE) all
-	cd $(EXAMPLE_PARSE)             && $(MAKE) all
-	cd $(EXAMPLE_STREAMS)           && $(MAKE) all
-	cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) all
-	cd $(EXAMPLE_ARPING)            && $(MAKE) all
-	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) all
-	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) all
-	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) all
+	cd $(PACKETPP_TEST)             && $(MAKE) Packet++Test
+	cd $(PCAPPP_TEST)               && $(MAKE) Pcap++Test
+	cd $(EXAMPLE_PARSE)             && $(MAKE) Pcap++Examples.PacketParsing
+	cd $(EXAMPLE_STREAMS)           && $(MAKE) Pcap++Examples.BreakPcapFileToStreams
+	cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) ArpSpoofing
+	cd $(EXAMPLE_ARPING)            && $(MAKE) Arping
+	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) DnsSpoofing
+	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) DNSResolver
+	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) HttpAnalyzer
 ifdef USE_DPDK
-	cd $(EXAMPLE_DPDK1)             && $(MAKE) all
+	cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
 endif
 ifdef PF_RING_HOME
-	cd $(EXAMPLE_PF_RING1)          && $(MAKE) all
+	cd $(EXAMPLE_PF_RING1)          && $(MAKE) PfRingTrafficFilter
 endif
 	$(MKDIR) -p Dist/examples
 	$(MKDIR) -p Dist/mk

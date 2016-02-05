@@ -15,7 +15,7 @@ Obj/%.o: %.cpp
 UNAME := $(shell uname)
 
 # All Target
-all: DNSResolver
+all: dependents DNSResolver
 
 create-directories:
 	$(MKDIR) -p Obj
@@ -25,7 +25,7 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
 # Tool invocations
-DNSResolver: create-directories dependents $(OBJS_FILENAMES)
+DNSResolver: create-directories $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'

@@ -15,7 +15,7 @@ Obj/%.o: %.cpp
 UNAME := $(shell uname)
 
 # All Target
-all: Arping
+all: dependents Arping
 
 create-directories:
 	$(MKDIR) -p Obj
@@ -25,7 +25,7 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
 # Tool invocations
-Arping: create-directories dependents $(OBJS_FILENAMES)
+Arping: create-directories $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'

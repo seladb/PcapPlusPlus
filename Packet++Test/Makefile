@@ -17,7 +17,7 @@ Obj/%.o: %.cpp
 UNAME := $(shell uname)
 
 # All Target
-all: Packet++Test
+all: dependents Packet++Test
 
 create-directories:
 	$(MKDIR) -p Obj
@@ -27,7 +27,7 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
 # Tool invocations
-Packet++Test: create-directories dependents $(OBJS_FILENAMES)
+Packet++Test: create-directories $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
