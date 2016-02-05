@@ -355,6 +355,73 @@ ALL TESTS PASSED!!
 *Notice:* Pcap++Test must be run with **sudo** on Linux to have access to all NICs
 
 
+## Benchmarks ##
+
+I used Matias Fontanini's [packet-capture-benchmarks](https://github.com/mfontanini/packet-capture-benchmarks) project to compare the performance of PcapPlusPlus with other similar C++ libraries (libtins and libcrafter)
+
+#### Testing Environment ####
+ 
+I ran all benchmarks on the following environment:
+- Linux Ubuntu 12.04 32-bit running as a VirtualBox VM
+- Compiler is GCC 4.6.3
+- Host platform is a dual-core Intel Core i5 760 2.8GHz with 4GB RAM system running Windows 7 32-bit
+
+#### Tested Libraries ####
+
+I decided to compare PcapPlusPlus only to similar C++ libraries such as [libtins](http://libtins.github.io/) and [libcrafter](https://code.google.com/archive/p/libcrafter/). That's because Python or Java libraries cannot compete with native code libraries in terms of performance. Tests results are as follows:
+
+
+#### Benchmark #1 - Interpretting TCP ###
+
+|     Library      | Time taken(seconds) | Packets per second |
+|------------------|--------------------:|-------------------:|
+| libpcap          | 0.208               | 2403846            |
+| **PcapPlusPlus** | **0.661**           | **756429**         |
+| libtins          | 0.844               | 592417             |
+| libcrafter       | 21.627              | 23119              | 	
+---------------------------------------------------------------
+
+As you can see PcapPlusPlus is **~27% faster** than libtins and **~x32 faster** than libcrafter
+
+
+#### Benchmark #2 - Interpretting TCP + TCP Options ###
+
+|     Library      | Time taken(seconds) | Packets per second |
+|------------------|--------------------:|-------------------:|
+| libpcap          | 0.252               | 1984126            |
+| **PcapPlusPlus** | **0.869**           | **575373**         |
+| libtins          | 1.862               | 268528             |
+| libcrafter       | 35.142              | 14227              | 	
+---------------------------------------------------------------
+
+As you can see PcapPlusPlus is **~x2 faster** than libtins and **~x40 faster** than libcrafter
+
+
+#### Benchmark #3 - Interpretting DNS ###
+
+|     Library      | Time taken(seconds) | Packets per second |
+|------------------|--------------------:|-------------------:|
+| libpcap          | 0.076               | 6578947            |
+| **PcapPlusPlus** | **0.976**           | **512295**         |
+| libtins          | 1.109               | 450856             |
+| libcrafter       | 23.289              | 21469              | 	
+---------------------------------------------------------------
+
+As you can see PcapPlusPlus is **~13% faster** than libtins and **~x24 faster** than libcrafter
+
+
+#### Run the Benchmark Yourself ####
+
+You can find PcapPlusPlus benchmark application under **Examples/PcapPlusPlus-benchmark**. If you want to run it with packet-capture-benchmarks please follow the directions in **Examples/PcapPlusPlus-benchmark/benchmark.cpp** (top section)
+
+In addition you can see libtins tests result using the same benchmark platform here: [libtins](http://libtins.github.io/benchmark/)
+
+
+#### Conclusions ####
+
+As you can see PcapPlusPlus is quite faster than similar libraries. For my opinion the exact numbers aren't important as they may vary in other environments and platforms. The important thing this benchmark shows is where each library is located in terms of perfromance. It can be determined unequivocally that libcrafter has the poorest performance (in significant gap compared to the others), and libtins and PcapPlusPlus are quite fast, with ~15%-50% advantage to PcapPlusPlus
+
+
 ## Creating Applications With PcapPlusPlus ##
 
 Creating applications that uses PcapPlusPlus is rather easy. To do this, please follow these steps:
