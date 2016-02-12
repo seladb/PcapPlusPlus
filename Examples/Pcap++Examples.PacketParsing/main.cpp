@@ -1,3 +1,12 @@
+/**
+ * Pcap++ example: packet parsing
+ * ==============================
+ * This is a simple example that demonstrates some of PcapPlusPlus APIs and use.
+ * This application reads a file containing raw packet data in hex format, converts it into RawPacket object,
+ * parses it into a Packet object and then queries the packet for all sorts of data (protocols, IPs, etc.)
+ */
+
+
 #include <stdlib.h>
 #include <fstream>
 #include <RawPacket.h>
