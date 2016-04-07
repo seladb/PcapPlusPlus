@@ -9,6 +9,7 @@
  * For more details about modes of operation and parameters run PcapPrinter -h
  */
 
+#include <stdlib.h>
 #include <getopt.h>
 #include <iostream>
 #include <fstream>

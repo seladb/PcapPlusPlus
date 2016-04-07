@@ -1,19 +1,21 @@
 -include mk/platform.mk
 
-COMMONPP_HOME 		:=	Common++
-PACKETPP_HOME 		:=	Packet++
-PCAPPP_HOME 		:=	Pcap++
-PACKETPP_TEST		:=	Packet++Test
-PCAPPP_TEST		:=	Pcap++Test
-EXAMPLE_PARSE		:=	Examples/Pcap++Examples.PacketParsing
-EXAMPLE_STREAMS		:=	Examples/Pcap++Examples.BreakPcapFileToStreams
-EXAMPLE_ARPSPOOF	:=	Examples/ArpSpoofing
-EXAMPLE_ARPING		:=	Examples/Arping
-EXAMPLE_DPDK1		:=	Examples/DpdkExample-FilterTraffic
-EXAMPLE_DNSSPOOF	:=	Examples/DnsSpoofing
-EXAMPLE_DNSRESOLVER	:=	Examples/DNSResolver
-EXAMPLE_HTTPANALYZE 	:=  	Examples/HttpAnalyzer
-EXAMPLE_PF_RING1    	:=  	Examples/PfRingExample-FilterTraffic
+COMMONPP_HOME        := Common++
+PACKETPP_HOME        := Packet++
+PCAPPP_HOME          := Pcap++
+PACKETPP_TEST        := Packet++Test
+PCAPPP_TEST          := Pcap++Test
+EXAMPLE_PARSE        := Examples/Pcap++Examples.PacketParsing
+EXAMPLE_STREAMS      := Examples/Pcap++Examples.BreakPcapFileToStreams
+EXAMPLE_ARPSPOOF     := Examples/ArpSpoofing
+EXAMPLE_ARPING       := Examples/Arping
+EXAMPLE_DPDK1        := Examples/DpdkExample-FilterTraffic
+EXAMPLE_DNSSPOOF     := Examples/DnsSpoofing
+EXAMPLE_DNSRESOLVER  := Examples/DNSResolver
+EXAMPLE_HTTPANALYZE  := Examples/HttpAnalyzer
+EXAMPLE_PF_RING1     := Examples/PfRingExample-FilterTraffic
+EXAMPLE_PCAP_PRINT   := Examples/PcapPrinter
+
 
 UNAME := $(shell uname)
 
@@ -44,6 +46,7 @@ all: libs
 	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) DnsSpoofing
 	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) DNSResolver
 	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) HttpAnalyzer
+	cd $(EXAMPLE_PCAP_PRINT)		&& $(MAKE) PcapPrinter
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
 endif
@@ -61,6 +64,7 @@ endif
 	$(CP) $(EXAMPLE_DNSSPOOF)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_DNSRESOLVER)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_HTTPANALYZE)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_PCAP_PRINT)/Bin/* ./Dist/examples
 ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
 endif
@@ -85,6 +89,7 @@ clean:
 	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) clean
 	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) clean
 	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) clean
+	cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) clean
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 endif
