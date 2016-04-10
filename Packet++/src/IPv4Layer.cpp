@@ -8,6 +8,7 @@
 #include <IcmpLayer.h>
 #include <GreLayer.h>
 #include <string.h>
+#include <sstream>
 #include <IpUtils.h>
 
 void IPv4Layer::initLayer()
@@ -41,6 +42,14 @@ void IPv4Layer::parseNextLayer()
 	ProtocolType greVer = Unknown;
 
 	uint8_t ipVersion = 0;
+
+	// If it's a fragment don't parse upper layers, unless if it's the first fragment
+	// TODO: assuming first fragment contains at least L4 header, what if it's not true?
+	if (isFragment() && !isFirstFragment())
+	{
+		m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		return;
+	}
 
 	switch (ipHdr->protocol)
 	{
@@ -111,7 +120,48 @@ void IPv4Layer::computeCalculateFields()
 	ipHdr->headerChecksum = htons(compute_checksum(&scalar, 1));
 }
 
+bool IPv4Layer::isFragment()
+{
+	return ((getFragmentFlags() & IP_MORE_FRAGMENTS) != 0 || getFragmentOffset() != 0);
+}
+
+bool IPv4Layer::isFirstFragment()
+{
+	return isFragment() && (getFragmentOffset() == 0);
+}
+
+bool IPv4Layer::isLastFragment()
+{
+	return isFragment() && ((getFragmentFlags() & IP_MORE_FRAGMENTS) == 0);
+}
+
+uint8_t IPv4Layer::getFragmentFlags()
+{
+	return getIPv4Header()->fragmentOffset & 0xFF;
+}
+
+uint16_t IPv4Layer::getFragmentOffset()
+{
+	return ntohs(getIPv4Header()->fragmentOffset & (uint16_t)0xFF1F) * 8;
+}
+
 std::string IPv4Layer::toString()
 {
-	return "IPv4 Layer, Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
+	std::string fragmet = "";
+	if (isFragment())
+	{
+		if (isFirstFragment())
+			fragmet = "First fragment";
+		else if (isLastFragment())
+			fragmet = "Last fragment";
+		else
+			fragmet = "Fragment";
+
+		std::stringstream sstm;
+		sstm << fragmet << " [offset= " << getFragmentOffset() << "], ";
+		fragmet = sstm.str();
+	}
+
+
+	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 }

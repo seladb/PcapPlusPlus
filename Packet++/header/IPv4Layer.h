@@ -94,6 +94,9 @@ enum IPProtocolTypes
 	PACKETPP_IPPROTO_MAX
 };
 
+#define IP_DONT_FRAGMENT  0x40
+#define IP_MORE_FRAGMENTS 0x20
+
 /**
  * @class IPv4Layer
  * Represents an IPv4 protocol layer
@@ -151,6 +154,33 @@ public:
 	 * @param[in] ipAddr The IP address to set
 	 */
 	inline void setDstIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toInt(); }
+
+	/**
+	 * @return True if this packet is a fragment (in sense of IP fragmentation), false otherwise
+	 */
+	bool isFragment();
+
+	/**
+	 * @return True if this packet is a fragment (in sense of IP fragmentation) and is the first fragment
+	 * (which usually contains the L4 header). Return false otherwise (not a fragment or not the first fragment)
+	 */
+	bool isFirstFragment();
+
+	/**
+	 * @return True if this packet is a fragment (in sense of IP fragmentation) and is the last fragment.
+	 * Return false otherwise (not a fragment or not the last fragment)
+	 */
+	bool isLastFragment();
+
+	/**
+	 * @return A bitmask containing the fragmentation flags (e.g IP_DONT_FRAGMENT or IP_MORE_FRAGMENTS)
+	 */
+	uint8_t getFragmentFlags();
+
+	/**
+	 * @return The fragment offset in case this packet is a fragment, 0 otherwise
+	 */
+	uint16_t getFragmentOffset();
 
 
 	// implement abstract methods
