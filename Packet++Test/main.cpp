@@ -338,6 +338,61 @@ PACKETPP_TEST(Ipv4PacketParsing)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(Ipv4FragmentationTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IPv4Frag1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file IPv4Frag1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IPv4Frag2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IPv4Frag2.dat");
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IPv4Frag3.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file IPv4Frag3.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+
+	Packet frag1(&rawPacket1);
+	Packet frag2(&rawPacket2);
+	Packet frag3(&rawPacket3);
+
+	IPv4Layer* ipLayer = frag1.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find Frag1 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->isFragment() == true, "Frag1 is mistakenly not a fragment");
+	PACKETPP_ASSERT(ipLayer->isFirstFragment() == true, "Frag1 is mistakenly not a first fragment");
+	PACKETPP_ASSERT(ipLayer->isLastFragment() == false, "Frag1 is mistakenly a last fragment");
+	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 0, "Frag1 fragment offset != 0");
+	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & IP_MORE_FRAGMENTS) != 0, "Frag1 mistakenly doesn't contain the 'more fragments' flag");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == UDP, "Frag1 next protocol is not UDP");
+
+
+	ipLayer = frag2.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find Frag2 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->isFragment() == true, "Frag2 is mistakenly not a fragment");
+	PACKETPP_ASSERT(ipLayer->isFirstFragment() == false, "Frag2 is mistakenly a first fragment");
+	PACKETPP_ASSERT(ipLayer->isLastFragment() == false, "Frag2 is mistakenly a last fragment");
+	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 1480, "Frag2 fragment offset != 1480");
+	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & IP_MORE_FRAGMENTS) != 0, "Frag2 mistakenly doesn't contain the 'more fragments' flag");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == Unknown, "Frag2 next protocol is not generic payload");
+
+	ipLayer = frag3.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find Frag3 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->isFragment() == true, "Frag3 is mistakenly not a fragment");
+	PACKETPP_ASSERT(ipLayer->isFirstFragment() == false, "Frag3 is mistakenly a first fragment");
+	PACKETPP_ASSERT(ipLayer->isLastFragment() == true, "Frag3 is mistakenly not a last fragment");
+	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 2960, "Frag3 fragment offset != 2960");
+	PACKETPP_ASSERT(ipLayer->getFragmentFlags() == 0, "Frag3 mistakenly contains flags, 0x%X", ipLayer->getFragmentFlags());
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == Unknown, "Frag3 next protocol is not generic payload");
+
+	PACKETPP_TEST_PASSED;
+}
+
 PACKETPP_TEST(Ipv4UdpChecksum)
 {
 	for (int i = 1; i<6; i++)
@@ -3218,6 +3273,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(VlanParseAndCreation);
 	PACKETPP_RUN_TEST(Ipv4PacketCreation);
 	PACKETPP_RUN_TEST(Ipv4PacketParsing);
+	PACKETPP_RUN_TEST(Ipv4FragmentationTest);
 	PACKETPP_RUN_TEST(Ipv4UdpChecksum);
 	PACKETPP_RUN_TEST(Ipv6UdpPacketParseAndCreate);
 	PACKETPP_RUN_TEST(TcpPacketNoOptionsParsing);

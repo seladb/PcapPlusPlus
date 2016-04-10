@@ -137,7 +137,7 @@ bool IPv4Layer::isLastFragment()
 
 uint8_t IPv4Layer::getFragmentFlags()
 {
-	return getIPv4Header()->fragmentOffset & 0xFF;
+	return getIPv4Header()->fragmentOffset & 0xE0;
 }
 
 uint16_t IPv4Layer::getFragmentOffset()
