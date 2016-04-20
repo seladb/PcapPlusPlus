@@ -25,8 +25,8 @@ VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t
 
 	vlan_header* vlanHeader = getVlanHeader();
 	setVlanID(vlanID);
-	vlanHeader->cfi = cfi;
-	vlanHeader->priority = 0x07 & priority;
+	setCFI(cfi);
+	setPriority(priority);
 	vlanHeader->etherType = htons(etherType);
 }
 
@@ -67,9 +67,9 @@ void VlanLayer::parseNextLayer()
 std::string VlanLayer::toString()
 {
 	std::ostringstream cfiStream;
-	cfiStream << ntohs(getVlanHeader()->cfi);
+	cfiStream << (int)getCFI();
 	std::ostringstream priStream;
-	priStream << ntohs(getVlanHeader()->priority);
+	priStream << (int)getPriority();
 	std::ostringstream idStream;
 	idStream << getVlanID();
 

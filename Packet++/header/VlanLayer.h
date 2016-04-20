@@ -74,12 +74,38 @@ public:
 	inline uint16_t getVlanID() { return getVlanHeader()->vlanID >> 4;  }
 
 	/**
+	 * @return The CFI bit value
+	 * @todo Verify it works in big endian machines as well
+	 */
+	inline uint8_t getCFI() { return getVlanHeader()->vlanID & 0x1; }
+
+	/**
+	 * @return The priority value
+	 * @todo Verify it works in big endian machines as well
+	 */
+	inline uint8_t getPriority() { return (getVlanHeader()->vlanID & 0xF) >> 1; }
+
+	/**
 	 * Set VLAN ID. This method differs from setting vlan_header#vlanID because vlan_header#vlanID is 12 bits long in a 16 bit field.
 	 * This methods sets only the 12 bit relevant for the VLAN ID
 	 * @param[in] id The VLAN ID to set
 	 * @todo Verify it works in big endian machines as well
 	 */
 	inline void setVlanID(uint16_t id) { getVlanHeader()->vlanID = ((id << 4) & 0xff0) | (id >> 8); }
+
+	/**
+	 * Set CFI bit
+	 * @param[in] cfi The CFI bit to set
+	 * @todo Verify it works in big endian machines as well
+	 */
+	inline void setCFI(bool cfi) { getVlanHeader()->vlanID |= cfi; }
+
+	/**
+	 * Set priority value
+	 * @param[in] priority The priority value to set
+	 * @todo Verify it works in big endian machines as well
+	 */
+	inline void setPriority(uint8_t priority) { getVlanHeader()->vlanID |= ((priority & 0x7) << 1); }
 
 	// implement abstract methods
 

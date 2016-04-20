@@ -230,25 +230,24 @@ PACKETPP_TEST(VlanParseAndCreation)
 	gettimeofday(&time, NULL);
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 	Packet arpWithVlan(&rawPacket);
+
 	VlanLayer* pFirstVlanLayer = NULL;
 	VlanLayer* pSecondVlanLayer = NULL;
 	PACKETPP_ASSERT((pFirstVlanLayer = arpWithVlan.getLayerOfType<VlanLayer>()) != NULL, "Couldn't get first vlan layer from packet");
-	vlan_header* vlanHeader = pFirstVlanLayer->getVlanHeader();
 	PACKETPP_ASSERT(pFirstVlanLayer->getVlanID() == 100, "first vlan ID != 100, it's 0x%2X", pFirstVlanLayer->getVlanID());
-	PACKETPP_ASSERT(vlanHeader->cfi == htons(0), "first vlan CFI != 0");
-	PACKETPP_ASSERT(vlanHeader->priority == htons(0), "first vlan priority != 0");
+	PACKETPP_ASSERT(pFirstVlanLayer->getCFI() == 1, "first vlan CFI != 1");
+	PACKETPP_ASSERT(pFirstVlanLayer->getPriority() == 5, "first vlan priority != 5");
 	PACKETPP_ASSERT((pSecondVlanLayer = arpWithVlan.getNextLayerOfType<VlanLayer>(pFirstVlanLayer)) != NULL, "Couldn't get second vlan layer from packet");
-	vlanHeader = pSecondVlanLayer->getVlanHeader();
 	PACKETPP_ASSERT(pSecondVlanLayer->getVlanID() == 200, "second vlan ID != 200");
-	PACKETPP_ASSERT(vlanHeader->cfi == htons(0), "second vlan CFI != 0");
-	PACKETPP_ASSERT(vlanHeader->priority == htons(0), "second vlan priority != 0");
+	PACKETPP_ASSERT(pSecondVlanLayer->getCFI() == 0, "second vlan CFI != 0");
+	PACKETPP_ASSERT(pSecondVlanLayer->getPriority() == 2, "second vlan priority != 2");
 
 	Packet arpWithVlanNew(1);
 	MacAddress macSrc("ca:03:0d:b4:00:1c");
 	MacAddress macDest("ff:ff:ff:ff:ff:ff");
 	EthLayer ethLayer(macSrc, macDest, ETHERTYPE_VLAN);
-	VlanLayer firstVlanLayer(100, 0, 0, ETHERTYPE_VLAN);
-	VlanLayer secondVlanLayer(200, 0, 0, ETHERTYPE_ARP);
+	VlanLayer firstVlanLayer(100, 1, 5, ETHERTYPE_VLAN);
+	VlanLayer secondVlanLayer(200, 0, 2, ETHERTYPE_ARP);
 	ArpLayer arpLayer(ARP_REQUEST, macSrc, MacAddress("00:00:00:00:00:00"), IPv4Address(string("192.168.2.200")), IPv4Address(string("192.168.2.254")));
 	PACKETPP_ASSERT(arpWithVlanNew.addLayer(&ethLayer), "Couldn't add eth layer");
 	PACKETPP_ASSERT(arpWithVlanNew.addLayer(&firstVlanLayer), "Couldn't add first vlan layer");

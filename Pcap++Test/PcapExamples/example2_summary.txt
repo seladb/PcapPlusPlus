@@ -160,13 +160,13 @@ ICMP Layer, Echo (ping) reply (type: 0)
 
 Packet length: 375 [Bytes], Arrival time: 2010-06-29 22:41:50.969363
 Ethernet II Layer, Src: 00:13:c3:df:ae:18, Dst: 01:00:0c:cd:cd:d0
-VLAN Layer, Priority: 0, Vlan ID: 118, CFI: 0
+VLAN Layer, Priority: 5, Vlan ID: 118, CFI: 0
 Payload Layer, Data length: 357 [Bytes]
 
 
 Packet length: 373 [Bytes], Arrival time: 2010-06-29 22:41:51.384783
 Ethernet II Layer, Src: 00:19:aa:7d:e6:88, Dst: 01:00:0c:cd:cd:d0
-VLAN Layer, Priority: 0, Vlan ID: 209, CFI: 0
+VLAN Layer, Priority: 5, Vlan ID: 209, CFI: 0
 Payload Layer, Data length: 355 [Bytes]
 
 
@@ -182,13 +182,13 @@ Payload Layer, Data length: 361 [Bytes]
 
 Packet length: 375 [Bytes], Arrival time: 2010-06-29 22:42:08.106320
 Ethernet II Layer, Src: 00:1b:d4:1b:a4:d8, Dst: 01:00:0c:cd:cd:d0
-VLAN Layer, Priority: 0, Vlan ID: 118, CFI: 0
+VLAN Layer, Priority: 5, Vlan ID: 118, CFI: 0
 Payload Layer, Data length: 357 [Bytes]
 
 
 Packet length: 373 [Bytes], Arrival time: 2010-06-29 22:42:10.538713
 Ethernet II Layer, Src: 00:21:55:c8:f1:3c, Dst: 01:00:0c:cd:cd:d0
-VLAN Layer, Priority: 0, Vlan ID: 209, CFI: 0
+VLAN Layer, Priority: 5, Vlan ID: 209, CFI: 0
 Payload Layer, Data length: 355 [Bytes]
 
 
