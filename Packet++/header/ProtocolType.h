@@ -116,7 +116,13 @@ enum ProtocolType
 	/**
 	 * PPP for PPTP protocol
 	 */
-	PPP_PPTP = 0x10000
+	PPP_PPTP = 0x10000,
+
+	/**
+	 * SSL/TLS protocol
+	 */
+	SSL = 0x20000
+
 };
 
 #endif

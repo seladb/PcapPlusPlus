@@ -69,7 +69,8 @@ The Packet++ library currently supports parsing, editing and creation of packets
 11. ICMP
 12. DNS
 13. HTTP headers (request & response)
-14. Generic payload
+14. SSL/TLS headers - read only (no editing capabilities)
+15. Generic payload
 
 #### Supported Engines and Devices ####
 

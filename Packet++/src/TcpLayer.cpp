@@ -5,6 +5,7 @@
 #include <IPv6Layer.h>
 #include <PayloadLayer.h>
 #include <HttpLayer.h>
+#include <SSLLayer.h>
 #include <IpUtils.h>
 #include <Logger.h>
 #include <string.h>
@@ -237,6 +238,8 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = new HttpRequestLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
 	else if ((portSrc == 80 || portSrc == 8080) && HttpResponseFirstLine::parseStatusCode((char*)(m_Data + m_HeaderLen), m_DataLen - m_HeaderLen) != HttpResponseLayer::HttpStatusCodeUnknown)
 		m_NextLayer = new HttpResponseLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
+	else if (SSLLayer::IsSSLMessage(portSrc, portDst, m_Data + m_HeaderLen, m_DataLen - m_HeaderLen))
+		m_NextLayer = SSLLayer::createSSLMessage(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(m_Data + m_HeaderLen, m_DataLen - m_HeaderLen, this, m_Packet);
 }

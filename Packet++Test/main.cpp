@@ -14,6 +14,7 @@
 #include <MplsLayer.h>
 #include <IcmpLayer.h>
 #include <GreLayer.h>
+#include <SSLLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -557,7 +558,7 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing)
 	memcpy(&tsValue, timestampOptionData->value, 4);
 	memcpy(&tsEchoReply, timestampOptionData->value+4, 4);
 	PACKETPP_ASSERT(tsValue == htonl(195102), "TCP option Timestamp option: timestamp value != 195102, it's %ld", ntohl(tsValue));
-	PACKETPP_ASSERT(tsEchoReply == htonl(3555729271), "TCP option Timestamp option: echo reply value != 3555729271, it's %ld", ntohl(tsEchoReply));
+	PACKETPP_ASSERT(tsEchoReply == htonl(3555729271UL), "TCP option Timestamp option: echo reply value != 3555729271, it's %ld", ntohl(tsEchoReply));
 
 	PACKETPP_TEST_PASSED;
 }
@@ -617,7 +618,7 @@ PACKETPP_TEST(TcpPacketCreation)
 	tcpLayer.getTcpHeader()->pshFlag = 1;
 	tcpLayer.getTcpHeader()->windowSize = htons(20178);
 	TcpOptionData* tsOptionData = tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP);
-	uint32_t tsValue = htonl(3555735960);
+	uint32_t tsValue = htonl(3555735960UL);
 	memcpy(tsOptionData->value, &tsValue, 4);
 	uint8_t payloadData[9] = { 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82 };
 	PayloadLayer PayloadLayer(payloadData, 9, true);
@@ -2077,7 +2078,6 @@ PACKETPP_TEST(MplsLayerTest)
 			mplsLayer2.getData()[0], mplsLayer2.getData()[1], mplsLayer2.getData()[2], mplsLayer2.getData()[3]);
 
 	LoggerPP::getInstance().supressErrors();
-	PACKETPP_ASSERT(mplsLayer->setExperimentalUseValue(600) == false, "Managed to set an out-of-range exp value");
 	PACKETPP_ASSERT(mplsLayer->setMplsLabel(0xFFFFFF) == false, "Managed to set an out-of-range MPLS label value");
 	LoggerPP::getInstance().enableErrors();
 
@@ -3261,6 +3261,522 @@ PACKETPP_TEST(GreEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+
+PACKETPP_TEST(SSLClientHelloParsingTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/SSL-ClientHello1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet clientHelloPacket(&rawPacket);
+
+	PACKETPP_ASSERT(clientHelloPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLHandshakeLayer* handshakeLayer = clientHelloPacket.getLayerOfType<SSLHandshakeLayer>();
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract handshake layer");
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 1, "Number of messages in client-hello layer != 1");
+	SSLClientHelloMessage* clientHelloMessage = handshakeLayer->getHandshakeMessageOfType<SSLClientHelloMessage>();
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(0) == clientHelloMessage, "handshake message at index 0 isn't client-hello message");
+	PACKETPP_ASSERT(clientHelloMessage != NULL, "Client-hello layer is NULL");
+	PACKETPP_ASSERT(handshakeLayer->getRecordType() == SSL_HANDSHAKE, "Record layer isn't of type handshake");
+	PACKETPP_ASSERT(handshakeLayer->getRecordVersion() == TLS1_0, "Record version isn't TLSv1.0");
+	PACKETPP_ASSERT(clientHelloMessage->getHandshakeType() == SSL_CLIENT_HELLO, "Handshake type isn't client-hello");
+	PACKETPP_ASSERT(clientHelloMessage->getHandshakeVersion() == TLS1_2, "Handshake version isn't TLSv1.2");
+	uint8_t* random = clientHelloMessage->getClientHelloHeader()->random;
+	PACKETPP_ASSERT(random[0] == 0x3e && random[8] == 0x78 && random[27] == 0xe5, "Random value not as expected");
+	PACKETPP_ASSERT(clientHelloMessage->getSessionIDLength() == 0 && clientHelloMessage->getSessionID() == NULL, "Session ID values not as expected");
+	PACKETPP_ASSERT(clientHelloMessage->getCipherSuiteCount() == 11, "Cipher suite count != 11, it's %d", clientHelloMessage->getCipherSuiteCount());
+
+	uint16_t cipherSuiteIDs[11] = { 0xc02b, 0xc02f, 0xc00a, 0xc009, 0xc013, 0xc014, 0x0033, 0x0039, 0x002f, 0x0035, 0x000a };
+	std::string cipherSuiteNames[11] = {
+			"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+			"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+			"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+			"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+			"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+			"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+			"TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+			"TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+			"TLS_RSA_WITH_AES_128_CBC_SHA",
+			"TLS_RSA_WITH_AES_256_CBC_SHA",
+			"TLS_RSA_WITH_3DES_EDE_CBC_SHA"
+			};
+	SSLKeyExchangeAlgorithm cipherSuiteKey[11] = {
+			SSL_KEYX_ECDHE,
+			SSL_KEYX_ECDHE,
+			SSL_KEYX_ECDHE,
+			SSL_KEYX_ECDHE,
+			SSL_KEYX_ECDHE,
+			SSL_KEYX_ECDHE,
+			SSL_KEYX_DHE,
+			SSL_KEYX_DHE,
+			SSL_KEYX_RSA,
+			SSL_KEYX_RSA,
+			SSL_KEYX_RSA
+	};
+
+	SSLAuthenticationAlgorithm cipherSuiteAuth[11] = {
+			SSL_AUTH_ECDSA,
+			SSL_AUTH_RSA,
+			SSL_AUTH_ECDSA,
+			SSL_AUTH_ECDSA,
+			SSL_AUTH_RSA,
+			SSL_AUTH_RSA,
+			SSL_AUTH_RSA,
+			SSL_AUTH_RSA,
+			SSL_AUTH_RSA,
+			SSL_AUTH_RSA,
+			SSL_AUTH_RSA
+	};
+
+	SSLSymetricEncryptionAlgorithm cipherSuiteSym[11] = {
+			SSL_SYM_AES_128_GCM,
+			SSL_SYM_AES_128_GCM,
+			SSL_SYM_AES_256_CBC,
+			SSL_SYM_AES_128_CBC,
+			SSL_SYM_AES_128_CBC,
+			SSL_SYM_AES_256_CBC,
+			SSL_SYM_AES_128_CBC,
+			SSL_SYM_AES_256_CBC,
+			SSL_SYM_AES_128_CBC,
+			SSL_SYM_AES_256_CBC,
+			SSL_SYM_3DES_EDE_CBC
+	};
+
+	SSLHashingAlgorithm cipherSuiteHash[11] = {
+			SSL_HASH_SHA256,
+			SSL_HASH_SHA256,
+			SSL_HASH_SHA,
+			SSL_HASH_SHA,
+			SSL_HASH_SHA,
+			SSL_HASH_SHA,
+			SSL_HASH_SHA,
+			SSL_HASH_SHA,
+			SSL_HASH_SHA,
+			SSL_HASH_SHA,
+			SSL_HASH_SHA
+	};
+
+	for (int i = 0; i < clientHelloMessage->getCipherSuiteCount(); i++)
+	{
+		SSLCipherSuite* curCipherSuite = clientHelloMessage->getCipherSuite(i);
+		PACKETPP_ASSERT(curCipherSuite != NULL, "Cipher suite at index %d is NULL", i);
+		PACKETPP_ASSERT(curCipherSuite->asString() == cipherSuiteNames[i], "Cipher suite name at index %d is incorrect", i);
+		PACKETPP_ASSERT(curCipherSuite->getID() == cipherSuiteIDs[i], "Cipher suite ID at index %d is incorrect", i);
+		PACKETPP_ASSERT(curCipherSuite->getKeyExchangeAlg() == cipherSuiteKey[i], "Cipher suite key alg at index %d is incorrect", i);
+		PACKETPP_ASSERT(curCipherSuite->getAuthAlg() == cipherSuiteAuth[i], "Cipher suite auth alg at index %d is incorrect", i);
+		PACKETPP_ASSERT(curCipherSuite->getSymKeyAlg() == cipherSuiteSym[i], "Cipher suite sym alg at index %d is incorrect", i);
+		PACKETPP_ASSERT(curCipherSuite->getMACAlg() == cipherSuiteHash[i], "Cipher suite MAC alg at index %d is incorrect", i);
+	}
+
+	PACKETPP_ASSERT(clientHelloMessage->getCompressionMethodsValue() == 0, "Compression value isn't 0, it's 0x%X", clientHelloMessage->getCompressionMethodsValue());
+	PACKETPP_ASSERT(handshakeLayer->getHeaderLen() == 188, "Header len isn't as expected");
+
+	int extCount = clientHelloMessage->getExtensionCount();
+	PACKETPP_ASSERT(extCount == 9, "Num of extensions != 9, it's %d", clientHelloMessage->getExtensionCount());
+	PACKETPP_ASSERT(clientHelloMessage->getExtensionsLenth() == 116, "Extensions length != 116");
+
+	SSLExtension* ext = clientHelloMessage->getExtension(0);
+	PACKETPP_ASSERT(ext->getType() == SSL_EXT_SERVER_NAME, "First extension isn't server name");
+	SSLServerNameIndicationExtension* serverNameExt = clientHelloMessage->getExtensionOfType<SSLServerNameIndicationExtension>();
+	PACKETPP_ASSERT(serverNameExt != NULL, "Couldn't find SNI ext");
+	PACKETPP_ASSERT(serverNameExt->getHostName() == "www.google.com", "SNI value isn't as expected");
+
+	SSLExtensionType extTypes[9] = { SSL_EXT_SERVER_NAME, SSL_EXT_RENEGOTIATION_INFO, SSL_EXT_ELLIPTIC_CURVES, SSL_EXT_EC_POINT_FORMATS,
+			SSL_EXT_SESSIONTICKET_TLS, SSL_EXT_Unknown, SSL_EXT_APPLICATION_LAYER_PROTOCOL_NEGOTIATION, SSL_EXT_STATUS_REQUEST,
+			SSL_EXT_SIGNATURE_ALGORITHMS };
+
+	uint16_t extLength[9] = { 19, 1, 8, 2, 0, 0, 23, 5, 22 };
+
+	for (int i = 0; i < extCount; i++)
+	{
+		SSLExtension* curExt = clientHelloMessage->getExtension(i);
+		PACKETPP_ASSERT(curExt->getType() == extTypes[i], "SSL ext no. %d is not of the correct type", i);
+		PACKETPP_ASSERT(curExt->getLength() == extLength[i], "SSL ext no. %d is not of the correct length", i);
+		PACKETPP_ASSERT(clientHelloMessage->getExtensionOfType(extTypes[i]) == curExt, "SSL ext no. %d: fetching the extension by type failed", i);
+	}
+
+	PACKETPP_TEST_PASSED;
+}
+
+
+PACKETPP_TEST(SSLAppDataParsingTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/SSL-MultipleAppData.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet appDataPacket(&rawPacket);
+
+	PACKETPP_ASSERT(appDataPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLApplicationDataLayer* appDataLayer = appDataPacket.getLayerOfType<SSLApplicationDataLayer>();
+	PACKETPP_ASSERT(appDataLayer != NULL, "Couldn't extract first app data layer");
+
+	PACKETPP_ASSERT(appDataLayer->getRecordVersion() == TLS1_2, "Record TLS version isn't SSLv1.2");
+	PACKETPP_ASSERT(appDataLayer->getRecordType() == SSL_APPLICATION_DATA, "Record type isn't app data");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedDataLen() == 880, "Encrypted data len isn't 880");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedData()[0] == 0, "1st byte of encrypted data != 0");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedData()[16] == 0xd9, "16th byte of encrypted data != 0xd9");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedData()[77] == 0x19, "77th byte of encrypted data != 0x19");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedData()[869] == 0xbc, "869th byte of encrypted data != 0xbc");
+
+	PACKETPP_ASSERT(appDataLayer->getNextLayer() != NULL && appDataLayer->getNextLayer()->getProtocol() == SSL, "2nd app data layer is null or not SSL");
+	appDataLayer = dynamic_cast<SSLApplicationDataLayer*>(appDataLayer->getNextLayer());
+	PACKETPP_ASSERT(appDataLayer != NULL, "Couldn't extract second app data layer");
+
+	PACKETPP_ASSERT(appDataLayer->getRecordVersion() == TLS1_2, "Second record TLS version isn't SSLv1.2");
+	PACKETPP_ASSERT(appDataLayer->getRecordType() == SSL_APPLICATION_DATA, "Second record type isn't app data");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedDataLen() == 41, "Encrypted data len isn't 41");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedData()[0] == 0, "1st byte of encrypted data != 0");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedData()[19] == 0x7d, "20th byte of encrypted data != 0x7d");
+	PACKETPP_ASSERT(appDataLayer->getEncrpytedData()[40] == 0xec, "41th byte of encrypted data != 0xec");
+
+	PACKETPP_ASSERT(appDataLayer->getNextLayer() == NULL, "We have extra layer that shouldn't exist")
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(SSLAlertParsingTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/SSL-AlertClear.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/SSL-AlertEnc.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file");
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet clearAlertPacket(&rawPacket1);
+	Packet encAlertPacket(&rawPacket2);
+
+	PACKETPP_ASSERT(clearAlertPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLAlertLayer* clearAlertLayer = clearAlertPacket.getLayerOfType<SSLAlertLayer>();
+	PACKETPP_ASSERT(clearAlertLayer != NULL, "Couldn't extract alert layer");
+	PACKETPP_ASSERT(clearAlertLayer->getRecordVersion() == TLS1_0, "Record TLS version isn't SSLv1.0");
+	PACKETPP_ASSERT(clearAlertLayer->getRecordType() == SSL_ALERT, "Record type isn't ssl alert");
+	PACKETPP_ASSERT(clearAlertLayer->getAlertLevel() == SSL_ALERT_LEVEL_FATAL, "Alert level isn't fatal");
+	PACKETPP_ASSERT(clearAlertLayer->getAlertDescription() == SSL_ALERT_PROTOCOL_VERSION, "Alert desc isn't protocol version");
+	PACKETPP_ASSERT(clearAlertLayer->getRecordLayer()->length == ntohs(2), "Record length isn't 2");
+	PACKETPP_ASSERT(clearAlertLayer->getNextLayer() == NULL, "Alert layer isn't the last layer");
+
+	PACKETPP_ASSERT(encAlertPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLAlertLayer* encAlertLayer = encAlertPacket.getLayerOfType<SSLAlertLayer>();
+	PACKETPP_ASSERT(encAlertLayer != NULL, "Couldn't extract alert layer");
+	PACKETPP_ASSERT(encAlertLayer->getRecordVersion() == TLS1_2, "Record TLS version isn't SSLv1.2");
+	PACKETPP_ASSERT(encAlertLayer->getRecordType() == SSL_ALERT, "Record type isn't ssl alert");
+	PACKETPP_ASSERT(encAlertLayer->getAlertLevel() == SSL_ALERT_LEVEL_ENCRYPTED, "Alert level isn't encrypted");
+	PACKETPP_ASSERT(encAlertLayer->getAlertDescription() == SSL_ALERT_ENCRYPRED, "Alert desc isn't encrypted");
+	PACKETPP_ASSERT(encAlertLayer->getRecordLayer()->length == ntohs(26), "Record length isn't 26");
+	PACKETPP_ASSERT(encAlertLayer->getHeaderLen() == 31, "Header length isn't 31");
+
+//	std::string packetAsString = clearAlertPacket.printToString();
+//	printf("Packet clear:\n\n%s\n\n", packetAsString.c_str());
+
+	PACKETPP_TEST_PASSED;
+}
+
+/**
+ * Testing: server-hello, change-cipher-spec, hello-request
+ */
+PACKETPP_TEST(SSLMultipleRecordParsingTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/SSL-MultipleRecords1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet multipleRecordsPacket(&rawPacket);
+
+	PACKETPP_ASSERT(multipleRecordsPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<SSLHandshakeLayer>();
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract first handshake layer");
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 1, "Num of messages in server-hello record != 1, %d", handshakeLayer->getHandshakeMessagesCount());
+	SSLServerHelloMessage* serverHelloMessage = handshakeLayer->getHandshakeMessageOfType<SSLServerHelloMessage>();
+	PACKETPP_ASSERT(serverHelloMessage != NULL, "Couldn't extract server-hello message");
+	PACKETPP_ASSERT(serverHelloMessage->getSessionIDLength() == 32, "Server-hello session-id length != 32");
+	PACKETPP_ASSERT(serverHelloMessage->getSessionID()[0] == 0xbf, "Server-hello 1st byte of session-id isn't 0xbf");
+	PACKETPP_ASSERT(serverHelloMessage->getSessionID()[31] == 0x44, "Server-hello last byte of session-id isn't 0x44");
+	PACKETPP_ASSERT(serverHelloMessage->getCipherSuite()->asString() == "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "Got the wrong cipher suite");
+	PACKETPP_ASSERT(serverHelloMessage->getCipherSuite()->getSymKeyAlg() == SSL_SYM_AES_128_GCM, "Cipher suite - wrong sym key");
+	PACKETPP_ASSERT(serverHelloMessage->getExtensionsLenth() == 20, "Extension length != 20");
+	PACKETPP_ASSERT(serverHelloMessage->getExtensionCount() == 3, "Num of extensions != 3");
+	uint16_t extensionsLength[3] = { 1, 5, 2 };
+	uint16_t totalExtensionsLength[3] = { 5, 9, 6 };
+	SSLExtensionType extensionTypes[3] = { SSL_EXT_RENEGOTIATION_INFO, SSL_EXT_APPLICATION_LAYER_PROTOCOL_NEGOTIATION, SSL_EXT_EC_POINT_FORMATS };
+	uint8_t extensionDataFirstByte[3] = { 0, 0, 1 };
+	for (int i = 0; i < 3; i++)
+	{
+		SSLExtension* curExt = serverHelloMessage->getExtension(i);
+		PACKETPP_ASSERT(curExt->getLength() == extensionsLength[i], "Extension #%d - wrong length", i);
+		PACKETPP_ASSERT(curExt->getTotalLength() == totalExtensionsLength[i], "Extension #%d - wrong total length", i);
+		PACKETPP_ASSERT(curExt->getType() == extensionTypes[i], "Extension #%d - wrong type", i);
+		PACKETPP_ASSERT(curExt->getData()[0] == extensionDataFirstByte[i], "Extension #%d - wrong first byte", i);
+	}
+
+	SSLChangeCipherSpecLayer* ccsLayer = multipleRecordsPacket.getLayerOfType<SSLChangeCipherSpecLayer>();
+	PACKETPP_ASSERT(ccsLayer != NULL, "Couldn't change-cipher-spec layer");
+	PACKETPP_ASSERT(ccsLayer->getRecordVersion() == TLS1_2, "Record TLS version isn't SSLv1.2");
+	PACKETPP_ASSERT(ccsLayer->getRecordType() == SSL_CHANGE_CIPHER_SPEC, "Record type isn't change-cipher-spec");
+	PACKETPP_ASSERT(ccsLayer->getHeaderLen() == 6, "Record len isn't 6");
+
+	handshakeLayer = multipleRecordsPacket.getNextLayerOfType<SSLHandshakeLayer>(handshakeLayer);
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract third handshake layer");
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 3, "Num of messages in hello-request record != 3, it's %d", handshakeLayer->getHandshakeMessagesCount());
+	SSLHelloRequestMessage* helloRequest = handshakeLayer->getHandshakeMessageOfType<SSLHelloRequestMessage>();
+	PACKETPP_ASSERT(helloRequest != NULL, "Couldn't retrieve first hello-request");
+	PACKETPP_ASSERT(helloRequest->getHandshakeType() == SSL_HELLO_REQUEST, "Hello-request message isn't of type hello-request");
+	PACKETPP_ASSERT(helloRequest->getMessageLength() == 4, "Hello-request isn't of size 4");
+	SSLHelloRequestMessage* helloRequest2 = handshakeLayer->getNextHandshakeMessageOfType<SSLHelloRequestMessage>(helloRequest);
+	PACKETPP_ASSERT(helloRequest2 != NULL, "Couldn't retrieve second hello-request");
+	PACKETPP_ASSERT(helloRequest2 != helloRequest, "Wrong search - both hello-request messages are the same pointer");
+	PACKETPP_ASSERT(helloRequest2->getHandshakeType() == SSL_HELLO_REQUEST, "Second hello-request message isn't of type hello-request");
+	PACKETPP_ASSERT(helloRequest2->getMessageLength() == 4, "Second hello-request isn't of size 4");
+	helloRequest2 = handshakeLayer->getNextHandshakeMessageOfType<SSLHelloRequestMessage>(helloRequest2);
+	PACKETPP_ASSERT(helloRequest2 == NULL, "Found 3rd hello-request message");
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2) != NULL, "Couldn't find the 3rd handshake message");
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getHandshakeType() == SSL_HANDSHAKE_UNKNOWN, "3rd handshake message isn't of type unknown");
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength() == 32, "Unknown handshake message isn't of length 32, it's %d", handshakeLayer->getHandshakeMessageAt(2)->getMessageLength());
+
+//	std::string packetAsString = multipleRecordsPacket.printToString();
+//	printf("Packet clear:\n\n%s\n\n", packetAsString.c_str());
+
+	PACKETPP_TEST_PASSED;
+}
+
+/**
+ * Testing: client-key-exchange
+ */
+PACKETPP_TEST(SSLMultipleRecordParsing2Test)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/SSL-MultipleRecords2.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet multipleRecordsPacket(&rawPacket);
+
+	PACKETPP_ASSERT(multipleRecordsPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<SSLHandshakeLayer>();
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract first handshake layer");
+
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 1, "Num of messages in client-key-exchange record != 1");
+	SSLClientKeyExchangeMessage* clientKeyExMsg = handshakeLayer->getHandshakeMessageOfType<SSLClientKeyExchangeMessage>();
+	PACKETPP_ASSERT(clientKeyExMsg != NULL, "Couldn't find client-key-exchange message");
+	PACKETPP_ASSERT(clientKeyExMsg->getHandshakeType() == SSL_CLIENT_KEY_EXCHANGE, "Client-key-exchange message isn't of the right type");
+	PACKETPP_ASSERT(clientKeyExMsg->getMessageLength() == 70, "Client-key-exchange message isn't of the right length");
+	PACKETPP_ASSERT(clientKeyExMsg->getClientKeyExchangeParamsLength() == 66, "Client-key-exchange params len != 66");
+	PACKETPP_ASSERT(clientKeyExMsg->getClientKeyExchangeParams()[0] == 0x41, "Server-key-exchange params - 1st byte != 0x41");
+	PACKETPP_ASSERT(clientKeyExMsg->getClientKeyExchangeParams()[10] == 0xf2, "Server-key-exchange params - 11th byte != 0xf2");
+	PACKETPP_ASSERT(clientKeyExMsg->getClientKeyExchangeParams()[65] == 0xdc, "Server-key-exchange params - 66th byte != 0xdc");
+
+	PACKETPP_TEST_PASSED;
+}
+
+/**
+ * Testing - certificate, certificate-request
+ */
+PACKETPP_TEST(SSLMultipleRecordParsing3Test)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/SSL-MultipleRecords3.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet multipleRecordsPacket(&rawPacket);
+
+	PACKETPP_ASSERT(multipleRecordsPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<SSLHandshakeLayer>();
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract first handshake layer");
+
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 5, "Couldn't find 5 handshake messages");
+
+	SSLCertificateMessage* certMsg = handshakeLayer->getHandshakeMessageOfType<SSLCertificateMessage>();
+	PACKETPP_ASSERT(certMsg != NULL, "Couldn't find certificate message");
+	PACKETPP_ASSERT(certMsg->getHandshakeType() == SSL_CERTIFICATE, "Message type isn't SSL_CERTIFICATE");
+	PACKETPP_ASSERT(certMsg->getMessageLength() == 4966, "Cert message doesn't have the right length");
+	PACKETPP_ASSERT(certMsg->getNumOfCertificates() == 3, "Couldn't find 3 certificate messages, found %d messages", certMsg->getNumOfCertificates());
+	PACKETPP_ASSERT(certMsg->getCertificate(1000) == NULL, "Managed to fetch cert that doesn't exits");
+
+	SSLx509Certificate* cert = certMsg->getCertificate(0);
+	PACKETPP_ASSERT(cert != NULL, "Couldn't retrieve cert #0");
+	PACKETPP_ASSERT(cert->allDataExists() == true, "Cert #0 - not all data exists");
+	PACKETPP_ASSERT(cert->getDataLength() == 1509, "Cert#0 length isn't 1509");
+	std::string certBuffer(cert->getData(), cert->getData()+cert->getDataLength());
+	std::size_t pos = certBuffer.find("LDAP Intermediate CA");
+	PACKETPP_ASSERT(pos != std::string::npos, "Cert#0 - couldn't find common name");
+	pos = certBuffer.find("Internal Development CA");
+	PACKETPP_ASSERT(pos == std::string::npos, "Found non-relevant common name");
+	cert = certMsg->getCertificate(1);
+	PACKETPP_ASSERT(cert != NULL, "Couldn't retrieve cert #1");
+	PACKETPP_ASSERT(cert->allDataExists() == true, "Cert #1 - not all data exists");
+	PACKETPP_ASSERT(cert->getDataLength() == 1728, "Cert#1 length isn't 1728");
+	certBuffer = std::string(cert->getData(), cert->getData()+cert->getDataLength());
+	pos = certBuffer.find("Internal Development CA");
+	PACKETPP_ASSERT(pos != std::string::npos, "Cert#1 - couldn't find common name");
+	cert = certMsg->getCertificate(2);
+	PACKETPP_ASSERT(cert != NULL, "Couldn't retrieve cert #2");
+	PACKETPP_ASSERT(cert->allDataExists() == true, "Cert #2 - not all data exists");
+	PACKETPP_ASSERT(cert->getDataLength() == 1713, "Cert#2 length isn't 1713");
+	certBuffer = std::string(cert->getData(), cert->getData()+cert->getDataLength());
+	pos = certBuffer.find("Internal Development CA");
+	PACKETPP_ASSERT(pos != std::string::npos, "Cert#2 - couldn't find common name");
+
+	SSLCertificateRequestMessage* certReqMsg = handshakeLayer->getHandshakeMessageOfType<SSLCertificateRequestMessage>();
+	PACKETPP_ASSERT(certReqMsg->isMessageComplete() == true, "Cert req message identifies as incomplete");
+	PACKETPP_ASSERT(certReqMsg->getHandshakeType() == SSL_CERTIFICATE_REQUEST, "Cert req message isn't of type SSL_CERTIFICATE_REQUEST");
+	PACKETPP_ASSERT(certReqMsg->getCertificateTypes().size() == 2, "Number of types in cert req message != 2");
+	PACKETPP_ASSERT(certReqMsg->getCertificateTypes().at(0) == SSL_CCT_RSA_SIGN, "First type in cert req message isn't SSL_CCT_RSA_SIGN");
+	PACKETPP_ASSERT(certReqMsg->getCertificateTypes().at(1) == SSL_CCT_DSS_SIGN, "Second type in cert req message isn't SSL_CCT_DSS_SIGN");
+	PACKETPP_ASSERT(certReqMsg->getCertificateAuthorityLength() == 110, "Cert auth len isn't 110");
+	PACKETPP_ASSERT(certReqMsg->getCertificateAuthorityData()[0] == 0x0, "Cert auth data in index 0 isn't 0x0");
+	PACKETPP_ASSERT(certReqMsg->getCertificateAuthorityData()[1] == 0x6c, "Cert auth data in index 1 isn't 0x6c");
+	PACKETPP_ASSERT(certReqMsg->getCertificateAuthorityData()[14] == 0x2, "Cert auth data in index 14 isn't 0x2");
+	PACKETPP_ASSERT(certReqMsg->getCertificateAuthorityData()[47] == 0x13, "Cert auth data in index 47 isn't 0x13");
+
+	PACKETPP_TEST_PASSED;
+}
+
+/**
+ * Testing: server-key-exchange, server-hello-done
+ */
+PACKETPP_TEST(SSLMultipleRecordParsing4Test)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/SSL-MultipleRecords4.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet multipleRecordsPacket(&rawPacket);
+
+	PACKETPP_ASSERT(multipleRecordsPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<SSLHandshakeLayer>();
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract first handshake layer");
+
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 1, "Num of messages in server-key-exchange record != 1");
+	SSLServerKeyExchangeMessage* serverKeyExMsg = handshakeLayer->getHandshakeMessageOfType<SSLServerKeyExchangeMessage>();
+	PACKETPP_ASSERT(serverKeyExMsg != NULL, "Couldn't find server-key-exchange message");
+	PACKETPP_ASSERT(serverKeyExMsg->getHandshakeType() == SSL_SERVER_KEY_EXCHANGE, "Server-key-exchange message isn't of the right type");
+	PACKETPP_ASSERT(serverKeyExMsg->getMessageLength() == 333, "Server-key-exchange message isn't of the right length");
+	PACKETPP_ASSERT(serverKeyExMsg->getServerKeyExchangeParamsLength() == 329, "Server-key-exchange params len != 329");
+	PACKETPP_ASSERT(serverKeyExMsg->getServerKeyExchangeParams()[0] == 0x03, "Server-key-exchange params - 1st byte != 0x03");
+	PACKETPP_ASSERT(serverKeyExMsg->getServerKeyExchangeParams()[10] == 0x7a, "Server-key-exchange params - 11th byte != 0x7a");
+	PACKETPP_ASSERT(serverKeyExMsg->getServerKeyExchangeParams()[328] == 0x33, "Server-key-exchange params - 328th byte != 0x33");
+
+	handshakeLayer = multipleRecordsPacket.getNextLayerOfType<SSLHandshakeLayer>(handshakeLayer);
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract second handshake layer");
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 1, "Num of messages in server-hello-done record != 1");
+	SSLServerHelloDoneMessage* serverHelloDoneMsg = handshakeLayer->getHandshakeMessageOfType<SSLServerHelloDoneMessage>();
+	PACKETPP_ASSERT(serverHelloDoneMsg != NULL, "Couldn't find server-hello-done message");
+	PACKETPP_ASSERT(serverHelloDoneMsg->getHandshakeType() == SSL_SERVER_DONE, "Server-hello-done message isn't of the right type");
+	PACKETPP_ASSERT(serverHelloDoneMsg->getMessageLength() == 4, "Server-hello-done message length != 4");
+	PACKETPP_ASSERT(serverHelloDoneMsg == handshakeLayer->getHandshakeMessageAt(0), "Server-hello-done message isn't equal to msg at 0");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(SSLPartialCertificateParseTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/SSL-PartialCertificate1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+
+	Packet partialCertPacket(&rawPacket1);
+
+	PACKETPP_ASSERT(partialCertPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLHandshakeLayer* handshakeLayer = partialCertPacket.getLayerOfType<SSLHandshakeLayer>();
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract first handshake layer");
+	handshakeLayer = partialCertPacket.getNextLayerOfType<SSLHandshakeLayer>(handshakeLayer);
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract second handshake layer");
+	SSLCertificateMessage* certMsg = handshakeLayer->getHandshakeMessageOfType<SSLCertificateMessage>();
+	PACKETPP_ASSERT(certMsg != NULL, "Couldn't extract certificate message");
+	PACKETPP_ASSERT(certMsg->isMessageComplete() == false, "Cert msg falsely complete");
+	PACKETPP_ASSERT(certMsg->getNumOfCertificates() == 1, "Found more than 1 cert");
+	SSLx509Certificate* cert = certMsg->getCertificate(0);
+	PACKETPP_ASSERT(cert->allDataExists() == false, "Cert falsely complete");
+	PACKETPP_ASSERT(cert->getDataLength() == 1266, "Wrong cert length");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/SSL-PartialCertificate2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file");
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet partialCertPacket2(&rawPacket2);
+
+	PACKETPP_ASSERT(partialCertPacket2.isPacketOfType(SSL) == true, "Packet2 isn't of type SSL");
+	handshakeLayer = partialCertPacket2.getLayerOfType<SSLHandshakeLayer>();
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract first handshake layer");
+	handshakeLayer = partialCertPacket2.getNextLayerOfType<SSLHandshakeLayer>(handshakeLayer);
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract second handshake layer");
+	certMsg = handshakeLayer->getHandshakeMessageOfType<SSLCertificateMessage>();
+	PACKETPP_ASSERT(certMsg != NULL, "Couldn't extract certificate message");
+	PACKETPP_ASSERT(certMsg->isMessageComplete() == false, "Cert msg falsely complete");
+	PACKETPP_ASSERT(certMsg->getNumOfCertificates() == 1, "Found more than 1 cert");
+	cert = certMsg->getCertificate(0);
+	PACKETPP_ASSERT(cert->allDataExists() == false, "Cert falsely complete");
+	PACKETPP_ASSERT(cert->getDataLength() == 1268, "Wrong cert length");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(SSLNewSessionTicketParseTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/SSL-NewSessionTicket.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet sslPacket(&rawPacket);
+
+	PACKETPP_ASSERT(sslPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
+	SSLHandshakeLayer* handshakeLayer = sslPacket.getLayerOfType<SSLHandshakeLayer>();
+	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract first handshake layer");
+
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 1, "Hanshake layer contains more than 1 message");
+	SSLNewSessionTicketMessage* newSessionTicketMsg = handshakeLayer->getHandshakeMessageOfType<SSLNewSessionTicketMessage>();
+	PACKETPP_ASSERT(newSessionTicketMsg != NULL, "Couldn't extract new-session-ticket message");
+	PACKETPP_ASSERT(newSessionTicketMsg->isMessageComplete() == true, "New session ticket message falsely incomplete");
+	PACKETPP_ASSERT(newSessionTicketMsg->getHandshakeType() == SSL_NEW_SESSION_TICKET, "New session ticket message type isn't SSL_NEW_SESSION_TICKET");
+	PACKETPP_ASSERT(newSessionTicketMsg->getSessionTicketDataLength() == 214, "New session ticket data len isn't 218");
+	PACKETPP_ASSERT(newSessionTicketMsg->getSessionTicketData()[0] == 0, "New session ticket data - byte#0 isn't 0x0");
+	PACKETPP_ASSERT(newSessionTicketMsg->getSessionTicketData()[16] == 0xf9, "New session ticket data - byte#17 isn't 0xf9");
+	PACKETPP_ASSERT(newSessionTicketMsg->getSessionTicketData()[213] == 0x75, "New session ticket data - byte#213 isn't 0x7f");
+
+	PACKETPP_TEST_PASSED;
+}
+
 int main(int argc, char* argv[]) {
 	start_leak_check();
 
@@ -3305,6 +3821,15 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(GreParsingTest);
 	PACKETPP_RUN_TEST(GreCreationTest);
 	PACKETPP_RUN_TEST(GreEditTest);
+	PACKETPP_RUN_TEST(SSLClientHelloParsingTest);
+	PACKETPP_RUN_TEST(SSLAppDataParsingTest);
+	PACKETPP_RUN_TEST(SSLAlertParsingTest);
+	PACKETPP_RUN_TEST(SSLMultipleRecordParsingTest);
+	PACKETPP_RUN_TEST(SSLMultipleRecordParsing2Test);
+	PACKETPP_RUN_TEST(SSLMultipleRecordParsing3Test);
+	PACKETPP_RUN_TEST(SSLMultipleRecordParsing4Test);
+	PACKETPP_RUN_TEST(SSLPartialCertificateParseTest);
+	PACKETPP_RUN_TEST(SSLNewSessionTicketParseTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }
