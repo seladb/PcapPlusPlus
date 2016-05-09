@@ -5,6 +5,7 @@
 #else 		 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
+#include <string.h>
 #include <sstream>
 #include <map>
 #include <Logger.h>
@@ -1352,7 +1353,7 @@ uint16_t SSLServerHelloMessage::getExtensionsLenth()
 
 SSLExtension* SSLServerHelloMessage::getExtension(int index)
 {
-	if (index < 0 || index >= m_ExtensionList.size())
+	if (index < 0 || index >= (int)m_ExtensionList.size())
 		return NULL;
 
 	return m_ExtensionList.at(index);
