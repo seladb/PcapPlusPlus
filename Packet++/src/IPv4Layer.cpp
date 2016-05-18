@@ -11,6 +11,9 @@
 #include <sstream>
 #include <IpUtils.h>
 
+namespace pcpp
+{
+
 void IPv4Layer::initLayer()
 {
 	m_DataLen = sizeof(iphdr);
@@ -122,7 +125,7 @@ void IPv4Layer::computeCalculateFields()
 
 bool IPv4Layer::isFragment()
 {
-	return ((getFragmentFlags() & IP_MORE_FRAGMENTS) != 0 || getFragmentOffset() != 0);
+	return ((getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0 || getFragmentOffset() != 0);
 }
 
 bool IPv4Layer::isFirstFragment()
@@ -132,7 +135,7 @@ bool IPv4Layer::isFirstFragment()
 
 bool IPv4Layer::isLastFragment()
 {
-	return isFragment() && ((getFragmentFlags() & IP_MORE_FRAGMENTS) == 0);
+	return isFragment() && ((getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) == 0);
 }
 
 uint8_t IPv4Layer::getFragmentFlags()
@@ -165,3 +168,5 @@ std::string IPv4Layer::toString()
 
 	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 }
+
+} // namespace pcpp

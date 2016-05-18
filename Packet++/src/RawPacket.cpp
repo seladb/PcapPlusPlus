@@ -4,6 +4,9 @@
 #include <string.h>
 #include <Logger.h>
 
+namespace pcpp
+{
+
 void RawPacket::Init()
 {
 	m_pRawData = 0;
@@ -173,3 +176,5 @@ bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 	m_RawDataLen -= numOfBytesToRemove;
 	return true;
 }
+
+} // namespace pcpp

@@ -10,6 +10,9 @@
 #endif
 
 
+namespace pcpp
+{
+
 IPAddress::~IPAddress()
 {
 
@@ -216,3 +219,5 @@ IPv6Address& IPv6Address::operator=(const IPv6Address& other)
 
     return *this;
 }
+
+} // namespace pcpp

@@ -15,6 +15,8 @@
 #include <in.h>
 #endif
 
+namespace pcpp
+{
 
 VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t etherType)
 {
@@ -38,25 +40,25 @@ void VlanLayer::parseNextLayer()
 	vlan_header* hdr = getVlanHeader();
 	switch (ntohs(hdr->etherType))
 	{
-	case ETHERTYPE_IP:
+	case PCPP_ETHERTYPE_IP:
 		m_NextLayer = new IPv4Layer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 		break;
-	case ETHERTYPE_IPV6:
+	case PCPP_ETHERTYPE_IPV6:
 		m_NextLayer = new IPv6Layer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 		break;
-	case ETHERTYPE_ARP:
+	case PCPP_ETHERTYPE_ARP:
 		m_NextLayer = new ArpLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 		break;
-	case ETHERTYPE_VLAN:
+	case PCPP_ETHERTYPE_VLAN:
 		m_NextLayer = new VlanLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 		break;
-	case ETHERTYPE_PPPOES:
+	case PCPP_ETHERTYPE_PPPOES:
 		m_NextLayer = new PPPoESessionLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 		break;
-	case ETHERTYPE_PPPOED:
+	case PCPP_ETHERTYPE_PPPOED:
 		m_NextLayer = new PPPoEDiscoveryLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 		break;
-	case ETHERTYPE_MPLS:
+	case PCPP_ETHERTYPE_MPLS:
 		m_NextLayer = new MplsLayer(m_Data + sizeof(vlan_header), m_DataLen - sizeof(vlan_header), this, m_Packet);
 		break;
 	default:
@@ -75,3 +77,5 @@ std::string VlanLayer::toString()
 
 	return "VLAN Layer, Priority: " + priStream.str() + ", Vlan ID: " + idStream.str() + ", CFI: " + cfiStream.str();
 }
+
+} // namespace pcpp

@@ -10,6 +10,7 @@
 	exit(1); \
 	} while(0)
 
+using namespace pcpp;
 
 static struct option DNSResolverOptions[] =
 {

@@ -3,6 +3,9 @@
 #include "TcpLayer.h"
 #include "UdpLayer.h"
 
+namespace pcpp
+{
+
 size_t hash5Tuple(Packet* packet)
 {
 	if (!packet->isPacketOfType(IPv4))
@@ -42,3 +45,5 @@ size_t hash5Tuple(Packet* packet)
 			portSrc+
 			portDst);
 }
+
+}  // namespace pcpp

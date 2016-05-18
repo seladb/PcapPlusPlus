@@ -8,6 +8,9 @@
 #include <stdlib.h>
 
 
+namespace pcpp
+{
+
 
 // -------- Class HttpMessage -----------------
 
@@ -133,7 +136,7 @@ HttpField* HttpMessage::addField(const HttpField& newField)
 
 HttpField* HttpMessage::addEndOfHeader()
 {
-	HttpField endOfHeaderField(END_OF_HTTP_HEADER, "");
+	HttpField endOfHeaderField(PCPP_END_OF_HTTP_HEADER, "");
 	return insertField(m_LastField, endOfHeaderField);
 }
 
@@ -153,7 +156,7 @@ HttpField* HttpMessage::insertField(HttpField* prevField, const HttpField& newFi
 		return NULL;
 	}
 
-	if (prevField != NULL && prevField->getFieldName() == END_OF_HTTP_HEADER)
+	if (prevField != NULL && prevField->getFieldName() == PCPP_END_OF_HTTP_HEADER)
 	{
 		LOG_ERROR("Cannot add a field after end of header");
 		return NULL;
@@ -298,7 +301,7 @@ bool HttpMessage::isHeaderComplete()
 	if (m_LastField == NULL)
 		return false;
 
-	return (m_LastField->getFieldName() == END_OF_HTTP_HEADER);
+	return (m_LastField->getFieldName() == PCPP_END_OF_HTTP_HEADER);
 }
 
 void HttpMessage::shiftFieldsOffset(HttpField* fromField, int numOfBytesToShift)
@@ -419,26 +422,26 @@ void HttpField::initNewField(std::string name, std::string value)
 	m_NextField = NULL;
 
 	// Field size is: name_length + ':' + space + value_length + '\r\n'
-	if (name != END_OF_HTTP_HEADER)
+	if (name != PCPP_END_OF_HTTP_HEADER)
 		m_FieldSize = name.length() + value.length() + 4;
 	else
 	// Field is \r\n (2B)
 		m_FieldSize = 2;
 	m_NewFieldData = new uint8_t[m_FieldSize];
 	std::string fieldData;
-	if (name != END_OF_HTTP_HEADER)
+	if (name != PCPP_END_OF_HTTP_HEADER)
 		fieldData = name + ": " + value + "\r\n";
 	else
 		fieldData = "\r\n";
 	memcpy(m_NewFieldData, fieldData.c_str(), m_FieldSize);
-	if (name != END_OF_HTTP_HEADER)
+	if (name != PCPP_END_OF_HTTP_HEADER)
 		m_ValueOffsetInMessage = name.length() + 2;
 	else
 		m_ValueOffsetInMessage = 0;
 	m_FieldNameSize = name.length();
 	m_FieldValueSize = value.length();
 
-	if (name != END_OF_HTTP_HEADER)
+	if (name != PCPP_END_OF_HTTP_HEADER)
 		m_IsEndOfHeaderField = false;
 	else
 		m_IsEndOfHeaderField = true;
@@ -591,7 +594,7 @@ HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 
 std::string HttpRequestLayer::getUrl()
 {
-	HttpField* hostField = getFieldByName(HTTP_HOST_FIELD);
+	HttpField* hostField = getFieldByName(PCPP_HTTP_HOST_FIELD);
 	if (hostField == NULL)
 		return m_FirstLine->getUri();
 
@@ -1183,7 +1186,7 @@ HttpField* HttpResponseLayer::setContentLength(int contentLength, const std::str
 {
 	char contentLengthAsString[20];
 	snprintf (contentLengthAsString, sizeof(contentLengthAsString), "%d",contentLength);
-	std::string contentLengthFieldName(HTTP_CONTENT_LENGTH_FIELD);
+	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
 	HttpField* contentLengthField = m_FieldNameToFieldMap[contentLengthFieldName];
 	if (contentLengthField == NULL)
@@ -1191,7 +1194,7 @@ HttpField* HttpResponseLayer::setContentLength(int contentLength, const std::str
 		std::string prevFieldNameLowerCase(prevFieldName);
 		std::transform(prevFieldNameLowerCase.begin(), prevFieldNameLowerCase.end(), prevFieldNameLowerCase.begin(), ::tolower);
 		HttpField* prevField = m_FieldNameToFieldMap[prevFieldNameLowerCase];
-		contentLengthField = insertField(prevField, HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString);
+		contentLengthField = insertField(prevField, PCPP_HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString);
 	}
 	else
 		contentLengthField->setFieldValue(std::string(contentLengthAsString));
@@ -1201,7 +1204,7 @@ HttpField* HttpResponseLayer::setContentLength(int contentLength, const std::str
 
 int HttpResponseLayer::getContentLength()
 {
-	std::string contentLengthFieldName(HTTP_CONTENT_LENGTH_FIELD);
+	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
 	HttpField* contentLengthField = m_FieldNameToFieldMap[contentLengthFieldName];
 	if (contentLengthField != NULL)
@@ -1797,3 +1800,4 @@ HttpVersion HttpResponseFirstLine::parseVersion(char* data, size_t dataLen)
 	}
 }
 
+} // namespace pcpp

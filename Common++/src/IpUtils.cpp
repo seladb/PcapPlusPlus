@@ -13,6 +13,8 @@
 #define NS_INT16SZ	2
 #endif
 
+namespace pcpp
+{
 
 in_addr* sockaddr2in_addr(struct sockaddr *sa)
 {
@@ -97,6 +99,8 @@ uint16_t compute_checksum(ScalarBuffer vec[], size_t vecSize)
 
 	return ((uint16_t) sum);
 }
+
+} // namespace pcpp
 
 #ifdef WIN32
 /* const char *
@@ -400,3 +404,4 @@ int inet_pton(int af, const char* src, void* dst)
 }
 
 #endif
+

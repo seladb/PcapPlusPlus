@@ -20,6 +20,8 @@
 // GreLayer class
 // ==============
 
+namespace pcpp
+{
 
 ProtocolType GreLayer::getGREVersion(uint8_t* greData, size_t greDataLen)
 {
@@ -108,19 +110,19 @@ void GreLayer::computeCalculateFieldsInner()
 		switch (m_NextLayer->getProtocol())
 		{
 		case IPv4:
-			header->protocol = htons(ETHERTYPE_IP);
+			header->protocol = htons(PCPP_ETHERTYPE_IP);
 			break;
 		case IPv6:
-			header->protocol = htons(ETHERTYPE_IPV6);
+			header->protocol = htons(PCPP_ETHERTYPE_IPV6);
 			break;
 		case VLAN:
-			header->protocol = htons(ETHERTYPE_VLAN);
+			header->protocol = htons(PCPP_ETHERTYPE_VLAN);
 			break;
 		case MPLS:
-			header->protocol = htons(ETHERTYPE_MPLS);
+			header->protocol = htons(PCPP_ETHERTYPE_MPLS);
 			break;
 		case PPP_PPTP:
-			header->protocol = htons(ETHERTYPE_PPP);
+			header->protocol = htons(PCPP_ETHERTYPE_PPP);
 			break;
 
 		default:
@@ -204,19 +206,19 @@ void GreLayer::parseNextLayer()
 	gre_basic_header* header = (gre_basic_header*)m_Data;
 	switch (ntohs(header->protocol))
 	{
-	case ETHERTYPE_IP:
+	case PCPP_ETHERTYPE_IP:
 		m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		break;
-	case ETHERTYPE_IPV6:
+	case PCPP_ETHERTYPE_IPV6:
 		m_NextLayer = new IPv6Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		break;
-	case ETHERTYPE_VLAN:
+	case PCPP_ETHERTYPE_VLAN:
 		m_NextLayer = new VlanLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		break;
-	case ETHERTYPE_MPLS:
+	case PCPP_ETHERTYPE_MPLS:
 		m_NextLayer = new MplsLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		break;
-	case ETHERTYPE_PPP:
+	case PCPP_ETHERTYPE_PPP:
 		m_NextLayer = new PPP_PPTPLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		break;
 	default:
@@ -555,10 +557,10 @@ void PPP_PPTPLayer::parseNextLayer()
 
 	switch (ntohs(getPPP_PPTPHeader()->protocol))
 	{
-	case PPP_IP:
+	case PCPP_PPP_IP:
 		m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		break;
-	case PPP_IPV6:
+	case PCPP_PPP_IPV6:
 		m_NextLayer = new IPv6Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		break;
 	default:
@@ -575,10 +577,10 @@ void PPP_PPTPLayer::computeCalculateFields()
 		switch (m_NextLayer->getProtocol())
 		{
 		case IPv4:
-			header->protocol = htons(PPP_IP);
+			header->protocol = htons(PCPP_PPP_IP);
 			break;
 		case IPv6:
-			header->protocol = htons(PPP_IPV6);
+			header->protocol = htons(PCPP_PPP_IPV6);
 			break;
 		default:
 			break;
@@ -587,3 +589,5 @@ void PPP_PPTPLayer::computeCalculateFields()
 	else
 		header->protocol = 0;
 }
+
+} // namespace pcpp

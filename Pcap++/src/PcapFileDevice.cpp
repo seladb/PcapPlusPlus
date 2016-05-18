@@ -4,6 +4,9 @@
 #include <Logger.h>
 #include <string.h>
 
+namespace pcpp
+{
+
 IPcapFileDevice::IPcapFileDevice(const char* fileName) : IPcapDevice()
 {
 	m_FileName = new char[strlen(fileName)+1];
@@ -152,7 +155,7 @@ bool PcapFileWriterDevice::open()
 	m_NumOfPacketsNotWritten = 0;
 	m_NumOfPacketsWritten = 0;
 
-	m_PcapDescriptor = pcap_open_dead(1 /*Ethernet*/, MAX_PACKET_SIZE);
+	m_PcapDescriptor = pcap_open_dead(1 /*Ethernet*/, PCPP_MAX_PACKET_SIZE);
 	if (m_PcapDescriptor == NULL)
 	{
 		LOG_ERROR("Error opening file writer device for file '%s': pcap_open_dead returned NULL", m_FileName);
@@ -195,3 +198,5 @@ void PcapFileWriterDevice::getStatistics(pcap_stat& stats)
 	stats.ps_ifdrop = 0;
 	LOG_DEBUG("Statistics received for writer device for filename '%s'", m_FileName);
 }
+
+} // namespace pcpp

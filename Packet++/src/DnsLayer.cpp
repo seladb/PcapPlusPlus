@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <stdlib.h>
 
+namespace pcpp
+{
 
 IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
 	: m_DnsLayer(dnsLayer), m_OffsetInLayer(offsetInLayer), m_NextResource(NULL)
@@ -1188,3 +1190,5 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 
 	return true;
 }
+
+} // namespace pcpp

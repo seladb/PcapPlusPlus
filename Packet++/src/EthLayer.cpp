@@ -17,6 +17,9 @@
 #include <arpa/inet.h>
 #endif
 
+namespace pcpp
+{
+
 EthLayer::EthLayer(MacAddress& sourceMac, MacAddress& destMac, uint16_t etherType) : Layer()
 {
 	m_DataLen = sizeof(ether_header);
@@ -37,25 +40,25 @@ void EthLayer::parseNextLayer()
 	ether_header* hdr = getEthHeader();
 	switch (ntohs(hdr->etherType))
 	{
-	case ETHERTYPE_IP:
+	case PCPP_ETHERTYPE_IP:
 		m_NextLayer = new IPv4Layer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
-	case ETHERTYPE_IPV6:
+	case PCPP_ETHERTYPE_IPV6:
 		m_NextLayer = new IPv6Layer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
-	case ETHERTYPE_ARP:
+	case PCPP_ETHERTYPE_ARP:
 		m_NextLayer = new ArpLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
-	case ETHERTYPE_VLAN:
+	case PCPP_ETHERTYPE_VLAN:
 		m_NextLayer = new VlanLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
-	case ETHERTYPE_PPPOES:
+	case PCPP_ETHERTYPE_PPPOES:
 		m_NextLayer = new PPPoESessionLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
-	case ETHERTYPE_PPPOED:
+	case PCPP_ETHERTYPE_PPPOED:
 		m_NextLayer = new PPPoEDiscoveryLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
-	case ETHERTYPE_MPLS:
+	case PCPP_ETHERTYPE_MPLS:
 		m_NextLayer = new MplsLayer(m_Data + sizeof(ether_header), m_DataLen - sizeof(ether_header), this, m_Packet);
 		break;
 	default:
@@ -72,16 +75,16 @@ void EthLayer::computeCalculateFields()
 	switch (m_NextLayer->getProtocol())
 	{
 		case IPv4:
-			getEthHeader()->etherType = htons(ETHERTYPE_IP);
+			getEthHeader()->etherType = htons(PCPP_ETHERTYPE_IP);
 			break;
 		case IPv6:
-			getEthHeader()->etherType = htons(ETHERTYPE_IPV6);
+			getEthHeader()->etherType = htons(PCPP_ETHERTYPE_IPV6);
 			break;
 		case ARP:
-			getEthHeader()->etherType = htons(ETHERTYPE_ARP);
+			getEthHeader()->etherType = htons(PCPP_ETHERTYPE_ARP);
 			break;
 		case VLAN:
-			getEthHeader()->etherType = htons(ETHERTYPE_VLAN);
+			getEthHeader()->etherType = htons(PCPP_ETHERTYPE_VLAN);
 			break;
 		default:
 			return;
@@ -92,3 +95,5 @@ std::string EthLayer::toString()
 {
 	return "Ethernet II Layer, Src: " + getSourceMac().toString() + ", Dst: " + getDestMac().toString();
 }
+
+} // namespace pcpp

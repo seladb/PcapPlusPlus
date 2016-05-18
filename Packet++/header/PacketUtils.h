@@ -6,10 +6,19 @@
 /// @file
 
 /**
- * A method that is given a packet and calculates a hash value by the packet's 5-tuple
- * @param[in] packet The packet to calculate hash for
- * @return The hash value calculated for this packet
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
  */
-size_t hash5Tuple(Packet* packet);
+namespace pcpp
+{
+
+	/**
+	 * A method that is given a packet and calculates a hash value by the packet's 5-tuple
+	 * @param[in] packet The packet to calculate hash for
+	 * @return The hash value calculated for this packet
+	 */
+	size_t hash5Tuple(Packet* packet);
+
+} // namespace pcpp
 
 #endif /* PACKETPP_PACKET_UTILS */

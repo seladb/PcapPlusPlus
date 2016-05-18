@@ -5,6 +5,8 @@
 #include "Logger.h"
 #include "Packet.h"
 
+namespace pcpp
+{
 
 Layer::~Layer()
 {
@@ -98,3 +100,4 @@ bool Layer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
 	return m_Packet->shortenLayer(this, offsetInLayer, numOfBytesToShorten);
 }
 
+} // namespace pcpp

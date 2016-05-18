@@ -9,6 +9,9 @@
 #include <string.h>
 #include <IpUtils.h>
 
+namespace pcpp
+{
+
 void IPv6Layer::initLayer()
 {
 	m_DataLen = sizeof(ip6_hdr);
@@ -105,3 +108,5 @@ std::string IPv6Layer::toString()
 {
 	return "IPv6 Layer, Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 }
+
+}// namespace pcpp

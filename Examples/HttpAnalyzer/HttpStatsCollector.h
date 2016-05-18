@@ -68,7 +68,7 @@ struct HttpMessageStats
  */
 struct HttpRequestStats : HttpMessageStats
 {
-	std::map<HttpRequestLayer::HttpMethod, int> methodCount; // a map for counting the different HTTP methods seen in traffic
+	std::map<pcpp::HttpRequestLayer::HttpMethod, int> methodCount; // a map for counting the different HTTP methods seen in traffic
 	std::map<std::string, int> hostnameCount; // a map for counting the hostnames seen in traffic
 
 	void clear()
@@ -121,14 +121,14 @@ public:
 	/**
 	 * Collect stats for a single packet
 	 */
-	void collectStats(Packet* httpPacket)
+	void collectStats(pcpp::Packet* httpPacket)
 	{
 		// verify packet is TCP
-		if (!httpPacket->isPacketOfType(TCP))
+		if (!httpPacket->isPacketOfType(pcpp::TCP))
 			return;
 
 		// verify packet is port 80
-		TcpLayer* tcpLayer = httpPacket->getLayerOfType<TcpLayer>();
+		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 		if (!(tcpLayer->getTcpHeader()->portDst == htons(80) || tcpLayer->getTcpHeader()->portSrc == htons(80)))
 			return;
 
@@ -136,18 +136,18 @@ public:
 		size_t hashVal = collectHttpTrafficStats(httpPacket);
 
 		// if packet is an HTTP request - collect HTTP request stats on this packet
-		if (httpPacket->isPacketOfType(HTTPRequest))
+		if (httpPacket->isPacketOfType(pcpp::HTTPRequest))
 		{
-			HttpRequestLayer* req = httpPacket->getLayerOfType<HttpRequestLayer>();
-			TcpLayer* tcpLayer = httpPacket->getLayerOfType<TcpLayer>();
+			pcpp::HttpRequestLayer* req = httpPacket->getLayerOfType<pcpp::HttpRequestLayer>();
+			pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 			collectHttpGeneralStats(tcpLayer, req, hashVal);
 			collectRequestStats(req);
 		}
 		// if packet is an HTTP request - collect HTTP response stats on this packet
-		else if (httpPacket->isPacketOfType(HTTPResponse))
+		else if (httpPacket->isPacketOfType(pcpp::HTTPResponse))
 		{
-			HttpResponseLayer* res = httpPacket->getLayerOfType<HttpResponseLayer>();
-			TcpLayer* tcpLayer = httpPacket->getLayerOfType<TcpLayer>();
+			pcpp::HttpResponseLayer* res = httpPacket->getLayerOfType<pcpp::HttpResponseLayer>();
+			pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 			collectHttpGeneralStats(tcpLayer, res, hashVal);
 			collectResponseStats(res);
 		}
@@ -241,7 +241,7 @@ private:
 	struct HttpFlowData
 	{
 		int numOfOpenTransactions; // number of transactions that were started (request has arrived) but weren't closed yet (response hasn't arrived yet)
-		ProtocolType lastSeenMessage; // the last HTTP message seen on this flow (request, response or neither). Used to identify HTTP pipelining
+		pcpp::ProtocolType lastSeenMessage; // the last HTTP message seen on this flow (request, response or neither). Used to identify HTTP pipelining
 		bool httpPipeliningFlow; // was HTTP pipelining identified on this flow
 		uint32_t curSeqNumberRequests; // the current TCP sequence number from client to server. Used to identify TCP re-transmission
 		uint32_t curSeqNumberResponses; // the current TCP sequence number from server to client. Used to identify TCP re-transmission
@@ -249,7 +249,7 @@ private:
 		void clear()
 		{
 			numOfOpenTransactions = 0;
-			lastSeenMessage = Unknown;
+			lastSeenMessage = pcpp::Unknown;
 			httpPipeliningFlow = false;
 		}
 	};
@@ -259,9 +259,9 @@ private:
 	 * Collect stats relevant for every HTTP packet (request, response or any other)
 	 * This method calculates and returns the flow key for this packet
 	 */
-	size_t collectHttpTrafficStats(Packet* httpPacket)
+	size_t collectHttpTrafficStats(pcpp::Packet* httpPacket)
 	{
-		TcpLayer* tcpLayer = httpPacket->getLayerOfType<TcpLayer>();
+		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 
 		// count traffic
 		m_GeneralStats.amountOfHttpTraffic += tcpLayer->getLayerPayloadSize();
@@ -294,13 +294,13 @@ private:
 	/**
 	 * Collect stats relevant for HTTP messages (requests or responses)
 	 */
-	void collectHttpGeneralStats(TcpLayer* tcpLayer, HttpMessage* message, size_t flowKey)
+	void collectHttpGeneralStats(pcpp::TcpLayer* tcpLayer, pcpp::HttpMessage* message, size_t flowKey)
 	{
 		// if num of current opened transaction is negative it means something went completely wrong
 		if (m_FlowTable[flowKey].numOfOpenTransactions < 0)
 			return;
 
-		if (message->getProtocol() == HTTPRequest)
+		if (message->getProtocol() == pcpp::HTTPRequest)
 		{
 			// if new packet seq number is smaller than previous seen seq number current it means this packet is
 			// a re-transmitted packet and should be ignored
@@ -312,19 +312,19 @@ private:
 
 			// if the previous message seen on this flow is HTTP request and if flow is not already marked as HTTP pipelining -
 			// mark it as so and increase number of HTTP pipelining flows
-			if (!m_FlowTable[flowKey].httpPipeliningFlow && m_FlowTable[flowKey].lastSeenMessage == HTTPRequest)
+			if (!m_FlowTable[flowKey].httpPipeliningFlow && m_FlowTable[flowKey].lastSeenMessage == pcpp::HTTPRequest)
 			{
 				m_FlowTable[flowKey].httpPipeliningFlow = true;
 				m_GeneralStats.numOfHttpPipeliningFlows++;
 			}
 
 			// set last seen message on flow as HTTP request
-			m_FlowTable[flowKey].lastSeenMessage = HTTPRequest;
+			m_FlowTable[flowKey].lastSeenMessage = pcpp::HTTPRequest;
 
 			// set last seen sequence number
 			m_FlowTable[flowKey].curSeqNumberRequests = ntohl(tcpLayer->getTcpHeader()->sequenceNumber);
 		}
-		else if (message->getProtocol() == HTTPResponse)
+		else if (message->getProtocol() == pcpp::HTTPResponse)
 		{
 			// if new packet seq number is smaller than previous seen seq number current it means this packet is
 			// a re-transmitted packet and should be ignored
@@ -336,14 +336,14 @@ private:
 
 			// if the previous message seen on this flow is HTTP response and if flow is not already marked as HTTP pipelining -
 			// mark it as so and increase number of HTTP pipelining flows
-			if (!m_FlowTable[flowKey].httpPipeliningFlow && m_FlowTable[flowKey].lastSeenMessage == HTTPResponse)
+			if (!m_FlowTable[flowKey].httpPipeliningFlow && m_FlowTable[flowKey].lastSeenMessage == pcpp::HTTPResponse)
 			{
 				m_FlowTable[flowKey].httpPipeliningFlow = true;
 				m_GeneralStats.numOfHttpPipeliningFlows++;
 			}
 
 			// set last seen message on flow as HTTP response
-			m_FlowTable[flowKey].lastSeenMessage = HTTPResponse;
+			m_FlowTable[flowKey].lastSeenMessage = pcpp::HTTPResponse;
 
 			if (m_FlowTable[flowKey].numOfOpenTransactions >= 0)
 			{
@@ -364,7 +364,7 @@ private:
 	/**
 	 * Collect stats relevant for HTTP request messages
 	 */
-	void collectRequestStats(HttpRequestLayer* req)
+	void collectRequestStats(pcpp::HttpRequestLayer* req)
 	{
 		m_RequestStats.numOfMessages++;
 		m_RequestStats.totalMessageHeaderSize += req->getHeaderLen();
@@ -372,7 +372,7 @@ private:
 			m_RequestStats.averageMessageHeaderSize = (double)m_RequestStats.totalMessageHeaderSize / (double)m_RequestStats.numOfMessages;
 
 		// extract hostname and add to hostname count map
-		HttpField* hostField = req->getFieldByName(HTTP_HOST_FIELD);
+		pcpp::HttpField* hostField = req->getFieldByName(PCPP_HTTP_HOST_FIELD);
 		if (hostField != NULL)
 			m_RequestStats.hostnameCount[hostField->getFieldValue()]++;
 
@@ -383,7 +383,7 @@ private:
 	/**
 	 * Collect stats relevant for HTTP response messages
 	 */
-	void collectResponseStats(HttpResponseLayer* res)
+	void collectResponseStats(pcpp::HttpResponseLayer* res)
 	{
 		m_ResponseStats.numOfMessages++;
 		m_ResponseStats.totalMessageHeaderSize += res->getHeaderLen();
@@ -391,7 +391,7 @@ private:
 			m_ResponseStats.averageMessageHeaderSize = (double)m_ResponseStats.totalMessageHeaderSize / (double)m_ResponseStats.numOfMessages;
 
 		// extract content-length (if exists)
-		HttpField* contentLengthField = res->getFieldByName(HTTP_CONTENT_LENGTH_FIELD);
+		pcpp::HttpField* contentLengthField = res->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 		if (contentLengthField != NULL)
 		{
 			m_ResponseStats.numOfMessagesWithContentLength++;
@@ -401,7 +401,7 @@ private:
 		}
 
 		// extract content-type and add to content-type map
-		HttpField* contentTypeField = res->getFieldByName(HTTP_CONTENT_TYPE_FIELD);
+		pcpp::HttpField* contentTypeField = res->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 		if (contentTypeField != NULL)
 		{
 			std::string contentType = contentTypeField->getFieldValue();

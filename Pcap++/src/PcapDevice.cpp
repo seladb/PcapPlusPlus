@@ -2,6 +2,9 @@
 #include <Logger.h>
 #include <pcap.h>
 
+namespace pcpp
+{
+
 IPcapDevice::~IPcapDevice()
 {
 }
@@ -51,3 +54,4 @@ bool IPcapDevice::setFilter(GeneralFilter& filter)
 	return setFilter(filterAsString);
 }
 
+} // namespace pcpp

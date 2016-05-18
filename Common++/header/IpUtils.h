@@ -44,55 +44,63 @@ int inet_pton(int af, const char* src, void* dst);
 
 
 /**
- * Extract IPv4 address from sockaddr
- * @param[in] sa - input sockaddr
- * @return Address in in_addr format
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
  */
-in_addr* sockaddr2in_addr(struct sockaddr *sa);
-
-/**
- * Extract IPv6 address from sockaddr
- * @param[in] sa - input sockaddr
- * @return Address in in6_addr format
- */
-in6_addr* sockaddr2in6_addr(struct sockaddr *sa);
-
-/**
- * Converts a sockaddr format address to its string representation
- * @param[in] sa Address in sockaddr format
- * @param[out]  resultString String representation of the address
- */
-void sockaddr2string(struct sockaddr *sa, char* resultString);
-
-/**
- * Convert a in_addr format address to 32bit representation
- * @param[in] inAddr Address in in_addr format
- * @return Address in 32bit format
- */
-uint32_t in_addr2int(in_addr inAddr);
-
-/**
- * A struct that represent a single buffer
- */
-struct ScalarBuffer
+namespace pcpp
 {
-	/**
-	 * The pointer to the buffer
-	 */
-	uint16_t* buffer;
 
 	/**
-	 * Buffer length
+	 * Extract IPv4 address from sockaddr
+	 * @param[in] sa - input sockaddr
+	 * @return Address in in_addr format
 	 */
-	size_t len;
-};
+	in_addr* sockaddr2in_addr(struct sockaddr *sa);
 
-/**
- * Computes the checksum for a vector of buffers
- * @param[in] vec The vector of buffers
- * @param[in] vecSize Number of ScalarBuffers in vector
- * @return The checksum result
- */
-uint16_t compute_checksum(ScalarBuffer vec[], size_t vecSize);
+	/**
+	 * Extract IPv6 address from sockaddr
+	 * @param[in] sa - input sockaddr
+	 * @return Address in in6_addr format
+	 */
+	in6_addr* sockaddr2in6_addr(struct sockaddr *sa);
 
+	/**
+	 * Converts a sockaddr format address to its string representation
+	 * @param[in] sa Address in sockaddr format
+	 * @param[out]  resultString String representation of the address
+	 */
+	void sockaddr2string(struct sockaddr *sa, char* resultString);
+
+	/**
+	 * Convert a in_addr format address to 32bit representation
+	 * @param[in] inAddr Address in in_addr format
+	 * @return Address in 32bit format
+	 */
+	uint32_t in_addr2int(in_addr inAddr);
+
+	/**
+	 * A struct that represent a single buffer
+	 */
+	struct ScalarBuffer
+	{
+		/**
+		 * The pointer to the buffer
+		 */
+		uint16_t* buffer;
+
+		/**
+		 * Buffer length
+		 */
+		size_t len;
+	};
+
+	/**
+	 * Computes the checksum for a vector of buffers
+	 * @param[in] vec The vector of buffers
+	 * @param[in] vecSize Number of ScalarBuffers in vector
+	 * @return The checksum result
+	 */
+	uint16_t compute_checksum(ScalarBuffer vec[], size_t vecSize);
+
+} // namespace pcpp
 #endif

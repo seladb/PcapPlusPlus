@@ -17,6 +17,7 @@
 #include <Packet.h>
 #include <PcapFileDevice.h>
 
+using namespace pcpp;
 
 static struct option PcapPrinterOptions[] =
 {

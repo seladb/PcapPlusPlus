@@ -11,6 +11,9 @@
 #include <map>
 
 
+namespace pcpp
+{
+
 static std::map<uint16_t, bool> createSSLPortMap()
 {
 	std::map<uint16_t, bool> result;
@@ -300,3 +303,5 @@ std::string SSLApplicationDataLayer::toString()
 {
 	return sslVersionToString(getRecordVersion()) + " Layer, Application Data";
 }
+
+} // namespace pcpp

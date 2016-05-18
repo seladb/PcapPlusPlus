@@ -13,6 +13,9 @@
 
 #define DEFAULT_PF_RING_SNAPLEN 1600
 
+namespace pcpp
+{
+
 
 PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Zero)
 {
@@ -873,5 +876,7 @@ void PfRingDevice::CoreConfiguration::clear()
 	IsInUse = false;
 	IsAffinitySet = true;
 }
+
+} // namespace pcpp
 
 #endif /* USE_PF_RING */
