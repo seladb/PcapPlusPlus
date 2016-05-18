@@ -175,7 +175,7 @@ namespace pcpp
 	public:
 
 		/**
-		 * A static methods that gets raw data and checks whether this data is a SSL/TLS record or not. This check is
+		 * A static methods that gets raw data of a layer and checks whether this data is a SSL/TLS record or not. This check is
 		 * done using the source/dest port and matching of a legal record type in the raw data. The list of ports identified
 		 * as SSL/TLS is hard-coded and includes the following ports:
 		 * - Port 443 [HTTPS]
@@ -207,6 +207,13 @@ namespace pcpp
 		 * NULL is returned
 		 */
 		static SSLLayer* createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/**
+		 * A static method that converts SSLVersion enum value to string
+		 * @param[in] ver The enum value
+		 * @return The string representation of the enum value
+		 */
+		static std::string sslVersionToString(SSLVersion ver);
 
 		/**
 		 * Get a pointer to the record header. Notice this points directly to the data, so every change will change the actual packet data

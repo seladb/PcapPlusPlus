@@ -43,7 +43,7 @@ bool PcapRemoteDevice::open()
 		pRmAuth = &rmAuth;
 	}
 
-	m_PcapDescriptor = pcap_open(m_Name, MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
+	m_PcapDescriptor = pcap_open(m_Name, PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
 	if (m_PcapDescriptor == NULL)
 	{
 		LOG_ERROR("Error opening device. Error was: %s", errbuf);

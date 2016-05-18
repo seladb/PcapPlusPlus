@@ -143,7 +143,7 @@ public:
 			collectHttpGeneralStats(tcpLayer, req, hashVal);
 			collectRequestStats(req);
 		}
-		// if packet is an HTTP request - collect HTTP response stats on this packet
+		// if packet is an HTTP response - collect HTTP response stats on this packet
 		else if (httpPacket->isPacketOfType(pcpp::HTTPResponse))
 		{
 			pcpp::HttpResponseLayer* res = httpPacket->getLayerOfType<pcpp::HttpResponseLayer>();

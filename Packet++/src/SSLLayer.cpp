@@ -97,7 +97,7 @@ SSLLayer* SSLLayer::createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevL
 	}
 }
 
-static std::string sslVersionToString(SSLVersion ver)
+std::string SSLLayer::sslVersionToString(SSLVersion ver)
 {
 	switch (ver)
 	{

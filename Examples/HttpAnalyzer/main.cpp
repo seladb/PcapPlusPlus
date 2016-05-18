@@ -190,7 +190,7 @@ void printMethods(HttpRequestStats& reqStatscollector)
 
 
 /**
- * An auxilary method for sorting the hostname count map. Used only in printHostnames()
+ * An auxiliary method for sorting the hostname count map. Used only in printHostnames()
  */
 bool hostnameComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
 {
