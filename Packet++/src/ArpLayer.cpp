@@ -11,6 +11,9 @@
 #include <arpa/inet.h>
 #endif
 
+namespace pcpp
+{
+
 ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr, const IPv4Address senderIpAddr, const IPv4Address& targetIpAddr)
 {
 	m_DataLen = sizeof(arphdr);
@@ -31,7 +34,7 @@ void ArpLayer::computeCalculateFields()
 	arphdr* arpHeader = getArpHeader();
 	arpHeader->hardwareType = htons(1); //Ethernet
 	arpHeader->hardwareSize = 6;
-	arpHeader->protocolType = htons(ETHERTYPE_IP); //assume IPv4 over ARP
+	arpHeader->protocolType = htons(PCPP_ETHERTYPE_IP); //assume IPv4 over ARP
 	arpHeader->protocolSize = 4; //assume IPv4 over ARP
 	if (arpHeader->opcode == htons(ARP_REQUEST))
 	{
@@ -51,3 +54,5 @@ std::string ArpLayer::toString()
 		return "ARP Layer, ARP reply, " + getSenderIpAddr().toString() + " is at " + getSenderMacAddress().toString();
 	}
 }
+
+} // namespace pcpp

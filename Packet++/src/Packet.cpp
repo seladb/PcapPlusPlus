@@ -7,6 +7,9 @@
 #include <typeinfo>
 #include <sstream>
 
+namespace pcpp
+{
+
 Packet::Packet(size_t maxPacketLen) :
 	m_RawPacket(NULL),
 	m_FirstLayer(NULL),
@@ -438,4 +441,4 @@ void Packet::printToStringList(std::vector<std::string>& result)
 	}
 }
 
-
+} // namespace pcpp

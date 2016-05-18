@@ -4,6 +4,9 @@
 #include <string.h>
 #include <sstream>
 
+namespace pcpp
+{
+
 PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen, bool selfAllocated) : Layer()
 {
 	m_Data = new uint8_t[dataLen];
@@ -18,3 +21,5 @@ std::string PayloadLayer::toString()
 
 	return "Payload Layer, Data length: " + dataLenStream.str() + " [Bytes]";
 }
+
+} // namespace pcpp

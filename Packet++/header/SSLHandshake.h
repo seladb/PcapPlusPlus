@@ -9,6 +9,13 @@
  * See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
  */
 
+/**
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
+namespace pcpp
+{
+
 
 /**
  * @class SSLCipherSuite
@@ -933,5 +940,7 @@ TExtension* SSLServerHelloMessage::getExtensionOfType()
 
 	return NULL;
 }
+
+} // namespace pcpp
 
 #endif /* PACKETPP_SSL_HANDSHAKE_MESSAGE */

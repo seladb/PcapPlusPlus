@@ -21,6 +21,7 @@
 #include <PcapFileDevice.h>
 #include <PlatformSpecificUtils.h>
 
+using namespace pcpp;
 
 /**
  * An auxiliary method that gets a vector of packets and a pcap filename and writes the packets to the file

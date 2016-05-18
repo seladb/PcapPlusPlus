@@ -11,36 +11,39 @@
 #include <string.h>
 #include <sstream>
 
-const TcpOptionData TcpLayer::TcpOptions[TCP_OPTIONS_COUNT] = {
-	{ TCPOPT_NOP,		1						},
-	{ TCPOPT_EOL,		1 						},
-	{ TCPOPT_MSS,		TCPOLEN_MSS 			},
-	{ TCPOPT_WINDOW,	TCPOLEN_WINDOW 			},
-	{ TCPOPT_SACK_PERM, TCPOLEN_SACK_PERM 		},
-	{ TCPOPT_SACK, 		TCPOLEN_SACK_MIN 		},
-	{ TCPOPT_ECHO, 		TCPOLEN_ECHO 			},
-	{ TCPOPT_ECHOREPLY, TCPOLEN_ECHOREPLY 		},
-	{ TCPOPT_TIMESTAMP, TCPOLEN_TIMESTAMP 		},
-	{ TCPOPT_CC, 		TCPOLEN_CC 				},
-	{ TCPOPT_CCNEW, 	TCPOLEN_CCNEW 			},
-	{ TCPOPT_CCECHO, 	TCPOLEN_CCECHO	 		},
-	{ TCPOPT_MD5, 		TCPOLEN_MD5 			},
-	{ TCPOPT_MPTCP, 	TCPOLEN_MPTCP_MIN 		},
-	{ TCPOPT_SCPS, 		TCPOLEN_SCPS 			},
-	{ TCPOPT_SNACK, 	TCPOLEN_SNACK 			},
-	{ TCPOPT_RECBOUND, 	TCPOLEN_RECBOUND 		},
-	{ TCPOPT_CORREXP, 	TCPOLEN_CORREXP 		},
-	{ TCPOPT_QS, 		TCPOLEN_QS 				},
-	{ TCPOPT_USER_TO, 	TCPOLEN_USER_TO 		},
-	{ TCPOPT_EXP_FD, 	TCPOLEN_EXP_MIN 		},
-	{ TCPOPT_EXP_FE, 	TCPOLEN_EXP_MIN 		},
-	{ TCPOPT_RVBD_PROBE,TCPOLEN_RVBD_PROBE_MIN	},
-	{ TCPOPT_RVBD_TRPY, TCPOLEN_RVBD_TRPY_MIN 	}
+namespace pcpp
+{
+
+const TcpOptionData TcpLayer::TcpOptions[PCPP_TCP_OPTIONS_COUNT] = {
+	{ TCPOPT_NOP,			1							},
+	{ TCPOPT_EOL,			1							},
+	{ TCPOPT_MSS,			PCPP_TCPOLEN_MSS 			},
+	{ TCPOPT_WINDOW,		PCPP_TCPOLEN_WINDOW 		},
+	{ TCPOPT_SACK_PERM,		PCPP_TCPOLEN_SACK_PERM 		},
+	{ TCPOPT_SACK,			PCPP_TCPOLEN_SACK_MIN 		},
+	{ TCPOPT_ECHO,			PCPP_TCPOLEN_ECHO 			},
+	{ TCPOPT_ECHOREPLY,		PCPP_TCPOLEN_ECHOREPLY 		},
+	{ TCPOPT_TIMESTAMP,		PCPP_TCPOLEN_TIMESTAMP 		},
+	{ TCPOPT_CC,			PCPP_TCPOLEN_CC 			},
+	{ TCPOPT_CCNEW,			PCPP_TCPOLEN_CCNEW 			},
+	{ TCPOPT_CCECHO,		PCPP_TCPOLEN_CCECHO	 		},
+	{ TCPOPT_MD5,			PCPP_TCPOLEN_MD5 			},
+	{ TCPOPT_MPTCP,			PCPP_TCPOLEN_MPTCP_MIN 		},
+	{ TCPOPT_SCPS,			PCPP_TCPOLEN_SCPS 			},
+	{ TCPOPT_SNACK,			PCPP_TCPOLEN_SNACK 			},
+	{ TCPOPT_RECBOUND,		PCPP_TCPOLEN_RECBOUND 		},
+	{ TCPOPT_CORREXP,		PCPP_TCPOLEN_CORREXP 		},
+	{ TCPOPT_QS,			PCPP_TCPOLEN_QS 			},
+	{ TCPOPT_USER_TO,		PCPP_TCPOLEN_USER_TO 		},
+	{ TCPOPT_EXP_FD,		PCPP_TCPOLEN_EXP_MIN 		},
+	{ TCPOPT_EXP_FE,		PCPP_TCPOLEN_EXP_MIN 		},
+	{ TCPOPT_RVBD_PROBE,	PCPP_TCPOLEN_RVBD_PROBE_MIN	},
+	{ TCPOPT_RVBD_TRPY,		PCPP_TCPOLEN_RVBD_TRPY_MIN 	}
 };
 
 const TcpOptionData& TcpLayer::getTcpOptionRawData(TcpOption option)
 {
-	for (int i = 0; i < TCP_OPTIONS_COUNT; i++)
+	for (int i = 0; i < PCPP_TCP_OPTIONS_COUNT; i++)
 	{
 		if (TcpOptions[i].option == option)
 			return TcpOptions[i];
@@ -162,7 +165,7 @@ TcpLayer::TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pack
 	m_HeaderLen = headerLength;
 	if (m_HeaderLen > sizeof(tcphdr))
 	{
-		m_TcpOptionsInLayer = new TcpOptionPtr[MAX_SUPPORTED_TCP_OPTIONS];
+		m_TcpOptionsInLayer = new TcpOptionPtr[PCPP_MAX_SUPPORTED_TCP_OPTIONS];
 		uint8_t* optionsPtr = m_Data + sizeof(tcphdr);
 		int optionPtrOffset = 0;
 		while (optionsPtr < m_Data + m_HeaderLen)
@@ -288,3 +291,5 @@ std::string TcpLayer::toString()
 
 	return result;
 }
+
+} // namespace pcpp

@@ -7,6 +7,9 @@
 #include <pcap.h>
 
 
+namespace pcpp
+{
+
 pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth()
 {
 	pcap_rmtauth result;
@@ -132,6 +135,6 @@ MacAddress PcapRemoteDevice::getMacAddress()
 	return MacAddress::Zero;
 }
 
-
+} // namespace pcpp
 
 #endif // WIN32

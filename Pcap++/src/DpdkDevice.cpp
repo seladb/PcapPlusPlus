@@ -19,6 +19,9 @@
 
 #define RX_BURST_SIZE 64
 
+namespace pcpp
+{
+
 /**
  * ===================
  * Class MBufRawPacket
@@ -1198,5 +1201,6 @@ int DpdkDevice::getAmountOfMbufsInUse()
 	return (int)rte_mempool_free_count(m_MBufMempool);
 }
 
+} // namespace pcpp
 
 #endif /* USE_DPDK */

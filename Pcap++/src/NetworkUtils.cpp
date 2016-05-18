@@ -20,6 +20,9 @@
 #define DNS_PORT	    53
 
 
+namespace pcpp
+{
+
 const int NetworkUtils::DefaultTimeout = 5;
 
 
@@ -56,7 +59,7 @@ static void arpPacketRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void
 
 	// verify it's the right ARP response
 	if (arpReplyLayer->getArpHeader()->hardwareType != htons(1) /* Ethernet */
-			|| arpReplyLayer->getArpHeader()->protocolType != htons(ETHERTYPE_IP))
+			|| arpReplyLayer->getArpHeader()->protocolType != htons(PCPP_ETHERTYPE_IP))
 		return;
 
 	// verify the ARP response is the response for out request (and not some arbitrary ARP response)
@@ -108,7 +111,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	Packet arpRequest(100);
 
 	MacAddress destMac(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-	EthLayer ethLayer(sourceMac, destMac, (uint16_t)ETHERTYPE_ARP);
+	EthLayer ethLayer(sourceMac, destMac, (uint16_t)PCPP_ETHERTYPE_ARP);
 
 	ArpLayer arpLayer(ARP_REQUEST, sourceMac, destMac, sourceIP, ipAddr);
 
@@ -362,7 +365,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 
 	Packet dnsRequest(100);
 	MacAddress sourceMac = device->getMacAddress();
-	EthLayer ethLayer(sourceMac, gatewayMacAddress, ETHERTYPE_IP);
+	EthLayer ethLayer(sourceMac, gatewayMacAddress, PCPP_ETHERTYPE_IP);
 	IPv4Layer ipLayer(device->getIPv4Address(), dnsServerIP);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
@@ -466,3 +469,5 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 
 	return result;
 }
+
+} // namespace pcpp

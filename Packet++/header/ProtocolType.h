@@ -4,125 +4,134 @@
 /// @file
 
 /**
- * An enum representing all protocols supported by PcapPlusPlus
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
  */
-enum ProtocolType
+namespace pcpp
 {
-	/**
-	 * Unknown protocol (or unsupported by PcapPlusPlus)
-	 */
-	Unknown = 0x00,
 
 	/**
-	 * Ethernet protocol
+	 * An enum representing all protocols supported by PcapPlusPlus
 	 */
-	Ethernet = 0x01,
+	enum ProtocolType
+	{
+		/**
+		 * Unknown protocol (or unsupported by PcapPlusPlus)
+		 */
+		Unknown = 0x00,
 
-	/**
-	 * IPv4 protocol
-	 */
-	IPv4 = 0x02,
+		/**
+		 * Ethernet protocol
+		 */
+		Ethernet = 0x01,
 
-	/**
-	 * IPv6 protocol
-	 */
-	IPv6 = 0x04,
+		/**
+		 * IPv4 protocol
+		 */
+		IPv4 = 0x02,
 
-	/**
-	 * IP protocol (aggregation bitmask of IPv4 and IPv6 protocols)
-	 */
-	IP = 0x06,
+		/**
+		 * IPv6 protocol
+		 */
+		IPv6 = 0x04,
 
-	/**
-	 * TCP protocol
-	 */
-	TCP = 0x08,
+		/**
+		 * IP protocol (aggregation bitmask of IPv4 and IPv6 protocols)
+		 */
+		IP = 0x06,
 
-	/**
-	 * UDP protocol
-	 */
-	UDP = 0x10,
+		/**
+		 * TCP protocol
+		 */
+		TCP = 0x08,
 
-	/**
-	 * HTTP request protocol
-	 */
-	HTTPRequest = 0x20,
+		/**
+		 * UDP protocol
+		 */
+		UDP = 0x10,
 
-	/**
-	 * HTTP response protocol
-	 */
-	HTTPResponse = 0x40,
+		/**
+		 * HTTP request protocol
+		 */
+		HTTPRequest = 0x20,
 
-	/**
-	 * HTTP protocol (aggregation bitmask of HTTP request and HTTP response protocols)
-	 */
-	HTTP = 0x20 | 0x40,
+		/**
+		 * HTTP response protocol
+		 */
+		HTTPResponse = 0x40,
 
-	/**
-	 * ARP protocol
-	 */
-	ARP = 0x80,
+		/**
+		 * HTTP protocol (aggregation bitmask of HTTP request and HTTP response protocols)
+		 */
+		HTTP = 0x20 | 0x40,
 
-	/**
-	 * VLAN protocol
-	 */
-	VLAN = 0x100,
+		/**
+		 * ARP protocol
+		 */
+		ARP = 0x80,
 
-	/**
-	 * ICMP protocol (currently not supported by PcapPlusPlus)
-	 */
-	ICMP = 0x200,
+		/**
+		 * VLAN protocol
+		 */
+		VLAN = 0x100,
 
-	/**
-	 * PPPoE session protocol
-	 */
-	PPPoESession = 0x400,
+		/**
+		 * ICMP protocol (currently not supported by PcapPlusPlus)
+		 */
+		ICMP = 0x200,
 
-	/**
-	 * PPPoE discovery protocol
-	 */
-	PPPoEDiscovery = 0x800,
+		/**
+		 * PPPoE session protocol
+		 */
+		PPPoESession = 0x400,
 
-	/**
-	 * PPPoE protocol (aggregation bitmask of PPPoESession and PPPoEDiscovery protocols)
-	 */
-	PPPoE = 0x400 | 0x800,
+		/**
+		 * PPPoE discovery protocol
+		 */
+		PPPoEDiscovery = 0x800,
 
-	/**
-	 * DNS protocol
-	 */
-	DNS = 0x1000,
+		/**
+		 * PPPoE protocol (aggregation bitmask of PPPoESession and PPPoEDiscovery protocols)
+		 */
+		PPPoE = 0x400 | 0x800,
 
-	/**
-	 * MPLS protocol
-	 */
-	MPLS = 0x2000,
+		/**
+		 * DNS protocol
+		 */
+		DNS = 0x1000,
 
-	/**
-	 * GRE version 0 protocol
-	 */
-	GREv0 = 0x4000,
+		/**
+		 * MPLS protocol
+		 */
+		MPLS = 0x2000,
 
-	/**
-	 * GRE version 1 protocol
-	 */
-	GREv1 = 0x8000,
+		/**
+		 * GRE version 0 protocol
+		 */
+		GREv0 = 0x4000,
 
-	/**
-	 * GRE protocol (aggregation bitmask of GREv0 and GREv1 protocols)
-	 */
-	GRE = 0x4000 | 0x8000,
+		/**
+		 * GRE version 1 protocol
+		 */
+		GREv1 = 0x8000,
 
-	/**
-	 * PPP for PPTP protocol
-	 */
-	PPP_PPTP = 0x10000,
+		/**
+		 * GRE protocol (aggregation bitmask of GREv0 and GREv1 protocols)
+		 */
+		GRE = 0x4000 | 0x8000,
 
-	/**
-	 * SSL/TLS protocol
-	 */
-	SSL = 0x20000
+		/**
+		 * PPP for PPTP protocol
+		 */
+		PPP_PPTP = 0x10000,
 
-};
+		/**
+		 * SSL/TLS protocol
+		 */
+		SSL = 0x20000
+
+	};
+
+} //namespace pcpp
 
 #endif

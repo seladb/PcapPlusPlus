@@ -13,6 +13,9 @@
 #include <in.h>
 #endif
 
+namespace pcpp
+{
+
 MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t expermentalUseValue, bool bottomOfStack)
 {
 	m_DataLen = sizeof(mpls_header);
@@ -144,3 +147,5 @@ std::string MplsLayer::toString()
 	return "MPLS Layer, Label: " + labelStream.str() + ", Exp: " + expStream.str() + ", TTL: " + ttlStream.str() +
 			", Bottom of stack: " + bottomOfStack;
 }
+
+} // namespace pcpp

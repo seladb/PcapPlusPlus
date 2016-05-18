@@ -10,6 +10,9 @@
 #endif
 
 
+namespace pcpp
+{
+
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAddress, uint16_t port)
 {
 	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, NULL);
@@ -227,5 +230,7 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 		delete m_RemoteAuthentication;
 	}
 }
+
+} // namespace pcpp
 
 #endif // WIN32

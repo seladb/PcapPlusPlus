@@ -12,6 +12,9 @@
 #include <SSLHandshake.h>
 
 
+namespace pcpp
+{
+
 // --------------
 // SSLCipherSuite
 // --------------
@@ -1713,3 +1716,5 @@ std::string SSLUnknownMessage::toString()
 {
 	return "Unknown message";
 }
+
+} // namespace pcpp

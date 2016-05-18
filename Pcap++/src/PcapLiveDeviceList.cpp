@@ -15,6 +15,9 @@
 #endif
 
 
+namespace pcpp
+{
+
 PcapLiveDeviceList::PcapLiveDeviceList()
 {
 	pcap_if_t* interfaceList;
@@ -280,3 +283,5 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 	return NULL;
 
 }
+
+} // namespace pcpp

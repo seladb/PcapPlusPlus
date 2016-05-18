@@ -10,6 +10,9 @@
 #include <string.h>
 #include <sstream>
 
+namespace pcpp
+{
+
 UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst)
 {
 	m_DataLen = sizeof(udphdr);
@@ -103,3 +106,5 @@ std::string UdpLayer::toString()
 
 	return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
 }
+
+} // namespace pcpp

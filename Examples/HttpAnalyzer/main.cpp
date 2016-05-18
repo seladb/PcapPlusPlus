@@ -53,6 +53,8 @@
 
 #define DEFAULT_CALC_RATES_PERIOD_SEC 2
 
+using namespace pcpp;
+
 static struct option HttpAnalyzerOptions[] =
 {
 	{"interface",  required_argument, 0, 'i'},

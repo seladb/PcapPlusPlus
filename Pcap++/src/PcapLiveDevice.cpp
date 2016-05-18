@@ -35,6 +35,9 @@
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
 #endif
 
+namespace pcpp
+{
+
 struct PcapThread
 {
 	pthread_t pthread;
@@ -684,3 +687,5 @@ PcapLiveDevice::~PcapLiveDevice()
 	delete m_CaptureThread;
 	delete m_StatsThread;
 }
+
+} // namespace pcpp

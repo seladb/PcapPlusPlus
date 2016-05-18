@@ -38,6 +38,9 @@
 #include <string>
 #include <algorithm>
 
+namespace pcpp
+{
+
 bool DpdkDeviceList::m_IsDpdkInitialized = false;
 CoreMask DpdkDeviceList::m_CoreMask = 0;
 uint32_t DpdkDeviceList::m_MBufPoolSizePerDevice = 0;
@@ -368,6 +371,6 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 	LOG_DEBUG("All worker threads stopped");
 }
 
-
+} // namespace pcpp
 
 #endif /* USE_DPDK */

@@ -3,6 +3,9 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+namespace pcpp
+{
+
 MacAddress MacAddress::Zero(0,0,0,0,0,0);
 
 MacAddress::MacAddress(uint8_t* addr)
@@ -79,3 +82,4 @@ void MacAddress::init(const char* addr)
 		m_IsValid = true;
 }
 
+} // namespace pcpp

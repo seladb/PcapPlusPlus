@@ -19,6 +19,7 @@
 #endif
 
 using namespace std;
+using namespace pcpp;
 
 static struct option L3FwdOptions[] =
 {
@@ -39,7 +40,7 @@ MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 
 	MacAddress macSrc = pDevice->getMacAddress();
 	MacAddress macDst(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-	EthLayer ethLayer(macSrc, macDst, (uint16_t)ETHERTYPE_ARP);
+	EthLayer ethLayer(macSrc, macDst, (uint16_t)PCPP_ETHERTYPE_ARP);
 	ArpLayer arpLayer(ARP_REQUEST,
 						pDevice->getMacAddress(),
 						pDevice->getMacAddress(),
@@ -102,7 +103,7 @@ bool doArpSpoofing(PcapLiveDevice* pDevice, const IPv4Address& gatewayAddr, cons
 
 	// Create ARP reply for the gateway
 	Packet gwArpReply(500);
-	EthLayer gwEthLayer(deviceMacAddress, gatewayMacAddr, (uint16_t)ETHERTYPE_ARP);
+	EthLayer gwEthLayer(deviceMacAddress, gatewayMacAddr, (uint16_t)PCPP_ETHERTYPE_ARP);
 	ArpLayer gwArpLayer(ARP_REPLY,
 						pDevice->getMacAddress(),
 						gatewayMacAddr,
@@ -114,7 +115,7 @@ bool doArpSpoofing(PcapLiveDevice* pDevice, const IPv4Address& gatewayAddr, cons
 
 	// Create ARP reply for the victim
 	Packet victimArpReply(500);
-	EthLayer victimEthLayer(deviceMacAddress, victimMacAddr, (uint16_t)ETHERTYPE_ARP);
+	EthLayer victimEthLayer(deviceMacAddress, victimMacAddr, (uint16_t)PCPP_ETHERTYPE_ARP);
 	ArpLayer victimArpLayer(ARP_REPLY,
 							pDevice->getMacAddress(),
 							victimMacAddr,

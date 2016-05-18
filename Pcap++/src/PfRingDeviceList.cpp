@@ -7,6 +7,9 @@
 #include "pcap.h"
 #include "pfring.h"
 
+namespace pcpp
+{
+
 PfRingDeviceList::PfRingDeviceList()
 {
 	m_PfRingVersion = "";
@@ -95,5 +98,7 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
     LOG_DEBUG("PF_RING version is: %s", versionAsString);
     m_PfRingVersion = std::string(versionAsString);
 }
+
+} // namespace pcpp
 
 #endif /* USE_PF_RING */

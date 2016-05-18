@@ -39,6 +39,7 @@
 #endif
 
 using namespace std;
+using namespace pcpp;
 
 #define EXAMPLE_PCAP_WRITE_PATH "PcapExamples/example_copy.pcap"
 #define EXAMPLE_PCAP_PATH "PcapExamples/example.pcap"
@@ -939,7 +940,7 @@ PCAPP_TEST(TestPcapFilters)
     //--------------------
     //EtherType filter
     //--------------------
-    EtherTypeFilter ethTypeFiler(ETHERTYPE_VLAN);
+    EtherTypeFilter ethTypeFiler(PCPP_ETHERTYPE_VLAN);
     ethTypeFiler.parseToString(filterAsString);
     PCAPP_ASSERT(liveDev->setFilter(ethTypeFiler), "Could not set filter: %s", filterAsString.c_str());
     PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
@@ -1541,7 +1542,7 @@ PCAPP_TEST(TestHttpResponseParsing)
 		PCAPP_ASSERT(httpResLayer->getFirstLine() != NULL, "HTTP first line is null in packet #%d, HTTP request #%d", packetCount, httpResponsePackets);
 		statusCodes[httpResLayer->getFirstLine()->getStatusCode()]++;
 
-		HttpField* contentTypeField = httpResLayer->getFieldByName(HTTP_CONTENT_TYPE_FIELD);
+		HttpField* contentTypeField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 		if (contentTypeField != NULL)
 		{
 			std::string contentType = contentTypeField->getFieldValue();
@@ -1551,15 +1552,15 @@ PCAPP_TEST(TestHttpResponseParsing)
 				textHtmlCount++;
 		}
 
-		HttpField* contentEncodingField = httpResLayer->getFieldByName(HTTP_CONTENT_ENCODING_FIELD);
+		HttpField* contentEncodingField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_ENCODING_FIELD);
 		if (contentEncodingField != NULL && contentEncodingField->getFieldValue() == "gzip")
 			gzipCount++;
 
-		HttpField* transferEncodingField = httpResLayer->getFieldByName(HTTP_TRANSFER_ENCODING_FIELD);
+		HttpField* transferEncodingField = httpResLayer->getFieldByName(PCPP_HTTP_TRANSFER_ENCODING_FIELD);
 		if (transferEncodingField != NULL && transferEncodingField->getFieldValue() == "chunked")
 			chunkedCount++;
 
-		HttpField* contentLengthField = httpResLayer->getFieldByName(HTTP_CONTENT_LENGTH_FIELD);
+		HttpField* contentLengthField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 		if (contentLengthField != NULL)
 		{
 			std::string lengthAsString = contentLengthField->getFieldValue();

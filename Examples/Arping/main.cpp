@@ -23,6 +23,7 @@
 
 #define DEFAULT_MAX_TRIES	1000000
 
+using namespace pcpp;
 
 static struct option ArpingOptions[] =
 {

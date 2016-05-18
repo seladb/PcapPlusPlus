@@ -6,6 +6,9 @@
 #include <signal.h>
 #include <string.h>
 
+namespace pcpp
+{
+
 const SystemCore SystemCores::Core0 = { 0x01, 0 };
 const SystemCore SystemCores::Core1 = { 0x02, 1 };
 const SystemCore SystemCores::Core2 = { 0x04, 2 };
@@ -221,3 +224,4 @@ void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback hand
 	sigaction(SIGINT, &action, NULL);
 #endif
 }
+} // namespace pcpp

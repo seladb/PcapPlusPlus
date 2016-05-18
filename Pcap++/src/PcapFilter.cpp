@@ -9,6 +9,9 @@
 #include <in.h>
 #endif
 
+namespace pcpp
+{
+
 GeneralFilter::~GeneralFilter()
 {
 }
@@ -363,3 +366,5 @@ void UdpLengthFilter::parseToString(std::string& result)
 	stream << m_Length;
 	result = "udp[4:2] " + parseOperator() + " " + stream.str();
 }
+
+} // namespace pcpp

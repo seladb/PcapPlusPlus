@@ -13,6 +13,9 @@
 #include <in.h>
 #endif
 
+namespace pcpp
+{
+
 icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int index)
 {
 	if (index < 0 || index >= header->advertisementCount)
@@ -711,3 +714,5 @@ std::string IcmpLayer::toString()
 
 	return "ICMP Layer, " + messageTypeAsString + " (type: " + typeStream.str() + ")";
 }
+
+} // namespace pcpp

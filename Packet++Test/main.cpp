@@ -32,7 +32,7 @@
 // #include <pcap.h>
 
 using namespace std;
-
+using namespace pcpp;
 #define PACKETPP_TEST(TestName) bool TestName()
 
 #define PACKETPP_ASSERT(exp, assertFailedFormat, ...) \
@@ -129,7 +129,7 @@ uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength)
 PACKETPP_TEST(EthPacketCreation) {
 	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
-	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
 	PayloadLayer payloadLayer(payload, 4, true);
@@ -143,7 +143,7 @@ PACKETPP_TEST(EthPacketCreation) {
 	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>() == &ethLayer, "Ethernet layer doesn't equal to inserted layer");
 	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getDestMac() == dstMac, "Packet dest mac isn't equal to intserted dest mac");
 	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getSourceMac() == srcMac, "Packet src mac isn't equal to intserted src mac");
-	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getEthHeader()->etherType == ntohs(ETHERTYPE_IP), "Packet ether type isn't equal to ETHERTYPE_IP");
+	PACKETPP_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getEthHeader()->etherType == ntohs(PCPP_ETHERTYPE_IP), "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
 
 	RawPacket* rawPacket = ethPacket.getRawPacket();
 	PACKETPP_ASSERT(rawPacket != NULL, "Raw packet is NULL");
@@ -175,12 +175,12 @@ PACKETPP_TEST(EthAndArpPacketParsing) {
 	EthLayer* ethLayer = ethPacket.getLayerOfType<EthLayer>();
 	PACKETPP_ASSERT(ethLayer->getDestMac() == expectedDstMac, "Packet dest mac isn't equal to intserted dest mac");
 	PACKETPP_ASSERT(ethLayer->getSourceMac() == expectedSrcMac, "Packet src mac isn't equal to intserted src mac");
-	PACKETPP_ASSERT(ethLayer->getEthHeader()->etherType == ntohs(ETHERTYPE_ARP), "Packet ether type isn't equal to ETHERTYPE_ARP, it's 0x%x", ethLayer->getEthHeader()->etherType);
+	PACKETPP_ASSERT(ethLayer->getEthHeader()->etherType == ntohs(PCPP_ETHERTYPE_ARP), "Packet ether type isn't equal to PCPP_ETHERTYPE_ARP, it's 0x%x", ethLayer->getEthHeader()->etherType);
 
 	PACKETPP_ASSERT(ethLayer->getNextLayer()->getProtocol() == ARP, "Next layer isn't of type 'ARP'");
 	ArpLayer* arpLayer = (ArpLayer*)ethLayer->getNextLayer();
 	PACKETPP_ASSERT(arpLayer->getArpHeader()->hardwareType == htons(1), "ARP hardwareType != 1");
-	PACKETPP_ASSERT(arpLayer->getArpHeader()->protocolType == htons(ETHERTYPE_IP), "ARP protocolType != ETHERTYPE_IP, it's 0x%4X", ntohs(arpLayer->getArpHeader()->protocolType));
+	PACKETPP_ASSERT(arpLayer->getArpHeader()->protocolType == htons(PCPP_ETHERTYPE_IP), "ARP protocolType != PCPP_ETHERTYPE_IP, it's 0x%4X", ntohs(arpLayer->getArpHeader()->protocolType));
 	PACKETPP_ASSERT(arpLayer->getArpHeader()->hardwareSize == 6, "ARP hardwareSize != 6");
 	PACKETPP_ASSERT(arpLayer->getArpHeader()->protocolSize == 4, "ARP protocolSize != 4");
 	PACKETPP_ASSERT(arpLayer->getArpHeader()->opcode == htons(ARP_REPLY), "ARP opcode != ARP_REPLY");
@@ -194,7 +194,7 @@ PACKETPP_TEST(ArpPacketCreation)
 {
 	MacAddress srcMac("6c:f0:49:b2:de:6e");
 	MacAddress dstMac("ff:ff:ff:ff:ff:ff:");
-	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_ARP);
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_ARP);
 
 	ArpLayer arpLayer(ARP_REQUEST, srcMac, srcMac, IPv4Address(string("10.0.0.1")), IPv4Address(string("10.0.0.138")));
 
@@ -209,7 +209,7 @@ PACKETPP_TEST(ArpPacketCreation)
 
 	arphdr* arpHeader = pArpLayer->getArpHeader();
 	PACKETPP_ASSERT(arpHeader->hardwareSize == 6, "Arp header: hardwareSize != 6, Actual: %d", arpHeader->hardwareSize);
-	PACKETPP_ASSERT(arpHeader->protocolType == htons(ETHERTYPE_IP), "Arp header: protocolType != ETHERTYPE_IP, Actual: %d", arpHeader->protocolType);
+	PACKETPP_ASSERT(arpHeader->protocolType == htons(PCPP_ETHERTYPE_IP), "Arp header: protocolType != PCPP_ETHERTYPE_IP, Actual: %d", arpHeader->protocolType);
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/ArpRequestPacket.dat", bufferLength);
@@ -246,9 +246,9 @@ PACKETPP_TEST(VlanParseAndCreation)
 	Packet arpWithVlanNew(1);
 	MacAddress macSrc("ca:03:0d:b4:00:1c");
 	MacAddress macDest("ff:ff:ff:ff:ff:ff");
-	EthLayer ethLayer(macSrc, macDest, ETHERTYPE_VLAN);
-	VlanLayer firstVlanLayer(100, 1, 5, ETHERTYPE_VLAN);
-	VlanLayer secondVlanLayer(200, 0, 2, ETHERTYPE_ARP);
+	EthLayer ethLayer(macSrc, macDest, PCPP_ETHERTYPE_VLAN);
+	VlanLayer firstVlanLayer(100, 1, 5, PCPP_ETHERTYPE_VLAN);
+	VlanLayer secondVlanLayer(200, 0, 2, PCPP_ETHERTYPE_ARP);
 	ArpLayer arpLayer(ARP_REQUEST, macSrc, MacAddress("00:00:00:00:00:00"), IPv4Address(string("192.168.2.200")), IPv4Address(string("192.168.2.254")));
 	PACKETPP_ASSERT(arpWithVlanNew.addLayer(&ethLayer), "Couldn't add eth layer");
 	PACKETPP_ASSERT(arpWithVlanNew.addLayer(&firstVlanLayer), "Couldn't add first vlan layer");
@@ -269,7 +269,7 @@ PACKETPP_TEST(Ipv4PacketCreation)
 
 	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
-	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PACKETPP_ASSERT(ip4Packet.addLayer(&ethLayer), "Adding ethernet layer failed");
 
 	Packet tmpPacket(50);
@@ -325,7 +325,7 @@ PACKETPP_TEST(Ipv4PacketParsing)
 	PACKETPP_ASSERT(ip4Packet.getLayerOfType<IPv4Layer>() != NULL, "IPv4 layer doesn't exist");
 
 	EthLayer* ethLayer = ip4Packet.getLayerOfType<EthLayer>();
-	PACKETPP_ASSERT(ntohs(ethLayer->getEthHeader()->etherType) == ETHERTYPE_IP, "Packet ether type isn't equal to ETHERTYPE_IP");
+	PACKETPP_ASSERT(ntohs(ethLayer->getEthHeader()->etherType) == PCPP_ETHERTYPE_IP, "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
 
 	IPv4Layer* ipv4Layer = ip4Packet.getLayerOfType<IPv4Layer>();
 	IPv4Address ip4addr1(string("10.0.0.4"));
@@ -368,7 +368,7 @@ PACKETPP_TEST(Ipv4FragmentationTest)
 	PACKETPP_ASSERT(ipLayer->isFirstFragment() == true, "Frag1 is mistakenly not a first fragment");
 	PACKETPP_ASSERT(ipLayer->isLastFragment() == false, "Frag1 is mistakenly a last fragment");
 	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 0, "Frag1 fragment offset != 0");
-	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & IP_MORE_FRAGMENTS) != 0, "Frag1 mistakenly doesn't contain the 'more fragments' flag");
+	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0, "Frag1 mistakenly doesn't contain the 'more fragments' flag");
 	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == UDP, "Frag1 next protocol is not UDP");
 
 
@@ -378,7 +378,7 @@ PACKETPP_TEST(Ipv4FragmentationTest)
 	PACKETPP_ASSERT(ipLayer->isFirstFragment() == false, "Frag2 is mistakenly a first fragment");
 	PACKETPP_ASSERT(ipLayer->isLastFragment() == false, "Frag2 is mistakenly a last fragment");
 	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 1480, "Frag2 fragment offset != 1480");
-	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & IP_MORE_FRAGMENTS) != 0, "Frag2 mistakenly doesn't contain the 'more fragments' flag");
+	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0, "Frag2 mistakenly doesn't contain the 'more fragments' flag");
 	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == Unknown, "Frag2 next protocol is not generic payload");
 
 	ipLayer = frag3.getLayerOfType<IPv4Layer>();
@@ -450,7 +450,7 @@ PACKETPP_TEST(Ipv6UdpPacketParseAndCreate)
 	Packet ip6UdpPacketNew(1);
 	MacAddress macSrc("6c:f0:49:b2:de:6e");
 	MacAddress macDest("33:33:00:00:00:0c");
-	EthLayer ethLayer(macSrc, macDest, ETHERTYPE_IPV6);
+	EthLayer ethLayer(macSrc, macDest, PCPP_ETHERTYPE_IPV6);
 
 	IPv6Layer ip6Layer(srcIP, dstIP);
 	ip6_hdr* ip6Header = ip6Layer.getIPv6Header();
@@ -604,7 +604,7 @@ PACKETPP_TEST(TcpPacketCreation)
 {
 	MacAddress srcMac("30:46:9a:23:fb:fa");
 	MacAddress dstMac("08:00:27:19:1c:78");
-	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	IPv4Address dstIP(string("10.0.0.6"));
 	IPv4Address srcIP(string("212.199.202.9"));
 	IPv4Layer ipLayer(srcIP, dstIP);
@@ -668,7 +668,7 @@ PACKETPP_TEST(InsertDataToPacket)
 
 	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
-	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PACKETPP_ASSERT(ip4Packet.addLayer(&ethLayer), "Adding ethernet layer failed");
 
 	IPv4Address ipSrc(string("1.1.1.1"));
@@ -691,7 +691,7 @@ PACKETPP_TEST(InsertDataToPacket)
 	// Adding a VLAN layer between Eth and IP
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	VlanLayer vlanLayer(100, 0, 0, ETHERTYPE_IP);
+	VlanLayer vlanLayer(100, 0, 0, PCPP_ETHERTYPE_IP);
 
 	PACKETPP_ASSERT(ip4Packet.insertLayer(&ethLayer, &vlanLayer) == true, "Couldn't insert VLAN layer after Eth later");
 
@@ -712,7 +712,7 @@ PACKETPP_TEST(InsertDataToPacket)
 
 	MacAddress srcMac2("cc:cc:cc:cc:cc:cc");
 	MacAddress dstMac2("dd:dd:dd:dd:dd:dd");
-	EthLayer ethLayer2(srcMac2, dstMac2, ETHERTYPE_IP);
+	EthLayer ethLayer2(srcMac2, dstMac2, PCPP_ETHERTYPE_IP);
 	PACKETPP_ASSERT(ip4Packet.insertLayer(NULL, &ethLayer2), "Adding 2nd ethernet layer failed");
 
 	PACKETPP_ASSERT(ip4Packet.getFirstLayer() == &ethLayer2, "1st layer in packet isn't ethLayer2");
@@ -741,7 +741,7 @@ PACKETPP_TEST(InsertDataToPacket)
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	Packet testPacket(1);
-	EthLayer ethLayer3(srcMac2, dstMac2, ETHERTYPE_IP);
+	EthLayer ethLayer3(srcMac2, dstMac2, PCPP_ETHERTYPE_IP);
 	testPacket.insertLayer(NULL, &ethLayer3);
 	PACKETPP_ASSERT(testPacket.getFirstLayer() == &ethLayer3, "ethLayer3 isn't the first layer in testPacket");
 	PACKETPP_ASSERT(testPacket.getFirstLayer()->getNextLayer() == NULL, "ethLayer3 wrongly has a next layer")
@@ -772,7 +772,7 @@ PACKETPP_TEST(InsertVlanToPacket)
 //		printf("0x%2X ", tcpPacket.getRawPacket()->getRawData()[i]);
 //	printf("\n\n\n");
 
-	VlanLayer vlanLayer(4001, 0, 0, ETHERTYPE_IP);
+	VlanLayer vlanLayer(4001, 0, 0, PCPP_ETHERTYPE_IP);
 	tcpPacket.insertLayer(tcpPacket.getFirstLayer(), &vlanLayer);
 
 //	printf("\n\n\n");
@@ -860,7 +860,7 @@ PACKETPP_TEST(RemoveLayerTest)
 
 	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
-	EthLayer ethLayer(srcMac, dstMac, ETHERTYPE_IP);
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PACKETPP_ASSERT(testPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
 
 	IPv4Address ipSrc(string("1.1.1.1"));
@@ -913,7 +913,7 @@ PACKETPP_TEST(RemoveLayerTest)
 	// c. insert a layer
 	// ~~~~~~~~~~~~~~~~~
 
-	VlanLayer vlanLayer(4001, 0, 0, ETHERTYPE_IP);
+	VlanLayer vlanLayer(4001, 0, 0, PCPP_ETHERTYPE_IP);
 	PACKETPP_ASSERT(testPacket.insertLayer(NULL, &vlanLayer), "Couldn't add VLAN layer");
 	PACKETPP_ASSERT(testPacket.getFirstLayer() == &vlanLayer, "VLAN isn't the first layer");
 	PACKETPP_ASSERT(testPacket.getFirstLayer()->getNextLayer() == &ip4Layer, "IPv4 isn't the second layer");
@@ -969,7 +969,7 @@ PACKETPP_TEST(HttpRequestLayerParsingTest)
 	PACKETPP_ASSERT(requestLayer->getFirstLine()->getVersion() == OneDotOne, "Request version isn't HTTP/1.1");
 	PACKETPP_ASSERT(requestLayer->getFirstLine()->getUri() == "/home/0,7340,L-8,00.html", "Parsed URI is different than expected");
 
-	HttpField* userAgent = requestLayer->getFieldByName(HTTP_USER_AGENT_FIELD);
+	HttpField* userAgent = requestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
 	PACKETPP_ASSERT(userAgent != NULL, "Couldn't retrieve user-agent field");
 	PACKETPP_ASSERT(userAgent->getFieldValue().find("Safari/537.36") != std::string::npos, "User-agent field doesn't contain 'Safari/537.36'");
 
@@ -1003,22 +1003,22 @@ PACKETPP_TEST(HttpRequestLayerCreationTest)
 	PACKETPP_ASSERT(httpPacket.addLayer(&tcpLayer), "Adding TCP layer failed");
 
 	HttpRequestLayer httpLayer(HttpRequestLayer::HttpOPTIONS, "/home/0,7340,L-8,00", OneDotOne);
-	PACKETPP_ASSERT(httpLayer.addField(HTTP_ACCEPT_FIELD, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8") != NULL, "Couldn't add ACCEPT field");
+	PACKETPP_ASSERT(httpLayer.addField(PCPP_HTTP_ACCEPT_FIELD, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8") != NULL, "Couldn't add ACCEPT field");
 	PACKETPP_ASSERT(httpLayer.addField("Dummy-Field", "some value") != NULL, "Couldn't add Dummy-Field field");
-	HttpField* hostField = httpLayer.insertField(NULL, HTTP_HOST_FIELD, "www.ynet-ynet.co.il");
+	HttpField* hostField = httpLayer.insertField(NULL, PCPP_HTTP_HOST_FIELD, "www.ynet-ynet.co.il");
 	PACKETPP_ASSERT(hostField != NULL, "Couldn't insert HOST field");
-	PACKETPP_ASSERT(httpLayer.insertField(hostField, HTTP_CONNECTION_FIELD, "keep-alive") != NULL, "Couldn't add CONNECTION field");
-	HttpField* userAgentField = httpLayer.addField(HTTP_USER_AGENT_FIELD, "(Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
+	PACKETPP_ASSERT(httpLayer.insertField(hostField, PCPP_HTTP_CONNECTION_FIELD, "keep-alive") != NULL, "Couldn't add CONNECTION field");
+	HttpField* userAgentField = httpLayer.addField(PCPP_HTTP_USER_AGENT_FIELD, "(Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
 	httpLayer.getFirstLine()->setUri("bla.php");
 	PACKETPP_ASSERT(userAgentField != NULL, "Couldn't add USER-AGENT field");
-	PACKETPP_ASSERT(httpLayer.addField(HTTP_ACCEPT_LANGUAGE_FIELD, "en-US,en;q=0.8") != NULL, "Couldn't add ACCEPT-LANGUAGE field");
+	PACKETPP_ASSERT(httpLayer.addField(PCPP_HTTP_ACCEPT_LANGUAGE_FIELD, "en-US,en;q=0.8") != NULL, "Couldn't add ACCEPT-LANGUAGE field");
 	PACKETPP_ASSERT(httpLayer.addField("Dummy-Field2", "Dummy Value2") != NULL, "Couldn't add Dummy-Field2");
 	PACKETPP_ASSERT(httpLayer.removeField("Dummy-Field") == true, "Couldn't remove Dummy-Field");
 	LoggerPP::getInstance().supressErrors();
 	PACKETPP_ASSERT(httpLayer.removeField("Kuku") == false, "Wrongly succeeded to delete a field that doesn't exist");
 	LoggerPP::getInstance().enableErrors();
 	PACKETPP_ASSERT(httpLayer.addEndOfHeader() != NULL, "Couldn't add end of HTTP header");
-	PACKETPP_ASSERT(httpLayer.insertField(userAgentField, HTTP_ACCEPT_ENCODING_FIELD, "gzip,deflate,sdch"), "Couldn't insert ACCEPT-ENCODING field");
+	PACKETPP_ASSERT(httpLayer.insertField(userAgentField, PCPP_HTTP_ACCEPT_ENCODING_FIELD, "gzip,deflate,sdch"), "Couldn't insert ACCEPT-ENCODING field");
 	LoggerPP::getInstance().supressErrors();
 	PACKETPP_ASSERT(httpLayer.addField("Kuku", "Muku") == NULL, "Wrongly succeeded to add a field after end of header");
 	LoggerPP::getInstance().enableErrors();
@@ -1086,12 +1086,12 @@ PACKETPP_TEST(HttpRequestLayerEditTest)
 
 	HttpRequestLayer* httpReqLayer = httpRequest.getLayerOfType<HttpRequestLayer>();
 	PACKETPP_ASSERT(httpReqLayer->getFirstLine()->setUri("/Common/Api/Video/CmmLightboxPlayerJs/0,14153,061014181713,00.js") == true, "Couldn't change URI");
-	HttpField* acceptField = httpReqLayer->getFieldByName(HTTP_ACCEPT_FIELD);
+	HttpField* acceptField = httpReqLayer->getFieldByName(PCPP_HTTP_ACCEPT_FIELD);
 	PACKETPP_ASSERT(acceptField != NULL, "Cannot find ACCEPT field");
 	acceptField->setFieldValue("*/*");
-	HttpField* userAgentField = httpReqLayer->getFieldByName(HTTP_USER_AGENT_FIELD);
+	HttpField* userAgentField = httpReqLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
 	PACKETPP_ASSERT(userAgentField != NULL, "Cannot find USER-AGENT field");
-	httpReqLayer->insertField(userAgentField, HTTP_REFERER_FIELD, "http://www.ynet.co.il/home/0,7340,L-8,00.html");
+	httpReqLayer->insertField(userAgentField, PCPP_HTTP_REFERER_FIELD, "http://www.ynet.co.il/home/0,7340,L-8,00.html");
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/TwoHttpRequests2.dat", buffer2Length);
@@ -1130,12 +1130,12 @@ PACKETPP_TEST(HttpResponseLayerParsingTest)
 	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCode() == HttpResponseLayer::Http200OK, "Response status code isn't 200 OK");
 	PACKETPP_ASSERT(responseLayer->getFirstLine()->getVersion() == OneDotOne, "Response version isn't HTTP/1.1");
 
-	HttpField* contentLengthField = responseLayer->getFieldByName(HTTP_CONTENT_LENGTH_FIELD);
+	HttpField* contentLengthField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	PACKETPP_ASSERT(contentLengthField != NULL, "Couldn't retrieve content-length field");
 	int contentLength = atoi(contentLengthField->getFieldValue().c_str());
 	PACKETPP_ASSERT(contentLength == 1616, "Content length != 1616, it's %d", contentLength);
 
-	HttpField* contentTypeField = responseLayer->getFieldByName(HTTP_CONTENT_TYPE_FIELD);
+	HttpField* contentTypeField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 	PACKETPP_ASSERT(contentTypeField != NULL, "Couldn't retrieve content-type field");
 	PACKETPP_ASSERT(contentTypeField->getFieldValue() == "application/x-javascript", "Content type isn't 'application/x-javascript'");
 
@@ -1166,18 +1166,18 @@ PACKETPP_TEST(HttpResponseLayerCreationTest)
 	PACKETPP_ASSERT(httpPacket.addLayer(&tcpLayer), "Adding TCP layer failed");
 
 	HttpResponseLayer httpResponse(OneDotOne, HttpResponseLayer::Http200OK);
-	PACKETPP_ASSERT(httpResponse.addField(HTTP_SERVER_FIELD, "Microsoft-IIS/5.0") != NULL, "Cannot add server field");
+	PACKETPP_ASSERT(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/5.0") != NULL, "Cannot add server field");
 	LoggerPP::getInstance().supressErrors();
-	PACKETPP_ASSERT(httpResponse.addField(HTTP_SERVER_FIELD, "Microsoft-IIS/6.0") == NULL, "Added the same field twice");
+	PACKETPP_ASSERT(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/6.0") == NULL, "Added the same field twice");
 	LoggerPP::getInstance().enableErrors();
-	PACKETPP_ASSERT(httpResponse.addField(HTTP_CONTENT_ENCODING_FIELD, "gzip") != NULL, "Cannot add content-encoding field");
-	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName(HTTP_SERVER_FIELD), HTTP_CONTENT_TYPE_FIELD, "application/x-javascript") != NULL, "Cannot insert content-type field");
-	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName(HTTP_CONTENT_TYPE_FIELD), "Accept-Ranges", "bytes") != NULL, "Cannot insert accept-ranges field");
+	PACKETPP_ASSERT(httpResponse.addField(PCPP_HTTP_CONTENT_ENCODING_FIELD, "gzip") != NULL, "Cannot add content-encoding field");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName(PCPP_HTTP_SERVER_FIELD), PCPP_HTTP_CONTENT_TYPE_FIELD, "application/x-javascript") != NULL, "Cannot insert content-type field");
+	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD), "Accept-Ranges", "bytes") != NULL, "Cannot insert accept-ranges field");
 	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("Accept-Ranges"), "KuKu", "BlaBla") != NULL, "Cannot insert KuKu field");
 	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("kuku"), "Last-Modified", "Wed, 19 Dec 2012 14:06:29 GMT") != NULL, "Cannot insert last-modified field");
 	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("last-Modified"), "ETag", "\"3b846daf2ddcd1:e29\"") != NULL, "Cannot insert etag field");
 	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("etag"), "Vary", "Accept-Encoding") != NULL, "Cannot insert vary field");
-	PACKETPP_ASSERT(httpResponse.setContentLength(1616, HTTP_CONTENT_ENCODING_FIELD) != NULL, "Cannot set content-length");
+	PACKETPP_ASSERT(httpResponse.setContentLength(1616, PCPP_HTTP_CONTENT_ENCODING_FIELD) != NULL, "Cannot set content-length");
 	PACKETPP_ASSERT(httpResponse.addField("Kuku2", "blibli2") != NULL, "Cannot add Kuku2 field");
 	PACKETPP_ASSERT(httpResponse.addField("Cache-Control", "max-age=66137") != NULL, "Cannot add cache-control field");
 	PACKETPP_ASSERT(httpResponse.removeField("KUKU") == true, "Couldn't remove kuku field");
@@ -1187,7 +1187,7 @@ PACKETPP_TEST(HttpResponseLayerCreationTest)
 	PayloadLayer payloadLayer = *sampleHttpPacket.getLayerOfType<PayloadLayer>();
 	PACKETPP_ASSERT(httpPacket.addLayer(&payloadLayer) == true, "Cannot add payload layer");
 
-	PACKETPP_ASSERT(httpResponse.addField(HTTP_CONNECTION_FIELD, "keep-alive") != NULL, "Cannot add connection field");
+	PACKETPP_ASSERT(httpResponse.addField(PCPP_HTTP_CONNECTION_FIELD, "keep-alive") != NULL, "Cannot add connection field");
 	PACKETPP_ASSERT(httpResponse.addEndOfHeader() != NULL, "Cannot add end of header");
 	PACKETPP_ASSERT(httpResponse.insertField(httpResponse.getFieldByName("Cache-Control"), "Expires", "Mon, 20 Oct 2014 13:34:26 GMT") != NULL, "Cannot insert expires field");
 	LoggerPP::getInstance().supressErrors();
@@ -1276,7 +1276,7 @@ PACKETPP_TEST(PPPoESessionLayerParsingTest)
 	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->type == 1, "PPPoE type isn't 1");
 	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->sessionId == htons(0x0011), "PPPoE session ID isn't 0x0011");
 	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->payloadLength == htons(20), "PPPoE payload length isn't 20");
-	PACKETPP_ASSERT(pppoeSessionLayer->getPPPNextProtocol() == PPP_LCP, "PPPoE next protocol isn't LCP");
+	PACKETPP_ASSERT(pppoeSessionLayer->getPPPNextProtocol() == PCPP_PPP_LCP, "PPPoE next protocol isn't LCP");
 
 	PACKETPP_ASSERT(pppoeSessionLayer->toString() == string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"), "PPPoESession toString failed");
 
@@ -1300,7 +1300,7 @@ PACKETPP_TEST(PPPoESessionLayerCreationTest)
 	EthLayer ethLayer(*samplePacket.getLayerOfType<EthLayer>());
 	PACKETPP_ASSERT(pppoesPacket.addLayer(&ethLayer), "Add EthLayer failed");
 
-	PPPoESessionLayer pppoesLayer(1, 1, 0x0011, PPP_IPV6);
+	PPPoESessionLayer pppoesLayer(1, 1, 0x0011, PCPP_PPP_IPV6);
 	PACKETPP_ASSERT(pppoesPacket.addLayer(&pppoesLayer), "Add PPPoESession layer failed");
 
 	IPv6Layer ipv6Layer(*samplePacket.getLayerOfType<IPv6Layer>());
@@ -2132,7 +2132,7 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 			"TcpLayer copy and original TCP options count is not equal");
 	PACKETPP_ASSERT(sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getTcpOptionData(TCPOPT_TIMESTAMP) != tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP),
 			"TcpLayer copy and original TCP Timestamp option pointer is the same");
-	PACKETPP_ASSERT(memcmp(sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getTcpOptionData(TCPOPT_TIMESTAMP), tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP), TCPOLEN_TIMESTAMP) == 0,
+	PACKETPP_ASSERT(memcmp(sampleTcpPacketWithOptions.getLayerOfType<TcpLayer>()->getTcpOptionData(TCPOPT_TIMESTAMP), tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP), PCPP_TCPOLEN_TIMESTAMP) == 0,
 			"TcpLayer copy and original TCP Timestamp option data differs");
 
 
@@ -2576,7 +2576,7 @@ PACKETPP_TEST(IcmpCreationTest)
 
 	MacAddress srcMac(std::string("11:22:33:44:55:66"));
 	MacAddress destMac(std::string("66:55:44:33:22:11"));
-	EthLayer ethLayer(srcMac, destMac, ETHERTYPE_IP);
+	EthLayer ethLayer(srcMac, destMac, PCPP_ETHERTYPE_IP);
 	IPv4Layer ipLayer(IPv4Address(std::string("1.1.1.1")), IPv4Address(std::string("2.2.2.2")));
 
 
@@ -2892,7 +2892,7 @@ PACKETPP_TEST(GreParsingTest)
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 1 seq bit set");
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 1 recursion isn't 0");
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->flags == 0, "GREv0 Packet 1 flags isn't 0");
-	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(ETHERTYPE_IP), "GREv0 Packet 1 protocol isn't IPv4");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(PCPP_ETHERTYPE_IP), "GREv0 Packet 1 protocol isn't IPv4");
 	PACKETPP_ASSERT(grev0Layer->getChecksum(value16) == true, "GREv0 Packet 1 couldn't retrieve checksum");
 	PACKETPP_ASSERT(value16 == 30719, "GREv0 Packet 1 checksum isn't 30719");
 	value16 = 40000;
@@ -2914,7 +2914,7 @@ PACKETPP_TEST(GreParsingTest)
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 0, "GREv0 Packet 2 checksum bit set");
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 2 seq bit set");
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 2 recursion isn't 0");
-	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(ETHERTYPE_IP), "GREv0 Packet 2 protocol isn't IPv4");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(PCPP_ETHERTYPE_IP), "GREv0 Packet 2 protocol isn't IPv4");
 	value16 = 40000;
 	value32 = 40000;
 	PACKETPP_ASSERT(grev0Layer->getChecksum(value16) == false, "GREv0 Packet 2 checksum valid");
@@ -2928,7 +2928,7 @@ PACKETPP_TEST(GreParsingTest)
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->checksumBit == 0, "GREv0 Packet 2 2nd GRE checksum bit set");
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 2 2nd GRE seq bit set");
 	PACKETPP_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 2 2nd GRE recursion isn't 0");
-	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(ETHERTYPE_IP), "GREv0 Packet 2 2nd GRE protocol isn't IPv4");
+	PACKETPP_ASSERT(grev0Layer->getGreHeader()->protocol == htons(PCPP_ETHERTYPE_IP), "GREv0 Packet 2 2nd GRE protocol isn't IPv4");
 	PACKETPP_ASSERT(grev0Layer->getNextLayer() != NULL && grev0Layer->getNextLayer()->getProtocol() == IPv4, "GREv0 Packet 2 2nd GRE next protocol isn't IPv4");
 	grev0Layer = NULL;
 
@@ -2978,7 +2978,7 @@ PACKETPP_TEST(GreParsingTest)
 	PACKETPP_ASSERT(pppLayer ==  grev1Layer->getNextLayer(), "GREv1 Packet 2 PPP layer from packet isn't equal to PPP layer after GRE");
 	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->address == 0xff, "GREv1 Packet 2 PPP layer address != 0xff");
 	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->control == 3, "GREv1 Packet 2 PPP layer control != 3");
-	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htons(PPP_IP), "GREv1 Packet 2 PPP layer protocol isn't PPP_IP");
+	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htons(PCPP_PPP_IP), "GREv1 Packet 2 PPP layer protocol isn't PPP_IP");
 	PACKETPP_ASSERT(pppLayer->getNextLayer() != NULL && pppLayer->getNextLayer()->getProtocol() == IPv4, "GREv1 Packet 2 PPP layer next protocol isn't IPv4");
 	grev1Layer = NULL;
 
@@ -3000,7 +3000,7 @@ PACKETPP_TEST(GreCreationTest)
 
 	MacAddress srcMac(std::string("00:90:4b:1f:a4:f7"));
 	MacAddress destMac(std::string("00:0d:ed:7b:48:f4"));
-	EthLayer ethLayer(srcMac, destMac, ETHERTYPE_IP);
+	EthLayer ethLayer(srcMac, destMac, PCPP_ETHERTYPE_IP);
 	IPv4Layer ipLayer(IPv4Address(std::string("192.168.2.65")), IPv4Address(std::string("192.168.2.254")));
 	ipLayer.getIPv4Header()->ipId = htons(1660);
 	ipLayer.getIPv4Header()->timeToLive = 128;
@@ -3008,7 +3008,7 @@ PACKETPP_TEST(GreCreationTest)
 	GREv1Layer grev1Layer(6);
 
 	PPP_PPTPLayer pppLayer(0xff, 3);
-	pppLayer.getPPP_PPTPHeader()->protocol = htons(PPP_CCP);
+	pppLayer.getPPP_PPTPHeader()->protocol = htons(PCPP_PPP_CCP);
 
 	uint8_t data[4] = { 0x06, 0x04, 0x00, 0x04 };
 	PayloadLayer payloadLayer(data, 4, true);
@@ -3033,7 +3033,7 @@ PACKETPP_TEST(GreCreationTest)
 
 	MacAddress srcMac2(std::string("00:01:01:00:00:01"));
 	MacAddress destMac2(std::string("00:01:01:00:00:02"));
-	EthLayer ethLayer2(srcMac2, destMac2, ETHERTYPE_IP);
+	EthLayer ethLayer2(srcMac2, destMac2, PCPP_ETHERTYPE_IP);
 	IPv4Layer ipLayer2(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
 	ipLayer2.getIPv4Header()->ipId = htons(1);
 	ipLayer2.getIPv4Header()->timeToLive = 64;
@@ -3256,7 +3256,7 @@ PACKETPP_TEST(GreEditTest)
 	grev1Packet.computeCalculateFields();
 
 	PACKETPP_ASSERT(pppLayer->getNextLayer() != NULL && pppLayer->getNextLayer()->getProtocol() == IPv6, "PPP next layer isnt' IPv6");
-	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htons(PPP_IPV6), "PPP layer protocol isn't IPv6");
+	PACKETPP_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htons(PCPP_PPP_IPV6), "PPP layer protocol isn't IPv6");
 
 	PACKETPP_TEST_PASSED;
 }
