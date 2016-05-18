@@ -580,9 +580,9 @@ void* PfRingDevice::captureThreadMain(void *ptr)
 		// so I need to allocate a buffer and set buffer to point to it
 		if (device->m_ReentrantMode)
 		{
-			uint8_t tempBuffer[MAX_PACKET_SIZE];
+			uint8_t tempBuffer[PCPP_MAX_PACKET_SIZE];
 			buffer = tempBuffer;
-			bufferLen = MAX_PACKET_SIZE;
+			bufferLen = PCPP_MAX_PACKET_SIZE;
 		}
 
 		struct pfring_pkthdr pktHdr;

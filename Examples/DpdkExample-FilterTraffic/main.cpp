@@ -37,6 +37,7 @@
 #include <string>
 #include <sstream>
 
+using namespace pcpp;
 
 #define DEFAULT_MBUF_POOL_SIZE 4095
 

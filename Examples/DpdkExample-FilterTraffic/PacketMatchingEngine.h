@@ -13,40 +13,40 @@
 class PacketMatchingEngine
 {
 private:
-	IPv4Address m_SrcIpToMatch, m_DstIpToMatch;
+	pcpp::IPv4Address m_SrcIpToMatch, m_DstIpToMatch;
 	uint16_t m_SrcPortToMatch, m_DstPortToMatch;
-	ProtocolType m_ProtocolToMatch;
+	pcpp::ProtocolType m_ProtocolToMatch;
 	bool m_MatchSrcIp, m_MatchDstIp;
 	bool m_MatchSrcPort, m_MatchDstPort;
 	bool m_MatchProtocol;
 public:
-	PacketMatchingEngine(const IPv4Address& srcIpToMatch, const IPv4Address& dstIpToMatch, uint16_t srcPortToMatch, uint16_t dstPortToMatch, ProtocolType protocolToMatch)
+	PacketMatchingEngine(const pcpp::IPv4Address& srcIpToMatch, const pcpp::IPv4Address& dstIpToMatch, uint16_t srcPortToMatch, uint16_t dstPortToMatch, pcpp::ProtocolType protocolToMatch)
 		: m_SrcIpToMatch(srcIpToMatch), m_DstIpToMatch(dstIpToMatch),
 		  m_SrcPortToMatch(srcPortToMatch), m_DstPortToMatch(dstPortToMatch), m_ProtocolToMatch(protocolToMatch),
 		  m_MatchSrcIp(false), m_MatchDstIp(false), m_MatchSrcPort(false), m_MatchDstPort(false), m_MatchProtocol(false)
 	{
-		if (m_SrcIpToMatch != IPv4Address::Zero)
+		if (m_SrcIpToMatch != pcpp::IPv4Address::Zero)
 			m_MatchSrcIp = true;
-		if (m_DstIpToMatch != IPv4Address::Zero)
+		if (m_DstIpToMatch != pcpp::IPv4Address::Zero)
 			m_MatchDstIp = true;
 		if (m_SrcPortToMatch != 0)
 			m_MatchSrcPort = true;
 		if (m_DstPortToMatch != 0)
 			m_MatchDstPort = true;
-		if (m_ProtocolToMatch == TCP || m_ProtocolToMatch == UDP)
+		if (m_ProtocolToMatch == pcpp::TCP || m_ProtocolToMatch == pcpp::UDP)
 			m_MatchProtocol = true;
 	}
 
-	bool isMatched(Packet& packet)
+	bool isMatched(pcpp::Packet& packet)
 	{
 		if (m_MatchSrcIp || m_MatchDstIp)
 		{
-			if (!packet.isPacketOfType(IPv4))
+			if (!packet.isPacketOfType(pcpp::IPv4))
 			{
 				return false;
 			}
 
-			IPv4Layer* ip4Layer = packet.getLayerOfType<IPv4Layer>();
+			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 			if (m_MatchSrcIp && (ip4Layer->getSrcIpAddress() != m_SrcIpToMatch))
 			{
 				return false;
@@ -61,15 +61,15 @@ public:
 		if (m_MatchSrcPort || m_MatchDstPort)
 		{
 			uint16_t srcPort, dstPort;
-			if (packet.isPacketOfType(TCP))
+			if (packet.isPacketOfType(pcpp::TCP))
 			{
-				srcPort = ntohs(packet.getLayerOfType<TcpLayer>()->getTcpHeader()->portSrc);
-				dstPort = ntohs(packet.getLayerOfType<TcpLayer>()->getTcpHeader()->portDst);
+				srcPort = ntohs(packet.getLayerOfType<pcpp::TcpLayer>()->getTcpHeader()->portSrc);
+				dstPort = ntohs(packet.getLayerOfType<pcpp::TcpLayer>()->getTcpHeader()->portDst);
 			}
-			else if (packet.isPacketOfType(UDP))
+			else if (packet.isPacketOfType(pcpp::UDP))
 			{
-				srcPort = ntohs(packet.getLayerOfType<UdpLayer>()->getUdpHeader()->portSrc);
-				dstPort = ntohs(packet.getLayerOfType<UdpLayer>()->getUdpHeader()->portDst);
+				srcPort = ntohs(packet.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->portSrc);
+				dstPort = ntohs(packet.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->portDst);
 			}
 			else
 			{
@@ -89,12 +89,12 @@ public:
 
 		if (m_MatchProtocol)
 		{
-			if (m_ProtocolToMatch == TCP && (!packet.isPacketOfType(TCP)))
+			if (m_ProtocolToMatch == pcpp::TCP && (!packet.isPacketOfType(pcpp::TCP)))
 			{
 				return false;
 			}
 
-			if (m_ProtocolToMatch == UDP && (!packet.isPacketOfType(UDP)))
+			if (m_ProtocolToMatch == pcpp::UDP && (!packet.isPacketOfType(pcpp::UDP)))
 			{
 				return false;
 			}

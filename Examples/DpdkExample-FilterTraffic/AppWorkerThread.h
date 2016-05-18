@@ -13,7 +13,7 @@
  * TX port and/or save them to a file. In addition it collects packets statistics.
  * Each core is assigned with one such worker thread, and all of them are activated using DpdkDeviceList::startDpdkWorkerThreads (see main.cpp)
  */
-class AppWorkerThread : public DpdkWorkerThread
+class AppWorkerThread : public pcpp::DpdkWorkerThread
 {
 private:
 	AppWorkerConfig& m_WorkerConfig;
@@ -47,13 +47,13 @@ public:
 		m_CoreId = coreId;
 		m_Stop = false;
 		m_Stats.WorkerId = coreId;
-		DpdkDevice* sendPacketsTo = m_WorkerConfig.SendPacketsTo;
+		pcpp::DpdkDevice* sendPacketsTo = m_WorkerConfig.SendPacketsTo;
+		pcpp::PcapFileWriterDevice* pcapWriter = NULL;
 
 		// if needed, create the pcap file writer which all matched packets will be written into
-		PcapFileWriterDevice* pcapWriter = NULL;
 		if (m_WorkerConfig.WriteMatchedPacketsToFile)
 		{
-			pcapWriter = new PcapFileWriterDevice(m_WorkerConfig.PathToWritePackets.c_str());
+			pcapWriter = new pcpp::PcapFileWriterDevice(m_WorkerConfig.PathToWritePackets.c_str());
 			if (!pcapWriter->open())
 			{
 				EXIT_WITH_ERROR("Couldn't open pcap writer device");
@@ -75,8 +75,8 @@ public:
 				// for each DPDK device go over all RX queues configured for this worker/core
 				for (vector<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
 				{
-					DpdkDevice* dev = iter->first;
-					Packet* packetArr = NULL;
+					pcpp::DpdkDevice* dev = iter->first;
+					pcpp::Packet* packetArr = NULL;
 					int packetArrLen = 0;
 
 					// receive packets from network on the specified DPDK device and RX queue
@@ -93,7 +93,7 @@ public:
 						bool packetMatched = false;
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
-						size_t hash = hash5Tuple(&packetArr[i]);
+						size_t hash = pcpp::hash5Tuple(&packetArr[i]);
 						map<size_t, bool>::const_iterator iter = m_FlowTable.find(hash);
 
 						// if packet belongs to an already existing flow
@@ -110,11 +110,11 @@ public:
 								m_FlowTable[hash] = true;
 
 								//collect stats
-								if (packetArr[i].isPacketOfType(TCP))
+								if (packetArr[i].isPacketOfType(pcpp::TCP))
 								{
 									m_Stats.MatchedTcpFlows++;
 								}
-								else if (packetArr[i].isPacketOfType(UDP))
+								else if (packetArr[i].isPacketOfType(pcpp::UDP))
 								{
 									m_Stats.MatchedUdpFlows++;
 								}

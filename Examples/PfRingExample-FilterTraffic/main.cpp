@@ -41,6 +41,7 @@
 #include <map>
 #include <sstream>
 
+using namespace pcpp;
 
 static struct option PfFilterTrafficOptions[] =
 {

@@ -62,22 +62,22 @@ public:
 
 	PacketStats() : ThreadId(MAX_NUM_OF_CORES+1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0), TcpCount(0), UdpCount(0), HttpCount(0), MatchedTcpFlows(0), MatchedUdpFlows(0), MatchedPackets(0) {}
 
-	void collectStats(Packet& packet)
+	void collectStats(pcpp::Packet& packet)
 	{
 		PacketCount++;
-		if (packet.isPacketOfType(Ethernet))
+		if (packet.isPacketOfType(pcpp::Ethernet))
 			EthCount++;
-		if (packet.isPacketOfType(ARP))
+		if (packet.isPacketOfType(pcpp::ARP))
 			ArpCount++;
-		if (packet.isPacketOfType(IPv4))
+		if (packet.isPacketOfType(pcpp::IPv4))
 			Ip4Count++;
-		if (packet.isPacketOfType(IPv6))
+		if (packet.isPacketOfType(pcpp::IPv6))
 			Ip6Count++;
-		if (packet.isPacketOfType(TCP))
+		if (packet.isPacketOfType(pcpp::TCP))
 			TcpCount++;
-		if (packet.isPacketOfType(UDP))
+		if (packet.isPacketOfType(pcpp::UDP))
 			UdpCount++;
-		if (packet.isPacketOfType(HTTP))
+		if (packet.isPacketOfType(pcpp::HTTP))
 			HttpCount++;
 	}
 

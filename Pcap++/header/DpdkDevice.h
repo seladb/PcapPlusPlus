@@ -52,6 +52,10 @@
  *    - Send & receive packets...
  */
 
+struct rte_mbuf;
+struct rte_mempool;
+struct rte_eth_conf;
+
 /**
 * \namespace pcpp
 * \brief The main namespace for the PcapPlusPlus lib
@@ -105,10 +109,6 @@ namespace pcpp
 		/** AF_PACKET PMD */
 		PMD_AF_PACKET
 	};
-
-	struct rte_mbuf;
-	struct rte_mempool;
-	struct rte_eth_conf;
 
 	class DpdkDevice;
 

@@ -22,6 +22,8 @@
 #include <vector>
 #include <numeric>
 
+using namespace pcpp;
+
 size_t count = 0;
 
 bool handle_dns(Packet& packet) {
