@@ -80,7 +80,7 @@ namespace pcpp
 	 * responsible for wrapping and parsing a HTTP header field from the previous CRLF (not inclusive) until the next CRLF/LF (inclusive)
 	 * A special case is with the end of an HTTP header, meaning 2 consecutive CRLFs ("\r\n\r\n") or consecutive LFs ("\n\n"). PcapPlusPlus treats the first
 	 * CRLF/LF as part of the last field in the header, and the second CRLF is an HttpField instance of its own which name and values are an empty string ("")
-	 * or ::END_OF_HTTP_HEADER
+	 * or pcpp::END_OF_HTTP_HEADER
 	 */
 	class HttpField
 	{

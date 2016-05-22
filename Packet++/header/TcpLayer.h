@@ -140,47 +140,47 @@ namespace pcpp
 
 	// TCP option lengths
 
-	/** ::TCPOPT_MSS length */
+	/** pcpp::TCPOPT_MSS length */
 #define PCPP_TCPOLEN_MSS            4
-	/** ::TCPOPT_WINDOW length */
+	/** pcpp::TCPOPT_WINDOW length */
 #define PCPP_TCPOLEN_WINDOW         3
-	/** ::TCPOPT_SACK_PERM length */
+	/** pcpp::TCPOPT_SACK_PERM length */
 #define PCPP_TCPOLEN_SACK_PERM      2
-	/** ::TCPOPT_SACK length */
+	/** pcpp::TCPOPT_SACK length */
 #define PCPP_TCPOLEN_SACK_MIN       2
-	/** ::TCPOPT_ECHO length */
+	/** pcpp::TCPOPT_ECHO length */
 #define PCPP_TCPOLEN_ECHO           6
-	/** ::TCPOPT_ECHOREPLY length */
+	/** pcpp::TCPOPT_ECHOREPLY length */
 #define PCPP_TCPOLEN_ECHOREPLY      6
-	/** ::TCPOPT_TIMESTAMP length */
+	/** pcpp::TCPOPT_TIMESTAMP length */
 #define PCPP_TCPOLEN_TIMESTAMP     10
-	/** ::TCPOPT_CC length */
+	/** pcpp::TCPOPT_CC length */
 #define PCPP_TCPOLEN_CC             6
-	/** ::TCPOPT_CCNEW length */
+	/** pcpp::TCPOPT_CCNEW length */
 #define PCPP_TCPOLEN_CCNEW          6
-	/** ::TCPOPT_CCECHO length */
+	/** pcpp::TCPOPT_CCECHO length */
 #define PCPP_TCPOLEN_CCECHO         6
-	/** ::TCPOPT_MD5 length */
+	/** pcpp::TCPOPT_MD5 length */
 #define PCPP_TCPOLEN_MD5           18
-	/** ::TCPOPT_MPTCP length */
+	/** pcpp::TCPOPT_MPTCP length */
 #define PCPP_TCPOLEN_MPTCP_MIN      8
-	/** ::TCPOPT_SCPS length */
+	/** pcpp::TCPOPT_SCPS length */
 #define PCPP_TCPOLEN_SCPS           4
-	/** ::TCPOPT_SNACK length */
+	/** pcpp::TCPOPT_SNACK length */
 #define PCPP_TCPOLEN_SNACK          6
-	/** ::TCPOPT_RECBOUND length */
+	/** pcpp::TCPOPT_RECBOUND length */
 #define PCPP_TCPOLEN_RECBOUND       2
-	/** ::TCPOPT_CORREXP length */
+	/** pcpp::TCPOPT_CORREXP length */
 #define PCPP_TCPOLEN_CORREXP        2
-	/** ::TCPOPT_QS length */
+	/** pcpp::TCPOPT_QS length */
 #define PCPP_TCPOLEN_QS             8
-	/** ::TCPOPT_USER_TO length */
+	/** pcpp::TCPOPT_USER_TO length */
 #define PCPP_TCPOLEN_USER_TO        4
-	/** ::TCPOPT_RVBD_PROBE length */
+	/** pcpp::TCPOPT_RVBD_PROBE length */
 #define PCPP_TCPOLEN_RVBD_PROBE_MIN 3
-	/** ::TCPOPT_RVBD_TRPY length */
+	/** pcpp::TCPOPT_RVBD_TRPY length */
 #define PCPP_TCPOLEN_RVBD_TRPY_MIN 16
-	/** ::TCPOPT_EXP_FD and ::TCPOPT_EXP_FE length */
+	/** pcpp::TCPOPT_EXP_FD and pcpp::TCPOPT_EXP_FE length */
 #define PCPP_TCPOLEN_EXP_MIN        2
 
 	/**
