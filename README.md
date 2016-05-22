@@ -7,7 +7,7 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 - Designed to be lightweight and efficient
 - Support for **DPDK** fast packet processing engine which enables packet capturing and transmition in line rate using kernel bypass
 - Support for ntop's **PF_RING** packet capturing engine that dramatically improves the packet capture speed
-- Support for many protocols, including HTTP protocol parsing and editing
+- Support for many protocols, including HTTP protocol parsing and editing and SSL/TLS parsing
 - Support for Remote Capture capabilities on Windows (using RPCAP protocol supported in WinPcap)
 - Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
 
@@ -47,8 +47,9 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   8. **DNS Spoofing** - a command-line application that does DNS spoofing using Packet++ and Pcap++
   9. **DNS Resolver** - a command-line application that resolves IPv4 address for an hostname using DNS protocol
   10. **HTTP Analyzer** - an application that analyzes HTTP traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
-  11. **PfRingExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus PF_RING APIs
-  12. **Pcap Printer** - a simple application that outputs packets from a pcap file as a readable string
+  11. **SSL Analyzer** - an application that analyzes SSL/TLS traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
+  12. **PfRingExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus PF_RING APIs
+  13. **Pcap Printer** - a simple application that outputs packets from a pcap file as a readable string
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 

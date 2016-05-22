@@ -216,6 +216,11 @@ namespace pcpp
 		static std::string sslVersionToString(SSLVersion ver);
 
 		/**
+		 * @return A pointer to a map containing all TCP ports recognize as SSL/TLS
+		 */
+		static const std::map<uint16_t, bool>* getSSLPortMap();
+
+		/**
 		 * Get a pointer to the record header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref ssl_tls_record_layer
 		 */

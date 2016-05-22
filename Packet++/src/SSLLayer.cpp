@@ -116,6 +116,11 @@ std::string SSLLayer::sslVersionToString(SSLVersion ver)
 	}
 }
 
+const std::map<uint16_t, bool>* SSLLayer::getSSLPortMap()
+{
+	return &SSLPortMap;
+}
+
 SSLVersion SSLLayer::getRecordVersion()
 {
 	uint16_t recordVersion = ntohs(getRecordLayer()->recordVersion);

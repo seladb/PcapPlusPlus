@@ -15,6 +15,7 @@ EXAMPLE_DNSRESOLVER  := Examples/DNSResolver
 EXAMPLE_HTTPANALYZE  := Examples/HttpAnalyzer
 EXAMPLE_PF_RING1     := Examples/PfRingExample-FilterTraffic
 EXAMPLE_PCAP_PRINT   := Examples/PcapPrinter
+EXAMPLE_SSLANALYZER  := Examples/SSLAnalyzer
 
 
 UNAME := $(shell uname)
@@ -47,6 +48,7 @@ all: libs
 	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) DNSResolver
 	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) HttpAnalyzer
 	cd $(EXAMPLE_PCAP_PRINT)		&& $(MAKE) PcapPrinter
+	cd $(EXAMPLE_SSLANALYZER)		&& $(MAKE) SSLAnalyzer
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
 endif
@@ -65,6 +67,7 @@ endif
 	$(CP) $(EXAMPLE_DNSRESOLVER)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_HTTPANALYZE)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_PCAP_PRINT)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_SSLANALYZER)/Bin/* ./Dist/examples
 ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
 endif
@@ -90,6 +93,7 @@ clean:
 	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) clean
 	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) clean
 	cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) clean
+	cd $(EXAMPLE_SSLANALYZER)       && $(MAKE) clean	
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 endif
