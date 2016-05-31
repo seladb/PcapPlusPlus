@@ -63,6 +63,17 @@ bool PcapFileReaderDevice::open()
 		return false;
 	}
 
+	m_PcapLinkLayerType = static_cast<PcapLinkLayerType>(pcap_datalink(m_PcapDescriptor));
+	switch(m_PcapLinkLayerType)
+	{
+		case PCAP_LINKTYPE_ETHERNET:
+		case PCAP_LINKTYPE_LINUX_SLL:
+			break;
+		default:
+			LOG_ERROR("The link type %d is not supported", m_PcapLinkLayerType);
+			return false;
+	}
+
 	LOG_DEBUG("Successfully opened file reader device for filename '%s'", m_FileName);
 	m_DeviceOpened = true;
 	return true;
@@ -94,7 +105,7 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 
 	uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 	memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
-	if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, pkthdr.ts))
+	if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, pkthdr.ts, static_cast<LinkLayerType>(m_PcapLinkLayerType)))
 	{
 		LOG_ERROR("Couldn't set data to raw packet");
 		return false;

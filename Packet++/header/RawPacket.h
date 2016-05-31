@@ -14,6 +14,11 @@
 namespace pcpp
 {
 
+	enum LinkLayerType
+	{
+		LINKTYPE_ETHERNET = 1,
+		LINKTYPE_LINUX_SLL = 113,
+	};
 	/**
 	 * Max packet size supported
 	 */
@@ -33,6 +38,7 @@ namespace pcpp
 		timeval m_TimeStamp;
 		bool m_DeleteRawDataAtDestructor;
 		bool m_RawPacketSet;
+		LinkLayerType m_linkLayerType;
 		void Init();
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 	public:
@@ -46,7 +52,7 @@ namespace pcpp
 		 * @param[in] deleteRawDataAtDestructor An indicator whether raw data pointer should be freed when the instance is freed or not. If set
 		 * to 'true' than pRawData will be freed when instanced is being freed
 		 */
-		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor);
+		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType);
 
 		/**
 		 * A default constructor that initializes class'es attributes to default value:
@@ -84,7 +90,7 @@ namespace pcpp
 		 * @param[in] timestamp The timestamp packet was received by the NIC
 		 * @return True if raw data was set successfully, false otherwise
 		 */
-		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp);
+		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType);
 
 		/**
 		 * Get raw data pointer
@@ -97,6 +103,12 @@ namespace pcpp
 		 * @return A read-only pointer to the raw data
 		 */
 		const uint8_t* getRawDataReadOnly() const;
+
+		/**
+		 * Get the link layer tpye
+		 * @return the type of the link layer
+		 */
+		LinkLayerType getLinkLayerType() const;
 
 		/**
 		 * Get raw data length in bytes

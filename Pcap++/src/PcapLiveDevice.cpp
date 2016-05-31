@@ -123,7 +123,7 @@ void PcapLiveDevice::onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pk
 		return;
 	}
 
-	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false);
+	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, LINKTYPE_ETHERNET);
 
 	if (pThis->m_cbOnPacketArrives != NULL)
 		pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
@@ -140,7 +140,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t *user, const struct pcap_
 
 	uint8_t* packetData = new uint8_t[pkthdr->caplen];
 	memcpy(packetData, packet, pkthdr->caplen);
-	RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true);
+	RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, LINKTYPE_ETHERNET);
 	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 }
 

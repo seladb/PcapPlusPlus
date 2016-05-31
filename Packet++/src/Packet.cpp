@@ -2,6 +2,7 @@
 
 #include <Packet.h>
 #include <EthLayer.h>
+#include <SllLayer.h>
 #include <Logger.h>
 #include <string.h>
 #include <typeinfo>
@@ -22,7 +23,7 @@ Packet::Packet(size_t maxPacketLen) :
 	gettimeofday(&time, NULL);
 	uint8_t* data = new uint8_t[m_MaxPacketLen];
 	memset(data, 0, m_MaxPacketLen);
-	m_RawPacket = new RawPacket((const uint8_t*)data, 0, time, true);
+	m_RawPacket = new RawPacket((const uint8_t*)data, 0, time, true, LINKTYPE_ETHERNET);
 }
 
 void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
@@ -35,7 +36,14 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
 	m_MaxPacketLen = rawPacket->getRawDataLen();
 	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
-	m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+	if(m_RawPacket && m_RawPacket->getLinkLayerType() == LINKTYPE_LINUX_SLL)
+	{
+		m_FirstLayer = new SllLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+	}
+	else
+	{
+		m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+	}
 	m_LastLayer = m_FirstLayer;
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != NULL)
