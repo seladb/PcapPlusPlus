@@ -36,6 +36,7 @@
 #include <getopt.h>
 #include <string>
 #include <sstream>
+#include <unistd.h>
 
 using namespace pcpp;
 
