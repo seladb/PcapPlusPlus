@@ -186,7 +186,10 @@ DpdkDeviceList::initDpdk()
   1. VMXNET3 - a VMWare guest driver
   2. E1000/EM - 1GbE Intel NIC but I tested it as virtual NIC in VirtualBox guest
 - I hope I'll be able to test it on some more (preferebly non-virtual) NICs soon - I'll update if/when I do
-- Operating systems: it was tested in Ubuntu and Fedora
+- Operating systems and configurations tested:
+  1. Ubuntu 14.04.1 LTS 64bit with kernel 3.x and gcc 4.8.x
+  2. Ubuntu 12.04.5 LTS 32bit with kernel 3.x and gcc 4.6.x
+  3. CentOS 7.1 64bit with kernel 3.x and gcc 4.8.x
 
 
 #### PF_RING support ####
