@@ -12,6 +12,7 @@
 #include "rte_errno.h"
 #include <string>
 #include <stdint.h>
+#include <unistd.h>
 
 #define MBUF_DATA_SIZE 2048
 

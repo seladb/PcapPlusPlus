@@ -37,6 +37,7 @@
 #include <iomanip>
 #include <string>
 #include <algorithm>
+#include <unistd.h>
 
 namespace pcpp
 {
