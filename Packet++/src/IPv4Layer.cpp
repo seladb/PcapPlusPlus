@@ -48,7 +48,7 @@ void IPv4Layer::parseNextLayer()
 
 	// If it's a fragment don't parse upper layers, unless if it's the first fragment
 	// TODO: assuming first fragment contains at least L4 header, what if it's not true?
-	if (isFragment() && !isFirstFragment())
+	if (isFragment())
 	{
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		return;
@@ -57,10 +57,12 @@ void IPv4Layer::parseNextLayer()
 	switch (ipHdr->protocol)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		m_NextLayer = new UdpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		if (m_DataLen - sizeof(iphdr) >= sizeof(udphdr))
+			m_NextLayer = new UdpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_TCP:
-		m_NextLayer = new TcpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		if (m_DataLen - sizeof(iphdr) >= sizeof(tcphdr))
+			m_NextLayer = new TcpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_ICMP:
 		m_NextLayer = new IcmpLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);

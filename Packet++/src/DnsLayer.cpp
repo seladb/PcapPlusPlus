@@ -539,7 +539,7 @@ void DnsLayer::parseResources()
 
 		if (offsetInPacket > m_DataLen)
 		{
-			LOG_ERROR("Parse packet failed, DNS resource is out of bounds. Probably a bad packet");
+			//Parse packet failed, DNS resource is out of bounds. Probably a bad packet
 			delete newResource;
 			return;
 		}

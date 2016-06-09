@@ -585,7 +585,8 @@ void IcmpLayer::parseNextLayer()
 	case ICMP_REDIRECT:
 	case ICMP_PARAM_PROBLEM:
 		headerLen = getHeaderLen();
-		m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		if (m_DataLen - headerLen >= sizeof(iphdr))
+			m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		return;
 	default:
 		headerLen = getHeaderLen();

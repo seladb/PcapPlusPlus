@@ -84,7 +84,8 @@ void UdpLayer::parseNextLayer()
 	udphdr* udpHder = getUdpHeader();
 	uint16_t portDst = ntohs(udpHder->portDst);
 	uint16_t portSrc = ntohs(udpHder->portSrc);
-	if (portSrc == 53 || portDst == 53 || portSrc == 5353 || portDst == 5353 || portSrc == 5355 || portDst == 5355)
+	if ((m_DataLen - sizeof(udphdr) >= sizeof(dnshdr)) &&
+			(portSrc == 53 || portDst == 53 || portSrc == 5353 || portDst == 5353 || portSrc == 5355 || portDst == 5355))
 		m_NextLayer = new DnsLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
