@@ -116,8 +116,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	delete rawPackets;
-	delete tcpOrUdpPackets;
+	delete [] rawPackets;
+	delete [] tcpOrUdpPackets;
 
 	return 0;
 }
