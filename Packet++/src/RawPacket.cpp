@@ -13,13 +13,14 @@ void RawPacket::Init()
 	m_RawDataLen = 0;
 	m_DeleteRawDataAtDestructor = true;
 	m_RawPacketSet = false;
+	m_linkLayerType = LINKTYPE_ETHERNET;
 }
 
-RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor)
+RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType)
 {
 	Init();
 	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
-	setRawData(pRawData, rawDataLen, timestamp);
+	setRawData(pRawData, rawDataLen, timestamp, layerType);
 }
 
 RawPacket::RawPacket()
@@ -71,7 +72,7 @@ void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 	m_RawPacketSet = true;
 }
 
-bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp)
+bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType)
 {
 	if (m_pRawData != 0 && m_DeleteRawDataAtDestructor)
 	{
@@ -82,7 +83,7 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval time
 	m_RawDataLen = rawDataLen;
 	m_TimeStamp = timestamp;
 	m_RawPacketSet = true;
-
+	m_linkLayerType = layerType;
 	return true;
 }
 
@@ -94,6 +95,11 @@ const uint8_t* RawPacket::getRawData()
 const uint8_t* RawPacket::getRawDataReadOnly() const
 {
 	return m_pRawData;
+}
+		
+LinkLayerType RawPacket::getLinkLayerType() const
+{
+	return m_linkLayerType;
 }
 
 int RawPacket::getRawDataLen() const
