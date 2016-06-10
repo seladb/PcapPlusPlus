@@ -110,7 +110,7 @@ public:
 			return;
 
 		// collect general SSL traffic stats on this packet
-		size_t hashVal = collectSSLTrafficStats(sslPacket);
+		uint32_t hashVal = collectSSLTrafficStats(sslPacket);
 
 		// if packet contains one or more SSL messages, collect stats on them
 		if (sslPacket->isPacketOfType(pcpp::SSL))
@@ -219,7 +219,7 @@ private:
 	 * Collect stats relevant for every SSL packet (any SSL message)
 	 * This method calculates and returns the flow key for this packet
 	 */
-	size_t collectSSLTrafficStats(pcpp::Packet* sslpPacket)
+	uint32_t collectSSLTrafficStats(pcpp::Packet* sslpPacket)
 	{
 		pcpp::TcpLayer* tcpLayer = sslpPacket->getLayerOfType<pcpp::TcpLayer>();
 
@@ -230,7 +230,7 @@ private:
 		m_GeneralStats.numOfSSLPackets++;
 
 		// calculate a hash key for this flow to be used in the flow table
-		size_t hashVal = hash5Tuple(sslpPacket);
+		uint32_t hashVal = hash5Tuple(sslpPacket);
 
 		// if flow is a new flow (meaning it's not already in the flow table)
 		if (m_FlowTable.find(hashVal) == m_FlowTable.end())
@@ -262,7 +262,7 @@ private:
 	/**
 	 * Collect stats relevant for several kinds SSL messages
 	 */
-	void collectSSLStats(pcpp::Packet* sslPacket, size_t flowKey)
+	void collectSSLStats(pcpp::Packet* sslPacket, uint32_t flowKey)
 	{
 		// go over all SSL messages in this packet
 		pcpp::SSLLayer* sslLayer = sslPacket->getLayerOfType<pcpp::SSLLayer>();
@@ -363,7 +363,7 @@ private:
 	ServerHelloStats m_ServerHelloStats;
 	ServerHelloStats m_PrevServerHelloStats;
 
-	std::map<size_t, SSLFlowData> m_FlowTable;
+	std::map<uint32_t, SSLFlowData> m_FlowTable;
 
 	double m_LastCalcRateTime;
 	double m_StartTime;

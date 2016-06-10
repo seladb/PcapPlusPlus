@@ -369,7 +369,7 @@ PACKETPP_TEST(Ipv4FragmentationTest)
 	PACKETPP_ASSERT(ipLayer->isLastFragment() == false, "Frag1 is mistakenly a last fragment");
 	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 0, "Frag1 fragment offset != 0");
 	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0, "Frag1 mistakenly doesn't contain the 'more fragments' flag");
-	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == UDP, "Frag1 next protocol is not UDP");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == Unknown, "Frag1 next protocol is not generic payload");
 
 
 	ipLayer = frag2.getLayerOfType<IPv4Layer>();

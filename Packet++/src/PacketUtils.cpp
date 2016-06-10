@@ -6,7 +6,7 @@
 namespace pcpp
 {
 
-size_t hash5Tuple(Packet* packet)
+uint32_t hash5Tuple(Packet* packet)
 {
 	if (!packet->isPacketOfType(IPv4))
 		return 0;
@@ -31,19 +31,23 @@ size_t hash5Tuple(Packet* packet)
 		portDst = udpLayer->getUdpHeader()->portDst;
 	}
 
-	uint8_t* ipSrcAsByteArr = static_cast<uint8_t*>(static_cast<void*>(&ipv4Layer->getIPv4Header()->ipSrc));
-	uint8_t* ipDstAsByteArr = static_cast<uint8_t*>(static_cast<void*>(&ipv4Layer->getIPv4Header()->ipDst));
-	return(ipv4Layer->getIPv4Header()->protocol+
-			ipSrcAsByteArr[0]+
-			ipSrcAsByteArr[1]+
-			ipSrcAsByteArr[2]+
-			ipSrcAsByteArr[3]+
-			ipDstAsByteArr[0]+
-			ipDstAsByteArr[1]+
-			ipDstAsByteArr[2]+
-			ipDstAsByteArr[3]+
-			portSrc+
-			portDst);
+	uint32_t ipSrcAsInt = ipv4Layer->getSrcIpAddress().toInt();
+	uint32_t ipDstAsInt = ipv4Layer->getDstIpAddress().toInt();
+	return ((ipSrcAsInt ^ portSrc) ^ (ipDstAsInt ^ portDst)) | ipv4Layer->getIPv4Header()->protocol;
+}
+
+
+uint32_t hash2Tuple(Packet* packet)
+{
+	if (!packet->isPacketOfType(IPv4))
+		return 0;
+
+	IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
+
+	uint32_t ipSrcAsInt = ipv4Layer->getSrcIpAddress().toInt();
+	uint32_t ipDstAsInt = ipv4Layer->getDstIpAddress().toInt();
+
+	return (ipSrcAsInt ^ ipDstAsInt);
 }
 
 }  // namespace pcpp

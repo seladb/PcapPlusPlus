@@ -21,7 +21,7 @@ private:
 	uint32_t m_CoreId;
 	PacketStats m_Stats;
 	PacketMatchingEngine& m_PacketMatchingEngine;
-	map<size_t, bool> m_FlowTable;
+	map<uint32_t, bool> m_FlowTable;
 
 public:
 	AppWorkerThread(AppWorkerConfig& workerConfig, PacketMatchingEngine& matchingEngine) :
@@ -93,8 +93,8 @@ public:
 						bool packetMatched = false;
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
-						size_t hash = pcpp::hash5Tuple(&packetArr[i]);
-						map<size_t, bool>::const_iterator iter = m_FlowTable.find(hash);
+						uint32_t hash = pcpp::hash5Tuple(&packetArr[i]);
+						map<uint32_t, bool>::const_iterator iter = m_FlowTable.find(hash);
 
 						// if packet belongs to an already existing flow
 						if (iter != m_FlowTable.end() && iter->second)

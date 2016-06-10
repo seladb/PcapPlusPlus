@@ -133,7 +133,7 @@ public:
 			return;
 
 		// collect general HTTP traffic stats on this packet
-		size_t hashVal = collectHttpTrafficStats(httpPacket);
+		uint32_t hashVal = collectHttpTrafficStats(httpPacket);
 
 		// if packet is an HTTP request - collect HTTP request stats on this packet
 		if (httpPacket->isPacketOfType(pcpp::HTTPRequest))
@@ -259,7 +259,7 @@ private:
 	 * Collect stats relevant for every HTTP packet (request, response or any other)
 	 * This method calculates and returns the flow key for this packet
 	 */
-	size_t collectHttpTrafficStats(pcpp::Packet* httpPacket)
+	uint32_t collectHttpTrafficStats(pcpp::Packet* httpPacket)
 	{
 		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
 
@@ -270,7 +270,7 @@ private:
 		m_GeneralStats.numOfHttpPackets++;
 
 		// calculate a hash key for this flow to be used in the flow table
-		size_t hashVal = hash5Tuple(httpPacket);
+		uint32_t hashVal = pcpp::hash5Tuple(httpPacket);
 
 		// if flow is a new flow (meaning it's not already in the flow table)
 		if (m_FlowTable.find(hashVal) == m_FlowTable.end())
@@ -294,7 +294,7 @@ private:
 	/**
 	 * Collect stats relevant for HTTP messages (requests or responses)
 	 */
-	void collectHttpGeneralStats(pcpp::TcpLayer* tcpLayer, pcpp::HttpMessage* message, size_t flowKey)
+	void collectHttpGeneralStats(pcpp::TcpLayer* tcpLayer, pcpp::HttpMessage* message, uint32_t flowKey)
 	{
 		// if num of current opened transaction is negative it means something went completely wrong
 		if (m_FlowTable[flowKey].numOfOpenTransactions < 0)
@@ -439,7 +439,7 @@ private:
 	HttpResponseStats m_ResponseStats;
 	HttpResponseStats m_PrevResponseStats;
 
-	std::map<size_t, HttpFlowData> m_FlowTable;
+	std::map<uint32_t, HttpFlowData> m_FlowTable;
 
 	double m_LastCalcRateTime;
 	double m_StartTime;

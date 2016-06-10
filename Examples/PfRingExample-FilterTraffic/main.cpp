@@ -67,7 +67,7 @@ struct CaptureThreadArgs
 {
 	PacketStats* packetStatArr;
 	PacketMatchingEngine* matchingEngine;
-	map<size_t, bool>* flowTables;
+	map<uint32_t, bool>* flowTables;
 	PfRingDevice* sendPacketsTo;
 	PcapFileWriterDevice** pcapWriters;
 
@@ -142,8 +142,8 @@ void packetArrived(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, 
 		bool packetMatched = false;
 
 		// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
-		size_t hash = hash5Tuple(&packet);
-		map<size_t, bool>::const_iterator iter = args->flowTables[threadId].find(hash);
+		uint32_t hash = hash5Tuple(&packet);
+		map<uint32_t, bool>::const_iterator iter = args->flowTables[threadId].find(hash);
 
 		// if packet belongs to an already existing flow
 		if (iter !=args->flowTables[threadId].end() && iter->second)
@@ -370,7 +370,7 @@ int main(int argc, char* argv[])
 	PacketMatchingEngine matchingEngine(srcIPToMatch, dstIPToMatch, srcPortToMatch, dstPortToMatch, protocolToMatch);
 
 	// create a flow table for each core
-	map<size_t, bool> flowTables[totalNumOfCores];
+	map<uint32_t, bool> flowTables[totalNumOfCores];
 
 	PcapFileWriterDevice** pcapWriters = NULL;
 

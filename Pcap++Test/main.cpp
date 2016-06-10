@@ -113,7 +113,7 @@ struct PfRingPacketData
 	int IpCount;
 	int TcpCount;
 	int UdpCount;
-	map<size_t, RawPacketVector> FlowKeys;
+	map<uint32_t, RawPacketVector> FlowKeys;
 
 	PfRingPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), IpCount(0), TcpCount(0), UdpCount(0) {}
 	void clear() { ThreadId = -1; PacketCount = 0; EthCount = 0; IpCount = 0; TcpCount = 0; UdpCount = 0; FlowKeys.clear(); }
@@ -228,7 +228,7 @@ struct DpdkPacketData
 	int UdpCount;
 	int HttpCount;
 
-	map<size_t, RawPacketVector> FlowKeys;
+	map<uint32_t, RawPacketVector> FlowKeys;
 
 	DpdkPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0), TcpCount(0), UdpCount(0), HttpCount(0) {}
 	void clear() { ThreadId = -1; PacketCount = 0; EthCount = 0; ArpCount = 0; Ip4Count = 0; Ip6Count = 0; TcpCount = 0; UdpCount = 0; HttpCount = 0; FlowKeys.clear(); }
@@ -1808,12 +1808,12 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 	{
 		for (int secondCoreId = firstCoreId+1; secondCoreId < totalnumOfCores; secondCoreId++)
 		{
-			map<size_t, pair<RawPacketVector, RawPacketVector> > res;
-			intersectMaps<size_t, RawPacketVector, RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
+			map<uint32_t, pair<RawPacketVector, RawPacketVector> > res;
+			intersectMaps<uint32_t, RawPacketVector, RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
 			PCAPP_ASSERT(res.size() == 0, "%d flows appear in core %d and core %d", res.size(), firstCoreId, secondCoreId);
 			if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 			{
-				for (map<size_t, pair<RawPacketVector, RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
+				for (map<uint32_t, pair<RawPacketVector, RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
 				{
 					PCAPP_DEBUG_PRINT("Same flow exists in core %d and core %d. Flow key = %X", firstCoreId, secondCoreId, iter->first);
 					ostringstream stream;
@@ -1841,7 +1841,7 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 
 		if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 		{
-			for(map<size_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
+			for(map<uint32_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
 				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", iter->first, iter->second.size());
 				iter->second.clear();
 			}
@@ -2441,12 +2441,12 @@ PCAPP_TEST(TestDpdkMultiThread)
 			if ((SystemCores::IdToSystemCore[secondCoreId].Mask & coreMask) == 0)
 				continue;
 
-			map<size_t, pair<RawPacketVector, RawPacketVector> > res;
-			intersectMaps<size_t, RawPacketVector, RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
+			map<uint32_t, pair<RawPacketVector, RawPacketVector> > res;
+			intersectMaps<uint32_t, RawPacketVector, RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
 			PCAPP_ASSERT(res.size() == 0, "%d flows appear in core %d and core %d", res.size(), firstCoreId, secondCoreId);
 			if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 			{
-				for (map<size_t, pair<RawPacketVector, RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
+				for (map<uint32_t, pair<RawPacketVector, RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
 				{
 					PCAPP_DEBUG_PRINT("Same flow exists in core %d and core %d. Flow key = %X", firstCoreId, secondCoreId, iter->first);
 					ostringstream stream;
@@ -2474,7 +2474,7 @@ PCAPP_TEST(TestDpdkMultiThread)
 
 		if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 		{
-			for(map<size_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
+			for(map<uint32_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
 				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", iter->first, iter->second.size());
 				iter->second.clear();
 			}

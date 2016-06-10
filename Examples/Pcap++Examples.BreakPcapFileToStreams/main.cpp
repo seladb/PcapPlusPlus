@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 	LoggerPP::getInstance().setErrorString(errorString, 1000);
 
 	// creating the flow table which is a map between a 2-byte hash key and the vector of packets belong to it
-	std::map<size_t,std::vector<Packet*> > flowTable;
+	std::map<uint32_t,std::vector<Packet*> > flowTable;
 
 	// open the pcap file for reading
 	PcapFileReaderDevice readerDevice("example.pcap");
@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
 	}
 
 	// create and array of raw and parsed packets as these packets later go into the flow table
-	RawPacket rawPackets[10000];
-	Packet* tcpOrUdpPackets[10000];
+	RawPacket* rawPackets = new RawPacket[100000];
+	Packet** tcpOrUdpPackets = new Packet*[100000];
 	int i = 0;
 
 	// go over all packets in the input pcap file
@@ -83,12 +83,14 @@ int main(int argc, char* argv[])
 			continue;
 
 		// use a method in PcapPlusPlus for calculating a 2-byte hash value out of a packet 5-tuple
-		size_t hash = hash5Tuple(tcpOrUdpPackets[i]);
+		uint32_t hash = hash5Tuple(tcpOrUdpPackets[i]);
 
 		// insert the packet to the relevant flow in the flow table
 		flowTable[hash].push_back(tcpOrUdpPackets[i]);
+
 		i++;
 	}
+
 
 	// close the pcap reader
 	readerDevice.close();
@@ -100,7 +102,7 @@ int main(int argc, char* argv[])
 	i = 0;
 
 	// go over the flow table and save each flow with 10 packets or more to a pcap file
-	for(std::map<size_t, std::vector<Packet*> >::iterator iter = flowTable.begin(); iter != flowTable.end(); iter++)
+	for(std::map<uint32_t, std::vector<Packet*> >::iterator iter = flowTable.begin(); iter != flowTable.end(); iter++)
 	{
 		// print stream size
 		printf("Stream #%03d: %3d packets\n", ++i, iter->second.size());
@@ -113,6 +115,9 @@ int main(int argc, char* argv[])
 			printPacketsToFile(streamName, iter->second, errorString);
 		}
 	}
+
+	delete rawPackets;
+	delete tcpOrUdpPackets;
 
 	return 0;
 }
