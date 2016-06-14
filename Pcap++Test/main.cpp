@@ -49,6 +49,9 @@ using namespace pcpp;
 #define EXAMPLE_PCAP_VLAN "PcapExamples/VlanPackets.pcap"
 #define EXAMPLE_PCAP_DNS "PcapExamples/DnsPackets.pcap"
 #define DPDK_PCAP_WRITE_PATH "PcapExamples/DpdkPackets.pcap"
+#define SLL_PCAP_WRITE_PATH "PcapExamples/sll_copy.pcap"
+#define SLL_PCAP_PATH "PcapExamples/sll.pcap"
+
 
 #define PCAPP_TEST(TestName) bool TestName(PcapTestArgs const& args)
 
@@ -581,6 +584,7 @@ PCAPP_TEST(TestPcapFileReadWrite)
     RawPacket rawPacket;
     int packetCount = 0;
     int ethCount = 0;
+    int sllCount = 0;
     int ipCount = 0;
     int tcpCount = 0;
     int udpCount = 0;
@@ -590,6 +594,8 @@ PCAPP_TEST(TestPcapFileReadWrite)
     	Packet packet(&rawPacket);
 		if (packet.isPacketOfType(Ethernet))
 			ethCount++;
+		if (packet.isPacketOfType(SLL))
+			sllCount++;
 		if (packet.isPacketOfType(IPv4))
 			ipCount++;
 		if (packet.isPacketOfType(TCP))
@@ -613,9 +619,64 @@ PCAPP_TEST(TestPcapFileReadWrite)
     PCAPP_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
 
     PCAPP_ASSERT(ethCount == 4631, "Incorrect number of Ethernet packets read. Expected: 4631; read: %d", ethCount);
+    PCAPP_ASSERT(sllCount == 0, "Incorrect number of SLL packets read. Expected: 0; read: %d", sllCount);
     PCAPP_ASSERT(ipCount == 4631, "Incorrect number of IPv4 packets read. Expected: 4631; read: %d", ipCount);
     PCAPP_ASSERT(tcpCount == 4492, "Incorrect number of IPv4 packets read. Expected: 4492; read: %d", tcpCount);
     PCAPP_ASSERT(udpCount == 139, "Incorrect number of IPv4 packets read. Expected: 139; read: %d", udpCount);
+
+    readerDev.close();
+    writerDev.close();
+
+    PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPcapSllFileReadWrite)
+{
+    PcapFileReaderDevice readerDev(SLL_PCAP_PATH);
+    PcapFileWriterDevice writerDev(SLL_PCAP_WRITE_PATH, PCAP_LINKTYPE_LINUX_SLL);
+    PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
+    PCAPP_ASSERT(writerDev.open(), "cannot open writer device");
+    RawPacket rawPacket;
+    int packetCount = 0;
+    int sllCount = 0;
+    int ethCount = 0;
+    int ipCount = 0;
+    int tcpCount = 0;
+    int udpCount = 0;
+    while (readerDev.getNextPacket(rawPacket))
+    {
+    	packetCount++;
+    	Packet packet(&rawPacket);
+		if (packet.isPacketOfType(Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(SLL))
+			sllCount++;
+		if (packet.isPacketOfType(IPv4))
+			ipCount++;
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+
+		writerDev.writePacket(rawPacket);
+    }
+
+    pcap_stat readerStatistics;
+    pcap_stat writerStatistics;
+
+    readerDev.getStatistics(readerStatistics);
+    PCAPP_ASSERT(readerStatistics.ps_recv == 518, "Incorrect number of packets read from file. Expected: 100; read: %d", readerStatistics.ps_recv);
+    PCAPP_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %d", readerStatistics.ps_drop);
+
+    writerDev.getStatistics(writerStatistics);
+    PCAPP_ASSERT(writerStatistics.ps_recv == 518, "Incorrect number of packets written to file. Expected: 100; written: %d", writerStatistics.ps_recv);
+    PCAPP_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
+
+    PCAPP_ASSERT(ethCount == 0, "Incorrect number of Ethernet packets read. Expected: 0; read: %d", ethCount);
+    PCAPP_ASSERT(sllCount == 518, "Incorrect number of SLL packets read. Expected: 518; read: %d", sllCount);
+    PCAPP_ASSERT(ipCount == 510, "Incorrect number of IPv4 packets read. Expected: 510; read: %d", ipCount);
+    PCAPP_ASSERT(tcpCount == 483, "Incorrect number of IPv4 packets read. Expected: 483; read: %d", tcpCount);
+    PCAPP_ASSERT(udpCount == 28, "Incorrect number of IPv4 packets read. Expected: 28; read: %d", udpCount);
 
     readerDev.close();
     writerDev.close();
@@ -3054,6 +3115,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestIPAddress, args);
 	PCAPP_RUN_TEST(TestMacAddress, args);
 	PCAPP_RUN_TEST(TestPcapFileReadWrite, args);
+	PCAPP_RUN_TEST(TestPcapSllFileReadWrite, args);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args);
 	PCAPP_RUN_TEST(TestPcapLiveDevice, args);

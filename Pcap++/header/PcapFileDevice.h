@@ -20,6 +20,7 @@ namespace pcpp
 	{
 	protected:
 		char* m_FileName;
+		PcapLinkLayerType m_PcapLinkLayerType;
 
 		IPcapFileDevice(const char* fileName);
 		virtual ~IPcapFileDevice();
@@ -105,7 +106,7 @@ namespace pcpp
 		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file
 		 */
-		PcapFileWriterDevice(const char* fileName);
+		PcapFileWriterDevice(const char* fileName, PcapLinkLayerType linkLayerType = PCAP_LINKTYPE_ETHERNET);
 
 		/**
 		 * A destructor for this class
@@ -116,7 +117,9 @@ namespace pcpp
 		 * Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change the
 		 * written packet
 		 * @param[in] packet A reference for an existing RawPcket to write to the file
-		 * @return True if a packet was written successfully. False will be returned if the file isn't opened (also, an error will be printed to log)
+		 * @return True if a packet was written successfully. False will be returned if the file isn't opened
+		 * or if the packet link layer type is different than the one defined for the file
+		 * (in all cases, an error will be printed to log)
 		 */
 		bool writePacket(RawPacket const& packet);
 

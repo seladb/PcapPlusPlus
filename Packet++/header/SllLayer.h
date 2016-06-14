@@ -1,7 +1,8 @@
-#ifndef PACKETPP_SSL_LAYER
-#define PACKETPP_SSL_LAYER
+#ifndef PACKETPP_SLL_LAYER
+#define PACKETPP_SLL_LAYER
 
-#include "Layer.h"
+#include <MacAddress.h>
+#include <Layer.h>
 
 /// @file
 
@@ -17,7 +18,8 @@ namespace pcpp
 	 * Represents an special ssl header
 	 */
 #pragma pack(push, 1)
-	struct sll_header {
+	struct sll_header
+	{
 		uint16_t packet_type;
 		uint16_t ARPHRD_type;
 		uint16_t link_layer_addr_len;
@@ -28,7 +30,7 @@ namespace pcpp
 
 	/**
 	 * @class SllLayer
-	 * Represents an Sll protocol layer
+	 * Represents an SLL (Linux cooked capture) protocol layer
 	 */
 	class SllLayer : public Layer
 	{
@@ -39,7 +41,14 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		SllLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = Ethernet; }
+		SllLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = SLL; }
+
+		/**
+		 * A constructor that creates a new SLL header and allocates the data
+		 * @param[in] packetType Packet type
+		 * @param[in] ARPHRDType ARPHRD type
+		 */
+		SllLayer(uint16_t packetType, uint16_t ARPHRDType);
 
 		~SllLayer() {}
 
@@ -48,6 +57,21 @@ namespace pcpp
 		 * @return A pointer to the sll_header
 		 */
 		inline sll_header* getSllHeader() { return (sll_header*)m_Data; }
+
+		/**
+		 * A setter for the link layer address field
+		 * @param[in] addr The address to set. Memory will be copied to packet
+		 * @param[in] addrLength Address length, must be lower or equal to 8 (which is max length for SLL address)
+		 * @return True if address was set successfully, or false of addrLength is out of bounds (0 or larger than 8)
+		 */
+		bool setLinkLayerAddr(uint8_t* addr, size_t addrLength);
+
+		/**
+		 * Set a MAC address in the link layer address field
+		 * @param[in] macAddr MAC address to set
+		 * @return True if address was set successfully, false if MAC address isn't valid or if set failed
+		 */
+		bool setMacAddressAsLinkLayer(MacAddress macAddr);
 
 		/**
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer,
@@ -71,5 +95,5 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_ETH_LAYER */
+#endif /* PACKETPP_SLL_LAYER */
 

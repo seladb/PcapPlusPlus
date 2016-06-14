@@ -119,7 +119,6 @@ namespace pcpp
 	{
 	protected:
 		pcap_t* m_PcapDescriptor;
-		PcapLinkLayerType m_PcapLinkLayerType;
 		bool m_DeviceOpened;
 
 		// c'tor should not be public

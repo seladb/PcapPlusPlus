@@ -128,7 +128,12 @@ namespace pcpp
 		/**
 		 * SSL/TLS protocol
 		 */
-		SSL = 0x20000
+		SSL = 0x20000,
+
+		/**
+		 * SLL (Linux cooked capture) protocol
+		 */
+		SLL = 0x40000
 
 	};
 

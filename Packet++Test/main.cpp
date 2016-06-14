@@ -1,6 +1,7 @@
 #include <Logger.h>
 #include <Packet.h>
 #include <EthLayer.h>
+#include <SllLayer.h>
 #include <VlanLayer.h>
 #include <PayloadLayer.h>
 #include <IPv4Layer.h>
@@ -3777,6 +3778,76 @@ PACKETPP_TEST(SSLNewSessionTicketParseTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(SllPacketParsingTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/SllPacket.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true, LINKTYPE_LINUX_SLL);
+
+	Packet sllPacket(&rawPacket1);
+
+	PACKETPP_ASSERT(sllPacket.isPacketOfType(SLL) == true, "Packet isn't of type SLL");
+	PACKETPP_ASSERT(sllPacket.getFirstLayer()->getProtocol() == SLL, "First layer isn't of type SLL");
+	SllLayer* sllLayer = sllPacket.getLayerOfType<SllLayer>();
+	PACKETPP_ASSERT(sllLayer->getNextLayer() != NULL, "Next layer is NULL");
+	PACKETPP_ASSERT(sllLayer->getNextLayer()->getProtocol() == IPv6, "Next layer isn't IPv6");
+	PACKETPP_ASSERT(sllPacket.isPacketOfType(HTTP) == true, "Packet isn't of type HTTP");
+	PACKETPP_ASSERT(sllLayer != NULL, "Couldn't find SllLayer");
+	PACKETPP_ASSERT(sllLayer == sllPacket.getFirstLayer(), "SLL isn't the first layer");
+	PACKETPP_ASSERT(sllLayer->getSllHeader()->packet_type == 0, "Packet type isn't 0");
+	PACKETPP_ASSERT(sllLayer->getSllHeader()->ARPHRD_type == htons(1), "ARPHRD_type isn't 1");
+	PACKETPP_ASSERT(sllLayer->getSllHeader()->link_layer_addr_len == htons(6), "link_layer_addr_len isn't 6");
+	MacAddress macAddrFromPacket(sllLayer->getSllHeader()->link_layer_addr);
+	MacAddress macAddrRef("00:12:44:1e:74:00");
+	PACKETPP_ASSERT(macAddrRef == macAddrFromPacket, "MAC address isn't correct, %s", macAddrFromPacket.toString().c_str());
+	PACKETPP_ASSERT(sllLayer->getSllHeader()->protocol_type == htons(PCPP_ETHERTYPE_IPV6), "Next protocol isn't IPv4");
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(SllPacketCreationTest)
+{
+	SllLayer sllLayer(4, 1);
+	sllLayer.setMacAddressAsLinkLayer(MacAddress("00:30:48:dd:00:53"));
+	sllLayer.getSllHeader()->link_layer_addr[6] = 0xf6;
+	sllLayer.getSllHeader()->link_layer_addr[7] = 0x7f;
+
+	IPv4Layer ipLayer(IPv4Address(std::string("130.217.250.13")), IPv4Address(std::string("130.217.250.128")));
+	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
+	ipLayer.getIPv4Header()->ipId = htons(63242);
+	ipLayer.getIPv4Header()->timeToLive = 64;
+
+	TcpLayer tcpLayer((uint16_t)55013, (uint16_t)6000, 3, TCPOPT_NOP, TCPOPT_NOP, TCPOPT_TIMESTAMP);
+	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x92f2ad86);
+	tcpLayer.getTcpHeader()->ackNumber = htonl(0x7633e977);
+	tcpLayer.getTcpHeader()->ackFlag = 1;
+	tcpLayer.getTcpHeader()->windowSize = htons(4098);
+	TcpOptionData* tsOptionData = tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP);
+	uint32_t tsValue[2];
+	tsValue[0] = htonl(0x0402383b);
+	tsValue[1] = htonl(0x03ff37f5);
+	memcpy(tsOptionData->value, (uint8_t*)tsValue, 8);
+
+	Packet sllPacket(1);
+	sllPacket.addLayer(&sllLayer);
+	sllPacket.addLayer(&ipLayer);
+	sllPacket.addLayer(&tcpLayer);
+
+	sllPacket.computeCalculateFields();
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/SllPacket2.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	PACKETPP_ASSERT(bufferLength == sllPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", sllPacket.getRawPacket()->getRawDataLen(), bufferLength);
+	PACKETPP_ASSERT(memcmp(sllPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+
+	PACKETPP_TEST_PASSED;
+}
+
 int main(int argc, char* argv[]) {
 	start_leak_check();
 
@@ -3830,6 +3901,8 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(SSLMultipleRecordParsing4Test);
 	PACKETPP_RUN_TEST(SSLPartialCertificateParseTest);
 	PACKETPP_RUN_TEST(SSLNewSessionTicketParseTest);
+	PACKETPP_RUN_TEST(SllPacketParsingTest);
+	PACKETPP_RUN_TEST(SllPacketCreationTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

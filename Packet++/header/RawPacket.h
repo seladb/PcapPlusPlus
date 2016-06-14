@@ -52,7 +52,7 @@ namespace pcpp
 		 * @param[in] deleteRawDataAtDestructor An indicator whether raw data pointer should be freed when the instance is freed or not. If set
 		 * to 'true' than pRawData will be freed when instanced is being freed
 		 */
-		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType);
+		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType = LINKTYPE_ETHERNET);
 
 		/**
 		 * A default constructor that initializes class'es attributes to default value:
