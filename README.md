@@ -58,20 +58,21 @@ After compilation you can find the libraries, examples, header files and helpful
 The Packet++ library currently supports parsing, editing and creation of packets of the following protocols:
 
 1. Ethernet
-2. IPv4
-3. IPv6
-4. ARP
-5. VLAN
-6. MPLS
-7. PPPoE
-8. GRE
-9. TCP
-10. UDP
-11. ICMP
-12. DNS
-13. HTTP headers (request & response)
-14. SSL/TLS - parsing only (no editing capabilities)
-15. Generic payload
+2. SLL (Linux cooked capture)
+3. IPv4
+4. IPv6
+5. ARP
+6. VLAN
+7. MPLS
+8. PPPoE
+9. GRE
+10. TCP
+11. UDP
+12. ICMP
+13. DNS
+14. HTTP headers (request & response)
+15. SSL/TLS - parsing only (no editing capabilities)
+16. Generic payload
 
 #### Supported Engines and Devices ####
 
