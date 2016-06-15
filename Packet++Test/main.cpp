@@ -3845,6 +3845,8 @@ PACKETPP_TEST(SllPacketCreationTest)
 	PACKETPP_ASSERT(bufferLength == sllPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", sllPacket.getRawPacket()->getRawDataLen(), bufferLength);
 	PACKETPP_ASSERT(memcmp(sllPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
 
+	delete [] buffer;
+
 	PACKETPP_TEST_PASSED;
 }
 
