@@ -271,7 +271,7 @@ void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timeval timestamp)
 	}
 
 	m_MBuf = mBuf;
-	RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), rte_pktmbuf_pkt_len(mBuf), timestamp);
+	RawPacket::setRawData(rte_pktmbuf_mtod(mBuf, const uint8_t*), rte_pktmbuf_pkt_len(mBuf), timestamp, LINKTYPE_ETHERNET);
 }
 
 

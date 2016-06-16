@@ -20,7 +20,7 @@ MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t expermentalUseValu
 {
 	m_DataLen = sizeof(mpls_header);
 	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, sizeof(m_DataLen));
+	memset(m_Data, 0, m_DataLen);
 	m_Protocol = MPLS;
 
 	setMplsLabel(mplsLabel);

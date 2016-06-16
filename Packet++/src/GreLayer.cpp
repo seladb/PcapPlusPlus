@@ -255,7 +255,7 @@ GREv0Layer::GREv0Layer()
 {
 	m_DataLen = sizeof(gre_basic_header);
 	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, sizeof(m_DataLen));
+	memset(m_Data, 0, m_DataLen);
 	m_Protocol = GREv0;
 }
 
@@ -448,7 +448,7 @@ GREv1Layer::GREv1Layer(uint16_t callID)
 {
 	m_DataLen = sizeof(gre1_header);
 	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, sizeof(m_DataLen));
+	memset(m_Data, 0, m_DataLen);
 	m_Protocol = GREv1;
 
 	gre1_header* header = getGreHeader();
@@ -540,7 +540,7 @@ PPP_PPTPLayer::PPP_PPTPLayer(uint8_t address, uint8_t control)
 {
 	m_DataLen = sizeof(ppp_pptp_header);
 	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, sizeof(m_DataLen));
+	memset(m_Data, 0, m_DataLen);
 	m_Protocol = PPP_PPTP;
 
 	ppp_pptp_header* header = getPPP_PPTPHeader();

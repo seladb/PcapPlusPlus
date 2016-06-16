@@ -22,7 +22,7 @@ VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t
 {
 	m_DataLen = sizeof(vlan_header);
 	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, sizeof(m_DataLen));
+	memset(m_Data, 0, m_DataLen);
 	m_Protocol = VLAN;
 
 	vlan_header* vlanHeader = getVlanHeader();
