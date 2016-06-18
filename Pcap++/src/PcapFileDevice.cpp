@@ -11,7 +11,7 @@ IPcapFileDevice::IPcapFileDevice(const char* fileName) : IPcapDevice()
 {
 	m_FileName = new char[strlen(fileName)+1];
 	strcpy(m_FileName, fileName);
-	m_PcapLinkLayerType = PCAP_LINKTYPE_ETHERNET;
+	m_PcapLinkLayerType = LINKTYPE_ETHERNET;
 }
 
 IPcapFileDevice::~IPcapFileDevice()
@@ -64,11 +64,11 @@ bool PcapFileReaderDevice::open()
 		return false;
 	}
 
-	m_PcapLinkLayerType = static_cast<PcapLinkLayerType>(pcap_datalink(m_PcapDescriptor));
+	m_PcapLinkLayerType = static_cast<LinkLayerType>(pcap_datalink(m_PcapDescriptor));
 	switch(m_PcapLinkLayerType)
 	{
-		case PCAP_LINKTYPE_ETHERNET:
-		case PCAP_LINKTYPE_LINUX_SLL:
+		case LINKTYPE_ETHERNET:
+		case LINKTYPE_LINUX_SLL:
 			break;
 		default:
 			LOG_ERROR("The link type %d is not supported", m_PcapLinkLayerType);
@@ -115,7 +115,7 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	return true;
 }
 
-PcapFileWriterDevice::PcapFileWriterDevice(const char* fileName, PcapLinkLayerType linkLayerType) : IPcapFileDevice(fileName)
+PcapFileWriterDevice::PcapFileWriterDevice(const char* fileName, LinkLayerType linkLayerType) : IPcapFileDevice(fileName)
 {
 	m_PcapDumpHandler = NULL;
 	m_NumOfPacketsNotWritten = 0;
@@ -174,8 +174,8 @@ bool PcapFileWriterDevice::open()
 
 	switch(m_PcapLinkLayerType)
 	{
-		case PCAP_LINKTYPE_ETHERNET:
-		case PCAP_LINKTYPE_LINUX_SLL:
+		case LINKTYPE_ETHERNET:
+		case LINKTYPE_LINUX_SLL:
 			break;
 		default:
 			LOG_ERROR("The link type %d is not supported", m_PcapLinkLayerType);

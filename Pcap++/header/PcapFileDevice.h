@@ -2,6 +2,7 @@
 #define PCAPPP_FILE_DEVICE
 
 #include <PcapDevice.h>
+#include <RawPacket.h>
 
 /// @file
 
@@ -20,7 +21,7 @@ namespace pcpp
 	{
 	protected:
 		char* m_FileName;
-		PcapLinkLayerType m_PcapLinkLayerType;
+		LinkLayerType m_PcapLinkLayerType;
 
 		IPcapFileDevice(const char* fileName);
 		virtual ~IPcapFileDevice();
@@ -105,8 +106,9 @@ namespace pcpp
 		 * A constructor for this class that gets the pcap full path file name to open for writing or create. Notice that after calling this
 		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file
+		 * @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is Ethernet
 		 */
-		PcapFileWriterDevice(const char* fileName, PcapLinkLayerType linkLayerType = PCAP_LINKTYPE_ETHERNET);
+		PcapFileWriterDevice(const char* fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET);
 
 		/**
 		 * A destructor for this class

@@ -633,7 +633,7 @@ PCAPP_TEST(TestPcapFileReadWrite)
 PCAPP_TEST(TestPcapSllFileReadWrite)
 {
     PcapFileReaderDevice readerDev(SLL_PCAP_PATH);
-    PcapFileWriterDevice writerDev(SLL_PCAP_WRITE_PATH, PCAP_LINKTYPE_LINUX_SLL);
+    PcapFileWriterDevice writerDev(SLL_PCAP_WRITE_PATH, LINKTYPE_LINUX_SLL);
     PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
     PCAPP_ASSERT(writerDev.open(), "cannot open writer device");
     RawPacket rawPacket;
