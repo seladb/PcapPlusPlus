@@ -56,7 +56,6 @@ PcapFileReaderDevice::~PcapFileReaderDevice()
 {
 }
 
-//TODO: look at: http://savagelook.com/blog/code/offline-packet-capture-processing-with-cc-and-libpcap
 bool PcapFileReaderDevice::open()
 {
 	m_NumOfPacketsRead = 0;
@@ -172,7 +171,18 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	pktHdr.caplen = ((RawPacket&)packet).getRawDataLen();
 	pktHdr.len = ((RawPacket&)packet).getRawDataLen();
 	pktHdr.ts = ((RawPacket&)packet).getPacketTimeStamp();
-	pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
+	if (!m_AppendMode)
+		pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
+	else
+	{
+		// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on Windows using WinPcap
+		// you can't pass pointers between libraries compiled with different compilers. In this case - PcapPlusPlus and WinPcap weren't
+		// compiled with the same compiler so it's impossible to fopen a file in PcapPlusPlus, pass the pointer to WinPcap and use the
+		// FILE* pointer there. Doing this throws an exception. So the only option when implementing append to pcap is to write all relevant
+		// WinPcap code that handles opening/closing/writing to pcap files inside PcapPlusPlus code
+		fwrite(&pktHdr, sizeof(pktHdr), 1, m_File);
+		fwrite(((RawPacket&)packet).getRawData(), pktHdr.caplen, 1, m_File);
+	}
 	LOG_DEBUG("Packet written successfully to '%s'", m_FileName);
 	m_NumOfPacketsWritten++;
 	return true;
@@ -234,14 +244,23 @@ bool PcapFileWriterDevice::open()
 
 void PcapFileWriterDevice::close()
 {
-	if (pcap_dump_flush(m_PcapDumpHandler) == -1)
+	if (!m_AppendMode && pcap_dump_flush(m_PcapDumpHandler) == -1)
+	{
+		LOG_ERROR("Error while flushing the packets to file");
+	}
+	// in append mode it's impossible to use pcap_dump_flush, see comment above pcap_dump
+	else if (m_AppendMode && fflush(m_File) == EOF)
 	{
 		LOG_ERROR("Error while flushing the packets to file");
 	}
 
 	IPcapFileDevice::close();
 
-	pcap_dump_close(m_PcapDumpHandler);
+	if (!m_AppendMode)
+		pcap_dump_close(m_PcapDumpHandler);
+	else
+		// in append mode it's impossible to use pcap_dump_close, see comment above pcap_dump
+		fclose(m_File);
 
 	m_PcapDumpHandler = NULL;
 	m_File = NULL;
