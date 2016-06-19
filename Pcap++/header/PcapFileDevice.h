@@ -96,10 +96,14 @@ namespace pcpp
 		pcap_dumper_t* m_PcapDumpHandler;
 		uint32_t m_NumOfPacketsWritten;
 		uint32_t m_NumOfPacketsNotWritten;
+		bool m_AppendMode;
+		FILE* m_File;
 
 		// private copy c'tor
 		PcapFileWriterDevice(const PcapFileWriterDevice& other);
 		PcapFileWriterDevice& operator=(const PcapFileWriterDevice& other);
+
+		void closeFile();
 
 	public:
 		/**
@@ -137,11 +141,24 @@ namespace pcpp
 		//override methods
 
 		/**
-		 * Open the file name which path was specified in the constructor in a write mode. If file doesn't exist, it will be created
+		 * Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
+		 * overwritten, meaning all its current content will be deleted
 		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file failed for some reason
 		 * (an error will be printed to log)
 		 */
 		virtual bool open();
+
+		/**
+		 * Same as open(), but enables to open the file in append mode in which packets will be appended to the file
+		 * instead of overwrite its current content. In append mode file must exist, otherwise opening will fail
+		 * @param[in] appendMode A boolean indicating whether to open the file in append mode or not. If set to false
+		 * this method will act exactly like open(). If set to true, file will be opened in append mode
+		 * @return True of managed to open the file successfully. In case appendMode is set to true, false will be returned
+		 * if file wasn't found or couldn't be read, if file type is not pcap, or if link type specified in c'tor is
+		 * different from current file link type. In case appendMode is set to false, please refer to open() for return
+		 * values
+		 */
+		bool open(bool appendMode);
 
 		/**
 		 * Flush and close the pacp file

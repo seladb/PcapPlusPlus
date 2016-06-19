@@ -684,6 +684,47 @@ PCAPP_TEST(TestPcapSllFileReadWrite)
     PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestPcapFileAppend)
+{
+	// opening the file for the first time just to delete all packets in it
+	PcapFileWriterDevice wd(EXAMPLE_PCAP_WRITE_PATH);
+	PCAPP_ASSERT(wd.open() == true, "Cannot open writer dev");
+	wd.close();
+
+	for (int i = 0; i < 5; i++)
+	{
+		PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
+		PcapFileWriterDevice writerDev(EXAMPLE_PCAP_WRITE_PATH);
+		PCAPP_ASSERT(writerDev.open(true) == true, "Cannot open the pcap file in append mode, iteration #%d", i);
+		PCAPP_ASSERT(readerDev.open(), "cannot open reader device, iteration #%d", i);
+
+		RawPacket rawPacket;
+	    while (readerDev.getNextPacket(rawPacket))
+	    {
+	    	writerDev.writePacket(rawPacket);
+	    }
+
+	    writerDev.close();
+	    readerDev.close();
+	}
+
+	PcapFileReaderDevice readerDev(EXAMPLE_PCAP_WRITE_PATH);
+	PCAPP_ASSERT(readerDev.open(), "cannot open reader device to read result file");
+	int counter = 0;
+	RawPacket rawPacket;
+    while (readerDev.getNextPacket(rawPacket))
+    	counter++;
+
+    PCAPP_ASSERT(counter == (4631*5), "Number of read packets different than expected. Read: %d, expected: %d", counter, 4631*6);
+
+    LoggerPP::getInstance().supressErrors();
+    PcapFileWriterDevice writerDev2(EXAMPLE_PCAP_WRITE_PATH, LINKTYPE_LINUX_SLL);
+    PCAPP_ASSERT(writerDev2.open(true) == false, "Managed to open file in append mode even though link layer types are different");
+    LoggerPP::getInstance().enableErrors();
+
+	PCAPP_TEST_PASSED;
+}
+
 PCAPP_TEST(TestPcapLiveDeviceList)
 {
     vector<PcapLiveDevice*> devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
@@ -3116,6 +3157,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestMacAddress, args);
 	PCAPP_RUN_TEST(TestPcapFileReadWrite, args);
 	PCAPP_RUN_TEST(TestPcapSllFileReadWrite, args);
+	PCAPP_RUN_TEST(TestPcapFileAppend, args);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args);
 	PCAPP_RUN_TEST(TestPcapLiveDevice, args);

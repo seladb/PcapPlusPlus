@@ -1,11 +1,24 @@
 #define LOG_MODULE PcapLogModuleFileDevice
 
+#include <stdio.h>
+#include <cerrno>
 #include <PcapFileDevice.h>
 #include <Logger.h>
 #include <string.h>
 
 namespace pcpp
 {
+
+struct pcap_file_header
+{
+    uint32_t magic;
+    uint16_t version_major;
+    uint16_t version_minor;
+    int32_t thiszone;
+    uint32_t sigfigs;
+    uint32_t snaplen;
+    uint32_t linktype;
+};
 
 IPcapFileDevice::IPcapFileDevice(const char* fileName) : IPcapDevice()
 {
@@ -121,15 +134,27 @@ PcapFileWriterDevice::PcapFileWriterDevice(const char* fileName, LinkLayerType l
 	m_NumOfPacketsNotWritten = 0;
 	m_NumOfPacketsWritten = 0;
 	m_PcapLinkLayerType = linkLayerType;
+	m_AppendMode = false;
+	m_File = NULL;
 }
 
 PcapFileWriterDevice::~PcapFileWriterDevice()
 {
+
+}
+
+void PcapFileWriterDevice::closeFile()
+{
+	if (m_AppendMode && m_File != NULL)
+	{
+		fclose(m_File);
+		m_File = NULL;
+	}
 }
 
 bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 {
-	if ((m_PcapDescriptor == NULL) || (m_PcapDumpHandler == NULL))
+	if ((!m_AppendMode && m_PcapDescriptor == NULL) || (m_PcapDumpHandler == NULL))
 	{
 		LOG_ERROR("Device not opened");
 		m_NumOfPacketsNotWritten++;
@@ -217,7 +242,9 @@ void PcapFileWriterDevice::close()
 	IPcapFileDevice::close();
 
 	pcap_dump_close(m_PcapDumpHandler);
+
 	m_PcapDumpHandler = NULL;
+	m_File = NULL;
 	LOG_DEBUG("File writer closed for file '%s'", m_FileName);
 }
 
@@ -227,6 +254,60 @@ void PcapFileWriterDevice::getStatistics(pcap_stat& stats)
 	stats.ps_drop = m_NumOfPacketsNotWritten;
 	stats.ps_ifdrop = 0;
 	LOG_DEBUG("Statistics received for writer device for filename '%s'", m_FileName);
+}
+
+bool PcapFileWriterDevice::open(bool appendMode)
+{
+	if (!appendMode)
+		return open();
+
+	m_AppendMode = appendMode;
+
+#if !defined(WIN32)
+	m_File = fopen(m_FileName, "r+");
+#else
+	m_File = fopen(m_FileName, "rb+");
+#endif
+
+	if (m_File == NULL)
+	{
+		LOG_ERROR("Cannot open '%s' for reading and writing", m_FileName);
+		return false;
+	}
+
+	pcap_file_header pcapFileHeader;
+	int amountRead = fread(&pcapFileHeader, 1, sizeof(pcapFileHeader), m_File);
+	if (amountRead != sizeof(pcap_file_header))
+	{
+		if (ferror(m_File))
+			LOG_ERROR("Cannot read pcap header from file '%s', error was: %s", m_FileName, errno);
+		else
+			LOG_ERROR("Cannot read pcap header from file '%s', unknown error", m_FileName);
+
+		closeFile();
+		return false;
+	}
+
+	LinkLayerType linkLayerType = static_cast<LinkLayerType>(pcapFileHeader.linktype);
+	if (linkLayerType != m_PcapLinkLayerType)
+	{
+		LOG_ERROR("Pcap file has a different link layer type then the one chosen in PcapFileWriterDevice c'tor");
+		closeFile();
+		return false;
+	}
+
+	if (fseek(m_File, 0, SEEK_END) == -1)
+	{
+		LOG_ERROR("Cannot read pcap file '%s' to it's end, error was: %d", m_FileName, errno);
+		closeFile();
+		return false;
+	}
+
+	m_PcapDumpHandler = ((pcap_dumper_t *)m_File);
+
+	m_DeviceOpened = true;
+	LOG_DEBUG("File writer device for file '%s' opened successfully in append mode", m_FileName);
+	return true;
 }
 
 } // namespace pcpp
