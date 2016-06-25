@@ -130,7 +130,7 @@ void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 
 void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 {
-	int index = m_RawDataLen;
+	int index = m_RawDataLen-1;
 	while (index >= atIndex)
 	{
 		m_pRawData[index+dataToInsertLen] = m_pRawData[index];

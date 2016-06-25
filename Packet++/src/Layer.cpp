@@ -11,7 +11,7 @@ namespace pcpp
 Layer::~Layer()
 {
 	if (!isAllocatedToPacket())
-		delete m_Data;
+		delete [] m_Data;
 }
 
 Layer::Layer(const Layer& other) : m_DataLen(other.m_DataLen), m_Packet(NULL), m_Protocol(other.m_Protocol), m_NextLayer(NULL), m_PrevLayer(NULL)
