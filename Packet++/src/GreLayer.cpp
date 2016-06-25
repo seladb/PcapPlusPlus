@@ -426,7 +426,7 @@ void GREv0Layer::computeCalculateFields()
 	// calculate checksum
 	setChecksum(0);
 
-	ScalarBuffer buffer;
+	ScalarBuffer<uint16_t> buffer;
 	buffer.buffer = (uint16_t*)m_Data;
 	buffer.len = m_DataLen;
 	size_t checksum = compute_checksum(&buffer, 1);

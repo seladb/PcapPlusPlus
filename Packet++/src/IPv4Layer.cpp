@@ -121,7 +121,7 @@ void IPv4Layer::computeCalculateFields()
 		}
 	}
 
-	ScalarBuffer scalar = { (uint16_t*)ipHdr, ipHdr->internetHeaderLength*4 } ;
+	ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, ipHdr->internetHeaderLength*4 } ;
 	ipHdr->headerChecksum = htons(compute_checksum(&scalar, 1));
 }
 

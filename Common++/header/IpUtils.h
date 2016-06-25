@@ -81,12 +81,13 @@ namespace pcpp
 	/**
 	 * A struct that represent a single buffer
 	 */
+	template<typename T>
 	struct ScalarBuffer
 	{
 		/**
 		 * The pointer to the buffer
 		 */
-		uint16_t* buffer;
+		T* buffer;
 
 		/**
 		 * Buffer length
@@ -100,7 +101,24 @@ namespace pcpp
 	 * @param[in] vecSize Number of ScalarBuffers in vector
 	 * @return The checksum result
 	 */
-	uint16_t compute_checksum(ScalarBuffer vec[], size_t vecSize);
+	uint16_t compute_checksum(ScalarBuffer<uint16_t> vec[], size_t vecSize);
+
+	/**
+	 * Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on an array of byte buffers. The hash is calculated on each
+	 * byte in each byte buffer, as if all byte buffers were one long byte buffer
+	 * @param[in] vec An array of byte buffers (ScalarBuffer of type uint8_t)
+	 * @param[in] vecSize The length of vec
+	 * @return The 32bit hash value
+	 */
+	uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize);
+
+	/**
+	 * Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on a byte buffer
+	 * @param[in] buffer The byte buffer
+	 * @param[in] bufSize The size of the byte buffer
+	 * @return The 32bit hash value
+	 */
+	uint32_t fnv_hash(uint8_t* buffer, size_t bufSize);
 
 } // namespace pcpp
 #endif

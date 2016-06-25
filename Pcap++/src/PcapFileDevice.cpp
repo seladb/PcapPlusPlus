@@ -232,7 +232,8 @@ bool PcapFileWriterDevice::open()
 	m_PcapDumpHandler = pcap_dump_open(m_PcapDescriptor, m_FileName);
 	if (m_PcapDumpHandler == NULL)
 	{
-		LOG_ERROR("Error opening file writer device for file '%s': pcap_dump_open returned NULL", m_FileName);
+		LOG_ERROR("Error opening file writer device for file '%s': pcap_dump_open returned NULL with error: '%s'",
+				m_FileName, pcap_geterr(m_PcapDescriptor));
 		m_DeviceOpened = false;
 		return false;
 	}

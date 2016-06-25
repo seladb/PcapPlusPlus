@@ -646,7 +646,7 @@ void IcmpLayer::computeCalculateFields()
 		curLayer = curLayer->getNextLayer();
 	}
 
-	ScalarBuffer buffer;
+	ScalarBuffer<uint16_t> buffer;
 	buffer.buffer = (uint16_t*)getIcmpHeader();
 	buffer.len = icmpLen;
 	size_t checksum = compute_checksum(&buffer, 1);

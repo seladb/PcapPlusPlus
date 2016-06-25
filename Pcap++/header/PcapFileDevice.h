@@ -88,7 +88,9 @@ namespace pcpp
 
 	/**
 	 * @class PcapFileWriterDevice
-	 * A class for opening a pcap file for writing or create a new pcap file and write packets to it
+	 * A class for opening a pcap file for writing or create a new pcap file and write packets to it. This class adds
+	 * a unique capability that isn't supported in WinPcap and in older libpcap versions which is to open a pcap file
+	 * in append mode where packets are written at the end of the pcap file instead of running it over
 	 */
 	class PcapFileWriterDevice : public IPcapFileDevice
 	{
