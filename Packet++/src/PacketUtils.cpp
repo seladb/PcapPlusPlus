@@ -14,6 +14,9 @@ uint32_t hash5Tuple(Packet* packet)
 	if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
 		return 0;
 
+	if (packet->isPacketOfType(ICMP))
+		return 0;
+
 	if (!(packet->isPacketOfType(TCP)) && (!packet->isPacketOfType(UDP)))
 		return 0;
 

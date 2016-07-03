@@ -5,6 +5,7 @@
 #include <iostream>
 #include <signal.h>
 #include <string.h>
+#include <sys/stat.h>
 
 namespace pcpp
 {
@@ -151,6 +152,19 @@ std::string executeShellCommand(const std::string command)
     }
     PCLOSE(pipe);
     return result;
+}
+
+
+bool directoryExists(std::string dirPath)
+{
+    struct stat info;
+
+    if (stat(dirPath.c_str(), &info) != 0)
+        return false;
+    else if(info.st_mode & S_IFDIR)
+        return true;
+    else
+        return false;
 }
 
 #ifdef WIN32

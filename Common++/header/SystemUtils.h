@@ -231,6 +231,12 @@ namespace pcpp
 	 */
 	std::string executeShellCommand(const std::string command);
 
+	/**
+	 * Check if a directory exists
+	 * @param[in] dirPath Full path of the directory to search
+	 * @return True if directory exists, false otherwise
+	 */
+	bool directoryExists(std::string dirPath);
 
 	/**
 	 * @class ApplicationEventHandler

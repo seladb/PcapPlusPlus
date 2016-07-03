@@ -50,6 +50,7 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   11. **SSL Analyzer** - an application that analyzes SSL/TLS traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
   12. **PfRingExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus PF_RING APIs
   13. **Pcap Printer** - a simple application that outputs packets from a pcap file as a readable string
+  14. **Pcap Splitter** - an application that splits a pcap file into smaller pcap files by various criteria
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 

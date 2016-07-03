@@ -24,6 +24,7 @@ static struct option PcapPrinterOptions[] =
 	{"input-file",  required_argument, 0, 'f'},
 	{"output-file", required_argument, 0, 'o'},
 	{"packet-count", required_argument, 0, 'c'},
+	{"filter", required_argument, 0, 'i'},
 	{"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
 };
@@ -44,11 +45,12 @@ void printUsage()
 {
 	printf("\nUsage:\n"
 			"-------\n"
-			"PcapPrinter [-h] [-o output_file] [-c packet_count] -f pcap_file\n"
+			"PcapPrinter [-h] [-o output_file] [-c packet_count] [-i filter] -f pcap_file\n"
 			"\nOptions:\n\n"
 			"    -f pcap_file   : Input pcap file name\n"
 			"    -o output_file : Save output to text file (default output is stdout)\n"
 			"    -c packet_count: Print only first packet_count number of packet\n"
+			"    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed\n"
 			"    -h             : Displays this help message and exits\n");
 	exit(0);
 }
@@ -61,12 +63,15 @@ int main(int argc, char* argv[])
 {
 	std::string inputPcapFileName = "";
 	std::string outputPcapFileName = "";
+
+	std::string filter = "";
+
 	int packetCount = -1;
 
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "f:o:c:h", PcapPrinterOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "f:o:c:i:h", PcapPrinterOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -80,6 +85,9 @@ int main(int argc, char* argv[])
 				break;
 			case 'c':
 				packetCount = atoi(optarg);
+				break;
+			case 'i':
+				filter = optarg;
 				break;
 			case 'h':
 				printUsage();
@@ -108,9 +116,17 @@ int main(int argc, char* argv[])
 
 	// open a pcap file for reading
 	PcapFileReaderDevice reader(inputPcapFileName.c_str());
+
 	if (!reader.open())
 	{
 		EXIT_WITH_ERROR("Error opening input pcap file\n");
+	}
+
+	// set a filter if provided
+	if (filter != "")
+	{
+		if (!reader.setFilter(filter))
+			EXIT_WITH_ERROR("Couldn't set filter '%s'", filter.c_str());
 	}
 
 	// read the first (and only) packet from the file
