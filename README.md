@@ -242,6 +242,11 @@ It currently contains compiled binaries for Win32, Ubuntu 14.10 32-bit and Mac O
 In order to compile PcapPlusPlus on Windows you need the following components:
 
 1. The MinGW environment and compiler - this is the only environment currently supported for PcapPlusPlus. You can download and install is from www.mingw.org/
+  1. The fastest way I found for installing mingw32 was through this link: http://www.mingw.org/wiki/Getting_Started
+  2. Download "mingw-get-setup.exe", run it and follow the instructions
+  3. By default the pthreads library is not installed so you need to ask to install it. It can be done during the installation process or afterwards with "mingw-get.exe" (MinGW installation manager)
+  4. In the MinGW installation manager go to "MinGW Libraries" and select everything with "POSIX threading library for Win32" description
+  5. Choose Installation->Update Catalogue
 2. Winpcap developer's pack - containing the wpcap library PcapPlusPlus is linking with plus relevant h files. You can download it from https://www.winpcap.org/devel.htm
 
 #### Prerequisutes - Linux ####
