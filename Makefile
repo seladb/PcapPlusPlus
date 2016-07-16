@@ -17,6 +17,7 @@ EXAMPLE_PF_RING1     := Examples/PfRingExample-FilterTraffic
 EXAMPLE_PCAP_PRINT   := Examples/PcapPrinter
 EXAMPLE_SSLANALYZER  := Examples/SSLAnalyzer
 EXAMPLE_PCAPSPLITTER := Examples/PcapSplitter
+EXAMPLE_PCAPSEARCH   := Examples/PcapSearch
 
 
 UNAME := $(shell uname)
@@ -51,6 +52,7 @@ all: libs
 	cd $(EXAMPLE_PCAP_PRINT)		&& $(MAKE) PcapPrinter
 	cd $(EXAMPLE_SSLANALYZER)		&& $(MAKE) SSLAnalyzer
 	cd $(EXAMPLE_PCAPSPLITTER)		&& $(MAKE) PcapSplitter
+	cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) PcapSearch
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
 endif
@@ -71,6 +73,7 @@ endif
 	$(CP) $(EXAMPLE_PCAP_PRINT)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_SSLANALYZER)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_PCAPSPLITTER)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_PCAPSEARCH)/Bin/* ./Dist/examples
 ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
 endif
@@ -98,6 +101,7 @@ clean:
 	cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) clean
 	cd $(EXAMPLE_SSLANALYZER)       && $(MAKE) clean
 	cd $(EXAMPLE_PCAPSPLITTER)      && $(MAKE) clean
+	cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) clean
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 endif

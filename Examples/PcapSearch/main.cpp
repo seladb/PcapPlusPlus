@@ -1,12 +1,25 @@
 /**
  * PcapSearch application
  * ======================
- * This application takes a pcap file, parses its packets using Packet++ and output each layer in each packet
- * as a readable string (quite similar to the way Wireshark shows packets).
- * The result is printed to stdout (by default) or to a file (if specified). It can also print only the
- * first X packets of a file
+ * This application searches all pcap files in a given directory and all its sub-directories (unless stated otherwise) and outputs how many and which
+ * packets in those files match a certain pattern given by the user. The pattern is given in Berkeley Packet Filter (BPF) syntax
+ * (http://biot.com/capstats/bpf.html). For example: if running the application with the following parameters:
+ * PcapSearch.exe -d C:\ -s "ip net 1.1.1.1" -r C:\report.txt
+ * The application will search all '.pcap' files in all directories under C drive and try to match packets that matches IP 1.1.1.1. The result will be
+ * printed to stdout and a more detailed report will be printed to c:\report.txt
+ * Output example:
+ *    1 packets found in 'C:\\path\example\Dns.pcap'
+ *    5 packets found in 'C:\\path\example\bla1\my_pcap2.pcap'
+ *    7299 packets found in 'C:\\path2\example\example2\big_pcap.pcap'
+ *    7435 packets found in 'C:\\path3\dir1\dir2\dir3\dir4\another.pcap'
+ *    435 packets found in 'C:\\path3\dirx\diry\dirz\ok.pcap'
+ *    4662 packets found in 'C:\\path4\gotit.pcap'
+ *    7299 packets found in 'C:\\enough.pcap'
  *
- * For more details about modes of operation and parameters run PcapPrinter -h
+ * There are switches that allows the user to search only in the provided folder (without sub-directories), search user-defined file extensions (sometimes
+ * pcap files have an extension which is not '.pcap'), and output or not output the detailed report
+ *
+ * For more details about modes of operation and parameters please run PcapSearch -h
  */
 
 #include <stdlib.h>
@@ -77,31 +90,30 @@ void printUsage()
 }
 
 
-bool hasEnding(std::string const &fullString, std::string const &ending)
-{
-    if (fullString.length() >= ending.length())
-    {
-        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
-    }
-    else
-    {
-        return false;
-    }
-}
-
+/*
+ * Returns the extension of a given file name
+ */
 std::string getExtension(std::string fileName)
 {
 	return fileName.substr(fileName.find_last_of(".") + 1);
 }
 
 
+/**
+ * Searches all packet in a given pcap file for a certain search criteria. Returns how many packets matched the seatch criteria
+ */
 int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstream* detailedReportFile)
 {
+	// create the pcap reader
 	PcapFileReaderDevice reader(pcapFilePath.c_str());
+
+	// if the reader fails to open
 	if (!reader.open())
 	{
 		if (detailedReportFile != NULL)
 		{
+			// PcapPlusPlus writes the error to the error string variable we set it to write to
+			// write this error to the report file
 			(*detailedReportFile) << "File '" << pcapFilePath << "':" << std::endl;
 			(*detailedReportFile) << "    ";
 			std::string errorStr = errorString;
@@ -111,6 +123,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 		return 0;
 	}
 
+	// set the filter for the file so only packets that match the search criteria will be read
 	if (!reader.setFilter(searchCriteria))
 	{
 		return 0;
@@ -123,11 +136,17 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 
 	int packetCount = 0;
 	RawPacket rawPacket;
+
+	// read packets from the file. Since we already set the filter, only packets that matches the filter will be read
 	while (reader.getNextPacket(rawPacket))
 	{
+		// if a detailed report is required, parse the packet and print it to the report file
 		if (detailedReportFile != NULL)
 		{
+			// parse the packet
 			Packet parsedPacket(&rawPacket);
+
+			// print layer by layer by layer as we want to add a few spaces before each layer
 			std::vector<std::string> packetLayers;
 			parsedPacket.printToStringList(packetLayers);
 			for (std::vector<std::string>::iterator iter = packetLayers.begin(); iter != packetLayers.end(); iter++)
@@ -135,11 +154,14 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 			(*detailedReportFile) << std::endl;
 		}
 
+		// count the packet read
 		packetCount++;
 	}
 
+	// close the reader file
 	reader.close();
 
+	// finalize the report
 	if (detailedReportFile != NULL)
 	{
 		if (packetCount > 0)
@@ -149,59 +171,80 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 
 	}
 
+	// return how many packets matched the search criteria
 	return packetCount;
 }
 
+
+/**
+ * Searches all pcap files in given directory (and sub-directories if directed by the user) and output how many packets in each file matches a given
+ * search criteria. This method outputs how many directories were searched, how many files were searched and how many packets were matched
+ */
 void searchtDirectories(std::string directory, bool includeSubDirectories, std::string searchCriteria, std::ofstream* detailedReportFile,
 		std::map<std::string, bool> extensionsToSearch,
 		int& totalDirSearched, int& totalFilesSearched, int& totalPacketsFound)
 {
+	// open the directory
     DIR *dir = opendir(directory.c_str());
 
     struct dirent *entry = readdir(dir);
 
     std::vector<std::string> pcapList;
 
+    // go over all files in this directory
     while (entry != NULL)
     {
     	std::string name(entry->d_name);
     	std::string dirPath = directory + DIR_SEPARATOR + name;
     	struct stat info;
+
+    	// get file attributes
     	if (stat(dirPath.c_str(), &info) != 0)
     	{
     		entry = readdir(dir);
     		continue;
     	}
 
+    	// if the file is not a directory
     	if (!(info.st_mode & S_IFDIR))
     	{
+    		// check if the file extension matches the requested extensions to search. If it does, put the file name in a list of files
+    		// that should be searched (don't do the search just yet)
     		if (extensionsToSearch.find(getExtension(name)) != extensionsToSearch.end())
     			pcapList.push_back(dirPath);
-//    		if (hasEnding(name, ".pcap"))
-//    			pcapList.push_back(dirPath);
     		entry = readdir(dir);
     		continue;
     	}
 
+    	// if the file is a '.' or '..' skip it
     	if (name == "." || name == "..")
     	{
     		entry = readdir(dir);
     		continue;
     	}
 
+    	// if we got to here it means the file is actually a directory. If required to search sub-directories, call this method recursively to search
+    	// inside this sub-directory
         if (includeSubDirectories)
         	searchtDirectories(dirPath, true, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched, totalFilesSearched, totalPacketsFound);
 
+        // move to the next file
         entry = readdir(dir);
     }
 
+    // close dir
     closedir(dir);
 
     totalDirSearched++;
 
+    // when we get to here we already covered all sub-directories and collected all the files in this directory that are required for search
+    // go over each such file and search its packets to find the search criteria
     for (std::vector<std::string>::iterator iter = pcapList.begin(); iter != pcapList.end(); iter++)
     {
+    	// do the actual search
     	int packetsFound = searchPcap(*iter, searchCriteria, detailedReportFile);
+
+    	// add to total matched packets
     	totalFilesSearched++;
     	if (packetsFound > 0)
     	{
@@ -228,6 +271,8 @@ int main(int argc, char* argv[])
 	std::string detailedReportFileName = "";
 
 	std::map<std::string, bool> extensionsToSearch;
+
+	// the default (unless set otherwise) is to search in '.pcap' extension only
 	extensionsToSearch["pcap"] = true;
 
 	int optionIndex = 0;
@@ -253,6 +298,7 @@ int main(int argc, char* argv[])
 				break;
 			case 'e':
 			{
+				// read the extension list into the map
 				extensionsToSearch.clear();
 				std::string extensionsListAsString = std::string(optarg);
 				std::stringstream stream(extensionsListAsString);
@@ -260,6 +306,7 @@ int main(int argc, char* argv[])
 				// break comma-separated string into string list
 				while(std::getline(stream, extension, ','))
 				{
+					// add the extension into the map if it doesn't already exist
 					if (extensionsToSearch.find(extension) == extensionsToSearch.end())
 						extensionsToSearch[extension] = true;
 				}
@@ -296,11 +343,13 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Cannot find or open input directory");
 	}
 
+	// verify the search criteria is a valid BPF filter
 	if (!pcpp::IPcapDevice::verifyFilter(searchCriteria))
 	{
 		EXIT_WITH_ERROR("Search criteria isn't valid");
 	}
 
+	// open the detailed report file if requested by the user
 	std::ofstream* detailedReportFile = NULL;
 	if (detailedReportFileName != "")
 	{
@@ -310,6 +359,9 @@ int main(int argc, char* argv[])
 		{
 			EXIT_WITH_ERROR("Couldn't open detailed report file '%s' for writing", detailedReportFileName.c_str());
 		}
+
+		// in cases where the user requests a detailed report, all errors will be written to the report also. That's why we need to save the error messages
+		// to a variable and write them to the report file later
 		pcpp::LoggerPP::getInstance().setErrorString(errorString, ERROR_STRING_LEN);
 	}
 
@@ -318,8 +370,11 @@ int main(int argc, char* argv[])
 	int totalDirSearched = 0;
 	int totalFilesSearched = 0;
 	int totalPacketsFound = 0;
+
+	// the main call - start searching!
 	searchtDirectories(inputDirectory, includeSubDirectories, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched, totalFilesSearched, totalPacketsFound);
 
+	// after search is done, close the report file and delete its instance
 	printf("\n\nDone! Searched %d files in %d directories, %d packets were matched to search criteria\n", totalFilesSearched, totalDirSearched, totalPacketsFound);
 	if (detailedReportFile != NULL)
 	{

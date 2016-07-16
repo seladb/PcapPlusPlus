@@ -51,6 +51,7 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
   12. **PfRingExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus PF_RING APIs
   13. **Pcap Printer** - a simple application that outputs packets from a pcap file as a readable string
   14. **Pcap Splitter** - an application that splits a pcap file into smaller pcap files by various criteria
+  15. **Pcap Search** - an application that search inside pcap files in a directory/ies given by the user and counts how many packet match a user-defined pattern given in a BPF format
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 
