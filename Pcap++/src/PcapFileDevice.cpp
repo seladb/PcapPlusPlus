@@ -83,7 +83,7 @@ bool PcapFileReaderDevice::open()
 		case LINKTYPE_LINUX_SLL:
 			break;
 		default:
-			LOG_ERROR("The link type %d is not supported", m_PcapLinkLayerType);
+			LOG_ERROR("Cannot open file reader device for filename '%s': the link type %d is not supported", m_FileName, m_PcapLinkLayerType);
 			return false;
 	}
 

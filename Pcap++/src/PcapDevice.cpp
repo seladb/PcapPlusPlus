@@ -54,4 +54,16 @@ bool IPcapDevice::setFilter(GeneralFilter& filter)
 	return setFilter(filterAsString);
 }
 
+bool IPcapDevice::verifyFilter(std::string filterAsString)
+{
+	struct bpf_program prog;
+	LOG_DEBUG("Compiling the filter '%s'", filterAsString.c_str());
+	if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, &prog, filterAsString.c_str(), 1, 0) < 0)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 } // namespace pcpp
