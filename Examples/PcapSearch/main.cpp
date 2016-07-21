@@ -184,8 +184,12 @@ void searchtDirectories(std::string directory, bool includeSubDirectories, std::
 		std::map<std::string, bool> extensionsToSearch,
 		int& totalDirSearched, int& totalFilesSearched, int& totalPacketsFound)
 {
-	// open the directory
+    // open the directory
     DIR *dir = opendir(directory.c_str());
+
+    // dir is null usually when user has no access permissions 
+    if (dir == NULL)
+        return;
 
     struct dirent *entry = readdir(dir);
 
@@ -371,6 +375,13 @@ int main(int argc, char* argv[])
 	int totalFilesSearched = 0;
 	int totalPacketsFound = 0;
 
+	// if input dir contains a directory separator at the end, remove it
+	std::string dirSep = DIR_SEPARATOR;
+	if (0 == inputDirectory.compare(inputDirectory.length() - dirSep.length(), dirSep.length(), dirSep))
+	{
+		inputDirectory = inputDirectory.substr(0, inputDirectory.size()-1);
+	}
+	
 	// the main call - start searching!
 	searchtDirectories(inputDirectory, includeSubDirectories, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched, totalFilesSearched, totalPacketsFound);
 
