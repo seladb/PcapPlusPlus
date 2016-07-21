@@ -199,8 +199,15 @@ void searchtDirectories(std::string directory, bool includeSubDirectories, std::
     while (entry != NULL)
     {
     	std::string name(entry->d_name);
-    	std::string dirPath = directory + DIR_SEPARATOR + name;
-    	struct stat info;
+
+    	// construct directory full path
+    	std::string dirPath = directory;
+    	std::string dirSep = DIR_SEPARATOR;
+    	if (0 != directory.compare(directory.length() - dirSep.length(), dirSep.length(), dirSep)) // directory doesn't contain separator in the end
+    	    dirPath += DIR_SEPARATOR;
+    	dirPath += name;
+    	
+	struct stat info;
 
     	// get file attributes
     	if (stat(dirPath.c_str(), &info) != 0)
@@ -375,13 +382,6 @@ int main(int argc, char* argv[])
 	int totalFilesSearched = 0;
 	int totalPacketsFound = 0;
 
-	// if input dir contains a directory separator at the end, remove it
-	std::string dirSep = DIR_SEPARATOR;
-	if (0 == inputDirectory.compare(inputDirectory.length() - dirSep.length(), dirSep.length(), dirSep))
-	{
-		inputDirectory = inputDirectory.substr(0, inputDirectory.size()-1);
-	}
-	
 	// the main call - start searching!
 	searchtDirectories(inputDirectory, includeSubDirectories, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched, totalFilesSearched, totalPacketsFound);
 
