@@ -4,97 +4,267 @@ echo "PcapPlusPlus Linux configuration script "
 echo "****************************************"
 echo ""
 
+# set Script Name variable
+SCRIPT=`basename ${BASH_SOURCE[0]}`
+
+# help function
+function HELP {
+   echo -e \\n"Help documentation for ${BOLD}${SCRIPT}.${NORM}"\\n
+   echo "This script has 2 modes of operation:"
+   echo "  1) Without any switches. In this case the script will guide you through using wizards"
+   echo "  2) With switches, as described below"
+   echo ""
+   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--dpdk-target]${NORM}"\\n
+   echo "The following switches are recognized."
+   echo "${REV}--default${NORM}      --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
+   echo ""
+   echo "${REV}--pf-ring${NORM}      --Setup PcapPlusPlus with PF_RING. In this case you must also set --pf-ring-home"
+   echo "${REV}--pf-ring-home${NORM} --Sets PF_RING home directory. Use only when --pf-ring is set"
+   echo ""
+   echo "${REV}--dpdk${NORM}         --Setup PcapPlusPlus with DPDK. In this case you must also set --dpdk-home and --dpdk-target"
+   echo "${REV}--dpdk-home${NORM}    --Sets DPDK home directoy. Use only when --dpdk is set"
+   echo "${REV}--dpdk-target${NORM}  --Sets DPDK target directoy (e.g x86_64-native-linuxapp-gcc). Use only when --dpdk is set"
+   echo ""
+   echo -e "${REV}-h|--help${NORM}      --Displays this help message and exits. No further functions are performed."\\n
+   echo -e "Examples:"
+   echo -e "      ${BOLD}$SCRIPT --default${NORM}"
+   echo -e "      ${BOLD}$SCRIPT --pf-ring --pf-ring-home /home/myuser/PF_RING${NORM}"
+   echo -e "      ${BOLD}$SCRIPT --dpdk --dpdk-home /home/myuser/dpdk-2.1.0 --dpdk-target x86_64-native-linuxapp-gcc${NORM}"
+   echo ""
+   exit 1
+}
+
+# initializing PF_RING variables
+COMPILE_WITH_PF_RING=0
+PF_RING_HOME=""
+
+# initializing DPDK variables
+COMPILE_WITH_DPDK=0
+DPDK_HOME=""
+DPDK_TARGET=""
+
+#Check the number of arguments. If none are passed, continue to wizard mode.
+NUMARGS=$#
+echo -e "Number of arguments: $NUMARGS"\\n
+
+# start wizard mode
+if [ $NUMARGS -eq 0 ]; then
+
+   # ask the user whether to compile with PF_RING. If so, set COMPILE_WITH_PF_RING to 1
+   while true; do
+      read -p "Compile PcapPlusPlus with PF_RING? " yn
+      case $yn in
+          [Yy]* ) COMPILE_WITH_PF_RING=1; break;;
+          [Nn]* ) break;;
+          * ) echo "Please answer yes or no";;
+      esac
+   done
+
+   # if compiling with PF_RING, get PF_RING home dir from the user and set it in PF_RING_HOME
+   if (( $COMPILE_WITH_PF_RING > 0 )) ; then
+      while true; do # don't stop until user provides a valid dir
+         read -e -p "Enter PF_RING source path: " PF_RING_HOME
+         if [ -d "$PF_RING_HOME" ]; then
+            break;
+         else
+            echo "Directory doesn't exist"
+         fi
+      done
+   fi
+
+   # ask the user whether to compile with DPDK. If so, set COMPILE_WITH_DPDK to 1
+   while true; do
+       read -p "Compile PcapPlusPlus with DPDK? " yn
+       case $yn in
+           [Yy]* ) COMPILE_WITH_DPDK=1; break;;
+           [Nn]* ) break;;
+           * ) echo "Please answer yes or no";;
+       esac
+   done
+
+   # if compiling with DPDK, get DPDK home dir and DPDK target from the user and set it in DPDK_HOME and DPDK_TARGET accordingly
+   if (( $COMPILE_WITH_DPDK > 0 )) ; then
+       while true; do # don't stop until user provides a valid dir
+           read -e -p "Enter DPDK source path: " DPDK_HOME
+           if [ -d "$DPDK_HOME" ]; then
+               break;
+           else
+               echo "Directory doesn't exist"
+           fi
+       done
+
+       # get DPDK target from the user, make sure it's a valid dir
+       while true; do # don't stop until user provides a valid dir
+           read -e -p "Enter DPDK build path: " -i $DPDK_HOME/ DPDK_TARGET
+           DPDK_TARGET="$(basename $DPDK_TARGET)"
+           if [ -d "$DPDK_HOME/$DPDK_TARGET" ]; then
+               break;
+           else
+               echo "Directory doesn't exist"
+           fi
+       done
+   fi
+
+# script was run with parameters, go to param mode
+else
+
+   # these are all the possible switches
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,dpdk-target:,help -- "$@"`
+
+   # if user put an illegal switch - print HELP and exit 
+   if [ $? -ne 0 ]; then
+      HELP
+   fi
+
+   eval set -- "$OPTS"
+
+   # go over all switches
+   while true ; do
+     case "$1" in
+       # default switch - do nothing basically
+       --default)
+         shift ;;
+
+       # pf-ring switch - set COMPILE_WITH_PF_RING to 1
+       --pf-ring)
+         COMPILE_WITH_PF_RING=1
+         shift ;;
+
+       # pf-ring-home switch - set PF_RING_HOME and make sure it's a valid dir, otherwise exit
+       --pf-ring-home)
+         PF_RING_HOME=$2
+         if [ ! -d "$PF_RING_HOME" ]; then
+            echo "PG_RING home directory '$PF_RING_HOME' not found. Exiting..."         
+            exit 1
+         fi
+         shift 2 ;;
+
+       # dpdk switch - set COMPILE_WITH_DPDK to 1
+       --dpdk)
+         COMPILE_WITH_DPDK=1
+         shift 1 ;;
+
+       # dpdk-home switch - set DPDK_HOME and make sure it's a valid dir, otherwise exit
+       --dpdk-home)
+         DPDK_HOME=$2
+         if [ ! -d "$DPDK_HOME" ]; then
+            echo "DPDK home directory '$DPDK_HOME' not found. Exiting..."         
+            exit 1
+         fi
+         shift 2 ;;
+
+       # dpdk-target switch - set DPDK_TARGET and make sure it's a valid dir, otherwise exit
+       --dpdk-target)
+         DPDK_TARGET=$2
+         if [ ! -d "$DPDK_HOME/$DPDK_TARGET" ]; then
+            echo "DPDK target '$DPDK_HOME/$DPDK_TARGET' not found. Exiting..."
+            exit 1
+         fi
+         shift 2 ;;
+
+       # help switch - display help and exit
+       -h|--help)
+         HELP
+         ;;
+
+       # empty switch - just go on
+       --)
+         shift ; break ;;
+
+       # illegal switch
+       *)
+         echo -e \\n"Option -${BOLD}$OPTARG${NORM} not allowed."
+         HELP
+         ;;
+     esac
+   done
+
+   # if --pf-ring was set, make sure --pf-ring-home was also set, otherwise exit with error
+   if [[ $COMPILE_WITH_PF_RING > 0 && $PF_RING_HOME == "" ]]; then
+      echo "Switch --pf-ring-home wasn't set. Exiting..."
+      exit 1
+   fi
+
+   # if --dpdk was set, make sure --dpdk-home and --dpdk-target were also set, otherwise exit with error
+   if [[ $COMPILE_WITH_DPDK > 0 && (( $DPDK_HOME == "" || $DPDK_TARGET == "" )) ]] ; then
+      echo "Switch --dpdk-home and/or --dpdk-target wasn't set. Exiting..."
+      exit 1
+   fi 
+
+   ### End getopts code ###
+fi
+
+
 PLATFORM_MK="mk/platform.mk"
 PCAPPLUSPLUS_MK="mk/PcapPlusPlus.mk"
 
+# copy the basic Linux platform.mk
 cp -f mk/platform.mk.linux $PLATFORM_MK
+
+# copy the common (all platforms) PcapPlusPlus.mk
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
+
+# add the Linux definitions to PcapPlusPlus.mk 
 cat mk/PcapPlusPlus.mk.linux >> $PCAPPLUSPLUS_MK
 
+# set current directory as PCAPPLUSPLUS_HOME in platform.mk  
 echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
 
+# set current direcrtory as PCAPPLUSPLUS_HOME in PcapPlusPlus.mk (write it in the first line of the file)
 sed -i "1s|^|PCAPPLUSPLUS_HOME := $PWD\n\n|" $PCAPPLUSPLUS_MK
 
-COMPILE_WITH_PF_RING=0
-
-COMPILE_WITH_DPDK=0
-
-while true; do
-    read -p "Compile PcapPlusPlus with PF_RING? " yn
-    case $yn in
-        [Yy]* ) COMPILE_WITH_PF_RING=1; break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer yes or no";;
-    esac
-done
-
+# if compiling with PF_RING
 if (( $COMPILE_WITH_PF_RING > 0 )) ; then
-    while true; do
-        read -e -p "Enter PF_RING source path: " PF_RING_HOME
-        if [ -d "$PF_RING_HOME" ]; then
-            break;
-        else
-            echo "Directory doesn't exist"
-        fi
-    done
 
-    cat mk/PcapPlusPlus.mk.pf_ring >> $PCAPPLUSPLUS_MK
+   # add PF_RING definitions to PcapPlusPlus.mk
+   cat mk/PcapPlusPlus.mk.pf_ring >> $PCAPPLUSPLUS_MK
 
-    echo -e "\n\nPF_RING_HOME := "$PF_RING_HOME >> $PLATFORM_MK
-    
-    sed -i "2s|^|PF_RING_HOME := $PF_RING_HOME\n\n|" $PCAPPLUSPLUS_MK
+   # set PF_RING_HOME variable in platform.mk
+   echo -e "\n\nPF_RING_HOME := "$PF_RING_HOME >> $PLATFORM_MK
+  
+   # set PF_RING_HOME variable in PcapPlusPlus.mk (write it in the second line of the file)
+   sed -i "2s|^|PF_RING_HOME := $PF_RING_HOME\n\n|" $PCAPPLUSPLUS_MK
 fi
 
-while true; do
-    read -p "Compile PcapPlusPlus with DPDK? " yn
-    case $yn in
-        [Yy]* ) COMPILE_WITH_DPDK=1; break;;
-        [Nn]* ) break;;
-        * ) echo "Please answer yes or no";;
-    esac
-done
 
+# if compiling with DPDK
 if (( $COMPILE_WITH_DPDK > 0 )) ; then
-    while true; do
-        read -e -p "Enter DPDK source path: " DPDK_HOME
-        if [ -d "$DPDK_HOME" ]; then
-            break;
-        else
-            echo "Directory doesn't exist"
-        fi
-    done
 
-    while true; do
-        read -e -p "Enter DPDK build path: " -i $DPDK_HOME/ DPDK_TARGET
-        DPDK_TARGET="$(basename $DPDK_TARGET)"
-        if [ -d "$DPDK_HOME/$DPDK_TARGET" ]; then
-            break;
-        else
-            echo "Directory doesn't exist"
-        fi
-    done
+   # add DPDK definitions to PcapPlusPlus.mk
+   cat mk/PcapPlusPlus.mk.dpdk >> $PCAPPLUSPLUS_MK
 
-    cat mk/PcapPlusPlus.mk.dpdk >> $PCAPPLUSPLUS_MK
+   # set USE_DPDK variable in platform.mk
+   echo -e "\n\nUSE_DPDK := 1" >> $PLATFORM_MK
 
-    echo -e "\n\nUSE_DPDK := 1" >> $PLATFORM_MK
+   # set DPDK home to RTE_SDK variable in platform.mk
+   echo -e "\n\nRTE_SDK := "$DPDK_HOME >> $PLATFORM_MK
 
-    echo -e "\n\nRTE_SDK := "$DPDK_HOME >> $PLATFORM_MK
+   # set DPDK target to RTE_TARGET in platform.mk
+   echo -e "\n\nRTE_TARGET := "$DPDK_TARGET >> $PLATFORM_MK
 
-    echo -e "\n\nRTE_TARGET := "$DPDK_TARGET >> $PLATFORM_MK
+   # set USE_DPDK varaible in PcapPlusPlus.mk
+   sed -i "2s|^|USE_DPDK := 1\n\n|" $PCAPPLUSPLUS_MK
 
-    sed -i "2s|^|USE_DPDK := 1\n\n|" $PCAPPLUSPLUS_MK
-    
-    sed -i "2s|^|RTE_TARGET := $DPDK_TARGET\n\n|" $PCAPPLUSPLUS_MK
+   # set DPDK home to RTE_SDK variable in PcapPlusPlus.mk
+   sed -i "2s|^|RTE_TARGET := $DPDK_TARGET\n\n|" $PCAPPLUSPLUS_MK
 
-    sed -i "2s|^|RTE_SDK := $DPDK_HOME\n\n|" $PCAPPLUSPLUS_MK
+   # set DPDK target to RTE_TARGET in PcapPlusPlus.mk
+   sed -i "2s|^|RTE_SDK := $DPDK_HOME\n\n|" $PCAPPLUSPLUS_MK
 
-    cp mk/setup-dpdk.sh.template setup-dpdk.sh
+   # set the setup-dpdk script:
 
-    chmod +x setup-dpdk.sh
+   # copy the initial version to PcapPlusPlus root dir
+   cp mk/setup-dpdk.sh.template setup-dpdk.sh
 
-    sed -i "s|###RTE_SDK###|$DPDK_HOME|g" setup-dpdk.sh
+   # make it an executable
+   chmod +x setup-dpdk.sh
 
-    sed -i "s|###RTE_TARGET###|$DPDK_TARGET|g" setup-dpdk.sh
+   # replace the RTE_SDK placeholder with DPDK home
+   sed -i "s|###RTE_SDK###|$DPDK_HOME|g" setup-dpdk.sh
+
+   # replace the RTE_TARGET placeholder with DPDK target
+   sed -i "s|###RTE_TARGET###|$DPDK_TARGET|g" setup-dpdk.sh
 fi
 
+# finished setup script
 echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK"
