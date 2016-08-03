@@ -210,7 +210,7 @@ namespace pcpp
 
 		/**
 		 * Insert a new field after an existing field
-		 * @param[in] prevField A pointer to the existing field
+		 * @param[in] prevField A pointer to the existing field. If it's NULL the new field will be added as first field
 		 * @param[in] fieldName The field name
 		 * @param[in] fieldValue The field value
 		 * @return A pointer to the newly created HTTP field, or NULL if the field could not be created
