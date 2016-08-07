@@ -2,7 +2,7 @@
 #define PACKETPP_TCP_LAYER
 
 #include <Layer.h>
-#include <stdarg.h>
+#include <string.h>
 
 /// @file
 
