@@ -11,6 +11,15 @@
 namespace pcpp
 {
 
+static std::map<uint16_t, bool> createHTTPPortMap()
+{
+	std::map<uint16_t, bool> result;
+	result[80] = true;
+	result[8080] = true;
+	return result;
+}
+
+static const std::map<uint16_t, bool> HTTPPortMap = createHTTPPortMap();
 
 // -------- Class HttpMessage -----------------
 
@@ -340,8 +349,10 @@ void HttpMessage::computeCalculateFields()
 	//nothing to do for now
 }
 
-
-
+const std::map<uint16_t, bool>* HttpMessage::getHTTPPortMap()
+{
+	return &HTTPPortMap;
+}
 
 
 
