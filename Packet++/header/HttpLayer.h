@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 #include <map>
+#include <set>
 
 /// @file
 
@@ -262,6 +263,10 @@ namespace pcpp
 		 * Does nothing for this class
 		 */
 		void computeCalculateFields();
+		/**
+		 * @return A pointer to a map containing all TCP ports recognize as HTTP
+		 */
+		static const std::map<uint16_t, bool>* getHTTPPortMap();
 	protected:
 		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 		HttpMessage() : m_FieldList(NULL), m_LastField(NULL), m_FieldsOffset(0) {}
