@@ -20,6 +20,14 @@ struct pcap_file_header
     uint32_t linktype;
 };
 
+struct packet_header
+{
+	uint32_t tv_sec;
+	uint32_t tv_usec;
+	uint32_t caplen;
+	uint32_t len;
+};
+
 IPcapFileDevice::IPcapFileDevice(const char* fileName) : IPcapDevice()
 {
 	m_FileName = new char[strlen(fileName)+1];
@@ -180,8 +188,16 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 		// compiled with the same compiler so it's impossible to fopen a file in PcapPlusPlus, pass the pointer to WinPcap and use the
 		// FILE* pointer there. Doing this throws an exception. So the only option when implementing append to pcap is to write all relevant
 		// WinPcap code that handles opening/closing/writing to pcap files inside PcapPlusPlus code
-		fwrite(&pktHdr, sizeof(pktHdr), 1, m_File);
-		fwrite(((RawPacket&)packet).getRawData(), pktHdr.caplen, 1, m_File);
+
+		// the reason to create this packet_header struct is timeval has different sizes in 32-bit and 64-bit systems,
+		// but pcap format uses the 32-bit timeval version, so we need to align timeval to that
+		packet_header pktHdrTemp;
+		pktHdrTemp.tv_sec = pktHdr.ts.tv_sec;
+		pktHdrTemp.tv_usec = pktHdr.ts.tv_usec;
+		pktHdrTemp.caplen = pktHdr.caplen;
+		pktHdrTemp.len = pktHdr.len;
+		fwrite(&pktHdrTemp, sizeof(pktHdrTemp), 1, m_File);
+		fwrite(((RawPacket&)packet).getRawData(), pktHdrTemp.caplen, 1, m_File);
 	}
 	LOG_DEBUG("Packet written successfully to '%s'", m_FileName);
 	m_NumOfPacketsWritten++;

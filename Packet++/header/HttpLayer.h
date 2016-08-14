@@ -5,6 +5,7 @@
 #include <string>
 #include <exception>
 #include <map>
+#include <set>
 
 /// @file
 
@@ -210,7 +211,7 @@ namespace pcpp
 
 		/**
 		 * Insert a new field after an existing field
-		 * @param[in] prevField A pointer to the existing field
+		 * @param[in] prevField A pointer to the existing field. If it's NULL the new field will be added as first field
 		 * @param[in] fieldName The field name
 		 * @param[in] fieldValue The field value
 		 * @return A pointer to the newly created HTTP field, or NULL if the field could not be created
@@ -262,6 +263,10 @@ namespace pcpp
 		 * Does nothing for this class
 		 */
 		void computeCalculateFields();
+		/**
+		 * @return A pointer to a map containing all TCP ports recognize as HTTP
+		 */
+		static const std::map<uint16_t, bool>* getHTTPPortMap();
 	protected:
 		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 		HttpMessage() : m_FieldList(NULL), m_LastField(NULL), m_FieldsOffset(0) {}

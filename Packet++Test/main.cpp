@@ -30,7 +30,7 @@
 #endif
 
 // For debug purpose only
-// #include <pcap.h>
+//#include <pcap.h>
 
 using namespace std;
 using namespace pcpp;
@@ -513,7 +513,7 @@ PACKETPP_TEST(TcpPacketNoOptionsParsing)
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->reserved == 0, "Reserved != 0");
 
 	// TCP options
-	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 0, "TCP options count isn't 0");
+	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 0, "TCP options count isn't 0, it's %d", tcpLayer->getTcpOptionsCount());
 	PACKETPP_ASSERT(tcpLayer->getTcpOptionData(TCPOPT_NOP) == NULL, "TCP option NOP isn't NULL");
 	PACKETPP_ASSERT(tcpLayer->getTcpOptionData(TCPOPT_TIMESTAMP) == NULL, "TCP option Timestamp isn't NULL");
 
@@ -587,16 +587,32 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing2)
 	PACKETPP_ASSERT((sackParmOptionData = tcpLayer->getTcpOptionData(TCPOPT_SACK_PERM)) != NULL, "TCP option SACK perm is NULL");
 	PACKETPP_ASSERT((windowScaleOptionData = tcpLayer->getTcpOptionData(TCPOPT_WINDOW)) != NULL, "TCP option window scale is NULL");
 
+	PACKETPP_ASSERT(mssOptionData->getType() == TCPOPT_MSS, "MSS option isn't of type TCPOPT_MSS");
+	PACKETPP_ASSERT(sackParmOptionData->getType() == TCPOPT_SACK_PERM, "Sack perm option isn't of type TCPOPT_SACK_PERM");
+	PACKETPP_ASSERT(windowScaleOptionData->getType() == TCPOPT_WINDOW, "Window scale option isn't of type TCPOPT_WINDOW");
+
 	PACKETPP_ASSERT(mssOptionData->len == 4, "TCP option Timestamp length != 4, it's 0x%X", mssOptionData->len);
 	PACKETPP_ASSERT(sackParmOptionData->len == 2, "TCP option SACK perm length != 2, it's 0x%X", sackParmOptionData->len);
 	PACKETPP_ASSERT(windowScaleOptionData->len == 3, "TCP option window scale length != 3, it's 0x%X", mssOptionData->len);
 
-	uint16_t mssValue = 0;
-	memcpy(&mssValue, mssOptionData->value, 2);
-	PACKETPP_ASSERT(mssValue == htons(1460), "TCP option MSS option: value != 1460, it's %d", ntohs(mssValue));
+	PACKETPP_ASSERT(mssOptionData->getValueAs<uint16_t>() == htons(1460), "TCP option MSS option: value != 1460, it's %d", ntohs(mssOptionData->getValueAs<uint16_t>()));
+	PACKETPP_ASSERT(windowScaleOptionData->getValueAs<uint8_t>() == 4, "TCP option window scale option: value != 4, it's %d", windowScaleOptionData->getValueAs<uint8_t>());
+	PACKETPP_ASSERT(sackParmOptionData->getValueAs<uint32_t>() == 0, "TCP option sack perm option: value != 0, it's %d", sackParmOptionData->getValueAs<uint32_t>());
+	PACKETPP_ASSERT(mssOptionData->getValueAs<uint32_t>() == 0, "Wrongly fetched MSS value as uint32_t");
+	PACKETPP_ASSERT(mssOptionData->getValueAs<uint16_t>(1) == 0, "Wrongly fetched MSS value as uint16_t from offset 1");
 
-	uint8_t windowScale = *windowScaleOptionData->value;
-	PACKETPP_ASSERT(windowScale == 4, "TCP option window scale option: value != 4, it's %d", windowScale);
+	TcpOptionData* curOpt = tcpLayer->getFirstTcpOptionData();
+	PACKETPP_ASSERT(curOpt != NULL && curOpt->getType() == TCPOPT_MSS, "First option isn't of type TCPOPT_MSS");
+	curOpt = tcpLayer->getNextTcpOptionData(curOpt);
+	PACKETPP_ASSERT(curOpt != NULL && curOpt->getType() == TCPOPT_SACK_PERM, "Second option isn't of type TCPOPT_SACK_PERM");
+	curOpt = tcpLayer->getNextTcpOptionData(curOpt);
+	PACKETPP_ASSERT(curOpt != NULL && curOpt->getType() == TCPOPT_TIMESTAMP, "Third option isn't of type TCPOPT_TIMESTAMP");
+	curOpt = tcpLayer->getNextTcpOptionData(curOpt);
+	PACKETPP_ASSERT(curOpt != NULL && curOpt->getType() == TCPOPT_NOP, "Fourth option isn't of type TCPOPT_NOP");
+	curOpt = tcpLayer->getNextTcpOptionData(curOpt);
+	PACKETPP_ASSERT(curOpt != NULL && curOpt->getType() == TCPOPT_WINDOW, "Fifth option isn't of type TCPOPT_WINDOW");
+	curOpt = tcpLayer->getNextTcpOptionData(curOpt);
+	PACKETPP_ASSERT(curOpt == NULL, "There is sixth TCP option");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -612,15 +628,24 @@ PACKETPP_TEST(TcpPacketCreation)
 	ipLayer.getIPv4Header()->ipId = htons(20300);
 	ipLayer.getIPv4Header()->fragmentOffset = htons(0x4000);
 	ipLayer.getIPv4Header()->timeToLive = 59;
-	TcpLayer tcpLayer((uint16_t)80, (uint16_t)44160, 3, TCPOPT_NOP, TCPOPT_NOP, TCPOPT_TIMESTAMP);
+	TcpLayer tcpLayer((uint16_t)80, (uint16_t)44160);
 	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0xb829cb98);
 	tcpLayer.getTcpHeader()->ackNumber = htonl(0xe9771586);
 	tcpLayer.getTcpHeader()->ackFlag = 1;
 	tcpLayer.getTcpHeader()->pshFlag = 1;
 	tcpLayer.getTcpHeader()->windowSize = htons(20178);
-	TcpOptionData* tsOptionData = tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP);
-	uint32_t tsValue = htonl(3555735960UL);
-	memcpy(tsOptionData->value, &tsValue, 4);
+	PACKETPP_ASSERT(tcpLayer.addTcpOption(TCPOPT_NOP, PCPP_TCPOLEN_NOP, NULL) != NULL, "Couldn't add 1st NOP option");
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 24, "Header len isn't 24 after 1st NOP addition")
+	PACKETPP_ASSERT(tcpLayer.addTcpOption(TCPOPT_NOP, PCPP_TCPOLEN_NOP, NULL) != NULL, "Couldn't add 2nd NOP option");
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 24, "Header len isn't 24 after 2nd NOP addition")
+	TcpOptionData* tsOption = tcpLayer.addTcpOption(TCPOPT_TIMESTAMP, PCPP_TCPOLEN_TIMESTAMP, NULL);
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 32, "Header len isn't 32 after timestamp addition")
+
+	PACKETPP_ASSERT(tsOption != NULL, "Couldn't add timestamp option");
+	tsOption->setValue<uint32_t>(htonl(3555735960UL));
+
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionsCount() == 3, "TCP option count isn't 3");
+
 	uint8_t payloadData[9] = { 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82 };
 	PayloadLayer PayloadLayer(payloadData, 9, true);
 
@@ -631,8 +656,11 @@ PACKETPP_TEST(TcpPacketCreation)
 	tcpPacket.addLayer(&PayloadLayer);
 
 	uint32_t tsEchoReply = htonl(196757);
-	tsOptionData = tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP);
-	memcpy(tsOptionData->value+4, &tsEchoReply, 4);
+	TcpOptionData* tsOptionData = tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP);
+	PACKETPP_ASSERT(tsOptionData != NULL, "Couldn't get timestamp option");
+	tsOptionData->setValue<uint32_t>(tsEchoReply, 4);
+
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionsCount() == 3, "TCP option count (2nd check) isn't 3");
 
 	tcpPacket.computeCalculateFields();
 
@@ -659,6 +687,110 @@ PACKETPP_TEST(TcpPacketCreation)
 
 	PACKETPP_TEST_PASSED;
 }
+
+PACKETPP_TEST(TcpPacketCreation2)
+{
+	MacAddress srcMac("08:00:27:19:1c:78");
+	MacAddress dstMac("30:46:9a:23:fb:fa");
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+	IPv4Address dstIP(string("23.44.242.127"));
+	IPv4Address srcIP(string("10.0.0.6"));
+	IPv4Layer ipLayer(srcIP, dstIP);
+	ipLayer.getIPv4Header()->ipId = htons(1556);
+	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
+	ipLayer.getIPv4Header()->timeToLive = 64;
+	TcpLayer tcpLayer((uint16_t)60225, (uint16_t)80);
+	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x2d3904e0);
+	tcpLayer.getTcpHeader()->ackNumber = 0;
+	tcpLayer.getTcpHeader()->synFlag = 1;
+	tcpLayer.getTcpHeader()->windowSize = htons(14600);
+
+	TcpOptionData* nopOption = tcpLayer.addTcpOption(TCPOPT_NOP, PCPP_TCPOLEN_NOP, NULL);
+	PACKETPP_ASSERT(nopOption != NULL, "Couldn't add NOP option");
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 24, "Header len isn't 24 after NOP addition");
+
+	uint16_t mssValue = htons(1460);
+	TcpOptionData* mssOption = tcpLayer.addTcpOptionAfter(TCPOPT_MSS, PCPP_TCPOLEN_MSS, (uint8_t*)&mssValue, NULL);
+	PACKETPP_ASSERT(mssOption != NULL, "Couldn't add MSS option");
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 28, "Header len isn't 28 after MSS addition")
+
+	TcpOptionData* tsOption = tcpLayer.addTcpOptionAfter(TCPOPT_TIMESTAMP, PCPP_TCPOLEN_TIMESTAMP, NULL, mssOption);
+	PACKETPP_ASSERT(tsOption != NULL, "Couldn't add timestamp option");
+	tsOption->setValue<uint32_t>(htonl(197364));
+	tsOption->setValue<uint32_t>(0, 4);
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 36, "Header len isn't 36 after timestamp addition")
+
+	TcpOptionData* winScaleOption = tcpLayer.addTcpOption(TCPOPT_WINDOW, PCPP_TCPOLEN_WINDOW, NULL);
+	PACKETPP_ASSERT(winScaleOption != NULL, "Couldn't add Window Scale option");
+	winScaleOption->setValue<uint8_t>(4);
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 40, "Header len isn't 40 after Window scale addition");
+
+	mssOption = tcpLayer.getTcpOptionData(TCPOPT_MSS);
+	PACKETPP_ASSERT(tcpLayer.addTcpOptionAfter(TCPOPT_SACK_PERM, PCPP_TCPOLEN_SACK_PERM, NULL, mssOption) != NULL, "Couldn't add SACK PERM option");
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 40, "Header len isn't 28 after SACK PERM addition")
+
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionsCount() == 5, "TCP option count isn't 5");
+
+	Packet tcpPacket(1);
+	tcpPacket.addLayer(&ethLayer);
+	tcpPacket.addLayer(&ipLayer);
+	tcpPacket.addLayer(&tcpLayer);
+
+	tcpPacket.computeCalculateFields();
+
+	tcpLayer.getTcpHeader()->headerChecksum = 0xe013;
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TcpPacketWithOptions3.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+//	printf("\n\n\n");
+//	for(int i = 0; i<bufferLength; i++)
+//		printf(" 0x%2X  ", buffer[i]);
+//	printf("\n\n\n");
+//	for(int i = 0; i<bufferLength; i++)
+//	{
+//		if (tcpPacket.getRawPacket()->getRawData()[i] != buffer[i])
+//			printf("*0x%2X* ", tcpPacket.getRawPacket()->getRawData()[i]);
+//		else
+//			printf(" 0x%2X  ", tcpPacket.getRawPacket()->getRawData()[i]);
+//	}
+//	printf("\n\n\n");
+
+	PACKETPP_ASSERT(memcmp(tcpPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+
+
+	mssOption = tcpLayer.getTcpOptionData(TCPOPT_MSS);
+	int tcpQsValue = htonl(9999);
+	PACKETPP_ASSERT(tcpLayer.addTcpOptionAfter(TCPOPT_QS, PCPP_TCPOLEN_QS, (uint8_t*)&tcpQsValue, mssOption) != NULL, "Cannot add QS option");
+	int tcpSnackValue = htonl(1000);
+	PACKETPP_ASSERT(tcpLayer.addTcpOption(TCPOPT_SNACK, PCPP_TCPOLEN_SNACK, (uint8_t*)&tcpSnackValue) != NULL, "Cannot add SNACK option");
+	tsOption = tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP);
+	PACKETPP_ASSERT(tcpLayer.addTcpOptionAfter(TCPOPT_NOP, PCPP_TCPOLEN_NOP, NULL, tsOption) != NULL, "Cannot add 2nd NOP option");
+
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionsCount() == 8, "TCP option count isn't 8");
+
+	PACKETPP_ASSERT(tcpLayer.removeTcpOption(TCPOPT_QS) == true, "Cannot remove QS option");
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionsCount() == 7, "TCP option count isn't 7");
+	PACKETPP_ASSERT(tcpLayer.removeTcpOption(TCPOPT_SNACK) == true, "Cannot remove SNACK option");
+	PACKETPP_ASSERT(tcpLayer.removeTcpOption(TCPOPT_NOP) == true, "Cannot remove NOP option");
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionsCount() == 5, "TCP option count isn't 5 again");
+
+	PACKETPP_ASSERT(memcmp(tcpPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+
+	delete [] buffer;
+
+	PACKETPP_ASSERT(tcpLayer.removeAllTcpOptions() == true, "Couldn't remove all TCP options");
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionsCount() == 0, "TCP option count isn't zero after removing all of them");
+	PACKETPP_ASSERT(tcpLayer.getFirstTcpOptionData() == NULL, "Found TCP option after removing all of them");
+	PACKETPP_ASSERT(tcpLayer.getHeaderLen() == 20, "Header len isn't 20 after removing all TCP options");
+	PACKETPP_ASSERT(tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP) == NULL, "Found TS option after removing all of TCP options");
+
+	PACKETPP_ASSERT(tcpLayer.addTcpOption(TCPOPT_SNACK, PCPP_TCPOLEN_SNACK, (uint8_t*)&tcpSnackValue) != NULL, "Cannot add SNACK option again");
+
+	PACKETPP_TEST_PASSED;
+}
+
 
 PACKETPP_TEST(InsertDataToPacket)
 {
@@ -734,7 +866,7 @@ PACKETPP_TEST(InsertDataToPacket)
 	// Adding a TCP layer at the end of the packet
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	TcpLayer tcpLayer((uint16_t)12345, (uint16_t)80, 0);
+	TcpLayer tcpLayer((uint16_t)12345, (uint16_t)80);
 	PACKETPP_ASSERT(ip4Packet.insertLayer(&payloadLayer, &tcpLayer), "Adding tcp layer at the end of packet failed");
 
 
@@ -3820,16 +3952,17 @@ PACKETPP_TEST(SllPacketCreationTest)
 	ipLayer.getIPv4Header()->ipId = htons(63242);
 	ipLayer.getIPv4Header()->timeToLive = 64;
 
-	TcpLayer tcpLayer((uint16_t)55013, (uint16_t)6000, 3, TCPOPT_NOP, TCPOPT_NOP, TCPOPT_TIMESTAMP);
+	TcpLayer tcpLayer((uint16_t)55013, (uint16_t)6000);
 	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x92f2ad86);
 	tcpLayer.getTcpHeader()->ackNumber = htonl(0x7633e977);
 	tcpLayer.getTcpHeader()->ackFlag = 1;
 	tcpLayer.getTcpHeader()->windowSize = htons(4098);
-	TcpOptionData* tsOptionData = tcpLayer.getTcpOptionData(TCPOPT_TIMESTAMP);
-	uint32_t tsValue[2];
-	tsValue[0] = htonl(0x0402383b);
-	tsValue[1] = htonl(0x03ff37f5);
-	memcpy(tsOptionData->value, (uint8_t*)tsValue, 8);
+	PACKETPP_ASSERT(tcpLayer.addTcpOption(TCPOPT_NOP, PCPP_TCPOLEN_NOP, NULL) != NULL, "Cannot add 1st NOP option");
+	PACKETPP_ASSERT(tcpLayer.addTcpOption(TCPOPT_NOP, PCPP_TCPOLEN_NOP, NULL) != NULL, "Cannot add 2nd NOP option");
+	TcpOptionData* tsOption = tcpLayer.addTcpOption(TCPOPT_TIMESTAMP, PCPP_TCPOLEN_TIMESTAMP, NULL);
+	PACKETPP_ASSERT(tsOption != NULL, "Couldn't set timestamp TCP option");
+	tsOption->setValue<uint32_t>(htonl(0x0402383b));
+	tsOption->setValue<uint32_t>(htonl(0x03ff37f5), 4);
 
 	Packet sllPacket(1);
 	sllPacket.addLayer(&sllLayer);
@@ -3868,6 +4001,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(TcpPacketWithOptionsParsing);
 	PACKETPP_RUN_TEST(TcpPacketWithOptionsParsing2);
 	PACKETPP_RUN_TEST(TcpPacketCreation);
+	PACKETPP_RUN_TEST(TcpPacketCreation2);
 	PACKETPP_RUN_TEST(InsertDataToPacket);
 	PACKETPP_RUN_TEST(InsertVlanToPacket);
 	PACKETPP_RUN_TEST(RemoveLayerTest);
