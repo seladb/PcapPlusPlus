@@ -1,0 +1,25 @@
+language: cpp
+
+sudo: false
+
+compiler:
+  - gcc
+  - clang
+
+os:
+  - linux
+  - osx
+
+addons:
+  apt:
+    packages:
+    - libpcap-dev
+
+before_script:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh      ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./configure-linux.sh --default; fi
+  - make all
+  
+script:
+  - cd Packet++Test
+  - Bin/Packet++Test
