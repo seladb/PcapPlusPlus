@@ -1,6 +1,8 @@
 PcapPlusPlus
 ============
 
+[![Build Status](https://travis-ci.org/seladb/PcapPlusPlus.svg?branch=master)](https://travis-ci.org/seladb/PcapPlusPlus)
+
 PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and manipulation framework. PcapPlusPlus is meant to be lightweight, efficient and easy to use.
 
 **What makes PcapPlusPlus different from similar C++ wrappers for libpcap/WinPcap?**
