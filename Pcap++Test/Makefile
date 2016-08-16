@@ -4,6 +4,9 @@
 SOURCES := $(wildcard *.cpp)
 OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
+ifdef WIN32
+DEPS := -DHAVE_STRUCT_TIMESPEC
+endif
 ifdef LINUX
 DEPS := -DLINUX
 endif
