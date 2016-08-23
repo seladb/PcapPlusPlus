@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <fstream>
+#include <string.h>
 #include <RawPacket.h>
 #include <Packet.h>
 #include <IpAddress.h>
@@ -54,13 +55,16 @@ uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength)
 	while (!infile.eof())
 	{
 		char byte[3];
+		memset(byte, 0, 3);
 		infile.read(byte, 2);
 		result[i] = (uint8_t)strtol(byte, NULL, 16);
 		i++;
 	}
 	infile.close();
+	bufferLength -= 2;
 	return result;
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -100,13 +104,17 @@ int main(int argc, char* argv[])
 	printf("Src MAC: %s\n", ((EthLayer*)packet.getFirstLayer())->getSourceMac().toString().c_str());
 
 	// Access L3 fields
-	printf("Dst IP: %s\n", packet.getLayerOfType<IPv6Layer>()->getDstIpAddress().toString().c_str());
+	IPv6Layer* ipv6Layer = packet.getLayerOfType<IPv6Layer>();
+	if (ipv6Layer != NULL)
+		printf("Dst IP: %s\n", packet.getLayerOfType<IPv6Layer>()->getDstIpAddress().toString().c_str());
 
 	// Access L4 fields
 	UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
-	printf("Port Dst: %d\n", ntohs(udpLayer->getUdpHeader()->portDst));
+	if (udpLayer != NULL)
+		printf("Port Dst: %d\n", ntohs(udpLayer->getUdpHeader()->portDst));
 
 	// Access packet properties
 	printf("Packet length: %d\n", packet.getRawPacket()->getRawDataLen());
-	printf("Packet payload offset: %d\n", udpLayer->getNextLayer()->getDataLen());
+	if (udpLayer != NULL)
+		printf("Packet payload offset: %d\n", udpLayer->getNextLayer()->getDataLen());
 }
