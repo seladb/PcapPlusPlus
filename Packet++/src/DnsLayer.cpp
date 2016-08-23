@@ -51,7 +51,6 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result)
 			}
 
 			std::string tempResult;
-			printf("offset=%d\n", offsetInLayer);
 			decodeName((const char*)(m_DnsLayer->m_Data + offsetInLayer), tempResult);
 			result += tempResult;
 
