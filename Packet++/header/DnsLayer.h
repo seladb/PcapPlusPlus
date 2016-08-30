@@ -3,6 +3,7 @@
 
 #include "Layer.h"
 #include <vector>
+#include <map>
 #ifdef WIN32
 #include <winsock2.h>
 #elif LINUX
@@ -746,6 +747,10 @@ namespace pcpp
 
 		std::string toString();
 
+		/**
+		 * @return A pointer to a map containing all UDP ports recognize as DNS
+		 */
+		static const std::map<uint16_t, bool>* getDNSPortMap();
 	private:
 		IDnsResource* 	m_ResourceList;
 		DnsQuery* 		m_FirstQuery;

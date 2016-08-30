@@ -11,6 +11,19 @@
 namespace pcpp
 {
 
+static std::map<uint16_t, bool> createDNSPortMap()
+{
+	std::map<uint16_t, bool> result;
+	result[53] = true;
+	result[5353] = true;
+	result[5355] = true;
+	return result;
+}
+
+static const std::map<uint16_t, bool> DNSPortMap = createDNSPortMap();
+
+
+
 IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
 	: m_DnsLayer(dnsLayer), m_OffsetInLayer(offsetInLayer), m_NextResource(NULL)
 {
@@ -1026,6 +1039,11 @@ bool DnsLayer::removeAnswer(DnsResource* answerToRemove)
 	}
 
 	return res;
+}
+
+const std::map<uint16_t, bool>* DnsLayer::getDNSPortMap()
+{
+	return &DNSPortMap;
 }
 
 
