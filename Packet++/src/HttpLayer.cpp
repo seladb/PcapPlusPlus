@@ -21,6 +21,18 @@ static std::map<uint16_t, bool> createHTTPPortMap()
 
 static const std::map<uint16_t, bool> HTTPPortMap = createHTTPPortMap();
 
+
+// this implementation of strnlen is required since mingw doesn't have strnlen
+size_t my_own_strnlen(const char *s, size_t n)
+{
+	const char *p = s;
+	/* We don't check here for NULL pointers.  */
+	for (;*p != 0 && n > 0; p++, n--)
+		;
+	return (size_t) (p - s);
+}
+
+
 // -------- Class HttpMessage -----------------
 
 
@@ -364,7 +376,7 @@ HttpField::HttpField(HttpMessage* httpMessage, int offsetInMessage) : m_NewField
 	char* fieldData = (char*)(m_HttpMessage->m_Data + m_NameOffsetInMessage);
 	char* fieldEndPtr = strchr(fieldData, '\n');
 	if (fieldEndPtr == NULL)
-		m_FieldSize = strnlen(fieldData, m_HttpMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
+		m_FieldSize = my_own_strnlen(fieldData, m_HttpMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
 	else
 		m_FieldSize = fieldEndPtr - fieldData + 1;
 
