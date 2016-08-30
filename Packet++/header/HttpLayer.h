@@ -5,7 +5,6 @@
 #include <string>
 #include <exception>
 #include <map>
-#include <set>
 
 /// @file
 

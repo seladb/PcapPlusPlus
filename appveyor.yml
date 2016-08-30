@@ -1,0 +1,29 @@
+version: 1.0.{build}
+
+platform:
+- Win32
+
+environment:
+  matrix:
+    - compiler: mingw
+
+install:
+- cd ..
+- appveyor DownloadFile http://www.winpcap.org/install/bin/WpdPack_4_1_2.zip
+- 7z x .\WpdPack_4_1_2.zip -oc:\
+- set PATH=%PATH%;C:\MinGW\bin
+- appveyor DownloadFile http://ftp.ntua.gr/mirror/mingw/MinGW/Base/pthreads-w32/pthreads-w32-2.9.1/pthreads-w32-2.9.1-1-mingw32-dev.tar.lzma
+- 7z e pthreads-w32-2.9.1-1-mingw32-dev.tar.lzma -oC:\pthreads && 7z x C:\pthreads\pthreads-w32-2.9.1-1-mingw32-dev.tar -oC:\pthreads
+- xcopy /Y C:\pthreads\mingw32\include\* C:\MinGW\include
+- xcopy /Y C:\pthreads\mingw32\lib\* C:\MinGW\lib
+
+before_build:
+- cd C:\projects\PcapPlusPlus
+- configure-windows.bat -m C:\MinGW -w C:\WpdPack
+
+build_script:
+- mingw32-make all
+
+test_script:
+- cd C:\projects\PcapPlusPlus\Packet++Test
+- Bin\Packet++Test.exe

@@ -9,8 +9,10 @@
 #include <string.h>
 #ifdef WIN32 //for using ntohl, ntohs, etc.
 #include <winsock2.h>
-#else 		 //for using ntohl, ntohs, etc.
-#include <in.h>
+#elif LINUX
+#include <in.h> //for using ntohl, ntohs, etc.
+#elif MAC_OS_X
+#include <arpa/inet.h> //for using ntohl, ntohs, etc.
 #endif
 
 namespace pcpp

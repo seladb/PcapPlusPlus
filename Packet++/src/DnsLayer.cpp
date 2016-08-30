@@ -44,7 +44,7 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result)
 		if ((wordLength & 0xc0) == 0xc0)
 		{
 			uint16_t offsetInLayer = (wordLength & 0x3f)*256 + (0xFF & encodedName[1]);
-			if (offsetInLayer < sizeof(dnshdr))
+			if (offsetInLayer < sizeof(dnshdr) || offsetInLayer >= m_DnsLayer->m_DataLen)
 			{
 				LOG_ERROR("DNS parsing error: name pointer is illegal");
 				return 0;

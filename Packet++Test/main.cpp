@@ -57,9 +57,15 @@ using namespace pcpp;
 #define PACKETPP_RUN_TEST(TestName) allTestsPassed &= TestName()
 #define PACKETPP_END_RUNNING_TESTS \
 		if (allTestsPassed) \
+		{ \
 			printf("ALL TESTS PASSED!!\n\n\n"); \
+			return 0; \
+		} \
 		else \
-			printf("NOT ALL TESTS PASSED!!\n\n\n");
+		{ \
+			printf("NOT ALL TESTS PASSED!!\n\n\n"); \
+			return 1; \
+		}
 
 int getFileLength(const char* filename)
 {
@@ -3921,7 +3927,6 @@ PACKETPP_TEST(SllPacketParsingTest)
 	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true, LINKTYPE_LINUX_SLL);
 
 	Packet sllPacket(&rawPacket1);
-
 	PACKETPP_ASSERT(sllPacket.isPacketOfType(SLL) == true, "Packet isn't of type SLL");
 	PACKETPP_ASSERT(sllPacket.getFirstLayer()->getProtocol() == SLL, "First layer isn't of type SLL");
 	SllLayer* sllLayer = sllPacket.getLayerOfType<SllLayer>();

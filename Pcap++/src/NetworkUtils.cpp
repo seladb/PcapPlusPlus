@@ -11,9 +11,11 @@
 #include "DnsLayer.h"
 #include "PcapFilter.h"
 #include "NetworkUtils.h"
-#ifndef WIN32 //for using ntohl, ntohs, etc.
+#ifdef LINUX //for using ntohl, ntohs, etc.
 #include <in.h>
 #include <errno.h>
+#elif MAC_OS_X
+#include <sys/errno.h>
 #endif
 
 
