@@ -364,7 +364,7 @@ HttpField::HttpField(HttpMessage* httpMessage, int offsetInMessage) : m_NewField
 	char* fieldData = (char*)(m_HttpMessage->m_Data + m_NameOffsetInMessage);
 	char* fieldEndPtr = strchr(fieldData, '\n');
 	if (fieldEndPtr == NULL)
-		m_FieldSize = strlen(fieldData);
+		m_FieldSize = strnlen(fieldData, m_HttpMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
 	else
 		m_FieldSize = fieldEndPtr - fieldData + 1;
 
