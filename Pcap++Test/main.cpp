@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <map>
 #include <debug_new.h>
 #include <Logger.h>
 #include <IpAddress.h>
