@@ -374,7 +374,8 @@ const std::map<uint16_t, bool>* HttpMessage::getHTTPPortMap()
 HttpField::HttpField(HttpMessage* httpMessage, int offsetInMessage) : m_NewFieldData(NULL), m_HttpMessage(httpMessage), m_NameOffsetInMessage(offsetInMessage), m_NextField(NULL)
 {
 	char* fieldData = (char*)(m_HttpMessage->m_Data + m_NameOffsetInMessage);
-	char* fieldEndPtr = strchr(fieldData, '\n');
+	//char* fieldEndPtr = strchr(fieldData, '\n');
+	char* fieldEndPtr = (char *)memchr(fieldData, '\n',m_HttpMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
 	if (fieldEndPtr == NULL)
 		m_FieldSize = my_own_strnlen(fieldData, m_HttpMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
 	else
@@ -392,7 +393,8 @@ HttpField::HttpField(HttpMessage* httpMessage, int offsetInMessage) : m_NewField
 	else
 		m_IsEndOfHeaderField = false;
 
-	char* fieldValuePtr = strchr(fieldData, ':');
+//	char* fieldValuePtr = strchr(fieldData, ':');
+	char* fieldValuePtr = (char *)memchr(fieldData, ':', m_HttpMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
 	// could not find the position of ':', meaning field value position is unknown
 	if (fieldValuePtr == NULL)
 	{
@@ -696,7 +698,7 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	parseVersion();
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = strchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n')) != NULL)
+	if ((endOfFirstLine = (char *)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n', m_HttpRequest->m_DataLen-(size_t)m_VersionOffset)) != NULL)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_HttpRequest->m_Data + 1;
 		m_IsComplete = true;
@@ -1736,7 +1738,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = strchr((char*)(m_HttpResponse->m_Data), '\n')) != NULL)
+	if ((endOfFirstLine = (char *)memchr((char*)(m_HttpResponse->m_Data), '\n', m_HttpResponse->m_DataLen)) != NULL)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_HttpResponse->m_Data + 1;
 		m_IsComplete = true;
