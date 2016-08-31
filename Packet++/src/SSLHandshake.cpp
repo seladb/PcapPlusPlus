@@ -1170,7 +1170,11 @@ bool SSLHandshakeMessage::isMessageComplete()
 SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
 	: SSLHandshakeMessage(data, dataLen, container)
 {
-	uint8_t* extensionLengthPos = m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + 2*sizeof(uint8_t);
+	size_t extensionLengthOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + 2*sizeof(uint8_t);
+	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
+		return;
+
+	uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
 	uint16_t extensionLength = getExtensionsLenth();
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
@@ -1201,21 +1205,28 @@ SSLVersion SSLClientHelloMessage::getHandshakeVersion()
 
 uint8_t SSLClientHelloMessage::getSessionIDLength()
 {
-	return *(m_Data + sizeof(ssl_tls_client_server_hello));
+	uint8_t val = *(m_Data + sizeof(ssl_tls_client_server_hello));
+	if ((size_t)val > m_DataLen - sizeof(ssl_tls_client_server_hello) - 1)
+		return (uint8_t)(m_DataLen - sizeof(ssl_tls_client_server_hello) - 1);
+
+	return val;
 }
 
 uint8_t* SSLClientHelloMessage::getSessionID()
 {
 	if (getSessionIDLength() > 0)
 		return (m_Data + sizeof(ssl_tls_client_server_hello) + 1);
-
 	else
 		return NULL;
 }
 
 int SSLClientHelloMessage::getCipherSuiteCount()
 {
-	uint16_t cipherSuiteLen = *(uint16_t*)(m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength());
+	size_t cipherSuiteOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength();
+	if (cipherSuiteOffset + sizeof(uint16_t) > m_DataLen)
+		return 0;
+
+	uint16_t cipherSuiteLen = *(uint16_t*)(m_Data + cipherSuiteOffset);
 	return ntohs(cipherSuiteLen) / 2;
 }
 
@@ -1224,13 +1235,21 @@ SSLCipherSuite* SSLClientHelloMessage::getCipherSuite(int index)
 	if (index < 0 || index >= getCipherSuiteCount())
 		return NULL;
 
-	uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t));
+	size_t cipherSuiteStartOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t);
+	if (cipherSuiteStartOffset + sizeof(uint16_t) > m_DataLen)
+		return NULL;
+
+	uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + cipherSuiteStartOffset);
 	return SSLCipherSuite::getCipherSuiteByID(ntohs(*(cipherSuiteStartPos+index)));
 }
 
 uint8_t SSLClientHelloMessage::getCompressionMethodsValue()
 {
-	uint8_t* pos = m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + sizeof(uint8_t);
+	size_t offset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + sizeof(uint8_t);
+	if (offset + sizeof(uint8_t) > m_DataLen)
+		return 0xff;
+
+	uint8_t* pos = m_Data + offset;
 	return *pos;
 }
 
@@ -1241,7 +1260,11 @@ int SSLClientHelloMessage::getExtensionCount()
 
 uint16_t SSLClientHelloMessage::getExtensionsLenth()
 {
-	uint8_t* extensionLengthPos = m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + 2*sizeof(uint8_t);
+	size_t extensionLengthOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + 2*sizeof(uint8_t);
+	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
+		return 0;
+
+	uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
 	return ntohs(*(uint16_t*)extensionLengthPos);
 }
 
@@ -1289,7 +1312,11 @@ std::string SSLClientHelloMessage::toString()
 SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
 	: SSLHandshakeMessage(data, dataLen, container)
 {
-	uint8_t* extensionLengthPos = m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint8_t);
+	size_t extensionLengthOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint8_t);
+	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
+		return;
+
+	uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
 	uint16_t extensionLength = getExtensionsLenth();
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
@@ -1320,29 +1347,39 @@ SSLVersion SSLServerHelloMessage::getHandshakeVersion()
 }
 uint8_t SSLServerHelloMessage::getSessionIDLength()
 {
-	return *(m_Data + sizeof(ssl_tls_client_server_hello));
+	uint8_t val = *(m_Data + sizeof(ssl_tls_client_server_hello));
+	if ((size_t)val > m_DataLen - sizeof(ssl_tls_client_server_hello) - 1)
+		return (uint8_t)(m_DataLen - sizeof(ssl_tls_client_server_hello) - 1);
+
+	return val;
 }
 
 uint8_t* SSLServerHelloMessage::getSessionID()
 {
 	if (getSessionIDLength() > 0)
 		return (m_Data + sizeof(ssl_tls_client_server_hello) + 1);
-
 	else
 		return NULL;
 }
 
 SSLCipherSuite* SSLServerHelloMessage::getCipherSuite()
 {
-	uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength());
+	size_t cipherSuiteStartOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength();
+	if (cipherSuiteStartOffset + sizeof(uint16_t) > m_DataLen)
+		return NULL;
+
+	uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + cipherSuiteStartOffset);
 	return SSLCipherSuite::getCipherSuiteByID(ntohs(*(cipherSuiteStartPos)));
 }
 
 uint8_t SSLServerHelloMessage::getCompressionMethodsValue()
 {
-	uint8_t* pos = m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t);
-	return *pos;
+	size_t offset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t);
+	if (offset + sizeof(uint8_t) > m_DataLen)
+		return 0xff;
 
+	uint8_t* pos = m_Data + offset;
+	return *pos;
 }
 
 int SSLServerHelloMessage::getExtensionCount()
@@ -1352,7 +1389,11 @@ int SSLServerHelloMessage::getExtensionCount()
 
 uint16_t SSLServerHelloMessage::getExtensionsLenth()
 {
-	uint16_t* extensionLengthPos = (uint16_t*)(m_Data + sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint8_t));
+	size_t extensionLengthOffset  = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint8_t);
+	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
+		return 0;
+
+	uint16_t* extensionLengthPos = (uint16_t*)(m_Data + extensionLengthOffset);
 	return ntohs(*extensionLengthPos);
 }
 

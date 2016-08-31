@@ -48,6 +48,10 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result)
 	size_t encodedNameLength = 0;
 	result = "";
 
+	size_t curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
+	if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
+		return encodedNameLength;
+
 	uint8_t wordLength = encodedName[0];
 
 	// A string to parse
@@ -56,6 +60,9 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result)
 		// A pointer to another place in the packet
 		if ((wordLength & 0xc0) == 0xc0)
 		{
+			if (curOffsetInLayer + 2 > m_DnsLayer->m_DataLen)
+				return encodedNameLength;
+
 			uint16_t offsetInLayer = (wordLength & 0x3f)*256 + (0xFF & encodedName[1]);
 			if (offsetInLayer < sizeof(dnshdr) || offsetInLayer >= m_DnsLayer->m_DataLen)
 			{
@@ -72,10 +79,18 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result)
 		}
 		else
 		{
+			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen)
+				return encodedNameLength;
+
 			result.append(encodedName+1, wordLength);
 			result.append(".");
 			encodedName += wordLength + 1;
 			encodedNameLength += wordLength + 1;
+
+			curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
+			if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
+				return encodedNameLength;
+
 			wordLength = encodedName[0];
 		}
 	}
