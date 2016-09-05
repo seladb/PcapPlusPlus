@@ -43,13 +43,16 @@ uint8_t* IDnsResource::getRawData()
 	return m_DnsLayer->m_Data + m_OffsetInLayer;
 }
 
-size_t IDnsResource::decodeName(const char* encodedName, std::string& result)
+size_t IDnsResource::decodeName(const char* encodedName, std::string& result, int iteration)
 {
 	size_t encodedNameLength = 0;
 	result = "";
 
 	size_t curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
 	if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
+		return encodedNameLength;
+
+	if (iteration > 20)
 		return encodedNameLength;
 
 	uint8_t wordLength = encodedName[0];
@@ -71,7 +74,7 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result)
 			}
 
 			std::string tempResult;
-			decodeName((const char*)(m_DnsLayer->m_Data + offsetInLayer), tempResult);
+			decodeName((const char*)(m_DnsLayer->m_Data + offsetInLayer), tempResult, iteration+1);
 			result += tempResult;
 
 			// in this case the length of the pointer is: 1B for 0xc0 + 1B for the offset itself
@@ -533,6 +536,14 @@ void DnsLayer::parseResources()
 	uint16_t numOfAdditional = ntohs(getDnsHeader()->numberOfAdditional);
 
 	uint16_t numOfOtherResources = numOfQuestions + numOfAnswers + numOfAuthority + numOfAdditional;
+
+	if (numOfOtherResources > 300)
+	{
+		LOG_ERROR("DNS layer contains more than 300 resources, probably a bad packet. "
+				"Skipping parsing DNS resources");
+		return;
+	}
+
 	for (uint16_t i = 0; i < numOfOtherResources; i++)
 	{
 		IDnsResource::ResourceType resType;
