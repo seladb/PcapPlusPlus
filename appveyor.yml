@@ -27,5 +27,5 @@ build_script:
 test_script:
 - cd C:\projects\PcapPlusPlus\Packet++Test
 - Bin\Packet++Test.exe
-- cd C:\projects\PcapPlusPlus\Pcap++Test
+- cd ..\Pcap++Test
 - Bin\Pcap++Test.exe -n
