@@ -23,3 +23,5 @@ before_script:
 script:
   - cd Packet++Test
   - Bin/Packet++Test
+  - cd ../Pcap++Test
+  - Bin/Pcap++Test -n

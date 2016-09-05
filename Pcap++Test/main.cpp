@@ -85,13 +85,25 @@ bool isUnitTestDebugMode = false;
 
 #define PCAPP_TEST_PASSED printf("%-30s: PASSED\n", __FUNCTION__); return true
 
-#define PCAPP_START_RUNNING_TESTS bool allTestsPassed = true
-#define PCAPP_RUN_TEST(TestName, args) allTestsPassed &= TestName(args)
+#define PCAPP_START_RUNNING_TESTS(runWithNetworking) \
+	bool allTestsPassed = true; \
+	bool networking =  runWithNetworking;
+
+#define PCAPP_RUN_TEST(TestName, args, requiresNetworking) \
+		if (networking || (!networking && !requiresNetworking)) \
+			allTestsPassed &= TestName(args)
+
 #define PCAPP_END_RUNNING_TESTS \
 		if (allTestsPassed) \
+		{ \
 			printf("ALL TESTS PASSED!!\n"); \
+			return 0; \
+		} \
 		else \
-			printf("NOT ALL TESTS PASSED!!\n");
+		{ \
+			printf("NOT ALL TESTS PASSED!!\n"); \
+			return 1; \
+		}
 
 struct PcapTestArgs
 {
@@ -101,6 +113,7 @@ struct PcapTestArgs
 	uint16_t remotePort;
 	int dpdkPort;
 	char* errString;
+	bool runWithNetworking;
 };
 
 void packetArrives(RawPacket* pRawPacket, PcapLiveDevice* pDevice, void* userCookie)
@@ -3077,17 +3090,20 @@ static struct option PcapTestOptions[] =
 	{"remote-ip", required_argument, 0, 'r'},
 	{"remote-port", required_argument, 0, 'p'},
 	{"dpdk-port", required_argument, 0, 'k' },
+	{"no-networking", no_argument, 0, 'n' },
     {0, 0, 0, 0}
 };
 
 void print_usage() {
     printf("Usage: Pcap++Test -i IP_TO_USE\n\n"
     		"Flags:\n"
-    		"-i --use-ip		IP to use for sending and receiving packets\n"
-    		"-d --debug-mode		Set log level to DEBUG\n"
-    		"-r --remote-ip		IP of remote machine running rpcapd to test remote capture\n"
-    		"-p --remote-port	Port of remote machine running rpcapd to test remote capture\n"
-    		"-k --dpdk-port		The DPDK NIC port to test. Required if compiling with DPDK\n");
+    		"-i --use-ip         IP to use for sending and receiving packets\n"
+    		"-d --debug-mode     Set log level to DEBUG\n"
+    		"-r --remote-ip	     IP of remote machine running rpcapd to test remote capture\n"
+    		"-p --remote-port    Port of remote machine running rpcapd to test remote capture\n"
+    		"-k --dpdk-port      The DPDK NIC port to test. Required if compiling with DPDK\n"
+    		"-n --no-networking  Do not run tests that requires networking\n"
+    		);
 }
 
 int main(int argc, char* argv[])
@@ -3097,10 +3113,11 @@ int main(int argc, char* argv[])
 	args.ipToSendReceivePackets = "";
 	args.debugMode = false;
 	args.dpdkPort = -1;
+	args.runWithNetworking = true;
 
 	int optionIndex = 0;
 	char opt = 0;
-	while((opt = getopt_long (argc, argv, "di:r:p:k:", PcapTestOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "di:r:p:k:n", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -3121,23 +3138,26 @@ int main(int argc, char* argv[])
 			case 'k':
 				args.dpdkPort = (int)atoi(optarg);
 				break;
+			case 'n':
+				args.runWithNetworking = false;
+				break;
 			default:
 				print_usage();
-				exit(-1);
+				exit(1);
 		}
 	}
 
-	if(args.ipToSendReceivePackets == "")
+	if(args.runWithNetworking && args.ipToSendReceivePackets == "")
 	{
 		print_usage();
-		exit(-1);
+		exit(1);
 	}
 #ifdef USE_DPDK
 	if (args.dpdkPort == -1)
 	{
 		printf("When testing with DPDK you must supply the DPDK NIC port to test\n\n");
 		print_usage();
-		exit(-1);
+		exit(1);
 	}
 #endif
 
@@ -3152,38 +3172,38 @@ int main(int argc, char* argv[])
 	//LoggerPP::getInstance().setErrorString(errString, 1000);
 	args.errString = errString;
 
-	PCAPP_START_RUNNING_TESTS;
+	PCAPP_START_RUNNING_TESTS(args.runWithNetworking);
 
-	PCAPP_RUN_TEST(TestIPAddress, args);
-	PCAPP_RUN_TEST(TestMacAddress, args);
-	PCAPP_RUN_TEST(TestPcapFileReadWrite, args);
-	PCAPP_RUN_TEST(TestPcapSllFileReadWrite, args);
-	PCAPP_RUN_TEST(TestPcapFileAppend, args);
-	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args);
-	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args);
-	PCAPP_RUN_TEST(TestPcapLiveDevice, args);
-	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args);
-	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args);
-	PCAPP_RUN_TEST(TestPcapFilters, args);
-	PCAPP_RUN_TEST(TestSendPacket, args);
-	PCAPP_RUN_TEST(TestSendPackets, args);
-	PCAPP_RUN_TEST(TestRemoteCapture, args);
-	PCAPP_RUN_TEST(TestHttpRequestParsing, args);
-	PCAPP_RUN_TEST(TestHttpResponseParsing, args);
-	PCAPP_RUN_TEST(TestPrintPacketAndLayers, args);
-	PCAPP_RUN_TEST(TestPfRingDevice, args);
-	PCAPP_RUN_TEST(TestPfRingDeviceSingleChannel, args);
-	PCAPP_RUN_TEST(TestPfRingMultiThreadAllCores, args);
-	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args);
-	PCAPP_RUN_TEST(TestPfRingSendPacket, args);
-	PCAPP_RUN_TEST(TestPfRingSendPackets, args);
-	PCAPP_RUN_TEST(TestPfRingFilters, args);
-	PCAPP_RUN_TEST(TestDnsParsing, args);
-	PCAPP_RUN_TEST(TestDpdkDevice, args);
-	PCAPP_RUN_TEST(TestDpdkMultiThread, args);
-	PCAPP_RUN_TEST(TestDpdkDeviceSendPackets, args);
-	PCAPP_RUN_TEST(TestDpdkMbufRawPacket, args);
-	PCAPP_RUN_TEST(TestDpdkDeviceWorkerThreads, args);
-	PCAPP_RUN_TEST(TestGetMacAddress, args);
+	PCAPP_RUN_TEST(TestIPAddress, args, false);
+	PCAPP_RUN_TEST(TestMacAddress, args, false);
+	PCAPP_RUN_TEST(TestPcapFileReadWrite, args, false);
+	PCAPP_RUN_TEST(TestPcapSllFileReadWrite, args, false);
+	PCAPP_RUN_TEST(TestPcapFileAppend, args, false);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args, true);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args, true);
+	PCAPP_RUN_TEST(TestPcapLiveDevice, args, true);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args, true);
+	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args, true);
+	PCAPP_RUN_TEST(TestPcapFilters, args, true);
+	PCAPP_RUN_TEST(TestSendPacket, args, true);
+	PCAPP_RUN_TEST(TestSendPackets, args, true);
+	PCAPP_RUN_TEST(TestRemoteCapture, args, true);
+	PCAPP_RUN_TEST(TestHttpRequestParsing, args, false);
+	PCAPP_RUN_TEST(TestHttpResponseParsing, args, false);
+	PCAPP_RUN_TEST(TestPrintPacketAndLayers, args, false);
+	PCAPP_RUN_TEST(TestPfRingDevice, args, true);
+	PCAPP_RUN_TEST(TestPfRingDeviceSingleChannel, args, true);
+	PCAPP_RUN_TEST(TestPfRingMultiThreadAllCores, args, true);
+	PCAPP_RUN_TEST(TestPfRingMultiThreadSomeCores, args, true);
+	PCAPP_RUN_TEST(TestPfRingSendPacket, args, true);
+	PCAPP_RUN_TEST(TestPfRingSendPackets, args, true);
+	PCAPP_RUN_TEST(TestPfRingFilters, args, true);
+	PCAPP_RUN_TEST(TestDnsParsing, args, false);
+	PCAPP_RUN_TEST(TestDpdkDevice, args, true);
+	PCAPP_RUN_TEST(TestDpdkMultiThread, args, true);
+	PCAPP_RUN_TEST(TestDpdkDeviceSendPackets, args, true);
+	PCAPP_RUN_TEST(TestDpdkMbufRawPacket, args, true);
+	PCAPP_RUN_TEST(TestDpdkDeviceWorkerThreads, args, true);
+	PCAPP_RUN_TEST(TestGetMacAddress, args, true);
 	PCAPP_END_RUNNING_TESTS;
 }
