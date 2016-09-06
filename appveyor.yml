@@ -27,6 +27,7 @@ build_script:
 test_script:
 - cd C:\projects\PcapPlusPlus\Packet++Test
 - Bin\Packet++Test.exe
+- C:\MinGW\bin\g++.exe -v
 - cd ..\Dist\examples
 - dir
 - Arping.exe
