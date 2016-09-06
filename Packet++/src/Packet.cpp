@@ -407,7 +407,7 @@ Packet::~Packet()
 	destructPacketData();
 }
 
-std::string Packet::printPacketInfo()
+std::string Packet::printPacketInfo(bool timeAsLocalTime)
 {
 	std::ostringstream dataLenStream;
 	dataLenStream << m_RawPacket->getRawDataLen();
@@ -416,7 +416,10 @@ std::string Packet::printPacketInfo()
 	timeval timestamp = m_RawPacket->getPacketTimeStamp();
 	time_t nowtime = timestamp.tv_sec;
 	struct tm *nowtm;
-	nowtm = localtime(&nowtime);
+	if (timeAsLocalTime)
+		nowtm = localtime(&nowtime);
+	else
+		nowtm = gmtime(&nowtime);
 	char tmbuf[64], buf[64];
 	strftime(tmbuf, sizeof tmbuf, "%Y-%m-%d %H:%M:%S", nowtm);
 	snprintf(buf, sizeof buf, "%s.%06lu", tmbuf, timestamp.tv_usec);
@@ -424,11 +427,11 @@ std::string Packet::printPacketInfo()
 	return "Packet length: " + dataLenStream.str() + " [Bytes], Arrival time: " + std::string(buf);
 }
 
-std::string Packet::printToString()
+std::string Packet::printToString(bool timeAsLocalTime)
 {
 	std::vector<std::string> stringList;
 	std::string result;
-	printToStringList(stringList);
+	printToStringList(stringList, timeAsLocalTime);
 	for (std::vector<std::string>::iterator iter = stringList.begin(); iter != stringList.end(); iter++)
 	{
 		result += *iter + "\n";
@@ -437,10 +440,10 @@ std::string Packet::printToString()
 	return result;
 }
 
-void Packet::printToStringList(std::vector<std::string>& result)
+void Packet::printToStringList(std::vector<std::string>& result, bool timeAsLocalTime)
 {
 	result.clear();
-	result.push_back(printPacketInfo());
+	result.push_back(printPacketInfo(timeAsLocalTime));
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != NULL)
 	{
