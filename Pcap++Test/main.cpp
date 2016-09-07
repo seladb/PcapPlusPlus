@@ -756,7 +756,7 @@ PCAPP_TEST(TestPcapLiveDeviceList)
     PCAPP_ASSERT(defaultGateway != IPv4Address::Zero, "Couldn't find default gateway for any of the interfaces");
 
     std::vector<IPv4Address> dnsServers = PcapLiveDeviceList::getInstance().getDnsServers();
-    PCAPP_ASSERT(dnsServers.size() > 0, "DNS server list is empty");
+    //PCAPP_ASSERT(dnsServers.size() > 0, "DNS server list is empty");
 
     PCAPP_TEST_PASSED;
 }
@@ -803,6 +803,30 @@ PCAPP_TEST(TestPcapLiveDevice)
     PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestPcapLiveDeviceNoNetworking)
+{
+	PcapLiveDevice* liveDev = NULL;
+
+    vector<PcapLiveDevice*> devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+    PCAPP_ASSERT(!devList.empty(), "Device list is empty");
+
+    for(vector<PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
+    {
+    	if (!(*iter)->getLoopback() && (*iter)->getIPv4Address() != IPv4Address::Zero)
+    	{
+    		liveDev = *iter;
+    		break;
+    	}
+    }
+
+    PCAPP_ASSERT(liveDev != NULL, "Cannot find a non-loopback device with IPv4 address");
+    PCAPP_ASSERT(liveDev->getName() != NULL, "Device has no name");
+    PCAPP_ASSERT(liveDev->getMtu() > 0, "Cannot get MTU for device '%s'", liveDev->getName());
+    PCAPP_ASSERT(liveDev->getMacAddress() != MacAddress::Zero, "Cannot find MAC address for device '%s'", liveDev->getName());
+
+    PCAPP_TEST_PASSED;
+}
+ 
 PCAPP_TEST(TestPcapLiveDeviceStatsMode)
 {
 	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
@@ -3094,8 +3118,9 @@ static struct option PcapTestOptions[] =
     {0, 0, 0, 0}
 };
 
-void print_usage() {
-    printf("Usage: Pcap++Test -i IP_TO_USE\n\n"
+void print_usage() 
+{
+    printf("Usage: Pcap++Test -i ip_to_use | -n [-d] [-r ip_addr] [-p port] [-k dpdk_port]\n\n"
     		"Flags:\n"
     		"-i --use-ip         IP to use for sending and receiving packets\n"
     		"-d --debug-mode     Set log level to DEBUG\n"
@@ -3179,9 +3204,10 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPcapFileReadWrite, args, false);
 	PCAPP_RUN_TEST(TestPcapSllFileReadWrite, args, false);
 	PCAPP_RUN_TEST(TestPcapFileAppend, args, false);
-	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args, true);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args, false);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args, true);
 	PCAPP_RUN_TEST(TestPcapLiveDevice, args, true);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceNoNetworking, args, false);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args, true);
 	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args, true);
 	PCAPP_RUN_TEST(TestPcapFilters, args, true);
