@@ -179,15 +179,17 @@ namespace pcpp
 		/**
 		 * Each layer can print a string representation of the layer most important data using Layer#toString(). This method aggregates this string from all layers and
 		 * print it to a complete string containing all packet's relevant data
+		 * @param[in] timeAsLocalTime Print time as local time or GMT. Default (true value) is local time, for GMT set to false
 		 * @return A string containing most relevant data from all layers (looks like the packet description in Wireshark)
 		 */
-		std::string printToString();
+		std::string printToString(bool timeAsLocalTime = true);
 
 		/**
 		 * Similar to printToString(), but instead of one string it outputs a list of strings, one string for every layer
 		 * @param[out] result A string vector that will contain all strings
+		 * @param[in] timeAsLocalTime Print time as local time or GMT. Default (true value) is local time, for GMT set to false
 		 */
-		void printToStringList(std::vector<std::string>& result);
+		void printToStringList(std::vector<std::string>& result, bool timeAsLocalTime = true);
 
 	private:
 		void copyDataFrom(const Packet& other);
@@ -199,7 +201,7 @@ namespace pcpp
 
 		void reallocateRawData(size_t newSize);
 
-		std::string printPacketInfo();
+		std::string printPacketInfo(bool timeAsLocalTime);
 	};
 
 	template<class TLayer>

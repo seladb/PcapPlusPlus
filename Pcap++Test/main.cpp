@@ -1737,7 +1737,7 @@ PCAPP_TEST(TestPrintPacketAndLayers)
 	while (reader.getNextPacket(rawPacket))
 	{
 		Packet packet(&rawPacket);
-		outputStream << packet.printToString() << "\n\n";
+		outputStream << packet.printToString(false) << "\n\n";
 	}
 
 //	ofstream outputFile("output.txt");
