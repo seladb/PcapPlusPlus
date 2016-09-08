@@ -53,8 +53,3 @@ script:
   - Bin/Packet++Test
   - cd ../Pcap++Test
   - sudo Bin/Pcap++Test -n
-  - cd ..
-  - DIST_DIR_NAME=Dist-$TRAVIS_OS_NAME-$TRAVIS_JOB_NUMBER
-  - mv Dist $DIST_DIR_NAME
-  - tar -zcvf $DIST_DIR_NAME.tar.gz $DIST_DIR_NAME/
-  - curl --upload-file ./$DIST_DIR_NAME.tar.gz https://transfer.sh/$DIST_DIR_NAME.tar.gz
