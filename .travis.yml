@@ -2,13 +2,40 @@ language: cpp
 
 sudo: required
 
-compiler:
-  - gcc
-  - clang
-
-os:
-  - linux
-  - osx
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+    - os: linux
+      compiler: gcc
+      dist: trusty
+    - os: osx
+      compiler: clang
+      osx_image: beta-xcode6.1
+    - os: osx
+      compiler: clang
+      osx_image: beta-xcode6.2
+    - os: osx
+      compiler: clang
+      osx_image: beta-xcode6.3
+    - os: osx
+      compiler: clang
+      osx_image: xcode6.4
+    - os: osx
+      compiler: clang
+      osx_image: xcode7
+    - os: osx
+      compiler: clang
+      osx_image: xcode7.1
+    - os: osx
+      compiler: clang
+      osx_image: xcode7.2
+    - os: osx
+      compiler: clang
+      osx_image: xcode7.3
+    - os: osx
+      compiler: clang
+      osx_image: xcode8
 
 addons:
   apt:
@@ -26,3 +53,8 @@ script:
   - Bin/Packet++Test
   - cd ../Pcap++Test
   - sudo Bin/Pcap++Test -n
+  - cd ..
+  - DIST_DIR_NAME=Dist-$TRAVIS_OS_NAME-$TRAVIS_JOB_NUMBER
+  - mv Dist $DIST_DIR_NAME
+  - tar -zcvf $DIST_DIR_NAME.tar.gz $DIST_DIR_NAME/
+  - curl --upload-file ./$DIST_DIR_NAME.tar.gz https://transfer.sh/$DIST_DIR_NAME.tar.gz
