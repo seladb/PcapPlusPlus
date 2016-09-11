@@ -15,8 +15,8 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 - Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
 
 PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**.
-It was tested on Windows (32bit and 64bit), Ubuntu and Fedora, but it should work on other Linux distributions as well. Regarding Mac OS X - I tested it on Snow Leopard (10.6) 32bit, Mavericks (10.9.5) and Yosemite (10.10). I hope it would work on other Mac OS X versions as well (>= 10.6).
-Other opeating systems such as FreeBSD were never tested and compilation on those platforms would probably fail
+It was tested on Windows (32bit and 64bit) with Mingw32, Ubuntu (12.04 LTS, 14.04 LTS, 14.10), Fedora and CentOS but it should work on other Linux distributions as well. Regarding Mac OS X - it was tested on Snow Leopard (10.6) 32bit, Mavericks (10.9), Yosemite (10.10) and El Capitan (10.11).
+Other opeating systems such as FreeBSD were never tested and compilation on those platforms may fail
 
 For more information including detailed class documentation, please visit PcapPlusPlus web-site:
 
