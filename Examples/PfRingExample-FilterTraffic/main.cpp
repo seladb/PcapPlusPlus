@@ -40,6 +40,7 @@
 #include <getopt.h>
 #include <map>
 #include <sstream>
+#include <unistd.h>
 
 using namespace pcpp;
 
