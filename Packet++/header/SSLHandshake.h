@@ -42,7 +42,7 @@ public:
 			SSLAuthenticationAlgorithm authAlg,
 			SSLSymetricEncryptionAlgorithm symKeyAlg,
 			SSLHashingAlgorithm MACAlg,
-			std::string name)
+			const char* name)
 	: m_Id(id), m_KeyExAlg(keyExAlg), m_AuthAlg(authAlg), m_SymKeyAlg(symKeyAlg), m_MACAlg(MACAlg), m_Name(name) {}
 
 	/**
