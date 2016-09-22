@@ -1,0 +1,19 @@
+### WIN32 - MINGW32 ###
+
+# includes
+PCAPPP_INCLUDES += -I$(WINPCAP_HOME)/Include
+
+# libs dir
+PCAPPP_LIBS_DIR += -L$(WINPCAP_HOME)/lib \
+		-L$(MINGW_HOME)/lib
+
+# libs
+PCAPPP_LIBS += -lwpcap -lPacket -lpthread -lws2_32 -liphlpapi
+
+# post build
+PCAPPP_POST_BUILD += $(CP) $(MINGW_HOME)/bin/{pthreadGC2.dll,libgcc_s_dw2-1.dll} ./Bin
+
+# flags
+PCAPPP_BUILD_FLAGS += -static-libgcc -static-libstdc++
+
+

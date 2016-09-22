@@ -10,7 +10,8 @@ echo.
 set PLATFORM_MK=mk\platform.mk
 set PCAPPLUSPLUS_MK=mk\PcapPlusPlus.mk
 
-:: initially set MINGW_HOME and WINPCAP_HOME to empty values
+:: initially set MINGW_TYPE, MINGW_HOME and WINPCAP_HOME to empty values
+set MINGW_TYPE=
 set MINGW_HOME=
 set WINPCAP_HOME=
 
@@ -23,14 +24,20 @@ if "%1" NEQ "" (
 :: if one of the modes returned with an error, exit script
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
 
-:: verify that both variables MINGW_HOME and WINPCAP_HOME are set
+:: verify that both variables MINGW_HOME, WINPCAP_HOME, MSYS_HOME are set
+if "%MINGW_TYPE%"=="" echo MinGW compiler (mingw32 or mingw-w64) was not supplied. Exiting & exit /B 1
 if "%MINGW_HOME%"=="" echo MinGW directory was not supplied. Exiting & exit /B 1
+if "%MINGW_TYPE%"=="mingw-w64" if "%MSYS_HOME%"=="" echo MSYS/MSYS2 directory was not supplied. Exiting & exit /B 1
 if "%WINPCAP_HOME%"=="" echo WinPcap directory was not supplied. Exiting & exit /B 1
 
 :: replace "\" with "/" in MINGW_HOME
 set MINGW_HOME=%MINGW_HOME:\=/%
 :: remove trailing "/" in MINGW_HOME if exists
 if "%MINGW_HOME:~-1%"=="/" set MINGW_HOME=%MINGW_HOME:~,-1%
+:: replace "\" with "/" in MSYS_HOME
+set MSYS_HOME=%MSYS_HOME:\=/%
+:: remove trailing "/" in MSYS_HOME if exists
+if "%MSYS_HOME:~-1%"=="/" set MSYS_HOME=%MSYS_HOME:~,-1%
 :: replace "\" with "/" in WINPCAP_HOME
 set WINPCAP_HOME=%WINPCAP_HOME:\=/%
 :: remove trailing "/" in WINPCAP_HOME if exists
@@ -47,16 +54,16 @@ echo. >> %PLATFORM_MK%
 echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PCAPPLUSPLUS_MK%
 echo. >> %PCAPPLUSPLUS_MK%
 
-:: set MinGW and WinPcap locations in platform.mk.win32 and create platform.mk
-for /F "tokens=1* delims=]" %%A in ('type "mk\platform.mk.win32"') do (
+:: set MinGW and WinPcap locations in platform.mk.%MINGW_TYPE% and create platform.mk
+for /F "tokens=1* delims=]" %%A in ('type "mk\platform.mk.%MINGW_TYPE%"') do (
 	echo. >>%PLATFORM_MK%
-	if "%%A" EQU "MINGW_HOME :=" (echo %%A %MINGW_HOME%>>%PLATFORM_MK%) else (if "%%A" EQU "WINPCAP_HOME :=" (echo %%A %WINPCAP_HOME%>>%PLATFORM_MK%) else (echo %%A>>%PLATFORM_MK%))
+	if "%%A" EQU "MINGW_HOME :=" (echo %%A %MINGW_HOME%>>%PLATFORM_MK%) else (if "%%A" EQU "MSYS_HOME :=" (echo %%A %MSYS_HOME%>>%PLATFORM_MK%) else (if "%%A" EQU "WINPCAP_HOME :=" (echo %%A %WINPCAP_HOME%>>%PLATFORM_MK%) else (echo %%A>>%PLATFORM_MK%)))
 )
 
 :: copy the content of PcapPlusPlus.mk.common to PcapPlusPlus.mk
 type mk\PcapPlusPlus.mk.common >> %PCAPPLUSPLUS_MK%
-:: copy the content of PcapPlusPlus.mk.win32 to PcapPlusPlus.mk (append current content)
-type mk\PcapPlusPlus.mk.win32 >> %PCAPPLUSPLUS_MK%
+:: copy the content of PcapPlusPlus.mk.%MINGW_TYPE% to PcapPlusPlus.mk (append current content)
+type mk\PcapPlusPlus.mk.%MINGW_TYPE% >> %PCAPPLUSPLUS_MK%
 
 :: configuration completed
 echo.
@@ -103,6 +110,16 @@ if "%HAS_PARAM%"=="1" shift /1
 :: return to GETOPT_START to handle the next switch
 goto GETOPT_START
 
+:CASEmingw32
+	set MINGW_TYPE=%1
+	:: exit ok
+	exit /B 0
+	
+:CASEmingw-w64
+	set MINGW_TYPE=%1
+	:: exit ok
+	exit /B 0
+
 :: handling help switches (-h or --help)
 :CASE--help
 :CASE-h
@@ -120,6 +137,20 @@ goto GETOPT_START
 	if not exist %2\ call :GETOPT_ERROR "MinGW directory '%2' does not exist" & exit /B 3
 	:: if all went well, set the MINGW_HOME variable with the directory given by the user
 	set MINGW_HOME=%2
+	:: notify GETOPT this switch has a parameter
+	set HAS_PARAM=1
+	:: exit ok
+	exit /B 0
+
+:: handling -s or --msys-home switches
+:CASE-s
+:CASE--msys-home
+	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
+	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
+	:: verify the MSYS dir supplied by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
+	if not exist %2\ call :GETOPT_ERROR "MSYS/MSYS2 directory '%2' does not exist" & exit /B 3
+	:: if all went well, set the MSYS_HOME variable with the directory given by the user
+	set MSYS_HOME=%2
 	:: notify GETOPT this switch has a parameter
 	set HAS_PARAM=1
 	:: exit ok
@@ -165,18 +196,48 @@ goto GETOPT_START
 :: -------------------------------------------------------------------
 :: a "function" that implements the wizard mode which reads MinGW home and WinPcap home by displaying a wizard for the user
 :READ_PARAMS_FROM_USER
+
+echo MinGW32 or MinGW-w64 are required for compiling PcapPlusPlus. Please specify 
+echo the type you want to use (can be either "mingw32" or "mingw-w64")
+echo.
+:while0
+:: ask the user to type MinGW type
+set /p MINGW_TYPE=    Please specify mingw32 or mingw-w64: %=%
+if "%MINGW_TYPE%" NEQ "mingw32" if "%MINGW_TYPE%" NEQ "mingw-w64" (echo Please choose one of "mingw32" or "mingw-w64" && goto while0)
+
+echo.
+echo.
+
 :: get MinGW location from user and verify it exists
-echo MinGW is required for compiling PcapPlusPlus. 
-echo If MinGW is not installed, please download and install it from www.mingw.org/
+echo If %MINGW_TYPE% is not installed, please download and install it
+if "%MINGW_TYPE%"=="mingw32" echo mingw32 can be downloaded from: www.mingw.org/
+if "%MINGW_TYPE%"=="mingw-w64" echo mingw-w64 can be downloaded from: sourceforge.net/projects/mingw-w64/
 echo.
 :while1
 :: ask the user to type MinGW dir
-set /p MINGW_HOME=    Please specify MinGW installed path: %=%
+set /p MINGW_HOME=    Please specify %MINGW_TYPE% installed path (the folder that includes "bin", "lib" and "include" directories): %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
 if not exist %MINGW_HOME%\ (echo Directory does not exist!! && goto while1)
 
 echo.
 echo.
+
+if "%MINGW_TYPE%"=="mingw32" goto msys-not-required
+
+:: get MSYS location from user and verify it exists
+echo MSYS or MSYS2 are required for compiling PcapPlusPlus. 
+echo If MSYS/MSYS2 are not installed, please download and install it
+echo.
+:while3
+:: ask the user to type MSYS dir
+set /p MSYS_HOME=    Please specify MSYS/MSYS2 installed path: %=%
+:: if input dir doesn't exist print an error to the user and go back to previous line
+if not exist %MSYS_HOME%\ (echo Directory does not exist!! && goto while3)
+
+echo.
+echo.
+
+:msys-not-required
 
 :: get WinPcap dev pack location from user and verify it exists
 echo WinPcap developer's pack is required for compiling PcapPlusPlus. 
@@ -187,8 +248,8 @@ echo.
 set /p WINPCAP_HOME=    Please specify WinPcap developer's pack installed path: %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
 if not exist %WINPCAP_HOME%\ (echo Directory does not exist!! && goto while2)
-
 :: both directories were read correctly, return to the caller
+
 exit /B 0
 
 
@@ -201,10 +262,12 @@ echo This script has 2 modes of operation:
 echo   1) Without any switches. In this case the script will guide you through using wizards
 echo   2) With switches, as described below
 echo.
-echo Basic usage: %~nx0 [-h] -m MINGW_HOME_DIR -w WINPCAP_HOME_DIR
+echo Basic usage: %~nx0 [-h] MINGW_COMPILER -m MINGW_HOME_DIR -w WINPCAP_HOME_DIR [-s MSYS_HOME_DIR]
 echo.
 echo The following switches are recognized:
-echo -m^|--mingw-home      --Sets MinGW home directory
+echo MINGW_COMPILER        --The MinGW compiler to use. Can be either "mingw32" or "mingw-w64"
+echo -m^|--mingw-home      --Sets MinGW home directory (the folder that includes "bin", "lib" and "include" directories)
+echo -s^|--msys-home       --Sets MSYS or MSYS2 home directory (must for mingw-w64, not must for mingw32)
 echo -w^|--winpcap-home    --Sets WinPcap home directory
 echo -h^|--help            --Displays this help message and exits. No further actions are performed
 echo.

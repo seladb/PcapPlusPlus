@@ -5,7 +5,10 @@ platform:
 
 environment:
   matrix:
-    - compiler: mingw
+    - compiler: mingw32
+      MINGW_COMPILER: mingw32
+    - compiler: mingw-w64
+      MINGW_COMPILER: mingw-w64
 
 install:
 - git clone https://github.com/mfontanini/winpcap-installer.git
@@ -14,7 +17,8 @@ install:
 - cd ..
 - appveyor DownloadFile http://www.winpcap.org/install/bin/WpdPack_4_1_2.zip
 - 7z x .\WpdPack_4_1_2.zip -oc:\
-- set PATH=%PATH%;C:\MinGW\bin
+- if "%MINGW_COMPILER%"=="mingw32" set PATH=%PATH%;C:\MinGW\bin
+- if "%MINGW_COMPILER%"=="mingw-w64" set PATH=%PATH%;C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32\bin
 - appveyor DownloadFile http://ftp.ntua.gr/mirror/mingw/MinGW/Base/pthreads-w32/pthreads-w32-2.9.1/pthreads-w32-2.9.1-1-mingw32-dev.tar.lzma
 - 7z e pthreads-w32-2.9.1-1-mingw32-dev.tar.lzma -oC:\pthreads && 7z x C:\pthreads\pthreads-w32-2.9.1-1-mingw32-dev.tar -oC:\pthreads
 - xcopy /Y C:\pthreads\mingw32\include\* C:\MinGW\include
@@ -22,7 +26,8 @@ install:
 
 before_build:
 - cd C:\projects\PcapPlusPlus
-- configure-windows.bat -m C:\MinGW -w C:\WpdPack
+- if "%MINGW_COMPILER%"=="mingw32" configure-windows.bat mingw32 -m C:\MinGW -w C:\WpdPack
+- if "%MINGW_COMPILER%"=="mingw-w64" configure-windows.bat mingw-w64 -m C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32 -w C:\WpdPack -s C:\msys64
 
 build_script:
 - mingw32-make all
