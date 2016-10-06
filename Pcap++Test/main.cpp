@@ -508,6 +508,53 @@ void terminateRpcapdServer(HANDLE processHandle)
 
 #endif
 
+bool packetArrivesBlockingModeTimeout(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie)
+{
+	return false;
+}
+
+bool packetArrivesBlockingModeNoTimeout(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie)
+{
+	int* packetCount = (int*)userCookie;
+	if ((*packetCount) == 5)
+		return true;
+
+	(*packetCount)++;
+	return false;
+}
+
+bool packetArrivesBlockingModeStartCapture(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie)
+{
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(dev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, NULL, 5) == 0, "Managed to start capturing blocking mode from blocking callback");
+	int temp = 0;
+	PCAPP_ASSERT(dev->startCapture(packetArrives, &temp) == 0, "Managed to start capturing non-blocking mode from blocking callback");
+	LoggerPP::getInstance().enableErrors();
+
+	int* packetCount = (int*)userCookie;
+	if ((*packetCount) == 5)
+		return true;
+
+	(*packetCount)++;
+	return false;
+}
+
+
+bool packetArrivesBlockingModeStopCapture(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie)
+{
+	// shouldn't do anything
+	dev->stopCapture();
+
+	int* packetCount = (int*)userCookie;
+	if ((*packetCount) == 5)
+		return true;
+
+	(*packetCount)++;
+	return false;
+}
+
+
+
 PCAPP_TEST(TestIPAddress)
 {
 	auto_ptr<IPAddress> ip4Addr = IPAddress::fromString((char*)"10.0.0.4");
@@ -845,6 +892,65 @@ PCAPP_TEST(TestPcapLiveDeviceStatsMode)
     //PCAPP_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
     liveDev->close();
     PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPcapLiveDeviceBlockingMode)
+{
+	// open device
+	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(liveDev != NULL, "Step 0: Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(liveDev->open(), "Step 0: Cannot open live device");
+
+	// sanity - test blocking mode returns with timeout
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, NULL, 5) == -1, "Step 1: Capture blocking mode with timeout 5 sec didn't return on timeout");
+
+	// sanity - test blocking mode returns before timeout
+	int packetCount = 0;
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeout, &packetCount, 30) == 1, "Step 2: Capture blocking mode didn't return on callback");
+	PCAPP_ASSERT(packetCount == 5, "Step 2: Capture blocking mode didn't return packet count 5");
+
+	// verify stop capture doesn't do any effect on blocking mode
+	liveDev->stopCapture();
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, NULL, 1) == -1, "Step 3: Capture blocking mode with timeout 1 sec after stop capture didn't return on timeout");
+	packetCount = 0;
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeout, &packetCount, 30) == 1, "Step 3: Testing capture blocking mode after stop capture didn't return on callback");
+	PCAPP_ASSERT(packetCount == 5, "Step 3: Capture blocking mode after stop capture didn't return packet count 5");
+
+	// verify it's possible to capture non-blocking mode after blocking mode
+	packetCount = 0;
+	PCAPP_ASSERT(liveDev->startCapture(packetArrives, &packetCount) == true, "Step 4: Couldn't start non-blocking capture");
+	PCAP_SLEEP(5);
+	liveDev->stopCapture();
+	PCAPP_ASSERT(packetCount > 0, "Step 4: Couldn't capture any packet on non-blocking capture");
+
+	// verify it's possible to capture blocking mode after non-blocking mode
+	packetCount = 0;
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeout, &packetCount, 30) == 1, "Step 5: Capture blocking mode after non-blocking mode didn't return on callback");
+	PCAPP_ASSERT(packetCount == 5, "Step 5: Capture blocking mode after non-blocking mode didn't return packet count 5, it returned %d", packetCount);
+
+	// try to start capture from within the callback, verify no error
+	packetCount = 0;
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeStartCapture, &packetCount, 30) == 1, "Step 6: Capture blocking mode when trying start capture from callback didn't return on callback");
+	PCAPP_ASSERT(packetCount == 5, "Step 6: Capture blocking mode when callback calls start capture didn't return packet count 5");
+
+	// try to stop capture from within the callback, verify no impact on capturing
+	packetCount = 0;
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeStopCapture, &packetCount, 10) == 1, "Step 7: Capture blocking mode when trying to stop capture from callback didn't return on callback");
+	PCAPP_ASSERT(packetCount == 5, "Step 7: Capture blocking mode when callback calls stop capture didn't return packet count 5");
+
+	// verify it's possible to capture non-blocking after the mess done in previous lines
+	packetCount = 0;
+	PCAPP_ASSERT(liveDev->startCapture(packetArrives, &packetCount) == true, "Step 8: Couldn't start non-blocking capture after blocking mode with stop capture in callback");
+
+	// verify an error returns if trying capture blocking while non-blocking is running
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, NULL, 1) == 0, "Step 9: Capture blocking mode while non-blocking is running didn't return an error");
+	LoggerPP::getInstance().enableErrors();
+	PCAP_SLEEP(5);
+	liveDev->stopCapture();
+	PCAPP_ASSERT(packetCount > 0, "Step 9: Couldn't capture any packet on non-blocking capture 2");
+
+	PCAPP_TEST_PASSED;
 }
 
 PCAPP_TEST(TestWinPcapLiveDevice)
@@ -3209,6 +3315,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPcapLiveDevice, args, true);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceNoNetworking, args, false);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args, true);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceBlockingMode, args, true);
 	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args, true);
 	PCAPP_RUN_TEST(TestPcapFilters, args, true);
 	PCAPP_RUN_TEST(TestSendPacket, args, true);

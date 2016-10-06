@@ -30,6 +30,17 @@ namespace pcpp
 	typedef void (*OnPacketArrivesCallback)(RawPacket* pPacket, PcapLiveDevice* pDevice, void* userCookie);
 
 	/**
+	 * @typedef OnPacketArrivesStopBlocking
+	 * A callback that is called when a packet is captured by PcapLiveDevice
+	 * @param[in] pPacket A pointer to the raw packet
+	 * @param[in] pDevice A pointer to the PcapLiveDevice instance
+	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
+	 * @return True when main thread should stop blocking or false otherwise
+	 */
+	typedef bool (*OnPacketArrivesStopBlocking)(RawPacket* pPacket, PcapLiveDevice* pDevice, void* userData);
+
+
+	/**
 	 * @typedef OnStatsUpdateCallback
 	 * A callback that is called periodically for stats collection if user asked to start packet capturing with periodic stats collection
 	 * @param[in] stats A reference to the most updated stats
@@ -86,6 +97,8 @@ namespace pcpp
 		void* m_cbOnPacketArrivesUserCookie;
 		OnStatsUpdateCallback m_cbOnStatsUpdate;
 		void* m_cbOnStatsUpdateUserCookie;
+		OnPacketArrivesStopBlocking m_cbOnPacketArrivesBlockingMode;
+		void* m_cbOnPacketArrivesBlockingModeUserCookie;
 		int m_IntervalToUpdateStats;
 		RawPacketVector* m_CapturedPackets;
 		bool m_CaptureCallbackMode;
@@ -103,6 +116,7 @@ namespace pcpp
 		static void* statsThreadMain(void *ptr);
 		static void onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
 		static void onPacketArrivesNoCallback(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
+		static void onPacketArrivesBlockingMode(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
 		std::string printThreadId(PcapThread* id);
 		virtual ThreadStart getCaptureThreadStart();
 	public:
@@ -260,6 +274,27 @@ namespace pcpp
 		 * - Capture thread could not be created
 		 */
 		virtual bool startCapture(RawPacketVector& capturedPacketsVector);
+
+		/**
+		 * Start capturing packets on this network interface (device) in blocking mode, meaning this method blocks and won't return until
+		 * the user frees the blocking (via onPacketArrives callback) or until a user defined timeout expires.
+		 * Whenever a packets is captured the onPacketArrives callback is called and lets the user handle the packet. In each callback call
+		 * the user should return true if he wants to release the block or false if it wants it to keep blocking. Regardless of this callback
+		 * a timeout is defined when start capturing. When this timeout expires the method will return.<BR>
+		 * Please notice that stopCapture() isn't needed here because when the method returns (after timeout or per user decision) capturing
+		 * on the device is stopped
+		 * @param[in] onPacketArrives A callback given by the user for handling incoming packets. After handling each packet the user needs to
+		 * return a boolean value. True value indicates stop capturing and stop blocking and false value indicates continue capturing and blocking
+		 * @param[in] userCookie A pointer to a user provided object. This object will be transferred to the onPacketArrives callback
+		 * each time it is called. This cookie is very useful for transferring objects that give context to the capture callback, for example:
+		 * objects that counts packets, manages flow state or manages the application state according to the packet that was captured
+		 * @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in the onPacketArrives callback
+		 * If this timeout is set to 0 or less the timeout will be ignored, meaning the method will keep blocking until the user frees it via
+		 * the onPacketArrives callback
+		 * @return -1 if timeout expired, 1 if blocking was stopped via onPacketArrives callback or 0 if an error occurred (such as device
+		 * not open etc.). When returning 0 an appropriate error message is printed to log
+		 */
+		virtual int startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, int timeout);
 
 		/**
 		 * Stop a currently running packet capture. This method terminates gracefully both packet capture thread and periodic stats collection
