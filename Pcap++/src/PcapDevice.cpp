@@ -54,6 +54,11 @@ bool IPcapDevice::setFilter(GeneralFilter& filter)
 	return setFilter(filterAsString);
 }
 
+void IPcapDevice::clearFilter()
+{
+	setFilter("");
+}
+
 bool IPcapDevice::verifyFilter(std::string filterAsString)
 {
 	struct bpf_program prog;

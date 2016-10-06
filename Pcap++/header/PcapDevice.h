@@ -75,6 +75,11 @@ namespace pcpp
 		bool setFilter(std::string filterAsString);
 
 		/**
+		 * Clear the filter currently set on device
+		 */
+		void clearFilter();
+
+		/**
 		 * Verify a filter is valid
 		 * @param[in] filterAsString The filter in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
 		 * @return True if the filter is valid or false otherwise
