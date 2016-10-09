@@ -334,16 +334,28 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
 
 	clock_t startTime = clock();
+	double diffSec = 0;
 
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
 
-	double diffSec = 0;
-	while (!m_StopThread && diffSec <= (double)timeout)
+	if (timeout <= 0)
 	{
-		pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
-		double diffTicks = clock() - startTime;
-		diffSec = diffTicks/CLOCKS_PER_SEC;
+		while (!m_StopThread)
+		{
+			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+		}
+		diffSec = timeout;
+	}
+	else
+	{
+
+		while (!m_StopThread && diffSec <= (double)timeout)
+		{
+			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+			double diffTicks = clock() - startTime;
+			diffSec = diffTicks/CLOCKS_PER_SEC;
+		}
 	}
 
 	m_CaptureThreadStarted = false;
