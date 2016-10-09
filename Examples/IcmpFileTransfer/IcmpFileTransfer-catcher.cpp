@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#ifndef WIN32
+#include <in.h>
+#endif
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"
@@ -168,7 +171,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 	if (!res)
 		EXIT_WITH_ERROR("Couldn't start capturing packets");
 
-	std::ofstream file(icmpFTStart.fileName, std::ios::out|std::ios::binary);
+	std::ofstream file(icmpFTStart.fileName.c_str(), std::ios::out|std::ios::binary);
 
 	if (file.is_open())
 	{
@@ -312,7 +315,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 	if (!dev->open())
 		EXIT_WITH_ERROR("Cannot open device");
 
-	std::ifstream file(filePath, std::ios::in|std::ios::binary);
+	std::ifstream file(filePath.c_str(), std::ios::in|std::ios::binary);
 
 	if (file.is_open())
 	{

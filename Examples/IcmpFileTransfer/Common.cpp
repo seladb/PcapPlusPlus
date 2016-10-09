@@ -1,4 +1,5 @@
 #include "Common.h"
+#include <stdlib.h>
 #include <vector>
 #include <getopt.h>
 #include "EthLayer.h"

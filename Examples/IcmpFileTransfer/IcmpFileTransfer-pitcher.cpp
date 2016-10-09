@@ -2,6 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include "unistd.h"
+#ifndef WIN32
+#include <in.h>
+#endif
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"
@@ -159,7 +162,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 	dev->stopCapture();
 
 
-	std::ofstream file(icmpFTStart.fileName, std::ios::out|std::ios::binary);
+	std::ofstream file(icmpFTStart.fileName.c_str(), std::ios::out|std::ios::binary);
 
 	if (file.is_open())
 	{
@@ -258,7 +261,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 	uint8_t* memblock = new uint8_t[blockSize];
 	memset(memblock, 0, blockSize);
 
-	std::ifstream file(filePath, std::ios::in|std::ios::binary);
+	std::ifstream file(filePath.c_str(), std::ios::in|std::ios::binary);
 
 	if (file.is_open())
 	{
