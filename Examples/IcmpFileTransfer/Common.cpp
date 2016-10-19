@@ -178,19 +178,39 @@ bool sendIcmpMessage(PcapLiveDevice* dev,
 		uint8_t* data, size_t dataLen,
 		bool sendRequest)
 {
+	// a static variable that holds an incrementing IP ID
+	static uint16_t ipID = 0x1234;
+
+	// keep IP ID in the range of 0x1234-0xfff0
+	if (ipID == 0xfff0)
+		ipID = 0x1234;
+
+	// create the different layers
+
+	// Eth first
 	EthLayer ethLayer(srcMacAddr, dstMacAddr, PCPP_ETHERTYPE_IP);
+
+	// then IPv4 (IPv6 is not supported)
 	IPv4Layer ipLayer(srcIPAddr, dstIPAddr);
 	ipLayer.getIPv4Header()->timeToLive = 128;
+	// set and increment the IP ID
+	ipLayer.getIPv4Header()->ipId = htons(ipID++);
+
+	// then ICMP
 	IcmpLayer icmpLayer;
 	if (sendRequest && icmpLayer.setEchoRequestData(icmpMsgId, 0, msgType, data, dataLen) == NULL)
 		EXIT_WITH_ERROR("Cannot set ICMP echo request data");
 	else if (!sendRequest && icmpLayer.setEchoReplyData(icmpMsgId, 0, msgType, data, dataLen) == NULL)
 		EXIT_WITH_ERROR("Cannot set ICMP echo response data");
+
+	// create an new packet and add all layers to it
 	Packet packet;
 	packet.addLayer(&ethLayer);
 	packet.addLayer(&ipLayer);
 	packet.addLayer(&icmpLayer);
 	packet.computeCalculateFields();
+
+	// send the packet through the device
 	return dev->sendPacket(&packet);
 }
 
