@@ -15,20 +15,20 @@ How does it work?
 -----------------
 ICMP echo (ping) request and response have the following structure:
 
-|  Byte 1  |  Byte 2  |  Byte 3  |  Byte 4  |
-|----------+----------+----------+----------|
-|   Type   |   Code   | ICMP header checksum|
-+----------+----------+---------------------+
-|     ICMP ID         |      Sequence       |
-+---------------------+---------------------+
-|           Timestamp (2 higher bytes)      |
-+-------------------------------------------+
-|           Timestamp (2 lower bytes)       |
-+-------------------------------------------+
-|                                           |
-|                 Data...                   |
-|                                           |
-+-------------------------------------------+
+    |  Byte 1  |  Byte 2  |  Byte 3  |  Byte 4  |
+    +----------+----------+----------+----------+
+    |   Type   |   Code   | ICMP header checksum|
+    +----------+----------+---------------------+
+    |     ICMP ID         |      Sequence       |
+    +---------------------+---------------------+
+    |           Timestamp (2 higher bytes)      |
+    +-------------------------------------------+
+    |           Timestamp (2 lower bytes)       |
+    +-------------------------------------------+
+    |                                           |
+    |                 Data...                   |
+    |                                           |
+    +-------------------------------------------+
 
 As you can see it has a data part which is a collection of bytes that is virtually unlimited with size (up to the size of the packet of course).
 This data part can be used to transfer chunks of the file. If you send multiple ICMP echo (ping) requests you can transfer the whole file
@@ -74,32 +74,32 @@ The situation here is a little bit more complicated as the catcher cannot instan
 
 Using the utility
 -----------------
-Pitcher:
-	Basic usage: 
-				IcmpFileTransfer-pitcher [-h] [-l] -i pitcher_interface -d catcher_ip -s file_path -r [-p messages_per_sec] [-b block_size]
-	Options:
-				-i pitcher_interface : The pitcher interface to use. Can be interface name (e.g eth0) or interface IPv4 address
-				-d catcher_ip        : Catcher IPv4 address
-				-s file_path         : Configure the pitcher to send a file to the catcher. file_path is the path of the file (cannot be set together with -r switch)
-				-r                   : Configure the pitcher to receive a file from the catcher (cannot be set together with -s switch)
-				-p messages_per_sec  : The file transfer speed between the pitcher and the catcher can be configured to X messages per second by this parameter. It's good for cases
+    Pitcher:  
+        Basic usage:  
+            IcmpFileTransfer-pitcher [-h] [-l] -i pitcher_interface -d catcher_ip -s file_path -r [-p messages_per_sec] [-b block_size]
+        Options:
+            -i pitcher_interface : The pitcher interface to use. Can be interface name (e.g eth0) or interface IPv4 address
+            -d catcher_ip        : Catcher IPv4 address
+            -s file_path         : Configure the pitcher to send a file to the catcher. file_path is the path of the file (cannot be set together with -r switch)
+            -r                   : Configure the pitcher to receive a file from the catcher (cannot be set together with -s switch)
+            -p messages_per_sec  : The file transfer speed between the pitcher and the catcher can be configured to X messages per second by this parameter. It's good for cases
 				                       where the network between the pitcher and the catcher isn't reliable enough and messages transferred too fast get lost.
 				                       This parameter is set only in the pitcher as the pitcher is the initiator of the ICMP requests and it's the one setting the pace.
-				-b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). The default is 1400 bytes. Relevant only in send file mode (when -s is set)
-				-l                   : Print the list of interfaces and exit the program
-				-h                   : Display help screen and exit the program
+            -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). The default is 1400 bytes. Relevant only in send file mode (when -s is set)
+            -l                   : Print the list of interfaces and exit the program
+            -h                   : Display help screen and exit the program
 				
-Cathcer:
-	Basic usage: 
-				IcmpFileTransfer-catcher [-h] [-l] -i catcher_interface -d pitcher_ip -s file_path -r [-b block_size]
-	Options:
-				-i catcher_interface : The catcher interface to use. Can be interface name (e.g eth0) or interface IPv4 address
-				-d pitcher_ip        : Pitcher IPv4 address
-				-s file_path         : Configure the catcher to send a file to the pitcher. file_path is the path of the file (cannot be set together with -r switch)
-				-r                   : Configure the catcher to receive a file from the pitcher (cannot be set together with -s switch)
-				-b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). The default is 1400 bytes. Relevant only in send file mode (when -s is set)
-				-l                   : Print the list of interfaces and exit the program
-				-h                   : Display help screen and exit the program
+    Catcher:
+        Basic usage: 
+            IcmpFileTransfer-catcher [-h] [-l] -i catcher_interface -d pitcher_ip -s file_path -r [-b block_size]
+        Options:
+            -i catcher_interface : The catcher interface to use. Can be interface name (e.g eth0) or interface IPv4 address
+            -d pitcher_ip        : Pitcher IPv4 address
+            -s file_path         : Configure the catcher to send a file to the pitcher. file_path is the path of the file (cannot be set together with -r switch)
+            -r                   : Configure the catcher to receive a file from the pitcher (cannot be set together with -s switch)
+            -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). The default is 1400 bytes. Relevant only in send file mode (when -s is set)
+            -l                   : Print the list of interfaces and exit the program
+            -h                   : Display help screen and exit the program
 
 Limitations
 -----------
