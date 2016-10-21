@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <vector>
 #include <getopt.h>
+#ifndef WIN32
+#include <in.h>
+#endif
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"

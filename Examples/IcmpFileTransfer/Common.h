@@ -13,6 +13,9 @@
 #define ICMP_FT_ACK 0x395156c857fbcc6a
 #define ICMP_FT_END 0x144156cbeffa2687
 
+
+#define ONE_MBYTE 1048576
+
 #define EXIT_WITH_ERROR(reason, ...) do { \
 	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
 	exit(1); \

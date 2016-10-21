@@ -83,8 +83,8 @@ Using the utility
             -s file_path         : Configure the pitcher to send a file to the catcher. file_path is the path of the file (cannot be set together with -r switch)
             -r                   : Configure the pitcher to receive a file from the catcher (cannot be set together with -s switch)
             -p messages_per_sec  : The file transfer speed between the pitcher and the catcher can be configured to X messages per second by this parameter. It's good for cases
-				                       where the network between the pitcher and the catcher isn't reliable enough and messages transferred too fast get lost.
-				                       This parameter is set only in the pitcher as the pitcher is the initiator of the ICMP requests and it's the one setting the pace.
+				                   where the network between the pitcher and the catcher isn't reliable enough and messages transferred too fast get lost.
+				                   This parameter is set only in the pitcher as the pitcher is the initiator of the ICMP requests and it's the one setting the pace.
             -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). The default is 1400 bytes. Relevant only in send file mode (when -s is set)
             -l                   : Print the list of interfaces and exit the program
             -h                   : Display help screen and exit the program

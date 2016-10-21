@@ -44,6 +44,7 @@ struct IcmpFileContentDataRecv
 	std::string fileName;
 	uint16_t expectedIcmpId;
 	uint32_t fileSize;
+	uint32_t MBReceived;
 };
 
 /**
@@ -55,6 +56,7 @@ struct IcmpFileContentDataSend
 	IPv4Address catcherIPAddr;
 	std::ifstream* file;
 	bool readingFromFile;
+	uint32_t MBSent;
 	size_t blockSize;
 	char* memblock;
 };
@@ -155,6 +157,7 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 	{
 		// close the file and stop receiveFile() from blocking
 		icmpData->file->close();
+		printf(".");
 		return true;
 	}
 	// if message type is not ICMP_FT_END not ICMP_FT_DATA - do nothing, it's probably an ICMP request not relevant for this file transfer
@@ -180,10 +183,18 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// write the data received from the pitcher to the local file
 	icmpData->file->write((char*)icmpLayer->getEchoRequestData()->data, icmpLayer->getEchoRequestData()->dataLength);
-	printf("got part %d\n", ntohs(icmpLayer->getEchoRequestData()->header->id));
+	//printf("got part %d\n", ntohs(icmpLayer->getEchoRequestData()->header->id));
 
 	// add chunk size to the aggregated file size
 	icmpData->fileSize += icmpLayer->getEchoRequestData()->dataLength;
+
+	// print a dot (".") for every 1MB received
+	icmpData->MBReceived += icmpLayer->getEchoRequestData()->dataLength;
+	if (icmpData->MBReceived > ONE_MBYTE)
+	{
+		icmpData->MBReceived -= ONE_MBYTE;
+		printf(".");
+	}
 
 	// return and wait for the next data packet
 	return false;
@@ -198,11 +209,11 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 	// identify the interface to listen and send packets to
 	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(&catcherIP);
 	if (dev == NULL)
-		EXIT_WITH_ERROR("Cannot find device for IP '%s'", catcherIP.toString().c_str());
+		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", catcherIP.toString().c_str());
 
 	// try to open the interface (device)
 	if (!dev->open())
-		EXIT_WITH_ERROR("Cannot open device");
+		EXIT_WITH_ERROR("Cannot open network interface");
 
 	// set an ICMP protocol filter so it'll capture only ICMP packets
 	ProtoFilter protocolFilter(ICMP);
@@ -228,7 +239,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 
 	if (file.is_open())
 	{
-		printf("Getting file from pitcher: '%s'\n", icmpFTStart.fileName.c_str());
+		printf("Getting file from pitcher: '%s ", icmpFTStart.fileName.c_str());
 
 		IcmpFileContentDataRecv icmpFileContentData = {
 				pitcherIP,
@@ -236,6 +247,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 				&file,
 				icmpFTStart.fileName,
 				icmpFTStart.icmpId+1,
+				0,
 				0
 		};
 
@@ -244,7 +256,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 		if (!res)
 			EXIT_WITH_ERROR_AND_RUN_COMMAND("Couldn't start capturing packets", std::remove(icmpFTStart.fileName.c_str()));
 
-		printf("Finished getting file '%s' [received %d bytes]\n", icmpFTStart.fileName.c_str(), icmpFileContentData.fileSize);
+		printf("\n\nFinished getting file '%s' [received %d bytes]\n", icmpFTStart.fileName.c_str(), icmpFileContentData.fileSize);
 	}
 	else
 		EXIT_WITH_ERROR("Couldn't create file");
@@ -368,6 +380,14 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 				icmpId, ICMP_FT_DATA,
 				(uint8_t*)icmpFileContentData->memblock, icmpFileContentData->blockSize))
 			EXIT_WITH_ERROR("Cannot send file transfer data message to pitcher");
+
+		// print a dot ('.') on every 1MB sent
+		icmpFileContentData->MBSent += icmpFileContentData->blockSize;
+		if (icmpFileContentData->MBSent > ONE_MBYTE)
+		{
+			icmpFileContentData->MBSent -= ONE_MBYTE;
+			printf(".");
+		}
 	}
 	// if read only partial block, it means it's the last block
 	else if (icmpFileContentData->file->gcount() > 0)
@@ -382,6 +402,8 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 
 		// set an indication that all file was delivered to the pitcher
 		icmpFileContentData->readingFromFile = false;
+
+		printf(".");
 	}
 	// if couldn't read anything, it means the previous block was the last block of the file
 	else
@@ -404,11 +426,11 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 	// identify the interface to listen and send packets to
 	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(&catcherIP);
 	if (dev == NULL)
-		EXIT_WITH_ERROR("Cannot find device for IP '%s'", catcherIP.toString().c_str());
+		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", catcherIP.toString().c_str());
 
 	// try to open the interface (device)
 	if (!dev->open())
-		EXIT_WITH_ERROR("Cannot open device");
+		EXIT_WITH_ERROR("Cannot open network interface");
 
 	// set an ICMP protocol filter so it'll capture only ICMP packets
 	ProtoFilter protocolFilter(ICMP);
@@ -446,7 +468,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		if (!res)
 			EXIT_WITH_ERROR("Couldn't start capturing packets");
 
-		printf("Sending file '%s'\n", fileName.c_str());
+		printf("Sending file '%s' ", fileName.c_str());
 
 
 		IcmpFileContentDataSend icmpFileContentData = {
@@ -454,6 +476,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 				catcherIP,
 				&file,
 				true,
+				0,
 				blockSize,
 				NULL
 		};
@@ -473,7 +496,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		if (!res)
 			EXIT_WITH_ERROR("Couldn't start capturing packets");
 
-		printf("Finished sending '%s' [sent %d bytes]\n", fileName.c_str(), fileSize);
+		printf("\n\nFinished sending '%s' [sent %d bytes]\n", fileName.c_str(), fileSize);
 	}
 	else // if file couldn't be opened
 		EXIT_WITH_ERROR("Couldn't open file '%s'", filePath.c_str());
