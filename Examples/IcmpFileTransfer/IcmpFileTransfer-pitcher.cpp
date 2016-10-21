@@ -27,6 +27,9 @@ using namespace pcpp;
 
 #define SEND_TIMEOUT_BEFORE_FT_START 3
 
+#define SLEEP_BETWEEN_ABORT_MESSAGES  100000 // 100 msec
+#define NUM_OF_ABORT_MESSAGES_TO_SEND 5
+
 /**
  * A struct used for start sending a file to the catcher
  */
@@ -58,8 +61,9 @@ struct IcmpFileContentData
 	std::ofstream* file;
 	uint16_t expectedIcmpId;
 	uint32_t fileSize;
-	std::string fileName;
+	uint32_t MBReceived;
 	bool fileTransferCompleted;
+	bool fileTransferError;
 };
 
 
@@ -144,6 +148,7 @@ static void getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 	if (resMsg == ICMP_FT_END)
 	{
 		icmpFileContentData->fileTransferCompleted = true;
+		printf(".");
 		return;
 	}
 
@@ -154,10 +159,13 @@ static void getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 	// if got to here it means it's an ICMP_FT_DATA message
 
 	// verify we're not missing any message by checking the ICMP ID of the reply and compare it to the expected ICMP ID. If one or more
-	// message were missed, exit the program
+	// message were missed, set fileTransferError flag so the main thread could abort the catcher and exit the program
 	if (ntohs(icmpLayer->getEchoReplyData()->header->id) != icmpFileContentData->expectedIcmpId)
-		EXIT_WITH_ERROR_AND_RUN_COMMAND("Didn't get expected ICMP message #%d, got #%d", std::remove(icmpFileContentData->fileName.c_str()),
-				icmpFileContentData->expectedIcmpId, ntohs(icmpLayer->getEchoReplyData()->header->id));
+	{
+		icmpFileContentData->fileTransferError = true;
+		printf("\n\nDidn't get expected ICMP message #%d, got #%d\n", icmpFileContentData->expectedIcmpId, ntohs(icmpLayer->getEchoReplyData()->header->id));
+		return;
+	}
 
 	// verify the ICMP reply has data
 	if (icmpLayer->getEchoReplyData()->data == NULL)
@@ -171,6 +179,14 @@ static void getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// count the bytes received
 	icmpFileContentData->fileSize += icmpLayer->getEchoReplyData()->dataLength;
+
+	// print a dot (".") for every 1MB received
+	icmpFileContentData->MBReceived += icmpLayer->getEchoReplyData()->dataLength;
+	if (icmpFileContentData->MBReceived > ONE_MBYTE)
+	{
+		icmpFileContentData->MBReceived -= ONE_MBYTE;
+		printf(".");
+	}
 }
 
 
@@ -182,11 +198,11 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 	// identify the interface to listen and send packets to
 	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(&pitcherIP);
 	if (dev == NULL)
-		EXIT_WITH_ERROR("Cannot find device for IP '%s'", pitcherIP.toString().c_str());
+		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", pitcherIP.toString().c_str());
 
 	// try to open the interface (device)
 	if (!dev->open())
-		EXIT_WITH_ERROR("Cannot open device");
+		EXIT_WITH_ERROR("Cannot open network interface ");
 
 	// get the MAC address of the interface
 	MacAddress pitcherMacAddr = dev->getMacAddress();
@@ -243,7 +259,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 
 	if (file.is_open())
 	{
-		printf("Getting file from catcher: '%s'\n", icmpFTStart.fileName.c_str());
+		printf("Getting file from catcher: '%s' ", icmpFTStart.fileName.c_str());
 
 		IcmpFileContentData icmpFileContentData = {
 				pitcherIP,
@@ -251,7 +267,8 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 				&file,
 				icmpId,
 				0,
-				icmpFTStart.fileName,
+				0,
+				false,
 				false
 		};
 
@@ -272,10 +289,13 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 		// and write them to the opened file. When catcher signals the end of the file transfer, the callback will set the
 		// icmpFileContentData.fileTransferCompleted flag to true
 		if (!dev->startCapture(getFileContent, &icmpFileContentData))
-			EXIT_WITH_ERROR_AND_RUN_COMMAND("Couldn't start capturing packets", std::remove(icmpFileContentData.fileName.c_str()));
+		{
+			file.close();
+			EXIT_WITH_ERROR_AND_RUN_COMMAND("Couldn't start capturing packets", std::remove(icmpFTStart.fileName.c_str()));
+		}
 
-		// keep sending ICMP requests with ICMP_FT_WAITING_DATA message in the timestamp field until all file was received
-		while (!icmpFileContentData.fileTransferCompleted)
+		// keep sending ICMP requests with ICMP_FT_WAITING_DATA message in the timestamp field until all file was received or until an error occured
+		while (!icmpFileContentData.fileTransferCompleted && !icmpFileContentData.fileTransferError)
 		{
 			sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_WAITING_DATA, NULL, 0);
 
@@ -291,7 +311,22 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 		// stop capturing packets
 		dev->stopCapture();
 
-		printf("Finished getting file '%s' [received %d bytes]\n", icmpFTStart.fileName.c_str(), icmpFileContentData.fileSize);
+		// if an error occurred (for example: pitcher missed some of the file content packets), send several abort message to the catcher
+		// so it'll stop waiting for packets, and exit the program
+		if (icmpFileContentData.fileTransferError)
+		{
+			for (int i = 0; i < NUM_OF_ABORT_MESSAGES_TO_SEND; i++)
+			{
+				sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_ABORT, NULL, 0);
+				usleep(SLEEP_BETWEEN_ABORT_MESSAGES);
+			}
+
+			file.close();
+			EXIT_WITH_ERROR_AND_RUN_COMMAND("Sent abort message to catcher. Exiting...", std::remove(icmpFTStart.fileName.c_str()));
+		}
+
+		// file transfer was completed successfully
+		printf("\n\nFinished getting file '%s' [received %d bytes]\n", icmpFTStart.fileName.c_str(), icmpFileContentData.fileSize);
 	}
 	else
 		EXIT_WITH_ERROR("Couldn't create file");
@@ -351,11 +386,11 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 	// identify the interface to listen and send packets to
 	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(&pitcherIP);
 	if (dev == NULL)
-		EXIT_WITH_ERROR("Cannot find device for IP '%s'", pitcherIP.toString().c_str());
+		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", pitcherIP.toString().c_str());
 
 	// try to open the interface (device)
 	if (!dev->open())
-		EXIT_WITH_ERROR("Cannot open device");
+		EXIT_WITH_ERROR("Cannot open network interface ");
 
 	// get the MAC address of the interface
 	MacAddress pitcherMacAddr = dev->getMacAddress();
@@ -424,10 +459,11 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 			ftStartData.icmpMsgId++;
 		}
 
-		printf("Sending file '%s'\n", fileName.c_str());
+		printf("Sending file '%s' ", fileName.c_str());
 
 		icmpId++;
 		uint32_t bytesSentSoFar = 0;
+		uint32_t MBSent = 0;
 
 		uint32_t sleepBetweenPackets = 0;
 		// calculate how many microseconds (usec) the pitcher needs to sleep between sending each file data chunk (calculated from user defined
@@ -448,13 +484,22 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 				EXIT_WITH_ERROR("Couldn't send file data message");
 
 			// use usleep or sleep (see comment a few lines below)
-			printf("sent #%d\n", icmpId);
+			//printf("sent #%d\n", icmpId);
 			if (packetPerSec > 1)
 				usleep(sleepBetweenPackets);
 			else if (packetPerSec == 1)
 				PCAP_SLEEP(1);
 
 			bytesSentSoFar += blockSize;
+
+			// print a dot ('.') on every 1MB sent
+			MBSent += blockSize;
+			if (MBSent > ONE_MBYTE)
+			{
+				MBSent -= ONE_MBYTE;
+				printf(".");
+			}
+
 			icmpId++;
 		}
 
@@ -465,6 +510,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 				EXIT_WITH_ERROR("Couldn't send file data message");
 
 			bytesSentSoFar += file.gcount();
+			printf(".");
 		}
 
 		// done sending the file to the catcher, send an ICMP request with message type ICMP_FT_END (in the timestamp field) to the catcher
@@ -472,7 +518,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		if (!sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_END, NULL, 0))
 			EXIT_WITH_ERROR("Couldn't send file transfer end message");
 
-		printf("Finished sending '%s' [sent %d bytes]\n", fileName.c_str(), bytesSentSoFar);
+		printf("\n\nFinished sending '%s' [sent %d bytes]\n", fileName.c_str(), bytesSentSoFar);
 	}
 	else
 		EXIT_WITH_ERROR("Couldn't open file '%s'", filePath.c_str());
@@ -494,6 +540,9 @@ int main(int argc, char* argv[])
 	std::string fileNameToSend = "";
 	int packetsPerSec = 0;
 	size_t blockSize = 0;
+
+	// disable stdout buffering so all printf command will be printed immediately
+	setbuf(stdout, NULL);
 
 	// read and parse command line arguments. This method also takes care of arguments correctness. If they're not correct, it'll exit the program
 	readCommandLineArguments(argc, argv, "pitcher", "catcher", sender, receiver, pitcherIP, catcherIP, fileNameToSend, packetsPerSec, blockSize);
