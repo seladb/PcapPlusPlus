@@ -14,10 +14,6 @@
 #define ICMP_FT_END 0x144156cbeffa2687
 #define ICMP_FT_ABORT 0x146158cbafff2b8a
 
-
-#define ONE_MBYTE 1048576
-
-
 #define ONE_MBYTE 1048576
 
 #define EXIT_WITH_ERROR(reason, ...) do { \
