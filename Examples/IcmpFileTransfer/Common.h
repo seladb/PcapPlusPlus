@@ -17,6 +17,9 @@
 
 #define ONE_MBYTE 1048576
 
+
+#define ONE_MBYTE 1048576
+
 #define EXIT_WITH_ERROR(reason, ...) do { \
 	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
 	exit(1); \
