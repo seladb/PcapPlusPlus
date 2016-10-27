@@ -239,7 +239,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 	// start capturing ICMP packets. The waitForFileTransferStart callback should look for the catcher reply and set icmpFTStart.gotFileTransferStartMsg
 	// to true
 	if (!dev->startCapture(waitForFileTransferStart, &icmpFTStart))
-		EXIT_WITH_ERROR("Couldn't start capturing packets");
+		EXIT_WITH_ERROR("Cannot start capturing packets");
 
 	// while didn't receive response from the catcher, keep sending the ICMP_FT_WAITING_FT_START message
 	while (!icmpFTStart.gotFileTransferStartMsg)
@@ -291,7 +291,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 		if (!dev->startCapture(getFileContent, &icmpFileContentData))
 		{
 			file.close();
-			EXIT_WITH_ERROR_AND_RUN_COMMAND("Couldn't start capturing packets", std::remove(icmpFTStart.fileName.c_str()));
+			EXIT_WITH_ERROR_AND_RUN_COMMAND("Cannot start capturing packets", std::remove(icmpFTStart.fileName.c_str()));
 		}
 
 		// keep sending ICMP requests with ICMP_FT_WAITING_DATA message in the timestamp field until all file was received or until an error occured
@@ -329,7 +329,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 		printf("\n\nFinished getting file '%s' [received %d bytes]\n", icmpFTStart.fileName.c_str(), icmpFileContentData.fileSize);
 	}
 	else
-		EXIT_WITH_ERROR("Couldn't create file");
+		EXIT_WITH_ERROR("Cannot create file");
 
 	// close the device
 	dev->close();
@@ -443,12 +443,12 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 					pitcherIP, catcherIP,
 					icmpId, ICMP_FT_START,
 					memblock, fileName.length() + 1))
-				EXIT_WITH_ERROR("Couldn't send file transfer start message");
+				EXIT_WITH_ERROR("Cannot send file transfer start message");
 
 			// now wait for the catcher to answer. The timeout is SEND_TIMEOUT_BEFORE_FT_START. After that another ICMP request will be sent
 			int res = dev->startCaptureBlockingMode(waitForFileTransferStartAck, &ftStartData, SEND_TIMEOUT_BEFORE_FT_START);
 			if (!res)
-				EXIT_WITH_ERROR("Couldn't start capturing packets");
+				EXIT_WITH_ERROR("Cannot start capturing packets");
 
 			// res == 1 means we got the catcher response so we can break the endless loop
 			if (res == 1)
@@ -481,7 +481,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 			// send an ICMP request to the catcher containing the data chunk.The message type (set in the timestamp field) is ICMP_FT_DATA
 			// so the catcher knows it's a data chunk
 			if (!sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_DATA, memblock, blockSize))
-				EXIT_WITH_ERROR("Couldn't send file data message");
+				EXIT_WITH_ERROR("Cannot send file data message");
 
 			// use usleep or sleep (see comment a few lines below)
 			//printf("sent #%d\n", icmpId);
@@ -507,7 +507,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		if (file.gcount() > 0)
 		{
 			if (!sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_DATA, memblock, file.gcount()))
-				EXIT_WITH_ERROR("Couldn't send file data message");
+				EXIT_WITH_ERROR("Cannot send file data message");
 
 			bytesSentSoFar += file.gcount();
 			printf(".");
@@ -516,12 +516,12 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		// done sending the file to the catcher, send an ICMP request with message type ICMP_FT_END (in the timestamp field) to the catcher
 		// to indicate all file was sent
 		if (!sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_END, NULL, 0))
-			EXIT_WITH_ERROR("Couldn't send file transfer end message");
+			EXIT_WITH_ERROR("Cannot send file transfer end message");
 
 		printf("\n\nFinished sending '%s' [sent %d bytes]\n", fileName.c_str(), bytesSentSoFar);
 	}
 	else
-		EXIT_WITH_ERROR("Couldn't open file '%s'", filePath.c_str());
+		EXIT_WITH_ERROR("Cannot open file '%s'", filePath.c_str());
 
 	// close the file and the device. Free the memory for memblock
 	file.close();

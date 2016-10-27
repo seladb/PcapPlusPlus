@@ -232,14 +232,14 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 	// wait until the pitcher sends an ICMP request with the file name in its data
 	int res = dev->startCaptureBlockingMode(waitForFileTransferStart, &icmpFTStart, -1);
 	if (!res)
-		EXIT_WITH_ERROR("Couldn't start capturing packets");
+		EXIT_WITH_ERROR("Cannot start capturing packets");
 
 	// create a new file with the name provided by the pitcher
 	std::ofstream file(icmpFTStart.fileName.c_str(), std::ios::out|std::ios::binary);
 
 	if (file.is_open())
 	{
-		printf("Getting file from pitcher: '%s ", icmpFTStart.fileName.c_str());
+		printf("Getting file from pitcher: '%s' ", icmpFTStart.fileName.c_str());
 
 		IcmpFileContentDataRecv icmpFileContentData = {
 				pitcherIP,
@@ -256,13 +256,13 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 		if (!res)
 		{
 			file.close();
-			EXIT_WITH_ERROR_AND_RUN_COMMAND("Couldn't start capturing packets", std::remove(icmpFTStart.fileName.c_str()));
+			EXIT_WITH_ERROR_AND_RUN_COMMAND("Cannot start capturing packets", std::remove(icmpFTStart.fileName.c_str()));
 		}
 
 		printf("\n\nFinished getting file '%s' [received %d bytes]\n", icmpFTStart.fileName.c_str(), icmpFileContentData.fileSize);
 	}
 	else
-		EXIT_WITH_ERROR("Couldn't create file");
+		EXIT_WITH_ERROR("Cannot create file");
 
 	// remove the filter and close the device (interface)
 	dev->clearFilter();
@@ -474,7 +474,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		int res  = dev->startCaptureBlockingMode(startFileTransfer, &icmpFTStart, -1);
 		// if an error occurred
 		if (!res)
-			EXIT_WITH_ERROR("Couldn't start capturing packets");
+			EXIT_WITH_ERROR("Cannot start capturing packets");
 
 		printf("Sending file '%s' ", fileName.c_str());
 
@@ -502,12 +502,12 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 
 		// if capture failed, exit the program
 		if (!res)
-			EXIT_WITH_ERROR("Couldn't start capturing packets");
+			EXIT_WITH_ERROR("Cannot start capturing packets");
 
 		printf("\n\nFinished sending '%s' [sent %d bytes]\n", fileName.c_str(), fileSize);
 	}
 	else // if file couldn't be opened
-		EXIT_WITH_ERROR("Couldn't open file '%s'", filePath.c_str());
+		EXIT_WITH_ERROR("Cannot open file '%s'", filePath.c_str());
 
 	// close the device
 	dev->close();

@@ -88,9 +88,11 @@ void readCommandLineArguments(int argc, char* argv[],
 	std::string otherSideIPAsString = "";
 	fileNameToSend = "";
 	packetsPerSec = -1;
+	bool packetsPerSecSet = false;
 	receiver = false;
 	sender = false;
 	blockSize = DEFAULT_BLOCK_SIZE;
+	bool blockSizeSet = false;
 
 	int optionIndex = 0;
 	char opt = 0;
@@ -110,19 +112,19 @@ void readCommandLineArguments(int argc, char* argv[],
 			case 's':
 				fileNameToSend = optarg;
 				sender = true;
-				receiver = false;
 				break;
 			case 'r':
-				sender = false;
 				receiver = true;
 				break;
 			case 'p':
 				if (thisSide == "catcher")
 					EXIT_WITH_ERROR_PRINT_USAGE("Unknown option -p");
 				packetsPerSec = atoi(optarg);
+				packetsPerSecSet = true;
 				break;
 			case 'b':
 				blockSize = atoi(optarg);
+				blockSizeSet = true;
 				break;
 			case 'h':
 				printUsage(thisSide, otherSide);
@@ -145,7 +147,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	{
 		PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
 		if (dev == NULL)
-			EXIT_WITH_ERROR_PRINT_USAGE("Couldn't find interface by provided name");
+			EXIT_WITH_ERROR_PRINT_USAGE("Cannot find interface by provided name");
 
 		myIP = dev->getIPv4Address();
 	}
@@ -168,9 +170,17 @@ void readCommandLineArguments(int argc, char* argv[],
 	if (!sender && !receiver)
 		EXIT_WITH_ERROR_PRINT_USAGE("Must set either send file mode (-s) or receive file mode (-r) switches");
 
+	// cannot set block size if in receiving file mode
+	if (!sender && blockSizeSet)
+		EXIT_WITH_ERROR_PRINT_USAGE("Setting block size (-b switch) is relevant for sending files only");
+
 	// validate block size
 	if (blockSize < 1 || blockSize > 1464)
 		EXIT_WITH_ERROR_PRINT_USAGE("Block size must be a positive integer lower or equal to 1464 bytes (which is the maximum size for a standard packet)");
+
+	// validate packets per sec
+	if (packetsPerSecSet && packetsPerSec < 1)
+		EXIT_WITH_ERROR_PRINT_USAGE("message_per_sec must be a positive value greate or equal to 1");
 }
 
 bool sendIcmpMessage(PcapLiveDevice* dev,
