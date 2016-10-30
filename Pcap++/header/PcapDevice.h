@@ -85,6 +85,15 @@ namespace pcpp
 		 * @return True if the filter is valid or false otherwise
 		 */
 		static bool verifyFilter(std::string filterAsString);
+
+		/**
+		 * Match a raw packet with a given BPF filter. Notice this method is static which means you don't need any device instance
+		 * in order to perform this match
+		 * @param[in] filterAsString The BPF filter
+		 * @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
+		 * @return True if raw packet matches the BPF filter or false otherwise
+		 */
+		static bool matchPakcetWithFilter(std::string filterAsString, RawPacket* rawPacket);
 	};
 
 } // namespace pcpp

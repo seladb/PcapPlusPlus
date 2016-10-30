@@ -71,4 +71,27 @@ bool IPcapDevice::verifyFilter(std::string filterAsString)
 	return true;
 }
 
+bool IPcapDevice::matchPakcetWithFilter(std::string filterAsString, RawPacket* rawPacket)
+{
+	static std::string curFilter = "";
+	static struct bpf_program prog;
+	if (curFilter != filterAsString)
+	{
+		LOG_DEBUG("Compiling the filter '%s'", filterAsString.c_str());
+		if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, &prog, filterAsString.c_str(), 1, 0) < 0)
+		{
+			return false;
+		}
+
+		curFilter = filterAsString;
+	}
+
+	struct pcap_pkthdr pktHdr;
+	pktHdr.caplen = rawPacket->getRawDataLen();
+	pktHdr.len = rawPacket->getRawDataLen();
+	pktHdr.ts = rawPacket->getPacketTimeStamp();
+
+	return (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
+}
+
 } // namespace pcpp
