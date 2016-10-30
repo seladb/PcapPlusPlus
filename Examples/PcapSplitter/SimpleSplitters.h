@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Splitters.h"
+#include "PcapDevice.h"
 
 /**
  * Splits a pcap file by number of packets
@@ -113,4 +114,49 @@ public:
 		return true;
 	}
 
+};
+
+
+/**
+ * Splits a pcap file into two files: one that contains all packets matching a given BPF filter and one that contains the rest
+ * of the packets
+ */
+class BpfCriteriaSplitter : public Splitter
+{
+private:
+	std::string m_BpfFilter;
+
+public:
+	BpfCriteriaSplitter(std::string bpfFilter)
+	{
+		m_BpfFilter = bpfFilter;
+	}
+
+	/**
+	 * Return file #0 if packet matches the BPF filer, and file #1 if it's not
+	 */
+	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	{
+		if (pcpp::IPcapDevice::matchPakcetWithFilter(m_BpfFilter, packet.getRawPacket()))
+			return 0;
+		return 1;
+	}
+
+	/**
+	 * Verifies the BPF filter set in the c'tor is a valid BPF filter
+	 */
+	bool isSplitterParamLegal(std::string& errorString)
+	{
+		if (m_BpfFilter == "")
+		{
+			errorString = "No BPF filter was set or set an empty one";
+			return false;
+		}
+
+		bool filterValid = pcpp::IPcapDevice::verifyFilter(m_BpfFilter);
+		if (!filterValid)
+			errorString = "BPF filter is not valid";
+
+		return filterValid;
+	}
 };

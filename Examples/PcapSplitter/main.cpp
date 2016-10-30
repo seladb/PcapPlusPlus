@@ -26,6 +26,8 @@
  * 7) Connection - splits a pcap file to smaller pcap files by TCP/UDP connection meaning each connection will be written
  *    to a certain file. The user can limit the number of output files, in this case an equal number of connections will
  *    be written to the same file. If the user doesn't set such limit - each file will contain one connection
+ * 8) BPF filter - splits the pcap file into two files: one that contains all packets matching the input BPF filter
+ *    and the other one with the rest of the packets
  *
  * Remarks:
  * - Options 3-7 supports both IPv4 and IPV6
@@ -87,6 +89,7 @@ static struct option PcapSplitterOptions[] =
 #define SPLIT_BY_SERVER_PORT   "server-port"
 #define SPLIT_BY_2_TUPLE       "ip-src-dst"
 #define SPLIT_BY_5_TUPLE       "connection"
+#define SPLIT_BY_BPF_FILTER    "bpf-filter"
 
 #ifdef WIN32
 #define SEPARATOR '\\'
@@ -118,6 +121,9 @@ void printUsage()
 			"                                       with the same IPs will be in the same file\n"
 			"                      'connection'   - split files by connection (5-tuple), meaning all packets\n"
 			"                                       of a connection will be in the same file\n"
+			"                      'bpf-filter'   - split file into two files: one that contains all packets\n"
+			"                                       matching the given BPF filter (file #0) and one that contains\n"
+			"                                       the rest of the packets (file #1)\n"
 			"    -p split-param  : The relevant parameter for the split method:\n"
 			"                      'method = file-size'    => split-param is the max size per file (in bytes).\n"
 			"                                                 split-param is required for this method\n"
@@ -133,6 +139,7 @@ void printUsage()
 			"                                                 If not provided the default is unlimited number of files\n"
 			"                      'method = connection'   => split-param is max number of files to open.\n"
 			"                                                 If not provided the default is unlimited number of files\n"
+			"                      'method = bpf-filter'   => split-param is the BPF filter to match upon\n"
 			"    -i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split\n"
 			"    -h              : Displays this help message and exits\n");
 	exit(0);
@@ -176,7 +183,10 @@ int main(int argc, char* argv[])
 
 	std::string method = "";
 
-	int param = -12345;
+	char param[1000];
+	memset(param, 0, 1000);
+
+	bool paramWasSet = false;
 
 	int optionIndex = 0;
 	char opt = 0;
@@ -197,7 +207,8 @@ int main(int argc, char* argv[])
 				method = optarg;
 				break;
 			case 'p':
-				param = atoi(optarg);
+				strncpy(param, optarg, 1000);
+				paramWasSet = true;
 				break;
 			case 'i':
 				filter = optarg;
@@ -235,21 +246,47 @@ int main(int argc, char* argv[])
 
 	// decide of the splitter to use, according to the user's choice
 	if (method == SPLIT_BY_FILE_SIZE)
-		splitter = new FileSizeSplitter(param);
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : 0);
+		splitter = new FileSizeSplitter(paramAsInt);
+	}
 	else if (method == SPLIT_BY_PACKET_COUNT)
-		splitter = new PacketCountSplitter(param);
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : 0);
+		splitter = new PacketCountSplitter(paramAsInt);
+	}
 	else if (method == SPLIT_BY_IP_CLIENT)
-		splitter = new ClientIPSplitter(param);
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		splitter = new ClientIPSplitter(paramAsInt);
+	}
 	else if (method == SPLIT_BY_IP_SERVER)
-		splitter = new ServerIPSplitter(param);
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		splitter = new ServerIPSplitter(paramAsInt);
+	}
 	else if (method == SPLIT_BY_SERVER_PORT)
-		splitter = new ServerPortSplitter(param);
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		splitter = new ServerPortSplitter(paramAsInt);
+	}
 	else if (method == SPLIT_BY_2_TUPLE)
-		splitter = new TwoTupleSplitter(param);
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		splitter = new TwoTupleSplitter(paramAsInt);
+	}
 	else if (method == SPLIT_BY_5_TUPLE)
-		splitter = new FiveTupleSplitter(param);
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		splitter = new FiveTupleSplitter(paramAsInt);
+	}
+	else if (method == SPLIT_BY_BPF_FILTER)
+	{
+		splitter = new BpfCriteriaSplitter(std::string(param));
+	}
 	else
 		EXIT_WITH_ERROR("Unknown method '%s'", method.c_str());
+
 
 	// verify splitter param is legal, otherwise return an error
 	std::string errorStr;

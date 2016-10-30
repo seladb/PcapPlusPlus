@@ -59,7 +59,6 @@ class SplitterWithMaxFiles : public Splitter
 	// in order to support all OS's, the maximum number of concurrent open file is set to 500
 	static const int MAX_NUMBER_OF_CONCURRENT_OPEN_FILES = 500;
 
-	static const int UNLIMITED_FILES_MAGIC_NUMBER = -12345;
 protected:
 	int m_MaxFiles;
 	int m_NextFile;
@@ -119,6 +118,8 @@ protected:
 	}
 
 public:
+
+	static const int UNLIMITED_FILES_MAGIC_NUMBER = -12345;
 
 	/**
 	 * This method checks the maximum number of file parameter. If it equals UNLIMITED_FILES_MAGIC_NUMBER it means there
