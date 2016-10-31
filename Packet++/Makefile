@@ -1,4 +1,8 @@
--include ../mk/platform.mk
+ifeq ($(wildcard ../mk/platform.mk),)
+  $(error platform.mk not found! Please run configure script first)
+endif
+
+include ../mk/platform.mk
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS_FILENAMES := $(patsubst src/%.cpp,Obj/%.o,$(SOURCES))

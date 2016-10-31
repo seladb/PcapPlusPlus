@@ -1,5 +1,12 @@
--include ../../mk/platform.mk
--include ../../mk/PcapPlusPlus.mk
+ifeq ($(wildcard ../../mk/platform.mk),)
+  $(error platform.mk not found! Please run configure script first)
+endif
+ifeq ($(wildcard ../../mk/PcapPlusPlus.mk),)
+  $(error PcapPlusPlus.mk not found! Please run configure script first)
+endif
+
+include ../../mk/platform.mk
+include ../../mk/PcapPlusPlus.mk
 
 SOURCES := $(wildcard *.cpp)
 OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))

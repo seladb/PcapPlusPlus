@@ -1,4 +1,8 @@
--include mk/platform.mk
+ifeq ($(wildcard mk/platform.mk),)
+  $(error platform.mk not found! Please run configure script first)
+endif
+
+include mk/platform.mk
 
 COMMONPP_HOME        := Common++
 PACKETPP_HOME        := Packet++

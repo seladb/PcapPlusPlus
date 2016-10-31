@@ -1,5 +1,5 @@
--include ../../Dist/mk/platform.mk
--include ../../Dist/mk/PcapPlusPlus.mk
+include ../../Dist/mk/platform.mk
+include ../../Dist/mk/PcapPlusPlus.mk
 
 # All Target
 all:
