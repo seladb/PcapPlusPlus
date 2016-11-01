@@ -247,8 +247,8 @@ int main(int argc, char* argv[])
 	// decide of the splitter to use, according to the user's choice
 	if (method == SPLIT_BY_FILE_SIZE)
 	{
-		int paramAsInt = (paramWasSet ? atoi(param) : 0);
-		splitter = new FileSizeSplitter(paramAsInt);
+		uint64_t paramAsUint64 = (paramWasSet ? strtoull(param, NULL, 10) : 0);
+		splitter = new FileSizeSplitter(paramAsUint64);
 	}
 	else if (method == SPLIT_BY_PACKET_COUNT)
 	{

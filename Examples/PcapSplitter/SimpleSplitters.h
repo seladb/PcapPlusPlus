@@ -64,8 +64,8 @@ public:
 class FileSizeSplitter : public Splitter
 {
 private:
-	int m_TotalSize;
-	int m_MaxBytesPerFile;
+	uint64_t m_TotalSize;
+	uint64_t m_MaxBytesPerFile;
 
 	static const int PCAP_FILE_HEADER_SIZE = 24;   // == sizeof(pcap_file_header)
 	static const int PCAP_PACKET_HEADER_SIZE = 16; // == sizeof(pcap_pkthdr)
@@ -75,7 +75,7 @@ public:
 	/**
 	 * A c'tor for this class which gets the file size in bytes for each split file
 	 */
-	FileSizeSplitter(int maxBytesPerFile)
+	FileSizeSplitter(uint64_t maxBytesPerFile)
 	{
 		m_TotalSize = 0;
 		// each file size contains a pcap header with size of PCAP_FILE_HEADER_SIZE
@@ -91,7 +91,7 @@ public:
 		// check the current file
 		int prevFile = m_TotalSize / m_MaxBytesPerFile;
 		// add the current packet size and packet header
-		m_TotalSize += packet.getRawPacket()->getRawDataLen() + PCAP_PACKET_HEADER_SIZE;
+		m_TotalSize += (uint64_t)packet.getRawPacket()->getRawDataLen() + PCAP_PACKET_HEADER_SIZE;
 		// calculate the new file number
 		int nextFile = m_TotalSize / m_MaxBytesPerFile;
 		// if reached the maximum size per file, close the previous file
