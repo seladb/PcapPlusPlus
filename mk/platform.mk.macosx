@@ -8,6 +8,8 @@ LIB_EXT := .a
 
 G++ := g++
 
+GCC := gcc
+
 AR := ar
 
 RM := rm

@@ -16,6 +16,8 @@ LIB_EXT := .lib
 
 G++ := g++.exe
 
+GCC := gcc.exe
+
 AR := ar.exe
 
 RM := rm.exe
