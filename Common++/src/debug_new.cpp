@@ -126,7 +126,7 @@ static void getpmaps(pid_t  pid)
         }
 
         /*init the allocated memory*/
-           memset(line, sizeof(pmap_line_t), 0);
+           memset(line, 0, sizeof(pmap_line_t));
 
         /*parse the line */
             sscanf(buf, "%lx-%lx %4s %lx %02x:%02x %d %s",
