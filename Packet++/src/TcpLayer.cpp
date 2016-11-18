@@ -151,7 +151,7 @@ bool TcpLayer::removeAllTcpOptions()
 
 TcpOptionData* TcpLayer::addTcpOptionAt(TcpOption optionType, uint8_t optionLength, const uint8_t* optionData, int offset)
 {
-	if ((optionType == TCPOPT_EOL || optionType == TCPOPT_NOP) && optionLength != PCPP_TCPOLEN_NOP)
+	if ((optionType == PCPP_TCPOPT_EOL || optionType == PCPP_TCPOPT_NOP) && optionLength != PCPP_TCPOLEN_NOP)
 	{
 		LOG_ERROR("Can't set TCP NOP option or TCP EOL option with size different than 1, tried to set size %d", optionLength);
 		return NULL;

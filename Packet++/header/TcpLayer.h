@@ -85,23 +85,23 @@ namespace pcpp
 	 */
 	enum TcpOption {
 		/** Padding */
-		TCPOPT_NOP = 			1,
+		PCPP_TCPOPT_NOP = 			1,
 		/** End of options */
-		TCPOPT_EOL = 			0,
+		PCPP_TCPOPT_EOL = 			0,
 		/** Segment size negotiating */
 		TCPOPT_MSS = 			2,
 		/** Window scaling */
-		TCPOPT_WINDOW = 		3,
+		PCPP_TCPOPT_WINDOW = 		3,
 		/** SACK Permitted */
 		TCPOPT_SACK_PERM = 		4,
 		/** SACK Block */
-		TCPOPT_SACK =           5,
-		/** Echo (obsoleted by option ::TCPOPT_TIMESTAMP) */
+		PCPP_TCPOPT_SACK =           5,
+		/** Echo (obsoleted by option ::PCPP_TCPOPT_TIMESTAMP) */
 		TCPOPT_ECHO =           6,
-		/** Echo Reply (obsoleted by option ::TCPOPT_TIMESTAMP) */
+		/** Echo Reply (obsoleted by option ::PCPP_TCPOPT_TIMESTAMP) */
 		TCPOPT_ECHOREPLY =      7,
 		/** TCP Timestamps */
-		TCPOPT_TIMESTAMP =      8,
+		PCPP_TCPOPT_TIMESTAMP =      8,
 		/** CC (obsolete) */
 		TCPOPT_CC =             11,
 		/** CC.NEW (obsolete) */
@@ -137,23 +137,23 @@ namespace pcpp
 
 	// TCP option lengths
 
-	/** pcpp::TCPOPT_NOP length */
+	/** pcpp::PCPP_TCPOPT_NOP length */
 #define PCPP_TCPOLEN_NOP            1
-	/** pcpp::TCPOPT_EOL length */
+	/** pcpp::PCPP_TCPOPT_EOL length */
 #define PCPP_TCPOLEN_EOL            1
 	/** pcpp::TCPOPT_MSS length */
 #define PCPP_TCPOLEN_MSS            4
-	/** pcpp::TCPOPT_WINDOW length */
+	/** pcpp::PCPP_TCPOPT_WINDOW length */
 #define PCPP_TCPOLEN_WINDOW         3
 	/** pcpp::TCPOPT_SACK_PERM length */
 #define PCPP_TCPOLEN_SACK_PERM      2
-	/** pcpp::TCPOPT_SACK length */
+	/** pcpp::PCPP_TCPOPT_SACK length */
 #define PCPP_TCPOLEN_SACK_MIN       2
 	/** pcpp::TCPOPT_ECHO length */
 #define PCPP_TCPOLEN_ECHO           6
 	/** pcpp::TCPOPT_ECHOREPLY length */
 #define PCPP_TCPOLEN_ECHOREPLY      6
-	/** pcpp::TCPOPT_TIMESTAMP length */
+	/** pcpp::PCPP_TCPOPT_TIMESTAMP length */
 #define PCPP_TCPOLEN_TIMESTAMP     10
 	/** pcpp::TCPOPT_CC length */
 #define PCPP_TCPOLEN_CC             6
@@ -240,7 +240,7 @@ namespace pcpp
 		 */
 		inline size_t getTotalSize() const
 		{
-			if (option == (uint8_t)TCPOPT_NOP || option == (uint8_t)TCPOPT_EOL)
+			if (option == (uint8_t)PCPP_TCPOPT_NOP || option == (uint8_t)PCPP_TCPOPT_EOL)
 				return sizeof(uint8_t);
 
 			return (size_t)len;
