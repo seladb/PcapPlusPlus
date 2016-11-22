@@ -240,7 +240,9 @@ void PcapNgFileReaderDevice::close()
 		return;
 
 	light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
+	m_LightPcapNg = NULL;
 	m_DeviceOpened = false;
+	LOG_DEBUG("File reader closed for file '%s'", m_FileName);
 }
 
 
@@ -688,8 +690,8 @@ void PcapNgFileWriterDevice::close()
 		return;
 
 	light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
-
 	m_LightPcapNg = NULL;
+	m_DeviceOpened = false;
 	LOG_DEBUG("File writer closed for file '%s'", m_FileName);
 }
 
