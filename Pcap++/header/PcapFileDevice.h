@@ -14,17 +14,16 @@ namespace pcpp
 {
 
 	/**
-	 * @class IPcapFileDevice
-	 * An abstract class (cannot be instantiated, has a private c'tor) that is the parent class of PcapFileReaderDevice and PcapFileWriterDevice
+	 * @class IFileDevice
+	 * An abstract class (cannot be instantiated, has a private c'tor) which is the parent class for all file devices
 	 */
-	class IPcapFileDevice : public IPcapDevice
+	class IFileDevice : public IPcapDevice
 	{
 	protected:
 		char* m_FileName;
-		LinkLayerType m_PcapLinkLayerType;
 
-		IPcapFileDevice(const char* fileName);
-		virtual ~IPcapFileDevice();
+		IFileDevice(const char* fileName);
+		virtual ~IFileDevice();
 
 	public:
 		//override methods
@@ -35,15 +34,49 @@ namespace pcpp
 		virtual void close();
 	};
 
+
+	/**
+	 * @class IFileReaderDevice
+	 * An abstract class (cannot be instantiated, has a private c'tor) which is the parent class for file reader devices
+	 */
+	class IFileReaderDevice : public IFileDevice
+	{
+	protected:
+		uint32_t m_NumOfPacketsRead;
+		uint32_t m_NumOfPacketsNotParsed;
+
+		/**
+		 * A constructor for this class that gets the pcap full path file name to open. Notice that after calling this constructor the file
+		 * isn't opened yet, so reading packets will fail. For opening the file call open()
+		 * @param[in] fileName The full path of the file to read
+		 */
+		IFileReaderDevice(const char* fileName);
+
+	public:
+
+		/**
+		 * A destructor for this class
+		 */
+		virtual ~IFileReaderDevice() {}
+
+		/**
+		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
+		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
+		 * or if reached end-of-file
+		 */
+		virtual bool getNextPacket(RawPacket& rawPacket) = 0;
+	};
+
+
 	/**
 	 * @class PcapFileReaderDevice
 	 * A class for opening a pcap file in read-only mode. This class enable to open the file and read all packets, packet-by-packet
 	 */
-	class PcapFileReaderDevice : public IPcapFileDevice
+	class PcapFileReaderDevice : public IFileReaderDevice
 	{
 	private:
-		uint32_t m_NumOfPacketsRead;
-		uint32_t m_NumOfPacketsNotParsed;
+		LinkLayerType m_PcapLinkLayerType;
 
 		// private copy c'tor
 		PcapFileReaderDevice(const PcapFileReaderDevice& other);
@@ -60,31 +93,113 @@ namespace pcpp
 		/**
 		 * A destructor for this class
 		 */
-		~PcapFileReaderDevice();
+		virtual ~PcapFileReaderDevice() {}
 
-		/**
-		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
-		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
-		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
-		 * or if reached end-of-file
-		 */
+		//overridden methods
+
 		bool getNextPacket(RawPacket& rawPacket);
-
-		//override methods
 
 		/**
 		 * Open the file name which path was specified in the constructor in a read-only mode
 		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed for some reason (for example:
 		 * file path does not exist)
 		 */
-		virtual bool open();
+		bool open();
 
 		/**
 		 * Get statistics of packets read so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		virtual void getStatistics(pcap_stat& stats);
+		void getStatistics(pcap_stat& stats);
 	};
+
+
+	/**
+	 * @class PcapNgFileReaderDevice
+	 * A class for opening a pcap-ng file in read-only mode. This class enable to open the file and read all packets, packet-by-packet
+	 */
+	class PcapNgFileReaderDevice : public IFileReaderDevice
+	{
+	private:
+		void* m_LightPcapNg;
+
+		// private copy c'tor
+		PcapNgFileReaderDevice(const PcapNgFileReaderDevice& other);
+		PcapNgFileReaderDevice& operator=(const PcapNgFileReaderDevice& other);
+
+	public:
+		/**
+		 * A constructor for this class that gets the pcap-ng full path file name to open. Notice that after calling this constructor the file
+		 * isn't opened yet, so reading packets will fail. For opening the file call open()
+		 * @param[in] fileName The full path of the file to read
+		 */
+		PcapNgFileReaderDevice(const char* fileName);
+
+		/**
+		 * A destructor for this class
+		 */
+		virtual ~PcapNgFileReaderDevice() { close(); }
+
+		std::string getOS();
+
+		std::string getHardware();
+
+		std::string getCaptureApplication();
+
+		std::string getCaptureFileComment();
+
+		bool getNextPacket(RawPacket& rawPacket, std::string& packetComment);
+
+		//overridden methods
+
+		bool getNextPacket(RawPacket& rawPacket);
+
+		/**
+		 * Open the file name which path was specified in the constructor in a read-only mode
+		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed for some reason (for example:
+		 * file path does not exist)
+		 */
+		bool open();
+
+		/**
+		 * Get statistics of packets read so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
+		 * @param[out] stats The stats struct where stats are returned
+		 */
+		void getStatistics(pcap_stat& stats);
+
+		/**
+		 * Close the pacpng file
+		 */
+		void close();
+	};
+
+
+	/**
+	 * @class IFileWriterDevice
+	 * An abstract class (cannot be instantiated, has a private c'tor) which is the parent class for file writer devices
+	 */
+	class IFileWriterDevice : public IFileDevice
+	{
+	protected:
+		uint32_t m_NumOfPacketsWritten;
+		uint32_t m_NumOfPacketsNotWritten;
+
+		IFileWriterDevice(const char* fileName);
+
+	public:
+
+		/**
+		 * A destructor for this class
+		 */
+		virtual ~IFileWriterDevice() {}
+
+		virtual bool writePacket(RawPacket const& packet) = 0;
+
+		virtual bool writePackets(const RawPacketVector& packets) = 0;
+
+		virtual bool open(bool appendMode) = 0;
+	};
+
 
 	/**
 	 * @class PcapFileWriterDevice
@@ -92,12 +207,11 @@ namespace pcpp
 	 * a unique capability that isn't supported in WinPcap and in older libpcap versions which is to open a pcap file
 	 * in append mode where packets are written at the end of the pcap file instead of running it over
 	 */
-	class PcapFileWriterDevice : public IPcapFileDevice
+	class PcapFileWriterDevice : public IFileWriterDevice
 	{
 	private:
 		pcap_dumper_t* m_PcapDumpHandler;
-		uint32_t m_NumOfPacketsWritten;
-		uint32_t m_NumOfPacketsNotWritten;
+		LinkLayerType m_PcapLinkLayerType;
 		bool m_AppendMode;
 		FILE* m_File;
 
@@ -172,6 +286,44 @@ namespace pcpp
 		 * @param[out] stats The stats struct where stats are returned
 		 */
 		virtual void getStatistics(pcap_stat& stats);
+	};
+
+
+	class PcapNgFileWriterDevice : public IFileWriterDevice
+	{
+	private:
+
+		void* m_LightPcapNg;
+
+		// private copy c'tor
+		PcapNgFileWriterDevice(const PcapFileWriterDevice& other);
+		PcapNgFileWriterDevice& operator=(const PcapNgFileWriterDevice& other);
+
+	public:
+		PcapNgFileWriterDevice(const char* fileName);
+
+		/**
+		 * A destructor for this class
+		 */
+		virtual ~PcapNgFileWriterDevice() { close(); }
+
+		bool open(const char* os, const char* hardware, const char* captureApp, const char* fileComment);
+
+		bool writePacket(RawPacket const& packet, const char* comment);
+
+		//overridden methods
+
+		bool writePacket(RawPacket const& packet);
+
+		bool writePackets(const RawPacketVector& packets);
+
+		bool open();
+
+		bool open(bool appendMode);
+
+		void close();
+
+		void getStatistics(pcap_stat& stats);
 	};
 
 }// namespace pcpp

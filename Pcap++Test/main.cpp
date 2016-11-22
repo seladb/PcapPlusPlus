@@ -52,6 +52,10 @@ using namespace pcpp;
 #define DPDK_PCAP_WRITE_PATH "PcapExamples/DpdkPackets.pcap"
 #define SLL_PCAP_WRITE_PATH "PcapExamples/sll_copy.pcap"
 #define SLL_PCAP_PATH "PcapExamples/sll.pcap"
+#define EXAMPLE_PCAPNG_PATH "PcapExamples/many_interfaces-1.pcapng"
+#define EXAMPLE2_PCAPNG_PATH "PcapExamples/pcapng-example.pcapng"
+#define EXAMPLE_PCAPNG_WRITE_PATH "PcapExamples/many_interfaces_copy.pcapng"
+#define EXAMPLE2_PCAPNG_WRITE_PATH "PcapExamples/pcapng-example-write.pcapng"
 
 
 #define PCAPP_TEST(TestName) bool TestName(PcapTestArgs const& args)
@@ -782,6 +786,259 @@ PCAPP_TEST(TestPcapFileAppend)
     PcapFileWriterDevice writerDev2(EXAMPLE_PCAP_WRITE_PATH, LINKTYPE_LINUX_SLL);
     PCAPP_ASSERT(writerDev2.open(true) == false, "Managed to open file in append mode even though link layer types are different");
     LoggerPP::getInstance().enableErrors();
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPcapNgFileReadWrite)
+{
+    PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_PATH);
+    PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_WRITE_PATH);
+    PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
+    PCAPP_ASSERT(writerDev.open(), "cannot open writer device");
+    PCAPP_ASSERT(readerDev.getOS() == "Mac OS X 10.10.4, build 14E46 (Darwin 14.4.0)", "OS read incorrectly");
+    PCAPP_ASSERT(readerDev.getCaptureApplication() == "Dumpcap 1.12.6 (v1.12.6-0-gee1fce6 from master-1.12)", "User app read incorrectly");
+    PCAPP_ASSERT(readerDev.getCaptureFileComment() == "", "File comment isn't empty");
+    PCAPP_ASSERT(readerDev.getHardware() == "", "Hardware string isn't empty");
+    RawPacket rawPacket;
+    int packetCount = 0;
+    int ethCount = 0;
+    int ipCount = 0;
+    int tcpCount = 0;
+    int udpCount = 0;
+    while (readerDev.getNextPacket(rawPacket))
+    {
+    	packetCount++;
+    	Packet packet(&rawPacket);
+		if (packet.isPacketOfType(Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(IPv4))
+			ipCount++;
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+
+		PCAPP_ASSERT(writerDev.writePacket(rawPacket) == true, "Couldn't write packet #%d", packetCount);
+    }
+
+    pcap_stat readerStatistics;
+    pcap_stat writerStatistics;
+
+    readerDev.getStatistics(readerStatistics);
+    PCAPP_ASSERT(readerStatistics.ps_recv == 64, "Incorrect number of packets read from file. Expected: 64; read: %d", readerStatistics.ps_recv);
+    PCAPP_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %d", readerStatistics.ps_drop);
+
+    writerDev.getStatistics(writerStatistics);
+    PCAPP_ASSERT(writerStatistics.ps_recv == 64, "Incorrect number of packets written to file. Expected: 64; written: %d", writerStatistics.ps_recv);
+    PCAPP_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
+
+    PCAPP_ASSERT(ethCount == 64, "Incorrect number of Ethernet packets read. Expected: 64; read: %d", ethCount);
+    PCAPP_ASSERT(ipCount == 62, "Incorrect number of IPv4 packets read. Expected: 62; read: %d", ipCount);
+    PCAPP_ASSERT(tcpCount == 32, "Incorrect number of TCP packets read. Expected: 32; read: %d", tcpCount);
+    PCAPP_ASSERT(udpCount == 30, "Incorrect number of UDP packets read. Expected: 30; read: %d", udpCount);
+
+    readerDev.close();
+    writerDev.close();
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPcapNgFileReadWriteAdv)
+{
+	PcapNgFileReaderDevice readerDev(EXAMPLE2_PCAPNG_PATH);
+
+	// negative tests
+	readerDev.close();
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(readerDev.getOS() == "", "Managed to read OS before device is opened");
+	LoggerPP::getInstance().enableErrors();
+	// --------------
+
+	PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
+    PCAPP_ASSERT(readerDev.getOS() == "Linux 3.18.1-1-ARCH", "OS read incorrectly");
+    PCAPP_ASSERT(readerDev.getCaptureApplication() == "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)", "User app read incorrectly");
+    PCAPP_ASSERT(readerDev.getCaptureFileComment() == "CLIENT_RANDOM E39B5BF4903C68684E8512FB2F60213E9EE843A0810B4982B607914D8092D482 95A5D39B02693BC1FB39254B179E9293007F6D37C66172B1EE4EF0D5E25CE1DABE878B6143DC3B266883E51A75E99DF9                                                   ", "File comment read incorrectly");
+    PCAPP_ASSERT(readerDev.getHardware() == "", "Hardware string isn't empty");
+
+    PcapNgFileWriterDevice writerDev(EXAMPLE2_PCAPNG_WRITE_PATH);
+
+	// negative tests
+    writerDev.close();
+    // --------------
+
+    PCAPP_ASSERT(writerDev.open(readerDev.getOS().c_str(), "My Hardware", readerDev.getCaptureApplication().c_str(), "This is a comment in a pcap-ng file") == true, "Couldn't open writer file");
+
+    RawPacket rawPacket;
+    int packetCount = 0;
+    int ethCount = 0;
+    int sllCount = 0;
+    int ip4Count = 0;
+    int ip6Count = 0;
+    int tcpCount = 0;
+    int udpCount = 0;
+    int httpCount = 0;
+    int commentCount = 0;
+    std::string pktComment;
+
+    while (readerDev.getNextPacket(rawPacket, pktComment))
+    {
+    	packetCount++;
+    	Packet packet(&rawPacket);
+		if (packet.isPacketOfType(Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(SLL))
+			sllCount++;
+		if (packet.isPacketOfType(IPv4))
+			ip4Count++;
+		if (packet.isPacketOfType(IPv6))
+			ip6Count++;
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+		if (packet.isPacketOfType(HTTP))
+			httpCount++;
+
+		if (pktComment != "")
+		{
+			PCAPP_ASSERT(pktComment.compare(0, 8, "Packet #") == 0, "Packet comment is '%s' and is not the expected one", pktComment.c_str());
+			commentCount++;
+		}
+
+		PCAPP_ASSERT(writerDev.writePacket(rawPacket, pktComment.c_str()) == true, "Couldn't write packet #%d", packetCount);
+    }
+
+    PCAPP_ASSERT(packetCount == 159, "Incorrect number of packets read. Expected: 159; read: %d", packetCount);
+    PCAPP_ASSERT(ethCount == 59, "Incorrect number of Ethernet packets read. Expected: 59; read: %d", ethCount);
+    PCAPP_ASSERT(sllCount == 100, "Incorrect number of SLL packets read. Expected: 100; read: %d", sllCount);
+    PCAPP_ASSERT(ip4Count == 155, "Incorrect number of IPv4 packets read. Expected: 155; read: %d", ip4Count);
+    PCAPP_ASSERT(ip6Count == 4, "Incorrect number of IPv6 packets read. Expected: 4; read: %d", ip6Count);
+    PCAPP_ASSERT(tcpCount == 159, "Incorrect number of TCP packets read. Expected: 159; read: %d", tcpCount);
+    PCAPP_ASSERT(udpCount == 0, "Incorrect number of UDP packets read. Expected: 0; read: %d", udpCount);
+    PCAPP_ASSERT(httpCount == 1, "Incorrect number of HTTP packets read. Expected: 1; read: %d", httpCount);
+    PCAPP_ASSERT(commentCount == 100, "Incorrect number of packets with comment read. Expected: 100; read: %d", commentCount);
+
+    pcap_stat readerStatistics;
+    pcap_stat writerStatistics;
+
+    readerDev.getStatistics(readerStatistics);
+    PCAPP_ASSERT(readerStatistics.ps_recv == 159, "Incorrect number of packets read from file. Expected: 159; read: %d", readerStatistics.ps_recv);
+    PCAPP_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %d", readerStatistics.ps_drop);
+
+    writerDev.getStatistics(writerStatistics);
+    PCAPP_ASSERT(writerStatistics.ps_recv == 159, "Incorrect number of packets written to file. Expected: 159; written: %d", writerStatistics.ps_recv);
+    PCAPP_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
+
+    readerDev.close();
+    writerDev.close();
+
+    // -------
+
+    PcapNgFileReaderDevice readerDev2(EXAMPLE2_PCAPNG_WRITE_PATH);
+    PcapNgFileReaderDevice readerDev3(EXAMPLE2_PCAPNG_PATH);
+
+    PCAPP_ASSERT(readerDev2.open(), "cannot open reader device 2");
+    PCAPP_ASSERT(readerDev3.open(), "cannot open reader device 3");
+
+    PCAPP_ASSERT(readerDev2.getOS() == "Linux 3.18.1-1-ARCH\0", "OS read incorrectly");
+    PCAPP_ASSERT(readerDev2.getCaptureApplication() == "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)", "User app read incorrectly");
+    PCAPP_ASSERT(readerDev2.getCaptureFileComment() == "This is a comment in a pcap-ng file", "File comment read incorrectly");
+    PCAPP_ASSERT(readerDev2.getHardware() == "My Hardware", "Hardware read incorrectly");
+
+    packetCount = 0;
+    ethCount = 0;
+    sllCount = 0;
+    ip4Count = 0;
+    ip6Count = 0;
+    tcpCount = 0;
+    udpCount = 0;
+    httpCount = 0;
+    commentCount = 0;
+
+
+    RawPacket rawPacket2;
+
+    while (readerDev2.getNextPacket(rawPacket, pktComment))
+    {
+    	packetCount++;
+    	Packet packet(&rawPacket);
+		if (packet.isPacketOfType(Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(SLL))
+			sllCount++;
+		if (packet.isPacketOfType(IPv4))
+			ip4Count++;
+		if (packet.isPacketOfType(IPv6))
+			ip6Count++;
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+		if (packet.isPacketOfType(HTTP))
+			httpCount++;
+
+		if (pktComment != "")
+		{
+			PCAPP_ASSERT(pktComment.compare(0, 8, "Packet #") == 0, "Packet comment is '%s' and is not the expected one", pktComment.c_str());
+			commentCount++;
+		}
+
+		readerDev3.getNextPacket(rawPacket2);
+
+		if (rawPacket.getPacketTimeStamp().tv_sec < rawPacket2.getPacketTimeStamp().tv_sec)
+		{
+			PCAPP_ASSERT((rawPacket2.getPacketTimeStamp().tv_sec - rawPacket.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
+		}
+		else
+		{
+			PCAPP_ASSERT((rawPacket.getPacketTimeStamp().tv_sec - rawPacket2.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
+		}
+
+		if (rawPacket.getPacketTimeStamp().tv_usec < rawPacket2.getPacketTimeStamp().tv_usec)
+		{
+			PCAPP_ASSERT((rawPacket2.getPacketTimeStamp().tv_usec - rawPacket.getPacketTimeStamp().tv_usec) < 100, "Timestamps are differ in more than 100 usecs");
+		}
+		else
+		{
+			PCAPP_ASSERT((rawPacket.getPacketTimeStamp().tv_usec - rawPacket2.getPacketTimeStamp().tv_usec) < 100, "Timestamps are differ in more than 100 usecs");
+		}
+
+    }
+
+    PCAPP_ASSERT(packetCount == 159, "Read cycle 2: Incorrect number of packets read. Expected: 159; read: %d", packetCount);
+    PCAPP_ASSERT(ethCount == 59, "Read cycle 2: Incorrect number of Ethernet packets read. Expected: 59; read: %d", ethCount);
+    PCAPP_ASSERT(sllCount == 100, "Read cycle 2: Incorrect number of SLL packets read. Expected: 100; read: %d", sllCount);
+    PCAPP_ASSERT(ip4Count == 155, "Read cycle 2: Incorrect number of IPv4 packets read. Expected: 155; read: %d", ip4Count);
+    PCAPP_ASSERT(ip6Count == 4, "Read cycle 2: Incorrect number of IPv6 packets read. Expected: 4; read: %d", ip6Count);
+    PCAPP_ASSERT(tcpCount == 159, "Read cycle 2: Incorrect number of TCP packets read. Expected: 159; read: %d", tcpCount);
+    PCAPP_ASSERT(udpCount == 0, "Read cycle 2: Incorrect number of UDP packets read. Expected: 0; read: %d", udpCount);
+    PCAPP_ASSERT(httpCount == 1, "Read cycle 2: Incorrect number of HTTP packets read. Expected: 1; read: %d", httpCount);
+    PCAPP_ASSERT(commentCount == 100, "Read cycle 2: Incorrect number of packets with comment read. Expected: 100; read: %d", commentCount);
+
+    readerDev2.close();
+    readerDev3.close();
+
+    PcapNgFileWriterDevice appendDev(EXAMPLE2_PCAPNG_WRITE_PATH);
+    PCAPP_ASSERT(appendDev.open(true) == true, "Couldn't open file in append mode");
+
+    PCAPP_ASSERT(appendDev.writePacket(rawPacket2, "Additional packet #1") == true, "Couldn't append packet #1");
+    PCAPP_ASSERT(appendDev.writePacket(rawPacket2, "Additional packet #2") == true, "Couldn't append packet #2");
+
+    appendDev.close();
+
+
+    PcapNgFileReaderDevice readerDev4(EXAMPLE2_PCAPNG_WRITE_PATH);
+    PCAPP_ASSERT(readerDev4.open(), "cannot open reader device 4");
+
+    packetCount = 0;
+
+    while (readerDev4.getNextPacket(rawPacket, pktComment))
+    {
+    	packetCount++;
+    }
+
+    PCAPP_ASSERT(packetCount == 161, "Number of packets after append != 161, it's %d", packetCount);
 
 	PCAPP_TEST_PASSED;
 }
@@ -3310,6 +3567,8 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPcapFileReadWrite, args, false);
 	PCAPP_RUN_TEST(TestPcapSllFileReadWrite, args, false);
 	PCAPP_RUN_TEST(TestPcapFileAppend, args, false);
+	PCAPP_RUN_TEST(TestPcapNgFileReadWrite, args, false);
+	PCAPP_RUN_TEST(TestPcapNgFileReadWriteAdv, args, false);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceList, args, false);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceListSearch, args, true);
 	PCAPP_RUN_TEST(TestPcapLiveDevice, args, true);
