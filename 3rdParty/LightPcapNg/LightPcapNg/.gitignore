@@ -1,0 +1,13 @@
+*.o
+*.zip
+*.gch
+*.test
+*.pcapng
+*.data
+*.old
+*.a
+*.so
+*.cap
+*.ntar
+*.log
+*.cmake
