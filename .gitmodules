@@ -1,3 +1,0 @@
-[submodule "3rdParty/LightPcapNg/LightPcapNg"]
-	path = 3rdParty/LightPcapNg/LightPcapNg
-	url = https://github.com/seladb/LightPcapNg.git
