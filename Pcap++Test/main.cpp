@@ -802,6 +802,9 @@ PCAPP_TEST(TestPcapNgFileReadWrite)
     PCAPP_ASSERT(readerDev.getHardware() == "", "Hardware string isn't empty");
     RawPacket rawPacket;
     int packetCount = 0;
+    int ethLinkLayerCount = 0;
+    int nullLinkLayerCount = 0;
+    int otherLinkLayerCount = 0;
     int ethCount = 0;
     int ipCount = 0;
     int tcpCount = 0;
@@ -809,6 +812,15 @@ PCAPP_TEST(TestPcapNgFileReadWrite)
     while (readerDev.getNextPacket(rawPacket))
     {
     	packetCount++;
+
+    	LinkLayerType linkType = rawPacket.getLinkLayerType();
+    	if (linkType == LINKTYPE_ETHERNET)
+    		ethLinkLayerCount++;
+    	else if (linkType == LINKTYPE_NULL)
+    		nullLinkLayerCount++;
+    	else
+    		otherLinkLayerCount++;
+
     	Packet packet(&rawPacket);
 		if (packet.isPacketOfType(Ethernet))
 			ethCount++;
@@ -833,6 +845,9 @@ PCAPP_TEST(TestPcapNgFileReadWrite)
     PCAPP_ASSERT(writerStatistics.ps_recv == 64, "Incorrect number of packets written to file. Expected: 64; written: %d", writerStatistics.ps_recv);
     PCAPP_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
 
+    PCAPP_ASSERT(ethLinkLayerCount == 62, "Incorrect number of Ethernet link-type packets read. Expected: 62; read: %d", ethLinkLayerCount);
+    PCAPP_ASSERT(nullLinkLayerCount == 2, "Incorrect number of Null link-type packets read. Expected: 2; read: %d", nullLinkLayerCount);
+    PCAPP_ASSERT(otherLinkLayerCount == 0, "Incorrect number of other link-type packets read. Expected: 0; read: %d", otherLinkLayerCount);
     PCAPP_ASSERT(ethCount == 64, "Incorrect number of Ethernet packets read. Expected: 64; read: %d", ethCount);
     PCAPP_ASSERT(ipCount == 62, "Incorrect number of IPv4 packets read. Expected: 62; read: %d", ipCount);
     PCAPP_ASSERT(tcpCount == 32, "Incorrect number of TCP packets read. Expected: 32; read: %d", tcpCount);
@@ -1039,6 +1054,19 @@ PCAPP_TEST(TestPcapNgFileReadWriteAdv)
     }
 
     PCAPP_ASSERT(packetCount == 161, "Number of packets after append != 161, it's %d", packetCount);
+
+    // -------
+
+    IFileReaderDevice* genericReader = IFileReaderDevice::getReader(EXAMPLE2_PCAP_PATH);
+    PCAPP_ASSERT(dynamic_cast<PcapFileReaderDevice*>(genericReader) != NULL, "Reader isn't of type PcapFileReaderDevice");
+    PCAPP_ASSERT(dynamic_cast<PcapNgFileReaderDevice*>(genericReader) == NULL, "Reader is wrongly of type PcapNgFileReaderDevice");
+    delete genericReader;
+
+    genericReader = IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_PATH);
+    PCAPP_ASSERT(dynamic_cast<PcapFileReaderDevice*>(genericReader) == NULL, "Reader is wrongly of type PcapFileReaderDevice");
+    PCAPP_ASSERT(dynamic_cast<PcapNgFileReaderDevice*>(genericReader) != NULL, "Reader isn't of type PcapNgFileReaderDevice");
+    delete genericReader;
+
 
 	PCAPP_TEST_PASSED;
 }

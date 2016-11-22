@@ -29,7 +29,7 @@ namespace pcpp
 		//override methods
 
 		/**
-		 * Close the pcap file
+		 * Close the file
 		 */
 		virtual void close();
 	};
@@ -59,13 +59,15 @@ namespace pcpp
 		 */
 		virtual ~IFileReaderDevice() {}
 
-		/**
-		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
-		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
-		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
-		 * or if reached end-of-file
-		 */
 		virtual bool getNextPacket(RawPacket& rawPacket) = 0;
+
+		/**
+		 * A static method that creates an instance of the reader best fit to read the file. It decides by the file extension: for .pcapng
+		 * files it returns an instance of PcapNgFileReaderDevice and for all other extensions it returns an instance of PcapFileReaderDevice
+		 * @param[in] fileName The file name to open
+		 * @return An instance of the reader to read the file. Notice you should free this instance when done using it
+		 */
+		static IFileReaderDevice* getReader(const char* fileName);
 	};
 
 
@@ -97,6 +99,12 @@ namespace pcpp
 
 		//overridden methods
 
+		/**
+		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
+		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
+		 * or if reached end-of-file
+		 */
 		bool getNextPacket(RawPacket& rawPacket);
 
 		/**
@@ -140,18 +148,56 @@ namespace pcpp
 		 */
 		virtual ~PcapNgFileReaderDevice() { close(); }
 
+		/**
+		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string specifying the
+		 * operating system that was used for capturing the packets. This method reads this string from the metadata (if exists) and
+		 * returns it
+		 * @return The operating system string if exists, or an empty string otherwise
+		 */
 		std::string getOS();
 
+		/**
+		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string specifying the
+		 * hardware that was used for capturing the packets. This method reads this string from the metadata (if exists) and
+		 * returns it
+		 * @return The hardware string if exists, or an empty string otherwise
+		 */
 		std::string getHardware();
 
+		/**
+		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string specifying the
+		 * capture application that was used for capturing the packets. This method reads this string from the metadata (if exists) and
+		 * returns it
+		 * @return The capture application string if exists, or an empty string otherwise
+		 */
 		std::string getCaptureApplication();
 
+		/**
+		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string containing a user-defined
+		 * comment (can be any string). This method reads this string from the metadata (if exists) and
+		 * returns it
+		 * @return The comment written inside the file if exists, or an empty string otherwise
+		 */
 		std::string getCaptureFileComment();
 
+		/**
+		 * The pcap-ng format allows storing a user-defined comment for every packet (besides the comment per-file). This method reads
+		 * the next packet and the comment attached to it (if such comment exists), and returns them both
+		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
+		 * @param[out] packetComment The comment attached to the packet or an empty string if no comment exists
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
+		 * or if reached end-of-file
+		 */
 		bool getNextPacket(RawPacket& rawPacket, std::string& packetComment);
 
 		//overridden methods
 
+		/**
+		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
+		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
+		 * or if reached end-of-file
+		 */
 		bool getNextPacket(RawPacket& rawPacket);
 
 		/**
@@ -168,7 +214,7 @@ namespace pcpp
 		void getStatistics(pcap_stat& stats);
 
 		/**
-		 * Close the pacpng file
+		 * Close the pacp-ng file
 		 */
 		void close();
 	};
@@ -289,6 +335,13 @@ namespace pcpp
 	};
 
 
+	/**
+	 * @class PcapNgFileWriterDevice
+	 * A class for opening a pcap-ng file for writing or creating a new pcap-ng file and write packets to it. This class adds
+	 * unique capabilities such as writing metadata attributes into the file header, adding comments per packet and opening
+	 * the file in append mode where packets are added to a file instead of overriding it. This capabilities are part of the
+	 * pcap-ng standard but aren't supported in most tools and libraries
+	 */
 	class PcapNgFileWriterDevice : public IFileWriterDevice
 	{
 	private:
@@ -300,6 +353,12 @@ namespace pcpp
 		PcapNgFileWriterDevice& operator=(const PcapNgFileWriterDevice& other);
 
 	public:
+
+		/**
+		 * A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice that after calling this
+		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
+		 * @param[in] fileName The full path of the file
+		 */
 		PcapNgFileWriterDevice(const char* fileName);
 
 		/**
@@ -307,22 +366,80 @@ namespace pcpp
 		 */
 		virtual ~PcapNgFileWriterDevice() { close(); }
 
+		/**
+		 * Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
+		 * overwritten, meaning all its current content will be deleted. As opposed to open(), this method also allows writing several
+		 * metadata attributes that will be stored in the header of the file
+		 * @param[in] os A string describing the operating system that was used to capture the packets. If this string is empty or null it
+		 * will be ignored
+		 * @param[in] hardware A string describing the hardware that was used to capture the packets. If this string is empty or null it
+		 * will be ignored
+		 * @param[in] captureApp A string describing the application that was used to capture the packets. If this string is empty or null it
+		 * will be ignored
+		 * @param[in] fileComment A string containing a user-defined comment that will be part of the metadata of the file.
+		 * If this string is empty or null it will be ignored
+		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file failed for some reason
+		 * (an error will be printed to log)
+		 */
 		bool open(const char* os, const char* hardware, const char* captureApp, const char* fileComment);
 
+		/**
+		 * The pcap-ng format allows adding a user-defined comment for each stored packet. This method writes a RawPacket to the file and
+		 * adds a comment to it. Before using this method please verify the file is opened using open(). This method won't change the
+		 * written packet or the input comment
+		 * @param[in] packet A reference for an existing RawPcket to write to the file
+		 * @param[in] comment The comment to be written for the packet. If this string is empty or null it will be ignored
+		 * @return True if a packet was written successfully. False will be returned if the file isn't opened (an error will be printed to log)
+		 */
 		bool writePacket(RawPacket const& packet, const char* comment);
 
 		//overridden methods
 
+		/**
+		 * Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change the
+		 * written packet
+		 * @param[in] packet A reference for an existing RawPcket to write to the file
+		 * @return True if a packet was written successfully. False will be returned if the file isn't opened (an error will be printed to log)
+		 */
 		bool writePacket(RawPacket const& packet);
 
+		/**
+		 * Write multiple RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change
+		 * the written packets or the RawPacketVector instance
+		 * @param[in] packets A reference for an existing RawPcketVector, all of its packets will be written to the file
+		 * @return True if all packets were written successfully to the file. False will be returned if the file isn't opened (also, an error
+		 * log will be printed) or if at least one of the packets wasn't written successfully to the file
+		 */
 		bool writePackets(const RawPacketVector& packets);
 
+		/**
+		 * Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
+		 * overwritten, meaning all its current content will be deleted
+		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file failed for some reason
+		 * (an error will be printed to log)
+		 */
 		bool open();
 
+		/**
+		 * Same as open(), but enables to open the file in append mode in which packets will be appended to the file
+		 * instead of overwrite its current content. In append mode file must exist, otherwise opening will fail
+		 * @param[in] appendMode A boolean indicating whether to open the file in append mode or not. If set to false
+		 * this method will act exactly like open(). If set to true, file will be opened in append mode
+		 * @return True of managed to open the file successfully. In case appendMode is set to true, false will be returned
+		 * if file wasn't found or couldn't be read, if file type is not pcap-ng. In case appendMode is set to false, please refer to open()
+		 * for return values
+		 */
 		bool open(bool appendMode);
 
+		/**
+		 * Flush and close the pacp-ng file
+		 */
 		void close();
 
+		/**
+		 * Get statistics of packets written so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
+		 * @param[out] stats The stats struct where stats are returned
+		 */
 		void getStatistics(pcap_stat& stats);
 	};
 

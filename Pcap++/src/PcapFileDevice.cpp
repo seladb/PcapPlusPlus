@@ -69,6 +69,16 @@ IFileReaderDevice::IFileReaderDevice(const char* fileName) : IFileDevice(fileNam
 	m_NumOfPacketsRead = 0;
 }
 
+IFileReaderDevice* IFileReaderDevice::getReader(const char* fileName)
+{
+	std::string fileNameStr = std::string(fileName);
+	std::string fileExtension = fileNameStr.substr(fileNameStr.find_last_of("."));
+	if (fileExtension == ".pcapng")
+		return new PcapNgFileReaderDevice(fileName);
+	else
+		return new PcapFileReaderDevice(fileName);
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // PcapFileReaderDevice members
@@ -569,16 +579,7 @@ bool PcapNgFileWriterDevice::open(const char* os, const char* hardware, const ch
 	{
 		LOG_ERROR("Error opening file writer device for file '%s': light_pcapng_open_write returned NULL", m_FileName);
 
-		if (info->file_comment != NULL)
-			delete [] info->file_comment;
-		if (info->os_desc != NULL)
-			delete [] info->os_desc;
-		if (info->hardware_desc != NULL)
-			delete [] info->hardware_desc;
-		if (info->user_app_desc != NULL)
-			delete [] info->user_app_desc;
-
-		delete info;
+		light_free_file_info(info);
 
 		m_DeviceOpened = false;
 		return false;
@@ -649,10 +650,15 @@ bool PcapNgFileWriterDevice::open()
 	m_NumOfPacketsNotWritten = 0;
 	m_NumOfPacketsWritten = 0;
 
-	m_LightPcapNg = light_pcapng_open_write(m_FileName, light_create_default_file_info());
+	light_pcapng_file_info* info = light_create_default_file_info();
+
+	m_LightPcapNg = light_pcapng_open_write(m_FileName, info);
 	if (m_LightPcapNg == NULL)
 	{
 		LOG_ERROR("Error opening file writer device for file '%s': light_pcapng_open_write returned NULL", m_FileName);
+
+		light_free_file_info(info);
+
 		m_DeviceOpened = false;
 		return false;
 	}
