@@ -133,7 +133,12 @@ namespace pcpp
 		/**
 		 * SLL (Linux cooked capture) protocol
 		 */
-		SLL = 0x40000
+		SLL = 0x40000,
+
+		/**
+		 * DHCP/BOOTP protocol
+		 */
+		DHCP = 0x80000
 
 	};
 
