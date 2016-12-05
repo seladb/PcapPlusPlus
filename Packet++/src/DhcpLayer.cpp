@@ -95,7 +95,10 @@ MacAddress DhcpLayer::getClientHardwareAddress()
 
 void DhcpLayer::setClientHardwareAddress(const MacAddress& addr)
 {
-	addr.copyTo(getDhcpHeader()->clientHardwareAddress);
+	dhcp_header* hdr = getDhcpHeader();
+	hdr->hardwareType = 1; // Ethernet
+	hdr->hardwareAddressLength = 6; // MAC address length
+	addr.copyTo(hdr->clientHardwareAddress);
 }
 
 size_t DhcpLayer::getHeaderLen()
