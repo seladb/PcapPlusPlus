@@ -43,7 +43,7 @@ namespace pcpp
         uint32_t serverIpAddress;
         /** Gateway IPv4 address */
         uint32_t gatewayIpAddress;
-        /** Client hardware address, byt default contains the MAC address (only 6 first bytes are valid) */
+        /** Client hardware address, by default contains the MAC address (only 6 first bytes are used) */
         uint8_t clientHardwareAddress[16];
         /** BootP server name */
         uint8_t serverName[64];
@@ -404,13 +404,13 @@ namespace pcpp
 		uint8_t value[];
 
 		/**
-		 * A templated method to retrieve the DHCP option data as a certain type T. For example, DHCP option data is 4B
-		 * (integer) then this method should be used as getValueAs<int>() and it will return the TCP option data as an integer.<BR>
+		 * A templated method to retrieve the DHCP option data as a certain type T. For example, if DHCP option data is 4B
+		 * (integer) then this method should be used as getValueAs<int>() and it will return the DHCP option data as an integer.<BR>
 		 * Notice this return value is a copy of the data, not a pointer to the actual data
 		 * @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For example:
 		 * if option data is 20 bytes and you need only the 4 last bytes as integer then use this method like this:
-		 * getValueAs<int>(16). The default is 0 - start copy from the beginning of option data
-		 * @return The TCP option data as type T
+		 * getValueAs<int>(16). The default is 0 - start copying from the beginning of option data
+		 * @return The DHCP option data as type T
 		 */
 		template<typename T>
 		T getValueAs(int valueOffset = 0)
@@ -449,9 +449,9 @@ namespace pcpp
 
 		/**
 		 * A templated method to copy data of type T into the DHCP option data. For example: if option data is 4[Bytes] long use
-		 * this method with <int> to set an integer value into the TCP option data: setValue<int>(num)
+		 * this method with \<int\> to set an integer value into the DHCP option data: setValue<int>(num)
 		 * @param[in] newValue The value of type T to copy to DHCP option data
-		 * @param[in] valueOffset An optional parameter that specifies where to start set the option data (default set to 0). For example:
+		 * @param[in] valueOffset An optional parameter that specifies where to start setting the option data (default set to 0). For example:
 		 * if option data is 20 bytes long and you only need to set the 4 last bytes as integer then use this method like this:
 		 * setValue<int>(num, 16)
 		 */
@@ -462,10 +462,11 @@ namespace pcpp
 		}
 
 		/**
-		 * Set DHCP option data as IPv4 address. This method copies the 4 bytes of the address to the option value
+		 * Set DHCP option data as IPv4 address. This method copies the 4 bytes of the IP address to the option value
 		 * @param[in] addr The IPv4 address to set
 		 * @param[in] valueOffset An optional parameter that specifies where to start set the option data (default set to 0). For example:
-		 * if option data is 20 bytes long and you want to set the IP address in the 4 last bytes you should put 16
+		 * if option data is 20 bytes long and you want to set the IP address in the 4 last bytes then use this method like this:
+		 * setValueIpAddr(your_addr, 16)
 		 */
 		void setValueIpAddr(const IPv4Address& addr, int valueOffset = 0)
 		{
@@ -477,7 +478,8 @@ namespace pcpp
 		 * the string is trimmed so it will fit the option length
 		 * @param[in] stringValue The string to set
 		 * @param[in] valueOffset An optional parameter that specifies where to start set the option data (default set to 0). For example:
-		 * if option data is 20 bytes long and you want to set a 6 char-long string in the 6 last bytes you should put 14
+		 * if option data is 20 bytes long and you want to set a 6 char-long string in the 6 last bytes then use this method like this:
+		 * setValueString("string", 14)
 		 */
 		void setValueString(const std::string& stringValue, int valueOffset = 0)
 		{
@@ -490,7 +492,7 @@ namespace pcpp
 
 		/**
 		 * @return The total size in bytes of this DHCP option which includes: 1[Byte] (option type) + 1[Byte]
-		 * (option length) + X[Bytes] (option data length). For DHCPOPT_END and DHCPOPT_PAD the value 1 is returned
+		 * (option length) + X[Bytes] (option data length). For ::DHCPOPT_END and ::DHCPOPT_PAD the value 1 is returned
 		 */
 		inline size_t getTotalSize() const
 		{
@@ -512,7 +514,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @return DHCP option type casted as DhcpOptionTypes enum
+		 * @return DHCP option type casted as pcpp::DhcpOptionTypes enum
 		 */
 		inline DhcpOptionTypes getType() { return (DhcpOptionTypes)opCode; }
 
@@ -532,7 +534,7 @@ namespace pcpp
 	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -540,14 +542,15 @@ namespace pcpp
 		DhcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
-		 * A constructor that creates a layer from scratch
-		 * @param[in] msgType A DHCP message type to set (adds a DHCPOPT_DHCP_MESSAGE_TYPE option)
+		 * A constructor that creates the layer from scratch. Adds a ::DHCPOPT_DHCP_MESSAGE_TYPE and a ::DHCPOPT_END
+		 * options
+		 * @param[in] msgType A DHCP message type to be set
 		 * @param[in] clientMacAddr A client MAC address to set in dhcp_header#clientHardwareAddress field
 		 */
 		DhcpLayer(DhcpMessageType msgType, const MacAddress& clientMacAddr);
 
 		/**
-		 * A constructor that creates a layer from scratch with clean data
+		 * A constructor that creates the layer from scratch with clean data
 		 */
 		DhcpLayer();
 
@@ -568,45 +571,45 @@ namespace pcpp
 		inline BootpOpCodes getOpCode() { return (BootpOpCodes)getDhcpHeader()->opCode; }
 
 		/**
-		 * @return The client IPv4 address (as extracted from the message converted to IPv4Address object)
+		 * @return The client IPv4 address (as extracted from dhcp_header#clientIpAddress converted to IPv4Address object)
 		 */
 		IPv4Address getClientIpAddress();
 
 		/**
-		 * Set the client IPv4 address
+		 * Set the client IPv4 address in dhcp_header#clientIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
 		void setClientIpAddress(const IPv4Address& addr);
 
 		/**
-		 * @return The server IPv4 address (as extracted from the message converted to IPv4Address object)
+		 * @return The server IPv4 address (as extracted from dhcp_header#serverIpAddress converted to IPv4Address object)
 		 */
 		IPv4Address getServerIpAddress();
 
 		/**
-		 * Set the server IPv4 address
+		 * Set the server IPv4 address in dhcp_header#serverIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
 		void setServerIpAddress(const IPv4Address& addr);
 
 		/**
-		 * @return Your IPv4 address (as extracted from the message converted to IPv4Address object)
+		 * @return Your IPv4 address (as extracted from dhcp_header#yourIpAddress converted to IPv4Address object)
 		 */
 		IPv4Address getYourIpAddress();
 
 		/**
-		 * Set your IPv4 address
+		 * Set your IPv4 address in dhcp_header#yourIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
 		void setYourIpAddress(const IPv4Address& addr);
 
 		/**
-		 * @return Gateway IPv4 address (as extracted from the message converted to IPv4Address object)
+		 * @return Gateway IPv4 address (as extracted from dhcp_header#gatewayIpAddress converted to IPv4Address object)
 		 */
 		IPv4Address getGatewayIpAddress();
 
 		/**
-		 * Set the gateway IPv4 address
+		 * Set the gateway IPv4 address in dhcp_header#gatewayIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
 		void setGatewayIpAddress(const IPv4Address& addr);
@@ -618,30 +621,92 @@ namespace pcpp
 		MacAddress getClientHardwareAddress();
 
 		/**
-		 * Set a MAC address into the first 6 bytes of dhcp_header#clientHardwareAddres. This method also sets dhcp_header#hardwareType
+		 * Set a MAC address into the first 6 bytes of dhcp_header#clientHardwareAddress. This method also sets dhcp_header#hardwareType
 		 * to 1 (Ethernet) and dhcp_header#hardwareAddressLength to 6 (MAC address length)
 		 * @param[in] addr The MAC address to set
 		 */
 		void setClientHardwareAddress(const MacAddress& addr);
 
+		/**
+		 * @return DHCP message type as extracted from ::DHCPOPT_DHCP_MESSAGE_TYPE option. If this option doesn't exist the value of
+		 * ::DHCP_UNKNOWN_MSG_TYPE is returned
+		 */
 		DhcpMessageType getMesageType();
 
+		/**
+		 * Set DHCP message type. This method searches for existing ::DHCPOPT_DHCP_MESSAGE_TYPE option. If found, it sets the requested
+		 * message type as its value. If not, it creates a ::DHCPOPT_DHCP_MESSAGE_TYPE option and sets the requested message type as its
+		 * value
+		 * @param[in] msgType Message type to set
+		 * @return True if message type was set successfully or false if msgType is ::DHCP_UNKNOWN_MSG_TYPE or if failed to add
+		 * ::DHCPOPT_DHCP_MESSAGE_TYPE option
+		 */
 		bool setMesageType(DhcpMessageType msgType);
 
+		/**
+		 * @return The first DHCP option, or NULL if no options exist. Notice the return value is a pointer to the real data casted to
+		 * DhcpOptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
+		 */
 		DhcpOptionData* getFirstOptionData();
 
+		/**
+		 * Get the DHCP option that comes next to "dhcpOption" option. If "dhcpOption" is NULL then NULL will be returned.
+		 * If "dhcpOption" is the last DHCP option NULL will be returned. Notice the return value is a pointer to the real data casted to
+		 * DhcpOptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
+		 * @param[in] dhcpOption The DHCP option to start searching from
+		 * @return The next DHCP option or NULL if "dhcpOption" is NULL or "dhcpOption" is the last DHCP option
+		 */
 		DhcpOptionData* getNextOptionData(DhcpOptionData* dhcpOption);
 
+		/**
+		 * Search for a DHCP option by type. Notice the return value points directly to the data, so every change will change the actual packet data
+		 * @param[in] option The DHCP option type to search
+		 * @return A pointer to the DHCP option in this layer
+		 */
 		DhcpOptionData* getOptionData(DhcpOptionTypes option);
 
+		/**
+		 * @return The number of DHCP options in this layer
+		 */
 		size_t getOptionsCount();
 
+		/**
+		 * Add a new DHCP option at the end of the layer (but before the ::DHCPOPT_END option if exists)
+		 * @param[in] optionType The type of the newly added option
+		 * @param[in] optionLen The length of the option data
+		 * @param[in] optionData A pointer to the option data. This data will be copied to newly added option data. Notice the length of
+		 * optionData must be optionLen
+		 * @return A pointer to the newly added DHCP option data or NULL if addition failed. Notice this is a pointer to the
+		 * real data casted to DhcpOptionData type (as opposed to a copy of the option data). So changes in this return
+		 * value will affect the packet data
+		 */
 		DhcpOptionData* addOption(DhcpOptionTypes optionType, uint16_t optionLen, const uint8_t* optionData);
 
+		/**
+		 * Add a new DHCP option after an existing option
+		 * @param[in] optionType The type of the newly added option
+		 * @param[in] optionLen The length of the option data
+		 * @param[in] optionData A pointer to the option data. This data will be copied to added option data. Notice the length of
+		 * optionData must be optionLength
+		 * @param[in] prevOption The DHCP option which the newly added tag will come after. If set to NULL DHCP option will be
+		 * added as the first DHCP option
+		 * @return A pointer to the newly added option or NULL if addition failed. Notice this is a pointer to the real data
+		 * casted to DhcpOptionData type (as opposed to a copy of the option data). So changes in this return value will affect
+		 * the packet data
+		 */
 		DhcpOptionData* addOptionAfter(DhcpOptionTypes optionType, uint16_t optionLen, const uint8_t* optionData, DhcpOptionTypes prevOption);
 
+		/**
+		 * Remove an existing DHCP option from the layer
+		 * @param[in] optionType The DHCP option type to remove
+		 * @return True if DHCP option was successfully removed or false if type wasn't found or if removal failed
+		 */
 		bool removeOption(DhcpOptionTypes optionType);
 
+		/**
+		 * Remove all DHCP options in this layer
+		 * @return True if all DHCP options were successfully removed or false if removal failed for some reason
+		 */
 		bool removeAllOptions();
 
 		// implement abstract methods

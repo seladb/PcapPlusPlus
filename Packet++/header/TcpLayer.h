@@ -222,7 +222,7 @@ namespace pcpp
 
 		/**
 		 * A templated method to copy data of type T into the TCP option data. For example: if option data is 4[Bytes] long use
-		 * this method with <int> to set an integer value into the TCP option data: setValue<int>(num)
+		 * this method with \<int\> to set an integer value into the TCP option data: setValue<int>(num)
 		 * @param[in] newValue The value of type T to copy to TCP option data
 		 * @param[in] valueOffset An optional parameter that specifies where to start set the option data. For example:
 		 * if option data is 20 bytes long and you only need to set the 4 last bytes as integer then use this method like this:
