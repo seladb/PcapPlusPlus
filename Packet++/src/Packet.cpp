@@ -3,6 +3,7 @@
 #include <Packet.h>
 #include <EthLayer.h>
 #include <SllLayer.h>
+#include <NullLoopbackLayer.h>
 #include <Logger.h>
 #include <string.h>
 #include <typeinfo>
@@ -36,9 +37,13 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
 	m_MaxPacketLen = rawPacket->getRawDataLen();
 	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
-	if(m_RawPacket && m_RawPacket->getLinkLayerType() == LINKTYPE_LINUX_SLL)
+	if (m_RawPacket && m_RawPacket->getLinkLayerType() == LINKTYPE_LINUX_SLL)
 	{
 		m_FirstLayer = new SllLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+	}
+	else if (m_RawPacket && m_RawPacket->getLinkLayerType() == LINKTYPE_NULL)
+	{
+		m_FirstLayer = new NullLoopbackLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	}
 	else
 	{

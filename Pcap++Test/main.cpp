@@ -806,6 +806,7 @@ PCAPP_TEST(TestPcapNgFileReadWrite)
     int nullLinkLayerCount = 0;
     int otherLinkLayerCount = 0;
     int ethCount = 0;
+    int nullLoopbackCount = 0;
     int ipCount = 0;
     int tcpCount = 0;
     int udpCount = 0;
@@ -824,6 +825,8 @@ PCAPP_TEST(TestPcapNgFileReadWrite)
     	Packet packet(&rawPacket);
 		if (packet.isPacketOfType(Ethernet))
 			ethCount++;
+		if (packet.isPacketOfType(NULL_LOOPBACK))
+			nullLoopbackCount++;
 		if (packet.isPacketOfType(IPv4))
 			ipCount++;
 		if (packet.isPacketOfType(TCP))
@@ -848,10 +851,11 @@ PCAPP_TEST(TestPcapNgFileReadWrite)
     PCAPP_ASSERT(ethLinkLayerCount == 62, "Incorrect number of Ethernet link-type packets read. Expected: 62; read: %d", ethLinkLayerCount);
     PCAPP_ASSERT(nullLinkLayerCount == 2, "Incorrect number of Null link-type packets read. Expected: 2; read: %d", nullLinkLayerCount);
     PCAPP_ASSERT(otherLinkLayerCount == 0, "Incorrect number of other link-type packets read. Expected: 0; read: %d", otherLinkLayerCount);
-    PCAPP_ASSERT(ethCount == 64, "Incorrect number of Ethernet packets read. Expected: 64; read: %d", ethCount);
-    PCAPP_ASSERT(ipCount == 62, "Incorrect number of IPv4 packets read. Expected: 62; read: %d", ipCount);
+    PCAPP_ASSERT(ethCount == 62, "Incorrect number of Ethernet packets read. Expected: 62; read: %d", ethCount);
+    PCAPP_ASSERT(nullLoopbackCount == 2, "Incorrect number of Null/Loopback packets read. Expected: 2; read: %d", nullLoopbackCount);
+    PCAPP_ASSERT(ipCount == 64, "Incorrect number of IPv4 packets read. Expected: 64; read: %d", ipCount);
     PCAPP_ASSERT(tcpCount == 32, "Incorrect number of TCP packets read. Expected: 32; read: %d", tcpCount);
-    PCAPP_ASSERT(udpCount == 30, "Incorrect number of UDP packets read. Expected: 30; read: %d", udpCount);
+    PCAPP_ASSERT(udpCount == 32, "Incorrect number of UDP packets read. Expected: 32; read: %d", udpCount);
 
     readerDev.close();
     writerDev.close();

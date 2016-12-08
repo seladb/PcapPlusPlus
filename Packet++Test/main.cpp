@@ -17,6 +17,7 @@
 #include <GreLayer.h>
 #include <SSLLayer.h>
 #include <DhcpLayer.h>
+#include <NullLoopbackLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -4280,6 +4281,68 @@ PACKETPP_TEST(DhcpEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(NullLoopbackTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/NullLoopback1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file NullLoopback1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/NullLoopback2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file NullLoopback2.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true, LINKTYPE_NULL);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true, LINKTYPE_NULL);
+
+	Packet nullPacket1(&rawPacket1);
+	Packet nullPacket2(&rawPacket2);
+
+	NullLoopbackLayer* nullLoopbackLayer;
+	Layer* nextLayer;
+
+	PACKETPP_ASSERT(nullPacket1.isPacketOfType(NULL_LOOPBACK) == true, "nullPacket1 isn't of type Null/Loopback");
+	nullLoopbackLayer = nullPacket1.getLayerOfType<NullLoopbackLayer>();
+	PACKETPP_ASSERT(nullLoopbackLayer != NULL, "Couldn't get null/loopback layer for nullPacket1");
+	nextLayer = nullLoopbackLayer->getNextLayer();
+	PACKETPP_ASSERT(nextLayer != NULL, "Couldn't get IPv6 layer");
+	PACKETPP_ASSERT(nextLayer->getProtocol() == IPv6, "Next layer isn't of type IPv6");
+	PACKETPP_ASSERT(nullLoopbackLayer->getFamily() == PCPP_BSD_AF_INET6_DARWIN, "nullPacket1: family isn't PCPP_BSD_AF_INET6_DARWIN");
+
+	PACKETPP_ASSERT(nullPacket2.isPacketOfType(NULL_LOOPBACK) == true, "nullPacket2 isn't of type Null/Loopback");
+	nullLoopbackLayer = nullPacket2.getLayerOfType<NullLoopbackLayer>();
+	PACKETPP_ASSERT(nullLoopbackLayer != NULL, "Couldn't get null/loopback layer for nullPacket2");
+	nextLayer = nullLoopbackLayer->getNextLayer();
+	PACKETPP_ASSERT(nextLayer != NULL, "Couldn't get IPv4 layer");
+	PACKETPP_ASSERT(nextLayer->getProtocol() == IPv4, "Next layer isn't of type IPv4");
+	PACKETPP_ASSERT(((IPv4Layer*)nextLayer)->getSrcIpAddress() == IPv4Address(std::string("172.16.1.117")), "IPv4 src IP isn't 172.16.1.117");
+	PACKETPP_ASSERT(nullLoopbackLayer->getFamily() == PCPP_BSD_AF_INET, "nullPacket1: family isn't PCPP_BSD_AF_INET");
+
+	Packet newNullPacket(1);
+	NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
+	IPv4Layer newIp4Layer(IPv4Address(std::string("172.16.1.117")), IPv4Address(std::string("172.16.1.255")));
+	newIp4Layer.getIPv4Header()->ipId = htons(49513);
+	newIp4Layer.getIPv4Header()->timeToLive = 64;
+
+	UdpLayer newUdpLayer(55369, 8612);
+
+	uint8_t payload[] = { 0x42, 0x4a, 0x4e, 0x42, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	PayloadLayer newPayloadLayer(payload, 16, false);
+
+	PACKETPP_ASSERT(newNullPacket.addLayer(&newNullLoopbackLayer) == true, "Couldn't add null/loopback layer");
+	PACKETPP_ASSERT(newNullPacket.addLayer(&newIp4Layer) == true, "Couldn't add IPv4 layer");
+	PACKETPP_ASSERT(newNullPacket.addLayer(&newUdpLayer) == true, "Couldn't add UDP layer");
+	PACKETPP_ASSERT(newNullPacket.addLayer(&newPayloadLayer) == true, "Couldn't add payload layer");
+
+	newNullPacket.computeCalculateFields();
+
+	PACKETPP_ASSERT(buffer2Length == newNullPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", newNullPacket.getRawPacket()->getRawDataLen(), buffer2Length);
+	PACKETPP_ASSERT(memcmp(newNullPacket.getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "Raw packet data is different than expected");
+
+	PACKETPP_TEST_PASSED;
+}
+
 int main(int argc, char* argv[]) {
 	start_leak_check();
 
@@ -4339,6 +4402,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(DhcpParsingTest);
 	PACKETPP_RUN_TEST(DhcpCreationTest);
 	PACKETPP_RUN_TEST(DhcpEditTest);
+	PACKETPP_RUN_TEST(NullLoopbackTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

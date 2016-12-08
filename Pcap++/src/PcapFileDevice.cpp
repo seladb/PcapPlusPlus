@@ -114,6 +114,7 @@ bool PcapFileReaderDevice::open()
 	{
 		case LINKTYPE_ETHERNET:
 		case LINKTYPE_LINUX_SLL:
+		case LINKTYPE_NULL:
 			break;
 		default:
 			LOG_ERROR("Cannot open file reader device for filename '%s': the link type %d is not supported", m_FileName, m_PcapLinkLayerType);
@@ -432,6 +433,7 @@ bool PcapFileWriterDevice::open()
 	{
 		case LINKTYPE_ETHERNET:
 		case LINKTYPE_LINUX_SLL:
+		case LINKTYPE_NULL:
 			break;
 		default:
 			LOG_ERROR("The link type %d is not supported", m_PcapLinkLayerType);

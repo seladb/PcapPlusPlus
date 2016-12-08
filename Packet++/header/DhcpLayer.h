@@ -484,7 +484,7 @@ namespace pcpp
 		void setValueString(const std::string& stringValue, int valueOffset = 0)
 		{
 			std::string val = stringValue;
-			if (stringValue.length() > len-valueOffset)
+			if (stringValue.length() > (size_t)len-(size_t)valueOffset)
 				val = stringValue.substr(0, len-valueOffset);
 
 			memcpy(value+valueOffset, val.c_str(), val.length());

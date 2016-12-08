@@ -138,7 +138,12 @@ namespace pcpp
 		/**
 		 * DHCP/BOOTP protocol
 		 */
-		DHCP = 0x80000
+		DHCP = 0x80000,
+
+		/**
+		 * Null/Loopback protocol
+		 */
+		NULL_LOOPBACK = 0x100000
 
 	};
 
