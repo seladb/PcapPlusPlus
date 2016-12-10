@@ -91,7 +91,7 @@ void PcapLiveDeviceList::setDnsServers()
 		}
 	}
 #elif LINUX
-	std::string command = "nmcli dev list | grep IP4.DNS";
+	std::string command = "nmcli dev show | grep IP4.DNS";
 	std::string dnsServersInfo = executeShellCommand(command);
 	if (dnsServersInfo == "")
 	{
