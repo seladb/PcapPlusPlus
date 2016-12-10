@@ -91,7 +91,27 @@ void PcapLiveDeviceList::setDnsServers()
 		}
 	}
 #elif LINUX
-	std::string command = "nmcli dev list | grep IP4.DNS";
+	// verify that nmcli exist
+	std::string command = "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";
+	std::string nmcliExists = executeShellCommand(command);
+	if (nmcliExists != "")
+	{
+		LOG_ERROR("Error retrieving DNS server list: nmcli doesn't exist");
+		return;
+	}
+
+	// check nmcli major version (0 or 1)
+	command = "nmcli -v | awk -F' ' '{print $NF}' | awk -F'.' '{print $1}'";
+	std::string nmcliMajorVer = executeShellCommand(command);
+	nmcliMajorVer.erase(std::remove(nmcliMajorVer.begin(), nmcliMajorVer.end(), '\n'), nmcliMajorVer.end());
+	LOG_DEBUG("Found nmcli. nmcli major version is: '%s'", nmcliMajorVer.c_str());
+
+	// build nmcli command according to its major version
+	if (nmcliMajorVer == "0")
+		command = "nmcli dev list | grep IP4.DNS";
+	else
+		command = "nmcli dev show | grep IP4.DNS";
+
 	std::string dnsServersInfo = executeShellCommand(command);
 	if (dnsServersInfo == "")
 	{
