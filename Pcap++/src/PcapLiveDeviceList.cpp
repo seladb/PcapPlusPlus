@@ -96,7 +96,7 @@ void PcapLiveDeviceList::setDnsServers()
 	std::string nmcliExists = executeShellCommand(command);
 	if (nmcliExists != "")
 	{
-		LOG_ERROR("Error retrieving DNS server list: nmcli doesn't exist");
+		LOG_DEBUG("Error retrieving DNS server list: nmcli doesn't exist");
 		return;
 	}
 
