@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Arping", "Arping.vcxproj", "{D79AF4DA-8676-45FC-9BD5-D1062DB923E1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArpSpoofing", "ArpSpoofing.vcxproj", "{50AEB02B-2C6A-44FF-8F97-7ED5D33FBB32}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DNSResolver", "DNSResolver.vcxproj", "{819003BA-67EE-48D4-90CD-8DEAAFE24507}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D79AF4DA-8676-45FC-9BD5-D1062DB923E1}.Debug|x86.ActiveCfg = Debug|Win32
+		{D79AF4DA-8676-45FC-9BD5-D1062DB923E1}.Debug|x86.Build.0 = Debug|Win32
+		{D79AF4DA-8676-45FC-9BD5-D1062DB923E1}.Release|x86.ActiveCfg = Release|Win32
+		{D79AF4DA-8676-45FC-9BD5-D1062DB923E1}.Release|x86.Build.0 = Release|Win32
+		{50AEB02B-2C6A-44FF-8F97-7ED5D33FBB32}.Debug|x86.ActiveCfg = Debug|Win32
+		{50AEB02B-2C6A-44FF-8F97-7ED5D33FBB32}.Debug|x86.Build.0 = Debug|Win32
+		{50AEB02B-2C6A-44FF-8F97-7ED5D33FBB32}.Release|x86.ActiveCfg = Release|Win32
+		{50AEB02B-2C6A-44FF-8F97-7ED5D33FBB32}.Release|x86.Build.0 = Release|Win32
+		{819003BA-67EE-48D4-90CD-8DEAAFE24507}.Debug|x86.ActiveCfg = Debug|Win32
+		{819003BA-67EE-48D4-90CD-8DEAAFE24507}.Debug|x86.Build.0 = Debug|Win32
+		{819003BA-67EE-48D4-90CD-8DEAAFE24507}.Release|x86.ActiveCfg = Release|Win32
+		{819003BA-67EE-48D4-90CD-8DEAAFE24507}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

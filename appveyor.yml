@@ -27,8 +27,8 @@ install:
 
 before_build:
 - cd C:\projects\PcapPlusPlus
-- if "%MINGW_COMPILER%"=="mingw32" configure-windows.bat mingw32 -m C:\MinGW -w C:\WpdPack
-- if "%MINGW_COMPILER%"=="mingw-w64" configure-windows.bat mingw-w64 -m C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32 -w C:\WpdPack -s C:\msys64
+- if "%MINGW_COMPILER%"=="mingw32" configure-windows-mingw.bat mingw32 -m C:\MinGW -w C:\WpdPack
+- if "%MINGW_COMPILER%"=="mingw-w64" configure-windows-mingw.bat mingw-w64 -m C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32 -w C:\WpdPack -s C:\msys64
 
 build_script:
 - mingw32-make all

@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <getopt.h>
 #include <stdlib.h>
 #include <fstream>
 #include <memory>
@@ -17,6 +16,7 @@
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
+#include <getopt.h>
 
 using namespace std;
 using namespace pcpp;
