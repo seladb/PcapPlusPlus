@@ -128,7 +128,7 @@ uint32_t fnv_hash(uint8_t* buffer, size_t bufSize)
 
 } // namespace pcpp
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_MSC_VER)
 /* const char *
  * inet_ntop4(src, dst, size)
  *	format an IPv4 address

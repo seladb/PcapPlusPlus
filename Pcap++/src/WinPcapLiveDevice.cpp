@@ -46,7 +46,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 
 	pcap_send_queue* sendQueue = pcap_sendqueue_alloc(dataSize + arrLength*sizeof(pcap_pkthdr));
 	LOG_DEBUG("Allocated send queue of size %d", dataSize + arrLength*sizeof(pcap_pkthdr));
-	struct pcap_pkthdr packetHeader[arrLength];
+	struct pcap_pkthdr* packetHeader = new struct pcap_pkthdr[arrLength];
 	for (int i = 0; i < arrLength; i++)
 	{
 		packetHeader[i].caplen = rawPacketsArr[i].getRawDataLen();
@@ -59,6 +59,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		}
 		packetsSent++;
 	}
+	
 	LOG_DEBUG("%d packets were queued successfully", packetsSent);
 
 	int res;
@@ -83,6 +84,8 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 
 	pcap_sendqueue_destroy(sendQueue);
 	LOG_DEBUG("Send queue destroyed");
+
+	delete[] packetHeader;
 	return packetsSent;
 }
 

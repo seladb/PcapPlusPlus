@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4B910CEA-46FD-42D7-9DB9-3F603E0A3008}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Packet</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PcapPlusPlusPropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PcapPlusPlusPropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PcapPlusPlusPropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PcapPlusPlusPropertySheet.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(PcapPlusPlusHome)\Packet++\header;$(IncludePath);$(PcapPlusPlusHome)\Common++\header</IncludePath>
+    <OutDir>$(PcapPlusPlusHome)\Packet++\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Packet++\Obj</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;MSVC;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Bin\Packet++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Packet++\Bin\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Packet++\header\ArpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\DhcpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\DnsLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\EthLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\GreLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\HttpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\IcmpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\IPv4Layer.h" />
+    <ClInclude Include="..\..\Packet++\header\IPv6Layer.h" />
+    <ClInclude Include="..\..\Packet++\header\Layer.h" />
+    <ClInclude Include="..\..\Packet++\header\MplsLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\NullLoopbackLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\Packet.h" />
+    <ClInclude Include="..\..\Packet++\header\PacketUtils.h" />
+    <ClInclude Include="..\..\Packet++\header\PayloadLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\PPPoELayer.h" />
+    <ClInclude Include="..\..\Packet++\header\ProtocolType.h" />
+    <ClInclude Include="..\..\Packet++\header\RawPacket.h" />
+    <ClInclude Include="..\..\Packet++\header\SllLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\SSLCommon.h" />
+    <ClInclude Include="..\..\Packet++\header\SSLHandshake.h" />
+    <ClInclude Include="..\..\Packet++\header\SSLLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\TcpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\UdpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\VlanLayer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Packet++\src\ArpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\DhcpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\DnsLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\EthLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\GreLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\HttpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\IcmpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\IPv4Layer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\IPv6Layer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\Layer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\MplsLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\NullLoopbackLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\Packet.cpp" />
+    <ClCompile Include="..\..\Packet++\src\PacketUtils.cpp" />
+    <ClCompile Include="..\..\Packet++\src\PayloadLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\PPPoELayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\RawPacket.cpp" />
+    <ClCompile Include="..\..\Packet++\src\SllLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\SSLHandshake.cpp" />
+    <ClCompile Include="..\..\Packet++\src\SSLLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\TcpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\UdpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\VlanLayer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Common++.vcxproj">
+      <Project>{46a8c62d-9fb3-4134-a2fe-3bc6909a46aa}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

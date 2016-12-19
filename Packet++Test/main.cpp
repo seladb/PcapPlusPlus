@@ -30,6 +30,9 @@
 #else
 #include <in.h>
 #endif
+#ifdef _MSC_VER
+#include <SystemUtils.h>
+#endif
 
 // For debug purpose only
 //#include <pcap.h>
@@ -469,7 +472,7 @@ PACKETPP_TEST(Ipv6UdpPacketParseAndCreate)
 	UdpLayer udpLayer(63628, 1900);
 
 	Layer* afterIpv6Layer = pUdpLayer->getNextLayer();
-	uint8_t payloadData[afterIpv6Layer->getDataLen()];
+	uint8_t* payloadData = new uint8_t[afterIpv6Layer->getDataLen()];
 	afterIpv6Layer->copyData(payloadData);
 	PayloadLayer payloadLayer(payloadData, afterIpv6Layer->getDataLen(), true);
 
@@ -481,6 +484,8 @@ PACKETPP_TEST(Ipv6UdpPacketParseAndCreate)
 
 	PACKETPP_ASSERT(bufferLength == ip6UdpPacketNew.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", ip6UdpPacketNew.getRawPacket()->getRawDataLen(), bufferLength);
 	PACKETPP_ASSERT(memcmp(ip6UdpPacketNew.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+
+	delete[] payloadData;
 
 	PACKETPP_TEST_PASSED;
 }

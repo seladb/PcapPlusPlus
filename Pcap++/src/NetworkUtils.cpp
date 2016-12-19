@@ -17,6 +17,9 @@
 #elif MAC_OS_X
 #include <sys/errno.h>
 #endif
+#ifdef _MSC_VER
+#include <SystemUtils.h>
+#endif
 
 
 #define DNS_PORT	    53

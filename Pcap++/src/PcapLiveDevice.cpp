@@ -2,6 +2,9 @@
 
 #include <PcapLiveDevice.h>
 #include <PcapLiveDeviceList.h>
+#ifndef  _MSC_VER
+#include <unistd.h>
+#endif // ! _MSC_VER
 #include <pthread.h>
 #include <Logger.h>
 #include <PlatformSpecificUtils.h>
@@ -10,7 +13,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <unistd.h>
 #include <IpUtils.h>
 #ifdef WIN32
 #include <ws2tcpip.h>
@@ -238,8 +240,15 @@ void PcapLiveDevice::close()
 		LOG_DEBUG("Device '%s' already closed", m_Name);
 		return;
 	}
+
+	bool sameDescriptor = (m_PcapDescriptor == m_PcapSendDescriptor);
 	pcap_close(m_PcapDescriptor);
-	pcap_close(m_PcapSendDescriptor);
+	LOG_DEBUG("Receive pcap descriptor closed");
+	if (!sameDescriptor)
+	{ 
+		pcap_close(m_PcapSendDescriptor);
+		LOG_DEBUG("Send pcap descriptor closed");
+	}
 	LOG_DEBUG("Device '%s' closed", m_Name);
 }
 
@@ -642,12 +651,12 @@ void PcapLiveDevice::setDefaultGateway()
 {
 #ifdef WIN32
 	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
-	uint8_t buffer[outBufLen];
+	uint8_t* buffer = new uint8_t[outBufLen];
 	PIP_ADAPTER_INFO adapterInfo = (IP_ADAPTER_INFO*)buffer;
 	DWORD retVal = 0;
 
 	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
-	uint8_t buffer2[outBufLen];
+	uint8_t* buffer2 = new uint8_t[outBufLen];
     if (retVal == ERROR_BUFFER_OVERFLOW)
         adapterInfo = (IP_ADAPTER_INFO *)buffer2;
 
@@ -669,6 +678,9 @@ void PcapLiveDevice::setDefaultGateway()
 	{
 		LOG_ERROR("Error retrieving default gateway address");
 	}
+
+	delete[] buffer;
+	delete[] buffer2;
 #elif LINUX
 	std::ifstream routeFile("/proc/net/route");
 	std::string line;

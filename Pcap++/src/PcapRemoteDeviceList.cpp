@@ -26,7 +26,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 		return NULL;
 	}
 
-	char portAsCharArr[5];
+	char portAsCharArr[6];
 	sprintf(portAsCharArr, "%d", port);
 	LOG_DEBUG("Searching remote devices on IP: %s and port: %d", ipAddress->toString().c_str(), port);
 	char remoteCaptureString[PCAP_BUF_SIZE];

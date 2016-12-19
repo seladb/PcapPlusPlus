@@ -239,6 +239,10 @@ namespace pcpp
 	 */
 	bool directoryExists(std::string dirPath);
 
+#ifdef _MSC_VER
+	int gettimeofday(struct timeval * tp, struct timezone * tzp); // bla
+#endif
+
 	/**
 	 * @class ApplicationEventHandler
 	 * A singleton class that provides callbacks for events that occur during application life-cycle such as ctrl+c pressed,

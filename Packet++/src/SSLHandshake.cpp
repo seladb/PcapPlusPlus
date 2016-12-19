@@ -1081,11 +1081,13 @@ std::string SSLServerNameIndicationExtension::getHostName()
 	uint8_t* hostNameLengthPos = getData() + sizeof(uint16_t) + sizeof(uint8_t);
 	uint16_t hostNameLength = ntohs(*(uint16_t*)hostNameLengthPos);
 
-	char hostNameAsCharArr[hostNameLength+1];
+	char* hostNameAsCharArr = new char[hostNameLength+1];
 	memset(hostNameAsCharArr, 0, hostNameLength+1);
 	memcpy(hostNameAsCharArr, hostNameLengthPos + sizeof(uint16_t), hostNameLength);
 
-	return std::string(hostNameAsCharArr);
+	std::string res = std::string(hostNameAsCharArr);
+	delete[] hostNameAsCharArr;
+	return res;
 }
 
 

@@ -68,7 +68,7 @@ void PcapLiveDeviceList::setDnsServers()
 	ulOutBufLen = sizeof( FIXED_INFO );
 
 	dwRetVal = GetNetworkParams( fixedInfo, &ulOutBufLen );
-	uint8_t buf2[ulOutBufLen];
+	uint8_t* buf2 = new uint8_t[ulOutBufLen];
 	if(ERROR_BUFFER_OVERFLOW == dwRetVal)
 	{
 		fixedInfo = (FIXED_INFO *)buf2;
@@ -90,6 +90,8 @@ void PcapLiveDeviceList::setDnsServers()
 			pIPAddr = pIPAddr -> Next;
 		}
 	}
+
+	delete[] buf2;
 #elif LINUX
 	// verify that nmcli exist
 	std::string command = "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";

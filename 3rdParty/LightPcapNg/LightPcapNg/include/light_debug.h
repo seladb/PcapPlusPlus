@@ -30,7 +30,7 @@ extern "C" {
 
 #include <stdio.h>
 
-#ifdef _DEBUG
+#ifdef _LIGHT_DEBUG_MODE
 #define light_stop          getchar()
 #define DPRINT_HERE(symbol) fprintf(stderr, "%s::%s::%d, %s\n", __FILE__, __FUNCTION__, __LINE__, #symbol)
 #else
@@ -79,6 +79,10 @@ extern "C" {
 
 #define PCAPNG_WARNING(symbol) fprintf(stderr, "Warning at: %s::%s::%d, %s\n", __FILE__, __FUNCTION__, __LINE__, #symbol)
 #define PCAPNG_ERROR(symbol)   fprintf(stderr, "Error at: %s::%s::%d, %s\n", __FILE__, __FUNCTION__, __LINE__, #symbol)
+
+#ifdef  _MSC_VER
+#define __attribute__(x)
+#endif //  _MSC_VER
 
 #define PCAPNG_ATTRIBUTE_SLOW __attribute__((warning ("slow for large traces")))
 #define PCAPNG_ATTRIBUTE_DEPRECATED __attribute__((warning ("deprecated function")))

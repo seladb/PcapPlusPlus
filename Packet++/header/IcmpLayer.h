@@ -3,7 +3,11 @@
 
 #include <Layer.h>
 #include <IPv4Layer.h>
+#ifdef _MSC_VER
+#include <Winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 #include <vector>
 
 
