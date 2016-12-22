@@ -15,7 +15,7 @@
 #endif
 
 #ifdef WIN32
-#define CREATE_DIRECTORY(dir) CreateDirectory(dir, NULL)
+#define CREATE_DIRECTORY(dir) CreateDirectoryA(dir, NULL)
 #else
 #define CREATE_DIRECTORY(dir) mkdir(dir, 0777)
 #endif

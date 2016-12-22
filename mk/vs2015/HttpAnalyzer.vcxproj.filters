@@ -15,7 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\Arping\main.cpp">
+    <ClCompile Include="..\..\Examples\HttpAnalyzer\HttpStatsCollector.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Examples\HttpAnalyzer\TablePrinter.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>	
+  </ItemGroup>  
+  <ItemGroup>
+    <ClCompile Include="..\..\Examples\HttpAnalyzer\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

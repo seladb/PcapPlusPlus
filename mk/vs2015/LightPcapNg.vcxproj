@@ -89,7 +89,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(IncludePath)</IncludePath>
-    <OutDir>$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Bin</OutDir>
+    <OutDir>$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib</OutDir>
     <IntDir>$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Obj</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

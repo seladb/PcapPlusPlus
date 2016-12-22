@@ -46,7 +46,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(PcapPlusPlusHome)\Packet++\header;$(IncludePath);$(PcapPlusPlusHome)\Common++\header</IncludePath>
-    <OutDir>$(PcapPlusPlusHome)\Packet++\Bin</OutDir>
+    <OutDir>$(PcapPlusPlusHome)\Packet++\Lib</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Packet++\Obj</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -62,8 +62,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Bin\Packet++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Packet++\Bin\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+      <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
 xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

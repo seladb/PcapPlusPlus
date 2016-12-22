@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{50AEB02B-2C6A-44FF-8F97-7ED5D33FBB32}</ProjectGuid>
+    <ProjectGuid>{8479A397-38FE-46E4-BD12-62F4CE2C0318}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ArpSpoofing</RootNamespace>
+    <RootNamespace>Pcap++Examples.PacketParsing</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -48,8 +48,8 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x86;$(WinPcapHome)\Lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.PacketParsing\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.PacketParsing\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -68,9 +68,10 @@
       <AdditionalDependencies>Ws2_32.lib;IPHLPAPI.lib;wpcap.lib;Packet.lib;pthreadVC2.lib;Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Pcap++Examples.PacketParsing\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.PacketParsing\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.PacketParsing\UdpPacket.dat" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -92,7 +93,10 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\ArpSpoofing\main.cpp" />
+    <ClCompile Include="..\..\Examples\Pcap++Examples.PacketParsing\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Examples\Pcap++Examples.PacketParsing\UdpPacket.dat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

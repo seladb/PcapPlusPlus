@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{50AEB02B-2C6A-44FF-8F97-7ED5D33FBB32}</ProjectGuid>
+    <ProjectGuid>{DB0C76F1-A702-4A90-BA19-D50164B67561}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ArpSpoofing</RootNamespace>
+    <RootNamespace>HttpAnalyzer</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -48,8 +48,8 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x86;$(WinPcapHome)\Lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\HttpAnalyzer\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\HttpAnalyzer\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -68,8 +68,8 @@
       <AdditionalDependencies>Ws2_32.lib;IPHLPAPI.lib;wpcap.lib;Packet.lib;pthreadVC2.lib;Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\HttpAnalyzer\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\HttpAnalyzer\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -92,7 +92,11 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\ArpSpoofing\main.cpp" />
+    <ClCompile Include="..\..\Examples\HttpAnalyzer\HttpStatsCollector.h" />
+    <ClCompile Include="..\..\Examples\HttpAnalyzer\TablePrinter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Examples\HttpAnalyzer\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

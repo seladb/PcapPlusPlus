@@ -14,6 +14,10 @@
 
 #define MAX_NUM_OF_CORES 32
 
+#ifdef _MSC_VER
+int gettimeofday(struct timeval * tp, struct timezone * tzp);
+#endif
+
 /**
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
@@ -238,10 +242,6 @@ namespace pcpp
 	 * @return True if directory exists, false otherwise
 	 */
 	bool directoryExists(std::string dirPath);
-
-#ifdef _MSC_VER
-	int gettimeofday(struct timeval * tp, struct timezone * tzp); // bla
-#endif
 
 	/**
 	 * @class ApplicationEventHandler

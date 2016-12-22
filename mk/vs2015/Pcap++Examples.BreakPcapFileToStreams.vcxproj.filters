@@ -15,8 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\Arping\main.cpp">
+    <ClCompile Include="..\..\Examples\Pcap++Examples.BreakPcapFileToStreams\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Examples\Pcap++Examples.BreakPcapFileToStreams\example.pcap">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>  
 </Project>

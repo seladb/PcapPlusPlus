@@ -68,7 +68,9 @@
       <AdditionalDependencies>Ws2_32.lib;IPHLPAPI.lib;wpcap.lib;Packet.lib;pthreadVC2.lib;Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

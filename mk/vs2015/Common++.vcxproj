@@ -42,7 +42,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(PcapPlusPlusHome)\Common++\header;$(IncludePath)</IncludePath>
-    <OutDir>$(PcapPlusPlusHome)\Common++\Bin</OutDir>
+    <OutDir>$(PcapPlusPlusHome)\Common++\Lib</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Common++\Obj</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -50,8 +50,8 @@
       <PreprocessorDefinitions>WIN32;MSVC</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
-      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Bin\Common++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Common++\Bin\Common++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

@@ -21,6 +21,7 @@
 #else
 #include <in.h>
 #endif
+#include <SystemUtils.h>
 
 using namespace std;
 using namespace pcpp;

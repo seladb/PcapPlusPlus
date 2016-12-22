@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
-#include <getopt.h>
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
@@ -30,6 +29,7 @@
 #include "TablePrinter.h"
 #include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
+#include <getopt.h>
 
 #define EXIT_WITH_ERROR(reason, ...) do { \
 	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \

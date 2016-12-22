@@ -16,7 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Examples\DNSResolver\main.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
