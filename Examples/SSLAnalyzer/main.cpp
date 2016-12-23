@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
-#include <getopt.h>
 #ifndef WIN32 //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
@@ -31,6 +30,7 @@
 #include "TablePrinter.h"
 #include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
+#include <getopt.h>
 
 using namespace pcpp;
 

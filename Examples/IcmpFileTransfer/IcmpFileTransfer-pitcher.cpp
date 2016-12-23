@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#ifndef _MSC_VER
 #include "unistd.h"
+#endif
 #ifndef WIN32
 #include <in.h>
 #endif
@@ -29,6 +31,23 @@ using namespace pcpp;
 
 #define SLEEP_BETWEEN_ABORT_MESSAGES  100000 // 100 msec
 #define NUM_OF_ABORT_MESSAGES_TO_SEND 5
+
+#ifdef _MSC_VER
+#include <windows.h>
+
+void usleep(__int64 usec)
+{
+	HANDLE timer;
+	LARGE_INTEGER ft;
+
+	ft.QuadPart = -(10 * usec); // Convert to 100 nanosecond interval, negative value indicates relative time
+
+	timer = CreateWaitableTimer(NULL, TRUE, NULL);
+	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+	WaitForSingleObject(timer, INFINITE);
+	CloseHandle(timer);
+}
+#endif
 
 /**
  * A struct used for start sending a file to the catcher

@@ -23,7 +23,6 @@
  */
 
 #include <stdlib.h>
-#include <getopt.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -35,7 +34,7 @@
 #include <RawPacket.h>
 #include <Packet.h>
 #include <PcapFileDevice.h>
-
+#include <getopt.h>
 
 
 using namespace pcpp;

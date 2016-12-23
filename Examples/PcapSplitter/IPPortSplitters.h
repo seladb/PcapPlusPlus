@@ -272,7 +272,7 @@ protected:
 			return srcPort;
 		// other TCP packet or UDP packet
 		default:
-			return std::min(srcPort, dstPort);
+			return std::min<uint16_t>(srcPort, dstPort);
 		}
 	}
 };
