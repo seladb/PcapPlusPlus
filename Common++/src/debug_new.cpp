@@ -23,6 +23,7 @@
 typedef int pid_t;
 #define popen(cmd, mode) _popen(cmd, mode)
 #define pclose(x) _pclose(x)
+#define getpid() _getpid()
 #include <intrin.h>
 #define _DEBUG_NEW_CALLER_ADDRESS _ReturnAddress()
 #else

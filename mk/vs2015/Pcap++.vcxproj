@@ -90,6 +90,11 @@
     <OutDir>$(PcapPlusPlusHome)\Pcap++\Lib</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Pcap++\Obj</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <OutDir>$(PcapPlusPlusHome)\Pcap++\Lib</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Pcap++\Obj</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -111,11 +116,11 @@ xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -123,6 +128,12 @@ xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>lib /out:$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
