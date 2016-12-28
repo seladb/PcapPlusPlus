@@ -1,7 +1,7 @@
 #ifndef PCAPPP_PLATFORM_SPECIFIC_UTILS
 #define PCAPPP_PLATFORM_SPECIFIC_UTILS
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <winbase.h>
 #else
 #include <unistd.h>

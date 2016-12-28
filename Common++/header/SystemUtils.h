@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <windows.h>
 #else
 #include <pthread.h>

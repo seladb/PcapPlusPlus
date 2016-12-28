@@ -14,7 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <IpUtils.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <ws2tcpip.h>
 #include <Packet32.h>
 #include <ntddndis.h>
@@ -510,7 +510,7 @@ std::string PcapLiveDevice::printThreadId(PcapThread* id)
 
 void PcapLiveDevice::setDeviceMtu()
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 
 	uint32_t mtuValue = 0;
 	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name);
@@ -565,7 +565,7 @@ void PcapLiveDevice::setDeviceMtu()
 
 void PcapLiveDevice::setDeviceMacAddress()
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 
 	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name);
 	if (adapter == NULL)
@@ -649,7 +649,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 
 void PcapLiveDevice::setDefaultGateway()
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
 	uint8_t* buffer = new uint8_t[outBufLen];
 	PIP_ADAPTER_INFO adapterInfo = (IP_ADAPTER_INFO*)buffer;

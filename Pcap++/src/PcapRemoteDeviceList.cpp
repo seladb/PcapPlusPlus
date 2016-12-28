@@ -1,14 +1,11 @@
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
 #include <PcapRemoteDeviceList.h>
 #include <Logger.h>
 #include <IpUtils.h>
-#ifdef WIN32
 #include <ws2tcpip.h>
-#endif
-
 
 namespace pcpp
 {
@@ -233,4 +230,4 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 
 } // namespace pcpp
 
-#endif // WIN32
+#endif // WIN32 || WINx64

@@ -1,4 +1,4 @@
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 
 #define LOG_MODULE PcapLogModuleWinPcapLiveDevice
 
@@ -108,4 +108,4 @@ bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size
 
 } // namespace pcpp
 
-#endif // WIN32
+#endif // WIN32 || WINx64

@@ -15,51 +15,51 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(PcapPlusPlusHome)\Common++\header\IpAddress.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(PcapPlusPlusHome)\Common++\header\IpUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(PcapPlusPlusHome)\Common++\header\Logger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(PcapPlusPlusHome)\Common++\header\LRUList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(PcapPlusPlusHome)\Common++\header\MacAddress.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(PcapPlusPlusHome)\Common++\header\PlatformSpecificUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="$(PcapPlusPlusHome)\Common++\header\PointerVector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Common++\header\debug_new.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common++\header\SystemUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common++\header\IpAddress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common++\header\IpUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common++\header\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common++\header\LRUList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common++\header\MacAddress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common++\header\PlatformSpecificUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common++\header\PointerVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(PcapPlusPlusHome)\Common++\src\debug_new.cpp">
+    <ClCompile Include="..\..\Common++\src\debug_new.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(PcapPlusPlusHome)\Common++\src\IpAddress.cpp">
+    <ClCompile Include="..\..\Common++\src\IpAddress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(PcapPlusPlusHome)\Common++\src\IpUtils.cpp">
+    <ClCompile Include="..\..\Common++\src\IpUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(PcapPlusPlusHome)\Common++\src\Logger.cpp">
+    <ClCompile Include="..\..\Common++\src\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(PcapPlusPlusHome)\Common++\src\MacAddress.cpp">
+    <ClCompile Include="..\..\Common++\src\MacAddress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(PcapPlusPlusHome)\Common++\src\SystemUtils.cpp">
+    <ClCompile Include="..\..\Common++\src\SystemUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

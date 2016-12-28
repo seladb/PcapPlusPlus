@@ -7,7 +7,7 @@
 #include <string.h>
 #include <sstream>
 #include <algorithm>
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 #elif MAC_OS_X
@@ -57,7 +57,7 @@ PcapLiveDeviceList::~PcapLiveDeviceList()
 
 void PcapLiveDeviceList::setDnsServers()
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 	FIXED_INFO * fixedInfo;
 	ULONG    ulOutBufLen;
 	DWORD    dwRetVal;

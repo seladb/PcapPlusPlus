@@ -7,7 +7,7 @@
 #include <Logger.h>
 #include <map>
 #include <sstream>
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
 #elif LINUX
 #include <in.h>
@@ -22,8 +22,8 @@ namespace pcpp
 PPPoELayer::PPPoELayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code, uint16_t sessionId, size_t additionalBytesToAllocate)
 {
 	m_DataLen = sizeof(pppoe_header) + additionalBytesToAllocate;
-	m_Data = new uint8_t[m_DataLen + + additionalBytesToAllocate];
-	memset(m_Data, 0, sizeof(m_DataLen) + additionalBytesToAllocate);
+	m_Data = new uint8_t[m_DataLen + additionalBytesToAllocate];
+	memset(m_Data, 0, m_DataLen + additionalBytesToAllocate);
 
 	pppoe_header* pppoeHdr = getPPPoEHeader();
 	pppoeHdr->version = (version & 0xf);

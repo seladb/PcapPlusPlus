@@ -10,7 +10,7 @@
 #include <PayloadLayer.h>
 #include <Logger.h>
 #include <IpUtils.h>
-#ifdef WIN32 //for using ntohl, ntohs, etc.
+#if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
 #include <winsock2.h>
 #elif LINUX
 #include <in.h> //for using ntohl, ntohs, etc.

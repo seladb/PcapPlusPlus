@@ -506,7 +506,7 @@ bool PcapFileWriterDevice::open(bool appendMode)
 
 	m_AppendMode = appendMode;
 
-#if !defined(WIN32)
+#if !defined(WIN32) && !defined(WINx64)
 	m_File = fopen(m_FileName, "r+");
 #else
 	m_File = fopen(m_FileName, "rb+");
