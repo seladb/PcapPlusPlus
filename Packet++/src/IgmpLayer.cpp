@@ -16,7 +16,7 @@ IgmpLayer::IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxRes
 {
 	m_DataLen = sizeof(igmp_header);
 	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, sizeof(m_DataLen));
+	memset(m_Data, 0, m_DataLen);
 	m_Protocol = igmpVer;
 
 	setType(type);
