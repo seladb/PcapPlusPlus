@@ -18,6 +18,7 @@
 #include <SSLLayer.h>
 #include <DhcpLayer.h>
 #include <NullLoopbackLayer.h>
+#include <IgmpLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -4116,7 +4117,7 @@ PACKETPP_TEST(DhcpParsingTest)
 PACKETPP_TEST(DhcpCreationTest)
 {
 	MacAddress srcMac(std::string("00:13:72:25:fa:cd"));
-	MacAddress dstMac(string("00:e0:b1:49:39:02"));
+	MacAddress dstMac(std::string("00:e0:b1:49:39:02"));
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 
 	IPv4Address srcIp(std::string("172.22.178.234"));
@@ -4343,6 +4344,112 @@ PACKETPP_TEST(NullLoopbackTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(IgmpParsingTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IGMPv1_1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file IGMPv1_1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IGMPv2_1.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IGMPv2_1.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet igmpv1Packet(&rawPacket1);
+	Packet igmpv2Packet(&rawPacket2);
+
+	PACKETPP_ASSERT(igmpv1Packet.isPacketOfType(IGMPv1) == true, "igmpv1Packet isn't of type IGMPv1");
+	PACKETPP_ASSERT(igmpv1Packet.isPacketOfType(IGMP) == true, "igmpv1Packet isn't of type IGMP");
+	PACKETPP_ASSERT(igmpv1Packet.isPacketOfType(IGMPv2) == false, "igmpv1Packet is of type IGMPv2");
+	IgmpV1Layer* igmpv1Layer = igmpv1Packet.getLayerOfType<IgmpV1Layer>();
+	PACKETPP_ASSERT(igmpv1Layer != NULL, "Couldn't get IGMPv1 layer for igmpv1Packet");
+
+	PACKETPP_ASSERT(igmpv1Layer->getType() == IgmpType_MembershipQuery, "IGMPv1 type isn't membership query");
+	PACKETPP_ASSERT(igmpv1Layer->getGroupAddress() == IPv4Address::Zero, "IGMPv1 group address isn't zero");
+	PACKETPP_ASSERT(igmpv1Layer->toString() == "IGMPv1 Layer, Membership Query message", "IGMPv1 to string failed");
+
+	PACKETPP_ASSERT(igmpv2Packet.isPacketOfType(IGMPv2) == true, "igmpv2Packet isn't of type IGMPv2");
+	PACKETPP_ASSERT(igmpv2Packet.isPacketOfType(IGMP) == true, "igmpv2Packet isn't of type IGMP");
+	PACKETPP_ASSERT(igmpv2Packet.isPacketOfType(IGMPv1) == false, "igmpv2Packet is of type IGMPv1");
+	IgmpV2Layer* igmpv2Layer = igmpv2Packet.getLayerOfType<IgmpV2Layer>();
+	PACKETPP_ASSERT(igmpv2Layer != NULL, "Couldn't get IGMPv2 layer for igmpv2Packet");
+
+	PACKETPP_ASSERT(igmpv2Layer->getType() == IgmpType_MembershipReportV2, "IGMPv2 type isn't membership report");
+	PACKETPP_ASSERT(igmpv2Layer->getGroupAddress() == IPv4Address(std::string("239.255.255.250")), "IGMPv2 group address isn't 239.255.255.250");
+	PACKETPP_ASSERT(igmpv2Layer->toString() == "IGMPv2 Layer, Membership Report message", "IGMPv2 to string failed");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(IgmpCreateAndEditTest)
+{
+	MacAddress srcMac1(std::string("5c:d9:98:f9:1c:18"));
+	MacAddress dstMac1(std::string("01:00:5e:00:00:01"));
+	MacAddress srcMac2(std::string("00:15:58:dc:a8:4d"));
+	MacAddress dstMac2(std::string("01:00:5e:7f:ff:fa"));
+	EthLayer ethLayer1(srcMac1, dstMac1, PCPP_ETHERTYPE_IP);
+	EthLayer ethLayer2(srcMac2, dstMac2, PCPP_ETHERTYPE_IP);
+
+	IPv4Address srcIp1(std::string("10.0.200.151"));
+	IPv4Address dstIp1(std::string("224.0.0.1"));
+	IPv4Address srcIp2(std::string("10.60.2.7"));
+	IPv4Address dstIp2(std::string("239.255.255.250"));
+	IPv4Layer ipLayer1(srcIp1, dstIp1);
+	IPv4Layer ipLayer2(srcIp2, dstIp2);
+
+	ipLayer1.getIPv4Header()->ipId = htons(2);
+	ipLayer1.getIPv4Header()->timeToLive = 1;
+	ipLayer2.getIPv4Header()->ipId = htons(3655);
+	ipLayer2.getIPv4Header()->timeToLive = 1;
+
+	IgmpV1Layer igmpV1Layer(IgmpType_MembershipQuery);
+	IgmpV2Layer igmpV2Layer(IgmpType_MembershipReportV2, IPv4Address(std::string("239.255.255.250")));
+
+	Packet igmpv1Packet(1);
+	igmpv1Packet.addLayer(&ethLayer1);
+	igmpv1Packet.addLayer(&ipLayer1);
+	igmpv1Packet.addLayer(&igmpV1Layer);
+	igmpv1Packet.computeCalculateFields();
+	ipLayer1.getIPv4Header()->headerChecksum = 0x3d72;
+
+	Packet igmpv2Packet(1);
+	igmpv2Packet.addLayer(&ethLayer2);
+	igmpv2Packet.addLayer(&ipLayer2);
+	igmpv2Packet.addLayer(&igmpV2Layer);
+	igmpv2Packet.computeCalculateFields();
+	ipLayer2.getIPv4Header()->headerChecksum = 0x541a;
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IGMPv1_1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file IGMPv1_1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IGMPv2_1.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IGMPv2_1.dat");
+
+	PACKETPP_ASSERT(buffer1Length-14 == igmpv1Packet.getRawPacket()->getRawDataLen(), "IGMPv1: Generated packet len (%d) is different than read packet len (%d)", igmpv1Packet.getRawPacket()->getRawDataLen(), buffer1Length);
+	PACKETPP_ASSERT(memcmp(igmpv1Packet.getRawPacket()->getRawData(), buffer1, igmpv1Packet.getRawPacket()->getRawDataLen()) == 0, "IGMPv1: Raw packet data is different than expected");
+
+	PACKETPP_ASSERT(buffer2Length-14 == igmpv2Packet.getRawPacket()->getRawDataLen(), "IGMPv2: Generated packet len (%d) is different than read packet len (%d)", igmpv2Packet.getRawPacket()->getRawDataLen(), buffer2Length);
+	PACKETPP_ASSERT(memcmp(igmpv2Packet.getRawPacket()->getRawData(), buffer2, igmpv2Packet.getRawPacket()->getRawDataLen()) == 0, "IGMPv2: Raw packet data is different than expected");
+
+	IgmpV1Layer* igmpLayer = igmpv1Packet.getLayerOfType<IgmpV1Layer>();
+	igmpLayer->setType(IgmpType_MembershipReportV2);
+	igmpLayer->setGroupAddress(IPv4Address(std::string("239.255.255.250")));
+	igmpv1Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(memcmp(igmpLayer->getData(), igmpV2Layer.getData(), igmpLayer->getHeaderLen()) == 0, "IGMPv1 edit: Raw data is different than expected");
+
+	delete [] buffer1;
+	delete [] buffer2;
+	PACKETPP_TEST_PASSED;
+}
+
+
 int main(int argc, char* argv[]) {
 	start_leak_check();
 
@@ -4403,6 +4510,8 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(DhcpCreationTest);
 	PACKETPP_RUN_TEST(DhcpEditTest);
 	PACKETPP_RUN_TEST(NullLoopbackTest);
+	PACKETPP_RUN_TEST(IgmpParsingTest);
+	PACKETPP_RUN_TEST(IgmpCreateAndEditTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }
