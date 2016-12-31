@@ -12,7 +12,7 @@
 #ifndef _MSC_VER
 #include "unistd.h"
 #endif
-#ifndef WIN32
+#if !defined(WIN32) && !defined(WINx64)
 #include <in.h>
 #endif
 #include "EthLayer.h"

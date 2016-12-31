@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Splitters.h"
-#ifndef WIN32 //for using ntohl, ntohs, etc.
+#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <memory>
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
 #endif
 #include <MacAddress.h>
@@ -13,7 +13,7 @@
 #include <EthLayer.h>
 #include <ArpLayer.h>
 #include <Logger.h>
-#ifndef WIN32 //for using ntohl, ntohs, etc.
+#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
 #include <getopt.h>

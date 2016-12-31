@@ -11,7 +11,7 @@
 #include <sstream>
 #include <utility>
 #include <map>
-#ifndef WIN32 //for using ntohl, ntohs, etc.
+#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
 #include <in.h>
 #include <errno.h>
 #endif

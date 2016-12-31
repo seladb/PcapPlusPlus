@@ -90,7 +90,7 @@ static struct option PcapSplitterOptions[] =
 #define SPLIT_BY_5_TUPLE       "connection"
 #define SPLIT_BY_BPF_FILTER    "bpf-filter"
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #define SEPARATOR '\\'
 #else
 #define SEPARATOR '/'

@@ -58,7 +58,7 @@ static struct option PcapSearchOptions[] =
 	} while(0)
 
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #define DIR_SEPARATOR "\\"
 #else
 #define DIR_SEPARATOR "/"
