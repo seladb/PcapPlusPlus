@@ -40,6 +40,7 @@ build_script:
 - if "%compiler%"=="mingw-w64" C:\mingw-w64\i686-5.3.0-posix-dwarf-rt_v4-rev0\mingw32\bin\mingw32-make all
 - if "%compiler%"=="vs2015" powershell -command "msbuild mk\vs2015\PcapPlusPlus.sln /p:Configuration=%config% /p:Platform=%platform%"
 - if "%compiler%"=="vs2015" powershell -command "msbuild mk\vs2015\PcapPlusPlus-Examples.sln /p:Configuration=%config% /p:Platform=%platform%"
+- if "%compiler%"=="vs2015" powershell -command "msbuild mk\vs2015\ExampleProject\ExampleProject.sln /p:Configuration=%config% /p:Platform=%platform%"
 
 test_script:
 - cd C:\projects\PcapPlusPlus\Packet++Test
