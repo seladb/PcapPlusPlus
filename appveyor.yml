@@ -10,6 +10,12 @@ environment:
     - compiler: vs2015
       platform: x86
       config: Release
+    - compiler: vs2015
+      platform: x64
+      config: Debug
+    - compiler: vs2015
+      platform: x64
+      config: Release
 
 install:
 - git submodule update --init --recursive
