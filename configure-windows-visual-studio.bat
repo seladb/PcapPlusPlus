@@ -2,9 +2,9 @@
 setlocal
 
 echo.
-echo ***********************************************
-echo PcapPlusPlus Visual Studio configuration script 
-echo ***********************************************
+echo ****************************************************
+echo PcapPlusPlus Visual Studio 2015 configuration script 
+echo ****************************************************
 echo.
 
 set VS_PROPERTY_SHEET=mk\vs2015\PcapPlusPlusPropertySheet.props
@@ -45,11 +45,11 @@ if "%WINPCAP_HOME:~-1%"=="\" set WINPCAP_HOME=%WINPCAP_HOME:~,-1%
 ))>pcpp_temp.xml
 
 move /Y pcpp_temp.xml %VS_PROPERTY_SHEET% >nul
-xcopy /Y %VS_PROPERTY_SHEET% %VS_PROPERTY_SHEET_EXAMPLE_PROJECT%
+xcopy /Y %VS_PROPERTY_SHEET% %VS_PROPERTY_SHEET_EXAMPLE_PROJECT% > nul
 
 :: configuration completed
 echo.
-echo PcapPlusPlus Visual Studio configuration is complete. Files created (or modified): %VS_PROPERTY_SHEET%
+echo PcapPlusPlus Visual Studio 2015 configuration is complete. Files created (or modified): %VS_PROPERTY_SHEET% %VS_PROPERTY_SHEET_EXAMPLE_PROJECT%
 
 :: exit script
 exit /B 0
@@ -193,7 +193,7 @@ echo This script has 2 modes of operation:
 echo   1) Without any switches. In this case the script will guide you through using wizards
 echo   2) With switches, as described below
 echo.
-echo Basic usage: %~nx0 [-h] -p PTHREADS_WIN23_DIR -w WINPCAP_HOME_DIR
+echo Basic usage: %~nx0 [-h] -p PTHREADS_WIN32_DIR -w WINPCAP_HOME_DIR
 echo.
 echo The following switches are recognized:
 echo -p^|--pthreads-home   --Sets pthreads-win32 home directory

@@ -320,11 +320,11 @@ In order to build PacpPlusPlus on Mac OS X you need to make sure [Xcode](https:/
 
 *On Windows (Visual Studio 2015):*
 
-1. run the **configure-windows-visual-studio.bat** batch file from PcapPlusPlus main directory. The script will ask you for the location of WinPcap developer's packet and pthreads-win32. The script will modify mk\vs2015\PcapPlusPlusPropertySheet.props file with these locations
+1. run the **configure-windows-visual-studio.bat** batch file from PcapPlusPlus main directory. The script will ask you for the locations of WinPcap developer's packet and pthreads-win32. The script will modify mk\vs2015\PcapPlusPlusPropertySheet.props file with these locations
 2. PcapPlusPlus contains 3 Visual Studio solutions:
    1. **mk\vs2015\PcapPlusPlus.sln** - contains PcapPlusPlus libraries (Common++, Packet++ and Pcap++) and unit-tests projects
-   2. **mk\vs2015\PcapPlusPlus-Examples.sln** - contains PcapPlusPlus examples. Reuquires that PcapPlusPlus.sln is already built
-   3. **mk\vs2015\ExampleProject\ExampleProject.sln** - a fully configured project with no code for working with PcapPlusPlus. You can use this project to start writing code that uses PcapPlusPlus. It already has all the include paths, libaray paths etc. required for PcapPlusPlus. Just write you code and build. This solution is also relocatable so you can move it to wherever you want and it will still build successfully. Reuquires that PcapPlusPlus.sln is already built
+   2. **mk\vs2015\PcapPlusPlus-Examples.sln** - contains all PcapPlusPlus examples. Reuquires PcapPlusPlus.sln to be built
+   3. **mk\vs2015\ExampleProject\ExampleProject.sln** - a fully configured project for working with PcapPlusPlus. You can use this project to write your own code using PcapPlusPlus. It already has all the include paths, libaray paths etc. configured and also an empty main() function. Just write your code and build. This solution is also relocatable so you can move it to wherever you want and it will still build successfully. Reuquires PcapPlusPlus.sln to be built
 3. All solutions support both 32-bit (**x86**) and 64-bit (**x64**) configurations as well as **Debug** and **Release** modes. So actually 4 modes are supported: x86|Debug, x86|Release, x64|Debug, x64|Release
 
 *On Windows (MinGW32 + MinGW-w64):*
@@ -332,6 +332,7 @@ In order to build PacpPlusPlus on Mac OS X you need to make sure [Xcode](https:/
 1. run the **configure-windows-mingw.bat** batch file from PcapPlusPlus main directory. The script will ask you which compiler you want to use (mingw32 or mingw-w54) and will ask for WinPcap developer's pack location and MinGW location
 2. run **mingw32-make.exe all** from PcapPlusPlus main directory
 3. This should compile all libraries, unit-tests and examples
+4. Only 32-bit compilation is supported
 
 *On Linux:*
 
