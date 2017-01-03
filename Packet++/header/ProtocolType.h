@@ -148,7 +148,7 @@ namespace pcpp
 		/**
 		 * IGMP protocol
 		 */
-		IGMP = 0x600000,
+		IGMP = 0xE00000,
 
 		/**
 		 * IGMPv1 protocol
@@ -159,6 +159,11 @@ namespace pcpp
 		 * IGMPv2 protocol
 		 */
 		IGMPv2 = 0x400000,
+
+		/**
+		 * IGMPv3 protocol
+		 */
+		IGMPv3 = 0x800000
 	};
 
 } //namespace pcpp

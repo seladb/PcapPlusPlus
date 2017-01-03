@@ -4449,6 +4449,73 @@ PACKETPP_TEST(IgmpCreateAndEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(Igmpv3ParsingTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/igmpv3_query.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file igmpv3_query.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/igmpv3_report.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file igmpv3_report.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet igmpv3QueryPacket(&rawPacket1);
+	Packet igmpv3ReportPacket(&rawPacket2);
+
+	PACKETPP_ASSERT(igmpv3QueryPacket.isPacketOfType(IGMPv3) == true, "igmpv3QueryPacket isn't of type IGMPv3");
+	PACKETPP_ASSERT(igmpv3QueryPacket.isPacketOfType(IGMP) == true, "igmpv3QueryPacket isn't of type IGMP");
+	PACKETPP_ASSERT(igmpv3QueryPacket.isPacketOfType(IGMPv2) == false, "igmpv3QueryPacket is of type IGMPv2");
+	IgmpV3QueryLayer* igmpv3QueryLayer = igmpv3QueryPacket.getLayerOfType<IgmpV3QueryLayer>();
+	PACKETPP_ASSERT(igmpv3QueryLayer != NULL, "Couldn't get IGMPv3 query layer for igmpv3QueryPacket");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getGroupAddress().toString() == "224.0.0.9", "Group address isn't 224.0.0.9");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getQueryHeader()->s_qrv == 0x0f, "s_qrv isn't 0x0f");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getNumOfSources() == 1, "Number of records isn't 1");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getHeaderLen() == 16, "query header len isn't 16");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(0).toString() == "192.168.20.222", "Source address at index 0 isn't 192.168.20.222");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(1).toString() == "0.0.0.0", "Source address at index 1 isn't zero");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(100).toString() == "0.0.0.0", "Source address at index 100 isn't zero");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString() == "0.0.0.0", "Source address at index -1 isn't zero");
+	PACKETPP_ASSERT(igmpv3QueryLayer->toString() == "IGMPv3 Layer, Membership Query message", "Query to string failed");
+
+	igmpv3QueryLayer->getQueryHeader()->numOfSources = htons(100);
+
+	PACKETPP_ASSERT(igmpv3QueryLayer->getNumOfSources() == 100, "Number of records after change isn't 100");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getHeaderLen() == 16, "query header len after change isn't 16");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(0).toString() == "192.168.20.222", "Source address at index 0 after change isn't 192.168.20.222");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(1).toString() == "0.0.0.0", "Source address at index 1 after change isn't zero");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(50).toString() == "0.0.0.0", "Source address at index 50 after change isn't zero");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString() == "0.0.0.0", "Source address at index -1 after change isn't zero");
+
+
+	PACKETPP_ASSERT(igmpv3ReportPacket.isPacketOfType(IGMPv3) == true, "igmpv3ReportPacket isn't of type IGMPv3");
+	PACKETPP_ASSERT(igmpv3ReportPacket.isPacketOfType(IGMP) == true, "igmpv3ReportPacket isn't of type IGMP");
+	PACKETPP_ASSERT(igmpv3ReportPacket.isPacketOfType(IGMPv2) == false, "igmpv3ReportPacket is of type IGMPv2");
+	IgmpV3ReportLayer* igmpv3ReportLayer = igmpv3ReportPacket.getLayerOfType<IgmpV3ReportLayer>();
+	PACKETPP_ASSERT(igmpv3ReportLayer != NULL, "Couldn't get IGMPv3 report layer for igmpv3ReportPacket");
+	PACKETPP_ASSERT(igmpv3ReportLayer->getNumOfGroupRecords() == 1, "Number of records isn't 1");
+	PACKETPP_ASSERT(igmpv3ReportLayer->getHeaderLen() == 20, "report header len isn't 20");
+	igmpv3_group_record* curGroup = igmpv3ReportLayer->getFirstGroupRecord();
+	PACKETPP_ASSERT(curGroup != NULL, "First record is null");
+	PACKETPP_ASSERT(curGroup->recordType == 1, "First group type isn't 1");
+	PACKETPP_ASSERT(curGroup->getMulticastAddress().toString() == "224.0.0.9", "Multicast address in first group isn't 224.0.0.9");
+	PACKETPP_ASSERT(curGroup->getSourceAdressCount() == 1, "Num of source addresses in first group 1 isn't 1");
+	PACKETPP_ASSERT(curGroup->getRecordLen() == 12, "First group len isn't 12");
+	PACKETPP_ASSERT(curGroup->getSoruceAddressAtIndex(0).toString() == "192.168.20.222", "First address in first group isn't 192.168.20.222");
+	PACKETPP_ASSERT(curGroup->getSoruceAddressAtIndex(-1).toString() == "0.0.0.0", "Address in index -1 in first group isn't 0.0.0.0");
+	PACKETPP_ASSERT(curGroup->getSoruceAddressAtIndex(1).toString() == "0.0.0.0", "Address in index 1 in first group isn't 0.0.0.0");
+	PACKETPP_ASSERT(curGroup->getSoruceAddressAtIndex(100).toString() == "0.0.0.0", "Address in index 100 in first group isn't 0.0.0.0");
+	curGroup = igmpv3ReportLayer->getNextGroupRecord(curGroup);
+	PACKETPP_ASSERT(curGroup == NULL, "Second record is not null");
+	PACKETPP_ASSERT(igmpv3ReportLayer->toString() == "IGMPv3 Layer, Membership Report message", "Report to string failed");
+
+	PACKETPP_TEST_PASSED;
+}
+
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -4512,6 +4579,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(NullLoopbackTest);
 	PACKETPP_RUN_TEST(IgmpParsingTest);
 	PACKETPP_RUN_TEST(IgmpCreateAndEditTest);
+	PACKETPP_RUN_TEST(Igmpv3ParsingTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

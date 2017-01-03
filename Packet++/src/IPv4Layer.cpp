@@ -45,6 +45,7 @@ void IPv4Layer::parseNextLayer()
 
 	ProtocolType greVer = Unknown;
 	ProtocolType igmpVer = Unknown;
+	bool igmpQuery = false;
 
 	uint8_t ipVersion = 0;
 
@@ -88,11 +89,18 @@ void IPv4Layer::parseNextLayer()
 			m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IGMP:
-		igmpVer = IgmpLayer::getIGMPVerFromData(m_Data + sizeof(iphdr), m_DataLen - sizeof(ipHdr));
+		igmpVer = IgmpLayer::getIGMPVerFromData(m_Data + sizeof(iphdr), ntohs(getIPv4Header()->totalLength) - sizeof(iphdr), igmpQuery);
 		if (igmpVer == IGMPv1)
 			m_NextLayer = new IgmpV1Layer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		else if (igmpVer == IGMPv2)
 			m_NextLayer = new IgmpV2Layer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		else if (igmpVer == IGMPv3)
+		{
+			if (igmpQuery)
+				m_NextLayer = new IgmpV3QueryLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+			else
+				m_NextLayer = new IgmpV3ReportLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		}
 		else
 			m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;

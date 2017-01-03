@@ -15,6 +15,36 @@ struct igmp_header
 	uint32_t groupAddress;
 };
 
+struct igmpv3_query_header : public igmp_header
+{
+	uint8_t s_qrv;
+	uint8_t qqic;
+	uint16_t numOfSources;
+};
+
+struct igmpv3_report_header
+{
+	uint8_t type;
+	uint8_t maxResponseTime;
+	uint16_t checksum;
+	uint16_t reserved;
+	uint16_t numOfGroupRecords;
+};
+
+struct igmpv3_group_record
+{
+	uint8_t recordType;
+	uint8_t auxDataLen;
+	uint16_t numOfSources;
+	uint32_t multicastAddress;
+	uint8_t sourceAddresses[];
+
+	IPv4Address getMulticastAddress();
+	uint16_t getSourceAdressCount();
+	IPv4Address getSoruceAddressAtIndex(int index);
+	size_t getRecordLen();
+};
+
 enum IgmpType
 {
 	IgmpType_Unknown = 0,
@@ -42,6 +72,8 @@ protected:
 	IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer);
 
 	uint16_t calculateChecksum();
+
+	size_t getHeaderSizeByVer(ProtocolType igmpVer);
 public:
 
 	virtual ~IgmpLayer() {}
@@ -81,7 +113,7 @@ public:
 	 * @param[in] dataLen Raw data length
 	 * @return One of the values ::IGMPv1, ::IGMPv2 or ::Unknown, according to detected IGMP version
 	 */
-	static ProtocolType getIGMPVerFromData(uint8_t* data, size_t dataLen);
+	static ProtocolType getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& isQuery);
 
 
 	// implement abstract methods
@@ -161,6 +193,56 @@ public:
 	 * Calculate the IGMP checksum
 	 */
 	void computeCalculateFields();
+};
+
+class IgmpV3QueryLayer : public IgmpLayer
+{
+public:
+
+	 /** A constructor that creates the layer from an existing packet raw data
+	 * @param[in] data A pointer to the raw data
+	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+	 */
+	IgmpV3QueryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+	inline igmpv3_query_header* getQueryHeader() { return (igmpv3_query_header*)m_Data; }
+
+	uint16_t getNumOfSources();
+
+	IPv4Address getSourceAddressAtIndex(int index);
+
+	// implement abstract methods
+
+	void computeCalculateFields();
+
+	size_t getHeaderLen();
+};
+
+class IgmpV3ReportLayer : public IgmpLayer
+{
+public:
+
+	 /** A constructor that creates the layer from an existing packet raw data
+	 * @param[in] data A pointer to the raw data
+	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+	 */
+	IgmpV3ReportLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+	inline igmpv3_report_header* getReportHeader() { return (igmpv3_report_header*)m_Data; }
+
+	uint16_t getNumOfGroupRecords();
+
+	igmpv3_group_record* getFirstGroupRecord();
+
+	igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord);
+
+	// implement abstract methods
+
+	void computeCalculateFields();
+
+	size_t getHeaderLen();
 };
 
 }

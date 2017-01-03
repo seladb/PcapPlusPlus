@@ -12,9 +12,13 @@
 namespace pcpp
 {
 
+/*************
+ * IgmpLayer
+ *************/
+
 IgmpLayer::IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer)
 {
-	m_DataLen = sizeof(igmp_header);
+	m_DataLen = getHeaderSizeByVer(igmpVer);
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = igmpVer;
@@ -54,10 +58,13 @@ void IgmpLayer::setType(IgmpType type)
 	hdr->type = type;
 }
 
-ProtocolType IgmpLayer::getIGMPVerFromData(uint8_t* data, size_t dataLen)
+ProtocolType IgmpLayer::getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& isQuery)
 {
-	if (dataLen < 2 || data == NULL)
+	isQuery = false;
+
+	if (dataLen < 8 || data == NULL)
 		return Unknown;
+
 	switch ((int)data[0])
 	{
 	case IgmpType_MembershipReportV2:
@@ -65,8 +72,15 @@ ProtocolType IgmpLayer::getIGMPVerFromData(uint8_t* data, size_t dataLen)
 		return IGMPv2;
 	case IgmpType_MembershipReportV1:
 		return IGMPv1;
+	case IgmpType_MembershipReportV3:
+		return IGMPv3;
 	case IgmpType_MembershipQuery:
 	{
+		isQuery = true;
+
+		if (dataLen >= sizeof(igmpv3_query_header))
+			return IGMPv3;
+
 		if (data[1] == 0)
 			return IGMPv1;
 		else
@@ -81,13 +95,36 @@ uint16_t IgmpLayer::calculateChecksum()
 {
 	ScalarBuffer<uint16_t> buffer;
 	buffer.buffer = (uint16_t*)getIgmpHeader();
-	buffer.len = sizeof(igmp_header);
+	buffer.len = getHeaderLen();
 	return compute_checksum(&buffer, 1);
+}
+
+size_t IgmpLayer::getHeaderSizeByVer(ProtocolType igmpVer)
+{
+	if (igmpVer == IGMPv1 || igmpVer == IGMPv2)
+		return sizeof(igmp_header);
+
+	if (igmpVer == IGMPv3)
+		return sizeof(igmpv3_query_header);
+
+	return 0;
 }
 
 std::string IgmpLayer::toString()
 {
-	std::string igmpVer = (getProtocol() == IGMPv1) ? "1" : "2";
+	std::string igmpVer = "";
+	switch (getProtocol())
+	{
+	case IGMPv1:
+		igmpVer = "1";
+		break;
+	case IGMPv2:
+		igmpVer = "2";
+		break;
+	default:
+		igmpVer = "3";
+	}
+
 	std::string msgType;
 
 	switch (getType())
@@ -143,6 +180,9 @@ std::string IgmpLayer::toString()
 
 
 
+/*************
+ * IgmpV1Layer
+ *************/
 
 IgmpV1Layer::IgmpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) :
 		IgmpLayer(data, dataLen, prevLayer, packet, IGMPv1)
@@ -166,6 +206,9 @@ void IgmpV1Layer::computeCalculateFields()
 
 
 
+/*************
+ * IgmpV2Layer
+ *************/
 
 IgmpV2Layer::IgmpV2Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) :
 		IgmpLayer(data, dataLen, prevLayer, packet, IGMPv2)
@@ -182,6 +225,152 @@ void IgmpV2Layer::computeCalculateFields()
 	igmp_header* hdr = getIgmpHeader();
 	hdr->checksum = 0;
 	hdr->checksum = htons(calculateChecksum());
+}
+
+
+
+
+
+/******************
+ * IgmpV3QueryLayer
+ ******************/
+
+
+IgmpV3QueryLayer::IgmpV3QueryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) :
+		IgmpLayer(data, dataLen, prevLayer, packet, IGMPv3)
+{
+}
+
+uint16_t IgmpV3QueryLayer::getNumOfSources()
+{
+	return ntohs(getQueryHeader()->numOfSources);
+}
+
+IPv4Address IgmpV3QueryLayer::getSourceAddressAtIndex(int index)
+{
+	uint16_t numOfSources = getNumOfSources();
+	if (index < 0 || index >= numOfSources)
+		return IPv4Address::Zero;
+
+	// verify numOfRecords is a reasonable number that points to data within the packet
+	int ptrOffset = index * sizeof(uint32_t) + sizeof(igmpv3_query_header);
+	if (ptrOffset + sizeof(uint32_t) > getDataLen())
+		return IPv4Address::Zero;
+
+	uint8_t* ptr = m_Data + ptrOffset;
+	return IPv4Address(*(uint32_t*)ptr);
+}
+
+size_t IgmpV3QueryLayer::getHeaderLen()
+{
+	uint16_t numOfSources = getNumOfSources();
+
+	int headerLen = numOfSources * sizeof(uint32_t) + sizeof(igmpv3_query_header);
+
+	// verify numOfRecords is a reasonable number that points to data within the packet
+	if ((size_t)headerLen > getDataLen())
+		return getDataLen();
+
+	return (size_t)headerLen;
+}
+
+void IgmpV3QueryLayer::computeCalculateFields()
+{
+	igmpv3_query_header* hdr = getQueryHeader();
+	hdr->checksum = 0;
+	hdr->checksum = htons(calculateChecksum());
+	//TODO
+}
+
+
+
+
+/*******************
+ * IgmpV3ReportLayer
+ *******************/
+
+IgmpV3ReportLayer::IgmpV3ReportLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) :
+		IgmpLayer(data, dataLen, prevLayer, packet, IGMPv3)
+{
+}
+
+uint16_t IgmpV3ReportLayer::getNumOfGroupRecords()
+{
+	return ntohs(getReportHeader()->numOfGroupRecords);
+
+}
+
+igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord()
+{
+	// check if there are group records at all
+	if (getHeaderLen() <= sizeof(igmpv3_report_header))
+		return NULL;
+
+	uint8_t* curGroupPtr = m_Data + sizeof(igmpv3_report_header);
+	return (igmpv3_group_record*)curGroupPtr;
+}
+
+igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord)
+{
+	if (groupRecord == NULL)
+		return NULL;
+
+	// prev group was the last group
+	if ((uint8_t*)groupRecord + groupRecord->getRecordLen() - m_Data >= (int)getHeaderLen())
+		return NULL;
+
+	igmpv3_group_record* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
+
+	return nextGroup;
+}
+
+size_t IgmpV3ReportLayer::getHeaderLen()
+{
+	return m_DataLen;
+}
+
+void IgmpV3ReportLayer::computeCalculateFields()
+{
+	igmpv3_report_header* hdr = getReportHeader();
+	hdr->checksum = 0;
+	hdr->checksum = htons(calculateChecksum());
+	//TODO
+}
+
+
+
+
+/*********************
+ * igmpv3_group_record
+ *********************/
+
+IPv4Address igmpv3_group_record::getMulticastAddress()
+{
+	return IPv4Address(multicastAddress);
+}
+
+uint16_t igmpv3_group_record::getSourceAdressCount()
+{
+	return ntohs(numOfSources);
+}
+
+IPv4Address igmpv3_group_record::getSoruceAddressAtIndex(int index)
+{
+	uint16_t numOfRecords = getSourceAdressCount();
+	if (index < 0 || index >= numOfRecords)
+		return IPv4Address::Zero;
+
+	int offset = index * sizeof(uint32_t);
+	uint8_t* ptr = sourceAddresses + offset;
+	return IPv4Address(*(uint32_t*)ptr);
+}
+
+size_t igmpv3_group_record::getRecordLen()
+{
+	uint16_t numOfRecords = getSourceAdressCount();
+
+	int headerLen = numOfRecords * sizeof(uint32_t) + sizeof(igmpv3_group_record);
+	return (size_t)headerLen;
 }
 
 }
