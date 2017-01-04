@@ -72,7 +72,7 @@ namespace pcpp
 		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
 		 * @return True if filter set successfully, false otherwise
 		 */
-		bool setFilter(std::string filterAsString);
+		virtual bool setFilter(std::string filterAsString);
 
 		/**
 		 * Clear the filter currently set on device

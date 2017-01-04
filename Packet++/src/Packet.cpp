@@ -426,15 +426,21 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime)
 	// convert raw packet timestamp to printable format
 	timeval timestamp = m_RawPacket->getPacketTimeStamp();
 	time_t nowtime = timestamp.tv_sec;
-	struct tm *nowtm;
+	struct tm *nowtm = NULL;
 	if (timeAsLocalTime)
 		nowtm = localtime(&nowtime);
 	else
 		nowtm = gmtime(&nowtime);
-	char tmbuf[64], buf[64];
-	strftime(tmbuf, sizeof tmbuf, "%Y-%m-%d %H:%M:%S", nowtm);
-	snprintf(buf, sizeof buf, "%s.%06lu", tmbuf, timestamp.tv_usec);
 
+	char tmbuf[64], buf[64];
+	if (nowtm != NULL)
+	{
+		strftime(tmbuf, sizeof(tmbuf), "%Y-%m-%d %H:%M:%S", nowtm);
+		snprintf(buf, sizeof(buf), "%s.%06lu", tmbuf, timestamp.tv_usec);
+	}
+	else
+		snprintf(buf, sizeof(buf), "0000-00-00 00:00:00.000000");
+	
 	return "Packet length: " + dataLenStream.str() + " [Bytes], Arrival time: " + std::string(buf);
 }
 

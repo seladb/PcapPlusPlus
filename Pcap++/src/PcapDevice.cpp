@@ -91,7 +91,11 @@ bool IPcapDevice::matchPakcetWithFilter(std::string filterAsString, RawPacket* r
 	pktHdr.len = rawPacket->getRawDataLen();
 	pktHdr.ts = rawPacket->getPacketTimeStamp();
 
-	return (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
+	bool result = (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
+	
+	pcap_freecode(&prog);
+
+	return result;
 }
 
 } // namespace pcpp

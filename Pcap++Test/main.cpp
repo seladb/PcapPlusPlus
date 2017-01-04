@@ -1071,8 +1071,23 @@ PCAPP_TEST(TestPcapNgFileReadWriteAdv)
     PCAPP_ASSERT(dynamic_cast<PcapNgFileReaderDevice*>(genericReader) != NULL, "Reader isn't of type PcapNgFileReaderDevice");
     delete genericReader;
 
+    // -------
 
-	PCAPP_TEST_PASSED;
+    PcapNgFileReaderDevice readerDev5(EXAMPLE2_PCAPNG_PATH);
+    PCAPP_ASSERT(readerDev5.open(), "cannot open reader device 5");
+    PCAPP_ASSERT(readerDev5.setFilter("bla bla bla") == false, "Managed to set illegal filter");
+    PCAPP_ASSERT(readerDev5.setFilter("src net 130.217.250.129") == true, "Couldn't set filter");
+
+    packetCount = 0;
+
+    while (readerDev5.getNextPacket(rawPacket, pktComment))
+    {
+        packetCount++;
+    }
+
+    PCAPP_ASSERT(packetCount == 14, "Number of packets matched to filter != 14, it's %d", packetCount);
+
+    PCAPP_TEST_PASSED;
 }
 
 PCAPP_TEST(TestPcapLiveDeviceList)

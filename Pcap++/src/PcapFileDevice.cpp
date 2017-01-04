@@ -169,6 +169,38 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 PcapNgFileReaderDevice::PcapNgFileReaderDevice(const char* fileName) : IFileReaderDevice(fileName)
 {
 	m_LightPcapNg = NULL;
+	m_CurFilter = "";
+	m_BpfLinkType = -1;
+	m_BpfInitialized = false;
+}
+
+bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType)
+{
+	if (m_CurFilter == "")
+		return true;
+
+	int linkTypeAsInt = (int)linkType;
+
+	if (m_BpfLinkType != linkTypeAsInt)
+	{
+		LOG_DEBUG("Compiling the filter '%s' for link type %d", m_CurFilter.c_str(), linkTypeAsInt);
+		if (m_BpfInitialized)
+			pcap_freecode(&m_Bpf);
+		if (pcap_compile_nopcap(9000, linkTypeAsInt, &m_Bpf, m_CurFilter.c_str(), 1, 0) < 0)
+		{
+			m_BpfInitialized = false;
+			return false;
+		}
+
+		m_BpfLinkType = linkTypeAsInt;
+		m_BpfInitialized = true;
+	}
+
+	struct pcap_pkthdr pktHdr;
+	pktHdr.caplen = packetLen;
+	pktHdr.len = packetLen;
+	pktHdr.ts = packetTimestamp;
+	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 
 bool PcapNgFileReaderDevice::open()
@@ -213,7 +245,15 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& pa
 	{
 		LOG_DEBUG("Packet could not be read. Probably end-of-file");
 		return false;
+	}
 
+	while (!matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp, pktHeader.data_link))
+	{
+		if (!light_get_next_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, &pktData))
+		{
+			LOG_DEBUG("Packet could not be read. Probably end-of-file");
+			return false;
+		}
 	}
 
 	uint8_t* myPacketData = new uint8_t[pktHeader.captured_length];
@@ -245,12 +285,28 @@ void PcapNgFileReaderDevice::getStatistics(pcap_stat& stats)
 	LOG_DEBUG("Statistics received for pcapng reader device for filename '%s'", m_FileName);
 }
 
+bool PcapNgFileReaderDevice::setFilter(std::string filterAsString)
+{
+	struct bpf_program prog;
+	if (pcap_compile_nopcap(9000, 1, &prog, filterAsString.c_str(), 1, 0) < 0)
+	{
+		return false;
+	}
+	pcap_freecode(&prog);
+
+	m_CurFilter = filterAsString;
+	m_BpfLinkType = -1;
+	return true;
+}
+
 void PcapNgFileReaderDevice::close()
 {
 	if (m_LightPcapNg == NULL)
 		return;
 
 	light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
+	if (m_BpfInitialized)
+		pcap_freecode(&m_Bpf);
 	m_LightPcapNg = NULL;
 	m_DeviceOpened = false;
 	LOG_DEBUG("File reader closed for file '%s'", m_FileName);
