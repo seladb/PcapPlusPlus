@@ -2,7 +2,7 @@
  * SSLAnalyzer application
  * ========================
  * This application analyzes SSL/TLS traffic and presents detailed and diverse information about it. It can operate in live traffic
- * mode where this information is collected on live packets or in pcap file mode where packets are being read from a file. The
+ * mode where this information is collected on live packets or in file mode where packets are being read from a pcap/pcapng file. The
  * information collected by this application includes:
  * - general data: number of packets, packet rate, amount of traffic, bandwidth
  * - flow data: number of flow, flow rate, average packets per flow, average data per flow
@@ -318,16 +318,16 @@ void onApplicationInterrupted(void* cookie)
  */
 void analyzeSSLFromPcapFile(std::string pcapFileName)
 {
-	// open input file
-	PcapFileReaderDevice reader(pcapFileName.c_str());
+	// open input file (pcap or pcapng file)
+	IFileReaderDevice* reader = IFileReaderDevice::getReader(pcapFileName.c_str());
 
-	if (!reader.open())
+	if (!reader->open())
 		EXIT_WITH_ERROR("Could not open input pcap file");
 
 	// read the input file packet by packet and give it to the SSLStatsCollector for collecting stats
 	SSLStatsCollector collector;
 	RawPacket rawPacket;
-	while(reader.getNextPacket(rawPacket))
+	while(reader->getNextPacket(rawPacket))
 	{
 		Packet parsedPacket(&rawPacket);
 		collector.collectStats(&parsedPacket);
@@ -340,7 +340,10 @@ void analyzeSSLFromPcapFile(std::string pcapFileName)
 	printStatsSummary(collector);
 
 	// close input file
-	reader.close();
+	reader->close();
+
+	// free reader memory
+	delete reader;
 }
 
 

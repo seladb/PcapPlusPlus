@@ -1,7 +1,7 @@
 /**
  * PcapPrinter application
  * =======================
- * This simple application takes a pcap file, parses its packets using Packet++ and output each layer in each packet
+ * This simple application takes a pcap or pcapng file, parses its packets using Packet++ and output each layer in each packet
  * as a readable string (quite similar to the way Wireshark shows packets).
  * The result is printed to stdout (by default) or to a file (if specified). It can also print only the
  * first X packets of a file
@@ -114,25 +114,30 @@ int main(int argc, char* argv[])
 		out = &of;
 	}
 
-	// open a pcap file for reading
-	PcapFileReaderDevice reader(inputPcapFileName.c_str());
+	// open a pcap/pcapng file for reading
+	IFileReaderDevice* reader = IFileReaderDevice::getReader(inputPcapFileName.c_str());
 
-	if (!reader.open())
+	if (!reader->open())
 	{
+		delete reader;
 		EXIT_WITH_ERROR("Error opening input pcap file\n");
 	}
 
 	// set a filter if provided
 	if (filter != "")
 	{
-		if (!reader.setFilter(filter))
+		if (!reader->setFilter(filter))
+		{
+			delete reader;
 			EXIT_WITH_ERROR("Couldn't set filter '%s'", filter.c_str());
+		}
+			
 	}
 
 	// read the first (and only) packet from the file
 	int packetCountSoFar = 0;
 	RawPacket rawPacket;
-	while (reader.getNextPacket(rawPacket) && packetCountSoFar != packetCount)
+	while (reader->getNextPacket(rawPacket) && packetCountSoFar != packetCount)
 	{
 		// parse the raw packet into a parsed packet
 		Packet parsedPacket(&rawPacket);
@@ -146,7 +151,10 @@ int main(int argc, char* argv[])
 	(*out) << "Finished. Printed " << packetCountSoFar << " packets" << std::endl;
 
 	// close the file
-	reader.close();
+	reader->close();
+
+	// free reader memory
+	delete reader;
 
 	return 0;
 }
