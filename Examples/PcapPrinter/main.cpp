@@ -47,7 +47,7 @@ void printUsage()
 			"-------\n"
 			"PcapPrinter [-h] [-o output_file] [-c packet_count] [-i filter] -f pcap_file\n"
 			"\nOptions:\n\n"
-			"    -f pcap_file   : Input pcap file name\n"
+			"    -f pcap_file   : Input pcap/pcapng file name\n"
 			"    -o output_file : Save output to text file (default output is stdout)\n"
 			"    -c packet_count: Print only first packet_count number of packet\n"
 			"    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed\n"

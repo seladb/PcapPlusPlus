@@ -85,7 +85,7 @@ void printUsage()
 			"----------------------\n"
 			"HttpAnalyzer [-h] -f input_file\n"
 			"\nOptions:\n\n"
-			"    -f           : The input pcap file to analyze. Required argument for this mode\n"
+			"    -f           : The input pcap/pcapng file to analyze. Required argument for this mode\n"
 			"    -h           : Displays this help message and exits\n\n"
 			"Usage: Live traffic mode:\n"
 			"-------------------------\n"
