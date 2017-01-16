@@ -3,6 +3,7 @@
 
 #include <Layer.h>
 #include <IpAddress.h>
+#include <vector>
 
 namespace pcpp
 {
@@ -15,8 +16,12 @@ struct igmp_header
 	uint32_t groupAddress;
 };
 
-struct igmpv3_query_header : public igmp_header
+struct igmpv3_query_header
 {
+	uint8_t type;
+	uint8_t maxResponseTime;
+	uint16_t checksum;
+	uint32_t groupAddress;
 	uint8_t s_qrv;
 	uint8_t qqic;
 	uint16_t numOfSources;
@@ -25,9 +30,9 @@ struct igmpv3_query_header : public igmp_header
 struct igmpv3_report_header
 {
 	uint8_t type;
-	uint8_t maxResponseTime;
+	uint8_t reserved1;
 	uint16_t checksum;
-	uint16_t reserved;
+	uint16_t reserved2;
 	uint16_t numOfGroupRecords;
 };
 
@@ -73,7 +78,7 @@ protected:
 
 	uint16_t calculateChecksum();
 
-	size_t getHeaderSizeByVer(ProtocolType igmpVer);
+	size_t getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType);
 public:
 
 	virtual ~IgmpLayer() {}
@@ -206,11 +211,21 @@ public:
 	 */
 	IgmpV3QueryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-	inline igmpv3_query_header* getQueryHeader() { return (igmpv3_query_header*)m_Data; }
+	IgmpV3QueryLayer(const IPv4Address& multicastAddr = IPv4Address::Zero, uint8_t maxResponseTime = 0, uint8_t s_qrv = 0);
 
-	uint16_t getNumOfSources();
+	inline igmpv3_query_header* getIgmpV3QueryHeader() { return (igmpv3_query_header*)m_Data; }
+
+	uint16_t getSourceAddressCount();
 
 	IPv4Address getSourceAddressAtIndex(int index);
+
+	bool addSourceAddress(const IPv4Address& addr);
+
+	bool addSourceAddressAtIndex(const IPv4Address& addr, int index);
+
+	bool removeSourceAddressAtIndex(int index);
+
+	bool removeAllSourceAddresses();
 
 	// implement abstract methods
 
@@ -221,6 +236,9 @@ public:
 
 class IgmpV3ReportLayer : public IgmpLayer
 {
+private:
+	igmpv3_group_record* addGroupRecordAt(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses, int offset);
+
 public:
 
 	 /** A constructor that creates the layer from an existing packet raw data
@@ -230,13 +248,23 @@ public:
 	 */
 	IgmpV3ReportLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
+	IgmpV3ReportLayer();
+
 	inline igmpv3_report_header* getReportHeader() { return (igmpv3_report_header*)m_Data; }
 
-	uint16_t getNumOfGroupRecords();
+	uint16_t getGroupRecordCount();
 
 	igmpv3_group_record* getFirstGroupRecord();
 
 	igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord);
+
+	igmpv3_group_record* addGroupRecord(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses);
+
+	igmpv3_group_record* addGroupRecordAtIndex(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses, int index);
+
+	bool removeGroupRecordAtIndex(int index);
+
+	bool removeAllGroupRecords();
 
 	// implement abstract methods
 

@@ -688,7 +688,7 @@ namespace pcpp
 		 * @param[in] optionLen The length of the option data
 		 * @param[in] optionData A pointer to the option data. This data will be copied to added option data. Notice the length of
 		 * optionData must be optionLength
-		 * @param[in] prevOption The DHCP option which the newly added tag will come after. If set to NULL DHCP option will be
+		 * @param[in] prevOption The DHCP option which the newly added tag will come after. If set to ::DHCPOPT_UNKNOWN DHCP option will be
 		 * added as the first DHCP option
 		 * @return A pointer to the newly added option or NULL if addition failed. Notice this is a pointer to the real data
 		 * casted to DhcpOptionData type (as opposed to a copy of the option data). So changes in this return value will affect

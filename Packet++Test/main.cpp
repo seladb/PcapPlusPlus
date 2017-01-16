@@ -107,6 +107,22 @@ uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength)
 	return result;
 }
 
+void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uint8_t* buffer2, size_t buffer2Len)
+{
+	printf("\n\n\n");
+	for(int i = 0; i<(int)buffer1Len; i++)
+		printf(" 0x%2X  ", buffer1[i]);
+	printf("\n\n\n");
+	for(int i = 0; i<(int)buffer2Len; i++)
+	{
+		if (buffer2[i] != buffer1[i])
+			printf("*0x%2X* ", buffer2[i]);
+		else
+			printf(" 0x%2X  ", buffer2[i]);
+	}
+	printf("\n\n\n");
+}
+
 // For debug purpose only
 //void createPcapFile(Packet& packet, std::string fileName)
 //{
@@ -4473,8 +4489,8 @@ PACKETPP_TEST(Igmpv3ParsingTest)
 	IgmpV3QueryLayer* igmpv3QueryLayer = igmpv3QueryPacket.getLayerOfType<IgmpV3QueryLayer>();
 	PACKETPP_ASSERT(igmpv3QueryLayer != NULL, "Couldn't get IGMPv3 query layer for igmpv3QueryPacket");
 	PACKETPP_ASSERT(igmpv3QueryLayer->getGroupAddress().toString() == "224.0.0.9", "Group address isn't 224.0.0.9");
-	PACKETPP_ASSERT(igmpv3QueryLayer->getQueryHeader()->s_qrv == 0x0f, "s_qrv isn't 0x0f");
-	PACKETPP_ASSERT(igmpv3QueryLayer->getNumOfSources() == 1, "Number of records isn't 1");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getIgmpV3QueryHeader()->s_qrv == 0x0f, "s_qrv isn't 0x0f");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressCount() == 1, "Number of records isn't 1");
 	PACKETPP_ASSERT(igmpv3QueryLayer->getHeaderLen() == 16, "query header len isn't 16");
 	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(0).toString() == "192.168.20.222", "Source address at index 0 isn't 192.168.20.222");
 	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(1).toString() == "0.0.0.0", "Source address at index 1 isn't zero");
@@ -4482,9 +4498,9 @@ PACKETPP_TEST(Igmpv3ParsingTest)
 	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString() == "0.0.0.0", "Source address at index -1 isn't zero");
 	PACKETPP_ASSERT(igmpv3QueryLayer->toString() == "IGMPv3 Layer, Membership Query message", "Query to string failed");
 
-	igmpv3QueryLayer->getQueryHeader()->numOfSources = htons(100);
+	igmpv3QueryLayer->getIgmpV3QueryHeader()->numOfSources = htons(100);
 
-	PACKETPP_ASSERT(igmpv3QueryLayer->getNumOfSources() == 100, "Number of records after change isn't 100");
+	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressCount() == 100, "Number of records after change isn't 100");
 	PACKETPP_ASSERT(igmpv3QueryLayer->getHeaderLen() == 16, "query header len after change isn't 16");
 	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(0).toString() == "192.168.20.222", "Source address at index 0 after change isn't 192.168.20.222");
 	PACKETPP_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(1).toString() == "0.0.0.0", "Source address at index 1 after change isn't zero");
@@ -4494,10 +4510,10 @@ PACKETPP_TEST(Igmpv3ParsingTest)
 
 	PACKETPP_ASSERT(igmpv3ReportPacket.isPacketOfType(IGMPv3) == true, "igmpv3ReportPacket isn't of type IGMPv3");
 	PACKETPP_ASSERT(igmpv3ReportPacket.isPacketOfType(IGMP) == true, "igmpv3ReportPacket isn't of type IGMP");
-	PACKETPP_ASSERT(igmpv3ReportPacket.isPacketOfType(IGMPv2) == false, "igmpv3ReportPacket is of type IGMPv2");
+	PACKETPP_ASSERT(igmpv3ReportPacket.isPacketOfType(IGMPv1) == false, "igmpv3ReportPacket is of type IGMPv1");
 	IgmpV3ReportLayer* igmpv3ReportLayer = igmpv3ReportPacket.getLayerOfType<IgmpV3ReportLayer>();
 	PACKETPP_ASSERT(igmpv3ReportLayer != NULL, "Couldn't get IGMPv3 report layer for igmpv3ReportPacket");
-	PACKETPP_ASSERT(igmpv3ReportLayer->getNumOfGroupRecords() == 1, "Number of records isn't 1");
+	PACKETPP_ASSERT(igmpv3ReportLayer->getGroupRecordCount() == 1, "Number of records isn't 1");
 	PACKETPP_ASSERT(igmpv3ReportLayer->getHeaderLen() == 20, "report header len isn't 20");
 	igmpv3_group_record* curGroup = igmpv3ReportLayer->getFirstGroupRecord();
 	PACKETPP_ASSERT(curGroup != NULL, "First record is null");
@@ -4512,6 +4528,195 @@ PACKETPP_TEST(Igmpv3ParsingTest)
 	curGroup = igmpv3ReportLayer->getNextGroupRecord(curGroup);
 	PACKETPP_ASSERT(curGroup == NULL, "Second record is not null");
 	PACKETPP_ASSERT(igmpv3ReportLayer->toString() == "IGMPv3 Layer, Membership Report message", "Report to string failed");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(Igmpv3QueryCreateAndEditTest)
+{
+	MacAddress srcMac(std::string("00:01:01:00:00:01"));
+	MacAddress dstMac(std::string("01:00:5e:00:00:09"));
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+
+	IPv4Address srcIp(std::string("127.0.0.1"));
+	IPv4Address dstIp(std::string("224.0.0.9"));
+	IPv4Layer ipLayer(srcIp, dstIp);
+
+	ipLayer.getIPv4Header()->ipId = htons(36760);
+	ipLayer.getIPv4Header()->timeToLive = 1;
+
+	IPv4Address multicastAddr(std::string("224.0.0.11"));
+	IgmpV3QueryLayer igmpV3QueryLayer(multicastAddr, 1, 0x0f);
+
+	IPv4Address srcAddr1(std::string("192.168.20.222"));
+	PACKETPP_ASSERT(igmpV3QueryLayer.addSourceAddress(srcAddr1) == true, "Couldn't add src addr 1");
+
+	Packet igmpv3QueryPacket(33);
+	igmpv3QueryPacket.addLayer(&ethLayer);
+	igmpv3QueryPacket.addLayer(&ipLayer);
+	igmpv3QueryPacket.addLayer(&igmpV3QueryLayer);
+
+	IPv4Address srcAddr2(std::string("1.2.3.4"));
+	PACKETPP_ASSERT(igmpV3QueryLayer.addSourceAddress(srcAddr2) == true, "Couldn't add src addr 2");
+
+	IPv4Address srcAddr3(std::string("10.20.30.40"));
+	PACKETPP_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr3, 0) == true, "Couldn't add src addr 3");
+
+	IPv4Address srcAddr4(std::string("100.200.255.255"));
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, -1) == false, "Managed to add src addr at index -1");
+	PACKETPP_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 4) == false, "Managed to add src addr at index 4");
+	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htons(100);
+	PACKETPP_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 4) == false, "Managed to add src addr at index 4 2");
+	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htons(3);
+	LoggerPP::getInstance().enableErrors();
+
+	PACKETPP_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 2) == true, "Couldn't add src addr 4");
+
+	IPv4Address srcAddr5(std::string("11.22.33.44"));
+	PACKETPP_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr5, 4) == true, "Couldn't add src addr 5");
+
+	igmpv3QueryPacket.computeCalculateFields();
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/igmpv3_query2.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file igmpv3_query2.dat");
+
+	PACKETPP_ASSERT(bufferLength == igmpv3QueryPacket.getRawPacket()->getRawDataLen(), "IGMPv3 query: Generated packet len (%d) is different than read packet len (%d)", igmpv3QueryPacket.getRawPacket()->getRawDataLen(), bufferLength);
+	PACKETPP_ASSERT(memcmp(igmpv3QueryPacket.getRawPacket()->getRawData(), buffer, igmpv3QueryPacket.getRawPacket()->getRawDataLen()) == 0, "IGMPv3 query: Raw packet data is different than expected");
+
+	delete[] buffer;
+
+	PACKETPP_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(4) == true, "Couldn't remove src addr at index 4");
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(4) == false, "Managed to remove non-existing index 4");
+	PACKETPP_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(-1) == false, "Managed to remove non-existing index 4");
+	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htons(100);
+	PACKETPP_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(4) == false, "Managed to remove non-existing index 4 2");
+	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htons(4);
+	LoggerPP::getInstance().enableErrors();
+
+	PACKETPP_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(0) == true, "Couldn't remove src addr at index 0");
+	PACKETPP_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(1) == true, "Couldn't remove src addr at index 1");
+	PACKETPP_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(1) == true, "Couldn't remove 2nd src addr at index 1");
+
+	igmpV3QueryLayer.setGroupAddress(IPv4Address(std::string("224.0.0.9")));
+
+	igmpv3QueryPacket.computeCalculateFields();
+
+	ipLayer.getIPv4Header()->headerChecksum = 0x2d36;
+
+	buffer = readFileIntoBuffer("PacketExamples/igmpv3_query.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file igmpv3_query.dat");
+
+	PACKETPP_ASSERT(bufferLength == igmpv3QueryPacket.getRawPacket()->getRawDataLen(), "IGMPv3 query: Generated packet len (%d) is different than read packet len (%d)", igmpv3QueryPacket.getRawPacket()->getRawDataLen(), bufferLength);
+	PACKETPP_ASSERT(memcmp(igmpv3QueryPacket.getRawPacket()->getRawData(), buffer, igmpv3QueryPacket.getRawPacket()->getRawDataLen()) == 0, "IGMPv3 query: Raw packet data after edit is different than expected");
+
+	delete[] buffer;
+
+	PACKETPP_ASSERT(igmpV3QueryLayer.removeAllSourceAddresses() == true, "Couldn't remove all source addresses");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(Igmpv3ReportCreateAndEditTest)
+{
+	MacAddress srcMac(std::string("00:01:01:00:00:02"));
+	MacAddress dstMac(std::string("01:00:5e:00:00:16"));
+	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+
+	IPv4Address srcIp(std::string("127.0.0.1"));
+	IPv4Address dstIp(std::string("224.0.0.22"));
+	IPv4Layer ipLayer(srcIp, dstIp);
+
+	ipLayer.getIPv4Header()->ipId = htons(3941);
+	ipLayer.getIPv4Header()->timeToLive = 1;
+
+	IgmpV3ReportLayer igmpV3ReportLayer;
+
+	std::vector<IPv4Address> srcAddrVec1;
+	srcAddrVec1.push_back(IPv4Address(std::string("192.168.20.222")));
+	igmpv3_group_record* groupRec = igmpV3ReportLayer.addGroupRecord(1, IPv4Address(std::string("224.0.0.9")), srcAddrVec1);
+	PACKETPP_ASSERT(groupRec != NULL, "Group record is null for 1st group");
+	PACKETPP_ASSERT(groupRec->getSoruceAddressAtIndex(0) == IPv4Address(std::string("192.168.20.222")), "Source addr in index 0 of 1st group isn't 192.168.20.222");
+
+	std::vector<IPv4Address> srcAddrVec2;
+	srcAddrVec2.push_back(IPv4Address(std::string("1.2.3.4")));
+	srcAddrVec2.push_back(IPv4Address(std::string("11.22.33.44")));
+	srcAddrVec2.push_back(IPv4Address(std::string("111.222.33.44")));
+	groupRec = igmpV3ReportLayer.addGroupRecord(2, IPv4Address(std::string("4.3.2.1")), srcAddrVec2);
+	PACKETPP_ASSERT(groupRec != NULL, "Group record is null for 2nd group");
+	PACKETPP_ASSERT(groupRec->getSourceAdressCount() == 3, "Source addr count of 2nd group isn't 3");
+
+	std::vector<IPv4Address> srcAddrVec3;
+	srcAddrVec3.push_back(IPv4Address(std::string("12.34.56.78")));
+	srcAddrVec3.push_back(IPv4Address(std::string("88.77.66.55")));
+	srcAddrVec3.push_back(IPv4Address(std::string("44.33.22.11")));
+	srcAddrVec3.push_back(IPv4Address(std::string("255.255.255.255")));
+	groupRec = igmpV3ReportLayer.addGroupRecordAtIndex(3, IPv4Address(std::string("1.1.1.1")), srcAddrVec3, 0);
+	PACKETPP_ASSERT(groupRec != NULL, "Group record is null for 3rd group");
+	PACKETPP_ASSERT(groupRec->getRecordLen() == 24, "Group record len of 3rd group isn't 24");
+
+	std::vector<IPv4Address> srcAddrVec4;
+	srcAddrVec4.push_back(IPv4Address(std::string("13.24.57.68")));
+	srcAddrVec4.push_back(IPv4Address(std::string("31.42.75.86")));
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(igmpV3ReportLayer.addGroupRecordAtIndex(4, IPv4Address(std::string("1.3.5.7")), srcAddrVec4, -1) == NULL, "Managed to add group record at index -1");
+	PACKETPP_ASSERT(igmpV3ReportLayer.addGroupRecordAtIndex(4, IPv4Address(std::string("1.3.5.7")), srcAddrVec4, 4) == NULL, "Managed to add group record at index 4");
+	PACKETPP_ASSERT(igmpV3ReportLayer.addGroupRecordAtIndex(4, IPv4Address(std::string("1.3.5.7")), srcAddrVec4, 100) == NULL, "Managed to add group record at index 100");
+	LoggerPP::getInstance().enableErrors();
+
+	groupRec = igmpV3ReportLayer.addGroupRecordAtIndex(4, IPv4Address(std::string("1.3.5.7")), srcAddrVec4, 1);
+	PACKETPP_ASSERT(groupRec != NULL, "Group record is null for 4th group");
+	groupRec = igmpV3ReportLayer.addGroupRecordAtIndex(5, IPv4Address(std::string("2.4.6.8")), srcAddrVec4, 4);
+	PACKETPP_ASSERT(groupRec != NULL, "Group record is null for 5th group");
+
+
+	Packet igmpv3ReportPacket;
+	igmpv3ReportPacket.addLayer(&ethLayer);
+	igmpv3ReportPacket.addLayer(&ipLayer);
+	igmpv3ReportPacket.addLayer(&igmpV3ReportLayer);
+
+	igmpv3ReportPacket.computeCalculateFields();
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/igmpv3_report2.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file igmpv3_report2.dat");
+
+	PACKETPP_ASSERT(bufferLength == igmpv3ReportPacket.getRawPacket()->getRawDataLen(), "IGMPv3 report: Generated packet len (%d) is different than read packet len (%d)", igmpv3ReportPacket.getRawPacket()->getRawDataLen(), bufferLength);
+	PACKETPP_ASSERT(memcmp(igmpv3ReportPacket.getRawPacket()->getRawData(), buffer, igmpv3ReportPacket.getRawPacket()->getRawDataLen()) == 0, "IGMPv3 report: Raw packet data is different than expected");
+
+	delete[] buffer;
+
+
+	PACKETPP_ASSERT(igmpV3ReportLayer.removeGroupRecordAtIndex(4) == true, "Couldn't remove group record at index 4");
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(igmpV3ReportLayer.removeGroupRecordAtIndex(4) == false, "Managed to remove group record at index 4 which is out of bounds");
+	PACKETPP_ASSERT(igmpV3ReportLayer.removeGroupRecordAtIndex(-1) == false, "Managed to remove group record at index -1 which is out of bounds");
+	PACKETPP_ASSERT(igmpV3ReportLayer.removeGroupRecordAtIndex(100) == false, "Managed to remove group record at index 100 which is out of bounds");
+	LoggerPP::getInstance().enableErrors();
+
+	PACKETPP_ASSERT(igmpV3ReportLayer.removeGroupRecordAtIndex(0) == true, "Couldn't remove group record at index 0");
+	PACKETPP_ASSERT(igmpV3ReportLayer.removeGroupRecordAtIndex(2) == true, "Couldn't remove group record at index 2");
+	PACKETPP_ASSERT(igmpV3ReportLayer.removeGroupRecordAtIndex(0) == true, "Couldn't remove second group record at index 0");
+
+	buffer = readFileIntoBuffer("PacketExamples/igmpv3_report.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file igmpv3_report.dat");
+
+	PACKETPP_ASSERT(bufferLength == igmpv3ReportPacket.getRawPacket()->getRawDataLen(), "IGMPv3 report edit: Generated packet len (%d) is different than read packet len (%d)", igmpv3ReportPacket.getRawPacket()->getRawDataLen(), bufferLength);
+
+	igmpv3ReportPacket.computeCalculateFields();
+	ipLayer.getIPv4Header()->headerChecksum = 0x4fb6;
+
+	PACKETPP_ASSERT(memcmp(igmpv3ReportPacket.getRawPacket()->getRawData(), buffer, igmpv3ReportPacket.getRawPacket()->getRawDataLen()) == 0, "IGMPv3 report edit: Raw packet data after edit is different than expected");
+
+	delete[] buffer;
+
+	PACKETPP_ASSERT(igmpV3ReportLayer.removeAllGroupRecords() == true, "Couldn't remove all group records");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -4580,6 +4785,8 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(IgmpParsingTest);
 	PACKETPP_RUN_TEST(IgmpCreateAndEditTest);
 	PACKETPP_RUN_TEST(Igmpv3ParsingTest);
+	PACKETPP_RUN_TEST(Igmpv3QueryCreateAndEditTest);
+	PACKETPP_RUN_TEST(Igmpv3ReportCreateAndEditTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

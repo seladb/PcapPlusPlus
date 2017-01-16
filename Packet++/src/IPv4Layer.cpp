@@ -137,6 +137,7 @@ void IPv4Layer::computeCalculateFields()
 			break;
 		case IGMPv1:
 		case IGMPv2:
+		case IGMPv3:
 			ipHdr->protocol = PACKETPP_IPPROTO_IGMP;
 			break;
 		default:

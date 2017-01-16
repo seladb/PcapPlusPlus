@@ -1,5 +1,8 @@
+#define LOG_MODULE PacketLogModuleIgmpLayer
+
 #include <IgmpLayer.h>
 #include <IpUtils.h>
+#include <Logger.h>
 #include <string.h>
 #ifdef WIN32 //for using ntohl, ntohs, etc.
 #include <winsock2.h>
@@ -18,7 +21,7 @@ namespace pcpp
 
 IgmpLayer::IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer)
 {
-	m_DataLen = getHeaderSizeByVer(igmpVer);
+	m_DataLen = getHeaderSizeByVerAndType(igmpVer, type);
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = igmpVer;
@@ -99,13 +102,18 @@ uint16_t IgmpLayer::calculateChecksum()
 	return compute_checksum(&buffer, 1);
 }
 
-size_t IgmpLayer::getHeaderSizeByVer(ProtocolType igmpVer)
+size_t IgmpLayer::getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType)
 {
 	if (igmpVer == IGMPv1 || igmpVer == IGMPv2)
 		return sizeof(igmp_header);
 
 	if (igmpVer == IGMPv3)
-		return sizeof(igmpv3_query_header);
+	{
+		if (igmpType == IgmpType_MembershipQuery)
+			return sizeof(igmpv3_query_header);
+		else if (igmpType == IgmpType_MembershipReportV3)
+			return sizeof(igmpv3_report_header);
+	}
 
 	return 0;
 }
@@ -241,14 +249,20 @@ IgmpV3QueryLayer::IgmpV3QueryLayer(uint8_t* data, size_t dataLen, Layer* prevLay
 {
 }
 
-uint16_t IgmpV3QueryLayer::getNumOfSources()
+IgmpV3QueryLayer::IgmpV3QueryLayer(const IPv4Address& multicastAddr, uint8_t maxResponseTime, uint8_t s_qrv) :
+		IgmpLayer(IgmpType_MembershipQuery, multicastAddr, maxResponseTime, IGMPv3)
 {
-	return ntohs(getQueryHeader()->numOfSources);
+	getIgmpV3QueryHeader()->s_qrv = s_qrv;
+}
+
+uint16_t IgmpV3QueryLayer::getSourceAddressCount()
+{
+	return ntohs(getIgmpV3QueryHeader()->numOfSources);
 }
 
 IPv4Address IgmpV3QueryLayer::getSourceAddressAtIndex(int index)
 {
-	uint16_t numOfSources = getNumOfSources();
+	uint16_t numOfSources = getSourceAddressCount();
 	if (index < 0 || index >= numOfSources)
 		return IPv4Address::Zero;
 
@@ -263,7 +277,7 @@ IPv4Address IgmpV3QueryLayer::getSourceAddressAtIndex(int index)
 
 size_t IgmpV3QueryLayer::getHeaderLen()
 {
-	uint16_t numOfSources = getNumOfSources();
+	uint16_t numOfSources = getSourceAddressCount();
 
 	int headerLen = numOfSources * sizeof(uint32_t) + sizeof(igmpv3_query_header);
 
@@ -276,11 +290,91 @@ size_t IgmpV3QueryLayer::getHeaderLen()
 
 void IgmpV3QueryLayer::computeCalculateFields()
 {
-	igmpv3_query_header* hdr = getQueryHeader();
+	igmpv3_query_header* hdr = getIgmpV3QueryHeader();
 	hdr->checksum = 0;
 	hdr->checksum = htons(calculateChecksum());
-	//TODO
 }
+
+bool IgmpV3QueryLayer::addSourceAddress(const IPv4Address& addr)
+{
+	return addSourceAddressAtIndex(addr, getSourceAddressCount());
+}
+
+bool IgmpV3QueryLayer::addSourceAddressAtIndex(const IPv4Address& addr, int index)
+{
+	uint16_t sourceAddrCount = getSourceAddressCount();
+
+	if (index < 0 || index > (int)sourceAddrCount)
+	{
+		LOG_ERROR("Cannot add source address at index %d, index is out of bounds", index);
+		return false;
+	}
+
+	size_t offset = sizeof(igmpv3_query_header) + index * sizeof(uint32_t);
+	if (offset > getHeaderLen())
+	{
+		LOG_ERROR("Cannot add source address at index %d, index is out of packet bounds", index);
+		return false;
+	}
+
+	if (!extendLayer(offset, sizeof(uint32_t)))
+	{
+		LOG_ERROR("Cannot add source address at index %d, didn't manage to extend layer", index);
+		return false;
+	}
+
+	uint32_t addrAsInt = addr.toInt();
+	memcpy(m_Data + offset, &addrAsInt, sizeof(uint32_t));
+
+	getIgmpV3QueryHeader()->numOfSources = htons(sourceAddrCount+1);
+
+	return true;
+}
+
+bool IgmpV3QueryLayer::removeSourceAddressAtIndex(int index)
+{
+	uint16_t sourceAddrCount = getSourceAddressCount();
+
+	if (index < 0 || index > (int)sourceAddrCount-1)
+	{
+		LOG_ERROR("Cannot remove source address at index %d, index is out of bounds", index);
+		return false;
+	}
+
+	size_t offset = sizeof(igmpv3_query_header) + index * sizeof(uint32_t);
+	if (offset >= getHeaderLen())
+	{
+		LOG_ERROR("Cannot remove source address at index %d, index is out of packet bounds", index);
+		return false;
+	}
+
+	if (!shortenLayer(offset, sizeof(uint32_t)))
+	{
+		LOG_ERROR("Cannot remove source address at index %d, didn't manage to shorten layer", index);
+		return false;
+	}
+
+	getIgmpV3QueryHeader()->numOfSources = htons(sourceAddrCount-1);
+
+	return true;
+}
+
+bool IgmpV3QueryLayer::removeAllSourceAddresses()
+{
+	size_t offset = sizeof(igmpv3_query_header);
+	size_t numOfBytesToShorted = getHeaderLen() - offset;
+
+	if (!shortenLayer(offset, numOfBytesToShorted))
+	{
+		LOG_ERROR("Cannot remove all source addresses, didn't manage to shorten layer");
+		return false;
+	}
+
+	getIgmpV3QueryHeader()->numOfSources = 0;
+
+	return true;
+}
+
 
 
 
@@ -294,7 +388,12 @@ IgmpV3ReportLayer::IgmpV3ReportLayer(uint8_t* data, size_t dataLen, Layer* prevL
 {
 }
 
-uint16_t IgmpV3ReportLayer::getNumOfGroupRecords()
+IgmpV3ReportLayer::IgmpV3ReportLayer() :
+		IgmpLayer(IgmpType_MembershipReportV3, IPv4Address::Zero, 0, IGMPv3)
+{
+}
+
+uint16_t IgmpV3ReportLayer::getGroupRecordCount()
 {
 	return ntohs(getReportHeader()->numOfGroupRecords);
 
@@ -336,6 +435,132 @@ void IgmpV3ReportLayer::computeCalculateFields()
 	hdr->checksum = htons(calculateChecksum());
 	//TODO
 }
+
+igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses, int offset)
+{
+	if (offset > (int)getHeaderLen())
+	{
+		LOG_ERROR("Cannot add group record, offset is out of layer bounds");
+		return NULL;
+	}
+
+	size_t groupRecordSize = sizeof(igmpv3_group_record) + sizeof(uint32_t)*sourceAddresses.size();
+
+	if (!extendLayer(offset, groupRecordSize))
+	{
+		LOG_ERROR("Cannot add group record, cannot extend layer");
+		return NULL;
+	}
+
+	uint8_t* groupRecordBuffer = new uint8_t[groupRecordSize];
+	memset(groupRecordBuffer, 0, groupRecordSize);
+	igmpv3_group_record* newGroupRecord = (igmpv3_group_record*)groupRecordBuffer;
+	newGroupRecord->multicastAddress = multicastAddress.toInt();
+	newGroupRecord->recordType = recordType;
+	newGroupRecord->auxDataLen = 0;
+	newGroupRecord->numOfSources = htons(sourceAddresses.size());
+
+	int srcAddrOffset = 0;
+	for (std::vector<IPv4Address>::const_iterator iter = sourceAddresses.begin(); iter != sourceAddresses.end(); iter++)
+	{
+		uint32_t addrAsInt = iter->toInt();
+		memcpy(newGroupRecord->sourceAddresses + srcAddrOffset, &addrAsInt, sizeof(uint32_t));
+		srcAddrOffset += sizeof(uint32_t);
+	}
+
+	memcpy(m_Data + offset, groupRecordBuffer, groupRecordSize);
+
+	delete[] groupRecordBuffer;
+
+	getReportHeader()->numOfGroupRecords = htons(getGroupRecordCount() + 1);
+
+	return (igmpv3_group_record*)(m_Data + offset);
+}
+
+igmpv3_group_record* IgmpV3ReportLayer::addGroupRecord(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses)
+{
+	return addGroupRecordAt(recordType, multicastAddress, sourceAddresses, (int)getHeaderLen());
+}
+
+igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAtIndex(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses, int index)
+{
+	int groupCnt = (int)getGroupRecordCount();
+
+	if (index < 0 || index > groupCnt)
+	{
+		LOG_ERROR("Cannot add group record, index %d out of bounds", index);
+		return NULL;
+	}
+
+	size_t offset = sizeof(igmpv3_report_header);
+
+	igmpv3_group_record* curRecord = getFirstGroupRecord();
+	for (int i = 0; i < index; i++)
+	{
+		if (curRecord == NULL)
+		{
+			LOG_ERROR("Cannot add group record, cannot find group record at index %d", i);
+			return NULL;
+		}
+
+		offset += curRecord->getRecordLen();
+		curRecord = getNextGroupRecord(curRecord);
+	}
+
+	return addGroupRecordAt(recordType, multicastAddress, sourceAddresses, (int)offset);
+}
+
+bool IgmpV3ReportLayer::removeGroupRecordAtIndex(int index)
+{
+	int groupCnt = (int)getGroupRecordCount();
+
+	if (index < 0 || index >= groupCnt)
+	{
+		LOG_ERROR("Cannot remove group record, index %d is out of bounds", index);
+		return false;
+	}
+
+	size_t offset = sizeof(igmpv3_report_header);
+
+	igmpv3_group_record* curRecord = getFirstGroupRecord();
+	for (int i = 0; i < index; i++)
+	{
+		if (curRecord == NULL)
+		{
+			LOG_ERROR("Cannot remove group record at index %d, cannot find group record at index %d", index, i);
+			return false;
+		}
+
+		offset += curRecord->getRecordLen();
+		curRecord = getNextGroupRecord(curRecord);
+	}
+
+	if (!shortenLayer((int)offset, curRecord->getRecordLen()))
+	{
+		LOG_ERROR("Cannot remove group record at index %d, cannot shorted layer", index);
+		return false;
+	}
+
+	getReportHeader()->numOfGroupRecords = htons(groupCnt-1);
+
+	return true;
+}
+
+bool IgmpV3ReportLayer::removeAllGroupRecords()
+{
+	int offset = (int)sizeof(igmpv3_report_header);
+
+	if (!shortenLayer(offset, getHeaderLen()-offset))
+	{
+		LOG_ERROR("Cannot remove all group records, cannot shorted layer");
+		return false;
+	}
+
+	getReportHeader()->numOfGroupRecords = 0;
+	return true;
+}
+
+
 
 
 
