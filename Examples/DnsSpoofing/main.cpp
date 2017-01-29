@@ -8,16 +8,14 @@
 
 #include <vector>
 #include <algorithm>
-#include <getopt.h>
 #include <sstream>
 #include <utility>
 #include <map>
-#ifndef WIN32 //for using ntohl, ntohs, etc.
+#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
 #include <in.h>
 #include <errno.h>
 #endif
 #include "IpAddress.h"
-#include "SystemUtils.h"
 #include "RawPacket.h"
 #include "ProtocolType.h"
 #include "Packet.h"
@@ -29,6 +27,8 @@
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "PlatformSpecificUtils.h"
+#include "SystemUtils.h"
+#include <getopt.h>
 
 #define EXIT_WITH_ERROR(reason, ...) do { \
 	printf("DnsSpoofing terminated in error: " reason "\n", ## __VA_ARGS__); \

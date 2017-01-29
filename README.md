@@ -15,8 +15,26 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 - Support for reading and writing **PCAPNG** files (a lot more more than currently supported in WinPcap/libpcap)
 - Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
 
-PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**.
-It was tested on Windows (32bit and 64bit) with Mingw32 and MingGW-w64, Ubuntu (12.04 LTS, 14.04 LTS, 14.10), Fedora and CentOS but it should work on other Linux distributions as well. Regarding Mac OS X - it was tested on Snow Leopard (10.6) 32bit, Mavericks (10.9), Yosemite (10.10) and El Capitan (10.11).
+PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**. It was tested on the following platforms:
+
+- Windows:
+    - Microsoft Visual Studio 2015 (32-bit + 64-bit compilation)
+    - MinGW32 (32-bit compilation only)
+    - MinGW-w64 (32-bit compilation only)
+
+- Linux:
+    - Ubuntu 12.04 LTS
+    - Ubuntu 14.04 LTS
+    - Ubuntu 14.10
+    - Fedora
+    - CentOS
+    - It should work on other Linux distributions as well
+
+- Mac OS X:
+    - Mavericks (10.9)
+    - Yosemite (10.10)
+    - El Capitan (10.11)
+
 Other opeating systems such as FreeBSD were never tested and compilation on those platforms may fail
 
 For more information including detailed class documentation, please visit PcapPlusPlus web-site:
@@ -244,11 +262,19 @@ If you want an already compiled version of PcapPlusPlus chekcout the latest rele
 
 ## Compiling ##
 
-#### Prerequisutes - Windows ####
+#### Prerequisutes - Windows (Visual Studio 2015) ####
 
-In order to compile PcapPlusPlus on Windows you need the following components:
+In order to build PcapPlusPlus on Windows with Visual Studio 2015 you need the following components:
 
-1. MinGW32 or MinGW-w64 environment and compiler - these are the only environment currently supported for PcapPlusPlus. 
+1. Microsoft Visual Studio 2015 (can be downloaded from here: https://www.visualstudio.com/downloads/)
+2. Winpcap developer's pack - containing the wpcap library PcapPlusPlus is linking with plus relevant h files. You can download it from https://www.winpcap.org/devel.htm
+3. pthread-win32 - can be downloaded from here: ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip
+
+#### Prerequisutes - Windows (MinGW32 + MinGW-w64) ####
+
+In order to build PcapPlusPlus on Windows with MinGW32 or MinGW-w64 you need the following components:
+
+1. MinGW32 or MinGW-w64 environment and compiler 
   1. Download and installation instructions for MinGW32:
     1. The fastest way I found for installing mingw32 was through this link: http://www.mingw.org/wiki/Getting_Started
     2. Download "mingw-get-setup.exe", run it and follow the instructions
@@ -269,7 +295,7 @@ In order to compile PcapPlusPlus on Windows you need the following components:
 
 #### Prerequisutes - Linux ####
 
-In order to compile PcapPlusPlus on Linux you need the following components:
+In order to build PcapPlusPlus on Linux you need the following components:
 
 1. libPcap developers pack - containing the libpcap library PcapPlusPlus is linking with plus relevant h files. You can download it from http://www.tcpdump.org/#latest-release or through package management engines 
 such as apt-get:
@@ -286,18 +312,28 @@ such as apt-get:
 
 #### Prerequisutes - Mac OS X ####
 
-In order to compile PacpPlusPlus on Mac OS X you need to make sure [Xcode](https://developer.apple.com/xcode/) is installed. Xcode contains all prerequisites required for PcapPlusPlus:
+In order to build PacpPlusPlus on Mac OS X you need to make sure [Xcode](https://developer.apple.com/xcode/) is installed. Xcode contains all prerequisites required for PcapPlusPlus:
 
 1. gcc/g++ compiler
 2. libpcap with all relevant H files
 
 #### Configuration and Compilation ####
 
-*On Windows:*
+*On Windows (Visual Studio 2015):*
 
-1. run the **configure-windows.bat** batch file from PcapPlusPlus main directory. The script will ask you which compiler you want to use (mingw32 or mingw-w54) and will ask for WinPcap developer's pack location and MinGW location
+1. run the **configure-windows-visual-studio.bat** batch file from PcapPlusPlus main directory. The script will ask you for the locations of WinPcap developer's packet and pthreads-win32. The script will modify mk\vs2015\PcapPlusPlusPropertySheet.props file with these locations
+2. PcapPlusPlus contains 3 Visual Studio solutions:
+   1. **mk\vs2015\PcapPlusPlus.sln** - contains PcapPlusPlus libraries (Common++, Packet++ and Pcap++) and unit-tests projects
+   2. **mk\vs2015\PcapPlusPlus-Examples.sln** - contains all PcapPlusPlus examples. Reuquires PcapPlusPlus.sln to be built
+   3. **mk\vs2015\ExampleProject\ExampleProject.sln** - a fully configured project for working with PcapPlusPlus. You can use this project to write your own code using PcapPlusPlus. It already has all the include paths, libaray paths etc. configured and also an empty main() function. Just write your code and build. This solution is also relocatable so you can move it to wherever you want and it will still build successfully. Reuquires PcapPlusPlus.sln to be built
+3. All solutions support both 32-bit (**x86**) and 64-bit (**x64**) configurations as well as **Debug** and **Release** modes. So actually 4 modes are supported: x86|Debug, x86|Release, x64|Debug, x64|Release
+
+*On Windows (MinGW32 + MinGW-w64):*
+
+1. run the **configure-windows-mingw.bat** batch file from PcapPlusPlus main directory. The script will ask you which compiler you want to use (mingw32 or mingw-w54) and will ask for WinPcap developer's pack location and MinGW location
 2. run **mingw32-make.exe all** from PcapPlusPlus main directory
 3. This should compile all libraries, unit-tests and examples
+4. Only 32-bit compilation is supported
 
 *On Linux:*
 

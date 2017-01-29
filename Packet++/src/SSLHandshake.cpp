@@ -1,6 +1,6 @@
 #define LOG_MODULE PacketLogModuleSSLLayer
 
-#ifdef WIN32 //for using ntohl, ntohs, etc.
+#if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
 #include <winsock2.h>
 #elif LINUX
 #include <in.h> //for using ntohl, ntohs, etc.
@@ -1081,11 +1081,13 @@ std::string SSLServerNameIndicationExtension::getHostName()
 	uint8_t* hostNameLengthPos = getData() + sizeof(uint16_t) + sizeof(uint8_t);
 	uint16_t hostNameLength = ntohs(*(uint16_t*)hostNameLengthPos);
 
-	char hostNameAsCharArr[hostNameLength+1];
+	char* hostNameAsCharArr = new char[hostNameLength+1];
 	memset(hostNameAsCharArr, 0, hostNameLength+1);
 	memcpy(hostNameAsCharArr, hostNameLengthPos + sizeof(uint16_t), hostNameLength);
 
-	return std::string(hostNameAsCharArr);
+	std::string res = std::string(hostNameAsCharArr);
+	delete[] hostNameAsCharArr;
+	return res;
 }
 
 

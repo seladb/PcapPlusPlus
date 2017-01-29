@@ -6,13 +6,13 @@
  */
 
 #include <stdlib.h>
-#include <getopt.h>
 #include <MacAddress.h>
 #include <IpAddress.h>
 #include <Logger.h>
 #include <PcapLiveDeviceList.h>
 #include <PcapLiveDevice.h>
 #include <NetworkUtils.h>
+#include <getopt.h>
 
 
 #define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason, ...) do { \

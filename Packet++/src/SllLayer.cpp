@@ -10,7 +10,7 @@
 #include <PPPoELayer.h>
 #include <MplsLayer.h>
 #include <string.h>
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
 #elif LINUX
 #include <in.h>

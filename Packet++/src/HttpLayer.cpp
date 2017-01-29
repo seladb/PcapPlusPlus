@@ -638,10 +638,11 @@ std::string HttpRequestLayer::toString()
 	int size = m_FirstLine->getSize() - 2; // the -2 is to remove \r\n at the end of the first line
 	if (size <= maxLengthToPrint)
 	{
-		char firstLine[size+1];
+		char* firstLine = new char[size+1];
 		strncpy(firstLine, (char*)m_Data, size);
 		firstLine[size] = 0;
 		result += std::string(firstLine);
+		delete[] firstLine;
 	}
 	else
 	{
@@ -1244,10 +1245,11 @@ std::string HttpResponseLayer::toString()
 	int size = m_FirstLine->getSize() - 2; // the -2 is to remove \r\n at the end of the first line
 	if (size <= maxLengthToPrint)
 	{
-		char firstLine[size+1];
+		char* firstLine = new char[size+1];
 		strncpy(firstLine, (char*)m_Data, size);
 		firstLine[size] = 0;
 		result += std::string(firstLine);
+		delete[] firstLine;
 	}
 	else
 	{

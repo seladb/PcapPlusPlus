@@ -1744,7 +1744,7 @@ PCAPP_TEST(TestSendPacket)
     PCAPP_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
     uint16_t mtu = liveDev->getMtu();
     int buffLen = mtu+1;
-    uint8_t buff[buffLen];
+    uint8_t* buff = new uint8_t[buffLen];
     memset(buff, 0, buffLen);
     PCAPP_ASSERT(!liveDev->sendPacket(buff, buffLen), "Defected packet was sent successfully");
 
@@ -1772,6 +1772,8 @@ PCAPP_TEST(TestSendPacket)
 
     liveDev->close();
     fileReaderDev.close();
+
+	delete[] buff;
 
     PCAPP_TEST_PASSED;
 }

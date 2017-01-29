@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Pcap++\header\DpdkDevice.h" />
+    <ClInclude Include="..\..\Pcap++\header\DpdkDeviceList.h" />
+    <ClInclude Include="..\..\Pcap++\header\NetworkUtils.h" />
+    <ClInclude Include="..\..\Pcap++\header\PcapDevice.h" />
+    <ClInclude Include="..\..\Pcap++\header\PcapFileDevice.h" />
+    <ClInclude Include="..\..\Pcap++\header\PcapFilter.h" />
+    <ClInclude Include="..\..\Pcap++\header\PcapLiveDevice.h" />
+    <ClInclude Include="..\..\Pcap++\header\PcapLiveDeviceList.h" />
+    <ClInclude Include="..\..\Pcap++\header\PcapRemoteDevice.h" />
+    <ClInclude Include="..\..\Pcap++\header\PcapRemoteDeviceList.h" />
+    <ClInclude Include="..\..\Pcap++\header\PfRingDevice.h" />
+    <ClInclude Include="..\..\Pcap++\header\PfRingDeviceList.h" />
+    <ClInclude Include="..\..\Pcap++\header\WinPcapLiveDevice.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Pcap++\src\DpdkDevice.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\DpdkDeviceList.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\NetworkUtils.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PcapDevice.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PcapFileDevice.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PcapFilter.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PcapLiveDevice.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PcapLiveDeviceList.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PcapRemoteDevice.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PcapRemoteDeviceList.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PfRingDevice.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\PfRingDeviceList.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\WinPcapLiveDevice.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Common++.vcxproj">
+      <Project>{46a8c62d-9fb3-4134-a2fe-3bc6909a46aa}</Project>
+    </ProjectReference>
+    <ProjectReference Include="LightPcapNg.vcxproj">
+      <Project>{a1cb5feb-c53d-48d3-aa16-65e7f6a2d4da}</Project>
+    </ProjectReference>
+    <ProjectReference Include="Packet++.vcxproj">
+      <Project>{4b910cea-46fd-42d7-9db9-3f603e0a3008}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D4FDF54C-0ECC-4BD2-9EDA-6622E832AF16}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Pcap</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PcapPlusPlusPropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PcapPlusPlusPropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PcapPlusPlusPropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PcapPlusPlusPropertySheet.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <OutDir>$(PcapPlusPlusHome)\Pcap++\Lib</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Pcap++\Obj</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <OutDir>$(PcapPlusPlusHome)\Pcap++\Lib</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Pcap++\Obj</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <OutDir>$(PcapPlusPlusHome)\Pcap++\Lib</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Pcap++\Obj</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <OutDir>$(PcapPlusPlusHome)\Pcap++\Lib</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Pcap++\Obj</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <PostBuildEvent>
+      <Command>lib /out:$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>lib /out:$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WINx64;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <PostBuildEvent>
+      <Command>lib /out:$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WINx64;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>lib /out:$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib $(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

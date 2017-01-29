@@ -1,7 +1,7 @@
 #ifndef PCAPP_WINPCAP_LIVE_DEVICE
 #define PCAPP_WINPCAP_LIVE_DEVICE
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 
 /// @file
 
@@ -59,6 +59,6 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif // WIN32
+#endif // WIN32 || WINx64
 
 #endif /* PCAPP_WINPCAP_LIVE_DEVICE */

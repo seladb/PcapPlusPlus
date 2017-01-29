@@ -1,7 +1,7 @@
 #ifndef PCAPPP_PLATFORM_SPECIFIC_UTILS
 #define PCAPPP_PLATFORM_SPECIFIC_UTILS
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <winbase.h>
 #else
 #include <unistd.h>
@@ -15,7 +15,7 @@
 #endif
 
 #ifdef WIN32
-#define CREATE_DIRECTORY(dir) CreateDirectory(dir, NULL)
+#define CREATE_DIRECTORY(dir) CreateDirectoryA(dir, NULL)
 #else
 #define CREATE_DIRECTORY(dir) mkdir(dir, 0777)
 #endif

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <getopt.h>
-#ifndef WIN32
+#if !defined(WIN32) && !defined(WINx64)
 #include <in.h>
 #endif
 #include "EthLayer.h"
@@ -13,7 +13,7 @@
 using namespace pcpp;
 
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #define SEPARATOR '\\'
 #else
 #define SEPARATOR '/'

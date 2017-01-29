@@ -20,8 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
-#include <getopt.h>
-#ifndef WIN32 //for using ntohl, ntohs, etc.
+#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
 #include "PcapLiveDeviceList.h"
@@ -31,6 +30,7 @@
 #include "TablePrinter.h"
 #include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
+#include <getopt.h>
 
 using namespace pcpp;
 

@@ -44,21 +44,20 @@
 
 
 #include <stdlib.h>
-#include <getopt.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <iomanip>
 #include <map>
-#include <SystemUtils.h>
 #include <RawPacket.h>
 #include <Packet.h>
 #include <PcapFileDevice.h>
 #include "SimpleSplitters.h"
 #include "IPPortSplitters.h"
 #include "ConnectionSplitters.h"
-
+#include <getopt.h>
+#include <SystemUtils.h>
 
 
 using namespace pcpp;
@@ -91,7 +90,7 @@ static struct option PcapSplitterOptions[] =
 #define SPLIT_BY_5_TUPLE       "connection"
 #define SPLIT_BY_BPF_FILTER    "bpf-filter"
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #define SEPARATOR '\\'
 #else
 #define SEPARATOR '/'

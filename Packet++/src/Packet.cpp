@@ -8,6 +8,11 @@
 #include <string.h>
 #include <typeinfo>
 #include <sstream>
+#ifdef _MSC_VER
+#include <time.h>
+#include <SystemUtils.h>
+#endif
+
 
 namespace pcpp
 {
@@ -330,8 +335,9 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 
 	// insert layer data to raw packet
 	int indexToInsertData = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
-	uint8_t tempData[numOfBytesToExtend];
+	uint8_t* tempData = new uint8_t[numOfBytesToExtend];
 	m_RawPacket->insertData(indexToInsertData, tempData, numOfBytesToExtend);
+	delete[] tempData;
 
 	// re-calculate all layers data ptr and data length
 	const uint8_t* dataPtr = m_RawPacket->getRawData();

@@ -32,7 +32,11 @@ extern "C" {
 
 #include <stddef.h>
 #include <stdint.h>
+#ifdef _MSC_VER
+#include <Winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 #ifndef NULL
 #define NULL   ((void *) 0)

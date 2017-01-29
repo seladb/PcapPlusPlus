@@ -178,9 +178,11 @@ bool IDnsResource::setName(const std::string& newName)
 	}
 	else
 	{
-		char tempData[getSize()];
+		size_t size = getSize();
+		char* tempData = new char[size];
 		memcpy(tempData, m_ExternalRawData, getSize());
 		memcpy(m_ExternalRawData + encodedNameLen, tempData, getSize());
+		delete[] tempData;
 	}
 
 	memcpy(getRawData(), encodedName, encodedNameLen);

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <PcapPlusPlusHome>PUT_PCAPPLUSPLUS_HOME_HERE</PcapPlusPlusHome>
+    <WinPcapHome>PUT_WIN_PCAP_HOME_HERE</WinPcapHome>
+    <PThreadWin32Home>PUT_PTHREAD_HOME_HERE</PThreadWin32Home>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup />
+</Project>

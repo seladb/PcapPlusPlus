@@ -7,6 +7,7 @@
 #include "PayloadLayer.h"
 #include "PacketUtils.h"
 #include "SSLLayer.h"
+#include "SystemUtils.h"
 
 
 /**
@@ -39,7 +40,20 @@ struct SSLGeneralStats
 
 	void clear()
 	{
-		memset(this, 0, sizeof(SSLGeneralStats));
+		numOfSSLFlows = 0;
+		sslFlowRate.currentRate = 0;
+		sslFlowRate.totalRate = 0;
+		numOfSSLPackets = 0;
+		sslPacketRate.currentRate = 0;
+		sslPacketRate.totalRate = 0;
+		averageNumOfPacketsPerFlow = 0;
+		amountOfSSLTraffic = 0;
+		averageAmountOfDataPerFlow = 0;
+		sslTrafficRate.currentRate = 0;
+		sslTrafficRate.totalRate = 0;
+		sampleTime = 0;
+		numOfHandshakeCompleteFlows = 0;
+		numOfFlowsWithAlerts = 0;
 		sslRecordVersionCount.clear();
 		sslPortCount.clear();
 	}
@@ -60,7 +74,9 @@ struct ClientHelloStats
 
 	virtual void clear()
 	{
-		memset(this, 0, sizeof(ClientHelloStats));
+		numOfMessages = 0;
+		messageRate.currentRate = 0;
+		messageRate.totalRate = 0;
 		serverNameCount.clear();
 		sslClientHelloVersionCount.clear();
 	}
@@ -79,7 +95,9 @@ struct ServerHelloStats
 
 	virtual void clear()
 	{
-		memset(this, 0, sizeof(ServerHelloStats));
+		numOfMessages = 0;
+		messageRate.currentRate = 0;
+		messageRate.totalRate = 0;
 		cipherSuiteCount.clear();
 	}
 };

@@ -10,14 +10,14 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #endif
 
 /// @file
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_MSC_VER)
 /**
  * Convert a network format address to presentation format.
  * @param[in] af Address family, can be either AF_INET (IPv4) or AF_INET6 (IPv6)

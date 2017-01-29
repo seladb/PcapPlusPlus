@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64)
 #include <windows.h>
 #else
 #include <pthread.h>
@@ -13,6 +13,10 @@
 /// @file
 
 #define MAX_NUM_OF_CORES 32
+
+#ifdef _MSC_VER
+int gettimeofday(struct timeval * tp, struct timezone * tzp);
+#endif
 
 /**
  * \namespace pcpp

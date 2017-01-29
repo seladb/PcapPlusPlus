@@ -2,7 +2,11 @@
 #define PCAPPP_RAW_PACKET
 
 #include <stdint.h>
+#ifdef _MSC_VER
+#include <WinSock2.h>
+#else
 #include <sys/time.h>
+#endif
 #include <stddef.h>
 
 /// @file
