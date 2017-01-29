@@ -62,7 +62,7 @@ struct igmpv3_report_header
 {
 	/** IGMP message type. Should always have value of IGMPv3 membership report (::IgmpType_MembershipReportV3)  */
 	uint8_t type;
-	/** Unused bytes */
+	/** Unused byte */
 	uint8_t reserved1;
 	/** This is the 16-bit one's complement of the one's complement sum of the entire IGMP message */
 	uint16_t checksum;
@@ -82,9 +82,9 @@ struct igmpv3_group_record
 {
 	/** Group record type */
 	uint8_t recordType;
-	/** contains the length of the Auxiliary Data field in this Group Record. A value other than 0 isn't supported */
+	/** Contains the length of the Auxiliary Data field in this Group Record. A value other than 0 isn't supported */
 	uint8_t auxDataLen;
-	/** The Number of Sources field specifies how many source addresses are present in this Group Record */
+	/** Specifies how many source addresses are present in this Group Record */
 	uint16_t numOfSources;
 	/** Contains the IP multicast address to which this Group Record pertains */
 	uint32_t multicastAddress;
@@ -102,7 +102,7 @@ struct igmpv3_group_record
 	uint16_t getSourceAdressCount();
 
 	/**
-	 * Get the source address in a certain index
+	 * Get the source address at a certain index
 	 * @param[in] index The index of the source address in the group record
 	 * @return The source address in the requested index. If index is negative or higher than the number of source addresses in this
 	 * group record the value if IPv4Address#Zero is returned
@@ -110,7 +110,7 @@ struct igmpv3_group_record
 	IPv4Address getSoruceAddressAtIndex(int index);
 
 	/**
-	 * @return The total size in bytes of group record
+	 * @return The total size in bytes of the group record
 	 */
 	size_t getRecordLen();
 };
@@ -151,6 +151,13 @@ enum IgmpType
 	IgmpType_MulticastRouterTermination = 0x32,
 };
 
+
+/**
+ * @class IgmpLayer
+ * A base class for all IGMP (Internet Group Management Protocol) protocol classes. This is an abstract class and cannot be instantiated,
+ * only its child classes can be instantiated. The inherited classes represent the different versions of the protocol:
+ * IGMPv1, IGMPv2 and IGMPv3
+ */
 class IgmpLayer : public Layer
 {
 protected:
@@ -167,39 +174,41 @@ public:
 	virtual ~IgmpLayer() {}
 
 	/**
-	 * Get a pointer to the raw IGMP header. Notice this points directly to the data, so every change will change the actual packet data
+	 * Get a pointer to the raw IGMPv1/IGMPv2 header. Notice this points directly to the data, so every change will change the actual packet data
 	 * @return A pointer to the @ref igmp_header
 	 */
 	inline igmp_header* getIgmpHeader() { return (igmp_header*)m_Data; }
 
 	/**
-	 * @return The IPv4 address in stored igmp_header#groupAddress
+	 * @return The IPv4 multicast address stored igmp_header#groupAddress
 	 */
 	inline IPv4Address getGroupAddress() { return IPv4Address(getIgmpHeader()->groupAddress); }
 
 	/**
-	 * Set group IPv4 address
+	 * Set the IPv4 multicast address
 	 * @param[in] groupAddr The IPv4 address to set
 	 */
 	void setGroupAddress(const IPv4Address& groupAddr);
 
 	/**
-	 * @return IGMP type set in igmp_header#type as IgmpType enum. Notice that if igmp_header#type contains a value
-	 * that doesn't appear in the IgmpType enum, ::IgmpType_Unknown will be returned
+	 * @return IGMP type set in igmp_header#type as ::IgmpType enum. Notice that if igmp_header#type contains a value
+	 * that doesn't appear in the ::IgmpType enum, ::IgmpType_Unknown will be returned
 	 */
 	IgmpType getType();
 
 	/**
-	 * Set IGMP type
+	 * Set IGMP type (will be written to igmp_header#type field)
 	 * @param[in] type The type to set
 	 */
 	void setType(IgmpType type);
 
 	/**
-	 * A static method that get raw IGMP data (byte stream) and returns which IGMP version it probably is
+	 * A static method that gets raw IGMP data (byte stream) and returns the IGMP version of this IGMP message
 	 * @param[in] data The IGMP raw data (byte stream)
 	 * @param[in] dataLen Raw data length
-	 * @return One of the values ::IGMPv1, ::IGMPv2 or ::Unknown, according to detected IGMP version
+	 * @param[out] isQuery Return true if IGMP message type is ::IgmpType_MembershipQuery and false otherwise
+	 * @return One of the values ::IGMPv1, ::IGMPv2, ::IGMPv3 according to detected IGMP version or ::Unknown if couldn't detect
+	 * IGMP version
 	 */
 	static ProtocolType getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& isQuery);
 
@@ -219,12 +228,18 @@ public:
 	std::string toString();
 };
 
+
+/**
+ * @class IgmpV1Layer
+ * Represents IGMPv1 (Internet Group Management Protocol ver 1) layer. This class represents all the different messages of IGMPv1
+ */
 class IgmpV1Layer : public IgmpLayer
 {
 public:
 	 /** A constructor that creates the layer from an existing packet raw data
 	 * @param[in] data A pointer to the raw data
 	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
 	IgmpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
@@ -232,7 +247,8 @@ public:
 	/**
 	 * A constructor that allocates a new IGMPv1 header
 	 * @param[in] type The message type to set
-	 * @param[in] groupAddr The group address set. An optional parameter, set to IPv4Address#Zero if not provided
+	 * @param[in] groupAddr The multicast address to set. This is an optional parameter and has a default value of IPv4Address#Zero
+	 * if not provided
 	 */
 	IgmpV1Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address::Zero);
 
@@ -251,12 +267,18 @@ public:
 
 };
 
+
+/**
+ * @class IgmpV2Layer
+ * Represents IGMPv2 (Internet Group Management Protocol ver 2) layer. This class represents all the different messages of IGMPv2
+ */
 class IgmpV2Layer : public IgmpLayer
 {
 public:
 	 /** A constructor that creates the layer from an existing packet raw data
 	 * @param[in] data A pointer to the raw data
 	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
 	IgmpV2Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
@@ -264,8 +286,8 @@ public:
 	/**
 	 * A constructor that allocates a new IGMPv2 header
 	 * @param[in] type The message type to set
-	 * @param[in] groupAddr The group address set. An optional parameter, set to IPv4Address#Zero if not provided
-	 * @param[in] maxResponseTime The max response time to set. An optional parameter, set to 0 if not provided
+	 * @param[in] groupAddr The multicast address to set. This is an optional parameter and has a default value of IPv4Address#Zero
+	 * @param[in] maxResponseTime The max response time to set. This is an optional parameter and has a default value of 0 if not provided
 	 */
 	IgmpV2Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address::Zero, uint8_t maxResponseTime = 0);
 
@@ -283,6 +305,11 @@ public:
 	void computeCalculateFields();
 };
 
+
+/**
+ * @class IgmpV3QueryLayer
+ * Represents an IGMPv3 (Internet Group Management Protocol ver 3) membership query message
+ */
 class IgmpV3QueryLayer : public IgmpLayer
 {
 public:
@@ -290,33 +317,90 @@ public:
 	 /** A constructor that creates the layer from an existing packet raw data
 	 * @param[in] data A pointer to the raw data
 	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
 	IgmpV3QueryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
+	/**
+	 * A constructor that allocates a new IGMPv3 membership query
+	 * @param[in] multicastAddr The multicast address to set. This is an optional parameter and has a default value of IPv4Address#Zero
+	 * if not provided
+	 * @param[in] maxResponseTime The max response time to set. This is an optional parameter and has a default value of 0 if not provided
+	 * @param[in] s_qrv A 1-byte value representing the value in Suppress Router-side Processing Flag + Querier's Robustness Variable
+	 * (igmpv3_query_header#s_qrv field). This is an optional parameter and has a default value of 0 if not provided
+	 */
 	IgmpV3QueryLayer(const IPv4Address& multicastAddr = IPv4Address::Zero, uint8_t maxResponseTime = 0, uint8_t s_qrv = 0);
 
+	/**
+	 * Get a pointer to the raw IGMPv3 membership query header. Notice this points directly to the data, so every change will change the
+	 * actual packet data
+	 * @return A pointer to the @ref igmpv3_query_header
+	 */
 	inline igmpv3_query_header* getIgmpV3QueryHeader() { return (igmpv3_query_header*)m_Data; }
 
+	/**
+	 * @return The number of source addresses in this message (as extracted from the igmpv3_query_header#numOfSources field)
+	 */
 	uint16_t getSourceAddressCount();
 
+	/**
+	 * Get the IPV4 source address in a certain index
+	 * @param[in] index The requested index of the source address
+	 * @return The IPv4 source address, or IPv4Address#Zero if index is out of bounds (of the message or of the layer)
+	 */
 	IPv4Address getSourceAddressAtIndex(int index);
 
+	/**
+	 * Add a new source address at the end of the source address list. The igmpv3_query_header#numOfSources field will be incremented accordingly
+	 * @param[in] addr The IPv4 source address to add
+	 * @return True if source address was added successfully or false otherwise. If false is returned an appropriate error message
+	 * will be printed to log
+	 */
 	bool addSourceAddress(const IPv4Address& addr);
 
+	/**
+	 * Add a new source address at a certain index of the source address list. The igmpv3_query_header#numOfSources field will be incremented accordingly
+	 * @param[in] addr The IPv4 source address to add
+	 * @param[in] index The index to add the new source address at
+	 * @return True if source address was added successfully or false otherwise. If false is returned an appropriate error message
+	 * will be printed to log
+	 */
 	bool addSourceAddressAtIndex(const IPv4Address& addr, int index);
 
+	/**
+	 * Remove a source address at a certain index. The igmpv3_query_header#numOfSources field will be decremented accordingly
+	 * @param[in] index The index of the source address to be removed
+	 * @return True if source address was removed successfully or false otherwise. If false is returned an appropriate error message
+	 * will be printed to log
+	 */
 	bool removeSourceAddressAtIndex(int index);
 
+	/**
+	 * Remove all source addresses in the message. The igmpv3_query_header#numOfSources field will be set to 0
+	 * @return True if all source addresses were cleared successfully or false otherwise. If false is returned an appropriate error message
+	 * will be printed to log
+	 */
 	bool removeAllSourceAddresses();
 
 	// implement abstract methods
 
+	/**
+	 * Calculate the IGMP checksum
+	 */
 	void computeCalculateFields();
 
+	/**
+	 * @return The message size in bytes which include the size of the basic header + the size of the source address list
+	 */
 	size_t getHeaderLen();
 };
 
+
+/**
+ * @class IgmpV3ReportLayer
+ * Represents an IGMPv3 (Internet Group Management Protocol ver 3) membership report message
+ */
 class IgmpV3ReportLayer : public IgmpLayer
 {
 private:
@@ -327,32 +411,94 @@ public:
 	 /** A constructor that creates the layer from an existing packet raw data
 	 * @param[in] data A pointer to the raw data
 	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
 	IgmpV3ReportLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
+	/**
+	 * A constructor that allocates a new IGMPv3 membership report with 0 group addresses
+	 */
 	IgmpV3ReportLayer();
 
+	/**
+	 * Get a pointer to the raw IGMPv3 membership report header. Notice this points directly to the data, so every change will change the
+	 * actual packet data
+	 * @return A pointer to the @ref igmpv3_report_header
+	 */
 	inline igmpv3_report_header* getReportHeader() { return (igmpv3_report_header*)m_Data; }
 
+	/**
+	 * @return The number of group records in this message (as extracted from the igmpv3_report_header#numOfGroupRecords field)
+	 */
 	uint16_t getGroupRecordCount();
 
+	/**
+	 * @return A pointer to the first group record or NULL if no group records exist. Notice the return value is a pointer to the real data,
+	 * so changes in the return value will affect the packet data
+	 */
 	igmpv3_group_record* getFirstGroupRecord();
 
+	/**
+	 * Get the group record that comes next to a given group record. If "groupRecord" is NULL then NULL will be returned.
+	 * If "groupRecord" is the last group record or if it is out of layer bounds NULL will be returned also. Notice the return value is a
+	 * pointer to the real data casted to igmpv3_group_record type (as opposed to a copy of the option data). So changes in the return
+	 * value will affect the packet data
+	 * @param[in] groupRecord The group record to start searching from
+	 * @return The next group record or NULL if "groupRecord" is NULL, last or out of layer bounds
+	 */
 	igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord);
 
+	/**
+	 * Add a new group record at a the end of the group record list. The igmpv3_report_header#numOfGroupRecords field will be
+	 * incremented accordingly
+	 * @param[in] recordType The type of the new group record
+	 * @param[in] multicastAddress The multicast address of the new group record
+	 * @param[in] sourceAddresses A vector containing all the source addresses of the new group record
+	 * @return The method constructs a new group record, adds it to the end of the group record list of IGMPv3 report message and
+	 * returns a pointer to the new message. If something went wrong in creating or adding the new group record a NULL value is returned
+	 * and an appropriate error message is printed to log
+	 */
 	igmpv3_group_record* addGroupRecord(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses);
 
+	/**
+	 * Add a new group record at a certain index of the group record list. The igmpv3_report_header#numOfGroupRecords field will be
+	 * incremented accordingly
+	 * @param[in] recordType The type of the new group record
+	 * @param[in] multicastAddress The multicast address of the new group record
+	 * @param[in] sourceAddresses A vector containing all the source addresses of the new group record
+	 * @param[in] index The index to add the new group address at
+	 * @return The method constructs a new group record, adds it to the IGMPv3 report message and returns a pointer to the new message.
+	 * If something went wrong in creating or adding the new group record a NULL value is returned and an appropriate error message is
+	 * printed to log
+	 */
 	igmpv3_group_record* addGroupRecordAtIndex(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses, int index);
 
+	/**
+	 * Remove a group record at a certain index. The igmpv3_report_header#numOfGroupRecords field will be decremented accordingly
+	 * @param[in] index The index of the group record to be removed
+	 * @return True if group record was removed successfully or false otherwise. If false is returned an appropriate error message
+	 * will be printed to log
+	 */
 	bool removeGroupRecordAtIndex(int index);
 
+	/**
+	 * Remove all group records in the message. The igmpv3_report_header#numOfGroupRecords field will be set to 0
+	 * @return True if all group records were cleared successfully or false otherwise. If false is returned an appropriate error message
+	 * will be printed to log
+	 */
 	bool removeAllGroupRecords();
 
 	// implement abstract methods
 
+	/**
+	 * Calculate the IGMP checksum
+	 */
 	void computeCalculateFields();
 
+	/**
+	 * @return The message size in bytes which include the size of the basic header + the size of the group record list
+	 */
 	size_t getHeaderLen();
 };
 

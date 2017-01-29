@@ -433,7 +433,6 @@ void IgmpV3ReportLayer::computeCalculateFields()
 	igmpv3_report_header* hdr = getReportHeader();
 	hdr->checksum = 0;
 	hdr->checksum = htons(calculateChecksum());
-	//TODO
 }
 
 igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, const IPv4Address& multicastAddress, const std::vector<IPv4Address>& sourceAddresses, int offset)
