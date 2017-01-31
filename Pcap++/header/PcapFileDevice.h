@@ -26,6 +26,13 @@ namespace pcpp
 		virtual ~IFileDevice();
 
 	public:
+
+		/**
+		* @return The name of the file
+		*/
+		std::string getFileName();
+
+
 		//override methods
 
 		/**
@@ -58,6 +65,11 @@ namespace pcpp
 		 * A destructor for this class
 		 */
 		virtual ~IFileReaderDevice() {}
+
+		/**
+		* @return The file size in bytes
+		*/
+		uint64_t getFileSize();
 
 		virtual bool getNextPacket(RawPacket& rawPacket) = 0;
 
@@ -96,6 +108,12 @@ namespace pcpp
 		 * A destructor for this class
 		 */
 		virtual ~PcapFileReaderDevice() {}
+
+		/**
+		* @return The link layer type of this file
+		*/
+		LinkLayerType getLinkLayerType();
+
 
 		//overridden methods
 

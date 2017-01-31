@@ -646,6 +646,9 @@ PCAPP_TEST(TestPcapFileReadWrite)
     PcapFileWriterDevice writerDev(EXAMPLE_PCAP_WRITE_PATH);
     PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
     PCAPP_ASSERT(writerDev.open(), "cannot open writer device");
+    PCAPP_ASSERT(readerDev.getFileName() == EXAMPLE_PCAP_PATH, "Reader file name different than expected");
+    PCAPP_ASSERT(writerDev.getFileName() == EXAMPLE_PCAP_WRITE_PATH, "Writer file name different than expected");
+    PCAPP_ASSERT(readerDev.getFileSize() == 3812643, "Reader file size different than expected. Expected: %d, got: %d", 3812643, readerDev.getFileSize());
     RawPacket rawPacket;
     int packetCount = 0;
     int ethCount = 0;
@@ -796,6 +799,9 @@ PCAPP_TEST(TestPcapNgFileReadWrite)
     PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_WRITE_PATH);
     PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
     PCAPP_ASSERT(writerDev.open(), "cannot open writer device");
+    PCAPP_ASSERT(readerDev.getFileName() == EXAMPLE_PCAPNG_PATH, "Reader file name different than expected");
+    PCAPP_ASSERT(writerDev.getFileName() == EXAMPLE_PCAPNG_WRITE_PATH, "Writer file name different than expected");
+    PCAPP_ASSERT(readerDev.getFileSize() == 20704, "Reader file size different than expected. Expected: %d, got: %d", 20704, readerDev.getFileSize());
     PCAPP_ASSERT(readerDev.getOS() == "Mac OS X 10.10.4, build 14E46 (Darwin 14.4.0)", "OS read incorrectly");
     PCAPP_ASSERT(readerDev.getCaptureApplication() == "Dumpcap 1.12.6 (v1.12.6-0-gee1fce6 from master-1.12)", "User app read incorrectly");
     PCAPP_ASSERT(readerDev.getCaptureFileComment() == "", "File comment isn't empty");

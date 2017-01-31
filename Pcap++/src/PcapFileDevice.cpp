@@ -6,6 +6,7 @@
 #include "light_pcapng_ext.h"
 #include <Logger.h>
 #include <string.h>
+#include <fstream>
 
 namespace pcpp
 {
@@ -45,6 +46,11 @@ IFileDevice::~IFileDevice()
 	delete[] m_FileName;
 }
 
+std::string IFileDevice::getFileName()
+{
+	return std::string(m_FileName);
+}
+
 void IFileDevice::close()
 {
 	if (m_PcapDescriptor == NULL)
@@ -79,6 +85,12 @@ IFileReaderDevice* IFileReaderDevice::getReader(const char* fileName)
 		return new PcapFileReaderDevice(fileName);
 }
 
+uint64_t IFileReaderDevice::getFileSize()
+{
+	std::ifstream fileStream(m_FileName, std::ifstream::ate | std::ifstream::binary);
+	return fileStream.tellg();
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // PcapFileReaderDevice members
@@ -87,6 +99,11 @@ IFileReaderDevice* IFileReaderDevice::getReader(const char* fileName)
 PcapFileReaderDevice::PcapFileReaderDevice(const char* fileName) : IFileReaderDevice(fileName)
 {
 	m_PcapLinkLayerType = LINKTYPE_ETHERNET;
+}
+
+LinkLayerType PcapFileReaderDevice::getLinkLayerType()
+{
+	return m_PcapLinkLayerType;
 }
 
 bool PcapFileReaderDevice::open()
