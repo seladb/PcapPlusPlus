@@ -7,6 +7,7 @@
 #include <TcpLayer.h>
 #include <IcmpLayer.h>
 #include <GreLayer.h>
+#include <IgmpLayer.h>
 #include <string.h>
 #include <sstream>
 #include <IpUtils.h>
@@ -43,6 +44,8 @@ void IPv4Layer::parseNextLayer()
 	iphdr* ipHdr = getIPv4Header();
 
 	ProtocolType greVer = Unknown;
+	ProtocolType igmpVer = Unknown;
+	bool igmpQuery = false;
 
 	uint8_t ipVersion = 0;
 
@@ -85,6 +88,22 @@ void IPv4Layer::parseNextLayer()
 		else
 			m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		break;
+	case PACKETPP_IPPROTO_IGMP:
+		igmpVer = IgmpLayer::getIGMPVerFromData(m_Data + sizeof(iphdr), ntohs(getIPv4Header()->totalLength) - sizeof(iphdr), igmpQuery);
+		if (igmpVer == IGMPv1)
+			m_NextLayer = new IgmpV1Layer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		else if (igmpVer == IGMPv2)
+			m_NextLayer = new IgmpV2Layer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		else if (igmpVer == IGMPv3)
+		{
+			if (igmpQuery)
+				m_NextLayer = new IgmpV3QueryLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+			else
+				m_NextLayer = new IgmpV3ReportLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		}
+		else
+			m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
+		break;
 	default:
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(iphdr), m_DataLen - sizeof(iphdr), this, m_Packet);
 		return;
@@ -115,6 +134,11 @@ void IPv4Layer::computeCalculateFields()
 		case GREv0:
 		case GREv1:
 			ipHdr->protocol = PACKETPP_IPPROTO_GRE;
+			break;
+		case IGMPv1:
+		case IGMPv2:
+		case IGMPv3:
+			ipHdr->protocol = PACKETPP_IPPROTO_IGMP;
 			break;
 		default:
 			break;

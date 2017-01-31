@@ -143,8 +143,27 @@ namespace pcpp
 		/**
 		 * Null/Loopback protocol
 		 */
-		NULL_LOOPBACK = 0x100000
+		NULL_LOOPBACK = 0x100000,
 
+		/**
+		 * IGMP protocol
+		 */
+		IGMP = 0xE00000,
+
+		/**
+		 * IGMPv1 protocol
+		 */
+		IGMPv1 = 0x200000,
+
+		/**
+		 * IGMPv2 protocol
+		 */
+		IGMPv2 = 0x400000,
+
+		/**
+		 * IGMPv3 protocol
+		 */
+		IGMPv3 = 0x800000
 	};
 
 } //namespace pcpp
