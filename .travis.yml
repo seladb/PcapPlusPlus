@@ -37,7 +37,7 @@ before_script:
   - make all
   
 script:
-  - cd Packet++Test
+  - cd Tests/Packet++Test
   - Bin/Packet++Test
   - cd ../Pcap++Test
   - sudo Bin/Pcap++Test -n

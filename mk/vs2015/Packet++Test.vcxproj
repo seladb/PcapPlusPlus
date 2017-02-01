@@ -77,27 +77,27 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Packet++Test\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Packet++Test\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Packet++Test\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Packet++Test\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Packet++Test\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Packet++Test\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Packet++Test\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Packet++Test\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -164,7 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Packet++Test\main.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Packet++.vcxproj">

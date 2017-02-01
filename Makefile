@@ -7,8 +7,8 @@ include mk/platform.mk
 COMMONPP_HOME        := Common++
 PACKETPP_HOME        := Packet++
 PCAPPP_HOME          := Pcap++
-PACKETPP_TEST        := Packet++Test
-PCAPPP_TEST          := Pcap++Test
+PACKETPP_TEST        := Tests/Packet++Test
+PCAPPP_TEST          := Tests/Pcap++Test
 EXAMPLE_PARSE        := Examples/Pcap++Examples.PacketParsing
 EXAMPLE_STREAMS      := Examples/Pcap++Examples.BreakPcapFileToStreams
 EXAMPLE_ARPSPOOF     := Examples/ArpSpoofing

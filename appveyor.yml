@@ -43,7 +43,7 @@ build_script:
 - if "%compiler%"=="vs2015" powershell -command "msbuild mk\vs2015\ExampleProject\ExampleProject.sln /p:Configuration=%config% /p:Platform=%platform%"
 
 test_script:
-- cd C:\projects\PcapPlusPlus\Packet++Test
+- cd C:\projects\PcapPlusPlus\Tests\Packet++Test
 - Bin\Packet++Test.exe
 - cd ..\Pcap++Test
 - Bin\Pcap++Test.exe -n
