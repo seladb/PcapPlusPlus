@@ -130,6 +130,7 @@ The output stats looks as follows:
 Using the utility
 -----------------
 When analyzing HTTP traffic from a pcap/pcap-ng file:
+
 	Basic usage:
 		HttpAnalyzer [-h] -f input_file
 	Options:

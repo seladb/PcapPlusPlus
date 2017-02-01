@@ -2,8 +2,9 @@ Arping
 ======
 
 This application resolves a target MAC address using its IPv4 address, by sending an ARP request and 
-analyzing the ARP response coming back.
-It's an implementation of arping utility (https://en.wikipedia.org/wiki/Arping) but with less options.
+analyzing the ARP response.
+
+It's an implementation of the arping utility (https://en.wikipedia.org/wiki/Arping) but with less options.
 Its basic input is the target IP address and the interface name/IP to send the ARP request from.
 
 Using the utility

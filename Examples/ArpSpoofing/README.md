@@ -1,7 +1,8 @@
 ARP Spoofing
 ============
 
-This application does ARP spoofing using Packet++ and Pcap++. You can read more about ARP spoofing here: https://en.wikipedia.org/wiki/ARP_spoofing
+This application does ARP spoofing using Packet++ and Pcap++. You can read more about ARP spoofing here: https://en.wikipedia.org/wiki/ARP_spoofing .
+
 The input for the application is the spoof victim IP address, the gateway IP address and the interface IP to send the ARP request from.
 
 Using the utility

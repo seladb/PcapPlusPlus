@@ -12,10 +12,11 @@ PfRingDevice tries to assign one RX channel for each capturing thread (to improv
 For example: if NIC supports 4 RX channels but the user asks for 6 capturing threads than 4 cores will share 2 RX channels and the 2 remaining cores will use RX channels of their own.
 Each capturing thread does exactly the same work: receiving packets, collecting packet statistics, matching flows and sending/saving matched packets.
 
-Another thing this application demonstrates is getting interface capabilities such as total RX channels available, MAC address, PF_RING interface index, MTU, etc.
+Another thing this application demonstrates is getting interface details such as total RX channels available, MAC address, PF_RING interface index, MTU, etc.
 
 Important:
 ----------
+- This application runs only on Linux (PF_RING is not supported on Windows and Mac OS X)
 - Before compiling this application make sure you set Compile PcapPlusPlus with PF_RING to y in configure-linux.sh. Otherwise the application won't compile
 - Before running the application make sure you load the PF_RING kernel module: sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko , otherwise the application will exit with an error log that instructs you to load the kernel module
 - This application (like all applications using PF_RING) should be run as 'sudo'

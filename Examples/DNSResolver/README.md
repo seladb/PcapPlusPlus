@@ -1,7 +1,8 @@
 DNS Resolver
 ============
 
-This application resolves the IPv4 address of a hostname by sending a DNS request and analyzing the DNS response coming back
+This application resolves the IPv4 address of a hostname by sending a DNS request and analyzing the DNS response.
+
 The basic input for the application is the hostname to be resolved.
 
 Using the utility
