@@ -1,0 +1,55 @@
+September 2016 release of PcapPlusPlus
+======================================
+
+PcapPlusPlus web-site:
+----------------------
+http://seladb.github.io/PcapPlusPlus-Doc/
+
+GitHub page: https://github.com/seladb/PcapPlusPlus
+
+
+This package contains:
+----------------------
+
+ - PcapPlusPlus compiled libraries
+    - libCommon++.a
+    - libPacket++.a
+    - libPcap++.a
+ - PcapPlusPlus header files (under header/)
+ - Compiled examples (under examples/)
+ - A makefile that should be included when compiling your app with PcapPlusPlus (mk/PcapPlusPlus.mk)
+
+
+In order to compile your application with these binaries you need to:
+---------------------------------------------------------------------
+
+ - Update mk/PcapPlusPlus.mk file:
+     - Set "PCAPPLUSPLUS_HOME" to the folder where binaries are located
+     - For Windows only: set "MINGW_HOME" to the folder where MinGW is installed
+     - For Windows only: set "WINPCAP_HOME" to the folder where WinPcap Developer's Pack is installed
+ - Follow "Writing Applications With PcapPlusPlus" section in http://seladb.github.io/PcapPlusPlus-Doc/examples.html
+
+
+Release notes (changes from v16.02):
+------------------------------------
+
+ - New protocols:
+     - SSL/TLS (parsing only)
+     - SLL (Linux cooked capture)
+ - New utilities:
+     -  PcapSplitter - splits a pcap file into smaller ones by various criteria
+     -  PcapSearch - search inside pcap files and match packets by user-defined pattern
+     -  PcapPrinter - outputs packets from a pcap file as a readable string
+     -  SSL Analyzer - analyzes SSL/TLS traffic and presents detailed information about it
+     -  PcapPlusPlus performance benchmark application
+ - Added namespace to avoid pollution of the global namespace
+ - Added capability to open pcap files in append mode
+ - Fixed compilation issues with DPDK on Ubuntu 14.04 and gcc 4.8.x
+ - Faster compilation process
+ - Added command-line switches to configure-linux.sh and configure-windows.bat
+ - Added continuous integration for all platforms (Win32, Linux and Mac OS X)
+ - IPv4 fragmentation detection and parsing
+ - New and improved TCP/UDP flow key generation methods
+ - VlanLayer - added CFI and priority getters + setters
+ - Refactor TCP options
+ - Many bugfixes

@@ -31,9 +31,9 @@ PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**. 
     - It should work on other Linux distributions as well
 
 - Mac OS X:
-    - Mavericks (10.9)
     - Yosemite (10.10)
     - El Capitan (10.11)
+    - Sierra (10.12)
 
 Other opeating systems such as FreeBSD were never tested and compilation on those platforms may fail
 
