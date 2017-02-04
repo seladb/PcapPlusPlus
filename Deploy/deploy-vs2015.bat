@@ -9,6 +9,12 @@ copy Deploy\README.release.win.vs2015 %DIST_DIR_NAME%\README.release
 mkdir %DIST_DIR_NAME%\ExampleProject
 xcopy mk\vs2015\ExampleProject %DIST_DIR_NAME%\ExampleProject /E
 xcopy Deploy\PcapPlusPlusPropertySheet.props %DIST_DIR_NAME%\ExampleProject /Y
+del /s /q %DIST_DIR_NAME%\ExampleProject\Debug
+del /s /q %DIST_DIR_NAME%\ExampleProject\Release
+del /s /q %DIST_DIR_NAME%\ExampleProject\x64
+rmdir /s /q %DIST_DIR_NAME%\ExampleProject\Debug
+rmdir /s /q %DIST_DIR_NAME%\ExampleProject\Release
+rmdir /s /q %DIST_DIR_NAME%\ExampleProject\x64
 
 7z a -r %DIST_DIR_NAME%.zip %DIST_DIR_NAME%\
 

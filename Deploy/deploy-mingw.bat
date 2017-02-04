@@ -13,7 +13,7 @@ if "%compiler%"=="mingw-w64" echo MSYS_HOME := Drive:/MSYS/folder>> %DIST_DIR_NA
 more +1 %DIST_DIR_NAME%\mk\temp.mk>> %DIST_DIR_NAME%\mk\PcapPlusPlus.mk
 del %DIST_DIR_NAME%\mk\temp.mk
 
-xcopy Deploy\README.release.win.mingw %DIST_DIR_NAME%\README.release
+copy Deploy\README.release.win.mingw %DIST_DIR_NAME%\README.release
 del %DIST_DIR_NAME%\mk\platform.mk
 
 7z a -r %DIST_DIR_NAME%.zip %DIST_DIR_NAME%\
