@@ -495,18 +495,15 @@ Creating applications that uses PcapPlusPlus is rather easy. To do this, please 
 
 1. First make sure PcapPlusPlus is configured and compiled successfully
 2. All you need is under the **Dist/** directory. You can find the PcapPlusPlus libraries, header files, code examples and helpful makefiles
-3. In order to compile your application with PcapPlusPlus libraries you should use the makefiles under the **Dist/mk/** directory. There are 2 makefiles there:
-  1. *platform.mk* - contains mainly platform-dependent variables such as MinGW and WinPcap directory in Windows, binary files extensions (.lib/.exe for Windows, .a/none for Linux and Mac OS X), compile utilities names (g++/g++.exe, ar/ar.exe), etc. 
-  2. *PcapPlusPlus.mk* - contains variables that encapsulate all you need in order to compile your application with PcapPlusPlus:
-    1. *PCAPPP_INCLUDES* - all includes needed
-    2. *PCAPPP_LIBS_DIR* - location of all libraries needed for compiling and linking with PcapPlusPlus
-    3. *PCAPPP_LIBS* - all libraries needed for compiling and linking with PcapPlusPlus
-    4. *PCAPPP_POST_BUILD* - all post-build actions needed after compiling with PcapPlusPlus
-    5. *PCAPPLUSPLUS_HOME* - PcapPlusPlus home directory
+3. In order to compile your application with PcapPlusPlus libraries you should use the *PcapPlusPlus.mk* makefile under the **Dist/mk/** directory. This file contains variables that encapsulate all you need in order to compile your application with PcapPlusPlus:
+  1. *PCAPPP_INCLUDES* - all includes needed
+  2. *PCAPPP_LIBS_DIR* - location of all libraries needed for compiling and linking with PcapPlusPlus
+  3. *PCAPPP_LIBS* - all libraries needed for compiling and linking with PcapPlusPlus
+  4. *PCAPPP_POST_BUILD* - all post-build actions needed after compiling with PcapPlusPlus
+  5. *PCAPPLUSPLUS_HOME* - PcapPlusPlus home directory
 4. As an example, here is a simple Makefile needed for compiling the ArpSpoofing example on Windows (you can find this example under the **Examples/ArpSpoofing-SimpleMakefile-Windows** directory):
   ```makefile
-  -include ../../Dist/mk/platform.mk
-  -include ../../Dist/mk/PcapPlusPlus.mk
+  include ../../Dist/mk/PcapPlusPlus.mk
   
   # All Target
   all:
@@ -521,7 +518,7 @@ Creating applications that uses PcapPlusPlus is rather easy. To do this, please 
 
 5. And the same example on Linux (you can find it in **Examples/ArpSpoofing-SimpleMakefile-Linux**):
   ```makefile
-  -include ../../Dist/mk/PcapPlusPlus.mk
+  include ../../Dist/mk/PcapPlusPlus.mk
   
   # All Target
   all:

@@ -28,6 +28,7 @@ if "%ERRORLEVEL%" NEQ "0" exit /B 1
 if "%MINGW_TYPE%"=="" echo MinGW compiler (mingw32 or mingw-w64) was not supplied. Exiting & exit /B 1
 if "%MINGW_HOME%"=="" echo MinGW directory was not supplied. Exiting & exit /B 1
 if "%MINGW_TYPE%"=="mingw-w64" if "%MSYS_HOME%"=="" echo MSYS/MSYS2 directory was not supplied. Exiting & exit /B 1
+if "%MINGW_TYPE%"=="mingw32" set MSYS_HOME=$(MINGW_HOME)/msys/1.0
 if "%WINPCAP_HOME%"=="" echo WinPcap directory was not supplied. Exiting & exit /B 1
 
 :: replace "\" with "/" in MINGW_HOME
@@ -47,18 +48,30 @@ if "%WINPCAP_HOME:~-1%"=="/" set WINPCAP_HOME=%WINPCAP_HOME:~,-1%
 if exist %PLATFORM_MK% (del %PLATFORM_MK%)
 if exist %PCAPPLUSPLUS_MK% (del %PCAPPLUSPLUS_MK%)
 
-:: set PcapPlusPlus home varaible as current directory in both platform.mk and PcapPlusPlus.mk
+:: set directories varaibles in platform.mk
 set CUR_DIR=%cd:\=/%
 echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PLATFORM_MK%
 echo. >> %PLATFORM_MK%
+echo MINGW_HOME := %MINGW_HOME%>> %PLATFORM_MK%
+echo. >> %PLATFORM_MK%
+echo WINPCAP_HOME := %WINPCAP_HOME%>> %PLATFORM_MK%
+echo. >> %PLATFORM_MK%
+echo MSYS_HOME := %MSYS_HOME%>> %PLATFORM_MK%
+echo. >> %PLATFORM_MK%
+
+:: copy the content of platform.mk.%MINGW_TYPE% to platform.mk
+type mk\platform.mk.%MINGW_TYPE% >> %PLATFORM_MK%
+
+
+:: set directories varaibles in PcapPlusPlus.mk
 echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PCAPPLUSPLUS_MK%
 echo. >> %PCAPPLUSPLUS_MK%
-
-:: set MinGW and WinPcap locations in platform.mk.%MINGW_TYPE% and create platform.mk
-for /F "tokens=1* delims=]" %%A in ('type "mk\platform.mk.%MINGW_TYPE%"') do (
-	echo. >>%PLATFORM_MK%
-	if "%%A" EQU "MINGW_HOME :=" (echo %%A %MINGW_HOME%>>%PLATFORM_MK%) else (if "%%A" EQU "MSYS_HOME :=" (echo %%A %MSYS_HOME%>>%PLATFORM_MK%) else (if "%%A" EQU "WINPCAP_HOME :=" (echo %%A %WINPCAP_HOME%>>%PLATFORM_MK%) else (echo %%A>>%PLATFORM_MK%)))
-)
+echo MINGW_HOME := %MINGW_HOME%>> %PCAPPLUSPLUS_MK%
+echo. >> %PCAPPLUSPLUS_MK%
+echo WINPCAP_HOME := %WINPCAP_HOME%>> %PCAPPLUSPLUS_MK%
+echo. >> %PCAPPLUSPLUS_MK%
+echo MSYS_HOME := %MSYS_HOME%>> %PCAPPLUSPLUS_MK%
+echo. >> %PCAPPLUSPLUS_MK%
 
 :: copy the content of PcapPlusPlus.mk.common to PcapPlusPlus.mk
 type mk\PcapPlusPlus.mk.common >> %PCAPPLUSPLUS_MK%

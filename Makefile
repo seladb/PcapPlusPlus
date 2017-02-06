@@ -27,7 +27,7 @@ EXAMPLE_ICMP_FT      := Examples/IcmpFileTransfer
 
 UNAME := $(shell uname)
 
-# capPlusPlus libs only
+# PcapPlusPlus libs only
 libs:
 	$(RM) -rf Dist
 	cd $(COMMONPP_HOME)             && $(MAKE) all
@@ -87,7 +87,6 @@ endif
 ifdef PF_RING_HOME
 	$(CP) $(EXAMPLE_PF_RING1)/Bin/* ./Dist/examples
 endif
-	$(CP) mk/platform.mk ./Dist/mk
 	$(CP) mk/PcapPlusPlus.mk ./Dist/mk
 	@echo 'Finished successfully building PcapPlusPlus'
 
