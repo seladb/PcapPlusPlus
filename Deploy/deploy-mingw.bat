@@ -1,10 +1,11 @@
 set /p LATEST_RELEASE=<Deploy\latest_release.version
-for /f %%i in ('C:\MinGW\bin\g++ -dumpversion') do set COMPILER_VERSION=%%i
+for /f %%i in ('g++ -dumpversion') do set COMPILER_VERSION=%%i
 set DIST_DIR_NAME=PcapPlusPlus-%LATEST_RELEASE%-windows-%compiler%-gcc-%COMPILER_VERSION%
 
 move Dist %DIST_DIR_NAME%
 
 move %DIST_DIR_NAME%\mk\PcapPlusPlus.mk %DIST_DIR_NAME%\mk\temp.mk
+powershell -Command "(gc %DIST_DIR_NAME%\mk\temp.mk) -replace '/Dist', '' | Out-File %DIST_DIR_NAME%\mk\temp.mk"
 echo PCAPPLUSPLUS_HOME := Drive:/your/PcapPlusPlus/folder> %DIST_DIR_NAME%\mk\PcapPlusPlus.mk
 echo MINGW_HOME := Drive:/MinGW/folder>> %DIST_DIR_NAME%\mk\PcapPlusPlus.mk
 echo WINPCAP_HOME := Drive:/WpdPack/folder>> %DIST_DIR_NAME%\mk\PcapPlusPlus.mk
