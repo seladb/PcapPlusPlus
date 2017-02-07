@@ -18,7 +18,7 @@ copy Deploy\README.release.win.mingw %DIST_DIR_NAME%\README.release
 
 mkdir %DIST_DIR_NAME%\example-app
 xcopy Examples\ArpSpoofing-SimpleMakefile-Windows %DIST_DIR_NAME%\example-app /E
-powershell -Command "(gc %DIST_DIR_NAME%\example-app\Makefile -Encoding UTF8) -replace '../Dist/', '' | Out-File %DIST_DIR_NAME%\example-app\Makefile -Encoding UTF8"
+powershell -Command "(gc %DIST_DIR_NAME%\example-app\Makefile -Encoding Ascii) -replace '../Dist/', '' | Out-File %DIST_DIR_NAME%\example-app\Makefile -Encoding Ascii"
 
 7z a -r %DIST_DIR_NAME%.zip %DIST_DIR_NAME%\
 
