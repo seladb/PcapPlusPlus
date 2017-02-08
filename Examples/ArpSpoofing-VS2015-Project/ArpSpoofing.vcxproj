@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8479A397-38FE-46E4-BD12-62F4CE2C0318}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ExampleProject</RootNamespace>
+    <RootNamespace>ArpSpoofing</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

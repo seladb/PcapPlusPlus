@@ -325,7 +325,7 @@ In order to build PacpPlusPlus on Mac OS X you need to make sure [Xcode](https:/
 2. PcapPlusPlus contains 3 Visual Studio solutions:
    1. **mk\vs2015\PcapPlusPlus.sln** - contains PcapPlusPlus libraries (Common++, Packet++ and Pcap++) and unit-tests projects
    2. **mk\vs2015\PcapPlusPlus-Examples.sln** - contains all PcapPlusPlus examples. Reuquires PcapPlusPlus.sln to be built
-   3. **mk\vs2015\ExampleProject\ExampleProject.sln** - a fully configured project for working with PcapPlusPlus. You can use this project to write your own code using PcapPlusPlus. It already has all the include paths, libaray paths etc. configured and also an empty main() function. Just write your code and build. This solution is also relocatable so you can move it to wherever you want and it will still build successfully. Reuquires PcapPlusPlus.sln to be built
+   3. **Examples\ArpSpoofing-VS2015-Project\ArpSpoofing.sln** - a fully configured project for working with PcapPlusPlus. You can use this project to write your own code using PcapPlusPlus. It already has all the include paths, libaray paths etc. configured, just delete the existing code, write your own code and build. This solution is also relocatable so you can move it to wherever you want and it will still build successfully. Reuquires PcapPlusPlus.sln to be built
 3. All solutions support both 32-bit (**x86**) and 64-bit (**x64**) configurations as well as **Debug** and **Release** modes. So actually 4 modes are supported: x86|Debug, x86|Release, x64|Debug, x64|Release
 
 *On Windows (MinGW32 + MinGW-w64):*

@@ -1,7 +1,7 @@
 ARP Spoofing - Simple Makefile for Windows
 ==========================================
 
-This application has the same code as the ARP spoofing application but with simple Linux makefile that demonstrates how 
+This application has the same code as the ARP spoofing application but with simple Windows makefile that demonstrates how 
 to write a working Windows makefile that uses PcapPlusPlus. For more info please see:  
 http://seladb.github.io/PcapPlusPlus-Doc/examples.html#simple-application
 

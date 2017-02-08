@@ -239,7 +239,7 @@ namespace pcpp
 
 		/**
 		 * Set a filter for PcapNG reader device. Only packets that match the filter will be received
-		 * @param[in] filter The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
+		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
 		 * @return True if filter set successfully, false otherwise
 		 */
 		bool setFilter(std::string filterAsString);

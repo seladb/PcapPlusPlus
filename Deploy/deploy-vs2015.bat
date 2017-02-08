@@ -7,8 +7,9 @@ move Dist %DIST_DIR_NAME%
 
 copy Deploy\README.release.win.vs2015 %DIST_DIR_NAME%\README.release
 mkdir %DIST_DIR_NAME%\ExampleProject
-xcopy mk\vs2015\ExampleProject %DIST_DIR_NAME%\ExampleProject /E
+xcopy Examples\ArpSpoofing-VS2015-Project %DIST_DIR_NAME%\ExampleProject /E
 xcopy Deploy\PcapPlusPlusPropertySheet.props %DIST_DIR_NAME%\ExampleProject /Y
+xcopy Deploy\ArpSpoofing.vcxproj %DIST_DIR_NAME%\ExampleProject /Y
 del /s /q %DIST_DIR_NAME%\ExampleProject\Debug
 del /s /q %DIST_DIR_NAME%\ExampleProject\Release
 del /s /q %DIST_DIR_NAME%\ExampleProject\x64
