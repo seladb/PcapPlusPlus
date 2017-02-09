@@ -35,10 +35,10 @@ light_pcapng light_read_from_path(const char *file_name)
 	uint32_t *memory;
 	size_t size = 0;
 	__fd_t fd = light_open(file_name, LIGHT_OREAD);
-	DCHECK_INT(fd, 0, light_stop);
+	DCHECK_ASSERT_EXP(fd != NULL, "could not open file", return NULL);
 
 	size = light_size(fd);
-	DCHECK_ASSERT_EXP(fd != NULL, "could not open file", return NULL);
+	DCHECK_INT(size, 0, light_stop);
 
 	memory = calloc(size, 1);
 
