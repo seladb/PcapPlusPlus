@@ -22,41 +22,53 @@ This package contains:
 	- 64bit release configuration (x64\Release)
  - PcapPlusPlus header files (under header\)
  - Compiled examples:
-    - 32bit executables (under x86\eamples)
-	- 64bit executables (under x64\eamples)
+    - 32bit executables (under x86\examples)
+	- 64bit executables (under x64\examples)
  - Visual Studio 2015 example solution configured to work with PcapPlusPlus compiled binaries (under ExampleProject\)
 
 
 In order to compile your application with these binaries you need to:
 ---------------------------------------------------------------------
 
- - Update mk/PcapPlusPlus.mk file:
-     - Set "PCAPPLUSPLUS_HOME" to the folder where binaries are located
-     - For Windows only: set "MINGW_HOME" to the folder where MinGW is installed
-     - For Windows only: set "WINPCAP_HOME" to the folder where WinPcap Developer's Pack is installed
- - Follow "Writing Applications With PcapPlusPlus" section in http://seladb.github.io/PcapPlusPlus-Doc/examples.html
+ - Make sure you have Microsoft Visual Studio 2015 installed
+ - Make sure you have WinPcap Developer's pack installed (can be downloaded from https://www.winpcap.org/devel.htm)
+ - Make sure you have pthread-win32 (can be downloaded from: ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip)
+ - You need to add to your project all of the include and binary paths required for PcapPlusPlus. The best option is to take a look at the configuration of the ExampleProject (under ExampleProject\ folder). Another option
+   is to use the ExampleProject, delete all the code from it and start writing your own code
+ - Before using the ExampleProject solution please make sure you update the PcapPlusPlusPropertySheet.props file (inside ExampleProject\ folder) with the following:
+     - Set the value of the "PcapPlusPlusHome" XML node to the folder where PcapPlusPlus binaries are located
+	 - Set the value of the "WinPcapHome" XML node to the folder where WinPcap Developer's Pack is installed
+	 - Set the value of the "PThreadWin32Home" node to the folder where pthread-win32 is installed
+ - Now you can load the solution and build it
 
 
-Release notes (changes from v16.02):
+Release notes (changes from v16.09):
 ------------------------------------
 
+ - Microsoft Visual Studio 2015 support - x86 (32bit) & x64 (64bit) + Debug & Release configurations
+ - MinGW-w64 support (32bit configuration only)
+ - Native PcapNG format support (reading and writing files)
  - New protocols:
-     - SSL/TLS (parsing only)
-     - SLL (Linux cooked capture)
- - New utilities:
-     -  PcapSplitter - splits a pcap file into smaller ones by various criteria
-     -  PcapSearch - search inside pcap files and match packets by user-defined pattern
-     -  PcapPrinter - outputs packets from a pcap file as a readable string
-     -  SSL Analyzer - analyzes SSL/TLS traffic and presents detailed information about it
-     -  PcapPlusPlus performance benchmark application
- - Added namespace to avoid pollution of the global namespace
- - Added capability to open pcap files in append mode
- - Fixed compilation issues with DPDK on Ubuntu 14.04 and gcc 4.8.x
- - Faster compilation process
- - Added command-line switches to configure-linux.sh and configure-windows.bat
- - Added continuous integration for all platforms (Win32, Linux and Mac OS X)
- - IPv4 fragmentation detection and parsing
- - New and improved TCP/UDP flow key generation methods
- - VlanLayer - added CFI and priority getters + setters
- - Refactor TCP options
+     - DHCP
+     - Null/Loopback
+     - IGMP
+ - New and updated utilities:
+     - Added ICMP file transfer utility
+     - PcapSplitter
+         - Added the option to split only packets matching to a certain BPF filter
+         - Support splitting of large files (more than 2GB)
+     - PcapPrinter:
+         - Added support for printing PcapNG files
+         - Added printing of packet comments (supported only in PcapNG files)
+         - Added printing of file info
+     - PcapSearch:
+         - Added searching inside PcapNG files
+     - HttpAnalyzer:
+         - Added analyzing of HTTP packets inside PcapNG files
+     - SSLAnalyzer:
+         - Added analyzing of SSL/TLS packets inside PcapNG files
+ - Added blocking mode capturing in PcapLiveDevice
+ - Match packets with BPF filter without device instance
+ - Simplified build process (removed dependency in platform.mk)
+ - Added clear filter capability to all devices
  - Many bugfixes

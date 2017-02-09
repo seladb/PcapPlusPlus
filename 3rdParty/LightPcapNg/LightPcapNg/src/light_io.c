@@ -38,7 +38,7 @@ light_pcapng light_read_from_path(const char *file_name)
 	DCHECK_INT(fd, 0, light_stop);
 
 	size = light_size(fd);
-	DCHECK_INT(size, 0, light_stop);
+	DCHECK_ASSERT_EXP(fd != NULL, "could not open file", return NULL);
 
 	memory = calloc(size, 1);
 
