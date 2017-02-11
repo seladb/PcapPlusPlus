@@ -4,8 +4,7 @@
 PCAPPP_INCLUDES += -I$(WINPCAP_HOME)/Include
 
 # libs dir
-PCAPPP_LIBS_DIR += -L$(WINPCAP_HOME)/lib \
-		-L$(MINGW_HOME)/lib
+PCAPPP_LIBS_DIR += -L$(WINPCAP_HOME)/lib -L$(MINGW_HOME)/lib
 
 # libs
 PCAPPP_LIBS += -lwpcap -lPacket -lpthread -lws2_32 -liphlpapi

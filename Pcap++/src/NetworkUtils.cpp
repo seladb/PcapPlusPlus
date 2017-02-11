@@ -20,7 +20,9 @@
 #ifdef _MSC_VER
 #include <SystemUtils.h>
 #endif
-
+#ifndef ETIMEDOUT
+#define ETIMEDOUT  10060
+#endif
 
 #define DNS_PORT	    53
 
