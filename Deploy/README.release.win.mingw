@@ -11,7 +11,7 @@ GitHub page: https://github.com/seladb/PcapPlusPlus
 This package contains:
 ----------------------
 
- - PcapPlusPlus compiled libraries for Microsoft Visual Studio 2015
+ - PcapPlusPlus compiled libraries for MinGW32 or MinGW-w64 (depends on the package you downloaded)
     - Common++.lib
     - Packet++.lib
     - Pcap++.lib
@@ -21,16 +21,22 @@ This package contains:
  - Code example with a simple Makefile showing how to build applications using PcapPlusPlus compiled binaries (under example-app\)
 
 
+Running the examples:
+---------------------
+ - Make sure you have WinPcap (or Wireshark) installed
+
+
 In order to compile your application with these binaries you need to:
 ---------------------------------------------------------------------
 
- - Make sure you have MinGW/MinGW-w64 installed with a gcc/g++ version matching the compiled binaries (for example: pcapplusplus-17.02-windows-mingw32-gcc-5.3.0 pack probably won't work well with MinGW32 4.9.3)
+ - Make sure you have MinGW32/MinGW-w64 installed with a gcc/g++ version matching the compiled binaries (for example: pcapplusplus-17.02-windows-mingw32-gcc-5.3.0 pack probably won't work well with MinGW32 4.9.3)
+ - You may have to put have MinGW32/MinGW-w64 directory in your PATH environment variable
+ - Make sure you have WinPcap (or Wireshark) installed
  - Make sure you have WinPcap Developer's pack installed (can be downloaded from https://www.winpcap.org/devel.htm)
  - Update mk\PcapPlusPlus.mk file:
      - Set "PCAPPLUSPLUS_HOME" to the folder where binaries are located
      - Set "MINGW_HOME" to the folder where MinGW/MinGW-w64 is installed
      - Set "WINPCAP_HOME" to the folder where WinPcap Developer's Pack is installed
-	 - In MinGW-w64 pack: set "MSYS_HOME" to the folder where MSYS/MSYS2 is installed
  - Include mk\PcapPlusPlus.mk in your Makefile and add PcapPlusPlus includes, libs, etc. to your Makefile 
      - You can follow the example under example-app\
      - Or follow "Writing Applications With PcapPlusPlus" section in http://seladb.github.io/PcapPlusPlus-Doc/examples.html

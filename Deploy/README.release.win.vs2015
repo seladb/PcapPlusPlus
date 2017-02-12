@@ -27,6 +27,12 @@ This package contains:
  - Visual Studio 2015 example solution configured to work with PcapPlusPlus compiled binaries (under ExampleProject\)
 
 
+Running the examples:
+---------------------
+ - Make sure you have WinPcap (or Wireshark) installed
+ - Make sure you have Visual C++ Redistributable for Visual Studio 2015 installed
+ - If examples still doesn't run, install Visual C++ Redistributable for Visual Studio 2010 also
+
 In order to compile your application with these binaries you need to:
 ---------------------------------------------------------------------
 

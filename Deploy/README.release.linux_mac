@@ -21,6 +21,12 @@ This package contains:
  - Code example with a simple Makefile showing how to build applications using PcapPlusPlus compiled binaries (under example-app/)
 
 
+Running the examples:
+---------------------
+ - Make sure you have libpcap installed (should come built-in with most Linux and Mac OS X distributions)
+ - In Linux you may need to run the executables as sudo
+
+
 In order to compile your application with these binaries you need to:
 ---------------------------------------------------------------------
 
