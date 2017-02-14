@@ -1,0 +1,78 @@
+February 2017 release of PcapPlusPlus
+=====================================
+
+PcapPlusPlus web-site:
+----------------------
+http://seladb.github.io/PcapPlusPlus-Doc/
+
+GitHub page: https://github.com/seladb/PcapPlusPlus
+
+
+This package contains:
+----------------------
+
+ - PcapPlusPlus compiled libraries
+    - libCommon++.a
+    - libPacket++.a
+    - libPcap++.a
+ - PcapPlusPlus header files (under header/)
+ - Compiled examples (under examples/)
+ - A makefile that should be included when compiling your app with PcapPlusPlus (mk/PcapPlusPlus.mk)
+ - Code example with a simple Makefile showing how to build applications using PcapPlusPlus compiled binaries (under example-app/)
+
+
+Running the examples:
+---------------------
+ - Make sure you have libpcap installed (should come built-in with most Linux and Mac OS X distributions)
+ - In Linux you may need to run the executables as sudo
+ - Before running the PF_RING example please make sure to enable the PF_RING kernel module: sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko 
+ - Please see more details about PcapPlusPlus support for PF_RING here: http://seladb.github.io/PcapPlusPlus-Doc/dpdk-pf_ring.html
+
+
+In order to compile your application with these binaries you need to:
+---------------------------------------------------------------------
+
+ - Make sure you have libpcap developer pack installed (in Ubuntu: install it using apt-get: "sudo apt-get install libpcap-dev"; in Mac OS X it should come with Xcode)
+ - Make sure the binaries matches your OS (for example: pcapplusplus-17.02-ubuntu-12.04-x86-64-gcc-4.6.tar.gz pack probably won't work well in Ubuntu 14.04)
+ - Make sure your gcc/g++ version matches the compiled binaries version (for example: pcapplusplus-17.02-ubuntu-12.04-x86-64-gcc-4.6.tar.gz pack probably won't work well with gcc 4.8)
+ - For PF_RING applications: Make sure Vanilla PF_RING 4.6.1 is installed and configured on your machine (go to http://www.ntop.org/products/packet-capture/pf_ring/ for download and installation instructions)
+ - Update mk/PcapPlusPlus.mk file:
+     - Set "PCAPPLUSPLUS_HOME" to the folder where binaries are located
+     - Set "PF_RING_HOME" to the folder where PF_RING 4.6.1 is located
+ - Include mk/PcapPlusPlus.mk in your Makefile and add PcapPlusPlus includes, libs, etc. to your Makefile 
+     - You can follow the example under example-app/
+     - Or follow "Writing Applications With PcapPlusPlus" section in http://seladb.github.io/PcapPlusPlus-Doc/examples.html
+ - Before running a PF_RING application please make sure to enable the PF_RING kernel module: sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko
+ - Please see more details about PcapPlusPlus support for PF_RING here: http://seladb.github.io/PcapPlusPlus-Doc/dpdk-pf_ring.html
+
+
+Release notes (changes from v16.09):
+------------------------------------
+
+ - Microsoft Visual Studio 2015 support - x86 (32bit) & x64 (64bit) + Debug & Release configurations
+ - MinGW-w64 support (32bit configuration only)
+ - Native PcapNG format support (reading and writing files)
+ - New protocols:
+     - DHCP
+     - Null/Loopback
+     - IGMP
+ - New and updated utilities:
+     - Added ICMP file transfer utility
+     - PcapSplitter
+         - Added the option to split only packets matching to a certain BPF filter
+         - Support splitting of large files (more than 2GB)
+     - PcapPrinter:
+         - Added support for printing PcapNG files
+         - Added printing of packet comments (supported only in PcapNG files)
+         - Added printing of file info
+     - PcapSearch:
+         - Added searching inside PcapNG files
+     - HttpAnalyzer:
+         - Added analyzing of HTTP packets inside PcapNG files
+     - SSLAnalyzer:
+         - Added analyzing of SSL/TLS packets inside PcapNG files
+ - Added blocking mode capturing in PcapLiveDevice
+ - Match packets with BPF filter without device instance
+ - Simplified build process (removed dependency in platform.mk)
+ - Added clear filter capability to all devices
+ - Many bugfixes
