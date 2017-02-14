@@ -151,6 +151,10 @@ void printUsage()
  */
 std::string getFileNameWithoutExtension(const std::string& path)
 {
+	// if path is empty, return an empty string
+	if (path == "")
+		return "";
+
 	// find the last "\\" or "/" (depends on the os) - where path ends and filename starts
 	size_t i = path.rfind(SEPARATOR, path.length());
 	if (i != std::string::npos)
@@ -164,6 +168,17 @@ std::string getFileNameWithoutExtension(const std::string& path)
 			return fileNameWithExtension.substr(0, i);
 
 		return fileNameWithExtension;
+	}
+	// filename without a path
+	else
+	{
+		// from the file name - remove the extension (the part after the ".")
+		i = path.rfind('.', path.length());
+		if (i != std::string::npos)
+			return path.substr(0, i);
+
+		// filename doesn't have an extension
+		return path;
 	}
 
 	return("");
