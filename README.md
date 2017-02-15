@@ -10,7 +10,7 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 - Designed to be lightweight and efficient
 - Support for **DPDK** fast packet processing engine which enables packet capturing and transmition in line rate using kernel bypass
 - Support for ntop's **PF_RING** packet capturing engine that dramatically improves the packet capture speed
-- Support for many protocols, including HTTP protocol parsing and editing and SSL/TLS parsing
+- Support for parsing and editing of many protocols, including L7 protocols like HTTP and SSL/TLS
 - Support for Remote Capture capabilities on Windows (using RPCAP protocol supported in WinPcap)
 - Support for reading and writing **PCAPNG** files (a lot more more than currently supported in WinPcap/libpcap)
 - Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
@@ -23,9 +23,7 @@ PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**. 
     - MinGW-w64 (32-bit compilation only)
 
 - Linux:
-    - Ubuntu 12.04 LTS
-    - Ubuntu 14.04 LTS
-    - Ubuntu 14.10
+    - Ubuntu (12.04 LTS, 14.04 LTS, 16.04 LTS, 14.10)
     - Fedora
     - CentOS
     - It should work on other Linux distributions as well
@@ -54,8 +52,8 @@ pcapplusplus@gmail.com
 The PcapPlusPlus package contains several libraries, unit-tests and example utilities:
 
 1. **Packet++ library** - a library for parsing, creating and editing packets
-2. **Pcap++ library** - a library for intercepting and sending packets. This library is actually a C++ wrapper for packet capturing engines such as libPcap, WinPcap and PF_RING
-3. **Common++ library** - a library with some common code utilities used both by Packet++ and Pcap++
+2. **Pcap++ library** - a library for intercepting and sending packets, providing network and NIC info, stats, etc. This library is actually a C++ wrapper for packet capturing engines such as libpcap, WinPcap, DPDK and PF_RING
+3. **Common++ library** - a library with some common code utilities used by both Packet++ and Pcap++
 4. **Packet++Test unit-test** - a unit-test application for testing the Packet++ library
 5. **Pcap++Test unit-test** - a unit-test application for testing the Pcap++ library
 6. **Example applications:**
@@ -279,7 +277,7 @@ In order to build PcapPlusPlus on Windows with MinGW32 or MinGW-w64 you need the
     1. The fastest way I found for installing mingw32 was through this link: http://www.mingw.org/wiki/Getting_Started
     2. Download "mingw-get-setup.exe", run it and follow the instructions
     3. By default the pthreads library is not installed so you need to ask to install it. It can be done during the installation process or afterwards with "mingw-get.exe" (MinGW installation manager)
-    4. In the MinGW installation manager search for all packages named "mingw32-pthreads-w32" and select them
+    4. In the MinGW installation manager search for all packages containing "pthreads" and mark them for installation
     5. Choose Installation->Update Catalogue
     6. If you prefer to install pthreads manually please follow these steps:
       1. Download "http://ftp.ntua.gr/mirror/mingw/MinGW/Base/pthreads-w32/pthreads-w32-2.9.1/pthreads-w32-2.9.1-1-mingw32-dev.tar.lzma"
@@ -289,7 +287,7 @@ In order to build PcapPlusPlus on Windows with MinGW32 or MinGW-w64 you need the
   2. Download and installation instructions for MinGW-w64:
     1. Download and run mingw-w64 installer from here: https://sourceforge.net/projects/mingw-w64/
     2. Follow the instruction in the installation wizard. Make sure you choose POSIX threads and not win32 threads
-    3. Make sure you also install MSYS or MSYS2. MSYS2 installer can be downloaded from here: http://msys2.github.io/
+    3. Also make sure you install MSYS or MSYS2. MSYS2 installer can be downloaded from here: http://msys2.github.io/
 
 2. Winpcap developer's pack - containing the wpcap library PcapPlusPlus is linking with plus relevant h files. You can download it from https://www.winpcap.org/devel.htm
 
@@ -321,11 +319,11 @@ In order to build PacpPlusPlus on Mac OS X you need to make sure [Xcode](https:/
 
 *On Windows (Visual Studio 2015):*
 
-1. run the **configure-windows-visual-studio.bat** batch file from PcapPlusPlus main directory. The script will ask you for the locations of WinPcap developer's packet and pthreads-win32. The script will modify mk\vs2015\PcapPlusPlusPropertySheet.props file with these locations
+1. run the **configure-windows-visual-studio.bat** batch file from PcapPlusPlus main directory. The script will ask you for the locations of WinPcap developer's pack and pthreads-win32. The script will modify mk\vs2015\PcapPlusPlusPropertySheet.props file with these locations
 2. PcapPlusPlus contains 3 Visual Studio solutions:
    1. **mk\vs2015\PcapPlusPlus.sln** - contains PcapPlusPlus libraries (Common++, Packet++ and Pcap++) and unit-tests projects
    2. **mk\vs2015\PcapPlusPlus-Examples.sln** - contains all PcapPlusPlus examples. Reuquires PcapPlusPlus.sln to be built
-   3. **Examples\ArpSpoofing-VS2015-Project\ArpSpoofing.sln** - a fully configured project for working with PcapPlusPlus. You can use this project to write your own code using PcapPlusPlus. It already has all the include paths, libaray paths etc. configured, just delete the existing code, write your own code and build. This solution is also relocatable so you can move it to wherever you want and it will still build successfully. Reuquires PcapPlusPlus.sln to be built
+   3. **Examples\ArpSpoofing-VS2015-Project\ArpSpoofing.sln** - a fully configured project for working with PcapPlusPlus. You can use this project to write your own code using PcapPlusPlus. It already has all the include paths, libaray paths configured. You can build and run this code or delete it and write your own code. This solution is also relocatable so you can move it to wherever you want and it will still build successfully. Reuquires PcapPlusPlus.sln to be built
 3. All solutions support both 32-bit (**x86**) and 64-bit (**x64**) configurations as well as **Debug** and **Release** modes. So actually 4 modes are supported: x86|Debug, x86|Release, x64|Debug, x64|Release
 
 *On Windows (MinGW32 + MinGW-w64):*
@@ -354,19 +352,21 @@ In order to build PacpPlusPlus on Mac OS X you need to make sure [Xcode](https:/
 To ensure configuration and compilation went smoothly, you can run the unit-test applications for both Packet++ and Pcap++:
 
 ```shell
-seladb@seladb:~/home/PcapPlusPlus/Packet++Test$ Bin/Packet++Test.exe
+seladb@seladb:~/home/PcapPlusPlus/Tests/Packet++Test$ Bin/Packet++Test.exe
 EthPacketCreation             : PASSED
 EthAndArpPacketParsing        : PASSED
 ArpPacketCreation             : PASSED
 VlanParseAndCreation          : PASSED
 Ipv4PacketCreation            : PASSED
 Ipv4PacketParsing             : PASSED
+Ipv4FragmentationTest         : PASSED
 Ipv4UdpChecksum               : PASSED
 Ipv6UdpPacketParseAndCreate   : PASSED
 TcpPacketNoOptionsParsing     : PASSED
 TcpPacketWithOptionsParsing   : PASSED
 TcpPacketWithOptionsParsing2  : PASSED
 TcpPacketCreation             : PASSED
+TcpPacketCreation2            : PASSED
 InsertDataToPacket            : PASSED
 InsertVlanToPacket            : PASSED
 RemoveLayerTest               : PASSED
@@ -381,41 +381,36 @@ PPPoESessionLayerCreationTest : PASSED
 PPPoEDiscoveryLayerParsingTest: PASSED
 PPPoEDiscoveryLayerCreateTest : PASSED
 DnsLayerParsingTest           : PASSED
-CopyLayerAndPacketTest        : PASSED
+...
+...
 ALL TESTS PASSED!!
 
-seladb@seladb:~/PcapPlusPlus/Pcap++Test$ sudo Bin/Pcap++Test.exe -i 10.0.0.1
+seladb@seladb:~/PcapPlusPlus/Tests/Pcap++Test$ sudo Bin/Pcap++Test.exe -i 10.0.0.1
 Using ip: 10.0.0.1
 Debug mode: off
 Starting tests...
 TestIPAddress                 : PASSED
 TestMacAddress                : PASSED
 TestPcapFileReadWrite         : PASSED
+TestPcapSllFileReadWrite      : PASSED
+TestPcapFileAppend            : PASSED
+TestPcapNgFileReadWrite       : PASSED
+TestPcapNgFileReadWriteAdv    : PASSED
 TestPcapLiveDeviceList        : PASSED
 TestPcapLiveDeviceListSearch  : PASSED
 TestPcapLiveDevice            : PASSED
+TestPcapLiveDeviceNoNetworking: PASSED
 TestPcapLiveDeviceStatsMode   : PASSED
+TestPcapLiveDeviceBlockingMode: PASSED
 TestWinPcapLiveDevice         : PASSED
 TestPcapFilters               : PASSED
 TestSendPacket                : PASSED
 TestSendPackets               : PASSED
-TestRemoteCaptue              : PASSED
+TestRemoteCapture             : PASSED
 TestHttpRequestParsing        : PASSED
 TestHttpResponseParsing       : PASSED
-TestPrintPacketAndLayers      : PASSED
-TestPfRingDevice              : PASSED
-TestPfRingDeviceSingleChannel : PASSED
-TestPfRingMultiThreadAllCores : PASSED
-TestPfRingMultiThreadSomeCores: PASSED
-TestPfRingSendPacket          : PASSED
-TestPfRingSendPackets         : PASSED
-TestPfRingFilters             : PASSED
-TestDnsParsing                : PASSED
-TestDpdkDevice                : PASSED
-TestDpdkMultiThread           : PASSED
-TestDpdkDeviceSendPackets     : PASSED
-TestDpdkMbufRawPacket         : PASSED
-TestDpdkDeviceWorkerThreads   : PASSED
+...
+...
 ALL TESTS PASSED!!
 ```
 
@@ -531,3 +526,5 @@ Creating applications that uses PcapPlusPlus is rather easy. To do this, please 
   	rm ArpSpoofing
   ```
 6. Rather easy, isn't it?
+7. Note: You can also experience some code with the following simple examples: ArpSpoofing-SimpleMakefile-Windows (on Windows) or ArpSpoofing-SimpleMakefile-Linux (on Linux or Mac OS X)
+8. Note 2: This guide isn't relevant for writing code over Visual Studio 2015. If you want to write code over Visual Studio, just use the **ArpSpoofing-VS2015-Project** solution, delete the code and write you own
