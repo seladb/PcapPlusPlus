@@ -13,7 +13,7 @@ OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
 DEBUG_NEW_HOME := ../../3rdParty/debug-new
 DEBUG_NEW_SOURCES := $(wildcard $(DEBUG_NEW_HOME)/*.cpp)
-DEBUG_NEW_OBJS_FILENAMES := $(patsubst $(DEBUG_NEW_HOME)/%.cpp,$(DEBUG_NEW_HOME)/%.o,$(DEBUG_NEW_SOURCES))
+DEBUG_NEW_OBJS_FILENAMES := $(patsubst %.cpp,$(DEBUG_NEW_HOME)/%.o,$(DEBUG_NEW_SOURCES))
 PCAPPP_INCLUDES += -I$(DEBUG_NEW_HOME)
 
 ifdef WIN32
@@ -33,6 +33,13 @@ DEPS := -DMAC_OS_X
 endif
 
 COMMON_DEBUG_LIB_DIR := -L../../Common++/Lib/Debug
+
+$(DEBUG_NEW_HOME)/%.o: %.cpp
+	@echo 'Building debug-new file: $<'
+	@echo 'Invoking: GCC C++ Compiler'
+	$(G++) $(PCAPPP_INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	@echo 'Finished building debug-new: $<'
+	@echo ' '
 
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
