@@ -13,6 +13,11 @@ OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
 COMMON_DEBUG_LIB_DIR := -L../../Common++/Lib/Debug
 
+DEBUG_NEW_HOME := ../../3rdParty/debug-new
+DEBUG_NEW_SOURCES := $(wildcard $(DEBUG_NEW_HOME)/*.cpp)
+DEBUG_NEW_OBJS_FILENAMES := $(patsubst $(DEBUG_NEW_HOME)/%.cpp,$(DEBUG_NEW_HOME)/%.o,$(DEBUG_NEW_SOURCES))
+PCAPPP_INCLUDES += -I$(DEBUG_NEW_HOME)
+
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
@@ -34,17 +39,18 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
 # Tool invocations
-Packet++Test: create-directories $(OBJS_FILENAMES)
+Packet++Test: create-directories $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
-	$(G++) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Packet++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS) 
+	$(G++) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Packet++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES) $(PCAPPP_LIBS) 
 	$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
+	$(RM) -rf $(DEBUG_NEW_HOME)/*.o
 	$(RM) -rf ./Obj/*
 	$(RM) -rf ./Bin/*
 	@echo 'Clean finished'

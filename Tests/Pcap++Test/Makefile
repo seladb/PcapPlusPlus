@@ -11,6 +11,11 @@ include ../../mk/PcapPlusPlus.mk
 SOURCES := $(wildcard *.cpp)
 OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
+DEBUG_NEW_HOME := ../../3rdParty/debug-new
+DEBUG_NEW_SOURCES := $(wildcard $(DEBUG_NEW_HOME)/*.cpp)
+DEBUG_NEW_OBJS_FILENAMES := $(patsubst $(DEBUG_NEW_HOME)/%.cpp,$(DEBUG_NEW_HOME)/%.o,$(DEBUG_NEW_SOURCES))
+PCAPPP_INCLUDES += -I$(DEBUG_NEW_HOME)
+
 ifdef WIN32
 DEPS := -DHAVE_STRUCT_TIMESPEC
 endif
@@ -50,17 +55,18 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 	
 # Tool invocations
-Pcap++Test: create-directories $(OBJS_FILENAMES)
+Pcap++Test: create-directories $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
-	$(G++) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
+	$(G++) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES) $(PCAPPP_LIBS)
 	$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
+	$(RM) -rf $(DEBUG_NEW_HOME)/*.o
 	$(RM) -rf ./Obj/*
 	$(RM) -rf ./Bin/*
 	@echo 'Clean finished'

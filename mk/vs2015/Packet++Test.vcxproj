@@ -75,14 +75,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
@@ -91,14 +91,14 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -165,6 +165,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Tests\Packet++Test\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\3rdParty\debug-new\debug_new.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Packet++.vcxproj">
