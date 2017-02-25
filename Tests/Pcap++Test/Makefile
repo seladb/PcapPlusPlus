@@ -34,13 +34,6 @@ endif
 
 COMMON_DEBUG_LIB_DIR := -L../../Common++/Lib/Debug
 
-$(DEBUG_NEW_HOME)/%.o: %.cpp
-	@echo 'Building debug-new file: $<'
-	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(PCAPPP_INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
-	@echo 'Finished building debug-new: $<'
-	@echo ' '
-
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
@@ -62,7 +55,8 @@ dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 	
 # Tool invocations
-Pcap++Test: create-directories $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES)
+Pcap++Test: create-directories $(OBJS_FILENAMES)
+	cd $(DEBUG_NEW_HOME) && $(MAKE) debug_new_sources
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
 	@echo 'Invoking C++ Linker'
@@ -73,7 +67,7 @@ Pcap++Test: create-directories $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES)
 
 # Other Targets
 clean:
-	$(RM) -rf $(DEBUG_NEW_HOME)/*.o
+	cd $(DEBUG_NEW_HOME) && $(MAKE) clean
 	$(RM) -rf ./Obj/*
 	$(RM) -rf ./Bin/*
 	@echo 'Clean finished'

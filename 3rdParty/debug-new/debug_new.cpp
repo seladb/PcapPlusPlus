@@ -14,7 +14,6 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
-#include <malloc.h>
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4073)
@@ -28,6 +27,10 @@ typedef int pid_t;
 #define _DEBUG_NEW_CALLER_ADDRESS _ReturnAddress()
 #else
 #define _DEBUG_NEW_CALLER_ADDRESS __builtin_return_address(0)
+#endif
+
+#if defined(WIN32) && !defined(_MSC_VER)
+#define alloca __builtin_alloca
 #endif
 
 #ifndef DEBUG_NEW_HASHTABLESIZE
