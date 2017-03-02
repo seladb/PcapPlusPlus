@@ -81,6 +81,8 @@ std::string printFileSummary(IFileReaderDevice* reader)
 			stream << "   Link layer type: Linux cooked capture" << std::endl;
 		else if (linkLayer == LINKTYPE_NULL)
 			stream << "   Link layer type: Null/Loopback" << std::endl;
+		else if (linkLayer == LINKTYPE_RAW)
+			stream << "   Link layer type: Raw IP" << std::endl;
 		else
 			stream << "   Link layer type: " << (int)linkLayer << std::endl;
 	}

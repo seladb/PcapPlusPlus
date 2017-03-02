@@ -35,7 +35,7 @@
 #include <DpdkDeviceList.h>
 #include <DpdkDevice.h>
 #include <NetworkUtils.h>
-#ifndef WIN32 //for using ntohl, ntohs, etc.
+#ifdef LINUX //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
 

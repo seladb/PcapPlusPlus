@@ -8,6 +8,8 @@
 #include <sys/time.h>
 #endif
 #include <stddef.h>
+#include <pcap.h>
+#include <pcap/bpf.h>
 
 /// @file
 
@@ -25,29 +27,29 @@ namespace pcpp
 	enum LinkLayerType
 	{
 		/** BSD loopback encapsulation */
-		LINKTYPE_NULL = 0,
+		LINKTYPE_NULL = DLT_NULL,
 		/** IEEE 802.3 Ethernet */
-		LINKTYPE_ETHERNET = 1,
+		LINKTYPE_ETHERNET = DLT_EN10MB,
 		/** AX.25 packet */
-		LINKTYPE_AX25 = 3,
+		LINKTYPE_AX25 = DLT_AX25,
 		/** IEEE 802.5 Token Ring */
-		LINKTYPE_IEEE802_5 = 6,
+		LINKTYPE_IEEE802_5 = DLT_IEEE802,
 		/** ARCNET Data Packets */
-		LINKTYPE_ARCNET_BSD = 7,
+		LINKTYPE_ARCNET_BSD = DLT_ARCNET,
 		/** SLIP, encapsulated with a LINKTYPE_SLIP header */
-		LINKTYPE_SLIP = 8,
+		LINKTYPE_SLIP = DLT_SLIP,
 		/** PPP, as per RFC 1661 and RFC 1662 */
-		LINKTYPE_PPP = 9,
+		LINKTYPE_PPP = DLT_PPP,
 		/** FDDI, as specified by ANSI INCITS 239-1994 */
-		LINKTYPE_FDDI = 10,
+		LINKTYPE_FDDI = DLT_FDDI,
 		/** PPP in HDLC-like framing, as per RFC 1662, or Cisco PPP with HDLC framing, as per section 4.3.1 of RFC 1547 */
-		LINKTYPE_PPP_HDLC = 50,
+		LINKTYPE_PPP_HDLC = DLT_PPP_SERIAL,
 		/** PPPoE */
-		LINKTYPE_PPP_ETHER = 51,
+		LINKTYPE_PPP_ETHER = DLT_PPP_ETHER,
 		/** 	RFC 1483 LLC/SNAP-encapsulated ATM */
-		LINKTYPE_ATM_RFC1483 = 100,
+		LINKTYPE_ATM_RFC1483 = DLT_ATM_RFC1483,
 		/** Raw IP */
-		LINKTYPE_RAW = 101,
+		LINKTYPE_RAW = DLT_RAW,
 		/** Cisco PPP with HDLC framing */
 		LINKTYPE_C_HDLC = 104,
 		/** IEEE 802.11 wireless LAN */
