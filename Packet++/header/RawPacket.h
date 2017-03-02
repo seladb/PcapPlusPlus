@@ -8,9 +8,7 @@
 #include <sys/time.h>
 #endif
 #include <stddef.h>
-#include <pcap.h>
-#include <pcap/bpf.h>
-
+#include <DLTDef.h>
 /// @file
 
 /**
