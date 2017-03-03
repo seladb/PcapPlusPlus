@@ -1582,7 +1582,7 @@ PACKETPP_TEST(PPPoEDiscoveryLayerCreateTest)
 
 	EthLayer* ethLayerPtr = pppoedPacket.getLayerOfType<EthLayer>();
 	PACKETPP_ASSERT(ethLayerPtr != NULL, "Couldn't retrieve Eth layer");
-	ethLayerPtr->setSoureMac(MacAddress("ca:01:0e:88:00:06"));
+	ethLayerPtr->setSourceMac(MacAddress("ca:01:0e:88:00:06"));
 	ethLayerPtr->setDestMac(MacAddress("cc:05:0e:88:00:00"));
 
 	pppoedLayer.getPPPoEHeader()->code = PPPoELayer::PPPOE_CODE_PADS;
