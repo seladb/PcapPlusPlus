@@ -391,7 +391,7 @@ namespace pcpp
 
 	/**
 	 * @struct DhcpOptionData
-	 * Representing a DHCP option in a TLV (type-length-value) type
+	 * Representing a DHCP option in a TLV (type-length-value) structure
 	 */
 	struct DhcpOptionData
 	{

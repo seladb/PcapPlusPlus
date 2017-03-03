@@ -363,6 +363,9 @@ PACKETPP_TEST(Ipv4PacketParsing)
 	PACKETPP_ASSERT(ipv4Layer->getIPv4Header()->ipVersion == 4, "IP version isn't 4. Version is: %d", ipv4Layer->getIPv4Header()->ipVersion);
 	PACKETPP_ASSERT(ipv4Layer->getIPv4Header()->ipSrc == ip4addr1.toInt(), "incorrect source address");
 	PACKETPP_ASSERT(ipv4Layer->getIPv4Header()->ipDst == ip4addr2.toInt(), "incorrect dest address");
+	PACKETPP_ASSERT(ipv4Layer->getFirstOptionData() == NULL, "Managed to get the first IPv4 option although packet doesn't contain any options");
+	PACKETPP_ASSERT(ipv4Layer->getOptionData(IPV4OPT_CommercialSecurity) == NULL, "Managed to get an IPv4 option by type although packet doesn't contain any options");
+	PACKETPP_ASSERT(ipv4Layer->getOptionsCount() == 0, "IPv4 option count isn't 0");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -418,6 +421,193 @@ PACKETPP_TEST(Ipv4FragmentationTest)
 	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 2960, "Frag3 fragment offset != 2960");
 	PACKETPP_ASSERT(ipLayer->getFragmentFlags() == 0, "Frag3 mistakenly contains flags, 0x%X", ipLayer->getFragmentFlags());
 	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == pcpp::Unknown, "Frag3 next protocol is not generic payload");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(Ipv4OptionsParsingTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IPv4Option1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file IPv4Option1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IPv4Option2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IPv4Option2.dat");
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IPv4Option3.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file IPv4Option3.dat");
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IPv4Option4.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file IPv4Option4.dat");
+
+	int buffer5Length = 0;
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/IPv4Option5.dat", buffer5Length);
+	PACKETPP_ASSERT(!(buffer5 == NULL), "cannot read file IPv4Option5.dat");
+
+	int buffer6Length = 0;
+	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IPv4Option6.dat", buffer6Length);
+	PACKETPP_ASSERT(!(buffer6 == NULL), "cannot read file IPv4Option6.dat");
+
+	int buffer7Length = 0;
+	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/IPv4Option7.dat", buffer7Length);
+	PACKETPP_ASSERT(!(buffer7 == NULL), "cannot read file IPv4Option7.dat");
+
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+	RawPacket rawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
+	RawPacket rawPacket6((const uint8_t*)buffer6, buffer6Length, time, true);
+	RawPacket rawPacket7((const uint8_t*)buffer7, buffer7Length, time, true);
+
+	Packet ipOpt1(&rawPacket1);
+	Packet ipOpt2(&rawPacket2);
+	Packet ipOpt3(&rawPacket3);
+	Packet ipOpt4(&rawPacket4);
+	Packet ipOpt5(&rawPacket5);
+	Packet ipOpt6(&rawPacket6);
+	Packet ipOpt7(&rawPacket7);
+
+	IPv4Layer* ipLayer = ipOpt1.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find ipOpt1 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->getHeaderLen() == 44, "ipOpt1 header length isn't 44 Bytes");
+	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 3, "ipOpt1 option count isn't 3");
+	IPv4OptionData* opt = ipLayer->getFirstOptionData();
+	PACKETPP_ASSERT(opt != NULL, "ipOpt1 first option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_CommercialSecurity, "ipOpt1 first option isn't commercial-security");
+	PACKETPP_ASSERT(opt->getDataSize() == 20, "ipOpt1 first option data size isn't 20");
+	PACKETPP_ASSERT(opt->getTotalSize() == 22, "ipOpt1 first option total size isn't 22");
+	PACKETPP_ASSERT(opt->getValueAs<uint32_t>() == htonl(2), "ipOpt1 first int value isn't 2");
+	PACKETPP_ASSERT(opt->getValueAs<uint8_t>(4) == 2, "ipOpt1 value in offset 4 isn't 2");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt != NULL, "ipOpt1 second option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_EndOfOtionsList, "ipOpt1 second option isn't end-of-option-list");
+	PACKETPP_ASSERT(opt->getType() == 0, "ipOpt1 second option isn't end-of-option-list");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt != NULL, "ipOpt1 third option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_EndOfOtionsList, "ipOpt1 second option isn't end-of-option-list");
+	PACKETPP_ASSERT(opt->getType() == 0, "ipOpt1 second option isn't end-of-option-list");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt == NULL, "ipOpt1 fourth option isn't NULL");
+	opt = ipLayer->getOptionData(IPV4OPT_EndOfOtionsList);
+	PACKETPP_ASSERT(opt != NULL, "ipOpt1 couldn't retrieve option by type");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_EndOfOtionsList, "ipOpt1 type if retrieved option isn't end-of-option-list");
+	PACKETPP_ASSERT(ipLayer->getOptionData(IPV4OPT_Timestamp) == NULL, "ipOpt1 Managed to reprieve timestamp option although doens't exist in the packet");
+
+	ipLayer = ipOpt2.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find ipOpt2 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->getHeaderLen() == 60, "ipOpt2 header length isn't 60 Bytes");
+	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 1, "ipOpt2 option count isn't 1");
+	opt = ipLayer->getFirstOptionData();
+	PACKETPP_ASSERT(opt != NULL, "ipOpt2 first option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_Timestamp, "ipOpt2 first option isn't timestamp");
+	PACKETPP_ASSERT(opt->getDataSize() == 38, "ipOpt2 first option data size isn't 38");
+	PACKETPP_ASSERT(opt->getTotalSize() == 40, "ipOpt2 first option total size isn't 40");
+	IPv4TimestampOptionValue tsValue = opt->getTimestampOptionValue();
+	PACKETPP_ASSERT(tsValue.type == IPv4TimestampOptionValue::TimestampOnly, "ipOpt2 ts type isn't TimestampOnly");
+	PACKETPP_ASSERT(tsValue.timestamps.size() == 1, "ipOpt2 ts value contains more than 1 ts");
+	PACKETPP_ASSERT(tsValue.ipAddresses.size() == 0, "ipOpt2 ts value contains more than 0 IPs");
+	PACKETPP_ASSERT(tsValue.timestamps.at(0) == htonl(82524601), "ipOpt2 ts value first ts isn't 82524601");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt == NULL, "ipOpt2 second option isn't NULL");
+
+	ipLayer = ipOpt3.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find ipOpt3 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->getHeaderLen() == 24, "ipOpt3 header length isn't 24 Bytes");
+	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 1, "ipOpt3 option count isn't 1");
+	opt = ipLayer->getFirstOptionData();
+	PACKETPP_ASSERT(opt != NULL, "ipOpt3 first option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_RouterAlert, "ipOpt3 first option isn't router-alert");
+	PACKETPP_ASSERT(opt->getDataSize() == 2, "ipOpt3 first option data size isn't 2");
+	PACKETPP_ASSERT(opt->getTotalSize() == 4, "ipOpt3 first option total size isn't 4");
+	PACKETPP_ASSERT(opt->getValueAs<uint16_t>() == 0, "ipOpt3 value isn't 0");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt == NULL, "ipOpt3 second option isn't NULL");
+
+	ipLayer = ipOpt4.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find ipOpt4 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->getHeaderLen() == 60, "ipOpt4 header length isn't 60 Bytes");
+	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 2, "ipOpt4 option count isn't 2");
+	opt = ipLayer->getFirstOptionData();
+	PACKETPP_ASSERT(opt != NULL, "ipOpt4 first option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_RecordRoute, "ipOpt4 first option isn't record-route");
+	PACKETPP_ASSERT(opt->getDataSize() == 37, "ipOpt4 first option data size isn't 37");
+	PACKETPP_ASSERT(opt->getTotalSize() == 39, "ipOpt4 first option total size isn't 39");
+	std::vector<IPv4Address> ipAddrs = opt->getValueAsIpList();
+	PACKETPP_ASSERT(ipAddrs.size() == 3, "ipOpt4 number of IP addresses isn't 3");
+	PACKETPP_ASSERT(ipAddrs.at(0) == IPv4Address(std::string("1.2.3.4")), "ipOpt4 first IP addr isn't 1.2.3.4");
+	PACKETPP_ASSERT(ipAddrs.at(1) == IPv4Address(std::string("10.0.0.138")), "ipOpt4 second IP addr isn't 10.0.0.138");
+	PACKETPP_ASSERT(ipAddrs.at(2) == IPv4Address(std::string("10.0.0.138")), "ipOpt4 third IP addr isn't 10.0.0.138");
+	IPv4OptionData* opt2 = ipLayer->getOptionData(IPV4OPT_RecordRoute);
+	PACKETPP_ASSERT(opt2 != NULL, "ipOpt4 couldn't retrieve option by type");
+	PACKETPP_ASSERT(opt2 == opt, "ipOpt4 option retrieved by type and by getFirstOptionData aren't the same pointer");
+
+	ipLayer = ipOpt5.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find ipOpt5 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->getHeaderLen() == 56, "ipOpt5 header length isn't 56 Bytes");
+	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 1, "ipOpt5 option count isn't 1");
+	opt = ipLayer->getFirstOptionData();
+	PACKETPP_ASSERT(opt != NULL, "ipOpt5 first option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_Timestamp, "ipOpt5 first option isn't timestamp");
+	PACKETPP_ASSERT(opt->getDataSize() == 34, "ipOpt5 first option data size isn't 34");
+	PACKETPP_ASSERT(opt->getTotalSize() == 36, "ipOpt5 first option total size isn't 36");
+	tsValue = opt->getTimestampOptionValue();
+	PACKETPP_ASSERT(tsValue.type == IPv4TimestampOptionValue::TimestampAndIP, "ipOpt5 ts type isn't TimestampAndIP");
+	PACKETPP_ASSERT(tsValue.timestamps.size() == 3, "ipOpt5 ts value doesn't contain 3 ts");
+	PACKETPP_ASSERT(tsValue.ipAddresses.size() == 3, "ipOpt5 ts value deosn't contain 3 IPs");
+	PACKETPP_ASSERT(tsValue.timestamps.at(0) == htonl(70037668), "ipOpt5 ts value first ts isn't 70037668");
+	PACKETPP_ASSERT(tsValue.timestamps.at(2) == htonl(77233718), "ipOpt5 ts value third ts isn't 77233718");
+	PACKETPP_ASSERT(tsValue.ipAddresses.at(0) == IPv4Address(std::string("10.0.0.6")), "ipOpt5 ts value first IP isn't 10.0.0.6");
+	PACKETPP_ASSERT(tsValue.ipAddresses.at(1) == IPv4Address(std::string("10.0.0.138")), "ipOpt5 ts value second IP isn't 10.0.0.138");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt == NULL, "ipOpt5 second option isn't NULL");
+
+	ipLayer = ipOpt6.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find ipOpt6 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->getHeaderLen() == 28, "ipOpt6 header length isn't 28 Bytes");
+	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 2, "ipOpt6 option count isn't 2");
+	opt = ipLayer->getFirstOptionData();
+	PACKETPP_ASSERT(opt != NULL, "ipOpt6 first option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_NOP, "ipOpt6 first option isn't nop");
+	PACKETPP_ASSERT(opt->getDataSize() == 0, "ipOpt6 first option data size isn't 0");
+	PACKETPP_ASSERT(opt->getTotalSize() == 1, "ipOpt6 first option total size isn't 1");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt != NULL, "ipOpt6 second option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_StrictSourceRoute, "ipOpt6 second option isn't strict-source-route");
+	PACKETPP_ASSERT(opt->getDataSize() == 5, "ipOpt6 second option data size isn't 5");
+	PACKETPP_ASSERT(opt->getTotalSize() == 7, "ipOpt6 second option total size isn't 7");
+	ipAddrs = opt->getValueAsIpList();
+	PACKETPP_ASSERT(ipAddrs.size() == 0, "ipOpt6 number of IP addresses isn't 0");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt == NULL, "ipOpt6 third option isn't NULL");
+
+	ipLayer = ipOpt7.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find ipOpt7 IPv4 layer");
+	PACKETPP_ASSERT(ipLayer->getHeaderLen() == 28, "ipOpt7 header length isn't 28 Bytes");
+	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 2, "ipOpt7 option count isn't 2");
+	opt = ipLayer->getFirstOptionData();
+	PACKETPP_ASSERT(opt != NULL, "ipOpt7 first option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_NOP, "ipOpt7 first option isn't nop");
+	PACKETPP_ASSERT(opt->getDataSize() == 0, "ipOpt7 first option data size isn't 0");
+	PACKETPP_ASSERT(opt->getTotalSize() == 1, "ipOpt7 first option total size isn't 1");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt != NULL, "ipOpt7 second option is NULL");
+	PACKETPP_ASSERT(opt->getType() == IPV4OPT_LooseSourceRoute, "ipOpt7 second option isn't loose-source-route");
+	PACKETPP_ASSERT(opt->getDataSize() == 5, "ipOpt7 second option data size isn't 5");
+	PACKETPP_ASSERT(opt->getTotalSize() == 7, "ipOpt7 second option total size isn't 7");
+	ipAddrs = opt->getValueAsIpList();
+	PACKETPP_ASSERT(ipAddrs.size() == 0, "ipOpt7 number of IP addresses isn't 0");
+	opt2 = ipLayer->getOptionData(IPV4OPT_LooseSourceRoute);
+	PACKETPP_ASSERT(opt2 != NULL, "ipOpt7 couldn't retrieve option by type");
+	PACKETPP_ASSERT(opt2 == opt, "ipOpt7 option retrieved by type and by getNextOptionData aren't the same pointer");
+	opt = ipLayer->getNextOptionData(opt);
+	PACKETPP_ASSERT(opt == NULL, "ipOpt7 third option isn't NULL");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -4739,6 +4929,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(Ipv4PacketCreation);
 	PACKETPP_RUN_TEST(Ipv4PacketParsing);
 	PACKETPP_RUN_TEST(Ipv4FragmentationTest);
+	PACKETPP_RUN_TEST(Ipv4OptionsParsingTest);
 	PACKETPP_RUN_TEST(Ipv4UdpChecksum);
 	PACKETPP_RUN_TEST(Ipv6UdpPacketParseAndCreate);
 	PACKETPP_RUN_TEST(TcpPacketNoOptionsParsing);

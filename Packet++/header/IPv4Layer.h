@@ -3,6 +3,8 @@
 
 #include "Layer.h"
 #include "IpAddress.h"
+#include <string.h>
+#include <vector>
 
 /// @file
 
@@ -101,8 +103,249 @@ namespace pcpp
 		PACKETPP_IPPROTO_MAX
 	};
 
+
+	/**
+	 * An enum for supported IPv4 option types
+	 */
+	enum IPv4OptionTypes
+	{
+		/** End of Options List */
+		IPV4OPT_EndOfOtionsList = 0,
+		/** No Operation */
+		IPV4OPT_NOP = 1,
+		/** Record Route */
+		IPV4OPT_RecordRoute = 7,
+		/** MTU Probe */
+		IPV4OPT_MTUProbe = 11,
+		/** MTU Reply */
+		IPV4OPT_MTUReply = 12,
+		/** Quick-Start */
+		IPV4OPT_QuickStart = 25,
+		/** Timestamp */
+		IPV4OPT_Timestamp = 68,
+		/** Traceroute */
+		IPV4OPT_Traceroute = 82,
+		/** Security */
+		IPV4OPT_Security = 130,
+		/** Loose Source Route */
+		IPV4OPT_LooseSourceRoute = 131,
+		/** Extended Security */
+		IPV4OPT_ExtendedSecurity = 133,
+		/** Commercial Security */
+		IPV4OPT_CommercialSecurity = 134,
+		/** Stream ID */
+		IPV4OPT_StreamID = 136,
+		/** Strict Source Route */
+		IPV4OPT_StrictSourceRoute = 137,
+		/** Extended Internet Protocol */
+		IPV4OPT_ExtendedInternetProtocol = 145,
+		/** Address Extension */
+		IPV4OPT_AddressExtension = 147,
+		/** Router Alert */
+		IPV4OPT_RouterAlert = 148,
+		/** Selective Directed Broadcast */
+		IPV4OPT_SelectiveDirectedBroadcast = 149,
+		/** Dynamic Packet State */
+		IPV4OPT_DynamicPacketState = 151,
+		/** Upstream Multicast Pkt. */
+		IPV4OPT_UpstreamMulticastPkt = 152,
+		/** Unknown IPv4 option */
+		IPV4OPT_Unknown
+	};
+
 #define PCPP_IP_DONT_FRAGMENT  0x40
 #define PCPP_IP_MORE_FRAGMENTS 0x20
+
+	/**
+	 * @struct IPv4TimestampOptionValue
+	 * A struct representing a parsed value of the IPv4 timestamp option. This struct is used returned in IPv4OptionData#getTimestampOptionValue() method
+	 */
+	struct IPv4TimestampOptionValue
+	{
+	public:
+
+		/**
+		 * An enum for IPv4 timestamp option types
+		 */
+		enum TimestampType
+		{
+			/** Value containing only timestamps */
+			TimestampOnly = 0,
+			/** Value containing both timestamps and IPv4 addresses */
+			TimestampAndIP = 1,
+			/** The IPv4 addresses are prespecified */
+			TimestampsForPrespecifiedIPs = 2,
+			/** Invalid or unknown value type */
+			Unknown = 3
+		};
+
+		/** The timestamp value type */
+		TimestampType type;
+
+		/** A list of timestamps parsed from the IPv4 timestamp option value */
+		std::vector<uint32_t> timestamps;
+
+		/** A list of IPv4 addresses parsed from the IPv4 timestamp option value */
+		std::vector<IPv4Address> ipAddresses;
+
+		/**
+		 * Clear the structure. Clean the timestamps and IP addresses vectors and set the type as IPv4TimestampOptionValue#Unknown
+		 */
+		void clear()
+		{
+			type = IPv4TimestampOptionValue::Unknown;
+			timestamps.clear();
+			ipAddresses.clear();
+		}
+	};
+
+
+	/**
+	 * @struct IPv4OptionData
+	 * Representing a IPv4 option in a TLV (type-length-value) structure
+	 */
+	struct IPv4OptionData
+	{
+	public:
+		/** IPv4 option code, should be of type pcpp::IPv4OptionTypes */
+		uint8_t opCode;
+		/** IPv4 option length */
+		uint8_t len;
+		/** IPv4 option value */
+		uint8_t value[];
+
+		/**
+		 * A templated method to retrieve the IPv4 option data as a certain type T. For example, if IPv4 option data is 4B
+		 * (integer) then this method should be used as getValueAs<int>() and it will return the IPv4 option data as an integer.<BR>
+		 * Notice this return value is a copy of the data, not a pointer to the actual data
+		 * @param[in] valueOffset An optional parameter that specifies where to start copy the IPv4 option data. For example:
+		 * if option data is 20 bytes and you need only the 4 last bytes as integer then use this method like this:
+		 * getValueAs<int>(16). The default is 0 - start copying from the beginning of option data
+		 * @return The IPv4 option data as type T
+		 */
+		template<typename T>
+		T getValueAs(int valueOffset = 0)
+		{
+			if (getTotalSize() <= 2*sizeof(uint8_t) + valueOffset)
+				return 0;
+			if (getTotalSize() - 2*sizeof(uint8_t) - valueOffset < sizeof(T))
+				return 0;
+
+			T result;
+			memcpy(&result, value+valueOffset, sizeof(T));
+			return result;
+		}
+
+		/**
+		 * A method for parsing the IPv4 option value as an IP list. This method is relevant only for certain types of IPv4 options which their value is a list of IPv4 addresses
+		 * such as ::IPV4OPT_RecordRoute, ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_LooseSourceRoute, etc. This method returns a vector of the IPv4 addresses. If some error occurs
+		 * during the parsing or the value is invalid an empty vector is returned
+		 * @return A vector of IPv4 addresses parsed from the IPv4 option value
+		 */
+		std::vector<IPv4Address> getValueAsIpList()
+		{
+			std::vector<IPv4Address> res;
+
+			size_t dataSize =  getDataSize();
+			if (dataSize < 2)
+				return res;
+
+			uint8_t valueOffset = (uint8_t)(1);
+
+			while (valueOffset < dataSize)
+			{
+				uint32_t curValue;
+				memcpy(&curValue, value+valueOffset, sizeof(uint32_t));
+				if (curValue == 0)
+					break;
+
+				res.push_back(IPv4Address(curValue));
+
+				valueOffset += (uint8_t)(4);
+			}
+
+			return res;
+		}
+
+		/**
+		 * A method for parsing the IPv4 timestamp option value. This method is relevant only for IPv4 timestamp option. For other option types an empty result will be returned.
+		 * The returned structure contains the timestamp value type (timestamp only, timestamp + IP addresses, etc.) as well as 2 vectors containing the list of timestamps and the list
+		 * of IP addresses (if applicable for the timestamp value type). If some error occurs during the parsing or the value is invalid an empty result is returned
+		 * @return A structured containing the IPv4 timestamp value
+		 */
+		IPv4TimestampOptionValue getTimestampOptionValue()
+		{
+			IPv4TimestampOptionValue res;
+			res.clear();
+
+			if (getType() != IPV4OPT_Timestamp)
+				return res;
+
+			size_t dataSize =  getDataSize();
+			if (dataSize < 2)
+				return res;
+
+			res.type = (IPv4TimestampOptionValue::TimestampType)value[1];
+
+			uint8_t valueOffset = (uint8_t)(2);
+			bool readIPAddr = (res.type == IPv4TimestampOptionValue::TimestampAndIP);
+
+			while (valueOffset < dataSize)
+			{
+				uint32_t curValue;
+				memcpy(&curValue, value+valueOffset, sizeof(uint32_t));
+				if (curValue == 0)
+					break;
+
+				if (readIPAddr)
+					res.ipAddresses.push_back(IPv4Address(curValue));
+				else
+					res.timestamps.push_back(curValue);
+
+				if (res.type == IPv4TimestampOptionValue::TimestampAndIP)
+					readIPAddr = !readIPAddr;
+
+				valueOffset += (uint8_t)(4);
+			}
+
+			return res;
+		}
+
+		/**
+		 * @return The total size in bytes of this IPv4 option which includes: 1[Byte] (option type) + 1[Byte]
+		 * (option length) + X[Bytes] (option data length). For ::IPV4OPT_EndOfOtionsList and ::IPV4OPT_NOP the value 1 is returned
+		 */
+		size_t getTotalSize() const
+		{
+			if (opCode == (uint8_t)IPV4OPT_EndOfOtionsList || opCode == (uint8_t)IPV4OPT_NOP)
+				return sizeof(uint8_t);
+
+			return (size_t)len;
+		}
+
+		/**
+		 * @return The size of the option data (not containing the size of the option type and option length fields)
+		 */
+		size_t getDataSize()
+		{
+			if (opCode == (uint8_t)IPV4OPT_EndOfOtionsList || opCode == (uint8_t)IPV4OPT_NOP)
+				return (size_t)0;
+
+			return (size_t)len - (2*sizeof(uint8_t));
+		}
+
+		/**
+		 * @return IPv4 option type casted as pcpp::IPv4OptionTypes enum
+		 */
+		inline IPv4OptionTypes getType() { return (IPv4OptionTypes)opCode; }
+
+	private:
+
+		// private c'tor which isn't implemented to make this struct impossible to construct
+		IPv4OptionData();
+	};
+
+
 
 	/**
 	 * @class IPv4Layer
@@ -118,7 +361,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = IPv4; }
+		IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = IPv4; m_OptionCount = -1; }
 
 		/**
 		 * A constructor that allocates a new IPv4 header with empty fields
@@ -189,6 +432,33 @@ namespace pcpp
 		 */
 		uint16_t getFragmentOffset();
 
+		/**
+		 * Get a pointer to an IPv4 option. Notice this points directly to the data, so every change will change the actual packet data
+		 * @param[in] option The IPv4 option to get
+		 * @return A pointer to the IPv4 option location in the packet
+		 */
+		IPv4OptionData* getOptionData(IPv4OptionTypes option);
+
+		/**
+		 * @return The first IPv4 option, or NULL if no IPv4 options exist. Notice the return value is a pointer to the real data casted to
+		 * IPv4OptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
+		 */
+		IPv4OptionData* getFirstOptionData();
+
+		/**
+		 * Get the IPv4 option which comes next to "option" parameter. If "option" is NULL then NULL will be returned.
+		 * If "option" is the last IPv4 option NULL will be returned. Notice the return value is a pointer to the real data casted to
+		 * IPv4OptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
+		 * @param[in] option The IPv4 option to start searching from
+		 * @return The next IPv4 option or NULL if "option" is NULL or "option" is the last IPv4 option
+		 */
+		IPv4OptionData* getNextOptionData(IPv4OptionData* option);
+
+		/**
+		 * @return The number of IPv4 options in this layer
+		 */
+		size_t getOptionsCount();
+
 
 		// implement abstract methods
 
@@ -198,13 +468,12 @@ namespace pcpp
 		void parseNextLayer();
 
 		/**
-		 * @return Size of @ref iphdr
+		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		inline size_t getHeaderLen() { return sizeof(iphdr); }
+		inline size_t getHeaderLen() { return (size_t)(getIPv4Header()->internetHeaderLength*4); }
 
 		/**
 		 * Calculate the following fields:
-		 * - iphdr#internetHeaderLength = 5
 		 * - iphdr#ipVersion = 4;
 		 * - iphdr#totalLength = total packet length
 		 * - iphdr#headerChecksum = calculated
@@ -215,6 +484,9 @@ namespace pcpp
 		std::string toString();
 
 	private:
+		size_t m_OptionCount;
+
+		IPv4OptionData* castPtrToOptionData(uint8_t* ptr);
 		void initLayer();
 	};
 
