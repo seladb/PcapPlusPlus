@@ -169,7 +169,7 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 
 	uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 	memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
-	if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, pkthdr.ts, static_cast<LinkLayerType>(m_PcapLinkLayerType)))
+	if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, pkthdr.ts, static_cast<LinkLayerType>(m_PcapLinkLayerType), pkthdr.len))
 	{
 		LOG_ERROR("Couldn't set data to raw packet");
 		return false;
@@ -456,7 +456,7 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 
 	pcap_pkthdr pktHdr;
 	pktHdr.caplen = ((RawPacket&)packet).getRawDataLen();
-	pktHdr.len = ((RawPacket&)packet).getRawDataLen();
+	pktHdr.len = ((RawPacket&)packet).getFrameLength();
 	pktHdr.ts = ((RawPacket&)packet).getPacketTimeStamp();
 	if (!m_AppendMode)
 		pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
