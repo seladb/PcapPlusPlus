@@ -218,6 +218,7 @@ namespace pcpp
 	protected:
 		uint8_t* m_pRawData;
 		int m_RawDataLen;
+		int m_FrameLength;
 		timeval m_TimeStamp;
 		bool m_DeleteRawDataAtDestructor;
 		bool m_RawPacketSet;
@@ -275,7 +276,7 @@ namespace pcpp
 		 * @param[in] layerType The link layer type for this raw data
 		 * @return True if raw data was set successfully, false otherwise
 		 */
-		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET);
+		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
 		/**
 		 * Get raw data pointer
@@ -301,6 +302,11 @@ namespace pcpp
 		 */
 		int getRawDataLen() const;
 
+		/**
+		 * Get frame length in bytes
+		 * @return frame length in bytes
+		 */
+		int getFrameLength() const;
 		/**
 		 * Get raw data timestamp
 		 * @return Raw data timestamp
