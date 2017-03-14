@@ -238,8 +238,8 @@ namespace pcpp
 
 		/**
 		 * A method for parsing the IPv4 option value as an IP list. This method is relevant only for certain types of IPv4 options which their value is a list of IPv4 addresses
-		 * such as ::IPV4OPT_RecordRoute, ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_LooseSourceRoute, etc. This method returns a vector of the IPv4 addresses. If some error occurs
-		 * during the parsing or the value is invalid an empty vector is returned
+		 * such as ::IPV4OPT_RecordRoute, ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_LooseSourceRoute, etc. This method returns a vector of the IPv4 addresses. Blank IP addresses
+		 * (meaning zeroed addresses - 0.0.0.0) will not be added to the returned list. If some error occurs during the parsing or the value is invalid an empty vector is returned
 		 * @return A vector of IPv4 addresses parsed from the IPv4 option value
 		 */
 		std::vector<IPv4Address> getValueAsIpList()
@@ -270,7 +270,8 @@ namespace pcpp
 		/**
 		 * A method for parsing the IPv4 timestamp option value. This method is relevant only for IPv4 timestamp option. For other option types an empty result will be returned.
 		 * The returned structure contains the timestamp value type (timestamp only, timestamp + IP addresses, etc.) as well as 2 vectors containing the list of timestamps and the list
-		 * of IP addresses (if applicable for the timestamp value type). If some error occurs during the parsing or the value is invalid an empty result is returned
+		 * of IP addresses (if applicable for the timestamp value type). Blank timestamps or IP addresses (meaning zeroed values - timestamp=0 or IP address=0.0.0.0) will not be added to
+		 * the lists. If some error occurs during the parsing or the value is invalid an empty result is returned
 		 * @return A structured containing the IPv4 timestamp value
 		 */
 		IPv4TimestampOptionValue getTimestampOptionValue()
@@ -361,7 +362,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = IPv4; m_OptionCount = -1; }
+		IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = IPv4; m_OptionCount = -1; m_NumOfTrailingBytes = 0; m_TempHeaderExtension = 0; }
 
 		/**
 		 * A constructor that allocates a new IPv4 header with empty fields
@@ -374,6 +375,16 @@ namespace pcpp
 		 * @param[in] dstIP Destination IPv4 address
 		 */
 		IPv4Layer(const IPv4Address& srcIP, const IPv4Address& dstIP);
+
+		/**
+		 * A copy constructor that copy the entire header from the other IPv4Layer (including IPv4 options)
+		 */
+		IPv4Layer(const IPv4Layer& other);
+
+		/**
+		 * An assignment operator that first delete all data from current layer and then copy the entire header from the other IPv4Layer (including IPv4 options)
+		 */
+		IPv4Layer& operator=(const IPv4Layer& other);
 
 		/**
 		 * Get a pointer to the IPv4 header. Notice this points directly to the data, so every change will change the actual packet data
@@ -459,6 +470,92 @@ namespace pcpp
 		 */
 		size_t getOptionsCount();
 
+		/**
+		 * Add an IPv4 option
+		 * @param[in] optionType The IPv4 option type to add
+		 * @param[in] optionDataLength The length of the option data [in bytes]. For ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter must be 0 otherwise the method will fail
+		 * @param[in] optionData A byte array containing the IPv4 option data (should be in size indicated in optionDataLength).
+		 * For ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter is ignored (expected to be NULL)
+		 * @return If option was added successfully a pointer to the new option will be returned. If adding failed NULL will be returned. Failure can happen if layer couldn't be extended for some reason
+		 * or if added option exceeds maximum options length (in IPv4 total options length must not exceed 40 bytes). In any case of failure an appropriate error message will be printed to log
+		 */
+		IPv4OptionData* addOption(IPv4OptionTypes optionType, uint8_t optionDataLength, const uint8_t* optionData);
+
+		/**
+		 * Add an IPv4 option with value of IP address list. This method is relevant only for option types which value is IP address list such as ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_RecordRoute
+		 * and ::IPV4OPT_LooseSourceRoute. Please note this method calculates and sets the pointer field in the option value automatically
+		 * @param[in] optionType The IPv4 option type to add (should be option type which value is IP address list)
+		 * @param[in] ipList The list of IP addresses to set. Please note this method doesn't automatically adds zero IP addresses (with value of 0.0.0.0), so if you want the option value to
+		 * include zero values please add them to the list
+		 * @return If option was added successfully a pointer to the new option will be returned. If adding failed NULL will be returned. Failure can happen if layer couldn't be extended for some reason
+		 * or if added option exceeds maximum options length (in IPv4 total options length must not exceed 40 bytes). In any case of failure an appropriate error message will be printed to log
+		 */
+		IPv4OptionData* addOption(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList);
+
+		/**
+		 * Add an IPv4 timestamp option. Please note that timestamp type of IPv4TimestampOptionValue#TimestampsForPrespecifiedIPs is currently not supported. Please also note this method calculates
+		 * and sets the pointer field in the timestamp option value automatically
+		 * @param[in] timestampValue Timestamp option value to set, including timestamp type (timestamp only or timestamp and IP) and a list of timestamps and/or IP addresses
+		 * @return If option was added successfully a pointer to the new option will be returned. If adding failed NULL will be returned. Failure can happen if layer couldn't be extended for some
+		 * reason, if added option exceeds maximum options length (in IPv4 total options length must not exceed 40 bytes), or if the timestamp value is wrong (for example:
+		 * type is IPv4TimestampOptionValue#TimestampsForPrespecifiedIPs or IPv4TimestampOptionValue#Unknown, type is IPv4TimestampOptionValue#TimestampAndIP and number of timestamps is
+		 * not equal to the number of IP addresses, etc.). In any case of failure an appropriate error message will be printed to log
+		 */
+		IPv4OptionData* addTimestampOption(const IPv4TimestampOptionValue& timestampValue);
+
+		/**
+		 * Add an IPv4 option after an existing option
+		 * @param[in] optionType The IPv4 option type to add
+		 * @param[in] optionDataLength The length of the option data [in bytes]. For ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter must be 0 otherwise the method will fail
+		 * @param[in] optionData A byte array containing the IPv4 option data (should be in size indicated in optionDataLength).
+		 * For ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter is ignored (expected to be NULL)
+		 * @param[in] prevOption The option type which the new option should be added after. It's an optional parameter, if it's not set or set to an option that doesn't exist the new
+		 * option will be added as the first option in the layer
+		 * @return If option was added successfully a pointer to the new option will be returned. If adding failed NULL will be returned. Failure can happen if layer couldn't be extended for some reason
+		 * or if added option exceeds maximum options length (in IPv4 total options length must not exceed 40 bytes). In any case of failure an appropriate error message will be printed to log
+		 */
+		IPv4OptionData* addOptionAfter(IPv4OptionTypes optionType, uint8_t optionDataLength, const uint8_t* optionData, IPv4OptionTypes prevOption = IPV4OPT_Unknown);
+
+		/**
+		 * Add an IPv4 option with value of IP address list after an existing option. This method is relevant only for option types which value is IP address list such as
+		 * ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_RecordRoute and ::IPV4OPT_LooseSourceRoute. Please note this method calculates and sets the pointer field in the option value automatically
+		 * @param[in] optionType The IPv4 option type to add (should be option type which value is IP address list)
+		 * @param[in] ipList The list of IP addresses to set. Please note this method doesn't automatically adds zero IP addresses (with value of 0.0.0.0), so if you want the option value to
+		 * include zero values please add them to the list
+		 * @param[in] prevOption The option type which the new option should be added after. It's an optional parameter, if it's not set or set to an option that doesn't exist the new
+		 * option will be added as the first option in the layer
+		 * @return If option was added successfully a pointer to the new option will be returned. If adding failed NULL will be returned. Failure can happen if layer couldn't be extended for some reason
+		 * or if added option exceeds maximum options length (in IPv4 total options length must not exceed 40 bytes). In any case of failure an appropriate error message will be printed to log
+		 */
+		IPv4OptionData* addOptionAfter(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList, IPv4OptionTypes prevOption = IPV4OPT_Unknown);
+
+		/**
+		 * Add an IPv4 timestamp option after some existing option. Please note that timestamp type of IPv4TimestampOptionValue#TimestampsForPrespecifiedIPs is currently not supported.
+		 * Please also note this method calculates and sets the pointer field in the timestamp option value automatically
+		 * @param[in] timestampValue Timestamp option value to set, including timestamp type (timestamp only or timestamp and IP) and a list of timestamps and/or IP addresses
+		 * @param[in] prevOption The option type which the new option should be added after. It's an optional parameter, if it's not set or set to an option that doesn't exist the new
+		 * option will be added as the first option in the layer
+		 * @return If option was added successfully a pointer to the new option will be returned. If adding failed NULL will be returned. Failure can happen if layer couldn't be extended for some
+		 * reason, if added option exceeds maximum options length (in IPv4 total options length must not exceed 40 bytes), or if the timestamp value is wrong (for example:
+		 * type is IPv4TimestampOptionValue#TimestampsForPrespecifiedIPs or IPv4TimestampOptionValue#Unknown, type is IPv4TimestampOptionValue#TimestampAndIP and number of timestamps is
+		 * not equal to the number of IP addresses, etc.). In any case of failure an appropriate error message will be printed to log
+		 */
+		IPv4OptionData* addTimestampOptionAfter(const IPv4TimestampOptionValue& timestampValue, IPv4OptionTypes prevOption = IPV4OPT_Unknown);
+
+		/**
+		 * Remove an IPv4 option
+		 * @param[in] option The option type to remove
+		 * @return True if option was removed successfully or false if option type wasn't found or failed to shorten the layer. If an option appears twice in the layer, its first instance
+		 * will be removed
+		 */
+		bool removeOption(IPv4OptionTypes option);
+
+		/**
+		 * Remove all IPv4 options from the layer
+		 * @return True if options removed successfully or false if some error occurred (an appropriate error message will be printed to log)
+		 */
+		bool removeAllOptions();
+
 
 		// implement abstract methods
 
@@ -470,7 +567,7 @@ namespace pcpp
 		/**
 		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		inline size_t getHeaderLen() { return (size_t)(getIPv4Header()->internetHeaderLength*4); }
+		inline size_t getHeaderLen() { return (size_t)(getIPv4Header()->internetHeaderLength*4) + m_TempHeaderExtension; }
 
 		/**
 		 * Calculate the following fields:
@@ -485,8 +582,17 @@ namespace pcpp
 
 	private:
 		size_t m_OptionCount;
+		int m_NumOfTrailingBytes;
+		int m_TempHeaderExtension;
 
+		void copyLayerData(const IPv4Layer& other);
 		IPv4OptionData* castPtrToOptionData(uint8_t* ptr);
+		IPv4OptionData* addOptionAt(IPv4OptionTypes optionType, uint8_t optionDataLength, const uint8_t* optionData, int offset);
+		void adjustOptionsTrailer(size_t totalOptSize);
+		void buildIPListOptionData(const std::vector<IPv4Address>& ipList, uint8_t** optionData, int& optionDataLength);
+		void buildTimestampOptionData(const IPv4TimestampOptionValue& timestampVal, uint8_t** optionData, int& optionDataLength);
+		void incOptionCount(int val);
+		void setOptionCount(int val);
 		void initLayer();
 	};
 
