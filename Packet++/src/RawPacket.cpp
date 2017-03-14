@@ -72,8 +72,11 @@ void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 	m_RawPacketSet = true;
 }
 
-bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType)
+bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType, int frameLength)
 {
+	if(frameLength == -1)
+		frameLength = rawDataLen;
+	m_FrameLength = frameLength;
 	if (m_pRawData != 0 && m_DeleteRawDataAtDestructor)
 	{
 		delete[] m_pRawData;
@@ -105,6 +108,11 @@ LinkLayerType RawPacket::getLinkLayerType() const
 int RawPacket::getRawDataLen() const
 {
 	return m_RawDataLen;
+}
+
+int RawPacket::getFrameLength() const
+{
+	return m_FrameLength;
 }
 
 timeval RawPacket::getPacketTimeStamp()

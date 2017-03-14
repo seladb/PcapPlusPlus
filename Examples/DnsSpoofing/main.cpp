@@ -129,7 +129,7 @@ void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 
 	// reverse src and dst MAC addresses
 	MacAddress srcMac = ethLayer->getSourceMac();
-	ethLayer->setSoureMac(ethLayer->getDestMac());
+	ethLayer->setSourceMac(ethLayer->getDestMac());
 	ethLayer->setDestMac(srcMac);
 
 	// reverse src and dst IP addresses
