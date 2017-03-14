@@ -750,6 +750,10 @@ bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, boo
 	int res = 0;
 	while (tries < MAX_TRIES)
 	{
+		// don't allow sending of data larger than the MTU, otherwise pfring_send will fail
+		if (packetDataLength > m_DeviceMTU)
+			packetDataLength = m_DeviceMTU;
+
 		// if the device is opened, m_PfRingDescriptors[0] will always be set and enables
 		res = pfring_send(m_PfRingDescriptors[0], (char*)packetData, packetDataLength, flushTxAsUint);
 
@@ -778,7 +782,7 @@ bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, boo
 		if (res == -1)
 			LOG_ERROR("Error sending packet: Linux errno: %s [%d]", strerror(errno), errno);
 		else
-			LOG_ERROR("Error sending packet: pfring_send returned an error: %d", res);
+			LOG_ERROR("Error sending packet: pfring_send returned an error: %d , errno: %s [%d]", res, strerror(errno), errno);
 		return false;
 	} else if (res != packetDataLength)
 	{
