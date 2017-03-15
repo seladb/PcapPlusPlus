@@ -229,7 +229,7 @@ You can read more about PF_RING in ntop web-site: [http://www.ntop.org/products/
 In order to compile PcapPlusPlus with PF_RING you need to:
 
 1. Download PF_RING from ntop's web-site: [http://www.ntop.org/get-started/download/#PF_RING](http://www.ntop.org/get-started/download/#PF_RING)
-2. Note that I used PcapPlusPlus with PF_RING version 6.0.2. I can't guarantee it'll work with previous versions
+2. Note that I used PcapPlusPlus with PF_RING version 6.2.0 or later. I can't guarantee it'll work with previous versions
 3. Once PF_RING is compiled successfully, you need to run PcapPlusPlus **configure-linux.sh** and type "y" in "Compile PcapPlusPlus with PF_RING?"
 4. Then you can compile PcapPlusPlus as usual (using make, see below)
 5. Before you activate any PcapPlusPlus program that uses PF_RING, don't forget to enable PF_RING kernel module. If you forget to do that, PcapPlusPlus will output an appropriate error on startup which will remind you:
@@ -311,10 +311,15 @@ such as apt-get:
 
 #### Prerequisutes - Mac OS X ####
 
-In order to build PacpPlusPlus on Mac OS X you need to make sure [Xcode](https://developer.apple.com/xcode/) is installed. Xcode contains all prerequisites required for PcapPlusPlus:
+1. In order to build PacpPlusPlus on Mac OS X you need to make sure [Xcode](https://developer.apple.com/xcode/) is installed. Xcode contains all prerequisites required for PcapPlusPlus:
 
-1. gcc/g++ compiler
-2. libpcap with all relevant H files
+   1. gcc/g++ compiler
+   2. libpcap with all relevant H files
+
+2. Also make sure you have Xcode Command Line Tools. You can install it by running the following command in Terminal:
+   ```
+   xcode-select --install
+   ```
 
 #### Configuration and Compilation ####
 
