@@ -28,7 +28,7 @@
 #include <string.h>
 #ifdef WIN32
 #include <winsock2.h>
-#else
+#elif defined(LINUX)
 #include <in.h>
 #endif
 #ifdef _MSC_VER

@@ -2,6 +2,7 @@
 
 #include <Packet.h>
 #include <EthLayer.h>
+#include <IPv4Layer.h>
 #include <SllLayer.h>
 #include <NullLoopbackLayer.h>
 #include <Logger.h>
@@ -46,6 +47,10 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
 	{
 		m_FirstLayer = new SllLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	}
+	else if (m_RawPacket->getLinkLayerType() == LINKTYPE_RAW)
+	{
+		m_FirstLayer = new IPv4Layer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), NULL, this);
+	}
 	else if (m_RawPacket && m_RawPacket->getLinkLayerType() == LINKTYPE_NULL)
 	{
 		m_FirstLayer = new NullLoopbackLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
@@ -69,7 +74,7 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
 
 Packet::Packet(RawPacket* rawPacket, bool freeRawPacket)
 {
-	m_FreeRawPacket = false;
+	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = NULL;
 	setRawPacket(rawPacket, freeRawPacket);
 }

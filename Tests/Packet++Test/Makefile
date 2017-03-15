@@ -18,10 +18,20 @@ DEBUG_NEW_SOURCES := $(wildcard $(DEBUG_NEW_HOME)/*.cpp)
 DEBUG_NEW_OBJS_FILENAMES := $(patsubst %.cpp,$(DEBUG_NEW_HOME)/%.o,$(DEBUG_NEW_SOURCES))
 PCAPPP_INCLUDES += -I$(DEBUG_NEW_HOME)
 
+ifdef WIN32
+DEPS := -DWIN32
+endif
+ifdef LINUX
+DEPS := -DLINUX
+endif
+ifdef MAC_OS_X
+DEPS := -DMAC_OS_X
+endif
+
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(PCAPPP_INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	$(G++) $(PCAPPP_INCLUDES) $(DEPS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
