@@ -40,11 +40,15 @@ namespace pcpp
 		LINKTYPE_PPP = 9,
 		/** FDDI, as specified by ANSI INCITS 239-1994 */
 		LINKTYPE_FDDI = 10,
+		/** Raw IP */
+		LINKTYPE_DLT_RAW1 = 12,
+		/** Raw IP (OpenBSD) */
+		LINKTYPE_DLT_RAW2 = 14,
 		/** PPP in HDLC-like framing, as per RFC 1662, or Cisco PPP with HDLC framing, as per section 4.3.1 of RFC 1547 */
 		LINKTYPE_PPP_HDLC = 50,
 		/** PPPoE */
 		LINKTYPE_PPP_ETHER = 51,
-		/** 	RFC 1483 LLC/SNAP-encapsulated ATM */
+		/** RFC 1483 LLC/SNAP-encapsulated ATM */
 		LINKTYPE_ATM_RFC1483 = 100,
 		/** Raw IP */
 		LINKTYPE_RAW = 101,

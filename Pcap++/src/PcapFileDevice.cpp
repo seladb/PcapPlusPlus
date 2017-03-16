@@ -132,6 +132,9 @@ bool PcapFileReaderDevice::open()
 		case LINKTYPE_ETHERNET:
 		case LINKTYPE_LINUX_SLL:
 		case LINKTYPE_NULL:
+		case LINKTYPE_RAW:
+		case LINKTYPE_DLT_RAW1:
+		case LINKTYPE_DLT_RAW2:
 			break;
 		default:
 			LOG_ERROR("Cannot open file reader device for filename '%s': the link type %d is not supported", m_FileName, m_PcapLinkLayerType);
@@ -507,7 +510,12 @@ bool PcapFileWriterDevice::open()
 		case LINKTYPE_ETHERNET:
 		case LINKTYPE_LINUX_SLL:
 		case LINKTYPE_NULL:
+		case LINKTYPE_DLT_RAW1:
 			break;
+		case LINKTYPE_RAW:
+		case LINKTYPE_DLT_RAW2:
+			LOG_ERROR("The only Raw IP link type supported in libpcap/WinPcap is LINKTYPE_DLT_RAW1, please use that instead");
+			return false;
 		default:
 			LOG_ERROR("The link type %d is not supported", m_PcapLinkLayerType);
 			return false;
@@ -607,7 +615,7 @@ bool PcapFileWriterDevice::open(bool appendMode)
 	LinkLayerType linkLayerType = static_cast<LinkLayerType>(pcapFileHeader.linktype);
 	if (linkLayerType != m_PcapLinkLayerType)
 	{
-		LOG_ERROR("Pcap file has a different link layer type then the one chosen in PcapFileWriterDevice c'tor");
+		LOG_ERROR("Pcap file has a different link layer type than the one chosen in PcapFileWriterDevice c'tor, %d, %d", linkLayerType, m_PcapLinkLayerType);
 		closeFile();
 		return false;
 	}

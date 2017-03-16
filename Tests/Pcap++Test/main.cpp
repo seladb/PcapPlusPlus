@@ -52,6 +52,9 @@ using namespace pcpp;
 #define DPDK_PCAP_WRITE_PATH "PcapExamples/DpdkPackets.pcap"
 #define SLL_PCAP_WRITE_PATH "PcapExamples/sll_copy.pcap"
 #define SLL_PCAP_PATH "PcapExamples/sll.pcap"
+#define RAW_IP_PCAP_WRITE_PATH "PcapExamples/raw_ip_copy.pcap"
+#define RAW_IP_PCAP_PATH "PcapExamples/raw_ip.pcap"
+#define RAW_IP_PCAPNG_PATH "PcapExamples/raw_ip.pcapng"
 #define EXAMPLE_PCAPNG_PATH "PcapExamples/many_interfaces-1.pcapng"
 #define EXAMPLE2_PCAPNG_PATH "PcapExamples/pcapng-example.pcapng"
 #define EXAMPLE_PCAPNG_WRITE_PATH "PcapExamples/many_interfaces_copy.pcapng"
@@ -733,21 +736,89 @@ PCAPP_TEST(TestPcapSllFileReadWrite)
     pcap_stat writerStatistics;
 
     readerDev.getStatistics(readerStatistics);
-    PCAPP_ASSERT(readerStatistics.ps_recv == 518, "Incorrect number of packets read from file. Expected: 100; read: %d", readerStatistics.ps_recv);
+    PCAPP_ASSERT(readerStatistics.ps_recv == 518, "Incorrect number of packets read from file. Expected: 518; read: %d", readerStatistics.ps_recv);
     PCAPP_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %d", readerStatistics.ps_drop);
 
     writerDev.getStatistics(writerStatistics);
-    PCAPP_ASSERT(writerStatistics.ps_recv == 518, "Incorrect number of packets written to file. Expected: 100; written: %d", writerStatistics.ps_recv);
+    PCAPP_ASSERT(writerStatistics.ps_recv == 518, "Incorrect number of packets written to file. Expected: 518; written: %d", writerStatistics.ps_recv);
     PCAPP_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
 
     PCAPP_ASSERT(ethCount == 0, "Incorrect number of Ethernet packets read. Expected: 0; read: %d", ethCount);
     PCAPP_ASSERT(sllCount == 518, "Incorrect number of SLL packets read. Expected: 518; read: %d", sllCount);
     PCAPP_ASSERT(ipCount == 510, "Incorrect number of IPv4 packets read. Expected: 510; read: %d", ipCount);
-    PCAPP_ASSERT(tcpCount == 483, "Incorrect number of IPv4 packets read. Expected: 483; read: %d", tcpCount);
-    PCAPP_ASSERT(udpCount == 28, "Incorrect number of IPv4 packets read. Expected: 28; read: %d", udpCount);
+    PCAPP_ASSERT(tcpCount == 483, "Incorrect number of TCP packets read. Expected: 483; read: %d", tcpCount);
+    PCAPP_ASSERT(udpCount == 28, "Incorrect number of UDP packets read. Expected: 28; read: %d", udpCount);
 
     readerDev.close();
     writerDev.close();
+
+    PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPcapRawIPFileReadWrite)
+{
+	LoggerPP::getInstance().supressErrors();
+	PcapFileWriterDevice tempWriter(RAW_IP_PCAP_WRITE_PATH, LINKTYPE_RAW);
+	PCAPP_ASSERT(tempWriter.open() == false, "managed to open pcap writer device with link type LINKTYPE_RAW");
+	LoggerPP::getInstance().enableErrors();
+
+    PcapFileReaderDevice readerDev(RAW_IP_PCAP_PATH);
+    PcapFileWriterDevice writerDev(RAW_IP_PCAP_WRITE_PATH, LINKTYPE_DLT_RAW1);
+    PcapNgFileWriterDevice writerNgDev(RAW_IP_PCAPNG_PATH);
+    PCAPP_ASSERT(readerDev.open(), "cannot open reader device");
+    PCAPP_ASSERT(writerDev.open(), "cannot open writer device");
+    PCAPP_ASSERT(writerNgDev.open(), "cannot open writer-ng device");
+    RawPacket rawPacket;
+    int packetCount = 0;
+    int ethCount = 0;
+    int ipv4Count = 0;
+    int ipv6Count = 0;
+    int tcpCount = 0;
+    int udpCount = 0;
+    while (readerDev.getNextPacket(rawPacket))
+    {
+    	packetCount++;
+    	Packet packet(&rawPacket);
+		if (packet.isPacketOfType(Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(IPv4))
+			ipv4Count++;
+		if (packet.isPacketOfType(IPv6))
+			ipv6Count++;
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+
+		writerDev.writePacket(rawPacket);
+		writerNgDev.writePacket(rawPacket);
+    }
+
+    pcap_stat readerStatistics;
+    pcap_stat writerStatistics;
+    pcap_stat writerNgStatistics;
+
+    readerDev.getStatistics(readerStatistics);
+    PCAPP_ASSERT(readerStatistics.ps_recv == 100, "Incorrect number of packets read from file. Expected: 100; read: %d", readerStatistics.ps_recv);
+    PCAPP_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %d", readerStatistics.ps_drop);
+
+    writerDev.getStatistics(writerStatistics);
+    PCAPP_ASSERT(writerStatistics.ps_recv == 100, "Incorrect number of packets written to file. Expected: 100; written: %d", writerStatistics.ps_recv);
+    PCAPP_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
+
+    writerNgDev.getStatistics(writerNgStatistics);
+    PCAPP_ASSERT(writerNgStatistics.ps_recv == 100, "Incorrect number of packets written to pcap-ng file. Expected: 100; written: %d", writerNgStatistics.ps_recv);
+    PCAPP_ASSERT(writerNgStatistics.ps_drop == 0, "Packets were not written properly to pcap-ng file. Number of packets dropped: %d", writerNgStatistics.ps_drop);
+
+    PCAPP_ASSERT(ethCount == 0, "Incorrect number of Ethernet packets read. Expected: 0; read: %d", ethCount);
+    PCAPP_ASSERT(ipv4Count == 50, "Incorrect number of IPv4 packets read. Expected: 50; read: %d", ipv4Count);
+    PCAPP_ASSERT(ipv6Count == 50, "Incorrect number of IPv6 packets read. Expected: 50; read: %d", ipv6Count);
+    PCAPP_ASSERT(tcpCount == 92, "Incorrect number of TCP packets read. Expected: 92; read: %d", tcpCount);
+    PCAPP_ASSERT(udpCount == 8, "Incorrect number of UDP packets read. Expected: 8; read: %d", udpCount);
+
+    readerDev.close();
+    writerDev.close();
+    writerNgDev.close();
 
     PCAPP_TEST_PASSED;
 }
@@ -3621,6 +3692,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestMacAddress, args, false);
 	PCAPP_RUN_TEST(TestPcapFileReadWrite, args, false);
 	PCAPP_RUN_TEST(TestPcapSllFileReadWrite, args, false);
+	PCAPP_RUN_TEST(TestPcapRawIPFileReadWrite, args, false);
 	PCAPP_RUN_TEST(TestPcapFileAppend, args, false);
 	PCAPP_RUN_TEST(TestPcapNgFileReadWrite, args, false);
 	PCAPP_RUN_TEST(TestPcapNgFileReadWriteAdv, args, false);

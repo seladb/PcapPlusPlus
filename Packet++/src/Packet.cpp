@@ -4,6 +4,9 @@
 #include <EthLayer.h>
 #include <SllLayer.h>
 #include <NullLoopbackLayer.h>
+#include <IPv4Layer.h>
+#include <IPv6Layer.h>
+#include <PayloadLayer.h>
 #include <Logger.h>
 #include <string.h>
 #include <typeinfo>
@@ -49,6 +52,16 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
 	else if (m_RawPacket && m_RawPacket->getLinkLayerType() == LINKTYPE_NULL)
 	{
 		m_FirstLayer = new NullLoopbackLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+	}
+	else if (m_RawPacket && (m_RawPacket->getLinkLayerType() == LINKTYPE_RAW || m_RawPacket->getLinkLayerType() == LINKTYPE_DLT_RAW1 || m_RawPacket->getLinkLayerType() == LINKTYPE_DLT_RAW2))
+	{
+		uint8_t ipVer = m_RawPacket->getRawData()[0] & 0xf0;
+		if (ipVer == 0x40)
+			m_FirstLayer = new IPv4Layer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), NULL, this);
+		else if (ipVer == 0x60)
+			m_FirstLayer = new IPv6Layer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), NULL, this);
+		else
+			m_FirstLayer = new PayloadLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), NULL, this);
 	}
 	else
 	{

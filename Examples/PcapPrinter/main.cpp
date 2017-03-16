@@ -59,6 +59,26 @@ void printUsage()
 	exit(0);
 }
 
+std::string linkLayerToString(LinkLayerType linkLayer)
+{
+
+	if (linkLayer == LINKTYPE_ETHERNET)
+		return "Ethernet";
+	else if (linkLayer == LINKTYPE_LINUX_SLL)
+		return "Linux cooked capture";
+	else if (linkLayer == LINKTYPE_NULL)
+		return "Null/Loopback";
+	else if (linkLayer == LINKTYPE_RAW || linkLayer == LINKTYPE_DLT_RAW1 || linkLayer == LINKTYPE_DLT_RAW2)
+	{
+		std::ostringstream stream;
+		stream << "Raw IP (" << linkLayer << ")";
+		return stream.str();
+	}
+
+	std::ostringstream stream;
+	stream << (int)linkLayer;
+	return stream.str();
+}
 
 /**
 * print file summary based on the reader type
@@ -75,14 +95,7 @@ std::string printFileSummary(IFileReaderDevice* reader)
 	{
 		PcapFileReaderDevice* pcapReader = dynamic_cast<PcapFileReaderDevice*>(reader);
 		LinkLayerType linkLayer = pcapReader->getLinkLayerType();
-		if (linkLayer == LINKTYPE_ETHERNET)
-			stream << "   Link layer type: Ethernet" << std::endl;
-		else if (linkLayer == LINKTYPE_LINUX_SLL)
-			stream << "   Link layer type: Linux cooked capture" << std::endl;
-		else if (linkLayer == LINKTYPE_NULL)
-			stream << "   Link layer type: Null/Loopback" << std::endl;
-		else
-			stream << "   Link layer type: " << (int)linkLayer << std::endl;
+		stream << "   Link layer type: " << linkLayerToString(linkLayer) << std::endl;
 	}
 	else if (dynamic_cast<PcapNgFileReaderDevice*>(reader) != NULL)
 	{ 
@@ -149,6 +162,7 @@ int printPcapNgPackets(PcapNgFileReaderDevice* reader, std::ostream* out, int pa
 		Packet parsedPacket(&rawPacket);
 
 		// print packet to string
+		(*out) << "Link layer type: " << linkLayerToString(rawPacket.getLinkLayerType()) << std::endl;
 		(*out) << parsedPacket.printToString() << std::endl;
 
 		packetCountSoFar++;
