@@ -69,6 +69,8 @@ void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 	}
 
 	memcpy(m_pRawData, other.m_pRawData, other.m_RawDataLen);
+	m_linkLayerType = other.m_linkLayerType;
+	m_FrameLength = other.m_FrameLength;
 	m_RawPacketSet = true;
 }
 
@@ -127,6 +129,7 @@ void RawPacket::clear()
 
 	m_pRawData = 0;
 	m_RawDataLen = 0;
+	m_FrameLength = 0;
 	m_RawPacketSet = false;
 }
 
@@ -134,6 +137,7 @@ void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 {
 	memcpy((uint8_t*)m_pRawData+m_RawDataLen, dataToAppend, dataToAppendLen);
 	m_RawDataLen += dataToAppendLen;
+	m_FrameLength = m_RawDataLen;
 }
 
 void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
@@ -147,6 +151,7 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 
 	memcpy((uint8_t*)m_pRawData+atIndex, dataToInsert, dataToInsertLen);
 	m_RawDataLen += dataToInsertLen;
+	m_FrameLength = m_RawDataLen;
 }
 
 bool RawPacket::reallocateData(size_t newBufferLength)
@@ -188,6 +193,7 @@ bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 	}
 
 	m_RawDataLen -= numOfBytesToRemove;
+	m_FrameLength = m_RawDataLen;
 	return true;
 }
 
