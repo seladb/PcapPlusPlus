@@ -146,9 +146,9 @@ Download and install instructions for DPDK are on this page: [http://dpdk.org/do
 **_PcapPlusPlus configuration for DPDK:_**
 
 1. Download and compile DPDK on your system (see the link above)
-2. Note PcapPlusPlus supports DPDK version 2.1. Previous (and most probably newer) versions won't work
+2. Note PcapPlusPlus supports DPDK versions 16.11 and 17.02. Previous (and most probably newer) versions won't work
 3. Once DPDK compiles successfully run PcapPlusPlus' **configure-linux.sh** and type "y" in "Compile PcapPlusPlus with DPDK?"
-4. **configure-linux.sh** will ask for DPDK path (i.e /home/user/dpdk-2.1.0) and build path (i.e i686-native-linuxapp-gcc)
+4. **configure-linux.sh** will ask for DPDK path (i.e /home/user/dpdk-stable-16.11.1)
 5. Then compile PcapPlusPlus as usual (using make, see below)
 
 
@@ -210,7 +210,7 @@ DpdkDeviceList::initDpdk()
 **_Tests and limitations:_**
 - All unit-tests are in Pcap++Test
 - In addition please try the DPDK example application (Examples/DpdkExample-FilterTraffic)
-- The only DPDK version supported is 2.1 (currently the latest version)
+- The only supported DPDK versions are 16.11 and 17.02 (currently the latest versions)
 - So far I managed to test the code on 2 virtual PMDs only: 
   1. VMXNET3 - a VMWare guest driver
   2. E1000/EM - 1GbE Intel NIC but I tested it as virtual NIC in VirtualBox guest

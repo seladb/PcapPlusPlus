@@ -14,22 +14,21 @@ function HELP {
    echo "  1) Without any switches. In this case the script will guide you through using wizards"
    echo "  2) With switches, as described below"
    echo ""
-   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--dpdk-target]${NORM}"\\n
+   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] ${NORM}"\\n
    echo "The following switches are recognized."
    echo "${REV}--default${NORM}      --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""
    echo "${REV}--pf-ring${NORM}      --Setup PcapPlusPlus with PF_RING. In this case you must also set --pf-ring-home"
    echo "${REV}--pf-ring-home${NORM} --Sets PF_RING home directory. Use only when --pf-ring is set"
    echo ""
-   echo "${REV}--dpdk${NORM}         --Setup PcapPlusPlus with DPDK. In this case you must also set --dpdk-home and --dpdk-target"
+   echo "${REV}--dpdk${NORM}         --Setup PcapPlusPlus with DPDK. In this case you must also set --dpdk-home"
    echo "${REV}--dpdk-home${NORM}    --Sets DPDK home directoy. Use only when --dpdk is set"
-   echo "${REV}--dpdk-target${NORM}  --Sets DPDK target directoy (e.g x86_64-native-linuxapp-gcc). Use only when --dpdk is set"
    echo ""
    echo -e "${REV}-h|--help${NORM}      --Displays this help message and exits. No further functions are performed."\\n
    echo -e "Examples:"
    echo -e "      ${BOLD}$SCRIPT --default${NORM}"
    echo -e "      ${BOLD}$SCRIPT --pf-ring --pf-ring-home /home/myuser/PF_RING${NORM}"
-   echo -e "      ${BOLD}$SCRIPT --dpdk --dpdk-home /home/myuser/dpdk-2.1.0 --dpdk-target x86_64-native-linuxapp-gcc${NORM}"
+   echo -e "      ${BOLD}$SCRIPT --dpdk --dpdk-home /home/myuser/dpdk-2.1.0${NORM}"
    echo ""
    exit 1
 }
@@ -41,7 +40,6 @@ PF_RING_HOME=""
 # initializing DPDK variables
 COMPILE_WITH_DPDK=0
 DPDK_HOME=""
-DPDK_TARGET=""
 
 #Check the number of arguments. If none are passed, continue to wizard mode.
 NUMARGS=$#
@@ -82,22 +80,11 @@ if [ $NUMARGS -eq 0 ]; then
        esac
    done
 
-   # if compiling with DPDK, get DPDK home dir and DPDK target from the user and set it in DPDK_HOME and DPDK_TARGET accordingly
+   # if compiling with DPDK, get DPDK home dir and set it in DPDK_HOME
    if (( $COMPILE_WITH_DPDK > 0 )) ; then
        while true; do # don't stop until user provides a valid dir
            read -e -p "Enter DPDK source path: " DPDK_HOME
            if [ -d "$DPDK_HOME" ]; then
-               break;
-           else
-               echo "Directory doesn't exist"
-           fi
-       done
-
-       # get DPDK target from the user, make sure it's a valid dir
-       while true; do # don't stop until user provides a valid dir
-           read -e -p "Enter DPDK build path: " -i $DPDK_HOME/ DPDK_TARGET
-           DPDK_TARGET="$(basename $DPDK_TARGET)"
-           if [ -d "$DPDK_HOME/$DPDK_TARGET" ]; then
                break;
            else
                echo "Directory doesn't exist"
@@ -109,7 +96,7 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,dpdk-target:,help -- "$@"`
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help -- "$@"`
 
    # if user put an illegal switch - print HELP and exit 
    if [ $? -ne 0 ]; then
@@ -153,15 +140,6 @@ else
          fi
          shift 2 ;;
 
-       # dpdk-target switch - set DPDK_TARGET and make sure it's a valid dir, otherwise exit
-       --dpdk-target)
-         DPDK_TARGET=$2
-         if [ ! -d "$DPDK_HOME/$DPDK_TARGET" ]; then
-            echo "DPDK target '$DPDK_HOME/$DPDK_TARGET' not found. Exiting..."
-            exit 1
-         fi
-         shift 2 ;;
-
        # help switch - display help and exit
        -h|--help)
          HELP
@@ -185,9 +163,9 @@ else
       exit 1
    fi
 
-   # if --dpdk was set, make sure --dpdk-home and --dpdk-target were also set, otherwise exit with error
-   if [[ $COMPILE_WITH_DPDK > 0 && (( $DPDK_HOME == "" || $DPDK_TARGET == "" )) ]] ; then
-      echo "Switch --dpdk-home and/or --dpdk-target wasn't set. Exiting..."
+   # if --dpdk was set, make sure --dpdk-home is also set, otherwise exit with error
+   if [[ $COMPILE_WITH_DPDK > 0 && $DPDK_HOME == "" ]] ; then
+      echo "Switch --dpdk-home wasn't set. Exiting..."
       exit 1
    fi 
 
@@ -239,16 +217,10 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
    # set DPDK home to RTE_SDK variable in platform.mk
    echo -e "\n\nRTE_SDK := "$DPDK_HOME >> $PLATFORM_MK
 
-   # set DPDK target to RTE_TARGET in platform.mk
-   echo -e "\n\nRTE_TARGET := "$DPDK_TARGET >> $PLATFORM_MK
-
    # set USE_DPDK varaible in PcapPlusPlus.mk
    sed -i "2s|^|USE_DPDK := 1\n\n|" $PCAPPLUSPLUS_MK
 
    # set DPDK home to RTE_SDK variable in PcapPlusPlus.mk
-   sed -i "2s|^|RTE_TARGET := $DPDK_TARGET\n\n|" $PCAPPLUSPLUS_MK
-
-   # set DPDK target to RTE_TARGET in PcapPlusPlus.mk
    sed -i "2s|^|RTE_SDK := $DPDK_HOME\n\n|" $PCAPPLUSPLUS_MK
 
    # set the setup-dpdk script:
@@ -262,8 +234,6 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
    # replace the RTE_SDK placeholder with DPDK home
    sed -i "s|###RTE_SDK###|$DPDK_HOME|g" setup-dpdk.sh
 
-   # replace the RTE_TARGET placeholder with DPDK target
-   sed -i "s|###RTE_TARGET###|$DPDK_TARGET|g" setup-dpdk.sh
 fi
 
 # finished setup script

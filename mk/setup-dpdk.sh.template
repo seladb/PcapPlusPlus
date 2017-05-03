@@ -18,7 +18,10 @@ show_help() {
 
 # setup DPDK variables
 export RTE_SDK=###RTE_SDK###
-export RTE_TARGET=###RTE_TARGET###
+
+# in DPDK 16.11 help scripts are stil in 'tools' dir but in 17.02 dir was renamed to 'usertools'
+TOOLS_DIR=""
+if [ -d $RTE_SDK/tools ]; then TOOLS_DIR=tools; else TOOLS_DIR=usertools; fi
 
 
 # read and parse arguments
@@ -38,7 +41,7 @@ while getopts "h?sp:n:" opt; do
         ;;
     n)  NICS_TO_BIND=$OPTARG
         ;;
-    s)  ${RTE_SDK}/tools/dpdk_nic_bind.py --status
+    s)  ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
         exit 0
         ;;
     esac
@@ -88,7 +91,7 @@ for NIC_TO_BIND in $NICS_TO_BIND ; do
 	if [ $? -eq 1 ] ; then
 		echo "2. $NIC_TO_BIND is already binded to DPDK or doesn't exist. Exiting"
 		echo
-		${RTE_SDK}/tools/dpdk_nic_bind.py --status
+		${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
 		exit 1
 	fi
 done
@@ -99,7 +102,7 @@ if [ $? -eq 0 ] ; then
 fi
 
 sudo modprobe uio
-sudo insmod ${RTE_SDK}/${RTE_TARGET}/kmod/igb_uio.ko
+sudo insmod ${RTE_SDK}/build/kmod/igb_uio.ko
 echo "2. Install kernel module - DONE!"
 
 
@@ -107,10 +110,10 @@ echo "2. Install kernel module - DONE!"
 IFS=","
 for NIC_TO_BIND in $NICS_TO_BIND ; do
 	sudo ifconfig ${NIC_TO_BIND} down
-	sudo ${RTE_SDK}/tools/dpdk_nic_bind.py --bind=igb_uio ${NIC_TO_BIND}
+	sudo ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --bind=igb_uio ${NIC_TO_BIND}
 done
 echo "3. Bind network adapters - DONE!"
 
-${RTE_SDK}/tools/dpdk_nic_bind.py --status
+${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
 
 echo "Setup DPDK completed"
