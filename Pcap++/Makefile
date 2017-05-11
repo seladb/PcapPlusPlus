@@ -48,7 +48,7 @@ ifdef PF_RING_HOME
 INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
 endif
 ifdef USE_DPDK
-INCLUDES += -I"$(RTE_SDK)/$(RTE_TARGET)/include"
+INCLUDES += -I"$(RTE_SDK)/build/include"
 endif
 
 
