@@ -15,6 +15,8 @@
 #include <VlanLayer.h>
 #include <UdpLayer.h>
 #include <DnsLayer.h>
+#include <PayloadLayer.h>
+#include <TcpReassembly.h>
 #include <PcapFileDevice.h>
 #include <PcapLiveDeviceList.h>
 #include <WinPcapLiveDevice.h>
@@ -3596,6 +3598,609 @@ PCAPP_TEST(TestGetMacAddress)
 	PCAPP_TEST_PASSED;
 }
 
+
+struct TcpReassemblyStats
+{
+	std::string reassembledData;
+	int numOfDataPackets;
+	int curSide;
+	int numOfMessagesFromSide[2];
+	bool connectionsStarted;
+	bool connectionsEnded;
+	bool connectionsEndedManually;
+
+	TcpReassemblyStats() { clear(); }
+
+	void clear() { reassembledData = ""; numOfDataPackets = 0; curSide = -1; numOfMessagesFromSide[0] = 0; numOfMessagesFromSide[1] = 0; connectionsStarted = false; connectionsEnded = false; connectionsEndedManually = false; }
+};
+
+typedef std::map<uint32_t, TcpReassemblyStats> TcpReassemblyMultipleConnStats;
+typedef std::map<uint32_t, TcpReassemblyStats>::iterator TcpReassemblyMultipleConnStatsIter;
+
+std::string readFileIntoString(std::string fileName)
+{
+	std::ifstream infile(fileName.c_str(), std::ios::binary);
+	std::ostringstream ostrm;
+	ostrm << infile.rdbuf();
+	std::string res = ostrm.str();
+
+	return res;
+}
+
+void saveStringToFile(std::string& str, std::string fileName)
+{
+    std::ofstream outfile(fileName.c_str());
+    outfile << str;
+    outfile.close();
+}
+
+void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* userCookie)
+{
+	TcpReassemblyMultipleConnStats* stats = (TcpReassemblyMultipleConnStats*)userCookie;
+
+	TcpReassemblyMultipleConnStatsIter iter = stats->find(tcpData.getConnectionData().flowKey);
+	if (iter == stats->end())
+	{
+		stats->insert(std::make_pair(tcpData.getConnectionData().flowKey, TcpReassemblyStats()));
+		iter = stats->find(tcpData.getConnectionData().flowKey);
+	}
+
+
+	if (sideIndex != iter->second.curSide)
+	{
+		iter->second.numOfMessagesFromSide[sideIndex]++;
+		iter->second.curSide = sideIndex;
+	}
+
+	iter->second.numOfDataPackets++;
+	iter->second.reassembledData += std::string((char*)tcpData.getData(), tcpData.getDataLength());
+	//printf("\n***** got %d bytes from side %d conn 0x%X *****\n", tcpData.getDataLength(), sideIndex, tcpData.getConnectionData().flowKey);
+}
+
+void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* userCookie)
+{
+	TcpReassemblyMultipleConnStats* stats = (TcpReassemblyMultipleConnStats*)userCookie;
+
+	TcpReassemblyMultipleConnStatsIter iter = stats->find(connectionData.flowKey);
+	if (iter == stats->end())
+	{
+		stats->insert(std::make_pair(connectionData.flowKey, TcpReassemblyStats()));
+		iter = stats->find(connectionData.flowKey);
+	}
+
+	iter->second.connectionsStarted = true;
+
+	//printf("conn 0x%X started\n", connectionData.flowKey);
+}
+
+void tcpReassemblyConnectionEndCallback(ConnectionData connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
+{
+	TcpReassemblyMultipleConnStats* stats = (TcpReassemblyMultipleConnStats*)userCookie;
+
+	TcpReassemblyMultipleConnStatsIter iter = stats->find(connectionData.flowKey);
+	if (iter == stats->end())
+	{
+		stats->insert(std::make_pair(connectionData.flowKey, TcpReassemblyStats()));
+		iter = stats->find(connectionData.flowKey);
+	}
+
+	if (reason == TcpReassembly::TcpReassemblyConnectionClosedManually)
+		iter->second.connectionsEndedManually = true;
+	else
+		iter->second.connectionsEnded = true;
+
+	//printf("conn 0x%X ended\n", connectionData.flowKey);
+}
+
+bool tcpReassemblyReadPcapIntoPacketVec(std::string pcapFileName, std::vector<RawPacket>& packetStream, std::string& errMsg)
+{
+	errMsg = "";
+	packetStream.clear();
+
+	PcapFileReaderDevice reader(pcapFileName.c_str());
+	if (!reader.open())
+	{
+		errMsg = "Cannot open pcap file";
+		return false;
+	}
+
+	RawPacket rawPacket;
+	while (reader.getNextPacket(rawPacket))
+	{
+		packetStream.push_back(rawPacket);
+	}
+
+	return true;
+}
+
+RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, int numOfBytes)
+{
+	Packet packet(&rawPacket);
+
+	TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
+	if (tcpLayer == NULL)
+		throw;
+
+	IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
+	if (ipLayer == NULL)
+		throw;
+
+	int tcpPayloadSize = ntohs(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
+
+	if (numOfBytes <= 0)
+		numOfBytes = tcpPayloadSize-beginning;
+
+	uint8_t* newPayload = new uint8_t[numOfBytes];
+
+	if (beginning + numOfBytes <= tcpPayloadSize)
+	{
+		memcpy(newPayload, tcpLayer->getLayerPayload()+beginning, numOfBytes);
+	}
+	else
+	{
+		int bytesToCopy = tcpPayloadSize-beginning;
+		memcpy(newPayload, tcpLayer->getLayerPayload()+beginning, bytesToCopy);
+		for (int i = bytesToCopy; i < numOfBytes; i++)
+		{
+			newPayload[i] = '*';
+		}
+	}
+
+	Layer* curLayer = tcpLayer->getNextLayer();
+	while (curLayer != NULL)
+	{
+		packet.removeLayer(curLayer);
+		curLayer = curLayer->getNextLayer();
+	}
+
+	tcpLayer->getTcpHeader()->sequenceNumber = htonl(ntohl(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
+
+	PayloadLayer newPayloadLayer(newPayload, numOfBytes, false);
+	packet.addLayer(&newPayloadLayer);
+
+	packet.computeCalculateFields();
+
+	delete [] newPayload;
+
+	return *(packet.getRawPacket());
+}
+
+bool tcpReassemblyTest(std::vector<RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results, bool monitorOpenCloseConns, bool closeConnsManually)
+{
+	TcpReassembly* tcpReassembly = NULL;
+
+	if (monitorOpenCloseConns)
+		tcpReassembly = new TcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
+	else
+		tcpReassembly = new TcpReassembly(tcpReassemblyMsgReadyCallback, &results);
+
+	for (std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	{
+		Packet packet(&(*iter));
+		tcpReassembly->ReassemblePacket(packet);
+	}
+
+//	for(TcpReassemblyMultipleConnStatsIter iter = results.begin(); iter != results.end(); iter++)
+//	{
+//		// replace \r\n with \n
+//		size_t index = 0;
+//		while (true)
+//		{
+//			 index = iter->second.reassembledData.find("\r\n", index);
+//			 if (index == string::npos) break;
+//			 iter->second.reassembledData.replace(index, 2, "\n");
+//			 index += 1;
+//		}
+//	}
+
+	if (closeConnsManually)
+		tcpReassembly->closeAllFlows();
+
+	delete tcpReassembly;
+
+	return true;
+}
+
+PCAPP_TEST(TestTcpReassemblySanity)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 19, "Num of data packets isn't 19, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connections wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
+
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestTcpReassemblyRetran)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// retransmission includes exact same data
+	RawPacket retPacket1 = tcpReassemblyAddRetransmissions(packetStream.at(4), 0, 0);
+	// retransmission includes 10 bytes less than original data (missing bytes are from the beginning)
+	RawPacket retPacket2 =  tcpReassemblyAddRetransmissions(packetStream.at(10), 10, 0);
+	// retransmission includes 20 bytes less than original data (missing bytes are from the end)
+	RawPacket retPacket3 =  tcpReassemblyAddRetransmissions(packetStream.at(13), 0, 1340);
+	// retransmission includes 10 bytes more than original data (original data + 10 bytes)
+	RawPacket retPacket4 =  tcpReassemblyAddRetransmissions(packetStream.at(21), 0, 1430);
+	// retransmission includes 10 bytes less in the beginning and 20 bytes more at the end
+	RawPacket retPacket5 =  tcpReassemblyAddRetransmissions(packetStream.at(28), 10, 1370);
+	// retransmission includes 10 bytes less in the beginning and 15 bytes less at the end
+	RawPacket retPacket6 =  tcpReassemblyAddRetransmissions(packetStream.at(34), 10, 91);
+
+	packetStream.insert(packetStream.begin() + 5, retPacket1);
+	packetStream.insert(packetStream.begin() + 12, retPacket2);
+	packetStream.insert(packetStream.begin() + 16, retPacket3);
+	packetStream.insert(packetStream.begin() + 25, retPacket4);
+	packetStream.insert(packetStream.begin() + 33, retPacket5);
+	packetStream.insert(packetStream.begin() + 40, retPacket6);
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, false, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 21, "Num of data packets isn't 21, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
+
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_retransmission_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestTcpReassemblyMissingData)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// remove 20 bytes from the beginning
+	RawPacket missPacket1 = tcpReassemblyAddRetransmissions(packetStream.at(3), 20, 0);
+	packetStream.insert(packetStream.begin() + 4, missPacket1);
+	packetStream.erase(packetStream.begin() + 3);
+
+	// remove 30 bytes from the end
+	RawPacket missPacket2 = tcpReassemblyAddRetransmissions(packetStream.at(20), 0, 1390);
+	packetStream.insert(packetStream.begin() + 21, missPacket2);
+	packetStream.erase(packetStream.begin() + 20);
+
+	// remove whole packets
+	packetStream.erase(packetStream.begin() + 28);
+	packetStream.erase(packetStream.begin() + 30);
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, false, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 17, "Num of data packets isn't 21, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
+
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_missing_data_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+
+	packetStream.clear();
+	tcpReassemblyResults.clear();
+	expectedReassemblyData = "";
+
+
+
+	// test flow without SYN packet
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// remove SYN and SYN/ACK packets
+	packetStream.erase(packetStream.begin());
+	packetStream.erase(packetStream.begin());
+
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, false, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 19, "Num of data packets isn't 19, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
+
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestTcpReassemblyOutOfOrder)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// swap 2 consequent packets
+	std::swap(packetStream[9], packetStream[10]);
+
+	// swap 2 non-consequent packets
+	RawPacket oooPacket1 = packetStream[18];
+	packetStream.erase(packetStream.begin() + 18);
+	packetStream.insert(packetStream.begin() + 23, oooPacket1);
+
+	// reverse order of all packets in message
+	for (int i = 0; i < 12; i++)
+	{
+		RawPacket oooPacketTemp = packetStream[35];
+		packetStream.erase(packetStream.begin() + 35);
+		packetStream.insert(packetStream.begin() + 24 + i, oooPacketTemp);
+	}
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "OOO test: Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 19, "OOO test: Num of data packets isn't 19, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "OOO test: Num of messages from side 0 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "OOO test: Num of messages from side 1 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "OOO test: Connection wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "OOO test: Connection ended with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "OOO test: Connection wasn't ended manually");
+
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_out_of_order_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "OOO test: Reassembly data different than expected");
+
+	packetStream.clear();
+	tcpReassemblyResults.clear();
+	expectedReassemblyData = "";
+
+
+
+	// test out-of-order + missing data
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// reverse order of all packets in message
+	for (int i = 0; i < 12; i++)
+	{
+		RawPacket oooPacketTemp = packetStream[35];
+		packetStream.erase(packetStream.begin() + 35);
+		packetStream.insert(packetStream.begin() + 24 + i, oooPacketTemp);
+	}
+
+	// remove one packet
+	packetStream.erase(packetStream.begin() + 29);
+
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "OOO + missing data test: Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 18, "OOO + missing data test: Num of data packets isn't 18, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "OOO + missing data test: Num of messages from side 0 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "OOO + missing data test: Num of messages from side 1 isn't 2");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "OOO + missing data test: Connection wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "OOO + missing data test: Connection ended with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "OOO + missing data test: Connection wasn't ended manually");
+
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_missing_data_output_ooo.txt"));
+
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "OOO + missing data test: Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestTcpReassemblyWithFIN_RST)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	std::string expectedReassemblyData = "";
+
+	// test fin packet in end of connection
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "FIN test: Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 5, "FIN test: Num of data packets isn't 5, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "FIN test: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "FIN test: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "FIN test: Connection wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "FIN test: Connection didn't end with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "FIN test: Connection wasn ended manually");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "FIN test: Reassembly data different than expected");
+
+	packetStream.clear();
+	tcpReassemblyResults.clear();
+	expectedReassemblyData = "";
+
+	// test rst packet in end of connection
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_rst.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "RST test: Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 2, "RST test: Num of data packets isn't 2, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "RST test: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "RST test: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "RST test: Connection wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "RST test: Connection didn't end with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "RST test: Connection wasn ended manually");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_rst_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "RST test: Reassembly data different than expected");
+
+	packetStream.clear();
+	tcpReassemblyResults.clear();
+	expectedReassemblyData = "";
+
+	//test fin packet in end of connection that has also data
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "FIN with data test: Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 6, "FIN with data test: Num of data packets isn't 6, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "FIN with data test: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "FIN with data test: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "FIN with data test: Connection wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "FIN with data test: Connection didn't end with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "FIN with data test: Connection wasn ended manually");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "FIN with data test: Reassembly data different than expected");
+
+	packetStream.clear();
+	tcpReassemblyResults.clear();
+	expectedReassemblyData = "";
+
+	// test missing data before fin
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// move second packet of server->client message to the end of the message (after FIN)
+	RawPacket oooPacketTemp = packetStream[6];
+	packetStream.erase(packetStream.begin() + 6);
+	packetStream.insert(packetStream.begin() + 12, oooPacketTemp);
+
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "Missing data before FIN test: Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 5, "Missing data before FIN test: Num of data packets isn't 5, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "Missing data before FIN test: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "Missing data before FIN test: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Missing data before FIN test: Connection wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "Missing data before FIN test: Connection didn't end with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "Missing data before FIN test: Connection wasn ended manually");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output2.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Missing data before FIN test: Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestTcpReassemblyMalformedPkts)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	std::string expectedReassemblyData = "";
+
+	// test retransmission with new data but payload doesn't really contain all the new data
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// take one of the packets and increase the IPv4 total length field
+	Packet malPacket(&packetStream.at(8));
+	IPv4Layer* ipLayer = malPacket.getLayerOfType<IPv4Layer>();
+	PCAPP_ASSERT(ipLayer != NULL, "Cannot find the IPv4 layer of the packet");
+	ipLayer->getIPv4Header()->totalLength = ntohs(htons(ipLayer->getIPv4Header()->totalLength) + 40);
+
+//	PcapFileWriterDevice writer("pasdasda.pcap");
+//	writer.open();
+//
+//	for (std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+//	{
+//		writer.writePacket(*iter);
+//	}
+//
+//	writer.close();
+
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 6, "Num of data packets isn't 6, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connection wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "Connection didn't end with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "Connection wasn ended manually");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
+
+PCAPP_TEST(TestTcpReassemblyMultipleConns)
+{
+	TcpReassemblyMultipleConnStats results;
+	std::string errMsg;
+	std::string expectedReassemblyData = "";
+
+	TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
+
+	std::vector<RawPacket> packetStream;
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/three_http_streams.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	RawPacket finPacket1 = packetStream.at(13);
+	RawPacket finPacket2 = packetStream.at(15);
+
+	packetStream.erase(packetStream.begin() + 13);
+	packetStream.erase(packetStream.begin() + 14);
+
+	for (std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	{
+		Packet packet(&(*iter));
+		tcpReassembly.ReassemblePacket(packet);
+	}
+
+	PCAPP_ASSERT(results.size() == 3, "Num of connections isn't 3");
+
+	TcpReassemblyMultipleConnStatsIter iter = results.begin();
+
+	PCAPP_ASSERT(iter->second.numOfDataPackets == 2, "Conn #1: Num of data packets isn't 2, it's %d", iter->second.numOfDataPackets);
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[0] == 1, "Conn #1: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[1] == 1, "Conn #1: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(iter->second.connectionsStarted == true, "Conn #1: Connection wasn't opened");
+	PCAPP_ASSERT(iter->second.connectionsEnded == true, "Conn #1: Connection didn't end with FIN or RST");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == false, "Conn #1: Connections ended manually");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/three_http_streams_conn_1_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #1: Reassembly data different than expected");
+
+	iter++;
+
+	PCAPP_ASSERT(iter->second.numOfDataPackets == 2, "Conn #2: Num of data packets isn't 2, it's %d", iter->second.numOfDataPackets);
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[0] == 1, "Conn #2: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[1] == 1, "Conn #2: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(iter->second.connectionsStarted == true, "Conn #2: Connection wasn't opened");
+	PCAPP_ASSERT(iter->second.connectionsEnded == true, "Conn #2: Connection didn't end with FIN or RST");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == false, "Conn #2: Connections ended manually");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/three_http_streams_conn_2_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #2: Reassembly data different than expected");
+
+	iter++;
+
+	PCAPP_ASSERT(iter->second.numOfDataPackets == 2, "Conn #3: Num of data packets isn't 2, it's %d", iter->second.numOfDataPackets);
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[0] == 1, "Conn #3: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[1] == 1, "Conn #3: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(iter->second.connectionsStarted == true, "Conn #3: Connection wasn't opened");
+	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended with FIN or RST");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == false, "Conn #3: Connections ended manually");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/three_http_streams_conn_3_output.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #3: Reassembly data different than expected");
+
+
+	// close flow manually and verify it's closed
+
+	tcpReassembly.closeFlow(iter->first);
+	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended supposedly ended with FIN or RST although ended manually");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections still isn't ended even though ended manually");
+
+
+	// now send FIN packets of conn 3 and verify they are igonred
+
+	tcpReassembly.ReassemblePacket(&finPacket1);
+	tcpReassembly.ReassemblePacket(&finPacket2);
+
+	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended supposedly ended with FIN or RST after FIN packets sent although ended manually before");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections isn't ended after FIN packets sent even though ended manually before");
+
+	PCAPP_TEST_PASSED;
+}
+
 static struct option PcapTestOptions[] =
 {
 	{"debug-mode", no_argument, 0, 'd'},
@@ -3724,5 +4329,13 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestDpdkMbufRawPacket, args, true);
 	PCAPP_RUN_TEST(TestDpdkDeviceWorkerThreads, args, true);
 	PCAPP_RUN_TEST(TestGetMacAddress, args, true);
+	PCAPP_RUN_TEST(TestTcpReassemblySanity, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyRetran, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyMissingData, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyOutOfOrder, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyWithFIN_RST, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyMalformedPkts, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyMultipleConns, args, false);
+
 	PCAPP_END_RUNNING_TESTS;
 }

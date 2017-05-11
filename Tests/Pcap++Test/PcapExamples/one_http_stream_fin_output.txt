@@ -1,0 +1,62 @@
+GET /softw/90/update/avg9infoavi.ctf HTTP/1.1
+User-Agent: AVGINET9-WVSXX86 90 AVI=270.14.62/2499 BUILD=707 LOC=1033 LIC=9I-ASXNN-X4WGW-M0XFR-T84VX-3VX02 DIAG=51E OPF=0 PCA=
+Host: backup.avg.cz
+Accept: */*
+Accept-Encoding: identity,deflate,gzip
+If-Modified-Since: Thu, 12 Nov 2009 16:23:57 GMT
+Pragma: no-cache
+Cache-Control: no-cache
+x-avg-id:78-175950268
+
+HTTP/1.1 200 OK
+Date: Fri, 13 Nov 2009 17:36:13 GMT
+Server: Apache
+Last-Modified: Fri, 13 Nov 2009 10:07:16 GMT
+ETag: "15c00c-cec-4783dd30c9d00"
+Accept-Ranges: bytes
+Content-Length: 3308
+Connection: close
+Content-Type: text/plain
+
+AVG CTF Index File;ver(10)
+bin(u7avi1768u1323vd.bin)grp(avi:1768)dep(avi:1323)tm(0911130859)pri(2)len(584438)
+bin(u7avi1768u1705vd.bin)grp(avi:1768)dep(avi:1705)tm(0911130859)pri(2)len(89731)
+bin(u7avi1768vd.bin)grp(avi:1768)tm(0911130859)pri(2)len(6631895)
+bin(u7iavi2500u2240vl.bin)grp(iavi:2500)dep(iavi:2240)tm(0911130859)pri(2)len(6592402)
+bin(u7iavi2500u2343vk.bin)grp(iavi:2500)dep(iavi:2343)tm(0911130859)pri(2)len(4408288)
+bin(u7iavi2500u2394vj.bin)grp(iavi:2500)dep(iavi:2394)tm(0911130859)pri(2)len(3238539)
+bin(u7iavi2500u2419vi.bin)grp(iavi:2500)dep(iavi:2419)tm(0911130859)pri(2)len(2581106)
+bin(u7iavi2500u2447vh.bin)grp(iavi:2500)dep(iavi:2447)tm(0911130859)pri(2)len(1680745)
+bin(u7iavi2500u2469vh.bin)grp(iavi:2500)dep(iavi:2469)tm(0911130859)pri(2)len(576782)
+bin(u7iavi2500u2480vg.bin)grp(iavi:2500)dep(iavi:2480)tm(0911130859)pri(2)len(351846)
+bin(u7iavi2500u2490vf.bin)grp(iavi:2500)dep(iavi:2490)tm(0911130859)pri(2)len(224921)
+bin(u7iavi2500u2495ve.bin)grp(iavi:2500)dep(iavi:2495)tm(0911130859)pri(2)len(114504)
+bin(u7iavi2500u2498ve.bin)grp(iavi:2500)dep(iavi:2498)tm(0911130859)pri(2)len(66417)
+bin(u7iavi2500u2499vd.bin)grp(iavi:2500)dep(iavi:2499)tm(0911130859)pri(2)len(57546)
+bin(u7iavi2500vd.bin)grp(iavi:2500)tm(0911130859)pri(2)len(45302580)
+bin(u9ichjw4qt.bin)grp(ichjw:4)pri(2)tm(0907131859)len(113488)
+bin(u9ichjw4u2ia.bin)grp(ichjw:4)dep(ichjw:2)pri(2)tm(0907131859)len(94470)
+bin(u9ichjw4u3gq.bin)grp(ichjw:4)dep(ichjw:3)pri(2)tm(0907131859)len(13313)
+bin(u9idat249b243tc.bin)grp(idat:249)dif(idat:243)pri(2)tm(0911051401)len(621430)
+bin(u9idat249b245bp.bin)grp(idat:249)dif(idat:245)pri(2)tm(0911051401)len(197648)
+bin(u9idat249b246mj.bin)grp(idat:249)dif(idat:246)pri(2)tm(0911051400)len(159289)
+bin(u9idat249b247uh.bin)grp(idat:249)dif(idat:247)pri(2)tm(0911051400)len(95680)
+bin(u9idat249le.bin)grp(idat:249)pri(2)tm(0911051400)len(1927074)
+bin(u9ifw41u37zx.bin)grp(ifw:41)dep(ifw:37)pri(2)tm(0911061400)len(524793)
+bin(u9ifw41u38aq.bin)grp(ifw:41)dep(ifw:38)pri(2)tm(0911061400)len(117578)
+bin(u9ifw41u39uk.bin)grp(ifw:41)dep(ifw:39)pri(2)tm(0911061400)len(83318)
+bin(u9ifw41u40cy.bin)grp(ifw:41)dep(ifw:40)pri(2)tm(0911061400)len(57819)
+bin(u9ifw41vk.bin)grp(ifw:41)pri(2)tm(0911061400)len(539596)
+bin(x8all232pm.bin)grp(xplph:0012;xplsb:0098;xplsb2:0116;xplsc:0147)tm(0911120924)pri(2)len(1143706)
+bin(x8xplph_12gj.bin)grp(xplph:12)tm(0910280700)pri(2)len(4551)
+bin(x8xplsb2_116x1.bin)grp(xplsb2:116)tm(0911101714)pri(2)len(4948)
+bin(x8xplsb_98d94k0.bin)grp(xplsb:98)dif(xplsb:94)tm(0911110700)pri(2)len(32199)
+bin(x8xplsb_98d95k0.bin)grp(xplsb:98)dif(xplsb:95)tm(0911110700)pri(2)len(32220)
+bin(x8xplsb_98d96k0.bin)grp(xplsb:98)dif(xplsb:96)tm(0911110700)pri(2)len(3495)
+bin(x8xplsb_98d97k0.bin)grp(xplsb:98)dif(xplsb:97)tm(0911110700)pri(2)len(577)
+bin(x8xplsb_98k0.bin)grp(xplsb:98)tm(0911110700)pri(2)len(985384)
+bin(x8xplsc_147d143s0.bin)grp(xplsc:147)dif(xplsc:143)tm(0911120923)pri(2)len(1905)
+bin(x8xplsc_147d144s0.bin)grp(xplsc:147)dif(xplsc:144)tm(0911120923)pri(2)len(1690)
+bin(x8xplsc_147d145s0.bin)grp(xplsc:147)dif(xplsc:145)tm(0911120923)pri(2)len(1531)
+bin(x8xplsc_147d146s0.bin)grp(xplsc:147)dif(xplsc:146)tm(0911120923)pri(2)len(725)
+bin(x8xplsc_147s0.bin)grp(xplsc:147)tm(0911120923)pri(2)len(149393)

@@ -87,6 +87,9 @@
     <ClInclude Include="..\..\Packet++\header\TcpLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\TcpReassembly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Packet++\header\UdpLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -156,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\TcpLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\TcpReassembly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\UdpLayer.cpp">

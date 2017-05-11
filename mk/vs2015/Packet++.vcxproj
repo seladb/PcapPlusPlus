@@ -196,6 +196,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <ClInclude Include="..\..\Packet++\header\SSLHandshake.h" />
     <ClInclude Include="..\..\Packet++\header\SSLLayer.h" />
     <ClInclude Include="..\..\Packet++\header\TcpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\TcpReassembly.h" />
     <ClInclude Include="..\..\Packet++\header\UdpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\VlanLayer.h" />
   </ItemGroup>
@@ -222,6 +223,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <ClCompile Include="..\..\Packet++\src\SSLHandshake.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSLLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\TcpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\TcpReassembly.cpp" />
     <ClCompile Include="..\..\Packet++\src\UdpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\VlanLayer.cpp" />
   </ItemGroup>

@@ -1,0 +1,130 @@
+GET /forward.html HTTP/1.1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/534.55.3 (KHTML, like Gecko) Version/5.1.3 Safari/534.53.10
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Referer: http://www.bowlsbybruno.com/
+Cookie: B=fdnulql8iqc6l&b=3&s=ps
+Connection: Keep-Alive
+Accept-Encoding: gzip
+Accept-Language: en,*
+Host: webhosting.yahoo.com
+
+HTTP/1.1 404 Not Found
+Date: Tue, 26 Feb 2013 22:02:37 GMT
+P3P: policyref="http://info.yahoo.com/w3c/p3p.xml", CP="CAO DSP COR CUR ADM DEV TAI PSA PSD IVAi IVDi CONi TELo OTPi OUR DELi SAMi OTRi UNRi PUBi IND PHY ONL UNI PUR FIN COM NAV INT DEM CNT STA POL HEA PRE LOC GOV"
+X-Host: p9h3.geo.bf1.yahoo.com
+X-INKT-URI: http://us.webhosting.yahoo.com/server-errors/not_found.html
+X-INKT-SITE: http://us.webhosting.yahoo.com
+Last-Modified: Mon, 13 Aug 2012 10:24:03 GMT
+Accept-Ranges: bytes
+Content-Length: 6484
+Cache-Control: private
+Connection: close
+Content-Type: text/html
+
+<HTML><HEAD><TITLE>Yahoo!</TITLE>
+</HEAD><BODY BGCOLOR=white vlink=blue><center>
+<table width=675 cellpadding=0 cellspacing=2 border=0>
+	<tr>
+	<td width=1% valign=top><a href="http://www.yahoo.com"><img src=http://l.yimg.com/a/i/yahoo.gif width=147 height=31 border=0 alt="Yahoo"></a></td>
+	<td align=right><font face=arial size=-1><a href="/404/*http://www.yahoo.com">Yahoo!</a> - <a href="http://help.yahoo.com">Help</a></font><hr size=1 noshade></td>
+	</tr>
+</table>
+<br>
+<table border=0 width=675 cellspacing=0 cellpadding=3>
+<tr>
+<td bgcolor=003399 colspan=2>
+<font face=Arial size=+1 color=white><b>Sorry, the page you requested was not found.</b></font>
+</td>
+</tr></table>
+<br>
+<table border=0 width=675 cellspacing=0 cellpadding=1>
+<tr>
+<td valign=top width=229 bgcolor=ffffff>
+
+<table width="100%" cellpadding=1 cellspacing=0 border=0 bgcolor=dcdcdc><tr>
+<td valign=top align=center><table width="100%" cellpadding=3 cellspacing=0 border=0 bgcolor=ffffff>
+<tr bgcolor=dcdcdc><td><font face=arial><b>Search Yahoo!</b></font></td></tr>
+<tr bgcolor=white><td valign=top align=center>
+<form action="http://search.yahoo.com/search">
+<input size="14" name="p" value="">&nbsp;
+<input type="SUBMIT" value="Search">
+<font face=arial size=-2>&#149;&nbsp;<a href="http://search.yahoo.com/search/options?p=">advanced search</a> &#149;&nbsp;<a href="http://buzz.yahoo.com">most popular</a></font>
+</form></td></tr></table>
+<table width=100% border=0 cellspacing=0 cellpadding=3 bgcolor=ffffff>
+<tr bgcolor=ccccff><td>
+<FONT face=arial size=+1>Yahoo! Web Hosting</font>        
+</td></tr>
+<tr><td>
+<a href=http://webhosting.yahoo.com/ps/wh/prod/><img align=left src=http://l.yimg.com/a/i/us/wh/gr/j_advan48.gif width=48 height=48 border=0 alt="Yahoo! Web Hosting"></a>
+<font face=arial size=-1>Yahoo! Web Hosting has <a href="http://webhosting.yahoo.com/ps/wh/prod/">three affordable plans</a> to meet your needs - starting at just $11.95.
+</td></tr>
+<tr><td align=right>
+<b><font face=arial size=-1><a href=http://webhosting.yahoo.com/ps/wh/prod/>Learn more...</a></font></b>
+</td></tr>
+</table>
+</td></tr></table>
+</td>
+<td width=1>&nbsp;</td>
+<td valign=top align=center width=445>
+<script language="JavaScript" type="text/javascript"
+src="http://adserver.yahoo.com/a?f=76001284&p=geocities&l=MON&c=sr">
+</script>
+<noscript>
+<iframe
+src="http://adserver.yahoo.com/a?f=76001284&p=geocities&l=MON&c=sh&bg=ffffff"
+width=470 height=580 marginwidth=0 marginheight=0 hspace=0
+vspace=0 frameborder=0 scrolling=no>
+</iframe>
+</noscript>
+</td>
+</tr>
+</table>
+<br>
+<table cellpadding=0 cellspacing=0 border=0 width=675><tr><td bgcolor=a0b8c8>
+<table cellpadding=1 cellspacing=1 border=0 width="100%">
+<tr valign=top bgcolor=ffffff><td align=center>
+<font face=arial size=-2><A
+href="http://rd.yahoo.com/footer/?http://address.yahoo.com/">Address Book</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://alerts.yahoo.com/">Alerts</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://auctions.yahoo.com/">Auctions</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://billpay.yahoo.com/">Bill Pay</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://bookmarks.yahoo.com/">Bookmarks</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://briefcase.yahoo.com/">Briefcase</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://broadcast.yahoo.com/">Broadcast</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://calendar.yahoo.com/">Calendar</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://chat.yahoo.com/">Chat</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://classifieds.yahoo.com/">Classifieds</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://clubs.yahoo.com/">Clubs</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://companion.yahoo.com/">Companion</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://experts.yahoo.com/">Experts</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://games.yahoo.com/">Games</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://greetings.yahoo.com/">Greetings</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://geocities.yahoo.com/">Home Pages</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://invites.yahoo.com/">Invites</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://mail.yahoo.com/">Mail</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://maps.yahoo.com/">Maps</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://members.yahoo.com/">Member Directory</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://messenger.yahoo.com/">Messenger</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://my.yahoo.com/">My Yahoo!</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://news.yahoo.com/">News</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://paydirect.yahoo.com/">PayDirect</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://people.yahoo.com/">People Search</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://personals.yahoo.com/">Personals</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://photos.yahoo.com/">Photos</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://shopping.yahoo.com/">Shopping</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://sports.yahoo.com/">Sports</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://finance.yahoo.com/">Stock Quotes</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://tv.yahoo.com/">TV</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://travel.yahoo.com/">Travel</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://weather.yahoo.com/">Weather</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://www.yahooligans.com/">Yahooligans</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://yp.yahoo.com/">Yellow Pages</A> &#183; <A
+href="http://rd.yahoo.com/footer/?http://docs.yahoo.com/docs/family/more.html">more...</A>
+</font></td></tr></table></td></tr></table>
+<p><center><hr noshade size=1 width="675"><table border=0 cellpadding=0 cellspacing=0><tr><td align=center valign=bottom width="100%"><font size="-2" face=arial>Copyright &copy; 2002 <a href="http://www.yahoo.com" target="_top">Yahoo! Inc.</a> All rights reserved.<br><b>NOTICE: We collect personal information on this site. To learn more about how we use your information, see our <a href="http://privacy.yahoo.com/privacy/us/" target="_top">Yahoo Privacy Policy</a></b></font></td></tr></table></center>
+</center>
+<!-- error 404 -->
+</body>
+</html>
+
+<IMG SRC="http://geo.yahoo.com/serv?s=19190039&t=1361916157&f=us-p9h3" ALT=1 WIDTH=1 HEIGHT=1>
