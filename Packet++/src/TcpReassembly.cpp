@@ -152,6 +152,8 @@ void TcpReassembly::ReassemblePacket(Packet& tcpData)
 
 		m_ConnectionList[flowKey] = tcpReassemblyData;
 
+		m_ConnectionInfo.push_back(tcpReassemblyData->connData);
+
 		// fire connection start callback
 		if (m_OnConnStart != NULL)
 			m_OnConnStart(tcpReassemblyData->connData, m_UserCookie);
@@ -660,6 +662,22 @@ void TcpReassembly::closeAllConnections()
 
 		LOG_DEBUG("Connection with flow key 0x%X is closed", flowKey);
 	}
+}
+
+const std::vector<ConnectionData>& TcpReassembly::getConnectionInformation() const
+{
+	return m_ConnectionInfo;
+}
+
+int TcpReassembly::isConnectionOpen(const ConnectionData& connection)
+{
+	if (m_ConnectionList.find(connection.flowKey) != m_ConnectionList.end())
+		return 1;
+
+	if (m_ClosedConnectionList.find(connection.flowKey) != m_ClosedConnectionList.end())
+		return 0;
+
+	return -1;
 }
 
 }

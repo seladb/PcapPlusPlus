@@ -242,6 +242,19 @@ public:
 	 */
 	void closeAllConnections();
 
+	/**
+	 * Get a list of all connections managed by this TcpReassembly instance (both connections that are open and those that are already closed)
+	 * @return A list of all connections managed. Notice this list is constant and cannot be changed by the user
+	 */
+	const std::vector<ConnectionData>& getConnectionInformation() const;
+
+	/**
+	 * Check if a certain connection managed by this TcpReassembly instance is currently opened or closed
+	 * @param[in] connection The connection to check
+	 * @return A positive number (> 0) if connection is opened, zero (0) if connection is closed, and a negative number (< 0) if this connection isn't managed by this TcpReassembly instance
+	 */
+	int isConnectionOpen(const ConnectionData& connection);
+
 private:
 	struct TcpFragment
 	{
@@ -280,6 +293,7 @@ private:
 	void* m_UserCookie;
 	std::map<uint32_t, TcpReassemblyData*> m_ConnectionList;
 	std::map<uint32_t, bool> m_ClosedConnectionList;
+	std::vector<ConnectionData> m_ConnectionInfo;
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int sideIndex, bool cleanWholeFragList);
 

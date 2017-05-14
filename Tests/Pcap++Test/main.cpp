@@ -4183,6 +4183,24 @@ PCAPP_TEST(TestTcpReassemblyMultipleConns)
 	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #3: Reassembly data different than expected");
 
 
+	// test getConnectionInformation and isConnectionOpen
+
+	const std::vector<ConnectionData> managedConnections = tcpReassembly.getConnectionInformation();
+	PCAPP_ASSERT(managedConnections.size() == 3, "Size of managed connection list isn't 3");
+	std::vector<ConnectionData>::const_iterator connIter = managedConnections.begin();
+	PCAPP_ASSERT(tcpReassembly.isConnectionOpen(*connIter) > 0, "Connection #1 is closed");
+
+	connIter++;
+	PCAPP_ASSERT(tcpReassembly.isConnectionOpen(*connIter) == 0, "Connection #2 is still open");
+
+	connIter++;
+	PCAPP_ASSERT(tcpReassembly.isConnectionOpen(*connIter) == 0, "Connection #3 is still open");
+
+	ConnectionData dummyConn;
+	dummyConn.flowKey = 0x12345678;
+	PCAPP_ASSERT(tcpReassembly.isConnectionOpen(dummyConn) < 0, "Dummy connection exists");
+
+
 	// close flow manually and verify it's closed
 
 	tcpReassembly.closeConnection(iter->first);
