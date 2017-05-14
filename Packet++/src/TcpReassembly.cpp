@@ -431,7 +431,7 @@ void TcpReassembly::handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int sid
 	// check if the other side also sees FIN or RST packet. If so - close the flow. Otherwise - only clear the out-of-order packets for this side
 	int otherSideIndex = 1 - sideIndex;
 	if (tcpReassemblyData->twoSides[otherSideIndex].gotFinOrRst)
-		closeFlowInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
+		closeConnectionInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
 	else
 		checkOutOfOrderFragments(tcpReassemblyData, sideIndex, true);
 }
@@ -599,12 +599,12 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 	}
 }
 
-void TcpReassembly::closeFlow(uint32_t flowKey)
+void TcpReassembly::closeConnection(uint32_t flowKey)
 {
-	closeFlowInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedManually);
+	closeConnectionInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedManually);
 }
 
-void TcpReassembly::closeFlowInternal(uint32_t flowKey, ConnectionEndReason reason)
+void TcpReassembly::closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason)
 {
 	TcpReassemblyData* tcpReassemblyData = NULL;
 	std::map<uint32_t, TcpReassemblyData*>::iterator iter = m_ConnectionList.find(flowKey);
@@ -634,7 +634,7 @@ void TcpReassembly::closeFlowInternal(uint32_t flowKey, ConnectionEndReason reas
 	LOG_DEBUG("Connection with flow key 0x%X is closed", flowKey);
 }
 
-void TcpReassembly::closeAllFlows()
+void TcpReassembly::closeAllConnections()
 {
 	LOG_DEBUG("Closing all flows");
 
@@ -661,6 +661,5 @@ void TcpReassembly::closeAllFlows()
 		LOG_DEBUG("Connection with flow key 0x%X is closed", flowKey);
 	}
 }
-
 
 }

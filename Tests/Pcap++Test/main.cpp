@@ -3794,7 +3794,7 @@ bool tcpReassemblyTest(std::vector<RawPacket>& packetStream, TcpReassemblyMultip
 //	}
 
 	if (closeConnsManually)
-		tcpReassembly->closeAllFlows();
+		tcpReassembly->closeAllConnections();
 
 	delete tcpReassembly;
 
@@ -4185,7 +4185,7 @@ PCAPP_TEST(TestTcpReassemblyMultipleConns)
 
 	// close flow manually and verify it's closed
 
-	tcpReassembly.closeFlow(iter->first);
+	tcpReassembly.closeConnection(iter->first);
 	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended supposedly ended with FIN or RST although ended manually");
 	PCAPP_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections still isn't ended even though ended manually");
 

@@ -253,7 +253,8 @@ namespace pcpp
 	public:
 		/**
 		 * @typedef EventHandlerCallback
-		 * The callback to be activated when the event occurs
+		 * The callback to be invoked when the event occurs
+		 * @param[in] cookie A pointer the the cookie provided by the user in ApplicationEventHandler c'tor
 		 */
 		typedef void (*EventHandlerCallback)(void* cookie);
 

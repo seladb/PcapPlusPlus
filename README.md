@@ -11,6 +11,7 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and mani
 - Support for **DPDK** fast packet processing engine which enables packet capturing and transmition in line rate using kernel bypass
 - Support for ntop's **PF_RING** packet capturing engine that dramatically improves the packet capture speed
 - Support for parsing and editing of many protocols, including L7 protocols like HTTP and SSL/TLS
+- Unique implementation of **TCP reassembly** logic which includes support of TCP retransmission, out-of-order TCP packets and missing TCP data
 - Support for Remote Capture capabilities on Windows (using RPCAP protocol supported in WinPcap)
 - Support for reading and writing **PCAPNG** files (a lot more more than currently supported in WinPcap/libpcap)
 - Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
@@ -112,6 +113,15 @@ PcapPlusPlus currently works with the following devices:
 4. DPDK device (on Linux)
 5. Remote live device (on Windows)
 6. PCAP and PCAPNG file devices
+
+
+#### Useful Packet And Network Utilities ####
+
+1. TCP reassembly logic
+2. Packet hash key creation (by 5-tuple and 2-tuple)
+3. Retrieve remote machine MAC address using ARP protocol
+4. Retrieve host IPv4 address by using DNS protocol
+5. Checksum calculation
 
 
 #### API Documentation ####
