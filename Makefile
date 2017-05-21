@@ -23,6 +23,7 @@ EXAMPLE_SSLANALYZER  := Examples/SSLAnalyzer
 EXAMPLE_PCAPSPLITTER := Examples/PcapSplitter
 EXAMPLE_PCAPSEARCH   := Examples/PcapSearch
 EXAMPLE_ICMP_FT      := Examples/IcmpFileTransfer
+EXAMPLE_TCP_REASM    := Examples/TcpReassembly
 
 
 UNAME := $(shell uname)
@@ -54,11 +55,12 @@ all: libs
 	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) DnsSpoofing
 	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) DNSResolver
 	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) HttpAnalyzer
-	cd $(EXAMPLE_PCAP_PRINT)		&& $(MAKE) PcapPrinter
-	cd $(EXAMPLE_SSLANALYZER)		&& $(MAKE) SSLAnalyzer
-	cd $(EXAMPLE_PCAPSPLITTER)		&& $(MAKE) PcapSplitter
+	cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) PcapPrinter
+	cd $(EXAMPLE_SSLANALYZER)       && $(MAKE) SSLAnalyzer
+	cd $(EXAMPLE_PCAPSPLITTER)      && $(MAKE) PcapSplitter
 	cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) PcapSearch
 	cd $(EXAMPLE_ICMP_FT)           && $(MAKE) IcmpFileTransfer-pitcher && $(MAKE) IcmpFileTransfer-catcher
+	cd $(EXAMPLE_TCP_REASM)         && $(MAKE) TcpReassembly
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
 endif
@@ -80,7 +82,8 @@ endif
 	$(CP) $(EXAMPLE_SSLANALYZER)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_PCAPSPLITTER)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_PCAPSEARCH)/Bin/* ./Dist/examples
-	$(CP) $(EXAMPLE_ICMP_FT)/Bin/* ./Dist/examples	
+	$(CP) $(EXAMPLE_ICMP_FT)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_TCP_REASM)/Bin/* ./Dist/examples
 ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
 endif
@@ -109,6 +112,7 @@ clean:
 	cd $(EXAMPLE_PCAPSPLITTER)      && $(MAKE) clean
 	cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) clean
 	cd $(EXAMPLE_ICMP_FT)           && $(MAKE) clean
+	cd $(EXAMPLE_TCP_REASM)         && $(MAKE) clean
 ifdef USE_DPDK
 	cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 endif
