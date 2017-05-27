@@ -10,6 +10,7 @@
 #include "PcapFileDevice.h"
 #include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
+#include "LRUList.h"
 #include <getopt.h>
 
 using namespace pcpp;
@@ -25,6 +26,9 @@ using namespace pcpp;
 #else
 #define SEPARATOR '/'
 #endif
+
+#define MAX_NUMBER_OF_CONCURRENT_OPEN_FILES 500
+
 
 static struct option TcpAssemblyOptions[] =
 {
@@ -74,12 +78,15 @@ public:
 		return stream.str();
 	}
 
-	std::ostream* openFileStream(std::string fileName)
+	std::ostream* openFileStream(std::string fileName, bool reopen)
 	{
 		if (writeToConsole)
 			return &std::cout;
 
-		return new std::ofstream(fileName.c_str(), std::ios_base::binary);
+		if (reopen)
+			return new std::ofstream(fileName.c_str(), std::ios_base::binary | std::ios_base::app);
+		else
+			return new std::ofstream(fileName.c_str(), std::ios_base::binary);
 	}
 
 	void closeFileSteam(std::ostream* fileStream)
@@ -103,13 +110,11 @@ public:
 struct TcpReassemblyData
 {
 	std::ostream* fileStreams[2];
+	bool reopenFileStreams[2];
 	int curSide;
 	int numOfDataPackets[2];
 	int numOfMessagesFromSide[2];
 	int bytesFromSide[2];
-	bool connectionsStarted;
-	bool connectionsEnded;
-	bool connectionsEndedManually;
 
 	TcpReassemblyData() { fileStreams[0] = NULL; fileStreams[1] = NULL; clear(); }
 
@@ -126,11 +131,19 @@ struct TcpReassemblyData
 	void clear()
 	{
 		if (fileStreams[0] != NULL)
+		{
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[0]);
+			fileStreams[0] = NULL;
+		}
 
 		if (fileStreams[1] != NULL)
+		{
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[1]);
+			fileStreams[1] = NULL;
+		}
 
+		reopenFileStreams[0] = false;
+		reopenFileStreams[1] = false;
 		numOfDataPackets[0] = 0;
 		numOfDataPackets[1] = 0;
 		numOfMessagesFromSide[0] = 0;
@@ -138,9 +151,6 @@ struct TcpReassemblyData
 		bytesFromSide[0] = 0;
 		bytesFromSide[1] = 0;
 		curSide = -1;
-		connectionsStarted = false;
-		connectionsEnded = false;
-		connectionsEndedManually = false;
 	}
 };
 
@@ -163,10 +173,10 @@ void printUsage()
 			"    -i interface  : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address. Required argument for capturing from live interface\n"
 			"    -o outpit_dir : Specify output directory (default is '.')\n"
 			"    -e bpf_filter : Apply a BPF filter to capture file or live interface, meaning TCP reassembly will only work on filtered packets\n"
-			"    -c            : Write all output to console (nothing will be written to files\n"
+			"    -c            : Write all output to console (nothing will be written to files)\n"
 			"    -m            : Write a metadata file for each connection\n"
 			"    -s            : Write each side of each connection to a separate file (default is writing both sides of each connection to the same file)\n"
-			"    -l            : Print the list of interfaces and exist\n"
+			"    -l            : Print the list of interfaces and exit\n"
 			"    -h            : Display this help message and exit\n\n");
 	exit(0);
 }
@@ -189,6 +199,8 @@ void listInterfaces()
 
 static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* userCookie)
 {
+	static LRUList<uint32_t> recentConnsWithActivity(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES);
+
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;
 
 	TcpReassemblyConnMgrIter iter = connMgr->find(tcpData.getConnectionData().flowKey);
@@ -206,8 +218,26 @@ static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, 
 
 	if (iter->second.fileStreams[side] == NULL)
 	{
-		std::string fileName = GlobalConfig::getInstance().getFileName(tcpData.getConnectionData(), sideIndex, GlobalConfig::getInstance().separateSides) + ".txt";
-		iter->second.fileStreams[side] = GlobalConfig::getInstance().openFileStream(fileName);
+		uint32_t* flowKeyToCloseFiles = recentConnsWithActivity.put(tcpData.getConnectionData().flowKey);
+		if (flowKeyToCloseFiles != NULL)
+		{
+			TcpReassemblyConnMgrIter iter2 = connMgr->find(*flowKeyToCloseFiles);
+			if (iter2 != connMgr->end())
+			{
+				for (int index = 0; index < 1; index++)
+				{
+					if (iter2->second.fileStreams[index] != NULL)
+					{
+						GlobalConfig::getInstance().closeFileSteam(iter2->second.fileStreams[index]);
+						iter2->second.fileStreams[index] = NULL;
+						iter2->second.reopenFileStreams[index] = true;
+					}
+				}
+			}
+		}
+
+		std::string fileName = GlobalConfig::getInstance().getFileName(tcpData.getConnectionData(), sideIndex, GlobalConfig::getInstance().separateSides); //TODO+ ".txt";
+		iter->second.fileStreams[side] = GlobalConfig::getInstance().openFileStream(fileName, iter->second.reopenFileStreams[side]);
 	}
 
 	if (sideIndex != iter->second.curSide)
@@ -236,8 +266,6 @@ static void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, 
 		connMgr->insert(std::make_pair(connectionData.flowKey, TcpReassemblyData()));
 		iter = connMgr->find(connectionData.flowKey);
 	}
-
-	iter->second.connectionsStarted = true;
 }
 
 static void tcpReassemblyConnectionEndCallback(ConnectionData connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
@@ -275,7 +303,6 @@ static void onApplicationInterrupted(void* cookie)
 {
 	bool* shouldStop = (bool*)cookie;
 	*shouldStop = true;
-	printf("got to ctrl-c code\n");
 }
 
 /**
@@ -301,6 +328,8 @@ void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembl
 			EXIT_WITH_ERROR("Cannot set BPF filter to pcap file");
 	}
 
+	printf("Starting reading '%s'...\n", fileName.c_str());
+
 	RawPacket rawPacket;
 	while (reader->getNextPacket(rawPacket))
 	{
@@ -312,6 +341,8 @@ void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembl
 	reader->close();
 
 	delete reader;
+
+	printf("Done! processed %d connections\n", tcpReassembly.getConnectionInformation().size());
 }
 
 void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassembly, std::string bpfFiler = "")
@@ -324,6 +355,8 @@ void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassem
 		if (!dev->setFilter(bpfFiler))
 			EXIT_WITH_ERROR("Cannot set BPF filter to interface");
 	}
+
+	printf("Starting packet capture on '%s'...\n", dev->getIPv4Address().toString().c_str());
 
 	dev->startCapture(onPacketArrives, &tcpReassembly);
 
@@ -339,6 +372,8 @@ void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassem
 	dev->close();
 
 	tcpReassembly.closeAllConnections();
+
+	printf("Done! processed %d connections\n", tcpReassembly.getConnectionInformation().size());
 }
 
 /**
