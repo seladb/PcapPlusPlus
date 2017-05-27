@@ -27,7 +27,7 @@ using namespace pcpp;
 #define SEPARATOR '/'
 #endif
 
-#define MAX_NUMBER_OF_CONCURRENT_OPEN_FILES 500
+#define DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES 500
 
 
 static struct option TcpAssemblyOptions[] =
@@ -40,6 +40,7 @@ static struct option TcpAssemblyOptions[] =
 	{"write-metadata", no_argument, 0, 'm'},
 	{"write-to-console", no_argument, 0, 'c'},
 	{"separate-sides", no_argument, 0, 's'},
+	{"max-file-desc", required_argument, 0, 'f'},
 	{"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
 };
@@ -48,13 +49,17 @@ static struct option TcpAssemblyOptions[] =
 class GlobalConfig
 {
 private:
-	GlobalConfig() { writeMetadata = false; outputDir = ""; writeToConsole = false; separateSides = false; }
+	GlobalConfig() { writeMetadata = false; outputDir = ""; writeToConsole = false; separateSides = false; maxOpenFiles = DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES; m_RecentConnsWithActivity = NULL; }
+
+	LRUList<uint32_t>* m_RecentConnsWithActivity;
 
 public:
 	bool writeMetadata;
 	std::string outputDir;
 	bool writeToConsole;
 	bool separateSides;
+	size_t maxOpenFiles;
+
 
 	std::string getFileName(ConnectionData connData, int side, bool separareSides)
 	{
@@ -97,6 +102,14 @@ public:
 			fstream->close();
 			delete fstream;
 		}
+	}
+
+	LRUList<uint32_t>* getRecentConnsWithActivity()
+	{
+		if (m_RecentConnsWithActivity == NULL)
+			m_RecentConnsWithActivity = new LRUList<uint32_t>(maxOpenFiles);
+
+		return m_RecentConnsWithActivity;
 	}
 
 	static inline GlobalConfig& getInstance()
@@ -167,12 +180,13 @@ void printUsage()
 {
 	printf("\nUsage:\n"
 			"------\n"
-			"TcpReassembly [-hlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter]\n"
+			"TcpReassembly [-hlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]\n"
 			"\nOptions:\n\n"
 			"    -r input_file : Input pcap/pcapng file to analyze. Required argument for reading from file\n"
 			"    -i interface  : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address. Required argument for capturing from live interface\n"
-			"    -o outpit_dir : Specify output directory (default is '.')\n"
+			"    -o output_dir : Specify output directory (default is '.')\n"
 			"    -e bpf_filter : Apply a BPF filter to capture file or live interface, meaning TCP reassembly will only work on filtered packets\n"
+			"    -f max_files  : Maximum number of file descriptors to use\n"
 			"    -c            : Write all output to console (nothing will be written to files)\n"
 			"    -m            : Write a metadata file for each connection\n"
 			"    -s            : Write each side of each connection to a separate file (default is writing both sides of each connection to the same file)\n"
@@ -199,8 +213,6 @@ void listInterfaces()
 
 static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* userCookie)
 {
-	static LRUList<uint32_t> recentConnsWithActivity(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES);
-
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;
 
 	TcpReassemblyConnMgrIter iter = connMgr->find(tcpData.getConnectionData().flowKey);
@@ -218,7 +230,7 @@ static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, 
 
 	if (iter->second.fileStreams[side] == NULL)
 	{
-		uint32_t* flowKeyToCloseFiles = recentConnsWithActivity.put(tcpData.getConnectionData().flowKey);
+		uint32_t* flowKeyToCloseFiles = GlobalConfig::getInstance().getRecentConnsWithActivity()->put(tcpData.getConnectionData().flowKey);
 		if (flowKeyToCloseFiles != NULL)
 		{
 			TcpReassemblyConnMgrIter iter2 = connMgr->find(*flowKeyToCloseFiles);
@@ -388,11 +400,12 @@ int main(int argc, char* argv[])
 	bool writeMetadata = false;
 	bool writeToConsole = false;
 	bool separateSides = false;
+	size_t maxOpenFiles = DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES;
 
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:r:o:e:mcshl", TcpAssemblyOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "i:r:o:e:f:mcshl", TcpAssemblyOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -419,6 +432,9 @@ int main(int argc, char* argv[])
 			case 'c':
 				writeToConsole = true;
 				break;
+			case 'f':
+				maxOpenFiles = (size_t)atoi(optarg);
+				break;
 			case 'h':
 				printUsage();
 				break;
@@ -439,6 +455,7 @@ int main(int argc, char* argv[])
 	GlobalConfig::getInstance().writeMetadata = writeMetadata;
 	GlobalConfig::getInstance().writeToConsole = writeToConsole;
 	GlobalConfig::getInstance().separateSides = separateSides;
+	GlobalConfig::getInstance().maxOpenFiles = maxOpenFiles;
 
 	// create the object which manages info on all connections
 	TcpReassemblyConnMgr connMgr;
