@@ -211,6 +211,9 @@ void listInterfaces()
 }
 
 
+/**
+ * The callback which is being called by the TCP reassembly module whenever new data arrives on a certain connection
+ */
 static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* userCookie)
 {
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;
@@ -268,26 +271,44 @@ static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, 
 	iter->second.fileStreams[side]->write((char*)tcpData.getData(), tcpData.getDataLength());
 }
 
+
+/**
+ * The callback which is being called by the TCP reassembly module whenever a new connection is found. This method adds the connection to the connection manager
+ */
 static void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* userCookie)
 {
+	// get a pointer to the connection manager
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;
 
+	// look for the connection in the connection manager
 	TcpReassemblyConnMgrIter iter = connMgr->find(connectionData.flowKey);
+
+	// assuming it's a new connection
 	if (iter == connMgr->end())
 	{
+		// add it to the connection manager
 		connMgr->insert(std::make_pair(connectionData.flowKey, TcpReassemblyData()));
-		iter = connMgr->find(connectionData.flowKey);
 	}
 }
 
+
+/**
+ * The callback which is being called by the TCP reassembly module whenever a connection is ending. This method removes the connection from the connection manager and writes the metadata file if requested
+ * by the user
+ */
 static void tcpReassemblyConnectionEndCallback(ConnectionData connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
 {
+	// get a pointer to the connection manager
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;
 
+	// find the connection in the connection manager by the flow key
 	TcpReassemblyConnMgrIter iter = connMgr->find(connectionData.flowKey);
+
+	// connection wasn't found - shouldn't get here
 	if (iter == connMgr->end())
 		return;
 
+	// write a metadata file if required by the user
 	if (GlobalConfig::getInstance().writeMetadata)
 	{
 		std::string fileName = GlobalConfig::getInstance().getFileName(connectionData, 0, false) + "-metadata.txt";
@@ -305,8 +326,10 @@ static void tcpReassemblyConnectionEndCallback(ConnectionData connectionData, Tc
 		metadataFile.close();
 	}
 
+	// remove the connection from the connection manager
 	connMgr->erase(iter);
 }
+
 
 /**
  * The callback to be called when application is terminated by ctrl-c. Stops the endless while loop
@@ -317,23 +340,31 @@ static void onApplicationInterrupted(void* cookie)
 	*shouldStop = true;
 }
 
+
 /**
  * packet capture callback - called whenever a packet arrives on the live device (in live device capturing mode)
  */
 static void onPacketArrives(RawPacket* packet, PcapLiveDevice* dev, void* tcpReassemblyCookie)
 {
+	// get a pointer to the TCP reassembly instance and feed the packet arrived to it
 	TcpReassembly* tcpReassembly = (TcpReassembly*)tcpReassemblyCookie;
 	tcpReassembly->ReassemblePacket(packet);
 }
 
+
+/**
+ * The method responsible for TCP reassembly on pcap/pcapng files
+ */
 void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembly, std::string bpfFiler = "")
 {
 	// open input file (pcap or pcapng file)
 	IFileReaderDevice* reader = IFileReaderDevice::getReader(fileName.c_str());
 
+	// try to open the file device
 	if (!reader->open())
 		EXIT_WITH_ERROR("Cannot open pcap/pcapng file");
 
+	// set BPF filter if set by the user
 	if (bpfFiler != "")
 	{
 		if (!reader->setFilter(bpfFiler))
@@ -342,26 +373,34 @@ void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembl
 
 	printf("Starting reading '%s'...\n", fileName.c_str());
 
+	// run in a loop that reads one packet from the file in each iteration and feeds it to the TCP reassembly instance
 	RawPacket rawPacket;
 	while (reader->getNextPacket(rawPacket))
 	{
 		tcpReassembly.ReassemblePacket(&rawPacket);
 	}
 
+	// after all packets have been read - close the connections which are still opened
 	tcpReassembly.closeAllConnections();
 
+	// close the reader and free its memory
 	reader->close();
-
 	delete reader;
 
 	printf("Done! processed %d connections\n", tcpReassembly.getConnectionInformation().size());
 }
 
+
+/**
+ * The method responsible for TCP reassembly on live traffic
+ */
 void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassembly, std::string bpfFiler = "")
 {
+	// try to open device
 	if (!dev->open())
 		EXIT_WITH_ERROR("Cannot open interface");
 
+	// set BPF filter if set by the user
 	if (bpfFiler != "")
 	{
 		if (!dev->setFilter(bpfFiler))
@@ -370,12 +409,14 @@ void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassem
 
 	printf("Starting packet capture on '%s'...\n", dev->getIPv4Address().toString().c_str());
 
+	// start capturing packets. Each packet arrived will be handled by onPacketArrives method
 	dev->startCapture(onPacketArrives, &tcpReassembly);
 
 	// register the on app close event to print summary stats on app termination
 	bool shouldStop = false;
 	ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &shouldStop);
 
+	// run in an endless loop until the user presses ctrl+c
 	while(!shouldStop)
 		PCAP_SLEEP(1);
 
@@ -383,10 +424,12 @@ void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassem
 	dev->stopCapture();
 	dev->close();
 
+	// close all connections which are still opened
 	tcpReassembly.closeAllConnections();
 
 	printf("Done! processed %d connections\n", tcpReassembly.getConnectionInformation().size());
 }
+
 
 /**
  * main method of this utility
@@ -451,6 +494,7 @@ int main(int argc, char* argv[])
 	if (inputPcapFileName == "" && interfaceNameOrIP == "")
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
 
+	// set global config singleton with input configuration
 	GlobalConfig::getInstance().outputDir = outputDir;
 	GlobalConfig::getInstance().writeMetadata = writeMetadata;
 	GlobalConfig::getInstance().writeToConsole = writeToConsole;
@@ -489,5 +533,4 @@ int main(int argc, char* argv[])
 		// start capturing packets and do TCP reassembly
 		doTcpReassemblyOnLiveTraffic(dev, tcpReassembly, bpfFilter);
 	}
-
 }
