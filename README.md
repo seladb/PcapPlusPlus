@@ -58,23 +58,24 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
 4. **Packet++Test unit-test** - a unit-test application for testing the Packet++ library
 5. **Pcap++Test unit-test** - a unit-test application for testing the Pcap++ library
 6. **Example applications:**
-  1. **Packet Parsing** - a short guide for parsing packets using Pcap++ and Packet++
-  2. **Break Pcap FileTo Streams** - an application that takes a pcap file and breaks it into several pcap files, each containing one stream
-  3. **ARP Spoofing** - an application that does ARP spoofing using Packet++ and Pcap++
-  4. **ARP Spoofing with simple Windows makefile** - same code as ARP spoofing but with simple Windows makefile (see "Creating Applications With PcapPlusPlus" section)
-  5. **ARP Spoofing Visual Studio 2015 Project** - same code as ARP spoofing but with fully configured Visual Studio 2015 solution that demonstrates how to write code that uses PcapPlusPlus with Visual Studio 2015
-  6. **ARP Spoofing with simple Linux makefile** - same code as ARP spoofing but with simple Linux makefile (see "Creating Applications With PcapPlusPlus" section)
-  7. **Arping** - an implementation of the arping utility using PcapPlusPlus
-  8. **DpdkExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus DPDK APIs
-  9. **DNS Spoofing** - a command-line application that does DNS spoofing using Packet++ and Pcap++
-  10. **DNS Resolver** - a command-line application that resolves IPv4 address for an hostname using DNS protocol
-  11. **HTTP Analyzer** - an application that analyzes HTTP traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
-  12. **SSL Analyzer** - an application that analyzes SSL/TLS traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
-  13. **PfRingExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus PF_RING APIs
-  14. **Pcap Printer** - a simple application that outputs packets from a pcap file as a readable string
-  15. **Pcap Splitter** - an application that splits a pcap file into smaller pcap files by various criteria
-  16. **Pcap Search** - an application that search inside pcap files in a directory/ies given by the user and counts how many packet match a user-defined pattern given in a BPF format
-  17. **ICMP File Transfer** - an application that demonstrates how to transfer files between 2 machines using only ICMP messages
+   1. **Packet Parsing** - a short guide for parsing packets using Pcap++ and Packet++
+   2. **Break Pcap FileTo Streams** - an application that takes a pcap file and breaks it into several pcap files, each containing one stream
+   3. **ARP Spoofing** - an application that does ARP spoofing using Packet++ and Pcap++
+   4. **ARP Spoofing with simple Windows makefile** - same code as ARP spoofing but with simple Windows makefile (see "Creating Applications With PcapPlusPlus" section)
+   5. **ARP Spoofing Visual Studio 2015 Project** - same code as ARP spoofing but with fully configured Visual Studio 2015 solution that demonstrates how to write code that uses PcapPlusPlus with Visual Studio 2015
+   6. **ARP Spoofing with simple Linux makefile** - same code as ARP spoofing but with simple Linux makefile (see "Creating Applications With PcapPlusPlus" section)
+   7. **Arping** - an implementation of the arping utility using PcapPlusPlus
+   8. **DpdkExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus DPDK APIs
+   9. **DNS Spoofing** - a command-line application that does DNS spoofing using Packet++ and Pcap++
+   10. **DNS Resolver** - a command-line application that resolves IPv4 address for an hostname using DNS protocol
+   11. **HTTP Analyzer** - an application that analyzes HTTP traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
+   12. **SSL Analyzer** - an application that analyzes SSL/TLS traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
+   13. **PfRingExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus PF_RING APIs
+   14. **Pcap Printer** - a simple application that outputs packets from a pcap file as a readable string
+   15. **Pcap Splitter** - an application that splits a pcap file into smaller pcap files by various criteria
+   16. **Pcap Search** - an application that search inside pcap files in a directory/ies given by the user and counts how many packet match a user-defined pattern given in a BPF format
+   17. **ICMP File Transfer** - an application that demonstrates how to transfer files between 2 machines using only ICMP messages
+   18. **TCP Reassembly** - an application that captures data transmitted as part of TCP connections, organizes the data and stores it in a way that is convenient for protocol analysis and debugging
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 
