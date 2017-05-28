@@ -4,18 +4,20 @@ TCP Reassembly
 This is an application that captures data transmitted as part of TCP connections, organizes the data and stores it in a way that is convenient for protocol analysis and debugging.
 This application reconstructs the TCP data streams and stores each connection in a separate file(s). TcpReassembly understands TCP sequence numbers and will correctly reconstruct
 data streams regardless of retransmissions, out-of-order delivery or data loss.
+
 TcpReassembly works more or less the same like tcpflow (https://linux.die.net/man/1/tcpflow) but probably with less options.
 The main purpose of it is to demonstrate the TCP reassembly capabilities in PcapPlusPlus.
+
 Main features and capabilities:
-	- Captures packets from pcap/pcapng files or live traffic
-	- Handles TCP retransmission, out-of-order packets and packet loss
-	- Possibility to set a BPF filter to process only part of the traffic
-	- Write each connection to a separate file
-	- Write each side of each connection to a separate file
-	- Limit the max number of open files in each point in time (to avoid running out of file descriptors for large files / heavy traffic)
-	- Write a metadata file (txt file) for each connection with various stats on the connection: number of packets (in each side + total), number of TCP messages (in each side + total), number of bytes (in each side + total)
-	- Write to console only (instead of files)
-	- Set a directory to write files to (default is current directory)
+- Captures packets from pcap/pcapng files or live traffic
+- Handles TCP retransmission, out-of-order packets and packet loss
+- Possibility to set a BPF filter to process only part of the traffic
+- Write each connection to a separate file
+- Write each side of each connection to a separate file
+- Limit the max number of open files in each point in time (to avoid running out of file descriptors for large files / heavy traffic)
+- Write a metadata file (txt file) for each connection with various stats on the connection: number of packets (in each side + total), number of TCP messages (in each side + total), umber of bytes (in each side + total)
+- Write to console only (instead of files)
+- Set a directory to write files to (default is current directory)
 
 Using the utility
 -----------------
