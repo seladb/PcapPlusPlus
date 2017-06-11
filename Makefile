@@ -65,8 +65,6 @@ ifdef PF_RING_HOME
 endif
 	$(MKDIR) -p Dist/examples
 	$(MKDIR) -p Dist/mk
-	$(CP) $(EXAMPLE_STREAMS)/Bin/* ./Dist/examples
-	$(CP) $(EXAMPLE_STREAMS)/example.pcap ./Dist/examples
 	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_ARPING)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_DNSSPOOF)/Bin/* ./Dist/examples
