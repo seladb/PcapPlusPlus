@@ -9,6 +9,18 @@ matrix:
     - os: linux
       compiler: gcc
       dist: trusty
+    - os: linux
+      compiler: gcc
+      dist: trusty
+      env: 
+        - DPDK_VER=16.11.1
+        - DPDK_DIR=dpdk-stable-16.11.1
+    - os: linux
+      compiler: gcc
+      dist: trusty
+      env: 
+        - DPDK_VER=17.02
+        - DPDK_DIR=dpdk-17.02
     - os: osx
       compiler: clang
       osx_image: xcode6.4
@@ -34,10 +46,11 @@ addons:
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh      ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./configure-linux.sh --default; fi
+  - if [[ ! -z $DPDK_VER  ]]; then Deploy/build-dpdk.sh $DPDK_VER $DPDK_DIR && ./configure-linux.sh --dpdk --dpdk-home $PWD/$DPDK_DIR; fi
   - make all
   
 script:
   - cd Tests/Packet++Test
   - Bin/Packet++Test
   - cd ../Pcap++Test
-  - sudo Bin/Pcap++Test -n
+  - sudo Bin/Pcap++Test -n -k 0
