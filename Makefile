@@ -9,8 +9,6 @@ PACKETPP_HOME        := Packet++
 PCAPPP_HOME          := Pcap++
 PACKETPP_TEST        := Tests/Packet++Test
 PCAPPP_TEST          := Tests/Pcap++Test
-EXAMPLE_PARSE        := Examples/Pcap++Examples.PacketParsing
-EXAMPLE_STREAMS      := Examples/Pcap++Examples.BreakPcapFileToStreams
 EXAMPLE_ARPSPOOF     := Examples/ArpSpoofing
 EXAMPLE_ARPING       := Examples/Arping
 EXAMPLE_DPDK1        := Examples/DpdkExample-FilterTraffic
@@ -48,8 +46,6 @@ libs:
 all: libs
 	cd $(PACKETPP_TEST)             && $(MAKE) Packet++Test
 	cd $(PCAPPP_TEST)               && $(MAKE) Pcap++Test
-	cd $(EXAMPLE_PARSE)             && $(MAKE) Pcap++Examples.PacketParsing
-	cd $(EXAMPLE_STREAMS)           && $(MAKE) Pcap++Examples.BreakPcapFileToStreams
 	cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) ArpSpoofing
 	cd $(EXAMPLE_ARPING)            && $(MAKE) Arping
 	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) DnsSpoofing
@@ -69,8 +65,6 @@ ifdef PF_RING_HOME
 endif
 	$(MKDIR) -p Dist/examples
 	$(MKDIR) -p Dist/mk
-	$(CP) $(EXAMPLE_PARSE)/Bin/* ./Dist/examples
-	$(CP) $(EXAMPLE_PARSE)/UdpPacket.dat ./Dist/examples
 	$(CP) $(EXAMPLE_STREAMS)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_STREAMS)/example.pcap ./Dist/examples
 	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
@@ -100,8 +94,6 @@ clean:
 	cd $(PCAPPP_HOME)               && $(MAKE) clean
 	cd $(PACKETPP_TEST)             && $(MAKE) clean
 	cd $(PCAPPP_TEST)               && $(MAKE) clean
-	cd $(EXAMPLE_PARSE)             && $(MAKE) clean
-	cd $(EXAMPLE_STREAMS)           && $(MAKE) clean
 	cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) clean
 	cd $(EXAMPLE_ARPING)            && $(MAKE) clean
 	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) clean
