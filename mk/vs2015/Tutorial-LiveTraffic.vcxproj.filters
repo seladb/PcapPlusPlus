@@ -15,13 +15,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\Pcap++Examples.PacketParsing\main.cpp">
+    <ClCompile Include="..\..\Examples\Tutorials\Tutorial-LiveTraffic\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Examples\Pcap++Examples.PacketParsing\UdpPacket.dat">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

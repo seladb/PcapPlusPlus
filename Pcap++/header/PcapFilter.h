@@ -393,11 +393,23 @@ namespace pcpp
 	private:
 		std::vector<GeneralFilter*> m_FilterList;
 	public:
+
+		/**
+		 * An empty constructor for this class. Use addFilter() to add filters to the and condition
+		 */
+		AndFilter() {}
+
 		/**
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "and" between them
 		 * @param[in] filters The list of pointers to filters
 		 */
 		AndFilter(std::vector<GeneralFilter*>& filters);
+
+		/**
+		 * Add filter to the and condition
+		 * @param[in] filter The filter to add
+		 */
+		void addFilter(GeneralFilter* filter) { m_FilterList.push_back(filter); }
 
 		void parseToString(std::string& result);
 	};
@@ -417,11 +429,23 @@ namespace pcpp
 	private:
 		std::vector<GeneralFilter*> m_FilterList;
 	public:
+
+		/**
+		 * An empty constructor for this class. Use addFilter() to add filters to the or condition
+		 */
+		OrFilter() {}
+
 		/**
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "or" between them
 		 * @param[in] filters The list of pointers to filters
 		 */
 		OrFilter(std::vector<GeneralFilter*>& filters);
+
+		/**
+		 * Add filter to the or condition
+		 * @param[in] filter The filter to add
+		 */
+		void addFilter(GeneralFilter* filter) { m_FilterList.push_back(filter); }
 
 		void parseToString(std::string& result);
 	};

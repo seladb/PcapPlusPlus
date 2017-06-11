@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A2AC7480-E8AA-4C77-B13A-CBAB6B410D3C}</ProjectGuid>
+    <ProjectGuid>{D79AF4DA-8676-45FC-9BD5-D1062DB923E1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Pcap++Examples.BreakPcapFileToStreams</RootNamespace>
+    <RootNamespace>Tutorial-PcapFiles</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -77,36 +77,36 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x86;$(WinPcapHome)\Lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x64;$(WinPcapHome)\Lib\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x86;$(WinPcapHome)\Lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x64;$(WinPcapHome)\Lib\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -115,10 +115,7 @@
       <AdditionalDependencies>Ws2_32.lib;IPHLPAPI.lib;wpcap.lib;Packet.lib;pthreadVC2.lib;Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\example.pcap" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,7 +123,7 @@ xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\exampl
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WINx64;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINx64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -135,10 +132,7 @@ xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\exampl
       <AdditionalDependencies>Ws2_32.lib;IPHLPAPI.lib;wpcap.lib;Packet.lib;pthreadVC2.lib;Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\example.pcap" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorial-PcapFiles" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -149,7 +143,7 @@ xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\exampl
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -160,10 +154,7 @@ xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\exampl
       <AdditionalDependencies>Ws2_32.lib;IPHLPAPI.lib;wpcap.lib;Packet.lib;pthreadVC2.lib;Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\example.pcap" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorial-PcapFiles" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -174,7 +165,7 @@ xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\exampl
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WINx64;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINx64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -185,17 +176,11 @@ xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\exampl
       <AdditionalDependencies>Ws2_32.lib;IPHLPAPI.lib;wpcap.lib;Packet.lib;pthreadVC2.lib;Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\Pcap++Examples.BreakPcapFileToStreams\example.pcap" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorial-PcapFiles" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\Pcap++Examples.BreakPcapFileToStreams\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Examples\Pcap++Examples.BreakPcapFileToStreams\example.pcap" />
+    <ClCompile Include="..\..\Examples\Tutorials\Tutorial-PcapFiles\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

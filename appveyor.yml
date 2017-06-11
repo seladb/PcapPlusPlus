@@ -40,6 +40,7 @@ build_script:
 - if "%compiler%"=="mingw-w64" mingw32-make all
 - if "%compiler%"=="vs2015" powershell -command "msbuild mk\vs2015\PcapPlusPlus.sln /p:Configuration=%config% /p:Platform=%platform%"
 - if "%compiler%"=="vs2015" powershell -command "msbuild mk\vs2015\PcapPlusPlus-Examples.sln /p:Configuration=%config% /p:Platform=%platform%"
+- if "%compiler%"=="vs2015" powershell -command "msbuild mk\vs2015\Tutorials.sln /p:Configuration=%config% /p:Platform=%platform%"
 - if "%compiler%"=="vs2015" powershell -command "msbuild Examples\ArpSpoofing-VS2015-Project\ArpSpoofing.sln /p:Configuration=%config% /p:Platform=%platform%"
 
 test_script:
