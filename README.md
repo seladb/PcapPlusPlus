@@ -59,24 +59,22 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
 5. **Pcap++Test unit-test** - a unit-test application for testing the Pcap++ library
 6. **Example applications:**
    1. **ARP Spoofing** - an application that does ARP spoofing using Packet++ and Pcap++
-   2. **ARP Spoofing with simple Windows makefile** - same code as ARP spoofing but with simple Windows makefile (see "Creating Applications With PcapPlusPlus" section)
-   3. **ARP Spoofing Visual Studio 2015 Project** - same code as ARP spoofing but with fully configured Visual Studio 2015 solution that demonstrates how to write code that uses PcapPlusPlus with Visual Studio 2015
-   4. **ARP Spoofing with simple Linux makefile** - same code as ARP spoofing but with simple Linux makefile (see "Creating Applications With PcapPlusPlus" section)
-   5. **Arping** - an implementation of the arping utility using PcapPlusPlus
-   6. **DpdkExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus DPDK APIs
-   7. **DNS Spoofing** - a command-line application that does DNS spoofing using Packet++ and Pcap++
-   8. **DNS Resolver** - a command-line application that resolves IPv4 address for an hostname using DNS protocol
-   9. **HTTP Analyzer** - an application that analyzes HTTP traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
-   10. **SSL Analyzer** - an application that analyzes SSL/TLS traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
-   11. **PfRingExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus PF_RING APIs
-   12. **Pcap Printer** - a simple application that outputs packets from a pcap file as a readable string
-   13. **Pcap Splitter** - an application that splits a pcap file into smaller pcap files by various criteria
-   14. **Pcap Search** - an application that search inside pcap files in a directory/ies given by the user and counts how many packet match a user-defined pattern given in a BPF format
-   15. **ICMP File Transfer** - an application that demonstrates how to transfer files between 2 machines using only ICMP messages
-   16. **TCP Reassembly** - an application that captures data transmitted as part of TCP connections, organizes the data and stores it in a way that is convenient for protocol analysis and debugging
+   2. **Arping** - an implementation of the arping utility using PcapPlusPlus
+   3. **DpdkExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus DPDK APIs
+   4. **DNS Spoofing** - a command-line application that does DNS spoofing using Packet++ and Pcap++
+   5. **DNS Resolver** - a command-line application that resolves IPv4 address for an hostname using DNS protocol
+   6. **HTTP Analyzer** - an application that analyzes HTTP traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
+   7. **SSL Analyzer** - an application that analyzes SSL/TLS traffic and presents detailed and diverse information about it. Can operate on live traffic or read packets from a pcap file
+   8. **PfRingExample-FilterTraffic** - a sample application that demonstartes the PcapPlusPlus PF_RING APIs
+   9. **Pcap Printer** - a simple application that outputs packets from a pcap file as a readable string
+   10. **Pcap Splitter** - an application that splits a pcap file into smaller pcap files by various criteria
+   11. **Pcap Search** - an application that search inside pcap files in a directory/ies given by the user and counts how many packet match a user-defined pattern given in a BPF format
+   12. **ICMP File Transfer** - an application that demonstrates how to transfer files between 2 machines using only ICMP messages
+   13. **TCP Reassembly** - an application that captures data transmitted as part of TCP connections, organizes the data and stores it in a way that is convenient for protocol analysis and debugging
 7. **Tutorials:**
-   1. Read and write pcap and pcap-ng files
-   2. Capture and send packets over a network interface
+   1. An "hello world" application - intro to PcapPlusPlus
+   2. Read and write pcap and pcap-ng files
+   3. Capture and send packets over a network interface
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 
@@ -342,7 +340,7 @@ such as apt-get:
 2. PcapPlusPlus contains 3 Visual Studio solutions:
    1. **mk\vs2015\PcapPlusPlus.sln** - contains PcapPlusPlus libraries (Common++, Packet++ and Pcap++) and unit-tests projects
    2. **mk\vs2015\PcapPlusPlus-Examples.sln** - contains all PcapPlusPlus examples. Reuquires PcapPlusPlus.sln to be built
-   3. **Examples\ArpSpoofing-VS2015-Project\ArpSpoofing.sln** - a fully configured project for working with PcapPlusPlus. You can use this project to write your own code using PcapPlusPlus. It already has all the include paths, libaray paths configured. You can build and run this code or delete it and write your own code. This solution is also relocatable so you can move it to wherever you want and it will still build successfully. Reuquires PcapPlusPlus.sln to be built
+   3. **mk\vs2015\Tutorials.sln** - contains all PcapPlusPlus tutorial examples. Reuquires PcapPlusPlus.sln to be built
 3. All solutions support both 32-bit (**x86**) and 64-bit (**x64**) configurations as well as **Debug** and **Release** modes. So actually 4 modes are supported: x86|Debug, x86|Release, x64|Debug, x64|Release
 
 *On Windows (MinGW32 + MinGW-w64):*
@@ -505,45 +503,4 @@ As you can see PcapPlusPlus is quite faster than similar libraries. For my opini
 
 ## Creating Applications With PcapPlusPlus ##
 
-Creating applications that uses PcapPlusPlus is rather easy. To do this, please follow these steps:
-
-1. First make sure PcapPlusPlus is configured and compiled successfully
-2. All you need is under the **Dist/** directory. You can find the PcapPlusPlus libraries, header files, code examples and helpful makefiles
-3. In order to compile your application with PcapPlusPlus libraries you should use the *PcapPlusPlus.mk* makefile under the **Dist/mk/** directory. This file contains variables that encapsulate all you need in order to compile your application with PcapPlusPlus:
-  1. *PCAPPP_INCLUDES* - all includes needed
-  2. *PCAPPP_LIBS_DIR* - location of all libraries needed for compiling and linking with PcapPlusPlus
-  3. *PCAPPP_LIBS* - all libraries needed for compiling and linking with PcapPlusPlus
-  4. *PCAPPP_POST_BUILD* - all post-build actions needed after compiling with PcapPlusPlus
-  5. *PCAPPLUSPLUS_HOME* - PcapPlusPlus home directory
-4. As an example, here is a simple Makefile needed for compiling the ArpSpoofing example on Windows (you can find this example under the **Examples/ArpSpoofing-SimpleMakefile-Windows** directory):
-  ```makefile
-  include ../../Dist/mk/PcapPlusPlus.mk
-  
-  # All Target
-  all:
-  	g++.exe $(PCAPPP_INCLUDES) -c -o main.o main.cpp
-  	g++.exe $(PCAPPP_LIBS_DIR) -static-libgcc -static-libstdc++ -o ArpSpoofing.exe main.o $(PCAPPP_LIBS)
-  
-  # Clean Target
-  clean:
-  	del main.o
-  	del ArpSpoofing.exe
-  ```
-
-5. And the same example on Linux (you can find it in **Examples/ArpSpoofing-SimpleMakefile-Linux**):
-  ```makefile
-  include ../../Dist/mk/PcapPlusPlus.mk
-  
-  # All Target
-  all:
-  	g++ $(PCAPPP_INCLUDES) -c -o main.o main.cpp
-  	g++ $(PCAPPP_LIBS_DIR) -static-libstdc++ -o ArpSpoofing main.o $(PCAPPP_LIBS)
-  
-  # Clean Target
-  clean:
-  	rm main.o
-  	rm ArpSpoofing
-  ```
-6. Rather easy, isn't it?
-7. Note: You can also experience some code with the following simple examples: ArpSpoofing-SimpleMakefile-Windows (on Windows) or ArpSpoofing-SimpleMakefile-Linux (on Linux or Mac OS X)
-8. Note 2: This guide isn't relevant for writing code over Visual Studio 2015. If you want to write code over Visual Studio, just use the **ArpSpoofing-VS2015-Project** solution, delete the code and write you own
+Please refer to the [Tutorials](http://seladb.github.io/PcapPlusPlus-Doc/tutorials.html) section in PcapPlusPlus web-site

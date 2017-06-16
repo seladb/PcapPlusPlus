@@ -8,7 +8,6 @@ echo ****************************************************
 echo.
 
 set VS_PROPERTY_SHEET=mk\vs2015\PcapPlusPlusPropertySheet.props
-set VS_PROPERTY_SHEET_EXAMPLE_PROJECT=Examples\ArpSpoofing-VS2015-Project\PcapPlusPlusPropertySheet.props
 set VS_PROPERTY_SHEET_TEMPLATE=%VS_PROPERTY_SHEET%.template
 
 :: initially set WINPCAP_HOME and PTHREAD_HOME to empty values
@@ -45,11 +44,10 @@ if "%WINPCAP_HOME:~-1%"=="\" set WINPCAP_HOME=%WINPCAP_HOME:~,-1%
 ))>pcpp_temp.xml
 
 move /Y pcpp_temp.xml %VS_PROPERTY_SHEET% >nul
-xcopy /Y %VS_PROPERTY_SHEET% %VS_PROPERTY_SHEET_EXAMPLE_PROJECT% > nul
 
 :: configuration completed
 echo.
-echo PcapPlusPlus Visual Studio 2015 configuration is complete. Files created (or modified): %VS_PROPERTY_SHEET% %VS_PROPERTY_SHEET_EXAMPLE_PROJECT%
+echo PcapPlusPlus Visual Studio 2015 configuration is complete. Files created (or modified): %VS_PROPERTY_SHEET%
 
 :: exit script
 exit /B 0
