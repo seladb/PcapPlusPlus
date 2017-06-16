@@ -75,28 +75,28 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x86;$(WinPcapHome)\Lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x64;$(WinPcapHome)\Lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x86;$(WinPcapHome)\Lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(PThreadWin32Home)\Pre-built.2\lib\x64;$(WinPcapHome)\Lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
