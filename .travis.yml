@@ -21,6 +21,11 @@ matrix:
       env: 
         - DPDK_VER=17.02
         - DPDK_DIR=dpdk-17.02
+    - os: linux
+      compiler: gcc
+      dist: trusty
+      env: 
+        - PF_RING=True
     - os: osx
       compiler: clang
       osx_image: xcode6.4
@@ -41,12 +46,14 @@ addons:
   apt:
     packages:
     - libpcap-dev
+    - libnuma-dev
     - net-tools
 
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh      ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./configure-linux.sh --default; fi
   - if [[ ! -z $DPDK_VER  ]]; then Deploy/build-dpdk.sh $DPDK_VER $DPDK_DIR && ./configure-linux.sh --dpdk --dpdk-home $PWD/$DPDK_DIR; fi
+  - if [[ ! -z $PF_RING  ]]; then Deploy/build-pfring.sh && ./configure-linux.sh --pf-ring --pf-ring-home $PWD/PF_RING; fi
   - make all
   
 script:
