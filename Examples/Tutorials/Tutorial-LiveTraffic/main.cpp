@@ -1,3 +1,4 @@
+#include "stdlib.h"
 #include "PcapLiveDeviceList.h"
 #include "PlatformSpecificUtils.h"
 
