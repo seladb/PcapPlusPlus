@@ -1,7 +1,7 @@
 DPDK_VER=$1
 DPDK_DIR=$2
 
-sudo apt-get install linux-headers-4.4.0-51-generic
+sudo apt-get install linux-headers-$(uname -r)
 wget http://fast.dpdk.org/rel/dpdk-$DPDK_VER.tar.gz
 tar xvzf dpdk-$DPDK_VER.tar.gz
 cd $DPDK_DIR
