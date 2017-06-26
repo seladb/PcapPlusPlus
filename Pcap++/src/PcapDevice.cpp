@@ -78,6 +78,7 @@ bool IPcapDevice::matchPakcetWithFilter(std::string filterAsString, RawPacket* r
 	if (curFilter != filterAsString)
 	{
 		LOG_DEBUG("Compiling the filter '%s'", filterAsString.c_str());
+		pcap_freecode(&prog);
 		if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, &prog, filterAsString.c_str(), 1, 0) < 0)
 		{
 			return false;
@@ -91,11 +92,7 @@ bool IPcapDevice::matchPakcetWithFilter(std::string filterAsString, RawPacket* r
 	pktHdr.len = rawPacket->getRawDataLen();
 	pktHdr.ts = rawPacket->getPacketTimeStamp();
 
-	bool result = (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
-	
-	pcap_freecode(&prog);
-
-	return result;
+	return (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
 }
 
 } // namespace pcpp
