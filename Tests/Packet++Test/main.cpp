@@ -893,9 +893,7 @@ PACKETPP_TEST(Ipv6UdpPacketParseAndCreate)
 	PACKETPP_ASSERT(pUdpLayer->getUdpHeader()->headerChecksum == htons(0x5fea), "UDP dest port != 0x5fea");
 
 	Packet ip6UdpPacketNew(1);
-	MacAddress macSrc("6c:f0:49:b2:de:6e");
-	MacAddress macDest("33:33:00:00:00:0c");
-	EthLayer ethLayer(macSrc, macDest, PCPP_ETHERTYPE_IPV6);
+	EthLayer ethLayer(MacAddress("6c:f0:49:b2:de:6e"), MacAddress ("33:33:00:00:00:0c"));
 
 	IPv6Layer ip6Layer(srcIP, dstIP);
 	ip6_hdr* ip6Header = ip6Layer.getIPv6Header();
@@ -3152,10 +3150,8 @@ PACKETPP_TEST(IcmpCreationTest)
 	uint8_t* buffer15 = readFileIntoBuffer("PacketExamples/IcmpAddrMaskRep.dat", buffer15Length);
 	PACKETPP_ASSERT(!(buffer15 == NULL), "cannot read file IcmpAddrMaskRep.dat");
 
+	EthLayer ethLayer(MacAddress("11:22:33:44:55:66"), MacAddress("66:55:44:33:22:11"));
 
-	MacAddress srcMac(std::string("11:22:33:44:55:66"));
-	MacAddress destMac(std::string("66:55:44:33:22:11"));
-	EthLayer ethLayer(srcMac, destMac, PCPP_ETHERTYPE_IP);
 	IPv4Layer ipLayer(IPv4Address(std::string("1.1.1.1")), IPv4Address(std::string("2.2.2.2")));
 
 
@@ -3577,9 +3573,7 @@ PACKETPP_TEST(GreCreationTest)
 
 	// GREv1 packet creation
 
-	MacAddress srcMac(std::string("00:90:4b:1f:a4:f7"));
-	MacAddress destMac(std::string("00:0d:ed:7b:48:f4"));
-	EthLayer ethLayer(srcMac, destMac, PCPP_ETHERTYPE_IP);
+	EthLayer ethLayer(MacAddress("00:90:4b:1f:a4:f7"), MacAddress("00:0d:ed:7b:48:f4"));
 	IPv4Layer ipLayer(IPv4Address(std::string("192.168.2.65")), IPv4Address(std::string("192.168.2.254")));
 	ipLayer.getIPv4Header()->ipId = htons(1660);
 	ipLayer.getIPv4Header()->timeToLive = 128;
@@ -3610,9 +3604,7 @@ PACKETPP_TEST(GreCreationTest)
 
 	// GREv0 packet creation
 
-	MacAddress srcMac2(std::string("00:01:01:00:00:01"));
-	MacAddress destMac2(std::string("00:01:01:00:00:02"));
-	EthLayer ethLayer2(srcMac2, destMac2, PCPP_ETHERTYPE_IP);
+	EthLayer ethLayer2(MacAddress("00:01:01:00:00:01"), MacAddress("00:01:01:00:00:02"));
 	IPv4Layer ipLayer2(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
 	ipLayer2.getIPv4Header()->ipId = htons(1);
 	ipLayer2.getIPv4Header()->timeToLive = 64;
@@ -4553,9 +4545,7 @@ PACKETPP_TEST(DhcpParsingTest)
 
 PACKETPP_TEST(DhcpCreationTest)
 {
-	MacAddress srcMac(std::string("00:13:72:25:fa:cd"));
-	MacAddress dstMac(std::string("00:e0:b1:49:39:02"));
-	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+	EthLayer ethLayer(MacAddress("00:13:72:25:fa:cd"), MacAddress("00:e0:b1:49:39:02"));
 
 	IPv4Address srcIp(std::string("172.22.178.234"));
 	IPv4Address dstIp(std::string("10.10.8.240"));
@@ -4828,8 +4818,8 @@ PACKETPP_TEST(IgmpCreateAndEditTest)
 	MacAddress dstMac1(std::string("01:00:5e:00:00:01"));
 	MacAddress srcMac2(std::string("00:15:58:dc:a8:4d"));
 	MacAddress dstMac2(std::string("01:00:5e:7f:ff:fa"));
-	EthLayer ethLayer1(srcMac1, dstMac1, PCPP_ETHERTYPE_IP);
-	EthLayer ethLayer2(srcMac2, dstMac2, PCPP_ETHERTYPE_IP);
+	EthLayer ethLayer1(srcMac1, dstMac1);
+	EthLayer ethLayer2(srcMac2, dstMac2);
 
 	IPv4Address srcIp1(std::string("10.0.200.151"));
 	IPv4Address dstIp1(std::string("224.0.0.1"));
@@ -4955,9 +4945,7 @@ PACKETPP_TEST(Igmpv3ParsingTest)
 
 PACKETPP_TEST(Igmpv3QueryCreateAndEditTest)
 {
-	MacAddress srcMac(std::string("00:01:01:00:00:01"));
-	MacAddress dstMac(std::string("01:00:5e:00:00:09"));
-	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+	EthLayer ethLayer(MacAddress("00:01:01:00:00:01"), MacAddress("01:00:5e:00:00:09"));
 
 	IPv4Address srcIp(std::string("127.0.0.1"));
 	IPv4Address dstIp(std::string("224.0.0.9"));
@@ -5044,9 +5032,7 @@ PACKETPP_TEST(Igmpv3QueryCreateAndEditTest)
 
 PACKETPP_TEST(Igmpv3ReportCreateAndEditTest)
 {
-	MacAddress srcMac(std::string("00:01:01:00:00:02"));
-	MacAddress dstMac(std::string("01:00:5e:00:00:16"));
-	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+	EthLayer ethLayer(MacAddress("00:01:01:00:00:02"), MacAddress("01:00:5e:00:00:16"));
 
 	IPv4Address srcIp(std::string("127.0.0.1"));
 	IPv4Address dstIp(std::string("224.0.0.22"));

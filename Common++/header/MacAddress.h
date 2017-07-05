@@ -60,6 +60,11 @@ namespace pcpp
 		MacAddress(const MacAddress& other);
 
 		/**
+		 * Overload of the assignment operator
+		 */
+		MacAddress& operator=(const MacAddress& other);
+
+		/**
 		 * Overload of the comparison operator
 		 * @return true if 2 addresses are equal. False otherwise
 		 */

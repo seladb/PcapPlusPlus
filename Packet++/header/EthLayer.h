@@ -81,9 +81,9 @@ namespace pcpp
 		 * A constructor that creates a new Ethernet header and allocates the data
 		 * @param[in] sourceMac The source MAC address
 		 * @param[in] destMac The destination MAC address
-		 * @param[in] etherType The EtherType to be used
+		 * @param[in] etherType The EtherType to be used. It's an optional parameter, a value of 0 will be set if not provided
 		 */
-		EthLayer(MacAddress& sourceMac, MacAddress& destMac, uint16_t etherType);
+		EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t etherType = 0);
 
 		~EthLayer() {}
 

@@ -118,7 +118,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	Packet arpRequest(100);
 
 	MacAddress destMac(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-	EthLayer ethLayer(sourceMac, destMac, (uint16_t)PCPP_ETHERTYPE_ARP);
+	EthLayer ethLayer(sourceMac, destMac);
 
 	ArpLayer arpLayer(ARP_REQUEST, sourceMac, destMac, sourceIP, ipAddr);
 

@@ -20,7 +20,7 @@
 namespace pcpp
 {
 
-EthLayer::EthLayer(MacAddress& sourceMac, MacAddress& destMac, uint16_t etherType) : Layer()
+EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t etherType) : Layer()
 {
 	m_DataLen = sizeof(ether_header);
 	m_Data = new uint8_t[m_DataLen];

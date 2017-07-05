@@ -41,6 +41,14 @@ MacAddress::MacAddress(const MacAddress& other)
 	m_IsValid = true;
 }
 
+MacAddress& MacAddress::operator=(const MacAddress& other)
+{
+	memcpy(m_Address, other.m_Address, 6);
+	m_IsValid = other.m_IsValid;
+
+	return *this;
+}
+
 std::string MacAddress::toString()
 {
 	char str[19];
