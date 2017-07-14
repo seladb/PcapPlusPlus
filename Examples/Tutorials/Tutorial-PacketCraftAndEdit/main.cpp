@@ -1,3 +1,6 @@
+#if !defined(WIN32) && !defined(WINx64)
+#include <in.h> // this is for using ntohs() and htons() on non-Windows OS's
+#endif
 #include "stdlib.h"
 #include "Packet.h"
 #include "EthLayer.h"
