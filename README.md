@@ -75,6 +75,8 @@ The PcapPlusPlus package contains several libraries, unit-tests and example util
    1. An "hello world" application - intro to PcapPlusPlus
    2. Read and write pcap and pcap-ng files
    3. Capture and send packets over a network interface
+   4. Packet parsing
+   5. Packet crafting and editing
 
 After compilation you can find the libraries, examples, header files and helpful makefiles under the **Dist/** directory
 
