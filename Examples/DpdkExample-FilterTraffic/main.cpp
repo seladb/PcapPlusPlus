@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
 	IPv4Address 	dstIPToMatch = IPv4Address::Zero;
 	uint16_t 		srcPortToMatch = 0;
 	uint16_t 		dstPortToMatch = 0;
-	ProtocolType	protocolToMatch = Unknown;
+	ProtocolType	protocolToMatch = UnknownProtocol;
 
 	while((opt = getopt_long (argc, argv, "d:c:s:f:m:i:I:p:P:r:hl", FilterTrafficOptions, &optionIndex)) != -1)
 	{

@@ -115,11 +115,11 @@ namespace pcpp
 		 * @param[in] rawPacket Raw packet to set
 		 * @param[in] freeRawPacket A flag indicating if the destructor should also call the raw packet destructor or not
 		 * @param[in] parseUntil Parse the packet until it reaches this protocol. Can be useful for cases when you need to parse only up to a certain layer and want to avoid the
-		 * performance impact and memory consumption of parsing the whole packet
+		 * performance impact and memory consumption of parsing the whole packet. Default value is ::UnknownProtocol which means don't take this parameter into account
 		 * @param[in] parseUntilLayer Parse the packet until certain layer in OSI model. Can be useful for cases when you need to parse only up to a certain layer and want to avoid the
-		 * performance impact and memory consumption of parsing the whole packet
+		 * performance impact and memory consumption of parsing the whole packet. Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
 		 */
-		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer);
+		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * Get a pointer to the Packet's RawPacket in a read-only manner

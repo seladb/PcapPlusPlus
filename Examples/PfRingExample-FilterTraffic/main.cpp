@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 	IPv4Address 	dstIPToMatch = IPv4Address::Zero;
 	uint16_t 		srcPortToMatch = 0;
 	uint16_t 		dstPortToMatch = 0;
-	ProtocolType	protocolToMatch = Unknown;
+	ProtocolType	protocolToMatch = UnknownProtocol;
 
 	int optionIndex = 0;
 	char opt = 0;
