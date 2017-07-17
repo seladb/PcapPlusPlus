@@ -116,7 +116,7 @@ namespace pcpp
 		 * field
 		 * @param[in] greData GRE layer raw data
 		 * @param[in] greDataLen Size of raw data
-		 * @return ::GREv0 or ::GREv1 values if raw data is GREv0 or GREv1 (accordingly) or ::Unknown otherwise
+		 * @return ::GREv0 or ::GREv1 values if raw data is GREv0 or GREv1 (accordingly) or ::UnknownProtocol otherwise
 		 */
 		static ProtocolType getGREVersion(uint8_t* greData, size_t greDataLen);
 
@@ -157,6 +157,8 @@ namespace pcpp
 		 * @return Size of GRE header (may change if optional fields are added or removed)
 		 */
 		size_t getHeaderLen();
+
+		OsiModelLayer getOsiModelLayer() { return OsiModelNetworkLayer; }
 
 	protected:
 		GreLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { }
@@ -413,6 +415,8 @@ namespace pcpp
 		void computeCalculateFields();
 
 		std::string toString() { return "PPP for PPTP Layer"; }
+
+		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
 
 	};
 

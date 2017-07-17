@@ -40,7 +40,7 @@ void IPv6Layer::parseNextLayer()
 
 	ip6_hdr* ipHdr = getIPv6Header();
 
-	ProtocolType greVer = Unknown;
+	ProtocolType greVer = UnknownProtocol;
 
 	uint8_t ipVersion = 0;
 

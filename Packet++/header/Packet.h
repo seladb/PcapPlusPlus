@@ -46,20 +46,40 @@ namespace pcpp
 		/**
 		 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.
 		 * When using this constructor a pointer to the RawPacket is saved (data isn't copied) and the RawPacket is parsed, meaning all layers
-		 * are created and linked to each other in the right order
+		 * are created and linked to each other in the right order. In this overload of the constructor the user can specify whether to free
+		 * the instance of raw packet when the Packet is free or not
 		 * @param[in] rawPacket A pointer to the raw packet
+		 * @param[in] freeRawPacket Optional parameter. A flag indicating if the destructor should also call the raw packet destructor or not. Default value is false
+		 * @param[in] parseUntil Optional parameter. Parse the packet until you reach a certain protocol (inclusive). Can be useful for cases when you need to parse only up to a
+		 * certain layer and want to avoid the performance impact and memory consumption of parsing the whole packet. Default value is ::UnknownProtocol which means don't take this
+		 * parameter into account
+		 * @param[in] parseUntilLayer Optional parameter. Parse the packet until you reach a certain layer in the OSI model (inclusive). Can be useful for cases when you need to
+		 * parse only up to a certain OSI layer (for example transport layer) and want to avoid the performance impact and memory consumption of parsing the whole packet.
+		 * Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
 		 */
-		Packet(RawPacket* rawPacket);
+		Packet(RawPacket* rawPacket, bool freeRawPacket = false, ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.
 		 * When using this constructor a pointer to the RawPacket is saved (data isn't copied) and the RawPacket is parsed, meaning all layers
 		 * are created and linked to each other in the right order. In this overload of the constructor the user can specify whether to free
-		 * the instance of raw packet when the Packet is free or not
+		 * the instance of raw packet when the Packet is free or not. This constructor should be used to parse the packet up to a certain layer
 		 * @param[in] rawPacket A pointer to the raw packet
-		 * @param[in] freeRawPacket A flag indicating if the destructor should also call the raw packet destructor or not
+		 * @param[in] parseUntil Optional parameter. Parse the packet until you reach a certain protocol (inclusive). Can be useful for cases when you need to parse only up to a
+		 * certain layer and want to avoid the performance impact and memory consumption of parsing the whole packet
 		 */
-		Packet(RawPacket* rawPacket, bool freeRawPacket);
+		Packet(RawPacket* rawPacket, ProtocolType parseUntil);
+
+		/**
+		 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.
+		 * When using this constructor a pointer to the RawPacket is saved (data isn't copied) and the RawPacket is parsed, meaning all layers
+		 * are created and linked to each other in the right order. In this overload of the constructor the user can specify whether to free
+		 * the instance of raw packet when the Packet is free or not. . This constructor should be used to parse the packet up to a certain layer in the OSI model
+		 * @param[in] rawPacket A pointer to the raw packet
+		 * @param[in] parseUntilLayer Optional parameter. Parse the packet until you reach a certain layer in the OSI model (inclusive). Can be useful for cases when you need to
+		 * parse only up to a certain OSI layer (for example transport layer) and want to avoid the performance impact and memory consumption of parsing the whole packet
+		 */
+		Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
 
 		/**
 		 * A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers that weren't allocated by this
@@ -94,8 +114,12 @@ namespace pcpp
 		 * Set a RawPacket and re-construct all packet layers
 		 * @param[in] rawPacket Raw packet to set
 		 * @param[in] freeRawPacket A flag indicating if the destructor should also call the raw packet destructor or not
+		 * @param[in] parseUntil Parse the packet until it reaches this protocol. Can be useful for cases when you need to parse only up to a certain layer and want to avoid the
+		 * performance impact and memory consumption of parsing the whole packet
+		 * @param[in] parseUntilLayer Parse the packet until certain layer in OSI model. Can be useful for cases when you need to parse only up to a certain layer and want to avoid the
+		 * performance impact and memory consumption of parsing the whole packet
 		 */
-		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket);
+		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer);
 
 		/**
 		 * Get a pointer to the Packet's RawPacket in a read-only manner

@@ -250,7 +250,7 @@ private:
 		void clear()
 		{
 			numOfOpenTransactions = 0;
-			lastSeenMessage = pcpp::Unknown;
+			lastSeenMessage = pcpp::UnknownProtocol;
 			httpPipeliningFlow = false;
 		}
 	};

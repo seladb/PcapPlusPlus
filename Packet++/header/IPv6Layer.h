@@ -119,6 +119,8 @@ namespace pcpp
 
 		std::string toString();
 
+		OsiModelLayer getOsiModelLayer() { return OsiModelNetworkLayer; }
+
 	private:
 		void initLayer();
 	};

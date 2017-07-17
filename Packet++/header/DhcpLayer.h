@@ -734,6 +734,8 @@ namespace pcpp
 
 		std::string toString();
 
+		OsiModelLayer getOsiModelLayer() { return OsiModelApplicationLayer; }
+
 	private:
 
 		size_t m_DhcpOptionsCount;

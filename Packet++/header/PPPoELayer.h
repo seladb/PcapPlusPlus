@@ -95,6 +95,8 @@ namespace pcpp
 		 */
 		virtual void computeCalculateFields();
 
+		OsiModelLayer getOsiModelLayer() { return OsiModelDataLinkLayer; }
+
 	protected:
 
 		// protected c'tor as this class shouldn't be instantiated

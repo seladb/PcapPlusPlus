@@ -249,6 +249,8 @@ namespace pcpp
 		 */
 		void parseNextLayer();
 
+		OsiModelLayer getOsiModelLayer() { return OsiModelPresentationLayer; }
+
 	protected:
 		SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = SSL; }
 

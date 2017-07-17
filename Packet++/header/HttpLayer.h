@@ -262,6 +262,9 @@ namespace pcpp
 		 * Does nothing for this class
 		 */
 		void computeCalculateFields();
+
+		OsiModelLayer getOsiModelLayer() { return OsiModelApplicationLayer; }
+
 		/**
 		 * @return A pointer to a map containing all TCP ports recognize as HTTP
 		 */

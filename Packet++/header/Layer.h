@@ -131,6 +131,11 @@ namespace pcpp
 		 */
 		virtual std::string toString() = 0;
 
+		/**
+		 * @return The OSI Model layer this protocol belongs to
+		 */
+		virtual OsiModelLayer getOsiModelLayer() = 0;
+
 	protected:
 		uint8_t* m_Data;
 		size_t m_DataLen;
@@ -139,11 +144,11 @@ namespace pcpp
 		Layer* m_NextLayer;
 		Layer* m_PrevLayer;
 
-		Layer() : m_Data(NULL), m_DataLen(0), m_Packet(NULL), m_Protocol(Unknown), m_NextLayer(NULL), m_PrevLayer(NULL) { }
+		Layer() : m_Data(NULL), m_DataLen(0), m_Packet(NULL), m_Protocol(UnknownProtocol), m_NextLayer(NULL), m_PrevLayer(NULL) { }
 
 		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) :
 			m_Data(data), m_DataLen(dataLen),
-			m_Packet(packet), m_Protocol(Unknown),
+			m_Packet(packet), m_Protocol(UnknownProtocol),
 			m_NextLayer(NULL), m_PrevLayer(prevLayer) {}
 
 		// Copy c'tor

@@ -28,7 +28,7 @@ namespace pcpp
 ProtocolType GreLayer::getGREVersion(uint8_t* greData, size_t greDataLen)
 {
 	if (greDataLen < sizeof(gre_basic_header))
-		return Unknown;
+		return UnknownProtocol;
 
 	uint8_t version = *(greData+1);
 	version &= 0x07;
@@ -37,7 +37,7 @@ ProtocolType GreLayer::getGREVersion(uint8_t* greData, size_t greDataLen)
 	else if (version == 1)
 		return GREv1;
 	else
-		return Unknown;
+		return UnknownProtocol;
 }
 
 uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing)

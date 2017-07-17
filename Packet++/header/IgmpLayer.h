@@ -207,7 +207,7 @@ public:
 	 * @param[in] data The IGMP raw data (byte stream)
 	 * @param[in] dataLen Raw data length
 	 * @param[out] isQuery Return true if IGMP message type is ::IgmpType_MembershipQuery and false otherwise
-	 * @return One of the values ::IGMPv1, ::IGMPv2, ::IGMPv3 according to detected IGMP version or ::Unknown if couldn't detect
+	 * @return One of the values ::IGMPv1, ::IGMPv2, ::IGMPv3 according to detected IGMP version or ::UnknownProtocol if couldn't detect
 	 * IGMP version
 	 */
 	static ProtocolType getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& isQuery);
@@ -226,6 +226,8 @@ public:
 	inline size_t getHeaderLen() { return sizeof(igmp_header); }
 
 	std::string toString();
+
+	OsiModelLayer getOsiModelLayer() { return OsiModelNetworkLayer; }
 };
 
 

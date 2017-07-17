@@ -24,7 +24,7 @@ Packet::Packet(size_t maxPacketLen) :
 	m_RawPacket(NULL),
 	m_FirstLayer(NULL),
 	m_LastLayer(NULL),
-	m_ProtocolTypes(Unknown),
+	m_ProtocolTypes(UnknownProtocol),
 	m_MaxPacketLen(maxPacketLen),
 	m_FreeRawPacket(true)
 {
@@ -35,13 +35,13 @@ Packet::Packet(size_t maxPacketLen) :
 	m_RawPacket = new RawPacket((const uint8_t*)data, 0, time, true, LINKTYPE_ETHERNET);
 }
 
-void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
+void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	destructPacketData();
 
 	m_FirstLayer = NULL;
 	m_LastLayer = NULL;
-	m_ProtocolTypes = Unknown;
+	m_ProtocolTypes = UnknownProtocol;
 	m_MaxPacketLen = rawPacket->getRawDataLen();
 	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
@@ -67,9 +67,10 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
 	{
 		m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	}
+
 	m_LastLayer = m_FirstLayer;
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != NULL)
+	while (curLayer != NULL && (curLayer->getProtocol() & parseUntil) == 0 && curLayer->getOsiModelLayer() <= parseUntilLayer)
 	{
 		m_ProtocolTypes |= curLayer->getProtocol();
 		curLayer->parseNextLayer();
@@ -78,23 +79,41 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket)
 		if (curLayer != NULL)
 			m_LastLayer = curLayer;
 	}
+
+	if (curLayer != NULL && (curLayer->getProtocol() & parseUntil) != 0)
+	{
+		m_ProtocolTypes |= curLayer->getProtocol();
+		m_LayersAllocatedInPacket.push_back(curLayer);
+	}
+
+	if (curLayer != NULL &&  curLayer->getOsiModelLayer() > parseUntilLayer)
+	{
+		m_LastLayer = curLayer->getPrevLayer();
+		delete curLayer;
+		m_LastLayer->m_NextLayer = NULL;
+	}
 }
 
-Packet::Packet(RawPacket* rawPacket, bool freeRawPacket)
+Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	m_FreeRawPacket = false;
 	m_RawPacket = NULL;
-	setRawPacket(rawPacket, freeRawPacket);
+	setRawPacket(rawPacket, freeRawPacket, parseUntil, parseUntilLayer);
 }
 
-
-Packet::Packet(RawPacket* rawPacket)
+Packet::Packet(RawPacket* rawPacket, ProtocolType parseUntil)
 {
 	m_FreeRawPacket = false;
 	m_RawPacket = NULL;
-	setRawPacket(rawPacket, false);
+	setRawPacket(rawPacket, false, parseUntil, OsiModelLayerUnknown);
 }
 
+Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
+{
+	m_FreeRawPacket = false;
+	m_RawPacket = NULL;
+	setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
+}
 
 Packet::Packet(const Packet& other)
 {

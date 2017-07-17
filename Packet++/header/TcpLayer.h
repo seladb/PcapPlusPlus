@@ -397,6 +397,8 @@ namespace pcpp
 
 		std::string toString();
 
+		OsiModelLayer getOsiModelLayer() { return OsiModelTransportLayer; }
+
 	private:
 
 		size_t m_TcpOptionsCount;

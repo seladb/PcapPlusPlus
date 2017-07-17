@@ -79,8 +79,8 @@ void IPv4Layer::parseNextLayer()
 
 	iphdr* ipHdr = getIPv4Header();
 
-	ProtocolType greVer = Unknown;
-	ProtocolType igmpVer = Unknown;
+	ProtocolType greVer = UnknownProtocol;
+	ProtocolType igmpVer = UnknownProtocol;
 	bool igmpQuery = false;
 
 	uint8_t ipVersion = 0;

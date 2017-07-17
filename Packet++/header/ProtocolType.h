@@ -18,7 +18,7 @@ namespace pcpp
 		/**
 		 * Unknown protocol (or unsupported by PcapPlusPlus)
 		 */
-		Unknown = 0x00,
+		UnknownProtocol = 0x00,
 
 		/**
 		 * Ethernet protocol
@@ -163,7 +163,36 @@ namespace pcpp
 		/**
 		 * IGMPv3 protocol
 		 */
-		IGMPv3 = 0x800000
+		IGMPv3 = 0x800000,
+
+		/**
+		 * Generic payload (no specific protocol)
+		 */
+		GenericPayolad = 0x1000000
+	};
+
+
+	/**
+	 * An enum representing OSI model layers
+	 */
+	enum OsiModelLayer
+	{
+		/** Physical layer (layer 1) */
+		OsiModelPhysicalLayer = 1,
+		/** Data link layer (layer 2) */
+		OsiModelDataLinkLayer = 2,
+		/** Network layer (layer 3) */
+		OsiModelNetworkLayer = 3,
+		/** Transport layer (layer 4) */
+		OsiModelTransportLayer = 4,
+		/** Session layer (layer 5) */
+		OsiModelSesionLayer = 5,
+		/** Presentation layer (layer 6) */
+		OsiModelPresentationLayer = 6,
+		/** Application layer (layer 7) */
+		OsiModelApplicationLayer = 7,
+		/** Unknown / null layer */
+		OsiModelLayerUnknown = 8
 	};
 
 } //namespace pcpp

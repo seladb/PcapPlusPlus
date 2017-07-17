@@ -84,6 +84,8 @@ namespace pcpp
 		void computeCalculateFields();
 
 		std::string toString();
+
+		OsiModelLayer getOsiModelLayer() { return OsiModelTransportLayer; }
 	};
 
 } // namespace pcpp

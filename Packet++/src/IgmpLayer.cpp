@@ -66,7 +66,7 @@ ProtocolType IgmpLayer::getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& 
 	isQuery = false;
 
 	if (dataLen < 8 || data == NULL)
-		return Unknown;
+		return UnknownProtocol;
 
 	switch ((int)data[0])
 	{
@@ -90,7 +90,7 @@ ProtocolType IgmpLayer::getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& 
 			return IGMPv2;
 	}
 	default:
-		return Unknown;
+		return UnknownProtocol;
 	}
 }
 

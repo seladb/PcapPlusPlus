@@ -401,7 +401,7 @@ PACKETPP_TEST(Ipv4FragmentationTest)
 	PACKETPP_ASSERT(ipLayer->isLastFragment() == false, "Frag1 is mistakenly a last fragment");
 	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 0, "Frag1 fragment offset != 0");
 	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0, "Frag1 mistakenly doesn't contain the 'more fragments' flag");
-	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == pcpp::Unknown, "Frag1 next protocol is not generic payload");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == pcpp::GenericPayolad, "Frag1 next protocol is not generic payload");
 
 
 	ipLayer = frag2.getLayerOfType<IPv4Layer>();
@@ -411,7 +411,7 @@ PACKETPP_TEST(Ipv4FragmentationTest)
 	PACKETPP_ASSERT(ipLayer->isLastFragment() == false, "Frag2 is mistakenly a last fragment");
 	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 1480, "Frag2 fragment offset != 1480");
 	PACKETPP_ASSERT((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0, "Frag2 mistakenly doesn't contain the 'more fragments' flag");
-	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == pcpp::Unknown, "Frag2 next protocol is not generic payload");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == pcpp::GenericPayolad, "Frag2 next protocol is not generic payload");
 
 	ipLayer = frag3.getLayerOfType<IPv4Layer>();
 	PACKETPP_ASSERT(ipLayer != NULL, "Coudln't find Frag3 IPv4 layer");
@@ -420,7 +420,7 @@ PACKETPP_TEST(Ipv4FragmentationTest)
 	PACKETPP_ASSERT(ipLayer->isLastFragment() == true, "Frag3 is mistakenly not a last fragment");
 	PACKETPP_ASSERT(ipLayer->getFragmentOffset() == 2960, "Frag3 fragment offset != 2960");
 	PACKETPP_ASSERT(ipLayer->getFragmentFlags() == 0, "Frag3 mistakenly contains flags, 0x%X", ipLayer->getFragmentFlags());
-	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == pcpp::Unknown, "Frag3 next protocol is not generic payload");
+	PACKETPP_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == pcpp::GenericPayolad, "Frag3 next protocol is not generic payload");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -1846,7 +1846,7 @@ PACKETPP_TEST(PPPoESessionLayerParsingTest)
 	PACKETPP_ASSERT(pppoeSessionLayer->getPrevLayer() != NULL, "PPPoESession layer is the first layer");
 	PACKETPP_ASSERT(pppoeSessionLayer->getPrevLayer()->getProtocol() == Ethernet, "PPPoESession prev layer isn't Eth");
 	PACKETPP_ASSERT(pppoeSessionLayer->getNextLayer() != NULL, "PPPoESession layer is the last layer");
-	PACKETPP_ASSERT(pppoeSessionLayer->getNextLayer()->getProtocol() == pcpp::Unknown, "PPPoESession layer next layer isn't PayloadLayer");
+	PACKETPP_ASSERT(pppoeSessionLayer->getNextLayer()->getProtocol() == pcpp::GenericPayolad, "PPPoESession layer next layer isn't PayloadLayer");
 
 	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->code == PPPoELayer::PPPOE_CODE_SESSION, "PPPoE code isn't PPPOE_CODE_SESSION");
 	PACKETPP_ASSERT(pppoeSessionLayer->getPPPoEHeader()->version == 1, "PPPoE version isn't 1");
@@ -2635,7 +2635,7 @@ PACKETPP_TEST(MplsLayerTest)
 	PACKETPP_ASSERT(mplsLayer->getMplsLabel() == 16, "label != 16 for MplsPackets1.dat");
 
 	PACKETPP_ASSERT(mplsLayer->getNextLayer() != NULL, "Layer after MPLS is NULL");
-	PACKETPP_ASSERT(mplsLayer->getNextLayer()->getProtocol() == pcpp::Unknown, "Layer after MPLS isn't general payload");
+	PACKETPP_ASSERT(mplsLayer->getNextLayer()->getProtocol() == pcpp::GenericPayolad, "Layer after MPLS isn't general payload");
 
 	mplsLayer->setBottomOfStack(true);
 	PACKETPP_ASSERT(mplsLayer->setExperimentalUseValue(6) == true, "Couldn't set a legal exp value");
@@ -5128,6 +5128,126 @@ PACKETPP_TEST(Igmpv3ReportCreateAndEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(ParsePartialPacketTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/SSL-ClientHello1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file SSL-ClientHello1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IGMPv1_1.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IGMPv1_1.dat.dat");
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file TwoHttpRequests1.dat");
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/PPPoESession2.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file PPPoESession2.dat");
+
+	int buffer5Length = 0;
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/TwoHttpRequests2.dat", buffer5Length);
+	PACKETPP_ASSERT(!(buffer5 == NULL), "cannot read file TwoHttpRequests2.dat");
+
+	int buffer6Length = 0;
+	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IcmpTimestampRequest.dat", buffer6Length);
+	PACKETPP_ASSERT(!(buffer6 == NULL), "cannot read file IcmpTimestampRequest.dat");
+
+	int buffer7Length = 0;
+	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/GREv0_2.dat", buffer7Length);
+	PACKETPP_ASSERT(!(buffer7 == NULL), "cannot read file GREv0_2.dat");
+
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+	RawPacket rawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
+	RawPacket rawPacket6((const uint8_t*)buffer6, buffer6Length, time, true);
+	RawPacket rawPacket7((const uint8_t*)buffer7, buffer7Length, time, true);
+
+	Packet sslPacket(&rawPacket1, TCP);
+	Packet igmpPacket(&rawPacket2, IP);
+	Packet httpPacket(&rawPacket3, OsiModelTransportLayer);
+	Packet pppoePacket(&rawPacket4, OsiModelDataLinkLayer);
+	Packet httpPacket2(&rawPacket5, OsiModelPresentationLayer);
+	Packet icmpPacket(&rawPacket6, OsiModelNetworkLayer);
+	Packet grePacket(&rawPacket7, GRE);
+
+	PACKETPP_ASSERT(sslPacket.isPacketOfType(IPv4) == true, "ssl packet isn't of type IPv4");
+	PACKETPP_ASSERT(sslPacket.isPacketOfType(TCP) == true, "ssl packet isn't of type TCP");
+	PACKETPP_ASSERT(sslPacket.isPacketOfType(SSL) == false, "ssl packet is of type SSL");
+	PACKETPP_ASSERT(sslPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for ssl packet");
+	PACKETPP_ASSERT(sslPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for ssl packet");
+	PACKETPP_ASSERT(sslPacket.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for ssl packet");
+	PACKETPP_ASSERT(sslPacket.getLayerOfType<TcpLayer>()->getNextLayer() == NULL, "layer after TCP layer isn't NULL for ssl packet");
+	PACKETPP_ASSERT(sslPacket.getLayerOfType<SSLHandshakeLayer>() == NULL, "managed to fetch SSL layer for ssl packet");
+	PACKETPP_ASSERT(sslPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for ssl packet");
+
+	PACKETPP_ASSERT(igmpPacket.isPacketOfType(IPv4) == true, "igmp packet isn't of type IPv4");
+	PACKETPP_ASSERT(igmpPacket.isPacketOfType(Ethernet) == true, "igmp packet isn't of type Ethernet");
+	PACKETPP_ASSERT(igmpPacket.isPacketOfType(IGMP) == false, "igmp packet is of type IGMP");
+	PACKETPP_ASSERT(igmpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for igmp packet");
+	PACKETPP_ASSERT(igmpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for igmp packet");
+	PACKETPP_ASSERT(igmpPacket.getLayerOfType<IgmpV1Layer>() == NULL, "managed to fetch IGMPv1 layer for igmp packet");
+	PACKETPP_ASSERT(igmpPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for igmp packet");
+
+	PACKETPP_ASSERT(httpPacket.isPacketOfType(IPv4) == true, "http packet isn't of type IPv4");
+	PACKETPP_ASSERT(httpPacket.isPacketOfType(Ethernet) == true, "http packet isn't of type Ethernet");
+	PACKETPP_ASSERT(httpPacket.isPacketOfType(TCP) == true, "http packet isn't of type TCP");
+	PACKETPP_ASSERT(httpPacket.isPacketOfType(HTTP) == false, "http packet is of type HTTP");
+	PACKETPP_ASSERT(httpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for http packet");
+	PACKETPP_ASSERT(httpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for http packet");
+	PACKETPP_ASSERT(httpPacket.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for http packet");
+	PACKETPP_ASSERT(httpPacket.getLayerOfType<HttpRequestLayer>() == NULL, "managed to fetch HTTP request layer for http packet");
+	PACKETPP_ASSERT(httpPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for http packet");
+
+	PACKETPP_ASSERT(pppoePacket.isPacketOfType(Ethernet) == true, "pppoe packet isn't of type Ethernet");
+	PACKETPP_ASSERT(pppoePacket.isPacketOfType(PPPoESession) == true, "pppoe packet isn't of type PPPoE");
+	PACKETPP_ASSERT(pppoePacket.isPacketOfType(IPv6) == false, "pppoe packet is of type IPv6");
+	PACKETPP_ASSERT(pppoePacket.isPacketOfType(UDP) == false, "pppoe packet is of type UDP");
+	PACKETPP_ASSERT(pppoePacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for pppoe packet");
+	PACKETPP_ASSERT(pppoePacket.getLayerOfType<PPPoESessionLayer>() != NULL, "couldn't fetch PPPoE session layer for pppoe packet");
+	PACKETPP_ASSERT(pppoePacket.getLayerOfType<IPv6Layer>() == NULL, "managed to fetch IPv6 layer for pppoe packet");
+
+	PACKETPP_ASSERT(httpPacket2.isPacketOfType(IPv4) == true, "http2 packet isn't of type IPv4");
+	PACKETPP_ASSERT(httpPacket2.isPacketOfType(Ethernet) == true, "http2 packet isn't of type Ethernet");
+	PACKETPP_ASSERT(httpPacket2.isPacketOfType(TCP) == true, "http2 packet isn't of type TCP");
+	PACKETPP_ASSERT(httpPacket2.isPacketOfType(HTTP) == false, "http2 packet is of type HTTP");
+	PACKETPP_ASSERT(httpPacket2.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for http2 packet");
+	PACKETPP_ASSERT(httpPacket2.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for http2 packet");
+	PACKETPP_ASSERT(httpPacket2.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for http2 packet");
+	PACKETPP_ASSERT(httpPacket2.getLayerOfType<TcpLayer>()->getNextLayer() == NULL, "Next layer for TCP isn't NULL in http2 packet");
+	PACKETPP_ASSERT(httpPacket2.getLastLayer()->getProtocol() == TCP, "TCP isn't the last layer for http2 packet");
+	PACKETPP_ASSERT(httpPacket2.getLayerOfType<HttpRequestLayer>() == NULL, "managed to fetch HTTP request layer for http2 packet");
+	PACKETPP_ASSERT(httpPacket2.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for http2 packet");
+
+	PACKETPP_ASSERT(icmpPacket.isPacketOfType(IPv4) == true, "icmp packet isn't of type IPv4");
+	PACKETPP_ASSERT(icmpPacket.isPacketOfType(Ethernet) == true, "icmp packet isn't of type Ethernet");
+	PACKETPP_ASSERT(icmpPacket.isPacketOfType(ICMP) == true, "icmp packet isn't of type ICMP");
+	PACKETPP_ASSERT(icmpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for icmp packet");
+	PACKETPP_ASSERT(icmpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for icmp packet");
+	PACKETPP_ASSERT(icmpPacket.getLayerOfType<IcmpLayer>() != NULL, "couldn't fetch ICMP layer for icmp packet");
+
+	PACKETPP_ASSERT(grePacket.isPacketOfType(Ethernet) == true, "gre packet isn't of type Ethernet");
+	PACKETPP_ASSERT(grePacket.isPacketOfType(IPv4) == true, "gre packet isn't of type IPv4");
+	PACKETPP_ASSERT(grePacket.isPacketOfType(GREv0) == true, "gre packet isn't of type GREv0");
+	PACKETPP_ASSERT(grePacket.isPacketOfType(UDP) == false, "gre packet is of type UDP");
+	Layer* curLayer = grePacket.getFirstLayer();
+	PACKETPP_ASSERT(curLayer != NULL && curLayer->getProtocol() == Ethernet, "gre first layer isn't Ethernet");
+	curLayer = curLayer->getNextLayer();
+	PACKETPP_ASSERT(curLayer != NULL && curLayer->getProtocol() == IPv4, "gre second layer isn't IPv4");
+	curLayer = curLayer->getNextLayer();
+	PACKETPP_ASSERT(curLayer != NULL && curLayer->getProtocol() == GREv0, "gre third layer isn't GRE");
+	curLayer = curLayer->getNextLayer();
+	PACKETPP_ASSERT(curLayer == NULL, "found fourth layer for gre packet");
+
+	PACKETPP_TEST_PASSED;
+}
+
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -5196,6 +5316,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(Igmpv3ParsingTest);
 	PACKETPP_RUN_TEST(Igmpv3QueryCreateAndEditTest);
 	PACKETPP_RUN_TEST(Igmpv3ReportCreateAndEditTest);
+	PACKETPP_RUN_TEST(ParsePartialPacketTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }
