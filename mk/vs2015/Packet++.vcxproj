@@ -199,6 +199,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <ClInclude Include="..\..\Packet++\header\TcpReassembly.h" />
     <ClInclude Include="..\..\Packet++\header\UdpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\VlanLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\VxlanLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Packet++\src\ArpLayer.cpp" />
@@ -226,6 +227,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <ClCompile Include="..\..\Packet++\src\TcpReassembly.cpp" />
     <ClCompile Include="..\..\Packet++\src\UdpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\VlanLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\VxlanLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Common++.vcxproj">
