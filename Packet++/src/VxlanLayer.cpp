@@ -1,5 +1,6 @@
 #include <VxlanLayer.h>
 #include <EthLayer.h>
+#include <string.h>
 #ifdef WIN32 //for using ntohl, ntohs, etc.
 #include <winsock2.h>
 #elif LINUX
