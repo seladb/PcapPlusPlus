@@ -7,6 +7,7 @@
 #include <IPv6Layer.h>
 #include <DnsLayer.h>
 #include <DhcpLayer.h>
+#include <VxlanLayer.h>
 #include <Logger.h>
 #include <string.h>
 #include <sstream>
@@ -88,6 +89,8 @@ void UdpLayer::parseNextLayer()
 
 	if ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) || (portSrc == 67 && portDst == 67))
 		m_NextLayer = new DhcpLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
+	else if (portDst == 4789)
+		m_NextLayer = new VxlanLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
 	else if ((m_DataLen - sizeof(udphdr) >= sizeof(dnshdr)) && (DnsLayer::getDNSPortMap()->find(portDst) != DnsLayer::getDNSPortMap()->end() || DnsLayer::getDNSPortMap()->find(portSrc) != DnsLayer::getDNSPortMap()->end()))
 		m_NextLayer = new DnsLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
 	else

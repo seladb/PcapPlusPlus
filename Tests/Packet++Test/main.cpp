@@ -19,6 +19,7 @@
 #include <DhcpLayer.h>
 #include <NullLoopbackLayer.h>
 #include <IgmpLayer.h>
+#include <VxlanLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -5248,6 +5249,63 @@ PACKETPP_TEST(ParsePartialPacketTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(VxlanParsingAndCreationTest)
+{
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/Vxlan1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file Vxlan1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/Vxlan2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file Vxlan2.dat");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+
+	Packet vxlanPacket(&rawPacket1);
+
+	// test vxlan parsing
+	VxlanLayer* vxlanLayer = vxlanPacket.getLayerOfType<VxlanLayer>();
+	PACKETPP_ASSERT(vxlanLayer != NULL, "VXLAN layer doesn't exist");
+	PACKETPP_ASSERT(vxlanLayer->getVNI() == 3000001, "VNI isn't 3000001");
+	PACKETPP_ASSERT(vxlanLayer->getVxlanHeader()->groupPolicyID == htons(100), "Group policy ID isn't 100");
+	PACKETPP_ASSERT(vxlanLayer->getVxlanHeader()->dontLearnFlag == 1, "Don't learn flag isn't set");
+	PACKETPP_ASSERT(vxlanLayer->getVxlanHeader()->gbpFlag == 1, "GBP flag isn't set");
+	PACKETPP_ASSERT(vxlanLayer->getVxlanHeader()->vniPresentFlag == 1, "VNI present flag isn't set");
+	PACKETPP_ASSERT(vxlanLayer->getVxlanHeader()->policyAppliedFlag == 1, "Policy applied flag isn't set");
+	PACKETPP_ASSERT(vxlanLayer->getNextLayer() != NULL, "Layer next to VXLAN is NULL");
+	PACKETPP_ASSERT(vxlanLayer->getNextLayer()->getProtocol() == Ethernet, "Layer next to VXLAN isn't Ethernet");
+
+	// edit vxlan fields
+	vxlanLayer->getVxlanHeader()->gbpFlag = 0;
+	vxlanLayer->getVxlanHeader()->dontLearnFlag = 0;
+	vxlanLayer->getVxlanHeader()->groupPolicyID = htons(32639);
+	vxlanLayer->setVNI(300);
+
+	vxlanPacket.computeCalculateFields();
+
+	// verify edited fields
+	PACKETPP_ASSERT(buffer2Length == vxlanPacket.getRawPacket()->getRawDataLen(), "Edited packet len (%d) is different than read packet len (%d)", vxlanPacket.getRawPacket()->getRawDataLen(), buffer2Length);
+	PACKETPP_ASSERT(memcmp(vxlanPacket.getRawPacket()->getRawData(), buffer2, vxlanPacket.getRawPacket()->getRawDataLen()) == 0, "Edited raw packet data after edit is different than expected");
+
+	// remove vxlan layer
+	PACKETPP_ASSERT(vxlanPacket.removeLayer(vxlanLayer) == true, "Couldn't remove vxlan layer");
+	vxlanPacket.computeCalculateFields();
+
+	// create new vxlan layer
+	VxlanLayer newVxlanLayer(3000001, 100, true, true, true);
+	PACKETPP_ASSERT(vxlanPacket.insertLayer(vxlanPacket.getLayerOfType<UdpLayer>(), &newVxlanLayer) == true, "Couldn't insert new vxlan layer");
+
+	// verify new vxlan layer
+	PACKETPP_ASSERT(buffer1Length == vxlanPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", vxlanPacket.getRawPacket()->getRawDataLen(), buffer1Length);
+	PACKETPP_ASSERT(memcmp(vxlanPacket.getRawPacket()->getRawData(), buffer1, vxlanPacket.getRawPacket()->getRawDataLen()) == 0, "Generated raw packet data after edit is different than expected");
+
+	delete [] buffer2;
+
+	PACKETPP_TEST_PASSED;
+}
+
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -5317,6 +5375,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(Igmpv3QueryCreateAndEditTest);
 	PACKETPP_RUN_TEST(Igmpv3ReportCreateAndEditTest);
 	PACKETPP_RUN_TEST(ParsePartialPacketTest);
+	PACKETPP_RUN_TEST(VxlanParsingAndCreationTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

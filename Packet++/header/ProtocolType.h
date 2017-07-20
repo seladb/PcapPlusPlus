@@ -168,7 +168,12 @@ namespace pcpp
 		/**
 		 * Generic payload (no specific protocol)
 		 */
-		GenericPayolad = 0x1000000
+		GenericPayolad = 0x1000000,
+
+		/**
+		 * VXLAN protocol
+		 */
+		VXLAN = 0x2000000
 	};
 
 

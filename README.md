@@ -92,18 +92,19 @@ The Packet++ library currently supports parsing, editing and creation of packets
 6. IPv6
 7. ARP
 8. VLAN
-9. MPLS
-10. PPPoE
-11. GRE
-12. TCP
-13. UDP
-14. ICMP
-15. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-16. DNS
-17. DHCP
-18. HTTP headers (request & response)
-19. SSL/TLS - parsing only (no editing capabilities)
-20. Generic payload
+9. VXLAN
+10. MPLS
+11. PPPoE
+12. GRE
+13. TCP
+14. UDP
+15. ICMP
+16. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+17. DNS
+18. DHCP
+19. HTTP headers (request & response)
+20. SSL/TLS - parsing only (no editing capabilities)
+21. Generic payload
 
 #### Supported Engines and Devices ####
 
