@@ -46,7 +46,7 @@ HeaderField* HttpMessage::addField(const HeaderField& newField)
 {
 	if (getFieldByName(newField.getFieldName()) != NULL)
 	{
-		LOG_ERROR("Field '%s' already exists!",newField.getFieldName());
+		LOG_ERROR("Field '%s' already exists!",newField.getFieldName().c_str());
 		return NULL;
 	}
 
@@ -68,7 +68,7 @@ HeaderField* HttpMessage::insertField(HeaderField* prevField, const HeaderField&
 {
 	if (getFieldByName(newField.getFieldName()) != NULL)
 	{
-		LOG_ERROR("Field '%s' already exists!",newField.getFieldName());
+		LOG_ERROR("Field '%s' already exists!",newField.getFieldName().c_str());
 		return NULL;
 	}
 
