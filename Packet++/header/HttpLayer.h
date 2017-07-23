@@ -1,7 +1,7 @@
 #ifndef PACKETPP_HTTP_LAYER
 #define PACKETPP_HTTP_LAYER
 
-#include "Layer.h"
+#include "TextBasedProtocol.h"
 #include <string>
 #include <exception>
 #include <map>
@@ -53,7 +53,7 @@ namespace pcpp
 	/** Content-Encoding field */
 #define PCPP_HTTP_CONTENT_ENCODING_FIELD 	"Content-Encoding"
 	/** Content-Type field */
-#define PCPP_HTTP_CONTENT_TYPE_FIELD			"Content-Type"
+#define PCPP_HTTP_CONTENT_TYPE_FIELD		"Content-Type"
 	/** Transfer-Encoding field */
 #define PCPP_HTTP_TRANSFER_ENCODING_FIELD	"Transfer-Encoding"
 	/** Server field */
@@ -61,231 +61,36 @@ namespace pcpp
 
 
 
-
-	class HttpMessage;
-
-
-
-
-	// -------- Class HttpField -----------------
-
-	/** End of HTTP header */
-#define PCPP_END_OF_HTTP_HEADER ""
-
-	/**
-	 * @class HttpField
-	 * A wrapper class for each HTTP header field, e.g "Host", "Cookie", "Content-Length", etc.
-	 * Each field contains a name (e.g "Host") and a value (e.g "www.wikipedia.org"). The user can get and set both of them through dedicated methods.
-	 * The separator between HTTP header fields is either CRLF ("\r\n\") or LF ("\n") in more rare cases, which means every HttpField instance is
-	 * responsible for wrapping and parsing a HTTP header field from the previous CRLF (not inclusive) until the next CRLF/LF (inclusive)
-	 * A special case is with the end of an HTTP header, meaning 2 consecutive CRLFs ("\r\n\r\n") or consecutive LFs ("\n\n"). PcapPlusPlus treats the first
-	 * CRLF/LF as part of the last field in the header, and the second CRLF is an HttpField instance of its own which name and values are an empty string ("")
-	 * or pcpp::END_OF_HTTP_HEADER
-	 */
-	class HttpField
-	{
-		friend class HttpMessage;
-	public:
-		/**
-		 * A constructor for creating a new HttpField, not from an existing packet. This constructor can be used to create HTTP fields for
-		 * a new HTTP message or to add new HTTP fields to a current message.
-		 * The constructor that is used for parsing an existing packet is private and used by HttpMessage in the process of parsing the
-		 * HTTP header
-		 * @param[in] name The field name
-		 * @param[in] value The field value
-		 */
-		HttpField(std::string name, std::string value);
-
-		~HttpField();
-
-		/**
-		 * A copy constructor that creates a new instance out of an existing HttpField instance. The copied instance will not have shared
-		 * resources with the original instance, meaning all members and properties are copied
-		 * @param[in] other The original instance to copy from
-		 */
-		HttpField(const HttpField& other);
-
-		/**
-		 * @return The field length in bytes, meaning count of all characters from the previous CRLF (not inclusive) until the next CRLF (inclusive)
-		 * For example: the field "Host: www.wikipedia.org\r\n" will have the length of 25
-		 */
-		inline size_t getFieldSize() { return m_FieldSize; }
-
-		/**
-		 * @return The field name as string. Notice the return data is copied data, so changing it won't change the packet data
-		 */
-		std::string getFieldName() const;
-
-		/**
-		 * @return The field value as string. Notice the return data is copied data, so changing it won't change the packet data
-		 */
-		std::string getFieldValue() const;
-
-		/**
-		 * A setter for field value
-		 * @param[in] newValue The new value to set to the field. Old value will be deleted
-		 */
-		bool setFieldValue(std::string newValue);
-
-		/**
-		 * Get an indication whether the field is a field that ends the header (meaning contain only CRLF - see class explanation)
-		 * @return True if this is a end-of-header field, false otherwise
-		 */
-		inline bool isEndOfHeader() { return m_IsEndOfHeaderField; }
-
-	private:
-		HttpField(HttpMessage* httpMessage, int offsetInMessage);
-		char* getData();
-		inline void setNextField(HttpField* nextField) { m_NextField = nextField; }
-		inline HttpField* getNextField() { return m_NextField; }
-		void initNewField(std::string name, std::string value);
-		void attachToHttpMessage(HttpMessage* message, int fieldOffsetInMessage);
-		uint8_t* m_NewFieldData;
-		HttpMessage* m_HttpMessage;
-		int m_NameOffsetInMessage;
-		size_t m_FieldNameSize;
-		int m_ValueOffsetInMessage;
-		size_t m_FieldValueSize;
-		size_t m_FieldSize;
-		HttpField* m_NextField;
-		bool m_IsEndOfHeaderField;
-	};
-
-
-
-
 	// -------- Class HttpMessage -----------------
+
 
 	/**
 	 * @class HttpMessage
-	 * A base class that wraps HTTP header layers (both request and response). It is the base class for HttpRequestLayer and HttpResponseLayer.
-	 * This class is not abstract but it's not meant to be instantiated, hence the protected c'tor
+	 * Represents a general HTTP message. It's an abstract class and cannot be instantiated. It's inherited by HttpRequestLayer and HttpResponseLayer
 	 */
-	class HttpMessage : public Layer
+	class HttpMessage : public TextBasedProtocolMessage
 	{
-		friend class HttpField;
 	public:
-		~HttpMessage();
 
-		/**
-		 * Get a pointer to an HTTP header field by name. The search is case insensitive, meaning if a field with name "Host" exists and the
-		 * fieldName parameter is "host" (all letter are lower case), this method will return a pointer to "Host" field
-		 * @param[in] fieldName The field name
-		 * @return A pointer to an HttpField instance, or NULL if field doesn't exist
-		 */
-		HttpField* getFieldByName(std::string fieldName);
-
-		/**
-		 * @return A pointer to the first HTTP field exists in this HTTP message, or NULL if no fields exist
-		 */
-		inline HttpField* getFirstField() { return m_FieldList; }
-
-		/**
-		 * Get the field which appears after a certain field
-		 * @param[in] prevField A pointer to the field
-		 * @return The field after prevField or NULL if prevField is the last field. If prevField is NULL, this method will return NULL
-		 */
-		inline HttpField* getNextField(HttpField* prevField) { if (prevField != NULL) return prevField->getNextField(); else return NULL; }
-
-		/**
-		 * Add a new HTTP field to this message. This field will be added last (before the end-of-header field)
-		 * @param[in] fieldName The field name
-		 * @param[in] fieldValue The field value
-		 * @return A pointer to the newly created HTTP field, or NULL if the field could not be created
-		 */
-		HttpField* addField(const std::string& fieldName, const std::string& fieldValue);
-
-		/**
-		 * Add a new HTTP field to this message. This field will be added last (before the end-of-header field)
-		 * @param[in] newField The HTTP field to add
-		 * @return A pointer to the newly created HTTP field, or NULL if the field could not be created
-		 */
-		HttpField* addField(const HttpField& newField);
-
-		/**
-		 * Add the special end-of-header HTTP field (see the explanation in HttpField)
-		 * @return A pointer to the newly created HTTP field, or NULL if the field could not be created
-		 */
-		HttpField* addEndOfHeader();
-
-		/**
-		 * Insert a new field after an existing field
-		 * @param[in] prevField A pointer to the existing field. If it's NULL the new field will be added as first field
-		 * @param[in] fieldName The field name
-		 * @param[in] fieldValue The field value
-		 * @return A pointer to the newly created HTTP field, or NULL if the field could not be created
-		 */
-		HttpField* insertField(HttpField* prevField, const std::string& fieldName, const std::string& fieldValue);
-
-		/**
-		 * Insert a new field after an existing field
-		 * @param[in] prevField A pointer to the existing field
-		 * @param[in] newField The HTTP field to add
-		 * @return A pointer to the newly created HTTP field, or NULL if the field could not be created
-		 */
-		HttpField* insertField(HttpField* prevField, const HttpField& newField);
-
-		/**
-		 * Remove a field from the HTTP message
-		 * @param[in] fieldToRemove A pointer to the field that should be removed
-		 * @return True if the field was removed successfully, or false otherwise (for example: if fieldToRemove is NULL, if it doesn't exist
-		 * in the message, or if the removal failed)
-		 */
-		bool removeField(HttpField* fieldToRemove);
-
-		/**
-		 * Remove a field from the HTTP message
-		 * @param[in] fieldName The name of the field that should be removed
-		 * @return True if the field was removed successfully, or false otherwise (for example: if fieldName doesn't exist in the message, or if the removal failed)
-		 */
-		bool removeField(std::string fieldName);
-
-		/**
-		 * Indicate whether the header is complete (ending with end-of-header "\r\n\r\n" or "\n\n") or spread over more packets
-		 * @return True if the header is complete or false if not
-		 */
-		bool isHeaderComplete();
-
-		// implement Layer's abstract methods
-
-		/**
-		 * Currently set only PayloadLayer for the rest of the data
-		 */
-		void parseNextLayer();
-
-		/**
-		 * @return The HTTP header length
-		 */
-		size_t getHeaderLen();
-
-		/**
-		 * Does nothing for this class
-		 */
-		void computeCalculateFields();
-
-		OsiModelLayer getOsiModelLayer() { return OsiModelApplicationLayer; }
+		virtual ~HttpMessage() {}
 
 		/**
 		 * @return A pointer to a map containing all TCP ports recognize as HTTP
 		 */
 		static const std::map<uint16_t, bool>* getHTTPPortMap();
+
+		// overriden methods
+
+		virtual HeaderField* addField(const std::string& fieldName, const std::string& fieldValue);
+		virtual HeaderField* addField(const HeaderField& newField);
+		virtual HeaderField* insertField(HeaderField* prevField, const std::string& fieldName, const std::string& fieldValue);
+		virtual HeaderField* insertField(HeaderField* prevField, const HeaderField& newField);
+
+		OsiModelLayer getOsiModelLayer() { return OsiModelApplicationLayer; }
+
 	protected:
-		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-		HttpMessage() : m_FieldList(NULL), m_LastField(NULL), m_FieldsOffset(0) {}
-
-		// copy c'tor
-		HttpMessage(const HttpMessage& other);
-		HttpMessage& operator=(const HttpMessage& other);
-
-		void copyDataFrom(const HttpMessage& other);
-
-		void parseFields();
-		void shiftFieldsOffset(HttpField* fromField, int numOfBytesToShift);
-
-		HttpField* m_FieldList;
-		HttpField* m_LastField;
-		int m_FieldsOffset;
-		std::map<std::string, HttpField*> m_FieldNameToFieldMap;
+		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
+		HttpMessage() : TextBasedProtocolMessage() {}
 	};
 
 
@@ -301,7 +106,7 @@ namespace pcpp
 	/**
 	 * @class HttpRequestLayer
 	 * Represents an HTTP request header and inherits all basic functionality of HttpMessage.
-	 * The functionality that is added for this class is the HTTP first line consept. An HTTP request has the following first line:
+	 * The functionality that is added for this class is the HTTP first line concept. An HTTP request has the following first line:
 	 * <i>GET /bla/blabla.asp HTTP/1.1</i>
 	 * Since it's not an "ordinary" HTTP field, it requires a special treatment and gets a class of it's own: HttpRequestFirstLine.
 	 * Unlike most L2-4 protocols, an HTTP request header can spread over more than 1 packet. PcapPlusPlus currently doesn't support a header
@@ -337,7 +142,7 @@ namespace pcpp
 			HttpCONNECT,
 			/** PATCH */
 			HttpPATCH,
-			/** Unknow HTTP method */
+			/** Unknown HTTP method */
 			HttpMethodUnknown
 		};
 
@@ -358,7 +163,7 @@ namespace pcpp
 		 */
 		HttpRequestLayer(HttpMethod method, std::string uri, HttpVersion version);
 
-		~HttpRequestLayer();
+		virtual ~HttpRequestLayer();
 
 		/**
 		 * A copy constructor for this layer. This copy constructor inherits base copy constructor HttpMessage#HttpMessage() and add the functionality
@@ -609,7 +414,7 @@ namespace pcpp
 		 */
 		HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statuCode, std::string statusCodeString = "");
 
-		~HttpResponseLayer();
+		virtual ~HttpResponseLayer();
 
 		/**
 		 * A copy constructor for this layer. This copy constructor inherits base copy constructor HttpMessage#HttpMessage() and add the functionality
@@ -642,7 +447,7 @@ namespace pcpp
 		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be created after it
 		 * @return A pointer to the "Content-Length" field, or NULL if creation failed for some reason
 		 */
-		HttpField* setContentLength(int contentLength, const std::string prevFieldName = "");
+		HeaderField* setContentLength(int contentLength, const std::string prevFieldName = "");
 
 		/**
 		 * The length of the body of many HTTP response messages is determined by a HTTP header field called "Content-Length". This method

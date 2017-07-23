@@ -1547,7 +1547,7 @@ PACKETPP_TEST(HttpRequestLayerParsingTest)
 	PACKETPP_ASSERT(requestLayer->getFirstLine()->getVersion() == OneDotOne, "Request version isn't HTTP/1.1");
 	PACKETPP_ASSERT(requestLayer->getFirstLine()->getUri() == "/home/0,7340,L-8,00.html", "Parsed URI is different than expected");
 
-	HttpField* userAgent = requestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
+	HeaderField* userAgent = requestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
 	PACKETPP_ASSERT(userAgent != NULL, "Couldn't retrieve user-agent field");
 	PACKETPP_ASSERT(userAgent->getFieldValue().find("Safari/537.36") != std::string::npos, "User-agent field doesn't contain 'Safari/537.36'");
 
@@ -1583,10 +1583,10 @@ PACKETPP_TEST(HttpRequestLayerCreationTest)
 	HttpRequestLayer httpLayer(HttpRequestLayer::HttpOPTIONS, "/home/0,7340,L-8,00", OneDotOne);
 	PACKETPP_ASSERT(httpLayer.addField(PCPP_HTTP_ACCEPT_FIELD, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8") != NULL, "Couldn't add ACCEPT field");
 	PACKETPP_ASSERT(httpLayer.addField("Dummy-Field", "some value") != NULL, "Couldn't add Dummy-Field field");
-	HttpField* hostField = httpLayer.insertField(NULL, PCPP_HTTP_HOST_FIELD, "www.ynet-ynet.co.il");
+	HeaderField* hostField = httpLayer.insertField(NULL, PCPP_HTTP_HOST_FIELD, "www.ynet-ynet.co.il");
 	PACKETPP_ASSERT(hostField != NULL, "Couldn't insert HOST field");
 	PACKETPP_ASSERT(httpLayer.insertField(hostField, PCPP_HTTP_CONNECTION_FIELD, "keep-alive") != NULL, "Couldn't add CONNECTION field");
-	HttpField* userAgentField = httpLayer.addField(PCPP_HTTP_USER_AGENT_FIELD, "(Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
+	HeaderField* userAgentField = httpLayer.addField(PCPP_HTTP_USER_AGENT_FIELD, "(Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
 	httpLayer.getFirstLine()->setUri("bla.php");
 	PACKETPP_ASSERT(userAgentField != NULL, "Couldn't add USER-AGENT field");
 	PACKETPP_ASSERT(httpLayer.addField(PCPP_HTTP_ACCEPT_LANGUAGE_FIELD, "en-US,en;q=0.8") != NULL, "Couldn't add ACCEPT-LANGUAGE field");
@@ -1664,10 +1664,10 @@ PACKETPP_TEST(HttpRequestLayerEditTest)
 
 	HttpRequestLayer* httpReqLayer = httpRequest.getLayerOfType<HttpRequestLayer>();
 	PACKETPP_ASSERT(httpReqLayer->getFirstLine()->setUri("/Common/Api/Video/CmmLightboxPlayerJs/0,14153,061014181713,00.js") == true, "Couldn't change URI");
-	HttpField* acceptField = httpReqLayer->getFieldByName(PCPP_HTTP_ACCEPT_FIELD);
+	HeaderField* acceptField = httpReqLayer->getFieldByName(PCPP_HTTP_ACCEPT_FIELD);
 	PACKETPP_ASSERT(acceptField != NULL, "Cannot find ACCEPT field");
 	acceptField->setFieldValue("*/*");
-	HttpField* userAgentField = httpReqLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
+	HeaderField* userAgentField = httpReqLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
 	PACKETPP_ASSERT(userAgentField != NULL, "Cannot find USER-AGENT field");
 	httpReqLayer->insertField(userAgentField, PCPP_HTTP_REFERER_FIELD, "http://www.ynet.co.il/home/0,7340,L-8,00.html");
 
@@ -1708,12 +1708,12 @@ PACKETPP_TEST(HttpResponseLayerParsingTest)
 	PACKETPP_ASSERT(responseLayer->getFirstLine()->getStatusCode() == HttpResponseLayer::Http200OK, "Response status code isn't 200 OK");
 	PACKETPP_ASSERT(responseLayer->getFirstLine()->getVersion() == OneDotOne, "Response version isn't HTTP/1.1");
 
-	HttpField* contentLengthField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
+	HeaderField* contentLengthField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	PACKETPP_ASSERT(contentLengthField != NULL, "Couldn't retrieve content-length field");
 	int contentLength = atoi(contentLengthField->getFieldValue().c_str());
 	PACKETPP_ASSERT(contentLength == 1616, "Content length != 1616, it's %d", contentLength);
 
-	HttpField* contentTypeField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
+	HeaderField* contentTypeField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 	PACKETPP_ASSERT(contentTypeField != NULL, "Couldn't retrieve content-type field");
 	PACKETPP_ASSERT(contentTypeField->getFieldValue() == "application/x-javascript", "Content type isn't 'application/x-javascript'");
 
@@ -2724,8 +2724,8 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 	PACKETPP_ASSERT(sampleHttpLayer->getFirstLine()->getSize() == httpResLayer.getFirstLine()->getSize(), "HttpResponseLayer copy c'tor: sizes differ between original and copy");
 	PACKETPP_ASSERT(sampleHttpLayer->getFirstLine()->getVersion() == httpResLayer.getFirstLine()->getVersion(), "HttpResponseLayer copy c'tor: versions differ between original and copy");
 
-	HttpField* curFieldInSample = sampleHttpLayer->getFirstField();
-	HttpField* curFieldInCopy = httpResLayer.getFirstField();
+	HeaderField* curFieldInSample = sampleHttpLayer->getFirstField();
+	HeaderField* curFieldInCopy = httpResLayer.getFirstField();
 	while (curFieldInSample != NULL && curFieldInCopy != NULL)
 	{
 		PACKETPP_ASSERT(curFieldInCopy != curFieldInSample, "HttpRequestLayer copy c'tor didn't actually copy the field '%s'", curFieldInSample->getFieldName().c_str());
