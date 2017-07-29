@@ -287,23 +287,7 @@ In order to build PcapPlusPlus on Windows with Visual Studio 2015 you need the f
 
 In order to build PcapPlusPlus on Windows with MinGW32 or MinGW-w64 you need the following components:
 
-1. MinGW32 or MinGW-w64 environment and compiler 
-  1. Download and installation instructions for MinGW32:
-    1. The fastest way I found for installing mingw32 was through this link: http://www.mingw.org/wiki/Getting_Started
-    2. Download "mingw-get-setup.exe", run it and follow the instructions
-    3. By default the pthreads library is not installed so you need to ask to install it. It can be done during the installation process or afterwards with "mingw-get.exe" (MinGW installation manager)
-    4. In the MinGW installation manager search for all packages containing "pthreads" and mark them for installation
-    5. Choose Installation->Update Catalogue
-    6. If you prefer to install pthreads manually please follow these steps:
-      1. Download "http://ftp.ntua.gr/mirror/mingw/MinGW/Base/pthreads-w32/pthreads-w32-2.9.1/pthreads-w32-2.9.1-1-mingw32-dev.tar.lzma"
-      2. Extract it with 7-Zip: **_7z.exe e pthreads-w32-2.9.1-1-mingw32-dev.tar.lzma -oC:\pthreads && 7z.exe x C:\pthreads\pthreads-w32-2.9.1-1-mingw32-dev.tar -oC:\pthreads_**
-      3. Copy the include files to MinGW folder: **_xcopy /Y C:\pthreads\mingw32\include\* C:\MinGW\include_**
-      4. Copy the lib files to MinGW folder: **_xcopy /Y C:\pthreads\mingw32\lib\* C:\MinGW\lib_**
-  2. Download and installation instructions for MinGW-w64:
-    1. Download and run mingw-w64 installer from here: https://sourceforge.net/projects/mingw-w64/
-    2. Follow the instruction in the installation wizard. Make sure you choose POSIX threads and not win32 threads
-    3. Also make sure you install MSYS or MSYS2. MSYS2 installer can be downloaded from here: http://msys2.github.io/
-
+1. MinGW32 or MinGW-w64 environment and compiler - please refer [here](http://seladb.github.io/PcapPlusPlus-Doc/download.html#mingw32_mingww64) for detailed installation instructions
 2. Winpcap developer's pack - containing the wpcap library PcapPlusPlus is linking with plus relevant h files. You can download it from https://www.winpcap.org/devel.htm
 
 #### Prerequisutes - Linux ####

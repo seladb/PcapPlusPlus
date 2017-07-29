@@ -7,10 +7,7 @@ PCAPPP_INCLUDES += -I$(WINPCAP_HOME)/Include
 PCAPPP_LIBS_DIR += -L$(WINPCAP_HOME)/lib -L$(MINGW_HOME)/lib
 
 # libs
-PCAPPP_LIBS += -lwpcap -lPacket -lpthread -lws2_32 -liphlpapi
-
-# post build
-PCAPPP_POST_BUILD += $(CP) $(MINGW_HOME)/bin/{pthreadGC*.dll,libgcc_s_dw2-1.dll} ./Bin
+PCAPPP_LIBS += -lwpcap -lPacket -Wl,-Bstatic -lpthread -Wl,-Bdynamic -lws2_32 -liphlpapi
 
 # flags
 PCAPPP_BUILD_FLAGS += -static-libgcc -static-libstdc++
