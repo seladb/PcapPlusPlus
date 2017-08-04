@@ -29,7 +29,9 @@ TcpOptionData* TcpLayer::getTcpOptionData(TcpOption option)
 		return NULL;
 
 	uint8_t* curOptPtr = m_Data + sizeof(tcphdr);
-	while ((curOptPtr - m_Data) < m_DataLen)
+	uint16_t dataOffset = ((tcphdr *)m_Data)->dataOffset * 4;
+
+	while ((curOptPtr - m_Data) < dataOffset)
 	{
 		TcpOptionData* curOpt = castPtrToTcpOptionData(curOptPtr);
 		if ((int)curOpt->option == option)
