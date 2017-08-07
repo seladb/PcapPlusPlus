@@ -24,13 +24,17 @@ TcpOptionData* TcpLayer::castPtrToTcpOptionData(uint8_t* ptr)
 
 TcpOptionData* TcpLayer::getTcpOptionData(TcpOption option)
 {
+	uint16_t dataOffset = ((tcphdr *)m_Data)->dataOffset * 4;
+
+	if (m_DataLen < dataOffset)
+		return NULL;
+
 	// check if there are tags at all
-	if (m_DataLen <= sizeof(tcphdr))
+	if (dataOffset <= sizeof(tcphdr))
 		return NULL;
 
 	uint8_t* curOptPtr = m_Data + sizeof(tcphdr);
-	uint16_t dataOffset = ((tcphdr *)m_Data)->dataOffset * 4;
-
+	
 	while ((curOptPtr - m_Data) < dataOffset)
 	{
 		TcpOptionData* curOpt = castPtrToTcpOptionData(curOptPtr);
