@@ -184,6 +184,109 @@ std::string getFileNameWithoutExtension(const std::string& path)
 	return("");
 }
 
+std::string getIP(pcpp::Packet& packet, bool client)
+{
+	std::string packetStr = packet.printToString();
+	int srcPos = packetStr.find("IPv4") + 17;
+	int separator = packetStr.find(",", srcPos + 1);
+	std::string srcIP = packetStr.substr(srcPos, separator - srcPos);
+	int dstPos = separator + 7;
+	std::string dstIP = packetStr.substr(dstPos, packetStr.find("\n", dstPos) - dstPos);
+	uint16_t srcPort = 0;
+	uint16_t dstPort = 0;
+	if (packet.isPacketOfType(pcpp::TCP))
+	{
+		// extract TCP layer
+		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+		if (tcpLayer != NULL)
+		{
+			srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
+			dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
+
+			if (tcpLayer->getTcpHeader()->synFlag)
+			{
+				// SYN packet
+				if (!tcpLayer->getTcpHeader()->ackFlag)
+				{
+					if (client) {
+						return srcIP;
+					}
+					else {
+						return dstIP;
+					}
+				}
+				// SYN/ACK packet
+				else
+				{
+					if (client) {
+						return dstIP;
+					}
+					else {
+						return srcIP;
+					}
+				}
+			}
+			// Other TCP packet
+			else
+			{
+				if (client) {
+					if (srcPort >= dstPort) {
+						return srcIP;
+					}
+					else {
+						return dstIP;
+					}
+				}
+				else {
+					if (srcPort >= dstPort) {
+						return dstIP;
+					}
+					else {
+						return srcIP;
+					}
+				}
+			}
+		}
+	}
+
+	else if (packet.isPacketOfType(pcpp::UDP))
+	{
+		// for UDP packets, decide the server port by the lower port
+		pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
+		if (udpLayer != NULL)
+		{
+			srcPort = ntohs(udpLayer->getUdpHeader()->portSrc);
+			dstPort = ntohs(udpLayer->getUdpHeader()->portDst);
+			if (client) {
+				if (srcPort >= dstPort) {
+					return srcIP;
+				}
+				else {
+					return dstIP;
+				}
+			}
+			else {
+				if (srcPort >= dstPort) {
+					return dstIP;
+				}
+				else {
+					return srcIP;
+				}
+			}
+		}
+
+	}
+	return "";
+}
+
+void hyphenIP(std::string& ipVal) {
+	int loc = ipVal.find(".");
+	while (loc >= 0) {
+		ipVal.replace(loc, 1, "-");
+		loc = ipVal.find(".");
+	}
+}
+
 
 /**
  * main method of this utility
@@ -346,6 +449,27 @@ int main(int argc, char* argv[])
 
 		// call the splitter to get the file number to write the current packet to
 		int fileNum = splitter->getFileNumber(parsedPacket, filesToClose);
+		std::string ipVal = "";
+		if (method == SPLIT_BY_IP_CLIENT) {
+			if (fileNum != 0) {
+				ipVal = "-" + getIP(parsedPacket, true);
+				hyphenIP(ipVal);
+			}
+			else {
+				// for vent purposes
+				ipVal = "-ignore";
+			}
+		}
+		else if (method == SPLIT_BY_IP_SERVER) {
+			if (fileNum != 0) {
+				ipVal = "-" + getIP(parsedPacket, false);
+				hyphenIP(ipVal);
+			}
+			else {
+				// for vent purposes
+				ipVal = "-ignore";
+			}
+		}
 
 		// if file number is seen for the first time (meaning it's the first packet written to it)
 		if (outputFiles.find(fileNum) == outputFiles.end())
@@ -354,7 +478,7 @@ int main(int argc, char* argv[])
 			// /requested-path/original-file-name-[file-number].pcap
 		    std::ostringstream sstream;
 		    sstream << std::setw(4) << std::setfill( '0' ) << fileNum;
-			std::string fileName = outputPcapFileName.c_str() + sstream.str() + ".pcap";
+			std::string fileName = outputPcapFileName.c_str() + sstream.str() + ipVal + ".pcap";
 
 			// create a new PcapFileWriterDevice for this file
 			outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str());
@@ -374,7 +498,7 @@ int main(int argc, char* argv[])
 			// /requested-path/original-file-name-[file-number].pcap
 		    std::ostringstream sstream;
 		    sstream << std::setw(4) << std::setfill( '0' ) << fileNum;
-			std::string fileName = outputPcapFileName.c_str() + sstream.str() + ".pcap";
+			std::string fileName = outputPcapFileName.c_str() + sstream.str() + ipVal + ".pcap";
 
 			// re-create the PcapFileWriterDevice
 			outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str());
