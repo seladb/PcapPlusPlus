@@ -456,8 +456,8 @@ int main(int argc, char* argv[])
 				hyphenIP(ipVal);
 			}
 			else {
-				// for vent purposes
-				ipVal = "-ignore";
+				// file number 0 is for various misceallaneous packets (ping, ARP, etc.)
+				ipVal = "-miscellaneous";
 			}
 		}
 		else if (method == SPLIT_BY_IP_SERVER) {
@@ -466,8 +466,8 @@ int main(int argc, char* argv[])
 				hyphenIP(ipVal);
 			}
 			else {
-				// for vent purposes
-				ipVal = "-ignore";
+				// file number 0 is for various misceallaneous packets (ping, ARP, etc.)
+				ipVal = "-miscellaneous";
 			}
 		}
 
