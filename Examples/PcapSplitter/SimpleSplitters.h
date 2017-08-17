@@ -143,6 +143,18 @@ public:
 	}
 
 	/**
+	 * Re-implement Splitter's getFileName() method, clarifying which file was matched by the BPF
+	 * filter and which didn't
+	 */
+	std::string getFileName(pcpp::Packet& packet, std::string outputPcapBasePath, int fileNumber)
+	{
+		if (fileNumber == 0)
+			return outputPcapBasePath + "match-bpf";
+		else
+			return outputPcapBasePath + "not-match-bpf";
+	}
+
+	/**
 	 * Verifies the BPF filter set in the c'tor is a valid BPF filter
 	 */
 	bool isSplitterParamLegal(std::string& errorString)

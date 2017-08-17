@@ -184,7 +184,6 @@ std::string getFileNameWithoutExtension(const std::string& path)
 	return("");
 }
 
-
 /**
  * main method of this utility
  */
@@ -350,11 +349,8 @@ int main(int argc, char* argv[])
 		// if file number is seen for the first time (meaning it's the first packet written to it)
 		if (outputFiles.find(fileNum) == outputFiles.end())
 		{
-			// prepare the file name in the format of:
-			// /requested-path/original-file-name-[file-number].pcap
-		    std::ostringstream sstream;
-		    sstream << std::setw(4) << std::setfill( '0' ) << fileNum;
-			std::string fileName = outputPcapFileName.c_str() + sstream.str() + ".pcap";
+			// get file name from the splitter and add the .pcap extension
+			std::string fileName = splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + ".pcap";
 
 			// create a new PcapFileWriterDevice for this file
 			outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str());
@@ -370,11 +366,8 @@ int main(int argc, char* argv[])
 		// then closed. In this case we need to re-open the PcapFileWriterDevice in append mode
 		else if (outputFiles[fileNum] == NULL)
 		{
-			// prepare the file name in the format of:
-			// /requested-path/original-file-name-[file-number].pcap
-		    std::ostringstream sstream;
-		    sstream << std::setw(4) << std::setfill( '0' ) << fileNum;
-			std::string fileName = outputPcapFileName.c_str() + sstream.str() + ".pcap";
+			// get file name from the splitter and add the .pcap extension
+			std::string fileName = splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + ".pcap";
 
 			// re-create the PcapFileWriterDevice
 			outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str());
