@@ -37,6 +37,19 @@ public:
 	virtual bool isSplitterParamLegal(std::string& errorString) = 0;
 
 	/**
+	 * A method that enables the splitter to decide what will be the output file names based on the file number
+	 * (determined also by the splitter), the output path and input file name (determined by the user) and the
+	 * first packet that will be written to this file. The default implementation is the following:
+	 * ' /requested-path/original-file-name-[4-digit-number-starting-at-0000].pcap'
+	 */
+	virtual std::string getFileName(pcpp::Packet& packet, std::string outputPcapBasePath, int fileNumber)
+	{
+	    std::ostringstream sstream;
+	    sstream << std::setw(4) << std::setfill( '0' ) << fileNumber;
+		return outputPcapBasePath.c_str() + sstream.str();
+	}
+
+	/**
 	 * A virtual d'tor
 	 */
 	virtual ~Splitter() {}
