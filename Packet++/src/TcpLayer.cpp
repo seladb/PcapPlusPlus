@@ -6,6 +6,7 @@
 #include <PayloadLayer.h>
 #include <HttpLayer.h>
 #include <SSLLayer.h>
+#include <SipLayer.h>
 #include <IpUtils.h>
 #include <Logger.h>
 #include <string.h>
@@ -331,6 +332,10 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = new HttpResponseLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	else if (SSLLayer::IsSSLMessage(portSrc, portDst, m_Data + headerLen, m_DataLen - headerLen))
 		m_NextLayer = SSLLayer::createSSLMessage(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+	else if (((portDst == 5060) || (portDst == 5061)) && (SipRequestFirstLine::parseMethod((char*)(m_Data + headerLen), m_DataLen - headerLen) != SipRequestLayer::SipMethodUnknown))
+		m_NextLayer = new SipRequestLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+	else if (((portDst == 5060) || (portDst == 5061)) && (SipResponseFirstLine::parseStatusCode((char*)(m_Data + headerLen), m_DataLen - headerLen) != SipResponseLayer::SipStatusCodeUnknown))
+		m_NextLayer = new SipResponseLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 }

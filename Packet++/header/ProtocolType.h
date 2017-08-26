@@ -173,7 +173,22 @@ namespace pcpp
 		/**
 		 * VXLAN protocol
 		 */
-		VXLAN = 0x2000000
+		VXLAN = 0x2000000,
+
+		/**
+		 * SIP request protocol
+		 */
+		SIPRequest = 0x4000000,
+
+		/**
+		 * SIP response protocol
+		 */
+		SIPResponse = 0x8000000,
+
+		/**
+		 * SIP protocol
+		 */
+		SIP = 0x4000000 | 0x8000000
 	};
 
 

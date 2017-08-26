@@ -672,10 +672,10 @@ HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevL
 	parseFields();
 }
 
-HttpResponseLayer::HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statuCode, std::string statusCodeString)
+HttpResponseLayer::HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString)
 {
 	m_Protocol = HTTPResponse;
-	m_FirstLine = new HttpResponseFirstLine(this, version, statuCode, statusCodeString);
+	m_FirstLine = new HttpResponseFirstLine(this, version, statusCode, statusCodeString);
 	m_FieldsOffset = m_FirstLine->getSize();
 }
 

@@ -20,6 +20,7 @@
 #include <NullLoopbackLayer.h>
 #include <IgmpLayer.h>
 #include <VxlanLayer.h>
+#include <SipLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -5307,6 +5308,261 @@ PACKETPP_TEST(VxlanParsingAndCreationTest)
 }
 
 
+PACKETPP_TEST(SipRequestLayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/sip_req1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file sip_req1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/sip_req2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file sip_req2.dat");
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/sip_req3.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file sip_req3.dat");
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/sip_req4.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file sip_req4.dat");
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+
+	Packet sipReqPacket1(&rawPacket1);
+	Packet sipReqPacket2(&rawPacket2);
+	Packet sipReqPacket3(&rawPacket3);
+	Packet sipReqPacket4(&rawPacket4);
+
+	PACKETPP_ASSERT(sipReqPacket1.isPacketOfType(SIP) == true, "sipReqPacket1 isn't of type SIP");
+	PACKETPP_ASSERT(sipReqPacket1.isPacketOfType(SIPRequest) == true, "sipReqPacket1 isn't of type SIP request");
+
+	PACKETPP_ASSERT(sipReqPacket2.isPacketOfType(SIP) == true, "sipReqPacket2 isn't of type SIP");
+	PACKETPP_ASSERT(sipReqPacket2.isPacketOfType(SIPRequest) == true, "sipReqPacket2 isn't of type SIP request");
+
+	PACKETPP_ASSERT(sipReqPacket3.isPacketOfType(SIP) == true, "sipReqPacket3 isn't of type SIP");
+	PACKETPP_ASSERT(sipReqPacket3.isPacketOfType(SIPRequest) == true, "sipReqPacket3 isn't of type SIP request");
+
+	PACKETPP_ASSERT(sipReqPacket4.isPacketOfType(SIP) == true, "sipReqPacket4 isn't of type SIP");
+	PACKETPP_ASSERT(sipReqPacket4.isPacketOfType(SIPRequest) == true, "sipReqPacket4 isn't of type SIP request");
+
+	SipRequestLayer* sipReqLayer = sipReqPacket1.getLayerOfType<SipRequestLayer>();
+
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getMethod() == SipRequestLayer::SipINVITE, "SIP request1: method isn't INVITE, it's %d", sipReqLayer->getFirstLine()->getMethod());
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getUri() == "sip:francisco@bestel.com:55060", "SIP request1: URI is not as expected");
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getVersion() == "SIP/2.0", "SIP request1: version is not as expected");
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getSize() == 47, "SIP request1: first line size isn't 47");
+
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD) != NULL, "SIP request1: Cannot find field 'From'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->getFieldValue() == "<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34", "SIP request1: Value of 'From' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD) != NULL, "SIP request1: Cannot find field 'Contact'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD, 1) == NULL, "SIP request1: Found second instance of field 'Contact'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD)->getFieldValue() == "<sip:200.57.7.195:5060>", "SIP request1: Value of 'From' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD) != NULL, "SIP request1: Cannot find field 'Via'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->getFieldValue() == "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290", "SIP request1: Value of first 'Via' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1) != NULL, "SIP request1: Cannot find second field 'Via'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)->getFieldValue() == "SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0", "SIP request1: Value of second 'Via' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 2) == NULL, "SIP request1: Found third instance of field 'Via'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 100) == NULL, "SIP request1: Found 101 instance of field 'Via'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName("BlaBla") == NULL, "SIP request1: Found a field which doesn't exist");
+
+	PACKETPP_ASSERT(sipReqLayer->getFirstField()->getFieldName() == "Via", "SIP request1: First field isn't 'Via'");
+
+	PACKETPP_ASSERT(sipReqLayer->getHeaderLen() == 469, "SIP request1: Header len isn't 469, it's %d", sipReqLayer->getHeaderLen());
+	PACKETPP_ASSERT(sipReqLayer->getLayerPayloadSize() == 229, "SIP request1: Layer payload size isn't 229, its %d", sipReqLayer->getLayerPayloadSize());
+
+
+	sipReqLayer = sipReqPacket2.getLayerOfType<SipRequestLayer>();
+
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getMethod() == SipRequestLayer::SipCANCEL, "SIP request2: method isn't CANCEL, it's %d", sipReqLayer->getFirstLine()->getMethod());
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getUri() == "sip:echo@iptel.org", "SIP request2: URI is not as expected");
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getSize() == 35, "SIP request2: first line size isn't 35");
+
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD) != NULL, "SIP request2: Cannot find field 'Max-Forwards'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD)->getFieldValue() == "70", "SIP request2: Value of 'Max-Forwards' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD))->isEndOfHeader() == true, "SIP request2: field after 'Max-Forwards' isn't marked as end of header");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD) != NULL, "SIP request2: Cannot find field 'CSeq'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD)->getFieldValue() == "2 CANCEL", "SIP request2: Value of 'CSeq' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD) != NULL, "SIP request2: Cannot find field 'To'");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD)->getFieldValue() == "<sip:echo@iptel.org>", "SIP request2: Value of 'To' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD, 2) == NULL, "SIP request2: mistkaely found a second 'To' field");
+	PACKETPP_ASSERT(sipReqLayer->isHeaderComplete() == true, "SIP request2: header is not complete");
+
+
+	sipReqLayer = sipReqPacket3.getLayerOfType<SipRequestLayer>();
+
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getMethod() == SipRequestLayer::SipACK, "SIP request3: method isn't ACK, it's %d", sipReqLayer->getFirstLine()->getMethod());
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getUri() == "sip:admind@178.45.73.241", "SIP request3: URI is not as expected");
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getSize() == 38, "SIP request3: first line size isn't 38, it's %d", sipReqLayer->getFirstLine()->getSize());
+
+	PACKETPP_ASSERT(sipReqLayer->isHeaderComplete() == false, "SIP request3: header marked as complete");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1) != NULL, "SIP request3: Cannot find second 'Via' field");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)->getFieldValue() == "SIP/2.0/UDP 213.192.59.78:5080;rport=5080;branch=z9hG4bKjBiNGaOX", "SIP request3: Value of second 'Via' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD) != NULL, "SIP request3: Cannot find 'CAll-ID' field");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD)->getFieldValue() == "2091060b-146f-e011-809a-0019cb53db77@admind-desktop", "SIP request3: Value of 'Call-ID' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName("P-hint") != NULL, "SIP request3: Cannot find 'P-hint' field");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName("P-hint")->getFieldValue() == "rr-enforced", "SIP request3: Value of 'P-hint' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getNextField(sipReqLayer->getFieldByName("P-hint")) == NULL, "SIP request3: field next of 'P-hint' isn't NULL");
+
+
+	sipReqLayer = sipReqPacket4.getLayerOfType<SipRequestLayer>();
+
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getMethod() == SipRequestLayer::SipBYE, "SIP request4: method isn't BYE, it's %d", sipReqLayer->getFirstLine()->getMethod());
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getUri() == "sip:sipp@10.0.2.20:5060", "SIP request4: URI is not as expected");
+	PACKETPP_ASSERT(sipReqLayer->getFirstLine()->getSize() == 37, "SIP request4: first line size isn't 37, it's %d", sipReqLayer->getFirstLine()->getSize());
+
+	PACKETPP_ASSERT(sipReqLayer->isHeaderComplete() == false, "SIP request4: header marked as complete");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_USER_AGENT_FIELD) != NULL, "SIP request4: Cannot find 'User-Agent' field");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_USER_AGENT_FIELD)->getFieldValue() == "FreeSWITCH-mod_sofia/1.6.12-20-b91a0a6~64bit", "SIP request4: Value of 'User-Agent' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD) != NULL, "SIP request4: Cannot find 'Reason' field");
+	PACKETPP_ASSERT(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD)->getFieldValue() == "Q.850;cause=16;text=\"NORMAL_CLEARING\"", "SIP request4: Value of 'Reason' is different than expected");
+	PACKETPP_ASSERT(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldName() == "Content-Lengt", "SIP request4: name of last malformed field isn't as expected");
+	PACKETPP_ASSERT(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldValue() == "", "SIP request4: value of last malformed field isn't empty");
+
+//
+//	for (HeaderField* field = sipReqLayer->getFirstField(); field != NULL; field = sipReqLayer->getNextField(field))
+//	{
+//		printf("!!!%s!!!: !!!%s!!!\n", field->getFieldName().c_str(), field->getFieldValue().c_str());
+//	}
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(SipResponseLayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/sip_resp1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file sip_resp1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/sip_resp2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file sip_resp2.dat");
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/sip_resp3.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file sip_resp3.dat");
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/sip_resp4.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file sip_resp4.dat");
+
+	int buffer7Length = 0;
+	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/sip_resp7.dat", buffer7Length);
+	PACKETPP_ASSERT(!(buffer7 == NULL), "cannot read file sip_resp7.dat");
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+	RawPacket rawPacket7((const uint8_t*)buffer7, buffer7Length, time, true);
+
+	Packet sipRespPacket1(&rawPacket1);
+	Packet sipRespPacket2(&rawPacket2);
+	Packet sipRespPacket3(&rawPacket3);
+	Packet sipRespPacket4(&rawPacket4);
+	Packet sipRespPacket7(&rawPacket7);
+
+	PACKETPP_ASSERT(sipRespPacket1.isPacketOfType(SIP) == true, "sipRespPacket1 isn't of type SIP");
+	PACKETPP_ASSERT(sipRespPacket1.isPacketOfType(SIPResponse) == true, "sipRespPacket1 isn't of type SIP response");
+
+	PACKETPP_ASSERT(sipRespPacket2.isPacketOfType(SIP) == true, "sipRespPacket2 isn't of type SIP");
+	PACKETPP_ASSERT(sipRespPacket2.isPacketOfType(SIPResponse) == true, "sipRespPacket2 isn't of type SIP response");
+
+	PACKETPP_ASSERT(sipRespPacket3.isPacketOfType(SIP) == true, "sipRespPacket3 isn't of type SIP");
+	PACKETPP_ASSERT(sipRespPacket3.isPacketOfType(SIPResponse) == true, "sipRespPacket3 isn't of type SIP response");
+
+	PACKETPP_ASSERT(sipRespPacket4.isPacketOfType(SIP) == true, "sipRespPacket4 isn't of type SIP");
+	PACKETPP_ASSERT(sipRespPacket4.isPacketOfType(SIPResponse) == true, "sipRespPacket4 isn't of type SIP response");
+
+	PACKETPP_ASSERT(sipRespPacket7.isPacketOfType(SIP) == true, "sipRespPacket7 isn't of type SIP");
+	PACKETPP_ASSERT(sipRespPacket7.isPacketOfType(SIPResponse) == true, "sipRespPacket7 isn't of type SIP response");
+
+	SipResponseLayer* sipRespLayer = sipRespPacket1.getLayerOfType<SipResponseLayer>();
+
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCode() == SipResponseLayer::Sip100Trying, "SIP response1: status code isn't 100 Trying, it's %d", sipRespLayer->getFirstLine()->getStatusCode());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeAsInt() == 100, "SIP response1: status code as int isn't 100");
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeString() == "Trying", "SIP response1: status code as string isn't 'Trying', it's '%s'", sipRespLayer->getFirstLine()->getStatusCodeString().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getVersion() == "SIP/2.0", "SIP response1: protocol version isn't 'SIP/2.0', it's '%s'", sipRespLayer->getFirstLine()->getVersion().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getSize() == 20, "SIP response1: first line size isn't 20, it's %d", sipRespLayer->getFirstLine()->getSize());
+
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD) != NULL, "SIP response1: Cannot find field 'From'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->getFieldValue() == "<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34", "SIP response1: Value of 'From' is different than expected");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD) != NULL, "SIP response1: Cannot find field 'Call-ID'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD)->getFieldValue() == "12013223@200.57.7.195", "SIP response1: Value of 'Call-ID' is different than expected");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_SERVER_FIELD) != NULL, "SIP response1: Cannot find field 'Server'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_SERVER_FIELD)->getFieldValue() == "X-Lite release 1103m", "SIP response1: Value of 'Server' is different than expected");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD) != NULL, "SIP response1: Cannot find field 'Content-Length'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD)->getFieldValue() == "0", "SIP response1: Value of 'Content-Length' isn't '0'");
+	PACKETPP_ASSERT(sipRespLayer->getContentLength() == 0, "SIP response1: content length isn't 0");
+
+
+	sipRespLayer = sipRespPacket2.getLayerOfType<SipResponseLayer>();
+
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCode() == SipResponseLayer::Sip180Ringing, "SIP response2: status code isn't 180 Ringing, it's %d", sipRespLayer->getFirstLine()->getStatusCode());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeAsInt() == 180, "SIP response2: status code as int isn't 180");
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeString() == "Ringing", "SIP response2: status code as string isn't 'Ringing', it's '%s'", sipRespLayer->getFirstLine()->getStatusCodeString().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getVersion() == "SIP/2.0", "SIP response2: protocol version isn't 'SIP/2.0', it's '%s'", sipRespLayer->getFirstLine()->getVersion().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getSize() == 21, "SIP response2: first line size isn't 21, it's %d", sipRespLayer->getFirstLine()->getSize());
+
+	PACKETPP_ASSERT(sipRespLayer->getFirstField()->getFieldName() == PCPP_SIP_VIA_FIELD, "SIP response2: first field isn't 'Via'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD) != NULL, "SIP response2: Cannot find field 'Via'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->getFieldValue() == "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290", "SIP response2: Value of first 'Via' is different than expected");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD) != NULL, "SIP response2: Cannot find field 'CSeq'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD)->getFieldValue() == "1 INVITE", "SIP response2: Value of 'CSeq' is different than expected");
+	PACKETPP_ASSERT(sipRespLayer->getContentLength() == 0, "SIP response2: content length isn't 0");
+
+
+
+	sipRespLayer = sipRespPacket3.getLayerOfType<SipResponseLayer>();
+
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCode() == SipResponseLayer::Sip200OK, "SIP response3: status code isn't 200 OK, it's %d", sipRespLayer->getFirstLine()->getStatusCode());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeAsInt() == 200, "SIP response3: status code as int isn't 200");
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeString() == "Ok", "SIP response3: status code as string isn't 'Ok', it's '%s'", sipRespLayer->getFirstLine()->getStatusCodeString().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getVersion() == "SIP/2.0", "SIP response3: protocol version isn't 'SIP/2.0', it's '%s'", sipRespLayer->getFirstLine()->getVersion().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getSize() == 16, "SIP response3: first line size isn't 16, it's %d", sipRespLayer->getFirstLine()->getSize());
+
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_TYPE_FIELD) != NULL, "SIP response3: Cannot find field 'Content-Type'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_TYPE_FIELD)->getFieldValue() == "application/sdp", "SIP response3: Value of first 'Content-Type' is different than expected");
+	PACKETPP_ASSERT(sipRespLayer->getContentLength() == 298, "SIP response3: content length isn't 298");
+
+
+	sipRespLayer = sipRespPacket4.getLayerOfType<SipResponseLayer>();
+
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCode() == SipResponseLayer::Sip401Unauthorized, "SIP response4: status code isn't 401 Unauthorized, it's %d", sipRespLayer->getFirstLine()->getStatusCode());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeAsInt() == 401, "SIP response4: status code as int isn't 401");
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeString() == "Unauthorized", "SIP response4: status code as string isn't 'Unauthorized', it's '%s'", sipRespLayer->getFirstLine()->getStatusCodeString().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getVersion() == "SIP/2.0", "SIP response4: protocol version isn't 'SIP/2.0', it's '%s'", sipRespLayer->getFirstLine()->getVersion().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getSize() == 26, "SIP response4: first line size isn't 26, it's %d", sipRespLayer->getFirstLine()->getSize());
+
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_WWW_AUTHENTICATE_FIELD) != NULL, "SIP response4: Cannot find field 'WWW-Authenticate'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_WWW_AUTHENTICATE_FIELD)->getFieldValue() == "Digest  realm=\"ims.hom\",nonce=\"021fa2db5ff06518\",opaque=\"627f7bb95d5e2dcd\",algorithm=MD5,qop=\"auth\"", "SIP response4: Value of first 'WWW-Authenticate' is different than expected");
+	PACKETPP_ASSERT(sipRespLayer->getContentLength() == 0, "SIP response4: content length isn't 0");
+
+
+	sipRespLayer = sipRespPacket7.getLayerOfType<SipResponseLayer>();
+
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCode() == SipResponseLayer::Sip503ServiceUnavailable, "SIP response7: status code isn't 503 Service Unavailable, it's %d", sipRespLayer->getFirstLine()->getStatusCode());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeAsInt() == 503, "SIP response7: status code as int isn't 503");
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getStatusCodeString() == "Service Unavailable", "SIP response7: status code as string isn't 'Service Unavailable', it's '%s'", sipRespLayer->getFirstLine()->getStatusCodeString().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getVersion() == "SIP/2.0", "SIP response7: protocol version isn't 'SIP/2.0', it's '%s'", sipRespLayer->getFirstLine()->getVersion().c_str());
+	PACKETPP_ASSERT(sipRespLayer->getFirstLine()->getSize() == 33, "SIP response7: first line size isn't 33, it's %d", sipRespLayer->getFirstLine()->getSize());
+
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_RETRY_AFTER_FIELD) != NULL, "SIP response7: Cannot find field 'Retry-After'");
+	PACKETPP_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_RETRY_AFTER_FIELD)->getFieldValue() == "0", "SIP response7: Value of first 'Retry-After' is different than expected");
+	PACKETPP_ASSERT(sipRespLayer->getContentLength() == 0, "SIP response7: content length isn't 0");
+
+	PACKETPP_TEST_PASSED;
+}
+
+
 int main(int argc, char* argv[]) {
 	start_leak_check();
 
@@ -5376,6 +5632,8 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(Igmpv3ReportCreateAndEditTest);
 	PACKETPP_RUN_TEST(ParsePartialPacketTest);
 	PACKETPP_RUN_TEST(VxlanParsingAndCreationTest);
+	PACKETPP_RUN_TEST(SipRequestLayerParsingTest);
+	PACKETPP_RUN_TEST(SipResponseLayerParsingTest);
 
 	PACKETPP_END_RUNNING_TESTS;
 }

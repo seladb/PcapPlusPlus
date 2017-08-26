@@ -91,6 +91,9 @@ namespace pcpp
 	protected:
 		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
 		HttpMessage() : TextBasedProtocolMessage() {}
+		HttpMessage(const HttpMessage& other) : TextBasedProtocolMessage(other) {}
+		HttpMessage& operator=(const HttpMessage& other) { TextBasedProtocolMessage::operator=(other); return *this; }
+
 	};
 
 
@@ -405,14 +408,14 @@ namespace pcpp
 
 		/**
 		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be created without further fields.
-		 * The user can then ass fields using addField() methods
+		 * The user can then add fields using addField() methods
 		 * @param[in] version HTTP version to be used
 		 * @param[in] statuCode Status code to be used
 		 * @param[in] statusCodeString Most status codes have their default string, e.g 200 is usually "OK", 404 is usually "Not Found", etc.
 		 * But the user can set a non-default status code string and it will be written in the header first line. Empty string ("") means using the
 		 * default status code string
 		 */
-		HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statuCode, std::string statusCodeString = "");
+		HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString = "");
 
 		virtual ~HttpResponseLayer();
 
