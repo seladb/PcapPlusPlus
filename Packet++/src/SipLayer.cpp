@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include <string.h>
 #include <algorithm>
+#include <stdlib.h>
 
 namespace pcpp
 {
