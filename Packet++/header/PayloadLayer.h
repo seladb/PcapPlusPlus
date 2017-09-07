@@ -31,10 +31,10 @@ namespace pcpp
 		 * A constructor that allocates a new payload
 		 * @param[in] data A raw buffer that will be used as a payload. This data will be copied to the layer
 		 * @param[in] dataLen The raw buffer length
-		 * @param[in] selfAllocated A dummy parameter to separate the constructor signature from the other constrcutor
-		 * @todo selfAllocated is probably not necessary anymore. Remove it
+		 * @param[in] dummy A dummy parameter to separate the constructor signature from the other constructor. Its value isn't used anywhere
+		 * @todo dummy is probably not necessary anymore. Remove it
 		 */
-		PayloadLayer(const uint8_t* data, size_t dataLen, bool selfAllocated);
+		PayloadLayer(const uint8_t* data, size_t dataLen, bool dummy);
 
 		~PayloadLayer() {}
 

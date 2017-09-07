@@ -708,13 +708,10 @@ HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::s
 	char contentLengthAsString[20];
 	snprintf (contentLengthAsString, sizeof(contentLengthAsString), "%d",contentLength);
 	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
-	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
 	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
 	if (contentLengthField == NULL)
 	{
-		std::string prevFieldNameLowerCase(prevFieldName);
-		std::transform(prevFieldNameLowerCase.begin(), prevFieldNameLowerCase.end(), prevFieldNameLowerCase.begin(), ::tolower);
-		HeaderField* prevField = getFieldByName(prevFieldNameLowerCase);
+		HeaderField* prevField = getFieldByName(prevFieldName);
 		contentLengthField = insertField(prevField, PCPP_HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString);
 	}
 	else

@@ -7,7 +7,7 @@
 namespace pcpp
 {
 
-PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen, bool selfAllocated) : Layer()
+PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen, bool dummy) : Layer()
 {
 	m_Data = new uint8_t[dataLen];
 	memcpy(m_Data, data, dataLen);

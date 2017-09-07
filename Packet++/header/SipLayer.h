@@ -57,6 +57,8 @@ namespace pcpp
 #define PCPP_SIP_WWW_AUTHENTICATE_FIELD    "WWW-Authenticate"
 /** Retry-After field */
 #define PCPP_SIP_RETRY_AFTER_FIELD         "Retry-After"
+/** Record-Route field */
+#define PCPP_SIP_RECORD_ROUTE_FIELD        "Record-Route"
 
 
 
@@ -64,6 +66,27 @@ namespace pcpp
 	{
 	public:
 		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
+
+		/**
+		 * The length of the body of many SIP response messages is determined by a SIP header field called "Content-Length". This method
+		 * parses this field, extracts its value and return it. If this field doesn't exist the method will return 0
+		 * @return SIP response body length determined by "Content-Length" field
+		 */
+		int getContentLength();
+
+		/**
+		 * The length of the body of many SIP messages is determined by a header field called "Content-Length". This method sets
+		 * The content-length field value. The method supports several cases:
+		 * - If the "Content-Length" field exists - the method will only replace the existing value with the new value
+		 * - If the "Content-Length" field doesn't exist - the method will create this field and put the value in it. Here are also 2 cases:
+		 * 		- If prevFieldName is specified - the new "Content-Length" field will be created after it
+		 * 		- If prevFieldName isn't specified or doesn't exist - the new "Content-Length" field will be created as the last field before
+		 * 		  end-of-header field
+		 * @param[in] contentLength The content length value to set
+		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be created after it
+		 * @return A pointer to the "Content-Length" field, or NULL if creation failed for some reason
+		 */
+		HeaderField* setContentLength(int contentLength, const std::string prevFieldName = "");
 
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
@@ -130,9 +153,9 @@ namespace pcpp
 		 * The user can then ass fields using addField() methods
 		 * @param[in] method The SIP method used in this HTTP request
 		 * @param[in] requestUri The URI of the first line
-		 * @param[in] version SIP version to be used in this request
+		 * @param[in] version SIP version to be used in this request. Default is "SIP/2.0"
 		 */
-		SipRequestLayer(SipMethod method, std::string requestUri, std::string version);
+		SipRequestLayer(SipMethod method, std::string requestUri, std::string version = "SIP/2.0");
 
 		~SipRequestLayer();
 
@@ -368,13 +391,6 @@ namespace pcpp
 		 */
 		inline SipResponseFirstLine* getFirstLine() { return m_FirstLine; }
 
-		/**
-		 * The length of the body of many SIP response messages is determined by a SIP header field called "Content-Length". This method
-		 * parses this field, extracts its value and return it. If this field doesn't exist the method will return 0
-		 * @return SIP response body length determined by "Content-Length" field
-		 */
-		int getContentLength();
-
 		// implement Layer's abstract methods
 
 		std::string toString();
@@ -389,12 +405,12 @@ namespace pcpp
 		friend class SipRequestLayer;
 	public:
 		/**
-		 * @return The HTTP method
+		 * @return The SIP request method
 		 */
 		inline SipRequestLayer::SipMethod getMethod() { return m_Method; }
 
 		/**
-		 * Set the HTTP method
+		 * Set the SIP request method
 		 * @param[in] newMethod The method to set
 		 * @return False if newMethod is HttpRequestLayer#HttpMethodUnknown or if shortening/extending the HttpRequestLayer data failed. True otherwise
 		 */
@@ -416,13 +432,6 @@ namespace pcpp
 		 * @return The HTTP version
 		 */
 		inline std::string getVersion() { return m_Version; }
-
-		/**
-		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same size
-		 * (HTTP/0.9, HTTP/1.0, HTTP/1.1)
-		 * @param[in] newVersion The HTTP version to set
-		 */
-		void setVersion(std::string newVersion);
 
 		/**
 		 * A static method for parsing the HTTP method out of raw data

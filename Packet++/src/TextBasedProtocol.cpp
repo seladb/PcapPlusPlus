@@ -154,6 +154,22 @@ HeaderField* TextBasedProtocolMessage::insertField(HeaderField* prevField, const
 	return insertField(prevField, newField);
 }
 
+HeaderField* TextBasedProtocolMessage::insertField(std::string prevFieldName, const std::string& fieldName, const std::string& fieldValue)
+{
+	if (prevFieldName == "")
+	{
+		return insertField(NULL, fieldName, fieldValue);
+	}
+	else
+	{
+		HeaderField* prevField = getFieldByName(prevFieldName);
+		if (prevField == NULL)
+			return NULL;
+
+		return insertField(prevField, fieldName, fieldValue);
+	}
+}
+
 
 HeaderField* TextBasedProtocolMessage::insertField(HeaderField* prevField, const HeaderField& newField)
 {
@@ -355,6 +371,21 @@ HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName, int
     }
 
     return NULL;
+}
+
+int TextBasedProtocolMessage::getFieldCount()
+{
+	int result = 0;
+
+	HeaderField* curField = getFirstField();
+	while (curField != NULL)
+	{
+		if (!curField->isEndOfHeader())
+			result++;
+		curField = curField->getNextField();
+	}
+
+	return result;
 }
 
 void TextBasedProtocolMessage::parseNextLayer()

@@ -134,6 +134,11 @@ public:
 	inline HeaderField* getNextField(HeaderField* prevField) { if (prevField != NULL) return prevField->getNextField(); else return NULL; }
 
 	/**
+	 * @return The number of header fields currently in the layer (not including CRLF at the end of the header)
+	 */
+	int getFieldCount();
+
+	/**
 	 * Add a new header field to this message. This field will be added last (before the end-of-header field)
 	 * @param[in] fieldName The field name
 	 * @param[in] fieldValue The field value
@@ -162,6 +167,16 @@ public:
 	 * @return A pointer to the newly created header field, or NULL if the field could not be created
 	 */
 	virtual HeaderField* insertField(HeaderField* prevField, const std::string& fieldName, const std::string& fieldValue);
+
+	/**
+	 * Insert a new field after an existing field
+	 * @param[in] prevFieldName A name of an existing field. If the field doesn't exist NULL will be returned.
+	 * If field name is empty ('') the new field will be added as first field
+	 * @param[in] fieldName The field name
+	 * @param[in] fieldValue The field value
+	 * @return A pointer to the newly created header field, or NULL if the field could not be created
+	 */
+	virtual HeaderField* insertField(std::string prevFieldName, const std::string& fieldName, const std::string& fieldValue);
 
 	/**
 	 * Insert a new field after an existing field

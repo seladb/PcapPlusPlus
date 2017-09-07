@@ -1,3 +1,5 @@
+#define LOG_MODULE PacketLogModuleSipLayer
+
 #include "SipLayer.h"
 #include "Logger.h"
 #include <string.h>
@@ -23,6 +25,44 @@ const std::string SipMethodEnumToString[14] = {
 		"MESSAGE",
 		"UPDATE"
 };
+
+
+
+
+// -------- Class SipLayer -----------------
+
+int SipLayer::getContentLength()
+{
+	std::string contentLengthFieldName(PCPP_SIP_CONTENT_LENGTH_FIELD);
+	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
+	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
+	if (contentLengthField != NULL)
+		return atoi(contentLengthField->getFieldValue().c_str());
+	return 0;
+}
+
+HeaderField* SipLayer::setContentLength(int contentLength, const std::string prevFieldName)
+{
+	char contentLengthAsString[20];
+	snprintf (contentLengthAsString, sizeof(contentLengthAsString), "%d",contentLength);
+	std::string contentLengthFieldName(PCPP_SIP_CONTENT_LENGTH_FIELD);
+	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
+	if (contentLengthField == NULL)
+	{
+		HeaderField* prevField = getFieldByName(prevFieldName);
+		contentLengthField = insertField(prevField, PCPP_SIP_CONTENT_LENGTH_FIELD, contentLengthAsString);
+	}
+	else
+		contentLengthField->setFieldValue(std::string(contentLengthAsString));
+
+	return contentLengthField;
+}
+
+
+
+
+
+
 
 
 // -------- Class SipRequestFirstLine -----------------
@@ -235,45 +275,51 @@ void SipRequestFirstLine::parseVersion()
 	m_VersionOffset = verPos - (char*)m_SipRequest->m_Data;
 }
 
-//bool HttpRequestFirstLine::setMethod(HttpRequestLayer::HttpMethod newMethod)
-//{
-//	if (newMethod == HttpRequestLayer::HttpMethodUnknown)
-//	{
-//		LOG_ERROR("Requested method is HttpMethodUnknown");
-//		return false;
-//	}
-//
-//	//extend or shorten layer
-//	int lengthDifference = MethodEnumToString[newMethod].length() - MethodEnumToString[m_Method].length();
-//	if (lengthDifference > 0)
-//	{
-//		if (!m_HttpRequest->extendLayer(0, lengthDifference))
-//		{
-//			LOG_ERROR("Cannot change layer size");
-//			return false;
-//		}
-//	}
-//	else if (lengthDifference < 0)
-//	{
-//		if (!m_HttpRequest->shortenLayer(0, 0-lengthDifference))
-//		{
-//			LOG_ERROR("Cannot change layer size");
-//			return false;
-//
-//		}
-//	}
-//
-//	if (lengthDifference != 0)
-//		m_HttpRequest->shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
-//
-//	memcpy(m_HttpRequest->m_Data, MethodEnumToString[newMethod].c_str(), MethodEnumToString[newMethod].length());
-//
-//	m_UriOffset += lengthDifference;
-//	m_VersionOffset += lengthDifference;
-//
-//	return true;
-//}
-//
+bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
+{
+	if (newMethod == SipRequestLayer::SipMethodUnknown)
+	{
+		LOG_ERROR("Requested method is SipMethodUnknown");
+		return false;
+	}
+
+	//extend or shorten layer
+	int lengthDifference = SipMethodEnumToString[newMethod].length() - SipMethodEnumToString[m_Method].length();
+	if (lengthDifference > 0)
+	{
+		if (!m_SipRequest->extendLayer(0, lengthDifference))
+		{
+			LOG_ERROR("Cannot change layer size");
+			return false;
+		}
+	}
+	else if (lengthDifference < 0)
+	{
+		if (!m_SipRequest->shortenLayer(0, 0-lengthDifference))
+		{
+			LOG_ERROR("Cannot change layer size");
+			return false;
+
+		}
+	}
+
+	if (lengthDifference != 0)
+	{
+		m_SipRequest->shiftFieldsOffset(m_SipRequest->getFirstField(), lengthDifference);
+		m_SipRequest->m_FieldsOffset += lengthDifference;
+	}
+
+	memcpy(m_SipRequest->m_Data, SipMethodEnumToString[newMethod].c_str(), SipMethodEnumToString[newMethod].length());
+
+	m_UriOffset += lengthDifference;
+	m_VersionOffset += lengthDifference;
+	m_FirstLineEndOffset += lengthDifference;
+
+	m_Method = newMethod;
+
+	return true;
+}
+
 std::string SipRequestFirstLine::getUri()
 {
 	std::string result;
@@ -284,54 +330,49 @@ std::string SipRequestFirstLine::getUri()
 
 	return result;
 }
-//
-//bool HttpRequestFirstLine::setUri(std::string newUri)
-//{
-//	// make sure the new URI begins with "/"
-//	if (newUri.compare(0, 1, "/") != 0)
-//		newUri = "/" + newUri;
-//
-//	//extend or shorten layer
-//	std::string currentUri = getUri();
-//	int lengthDifference = newUri.length() - currentUri.length();
-//	if (lengthDifference > 0)
-//	{
-//		if (!m_HttpRequest->extendLayer(m_UriOffset, lengthDifference))
-//		{
-//			LOG_ERROR("Cannot change layer size");
-//			return false;
-//		}
-//	}
-//	else if (lengthDifference < 0)
-//	{
-//		if (!m_HttpRequest->shortenLayer(m_UriOffset, 0-lengthDifference))
-//		{
-//			LOG_ERROR("Cannot change layer size");
-//			return false;
-//		}
-//	}
-//
-//	if (lengthDifference != 0)
-//		m_HttpRequest->shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
-//
-//	memcpy(m_HttpRequest->m_Data + m_UriOffset, newUri.c_str(), newUri.length());
-//
-//	m_VersionOffset += lengthDifference;
-//
-//	return true;
-//}
-//
-//void HttpRequestFirstLine::setVersion(HttpVersion newVersion)
-//{
-//	if (m_VersionOffset == -1)
-//		return;
-//
-//	if (newVersion == HttpVersionUnknown)
-//		return;
-//
-//	char* verPos = (char*)(m_HttpRequest->m_Data + m_VersionOffset);
-//	memcpy(verPos, VersionEnumToString[newVersion].c_str(), 3);
-//}
+
+bool SipRequestFirstLine::setUri(std::string newUri)
+{
+	if (newUri == "")
+	{
+		LOG_ERROR("URI cannot be empty");
+		return false;
+	}
+
+	//extend or shorten layer
+	std::string currentUri = getUri();
+	int lengthDifference = newUri.length() - currentUri.length();
+	if (lengthDifference > 0)
+	{
+		if (!m_SipRequest->extendLayer(m_UriOffset, lengthDifference))
+		{
+			LOG_ERROR("Cannot change layer size");
+			return false;
+		}
+	}
+	else if (lengthDifference < 0)
+	{
+		if (!m_SipRequest->shortenLayer(m_UriOffset, 0-lengthDifference))
+		{
+			LOG_ERROR("Cannot change layer size");
+			return false;
+		}
+	}
+
+	if (lengthDifference != 0)
+	{
+		m_SipRequest->shiftFieldsOffset(m_SipRequest->getFirstField(), lengthDifference);
+		m_SipRequest->m_FieldsOffset += lengthDifference;
+	}
+
+	memcpy(m_SipRequest->m_Data + m_UriOffset, newUri.c_str(), newUri.length());
+
+	m_VersionOffset += lengthDifference;
+	m_FirstLineEndOffset += lengthDifference;
+
+	return true;
+}
+
 
 
 
@@ -477,7 +518,7 @@ const std::string StatusCodeEnumToString[74] = {
 		"Not Implemented",
 		"Bad Gateway",
 		"Service Unavailable",
-		"Server Time-out",
+		"Server Timeout",
 		"Version Not Supported",
 		"Message Too Large",
 		"Precondition Failure",
@@ -634,16 +675,6 @@ std::string SipResponseLayer::toString()
 }
 
 
-int SipResponseLayer::getContentLength()
-{
-	std::string contentLengthFieldName(PCPP_SIP_CONTENT_LENGTH_FIELD);
-	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
-	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
-	if (contentLengthField != NULL)
-		return atoi(contentLengthField->getFieldValue().c_str());
-	return 0;
-}
-
 
 
 
@@ -684,10 +715,11 @@ bool SipResponseFirstLine::setStatusCode(SipResponseLayer::SipResponseStatusCode
 
 	//extend or shorten layer
 
-	size_t statusStringOffset = 13;
+	size_t statusStringOffset = 12;
 	if (statusCodeString == "")
 		statusCodeString = StatusCodeEnumToString[newStatusCode];
 	int lengthDifference = statusCodeString.length() - getStatusCodeString().length();
+
 	if (lengthDifference > 0)
 	{
 		if (!m_SipResponse->extendLayer(statusStringOffset, lengthDifference))
@@ -707,7 +739,10 @@ bool SipResponseFirstLine::setStatusCode(SipResponseLayer::SipResponseStatusCode
 	}
 
 	if (lengthDifference != 0)
+	{
 		m_SipResponse->shiftFieldsOffset(m_SipResponse->getFirstField(), lengthDifference);
+		m_SipResponse->m_FieldsOffset += lengthDifference;
+	}
 
 	// copy status string
 	memcpy(m_SipResponse->m_Data+statusStringOffset, statusCodeString.c_str(), statusCodeString.length());
@@ -717,10 +752,9 @@ bool SipResponseFirstLine::setStatusCode(SipResponseLayer::SipResponseStatusCode
 	// convert code to string
 	snprintf (statusCodeAsString, sizeof(statusCodeAsString), "%d",StatusCodeEnumToInt[newStatusCode]);
 
-	memcpy(m_SipResponse->m_Data+9, statusCodeAsString, 3);
+	memcpy(m_SipResponse->m_Data+8, statusCodeAsString, 3);
 
 	m_StatusCode = newStatusCode;
-
 	m_FirstLineEndOffset += lengthDifference;
 
 	return true;
