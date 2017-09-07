@@ -98,6 +98,67 @@ public:
 		return 0;
 	}
 
+
+	/**
+	 * Re-implement Splitter's getFileName() method, this time with the IP/port value
+	 */
+	std::string getFileName(pcpp::Packet& packet, std::string outputPcapBasePath, int fileNumber)
+	{
+		// first set the base string as the outputPcapBasePath
+		std::string result = outputPcapBasePath;
+
+		// if it's not a TCP or UDP packet, put it in file #0
+		if (!packet.isPacketOfType(pcpp::TCP) && !packet.isPacketOfType(pcpp::UDP))
+		{
+			return result + "miscellaneous";
+		}
+
+		if (packet.isPacketOfType(pcpp::TCP))
+		{
+			// extract TCP layer
+			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+			if (tcpLayer != NULL)
+			{
+				uint16_t srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
+				uint16_t dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
+
+				if (tcpLayer->getTcpHeader()->synFlag)
+				{
+					// SYN packet
+					if (!tcpLayer->getTcpHeader()->ackFlag)
+					{
+						return result + getValueString(packet, SYN, srcPort, dstPort);
+					}
+					// SYN/ACK packet
+					else
+					{
+						return result + getValueString(packet, SYN_ACK, srcPort, dstPort);
+					}
+				}
+				// Other TCP packet
+				else
+				{
+					return result + getValueString(packet, TCP_OTHER, srcPort, dstPort);
+				}
+			}
+		}
+
+		else if (packet.isPacketOfType(pcpp::UDP))
+		{
+			// for UDP packets, decide the server port by the lower port
+			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
+			if (udpLayer != NULL)
+			{
+				uint16_t srcPort = ntohs(udpLayer->getUdpHeader()->portSrc);
+				uint16_t dstPort = ntohs(udpLayer->getUdpHeader()->portDst);
+				return result + getValueString(packet, UDP, srcPort, dstPort);
+			}
+		}
+
+		// if reached here, return 'miscellaneous'
+		return result + "miscellaneous";
+	}
+
 protected:
 
 	/**
@@ -120,6 +181,12 @@ protected:
 	 */
 	virtual uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) = 0;
 
+	/**
+	 * This is a virtual abstract method that needs to be implemented by inherited classes. It gets the packet,
+	 * packet type, src and dest ports and return the value by which the file will be split, but in its string format.
+	 * For example: if the file is split by client-ip the expected result is the client-ip string ("a.b.c.d")
+	 */
+	virtual std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort) = 0;
 
 	/**
 	 * An auxiliary method for extracting packet's IPv4/IPv6 source address hashed as 4 bytes uint32_t value
@@ -132,7 +199,6 @@ protected:
 			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toIn6Addr(), 16);
 		else
 			return 0;
-
 	}
 
 	/**
@@ -146,6 +212,56 @@ protected:
 			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toIn6Addr(), 16);
 		else
 			return 0;
+	}
+
+	/**
+	 * An auxiliary method for extracting packet's IPv4/IPv6 source address as string
+	 */
+	std::string getSrcIPString(pcpp::Packet& packet)
+	{
+		if (packet.isPacketOfType(pcpp::IPv4))
+			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress().toString();
+		else if (packet.isPacketOfType(pcpp::IPv6))
+			return packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toString();
+		else
+			return "miscellaneous";
+	}
+
+	/**
+	 * An auxiliary method for extracting packet's IPv4/IPv6 dest address string
+	 */
+	std::string getDstIPString(pcpp::Packet& packet)
+	{
+		if (packet.isPacketOfType(pcpp::IPv4))
+			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress().toString();
+		else if (packet.isPacketOfType(pcpp::IPv6))
+			return packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toString();
+		else
+			return "miscellaneous";
+	}
+
+	/**
+	 * An auxiliary method for replacing '.' and ':' in IPv4/IPv6 addresses with '-'
+	 */
+	std::string hyphenIP(std::string ipVal)
+	{
+		// for IPv4 - replace '.' with '-'
+		int loc = ipVal.find(".");
+		while (loc >= 0)
+		{
+			ipVal.replace(loc, 1, "-");
+			loc = ipVal.find(".");
+		}
+
+		// for IPv6 - replace ':' with '-'
+		loc = ipVal.find(":");
+		while (loc >= 0)
+		{
+			ipVal.replace(loc, 1, "-");
+			loc = ipVal.find(":");
+		}
+
+		return ipVal;
 	}
 };
 
@@ -188,6 +304,25 @@ protected:
 				return getSrcIPValue(packet);
 			else
 				return getDstIPValue(packet);
+		}
+	}
+
+	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	{
+		std::string prefix = "client-ip-";
+
+		switch (packetType)
+		{
+		case SYN:
+			return prefix + hyphenIP(getSrcIPString(packet));
+		case SYN_ACK:
+			return prefix + hyphenIP(getDstIPString(packet));
+		// other TCP packet or UDP packet
+		default:
+			if (srcPort >= dstPort)
+				return prefix + hyphenIP(getSrcIPString(packet));
+			else
+				return prefix + hyphenIP(getDstIPString(packet));
 		}
 	}
 };
@@ -234,6 +369,25 @@ protected:
 		}
 	}
 
+	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	{
+		std::string prefix = "server-ip-";
+
+		switch (packetType)
+		{
+		case SYN:
+			return prefix + hyphenIP(getDstIPString(packet));
+		case SYN_ACK:
+			return prefix + hyphenIP(getSrcIPString(packet));
+		// other TCP packet or UDP packet
+		default:
+			if (srcPort >= dstPort)
+				return prefix + hyphenIP(getDstIPString(packet));
+			else
+				return prefix + hyphenIP(getSrcIPString(packet));
+		}
+	}
+
 };
 
 
@@ -274,5 +428,29 @@ protected:
 		default:
 			return std::min<uint16_t>(srcPort, dstPort);
 		}
+	}
+
+	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	{
+		std::string prefix = "server-port-";
+
+		uint16_t res = 0;
+		switch (packetType)
+		{
+		case SYN:
+			res = dstPort;
+			break;
+		case SYN_ACK:
+			res = srcPort;
+			break;
+		// other TCP packet or UDP packet
+		default:
+			res = std::min<uint16_t>(srcPort, dstPort);
+			break;
+		}
+
+	    std::ostringstream sstream;
+	    sstream << res;
+		return prefix + sstream.str();
 	}
 };

@@ -24,6 +24,12 @@ namespace pcpp
 		uint8_t trafficClass:4,
 		/** IP version number, has the value of 6 for IPv6 */
 				ipVersion:4;
+		#else
+		/** IP version number, has the value of 6 for IPv6 */
+		uint8_t ipVersion:4,
+		/** Traffic class */
+				trafficClass:4;
+		#endif
 		/** Flow label */
 		uint8_t flowLabel[3];
 		/** The size of the payload in octets, including any extension headers */
@@ -32,21 +38,10 @@ namespace pcpp
 		uint8_t nextHeader;
 		/** Replaces the time to live field of IPv4 */
 		uint8_t hopLimit;
-		#else
-		/** IP version number, has the value of 6 for IPv6 */
-		uint32_t ipVersion:4,
-		/** Traffic class */
-				trafficClass:8,
-		/** Flow label */
-				flowLabel:20;
-		/** The size of the payload in octets, including any extension headers */
-		uint32_t payloadLength:16,
-		/** Specifies the type of the next header (protocol). Must be one of IPProtocolTypes */
-				nextHeader:8,
-		/** Replaces the time to live field of IPv4 */
-				hopLimit:8;
-		#endif
-		uint8_t ipSrc[16], ipDst[16];
+		/** Source address */
+		uint8_t ipSrc[16];
+		/** Destination address */
+		uint8_t ipDst[16];
 	};
 #pragma pack(pop)
 
