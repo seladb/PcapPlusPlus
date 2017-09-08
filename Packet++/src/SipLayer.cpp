@@ -98,17 +98,17 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, std::string version, std::string uri)
 		throw(SipRequestFirstLineException)
 {
-//	if (method == SipRequestLayer::SipMethodUnknown)
-//	{
-//		m_Exception.setMessage("Method supplied was SipMethodUnknown");
-//		throw m_Exception;
-//	}
-//
-//	if (version == SipVersionUnknown)
-//	{
-//		m_Exception.setMessage("Version supplied was SipVersionUnknown");
-//		throw m_Exception;
-//	}
+	if (method == SipRequestLayer::SipMethodUnknown)
+	{
+		m_Exception.setMessage("Method supplied was SipMethodUnknown");
+		throw m_Exception;
+	}
+
+	if (version == "")
+	{
+		m_Exception.setMessage("Version supplied was empty string");
+		throw m_Exception;
+	}
 
 	m_SipRequest = sipRequest;
 
@@ -766,8 +766,15 @@ void SipResponseFirstLine::setVersion(std::string newVersion)
 	if (newVersion == "")
 		return;
 
+	if (newVersion.length() != m_Version.length())
+	{
+		LOG_ERROR("Expected version length is %d characters in the format of SIP/x.y", m_Version.length());
+		return;
+	}
+
 	char* verPos = (char*)m_SipResponse->m_Data;
 	memcpy(verPos, newVersion.c_str(), newVersion.length());
+	m_Version = newVersion;
 }
 
 SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::validateStatusCode(char* data, size_t dataLen, SipResponseLayer::SipResponseStatusCode potentialCode)

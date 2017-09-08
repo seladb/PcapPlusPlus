@@ -108,7 +108,7 @@ namespace pcpp
 
 	/**
 	 * @class HttpRequestLayer
-	 * Represents an HTTP request header and inherits all basic functionality of HttpMessage.
+	 * Represents an HTTP request header and inherits all basic functionality of HttpMessage and TextBasedProtocolMessage.
 	 * The functionality that is added for this class is the HTTP first line concept. An HTTP request has the following first line:
 	 * <i>GET /bla/blabla.asp HTTP/1.1</i>
 	 * Since it's not an "ordinary" HTTP field, it requires a special treatment and gets a class of it's own: HttpRequestFirstLine.
@@ -150,7 +150,7 @@ namespace pcpp
 		};
 
 		 /** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be parsed into HttpField's)
+		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -159,7 +159,7 @@ namespace pcpp
 
 		/**
 		 * A constructor that allocates a new HTTP request header with only the first line filled. Object will be created without further fields.
-		 * The user can then ass fields using addField() methods
+		 * The user can then add fields using addField() methods
 		 * @param[in] method The HTTP method used in this HTTP request
 		 * @param[in] uri The URI of the first line
 		 * @param[in] version HTTP version to be used in this request
@@ -214,7 +214,7 @@ namespace pcpp
 
 	/**
 	 * @class HttpResponseLayer
-	 * Represents an HTTP response header and inherits all basic functionality of HttpMessage.
+	 * Represents an HTTP response header and inherits all basic functionality of HttpMessage and TextBasedProtocolMessage.
 	 * The functionality that is added for this class is the HTTP first line concept. An HTTP response has the following first line:
 	 * <i>200 OK HTTP/1.1</i>
 	 * Since it's not an "ordinary" HTTP field, it requires a special treatment and gets a class of it's own: HttpResponseFirstLine.
@@ -399,7 +399,7 @@ namespace pcpp
 
 
 		 /** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be parsed into HttpField's)
+		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -410,7 +410,7 @@ namespace pcpp
 		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be created without further fields.
 		 * The user can then add fields using addField() methods
 		 * @param[in] version HTTP version to be used
-		 * @param[in] statuCode Status code to be used
+		 * @param[in] statusCode Status code to be used
 		 * @param[in] statusCodeString Most status codes have their default string, e.g 200 is usually "OK", 404 is usually "Not Found", etc.
 		 * But the user can set a non-default status code string and it will be written in the header first line. Empty string ("") means using the
 		 * default status code string
@@ -420,7 +420,7 @@ namespace pcpp
 		virtual ~HttpResponseLayer();
 
 		/**
-		 * A copy constructor for this layer. This copy constructor inherits base copy constructor HttpMessage#HttpMessage() and add the functionality
+		 * A copy constructor for this layer. This copy constructor inherits base copy constructor HttpMessage#HttpMessage() and adds the functionality
 		 * of copying the first line as well
 		 * @param[in] other The instance to copy from
 		 */

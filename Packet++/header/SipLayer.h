@@ -3,6 +3,12 @@
 
 #include "TextBasedProtocol.h"
 
+/// @file
+
+/**
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
 // some popular SIP header fields
@@ -61,15 +67,17 @@ namespace pcpp
 #define PCPP_SIP_RECORD_ROUTE_FIELD        "Record-Route"
 
 
-
+	/**
+	 * @class SipLayer
+	 * Represents a general SIP message. It's an abstract class and cannot be instantiated. It's inherited by SipRequestLayer and SipResponseLayer
+	 */
 	class SipLayer : public TextBasedProtocolMessage
 	{
 	public:
-		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
 
 		/**
 		 * The length of the body of many SIP response messages is determined by a SIP header field called "Content-Length". This method
-		 * parses this field, extracts its value and return it. If this field doesn't exist the method will return 0
+		 * parses this field, extracts its value and return it. If this field doesn't exist 0 is returned
 		 * @return SIP response body length determined by "Content-Length" field
 		 */
 		int getContentLength();
@@ -82,11 +90,16 @@ namespace pcpp
 		 * 		- If prevFieldName is specified - the new "Content-Length" field will be created after it
 		 * 		- If prevFieldName isn't specified or doesn't exist - the new "Content-Length" field will be created as the last field before
 		 * 		  end-of-header field
+		 *
 		 * @param[in] contentLength The content length value to set
-		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be created after it
-		 * @return A pointer to the "Content-Length" field, or NULL if creation failed for some reason
+		 * @param[in] prevFieldName Optional parameter, if specified and "Content-Length" field doesn't exist, it will be created after this field
+		 * @return A pointer to the "Content-Length" field, or NULL if creation failed
 		 */
 		HeaderField* setContentLength(int contentLength, const std::string prevFieldName = "");
+
+		// Overridden methods
+
+		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
 
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
@@ -96,8 +109,20 @@ namespace pcpp
 
 	};
 
+
+
 	class SipRequestFirstLine;
 
+
+	/**
+	 * @class SipRequestLayer
+	 * Represents a SIP request header and inherits all basic functionality of SipLayer and TextBasedProtocolMessage.
+	 * The functionality that is added for this class is the SIP first line concept. A SIP request has the following first line:
+	 * <i>INVITE sip:bla@bla.com:12345 SIP/2.0</i>
+	 * Since it's not an "ordinary" header field, it requires a special treatment and gets a class of it's own: SipRequestFirstLine.
+	 * In most cases a SIP request will be contained in a single packet but for cases it is not, only the first packet will be identified as SIP
+	 * request layer. You can find out whether the header is complete by using SipLayer#isHeaderComplete()
+	 */
 	class SipRequestLayer : public SipLayer
 	{
 		friend class SipRequestFirstLine;
@@ -141,7 +166,7 @@ namespace pcpp
 		};
 
 		 /** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be parsed into HeaderFields)
+		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -149,10 +174,10 @@ namespace pcpp
 		SipRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
-		 * A constructor that allocates a new SIP request header with only the first line filled. Object will be created without further fields.
-		 * The user can then ass fields using addField() methods
-		 * @param[in] method The SIP method used in this HTTP request
-		 * @param[in] requestUri The URI of the first line
+		 * A constructor that allocates a new SIP request with only the first line filled. The request will be created without further fields.
+		 * The user can then add fields using addField() or insertField() methods
+		 * @param[in] method The SIP method to be used in this SIP request
+		 * @param[in] requestUri The URI of the request
 		 * @param[in] version SIP version to be used in this request. Default is "SIP/2.0"
 		 */
 		SipRequestLayer(SipMethod method, std::string requestUri, std::string version = "SIP/2.0");
@@ -160,15 +185,15 @@ namespace pcpp
 		~SipRequestLayer();
 
 		/**
-		 * A copy constructor for this layer. This copy constructor inherits base copy constructor SipLayer#SipLayer() and add the functionality
-		 * of copying the first line as well
+		 * A copy constructor for this layer. Inherits base copy constructor SipLayer and adds the functionality
+		 * of copying the first line
 		 * @param[in] other The instance to copy from
 		 */
 		SipRequestLayer(const SipRequestLayer& other);
 
 		/**
-		 * An assignment operator overload for this layer. This method inherits base assignment operator SipLayer#operator=() and add the functionality
-		 * of copying the first line as well
+		 * An assignment operator overload for this layer. This method inherits base assignment operator SipLayer#operator=() and adds the functionality
+		 * of copying the first line
 		 * @param[in] other The instance to copy from
 		 */
 		SipRequestLayer& operator=(const SipRequestLayer& other);
@@ -179,6 +204,7 @@ namespace pcpp
 		inline SipRequestFirstLine* getFirstLine() { return m_FirstLine; }
 
 		// implement Layer's abstract methods
+
 		std::string toString();
 
 	private:
@@ -187,8 +213,19 @@ namespace pcpp
 
 
 
+
 	class SipResponseFirstLine;
 
+
+	/**
+	 * @class SipResponseLayer
+	 * Represents an SIP response message and inherits all basic functionality of SipLayer and TextBasedProtocolMessage.
+	 * The functionality that is added for this class is the SIP first line concept. A SIP response has the following first line:
+	 * <i>200 OK SIP/2.0</i>
+	 * Since it's not an "ordinary" header field, it requires a special treatment and gets a class of it's own: SipResponseFirstLine.
+	 * In most cases a SIP response will be contained in a single packet but for cases it is not, only the first packet will be identified as SIP
+	 * response layer. You can find out whether the header is complete by using SipLayer#isHeaderComplete()
+	 */
 	class SipResponseLayer : public SipLayer
 	{
 		friend class SipResponseFirstLine;
@@ -352,7 +389,7 @@ namespace pcpp
 		};
 
 		 /** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be parsed into HttpField's)
+		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -360,20 +397,21 @@ namespace pcpp
 		SipResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
-		 * A constructor that allocates a new SIP response header with only the first line filled. Object will be created without further fields.
-		 * The user can then add fields using addField() methods
-		 * @param[in] sipVersion SIP version to set, default is SIP/2.0
-		 * @param[in] statuCode Status code to be used
+		 * A constructor that allocates a new SIP response with only the first line filled. The request will be created without further fields.
+		 * The user can then add fields using addField() or insertField() methods
+		 * @param[in] statusCode SIP status code to set
 		 * @param[in] statusCodeString Most status codes have their default string, e.g 200 is usually "OK" etc.
 		 * But the user can set a non-default status code string and it will be written in the header first line. Empty string ("") means using the
-		 * default status code string
+		 * default status code string. Also, the default is using the default status code string
+		 * @param[in] sipVersion SIP version to set, default is SIP/2.0
+		 *
 		 */
 		SipResponseLayer(SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "", std::string sipVersion = "SIP/2.0");
 
 		virtual ~SipResponseLayer();
 
 		/**
-		 * A copy constructor for this layer. This copy constructor inherits base copy constructor SipLayer#SipLayer() and add the functionality
+		 * A copy constructor for this layer. This copy constructor inherits base copy constructor SipLayer and adds the functionality
 		 * of copying the first line as well
 		 * @param[in] other The instance to copy from
 		 */
@@ -400,10 +438,22 @@ namespace pcpp
 	};
 
 
+
+	/**
+	 * @class SipRequestFirstLine
+	 * Represents an SIP request first line. The first line includes 3 parameters: SIP method (e.g INVITE, ACK, BYE, etc.),
+	 * URI (e.g sip:bla@bla.com:12345) and SIP version (usually SIP/2.0). All these parameters are included in this class, and the user
+	 * can retrieve or set them.
+	 * This class cannot be instantiated by users, it's created inside SipRequestLayer and user can get a pointer to an instance of it. All "getters"
+	 * of this class retrieve the actual data of the SIP request and the "setters" actually change the packet data.
+	 * Since SIP is a textual protocol, most fields aren't of fixed size and this also applies to the first line parameters. So many "setter" methods
+	 * of this class may need to shorten or extend the data in SipRequestLayer. These methods will return a false value if this action failed
+	 */
 	class SipRequestFirstLine
 	{
 		friend class SipRequestLayer;
 	public:
+
 		/**
 		 * @return The SIP request method
 		 */
@@ -412,7 +462,7 @@ namespace pcpp
 		/**
 		 * Set the SIP request method
 		 * @param[in] newMethod The method to set
-		 * @return False if newMethod is HttpRequestLayer#HttpMethodUnknown or if shortening/extending the HttpRequestLayer data failed. True otherwise
+		 * @return False if newMethod is SipRequestLayer#SipMethodUnknown or if shortening/extending the SipRequestLayer data failed. True otherwise
 		 */
 		bool setMethod(SipRequestLayer::SipMethod newMethod);
 
@@ -424,30 +474,30 @@ namespace pcpp
 		/**
 		 * Set the URI
 		 * @param[in] newUri The URI to set
-		 * @return False if shortening/extending the HttpRequestLayer data failed. True otherwise
+		 * @return False if shortening/extending the SipRequestLayer data failed. True otherwise
 		 */
 		bool setUri(std::string newUri);
 
 		/**
-		 * @return The HTTP version
+		 * @return The SIP version
 		 */
 		inline std::string getVersion() { return m_Version; }
 
 		/**
-		 * A static method for parsing the HTTP method out of raw data
+		 * A static method for parsing the SIP method out of raw data
 		 * @param[in] data The raw data
 		 * @param[in] dataLen The raw data length
-		 * @return The parsed HTTP method
+		 * @return The parsed SIP method
 		 */
 		static SipRequestLayer::SipMethod parseMethod(char* data, size_t dataLen);
 
 		/**
-		 * @return The size in bytes of the HTTP first line
+		 * @return The size in bytes of the SIP request first line
 		 */
 		inline int getSize() { return m_FirstLineEndOffset; }
 
 		/**
-		 * As explained in HttpRequestLayer, an HTTP header can spread over more than 1 packet, so when looking at a single packet
+		 * As explained in SipRequestLayer, a SIP message can sometimes spread over more than 1 packet, so when looking at a single packet
 		 * the header can be partial. Same goes for the first line - it can spread over more than 1 packet. This method returns an indication
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
@@ -455,10 +505,10 @@ namespace pcpp
 		inline bool isComplete() { return m_IsComplete; }
 
 		/**
-		 * @class HttpRequestFirstLineException
-		 * This exception can be thrown while constructing HttpRequestFirstLine (the constructor is private, so the construction happens
-		 * only in HttpRequestLayer). This kind of exception will be thrown if trying to construct with HTTP method of
-		 * HttpRequestLayer#HttpMethodUnknown or with undefined HTTP version ::HttpVersionUnknown
+		 * @class SipRequestFirstLineException
+		 * This exception can be thrown while constructing SipRequestFirstLine (the constructor is private, so the construction happens
+		 * only in SipRequestLayer). This kind of exception is thrown if trying to construct with SIP method of
+		 * SipRequestLayer#SipMethodUnknown or with empty SIP version
 		 */
 		class SipRequestFirstLineException : public std::exception
 		{
@@ -472,6 +522,7 @@ namespace pcpp
 		private:
 			std::string m_Message;
 		};
+
 	private:
 		SipRequestFirstLine(SipRequestLayer* sipRequest);
 		SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, std::string version, std::string uri)
@@ -486,15 +537,27 @@ namespace pcpp
 		int m_UriOffset;
 		int m_FirstLineEndOffset;
 		bool m_IsComplete;
+		SipRequestFirstLineException m_Exception;
 	};
 
 
+
+
+	/**
+	 * @class SipResponseFirstLine
+	 * Represents an SIP response message first line. The first line includes 2 parameters: status code (e.g 100 Trying ,200 OK, etc.),
+	 * and SIP version (usually SIP/2.0). These 2 parameters are included in this class, and the user can retrieve or set them.
+	 * This class cannot be instantiated by users, it's created inside SipResponseLayer and user can get a pointer to an instance of it. The "getter"
+	 * methods of this class will retrieve the actual data of the SIP response and the "setter" methods will change the packet data.
+	 * Since SIP is a textual protocol, most fields aren't of fixed size and this also applies to the first line parameters. So most "setter" methods
+	 * of this class may need to shorten or extend the data in SipResponseLayer. These methods will return a false value if this action failed
+	 */
 	class SipResponseFirstLine
 	{
 		friend class SipResponseLayer;
 	public:
 		/**
-		 * @return The status code as HttpResponseLayer::HttpResponseStatusCode enum
+		 * @return The status code as SipResponseLayer#SipResponseStatusCode enum
 		 */
 		inline SipResponseLayer::SipResponseStatusCode getStatusCode() { return m_StatusCode; }
 
@@ -522,9 +585,8 @@ namespace pcpp
 		inline std::string getVersion() { return m_Version; }
 
 		/**
-		 * Set the SIP version. This method doesn't return a value since all supported HTTP versions are of the same size
-		 * (HTTP/0.9, HTTP/1.0, HTTP/1.1)
-		 * @param[in] newVersion The HTTP version to set
+		 * Set the SIP version. The version to set is expected to be in the format of SIP/x.y otherwise an error will be written to log
+		 * @param[in] newVersion The SIP version to set
 		 */
 		void setVersion(std::string newVersion);
 
@@ -532,17 +594,17 @@ namespace pcpp
 		 * A static method for parsing the SIP status code out of raw data
 		 * @param[in] data The raw data
 		 * @param[in] dataLen The raw data length
-		 * @return The parsed HTTP status code as enum
+		 * @return The parsed SIP status code as enum
 		 */
 		static SipResponseLayer::SipResponseStatusCode parseStatusCode(char* data, size_t dataLen);
 
 		/**
-		 * @return The size in bytes of the SIP first line
+		 * @return The size in bytes of the SIP response first line
 		 */
 		inline int getSize() { return m_FirstLineEndOffset; }
 
 		/**
-		 * As explained in HttpResponseLayer, an HTTP header can spread over more than 1 packet, so when looking at a single packet
+		 * As explained in SipResponseLayer, A SIP message can sometimes spread over more than 1 packet, so when looking at a single packet
 		 * the header can be partial. Same goes for the first line - it can spread over more than 1 packet. This method returns an indication
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
@@ -550,10 +612,10 @@ namespace pcpp
 		inline bool isComplete() { return m_IsComplete; }
 
 		/**
-		 * @class HttpResponseFirstLineException
-		 * This exception can be thrown while constructing HttpResponseFirstLine (the constructor is private, so the construction happens
-		 * only in HttpResponseLayer). This kind of exception will be thrown if trying to construct with HTTP status code of
-		 * HttpResponseLayer#HttpStatusCodeUnknown or with undefined HTTP version ::HttpVersionUnknown
+		 * @class SipResponseFirstLineException
+		 * This exception can be thrown while constructing SipResponseFirstLine (the constructor is private, so the construction happens
+		 * only in SipResponseLayer). This kind of exception will be thrown if trying to construct with SIP status code of
+		 * SipResponseLayer#SipStatusCodeUnknown or with an empty SIP version
 		 */
 		class SipResponseFirstLineException : public std::exception
 		{
