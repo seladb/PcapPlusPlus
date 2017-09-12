@@ -1,7 +1,7 @@
 #ifndef PACKETPP_SDP_LAYER
 #define PACKETPP_SDP_LAYER
 
-#include "IPAddress.h"
+#include "IpAddress.h"
 #include "TextBasedProtocol.h"
 #include <vector>
 
