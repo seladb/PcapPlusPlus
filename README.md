@@ -8,12 +8,12 @@ PcapPlusPlus is a multiplatform C++ network sniffing and packet parsing and craf
 
 PcapPlusPlus web-site: http://seladb.github.io/PcapPlusPlus-Doc
 
-#### Getting Started ####
+### Getting Started ###
 
 Please visit the [Tutorials](http://seladb.github.io/PcapPlusPlus-Doc/tutorials.html) in PcapPlusPlus web-site to learn about PcapPlusPlus and how to use it
 
 
-#### What makes PcapPlusPlus different from similar C++ wrappers for libpcap/WinPcap? ####
+### What makes PcapPlusPlus different from similar C++ wrappers for libpcap/WinPcap? ###
 
 - Designed to be lightweight and efficient
 - Support for **DPDK** fast packet processing engine which enables packet capturing and transmition in line rate using kernel bypass
@@ -24,7 +24,7 @@ Please visit the [Tutorials](http://seladb.github.io/PcapPlusPlus-Doc/tutorials.
 - Support for reading and writing **PCAPNG** files (a lot more more than currently supported in WinPcap/libpcap)
 - Vast object-oriented filtering mechanism that makes libpcap filters a lot more user-friendly (no need to know the exact filter string to use)
 
-#### PcapPlusPlus Is Multi-Platform! ####
+### PcapPlusPlus Is Multi-Platform! ###
 PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**. It was tested on the following platforms:
 
 - Windows:
@@ -43,7 +43,7 @@ PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**. 
     - El Capitan (10.11)
     - Sierra (10.12)
 
-#### Supported Engines and Devices ####
+### Supported Engines and Devices ###
 
 PcapPlusPlus currently works with the following devices:
 
@@ -54,7 +54,7 @@ PcapPlusPlus currently works with the following devices:
 5. Remote live device (on Windows)
 6. PCAP and PCAPNG file devices
 
-#### Supported Protocols ####
+### Supported Protocols ###
 
 The Packet++ library currently supports parsing, editing and creation of packets of the following protocols:
 
@@ -81,7 +81,7 @@ The Packet++ library currently supports parsing, editing and creation of packets
 21. SSL/TLS - parsing only (no editing capabilities)
 22. Generic payload
 
-#### Useful Packet And Network Utilities ####
+### Useful Packet And Network Utilities ###
 
 1. TCP reassembly logic
 2. Packet hash key creation (by 5-tuple and 2-tuple)
@@ -89,7 +89,7 @@ The Packet++ library currently supports parsing, editing and creation of packets
 4. Retrieve host IPv4 address by using DNS protocol
 5. Checksum calculation
 
-#### Package Content ####
+### Package Content ###
 
 PcapPlusPlus consists of 3 libraries:
 
@@ -100,7 +100,7 @@ PcapPlusPlus consists of 3 libraries:
 In addition it contains many examples, tutorials and utilities documented in the [Examples](http://seladb.github.io/PcapPlusPlus-Doc/examples.html) and in the [Tutorials](http://seladb.github.io/PcapPlusPlus-Doc/tutorials.html) pages in PcapPlusPlus web-site 
 
 
-## Download ##
+# Download #
 
 In order to download PcapPlusPlus, please visit the github [page](https://github.com/seladb/PcapPlusPlus/).
 
@@ -115,17 +115,17 @@ Or clone the git repository by:
 git clone https://github.com/seladb/PcapPlusPlus.git
 ```
 
-#### Compiled Binaries ####
+### Compiled Binaries ###
 
 If you want an already compiled version of PcapPlusPlus chekcout the latest release:
 [https://github.com/seladb/PcapPlusPlus/releases/latest](https://github.com/seladb/PcapPlusPlus/releases/latest)
 
 
-#### Compile Yourself ####
+### Compile Yourself ###
 
 For compilation instructions of the various platforms please refer to the [Download](http://seladb.github.io/PcapPlusPlus-Doc/download.html) page in PcapPlusPlus web-site
 
-## PcapPlusPlus Documentation ##
+# PcapPlusPlus Documentation #
 
 [PcapPlusPlus web-site](http://seladb.github.io/PcapPlusPlus-Doc/) includes all the relevant documentation.
 
@@ -134,7 +134,7 @@ Also, the entire API of PcapPlusPlus is documented using doxygen. You can find i
 If you see any missing information please tell me
 
 
-## PcapPlusPlus Support ##
+# PcapPlusPlus Support #
 
 I'll be very happy to get feedbacks, so feel free to contact me in any of the following ways:
 
@@ -143,20 +143,20 @@ I'll be very happy to get feedbacks, so feel free to contact me in any of the fo
 - Send an email to: pcapplusplus@gmail.com
 
 
-## DPDK & PF_RING Support ##
+# DPDK & PF_RING Support #
 
 PcapPlusPLus provides a C++ absraction layers over DPDK & PF_RING. For more details please visit PcapPlusPlus web-site:
 
 http://seladb.github.io/PcapPlusPlus-Doc/dpdk-pf_ring.html
 
 
-## Benchmarks ##
+# Benchmarks #
 
 I used Matias Fontanini's [packet-capture-benchmarks](https://github.com/mfontanini/packet-capture-benchmarks) project to compare the performance of PcapPlusPlus with other similar C++ libraries (libtins and libcrafter). 
 
 The results can eviewed in the [Benchmarks](http://seladb.github.io/PcapPlusPlus-Doc/benchmark.html) page in PcapPlusPlus web-site
 
 
-## Creating Applications With PcapPlusPlus ##
+# Creating Applications With PcapPlusPlus #
 
 Please refer to the [Tutorials](http://seladb.github.io/PcapPlusPlus-Doc/tutorials.html) section in PcapPlusPlus web-site
