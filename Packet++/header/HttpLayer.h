@@ -94,6 +94,9 @@ namespace pcpp
 		HttpMessage(const HttpMessage& other) : TextBasedProtocolMessage(other) {}
 		HttpMessage& operator=(const HttpMessage& other) { TextBasedProtocolMessage::operator=(other); return *this; }
 
+		// implementation of abstract methods
+		char getHeaderFieldNameValueSeparator() { return ':'; }
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() { return true; }
 	};
 
 

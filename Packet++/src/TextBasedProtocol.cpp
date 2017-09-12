@@ -54,10 +54,13 @@ void TextBasedProtocolMessage::copyDataFrom(const TextBasedProtocolMessage& othe
 	{
 		m_FieldList = new HeaderField(*(other.m_FieldList));
 		HeaderField* curField = m_FieldList;
+		curField->attachToTextBasedProtocolMessage(this, other.m_FieldList->m_NameOffsetInMessage);
 		HeaderField* curOtherField = other.m_FieldList;
 		while (curOtherField->getNextField() != NULL)
 		{
-			curField->setNextField(new HeaderField(*(curOtherField->getNextField())));
+			HeaderField* newField = new HeaderField(*(curOtherField->getNextField()));
+			newField->attachToTextBasedProtocolMessage(this, curOtherField->getNextField()->m_NameOffsetInMessage);
+			curField->setNextField(newField);
 			curField = curField->getNextField();
 			curOtherField = curOtherField->getNextField();
 		}
@@ -83,7 +86,10 @@ void TextBasedProtocolMessage::copyDataFrom(const TextBasedProtocolMessage& othe
 
 void TextBasedProtocolMessage::parseFields()
 {
-	HeaderField* firstField = new HeaderField(this, m_FieldsOffset);
+	char nameValueSeperator = getHeaderFieldNameValueSeparator();
+	bool spacesAllowedBetweenNameAndValue = spacesAllowedBetweenHeaderFieldNameAndValue();
+
+	HeaderField* firstField = new HeaderField(this, m_FieldsOffset, nameValueSeperator, spacesAllowedBetweenNameAndValue);
 	LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", firstField->getFieldName().c_str(), firstField->m_NameOffsetInMessage, firstField->getFieldSize());
 	LOG_DEBUG("     Field value = %s", firstField->getFieldValue().c_str());
 
@@ -105,7 +111,7 @@ void TextBasedProtocolMessage::parseFields()
 	while (!curField->isEndOfHeader() && curOffset + curField->getFieldSize() < m_DataLen)
 	{
 		curOffset += curField->getFieldSize();
-		HeaderField* newField = new HeaderField(this, curOffset);
+		HeaderField* newField = new HeaderField(this, curOffset, nameValueSeperator, spacesAllowedBetweenNameAndValue);
 		LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", newField->getFieldName().c_str(), newField->m_NameOffsetInMessage, newField->getFieldSize());
 		LOG_DEBUG("     Field value = %s", newField->getFieldValue().c_str());
 		curField->setNextField(newField);
@@ -132,7 +138,7 @@ TextBasedProtocolMessage::~TextBasedProtocolMessage()
 
 HeaderField* TextBasedProtocolMessage::addField(const std::string& fieldName, const std::string& fieldValue)
 {
-	HeaderField newField(fieldName, fieldValue);
+	HeaderField newField(fieldName, fieldValue, getHeaderFieldNameValueSeparator(), spacesAllowedBetweenHeaderFieldNameAndValue());
 	return addField(newField);
 }
 
@@ -143,14 +149,14 @@ HeaderField* TextBasedProtocolMessage::addField(const HeaderField& newField)
 
 HeaderField* TextBasedProtocolMessage::addEndOfHeader()
 {
-	HeaderField endOfHeaderField(PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER, "");
+	HeaderField endOfHeaderField(PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER, "", '\0', false);
 	return insertField(m_LastField, endOfHeaderField);
 }
 
 
 HeaderField* TextBasedProtocolMessage::insertField(HeaderField* prevField, const std::string& fieldName, const std::string& fieldValue)
 {
-	HeaderField newField(fieldName, fieldValue);
+	HeaderField newField(fieldName, fieldValue, getHeaderFieldNameValueSeparator(), spacesAllowedBetweenHeaderFieldNameAndValue());
 	return insertField(prevField, newField);
 }
 
@@ -414,7 +420,9 @@ void TextBasedProtocolMessage::computeCalculateFields()
 // -------- Class HeaderField -----------------
 
 
-HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int offsetInMessage) : m_NewFieldData(NULL), m_TextBasedProtocolMessage(TextBasedProtocolMessage), m_NameOffsetInMessage(offsetInMessage), m_NextField(NULL)
+HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int offsetInMessage, char nameValueSeperator, bool spacesAllowedBetweenNameAndValue) :
+		m_NewFieldData(NULL), m_TextBasedProtocolMessage(TextBasedProtocolMessage), m_NameOffsetInMessage(offsetInMessage), m_NextField(NULL),
+		m_NameValueSeperator(nameValueSeperator), m_SpacesAllowedBetweenNameAndValue(spacesAllowedBetweenNameAndValue)
 {
 	char* fieldData = (char*)(m_TextBasedProtocolMessage->m_Data + m_NameOffsetInMessage);
 	//char* fieldEndPtr = strchr(fieldData, '\n');
@@ -437,8 +445,8 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 		m_IsEndOfHeaderField = false;
 
 //	char* fieldValuePtr = strchr(fieldData, ':');
-	char* fieldValuePtr = (char *)memchr(fieldData, ':', m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
-	// could not find the position of ':', meaning field value position is unknown
+	char* fieldValuePtr = (char *)memchr(fieldData, nameValueSeperator, m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
+	// could not find the position of the separator, meaning field value position is unknown
 	if (fieldValuePtr == NULL)
 	{
 		m_ValueOffsetInMessage = -1;
@@ -448,12 +456,16 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 	else
 	{
 		m_FieldNameSize = fieldValuePtr - fieldData;
-		// Header field looks like this: <field_name>:<zero or more spaces><field_Value>
-		// So fieldValuePtr give us the position of ':'. Value offset is the first non-space byte forward
+		// Header field looks like this: <field_name>[separator]<zero or more spaces><field_Value>
+		// So fieldValuePtr give us the position of the separator. Value offset is the first non-space byte forward
 		fieldValuePtr++;
-		// advance fieldValuePtr 1 byte forward while didn't get to end of packet and fieldValuePtr points to a space char
-		while ((size_t)(fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data) <= m_TextBasedProtocolMessage->getDataLen() && (*fieldValuePtr) == ' ')
-			fieldValuePtr++;
+
+		if (spacesAllowedBetweenNameAndValue)
+		{
+			// advance fieldValuePtr 1 byte forward while didn't get to end of packet and fieldValuePtr points to a space char
+			while ((size_t)(fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data) <= m_TextBasedProtocolMessage->getDataLen() && (*fieldValuePtr) == ' ')
+				fieldValuePtr++;
+		}
 
 		// reached the end of the packet and value start offset wasn't found
 		if ((size_t)(fieldValuePtr - (char*)(m_TextBasedProtocolMessage->m_Data)) > m_TextBasedProtocolMessage->getDataLen())
@@ -478,8 +490,10 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 	}
 }
 
-HeaderField::HeaderField(std::string name, std::string value)
+HeaderField::HeaderField(std::string name, std::string value, char nameValueSeperator, bool spacesAllowedBetweenNameAndValue)
 {
+	m_NameValueSeperator = nameValueSeperator;
+	m_SpacesAllowedBetweenNameAndValue = spacesAllowedBetweenNameAndValue;
 	initNewField(name, value);
 }
 
@@ -489,21 +503,32 @@ void HeaderField::initNewField(std::string name, std::string value)
 	m_NameOffsetInMessage = 0;
 	m_NextField = NULL;
 
-	// Field size is: name_length + ':' + space + value_length + '\r\n'
+	// first building the name-value separator
+	std::string nameValueSeparation(1, m_NameValueSeperator);
+	if (m_SpacesAllowedBetweenNameAndValue)
+		nameValueSeparation += " ";
+
+	// Field size is: name_length + separator_len + value_length + '\r\n'
 	if (name != PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
-		m_FieldSize = name.length() + value.length() + 4;
+		m_FieldSize = name.length() + nameValueSeparation.length() + value.length() + 2;
 	else
 	// Field is \r\n (2B)
 		m_FieldSize = 2;
+
 	m_NewFieldData = new uint8_t[m_FieldSize];
 	std::string fieldData;
+
 	if (name != PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
-		fieldData = name + ": " + value + "\r\n";
+		fieldData = name + nameValueSeparation + value + "\r\n";
 	else
 		fieldData = "\r\n";
+
+	// copy field data to m_NewFieldData
 	memcpy(m_NewFieldData, fieldData.c_str(), m_FieldSize);
+
+	// calculate value offset
 	if (name != PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
-		m_ValueOffsetInMessage = name.length() + 2;
+		m_ValueOffsetInMessage = name.length() + nameValueSeparation.length();
 	else
 		m_ValueOffsetInMessage = 0;
 	m_FieldNameSize = name.length();
@@ -521,8 +546,10 @@ HeaderField::~HeaderField()
 		delete [] m_NewFieldData;
 }
 
-HeaderField::HeaderField(const HeaderField& other)
+HeaderField::HeaderField(const HeaderField& other) : m_NameValueSeperator('\0'), m_SpacesAllowedBetweenNameAndValue(false)
 {
+	m_NameValueSeperator = other.m_NameValueSeperator;
+	m_SpacesAllowedBetweenNameAndValue = other.m_SpacesAllowedBetweenNameAndValue;
 	initNewField(other.getFieldName(), other.getFieldValue());
 }
 

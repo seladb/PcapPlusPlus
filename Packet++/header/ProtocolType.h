@@ -186,9 +186,14 @@ namespace pcpp
 		SIPResponse = 0x8000000,
 
 		/**
-		 * SIP protocol
+		 * SIP protocol (aggregation bitmask of SIPRequest and SIPResponse protocols)
 		 */
-		SIP = 0x4000000 | 0x8000000
+		SIP = 0x4000000 | 0x8000000,
+
+		/**
+		 * SDP protocol
+		 */
+		SDP = 0x10000000
 	};
 
 

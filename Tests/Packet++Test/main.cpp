@@ -21,6 +21,7 @@
 #include <IgmpLayer.h>
 #include <VxlanLayer.h>
 #include <SipLayer.h>
+#include <SdpLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -1636,7 +1637,6 @@ PACKETPP_TEST(HttpRequestLayerCreationTest)
 //	printf("\n\n\n");
 
 	PACKETPP_ASSERT(bufferLength == httpPacket.getRawPacket()->getRawDataLen(), "Raw packet length (%d) != expected length (%d)", httpPacket.getRawPacket()->getRawDataLen(), bufferLength);
-
 	PACKETPP_ASSERT(memcmp(buffer, httpPacket.getRawPacket()->getRawData(), bufferLength) == 0, "Constructed packet data is different than expected");
 
 	PACKETPP_TEST_PASSED;
@@ -5818,6 +5818,204 @@ PACKETPP_TEST(SipResponseLayerEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(SdpLayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/sip_req1.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file sip_req1.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/sdp.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file sdp.dat");
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet sdpPacket(&rawPacket1);
+	Packet sdpPacket2(&rawPacket2);
+
+	PACKETPP_ASSERT(sdpPacket.isPacketOfType(SDP) == true, "Packet is not of type SDP");
+	SdpLayer* sdpLayer = sdpPacket.getLayerOfType<SdpLayer>();
+	PACKETPP_ASSERT(sdpLayer != NULL, "SDP layer is null");
+
+	PACKETPP_ASSERT(sdpLayer->getFieldCount() == 11, "SDP field count isn't 11");
+
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_PROTOCOL_VERSION_FIELD) != NULL, "Cannot find v= field");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_PROTOCOL_VERSION_FIELD)->getFieldValue() == "0", "Protocol version isn't 0");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_ORIGINATOR_FIELD) != NULL, "Cannot find o= field");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_ORIGINATOR_FIELD)->getFieldValue() == "Clarent 120386 120387 IN IP4 200.57.7.196", "Wrong originator value");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD) != NULL, "Cannot find m= field");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD)->getFieldValue() == "audio 40376 RTP/AVP 8 18 4 0", "Wrong media name value");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD) != NULL, "Cannot find 1st a= field");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD)->getFieldValue() == "rtpmap:8 PCMA/8000", "Wrong 1st media attr value");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 2) != NULL, "Cannot find 3rd a= field");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 2)->getFieldValue() == "rtpmap:4 G723/8000", "Wrong 3rd media attr value");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 4) != NULL, "Cannot find 4th a= field");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 4)->getFieldValue() == "SendRecv", "Wrong 5th media attr value");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 5) == NULL, "Falsly found 6th a= field");
+
+	PACKETPP_ASSERT(sdpLayer->getOwnerIPv4Address() == IPv4Address(std::string("200.57.7.196")), "Owner IP address isn't 200.57.7.196");
+	PACKETPP_ASSERT(sdpLayer->getMediaPort("audio") == 40376, "Audio port isn't 40376");
+
+	PACKETPP_ASSERT(sdpPacket2.isPacketOfType(SDP) == true, "Packet2 is not of type SDP");
+	sdpLayer = sdpPacket2.getLayerOfType<SdpLayer>();
+	PACKETPP_ASSERT(sdpLayer != NULL, "SDP layer is null in packet2");
+
+	PACKETPP_ASSERT(sdpLayer->getFieldCount() == 18, "SDP field count isn't 18 in packet2");
+
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_CONNECTION_INFO_FIELD) != NULL, "Cannot find c= field in packet2");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_CONNECTION_INFO_FIELD)->getFieldValue() == "IN IP4 10.33.6.100", "Wrong connection info value in packet2");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_TIME_FIELD) != NULL, "Cannot find t= field in packet2");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_TIME_FIELD)->getFieldValue() == "0 0", "Wrong time value in packet2");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_SESSION_NAME_FIELD) != NULL, "Cannot find s= field in packet2");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_SESSION_NAME_FIELD)->getFieldValue() == "Phone-Call", "Wrong session name in packet2");
+
+	PACKETPP_ASSERT(sdpLayer->getOwnerIPv4Address() == IPv4Address(std::string("10.33.6.100")), "Owner IP address isn't 10.33.6.100 in packet2");
+	PACKETPP_ASSERT(sdpLayer->getMediaPort("audio") == 6010, "Audio port isn't 6010 in packet2");
+	PACKETPP_ASSERT(sdpLayer->getMediaPort("image") == 6012, "Image port isn't 6012 in packet2");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(SdpLayerCreationTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/sdp.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file sdp.dat");
+
+	RawPacket rawPacket((const uint8_t*)buffer1, buffer1Length, time, true);
+
+	Packet sdpPacket(&rawPacket);
+
+	Packet newSdpPacket;
+
+	EthLayer ethLayer(*sdpPacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(newSdpPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
+
+	IPv4Layer ip4Layer;
+	ip4Layer = *(sdpPacket.getLayerOfType<IPv4Layer>());
+	PACKETPP_ASSERT(newSdpPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
+
+	UdpLayer udpLayer = *(sdpPacket.getLayerOfType<UdpLayer>());
+	PACKETPP_ASSERT(newSdpPacket.addLayer(&udpLayer), "Adding UDP layer failed");
+
+	SipResponseLayer sipLayer = *(sdpPacket.getLayerOfType<SipResponseLayer>());
+	PACKETPP_ASSERT(newSdpPacket.addLayer(&sipLayer), "Adding SIP layer failed");
+
+	SdpLayer newSdpLayer("IPP", 782647527, 782647407, IPv4Address(std::string("10.33.6.100")), "Phone-Call", 0, 0);
+
+	std::vector<std::string> audioAttributes;
+	audioAttributes.push_back("rtpmap:8 PCMA/8000");
+	audioAttributes.push_back("rtpmap:96 telephone-event/8000");
+	audioAttributes.push_back("fmtp:96 0-15,16");
+	audioAttributes.push_back("ptime:20");
+	audioAttributes.push_back("sendrecv");
+	PACKETPP_ASSERT(newSdpLayer.addMediaDescription("audio", 6010, "RTP/AVP", "8 96", audioAttributes) == true,
+			"Failed adding audio media description");
+
+	std::vector<std::string> imageAttributes;
+	imageAttributes.push_back("T38FaxVersion:0");
+	imageAttributes.push_back("T38MaxBitRate:14400");
+	imageAttributes.push_back("T38FaxMaxBuffer:1024");
+	imageAttributes.push_back("T38FaxMaxDatagram:238");
+	imageAttributes.push_back("T38FaxRateManagement:transferredTCF");
+	imageAttributes.push_back("T38FaxUdpEC:t38UDPRedundancy");
+	PACKETPP_ASSERT(newSdpLayer.addMediaDescription("image", 6012, "udptl", "t38", imageAttributes) == true,
+			"Failed adding image media description");
+
+	PACKETPP_ASSERT(newSdpPacket.addLayer(&newSdpLayer), "Adding SDP layer failed");
+
+	newSdpPacket.computeCalculateFields();
+
+	PACKETPP_ASSERT(newSdpPacket.isPacketOfType(SDP) == true, "New packet isn't of type SDP");
+
+	SdpLayer* sdpLayerPtr = newSdpPacket.getLayerOfType<SdpLayer>();
+
+	PACKETPP_ASSERT(sdpLayerPtr != NULL, "Cannot find newly added SDP layer");
+	PACKETPP_ASSERT(sdpLayerPtr->getFieldCount() == 18, "Number of header fields isn't 18");
+	PACKETPP_ASSERT(sdpLayerPtr->getHeaderLen() == 406, "SDP message len isn't 406");
+
+	SdpLayer* sdpLayerPtr2 = sdpPacket.getLayerOfType<SdpLayer>();
+	PACKETPP_ASSERT(memcmp(sdpLayerPtr2->getData(), sdpLayerPtr->getData(), sdpLayerPtr2->getHeaderLen()) == 0, "Created raw data is different from expected");
+
+	SdpLayer copiedSdpLayer = *sdpLayerPtr;
+	PACKETPP_ASSERT(copiedSdpLayer.getFieldCount() == 18, "Number of header fields in copied layer isn't 18");
+	PACKETPP_ASSERT(copiedSdpLayer.getHeaderLen() == 406, "SDP copied message len isn't 406");
+	PACKETPP_ASSERT(memcmp(copiedSdpLayer.getData(), sdpLayerPtr->getData(), sdpLayerPtr->getHeaderLen()) == 0, "Copied data is different from expected");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(SdpLayerEditTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/sip_resp3.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file sip_resp3.dat");
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/sdp.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file sdp.dat");
+
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet sourceSdpPacket(&rawPacket3);
+	Packet targetSdpPacket(&rawPacket);
+
+	SdpLayer* sdpLayer = sourceSdpPacket.getLayerOfType<SdpLayer>();
+	PACKETPP_ASSERT(sdpLayer != NULL, "Cannot find SDP layer in source packet");
+
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_ORIGINATOR_FIELD)->setFieldValue("IPP 782647527 782647407 IN IP4 10.33.6.100") == true, "Cannot change originator field");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_SESSION_NAME_FIELD)->setFieldValue("Phone-Call") == true, "Cannot change session-name field");
+	PACKETPP_ASSERT(sdpLayer->getFieldByName(PCPP_SDP_CONNECTION_INFO_FIELD)->setFieldValue("IN IP4 10.33.6.100") == true, "Cannot change connection-info field");
+	PACKETPP_ASSERT(sdpLayer->removeField(PCPP_SDP_MEDIA_NAME_FIELD) == true, "Cannot remove media field");
+	while (sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD) != NULL)
+	{
+		sdpLayer->removeField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD);
+	}
+
+	std::vector<std::string> audioAttributes;
+	audioAttributes.push_back("rtpmap:8 PCMA/8000");
+	audioAttributes.push_back("rtpmap:96 telephone-event/8000");
+	audioAttributes.push_back("fmtp:96 0-15,16");
+	audioAttributes.push_back("ptime:20");
+	audioAttributes.push_back("sendrecv");
+	PACKETPP_ASSERT(sdpLayer->addMediaDescription("audio", 6010, "RTP/AVP", "8 96", audioAttributes) == true,
+			"Failed adding audio media description");
+
+	std::vector<std::string> imageAttributes;
+	imageAttributes.push_back("T38FaxVersion:0");
+	imageAttributes.push_back("T38MaxBitRate:14400");
+	imageAttributes.push_back("T38FaxMaxBuffer:1024");
+	imageAttributes.push_back("T38FaxMaxDatagram:238");
+	imageAttributes.push_back("T38FaxRateManagement:transferredTCF");
+	imageAttributes.push_back("T38FaxUdpEC:t38UDPRedundancy");
+	PACKETPP_ASSERT(sdpLayer->addMediaDescription("image", 6012, "udptl", "t38", imageAttributes) == true,
+			"Failed adding image media description");
+
+	sourceSdpPacket.computeCalculateFields();
+
+	SdpLayer* targetSdpLayer = targetSdpPacket.getLayerOfType<SdpLayer>();
+
+	PACKETPP_ASSERT(sdpLayer->getFieldCount() == targetSdpLayer->getFieldCount(), "Different field count in edited and target SDP layers");
+	PACKETPP_ASSERT(sdpLayer->getHeaderLen() == targetSdpLayer->getHeaderLen(), "Different header length in edited and target SDP layers");
+	PACKETPP_ASSERT(sdpLayer->getOwnerIPv4Address() == targetSdpLayer->getOwnerIPv4Address(), "Different owner IP in edited and target SDP layers");
+	PACKETPP_ASSERT(sdpLayer->getMediaPort("audio") == targetSdpLayer->getMediaPort("audio"), "Different audio port in edited and target SDP layers");
+	PACKETPP_ASSERT(sdpLayer->getMediaPort("image") == targetSdpLayer->getMediaPort("image"), "Different image port in edited and target SDP layers");
+	PACKETPP_ASSERT(memcmp(sdpLayer->getData(), targetSdpLayer->getData(), targetSdpLayer->getHeaderLen()) == 0, "Edited SDP data is different from target SDP data");
+
+	PACKETPP_TEST_PASSED;
+}
+
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -5894,6 +6092,8 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(SipResponseLayerParsingTest);
 	PACKETPP_RUN_TEST(SipResponseLayerCreationTest);
 	PACKETPP_RUN_TEST(SipResponseLayerEditTest);
-
+	PACKETPP_RUN_TEST(SdpLayerParsingTest);
+	PACKETPP_RUN_TEST(SdpLayerCreationTest);
+	PACKETPP_RUN_TEST(SdpLayerEditTest);
 	PACKETPP_END_RUNNING_TESTS;
 }

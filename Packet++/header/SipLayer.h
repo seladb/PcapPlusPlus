@@ -101,12 +101,26 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
 
+		/**
+		 * Currently identifies only SDP if content-length field exists and set to a value greater than zero.
+		 * If content-length field doesn't exist or set to zero and still there is data after this layer, a PayloadLayer will be created
+		 */
+		void parseNextLayer();
+
+		/**
+		 * Set the content-length only if a content-length field already exists and if its current value is different than the total length of the next layer(s)
+		 */
+		void computeCalculateFields();
+
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
 		SipLayer() : TextBasedProtocolMessage() {}
 		SipLayer(const SipLayer& other) : TextBasedProtocolMessage(other) {}
 		SipLayer& operator=(const SipLayer& other) { TextBasedProtocolMessage::operator=(other); return *this; }
 
+		// implementation of abstract methods
+		char getHeaderFieldNameValueSeparator() { return ':'; }
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() { return true; }
 	};
 
 

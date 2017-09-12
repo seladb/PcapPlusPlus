@@ -31,14 +31,6 @@ class HeaderField
 {
 	friend class TextBasedProtocolMessage;
 public:
-	/**
-	 * A constructor for creating a new HeaderField, not from an existing packet. This constructor can be used to create header fields for
-	 * a new message or to add new fields to a current message.
-	 * The constructor that is used for parsing an existing packet is private and used by TextBasedProtocolMessage in the process of parsing the header
-	 * @param[in] name The field name
-	 * @param[in] value The field value
-	 */
-	HeaderField(std::string name, std::string value);
 
 	~HeaderField();
 
@@ -78,7 +70,8 @@ public:
 	inline bool isEndOfHeader() { return m_IsEndOfHeaderField; }
 
 private:
-	HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int offsetInMessage);
+	HeaderField(std::string name, std::string value, char nameValueSeperator, bool spacesAllowedBetweenNameAndValue);
+	HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int offsetInMessage, char nameValueSeperator, bool spacesAllowedBetweenNameAndValue);
 	char* getData();
 	inline void setNextField(HeaderField* nextField) { m_NextField = nextField; }
 	inline HeaderField* getNextField() { return m_NextField; }
@@ -93,6 +86,8 @@ private:
 	size_t m_FieldSize;
 	HeaderField* m_NextField;
 	bool m_IsEndOfHeaderField;
+	char m_NameValueSeperator;
+	bool m_SpacesAllowedBetweenNameAndValue;
 };
 
 
@@ -102,8 +97,8 @@ private:
 
 /**
  * @class TextBasedProtocolMessage
- * A base class that wraps text-based-protocol header layers (both requests and responses). It is the base class for all those layers.
- * This class is not abstract but it's not meant to be instantiated, hence the protected c'tor
+ * An abstract base class that wraps text-based-protocol header layers (both requests and responses). It is the base class for all those layers.
+ * This class is not meant to be instantiated, hence the protected c'tor
  */
 class TextBasedProtocolMessage : public Layer
 {
@@ -214,7 +209,7 @@ public:
 	/**
 	 * Currently set only PayloadLayer for the rest of the data
 	 */
-	void parseNextLayer();
+	virtual void parseNextLayer();
 
 	/**
 	 * @return The message length
@@ -224,7 +219,7 @@ public:
 	/**
 	 * Does nothing for this class
 	 */
-	void computeCalculateFields();
+	virtual void computeCalculateFields();
 
 protected:
 	TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
@@ -238,6 +233,10 @@ protected:
 
 	void parseFields();
 	void shiftFieldsOffset(HeaderField* fromField, int numOfBytesToShift);
+
+	// abstract methods
+	virtual char getHeaderFieldNameValueSeparator() = 0;
+	virtual bool spacesAllowedBetweenHeaderFieldNameAndValue() = 0;
 
 	HeaderField* m_FieldList;
 	HeaderField* m_LastField;

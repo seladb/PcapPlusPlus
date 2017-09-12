@@ -1,6 +1,8 @@
 #define LOG_MODULE PacketLogModuleSipLayer
 
 #include "SipLayer.h"
+#include "SdpLayer.h"
+#include "PayloadLayer.h"
 #include "Logger.h"
 #include <string.h>
 #include <algorithm>
@@ -56,6 +58,37 @@ HeaderField* SipLayer::setContentLength(int contentLength, const std::string pre
 		contentLengthField->setFieldValue(std::string(contentLengthAsString));
 
 	return contentLengthField;
+}
+
+void SipLayer::parseNextLayer()
+{
+	if (getLayerPayloadSize() == 0)
+		return;
+
+	size_t headerLen = getHeaderLen();
+	if (getContentLength() > 0)
+	{
+		m_NextLayer = new SdpLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+	}
+	else
+	{
+		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+	}
+}
+
+void SipLayer::computeCalculateFields()
+{
+	HeaderField* contentLengthField = getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD);
+	if (contentLengthField == NULL)
+		return;
+
+	size_t headerLen = getHeaderLen();
+	if (m_DataLen > headerLen)
+	{
+		int currentContentLength = getContentLength();
+		if (currentContentLength != (m_DataLen - headerLen))
+			setContentLength(m_DataLen - headerLen);
+	}
 }
 
 
