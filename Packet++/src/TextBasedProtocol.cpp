@@ -277,6 +277,8 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 		return false;
 	}
 
+	std::string fieldName = fieldToRemove->getFieldName();
+
 	// shorten layer and delete this field
 	if (!shortenLayer(fieldToRemove->m_NameOffsetInMessage, fieldToRemove->getFieldSize()))
 	{
@@ -323,7 +325,6 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 	}
 
 	// remove the hash entry for this field
-	std::string fieldName = fieldToRemove->getFieldName();
 	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
 	std::pair <std::multimap<std::string,HeaderField*>::iterator, std::multimap<std::string,HeaderField*>::iterator> range;
 	range = m_FieldNameToFieldMap.equal_range(fieldName);
