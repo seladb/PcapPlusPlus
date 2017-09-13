@@ -96,7 +96,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len)
 
 	// The following code lines verify IP address is valid (IPv4 or IPv6)
 
-	std::auto_ptr<IPAddress> ipAddr = IPAddress::fromString(ipAddrmodified);
+	IPAddress::Ptr_t ipAddr = IPAddress::fromString(ipAddrmodified);
 	if (ipAddr.get()->getType() == IPAddress::IPv4AddressType)
 	{
 		IPv4Address* ip4Addr = (IPv4Address*)ipAddr.get();
