@@ -566,7 +566,7 @@ bool packetArrivesBlockingModeStopCapture(RawPacket* pRawPacket, PcapLiveDevice*
 
 PCAPP_TEST(TestIPAddress)
 {
-	auto_ptr<IPAddress> ip4Addr = IPAddress::fromString((char*)"10.0.0.4");
+	IPAddress::Ptr_t ip4Addr = IPAddress::fromString((char*)"10.0.0.4");
 	PCAPP_ASSERT(ip4Addr.get() != NULL, "IPv4 address is NULL");
 	PCAPP_ASSERT(ip4Addr->getType() == IPAddress::IPv4AddressType, "IPv4 address is not of type IPv4Address");
 	PCAPP_ASSERT(strcmp(ip4Addr->toString().c_str(), "10.0.0.4") == 0, "IPv4 toString doesn't return the correct string");
@@ -583,7 +583,7 @@ PCAPP_TEST(TestIPAddress)
 	PCAPP_ASSERT(anotherBadAddress.isValid() == false, "Non-valid address copied by copy c'tor identified as valid");
 
 	string ip6AddrString("2607:f0d0:1002:51::4");
-	auto_ptr<IPAddress> ip6Addr = IPAddress::fromString(ip6AddrString);
+	IPAddress::Ptr_t ip6Addr = IPAddress::fromString(ip6AddrString);
 	PCAPP_ASSERT(ip6Addr.get() != NULL, "IPv6 address is NULL");
 	PCAPP_ASSERT(ip6Addr->getType() == IPAddress::IPv6AddressType, "IPv6 address is not of type IPv6Address");
 	PCAPP_ASSERT(strcmp(ip6Addr->toString().c_str(), "2607:f0d0:1002:51::4") == 0, "IPv6 toString doesn't return the correct string");

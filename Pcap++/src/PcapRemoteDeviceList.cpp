@@ -73,7 +73,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString)
 {
-	std::auto_ptr<IPAddress> apAddr = IPAddress::fromString(ipAddrAsString);
+	IPAddress::Ptr_t apAddr = IPAddress::fromString(ipAddrAsString);
 	if (!apAddr->isValid())
 	{
 		LOG_ERROR("IP address illegal");
