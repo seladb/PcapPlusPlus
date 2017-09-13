@@ -18,23 +18,23 @@ IPAddress::~IPAddress()
 
 }
 
-std::auto_ptr<IPAddress> IPAddress::fromString(char* addressAsString)
+IPAddress::Ptr_t IPAddress::fromString(char* addressAsString)
 {
 	in_addr ip4Addr;
 	in6_addr ip6Addr;
     if (inet_pton(AF_INET, addressAsString, &ip4Addr) != 0)
     {
-    	return std::auto_ptr<IPAddress>(new IPv4Address(addressAsString));
+    	return IPAddress::Ptr_t(new IPv4Address(addressAsString));
     }
     else if (inet_pton(AF_INET6, addressAsString, &ip6Addr) != 0)
     {
-    	return std::auto_ptr<IPAddress>(new IPv6Address(addressAsString));
+    	return IPAddress::Ptr_t(new IPv6Address(addressAsString));
     }
 
-    return std::auto_ptr<IPAddress>(NULL);
+    return IPAddress::Ptr_t();
 }
 
-std::auto_ptr<IPAddress> IPAddress::fromString(std::string addressAsString)
+IPAddress::Ptr_t IPAddress::fromString(std::string addressAsString)
 {
 	return fromString((char*)addressAsString.c_str());
 }

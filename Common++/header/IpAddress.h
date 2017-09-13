@@ -33,6 +33,11 @@ namespace pcpp
 		// protected c'tor
 		IPAddress() : m_IsValid(false) {}
 	public:
+#if __cplusplus > 199711L
+		typedef std::unique_ptr<IPAddress> Ptr_t; 
+#else
+		typedef std::auto_ptr<IPAddress> Ptr_t; 
+#endif
 
 		/**
 		 * An enum representing the address type: IPv4 or IPv6
@@ -75,7 +80,7 @@ namespace pcpp
 		 * @return an auto-pointer to IPv4Address or IPv6Address instance that the string address represents, or an auto-pointer to NULL if
 		 * the string doesn't represent either of types
 		 */
-		static std::auto_ptr<IPAddress> fromString(char* addressAsString);
+		static Ptr_t fromString(char* addressAsString);
 
 		/**
 		 * Constructs an IP address of type IPv4 or IPv6 from a std::string representation
@@ -83,7 +88,7 @@ namespace pcpp
 		 * @return an auto-pointer to IPv4Address or IPv6Address instance that the string address represents, or an auto-pointer to NULL if
 		 * the string doesn't represent either of types
 		 */
-		static std::auto_ptr<IPAddress> fromString(std::string addressAsString);
+		static Ptr_t fromString(std::string addressAsString);
 	};
 
 	/**
