@@ -353,7 +353,7 @@ int main(int argc, char* argv[])
 			std::string fileName = splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + ".pcap";
 
 			// create a new PcapFileWriterDevice for this file
-			outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str());
+			outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str(), reader.getLinkLayerType());
 
 			// open the writer
 			if (!outputFiles[fileNum]->open())
