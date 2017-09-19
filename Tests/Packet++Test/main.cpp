@@ -326,7 +326,7 @@ PACKETPP_TEST(Ipv4PacketCreation)
 
 	ip4Packet.computeCalculateFields();
 
-	PACKETPP_ASSERT(ip4Packet.getLayerOfType<EthLayer>()->getDataLen() == 44, "Eth Layer data len != 44, it's %d", ip4Packet.getLayerOfType<EthLayer>()->getDataLen());
+	PACKETPP_ASSERT(ip4Packet.getLayerOfType<EthLayer>()->getDataLen() == 44, "Eth Layer data len != 44, it's %d", (int)ip4Packet.getLayerOfType<EthLayer>()->getDataLen());
 	PACKETPP_ASSERT(ip4Packet.getLayerOfType<IPv4Layer>() != NULL, "Packet doesn't contain IPv4 layer");
 	iphdr* ipHeader = ip4Layer.getIPv4Header();
 	PACKETPP_ASSERT(ip4Layer.getSrcIpAddress() == ipSrc, "IPv4 Layer src IP isn't equal to inserted src IP");
@@ -789,7 +789,7 @@ PACKETPP_TEST(Ipv4OptionsEditTest)
 	ipOpt7.computeCalculateFields();
 	PACKETPP_ASSERT(buffer77Length == ipOpt7.getRawPacket()->getRawDataLen(), "ipOpt7 len (%d) is different than read packet len (%d)", ipOpt7.getRawPacket()->getRawDataLen(), buffer77Length);
 	PACKETPP_ASSERT(memcmp(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen()) == 0, "ipOpt7: Raw packet data is different than expected");
-	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 2, "Packet 7 option count after adding loose source route isn't 2, it's %d", ipLayer->getOptionsCount());
+	PACKETPP_ASSERT(ipLayer->getOptionsCount() == 2, "Packet 7 option count after adding loose source route isn't 2, it's %d", (int)ipLayer->getOptionsCount());
 
 	tsOption.clear();
 	tsOption.type = IPv4TimestampOptionValue::TimestampAndIP;
@@ -942,8 +942,8 @@ PACKETPP_TEST(TcpPacketNoOptionsParsing)
 
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->portDst == htons(60388), "Dest port != 60388, it's %d", ntohs(tcpLayer->getTcpHeader()->portDst));
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->portSrc == htons(80), "Src port != 80, it's %d", ntohs(tcpLayer->getTcpHeader()->portSrc));
-	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->sequenceNumber == htonl(0xbeab364a), "Sequence number != 0xbeab364a, it's 0x%lX", ntohl(tcpLayer->getTcpHeader()->sequenceNumber));
-	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->ackNumber == htonl(0xf9ffb58e), "Ack number != 0xf9ffb58e, it's 0x%lX", ntohl(tcpLayer->getTcpHeader()->ackNumber));
+	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->sequenceNumber == htonl(0xbeab364a), "Sequence number != 0xbeab364a, it's 0x%X", ntohl(tcpLayer->getTcpHeader()->sequenceNumber));
+	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->ackNumber == htonl(0xf9ffb58e), "Ack number != 0xf9ffb58e, it's 0x%X", ntohl(tcpLayer->getTcpHeader()->ackNumber));
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->dataOffset == 5, "Header length != 5 (20 bytes), it's %d", tcpLayer->getTcpHeader()->dataOffset);
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->urgentPointer == 0, "Urgent pointer != 0, it's %d", tcpLayer->getTcpHeader()->urgentPointer);
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->headerChecksum == htons(0x4c03), "Header checksum != 0x4c03, it's 0x%4X", ntohs(tcpLayer->getTcpHeader()->headerChecksum));
@@ -960,7 +960,7 @@ PACKETPP_TEST(TcpPacketNoOptionsParsing)
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->reserved == 0, "Reserved != 0");
 
 	// TCP options
-	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 0, "TCP options count isn't 0, it's %d", tcpLayer->getTcpOptionsCount());
+	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 0, "TCP options count isn't 0, it's %d", (int)tcpLayer->getTcpOptionsCount());
 	PACKETPP_ASSERT(tcpLayer->getTcpOptionData(PCPP_TCPOPT_NOP) == NULL, "TCP option NOP isn't NULL");
 	PACKETPP_ASSERT(tcpLayer->getTcpOptionData(PCPP_TCPOPT_TIMESTAMP) == NULL, "TCP option Timestamp isn't NULL");
 
@@ -995,7 +995,7 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing)
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->urgentPointer == 0, "Urgent pointer != 0, it's %d", tcpLayer->getTcpHeader()->urgentPointer);
 
 	// TCP options
-	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 3, "TCP options count != 3, it's %d", tcpLayer->getTcpOptionsCount());
+	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 3, "TCP options count != 3, it's %d", (int)tcpLayer->getTcpOptionsCount());
 	TcpOptionData* nopOptionData = NULL;
 	TcpOptionData* timestampOptionData = NULL;
 	PACKETPP_ASSERT((timestampOptionData = tcpLayer->getTcpOptionData(PCPP_TCPOPT_TIMESTAMP)) != NULL, "TCP option Timestamp is NULL");
@@ -1005,8 +1005,8 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing)
 	uint32_t tsEchoReply = 0;
 	memcpy(&tsValue, timestampOptionData->value, 4);
 	memcpy(&tsEchoReply, timestampOptionData->value+4, 4);
-	PACKETPP_ASSERT(tsValue == htonl(195102), "TCP option Timestamp option: timestamp value != 195102, it's %ld", ntohl(tsValue));
-	PACKETPP_ASSERT(tsEchoReply == htonl(3555729271UL), "TCP option Timestamp option: echo reply value != 3555729271, it's %ld", ntohl(tsEchoReply));
+	PACKETPP_ASSERT(tsValue == htonl(195102), "TCP option Timestamp option: timestamp value != 195102, it's %d", ntohl(tsValue));
+	PACKETPP_ASSERT(tsEchoReply == htonl(3555729271UL), "TCP option Timestamp option: echo reply value != 3555729271, it's %d", ntohl(tsEchoReply));
 
 	PACKETPP_TEST_PASSED;
 }
@@ -1026,7 +1026,7 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing2)
 	TcpLayer* tcpLayer = NULL;
 	PACKETPP_ASSERT((tcpLayer = tcpPaketWithOptions.getLayerOfType<TcpLayer>()) != NULL, "TCP layer is NULL");
 
-	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 5, "TCP options count != 5, it's %d", tcpLayer->getTcpOptionsCount());
+	PACKETPP_ASSERT(tcpLayer->getTcpOptionsCount() == 5, "TCP options count != 5, it's %d", (int)tcpLayer->getTcpOptionsCount());
 	TcpOptionData* mssOptionData = NULL;
 	TcpOptionData* sackParmOptionData = NULL;
 	TcpOptionData* windowScaleOptionData = NULL;
@@ -1781,7 +1781,7 @@ PACKETPP_TEST(HttpResponseLayerCreationTest)
 
 	httpPacket.computeCalculateFields();
 
-	PACKETPP_ASSERT(httpResponse.getHeaderLen() == 382, "HTTP header length is different than expected. Expected: %d; Actual: %d", 382, httpResponse.getHeaderLen());
+	PACKETPP_ASSERT(httpResponse.getHeaderLen() == 382, "HTTP header length is different than expected. Expected: %d; Actual: %d", 382, (int)httpResponse.getHeaderLen());
 
 	PACKETPP_ASSERT(memcmp(buffer, httpPacket.getRawPacket()->getRawData(), ethLayer.getHeaderLen()+ip4Layer.getHeaderLen()+tcpLayer.getHeaderLen()+httpResponse.getHeaderLen()) == 0, "Constructed packet data is different than expected");
 
@@ -2404,7 +2404,7 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 	query = dnsLayer6.addQuery(query);
 	query->setDnsClass(DNS_CLASS_ANY);
 
-	PACKETPP_ASSERT(dnsLayer6.getQueryCount() == 2, "Query count != 2, it's %d", dnsLayer6.getQueryCount());
+	PACKETPP_ASSERT(dnsLayer6.getQueryCount() == 2, "Query count != 2, it's %d", (int)dnsLayer6.getQueryCount());
 	PACKETPP_ASSERT(dnsLayer6.getAuthorityCount() == 2, "Authority count != 2");
 	PACKETPP_ASSERT(dnsLayer6.getAnswerCount() == 0, "Answers count != 0");
 	PACKETPP_ASSERT(dnsLayer6.getAdditionalRecordCount() == 0, "Additional record count != 0");
@@ -2738,7 +2738,7 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 				curFieldInSample->getFieldValue().c_str(), curFieldInCopy->getFieldValue().c_str());
 		PACKETPP_ASSERT(curFieldInSample->getFieldSize() == curFieldInCopy->getFieldSize(),
 				"HttpResponseLayer copy c'tor: different field size between original and copy. Original: '%d', Copy: '%d'",
-				curFieldInSample->getFieldSize(), curFieldInCopy->getFieldSize());
+				(int)curFieldInSample->getFieldSize(), (int)curFieldInCopy->getFieldSize());
 
 		curFieldInSample = sampleHttpLayer->getNextField(curFieldInSample);
 		curFieldInCopy = sampleHttpLayer->getNextField(curFieldInCopy);
@@ -4079,7 +4079,7 @@ PACKETPP_TEST(SSLMultipleRecordParsingTest)
 	PACKETPP_ASSERT(multipleRecordsPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
 	SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<SSLHandshakeLayer>();
 	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract first handshake layer");
-	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 1, "Num of messages in server-hello record != 1, %d", handshakeLayer->getHandshakeMessagesCount());
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 1, "Num of messages in server-hello record != 1, %d", (int)handshakeLayer->getHandshakeMessagesCount());
 	SSLServerHelloMessage* serverHelloMessage = handshakeLayer->getHandshakeMessageOfType<SSLServerHelloMessage>();
 	PACKETPP_ASSERT(serverHelloMessage != NULL, "Couldn't extract server-hello message");
 	PACKETPP_ASSERT(serverHelloMessage->getSessionIDLength() == 32, "Server-hello session-id length != 32");
@@ -4110,7 +4110,7 @@ PACKETPP_TEST(SSLMultipleRecordParsingTest)
 
 	handshakeLayer = multipleRecordsPacket.getNextLayerOfType<SSLHandshakeLayer>(handshakeLayer);
 	PACKETPP_ASSERT(handshakeLayer != NULL, "Couldn't extract third handshake layer");
-	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 3, "Num of messages in hello-request record != 3, it's %d", handshakeLayer->getHandshakeMessagesCount());
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessagesCount() == 3, "Num of messages in hello-request record != 3, it's %d", (int)handshakeLayer->getHandshakeMessagesCount());
 	SSLHelloRequestMessage* helloRequest = handshakeLayer->getHandshakeMessageOfType<SSLHelloRequestMessage>();
 	PACKETPP_ASSERT(helloRequest != NULL, "Couldn't retrieve first hello-request");
 	PACKETPP_ASSERT(helloRequest->getHandshakeType() == SSL_HELLO_REQUEST, "Hello-request message isn't of type hello-request");
@@ -4124,7 +4124,7 @@ PACKETPP_TEST(SSLMultipleRecordParsingTest)
 	PACKETPP_ASSERT(helloRequest2 == NULL, "Found 3rd hello-request message");
 	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2) != NULL, "Couldn't find the 3rd handshake message");
 	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getHandshakeType() == SSL_HANDSHAKE_UNKNOWN, "3rd handshake message isn't of type unknown");
-	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength() == 32, "Unknown handshake message isn't of length 32, it's %d", handshakeLayer->getHandshakeMessageAt(2)->getMessageLength());
+	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength() == 32, "Unknown handshake message isn't of length 32, it's %d", (int)(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength()));
 
 //	std::string packetAsString = multipleRecordsPacket.printToString();
 //	printf("Packet clear:\n\n%s\n\n", packetAsString.c_str());
@@ -4447,7 +4447,7 @@ PACKETPP_TEST(DhcpParsingTest)
 	PACKETPP_ASSERT(dhcpLayer->getGatewayIpAddress() == IPv4Address(string("10.10.8.240")), "Gateway IP address isn't 10.10.8.240");
 	PACKETPP_ASSERT(dhcpLayer->getClientHardwareAddress() == MacAddress(string("00:0e:86:11:c0:75")), "Client hardware address isn't 00:0e:86:11:c0:75");
 
-	PACKETPP_ASSERT(dhcpLayer->getOptionsCount() == 12, "Option count is wrong, expected 12 and got %d", dhcpLayer->getOptionsCount());
+	PACKETPP_ASSERT(dhcpLayer->getOptionsCount() == 12, "Option count is wrong, expected 12 and got %d", (int)dhcpLayer->getOptionsCount());
 	DhcpOptionData* opt = dhcpLayer->getFirstOptionData();
 	DhcpOptionTypes optTypeArr[] = {
 			DHCPOPT_DHCP_MESSAGE_TYPE,
@@ -4469,8 +4469,8 @@ PACKETPP_TEST(DhcpParsingTest)
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
 		PACKETPP_ASSERT(opt != NULL, "First opt is null");
-		PACKETPP_ASSERT(opt->getType() == optTypeArr[i], "Option #%d type isn't %d, it's %d", i, optTypeArr[i], opt->getType());
-		PACKETPP_ASSERT(opt->getLength() == optLenArr[i], "Option #%d length isn't %d, it's %d", i, optLenArr[i], opt->getLength());
+		PACKETPP_ASSERT(opt->getType() == optTypeArr[i], "Option #%d type isn't %d, it's %d", (int)i, optTypeArr[i], opt->getType());
+		PACKETPP_ASSERT(opt->getLength() == optLenArr[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr[i], opt->getLength());
 		opt = dhcpLayer->getNextOptionData(opt);
 	}
 
@@ -4509,7 +4509,7 @@ PACKETPP_TEST(DhcpParsingTest)
 	PACKETPP_ASSERT(dhcpLayer->getGatewayIpAddress() == IPv4Address::Zero, "Gateway IP address isn't 0.0.0.0");
 	PACKETPP_ASSERT(dhcpLayer->getClientHardwareAddress() == MacAddress(string("00:00:6c:82:dc:4e")), "Client hardware address isn't 00:00:6c:82:dc:4e");
 
-	PACKETPP_ASSERT(dhcpLayer->getOptionsCount() == 9, "Option count is wrong, expected 9 and got %d", dhcpLayer->getOptionsCount());
+	PACKETPP_ASSERT(dhcpLayer->getOptionsCount() == 9, "Option count is wrong, expected 9 and got %d", (int)dhcpLayer->getOptionsCount());
 	opt = dhcpLayer->getFirstOptionData();
 	DhcpOptionTypes optTypeArr2[] = {
 			DHCPOPT_DHCP_MESSAGE_TYPE,
@@ -4528,8 +4528,8 @@ PACKETPP_TEST(DhcpParsingTest)
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
 		PACKETPP_ASSERT(opt != NULL, "First opt is null");
-		PACKETPP_ASSERT(opt->getType() == optTypeArr2[i], "Option #%d type isn't %d, it's %d", i, optTypeArr2[i], opt->getType());
-		PACKETPP_ASSERT(opt->getLength() == optLenArr2[i], "Option #%d length isn't %d, it's %d", i, optLenArr2[i], opt->getLength());
+		PACKETPP_ASSERT(opt->getType() == optTypeArr2[i], "Option #%d type isn't %d, it's %d", (int)i, optTypeArr2[i], opt->getType());
+		PACKETPP_ASSERT(opt->getLength() == optLenArr2[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr2[i], opt->getLength());
 		opt = dhcpLayer->getNextOptionData(opt);
 	}
 
@@ -5374,8 +5374,8 @@ PACKETPP_TEST(SipRequestLayerParsingTest)
 
 	PACKETPP_ASSERT(sipReqLayer->getFirstField()->getFieldName() == "Via", "SIP request1: First field isn't 'Via'");
 
-	PACKETPP_ASSERT(sipReqLayer->getHeaderLen() == 469, "SIP request1: Header len isn't 469, it's %d", sipReqLayer->getHeaderLen());
-	PACKETPP_ASSERT(sipReqLayer->getLayerPayloadSize() == 229, "SIP request1: Layer payload size isn't 229, its %d", sipReqLayer->getLayerPayloadSize());
+	PACKETPP_ASSERT(sipReqLayer->getHeaderLen() == 469, "SIP request1: Header len isn't 469, it's %d", (int)sipReqLayer->getHeaderLen());
+	PACKETPP_ASSERT(sipReqLayer->getLayerPayloadSize() == 229, "SIP request1: Layer payload size isn't 229, its %d", (int)sipReqLayer->getLayerPayloadSize());
 	PACKETPP_ASSERT(sipReqLayer->getContentLength() == 229, "SIP request1: Content length isn't 229");
 
 
@@ -5556,7 +5556,7 @@ PACKETPP_TEST(SipRequestLayerEditTest)
 	SipRequestLayer* secondSipReqLayer = secondSipPacket.getLayerOfType<SipRequestLayer>();
 	secondSipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD)->setFieldValue(" 70");
 
-	PACKETPP_ASSERT(secondSipReqLayer->getHeaderLen() == sipReqLayer->getHeaderLen(), "Edited layer len (%d) isn't as expected (%d)", sipReqLayer->getHeaderLen(), secondSipReqLayer->getHeaderLen());
+	PACKETPP_ASSERT(secondSipReqLayer->getHeaderLen() == sipReqLayer->getHeaderLen(), "Edited layer len (%d) isn't as expected (%d)", (int)sipReqLayer->getHeaderLen(), (int)secondSipReqLayer->getHeaderLen());
 	PACKETPP_ASSERT(secondSipReqLayer->getFirstLine()->getSize() == sipReqLayer->getFirstLine()->getSize(), "Edited first line length (%d) isn't as expected (%d)", sipReqLayer->getFirstLine()->getSize(), secondSipReqLayer->getFirstLine()->getSize());
 	PACKETPP_ASSERT(secondSipReqLayer->getFirstLine()->getMethod() == sipReqLayer->getFirstLine()->getMethod(), "Method of edited packet is different than expected");
 	PACKETPP_ASSERT(secondSipReqLayer->getFirstLine()->getUri() == sipReqLayer->getFirstLine()->getUri(), "URI of edited packet is different than expected");
@@ -5809,7 +5809,7 @@ PACKETPP_TEST(SipResponseLayerEditTest)
 
 	SipResponseLayer* secondSipRespLayer = secondSipPacket.getLayerOfType<SipResponseLayer>();
 
-	PACKETPP_ASSERT(secondSipRespLayer->getHeaderLen() == sipRespLayer->getHeaderLen(), "Edited layer len (%d) isn't as expected (%d)", sipRespLayer->getHeaderLen(), secondSipRespLayer->getHeaderLen());
+	PACKETPP_ASSERT(secondSipRespLayer->getHeaderLen() == sipRespLayer->getHeaderLen(), "Edited layer len (%d) isn't as expected (%d)", (int)sipRespLayer->getHeaderLen(), (int)secondSipRespLayer->getHeaderLen());
 	PACKETPP_ASSERT(secondSipRespLayer->getFirstLine()->getSize() == sipRespLayer->getFirstLine()->getSize(), "Edited first line length (%d) isn't as expected (%d)", sipRespLayer->getFirstLine()->getSize(), secondSipRespLayer->getFirstLine()->getSize());
 	PACKETPP_ASSERT(secondSipRespLayer->getFirstLine()->getStatusCode() == sipRespLayer->getFirstLine()->getStatusCode(), "Status code of edited packet is different than expected");
 	PACKETPP_ASSERT(secondSipRespLayer->getFieldCount() == sipRespLayer->getFieldCount(), "Number of header fields in edited packet is not as expected");

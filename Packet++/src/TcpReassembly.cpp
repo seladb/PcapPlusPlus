@@ -394,7 +394,7 @@ void TcpReassembly::ReassemblePacket(Packet& tcpData)
 		memcpy(newTcpFrag->data, tcpLayer->getLayerPayload(), tcpPayloadSize);
 		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
-		LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size %d to the out-of-order list of side %d", tcpPayloadSize, sideIndex);
+		LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size %d to the out-of-order list of side %d", (int)tcpPayloadSize, sideIndex);
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
@@ -467,7 +467,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 					tcpReassemblyData->twoSides[sideIndex].sequence += curTcpFrag->dataLength;
 					if (curTcpFrag->data != NULL)
 					{
-						LOG_DEBUG("Found an out-of-order packet matching to the current sequence with size %d on side %d. Pulling it out of the list and sending the data to the callback", curTcpFrag->dataLength, sideIndex);
+						LOG_DEBUG("Found an out-of-order packet matching to the current sequence with size %d on side %d. Pulling it out of the list and sending the data to the callback", (int)curTcpFrag->dataLength, sideIndex);
 
 						// send new data to callback
 
@@ -501,7 +501,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 						uint32_t newLength = tcpReassemblyData->twoSides[sideIndex].sequence - curTcpFrag->sequence;
 
 						LOG_DEBUG("Found a fragment in the out-of-order list which its sequence is lower than expected but its payload is long enough to contain new data. "
-							"Calling the callback with the new data. Fragment size is %d on side %d, new data size is %d", curTcpFrag->dataLength, sideIndex, curTcpFrag->dataLength - newLength);
+							"Calling the callback with the new data. Fragment size is %d on side %d, new data size is %d", (int)curTcpFrag->dataLength, sideIndex, (int)(curTcpFrag->dataLength - newLength));
 
 						// update current sequence with the delta new data size
 						tcpReassemblyData->twoSides[sideIndex].sequence += curTcpFrag->dataLength - newLength;
@@ -518,7 +518,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 					}
 					else
 					{
-						LOG_DEBUG("Found a fragment in the out-of-order list which doesn't contain any new data, ignoring it. Fragment size is %d on side %d", curTcpFrag->dataLength, sideIndex);
+						LOG_DEBUG("Found a fragment in the out-of-order list which doesn't contain any new data, ignoring it. Fragment size is %d on side %d", (int)curTcpFrag->dataLength, sideIndex);
 					}
 
 					// delete fragment from list
@@ -596,7 +596,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 					m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 
 					LOG_DEBUG("Found missing data on side %d: %d byte are missing. Sending the closest fragment which is in size %d + missing text message which size is %d",
-						sideIndex, missingDataLen, curTcpFrag->dataLength, missingDataTextStr.length());
+						sideIndex, missingDataLen, (int)curTcpFrag->dataLength, (int)missingDataTextStr.length());
 				}
 			}
 

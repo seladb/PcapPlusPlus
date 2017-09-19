@@ -489,7 +489,7 @@ int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets)
 			packetsSent++;
 	}
 
-	LOG_DEBUG("%d packets sent successfully. %d packets not sent", packetsSent, rawPackets.size()-packetsSent);
+	LOG_DEBUG("%d packets sent successfully. %d packets not sent", packetsSent, (int)rawPackets.size()-packetsSent);
 	return packetsSent;
 }
 

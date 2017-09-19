@@ -69,9 +69,8 @@ create-directories:
 
 # Tool invocations
 Pcap++.lib: create-directories $(OBJS_FILENAMES)
-	cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) light_pcapng_sources
+	@cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) light_pcapng_sources
 	@echo 'Building target: $@'
-	@echo 'Invoking: GCC Archiver'
 	@$(AR) -r  "Lib/$(LIB_PREFIX)Pcap++$(LIB_EXT)" $(OBJS_FILENAMES) $(LIGHT_PCAPNG_OBJS_FILENAMES)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '

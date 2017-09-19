@@ -591,7 +591,7 @@ PCAPP_TEST(TestIPAddress)
 	size_t length = 0;
 	uint8_t* addrAsByteArray;
 	ip6AddrAfterCast->copyTo(&addrAsByteArray, length);
-	PCAPP_ASSERT(length == 16, "IPv6 packet length is wrong. Expected 16, got %d", length);
+	PCAPP_ASSERT(length == 16, "IPv6 packet length is wrong. Expected 16, got %d", (int)length);
 	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00 , 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
 	for (int i = 0; i < 16; i++)
 		PCAPP_ASSERT(addrAsByteArray[i] == expectedByteArray[i], "Failed to convert IPv6 address to byte array; byte #%d: expected 0x%X got 0x%X", i, expectedByteArray[i], addrAsByteArray[i]);
@@ -1529,7 +1529,7 @@ PCAPP_TEST(TestPcapFilters)
     PCAP_SLEEP(2);
     liveDev->stopCapture();
 
-    PCAPP_ASSERT(capturedPackets.size() >= 12, "VLAN filter test: Captured: %d packets. Expected: > %d packets", capturedPackets.size(), 12);
+    PCAPP_ASSERT(capturedPackets.size() >= 12, "VLAN filter test: Captured: %d packets. Expected: > %d packets", (int)capturedPackets.size(), 12);
     for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
     {
     	Packet packet(*iter);
@@ -1557,7 +1557,7 @@ PCAPP_TEST(TestPcapFilters)
     PCAP_SLEEP(2);
     liveDev->stopCapture();
 
-    PCAPP_ASSERT(capturedPackets.size() == 5, "MacAddress test: Captured: %d packets. Expected: %d packets", capturedPackets.size(), 5);
+    PCAPP_ASSERT(capturedPackets.size() == 5, "MacAddress test: Captured: %d packets. Expected: %d packets", (int)capturedPackets.size(), 5);
     for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
     {
     	Packet packet(*iter);

@@ -349,7 +349,7 @@ bool DnsResource::setData(const std::string& dataAsString)
 		if (dataAsString.length() % 2 != 0)
 		{
 			LOG_ERROR("DNS data for DNS type %d should be an hex stream with an even number of character. "
-					"Current character count is an odd number: %d", getDnsType(), dataAsString.length());
+					"Current character count is an odd number: %d", getDnsType(), (int)dataAsString.length());
 			return false;
 		}
 		char* dataAsCharPtr = (char*)dataAsString.c_str();

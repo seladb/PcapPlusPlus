@@ -165,7 +165,7 @@ void Packet::copyDataFrom(const Packet& other)
 
 void Packet::reallocateRawData(size_t newSize)
 {
-	LOG_DEBUG("Allocating packet to new size: %d", newSize);
+	LOG_DEBUG("Allocating packet to new size: %d", (int)newSize);
 
 	// allocate a new array with size newSize
 	m_MaxPacketLen = newSize;
@@ -173,7 +173,7 @@ void Packet::reallocateRawData(size_t newSize)
 	// set the new array to RawPacket
 	if (!m_RawPacket->reallocateData(m_MaxPacketLen))
 	{
-		LOG_ERROR("Couldn't reallocate data of raw packet to %d bytes", m_MaxPacketLen);
+		LOG_ERROR("Couldn't reallocate data of raw packet to %d bytes", (int)m_MaxPacketLen);
 		return;
 	}
 

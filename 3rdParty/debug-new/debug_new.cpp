@@ -345,17 +345,17 @@ bool check_leaks()
                     }
 
                     if (ret) {
-								printf("Leaked object at %p (size %u, %s:%d)\n",
+								printf("Leaked object at %p (size %d, %s:%d)\n",
 												(char*)ptr + sizeof(new_ptr_list_t),
-												ptr->size,
+												(int)ptr->size,
 												ptr->file,
 												ptr->line);
 								ptr = ptr->next;
 					}
 					else {
-								printf("Leaked object at %p (size %u, %s:%d)\n",
+								printf("Leaked object at %p (size %d, %s:%d)\n",
 												(char*)ptr + sizeof(new_ptr_list_t),
-												ptr->size,
+												(int)ptr->size,
 												ptr->file,
 												ptr->line);
 
@@ -398,8 +398,8 @@ void* operator new(size_t size, const char* file, int line)
             locate_addr(file_name, &line);
         }
 
-                fprintf(stderr, "new:  out of memory when allocating %u bytes at %s:%d\n",
-                                size,
+                fprintf(stderr, "new:  out of memory when allocating %d bytes at %s:%d\n",
+                                (int)size,
                                 file_name,
                                 line);
                 abort();
@@ -429,7 +429,7 @@ void* operator new(size_t size, const char* file, int line)
         }
         new_ptr_list[hash_index] = ptr;
         if (new_verbose_flag) {
-        printf("new:  allocated  %p (size %u)\n", pointer, size);
+        printf("new:  allocated  %p (size %d)\n", pointer, (int)size);
     }
         return pointer;
 }
@@ -472,7 +472,7 @@ void operator delete(void* pointer)
                 {
                     total_size = total_size - ptr->size;
                         if (new_verbose_flag && ptr->is_static == 0) {
-                                printf("delete: freeing  %p (size %u)\n", pointer, ptr->size);
+                                printf("delete: freeing  %p (size %d)\n", pointer, (int)ptr->size);
 						}
                         if (ptr->is_static != 0)
                         {

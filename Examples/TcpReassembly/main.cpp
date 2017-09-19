@@ -500,7 +500,7 @@ void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembl
 	reader->close();
 	delete reader;
 
-	printf("Done! processed %d connections\n", tcpReassembly.getConnectionInformation().size());
+	printf("Done! processed %d connections\n", (int)tcpReassembly.getConnectionInformation().size());
 }
 
 
@@ -540,7 +540,7 @@ void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassem
 	// close all connections which are still opened
 	tcpReassembly.closeAllConnections();
 
-	printf("Done! processed %d connections\n", tcpReassembly.getConnectionInformation().size());
+	printf("Done! processed %d connections\n", (int)tcpReassembly.getConnectionInformation().size());
 }
 
 

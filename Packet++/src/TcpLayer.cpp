@@ -229,7 +229,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 	{
 		tcpHdr->headerChecksum = 0;
 		ScalarBuffer<uint16_t> vec[2];
-		LOG_DEBUG("data len =  %d", m_DataLen);
+		LOG_DEBUG("data len =  %d", (int)m_DataLen);
 		vec[0].buffer = (uint16_t*)m_Data;
 		vec[0].len = m_DataLen;
 

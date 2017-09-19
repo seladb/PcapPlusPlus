@@ -351,7 +351,7 @@ IPv4OptionData* IPv4Layer::addOptionAt(IPv4OptionTypes optionType, uint8_t optio
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend IPv4Layer in [%d] bytes", sizeToExtend);
+		LOG_ERROR("Could not extend IPv4Layer in [%d] bytes", (int)sizeToExtend);
 		return NULL;
 	}
 

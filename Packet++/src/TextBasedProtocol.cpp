@@ -90,7 +90,7 @@ void TextBasedProtocolMessage::parseFields()
 	bool spacesAllowedBetweenNameAndValue = spacesAllowedBetweenHeaderFieldNameAndValue();
 
 	HeaderField* firstField = new HeaderField(this, m_FieldsOffset, nameValueSeperator, spacesAllowedBetweenNameAndValue);
-	LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", firstField->getFieldName().c_str(), firstField->m_NameOffsetInMessage, firstField->getFieldSize());
+	LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", firstField->getFieldName().c_str(), firstField->m_NameOffsetInMessage, (int)firstField->getFieldSize());
 	LOG_DEBUG("     Field value = %s", firstField->getFieldValue().c_str());
 
 	if (m_FieldList == NULL)
@@ -112,7 +112,7 @@ void TextBasedProtocolMessage::parseFields()
 	{
 		curOffset += curField->getFieldSize();
 		HeaderField* newField = new HeaderField(this, curOffset, nameValueSeperator, spacesAllowedBetweenNameAndValue);
-		LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", newField->getFieldName().c_str(), newField->m_NameOffsetInMessage, newField->getFieldSize());
+		LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", newField->getFieldName().c_str(), newField->m_NameOffsetInMessage, (int)newField->getFieldSize());
 		LOG_DEBUG("     Field value = %s", newField->getFieldValue().c_str());
 		curField->setNextField(newField);
 		curField = curField->getNextField();

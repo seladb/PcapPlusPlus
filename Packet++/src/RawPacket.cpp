@@ -161,7 +161,7 @@ bool RawPacket::reallocateData(size_t newBufferLength)
 
 	if ((int)newBufferLength < m_RawDataLen)
 	{
-		LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: %d; requested length: %d", m_RawDataLen, newBufferLength);
+		LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: %d; requested length: %d", m_RawDataLen, (int)newBufferLength);
 		return false;
 	}
 

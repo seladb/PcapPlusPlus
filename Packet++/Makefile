@@ -45,7 +45,6 @@ create-directories:
 # Tool invocations
 Packet++: create-directories $(OBJS_FILENAMES)
 	@echo 'Building target: $@'
-	@echo 'Invoking: GCC Archiver'
 	@$(AR) -r  "Lib/$(LIB_PREFIX)Packet++$(LIB_EXT)" $(OBJS_FILENAMES)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
