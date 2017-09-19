@@ -2442,7 +2442,7 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 		{
 			map<uint32_t, pair<RawPacketVector, RawPacketVector> > res;
 			intersectMaps<uint32_t, RawPacketVector, RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
-			PCAPP_ASSERT(res.size() == 0, "%d flows appear in core %d and core %d", res.size(), firstCoreId, secondCoreId);
+			PCAPP_ASSERT(res.size() == 0, "%d flows appear in core %d and core %d", (int)res.size(), firstCoreId, secondCoreId);
 			if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 			{
 				for (map<uint32_t, pair<RawPacketVector, RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
@@ -2469,12 +2469,12 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 			}
 		}
 		PCAPP_DEBUG_PRINT("Core %d\n========", firstCoreId);
-		PCAPP_DEBUG_PRINT("Total flows: %d", packetDataMultiThread[firstCoreId].FlowKeys.size());
+		PCAPP_DEBUG_PRINT("Total flows: %d", (int)packetDataMultiThread[firstCoreId].FlowKeys.size());
 
 		if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 		{
 			for(map<uint32_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
-				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", iter->first, iter->second.size());
+				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", iter->first, (int)iter->second.size());
 				iter->second.clear();
 			}
 		}
@@ -3075,7 +3075,7 @@ PCAPP_TEST(TestDpdkMultiThread)
 
 			map<uint32_t, pair<RawPacketVector, RawPacketVector> > res;
 			intersectMaps<uint32_t, RawPacketVector, RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
-			PCAPP_ASSERT(res.size() == 0, "%d flows appear in core %d and core %d", res.size(), firstCoreId, secondCoreId);
+			PCAPP_ASSERT(res.size() == 0, "%d flows appear in core %d and core %d", (int)res.size(), firstCoreId, secondCoreId);
 			if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 			{
 				for (map<uint32_t, pair<RawPacketVector, RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
@@ -3102,12 +3102,12 @@ PCAPP_TEST(TestDpdkMultiThread)
 			}
 		}
 		PCAPP_DEBUG_PRINT("Core %d\n========", firstCoreId);
-		PCAPP_DEBUG_PRINT("Total flows: %d", packetDataMultiThread[firstCoreId].FlowKeys.size());
+		PCAPP_DEBUG_PRINT("Total flows: %d", (int)packetDataMultiThread[firstCoreId].FlowKeys.size());
 
 		if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 		{
 			for(map<uint32_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
-				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", iter->first, iter->second.size());
+				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", (int)iter->first, iter->second.size());
 				iter->second.clear();
 			}
 		}
@@ -3265,7 +3265,7 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 	}
 
 	PCAPP_ASSERT(numOfAttempts < 10, "No packets were received using RawPacketVector");
-	PCAPP_DEBUG_PRINT("Captured %d packets in %d attempts using RawPacketVector", rawPacketVec.size(), numOfAttempts);
+	PCAPP_DEBUG_PRINT("Captured %d packets in %d attempts using RawPacketVector", (int)rawPacketVec.size(), numOfAttempts);
 
 	numOfAttempts = 0;
 	while (numOfAttempts < 10)
@@ -3314,7 +3314,7 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 		workerThreadVec.push_back((DpdkWorkerThread*)newWorkerThread);
 		workerThreadCoreMask |= core.Mask;
 	}
-	PCAPP_DEBUG_PRINT("Initiating %d worker threads", workerThreadVec.size());
+	PCAPP_DEBUG_PRINT("Initiating %d worker threads", (int)workerThreadVec.size());
 
 	LoggerPP::getInstance().supressErrors();
 	PCAPP_ASSERT(devList.startDpdkWorkerThreads(0, workerThreadVec) == false, "Managed to start DPDK worker thread with core mask 0");

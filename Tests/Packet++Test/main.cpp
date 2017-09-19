@@ -942,8 +942,8 @@ PACKETPP_TEST(TcpPacketNoOptionsParsing)
 
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->portDst == htons(60388), "Dest port != 60388, it's %d", ntohs(tcpLayer->getTcpHeader()->portDst));
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->portSrc == htons(80), "Src port != 80, it's %d", ntohs(tcpLayer->getTcpHeader()->portSrc));
-	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->sequenceNumber == htonl(0xbeab364a), "Sequence number != 0xbeab364a, it's 0x%X", ntohl(tcpLayer->getTcpHeader()->sequenceNumber));
-	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->ackNumber == htonl(0xf9ffb58e), "Ack number != 0xf9ffb58e, it's 0x%X", ntohl(tcpLayer->getTcpHeader()->ackNumber));
+	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->sequenceNumber == htonl(0xbeab364a), "Sequence number != 0xbeab364a, it's 0x%X", (int)ntohl(tcpLayer->getTcpHeader()->sequenceNumber));
+	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->ackNumber == htonl(0xf9ffb58e), "Ack number != 0xf9ffb58e, it's 0x%X", (int)ntohl(tcpLayer->getTcpHeader()->ackNumber));
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->dataOffset == 5, "Header length != 5 (20 bytes), it's %d", tcpLayer->getTcpHeader()->dataOffset);
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->urgentPointer == 0, "Urgent pointer != 0, it's %d", tcpLayer->getTcpHeader()->urgentPointer);
 	PACKETPP_ASSERT(tcpLayer->getTcpHeader()->headerChecksum == htons(0x4c03), "Header checksum != 0x4c03, it's 0x%4X", ntohs(tcpLayer->getTcpHeader()->headerChecksum));
@@ -1005,8 +1005,8 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing)
 	uint32_t tsEchoReply = 0;
 	memcpy(&tsValue, timestampOptionData->value, 4);
 	memcpy(&tsEchoReply, timestampOptionData->value+4, 4);
-	PACKETPP_ASSERT(tsValue == htonl(195102), "TCP option Timestamp option: timestamp value != 195102, it's %d", ntohl(tsValue));
-	PACKETPP_ASSERT(tsEchoReply == htonl(3555729271UL), "TCP option Timestamp option: echo reply value != 3555729271, it's %d", ntohl(tsEchoReply));
+	PACKETPP_ASSERT(tsValue == htonl(195102), "TCP option Timestamp option: timestamp value != 195102, it's %d", (int)ntohl(tsValue));
+	PACKETPP_ASSERT(tsEchoReply == htonl(3555729271UL), "TCP option Timestamp option: echo reply value != 3555729271, it's %d", (int)ntohl(tsEchoReply));
 
 	PACKETPP_TEST_PASSED;
 }

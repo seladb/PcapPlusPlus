@@ -863,7 +863,7 @@ int PfRingDevice::sendPackets(const RawPacketVector& rawPackets)
 	// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
 	pfring_flush_tx_packets(m_PfRingDescriptors[0]);
 
-	LOG_DEBUG("%d out of %d raw packets were sent successfully", packetsSent, rawPackets.size());
+	LOG_DEBUG("%d out of %d raw packets were sent successfully", packetsSent, (int)rawPackets.size());
 
 	return packetsSent;
 }
