@@ -270,7 +270,7 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::
 		return NULL;
 
 	uint8_t* curTagPtr = m_Data + sizeof(pppoe_header);
-	while ((curTagPtr - m_Data) < m_DataLen)
+	while ((curTagPtr - m_Data) < (int)m_DataLen)
 	{
 		PPPoEDiscoveryLayer::PPPoETag* curTag = castPtrToPPPoETag(curTagPtr);
 		if (curTag->tagType == htons(tagType))

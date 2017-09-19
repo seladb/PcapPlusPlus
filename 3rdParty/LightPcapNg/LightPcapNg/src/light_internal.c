@@ -94,7 +94,7 @@ size_t __get_option_total_size(const struct _light_option *option)
 	return size;
 }
 
-PCAPNG_ATTRIBUTE_REFACTOR uint32_t *__get_option_size(const struct _light_option *option, size_t *size)
+uint32_t *__get_option_size(const struct _light_option *option, size_t *size)
 {
 	if (option == NULL) {
 		*size = 0;

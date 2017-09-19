@@ -63,7 +63,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	LOG_DEBUG("%d packets were queued successfully", packetsSent);
 
 	int res;
-	if ((res = pcap_sendqueue_transmit(m_PcapDescriptor, sendQueue, 0)) < sendQueue->len)
+	if ((res = pcap_sendqueue_transmit(m_PcapDescriptor, sendQueue, 0)) < (int)(sendQueue->len))
     {
         LOG_ERROR("An error occurred sending the packets: %s. Only %d bytes were sent\n", pcap_geterr(m_PcapDescriptor), res);
         packetsSent = 0;

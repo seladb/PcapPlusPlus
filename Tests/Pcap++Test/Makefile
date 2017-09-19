@@ -36,10 +36,7 @@ COMMON_DEBUG_LIB_DIR := -L../../Common++/Lib/Debug
 
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
-	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(DEPS) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	@$(G++) $(DEPS) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 	
 
 UNAME := $(shell uname)
@@ -48,26 +45,25 @@ UNAME := $(shell uname)
 all: dependents Pcap++Test
 
 create-directories:
-	$(MKDIR) -p Obj
-	$(MKDIR) -p Bin
+	@$(MKDIR) -p Obj
+	@$(MKDIR) -p Bin
 
 dependents:
 	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 	
 # Tool invocations
 Pcap++Test: create-directories $(OBJS_FILENAMES)
-	cd $(DEBUG_NEW_HOME) && $(MAKE) debug_new_sources
+	@cd $(DEBUG_NEW_HOME) && $(MAKE) debug_new_sources
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
-	@echo 'Invoking C++ Linker'
-	$(G++) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES) $(PCAPPP_LIBS)
-	$(PCAPPP_POST_BUILD)
+	@$(G++) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES) $(PCAPPP_LIBS)
+	@$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	cd $(DEBUG_NEW_HOME) && $(MAKE) clean
-	$(RM) -rf ./Obj/*
-	$(RM) -rf ./Bin/*
+	@cd $(DEBUG_NEW_HOME) && $(MAKE) clean
+	@$(RM) -rf ./Obj/*
+	@$(RM) -rf ./Bin/*
 	@echo 'Clean finished'

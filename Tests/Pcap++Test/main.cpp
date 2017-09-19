@@ -577,9 +577,9 @@ PCAPP_TEST(TestIPAddress)
 	PCAPP_ASSERT(secondIPv4Address.isValid() == true, "Valid address identified as non-valid");
 	PCAPP_ASSERT((*ip4AddrAfterCast) == secondIPv4Address, "IPv4Address assignment operator didn't work");
 
-	IPv4Address badAddress("sdgdfgd");
+	IPv4Address badAddress(std::string("sdgdfgd"));
 	PCAPP_ASSERT(badAddress.isValid() == false, "Non-valid address identified as valid");
-	IPv4Address anotherBadAddress = IPv4Address("321.123.1000.1");
+	IPv4Address anotherBadAddress = IPv4Address(std::string("321.123.1000.1"));
 	PCAPP_ASSERT(anotherBadAddress.isValid() == false, "Non-valid address copied by copy c'tor identified as valid");
 
 	string ip6AddrString("2607:f0d0:1002:51::4");
@@ -607,7 +607,8 @@ PCAPP_TEST(TestIPAddress)
 	PCAPP_ASSERT(ip6Addr->isValid() == true, "Valid IPv6 address identified as non-valid");
 	PCAPP_ASSERT((*ip6AddrAfterCast) == secondIPv6Address, "IPv6Address assignment operator didn't work");
 
-	IPv6Address badIp6Address("lasdfklsdkfdls");
+	char badIp6AddressStr[] = "lasdfklsdkfdls";
+	IPv6Address badIp6Address(badIp6AddressStr);
 	PCAPP_ASSERT(badIp6Address.isValid() == false, "Non-valid IPv6 address identified as valid");
 	IPv6Address anotherBadIp6Address = badIp6Address;
 	PCAPP_ASSERT(anotherBadIp6Address.isValid() == false, "Non-valid IPv6 address copied by copy c'tor identified as valid");
@@ -653,7 +654,7 @@ PCAPP_TEST(TestPcapFileReadWrite)
     PCAPP_ASSERT(writerDev.open(), "cannot open writer device");
     PCAPP_ASSERT(readerDev.getFileName() == EXAMPLE_PCAP_PATH, "Reader file name different than expected");
     PCAPP_ASSERT(writerDev.getFileName() == EXAMPLE_PCAP_WRITE_PATH, "Writer file name different than expected");
-    PCAPP_ASSERT(readerDev.getFileSize() == 3812643, "Reader file size different than expected. Expected: %d, got: %d", 3812643, readerDev.getFileSize());
+    PCAPP_ASSERT(readerDev.getFileSize() == 3812643, "Reader file size different than expected. Expected: %d, got: %d", 3812643, (int)readerDev.getFileSize());
     RawPacket rawPacket;
     int packetCount = 0;
     int ethCount = 0;
@@ -874,7 +875,7 @@ PCAPP_TEST(TestPcapNgFileReadWrite)
     PCAPP_ASSERT(writerDev.open(), "cannot open writer device");
     PCAPP_ASSERT(readerDev.getFileName() == EXAMPLE_PCAPNG_PATH, "Reader file name different than expected");
     PCAPP_ASSERT(writerDev.getFileName() == EXAMPLE_PCAPNG_WRITE_PATH, "Writer file name different than expected");
-    PCAPP_ASSERT(readerDev.getFileSize() == 20704, "Reader file size different than expected. Expected: %d, got: %d", 20704, readerDev.getFileSize());
+    PCAPP_ASSERT(readerDev.getFileSize() == 20704, "Reader file size different than expected. Expected: %d, got: %d", 20704, (int)readerDev.getFileSize());
     PCAPP_ASSERT(readerDev.getOS() == "Mac OS X 10.10.4, build 14E46 (Darwin 14.4.0)", "OS read incorrectly");
     PCAPP_ASSERT(readerDev.getCaptureApplication() == "Dumpcap 1.12.6 (v1.12.6-0-gee1fce6 from master-1.12)", "User app read incorrectly");
     PCAPP_ASSERT(readerDev.getCaptureFileComment() == "", "File comment isn't empty");

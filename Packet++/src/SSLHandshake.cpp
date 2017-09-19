@@ -1181,7 +1181,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	while ((curPos - extensionPos) < extensionLength && (curPos - m_Data) < messageLen)
+	while ((curPos - extensionPos) < (int)extensionLength && (curPos - m_Data) < (int)messageLen)
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = ntohs(*(uint16_t*)curPos);
@@ -1323,7 +1323,7 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	while ((curPos - extensionPos) < extensionLength && (curPos - m_Data) < messageLen)
+	while ((curPos - extensionPos) < (int)extensionLength && (curPos - m_Data) < (int)messageLen)
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = ntohs(*(uint16_t*)curPos);

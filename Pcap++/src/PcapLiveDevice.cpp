@@ -584,8 +584,11 @@ void PcapLiveDevice::setDeviceMacAddress()
     {
         if(oidData->Length == 6)
         {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
             /* copy value from driver */
         	m_MacAddress = MacAddress(oidData->Data[0], oidData->Data[1], oidData->Data[2], oidData->Data[3], oidData->Data[4], oidData->Data[5]);
+#pragma GCC diagnostic pop
         	LOG_DEBUG("   MAC address: %s", m_MacAddress.toString().c_str());
         } else
         {

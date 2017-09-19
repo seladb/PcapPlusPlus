@@ -26,45 +26,29 @@ EXAMPLE_TCP_REASM    := Examples/TcpReassembly
 
 UNAME := $(shell uname)
 
-# PcapPlusPlus libs only
-libs:
-	$(RM) -rf Dist
-	cd $(COMMONPP_HOME)             && $(MAKE) all
-	cd $(PACKETPP_HOME)             && $(MAKE) all
-	cd $(PCAPPP_HOME)               && $(MAKE) all
-	$(MKDIR) -p Dist
-	$(MKDIR) -p Dist/header
-	$(CP) $(COMMONPP_HOME)/Lib/Release/* ./Dist
-	$(CP) $(PACKETPP_HOME)/Lib/* ./Dist
-	$(CP) $(PCAPPP_HOME)/Lib/* ./Dist
-	$(CP) $(COMMONPP_HOME)/header/* ./Dist/header
-	$(CP) $(PACKETPP_HOME)/header/* ./Dist/header
-	$(CP) $(PCAPPP_HOME)/header/* ./Dist/header
-	@echo 'Finished successfully building PcapPlusPlus libs'
-
 # All Target
 all: libs
-	cd $(PACKETPP_TEST)             && $(MAKE) Packet++Test
-	cd $(PCAPPP_TEST)               && $(MAKE) Pcap++Test
-	cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) ArpSpoofing
-	cd $(EXAMPLE_ARPING)            && $(MAKE) Arping
-	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) DnsSpoofing
-	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) DNSResolver
-	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) HttpAnalyzer
-	cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) PcapPrinter
-	cd $(EXAMPLE_SSLANALYZER)       && $(MAKE) SSLAnalyzer
-	cd $(EXAMPLE_PCAPSPLITTER)      && $(MAKE) PcapSplitter
-	cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) PcapSearch
-	cd $(EXAMPLE_ICMP_FT)           && $(MAKE) IcmpFileTransfer-pitcher && $(MAKE) IcmpFileTransfer-catcher
-	cd $(EXAMPLE_TCP_REASM)         && $(MAKE) TcpReassembly
+	@cd $(PACKETPP_TEST)             && $(MAKE) Packet++Test
+	@cd $(PCAPPP_TEST)               && $(MAKE) Pcap++Test
+	@cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) ArpSpoofing
+	@cd $(EXAMPLE_ARPING)            && $(MAKE) Arping
+	@cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) DnsSpoofing
+	@cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) DNSResolver
+	@cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) HttpAnalyzer
+	@cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) PcapPrinter
+	@cd $(EXAMPLE_SSLANALYZER)       && $(MAKE) SSLAnalyzer
+	@cd $(EXAMPLE_PCAPSPLITTER)      && $(MAKE) PcapSplitter
+	@cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) PcapSearch
+	@cd $(EXAMPLE_ICMP_FT)           && $(MAKE) IcmpFileTransfer-pitcher && $(MAKE) IcmpFileTransfer-catcher
+	@cd $(EXAMPLE_TCP_REASM)         && $(MAKE) TcpReassembly
 ifdef USE_DPDK
-	cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
+	@cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
 endif
 ifdef PF_RING_HOME
-	cd $(EXAMPLE_PF_RING1)          && $(MAKE) PfRingTrafficFilter
+	@cd $(EXAMPLE_PF_RING1)          && $(MAKE) PfRingTrafficFilter
 endif
-	$(MKDIR) -p Dist/examples
-	$(MKDIR) -p Dist/mk
+	@$(MKDIR) -p Dist/examples
+	@$(MKDIR) -p Dist/mk
 	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_ARPING)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_DNSSPOOF)/Bin/* ./Dist/examples
@@ -85,30 +69,46 @@ endif
 	$(CP) mk/PcapPlusPlus.mk ./Dist/mk
 	@echo 'Finished successfully building PcapPlusPlus'
 
+# PcapPlusPlus libs only
+libs:
+	@$(RM) -rf Dist
+	@cd $(COMMONPP_HOME)             && $(MAKE) all
+	@cd $(PACKETPP_HOME)             && $(MAKE) all
+	@cd $(PCAPPP_HOME)               && $(MAKE) all
+	@$(MKDIR) -p Dist
+	@$(MKDIR) -p Dist/header
+	@$(CP) $(COMMONPP_HOME)/Lib/Release/* ./Dist
+	@$(CP) $(PACKETPP_HOME)/Lib/* ./Dist
+	@$(CP) $(PCAPPP_HOME)/Lib/* ./Dist
+	@$(CP) $(COMMONPP_HOME)/header/* ./Dist/header
+	@$(CP) $(PACKETPP_HOME)/header/* ./Dist/header
+	@$(CP) $(PCAPPP_HOME)/header/* ./Dist/header
+	@echo 'Finished successfully building PcapPlusPlus libs'
+
 # Clean
 clean:
-	cd $(COMMONPP_HOME)             && $(MAKE) clean
-	cd $(PACKETPP_HOME)             && $(MAKE) clean
-	cd $(PCAPPP_HOME)               && $(MAKE) clean
-	cd $(PACKETPP_TEST)             && $(MAKE) clean
-	cd $(PCAPPP_TEST)               && $(MAKE) clean
-	cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) clean
-	cd $(EXAMPLE_ARPING)            && $(MAKE) clean
-	cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) clean
-	cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) clean
-	cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) clean
-	cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) clean
-	cd $(EXAMPLE_SSLANALYZER)       && $(MAKE) clean
-	cd $(EXAMPLE_PCAPSPLITTER)      && $(MAKE) clean
-	cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) clean
-	cd $(EXAMPLE_ICMP_FT)           && $(MAKE) clean
-	cd $(EXAMPLE_TCP_REASM)         && $(MAKE) clean
+	@cd $(COMMONPP_HOME)             && $(MAKE) clean
+	@cd $(PACKETPP_HOME)             && $(MAKE) clean
+	@cd $(PCAPPP_HOME)               && $(MAKE) clean
+	@cd $(PACKETPP_TEST)             && $(MAKE) clean
+	@cd $(PCAPPP_TEST)               && $(MAKE) clean
+	@cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) clean
+	@cd $(EXAMPLE_ARPING)            && $(MAKE) clean
+	@cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) clean
+	@cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) clean
+	@cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) clean
+	@cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) clean
+	@cd $(EXAMPLE_SSLANALYZER)       && $(MAKE) clean
+	@cd $(EXAMPLE_PCAPSPLITTER)      && $(MAKE) clean
+	@cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) clean
+	@cd $(EXAMPLE_ICMP_FT)           && $(MAKE) clean
+	@cd $(EXAMPLE_TCP_REASM)         && $(MAKE) clean
 ifdef USE_DPDK
-	cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
+	@cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 endif
 ifdef PF_RING_HOME
-	cd $(EXAMPLE_PF_RING1)          && $(MAKE) clean
+	@cd $(EXAMPLE_PF_RING1)          && $(MAKE) clean
 endif
 
-	$(RM) -rf Dist
+	@$(RM) -rf Dist
 	@echo 'Finished successfully cleaning PcapPlusPlus'

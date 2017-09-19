@@ -58,30 +58,27 @@ endif
 	
 Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
-	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(DEPS) $(INCLUDES) $(FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	@$(G++) $(DEPS) $(INCLUDES) $(FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 # All Target
 all: Pcap++.lib
 
 create-directories:
-	$(MKDIR) -p Obj
-	$(MKDIR) -p Lib
+	@$(MKDIR) -p Obj
+	@$(MKDIR) -p Lib
 
 # Tool invocations
 Pcap++.lib: create-directories $(OBJS_FILENAMES)
 	cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) light_pcapng_sources
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC Archiver'
-	$(AR) -r  "Lib/$(LIB_PREFIX)Pcap++$(LIB_EXT)" $(OBJS_FILENAMES) $(LIGHT_PCAPNG_OBJS_FILENAMES)
+	@$(AR) -r  "Lib/$(LIB_PREFIX)Pcap++$(LIB_EXT)" $(OBJS_FILENAMES) $(LIGHT_PCAPNG_OBJS_FILENAMES)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) clean
-	$(RM) -rf ./Obj/*
-	$(RM) -rf ./Lib/*
+	@cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) clean
+	@$(RM) -rf ./Obj/*
+	@$(RM) -rf ./Lib/*
 	@echo 'Clean finished'

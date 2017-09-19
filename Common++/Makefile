@@ -34,38 +34,33 @@ endif
 			
 Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
-	@echo 'Invoking: GCC C++ Compiler'
-	$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	@$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 # All Target
 all: Common++.lib Common++.debug
 
 create-directories:
-	$(MKDIR) -p Obj
-	$(MKDIR) -p Lib
-	$(MKDIR) -p Lib/Debug
-	$(MKDIR) -p Lib/Release
+	@$(MKDIR) -p Obj
+	@$(MKDIR) -p Lib
+	@$(MKDIR) -p Lib/Debug
+	@$(MKDIR) -p Lib/Release
 
 # Tool invocations
 Common++.lib: create-directories $(OBJS_FILENAMES)
 	@echo 'Building target: $@'
-	@echo 'Invoking: GCC Archiver'
-	$(AR) -r "Lib/Release/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES)
+	@$(AR) -r "Lib/Release/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 	
 Common++.debug: create-directories $(OBJS_FILENAMES_DEBUG)
 	@echo 'Building target: $@'
-	@echo 'Invoking: GCC Archiver'
-	$(AR) -r "Lib/Debug/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES_DEBUG)
+	@$(AR) -r "Lib/Debug/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES_DEBUG)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
 
 # Other Targets
 clean:
-	$(RM) -rf ./Obj/*
-	$(RM) -rf ./Lib/*
+	@$(RM) -rf ./Obj/*
+	@$(RM) -rf ./Lib/*
 	@echo 'Clean finished'

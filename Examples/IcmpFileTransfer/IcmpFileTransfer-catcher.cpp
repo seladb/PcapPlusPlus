@@ -246,7 +246,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 				catcherIP,
 				&file,
 				icmpFTStart.fileName,
-				icmpFTStart.icmpId+1,
+				(uint16_t)(icmpFTStart.icmpId+1),
 				0,
 				0
 		};

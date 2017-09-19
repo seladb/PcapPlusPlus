@@ -180,7 +180,7 @@ void IPv4Layer::computeCalculateFields()
 		}
 	}
 
-	ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, ipHdr->internetHeaderLength*4 } ;
+	ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength*4) } ;
 	ipHdr->headerChecksum = htons(compute_checksum(&scalar, 1));
 }
 
@@ -293,7 +293,7 @@ size_t IPv4Layer::getOptionsCount()
 
 void IPv4Layer::incOptionCount(int val)
 {
-	if (m_OptionCount == -1)
+	if (m_OptionCount == (size_t)-1)
 		getOptionsCount(); // this method already calculates the current number of options, no need to increment/decrement m_OptionCount again
 	else
 		m_OptionCount += val;

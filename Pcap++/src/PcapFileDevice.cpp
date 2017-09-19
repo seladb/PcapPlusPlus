@@ -604,7 +604,7 @@ bool PcapFileWriterDevice::open(bool appendMode)
 	if (amountRead != sizeof(pcap_file_header))
 	{
 		if (ferror(m_File))
-			LOG_ERROR("Cannot read pcap header from file '%s', error was: %s", m_FileName, errno);
+			LOG_ERROR("Cannot read pcap header from file '%s', error was: %d", m_FileName, errno);
 		else
 			LOG_ERROR("Cannot read pcap header from file '%s', unknown error", m_FileName);
 

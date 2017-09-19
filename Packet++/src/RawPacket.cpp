@@ -156,10 +156,10 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 
 bool RawPacket::reallocateData(size_t newBufferLength)
 {
-	if (newBufferLength == m_RawDataLen)
+	if ((int)newBufferLength == m_RawDataLen)
 		return true;
 
-	if (newBufferLength < m_RawDataLen)
+	if ((int)newBufferLength < m_RawDataLen)
 	{
 		LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: %d; requested length: %d", m_RawDataLen, newBufferLength);
 		return false;
@@ -179,14 +179,14 @@ bool RawPacket::reallocateData(size_t newBufferLength)
 
 bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 {
-	if ((atIndex + numOfBytesToRemove) > m_RawDataLen)
+	if ((atIndex + (int)numOfBytesToRemove) > m_RawDataLen)
 	{
 		LOG_ERROR("Remove section is out of raw packet bound");
 		return false;
 	}
 
 	int index = atIndex;
-	while (index < (m_RawDataLen-numOfBytesToRemove))
+	while (index < (m_RawDataLen - (int)numOfBytesToRemove))
 	{
 		m_pRawData[index] = m_pRawData[index+numOfBytesToRemove];
 		index++;

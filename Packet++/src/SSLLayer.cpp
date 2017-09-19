@@ -199,7 +199,7 @@ size_t SSLHandshakeLayer::getHandshakeMessagesCount()
 
 SSLHandshakeMessage* SSLHandshakeLayer::getHandshakeMessageAt(int index)
 {
-	if (index < 0 || index >= m_MessageList.size())
+	if (index < 0 || index >= (int)(m_MessageList.size()))
 		return NULL;
 
 	return m_MessageList.at(index);

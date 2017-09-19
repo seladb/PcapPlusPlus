@@ -9,15 +9,12 @@ OBJS_FILENAMES := $(patsubst %.cpp,%.o,$(SOURCES))
 
 %.o: %.cpp
 	@echo 'Building debug-new file: $<'
-	@echo 'Invoking: GCC Compiler'
-	$(GCC) -Wall -O2 -fPIC -g -c -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+	@$(GCC) -Wall -O2 -g -c -o "$@" "$<"
 
 debug_new_sources: $(OBJS_FILENAMES)
 
 all: debug_new_sources
 
 clean:
-	$(RM) -rf *.o
+	@$(RM) -rf *.o
 	@echo 'Clean finished'

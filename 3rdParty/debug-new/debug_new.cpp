@@ -493,7 +493,10 @@ void operator delete(void* pointer)
                     char file_name[PATH_SIZE];
             int  line = 0;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
             memcpy(file_name, &((long *)ptr->file)[0], 4);
+#pragma GCC diagnostic pop
                     locate_addr(file_name, &line);
             printf("ERR: Maybe delete a array missing [] before the pointer at %s:%d\n", file_name, line);
         }

@@ -86,7 +86,7 @@ void SipLayer::computeCalculateFields()
 	if (m_DataLen > headerLen)
 	{
 		int currentContentLength = getContentLength();
-		if (currentContentLength != (m_DataLen - headerLen))
+		if (currentContentLength != (int)(m_DataLen - headerLen))
 			setContentLength(m_DataLen - headerLen);
 	}
 }
