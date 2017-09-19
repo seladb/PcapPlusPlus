@@ -3107,7 +3107,7 @@ PCAPP_TEST(TestDpdkMultiThread)
 		if (PCAPP_IS_UNIT_TEST_DEBUG_ENABLED)
 		{
 			for(map<uint32_t, RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
-				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", (int)iter->first, iter->second.size());
+				PCAPP_DEBUG_PRINT("Key=%X; Value=%d", (int)iter->first, (int)iter->second.size());
 				iter->second.clear();
 			}
 		}

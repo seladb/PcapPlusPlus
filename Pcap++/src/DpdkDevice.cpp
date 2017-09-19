@@ -1195,12 +1195,12 @@ bool DpdkDevice::sendPacket(const Packet& packet, uint16_t txQueueId)
 
 int DpdkDevice::getAmountOfFreeMbufs()
 {
-	return (int)rte_mempool_count(m_MBufMempool);
+	return (int)rte_mempool_avail_count(m_MBufMempool);
 }
 
 int DpdkDevice::getAmountOfMbufsInUse()
 {
-	return (int)rte_mempool_free_count(m_MBufMempool);
+	return (int)rte_mempool_in_use_count(m_MBufMempool);
 }
 
 } // namespace pcpp
