@@ -763,7 +763,10 @@ namespace pcpp
 		IDnsResource* getFirstResource(IDnsResource::ResourceType resType);
 		void setFirstResource(IDnsResource::ResourceType resType, IDnsResource* resource);
 
+		using Layer::extendLayer;
 		bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend, IDnsResource* resource);
+
+		using Layer::shortenLayer;
 		bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten, IDnsResource* resource);
 
 		IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name, bool exactMatch);

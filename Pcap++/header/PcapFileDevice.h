@@ -274,6 +274,7 @@ namespace pcpp
 
 		virtual bool writePackets(const RawPacketVector& packets) = 0;
 
+		using IFileDevice::open;
 		virtual bool open(bool appendMode) = 0;
 	};
 

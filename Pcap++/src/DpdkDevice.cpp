@@ -972,7 +972,7 @@ int DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, packet
 			continue;
 		}
 
-		if (rawPacket->getRawDataLen() > rte_pktmbuf_pkt_len(newMBuf))
+		if (rawPacket->getRawDataLen() > (int)rte_pktmbuf_pkt_len(newMBuf))
 		{
 			LOG_ERROR("Trying to send data with length larger than mBuf size. Requested length: %d; mBuf size: %d. Skipping RawPacket", rawPacket->getRawDataLen(), rte_pktmbuf_pkt_len(newMBuf));
 			packetIndex++;
