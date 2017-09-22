@@ -232,7 +232,7 @@ SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(char* data, size_t d
 		if (dataLen < 10)
 			return SipRequestLayer::SipMethodUnknown;
 
-		else if (data[1] == 'U' && data[2] == 'B' && data[3] == 'S' && data[4] == 'C' && data[5] == 'R' && data[6] == 'I' && data[7] == 'B' && data[8] == 'E' && data[8] == ' ')
+		else if (data[1] == 'U' && data[2] == 'B' && data[3] == 'S' && data[4] == 'C' && data[5] == 'R' && data[6] == 'I' && data[7] == 'B' && data[8] == 'E' && data[9] == ' ')
 			return SipRequestLayer::SipSUBSCRIBE;
 		break;
 
@@ -257,7 +257,7 @@ SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(char* data, size_t d
 		if (dataLen < 8)
 			return SipRequestLayer::SipMethodUnknown;
 
-		else if (data[1] == 'E' && data[2] == 'S' && data[3] == 'S' && data[4] == 'A' && data[5] == 'G' && data[6] == 'E' && data[6] == ' ')
+		else if (data[1] == 'E' && data[2] == 'S' && data[3] == 'S' && data[4] == 'A' && data[5] == 'G' && data[6] == 'E' && data[7] == ' ')
 			return SipRequestLayer::SipMESSAGE;
 		break;
 
