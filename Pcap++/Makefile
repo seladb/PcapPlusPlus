@@ -60,14 +60,13 @@ Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	@$(G++) $(DEPS) $(INCLUDES) $(FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
-# All Target
+
 all: Pcap++.lib
 
 create-directories:
 	@$(MKDIR) -p Obj
 	@$(MKDIR) -p Lib
 
-# Tool invocations
 Pcap++.lib: create-directories $(OBJS_FILENAMES)
 	@cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) light_pcapng_sources
 	@echo 'Building target: $@'
@@ -75,7 +74,6 @@ Pcap++.lib: create-directories $(OBJS_FILENAMES)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
-# Other Targets
 clean:
 	@cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) clean
 	@$(RM) -rf ./Obj/*

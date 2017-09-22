@@ -25,7 +25,7 @@ Obj/%.o: %.cpp
 
 UNAME := $(shell uname)
 
-# All Target
+
 all: dependents Packet++Test
 
 create-directories:
@@ -35,7 +35,6 @@ create-directories:
 dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
-# Tool invocations
 Packet++Test: create-directories $(OBJS_FILENAMES)
 	@cd $(DEBUG_NEW_HOME) && $(MAKE) debug_new_sources
 	@echo uname is: $(UNAME)
@@ -45,7 +44,6 @@ Packet++Test: create-directories $(OBJS_FILENAMES)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
-# Other Targets
 clean:
 	@cd $(DEBUG_NEW_HOME) && $(MAKE) clean
 	@$(RM) -rf ./Obj/*

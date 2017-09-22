@@ -18,7 +18,7 @@ Obj/%.o: %.cpp
 
 UNAME := $(shell uname)
 
-# All Target
+
 all: dependents DpdkTrafficFilter
 
 create-directories:
@@ -28,7 +28,6 @@ create-directories:
 dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
-# Tool invocations
 DpdkTrafficFilter: create-directories $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
@@ -37,7 +36,6 @@ DpdkTrafficFilter: create-directories $(OBJS_FILENAMES)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
-# Other Targets
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Bin/*

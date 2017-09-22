@@ -18,7 +18,7 @@ Obj/%.o: %.cpp
 
 UNAME := $(shell uname)
 
-# All Target
+
 all: dependents IcmpFileTransfer-pitcher IcmpFileTransfer-catcher
 
 create-directories:
@@ -28,7 +28,6 @@ create-directories:
 dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
-# Tool invocations
 IcmpFileTransfer-pitcher: create-directories $(OBJS_FILENAMES)
 	@echo uname is: $(UNAME)
 	@echo 'Building target: $@'
@@ -46,7 +45,6 @@ IcmpFileTransfer-catcher: create-directories $(OBJS_FILENAMES)
 	@echo ' '
 
 
-# Other Targets
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Bin/*

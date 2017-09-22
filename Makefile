@@ -26,7 +26,7 @@ EXAMPLE_TCP_REASM    := Examples/TcpReassembly
 
 UNAME := $(shell uname)
 
-# All Target
+
 all: libs
 	@cd $(PACKETPP_TEST)             && $(MAKE) Packet++Test
 	@cd $(PCAPPP_TEST)               && $(MAKE) Pcap++Test

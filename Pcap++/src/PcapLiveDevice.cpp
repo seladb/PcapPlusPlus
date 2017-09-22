@@ -626,7 +626,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	mib[4] = NET_RT_IFLIST;
 	mib[5] = if_nametoindex(m_Name);
 
-	if ((mib[5] == 0)){
+	if (mib[5] == 0){
 		LOG_ERROR("Error in retrieving MAC address: if_nametoindex error");
 		return;
 	}

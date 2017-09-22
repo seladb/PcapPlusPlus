@@ -36,7 +36,7 @@ Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	@$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
-# All Target
+
 all: Common++.lib Common++.debug
 
 create-directories:
@@ -45,7 +45,6 @@ create-directories:
 	@$(MKDIR) -p Lib/Debug
 	@$(MKDIR) -p Lib/Release
 
-# Tool invocations
 Common++.lib: create-directories $(OBJS_FILENAMES)
 	@echo 'Building target: $@'
 	@$(AR) -r "Lib/Release/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES)
@@ -58,8 +57,6 @@ Common++.debug: create-directories $(OBJS_FILENAMES_DEBUG)
 	@echo 'Finished successfully building target: $@'
 	@echo ' '
 
-
-# Other Targets
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Lib/*

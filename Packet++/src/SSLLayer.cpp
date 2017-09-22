@@ -299,11 +299,11 @@ uint8_t* SSLApplicationDataLayer::getEncrpytedData()
 
 size_t SSLApplicationDataLayer::getEncrpytedDataLen()
 {
-	size_t result = getHeaderLen() - sizeof(ssl_tls_record_layer);
+	int result = (int)getHeaderLen() - (int)sizeof(ssl_tls_record_layer);
 	if (result < 0)
 		return 0;
 
-	return result;
+	return (size_t)result;
 }
 
 std::string SSLApplicationDataLayer::toString()
