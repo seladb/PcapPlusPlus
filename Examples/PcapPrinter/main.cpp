@@ -17,6 +17,8 @@
 #include <RawPacket.h>
 #include <Packet.h>
 #include <PcapFileDevice.h>
+#include <PcapPlusPlusVersion.h>
+#include <SystemUtils.h>
 #include <getopt.h>
 
 using namespace pcpp;
@@ -29,6 +31,7 @@ static struct option PcapPrinterOptions[] =
 	{"filter", required_argument, 0, 'i'},
 	{"summary", no_argument, 0, 's'},
 	{"help", no_argument, 0, 'h'},
+	{"version", no_argument, 0, 'v'},
     {0, 0, 0, 0}
 };
 
@@ -48,14 +51,25 @@ void printUsage()
 {
 	printf("\nUsage:\n"
 			"-------\n"
-			"PcapPrinter [-h] [-o output_file] [-c packet_count] [-i filter] [-s] -f pcap_file\n"
+			"%s [-h] [-v] [-o output_file] [-c packet_count] [-i filter] [-s] -f pcap_file\n"
 			"\nOptions:\n\n"
 			"    -f pcap_file   : Input pcap/pcapng file name\n"
 			"    -o output_file : Save output to text file (default output is stdout)\n"
 			"    -c packet_count: Print only first packet_count number of packet\n"
 			"    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed\n"
 			"    -s             : Print only file summary and exit\n"
-			"    -h             : Displays this help message and exits\n");
+			"    -v             : Displays the current version and exists\n"
+			"    -h             : Displays this help message and exits\n", AppName::get().c_str());
+	exit(0);
+}
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
 	exit(0);
 }
 
@@ -168,7 +182,7 @@ int printPcapNgPackets(PcapNgFileReaderDevice* reader, std::ostream* out, int pa
 		packetCountSoFar++;
 	}
 
-	// return the nubmer of packets that were printed
+	// return the number of packets that were printed
 	return packetCountSoFar;
 }
 
@@ -178,6 +192,8 @@ int printPcapNgPackets(PcapNgFileReaderDevice* reader, std::ostream* out, int pa
  */
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	std::string inputPcapFileName = "";
 	std::string outputPcapFileName = "";
 
@@ -190,7 +206,7 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "f:o:c:i:sh", PcapPrinterOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "f:o:c:i:svh", PcapPrinterOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -213,6 +229,9 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
+				break;
+			case 'v':
+				printAppVersion();
 				break;
 			default:
 				printUsage();

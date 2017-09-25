@@ -244,6 +244,40 @@ namespace pcpp
 	bool directoryExists(std::string dirPath);
 
 	/**
+	 * @class AppName
+	 * This class extracts the application name from the current running executable and stores it for usage of the application throughout its runtime.
+	 * This class should be initialized once in the beginning of the main() method using AppName#init() and from then on the app name could be retrieved using AppName#get()
+	 */
+	class AppName
+	{
+	private:
+		static std::string m_AppName;
+
+	public:
+		/**
+		 * Static init method which should be called once at the beginning of the main method.
+		 * @param[in] argc The argc param from main()
+		 * @param[in] argv The argv param from main()
+		 */
+		static void init(int argc, char* argv[])
+		{
+			if (argc == 0)
+			{
+				m_AppName = "";
+				return;
+			}
+
+			m_AppName = argv[0];
+			m_AppName = m_AppName.substr(0, m_AppName.find(".")).substr(m_AppName.find("\\")+1).substr(m_AppName.find("/")+1);
+		}
+
+		/**
+		 * @return The app name as extracted from the current running executable
+		 */
+		static std::string get() { return m_AppName; }
+	};
+
+	/**
 	 * @class ApplicationEventHandler
 	 * A singleton class that provides callbacks for events that occur during application life-cycle such as ctrl+c pressed,
 	 * application closed, killed, etc.

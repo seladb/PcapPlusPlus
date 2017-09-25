@@ -191,6 +191,10 @@ bool directoryExists(std::string dirPath)
         return false;
 }
 
+
+std::string AppName::m_AppName;
+
+
 #ifdef WIN32
 BOOL WINAPI ApplicationEventHandler::handlerRoutine(DWORD fdwCtrlType)
 {
