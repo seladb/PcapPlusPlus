@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include "PcapPlusPlusVersion.h"
-#include "SystemUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "NetworkUtils.h"
 #include <getopt.h>
+#include "SystemUtils.h"
 
 #define EXIT_WITH_ERROR(reason, ...) do { \
 	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \

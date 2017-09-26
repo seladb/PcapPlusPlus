@@ -10,11 +10,11 @@
 #include <IpAddress.h>
 #include <Logger.h>
 #include <PcapPlusPlusVersion.h>
-#include <SystemUtils.h>
 #include <PcapLiveDeviceList.h>
 #include <PcapLiveDevice.h>
 #include <NetworkUtils.h>
 #include <getopt.h>
+#include <SystemUtils.h>
 
 
 #define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason, ...) do { \
