@@ -1,4 +1,5 @@
 #include <Logger.h>
+#include <PcapPlusPlusVersion.h>
 #include <Packet.h>
 #include <EthLayer.h>
 #include <SllLayer.h>
@@ -6019,6 +6020,10 @@ PACKETPP_TEST(SdpLayerEditTest)
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
+
+	printf("PcapPlusPlus version: %s\n", getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
+	printf("Starting tests...\n\n");
 
 	PACKETPP_START_RUNNING_TESTS;
 

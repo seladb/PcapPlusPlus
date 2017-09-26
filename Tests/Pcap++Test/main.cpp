@@ -31,6 +31,7 @@
 #include <string>
 #include <PcapFilter.h>
 #include <PlatformSpecificUtils.h>
+#include <PcapPlusPlusVersion.h>
 #include <getopt.h>
 #include <stdlib.h>
 #include <SystemUtils.h>
@@ -4302,6 +4303,8 @@ int main(int argc, char* argv[])
 	if (args.debugMode)
 		LoggerPP::getInstance().setAllModlesToLogLevel(LoggerPP::Debug);
 
+	printf("PcapPlusPlus version: %s\n", getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
 	printf("Using ip: %s\n", args.ipToSendReceivePackets.c_str());
 	printf("Debug mode: %s\n", args.debugMode ? "on" : "off");
 	printf("Starting tests...\n");
