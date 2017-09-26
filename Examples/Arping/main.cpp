@@ -9,6 +9,8 @@
 #include <MacAddress.h>
 #include <IpAddress.h>
 #include <Logger.h>
+#include <PcapPlusPlusVersion.h>
+#include <SystemUtils.h>
 #include <PcapLiveDeviceList.h>
 #include <PcapLiveDevice.h>
 #include <NetworkUtils.h>
@@ -33,6 +35,7 @@ static struct option ArpingOptions[] =
 	{"target-ip", required_argument, 0, 'T'},
 	{"count", optional_argument, 0, 'c'},
 	{"help", optional_argument, 0, 'h'},
+	{"version", no_argument, 0, 'v'},
 	{"list", optional_argument, 0, 'l'},
 	{"timeout", optional_argument, 0, 'w'},
     {0, 0, 0, 0}
@@ -43,17 +46,31 @@ static struct option ArpingOptions[] =
  * Print application usage
  */
 void printUsage() {
-	printf("\nUsage: Arping [-hl] [-c count] [-w timeout] [-i interface] [-s mac_sddr] [-S ip_addr] -T ip_addr\n"
+	printf("\nUsage:\n"
+			"------\n"
+			"%s [-hvl] [-c count] [-w timeout] [-i interface] [-s mac_sddr] [-S ip_addr] -T ip_addr\n"
 			"\nOptions:\n\n"
 			"    -h           : Displays this help message and exits\n"
+			"    -v           : Displays the current version and exists\n"
 			"    -l           : Print the list of interfaces and exists\n"
 			"    -c count     : Send 'count' requests\n"
 			"    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address\n"
 			"    -s mac_addr  : Set source MAC address\n"
 			"    -S ip_addr   : Set source IP address\n"
 			"    -T ip_addr   : Set target IP address\n"
-			"    -w timeout   : How long to wait for a reply (in seconds)\n");
+			"    -w timeout   : How long to wait for a reply (in seconds)\n", AppName::get().c_str());
 
+	exit(0);
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
 	exit(0);
 }
 
@@ -79,6 +96,8 @@ void listInterfaces()
  */
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	int maxTries = DEFAULT_MAX_TRIES;
 	MacAddress sourceMac = MacAddress::Zero;
 	IPv4Address sourceIP = IPv4Address::Zero;
@@ -90,7 +109,7 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:s:S:T:c:hlw:", ArpingOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "i:s:S:T:c:hvlw:", ArpingOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -115,6 +134,9 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
+				break;
+			case 'v':
+				printAppVersion();
 				break;
 			case 'l':
 				listInterfaces();

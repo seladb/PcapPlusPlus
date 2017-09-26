@@ -7,6 +7,8 @@
 #endif
 #include <MacAddress.h>
 #include <IpAddress.h>
+#include <PcapPlusPlusVersion.h>
+#include <SystemUtils.h>
 #include <PlatformSpecificUtils.h>
 #include <PcapLiveDeviceList.h>
 #include <PcapLiveDevice.h>
@@ -24,14 +26,38 @@ using namespace pcpp;
 static struct option L3FwdOptions[] =
 {
 	{"interface",  required_argument, 0, 'i'},
-	{"victim", required_argument, 0, 'v'},
+	{"victim", required_argument, 0, 'c'},
 	{"gateway", required_argument, 0, 'g'},
+	{"help", no_argument, 0, 'h'},
+	{"version", no_argument, 0, 'v'},
     {0, 0, 0, 0}
 };
 
-void print_usage() {
-	printf("Usage: ArpSpoofing -i <INTERFACE_IP> -v <VICTIM_IP> -g <GATEWAY_IP> \n\n");
+
+/**
+ * Print application usage
+ */
+void printUsage() {
+	printf("\nUsage:\n"
+			"------\n"
+			"%s -i interface_ip -c victim_ip -g gateway_ip\n"
+			"\nOptions:\n\n"
+			"    -i interface_ip   : The IPv4 address of interface to use\n"
+			"    -c victim_ip      : The IPv4 address of the victim\n"
+			"    -g gateway_ip     : The IPv4 address of the gateway\n", AppName::get().c_str());
 }
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
+	exit(0);
+}
+
 
 MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 {
@@ -78,6 +104,7 @@ MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 	printf("No arp reply was captured. Couldn't retrieve MAC address for IP %s\n", ipAddr.toString().c_str());
 	return MacAddress("");
 }
+
 
 bool doArpSpoofing(PcapLiveDevice* pDevice, const IPv4Address& gatewayAddr, const IPv4Address& victimAddr)
 {
@@ -139,14 +166,17 @@ bool doArpSpoofing(PcapLiveDevice* pDevice, const IPv4Address& gatewayAddr, cons
 	return true;
 }
 
+
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	//Get arguments from user for incoming interface and outgoing interface
 
 	string iface = "", victim = "", gateway = "";
 	int optionIndex = 0;
 	char opt = 0;
-	while((opt = getopt_long (argc, argv, "i:v:g:", L3FwdOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "i:c:g:hv", L3FwdOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -155,14 +185,20 @@ int main(int argc, char* argv[])
 			case 'i':
 				iface = optarg;
 				break;
-			case 'v':
+			case 'c':
 				victim = optarg;
 				break;
 			case 'g':
 				gateway = optarg;
 				break;
+			case 'h':
+				printUsage();
+				break;
+			case 'v':
+				printAppVersion();
+				break;
 			default:
-				print_usage();
+				printUsage();
 				exit(-1);
 		}
 	}
@@ -170,7 +206,7 @@ int main(int argc, char* argv[])
 	//Both incoming and outgoing interfaces must be provided by user
 	if(iface == "" || victim == "" || gateway == "")
 	{
-		print_usage();
+		printUsage();
 		exit(-1);
 	}
 

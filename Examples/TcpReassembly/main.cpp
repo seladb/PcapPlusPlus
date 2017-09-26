@@ -33,6 +33,7 @@
 #include "PcapFileDevice.h"
 #include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
+#include "PcapPlusPlusVersion.h"
 #include "LRUList.h"
 #include <getopt.h>
 
@@ -68,6 +69,7 @@ static struct option TcpAssemblyOptions[] =
 	{"separate-sides", no_argument, 0, 's'},
 	{"max-file-desc", required_argument, 0, 'f'},
 	{"help", no_argument, 0, 'h'},
+	{"version", no_argument, 0, 'v'},
     {0, 0, 0, 0}
 };
 
@@ -272,7 +274,7 @@ void printUsage()
 {
 	printf("\nUsage:\n"
 			"------\n"
-			"TcpReassembly [-hlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]\n"
+			"%s [-hvlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]\n"
 			"\nOptions:\n\n"
 			"    -r input_file : Input pcap/pcapng file to analyze. Required argument for reading from file\n"
 			"    -i interface  : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address. Required argument for capturing from live interface\n"
@@ -283,7 +285,19 @@ void printUsage()
 			"    -m            : Write a metadata file for each connection\n"
 			"    -s            : Write each side of each connection to a separate file (default is writing both sides of each connection to the same file)\n"
 			"    -l            : Print the list of interfaces and exit\n"
-			"    -h            : Display this help message and exit\n\n");
+			"    -v            : Displays the current version and exists\n"
+			"    -h            : Display this help message and exit\n\n", AppName::get().c_str());
+	exit(0);
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
 	exit(0);
 }
 
@@ -549,6 +563,8 @@ void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassem
  */
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	std::string interfaceNameOrIP = "";
 	std::string inputPcapFileName = "";
 	std::string bpfFilter = "";
@@ -561,7 +577,7 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:r:o:e:f:mcshl", TcpAssemblyOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "i:r:o:e:f:mcsvhl", TcpAssemblyOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -593,6 +609,9 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
+				break;
+			case 'v':
+				printAppVersion();
 				break;
 			case 'l':
 				listInterfaces();

@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include "PcapPlusPlusVersion.h"
+#include "SystemUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "NetworkUtils.h"
@@ -20,6 +22,7 @@ static struct option DNSResolverOptions[] =
 	{"gateway", required_argument, 0, 'g'},
 	{"timeout", optional_argument, 0, 't'},
 	{"help", no_argument, 0, 'h'},
+	{"version", no_argument, 0, 'v'},
 	{"list", no_argument, 0, 'l'},
     {0, 0, 0, 0}
 };
@@ -29,17 +32,31 @@ static struct option DNSResolverOptions[] =
  * Print application usage
  */
 void printUsage() {
-	printf("\nUsage: DNSResolver [-hl] [-t timeout] [-d dns_server] [-g gateway] [-i interface] -s hostname\n"
+	printf("\nUsage:\n"
+			"------\n"
+			"%s [-hvl] [-t timeout] [-d dns_server] [-g gateway] [-i interface] -s hostname\n"
 			"\nOptions:\n\n"
 			"    -h           : Displays this help message and exits\n"
+			"    -v           : Displays the current version and exists\n"
 			"    -l           : Print the list of interfaces and exists\n"
 			"    -s hostname  : Hostname to resolve\n"
 			"    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address. If not set\n"
 			"                   one of the interfaces that has a default gateway will be used\n"
 			"    -d dns_server: IPv4 address of DNS server to send the DNS request to. If not set the DNS request will be sent to the gateway\n"
 			"    -g gateway   : IPv4 address of the gateway to send the DNS request to. If not set the default gateway will be chosen\n"
-			"    -t timeout   : How long to wait for a reply (in seconds). Default timeout is 5 seconds\n");
+			"    -t timeout   : How long to wait for a reply (in seconds). Default timeout is 5 seconds\n", AppName::get().c_str());
 
+	exit(0);
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
 	exit(0);
 }
 
@@ -70,6 +87,8 @@ void listInterfaces()
  */
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	std::string hostname;
 	bool hostnameProvided = false;
 	std::string interfaceNameOrIP;
@@ -81,7 +100,7 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:d:g:s:t:hl", DNSResolverOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "i:d:g:s:t:hvl", DNSResolverOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -93,6 +112,11 @@ int main(int argc, char* argv[])
 			{
 				printUsage();
 				exit(0);
+			}
+			case 'v':
+			{
+				printAppVersion();
+				break;
 			}
 			case 'l':
 			{

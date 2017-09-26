@@ -19,6 +19,7 @@
 #include "PcapLiveDeviceList.h"
 #include "PcapFilter.h"
 #include "Common.h"
+#include "SystemUtils.h"
 
 using namespace pcpp;
 
@@ -518,6 +519,8 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
  */
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	bool sender, receiver;
 	IPv4Address pitcherIP = IPv4Address::Zero;
 	IPv4Address catcherIP = IPv4Address::Zero;

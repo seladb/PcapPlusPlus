@@ -9,6 +9,8 @@
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"
 #include "PcapLiveDeviceList.h"
+#include "SystemUtils.h"
+#include "PcapPlusPlusVersion.h"
 
 using namespace pcpp;
 
@@ -31,6 +33,7 @@ static struct option IcmpFTOptions[] =
 	{"block-size", required_argument, 0, 'b'},
 	{"list-interfaces", no_argument, 0, 'l'},
 	{"help", no_argument, 0, 'h'},
+	{"version", no_argument, 0, 'v'},
     {0, 0, 0, 0}
 };
 
@@ -49,7 +52,7 @@ void printUsage(std::string thisSide, std::string otherSide)
 
 	printf("\nUsage:\n"
 			"-------\n"
-			"IcmpFileTransfer-%s [-h] [-l] -i %s_interface -d %s_ip -s file_path -r %s[-b block_size]\n"
+			"%s [-h] [-v] [-l] -i %s_interface -d %s_ip -s file_path -r %s[-b block_size]\n"
 			"\nOptions:\n\n"
 			"    -i %s_interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address\n"
 			"    -d %s_ip        : %s IPv4 address\n"
@@ -59,9 +62,17 @@ void printUsage(std::string thisSide, std::string otherSide)
 			"    -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). Default is %d bytes. Relevant only\n"
 			"                           in send file mode (when -s is set)\n"
 			"    -l                   : Print the list of interfaces and exit\n"
+			"    -v                   : Displays the current version and exists\n"
 			"    -h                   : Display this help message and exit\n",
-			thisSide.c_str(), thisSide.c_str(), otherSide.c_str(), messagesPerSecShort.c_str(), thisSide.c_str(), otherSide.c_str(), otherSide.c_str(), otherSide.c_str(), otherSide.c_str(),
+			AppName::get().c_str(), thisSide.c_str(), otherSide.c_str(), messagesPerSecShort.c_str(), thisSide.c_str(), otherSide.c_str(), otherSide.c_str(), otherSide.c_str(), otherSide.c_str(),
 			messagesPerSecLong.c_str(), DEFAULT_BLOCK_SIZE);
+	exit(0);
+}
+
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
 	exit(0);
 }
 
@@ -97,7 +108,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long(argc, argv, "i:d:s:rp:b:hl", IcmpFTOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "i:d:s:rp:b:hvl", IcmpFTOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -128,6 +139,9 @@ void readCommandLineArguments(int argc, char* argv[],
 				break;
 			case 'h':
 				printUsage(thisSide, otherSide);
+				break;
+			case 'v':
+				printAppVersion();
 				break;
 			case 'l':
 				listInterfaces();

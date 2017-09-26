@@ -30,6 +30,7 @@
 #include "TablePrinter.h"
 #include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
+#include "PcapPlusPlusVersion.h"
 #include <getopt.h>
 
 using namespace pcpp;
@@ -65,6 +66,7 @@ static struct option SSLAnalyzerOptions[] =
 	{"disable-rates-print", no_argument, 0, 'd'},
 	{"list-interfaces", no_argument, 0, 'l'},
 	{"help", no_argument, 0, 'h'},
+	{"version", no_argument, 0, 'v'},
     {0, 0, 0, 0}
 };
 
@@ -84,20 +86,33 @@ void printUsage()
 {
 	printf("\nUsage: PCAP file mode:\n"
 			"----------------------\n"
-			"SSLAnalyzer [-h] -f input_file\n"
+			"%s [-hv] -f input_file\n"
 			"\nOptions:\n\n"
 			"    -f           : The input pcap/pcapng file to analyze. Required argument for this mode\n"
+			"    -v           : Displays the current version and exists\n"
 			"    -h           : Displays this help message and exits\n\n"
 			"Usage: Live traffic mode:\n"
 			"-------------------------\n"
-			"SSLAnalyzer [-hld] [-o output_file] [-r calc_period] -i interface\n"
+			"%s [-hvld] [-o output_file] [-r calc_period] -i interface\n"
 			"\nOptions:\n\n"
 			"    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address\n"
 			"    -o output_file : Save all captured SSL packets to a pcap file. Notice this may cause performance degradation\n"
 			"    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds\n"
 			"    -d             : Disable periodic rates calculation\n"
+			"    -v             : Displays the current version and exists\n"
 			"    -h             : Displays this help message and exits\n"
-			"    -l             : Print the list of interfaces and exists\n");
+			"    -l             : Print the list of interfaces and exists\n", AppName::get().c_str(), AppName::get().c_str());
+	exit(0);
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
 	exit(0);
 }
 
@@ -437,6 +452,8 @@ void analyzeSSLFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, 
  */
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	std::string interfaceNameOrIP = "";
 	bool printRatesPeriodicaly = true;
 	int printRatePeriod = DEFAULT_CALC_RATES_PERIOD_SEC;
@@ -448,7 +465,7 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:f:o:r:hld", SSLAnalyzerOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "i:f:o:r:hvld", SSLAnalyzerOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -468,6 +485,9 @@ int main(int argc, char* argv[])
 				break;
 			case 'd':
 				printRatesPeriodicaly = false;
+				break;
+			case 'v':
+				printAppVersion();
 				break;
 			case 'h':
 				printUsage();

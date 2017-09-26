@@ -31,6 +31,8 @@
 #include <vector>
 #include <map>
 #include <Logger.h>
+#include <PcapPlusPlusVersion.h>
+#include <SystemUtils.h>
 #include <RawPacket.h>
 #include <Packet.h>
 #include <PcapFileDevice.h>
@@ -46,6 +48,7 @@ static struct option PcapSearchOptions[] =
 	{"search", required_argument, 0, 's'},
 	{"detailed-report", required_argument, 0, 'r'},
 	{"set-extensions", required_argument, 0, 'e'},
+	{"version", no_argument, 0, 'v'},
 	{"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
 };
@@ -76,7 +79,7 @@ void printUsage()
 {
 	printf("\nUsage:\n"
 			"-------\n"
-			"PcapPrinter [-h] [-n] [-r file_name] [-e extension_list] -d directory -s search_criteria\n"
+			"%s [-h] [-v] [-n] [-r file_name] [-e extension_list] -d directory -s search_criteria\n"
 			"\nOptions:\n\n"
 			"    -d directory        : Input directory\n"
 			"    -n                  : Don't include sub-directories (default is include them)\n"
@@ -84,7 +87,19 @@ void printUsage()
 			"    -r file_name        : Write a detailed search report to a file\n"
 			"    -e extension_list   : Set file extensions to search. The default is searching '.pcap' and '.pcapng' files.\n"
 			"                          extnesions_list should be a comma-separated list of extensions, for example: pcap,net,dmp\n"
-			"    -h                  : Displays this help message and exits\n");
+			"    -v                  : Displays the current version and exists\n"
+			"    -h                  : Displays this help message and exits\n", AppName::get().c_str());
+	exit(0);
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
 	exit(0);
 }
 
@@ -279,6 +294,8 @@ void searchtDirectories(std::string directory, bool includeSubDirectories, std::
  */
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	std::string inputDirectory = "";
 
 	std::string searchCriteria = "";
@@ -296,7 +313,7 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "d:s:r:e:hn", PcapSearchOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "d:s:r:e:hvn", PcapSearchOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -338,6 +355,9 @@ int main(int argc, char* argv[])
 			}
 			case 'h':
 				printUsage();
+				break;
+			case 'v':
+				printAppVersion();
 				break;
 			default:
 				printUsage();
