@@ -56,5 +56,8 @@
     <ClCompile Include="..\..\Common++\src\SystemUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Common++\src\PcapPlusPlusVersion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

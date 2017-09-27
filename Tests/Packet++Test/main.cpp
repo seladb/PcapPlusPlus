@@ -6023,6 +6023,7 @@ int main(int argc, char* argv[]) {
 
 	printf("PcapPlusPlus version: %s\n", getPcapPlusPlusVersionFull().c_str());
 	printf("Built: %s\n", getBuildDateTime().c_str());
+	printf("Built from: %s\n", getGitInfo().c_str());
 	printf("Starting tests...\n\n");
 
 	PACKETPP_START_RUNNING_TESTS;

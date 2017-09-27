@@ -18,6 +18,10 @@ ifdef MAC_OS_X
 DEPS := -DMAC_OS_X
 endif
 
+GIT_CUR_COMMIT := $(shell git rev-parse --verify HEAD)
+GIT_CUR_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+DEPS += -DGIT_COMMIT=\"$(GIT_CUR_COMMIT)\" -DGIT_BRANCH=\"$(GIT_CUR_BRANCH)\"
+
 INCLUDES := -I"./src" \
 			-I"./header"
 			

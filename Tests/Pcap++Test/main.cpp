@@ -4305,6 +4305,7 @@ int main(int argc, char* argv[])
 
 	printf("PcapPlusPlus version: %s\n", getPcapPlusPlusVersionFull().c_str());
 	printf("Built: %s\n", getBuildDateTime().c_str());
+	printf("Git info: %s\n", getGitInfo().c_str());
 	printf("Using ip: %s\n", args.ipToSendReceivePackets.c_str());
 	printf("Debug mode: %s\n", args.debugMode ? "on" : "off");
 	printf("Starting tests...\n");

@@ -281,6 +281,7 @@ void printAppVersion()
 {
 	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
 	printf("Built: %s\n", getBuildDateTime().c_str());
+	printf("Built from: %s\n", getGitInfo().c_str());
 	exit(0);
 }
 
