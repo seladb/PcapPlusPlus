@@ -124,7 +124,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -146,7 +146,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WINx64;MSVC;_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINx64;MSVC;_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit)"</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
     </ClCompile>
@@ -169,7 +169,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WINx64;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINx64;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
