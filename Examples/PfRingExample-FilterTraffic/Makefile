@@ -21,10 +21,10 @@ CUR_TARGET := $(notdir $(shell pwd))
 
 .SILENT:
 
-start:
-	@echo 'Building target: $(CUR_TARGET)'
-
 all: dependents PfRingTrafficFilter
+
+start:
+	@echo '==> Building target: $(CUR_TARGET)'
 
 create-directories:
 	@$(MKDIR) -p Obj

@@ -24,9 +24,14 @@ Obj/%.o: %.cpp
 
 
 UNAME := $(shell uname)
+CUR_TARGET := $(notdir $(shell pwd))
 
+.SILENT:
 
 all: dependents Packet++Test
+
+start:
+	@echo '==> Building target: $(CUR_TARGET)'
 
 create-directories:
 	@$(MKDIR) -p Obj
@@ -35,17 +40,15 @@ create-directories:
 dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
-Packet++Test: create-directories $(OBJS_FILENAMES)
+Packet++Test: start create-directories $(OBJS_FILENAMES)
 	@cd $(DEBUG_NEW_HOME) && $(MAKE) debug_new_sources
-	@echo uname is: $(UNAME)
-	@echo 'Building target: $@'
 	@$(G++) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Packet++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(DEBUG_NEW_OBJS_FILENAMES) $(PCAPPP_LIBS) 
 	@$(PCAPPP_POST_BUILD)
-	@echo 'Finished successfully building target: $@'
+	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
 
 clean:
 	@cd $(DEBUG_NEW_HOME) && $(MAKE) clean
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Bin/*
-	@echo 'Clean finished'
+	@echo 'Clean finished: $(CUR_TARGET)'

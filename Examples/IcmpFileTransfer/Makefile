@@ -17,9 +17,14 @@ Obj/%.o: %.cpp
 
 
 UNAME := $(shell uname)
+CUR_TARGET := $(notdir $(shell pwd))
 
+.SILENT:
 
 all: dependents IcmpFileTransfer-pitcher IcmpFileTransfer-catcher
+
+start:
+	@echo '==> Building target: $(CUR_TARGET)'
 
 create-directories:
 	@$(MKDIR) -p Obj
@@ -28,24 +33,19 @@ create-directories:
 dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
-IcmpFileTransfer-pitcher: create-directories $(OBJS_FILENAMES)
-	@echo uname is: $(UNAME)
-	@echo 'Building target: $@'
+IcmpFileTransfer-pitcher: start create-directories $(OBJS_FILENAMES)
 	@$(G++) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/IcmpFileTransfer-pitcher$(BIN_EXT)" Obj/Common.o Obj/IcmpFileTransfer-pitcher.o $(PCAPPP_LIBS)
 	@$(PCAPPP_POST_BUILD)
-	@echo 'Finished successfully building target: $@'
+	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
 
-IcmpFileTransfer-catcher: create-directories $(OBJS_FILENAMES)
-	@echo uname is: $(UNAME)
-	@echo 'Building target: $@'
+IcmpFileTransfer-catcher: start create-directories $(OBJS_FILENAMES)
 	@$(G++) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/IcmpFileTransfer-catcher$(BIN_EXT)" Obj/Common.o  Obj/IcmpFileTransfer-catcher.o $(PCAPPP_LIBS)
 	@$(PCAPPP_POST_BUILD)
-	@echo 'Finished successfully building target: $@'
+	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
-
 
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Bin/*
-	@echo 'Clean finished'
+	@echo 'Clean finished: $(CUR_TARGET)'

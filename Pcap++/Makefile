@@ -60,22 +60,27 @@ Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	@$(G++) $(DEPS) $(INCLUDES) $(FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
+CUR_TARGET := $(notdir $(shell pwd))
+
+.SILENT:
 
 all: Pcap++.lib
+
+start:
+	@echo '==> Building target: $(CUR_TARGET)'
 
 create-directories:
 	@$(MKDIR) -p Obj
 	@$(MKDIR) -p Lib
 
-Pcap++.lib: create-directories $(OBJS_FILENAMES)
+Pcap++.lib: start create-directories $(OBJS_FILENAMES)
 	@cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) light_pcapng_sources
-	@echo 'Building target: $@'
 	@$(AR) -r  "Lib/$(LIB_PREFIX)Pcap++$(LIB_EXT)" $(OBJS_FILENAMES) $(LIGHT_PCAPNG_OBJS_FILENAMES)
-	@echo 'Finished successfully building target: $@'
+	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
 
 clean:
 	@cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) clean
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Lib/*
-	@echo 'Clean finished'
+	@echo 'Clean finished: $(CUR_TARGET)'

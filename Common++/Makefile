@@ -36,8 +36,14 @@ Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	@$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
+CUR_TARGET := $(notdir $(shell pwd))
 
-all: Common++.lib Common++.debug
+.SILENT:
+
+all: start Common++.lib Common++.debug
+
+start:
+	@echo '==> Building target: $(CUR_TARGET)'
 
 create-directories:
 	@$(MKDIR) -p Obj
@@ -46,18 +52,16 @@ create-directories:
 	@$(MKDIR) -p Lib/Release
 
 Common++.lib: create-directories $(OBJS_FILENAMES)
-	@echo 'Building target: $@'
 	@$(AR) -r "Lib/Release/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES)
-	@echo 'Finished successfully building target: $@'
+	@echo 'Finished successfully building: $@'
 	@echo ' '
 	
 Common++.debug: create-directories $(OBJS_FILENAMES_DEBUG)
-	@echo 'Building target: $@'
 	@$(AR) -r "Lib/Debug/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES_DEBUG)
-	@echo 'Finished successfully building target: $@'
+	@echo 'Finished successfully building: $@'
 	@echo ' '
 
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Lib/*
-	@echo 'Clean finished'
+	@echo 'Clean finished: $(CUR_TARGET)'

@@ -35,22 +35,27 @@ Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	@$(G++) $(DEPS) $(INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
+CUR_TARGET := $(notdir $(shell pwd))
+
+.SILENT:
 
 all: Packet++
+
+start:
+	@echo '==> Building target: $(CUR_TARGET)'
 
 create-directories:
 	@$(MKDIR) -p Obj
 	@$(MKDIR) -p Lib
 
 
-Packet++: create-directories $(OBJS_FILENAMES)
-	@echo 'Building target: $@'
+Packet++: start create-directories $(OBJS_FILENAMES)
 	@$(AR) -r  "Lib/$(LIB_PREFIX)Packet++$(LIB_EXT)" $(OBJS_FILENAMES)
-	@echo 'Finished successfully building target: $@'
+	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
 
 
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Lib/*
-	@echo 'Clean finished'
+	@echo 'Clean finished: $(CUR_TARGET)'

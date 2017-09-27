@@ -11,10 +11,19 @@ OBJS_FILENAMES := $(patsubst %.cpp,%.o,$(SOURCES))
 	@echo 'Building debug-new file: $<'
 	@$(GCC) -Wall -O2 -g -c -o "$@" "$<"
 
-debug_new_sources: $(OBJS_FILENAMES)
+CUR_TARGET := $(notdir $(shell pwd))
 
-all: debug_new_sources
+.SILENT:
+
+all: start debug_new_sources
+	@echo 'Finished successfully building: $(CUR_TARGET)'
+	@echo ' '
+
+start:
+	@echo '==> Building target: $(CUR_TARGET)'
+
+debug_new_sources: $(OBJS_FILENAMES)
 
 clean:
 	@$(RM) -rf *.o
-	@echo 'Clean finished'
+	@echo 'Clean finished: $(CUR_TARGET)'
