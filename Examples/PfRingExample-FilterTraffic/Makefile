@@ -17,7 +17,12 @@ Obj/%.o: %.cpp
 
 
 UNAME := $(shell uname)
+CUR_TARGET := $(notdir $(shell pwd))
 
+.SILENT:
+
+start:
+	@echo 'Building target: $(CUR_TARGET)'
 
 all: dependents PfRingTrafficFilter
 
@@ -28,15 +33,13 @@ create-directories:
 dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
-PfRingTrafficFilter: create-directories $(OBJS_FILENAMES)
-	@echo uname is: $(UNAME)
-	@echo 'Building target: $@'
+PfRingTrafficFilter: start create-directories $(OBJS_FILENAMES)
 	@$(G++) -DUSE_PF_RING $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/PfRingTrafficFilter$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
 	@$(PCAPPP_POST_BUILD)
-	@echo 'Finished successfully building target: $@'
+	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
 
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Bin/*
-	@echo 'Clean finished'
+	@echo 'Clean finished: $(CUR_TARGET)'
