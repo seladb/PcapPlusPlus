@@ -27,6 +27,7 @@
 #include "TcpLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
+#include "PcapPlusPlusVersion.h"
 
 #include <vector>
 #include <iostream>
@@ -56,8 +57,9 @@ static struct option FilterTrafficOptions[] =
 	{"core-mask",  optional_argument, 0, 'c'},
 	{"mbuf-pool-size",  optional_argument, 0, 'm'},
 	{"help", optional_argument, 0, 'h'},
+	{"version", optional_argument, 0, 'v'},
 	{"list", optional_argument, 0, 'l'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
@@ -66,10 +68,13 @@ static struct option FilterTrafficOptions[] =
  */
 void printUsage()
 {
-	printf("\nUsage: FilterTraffic [-hl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]\n"
+	printf("\nUsage:\n"
+                 "------\n"
+                        "%s [-hvl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]\n"
 			"                     [-c CORE_MASK] [-m POOL_SIZE] -d PORT_1,PORT_3,...,PORT_N\n"
 			"\nOptions:\n\n"
 			"    -h|--help                                  : Displays this help message and exits\n"
+                        "    -v|--version                               : Displays the current version and exits\n"
 			"    -l|--list                                  : Print the list of DPDK ports and exists\n"
 			"    -d|--dpdk-ports PORT_1,PORT_3,...,PORT_N   : A comma-separated list of DPDK port numbers to receive packets from.\n"
 			"                                                 To see all available DPDK ports use the -l switch\n"
@@ -82,7 +87,18 @@ void printUsage()
 			"    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'\n"
 			"    -c|--core-mask            CORE_MASK        : Core mask of cores to use. For example: use 7 (binary 0111) to use cores 0,1,2.\n"
 			"                                                 Default is using all cores except management core\n"
-			"    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with. Default value is 4095\n\n");
+			"    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with. Default value is 4095\n\n", AppName::get().c_str());
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
+	exit(0);
 }
 
 
@@ -233,6 +249,8 @@ void onApplicationInterrupted(void* cookie)
  */
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	std::vector<int> dpdkPortVec;
 
 	bool writePacketsToDisk = false;
@@ -254,7 +272,7 @@ int main(int argc, char* argv[])
 	uint16_t 		dstPortToMatch = 0;
 	ProtocolType	protocolToMatch = UnknownProtocol;
 
-	while((opt = getopt_long (argc, argv, "d:c:s:f:m:i:I:p:P:r:hl", FilterTrafficOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "d:c:s:f:m:i:I:p:P:r:hvl", FilterTrafficOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -367,6 +385,11 @@ int main(int argc, char* argv[])
 			{
 				printUsage();
 				exit(0);
+			}
+			case 'v':
+			{
+				printAppVersion();
+				break;
 			}
 			case 'l':
 			{

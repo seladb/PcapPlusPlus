@@ -34,6 +34,7 @@
 #include <PcapFileDevice.h>
 #include <PacketUtils.h>
 #include <SystemUtils.h>
+#include <PcapPlusPlusVersion.h>
 #include <Logger.h>
 #include <stdlib.h>
 #include <vector>
@@ -56,8 +57,9 @@ static struct option PfFilterTrafficOptions[] =
 	{"match-protocol", required_argument, 0, 'r'},
 	{"num-of-threads",  required_argument, 0, 't'},
 	{"help", no_argument, 0, 'h'},
+	{"version", no_argument, 0, 'v'},
 	{"list", no_argument, 0, 'l'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
@@ -81,10 +83,13 @@ struct CaptureThreadArgs
  */
 void printUsage()
 {
-	printf("\nUsage: PfRingFilterTraffic [-hl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]\n"
+	printf("\nUsage:\n"
+                 "------\n"
+                        "%s [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]\n"
 			"                     [-c NUM_OF_THREADS] -n INTERFACE_NAME\n"
 			"\nOptions:\n\n"
 			"    -h|--help                                  : Displays this help message and exits\n"
+                        "    -v|--version                               : Displays the current version and exits\n"
 			"    -l|--list                                  : Print the list of PF_RING devices and exists\n"
 			"    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from. To see all available interfaces\n"
 			"                                                 use the -l switch\n"
@@ -96,7 +101,18 @@ void printUsage()
 			"    -P|--match-dest-port      PORT             : Match destination TCP/UDP port\n"
 			"    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'\n"
 			"    -t|--num-of-threads       NUM_OF_THREADS   : Number of capture threads to open. Should be in the range of 1 to NUM_OF_CORES_ON_MACHINE-1.\n"
-			"                                                 Default is using all machine cores except the core the application is running on\n");
+			"                                                 Default is using all machine cores except the core the application is running on\n", AppName::get().c_str());
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
+	printf("Built: %s\n", getBuildDateTime().c_str());
+	exit(0);
 }
 
 
@@ -203,6 +219,8 @@ void onApplicationInterrupted(void* cookie)
 
 int main(int argc, char* argv[])
 {
+	AppName::init(argc, argv);
+
 	PfRingDevice* dev = NULL;
 
 	int totalNumOfCores = getNumOfCores();
@@ -222,7 +240,7 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "n:s:t:f:i:I:p:P:r:hl", PfFilterTrafficOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "n:s:t:f:i:I:p:P:r:hvl", PfFilterTrafficOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -317,6 +335,11 @@ int main(int argc, char* argv[])
 			{
 				printUsage();
 				exit(0);
+			}
+			case 'v':
+			{
+				printAppVersion();
+				break;
 			}
 			case 'l':
 			{
