@@ -52,8 +52,10 @@ matrix:
       osx_image: xcode9
 
 before_install:
-  - docker pull seladb/$DOCKER_IMAGE:latest
-  - docker run -itd --name $DOCKER_IMAGE -v $(pwd):/PcapPlusPlus seladb/$DOCKER_IMAGE
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+       docker pull seladb/$DOCKER_IMAGE:latest;
+       docker run -itd --name $DOCKER_IMAGE -v $(pwd):/PcapPlusPlus seladb/$DOCKER_IMAGE;
+    fi
 
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh; fi
