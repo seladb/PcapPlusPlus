@@ -1,30 +1,33 @@
-language: cpp
-
 sudo: required
+language: cpp
+services:
+  - docker
 
 matrix:
   include:
     - os: linux
-      compiler: gcc
+      env:
+        - DOCKER_IMAGE=ubuntu1404
     - os: linux
-      compiler: gcc
-      dist: trusty
+      env:
+        - DOCKER_IMAGE=ubuntu1604
     - os: linux
-      compiler: gcc
-      dist: trusty
-      env: 
-        - DPDK_VER=16.11.1
+      env:
+        - DOCKER_IMAGE=centos7
+    - os: linux
+      env:
+        - DOCKER_IMAGE=fedora26
+    - os: linux
+      env:
+        - DOCKER_IMAGE=ubuntu1604-dpdk1611
         - DPDK_DIR=dpdk-stable-16.11.1
     - os: linux
-      compiler: gcc
-      dist: trusty
-      env: 
-        - DPDK_VER=17.02
+      env:
+        - DOCKER_IMAGE=ubuntu1604-dpdk1702
         - DPDK_DIR=dpdk-17.02
     - os: linux
-      compiler: gcc
-      dist: trusty
-      env: 
+      env:
+        - DOCKER_IMAGE=ubuntu1604-pfring
         - PF_RING=True
     - os: osx
       compiler: clang
@@ -41,23 +44,30 @@ matrix:
     - os: osx
       compiler: clang
       osx_image: xcode8.2
+    - os: osx
+      compiler: clang
+      osx_image: xcode8.3
+    - os: osx
+      compiler: clang
+      osx_image: xcode9
 
-addons:
-  apt:
-    packages:
-    - libpcap-dev
-    - libnuma-dev
-    - net-tools
+before_install:
+  - docker pull seladb/$DOCKER_IMAGE:latest
+  - docker run -itd --name $DOCKER_IMAGE -v $(pwd):/PcapPlusPlus seladb/$DOCKER_IMAGE
 
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh      ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./configure-linux.sh --default; fi
-  - if [[ ! -z $DPDK_VER  ]]; then Deploy/build-dpdk.sh $DPDK_VER $DPDK_DIR && ./configure-linux.sh --dpdk --dpdk-home $PWD/$DPDK_DIR; fi
-  - if [[ ! -z $PF_RING  ]]; then Deploy/build-pfring.sh && ./configure-linux.sh --pf-ring --pf-ring-home $PWD/PF_RING; fi
-  - make all
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --default"; fi
+  - if [[ ! -z $DPDK_DIR ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --dpdk --dpdk-home /$DPDK_DIR"; fi
+  - if [[ ! -z $PF_RING ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING"; fi
   
 script:
-  - cd Tests/Packet++Test
-  - Bin/Packet++Test
-  - cd ../Pcap++Test
-  - sudo Bin/Pcap++Test -n -k 0
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+       make all;
+	   cd Tests/Packet++Test && Bin/Packet++Test;
+	   cd ../Pcap++Test && Bin/Pcap++Test -n;
+	else
+       docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make all";
+	   docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Packet++Test && Bin/Packet++Test";
+	   docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Pcap++Test && Bin/Pcap++Test -n -k 0";
+	fi
