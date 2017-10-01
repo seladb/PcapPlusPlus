@@ -67,7 +67,7 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
        make all;
        cd Tests/Packet++Test && Bin/Packet++Test;
-       cd ../Pcap++Test && Bin/Pcap++Test -n;
+       cd ../Pcap++Test && sudo Bin/Pcap++Test -n;
     else
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make all";
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Packet++Test && Bin/Packet++Test";
