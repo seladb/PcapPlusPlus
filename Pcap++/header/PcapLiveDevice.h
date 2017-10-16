@@ -396,6 +396,8 @@ namespace pcpp
 		 * @return Same as open()
 		 */
 		bool open(DeviceMode mode);
+	protected:
+		pcap_t* doOpen(DeviceMode mode);
 	};
 
 } // namespace pcpp

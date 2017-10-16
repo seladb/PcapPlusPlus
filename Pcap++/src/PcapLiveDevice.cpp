@@ -37,6 +37,8 @@
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
 #endif
 
+static const int DEFAULT_SNAPLEN = 9000;
+
 namespace pcpp
 {
 
@@ -210,14 +212,58 @@ void* PcapLiveDevice::statsThreadMain(void *ptr)
 	return 0;
 }
 
-bool PcapLiveDevice::open(DeviceMode mode)
+pcap_t* PcapLiveDevice::doOpen(DeviceMode mode)
 {
-	char errbuf[PCAP_ERRBUF_SIZE];
-	m_PcapDescriptor = pcap_open_live(m_Name, 9000, mode, LIBPCAP_OPEN_LIVE_TIMEOUT, errbuf);
-	m_PcapSendDescriptor = pcap_open_live(m_Name, 9000, mode, LIBPCAP_OPEN_LIVE_TIMEOUT, errbuf);
-	if (m_PcapDescriptor == NULL || m_PcapSendDescriptor == NULL)
+	char errbuf[PCAP_ERRBUF_SIZE] = {'\0'};
+	pcap_t* pcap = pcap_create(m_Name, errbuf);
+	if (!pcap)
 	{
 		LOG_ERROR("%s", errbuf);
+		return pcap;
+	}
+	int ret = pcap_set_snaplen(pcap, DEFAULT_SNAPLEN);
+	if (ret != 0)
+	{
+		LOG_ERROR("%s", pcap_geterr(pcap));
+	}
+	ret = pcap_set_promisc(pcap, mode);
+	if (ret != 0)
+	{
+		LOG_ERROR("%s", pcap_geterr(pcap));
+	}
+	ret = pcap_set_timeout(pcap, LIBPCAP_OPEN_LIVE_TIMEOUT);
+	if (ret != 0)
+	{
+		LOG_ERROR("%s", pcap_geterr(pcap));
+	}
+
+#ifdef HAS_PCAP_IMMEDIATE_MODE
+	ret = pcap_set_immediate_mode(pcap, 1);
+	if (ret == 0)
+	{
+		LOG_DEBUG("Immediate mode is activated");
+	} else {
+		LOG_ERROR("Failed to activate immediate mode, error code: '%d', error message: '%s'",
+			       ret, pcap_geterr(pcap));
+	}
+#endif
+	LOG_DEBUG("LibPcap version: %s", pcap_lib_version());
+	ret = pcap_activate(pcap);
+	if (ret != 0)
+	{
+		LOG_ERROR("%s", pcap_geterr(pcap));
+		pcap_close(pcap);
+		pcap = NULL;
+	}
+	return pcap;
+}
+
+bool PcapLiveDevice::open(DeviceMode mode)
+{
+	m_PcapDescriptor = doOpen(mode);
+	m_PcapSendDescriptor = doOpen(mode);
+	if (m_PcapDescriptor == NULL || m_PcapSendDescriptor == NULL)
+	{
 		m_DeviceOpened = false;
 		return false;
 	}
@@ -225,6 +271,7 @@ bool PcapLiveDevice::open(DeviceMode mode)
 	LOG_DEBUG("Device '%s' opened", m_Name);
 
 	m_DeviceOpened = true;
+
 	return true;
 }
 
