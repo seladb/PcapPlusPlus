@@ -17,3 +17,7 @@ RM := rm
 CP := cp
 
 MKDIR := mkdir
+
+INSTALL_SCRIPT := install.sh
+
+UNINSTALL_SCRIPT := uninstall.sh

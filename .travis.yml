@@ -68,8 +68,10 @@ script:
        make all;
        cd Tests/Packet++Test && Bin/Packet++Test;
        cd ../Pcap++Test && sudo Bin/Pcap++Test -n;
+       cd ../../ && sudo make install;
     else
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make all";
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Packet++Test && Bin/Packet++Test";
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Pcap++Test && Bin/Pcap++Test -n -k 0";
+       docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make install";
     fi
