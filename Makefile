@@ -115,3 +115,19 @@ endif
 
 	@$(RM) -rf Dist
 	@echo 'Finished successfully cleaning PcapPlusPlus'
+
+INSTALL_DIR=Dist
+
+# Install
+install: | $(INSTALL_DIR)
+	@cd Dist && ../mk/$(INSTALL_SCRIPT)
+	@echo 'Installation complete!'
+
+# Uninstall
+uninstall: | $(INSTALL_DIR)
+	@cd Dist && ../mk/$(UNINSTALL_SCRIPT)
+	@echo 'Uninstallation complete!'
+
+$(INSTALL_DIR):
+	@echo 'Please run make all first' && exit 1
+

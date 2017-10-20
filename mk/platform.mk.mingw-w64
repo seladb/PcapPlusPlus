@@ -19,3 +19,7 @@ RM := rm.exe
 CP := cp.exe
 
 MKDIR := mkdir.exe
+
+INSTALL_SCRIPT := install.bat
+
+UNINSTALL_SCRIPT := uninstall.bat
