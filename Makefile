@@ -116,6 +116,7 @@ endif
 	@$(RM) -rf Dist
 	@echo 'Finished successfully cleaning PcapPlusPlus'
 
+ifndef WIN32
 INSTALL_DIR=Dist
 
 # Install
@@ -131,3 +132,4 @@ uninstall: | $(INSTALL_DIR)
 $(INSTALL_DIR):
 	@echo 'Please run make all first' && exit 1
 
+endif
