@@ -1,4 +1,4 @@
-include ../../../Dist/mk/PcapPlusPlus.mk
+include /usr/local/etc/PcapPlusPlus.mk
 
 # All Target
 all:
