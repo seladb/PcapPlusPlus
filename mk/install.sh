@@ -34,7 +34,7 @@ grep '#define PCAPPLUSPLUS_VERSION ' header/PcapPlusPlusVersion.h | cut -d " " -
 printf '\n'>>PcapPlusPlus.pc
 echo 'URL: https://seladb.github.io/PcapPlusPlus-Doc'>>PcapPlusPlus.pc
 printf 'Libs: '>>PcapPlusPlus.pc
-grep PCAPPP_LIBS ../Dist/PcapPlusPlus.mk | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
+grep PCAPPP_LIBS PcapPlusPlus.mk | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
 printf '\nCFlags: '>>PcapPlusPlus.pc
 grep PCAPPP_INCLUDES PcapPlusPlus.mk | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
 printf '\n'>>PcapPlusPlus.pc
