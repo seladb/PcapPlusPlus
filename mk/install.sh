@@ -16,10 +16,10 @@ cp examples/* /usr/local/bin
 
 # create template makefile 
 cp mk/PcapPlusPlus.mk PcapPlusPlus.mk
-sed -i "/PCAPPLUSPLUS_HOME :=/d" PcapPlusPlus.mk
-sed -i "/# libs dir/d" PcapPlusPlus.mk
-sed -i "/PCAPPP_LIBS_DIR :=/d" PcapPlusPlus.mk
-sed -i "s|PCAPPP_INCLUDES :=.*|PCAPPP_INCLUDES := -I/usr/local/include/pcapplusplus|g" PcapPlusPlus.mk
+sed -i.bak '/PCAPPLUSPLUS_HOME :=/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak 
+sed -i.bak '/# libs dir/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
+sed -i.bak '/PCAPPP_LIBS_DIR :=/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
+sed -i.bak 's|PCAPPP_INCLUDES :=.*|PCAPPP_INCLUDES := -I/usr/local/include/pcapplusplus|g' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
 
 # create PcapPlusPlus.pc
 echo 'prefix=/usr/local'>PcapPlusPlus.pc
