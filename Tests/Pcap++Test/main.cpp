@@ -2011,7 +2011,7 @@ PCAPP_TEST(TestHttpRequestParsing)
 
     int winwinReqs = 0;
     int yad2Reqs = 0;
-    int wcdnReqs = 0;
+    int googleReqs = 0;
 
     int ieReqs = 0;
     int ffReqs = 0;
@@ -2065,8 +2065,8 @@ PCAPP_TEST(TestHttpRequestParsing)
 				winwinReqs++;
 			else if (host == "www.yad2.co.il")
 				yad2Reqs++;
-			else if (host == "msc.wcdn.co.il")
-				wcdnReqs++;
+			else if (host == "www.google.com")
+				googleReqs++;
 		}
 
 		HeaderField* userAgentField = httpReqLayer->getFieldByName("User-Agent");
@@ -2084,33 +2084,16 @@ PCAPP_TEST(TestHttpRequestParsing)
 
     readerDev.close();
 
-//    printf("packetCount: %d (7299)\n", packetCount);
-//    printf("httpPackets: %d (3579)\n", httpPackets);
-//    printf("otherMethodReqs: %d (0)\n", otherMethodReqs);
-//    printf("getReqs: %d (3411)\n", getReqs);
-//    printf("postReqs: %d (156)\n", postReqs);
-//    printf("optionsReqs: %d (7)\n", optionsReqs);
-//    printf("headReqs: %d (5)\n", headReqs);
-//    printf("homeReqs: %d (118)\n", homeReqs);
-//    printf("swfReqs: %d (74)\n", swfReqs);
-//    printf("wcdnReqs: %d (20)\n", wcdnReqs);
-//    printf("yad2Reqs: %d (102)\n", yad2Reqs);
-//    printf("winwinReqs: %d (306)\n", winwinReqs);
-//    printf("ieReqs: %d (719)\n", ieReqs);
-//    printf("ffReqs: %d (1053)\n", ffReqs);
-//    printf("chromeReqs: %d (1702)\n", chromeReqs);
-
-
-    PCAPP_ASSERT(packetCount == 7299, "Packet count is wrong. Actual: %d; Expected: %d", packetCount, 7299);
+    PCAPP_ASSERT(packetCount == 385, "Packet count is wrong. Actual: %d; Expected: %d", packetCount, 385);
 
     // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ")
-    PCAPP_ASSERT(httpPackets == 3579, "HTTP packet count is wrong. Actual: %d; Expected: %d", httpPackets, 3579);
+    PCAPP_ASSERT(httpPackets == 385, "HTTP packet count is wrong. Actual: %d; Expected: %d", httpPackets, 385);
 
 
     PCAPP_ASSERT(otherMethodReqs == 0, "Parsed %d HTTP requests with unexpected method", otherMethodReqs);
 
     // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET ")
-    PCAPP_ASSERT(getReqs == 3411, "Number of GET requests different than expected. Actual: %d; Expected: %d", getReqs, 3411);
+    PCAPP_ASSERT(getReqs == 217, "Number of GET requests different than expected. Actual: %d; Expected: %d", getReqs, 217);
     // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "POST ")
     PCAPP_ASSERT(postReqs == 156, "Number of POST requests different than expected. Actual: %d; Expected: %d", postReqs, 156);
     // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "OPTIONS ")
@@ -2120,24 +2103,24 @@ PCAPP_TEST(TestHttpRequestParsing)
 
 
     // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST ") && (tcp matches "home.*HTTP/1.1")
-    PCAPP_ASSERT(homeReqs == 118, "Number of requests with URI contains 'home' is different than expected. Actual: %d; Expected: %d", homeReqs, 118);
+    PCAPP_ASSERT(homeReqs == 13, "Number of requests with URI contains 'home' is different than expected. Actual: %d; Expected: %d", homeReqs, 13);
     // Wireshark filter: http.request.full_uri contains .swf
-    PCAPP_ASSERT(swfReqs == 74, "Number of requests with URI contains '.swf' is different than expected. Actual: %d; Expected: %d", swfReqs, 74);
+    PCAPP_ASSERT(swfReqs == 4, "Number of requests with URI contains '.swf' is different than expected. Actual: %d; Expected: %d", swfReqs, 4);
 
-    // Wireshark filter: http.host == msc.wcdn.co.il
-    PCAPP_ASSERT(wcdnReqs == 20, "Number of requests from msc.wcdn.co.il is different than expected. Actual: %d; Expected: %d", wcdnReqs, 20);
-    // Wireshark filter: http.host == www.yad2.co.il
-    PCAPP_ASSERT(yad2Reqs == 102, "Number of requests from www.yad2.co.il is different than expected. Actual: %d; Expected: %d", yad2Reqs, 102);
-    // Wireshark filter: http.host == www.winwin.co.il
-    PCAPP_ASSERT(winwinReqs == 306, "Number of requests from www.winwin.co.il is different than expected. Actual: %d; Expected: %d", winwinReqs, 306);
+    // Wireshark filter: tcp contains "Host: www.google.com"
+    PCAPP_ASSERT(googleReqs == 12, "Number of requests from www.google.com is different than expected. Actual: %d; Expected: %d", googleReqs, 12);
+    // Wireshark filter: tcp contains "Host: www.yad2.co.il"
+    PCAPP_ASSERT(yad2Reqs == 15, "Number of requests from www.yad2.co.il is different than expected. Actual: %d; Expected: %d", yad2Reqs, 15);
+    // Wireshark filter: tcp contains "Host: www.winwin.co.il"
+    PCAPP_ASSERT(winwinReqs == 20, "Number of requests from www.winwin.co.il is different than expected. Actual: %d; Expected: %d", winwinReqs, 20);
 
 
     // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Firefox/33.0")
-    PCAPP_ASSERT(ffReqs == 1053, "Number of Firefox requests is different than expected. Actual: %d; Expected: %d", ffReqs, 1053);
+    PCAPP_ASSERT(ffReqs == 233, "Number of Firefox requests is different than expected. Actual: %d; Expected: %d", ffReqs, 233);
     // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Chrome/38.0")
-    PCAPP_ASSERT(chromeReqs == 1702, "Number of Chrome requests is different than expected. Actual: %d; Expected: %d", chromeReqs, 1702);
+    PCAPP_ASSERT(chromeReqs == 82, "Number of Chrome requests is different than expected. Actual: %d; Expected: %d", chromeReqs, 82);
     // Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Trident/7.0")
-    PCAPP_ASSERT(ieReqs == 719, "Number of IE requests is different than expected. Actual: %d; Expected: %d", ieReqs, 719);
+    PCAPP_ASSERT(ieReqs == 55, "Number of IE requests is different than expected. Actual: %d; Expected: %d", ieReqs, 55);
 
 	PCAPP_TEST_PASSED;
 }
@@ -2205,7 +2188,7 @@ PCAPP_TEST(TestHttpResponseParsing)
 
     }
 
-    PCAPP_ASSERT(packetCount == 7435, "Packet count is different than expected. Found: %d; Expected: 7435", packetCount);
+    PCAPP_ASSERT(packetCount == 682, "Packet count is different than expected. Found: %d; Expected: 682", packetCount);
 
     // *** wireshark has a bug there and displays 1 less packet as http response. Missing packet IP ID is 10419 ***
     // ************************************************************************************************************
