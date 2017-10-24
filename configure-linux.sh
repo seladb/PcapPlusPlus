@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo ""
 echo "****************************************"
 echo "PcapPlusPlus Linux configuration script "
@@ -14,7 +16,7 @@ function HELP {
    echo "  1) Without any switches. In this case the script will guide you through using wizards"
    echo "  2) With switches, as described below"
    echo ""
-   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] ${NORM}"\\n
+   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] ${NORM}"\\n
    echo "The following switches are recognized."
    echo "${REV}--default${NORM}      --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""
@@ -23,6 +25,7 @@ function HELP {
    echo ""
    echo "${REV}--dpdk${NORM}         --Setup PcapPlusPlus with DPDK. In this case you must also set --dpdk-home"
    echo "${REV}--dpdk-home${NORM}    --Sets DPDK home directoy. Use only when --dpdk is set"
+   echo "${REV}--use-immediate-mode  --Sets pcap_set_immediate_mode to 1"
    echo ""
    echo -e "${REV}-h|--help${NORM}      --Displays this help message and exits. No further functions are performed."\\n
    echo -e "Examples:"
@@ -40,6 +43,7 @@ PF_RING_HOME=""
 # initializing DPDK variables
 COMPILE_WITH_DPDK=0
 DPDK_HOME=""
+HAS_PCAP_IMMEDIATE_MODE=0
 
 #Check the number of arguments. If none are passed, continue to wizard mode.
 NUMARGS=$#
@@ -96,9 +100,9 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help -- "$@"`
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode -- "$@"`
 
-   # if user put an illegal switch - print HELP and exit 
+   # if user put an illegal switch - print HELP and exit
    if [ $? -ne 0 ]; then
       HELP
    fi
@@ -121,7 +125,7 @@ else
        --pf-ring-home)
          PF_RING_HOME=$2
          if [ ! -d "$PF_RING_HOME" ]; then
-            echo "PG_RING home directory '$PF_RING_HOME' not found. Exiting..."         
+            echo "PG_RING home directory '$PF_RING_HOME' not found. Exiting..."
             exit 1
          fi
          shift 2 ;;
@@ -135,10 +139,14 @@ else
        --dpdk-home)
          DPDK_HOME=$2
          if [ ! -d "$DPDK_HOME" ]; then
-            echo "DPDK home directory '$DPDK_HOME' not found. Exiting..."         
+            echo "DPDK home directory '$DPDK_HOME' not found. Exiting..."
             exit 1
          fi
          shift 2 ;;
+
+	   --use-immediate-mode)
+       HAS_PCAP_IMMEDIATE_MODE=1
+	   shift ;;
 
        # help switch - display help and exit
        -h|--help)
@@ -167,7 +175,7 @@ else
    if [[ $COMPILE_WITH_DPDK > 0 && $DPDK_HOME == "" ]] ; then
       echo "Switch --dpdk-home wasn't set. Exiting..."
       exit 1
-   fi 
+   fi
 
    ### End getopts code ###
 fi
@@ -182,10 +190,10 @@ cp -f mk/platform.mk.linux $PLATFORM_MK
 # copy the common (all platforms) PcapPlusPlus.mk
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
 
-# add the Linux definitions to PcapPlusPlus.mk 
+# add the Linux definitions to PcapPlusPlus.mk
 cat mk/PcapPlusPlus.mk.linux >> $PCAPPLUSPLUS_MK
 
-# set current directory as PCAPPLUSPLUS_HOME in platform.mk  
+# set current directory as PCAPPLUSPLUS_HOME in platform.mk
 echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
 
 # set current direcrtory as PCAPPLUSPLUS_HOME in PcapPlusPlus.mk (write it in the first line of the file)
@@ -199,7 +207,7 @@ if (( $COMPILE_WITH_PF_RING > 0 )) ; then
 
    # set PF_RING_HOME variable in platform.mk
    echo -e "\n\nPF_RING_HOME := "$PF_RING_HOME >> $PLATFORM_MK
-  
+
    # set PF_RING_HOME variable in PcapPlusPlus.mk (write it in the second line of the file)
    sed -i "2s|^|PF_RING_HOME := $PF_RING_HOME\n\n|" $PCAPPLUSPLUS_MK
 fi
@@ -234,6 +242,10 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
    # replace the RTE_SDK placeholder with DPDK home
    sed -i "s|###RTE_SDK###|$DPDK_HOME|g" setup-dpdk.sh
 
+fi
+
+if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
+   echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
 
 # finished setup script

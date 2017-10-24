@@ -4,6 +4,12 @@ endif
 
 include ../mk/platform.mk
 
+ifeq ($(wildcard ../mk/PcapPlusPlus.mk),)
+  $(error PcapPlusPlus.mk not found! Please run configure script first)
+endif
+
+include ../mk/PcapPlusPlus.mk
+
 SOURCES := $(wildcard src/*.cpp)
 OBJS_FILENAMES := $(patsubst src/%.cpp,Obj/%.o,$(SOURCES))
 
@@ -51,6 +57,9 @@ ifdef USE_DPDK
 INCLUDES += -I"$(RTE_SDK)/build/include"
 endif
 
+ifdef HAS_PCAP_IMMEDIATE_MODE
+DEPS += -DHAS_PCAP_IMMEDIATE_MODE
+endif
 
 ifdef USE_DPDK
 FLAGS := -msse -msse2 -msse3 -mssse3
