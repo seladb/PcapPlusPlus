@@ -1,0 +1,37 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.dll
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+#vim
+*.swp
+*.swo
+
+#pcap and pcapng files
+*.pcap
+*.pcapng
+
+#Bin and Obj directories
+**/Bin
+**/Obj
+
+
+#Distribtion folder
+Dist/
+
+#auto-generated make files
+mk/PcapPlusPlus.mk
+mk/platform.mk
+mk/PcapPlusPlus.mk-e
+#curl text
+Tests/Pcap++Test/cUrl/curl_output.txt
