@@ -17,19 +17,21 @@ function HELP {
    echo "  2) With switches, as described below"
    echo ""
    echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] ${NORM}"\\n
-   echo "The following switches are recognized."
-   echo "${REV}--default${NORM}      --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
+   echo "The following switches are recognized:"
+   echo "${REV}--default${NORM}             --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""
-   echo "${REV}--pf-ring${NORM}      --Setup PcapPlusPlus with PF_RING. In this case you must also set --pf-ring-home"
-   echo "${REV}--pf-ring-home${NORM} --Sets PF_RING home directory. Use only when --pf-ring is set"
+   echo "${REV}--pf-ring${NORM}             --Setup PcapPlusPlus with PF_RING. In this case you must also set --pf-ring-home"
+   echo "${REV}--pf-ring-home${NORM}        --Sets PF_RING home directory. Use only when --pf-ring is set"
    echo ""
-   echo "${REV}--dpdk${NORM}         --Setup PcapPlusPlus with DPDK. In this case you must also set --dpdk-home"
-   echo "${REV}--dpdk-home${NORM}    --Sets DPDK home directoy. Use only when --dpdk is set"
-   echo "${REV}--use-immediate-mode  --Sets pcap_set_immediate_mode to 1"
+   echo "${REV}--dpdk${NORM}                --Setup PcapPlusPlus with DPDK. In this case you must also set --dpdk-home"
+   echo "${REV}--dpdk-home${NORM}           --Sets DPDK home directoy. Use only when --dpdk is set"
    echo ""
-   echo -e "${REV}-h|--help${NORM}      --Displays this help message and exits. No further functions are performed."\\n
+   echo "${REV}--use-immediate-mode${NORM}  --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
+   echo ""
+   echo -e "${REV}-h|--help${NORM}             --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
    echo -e "      ${BOLD}$SCRIPT --default${NORM}"
+   echo -e "      ${BOLD}$SCRIPT --use-immediate-mode${NORM}"
    echo -e "      ${BOLD}$SCRIPT --pf-ring --pf-ring-home /home/myuser/PF_RING${NORM}"
    echo -e "      ${BOLD}$SCRIPT --dpdk --dpdk-home /home/myuser/dpdk-2.1.0${NORM}"
    echo ""
@@ -144,9 +146,10 @@ else
          fi
          shift 2 ;;
 
-	   --use-immediate-mode)
-       HAS_PCAP_IMMEDIATE_MODE=1
-	   shift ;;
+       # enable libpcap immediate mode
+       --use-immediate-mode)
+         HAS_PCAP_IMMEDIATE_MODE=1
+	 shift ;;
 
        # help switch - display help and exit
        -h|--help)

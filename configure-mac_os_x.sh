@@ -12,15 +12,13 @@ SCRIPT=`basename ${BASH_SOURCE[0]}`
 # help function
 function HELP {
    echo -e \\n"Help documentation for ${BOLD}${SCRIPT}.${NORM}"\\n
-   echo "This script has 2 modes of operation:"
-   echo ""
    echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--use-immediate-mode] ${NORM}"\\n
-   echo "The following switches are recognized."
-   echo "${REV}--use-immediate-mode  --Sets pcap_set_immediate_mode to 1"
+   echo "The following switches are recognized:"
+   echo "${REV}--use-immediate-mode${NORM}  --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
    echo ""
-   echo -e "${REV}-h|--help${NORM}      --Displays this help message and exits. No further functions are performed."\\n
+   echo -e "${REV}-h|--help${NORM}             --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
-   echo -e "      ${BOLD}$SCRIPT --default${NORM}"
+   echo -e "      ${BOLD}$SCRIPT${NORM}"
    echo -e "      ${BOLD}$SCRIPT --use-immediate-mode${NORM}"
    echo ""
    exit 1
@@ -43,26 +41,27 @@ do
 case $i in
    # default switch - do nothing basically
    --default)
-	 shift ;;
+     shift ;;
 
+   # enable libpcap immediate mode
    --use-immediate-mode)
-   HAS_PCAP_IMMEDIATE_MODE=1
-   shift ;;
+     HAS_PCAP_IMMEDIATE_MODE=1
+     shift ;;
 
    # help switch - display help and exit
    -h|--help)
-	 HELP
-	 ;;
+     HELP
+     ;;
 
    # empty switch - just go on
    --)
-	 shift ; break ;;
+     shift ; break ;;
 
    # illegal switch
    *)
-	 echo -e \\n"Option -${BOLD}$OPTARG${NORM} not allowed."
-	 HELP
-	 ;;
+     echo -e \\n"Option -${BOLD}$OPTARG${NORM} not allowed."
+     HELP
+     ;;
 esac
 done
 
