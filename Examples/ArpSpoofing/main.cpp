@@ -40,11 +40,15 @@ static struct option L3FwdOptions[] =
 void printUsage() {
 	printf("\nUsage:\n"
 			"------\n"
-			"%s -i interface_ip -c victim_ip -g gateway_ip\n"
+			"%s [-hv] -i interface_ip -c victim_ip -g gateway_ip\n"
 			"\nOptions:\n\n"
 			"    -i interface_ip   : The IPv4 address of interface to use\n"
 			"    -c victim_ip      : The IPv4 address of the victim\n"
-			"    -g gateway_ip     : The IPv4 address of the gateway\n", AppName::get().c_str());
+			"    -g gateway_ip     : The IPv4 address of the gateway\n"
+			"    -h                : Displays this help message and exits\n"
+			"    -v                : Displays the current version and exists\n", AppName::get().c_str());
+			
+	exit(0);
 }
 
 
