@@ -87,7 +87,7 @@ fi
 # install kernel modules
 IFS=","
 for NIC_TO_BIND in $NICS_TO_BIND ; do	
-	ifconfig | grep -s "^$NIC_TO_BIND " > /dev/null
+	ifconfig | grep -s "^$NIC_TO_BIND" > /dev/null
 	if [ $? -eq 1 ] ; then
 		echo "2. $NIC_TO_BIND is already binded to DPDK or doesn't exist. Exiting"
 		echo

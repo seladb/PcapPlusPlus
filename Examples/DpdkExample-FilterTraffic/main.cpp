@@ -411,18 +411,24 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("DPDK ports list is empty. Please use the -d switch");
 	}
 
+	// extract core vector from core mask
+	vector<SystemCore> coresToUse;
+	createCoreVectorFromCoreMask(coreMaskToUse, coresToUse);
+
+	// need minimum of 2 cores to start - 1 management core + 1 (or more) worker thread(s)
+	if (coresToUse.size() < 2)
+	{
+		EXIT_WITH_ERROR("Needed minimum of 2 cores to start the application");
+	}
+
 	// initialize DPDK
 	if (!DpdkDeviceList::initDpdk(coreMaskToUse, mBufPoolSize))
 	{
-		EXIT_WITH_ERROR("couldn't initialize DPDK");
+		EXIT_WITH_ERROR("Couldn't initialize DPDK");
 	}
 
 	// removing DPDK master core from core mask because DPDK worker threads cannot run on master core
 	coreMaskToUse = coreMaskToUse & ~(DpdkDeviceList::getInstance().getDpdkMasterCore().Mask);
-
-	// extract core vector from core mask
-	vector<SystemCore> coresToUse;
-	createCoreVectorFromCoreMask(coreMaskToUse, coresToUse);
 
 	// collect the list of DPDK devices
 	vector<DpdkDevice*> dpdkDevicesToUse;
