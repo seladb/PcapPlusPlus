@@ -430,6 +430,10 @@ int main(int argc, char* argv[])
 	// removing DPDK master core from core mask because DPDK worker threads cannot run on master core
 	coreMaskToUse = coreMaskToUse & ~(DpdkDeviceList::getInstance().getDpdkMasterCore().Mask);
 
+	// re-calculate cores to use after removing master core
+	coresToUse.clear();
+	createCoreVectorFromCoreMask(coreMaskToUse, coresToUse);
+
 	// collect the list of DPDK devices
 	vector<DpdkDevice*> dpdkDevicesToUse;
 	for (vector<int>::iterator iter = dpdkPortVec.begin(); iter != dpdkPortVec.end(); iter++)
