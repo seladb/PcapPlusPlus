@@ -38,6 +38,7 @@ PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Ze
 PfRingDevice::~PfRingDevice()
 {
 	close();
+	delete [] m_PfRingDescriptors;
 }
 
 
@@ -764,7 +765,7 @@ bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, boo
 		{
 			tries++;
 			LOG_DEBUG("Try #%d: Got ENOBUFS (write buffer full) error while sending packet. Sleeping 20 usec and trying again", tries);
-			usleep(20);
+			usleep(2000);
 		}
 		else
 			break;

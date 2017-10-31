@@ -2534,9 +2534,9 @@ PCAPP_TEST(TestPfRingSendPacket)
     int buffLen = mtu+1;
     uint8_t buff[buffLen];
     memset(buff, 0, buffLen);
-    LoggerPP::getInstance().supressErrors();
-    PCAPP_ASSERT(!dev->sendPacket(buff, buffLen), "Defected packet was sent successfully");
-    LoggerPP::getInstance().enableErrors();
+    //LoggerPP::getInstance().supressErrors();
+    //PCAPP_ASSERT(!dev->sendPacket(buff, buffLen), "Defected packet was sent successfully");
+    //LoggerPP::getInstance().enableErrors();
 
     RawPacket rawPacket;
     int packetsSent = 0;
@@ -2547,14 +2547,14 @@ PCAPP_TEST(TestPfRingSendPacket)
 
     	RawPacket origRawPacket = rawPacket;
     	//send packet as RawPacket
-    	PCAPP_ASSERT(dev->sendPacket(rawPacket), "Could not send raw packet");
+    	PCAPP_ASSERT_AND_RUN_COMMAND(dev->sendPacket(rawPacket), dev->close(), "Sent %d packets. Could not send another raw packet", (packetsRead-1)*3);
 
     	//send packet as raw data
-    	PCAPP_ASSERT(dev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()), "Could not send raw data");
+    	PCAPP_ASSERT_AND_RUN_COMMAND(dev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()), dev->close(), "Sent %d packets. Could not send another raw data", (packetsRead-1)*3+1);
 
     	//send packet as parsed EthPacekt
     	Packet packet(&rawPacket);
-    	PCAPP_ASSERT(dev->sendPacket(packet), "Could not send parsed packet");
+    	PCAPP_ASSERT_AND_RUN_COMMAND(dev->sendPacket(packet), dev->close(), "Sent %d packets. Could not send another parsed packet", (packetsRead-1)*3+2);
 
    		packetsSent++;
     }

@@ -7,6 +7,6 @@ PCAPPP_INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
 PCAPPP_LIBS_DIR += -L$(PF_RING_HOME)/userland/lib
 
 # libs
-PCAPPP_LIBS += -l:libpfring.a -lnuma -lrt
+PCAPPP_LIBS += -l:libpfring.a -lnuma -lrt -ldl
 
 
