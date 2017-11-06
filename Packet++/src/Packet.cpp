@@ -53,7 +53,8 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 	{
 		m_FirstLayer = new NullLoopbackLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	}
-	else if (m_RawPacket && (m_RawPacket->getLinkLayerType() == LINKTYPE_RAW || m_RawPacket->getLinkLayerType() == LINKTYPE_DLT_RAW1 || m_RawPacket->getLinkLayerType() == LINKTYPE_DLT_RAW2))
+	else if (m_RawPacket && (m_RawPacket->getLinkLayerType() == LINKTYPE_RAW || m_RawPacket->getLinkLayerType() == LINKTYPE_DLT_RAW1 || m_RawPacket->getLinkLayerType() == LINKTYPE_DLT_RAW2
+				|| m_RawPacket->getLinkLayerType() == LINKTYPE_IPV4))
 	{
 		uint8_t ipVer = m_RawPacket->getRawData()[0] & 0xf0;
 		if (ipVer == 0x40)
