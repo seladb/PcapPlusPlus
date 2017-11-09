@@ -133,6 +133,7 @@ bool PcapFileReaderDevice::open()
 		case LINKTYPE_LINUX_SLL:
 		case LINKTYPE_NULL:
 		case LINKTYPE_RAW:
+	        case LINKTYPE_IPV4:
 		case LINKTYPE_DLT_RAW1:
 		case LINKTYPE_DLT_RAW2:
 			break;
