@@ -16,7 +16,7 @@ function HELP {
    echo "  1) Without any switches. In this case the script will guide you through using wizards"
    echo "  2) With switches, as described below"
    echo ""
-   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] ${NORM}"\\n
+   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--install-dir]${NORM}"\\n
    echo "The following switches are recognized:"
    echo "${REV}--default${NORM}             --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""
@@ -28,10 +28,13 @@ function HELP {
    echo ""
    echo "${REV}--use-immediate-mode${NORM}  --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
    echo ""
+   echo "${REV}--install-dir${NORM}         --Installation directory. Default is /usr/local"
+   echo ""
    echo -e "${REV}-h|--help${NORM}             --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
    echo -e "      ${BOLD}$SCRIPT --default${NORM}"
    echo -e "      ${BOLD}$SCRIPT --use-immediate-mode${NORM}"
+   echo -e "      ${BOLD}$SCRIPT --install-dir /home/myuser/my-install-dir${NORM}"
    echo -e "      ${BOLD}$SCRIPT --pf-ring --pf-ring-home /home/myuser/PF_RING${NORM}"
    echo -e "      ${BOLD}$SCRIPT --dpdk --dpdk-home /home/myuser/dpdk-2.1.0${NORM}"
    echo ""
@@ -46,6 +49,9 @@ PF_RING_HOME=""
 COMPILE_WITH_DPDK=0
 DPDK_HOME=""
 HAS_PCAP_IMMEDIATE_MODE=0
+
+# default installation directory
+INSTALL_DIR=/usr/local
 
 #Check the number of arguments. If none are passed, continue to wizard mode.
 NUMARGS=$#
@@ -102,7 +108,7 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode -- "$@"`
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,install-dir: -- "$@"`
 
    # if user put an illegal switch - print HELP and exit
    if [ $? -ne 0 ]; then
@@ -150,6 +156,15 @@ else
        --use-immediate-mode)
          HAS_PCAP_IMMEDIATE_MODE=1
 	 shift ;;
+
+       # installation directory prefix
+       --install-dir)
+         INSTALL_DIR=$2
+         if [ ! -d "$INSTALL_DIR" ]; then
+            echo "Installation directory '$INSTALL_DIR' not found. Exiting..."
+            exit 1
+         fi
+         shift 2 ;;
 
        # help switch - display help and exit
        -h|--help)
@@ -251,5 +266,15 @@ if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
    echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
 
+# generate installation and uninstallation scripts
+cp mk/install.sh.template mk/install.sh
+sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/install.sh && rm mk/install.sh.bak
+chmod +x mk/install.sh
+
+cp mk/uninstall.sh.template mk/uninstall.sh
+sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/uninstall.sh && rm mk/uninstall.sh.bak
+chmod +x mk/install.sh
+
+
 # finished setup script
-echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK"
+echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK, mk/install.sh, mk/uninstall.sh"

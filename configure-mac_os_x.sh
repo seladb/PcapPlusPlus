@@ -12,19 +12,25 @@ SCRIPT=`basename ${BASH_SOURCE[0]}`
 # help function
 function HELP {
    echo -e \\n"Help documentation for ${BOLD}${SCRIPT}.${NORM}"\\n
-   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--use-immediate-mode] ${NORM}"\\n
+   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--use-immediate-mode] [--install-dir]${NORM}"\\n
    echo "The following switches are recognized:"
    echo "${REV}--use-immediate-mode${NORM}  --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
+   echo ""
+   echo "${REV}--install-dir${NORM}         --Set installation directory. Default is /usr/local"
    echo ""
    echo -e "${REV}-h|--help${NORM}             --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
    echo -e "      ${BOLD}$SCRIPT${NORM}"
    echo -e "      ${BOLD}$SCRIPT --use-immediate-mode${NORM}"
+   echo -e "      ${BOLD}$SCRIPT --install-dir /home/myuser/my-install-dir${NORM}"
    echo ""
    exit 1
 }
 
 HAS_PCAP_IMMEDIATE_MODE=0
+
+# default installation directory
+INSTALL_DIR=/usr/local
 
 #Check the number of arguments. If none are passed, continue to wizard mode.
 NUMARGS=$#
@@ -36,32 +42,43 @@ if [ $? -ne 0 ]; then
   HELP
 fi
 
+EXPECTING_VALUE=0
 for i in "$@"
 do
 case $i in
    # default switch - do nothing basically
    --default)
-     shift ;;
+     ;;
 
    # enable libpcap immediate mode
    --use-immediate-mode)
-     HAS_PCAP_IMMEDIATE_MODE=1
-     shift ;;
+     HAS_PCAP_IMMEDIATE_MODE=1 ;;
+
+   # installation directory prefix
+   --install-dir)
+     INSTALL_DIR=$2
+     if [ ! -d "$INSTALL_DIR" ]; then
+        echo "Installation directory '$INSTALL_DIR' not found. Exiting..."
+        exit 1
+     fi
+     EXPECTING_VALUE=1 ;;
 
    # help switch - display help and exit
    -h|--help)
-     HELP
-     ;;
+     HELP ;;
 
    # empty switch - just go on
    --)
-     shift ; break ;;
+     break ;;
 
    # illegal switch
    *)
-     echo -e \\n"Option -${BOLD}$OPTARG${NORM} not allowed."
-     HELP
-     ;;
+     if [ "$EXPECTING_VALUE" -eq "1" ]; then
+        EXPECTING_VALUE=0
+     else
+        echo -e \\n"Option ${BOLD}$i${NORM} not allowed.";
+        HELP;
+     fi ;;
 esac
 done
 
@@ -81,4 +98,13 @@ if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
    echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
 
-echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK"
+# generate installation and uninstallation scripts
+cp mk/install.sh.template mk/install.sh
+sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/install.sh && rm mk/install.sh.bak
+chmod +x mk/install.sh
+
+cp mk/uninstall.sh.template mk/uninstall.sh
+sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/uninstall.sh && rm mk/uninstall.sh.bak
+chmod +x mk/install.sh
+
+echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK", mk/install.sh, mk/uninstall.sh
