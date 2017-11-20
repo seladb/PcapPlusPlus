@@ -3731,13 +3731,9 @@ RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, in
 		}
 	}
 
-	Layer* curLayer = tcpLayer->getNextLayer();
-	while (curLayer != NULL)
-	{
-		Layer* nextLayer = curLayer->getNextLayer();
-		packet.removeLayer(curLayer);
-		curLayer = nextLayer;
-	}
+	Layer* layerToRemove = tcpLayer->getNextLayer();
+	if (layerToRemove != NULL)
+		packet.removeLayer(layerToRemove);
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htonl(ntohl(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 
