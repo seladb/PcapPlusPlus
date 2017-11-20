@@ -31,7 +31,6 @@ namespace pcpp
 		Layer* m_LastLayer;
 		uint64_t m_ProtocolTypes;
 		size_t m_MaxPacketLen;
-		std::vector<Layer*> m_LayersAllocatedInPacket;
 		bool m_FreeRawPacket;
 
 	public:

@@ -45,15 +45,24 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 	m_MaxPacketLen = rawPacket->getRawDataLen();
 	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
-	if (m_RawPacket && m_RawPacket->getLinkLayerType() == LINKTYPE_LINUX_SLL)
+	if (m_RawPacket == NULL)
+		return;
+
+	LinkLayerType linkType = m_RawPacket->getLinkLayerType();
+
+	if (linkType == LINKTYPE_ETHERNET)
+	{
+		m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+	}
+	else if (linkType == LINKTYPE_LINUX_SLL)
 	{
 		m_FirstLayer = new SllLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	}
-	else if (m_RawPacket && m_RawPacket->getLinkLayerType() == LINKTYPE_NULL)
+	else if (linkType == LINKTYPE_NULL)
 	{
 		m_FirstLayer = new NullLoopbackLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	}
-	else if (m_RawPacket && (m_RawPacket->getLinkLayerType() == LINKTYPE_RAW || m_RawPacket->getLinkLayerType() == LINKTYPE_DLT_RAW1 || m_RawPacket->getLinkLayerType() == LINKTYPE_DLT_RAW2))
+	else if (linkType == LINKTYPE_RAW || linkType == LINKTYPE_DLT_RAW1 || linkType == LINKTYPE_DLT_RAW2)
 	{
 		uint8_t ipVer = m_RawPacket->getRawData()[0] & 0xf0;
 		if (ipVer == 0x40)
@@ -63,7 +72,7 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 		else
 			m_FirstLayer = new PayloadLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), NULL, this);
 	}
-	else
+	else // unknown link type
 	{
 		m_FirstLayer = new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
 	}
@@ -74,7 +83,7 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 	{
 		m_ProtocolTypes |= curLayer->getProtocol();
 		curLayer->parseNextLayer();
-		m_LayersAllocatedInPacket.push_back(curLayer);
+		curLayer->m_IsAllocatedInPacket = true;
 		curLayer = curLayer->getNextLayer();
 		if (curLayer != NULL)
 			m_LastLayer = curLayer;
@@ -83,7 +92,7 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 	if (curLayer != NULL && (curLayer->getProtocol() & parseUntil) != 0)
 	{
 		m_ProtocolTypes |= curLayer->getProtocol();
-		m_LayersAllocatedInPacket.push_back(curLayer);
+		curLayer->m_IsAllocatedInPacket = true;
 	}
 
 	if (curLayer != NULL &&  curLayer->getOsiModelLayer() > parseUntilLayer)
@@ -98,6 +107,7 @@ Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil
 {
 	m_FreeRawPacket = false;
 	m_RawPacket = NULL;
+	m_FirstLayer = NULL;
 	setRawPacket(rawPacket, freeRawPacket, parseUntil, parseUntilLayer);
 }
 
@@ -105,6 +115,7 @@ Packet::Packet(RawPacket* rawPacket, ProtocolType parseUntil)
 {
 	m_FreeRawPacket = false;
 	m_RawPacket = NULL;
+	m_FirstLayer = NULL;
 	setRawPacket(rawPacket, false, parseUntil, OsiModelLayerUnknown);
 }
 
@@ -112,6 +123,7 @@ Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
 {
 	m_FreeRawPacket = false;
 	m_RawPacket = NULL;
+	m_FirstLayer = NULL;
 	setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
 }
 
@@ -122,11 +134,13 @@ Packet::Packet(const Packet& other)
 
 void Packet::destructPacketData()
 {
-	std::vector<Layer*>::iterator iter = m_LayersAllocatedInPacket.begin();
-	while (iter != m_LayersAllocatedInPacket.end())
+	Layer* curLayer = m_FirstLayer;
+	while (curLayer != NULL)
 	{
-		delete (*iter);
-		iter = m_LayersAllocatedInPacket.erase(iter);
+		Layer* nextLayer = curLayer->getNextLayer();
+		if (curLayer->m_IsAllocatedInPacket)
+			delete curLayer;
+		curLayer = nextLayer;
 	}
 
 	if (m_RawPacket != NULL && m_FreeRawPacket)
@@ -156,7 +170,7 @@ void Packet::copyDataFrom(const Packet& other)
 	while (curLayer != NULL)
 	{
 		curLayer->parseNextLayer();
-		m_LayersAllocatedInPacket.push_back(curLayer);
+		curLayer->m_IsAllocatedInPacket = true;
 		curLayer = curLayer->getNextLayer();
 		if (curLayer != NULL)
 			m_LastLayer = curLayer;
@@ -337,6 +351,10 @@ bool Packet::removeLayer(Layer* layer)
 	// remove layer protocol from protocol list if necessary
 	if (!anotherLayerWithSameProtocolExists)
 		m_ProtocolTypes &= ~((uint64_t)layer->getProtocol());
+
+	// if layer was allocated by this packet, delete it
+	if (layer->m_IsAllocatedInPacket)
+		delete layer;
 
 	return true;
 }
