@@ -241,7 +241,7 @@ namespace pcpp
 
 		IDnsResource(uint8_t* emptyRawData);
 
-		size_t decodeName(const char* encodedName, std::string& result, int iteration = 1);
+		size_t decodeName(const char* encodedName, char* result, int iteration = 1);
 		void encodeName(const std::string& decodedName, char* result, size_t& resultLen);
 
 		inline IDnsResource* getNextResource() { return m_NextResource; }

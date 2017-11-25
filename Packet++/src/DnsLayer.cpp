@@ -27,7 +27,9 @@ static const std::map<uint16_t, bool> DNSPortMap = createDNSPortMap();
 IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
 	: m_DnsLayer(dnsLayer), m_OffsetInLayer(offsetInLayer), m_NextResource(NULL)
 {
-	m_NameLength = decodeName((const char*)getRawData(), m_DecodedName);
+	char decodedName[256];
+	m_NameLength = decodeName((const char*)getRawData(), decodedName);
+	m_DecodedName = decodedName;
 }
 
 IDnsResource::IDnsResource(uint8_t* emptyRawData)
@@ -43,10 +45,11 @@ uint8_t* IDnsResource::getRawData()
 	return m_DnsLayer->m_Data + m_OffsetInLayer;
 }
 
-size_t IDnsResource::decodeName(const char* encodedName, std::string& result, int iteration)
+size_t IDnsResource::decodeName(const char* encodedName, char* result, int iteration)
 {
 	size_t encodedNameLength = 0;
-	result = "";
+	char* resultPtr = result;	
+	resultPtr[0] = 0;
 
 	size_t curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
 	if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
@@ -73,9 +76,16 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result, in
 				return 0;
 			}
 
-			std::string tempResult;
+			char tempResult[256];
+			int i = 0;
 			decodeName((const char*)(m_DnsLayer->m_Data + offsetInLayer), tempResult, iteration+1);
-			result += tempResult;
+			while (tempResult[i] != 0)
+			{
+				resultPtr[0] = tempResult[i++];
+				resultPtr++;
+			}
+
+			resultPtr[0] = 0;
 
 			// in this case the length of the pointer is: 1B for 0xc0 + 1B for the offset itself
 			return encodedNameLength + sizeof(uint16_t);
@@ -85,8 +95,10 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result, in
 			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen)
 				return encodedNameLength;
 
-			result.append(encodedName+1, wordLength);
-			result.append(".");
+			memcpy(resultPtr, encodedName+1, wordLength);
+			resultPtr += wordLength;
+			resultPtr[0] = '.';
+			resultPtr++;
 			encodedName += wordLength + 1;
 			encodedNameLength += wordLength + 1;
 
@@ -99,11 +111,15 @@ size_t IDnsResource::decodeName(const char* encodedName, std::string& result, in
 	}
 
 	// remove the last "."
-	if (result != "")
-		result = result.substr(0, result.size()-1);
+	if (resultPtr > result)
+	{
+		result[resultPtr - result - 1] = 0;
+	}
 
 	// add the last '\0' to encodedNameLength
+	resultPtr[0] = 0;
 	encodedNameLength++;
+
 	return encodedNameLength;
 }
 
@@ -273,7 +289,9 @@ std::string DnsResource::getDataAsString()
 	case DNS_TYPE_PTR:
 	case DNS_TYPE_MX:
 	{
-		decodeName((const char*)resourceRawData, result);
+		char tempResult[256];
+		decodeName((const char*)resourceRawData, tempResult);
+		result = tempResult;
 		break;
 	}
 
@@ -570,41 +588,49 @@ void DnsLayer::parseResources()
 			numOfAdditional--;
 		}
 
-		IDnsResource* newResource = NULL;
+		DnsResource* newResource = NULL;
+		DnsQuery* newQuery = NULL;
+		IDnsResource* newGenResource = NULL;
 		if (resType == IDnsResource::DnsQuery)
-			newResource = new DnsQuery(this, offsetInPacket);
+		{
+			newQuery = new DnsQuery(this, offsetInPacket);
+			newGenResource = newQuery;
+			offsetInPacket += newQuery->getSize();
+		}
 		else
+		{
 			newResource = new DnsResource(this, offsetInPacket, resType);
-
-		offsetInPacket += newResource->getSize();
+			newGenResource = newResource;
+			offsetInPacket += newResource->getSize();
+		}
 
 		if (offsetInPacket > m_DataLen)
 		{
 			//Parse packet failed, DNS resource is out of bounds. Probably a bad packet
-			delete newResource;
+			delete newGenResource;
 			return;
 		}
 
 		// this resource is the first resource
 		if (m_ResourceList == NULL)
 		{
-			m_ResourceList = newResource;
+			m_ResourceList = newGenResource;
 			curResource = m_ResourceList;
 		}
 		else
 		{
-			curResource->setNexResource(newResource);
+			curResource->setNexResource(newGenResource);
 			curResource = curResource->getNextResource();
 		}
 
 		if (resType == IDnsResource::DnsQuery && m_FirstQuery == NULL)
-			m_FirstQuery = dynamic_cast<DnsQuery*>(newResource);
+			m_FirstQuery = newQuery;
 		else if (resType == IDnsResource::DnsAnswer && m_FirstAnswer == NULL)
-			m_FirstAnswer = dynamic_cast<DnsResource*>(newResource);
+			m_FirstAnswer = newResource;
 		else if (resType == IDnsResource::DnsAuthority && m_FirstAuthority == NULL)
-			m_FirstAuthority = dynamic_cast<DnsResource*>(newResource);
+			m_FirstAuthority = newResource;
 		else if (resType == IDnsResource::DnsAdditional && m_FirstAdditional == NULL)
-			m_FirstAdditional = dynamic_cast<DnsResource*>(newResource);
+			m_FirstAdditional = newResource;
 	}
 
 }
@@ -649,10 +675,13 @@ DnsQuery* DnsLayer::getFirstQuery()
 
 DnsQuery* DnsLayer::getNextQuery(DnsQuery* query)
 {
-	if (query == NULL || query->getNextResource() == NULL || query->getType() != IDnsResource::DnsQuery)
+	if (query == NULL 
+		|| query->getNextResource() == NULL 
+		|| query->getType() != IDnsResource::DnsQuery 
+		|| query->getNextResource()->getType() != IDnsResource::DnsQuery)
 		return NULL;
 
-	return dynamic_cast<DnsQuery*>(query->getNextResource());
+	return (DnsQuery*)(query->getNextResource());
 }
 
 size_t DnsLayer::getQueryCount()
@@ -677,12 +706,12 @@ DnsResource* DnsLayer::getFirstAnswer()
 DnsResource* DnsLayer::getNextAnswer(DnsResource* answer)
 {
 	if (answer == NULL
-			|| answer->getNextResource() == NULL
-			|| answer->getType() != IDnsResource::DnsAnswer
-			|| answer->getNextResource()->getType() != IDnsResource::DnsAnswer)
+		|| answer->getNextResource() == NULL
+		|| answer->getType() != IDnsResource::DnsAnswer
+		|| answer->getNextResource()->getType() != IDnsResource::DnsAnswer)
 		return NULL;
 
-	return dynamic_cast<DnsResource*>(answer->getNextResource());
+	return (DnsResource*)(answer->getNextResource());
 }
 
 size_t DnsLayer::getAnswerCount()
@@ -707,12 +736,12 @@ DnsResource* DnsLayer::getFirstAuthority()
 DnsResource* DnsLayer::getNextAuthority(DnsResource* authority)
 {
 	if (authority == NULL
-			|| authority->getNextResource() == NULL
-			|| authority->getType() != IDnsResource::DnsAuthority
-			|| authority->getNextResource()->getType() != IDnsResource::DnsAuthority)
+		|| authority->getNextResource() == NULL
+		|| authority->getType() != IDnsResource::DnsAuthority
+		|| authority->getNextResource()->getType() != IDnsResource::DnsAuthority)
 		return NULL;
 
-	return dynamic_cast<DnsResource*>(authority->getNextResource());
+	return (DnsResource*)(authority->getNextResource());
 }
 
 size_t DnsLayer::getAuthorityCount()
@@ -737,12 +766,12 @@ DnsResource* DnsLayer::getFirstAdditionalRecord()
 DnsResource* DnsLayer::getNextAdditionalRecord(DnsResource* additionalRecord)
 {
 	if (additionalRecord == NULL
-			|| additionalRecord->getNextResource() == NULL
-			|| additionalRecord->getType() != IDnsResource::DnsAdditional
-			|| additionalRecord->getNextResource()->getType() != IDnsResource::DnsAdditional)
+		|| additionalRecord->getNextResource() == NULL
+		|| additionalRecord->getType() != IDnsResource::DnsAdditional
+		|| additionalRecord->getNextResource()->getType() != IDnsResource::DnsAdditional)
 		return NULL;
 
-	return dynamic_cast<DnsResource*>(additionalRecord->getNextResource());
+	return (DnsResource*)(additionalRecord->getNextResource());
 }
 
 size_t DnsLayer::getAdditionalRecordCount()
