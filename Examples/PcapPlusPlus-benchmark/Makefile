@@ -1,11 +1,9 @@
-include ../../mk/platform.mk
-include ../../mk/PcapPlusPlus.mk
+include /usr/local/etc/PcapPlusPlus.mk
 
 all:
-	$(G++) $(PCAPPP_INCLUDES) -std=c++0x -c -o benchmark.o benchmark.cpp
-	$(G++) $(PCAPPP_LIBS_DIR) -static-libstdc++ -o benchmark benchmark.o $(PCAPPP_LIBS)
-	$(PCAPPP_POST_BUILD)
+	g++ $(PCAPPP_INCLUDES) -O2 -std=c++0x -c -o benchmark.o benchmark.cpp
+	g++ $(PCAPPP_LIBS_DIR) -o benchmark benchmark.o $(PCAPPP_LIBS)
 
 clean:
-	$(RM) benchmark.o
-	$(RM) benchmark
+	rm benchmark.o
+	rm benchmark

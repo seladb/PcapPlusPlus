@@ -32,7 +32,7 @@ bool handle_dns(Packet& packet) {
 
     DnsLayer* dnsLayer = packet.getLayerOfType<DnsLayer>();
 
-	DnsQuery* query = dnsLayer->getFirstQuery();
+    DnsQuery* query = dnsLayer->getFirstQuery();
     while (query != NULL)
     {
     	count++;
@@ -40,7 +40,7 @@ bool handle_dns(Packet& packet) {
     }
 
     DnsResource* answer = dnsLayer->getFirstAnswer();
-    while (answer)
+    while (answer != NULL)
     {
     	count++;
     	answer = dnsLayer->getNextAnswer(answer);
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
             RawPacket rawPacket;
             while (reader.getNextPacket(rawPacket))
             {
-            	Packet packet(&rawPacket);
+            	Packet packet(&rawPacket, pcpp::TCP);
             	handle_packet(packet);
             }
         }
