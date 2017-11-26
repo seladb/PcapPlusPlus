@@ -1,8 +1,8 @@
 #ifndef PACKETPP_VLAN_LAYER
 #define PACKETPP_VLAN_LAYER
 
-#include <Layer.h>
-#include <EthLayer.h>
+#include "Layer.h"
+#include "EthLayer.h"
 #if defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
 #endif

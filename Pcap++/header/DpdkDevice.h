@@ -2,10 +2,10 @@
 #define PCAPPP_DPDK_DEVICE
 
 #include <pthread.h>
-#include <MacAddress.h>
-#include <SystemUtils.h>
-#include <RawPacket.h>
-#include <PcapLiveDevice.h>
+#include "MacAddress.h"
+#include "SystemUtils.h"
+#include "RawPacket.h"
+#include "PcapLiveDevice.h"
 
 /**
  * @file

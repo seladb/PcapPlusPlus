@@ -1,8 +1,8 @@
 #ifndef PACKETPP_SSL_HANDSHAKE_MESSAGE
 #define PACKETPP_SSL_HANDSHAKE_MESSAGE
 
-#include <SSLCommon.h>
-#include <PointerVector.h>
+#include "SSLCommon.h"
+#include "PointerVector.h"
 
 /**
  * @file

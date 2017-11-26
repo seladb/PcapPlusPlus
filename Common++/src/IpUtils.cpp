@@ -1,7 +1,7 @@
 #define LOG_MODULE CommonLogModuleIpUtils
 
-#include <IpUtils.h>
-#include <Logger.h>
+#include "IpUtils.h"
+#include "Logger.h"
 #include <string.h>
 #ifndef NS_INADDRSZ
 #define NS_INADDRSZ	4

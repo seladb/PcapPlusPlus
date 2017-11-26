@@ -3,8 +3,8 @@
 
 #if defined(WIN32) || defined(WINx64)
 
-#include <IpAddress.h>
-#include <PcapRemoteDevice.h>
+#include "IpAddress.h"
+#include "PcapRemoteDevice.h"
 
 /// @file
 

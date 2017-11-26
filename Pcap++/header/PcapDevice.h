@@ -1,9 +1,9 @@
 #ifndef PCAPPP_DEVICE
 #define PCAPPP_DEVICE
 
-#include <RawPacket.h>
-#include <PcapFilter.h>
-#include <PointerVector.h>
+#include "RawPacket.h"
+#include "PcapFilter.h"
+#include "PointerVector.h"
 #include <pcap.h>
 
 /// @file

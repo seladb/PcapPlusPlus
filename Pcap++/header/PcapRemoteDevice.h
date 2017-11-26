@@ -4,7 +4,7 @@
 #if defined(WIN32) || defined(WINx64)
 
 #include <vector>
-#include <PcapLiveDevice.h>
+#include "PcapLiveDevice.h"
 
 
 /// @file

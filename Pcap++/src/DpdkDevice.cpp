@@ -5,9 +5,9 @@
 #define __STDC_LIMIT_MACROS
 #define __STDC_FORMAT_MACROS
 
-#include <DpdkDevice.h>
-#include <DpdkDeviceList.h>
-#include <Logger.h>
+#include "DpdkDevice.h"
+#include "DpdkDeviceList.h"
+#include "Logger.h"
 #include "rte_config.h"
 #include "rte_ethdev.h"
 #include "rte_errno.h"

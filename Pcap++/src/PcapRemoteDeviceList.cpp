@@ -2,9 +2,9 @@
 
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
-#include <PcapRemoteDeviceList.h>
-#include <Logger.h>
-#include <IpUtils.h>
+#include "PcapRemoteDeviceList.h"
+#include "Logger.h"
+#include "IpUtils.h"
 #include <ws2tcpip.h>
 
 namespace pcpp

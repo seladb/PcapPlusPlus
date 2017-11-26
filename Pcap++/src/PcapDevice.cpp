@@ -1,5 +1,5 @@
-#include <PcapDevice.h>
-#include <Logger.h>
+#include "PcapDevice.h"
+#include "Logger.h"
 #include <pcap.h>
 
 namespace pcpp

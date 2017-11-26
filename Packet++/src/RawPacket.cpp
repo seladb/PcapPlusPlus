@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleRawPacket
 
-#include <RawPacket.h>
+#include "RawPacket.h"
 #include <string.h>
-#include <Logger.h>
+#include "Logger.h"
 
 namespace pcpp
 {

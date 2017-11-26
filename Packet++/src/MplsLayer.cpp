@@ -1,10 +1,10 @@
 #define LOG_MODULE PacketLogModuleMplsLayer
 
-#include <MplsLayer.h>
-#include <IPv4Layer.h>
-#include <IPv6Layer.h>
-#include <PayloadLayer.h>
-#include <Logger.h>
+#include "MplsLayer.h"
+#include "IPv4Layer.h"
+#include "IPv6Layer.h"
+#include "PayloadLayer.h"
+#include "Logger.h"
 #include <string.h>
 #include <sstream>
 #if defined(WIN32) || defined(WINx64)

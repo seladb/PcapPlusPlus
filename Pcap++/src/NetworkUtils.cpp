@@ -18,7 +18,7 @@
 #include <sys/errno.h>
 #endif
 #ifdef _MSC_VER
-#include <SystemUtils.h>
+#include "SystemUtils.h"
 #endif
 #ifndef ETIMEDOUT
 #define ETIMEDOUT  10060

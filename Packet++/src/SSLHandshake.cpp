@@ -10,8 +10,8 @@
 #include <string.h>
 #include <sstream>
 #include <map>
-#include <Logger.h>
-#include <SSLHandshake.h>
+#include "Logger.h"
+#include "SSLHandshake.h"
 
 
 namespace pcpp

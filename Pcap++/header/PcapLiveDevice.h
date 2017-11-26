@@ -2,11 +2,11 @@
 #ifndef PCAPPP_LIVE_DEVICE
 #define PCAPPP_LIVE_DEVICE
 
-#include <PcapDevice.h>
+#include "PcapDevice.h"
 #include <vector>
 #include <string.h>
 #include "IpAddress.h"
-#include <Packet.h>
+#include "Packet.h"
 
 
 /// @file

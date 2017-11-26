@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleIgmpLayer
 
-#include <IgmpLayer.h>
-#include <IpUtils.h>
-#include <Logger.h>
+#include "IgmpLayer.h"
+#include "IpUtils.h"
+#include "Logger.h"
 #include <string.h>
 #ifdef WIN32 //for using ntohl, ntohs, etc.
 #include <winsock2.h>

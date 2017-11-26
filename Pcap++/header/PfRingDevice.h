@@ -1,12 +1,12 @@
 #ifndef PCAPPP_PF_RING_DEVICE
 #define PCAPPP_PF_RING_DEVICE
 
-#include <PcapDevice.h>
-#include <PcapFilter.h>
-#include <MacAddress.h>
-#include <SystemUtils.h>
-#include <RawPacket.h>
-#include <Packet.h>
+#include "PcapDevice.h"
+#include "PcapFilter.h"
+#include "MacAddress.h"
+#include "SystemUtils.h"
+#include "RawPacket.h"
+#include "Packet.h"
 #include <pthread.h>
 
 /// @file

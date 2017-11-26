@@ -1,8 +1,8 @@
 #define LOG_MODULE CommonLogModuleIpUtils
 
-#include <Logger.h>
-#include <IpAddress.h>
-#include <IpUtils.h>
+#include "Logger.h"
+#include "IpAddress.h"
+#include "IpUtils.h"
 #include <string.h>
 #ifdef WIN32
 #include <winsock2.h>

@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleSSLLayer
 
-#include <Logger.h>
-#include <SSLLayer.h>
+#include "Logger.h"
+#include "SSLLayer.h"
 #if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
 #include <winsock2.h>
 #elif LINUX

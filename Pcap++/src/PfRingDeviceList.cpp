@@ -2,8 +2,8 @@
 
 #define LOG_MODULE PcapLogModulePfRingDevice
 
-#include <PfRingDeviceList.h>
-#include <Logger.h>
+#include "PfRingDeviceList.h"
+#include "Logger.h"
 #include "pcap.h"
 #include "pfring.h"
 

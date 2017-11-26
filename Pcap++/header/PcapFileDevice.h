@@ -1,8 +1,8 @@
 #ifndef PCAPPP_FILE_DEVICE
 #define PCAPPP_FILE_DEVICE
 
-#include <PcapDevice.h>
-#include <RawPacket.h>
+#include "PcapDevice.h"
+#include "RawPacket.h"
 
 /// @file
 

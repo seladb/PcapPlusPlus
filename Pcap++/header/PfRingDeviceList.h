@@ -1,7 +1,7 @@
 #ifndef PCAPPP_PF_RING_DEVICE_LIST
 #define PCAPPP_PF_RING_DEVICE_LIST
 
-#include <PfRingDevice.h>
+#include "PfRingDevice.h"
 
 /// @file
 

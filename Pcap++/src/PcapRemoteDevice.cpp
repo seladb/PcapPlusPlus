@@ -2,8 +2,8 @@
 
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
-#include <PcapRemoteDevice.h>
-#include <Logger.h>
+#include "PcapRemoteDevice.h"
+#include "Logger.h"
 #include <pcap.h>
 
 

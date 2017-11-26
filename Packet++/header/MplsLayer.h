@@ -1,7 +1,7 @@
 #ifndef PACKETPP_MPLS_LAYER
 #define PACKETPP_MPLS_LAYER
 
-#include <Layer.h>
+#include "Layer.h"
 
 /// @file
 
