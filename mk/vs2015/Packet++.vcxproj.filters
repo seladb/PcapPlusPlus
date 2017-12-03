@@ -39,6 +39,9 @@
     <ClInclude Include="..\..\Packet++\header\IgmpLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\IPv4Reassembly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>	
     <ClInclude Include="..\..\Packet++\header\IPv4Layer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -129,6 +132,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\IgmpLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\IPv4Reassembly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\IPv4Layer.cpp">

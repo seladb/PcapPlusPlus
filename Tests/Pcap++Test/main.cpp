@@ -17,6 +17,7 @@
 #include <DnsLayer.h>
 #include <PayloadLayer.h>
 #include <TcpReassembly.h>
+#include <IPv4Reassembly.h>
 #include <PcapFileDevice.h>
 #include <PcapLiveDeviceList.h>
 #include <WinPcapLiveDevice.h>
@@ -4201,6 +4202,42 @@ PCAPP_TEST(TestTcpReassemblyMultipleConns)
 	PCAPP_TEST_PASSED;
 }
 
+//void savePacketToFile(RawPacket& packet, std::string fileName)
+//{
+//    PcapFileWriterDevice writerDev(fileName.c_str());
+//    writerDev.open();
+//    writerDev.writePacket(packet);
+//    writerDev.close();
+//}
+
+PCAPP_TEST(TestIPFragmentationSanity)
+{
+	std::vector<RawPacket> packetStream;
+	std::string errMsg;
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	IPv4Reassembly ipv4Reassembly;
+	IPv4Reassembly::ReassemblyStatus status;
+
+	Packet* result = NULL;
+
+	for (size_t i = 0; i < packetStream.size(); i++)
+	{
+		//printf("processing segment #%d\n", i);
+		Packet packet(&packetStream.at(i));
+		result = ipv4Reassembly.processPacket(&packet, status);
+	}
+
+	if (result != NULL)
+	{
+		//savePacketToFile(*(result->getRawPacket()), "reassembled.pcap");
+		delete result;
+	}
+
+	PCAPP_TEST_PASSED;
+}
+
+
 static struct option PcapTestOptions[] =
 {
 	{"debug-mode", no_argument, 0, 'd'},
@@ -4339,6 +4376,19 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestTcpReassemblyWithFIN_RST, args, false);
 	PCAPP_RUN_TEST(TestTcpReassemblyMalformedPkts, args, false);
 	PCAPP_RUN_TEST(TestTcpReassemblyMultipleConns, args, false);
+	PCAPP_RUN_TEST(TestIPFragmentationSanity, args, false);
+	//sanity
+	//out of order: second frag comes first
+	//out of order: one of the frag in the middle come out of order
+	//out of order: last frag comes before the end
+	//out of order: last frag comes first
+	//out of order: frags come in backward order
+	//out of order: missing frag
+	//non-ip packet
+	//non-frag packet
+	//handle 2-3 fragmented packets in parallel
+	//handle more packets than size of map
+	//fragment stuck for too long and auto removed
 
 	PCAPP_END_RUNNING_TESTS;
 }
