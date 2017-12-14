@@ -454,12 +454,30 @@ uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength)
 	while (!infile.eof())
 	{
 		char byte[3];
+		memset(byte, 0, 3);
 		infile.read(byte, 2);
 		result[i] = (uint8_t)strtol(byte, NULL, 16);
 		i++;
 	}
 	infile.close();
+	bufferLength -= 2;
 	return result;
+}
+
+void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uint8_t* buffer2, size_t buffer2Len)
+{
+	printf("\n\n\n");
+	for(int i = 0; i<(int)buffer1Len; i++)
+		printf(" 0x%2X  ", buffer1[i]);
+	printf("\n\n\n");
+	for(int i = 0; i<(int)buffer2Len; i++)
+	{
+		if (buffer2[i] != buffer1[i])
+			printf("*0x%2X* ", buffer2[i]);
+		else
+			printf(" 0x%2X  ", buffer2[i]);
+	}
+	printf("\n\n\n");
 }
 
 bool sendURLRequest(string url)
@@ -4202,18 +4220,22 @@ PCAPP_TEST(TestTcpReassemblyMultipleConns)
 	PCAPP_TEST_PASSED;
 }
 
-//void savePacketToFile(RawPacket& packet, std::string fileName)
-//{
-//    PcapFileWriterDevice writerDev(fileName.c_str());
-//    writerDev.open();
-//    writerDev.writePacket(packet);
-//    writerDev.close();
-//}
+void savePacketToFile(RawPacket& packet, std::string fileName)
+{
+    PcapFileWriterDevice writerDev(fileName.c_str());
+    writerDev.open();
+    writerDev.writePacket(packet);
+    writerDev.close();
+}
 
 PCAPP_TEST(TestIPFragmentationSanity)
 {
 	std::vector<RawPacket> packetStream;
 	std::string errMsg;
+
+	// basic IPv4 reassembly test
+	// ==========================
+
 	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
 
 	IPv4Reassembly ipv4Reassembly;
@@ -4223,16 +4245,317 @@ PCAPP_TEST(TestIPFragmentationSanity)
 
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		//printf("processing segment #%d\n", i);
 		Packet packet(&packetStream.at(i));
 		result = ipv4Reassembly.processPacket(&packet, status);
+		if (i == 0)
+		{
+			PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "First frag status isn't FIRST_FRAGMENT");
+		}
+		else if (i < (packetStream.size()-1))
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag status isn't FRAGMENT");
+		}
+		else
+		{
+			PCAPP_ASSERT(result != NULL, "Didn't get reassembled packet on the last fragment");
+			PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Last frag status isn't REASSEMBLED");
+		}
 	}
 
-	if (result != NULL)
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_reassembled.txt", bufferLength);
+
+	PCAPP_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
+	PCAPP_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
+
+	delete result;
+	delete [] buffer;
+
+
+	// non-fragment test
+	// ==================
+
+	packetStream.clear();
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/VlanPackets.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	for (size_t i = 0; i < 20; i++)
 	{
-		//savePacketToFile(*(result->getRawPacket()), "reassembled.pcap");
-		delete result;
+		Packet packet(&packetStream.at(i));
+		result = ipv4Reassembly.processPacket(&packet, status);
+
+		PCAPP_ASSERT(result == &packet, "Non-fragment test: didn't get the same non-fragment packet in the result");
+		PCAPP_ASSERT(status == IPv4Reassembly::NON_FRAGMENT, "Non-fragment test: status isn't NON_FRAGMENT");
 	}
+
+
+	// non-IP test
+	// ==================
+
+	for (size_t i = 20; i < packetStream.size(); i++)
+	{
+		Packet packet(&packetStream.at(i));
+		result = ipv4Reassembly.processPacket(&packet, status);
+
+		PCAPP_ASSERT(result == &packet, "Non-IP test: didn't get the same non-IP packet in the result");
+		PCAPP_ASSERT(status == IPv4Reassembly::NON_IP_PACKET, "Non-IP test: status isn't NON_IP_PACKET");
+	}
+
+	PCAPP_TEST_PASSED;
+}
+
+
+PCAPP_TEST(TestIPFragOutOfOrder)
+{
+	std::vector<RawPacket> packetStream;
+	std::string errMsg;
+
+	IPv4Reassembly ipv4Reassembly;
+	IPv4Reassembly::ReassemblyStatus status;
+
+	Packet* result = NULL;
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_reassembled.txt", bufferLength);
+
+
+	// First use-case: first and second fragments are swapped
+	// ======================================================
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// swap first and second packet
+	std::swap(packetStream[0], packetStream[1]);
+
+	for (size_t i = 0; i < packetStream.size(); i++)
+	{
+		Packet packet(&packetStream.at(i));
+		result = ipv4Reassembly.processPacket(&packet, status);
+		if (i == 0)
+		{
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "First frag status isn't OUT_OF_ORDER_FRAGMENT");
+		}
+		else if (i == 1)
+		{
+			PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "Second frag status isn't FIRST_FRAGMENT");
+		}
+		else if (i < (packetStream.size()-1))
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag status isn't FRAGMENT");
+		}
+		else
+		{
+			PCAPP_ASSERT(result != NULL, "Didn't get reassembled packet on the last fragment");
+			PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Last frag status isn't REASSEMBLED");
+		}
+	}
+
+	PCAPP_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
+	PCAPP_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
+
+	delete result;
+
+	packetStream.clear();
+
+
+	// Second use-case: 6th and 10th fragments are swapped, as well as 3th and 7th
+	// ===========================================================================
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	//swap 6th and 10th fragments
+	std::swap(packetStream[5], packetStream[9]);
+
+	//swap 3rd and 7th fragments
+	std::swap(packetStream[2], packetStream[6]);
+
+	for (size_t i = 0; i < packetStream.size(); i++)
+	{
+		Packet packet(&packetStream.at(i));
+		result = ipv4Reassembly.processPacket(&packet, status);
+		if (i == 2 || i == 3 || i == 4 || i == 5 || i == 7 || i == 8)
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", i);
+		}
+		else if (i == 0)
+		{
+			PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "First frag status isn't FIRST_FRAGMENT");
+		}
+		else if (i < (packetStream.size()-1))
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", i, status);
+		}
+		else
+		{
+			PCAPP_ASSERT(result != NULL, "Didn't get reassembled packet on the last fragment");
+			PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Last frag status isn't REASSEMBLED");
+		}
+	}
+
+	PCAPP_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
+	PCAPP_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
+
+	delete result;
+
+	packetStream.clear();
+
+
+	// Third use-case: last fragment comes before the end
+	// ==================================================
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	//swap 6th and last fragments
+	std::swap(packetStream[5], packetStream[10]);
+
+	for (size_t i = 0; i < packetStream.size(); i++)
+	{
+		Packet packet(&packetStream.at(i));
+		result = ipv4Reassembly.processPacket(&packet, status);
+		if (i >= 5 && i < (packetStream.size()-1))
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", i);
+		}
+		else if (i == 0)
+		{
+			PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "First frag status isn't FIRST_FRAGMENT");
+		}
+		else if (i < 5)
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", i, status);
+		}
+		else
+		{
+			PCAPP_ASSERT(result != NULL, "Didn't get reassembled packet on the last fragment");
+			PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Last frag status isn't REASSEMBLED");
+		}
+	}
+
+	PCAPP_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
+	PCAPP_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
+
+	delete result;
+
+	packetStream.clear();
+
+
+	// Fourth use-case: last fragment comes first
+	// ==========================================
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// move last frag from the end to the beginning
+	RawPacket lastFrag = packetStream.at(10);
+	packetStream.insert(packetStream.begin(), lastFrag);
+	packetStream.erase(packetStream.begin() + 11);
+
+	for (size_t i = 0; i < packetStream.size(); i++)
+	{
+		Packet packet(&packetStream.at(i));
+		result = ipv4Reassembly.processPacket(&packet, status);
+		if (i == 0)
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", i);
+		}
+		else if (i == 1)
+		{
+			PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "Frag#%d status isn't FIRST_FRAGMENT", i);
+		}
+		else if (i > 1 && i < (packetStream.size()-1))
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", i, status);
+		}
+		else
+		{
+			PCAPP_ASSERT(result != NULL, "Didn't get reassembled packet on the last fragment");
+			PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Last frag status isn't REASSEMBLED");
+		}
+	}
+
+	PCAPP_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
+	PCAPP_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
+
+	delete result;
+
+	packetStream.clear();
+
+
+	// Fifth use-case: fragments come in reverse order
+	// ===============================================
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// reverse order of fragments
+	for (size_t i = 1; i < packetStream.size(); i++)
+	{
+		RawPacket curFrag = packetStream.at(i);
+		packetStream.insert(packetStream.begin(), curFrag);
+		packetStream.erase(packetStream.begin() + i + 1);
+	}
+
+	for (size_t i = 0; i < packetStream.size(); i++)
+	{
+		Packet packet(&packetStream.at(i));
+		result = ipv4Reassembly.processPacket(&packet, status);
+		if (i < (packetStream.size()-1))
+		{
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", i);
+		}
+		else
+		{
+			PCAPP_ASSERT(result != NULL, "Didn't get reassembled packet on the last fragment");
+			PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Last frag status isn't REASSEMBLED");
+		}
+	}
+
+	PCAPP_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
+	PCAPP_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
+
+	delete result;
+
+	packetStream.clear();
+
+
+	delete [] buffer;
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestIPFragPartialData)
+{
+	std::vector<RawPacket> packetStream;
+	std::string errMsg;
+
+	IPv4Reassembly ipv4Reassembly;
+	IPv4Reassembly::ReassemblyStatus status;
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_partial.txt", bufferLength);
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	for (size_t i = 0; i < 6; i++)
+	{
+		Packet packet(&packetStream.at(i));
+		ipv4Reassembly.processPacket(&packet, status);
+	}
+
+	Packet* partialPacket = ipv4Reassembly.getCurrentPacket(IPv4Address(std::string("172.16.133.54")), IPv4Address(std::string("216.137.33.81")), 16991);
+
+	PCAPP_ASSERT(bufferLength == partialPacket->getRawPacket()->getRawDataLen(), "Partial packet len (%d) is different than read packet len (%d)", partialPacket->getRawPacket()->getRawDataLen(), bufferLength);
+	PCAPP_ASSERT(memcmp(partialPacket->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Partial packet data is different than expected");
+
+	delete partialPacket;
+
+	delete [] buffer;
 
 	PCAPP_TEST_PASSED;
 }
@@ -4377,18 +4700,21 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestTcpReassemblyMalformedPkts, args, false);
 	PCAPP_RUN_TEST(TestTcpReassemblyMultipleConns, args, false);
 	PCAPP_RUN_TEST(TestIPFragmentationSanity, args, false);
-	//sanity
-	//out of order: second frag comes first
-	//out of order: one of the frag in the middle come out of order
-	//out of order: last frag comes before the end
-	//out of order: last frag comes first
-	//out of order: frags come in backward order
-	//out of order: missing frag
-	//non-ip packet
-	//non-frag packet
-	//handle 2-3 fragmented packets in parallel
-	//handle more packets than size of map
-	//fragment stuck for too long and auto removed
+	PCAPP_RUN_TEST(TestIPFragOutOfOrder, args, false);
+	PCAPP_RUN_TEST(TestIPFragPartialData, args, false);
+	// V sanity
+	// V out of order: second frag comes first
+	// V out of order: one of the frag in the middle come out of order
+	// V out of order: last frag comes before the end
+	// V out of order: last frag comes first
+	// V out of order: frags come in reverse order
+	// V non-ip packet
+	// V non-frag packet
+	// V get partial packet
+	//   handle 2-3 fragmented packets in parallel
+	//   handle more packets than size of map
+	//   different packets with the same ip ID but different IP src/dst
+	//   fragment stuck for too long and auto removed
 
 	PCAPP_END_RUNNING_TESTS;
 }
