@@ -25,7 +25,7 @@ namespace pcpp
 			FIRST_FRAGMENT =        0x02,
 			FRAGMENT =              0x04,
 			OUT_OF_ORDER_FRAGMENT = 0x08,
-			MALFORMED_FRAGMENT    = 0x10,
+			MALFORMED_FRAGMENT =    0x10,
 			REASSEMBLED =           0x20
 		};
 
@@ -35,7 +35,7 @@ namespace pcpp
 
 		Packet* processPacket(Packet* packet, ReassemblyStatus& status);
 
-		RawPacket* getCurrentPacket(const IPv4Address& srcIP, const IPv4Address& dstIP, uint16_t ipID);
+		Packet* getCurrentPacket(const IPv4Address& srcIP, const IPv4Address& dstIP, uint16_t ipID);
 
 	private:
 

@@ -67,6 +67,8 @@ IPv4Reassembly::~IPv4Reassembly()
 
 Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 {
+	status = NON_IP_PACKET;
+
 	if (!packet->isPacketOfType(IPv4))
 	{
 		LOG_DEBUG("Got a non-IPv4 packet");
@@ -134,7 +136,7 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 				return NULL;
 			}
 
-			LOG_DEBUG("Found next matching fragment, adding fragment data to reassembled packet");
+			LOG_DEBUG("Found next matching fragment with offset %d, adding fragment data to reassembled packet", (int)fragOffset);
 			fragData->data->reallocateData(fragData->data->getRawDataLen() + ipLayer->getLayerPayloadSize());
 			fragData->data->appendData(ipLayer->getLayerPayload(), ipLayer->getLayerPayloadSize());
 			fragData->currentOffset += ipLayer->getLayerPayloadSize();
@@ -145,15 +147,20 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 		}
 		else if (fragOffset > fragData->currentOffset)
 		{
-			LOG_DEBUG("Got out-of-ordered fragment. Adding it to out-of-order list");
+			LOG_DEBUG("Got out-of-ordered fragment with offset %d (expected: %d). Adding it to out-of-order list", (int)fragOffset, (int)fragData->currentOffset);
 			IPFragment* newFrag = new IPFragment();
 			newFrag->fragmentOffset = ipLayer->getFragmentOffset();
 			newFrag->fragmentData = new uint8_t[ipLayer->getLayerPayloadSize()];
 			newFrag->fragmentDataLen = ipLayer->getLayerPayloadSize();
+			memcpy(newFrag->fragmentData, ipLayer->getLayerPayload(), newFrag->fragmentDataLen);
 			newFrag->lastFragment = ipLayer->isLastFragment();
 			fragData->outOfOrderFragments.pushBack(newFrag);
 			status = OUT_OF_ORDER_FRAGMENT;
 			return NULL;
+		}
+		else
+		{
+			LOG_DEBUG("Got a fragment with an offset that was already seen: %d (current offset is: %d), probably duplicated fragment", (int)fragOffset, (int)fragData->currentOffset);
 		}
 
 	}
@@ -174,11 +181,13 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 		return reassembledPacket;
 	}
 
-	status = FRAGMENT;
+	if (status != FIRST_FRAGMENT)
+		status = FRAGMENT;
+
 	return NULL;
 }
 
-RawPacket* IPv4Reassembly::getCurrentPacket(const IPv4Address& srcIP, const IPv4Address& dstIP, uint16_t ipID)
+Packet* IPv4Reassembly::getCurrentPacket(const IPv4Address& srcIP, const IPv4Address& dstIP, uint16_t ipID)
 {
 	uint32_t hash = ipv4ReassemblyHashBy3Tuple(srcIP, dstIP, ipID);
 	std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
@@ -187,8 +196,12 @@ RawPacket* IPv4Reassembly::getCurrentPacket(const IPv4Address& srcIP, const IPv4
 		IPFragmentData* fragData = iter->second;
 		if (fragData != NULL && fragData->data != NULL)
 		{
-			RawPacket* result = new RawPacket(*(fragData->data));
-			return result;
+			RawPacket* partialRawPacket = new RawPacket(*(fragData->data));
+			Packet* partialDataPacket = new Packet(partialRawPacket, true);
+			IPv4Layer* ipLayer = partialDataPacket->getLayerOfType<IPv4Layer>();
+			ipLayer->getIPv4Header()->fragmentOffset = 0;
+			ipLayer->computeCalculateFields();
+			return partialDataPacket;
 		}
 	}
 
@@ -233,10 +246,10 @@ bool IPv4Reassembly::matchOutOfOrderFragments(IPFragmentData* fragData)
 			IPFragment* frag = fragData->outOfOrderFragments.at(index);
 			if (fragData->currentOffset == frag->fragmentOffset)
 			{
-				LOG_DEBUG("Found the next matching fragment in out-of-order list, adding its data to reassembled packet");
+				LOG_DEBUG("Found the next matching fragment in out-of-order list with offset %d, adding its data to reassembled packet", (int)frag->fragmentOffset);
 				fragData->data->reallocateData(fragData->data->getRawDataLen() + frag->fragmentDataLen);
 				fragData->data->appendData(frag->fragmentData, frag->fragmentDataLen);
-				fragData->currentOffset += frag->fragmentOffset;
+				fragData->currentOffset += frag->fragmentDataLen;
 				if (frag->lastFragment)
 				{
 					LOG_DEBUG("Found last fragment inside out-of-order list");
@@ -251,7 +264,7 @@ bool IPv4Reassembly::matchOutOfOrderFragments(IPFragmentData* fragData)
 
 		if (!foundOutOfOrderFrag)
 		{
-			LOG_DEBUG("Couldn't find the next fragment in out-of-order list");
+			LOG_DEBUG("Didn't find the next fragment in out-of-order list");
 			break;
 		}
 	}
