@@ -7,6 +7,7 @@
 #include <string.h>
 #include <algorithm>
 #include <stdlib.h>
+#include <exception>
 
 namespace pcpp
 {
@@ -129,7 +130,7 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 }
 
 SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, std::string version, std::string uri)
-		throw(SipRequestFirstLineException)
+try		// throw(SipRequestFirstLineException)
 {
 	if (method == SipRequestLayer::SipMethodUnknown)
 	{
@@ -160,8 +161,12 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequest
 
 	m_IsComplete = true;
 }
-
-
+catch(const SipRequestFirstLineException&) {
+	throw;
+}
+catch(...) {
+	std::terminate();
+}
 SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(char* data, size_t dataLen)
 {
 	if (dataLen < 4)
