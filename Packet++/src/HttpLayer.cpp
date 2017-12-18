@@ -5,7 +5,7 @@
 #include <string.h>
 #include <algorithm>
 #include <stdlib.h>
-
+#include <exception>
 
 namespace pcpp
 {
@@ -209,7 +209,7 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 }
 
 HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, std::string uri)
-		throw(HttpRequestFirstLineException)
+try		// throw(HttpRequestFirstLineException)
 {
 	if (method == HttpRequestLayer::HttpMethodUnknown)
 	{
@@ -240,7 +240,12 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRe
 
 	m_IsComplete = true;
 }
-
+catch(const HttpRequestFirstLineException&) {
+	throw;
+}
+catch(...) {
+	std::terminate();
+}
 
 HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(char* data, size_t dataLen)
 {

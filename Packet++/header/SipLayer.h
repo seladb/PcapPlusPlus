@@ -539,8 +539,8 @@ namespace pcpp
 
 	private:
 		SipRequestFirstLine(SipRequestLayer* sipRequest);
-		SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, std::string version, std::string uri)
-			throw(SipRequestFirstLineException);
+		SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, std::string version, std::string uri);
+			//throw(SipRequestFirstLineException); // Deprecated in C++17
 
 		void parseVersion();
 
