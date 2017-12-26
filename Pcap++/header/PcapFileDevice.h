@@ -74,6 +74,17 @@ namespace pcpp
 		virtual bool getNextPacket(RawPacket& rawPacket) = 0;
 
 		/**
+		 * Read the next N packets into a raw packet vector
+		 * @param[out] packetVec The raw packet vector to read packets into
+		 * @param[in] numOfPacketsToRead Number of packets to read. If value <0 all remaining packets in the file will be read into the
+		 * raw packet vector (this is the default value)
+		 * @return The number of packets actually read. This value will be equal to numOfPacketsToRead if numOfPacketsToRead > 0 and enough
+		 * packets remain to read, or less than numOfPacketsToRead if numOfPacketsToRead > 0 and not enough packets remain to read,
+		 * or if numOfPacketsToRead < 0 the return value will be the number of packets remain to read
+		 */
+		int getNextPackets(RawPacketVector& packetVec, int numOfPacketsToRead = -1);
+
+		/**
 		 * A static method that creates an instance of the reader best fit to read the file. It decides by the file extension: for .pcapng
 		 * files it returns an instance of PcapNgFileReaderDevice and for all other extensions it returns an instance of PcapFileReaderDevice
 		 * @param[in] fileName The file name to open

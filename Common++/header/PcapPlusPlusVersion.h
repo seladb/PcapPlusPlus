@@ -3,6 +3,8 @@
 
 #include <string>
 
+/// @file
+
 /**
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
