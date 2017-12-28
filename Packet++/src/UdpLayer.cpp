@@ -94,9 +94,9 @@ void UdpLayer::parseNextLayer()
 		m_NextLayer = new VxlanLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
 	else if ((m_DataLen - sizeof(udphdr) >= sizeof(dnshdr)) && (DnsLayer::getDNSPortMap()->find(portDst) != DnsLayer::getDNSPortMap()->end() || DnsLayer::getDNSPortMap()->find(portSrc) != DnsLayer::getDNSPortMap()->end()))
 		m_NextLayer = new DnsLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
-	else if (((portDst == 5060) || (portDst == 5061)) && (SipRequestFirstLine::parseMethod((char*)(m_Data + sizeof(udphdr)), m_DataLen - sizeof(udphdr)) != SipRequestLayer::SipMethodUnknown))
+	else if (((portDst == 5060) || (portDst == 5061) || (portSrc == 5060) || (portSrc == 5061)) && (SipRequestFirstLine::parseMethod((char*)(m_Data + sizeof(udphdr)), m_DataLen - sizeof(udphdr)) != SipRequestLayer::SipMethodUnknown))
 		m_NextLayer = new SipRequestLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
-	else if (((portDst == 5060) || (portDst == 5061)) && (SipResponseFirstLine::parseStatusCode((char*)(m_Data + sizeof(udphdr)), m_DataLen - sizeof(udphdr)) != SipResponseLayer::SipStatusCodeUnknown))
+	else if (((portDst == 5060) || (portDst == 5061) || (portSrc == 5060) || (portSrc == 5061)) && (SipResponseFirstLine::parseStatusCode((char*)(m_Data + sizeof(udphdr)), m_DataLen - sizeof(udphdr)) != SipResponseLayer::SipStatusCodeUnknown))
 		m_NextLayer = new SipResponseLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
