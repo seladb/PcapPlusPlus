@@ -11,12 +11,21 @@ namespace pcpp
 {
 
 	#define PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE 500000
-	#define PCPP_IPV4_REASSEMBLY_DEFAULT_CLEAN_TIMEOUT 3600
 
 	class IPv4Reassembly
 	{
 	public:
-		typedef void (*OnFragmentsClean)(uint16_t ipID);
+
+		struct PacketKey
+		{
+			PacketKey() : ipID(0), srcIP(IPv4Address::Zero), dstIP(IPv4Address::Zero) { }
+			PacketKey(uint16_t ipid, IPv4Address srcip, IPv4Address dstip) : ipID(ipid), srcIP(srcip), dstIP(dstip) { }
+			uint16_t ipID;
+			IPv4Address srcIP;
+			IPv4Address dstIP;
+		};
+
+		typedef void (*OnFragmentsClean)(const PacketKey& key, void* userCookie);
 
 		enum ReassemblyStatus
 		{
@@ -29,13 +38,15 @@ namespace pcpp
 			REASSEMBLED =           0x20
 		};
 
-		IPv4Reassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, int maxPacketsToStore = PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, int cleanTimeout = PCPP_IPV4_REASSEMBLY_DEFAULT_CLEAN_TIMEOUT);
+		IPv4Reassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, void* callbackUserCookie = NULL, int maxPacketsToStore = PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE);
 
 		~IPv4Reassembly();
 
 		Packet* processPacket(Packet* packet, ReassemblyStatus& status);
 
-		Packet* getCurrentPacket(const IPv4Address& srcIP, const IPv4Address& dstIP, uint16_t ipID);
+		Packet* processPacket(RawPacket* packet, ReassemblyStatus& status);
+
+		Packet* getCurrentPacket(const PacketKey& key);
 
 	private:
 
@@ -55,15 +66,17 @@ namespace pcpp
 			RawPacket* data;
 			bool deleteData;
 			uint16_t ipID;
+			uint32_t srcIP;
+			uint32_t dstIP;
 			PointerVector<IPFragment> outOfOrderFragments;
-			IPFragmentData(uint16_t ipId) { currentOffset = 0; data = NULL; deleteData = true; ipID = ipId; }
+			IPFragmentData(uint16_t ipId, uint32_t srcIp, uint32_t dstIp) { currentOffset = 0; data = NULL; deleteData = true; ipID = ipId; srcIP = srcIp; dstIP = dstIp; }
 			~IPFragmentData() { if (deleteData && data != NULL) { delete data; } }
 		};
 
 		LRUList<uint32_t>* m_PacketLRU;
 		std::map<uint32_t, IPFragmentData*> m_FragmentMap;
-		int m_CleanTimeout;
 		OnFragmentsClean m_OnFragmentsCleanCallback;
+		void* m_CallbackUserCookie;
 
 		void addNewFragment(uint32_t hash, IPFragmentData* fragData);
 		bool matchOutOfOrderFragments(IPFragmentData* fragData);
