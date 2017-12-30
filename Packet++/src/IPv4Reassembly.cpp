@@ -227,14 +227,14 @@ void IPv4Reassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 		std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(*packetRemoved);
 		IPFragmentData* dataRemoved = iter->second;
 		uint16_t ipIdRemoved = dataRemoved->ipID;
+		IPv4Address srcIP(dataRemoved->srcIP);
+		IPv4Address dstIP(dataRemoved->dstIP);
 		LOG_DEBUG("Reached maximum packet capacity, removing data for IP ID = 0x%X", ipIdRemoved);
 		delete dataRemoved;
 		m_FragmentMap.erase(iter);
 
 		if (m_OnFragmentsCleanCallback != NULL)
 		{
-			IPv4Address srcIP(dataRemoved->srcIP);
-			IPv4Address dstIP(dataRemoved->dstIP);
 			PacketKey key(ntohs(ipIdRemoved), srcIP, dstIP);
 			m_OnFragmentsCleanCallback(key, m_CallbackUserCookie);
 		}

@@ -4253,7 +4253,7 @@ PCAPP_TEST(TestIPFragmentationSanity)
 		}
 		else if (i < (packetStream.size()-1))
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
 			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag status isn't FRAGMENT");
 		}
 		else
@@ -4341,7 +4341,7 @@ PCAPP_TEST(TestIPFragOutOfOrder)
 		}
 		else if (i < (packetStream.size()-1))
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
 			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag status isn't FRAGMENT");
 		}
 		else
@@ -4376,8 +4376,8 @@ PCAPP_TEST(TestIPFragOutOfOrder)
 		result = ipv4Reassembly.processPacket(&packet, status);
 		if (i == 2 || i == 3 || i == 4 || i == 5 || i == 7 || i == 8)
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
-			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", i);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", (int)i);
 		}
 		else if (i == 0)
 		{
@@ -4385,8 +4385,8 @@ PCAPP_TEST(TestIPFragOutOfOrder)
 		}
 		else if (i < (packetStream.size()-1))
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
-			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", i, status);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", (int)i, status);
 		}
 		else
 		{
@@ -4417,8 +4417,8 @@ PCAPP_TEST(TestIPFragOutOfOrder)
 		result = ipv4Reassembly.processPacket(&packet, status);
 		if (i >= 5 && i < (packetStream.size()-1))
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
-			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", i);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", (int)i);
 		}
 		else if (i == 0)
 		{
@@ -4426,8 +4426,8 @@ PCAPP_TEST(TestIPFragOutOfOrder)
 		}
 		else if (i < 5)
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
-			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", i, status);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", (int)i, status);
 		}
 		else
 		{
@@ -4460,17 +4460,17 @@ PCAPP_TEST(TestIPFragOutOfOrder)
 		result = ipv4Reassembly.processPacket(&packet, status);
 		if (i == 0)
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
-			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", i);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", (int)i);
 		}
 		else if (i == 1)
 		{
-			PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "Frag#%d status isn't FIRST_FRAGMENT", i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "Frag#%d status isn't FIRST_FRAGMENT", (int)i);
 		}
 		else if (i > 1 && i < (packetStream.size()-1))
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
-			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", i, status);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
+			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag#%d status isn't FRAGMENT, it's %d", (int)i, status);
 		}
 		else
 		{
@@ -4506,8 +4506,8 @@ PCAPP_TEST(TestIPFragOutOfOrder)
 		result = ipv4Reassembly.processPacket(&packet, status);
 		if (i < (packetStream.size()-1))
 		{
-			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", i);
-			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", i);
+			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
+			PCAPP_ASSERT(status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT, "Frag#%d status isn't OUT_OF_ORDER_FRAGMENT", (int)i);
 		}
 		else
 		{
