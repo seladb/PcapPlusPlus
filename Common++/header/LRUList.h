@@ -86,6 +86,29 @@ namespace pcpp
 			return m_CacheItemsList.back();
 		}
 
+		/**
+		 * Erase an element from the list. If element isn't found in the list nothing happens
+		 * @param[in] element The element to erase
+		 */
+		void eraseElement(const T& element)
+		{
+			MapIterator iter = m_CacheItemsMap.find(element);
+			if (iter == m_CacheItemsMap.end())
+				return;
+
+			m_CacheItemsList.erase(iter->second);
+			m_CacheItemsMap.erase(element);
+		}
+
+		/**
+		 * @return The max size of this list as determined in the c'tor
+		 */
+		inline size_t getMaxSize() { return m_MaxSize; }
+
+		/**
+		 * @return The number of elements currently in this list
+		 */
+		inline size_t getSize() { return m_CacheItemsMap.size(); }
 
 	private:
 		std::list<T> m_CacheItemsList;

@@ -4802,26 +4802,30 @@ PCAPP_TEST(TestIPFragMapOverflow)
 	ipv4Reassembly.processPacket(packet1Frags.at(0), status);
 	ipv4Reassembly.processPacket(packet2Frags.at(0), status);
 	ipv4Reassembly.processPacket(packet3Frags.at(0), status);
+	ipv4Reassembly.processPacket(packet1Frags.at(1), status);
 	ipv4Reassembly.processPacket(packet4Frags.at(0), status);
+	ipv4Reassembly.processPacket(packet1Frags.at(2), status);
 	ipv4Reassembly.processPacket(packet6Frags.at(0), status);
+	ipv4Reassembly.processPacket(packet4Frags.at(1), status);
+	ipv4Reassembly.processPacket(packet1Frags.at(3), status);
 	ipv4Reassembly.processPacket(packet8Frags.at(0), status);
 
-	PCAPP_ASSERT(packetsRemovedFromIpv4ReassemblyEngine.size() == 3, "Number of packets that have been removed isn't 3");
+	PCAPP_ASSERT(packetsRemovedFromIpv4ReassemblyEngine.size() == 3, "Number of packets that have been removed isn't 3, it's %d", (int)packetsRemovedFromIpv4ReassemblyEngine.size());
 
 	IPv4Reassembly::PacketKey key;
 
 	key = packetsRemovedFromIpv4ReassemblyEngine.at(0);
-	PCAPP_ASSERT(key.ipID == 0x1ea0, "First packet removed ID isn't 0x1ea0");
+	PCAPP_ASSERT(key.ipID == 0x1ea1, "First packet removed ID isn't 0x1ea1");
 	PCAPP_ASSERT(key.srcIP == IPv4Address(std::string("10.118.213.212")), "First packet removed src IP isn't 10.118.213.212");
 	PCAPP_ASSERT(key.dstIP == IPv4Address(std::string("10.118.213.211")), "First packet removed src IP isn't 10.118.213.211");
 
 	key = packetsRemovedFromIpv4ReassemblyEngine.at(1);
-	PCAPP_ASSERT(key.ipID == 0x1ea1, "Second packet removed ID isn't 0x1ea1");
+	PCAPP_ASSERT(key.ipID == 0x1ea2, "Second packet removed ID isn't 0x1ea2");
 	PCAPP_ASSERT(key.srcIP == IPv4Address(std::string("10.118.213.212")), "Second packet removed src IP isn't 10.118.213.212");
 	PCAPP_ASSERT(key.dstIP == IPv4Address(std::string("10.118.213.211")), "Second packet removed src IP isn't 10.118.213.211");
 
 	key = packetsRemovedFromIpv4ReassemblyEngine.at(2);
-	PCAPP_ASSERT(key.ipID == 0x1ea2, "Third packet removed ID isn't 0x1ea2");
+	PCAPP_ASSERT(key.ipID == 0x1ea4, "Third packet removed ID isn't 0x1ea4");
 	PCAPP_ASSERT(key.srcIP == IPv4Address(std::string("10.118.213.212")), "Third packet removed src IP isn't 10.118.213.212");
 	PCAPP_ASSERT(key.dstIP == IPv4Address(std::string("10.118.213.211")), "Third packet removed src IP isn't 10.118.213.211");
 
@@ -4972,6 +4976,8 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestIPFragPartialData, args, false);
 	PCAPP_RUN_TEST(TestIPFragMultipleFrags, args, false);
 	PCAPP_RUN_TEST(TestIPFragMapOverflow, args, false);
+	// Test packet removal
+	// Test get size
 
 	PCAPP_END_RUNNING_TESTS;
 }

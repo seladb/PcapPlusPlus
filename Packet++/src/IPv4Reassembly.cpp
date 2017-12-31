@@ -47,7 +47,7 @@ uint32_t ipv4ReassemblyHashBy3Tuple(const IPv4Address& ipSrc, const IPv4Address&
 	return pcpp::fnv_hash(vec, 3);
 }
 
-IPv4Reassembly::IPv4Reassembly(OnFragmentsClean onFragmentsCleanCallback, void* callbackUserCookie, int maxPacketsToStore)
+IPv4Reassembly::IPv4Reassembly(OnFragmentsClean onFragmentsCleanCallback, void* callbackUserCookie, size_t maxPacketsToStore)
 {
 	m_PacketLRU = new LRUList<uint32_t>(maxPacketsToStore);
 	m_OnFragmentsCleanCallback = onFragmentsCleanCallback;
@@ -58,6 +58,7 @@ IPv4Reassembly::~IPv4Reassembly()
 {
 	delete m_PacketLRU;
 
+	// empty the map - go over all keys, delete all IPFragmentData objects and remove them from the map
 	while (!m_FragmentMap.empty())
 	{
 		delete m_FragmentMap.begin()->second;
@@ -69,6 +70,7 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 {
 	status = NON_IP_PACKET;
 
+	// packet is not of type IPv4
 	if (!packet->isPacketOfType(IPv4))
 	{
 		LOG_DEBUG("Got a non-IPv4 packet, returning packet to user");
@@ -76,8 +78,10 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 		return packet;
 	}
 
+	// get IPv4 layer
 	IPv4Layer* ipLayer = packet->getLayerOfType<IPv4Layer>();
 
+	// packet is not a fragment
 	if (!(ipLayer->isFragment()))
 	{
 		LOG_DEBUG("Got a non fragment packet with IP ID=0x%X, returning packet to user", ntohs(ipLayer->getIPv4Header()->ipId));
@@ -85,32 +89,49 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 		return packet;
 	}
 
+	// create a hash from source IP, destination IP and IP ID
 	uint32_t hash = ipv4ReassemblyHashPacket(ipLayer);
 
 	IPFragmentData* fragData = NULL;
+
+	// check whether this packet already exists in the map
 	std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
+
+	// this is the first fragment seen for this packet
 	if (iter == m_FragmentMap.end())
 	{
 		LOG_DEBUG("Got new packet with IP ID=0x%X, allocating place in map", ntohs(ipLayer->getIPv4Header()->ipId));
+
+		// create the IPFragmentData object
 		fragData = new IPFragmentData(ipLayer->getIPv4Header()->ipId, ipLayer->getIPv4Header()->ipSrc, ipLayer->getIPv4Header()->ipDst);
+
+		// add the new fragment to the map
 		addNewFragment(hash, fragData);
 	}
-	else
+	else // packet was seen before
 	{
+		// get the IPFragmentData object
 		fragData = iter->second;
-	}
 
+		// mark this packet as used
+		m_PacketLRU->put(hash);
+	}
 
 	bool gotLastFragment = false;
 
+	// if current fragment is the first fragment of this packet
 	if (ipLayer->isFirstFragment())
 	{
 		if (fragData->data == NULL) // first fragment
 		{
 			LOG_DEBUG("[IPID=0x%X] Got first fragment, allocating RawPacket", ntohs(ipLayer->getIPv4Header()->ipId));
+
+			// create the reassembled packet and copy the fragment data to it
 			fragData->data = new RawPacket(*(packet->getRawPacket()));
 			fragData->currentOffset = ipLayer->getLayerPayloadSize();
 			status = FIRST_FRAGMENT;
+
+			// check if the next fragments already arrived out-of-order and waiting in the out-of-order list
 			gotLastFragment = matchOutOfOrderFragments(fragData);
 		}
 		else // duplicated first fragment
@@ -126,6 +147,8 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 		LOG_DEBUG("[IPID=0x%X] Got fragment", ntohs(ipLayer->getIPv4Header()->ipId));
 
 		uint16_t fragOffset = ipLayer->getFragmentOffset();
+
+		// check if the current fragment offset matches the expected fragment offset
 		if (fragData->currentOffset == fragOffset)
 		{
 			// malformed fragment which is not the first fragment but its offset is 0
@@ -137,24 +160,37 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 			}
 
 			LOG_DEBUG("[IPID=0x%X] Found next matching fragment with offset %d, adding fragment data to reassembled packet", ntohs(ipLayer->getIPv4Header()->ipId), (int)fragOffset);
+
+			// copy fragment data to reassembled packet
 			fragData->data->reallocateData(fragData->data->getRawDataLen() + ipLayer->getLayerPayloadSize());
 			fragData->data->appendData(ipLayer->getLayerPayload(), ipLayer->getLayerPayloadSize());
+
+			// update expected offset
 			fragData->currentOffset += ipLayer->getLayerPayloadSize();
+
+			// if this is the last fragment - mark it
 			if (ipLayer->isLastFragment())
 				gotLastFragment = true;
 			else
+				// if not the last fragment - check if the next fragments are waiting in the out-of-order list
 				gotLastFragment = matchOutOfOrderFragments(fragData);
 		}
+		// if current fragment offset is larger than expected - this means this fragment is out-of-order
 		else if (fragOffset > fragData->currentOffset)
 		{
 			LOG_DEBUG("[IPID=0x%X] Got out-of-ordered fragment with offset %d (expected: %d). Adding it to out-of-order list", ntohs(ipLayer->getIPv4Header()->ipId), (int)fragOffset, (int)fragData->currentOffset);
+
+			// create a new IPFragment and copy the fragment data and params to it
 			IPFragment* newFrag = new IPFragment();
 			newFrag->fragmentOffset = ipLayer->getFragmentOffset();
 			newFrag->fragmentData = new uint8_t[ipLayer->getLayerPayloadSize()];
 			newFrag->fragmentDataLen = ipLayer->getLayerPayloadSize();
 			memcpy(newFrag->fragmentData, ipLayer->getLayerPayload(), newFrag->fragmentDataLen);
 			newFrag->lastFragment = ipLayer->isLastFragment();
+
+			// store the IPFragment in the out-of-order fragment list
 			fragData->outOfOrderFragments.pushBack(newFrag);
+
 			status = OUT_OF_ORDER_FRAGMENT;
 			return NULL;
 		}
@@ -165,22 +201,33 @@ Packet* IPv4Reassembly::processPacket(Packet* packet, ReassemblyStatus& status)
 
 	}
 
+	// if seen the last fragment
 	if (gotLastFragment)
 	{
 		LOG_DEBUG("[IPID=0x%X] Reassembly process completed, allocating a packet and returning it", ntohs(ipLayer->getIPv4Header()->ipId));
 		fragData->deleteData = false;
+
+		// create a new Packet object with the reassembled data as its RawPacket
 		Packet* reassembledPacket = new Packet(fragData->data, true);
+
+		// set the fragment offset to 0
 		ipLayer = reassembledPacket->getLayerOfType<IPv4Layer>();
 		ipLayer->getIPv4Header()->fragmentOffset = 0;
+
+		// re-calculate all IPv4 fields
 		ipLayer->computeCalculateFields();
 
 		LOG_DEBUG("[IPID=0x%X] Deleting fragment data from map", ntohs(ipLayer->getIPv4Header()->ipId));
+
+		// delete the IPFragmentData object and remove it from the map
 		delete fragData;
 		m_FragmentMap.erase(iter);
+		m_PacketLRU->eraseElement(hash);
 		status = REASSEMBLED;
 		return reassembledPacket;
 	}
 
+	// if got to here it means this fragment is either the first fragment or a fragment in the middle. Set the appropriate status and return
 	if (status != FIRST_FRAGMENT)
 		status = FRAGMENT;
 
@@ -216,6 +263,18 @@ Packet* IPv4Reassembly::getCurrentPacket(const PacketKey& key)
 	}
 
 	return NULL;
+}
+
+void IPv4Reassembly::removePacket(const PacketKey& key)
+{
+	uint32_t hash = ipv4ReassemblyHashBy3Tuple(key.srcIP, key.dstIP, key.ipID);
+	std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
+	if (iter != m_FragmentMap.end())
+	{
+		delete iter->second;
+		m_FragmentMap.erase(iter);
+		m_PacketLRU->eraseElement(hash);
+	}
 }
 
 void IPv4Reassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)

@@ -9,7 +9,7 @@
 /**
  * @file
  * This is an implementation of TCP reassembly logic, which means reassembly of TCP messages spanning multiple TCP segments (or packets).<BR>
- * This logic can be helpful in analyzing messages for a large number of protocols implemented on top of TCP including HTTP, SSL/TLS, FTP and many many more.
+ * This logic can be useful in analyzing messages for a large number of protocols implemented on top of TCP including HTTP, SSL/TLS, FTP and many many more.
  *
  * __General Features:__
  * - Manage multiple TCP connections under one pcpp#TcpReassembly instance
