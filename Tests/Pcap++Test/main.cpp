@@ -4241,6 +4241,9 @@ PCAPP_TEST(TestIPFragmentationSanity)
 	IPv4Reassembly ipv4Reassembly;
 	IPv4Reassembly::ReassemblyStatus status;
 
+	PCAPP_ASSERT(ipv4Reassembly.getMaxCapacity() == PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, "Max capacity isn't PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE");
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 0, "Capacity before reassembly isn't 0");
+
 	Packet* result = NULL;
 
 	for (size_t i = 0; i < packetStream.size(); i++)
@@ -4250,16 +4253,19 @@ PCAPP_TEST(TestIPFragmentationSanity)
 		if (i == 0)
 		{
 			PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "First frag status isn't FIRST_FRAGMENT");
+			PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 1, "Current capacity isn't 1");
 		}
 		else if (i < (packetStream.size()-1))
 		{
 			PCAPP_ASSERT(result == NULL, "Got reassembled packet too soon on fragment #%d", (int)i);
 			PCAPP_ASSERT(status == IPv4Reassembly::FRAGMENT, "Frag status isn't FRAGMENT");
+			PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 1, "Current capacity isn't 1");
 		}
 		else
 		{
 			PCAPP_ASSERT(result != NULL, "Didn't get reassembled packet on the last fragment");
 			PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Last frag status isn't REASSEMBLED");
+			PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 0, "Capacity after reassembly isn't 0");
 		}
 	}
 
@@ -4626,6 +4632,8 @@ PCAPP_TEST(TestIPFragMultipleFrags)
 	PCAPP_ASSERT(status == IPv4Reassembly::FIRST_FRAGMENT, "Packet8 first frag - status isn't FIRST_FRAGMENT");
 	PCAPP_ASSERT(packet8 == NULL, "Packet8 first frag - result isn't NULL");
 
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 6, "Capacity after first fragment isn't 6");
+
 
 	// read 2nd - 5th frag in each packet
 
@@ -4651,6 +4659,8 @@ PCAPP_TEST(TestIPFragMultipleFrags)
 		PCAPP_ASSERT(packet8 == NULL, "Packet8 frag#%d - result isn't NULL", i);
 	}
 
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 6, "Capacity after 2nd-5th fragment isn't 6");
+
 
 	// read 6th frag in packet1, packet2, packet3
 
@@ -4663,6 +4673,8 @@ PCAPP_TEST(TestIPFragMultipleFrags)
 	packet3 = ipv4Reassembly.processPacket(packet3Frags.at(5), status);
 	PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Packet3 frag#6 - status isn't REASSEMBLED");
 	PCAPP_ASSERT(packet3 != NULL, "Packet3 frag#6 - result is NULL");
+
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 3, "Capacity after 6th fragment isn't 3");
 
 
 	// read packet5
@@ -4708,6 +4720,8 @@ PCAPP_TEST(TestIPFragMultipleFrags)
 	packet8 = ipv4Reassembly.processPacket(packet8Frags.at(9), status);
 	PCAPP_ASSERT(status == IPv4Reassembly::REASSEMBLED, "Packet8 frag#10 - status isn't REASSEMBLED");
 	PCAPP_ASSERT(packet8 != NULL, "Packet8 frag#10 - result is NULL");
+
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 0, "Capacity after 10th fragment isn't 0");
 
 
 	// read packet 9
@@ -4797,6 +4811,10 @@ PCAPP_TEST(TestIPFragMapOverflow)
 
 	IPv4Reassembly ipv4Reassembly(ipv4ReassemblyOnFragmentsClean, &packetsRemovedFromIpv4ReassemblyEngine, 3);
 
+	PCAPP_ASSERT(ipv4Reassembly.getMaxCapacity() == 3, "Max capacity isn't 3");
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 0, "Capacity before reassembly isn't 0");
+
+
 	IPv4Reassembly::ReassemblyStatus status;
 
 	ipv4Reassembly.processPacket(packet1Frags.at(0), status);
@@ -4809,6 +4827,9 @@ PCAPP_TEST(TestIPFragMapOverflow)
 	ipv4Reassembly.processPacket(packet4Frags.at(1), status);
 	ipv4Reassembly.processPacket(packet1Frags.at(3), status);
 	ipv4Reassembly.processPacket(packet8Frags.at(0), status);
+
+	PCAPP_ASSERT(ipv4Reassembly.getMaxCapacity() == 3, "Max capacity isn't 3");
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 3, "Capacity after reassembly isn't 3");
 
 	PCAPP_ASSERT(packetsRemovedFromIpv4ReassemblyEngine.size() == 3, "Number of packets that have been removed isn't 3, it's %d", (int)packetsRemovedFromIpv4ReassemblyEngine.size());
 
@@ -4828,6 +4849,79 @@ PCAPP_TEST(TestIPFragMapOverflow)
 	PCAPP_ASSERT(key.ipID == 0x1ea4, "Third packet removed ID isn't 0x1ea4");
 	PCAPP_ASSERT(key.srcIP == IPv4Address(std::string("10.118.213.212")), "Third packet removed src IP isn't 10.118.213.212");
 	PCAPP_ASSERT(key.dstIP == IPv4Address(std::string("10.118.213.211")), "Third packet removed src IP isn't 10.118.213.211");
+
+	PCAPP_TEST_PASSED;
+}
+
+
+PCAPP_TEST(TestIPFragRemove)
+{
+	PcapFileReaderDevice reader("PcapExamples/ip4_fragments.pcap");
+	PCAPP_ASSERT(reader.open(), "Cannot open file PcapExamples/ip4_fragments.pcap");
+
+	RawPacketVector packet1Frags;
+	RawPacketVector packet2Frags;
+	RawPacketVector packet3Frags;
+	RawPacketVector packet4Frags;
+	RawPacketVector packet5Vec;
+	RawPacketVector packet6Frags;
+	RawPacketVector packet7Vec;
+	RawPacketVector packet8Frags;
+	RawPacketVector packet9Vec;
+
+	PCAPP_ASSERT(reader.getNextPackets(packet1Frags, 6) == 6, "Cannot read 6 frags of packet 1");
+	PCAPP_ASSERT(reader.getNextPackets(packet2Frags, 6) == 6, "Cannot read 6 frags of packet 2");
+	PCAPP_ASSERT(reader.getNextPackets(packet3Frags, 6) == 6, "Cannot read 6 frags of packet 3");
+	PCAPP_ASSERT(reader.getNextPackets(packet4Frags, 10) == 10, "Cannot read 10 frags of packet 4");
+	PCAPP_ASSERT(reader.getNextPackets(packet5Vec, 1) == 1, "Cannot read packet 5");
+	PCAPP_ASSERT(reader.getNextPackets(packet4Frags, 1) == 1, "Cannot read last (11th) frag of packet 4");
+	PCAPP_ASSERT(reader.getNextPackets(packet6Frags, 10) == 10, "Cannot read 10 frags of packet 5");
+	PCAPP_ASSERT(reader.getNextPackets(packet7Vec, 1) == 1, "Cannot read packet 7");
+	PCAPP_ASSERT(reader.getNextPackets(packet6Frags, 1) == 1, "Cannot read last (11th) frag of packet 6");
+	PCAPP_ASSERT(reader.getNextPackets(packet8Frags, 8) == 8, "Cannot read 8 frags of packet 8");
+	PCAPP_ASSERT(reader.getNextPackets(packet9Vec, 1) == 1, "Cannot read packet 9");
+	PCAPP_ASSERT(reader.getNextPackets(packet8Frags, 2) == 2, "Cannot read last 2 frags of packet 8");
+
+	IPv4Reassembly ipv4Reassembly;
+
+	IPv4Reassembly::ReassemblyStatus status;
+
+	ipv4Reassembly.processPacket(packet1Frags.at(0), status);
+	ipv4Reassembly.processPacket(packet2Frags.at(0), status);
+	ipv4Reassembly.processPacket(packet3Frags.at(0), status);
+	ipv4Reassembly.processPacket(packet1Frags.at(1), status);
+	ipv4Reassembly.processPacket(packet4Frags.at(0), status);
+	ipv4Reassembly.processPacket(packet1Frags.at(2), status);
+	ipv4Reassembly.processPacket(packet6Frags.at(0), status);
+	ipv4Reassembly.processPacket(packet4Frags.at(1), status);
+	ipv4Reassembly.processPacket(packet1Frags.at(3), status);
+	ipv4Reassembly.processPacket(packet8Frags.at(0), status);
+
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 6, "Capacity before delete isn't 6");
+
+	IPv4Reassembly::PacketKey key;
+	key.srcIP = IPv4Address(std::string("10.118.213.212"));
+	key.dstIP = IPv4Address(std::string("10.118.213.211"));
+
+	key.ipID = 0x1ea0;
+	ipv4Reassembly.removePacket(key);
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 5, "Capacity after 1st delete isn't 5");
+
+	key.ipID = 0x1ea5;
+	ipv4Reassembly.removePacket(key);
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 4, "Capacity after 2nd delete isn't 4");
+
+	// key doesn't exist
+	key.ipID = 0x1ea9;
+	ipv4Reassembly.removePacket(key);
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 4, "Capacity after delete with non-existing packet isn't 4");
+
+	key.ipID = 0x1ea4;
+	ipv4Reassembly.removePacket(key);
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 3, "Capacity after 2nd delete isn't 3");
+
+	ipv4Reassembly.processPacket(packet8Frags.at(0), status);
+	PCAPP_ASSERT(ipv4Reassembly.getCurrentCapacity() == 4, "Capacity after delete and 1st add isn't 4");
 
 	PCAPP_TEST_PASSED;
 }
@@ -4976,8 +5070,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestIPFragPartialData, args, false);
 	PCAPP_RUN_TEST(TestIPFragMultipleFrags, args, false);
 	PCAPP_RUN_TEST(TestIPFragMapOverflow, args, false);
-	// Test packet removal
-	// Test get size
+	PCAPP_RUN_TEST(TestIPFragRemove, args, false);
 
 	PCAPP_END_RUNNING_TESTS;
 }
