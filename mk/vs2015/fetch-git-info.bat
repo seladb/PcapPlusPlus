@@ -8,8 +8,8 @@ echo ^<?xml version="1.0" encoding="utf-8"?^>> GitInfoPropertySheet.props
 echo ^<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"^>>> GitInfoPropertySheet.props
 echo   ^<ImportGroup Label="PropertySheets" /^>>> GitInfoPropertySheet.props
 echo   ^<PropertyGroup Label="UserMacros"^>>> GitInfoPropertySheet.props
-echo     ^<GitCommit^>%GIT_BRANCH%^</GitCommit^>>> GitInfoPropertySheet.props
-echo     ^<GitBranch^>%GIT_COMMIT%^</GitBranch^>>> GitInfoPropertySheet.props
+echo     ^<GitCommit^>%GIT_COMMIT%^</GitCommit^>>> GitInfoPropertySheet.props
+echo     ^<GitBranch^>%GIT_BRANCH%^</GitBranch^>>> GitInfoPropertySheet.props
 echo   ^</PropertyGroup^>>> GitInfoPropertySheet.props
 echo   ^<PropertyGroup /^>>> GitInfoPropertySheet.props
 echo   ^<ItemDefinitionGroup /^>>> GitInfoPropertySheet.props

@@ -192,6 +192,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Common++\header\Logger.h" />
     <ClInclude Include="..\..\Common++\header\LRUList.h" />
     <ClInclude Include="..\..\Common++\header\MacAddress.h" />
+	<ClInclude Include="..\..\Common++\header\PcapPlusPlusVersion.h" />
     <ClInclude Include="..\..\Common++\header\PlatformSpecificUtils.h" />
     <ClInclude Include="..\..\Common++\header\PointerVector.h" />
     <ClInclude Include="..\..\Common++\header\SystemUtils.h" />

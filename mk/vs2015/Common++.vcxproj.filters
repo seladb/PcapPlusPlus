@@ -33,6 +33,9 @@
     <ClInclude Include="..\..\Common++\header\MacAddress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common++\header\PcapPlusPlusVersion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Common++\header\PlatformSpecificUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
