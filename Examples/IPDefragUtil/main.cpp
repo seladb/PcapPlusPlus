@@ -1,6 +1,11 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <stdlib.h>
+#include <string.h>
+#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
+#include <in.h>
+#endif
 #include "PcapPlusPlusVersion.h"
 #include "IPv4Layer.h"
 #include "IPv4Reassembly.h"

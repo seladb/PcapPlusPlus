@@ -8,21 +8,22 @@ by choosing specific IP IDs and/or setting a Berkeley Packet Filter (BPF) filter
 
 Using the utility
 -----------------
-**The must-have inputs for this utility are:**
+**The must-have inputs for this utility are:**  
 - Input file (pcap or pcapng format)
 - Output file, where fragments will be written to ('-o' flag)
 
-**Filtering packets:**
+**Filtering packets:**  
 If no filter is specified, the default is that all fragment packets will be reassembled.
 The user can set two types of filters. Both types can be set together or each one separately:
 - Berkeley Packet Filter (BPF) filter - all fragments that match this filter will be reassembled ('-f' flag)
 - A comma-separated list of IP IDs in decimal format. Fragments matching one of these IP IDs will be reassembled ('-d' flag)
 
-**Output:**
+**Output:**  
 Output file type will be identical to input file type. So for pcap file the output will be a pcap file, and same for pcapng.
 The default is that only reassembled packets are written to output file, but the user may choose to copy also the packets 
 that weren't reassembled to the output file (using '-a' flag).
-In addition to the output file the utility outputs to console basic statistics about the process:
+In addition to the output file the utility outputs to console basic statistics about the process:  
+
 	Summary:
 	========
 	Total packets read:                      253
@@ -33,26 +34,28 @@ In addition to the output file the utility outputs to console basic statistics a
 	IPv4 packets de-fragmented:              7
 	Total packets written to output file:    7
 
-**Usage examples:**
-Reassemble all fragments in mypcap.pcap:
-	IPDefragUtil mypcap.pcap -o output.pcap 
+**Usage examples:**  
+Reassemble all fragments in mypcap.pcap:  
+	IPDefragUtil mypcap.pcap -o output.pcap
 	
-Reassemble only fragments with IP ID of 12345, 12346 and 12347. Only these packets will be written to output file:
+Reassemble only fragments with IP ID of 12345, 12346 and 12347. Only these packets will be written to output file:  
 	IPDefragUtil mypcap.pcap -o output.pcap -d 12345,12346,12347
 
-Reassemble only fragments with source IP of 10.0.0.1. Only the reassembled packets will be written to output file:
+Reassemble only fragments with source IP of 10.0.0.1. Only the reassembled packets will be written to output file:  
 	IPDefragUtil mypcap.pcap -o output.pcap -f "ip src 10.0.0.1"
 	
 Reassemble only fragments with source IP of 10.0.0.1. All packets in mypcap.pcapng will be writen to output file: both those matching the 
-filter (and reassembled) and those who don't:
+filter (and reassembled) and those who don't:  
 	IPDefragUtil mypcap.pcapng -o output.pcapng f "src ip 10.0.0.1" -a
 
 Fragment only fragments with source IP of 10.0.0.1 and IP ID of 123. All packets in mypcap.pcapng will be writen to output file: both those
-matching the filter (and fragmented) and those who don't: 	
+matching the filter (and fragmented) and those who don't:    
 	IPDefragUtil mypcap.pcapng -o output.pcapng -f "src ip 10.0.0.1" -d 123 -a
 	
-**Usage:**
-	Basic usage: 
+**Usage:**  
+
+	Basic usage:
+	
 		IPDefragUtil input_file -o output_file [-d ip_ids] [-f bpf_filter] [-a] [-h] [-v]
 
 	Options:
