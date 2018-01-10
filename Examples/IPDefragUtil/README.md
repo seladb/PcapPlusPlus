@@ -36,21 +36,27 @@ In addition to the output file the utility outputs to console basic statistics a
 
 **Usage examples:**  
 Reassemble all fragments in mypcap.pcap:  
+
 	IPDefragUtil mypcap.pcap -o output.pcap
 	
 Reassemble only fragments with IP ID of 12345, 12346 and 12347. Only these packets will be written to output file:  
+
 	IPDefragUtil mypcap.pcap -o output.pcap -d 12345,12346,12347
 
 Reassemble only fragments with source IP of 10.0.0.1. Only the reassembled packets will be written to output file:  
+
 	IPDefragUtil mypcap.pcap -o output.pcap -f "ip src 10.0.0.1"
 	
 Reassemble only fragments with source IP of 10.0.0.1. All packets in mypcap.pcapng will be writen to output file: both those matching the 
 filter (and reassembled) and those who don't:  
+
 	IPDefragUtil mypcap.pcapng -o output.pcapng f "src ip 10.0.0.1" -a
 
 Fragment only fragments with source IP of 10.0.0.1 and IP ID of 123. All packets in mypcap.pcapng will be writen to output file: both those
-matching the filter (and fragmented) and those who don't:    
+matching the filter (and fragmented) and those who don't:  
+
 	IPDefragUtil mypcap.pcapng -o output.pcapng -f "src ip 10.0.0.1" -d 123 -a
+
 	
 **Usage:**  
 

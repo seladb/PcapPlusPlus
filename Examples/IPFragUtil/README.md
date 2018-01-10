@@ -38,22 +38,28 @@ In addition to the output file the utility outputs to console basic statistics a
 
 **Usage examples:**  
 Fragment all packets in mypcap.pcap to fragments size of 64B:  
+
 	IPFragUtil mypcap.pcap -o output.pcap -s 64 
 	
 Fragment only packets with IP ID of 12345, 12346 and 12347 to 128B fragments. Only these fragments will be written to output file:  
+
 	IPFragUtil mypcap.pcap -o output.pcap -s 128 -d 12345,12346,12347
 
 Fragment only packets with source IP of 10.0.0.1 to 8B fragments. Only packets matching this filter will be written to output file:  
+
 	IPFragUtil mypcap.pcap -o output.pcap -s 8 -f "ip src 10.0.0.1"
 	
 Fragment only packets with source IP of 10.0.0.1 to 8B fragments. All packets in mypcap.pcapng will be writen to output file: both those
 matching the filter (and fragmented) and those who don't:  
+
 	IPFragUtil mypcap.pcapng -o output.pcapng -s 8 -f "src ip 10.0.0.1" -a
 
 Fragment only packet(s) with source IP of 10.0.0.1 and IP ID of 123 to 16B fragments. All packets in mypcap.pcapng will be writen to output file: both those
-matching the filter (and fragmented) and those who don't: 	
+matching the filter (and fragmented) and those who don't:   	
+
 	IPFragUtil mypcap.pcapng -o output.pcapng -s 16 -f "src ip 10.0.0.1" -d 123 -a
-	
+
+
 **Usage:**  
 
 	Basic usage:
