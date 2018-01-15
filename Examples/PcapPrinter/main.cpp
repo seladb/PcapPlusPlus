@@ -148,7 +148,7 @@ int printPcapPackets(PcapFileReaderDevice* reader, std::ostream* out, int packet
 		Packet parsedPacket(&rawPacket);
 
 		// print packet to string
-		(*out) << parsedPacket.printToString() << std::endl;
+		(*out) << parsedPacket.toString() << std::endl;
 
 		packetCountSoFar++;
 	}
@@ -178,7 +178,7 @@ int printPcapNgPackets(PcapNgFileReaderDevice* reader, std::ostream* out, int pa
 
 		// print packet to string
 		(*out) << "Link layer type: " << linkLayerToString(rawPacket.getLinkLayerType()) << std::endl;
-		(*out) << parsedPacket.printToString() << std::endl;
+		(*out) << parsedPacket.toString() << std::endl;
 
 		packetCountSoFar++;
 	}

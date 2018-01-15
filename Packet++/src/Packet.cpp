@@ -494,11 +494,11 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime)
 	return "Packet length: " + dataLenStream.str() + " [Bytes], Arrival time: " + std::string(buf);
 }
 
-std::string Packet::printToString(bool timeAsLocalTime)
+std::string Packet::toString(bool timeAsLocalTime)
 {
 	std::vector<std::string> stringList;
 	std::string result;
-	printToStringList(stringList, timeAsLocalTime);
+	toStringList(stringList, timeAsLocalTime);
 	for (std::vector<std::string>::iterator iter = stringList.begin(); iter != stringList.end(); iter++)
 	{
 		result += *iter + "\n";
@@ -507,7 +507,7 @@ std::string Packet::printToString(bool timeAsLocalTime)
 	return result;
 }
 
-void Packet::printToStringList(std::vector<std::string>& result, bool timeAsLocalTime)
+void Packet::toStringList(std::vector<std::string>& result, bool timeAsLocalTime)
 {
 	result.clear();
 	result.push_back(printPacketInfo(timeAsLocalTime));

@@ -215,7 +215,6 @@ void pfRingPacketsArriveSetFilter(RawPacket* packets, uint32_t numOfPackets, uin
 			if (!packet.isPacketOfType(TCP))
 			{
 				instruction->Instruction = 0;
-				//printf("Packet:\n%s\n", packet.printToString().c_str());
 			}
 		}
 		break;
@@ -228,13 +227,11 @@ void pfRingPacketsArriveSetFilter(RawPacket* packets, uint32_t numOfPackets, uin
 			if (!packet.isPacketOfType(IPv4))
 			{
 				instruction->Instruction = 0;
-				//printf("Packet:\n%s\n", packet.printToString().c_str());
 			}
 			IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
 			if (!(ipv4Layer->getSrcIpAddress() == addr))
 			{
 				instruction->Instruction = 0;
-				//printf("Packet:\n%s\n", packet.printToString().c_str());
 			}
 		}
 		break;
@@ -2256,7 +2253,7 @@ PCAPP_TEST(TestPrintPacketAndLayers)
 	while (reader.getNextPacket(rawPacket))
 	{
 		Packet packet(&rawPacket);
-		outputStream << packet.printToString(false) << "\n\n";
+		outputStream << packet.toString(false) << "\n\n";
 	}
 
 //	ofstream outputFile("output.txt");

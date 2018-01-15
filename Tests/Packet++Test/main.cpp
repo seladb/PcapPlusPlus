@@ -4439,9 +4439,6 @@ PACKETPP_TEST(SSLAlertParsingTest)
 	PACKETPP_ASSERT(encAlertLayer->getRecordLayer()->length == ntohs(26), "Record length isn't 26");
 	PACKETPP_ASSERT(encAlertLayer->getHeaderLen() == 31, "Header length isn't 31");
 
-//	std::string packetAsString = clearAlertPacket.printToString();
-//	printf("Packet clear:\n\n%s\n\n", packetAsString.c_str());
-
 	PACKETPP_TEST_PASSED;
 }
 
@@ -4509,9 +4506,6 @@ PACKETPP_TEST(SSLMultipleRecordParsingTest)
 	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2) != NULL, "Couldn't find the 3rd handshake message");
 	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getHandshakeType() == SSL_HANDSHAKE_UNKNOWN, "3rd handshake message isn't of type unknown");
 	PACKETPP_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength() == 32, "Unknown handshake message isn't of length 32, it's %d", (int)(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength()));
-
-//	std::string packetAsString = multipleRecordsPacket.printToString();
-//	printf("Packet clear:\n\n%s\n\n", packetAsString.c_str());
 
 	PACKETPP_TEST_PASSED;
 }

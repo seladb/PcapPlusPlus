@@ -167,7 +167,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 
 			// print layer by layer by layer as we want to add a few spaces before each layer
 			std::vector<std::string> packetLayers;
-			parsedPacket.printToStringList(packetLayers);
+			parsedPacket.toStringList(packetLayers);
 			for (std::vector<std::string>::iterator iter = packetLayers.begin(); iter != packetLayers.end(); iter++)
 				(*detailedReportFile) << "\n    " << (*iter);
 			(*detailedReportFile) << std::endl;
