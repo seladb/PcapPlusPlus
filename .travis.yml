@@ -40,12 +40,6 @@ matrix:
       osx_image: xcode8
     - os: osx
       compiler: clang
-      osx_image: xcode8.1
-    - os: osx
-      compiler: clang
-      osx_image: xcode8.2
-    - os: osx
-      compiler: clang
       osx_image: xcode8.3
     - os: osx
       compiler: clang
@@ -53,6 +47,9 @@ matrix:
     - os: osx
       compiler: clang
       osx_image: xcode9.1
+    - os: osx
+      compiler: clang
+      osx_image: xcode9.2
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
