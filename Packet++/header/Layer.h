@@ -15,6 +15,24 @@
 namespace pcpp
 {
 
+	/**
+	 * @class IDataContainer
+	 * An interface (virtual abstract class) that indicates an object that holds a pointer to a buffer data. The Layer class is an example
+	 * of such object, hence it inherits this interface
+	 */
+	class IDataContainer
+	{
+	public:
+		/**
+		 * Get a pointer to the data
+		 * @param[in] offset Get a pointer in a certain offset. Default is 0 - get a pointer to start of data
+		 * @return A pointer to the data
+		 */
+		virtual uint8_t* getDataPtr(size_t offset = 0) = 0;
+
+		virtual ~IDataContainer() {}
+	};
+
 	class Packet;
 
 	/**
@@ -49,7 +67,7 @@ namespace pcpp
 	  @endverbatim
 	 *
 	*/
-	class Layer {
+	class Layer : public IDataContainer {
 		friend class Packet;
 	public:
 		/**
@@ -107,6 +125,11 @@ namespace pcpp
 		 * @param[out] toArr The destination byte array
 		 */
 		void copyData(uint8_t* toArr);
+
+
+		// implement abstract methods
+
+		uint8_t* getDataPtr(size_t offset = 0) { return (uint8_t*)(m_Data + offset); }
 
 
 		// abstract methods
