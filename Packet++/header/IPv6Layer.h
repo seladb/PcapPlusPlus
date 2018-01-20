@@ -16,7 +16,7 @@ namespace pcpp
 
 	/**
 	 * @struct ip6_hdr
-	 * Represents an IPv6 protocol header
+	 * Represents IPv6 protocol header
 	 */
 #pragma pack(push, 1)
 	struct ip6_hdr {
@@ -108,14 +108,34 @@ namespace pcpp
 		 */
 		inline IPv6Address getDstIpAddress() { return IPv6Address(getIPv6Header()->ipDst); }
 
+		/**
+		 * @return Number of IPv6 extensions in this layer
+		 */
 		size_t getExtensionCount();
 
+		/**
+		 * A templated getter for an IPv6 extension of a type TIPv6Extension. TIPv6Extension has to be one of the supported IPv6 extensions,
+		 * meaning a class that inherits IPv6Extension. If the requested extension type isn't found NULL is returned
+		 * @return A pointer to the extension instance or NULL if the requested extension type isn't found
+		 */
 		template<class TIPv6Extension>
 		TIPv6Extension* getExtensionOfType();
 
+		/**
+		 * Add a new extension of type TIPv6Extension to the layer. This is a templated method and TIPv6Extension has to be one of
+		 * the supported IPv6 extensions, meaning a class that inherits IPv6Extension. If the extension is added successfully a pointer
+		 * to the newly added extension object is returned, otherwise NULL is returned
+		 * @param[in] extensionHeader The extension object to add. Notice the object passed here is read-only, meaning its data is copied
+		 * but the object itself isn't modified
+		 * @return If the extension is added successfully a pointer to the newly added extension object is returned. Otherwise NULL is
+		 * returned
+		 */
 		template<class TIPv6Extension>
 		TIPv6Extension* addExtension(const TIPv6Extension& extensionHeader);
 
+		/**
+		 * Remove all IPv6 extensions in this layer
+		 */
 		void removeAllExtensions();
 
 		// implement abstract methods
