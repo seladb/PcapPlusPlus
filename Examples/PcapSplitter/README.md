@@ -1,7 +1,7 @@
 Pcap Splitter
 =============
 
-This is an application that splits a pcap or pcapng file into smaller pcap files by a user-defined criteria:
+A utility for splitting a pcap file into smaller pcap files by a user-defined criteria:
 - File-size - splits the pcap file to smaller pcap files, each file with a certain size defined by the user
 - Packet-count - splits the pcap file to smaller pcap files, each with number of packets defined by the user
 - Client-IP - splits the pcap file to smaller pcap files so each file contains all TCP/UDP connections initiated by a certain client-ip, for example: file#1 will contain connections initiated by 1.1.1.1, file#2 will contain 
@@ -17,6 +17,7 @@ This is an application that splits a pcap or pcapng file into smaller pcap files
 - Connection - splits a pcap file to smaller pcap files by TCP/UDP connection meaning each connection will be written to a certain file. The user can limit the number of output files, in this case an equal number of connections will
   be written to the same file. If the user doesn't set such limit - each file will contain one connection
 - BPF filter - splits the pcap file into two files: one that contains all packets matching the input BPF filter and the other one with the rest of the packets
+- Round-robin - each packet read from the input file is written to a different output file in a round-robing manner
  
 Remarks
 -------
@@ -25,7 +26,7 @@ Remarks
 - There is no limit on the size of the input file, the number of packets it contains or the number of connections it contains
 - The user can also set a BPF filter to instruct the application to handle only packets filtered by the filter. The rest of the packets in the input file will be ignored
 - In options 3-5 & 7 all packets which aren't UDP or TCP (hence don't belong to any connection) will be written to one output file, separate from the other output files (usually file#0)
-- Works only on files of the pcap (TCPDUMP) or pcapng format
+- Works only on files of the pcap (TCPDUMP) format
 
 Using the utility
 -----------------
@@ -51,6 +52,9 @@ Using the utility
 						  'bpf-filter'   - split file into two files: one that contains all packets
 										   matching the given BPF filter (file #0) and one that contains
 										   the rest of the packets (file #1)
+						  'round-robin'  - split the file in a round-robin manner - each packet to a
+										   different file
+						  
 		-p split-param  : The relevant parameter for the split method:
 						  'method = file-size'    => split-param is the max size per file (in bytes).
 													 split-param is required for this method
@@ -67,5 +71,6 @@ Using the utility
 						  'method = connection'   => split-param is max number of files to open.
 													 If not provided the default is unlimited number of files
 						  'method = bpf-filter'   => split-param is the BPF filter to match upon
+						  'method = round-robin'  => split-param is number of files to round-robin packets between
 		-i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split
 		-h              : Displays this help message and exits);

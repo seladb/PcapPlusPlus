@@ -30,15 +30,15 @@ public:
 	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
 		// check the current file number
-		int prevFile = m_PacketCount / m_MaxPacketsPerFile;
+		int curFile = m_PacketCount / m_MaxPacketsPerFile;
 		// increment packet count
 		m_PacketCount++;
 		// check the new file number
 		int nextFile = m_PacketCount / m_MaxPacketsPerFile;
 		// if reached packet count limit, close the previous file and return the next file number
-		if (prevFile != nextFile)
-			filesToClose.push_back(prevFile);
-		return nextFile;
+		if (curFile != nextFile)
+			filesToClose.push_back(curFile);
+		return curFile;
 	}
 
 	/**
@@ -170,5 +170,37 @@ public:
 			errorString = "BPF filter is not valid";
 
 		return filterValid;
+	}
+};
+
+
+/**
+ * Split a pcap file to an arbitrary number of files in a round-robin manner, each read packet to the next file in line
+ */
+class RoundRobinSplitter : public SplitterWithMaxFiles
+{
+public:
+	RoundRobinSplitter(int numOfFiles) : SplitterWithMaxFiles(numOfFiles) { }
+
+	/**
+	 * Get the next file number, SplitterWithMaxFiles#getNextFileNumber() takes care of the round-robin method
+	 */
+	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+	{
+		return getNextFileNumber(filesToClose);
+	}
+
+	/**
+	 * Number of files must be a positive integer
+	 */
+	bool isSplitterParamLegal(std::string& errorString)
+	{
+		if (m_MaxFiles < 1)
+		{
+			errorString = "number of files must be a positive integer";
+			return false;
+		}
+
+		return true;
 	}
 };

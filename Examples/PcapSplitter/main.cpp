@@ -91,6 +91,7 @@ static struct option PcapSplitterOptions[] =
 #define SPLIT_BY_2_TUPLE       "ip-src-dst"
 #define SPLIT_BY_5_TUPLE       "connection"
 #define SPLIT_BY_BPF_FILTER    "bpf-filter"
+#define SPLIT_BY_ROUND_ROBIN   "round-robin"
 
 #if defined(WIN32) || defined(WINx64)
 #define SEPARATOR '\\'
@@ -125,6 +126,8 @@ void printUsage()
 			"                      'bpf-filter'   - split file into two files: one that contains all packets\n"
 			"                                       matching the given BPF filter (file #0) and one that contains\n"
 			"                                       the rest of the packets (file #1)\n"
+			"                      'round-robin'  - split the file in a round-robin manner - each packet to a\n"
+			"                                       different file\n"
 			"    -p split-param  : The relevant parameter for the split method:\n"
 			"                      'method = file-size'    => split-param is the max size per file (in bytes).\n"
 			"                                                 split-param is required for this method\n"
@@ -141,6 +144,7 @@ void printUsage()
 			"                      'method = connection'   => split-param is max number of files to open.\n"
 			"                                                 If not provided the default is unlimited number of files\n"
 			"                      'method = bpf-filter'   => split-param is the BPF filter to match upon\n"
+			"                      'method = round-robin'  => split-param is number of files to round-robin packets between\n"
 			"    -i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split\n"
 			"    -v              : Displays the current version and exists\n"
 			"    -h              : Displays this help message and exits\n", AppName::get().c_str());
@@ -316,6 +320,11 @@ int main(int argc, char* argv[])
 	else if (method == SPLIT_BY_BPF_FILTER)
 	{
 		splitter = new BpfCriteriaSplitter(std::string(param));
+	}
+	else if (method == SPLIT_BY_ROUND_ROBIN)
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : 0);
+		splitter = new RoundRobinSplitter(paramAsInt);
 	}
 	else
 		EXIT_WITH_ERROR("Unknown method '%s'", method.c_str());

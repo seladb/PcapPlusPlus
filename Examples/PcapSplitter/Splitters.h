@@ -106,9 +106,13 @@ protected:
 
 		// zero or negative m_MaxFiles means no limit
 		if (m_MaxFiles <= 0)
-			nextFile = ++m_NextFile;
+			nextFile = m_NextFile++;
 		else // m_MaxFiles is positive, meaning there is a output file limit
-			nextFile = (++m_NextFile) % m_MaxFiles;
+		{
+			nextFile = (m_NextFile) % m_MaxFiles;
+			m_NextFile++;
+		}
+
 
 		// put the next file in the LRU list
 		int* fileToClose = m_LRUFileList.put(nextFile);
@@ -125,10 +129,10 @@ protected:
 	 * A protected c'tor for this class which gets the output file limit size. If maxFile is UNLIMITED_FILES_MAGIC_NUMBER,
 	 * it's considered there's no output files limit
 	 */
-	SplitterWithMaxFiles(int maxFiles) : m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
+	SplitterWithMaxFiles(int maxFiles, int firstFileNumber = 0) : m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
 	{
 		m_MaxFiles = maxFiles;
-		m_NextFile = 0;
+		m_NextFile = firstFileNumber;
 	}
 
 public:
@@ -174,7 +178,7 @@ protected:
 	/**
 	 * A protected c'tor for this class that only propagate the maxFiles to its ancestor
 	 */
-	ValueBasedSplitter(int maxFiles) : SplitterWithMaxFiles(maxFiles) {}
+	ValueBasedSplitter(int maxFiles) : SplitterWithMaxFiles(maxFiles, 1) {}
 
 	/**
 	 * A helper method that gets the packet value and returns the file to write it to, and also a file to close if the
