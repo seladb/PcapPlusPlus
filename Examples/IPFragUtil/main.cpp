@@ -3,11 +3,13 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
 #include "PcapPlusPlusVersion.h"
 #include "IPv4Layer.h"
+#include "IPv6Layer.h"
 #include "PayloadLayer.h"
 #include "IPv4Reassembly.h"
 #include "PcapFileDevice.h"
@@ -41,10 +43,12 @@ struct FragStats
 {
 	int totalPacketsRead;
 	int ipv4Packets;
+	int ipv6Packets;
 	int ipv4PacketsMatchIpIDs;
-	int ipv4PacketsMatchBpfFilter;
-	int ipv4PacketsUnderSize;
+	int ipPacketsMatchBpfFilter;
+	int ipPacketsUnderSize;
 	int ipv4PacketsFragmented;
+	int ipv6PacketsFragmented;
 	int totalPacketsWritten;
 
 	void clear() { memset(this, 0, sizeof(FragStats)); }
@@ -87,23 +91,77 @@ void printAppVersion()
 
 
 /**
+ * Set fragment parameters in an IPv4 fragment packet
+ */
+void setIPv4FragmentParams(IPv4Layer* fragIpLayer, size_t fragOffset, bool lastFrag)
+{
+	// calculate the fragment offset field
+	uint16_t fragOffsetValue = htons((uint16_t)(fragOffset/8));
+
+	// set the fragment flags bits to zero
+	fragOffsetValue &= (uint16_t)0xff1f;
+
+	// if this is not the last fragment, set a "more fragments" flag
+	if (!lastFrag)
+		fragOffsetValue |= (uint16_t)0x20;
+
+	// write fragment flags + fragment offset to packet
+	fragIpLayer->getIPv4Header()->fragmentOffset = fragOffsetValue;
+}
+
+
+/**
+ * Add IPv6 fragmentation extension to an IPv6 fragment packet and set fragmentation parameters
+ */
+void setIPv6FragmentParams(IPv6Layer* fragIpLayer, size_t fragOffset, bool lastFrag, uint32_t fragId)
+{
+	IPv6FragmentationHeader fragHeader(fragId, fragOffset, lastFrag);
+	fragIpLayer->addExtension<IPv6FragmentationHeader>(fragHeader);
+}
+
+
+/**
+ * Generate a 4-byte positive random number. Used for generating IPv6 fragment ID
+ */
+uint32_t generateRandomNumber()
+{
+	uint32_t result = 0;
+	for (int i = 4; i > 0; i--)
+	{
+		uint8_t randomNum = (uint8_t)rand() % 256;
+		result += (uint32_t)pow(randomNum, i);
+	}
+
+	return result;
+}
+
+/**
  * A method that takes a raw packet and a requested fragment size and splits the packet into fragments.
  * Fragments are written to a  RawPacketVector instance supplied by the user.
  * The input packet isn't modified in any way.
- * If the packet isn't of type IPv4, nothing happens and the result vector remains empty.
+ * If the packet isn't of type IPv4 or IPv6, nothing happens and the result vector remains empty.
  * If the packet payload size is smaller or equal than the request fragment size the packet isn't fragmented, but the packet is copied
  * and pushed into the result vector
  */
-void splitIPv4PacketToFragmentsBySize(RawPacket* rawPacket, size_t fragmentSize, RawPacketVector& resultFragments)
+void splitIPPacketToFragmentsBySize(RawPacket* rawPacket, size_t fragmentSize, RawPacketVector& resultFragments)
 {
 	// parse raw packet
 	Packet packet(rawPacket);
 
-	// check if IPv4
-	if (!packet.isPacketOfType(IPv4))
+	// check if IPv4/6
+	ProtocolType ipProto = UnknownProtocol;
+	if (packet.isPacketOfType(IPv4))
+		ipProto = IPv4;
+	else if (packet.isPacketOfType(IPv6))
+		ipProto = IPv6;
+	else
 		return;
 
-	IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
+	Layer* ipLayer = NULL;
+	if (ipProto == IPv4)
+		ipLayer = packet.getLayerOfType<IPv4Layer>();
+	else // ipProto == IPv6
+		ipLayer = packet.getLayerOfType<IPv6Layer>();
 
 	// if packet payload size is less than the requested fragment size, don't fragment and return
 	if (ipLayer->getLayerPayloadSize() <= fragmentSize)
@@ -112,6 +170,9 @@ void splitIPv4PacketToFragmentsBySize(RawPacket* rawPacket, size_t fragmentSize,
 		resultFragments.pushBack(copyOfRawPacket);
 		return;
 	}
+
+	// generate a random number for IPv6 fragment ID (not used in IPv4 packets)
+	uint32_t randomNum = generateRandomNumber();
 
 	// go over the payload and create fragments until reaching the end of the payload
 	size_t curOffset = 0;
@@ -132,10 +193,14 @@ void splitIPv4PacketToFragmentsBySize(RawPacket* rawPacket, size_t fragmentSize,
 		RawPacket* newFragRawPacket = new RawPacket(*packet.getRawPacket());
 		Packet newFrag(newFragRawPacket);
 
-		// find the IPv4 layer
-		IPv4Layer* fragIpLayer = newFrag.getLayerOfType<IPv4Layer>();
+		// find the IPv4/6 layer of the new fragment
+		Layer* fragIpLayer = NULL;
+		if (ipProto == IPv4)
+			fragIpLayer = newFrag.getLayerOfType<IPv4Layer>();
+		else // ipProto == IPv6
+			fragIpLayer = newFrag.getLayerOfType<IPv6Layer>();
 
-		// delete all layers above IPv4
+		// delete all layers above IP layer
 		Layer* curLayer = fragIpLayer->getNextLayer();
 		while (curLayer != NULL)
 		{
@@ -148,18 +213,11 @@ void splitIPv4PacketToFragmentsBySize(RawPacket* rawPacket, size_t fragmentSize,
 		PayloadLayer newPayload(ipLayer->getLayerPayload() + curOffset, curFragSize, false);
 		newFrag.addLayer(&newPayload);
 
-		// calculate the fragment offset field
-		uint16_t fragOffset = htons((uint16_t)(curOffset/8));
-
-		// set the fragment flags bits to zero
-		fragOffset &= (uint16_t)0xff1f;
-
-		// if this is not the last fragment, set a "more fragments" flag
-		if (!lastFrag)
-			fragOffset |= (uint16_t)0x20;
-
-		// write fragment flags + fragment offset to packet
-		fragIpLayer->getIPv4Header()->fragmentOffset = fragOffset;
+		// set fragment parameters in IPv4/6 layer
+		if (ipProto == IPv4)
+			setIPv4FragmentParams((IPv4Layer*)fragIpLayer, curOffset, lastFrag);
+		else // ipProto == IPv6
+			setIPv6FragmentParams((IPv6Layer*)fragIpLayer, curOffset, lastFrag, randomNum);
 
 		// compute all calculated fields of the new fragment
 		newFrag.computeCalculateFields();
@@ -203,7 +261,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 			// check if packet matches the BPF filter supplied by the user
 			if (IPcapDevice::matchPakcetWithFilter(bpfFilter, &rawPacket))
 			{
-				stats.ipv4PacketsMatchBpfFilter++;
+				stats.ipPacketsMatchBpfFilter++;
 			}
 			else // if not - set the packet as not marked for fragmentation
 			{
@@ -211,18 +269,26 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 			}
 		}
 
+		ProtocolType ipProto = UnknownProtocol;
+
 		// check if packet is of type IPv4
 		Packet parsedPacket(&rawPacket);
 		if (parsedPacket.isPacketOfType(IPv4))
 		{
+			ipProto = IPv4;
 			stats.ipv4Packets++;
+		}
+		else if (parsedPacket.isPacketOfType(IPv6)) // check if packet is of type IPv6
+		{
+			ipProto = IPv6;
+			stats.ipv6Packets++;
 		}
 		else // if not - set the packet as not marked for fragmentation
 		{
 			fragPacket = false;
 		}
 
-		// if user requested to filter by IP ID
+		// if user requested to filter by IP ID (relevant only for IPv4 packets)
 		if (filterByIpID)
 		{
 			// get the IPv4 layer
@@ -246,16 +312,19 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 		{
 			// call the method who splits the packet into fragments
 			RawPacketVector resultFrags;
-			splitIPv4PacketToFragmentsBySize(&rawPacket, (size_t)fragSize, resultFrags);
+			splitIPPacketToFragmentsBySize(&rawPacket, (size_t)fragSize, resultFrags);
 
 			// if result list contains only 1 packet it means packet wasn't fragmented - update stats accordingly
 			if (resultFrags.size() == 1)
 			{
-				stats.ipv4PacketsUnderSize++;
+				stats.ipPacketsUnderSize++;
 			}
 			else if (resultFrags.size() > 1) // packet was fragmented
 			{
-				stats.ipv4PacketsFragmented++;
+				if (ipProto == IPv4)
+					stats.ipv4PacketsFragmented++;
+				else // ipProto == IPv6
+					stats.ipv6PacketsFragmented++;
 			}
 
 			// write the result fragments if either: (1) packet was indeed fragmented,
@@ -286,12 +355,14 @@ void printStats(const FragStats& stats, bool filterByIpID, bool filterByBpf)
 	stream << "========\n";
 	stream << "Total packets read:                      " << stats.totalPacketsRead << std::endl;
 	stream << "IPv4 packets read:                       " << stats.ipv4Packets << std::endl;
+	stream << "IPv6 packets read:                       " << stats.ipv6Packets << std::endl;
 	if (filterByIpID)
 		stream << "IPv4 packets match IP ID list:           " << stats.ipv4PacketsMatchIpIDs << std::endl;
 	if (filterByBpf)
-		stream << "IPv4 packets match BPF filter:           " << stats.ipv4PacketsMatchBpfFilter << std::endl;
-	stream << "IPv4 packets smaller than fragment size: " << stats.ipv4PacketsUnderSize << std::endl;
+		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << std::endl;
+	stream << "IP packets smaller than fragment size:   " << stats.ipPacketsUnderSize << std::endl;
 	stream << "IPv4 packets fragmented:                 " << stats.ipv4PacketsFragmented << std::endl;
+	stream << "IPv6 packets fragmented:                 " << stats.ipv6PacketsFragmented << std::endl;
 	stream << "Total packets written to output file:    " << stats.totalPacketsWritten << std::endl;
 
 	std::cout << stream.str();
