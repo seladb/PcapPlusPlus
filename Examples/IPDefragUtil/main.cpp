@@ -8,7 +8,7 @@
 #endif
 #include "PcapPlusPlusVersion.h"
 #include "IPv4Layer.h"
-#include "IPv4Reassembly.h"
+#include "IPReassembly.h"
 #include "PcapFileDevice.h"
 #include "SystemUtils.h"
 #include "getopt.h"
@@ -96,9 +96,9 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 	RawPacket rawPacket;
 
 	// create an instance of IPv4Reassembly
-	IPv4Reassembly ipv4Reassembly;
+	IPReassembly ipReassembly;
 
-	IPv4Reassembly::ReassemblyStatus status;
+	IPReassembly::ReassemblyStatus status;
 
 	// read all packet from input file
 	while (reader->getNextPacket(rawPacket))
@@ -155,31 +155,31 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 		if (defragPacket)
 		{
 			// process the packet in the IPv4 reassembly mechanism
-			Packet* result = ipv4Reassembly.processPacket(&parsedPacket, status);
+			Packet* result = ipReassembly.processPacket(&parsedPacket, status);
 
 			// write fragment/packet to file if:
 			// - packet is fully reassembled (status of REASSEMBLED)
 			// - packet isn't a fragment or isn't an IPv4 packet and the user asked to write all packets to output
-			if (status == IPv4Reassembly::REASSEMBLED ||
-					((status == IPv4Reassembly::NON_IP_PACKET || status == IPv4Reassembly::NON_FRAGMENT) && copyAllPacketsToOutputFile))
+			if (status == IPReassembly::REASSEMBLED ||
+					((status == IPReassembly::NON_IP_PACKET || status == IPReassembly::NON_FRAGMENT) && copyAllPacketsToOutputFile))
 			{
 				writer->writePacket(*result->getRawPacket());
 				stats.totalPacketsWritten++;
 			}
 
 			// update statistics if packet is fully reassembled (status of REASSEMBLED)
-			if (status == IPv4Reassembly::REASSEMBLED)
+			if (status == IPReassembly::REASSEMBLED)
 			{
 				stats.ipv4PacketsDefragmented++;
 				delete result;
 			}
 
 			// update statistics if packet if packet isn't full reassembled
-			if (status == IPv4Reassembly::FIRST_FRAGMENT ||
-					status == IPv4Reassembly::FRAGMENT ||
-					status == IPv4Reassembly::OUT_OF_ORDER_FRAGMENT ||
-					status == IPv4Reassembly::MALFORMED_FRAGMENT ||
-					status == IPv4Reassembly::REASSEMBLED)
+			if (status == IPReassembly::FIRST_FRAGMENT ||
+					status == IPReassembly::FRAGMENT ||
+					status == IPReassembly::OUT_OF_ORDER_FRAGMENT ||
+					status == IPReassembly::MALFORMED_FRAGMENT ||
+					status == IPReassembly::REASSEMBLED)
 			{
 				stats.ipv4FragmentsMatched++;
 			}

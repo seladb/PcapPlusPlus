@@ -8,10 +8,10 @@
 #include <in.h>
 #endif
 #include "PcapPlusPlusVersion.h"
+#include "Packet.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
-#include "IPv4Reassembly.h"
 #include "PcapFileDevice.h"
 #include "SystemUtils.h"
 #include "getopt.h"

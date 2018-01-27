@@ -11,7 +11,7 @@
  * @file
  * This file includes an implementation of IPv4 reassembly mechanism (a.k.a IPv4 de-fragmentation), which is the mechanism of assembling IPv4
  * fragments back into one whole packet. You can read more about IP fragmentation here: https://en.wikipedia.org/wiki/IP_fragmentation.<BR>
- * The API is rather simple and contains one main method: pcpp#IPv4Reassembly#processPacket() which gets a fragment packet as a parameter, does the
+ * The API is rather simple and contains one main method: pcpp#IPReassembly#processPacket() which gets a fragment packet as a parameter, does the
  * reassembly and returns a fully reassembled packet when done.<BR>
  *
  * The logic works as follows:
@@ -28,11 +28,11 @@
  * - If a non-fragment packet arrives it's returned as is to the user
  *
  * In order to limit the amount of memory used by this mechanism there is a limit to the number of concurrent packets being reassembled.
- * The default limit is #PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE but the user can set any value (determined in pcpp#IPv4Reassembly
+ * The default limit is #PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE but the user can set any value (determined in pcpp#IPReassembly
  * c'tor). Once capacity (the number of concurrent reassembled packets) exceeds this number, the packet that was least recently used will be
  * dropped from the map along with all the data that was reassembled so far. This means that if the next fragment from this packet suddenly
  * appears it will be treated as a new reassembled packet (which will create another record in the map). The user can be notified when
- * reassembled packets are removed from the map by registering to the pcpp#IPv4Reassembly#OnFragmentsClean callback in pcpp#IPv4Reassembly c'tor
+ * reassembled packets are removed from the map by registering to the pcpp#IPReassembly#OnFragmentsClean callback in pcpp#IPReassembly c'tor
  */
 
 /**
@@ -48,45 +48,177 @@ namespace pcpp
 	#define PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE 500000
 
 	/**
-	 * @class IPv4Reassembly
-	 * Contains the IPv4 reassembly (a.k.a IPv4 de-fragmentation) mechanism. Please refer to the documentation at the top of IPv4Reassembly.h
+	 * @class IPReassembly
+	 * Contains the IPv4 reassembly (a.k.a IPv4 de-fragmentation) mechanism. Please refer to the documentation at the top of IPReassembly.h
 	 * to understand how this mechanism works. The main APIs are:
-	 * - IPv4Reassembly#processPacket() - process a fragment. This is the main method which should be called whenever a new fragment arrives.
+	 * - IPReassembly#processPacket() - process a fragment. This is the main method which should be called whenever a new fragment arrives.
 	 *   This method processes the fragment, runs the reassembly logic and returns the result packet when it's fully reassembled
-	 * - IPv4Reassembly#getCurrentPacket() - get the reassembled data that is currently available, even if reassembly process is not yet completed
-	 * - IPv4Reassembly#removePacket() - remove all data that is currently stored for a packet, including the reassembled data that was gathered
+	 * - IPReassembly#getCurrentPacket() - get the reassembled data that is currently available, even if reassembly process is not yet completed
+	 * - IPReassembly#removePacket() - remove all data that is currently stored for a packet, including the reassembled data that was gathered
 	 *   so far
 	 */
-	class IPv4Reassembly
+	class IPReassembly
 	{
 	public:
 
-		/**
-		 * @struct PacketKey
-		 * Each fragment in the IPv4 reassebmly logic is uniquely identified by its source IP address, dest IP address and the packet ID.
-		 * This struct gathers all 3 to one structure
-		 */
-		struct PacketKey
+		class PacketKey
 		{
+		public:
+
+			virtual ~PacketKey() {}
+
+			virtual uint32_t getHashValue() const = 0;
+			virtual ProtocolType getProtocolType() const = 0;
+			virtual PacketKey* clone() = 0;
+
+		protected:
+			// private c'tor
+			PacketKey() {}
+
+			// private copy c'tor
+			PacketKey(const PacketKey& other);
+		};
+
+		class IPv4PacketKey : public PacketKey
+		{
+		public:
+
 			/**
 			 * A default c'tor which zeros all members
 			 */
-			PacketKey() : ipID(0), srcIP(IPv4Address::Zero), dstIP(IPv4Address::Zero) { }
+			IPv4PacketKey() : m_IpID(0), m_SrcIP(IPv4Address::Zero), m_DstIP(IPv4Address::Zero) { }
 
 			/**
 			 * A c'tor that sets values in each one of the members
-			 * @param[in] ipid The value to set in PacketKey#ipID
-			 * @param[in] srcip The value to set in PacketKey#srcIP
-			 * @param[in] dstip The value to set in PacketKey#dstIP
+			 * @param[in] ipid IP ID value
+			 * @param[in] srcip Source IPv4 address
+			 * @param[in] dstip Dest IPv4 address
 			 */
-			PacketKey(uint16_t ipid, IPv4Address srcip, IPv4Address dstip) : ipID(ipid), srcIP(srcip), dstIP(dstip) { }
+			IPv4PacketKey(uint16_t ipid, IPv4Address srcip, IPv4Address dstip) : m_IpID(ipid), m_SrcIP(srcip), m_DstIP(dstip) { }
 
-			/** IPv4 packet ID */
-			uint16_t ipID;
-			/** IPv4 source IP address */
-			IPv4Address srcIP;
-			/** IPv4 destination IP address */
-			IPv4Address dstIP;
+			/**
+			 * A copy c'tor for this class
+			 */
+			IPv4PacketKey(const IPv4PacketKey& other) : m_IpID(other.m_IpID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+
+			/**
+			 * @return IP ID
+			 */
+			inline uint16_t getIpID() { return m_IpID; }
+
+			/**
+			 * @return Source IP address
+			 */
+			inline IPv4Address getSrcIP() { return m_SrcIP; }
+
+			/**
+			 * @return Dest IP address
+			 */
+			inline IPv4Address getDstIP() { return m_DstIP; }
+
+			/**
+			 * Set IP ID
+			 * @param[in] ipID IP ID value to set
+			 */
+			inline void setIpID(uint16_t ipID) { m_IpID = ipID; }
+
+			/**
+			 * Set source IPv4 address
+			 * @param[in] srcIP Source IP to set
+			 */
+			inline void setSrcIP(const IPv4Address& srcIP) { m_SrcIP = srcIP; }
+
+			/**
+			 * Set dest IPv4 address
+			 * @param[in] dstIP Dest IP to set
+			 */
+			inline void setDstIP(const IPv4Address& dstIP) { m_DstIP = dstIP; }
+
+
+			// implement abstract methods
+
+			uint32_t getHashValue() const;
+
+			ProtocolType getProtocolType() const { return IPv4; }
+
+			PacketKey* clone() { return new IPv4PacketKey(*this); }
+
+		private:
+			uint16_t m_IpID;
+			IPv4Address m_SrcIP;
+			IPv4Address m_DstIP;
+		};
+
+
+		class IPv6PacketKey : public PacketKey
+		{
+		public:
+
+			/**
+			 * A default c'tor which zeros all members
+			 */
+			IPv6PacketKey() : m_FragmentID(0), m_SrcIP(IPv6Address::Zero), m_DstIP(IPv6Address::Zero) { }
+
+			/**
+			 * A c'tor that sets values in each one of the members
+			 * @param[in] fragmentID Fragment ID value
+			 * @param[in] srcip Source IPv6 address
+			 * @param[in] dstip Dest IPv6 address
+			 */
+			IPv6PacketKey(uint32_t fragmentID, IPv6Address srcip, IPv6Address dstip) : m_FragmentID(fragmentID), m_SrcIP(srcip), m_DstIP(dstip) { }
+
+			/**
+			 * A copy c'tor for this class
+			 */
+			IPv6PacketKey(const IPv6PacketKey& other) : m_FragmentID(other.m_FragmentID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+
+			/**
+			 * @return Fragment ID
+			 */
+			inline uint32_t getFragmentID() { return m_FragmentID; }
+
+			/**
+			 * @return Source IP address
+			 */
+			inline IPv6Address getSrcIP() { return m_SrcIP; }
+
+			/**
+			 * @return Dest IP address
+			 */
+			inline IPv6Address getDstIP() { return m_DstIP; }
+
+			/**
+			 * Set fragment ID
+			 * @param[in] fragID Fragment ID value to set
+			 */
+			inline void setFragmentID(uint32_t fragID) { m_FragmentID = fragID; }
+
+			/**
+			 * Set source IPv6 address
+			 * @param[in] srcIP Source IP to set
+			 */
+			inline void setSrcIP(const IPv6Address& srcIP) { m_SrcIP = srcIP; }
+
+			/**
+			 * Set dest IPv6 address
+			 * @param[in] dstIP Dest IP to set
+			 */
+			inline void setDstIP(const IPv6Address& dstIP) { m_DstIP = dstIP; }
+
+
+
+			// implement abstract methods
+
+			uint32_t getHashValue() const;
+
+			ProtocolType getProtocolType() const { return IPv6; }
+
+			PacketKey* clone() { return new IPv6PacketKey(*this); }
+
+		private:
+			uint32_t m_FragmentID;
+			IPv6Address m_SrcIP;
+			IPv6Address m_DstIP;
 		};
 
 
@@ -98,7 +230,7 @@ namespace pcpp
 		 * @param[in] key The identifiers of the packet that is being dropped
 		 * @param[in] userCookie A pointer to the cookie provided by the user in IPv4Reassemby c'tor (or NULL if no cookie provided)
 		 */
-		typedef void (*OnFragmentsClean)(const PacketKey& key, void* userCookie);
+		typedef void (*OnFragmentsClean)(const PacketKey* key, void* userCookie);
 
 		/**
 		 * An enum representing the status returned from processing a fragment
@@ -124,21 +256,21 @@ namespace pcpp
 		/**
 		 * A c'tor for this class.
 		 * @param[in] onFragmentsCleanCallback The callback to be called when packets are dropped due to capacity limit.
-		 * Please read more about capacity limit in IPv4Reassembly.h file description. This parameter is optional, default value is NULL (no callback)
+		 * Please read more about capacity limit in IPReassembly.h file description. This parameter is optional, default value is NULL (no callback)
 		 * @param[in] callbackUserCookie A pointer to an object provided by the user. This pointer will be returned when invoking the
 		 * onFragmentsCleanCallback. This parameter is optional, default cookie is NULL
 		 * @param[in] maxPacketsToStore Set the capacity limit of the IPv4 reassembly mechanism. Default capacity is #PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE
 		 */
-		IPv4Reassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, void* callbackUserCookie = NULL, size_t maxPacketsToStore = PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE);
+		IPReassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, void* callbackUserCookie = NULL, size_t maxPacketsToStore = PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE);
 
 		/**
 		 * A d'tor for this class
 		 */
-		~IPv4Reassembly();
+		~IPReassembly();
 
 		/**
-		 * The main API that drives IPv4Reassembly. This method should be called whenever a fragment arrives. This method finds the relevant
-		 * packet this fragment belongs to and runs the IPv4 reassembly logic that is described in IPv4Reassembly.h.
+		 * The main API that drives IPReassembly. This method should be called whenever a fragment arrives. This method finds the relevant
+		 * packet this fragment belongs to and runs the IPv4 reassembly logic that is described in IPReassembly.h.
 		 * @param[in] fragment The fragment to process. Please notice that the reassembly logic doesn't change or manipulate this object in any way.
 		 * All of its data is copied to internal structures and manipulated there
 		 * @param[out] status An indication of the packet reassembly status following the processing of this fragment. Possible values are:
@@ -160,8 +292,8 @@ namespace pcpp
 		Packet* processPacket(Packet* fragment, ReassemblyStatus& status);
 
 		/**
-		 * The main API that drives IPv4Reassembly. This method should be called whenever a fragment arrives. This method finds the relevant
-		 * packet this fragment belongs to and runs the IPv4 reassembly logic that is described in IPv4Reassembly.h.
+		 * The main API that drives IPReassembly. This method should be called whenever a fragment arrives. This method finds the relevant
+		 * packet this fragment belongs to and runs the IPv4 reassembly logic that is described in IPReassembly.h.
 		 * @param[in] fragment The fragment to process. Please notice that the reassembly logic doesn't change or manipulate this object in any way.
 		 * All of its data is copied to internal structures and manipulated there
 		 * @param[out] status An indication of the packet reassembly status following the processing of this fragment. Possible values are:
@@ -228,12 +360,11 @@ namespace pcpp
 			uint16_t currentOffset;
 			RawPacket* data;
 			bool deleteData;
-			uint16_t ipID;
-			uint32_t srcIP;
-			uint32_t dstIP;
+			uint32_t fragmentID;
+			PacketKey* packetKey;
 			PointerVector<IPFragment> outOfOrderFragments;
-			IPFragmentData(uint16_t ipId, uint32_t srcIp, uint32_t dstIp) { currentOffset = 0; data = NULL; deleteData = true; ipID = ipId; srcIP = srcIp; dstIP = dstIp; }
-			~IPFragmentData() { if (deleteData && data != NULL) { delete data; } }
+			IPFragmentData(PacketKey* pktKey, uint32_t fragId) { currentOffset = 0; data = NULL; deleteData = true; fragmentID = fragId; packetKey = pktKey; }
+			~IPFragmentData() { delete packetKey; if (deleteData && data != NULL) { delete data; } }
 		};
 
 		LRUList<uint32_t>* m_PacketLRU;
