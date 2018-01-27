@@ -69,7 +69,7 @@ namespace pcpp
 
 			virtual uint32_t getHashValue() const = 0;
 			virtual ProtocolType getProtocolType() const = 0;
-			virtual PacketKey* clone() = 0;
+			virtual PacketKey* clone() const = 0;
 
 		protected:
 			// private c'tor
@@ -141,7 +141,7 @@ namespace pcpp
 
 			ProtocolType getProtocolType() const { return IPv4; }
 
-			PacketKey* clone() { return new IPv4PacketKey(*this); }
+			PacketKey* clone() const { return new IPv4PacketKey(*this); }
 
 		private:
 			uint16_t m_IpID;
@@ -213,7 +213,7 @@ namespace pcpp
 
 			ProtocolType getProtocolType() const { return IPv6; }
 
-			PacketKey* clone() { return new IPv6PacketKey(*this); }
+			PacketKey* clone() const { return new IPv6PacketKey(*this); }
 
 		private:
 			uint32_t m_FragmentID;
