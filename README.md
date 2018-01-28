@@ -85,7 +85,7 @@ The Packet++ library currently supports parsing, editing and creation of packets
 ### Useful Packet And Network Utilities ###
 
 1. TCP reassembly logic
-2. IPv4 reassembly logic (a.k.a IPv4 de-fragmentation)
+2. IP reassembly logic (a.k.a IP de-fragmentation). Works for both IPv4 and IPv6
 3. Packet hash key creation (by 5-tuple and 2-tuple)
 4. Retrieve remote machine MAC address using ARP protocol
 5. Retrieve host IPv4 address by using DNS protocol

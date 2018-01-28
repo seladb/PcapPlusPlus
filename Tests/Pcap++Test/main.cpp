@@ -4239,7 +4239,7 @@ PCAPP_TEST(TestIPFragmentationSanity)
 	IPReassembly ipReassembly;
 	IPReassembly::ReassemblyStatus status;
 
-	PCAPP_ASSERT(ipReassembly.getMaxCapacity() == PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, "Max capacity isn't PCPP_IPV4_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE");
+	PCAPP_ASSERT(ipReassembly.getMaxCapacity() == PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, "Max capacity isn't PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE");
 	PCAPP_ASSERT(ipReassembly.getCurrentCapacity() == 0, "Capacity before reassembly isn't 0");
 
 	Packet* result = NULL;
