@@ -138,6 +138,12 @@ namespace pcpp
 		 */
 		void removeAllExtensions();
 
+		/**
+		 * @return True if this packet is an IPv6 fragment, meaning if it has an IPv6FragmentationHeader extension
+		 */
+		bool isFragment();
+
+
 		// implement abstract methods
 
 		/**

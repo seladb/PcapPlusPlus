@@ -178,6 +178,12 @@ void IPv6Layer::removeAllExtensions()
 	deleteExtensions();
 }
 
+bool IPv6Layer::isFragment()
+{
+	IPv6FragmentationHeader* fragHdr = getExtensionOfType<IPv6FragmentationHeader>();
+	return (fragHdr != NULL);
+}
+
 void IPv6Layer::parseNextLayer()
 {
 	size_t headerLen = getHeaderLen();
