@@ -62,7 +62,7 @@ void printUsage()
 {
 	printf("\nUsage:\n"
 			"-------\n"
-			"%s input_file -o output_file [-d ip_ids] [-f bpf_filter] [-a] [-h] [-v]\n"
+			"%s input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]\n"
 			"\nOptions:\n\n"
 			"    input_file      : Input pcap/pcapng file\n"
 			"    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type\n"

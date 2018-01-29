@@ -74,7 +74,7 @@ Reassemble only IPv6 fragments with dest address of 2001:4f8:3:d::61:
 
 	Basic usage:
 	
-		IPDefragUtil input_file -o output_file [-d ip_ids] [-f bpf_filter] [-a] [-h] [-v]
+		IPDefragUtil input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]
 
 	Options:
 
