@@ -3776,7 +3776,7 @@ bool tcpReassemblyTest(std::vector<RawPacket>& packetStream, TcpReassemblyMultip
 	for (std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
 	{
 		Packet packet(&(*iter));
-		tcpReassembly->ReassemblePacket(packet);
+		tcpReassembly->reassemblePacket(packet);
 	}
 
 //	for(TcpReassemblyMultipleConnStatsIter iter = results.begin(); iter != results.end(); iter++)
@@ -4143,7 +4143,7 @@ PCAPP_TEST(TestTcpReassemblyMultipleConns)
 	for (std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
 	{
 		Packet packet(&(*iter));
-		tcpReassembly.ReassemblePacket(packet);
+		tcpReassembly.reassemblePacket(packet);
 	}
 
 	PCAPP_ASSERT(results.size() == 3, "Num of connections isn't 3");
@@ -4209,8 +4209,8 @@ PCAPP_TEST(TestTcpReassemblyMultipleConns)
 
 	// now send FIN packets of conn 3 and verify they are igonred
 
-	tcpReassembly.ReassemblePacket(&finPacket1);
-	tcpReassembly.ReassemblePacket(&finPacket2);
+	tcpReassembly.reassemblePacket(&finPacket1);
+	tcpReassembly.reassemblePacket(&finPacket2);
 
 	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended supposedly ended with FIN or RST after FIN packets sent although ended manually before");
 	PCAPP_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections isn't ended after FIN packets sent even though ended manually before");

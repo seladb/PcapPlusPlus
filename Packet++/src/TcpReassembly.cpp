@@ -93,7 +93,7 @@ TcpReassembly::~TcpReassembly()
 	}
 }
 
-void TcpReassembly::ReassemblePacket(Packet& tcpData)
+void TcpReassembly::reassemblePacket(Packet& tcpData)
 {
 	// TCP reassembly doesn't support IPv6 for now
 	IPv4Layer* ipLayer = tcpData.getLayerOfType<IPv4Layer>();
@@ -406,10 +406,10 @@ void TcpReassembly::ReassemblePacket(Packet& tcpData)
 	}
 }
 
-void TcpReassembly::ReassemblePacket(RawPacket* tcpRawData)
+void TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
 {
 	Packet parsedPacket(tcpRawData, false);
-	ReassemblePacket(parsedPacket);
+	reassemblePacket(parsedPacket);
 }
 
 std::string TcpReassembly::prepareMissingDataMessage(uint32_t missingDataLen)
