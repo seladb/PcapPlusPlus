@@ -884,6 +884,24 @@ bool DpdkDevice::setFilter(std::string filterAsString)
 	return false;
 }
 
+int sendPacketsInternal(rte_mbuf** mBufArr, int mBufArrLen, int devId, uint16_t txQueueId)
+{
+	// try to send packets currently in mBufArr
+	LOG_DEBUG("Ready to send %d packets", mBufArrLen);
+	int packetsSent = rte_eth_tx_burst(devId, txQueueId,
+			mBufArr,
+			mBufArrLen);
+	LOG_DEBUG("rte_eth_tx_burst sent %d out of %d", packetsSent, mBufArrLen);
+
+	// free all mBufs we allocated
+	for (int i = 0; i < mBufArrLen; i++)
+	{
+		rte_pktmbuf_free(mBufArr[i]);
+	}
+
+	return packetsSent;
+}
+
 int DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, packetIterator iter, int arrLength)
 {
 	if (!m_DeviceOpened)
@@ -927,38 +945,28 @@ int DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, packet
 		}
 
 		rte_mbuf* newMBuf = rte_pktmbuf_alloc(m_MBufMempool);
-		// out of mBuf resources, or
-		// aggregated number of mBufs reached threshold (which is total number of DPDK TX descriptors * PACKET_TRANSMITION_THRESHOLD, or
-		// only packetsToSendInThisIteration are left
-		if (newMBuf == NULL || packetsToSendInThisIteration >= (m_Config.transmitDescriptorsNumber*PACKET_TRANSMITION_THRESHOLD) || packetIndex + packetsToSendInThisIteration == totalPacketsToSend)
+
+		// couldn't allocate mbuf, probably out of mbuf resources
+		if (newMBuf == NULL)
 		{
-			// try to send packets currently in mBufArr
-			LOG_DEBUG("Ready to send %d packets (packet indices: %d - %d) with rte_eth_tx_burst", packetsToSendInThisIteration, packetIndex, packetIndex+packetsToSendInThisIteration);
-			int packetsSentInThisIteration = rte_eth_tx_burst(m_Id, txQueueId,
-					mBufArr,
-					packetsToSendInThisIteration);
-			packetIndex += packetsSentInThisIteration;
-			LOG_DEBUG("rte_eth_tx_burst sent %d out of %d. Packet index: %d", packetsSentInThisIteration, packetsToSendInThisIteration, packetIndex);
+			// count the num of times mbuf allocation failed
+			numOfSendFailures++;
+			LOG_DEBUG("Couldn't allocate mBuf for transmitting, number of failures: %d", numOfSendFailures);
 
-			// free all mBufs we allocated
-			for (int i = 0; i < packetsToSendInThisIteration; i++)
-				rte_pktmbuf_free(mBufArr[i]);
-
-			if (packetsSentInThisIteration < packetsToSendInThisIteration)
+			// try to free mbufs by sending the packets currently waiting to be sent
+			if (packetsToSendInThisIteration > 0)
 			{
-				LOG_DEBUG("Freed %d mBufs that weren't freed by rte_eth_tx_burst", packetsToSendInThisIteration - packetsSentInThisIteration);
-				LOG_DEBUG("Since NIC couldn't send all packet in this iteration, waiting for 0.2 second for H/W descriptors to get free");
-				usleep(200000);
+				int packetsSentInThisIteration = sendPacketsInternal(mBufArr, packetsToSendInThisIteration, m_Id, txQueueId);
+				packetsToSendInThisIteration = 0; // start a new iteration
+
+				if (packetsSentInThisIteration < packetsToSendInThisIteration)
+				{
+					LOG_DEBUG("Since NIC couldn't send all packet in this iteration, waiting for 0.2 second for H/W descriptors to get free");
+					usleep(200000);
+				}
 			}
 
-			// else - rte_eth_tx_burst succeeded
-			packetsToSendInThisIteration = 0; // start new iteration
-			if (newMBuf == NULL)
-			{
-				numOfSendFailures++;
-				LOG_DEBUG("Couldn't allocate mBuf for transmitting, number of failures: %d", numOfSendFailures);
-			}
-
+			// mbuf allocation failed, go to loop start
 			continue;
 		}
 
@@ -991,8 +999,23 @@ int DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, packet
 		newMBuf->data_len = rawPacket->getRawDataLen();
 
 		mBufArr[packetsToSendInThisIteration] = newMBuf;
+		packetIndex++;
 		packetsToSendInThisIteration++;
 		numOfSendFailures = 0;
+
+		// if number of aggregated packets is beyond tx threshold or reached to the end of packet list, send the packets
+		// currently in mBufArr
+		if (packetsToSendInThisIteration >= (m_Config.transmitDescriptorsNumber*PACKET_TRANSMITION_THRESHOLD) || packetIndex == totalPacketsToSend)
+		{
+			int packetsSentInThisIteration = sendPacketsInternal(mBufArr, packetsToSendInThisIteration, m_Id, txQueueId);
+			packetsToSendInThisIteration = 0; // start a new iteration
+
+			if (packetsSentInThisIteration < packetsToSendInThisIteration)
+			{
+				LOG_DEBUG("Since NIC couldn't send all packet in this iteration, waiting for 0.2 second for H/W descriptors to get free");
+				usleep(200000);
+			}
+		}
 	}
 
 	LOG_DEBUG("All %d packets were sent successfully", packetIndex);

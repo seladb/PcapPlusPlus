@@ -3167,14 +3167,23 @@ PCAPP_TEST(TestDpdkDeviceSendPackets)
     }
 
     //send packets as RawPacket array
+    int freeMBufsBefore = dev->getAmountOfFreeMbufs();
     int packetsSentAsRaw = dev->sendPackets(rawPacketArr, packetsRead);
+    int freeMBufsAfter = dev->getAmountOfFreeMbufs();
+    PCAPP_ASSERT(freeMBufsBefore == freeMBufsAfter, "MBuf leakage happened in sending RawPacket array");
 
     //send packets as parsed EthPacekt array
     std::copy(packetVec.begin(), packetVec.end(), packetArr);
+    freeMBufsBefore = dev->getAmountOfFreeMbufs();
     int packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead);
+    freeMBufsAfter = dev->getAmountOfFreeMbufs();
+    PCAPP_ASSERT(freeMBufsBefore == freeMBufsAfter, "MBuf leakage happened in sending EthPacekt array");
 
     //send packets are RawPacketVector
+    freeMBufsBefore = dev->getAmountOfFreeMbufs();
     int packetsSentAsRawVector = dev->sendPackets(rawPacketVec);
+    freeMBufsAfter = dev->getAmountOfFreeMbufs();
+    PCAPP_ASSERT(freeMBufsBefore == freeMBufsAfter, "MBuf leakage happened in sending RawPacketVector");
 
     PCAPP_ASSERT(packetsSentAsRaw == packetsRead, "Not all packets were sent as raw. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsRaw);
     PCAPP_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsParsed);
@@ -3198,8 +3207,11 @@ PCAPP_TEST(TestDpdkDeviceSendPackets)
     PCAPP_ASSERT(dev->sendPackets(rawPacketArr, packetsRead, dev->getTotalNumOfTxQueues()+1) == 0, "Managed to send packets on TX queue that doesn't exist");
     LoggerPP::getInstance().enableErrors();
 
+    freeMBufsBefore = dev->getAmountOfFreeMbufs();
     PCAPP_ASSERT(dev->sendPacket(rawPacketArr[2000], 0) == true, "Couldn't send 1 raw packet");
     PCAPP_ASSERT(dev->sendPacket(*(packetArr[3000]), 0) == true, "Couldn't send 1 parsed packet");
+    freeMBufsAfter = dev->getAmountOfFreeMbufs();
+    PCAPP_ASSERT(freeMBufsBefore == freeMBufsAfter, "MBuf leakage happened in sending one packet");
 
     dev->close();
     fileReaderDev.close();
