@@ -32,7 +32,7 @@
 #include <rte_ring.h>
 #include <rte_mempool.h>
 #include <rte_mbuf.h>
-
+#include <rte_version.h>
 
 #include <sstream>
 #include <iomanip>
@@ -251,15 +251,26 @@ SystemCore DpdkDeviceList::getDpdkMasterCore()
 
 void DpdkDeviceList::setDpdkLogLevel(LoggerPP::LogLevel logLevel)
 {
+#if (RTE_VER_YEAR >= 16) && (RTE_VER_MONTH > 07)
+	if (logLevel == LoggerPP::Normal)
+		rte_log_set_global_level(RTE_LOG_NOTICE);
+	else // logLevel == LoggerPP::Debug
+		rte_log_set_global_level(RTE_LOG_DEBUG);
+#else
 	if (logLevel == LoggerPP::Normal)
 		rte_set_log_level(RTE_LOG_NOTICE);
 	else // logLevel == LoggerPP::Debug
 		rte_set_log_level(RTE_LOG_DEBUG);
+#endif
 }
 
 LoggerPP::LogLevel DpdkDeviceList::getDpdkLogLevel()
 {
+#if (RTE_VER_YEAR >= 16) && (RTE_VER_MONTH > 07)
+	if (rte_log_get_global_level() <= RTE_LOG_NOTICE)
+#else
 	if (rte_get_log_level() <= RTE_LOG_NOTICE)
+#endif
 		return LoggerPP::Normal;
 	else
 		return LoggerPP::Debug;
