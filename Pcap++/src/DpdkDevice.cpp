@@ -9,7 +9,7 @@
 #include "DpdkDeviceList.h"
 #include "Logger.h"
 #include "rte_version.h"
-#if (RTE_VER_YEAR >= 16) && (RTE_VER_MONTH > 07)
+#if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 #include "rte_bus_pci.h"
 #endif
 #include "rte_pci.h"

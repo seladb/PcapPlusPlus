@@ -251,7 +251,7 @@ SystemCore DpdkDeviceList::getDpdkMasterCore()
 
 void DpdkDeviceList::setDpdkLogLevel(LoggerPP::LogLevel logLevel)
 {
-#if (RTE_VER_YEAR >= 16) && (RTE_VER_MONTH > 07)
+#if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 	if (logLevel == LoggerPP::Normal)
 		rte_log_set_global_level(RTE_LOG_NOTICE);
 	else // logLevel == LoggerPP::Debug
@@ -266,7 +266,7 @@ void DpdkDeviceList::setDpdkLogLevel(LoggerPP::LogLevel logLevel)
 
 LoggerPP::LogLevel DpdkDeviceList::getDpdkLogLevel()
 {
-#if (RTE_VER_YEAR >= 16) && (RTE_VER_MONTH > 07)
+#if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 	if (rte_log_get_global_level() <= RTE_LOG_NOTICE)
 #else
 	if (rte_get_log_level() <= RTE_LOG_NOTICE)
