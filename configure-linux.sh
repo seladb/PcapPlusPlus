@@ -231,11 +231,31 @@ if (( $COMPILE_WITH_PF_RING > 0 )) ; then
 fi
 
 
+# function to extract DPDK major + minor version from <DPDK_HOM>/pkg/dpdk.spec file
+# return: DPDK version (major + minor only)
+function get_dpdk_version() {
+   echo $(grep "Version" $DPDK_HOME/pkg/dpdk.spec | cut -d' ' -f2 | cut -d'.' -f 1,2)
+}
+
+# function to compare between 2 versions (each constructed of major + minor)
+# param1: first version to compare
+# param2: second version to compate
+# return: 1 if first>=second, 0 otherwise
+function compare_versions() {
+   echo "$1 $2" | awk '{if ($1 >= $2) print 1; else print 0}'
+}
+
 # if compiling with DPDK
 if (( $COMPILE_WITH_DPDK > 0 )) ; then
 
    # add DPDK definitions to PcapPlusPlus.mk
    cat mk/PcapPlusPlus.mk.dpdk >> $PCAPPLUSPLUS_MK
+
+   # if DPDK ver >= 17.11 concat additional definitions to PcapPlusPlus.mk
+   CUR_DPDK_VERSION=$(get_dpdk_version)
+   if [ "$(compare_versions $CUR_DPDK_VERSION 17.11)" -eq "1" ] ; then
+      cat mk/PcapPlusPlus.mk.dpdk_new >> $PCAPPLUSPLUS_MK
+   fi
 
    # set USE_DPDK variable in platform.mk
    echo -e "\n\nUSE_DPDK := 1" >> $PLATFORM_MK

@@ -27,6 +27,10 @@ matrix:
         - DPDK_DIR=dpdk-17.02
     - os: linux
       env:
+        - DOCKER_IMAGE=ubuntu1604-dpdk1711
+        - DPDK_DIR=dpdk-17.11
+    - os: linux
+      env:
         - DOCKER_IMAGE=ubuntu1604-pfring
         - PF_RING=True
     - os: osx

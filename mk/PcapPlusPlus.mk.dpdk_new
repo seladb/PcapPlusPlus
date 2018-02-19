@@ -1,0 +1,4 @@
+### DPDK >= 17.11 ###
+
+# libs
+PCAPPP_LIBS += -lrte_pci -lrte_bus_pci -lrte_bus_vdev -lnuma
