@@ -3279,6 +3279,7 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 				delete[] ptrCopy,
 				"Memory leak have happened during reuse of MbufRawPacket array.");
 		}
+		delete[] ptrCopy;
 	}
 
 	DpdkPacketData packetData;
