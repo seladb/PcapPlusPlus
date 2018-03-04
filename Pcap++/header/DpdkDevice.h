@@ -499,7 +499,8 @@ namespace pcpp
 		 * @param[out] rawPacketArrLength The length of MBufRawPacket pointers array will be written into
 		 * @param[in] rxQueueId The RX queue to receive packets from
 		 * @param[in] reuse Signifies that *rawPacketsArr already contains an array of MBufRawPacket objects with length equals to rawPacketArrLength. If provided
-		 * array is big enough to store the burst of packets received from NIC it will not be reallocated, otherwise it will.
+		 * array is big enough to store the burst of packets received from NIC it will not be reallocated, otherwise it will. During the reallocation provided 
+		 * array will be freed using delete[] expression so you must allocate it with new[] expression.
 		 * @return True if packets were received and no error occurred or false if device isn't opened, if device is currently in capture mode
 		 * (using startCaptureSingleThread() or startCaptureMultiThreads() ), if rxQueueId doesn't exist on device, or if DPDK receive packets method returned
 		 * an error

@@ -1082,13 +1082,25 @@ bool DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, int& rawPacketArr
 
 	if (!m_StopThread)
 	{
-		LOG_ERROR("DpdkDevice capture mode is currently running. Cannot recieve packets in parallel");
+		LOG_ERROR("DpdkDevice capture mode is currently running. Cannot receive packets in parallel");
 		return false;
 	}
 
 	if (rxQueueId >= m_TotalAvailableRxQueues)
 	{
 		LOG_ERROR("RX queue ID #%d not available for this device", rxQueueId);
+		return false;
+	}
+
+	if (rawPacketsArr == NULL)
+	{
+		LOG_ERROR("Provided address of array to store packets is NULL");
+		return false;
+	}
+
+	if (reuse && *rawPacketsArr == NULL)
+	{
+		LOG_ERROR("Reuse flag is set but array to be reused is not provided.");
 		return false;
 	}
 
