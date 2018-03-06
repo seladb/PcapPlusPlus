@@ -3256,6 +3256,32 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 	PCAPP_ASSERT(dev->receivePackets(&packetArr, packetArrLen, dev->getTotalNumOfRxQueues()+1) == false, "Managed to receive packets for RX queue that doesn't exist");
 	PCAPP_ASSERT(dev->receivePackets(&mBufRawPacketArr, mBufRawPacketArrLen, dev->getTotalNumOfRxQueues()+1) == false, "Managed to receive packets for RX queue that doesn't exist");
 
+	{
+		int myArraySize = 4 * 64; // 4 * RX_BURST_SIZE must be enough
+		int newArraySize = myArraySize;
+		MBufRawPacket* mBufRawPacketArrToReuse = new MBufRawPacket[myArraySize];
+		MBufRawPacket* ptrCopy = mBufRawPacketArrToReuse;
+		dev->receivePackets(&mBufRawPacketArrToReuse, newArraySize, 0, true);
+		if (newArraySize)
+		{
+			bool integrity = true;
+			for (size_t i = 0; i < newArraySize; ++i)
+			{
+				integrity &= mBufRawPacketArrToReuse[i].isPacketSet();
+			}
+			PCAPP_ASSERT_AND_RUN_COMMAND(integrity == true,
+				delete[] ptrCopy,
+				"Some packets in reused MbufRawPacket array are not set but reported as if they are.");
+		}
+		else
+		{
+			PCAPP_ASSERT_AND_RUN_COMMAND(mBufRawPacketArrToReuse != NULL, 
+				delete[] ptrCopy,
+				"Memory leak have happened during reuse of MbufRawPacket array.");
+		}
+		delete[] ptrCopy;
+	}
+
 	DpdkPacketData packetData;
 	PCAPP_ASSERT_AND_RUN_COMMAND(dev->startCaptureSingleThread(dpdkPacketsArrive, &packetData), dev->close(), "Could not start capturing on DpdkDevice");
 	PCAPP_ASSERT(dev->receivePackets(rawPacketVec, 0) == false, "Managed to receive packets although device is in capture mode");

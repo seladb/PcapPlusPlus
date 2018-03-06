@@ -1072,7 +1072,7 @@ bool DpdkDevice::receivePackets(RawPacketVector& rawPacketsArr, uint16_t rxQueue
 	return true;
 }
 
-bool DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, int& rawPacketArrLength, uint16_t rxQueueId)
+bool DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, int& rawPacketArrLength, uint16_t rxQueueId, bool reuse)
 {
 	if (!m_DeviceOpened)
 	{
@@ -1082,7 +1082,7 @@ bool DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, int& rawPacketArr
 
 	if (!m_StopThread)
 	{
-		LOG_ERROR("DpdkDevice capture mode is currently running. Cannot recieve packets in parallel");
+		LOG_ERROR("DpdkDevice capture mode is currently running. Cannot receive packets in parallel");
 		return false;
 	}
 
@@ -1092,6 +1092,21 @@ bool DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, int& rawPacketArr
 		return false;
 	}
 
+	if (rawPacketsArr == NULL)
+	{
+		LOG_ERROR("Provided address of array to store packets is NULL");
+		return false;
+	}
+
+	if (reuse && *rawPacketsArr == NULL)
+	{
+		LOG_ERROR("Reuse flag is set but array to be reused is not provided.");
+		return false;
+	}
+
+	// Save previous length of provided array in case if it will be reused later.
+	int previousLength = rawPacketArrLength;
+
 	struct rte_mbuf* mBufArray[RX_BURST_SIZE];
 	rawPacketArrLength = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, RX_BURST_SIZE);
 	LOG_DEBUG("Captured %d packets", rawPacketArrLength);
@@ -1099,14 +1114,31 @@ bool DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, int& rawPacketArr
 	if (unlikely(rawPacketArrLength <= 0))
 	{
 		rawPacketArrLength = 0;
-		rawPacketsArr = NULL;
+		if (!reuse)
+		{
+			*rawPacketsArr = NULL;
+		}
 		return true;
 	}
 
 	timeval time;
 	gettimeofday(&time, NULL);
 
-	MBufRawPacket* mBufArr = new MBufRawPacket[rawPacketArrLength];
+	MBufRawPacket* mBufArr = NULL;
+	if (reuse) {
+		if (previousLength >= rawPacketArrLength) { 
+			// Size of provided array is enough to hold the burst
+			mBufArr = *rawPacketsArr;
+		} else {
+			// Size of provided array is not enough to hold the burst
+			delete[] *rawPacketsArr;
+			mBufArr = new MBufRawPacket[rawPacketArrLength];
+		}
+	} else {
+		// Array was not provided
+		mBufArr = new MBufRawPacket[rawPacketArrLength];
+	}
+
 	for (int index = 0; index < rawPacketArrLength; ++index)
 	{
 		struct rte_mbuf* mBuf = mBufArray[index];
