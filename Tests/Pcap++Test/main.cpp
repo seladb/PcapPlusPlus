@@ -3265,7 +3265,7 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 		if (newArraySize)
 		{
 			bool integrity = true;
-			for (size_t i = 0; i < newArraySize; ++i)
+			for (size_t i = 0; i < (size_t)newArraySize; ++i)
 			{
 				integrity &= mBufRawPacketArrToReuse[i].isPacketSet();
 			}
