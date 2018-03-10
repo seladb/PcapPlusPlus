@@ -435,6 +435,18 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status)
 		LOG_DEBUG("[FragID=0x%X] Reassembly process completed, allocating a packet and returning it", fragWrapper->getFragmentId());
 		fragData->deleteData = false;
 
+		// fix IP length field
+		if (fragData->packetKey->getProtocolType() == IPv4)
+		{
+			Packet tempPacket(fragData->data, IPv4);
+			tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header()->totalLength = fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen();
+		}
+		else
+		{
+			Packet tempPacket(fragData->data, IPv6);
+			tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset;
+		}
+
 		// create a new Packet object with the reassembled data as its RawPacket
 		Packet* reassembledPacket = new Packet(fragData->data, true);
 
@@ -502,6 +514,18 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 		{
 			// create a copy of the RawPacket object
 			RawPacket* partialRawPacket = new RawPacket(*(fragData->data));
+
+			// fix IP length field
+			if (fragData->packetKey->getProtocolType() == IPv4)
+			{
+				Packet tempPacket(partialRawPacket, IPv4);
+				tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header()->totalLength = fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen();
+			}
+			else
+			{
+				Packet tempPacket(partialRawPacket, IPv6);
+				tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset;
+			}
 
 			// create a packet object wrapping the RawPacket we've just created
 			Packet* partialDataPacket = new Packet(partialRawPacket, true);

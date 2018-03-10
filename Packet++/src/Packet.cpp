@@ -7,6 +7,7 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
+#include "PacketTrailerLayer.h"
 #include "Logger.h"
 #include <string.h>
 #include <typeinfo>
@@ -100,6 +101,26 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 		m_LastLayer = curLayer->getPrevLayer();
 		delete curLayer;
 		m_LastLayer->m_NextLayer = NULL;
+	}
+
+	if (parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
+	{
+		// find if there is data left in the raw packet that doesn't belong to any layer. In that case it's probably a packet trailer.
+		// create a PacketTrailerLayer layer and add it at the end of the packet
+		int trailerLen = (int)((m_RawPacket->getRawData() + m_RawPacket->getRawDataLen()) - (m_LastLayer->getData() + m_LastLayer->getDataLen()));
+		if (trailerLen > 0)
+		{
+			PacketTrailerLayer* trailerLayer = new PacketTrailerLayer(
+					(uint8_t*)(m_LastLayer->getData() + m_LastLayer->getDataLen()),
+					trailerLen,
+					m_LastLayer,
+					this);
+
+			trailerLayer->m_IsAllocatedInPacket = true;
+			m_LastLayer->setNextLayer(trailerLayer);
+			m_LastLayer = trailerLayer;
+			m_ProtocolTypes |= trailerLayer->getProtocol();
+		}
 	}
 }
 
@@ -223,6 +244,12 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer)
 		return false;
 	}
 
+	if (prevLayer != NULL && prevLayer->getProtocol() == PacketTrailer)
+	{
+		LOG_ERROR("Cannot insert layer after packet trailer");
+		return false;
+	}
+
 	if (m_RawPacket->getRawDataLen() + newLayer->getHeaderLen() > m_MaxPacketLen)
 	{
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
@@ -260,21 +287,43 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer)
 
 	if (newLayer->getNextLayer() == NULL)
 		m_LastLayer = newLayer;
+	else
+		newLayer->getNextLayer()->setPrevLayer(newLayer);
 
 	// assign layer with this packet only
 	newLayer->m_Packet = this;
 
 	// re-calculate all layers data ptr and data length
-	const uint8_t* dataPtr = m_RawPacket->getRawData();
-	int dataLen = m_RawPacket->getRawDataLen();
 
+	// first, get ptr and data length of the raw packet
+	const uint8_t* dataPtr = m_RawPacket->getRawData();
+	size_t dataLen = (size_t)m_RawPacket->getRawDataLen();
+
+	// if a packet trailer exists, get its length
+	size_t packetTrailerLen = 0;
+	if (m_LastLayer != NULL && m_LastLayer->getProtocol() == PacketTrailer)
+		packetTrailerLen = m_LastLayer->getDataLen();
+
+	// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != NULL)
 	{
+		// set data ptr to layer
 		curLayer->m_Data = (uint8_t*)dataPtr;
-		curLayer->m_DataLen = dataLen;
+
+		// there is an assumption here that the packet trailer, if exists, corresponds to the L2 (data link) layers.
+		// so if there is a packet trailer and this layer is L2 (data link), set its data length to contain the whole data, including the
+		// packet trailer. If this layer is L3-7, exclude the packet trailer from its data length
+		if (curLayer->getOsiModelLayer() == OsiModelDataLinkLayer)
+			curLayer->m_DataLen = dataLen;
+		else
+			curLayer->m_DataLen = dataLen - packetTrailerLen;
+
+		// advance data ptr and data length
 		dataPtr += curLayer->getHeaderLen();
 		dataLen -= curLayer->getHeaderLen();
+
+		// move to next layer
 		curLayer = curLayer->getNextLayer();
 	}
 
@@ -331,20 +380,45 @@ bool Packet::removeLayer(Layer* layer)
 	layer->setNextLayer(NULL);
 	layer->setPrevLayer(NULL);
 
+	// get packet trailer len if exists
+	size_t packetTrailerLen = 0;
+	if (m_LastLayer != NULL && m_LastLayer->getProtocol() == PacketTrailer)
+		packetTrailerLen = m_LastLayer->getDataLen();
+
 	// re-calculate all layers data ptr and data length
+
+	// first, get ptr and data length of the raw packet
 	const uint8_t* dataPtr = m_RawPacket->getRawData();
-	int dataLen = m_RawPacket->getRawDataLen();
+	size_t dataLen = (size_t)m_RawPacket->getRawDataLen();
 
 	curLayer = m_FirstLayer;
+
+	// a flag to be set if there is another layer in this packet with the same protocol
 	bool anotherLayerWithSameProtocolExists = false;
+
+	// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
 	while (curLayer != NULL)
 	{
+		// set data ptr to layer
 		curLayer->m_Data = (uint8_t*)dataPtr;
-		curLayer->m_DataLen = dataLen;
+
+		// there is an assumption here that the packet trailer, if exists, corresponds to the L2 (data link) layers.
+		// so if there is a packet trailer and this layer is L2 (data link), set its data length to contain the whole data, including the
+		// packet trailer. If this layer is L3-7, exclude the packet trailer from its data length
+		if (curLayer->getOsiModelLayer() == OsiModelDataLinkLayer)
+			curLayer->m_DataLen = dataLen;
+		else
+			curLayer->m_DataLen = dataLen - packetTrailerLen;
+
+		// check if current layer's protocol is the same as removed layer protocol and set the flag accordingly
 		if (curLayer->getProtocol() == layer->getProtocol())
 			anotherLayerWithSameProtocolExists = true;
+
+		// advance data ptr and data length
 		dataPtr += curLayer->getHeaderLen();
 		dataLen -= curLayer->getHeaderLen();
+
+		// move to next layer
 		curLayer = curLayer->getNextLayer();
 	}
 
@@ -391,17 +465,26 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 
 	// re-calculate all layers data ptr and data length
 	const uint8_t* dataPtr = m_RawPacket->getRawData();
-	int dataLen = m_RawPacket->getRawDataLen();
 
+	// go over all layers from the first layer to the last layer and set the data ptr and data length for each layer
 	Layer* curLayer = m_FirstLayer;
+	bool passedExtendedLayer = false;
 	while (curLayer != NULL)
 	{
+		// set the data ptr
 		curLayer->m_Data = (uint8_t*)dataPtr;
-		curLayer->m_DataLen = dataLen;
+
+		// set a flag if arrived to the layer being extended
+		if (curLayer->getPrevLayer() == layer)
+			passedExtendedLayer = true;
+
+		// change the data length only for layers who come before the extended layer. For layers who come after, data length isn't changed
+		if (!passedExtendedLayer)
+			curLayer->m_DataLen += numOfBytesToExtend;
+
 		// assuming header length of the layer that requested to be extended hasn't been enlarged yet
 		size_t headerLen = curLayer->getHeaderLen() + (curLayer == layer ? numOfBytesToExtend : 0);
 		dataPtr += headerLen;
-		dataLen -= headerLen;
 		curLayer = curLayer->getNextLayer();
 	}
 
@@ -433,23 +516,31 @@ bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToSh
 
 	// re-calculate all layers data ptr and data length
 	const uint8_t* dataPtr = m_RawPacket->getRawData();
-	int dataLen = m_RawPacket->getRawDataLen();
 
+	// go over all layers from the first layer to the last layer and set the data ptr and data length for each layer
 	Layer* curLayer = m_FirstLayer;
+	bool passedExtendedLayer = false;
 	while (curLayer != NULL)
 	{
+		// set the data ptr
 		curLayer->m_Data = (uint8_t*)dataPtr;
-		curLayer->m_DataLen = dataLen;
+
+		// set a flag if arrived to the layer being shortened
+		if (curLayer->getPrevLayer() == layer)
+			passedExtendedLayer = true;
+
+		// change the data length only for layers who come before the shortened layer. For layers who come after, data length isn't changed
+		if (!passedExtendedLayer)
+			curLayer->m_DataLen -= numOfBytesToShorten;
+
 		// assuming header length of the layer that requested to be extended hasn't been enlarged yet
 		size_t headerLen = curLayer->getHeaderLen() - (curLayer == layer ? numOfBytesToShorten : 0);
 		dataPtr += headerLen;
-		dataLen -= headerLen;
 		curLayer = curLayer->getNextLayer();
 	}
 
 	return true;
 }
-
 
 void Packet::computeCalculateFields()
 {

@@ -282,7 +282,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		PPPoEDiscoveryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : PPPoELayer(data, dataLen, prevLayer, packet) { m_Protocol = PPPoEDiscovery; m_TagCount = -1; }
+		PPPoEDiscoveryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : PPPoELayer(data, dataLen, prevLayer, packet) { m_Protocol = PPPoEDiscovery; m_TagCount = -1; m_DataLen = getHeaderLen(); }
 
 		/**
 		 * A constructor that allocates a new PPPoE Discovery header with version, type, PPPoE code and session ID

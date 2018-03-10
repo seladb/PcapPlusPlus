@@ -588,7 +588,7 @@ void IcmpLayer::parseNextLayer()
 	case ICMP_PARAM_PROBLEM:
 		headerLen = getHeaderLen();
 		if (m_DataLen - headerLen >= sizeof(iphdr))
-			m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet, false);
 		return;
 	default:
 		headerLen = getHeaderLen();

@@ -63,6 +63,9 @@
     <ClInclude Include="..\..\Packet++\header\Packet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\PacketTrailerLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Packet++\header\PacketUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -156,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\Packet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\PacketTrailerLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\PacketUtils.cpp">

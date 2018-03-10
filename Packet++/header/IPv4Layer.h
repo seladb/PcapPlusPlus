@@ -362,7 +362,19 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = IPv4; m_OptionCount = -1; m_NumOfTrailingBytes = 0; m_TempHeaderExtension = 0; }
+		IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data (will be casted to @ref iphdr)
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 * @param[in] setTotalLenAsDataLen When setting this value to "true" or when using the other c'tor, the layer data length is calculated
+		 * from iphdr#totalLength field. When setting to "false" the data length is set as the value of @dataLen parameter
+		 */
+		IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen);
+
 
 		/**
 		 * A constructor that allocates a new IPv4 header with empty fields
@@ -596,6 +608,7 @@ namespace pcpp
 		void incOptionCount(int val);
 		void setOptionCount(int val);
 		void initLayer();
+		void initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen);
 	};
 
 } // namespace pcpp

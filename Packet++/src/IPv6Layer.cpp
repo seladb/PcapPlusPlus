@@ -32,6 +32,10 @@ IPv6Layer::IPv6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pa
 	m_ExtensionsLen = 0;
 
 	parseExtensions();
+
+	size_t totalLen = ntohs(getIPv6Header()->payloadLength) + getHeaderLen();
+	if (totalLen < m_DataLen)
+		m_DataLen = totalLen;
 }
 
 IPv6Layer::IPv6Layer()

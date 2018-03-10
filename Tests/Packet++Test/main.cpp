@@ -23,6 +23,7 @@
 #include <VxlanLayer.h>
 #include <SipLayer.h>
 #include <SdpLayer.h>
+#include <PacketTrailerLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -6395,6 +6396,216 @@ PACKETPP_TEST(SdpLayerEditTest)
 }
 
 
+PACKETPP_TEST(PacketTrailerTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/packet_trailer_arp.dat", buffer1Length);
+	PACKETPP_ASSERT(!(buffer1 == NULL), "cannot read file packet_trailer_arp.dat");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/packet_trailer_ipv4.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file packet_trailer_ipv4.dat.dat");
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/packet_trailer_ipv6.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file packet_trailer_ipv6.dat");
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/packet_trailer_pppoed.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file packet_trailer_pppoed.dat");
+
+	int buffer5Length = 0;
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/packet_trailer_ipv6.dat", buffer5Length);
+	PACKETPP_ASSERT(!(buffer5 == NULL), "cannot read file packet_trailer_ipv6.dat second time");
+
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+	RawPacket rawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
+
+	Packet trailerArpPacket(&rawPacket1);
+	Packet trailerIPv4Packet(&rawPacket2);
+	Packet trailerIPv6Packet(&rawPacket3);
+	Packet trailerPPPoEDPacket(&rawPacket4);
+	Packet trailerIPv6Packet2(&rawPacket5);
+
+	PACKETPP_ASSERT(trailerArpPacket.isPacketOfType(PacketTrailer) == true, "trailerArpPacket isn't of type PacketTrailer");
+	PACKETPP_ASSERT(trailerIPv4Packet.isPacketOfType(PacketTrailer) == true, "trailerIPv4Packet isn't of type PacketTrailer");
+	PACKETPP_ASSERT(trailerIPv6Packet.isPacketOfType(PacketTrailer) == true, "trailerIPv6Packet isn't of type PacketTrailer");
+	PACKETPP_ASSERT(trailerPPPoEDPacket.isPacketOfType(PacketTrailer) == true, "trailerPPPoEDPacket isn't of type PacketTrailer");
+
+	PACKETPP_ASSERT(trailerArpPacket.getLayerOfType<PacketTrailerLayer>()->getTrailerLen() == 18, "trailerArpPacket - trailer len isn't 18");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getTrailerLen() == 6, "trailerIPv4Packet - trailer len isn't 6");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<PacketTrailerLayer>()->getTrailerLen() == 4, "trailerIPv6Packet - trailer len isn't 4");
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<PacketTrailerLayer>()->getTrailerLen() == 28, "trailerPPPoEDPacket - trailer len isn't 28");
+
+	PACKETPP_ASSERT(trailerArpPacket.getLayerOfType<PacketTrailerLayer>()->getTrailerDataAsHexString() ==  "742066726f6d2062726964676500203d3d20", "trailerArpPacket - wrong trailer string");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getTrailerDataAsHexString() ==  "0101080a0000", "trailerIPv4Packet - wrong trailer string");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<PacketTrailerLayer>()->getTrailerDataAsHexString() ==  "cdfcf105", "trailerIPv6Packet - wrong trailer string");
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<PacketTrailerLayer>()->getTrailerDataAsHexString() ==  "00000000000000000000000000000000000000000000000000000000", "trailerPPPoEDPacket - wrong trailer string");
+
+	PACKETPP_ASSERT(trailerArpPacket.getLayerOfType<PacketTrailerLayer>()->getTrailerData()[3] == 0x72, "trailerArpPacket - wrong data");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getTrailerData()[2] == 0x8, "trailerIPv4Packet - wrong data");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<PacketTrailerLayer>()->getTrailerData()[1] == 0xfc, "trailerIPv6Packet - wrong data");
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<PacketTrailerLayer>()->getTrailerData()[12] == 0, "trailerPPPoEDPacket - wrong data");
+
+	EthLayer* ethLayer = trailerIPv4Packet.getLayerOfType<EthLayer>();
+	IPv4Layer* ip4Layer = trailerIPv4Packet.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ethLayer != NULL, "trailerIPv4Packet isn't of type Ethernet");
+	PACKETPP_ASSERT(ip4Layer != NULL, "trailerIPv4Packet isn't of type IPv4");
+	PACKETPP_ASSERT(ethLayer->getDataLen() - ethLayer->getHeaderLen() > ip4Layer->getDataLen(), "trailerIPv4Packet - eth data isn't larger than ip4 data");
+	PACKETPP_ASSERT(ip4Layer->getDataLen() == ntohs(ip4Layer->getIPv4Header()->totalLength), "trailerIPv4Packet - dataLen != totalLength");
+
+	ethLayer = trailerIPv6Packet.getLayerOfType<EthLayer>();
+	IPv6Layer* ip6Layer = trailerIPv6Packet.getLayerOfType<IPv6Layer>();
+	PACKETPP_ASSERT(ethLayer != NULL, "trailerIPv6Packet isn't of type Ethernet");
+	PACKETPP_ASSERT(ip6Layer != NULL, "trailerIPv6Packet isn't of type IPv6");
+	PACKETPP_ASSERT(ethLayer->getDataLen() - ethLayer->getHeaderLen() > ip6Layer->getDataLen(), "trailerIPv6Packet - eth data isn't larger than ip6 data");
+	PACKETPP_ASSERT(ip6Layer->getDataLen() == ntohs(ip6Layer->getIPv6Header()->payloadLength) + ip6Layer->getHeaderLen(), "trailerIPv6Packet - dataLen != totalLength");
+
+	// add layer before trailer
+	VlanLayer newVlanLayer(123, true, 1, PCPP_ETHERTYPE_IPV6);
+	PACKETPP_ASSERT(trailerIPv6Packet.insertLayer(ethLayer, &newVlanLayer) == true, "trailerIPv6Packet - couldn't add VLAN layer");
+	trailerIPv6Packet.computeCalculateFields();
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<EthLayer>()->getDataLen() == 468, "trailerIPv6Packet add layer - eth layer len isn't 468");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<VlanLayer>()->getDataLen() == 454, "trailerIPv6Packet add layer - vlan layer len isn't 454d");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<IPv6Layer>()->getDataLen() == 446, "trailerIPv6Packet add layer - ipv6 layer len isn't 446");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<UdpLayer>()->getDataLen() == 406, "trailerIPv6Packet add layer - udp layer len isn't 406");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<DnsLayer>()->getDataLen() == 398, "trailerIPv6Packet add layer - dns layer len isn't 398");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 4, "trailerIPv6Packet add layer - trailer layer len isn't 4");
+
+	// add layer just before trailer
+	HttpRequestLayer httpReq(HttpRequestLayer::HttpGET, "/main.html", OneDotOne);
+	httpReq.addEndOfHeader();
+	TcpLayer* tcpLayer = trailerIPv4Packet.getLayerOfType<TcpLayer>();
+	PACKETPP_ASSERT(tcpLayer != NULL, "Couldn't find TCP layer for trailerIPv4Packet");
+	trailerIPv4Packet.insertLayer(tcpLayer, &httpReq);
+	trailerIPv4Packet.computeCalculateFields();
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 87, "trailerIPv4Packet add layer - eth layer len isn't 87");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<IPv4Layer>()->getDataLen() == 67, "trailerIPv4Packet add layer - ipv4 layer len isn't 67");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<TcpLayer>()->getDataLen() == 47, "trailerIPv4Packet add layer - tcp layer len isn't 47");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<HttpRequestLayer>()->getDataLen() == 27, "trailerIPv4Packet add layer - http layer len isn't 27");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 6, "trailerIPv4Packet add layer - trailer layer len isn't 6");
+
+	// add layer after trailer (result with an error)
+	uint8_t payload[4] = { 0x1, 0x2, 0x3, 0x4 };
+	PayloadLayer newPayloadLayer(payload, 4, false);
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(trailerIPv4Packet.addLayer(&newPayloadLayer) == false, "Wrongly succeeded to add a layer after packet trailer");
+	LoggerPP::getInstance().enableErrors();
+
+	// remove layer before trailer
+	tcpLayer = trailerIPv4Packet.getLayerOfType<TcpLayer>();
+	PACKETPP_ASSERT(tcpLayer != NULL, "Couldn't find TCP layer for trailerIPv4Packet");
+	trailerIPv4Packet.removeLayer(tcpLayer);
+	trailerIPv4Packet.computeCalculateFields();
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 67, "trailerIPv4Packet remove layer - eth layer len isn't 67");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<IPv4Layer>()->getDataLen() == 47, "trailerIPv4Packet remove layer - ipv4 layer len isn't 47");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<HttpRequestLayer>()->getDataLen() == 27, "trailerIPv4Packet remove layer - http layer len isn't 27");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 6, "trailerIPv4Packet remove layer - trailer layer len isn't 6");
+
+	// remove layer just before trailer
+	HttpRequestLayer* httpReqPtr = trailerIPv4Packet.getLayerOfType<HttpRequestLayer>();
+	PACKETPP_ASSERT(httpReqPtr != NULL, "Couldn't find HTTP request layer for trailerIPv4Packet");
+	trailerIPv4Packet.removeLayer(httpReqPtr);
+	trailerIPv4Packet.computeCalculateFields();
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 40, "trailerIPv4Packet remove layer - eth layer len isn't 67");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<IPv4Layer>()->getDataLen() == 20, "trailerIPv4Packet remove layer - ipv4 layer len isn't 47");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 6, "trailerIPv4Packet remove layer - trailer layer len isn't 6");
+
+	// remove trailer
+	ethLayer = trailerIPv6Packet2.getLayerOfType<EthLayer>();
+	VlanLayer newVlanLayer2(456, true, 1, PCPP_ETHERTYPE_IPV6);
+	PACKETPP_ASSERT(trailerIPv6Packet2.insertLayer(ethLayer, &newVlanLayer2) == true, "trailerIPv6Packet2 - couldn't add VLAN layer");
+	PacketTrailerLayer* packetTrailer = trailerIPv6Packet2.getLayerOfType<PacketTrailerLayer>();
+	PACKETPP_ASSERT(packetTrailer != NULL, "Couldn't find trailer layer for trailerIPv6Packet2");
+	trailerIPv6Packet2.removeLayer(packetTrailer);
+	trailerIPv6Packet2.computeCalculateFields();
+	PACKETPP_ASSERT(trailerIPv6Packet2.getLayerOfType<EthLayer>()->getDataLen() == 464, "trailerIPv6Packet2 remove trailer - eth layer len isn't 468");
+	PACKETPP_ASSERT(trailerIPv6Packet2.getLayerOfType<VlanLayer>()->getDataLen() == 450, "trailerIPv6Packet2 remove trailer - vlan layer len isn't 454d");
+	PACKETPP_ASSERT(trailerIPv6Packet2.getLayerOfType<IPv6Layer>()->getDataLen() == 446, "trailerIPv6Packet2 remove trailer - ipv6 layer len isn't 446");
+	PACKETPP_ASSERT(trailerIPv6Packet2.getLayerOfType<UdpLayer>()->getDataLen() == 406, "trailerIPv6Packet2 remove trailer - udp layer len isn't 406");
+	PACKETPP_ASSERT(trailerIPv6Packet2.getLayerOfType<DnsLayer>()->getDataLen() == 398, "trailerIPv6Packet2 remove trailer - dns layer len isn't 398");
+
+	// remove all layers but the trailer
+	ethLayer = trailerIPv4Packet.getLayerOfType<EthLayer>();
+	PACKETPP_ASSERT(ethLayer != NULL, "Couldn't find eth layer for trailerIPv4Packet");
+	trailerIPv4Packet.removeLayer(ethLayer);
+	trailerIPv4Packet.computeCalculateFields();
+	ip4Layer = trailerIPv4Packet.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ip4Layer != NULL, "Couldn't find ipv4 layer for trailerIPv4Packet");
+	trailerIPv4Packet.removeLayer(ip4Layer);
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 6, "trailerIPv4Packet remove all layers but trailer - trailer layer len isn't 6");
+
+	// rebuild packet starting from trailer
+	EthLayer newEthLayer(MacAddress("30:46:9a:23:fb:fa"), MacAddress("6c:f0:49:b2:de:6e"), PCPP_ETHERTYPE_IP);
+	trailerIPv4Packet.insertLayer(NULL, &newEthLayer);
+	IPv4Layer newIp4Layer(IPv4Address(std::string("173.194.78.104")), IPv4Address(std::string("10.0.0.1")));
+	newIp4Layer.getIPv4Header()->ipId = htons(40382);
+	newIp4Layer.getIPv4Header()->timeToLive = 46;
+	trailerIPv4Packet.insertLayer(&newEthLayer, &newIp4Layer);
+	TcpLayer newTcpLayer(443, 55194);
+	newTcpLayer.getTcpHeader()->ackNumber = htonl(0x807df56c);
+	newTcpLayer.getTcpHeader()->sequenceNumber = htonl(0x46529f28);
+	newTcpLayer.getTcpHeader()->ackFlag = 1;
+	newTcpLayer.getTcpHeader()->windowSize = htons(344);
+	trailerIPv4Packet.insertLayer(&newIp4Layer, &newTcpLayer);
+	trailerIPv4Packet.computeCalculateFields();
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 60, "trailerIPv4Packet rebuild - eth layer len isn't 60, it's %d", trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen());
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<IPv4Layer>()->getDataLen() == 40, "trailerIPv4Packet rebuild - ipv4 layer len isn't 40");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<TcpLayer>()->getDataLen() == 20, "trailerIPv4Packet rebuild - tcp layer len isn't 20");
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 6, "trailerIPv4Packet rebuild - trailer layer len isn't 6");
+
+	// extend layer before trailer
+	ip6Layer = trailerIPv6Packet.getLayerOfType<IPv6Layer>();
+	IPv6RoutingHeader routingExt(4, 3, NULL, 0);
+	ip6Layer->addExtension<IPv6RoutingHeader>(routingExt);
+	trailerIPv6Packet.computeCalculateFields();
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<EthLayer>()->getDataLen() == 476, "trailerIPv6Packet extend layer - eth layer len isn't 476");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<VlanLayer>()->getDataLen() == 462, "trailerIPv6Packet extend layer - vlan layer len isn't 462");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<IPv6Layer>()->getDataLen() == 454, "trailerIPv6Packet extend layer - ipv6 layer len isn't 454");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<UdpLayer>()->getDataLen() == 406, "trailerIPv6Packet extend layer - udp layer len isn't 406");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<DnsLayer>()->getDataLen() == 398, "trailerIPv6Packet extend layer - dns layer len isn't 398");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 4, "trailerIPv6Packet extend layer - trailer layer len isn't 4");
+
+	// extend layer just before trailer
+	PPPoEDiscoveryLayer* pppoeDiscovery = trailerPPPoEDPacket.getLayerOfType<PPPoEDiscoveryLayer>();
+	PACKETPP_ASSERT(pppoeDiscovery != NULL, "Couldn't find PPPoE discovery layer for trailerPPPoEDPacket");
+	uint8_t pppoedTagData[4] = { 0x42, 0x52, 0x41, 0x53 };
+	PACKETPP_ASSERT(pppoeDiscovery->addTag(PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, (uint16_t)4, pppoedTagData) != NULL, "Could add pppoed tag");
+	trailerPPPoEDPacket.computeCalculateFields();
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<EthLayer>()->getDataLen() == 68, "trailerPPPoEDPacket extend layer - eth layer len isn't 68");
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<PPPoEDiscoveryLayer>()->getDataLen() == 26, "trailerPPPoEDPacket extend layer - pppoed layer len isn't 26");
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 28, "trailerPPPoEDPacket extend layer - trailer layer len isn't 28");
+
+	// shorten layer before trailer
+	ip6Layer = trailerIPv6Packet.getLayerOfType<IPv6Layer>();
+	ip6Layer->removeAllExtensions();
+	trailerIPv6Packet.computeCalculateFields();
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<EthLayer>()->getDataLen() == 468, "trailerIPv6Packet shorten layer - eth layer len isn't 468");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<VlanLayer>()->getDataLen() == 454, "trailerIPv6Packet shorten layer - vlan layer len isn't 454d");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<IPv6Layer>()->getDataLen() == 446, "trailerIPv6Packet shorten layer - ipv6 layer len isn't 446");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<UdpLayer>()->getDataLen() == 406, "trailerIPv6Packet shorten layer - udp layer len isn't 406");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<DnsLayer>()->getDataLen() == 398, "trailerIPv6Packet shorten layer - dns layer len isn't 398");
+	PACKETPP_ASSERT(trailerIPv6Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 4, "trailerIPv6Packet shorten layer - trailer layer len isn't 4");
+
+	// shorten layer just before trailer
+	pppoeDiscovery = trailerPPPoEDPacket.getLayerOfType<PPPoEDiscoveryLayer>();
+	PACKETPP_ASSERT(pppoeDiscovery->removeAllTags() == true, "couldn't remove all tags for pppoed layer");
+	trailerPPPoEDPacket.computeCalculateFields();
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<EthLayer>()->getDataLen() == 48, "trailerPPPoEDPacket shorten layer - eth layer len isn't 48");
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<PPPoEDiscoveryLayer>()->getDataLen() == 6, "trailerPPPoEDPacket shorten layer - pppoed layer len isn't 6");
+	PACKETPP_ASSERT(trailerPPPoEDPacket.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 28, "trailerPPPoEDPacket shorten layer - trailer layer len isn't 28");
+
+	PACKETPP_TEST_PASSED;
+}
+
+
 int main(int argc, char* argv[]) {
 	start_leak_check();
 
@@ -6480,5 +6691,6 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(SdpLayerParsingTest);
 	PACKETPP_RUN_TEST(SdpLayerCreationTest);
 	PACKETPP_RUN_TEST(SdpLayerEditTest);
+	PACKETPP_RUN_TEST(PacketTrailerTest);
 	PACKETPP_END_RUNNING_TESTS;
 }

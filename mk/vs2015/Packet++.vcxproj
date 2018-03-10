@@ -188,6 +188,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <ClInclude Include="..\..\Packet++\header\MplsLayer.h" />
     <ClInclude Include="..\..\Packet++\header\NullLoopbackLayer.h" />
     <ClInclude Include="..\..\Packet++\header\Packet.h" />
+    <ClInclude Include="..\..\Packet++\header\PacketTrailerLayer.h" />
     <ClInclude Include="..\..\Packet++\header\PacketUtils.h" />
     <ClInclude Include="..\..\Packet++\header\PayloadLayer.h" />
     <ClInclude Include="..\..\Packet++\header\PPPoELayer.h" />
@@ -223,6 +224,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <ClCompile Include="..\..\Packet++\src\MplsLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\NullLoopbackLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\Packet.cpp" />
+    <ClCompile Include="..\..\Packet++\src\PacketTrailerLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\PacketUtils.cpp" />
     <ClCompile Include="..\..\Packet++\src\PayloadLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\PPPoELayer.cpp" />

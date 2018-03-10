@@ -193,7 +193,12 @@ namespace pcpp
 		/**
 		 * SDP protocol
 		 */
-		SDP = 0x10000000
+		SDP = 0x10000000,
+
+		/**
+		 * Packet trailer
+		 */
+		PacketTrailer = 0x20000000
 	};
 
 

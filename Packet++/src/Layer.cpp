@@ -14,8 +14,9 @@ Layer::~Layer()
 		delete [] m_Data;
 }
 
-Layer::Layer(const Layer& other) : m_DataLen(other.m_DataLen), m_Packet(NULL), m_Protocol(other.m_Protocol), m_NextLayer(NULL), m_PrevLayer(NULL), m_IsAllocatedInPacket(false)
+Layer::Layer(const Layer& other) : m_Packet(NULL), m_Protocol(other.m_Protocol), m_NextLayer(NULL), m_PrevLayer(NULL), m_IsAllocatedInPacket(false)
 {
+	m_DataLen = ((Layer&)other).getHeaderLen();
 	m_Data = new uint8_t[other.m_DataLen];
 	memcpy(m_Data, other.m_Data, other.m_DataLen);
 }
@@ -28,7 +29,7 @@ Layer& Layer::operator=(const Layer& other)
 	if (m_Data != NULL)
 		delete [] m_Data;
 
-	m_DataLen = other.m_DataLen;
+	m_DataLen = ((Layer&)other).getHeaderLen();
 	m_Packet = NULL;
 	m_Protocol = other.m_Protocol;
 	m_NextLayer = NULL;
