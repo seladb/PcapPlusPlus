@@ -6556,7 +6556,7 @@ PACKETPP_TEST(PacketTrailerTest)
 	newTcpLayer.getTcpHeader()->windowSize = htons(344);
 	trailerIPv4Packet.insertLayer(&newIp4Layer, &newTcpLayer);
 	trailerIPv4Packet.computeCalculateFields();
-	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 60, "trailerIPv4Packet rebuild - eth layer len isn't 60, it's %d", trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen());
+	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 60, "trailerIPv4Packet rebuild - eth layer len isn't 60");
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<IPv4Layer>()->getDataLen() == 40, "trailerIPv4Packet rebuild - ipv4 layer len isn't 40");
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<TcpLayer>()->getDataLen() == 20, "trailerIPv4Packet rebuild - tcp layer len isn't 20");
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 6, "trailerIPv4Packet rebuild - trailer layer len isn't 6");
