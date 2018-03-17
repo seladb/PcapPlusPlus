@@ -988,6 +988,7 @@ PCAPP_TEST(TestPcapNgFileReadWriteAdv)
 
     RawPacket rawPacket;
     int packetCount = 0;
+    int capLenNotMatchOrigLen = 0;
     int ethCount = 0;
     int sllCount = 0;
     int ip4Count = 0;
@@ -1001,6 +1002,10 @@ PCAPP_TEST(TestPcapNgFileReadWriteAdv)
     while (readerDev.getNextPacket(rawPacket, pktComment))
     {
     	packetCount++;
+
+    	if (rawPacket.getRawDataLen() != rawPacket.getFrameLength())
+    		capLenNotMatchOrigLen++;
+
     	Packet packet(&rawPacket);
 		if (packet.isPacketOfType(Ethernet))
 			ethCount++;
@@ -1027,6 +1032,7 @@ PCAPP_TEST(TestPcapNgFileReadWriteAdv)
     }
 
     PCAPP_ASSERT(packetCount == 159, "Incorrect number of packets read. Expected: 159; read: %d", packetCount);
+    PCAPP_ASSERT(capLenNotMatchOrigLen == 39, "Incorrect number of packets where captured length doesn't match original length. Expected: 39; read: %d", capLenNotMatchOrigLen);
     PCAPP_ASSERT(ethCount == 59, "Incorrect number of Ethernet packets read. Expected: 59; read: %d", ethCount);
     PCAPP_ASSERT(sllCount == 100, "Incorrect number of SLL packets read. Expected: 100; read: %d", sllCount);
     PCAPP_ASSERT(ip4Count == 155, "Incorrect number of IPv4 packets read. Expected: 155; read: %d", ip4Count);

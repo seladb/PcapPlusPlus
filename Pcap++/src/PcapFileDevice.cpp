@@ -306,7 +306,7 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& pa
 
 	uint8_t* myPacketData = new uint8_t[pktHeader.captured_length];
 	memcpy(myPacketData, pktData, pktHeader.captured_length);
-	if (!rawPacket.setRawData(myPacketData, pktHeader.captured_length, pktHeader.timestamp, static_cast<LinkLayerType>(pktHeader.data_link)))
+	if (!rawPacket.setRawData(myPacketData, pktHeader.captured_length, pktHeader.timestamp, static_cast<LinkLayerType>(pktHeader.data_link), pktHeader.original_length))
 	{
 		LOG_ERROR("Couldn't set data to raw packet");
 		return false;
@@ -712,7 +712,7 @@ bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const char* co
 
 	light_packet_header pktHeader;
 	pktHeader.captured_length = ((RawPacket&)packet).getRawDataLen();
-	pktHeader.original_length = ((RawPacket&)packet).getRawDataLen();
+	pktHeader.original_length = ((RawPacket&)packet).getFrameLength();
 	pktHeader.timestamp = ((RawPacket&)packet).getPacketTimeStamp();
 	pktHeader.data_link = (uint16_t)packet.getLinkLayerType();
 	pktHeader.interface_id = 0;
