@@ -57,14 +57,14 @@ namespace pcpp
 
 /**
  * @struct ConnectionData
- * Represents basic TCP/UDP + IPv4 connection data
+ * Represents basic TCP/UDP + IP connection data
  */
 struct ConnectionData
 {
 	/** Source IP address */
-	IPv4Address srcIP;
+	IPAddress* srcIP;
 	/** Destination IP address */
-	IPv4Address dstIP;
+	IPAddress* dstIP;
 	/** Source TCP/UDP port */
 	size_t srcPort;
 	/** Destination TCP/UDP port */
@@ -75,7 +75,38 @@ struct ConnectionData
 	/**
 	 * A c'tor for this struct that basically zeros all members
 	 */
-	ConnectionData() : srcIP(IPv4Address::Zero), dstIP(IPv4Address::Zero), srcPort(0), dstPort(0), flowKey(0) {}
+	ConnectionData() : srcIP(NULL), dstIP(NULL), srcPort(0), dstPort(0), flowKey(0) {}
+
+	/**
+	 * A d'tor for this strcut. Notice it frees the memory of srcIP and dstIP members
+	 */
+	~ConnectionData();
+
+	/**
+	 * A copy constructor for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
+	 */
+	ConnectionData(const ConnectionData& other);
+
+	/**
+	 * An assignment operator for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
+	 */
+	ConnectionData& operator=(const ConnectionData& other);
+
+	/**
+	 * Set source IP
+	 * @param[in] sourceIP A pointer to the source IP to set. Notice the IPAddress object will be cloned
+	 */
+	void setSrcIpAddress(const IPAddress* sourceIP) { srcIP = sourceIP->clone(); }
+
+	/**
+	 * Set destination IP
+	 * @param[in] destIP A pointer to the destination IP to set. Notice the IPAddress object will be cloned
+	 */
+	void setDstIpAddress(const IPAddress* destIP) { dstIP = destIP->clone(); }
+
+private:
+
+	void copyData(const ConnectionData& other);
 };
 
 
@@ -268,13 +299,17 @@ private:
 
 	struct TcpOneSideData
 	{
-		uint32_t srcIP;
+		IPAddress* srcIP;
 		uint16_t srcPort;
 		uint32_t sequence;
 		PointerVector<TcpFragment> tcpFragmentList;
 		bool gotFinOrRst;
 
-		TcpOneSideData() { srcIP = 0; srcPort = 0; sequence = 0; gotFinOrRst = false; }
+		void setSrcIP(IPAddress* sourrcIP);
+
+		TcpOneSideData() { srcIP = NULL; srcPort = 0; sequence = 0; gotFinOrRst = false; }
+
+		~TcpOneSideData() { if (srcIP != NULL) delete srcIP; }
 	};
 
 	struct TcpReassemblyData

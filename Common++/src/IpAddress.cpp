@@ -18,6 +18,23 @@ IPAddress::~IPAddress()
 
 }
 
+bool IPAddress::equals(const IPAddress* other)
+{
+	if (other == NULL)
+		return false;
+
+	if (other->getType() != getType())
+		return false;
+
+	if (other->getType() == IPv4AddressType && getType() == IPv4AddressType)
+		return *((IPv4Address*)other) == *((IPv4Address*)this);
+
+	if (other->getType() == IPv6AddressType && getType() == IPv6AddressType)
+		return *((IPv6Address*)other) == *((IPv6Address*)this);
+
+	return false;
+}
+
 IPAddress::Ptr_t IPAddress::fromString(char* addressAsString)
 {
 	in_addr ip4Addr;
@@ -69,6 +86,11 @@ IPv4Address::IPv4Address(in_addr* inAddr)
 		m_IsValid = false;
 	else
 		m_IsValid = true;
+}
+
+IPAddress* IPv4Address::clone()
+{
+	return new IPv4Address(*this);
 }
 
 void IPv4Address::init(char* addressAsString)
@@ -149,6 +171,11 @@ IPv6Address::IPv6Address(const IPv6Address& other)
 IPv6Address::~IPv6Address()
 {
 	delete m_pInAddr;
+}
+
+IPAddress* IPv6Address::clone()
+{
+	return new IPv6Address(*this);
 }
 
 void IPv6Address::init(char* addressAsString)

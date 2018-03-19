@@ -3,6 +3,7 @@
 #include "TcpReassembly.h"
 #include "TcpLayer.h"
 #include "IPv4Layer.h"
+#include "IPv6Layer.h"
 #include "PacketUtils.h"
 #include "IpAddress.h"
 #include "Logger.h"
@@ -18,6 +19,51 @@
 
 namespace pcpp
 {
+
+ConnectionData::~ConnectionData()
+{
+	if (srcIP != NULL)
+		delete srcIP;
+
+	if (dstIP != NULL)
+		delete dstIP;
+}
+
+ConnectionData::ConnectionData(const ConnectionData& other)
+{
+	copyData(other);
+}
+
+ConnectionData& ConnectionData::operator=(const ConnectionData& other)
+{
+	if (srcIP != NULL)
+		delete srcIP;
+
+	if (dstIP != NULL)
+		delete dstIP;
+
+	copyData(other);
+
+	return *this;
+}
+
+void ConnectionData::copyData(const ConnectionData& other)
+{
+	if (other.srcIP != NULL)
+		srcIP = other.srcIP->clone();
+	else
+		srcIP = NULL;
+
+	if (other.dstIP != NULL)
+		dstIP = other.dstIP->clone();
+	else
+		dstIP = NULL;
+
+	flowKey = other.flowKey;
+	srcPort = other.srcPort;
+	dstPort = other.dstPort;
+}
+
 
 TcpStreamData::TcpStreamData()
 {
@@ -75,6 +121,14 @@ void TcpStreamData::copyData(const TcpStreamData& other)
 	m_DeleteDataOnDestruction = true;
 }
 
+void TcpReassembly::TcpOneSideData::setSrcIP(IPAddress* sourrcIP)
+{
+	if (srcIP != NULL)
+		delete srcIP;
+
+	srcIP = sourrcIP->clone();
+}
+
 
 TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie, OnTcpConnectionStart onConnectionStartCallback, OnTcpConnectionEnd onConnectionEndCallback)
 {
@@ -95,8 +149,13 @@ TcpReassembly::~TcpReassembly()
 
 void TcpReassembly::reassemblePacket(Packet& tcpData)
 {
-	// TCP reassembly doesn't support IPv6 for now
-	IPv4Layer* ipLayer = tcpData.getLayerOfType<IPv4Layer>();
+	// get IP layer
+	Layer* ipLayer = NULL;
+	if (tcpData.isPacketOfType(IPv4))
+		ipLayer = (Layer*)tcpData.getLayerOfType<IPv4Layer>();
+	else if (tcpData.isPacketOfType(IPv6))
+		ipLayer = (Layer*)tcpData.getLayerOfType<IPv6Layer>();
+
 	if (ipLayer == NULL)
 		return;
 
@@ -105,9 +164,8 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	if (tcpLayer == NULL)
 		return;
 
-	// calculate the TCP payload size from the value of IPV4's "total length" field.
-	// The reason we don't take the TCP payload size is because sometimes there is padding on the packet that doesn't belong to the TCP layer
-	size_t tcpPayloadSize = ntohs(ipLayer->getIPv4Header()->totalLength) - ipLayer->getHeaderLen() - tcpLayer->getHeaderLen();
+	// calculate the TCP payload size
+	size_t tcpPayloadSize = tcpLayer->getLayerPayloadSize();
 
 	// calculate if this packet has FIN or RST flags
 	bool isFin = (tcpLayer->getTcpHeader()->finFlag == 1);
@@ -138,14 +196,36 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		return;
 	}
 
+	// calculate packet's source and dest IP address
+	IPAddress* srcIP = NULL;
+	IPAddress* dstIP = NULL;
+	IPv4Address srcIP4Addr = IPv4Address::Zero;
+	IPv6Address srcIP6Addr = IPv6Address::Zero;
+	IPv4Address dstIP4Addr = IPv4Address::Zero;
+	IPv6Address dstIP6Addr = IPv6Address::Zero;
+	if (ipLayer->getProtocol() == IPv4)
+	{
+		srcIP4Addr = ((IPv4Layer*)ipLayer)->getSrcIpAddress();
+		srcIP = &srcIP4Addr;
+		dstIP4Addr = ((IPv4Layer*)ipLayer)->getDstIpAddress();
+		dstIP = &dstIP4Addr;
+	}
+	else if (ipLayer->getProtocol() == IPv6)
+	{
+		srcIP6Addr = ((IPv6Layer*)ipLayer)->getSrcIpAddress();
+		srcIP = &srcIP6Addr;
+		dstIP6Addr = ((IPv6Layer*)ipLayer)->getDstIpAddress();
+		dstIP = &dstIP6Addr;
+	}
+
 	// find the connection in the connection map
 	std::map<uint32_t, TcpReassemblyData*>::iterator iter = m_ConnectionList.find(flowKey);
 	if (iter == m_ConnectionList.end())
 	{
 		// if it's a packet of a new connection, create a TcpReassemblyData object and add it to the active connection list
 		tcpReassemblyData = new TcpReassemblyData();
-		tcpReassemblyData->connData.srcIP = ipLayer->getSrcIpAddress();
-		tcpReassemblyData->connData.dstIP = ipLayer->getDstIpAddress();
+		tcpReassemblyData->connData.setSrcIpAddress(srcIP);
+		tcpReassemblyData->connData.setDstIpAddress(dstIP);
 		tcpReassemblyData->connData.srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
 		tcpReassemblyData->connData.dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
 		tcpReassemblyData->connData.flowKey = flowKey;
@@ -164,8 +244,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	int sideIndex = -1;
 	bool first = false;
 
-	// calcualte packet's source IP and source port
-	uint32_t srcIP = ipLayer->getSrcIpAddress().toInt();
+	// calculate packet's source port
 	uint16_t srcPort = tcpLayer->getTcpHeader()->portSrc;
 
 	// if this is a new connection and it's the first packet we see on that connection
@@ -175,7 +254,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 
 		// open the first side of the connection, side index is 0
 		sideIndex = 0;
-		tcpReassemblyData->twoSides[sideIndex].srcIP = srcIP;
+		tcpReassemblyData->twoSides[sideIndex].setSrcIP(srcIP);
 		tcpReassemblyData->twoSides[sideIndex].srcPort = srcPort;
 		tcpReassemblyData->numOfSides++;
 		first = true;
@@ -184,7 +263,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 1)
 	{
 		// check if packet belongs to that side
-		if (tcpReassemblyData->twoSides[0].srcIP == srcIP && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[0].srcPort == srcPort)
 		{
 			sideIndex = 0;
 		}
@@ -193,7 +272,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 			// this means packet belong to the second side which doesn't yet exist. Open a second side with side index 1
 			LOG_DEBUG("Setting second side of a connection");
 			sideIndex = 1;
-			tcpReassemblyData->twoSides[sideIndex].srcIP = srcIP;
+			tcpReassemblyData->twoSides[sideIndex].setSrcIP(srcIP);
 			tcpReassemblyData->twoSides[sideIndex].srcPort = srcPort;
 			tcpReassemblyData->numOfSides++;
 			first = true;
@@ -203,12 +282,12 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 2)
 	{
 		// check if packet matches side 0
-		if (tcpReassemblyData->twoSides[0].srcIP == srcIP && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[0].srcPort == srcPort)
 		{
 			sideIndex = 0;
 		}
 		// check if packet matches side 1
-		else if (tcpReassemblyData->twoSides[1].srcIP == srcIP && tcpReassemblyData->twoSides[1].srcPort == srcPort)
+		else if (tcpReassemblyData->twoSides[1].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[1].srcPort == srcPort)
 		{
 			sideIndex = 1;
 		}
@@ -674,6 +753,8 @@ void TcpReassembly::closeAllConnections()
 
 		LOG_DEBUG("Connection with flow key 0x%X is closed", flowKey);
 	}
+
+	m_ConnectionInfo.clear();
 }
 
 const std::vector<ConnectionData>& TcpReassembly::getConnectionInformation() const

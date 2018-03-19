@@ -28,6 +28,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include "TcpReassembly.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
@@ -120,11 +121,18 @@ public:
 		if (outputDir != "")
 			stream << outputDir << SEPARATOR;
 
+		std::string sourceIP = connData.srcIP->toString();
+		std::string destIP = connData.dstIP->toString();
+
+		// for IPv6 addresses, replace ':' with '_'
+		std::replace(sourceIP.begin(), sourceIP.end(), ':', '_');
+		std::replace(destIP.begin(), destIP.end(), ':', '_');
+
 		// side == 0 means data is sent from client->server
 		if (side <= 0 || separareSides == false)
-			stream << connData.srcIP.toString() << "." << connData.srcPort << "-" << connData.dstIP.toString() << "." << connData.dstPort;
+			stream << sourceIP << "." << connData.srcPort << "-" << destIP << "." << connData.dstPort;
 		else // side == 1 means data is sent from server->client
-			stream << connData.dstIP.toString() << "." << connData.dstPort << "-" << connData.srcIP.toString() << "." << connData.srcPort;
+			stream << destIP << "." << connData.dstPort << "-" << sourceIP << "." << connData.srcPort;
 
 		// return the file path
 		return stream.str();
@@ -508,6 +516,9 @@ void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembl
 		tcpReassembly.reassemblePacket(&rawPacket);
 	}
 
+	// extract number of connections before closing all of them
+	size_t numOfConnectionsProcessed = tcpReassembly.getConnectionInformation().size();
+
 	// after all packets have been read - close the connections which are still opened
 	tcpReassembly.closeAllConnections();
 
@@ -515,7 +526,7 @@ void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembl
 	reader->close();
 	delete reader;
 
-	printf("Done! processed %d connections\n", (int)tcpReassembly.getConnectionInformation().size());
+	printf("Done! processed %d connections\n", (int)numOfConnectionsProcessed);
 }
 
 

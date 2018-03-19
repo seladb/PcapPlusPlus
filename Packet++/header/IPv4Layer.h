@@ -371,7 +371,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 * @param[in] setTotalLenAsDataLen When setting this value to "true" or when using the other c'tor, the layer data length is calculated
-		 * from iphdr#totalLength field. When setting to "false" the data length is set as the value of @dataLen parameter
+		 * from iphdr#totalLength field. When setting to "false" the data length is set as the value of dataLen parameter
 		 */
 		IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen);
 

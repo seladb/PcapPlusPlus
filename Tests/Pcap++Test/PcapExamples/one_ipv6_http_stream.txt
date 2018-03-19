@@ -1,0 +1,211 @@
+GET /style1.css HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Referer: http://www.uk6x.com/
+Accept: text/css,*/*;q=0.1
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: www.uk6x.com
+Connection: Keep-Alive
+
+HTTP/1.1 200 OK
+Date: Sat, 13 May 2006 20:23:16 GMT
+Server: Apache/2.0.51 (FreeBSD)
+Last-Modified: Tue, 07 Sep 2004 12:14:45 GMT
+ETag: "168f32-327-f15e3740"
+Accept-Ranges: bytes
+Content-Length: 807
+Keep-Alive: timeout=15, max=100
+Connection: Keep-Alive
+Content-Type: text/css
+
+BODY 		{ background: #2D3851; color: white; font-family: Verdana, sans-serif; margin-left: 10%; margin-right: 10%; font-size: 90%;}
+H1		{ margin-left: -8%; font-weight: bold; font-size: 175%; }
+H2 		{ margin-left: -4%; font-weight: bold; font-size: 133%; }
+H		{ margin-left: -2%; font-weight: bold; font-style: italic; font-size: 120%; }
+A:link 		{ color: #ADD8E6; text-decoration: underline; }
+A:visited 	{ color: #ADD8E6; text-decoration: underline; }
+A:hover		{ color: white; text-decoration: underline; }
+.nav		{ margin-left: -10%;}
+.foot		{ font-size: 65%;}
+#advert
+{
+display: block;
+background: white;
+color: black;
+font-size:80%;
+}
+
+#advert A:link 
+{
+color: blue;
+}
+#advert A:visited
+{
+color: blue;
+}
+#advert A:active
+{
+color: red;
+}
+
+#advert H1
+{
+margin-left: 0%;
+}
+#advert H2
+{
+margin-left: 0%;
+}
+
+GET /main.html HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Referer: http://www.uk6x.com/
+Accept: text/html, image/jpeg, image/png, text/*, image/*, */*
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: www.uk6x.com
+Connection: Keep-Alive
+
+HTTP/1.1 200 OK
+Date: Sat, 13 May 2006 20:23:16 GMT
+Server: Apache/2.0.51 (FreeBSD)
+Accept-Ranges: bytes
+Content-Length: 3495
+Keep-Alive: timeout=15, max=99
+Connection: Keep-Alive
+Content-Type: text/html; charset=ISO-8859-1
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>
+      UK6x.com Main Page
+    </title>
+    <meta name="keywords" content="UK6x.com ipv6 internet exchange ix uk">
+    <meta name="description" content="UK6x.com independent ipv6 internet exchange for the UK">
+    <meta name="author" content="Jonathan Stevens">
+    <meta name="generator" content="HTML-Kit">
+    <link rel="stylesheet" type="text/css" href="style1.css">
+  </head>
+  <body bgcolor="#2D3851">
+    <p class="nav">
+      <a href="/" target="_top">UK6x.com</a> &gt; <strong>Home</strong>
+    </p>
+    <h2>Important Notice
+    </h2>
+    <p>
+      As part of BT's plans to roll out its 21st Century Network, we are actively working towards defining commercially supported IPv6 services. During this period the UK6x will be operated with reduced support; responses to connection requests and support issues will take longer then usual.
+    </p>
+    <h2>
+      Introduction
+    </h2>
+    <p>
+      The UK6x is a free, independent IPv6 Internet Exchange and network. It is operated by <a
+      href="http://www.btexact.com" target="_blank">BT Exact</a> with the aim of furthering the
+      introduction of IPv6 in the UK, Europe and around the globe. The UK6x is located in London,
+      at the heart of the UK Internet, and offers an unrivaled set of <a href=
+      "networkservices.html">network services</a> and <a href=
+      "applicationservices.html">application services</a>.
+    </p>
+    <h2>
+      Are you an ISP?
+    </h2>
+    We can offer you: 
+    <ul>
+      <li>
+        IPv6 native peering with other networks
+      </li>
+      <li>
+        IPv6 transit to multiple backbones
+      </li>
+      <li>
+        IPv6 address space allocation
+      </li>
+    </ul>
+    Find out how UK6x can help you become an IPv6 ISP on the <a href="networkservices.html">network
+    services</a> and <a href="applicationservices.html">application services</a> pages. 
+    <h2>
+      Are you an organisation or individual interested in IPv6?
+    </h2>
+    We can offer you: 
+    <ul>
+      <li>
+        Access to the IPv6 Internet with IPv6 address assignment
+      </li>
+      <li>
+        DNS hosting
+      </li>
+      <li>
+        IPv6 web hosting
+      </li>
+    </ul>
+    Find out how UK6x can bring IPv6 to your organisation on the <a href=
+    "networkservices.html">network services</a> and <a href="applicationservices.html">application
+    services</a> pages. 
+    <h2>
+      Learn about IPv6
+    </h2>
+    <p>
+      The <a href="http://www.ipv6.btexact.com/" target="_blank">BT Exact IPv6 site</a> also has a
+      number of IPv6 tutorials and information about projects and initiatives in which BT Exact is
+      involved.
+    </p>
+    <hr>
+    <table width="100%" summary="footer table">
+      <tr>
+        <td align="left">
+          <p class="foot">
+            &copy; British Telecommunications plc, 2005
+          </p>
+        </td>
+        <td>
+          <a href="http://6bone.informatik.uni-leipzig.de/ipv6/stats/stats.php3"><img src=
+          "http://6bone.informatik.uni-leipzig.de/ipv6/stats/log.php3?URL=www.uk6x.com&amp;ImageId=6"
+           alt="counter" border="0"></a>
+        </td>
+        <td align="right">
+          <a href="http://validator.w3.org/check/referer" target="_blank"><img border="0" src=
+          "http://www.w3.org/Icons/valid-html401.gif" alt="Valid HTML 4.01" height="31" width="88">
+          </a>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+GET /header.css HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.2 (like Gecko) Kubuntu 6.06 Dapper
+Referer: http://www.uk6x.com/header.shtml
+Accept: text/css,*/*;q=0.1
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: www.uk6x.com
+Connection: Keep-Alive
+
+HTTP/1.1 200 OK
+Date: Sat, 13 May 2006 20:23:16 GMT
+Server: Apache/2.0.51 (FreeBSD)
+Last-Modified: Thu, 11 Mar 2004 15:35:44 GMT
+ETag: "168f31-272-c4b47400"
+Accept-Ranges: bytes
+Content-Length: 626
+Keep-Alive: timeout=15, max=98
+Connection: Keep-Alive
+Content-Type: text/css
+
+BODY 		{background:#2D3851; color:white; font-size:12pt; color:white; font-family: Verdana, sans-serif;}
+P		{font-size:12pt; color:white}
+P.generated	{font-size:8pt; float:right}
+H1		{font-size:26pt; color:white; font-weight:bold}
+H2 		{font-size:14pt; color:white; font-weight:bold}
+TD		{font-size:10pt; color:white}
+TH		{font-size:10pt; color:white; font-weight:bold}
+A:link 		{color:lightblue; text-decoration: underline}
+A:visited 	{color:lightblue; text-decoration: underline}
+A:hover		{color: white; text-decoration: underline;}
+LI	 	{color:white}
+.logotext   {color:lightblue; text-decoration: none; font-size:14pt;}
+
+
