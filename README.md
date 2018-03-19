@@ -80,7 +80,8 @@ The Packet++ library currently supports parsing, editing and creation of packets
 20. DHCP
 21. HTTP headers (request & response)
 22. SSL/TLS - parsing only (no editing capabilities)
-23. Generic payload
+23. Packet trailer (a.k.a footer or padding)
+24. Generic payload
 
 ### Useful Packet And Network Utilities ###
 
