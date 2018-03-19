@@ -88,7 +88,7 @@ IPv4Address::IPv4Address(in_addr* inAddr)
 		m_IsValid = true;
 }
 
-IPAddress* IPv4Address::clone()
+IPAddress* IPv4Address::clone() const
 {
 	return new IPv4Address(*this);
 }
@@ -173,7 +173,7 @@ IPv6Address::~IPv6Address()
 	delete m_pInAddr;
 }
 
-IPAddress* IPv6Address::clone()
+IPAddress* IPv6Address::clone() const
 {
 	return new IPv6Address(*this);
 }

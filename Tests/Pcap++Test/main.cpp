@@ -5595,7 +5595,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestTcpReassemblyIPv6, args, false);
 	PCAPP_RUN_TEST(TestTcpReassemblyIPv6MultConns, args, false);
 	PCAPP_RUN_TEST(TestTcpReassemblyIPv6_OOO, args, false);
-	/*PCAPP_RUN_TEST(TestIPFragmentationSanity, args, false);
+	PCAPP_RUN_TEST(TestIPFragmentationSanity, args, false);
 	PCAPP_RUN_TEST(TestIPFragOutOfOrder, args, false);
 	PCAPP_RUN_TEST(TestIPFragPartialData, args, false);
 	PCAPP_RUN_TEST(TestIPFragMultipleFrags, args, false);
