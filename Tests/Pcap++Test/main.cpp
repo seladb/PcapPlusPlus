@@ -3654,6 +3654,7 @@ struct TcpReassemblyStats
 	bool connectionsStarted;
 	bool connectionsEnded;
 	bool connectionsEndedManually;
+	ConnectionData connData;
 
 	TcpReassemblyStats() { clear(); }
 
@@ -3715,6 +3716,7 @@ void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* u
 	}
 
 	iter->second.connectionsStarted = true;
+	iter->second.connData = connectionData;
 
 	//printf("conn 0x%X started\n", connectionData.flowKey);
 }
@@ -3861,6 +3863,13 @@ PCAPP_TEST(TestTcpReassemblySanity)
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connections wasn't opened");
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	IPv4Address expectedSrcIP(std::string("10.0.0.1"));
+	IPv4Address expectedDstIP(std::string("81.218.72.15"));
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 10.0.0.1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 81.218.72.15");
+
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
 	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
@@ -4261,6 +4270,162 @@ PCAPP_TEST(TestTcpReassemblyMultipleConns)
 
 	PCAPP_TEST_PASSED;
 }
+
+
+PCAPP_TEST(TestTcpReassemblyIPv6)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_ipv6_http_stream.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 10, "Num of data packets isn't 10, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 3, "Num of messages from side 0 isn't 3");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 3, "Num of messages from side 1 isn't 3");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connections wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
+	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
+
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
+
+PCAPP_TEST(TestTcpReassemblyIPv6MultConns)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+	std::string expectedReassemblyData = "";
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/four_ipv6_http_streams.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 4, "Num of connections isn't 4");
+
+	TcpReassemblyMultipleConnStatsIter iter = tcpReassemblyResults.begin();
+
+	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
+	IPv6Address expectedDstIP1(std::string("2001:618:1:8000::5"));
+	IPv6Address expectedDstIP2(std::string("2001:638:902:1:202:b3ff:feee:5dc2"));
+
+	PCAPP_ASSERT(iter->second.numOfDataPackets == 14, "Conn #1: Num of data packets isn't 14, it's %d", iter->second.numOfDataPackets);
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[0] == 3, "Conn #1: Num of messages from side 0 isn't 3");
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[1] == 3, "Conn #1: Num of messages from side 1 isn't 3");
+	PCAPP_ASSERT(iter->second.connectionsStarted == true, "Conn #1: Connection wasn't opened");
+	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #1: Connection ended with FIN or RST");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == true, "Conn #1: Connections wasn't ended manually");
+	PCAPP_ASSERT(iter->second.connData.srcIP != NULL, "Conn #1: Source IP is NULL");
+	PCAPP_ASSERT(iter->second.connData.dstIP != NULL, "Conn #1: Source IP is NULL");
+	PCAPP_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #1: Source IP isn't 2001:618:400::5199:cc70");
+	PCAPP_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #1: Source IP isn't 2001:618:1:8000::5");
+	PCAPP_ASSERT(iter->second.connData.srcPort == 35995, "Conn #1: source port isn't 35995");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream4.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #1: Reassembly data different than expected");
+
+	iter++;
+
+	PCAPP_ASSERT(iter->second.numOfDataPackets == 10, "Conn #2: Num of data packets isn't 10, it's %d", iter->second.numOfDataPackets);
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[0] == 1, "Conn #2: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[1] == 1, "Conn #2: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(iter->second.connectionsStarted == true, "Conn #2: Connection wasn't opened");
+	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #2: Connection ended with FIN or RST");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == true, "Conn #2: Connections wasn't ended manually");
+	PCAPP_ASSERT(iter->second.connData.srcIP != NULL, "Conn #2: Source IP is NULL");
+	PCAPP_ASSERT(iter->second.connData.dstIP != NULL, "Conn #2: Source IP is NULL");
+	PCAPP_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #2: Source IP isn't 2001:618:400::5199:cc70");
+	PCAPP_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #2: Source IP isn't 2001:618:1:8000::5");
+	PCAPP_ASSERT(iter->second.connData.srcPort == 35999, "Conn #2: source port isn't 35999");
+
+	iter++;
+
+	PCAPP_ASSERT(iter->second.numOfDataPackets == 2, "Conn #3: Num of data packets isn't 2, it's %d", iter->second.numOfDataPackets);
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[0] == 1, "Conn #3: Num of messages from side 0 isn't 1");
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[1] == 1, "Conn #3: Num of messages from side 1 isn't 1");
+	PCAPP_ASSERT(iter->second.connectionsStarted == true, "Conn #3: Connection wasn't opened");
+	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended with FIN or RST");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections wasn't ended manually");
+	PCAPP_ASSERT(iter->second.connData.srcIP != NULL, "Conn #3: Source IP is NULL");
+	PCAPP_ASSERT(iter->second.connData.dstIP != NULL, "Conn #3: Source IP is NULL");
+	PCAPP_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #3: Source IP isn't 2001:618:400::5199:cc70");
+	PCAPP_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP2), "Conn #3: Source IP isn't 2001:638:902:1:202:b3ff:feee:5dc2");
+	PCAPP_ASSERT(iter->second.connData.srcPort == 40426, "Conn #3: source port isn't 40426");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream3.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #3: Reassembly data different than expected");
+
+	iter++;
+
+	PCAPP_ASSERT(iter->second.numOfDataPackets == 13, "Conn #4: Num of data packets isn't 13, it's %d", iter->second.numOfDataPackets);
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[0] == 4, "Conn #4: Num of messages from side 0 isn't 4");
+	PCAPP_ASSERT(iter->second.numOfMessagesFromSide[1] == 4, "Conn #4: Num of messages from side 1 isn't 4");
+	PCAPP_ASSERT(iter->second.connectionsStarted == true, "Conn #4: Connection wasn't opened");
+	PCAPP_ASSERT(iter->second.connectionsEnded == false, "Conn #4: Connection ended with FIN or RST");
+	PCAPP_ASSERT(iter->second.connectionsEndedManually == true, "Conn #4: Connections wasn't ended manually");
+	PCAPP_ASSERT(iter->second.connData.srcIP != NULL, "Conn #4: Source IP is NULL");
+	PCAPP_ASSERT(iter->second.connData.dstIP != NULL, "Conn #4: Source IP is NULL");
+	PCAPP_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #4: Source IP isn't 2001:618:400::5199:cc70");
+	PCAPP_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #4: Source IP isn't 2001:618:1:8000::5");
+	PCAPP_ASSERT(iter->second.connData.srcPort == 35997, "Conn #4: source port isn't 35997");
+	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream2.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #4: Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
+
+PCAPP_TEST(TestTcpReassemblyIPv6_OOO)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+
+	PCAPP_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_ipv6_http_stream.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	// swap 2 non-consequent packets
+	RawPacket oooPacket1 = packetStream[10];
+	packetStream.erase(packetStream.begin() + 10);
+	packetStream.insert(packetStream.begin() + 12, oooPacket1);
+
+	// swap additional 2 non-consequent packets
+	oooPacket1 = packetStream[15];
+	packetStream.erase(packetStream.begin() + 15);
+	packetStream.insert(packetStream.begin() + 17, oooPacket1);
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	PCAPP_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 10, "Num of data packets isn't 10, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 3, "Num of messages from side 0 isn't 3");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 3, "Num of messages from side 1 isn't 3");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connections wasn't opened");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
+	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
+
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
+	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+
+	PCAPP_TEST_PASSED;
+}
+
 
 void savePacketToFile(RawPacket& packet, std::string fileName)
 {
@@ -5427,7 +5592,10 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestTcpReassemblyWithFIN_RST, args, false);
 	PCAPP_RUN_TEST(TestTcpReassemblyMalformedPkts, args, false);
 	PCAPP_RUN_TEST(TestTcpReassemblyMultipleConns, args, false);
-	PCAPP_RUN_TEST(TestIPFragmentationSanity, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyIPv6, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyIPv6MultConns, args, false);
+	PCAPP_RUN_TEST(TestTcpReassemblyIPv6_OOO, args, false);
+	/*PCAPP_RUN_TEST(TestIPFragmentationSanity, args, false);
 	PCAPP_RUN_TEST(TestIPFragOutOfOrder, args, false);
 	PCAPP_RUN_TEST(TestIPFragPartialData, args, false);
 	PCAPP_RUN_TEST(TestIPFragMultipleFrags, args, false);
