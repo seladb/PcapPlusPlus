@@ -179,7 +179,13 @@ bool uint16CountComparer(std::pair<uint16_t, int> first, std::pair<uint16_t, int
 void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 {
 	// create the table
-	TablePrinter<std::string, int> printer("Hostname", 40, "Count", 5);
+	std::vector<std::string> columnNames;
+	columnNames.push_back("Hostname");
+	columnNames.push_back("Count");
+	std::vector<int> columnsWidths;
+	columnsWidths.push_back(40);
+	columnsWidths.push_back(5);
+	TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the server-name count map so the most popular names will be first
 	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
@@ -191,10 +197,10 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 			iter != map2vec.end();
 			iter++)
 	{
-		printer.printRow(iter->first, iter->second);
+		std::stringstream values;
+		values << iter->first << "|" << iter->second;
+		printer.printRow(values.str(), '|');
 	}
-
-	printer.closeTable();
 }
 
 
@@ -204,17 +210,23 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 void printVersions(std::map<SSLVersion, int>& versionMap, std::string headline)
 {
 	// create the table
-	TablePrinter<std::string, int> printer(headline, 28, "Count", 5);
+	std::vector<std::string> columnNames;
+	columnNames.push_back(headline);
+	columnNames.push_back("Count");
+	std::vector<int> columnsWidths;
+	columnsWidths.push_back(28);
+	columnsWidths.push_back(5);
+	TablePrinter printer(columnNames, columnsWidths);
 
 	// go over the status code map and print each item
 	for(std::map<SSLVersion, int>::iterator iter = versionMap.begin();
 			iter != versionMap.end();
 			iter++)
 	{
-		printer.printRow(SSLLayer::sslVersionToString(iter->first), iter->second);
+		std::stringstream values;
+		values << iter->first << "|" << iter->second;
+		printer.printRow(values.str(), '|');
 	}
-
-	printer.closeTable();
 }
 
 
@@ -224,7 +236,13 @@ void printVersions(std::map<SSLVersion, int>& versionMap, std::string headline)
 void printCipherSuites(ServerHelloStats& serverHelloStats)
 {
 	// create the table
-	TablePrinter<std::string, int> printer("Cipher-suite", 50, "Count", 5);
+	std::vector<std::string> columnNames;
+	columnNames.push_back("Cipher-suite");
+	columnNames.push_back("Count");
+	std::vector<int> columnsWidths;
+	columnsWidths.push_back(50);
+	columnsWidths.push_back(5);
+	TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the cipher-suite count map so the most popular names will be first
 	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
@@ -236,17 +254,23 @@ void printCipherSuites(ServerHelloStats& serverHelloStats)
 			iter != map2vec.end();
 			iter++)
 	{
-		printer.printRow(iter->first, iter->second);
+		std::stringstream values;
+		values << iter->first << "|" << iter->second;
+		printer.printRow(values.str(), '|');
 	}
-
-	printer.closeTable();
 }
 
 
 void printPorts(SSLGeneralStats& stats)
 {
 	// create the table
-	TablePrinter<std::string, int> printer("SSL/TLS ports", 13, "Count", 5);
+	std::vector<std::string> columnNames;
+	columnNames.push_back("SSL/TLS ports");
+	columnNames.push_back("Count");
+	std::vector<int> columnsWidths;
+	columnsWidths.push_back(13);
+	columnsWidths.push_back(5);
+	TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the port count map so the most popular names will be first
 	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
@@ -258,12 +282,10 @@ void printPorts(SSLGeneralStats& stats)
 			iter != map2vec.end();
 			iter++)
 	{
-		std::ostringstream portStream;
-		portStream << (int)iter->first;
-		printer.printRow(portStream.str(), iter->second);
+		std::stringstream values;
+		values << iter->first << "|" << iter->second;
+		printer.printRow(values.str(), '|');
 	}
-
-	printer.closeTable();
 }
 
 

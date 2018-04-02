@@ -159,7 +159,15 @@ void httpPacketArrive(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 void printMethods(HttpRequestStats& reqStatscollector)
 {
 	// create the table
-	TablePrinter<std::string, int> printer("Method", 9, "Count", 5);
+	std::vector<std::string> columnNames;
+	columnNames.push_back("Method");
+	columnNames.push_back("Count");
+	std::vector<int> columnsWidths;
+	columnsWidths.push_back(9);
+	columnsWidths.push_back(5);
+	TablePrinter printer(columnNames, columnsWidths);
+
+	std::stringstream values;
 
 	// go over the method count table and print each method and count
 	for(std::map<HttpRequestLayer::HttpMethod, int>::iterator iter = reqStatscollector.methodCount.begin();
@@ -169,39 +177,45 @@ void printMethods(HttpRequestStats& reqStatscollector)
 		switch (iter->first)
 		{
 		case HttpRequestLayer::HttpGET:
-			printer.printRow("GET", reqStatscollector.methodCount[HttpRequestLayer::HttpGET]);
+			values << "GET" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpGET];
+			printer.printRow(values.str(), '|');
 			break;
 		case HttpRequestLayer::HttpPOST:
-			printer.printRow("POST", reqStatscollector.methodCount[HttpRequestLayer::HttpPOST]);
+			values << "POST" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpPOST];
 			break;
 		case HttpRequestLayer::HttpCONNECT:
-			printer.printRow("CONNECT", reqStatscollector.methodCount[HttpRequestLayer::HttpCONNECT]);
+			values << "CONNECT" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpCONNECT];
+			printer.printRow(values.str(), '|');
 			break;
 		case HttpRequestLayer::HttpDELETE:
-			printer.printRow("DELETE", reqStatscollector.methodCount[HttpRequestLayer::HttpDELETE]);
+			values << "DELETE" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpDELETE];
+			printer.printRow(values.str(), '|');
 			break;
 		case HttpRequestLayer::HttpHEAD:
-			printer.printRow("HEAD", reqStatscollector.methodCount[HttpRequestLayer::HttpHEAD]);
+			values << "HEAD" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpHEAD];
+			printer.printRow(values.str(), '|');
 			break;
 		case HttpRequestLayer::HttpOPTIONS:
-			printer.printRow("OPTIONS", reqStatscollector.methodCount[HttpRequestLayer::HttpOPTIONS]);
+			values << "OPTIONS" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpOPTIONS];
+			printer.printRow(values.str(), '|');
 			break;
 		case HttpRequestLayer::HttpPATCH:
-			printer.printRow("PATCH", reqStatscollector.methodCount[HttpRequestLayer::HttpPATCH]);
+			values << "PATCH" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpPATCH];
+			printer.printRow(values.str(), '|');
 			break;
 		case HttpRequestLayer::HttpPUT:
-			printer.printRow("PUT", reqStatscollector.methodCount[HttpRequestLayer::HttpPUT]);
+			values << "PUT" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpPUT];
+			printer.printRow(values.str(), '|');
 			break;
 		case HttpRequestLayer::HttpTRACE:
-			printer.printRow("TRACE", reqStatscollector.methodCount[HttpRequestLayer::HttpTRACE]);
+			values << "TRACE" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpTRACE];
+			printer.printRow(values.str(), '|');
 			break;
 		default:
 			break;
 		}
 
 	}
-
-	printer.closeTable();
 }
 
 
@@ -219,7 +233,13 @@ bool hostnameComparer(std::pair<std::string, int> first, std::pair<std::string, 
 void printHostnames(HttpRequestStats& reqStatscollector)
 {
 	// create the table
-	TablePrinter<std::string, int> printer("Hostname", 40, "Count", 5);
+	std::vector<std::string> columnNames;
+	columnNames.push_back("Hostname");
+	columnNames.push_back("Count");
+	std::vector<int> columnsWidths;
+	columnsWidths.push_back(40);
+	columnsWidths.push_back(5);
+	TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the hostname count map so the most popular hostnames will be first
 	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
@@ -231,10 +251,10 @@ void printHostnames(HttpRequestStats& reqStatscollector)
 			iter != map2vec.end();
 			iter++)
 	{
-		printer.printRow(iter->first, iter->second);
+		std::stringstream values;
+		values << iter->first << "|" << iter->second;
+		printer.printRow(values.str(), '|');
 	}
-
-	printer.closeTable();
 }
 
 
@@ -244,17 +264,23 @@ void printHostnames(HttpRequestStats& reqStatscollector)
 void printStatusCodes(HttpResponseStats& resStatscollector)
 {
 	// create the table
-	TablePrinter<std::string, int> printer("Status Code", 28, "Count", 5);
+	std::vector<std::string> columnNames;
+	columnNames.push_back("Status Code");
+	columnNames.push_back("Count");
+	std::vector<int> columnsWidths;
+	columnsWidths.push_back(28);
+	columnsWidths.push_back(5);
+	TablePrinter printer(columnNames, columnsWidths);
 
 	// go over the status code map and print each item
 	for(std::map<std::string, int>::iterator iter = resStatscollector.statusCodeCount.begin();
 			iter != resStatscollector.statusCodeCount.end();
 			iter++)
 	{
-		printer.printRow(iter->first, iter->second);
+		std::stringstream values;
+		values << iter->first << "|" << iter->second;
+		printer.printRow(values.str(), '|');
 	}
-
-	printer.closeTable();
 }
 
 
@@ -264,17 +290,23 @@ void printStatusCodes(HttpResponseStats& resStatscollector)
 void printContentTypes(HttpResponseStats& resStatscollector)
 {
 	// create the table
-	TablePrinter<std::string, int> printer("Content-type", 30, "Count", 5);
+	std::vector<std::string> columnNames;
+	columnNames.push_back("Content-type");
+	columnNames.push_back("Count");
+	std::vector<int> columnsWidths;
+	columnsWidths.push_back(30);
+	columnsWidths.push_back(5);
+	TablePrinter printer(columnNames, columnsWidths);
 
 	// go over the status code map and print each item
 	for(std::map<std::string, int>::iterator iter = resStatscollector.contentTypeCount.begin();
 			iter != resStatscollector.contentTypeCount.end();
 			iter++)
 	{
-		printer.printRow(iter->first, iter->second);
+		std::stringstream values;
+		values << iter->first << "|" << iter->second;
+		printer.printRow(values.str(), '|');
 	}
-
-	printer.closeTable();
 }
 
 
