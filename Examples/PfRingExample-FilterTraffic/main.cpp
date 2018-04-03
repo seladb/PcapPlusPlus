@@ -35,6 +35,7 @@
 #include <PacketUtils.h>
 #include <SystemUtils.h>
 #include <PcapPlusPlusVersion.h>
+#include <TablePrinter.h>
 #include <Logger.h>
 #include <stdlib.h>
 #include <vector>
@@ -470,19 +471,20 @@ int main(int argc, char* argv[])
 
 	// print final stats for every capture thread plus sum of all threads and free worker threads memory
 	PacketStats aggregatedStats;
-	bool printedStatsHeadline = false;
+
+	// create table printer
+	std::vector<std::string> columnNames;
+	std::vector<int> columnWidths;
+	PacketStats::getStatsColumns(columnNames, columnWidths);
+	TablePrinter printer(columnNames, columnWidths);
+
 	for (int i = 0; i < totalNumOfCores; i++)
 	{
 		if (packetStatsArr[i].ThreadId == MAX_NUM_OF_CORES+1)
 			continue;
 
 		aggregatedStats.collectStats(packetStatsArr[i]);
-		if (!printedStatsHeadline)
-		{
-			packetStatsArr[i].printStatsHeadline();
-			printedStatsHeadline = true;
-		}
-		packetStatsArr[i].printStats();
+		printer.printRow(packetStatsArr[i].getStatValuesAsString("|"), '|');
 	}
-	aggregatedStats.printStats();
+	printer.printRow(aggregatedStats.getStatValuesAsString("|"), '|');
 }

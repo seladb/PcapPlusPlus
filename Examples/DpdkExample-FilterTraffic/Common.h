@@ -10,6 +10,7 @@
 #include <vector>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdlib.h>
 
 using namespace std;
@@ -56,17 +57,6 @@ struct AppWorkerConfig
  */
 struct PacketStats
 {
-private:
-    static const char separator = ' ';
-    static const int narrowColumnWidth  = 13;
-    static const int wideColumnWidth  = 18;
-
-    template<typename T>
-    void printElement(T t, int width)
-    {
-        cout << left << setw(width) << setfill(separator) << t;
-    }
-
 public:
 	uint8_t WorkerId;
 
@@ -122,42 +112,61 @@ public:
 
 	void clear() { WorkerId = MAX_NUM_OF_CORES+1; PacketCount = 0; EthCount = 0; ArpCount = 0; Ip4Count = 0; Ip6Count = 0; TcpCount = 0; UdpCount = 0; HttpCount = 0; MatchedTcpFlows = 0; MatchedUdpFlows = 0; MatchedPackets = 0; }
 
-	void printStats()
+	std::string getStatValuesAsString(std::string delimiter)
 	{
+		std::stringstream values;
 		if (WorkerId == MAX_NUM_OF_CORES+1)
-			printElement("Total", narrowColumnWidth);
+			values << "Total" << delimiter;
 		else
-			printElement((int)WorkerId, narrowColumnWidth);
-		printElement(PacketCount, narrowColumnWidth);
-		printElement(EthCount, narrowColumnWidth);
-		printElement(ArpCount, narrowColumnWidth);
-		printElement(Ip4Count, narrowColumnWidth);
-		printElement(Ip6Count, narrowColumnWidth);
-		printElement(TcpCount, narrowColumnWidth);
-		printElement(UdpCount, narrowColumnWidth);
-		printElement(HttpCount, narrowColumnWidth);
-		printElement(MatchedTcpFlows, wideColumnWidth);
-		printElement(MatchedUdpFlows, wideColumnWidth);
-		printElement(MatchedPackets, wideColumnWidth);
-	    cout << endl;
+			values << (int)WorkerId << delimiter;
+		values << PacketCount << delimiter;
+		values << EthCount << delimiter;
+		values << ArpCount << delimiter;
+		values << Ip4Count << delimiter;
+		values << Ip6Count << delimiter;
+		values << TcpCount << delimiter;
+		values << UdpCount << delimiter;
+		values << HttpCount << delimiter;
+		values << MatchedTcpFlows << delimiter;
+		values << MatchedUdpFlows << delimiter;
+		values << MatchedPackets;
+
+		return values.str();
 	}
 
-	void printStatsHeadline()
+	static void getStatsColumns(std::vector<std::string>& columnNames, std::vector<int>& columnWidths)
 	{
-		printElement("Core ID", narrowColumnWidth);
-		printElement("Packet Count", narrowColumnWidth);
-		printElement("Eth Count", narrowColumnWidth);
-		printElement("ARP Count", narrowColumnWidth);
-		printElement("IPv4 Count", narrowColumnWidth);
-		printElement("IPv6 Count", narrowColumnWidth);
-		printElement("TCP Count", narrowColumnWidth);
-		printElement("UDP Count", narrowColumnWidth);
-		printElement("HTTP Count", narrowColumnWidth);
-		printElement("Matched TCP Flows", wideColumnWidth);
-		printElement("Matched UDP Flows", wideColumnWidth);
-		printElement("Matched Packets", wideColumnWidth);
-	    cout << endl;
-	    cout << left << setw(narrowColumnWidth*9 + wideColumnWidth*3) << setfill('=') << "";
-	    cout << endl;
+		columnNames.clear();
+		columnWidths.clear();
+
+	    static const int narrowColumnWidth = 11;
+	    static const int wideColumnWidth = 18;
+
+		columnNames.push_back("Core ID");
+		columnNames.push_back("Packet Cnt");
+		columnNames.push_back("Eth Cnt");
+		columnNames.push_back("ARP Cnt");
+		columnNames.push_back("IPv4 Cnt");
+		columnNames.push_back("IPv6 Cnt");
+		columnNames.push_back("TCP Cnt");
+		columnNames.push_back("UDP Cnt");
+		columnNames.push_back("HTTP Cnt");
+		columnNames.push_back("Matched TCP Flows");
+		columnNames.push_back("Matched UDP Flows");
+		columnNames.push_back("Matched Packets");
+
+		columnWidths.push_back(7);
+		columnWidths.push_back(narrowColumnWidth);
+		columnWidths.push_back(narrowColumnWidth);
+		columnWidths.push_back(narrowColumnWidth);
+		columnWidths.push_back(narrowColumnWidth);
+		columnWidths.push_back(narrowColumnWidth);
+		columnWidths.push_back(narrowColumnWidth);
+		columnWidths.push_back(narrowColumnWidth);
+		columnWidths.push_back(narrowColumnWidth);
+		columnWidths.push_back(wideColumnWidth);
+		columnWidths.push_back(wideColumnWidth);
+		columnWidths.push_back(wideColumnWidth);
+
 	}
 };
