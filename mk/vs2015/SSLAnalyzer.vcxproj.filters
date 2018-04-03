@@ -18,9 +18,6 @@
     <ClCompile Include="..\..\Examples\SSLAnalyzer\SSLStatsCollector.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Examples\SSLAnalyzer\TablePrinter.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Examples\SSLAnalyzer\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

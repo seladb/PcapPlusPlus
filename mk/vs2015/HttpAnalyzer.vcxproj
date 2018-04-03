@@ -189,7 +189,6 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHo
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Examples\HttpAnalyzer\HttpStatsCollector.h" />
-    <ClCompile Include="..\..\Examples\HttpAnalyzer\TablePrinter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Examples\HttpAnalyzer\main.cpp" />
