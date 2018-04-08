@@ -273,6 +273,11 @@ namespace pcpp
 		RawPacket& operator=(const RawPacket& other);
 
 		/**
+		 * @return RawPacket object type. Each derived class should return a different value
+		 */
+		virtual inline uint8_t getObjectType() const { return 0; }
+
+		/**
 		 * Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be freed first
 		 * @param[in] pRawData A pointer to the new raw data
 		 * @param[in] rawDataLen The new raw data length in bytes

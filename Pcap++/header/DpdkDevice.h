@@ -112,6 +112,8 @@ namespace pcpp
 
 	class DpdkDevice;
 
+	#define MBUFRAWPACKET_OBJECT_TYPE 1
+
 	/**
 	 * @class MBufRawPacket
 	 * A class that inherits RawPacket and wraps DPDK's mbuf object (see some info about mbuf in DpdkDevice.h) but is
@@ -168,11 +170,33 @@ namespace pcpp
 		 * The user should call this method only once per instance. Calling it more than once will result with an error
 		 * @param[in] device The DpdkDevice which has the pool to allocate the mbuf from
 		 * @return True if initialization succeeded and false if this method was already called for this instance (and an mbuf is
-		 * already attched) or if allocating an mbuf from the pool failed for some reason
+		 * already attached) or if allocating an mbuf from the pool failed for some reason
 		 */
 		bool init(DpdkDevice* device);
 
+		/**
+		 * Initialize an instance of this class and copies the content of a RawPacket object.
+		 * Initialization includes allocating an mbuf from the pool that resides in provided DpdkDevice, and copying the data
+		 * from the input RawPacket object into this mBuf.
+		 * The user should call this method only once per instance. Calling it more than once will result with an error
+		 * @param[in] rawPacket A pointer to a RawPacket object from which data will be copied
+		 * @param[in] device The DpdkDevice which has the pool to allocate the mbuf from
+		 * @return True if initialization succeeded and false if this method was already called for this instance (and an mbuf is
+		 * already attached) or if allocating an mbuf from the pool failed for some reason
+		 */
+		bool initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* device);
+
+		/**
+		 * @return A pointer to the DPDK mbuf stored in this object
+		 */
+		inline rte_mbuf* getMBuf() { return m_MBuf; }
+
 		// overridden methods
+
+		/**
+		 * @return MBufRawPacket object type
+		 */
+		virtual inline uint8_t getObjectType() const { return MBUFRAWPACKET_OBJECT_TYPE; }
 
 		/**
 		 * An assignment operator for this class. Copies the data from the mbuf attached to the other MBufRawPacket to the mbuf
@@ -193,7 +217,7 @@ namespace pcpp
 		 * @return True if raw data was copied to the mbuf successfully, false if rawDataLen is larger than mbuf max size, if initialization
 		 * failed or if copying the data to the mbuf failed. In all of these cases an error will be printed to log
 		 */
-		bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp);
+		bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
 		/**
 		 * Clears the object and frees the mbuf
@@ -247,6 +271,12 @@ namespace pcpp
 	 * @param[in] userCookie The user cookie assigned by the user in DpdkDevice#startCaptureSingleThread() or DpdkDevice#startCaptureMultiThreads
 	 */
 	typedef void (*OnDpdkPacketsArriveCallback)(MBufRawPacket* packets, uint32_t numOfPackets, uint8_t threadId, DpdkDevice* device, void* userCookie);
+
+	/**
+	 * @typedef MBufRawPacketVector
+	 * A vector of pointers to MBufRawPacket
+	 */
+	typedef PointerVector<MBufRawPacket> MBufRawPacketVector;
 
 	/**
 	 * @class PciAddress
@@ -485,40 +515,31 @@ namespace pcpp
 		 * Receive raw packets from the network
 		 * @param[out] rawPacketsArr A vector where all received packets will be written into
 		 * @param[in] rxQueueId The RX queue to receive packets from
-		 * @return True if packets were received and no error occurred or false if device isn't opened, if device is currently capturing
-		 * (using startCaptureSingleThread() or startCaptureMultiThreads() ), if rxQueueId doesn't exist on device, or if DPDK receive packets method returned
-		 * an error
+		 * @return The number of packets received. If an error occurred 0 will be returned and the error will be printed to log
 		 */
-		bool receivePackets(RawPacketVector& rawPacketsArr, uint16_t rxQueueId);
+		uint16_t receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t rxQueueId);
 
 		/**
 		 * Receive raw packets from the network
-		 * @param[out] rawPacketsArr A pointer to a non-allocated array of MBufRawPacket pointers where all received packets will be written into. The array
-		 * will be allocated by this method and its length will be written into rawPacketArrLength. Notice it's the user responsibility to free the array and
-		 * its content when done using it
-		 * @param[out] rawPacketArrLength The length of MBufRawPacket pointers array will be written into
+		 * @param[out] rawPacketsArr A pointer to an array of MBufRawPacket pointers where all received packets will be written into. The array is expected to
+		 * be allocated by the user and its length should be provided in rawPacketArrLength. Number of packets received will be returned
+		 * Notice it's the user responsibility to free the array and its content when done using it
+		 * @param[out] rawPacketArrLength The length of MBufRawPacket pointers array
 		 * @param[in] rxQueueId The RX queue to receive packets from
-		 * @param[in] reuse Signifies that *rawPacketsArr already contains an array of MBufRawPacket objects with length equals to rawPacketArrLength. If provided
-		 * array is big enough to store the burst of packets received from NIC it will not be reallocated, otherwise it will. During the reallocation provided 
-		 * array will be freed using delete[] expression so you must allocate it with new[] expression.
-		 * @return True if packets were received and no error occurred or false if device isn't opened, if device is currently in capture mode
-		 * (using startCaptureSingleThread() or startCaptureMultiThreads() ), if rxQueueId doesn't exist on device, or if DPDK receive packets method returned
-		 * an error
+		 * @return The number of packets received. If an error occurred 0 will be returned and the error will be printed to log
 		 */
-		bool receivePackets(MBufRawPacket** rawPacketsArr, int& rawPacketArrLength, uint16_t rxQueueId, bool reuse = false);
+		uint16_t receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPacketArrLength, uint16_t rxQueueId);
 
 		/**
 		 * Receive parsed packets from the network
-		 * @param[out] packetsArr A pointer to a non-allocated array of Packet pointers where all received packets will be written into. The array
-		 * will be allocated by this method and its length will be written into packetsArrLength. Notice it's the user responsibility to free the array and
-		 * its content when done using it
-		 * @param[out] packetsArrLength The length of Packet pointers array will be written into
+		 * @param[out] packetsArr A pointer to an allocated array of Packet pointers where all received packets will be written into. The array is expected to
+		 * be allocated by the user and its length should be provided in packetsArrLength. Number of packets received will be returned
+		 * Notice it's the user responsibility to free the array and its content when done using it
+		 * @param[out] packetsArrLength The length of Packet pointers array
 		 * @param[in] rxQueueId The RX queue to receive packets from
-		 * @return True if packets were received and no error occurred or false if device isn't opened, if device is currently capturing
-		 * (using startCaptureSingleThread() or startCaptureMultiThreads() ), if rxQueueId doesn't exist on device, or if DPDK receive packets method returned
-		 * an error
+		 * @return The number of packets received. If an error occurred 0 will be returned and the error will be printed to log
 		 */
-		bool receivePackets(Packet** packetsArr, int& packetsArrLength, uint16_t rxQueueId);
+		uint16_t receivePackets(Packet** packetsArr, uint16_t packetsArrLength, uint16_t rxQueueId);
 
 		/**
 		 * Send an array of raw packets to the network.<BR><BR>
@@ -538,7 +559,7 @@ namespace pcpp
 		 * TX queue 0
 		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 		 */
-		int sendPackets(const RawPacket* rawPacketsArr, int arrLength, uint16_t txQueueId = 0);
+		uint16_t sendPackets(MBufRawPacket** rawPacketsArr, uint16_t arrLength, uint16_t txQueueId = 0);
 
 		/**
 		 * Send an array of parsed packets to the network. For the send packets algorithm see sendPackets()
@@ -548,28 +569,25 @@ namespace pcpp
 		 * TX queue 0
 		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 		 */
-		int sendPackets(const Packet** packetsArr, int arrLength, uint16_t txQueueId = 0);
+		uint16_t sendPackets(Packet** packetsArr, uint16_t arrLength, uint16_t txQueueId = 0);
 
 		/**
-		 * Send a vector of raw packets to the network. For the send packets algorithm see sendPackets()
+		 * Send a vector of MBufRawPacket pointer to the network. For the send packets algorithm see sendPackets()
 		 * @param[in] rawPacketsVec The vector of raw packet
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 		 * TX queue 0
 		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 		 */
-		int sendPackets(const RawPacketVector& rawPacketsVec, uint16_t txQueueId = 0);
+		uint16_t sendPackets(const MBufRawPacketVector& rawPacketsVec, uint16_t txQueueId = 0);
 
 		/**
-		 * Send packet raw data to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
-		 * only 1 packet
-		 * @param[in] packetData The packet raw data to send
-		 * @param[in] packetDataLength The length of the raw data
-		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent to. The default is
+		 * Send a vector of RawPacket pointer to the network. For the send packets algorithm see sendPackets()
+		 * @param[in] rawPacketsVec The vector of raw packet
+		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 		 * TX queue 0
-		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
-		 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
+		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 		 */
-		bool sendPacket(const uint8_t* packetData, int packetDataLength, uint16_t txQueueId = 0);
+		uint16_t sendPackets(const RawPacketVector& rawPacketsVec, uint16_t txQueueId = 0);
 
 		/**
 		 * Send a raw packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
@@ -581,6 +599,16 @@ namespace pcpp
 		 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
 		 */
 		bool sendPacket(const RawPacket& rawPacket, uint16_t txQueueId = 0);
+
+		/**
+		 * Send a MBufRawPacket to the network
+		 * @param[in] rawPacket The MBufRawPacket to send
+		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent to. The default is
+		 * TX queue 0
+		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
+		 * failed
+		 */
+		bool sendPacket(const MBufRawPacket& rawPacket, uint16_t txQueueId = 0);
 
 		/**
 		 * Send a parsed packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
@@ -715,8 +743,8 @@ namespace pcpp
 
 		void setDeviceInfo();
 
-		typedef RawPacket* (*packetIterator)(void* packetStorage, int index);
-		int sendPacketsInner(uint16_t txQueueId, void* packetStorage, packetIterator iter, int arrLength);
+		typedef rte_mbuf* (*packetIterator)(void* packetStorage, int index);
+		uint16_t sendPacketsInner(uint16_t txQueueId, void* packetStorage, packetIterator iter, int arrLength);
 
 		char m_DeviceName[30];
 		DpdkPMDType m_PMDType;

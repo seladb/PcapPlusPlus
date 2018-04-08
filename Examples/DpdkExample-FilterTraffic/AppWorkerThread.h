@@ -66,6 +66,9 @@ public:
 			return true;
 		}
 
+		#define MAX_RECEIVE_BURST 64
+		pcpp::MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
+
 		// main loop, runs until be told to stop
 		while (!m_Stop)
 		{
@@ -76,24 +79,22 @@ public:
 				for (vector<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
 				{
 					pcpp::DpdkDevice* dev = iter->first;
-					pcpp::Packet* packetArr = NULL;
-					int packetArrLen = 0;
 
 					// receive packets from network on the specified DPDK device and RX queue
-					if (!dev->receivePackets(&packetArr, packetArrLen, *iter2))
-					{
-						EXIT_WITH_ERROR("Couldn't receive packet from DpdkDevice #%d, RX queue #%d", dev->getDeviceId(), *iter2);
-					}
+					uint16_t packetsReceived = dev->receivePackets(packetArr, MAX_RECEIVE_BURST, *iter2);
 
-					for (int i = 0; i < packetArrLen; i++)
+					for (int i = 0; i < packetsReceived; i++)
 					{
+						// parse packet
+						pcpp::Packet parsedPacket(packetArr[i]);
+
 						// collect packet statistics
-						m_Stats.collectStats(packetArr[i]);
+						m_Stats.collectStats(parsedPacket);
 
 						bool packetMatched = false;
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
-						uint32_t hash = pcpp::hash5Tuple(&packetArr[i]);
+						uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
 						map<uint32_t, bool>::const_iterator iter = m_FlowTable.find(hash);
 
 						// if packet belongs to an already existing flow
@@ -103,18 +104,18 @@ public:
 						}
 						else // packet belongs to a new flow
 						{
-							packetMatched = m_PacketMatchingEngine.isMatched(packetArr[i]);
+							packetMatched = m_PacketMatchingEngine.isMatched(parsedPacket);
 							if (packetMatched)
 							{
 								// put new flow in flow table
 								m_FlowTable[hash] = true;
 
 								//collect stats
-								if (packetArr[i].isPacketOfType(pcpp::TCP))
+								if (parsedPacket.isPacketOfType(pcpp::TCP))
 								{
 									m_Stats.MatchedTcpFlows++;
 								}
-								else if (packetArr[i].isPacketOfType(pcpp::UDP))
+								else if (parsedPacket.isPacketOfType(pcpp::UDP))
 								{
 									m_Stats.MatchedUdpFlows++;
 								}
@@ -127,22 +128,27 @@ public:
 							// send packet to TX port if needed
 							if (sendPacketsTo != NULL)
 							{
-								sendPacketsTo->sendPacket(packetArr[i], 0);
+								sendPacketsTo->sendPacket(*packetArr[i], 0);
 							}
 
 							// save packet to file if needed
 							if (pcapWriter != NULL)
 							{
-								pcapWriter->writePacket(*(packetArr[i].getRawPacket()));
+								pcapWriter->writePacket(*packetArr[i]);
 							}
 
 							m_Stats.MatchedPackets++;
 						}
 					}
-
-					delete [] packetArr;
 				}
 			}
+		}
+
+		// free packet array (frees all mbufs as well)
+		for (int i = 0; i < MAX_RECEIVE_BURST; i++)
+		{
+			if (packetArr[i] != NULL)
+				delete packetArr[i];
 		}
 
 		// close and delete pcap file writer

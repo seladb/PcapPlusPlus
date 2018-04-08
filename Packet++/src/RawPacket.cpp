@@ -38,7 +38,7 @@ RawPacket::~RawPacket()
 
 RawPacket::RawPacket(const RawPacket& other)
 {
-	copyDataFrom(other);
+	copyDataFrom(other, true);
 }
 
 RawPacket& RawPacket::operator=(const RawPacket& other)
@@ -48,7 +48,7 @@ RawPacket& RawPacket::operator=(const RawPacket& other)
 
 	m_RawPacketSet = false;
 
-	copyDataFrom(other);
+	copyDataFrom(other, true);
 
 	return *this;
 }
