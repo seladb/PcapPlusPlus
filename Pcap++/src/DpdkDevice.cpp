@@ -902,13 +902,16 @@ void DpdkDevice::getStatistics(pcap_stat& stats)
 //	stats.ps_ifdrop = rteStats.rx_nombuf;
 }
 
+#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
+
 void DpdkDevice::getStatistics(DpdkDeviceStats& stats)
 {
-	clock_t timestamp = clock();
+	timespec timestamp;
+	clock_gettime(CLOCK_MONOTONIC, &timestamp);
 	struct rte_eth_stats rteStats;
 	rte_eth_stats_get(m_Id, &rteStats);
 
-	double secsElapsed = (double)(timestamp - m_PrevStats.timestamp) / (double)CLOCKS_PER_SEC;
+	double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1000000000.0;
 
 	stats.devId = m_Id;
 	stats.timestamp = timestamp;

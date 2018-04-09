@@ -2,6 +2,7 @@
 #define PCAPPP_DPDK_DEVICE
 
 #include <pthread.h>
+#include <time.h>
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "RawPacket.h"
@@ -458,7 +459,7 @@ namespace pcpp
 			/** DpdkDevice ID */
 			uint8_t devId;
 			/** The timestamp of when the stats were written */
-			clock_t timestamp;
+			timespec timestamp;
 			/** RX statistics per RX queue */
 			RxTxStats rxStats[DPDK_MAX_RX_QUEUES];
 			/** TX statistics per TX queue */
