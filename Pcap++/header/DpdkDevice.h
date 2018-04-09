@@ -63,6 +63,10 @@ struct rte_eth_conf;
 namespace pcpp
 {
 
+#define DPDK_MAX_RX_QUEUES 16
+#define DPDK_MAX_TX_QUEUES 16
+
+
 	class DpdkDeviceList;
 	class DpdkDevice;
 
@@ -429,6 +433,48 @@ namespace pcpp
 			LinkDuplex linkDuplex;
 		};
 
+		/**
+		 * @struct RxTxStats
+		 * A container for RX/TX statistics
+		 */
+		struct RxTxStats
+		{
+			/** Total number of packets */
+			uint64_t packets;
+			/** Total number of successfully received bytes */
+			uint64_t bytes;
+			/** Packets per second */
+			uint64_t packetsPerSec;
+			/** Bytes per second */
+			uint64_t bytesPerSec;
+		};
+
+		/**
+		 * @struct DpdkDeviceStats
+		 * A container for DpdkDevice statistics
+		 */
+		struct DpdkDeviceStats
+		{
+			/** DpdkDevice ID */
+			uint8_t devId;
+			/** The timestamp of when the stats were written */
+			clock_t timestamp;
+			/** RX statistics per RX queue */
+			RxTxStats rxStats[DPDK_MAX_RX_QUEUES];
+			/** TX statistics per TX queue */
+			RxTxStats txStats[DPDK_MAX_RX_QUEUES];
+			/** RX statistics, aggregated for all RX queues */
+			RxTxStats aggregatedRxStats;
+			/** TX statistics, aggregated for all TX queues */
+			RxTxStats aggregatedTxStats;
+			/** Total number of RX packets dropped by H/W because there are no available buffers (i.e RX queues are full) */
+			uint64_t rxPacketsDropeedByHW;
+			/** Total number of erroneous packets */
+			uint64_t rxErroneousPackets;
+			/** Total number of RX mbuf allocation failuers */
+			uint64_t rxMbufAlocFailed;
+		};
+
 		virtual ~DpdkDevice() {}
 
 		/**
@@ -711,10 +757,22 @@ namespace pcpp
 		void close();
 
 		/**
+		 * \deprecated
 		 * Retrieve RX packet statistics from device
 		 * @todo pcap_stat is a poor struct that doesn't contain all the information DPDK can provide. Consider using a more extensive struct
 		 */
 		void getStatistics(pcap_stat& stats);
+
+		/**
+		 * Retrieve RX/TX statistics from device
+		 * @param[out] stats A reference to a DpdkDeviceStats where stats are written into
+		 */
+		void getStatistics(DpdkDeviceStats& stats);
+
+		/**
+		 * Clear device statistics
+		 */
+		void clearStatistics();
 
 	private:
 
@@ -771,6 +829,8 @@ namespace pcpp
 
 		 // RSS key used by the NIC for load balancing the packets between cores
 		static uint8_t m_RSSKey[40];
+
+		DpdkDeviceStats m_PrevStats;
 	};
 
 } // namespace pcpp

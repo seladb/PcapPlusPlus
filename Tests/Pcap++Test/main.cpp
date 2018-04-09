@@ -2952,21 +2952,25 @@ PCAPP_TEST(TestDpdkDevice)
 	PCAPP_DEBUG_PRINT("UDP packets: %d", packetData.UdpCount);
 	PCAPP_DEBUG_PRINT("HTTP packets: %d", packetData.HttpCount);
 
-	pcap_stat stats;
-	stats.ps_recv = 0;
-	stats.ps_drop = 0;
-	stats.ps_ifdrop = 0;
+	DpdkDevice::DpdkDeviceStats stats;
 	dev->getStatistics(stats);
-	PCAPP_DEBUG_PRINT("Packets captured according to stats: %d", stats.ps_recv);
-	PCAPP_DEBUG_PRINT("Packets dropped according to stats: %d", stats.ps_drop);
+	PCAPP_DEBUG_PRINT("Packets captured according to stats: %lu", stats.aggregatedRxStats.packets);
+	PCAPP_DEBUG_PRINT("Bytes captured according to stats: %lu", stats.aggregatedRxStats.bytes);
+	PCAPP_DEBUG_PRINT("Packets dropped according to stats: %lu", stats.rxPacketsDropeedByHW);
+	PCAPP_DEBUG_PRINT("Erroneous packets according to stats: %lu", stats.rxErroneousPackets);
+	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
+	{
+		PCAPP_DEBUG_PRINT("Packets captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].packets);
+		PCAPP_DEBUG_PRINT("Bytes captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].bytes);
 
+	}
 	PCAPP_ASSERT_AND_RUN_COMMAND(packetData.PacketCount > 0, dev->close(), "No packets were captured");
 	PCAPP_ASSERT_AND_RUN_COMMAND(packetData.ThreadId != -1, dev->close(), "Couldn't retrieve thread ID");
 
-	int statsVsPacketCount = stats.ps_recv > (uint32_t)packetData.PacketCount ? stats.ps_recv-(uint32_t)packetData.PacketCount : (uint32_t)packetData.PacketCount-stats.ps_recv;
+	int statsVsPacketCount = stats.aggregatedRxStats.packets > (uint64_t)packetData.PacketCount ? stats.aggregatedRxStats.packets-(uint64_t)packetData.PacketCount : (uint64_t)packetData.PacketCount-stats.aggregatedRxStats.packets;
 	PCAPP_ASSERT_AND_RUN_COMMAND(statsVsPacketCount <= 20, dev->close(),
-			"Stats received packet count (%d) is different than calculated packet count (%d)",
-			stats.ps_recv,
+			"Stats received packet count (%lu) is different than calculated packet count (%d)",
+			stats.aggregatedRxStats.packets,
 			packetData.PacketCount);
 	dev->close();
 	dev->close();
@@ -3049,11 +3053,7 @@ PCAPP_TEST(TestDpdkMultiThread)
 	PCAPP_ASSERT_AND_RUN_COMMAND(dev->startCaptureMultiThreads(dpdkPacketsArriveMultiThread, packetDataMultiThread, coreMask), dev->close(), "Cannot start capturing on multi threads");
 	PCAP_SLEEP(20);
 	dev->stopCapture();
-	pcap_stat aggrStats;
-	aggrStats.ps_recv = 0;
-	aggrStats.ps_drop = 0;
-	aggrStats.ps_ifdrop = 0;
-
+	uint64_t packetCount = 0;
 
 	for (int i = 0; i < getNumOfCores(); i++)
 	{
@@ -3068,17 +3068,25 @@ PCAPP_TEST(TestDpdkMultiThread)
 		PCAPP_DEBUG_PRINT("IPv6 packets: %d", packetDataMultiThread[i].Ip6Count);
 		PCAPP_DEBUG_PRINT("TCP packets: %d", packetDataMultiThread[i].TcpCount);
 		PCAPP_DEBUG_PRINT("UDP packets: %d", packetDataMultiThread[i].UdpCount);
-		aggrStats.ps_recv += packetDataMultiThread[i].PacketCount;
+		packetCount += packetDataMultiThread[i].PacketCount;
 	}
 
-	PCAPP_ASSERT_AND_RUN_COMMAND(aggrStats.ps_recv > 0, dev->close(), "No packets were captured on any thread");
+	PCAPP_ASSERT_AND_RUN_COMMAND(packetCount > 0, dev->close(), "No packets were captured on any thread");
 
-	pcap_stat stats;
+	DpdkDevice::DpdkDeviceStats stats;
 	dev->getStatistics(stats);
-	PCAPP_DEBUG_PRINT("Packets captured according to stats: %d", stats.ps_recv);
-	PCAPP_DEBUG_PRINT("Packets dropped according to stats: %d", stats.ps_drop);
-	PCAPP_ASSERT_AND_RUN_COMMAND(stats.ps_recv >= aggrStats.ps_recv, dev->close(), "Statistics from device differ from aggregated statistics on all threads");
-	PCAPP_ASSERT_AND_RUN_COMMAND(stats.ps_drop == 0, dev->close(), "Some packets were dropped");
+	PCAPP_DEBUG_PRINT("Packets captured according to stats: %lu", stats.aggregatedRxStats.packets);
+	PCAPP_DEBUG_PRINT("Bytes captured according to stats: %lu", stats.aggregatedRxStats.bytes);
+	PCAPP_DEBUG_PRINT("Packets dropped according to stats: %lu", stats.rxPacketsDropeedByHW);
+	PCAPP_DEBUG_PRINT("Erroneous packets according to stats: %lu", stats.rxErroneousPackets);
+	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
+	{
+		PCAPP_DEBUG_PRINT("Packets captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].packets);
+		PCAPP_DEBUG_PRINT("Bytes captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].bytes);
+
+	}
+	PCAPP_ASSERT_AND_RUN_COMMAND(stats.aggregatedRxStats.packets >= packetCount, dev->close(), "Statistics from device differ from aggregated statistics on all threads");
+	PCAPP_ASSERT_AND_RUN_COMMAND(stats.rxPacketsDropeedByHW == 0, dev->close(), "Some packets were dropped");
 
 	for (int firstCoreId = 0; firstCoreId < getNumOfCores(); firstCoreId++)
 	{
@@ -3359,7 +3367,26 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 	PCAPP_ASSERT(devList.startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec) == true, "Couldn't start DPDK worker threads");
 	PCAPP_DEBUG_PRINT("Worker threads started");
 
-	PCAP_SLEEP(10);
+	for (int i = 0; i < 10; i++)
+	{
+		DpdkDevice::DpdkDeviceStats stats;
+		dev->getStatistics(stats);
+		PCAPP_DEBUG_PRINT("Packets captured   : %lu", stats.aggregatedRxStats.packets);
+		PCAPP_DEBUG_PRINT("Bytes captured     : %lu", stats.aggregatedRxStats.bytes);
+		PCAPP_DEBUG_PRINT("Bits per second    : %lu", stats.aggregatedRxStats.bytesPerSec*8);
+		PCAPP_DEBUG_PRINT("Packets per second : %lu", stats.aggregatedRxStats.packetsPerSec);
+		PCAPP_DEBUG_PRINT("Packets dropped    : %lu", stats.rxPacketsDropeedByHW);
+		PCAPP_DEBUG_PRINT("Erroneous packets  : %lu", stats.rxErroneousPackets);
+		for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
+		{
+			PCAPP_DEBUG_PRINT("Packets captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].packets);
+			PCAPP_DEBUG_PRINT("Bytes captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].bytes);
+
+		}
+
+		PCAP_SLEEP(1);
+	}
+
 
 	PCAPP_DEBUG_PRINT("Worker threads stopping");
 	devList.stopDpdkWorkerThreads();

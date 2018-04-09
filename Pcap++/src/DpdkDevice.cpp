@@ -356,6 +356,8 @@ DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize)
 
 	setDeviceInfo();
 
+	memset(&m_PrevStats, 0 ,sizeof(m_PrevStats));
+
 	m_DeviceOpened = false;
 	m_WasOpened = false;
 	m_StopThread = true;
@@ -892,12 +894,65 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 
 void DpdkDevice::getStatistics(pcap_stat& stats)
 {
+	LOG_ERROR("This method is deprecated. Please use DpdkDevice::getStatistics(DpdkDeviceStats& stats)");
+//	struct rte_eth_stats rteStats;
+//	rte_eth_stats_get(m_Id, &rteStats);
+//	stats.ps_recv = rteStats.ipackets;
+//	stats.ps_drop = rteStats.ierrors + rteStats.rx_nombuf;
+//	stats.ps_ifdrop = rteStats.rx_nombuf;
+}
+
+void DpdkDevice::getStatistics(DpdkDeviceStats& stats)
+{
+	clock_t timestamp = clock();
 	struct rte_eth_stats rteStats;
 	rte_eth_stats_get(m_Id, &rteStats);
-	stats.ps_recv = rteStats.ipackets;
-	stats.ps_drop = rteStats.ierrors + rteStats.rx_nombuf;
-	stats.ps_ifdrop = rteStats.rx_nombuf;
+
+	double secsElapsed = (double)(timestamp - m_PrevStats.timestamp) / (double)CLOCKS_PER_SEC;
+
+	stats.devId = m_Id;
+	stats.timestamp = timestamp;
+	stats.rxErroneousPackets = rteStats.ierrors;
+	stats.rxMbufAlocFailed = rteStats.rx_nombuf;
+	stats.rxPacketsDropeedByHW = rteStats.imissed;
+	stats.aggregatedRxStats.packets = rteStats.ipackets;
+	stats.aggregatedRxStats.bytes = rteStats.ibytes;
+	stats.aggregatedRxStats.packetsPerSec = (stats.aggregatedRxStats.packets - m_PrevStats.aggregatedRxStats.packets) / secsElapsed;
+	stats.aggregatedRxStats.bytesPerSec = (stats.aggregatedRxStats.bytes - m_PrevStats.aggregatedRxStats.bytes) / secsElapsed;
+	stats.aggregatedTxStats.packets = rteStats.opackets;
+	stats.aggregatedTxStats.bytes = rteStats.obytes;
+	stats.aggregatedTxStats.packetsPerSec = (stats.aggregatedTxStats.packets - m_PrevStats.aggregatedTxStats.packets) / secsElapsed;
+	stats.aggregatedTxStats.bytesPerSec = (stats.aggregatedTxStats.bytes - m_PrevStats.aggregatedTxStats.bytes) / secsElapsed;
+
+	int numRxQs = std::min<int>(DPDK_MAX_RX_QUEUES, RTE_ETHDEV_QUEUE_STAT_CNTRS);
+	int numTxQs = std::min<int>(DPDK_MAX_TX_QUEUES, RTE_ETHDEV_QUEUE_STAT_CNTRS);
+
+	for (int i = 0; i < numRxQs; i++)
+	{
+		stats.rxStats[i].packets = rteStats.q_ipackets[i];
+		stats.rxStats[i].bytes = rteStats.q_ibytes[i];
+		stats.rxStats[i].packetsPerSec = (stats.rxStats[i].packets - m_PrevStats.rxStats[i].packets) / secsElapsed;
+		stats.rxStats[i].bytesPerSec = (stats.rxStats[i].bytes - m_PrevStats.rxStats[i].bytes) / secsElapsed;
+	}
+
+	for (int i = 0; i < numTxQs; i++)
+	{
+		stats.txStats[i].packets = rteStats.q_opackets[i];
+		stats.txStats[i].bytes = rteStats.q_obytes[i];
+		stats.txStats[i].packetsPerSec = (stats.txStats[i].packets - m_PrevStats.txStats[i].packets) / secsElapsed;
+		stats.txStats[i].bytesPerSec = (stats.txStats[i].bytes - m_PrevStats.txStats[i].bytes) / secsElapsed;
+	}
+
+	//m_PrevStats = stats;
+	memcpy(&m_PrevStats, &stats, sizeof(m_PrevStats));
 }
+
+void DpdkDevice::clearStatistics()
+{
+	rte_eth_stats_reset(m_Id);
+	memset(&m_PrevStats, 0 ,sizeof(m_PrevStats));
+}
+
 
 bool DpdkDevice::setFilter(GeneralFilter& filter)
 {
