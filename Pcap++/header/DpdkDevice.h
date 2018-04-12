@@ -56,6 +56,7 @@
 struct rte_mbuf;
 struct rte_mempool;
 struct rte_eth_conf;
+struct rte_eth_dev_tx_buffer;
 
 /**
 * \namespace pcpp
@@ -398,16 +399,24 @@ namespace pcpp
 			uint16_t transmitDescriptorsNumber;
 
 			/**
+			 * Set the TX buffer flush timeout in millisecond (only relevant if sending packets using DPDK TX buffer mechanism).
+			 * A value of zero means no timeout
+			 */
+			uint16_t flushTxBufferTimeout;
+
+			/**
 			 * A c'tor for this strcut
 			 * @param[in] receiveDescriptorsNumber An optional parameter for defining the number of RX descriptors that will be allocated for each RX queue.
 			 * Default value is 128
 			 * @param[in] transmitDescriptorsNumber An optional parameter for defining the number of TX descriptors that will be allocated for each TX queue.
 			 * Default value is 512
+			 * @param[in] flushTxBufferTimeout An optional parameter for setting TX buffer timeout in usec. Default value is 100 usec
 			 */
-			DpdkDeviceConfiguration(uint16_t receiveDescriptorsNumber = 128, uint16_t transmitDescriptorsNumber = 512)
+			DpdkDeviceConfiguration(uint16_t receiveDescriptorsNumber = 128, uint16_t transmitDescriptorsNumber = 512, uint16_t flushTxBufferTimeout = 100)
 			{
 				this->receiveDescriptorsNumber = receiveDescriptorsNumber;
 				this->transmitDescriptorsNumber = transmitDescriptorsNumber;
+				this->flushTxBufferTimeout = flushTxBufferTimeout;
 			}
 		};
 
@@ -606,7 +615,7 @@ namespace pcpp
 		 * TX queue 0
 		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 		 */
-		uint16_t sendPackets(MBufRawPacket** rawPacketsArr, uint16_t arrLength, uint16_t txQueueId = 0);
+		uint16_t sendPackets(MBufRawPacket** rawPacketsArr, uint16_t arrLength, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Send an array of parsed packets to the network. For the send packets algorithm see sendPackets()
@@ -616,7 +625,7 @@ namespace pcpp
 		 * TX queue 0
 		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 		 */
-		uint16_t sendPackets(Packet** packetsArr, uint16_t arrLength, uint16_t txQueueId = 0);
+		uint16_t sendPackets(Packet** packetsArr, uint16_t arrLength, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Send a vector of MBufRawPacket pointer to the network. For the send packets algorithm see sendPackets()
@@ -625,7 +634,7 @@ namespace pcpp
 		 * TX queue 0
 		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 		 */
-		uint16_t sendPackets(const MBufRawPacketVector& rawPacketsVec, uint16_t txQueueId = 0);
+		uint16_t sendPackets(const MBufRawPacketVector& rawPacketsVec, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Send a vector of RawPacket pointer to the network. For the send packets algorithm see sendPackets()
@@ -634,7 +643,7 @@ namespace pcpp
 		 * TX queue 0
 		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
 		 */
-		uint16_t sendPackets(const RawPacketVector& rawPacketsVec, uint16_t txQueueId = 0);
+		uint16_t sendPackets(const RawPacketVector& rawPacketsVec, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Send a raw packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
@@ -645,7 +654,7 @@ namespace pcpp
 		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
 		 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
 		 */
-		bool sendPacket(const RawPacket& rawPacket, uint16_t txQueueId = 0);
+		bool sendPacket(const RawPacket& rawPacket, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Send a MBufRawPacket to the network
@@ -655,7 +664,7 @@ namespace pcpp
 		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
 		 * failed
 		 */
-		bool sendPacket(const MBufRawPacket& rawPacket, uint16_t txQueueId = 0);
+		bool sendPacket(const MBufRawPacket& rawPacket, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Send a parsed packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
@@ -666,7 +675,7 @@ namespace pcpp
 		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
 		 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
 		 */
-		bool sendPacket(const Packet& packet, uint16_t txQueueId = 0);
+		bool sendPacket(const Packet& packet, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
@@ -759,8 +768,7 @@ namespace pcpp
 
 		/**
 		 * \deprecated
-		 * Retrieve RX packet statistics from device
-		 * @todo pcap_stat is a poor struct that doesn't contain all the information DPDK can provide. Consider using a more extensive struct
+		 * Please use DpdkDevice::getStatistics(DpdkDeviceStats& stats) instead
 		 */
 		void getStatistics(pcap_stat& stats);
 
@@ -774,6 +782,19 @@ namespace pcpp
 		 * Clear device statistics
 		 */
 		void clearStatistics();
+
+		/**
+		 * When sending packets using TX queue, this method enables to flush a TX queue. It has the option to flush only
+		 * when timeout that was set in DpdkDeviceConfiguration#flushTxBufferTimeout expired or flush immediately regardless
+		 * of the timeout. The usage of this method can be in the main loop where you can call this method once every a couple
+		 * of iterations to make sure the buffer is flushed
+		 * @param[in] flushOnlyIfTimeoutExpired When set to true, flush will happen only if the timeout defined in
+		 * DpdkDeviceConfiguration#flushTxBufferTimeout expired. If set to false flush will happen immediately. Default value
+		 * is false
+		 * @param[in] txQueueId The TX queue ID to flush its buffer. Default is 0
+		 * @return The number of packets actually sent after buffer was flushed
+		 */
+		uint16_t flushTxBuffer(bool flushOnlyIfTimeoutExpired = false, uint16_t txQueueId = 0);
 
 	private:
 
@@ -803,7 +824,7 @@ namespace pcpp
 		void setDeviceInfo();
 
 		typedef rte_mbuf* (*packetIterator)(void* packetStorage, int index);
-		uint16_t sendPacketsInner(uint16_t txQueueId, void* packetStorage, packetIterator iter, int arrLength);
+		uint16_t sendPacketsInner(uint16_t txQueueId, void* packetStorage, packetIterator iter, int arrLength, bool useTxBuffer);
 
 		char m_DeviceName[30];
 		DpdkPMDType m_PMDType;
@@ -817,6 +838,9 @@ namespace pcpp
 		uint16_t m_DeviceMtu;
 		struct rte_mempool* m_MBufMempool;
 		struct rte_mbuf* m_mBufArray[256];
+		struct rte_eth_dev_tx_buffer** m_TxBuffers;
+		uint64_t m_TxBufferDrainTsc;
+		uint64_t* m_TxBufferLastDrainTsc;
 		DpdkCoreConfiguration m_CoreConfiguration[MAX_NUM_OF_CORES];
 		uint16_t m_TotalAvailableRxQueues;
 		uint16_t m_TotalAvailableTxQueues;
