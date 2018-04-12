@@ -220,6 +220,9 @@ namespace pcpp
 		 * @param[in] pRawData A pointer to the new raw data
 		 * @param[in] rawDataLen The new raw data length in bytes
 		 * @param[in] timestamp The timestamp packet was received by the NIC
+		 * @param[in] layerType The link layer type for this raw data. Default is Ethernet
+		 * @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the actual packet length. This parameter represents the packet
+		 * length. This parameter is optional, if not set or set to -1 it is assumed both lengths are equal
 		 * @return True if raw data was copied to the mbuf successfully, false if rawDataLen is larger than mbuf max size, if initialization
 		 * failed or if copying the data to the mbuf failed. In all of these cases an error will be printed to log
 		 */
@@ -361,7 +364,9 @@ namespace pcpp
 	 *      DpdkDevice#startCaptureSingleThread()
 	 *
 	 * __Sending packets:__ DpdkDevice has various methods for sending packets. They enable sending raw packets, parsed packets, etc.
-	 * for all opened TX queues. See DpdkDevice#sendPackets()<BR>
+	 * for all opened TX queues. Also, DPDK provides an option to buffer TX packets and send them only when reaching a certain threshold (you
+	 * can read more about it here: http://dpdk.org/doc/api/rte__ethdev_8h.html#a0e941a74ae1b1b886764bc282458d946). DpdkDevice supports that
+	 * option as well. See DpdkDevice#sendPackets()<BR>
 	 *
 	 * __Get interface info__: DpdkDevice provides all kind of information on the interface/device such as MAC address, MTU, link status,
 	 * PCI address, PMD (poll-mode-driver) used for this port, etc. In addition it provides RX/TX statistics when receiving or sending
@@ -576,9 +581,12 @@ namespace pcpp
 		uint16_t receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t rxQueueId);
 
 		/**
-		 * Receive raw packets from the network
+		 * Receive raw packets from the network. Please notice that in terms of performance, this is the best method to use
+		 * for receiving packets because out of all receivePackets overloads this method requires the least overhead and is
+		 * almost as efficient as receiving packets directly through DPDK. So if performance is a critical factor in your
+		 * application, please use this method
 		 * @param[out] rawPacketsArr A pointer to an array of MBufRawPacket pointers where all received packets will be written into. The array is expected to
-		 * be allocated by the user and its length should be provided in rawPacketArrLength. Number of packets received will be returned
+		 * be allocated by the user and its length should be provided in rawPacketArrLength. Number of packets received will be returned.
 		 * Notice it's the user responsibility to free the array and its content when done using it
 		 * @param[out] rawPacketArrLength The length of MBufRawPacket pointers array
 		 * @param[in] rxQueueId The RX queue to receive packets from
@@ -589,7 +597,7 @@ namespace pcpp
 		/**
 		 * Receive parsed packets from the network
 		 * @param[out] packetsArr A pointer to an allocated array of Packet pointers where all received packets will be written into. The array is expected to
-		 * be allocated by the user and its length should be provided in packetsArrLength. Number of packets received will be returned
+		 * be allocated by the user and its length should be provided in packetsArrLength. Number of packets received will be returned.
 		 * Notice it's the user responsibility to free the array and its content when done using it
 		 * @param[out] packetsArrLength The length of Packet pointers array
 		 * @param[in] rxQueueId The RX queue to receive packets from
@@ -598,61 +606,97 @@ namespace pcpp
 		uint16_t receivePackets(Packet** packetsArr, uint16_t packetsArrLength, uint16_t rxQueueId);
 
 		/**
-		 * Send an array of raw packets to the network.<BR><BR>
-		 * The sending algorithm works as follows: the algorithm tries to allocate a
-		 * group of mbufs from the device mbuf pool. For each mbuf allocated a raw packet data is copied to the mbuf. This means that 
-		 * the packets sent as input to this method aren't affected (aren't freed, changed, or anything like that). The algorithm will
-		 * continue allocating mbufs until: no more raw packets to send; OR cannot allocate mbufs because mbug pool is empty; OR number
-		 * of allocated mbufs is higher than a threshold of 80% of total TX descriptors. When one of these happen the algorithm will 
-		 * try to send the mbufs it already got through DPDK API. DPDK will free these mbufs after sending them. Then the algorithm will 
-		 * try to allocate mbufs again and send them again until no more raw packets are left to send to send or mbuf allocation failed 
-		 * 3 times in a raw. Raw packets that are bigger than the size of an mbuf or with length 0 will be skipped. Same goes for raw 
-		 * packets whose data could not be copied to the allocated mbuf for some reason. An appropriate error will be printed for 
-		 * each such packet
-		 * @param[in] rawPacketsArr A pointer to an array of raw packets
+		 * Send an array of MBufRawPacket to the network. Please notice the following:<BR>
+		 * - In terms of performance, this is the best method to use for sending packets because out of all sendPackets overloads
+		 * this method requires the least overhead and is almost as efficient as sending the packets directly through DPDK. So if performance
+		 * is a critical factor in your application, please use this method
+		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending packets to DPDK, each
+		 * iteration of 64 packets
+		 * - If the number of packets to send is higher than a threshold of 80% of total TX descriptors (which is typically around 400 packets),
+		 * then after reaching this threshold there is a built-in 0.2 sec sleep to let the TX descriptors clean
+		 * <BR><BR>
+		 * @param[in] rawPacketsArr A pointer to an array of MBufRawPacket
 		 * @param[in] arrLength The length of the array
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 		 * TX queue 0
-		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
+		 * @param[in] useTxBuffer A flag which indicates whether to use TX buffer mechanism or not. To read more about DPDK's
+		 * TX buffer mechanism please refer to DpdkDevice class description. Default value is false (don't use this mechanism)
+		 * @return The number of packets actually and successfully sent. If device is not opened or TX queue isn't open, 0 will be returned.
+		 * Also, if TX buffer is being used and packets are buffered, some or all may not be actually sent
 		 */
 		uint16_t sendPackets(MBufRawPacket** rawPacketsArr, uint16_t arrLength, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
-		 * Send an array of parsed packets to the network. For the send packets algorithm see sendPackets()
+		 * Send an array of parsed packets to the network. Please notice the following:<BR>
+		 * - If some or all of the packets contain raw packets which aren't of type MBufRawPacket, a new temp MBufRawPacket instances
+		 * will be created and packet data will be copied to them. This is necessary to allocate mbufs which will store the data to be sent.
+		 * If performance is a critical factor please make sure you send parsed packets that contain only raw packets of type MBufRawPacket
+		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending packets to DPDK, each
+		 * iteration of 64 packets
+		 * - If the number of packets to send is higher than a threshold of 80% of total TX descriptors (which is typically around 400 packets),
+		 * then after reaching this threshold there is a built-in 0.2 sec sleep to let the TX descriptors clean
+		 * <BR><BR>
 		 * @param[in] packetsArr A pointer to an array of parsed packet pointers
 		 * @param[in] arrLength The length of the array
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 		 * TX queue 0
-		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
+		 * @param[in] useTxBuffer A flag which indicates whether to use TX buffer mechanism or not. To read more about DPDK's
+		 * TX buffer mechanism please refer to DpdkDevice class description. Default value is false (don't use this mechanism)
+		 * @return The number of packets actually and successfully sent. If device is not opened or TX queue isn't open, 0 will be returned.
+		 * Also, if TX buffer is being used and packets are buffered, some or all may not be actually sent
 		 */
 		uint16_t sendPackets(Packet** packetsArr, uint16_t arrLength, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
-		 * Send a vector of MBufRawPacket pointer to the network. For the send packets algorithm see sendPackets()
+		 * Send a vector of MBufRawPacket pointers to the network. Please notice the following:<BR>
+		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending packets to DPDK, each
+		 * iteration of 64 packets
+		 * - If the number of packets to send is higher than a threshold of 80% of total TX descriptors (which is typically around 400 packets),
+		 * then after reaching this threshold there is a built-in 0.2 sec sleep to let the TX descriptors clean
+		 * <BR><BR>
 		 * @param[in] rawPacketsVec The vector of raw packet
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 		 * TX queue 0
-		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
+		 * @param[in] useTxBuffer A flag which indicates whether to use TX buffer mechanism or not. To read more about DPDK's
+		 * TX buffer mechanism please refer to DpdkDevice class description. Default value is false (don't use this mechanism)
+		 * @return The number of packets actually and successfully sent. If device is not opened or TX queue isn't open, 0 will be returned.
+		 * Also, if TX buffer is being used and packets are buffered, some or all may not be actually sent
 		 */
 		uint16_t sendPackets(const MBufRawPacketVector& rawPacketsVec, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
-		 * Send a vector of RawPacket pointer to the network. For the send packets algorithm see sendPackets()
+		 * Send a vector of RawPacket pointers to the network. Please notice the following:<BR>
+		 * - If some or all of the raw packets aren't of type MBufRawPacket, a new temp MBufRawPacket instances will be created
+		 * and packet data will be copied to them. This is necessary to allocate mbufs which will store the data to be sent. If
+		 * performance is a critical factor please make sure you send only raw packets of type MBufRawPacket (or use the sendPackets overload
+		 * that sends MBufRawPacketVector)
+		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending packets to DPDK, each
+		 * iteration of 64 packets
+		 * - If the number of packets to send is higher than a threshold of 80% of total TX descriptors (which is typically around 400 packets),
+		 * then after reaching this threshold there is a built-in 0.2 sec sleep to let the TX descriptors clean
+		 * <BR><BR>
 		 * @param[in] rawPacketsVec The vector of raw packet
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
 		 * TX queue 0
-		 * @return The number of packets successfully sent. If device is not opened or TX queue isn't open, 0 will be returned
+		 * @param[in] useTxBuffer A flag which indicates whether to use TX buffer mechanism or not. To read more about DPDK's
+		 * TX buffer mechanism please refer to DpdkDevice class description. Default value is false (don't use this mechanism)
+		 * @return The number of packets actually and successfully sent. If device is not opened or TX queue isn't open, 0 will be returned.
+		 * Also, if TX buffer is being used and packets are buffered, some or all may not be actually sent
 		 */
 		uint16_t sendPackets(const RawPacketVector& rawPacketsVec, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
-		 * Send a raw packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
-		 * only 1 packet
+		 * Send a raw packet to the network. Please notice that if the raw packet isn't of type MBufRawPacket, a new temp MBufRawPacket
+		 * will be created and the data will be copied to it. This is necessary to allocate an mbuf which will store the data to be sent.
+		 * If performance is a critical factor please make sure you send a raw packet of type MBufRawPacket
 		 * @param[in] rawPacket The raw packet to send
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent to. The default is
 		 * TX queue 0
-		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
-		 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
+		 * @param[in] useTxBuffer A flag which indicates whether to use TX buffer mechanism or not. To read more about DPDK's
+		 * TX buffer mechanism please refer to DpdkDevice class description. Default value is false (don't use this mechanism)
+		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened, or if the packet wasn't
+		 * sent for any other reason. Please notice that when using TX buffers the packet may be buffered and not sent immediately, which
+		 * may also result in returning false
 		 */
 		bool sendPacket(const RawPacket& rawPacket, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
@@ -661,19 +705,27 @@ namespace pcpp
 		 * @param[in] rawPacket The MBufRawPacket to send
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent to. The default is
 		 * TX queue 0
-		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
-		 * failed
+		 * @param[in] useTxBuffer A flag which indicates whether to use TX buffer mechanism or not. To read more about DPDK's
+		 * TX buffer mechanism please refer to DpdkDevice class description. Default value is false (don't use this mechanism)
+		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened, or if the packet wasn't
+		 * sent for any other reason. Please notice that when using TX buffers the packet may be buffered and not sent immediately, which
+		 * may also result in returning false
 		 */
 		bool sendPacket(const MBufRawPacket& rawPacket, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
-		 * Send a parsed packet to the network. For the send packets algorithm see sendPackets(), but keep in mind this method sends
-		 * only 1 packet
-		 * @param[in] packet The parsed packet to send
+		 * Send a parsed packet to the network
+		 * @param[in] packet The parsed packet to send. Please notice that if the packet contains a raw packet which isn't of type
+		 * MBufRawPacket, a new temp MBufRawPacket will be created and the data will be copied to it. This is necessary to
+		 * allocate an mbuf which will store the data to be sent. If performance is a critical factor please make sure you send a
+		 * parsed packet that contains a raw packet of type MBufRawPacket
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent on. The default is
 		 * TX queue 0
-		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened or the sending algorithm
-		 * failed (for example: couldn't allocate an mbuf or DPDK returned an error)
+		 * @param[in] useTxBuffer A flag which indicates whether to use TX buffer mechanism or not. To read more about DPDK's
+		 * TX buffer mechanism please refer to DpdkDevice class description. Default value is false (don't use this mechanism)
+		 * @return True if packet was sent successfully or false if device is not opened, TX queue isn't opened, or if the packet wasn't
+		 * sent for any other reason. Please notice that when using TX buffers the packet may be buffered and not sent immediately, which
+		 * may also result in returning false
 		 */
 		bool sendPacket(const Packet& packet, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
@@ -767,14 +819,14 @@ namespace pcpp
 		void close();
 
 		/**
-		 * \deprecated
+		 * @deprecated
 		 * Please use DpdkDevice::getStatistics(DpdkDeviceStats& stats) instead
 		 */
 		void getStatistics(pcap_stat& stats);
 
 		/**
 		 * Retrieve RX/TX statistics from device
-		 * @param[out] stats A reference to a DpdkDeviceStats where stats are written into
+		 * @param[out] stats A reference to a DpdkDeviceStats object where stats will be written into
 		 */
 		void getStatistics(DpdkDeviceStats& stats);
 
@@ -784,15 +836,17 @@ namespace pcpp
 		void clearStatistics();
 
 		/**
-		 * When sending packets using TX queue, this method enables to flush a TX queue. It has the option to flush only
+		 * DPDK supports an option to buffer TX packets and send them only when reaching a certain threshold. This method enables
+		 * the user to flush a TX buffer for certain TX queue and send the packets stored in it (you can read about it here:
+		 * http://dpdk.org/doc/api/rte__ethdev_8h.html#a0e941a74ae1b1b886764bc282458d946). It has the option to flush only
 		 * when timeout that was set in DpdkDeviceConfiguration#flushTxBufferTimeout expired or flush immediately regardless
 		 * of the timeout. The usage of this method can be in the main loop where you can call this method once every a couple
-		 * of iterations to make sure the buffer is flushed
+		 * of iterations to make sure TX buffers are flushed
 		 * @param[in] flushOnlyIfTimeoutExpired When set to true, flush will happen only if the timeout defined in
 		 * DpdkDeviceConfiguration#flushTxBufferTimeout expired. If set to false flush will happen immediately. Default value
 		 * is false
 		 * @param[in] txQueueId The TX queue ID to flush its buffer. Default is 0
-		 * @return The number of packets actually sent after buffer was flushed
+		 * @return The number of packets sent after buffer was flushed
 		 */
 		uint16_t flushTxBuffer(bool flushOnlyIfTimeoutExpired = false, uint16_t txQueueId = 0);
 
