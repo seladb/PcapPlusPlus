@@ -2926,6 +2926,23 @@ PCAPP_TEST(TestDpdkDevice)
 //	PCAPP_ASSERT(dev->getMtu() == newMtu, "MTU isn't properly set");
 //	PCAPP_ASSERT(dev->setMtu(origMtu) == true, "Couldn't set MTU back to original");
 
+	if (dev->getPMDName() == "net_e1000_em")
+	{
+		uint64_t rssHF = 0;
+		PCAPP_ASSERT(dev->isDeviceSupportRssHashFunction(rssHF) == true, "Not all RSS hash function are supported for pmd net_e1000_em");
+		PCAPP_ASSERT(dev->getSupportedRssHashFunctions() == rssHF, "RSS hash functions supported by device is different than expected");
+	}
+	else if (dev->getPMDName() == "net_vmxnet3")
+	{
+		uint64_t rssHF = DpdkDevice::RSS_IPV4 | \
+				DpdkDevice::RSS_NONFRAG_IPV4_TCP | \
+				DpdkDevice::RSS_IPV6 | \
+				DpdkDevice::RSS_NONFRAG_IPV6_TCP;
+
+		PCAPP_ASSERT(dev->isDeviceSupportRssHashFunction(rssHF) == true, "Not all RSS hash function are supported for pmd vmxnet3");
+		PCAPP_ASSERT(dev->getSupportedRssHashFunctions() == rssHF, "RSS hash functions supported by device is different than expected");
+	}
+
 	PCAPP_ASSERT(dev->open() == true, "Cannot open DPDK device");
 	LoggerPP::getInstance().supressErrors();
 	PCAPP_ASSERT(dev->open() == false, "Managed to open the device twice");

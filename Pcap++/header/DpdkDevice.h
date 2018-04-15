@@ -385,6 +385,54 @@ namespace pcpp
 	public:
 
 		/**
+		 * An enum describing all RSS (Receive Side Scaling) hash functions supported in DPDK. Notice not all
+		 * PMDs support all types of hash functions
+		 */
+		enum DpdkRssHashFunction
+		{
+			/** IPv4 based flow */
+			RSS_IPV4				= 0x1,
+			/** Fragmented IPv4 based flow */
+			RSS_FRAG_IPV4			= 0x2,
+			/** Non-fragmented IPv4 + TCP flow */
+			RSS_NONFRAG_IPV4_TCP	= 0x4,
+			/** Non-fragmented IPv4 + UDP flow */
+			RSS_NONFRAG_IPV4_UDP	= 0x8,
+			/** Non-fragmented IPv4 + SCTP flow */
+			RSS_NONFRAG_IPV4_SCTP	= 0x10,
+			/** Non-fragmented IPv4 + non TCP/UDP/SCTP flow */
+			RSS_NONFRAG_IPV4_OTHER	= 0x20,
+			/** IPv6 based flow */
+			RSS_IPV6				= 0x40,
+			/** Fragmented IPv6 based flow */
+			RSS_FRAG_IPV6			= 0x80,
+			/** Non-fragmented IPv6 + TCP flow */
+			RSS_NONFRAG_IPV6_TCP	= 0x100,
+			/** Non-fragmented IPv6 + UDP flow */
+			RSS_NONFRAG_IPV6_UDP	= 0x200,
+			/** Non-fragmented IPv6 + SCTP flow */
+			RSS_NONFRAG_IPV6_SCTP	= 0x400,
+			/** Non-fragmented IPv6 + non TCP/UDP/SCTP flow */
+			RSS_NONFRAG_IPV6_OTHER	= 0x800,
+			/** L2 payload based flow */
+			RSS_L2_PAYLOAD			= 0x1000,
+			/** IPv6 Ex based flow */
+			RSS_IPV6_EX				= 0x2000,
+			/** IPv6 + TCP Ex based flow */
+			RSS_IPV6_TCP_EX			= 0x4000,
+			/** IPv6 + UDP Ex based flow */
+			RSS_IPV6_UDP_EX			= 0x8000,
+			/** Consider device port number as a flow differentiator */
+			RSS_PORT				= 0x10000,
+			/** VXLAN protocol based flow */
+			RSS_VXLAN				= 0x20000,
+			/** GENEVE protocol based flow */
+			RSS_GENEVE				= 0x40000,
+			/** NVGRE protocol based flow */
+			RSS_NVGRE				= 0x80000
+		};
+
+		/**
 		 * @struct DpdkDeviceConfiguration
 		 * A struct that contains user configurable parameters for opening a DpdkDevice. All of these parameters have default values so 
 		 * the user doesn't have to use these parameters or understand exactly what is their effect
@@ -409,19 +457,53 @@ namespace pcpp
 			 */
 			uint16_t flushTxBufferTimeout;
 
+ 			/**
+			 * When configuring a DPDK device, DPDK supports to activate the Receive Side Scaling (RSS) feature to distribute traffic between the RX queues
+			 * This parameter points to an array holding the RSS key to use for hashing specific header fields of received packets.
+			 * The length of this array should be indicated by rssKeyLength below.
+			 * Supplying a NULL value causes a default random hash key to be used by the device driver
+			 */
+			uint8_t* rssKey;
+
 			/**
-			 * A c'tor for this strcut
+			 * This parameter indicates the length in bytes of the array pointed by rssKey.
+			 * This length will be checked in i40e only. Others assume 40 bytes to be used.
+			 */
+			uint8_t rssKeyLength;
+
+			/**
+			 * This parameter enables to configure the types of packets to which the RSS hashing must be applied. The value
+			 * is a mask composed of hash functions described in DpdkRssHashFunction enum. Supplying a value equal to zero
+			 * disables the RSS feature. Supplying a value equal to -1 enables all hash functions supported by this PMD
+			 */
+			uint64_t rssHashFunction;
+
+			/**
+			 * A c'tor for this struct
 			 * @param[in] receiveDescriptorsNumber An optional parameter for defining the number of RX descriptors that will be allocated for each RX queue.
 			 * Default value is 128
 			 * @param[in] transmitDescriptorsNumber An optional parameter for defining the number of TX descriptors that will be allocated for each TX queue.
 			 * Default value is 512
 			 * @param[in] flushTxBufferTimeout An optional parameter for setting TX buffer timeout in usec. Default value is 100 usec
+			 * @param[in] rssHashFunction This parameter enable to configure the types of packets to which the RSS hashing must be applied.
+			 * The value provided here should be a mask composed of hash functions described in DpdkRssHashFunction enum. The default value is IPv4 and IPv6
+			 * @param[in] rssKey A pointer to an array holding the RSS key to use for hashing specific header of received packets. If not
+			 * specified, there is a default key defined inside DpdkDevice
+			 * @param[in] rssKeyLength The length in bytes of the array pointed by rssKey. Default value is the length of default rssKey
 			 */
-			DpdkDeviceConfiguration(uint16_t receiveDescriptorsNumber = 128, uint16_t transmitDescriptorsNumber = 512, uint16_t flushTxBufferTimeout = 100)
+			DpdkDeviceConfiguration(uint16_t receiveDescriptorsNumber = 128,
+					uint16_t transmitDescriptorsNumber = 512,
+					uint16_t flushTxBufferTimeout = 100,
+					uint64_t rssHashFunction = RSS_IPV4 | RSS_IPV6,
+					uint8_t* rssKey = DpdkDevice::m_RSSKey,
+					uint8_t rssKeyLength = 40)
 			{
 				this->receiveDescriptorsNumber = receiveDescriptorsNumber;
 				this->transmitDescriptorsNumber = transmitDescriptorsNumber;
 				this->flushTxBufferTimeout = flushTxBufferTimeout;
+				this->rssKey = rssKey;
+				this->rssKeyLength = rssKeyLength;
+				this->rssHashFunction = rssHashFunction;
 			}
 		};
 
@@ -490,7 +572,7 @@ namespace pcpp
 			uint64_t rxMbufAlocFailed;
 		};
 
-		virtual ~DpdkDevice() {}
+		virtual ~DpdkDevice();
 
 		/**
 		 * @return The device ID (DPDK port ID)
@@ -850,6 +932,26 @@ namespace pcpp
 		 */
 		uint16_t flushTxBuffer(bool flushOnlyIfTimeoutExpired = false, uint16_t txQueueId = 0);
 
+		/**
+		 * Check whether a specific RSS hash function is supported by this device (PMD)
+		 * @param[in] rssHF RSS hash function to check
+		 * @return True if this hash function is supported, false otherwise
+		 */
+		bool isDeviceSupportRssHashFunction(DpdkRssHashFunction rssHF);
+
+		/**
+		 * Check whether a mask of RSS hash functions is supported by this device (PMD)
+		 * @param[in] rssHFMask RSS hash functions mask to check. This mask should be built from values in DpdkRssHashFunction enum
+		 * @return True if all hash functions in this mask are supported, false otherwise
+		 */
+		bool isDeviceSupportRssHashFunction(uint64_t rssHFMask);
+
+		/**
+		 * @return A mask of all RSS hash functions supported by this device (PMD). This mask is built from values in DpdkRssHashFunction enum.
+		 * Value of zero means RSS is not supported by this device
+		 */
+		uint64_t getSupportedRssHashFunctions();
+
 	private:
 
 		struct DpdkCoreConfiguration
@@ -879,6 +981,9 @@ namespace pcpp
 
 		typedef rte_mbuf* (*packetIterator)(void* packetStorage, int index);
 		uint16_t sendPacketsInner(uint16_t txQueueId, void* packetStorage, packetIterator iter, int arrLength, bool useTxBuffer);
+
+		uint64_t convertRssHfToDpdkRssHf(uint64_t rssHF);
+		uint64_t convertDpdkRssHfToRssHf(uint64_t dpdkRssHF);
 
 		char m_DeviceName[30];
 		DpdkPMDType m_PMDType;

@@ -360,9 +360,21 @@ DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize)
 
 	memset(&m_PrevStats, 0 ,sizeof(m_PrevStats));
 
+	m_TxBuffers = NULL;
+	m_TxBufferLastDrainTsc = NULL;
+
 	m_DeviceOpened = false;
 	m_WasOpened = false;
 	m_StopThread = true;
+}
+
+DpdkDevice::~DpdkDevice()
+{
+	if (m_TxBuffers != NULL)
+		delete [] m_TxBuffers;
+
+	if (m_TxBufferLastDrainTsc != NULL)
+		delete [] m_TxBufferLastDrainTsc;
 }
 
 uint32_t DpdkDevice::getCurrentCoreId()
@@ -403,13 +415,13 @@ bool DpdkDevice::openMultiQueues(uint16_t numOfRxQueuesToOpen, uint16_t numOfTxQ
 		close();
 	}
 
+	m_Config = config;
+
 	if (!configurePort(numOfRxQueuesToOpen, numOfTxQueuesToOpen))
 	{
 		m_DeviceOpened = false;
 		return false;
 	}
-
-	m_Config = config;
 
 	clearCoreConfiguration();
 
@@ -464,12 +476,24 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 		return false;
 	}
 
+	// if PMD doesn't support RSS, set RSS HF to 0
+	if (getSupportedRssHashFunctions() == 0 && m_Config.rssHashFunction != 0)
+	{
+		LOG_DEBUG("PMD '%s' doesn't support RSS, setting RSS hash functions to 0", m_PMDName.c_str());
+		m_Config.rssHashFunction = 0;
+	}
+
+	if (!isDeviceSupportRssHashFunction(m_Config.rssHashFunction))
+	{
+		LOG_ERROR("PMD '%s' doesn't support the request RSS hash functions 0x%X", m_PMDName.c_str(), (uint32_t)m_Config.rssHashFunction);
+		return false;
+	}
 
 	// verify num of RX queues is power of 2
 	bool isRxQueuePowerOfTwo = !(numOfRxQueues == 0) && !(numOfRxQueues & (numOfRxQueues - 1));
 	if (!isRxQueuePowerOfTwo)
 	{
-		LOG_ERROR("Num of RX queues must be power of 2 (because of DPDK limitation). Attempetd to open device with %d RX queues", numOfRxQueues);
+		LOG_ERROR("Num of RX queues must be power of 2 (because of DPDK limitation). Attempted to open device with %d RX queues", numOfRxQueues);
 		return false;
 	}
 
@@ -482,8 +506,9 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	portConf.rxmode.jumbo_frame = DPDK_COFIG_JUMBO_FRAME;
 	portConf.rxmode.hw_strip_crc = DPDK_COFIG_HW_STRIP_CRC;
 	portConf.rxmode.mq_mode = DPDK_CONFIG_MQ_MODE;
-	portConf.rx_adv_conf.rss_conf.rss_key= DpdkDevice::m_RSSKey;
-	portConf.rx_adv_conf.rss_conf.rss_hf = ETH_RSS_IPV4 | ETH_RSS_IPV6;
+	portConf.rx_adv_conf.rss_conf.rss_key = m_Config.rssKey;
+	portConf.rx_adv_conf.rss_conf.rss_key_len = m_Config.rssKeyLength;
+	portConf.rx_adv_conf.rss_conf.rss_hf = convertRssHfToDpdkRssHf(m_Config.rssHashFunction);
 
 	int res = rte_eth_dev_configure((uint8_t) m_Id, numOfRxQueues, numOfTxQueues, &portConf);
 	if (res < 0)
@@ -539,6 +564,12 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 			return false;
 		}
 	}
+
+	if (m_TxBuffers != NULL)
+		delete [] m_TxBuffers;
+
+	if (m_TxBufferLastDrainTsc != NULL)
+		delete [] m_TxBufferLastDrainTsc;
 
 	m_TxBuffers = new rte_eth_dev_tx_buffer*[numOfTxQueuesToInit];
 	m_TxBufferLastDrainTsc = new uint64_t[numOfTxQueuesToInit];
@@ -1355,6 +1386,171 @@ int DpdkDevice::getAmountOfMbufsInUse()
 {
 	return (int)rte_mempool_in_use_count(m_MBufMempool);
 }
+
+uint64_t DpdkDevice::convertRssHfToDpdkRssHf(uint64_t rssHF)
+{
+	if (rssHF == (uint64_t)-1)
+	{
+		rte_eth_dev_info devInfo;
+		rte_eth_dev_info_get(m_Id, &devInfo);
+		return devInfo.flow_type_rss_offloads;
+	}
+
+	uint64_t dpdkRssHF = 0;
+
+	if ((rssHF & RSS_IPV4) != 0)
+		dpdkRssHF |= ETH_RSS_IPV4;
+
+	if ((rssHF & RSS_FRAG_IPV4) != 0)
+		dpdkRssHF |= ETH_RSS_IPV4;
+
+	if ((rssHF & RSS_NONFRAG_IPV4_TCP) != 0)
+		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_TCP;
+
+	if ((rssHF & RSS_NONFRAG_IPV4_UDP) != 0)
+		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_UDP;
+
+	if ((rssHF & RSS_NONFRAG_IPV4_SCTP) != 0)
+		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_SCTP;
+
+	if ((rssHF & RSS_NONFRAG_IPV4_OTHER) != 0)
+		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_OTHER;
+
+	if ((rssHF & RSS_IPV6) != 0)
+		dpdkRssHF |= ETH_RSS_IPV6;
+
+	if ((rssHF & RSS_FRAG_IPV6) != 0)
+		dpdkRssHF |= ETH_RSS_FRAG_IPV6;
+
+	if ((rssHF & RSS_NONFRAG_IPV6_TCP) != 0)
+		dpdkRssHF |= ETH_RSS_NONFRAG_IPV6_TCP;
+
+	if ((rssHF & RSS_NONFRAG_IPV6_UDP) != 0)
+		dpdkRssHF |= ETH_RSS_NONFRAG_IPV6_UDP;
+
+	if ((rssHF & RSS_NONFRAG_IPV6_SCTP) != 0)
+		dpdkRssHF |= ETH_RSS_NONFRAG_IPV6_SCTP;
+
+	if ((rssHF & RSS_NONFRAG_IPV6_OTHER) != 0)
+		dpdkRssHF |= ETH_RSS_NONFRAG_IPV6_OTHER;
+
+	if ((rssHF & RSS_L2_PAYLOAD) != 0)
+		dpdkRssHF |= ETH_RSS_L2_PAYLOAD;
+
+	if ((rssHF & RSS_IPV6_EX) != 0)
+		dpdkRssHF |= ETH_RSS_IPV6_EX;
+
+	if ((rssHF & RSS_IPV6_TCP_EX) != 0)
+		dpdkRssHF |= ETH_RSS_IPV6_TCP_EX;
+
+	if ((rssHF & RSS_IPV6_UDP_EX) != 0)
+		dpdkRssHF |= ETH_RSS_IPV6_UDP_EX;
+
+	if ((rssHF & RSS_PORT) != 0)
+		dpdkRssHF |= ETH_RSS_PORT;
+
+	if ((rssHF & RSS_VXLAN) != 0)
+		dpdkRssHF |= ETH_RSS_VXLAN;
+
+	if ((rssHF & RSS_GENEVE) != 0)
+		dpdkRssHF |= ETH_RSS_GENEVE;
+
+	if ((rssHF & RSS_NVGRE) != 0)
+		dpdkRssHF |= ETH_RSS_NVGRE;
+
+	return dpdkRssHF;
+}
+
+uint64_t DpdkDevice::convertDpdkRssHfToRssHf(uint64_t dpdkRssHF)
+{
+	uint64_t rssHF = 0;
+
+	if ((dpdkRssHF & ETH_RSS_IPV4) != 0)
+		rssHF |= RSS_IPV4;
+
+	if ((dpdkRssHF & ETH_RSS_FRAG_IPV4) != 0)
+		rssHF |= RSS_IPV4;
+
+	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_TCP) != 0)
+		rssHF |= RSS_NONFRAG_IPV4_TCP;
+
+	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_UDP) != 0)
+		rssHF |= RSS_NONFRAG_IPV4_UDP;
+
+	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_SCTP) != 0)
+		rssHF |= RSS_NONFRAG_IPV4_SCTP;
+
+	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_OTHER) != 0)
+		rssHF |= RSS_NONFRAG_IPV4_OTHER;
+
+	if ((dpdkRssHF & ETH_RSS_IPV6) != 0)
+		rssHF |= RSS_IPV6;
+
+	if ((dpdkRssHF & ETH_RSS_FRAG_IPV6) != 0)
+		rssHF |= RSS_FRAG_IPV6;
+
+	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV6_TCP) != 0)
+		rssHF |= RSS_NONFRAG_IPV6_TCP;
+
+	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV6_UDP) != 0)
+		rssHF |= RSS_NONFRAG_IPV6_UDP;
+
+	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV6_SCTP) != 0)
+		rssHF |= RSS_NONFRAG_IPV6_SCTP;
+
+	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV6_OTHER) != 0)
+		rssHF |= RSS_NONFRAG_IPV6_OTHER;
+
+	if ((dpdkRssHF & ETH_RSS_L2_PAYLOAD) != 0)
+		rssHF |= RSS_L2_PAYLOAD;
+
+	if ((dpdkRssHF & ETH_RSS_IPV6_EX) != 0)
+		rssHF |= RSS_IPV6_EX;
+
+	if ((dpdkRssHF & ETH_RSS_IPV6_TCP_EX) != 0)
+		rssHF |= RSS_IPV6_TCP_EX;
+
+	if ((dpdkRssHF & ETH_RSS_IPV6_UDP_EX) != 0)
+		rssHF |= RSS_IPV6_UDP_EX;
+
+	if ((dpdkRssHF & ETH_RSS_PORT) != 0)
+		rssHF |= RSS_PORT;
+
+	if ((dpdkRssHF & ETH_RSS_VXLAN) != 0)
+		rssHF |= RSS_VXLAN;
+
+	if ((dpdkRssHF & ETH_RSS_GENEVE) != 0)
+		rssHF |= RSS_GENEVE;
+
+	if ((dpdkRssHF & ETH_RSS_NVGRE) != 0)
+		rssHF |= RSS_NVGRE;
+
+	return rssHF;
+}
+
+bool DpdkDevice::isDeviceSupportRssHashFunction(DpdkRssHashFunction rssHF)
+{
+	return isDeviceSupportRssHashFunction((uint64_t)rssHF);
+}
+
+bool DpdkDevice::isDeviceSupportRssHashFunction(uint64_t rssHFMask)
+{
+	uint64_t dpdkRssHF = convertRssHfToDpdkRssHf(rssHFMask);
+
+	rte_eth_dev_info devInfo;
+	rte_eth_dev_info_get(m_Id, &devInfo);
+
+	return ((devInfo.flow_type_rss_offloads & dpdkRssHF) == dpdkRssHF);
+}
+
+uint64_t DpdkDevice::getSupportedRssHashFunctions()
+{
+	rte_eth_dev_info devInfo;
+	rte_eth_dev_info_get(m_Id, &devInfo);
+
+	return convertDpdkRssHfToRssHf(devInfo.flow_type_rss_offloads);
+}
+
 
 } // namespace pcpp
 
