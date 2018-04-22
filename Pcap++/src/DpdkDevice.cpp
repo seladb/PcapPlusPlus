@@ -28,6 +28,8 @@
 
 #define MAX_BURST_SIZE 64
 
+#define MEMPOOL_CACHE_SIZE 256
+
 namespace pcpp
 {
 
@@ -39,7 +41,7 @@ namespace pcpp
 
 MBufRawPacket::~MBufRawPacket()
 {
-	if (m_MBuf != NULL)
+	if (m_MBuf != NULL && m_FreeMbuf)
 	{
 		rte_pktmbuf_free(m_MBuf);
 	}
@@ -199,11 +201,12 @@ bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval 
 
 void MBufRawPacket::clear()
 {
-	if (m_MBuf != NULL)
+	if (m_MBuf != NULL && m_FreeMbuf)
 	{
 		rte_pktmbuf_free(m_MBuf);
-		m_MBuf = NULL;
 	}
+
+	m_MBuf = NULL;
 
 	m_pRawData = NULL;
 
@@ -293,7 +296,7 @@ bool MBufRawPacket::reallocateData(size_t newBufferLength)
 
 void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timeval timestamp)
 {
-	if (m_MBuf != NULL)
+	if (m_MBuf != NULL && m_FreeMbuf)
 		rte_pktmbuf_free(m_MBuf);
 
 	if (mBuf == NULL)
@@ -608,18 +611,8 @@ bool DpdkDevice::initMemPool(struct rte_mempool*& memPool, const char* mempoolNa
 {
     bool ret = false;
 
-    // Create transmission memory pool
-    memPool = rte_mempool_create(mempoolName, // The name of the mempool
-    		mBufPoolSize, // The number of elements in the mempool
-            MBUF_SIZE, // The size of each element
-            32, // cache_size
-            sizeof(struct rte_pktmbuf_pool_private),// The size of the private data appended after the mempool structure
-            rte_pktmbuf_pool_init, // A function pointer that is called for initialization of the pool
-            NULL, // An opaque pointer to data that can be used in the mempool
-            rte_pktmbuf_init, // A function pointer that is called for each object at initialization of the pool
-            NULL, // An opaque pointer to data that can be used as an argument
-            0, // socket identifier in the case of NUMA
-            MEMPOOL_F_SC_GET); // Flags
+    // create mbuf pool
+    memPool = rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
 
     if (memPool == NULL)
 	{
@@ -1216,7 +1209,7 @@ static rte_mbuf* getNextPacketFromMBufRawPacket(void* packetStorage, int index)
 	return mbufRawPacket->getMBuf();
 }
 
-uint16_t DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, packetIterator iter, int arrLength, bool useTxBuffer)
+uint16_t DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, PacketIterator iter, int arrLength, bool useTxBuffer)
 {
 	if (unlikely(!m_DeviceOpened))
 	{
@@ -1284,13 +1277,21 @@ uint16_t DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, p
 
 uint16_t DpdkDevice::sendPackets(MBufRawPacket** rawPacketsArr, uint16_t arrLength, uint16_t txQueueId, bool useTxBuffer)
 {
-	return sendPacketsInner(txQueueId, (void*)rawPacketsArr, getNextPacketFromMBufRawPacketArray, arrLength, useTxBuffer);
+	uint16_t packetsSent = sendPacketsInner(txQueueId, (void*)rawPacketsArr, getNextPacketFromMBufRawPacketArray, arrLength, useTxBuffer);
+
+	bool needToFreeMbuf = (!useTxBuffer && (packetsSent != arrLength));
+
+	for (int index = 0; index < arrLength; index++)
+		rawPacketsArr[index]->setFreeMbuf(needToFreeMbuf);
+
+	return packetsSent;
 }
 
 uint16_t DpdkDevice::sendPackets(Packet** packetsArr, uint16_t arrLength, uint16_t txQueueId, bool useTxBuffer)
 {
 	rte_mbuf* mBufArr[arrLength];
 	MBufRawPacketVector mBufVec;
+	MBufRawPacket* mBufRawPacketArr[arrLength];
 
 	for (size_t i = 0; i < arrLength; i++)
 	{
@@ -1313,14 +1314,23 @@ uint16_t DpdkDevice::sendPackets(Packet** packetsArr, uint16_t arrLength, uint16
 		}
 
 		mBufArr[i] = rawPacket->getMBuf();
+		mBufRawPacketArr[i] = rawPacket;
 	}
 
-	return sendPacketsInner(txQueueId, (void*)mBufArr, getNextPacketFromMBufArray, arrLength, useTxBuffer);
+	uint16_t packetsSent = sendPacketsInner(txQueueId, (void*)mBufArr, getNextPacketFromMBufArray, arrLength, useTxBuffer);
+
+	bool needToFreeMbuf = (!useTxBuffer && (packetsSent != arrLength));
+	for (int index = 0; index < arrLength; index++)
+		mBufRawPacketArr[index]->setFreeMbuf(needToFreeMbuf);
+
+	return packetsSent;
 }
 
-uint16_t DpdkDevice::sendPackets(const RawPacketVector& rawPacketsVec, uint16_t txQueueId, bool useTxBuffer)
+uint16_t DpdkDevice::sendPackets(RawPacketVector& rawPacketsVec, uint16_t txQueueId, bool useTxBuffer)
 {
-	rte_mbuf* mBufArr[rawPacketsVec.size()];
+	size_t vecSize = rawPacketsVec.size();
+	rte_mbuf* mBufArr[vecSize];
+	MBufRawPacket* mBufRawPacketArr[vecSize];
 	MBufRawPacketVector mBufVec;
 	int mBufIndex = 0;
 
@@ -1344,37 +1354,64 @@ uint16_t DpdkDevice::sendPackets(const RawPacketVector& rawPacketsVec, uint16_t 
 			rawPacket = (MBufRawPacket*)(*iter);
 		}
 
+		mBufRawPacketArr[mBufIndex] = rawPacket;
 		mBufArr[mBufIndex++] = rawPacket->getMBuf();
 	}
 
-	return sendPacketsInner(txQueueId, (void*)mBufArr, getNextPacketFromMBufArray, rawPacketsVec.size(), useTxBuffer);
+	uint16_t packetsSent = sendPacketsInner(txQueueId, (void*)mBufArr, getNextPacketFromMBufArray, vecSize, useTxBuffer);
+
+	bool needToFreeMbuf = (!useTxBuffer && (packetsSent != vecSize));
+	for (size_t index = 0; index < rawPacketsVec.size(); index++)
+		mBufRawPacketArr[index]->setFreeMbuf(needToFreeMbuf);
+
+	return packetsSent;
 }
 
-uint16_t DpdkDevice::sendPackets(const MBufRawPacketVector& rawPacketsVec, uint16_t txQueueId, bool useTxBuffer)
+uint16_t DpdkDevice::sendPackets(MBufRawPacketVector& rawPacketsVec, uint16_t txQueueId, bool useTxBuffer)
 {
-	return sendPacketsInner(txQueueId, (void*)(&rawPacketsVec), getNextPacketFromMBufRawPacketVec, rawPacketsVec.size(), useTxBuffer);
+	size_t vecSize = rawPacketsVec.size();
+	uint16_t packetsSent = sendPacketsInner(txQueueId, (void*)(&rawPacketsVec), getNextPacketFromMBufRawPacketVec, vecSize, useTxBuffer);
+
+	bool needToFreeMbuf = (!useTxBuffer && (packetsSent != vecSize));
+
+	for (size_t index = 0; index < vecSize; index++)
+		rawPacketsVec.at(index)->setFreeMbuf(needToFreeMbuf);
+
+	return packetsSent;
 }
 
-bool DpdkDevice::sendPacket(const RawPacket& rawPacket, uint16_t txQueueId, bool useTxBuffer)
+bool DpdkDevice::sendPacket(RawPacket& rawPacket, uint16_t txQueueId, bool useTxBuffer)
 {
 	if (rawPacket.getObjectType() == MBUFRAWPACKET_OBJECT_TYPE)
-		return (sendPacketsInner(txQueueId, (MBufRawPacket*)&rawPacket, getNextPacketFromMBufRawPacket, 1, useTxBuffer) == 1);
+	{
+		bool packetSent = (sendPacketsInner(txQueueId, (MBufRawPacket*)&rawPacket, getNextPacketFromMBufRawPacket, 1, useTxBuffer) == 1);
+		bool needToFreeMbuf = (!useTxBuffer && !packetSent);
+		((MBufRawPacket*)&rawPacket)->setFreeMbuf(needToFreeMbuf);
+		return packetSent;
+	}
 
 	MBufRawPacket mbufRawPacket;
 	if (unlikely(!mbufRawPacket.initFromRawPacket(&rawPacket, this)))
 		return false;
 
-	return (sendPacketsInner(txQueueId, &mbufRawPacket, getNextPacketFromMBufRawPacket, 1, useTxBuffer) == 1);
+	bool packetSent = (sendPacketsInner(txQueueId, &mbufRawPacket, getNextPacketFromMBufRawPacket, 1, useTxBuffer) == 1);
+	bool needToFreeMbuf = (!useTxBuffer && !packetSent);
+	mbufRawPacket.setFreeMbuf(needToFreeMbuf);
+
+	return packetSent;
 }
 
-bool DpdkDevice::sendPacket(const MBufRawPacket& rawPacket, uint16_t txQueueId, bool useTxBuffer)
+bool DpdkDevice::sendPacket(MBufRawPacket& rawPacket, uint16_t txQueueId, bool useTxBuffer)
 {
-	return (sendPacketsInner(txQueueId, (MBufRawPacket*)&rawPacket, getNextPacketFromMBufRawPacket, 1, useTxBuffer) == 1);
+	bool packetSent = (sendPacketsInner(txQueueId, &rawPacket, getNextPacketFromMBufRawPacket, 1, useTxBuffer) == 1);
+	bool needToFreeMbuf = (!useTxBuffer && !packetSent);
+	rawPacket.setFreeMbuf(needToFreeMbuf);
+	return packetSent;
 }
 
-bool DpdkDevice::sendPacket(const Packet& packet, uint16_t txQueueId, bool useTxBuffer)
+bool DpdkDevice::sendPacket(Packet& packet, uint16_t txQueueId, bool useTxBuffer)
 {
-	return sendPacket(*(packet.getRawPacketReadOnly()), txQueueId);
+	return sendPacket(*(packet.getRawPacket()), txQueueId);
 }
 
 int DpdkDevice::getAmountOfFreeMbufs()

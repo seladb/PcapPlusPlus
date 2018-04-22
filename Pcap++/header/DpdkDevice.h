@@ -21,7 +21,7 @@
  * So how DPDK basically works? in order to boost packet processing performance on a commodity server DPDK is bypassing the Linux kernel.
  * All the packet processing activity happens in the user space so basically packets are delivered from NIC hardware queues directly
  * to user-space shared memory without going through the kernel. In addition DPDK uses polling instead of handling interrupts for each
- * arrived packet (as interupts create some delays). Other methods to boost packets processing implemented by DPDK are using Hugepages to
+ * arrived packet (as interrupts create some delays). Other methods to boost packets processing implemented by DPDK are using Hugepages to
  * decrease the size of TLB that results in a much faster virtual to physical page conversion, thread affinity to bind threads to a
  * specific core, lock-free user-space multi-core synchronization using rings data structures and NUMA awareness to avoid expensive data
  * transfers between sockets.<BR>
@@ -147,6 +147,7 @@ namespace pcpp
 	private:
 		struct rte_mbuf* m_MBuf;
 		DpdkDevice* m_Device;
+		bool m_FreeMbuf;
 
 		void setMBuf(struct rte_mbuf* mBuf, timeval timestamp);
 	public:
@@ -156,7 +157,7 @@ namespace pcpp
 		 * an mbuf the user should call the init() method. Without calling init() the instance of this class is not usable.
 		 * This c'tor can be used for initializing an array of MBufRawPacket (which requires an empty c'tor)
 		 */
-		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Device(NULL) { m_DeleteRawDataAtDestructor = false; }
+		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Device(NULL), m_FreeMbuf(true) { m_DeleteRawDataAtDestructor = false; }
 
 		/**
 		 * A d'tor for this class. Once called it frees the mbuf attached to it (returning it back to the mbuf pool it was allocated from)
@@ -268,6 +269,13 @@ namespace pcpp
 		 * @return True if new size is larger than current size but smaller than mbuf max size, false otherwise
 		 */
 		bool reallocateData(size_t newBufferLength);
+
+		/**
+		 * Set an indication whether to free the mbuf when done using it or not ("done using it" means setting another mbuf or class d'tor).
+		 * Default value is true.
+		 * @param[in] val The value to set. True means free the mbuf when done using it. Default it True
+		 */
+		inline void setFreeMbuf(bool val = true) { m_FreeMbuf = val; }
 	};
 
 	/**
@@ -696,6 +704,7 @@ namespace pcpp
 		 * iteration of 64 packets
 		 * - If the number of packets to send is higher than a threshold of 80% of total TX descriptors (which is typically around 400 packets),
 		 * then after reaching this threshold there is a built-in 0.2 sec sleep to let the TX descriptors clean
+		 * - The mbufs used in this method aren't freed by this method, they will be transparently freed by DPDK
 		 * <BR><BR>
 		 * @param[in] rawPacketsArr A pointer to an array of MBufRawPacket
 		 * @param[in] arrLength The length of the array
@@ -717,6 +726,7 @@ namespace pcpp
 		 * iteration of 64 packets
 		 * - If the number of packets to send is higher than a threshold of 80% of total TX descriptors (which is typically around 400 packets),
 		 * then after reaching this threshold there is a built-in 0.2 sec sleep to let the TX descriptors clean
+		 * - The mbufs used or allocated in this method aren't freed by this method, they will be transparently freed by DPDK
 		 * <BR><BR>
 		 * @param[in] packetsArr A pointer to an array of parsed packet pointers
 		 * @param[in] arrLength The length of the array
@@ -735,6 +745,7 @@ namespace pcpp
 		 * iteration of 64 packets
 		 * - If the number of packets to send is higher than a threshold of 80% of total TX descriptors (which is typically around 400 packets),
 		 * then after reaching this threshold there is a built-in 0.2 sec sleep to let the TX descriptors clean
+		 * - The mbufs used in this method aren't freed by this method, they will be transparently freed by DPDK
 		 * <BR><BR>
 		 * @param[in] rawPacketsVec The vector of raw packet
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
@@ -744,7 +755,7 @@ namespace pcpp
 		 * @return The number of packets actually and successfully sent. If device is not opened or TX queue isn't open, 0 will be returned.
 		 * Also, if TX buffer is being used and packets are buffered, some or all may not be actually sent
 		 */
-		uint16_t sendPackets(const MBufRawPacketVector& rawPacketsVec, uint16_t txQueueId = 0, bool useTxBuffer = false);
+		uint16_t sendPackets(MBufRawPacketVector& rawPacketsVec, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Send a vector of RawPacket pointers to the network. Please notice the following:<BR>
@@ -756,6 +767,7 @@ namespace pcpp
 		 * iteration of 64 packets
 		 * - If the number of packets to send is higher than a threshold of 80% of total TX descriptors (which is typically around 400 packets),
 		 * then after reaching this threshold there is a built-in 0.2 sec sleep to let the TX descriptors clean
+		 * - The mbufs used or allocated in this method aren't freed by this method, they will be transparently freed by DPDK
 		 * <BR><BR>
 		 * @param[in] rawPacketsVec The vector of raw packet
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to. The default is
@@ -765,12 +777,13 @@ namespace pcpp
 		 * @return The number of packets actually and successfully sent. If device is not opened or TX queue isn't open, 0 will be returned.
 		 * Also, if TX buffer is being used and packets are buffered, some or all may not be actually sent
 		 */
-		uint16_t sendPackets(const RawPacketVector& rawPacketsVec, uint16_t txQueueId = 0, bool useTxBuffer = false);
+		uint16_t sendPackets(RawPacketVector& rawPacketsVec, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Send a raw packet to the network. Please notice that if the raw packet isn't of type MBufRawPacket, a new temp MBufRawPacket
 		 * will be created and the data will be copied to it. This is necessary to allocate an mbuf which will store the data to be sent.
-		 * If performance is a critical factor please make sure you send a raw packet of type MBufRawPacket
+		 * If performance is a critical factor please make sure you send a raw packet of type MBufRawPacket. Please also notice that the
+		 * mbuf used or allocated in this method isn't freed by this method, it will be transparently freed by DPDK
 		 * @param[in] rawPacket The raw packet to send
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent to. The default is
 		 * TX queue 0
@@ -780,10 +793,11 @@ namespace pcpp
 		 * sent for any other reason. Please notice that when using TX buffers the packet may be buffered and not sent immediately, which
 		 * may also result in returning false
 		 */
-		bool sendPacket(const RawPacket& rawPacket, uint16_t txQueueId = 0, bool useTxBuffer = false);
+		bool sendPacket(RawPacket& rawPacket, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
-		 * Send a MBufRawPacket to the network
+		 * Send a MBufRawPacket to the network. Please notice that the mbuf used in this method isn't freed by this method, it will be
+		 * transparently freed by DPDK
 		 * @param[in] rawPacket The MBufRawPacket to send
 		 * @param[in] txQueueId An optional parameter which indicates to which TX queue the packet will be sent to. The default is
 		 * TX queue 0
@@ -793,10 +807,11 @@ namespace pcpp
 		 * sent for any other reason. Please notice that when using TX buffers the packet may be buffered and not sent immediately, which
 		 * may also result in returning false
 		 */
-		bool sendPacket(const MBufRawPacket& rawPacket, uint16_t txQueueId = 0, bool useTxBuffer = false);
+		bool sendPacket(MBufRawPacket& rawPacket, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
-		 * Send a parsed packet to the network
+		 * Send a parsed packet to the network. Please notice that the mbuf used or allocated in this method isn't freed by this method,
+		 * it will be transparently freed by DPDK
 		 * @param[in] packet The parsed packet to send. Please notice that if the packet contains a raw packet which isn't of type
 		 * MBufRawPacket, a new temp MBufRawPacket will be created and the data will be copied to it. This is necessary to
 		 * allocate an mbuf which will store the data to be sent. If performance is a critical factor please make sure you send a
@@ -809,7 +824,7 @@ namespace pcpp
 		 * sent for any other reason. Please notice that when using TX buffers the packet may be buffered and not sent immediately, which
 		 * may also result in returning false
 		 */
-		bool sendPacket(const Packet& packet, uint16_t txQueueId = 0, bool useTxBuffer = false);
+		bool sendPacket(Packet& packet, uint16_t txQueueId = 0, bool useTxBuffer = false);
 
 		/**
 		 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
@@ -979,8 +994,8 @@ namespace pcpp
 
 		void setDeviceInfo();
 
-		typedef rte_mbuf* (*packetIterator)(void* packetStorage, int index);
-		uint16_t sendPacketsInner(uint16_t txQueueId, void* packetStorage, packetIterator iter, int arrLength, bool useTxBuffer);
+		typedef rte_mbuf* (*PacketIterator)(void* packetStorage, int index);
+		uint16_t sendPacketsInner(uint16_t txQueueId, void* packetStorage, PacketIterator iter, int arrLength, bool useTxBuffer);
 
 		uint64_t convertRssHfToDpdkRssHf(uint64_t rssHF);
 		uint64_t convertDpdkRssHfToRssHf(uint64_t dpdkRssHF);
