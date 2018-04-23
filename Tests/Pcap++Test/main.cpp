@@ -3214,18 +3214,11 @@ PCAPP_TEST(TestDpdkDeviceSendPackets)
     }
 
     //send packets as parsed EthPacekt array
-    int freeMBufsBefore = dev->getAmountOfFreeMbufs();
-    int packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead);
-    int freeMBufsAfter = dev->getAmountOfFreeMbufs();
-    PCAPP_ASSERT(freeMBufsBefore == freeMBufsAfter, "MBuf leakage happened in sending EthPacekt array. Free MBufs before/after: %d/%d", freeMBufsBefore, freeMBufsAfter);
+    int packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead, 0, false);
+    PCAPP_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsParsed);
 
     //send packets are RawPacketVector
-    freeMBufsBefore = dev->getAmountOfFreeMbufs();
     int packetsSentAsRawVector = dev->sendPackets(rawPacketVec);
-    freeMBufsAfter = dev->getAmountOfFreeMbufs();
-    PCAPP_ASSERT(freeMBufsBefore == freeMBufsAfter, "MBuf leakage happened in sending RawPacketVector. Free MBufs before/after: %d/%d", freeMBufsBefore, freeMBufsAfter);
-
-    PCAPP_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsParsed);
     PCAPP_ASSERT(packetsSentAsRawVector == packetsRead, "Not all packets were sent as raw vector. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsRawVector);
 
     if (dev->getTotalNumOfTxQueues() > 1)
@@ -3243,11 +3236,8 @@ PCAPP_TEST(TestDpdkDeviceSendPackets)
     PCAPP_ASSERT(dev->sendPackets(rawPacketVec, dev->getTotalNumOfTxQueues()+1) == 0, "Managed to send packets on TX queue that doesn't exist");
     LoggerPP::getInstance().enableErrors();
 
-    freeMBufsBefore = dev->getAmountOfFreeMbufs();
-    PCAPP_ASSERT(dev->sendPacket(rawPacketVec.at(packetsRead/3), 0) == true, "Couldn't send 1 raw packet");
+    PCAPP_ASSERT(dev->sendPacket(*(rawPacketVec.at(packetsRead/3)), 0) == true, "Couldn't send 1 raw packet");
     PCAPP_ASSERT(dev->sendPacket(*(packetArr[packetsRead/2]), 0) == true, "Couldn't send 1 parsed packet");
-    freeMBufsAfter = dev->getAmountOfFreeMbufs();
-    PCAPP_ASSERT(freeMBufsBefore == freeMBufsAfter, "MBuf leakage happened in sending one packet");
 
     dev->close();
     fileReaderDev.close();
