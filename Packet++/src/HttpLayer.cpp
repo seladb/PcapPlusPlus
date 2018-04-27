@@ -275,7 +275,7 @@ HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(char* data, size_
 	case 'C':
 		if (dataLen < 8)
 			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'O' && data[2] == 'N' && data[3] == 'N' && data[5] == 'E' && data[5] == 'C' && data[6] == 'T' && data[7] == ' ')
+		else if (data[1] == 'O' && data[2] == 'N' && data[3] == 'N' && data[4] == 'E' && data[5] == 'C' && data[6] == 'T' && data[7] == ' ')
 			return HttpRequestLayer::HttpCONNECT;
 		else
 			return HttpRequestLayer::HttpMethodUnknown;
