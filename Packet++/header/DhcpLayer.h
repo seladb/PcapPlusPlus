@@ -437,14 +437,17 @@ namespace pcpp
 
 		/**
 		 * Retrieve DHCP option data as string. Relevant only if option value is indeed a string
+         * @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For example:
+         * when retrieving Client FQDN option, you may ignore the flags and RCODE fields using this method like this:
+         * getValueAsString(3). The default is 0 - start copying from the beginning of option data
 		 * @return DHCP option data as string
 		 */
-		std::string getValueAsString()
+		std::string getValueAsString(int valueOffset = 0)
 		{
-			if (len < 1)
+			if (len-valueOffset < 1)
 				return "";
 
-			return std::string((char*)value, len);
+			return std::string((char*)value+valueOffset, len-valueOffset);
 		}
 
 		/**
