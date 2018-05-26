@@ -12,7 +12,7 @@ PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen, bool dummy) : La
 	m_Data = new uint8_t[dataLen];
 	memcpy(m_Data, data, dataLen);
 	m_DataLen = dataLen;
-	m_Protocol = GenericPayolad;
+	m_Protocol = GenericPayload;
 }
 
 std::string PayloadLayer::toString()
