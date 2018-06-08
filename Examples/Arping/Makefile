@@ -13,8 +13,7 @@ OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
-	@$(G++) $(PCAPPP_INCLUDES) -O0 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
-
+	@$(CXX) $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -O0 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 UNAME := $(shell uname)
 CUR_TARGET := $(notdir $(shell pwd))
@@ -34,7 +33,7 @@ dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
 Arping: start create-directories $(OBJS_FILENAMES)
-	@$(G++) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Arping$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
+	@$(CXX) $(PCAPPP_BUILD_FLAGS) $(PCAPPP_LIBS_DIR) -o "./Bin/Arping$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
 	@$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
