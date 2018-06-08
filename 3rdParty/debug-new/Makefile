@@ -9,7 +9,7 @@ OBJS_FILENAMES := $(patsubst %.cpp,%.o,$(SOURCES))
 
 %.o: %.cpp
 	@echo 'Building debug-new file: $<'
-	@$(GCC) -Wall -O2 -g -c -o "$@" "$<"
+	@$(CC) -Wall -O2 -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 
