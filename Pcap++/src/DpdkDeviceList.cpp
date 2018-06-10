@@ -66,7 +66,7 @@ const uint32_t initDpdkArgc = 7;
 const uint32_t maxArgLen = 20;
 char** initDpdkArgv;
 
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore)
 {
 	if (m_IsDpdkInitialized)
 	{
@@ -100,7 +100,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice)
 	dpdkParamsStream << "-c ";
 	dpdkParamsStream << "0x" << std::hex << std::setw(2) << std::setfill('0') << coreMask << " ";
 	dpdkParamsStream << "--master-lcore ";
-	dpdkParamsStream << "0";
+	dpdkParamsStream << (int)masterCore;
 
 	std::string dpdkParamsArray[initDpdkArgc];
 	initDpdkArgv = new char*[initDpdkArgc];
