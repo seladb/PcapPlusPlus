@@ -147,11 +147,7 @@ inet_ntop4(const uint8_t* src, char* dst, size_t size)
 	static const char fmt[] = "%u.%u.%u.%u";
 	char tmp[sizeof "255.255.255.255"];
 	int nprinted;
-	#ifdef PCAPPP_MINGW_ENV
-		nprinted = sprintf(tmp, fmt, src[0], src[1], src[2], src[3]);
-	#else
-		nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
-	#endif
+	nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
         /* Note: nprinted *excludes* the trailing '\0' character */
 	if ((size_t)nprinted >= size) {
 		return (NULL);
@@ -237,11 +233,7 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 			tp += strlen(tp);
 			break;
 		}
-		#ifdef PCAPPP_MINGW_ENV
-			tp += sprintf(tp, "%x", words[i]);
-		#else
-			tp += snprintf(tp, (unsigned long) (sizeof tmp - (tp - tmp)), "%x", words[i]);
-		#endif
+		tp += snprintf(tp, (unsigned long) (sizeof tmp - (tp - tmp)), "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
 	if (best.base != -1 && (best.base + best.len) ==

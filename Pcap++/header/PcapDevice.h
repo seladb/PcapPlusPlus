@@ -5,7 +5,7 @@
 #include "PcapFilter.h"
 #include "PointerVector.h"
 
-#ifdef PCAPPP_MINGW_ENV
+#if defined(PCAPPP_MINGW_ENV) && !defined(WIN32)
 #	define WIN32
 #endif
 #include <pcap.h>
