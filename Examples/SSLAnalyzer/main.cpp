@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
-#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
+#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
 #include "PcapLiveDeviceList.h"

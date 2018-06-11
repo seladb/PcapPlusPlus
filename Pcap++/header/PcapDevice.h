@@ -4,6 +4,10 @@
 #include "RawPacket.h"
 #include "PcapFilter.h"
 #include "PointerVector.h"
+
+#ifdef PCAPPP_MINGW_ENV
+#	define WIN32
+#endif
 #include <pcap.h>
 
 /// @file
