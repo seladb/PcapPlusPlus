@@ -2,7 +2,7 @@
 
 #include "Logger.h"
 #include "SSLLayer.h"
-#if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
 #include <winsock2.h>
 #elif LINUX
 #include <in.h> //for using ntohl, ntohs, etc.
