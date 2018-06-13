@@ -117,7 +117,7 @@ int getNumOfCores()
 
 CoreMask getCoreMaskForAllMachineCores()
 {
-	int numOfCores = getNumOfCores();
+	int numOfCores = getNumOfCores() < 32 ? getNumOfCores() : 32;
 	CoreMask result = 0;
 	for (int i = 0; i < numOfCores; i++)
 	{
