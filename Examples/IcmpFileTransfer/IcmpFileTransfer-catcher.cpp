@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
-#if !defined(WIN32) && !defined(WINx64)
+#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) 
 #include <in.h>
 #endif
 #include "EthLayer.h"

@@ -10,6 +10,6 @@ PCAPPP_LIBS_DIR += -L$(WINPCAP_HOME)/lib -L$(MINGW_HOME)/lib
 PCAPPP_LIBS += -lwpcap -lPacket -lpthread -lws2_32 -liphlpapi
 
 # flags
-PCAPPP_BUILD_FLAGS += -static -static-libgcc -static-libstdc++
+PCAPPP_BUILD_FLAGS += -static -static-libgcc -static-libstdc++ -DPCAPPP_MINGW_ENV
 
 

@@ -11,7 +11,7 @@ INCLUDES := -I"LightPcapNg/include"
 			
 Obj/%.o: LightPcapNg/src/%.c
 	@echo 'Building file: $<'
-	@$(GCC) $(INCLUDES) -Wall -O2 -DUNIVERSAL -g -c -o "$@" "$<"
+	@$(CC) $(INCLUDES) -Wall -O2 -DUNIVERSAL -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 

@@ -3,6 +3,7 @@
 #include "IpUtils.h"
 #include "Logger.h"
 #include <string.h>
+#include <stdio.h>
 #ifndef NS_INADDRSZ
 #define NS_INADDRSZ	4
 #endif
@@ -146,7 +147,6 @@ inet_ntop4(const uint8_t* src, char* dst, size_t size)
 	static const char fmt[] = "%u.%u.%u.%u";
 	char tmp[sizeof "255.255.255.255"];
 	int nprinted;
-
 	nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
         /* Note: nprinted *excludes* the trailing '\0' character */
 	if ((size_t)nprinted >= size) {

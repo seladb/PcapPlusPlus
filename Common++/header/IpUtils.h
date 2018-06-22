@@ -10,7 +10,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
-#if defined(WIN32) || defined(WINx64)
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #endif

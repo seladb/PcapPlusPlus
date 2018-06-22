@@ -8,9 +8,9 @@ LIB_PREFIX :=
 
 LIB_EXT := .lib
 
-G++ := g++.exe
+CXX := g++.exe
 
-GCC := gcc.exe
+CC := gcc.exe
 
 AR := ar.exe
 

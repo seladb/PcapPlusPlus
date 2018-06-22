@@ -6,9 +6,9 @@ LIB_PREFIX := lib
 
 LIB_EXT := .a
 
-G++ := g++
+CXX := g++
 
-GCC := gcc
+CC := gcc
 
 AR := ar
 

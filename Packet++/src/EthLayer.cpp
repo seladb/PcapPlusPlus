@@ -9,7 +9,7 @@
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
 #include <string.h>
-#if defined(WIN32) || defined(WINx64)
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #include <winsock2.h>
 #elif LINUX
 #include <in.h>

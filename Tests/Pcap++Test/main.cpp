@@ -40,7 +40,7 @@
 #include <DpdkDeviceList.h>
 #include <DpdkDevice.h>
 #include <NetworkUtils.h>
-#ifndef WIN32 //for using ntohl, ntohs, etc.
+#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
 

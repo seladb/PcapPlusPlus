@@ -4,6 +4,18 @@
 #include "RawPacket.h"
 #include "PcapFilter.h"
 #include "PointerVector.h"
+
+/**
+ * Next define is ncessery in MinGw environment build context.
+ * The "-std" flag causes a lot of bugs and incompatibilities on older platforms one of them
+ * is that "-DWIN32" flag is not properly passed from pcpp build system. 
+ * But libpcap is strongly depends on definition of "WIN32" macro on Windows platform.
+ * Next lines represents manual handling of this situation.
+ * Better solutions are accepted via PR on: https://github.com/seladb/PcapPlusPlus/issues
+ */
+#if defined(PCAPPP_MINGW_ENV) && !defined(WIN32)
+#	define WIN32
+#endif
 #include <pcap.h>
 
 /// @file

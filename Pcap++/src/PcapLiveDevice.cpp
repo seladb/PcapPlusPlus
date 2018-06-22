@@ -1,5 +1,6 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
+#include "IpUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #ifndef  _MSC_VER
@@ -13,8 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "IpUtils.h"
-#if defined(WIN32) || defined(WINx64)
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #include <ws2tcpip.h>
 #include <Packet32.h>
 #include <ntddndis.h>
@@ -557,7 +557,7 @@ std::string PcapLiveDevice::printThreadId(PcapThread* id)
 
 void PcapLiveDevice::setDeviceMtu()
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 	uint32_t mtuValue = 0;
 	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name);
@@ -612,7 +612,7 @@ void PcapLiveDevice::setDeviceMtu()
 
 void PcapLiveDevice::setDeviceMacAddress()
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name);
 	if (adapter == NULL)
@@ -699,7 +699,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 
 void PcapLiveDevice::setDefaultGateway()
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
 	uint8_t* buffer = new uint8_t[outBufLen];
 	PIP_ADAPTER_INFO adapterInfo = (IP_ADAPTER_INFO*)buffer;
