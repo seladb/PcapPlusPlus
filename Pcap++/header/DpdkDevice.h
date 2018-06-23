@@ -1011,7 +1011,6 @@ namespace pcpp
 		MacAddress m_MacAddress;
 		uint16_t m_DeviceMtu;
 		struct rte_mempool* m_MBufMempool;
-		struct rte_mbuf* m_mBufArray[256];
 		struct rte_eth_dev_tx_buffer** m_TxBuffers;
 		uint64_t m_TxBufferDrainTsc;
 		uint64_t* m_TxBufferLastDrainTsc;
