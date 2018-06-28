@@ -901,10 +901,10 @@ void DpdkDevice::stopCapture()
 	LOG_DEBUG("All capturing threads stopped");
 }
 
-
 int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 {
 	DpdkDevice* pThis = (DpdkDevice*)ptr;
+	struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
 
 	if (pThis == NULL)
 	{
@@ -919,7 +919,7 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 
 	while (likely(!pThis->m_StopThread))
 	{
-		uint32_t numOfPktsReceived = rte_eth_rx_burst(pThis->m_Id, queueId, pThis->m_mBufArray, MAX_BURST_SIZE);
+		uint32_t numOfPktsReceived = rte_eth_rx_burst(pThis->m_Id, queueId, mBufArray, MAX_BURST_SIZE);
 
 		if (unlikely(numOfPktsReceived == 0))
 			continue;
@@ -929,11 +929,10 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 
 		if (likely(pThis->m_OnPacketsArriveCallback != NULL))
 		{
-			MBufRawPacket rawPackets[numOfPktsReceived];
+			MBufRawPacket rawPackets[MAX_BURST_SIZE];
 			for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 			{
-				struct rte_mbuf* mBuf = pThis->m_mBufArray[index];
-				rawPackets[index].setMBuf(mBuf, time);
+				rawPackets[index].setMBuf(mBufArray[index], time);
 			}
 
 			pThis->m_OnPacketsArriveCallback(rawPackets, numOfPktsReceived, coreId, pThis, pThis->m_OnPacketsArriveUserCookie);
