@@ -901,25 +901,10 @@ void DpdkDevice::stopCapture()
 	LOG_DEBUG("All capturing threads stopped");
 }
 
-namespace {
-
-	class MBufRawPacketArrayGuard 
-	{
-	public:
-		MBufRawPacketArrayGuard(MBufRawPacket packets[], uint32_t length) : p(packets), l(length) {}
-		~MBufRawPacketArrayGuard() { for (uint32_t i = 0; i < l; ++i) p[i].clear(); }
-	private:
-		MBufRawPacket* p;
-		const uint32_t l;
-	};
-
-}
-
 int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 {
 	DpdkDevice* pThis = (DpdkDevice*)ptr;
 	struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
-	MBufRawPacket rawPackets[MAX_BURST_SIZE];
 
 	if (pThis == NULL)
 	{
@@ -935,6 +920,7 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 	while (likely(!pThis->m_StopThread))
 	{
 		uint32_t numOfPktsReceived = rte_eth_rx_burst(pThis->m_Id, queueId, mBufArray, MAX_BURST_SIZE);
+
 		if (unlikely(numOfPktsReceived == 0))
 			continue;
 
@@ -943,7 +929,7 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 
 		if (likely(pThis->m_OnPacketsArriveCallback != NULL))
 		{
-			MBufRawPacketArrayGuard sg(rawPackets, numOfPktsReceived);
+			MBufRawPacket rawPackets[MAX_BURST_SIZE];
 			for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 			{
 				rawPackets[index].setMBuf(mBufArray[index], time);
