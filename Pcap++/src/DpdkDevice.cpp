@@ -1278,10 +1278,19 @@ uint16_t DpdkDevice::sendPackets(MBufRawPacket** rawPacketsArr, uint16_t arrLeng
 {
 	uint16_t packetsSent = sendPacketsInner(txQueueId, (void*)rawPacketsArr, getNextPacketFromMBufRawPacketArray, arrLength, useTxBuffer);
 
-	bool needToFreeMbuf = (!useTxBuffer && (packetsSent != arrLength));
+	bool needToFreeMbuf = false;
+	int applyForMBufs = arrLength;
 
-	for (int index = 0; index < arrLength; index++)
+	if (unlikely(!useTxBuffer && (packetsSent != arrLength)))
+	{
+		applyForMBufs = packetsSent;
+	}
+
+	for (int index = 0; index < applyForMBufs; index++)
 		rawPacketsArr[index]->setFreeMbuf(needToFreeMbuf);
+
+	for (int index = applyForMBufs; index < arrLength; index++)
+		rawPacketsArr[index]->setFreeMbuf(!needToFreeMbuf);
 
 	return packetsSent;
 }
