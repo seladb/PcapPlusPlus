@@ -164,6 +164,15 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	if (tcpLayer == NULL)
 		return;
 
+	// Ignore the packet if it's an ICMP packet that has a TCP layer
+    // Several ICMP messages (like "destination unreachable") have TCP data as part of the ICMP message.
+	// This is not real TCP data and packet can be ignored
+	if (tcpData.isPacketOfType(ICMP))
+	{
+		LOG_DEBUG("Packet is of type ICMP so TCP data is probably  part of the ICMP message. Ignoring this packet");
+		return;
+	}
+
 	// calculate the TCP payload size
 	size_t tcpPayloadSize = tcpLayer->getLayerPayloadSize();
 
