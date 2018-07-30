@@ -1268,6 +1268,15 @@ PCAPP_TEST(TestPcapLiveDevice)
     PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestPcapLiveDeviceByInvalidIp)
+{
+	PcapLiveDevice* liveDev = NULL;
+	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("eth0");	
+	PCAPP_ASSERT(liveDev == NULL, "Cannot get live device by invalid Ip");
+
+	PCAPP_TEST_PASSED;
+}
+
 PCAPP_TEST(TestPcapLiveDeviceNoNetworking)
 {
 	PcapLiveDevice* liveDev = NULL;
@@ -5593,6 +5602,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args, true);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceBlockingMode, args, true);
 	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args, true);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceByInvalidIp, args, false);
 	PCAPP_RUN_TEST(TestPcapFilters, args, true);
 	PCAPP_RUN_TEST(TestSendPacket, args, true);
 	PCAPP_RUN_TEST(TestSendPackets, args, true);
