@@ -281,7 +281,7 @@ std::vector<IPv4Address>& PcapLiveDeviceList::getDnsServers()
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsString)
 {
 	IPAddress::Ptr_t apAddr = IPAddress::fromString(ipAddrAsString);
-	if (!apAddr->isValid())
+	if (apAddr.get() == NULL || !apAddr->isValid())
 	{
 		LOG_ERROR("IP address illegal");
 		return NULL;
