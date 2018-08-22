@@ -13,6 +13,9 @@ matrix:
         - DOCKER_IMAGE=ubuntu1604
     - os: linux
       env:
+        - DOCKER_IMAGE=ubuntu1804
+    - os: linux
+      env:
         - DOCKER_IMAGE=centos7
     - os: linux
       env:
