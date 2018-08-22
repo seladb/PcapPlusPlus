@@ -239,7 +239,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		LOG_ERROR("%s", pcap_geterr(pcap));
 	}
 
-	if (config.packetBufferSize > 0)
+	if (config.packetBufferSize >= 100)
 	{
 		ret = pcap_set_buffer_size(pcap, config.packetBufferSize);
 		if (ret != 0)

@@ -560,6 +560,13 @@ bool packetArrivesBlockingModeNoTimeout(RawPacket* pRawPacket, PcapLiveDevice* d
 	return false;
 }
 
+bool packetArrivesBlockingModeNoTimeoutPacketCount(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie)
+{
+	int* packetCount = (int*)userCookie;
+	(*packetCount)++;
+	return false;
+}
+
 bool packetArrivesBlockingModeStartCapture(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie)
 {
 	LoggerPP::getInstance().supressErrors();
@@ -1376,6 +1383,38 @@ PCAPP_TEST(TestPcapLiveDeviceBlockingMode)
 	PCAP_SLEEP(5);
 	liveDev->stopCapture();
 	PCAPP_ASSERT(packetCount > 0, "Step 9: Couldn't capture any packet on non-blocking capture 2");
+
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPcapLiveDeviceSpecialCfg)
+{
+	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
+	PCAPP_ASSERT(liveDev != NULL, "Step 0: Device used in this test %s doesn't exist", args.ipToSendReceivePackets.c_str());
+
+	// open device in default mode
+	PCAPP_ASSERT(liveDev->open(), "Step 0: Cannot open live device");
+
+	// sanity test - make sure packets are captured in default mode
+	int packetCount = 0;
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
+
+	liveDev->close();
+
+	PCAPP_ASSERT(packetCount > 0, "No packets are captured in default configuration mode");
+
+	packetCount = 0;
+
+	// create a non-default configuration with timeout of 10ms and open the device again
+	PcapLiveDevice::DeviceConfiguration devConfig(PcapLiveDevice::Promiscuous, 10, 2000000);
+	liveDev->open(devConfig);
+
+	// start capturing in non-default configuration
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
+
+	liveDev->close();
+
+	PCAPP_ASSERT(packetCount > 0, "No packets are captured in non-default configuration mode");
 
 	PCAPP_TEST_PASSED;
 }
@@ -5601,6 +5640,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPcapLiveDeviceNoNetworking, args, false);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceStatsMode, args, true);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceBlockingMode, args, true);
+	PCAPP_RUN_TEST(TestPcapLiveDeviceSpecialCfg, args, true);
 	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args, true);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceByInvalidIp, args, false);
 	PCAPP_RUN_TEST(TestPcapFilters, args, true);
