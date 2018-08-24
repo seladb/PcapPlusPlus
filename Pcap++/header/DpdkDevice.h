@@ -5,8 +5,7 @@
 #include <time.h>
 #include "MacAddress.h"
 #include "SystemUtils.h"
-#include "RawPacket.h"
-#include "PcapLiveDevice.h"
+#include "Device.h"
 
 /**
  * @file
@@ -386,7 +385,7 @@ namespace pcpp
 	 *    - It's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still not
 	 *      supported by DpdkDevice
 	 */
-	class DpdkDevice : public IPcapDevice
+	class DpdkDevice : public IDevice
 	{
 		friend class DpdkDeviceList;
 		friend class MBufRawPacket;
@@ -900,27 +899,6 @@ namespace pcpp
 		 */
 		int getAmountOfMbufsInUse();
 
-		//overridden methods
-
-		/**
-		 * Overridden method from IPcapDevice. It calls openMultiQueues() with 1 RX queue and 1 TX queue. 
-		 * Notice opening the device only makes it ready to use, it doesn't start packet capturing. The device is opened in promiscuous mode
-		 * @return True if the device was opened successfully, false if device is already opened, if RX/TX queues configuration failed or of DPDK port
-		 * configuration and startup failed
-		 */
-		bool open() { return openMultiQueues(1, 1); };
-
-		/**
-		 * Close the DpdkDevice. When device is closed it's not possible work with it
-		 */
-		void close();
-
-		/**
-		 * @deprecated
-		 * Please use DpdkDevice::getStatistics(DpdkDeviceStats& stats) instead
-		 */
-		void getStatistics(pcap_stat& stats);
-
 		/**
 		 * Retrieve RX/TX statistics from device
 		 * @param[out] stats A reference to a DpdkDeviceStats object where stats will be written into
@@ -966,6 +944,22 @@ namespace pcpp
 		 * Value of zero means RSS is not supported by this device
 		 */
 		uint64_t getSupportedRssHashFunctions();
+
+
+		//overridden methods
+
+		/**
+		 * Overridden method from IPcapDevice. It calls openMultiQueues() with 1 RX queue and 1 TX queue.
+		 * Notice opening the device only makes it ready to use, it doesn't start packet capturing. The device is opened in promiscuous mode
+		 * @return True if the device was opened successfully, false if device is already opened, if RX/TX queues configuration failed or of DPDK port
+		 * configuration and startup failed
+		 */
+		bool open() { return openMultiQueues(1, 1); };
+
+		/**
+		 * Close the DpdkDevice. When device is closed it's not possible work with it
+		 */
+		void close();
 
 	private:
 

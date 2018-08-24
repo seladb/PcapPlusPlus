@@ -944,16 +944,6 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 	return 0;
 }
 
-void DpdkDevice::getStatistics(pcap_stat& stats)
-{
-	LOG_ERROR("This method is deprecated. Please use DpdkDevice::getStatistics(DpdkDeviceStats& stats)");
-//	struct rte_eth_stats rteStats;
-//	rte_eth_stats_get(m_Id, &rteStats);
-//	stats.ps_recv = rteStats.ipackets;
-//	stats.ps_drop = rteStats.ierrors + rteStats.rx_nombuf;
-//	stats.ps_ifdrop = rteStats.rx_nombuf;
-}
-
 #define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
 
 void DpdkDevice::getStatistics(DpdkDeviceStats& stats)

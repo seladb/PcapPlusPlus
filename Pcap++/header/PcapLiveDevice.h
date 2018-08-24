@@ -420,7 +420,8 @@ namespace pcpp
 		 */
 		virtual int sendPackets(const RawPacketVector& rawPackets);
 
-		//override methods
+
+		// implement abstract methods
 
 		/**
 		 * Open the device using libpcap pcap_open_live. Opening the device only makes the device ready for use, it doesn't start packet capturing.

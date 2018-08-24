@@ -1,9 +1,5 @@
-#ifndef PCAPPP_DEVICE
-#define PCAPPP_DEVICE
-
-#include "RawPacket.h"
-#include "PcapFilter.h"
-#include "PointerVector.h"
+#ifndef PCAPPP_PCAP_DEVICE
+#define PCAPPP_PCAP_DEVICE
 
 /**
  * Next define is ncessery in MinGw environment build context.
@@ -17,6 +13,7 @@
 #	define WIN32
 #endif
 #include <pcap.h>
+#include "Device.h"
 
 /// @file
 
@@ -26,42 +23,21 @@
 */
 namespace pcpp
 {
-
-	/** A vector of pointers to RawPacket */
-	typedef PointerVector<RawPacket> RawPacketVector;
-
 	/**
 	 * @class IPcapDevice
-	 * An abstract class representing all possible packet capturing devices: files, libPcap, WinPcap, RemoteCapture, PF_RING, etc.
-	 * This class cannot obviously be instantiated
+	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap and RemoteCapture.
+	 * This class is abstract and cannot be instantiated
 	 */
-	class IPcapDevice
+	class IPcapDevice : public IDevice, public IFilterableDevice
 	{
 	protected:
 		pcap_t* m_PcapDescriptor;
-		bool m_DeviceOpened;
 
 		// c'tor should not be public
-		IPcapDevice() { m_DeviceOpened = false; m_PcapDescriptor = NULL; }
+		IPcapDevice() : IDevice() { m_PcapDescriptor = NULL; }
 
 	public:
 		virtual ~IPcapDevice();
-
-		/**
-		 * Open the device
-		 * @return True if device was opened successfully, false otherwise
-		 */
-		virtual bool open() = 0;
-
-		/**
-		 * Close the device
-		 */
-		virtual void close() = 0;
-
-		/**
-		 * @return True if the file is opened, false otherwise
-		 */
-		inline bool isOpened() { return m_DeviceOpened; }
 
 		/**
 		 * Get statistics from device:
@@ -71,25 +47,6 @@ namespace pcpp
 		 * @param[out] stats The stats struct where stats are returned
 		 */
 		virtual void getStatistics(pcap_stat& stats) = 0;
-
-		/**
-		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be received
-		 * @param[in] filter The filter to be set in PcapPlusPlus' GeneralFilter format
-		 * @return True if filter set successfully, false otherwise
-		 */
-		bool setFilter(GeneralFilter& filter);
-
-		/**
-		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be received
-		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
-		 * @return True if filter set successfully, false otherwise
-		 */
-		virtual bool setFilter(std::string filterAsString);
-
-		/**
-		 * Clear the filter currently set on device
-		 */
-		void clearFilter();
 
 		/**
 		 * Verify a filter is valid
@@ -106,8 +63,26 @@ namespace pcpp
 		 * @return True if raw packet matches the BPF filter or false otherwise
 		 */
 		static bool matchPakcetWithFilter(std::string filterAsString, RawPacket* rawPacket);
+
+
+		// implement abstract methods
+
+		using IFilterableDevice::setFilter;
+
+		/**
+		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be received
+		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
+		 * @return True if filter set successfully, false otherwise
+		 */
+		virtual bool setFilter(std::string filterAsString);
+
+		/**
+		 * Clear the filter currently set on device
+		 * @return True if filter was removed successfully or if no filter was set, false otherwise
+		 */
+		bool clearFilter();
 	};
 
 } // namespace pcpp
 
-#endif
+#endif // PCAPPP_PCAP_DEVICE

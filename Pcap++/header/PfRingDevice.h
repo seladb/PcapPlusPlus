@@ -1,11 +1,9 @@
 #ifndef PCAPPP_PF_RING_DEVICE
 #define PCAPPP_PF_RING_DEVICE
 
-#include "PcapDevice.h"
-#include "PcapFilter.h"
+#include "Device.h"
 #include "MacAddress.h"
 #include "SystemUtils.h"
-#include "RawPacket.h"
 #include "Packet.h"
 #include <pthread.h>
 
@@ -31,7 +29,7 @@ namespace pcpp
 	 * @class PfRingDevice
 	 * A class representing a PF_RING port
 	 */
-	class PfRingDevice : public IPcapDevice
+	class PfRingDevice : public IDevice, public IFilterableDevice
 	{
 		friend class PfRingDeviceList;
 	private:
@@ -92,6 +90,20 @@ namespace pcpp
 			 * Packets are distributed between channels per flow (each flow goes for different channel)
 			 */
 			PerFlow
+		};
+
+		/**
+		 * @struct PfRingStats
+		 * A container for PfRingDevice statistics
+		 */
+		struct PfRingStats
+		{
+			/** Number of packets received */
+			uint64_t recv;
+			/** Number of packets dropped */
+			uint64_t drop;
+			/** Number of packets shunt */
+			uint64_t shunt;
 		};
 
 		/**
@@ -214,63 +226,26 @@ namespace pcpp
 		 * @param[in] core The requested core
 		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
 		 */
-		void getThreadStatistics(SystemCore core, pcap_stat& stats);
+		void getThreadStatistics(SystemCore core, PfRingStats& stats);
 
 		/**
 		 * Get the statistics of the current thread/core (=RX channel)
 		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
 		 */
-		void getCurrentThreadStatistics(pcap_stat& stats);
-
-
-
-		// implement abstract methods
-
-
-		/**
-		 * Opens the entire device (including all RX channels/queues on this interface). All packets will be received
-		 * on a single thread without core affinity
-		 * @return True if this action succeeds, false otherwise
-		 */
-		bool open();
-
-		/**
-		 * Closes all RX channels currently opened in device
-		 */
-		void close();
+		void getCurrentThreadStatistics(PfRingStats& stats);
 
 		/**
 		 * Get the statistics for the entire device. If more than 1 RX channel is opened, this method aggregates the stats
 		 * of all channels
 		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
 		 */
-		void getStatistics(pcap_stat& stats);
-
-
-		/**
-		 * Sets a filter to the device
-		 * @param[in] filter The filter to set
-		 */
-		bool setFilter(GeneralFilter& filter);
-
-		/**
-		 * Sets a BPF filter to the device
-		 * @param[in] filterAsString The BPF filter in string format
-		 */
-		bool setFilter(std::string filterAsString);
-
-		/**
-		 * Remove a filter if currently set
-		 * @return True if filter was removed successfully or if no filter was set, false otherwise
-		 */
-		bool removeFilter();
+		void getStatistics(PfRingStats& stats);
 
 		/**
 		 * Return true if filter is currently set
 		 * @return True if filter is currently set, false otherwise
 		 */
 		bool isFilterCurrentlySet();
-
 
 		/**
 		 * Send a raw packet. This packet must be fully specified (the MAC address up)
@@ -338,6 +313,36 @@ namespace pcpp
 		 * @return Number of raw packets that were sent completely
 		 */
 		int sendPackets(const RawPacketVector& rawPackets);
+
+
+		// implement abstract methods
+
+
+		/**
+		 * Opens the entire device (including all RX channels/queues on this interface). All packets will be received
+		 * on a single thread without core affinity
+		 * @return True if this action succeeds, false otherwise
+		 */
+		bool open();
+
+		/**
+		 * Closes all RX channels currently opened in device
+		 */
+		void close();
+
+		using IFilterableDevice::setFilter;
+
+		/**
+		 * Sets a BPF filter to the device
+		 * @param[in] filterAsString The BPF filter in string format
+		 */
+		bool setFilter(std::string filterAsString);
+
+		/**
+		 * Remove a filter if currently set
+		 * @return True if filter was removed successfully or if no filter was set, false otherwise
+		 */
+		bool clearFilter();
 	};
 
 } // namespace pcpp

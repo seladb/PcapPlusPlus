@@ -1278,7 +1278,9 @@ PCAPP_TEST(TestPcapLiveDevice)
 PCAPP_TEST(TestPcapLiveDeviceByInvalidIp)
 {
 	PcapLiveDevice* liveDev = NULL;
-	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("eth0");	
+	LoggerPP::getInstance().supressErrors();
+	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("eth0");
+	LoggerPP::getInstance().enableErrors();
 	PCAPP_ASSERT(liveDev == NULL, "Cannot get live device by invalid Ip");
 
 	PCAPP_TEST_PASSED;
@@ -2377,12 +2379,12 @@ PCAPP_TEST(TestPfRingDevice)
 	PCAPP_ASSERT(packetData.PacketCount > 0, "No packets were captured");
 	PCAPP_ASSERT(packetData.ThreadId != -1, "Couldn't retrieve thread ID");
 
-	pcap_stat stats;
-	stats.ps_recv = 0;
-	stats.ps_drop = 0;
-	stats.ps_ifdrop = 0;
+	PfRingDevice::PfRingStats stats;
+	stats.recv = 0;
+	stats.drop = 0;
+	stats.shunt = 0;
 	dev->getStatistics(stats);
-	PCAPP_ASSERT(stats.ps_recv == (uint32_t)packetData.PacketCount, "Stats received packet count is different than calculated packet count");
+	PCAPP_ASSERT(stats.recv == (uint32_t)packetData.PacketCount, "Stats received packet count is different than calculated packet count");
 	dev->close();
 
 	PCAPP_DEBUG_PRINT("Thread ID: %d", packetData.ThreadId);
@@ -2392,8 +2394,8 @@ PCAPP_TEST(TestPfRingDevice)
 	PCAPP_DEBUG_PRINT("TCP packets: %d", packetData.TcpCount);
 	PCAPP_DEBUG_PRINT("UDP packets: %d", packetData.UdpCount);
 	PCAPP_DEBUG_PRINT("Device statistics:");
-	PCAPP_DEBUG_PRINT("Packets captured: %d", stats.ps_recv);
-	PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.ps_drop);
+	PCAPP_DEBUG_PRINT("Packets captured: %d", stats.recv);
+	PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.drop);
 
 //	test filters
 #endif
@@ -2420,17 +2422,17 @@ PCAPP_TEST(TestPfRingDeviceSingleChannel)
 	dev->stopCapture();
 	PCAPP_ASSERT(packetData.PacketCount > 0, "No packets were captured");
 	PCAPP_ASSERT(packetData.ThreadId != -1, "Couldn't retrieve thread ID");
-	pcap_stat stats;
+	PfRingDevice::PfRingStats stats;
 	dev->getStatistics(stats);
-	PCAPP_ASSERT(stats.ps_recv == (uint32_t)packetData.PacketCount, "Stats received packet count is different than calculated packet count");
+	PCAPP_ASSERT(stats.recv == (uint32_t)packetData.PacketCount, "Stats received packet count is different than calculated packet count");
 	PCAPP_DEBUG_PRINT("Thread ID: %d", packetData.ThreadId);
 	PCAPP_DEBUG_PRINT("Total packets captured: %d", packetData.PacketCount);
 	PCAPP_DEBUG_PRINT("Eth packets: %d", packetData.EthCount);
 	PCAPP_DEBUG_PRINT("IP packets: %d", packetData.IpCount);
 	PCAPP_DEBUG_PRINT("TCP packets: %d", packetData.TcpCount);
 	PCAPP_DEBUG_PRINT("UDP packets: %d", packetData.UdpCount);
-	PCAPP_DEBUG_PRINT("Packets captured: %d", stats.ps_recv);
-	PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.ps_drop);
+	PCAPP_DEBUG_PRINT("Packets captured: %d", stats.recv);
+	PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.drop);
 
 	dev->close();
 	PCAPP_ASSERT(dev->getNumOfOpenedRxChannels() == 0, "There are still open RX channels after device close");
@@ -2472,12 +2474,12 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 	PCAPP_ASSERT(dev->startCaptureMultiThread(pfRingPacketsArriveMultiThread, packetDataMultiThread, coreMask), "Couldn't start capturing multi-thread");
 	PCAP_SLEEP(10);
 	dev->stopCapture();
-	pcap_stat aggrStats;
-	aggrStats.ps_recv = 0;
-	aggrStats.ps_drop = 0;
-	aggrStats.ps_ifdrop = 0;
+	PfRingDevice::PfRingStats aggrStats;
+	aggrStats.recv = 0;
+	aggrStats.drop = 0;
+	aggrStats.shunt = 0;
 
-	pcap_stat stats;
+	PfRingDevice::PfRingStats stats;
 	for (int i = 0; i < totalnumOfCores; i++)
 	{
 		if ((SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
@@ -2490,16 +2492,16 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 		PCAPP_DEBUG_PRINT("TCP packets: %d", packetDataMultiThread[i].TcpCount);
 		PCAPP_DEBUG_PRINT("UDP packets: %d", packetDataMultiThread[i].UdpCount);
 		dev->getThreadStatistics(SystemCores::IdToSystemCore[i], stats);
-		aggrStats.ps_recv += stats.ps_recv;
-		aggrStats.ps_drop += stats.ps_drop;
-		PCAPP_DEBUG_PRINT("Packets captured: %d", stats.ps_recv);
-		PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.ps_drop);
-		PCAPP_ASSERT(stats.ps_recv == (uint32_t)packetDataMultiThread[i].PacketCount, "Stats received packet count is different than calculated packet count on thread %d", packetDataMultiThread[i].ThreadId);
+		aggrStats.recv += stats.recv;
+		aggrStats.drop += stats.drop;
+		PCAPP_DEBUG_PRINT("Packets captured: %d", stats.recv);
+		PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.drop);
+		PCAPP_ASSERT(stats.recv == (uint32_t)packetDataMultiThread[i].PacketCount, "Stats received packet count is different than calculated packet count on thread %d", packetDataMultiThread[i].ThreadId);
 	}
 
 	dev->getStatistics(stats);
-	PCAPP_ASSERT(aggrStats.ps_recv == stats.ps_recv, "Aggregated stats weren't calculated correctly: aggr recv = %d, calc recv = %d", stats.ps_recv, aggrStats.ps_recv);
-	PCAPP_ASSERT(aggrStats.ps_drop == stats.ps_drop, "Aggregated stats weren't calculated correctly: aggr drop = %d, calc drop = %d", stats.ps_drop, aggrStats.ps_drop);
+	PCAPP_ASSERT(aggrStats.recv == stats.recv, "Aggregated stats weren't calculated correctly: aggr recv = %d, calc recv = %d", stats.recv, aggrStats.recv);
+	PCAPP_ASSERT(aggrStats.drop == stats.drop, "Aggregated stats weren't calculated correctly: aggr drop = %d, calc drop = %d", stats.drop, aggrStats.drop);
 
 	for (int firstCoreId = 0; firstCoreId < totalnumOfCores; firstCoreId++)
 	{
@@ -2708,7 +2710,7 @@ PCAPP_TEST(TestPfRingFilters)
 	PfRingDevice* dev = devList.getPfRingDeviceByName(string(pcapLiveDev->getName()));
 
 	PCAPP_ASSERT(dev->isFilterCurrentlySet() == false, "Device indicating filter is set although we didn't set any filters yet");
-	PCAPP_ASSERT(dev->removeFilter() == true, "RemoveFilter returned false although no filter was set yet");
+	PCAPP_ASSERT(dev->clearFilter() == true, "clearFilter returned false although no filter was set yet");
 	ProtoFilter protocolFilter(TCP);
 	LoggerPP::getInstance().supressErrors();
 	PCAPP_ASSERT(dev->setFilter(protocolFilter) == false, "Succeed setting a filter while device is closed");
@@ -2737,7 +2739,7 @@ PCAPP_TEST(TestPfRingFilters)
 	instruction.Instruction = 1;
 	instruction.Data = "";
 	PCAPP_ASSERT(dev->isFilterCurrentlySet() == true, "Device indicating filter isn't set although we set a filter");
-	PCAPP_ASSERT(dev->removeFilter() == true, "Remove filter failed");
+	PCAPP_ASSERT(dev->clearFilter() == true, "clearfilter failed");
 	PCAPP_ASSERT(dev->isFilterCurrentlySet() == false, "Device indicating filter still exists although we removed it");
 	PCAPP_ASSERT(dev->startCaptureSingleThread(pfRingPacketsArriveSetFilter, &instruction), "Couldn't start capturing");
 	PCAP_SLEEP(10);

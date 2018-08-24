@@ -368,7 +368,7 @@ bool PfRingDevice::setFilter(GeneralFilter& filter)
 }
 
 
-bool PfRingDevice::removeFilter()
+bool PfRingDevice::clearFilter()
 {
 	if (!m_IsFilterCurrentlySet)
 		return true;
@@ -611,7 +611,7 @@ void* PfRingDevice::captureThreadMain(void *ptr)
 	return (void*)NULL;
 }
 
-void PfRingDevice::getThreadStatistics(SystemCore core, pcap_stat& stats)
+void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats)
 {
 	pfring* ring = NULL;
 	uint8_t coreId = core.Id;
@@ -626,9 +626,9 @@ void PfRingDevice::getThreadStatistics(SystemCore core, pcap_stat& stats)
 			LOG_ERROR("Can't retrieve statistics for core [%d], pfring_stats failed", coreId);
 			return;
 		}
-		stats.ps_drop = (u_int)tempStats.drop;
-		stats.ps_ifdrop = (u_int)tempStats.drop;
-		stats.ps_recv = (u_int)tempStats.recv;
+		stats.drop = (uint64_t)tempStats.drop;
+		stats.recv = (uint64_t)tempStats.recv;
+		stats.shunt = (uint64_t)tempStats.shunt;
 	}
 	else
 	{
@@ -636,27 +636,27 @@ void PfRingDevice::getThreadStatistics(SystemCore core, pcap_stat& stats)
 	}
 }
 
-void PfRingDevice::getCurrentThreadStatistics(pcap_stat& stats)
+void PfRingDevice::getCurrentThreadStatistics(PfRingStats& stats)
 {
 	getThreadStatistics(getCurrentCoreId(), stats);
 }
 
-void PfRingDevice::getStatistics(pcap_stat& stats)
+void PfRingDevice::getStatistics(PfRingStats& stats)
 {
-	stats.ps_drop = 0;
-	stats.ps_ifdrop = 0;
-	stats.ps_recv = 0;
+	stats.drop = 0;
+	stats.recv = 0;
+	stats.shunt = 0;
 
 	for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 	{
 		if (!m_CoreConfiguration[coreId].IsInUse)
 			continue;
 
-		pcap_stat tempStat;
+		PfRingStats tempStat;
 		getThreadStatistics(SystemCores::IdToSystemCore[coreId], tempStat);
-		stats.ps_drop += tempStat.ps_drop;
-		stats.ps_ifdrop += tempStat.ps_ifdrop;
-		stats.ps_recv += tempStat.ps_recv;
+		stats.drop += tempStat.drop;
+		stats.recv += tempStat.recv;
+		stats.shunt += tempStat.shunt;
 
 		if (!m_CoreConfiguration[coreId].IsAffinitySet)
 			break;

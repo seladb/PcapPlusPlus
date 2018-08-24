@@ -47,16 +47,9 @@ bool IPcapDevice::setFilter(std::string filterAsString)
 	return true;
 }
 
-bool IPcapDevice::setFilter(GeneralFilter& filter)
+bool IPcapDevice::clearFilter()
 {
-	std::string filterAsString;
-	filter.parseToString(filterAsString);
-	return setFilter(filterAsString);
-}
-
-void IPcapDevice::clearFilter()
-{
-	setFilter("");
+	return setFilter("");
 }
 
 bool IPcapDevice::verifyFilter(std::string filterAsString)
