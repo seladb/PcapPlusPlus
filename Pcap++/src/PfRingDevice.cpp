@@ -19,7 +19,6 @@ namespace pcpp
 
 PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Zero)
 {
-	m_PcapDescriptor = NULL; //not used in this class
 	m_NumOfOpenedRxChannels = 0;
 	m_DeviceOpened = false;
 	strcpy(m_DeviceName, deviceName);
@@ -357,14 +356,6 @@ bool PfRingDevice::setFilter(std::string filterAsString)
 
     LOG_DEBUG("Successfully set filter '%s'", filterAsString.c_str());
     return true;
-}
-
-
-bool PfRingDevice::setFilter(GeneralFilter& filter)
-{
-	std::string filterAsString = "";
-	filter.parseToString(filterAsString);
-	return setFilter(filterAsString);
 }
 
 

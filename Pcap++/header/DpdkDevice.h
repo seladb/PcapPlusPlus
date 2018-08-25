@@ -5,6 +5,7 @@
 #include <time.h>
 #include "MacAddress.h"
 #include "SystemUtils.h"
+#include "Packet.h"
 #include "Device.h"
 
 /**

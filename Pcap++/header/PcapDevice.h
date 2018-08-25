@@ -1,6 +1,8 @@
 #ifndef PCAPPP_PCAP_DEVICE
 #define PCAPPP_PCAP_DEVICE
 
+#include "Device.h"
+
 /**
  * Next define is ncessery in MinGw environment build context.
  * The "-std" flag causes a lot of bugs and incompatibilities on older platforms one of them
@@ -13,7 +15,6 @@
 #	define WIN32
 #endif
 #include <pcap.h>
-#include "Device.h"
 
 /// @file
 
