@@ -2382,7 +2382,6 @@ PCAPP_TEST(TestPfRingDevice)
 	PfRingDevice::PfRingStats stats;
 	stats.recv = 0;
 	stats.drop = 0;
-	stats.shunt = 0;
 	dev->getStatistics(stats);
 	PCAPP_ASSERT(stats.recv == (uint32_t)packetData.PacketCount, "Stats received packet count is different than calculated packet count");
 	dev->close();
@@ -2477,7 +2476,6 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 	PfRingDevice::PfRingStats aggrStats;
 	aggrStats.recv = 0;
 	aggrStats.drop = 0;
-	aggrStats.shunt = 0;
 
 	PfRingDevice::PfRingStats stats;
 	for (int i = 0; i < totalnumOfCores; i++)
