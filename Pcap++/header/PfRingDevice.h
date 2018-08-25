@@ -102,8 +102,6 @@ namespace pcpp
 			uint64_t recv;
 			/** Number of packets dropped */
 			uint64_t drop;
-			/** Number of packets shunt */
-			uint64_t shunt;
 		};
 
 		/**

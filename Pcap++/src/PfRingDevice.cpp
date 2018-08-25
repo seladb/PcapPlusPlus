@@ -619,7 +619,6 @@ void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats)
 		}
 		stats.drop = (uint64_t)tempStats.drop;
 		stats.recv = (uint64_t)tempStats.recv;
-		stats.shunt = (uint64_t)tempStats.shunt;
 	}
 	else
 	{
@@ -636,7 +635,6 @@ void PfRingDevice::getStatistics(PfRingStats& stats)
 {
 	stats.drop = 0;
 	stats.recv = 0;
-	stats.shunt = 0;
 
 	for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 	{
@@ -647,7 +645,6 @@ void PfRingDevice::getStatistics(PfRingStats& stats)
 		getThreadStatistics(SystemCores::IdToSystemCore[coreId], tempStat);
 		stats.drop += tempStat.drop;
 		stats.recv += tempStat.recv;
-		stats.shunt += tempStat.shunt;
 
 		if (!m_CoreConfiguration[coreId].IsAffinitySet)
 			break;
