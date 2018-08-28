@@ -94,26 +94,20 @@ uint64_t IFileReaderDevice::getFileSize()
 
 int IFileReaderDevice::getNextPackets(RawPacketVector& packetVec, int numOfPacketsToRead)
 {
-	if (numOfPacketsToRead == 0)
-		return 0;
-
 	int numOfPacketsRead = 0;
 
-	while (true)
+	for (; numOfPacketsToRead < 0 || numOfPacketsRead < numOfPacketsToRead; numOfPacketsRead++)
 	{
 		RawPacket* newPacket = new RawPacket();
 		bool packetRead = getNextPacket(*newPacket);
 		if (packetRead)
 		{
 			packetVec.pushBack(newPacket);
-			numOfPacketsRead++;
-			if (numOfPacketsRead >= numOfPacketsToRead)
-				return numOfPacketsRead;
 		}
 		else
 		{
 			delete newPacket;
-			return numOfPacketsRead;
+			break;
 		}
 	}
 
