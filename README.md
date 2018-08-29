@@ -33,7 +33,7 @@ PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**. 
     - MinGW-w64 (32-bit compilation only)
 
 - Linux:
-    - Ubuntu (12.04 LTS, 14.04 LTS, 16.04 LTS)
+    - Ubuntu (12.04 LTS, 14.04 LTS, 16.04 LTS, 18.04 LTS)
     - Fedora 26
     - CentOS 7
     - It should work on other Linux distributions as well
@@ -42,6 +42,7 @@ PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**. 
     - Yosemite (10.10)
     - El Capitan (10.11)
     - Sierra (10.12)
+    - High Sierra (10.13)
 
 ### Supported Engines and Devices ###
 
