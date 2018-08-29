@@ -736,6 +736,17 @@ PCAPP_TEST(TestPcapFileReadWrite)
     readerDev.close();
     writerDev.close();
 
+    // read all packets in a bulk
+    PcapFileReaderDevice readerDev2(EXAMPLE_PCAP_PATH);
+    PCAPP_ASSERT(readerDev2.open(), "cannot open reader device 2");
+
+    RawPacketVector packetVec;
+    int numOfPacketsRead = readerDev2.getNextPackets(packetVec);
+    PCAPP_ASSERT(numOfPacketsRead == 4631, "Bulk read: num of packets read isn't 4631");
+    PCAPP_ASSERT(packetVec.size() == 4631, "Bulk read: num of packets in vec isn't 4631");
+
+    readerDev2.close();
+
     PCAPP_TEST_PASSED;
 }
 
@@ -1487,6 +1498,7 @@ PCAPP_TEST(TestPcapFilters)
 		PCAPP_ASSERT(ipv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "'IP Filter' failed. Packet IP dst is %X, expected %X", ipv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
 	}
 
+
     //------------
     //Port filter
     //------------
@@ -1508,6 +1520,7 @@ PCAPP_TEST(TestPcapFilters)
 		PCAPP_ASSERT(ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80, "'Port Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
 	}
 	capturedPackets.clear();
+
 
     //----------------
     //IP & Port filter
@@ -1535,6 +1548,7 @@ PCAPP_TEST(TestPcapFilters)
 	}
 	capturedPackets.clear();
 
+
     //-----------------
     //IP || Port filter
     //-----------------
@@ -1558,8 +1572,12 @@ PCAPP_TEST(TestPcapFilters)
 		{
 			TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
 			bool srcPortMatch = ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80;
+			bool srcIpMatch = false;
 			IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
-			bool srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt();
+			if (pIPv4Layer != NULL)
+			{
+				srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt();
+			}
 			PCAPP_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", ntohs(pTcpLayer->getTcpHeader()->portSrc), pIPv4Layer->getIPv4Header()->ipSrc, args.ipToSendReceivePackets.c_str());
 		} else
 		if (packet.isPacketOfType(IP))
@@ -1595,6 +1613,7 @@ PCAPP_TEST(TestPcapFilters)
 	}
 	capturedPackets.clear();
 
+
     //-----------------
     //VLAN filter
     //-----------------
@@ -1624,6 +1643,7 @@ PCAPP_TEST(TestPcapFilters)
 
     capturedPackets.clear();
 
+
     //--------------------
     //MacAddress filter
     //--------------------
@@ -1650,6 +1670,7 @@ PCAPP_TEST(TestPcapFilters)
     }
 
     capturedPackets.clear();
+
 
     //--------------------
     //EtherType filter
@@ -1702,6 +1723,7 @@ PCAPP_TEST(TestPcapFilters)
     }
 
     capturedPackets.clear();
+
 
     //-------------------------
     //IpV4 Total Length filter
@@ -1823,6 +1845,7 @@ PCAPP_TEST(TestPcapFilters)
 
     capturedPackets.clear();
 
+
     //-------------------------
     //IP filter with mask
     //-------------------------
@@ -1870,6 +1893,7 @@ PCAPP_TEST(TestPcapFilters)
     }
     capturedPackets.clear();
 
+
     //-------------
     //Port range
     //-------------
@@ -1904,6 +1928,7 @@ PCAPP_TEST(TestPcapFilters)
     	}
     }
     capturedPackets.clear();
+
 
     liveDev->close();
 	PCAPP_TEST_PASSED;
