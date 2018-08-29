@@ -8,6 +8,10 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/stat.h>
+#ifdef MAC_OS_X
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 
 #ifdef _MSC_VER
@@ -228,9 +232,6 @@ int clockGetTime(long& sec, long& nsec)
 
 #elif MAC_OS_X
 
-	#include <mach/clock.h>
-	#include <mach/mach.h>
-
     clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -246,11 +247,11 @@ int clockGetTime(long& sec, long& nsec)
 	#include <time.h>
 
     timespec ts;
-    int res = clock_gettime(CLOCK_REALTIME, ts);
+    int res = clock_gettime(CLOCK_REALTIME, &ts);
     if (res == 0)
     {
-        sec = ts->tv_sec;
-        nsec = ts->tv_nsec;
+        sec = ts.tv_sec;
+        nsec = ts.tv_nsec;
     }
     return res;
 
