@@ -244,6 +244,15 @@ namespace pcpp
 	bool directoryExists(std::string dirPath);
 
 	/**
+	 * Retrieve a system-wide real-time accurate clock. It's actually a multi-platform version of clock_gettime() which is
+	 * fully supported only on Linux
+	 * @param[out] sec The second portion of the time
+	 * @param[out] nsec The nanosecond portion of the time
+	 * @return 0 for success, or -1 for failure
+	 */
+	int clockGetTime(long& sec, long& nsec);
+
+	/**
 	 * @class AppName
 	 * This class extracts the application name from the current running executable and stores it for usage of the application throughout its runtime.
 	 * This class should be initialized once in the beginning of the main() method using AppName#init() and from then on the app name could be retrieved using AppName#get()

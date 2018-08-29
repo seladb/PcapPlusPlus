@@ -192,6 +192,72 @@ bool directoryExists(std::string dirPath)
 }
 
 
+int clockGetTime(long& sec, long& nsec)
+{
+	sec = 0;
+	nsec = 0;
+
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+
+	#define CLOCK_GETTIME_BILLION (1E9)
+
+	static BOOL clock_gettime_first_time = 1;
+	static LARGE_INTEGER clock_gettime_counts_per_sec;
+
+	LARGE_INTEGER count	;
+
+    if (clock_gettime_first_time)
+    {
+    	clock_gettime_first_time = 0;
+
+        if (0 == QueryPerformanceFrequency(&clock_gettime_counts_per_sec))
+        {
+        	clock_gettime_counts_per_sec.QuadPart = 0;
+        }
+    }
+
+    if ((clock_gettime_counts_per_sec.QuadPart <= 0) || (0 == QueryPerformanceCounter(&count)))
+    {
+        return -1;
+    }
+
+    sec = count.QuadPart / clock_gettime_counts_per_sec.QuadPart;
+    nsec = ((count.QuadPart % clock_gettime_counts_per_sec.QuadPart) * CLOCK_GETTIME_BILLION) / clock_gettime_counts_per_sec.QuadPart;
+
+    return 0;
+
+#elif MAC_OS_X
+
+	#include <mach/clock.h>
+	#include <mach/mach.h>
+
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    sec = mts.tv_sec;
+    nsec = mts.tv_nsec;
+
+    return 0;
+
+#else // Linux
+
+	#include <time.h>
+
+    timespec ts;
+    int res = clock_gettime(CLOCK_REALTIME, ts);
+    if (res == 0)
+    {
+        sec = ts->tv_sec;
+        nsec = ts->tv_nsec;
+    }
+    return res;
+
+#endif
+}
+
+
 std::string AppName::m_AppName;
 
 
