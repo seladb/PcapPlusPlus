@@ -31,6 +31,7 @@
     <ClInclude Include="..\..\Pcap++\header\PcapRemoteDeviceList.h" />
     <ClInclude Include="..\..\Pcap++\header\PfRingDevice.h" />
     <ClInclude Include="..\..\Pcap++\header\PfRingDeviceList.h" />
+    <ClInclude Include="..\..\Pcap++\header\RawSocketDevice.h" />
     <ClInclude Include="..\..\Pcap++\header\WinPcapLiveDevice.h" />
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +47,7 @@
     <ClCompile Include="..\..\Pcap++\src\PcapRemoteDeviceList.cpp" />
     <ClCompile Include="..\..\Pcap++\src\PfRingDevice.cpp" />
     <ClCompile Include="..\..\Pcap++\src\PfRingDeviceList.cpp" />
+    <ClCompile Include="..\..\Pcap++\src\RawSocketDevice.cpp" />
     <ClCompile Include="..\..\Pcap++\src\WinPcapLiveDevice.cpp" />
   </ItemGroup>
   <ItemGroup>

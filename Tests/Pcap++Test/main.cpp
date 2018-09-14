@@ -40,6 +40,7 @@
 #include <DpdkDeviceList.h>
 #include <DpdkDevice.h>
 #include <NetworkUtils.h>
+#include <RawSocketDevice.h>
 #if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
@@ -81,6 +82,12 @@ using namespace pcpp;
 		printf("%-30s: FAILED. assertion failed: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
 		command; \
 		return false; \
+	}
+
+#define PCAPP_TRY(exp, assertFailedFormat, ...) \
+	if (!(exp)) \
+	{ \
+		printf("%s, NON-CRITICAL: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
 	}
 
 bool isUnitTestDebugMode = false;
@@ -5555,6 +5562,152 @@ PCAPP_TEST(TestIPFragRemove)
 	PCAPP_TEST_PASSED;
 }
 
+PCAPP_TEST(TestRawSockets)
+{
+	IPAddress::Ptr_t ipAddr = IPAddress::fromString(args.ipToSendReceivePackets);
+	PCAPP_ASSERT(ipAddr.get() != NULL && ipAddr.get()->isValid(), "IP address is not valid");
+	RawSocketDevice rawSock(*(ipAddr.get()));
+
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+	ProtocolType protocol = (ipAddr.get()->getType() == IPAddress::IPv4AddressType ? IPv4 : IPv6);
+	bool sendSupported = false;
+#elif LINUX
+	ProtocolType protocol = Ethernet;
+	bool sendSupported = true;
+#else
+	ProtocolType protocol = Ethernet;
+	bool sendSupported = false;
+	{
+		LoggerPP::getInstance().supressErrors();
+		RawPacket rawPacket;
+		PCAPP_ASSERT(rawSock.open() == false, "Managed to open the raw sorcket on unsupoorted platform");
+		PCAPP_ASSERT(rawSock.receivePacket(rawPacket, true, 10) == RawSocketDevice::RecvError, "Managed to receive a packet on an unsupported platform");
+		PCAPP_ASSERT(rawSock.sendPacket(&rawPacket) == false, "Managed to send a packet on an unsupported platform");
+		LoggerPP::getInstance().enableErrors();
+	}
+
+	PCAPP_TEST_PASSED;
+
+#endif
+
+	PCAPP_ASSERT(rawSock.open() == true, "Couldn't open raw socket");
+
+	// receive single packet
+	for (int i = 0; i < 10; i++)
+	{
+		RawPacket rawPacket;
+		PCAPP_ASSERT(rawSock.receivePacket(rawPacket, true, 10) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket");
+		Packet parsedPacket(&rawPacket);
+		PCAPP_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet is not of type 0x%X", protocol);
+	}
+
+	// receive multiple packets
+	RawPacketVector packetVec;
+	rawSock.receivePackets(packetVec, 20);
+	PCAPP_ASSERT(packetVec.size() > 0, "Didn't receive packets on vec");
+	for (RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
+	{
+		Packet parsedPacket(*iter);
+		PCAPP_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet is not of type 0x%X", protocol);
+	}
+
+	// receive with timeout
+	RawSocketDevice::RecvPacketResult res = RawSocketDevice::RecvSuccess;
+	for (int i = 0; i < 30; i++)
+	{
+		RawPacket rawPacket;
+		res = rawSock.receivePacket(rawPacket, true, 1);
+		if (res == RawSocketDevice::RecvTimeout)
+			break;
+	}
+	PCAPP_TRY(res == RawSocketDevice::RecvTimeout, "Didn't reach receive timeout");
+
+	// receive non-blocking
+	res = RawSocketDevice::RecvSuccess;
+	for (int i = 0; i < 30; i++)
+	{
+		RawPacket rawPacket;
+		res = rawSock.receivePacket(rawPacket, false, -1);
+		if (res == RawSocketDevice::RecvWouldBlock)
+			break;
+	}
+	PCAPP_TRY(res == RawSocketDevice::RecvWouldBlock, "Didn't get would block response");
+
+	// close and reopen sockets, verify can't send and receive while closed
+	rawSock.close();
+	RawPacket tempPacket;
+	LoggerPP::getInstance().supressErrors();
+	PCAPP_ASSERT(rawSock.receivePacket(tempPacket, true, 10) == RawSocketDevice::RecvError, "Managed to receive packet while device is closed");
+	PCAPP_ASSERT(rawSock.sendPacket(packetVec.at(0)) == false, "Managed to send packet while device is closed");
+	LoggerPP::getInstance().enableErrors();
+
+	PCAPP_ASSERT(rawSock.open() == true, "Couldn't reopen raw socket");
+
+	// open another socket on the same interface
+	RawSocketDevice rawSock2(*(ipAddr.get()));
+	PCAPP_ASSERT(rawSock2.open() == true, "Couldn't open raw socket 2");
+
+	// receive packet on 2 sockets
+	for (int i = 0; i < 5; i++)
+	{
+		RawPacket rawPacket;
+		PCAPP_ASSERT(rawSock.receivePacket(rawPacket, true, 5) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket 1");
+		Packet parsedPacket(&rawPacket);
+		PCAPP_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet 1 is not of type 0x%X", protocol);
+		RawPacket rawPacket2;
+		PCAPP_ASSERT(rawSock2.receivePacket(rawPacket2, true, 5) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket 2");
+		Packet parsedPacket2(&rawPacket2);
+		PCAPP_ASSERT(parsedPacket2.isPacketOfType(protocol) == true, "Received packet 2 is not of type 0x%X", protocol);
+	}
+
+//	PcapFileWriterDevice writer("elad.pcap", LINKTYPE_ETHERNET);
+//	writer.open();
+//	RawPacketVector packetVec;
+//	rawSock.receivePackets(packetVec, 10);
+//	writer.writePackets(packetVec);
+//	for (int i = 0; i < 50; i++)
+//	{
+//		RawPacket rawPacket;
+//		PCAPP_ASSERT(rawSock.receivePacket(rawPacket, true) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket");
+//		writer.writePacket(rawPacket);
+//	}
+//	writer.close();
+
+//	printf("raw data len: %d\n", rawPacket.getRawDataLen());
+//	for(int i = 0; i<(int)rawPacket.getRawDataLen(); i++)
+//		printf(" 0x%2X  ", rawPacket.getRawData()[i]);
+
+	if (sendSupported)
+	{
+		// send single packet
+		PcapFileReaderDevice readerDev(EXAMPLE2_PCAP_PATH);
+		PCAPP_ASSERT(readerDev.open() == true, "Coudln't open file");
+		packetVec.clear();
+		readerDev.getNextPackets(packetVec, 100);
+		for (RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
+		{
+			PCAPP_ASSERT(rawSock.sendPacket(*iter) == true, "Coudln't send raw packet on raw socket 1");
+			PCAPP_ASSERT(rawSock2.sendPacket(*iter) == true, "Coudln't send raw packet on raw socket 2");
+		}
+
+		// send multiple packets
+		PCAPP_ASSERT(rawSock.sendPackets(packetVec) == 100, "Couldn't send 100 packets in a vec");
+	}
+	else
+	{
+		// test send on unsupported platforms
+		LoggerPP::getInstance().supressErrors();
+		PCAPP_ASSERT(rawSock.sendPacket(packetVec.at(0)) == false, "Sent one packet on unsupported platform");
+		PCAPP_ASSERT(rawSock.sendPackets(packetVec) == false, "Sent packets on unsupported platform");
+		LoggerPP::getInstance().enableErrors();
+	}
+
+	rawSock.close();
+	rawSock2.close();
+
+	PCAPP_TEST_PASSED;
+}
+
 
 static struct option PcapTestOptions[] =
 {
@@ -5705,6 +5858,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestIPFragMultipleFrags, args, false);
 	PCAPP_RUN_TEST(TestIPFragMapOverflow, args, false);
 	PCAPP_RUN_TEST(TestIPFragRemove, args, false);
+	PCAPP_RUN_TEST(TestRawSockets, args, true);
 
 	PCAPP_END_RUNNING_TESTS;
 }

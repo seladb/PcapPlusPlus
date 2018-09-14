@@ -51,6 +51,9 @@
     <ClInclude Include="..\..\Pcap++\header\PfRingDeviceList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Pcap++\header\RawSocketDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Pcap++\header\WinPcapLiveDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +93,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Pcap++\src\PfRingDeviceList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Pcap++\src\RawSocketDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Pcap++\src\WinPcapLiveDevice.cpp">
