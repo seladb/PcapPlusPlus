@@ -5603,7 +5603,8 @@ PCAPP_TEST(TestRawSockets)
 
 	// receive multiple packets
 	RawPacketVector packetVec;
-	rawSock.receivePackets(packetVec, 20);
+	int failedRecv = 0;
+	rawSock.receivePackets(packetVec, 20, failedRecv);
 	PCAPP_ASSERT(packetVec.size() > 0, "Didn't receive packets on vec");
 	for (RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
 	{
@@ -5659,23 +5660,6 @@ PCAPP_TEST(TestRawSockets)
 		Packet parsedPacket2(&rawPacket2);
 		PCAPP_ASSERT(parsedPacket2.isPacketOfType(protocol) == true, "Received packet 2 is not of type 0x%X", protocol);
 	}
-
-//	PcapFileWriterDevice writer("elad.pcap", LINKTYPE_ETHERNET);
-//	writer.open();
-//	RawPacketVector packetVec;
-//	rawSock.receivePackets(packetVec, 10);
-//	writer.writePackets(packetVec);
-//	for (int i = 0; i < 50; i++)
-//	{
-//		RawPacket rawPacket;
-//		PCAPP_ASSERT(rawSock.receivePacket(rawPacket, true) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket");
-//		writer.writePacket(rawPacket);
-//	}
-//	writer.close();
-
-//	printf("raw data len: %d\n", rawPacket.getRawDataLen());
-//	for(int i = 0; i<(int)rawPacket.getRawDataLen(); i++)
-//		printf(" 0x%2X  ", rawPacket.getRawData()[i]);
 
 	if (sendSupported)
 	{

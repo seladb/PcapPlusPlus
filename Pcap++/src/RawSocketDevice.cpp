@@ -221,7 +221,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 #endif
 }
 
-int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout)
+int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int& failedRecv)
 {
 	if (!isOpened())
 	{
@@ -233,6 +233,7 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout)
 	clockGetTime(curSec, curNsec);
 
 	int packetCount = 0;
+	failedRecv = 0;
 
 	long timeoutSec = curSec + timeout;
 
@@ -245,7 +246,10 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout)
 			packetCount++;
 		}
 		else
+		{
+			failedRecv++;
 			delete rawPacket;
+		}
 
 		clockGetTime(curSec, curNsec);
 	}
@@ -384,15 +388,6 @@ bool RawSocketDevice::open()
 		LOG_ERROR("Failed to create raw socket. Error code was %d%s", error, additionalMessage.c_str());
 		return false;
 	}
-
-//    int n = 1;
-//    void* n_ptr = &n;
-//    if (setsockopt(fd, IPPROTO_IPV6, IP_HDRINCL, (char*)n_ptr, sizeof(n)) == SOCKET_ERROR)
-//    {
-//    	LOG_ERROR("Failed to assign IP_HDRINCL to raw socket. Error was: '%s'", strerror(errno));
-//    	closesocket(fd);
-//    	return false;
-//    }
 
 	void* localAddr = NULL;
 	struct sockaddr_in localAddrIPv4;
