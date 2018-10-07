@@ -43,6 +43,7 @@ using namespace pcpp;
 
 #define COLLECT_STATS_EVERY_SEC 1
 #define DEFAULT_MBUF_POOL_SIZE 4095
+#define DEFAULT_QUEUE_QUANTITY 1
 
 
 static struct option DpdkBridgeOptions[] =
@@ -50,9 +51,10 @@ static struct option DpdkBridgeOptions[] =
 	{"dpdk-ports",  required_argument, 0, 'd'},
 	{"core-mask",  optional_argument, 0, 'c'},
 	{"mbuf-pool-size",  optional_argument, 0, 'm'},
+	{"queue-quantity",  optional_argument, 0, 'q'},
 	{"help", optional_argument, 0, 'h'},
-	{"version", optional_argument, 0, 'v'},
 	{"list", optional_argument, 0, 'l'},
+	{"version", optional_argument, 0, 'v'},
 	{0, 0, 0, 0}
 };
 
@@ -63,17 +65,18 @@ static struct option DpdkBridgeOptions[] =
 void printUsage()
 {
 	printf("\nUsage:\n"
-                 "------\n"
-                        "%s [-hvl] [-c CORE_MASK] [-m POOL_SIZE] -d PORT_1,PORT_2\n"
+			"------\n"
+			"%s [-hlv] [-c CORE_MASK] [-m POOL_SIZE] -d PORT_1,PORT_2 [-q QUEUE_QTY]\n"
 			"\nOptions:\n\n"
 			"    -h|--help                                  : Displays this help message and exits\n"
-                        "    -v|--version                               : Displays the current version and exits\n"
 			"    -l|--list                                  : Print the list of DPDK ports and exists\n"
+			"    -v|--version                               : Displays the current version and exits\n"
 			"    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of two DPDK port numbers to be bridged.\n"
 			"                                                 To see all available DPDK ports use the -l switch\n"
-			"    -c|--core-mask            CORE_MASK        : Core mask of cores to use. For example: use 7 (binary 0111) to use cores 0,1,2.\n"
+			"    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK device. Default value is 1\n"
+			"    -c|--core-mask CORE_MASK                   : Core mask of cores to use. For example: use 7 (binary 0111) to use cores 0,1,2.\n"
 			"                                                 Default is using all cores except management core\n"
-			"    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with. Default value is 4095\n\n", AppName::get().c_str());
+			"    -m|--mbuf-pool-size POOL_SIZE              : DPDK mBuf pool size to initialize DPDK with. Default value is 4095\n\n", AppName::get().c_str());
 }
 
 
@@ -109,11 +112,14 @@ void listDpdkPorts()
 	for (vector<DpdkDevice*>::iterator iter = deviceList.begin(); iter != deviceList.end(); iter++)
 	{
 		DpdkDevice* dev = *iter;
-		printf("    Port #%d: MAC address='%s'; PCI address='%s'; PMD='%s'\n",
+		printf("    Port #%d: MAC address='%s'; PCI address='%s'; PMD='%s'; Queues='%d/%d'\n",
 				dev->getDeviceId(),
 				dev->getMacAddress().toString().c_str(),
 				dev->getPciAddress().toString().c_str(),
-				dev->getPMDName().c_str());
+				dev->getPMDName().c_str(),
+				dev->getTotalNumOfRxQueues(),
+				dev->getTotalNumOfTxQueues()
+		);
 	}
 }
 
@@ -153,8 +159,8 @@ void printStats(pcpp::DpdkDevice* device)
 	columnNames.push_back(" ");
 	columnNames.push_back("Total Packets");
 	columnNames.push_back("Packets/sec");
-	columnNames.push_back("Data");
-	columnNames.push_back("Gbps");
+	columnNames.push_back("Total Bytes");
+	columnNames.push_back("Bytes/sec");
 
 	std::vector<int> columnLengths;
 	columnLengths.push_back(10);
@@ -190,13 +196,19 @@ int main(int argc, char* argv[])
 	char opt = 0;
 
 	uint32_t mBufPoolSize = DEFAULT_MBUF_POOL_SIZE;
+	uint16_t queueQuantity = DEFAULT_QUEUE_QUANTITY;
 
-	while((opt = getopt_long (argc, argv, "d:c:m:hvl", DpdkBridgeOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "d:c:m:q:hvl", DpdkBridgeOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
 			case 0:
 			{
+				break;
+			}
+			case 'c':
+			{
+				coreMaskToUse = atoi(optarg);
 				break;
 			}
 			case 'd':
@@ -225,14 +237,14 @@ int main(int argc, char* argv[])
 				}
 				break;
 			}
-			case 'c':
-			{
-				coreMaskToUse = atoi(optarg);
-				break;
-			}
 			case 'm':
 			{
 				mBufPoolSize = atoi(optarg);
+				break;
+			}
+			case 'q':
+			{
+				queueQuantity = atoi(optarg);
 				break;
 			}
 			case 'h':
@@ -240,15 +252,15 @@ int main(int argc, char* argv[])
 				printUsage();
 				exit(0);
 			}
-			case 'v':
-			{
-				printAppVersion();
-				break;
-			}
 			case 'l':
 			{
 				listDpdkPorts();
 				exit(0);
+			}
+			case 'v':
+			{
+				printAppVersion();
+				break;
 			}
 			default:
 			{
@@ -302,7 +314,7 @@ int main(int argc, char* argv[])
 	// go over all devices and open them
 	for (vector<DpdkDevice*>::iterator iter = dpdkDevicesToUse.begin(); iter != dpdkDevicesToUse.end(); iter++)
 	{
-		if (!(*iter)->openMultiQueues(1,1))
+		if (!(*iter)->openMultiQueues(queueQuantity, 1))
 		{
 			EXIT_WITH_ERROR("Couldn't open DPDK device #%d, PMD '%s'", (*iter)->getDeviceId(), (*iter)->getPMDName().c_str());
 		}
@@ -312,9 +324,11 @@ int main(int argc, char* argv[])
 	AppWorkerConfig workerConfigArr[2];
 	workerConfigArr[0].CoreId = coresToUse.at(0).Id;
 	workerConfigArr[0].RxDevice = dpdkDevicesToUse.at(0);
+	workerConfigArr[0].RxQueues = queueQuantity;
 	workerConfigArr[0].TxDevice = dpdkDevicesToUse.at(1);
 	workerConfigArr[1].CoreId = coresToUse.at(1).Id;
 	workerConfigArr[1].RxDevice = dpdkDevicesToUse.at(1);
+	workerConfigArr[1].RxQueues = queueQuantity;
 	workerConfigArr[1].TxDevice = dpdkDevicesToUse.at(0);
 
 	// create worker thread for every core

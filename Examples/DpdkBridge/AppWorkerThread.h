@@ -51,13 +51,13 @@ public:
 		// main loop, runs until be told to stop
 		while (!m_Stop)
 		{
-			// receive packets from network on the specified DPDK device
-			uint16_t packetsReceived = rxDevice->receivePackets(packetArr, MAX_RECEIVE_BURST, 0);
-
-			for (int i = 0; i < packetsReceived; i++)
+			for(uint16_t i = 0; i < m_WorkerConfig.RxQueues; i++)
 			{
-				// send packet to TX port
-				txDevice->sendPacket(*packetArr[i], 0);
+				// receive packets from network on the specified DPDK device
+				uint16_t packetsReceived = rxDevice->receivePackets(packetArr, MAX_RECEIVE_BURST, i);
+
+				// send packets to TX port
+				txDevice->sendPackets(packetArr, packetsReceived, 0);
 			}
 		}
 
