@@ -322,6 +322,6 @@ int main(int argc, char* argv[])
 	// infinite loop (until program is terminated)
 	while (!args.shouldStop)
 	{
-		sleep(5);
+		sleep(1);
 	}
 }
