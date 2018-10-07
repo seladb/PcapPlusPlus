@@ -172,8 +172,6 @@ int main(int argc, char* argv[])
 
 	CoreMask coreMaskToUse = getCoreMaskForAllMachineCores();
 
-	int sendPacketsToPort = -1;
-
 	int optionIndex = 0;
 	char opt = 0;
 
@@ -294,13 +292,6 @@ int main(int argc, char* argv[])
 		{
 			EXIT_WITH_ERROR("Couldn't open DPDK device #%d, PMD '%s'", (*iter)->getDeviceId(), (*iter)->getPMDName().c_str());
 		}
-	}
-
-	// get DPDK device to send packets to (or NULL if doesn't exist)
-	DpdkDevice* sendPacketsTo = DpdkDeviceList::getInstance().getDeviceByPort(sendPacketsToPort);
-	if (sendPacketsTo != NULL && !sendPacketsTo->isOpened() &&  !sendPacketsTo->open())
-	{
-		EXIT_WITH_ERROR("Could not open port#%d for sending matched packets", sendPacketsToPort);
 	}
 
 	// prepare configuration for every core
