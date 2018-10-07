@@ -44,7 +44,7 @@ using namespace pcpp;
 #define DEFAULT_MBUF_POOL_SIZE 4095
 
 
-static struct option FilterTrafficOptions[] =
+static struct option DpdkBridgeOptions[] =
 {
 	{"dpdk-ports",  required_argument, 0, 'd'},
 	{"core-mask",  optional_argument, 0, 'c'},
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 
 	uint32_t mBufPoolSize = DEFAULT_MBUF_POOL_SIZE;
 
-	while((opt = getopt_long (argc, argv, "d:c:m:hvl", FilterTrafficOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "d:c:m:hvl", DpdkBridgeOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
