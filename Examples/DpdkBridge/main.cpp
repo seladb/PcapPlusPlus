@@ -41,6 +41,7 @@
 
 using namespace pcpp;
 
+#define COLLECT_STATS_EVERY_SEC 1
 #define DEFAULT_MBUF_POOL_SIZE 4095
 
 
@@ -139,6 +140,39 @@ void onApplicationInterrupted(void* cookie)
 	args->shouldStop = true;
 }
 
+void printStats(pcpp::DpdkDevice* device)
+{
+	pcpp::DpdkDevice::DpdkDeviceStats rxStats;
+	pcpp::DpdkDevice::DpdkDeviceStats txStats;
+	device->getStatistics(rxStats);
+	device->getStatistics(txStats);
+
+	printf("\nStatistics for port %d:\n", device->getDeviceId());
+
+	std::vector<std::string> columnNames;
+	columnNames.push_back(" ");
+	columnNames.push_back("Total Packets");
+	columnNames.push_back("Packets/sec");
+	columnNames.push_back("Data");
+	columnNames.push_back("Gbps");
+
+	std::vector<int> columnLengths;
+	columnLengths.push_back(10);
+	columnLengths.push_back(15);
+	columnLengths.push_back(15);
+	columnLengths.push_back(15);
+	columnLengths.push_back(15);
+
+	pcpp::TablePrinter printer(columnNames, columnLengths);
+
+	std::stringstream totalRx;
+	totalRx << "rx" << "|" << rxStats.aggregatedRxStats.packets << "|" << rxStats.aggregatedRxStats.packetsPerSec << "|" << rxStats.aggregatedRxStats.bytes << "|" << rxStats.aggregatedRxStats.bytesPerSec;
+	printer.printRow(totalRx.str(), '|');
+
+	std::stringstream totalTx;
+	totalTx << "tx" << "|" << txStats.aggregatedTxStats.packets << "|" << txStats.aggregatedTxStats.packetsPerSec << "|" << txStats.aggregatedTxStats.bytes << "|" << txStats.aggregatedTxStats.bytesPerSec;
+	printer.printRow(totalTx.str(), '|');
+}
 
 /**
  * main method of the application. Responsible for parsing user args, preparing worker thread configuration, creating the worker threads and activate them.
@@ -300,8 +334,28 @@ int main(int argc, char* argv[])
 	ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &args);
 
 	// infinite loop (until program is terminated)
-	while (!args.shouldStop)
-	{
+	uint64_t counter = 0;
+    int statsCounter = 1;
+
+    // Keep running while flag is on
+    while (!args.shouldStop)
+    {
+		// Sleep for 1 second
 		sleep(1);
-	}
+
+		// Print stats every COLLECT_STATS_EVERY_SEC seconds
+		if (counter % COLLECT_STATS_EVERY_SEC == 0)
+		{
+			// Clear screen and move to top left
+			const char clr[] = { 27, '[', '2', 'J', '\0' };
+        	const char topLeft[] = { 27, '[', '1', ';', '1', 'H','\0' };
+	        printf("%s%s", clr, topLeft);
+
+			// Print devices traffic stats
+			printf("Stats #%d\n==========\n", statsCounter++);
+			printStats(dpdkDevicesToUse.at(0));
+			printStats(dpdkDevicesToUse.at(1));
+		}
+		counter++;
+    }
 }
