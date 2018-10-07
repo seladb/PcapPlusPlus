@@ -1,22 +1,19 @@
 /**
- * Filter Traffic DPDK example application
+ * DPDK bridge example application
  * =======================================
- * An application that listens to one or more DPDK ports (a.k.a DPDK devices), captures all traffic
- * and matches packets by user-defined matching criteria. Matching criteria is given on startup and can contain one or more of the following:
- * source IP, destination IP, source TCP/UDP port, destination TCP/UDP port and TCP or UDP protocol. Matching is done per flow, meaning the first packet
- * received on a flow is matched against the matching criteria and if it's matched then all packets of the same flow will be matched too.
- * Packets that are matched can be send to a DPDK port and/or be save to a pcap file.
- * In addition the application collect statistics on received and matched packets: number of packets per protocol, number of matched flows and number
- * of matched packets.
+ * This application demonstrates how to create a bridge between two network devices using PcapPlusPlus DPDK APIs. 
+ * It listens to two DPDK ports (a.k.a DPDK devices), and forwards all the traffic received on one port to the other, acting like a L2 bridge. 
+ * 
+ * The application uses the concept of worker threads. Number of cores can be set by the user or set to default (default is all machine cores minus one management core). 
+ * Each core is assigned with one worker thread. The application assigns each DPDK port and all its RX queues to one worker thread, and its only TX queue to the other worker thread.
+ * Each worker thread does exactly the same work: receiving packets on one port and sending them to the other port.
+ * For example: if there are 2 DPDK ports with 4 RX queues to listen to then worker #1 will get packets from RX queues 1-4 of port 1 an send them to TX queue 1 of port 2. 
+ * Worker #2 will do the opposite, get packets from RX queues 1-4 of port 2 an send them to TX queue 1 of port 1
  *
- * The application uses the concept of worker threads. Number of cores can be set by the user or set to default (default is all machine cores minus one
- * management core). Each core is assigned with one worker thread. The application divides the DPDK ports and RX queues equally between worker threads.
- * For example: if there are 2 DPDK ports to listen to, each one with 6 RX queues and there are 3 worker threads, then worker #1 will get RX queues
- * 1-4 of port 1, worker #2 will get RX queues 5-6 of port 1 and RX queues 1-2 of port 2, and worker #3 will get RX queues 3-6 of port 2.
- * Each worker thread does exactly the same work: receiving packets, collecting packet statistics, matching flows and sending/saving matched packets
- *
- * __Important__: this application (like all applications using DPDK) should be run as 'sudo'
- */
+ * __Important__: 
+ * - This application runs only on Linux (DPDK is not supported on Windows and Mac OS X)
+ * - This application (like all applications using DPDK) should be run as 'sudo'
+*/
 
 #include "Common.h"
 #include "AppWorkerThread.h"
@@ -69,14 +66,14 @@ void printUsage()
 			"%s [-hlv] [-c CORE_MASK] [-m POOL_SIZE] -d PORT_1,PORT_2 [-q QUEUE_QTY]\n"
 			"\nOptions:\n\n"
 			"    -h|--help                                  : Displays this help message and exits\n"
-			"    -l|--list                                  : Print the list of DPDK ports and exists\n"
+			"    -l|--list                                  : Print the list of DPDK ports and exits\n"
 			"    -v|--version                               : Displays the current version and exits\n"
-			"    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of two DPDK port numbers to be bridged.\n"
-			"                                                 To see all available DPDK ports use the -l switch\n"
-			"    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK device. Default value is 1\n"
 			"    -c|--core-mask CORE_MASK                   : Core mask of cores to use. For example: use 7 (binary 0111) to use cores 0,1,2.\n"
 			"                                                 Default is using all cores except management core\n"
 			"    -m|--mbuf-pool-size POOL_SIZE              : DPDK mBuf pool size to initialize DPDK with. Default value is 4095\n\n", AppName::get().c_str());
+			"    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of two DPDK port numbers to be bridged.\n"
+			"                                                 To see all available DPDK ports use the -l switch\n"
+			"    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK device. Default value is 1\n"
 }
 
 
