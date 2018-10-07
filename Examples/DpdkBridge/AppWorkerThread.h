@@ -18,7 +18,6 @@ private:
 	AppWorkerConfig& m_WorkerConfig;
 	bool m_Stop;
 	uint32_t m_CoreId;
-	PacketStats m_Stats;
 
 public:
 	AppWorkerThread(AppWorkerConfig& workerConfig) :
@@ -31,18 +30,12 @@ public:
 		// do nothing
 	}
 
-	PacketStats& getStats()
-	{
-		return m_Stats;
-	}
-
 	// implement abstract methods
 
 	bool run(uint32_t coreId)
 	{
 		m_CoreId = coreId;
 		m_Stop = false;
-		m_Stats.WorkerId = coreId;
 		pcpp::DpdkDevice* rxDevice = m_WorkerConfig.RxDevice;
 		pcpp::DpdkDevice* txDevice = m_WorkerConfig.TxDevice;
 
@@ -63,12 +56,6 @@ public:
 
 			for (int i = 0; i < packetsReceived; i++)
 			{
-				// parse packet
-				pcpp::Packet parsedPacket(packetArr[i]);
-
-				// collect packet statistics
-				m_Stats.collectStats(parsedPacket);
-
 				// send packet to TX port
 				txDevice->sendPacket(*packetArr[i], 0);
 			}

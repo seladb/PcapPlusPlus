@@ -136,26 +136,6 @@ void onApplicationInterrupted(void* cookie)
 	// stop worker threads
 	DpdkDeviceList::getInstance().stopDpdkWorkerThreads();
 
-	// create table printer
-	std::vector<std::string> columnNames;
-	std::vector<int> columnWidths;
-	PacketStats::getStatsColumns(columnNames, columnWidths);
-	TablePrinter printer(columnNames, columnWidths);
-
-	// print final stats for every worker thread plus sum of all threads and free worker threads memory
-	PacketStats aggregatedStats;
-	for (std::vector<DpdkWorkerThread*>::iterator iter = args->workerThreadsVector->begin(); iter != args->workerThreadsVector->end(); iter++)
-	{
-		AppWorkerThread* thread = (AppWorkerThread*)(*iter);
-		PacketStats threadStats = thread->getStats();
-		aggregatedStats.collectStats(threadStats);
-		printer.printRow(threadStats.getStatValuesAsString("|"), '|');
-		delete thread;
-	}
-
-	printer.printSeparator();
-	printer.printRow(aggregatedStats.getStatValuesAsString("|"), '|');
-
 	args->shouldStop = true;
 }
 
