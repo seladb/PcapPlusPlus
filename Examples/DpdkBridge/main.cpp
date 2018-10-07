@@ -256,10 +256,10 @@ int main(int argc, char* argv[])
 	vector<SystemCore> coresToUse;
 	createCoreVectorFromCoreMask(coreMaskToUse, coresToUse);
 
-	// need minimum of 2 cores to start - 1 management core + 1 (or more) worker thread(s)
-	if (coresToUse.size() < 2)
+	// need minimum of 3 cores to start - 1 management core + 1 (or more) worker thread(s)
+	if (coresToUse.size() < 3)
 	{
-		EXIT_WITH_ERROR("Needed minimum of 2 cores to start the application");
+		EXIT_WITH_ERROR("Needed minimum of 3 cores to start the application");
 	}
 
 	// initialize DPDK
