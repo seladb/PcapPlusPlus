@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 using namespace std;
+using namespace pcpp;
 
 /**
  * Macros for exiting the application with error
@@ -33,15 +34,15 @@ using namespace std;
 
 /**
  * Contains all the configuration needed for the worker thread including:
- * - Which DPDK ports to receive packets from
- * - Which DPDK ports to send packets to
+ * - Which DPDK port to receive packets from
+ * - Which DPDK port to send packets to
  */
 struct AppWorkerConfig
 {
 	uint32_t CoreId;
-	pcpp::DpdkDevice* RxDevice;
+	DpdkDevice* RxDevice;
 	uint16_t RxQueues;
-	pcpp::DpdkDevice* TxDevice;
+	DpdkDevice* TxDevice;
 
 	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), RxDevice(NULL), RxQueues(1), TxDevice(NULL)
 	{

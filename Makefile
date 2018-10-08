@@ -24,6 +24,7 @@ EXAMPLE_ICMP_FT      := Examples/IcmpFileTransfer
 EXAMPLE_TCP_REASM    := Examples/TcpReassembly
 EXAMPLE_IP_FRAG      := Examples/IPFragUtil
 EXAMPLE_IP_DEFRAG    := Examples/IPDefragUtil
+EXAMPLE_DPDK2        := Examples/DpdkBridge
 
 
 UNAME := $(shell uname)
@@ -49,6 +50,7 @@ all: libs
 	@cd $(EXAMPLE_IP_DEFRAG)         && $(MAKE) IPDefragUtil
 ifdef USE_DPDK
 	@cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
+	@cd $(EXAMPLE_DPDK2)             && $(MAKE) DpdkBridge
 endif
 ifdef PF_RING_HOME
 	@cd $(EXAMPLE_PF_RING1)          && $(MAKE) PfRingTrafficFilter
@@ -70,6 +72,7 @@ endif
 	$(CP) $(EXAMPLE_IP_DEFRAG)/Bin/* ./Dist/examples	
 ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_DPDK2)/Bin/* ./Dist/examples
 endif
 ifdef PF_RING_HOME
 	$(CP) $(EXAMPLE_PF_RING1)/Bin/* ./Dist/examples
@@ -116,6 +119,7 @@ clean:
 	@cd $(EXAMPLE_IP_DEFRAG)         && $(MAKE) clean
 ifdef USE_DPDK
 	@cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
+	@cd $(EXAMPLE_DPDK2)             && $(MAKE) clean
 endif
 ifdef PF_RING_HOME
 	@cd $(EXAMPLE_PF_RING1)          && $(MAKE) clean

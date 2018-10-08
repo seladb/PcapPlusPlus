@@ -4,15 +4,18 @@ DPDK Bridge example application
 This application demonstrates how to create a bridge between two network devices using PcapPlusPlus DPDK APIs.
 It listens to two DPDK ports (a.k.a DPDK devices), and forwards all the traffic received on one port to the other, acting like a L2 bridge. 
 
-The application uses the concept of worker threads. Number of cores can be set by the user or set to default (default is all machine cores minus one management core). 
-Each core is assigned with one worker thread. The application assigns each DPDK port and all its RX queues to one worker thread, and its only TX queue to the other worker thread. Each worker thread does exactly the same work: receiving packets on one port and sending them to the other port.
+The application is very similar to [DPDK's L2 forwarding example](https://doc.dpdk.org/guides/sample_app_ug/l2_forward_real_virtual.html) 
+and demonstrates how to achieve the same functionaly with PcapPlusPlus using less and easier to understand C++ code.
 
-For example: if there are 2 DPDK ports with 4 RX queues to listen to then worker #1 will get packets from RX queues 1-4 of port 1 an send them to TX queue 1 of port 2. Worker #2 will do the opposite, get packets from RX queues 1-4 of port 2 an send them to TX queue 1 of port 1
+The application uses the concept of worker threads. It creates 2 worker threads running in an endless loop (as long as the app is running): 
+one for receiving packets on NIC#1 and sending them to NIC#2, and another for receiving packets on NIC#2 and sending them to NIC#1.
 
 Important: 
 ----------
 - This application runs only on Linux (DPDK is not supported on Windows and Mac OS X)
 - This application (like all applications using DPDK) should be run as 'sudo'
+- In order to test this application you need an envorinment where the bridge is connected directly (back-to-back) to the two machines the
+  bridge wants to connect 
 
 
 Using the utility
