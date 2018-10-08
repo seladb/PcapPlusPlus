@@ -166,7 +166,10 @@ namespace pcpp
 			/**
 			 * Set the packet buffer size. You can read more about the packet buffer here:
 			 * https://www.tcpdump.org/manpages/pcap.3pcap.html .
-			 * Any value of 100 or above is considered valid, otherwise the default value is used (which varies between different OS's)
+			 * Any value of 100 or above is considered valid, otherwise the default value is used (which varies between different OS's).
+			 * However, please notice that setting values which are too low or two high may result in failure to open the device.
+			 * These too low or too high thresholds may vary between OS's, as an example please refer to this thread:
+			 * https://stackoverflow.com/questions/11397367/issue-in-pcap-set-buffer-size
 			 */
 			int packetBufferSize;
 
