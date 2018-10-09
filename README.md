@@ -44,16 +44,17 @@ PcapPlusPlus is currently supported on **Windows**, **Linux** and **Mac OS X**. 
     - Sierra (10.12)
     - High Sierra (10.13)
 
-### Supported Engines and Devices ###
+### Supported Packet Capture Engines ###
 
-PcapPlusPlus currently works with the following devices:
+PcapPlusPlus currently works with the following packet capture engines:
 
-1. libpcap live device (on Linux and Mac OS X)
-2. WinPcap live device (on Windows)
-3. Vanilla PF_RING device (on Linux)
-4. DPDK device (on Linux)
-5. Remote live device (on Windows)
-6. PCAP and PCAPNG file devices
+1. libpcap packet capture (on Linux and Mac OS X)
+2. WinPcap packet capture (on Windows)
+3. Vanilla PF_RING (on Linux)
+4. DPDK (on Linux)
+5. WinPcap remote capture (on Windows)
+6. PCAP and PCAPNG files
+7. Raw sockets (on Linux and Windows)
 
 ### Supported Protocols ###
 

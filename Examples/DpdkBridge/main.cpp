@@ -65,7 +65,7 @@ void printUsage()
 {
 	printf("\nUsage:\n"
 			"------\n"
-			"%s [-hlv] [-c CORE_MASK] [-m POOL_SIZE] -d PORT_1,PORT_2 [-q QUEUE_QTY]\n"
+			"%s [-hlv] [-c CORE_MASK] [-m POOL_SIZE] [-q QUEUE_QTY] -d PORT_1,PORT_2\n"
 			"\nOptions:\n\n"
 			"    -h|--help                                  : Displays this help message and exits\n"
 			"    -l|--list                                  : Print the list of DPDK ports and exits\n"
@@ -152,10 +152,8 @@ void onApplicationInterrupted(void* cookie)
  */
 void printStats(DpdkDevice* device)
 {
-	DpdkDevice::DpdkDeviceStats rxStats;
-	DpdkDevice::DpdkDeviceStats txStats;
-	device->getStatistics(rxStats);
-	device->getStatistics(txStats);
+	DpdkDevice::DpdkDeviceStats stats;
+	device->getStatistics(stats);
 
 	printf("\nStatistics for port %d:\n", device->getDeviceId());
 
@@ -176,11 +174,11 @@ void printStats(DpdkDevice* device)
 	TablePrinter printer(columnNames, columnLengths);
 
 	std::stringstream totalRx;
-	totalRx << "rx" << "|" << rxStats.aggregatedRxStats.packets << "|" << rxStats.aggregatedRxStats.packetsPerSec << "|" << rxStats.aggregatedRxStats.bytes << "|" << rxStats.aggregatedRxStats.bytesPerSec;
+	totalRx << "rx" << "|" << stats.aggregatedRxStats.packets << "|" << stats.aggregatedRxStats.packetsPerSec << "|" << stats.aggregatedRxStats.bytes << "|" << stats.aggregatedRxStats.bytesPerSec;
 	printer.printRow(totalRx.str(), '|');
 
 	std::stringstream totalTx;
-	totalTx << "tx" << "|" << txStats.aggregatedTxStats.packets << "|" << txStats.aggregatedTxStats.packetsPerSec << "|" << txStats.aggregatedTxStats.bytes << "|" << txStats.aggregatedTxStats.bytesPerSec;
+	totalTx << "tx" << "|" << stats.aggregatedTxStats.packets << "|" << stats.aggregatedTxStats.packetsPerSec << "|" << stats.aggregatedTxStats.bytes << "|" << stats.aggregatedTxStats.bytesPerSec;
 	printer.printRow(totalTx.str(), '|');
 }
 
@@ -195,7 +193,8 @@ int main(int argc, char* argv[])
 
 	std::vector<int> dpdkPortVec;
 
-	CoreMask coreMaskToUse = getCoreMaskForAllMachineCores();
+	// if core mask is not provided, use the 3 first cores
+	CoreMask coreMaskToUse = (getCoreMaskForAllMachineCores() & 7);
 
 	int optionIndex = 0;
 	char opt = 0;
@@ -354,11 +353,11 @@ int main(int argc, char* argv[])
 
 	// infinite loop (until program is terminated)
 	uint64_t counter = 0;
-    int statsCounter = 1;
+	int statsCounter = 1;
 
-    // Keep running while flag is on
-    while (!args.shouldStop)
-    {
+	// Keep running while flag is on
+	while (!args.shouldStop)
+	{
 		// Sleep for 1 second
 		sleep(1);
 
@@ -367,8 +366,8 @@ int main(int argc, char* argv[])
 		{
 			// Clear screen and move to top left
 			const char clr[] = { 27, '[', '2', 'J', '\0' };
-        	const char topLeft[] = { 27, '[', '1', ';', '1', 'H','\0' };
-	        printf("%s%s", clr, topLeft);
+			const char topLeft[] = { 27, '[', '1', ';', '1', 'H','\0' };
+			printf("%s%s", clr, topLeft);
 
 			// Print devices traffic stats
 			printf("Stats #%d\n==========\n", statsCounter++);
@@ -376,5 +375,5 @@ int main(int argc, char* argv[])
 			printStats(dpdkDevicesToUse.at(1));
 		}
 		counter++;
-    }
+	}
 }
