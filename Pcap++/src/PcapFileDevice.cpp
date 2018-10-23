@@ -665,6 +665,38 @@ bool PcapFileWriterDevice::open(bool appendMode)
 PcapNgFileWriterDevice::PcapNgFileWriterDevice(const char* fileName) : IFileWriterDevice(fileName)
 {
 	m_LightPcapNg = NULL;
+	m_CurFilter = "";
+	m_BpfLinkType = -1;
+	m_BpfInitialized = false;
+}
+
+bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType)
+{
+	if (m_CurFilter == "")
+		return true;
+
+	int linkTypeAsInt = (int)linkType;
+
+	if (m_BpfLinkType != linkTypeAsInt)
+	{
+		LOG_DEBUG("Compiling the filter '%s' for link type %d", m_CurFilter.c_str(), linkTypeAsInt);
+		if (m_BpfInitialized)
+			pcap_freecode(&m_Bpf);
+		if (pcap_compile_nopcap(9000, linkTypeAsInt, &m_Bpf, m_CurFilter.c_str(), 1, 0) < 0)
+		{
+			m_BpfInitialized = false;
+			return false;
+		}
+
+		m_BpfLinkType = linkTypeAsInt;
+		m_BpfInitialized = true;
+	}
+
+	struct pcap_pkthdr pktHdr;
+	pktHdr.caplen = packetLen;
+	pktHdr.len = packetLen;
+	pktHdr.ts = packetTimestamp;
+	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 
 bool PcapNgFileWriterDevice::open(const char* os, const char* hardware, const char* captureApp, const char* fileComment)
@@ -722,10 +754,14 @@ bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const char* co
 		pktHeader.comment_length = 0;
 	}
 
-	light_write_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, ((RawPacket&)packet).getRawData());
+	const uint8_t* pktData = ((RawPacket&)packet).getRawData();
+	if(!matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp, pktHeader.data_link))
+	{
+		return false;
+	}
 
+	light_write_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, pktData);
 	m_NumOfPacketsWritten++;
-
 	return true;
 }
 
@@ -813,6 +849,20 @@ void PcapNgFileWriterDevice::getStatistics(pcap_stat& stats)
 	stats.ps_drop = m_NumOfPacketsNotWritten;
 	stats.ps_ifdrop = 0;
 	LOG_DEBUG("Statistics received for pcap-ng writer device for filename '%s'", m_FileName);
+}
+
+bool PcapNgFileWriterDevice::setFilter(std::string filterAsString)
+{
+	struct bpf_program prog;
+	if (pcap_compile_nopcap(9000, 1, &prog, filterAsString.c_str(), 1, 0) < 0)
+	{
+		return false;
+	}
+	pcap_freecode(&prog);
+
+	m_CurFilter = filterAsString;
+	m_BpfLinkType = -1;
+	return true;
 }
 
 

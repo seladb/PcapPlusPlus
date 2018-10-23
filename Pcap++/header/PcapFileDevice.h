@@ -386,12 +386,17 @@ namespace pcpp
 	class PcapNgFileWriterDevice : public IFileWriterDevice
 	{
 	private:
-
 		void* m_LightPcapNg;
+		struct bpf_program m_Bpf;
+		bool m_BpfInitialized;
+		int m_BpfLinkType;
+		std::string m_CurFilter;
 
 		// private copy c'tor
 		PcapNgFileWriterDevice(const PcapFileWriterDevice& other);
 		PcapNgFileWriterDevice& operator=(const PcapNgFileWriterDevice& other);
+
+		bool matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType);
 
 	public:
 
@@ -482,6 +487,14 @@ namespace pcpp
 		 * @param[out] stats The stats struct where stats are returned
 		 */
 		void getStatistics(pcap_stat& stats);
+
+		/**
+		 * Set a filter for PcapNG writer device. Only packets that match the filter will be persisted
+		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
+		 * @return True if filter set successfully, false otherwise
+		 */
+		bool setFilter(std::string filterAsString);
+
 	};
 
 }// namespace pcpp

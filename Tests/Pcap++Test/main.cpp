@@ -1213,18 +1213,30 @@ PCAPP_TEST(TestPcapNgFileReadWriteAdv)
     // -------
 
     PcapNgFileReaderDevice readerDev5(EXAMPLE2_PCAPNG_PATH);
-    PCAPP_ASSERT(readerDev5.open(), "cannot open reader device 5");
-    PCAPP_ASSERT(readerDev5.setFilter("bla bla bla") == false, "Managed to set illegal filter");
-    PCAPP_ASSERT(readerDev5.setFilter("src net 130.217.250.129") == true, "Couldn't set filter");
+	PCAPP_ASSERT(readerDev5.open(), "cannot open reader device 5");
+    PCAPP_ASSERT(readerDev5.setFilter("bla bla bla") == false, "Managed to set illegal filter to reader device");
+    PCAPP_ASSERT(readerDev5.setFilter("src net 130.217.250.129") == true, "Couldn't set filter to reader device");
 
-    packetCount = 0;
+	PcapNgFileWriterDevice writerDev2(EXAMPLE2_PCAPNG_WRITE_PATH);
+    PCAPP_ASSERT(writerDev2.open(true) == true, "Couldn't writer dev 2 in append mode");
+    PCAPP_ASSERT(writerDev2.setFilter("bla bla bla") == false, "Managed to set illegal filter to writer device");
+    PCAPP_ASSERT(writerDev2.setFilter("dst port 35938") == true, "Couldn't set filter to writer device");
+
+    int filteredReadPacketCount = 0;
+    int filteredWritePacketCount = 0;
 
     while (readerDev5.getNextPacket(rawPacket, pktComment))
     {
-        packetCount++;
+        filteredReadPacketCount++;
+    	if(writerDev2.writePacket(rawPacket))
+			filteredWritePacketCount++;
     }
 
-    PCAPP_ASSERT(packetCount == 14, "Number of packets matched to filter != 14, it's %d", packetCount);
+    PCAPP_ASSERT(filteredReadPacketCount == 14, "Number of packets matched to reader filter != 14, it's %d", filteredReadPacketCount);
+    PCAPP_ASSERT(filteredWritePacketCount == 3, "Number of packets matched to writer filter != 3, it's %d", filteredWritePacketCount);
+
+	readerDev5.close();
+	writerDev2.close();
 
     PCAPP_TEST_PASSED;
 }
