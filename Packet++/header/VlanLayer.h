@@ -22,18 +22,14 @@ namespace pcpp
 	 */
 #pragma pack(push, 1)
 	struct vlan_header {
-#if (BYTE_ORDER == LITTLE_ENDIAN)
-		/** Priority code point (PCP) */
-		uint16_t priority:3,
-		/** Drop eligible indicator (DEI) - formerly CFI */
-				 cfi:1,
-		 /** VLAN ID */
-				 vlanID:12;
-#else
-		uint16_t vlanID:12,
-				 cfi:1,
-				 priority:3;
-#endif
+/**    
+ *    0                 1                   
+ *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    |Prio |C|         VLAN ID     |
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ */
+		uint16_t vlan;
 		/** Ethernet type for next layer */
 		uint16_t etherType;
 	};
@@ -78,19 +74,19 @@ namespace pcpp
 		 * @return VLAN ID value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline uint16_t getVlanID() { return getVlanHeader()->vlanID >> 4;  }
+		inline uint16_t getVlanID() { return htobe16(getVlanHeader()->vlan) & 0xFFF; }
 
 		/**
 		 * @return The CFI bit value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline uint8_t getCFI() { return getVlanHeader()->vlanID & 0x1; }
+		inline uint8_t getCFI() { return ((htobe16(getVlanHeader()->vlan) >> 12) & 1); }
 
 		/**
 		 * @return The priority value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline uint8_t getPriority() { return (getVlanHeader()->vlanID & 0xF) >> 1; }
+		inline uint8_t getPriority() { return (htobe16(getVlanHeader()->vlan) >> 13) & 7; }
 
 		/**
 		 * Set VLAN ID. This method differs from setting vlan_header#vlanID because vlan_header#vlanID is 12 bits long in a 16 bit field.
@@ -98,21 +94,21 @@ namespace pcpp
 		 * @param[in] id The VLAN ID to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline void setVlanID(uint16_t id) { getVlanHeader()->vlanID = ((id << 4) & 0xff0) | (id >> 8); }
+		inline void setVlanID(uint16_t id) { getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~0xFFF)) | (id & 0xFFF)); }
 
 		/**
 		 * Set CFI bit
 		 * @param[in] cfi The CFI bit to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline void setCFI(bool cfi) { getVlanHeader()->vlanID |= cfi; }
+		inline void setCFI(bool cfi) { getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(1 << 12))) | ((cfi & 1) << 12)); }
 
 		/**
 		 * Set priority value
 		 * @param[in] priority The priority value to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline void setPriority(uint8_t priority) { getVlanHeader()->vlanID |= ((priority & 0x7) << 1); }
+		inline void setPriority(uint8_t priority) { getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(7 << 13))) | ((priority & 7) << 13)); }
 
 		// implement abstract methods
 
