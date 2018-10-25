@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "ProtocolType.h"
 #include <string>
+#include "EndianPortable.h"
 
 /// @file
 
