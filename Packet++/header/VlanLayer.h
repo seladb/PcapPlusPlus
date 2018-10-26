@@ -6,6 +6,7 @@
 #if defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
 #endif
+#include <EndianPortable.h>
 
 /// @file
 

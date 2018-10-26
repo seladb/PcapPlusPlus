@@ -27,7 +27,8 @@ endif
 
 INCLUDES := -I"./src" \
 			-I"./header" \
-			-I"$(COMMONPP_HOME)/header"
+			-I"$(COMMONPP_HOME)/header" \
+			-I"$(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include"
 			
 ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \
