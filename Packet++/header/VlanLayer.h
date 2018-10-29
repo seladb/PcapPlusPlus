@@ -6,7 +6,6 @@
 #if defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
 #endif
-#include <EndianPortable.h>
 
 /// @file
 
@@ -23,8 +22,8 @@ namespace pcpp
 	 */
 #pragma pack(push, 1)
 	struct vlan_header {
-/**    
- *    0                 1                   
+/**
+ *    0                 1
  *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *    |Prio |C|         VLAN ID     |
@@ -75,19 +74,19 @@ namespace pcpp
 		 * @return VLAN ID value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline uint16_t getVlanID() { return htobe16(getVlanHeader()->vlan) & 0xFFF; }
+		uint16_t getVlanID();
 
 		/**
 		 * @return The CFI bit value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline uint8_t getCFI() { return ((htobe16(getVlanHeader()->vlan) >> 12) & 1); }
+		uint8_t getCFI();
 
 		/**
 		 * @return The priority value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline uint8_t getPriority() { return (htobe16(getVlanHeader()->vlan) >> 13) & 7; }
+		uint8_t getPriority();
 
 		/**
 		 * Set VLAN ID. This method differs from setting vlan_header#vlanID because vlan_header#vlanID is 12 bits long in a 16 bit field.
@@ -95,21 +94,21 @@ namespace pcpp
 		 * @param[in] id The VLAN ID to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline void setVlanID(uint16_t id) { getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~0xFFF)) | (id & 0xFFF)); }
+		void setVlanID(uint16_t id);
 
 		/**
 		 * Set CFI bit
 		 * @param[in] cfi The CFI bit to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline void setCFI(bool cfi) { getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(1 << 12))) | ((cfi & 1) << 12)); }
+		void setCFI(bool cfi);
 
 		/**
 		 * Set priority value
 		 * @param[in] priority The priority value to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		inline void setPriority(uint8_t priority) { getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(7 << 13))) | ((priority & 7) << 13)); }
+		void setPriority(uint8_t priority);
 
 		// implement abstract methods
 
