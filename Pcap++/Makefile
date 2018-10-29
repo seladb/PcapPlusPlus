@@ -41,7 +41,8 @@ INCLUDES := -I"./src" \
 			-I"./header" \
 			-I"$(COMMONPP_HOME)/header" \
 			-I"$(PACKETPP_HOME)/header" \
-			-I"$(LIGHT_PCAPNG_HOME)/include"
+			-I"$(LIGHT_PCAPNG_HOME)/include" \
+			-I"$(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include"
 			
 ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \

@@ -257,6 +257,20 @@ PACKETPP_TEST(ArpPacketCreation)
 
 PACKETPP_TEST(VlanParseAndCreation)
 {
+	for(int vid = 0; vid < 4096 * 2; vid++)
+	{
+		for(int prio = 0; prio < 8 * 2; prio ++)
+		{
+			for(int cfi = 0; cfi < 2 * 2; cfi++) //true or false
+			{
+				VlanLayer testVlanLayer(vid, cfi, prio, PCPP_ETHERTYPE_VLAN);
+				PACKETPP_ASSERT(testVlanLayer.getVlanID() == (vid & 0xFFF), "vlan VID %d != %d; (c %d p %d)(%04X)", testVlanLayer.getVlanID(), vid, cfi, prio, testVlanLayer.getVlanHeader()->vlan);
+				PACKETPP_ASSERT(testVlanLayer.getPriority() == (prio & 7), "vlan PRIO %d != %d; (v %d c %d)(%04X)", testVlanLayer.getPriority(), prio, vid, cfi, testVlanLayer.getVlanHeader()->vlan);
+				PACKETPP_ASSERT(testVlanLayer.getCFI() == (cfi != 0), "vlan CFI %d != %d; (v %d p %d)(%04X)", testVlanLayer.getCFI(), cfi, vid, prio, testVlanLayer.getVlanHeader()->vlan);
+			}
+		}
+	}
+
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/ArpRequestWithVlan.dat", bufferLength);
 	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
@@ -269,7 +283,7 @@ PACKETPP_TEST(VlanParseAndCreation)
 	VlanLayer* pFirstVlanLayer = NULL;
 	VlanLayer* pSecondVlanLayer = NULL;
 	PACKETPP_ASSERT((pFirstVlanLayer = arpWithVlan.getLayerOfType<VlanLayer>()) != NULL, "Couldn't get first vlan layer from packet");
-	PACKETPP_ASSERT(pFirstVlanLayer->getVlanID() == 100, "first vlan ID != 100, it's 0x%2X", pFirstVlanLayer->getVlanID());
+	PACKETPP_ASSERT(pFirstVlanLayer->getVlanID() == 666, "first vlan ID != 666, it's 0x%04X", pFirstVlanLayer->getVlanID());
 	PACKETPP_ASSERT(pFirstVlanLayer->getCFI() == 1, "first vlan CFI != 1");
 	PACKETPP_ASSERT(pFirstVlanLayer->getPriority() == 5, "first vlan priority != 5");
 	PACKETPP_ASSERT((pSecondVlanLayer = arpWithVlan.getNextLayerOfType<VlanLayer>(pFirstVlanLayer)) != NULL, "Couldn't get second vlan layer from packet");
@@ -281,7 +295,7 @@ PACKETPP_TEST(VlanParseAndCreation)
 	MacAddress macSrc("ca:03:0d:b4:00:1c");
 	MacAddress macDest("ff:ff:ff:ff:ff:ff");
 	EthLayer ethLayer(macSrc, macDest, PCPP_ETHERTYPE_VLAN);
-	VlanLayer firstVlanLayer(100, 1, 5, PCPP_ETHERTYPE_VLAN);
+	VlanLayer firstVlanLayer(666, 1, 5, PCPP_ETHERTYPE_VLAN);
 	VlanLayer secondVlanLayer(200, 0, 2, PCPP_ETHERTYPE_ARP);
 	ArpLayer arpLayer(ARP_REQUEST, macSrc, MacAddress("00:00:00:00:00:00"), IPv4Address(string("192.168.2.200")), IPv4Address(string("192.168.2.254")));
 	PACKETPP_ASSERT(arpWithVlanNew.addLayer(&ethLayer), "Couldn't add eth layer");
