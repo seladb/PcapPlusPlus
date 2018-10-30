@@ -14,7 +14,7 @@
 #elif LINUX
 #include <in.h>
 #endif
-#include <EndianPortable.h>
+#include "EndianPortable.h"
 
 namespace pcpp
 {

@@ -1921,6 +1921,17 @@ PACKETPP_TEST(RemoveLayerTest)
 //		printf("0x%2X ", testPacket.getRawPacket()->getRawData()[i]);
 //	printf("\n\n\n");
 
+	// e. parse packet, remove layer and add it to another packet
+
+	EthLayer eth(MacAddress("0a:00:27:00:00:15"), MacAddress("0a:00:27:00:00:16"));
+	Packet packet1, packet2;
+	PACKETPP_ASSERT(packet1.addLayer(&eth) == true, "Step e: cannot add eth layer");
+	PACKETPP_ASSERT(packet1.getRawPacket()->getRawDataLen() == 14, "Step e: packet1 len before removal isn't 14");
+	PACKETPP_ASSERT(packet1.removeLayer(&eth) == true, "Step e: cannot remove layer");
+	PACKETPP_ASSERT(packet1.getRawPacket()->getRawDataLen() == 0, "Step e: packet1 len after removal isn't 0");
+	PACKETPP_ASSERT(packet2.getRawPacket()->getRawDataLen() == 0, "Step e: packet2 len before add isn't 0");
+	PACKETPP_ASSERT(packet2.addLayer(&eth) == true, "Step e: cannot add eth layer to packet2");
+	PACKETPP_ASSERT(packet2.getRawPacket()->getRawDataLen() == 14, "Step e: packet2 len after add isn't 14");
 
 	PACKETPP_TEST_PASSED;
 }

@@ -357,6 +357,11 @@ bool Packet::removeLayer(Layer* layer)
 		return false;
 	}
 
+	// before removing the layer's data, copy it so it can be later assigned as the removed layer's data
+	size_t layerOldDataSize = layer->getHeaderLen();
+	uint8_t* layerOldData = new uint8_t[layerOldDataSize];
+	memcpy(layerOldData, layer->m_Data, layerOldDataSize);
+
 	// remove data from raw packet
 	size_t numOfBytesToRemove = layer->getHeaderLen();
 	int indexOfDataToRemove = layer->m_Data - m_RawPacket->getRawData();
@@ -428,7 +433,17 @@ bool Packet::removeLayer(Layer* layer)
 
 	// if layer was allocated by this packet, delete it
 	if (layer->m_IsAllocatedInPacket)
+	{
 		delete layer;
+		delete [] layerOldData;
+	}
+	// if layer was not allocated by this packet, detach it from the packet so it can be reused
+	else
+	{
+		layer->m_Packet = NULL;
+		layer->m_Data = layerOldData;
+		layer->m_DataLen = layerOldDataSize;
+	}
 
 	return true;
 }

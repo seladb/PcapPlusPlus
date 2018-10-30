@@ -161,7 +161,10 @@ namespace pcpp
 		bool insertLayer(Layer* prevLayer, Layer* newLayer);
 
 		/**
-		 * Remove an existing layer from the packet
+		 * Remove an existing layer from the packet. If the layer was allocated during packet creation it will be deleted
+		 * and the pointer to it will get invalid. However if the layer was allocated by the user it will simply get
+		 * detached from the packet, meaning the pointer to it will stay valid and its data (that was removed from the
+		 * packet) will be copied back to the layer. In that case it's the user responsibility to delete the layer
 		 * @param[in] layer The layer to remove
 		 * @return True if everything went well or false otherwise (an appropriate error log message will be printed in
 		 * such cases)
