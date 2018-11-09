@@ -171,6 +171,20 @@ namespace pcpp
 		 */
 		bool removeLayer(Layer* layer);
 
+		bool removeLayer(ProtocolType layerType, int index = 0);
+
+		bool removeFirstLayer();
+
+		bool removeLastLayer();
+
+		bool removeAllLayersAfter(Layer* layer);
+
+		Layer* detachLayer(ProtocolType layerType, int index = 0);
+
+		bool detachLayer(Layer* layer);
+
+		Layer* getLayerOfType(ProtocolType layerType, int index = 0);
+
 		/**
 		 * A templated method to get a layer of a certain type (protocol). If no layer of such type is found, NULL is returned
 		 * @return A pointer to the layer of the requested type, NULL if not found
@@ -226,6 +240,8 @@ namespace pcpp
 		bool shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToShorten);
 
 		void reallocateRawData(size_t newSize);
+
+		bool removeLayer(Layer* layer, bool tryToDelete);
 
 		std::string printPacketInfo(bool timeAsLocalTime);
 	};
