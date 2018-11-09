@@ -1790,8 +1790,7 @@ PACKETPP_TEST(RemoveLayerTest)
 	// a. Remove layer from the middle
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	IPv4Layer* ipLayer = tcpPacket.getLayerOfType<IPv4Layer>();
-	PACKETPP_ASSERT(tcpPacket.removeLayer(ipLayer), "Remove IPv4 layer failed");
+	PACKETPP_ASSERT(tcpPacket.removeLayer(IPv4), "Remove IPv4 layer failed");
 	PACKETPP_ASSERT(tcpPacket.isPacketOfType(IPv4) == false, "Packet is still of type IPv4");
 	PACKETPP_ASSERT(tcpPacket.isPacketOfType(Ethernet) == true, "Packet isn't of type Ethernet");
 	PACKETPP_ASSERT(tcpPacket.getLayerOfType<IPv4Layer>() == NULL, "Can still retrieve IPv4 layer");
@@ -1806,7 +1805,7 @@ PACKETPP_TEST(RemoveLayerTest)
 	// b. Remove first layer
 	// ~~~~~~~~~~~~~~~~~~~~~
 
-	PACKETPP_ASSERT(tcpPacket.removeLayer(tcpPacket.getFirstLayer()), "Remove first layer failed");
+	PACKETPP_ASSERT(tcpPacket.removeFirstLayer(), "Remove first layer failed");
 	PACKETPP_ASSERT(tcpPacket.isPacketOfType(IPv4) == false, "Packet is still of type IPv4");
 	PACKETPP_ASSERT(tcpPacket.isPacketOfType(Ethernet) == false, "Packet is still of type Ethernet");
 	PACKETPP_ASSERT(tcpPacket.getFirstLayer()->getProtocol() == TCP, "First layer isn't of type TCP");
@@ -1820,7 +1819,7 @@ PACKETPP_TEST(RemoveLayerTest)
 
 	// c. Remove last layer
 	// ~~~~~~~~~~~~~~~~~~~~
-	PACKETPP_ASSERT(tcpPacket.removeLayer(tcpPacket.getLastLayer()), "Remove last layer failed");
+	PACKETPP_ASSERT(tcpPacket.removeLastLayer(), "Remove last layer failed");
 	PACKETPP_ASSERT(tcpPacket.isPacketOfType(IPv4) == false, "Packet is still of type IPv4");
 	PACKETPP_ASSERT(tcpPacket.isPacketOfType(Ethernet) == false, "Packet is still of type Ethernet");
 	PACKETPP_ASSERT(tcpPacket.getFirstLayer() == tcpPacket.getLastLayer(), "More than 1 layer still in packet");
@@ -1860,7 +1859,7 @@ PACKETPP_TEST(RemoveLayerTest)
 	// a. remove first layer
 	// ~~~~~~~~~~~~~~~~~~~~~
 
-	PACKETPP_ASSERT(testPacket.removeLayer(&ethLayer), "Couldn't remove Eth layer");
+	PACKETPP_ASSERT(testPacket.removeLayer(Ethernet), "Couldn't remove Eth layer");
 	PACKETPP_ASSERT(testPacket.getFirstLayer() == &ip4Layer, "IPv4 layer isn't the first layer");
 	PACKETPP_ASSERT(testPacket.getFirstLayer()->getNextLayer()->getNextLayer() == NULL, "More than 2 layers remain in packet");
 	PACKETPP_ASSERT(testPacket.isPacketOfType(Ethernet) == false, "Packet is wrongly of type Ethernet");
@@ -1876,7 +1875,7 @@ PACKETPP_TEST(RemoveLayerTest)
 	// b. remove last layer
 	// ~~~~~~~~~~~~~~~~~~~~
 
-	PACKETPP_ASSERT(testPacket.removeLayer(&payloadLayer), "Couldn't remove Payload layer");
+	PACKETPP_ASSERT(testPacket.removeLayer(GenericPayload), "Couldn't remove Payload layer");
 	PACKETPP_ASSERT(testPacket.getFirstLayer() == &ip4Layer, "IPv4 layer isn't the first layer");
 	PACKETPP_ASSERT(testPacket.getFirstLayer()->getNextLayer() == NULL, "More than 1 layer remain in packet");
 	PACKETPP_ASSERT(testPacket.isPacketOfType(IPv4) == true, "Packet isn't of type IPv4");
@@ -1907,12 +1906,12 @@ PACKETPP_TEST(RemoveLayerTest)
 
 	// d. remove the remaining layers (packet remains empty!)
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	PACKETPP_ASSERT(testPacket.removeLayer(&ip4Layer), "Couldn't remove IPv4 layer");
+	PACKETPP_ASSERT(testPacket.removeLayer(IPv4), "Couldn't remove IPv4 layer");
 	PACKETPP_ASSERT(testPacket.getFirstLayer() == &vlanLayer, "VLAN isn't the first layer");
 	PACKETPP_ASSERT(testPacket.isPacketOfType(IPv4) == false, "Packet is wrongly of type IPv4");
 	PACKETPP_ASSERT(testPacket.isPacketOfType(VLAN) == true, "Packet isn't of type VLAN");
 	PACKETPP_ASSERT(testPacket.getRawPacket()->getRawDataLen() == 4, "Raw packet length != 4, it's %d", testPacket.getRawPacket()->getRawDataLen());
-	PACKETPP_ASSERT(testPacket.removeLayer(&vlanLayer), "Couldn't remove VLAN layer");
+	PACKETPP_ASSERT(testPacket.removeLayer(VLAN), "Couldn't remove VLAN layer");
 	PACKETPP_ASSERT(testPacket.isPacketOfType(VLAN) == false, "Packet is wrongly of type VLAN");
 	PACKETPP_ASSERT(testPacket.getRawPacket()->getRawDataLen() == 0, "Raw packet length != 0, it's %d", testPacket.getRawPacket()->getRawDataLen());
 
@@ -1927,7 +1926,7 @@ PACKETPP_TEST(RemoveLayerTest)
 	Packet packet1, packet2;
 	PACKETPP_ASSERT(packet1.addLayer(&eth) == true, "Step e: cannot add eth layer");
 	PACKETPP_ASSERT(packet1.getRawPacket()->getRawDataLen() == 14, "Step e: packet1 len before removal isn't 14");
-	PACKETPP_ASSERT(packet1.removeLayer(&eth) == true, "Step e: cannot remove layer");
+	PACKETPP_ASSERT(packet1.detachLayer(&eth) == true, "Step e: cannot remove layer");
 	PACKETPP_ASSERT(packet1.getRawPacket()->getRawDataLen() == 0, "Step e: packet1 len after removal isn't 0");
 	PACKETPP_ASSERT(packet2.getRawPacket()->getRawDataLen() == 0, "Step e: packet2 len before add isn't 0");
 	PACKETPP_ASSERT(packet2.addLayer(&eth) == true, "Step e: cannot add eth layer to packet2");
@@ -4222,13 +4221,14 @@ PACKETPP_TEST(GreEditTest)
 	PACKETPP_ASSERT(pppLayer != NULL, "GREv1 PPP layer is null");
 	pppLayer->getPPP_PPTPHeader()->control = 255;
 
-	Layer* curLayer = pppLayer->getNextLayer();
-	while (curLayer != NULL)
-	{
-		Layer* temp = curLayer->getNextLayer();
-		grev1Packet.removeLayer(curLayer);
-		curLayer = temp;
-	}
+	PACKETPP_ASSERT(grev1Packet.removeAllLayersAfter(pppLayer) == true, "GREv1 layer couldn't remove all layers after PPP layer");
+	// Layer* curLayer = pppLayer->getNextLayer();
+	// while (curLayer != NULL)
+	// {
+	// 	Layer* temp = curLayer->getNextLayer();
+	// 	grev1Packet.removeLayer(curLayer);
+	// 	curLayer = temp;
+	// }
 
 	grev1Packet.computeCalculateFields();
 
@@ -5695,7 +5695,7 @@ PACKETPP_TEST(VxlanParsingAndCreationTest)
 	PACKETPP_ASSERT(memcmp(vxlanPacket.getRawPacket()->getRawData(), buffer2, vxlanPacket.getRawPacket()->getRawDataLen()) == 0, "Edited raw packet data after edit is different than expected");
 
 	// remove vxlan layer
-	PACKETPP_ASSERT(vxlanPacket.removeLayer(vxlanLayer) == true, "Couldn't remove vxlan layer");
+	PACKETPP_ASSERT(vxlanPacket.removeLayer(VXLAN) == true, "Couldn't remove vxlan layer");
 	vxlanPacket.computeCalculateFields();
 
 	// create new vxlan layer
@@ -6525,9 +6525,7 @@ PACKETPP_TEST(PacketTrailerTest)
 	LoggerPP::getInstance().enableErrors();
 
 	// remove layer before trailer
-	tcpLayer = trailerIPv4Packet.getLayerOfType<TcpLayer>();
-	PACKETPP_ASSERT(tcpLayer != NULL, "Couldn't find TCP layer for trailerIPv4Packet");
-	trailerIPv4Packet.removeLayer(tcpLayer);
+	PACKETPP_ASSERT(trailerIPv4Packet.removeLayer(TCP) == true, "Couldn't remove TCP layer for trailerIPv4Packet");
 	trailerIPv4Packet.computeCalculateFields();
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 67, "trailerIPv4Packet remove layer - eth layer len isn't 67");
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<IPv4Layer>()->getDataLen() == 47, "trailerIPv4Packet remove layer - ipv4 layer len isn't 47");
@@ -6535,9 +6533,7 @@ PACKETPP_TEST(PacketTrailerTest)
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 6, "trailerIPv4Packet remove layer - trailer layer len isn't 6");
 
 	// remove layer just before trailer
-	HttpRequestLayer* httpReqPtr = trailerIPv4Packet.getLayerOfType<HttpRequestLayer>();
-	PACKETPP_ASSERT(httpReqPtr != NULL, "Couldn't find HTTP request layer for trailerIPv4Packet");
-	trailerIPv4Packet.removeLayer(httpReqPtr);
+	PACKETPP_ASSERT(trailerIPv4Packet.removeLayer(HTTPRequest) == true, "Couldn't remove HTTP request layer for trailerIPv4Packet");
 	trailerIPv4Packet.computeCalculateFields();
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 40, "trailerIPv4Packet remove layer - eth layer len isn't 67");
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<IPv4Layer>()->getDataLen() == 20, "trailerIPv4Packet remove layer - ipv4 layer len isn't 47");
@@ -6549,7 +6545,7 @@ PACKETPP_TEST(PacketTrailerTest)
 	PACKETPP_ASSERT(trailerIPv6Packet2.insertLayer(ethLayer, &newVlanLayer2) == true, "trailerIPv6Packet2 - couldn't add VLAN layer");
 	PacketTrailerLayer* packetTrailer = trailerIPv6Packet2.getLayerOfType<PacketTrailerLayer>();
 	PACKETPP_ASSERT(packetTrailer != NULL, "Couldn't find trailer layer for trailerIPv6Packet2");
-	trailerIPv6Packet2.removeLayer(packetTrailer);
+	PACKETPP_ASSERT(trailerIPv6Packet2.removeLayer(PacketTrailer) == true, "Couldn't remove packet trailer for trailerIPv6Packet2");
 	trailerIPv6Packet2.computeCalculateFields();
 	PACKETPP_ASSERT(trailerIPv6Packet2.getLayerOfType<EthLayer>()->getDataLen() == 464, "trailerIPv6Packet2 remove trailer - eth layer len isn't 468");
 	PACKETPP_ASSERT(trailerIPv6Packet2.getLayerOfType<VlanLayer>()->getDataLen() == 450, "trailerIPv6Packet2 remove trailer - vlan layer len isn't 454d");
@@ -6558,13 +6554,9 @@ PACKETPP_TEST(PacketTrailerTest)
 	PACKETPP_ASSERT(trailerIPv6Packet2.getLayerOfType<DnsLayer>()->getDataLen() == 398, "trailerIPv6Packet2 remove trailer - dns layer len isn't 398");
 
 	// remove all layers but the trailer
-	ethLayer = trailerIPv4Packet.getLayerOfType<EthLayer>();
-	PACKETPP_ASSERT(ethLayer != NULL, "Couldn't find eth layer for trailerIPv4Packet");
-	trailerIPv4Packet.removeLayer(ethLayer);
+	PACKETPP_ASSERT(trailerIPv4Packet.removeLayer(Ethernet) == true, "Couldn't remove Ethernet layer for trailerIPv4Packet");
 	trailerIPv4Packet.computeCalculateFields();
-	ip4Layer = trailerIPv4Packet.getLayerOfType<IPv4Layer>();
-	PACKETPP_ASSERT(ip4Layer != NULL, "Couldn't find ipv4 layer for trailerIPv4Packet");
-	trailerIPv4Packet.removeLayer(ip4Layer);
+	PACKETPP_ASSERT(trailerIPv4Packet.removeLayer(IPv4) == true, "Couldn't remove IPv4 layer for trailerIPv4Packet");
 	PACKETPP_ASSERT(trailerIPv4Packet.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 6, "trailerIPv4Packet remove all layers but trailer - trailer layer len isn't 6");
 
 	// rebuild packet starting from trailer

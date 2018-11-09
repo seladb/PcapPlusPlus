@@ -373,7 +373,7 @@ bool Packet::removeLastLayer()
 
 bool Packet::removeAllLayersAfter(Layer* layer)
 {
-	Layer* curLayer = layer;
+	Layer* curLayer = layer->getNextLayer();
 	while (curLayer != NULL)
 	{
 		Layer* tempLayer = curLayer->getNextLayer();
@@ -407,12 +407,6 @@ bool Packet::detachLayer(Layer* layer)
 {
 	return removeLayer(layer, false);
 }
-
-bool Packet::removeLayer(Layer* layer)
-{
-	return removeLayer(layer, true);
-}
-
 
 bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 {

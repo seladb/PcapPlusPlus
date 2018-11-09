@@ -169,8 +169,22 @@ namespace pcpp
 		 * @return True if everything went well or false otherwise (an appropriate error log message will be printed in
 		 * such cases)
 		 */
-		bool removeLayer(Layer* layer);
+		// bool removeLayer(Layer* layer);
 
+		/**
+		 * Remove an existing layer from the packet. The layer to removed is identified by its type (protocol). If the
+		 * packet has multiple layers of the same type in the packet the user may specify the index of the layer to remove 
+		 * (the default index is 0 - remove the first layer of this type). If the layer was allocated during packet creation 
+		 * it will be deleted and any pointer to it will get invalid. However if the layer was allocated by the user and
+		 * manually added to the packet it will simply get detached from the packet, meaning the pointer to it will stay 
+		 * valid and its data (that was removed from the packet) will be copied back to the layer. In that case it's 
+		 * the user's responsibility to delete the layer instance
+		 * @param[in] layerType The layer type (protocol) to remove
+		 * @param[in] index If there are multiple layers of the same type, indicate which instance to remove. The default
+		 * value is 0, meaning remove the first layer of this type
+		 * @return True if everything went well or false otherwise (an appropriate error log message will be printed in
+		 * such cases)
+		 */
 		bool removeLayer(ProtocolType layerType, int index = 0);
 
 		bool removeFirstLayer();

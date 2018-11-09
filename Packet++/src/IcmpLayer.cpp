@@ -66,16 +66,10 @@ bool IcmpLayer::cleanIcmpLayer()
 
 	if (m_Packet != NULL)
 	{
-		Layer* layerToRemove = this->getNextLayer();
-		while (layerToRemove != NULL)
-		{
-			Layer* temp = layerToRemove->getNextLayer();
-			if (!m_Packet->removeLayer(layerToRemove))
-				return false;
-			layerToRemove = temp;
-		}
+		bool res = m_Packet->removeAllLayersAfter(this);
+		if (!res)
+			return false;
 	}
-
 
 	// shorten layer to size of icmphdr
 

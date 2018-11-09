@@ -3662,14 +3662,10 @@ PCAPP_TEST(TestDpdkMbufRawPacket)
 	int initialRawPacketLen = rawPacketToManipulate->getRawDataLen();
 	Packet packetToManipulate(rawPacketToManipulate);
 	IPv4Layer* ipLayer = packetToManipulate.getLayerOfType<IPv4Layer>();
-	Layer* layerToDelete = ipLayer->getNextLayer();
+	
 	// remove all layers above IP
-	while (layerToDelete != NULL)
-	{
-		Layer* nextLayer = layerToDelete->getNextLayer();
-		PCAPP_ASSERT(packetToManipulate.removeLayer(layerToDelete) == true, "Couldn't remove layer");
-		layerToDelete = nextLayer;
-	}
+	PCAPP_ASSERT(packetToManipulate.removeAllLayersAfter(ipLayer) == true, "Couldn't remove all layers above IP");
+
 	PCAPP_ASSERT(ipLayer->getNextLayer() == NULL, "Couldn't remove all layers after TCP");
 	PCAPP_ASSERT(rawPacketToManipulate->getRawDataLen() < initialRawPacketLen, "Raw packet size wasn't changed after removing layers");
 
@@ -3917,7 +3913,7 @@ RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, in
 
 	Layer* layerToRemove = tcpLayer->getNextLayer();
 	if (layerToRemove != NULL)
-		packet.removeLayer(layerToRemove);
+		packet.removeLayer(layerToRemove->getProtocol());
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htonl(ntohl(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 
