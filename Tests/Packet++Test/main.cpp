@@ -1826,6 +1826,36 @@ PACKETPP_TEST(RemoveLayerTest)
 	PACKETPP_ASSERT(tcpPacket.getFirstLayer()->getProtocol() == TCP, "TCP layer was accidently removed from packet");
 	PACKETPP_ASSERT(tcpPacket.getRawPacket()->getRawDataLen() == 20, "Data length != 20, it's %d", tcpPacket.getRawPacket()->getRawDataLen());
 
+	// d. Remove a second layer of the same type
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/Vxlan1.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file");
+
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet vxlanPacket(&rawPacket2);
+	PACKETPP_ASSERT(vxlanPacket.isPacketOfType(Ethernet) == true, "Vxlan packet is not of type Eth");
+	PACKETPP_ASSERT(vxlanPacket.isPacketOfType(IPv4) == true, "Vxlan packet is not of type IPv4");
+	PACKETPP_ASSERT(vxlanPacket.removeLayer(Ethernet, 1) == true, "Couldn't remove 2nd Eth layer from Vxlan packet");
+	PACKETPP_ASSERT(vxlanPacket.removeLayer(IPv4, 1) == true, "Couldn't remove 2nd IPv4 layer from Vxlan packet");
+	PACKETPP_ASSERT(vxlanPacket.removeLayer(ICMP) == true, "Couldn't remove ICMP layer from Vxlan packet");
+	vxlanPacket.computeCalculateFields();
+	PACKETPP_ASSERT(vxlanPacket.isPacketOfType(Ethernet) == true, "Vxlan packet is not of type Eth after remove");
+	PACKETPP_ASSERT(vxlanPacket.isPacketOfType(IPv4) == true, "Vxlan packet is not of type IPv4 after remove");
+	PACKETPP_ASSERT(vxlanPacket.isPacketOfType(VXLAN) == true, "Vxlan packet is not of type VXLAN after remove");
+	PACKETPP_ASSERT(vxlanPacket.getRawPacket()->getRawDataLen() == 50, "Vxlan packet after removing layers - length isn't 50");
+
+	// e. Remove a layer that doesn't exist
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	LoggerPP::getInstance().supressErrors();
+	PACKETPP_ASSERT(vxlanPacket.removeLayer(HTTPRequest) == false, "Managed to remove an HTTPRequest layer that doesn't exist from Vxlan packet");
+	PACKETPP_ASSERT(vxlanPacket.removeLayer(Ethernet, 1) == false, "Managed to remove a 2nd Eth layer that was already removed from Vxlan packet");
+	LoggerPP::getInstance().enableErrors();
+
 //	printf("\n\n\n");
 //	for(int i = 0; i<tcpPacket.getRawPacket()->getRawDataLen(); i++)
 //		printf("0x%2X ", tcpPacket.getRawPacket()->getRawData()[i]);
@@ -1906,6 +1936,7 @@ PACKETPP_TEST(RemoveLayerTest)
 
 	// d. remove the remaining layers (packet remains empty!)
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 	PACKETPP_ASSERT(testPacket.removeLayer(IPv4), "Couldn't remove IPv4 layer");
 	PACKETPP_ASSERT(testPacket.getFirstLayer() == &vlanLayer, "VLAN isn't the first layer");
 	PACKETPP_ASSERT(testPacket.isPacketOfType(IPv4) == false, "Packet is wrongly of type IPv4");
@@ -1920,7 +1951,11 @@ PACKETPP_TEST(RemoveLayerTest)
 //		printf("0x%2X ", testPacket.getRawPacket()->getRawData()[i]);
 //	printf("\n\n\n");
 
-	// e. parse packet, remove layer and add it to another packet
+	// Detach layer and add it to another packet
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	// a. create a layer nad a packet and move it to another packet
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	EthLayer eth(MacAddress("0a:00:27:00:00:15"), MacAddress("0a:00:27:00:00:16"));
 	Packet packet1, packet2;
@@ -1931,6 +1966,49 @@ PACKETPP_TEST(RemoveLayerTest)
 	PACKETPP_ASSERT(packet2.getRawPacket()->getRawDataLen() == 0, "Step e: packet2 len before add isn't 0");
 	PACKETPP_ASSERT(packet2.addLayer(&eth) == true, "Step e: cannot add eth layer to packet2");
 	PACKETPP_ASSERT(packet2.getRawPacket()->getRawDataLen() == 14, "Step e: packet2 len after add isn't 14");
+
+	// b. parse a packet, detach a layer and move it to another packet
+	// c. detach a second instance of the the same protocol
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/Vxlan1.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file");
+
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+
+	Packet vxlanPacketOrig(&rawPacket3);
+	EthLayer* vxlanEthLayer = (EthLayer*)vxlanPacketOrig.detachLayer(Ethernet, 1);
+	IcmpLayer* vxlanIcmpLayer = (IcmpLayer*)vxlanPacketOrig.detachLayer(ICMP);
+	IPv4Layer* vxlanIP4Layer = (IPv4Layer*)vxlanPacketOrig.detachLayer(IPv4, 1);
+	vxlanPacketOrig.computeCalculateFields();
+	PACKETPP_ASSERT(vxlanEthLayer != NULL, "Eth layer detached from Vxlan packet is NULL");
+	PACKETPP_ASSERT(vxlanIcmpLayer != NULL, "ICMP layer detached from Vxlan packet is NULL");
+	PACKETPP_ASSERT(vxlanIP4Layer != NULL, "IPv4 layer detached from Vxlan packet is NULL");
+	PACKETPP_ASSERT(vxlanEthLayer->isAllocatedToPacket() == false, "Eth layer detached from Vxlan packet is still allocated to a packet");
+	PACKETPP_ASSERT(vxlanIcmpLayer->isAllocatedToPacket() == false, "ICMP layer detached from Vxlan packet is still allocated to a packet");
+	PACKETPP_ASSERT(vxlanIP4Layer->isAllocatedToPacket() == false, "IPv4 layer detached from Vxlan packet is still allocated to a packet");
+	PACKETPP_ASSERT(vxlanPacketOrig.getLayerOfType(Ethernet) != NULL, "Cannot find first Eth layer after detaching the second one from the Vxlan packet");
+	PACKETPP_ASSERT(vxlanPacketOrig.getLayerOfType(Ethernet, 1) == NULL, "Found a second Eth layer after detaching it from the Vxlan packet");
+	PACKETPP_ASSERT(vxlanPacketOrig.getLayerOfType(IPv4) != NULL, "Cannot find first IPv4 layer after detaching the second one from the Vxlan packet");
+	PACKETPP_ASSERT(vxlanPacketOrig.getLayerOfType(IPv4, 1) == NULL, "Found a second IPv4 layer after detaching it from the Vxlan packet");
+	PACKETPP_ASSERT(vxlanPacketOrig.getLayerOfType(ICMP) == NULL, "Found an ICMP layer after detaching it from the Vxlan packet");
+
+	Packet packetWithoutTunnel;
+	PACKETPP_ASSERT(packetWithoutTunnel.addLayer(vxlanEthLayer) == true, "Couldn't add detached Eth layer to new packet");
+	PACKETPP_ASSERT(packetWithoutTunnel.addLayer(vxlanIP4Layer) == true, "Couldn't add detached IPv4 layer to new packet");
+	PACKETPP_ASSERT(packetWithoutTunnel.addLayer(vxlanIcmpLayer) == true, "Couldn't add detached ICMP layer to new packet");
+	packetWithoutTunnel.computeCalculateFields();
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IcmpWithoutTunnel.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file");
+
+	PACKETPP_ASSERT(buffer4Length == packetWithoutTunnel.getRawPacket()->getRawDataLen(), "Generated ICMP packet with tunnel len (%d) is different than read packet len (%d)", packetWithoutTunnel.getRawPacket()->getRawDataLen(), buffer4Length);
+	PACKETPP_ASSERT(memcmp(packetWithoutTunnel.getRawPacket()->getRawData(), buffer4, buffer4Length) == 0, "Generated ICMP packet with tunnel data is different than expected");
+
+	delete [] buffer4;
 
 	PACKETPP_TEST_PASSED;
 }
