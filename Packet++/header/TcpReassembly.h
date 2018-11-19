@@ -79,7 +79,7 @@ struct ConnectionData
 	/**
 	 * A c'tor for this struct that basically zeros all members
 	 */
-	ConnectionData() : srcIP(NULL), dstIP(NULL), srcPort(0), dstPort(0), flowKey(0), startTime((struct timeval){0}), endTime((struct timeval){0})  {}
+	ConnectionData() : srcIP(NULL), dstIP(NULL), srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()  {}
 
 	/**
 	 * A d'tor for this strcut. Notice it frees the memory of srcIP and dstIP members
