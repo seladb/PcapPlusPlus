@@ -71,11 +71,15 @@ struct ConnectionData
 	size_t dstPort;
 	/** A 4-byte hash key representing the connection */
 	uint32_t flowKey;
+	/** Start TimeStamp of the connection */
+	timeval startTime;
+	/** End TimeStamp of the connection */
+	timeval endTime;
 
 	/**
 	 * A c'tor for this struct that basically zeros all members
 	 */
-	ConnectionData() : srcIP(NULL), dstIP(NULL), srcPort(0), dstPort(0), flowKey(0) {}
+	ConnectionData() : srcIP(NULL), dstIP(NULL), srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()  {}
 
 	/**
 	 * A d'tor for this strcut. Notice it frees the memory of srcIP and dstIP members
@@ -103,6 +107,18 @@ struct ConnectionData
 	 * @param[in] destIP A pointer to the destination IP to set. Notice the IPAddress object will be cloned
 	 */
 	void setDstIpAddress(const IPAddress* destIP) { dstIP = destIP->clone(); }
+
+	/**
+	 * Set startTime of Connection
+	 * @param[in] startTime integer value
+	 */
+	void setStartTime(const timeval &st) { startTime = st; }
+
+	/**
+	 * Set endTime of Connection
+	 * @param[in] endTime integer value
+	 */
+	void setEndTime(const timeval &et) { endTime = et; }
 
 private:
 
