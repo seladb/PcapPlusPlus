@@ -33,5 +33,15 @@ Dist/
 mk/PcapPlusPlus.mk
 mk/platform.mk
 mk/PcapPlusPlus.mk-e
+
+# auto generated files
+install.sh
+uninstall.sh
+
 #curl text
 Tests/Pcap++Test/cUrl/curl_output.txt
+
+# visual studio code
+.cproject
+.project
+.vscode
