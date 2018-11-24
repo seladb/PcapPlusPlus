@@ -1,29 +1,14 @@
 #include "PacketTrailerLayer.h"
+#include "GeneralUtils.h"
 #include <string.h>
 #include <sstream>
-#include <iomanip>
 
 namespace pcpp
 {
 
-std::string PacketTrailerLayer::dataAsString(size_t sizeLimitation)
-{
-	  std::stringstream trailerStream;
-	  trailerStream << std::hex;
-	  for (size_t i = 0; i < m_DataLen; ++i)
-	  {
-		  if (i >= sizeLimitation)
-			  break;
-
-		  trailerStream << std::setw(2) << std::setfill('0') << (int)m_Data[i];
-	  }
-
-	  return trailerStream.str();
-}
-
 std::string PacketTrailerLayer::getTrailerDataAsHexString()
 {
-	return dataAsString(m_DataLen + 4);
+	return byteArrayToHexString(m_Data, m_DataLen, m_DataLen + 4);
 }
 
 std::string PacketTrailerLayer::toString()
@@ -31,7 +16,7 @@ std::string PacketTrailerLayer::toString()
 	std::ostringstream dataLenStream;
 	dataLenStream << m_DataLen;
 
-	std::string trailerStr = dataAsString(15);
+	std::string trailerStr = byteArrayToHexString(m_Data, m_DataLen, 15);
 
 	if (m_DataLen > 15)
 		trailerStr += "...";

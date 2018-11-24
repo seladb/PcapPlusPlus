@@ -69,8 +69,8 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		 * Currently identifies the following next layers: DnsLayer, DhcpLayer, VxlanLayer, SipRequestLayer, SipResponseLayer.
-		 * Otherwise sets PayloadLayer
+		 * Currently identifies the following next layers: DnsLayer, DhcpLayer, VxlanLayer, SipRequestLayer, SipResponseLayer,
+		 * RadiusLayer. Otherwise sets PayloadLayer
 		 */
 		void parseNextLayer();
 

@@ -24,6 +24,7 @@
 #include <SipLayer.h>
 #include <SdpLayer.h>
 #include <PacketTrailerLayer.h>
+#include <RadiusLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -132,7 +133,7 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 }
 
 // For debug purpose only
-//void createPcapFile(Packet& packet, std::string fileName)
+//void savePacketToPcap(Packet& packet, std::string fileName)
 //{
 //    pcap_t *pcap;
 //    pcap = pcap_open_dead(1, 65565);
@@ -6606,6 +6607,218 @@ PACKETPP_TEST(PacketTrailerTest)
 }
 
 
+PACKETPP_TEST(RadiusLayerParsingTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/radius_1.dat", bufferLength);
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+	Packet radiusPacket(&rawPacket);
+
+	RadiusLayer* radiusLayer = radiusPacket.getLayerOfType<RadiusLayer>();
+	PACKETPP_ASSERT(radiusLayer != NULL, "Packet1: Couldn't fetch Radius layer");
+	PACKETPP_ASSERT(radiusLayer->getRadiusHeader()->code == 1, "Packet1: code isn't 1");
+	PACKETPP_ASSERT(radiusLayer->getRadiusHeader()->id == 5, "Packet1: id isn't 5");
+	PACKETPP_ASSERT(radiusLayer->getAuthenticatorValue() == "ecfe3d2fe4473ec6299095ee46aedf77", "Packet1: authenticator value is wrong");
+	PACKETPP_ASSERT(radiusLayer->getHeaderLen() == 139, "Packet1: length isn't 139");
+	PACKETPP_ASSERT(RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code) == "Access-Request", "Packet1: message isn't Access-Request");
+	PACKETPP_ASSERT(radiusLayer->getAttributeCount() == 10, "Packet1: option count isn't 10, it's %d", radiusLayer->getAttributeCount());
+	uint8_t attrTypes[10] = { 4, 5, 61, 1, 30, 31, 6, 12, 79, 80 };
+	size_t attrTotalSize[10] = { 6, 6, 6, 14, 19, 19, 6, 6, 19, 18 };
+	size_t attrDataSize[10] = { 4, 4, 4, 12, 17, 17, 4, 4, 17, 16 };
+	RadiusAttribute radiusAttr = radiusLayer->getFirstAttribute();
+	for (int i=0; i<10; i++)
+	{
+		PACKETPP_ASSERT(radiusAttr.getType() == attrTypes[i], "Packet1: attr type #%d doesn't match", i);
+		PACKETPP_ASSERT(radiusAttr.getTotalSize() == attrTotalSize[i], "Packet1: attr total size #%d doesn't match", i);
+		PACKETPP_ASSERT(radiusAttr.getDataSize() == attrDataSize[i], "Packet1: attr data size #%d doesn't match", i);
+		radiusAttr = radiusLayer->getNextAttribute(radiusAttr);
+	}
+
+	radiusAttr = radiusLayer->getAttribute(6);
+	PACKETPP_ASSERT(!radiusAttr.isNull(), "Packet1: couldn't fetch attribute with type 6");
+	PACKETPP_ASSERT(radiusAttr.getType() == 6, "Packet1: attribute is not of type 6");
+	PACKETPP_ASSERT(radiusAttr.getDataSize() == 4, "Packet1: data size of attribute of type 6 isn't 4");
+	PACKETPP_ASSERT(radiusAttr.getTotalSize() == 6, "Packet1: total size of attribute of type 6 isn't 6");
+	PACKETPP_ASSERT(htonl(radiusAttr.getValueAs<int>()) == 2, "Packet1: value of attribute of type 6 isn't 2");
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/radius_3.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file");
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true, LINKTYPE_NULL);
+	Packet radiusPacket2(&rawPacket2);
+
+	radiusLayer = radiusPacket2.getLayerOfType<RadiusLayer>();
+
+	PACKETPP_ASSERT(radiusLayer != NULL, "Packet2: Couldn't fetch Radius layer");
+	PACKETPP_ASSERT(radiusLayer->getRadiusHeader()->code == 3, "Packet2: code isn't 3");
+	PACKETPP_ASSERT(radiusLayer->getRadiusHeader()->id == 104, "Packet2: id isn't 104");
+	PACKETPP_ASSERT(radiusLayer->getAuthenticatorValue() == "71624da25c0b5897f70539e019a81eae", "Packet2: authenticator value is wrong");
+	PACKETPP_ASSERT(radiusLayer->getHeaderLen() == 44, "Packet2: length isn't 44");
+	PACKETPP_ASSERT(RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code) == "Access-Reject", "Packet2: message isn't Access-Reject");
+	PACKETPP_ASSERT(radiusLayer->getAttributeCount() == 2, "Packet2: option count isn't 2, it's %d", radiusLayer->getAttributeCount());
+	uint8_t attrTypes2[2] = { 79, 80 };
+	size_t attrTotalSize2[2] = { 6, 18 };
+	size_t attrDataSize2[2] = { 4, 16 };
+	radiusAttr = radiusLayer->getFirstAttribute();
+	for (int i=0; i<2; i++)
+	{
+		PACKETPP_ASSERT(radiusAttr.getType() == attrTypes2[i], "Packet2: attr type #%d doesn't match", i);
+		PACKETPP_ASSERT(radiusAttr.getTotalSize() == attrTotalSize2[i], "Packet2: attr total size #%d doesn't match", i);
+		PACKETPP_ASSERT(radiusAttr.getDataSize() == attrDataSize2[i], "Packet2: attr data size #%d doesn't match", i);
+		radiusAttr = radiusLayer->getNextAttribute(radiusAttr);
+	}
+
+	PACKETPP_TEST_PASSED;
+}
+
+
+PACKETPP_TEST(RadiusLayerCreationTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer11Length = 0;
+	uint8_t* buffer11 = readFileIntoBuffer("PacketExamples/radius_11.dat", buffer11Length);
+	PACKETPP_ASSERT(!(buffer11 == NULL), "cannot read file radius_11.dat");
+
+	RawPacket rawPacket((const uint8_t*)buffer11, buffer11Length, time, true);
+
+	Packet radiusPacket(&rawPacket);
+
+	Packet newRadiusPacket;
+
+	EthLayer ethLayer(*radiusPacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(newRadiusPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
+
+	IPv4Layer ip4Layer;
+	ip4Layer = *(radiusPacket.getLayerOfType<IPv4Layer>());
+	PACKETPP_ASSERT(newRadiusPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
+
+	UdpLayer udpLayer(*radiusPacket.getLayerOfType<UdpLayer>());
+	PACKETPP_ASSERT(newRadiusPacket.addLayer(&udpLayer), "Adding UDP layer failed");
+
+	RadiusLayer radiusLayer(11, 5, "f050649184625d36f14c9075b7a48b83");
+	RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(8, IPv4Address(std::string("255.255.255.254"))));
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "New attr type 8: attr is null");
+	PACKETPP_ASSERT(radiusNewAttr.getType() == 8, "New attr type 8: type isn't 8");
+	PACKETPP_ASSERT(radiusNewAttr.getDataSize() == 4, "New attr type 8: data size isn't 4");
+
+	radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(12, (uint32_t)576));
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "New attr type 12: attr is null");
+	PACKETPP_ASSERT(radiusNewAttr.getType() == 12, "New attr type 12: type isn't 12");
+	PACKETPP_ASSERT(radiusNewAttr.getDataSize() == 4, "New attr type 12: data size isn't 4");
+	PACKETPP_ASSERT(radiusNewAttr.getValueAs<uint32_t>() == htonl(576), "New attr type 12: data isn't 576");
+
+	PACKETPP_ASSERT(newRadiusPacket.addLayer(&radiusLayer), "Adding Radius layer failed");
+
+	radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(18, std::string("Hello, %u")));
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "New attr type 18: attr is null");
+	PACKETPP_ASSERT(radiusNewAttr.getType() == 18, "New attr type 18: type isn't 18");
+	PACKETPP_ASSERT(radiusNewAttr.getDataSize() == 9, "New attr type 18: data size isn't 9");
+
+	radiusNewAttr = radiusLayer.addAttributeAfter(RadiusAttributeBuilder(6, (uint32_t)2), 12);
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "New attr type 6: attr is null");
+	PACKETPP_ASSERT(radiusNewAttr.getType() == 6, "New attr type 6: type isn't 6");
+	PACKETPP_ASSERT(radiusNewAttr.getDataSize() == 4, "New attr type 6: data size isn't 4");
+
+	uint8_t attrValue1[] = { 0xc6, 0xd1, 0x95, 0x03, 0x2f, 0xdc, 0x30, 0x24, 0x0f, 0x73, 0x13, 0xb2, 0x31, 0xef, 0x1d, 0x77 };
+	uint8_t attrValue1Len = 16;
+	radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(24, attrValue1, attrValue1Len));
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "New attr type 24: attr is null");
+
+	uint8_t attrValue2[] = { 0x01, 0x01, 0x00, 0x16, 0x04, 0x10, 0x26, 0x6b, 0x0e, 0x9a, 0x58, 0x32, 0x2f, 0x4d, 0x01, 0xab, 0x25, 0xb3, 0x5f, 0x87, 0x94, 0x64 };
+	uint8_t attrValue2Len = 22;
+	radiusNewAttr = radiusLayer.addAttributeAfter(RadiusAttributeBuilder(79, attrValue2, attrValue2Len), 18);
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "New attr type 79: attr is null");
+
+	uint8_t attrValue3[] = { 0x11, 0xb5, 0x04, 0x3c, 0x8a, 0x28, 0x87, 0x58, 0x17, 0x31, 0x33, 0xa5, 0xe0, 0x74, 0x34, 0xcf };
+	uint8_t attrValue3Len = 16;
+	radiusNewAttr = radiusLayer.addAttributeAfter(RadiusAttributeBuilder(80, attrValue3, attrValue3Len), 79);
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "New attr type 80: attr is null");
+
+	newRadiusPacket.computeCalculateFields();
+
+	RadiusLayer* origRadiusLayer = radiusPacket.getLayerOfType<RadiusLayer>();
+	RadiusLayer* newRadiusLayer = newRadiusPacket.getLayerOfType<RadiusLayer>();
+	PACKETPP_ASSERT(origRadiusLayer->getDataLen() == newRadiusLayer->getDataLen(), "New radius data len is different than orig data len");
+	PACKETPP_ASSERT(memcmp(origRadiusLayer->getData(), newRadiusLayer->getData(), origRadiusLayer->getDataLen()) == 0, "Raw layer data is different than expected");
+
+	PACKETPP_TEST_PASSED;
+}
+
+PACKETPP_TEST(RadiusLayerEditTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer11Length = 0;
+	uint8_t* buffer11 = readFileIntoBuffer("PacketExamples/radius_11.dat", buffer11Length);
+	PACKETPP_ASSERT(!(buffer11 == NULL), "cannot read file radius_11.dat");
+
+	RawPacket rawPacket11((const uint8_t*)buffer11, buffer11Length, time, true);
+	Packet radiusPacket11(&rawPacket11);
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/radius_2.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file radius_2.dat");
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	Packet radiusPacket2(&rawPacket2);
+
+	RadiusLayer* radiusLayer = radiusPacket11.getLayerOfType<RadiusLayer>();
+	PACKETPP_ASSERT(radiusLayer != NULL, "cannot find radius layer for packet11");
+	radiusLayer->getRadiusHeader()->code = 2;
+	radiusLayer->getRadiusHeader()->id = 6;
+	radiusLayer->setAuthenticatorValue("fbba6a784c7decb314caf0f27944a37b");
+
+	PACKETPP_ASSERT(radiusLayer->removeAttribute(18) == true, "couldn't remove attribute 18");
+	PACKETPP_ASSERT(radiusLayer->removeAttribute(79) == true, "couldn't remove attribute 79");
+	PACKETPP_ASSERT(radiusLayer->removeAttribute(80) == true, "couldn't remove attribute 80");
+	PACKETPP_ASSERT(radiusLayer->removeAttribute(24) == true, "couldn't remove attribute 24");
+
+	RadiusAttribute radiusNewAttr = radiusLayer->addAttributeAfter(RadiusAttributeBuilder(18, std::string("Hello, John.McGuirk")), 6);
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "cannot add attribute 18");
+
+	uint8_t attrValue1[] = { 0x03, 0x01, 0x00, 0x04 };
+	uint8_t attrValue1Len = 4;
+	radiusNewAttr = radiusLayer->addAttributeAfter(RadiusAttributeBuilder(79, attrValue1, attrValue1Len), 18);
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "cannot add attribute 79");
+
+	uint8_t attrValue2[] = { 0xb9, 0xc4, 0xae, 0x62, 0x13, 0xa7, 0x1d, 0x32, 0x12, 0x5e, 0xf7, 0xca, 0x4e, 0x4c, 0x63, 0x60 };
+	uint8_t attrValue2Len = 16;
+	radiusNewAttr = radiusLayer->addAttributeAfter(RadiusAttributeBuilder(80, attrValue2, attrValue2Len), 79);
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "cannot add attribute 80");
+
+	radiusNewAttr = radiusLayer->addAttribute(RadiusAttributeBuilder(1, std::string("John.McGuirk")));
+	PACKETPP_ASSERT(radiusNewAttr.isNull() == false, "cannot add attribute 1");
+
+	radiusPacket11.computeCalculateFields();
+
+	RadiusLayer* msg2OrigRadiusLayer = radiusPacket2.getLayerOfType<RadiusLayer>();
+	PACKETPP_ASSERT(msg2OrigRadiusLayer->getDataLen() == radiusLayer->getDataLen(), "edited radius data len is different than messag2 data len");
+	PACKETPP_ASSERT(memcmp(msg2OrigRadiusLayer->getData(), radiusLayer->getData(), msg2OrigRadiusLayer->getDataLen()) == 0, "raw layer data is different than expected");
+
+
+
+	// remove all attributes test
+
+	PACKETPP_ASSERT(msg2OrigRadiusLayer->removeAllAttributes() == true, "cannot remove all attributes in packet2");
+	radiusPacket2.computeCalculateFields();
+	PACKETPP_ASSERT(msg2OrigRadiusLayer->getAttributeCount() == 0, "packet2: attribute count after removing all attributes isn't 0");
+	PACKETPP_ASSERT(msg2OrigRadiusLayer->getHeaderLen() == sizeof(radius_header), "packet2: header len after removing all attributes isn't correct");
+	PACKETPP_ASSERT(msg2OrigRadiusLayer->getFirstAttribute().isNull() == true, "packet2: managed to fetch first attribute after removing all attributes");
+	PACKETPP_ASSERT(msg2OrigRadiusLayer->getAttribute(6).isNull() == true, "packet2: managed to fetch attribute 6 after removing all attributes");
+	PACKETPP_ASSERT(msg2OrigRadiusLayer->getAttribute(80).isNull() == true, "packet2: managed to fetch attribute 6 after removing all attributes");
+
+	PACKETPP_TEST_PASSED;
+}
+
+
 int main(int argc, char* argv[]) {
 	start_leak_check();
 
@@ -6692,5 +6905,8 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(SdpLayerCreationTest);
 	PACKETPP_RUN_TEST(SdpLayerEditTest);
 	PACKETPP_RUN_TEST(PacketTrailerTest);
+	PACKETPP_RUN_TEST(RadiusLayerParsingTest);
+	PACKETPP_RUN_TEST(RadiusLayerCreationTest);
+	PACKETPP_RUN_TEST(RadiusLayerEditTest);
 	PACKETPP_END_RUNNING_TESTS;
 }

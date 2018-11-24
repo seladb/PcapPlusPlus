@@ -193,6 +193,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <ClInclude Include="..\..\Packet++\header\PayloadLayer.h" />
     <ClInclude Include="..\..\Packet++\header\PPPoELayer.h" />
     <ClInclude Include="..\..\Packet++\header\ProtocolType.h" />
+    <ClInclude Include="..\..\Packet++\header\RadiusLayer.h" />
     <ClInclude Include="..\..\Packet++\header\RawPacket.h" />
     <ClInclude Include="..\..\Packet++\header\SllLayer.h" />
     <ClInclude Include="..\..\Packet++\header\SipLayer.h" />
@@ -228,6 +229,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <ClCompile Include="..\..\Packet++\src\PacketUtils.cpp" />
     <ClCompile Include="..\..\Packet++\src\PayloadLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\PPPoELayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\RadiusLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\RawPacket.cpp" />
     <ClCompile Include="..\..\Packet++\src\SipLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SdpLayer.cpp" />

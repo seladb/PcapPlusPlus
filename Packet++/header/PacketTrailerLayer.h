@@ -77,10 +77,6 @@ namespace pcpp
 		std::string toString();
 
 		OsiModelLayer getOsiModelLayer() { return OsiModelDataLinkLayer; }
-
-	private:
-		std::string dataAsString(size_t sizeLimitation);
-
 	};
 
 }

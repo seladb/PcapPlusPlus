@@ -198,7 +198,12 @@ namespace pcpp
 		/**
 		 * Packet trailer
 		 */
-		PacketTrailer = 0x20000000
+		PacketTrailer = 0x20000000,
+
+		/**
+		 * RADIUS protocol
+		 */
+		Radius = 0x40000000
 	};
 
 
