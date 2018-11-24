@@ -2,7 +2,7 @@
 #define PACKETPP_TLV_DATA
 
 #include "Layer.h"
-#include "IPAddress.h"
+#include "IpAddress.h"
 #include <string.h>
 
 namespace pcpp
@@ -174,7 +174,7 @@ namespace pcpp
 	{
 	protected:
 
-		// unimplemented empty c'tor
+		// unimplemented default c'tor
 		TLVRecordBuilder();
 
 		/**
