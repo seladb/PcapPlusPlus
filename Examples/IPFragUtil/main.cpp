@@ -201,13 +201,7 @@ void splitIPPacketToFragmentsBySize(RawPacket* rawPacket, size_t fragmentSize, R
 			fragIpLayer = newFrag.getLayerOfType<IPv6Layer>();
 
 		// delete all layers above IP layer
-		Layer* curLayer = fragIpLayer->getNextLayer();
-		while (curLayer != NULL)
-		{
-			Layer* tempLayer = curLayer->getNextLayer();
-			newFrag.removeLayer(curLayer);
-			curLayer = tempLayer;
-		}
+		newFrag.removeAllLayersAfter(fragIpLayer);
 
 		// create a new PayloadLayer with the fragmented data and add it to the new fragment packet
 		PayloadLayer newPayload(ipLayer->getLayerPayload() + curOffset, curFragSize, false);
@@ -259,7 +253,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 		if (filterByBpf)
 		{
 			// check if packet matches the BPF filter supplied by the user
-			if (IPcapDevice::matchPakcetWithFilter(bpfFilter, &rawPacket))
+			if (IPcapDevice::matchPacketWithFilter(bpfFilter, &rawPacket))
 			{
 				stats.ipPacketsMatchBpfFilter++;
 			}

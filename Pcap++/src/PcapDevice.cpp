@@ -64,7 +64,7 @@ bool IPcapDevice::verifyFilter(std::string filterAsString)
 	return true;
 }
 
-bool IPcapDevice::matchPakcetWithFilter(std::string filterAsString, RawPacket* rawPacket)
+bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* rawPacket)
 {
 	static std::string curFilter = "";
 	static struct bpf_program prog;

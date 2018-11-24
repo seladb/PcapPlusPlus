@@ -1213,18 +1213,30 @@ PCAPP_TEST(TestPcapNgFileReadWriteAdv)
     // -------
 
     PcapNgFileReaderDevice readerDev5(EXAMPLE2_PCAPNG_PATH);
-    PCAPP_ASSERT(readerDev5.open(), "cannot open reader device 5");
-    PCAPP_ASSERT(readerDev5.setFilter("bla bla bla") == false, "Managed to set illegal filter");
-    PCAPP_ASSERT(readerDev5.setFilter("src net 130.217.250.129") == true, "Couldn't set filter");
+	PCAPP_ASSERT(readerDev5.open(), "cannot open reader device 5");
+    PCAPP_ASSERT(readerDev5.setFilter("bla bla bla") == false, "Managed to set illegal filter to reader device");
+    PCAPP_ASSERT(readerDev5.setFilter("src net 130.217.250.129") == true, "Couldn't set filter to reader device");
 
-    packetCount = 0;
+	PcapNgFileWriterDevice writerDev2(EXAMPLE2_PCAPNG_WRITE_PATH);
+    PCAPP_ASSERT(writerDev2.open(true) == true, "Couldn't writer dev 2 in append mode");
+    PCAPP_ASSERT(writerDev2.setFilter("bla bla bla") == false, "Managed to set illegal filter to writer device");
+    PCAPP_ASSERT(writerDev2.setFilter("dst port 35938") == true, "Couldn't set filter to writer device");
+
+    int filteredReadPacketCount = 0;
+    int filteredWritePacketCount = 0;
 
     while (readerDev5.getNextPacket(rawPacket, pktComment))
     {
-        packetCount++;
+        filteredReadPacketCount++;
+    	if(writerDev2.writePacket(rawPacket))
+			filteredWritePacketCount++;
     }
 
-    PCAPP_ASSERT(packetCount == 14, "Number of packets matched to filter != 14, it's %d", packetCount);
+    PCAPP_ASSERT(filteredReadPacketCount == 14, "Number of packets matched to reader filter != 14, it's %d", filteredReadPacketCount);
+    PCAPP_ASSERT(filteredWritePacketCount == 3, "Number of packets matched to writer filter != 3, it's %d", filteredWritePacketCount);
+
+	readerDev5.close();
+	writerDev2.close();
 
     PCAPP_TEST_PASSED;
 }
@@ -3650,14 +3662,10 @@ PCAPP_TEST(TestDpdkMbufRawPacket)
 	int initialRawPacketLen = rawPacketToManipulate->getRawDataLen();
 	Packet packetToManipulate(rawPacketToManipulate);
 	IPv4Layer* ipLayer = packetToManipulate.getLayerOfType<IPv4Layer>();
-	Layer* layerToDelete = ipLayer->getNextLayer();
+	
 	// remove all layers above IP
-	while (layerToDelete != NULL)
-	{
-		Layer* nextLayer = layerToDelete->getNextLayer();
-		PCAPP_ASSERT(packetToManipulate.removeLayer(layerToDelete) == true, "Couldn't remove layer");
-		layerToDelete = nextLayer;
-	}
+	PCAPP_ASSERT(packetToManipulate.removeAllLayersAfter(ipLayer) == true, "Couldn't remove all layers above IP");
+
 	PCAPP_ASSERT(ipLayer->getNextLayer() == NULL, "Couldn't remove all layers after TCP");
 	PCAPP_ASSERT(rawPacketToManipulate->getRawDataLen() < initialRawPacketLen, "Raw packet size wasn't changed after removing layers");
 
@@ -3905,7 +3913,7 @@ RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, in
 
 	Layer* layerToRemove = tcpLayer->getNextLayer();
 	if (layerToRemove != NULL)
-		packet.removeLayer(layerToRemove);
+		packet.removeLayer(layerToRemove->getProtocol());
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htonl(ntohl(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 
@@ -3978,7 +3986,10 @@ PCAPP_TEST(TestTcpReassemblySanity)
 	IPv4Address expectedDstIP(std::string("81.218.72.15"));
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 10.0.0.1");
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 81.218.72.15");
-
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
 	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
@@ -4404,6 +4415,10 @@ PCAPP_TEST(TestTcpReassemblyIPv6)
 	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
 	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
@@ -4442,6 +4457,10 @@ PCAPP_TEST(TestTcpReassemblyIPv6MultConns)
 	PCAPP_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #1: Source IP isn't 2001:618:400::5199:cc70");
 	PCAPP_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #1: Source IP isn't 2001:618:1:8000::5");
 	PCAPP_ASSERT(iter->second.connData.srcPort == 35995, "Conn #1: source port isn't 35995");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream4.txt"));
 	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #1: Reassembly data different than expected");
 
@@ -4458,6 +4477,10 @@ PCAPP_TEST(TestTcpReassemblyIPv6MultConns)
 	PCAPP_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #2: Source IP isn't 2001:618:400::5199:cc70");
 	PCAPP_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #2: Source IP isn't 2001:618:1:8000::5");
 	PCAPP_ASSERT(iter->second.connData.srcPort == 35999, "Conn #2: source port isn't 35999");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 
 	iter++;
 
@@ -4472,6 +4495,10 @@ PCAPP_TEST(TestTcpReassemblyIPv6MultConns)
 	PCAPP_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #3: Source IP isn't 2001:618:400::5199:cc70");
 	PCAPP_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP2), "Conn #3: Source IP isn't 2001:638:902:1:202:b3ff:feee:5dc2");
 	PCAPP_ASSERT(iter->second.connData.srcPort == 40426, "Conn #3: source port isn't 40426");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream3.txt"));
 	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #3: Reassembly data different than expected");
 
@@ -4488,6 +4515,10 @@ PCAPP_TEST(TestTcpReassemblyIPv6MultConns)
 	PCAPP_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #4: Source IP isn't 2001:618:400::5199:cc70");
 	PCAPP_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #4: Source IP isn't 2001:618:1:8000::5");
 	PCAPP_ASSERT(iter->second.connData.srcPort == 35997, "Conn #4: source port isn't 35997");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream2.txt"));
 	PCAPP_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #4: Reassembly data different than expected");
 
@@ -4528,6 +4559,10 @@ PCAPP_TEST(TestTcpReassemblyIPv6_OOO)
 	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
 	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PCAPP_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
 	PCAPP_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");

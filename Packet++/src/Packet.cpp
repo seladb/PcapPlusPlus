@@ -332,7 +332,83 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer)
 	return true;
 }
 
-bool Packet::removeLayer(Layer* layer)
+bool Packet::removeLayer(ProtocolType layerType, int index)
+{
+	Layer* layerToRemove = getLayerOfType(layerType, index);
+
+	if (layerToRemove != NULL)
+	{
+		return removeLayer(layerToRemove, true);
+	}
+	else
+	{
+		LOG_ERROR("Layer of the requested type was not found in packet");
+		return false;
+	}
+}
+
+bool Packet::removeFirstLayer()
+{
+	Layer* firstLayer = getFirstLayer();
+	if (firstLayer == NULL)
+	{
+		LOG_ERROR("Packet has no layers");
+		return false;
+	}
+
+	return removeLayer(firstLayer, true);
+}
+
+bool Packet::removeLastLayer()
+{
+	Layer* lastLayer = getLastLayer();
+	if (lastLayer == NULL)
+	{
+		LOG_ERROR("Packet has no layers");
+		return false;
+	}
+	
+	return removeLayer(lastLayer, true);
+}
+
+bool Packet::removeAllLayersAfter(Layer* layer)
+{
+	Layer* curLayer = layer->getNextLayer();
+	while (curLayer != NULL)
+	{
+		Layer* tempLayer = curLayer->getNextLayer();
+		if (!removeLayer(curLayer, true))
+			return false;
+		curLayer = tempLayer;
+	}
+
+	return true;
+}
+
+Layer* Packet::detachLayer(ProtocolType layerType, int index)
+{
+	Layer* layerToDetach = getLayerOfType(layerType, index);
+
+	if (layerToDetach != NULL)
+	{
+		if (removeLayer(layerToDetach, false))
+			return layerToDetach;
+		else
+			return NULL;
+	}
+	else
+	{
+		LOG_ERROR("Layer of the requested type was not found in packet");
+		return NULL;
+	}
+}
+
+bool Packet::detachLayer(Layer* layer)
+{
+	return removeLayer(layer, false);
+}
+
+bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 {
 	if (layer == NULL)
 	{
@@ -356,6 +432,11 @@ bool Packet::removeLayer(Layer* layer)
 		LOG_ERROR("Layer isn't allocated to this packet");
 		return false;
 	}
+
+	// before removing the layer's data, copy it so it can be later assigned as the removed layer's data
+	size_t layerOldDataSize = layer->getHeaderLen();
+	uint8_t* layerOldData = new uint8_t[layerOldDataSize];
+	memcpy(layerOldData, layer->m_Data, layerOldDataSize);
 
 	// remove data from raw packet
 	size_t numOfBytesToRemove = layer->getHeaderLen();
@@ -426,11 +507,40 @@ bool Packet::removeLayer(Layer* layer)
 	if (!anotherLayerWithSameProtocolExists)
 		m_ProtocolTypes &= ~((uint64_t)layer->getProtocol());
 
-	// if layer was allocated by this packet, delete it
-	if (layer->m_IsAllocatedInPacket)
+	// if layer was allocated by this packet and tryToDelete flag is set, delete it
+	if (tryToDelete && layer->m_IsAllocatedInPacket)
+	{
 		delete layer;
+		delete [] layerOldData;
+	}
+	// if layer was not allocated by this packet or the tryToDelete is not set, detach it from the packet so it can be reused
+	else
+	{
+		layer->m_Packet = NULL;
+		layer->m_Data = layerOldData;
+		layer->m_DataLen = layerOldDataSize;
+	}
 
 	return true;
+}
+
+Layer* Packet::getLayerOfType(ProtocolType layerType, int index)
+{
+	Layer* curLayer = getFirstLayer();
+	int curIndex = 0;
+	while (curLayer != NULL)
+	{
+		if (curLayer->getProtocol() == layerType)
+		{
+			if (curIndex < index)
+				curIndex++;
+			else
+				break;
+		}
+		curLayer = curLayer->getNextLayer();
+	}
+
+	return curLayer;
 }
 
 bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExtend)

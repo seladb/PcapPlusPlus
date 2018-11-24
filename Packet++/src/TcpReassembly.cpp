@@ -62,6 +62,8 @@ void ConnectionData::copyData(const ConnectionData& other)
 	flowKey = other.flowKey;
 	srcPort = other.srcPort;
 	dstPort = other.dstPort;
+	startTime = other.startTime;
+	endTime = other.endTime;
 }
 
 
@@ -238,6 +240,8 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData->connData.srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
 		tcpReassemblyData->connData.dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
 		tcpReassemblyData->connData.flowKey = flowKey;
+		timeval ts = tcpData.getRawPacket()->getPacketTimeStamp();
+		tcpReassemblyData->connData.setStartTime(ts);
 
 		m_ConnectionList[flowKey] = tcpReassemblyData;
 
@@ -248,7 +252,21 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 			m_OnConnStart(tcpReassemblyData->connData, m_UserCookie);
 	}
 	else // connection already exists
+	{
 		tcpReassemblyData = iter->second;
+		timeval currTime = tcpData.getRawPacket()->getPacketTimeStamp();
+		if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
+		{
+			tcpReassemblyData->connData.setEndTime(currTime); 
+		}
+		else if (currTime.tv_sec == tcpReassemblyData->connData.endTime.tv_sec)
+		{
+			if (currTime.tv_usec < tcpReassemblyData->connData.endTime.tv_usec)
+			{
+				tcpReassemblyData->connData.setEndTime(currTime);
+			}
+		}
+	}
 
 	int sideIndex = -1;
 	bool first = false;

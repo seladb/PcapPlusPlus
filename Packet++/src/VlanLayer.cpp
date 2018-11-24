@@ -14,6 +14,7 @@
 #elif LINUX
 #include <in.h>
 #endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -30,6 +31,30 @@ VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t
 	setCFI(cfi);
 	setPriority(priority);
 	vlanHeader->etherType = htons(etherType);
+}
+
+uint16_t VlanLayer::getVlanID() {
+	return htobe16(getVlanHeader()->vlan) & 0xFFF;
+}
+
+uint8_t VlanLayer::getCFI() {
+	return ((htobe16(getVlanHeader()->vlan) >> 12) & 1);
+}
+
+uint8_t VlanLayer::getPriority() {
+	return (htobe16(getVlanHeader()->vlan) >> 13) & 7;
+}
+
+void VlanLayer::setVlanID(uint16_t id) {
+	getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~0xFFF)) | (id & 0xFFF));
+}
+
+void VlanLayer::setCFI(bool cfi) {
+	getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(1 << 12))) | ((cfi & 1) << 12));
+}
+
+void VlanLayer::setPriority(uint8_t priority) {
+	getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(7 << 13))) | ((priority & 7) << 13));
 }
 
 void VlanLayer::parseNextLayer()

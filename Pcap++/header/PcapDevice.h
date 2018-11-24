@@ -63,7 +63,7 @@ namespace pcpp
 		 * @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
 		 * @return True if raw packet matches the BPF filter or false otherwise
 		 */
-		static bool matchPakcetWithFilter(std::string filterAsString, RawPacket* rawPacket);
+		static bool matchPacketWithFilter(std::string filterAsString, RawPacket* rawPacket);
 
 
 		// implement abstract methods

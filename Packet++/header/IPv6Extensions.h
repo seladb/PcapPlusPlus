@@ -59,6 +59,11 @@ namespace pcpp
 		 */
 		virtual ~IPv6Extension();
 
+		/**
+		 * @return A pointer to the next header or NULL if the extension is the last one
+		 */
+		inline IPv6Extension* getNextHeader() { return m_NextHeader; }
+
 	protected:
 
 		struct ipv6_ext_base_header
@@ -85,8 +90,6 @@ namespace pcpp
 		ipv6_ext_base_header* getBaseHeader() const { return (ipv6_ext_base_header*)getDataPtr(); }
 
 		inline void setNextHeader(IPv6Extension* nextHeader) { m_NextHeader = nextHeader; }
-
-		inline IPv6Extension* getNextHeader() { return m_NextHeader; }
 
 		IPv6Extension* m_NextHeader;
 		IPv6ExtensionType m_ExtType;
