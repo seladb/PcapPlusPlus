@@ -187,6 +187,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Common++\header\GeneralUtils.h" />
     <ClInclude Include="..\..\Common++\header\IpAddress.h" />
     <ClInclude Include="..\..\Common++\header\IpUtils.h" />
     <ClInclude Include="..\..\Common++\header\Logger.h" />
@@ -199,6 +200,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Common++\header\TablePrinter.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Common++\src\GeneralUtils.cpp" />
     <ClCompile Include="..\..\Common++\src\IpAddress.cpp" />
     <ClCompile Include="..\..\Common++\src\IpUtils.cpp" />
     <ClCompile Include="..\..\Common++\src\Logger.cpp" />

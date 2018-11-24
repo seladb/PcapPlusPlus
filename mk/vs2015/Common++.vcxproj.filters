@@ -18,6 +18,9 @@
     <ClInclude Include="..\..\Common++\header\SystemUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common++\header\GeneralUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Common++\header\IpAddress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -47,6 +50,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Common++\src\GeneralUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Common++\src\IpAddress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
