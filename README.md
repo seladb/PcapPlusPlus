@@ -78,12 +78,13 @@ The Packet++ library currently supports parsing, editing and creation of packets
 16. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
 17. SIP
 18. SDP
-19. DNS
-20. DHCP
-21. HTTP headers (request & response)
-22. SSL/TLS - parsing only (no editing capabilities)
-23. Packet trailer (a.k.a footer or padding)
-24. Generic payload
+19. Radius
+20. DNS
+21. DHCP
+22. HTTP headers (request & response)
+23. SSL/TLS - parsing only (no editing capabilities)
+24. Packet trailer (a.k.a footer or padding)
+25. Generic payload
 
 ### Useful Packet And Network Utilities ###
 
