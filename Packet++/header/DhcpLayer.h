@@ -530,11 +530,12 @@ namespace pcpp
 
 	/**
 	 * @class DhcpLayer
-	 * Represents A DHCP (Dynamic Host Configuration Protocol) protocol layer
+	 * Represents a DHCP (Dynamic Host Configuration Protocol) protocol layer
 	 */
 	class DhcpLayer : public Layer
 	{
 	public:
+
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -691,7 +692,7 @@ namespace pcpp
 		 * @param[in] optionLen The length of the option data
 		 * @param[in] optionData A pointer to the option data. This data will be copied to added option data. Notice the length of
 		 * optionData must be optionLength
-		 * @param[in] prevOption The DHCP option which the newly added tag will come after. If set to ::DHCPOPT_UNKNOWN DHCP option will be
+		 * @param[in] prevOption The DHCP option which the newly added option will come after. If set to ::DHCPOPT_UNKNOWN DHCP option will be
 		 * added as the first DHCP option
 		 * @return A pointer to the newly added option or NULL if addition failed. Notice this is a pointer to the real data
 		 * casted to DhcpOptionData type (as opposed to a copy of the option data). So changes in this return value will affect

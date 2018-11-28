@@ -112,13 +112,13 @@ struct ConnectionData
 	 * Set startTime of Connection
 	 * @param[in] startTime integer value
 	 */
-	void setStartTime(const timeval &st) { startTime = st; }
+	void setStartTime(const timeval &startTime) { this->startTime = startTime; }
 
 	/**
 	 * Set endTime of Connection
 	 * @param[in] endTime integer value
 	 */
-	void setEndTime(const timeval &et) { endTime = et; }
+	void setEndTime(const timeval &endTime) { this->endTime = endTime; }
 
 private:
 

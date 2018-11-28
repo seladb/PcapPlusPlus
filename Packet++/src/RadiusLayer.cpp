@@ -40,7 +40,7 @@ RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator,
 	hdr->code = code;
 	hdr->id = id;
 	hdr->length = htons(sizeof(radius_header));
-	if (authenticatorArrSize == 0)
+	if (authenticatorArrSize == 0 || authenticator == NULL)
 		return;
 	if (authenticatorArrSize > 16)
 		authenticatorArrSize = 16;
@@ -163,22 +163,22 @@ std::string RadiusLayer::toString()
 
 RadiusAttribute RadiusLayer::getFirstAttribute()
 {
-	return m_AttributeReader.getFirstTLVRecord(getAttributesBasePtr(), sizeof(radius_header), getHeaderLen());
+	return m_AttributeReader.getFirstTLVRecord(getAttributesBasePtr(), getHeaderLen() - sizeof(radius_header));
 }
 
 RadiusAttribute RadiusLayer::getNextAttribute(RadiusAttribute& attr)
 {
-	return m_AttributeReader.getNextTLVRecord(attr, getAttributesBasePtr(), sizeof(radius_header), getHeaderLen());
+	return m_AttributeReader.getNextTLVRecord(attr, getAttributesBasePtr(), getHeaderLen() - sizeof(radius_header));
 }
 
 RadiusAttribute RadiusLayer::getAttribute(uint8_t attributeType)
 {
-	return m_AttributeReader.getTLVRecord(attributeType, getAttributesBasePtr(), sizeof(radius_header), getHeaderLen());
+	return m_AttributeReader.getTLVRecord(attributeType, getAttributesBasePtr(), getHeaderLen() - sizeof(radius_header));
 }
 
 size_t RadiusLayer::getAttributeCount()
 {
-	return m_AttributeReader.getTLVRecordCount(getAttributesBasePtr(), sizeof(radius_header), getHeaderLen());
+	return m_AttributeReader.getTLVRecordCount(getAttributesBasePtr(), getHeaderLen() - sizeof(radius_header));
 }
 
 RadiusAttribute RadiusLayer::addAttribute(const RadiusAttributeBuilder& attrBuilder)
