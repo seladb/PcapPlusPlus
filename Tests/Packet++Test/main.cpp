@@ -6720,7 +6720,7 @@ PACKETPP_TEST(RadiusLayerParsingTest)
 	PACKETPP_ASSERT(radiusLayer->getAuthenticatorValue() == "ecfe3d2fe4473ec6299095ee46aedf77", "Packet1: authenticator value is wrong");
 	PACKETPP_ASSERT(radiusLayer->getHeaderLen() == 139, "Packet1: length isn't 139");
 	PACKETPP_ASSERT(RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code) == "Access-Request", "Packet1: message isn't Access-Request");
-	PACKETPP_ASSERT(radiusLayer->getAttributeCount() == 10, "Packet1: option count isn't 10, it's %d", radiusLayer->getAttributeCount());
+	PACKETPP_ASSERT(radiusLayer->getAttributeCount() == 10, "Packet1: option count isn't 10, it's %d", (int)radiusLayer->getAttributeCount());
 	uint8_t attrTypes[10] = { 4, 5, 61, 1, 30, 31, 6, 12, 79, 80 };
 	size_t attrTotalSize[10] = { 6, 6, 6, 14, 19, 19, 6, 6, 19, 18 };
 	size_t attrDataSize[10] = { 4, 4, 4, 12, 17, 17, 4, 4, 17, 16 };
@@ -6755,7 +6755,7 @@ PACKETPP_TEST(RadiusLayerParsingTest)
 	PACKETPP_ASSERT(radiusLayer->getAuthenticatorValue() == "71624da25c0b5897f70539e019a81eae", "Packet2: authenticator value is wrong");
 	PACKETPP_ASSERT(radiusLayer->getHeaderLen() == 44, "Packet2: length isn't 44");
 	PACKETPP_ASSERT(RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code) == "Access-Reject", "Packet2: message isn't Access-Reject");
-	PACKETPP_ASSERT(radiusLayer->getAttributeCount() == 2, "Packet2: option count isn't 2, it's %d", radiusLayer->getAttributeCount());
+	PACKETPP_ASSERT(radiusLayer->getAttributeCount() == 2, "Packet2: option count isn't 2, it's %d", (int)radiusLayer->getAttributeCount());
 	uint8_t attrTypes2[2] = { 79, 80 };
 	size_t attrTotalSize2[2] = { 6, 18 };
 	size_t attrDataSize2[2] = { 4, 16 };

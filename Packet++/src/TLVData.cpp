@@ -50,7 +50,11 @@ TLVRecordBuilder::TLVRecordBuilder(const TLVRecordBuilder& other)
 	m_RecType = other.m_RecType;
 	m_RecValueLen = other.m_RecValueLen;
 	m_RecValue = NULL;
-	memcpy(m_RecValue, other.m_RecValue, m_RecValueLen);
+	if (other.m_RecValue != NULL)
+	{
+		m_RecValue = new uint8_t[m_RecValueLen];
+		memcpy(m_RecValue, other.m_RecValue, m_RecValueLen);
+	}
 }
 
 TLVRecordBuilder::~TLVRecordBuilder()
