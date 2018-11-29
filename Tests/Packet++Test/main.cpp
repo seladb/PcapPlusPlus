@@ -4953,7 +4953,7 @@ PACKETPP_TEST(DhcpParsingTest)
 	{
 		PACKETPP_ASSERT(opt.isNull() == false, "First opt is null");
 		PACKETPP_ASSERT(opt.getType() == optTypeArr[i], "Option #%d type isn't %d, it's %d", (int)i, optTypeArr[i], opt.getType());
-		PACKETPP_ASSERT(opt.getDataSize() == optLenArr[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr[i], opt.getDataSize());
+		PACKETPP_ASSERT(opt.getDataSize() == optLenArr[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr[i], (int)opt.getDataSize());
 		opt = dhcpLayer->getNextOptionData(opt);
 	}
 
@@ -5012,7 +5012,7 @@ PACKETPP_TEST(DhcpParsingTest)
 	{
 		PACKETPP_ASSERT(opt.isNull() == false, "First opt is null");
 		PACKETPP_ASSERT(opt.getType() == optTypeArr2[i], "Option #%d type isn't %d, it's %d", (int)i, optTypeArr2[i], opt.getType());
-		PACKETPP_ASSERT(opt.getDataSize() == optLenArr2[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr2[i], opt.getDataSize());
+		PACKETPP_ASSERT(opt.getDataSize() == optLenArr2[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr2[i], (int)opt.getDataSize());
 		opt = dhcpLayer->getNextOptionData(opt);
 	}
 
