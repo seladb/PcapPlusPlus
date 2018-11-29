@@ -4931,7 +4931,7 @@ PACKETPP_TEST(DhcpParsingTest)
 	PACKETPP_ASSERT(dhcpLayer->getClientHardwareAddress() == MacAddress(string("00:0e:86:11:c0:75")), "Client hardware address isn't 00:0e:86:11:c0:75");
 
 	PACKETPP_ASSERT(dhcpLayer->getOptionsCount() == 12, "Option count is wrong, expected 12 and got %d", (int)dhcpLayer->getOptionsCount());
-	DhcpOptionData* opt = dhcpLayer->getFirstOptionData();
+	DhcpOption opt = dhcpLayer->getFirstOptionData();
 	DhcpOptionTypes optTypeArr[] = {
 			DHCPOPT_DHCP_MESSAGE_TYPE,
 			DHCPOPT_SUBNET_MASK,
@@ -4951,23 +4951,23 @@ PACKETPP_TEST(DhcpParsingTest)
 
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PACKETPP_ASSERT(opt != NULL, "First opt is null");
-		PACKETPP_ASSERT(opt->getType() == optTypeArr[i], "Option #%d type isn't %d, it's %d", (int)i, optTypeArr[i], opt->getType());
-		PACKETPP_ASSERT(opt->getLength() == optLenArr[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr[i], opt->getLength());
+		PACKETPP_ASSERT(opt.isNull() == false, "First opt is null");
+		PACKETPP_ASSERT(opt.getType() == optTypeArr[i], "Option #%d type isn't %d, it's %d", (int)i, optTypeArr[i], opt.getType());
+		PACKETPP_ASSERT(opt.getDataSize() == optLenArr[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr[i], opt.getDataSize());
 		opt = dhcpLayer->getNextOptionData(opt);
 	}
 
-	PACKETPP_ASSERT(opt == NULL, "Last option isn't NULL");
+	PACKETPP_ASSERT(opt.isNull() == true, "Last option isn't NULL");
 
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PACKETPP_ASSERT(dhcpLayer->getOptionData(optTypeArr[i]) != NULL, "Cannot get option of type %d", optTypeArr[i]);
+		PACKETPP_ASSERT(dhcpLayer->getOptionData(optTypeArr[i]).isNull() == false, "Cannot get option of type %d", optTypeArr[i]);
 	}
 
-	PACKETPP_ASSERT(dhcpLayer->getOptionData(DHCPOPT_SUBNET_MASK)->getValueAsIpAddr() == IPv4Address(std::string("255.255.255.0")), "Subnet mask isn't 255.255.255.0");
-	PACKETPP_ASSERT(dhcpLayer->getOptionData(DHCPOPT_DHCP_SERVER_IDENTIFIER)->getValueAsIpAddr() == IPv4Address(std::string("172.22.178.234")), "Server id isn't 172.22.178.234");
-	PACKETPP_ASSERT(dhcpLayer->getOptionData(DHCPOPT_DHCP_LEASE_TIME)->getValueAs<uint32_t>() == htonl(43200), "Lease time isn't 43200");
-	PACKETPP_ASSERT(dhcpLayer->getOptionData(DHCPOPT_TFTP_SERVER_NAME)->getValueAsString() == "172.22.178.234", "TFTP server isn't 172.22.178.234");
+	PACKETPP_ASSERT(dhcpLayer->getOptionData(DHCPOPT_SUBNET_MASK).getValueAsIpAddr() == IPv4Address(std::string("255.255.255.0")), "Subnet mask isn't 255.255.255.0");
+	PACKETPP_ASSERT(dhcpLayer->getOptionData(DHCPOPT_DHCP_SERVER_IDENTIFIER).getValueAsIpAddr() == IPv4Address(std::string("172.22.178.234")), "Server id isn't 172.22.178.234");
+	PACKETPP_ASSERT(dhcpLayer->getOptionData(DHCPOPT_DHCP_LEASE_TIME).getValueAs<uint32_t>() == htonl(43200), "Lease time isn't 43200");
+	PACKETPP_ASSERT(dhcpLayer->getOptionData(DHCPOPT_TFTP_SERVER_NAME).getValueAsString() == "172.22.178.234", "TFTP server isn't 172.22.178.234");
 
 	PACKETPP_ASSERT(dhcpLayer->getMesageType() == DHCP_OFFER, "Message type isn't DHCP_OFFER");
 
@@ -5010,17 +5010,17 @@ PACKETPP_TEST(DhcpParsingTest)
 
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PACKETPP_ASSERT(opt != NULL, "First opt is null");
-		PACKETPP_ASSERT(opt->getType() == optTypeArr2[i], "Option #%d type isn't %d, it's %d", (int)i, optTypeArr2[i], opt->getType());
-		PACKETPP_ASSERT(opt->getLength() == optLenArr2[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr2[i], opt->getLength());
+		PACKETPP_ASSERT(opt.isNull() == false, "First opt is null");
+		PACKETPP_ASSERT(opt.getType() == optTypeArr2[i], "Option #%d type isn't %d, it's %d", (int)i, optTypeArr2[i], opt.getType());
+		PACKETPP_ASSERT(opt.getDataSize() == optLenArr2[i], "Option #%d length isn't %d, it's %d", (int)i, optLenArr2[i], opt.getDataSize());
 		opt = dhcpLayer->getNextOptionData(opt);
 	}
 
-	PACKETPP_ASSERT(opt == NULL, "Last option isn't NULL");
+	PACKETPP_ASSERT(opt.isNull() == true, "Last option isn't NULL");
 
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PACKETPP_ASSERT(dhcpLayer->getOptionData(optTypeArr2[i]) != NULL, "Cannot get option of type %d", optTypeArr2[i]);
+		PACKETPP_ASSERT(dhcpLayer->getOptionData(optTypeArr2[i]).isNull() == false, "Cannot get option of type %d", optTypeArr2[i]);
 	}
 
 	PACKETPP_ASSERT(dhcpLayer->getMesageType() == DHCP_DISCOVER, "Message type isn't DHCP_DISCOVER");
@@ -5052,34 +5052,29 @@ PACKETPP_TEST(DhcpCreationTest)
 	dhcpLayer.setServerIpAddress(serverIP);
 	dhcpLayer.setGatewayIpAddress(gatewayIP);
 
-	DhcpOptionData* subnetMaskOpt = dhcpLayer.addOption(DHCPOPT_SUBNET_MASK, 4, NULL);
-	PACKETPP_ASSERT(subnetMaskOpt != NULL, "Couldn't add subnet mask option");
-	IPv4Address subnetMask(std::string("255.255.255.0"));
-	subnetMaskOpt->setValueIpAddr(subnetMask);
+	DhcpOption subnetMaskOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_SUBNET_MASK, IPv4Address(std::string("255.255.255.0"))));
+	PACKETPP_ASSERT(subnetMaskOpt.isNull() == false, "Couldn't add subnet mask option");
 
 	uint8_t sipServersData[] = { 0x01, 0xac, 0x16, 0xb2, 0xea };
-	DhcpOptionData* sipServersOpt = dhcpLayer.addOption(DHCPOPT_SIP_SERVERS, 5, sipServersData);
-	PACKETPP_ASSERT(sipServersOpt != NULL, "Couldn't add SIP servers option");
+	DhcpOption sipServersOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_SIP_SERVERS, sipServersData, 5));
+	PACKETPP_ASSERT(sipServersOpt.isNull() == false, "Couldn't add SIP servers option");
 
 	uint8_t agentData[] = { 0x01, 0x14, 0x20, 0x50, 0x4f, 0x4e, 0x20, 0x31, 0x2f, 0x31, 0x2f, 0x30, 0x37, 0x2f, 0x30, 0x31, 0x3a, 0x31, 0x2e, 0x30, 0x2e, 0x31 };
-	DhcpOptionData* agentOpt = dhcpLayer.addOption(DHCPOPT_DHCP_AGENT_OPTIONS, 22, agentData);
-	PACKETPP_ASSERT(agentOpt != NULL, "Couldn't add agent option");
+	DhcpOption agentOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_DHCP_AGENT_OPTIONS, agentData, 22));
+	PACKETPP_ASSERT(agentOpt.isNull() == false, "Couldn't add agent option");
 
-	DhcpOptionData* clientIdOpt = dhcpLayer.addOptionAfter(DHCPOPT_DHCP_CLIENT_IDENTIFIER, 16, NULL, DHCPOPT_SIP_SERVERS);
-	PACKETPP_ASSERT(clientIdOpt != NULL, "Couldn't add client ID option");
-	clientIdOpt->setValue<uint8_t>(0);
-	clientIdOpt->setValueString("nathan1clientid", 1);
+	DhcpOption clientIdOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_CLIENT_IDENTIFIER, NULL, 16), DHCPOPT_SIP_SERVERS);
+	clientIdOpt.setValue<uint8_t>(0);
+	clientIdOpt.setValueString("nathan1clientid", 1);
+	PACKETPP_ASSERT(clientIdOpt.isNull() == false, "Couldn't add client ID option");
 
 	uint8_t authOptData[] = { 0x01, 0x01, 0x00, 0xc8, 0x78, 0xc4, 0x52, 0x56, 0x40, 0x20, 0x81, 0x31, 0x32, 0x33, 0x34, 0x8f, 0xe0, 0xcc, 0xe2, 0xee, 0x85, 0x96,
 			0xab, 0xb2, 0x58, 0x17, 0xc4, 0x80, 0xb2, 0xfd, 0x30};
-	DhcpOptionData* authOpt = dhcpLayer.addOptionAfter(DHCPOPT_AUTHENTICATION, 31, authOptData, DHCPOPT_DHCP_CLIENT_IDENTIFIER);
-	PACKETPP_ASSERT(authOpt != NULL, "Couldn't add authentication option");
+	DhcpOption authOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_AUTHENTICATION, authOptData, 31), DHCPOPT_DHCP_CLIENT_IDENTIFIER);
+	PACKETPP_ASSERT(authOpt.isNull() == false, "Couldn't add authentication option");
 
-	DhcpOptionData* dhcpServerIdOpt = dhcpLayer.addOptionAfter(DHCPOPT_DHCP_SERVER_IDENTIFIER, 4, NULL, DHCPOPT_SUBNET_MASK);
-	PACKETPP_ASSERT(dhcpServerIdOpt != NULL, "Couldn't add DHCP server ID option");
-	IPv4Address dhcpServerIdIP = IPv4Address(std::string("172.22.178.234"));
-	dhcpServerIdOpt->setValueIpAddr(dhcpServerIdIP);
-
+	DhcpOption dhcpServerIdOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_SERVER_IDENTIFIER, IPv4Address(std::string("172.22.178.234"))), DHCPOPT_SUBNET_MASK);
+	PACKETPP_ASSERT(dhcpServerIdOpt.isNull() == false, "Couldn't add DHCP server ID option");
 
 	Packet newPacket(6);
 	newPacket.addLayer(&ethLayer);
@@ -5087,25 +5082,21 @@ PACKETPP_TEST(DhcpCreationTest)
 	newPacket.addLayer(&udpLayer);
 	newPacket.addLayer(&dhcpLayer);
 
-	DhcpOptionData* routerOpt = dhcpLayer.addOptionAfter(DHCPOPT_ROUTERS, 4, NULL, DHCPOPT_DHCP_SERVER_IDENTIFIER);
-	PACKETPP_ASSERT(routerOpt != NULL, "Couldn't add routers option");
-	IPv4Address routerIP = IPv4Address(std::string("10.10.8.254"));
-	routerOpt->setValueIpAddr(routerIP);
+	DhcpOption routerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_ROUTERS, IPv4Address(std::string("10.10.8.254"))), DHCPOPT_DHCP_SERVER_IDENTIFIER);
+	PACKETPP_ASSERT(routerOpt.isNull() == false, "Couldn't add routers option");
 
-	DhcpOptionData* tftpServerOpt = dhcpLayer.addOptionAfter(DHCPOPT_TFTP_SERVER_NAME, 14, NULL, DHCPOPT_ROUTERS);
-	PACKETPP_ASSERT(tftpServerOpt != NULL, "Couldn't add TFTP server name option");
-	tftpServerOpt->setValueString("172.22.178.234");
+	DhcpOption tftpServerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_TFTP_SERVER_NAME, std::string("172.22.178.234")), DHCPOPT_ROUTERS);
+	PACKETPP_ASSERT(tftpServerOpt.isNull() == false, "Couldn't add TFTP server name option");
 
-	DhcpOptionData* dnsOpt = dhcpLayer.addOptionAfter(DHCPOPT_DOMAIN_NAME_SERVERS, 8, NULL, DHCPOPT_ROUTERS);
-	PACKETPP_ASSERT(dnsOpt != NULL, "Couldn't add DNS option");
+	DhcpOption dnsOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DOMAIN_NAME_SERVERS, NULL, 8), DHCPOPT_ROUTERS);
+	PACKETPP_ASSERT(dnsOpt.isNull() == false, "Couldn't add DNS option");
 	IPv4Address dns1IP = IPv4Address(std::string("143.209.4.1"));
 	IPv4Address dns2IP = IPv4Address(std::string("143.209.5.1"));
-	dnsOpt->setValueIpAddr(dns1IP);
-	dnsOpt->setValueIpAddr(dns2IP, 4);
+	dnsOpt.setValueIpAddr(dns1IP);
+	dnsOpt.setValueIpAddr(dns2IP, 4);
 
-	DhcpOptionData* leaseOpt = dhcpLayer.addOptionAfter(DHCPOPT_DHCP_LEASE_TIME, 4, NULL, DHCPOPT_DHCP_SERVER_IDENTIFIER);
-	PACKETPP_ASSERT(leaseOpt != NULL, "Couldn't add lease option");
-	leaseOpt->setValue<uint32_t>(htonl(43200));
+	DhcpOption leaseOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_LEASE_TIME, (uint32_t)43200), DHCPOPT_DHCP_SERVER_IDENTIFIER);
+	PACKETPP_ASSERT(leaseOpt.isNull() == false, "Couldn't add lease option");
 
 	newPacket.computeCalculateFields();
 
@@ -5143,20 +5134,19 @@ PACKETPP_TEST(DhcpEditTest)
 
 	PACKETPP_ASSERT(dhcpLayer->removeOption(DHCPOPT_DHCP_MAX_MESSAGE_SIZE) == true, "Couldn't remove DHCPOPT_DHCP_MAX_MESSAGE_SIZE");
 
-	DhcpOptionData* opt = dhcpLayer->getOptionData(DHCPOPT_SUBNET_MASK);
+	DhcpOption opt = dhcpLayer->getOptionData(DHCPOPT_SUBNET_MASK);
 	IPv4Address newSubnet(std::string("255.255.255.0"));
-	opt->setValueIpAddr(newSubnet);
+	opt.setValueIpAddr(newSubnet);
 
 	PACKETPP_ASSERT(dhcpLayer->setMesageType(DHCP_ACK) == true, "Couldn't change message type");
 
-	opt = dhcpLayer->addOptionAfter(DHCPOPT_ROUTERS, 4, NULL, DHCPOPT_SUBNET_MASK);
-	PACKETPP_ASSERT(opt != NULL, "Couldn't add DHCPOPT_ROUTERS option");
 	IPv4Address newRouter(std::string("192.168.2.1"));
-	opt->setValueIpAddr(newRouter);
 
-	opt = dhcpLayer->addOptionAfter(DHCPOPT_DHCP_SERVER_IDENTIFIER, 4, NULL, DHCPOPT_DHCP_MESSAGE_TYPE);
-	PACKETPP_ASSERT(opt != NULL, "Couldn't add DHCPOPT_DHCP_SERVER_IDENTIFIER option");
-	opt->setValueIpAddr(newRouter);
+	opt = dhcpLayer->addOptionAfter(DhcpOptionBuilder(DHCPOPT_ROUTERS, newRouter), DHCPOPT_SUBNET_MASK);
+	PACKETPP_ASSERT(opt.isNull() == false, "Couldn't add DHCPOPT_ROUTERS option");
+
+	opt = dhcpLayer->addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_SERVER_IDENTIFIER, newRouter), DHCPOPT_DHCP_MESSAGE_TYPE);
+	PACKETPP_ASSERT(opt.isNull() == false, "Couldn't add DHCPOPT_DHCP_SERVER_IDENTIFIER option");
 
 	dhcpPacket.computeCalculateFields();
 
@@ -5177,7 +5167,7 @@ PACKETPP_TEST(DhcpEditTest)
 
 	PACKETPP_ASSERT(dhcpLayer->getMesageType() == DHCP_UNKNOWN_MSG_TYPE, "Managed to get message type after all options removed");
 
-	PACKETPP_ASSERT(dhcpLayer->addOption(DHCPOPT_END, 0, NULL) != NULL, "Couldn't set DHCPOPT_END");
+	PACKETPP_ASSERT(dhcpLayer->addOption(DhcpOptionBuilder(DHCPOPT_END, NULL, 0)).isNull() == false, "Couldn't set DHCPOPT_END");
 
 	PACKETPP_ASSERT(dhcpLayer->setMesageType(DHCP_UNKNOWN_MSG_TYPE) == false, "Managed to set message type to DHCP_UNKNOWN_MSG_TYPE");
 

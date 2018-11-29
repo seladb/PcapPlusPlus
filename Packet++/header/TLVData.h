@@ -100,7 +100,7 @@ namespace pcpp
 		/**
 		 * Free the memory of the TLV record raw data
 		 */
-		void purgeRecordData() { if (!isNull()) delete m_Data; }
+		void purgeRecordData() { if (!isNull()) delete [] m_Data; }
 
 		/**
 		 * A templated method to retrieve the record data as a certain type T. For example, if record data is 4B long
@@ -117,6 +117,25 @@ namespace pcpp
 			T result;
 			memcpy(&result, m_Data->recordValue, sizeof(T));
 			return result;
+		}
+
+		/**
+		 * A templated method to copy data of type T into the TLV record data. For example: if record data is 4[Bytes] long use
+		 * this method with \<int\> to set an integer value into the record data: setValue<int>(num)
+		 * @param[in] newValue The value of type T to copy to the record data
+		 * @param[in] valueOffset An optional parameter that specifies where to start setting the record data (default set to 0). For example:
+		 * if record data is 20 bytes long and you only need to set the 4 last bytes as integer then use this method like this:
+		 * setValue<int>(num, 16)
+		 * @return True if value was set successfully or false if the size of T is larger than the record data size
+		 */
+		template<typename T>
+		bool setValue(T newValue, int valueOffset = 0)
+		{
+			if (getDataSize() < sizeof(T))
+				return false;
+
+			memcpy(m_Data->recordValue + valueOffset, &newValue, sizeof(T));
+			return true;
 		}
 
 		/**

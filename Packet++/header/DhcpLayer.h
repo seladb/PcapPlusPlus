@@ -2,6 +2,7 @@
 #define PACKETPP_DHCP_LAYER
 
 #include "Layer.h"
+#include "TLVData.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include <string.h>
@@ -390,40 +391,24 @@ namespace pcpp
 
 
 	/**
-	 * @struct DhcpOptionData
-	 * Representing a DHCP option in a TLV (type-length-value) structure
+	 * @class DhcpOption
+	 * A wrapper class for DHCP options. This class does not create or modify DHCP option records, but rather
+	 * serves as a wrapper and provides useful methods for setting and retrieving data to/from them
 	 */
-	struct DhcpOptionData
+	class DhcpOption : public TLVRecord
 	{
 	public:
-		/** DHCP option code, should be on of DhcpOptionTypes */
-		uint8_t opCode;
-		/** DHCP option length */
-		uint8_t len;
-		/** DHCP option value */
-		uint8_t value[];
 
 		/**
-		 * A templated method to retrieve the DHCP option data as a certain type T. For example, if DHCP option data is 4B
-		 * (integer) then this method should be used as getValueAs<int>() and it will return the DHCP option data as an integer.<BR>
-		 * Notice this return value is a copy of the data, not a pointer to the actual data
-		 * @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For example:
-		 * if option data is 20 bytes and you need only the 4 last bytes as integer then use this method like this:
-		 * getValueAs<int>(16). The default is 0 - start copying from the beginning of option data
-		 * @return The DHCP option data as type T
+		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
+		 * @param[in] optionRawData A pointer to the option raw data
 		 */
-		template<typename T>
-		T getValueAs(int valueOffset = 0)
-		{
-			if (getTotalSize() <= 2*sizeof(uint8_t) + valueOffset)
-				return 0;
-			if (getTotalSize() - 2*sizeof(uint8_t) - valueOffset < sizeof(T))
-				return 0;
+    	DhcpOption(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
 
-			T result;
-			memcpy(&result, value+valueOffset, sizeof(T));
-			return result;
-		}
+		/**
+		 * A d'tor for this class, currently does nothing
+		 */
+		virtual ~DhcpOption() { }
 
 		/**
 		 * Retrieve DHCP option data as IPv4 address. Relevant only if option value is indeed an IPv4 address
@@ -433,35 +418,6 @@ namespace pcpp
 		{
 			uint32_t addrAsInt = getValueAs<uint32_t>();
 			return IPv4Address(addrAsInt);
-		}
-
-		/**
-		 * Retrieve DHCP option data as string. Relevant only if option value is indeed a string
-         * @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For example:
-         * when retrieving Client FQDN option, you may ignore the flags and RCODE fields using this method like this:
-         * getValueAsString(3). The default is 0 - start copying from the beginning of option data
-		 * @return DHCP option data as string
-		 */
-		std::string getValueAsString(int valueOffset = 0)
-		{
-			if (len-valueOffset < 1)
-				return "";
-
-			return std::string((char*)value+valueOffset, len-valueOffset);
-		}
-
-		/**
-		 * A templated method to copy data of type T into the DHCP option data. For example: if option data is 4[Bytes] long use
-		 * this method with \<int\> to set an integer value into the DHCP option data: setValue<int>(num)
-		 * @param[in] newValue The value of type T to copy to DHCP option data
-		 * @param[in] valueOffset An optional parameter that specifies where to start setting the option data (default set to 0). For example:
-		 * if option data is 20 bytes long and you only need to set the 4 last bytes as integer then use this method like this:
-		 * setValue<int>(num, 16)
-		 */
-		template<typename T>
-		void setValue(T newValue, int valueOffset = 0)
-		{
-			memcpy(value+valueOffset, &newValue, sizeof(T));
 		}
 
 		/**
@@ -477,6 +433,21 @@ namespace pcpp
 		}
 
 		/**
+		 * Retrieve DHCP option data as string. Relevant only if option value is indeed a string
+         * @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For example:
+         * when retrieving Client FQDN option, you may ignore the flags and RCODE fields using this method like this:
+         * getValueAsString(3). The default is 0 - start copying from the beginning of option data
+		 * @return DHCP option data as string
+		 */
+		std::string getValueAsString(int valueOffset = 0)
+		{
+			if (m_Data->recordLen - valueOffset < 1)
+				return "";
+
+			return std::string((char*)m_Data->recordValue + valueOffset, m_Data->recordLen - valueOffset);
+		}
+
+		/**
 		 * Set DHCP option data as string. This method copies the string to the option value. If the string is longer than option length
 		 * the string is trimmed so it will fit the option length
 		 * @param[in] stringValue The string to set
@@ -487,45 +458,111 @@ namespace pcpp
 		void setValueString(const std::string& stringValue, int valueOffset = 0)
 		{
 			std::string val = stringValue;
-			if (stringValue.length() > (size_t)len-(size_t)valueOffset)
-				val = stringValue.substr(0, len-valueOffset);
+			if (stringValue.length() > (size_t)m_Data->recordLen-(size_t)valueOffset)
+				val = stringValue.substr(0, m_Data->recordLen-valueOffset);
 
-			memcpy(value+valueOffset, val.c_str(), val.length());
+			memcpy(m_Data->recordValue+valueOffset, val.c_str(), val.length());
 		}
 
-		/**
-		 * @return The total size in bytes of this DHCP option which includes: 1[Byte] (option type) + 1[Byte]
-		 * (option length) + X[Bytes] (option data length). For ::DHCPOPT_END and ::DHCPOPT_PAD the value 1 is returned
-		 */
-		inline size_t getTotalSize() const
+
+		// implement abstract methods
+
+		size_t getTotalSize() const
 		{
-			if (opCode == (uint8_t)DHCPOPT_END || opCode == (uint8_t)DHCPOPT_PAD)
+			if (m_Data->recordType == (uint8_t)DHCPOPT_END || m_Data->recordType == (uint8_t)DHCPOPT_PAD)
 				return sizeof(uint8_t);
 
-			return sizeof(uint8_t)*2 + (size_t)len;
+			return sizeof(uint8_t)*2 + (size_t)m_Data->recordLen;
 		}
 
-		/**
-		 * @return The length of the option value
-		 */
-		inline uint8_t getLength()
+		size_t getDataSize()
 		{
-			if (opCode == (uint8_t)DHCPOPT_END || opCode == (uint8_t)DHCPOPT_PAD)
+			if (m_Data->recordType == (uint8_t)DHCPOPT_END || m_Data->recordType == (uint8_t)DHCPOPT_PAD)
 				return 0;
 
-			return len;
+			return m_Data->recordLen;
 		}
+	};
+
+
+	/**
+	 * @class DhcpOptionBuilder
+	 * A class for building DHCP options. This builder receives the option parameters in its c'tor,
+	 * builds the DHCP option raw buffer and provides a build() method to get a DhcpOption object out of it
+	 */
+	class DhcpOptionBuilder : public TLVRecordBuilder
+	{
+	public:
 
 		/**
-		 * @return DHCP option type casted as pcpp::DhcpOptionTypes enum
+		 * A c'tor for building DHCP options which their value is a byte array. The DhcpOption object can later
+		 * be retrieved by calling build()
+		 * @param[in] optionType DHCP option type
+		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any way
+		 * @param[in] optionValueLen DHCP option value length in bytes
 		 */
-		inline DhcpOptionTypes getType() { return (DhcpOptionTypes)opCode; }
+		DhcpOptionBuilder(DhcpOptionTypes optionType, const uint8_t* optionValue, uint8_t optionValueLen) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen) { }
 
-	private:
+		/**
+		 * A c'tor for building DHCP options which have a 1-byte value. The DhcpOption object can later be retrieved
+		 * by calling build()
+		 * @param[in] optionType DHCP option type
+		 * @param[in] optionValue A 1-byte option value
+		 */
+		DhcpOptionBuilder(DhcpOptionTypes optionType, uint8_t optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) { }
 
-		// private c'tor which isn't implemented to make this struct impossible to construct
-		DhcpOptionData();
+		/**
+		 * A c'tor for building DHCP options which have a 2-byte value. The DhcpOption object can later be retrieved
+		 * by calling build()
+		 * @param[in] optionType DHCP option type
+		 * @param[in] optionValue A 2-byte option value
+		 */
+		DhcpOptionBuilder(DhcpOptionTypes optionType, uint16_t optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) { }
+
+		/**
+		 * A c'tor for building DHCP options which have a 4-byte value. The DhcpOption object can later be retrieved
+		 * by calling build()
+		 * @param[in] optionType DHCP option type
+		 * @param[in] optionValue A 4-byte option value
+		 */
+		DhcpOptionBuilder(DhcpOptionTypes optionType, uint32_t optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) { }
+
+		/**
+		 * A c'tor for building DHCP options which have an IPv4Address value. The DhcpOption object can later be
+		 * retrieved by calling build()
+		 * @param[in] optionType DHCP option type
+		 * @param[in] optionValue The IPv4 address option value
+		 */
+		DhcpOptionBuilder(DhcpOptionTypes optionType, const IPv4Address& optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) { }
+
+		/**
+		 * A c'tor for building DHCP options which have a string value. The DhcpOption object can later be retrieved
+		 * by calling build()
+		 * @param[in] optionType DHCP option type
+		 * @param[in] optionValue The string option value
+		 */
+		DhcpOptionBuilder(DhcpOptionTypes optionType, const std::string& optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) { }
+
+		/**
+		 * A copy c'tor which copies all the data from another instance of DhcpOptionBuilder
+		 * @param[in] other The instance to copy from
+		 */
+		DhcpOptionBuilder(const DhcpOptionBuilder& other) :
+			TLVRecordBuilder(other) { }
+
+		/**
+		 * Build the DhcpOption object out of the parameters defined in the c'tor
+		 * @return The DhcpOption object
+		 */
+		DhcpOption build() const;
 	};
+
 
 
 	/**
@@ -648,26 +685,27 @@ namespace pcpp
 		bool setMesageType(DhcpMessageType msgType);
 
 		/**
-		 * @return The first DHCP option, or NULL if no options exist. Notice the return value is a pointer to the real data casted to
-		 * DhcpOptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
+		 * @return The first DHCP option in the packet. If there are no DHCP options the returned value will contain
+		 * a logical NULL (DhcpOption#isNull() == true)
 		 */
-		DhcpOptionData* getFirstOptionData();
+		DhcpOption getFirstOptionData();
 
 		/**
-		 * Get the DHCP option that comes next to "dhcpOption" option. If "dhcpOption" is NULL then NULL will be returned.
-		 * If "dhcpOption" is the last DHCP option NULL will be returned. Notice the return value is a pointer to the real data casted to
-		 * DhcpOptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
-		 * @param[in] dhcpOption The DHCP option to start searching from
-		 * @return The next DHCP option or NULL if "dhcpOption" is NULL or "dhcpOption" is the last DHCP option
+		 * Get the DHCP option that comes after a given option. If the given option was the last one, the
+		 * returned value will contain a logical NULL (DhcpOption#isNull() == true)
+		 * @param[in] dhcpOption A given DHCP option
+		 * @return A DhcpOption object containing the option data that comes next, or logical NULL if the given DHCP
+		 * option: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
 		 */
-		DhcpOptionData* getNextOptionData(DhcpOptionData* dhcpOption);
+		DhcpOption getNextOptionData(DhcpOption dhcpOption);
 
 		/**
-		 * Search for a DHCP option by type. Notice the return value points directly to the data, so every change will change the actual packet data
-		 * @param[in] option The DHCP option type to search
-		 * @return A pointer to the DHCP option in this layer
+		 * Get a DHCP option by type
+		 * @param[in] option DHCP option type
+		 * @return A DhcpOption object containing the first DHCP option data that matches this type, or logical NULL
+		 * (DhcpOption#isNull() == true) if no such option found
 		 */
-		DhcpOptionData* getOptionData(DhcpOptionTypes option);
+		DhcpOption getOptionData(DhcpOptionTypes option);
 
 		/**
 		 * @return The number of DHCP options in this layer
@@ -675,30 +713,21 @@ namespace pcpp
 		size_t getOptionsCount();
 
 		/**
-		 * Add a new DHCP option at the end of the layer (but before the ::DHCPOPT_END option if exists)
-		 * @param[in] optionType The type of the newly added option
-		 * @param[in] optionLen The length of the option data
-		 * @param[in] optionData A pointer to the option data. This data will be copied to newly added option data. Notice the length of
-		 * optionData must be optionLen
-		 * @return A pointer to the newly added DHCP option data or NULL if addition failed. Notice this is a pointer to the
-		 * real data casted to DhcpOptionData type (as opposed to a copy of the option data). So changes in this return
-		 * value will affect the packet data
+		 * Add a new DHCP option at the end of the layer
+		 * @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
+		 * @return A DhcpOption object containing the newly added DHCP option data or logical NULL
+		 * (DhcpOption#isNull() == true) if addition failed
 		 */
-		DhcpOptionData* addOption(DhcpOptionTypes optionType, uint16_t optionLen, const uint8_t* optionData);
+		DhcpOption addOption(const DhcpOptionBuilder& optionBuilder);
 
 		/**
-		 * Add a new DHCP option after an existing option
-		 * @param[in] optionType The type of the newly added option
-		 * @param[in] optionLen The length of the option data
-		 * @param[in] optionData A pointer to the option data. This data will be copied to added option data. Notice the length of
-		 * optionData must be optionLength
-		 * @param[in] prevOption The DHCP option which the newly added option will come after. If set to ::DHCPOPT_UNKNOWN DHCP option will be
-		 * added as the first DHCP option
-		 * @return A pointer to the newly added option or NULL if addition failed. Notice this is a pointer to the real data
-		 * casted to DhcpOptionData type (as opposed to a copy of the option data). So changes in this return value will affect
-		 * the packet data
+		 * Add a new DHCP option after an existing one
+		 * @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
+		 * @param[in] prevOption The DHCP option type which the newly added option will come after
+		 * @return A DhcpOption object containing the newly added DHCP option data or logical NULL
+		 * (DhcpOption#isNull() == true) if addition failed
 		 */
-		DhcpOptionData* addOptionAfter(DhcpOptionTypes optionType, uint16_t optionLen, const uint8_t* optionData, DhcpOptionTypes prevOption);
+		DhcpOption addOptionAfter(const DhcpOptionBuilder& optionBuilder, DhcpOptionTypes prevOption);
 
 		/**
 		 * Remove an existing DHCP option from the layer
@@ -742,13 +771,13 @@ namespace pcpp
 
 	private:
 
-		size_t m_DhcpOptionsCount;
+		inline uint8_t* getOptionsBasePtr() { return m_Data + sizeof(dhcp_header); }
+
+		TLVRecordReader<DhcpOption> m_OptionReader;
 
 		void initDhcpLayer(size_t numOfBytesToAllocate);
 
-		DhcpOptionData* castPtrToOptionData(uint8_t* ptr);
-
-		DhcpOptionData* addOptionAt(DhcpOptionTypes optionType, uint16_t optionLen, const uint8_t* optionData, int offset);
+		DhcpOption addOptionAt(const DhcpOptionBuilder& optionBuilder, int offset);
 	};
 }
 

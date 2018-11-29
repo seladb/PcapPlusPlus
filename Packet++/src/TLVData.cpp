@@ -67,7 +67,10 @@ void TLVRecordBuilder::init(uint8_t recType, const uint8_t* recValue, uint8_t re
 	m_RecType = recType;
 	m_RecValueLen = recValueLen;
 	m_RecValue = new uint8_t[recValueLen];
-	memcpy(m_RecValue, recValue, recValueLen);
+	if (recValue != NULL)
+		memcpy(m_RecValue, recValue, recValueLen);
+	else
+		memset(m_RecValue, 0, recValueLen);
 }
 
 

@@ -8,10 +8,40 @@ namespace pcpp
 
 #define DHCP_MAGIC_NUMBER 0x63538263
 
+
+DhcpOption DhcpOptionBuilder::build() const
+{
+	size_t recSize = 2*sizeof(uint8_t) + m_RecValueLen;
+
+	if ((m_RecType == DHCPOPT_END || m_RecType == DHCPOPT_PAD))
+	{
+		if (m_RecValueLen != 0)
+		{
+			LOG_ERROR("Can't set DHCP END option or DHCP PAD option with size different than 0, tried to set size %d", m_RecValueLen);
+			return DhcpOption(NULL);
+		}
+
+		recSize = sizeof(uint8_t);
+	}
+
+	uint8_t* recordBuffer = new uint8_t[recSize];
+	memset(recordBuffer, 0, recSize);
+	recordBuffer[0] = m_RecType;
+	if (recSize > 1)
+	{
+		recordBuffer[1] = m_RecValueLen;
+		if (m_RecValue != NULL)
+			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
+		else
+			memset(recordBuffer+2, 0, m_RecValueLen);
+	}
+
+	return DhcpOption(recordBuffer);
+}
+
 DhcpLayer::DhcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 {
 	 m_Protocol = DHCP;
-	 m_DhcpOptionsCount = -1;
 }
 
 void DhcpLayer::initDhcpLayer(size_t numOfBytesToAllocate)
@@ -20,7 +50,6 @@ void DhcpLayer::initDhcpLayer(size_t numOfBytesToAllocate)
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = DHCP;
-	m_DhcpOptionsCount = -1;
 }
 
 DhcpLayer::DhcpLayer() : Layer()
@@ -192,11 +221,11 @@ std::string DhcpLayer::toString()
 
 DhcpMessageType DhcpLayer::getMesageType()
 {
-	DhcpOptionData* opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
-	if (opt == NULL)
+	DhcpOption opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
+	if (opt.isNull())
 		return DHCP_UNKNOWN_MSG_TYPE;
 
-	return (DhcpMessageType)opt->getValueAs<uint8_t>();
+	return (DhcpMessageType)opt.getValueAs<uint8_t>();
 }
 
 bool DhcpLayer::setMesageType(DhcpMessageType msgType)
@@ -204,174 +233,113 @@ bool DhcpLayer::setMesageType(DhcpMessageType msgType)
 	if (msgType == DHCP_UNKNOWN_MSG_TYPE)
 		return false;
 
-	DhcpOptionData* opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
-	if (opt == NULL)
+	DhcpOption opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
+	if (opt.isNull())
 	{
-		opt = addOptionAfter(DHCPOPT_DHCP_MESSAGE_TYPE, 1, NULL, DHCPOPT_UNKNOWN);
-		if (opt == NULL)
+		opt = addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_MESSAGE_TYPE, (uint8_t)msgType), DHCPOPT_UNKNOWN);
+		if (opt.isNull())
 			return false;
 	}
 
-	opt->setValue<uint8_t>((uint8_t)msgType);
+	opt.setValue<uint8_t>((uint8_t)msgType);
 	return true;
 }
 
-DhcpOptionData* DhcpLayer::castPtrToOptionData(uint8_t* ptr)
+DhcpOption DhcpLayer::getOptionData(DhcpOptionTypes option)
 {
-	return (DhcpOptionData*)ptr;
+	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-DhcpOptionData* DhcpLayer::getOptionData(DhcpOptionTypes option)
+DhcpOption DhcpLayer::getFirstOptionData()
 {
-	// check if there are DHCP options at all
-	if (m_DataLen <= sizeof(dhcp_header))
-		return NULL;
-
-	if (option == DHCPOPT_UNKNOWN)
-		return NULL;
-
-	uint8_t* curOptPtr = m_Data + sizeof(dhcp_header);
-	while ((curOptPtr - m_Data) < (int)m_DataLen)
-	{
-		DhcpOptionData* curOpt = castPtrToOptionData(curOptPtr);
-		if ((int)curOpt->opCode == option)
-			return curOpt;
-
-		curOptPtr += curOpt->getTotalSize();
-	}
-
-	return NULL;
+	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-DhcpOptionData* DhcpLayer::getFirstOptionData()
+DhcpOption DhcpLayer::getNextOptionData(DhcpOption dhcpOption)
 {
-	// check if there are DHCP options at all
-	if (getHeaderLen() <= sizeof(dhcp_header))
-		return NULL;
-
-	uint8_t* curOptPtr = m_Data + sizeof(dhcp_header);
-	return castPtrToOptionData(curOptPtr);
-}
-
-DhcpOptionData* DhcpLayer::getNextOptionData(DhcpOptionData* dhcpOption)
-{
-	if (dhcpOption == NULL)
-		return NULL;
-
-	// prev opt was the last opt
-	if ((uint8_t*)dhcpOption + dhcpOption->getTotalSize() - m_Data >= (int)getHeaderLen())
-		return NULL;
-
-	DhcpOptionData* nextOption = castPtrToOptionData((uint8_t*)dhcpOption + dhcpOption->getTotalSize());
-
-	// TOOD: see if this is necessary
-	//	if (nextOption->option == TCPOPT_DUMMY)
-	//		return NULL;
-
-	return nextOption;
+	return m_OptionReader.getNextTLVRecord(dhcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
 size_t DhcpLayer::getOptionsCount()
 {
-	if (m_DhcpOptionsCount != (size_t)-1)
-		return m_DhcpOptionsCount;
-
-	m_DhcpOptionsCount = 0;
-	DhcpOptionData* curOpt = getFirstOptionData();
-	while (curOpt != NULL)
-	{
-		m_DhcpOptionsCount++;
-		curOpt = getNextOptionData(curOpt);
-	}
-
-	return m_DhcpOptionsCount;
+	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-DhcpOptionData* DhcpLayer::addOptionAt(DhcpOptionTypes optionType, uint16_t optionLen, const uint8_t* optionData, int offset)
+DhcpOption DhcpLayer::addOptionAt(const DhcpOptionBuilder& optionBuilder, int offset)
 {
-	size_t sizeToExtend = optionLen + 2*sizeof(uint8_t);
+	DhcpOption newOpt = optionBuilder.build();
 
-	if ((optionType == DHCPOPT_END || optionType == DHCPOPT_PAD))
+	if (newOpt.isNull())
 	{
-		if (optionLen != 0)
-		{
-			LOG_ERROR("Can't set DHCP END option or DHCP PAD option with size different than 0, tried to set size %d", optionLen);
-			return NULL;
-		}
-
-		sizeToExtend = sizeof(uint8_t);
+		LOG_ERROR("Cannot build new option of type %d", (int)newOpt.getType());
+		return DhcpOption(NULL);
 	}
+
+	size_t sizeToExtend = newOpt.getTotalSize();
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend DhcpLayer in [%d] bytes", optionLen);
-		return NULL;
+		LOG_ERROR("Could not extend DhcpLayer in [%d] bytes", (int)newOpt.getTotalSize());
+		return DhcpOption(NULL);
 	}
 
-	uint8_t optionTypeVal = (uint8_t)optionType;
-	memcpy(m_Data + offset, &optionTypeVal, sizeof(uint8_t));
-
-	if (optionLen > 0)
-	{
-		memcpy(m_Data + offset + sizeof(uint8_t), &optionLen, sizeof(uint8_t));
-		if (optionLen > 1 && optionData != NULL)
-			memcpy(m_Data + offset + 2*sizeof(uint8_t), optionData, optionLen);
-	}
+	memcpy(m_Data + offset, newOpt.getRecordBasePtr(), newOpt.getTotalSize());
 
 	uint8_t* newOptPtr = m_Data + offset;
 
-	m_DhcpOptionsCount++;
+	m_OptionReader.changeTLVRecordCount(1);
 
-	return castPtrToOptionData(newOptPtr);
+	newOpt.purgeRecordData();
+
+	return DhcpOption(newOptPtr);
 }
 
-DhcpOptionData* DhcpLayer::addOption(DhcpOptionTypes optionType, uint16_t optionLen, const uint8_t* optionData)
+DhcpOption DhcpLayer::addOption(const DhcpOptionBuilder& optionBuilder)
 {
 	int offset = 0;
-	DhcpOptionData* endOpt = getOptionData(DHCPOPT_END);
-	if (endOpt != NULL)
-		offset = ((uint8_t*)endOpt) - m_Data;
+	DhcpOption endOpt = getOptionData(DHCPOPT_END);
+	if (!endOpt.isNull())
+		offset = endOpt.getRecordBasePtr() - m_Data;
 	else
 		offset = getHeaderLen();
 
-	return addOptionAt(optionType, optionLen, optionData, offset);
+	return addOptionAt(optionBuilder, offset);
 }
 
-DhcpOptionData* DhcpLayer::addOptionAfter(DhcpOptionTypes optionType, uint16_t optionLen, const uint8_t* optionData, DhcpOptionTypes prevOption)
+DhcpOption DhcpLayer::addOptionAfter(const DhcpOptionBuilder& optionBuilder, DhcpOptionTypes prevOption)
 {
 	int offset = 0;
 
-	DhcpOptionData* prevOpt = getOptionData(prevOption);
+	DhcpOption prevOpt = getOptionData(prevOption);
 
-	if (prevOpt == NULL)
+	if (prevOpt.isNull())
 	{
 		offset = sizeof(dhcp_header);
 	}
 	else
 	{
-		offset = (uint8_t*)prevOpt + prevOpt->getTotalSize() - m_Data;
+		offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
 	}
 
-	return addOptionAt(optionType, optionLen, optionData, offset);
+	return addOptionAt(optionBuilder, offset);
 }
 
 bool DhcpLayer::removeOption(DhcpOptionTypes optionType)
 {
-	DhcpOptionData* opt = getOptionData(optionType);
-	if (opt == NULL)
+	DhcpOption optToRemove = getOptionData(optionType);
+	if (optToRemove.isNull())
 	{
 		return false;
 	}
 
-	int offset = (uint8_t*)opt - m_Data;
+	int offset = optToRemove.getRecordBasePtr() - m_Data;
 
-	if (!shortenLayer(offset, opt->getTotalSize()))
+	if (!shortenLayer(offset, optToRemove.getTotalSize()))
 	{
 		return false;
 	}
 
-	m_DhcpOptionsCount--;
-
+	m_OptionReader.changeTLVRecordCount(-1);
 	return true;
 }
 
@@ -382,7 +350,7 @@ bool DhcpLayer::removeAllOptions()
 	if (!shortenLayer(offset, getHeaderLen()-offset))
 		return false;
 
-	m_DhcpOptionsCount = 0;
+	m_OptionReader.changeTLVRecordCount(0-getOptionsCount());
 	return true;
 }
 
