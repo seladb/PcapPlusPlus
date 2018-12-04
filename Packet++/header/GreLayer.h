@@ -393,7 +393,7 @@ namespace pcpp
 		 * Get a pointer to the PPP-PPTP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref ppp_pptp_header
 		 */
-		inline ppp_pptp_header* getPPP_PPTPHeader() { return (ppp_pptp_header*)m_Data; };
+		inline ppp_pptp_header* getPPP_PPTPHeader() { return (ppp_pptp_header*)m_Data; }
 
 
 		// implement abstract methods

@@ -604,7 +604,7 @@ namespace pcpp
 		 * Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref dhcp_header
 		 */
-		inline dhcp_header* getDhcpHeader() { return (dhcp_header*)m_Data; };
+		inline dhcp_header* getDhcpHeader() { return (dhcp_header*)m_Data; }
 
 		/**
 		 * @return The BootP opcode of this message
