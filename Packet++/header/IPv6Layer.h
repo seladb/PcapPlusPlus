@@ -94,7 +94,7 @@ namespace pcpp
 		 * Get a pointer to the IPv6 header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref ip6_hdr
 		 */
-		inline ip6_hdr* getIPv6Header() { return (ip6_hdr*)m_Data; };
+		inline ip6_hdr* getIPv6Header() { return (ip6_hdr*)m_Data; }
 
 		/**
 		 * Get the source IP address in the form of IPv6Address
