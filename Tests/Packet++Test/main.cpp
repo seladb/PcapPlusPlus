@@ -2586,7 +2586,8 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_ASSERT(firstAuthority->getTTL() == 120, "First authority TTL != 120");
 	PACKETPP_ASSERT(firstAuthority->getName() == "Yaels-iPhone.local", "First authority name isn't 'Yaels-iPhone.local'");
 	PACKETPP_ASSERT(firstAuthority->getDataLength() == 4, "First authority data size != 4");
-	PACKETPP_ASSERT(firstAuthority->getDataAsString() == "10.0.0.2", "First authority data != 10.0.0.2");
+	PACKETPP_ASSERT(firstAuthority->getData()->toString() == "10.0.0.2", "First authority data != string 10.0.0.2");
+	PACKETPP_ASSERT(firstAuthority->getData().castAs<IPv4DnsResourceData>()->getIpAddress() == IPv4Address(std::string("10.0.0.2")), "First authority data != IPv4Address 10.0.0.2");
 	PACKETPP_ASSERT(firstAuthority->getSize() == 16, "First authority total size != 16");
 
 	DnsResource* secondAuthority = dnsLayer->getNextAuthority(firstAuthority);
@@ -2596,7 +2597,8 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_ASSERT(secondAuthority->getTTL() == 120, "Second authority TTL != 120");
 	PACKETPP_ASSERT(secondAuthority->getName() == "Yaels-iPhone.local", "Second authority name isn't 'Yaels-iPhone.local'");
 	PACKETPP_ASSERT(secondAuthority->getDataLength() == 16, "Second authority data size != 16");
-	PACKETPP_ASSERT(secondAuthority->getDataAsString() == "fe80::5a1f:aaff:fe4f:3f9d", "Second authority data != fe80::5a1f:aaff:fe4f:3f9d");
+	PACKETPP_ASSERT(secondAuthority->getData()->toString() == "fe80::5a1f:aaff:fe4f:3f9d", "Second authority data != string fe80::5a1f:aaff:fe4f:3f9d");
+	PACKETPP_ASSERT(secondAuthority->getData().castAs<IPv6DnsResourceData>()->getIpAddress() == IPv6Address(std::string("fe80::5a1f:aaff:fe4f:3f9d")), "Second authority data != IPv6Address fe80::5a1f:aaff:fe4f:3f9d");
 	PACKETPP_ASSERT(secondAuthority->getSize() == 28, "Second authority total size != 28");
 
 	DnsResource* thirdAuthority = dnsLayer->getNextAuthority(secondAuthority);
@@ -2612,7 +2614,7 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_ASSERT(additionalRecord->getTTL() == 0x1194, "Additional record 'TTL' != 0x1194, it's 0x%X", additionalRecord->getTTL());
 	PACKETPP_ASSERT(additionalRecord->getName() == "", "Additional record name isn't empty");
 	PACKETPP_ASSERT(additionalRecord->getDataLength() == 12, "Second authority data size != 12");
-	PACKETPP_ASSERT(additionalRecord->getDataAsString() == "0x0004000800df581faa4f3f9d", "Additional record unexpected data: %s", additionalRecord->getDataAsString().c_str());
+	PACKETPP_ASSERT(additionalRecord->getData()->toString() == "0004000800df581faa4f3f9d", "Additional record unexpected data: %s", additionalRecord->getData()->toString().c_str());
 	PACKETPP_ASSERT(additionalRecord->getSize() == 23, "Second authority total size != 23");
 	PACKETPP_ASSERT(dnsLayer->getNextAdditionalRecord(additionalRecord) == NULL, "Found imaginary additional record");
 	PACKETPP_ASSERT(dnsLayer->getAdditionalRecord("", true) == additionalRecord, "Couldn't find additional record by (empty) name");
@@ -2648,12 +2650,13 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_ASSERT(curAnswer->getTTL() == 57008, "First answer TTL != 57008");
 	PACKETPP_ASSERT(curAnswer->getName() == "www.google-analytics.com", "First answer name isn't 'www.google-analytics.com'");
 	PACKETPP_ASSERT(curAnswer->getDataLength() == 32, "First answer data size != 32");
-	PACKETPP_ASSERT(curAnswer->getDataAsString() == "www-google-analytics.l.google.com", "First answer data != 'www-google-analytics.l.google.com'. It's '%s'", curAnswer->getDataAsString().c_str());
+	PACKETPP_ASSERT(curAnswer->getData()->toString() == "www-google-analytics.l.google.com", "First answer data != 'www-google-analytics.l.google.com'. It's '%s'", curAnswer->getData()->toString().c_str());
 	PACKETPP_ASSERT(curAnswer->getSize() == 44, "First authority total size != 44");
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
 	int answerCount = 2;
-	string addrPrefix = "212.199.219.";
+	IPv4Address subnet(std::string("212.199.219.0"));
+	std::string subnetMask = "255.255.255.0";
 	while (curAnswer != NULL)
 	{
 		PACKETPP_ASSERT(curAnswer->getDnsType() == DNS_TYPE_A, "Answer #%d type isn't A", answerCount);
@@ -2661,7 +2664,7 @@ PACKETPP_TEST(DnsLayerParsingTest)
 		PACKETPP_ASSERT(curAnswer->getTTL() == 117, "Answer #%d TTL != 117", answerCount);
 		PACKETPP_ASSERT(curAnswer->getName() == "www-google-analytics.L.google.com", "Answer #%d name isn't 'www-google-analytics.L.google.com'", answerCount);
 		PACKETPP_ASSERT(curAnswer->getDataLength() == 4, "Answer #%d data size != 4", answerCount);
-		PACKETPP_ASSERT(curAnswer->getDataAsString().substr(0, addrPrefix.size()) == addrPrefix, "Answer #%d data != '212.199.219.X'", answerCount);
+		PACKETPP_ASSERT(curAnswer->getData().castAs<IPv4DnsResourceData>()->getIpAddress().matchSubnet(subnet, subnetMask) == true, "Answer #%d data != '212.199.219.X'", answerCount);
 
 		curAnswer = dnsLayer->getNextAnswer(curAnswer);
 		answerCount++;
@@ -2673,6 +2676,8 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_ASSERT(dnsLayer->getAnswer("www-google-analytics.L.google.com", true) == dnsLayer->getNextAnswer(dnsLayer->getFirstAnswer()), "Couldn't find answer by name 2");
 
 	PACKETPP_ASSERT(dnsLayer->toString() == "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0", "Dns1 toString gave the wrong output");
+
+
 
 	int buffer3Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/Dns2.dat", buffer3Length);
@@ -2689,6 +2694,42 @@ PACKETPP_TEST(DnsLayerParsingTest)
 	PACKETPP_ASSERT(queryByName->getDnsClass() == DNS_CLASS_IN_QU, "Query class != DNS_CLASS_IN_QU");
 
 	PACKETPP_ASSERT(dnsLayer->toString() == "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", "Dns2 toString gave the wrong output");
+
+
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/Dns4.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file Dns4.dat");
+
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+
+	Packet dnsPacket4(&rawPacket4);
+	dnsLayer = dnsPacket4.getLayerOfType<DnsLayer>();
+	PACKETPP_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
+
+	curAnswer = dnsLayer->getFirstAnswer();
+	PACKETPP_ASSERT(curAnswer != NULL, "Couldn't find first answer");
+	PACKETPP_ASSERT(curAnswer->getDnsType() == DNS_TYPE_MX, "First answer type isn't MX");
+	PACKETPP_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "First answer class isn't IN");
+	PACKETPP_ASSERT(curAnswer->getData()->toString() == "pref: 1; mx: mta5.am0.yahoodns.net", "First answer MX data string is not as expected");
+	PACKETPP_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference == 1, "First answer MX data: preference is not 1");
+	PACKETPP_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange == "mta5.am0.yahoodns.net", "First answer MX data: mail exchange is not 'mta5.am0.yahoodns.net'");
+
+	curAnswer = dnsLayer->getNextAnswer(curAnswer);
+	PACKETPP_ASSERT(curAnswer != NULL, "Couldn't find second answer");
+	PACKETPP_ASSERT(curAnswer->getDnsType() == DNS_TYPE_MX, "Second answer type isn't MX");
+	PACKETPP_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "Second answer class isn't IN");
+	PACKETPP_ASSERT(curAnswer->getData()->toString() == "pref: 1; mx: mta7.am0.yahoodns.net", "Second answer MX data string is not as expected");
+	PACKETPP_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference == 1, "Second answer MX data: preference is not 1");
+	PACKETPP_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange == "mta7.am0.yahoodns.net", "Second answer MX data: mail exchange is not 'mta7.am0.yahoodns.net'");
+
+	curAnswer = dnsLayer->getNextAnswer(curAnswer);
+	PACKETPP_ASSERT(curAnswer != NULL, "Couldn't find third answer");
+	PACKETPP_ASSERT(curAnswer->getDnsType() == DNS_TYPE_MX, "Third answer type isn't MX");
+	PACKETPP_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "Third answer class isn't IN");
+	PACKETPP_ASSERT(curAnswer->getData()->toString() == "pref: 1; mx: mta6.am0.yahoodns.net", "Third answer MX data string is not as expected");
+	PACKETPP_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference == 1, "Third answer MX data: preference is not 1");
+	PACKETPP_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange == "mta6.am0.yahoodns.net", "Third answer MX data: mail exchange is not 'mta6.am0.yahoodns.net'");
 
 	PACKETPP_TEST_PASSED;
 }
@@ -2808,18 +2849,20 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 	dns4Layer.getDnsHeader()->recursionDesired = 1;
 	dns4Layer.getDnsHeader()->recursionAvailable = 1;
 
-	DnsResource* firstAnswer = dns4Layer.addAnswer("assets.pinterest.com", DNS_TYPE_CNAME, DNS_CLASS_IN, 228, "assets.pinterest.com.cdngc.net");
+	StringDnsResourceData stringDnsData("assets.pinterest.com.cdngc.net");
+	DnsResource* firstAnswer = dns4Layer.addAnswer("assets.pinterest.com", DNS_TYPE_CNAME, DNS_CLASS_IN, 228, &stringDnsData);
 	PACKETPP_ASSERT(firstAnswer != NULL, "Couldn't add first answer");
 	PACKETPP_ASSERT(dns4Layer.getFirstAnswer() == firstAnswer, "Couldn't retrieve first answer from layer");
-	PACKETPP_ASSERT(firstAnswer->getDataAsString() == "assets.pinterest.com.cdngc.net", "Couldn't retrieve data for first answer");
+	PACKETPP_ASSERT(firstAnswer->getData()->toString() == "assets.pinterest.com.cdngc.net", "Couldn't retrieve data for first answer");
 
 	PACKETPP_ASSERT(dnsEdit4Packet.addLayer(&dns4Layer), "Add DnsLayer failed");
 
 	PACKETPP_ASSERT(dnsEdit4Packet.getLayerOfType<DnsLayer>()->getFirstAnswer() == firstAnswer, "Couldn't retrieve first answer from layer after adding layer to packet");
 
-	DnsResource* secondAnswer = dns4Layer.addAnswer("assets.pinterest.com.cdngc.net", DNS_TYPE_A, DNS_CLASS_IN, 3, "151.249.90.217");
+	IPv4DnsResourceData ipv4DnsData(std::string("151.249.90.217"));
+	DnsResource* secondAnswer = dns4Layer.addAnswer("assets.pinterest.com.cdngc.net", DNS_TYPE_A, DNS_CLASS_IN, 3, &ipv4DnsData);
 	PACKETPP_ASSERT(secondAnswer != NULL, "Couldn't add second answer");
-	PACKETPP_ASSERT(secondAnswer->getDataAsString() == "151.249.90.217", "Couldn't retrieve data for second answer");
+	PACKETPP_ASSERT(secondAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress() == ipv4DnsData.getIpAddress(), "Couldn't retrieve data for second answer");
 
 	DnsQuery* query = dns4Layer.addQuery("assets.pinterest.com", DNS_TYPE_A, DNS_CLASS_IN);
 	PACKETPP_ASSERT(query != NULL, "Couldn't add query");
@@ -2830,18 +2873,21 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 	DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
 	PACKETPP_ASSERT(thirdAnswer != NULL, "Couldn't add third answer");
 	LoggerPP::getInstance().supressErrors();
-	PACKETPP_ASSERT(thirdAnswer->setData("256.249.90.238") == false, "Managed to set illegal IPv4 address in third answer");
+	ipv4DnsData = IPv4DnsResourceData(std::string("256.249.90.238"));
+	PACKETPP_ASSERT(thirdAnswer->setData(&ipv4DnsData) == false, "Managed to set illegal IPv4 address in third answer");
 	LoggerPP::getInstance().enableErrors();
-	PACKETPP_ASSERT(thirdAnswer->setData("151.249.90.238") == true, "Couldn't set data for third answer");
+	ipv4DnsData = IPv4DnsResourceData(std::string("151.249.90.238"));
+	PACKETPP_ASSERT(thirdAnswer->setData(&ipv4DnsData) == true, "Couldn't set data for third answer");
 
-	PACKETPP_ASSERT(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", true)->getDataAsString() == "151.249.90.217", "Couldn't retrieve data for second answer after adding third answer");
-	PACKETPP_ASSERT(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", false))->getDataAsString() == "151.249.90.238", "Couldn't retrieve data for third answer after adding third answer");
+	PACKETPP_ASSERT(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", true)->getData()->toString() == "151.249.90.217", "Couldn't retrieve data for second answer after adding third answer");
+	PACKETPP_ASSERT(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", false))->getData()->toString() == "151.249.90.238", "Couldn't retrieve data for third answer after adding third answer");
 
 	dnsEdit4Packet.computeCalculateFields();
 
 	PACKETPP_ASSERT(buffer4Length == dnsEdit4Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit4Packet.getRawPacket()->getRawDataLen(), buffer4Length);
 
 	PACKETPP_ASSERT(memcmp(dnsEdit4Packet.getRawPacket()->getRawData(), buffer4, buffer4Length) == 0, "Raw packet data is different than expected DnsEdit4");
+
 
 
 
@@ -2867,7 +2913,8 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 
 	DnsLayer dnsLayer6;
 
-	DnsResource* authority = dnsLayer6.addAuthority("Yaels-iPhone.local", DNS_TYPE_A, DNS_CLASS_IN, 120, "10.0.0.2");
+	ipv4DnsData = IPv4DnsResourceData(std::string("10.0.0.2"));
+	DnsResource* authority = dnsLayer6.addAuthority("Yaels-iPhone.local", DNS_TYPE_A, DNS_CLASS_IN, 120, &ipv4DnsData);
 	PACKETPP_ASSERT(authority != NULL, "Couldn't add first authority");
 
 	query = dnsLayer6.addQuery(query);
@@ -2877,17 +2924,20 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 
 	PACKETPP_ASSERT(dnsEdit6Packet.addLayer(&dnsLayer6), "Couldn't set DNS layer for packet DnsEdit6");
 
-	PACKETPP_ASSERT(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getDataAsString() == "10.0.0.2", "Couldn't retrieve data from first authority");
+	PACKETPP_ASSERT(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString() == "10.0.0.2", "Couldn't retrieve data from first authority");
 
 	authority = dnsLayer6.addAuthority(authority);
 	LoggerPP::getInstance().supressErrors();
-	PACKETPP_ASSERT(authority->setData("fe80::5a1f:aaff:fe4f:3f9d") == false, "Managed to set IPv6 data for DNS authority record of type IPv4");
+	IPv6DnsResourceData ipv6DnsData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
+	PACKETPP_ASSERT(authority->setData(&ipv6DnsData) == false, "Managed to set IPv6 data for DNS authority record of type IPv4");
 	LoggerPP::getInstance().enableErrors();
 	authority->setDnsType(DNS_TYPE_AAAA);
 	LoggerPP::getInstance().supressErrors();
-	PACKETPP_ASSERT(authority->setData("fe80::5a1f:aaff.fe4f:3f9d") == false, "Managed to set malformed IPv6 data for DNS authority record");
+	ipv6DnsData = IPv6DnsResourceData(std::string("fe80::5a1f:aaff$fe4f:3f9d"));
+	PACKETPP_ASSERT(authority->setData(&ipv6DnsData) == false, "Managed to set malformed IPv6 data for DNS authority record");
 	LoggerPP::getInstance().enableErrors();
-	PACKETPP_ASSERT(authority->setData("fe80::5a1f:aaff:fe4f:3f9d") == true, "Couldn't IPv6 data for DNS authority record");
+	ipv6DnsData = IPv6DnsResourceData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
+	PACKETPP_ASSERT(authority->setData(&ipv6DnsData) == true, "Couldn't IPv6 data for DNS authority record");
 
 	query = dnsLayer6.addQuery(query);
 	query->setDnsClass(DNS_CLASS_ANY);
@@ -2897,12 +2947,14 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 	PACKETPP_ASSERT(dnsLayer6.getAnswerCount() == 0, "Answers count != 0");
 	PACKETPP_ASSERT(dnsLayer6.getAdditionalRecordCount() == 0, "Additional record count != 0");
 
-	DnsResource* additional = dnsLayer6.addAdditionalRecord("", DNS_TYPE_OPT, 0xa005, 0x1194, "0x0004000800df581faa4f3f9d");
+	GenericDnsResourceData genericData("0004000800df581faa4f3f9d");
+	DnsResource* additional = dnsLayer6.addAdditionalRecord("", DNS_TYPE_OPT, 0xa005, 0x1194, &genericData);
 	PACKETPP_ASSERT(additional != NULL, "Couldn't add additional record");
 	LoggerPP::getInstance().supressErrors();
-	PACKETPP_ASSERT(additional->setData("a01234") == false, "Managed to set hex data with no '0x' at the beginning");
-	PACKETPP_ASSERT(additional->setData("0xa0123") == false, "Managed to set hex data with odd number of characters");
-	PACKETPP_ASSERT(additional->setData("0xa01j34") == false, "Managed to set hex data with illegal hex characters");
+	genericData = GenericDnsResourceData("a0123");
+	PACKETPP_ASSERT(additional->setData(&genericData) == false, "Managed to set hex data with odd number of characters");
+	genericData = GenericDnsResourceData("a01j34");
+	PACKETPP_ASSERT(additional->setData(&genericData) == false, "Managed to set hex data with illegal hex characters");
 	LoggerPP::getInstance().enableErrors();
 
 	dnsEdit6Packet.computeCalculateFields();
@@ -2910,6 +2962,63 @@ PACKETPP_TEST(DnsLayerResourceCreationTest)
 	PACKETPP_ASSERT(buffer6Length == dnsEdit6Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit6Packet.getRawPacket()->getRawDataLen(), buffer6Length);
 
 	PACKETPP_ASSERT(memcmp(dnsEdit6Packet.getRawPacket()->getRawData(), buffer6, buffer6Length) == 0, "Raw packet data is different than expected");
+
+
+
+	int buffer7Length = 0;
+	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/DnsEdit7.dat", buffer7Length);
+	PACKETPP_ASSERT(!(buffer7 == NULL), "cannot read file DnsEdit7.dat");
+
+	RawPacket raw7Packet((const uint8_t*)buffer7, buffer7Length, time, true);
+
+	Packet dnsEdit7RefPacket(&raw7Packet);
+
+	Packet dnsEdit7Packet(60);
+
+	EthLayer ethLayer7(*dnsEdit7RefPacket.getLayerOfType<EthLayer>());
+	PACKETPP_ASSERT(dnsEdit7Packet.addLayer(&ethLayer7), "Add EthLayer failed");
+
+	IPv4Layer ipLayer7(*dnsEdit7RefPacket.getLayerOfType<IPv4Layer>());
+	PACKETPP_ASSERT(dnsEdit7Packet.addLayer(&ipLayer7), "Add IPv4Layer failed");
+
+	UdpLayer udpLayer7(*dnsEdit7RefPacket.getLayerOfType<UdpLayer>());
+	PACKETPP_ASSERT(dnsEdit7Packet.addLayer(&udpLayer7), "Add UdpLayer failed");
+
+	DnsLayer dnsLayer7;
+	dnsLayer7.getDnsHeader()->transactionID = htons(612);
+	dnsLayer7.getDnsHeader()->queryOrResponse = 1;
+	dnsLayer7.getDnsHeader()->recursionDesired = 1;
+	dnsLayer7.getDnsHeader()->recursionAvailable = 1;
+
+	query = dnsLayer7.addQuery("yahoo.com", DNS_TYPE_MX, DNS_CLASS_IN);
+	PACKETPP_ASSERT(query != NULL, "Couldn't add query to dnsLayer7");
+
+	std::stringstream queryNameOffset;
+	queryNameOffset << "#" << query->getNameOffset();
+
+	MxDnsResourceData mxDnsData(1, "mta5.am0.yahoodns.net");
+	DnsResource* answer = dnsLayer7.addAnswer(queryNameOffset.str(), DNS_TYPE_MX, DNS_CLASS_IN, 187, &mxDnsData);
+	PACKETPP_ASSERT(answer != NULL, "Couldn't add first answer to dnsLayer7");
+
+	std::stringstream firsAnswerMxOffset;
+	firsAnswerMxOffset << "#" << (answer->getDataOffset() + 2 + 5);
+
+	mxDnsData.setMxData(1, "mta7." + firsAnswerMxOffset.str());
+	answer = dnsLayer7.addAnswer(queryNameOffset.str(), DNS_TYPE_MX, DNS_CLASS_IN, 187, &mxDnsData);
+	PACKETPP_ASSERT(answer != NULL, "Couldn't add second answer to dnsLayer7");
+
+	mxDnsData.setMxData(1, "mta6." + firsAnswerMxOffset.str());
+	answer = dnsLayer7.addAnswer(queryNameOffset.str(), DNS_TYPE_MX, DNS_CLASS_IN, 187, &mxDnsData);
+	PACKETPP_ASSERT(answer != NULL, "Couldn't add third answer to dnsLayer7");
+
+	PACKETPP_ASSERT(dnsEdit7Packet.addLayer(&dnsLayer7), "Couldn't set DNS layer for packet DnsEdit7");
+
+	dnsEdit7Packet.computeCalculateFields();
+
+	PACKETPP_ASSERT(buffer7Length == dnsEdit7Packet.getRawPacket()->getRawDataLen(), "DnsEdit7: Generated packet len (%d) is different than read packet len (%d)", dnsEdit7Packet.getRawPacket()->getRawDataLen(), buffer7Length);
+
+	PACKETPP_ASSERT(memcmp(dnsEdit7Packet.getRawPacket()->getRawData(), buffer7, buffer7Length) == 0, "DnsEdit7: Raw packet data is different than expected");
+
 
 	PACKETPP_TEST_PASSED;
 }
@@ -2982,7 +3091,7 @@ PACKETPP_TEST(DnsLayerRemoveResourceTest)
 	PACKETPP_ASSERT(dnsLayer6->getFirstQuery() == secondQuery, "Remove query didn't remove the query properly from the resources linked list");
 	PACKETPP_ASSERT(dnsLayer6->getFirstQuery()->getDnsType() == DNS_TYPE_ALL, "Remove query didn't properly removed query data from layer");
 	PACKETPP_ASSERT(dnsLayer6->getQueryCount() == 1, "Query count after removing the first query != 1");
-	PACKETPP_ASSERT(dnsLayer6->getFirstAuthority()->getDataAsString() == "10.0.0.2", "Remove query didn't properly removed query data from layer");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAuthority()->getData()->toString() == "10.0.0.2", "Remove query didn't properly removed query data from layer");
 	PACKETPP_ASSERT(dnsLayer6->getFirstAdditionalRecord()->getDnsType() == DNS_TYPE_OPT, "Remove query didn't properly removed query data from layer");
 
 	PACKETPP_ASSERT(dnsLayer6->getHeaderLen() == origDnsLayer6.getHeaderLen()-firstQuerySize, "DNS layer size after removing the first query is wrong");
@@ -3024,7 +3133,7 @@ PACKETPP_TEST(DnsLayerRemoveResourceTest)
 	PACKETPP_ASSERT(dnsLayer6->removeAdditionalRecord(dnsLayer6->getFirstAdditionalRecord()) == true, "Couldn't remove additional record");
 	PACKETPP_ASSERT(dnsLayer6->getAdditionalRecordCount() == 0, "Additional record count after removing the additional record != 0");
 	PACKETPP_ASSERT(dnsLayer6->getFirstAdditionalRecord() == NULL, "Getting first additional record after removing all records gave result != NULL");
-	PACKETPP_ASSERT(dnsLayer6->getFirstAuthority()->getDataAsString() == "10.0.0.2", "First authority data after removing additional record is different than expected");
+	PACKETPP_ASSERT(dnsLayer6->getFirstAuthority()->getData()->toString() == "10.0.0.2", "First authority data after removing additional record is different than expected");
 	PACKETPP_ASSERT(dnsLayer6->getHeaderLen() == origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize-additionalRecordSize, "DNS layer size after removing the additional record is wrong");
 
 
@@ -3052,7 +3161,7 @@ PACKETPP_TEST(DnsLayerRemoveResourceTest)
 	DnsResource* firstAnswer = dnsLayer4->getFirstAnswer();
 	PACKETPP_ASSERT(firstAnswer != NULL, "Couldn't find first answer");
 	size_t firstAnswerSize = firstAnswer->getSize();
-	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer()->getDataAsString() == "assets.pinterest.com.cdngc.net", "First answer data after removing first query is wrong");
+	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer()->getData()->toString() == "assets.pinterest.com.cdngc.net", "First answer data after removing first query is wrong");
 
 	DnsResource* secondAnswer = dnsLayer4->getNextAnswer(firstAnswer);
 	PACKETPP_ASSERT(secondAnswer != NULL, "Couldn't find second answer");
@@ -3070,7 +3179,7 @@ PACKETPP_TEST(DnsLayerRemoveResourceTest)
 	PACKETPP_ASSERT(dnsLayer4->removeAnswer(firstAnswer) == true, "Couldn't remove first answer");
 	PACKETPP_ASSERT(dnsLayer4->getAnswerCount() == 1, "Answer count after removing the first answer != 1");
 	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer() == thirdAnswer, "First answer after removing the first answer isn't as expected");
-	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer()->getDataAsString() == "151.249.90.238", "Third answer data isn't as expected");
+	PACKETPP_ASSERT(dnsLayer4->getFirstAnswer()->getData()->toString() == "151.249.90.238", "Third answer data isn't as expected");
 	PACKETPP_ASSERT(dnsLayer4->getHeaderLen() == origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize-firstAnswerSize, "DNS layer size after removing the first answer is wrong");
 
 	PACKETPP_ASSERT(dnsLayer4->removeAnswer(thirdAnswer) == true, "Couldn't remove third answer");
@@ -3286,12 +3395,13 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 	PACKETPP_ASSERT(copyDnsLayer.getFirstQuery()->getDnsType() == origDnsLayer->getFirstQuery()->getDnsType(), "DNS type for first query differs");
 
 	PACKETPP_ASSERT(copyDnsLayer.getAuthorityCount() == origDnsLayer->getAuthorityCount(), "Authority count differs");
-	PACKETPP_ASSERT(copyDnsLayer.getAuthority("Yaels-iPhone.local", true)->getDataAsString() == origDnsLayer->getAuthority("Yaels-iPhone.local", true)->getDataAsString(), "Authority data differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAuthority("Yaels-iPhone.local", true)->getData()->toString() == origDnsLayer->getAuthority("Yaels-iPhone.local", true)->getData()->toString(), "Authority data differs");
 
-	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("", true)->getDataAsString() == origDnsLayer->getAdditionalRecord("", true)->getDataAsString(), "Additional data differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString() == origDnsLayer->getAdditionalRecord("", true)->getData()->toString(), "Additional data differs");
 
 	copyDnsLayer.addQuery("bla", DNS_TYPE_A, DNS_CLASS_ANY);
-	copyDnsLayer.addAnswer("bla", DNS_TYPE_A, DNS_CLASS_ANY, 123, "1.1.1.1");
+	IPv4DnsResourceData ipv4DnsData(std::string("1.1.1.1"));
+	copyDnsLayer.addAnswer("bla", DNS_TYPE_A, DNS_CLASS_ANY, 123, &ipv4DnsData);
 
 	copyDnsLayer = *origDnsLayer;
 
@@ -3300,11 +3410,11 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 	PACKETPP_ASSERT(copyDnsLayer.getFirstQuery()->getDnsType() == origDnsLayer->getFirstQuery()->getDnsType(), "DNS type for first query differs");
 
 	PACKETPP_ASSERT(copyDnsLayer.getAuthorityCount() == origDnsLayer->getAuthorityCount(), "Authority count differs");
-	PACKETPP_ASSERT(copyDnsLayer.getAuthority(".local", false)->getDataAsString() == origDnsLayer->getAuthority("iPhone.local", false)->getDataAsString(), "Authority data differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAuthority(".local", false)->getData()->toString() == origDnsLayer->getAuthority("iPhone.local", false)->getData()->toString(), "Authority data differs");
 
 	PACKETPP_ASSERT(copyDnsLayer.getAnswerCount() == origDnsLayer->getAnswerCount(), "Answer count differs");
 
-	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("", true)->getDataAsString() == origDnsLayer->getAdditionalRecord("", true)->getDataAsString(), "Additional data differs");
+	PACKETPP_ASSERT(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString() == origDnsLayer->getAdditionalRecord("", true)->getData()->toString(), "Additional data differs");
 
 
 

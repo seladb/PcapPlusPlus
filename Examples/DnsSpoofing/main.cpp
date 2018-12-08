@@ -149,8 +149,8 @@ void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 
 	// add DNS response
 	dnsLayer->getDnsHeader()->queryOrResponse = 1;
-	IPv4Address dnsServer = args->dnsServer;
-	if (!dnsLayer->addAnswer(dnsQuery->getName(), DNS_TYPE_A, DNS_CLASS_IN, 1, dnsServer.toString()))
+	IPv4DnsResourceData dnsServer(args->dnsServer);
+	if (!dnsLayer->addAnswer(dnsQuery->getName(), DNS_TYPE_A, DNS_CLASS_IN, 1, &dnsServer))
 		return;
 
 	dnsRequest.computeCalculateFields();

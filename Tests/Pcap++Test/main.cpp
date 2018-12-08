@@ -2877,7 +2877,7 @@ PCAPP_TEST(TestDnsParsing)
 					isTypeCNAME = true;
 				if (answer->getDnsType() == DNS_TYPE_PTR)
 					isTypePTR = true;
-				if (answer->getDataAsString() == "fe80::5a1f:aaff:fe4f:3f9d")
+				if (answer->getData()->toString() == "fe80::5a1f:aaff:fe4f:3f9d")
 					answersWithDataCertainIPv6++;
 			}
 
@@ -2898,7 +2898,7 @@ PCAPP_TEST(TestDnsParsing)
 
 			for (DnsResource* auth = dnsLayer->getFirstAuthority(); auth != NULL; auth = dnsLayer->getNextAuthority(auth))
 			{
-				if (auth->getDataAsString() == "10.0.0.2")
+				if (auth->getData()->toString() == "10.0.0.2")
 				{
 					authoritiesWithData10_0_0_2++;
 					break;

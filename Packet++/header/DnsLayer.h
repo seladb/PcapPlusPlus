@@ -1,6 +1,9 @@
 #ifndef PACKETPP_DNS_LAYER
 #define PACKETPP_DNS_LAYER
 
+#include "DnsLayerEnums.h"
+#include "DnsResource.h"
+#include "DnsResourceData.h"
 #include "Layer.h"
 #include <vector>
 #include <map>
@@ -86,339 +89,11 @@ namespace pcpp
 #pragma pack(pop)
 
 
-	/**
-	 * An enum for all possible DNS record types
-	 */
-	enum DnsType
-	{
-		/** IPv4 address record */
-		DNS_TYPE_A = 1,
-		/** Name Server record */
-		DNS_TYPE_NS,
-		/** Obsolete, replaced by MX */
-		DNS_TYPE_MD,
-		/** Obsolete, replaced by MX */
-		DNS_TYPE_MF,
-		/** Canonical name record */
-		DNS_TYPE_CNAME,
-		/** Start of Authority record */
-		DNS_TYPE_SOA,
-		/** mailbox domain name record */
-		DNS_TYPE_MB,
-		/** mail group member record */
-		DNS_TYPE_MG,
-		/** mail rename domain name record */
-		DNS_TYPE_MR,
-		/** NULL record */
-		DNS_TYPE_NULL_R,
-		/** well known service description record */
-		DNS_TYPE_WKS,
-		/** Pointer record */
-		DNS_TYPE_PTR,
-		/** Host information record */
-		DNS_TYPE_HINFO,
-		/** mailbox or mail list information record */
-		DNS_TYPE_MINFO,
-		/** Mail exchanger record */
-		DNS_TYPE_MX,
-		/** Text record */
-		DNS_TYPE_TXT,
-		/** Responsible person record */
-		DNS_TYPE_RP,
-		/** AFS database record */
-		DNS_TYPE_AFSDB,
-		/** DNS X25 resource record */
-		DNS_TYPE_X25,
-		/** Integrated Services Digital Network record */
-		DNS_TYPE_ISDN,
-		/** Route Through record */
-		DNS_TYPE_RT,
-		/** network service access point address record */
-		DNS_TYPE_NSAP,
-		/** network service access point address pointer record */
-		DNS_TYPE_NSAP_PTR,
-		/** Signature record */
-		DNS_TYPE_SIG,
-		/** Key record */
-		DNS_TYPE_KEY,
-		/** Mail Mapping Information record */
-		DNS_TYPE_PX,
-		/** DNS Geographical Position record */
-		DNS_TYPE_GPOS,
-		/** IPv6 address record */
-		DNS_TYPE_AAAA,
-		/**	Location record */
-		DNS_TYPE_LOC,
-		/** Obsolete record */
-		DNS_TYPE_NXT,
-		/** DNS Endpoint Identifier record */
-		DNS_TYPE_EID,
-		/** DNS Nimrod Locator record */
-		DNS_TYPE_NIMLOC,
-		/** Service locator record */
-		DNS_TYPE_SRV,
-		/** Asynchronous Transfer Mode address record */
-		DNS_TYPE_ATMA,
-		/** Naming Authority Pointer record */
-		DNS_TYPE_NAPTR,
-		/** Key eXchanger record */
-		DNS_TYPE_KX,
-		/** Certificate record */
-		DNS_TYPE_CERT,
-		/** Obsolete, replaced by AAAA type */
-		DNS_TYPE_A6,
-		/** Delegation Name record */
-		DNS_TYPE_DNAM,
-		/** Kitchen sink record */
-		DNS_TYPE_SINK,
-		/** Option record */
-		DNS_TYPE_OPT,
-		/** Address Prefix List record */
-		DNS_TYPE_APL,
-		/** Delegation signer record */
-		DNS_TYPE_DS,
-		/** SSH Public Key Fingerprint record */
-		DNS_TYPE_SSHFP,
-		/** IPsec Key record */
-		DNS_TYPE_IPSECKEY,
-		/** DNSSEC signature record */
-		DNS_TYPE_RRSIG,
-		/** Next-Secure record */
-		DNS_TYPE_NSEC,
-		/** DNS Key record */
-		DNS_TYPE_DNSKEY,
-		/** DHCP identifier record */
-		DNS_TYPE_DHCID,
-		/** NSEC record version 3 */
-		DNS_TYPE_NSEC3,
-		/** NSEC3 parameters */
-		DNS_TYPE_NSEC3PARAM,
-		/** All cached records */
-		DNS_TYPE_ALL = 255
-	};
-
-
-	/**
-	 * An enum for all possible DNS classes
-	 */
-	enum DnsClass
-	{
-		/** Internet class */
-		DNS_CLASS_IN = 1,
-		/** Internet class with QU flag set to True */
-		DNS_CLASS_IN_QU = 32769,
-		/** Chaos class */
-		DNS_CLASS_CH = 3,
-		/** Hesiod class */
-		DNS_CLASS_HS = 4,
-		/** ANY class */
-		DNS_CLASS_ANY = 255
-	};
-
-
-	class DnsLayer;
-
-
-	/**
-	 * @class IDnsResource
-	 * An abstract class for representing all types of DNS records. This class gives access to all available record data such as DNS type, class,
-	 * name, type of record, etc. The DnsLayer holds an instance of (inherited type of) this class for each DNS record in the DNS packet
-	 */
-	class IDnsResource
-	{
-	protected:
-		friend class DnsLayer;
-
-	protected:
-		DnsLayer* m_DnsLayer;
-		size_t m_OffsetInLayer;
-		IDnsResource* m_NextResource;
-		std::string m_DecodedName;
-		size_t m_NameLength;
-		uint8_t* m_ExternalRawData;
-
-		IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer);
-
-		IDnsResource(uint8_t* emptyRawData);
-
-		size_t decodeName(const char* encodedName, char* result, int iteration = 1);
-		void encodeName(const std::string& decodedName, char* result, size_t& resultLen);
-
-		inline IDnsResource* getNextResource() { return m_NextResource; }
-		inline void setNexResource(IDnsResource* next) { m_NextResource = next; }
-
-		uint8_t* getRawData();
-
-		void setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer);
-
-	public:
-		/**
-		 * An enum for representing the 4 types of possible DNS records
-		 */
-		enum ResourceType
-		{
-			/** DNS query record */
-			DnsQuery = 0,
-			/** DNS answer record */
-			DnsAnswer = 1,
-			/** DNS authority record */
-			DnsAuthority = 2,
-			/** DNS additional record */
-			DnsAdditional = 3
-		};
-
-		virtual ~IDnsResource() {}
-
-		/**
-		 * @return The DNS type of this record
-		 */
-		DnsType getDnsType();
-
-		/**
-		 * Set DNS type for this record
-		 * @param[in] newType The type to set
-		 */
-		void setDnsType(DnsType newType);
-
-		/**
-		 * @return The DNS class of this record
-		 */
-		DnsClass getDnsClass();
-
-		/**
-		 * Set DNS class for this record
-		 * @param[in] newClass The class to set
-		 */
-		void setDnsClass(DnsClass newClass);
-
-		/**
-		 * @return The name of this record
-		 */
-		std::string getName() { return m_DecodedName; }
-
-		/**
-		 * Set the name of this record. Note the new name can be shorter or longer of the old name, so this method can cause the packet to be
-		 * shorten or extended
-		 * @param[in] newName The name to set
-		 */
-		bool setName(const std::string& newName);
-
-
-		// abstract methods
-
-		/**
-		 * @return The total size in bytes of this record
-		 */
-		virtual size_t getSize() = 0;
-
-		/**
-		 * @return The type of this record (query, answer, authority, additional)
-		 */
-		virtual ResourceType getType() = 0;
-	};
-
-
-	/**
-	 * @class DnsQuery
-	 * Representing a DNS query record
-	 */
-	class DnsQuery : public IDnsResource
-	{
-		friend class DnsLayer;
-
-	private:
-		DnsQuery(DnsLayer* dnsLayer, size_t offsetInLayer) : IDnsResource(dnsLayer, offsetInLayer) {}
-
-		DnsQuery(uint8_t* emptyRawData) : IDnsResource(emptyRawData) {}
-
-	public:
-		virtual ~DnsQuery() {}
-
-		// abstract methods
-		virtual size_t getSize() { return m_NameLength + 2*sizeof(uint16_t); }
-		virtual ResourceType getType() { return IDnsResource::DnsQuery; }
-	};
-
-
-	/**
-	 * @class DnsResource
-	 * Representing DNS record other than DNS query
-	 */
-	class DnsResource : public IDnsResource
-	{
-		friend class DnsLayer;
-
-	private:
-		ResourceType m_ResourceType;
-
-		DnsResource(DnsLayer* dnsLayer, size_t offsetInLayer, ResourceType resourceType) : IDnsResource(dnsLayer, offsetInLayer) { m_ResourceType = resourceType; }
-
-		DnsResource(uint8_t* emptyRawData, ResourceType resType) : IDnsResource(emptyRawData), m_ResourceType(resType) {}
-
-	public:
-		virtual ~DnsResource() {}
-
-		/**
-		 * @return The time-to-leave value for this record
-		 */
-		uint32_t getTTL();
-
-		/**
-		 * Set time-to-leave value for this record
-		 * @param[in] newTTL The new TTL value to set
-		 */
-		void setTTL(uint32_t newTTL);
-
-		/**
-		 * @return The data length value for this record (taken from the "data length" field of the record)
-		 */
-		size_t getDataLength();
-
-		/**
-		 * @return The record data as string. The return value depends on the DNS type of this record:<BR>
-		 * - For type A (::DNS_TYPE_A): the return value is the IPv4 address as string<BR>
-		 * - For type AAAA (::DNS_TYPE_AAAA): the return value is the IPv6 address as string<BR>
-		 * - For types NS, CNAME, DNAME, PTR, MX (::DNS_TYPE_NS, ::DNS_TYPE_CNAME, ::DNS_TYPE_DNAM, ::DNS_TYPE_PTR,
-		 * ::DNS_TYPE_MX): the return value is the name<BR>
-		 * - For all other types: the return value is a hex stream of the data
-		 */
-		std::string getDataAsString();
-
-		/**
-		 * Set resource data. Data is parse from string and is validated against the DNS type of the resource. For example: if DNS type is A
-		 * and data isn't a valid IPv4 address a log error will be printed and the method will return false. This method currently supports the
-		 * following DNS types:<BR>
-		 * - ::DNS_TYPE_A (IPv4 address) - data is expected to be a valid IPv4 address
-		 * - ::DNS_TYPE_AAAA (IPv6 address) - data is expected to be a valid IPv6 address
-		 * - ::DNS_TYPE_NS, ::DNS_TYPE_CNAME, ::DNS_TYPE_DNAM, ::DNS_TYPE_PTR, ::DNS_TYPE_MX (name data) - data is expected to be a valid host
-		 * name, e.g: 'www.google.com'
-		 * - else: data is expected to be a valid hex string which starts with '0x' followed by the an even number of characters representing
-		 * a valid hex data. e.g: '0x0d0a45569a9b'
-		 * @param[in] dataAsString The string representation of the relevant data
-		 * @return True if data was properly set or false if data is illegal or method couldn't extend or shorted the packet
-		 * (appropriate error log is printed in all cases)
-		 */
-		bool setData(const std::string& dataAsString);
-
-		/**
-		 * Some records don't have a DNS class and the bytes used for storing the DNS class are used for other purpose. This method enables the
-		 * user to receive these bytes
-		 * @return The value stored in this place
-		 */
-		uint16_t getCustomDnsClass();
-
-		/**
-		 * Some records don't have a DNS class and the bytes used for storing the DNS class are used for other purpose. This method enables the
-		 * user to set these bytes
-		 * @param[in] customValue The value to set
-		 */
-		void setCustomDnsClass(uint16_t customValue);
-
-		// abstract methods
-		virtual size_t getSize() { return m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
-		virtual ResourceType getType() { return m_ResourceType; }
-
-	};
+	// forward declarations
+	class DnsQuery;
+	class IDnsResource;
+	class DnsResource;
+	class IDnsResourceData;
 
 
 	/**
@@ -558,11 +233,13 @@ namespace pcpp
 		 * @param[in] dnsType The value that shall be set in the DNS type field of the answer
 		 * @param[in] dnsClass The value that shall be set in the DNS class field of the answer
 		 * @param[in] ttl The value that shall be set in the 'time-to-leave' field of the answer
-		 * @param[in] data The answer data to be set. see DnsResource#setData for more info of this field legal values
+		 * @param[in] data The answer data to be set. The type of the data should match the type of the DNS record
+		 * (for example: DNS record of type A should have data of type IPv4DnsResourceData. Please see DnsResource#setData()
+		 * for more info on this
 		 * @return A pointer to the newly created DNS answer or NULL if answer could not be created (an appropriate error log message will be
 		 * printed in this case)
 		 */
-		DnsResource* addAnswer(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data);
+		DnsResource* addAnswer(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data);
 
 		/**
 		 * Add a new DNS answer similar to an already existing DNS answer. All answer fields will be copied from the existing answer
@@ -620,11 +297,13 @@ namespace pcpp
 		 * @param[in] dnsType The value that shall be set in the DNS type field of the authority
 		 * @param[in] dnsClass The value that shall be set in the DNS class field of the authority
 		 * @param[in] ttl The value that shall be set in the 'time-to-leave' field of the authority
-		 * @param[in] data The authority data to be set. see DnsResource#setData for more info of this field legal values
+		 * @param[in] data The authority data to be set. The type of the data should match the type of the DNS record
+		 * (for example: DNS record of type A should have data of type IPv4DnsResourceData. Please see DnsResource#setData()
+		 * for more info on this
 		 * @return A pointer to the newly created DNS authority or NULL if authority could not be created (an appropriate error log message will be
 		 * printed in this case)
 		 */
-		DnsResource* addAuthority(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data);
+		DnsResource* addAuthority(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data);
 
 		/**
 		 * Add a new DNS authority similar to an already existing DNS authority. All authority fields will be copied from the existing authority
@@ -684,11 +363,13 @@ namespace pcpp
 		 * @param[in] dnsType The value that shall be set in the DNS type field of the additional record
 		 * @param[in] dnsClass The value that shall be set in the DNS class field of the additional record
 		 * @param[in] ttl The value that shall be set in the 'time-to-leave' field of the additional record
-		 * @param[in] data The additional record data to be set. see DnsResource#setData for more info of this field legal values
+		 * @param[in] data The additional record data to be set. The type of the data should match the type of the DNS record
+		 * (for example: DNS record of type A should have data of type IPv4DnsResourceData. Please see DnsResource#setData()
+		 * for more info on this
 		 * @return A pointer to the newly created DNS additional record or NULL if additional record could not be created (an appropriate error
 		 * log message will be printed in this case)
 		 */
-		DnsResource* addAdditionalRecord(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, const std::string& data);
+		DnsResource* addAdditionalRecord(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data);
 
 		/**
 		 * Add a new DNS additional record to the layer that doesn't have DNS class and TTL. Instead these bytes may contains some arbitrary
@@ -697,11 +378,13 @@ namespace pcpp
 		 * @param[in] dnsType The value that shall be set in the DNS type field of the additional record
 		 * @param[in] customData1 Two bytes of the arbitrary data that will be set in the offset usually used for the DNS class
 		 * @param[in] customData2 Four bytes of the arbitrary data that will be set in the offset usually used for the TTL
-		 * @param[in] data The additional record data to be set. see DnsResource#setData for more info of this field legal values
+		 * @param[in] data The additional record data to be set. The type of the data should match the type of the DNS record.
+		 * (for example: DNS record of type A should have data of type IPv4DnsResourceData. Please see DnsResource#setData()
+		 * for more info on this
 		 * @return A pointer to the newly created DNS additional record or NULL if additional record could not be created (an appropriate error
 		 * log message will be printed in this case)
 		 */
-		DnsResource* addAdditionalRecord(const std::string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, const std::string& data);
+		DnsResource* addAdditionalRecord(const std::string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, IDnsResourceData* data);
 
 		/**
 		 * Add a new DNS additional record similar to an already existing DNS additional record. All additional record fields will be copied from the
@@ -760,8 +443,8 @@ namespace pcpp
 		DnsResource* 	m_FirstAuthority;
 		DnsResource* 	m_FirstAdditional;
 
-		IDnsResource* getFirstResource(IDnsResource::ResourceType resType);
-		void setFirstResource(IDnsResource::ResourceType resType, IDnsResource* resource);
+		IDnsResource* getFirstResource(DnsResourceType resType);
+		void setFirstResource(DnsResourceType resType, IDnsResource* resource);
 
 		using Layer::extendLayer;
 		bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend, IDnsResource* resource);
@@ -773,8 +456,8 @@ namespace pcpp
 
 		void parseResources();
 
-		DnsResource* addResource(IDnsResource::ResourceType resType, const std::string& name, DnsType dnsType, DnsClass dnsClass,
-				uint32_t ttl, const std::string& data);
+		DnsResource* addResource(DnsResourceType resType, const std::string& name, DnsType dnsType, DnsClass dnsClass,
+				uint32_t ttl, IDnsResourceData* data);
 
 		bool removeResource(IDnsResource* resourceToRemove);
 

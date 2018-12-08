@@ -72,7 +72,7 @@ namespace pcpp
 		 * An IPv4 address that was constructed form the string "999.999.999.999"
 		 * @return True if the address is valid, false otherwise
 		 */
-		bool isValid() { return m_IsValid; }
+		bool isValid() const { return m_IsValid; }
 
 		/**
 		 * Clone the object
@@ -274,7 +274,7 @@ namespace pcpp
 		 * Overload of the comparison operator
 		 * @return true if 2 addresses are equal. False otherwise
 		 */
-		bool operator==(const IPv6Address& other);
+		bool operator==(const IPv6Address& other) const;
 
 		/**
 		 * Overload of the non-equal operator

@@ -287,8 +287,8 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 		// if answer contains a cname - continue to search this cname in the packet - hopefully find the IP resolving
 		else if (dnsType == DNS_TYPE_CNAME)
 		{
-			LOG_DEBUG("Got a DNS response for hostname '%s' with CNAME '%s'", hostToFind.c_str(), dnsAnswer->getDataAsString().c_str());
-			hostToFind = dnsAnswer->getDataAsString();
+			LOG_DEBUG("Got a DNS response for hostname '%s' with CNAME '%s'", hostToFind.c_str(), dnsAnswer->getData()->toString().c_str());
+			hostToFind = dnsAnswer->getData()->toString();
 		}
 		// if answer is of type other than A or CNAME (for example AAAA - IPv6) - type is not supported - return
 		else
@@ -304,7 +304,7 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 	double diffms = (diffticks*1000)/CLOCKS_PER_SEC;
 
 	data->dnsResponseTime = diffms;
-	data->result = IPv4Address(dnsAnswer->getDataAsString());
+	data->result = dnsAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress();
 	data->ttl = dnsAnswer->getTTL();
 
 	// signal the main thread the ARP reply was received

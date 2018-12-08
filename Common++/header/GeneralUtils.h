@@ -35,7 +35,8 @@ namespace pcpp
 	 * (resultByteArrSize) then the result array will contain only the part of the string that managed to fit into the
 	 * array, and the returned size will be resultByteArrSize. However if the string represents an array that is shorter
 	 * than the pre-allocated size then some of the cells will remain empty and contain zeros, and the returned size will
-	 * be the part of the array that contain data
+	 * be the part of the array that contain data. If the input is an illegal hex string 0 will be returned.
+	 * Illegal hex string means odd number of characters or a string that contains non-hex characters
 	 */
 	size_t hexStringToByteArray(const std::string& hexString, uint8_t* resultByteArr, size_t resultByteArrSize);
 }

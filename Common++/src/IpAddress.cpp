@@ -223,7 +223,7 @@ void IPv6Address::copyTo(uint8_t* arr) const
 	memcpy(arr, m_pInAddr, 16);
 }
 
-bool IPv6Address::operator==(const IPv6Address& other)
+bool IPv6Address::operator==(const IPv6Address& other) const
 {
 	return (memcmp(m_pInAddr, other.m_pInAddr, 16) == 0);
 }
@@ -242,7 +242,7 @@ IPv6Address& IPv6Address::operator=(const IPv6Address& other)
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in6_addr));
 
     strncpy(m_AddressAsString, other.m_AddressAsString, 40);
-    m_IsValid = true;
+    m_IsValid = other.m_IsValid;
 
     return *this;
 }
