@@ -26,6 +26,9 @@ namespace pcpp
 
 	/**
 	 * @class IDnsResourceData
+	 * A wrapper class for storing DNS RR (resource record) data. This is the base class which introduces several abstract
+	 * methods to set and retrieve the stored data. Derived classes should store different type of DNS RR data
+	 * (for example: IPv4/IPv6 addresses, MX data, hostnames etc.) and implement these methods accordingly
 	 */
 	class IDnsResourceData
 	{
@@ -59,7 +62,9 @@ namespace pcpp
 	{
 	public:
 		DnsResourceDataPtr(IDnsResourceData* ptr) : PCPP_SMART_PTR(IDnsResourceData)(ptr) {}
+#if __cplusplus <= 199711L
 		DnsResourceDataPtr(const DnsResourceDataPtr& other) : PCPP_SMART_PTR(IDnsResourceData)((DnsResourceDataPtr&)other) {}
+#endif
 
 		template <class IDnsResourceDataType>
 		bool isTypeOf() const { return get()->isTypeOf<IDnsResourceDataType>(); }
