@@ -402,7 +402,7 @@ namespace pcpp
 		 * Get a pointer to the IPv4 header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref iphdr
 		 */
-		inline iphdr* getIPv4Header() { return (iphdr*)m_Data; };
+		inline iphdr* getIPv4Header() { return (iphdr*)m_Data; }
 
 		/**
 		 * Get the source IP address in the form of IPv4Address

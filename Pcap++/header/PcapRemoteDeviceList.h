@@ -34,7 +34,7 @@ namespace pcpp
 		PcapRemoteAuthentication* m_RemoteAuthentication;
 
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
-		PcapRemoteDeviceList() : m_RemoteMachineIpAddress(NULL), m_RemoteMachinePort(0), m_RemoteAuthentication(NULL) {};
+		PcapRemoteDeviceList() : m_RemoteMachineIpAddress(NULL), m_RemoteMachinePort(0), m_RemoteAuthentication(NULL) {}
 		// private copy c'tor
 		PcapRemoteDeviceList(const PcapRemoteDeviceList& other);
 		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other);
