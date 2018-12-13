@@ -32,10 +32,12 @@
 #include <iostream>
 #include <sstream>
 #include <string.h>
-#ifdef WIN32
+#ifdef WIN32 // for using ntohl, ntohs, etc.
 #include <winsock2.h>
-#else
+#elif LINUX
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
 #ifdef _MSC_VER
 #include <SystemUtils.h>

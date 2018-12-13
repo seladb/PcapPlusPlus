@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Splitters.h"
-#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
+#ifdef LINUX // for using ntohl, ntohs, etc.
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
-
 
 /**
  * A virtual abstract class for all splitters that split files by IP address or TCP/UDP port. Inherits from ValueBasedSplitter,

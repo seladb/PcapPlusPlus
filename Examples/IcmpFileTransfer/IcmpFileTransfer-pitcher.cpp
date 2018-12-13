@@ -12,8 +12,10 @@
 #ifndef _MSC_VER
 #include "unistd.h"
 #endif
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) 
+#ifdef LINUX // for using ntohl, ntohs, etc.
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
 #include "EthLayer.h"
 #include "IPv4Layer.h"

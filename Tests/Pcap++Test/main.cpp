@@ -41,8 +41,10 @@
 #include <DpdkDevice.h>
 #include <NetworkUtils.h>
 #include <RawSocketDevice.h>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
+#ifdef LINUX // for using ntohl, ntohs, etc.
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
 
 using namespace std;

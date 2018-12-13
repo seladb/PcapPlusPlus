@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <vector>
 #include <getopt.h>
-#if !defined(WIN32) && !defined(WINx64)
+#ifdef LINUX // for using ntohl, ntohs, etc.
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
 #include "EthLayer.h"
 #include "IPv4Layer.h"

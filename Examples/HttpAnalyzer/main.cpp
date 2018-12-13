@@ -18,9 +18,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <algorithm>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
+#ifdef WIN32
+#include <winsock2.h>
+#elif LINUX
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
 #include "PcapLiveDeviceList.h"
 #include "PcapFilter.h"

@@ -3,8 +3,10 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
+#ifdef LINUX // for using ntohl, ntohs, etc.
 #include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
 #endif
 #include "PcapPlusPlusVersion.h"
 #include "IPv4Layer.h"
