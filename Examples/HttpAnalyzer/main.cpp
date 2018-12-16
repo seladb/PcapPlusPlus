@@ -18,7 +18,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#ifdef WIN32
+#include <algorithm>
+#if defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
 #elif LINUX
 #include <in.h>

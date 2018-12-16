@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <fstream>
 #include <memory>
+#if defined(WIN32) || defined(WINx64) // for using ntohl, ntohs, etc.
+#include <winsock2.h>
+#elif LINUX
+#include <in.h>
+#elif MAC_OS_X
+#include <arpa/inet.h>
+#endif
 #include <MacAddress.h>
 #include <IpAddress.h>
 #include <PcapPlusPlusVersion.h>
@@ -12,13 +19,6 @@
 #include <EthLayer.h>
 #include <ArpLayer.h>
 #include <Logger.h>
-#ifdef WIN32 // for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif MAC_OS_X
-#include <arpa/inet.h>
-#endif
 #include <getopt.h>
 
 using namespace std;
