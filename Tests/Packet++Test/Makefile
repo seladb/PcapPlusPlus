@@ -22,9 +22,19 @@ ENDIAN_PORTABLE_INCLUDE := $(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include
 
 PCAPPP_INCLUDES += -I$(DEBUG_NEW_HOME) -I$(ENDIAN_PORTABLE_INCLUDE)
 
+ifdef WIN32
+DEPS := -DWPCAP -DHAVE_REMOTE
+endif
+ifdef LINUX
+DEPS := -DLINUX
+endif
+ifdef MAC_OS_X
+DEPS := -DMAC_OS_X
+endif
+
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
-	@$(CXX) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	@$(CXX) $(DEPS) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 
 UNAME := $(shell uname)

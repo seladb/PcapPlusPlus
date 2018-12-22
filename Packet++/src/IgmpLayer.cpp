@@ -4,11 +4,11 @@
 #include "IpUtils.h"
 #include "Logger.h"
 #include <string.h>
-#ifdef WIN32 //for using ntohl, ntohs, etc.
+#if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
 #include <winsock2.h>
-#elif LINUX
+#elif defined(LINUX)
 #include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X
+#elif defined(MAC_OS_X)
 #include <arpa/inet.h> //for using ntohl, ntohs, etc.
 #endif
 
