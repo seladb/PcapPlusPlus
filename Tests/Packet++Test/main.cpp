@@ -1,4 +1,11 @@
 #include <Logger.h>
+#if defined(WIN32) || defined(WINx64) // for using ntohl, ntohs, etc.
+#include <winsock2.h>
+#elif defined(MAC_OS_X)
+#include <arpa/inet.h>
+#elif defined(LINUX)
+#include <in.h>
+#endif
 #include <PcapPlusPlusVersion.h>
 #include <Packet.h>
 #include <EthLayer.h>
@@ -32,13 +39,6 @@
 #include <iostream>
 #include <sstream>
 #include <string.h>
-#ifdef WIN32 // for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif MAC_OS_X
-#include <arpa/inet.h>
-#endif
 #ifdef _MSC_VER
 #include <SystemUtils.h>
 #endif
