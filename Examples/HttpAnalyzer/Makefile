@@ -11,10 +11,19 @@ include ../../mk/PcapPlusPlus.mk
 SOURCES := $(wildcard *.cpp)
 OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
+ifdef WIN32
+DEPS := -DWPCAP -DHAVE_REMOTE
+endif
+ifdef LINUX
+DEPS := -DLINUX
+endif
+ifdef MAC_OS_X
+DEPS := -DMAC_OS_X
+endif
+
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
-	@$(CXX) $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -O0 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
-
+	@$(CXX) $(DEPS) $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -O0 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 UNAME := $(shell uname)
 CUR_TARGET := $(notdir $(shell pwd))
