@@ -4,9 +4,9 @@
 #include <memory>
 #if defined(WIN32) || defined(WINx64) // for using ntohl, ntohs, etc.
 #include <winsock2.h>
-#elif LINUX
+#elif defined(LINUX)
 #include <in.h>
-#elif MAC_OS_X
+#elif defined(MAC_OS_X)
 #include <arpa/inet.h>
 #endif
 #include <MacAddress.h>
