@@ -38,9 +38,6 @@ matrix:
         - PF_RING=True
     - os: osx
       compiler: clang
-      osx_image: xcode6.4
-    - os: osx
-      compiler: clang
       osx_image: xcode7.3
     - os: osx
       compiler: clang
@@ -63,7 +60,14 @@ matrix:
     - os: osx
       compiler: clang
       osx_image: xcode9.4
-      
+    - os: osx
+      compiler: clang
+      osx_image: xcode10
+    - os: osx
+      compiler: clang
+      osx_image: xcode10.1
+
+
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
