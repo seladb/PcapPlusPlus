@@ -189,6 +189,35 @@ PACKETPP_TEST(EthPacketCreation) {
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(EthPacketPointerCreation) {
+	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
+	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
+	EthLayer *ethLayer = new EthLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+
+	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
+	PayloadLayer *payloadLayer = new PayloadLayer(payload, 4, true);
+
+	Packet *ethPacket = new Packet(1);
+	PACKETPP_ASSERT(ethPacket->addLayer(ethLayer, true), "Adding ethernet layer failed");
+	PACKETPP_ASSERT(ethPacket->addLayer(payloadLayer, true), "Adding payload layer failed");
+
+	PACKETPP_ASSERT(ethPacket->isPacketOfType(Ethernet), "Packet is not of type Ethernet");
+	PACKETPP_ASSERT(ethPacket->getLayerOfType<EthLayer>() != NULL, "Ethernet layer doesn't exist");
+	PACKETPP_ASSERT(ethPacket->getLayerOfType<EthLayer>() == ethLayer, "Ethernet layer doesn't equal to inserted layer");
+	PACKETPP_ASSERT(ethPacket->getLayerOfType<EthLayer>()->getDestMac() == dstMac, "Packet dest mac isn't equal to intserted dest mac");
+	PACKETPP_ASSERT(ethPacket->getLayerOfType<EthLayer>()->getSourceMac() == srcMac, "Packet src mac isn't equal to intserted src mac");
+	PACKETPP_ASSERT(ethPacket->getLayerOfType<EthLayer>()->getEthHeader()->etherType == ntohs(PCPP_ETHERTYPE_IP), "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
+
+	RawPacket* rawPacket = ethPacket->getRawPacket();
+	PACKETPP_ASSERT(rawPacket != NULL, "Raw packet is NULL");
+	PACKETPP_ASSERT(rawPacket->getRawDataLen() == 18, "Raw packet length expected to be 18 but it's %d", rawPacket->getRawDataLen());
+
+	uint8_t expectedBuffer[18] = { 0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x08, 0x00, 0x01, 0x02, 0x03, 0x04 };
+	PACKETPP_ASSERT(memcmp(rawPacket->getRawData(), expectedBuffer, 18) == 0, "Raw packet data is different than expected");
+	delete(ethPacket);
+	PACKETPP_TEST_PASSED;
+}
+
 PACKETPP_TEST(EthAndArpPacketParsing) {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/ArpResponsePacket.dat", bufferLength);
@@ -7025,6 +7054,7 @@ int main(int argc, char* argv[]) {
 	PACKETPP_START_RUNNING_TESTS;
 
 	PACKETPP_RUN_TEST(EthPacketCreation);
+	PACKETPP_RUN_TEST(EthPacketPointerCreation);
 	PACKETPP_RUN_TEST(EthAndArpPacketParsing);
 	PACKETPP_RUN_TEST(ArpPacketCreation);
 	PACKETPP_RUN_TEST(VlanParseAndCreation);
