@@ -167,13 +167,14 @@ void printMethods(HttpRequestStats& reqStatscollector)
 	columnsWidths.push_back(5);
 	TablePrinter printer(columnNames, columnsWidths);
 
-	std::stringstream values;
 
 	// go over the method count table and print each method and count
 	for(std::map<HttpRequestLayer::HttpMethod, int>::iterator iter = reqStatscollector.methodCount.begin();
 			iter != reqStatscollector.methodCount.end();
 			iter++)
 	{
+        std::stringstream values;
+
 		switch (iter->first)
 		{
 		case HttpRequestLayer::HttpGET:
@@ -182,6 +183,7 @@ void printMethods(HttpRequestStats& reqStatscollector)
 			break;
 		case HttpRequestLayer::HttpPOST:
 			values << "POST" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpPOST];
+			printer.printRow(values.str(), '|');
 			break;
 		case HttpRequestLayer::HttpCONNECT:
 			values << "CONNECT" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpCONNECT];

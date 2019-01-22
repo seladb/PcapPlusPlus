@@ -225,12 +225,12 @@ void Packet::reallocateRawData(size_t newSize)
 	}
 }
 
-bool Packet::addLayer(Layer* newLayer)
+bool Packet::addLayer(Layer* newLayer, bool allocateInPacket)
 {
-	return insertLayer(m_LastLayer, newLayer);
+	return insertLayer(m_LastLayer, newLayer, allocateInPacket);
 }
 
-bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer)
+bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool allocateInPacket)
 {
 	if (newLayer == NULL)
 	{
@@ -292,6 +292,10 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer)
 
 	// assign layer with this packet only
 	newLayer->m_Packet = this;
+
+	// Set flag to indicate if new layer is allocated to packet.
+	if(allocateInPacket)
+	   newLayer->m_IsAllocatedInPacket = true;
 
 	// re-calculate all layers data ptr and data length
 
