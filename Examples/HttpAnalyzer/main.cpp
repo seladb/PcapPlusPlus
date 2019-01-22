@@ -173,7 +173,7 @@ void printMethods(HttpRequestStats& reqStatscollector)
 			iter != reqStatscollector.methodCount.end();
 			iter++)
 	{
-        std::stringstream values;
+		std::stringstream values;
 
 		switch (iter->first)
 		{

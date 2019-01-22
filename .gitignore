@@ -1,14 +1,14 @@
-# Compiled Object files
+#Compiled Object files
 *.slo
 *.lo
 *.o
 
-# Compiled Dynamic libraries
+#Compiled Dynamic libraries
 *.dll
 *.so
 *.dylib
 
-# Compiled Static libraries
+#Compiled Static libraries
 *.lai
 *.la
 *.a
@@ -20,11 +20,14 @@
 #pcap and pcapng files
 *.pcap
 *.pcapng
+*.cap
 
 #Bin and Obj directories
 **/Bin
 **/Obj
-
+**/Lib
+**/BinCatcher
+**/BinPitcher
 
 #Distribtion folder
 Dist/
@@ -34,14 +37,32 @@ mk/PcapPlusPlus.mk
 mk/platform.mk
 mk/PcapPlusPlus.mk-e
 
-# auto generated files
+#auto generated files
 install.sh
 uninstall.sh
 
 #curl text
 Tests/Pcap++Test/cUrl/curl_output.txt
 
-# visual studio code
+#eclipse files
+**/.settings
+
+#Visual studio code
 .cproject
 .project
 .vscode
+
+#Visual studio generated files
+*.pdb
+*.ilk
+*.log
+*.obj
+*.idb
+*.tlog
+*.VC.db
+*.vcxproj.user
+**/.vs
+
+#Tutorial outputs
+Examples/Tutorials/**/Makefile
+Examples/Tutorials/**/*.exe
