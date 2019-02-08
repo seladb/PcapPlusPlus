@@ -1112,7 +1112,6 @@ PACKETPP_TEST(Ipv6ExtensionsTest)
 
 
 	// parsing of Destionation extension
-	IPv6TLVOptionHeader::TLVOption* option = NULL;
 	IPv6Layer* ipv6Layer = ipv6Dest.getLayerOfType<IPv6Layer>();
 	PACKETPP_ASSERT(ipv6Layer->getExtensionCount() == 1, "Dest ext packet1: num of extensions isn't 1");
 	IPv6HopByHopHeader* hopByHopExt = ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>();
@@ -1121,25 +1120,25 @@ PACKETPP_TEST(Ipv6ExtensionsTest)
 	PACKETPP_ASSERT(destExt != NULL, "Dest ext packet: Cannot find dest extension");
 	PACKETPP_ASSERT(destExt->getExtensionType() == IPv6Extension::IPv6Destination, "Dest ext packet: Dest ext type isn't IPv6Extension::IPv6Destination");
 	PACKETPP_ASSERT(destExt->getOptionCount() == 2, "Dest ext packet: Number of options isn't 2");
-	option = destExt->getFirstOption();
-	PACKETPP_ASSERT(option != NULL, "Dest ext packet: First option is null");
-	PACKETPP_ASSERT(option->optionType == 11, "Dest ext packet: First option type isn't 11");
-	PACKETPP_ASSERT(option->getTotalSize() == 3, "Dest ext packet: First option total size isn't 3");
-	PACKETPP_ASSERT(option->getDataSize() == 1, "Dest ext packet: First option data size isn't 1");
-	PACKETPP_ASSERT(option->getValueAs<uint8_t>() == 9, "Dest ext packet: First option data isn't 9");
+	IPv6TLVOptionHeader::IPv6Option option = destExt->getFirstOption();
+	PACKETPP_ASSERT(option.isNull() == false, "Dest ext packet: First option is null");
+	PACKETPP_ASSERT(option.getType() == 11, "Dest ext packet: First option type isn't 11");
+	PACKETPP_ASSERT(option.getTotalSize() == 3, "Dest ext packet: First option total size isn't 3");
+	PACKETPP_ASSERT(option.getDataSize() == 1, "Dest ext packet: First option data size isn't 1");
+	PACKETPP_ASSERT(option.getValueAs<uint8_t>() == 9, "Dest ext packet: First option data isn't 9");
 	option = destExt->getNextOption(option);
-	PACKETPP_ASSERT(option != NULL, "Dest ext packet: Second option is null");
-	PACKETPP_ASSERT(option->optionType == 1, "Dest ext packet: Second option type isn't 1");
-	PACKETPP_ASSERT(option->getTotalSize() == 3, "Dest ext packet: Second option total size isn't 3");
-	PACKETPP_ASSERT(option->getDataSize() == 1, "Dest ext packet: Second option data size isn't 1");
-	PACKETPP_ASSERT(option->getValueAs<uint8_t>() == 0, "Dest ext packet: Second option data isn't 0");
+	PACKETPP_ASSERT(option.isNull() == false, "Dest ext packet: Second option is null");
+	PACKETPP_ASSERT(option.getType() == 1, "Dest ext packet: Second option type isn't 1");
+	PACKETPP_ASSERT(option.getTotalSize() == 3, "Dest ext packet: Second option total size isn't 3");
+	PACKETPP_ASSERT(option.getDataSize() == 1, "Dest ext packet: Second option data size isn't 1");
+	PACKETPP_ASSERT(option.getValueAs<uint8_t>() == 0, "Dest ext packet: Second option data isn't 0");
 	option = destExt->getNextOption(option);
-	PACKETPP_ASSERT(option == NULL, "Dest ext packet: Found third option");
+	PACKETPP_ASSERT(option.isNull() == true, "Dest ext packet: Found third option");
 	option = destExt->getOption(11);
-	PACKETPP_ASSERT(option != NULL, "Dest ext packet: Cannot find option with type 11");
-	PACKETPP_ASSERT(option->getTotalSize() == 3, "Dest ext packet: Option with type 11 total size isn't 3");
-	PACKETPP_ASSERT(destExt->getOption(12) == NULL, "Dest ext packet: Found option with type 12");
-	PACKETPP_ASSERT(destExt->getOption(0) == NULL, "Dest ext packet: Found option with type 0");
+	PACKETPP_ASSERT(option.isNull() == false, "Dest ext packet: Cannot find option with type 11");
+	PACKETPP_ASSERT(option.getTotalSize() == 3, "Dest ext packet: Option with type 11 total size isn't 3");
+	PACKETPP_ASSERT(destExt->getOption(12).isNull() == true, "Dest ext packet: Found option with type 12");
+	PACKETPP_ASSERT(destExt->getOption(0).isNull() == true, "Dest ext packet: Found option with type 0");
 
 
 	// parsing of Hop-By-Hop extension
@@ -1150,21 +1149,21 @@ PACKETPP_TEST(Ipv6ExtensionsTest)
 	PACKETPP_ASSERT(hopByHopExt != NULL, "Hop-By-Hop ext packet: Cannot find Hop-By-Hop extension");
 	PACKETPP_ASSERT(hopByHopExt->getExtensionType() == IPv6Extension::IPv6HopByHop, "Hop-By-Hop ext packet: Hop-By-Hop ext type isn't IPv6Extension::IPv6HopByHop");
 	PACKETPP_ASSERT(hopByHopExt->getOptionCount() == 2, "Hop-By-Hop ext packet: Number of options isn't 2");
-	PACKETPP_ASSERT(hopByHopExt->getOption(3) == NULL, "Hop-By-Hop ext packet: Found option with type 3");
-	PACKETPP_ASSERT(hopByHopExt->getOption(0) == NULL, "Hop-By-Hop ext packet: Found option with type 0");
+	PACKETPP_ASSERT(hopByHopExt->getOption(3).isNull() == true, "Hop-By-Hop ext packet: Found option with type 3");
+	PACKETPP_ASSERT(hopByHopExt->getOption(0).isNull() == true, "Hop-By-Hop ext packet: Found option with type 0");
 	option = hopByHopExt->getFirstOption();
-	PACKETPP_ASSERT(option->optionType == 5, "Hop-By-Hop ext packet: First option type isn't 5");
-	PACKETPP_ASSERT(option->getTotalSize() == 4, "Hop-By-Hop ext packet: First option total size isn't 4");
-	PACKETPP_ASSERT(option->getDataSize() == 2, "Hop-By-Hop ext packet: First option data size isn't 2");
-	PACKETPP_ASSERT(option->getValueAs<uint16_t>() == (uint16_t)0, "Hop-By-Hop ext packet: First option data isn't 0");
+	PACKETPP_ASSERT(option.getType() == 5, "Hop-By-Hop ext packet: First option type isn't 5");
+	PACKETPP_ASSERT(option.getTotalSize() == 4, "Hop-By-Hop ext packet: First option total size isn't 4");
+	PACKETPP_ASSERT(option.getDataSize() == 2, "Hop-By-Hop ext packet: First option data size isn't 2");
+	PACKETPP_ASSERT(option.getValueAs<uint16_t>() == (uint16_t)0, "Hop-By-Hop ext packet: First option data isn't 0");
 	option = hopByHopExt->getNextOption(option);
-	PACKETPP_ASSERT(option != NULL, "Hop-By-Hop ext packet: Second option is null");
-	PACKETPP_ASSERT(option->optionType == 1, "Hop-By-Hop ext packet: Second option type isn't 1");
-	PACKETPP_ASSERT(option->getTotalSize() == 2, "Hop-By-Hop ext packet: Second option total size isn't 2");
-	PACKETPP_ASSERT(option->getDataSize() == 0, "Hop-By-Hop ext packet: Second option data size isn't 0");
-	PACKETPP_ASSERT(option->getValueAs<uint8_t>() == 0, "Hop-By-Hop ext packet: Second option data isn't 0");
+	PACKETPP_ASSERT(option.isNull() == false, "Hop-By-Hop ext packet: Second option is null");
+	PACKETPP_ASSERT(option.getType() == 1, "Hop-By-Hop ext packet: Second option type isn't 1");
+	PACKETPP_ASSERT(option.getTotalSize() == 2, "Hop-By-Hop ext packet: Second option total size isn't 2");
+	PACKETPP_ASSERT(option.getDataSize() == 0, "Hop-By-Hop ext packet: Second option data size isn't 0");
+	PACKETPP_ASSERT(option.getValueAs<uint8_t>() == 0, "Hop-By-Hop ext packet: Second option data isn't 0");
 	option = hopByHopExt->getNextOption(option);
-	PACKETPP_ASSERT(option == NULL, "Hop-By-Hop ext packet: Found third option");
+	PACKETPP_ASSERT(option.isNull() == true, "Hop-By-Hop ext packet: Found third option");
 
 
 	// parsing of routing extension #1
@@ -1213,17 +1212,17 @@ PACKETPP_TEST(Ipv6ExtensionsTest)
 	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>()->getAuthHeader()->securityParametersIndex = ntohl(0x100),
 			"Multiple ext packet: AH ext SPI isn't 0x100");
 	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>() != NULL, "Multiple ext packet: Cannot find Dest extension");
-	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>()->getFirstOption()->optionType == 11,
+	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>()->getFirstOption().getType() == 11,
 			"Multiple ext packet: Dest ext first option type isn't 11");
 	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>() != NULL, "Multiple ext packet: Cannot find Hop-By-Hop extension");
-	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>()->getFirstOption()->optionType == 5,
+	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>()->getFirstOption().getType() == 5,
 			"Multiple ext packet: Hop-By-Hop ext first option type isn't 5");
 	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6RoutingHeader>() != NULL, "Multiple ext packet: Cannot find Routing extension");
 	PACKETPP_ASSERT(ipv6Layer->getExtensionOfType<IPv6RoutingHeader>()->getRoutingHeader()->routingType == 0,
 			"Multiple ext packet: Routing ext - routing type isn't 0");
 
 
-	// creation of Destionation extension
+	// creation of Destination extension
 	EthLayer newEthLayer(*ipv6Dest.getLayerOfType<EthLayer>());
 
 	IPv6Layer newIPv6Layer(*ipv6Dest.getLayerOfType<IPv6Layer>());
@@ -1231,9 +1230,9 @@ PACKETPP_TEST(Ipv6ExtensionsTest)
 	newIPv6Layer.removeAllExtensions();
 	PACKETPP_ASSERT(newIPv6Layer.getHeaderLen() == 40, "New IPv6 layer len without extensions isn't 40");
 
-	std::vector<IPv6TLVOptionHeader::TLVOptionBuilder> destExtOptions;
-	destExtOptions.push_back(IPv6TLVOptionHeader::TLVOptionBuilder(11, (uint8_t)9));
-	destExtOptions.push_back(IPv6TLVOptionHeader::TLVOptionBuilder(1, (uint8_t)0));
+	std::vector<IPv6TLVOptionHeader::IPv6TLVOptionBuilder> destExtOptions;
+	destExtOptions.push_back(IPv6TLVOptionHeader::IPv6TLVOptionBuilder(11, (uint8_t)9));
+	destExtOptions.push_back(IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, (uint8_t)0));
 	IPv6DestinationHeader newDestExtHeader(destExtOptions);
 	newIPv6Layer.addExtension<IPv6DestinationHeader>(newDestExtHeader);
 
@@ -1259,9 +1258,9 @@ PACKETPP_TEST(Ipv6ExtensionsTest)
 	newIPv6Layer2.removeAllExtensions();
 	PACKETPP_ASSERT(newIPv6Layer2.getHeaderLen() == 40, "New IPv6 layer len without extensions isn't 40");
 
-	std::vector<IPv6TLVOptionHeader::TLVOptionBuilder> hopByHopExtOptions;
-	hopByHopExtOptions.push_back(IPv6TLVOptionHeader::TLVOptionBuilder(5, (uint16_t)0));
-	hopByHopExtOptions.push_back(IPv6TLVOptionHeader::TLVOptionBuilder(1, 0, NULL));
+	std::vector<IPv6TLVOptionHeader::IPv6TLVOptionBuilder> hopByHopExtOptions;
+	hopByHopExtOptions.push_back(IPv6TLVOptionHeader::IPv6TLVOptionBuilder(5, (uint16_t)0));
+	hopByHopExtOptions.push_back(IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, NULL, 0));
 	IPv6HopByHopHeader newHopByHopHeader(hopByHopExtOptions);
 	newIPv6Layer2.addExtension<IPv6HopByHopHeader>(newHopByHopHeader);
 
