@@ -231,132 +231,6 @@ namespace pcpp
 			}
 		};
 
-//		/**
-//		 * @struct TLVOption
-//		 * A struct representing a Type-Length-Value (TLV) option. These type of options are used inside Hop-By-Hop and Destinations IPv6
-//		 * extensions
-//		 */
-//		struct TLVOption
-//		{
-//		public:
-//			/** Option type */
-//			uint8_t optionType;
-//			/** Option length in bytes, not including TLVOption#optionType field and this field */
-//			uint8_t optionLen;
-//			/** Option data (variable size) */
-//			uint8_t optionData[];
-//
-//			static const uint8_t Pad0OptionType = 0;
-//			static const uint8_t PadNOptionType = 1;
-//
-//			/**
-//			 * A templated method to retrieve the option data as a certain type T. For example, if option data is 4B long
-//			 * (integer) then this method should be used as getValueAs<int>() and it will return the option data as an integer.<BR>
-//			 * Notice this return value is a copy of the data, not a pointer to the actual data
-//			 * @return The option data as type T
-//			 */
-//			template<typename T>
-//			T getValueAs()
-//			{
-//				if (getDataSize() < sizeof(T))
-//					return 0;
-//
-//				T result;
-//				memcpy(&result, optionData, sizeof(T));
-//				return result;
-//			}
-//
-//			/**
-//			 * @return The total size of this option (in bytes)
-//			 */
-//			size_t getTotalSize() const
-//			{
-//				if (optionType == Pad0OptionType)
-//					return sizeof(uint8_t);
-//
-//				return (size_t)(optionLen + sizeof(uint16_t));
-//			}
-//
-//			/**
-//			 * @return The size of the option data
-//			 */
-//			size_t getDataSize()
-//			{
-//				if (optionType == Pad0OptionType)
-//					return (size_t)0;
-//
-//				return (size_t)optionLen;
-//			}
-//		};
-
-
-//		/**
-//		 * A class for building Type-Length-Value (TLV) options of type TLVOption. This builder gets the option parameters in its c'tor,
-//		 * builds the option raw buffer and provides a method to build a TLVOption object out of it
-//		 */
-//		class TLVOptionBuilder
-//		{
-//		public:
-//
-//			/**
-//			 * A c'tor which gets the option type, option length and a buffer containing the option value and builds
-//			 * the option raw buffer which can later be casted to TLVOption object using the build() method
-//			 * @param[in] optType Option type
-//			 * @param[in] optDataLen Option length in bytes
-//			 * @param[in] optValue A buffer containing the option data. This buffer is read-only and isn't modified in any way
-//			 */
-//			TLVOptionBuilder(uint8_t optType, uint8_t optDataLen, const uint8_t* optValue);
-//
-//			/**
-//			 * A c'tor which gets the option type, a 1-byte option value (which length is 1) and builds
-//			 * the option raw buffer which can later be casted to TLVOption object using the build() method
-//			 * @param[in] optType Option type
-//			 * @param[in] optValue A 1-byte option value
-//			 */
-//			TLVOptionBuilder(uint8_t optType, uint8_t optValue);
-//
-//			/**
-//			 * A c'tor which gets the option type, a 2-byte option value (which length is 2) and builds
-//			 * the option raw buffer which can later be casted to TLVOption object using the build() method
-//			 * @param[in] optType Option type
-//			 * @param[in] optValue A 2-byte option value
-//			 */
-//			TLVOptionBuilder(uint8_t optType, uint16_t optValue);
-//
-//			/**
-//			 * A copy c'tor which copies all the data from another instance of TLVOptionBuilder
-//			 * @param[in] other The instance to copy from
-//			 */
-//			TLVOptionBuilder(const TLVOptionBuilder& other);
-//
-//			/**
-//			 * A d'tor for this class, frees all allocated memory
-//			 */
-//			~TLVOptionBuilder() { delete [] m_OptionBuffer; }
-//
-//			/**
-//			 * A method that returns a pointer to TLVOption object containing option parameters. Notice the return value is just a
-//			 * TLVOption-pointer cast of the raw buffer that is stored inside this class so modifying it will modify the internal raw buffer
-//			 * @return A pointer to a TLVOption object
-//			 */
-//			TLVOption* build() const { return (TLVOption*)m_OptionBuffer; }
-//
-//			/**
-//			 * @return A pointer to the raw buffer stored as a private member of this class
-//			 */
-//			uint8_t* getRawBuffer() const { return m_OptionBuffer; }
-//
-//		private:
-//
-//			void init(uint8_t optType, uint8_t optDataLen, const uint8_t* optValue);
-//			uint8_t* m_OptionBuffer;
-//		};
-
-		//		/**
-		//		 * A class for building Type-Length-Value (TLV) options of type TLVOption. This builder gets the option parameters in its c'tor,
-		//		 * builds the option raw buffer and provides a method to build a TLVOption object out of it
-		//		 */
-
 
 		/**
 		 * @class IPv6TLVOptionBuilder
@@ -395,14 +269,13 @@ namespace pcpp
 			IPv6TLVOptionBuilder(uint8_t optType, uint16_t optValue) :
 				TLVRecordBuilder(optType, optValue) { }
 
+			/**
+			 * A copy c'tor that creates an instance of this class out of another instance and copies all the data from it 
+			 * @param[in] other The instance to copy data from
+			 * 
+			 */
 			IPv6TLVOptionBuilder(const IPv6TLVOptionBuilder& other) :
 				TLVRecordBuilder(other) {}
-
-			IPv6TLVOptionBuilder& operator=(const IPv6TLVOptionBuilder& other)
-			{
-				TLVRecordBuilder::operator=(other);
-				return *this;
-			}
 
 			/**
 			 * Build the IPv6Option object out of the parameters defined in the c'tor
@@ -414,20 +287,24 @@ namespace pcpp
 		/**
 		 * Retrieve an option by its type
 		 * @param[in] optionType Option type
-		 * @return A pointer to the option data or NULL if option cannot be found
+		 * @return An IPv6Option object that wraps the option data. If option isn't found a logical NULL is returned
+		 * (IPv6Option#isNull() == true)
 		 */
 		IPv6Option getOption(uint8_t optionType);
 
 		/**
-		 * @return A pointer to the first option or NULL if option cannot be found
+		 * @return An IPv6Option that wraps the first option data or logical NULL (IPv6Option#isNull() == true) if no options exist
 		 */
 		IPv6Option getFirstOption();
 
 		/**
 		 * Returns a pointer to the option that comes after the option given as the parameter
 		 * @param[in] option A pointer to an option instance
-		 * @return A pointer to the option that comes next or NULL if: (1) input parameter is out-of-bounds for this extension or
-		 * (2) if the next option doesn't exist or (3) if input option is NULL
+		 * @return An IPv6Option object that wraps the option data. In the following cases logical NULL (IPv6Option#isNull() == true)
+		 * is returned: 
+		 * (1) input parameter is out-of-bounds for this extension or
+		 * (2) the next option doesn't exist or 
+		 * (3) the input option is NULL
 		 */
 		IPv6Option getNextOption(IPv6Option& option);
 
