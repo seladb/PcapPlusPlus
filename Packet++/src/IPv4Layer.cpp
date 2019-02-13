@@ -444,14 +444,14 @@ IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int of
 	{
 		LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is %d", IPV4_MAX_OPT_SIZE);
 		newOption.purgeRecordData();
-		return NULL;
+		return IPv4Option(NULL);
 	}
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		LOG_ERROR("Could not extend IPv4Layer in [%d] bytes", (int)sizeToExtend);
 		newOption.purgeRecordData();
-		return NULL;
+		return IPv4Option(NULL);
 	}
 
 	memcpy(m_Data + offset, newOption.getRecordBasePtr(), newOption.getTotalSize());

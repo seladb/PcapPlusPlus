@@ -201,13 +201,18 @@ namespace pcpp
 	};
 
 
+	/**
+	 * @class IPv4Option
+	 * A wrapper class for IPv4 options. This class does not create or modify IPv4 option records, but rather
+	 * serves as a wrapper and provides useful methods for retrieving data from them
+	 */
 	class IPv4Option : public TLVRecord
 	{
 	public:
 
 		/**
 		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
-		 * @param[in] optionRawData A pointer to the attribute raw data
+		 * @param[in] optionRawData A pointer to the IPv4 option raw data
 		 */
 		IPv4Option(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
 
@@ -216,8 +221,8 @@ namespace pcpp
 		 */
 		~IPv4Option() { }
 
-				/**
-		 * A method for parsing the IPv4 option value as an IP list. This method is relevant only for certain types of IPv4 options which their value is a list of IPv4 addresses
+		/**
+		 * A method for parsing the IPv4 option value as a list of IPv4 addresses. This method is relevant only for certain types of IPv4 options which their value is a list of IPv4 addresses
 		 * such as ::IPV4OPT_RecordRoute, ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_LooseSourceRoute, etc. This method returns a vector of the IPv4 addresses. Blank IP addresses
 		 * (meaning zeroed addresses - 0.0.0.0) will not be added to the returned list. If some error occurs during the parsing or the value is invalid an empty vector is returned
 		 * @return A vector of IPv4 addresses parsed from the IPv4 option value
@@ -336,27 +341,58 @@ namespace pcpp
 	};
 
 
-	// TODO: IPv4Option
+	/**
+	 * @class IPv4OptionBuilder
+	 * A class for building IPv4 option records. This builder receives the IPv4 option parameters in its c'tor,
+	 * builds the IPv4 option raw buffer and provides a build() method to get a IPv4Option object out of it
+	 */
 	class IPv4OptionBuilder : public TLVRecordBuilder
 	{
 	private:
 		bool m_BuilderParamsValid;
 
 	public:
-		// TODO: IPv4Option
+		
+		/**
+		 * A c'tor for building IPv4 options which their value is a byte array. The IPv4Option object can later
+		 * be retrieved by calling build()
+		 * @param[in] optionType IPv4 option type
+		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any way.
+		 * For option types ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter is ignored (expected to be NULL) as these
+		 * option types don't contain any data
+		 * @param[in] optionValueLen Option value length in bytes
+		 */
 		IPv4OptionBuilder(IPv4OptionTypes optionType, const uint8_t* optionValue, uint8_t optionValueLen) :
 			TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen) { m_BuilderParamsValid = true; }
 
-		IPv4OptionBuilder(IPv4OptionTypes optionType, uint16_t recValue) :
-			TLVRecordBuilder((uint8_t)optionType, recValue) { m_BuilderParamsValid = true; }
+		/**
+		 * A c'tor for building IPv4 options which have a 2-byte value. The IPv4Option object can later be retrieved
+		 * by calling build()
+		 * @param[in] optionType IPv4 option type
+		 * @param[in] optionValue A 2-byte option value
+		 */
+		IPv4OptionBuilder(IPv4OptionTypes optionType, uint16_t optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) { m_BuilderParamsValid = true; }
 
-		// TODO: IPv4Option
+		/**
+		 * A c'tor for building IPv4 options which their value is a list of IPv4 addresses, for example: 
+		 * ::IPV4OPT_RecordRoute, ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_LooseSourceRoute. The IPv4Option object can later be retrieved
+		 * by calling build()
+		 * @param[in] optionType IPv4 option type
+		 * @param[in] ipList A vector of IPv4 addresses that will be used as the option value
+		 */
 		IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList);
 
-		// TODO: IPv4Option
+		/**
+		 * A c'tor for building IPv4 timestamp option (::IPV4OPT_Timestamp). The IPv4Option object can later be retrieved by calling build()
+		 * @param[in] timestampValue The timestamp value to build the IPv4 option with
+		 */
 		IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampValue);
 
-		// TODO: IPv4Option
+		/**
+		 * Build the IPv4Option object out of the parameters defined in the c'tor
+		 * @return The IPv4Option object
+		 */
 		IPv4Option build() const;
 	};
 
@@ -469,27 +505,25 @@ namespace pcpp
 		uint16_t getFragmentOffset();
 
 		/**
-		 * Get a pointer to an IPv4 option. Notice this points directly to the data, so every change will change the actual packet data
-		 * @param[in] option The IPv4 option to get
-		 * @return A pointer to the IPv4 option location in the packet
-		 * TODO: IPv4Option
+		 * Get an IPv4 option by type.
+		 * @param[in] option IPv4 option type
+		 * @return An IPv4Option object that contains the first option that matches this type, or logical NULL
+		 * (IPv4Option#isNull() == true) if no such option found
 		 */
 		IPv4Option getOption(IPv4OptionTypes option);
 
 		/**
-		 * @return The first IPv4 option, or NULL if no IPv4 options exist. Notice the return value is a pointer to the real data casted to
-		 * IPv4OptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
-		 * TODO: IPv4Option
+		 * @return The first IPv4 option in the packet. If the current layer contains no options the returned value will contain
+		 * a logical NULL (IPv4Option#isNull() == true)
 		 */
 		IPv4Option getFirstOption();
 
 		/**
-		 * Get the IPv4 option which comes next to "option" parameter. If "option" is NULL then NULL will be returned.
-		 * If "option" is the last IPv4 option NULL will be returned. Notice the return value is a pointer to the real data casted to
-		 * IPv4OptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
-		 * @param[in] option The IPv4 option to start searching from
-		 * @return The next IPv4 option or NULL if "option" is NULL or "option" is the last IPv4 option
-		 * TODO: IPv4Option
+		 * Get the IPv4 option that comes after a given option. If the given option was the last one, the
+		 * returned value will contain a logical NULL (IPv4Option#isNull() == true)
+		 * @param[in] option A given IPv4 option that exists in the current layer
+		 * @return A IPv4Option object that contains the IPv4 option data that comes next, or logical NULL if the given
+		 * IPv4 option: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
 		 */
 		IPv4Option getNextOption(IPv4Option& option);
 
@@ -498,29 +532,23 @@ namespace pcpp
 		 */
 		size_t getOptionCount();
 
-
 		/**
-		 * Add an IPv4 option
-		 * @param[in] optionType The IPv4 option type to add
-		 * @param[in] optionDataLength The length of the option data [in bytes]. For ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter must be 0 otherwise the method will fail
-		 * @param[in] optionData A byte array containing the IPv4 option data (should be in size indicated in optionDataLength).
-		 * For ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter is ignored (expected to be NULL)
-		 * @return If option was added successfully a pointer to the new option will be returned. If adding failed NULL will be returned. Failure can happen if layer couldn't be extended for some reason
-		 * or if added option exceeds maximum options length (in IPv4 total options length must not exceed 40 bytes). In any case of failure an appropriate error message will be printed to log
-		 * TODO: IPv4Option
+		 * Add a new IPv4 option at the end of the layer
+		 * @param[in] optionBuilder An IPv4OptionBuilder object that contains the IPv4 option data to be added
+		 * @return A IPv4Option object that contains the newly added IPv4 option data or logical NULL
+		 * (IPv4Option#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
+		 * printed to log
 		 */
 		IPv4Option addOption(const IPv4OptionBuilder& optionBuilder);
 
 		/**
-		 * Add an IPv4 option after an existing option
-		 * @param[in] optionType The IPv4 option type to add
-		 * @param[in] optionDataLength The length of the option data [in bytes]. For ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter must be 0 otherwise the method will fail
-		 * @param[in] optionData A byte array containing the IPv4 option data (should be in size indicated in optionDataLength).
-		 * For ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter is ignored (expected to be NULL)
-		 * @param[in] prevOption The option type which the new option should be added after. It's an optional parameter, if it's not set or set to an option that doesn't exist the new
-		 * option will be added as the first option in the layer
-		 * @return If option was added successfully a pointer to the new option will be returned. If adding failed NULL will be returned. Failure can happen if layer couldn't be extended for some reason
-		 * or if added option exceeds maximum options length (in IPv4 total options length must not exceed 40 bytes). In any case of failure an appropriate error message will be printed to log
+		 * Add a new IPv4 option after an existing one
+		 * @param[in] optionBuilder An IPv4OptionBuilder object that contains the requested IPv4 option data to be added
+		 * @param[in] prevOptionType The IPv4 option which the newly added option should come after. This is an optional parameter which
+		 * gets a default value of ::IPV4OPT_Unknown if omitted, which means adding the new option as the first option in the layer
+		 * @return A IPv4Option object containing the newly added IPv4 option data or logical NULL
+		 * (IPv4Option#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
+		 * printed to log
 		 */
 		IPv4Option addOptionAfter(const IPv4OptionBuilder& optionBuilder, IPv4OptionTypes prevOptionType = IPV4OPT_Unknown);
 
