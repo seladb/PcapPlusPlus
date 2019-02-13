@@ -19,6 +19,147 @@ namespace pcpp
 #define IPV4OPT_DUMMMY 0xff
 #define IPV4_MAX_OPT_SIZE 40
 
+
+/// ~~~~~~~~~~~~~~~~~
+/// IPv4OptionBuilder
+/// ~~~~~~~~~~~~~~~~~
+
+IPv4OptionBuilder::IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList)
+{
+	m_RecType = (uint8_t)optionType;
+	m_RecValueLen = ipList.size()*sizeof(uint32_t) + sizeof(uint8_t);
+	m_RecValue = new uint8_t[m_RecValueLen];
+
+	size_t curOffset = 0;
+	m_RecValue[curOffset++] = 0; // init pointer value
+
+	bool firstZero = false;
+	for (std::vector<IPv4Address>::const_iterator iter = ipList.begin(); iter != ipList.end(); iter++)
+	{
+		uint32_t ipAddrAsInt = iter->toInt();
+
+		if (!firstZero)
+			m_RecValue[0] += (uint8_t)4;
+
+		if (!firstZero && ipAddrAsInt == 0)
+			firstZero = true;
+
+		memcpy(m_RecValue + curOffset , &ipAddrAsInt, sizeof(uint32_t));
+		curOffset += sizeof(uint32_t);
+	}
+
+	m_BuilderParamsValid = true;
+}
+
+IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampValue)
+{
+	m_RecType = (uint8_t)IPV4OPT_Timestamp;
+	m_RecValueLen = 0;
+	m_RecValue = NULL;
+
+	if (timestampValue.type == IPv4TimestampOptionValue::Unknown)
+	{
+		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::Unknown");
+		m_BuilderParamsValid = false;
+		return;
+	}
+
+	if (timestampValue.type == IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs)
+	{
+		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs - this type is not supported");
+		m_BuilderParamsValid = false;
+		return;
+	}
+
+	if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP && timestampValue.timestamps.size() != timestampValue.ipAddresses.size())
+	{
+		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampAndIP because number of timestamps and IP addresses is not equal");
+		m_BuilderParamsValid = false;
+		return;
+	}
+
+	m_RecValueLen = timestampValue.timestamps.size()*sizeof(uint32_t) + 2*sizeof(uint8_t);
+
+	if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
+	{
+		m_RecValueLen += timestampValue.timestamps.size()*sizeof(uint32_t);
+	}
+
+	m_RecValue = new uint8_t[m_RecValueLen];
+
+	size_t curOffset = 0;
+	m_RecValue[curOffset++] = 1; //pointer default value is 1 - means there are no empty timestamps
+	m_RecValue[curOffset++] = (uint8_t)timestampValue.type; // timestamp type
+
+	int firstZero = -1;
+	for (int i = 0; i < (int)timestampValue.timestamps.size(); i++)
+	{
+		uint32_t timestamp = htonl(timestampValue.timestamps.at(i));
+
+		// for pointer calculation - find the first timestamp equals to 0
+		if (timestamp == 0 && firstZero == -1)
+			firstZero = i;
+
+		if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
+		{
+			uint32_t ipAddrAsInt = timestampValue.ipAddresses.at(i).toInt();
+			memcpy(m_RecValue + curOffset , &ipAddrAsInt, sizeof(uint32_t));
+			curOffset += sizeof(uint32_t);
+		}
+
+		memcpy(m_RecValue + curOffset , &timestamp, sizeof(uint32_t));
+		curOffset += sizeof(uint32_t);
+	}
+
+	// calculate pointer field
+	if (firstZero > -1)
+	{
+		uint8_t pointerVal = (uint8_t)(4*sizeof(uint8_t) + firstZero*sizeof(uint32_t) + 1);
+		if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
+			pointerVal += (uint8_t)(firstZero*sizeof(uint32_t));
+
+		m_RecValue[0] = pointerVal;
+	}
+
+	m_BuilderParamsValid = true;
+}
+
+IPv4Option IPv4OptionBuilder::build() const
+{
+	if (!m_BuilderParamsValid)
+		return IPv4Option(NULL);
+
+	size_t optionSize = m_RecValueLen + 2*sizeof(uint8_t);
+
+	if ((m_RecType == (uint8_t)IPV4OPT_NOP || m_RecType == (uint8_t)IPV4OPT_EndOfOtionsList))
+	{
+		if (m_RecValueLen != 0)
+		{
+			LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size %d", (int)m_RecValueLen);
+			return IPv4Option(NULL);
+		}
+
+		optionSize = sizeof(uint8_t);
+	}
+
+	uint8_t* recordBuffer = new uint8_t[optionSize];
+	memset(recordBuffer, 0, optionSize);
+	recordBuffer[0] = m_RecType;
+	if (optionSize > 1)
+	{
+		recordBuffer[1] = (uint8_t)optionSize;
+		if (optionSize > 2 && m_RecValue != NULL)
+			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
+	}
+
+	return IPv4Option(recordBuffer);
+}
+
+
+/// ~~~~~~~~~
+/// IPv4Layer
+/// ~~~~~~~~~
+
 void IPv4Layer::initLayer()
 {
 	m_DataLen = sizeof(iphdr);
@@ -27,7 +168,6 @@ void IPv4Layer::initLayer()
 	memset(m_Data, 0, sizeof(iphdr));
 	iphdr* ipHdr = getIPv4Header();
 	ipHdr->internetHeaderLength = (5 & 0xf);
-	setOptionCount(-1);
 	m_NumOfTrailingBytes = 0;
 	m_TempHeaderExtension = 0;
 }
@@ -35,7 +175,6 @@ void IPv4Layer::initLayer()
 void IPv4Layer::initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen)
 {
 	m_Protocol = IPv4;
-	m_OptionCount = -1;
 	m_NumOfTrailingBytes = 0;
 	m_TempHeaderExtension = 0;
 	if (setTotalLenAsDataLen)
@@ -48,14 +187,9 @@ void IPv4Layer::initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLaye
 
 void IPv4Layer::copyLayerData(const IPv4Layer& other)
 {
-	m_OptionCount = other.m_OptionCount;
+	m_OptionReader = other.m_OptionReader;
 	m_NumOfTrailingBytes = other.m_NumOfTrailingBytes;
 	m_TempHeaderExtension = other.m_TempHeaderExtension;
-}
-
-IPv4OptionData* IPv4Layer::castPtrToOptionData(uint8_t* ptr)
-{
-	return (IPv4OptionData*)ptr;
 }
 
 IPv4Layer::IPv4Layer()
@@ -254,78 +388,24 @@ std::string IPv4Layer::toString()
 	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 }
 
-IPv4OptionData* IPv4Layer::getOptionData(IPv4OptionTypes option)
+IPv4Option IPv4Layer::getOption(IPv4OptionTypes option)
 {
-	// check if there are options at all
-	if (m_DataLen <= sizeof(iphdr))
-		return NULL;
-
-	IPv4OptionData* curOpt = getFirstOptionData();
-	while (curOpt != NULL)
-	{
-		if ((int)curOpt->opCode == option)
-			return curOpt;
-
-		curOpt = getNextOptionData(curOpt);
-	}
-
-	return NULL;
+	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-IPv4OptionData* IPv4Layer::getFirstOptionData()
+IPv4Option IPv4Layer::getFirstOption()
 {
-	// check if there are IPv4 options at all
-	if (getHeaderLen() <= sizeof(iphdr))
-		return NULL;
-
-	uint8_t* curOptPtr = m_Data + sizeof(iphdr);
-	return castPtrToOptionData(curOptPtr);
+	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-IPv4OptionData* IPv4Layer::getNextOptionData(IPv4OptionData* option)
+IPv4Option IPv4Layer::getNextOption(IPv4Option& option)
 {
-	if (option == NULL)
-		return NULL;
-
-	// prev opt was the last opt
-	if ((uint8_t*)option + option->getTotalSize() - m_Data >= (int)getHeaderLen())
-		return NULL;
-
-	IPv4OptionData* nextOption = castPtrToOptionData((uint8_t*)option + option->getTotalSize());
-
-	if (nextOption->opCode == IPV4OPT_DUMMMY)
-		return NULL;
-
-	return nextOption;
+	return m_OptionReader.getNextTLVRecord(option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-size_t IPv4Layer::getOptionsCount()
+size_t IPv4Layer::getOptionCount()
 {
-	if (m_OptionCount != (size_t)-1)
-		return m_OptionCount;
-
-	m_OptionCount = 0;
-	IPv4OptionData* curOpt = getFirstOptionData();
-	while (curOpt != NULL)
-	{
-		m_OptionCount++;
-		curOpt = getNextOptionData(curOpt);
-	}
-
-	return m_OptionCount;
-}
-
-void IPv4Layer::incOptionCount(int val)
-{
-	if (m_OptionCount == (size_t)-1)
-		getOptionsCount(); // this method already calculates the current number of options, no need to increment/decrement m_OptionCount again
-	else
-		m_OptionCount += val;
-}
-
-void IPv4Layer::setOptionCount(int val)
-{
-	m_OptionCount = val;
+	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
 void IPv4Layer::adjustOptionsTrailer(size_t totalOptSize)
@@ -350,44 +430,33 @@ void IPv4Layer::adjustOptionsTrailer(size_t totalOptSize)
 	getIPv4Header()->internetHeaderLength = ((ipHdrSize + totalOptSize + m_NumOfTrailingBytes)/4 & 0x0f);
 }
 
-IPv4OptionData* IPv4Layer::addOptionAt(IPv4OptionTypes optionType, uint8_t optionDataLength, const uint8_t* optionData, int offset)
+IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int offset)
 {
-	size_t sizeToExtend = optionDataLength + 2*sizeof(uint8_t);
+	IPv4Option newOption = optionBuilder.build();
+	if (newOption.isNull())
+		return newOption;
 
-	if ((optionType == IPV4OPT_NOP || optionType == IPV4OPT_EndOfOtionsList))
-	{
-		if (optionDataLength != 0)
-		{
-			LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size %d", optionDataLength);
-			return NULL;
-		}
-
-		sizeToExtend = sizeof(uint8_t);
-	}
+	size_t sizeToExtend = newOption.getTotalSize();
 
 	size_t totalOptSize = getHeaderLen() - sizeof(iphdr) - m_NumOfTrailingBytes + sizeToExtend;
 
 	if (totalOptSize > IPV4_MAX_OPT_SIZE)
 	{
 		LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is %d", IPV4_MAX_OPT_SIZE);
+		newOption.purgeRecordData();
 		return NULL;
 	}
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		LOG_ERROR("Could not extend IPv4Layer in [%d] bytes", (int)sizeToExtend);
+		newOption.purgeRecordData();
 		return NULL;
 	}
 
-	uint8_t optionTypeVal = (uint8_t)optionType;
-	memcpy(m_Data + offset, &optionTypeVal, sizeof(uint8_t));
+	memcpy(m_Data + offset, newOption.getRecordBasePtr(), newOption.getTotalSize());
 
-	if (sizeToExtend > 1)
-	{
-		memcpy(m_Data + offset + sizeof(uint8_t), &sizeToExtend, sizeof(uint8_t));
-		if (sizeToExtend > 2 && optionData != NULL)
-			memcpy(m_Data + offset + 2*sizeof(uint8_t), optionData, optionDataLength);
-	}
+	newOption.purgeRecordData();
 
 	// setting this m_TempHeaderExtension because adjustOptionsTrailer() may extend or shorten the layer and the extend or shorten methods need to know the accurate
 	// current size of the header. m_TempHeaderExtension will be added to the length extracted from getIPv4Header()->internetHeaderLength as the temp new size
@@ -397,207 +466,59 @@ IPv4OptionData* IPv4Layer::addOptionAt(IPv4OptionTypes optionType, uint8_t optio
 	// isn't needed anymore
 	m_TempHeaderExtension = 0;
 
+	m_OptionReader.changeTLVRecordCount(1);
+
 	uint8_t* newOptPtr = m_Data + offset;
 
-	incOptionCount(1);
-
-	return castPtrToOptionData(newOptPtr);
+	return IPv4Option(newOptPtr);
 }
 
-void IPv4Layer::buildIPListOptionData(const std::vector<IPv4Address>& ipList, uint8_t** optionData, int& optionDataLength)
+IPv4Option IPv4Layer::addOption(const IPv4OptionBuilder& optionBuilder)
 {
-	optionDataLength = ipList.size()*sizeof(uint32_t) + sizeof(uint8_t);
-	(*optionData) = new uint8_t[optionDataLength];
+	return addOptionAt(optionBuilder, getHeaderLen()-m_NumOfTrailingBytes);
 
-	size_t curOffset = 0;
-	(*optionData)[curOffset++] = 0; // init pointer value
-
-	bool firstZero = false;
-	for (std::vector<IPv4Address>::const_iterator iter = ipList.begin(); iter != ipList.end(); iter++)
-	{
-		uint32_t ipAddrAsInt = iter->toInt();
-
-		if (!firstZero)
-			(*optionData)[0] += (uint8_t)4;
-
-		if (!firstZero && ipAddrAsInt == 0)
-			firstZero = true;
-
-		memcpy((*optionData) + curOffset , &ipAddrAsInt, sizeof(uint32_t));
-		curOffset += sizeof(uint32_t);
-	}
 }
 
-void IPv4Layer::buildTimestampOptionData(const IPv4TimestampOptionValue& timestampVal, uint8_t** optionData, int& optionDataLength)
-{
-	optionDataLength = 0;
-	*optionData = NULL;
-
-	if (timestampVal.type == IPv4TimestampOptionValue::Unknown)
-	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::Unknown");
-		return;
-	}
-
-	if (timestampVal.type == IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs)
-	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs - this type is not supported");
-		return;
-	}
-
-	if (timestampVal.type == IPv4TimestampOptionValue::TimestampAndIP && timestampVal.timestamps.size() != timestampVal.ipAddresses.size())
-	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampAndIP because number of timestamps and IP addresses is not equal");
-		return;
-	}
-
-	optionDataLength = timestampVal.timestamps.size()*sizeof(uint32_t) + 2*sizeof(uint8_t);
-
-	if (timestampVal.type == IPv4TimestampOptionValue::TimestampAndIP)
-	{
-		optionDataLength += timestampVal.timestamps.size()*sizeof(uint32_t);
-	}
-
-	(*optionData) = new uint8_t[optionDataLength];
-
-	size_t curOffset = 0;
-	(*optionData)[curOffset++] = 1; //pointer default value is 1 - means there are no empty timestamps
-	(*optionData)[curOffset++] = (uint8_t)timestampVal.type; // timestamp type
-
-	int firstZero = -1;
-	for (int i = 0; i < (int)timestampVal.timestamps.size(); i++)
-	{
-		uint32_t timestamp = htonl(timestampVal.timestamps.at(i));
-
-		// for pointer calculation - find the first timestamp equals to 0
-		if (timestamp == 0 && firstZero == -1)
-			firstZero = i;
-
-		if (timestampVal.type == IPv4TimestampOptionValue::TimestampAndIP)
-		{
-			uint32_t ipAddrAsInt = timestampVal.ipAddresses.at(i).toInt();
-			memcpy((*optionData) + curOffset , &ipAddrAsInt, sizeof(uint32_t));
-			curOffset += sizeof(uint32_t);
-		}
-
-		memcpy((*optionData) + curOffset , &timestamp, sizeof(uint32_t));
-		curOffset += sizeof(uint32_t);
-	}
-
-	// calculate pointer field
-	if (firstZero > -1)
-	{
-		uint8_t pointerVal = (uint8_t)(4*sizeof(uint8_t) + firstZero*sizeof(uint32_t) + 1);
-		if (timestampVal.type == IPv4TimestampOptionValue::TimestampAndIP)
-			pointerVal += (uint8_t)(firstZero*sizeof(uint32_t));
-
-		(*optionData)[0] = pointerVal;
-	}
-}
-
-IPv4OptionData* IPv4Layer::addOption(IPv4OptionTypes optionType, uint8_t optionDataLength, const uint8_t* optionData)
-{
-	return addOptionAt(optionType, optionDataLength, optionData, getHeaderLen()-m_NumOfTrailingBytes);
-}
-
-IPv4OptionData* IPv4Layer::addOption(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList)
-{
-	uint8_t* optionData = NULL;
-	int optionDataLength = 0;
-	buildIPListOptionData(ipList, &optionData, optionDataLength);
-
-	IPv4OptionData* res = addOption(optionType, optionDataLength, optionData);
-
-	delete [] optionData;
-
-	return res;
-}
-
-IPv4OptionData* IPv4Layer::addTimestampOption(const IPv4TimestampOptionValue& timestampValue)
-{
-	uint8_t* optionData = NULL;
-	int optionDataLength = 0;
-	buildTimestampOptionData(timestampValue, &optionData, optionDataLength);
-
-	if (optionData == NULL)
-		return NULL;
-
-	IPv4OptionData* res = addOption(IPV4OPT_Timestamp, optionDataLength, optionData);
-
-	delete [] optionData;
-
-	return res;
-}
-
-IPv4OptionData* IPv4Layer::addOptionAfter(IPv4OptionTypes optionType, uint8_t optionDataLength, const uint8_t* optionData, IPv4OptionTypes prevOption)
+IPv4Option IPv4Layer::addOptionAfter(const IPv4OptionBuilder& optionBuilder, IPv4OptionTypes prevOptionType)
 {
 	int offset = 0;
 
-	IPv4OptionData* prevOpt = getOptionData(prevOption);
+	IPv4Option prevOpt = getOption(prevOptionType);
 
-	if (prevOpt == NULL)
+	if (prevOpt.isNull())
 	{
 		offset = sizeof(iphdr);
 	}
 	else
 	{
-		offset = (uint8_t*)prevOpt + prevOpt->getTotalSize() - m_Data;
+		offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
 	}
 
-	return addOptionAt(optionType, optionDataLength, optionData, offset);
-}
-
-IPv4OptionData* IPv4Layer::addOptionAfter(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList, IPv4OptionTypes prevOption)
-{
-	uint8_t* optionData = NULL;
-	int optionDataLength = 0;
-	buildIPListOptionData(ipList, &optionData, optionDataLength);
-
-	IPv4OptionData* res = addOptionAfter(optionType, (uint8_t)optionDataLength, optionData, prevOption);
-
-	delete [] optionData;
-
-	return res;
-}
-
-IPv4OptionData* IPv4Layer::addTimestampOptionAfter(const IPv4TimestampOptionValue& timestampValue, IPv4OptionTypes prevOption)
-{
-	uint8_t* optionData = NULL;
-	int optionDataLength = 0;
-	buildTimestampOptionData(timestampValue, &optionData, optionDataLength);
-
-	if (optionData == NULL)
-		return NULL;
-
-	IPv4OptionData* res = addOptionAfter(IPV4OPT_Timestamp, (uint8_t)optionDataLength, optionData, prevOption);
-
-	delete [] optionData;
-
-	return res;
+	return addOptionAt(optionBuilder, offset);
 }
 
 bool IPv4Layer::removeOption(IPv4OptionTypes option)
 {
-	IPv4OptionData* opt = getOptionData(option);
-	if (opt == NULL)
+	IPv4Option opt = getOption(option);
+	if (opt.isNull())
 	{
 		return false;
 	}
 
 	// calculate total option size
-	IPv4OptionData* curOpt = getFirstOptionData();
+	IPv4Option curOpt = getFirstOption();
 	size_t totalOptSize = 0;
-	while (curOpt != NULL)
+	while (!curOpt.isNull())
 	{
-		totalOptSize += curOpt->getTotalSize();
-		curOpt = getNextOptionData(curOpt);
+		totalOptSize += curOpt.getTotalSize();
+		curOpt = getNextOption(curOpt);
 	}
-	totalOptSize -= opt->getTotalSize();
+	totalOptSize -= opt.getTotalSize();
 
 
-	int offset = (uint8_t*)opt - m_Data;
+	int offset = opt.getRecordBasePtr() - m_Data;
 
-	size_t sizeToShorten = opt->getTotalSize();
+	size_t sizeToShorten = opt.getTotalSize();
 	if (!shortenLayer(offset, sizeToShorten))
 	{
 		LOG_ERROR("Failed to remove IPv4 option: cannot shorten layer");
@@ -612,7 +533,7 @@ bool IPv4Layer::removeOption(IPv4OptionTypes option)
 	// isn't needed anymore
 	m_TempHeaderExtension = 0;
 
-	incOptionCount(-1);
+	m_OptionReader.changeTLVRecordCount(-1);
 
 	return true;
 }
@@ -626,7 +547,7 @@ bool IPv4Layer::removeAllOptions()
 
 	getIPv4Header()->internetHeaderLength = (5 & 0xf);
 	m_NumOfTrailingBytes = 0;
-	setOptionCount(0);
+	m_OptionReader.changeTLVRecordCount(0-getOptionCount());
 	return true;
 }
 

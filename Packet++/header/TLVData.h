@@ -78,6 +78,27 @@ namespace pcpp
 		}
 
 		/**
+		 * Overload of the equality  operator. Two record are equal if both of them point to the same data, or if they point
+		 * to different data but their total size is equal and the raw data they both contain is similar.
+		 * @param[in] rhs The object to compare to
+		 * @return True if both objects are equal, false otherwise
+		 */
+		bool operator==(const TLVRecord& rhs)
+		{
+			if (m_Data == rhs.m_Data)
+				return true;
+
+			if (getTotalSize() != rhs.getTotalSize())
+				return false;
+
+			if (isNull() || ((TLVRecord&)rhs).isNull())
+				return false;
+
+			return (memcmp(m_Data, rhs.m_Data, getTotalSize()) == 0);
+		}
+
+
+		/**
 		 * @return The type field of the record (the 'T' in __Type__-Length-Value)
 		 */
 		uint8_t getType() { return m_Data->recordType; }
@@ -106,16 +127,19 @@ namespace pcpp
 		 * A templated method to retrieve the record data as a certain type T. For example, if record data is 4B long
 		 * (integer) then this method should be used as getValueAs<int>() and it will return the record data as an integer.<BR>
 		 * Notice this return value is a copy of the data, not a pointer to the actual data
+		 * @param[in] offset The offset in the record data to start reading the value from. Useful for cases when you want
+		 * to read some of the data that doesn't start at offset 0. This is an optional parameter and the default value
+		 * is 0, meaning start reading the value at the beginning of the record data
 		 * @return The record data as type T
 		 */
 		template<typename T>
-		T getValueAs()
+		T getValueAs(size_t offset = 0)
 		{
-			if (getDataSize() < sizeof(T))
+			if (getDataSize() - offset < sizeof(T))
 				return 0;
 
 			T result;
-			memcpy(&result, m_Data->recordValue, sizeof(T));
+			memcpy(&result, m_Data->recordValue + offset, sizeof(T));
 			return result;
 		}
 
@@ -170,9 +194,27 @@ namespace pcpp
 		TLVRecordReader() { m_RecordCount = (size_t)-1; }
 
 		/**
+		 * A default copy c'tor for this class
+		 */
+		TLVRecordReader(const TLVRecordReader& other)
+		{
+			m_RecordCount = other.m_RecordCount;
+		}
+
+		/**
 		 * A d'tor for this class which currently does nothing
 		 */
 		virtual ~TLVRecordReader() { }
+
+		/**
+		 * Overload of the assignment operator for this class
+		 * @param[in] other The TLVRecordReader instance to assign
+		 */
+		TLVRecordReader& operator=(const TLVRecordReader& other)
+		{
+			m_RecordCount = other.m_RecordCount;
+			return *this;
+		}
 
 		/**
 		 * Get the first TLV record out of a byte stream
@@ -287,7 +329,6 @@ namespace pcpp
 	{
 	protected:
 
-		// unimplemented default c'tor
 		TLVRecordBuilder();
 
 		TLVRecordBuilder(uint8_t recType, const uint8_t* recValue, uint8_t recValueLen);
