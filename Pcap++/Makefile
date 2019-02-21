@@ -57,6 +57,9 @@ endif
 ifdef USE_DPDK
 INCLUDES += -I"$(RTE_SDK)/build/include"
 endif
+ifdef LIBPCAP_INLCUDE_DIR
+INCLUDES += -I"$(LIBPCAP_INLCUDE_DIR)"
+endif
 
 ifdef HAS_PCAP_IMMEDIATE_MODE
 DEPS += -DHAS_PCAP_IMMEDIATE_MODE
@@ -64,7 +67,7 @@ endif
 
 ifdef USE_DPDK
 FLAGS := -msse -msse2 -msse3 -mssse3
-endif		
+endif
 	
 Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
