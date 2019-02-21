@@ -16,7 +16,7 @@ function HELP {
    echo "  1) Without any switches. In this case the script will guide you through using wizards"
    echo "  2) With switches, as described below"
    echo ""
-   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--install-dir]"\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
    echo "The following switches are recognized:"
    echo "--default             --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""

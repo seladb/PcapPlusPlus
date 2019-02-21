@@ -11,23 +11,33 @@ SCRIPT=`basename ${BASH_SOURCE[0]}`
 
 # help function
 function HELP {
-   echo -e \\n"Help documentation for ${BOLD}${SCRIPT}.${NORM}"\\n
-   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT [-h] [--use-immediate-mode] [--install-dir]${NORM}"\\n
+   echo -e \\n"Help documentation for ${SCRIPT}."\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--use-immediate-mode] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
    echo "The following switches are recognized:"
-   echo "${REV}--use-immediate-mode${NORM}  --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
+   echo "--use-immediate-mode  --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
    echo ""
-   echo "${REV}--install-dir${NORM}         --Set installation directory. Default is /usr/local"
+   echo "--install-dir         --Set installation directory. Default is /usr/local"
    echo ""
-   echo -e "${REV}-h|--help${NORM}             --Displays this help message and exits. No further actions are performed"\\n
+   echo "--libpcap-include-dir --libpcap header files directory. This parameter is optional and if omitted PcapPlusPlus will look for"
+   echo "                        the header files in the default include paths"
+   echo "--libpcap-lib-dir     --libpcap pre compiled lib directory. This parameter is optional and if omitted PcapPlusPlus will look for"
+   echo "                        the lib file in the default lib paths"
+   echo ""
+   echo -e "-h|--help             --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
-   echo -e "      ${BOLD}$SCRIPT${NORM}"
-   echo -e "      ${BOLD}$SCRIPT --use-immediate-mode${NORM}"
-   echo -e "      ${BOLD}$SCRIPT --install-dir /home/myuser/my-install-dir${NORM}"
+   echo -e "      $SCRIPT"
+   echo -e "      $SCRIPT --use-immediate-mode"
+   echo -e "      $SCRIPT --libpcap-include-dir /home/myuser/my-libpcap/include --libpcap-lib-dir /home/myuser/my-libpcap/lib"
+   echo -e "      $SCRIPT --install-dir /home/myuser/my-install-dir"
    echo ""
    exit 1
 }
 
 HAS_PCAP_IMMEDIATE_MODE=0
+
+# initializing libpcap include/lib dirs to an empty string 
+LIBPCAP_INLCUDE_DIR=""
+LIBPCAP_LIB_DIR=""
 
 # default installation directory
 INSTALL_DIR=/usr/local
@@ -54,6 +64,16 @@ case $i in
    --use-immediate-mode)
      HAS_PCAP_IMMEDIATE_MODE=1 ;;
 
+   # non-default libpcap include dir
+   --libpcap-include-dir)
+     LIBPCAP_INLCUDE_DIR=$2
+     EXPECTING_VALUE=1 ;;
+
+   # non-default libpcap lib dir
+   --libpcap-lib-dir)
+     LIBPCAP_LIB_DIR=$2
+     EXPECTING_VALUE=1 ;;
+
    # installation directory prefix
    --install-dir)
      INSTALL_DIR=$2
@@ -76,7 +96,7 @@ case $i in
      if [ "$EXPECTING_VALUE" -eq "1" ]; then
         EXPECTING_VALUE=0
      else
-        echo -e \\n"Option ${BOLD}$i${NORM} not allowed.";
+        echo -e \\n"Option $i not allowed.";
         HELP;
      fi ;;
 esac
@@ -96,6 +116,20 @@ sed -i -e '1s|^|PCAPPLUSPLUS_HOME := '$PWD'\'$'\n''\'$'\n''|' $PCAPPLUSPLUS_MK
 
 if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
    echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
+fi
+
+# non-default libpcap include dir
+if [ -n "$LIBPCAP_INLCUDE_DIR" ]; then
+   echo -e "# non-default libpcap include dir" >> $PCAPPLUSPLUS_MK
+   echo -e "LIBPCAP_INLCUDE_DIR := $LIBPCAP_INLCUDE_DIR" >> $PCAPPLUSPLUS_MK
+   echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INLCUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
+fi
+
+# non-default libpcap lib dir
+if [ -n "$LIBPCAP_LIB_DIR" ]; then
+   echo -e "# non-default libpcap lib dir" >> $PCAPPLUSPLUS_MK
+   echo -e "LIBPCAP_LIB_DIR := $LIBPCAP_LIB_DIR" >> $PCAPPLUSPLUS_MK
+   echo -e "PCAPPP_LIBS_DIR += -L\$(LIBPCAP_LIB_DIR)\n" >> $PCAPPLUSPLUS_MK
 fi
 
 # generate installation and uninstallation scripts
