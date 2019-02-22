@@ -75,15 +75,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
   </PropertyGroup>
@@ -91,15 +87,11 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test\Obj</IntDir>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,11 +100,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,6 +118,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,6 +126,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -139,11 +135,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINx64;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-	  <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,13 +152,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WINx64;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-	  <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
