@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -117,7 +117,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,7 +137,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINx64;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,7 +157,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WINx64;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\debug-new;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

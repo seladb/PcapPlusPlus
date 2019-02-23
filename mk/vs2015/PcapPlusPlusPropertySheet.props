@@ -3,11 +3,22 @@
     <Target Name="ValidateDependencies">  
       <Error 
         Condition="'$(PCAPPLUSPLUS_CONFIG_OVERRIDE)'==''"
-        Text="Please close visual studio and run configure-windows-visual-studio.bat BEFORE OPENING THIS SOLUTION. 
-                   It generates variables for dependencies which are required for building. 
-                   Alternatively, if you're using a package manager to provide these dependencies,
-                   you can either set the environment variable PCAPPLUSPLUS_CONFIG_OVERRIDE=True
-                   or pass /p:PCAPPLUSPLUS_CONFIG_OVERRIDE=True to the MSBuild CLI." 
+        Text=
+"
+Please close visual studio and run configure-windows-visual-studio.bat 
+BEFORE OPENING THIS SOLUTION.  It generates variables for dependencies 
+which are required for building. Alternatively, if you're using a package manager 
+to provide these dependencies, you must set the following two variables manually: 
+
+  set PCAPPLUSPLUS_CONFIG_OVERRIDE=True
+  set PCAPPLUSPLUS_HOME=path_to_pcapplusplus_repo_root
+
+You can set these as environment variables (shown above), 
+or pass them as properties to the MSBuild CLI (shown below):
+
+  /p:PCAPPLUSPLUS_CONFIG_OVERRIDE=True 
+  /p:PCAPPLUSPLUS_HOME=path_to_pcapplusplus_repo_root
+" 
       />
     </Target>
 </Project>

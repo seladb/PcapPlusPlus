@@ -75,7 +75,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\SSLAnalyzer\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\SSLAnalyzer\Obj</IntDir>
@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(IncludePath)</IncludePath>
+    <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
     <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\SSLAnalyzer\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\SSLAnalyzer\Obj</IntDir>
@@ -104,7 +104,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,7 +125,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINx64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,7 +149,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHo
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -175,7 +175,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WINx64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
