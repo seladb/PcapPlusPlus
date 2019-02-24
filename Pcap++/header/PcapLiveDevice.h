@@ -102,6 +102,7 @@ namespace pcpp
 		int m_IntervalToUpdateStats;
 		RawPacketVector* m_CapturedPackets;
 		bool m_CaptureCallbackMode;
+		LinkLayerType m_linkType;
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
@@ -220,6 +221,10 @@ namespace pcpp
 		 */
 		virtual inline uint16_t getMtu() { return m_DeviceMtu; }
 
+		/**
+		 * @return The device's link layer type
+		 */
+		virtual inline LinkLayerType getLinkType() { return m_linkType; }
 		/**
 		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
 		 */

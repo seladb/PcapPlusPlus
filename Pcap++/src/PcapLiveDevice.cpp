@@ -54,6 +54,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	m_Name = NULL;
 	m_Description = NULL;
 	m_DeviceMtu = 0;
+	m_linkType = LINKTYPE_ETHERNET;
 
 	m_IsLoopback = (pInterface->flags & 0x1) == PCAP_IF_LOOPBACK;
 
@@ -129,7 +130,7 @@ void PcapLiveDevice::onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pk
 		return;
 	}
 
-	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, LINKTYPE_ETHERNET);
+	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
 
 	if (pThis->m_cbOnPacketArrives != NULL)
 		pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
@@ -265,6 +266,27 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		LOG_ERROR("%s", pcap_geterr(pcap));
 		pcap_close(pcap);
 		pcap = NULL;
+	}
+	if (pcap)
+	{
+		int dlt = pcap_datalink(pcap);
+		const char *dlt_name = pcap_datalink_val_to_name(dlt);
+		if (dlt_name)
+		{
+			LOG_DEBUG("link-type %u: %s (%s)\n", dlt, dlt_name, pcap_datalink_val_to_description(dlt));
+		}
+		else
+		{
+			LOG_DEBUG("link-type %u\n", dlt);
+		}
+		switch(dlt)
+		{
+			case DLT_RAW:
+				m_linkType = LINKTYPE_RAW;
+				break;
+			default:
+				m_linkType = LINKTYPE_ETHERNET;
+		}
 	}
 	return pcap;
 }
