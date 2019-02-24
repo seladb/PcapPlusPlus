@@ -137,9 +137,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -158,9 +158,9 @@ xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -179,9 +179,9 @@ xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WINx64;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINx64;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -200,9 +200,9 @@ xcopy $(PcapPlusPlusHome)\Pcap++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WINx64;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINx64;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(WinPcapHome)\Include;$(PThreadWin32Home)\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
