@@ -20,7 +20,6 @@ namespace pcpp
 
 	/**
 	 * An enum describing all known link layer type. Taken from: http://www.tcpdump.org/linktypes.html .
-	 * Currently only Ethernet (1) and SLL (113) are supported
 	 */
 	enum LinkLayerType
 	{

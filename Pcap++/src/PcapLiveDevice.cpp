@@ -54,7 +54,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	m_Name = NULL;
 	m_Description = NULL;
 	m_DeviceMtu = 0;
-	m_linkType = LINKTYPE_ETHERNET;
+	m_LinkType = LINKTYPE_ETHERNET;
 
 	m_IsLoopback = (pInterface->flags & 0x1) == PCAP_IF_LOOPBACK;
 
@@ -98,7 +98,8 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 
 	//init all other members
 	m_CaptureThreadStarted = false;
-	m_StatsThreadStarted = false;  m_IsLoopback = false;
+	m_StatsThreadStarted = false;
+	m_IsLoopback = false;
 	m_StopThread = false;
 	m_CaptureThread = new PcapThread();
 	m_StatsThread = new PcapThread();
@@ -147,7 +148,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t *user, const struct pcap_
 
 	uint8_t* packetData = new uint8_t[pkthdr->caplen];
 	memcpy(packetData, packet, pkthdr->caplen);
-	RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, LINKTYPE_ETHERNET);
+	RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
 	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 }
 
@@ -160,7 +161,7 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t *user, const struct pca
 		return;
 	}
 
-	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, LINKTYPE_ETHERNET);
+	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
 
 	if (pThis->m_cbOnPacketArrivesBlockingMode != NULL)
 		if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis, pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
@@ -267,6 +268,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		pcap_close(pcap);
 		pcap = NULL;
 	}
+
 	if (pcap)
 	{
 		int dlt = pcap_datalink(pcap);
@@ -279,14 +281,8 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		{
 			LOG_DEBUG("link-type %u\n", dlt);
 		}
-		switch(dlt)
-		{
-			case DLT_RAW:
-				m_linkType = LINKTYPE_RAW;
-				break;
-			default:
-				m_linkType = LINKTYPE_ETHERNET;
-		}
+
+		m_LinkType = static_cast<LinkLayerType>(dlt);
 	}
 	return pcap;
 }
