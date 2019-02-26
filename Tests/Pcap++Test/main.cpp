@@ -1318,6 +1318,8 @@ PCAPP_TEST(TestPcapLiveDeviceByInvalidIp)
 
 PCAPP_TEST(TestPcapLiveDeviceNoNetworking)
 {
+	PCAPP_ASSERT(IPcapDevice::getPcapLibVersionInfo() != "", "Cannot get pcap lib version info");
+
 	PcapLiveDevice* liveDev = NULL;
 
     vector<PcapLiveDevice*> devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();

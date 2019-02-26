@@ -88,4 +88,9 @@ bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* r
 	return (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
 }
 
+std::string IPcapDevice::getPcapLibVersionInfo()
+{
+	return std::string(pcap_lib_version());
+}
+
 } // namespace pcpp

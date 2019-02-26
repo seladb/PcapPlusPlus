@@ -28,6 +28,8 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 		LOG_ERROR("Error searching for devices: %s", errbuf);
 	}
 
+	LOG_DEBUG("Pcap lib version info: %s", IPcapDevice::getPcapLibVersionInfo().c_str());
+
 	pcap_if_t* currInterface = interfaceList;
 	while (currInterface != NULL)
 	{

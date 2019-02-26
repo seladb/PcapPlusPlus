@@ -50,6 +50,13 @@ namespace pcpp
 		virtual void getStatistics(pcap_stat& stats) = 0;
 
 		/**
+		 * A static method for retreiving pcap lib (libpcap/WinPcap/etc.) version information. This method is actually
+		 * a wrapper for [pcap_lib_version()](https://www.tcpdump.org/manpages/pcap_lib_version.3pcap.html)
+		 * @return A string containing the pcap lib version information
+		 */
+		static std::string getPcapLibVersionInfo();
+
+		/**
 		 * Verify a filter is valid
 		 * @param[in] filterAsString The filter in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
 		 * @return True if the filter is valid or false otherwise

@@ -260,7 +260,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 			       ret, pcap_geterr(pcap));
 	}
 #endif
-	LOG_DEBUG("LibPcap version: %s", pcap_lib_version());
+
 	ret = pcap_activate(pcap);
 	if (ret != 0)
 	{
