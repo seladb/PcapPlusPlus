@@ -301,6 +301,8 @@ namespace pcpp
 		bool removeLayer(Layer* layer, bool tryToDelete);
 
 		std::string printPacketInfo(bool timeAsLocalTime);
+
+		Layer* createFirstLayer(LinkLayerType linkType);
 	};
 
 	template<class TLayer>

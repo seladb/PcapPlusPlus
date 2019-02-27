@@ -3288,7 +3288,7 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses1.dat", bufferLength);
-	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file TwoHttpResponses1.dat");
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -3368,47 +3368,117 @@ PACKETPP_TEST(CopyLayerAndPacketTest)
 	PACKETPP_ASSERT(curFieldInCopy == NULL, "HttpResponseLayer copy c'tor: number of fields differs between original and copy");
 
 
-	//Packet copy c'tor test
-	//----------------------
+	//Packet copy c'tor test - Ethernet
+	//---------------------------------
 
 	Packet samplePacketCopy(sampleHttpPacket);
-	PACKETPP_ASSERT(samplePacketCopy.getFirstLayer() != sampleHttpPacket.getFirstLayer(), "Packet copy c'tor didn't actually copy first layer");
-	PACKETPP_ASSERT(samplePacketCopy.getLastLayer() != sampleHttpPacket.getLastLayer(), "Packet copy c'tor didn't actually last layer");
-	PACKETPP_ASSERT(samplePacketCopy.getRawPacket() != sampleHttpPacket.getRawPacket(), "Packet copy c'tor didn't actually copy raw packet");
+	PACKETPP_ASSERT(samplePacketCopy.getFirstLayer() != sampleHttpPacket.getFirstLayer(), "Ethernet: Packet copy c'tor didn't actually copy first layer");
+	PACKETPP_ASSERT(samplePacketCopy.getLastLayer() != sampleHttpPacket.getLastLayer(), "Ethernet: Packet copy c'tor didn't actually last layer");
+	PACKETPP_ASSERT(samplePacketCopy.getRawPacket() != sampleHttpPacket.getRawPacket(), "Ethernet: Packet copy c'tor didn't actually copy raw packet");
 	PACKETPP_ASSERT(samplePacketCopy.getRawPacket()->getRawDataLen() == sampleHttpPacket.getRawPacket()->getRawDataLen(),
-			"Packet copy c'tor: raw packet length differs");
+			"Ethernet: Packet copy c'tor: raw packet length differs");
 	PACKETPP_ASSERT(memcmp(samplePacketCopy.getRawPacket()->getRawData(), sampleHttpPacket.getRawPacket()->getRawData(), sampleHttpPacket.getRawPacket()->getRawDataLen()) == 0,
-			"Packet copy c'tor: raw packet data differs");
-	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(Ethernet) == true, "Packet copy isn't of type ethernet");
-	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(IPv4) == true, "Packet copy isn't of type IPv4");
-	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(TCP) == true, "Packet copy isn't of type TCP");
-	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(HTTPResponse) == true, "Packet copy isn't of type HTTP response");
+			"Ethernet: Packet copy c'tor: raw packet data differs");
+	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(Ethernet) == true, "Ethernet: Packet copy isn't of type ethernet");
+	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(IPv4) == true, "Ethernet: Packet copy isn't of type IPv4");
+	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(TCP) == true, "Ethernet: Packet copy isn't of type TCP");
+	PACKETPP_ASSERT(samplePacketCopy.isPacketOfType(HTTPResponse) == true, "Ethernet: Packet copy isn't of type HTTP response");
 	Layer* curSamplePacketLayer = sampleHttpPacket.getFirstLayer();
 	Layer* curPacketCopyLayer = samplePacketCopy.getFirstLayer();
 	while (curSamplePacketLayer != NULL && curPacketCopyLayer != NULL)
 	{
-		PACKETPP_ASSERT(curSamplePacketLayer->getProtocol() == curPacketCopyLayer->getProtocol(), "Packet copy c'tor: layer protocol is different");
-		PACKETPP_ASSERT(curSamplePacketLayer->getHeaderLen() == curPacketCopyLayer->getHeaderLen(), "Packet copy c'tor: layer header len is different");
-		PACKETPP_ASSERT(curSamplePacketLayer->getLayerPayloadSize() == curPacketCopyLayer->getLayerPayloadSize(), "Packet copy c'tor: layer payload size is different");
-		PACKETPP_ASSERT(curSamplePacketLayer->getDataLen() == curPacketCopyLayer->getDataLen(), "Packet copy c'tor: data len is different");
-		PACKETPP_ASSERT(memcmp(curSamplePacketLayer->getData(), curPacketCopyLayer->getData(), curSamplePacketLayer->getDataLen()) == 0, "Packet copy c'tor: layer data differs");
+		PACKETPP_ASSERT(curSamplePacketLayer->getProtocol() == curPacketCopyLayer->getProtocol(), "Ethernet: Packet copy c'tor: layer protocol is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getHeaderLen() == curPacketCopyLayer->getHeaderLen(), "Ethernet: Packet copy c'tor: layer header len is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getLayerPayloadSize() == curPacketCopyLayer->getLayerPayloadSize(), "Ethernet: Packet copy c'tor: layer payload size is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getDataLen() == curPacketCopyLayer->getDataLen(), "Ethernet: Packet copy c'tor: data len is different");
+		PACKETPP_ASSERT(memcmp(curSamplePacketLayer->getData(), curPacketCopyLayer->getData(), curSamplePacketLayer->getDataLen()) == 0, "Ethernet: Packet copy c'tor: layer data differs");
 		curSamplePacketLayer = curSamplePacketLayer->getNextLayer();
 		curPacketCopyLayer = curPacketCopyLayer->getNextLayer();
 	}
 
-	PACKETPP_ASSERT(curSamplePacketLayer == NULL, "Packet copy c'tor: number of layers differs between original and copy");
-	PACKETPP_ASSERT(curPacketCopyLayer == NULL, "Packet copy c'tor: number of layers differs between original and copy");
+	PACKETPP_ASSERT(curSamplePacketLayer == NULL, "Ethernet: Packet copy c'tor: number of layers differs between original and copy");
+	PACKETPP_ASSERT(curPacketCopyLayer == NULL, "Ethernet: Packet copy c'tor: number of layers differs between original and copy");
+
+
+	//Packet copy c'tor test - Null/Loopback
+	//--------------------------------------
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/NullLoopback1.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file NullLoopback1.dat");
+
+	RawPacket nullLoopbackRawPacket((const uint8_t*)buffer3, buffer3Length, time, true, LINKTYPE_NULL);
+	Packet nullLoopbackPacket(&nullLoopbackRawPacket);
+
+	Packet nullLoopbackPacketCopy(nullLoopbackPacket);
+
+	PACKETPP_ASSERT(nullLoopbackPacketCopy.getFirstLayer() != nullLoopbackPacket.getFirstLayer(), "Null/Loopback: Packet copy c'tor didn't actually copy first layer");
+	PACKETPP_ASSERT(nullLoopbackPacketCopy.getLastLayer() != nullLoopbackPacket.getLastLayer(), "Null/Loopback: Packet copy c'tor didn't actually last layer");
+	PACKETPP_ASSERT(nullLoopbackPacketCopy.getRawPacket() != nullLoopbackPacket.getRawPacket(), "Null/Loopback: Packet copy c'tor didn't actually copy raw packet");
+	PACKETPP_ASSERT(nullLoopbackPacketCopy.getRawPacket()->getRawDataLen() == nullLoopbackPacket.getRawPacket()->getRawDataLen(),
+			"Null/Loopback: Packet copy c'tor: raw packet length differs");
+	PACKETPP_ASSERT(memcmp(nullLoopbackPacketCopy.getRawPacket()->getRawData(), nullLoopbackPacket.getRawPacket()->getRawData(), nullLoopbackPacket.getRawPacket()->getRawDataLen()) == 0,
+			"Null/Loopback: Packet copy c'tor: raw packet data differs");
+	PACKETPP_ASSERT(nullLoopbackPacketCopy.getRawPacket()->getLinkLayerType() == LINKTYPE_NULL, "Null/Loopback: Packet copy link type isn't LINKTYPE_NULL");
+	PACKETPP_ASSERT(nullLoopbackPacketCopy.getFirstLayer()->getProtocol() == NULL_LOOPBACK, "Null/Loopback: Packet copy first layer isn't of type NULL_LOOPBACK");
+
+	curSamplePacketLayer = nullLoopbackPacket.getFirstLayer();
+	curPacketCopyLayer = nullLoopbackPacketCopy.getFirstLayer();
+	while (curSamplePacketLayer != NULL && curPacketCopyLayer != NULL)
+	{
+		PACKETPP_ASSERT(curSamplePacketLayer->getProtocol() == curPacketCopyLayer->getProtocol(), "Null/Loopback: Packet copy c'tor: layer protocol is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getHeaderLen() == curPacketCopyLayer->getHeaderLen(), "Null/Loopback: Packet copy c'tor: layer header len is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getLayerPayloadSize() == curPacketCopyLayer->getLayerPayloadSize(), "Null/Loopback: Packet copy c'tor: layer payload size is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getDataLen() == curPacketCopyLayer->getDataLen(), "Null/Loopback: Packet copy c'tor: data len is different");
+		curSamplePacketLayer = curSamplePacketLayer->getNextLayer();
+		curPacketCopyLayer = curPacketCopyLayer->getNextLayer();
+	}
+
+
+	//Packet copy c'tor test - SLL
+	//----------------------------
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/SllPacket2.dat", buffer4Length);
+	PACKETPP_ASSERT(!(buffer4 == NULL), "cannot read file SllPacket2.dat");
+
+	RawPacket sllRawPacket((const uint8_t*)buffer4, buffer4Length, time, true, LINKTYPE_LINUX_SLL);
+	Packet sllPacket(&sllRawPacket);
+
+	Packet sllPacketCopy(sllPacket);
+
+	PACKETPP_ASSERT(sllPacketCopy.getFirstLayer() != sllPacket.getFirstLayer(), "SLL: Packet copy c'tor didn't actually copy first layer");
+	PACKETPP_ASSERT(sllPacketCopy.getLastLayer() != sllPacket.getLastLayer(), "SLL: Packet copy c'tor didn't actually last layer");
+	PACKETPP_ASSERT(sllPacketCopy.getRawPacket() != sllPacket.getRawPacket(), "SLL: Packet copy c'tor didn't actually copy raw packet");
+	PACKETPP_ASSERT(sllPacketCopy.getRawPacket()->getRawDataLen() == sllPacket.getRawPacket()->getRawDataLen(),
+			"SLL: Packet copy c'tor: raw packet length differs");
+	PACKETPP_ASSERT(memcmp(sllPacketCopy.getRawPacket()->getRawData(), sllPacket.getRawPacket()->getRawData(), sllPacket.getRawPacket()->getRawDataLen()) == 0,
+			"SLL: Packet copy c'tor: raw packet data differs");
+	PACKETPP_ASSERT(sllPacketCopy.getRawPacket()->getLinkLayerType() == LINKTYPE_LINUX_SLL, "SLL: Packet copy link type isn't LINKTYPE_LINUX_SLL");
+	PACKETPP_ASSERT(sllPacketCopy.getFirstLayer()->getProtocol() == SLL, "SLL: Packet copy first layer isn't of type SLL");
+
+	curSamplePacketLayer = sllPacket.getFirstLayer();
+	curPacketCopyLayer = sllPacketCopy.getFirstLayer();
+	while (curSamplePacketLayer != NULL && curPacketCopyLayer != NULL)
+	{
+		PACKETPP_ASSERT(curSamplePacketLayer->getProtocol() == curPacketCopyLayer->getProtocol(), "SLL: Packet copy c'tor: layer protocol is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getHeaderLen() == curPacketCopyLayer->getHeaderLen(), "SLL: Packet copy c'tor: layer header len is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getLayerPayloadSize() == curPacketCopyLayer->getLayerPayloadSize(), "SLL: Packet copy c'tor: layer payload size is different");
+		PACKETPP_ASSERT(curSamplePacketLayer->getDataLen() == curPacketCopyLayer->getDataLen(), "SLL: Packet copy c'tor: data len is different");
+		curSamplePacketLayer = curSamplePacketLayer->getNextLayer();
+		curPacketCopyLayer = curPacketCopyLayer->getNextLayer();
+	}
 
 
 	//DnsLayer copy c'tor and operator= test
 	//--------------------------------------
-	int buffer3Length = 0;
-	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/Dns2.dat", buffer3Length);
-	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file Dns2.dat");
+	int buffer5Length = 0;
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/Dns2.dat", buffer5Length);
+	PACKETPP_ASSERT(!(buffer5 == NULL), "cannot read file Dns2.dat");
 
-	RawPacket sampleRawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket sampleRawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
 
-	Packet sampleDnsPacket(&sampleRawPacket3);
+	Packet sampleDnsPacket(&sampleRawPacket5);
 
 	DnsLayer* origDnsLayer = sampleDnsPacket.getLayerOfType<DnsLayer>();
 	PACKETPP_ASSERT(origDnsLayer != NULL, "Couldn't find DNS layer in file");
