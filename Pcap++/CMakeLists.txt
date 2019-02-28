@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+find_package (Threads)
+
 option(USE_DPDK    "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_HOME")
 option(USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_HOME")
 
@@ -58,10 +60,11 @@ target_link_libraries(PcapPP LINK_PUBLIC
 	EndianPortable
 	light_pcapng
 	${PCAP_LIBRARIES}
+	${CMAKE_THREAD_LIBS_INIT}
 
 )
 
-set_property(TARGET PcapPP PROPERTY CXX_STANDARD 14)
-set_property(TARGET PcapPP PROPERTY CXX_EXTENSIONS ON)
+set_property(TARGET PcapPP PROPERTY CXX_STANDARD 11)
+set_property(TARGET PcapPP PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET PcapPP PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set_property(TARGET PcapPP PROPERTY OUTPUT_NAME "Pcap++")
