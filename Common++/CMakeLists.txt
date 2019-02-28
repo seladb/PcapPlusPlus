@@ -4,8 +4,6 @@ include(DetectOS)
 
 option(HAS_PCAP_IMMEDIATE_MODE "Enable Pcap Has Immediate Mode")
 
-
-
 add_library(CommonPP
 	src/IpAddress.cpp
 	src/IpUtils.cpp
