@@ -41,7 +41,7 @@ target_compile_definitions(CommonPP
 	PUBLIC -DLINUX
 )
 
-set_property(TARGET CommonPP PROPERTY CXX_STANDARD 14)
-set_property(TARGET CommonPP PROPERTY CXX_EXTENSIONS ON)
+set_property(TARGET CommonPP PROPERTY CXX_STANDARD 11)
+set_property(TARGET CommonPP PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET CommonPP PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set_property(TARGET CommonPP PROPERTY OUTPUT_NAME "Common++")

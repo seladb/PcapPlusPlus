@@ -80,7 +80,7 @@ target_link_libraries(PacketPP LINK_PUBLIC
 
 )
 
-set_property(TARGET PacketPP PROPERTY CXX_STANDARD 14)
-set_property(TARGET PacketPP PROPERTY CXX_EXTENSIONS ON)
+set_property(TARGET PacketPP PROPERTY CXX_STANDARD 11)
+set_property(TARGET PacketPP PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET PacketPP PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set_property(TARGET PacketPP PROPERTY OUTPUT_NAME "Packet++")
