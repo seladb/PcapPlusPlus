@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+include(DetectOS)
+
 add_library(CommonPP
 	src/IpAddress.cpp
 	src/IpUtils.cpp
@@ -37,9 +39,18 @@ target_link_libraries(CommonPP LINK_PUBLIC
 
 )
 
-target_compile_definitions(CommonPP
-	PUBLIC -DLINUX
-)
+if(TARGET_PLATFORM_LINUX)
+	target_compile_definitions(CommonPP
+		PUBLIC -DLINUX
+	)
+elseif(TARGET_PLATFORM_MACOS)
+	target_compile_definitions(CommonPP
+		PUBLIC -DMAC_OS_X
+	)
+elseif(TARGET_PLATFORM_WINDOWS)
+	target_compile_definitions(CommonPP
+	)
+endif()
 
 set_property(TARGET CommonPP PROPERTY CXX_STANDARD 11)
 set_property(TARGET CommonPP PROPERTY CXX_EXTENSIONS OFF)
