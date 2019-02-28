@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.0)
 
 include(DetectOS)
 
+option(HAS_PCAP_IMMEDIATE_MODE "Enable Pcap Has Immediate Mode")
+
+
+
 add_library(CommonPP
 	src/IpAddress.cpp
 	src/IpUtils.cpp
@@ -38,6 +42,12 @@ target_include_directories(CommonPP
 target_link_libraries(CommonPP LINK_PUBLIC
 
 )
+
+if(HAS_PCAP_IMMEDIATE_MODE)
+	target_compile_definitions(CommonPP
+		PUBLIC -DHAS_PCAP_IMMEDIATE_MODE
+	)
+endif()
 
 if(TARGET_PLATFORM_LINUX)
 	target_compile_definitions(CommonPP
