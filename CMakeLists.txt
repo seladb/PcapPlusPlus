@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.0)
 project (PcapPlusPlus)
 
+enable_testing()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
 find_package(PCAP REQUIRED)
@@ -13,3 +15,4 @@ add_subdirectory(Packet++)
 add_subdirectory(Pcap++)
 add_subdirectory(Common++)
 add_subdirectory(3rdParty)
+add_subdirectory(Tests)
