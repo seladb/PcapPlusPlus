@@ -72,7 +72,6 @@ add_library(PacketPP
 
 target_include_directories(PacketPP
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/header
-	PUBLIC /usr/include/netinet # NOTE(eteran): not a fan of this...
 )
 
 target_link_libraries(PacketPP LINK_PUBLIC

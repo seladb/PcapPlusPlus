@@ -24,7 +24,13 @@ add_library(CommonPP
 target_include_directories(CommonPP
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/header
 	PUBLIC ${PCAP_INCLUDE_DIR}
-	PUBLIC /usr/include/netinet # NOTE(eteran): not a fan of this...
+	
+	# NOTE(eteran): So, unix convention is to use #include <netinet/in.h>, not #include <in.h>
+	# this allows us to avoid name collisions in include files by placing headers in a filesystem
+	# namespace of sorts. I would prefer to eliminate this as anyone who uses PcapPlusPlus must also
+	# add this to their build path (done by cmake because this is a public include path), but for now
+	# i'll maintain the existing behavior
+	PUBLIC /usr/include/netinet
 )
 
 target_link_libraries(CommonPP LINK_PUBLIC
