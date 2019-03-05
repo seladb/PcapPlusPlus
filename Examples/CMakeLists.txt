@@ -17,9 +17,15 @@ add_subdirectory(ArpSpoofing)
 add_subdirectory(SSLAnalyzer)
 add_subdirectory(IPFragUtil)
 
-#add_subdirectory(DpdkExample-FilterTraffic)
-#add_subdirectory(PfRingExample-FilterTraffic)
-#add_subdirectory(DpdkBridge)
+if(PCAPPP_USE_DPDK)
+    add_subdirectory(DpdkExample-FilterTraffic)
+    add_subdirectory(DpdkBridge)
+endif()
+
+if(PCAPPP_USE_PF_RING)
+    add_subdirectory(PfRingExample-FilterTraffic)
+endif()
+
 #add_subdirectory(Tutorials/Tutorial-DpdkL2Fwd
 #add_subdirectory(Tutorials/Tutorial-PacketCraftAndEdit
 #add_subdirectory(Tutorials/Tutorial-PacketParsing
