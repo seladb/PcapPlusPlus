@@ -8,8 +8,6 @@ add_executable(DpdkBridge
 
 target_link_libraries(DpdkBridge PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET DpdkBridge PROPERTY CXX_STANDARD 11)

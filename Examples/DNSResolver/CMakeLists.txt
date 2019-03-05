@@ -6,8 +6,6 @@ add_executable(DNSResolver
 
 target_link_libraries(DNSResolver PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET DNSResolver PROPERTY CXX_STANDARD 11)

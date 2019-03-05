@@ -6,8 +6,6 @@ add_executable(PcapPrinter
 
 target_link_libraries(PcapPrinter PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET PcapPrinter PROPERTY CXX_STANDARD 11)

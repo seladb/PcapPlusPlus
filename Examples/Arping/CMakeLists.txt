@@ -6,8 +6,6 @@ add_executable(Arping
 
 target_link_libraries(Arping PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET Arping PROPERTY CXX_STANDARD 11)

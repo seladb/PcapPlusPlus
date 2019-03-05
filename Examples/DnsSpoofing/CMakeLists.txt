@@ -6,8 +6,6 @@ add_executable(DnsSpoofing
 
 target_link_libraries(DnsSpoofing PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET DnsSpoofing PROPERTY CXX_STANDARD 11)

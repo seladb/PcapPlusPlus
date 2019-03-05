@@ -6,8 +6,6 @@ add_executable(TcpReassembly
 
 target_link_libraries(TcpReassembly PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET TcpReassembly PROPERTY CXX_STANDARD 11)

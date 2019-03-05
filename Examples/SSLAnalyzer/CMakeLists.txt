@@ -7,8 +7,6 @@ add_executable(SSLAnalyzer
 
 target_link_libraries(SSLAnalyzer PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET SSLAnalyzer PROPERTY CXX_STANDARD 11)

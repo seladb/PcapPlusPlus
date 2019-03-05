@@ -10,8 +10,6 @@ add_executable(PcapSplitter
 
 target_link_libraries(PcapSplitter PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET PcapSplitter PROPERTY CXX_STANDARD 11)

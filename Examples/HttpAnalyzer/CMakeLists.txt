@@ -7,8 +7,6 @@ add_executable(HttpAnalyzer
 
 target_link_libraries(HttpAnalyzer PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET HttpAnalyzer PROPERTY CXX_STANDARD 11)
