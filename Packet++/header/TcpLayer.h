@@ -2,6 +2,7 @@
 #define PACKETPP_TCP_LAYER
 
 #include "Layer.h"
+#include "TLVData.h"
 #include <string.h>
 
 /// @file
@@ -83,7 +84,7 @@ namespace pcpp
 	/**
 	 * TCP options enum
 	 */
-	enum TcpOption {
+	enum TcpOptionType {
 		/** Padding */
 		PCPP_TCPOPT_NOP = 			1,
 		/** End of options */
@@ -131,7 +132,9 @@ namespace pcpp
 		/** Riverbed probe option, non IANA registered option number */
 		TCPOPT_RVBD_PROBE =     76,
 		/** Riverbed transparency option, non IANA registered option number */
-		TCPOPT_RVBD_TRPY =      78
+		TCPOPT_RVBD_TRPY =      78,
+		/** Unknown option */
+		TCPOPT_Unknown =        255
 	};
 
 
@@ -184,75 +187,104 @@ namespace pcpp
 	/** pcpp::TCPOPT_EXP_FD and pcpp::TCPOPT_EXP_FE length */
 #define PCPP_TCPOLEN_EXP_MIN        2
 
+
 	/**
-	 * @struct TcpOptionData
-	 * Representing a TCP option in a TLV (type-length-value) type
+	 * @class TcpOption
+	 * A wrapper class for TCP options. This class does not create or modify TCP option records, but rather
+	 * serves as a wrapper and provides useful methods for retrieving data from them
 	 */
-	struct TcpOptionData
+	class TcpOption : public TLVRecord
 	{
 	public:
-		/** TCP option type, should be on of ::TcpOption */
-		uint8_t option;
-		/** TCP option length */
-		uint8_t len;
-		/** TCP option value */
-		uint8_t value[];
 
 		/**
-		 * A templated method to retrieve the TCP option data as a certain type T. For example, if option data is 4B
-		 * (integer) then this method should be used as getValueAs<int>() and it will return the TCP option data as an integer.<BR>
-		 * Notice this return value is a copy of the data, not a pointer to the actual data
-		 * @param[in] valueOffset An optional parameter that specifies where to start copy the TCP option data. For example:
-		 * if option data is 20 bytes and you need only the 4 last bytes as integer then use this method like this:
-		 * getValueAs<int>(16). The default is 0 - start copy from the beginning of option data
-		 * @return The TCP option data as type T
+		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
+		 * @param[in] optionRawData A pointer to the TCP option raw data
 		 */
-		template<typename T>
-		T getValueAs(int valueOffset = 0)
-		{
-			if (getTotalSize() <= 2*sizeof(uint8_t) + valueOffset)
-				return 0;
-			if (getTotalSize() - 2*sizeof(uint8_t) - valueOffset < sizeof(T))
-				return 0;
+		TcpOption(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
 
-			T result;
-			memcpy(&result, value+valueOffset, sizeof(T));
-			return result;
+		/**
+		 * A d'tor for this class, currently does nothing
+		 */
+		~TcpOption() { }
+
+		/**
+		 * @return TCP option type casted as pcpp::TcpOptionType enum. If data is null a value
+		 * of ::PCPP_TCPOPT_NOP is returned
+		 */
+		inline TcpOptionType getTcpOptionType()
+		{
+			if (m_Data == NULL)
+				return PCPP_TCPOPT_NOP;
+
+			return (TcpOptionType)m_Data->recordType;
 		}
 
-		/**
-		 * A templated method to copy data of type T into the TCP option data. For example: if option data is 4[Bytes] long use
-		 * this method with \<int\> to set an integer value into the TCP option data: setValue<int>(num)
-		 * @param[in] newValue The value of type T to copy to TCP option data
-		 * @param[in] valueOffset An optional parameter that specifies where to start set the option data. For example:
-		 * if option data is 20 bytes long and you only need to set the 4 last bytes as integer then use this method like this:
-		 * setValue<int>(num, 16). The default is 0 - start copy from the beginning of option data
-		 */
-		template<typename T>
-		void setValue(T newValue, int valueOffset = 0)
-		{
-			memcpy(value+valueOffset, &newValue, sizeof(T));
-		}
+		// implement abstract methods
 
-		/**
-		 * @return The total size in bytes of this TCP option which includes: 1[Byte] (option type) + 1[Byte]
-		 * (option length) + X[Bytes] (option data length)
-		 */
 		inline size_t getTotalSize() const
 		{
-			if (option == (uint8_t)PCPP_TCPOPT_NOP || option == (uint8_t)PCPP_TCPOPT_EOL)
+			if (m_Data == NULL)
+				return (size_t)0;
+
+			if (m_Data->recordType == (uint8_t)PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)PCPP_TCPOPT_EOL)
 				return sizeof(uint8_t);
 
-			return (size_t)len;
+			return (size_t)m_Data->recordLen;
 		}
 
+		size_t getDataSize()
+		{
+			if (m_Data == NULL)
+				return 0;
+
+			if (m_Data->recordType == (uint8_t)PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)PCPP_TCPOPT_EOL)
+				return (size_t)0;
+
+			return (size_t)m_Data->recordLen - (2*sizeof(uint8_t));
+		}
+	};
+
+
+	class TcpOptionBuilder : public TLVRecordBuilder
+	{
+
+	public:
+
+		enum NopEolOptionTypes
+		{
+			NOP,
+			EOL
+		};
+
 		/**
-		 * @return TCP option type casted as TcpOption enum
+		 * A c'tor for building IPv4 options which their value is a byte array. The IPv4Option object can later
+		 * be retrieved by calling build()
+		 * @param[in] optionType IPv4 option type
+		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any way.
+		 * For option types ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter is ignored (expected to be NULL) as these
+		 * option types don't contain any data
+		 * @param[in] optionValueLen Option value length in bytes
 		 */
-		inline TcpOption getType() {return (TcpOption)option;}
-	private:
-		// private c'tor which isn't implemented to make this struct impossible to construct
-		TcpOptionData();
+		TcpOptionBuilder(TcpOptionType optionType, const uint8_t* optionValue, uint8_t optionValueLen) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen) {}
+
+		TcpOptionBuilder(TcpOptionType optionType, uint8_t optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
+
+		TcpOptionBuilder(TcpOptionType optionType, uint16_t optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
+
+		TcpOptionBuilder(TcpOptionType optionType, uint32_t optionValue) :
+			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
+
+		TcpOptionBuilder(NopEolOptionTypes optionType);
+
+		/**
+		 * Build the TcpOption object out of the parameters defined in the c'tor
+		 * @return The TcpOption object
+		 */
+		TcpOption build() const;
 	};
 
 
@@ -306,14 +338,16 @@ namespace pcpp
 		 * Get a pointer to a TCP option. Notice this points directly to the data, so every change will change the actual packet data
 		 * @param[in] option The TCP option to get
 		 * @return A pointer to the TCP option location in the packet
+		 * TODO doc
 		 */
-		TcpOptionData* getTcpOptionData(TcpOption option);
+		TcpOption getTcpOption(TcpOptionType option);
 
 		/**
 		 * @return The first TCP option, or NULL if no TCP options exist. Notice the return value is a pointer to the real data casted to
 		 * TcpOptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
+		 * TODO doc
 		 */
-		TcpOptionData* getFirstTcpOptionData();
+		TcpOption getFirstTcpOption();
 
 		/**
 		 * Get the TCP option which comes next to "tcpOption" parameter. If "tcpOption" is NULL then NULL will be returned.
@@ -321,13 +355,14 @@ namespace pcpp
 		 * TcpOptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
 		 * @param[in] tcpOption The TCP option to start searching from
 		 * @return The next TCP option or NULL if "tcpOption" is NULL or "tcpOption" is the last TCP option
+		 * TODO doc
 		 */
-		TcpOptionData* getNextTcpOptionData(TcpOptionData* tcpOption);
+		TcpOption getNextTcpOption(TcpOption& tcpOption);
 
 		/**
 		 * @return The number of TCP options in this layer
 		 */
-		size_t getTcpOptionsCount();
+		size_t getTcpOptionCount();
 
 		/**
 		 * Add a new TCP option at the end of the layer (after the last TCP option)
@@ -338,8 +373,9 @@ namespace pcpp
 		 * @return A pointer to the new added TCP option data or NULL if addition failed. Notice this is a pointer to the
 		 * real data casted to TcpOptionData type (as opposed to a copy of the option data). So changes in this return
 		 * value will affect the packet data
+		 * TODO doc
 		 */
-		TcpOptionData* addTcpOption(TcpOption optionType, uint8_t optionLength, const uint8_t* optionData);
+		TcpOption addTcpOption(const TcpOptionBuilder& optionBuilder);
 
 		/**
 		 * Add a new TCP option after an existing TCP option
@@ -352,8 +388,9 @@ namespace pcpp
 		 * @return A pointer to the new added TCP option or NULL if addition failed. Notice this is a pointer to the real data
 		 * casted to TcpOptionData type (as opposed to a copy of the option data). So changes in this return value will affect
 		 * the packet data
+		 * TODO doc
 		 */
-		TcpOptionData* addTcpOptionAfter(TcpOption optionType, uint8_t optionLength, const uint8_t* optionData, TcpOptionData* prevOption);
+		TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType = TCPOPT_Unknown);
 
 		/**
 		 * Remove an existing TCP option from the layer. TCP option is found by type
@@ -361,7 +398,7 @@ namespace pcpp
 		 * @return True if TCP option was removed or false if type wasn't found or if removal failed (in each case a proper error
 		 * will be written to log)
 		 */
-		bool removeTcpOption(TcpOption optionType);
+		bool removeTcpOption(TcpOptionType optionType);
 
 		/**
 		 * Remove all TCP options in this layer
@@ -401,12 +438,12 @@ namespace pcpp
 
 	private:
 
-		size_t m_TcpOptionsCount;
+		TLVRecordReader<TcpOption> m_OptionReader;
 		int m_NumOfTrailingBytes;
 
 		void initLayer();
-		TcpOptionData* castPtrToTcpOptionData(uint8_t* ptr);
-		TcpOptionData* addTcpOptionAt(TcpOption optionType, uint8_t optionLength, const uint8_t* optionData, int offset);
+		inline uint8_t* getOptionsBasePtr() { return m_Data + sizeof(tcphdr); }
+		TcpOption addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int offset);
 		void adjustTcpOptionTrailer(size_t totalOptSize);
 		void copyLayerData(const TcpLayer& other);
 	};

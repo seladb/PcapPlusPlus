@@ -17,128 +17,140 @@ namespace pcpp
 
 #define TCPOPT_DUMMY 0xff
 
+/// ~~~~~~~~~~~~~~~~
+/// TcpOptionBuilder
+/// ~~~~~~~~~~~~~~~~
 
-TcpOptionData* TcpLayer::castPtrToTcpOptionData(uint8_t* ptr)
+TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType)
 {
-	return (TcpOptionData*)ptr;
+	switch (optionType)
+	{
+	case EOL:
+		init((uint8_t)PCPP_TCPOPT_EOL, NULL, 0);
+		break;
+	case NOP:
+	default:
+		init((uint8_t)PCPP_TCPOPT_NOP, NULL, 0);
+		break;
+	}
 }
 
-TcpOptionData* TcpLayer::getTcpOptionData(TcpOption option)
+TcpOption TcpOptionBuilder::build() const
 {
-	uint16_t dataOffset = ((tcphdr *)m_Data)->dataOffset * 4;
+	size_t optionSize = m_RecValueLen + 2*sizeof(uint8_t);
 
-	if (m_DataLen < dataOffset)
-		return NULL;
-
-	// check if there are tags at all
-	if (dataOffset <= sizeof(tcphdr))
-		return NULL;
-
-	uint8_t* curOptPtr = m_Data + sizeof(tcphdr);
-	
-	while ((curOptPtr - m_Data) < dataOffset)
+	if (m_RecType == (uint8_t)PCPP_TCPOPT_EOL || m_RecType == (uint8_t)PCPP_TCPOPT_NOP)
 	{
-		TcpOptionData* curOpt = castPtrToTcpOptionData(curOptPtr);
-		if ((int)curOpt->option == option)
-			return curOpt;
+		if (m_RecValueLen != 0)
+		{
+			LOG_ERROR("TCP NOP and TCP EOL options are 1-byte long and don't have option value. Tried to set option value of size %d", m_RecValueLen);
+			return TcpOption(NULL);
+		}
 
-		curOptPtr += curOpt->getTotalSize();
+		optionSize = 1;
 	}
 
-	return NULL;
-}
-
-TcpOptionData* TcpLayer::getFirstTcpOptionData()
-{
-	// check if there are TCP options at all
-	if (getHeaderLen() <= sizeof(tcphdr))
-		return NULL;
-
-	uint8_t* curOptPtr = m_Data + sizeof(tcphdr);
-	return castPtrToTcpOptionData(curOptPtr);
-}
-
-TcpOptionData* TcpLayer::getNextTcpOptionData(TcpOptionData* tcpOption)
-{
-	if (tcpOption == NULL)
-		return NULL;
-
-	// prev opt was the last opt
-	if ((uint8_t*)tcpOption + tcpOption->getTotalSize() - m_Data >= (int)getHeaderLen())
-		return NULL;
-
-	TcpOptionData* nextOption = castPtrToTcpOptionData((uint8_t*)tcpOption + tcpOption->getTotalSize());
-	if (nextOption->option == TCPOPT_DUMMY)
-		return NULL;
-
-	return nextOption;
-}
-
-size_t TcpLayer::getTcpOptionsCount()
-{
-	if (m_TcpOptionsCount != (size_t)-1)
-		return m_TcpOptionsCount;
-
-	m_TcpOptionsCount = 0;
-	TcpOptionData* curOpt = getFirstTcpOptionData();
-	while (curOpt != NULL)
+	uint8_t* recordBuffer = new uint8_t[optionSize];
+	memset(recordBuffer, 0, optionSize);
+	recordBuffer[0] = m_RecType;
+	if (optionSize > 1)
 	{
-		m_TcpOptionsCount++;
-		curOpt = getNextTcpOptionData(curOpt);
+		recordBuffer[1] = (uint8_t)optionSize;
+		if (optionSize > 2 && m_RecValue != NULL)
+			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
 	}
 
-	return m_TcpOptionsCount;
+	return TcpOption(recordBuffer);
 }
 
-TcpOptionData* TcpLayer::addTcpOption(TcpOption optionType, uint8_t optionLength, const uint8_t* optionData)
+
+
+/// ~~~~~~~~
+/// TcpLayer
+/// ~~~~~~~~
+
+
+TcpOption TcpLayer::getTcpOption(TcpOptionType option)
 {
-	return addTcpOptionAt(optionType, optionLength, optionData, getHeaderLen()-m_NumOfTrailingBytes);
+	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
 
-TcpOptionData* TcpLayer::addTcpOptionAfter(TcpOption optionType, uint8_t optionLength, const uint8_t* optionData, TcpOptionData* prevOption)
+TcpOption TcpLayer::getFirstTcpOption()
+{
+	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
+}
+
+TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption)
+{
+	TcpOption nextOpt = m_OptionReader.getNextTLVRecord(tcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
+	if (nextOpt.isNotNull() && nextOpt.getType() == TCPOPT_DUMMY)
+		return TcpOption(NULL);
+
+	return nextOpt;
+}
+
+size_t TcpLayer::getTcpOptionCount()
+{
+	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
+}
+
+TcpOption TcpLayer::addTcpOption(const TcpOptionBuilder& optionBuilder)
+{
+	return addTcpOptionAt(optionBuilder, getHeaderLen()-m_NumOfTrailingBytes);
+}
+
+TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType)
 {
 	int offset = 0;
-	if (prevOption == NULL)
+
+	if (prevOptionType == TCPOPT_Unknown)
 	{
 		offset = sizeof(tcphdr);
 	}
 	else
 	{
-		offset = (uint8_t*)prevOption + prevOption->getTotalSize() - m_Data;
+		TcpOption prevOpt = getTcpOption(prevOptionType);
+		if (prevOpt.isNull())
+		{
+			LOG_ERROR("Previous option of type %d not found, cannot add a new TCP option", (int)prevOptionType);
+			return TcpOption(NULL);
+		}
+
+		offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
 	}
 
-	return addTcpOptionAt(optionType, optionLength, optionData, offset);
+	return addTcpOptionAt(optionBuilder, offset);
 }
 
-bool TcpLayer::removeTcpOption(TcpOption optionType)
+bool TcpLayer::removeTcpOption(TcpOptionType optionType)
 {
-	TcpOptionData* opt = getTcpOptionData(optionType);
-	if (opt == NULL)
+	TcpOption opt = getTcpOption(optionType);
+	if (opt.isNull())
 	{
 		return false;
 	}
 
 	// calculate total TCP option size
-	TcpOptionData* curOpt = getFirstTcpOptionData();
+	TcpOption curOpt = getFirstTcpOption();
 	size_t totalOptSize = 0;
-	while (curOpt != NULL)
+	while (!curOpt.isNull())
 	{
-		totalOptSize += curOpt->getTotalSize();
-		curOpt = getNextTcpOptionData(curOpt);
+		totalOptSize += curOpt.getTotalSize();
+		curOpt = getNextTcpOption(curOpt);
 	}
-	totalOptSize -= opt->getTotalSize();
+	totalOptSize -= opt.getTotalSize();
 
 
-	int offset = (uint8_t*)opt - m_Data;
+	int offset = opt.getRecordBasePtr() - m_Data;
 
-	if (!shortenLayer(offset, opt->getTotalSize()))
+	if (!shortenLayer(offset, opt.getTotalSize()))
 	{
 		return false;
 	}
 
 	adjustTcpOptionTrailer(totalOptSize);
 
-	m_TcpOptionsCount--;
+	m_OptionReader.changeTLVRecordCount(-1);
 
 	return true;
 }
@@ -152,52 +164,46 @@ bool TcpLayer::removeAllTcpOptions()
 
 	getTcpHeader()->dataOffset = sizeof(tcphdr)/4;
 	m_NumOfTrailingBytes = 0;
-	m_TcpOptionsCount = 0;
+	m_OptionReader.changeTLVRecordCount(0-getTcpOptionCount());
 	return true;
 }
 
-TcpOptionData* TcpLayer::addTcpOptionAt(TcpOption optionType, uint8_t optionLength, const uint8_t* optionData, int offset)
+TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int offset)
 {
-	if ((optionType == PCPP_TCPOPT_EOL || optionType == PCPP_TCPOPT_NOP) && optionLength != PCPP_TCPOLEN_NOP)
-	{
-		LOG_ERROR("Can't set TCP NOP option or TCP EOL option with size different than 1, tried to set size %d", optionLength);
-		return NULL;
-	}
+	TcpOption newOption = optionBuilder.build();
+	if (newOption.isNull())
+		return newOption;
 
 	// calculate total TCP option size
-	TcpOptionData* curOpt = getFirstTcpOptionData();
+	TcpOption curOpt = getFirstTcpOption();
 	size_t totalOptSize = 0;
-	while (curOpt != NULL)
+	while (!curOpt.isNull())
 	{
-		totalOptSize += curOpt->getTotalSize();
-		curOpt = getNextTcpOptionData(curOpt);
+		totalOptSize += curOpt.getTotalSize();
+		curOpt = getNextTcpOption(curOpt);
 	}
-	totalOptSize += optionLength;
+	totalOptSize += newOption.getTotalSize();
 
+	size_t sizeToExtend = newOption.getTotalSize();
 
-	if (!extendLayer(offset, optionLength))
+	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend TcpLayer in [%d] bytes", optionLength);
-		return NULL;
+		LOG_ERROR("Could not extend TcpLayer in [%d] bytes", sizeToExtend);
+		newOption.purgeRecordData();
+		return TcpOption(NULL);
 	}
 
-	uint8_t optionTypeVal = (uint8_t)optionType;
-	memcpy(m_Data + offset, &optionTypeVal, sizeof(uint8_t));
+	memcpy(m_Data + offset, newOption.getRecordBasePtr(), newOption.getTotalSize());
 
-	if (optionLength > 1)
-	{
-		memcpy(m_Data + offset + sizeof(uint8_t), &optionLength, sizeof(uint8_t));
-		if (optionLength > 2 && optionData != NULL)
-			memcpy(m_Data + offset + 2*sizeof(uint8_t), optionData, optionLength-2*sizeof(uint8_t));
-	}
+	newOption.purgeRecordData();
 
 	adjustTcpOptionTrailer(totalOptSize);
 
+	m_OptionReader.changeTLVRecordCount(1);
+
 	uint8_t* newOptPtr = m_Data + offset;
 
-	m_TcpOptionsCount++;
-
-	return castPtrToTcpOptionData(newOptPtr);
+	return TcpOption(newOptPtr);
 }
 
 void TcpLayer::adjustTcpOptionTrailer(size_t totalOptSize)
@@ -279,7 +285,6 @@ void TcpLayer::initLayer()
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = TCP;
-	m_TcpOptionsCount = 0;
 	m_NumOfTrailingBytes = 0;
 	getTcpHeader()->dataOffset = sizeof(tcphdr)/4;
 }
@@ -287,7 +292,6 @@ void TcpLayer::initLayer()
 TcpLayer::TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 {
 	m_Protocol = TCP;
-	m_TcpOptionsCount = -1;
 	m_NumOfTrailingBytes = 0;
 }
 
@@ -305,7 +309,7 @@ TcpLayer::TcpLayer(uint16_t portSrc, uint16_t portDst)
 
 void TcpLayer::copyLayerData(const TcpLayer& other)
 {
-	m_TcpOptionsCount = other.m_TcpOptionsCount;
+	m_OptionReader = other.m_OptionReader;
 	m_NumOfTrailingBytes = other.m_NumOfTrailingBytes;
 }
 
