@@ -13,6 +13,5 @@ target_link_libraries(DpdkBridge PUBLIC
 )
 
 set_property(TARGET DpdkBridge PROPERTY CXX_STANDARD 11)
-
-
+set_property(TARGET DpdkBridge PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
 

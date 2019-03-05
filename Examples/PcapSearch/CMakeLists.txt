@@ -11,6 +11,6 @@ target_link_libraries(PcapSearch PUBLIC
 )
 
 set_property(TARGET PcapSearch PROPERTY CXX_STANDARD 11)
-
+set_property(TARGET PcapSearch PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
 
 

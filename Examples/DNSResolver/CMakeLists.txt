@@ -11,6 +11,5 @@ target_link_libraries(DNSResolver PUBLIC
 )
 
 set_property(TARGET DNSResolver PROPERTY CXX_STANDARD 11)
-
-
+set_property(TARGET DNSResolver PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
 
