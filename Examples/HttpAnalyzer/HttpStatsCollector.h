@@ -17,6 +17,12 @@ struct Rate
 {
 	double currentRate; // periodic rate
 	double totalRate;	 // overlal rate
+
+	void clear()
+	{
+		currentRate = 0;
+		totalRate = 0;
+	}
 };
 
 /**
@@ -40,7 +46,19 @@ struct HttpGeneralStats
 
 	void clear()
 	{
-		memset(this, 0, sizeof(HttpGeneralStats));
+		numOfHttpFlows = 0;
+		httpFlowRate.clear();
+		numOfHttpPipeliningFlows = 0;
+		numOfHttpTransactions = 0;
+		httpTransactionsRate.clear();
+		averageNumOfHttpTransactionsPerFlow = 0;
+		numOfHttpPackets = 0;
+		httpPacketRate.clear();
+		averageNumOfPacketsPerFlow = 0;
+		amountOfHttpTraffic = 0;
+		averageAmountOfDataPerFlow = 0;
+		httpTrafficRate.clear();
+		sampleTime = 0;
 	}
 };
 
@@ -59,7 +77,10 @@ struct HttpMessageStats
 
 	virtual void clear()
 	{
-		memset(this, 0, sizeof(HttpMessageStats));
+		numOfMessages = 0;
+		messageRate.clear();
+		totalMessageHeaderSize = 0;
+		averageMessageHeaderSize = 0;
 	}
 };
 

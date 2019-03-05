@@ -180,7 +180,10 @@ GenericDnsResourceData& GenericDnsResourceData::operator=(const GenericDnsResour
 	m_Data = NULL;
 	m_DataLen = other.m_DataLen;
 	if (m_DataLen > 0 && other.m_Data != NULL)
+	{
+		m_Data = new uint8_t[m_DataLen];
 		memcpy(m_Data, other.m_Data, m_DataLen);
+	}
 
 	return (*this);
 }
