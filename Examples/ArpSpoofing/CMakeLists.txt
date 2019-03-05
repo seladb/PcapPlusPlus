@@ -6,8 +6,6 @@ add_executable(ArpSpoofing
 
 target_link_libraries(ArpSpoofing PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET ArpSpoofing PROPERTY CXX_STANDARD 11)

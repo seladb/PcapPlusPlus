@@ -6,8 +6,6 @@ add_executable(benchmark
 
 target_link_libraries(benchmark PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET benchmark PROPERTY CXX_STANDARD 11)

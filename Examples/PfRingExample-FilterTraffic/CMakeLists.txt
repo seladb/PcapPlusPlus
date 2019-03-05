@@ -8,8 +8,6 @@ add_executable(PfRingTrafficFilter
 
 target_link_libraries(PfRingTrafficFilter PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET PfRingTrafficFilter PROPERTY CXX_STANDARD 11)

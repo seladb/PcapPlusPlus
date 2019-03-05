@@ -9,8 +9,6 @@ add_executable(DpdkTrafficFilter
 
 target_link_libraries(DpdkTrafficFilter PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET DpdkTrafficFilter PROPERTY CXX_STANDARD 11)

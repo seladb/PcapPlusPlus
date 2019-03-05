@@ -8,8 +8,6 @@ add_executable(IcmpFileTransfer-catcher
 
 target_link_libraries(IcmpFileTransfer-catcher PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET IcmpFileTransfer-catcher PROPERTY CXX_STANDARD 11)
@@ -24,8 +22,6 @@ add_executable(IcmpFileTransfer-pitcher
 
 target_link_libraries(IcmpFileTransfer-pitcher PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET IcmpFileTransfer-pitcher PROPERTY CXX_STANDARD 11)

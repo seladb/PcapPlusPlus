@@ -6,8 +6,6 @@ add_executable(IPDefragUtil
 
 target_link_libraries(IPDefragUtil PUBLIC
 	PcapPP
-	CommonPP
-	PacketPP
 )
 
 set_property(TARGET IPDefragUtil PROPERTY CXX_STANDARD 11)
