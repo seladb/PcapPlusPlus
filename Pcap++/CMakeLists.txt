@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 find_package (Threads)
 
+option(PCAPPP_HAS_PCAP_IMMEDIATE_MODE "Enable Pcap Has Immediate Mode (supported on libpcap>=1.5)")
+
 add_library(PcapPP
 	src/DpdkDevice.cpp
 	src/DpdkDeviceList.cpp
@@ -48,6 +50,12 @@ target_link_libraries(PcapPP LINK_PUBLIC
 	${PCAP_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
 )
+
+if(PCAPPP_HAS_PCAP_IMMEDIATE_MODE)
+    target_compile_definitions(PcapPP
+        PUBLIC -DHAS_PCAP_IMMEDIATE_MODE
+    )
+endif()
 
 set_property(TARGET PcapPP PROPERTY CXX_STANDARD 11)
 set_property(TARGET PcapPP PROPERTY CXX_EXTENSIONS OFF)
