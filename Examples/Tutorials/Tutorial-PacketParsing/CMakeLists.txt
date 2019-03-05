@@ -10,5 +10,5 @@ target_link_libraries(Tutorial-PacketParsing PUBLIC
 
 set_property(TARGET Tutorial-PacketParsing PROPERTY CXX_STANDARD 11)
 set_property(TARGET Tutorial-PacketParsing PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
-
+set_property(TARGET Tutorial-PacketParsing PROPERTY CXX_EXTENSIONS OFF)
 

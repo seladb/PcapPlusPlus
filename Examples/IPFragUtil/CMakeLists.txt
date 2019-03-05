@@ -10,5 +10,5 @@ target_link_libraries(IPFragUtil PUBLIC
 
 set_property(TARGET IPFragUtil PROPERTY CXX_STANDARD 11)
 set_property(TARGET IPFragUtil PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
-
+set_property(TARGET IPFragUtil PROPERTY CXX_EXTENSIONS OFF)
 

@@ -10,5 +10,5 @@ target_link_libraries(PcapPrinter PUBLIC
 
 set_property(TARGET PcapPrinter PROPERTY CXX_STANDARD 11)
 set_property(TARGET PcapPrinter PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
-
+set_property(TARGET PcapPrinter PROPERTY CXX_EXTENSIONS OFF)
 
