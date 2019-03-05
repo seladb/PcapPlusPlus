@@ -12,7 +12,7 @@ target_link_libraries(IcmpFileTransfer-catcher PUBLIC
 
 set_property(TARGET IcmpFileTransfer-catcher PROPERTY CXX_STANDARD 11)
 set_property(TARGET IcmpFileTransfer-catcher PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
-
+set_property(TARGET IcmpFileTransfer-catcher PROPERTY CXX_EXTENSIONS OFF)
 
 add_executable(IcmpFileTransfer-pitcher
 	Common.cpp
@@ -26,3 +26,4 @@ target_link_libraries(IcmpFileTransfer-pitcher PUBLIC
 
 set_property(TARGET IcmpFileTransfer-pitcher PROPERTY CXX_STANDARD 11)
 set_property(TARGET IcmpFileTransfer-pitcher PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
+set_property(TARGET IcmpFileTransfer-pitcher PROPERTY CXX_EXTENSIONS OFF)

@@ -10,5 +10,5 @@ target_link_libraries(ArpSpoofing PUBLIC
 
 set_property(TARGET ArpSpoofing PROPERTY CXX_STANDARD 11)
 set_property(TARGET ArpSpoofing PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
-
+set_property(TARGET ArpSpoofing PROPERTY CXX_EXTENSIONS OFF)
 
