@@ -12,6 +12,6 @@ target_link_libraries(HttpAnalyzer PUBLIC
 )
 
 set_property(TARGET HttpAnalyzer PROPERTY CXX_STANDARD 11)
-
+set_property(TARGET HttpAnalyzer PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
 
 

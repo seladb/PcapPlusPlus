@@ -11,6 +11,5 @@ target_link_libraries(IPDefragUtil PUBLIC
 )
 
 set_property(TARGET IPDefragUtil PROPERTY CXX_STANDARD 11)
-
-
+set_property(TARGET IPDefragUtil PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
 

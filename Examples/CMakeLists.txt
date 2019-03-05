@@ -1,4 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
+project (PcapPlusPlusExamples)
 
 add_subdirectory(HttpAnalyzer)
 add_subdirectory(PcapSplitter)
