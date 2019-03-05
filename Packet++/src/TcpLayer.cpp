@@ -188,7 +188,7 @@ TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int of
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend TcpLayer in [%d] bytes", sizeToExtend);
+		LOG_ERROR("Could not extend TcpLayer in [%d] bytes", (int)sizeToExtend);
 		newOption.purgeRecordData();
 		return TcpOption(NULL);
 	}

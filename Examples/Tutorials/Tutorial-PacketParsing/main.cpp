@@ -50,7 +50,7 @@ std::string printTcpFlags(pcpp::TcpLayer* tcpLayer)
 	return result;
 }
 
-std::string printTcpOptionType(pcpp::TcpOption optionType)
+std::string printTcpOptionType(pcpp::TcpOptionType optionType)
 {
 	switch (optionType)
 	{
@@ -163,8 +163,8 @@ int main(int argc, char* argv[])
 
 	// go over all TCP options in this layer and print its type
 	printf("TCP options: ");
-	for (pcpp::TcpOptionData* tcpOption = tcpLayer->getFirstTcpOptionData(); tcpOption != NULL; tcpOption = tcpLayer->getNextTcpOptionData(tcpOption))
-		printf("%s ", printTcpOptionType(tcpOption->getType()).c_str());
+	for (pcpp::TcpOption tcpOption = tcpLayer->getFirstTcpOption(); tcpOption.isNotNull(); tcpOption = tcpLayer->getNextTcpOption(tcpOption))
+		printf("%s ", printTcpOptionType(tcpOption.getTcpOptionType()).c_str());
 	printf("\n");
 
 	// let's get the HTTP request layer

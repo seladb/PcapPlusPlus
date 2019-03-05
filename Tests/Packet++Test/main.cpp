@@ -1422,7 +1422,7 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing)
 	TcpOption timestampOptionData = tcpLayer->getTcpOption(PCPP_TCPOPT_TIMESTAMP);
 	PACKETPP_ASSERT(!timestampOptionData.isNull(), "TCP option Timestamp is NULL");
 	PACKETPP_ASSERT(!tcpLayer->getTcpOption(PCPP_TCPOPT_NOP).isNull(), "TCP option NOP is NULL");
-	PACKETPP_ASSERT(timestampOptionData.getTotalSize() == 10, "TCP option Timestamp length != 10, it's 0x%X", timestampOptionData.getTotalSize());
+	PACKETPP_ASSERT(timestampOptionData.getTotalSize() == 10, "TCP option Timestamp length != 10, it's %d", (int)timestampOptionData.getTotalSize());
 	uint32_t tsValue = timestampOptionData.getValueAs<uint32_t>();
 	uint32_t tsEchoReply = timestampOptionData.getValueAs<uint32_t>(4);
 	PACKETPP_ASSERT(tsValue == htonl(195102), "TCP option Timestamp option: timestamp value != 195102, it's %d", (int)ntohl(tsValue));
@@ -1458,9 +1458,9 @@ PACKETPP_TEST(TcpPacketWithOptionsParsing2)
 	PACKETPP_ASSERT(sackParmOption.getTcpOptionType() == TCPOPT_SACK_PERM, "Sack perm option isn't of type TCPOPT_SACK_PERM");
 	PACKETPP_ASSERT(windowScaleOption.getTcpOptionType() == PCPP_TCPOPT_WINDOW, "Window scale option isn't of type PCPP_TCPOPT_WINDOW");
 
-	PACKETPP_ASSERT(mssOption.getTotalSize() == 4, "TCP option Timestamp length != 4, it's 0x%X", mssOption.getTotalSize());
-	PACKETPP_ASSERT(sackParmOption.getTotalSize() == 2, "TCP option SACK perm length != 2, it's 0x%X", sackParmOption.getTotalSize());
-	PACKETPP_ASSERT(windowScaleOption.getTotalSize() == 3, "TCP option window scale length != 3, it's 0x%X", mssOption.getTotalSize());
+	PACKETPP_ASSERT(mssOption.getTotalSize() == 4, "TCP option Timestamp length != 4, it's %d", (int)mssOption.getTotalSize());
+	PACKETPP_ASSERT(sackParmOption.getTotalSize() == 2, "TCP option SACK perm length != 2, it's %d", (int)sackParmOption.getTotalSize());
+	PACKETPP_ASSERT(windowScaleOption.getTotalSize() == 3, "TCP option window scale length != 3, it's %d", (int)mssOption.getTotalSize());
 
 	PACKETPP_ASSERT(mssOption.getValueAs<uint16_t>() == htons(1460), "TCP option MSS option: value != 1460, it's %d", ntohs(mssOption.getValueAs<uint16_t>()));
 	PACKETPP_ASSERT(windowScaleOption.getValueAs<uint8_t>() == 4, "TCP option window scale option: value != 4, it's %d", windowScaleOption.getValueAs<uint8_t>());
