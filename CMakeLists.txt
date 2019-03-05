@@ -46,7 +46,7 @@ add_subdirectory(Pcap++)
 add_subdirectory(Common++)
 add_subdirectory(3rdParty)
 
-if(PCAPPP_BUILD_TEST)
+if(PCAPPP_BUILD_TESTS)
     add_subdirectory(Tests)
 endif()
 
