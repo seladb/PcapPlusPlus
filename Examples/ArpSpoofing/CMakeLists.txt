@@ -1,0 +1,16 @@
+cmake_minimum_required (VERSION 3.0)
+
+add_executable(ArpSpoofing 
+	main.cpp
+)
+
+target_link_libraries(ArpSpoofing PUBLIC
+	PcapPP
+	CommonPP
+	PacketPP
+)
+
+set_property(TARGET ArpSpoofing PROPERTY CXX_STANDARD 11)
+
+
+

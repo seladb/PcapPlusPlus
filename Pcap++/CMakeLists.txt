@@ -30,7 +30,7 @@ add_library(PcapPP
 	src/PfRingDeviceList.cpp
 	src/RawSocketDevice.cpp
 	src/WinPcapLiveDevice.cpp
-	
+
 	header/Device.h
 	header/DpdkDevice.h
 	header/DpdkDeviceList.h
@@ -46,7 +46,6 @@ add_library(PcapPP
 	header/PfRingDeviceList.h
 	header/RawSocketDevice.h
 	header/WinPcapLiveDevice.h
-
 )
 
 target_include_directories(PcapPP

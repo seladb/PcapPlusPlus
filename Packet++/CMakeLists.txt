@@ -4,6 +4,8 @@ add_library(PacketPP
 	src/ArpLayer.cpp
 	src/DhcpLayer.cpp
 	src/DnsLayer.cpp
+	src/DnsResource.cpp
+	src/DnsResourceData.cpp
 	src/EthLayer.cpp
 	src/GreLayer.cpp
 	src/HttpLayer.cpp
@@ -21,6 +23,7 @@ add_library(PacketPP
 	src/PacketUtils.cpp
 	src/PayloadLayer.cpp
 	src/PPPoELayer.cpp
+	src/RadiusLayer.cpp
 	src/RawPacket.cpp
 	src/SdpLayer.cpp
 	src/SipLayer.cpp
@@ -30,13 +33,17 @@ add_library(PacketPP
 	src/TcpLayer.cpp
 	src/TcpReassembly.cpp
 	src/TextBasedProtocol.cpp
+	src/TLVData.cpp
 	src/UdpLayer.cpp
 	src/VlanLayer.cpp
 	src/VxlanLayer.cpp
 
 	header/ArpLayer.h
 	header/DhcpLayer.h
+	header/DnsLayerEnums.h
 	header/DnsLayer.h
+	header/DnsResourceData.h
+	header/DnsResource.h
 	header/EthLayer.h
 	header/GreLayer.h
 	header/HttpLayer.h
@@ -55,6 +62,7 @@ add_library(PacketPP
 	header/PayloadLayer.h
 	header/PPPoELayer.h
 	header/ProtocolType.h
+	header/RadiusLayer.h
 	header/RawPacket.h
 	header/SdpLayer.h
 	header/SipLayer.h
@@ -65,6 +73,7 @@ add_library(PacketPP
 	header/TcpLayer.h
 	header/TcpReassembly.h
 	header/TextBasedProtocol.h
+	header/TLVData.h
 	header/UdpLayer.h
 	header/VlanLayer.h
 	header/VxlanLayer.h

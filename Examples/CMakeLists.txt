@@ -1,0 +1,27 @@
+cmake_minimum_required (VERSION 3.0)
+
+add_subdirectory(HttpAnalyzer)
+add_subdirectory(PcapSplitter)
+add_subdirectory(IPDefragUtil)
+add_subdirectory(Tutorials)
+add_subdirectory(PcapSearch)
+add_subdirectory(PcapPlusPlus-benchmark)
+add_subdirectory(DNSResolver)
+add_subdirectory(IcmpFileTransfer)
+add_subdirectory(PcapPrinter)
+add_subdirectory(TcpReassembly)
+add_subdirectory(DnsSpoofing)
+add_subdirectory(Arping)
+add_subdirectory(ArpSpoofing)
+add_subdirectory(SSLAnalyzer)
+add_subdirectory(IPFragUtil)
+
+#add_subdirectory(DpdkExample-FilterTraffic)
+#add_subdirectory(PfRingExample-FilterTraffic)
+#add_subdirectory(DpdkBridge)
+#add_subdirectory(Tutorials/Tutorial-DpdkL2Fwd
+#add_subdirectory(Tutorials/Tutorial-PacketCraftAndEdit
+#add_subdirectory(Tutorials/Tutorial-PacketParsing
+#add_subdirectory(Tutorials/Tutorial-PcapFiles
+#add_subdirectory(Tutorials/Tutorial-HelloWorld
+#add_subdirectory(Tutorials/Tutorial-LiveTraffic
