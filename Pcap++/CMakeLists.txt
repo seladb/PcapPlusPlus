@@ -2,19 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 find_package (Threads)
 
-option(USE_DPDK    "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_HOME")
-option(USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_HOME")
-
-if(USE_DPDK)
-	add_definitions(-DUSE_DPDK)
-	set(DPDK_HOME "" CACHE STRING "Sets DPDK home directoy." FORCE)
-endif()
-
-if(USE_PF_RING)
-	add_definitions(-DUSE_PF_RING)
-	set(PF_RING_HOME "" CACHE STRING "Sets PF_RING home directory." FORCE)
-endif()
-
 add_library(PcapPP
 	src/DpdkDevice.cpp
 	src/DpdkDeviceList.cpp
@@ -60,7 +47,6 @@ target_link_libraries(PcapPP LINK_PUBLIC
 	light_pcapng
 	${PCAP_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
-
 )
 
 set_property(TARGET PcapPP PROPERTY CXX_STANDARD 11)
