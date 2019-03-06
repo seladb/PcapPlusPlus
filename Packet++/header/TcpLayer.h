@@ -82,7 +82,7 @@ namespace pcpp
 
 
 	/**
-	 * TCP options enum
+	 * TCP options types
 	 */
 	enum TcpOptionType {
 		/** Padding */
@@ -209,13 +209,13 @@ namespace pcpp
 		~TcpOption() { }
 
 		/**
-		 * @return TCP option type casted as pcpp::TcpOptionType enum. If data is null a value
-		 * of ::PCPP_TCPOPT_NOP is returned
+		 * @return TCP option type casted as pcpp::TcpOptionType enum. If the data is null a value
+		 * of ::TCPOPT_Unknown is returned
 		 */
 		inline TcpOptionType getTcpOptionType()
 		{
 			if (m_Data == NULL)
-				return PCPP_TCPOPT_NOP;
+				return TCPOPT_Unknown;
 
 			return (TcpOptionType)m_Data->recordType;
 		}
@@ -246,38 +246,70 @@ namespace pcpp
 	};
 
 
+	/**
+	 * @class TcpOptionBuilder
+	 * A class for building TCP option records. This builder receives the TCP option parameters in its c'tor,
+	 * builds the TCP option raw buffer and provides a build() method to get a TcpOption object out of it
+	 */
 	class TcpOptionBuilder : public TLVRecordBuilder
 	{
 
 	public:
 
+		/**
+		 * An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
+		 */
 		enum NopEolOptionTypes
 		{
+			/** NOP TCP option */
 			NOP,
+			/** EOL TCP option */
 			EOL
 		};
 
 		/**
-		 * A c'tor for building IPv4 options which their value is a byte array. The IPv4Option object can later
-		 * be retrieved by calling build()
-		 * @param[in] optionType IPv4 option type
+		 * A c'tor for building TCP options which their value is a byte array. The TcpOption object can be later
+		 * retrieved by calling build()
+		 * @param[in] optionType TCP option type
 		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any way.
-		 * For option types ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter is ignored (expected to be NULL) as these
-		 * option types don't contain any data
 		 * @param[in] optionValueLen Option value length in bytes
 		 */
 		TcpOptionBuilder(TcpOptionType optionType, const uint8_t* optionValue, uint8_t optionValueLen) :
 			TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen) {}
 
+		/**
+		 * A c'tor for building TCP options which have a 1-byte value. The TcpOption object can be later retrieved
+		 * by calling build()
+		 * @param[in] optionType TCP option type
+		 * @param[in] optionValue A 1-byte option value
+		 */
 		TcpOptionBuilder(TcpOptionType optionType, uint8_t optionValue) :
 			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
 
+		/**
+		 * A c'tor for building TCP options which have a 2-byte value. The TcpOption object can be later retrieved
+		 * by calling build()
+		 * @param[in] optionType TCP option type
+		 * @param[in] optionValue A 2-byte option value
+		 */
 		TcpOptionBuilder(TcpOptionType optionType, uint16_t optionValue) :
 			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
 
+		/**
+		 * A c'tor for building TCP options which have a 4-byte value. The TcpOption object can be later retrieved
+		 * by calling build()
+		 * @param[in] optionType TCP option type
+		 * @param[in] optionValue A 4-byte option value
+		 */
 		TcpOptionBuilder(TcpOptionType optionType, uint32_t optionValue) :
 			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
 
+		/**
+		 * A c'tor for building TCP NOP and EOL options. These option types are special in that they contain only 1 byte
+		 * which is the TCP option type (NOP or EOL). The TcpOption object can be later retrieved
+		 * by calling build()
+		 * @param[in] optionType An enum value indicating which option type to build (NOP or EOL)
+		 */
 		TcpOptionBuilder(NopEolOptionTypes optionType);
 
 		/**
@@ -335,27 +367,25 @@ namespace pcpp
 		inline tcphdr* getTcpHeader() { return (tcphdr*)m_Data; }
 
 		/**
-		 * Get a pointer to a TCP option. Notice this points directly to the data, so every change will change the actual packet data
-		 * @param[in] option The TCP option to get
-		 * @return A pointer to the TCP option location in the packet
-		 * TODO doc
+		 * Get a TCP option by type
+		 * @param[in] option TCP option type to retrieve
+		 * @return An TcpOption object that contains the first option that matches this type, or logical NULL
+		 * (TcpOption#isNull() == true) if no such option found
 		 */
 		TcpOption getTcpOption(TcpOptionType option);
 
 		/**
-		 * @return The first TCP option, or NULL if no TCP options exist. Notice the return value is a pointer to the real data casted to
-		 * TcpOptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
-		 * TODO doc
+		 * @return The first TCP option in the packet. If the current layer contains no options the returned value will contain
+		 * a logical NULL (TcpOption#isNull() == true)
 		 */
 		TcpOption getFirstTcpOption();
 
 		/**
-		 * Get the TCP option which comes next to "tcpOption" parameter. If "tcpOption" is NULL then NULL will be returned.
-		 * If "tcpOption" is the last TCP option NULL will be returned. Notice the return value is a pointer to the real data casted to
-		 * TcpOptionData type (as opposed to a copy of the option data). So changes in the return value will affect the packet data
-		 * @param[in] tcpOption The TCP option to start searching from
-		 * @return The next TCP option or NULL if "tcpOption" is NULL or "tcpOption" is the last TCP option
-		 * TODO doc
+		 * Get the TCP option that comes after a given option. If the given option was the last one, the
+		 * returned value will contain a logical NULL (TcpOption#isNull() == true)
+		 * @param[in] tcpOption A TCP option object that exists in the current layer
+		 * @return A TcpOption object that contains the TCP option data that comes next, or logical NULL if the given
+		 * TCP option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
 		 */
 		TcpOption getNextTcpOption(TcpOption& tcpOption);
 
@@ -366,29 +396,21 @@ namespace pcpp
 
 		/**
 		 * Add a new TCP option at the end of the layer (after the last TCP option)
-		 * @param[in] optionType The type of the newly added option
-		 * @param[in] optionLength The length of the option data
-		 * @param[in] optionData A pointer to the option data. This data will be copied to added option data. Notice the length of
-		 * optionData must be optionLength
-		 * @return A pointer to the new added TCP option data or NULL if addition failed. Notice this is a pointer to the
-		 * real data casted to TcpOptionData type (as opposed to a copy of the option data). So changes in this return
-		 * value will affect the packet data
-		 * TODO doc
+		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the TCP option data to be added
+		 * @return A TcpOption object that contains the newly added TCP option data or logical NULL
+		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
+		 * printed to log
 		 */
 		TcpOption addTcpOption(const TcpOptionBuilder& optionBuilder);
 
 		/**
-		 * Add a new TCP option after an existing TCP option
-		 * @param[in] optionType The type of the newly added option
-		 * @param[in] optionLength The length of the option data
-		 * @param[in] optionData A pointer to the option data. This data will be copied to added option data. Notice the length of
-		 * optionData must be optionLength
-		 * @param[in] prevOption The TCP option which the newly added tag will come after. If set to NULL TCP option will be
-		 * added as the first TCP option
-		 * @return A pointer to the new added TCP option or NULL if addition failed. Notice this is a pointer to the real data
-		 * casted to TcpOptionData type (as opposed to a copy of the option data). So changes in this return value will affect
-		 * the packet data
-		 * TODO doc
+		 * Add a new TCP option after an existing one
+		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the requested TCP option data to be added
+		 * @param[in] prevOptionType The TCP option which the newly added option should come after. This is an optional parameter which
+		 * gets a default value of ::TCPOPT_Unknown if omitted, which means the new option will be added as the first option in the layer
+		 * @return A TcpOption object containing the newly added TCP option data or logical NULL
+		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
+		 * printed to log
 		 */
 		TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType = TCPOPT_Unknown);
 
