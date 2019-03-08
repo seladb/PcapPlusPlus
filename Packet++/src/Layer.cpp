@@ -86,7 +86,7 @@ bool Layer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
 	{
 		if ((size_t)offsetInLayer >= m_DataLen)
 		{
-			LOG_ERROR("Requested offset is larget than data length");
+			LOG_ERROR("Requested offset is larger than data length");
 			return false;
 		}
 

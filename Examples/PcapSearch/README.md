@@ -26,11 +26,13 @@ There are switches that allows the user to search only in the provided folder (w
 Using the utility
 -----------------
 	Basic usage:
-		PcapPrinter [-h] [-o output_file] [-c packet_count] [-i filter] -f pcap_file
-
+               PcapSearch [-h] [-v] [-n] [-r file_name] [-e extension_list] -d directory -s search_criteria
 	Options:
-		-f pcap_file   : Input pcap file name
-		-o output_file : Save output to text file (default output is stdout)
-		-c packet_count: Print only first packet_count number of packet
-		-i filter      : Apply a BPF filter, meaning only filtered packets will be printed
-		-h             : Displays this help message and exits
+            -d directory        : Input directory
+            -n                  : Don't include sub-directories (default is include them)
+            -s search_criteria  : Criteria to search in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'
+            -r file_name        : Write a detailed search report to a file
+            -e extension_list   : Set file extensions to search. The default is searching '.pcap' and '.pcapng' files.
+                                  extnesions_list should be a comma-separated list of extensions, for example: pcap,net,dmp
+            -v                  : Displays the current version and exists
+            -h                  : Displays this help message and exits

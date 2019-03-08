@@ -109,9 +109,14 @@ namespace pcpp
 		uint8_t* getValue() { return m_Data->recordValue; }
 
 		/**
-		 * @return True if the TLV record raw data is NULL which, false otherwise
+		 * @return True if the TLV record raw data is NULL, false otherwise
 		 */
 		bool isNull() { return (m_Data == NULL); }
+
+		/**
+		 * @return True if the TLV record raw data is not NULL, false otherwise
+		 */
+		bool isNotNull() { return (m_Data != NULL); }
 
 		/**
 		 * @return A pointer to the TLV record raw data byte stream
