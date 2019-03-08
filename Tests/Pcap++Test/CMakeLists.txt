@@ -15,6 +15,6 @@ set_property(TARGET PcapPP-Test PROPERTY CXX_EXTENSIONS OFF)
 
 add_test(
     NAME Pcap++-Test
-    COMMAND $<TARGET_FILE:PcapPP-Test>
+    COMMAND $<TARGET_FILE:PcapPP-Test> -n
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
 )
