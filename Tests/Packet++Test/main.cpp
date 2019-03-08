@@ -390,7 +390,7 @@ PACKETPP_TEST(Ipv4PacketParsing)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/IcmpPacket.dat", bufferLength);
-	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file IcmpPacket.dat");
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -415,6 +415,23 @@ PACKETPP_TEST(Ipv4PacketParsing)
 	PACKETPP_ASSERT(ipv4Layer->getFirstOption().isNull() == true, "Managed to get the first IPv4 option although packet doesn't contain any options");
 	PACKETPP_ASSERT(ipv4Layer->getOption(IPV4OPT_CommercialSecurity).isNull() == true, "Managed to get an IPv4 option by type although packet doesn't contain any options");
 	PACKETPP_ASSERT(ipv4Layer->getOptionCount() == 0, "IPv4 option count isn't 0");
+
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IPv4-TSO.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file IPv4-TSO.dat");
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet ip4TSO(&rawPacket2);
+
+	ipv4Layer = ip4TSO.getLayerOfType<IPv4Layer>();
+	PACKETPP_ASSERT(ipv4Layer != NULL, "IPv4 TSO: cannot get IPv4 layer");
+	PACKETPP_ASSERT(ipv4Layer->getHeaderLen() == 20, "IPv4 TSO: header len is not 20");
+	PACKETPP_ASSERT(ipv4Layer->getIPv4Header()->totalLength == 0 ,"IPv4 TSO: total length is not 0, it's %d", ipv4Layer->getIPv4Header()->totalLength);
+	PACKETPP_ASSERT(ipv4Layer->getDataLen() == 60, "IPv4 TSO: data len is not 60");
+	PACKETPP_ASSERT(ipv4Layer->getNextLayer() != NULL, "IPv4 TSO: next layer is NULL");
+	PACKETPP_ASSERT(ipv4Layer->getNextLayer()->getProtocol() == ICMP, "IPv4 TSO: next layer type isn't ICMP");
 
 	PACKETPP_TEST_PASSED;
 }

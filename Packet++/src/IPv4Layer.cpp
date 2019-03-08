@@ -180,7 +180,9 @@ void IPv4Layer::initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLaye
 	if (setTotalLenAsDataLen)
 	{
 		size_t totalLen = ntohs(getIPv4Header()->totalLength);
-		if (totalLen < m_DataLen)
+		// if totalLen == 0 this usually means TCP Segmentation Offload (TSO). In this case we should ignore the value of totalLen
+		// and look at the data captured on the wire
+		if ((totalLen < m_DataLen) && (totalLen !=0))
 			m_DataLen = totalLen;
 	}
 }
