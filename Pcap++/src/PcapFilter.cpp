@@ -2,7 +2,7 @@
 
 #include "PcapFilter.h"
 #include "Logger.h"
-// #include "IPv4Layer.h"
+#include "IPv4Layer.h"
 #include <sstream>
 #if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
 #include <winsock2.h>
@@ -275,7 +275,7 @@ void NotFilter::parseToString(std::string& result)
 void ProtoFilter::parseToString(std::string& result)
 {
 	result = "";
-	//std::ostringstream stream;
+	std::ostringstream stream;
 
 	switch (m_Proto)
 	{
@@ -303,19 +303,14 @@ void ProtoFilter::parseToString(std::string& result)
 	case Ethernet:
 		result += "ether";
 		break;
-	// case GRE:
-	// case GREv0:
-	// case GREv1:
-	// 	stream << "proto " << PACKETPP_IPPROTO_GRE;
-	// 	result += stream.str();
-	// 	break;
-	// case IGMP:
-	// case IGMPv1:
-	// case IGMPv2:
-	// case IGMPv3:
-	// 	stream << "proto " << PACKETPP_IPPROTO_IGMP;
-	// 	result += stream.str();
-	// 	break;
+	case GRE:
+		stream << "proto " << PACKETPP_IPPROTO_GRE;
+		result += stream.str();
+		break;
+	case IGMP:
+		stream << "proto " << PACKETPP_IPPROTO_IGMP;
+		result += stream.str();
+		break;
 	default:
 		break;
 	}

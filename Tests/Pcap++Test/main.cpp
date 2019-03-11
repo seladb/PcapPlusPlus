@@ -65,6 +65,8 @@ using namespace pcpp;
 #define EXAMPLE2_PCAPNG_PATH "PcapExamples/pcapng-example.pcapng"
 #define EXAMPLE_PCAPNG_WRITE_PATH "PcapExamples/many_interfaces_copy.pcapng"
 #define EXAMPLE2_PCAPNG_WRITE_PATH "PcapExamples/pcapng-example-write.pcapng"
+#define EXAMPLE_PCAP_GRE "PcapExamples/GrePackets.cap"
+#define EXAMPLE_PCAP_IGMP "PcapExamples/IgmpPackets.pcap"
 
 
 #define PCAPP_TEST(TestName) bool TestName(PcapTestArgs const& args)
@@ -1646,6 +1648,8 @@ PCAPP_TEST(TestPcapFiltersOffline)
 
     PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
     PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
+	PcapFileReaderDevice fileReaderDev3(EXAMPLE_PCAP_GRE);
+	PcapFileReaderDevice fileReaderDev4(EXAMPLE_PCAP_IGMP);
 
     //-----------------
     //VLAN filter
@@ -1926,6 +1930,96 @@ PCAPP_TEST(TestPcapFiltersOffline)
 		PCAPP_ASSERT(tcpLayer->getTcpHeader()->synFlag == 1 || tcpLayer->getTcpHeader()->ackFlag == 1, "TcpFlagsFilter test #2: TCP packet isn't a SYN or ACK packet");
 	}
 
+	rawPacketVec.clear();
+
+
+	//------------
+	//Proto filter
+	//------------
+
+	// ARP proto
+	ProtoFilter protoFilter(ARP);
+	protoFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev3.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev3.setFilter(protoFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev3.getNextPackets(rawPacketVec);
+    fileReaderDev3.close();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 2, "ProtoFilter test #1: Captured less or more than 2 packets");
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(ARP), "ProtoFilter test #1: one of the captured packets isn't of type ARP");
+	}
+	rawPacketVec.clear();
+
+	// TCP proto
+	protoFilter.setProto(TCP);
+	protoFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev3.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev3.setFilter(protoFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev3.getNextPackets(rawPacketVec);
+    fileReaderDev3.close();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 9, "ProtoFilter test #2: Captured less or more than 9 packets");
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(TCP), "ProtoFilter test #2: one of the captured packets isn't of type TCP");
+	}
+	rawPacketVec.clear();
+
+	// GRE proto
+	protoFilter.setProto(GRE);
+	protoFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev3.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev3.setFilter(protoFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev3.getNextPackets(rawPacketVec);
+    fileReaderDev3.close();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 17, "ProtoFilter test #3: Captured less or more than 17 packets");
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(GRE), "ProtoFilter test #3: one of the captured packets isn't of type GRE");
+	}
+	rawPacketVec.clear();
+
+	// UDP proto
+	protoFilter.setProto(UDP);
+	protoFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev4.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev4.setFilter(protoFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev4.getNextPackets(rawPacketVec);
+    fileReaderDev4.close();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 38, "ProtoFilter test #4: Captured less or more than 38 packets");
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(UDP), "ProtoFilter test #4: one of the captured packets isn't of type UDP");
+	}
+	rawPacketVec.clear();
+
+	// IGMP proto
+	protoFilter.setProto(IGMP);
+	protoFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev4.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev4.setFilter(protoFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev4.getNextPackets(rawPacketVec);
+    fileReaderDev4.close();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 6, "ProtoFilter test #5: Captured less or more than 6 packets");
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(IGMP), "ProtoFilter test #5: one of the captured packets isn't of type IGMP");
+	}
 	rawPacketVec.clear();
 
 
