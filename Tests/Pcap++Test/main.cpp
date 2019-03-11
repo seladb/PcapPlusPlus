@@ -1485,7 +1485,7 @@ PCAPP_TEST(TestWinPcapLiveDevice)
 	PCAPP_TEST_PASSED;
 }
 
-PCAPP_TEST(TestPcapFilters)
+PCAPP_TEST(TestPcapFiltersLive)
 {
 	PcapLiveDevice* liveDev = NULL;
     IPv4Address ipToSearch(args.ipToSendReceivePackets.c_str());
@@ -1635,26 +1635,32 @@ PCAPP_TEST(TestPcapFilters)
 	capturedPackets.clear();
 
 
+    liveDev->close();
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPcapFiltersOffline)
+{
+	RawPacketVector rawPacketVec;
+	string filterAsString;
+
+    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
+    PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
+
     //-----------------
     //VLAN filter
     //-----------------
+
 	VlanFilter vlanFilter(118);
 	vlanFilter.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(vlanFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
-    PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    RawPacket rawPacket;
-    while (fileReaderDev.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
-    fileReaderDev.close();
-    PCAP_SLEEP(2);
-    liveDev->stopCapture();
 
-    PCAPP_ASSERT(capturedPackets.size() >= 12, "VLAN filter test: Captured: %d packets. Expected: > %d packets", (int)capturedPackets.size(), 12);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
+	PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev.setFilter(vlanFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev.getNextPackets(rawPacketVec);
+    fileReaderDev.close();
+
+    PCAPP_ASSERT(rawPacketVec.size() == 12, "VLAN filter test: Captured: %d packets. Expected: > %d packets", (int)rawPacketVec.size(), 12);
+    for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
     {
     	Packet packet(*iter);
     	PCAPP_ASSERT(packet.isPacketOfType(VLAN), "VLAN filter test: one of the captured packets isn't of type VLAN");
@@ -1662,7 +1668,7 @@ PCAPP_TEST(TestPcapFilters)
     	PCAPP_ASSERT(vlanLayer->getVlanID() == 118, "VLAN filter test: VLAN ID != 118, it's: %d", vlanLayer->getVlanID());
     }
 
-    capturedPackets.clear();
+    rawPacketVec.clear();
 
 
     //--------------------
@@ -1671,287 +1677,258 @@ PCAPP_TEST(TestPcapFilters)
     MacAddress macAddrToFilter("00:13:c3:df:ae:18");
     MacAddressFilter macAddrFilter(macAddrToFilter, DST);
     macAddrFilter.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(macAddrFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-    PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
-    fileReaderDev.close();
-    PCAP_SLEEP(2);
-    liveDev->stopCapture();
 
-    PCAPP_ASSERT(capturedPackets.size() == 5, "MacAddress test: Captured: %d packets. Expected: %d packets", (int)capturedPackets.size(), 5);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
+    PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev.setFilter(macAddrFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev.getNextPackets(rawPacketVec);
+    fileReaderDev.close();
+
+    PCAPP_ASSERT(rawPacketVec.size() == 5, "MacAddress test: Captured: %d packets. Expected: %d packets", (int)rawPacketVec.size(), 5);
+    for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
     {
     	Packet packet(*iter);
     	EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
     	PCAPP_ASSERT(ethLayer->getDestMac() == macAddrToFilter, "MacAddress test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
     }
 
-    capturedPackets.clear();
+    rawPacketVec.clear();
 
 
-    //--------------------
-    //EtherType filter
-    //--------------------
-    EtherTypeFilter ethTypeFiler(PCPP_ETHERTYPE_VLAN);
-    ethTypeFiler.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(ethTypeFiler), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+	//--------------------
+	//EtherType filter
+	//--------------------
+	EtherTypeFilter ethTypeFiler(PCPP_ETHERTYPE_VLAN);
+	ethTypeFiler.parseToString(filterAsString);
+
     PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
+    PCAPP_ASSERT(fileReaderDev.setFilter(ethTypeFiler), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev.getNextPackets(rawPacketVec);
     fileReaderDev.close();
-    PCAP_SLEEP(2);
-    liveDev->stopCapture();
-    PCAPP_ASSERT(capturedPackets.size() >= 24, "EthTypeFilter test: Captured less than %d packets", 24);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(VLAN), "EthTypeFilter test: one of the captured packets isn't of type VLAN");
-    }
 
-    capturedPackets.clear();
+	PCAPP_ASSERT(rawPacketVec.size() == 24, "EthTypeFilter test: Captured less than %d packets", 24);
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(VLAN), "EthTypeFilter test: one of the captured packets isn't of type VLAN");
+	}
+
+	rawPacketVec.clear();
 
 
-    //--------------------
-    //IpV4 ID filter
-    //--------------------
-    uint16_t ipID(0x9900);
-    IpV4IDFilter ipIDFiler(ipID, GREATER_THAN);
-    ipIDFiler.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(ipIDFiler), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-    PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
+	//--------------------
+	//IPv4 ID filter
+	//--------------------
+	uint16_t ipID(0x9900);
+	IPv4IDFilter ipIDFiler(ipID, GREATER_THAN);
+	ipIDFiler.parseToString(filterAsString);
+
     PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev2.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
+    PCAPP_ASSERT(fileReaderDev2.setFilter(ipIDFiler), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
     fileReaderDev2.close();
-    liveDev->stopCapture();
-    PCAPP_ASSERT(capturedPackets.size() >= 1423, "IpV4IDFilter test: Captured less than %d packets", 1423);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IpV4IDFilter test: one of the captured packets isn't of type IPv4");
+
+	PCAPP_ASSERT(rawPacketVec.size() == 1423, "IPv4IDFilter test: Captured less than %d packets", 1423);
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPv4IDFilter test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PCAPP_ASSERT(ntohs(ipv4Layer->getIPv4Header()->ipId) > ipID, "IpV4IDFilter test: IP ID less than %d, it's %d", ipID, ntohs(ipv4Layer->getIPv4Header()->ipId));
-    }
+		PCAPP_ASSERT(ntohs(ipv4Layer->getIPv4Header()->ipId) > ipID, "IPv4IDFilter test: IP ID less than %d, it's %d", ipID, ntohs(ipv4Layer->getIPv4Header()->ipId));
+	}
 
-    capturedPackets.clear();
+	rawPacketVec.clear();
 
 
-    //-------------------------
-    //IpV4 Total Length filter
-    //-------------------------
-    uint16_t totalLength(576);
-    IpV4TotalLengthFilter ipTotalLengthFiler(totalLength, LESS_OR_EQUAL);
-    ipTotalLengthFiler.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(ipTotalLengthFiler), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+	//-------------------------
+	//IPv4 Total Length filter
+	//-------------------------
+	uint16_t totalLength(576);
+	IPv4TotalLengthFilter ipTotalLengthFiler(totalLength, LESS_OR_EQUAL);
+	ipTotalLengthFiler.parseToString(filterAsString);
+
     PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev2.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
+    PCAPP_ASSERT(fileReaderDev2.setFilter(ipTotalLengthFiler), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
     fileReaderDev2.close();
-    liveDev->stopCapture();
-    PCAPP_ASSERT(capturedPackets.size() >= 2066, "IpV4TotalLengthFilter test: Captured less than %d packets", 2066);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IpV4TotalLengthFilter test: one of the captured packets isn't of type IPv4");
+
+	PCAPP_ASSERT(rawPacketVec.size() == 2066, "IPv4TotalLengthFilter test: Captured less than %d packets", 2066);
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPv4TotalLengthFilter test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PCAPP_ASSERT(ntohs(ipv4Layer->getIPv4Header()->totalLength) <= totalLength, "IpV4TotalLengthFilter test: IP total length more than %d, it's %d", totalLength, ntohs(ipv4Layer->getIPv4Header()->totalLength));
-    }
+		PCAPP_ASSERT(ntohs(ipv4Layer->getIPv4Header()->totalLength) <= totalLength, "IPv4TotalLengthFilter test: IP total length more than %d, it's %d", totalLength, ntohs(ipv4Layer->getIPv4Header()->totalLength));
+	}
 
-    capturedPackets.clear();
+	rawPacketVec.clear();
 
 
-    //-------------------------
-    //TCP window size filter
-    //-------------------------
-    uint16_t windowSize(8312);
-    TcpWindowSizeFilter tcpWindowSizeFilter(windowSize, NOT_EQUALS);
-    tcpWindowSizeFilter.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(tcpWindowSizeFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+	//-------------------------
+	//TCP window size filter
+	//-------------------------
+	uint16_t windowSize(8312);
+	TcpWindowSizeFilter tcpWindowSizeFilter(windowSize, NOT_EQUALS);
+	tcpWindowSizeFilter.parseToString(filterAsString);
+
     PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev2.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
+    PCAPP_ASSERT(fileReaderDev2.setFilter(tcpWindowSizeFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
     fileReaderDev2.close();
-    liveDev->stopCapture();
-    PCAPP_ASSERT(capturedPackets.size() >= 4249, "TcpWindowSizeFilter test: Captured less than %d packets", 4249);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpWindowSizeFilter test: one of the captured packets isn't of type TCP");
+
+	PCAPP_ASSERT(rawPacketVec.size() == 4249, "TcpWindowSizeFilter test: Captured less than %d packets", 4249);
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpWindowSizeFilter test: one of the captured packets isn't of type TCP");
 		TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
 		PCAPP_ASSERT(ntohs(tcpLayer->getTcpHeader()->windowSize) != windowSize, "TcpWindowSizeFilter test: TCP window size equals %d", windowSize);
-    }
+	}
 
-    capturedPackets.clear();
+	rawPacketVec.clear();
 
 
-    //-------------------------
-    //UDP length filter
-    //-------------------------
-    uint16_t udpLength(46);
-    UdpLengthFilter udpLengthFilter(udpLength, EQUALS);
-    udpLengthFilter.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(udpLengthFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+	//-------------------------
+	//UDP length filter
+	//-------------------------
+	uint16_t udpLength(46);
+	UdpLengthFilter udpLengthFilter(udpLength, EQUALS);
+	udpLengthFilter.parseToString(filterAsString);
+
     PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev2.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
+    PCAPP_ASSERT(fileReaderDev2.setFilter(udpLengthFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
     fileReaderDev2.close();
-    liveDev->stopCapture();
-    PCAPP_ASSERT(capturedPackets.size() >= 4, "UdpLengthFilter test: Captured less than %d packets", 4);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(UDP), "UdpLengthFilter test: one of the captured packets isn't of type UDP");
-    	UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 4, "UdpLengthFilter test: Captured less than %d packets", 4);
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(UDP), "UdpLengthFilter test: one of the captured packets isn't of type UDP");
+		UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
 		PCAPP_ASSERT(ntohs(udpLayer->getUdpHeader()->length) == udpLength, "UdpLengthFilter test: UDP length != %d, it's %d", udpLength, ntohs(udpLayer->getUdpHeader()->length));
-    }
+	}
 
-    capturedPackets.clear();
-
-
-    //-------------------------
-    //TCP flags filter
-    //-------------------------
-    uint8_t tcpFlagsBitMask(TcpFlagsFilter::tcpSyn|TcpFlagsFilter::tcpAck);
-    TcpFlagsFilter tcpFlagsFilter(tcpFlagsBitMask, TcpFlagsFilter::MatchAll);
-    tcpFlagsFilter.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(tcpFlagsFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-	sendURLRequest("www.cnn.com");
-	PCAP_SLEEP(5);
-	liveDev->stopCapture();
-	PCAPP_ASSERT(capturedPackets.size() > 0, "TcpFlagsFilter test #1: Captured 0 packets");
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpFlagsFilter test #1: one of the captured packets isn't of type TCP");
-    	TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
-    	PCAPP_ASSERT(tcpLayer->getTcpHeader()->synFlag == 1 && tcpLayer->getTcpHeader()->ackFlag == 1, "TcpFlagsFilter test #1: TCP packet isn't a SYN/ACK packet");
-    }
-
-    capturedPackets.clear();
-    tcpFlagsFilter.setTcpFlagsBitMask(tcpFlagsBitMask, TcpFlagsFilter::MatchOneAtLeast);
-    tcpFlagsFilter.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(tcpFlagsFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-	sendURLRequest("www.bbc.com");
-	PCAP_SLEEP(5);
-	liveDev->stopCapture();
-	PCAPP_ASSERT(capturedPackets.size() > 0, "TcpFlagsFilter test #2: Captured 0 packets");
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpFlagsFilter test #2: one of the captured packets isn't of type TCP");
-    	TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
-    	PCAPP_ASSERT(tcpLayer->getTcpHeader()->synFlag == 1 || tcpLayer->getTcpHeader()->ackFlag == 1, "TcpFlagsFilter test #2: TCP packet isn't a SYN or ACK packet");
-    }
-
-    capturedPackets.clear();
+	rawPacketVec.clear();
 
 
-    //-------------------------
-    //IP filter with mask
-    //-------------------------
-    IPFilter ipFilterWithMask("212.199.202.9", SRC, "255.255.255.0");
-    ipFilterWithMask.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(ipFilterWithMask), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+	//-------------------------
+	//IP filter with mask
+	//-------------------------
+	IPFilter ipFilterWithMask("212.199.202.9", SRC, "255.255.255.0");
+	ipFilterWithMask.parseToString(filterAsString);
+
     PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev2.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
+    PCAPP_ASSERT(fileReaderDev2.setFilter(ipFilterWithMask), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
     fileReaderDev2.close();
-    liveDev->stopCapture();
-    PCAPP_ASSERT(capturedPackets.size() >= 2536, "IPFilter with mask test: Captured less than %d packets", 2536);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test: one of the captured packets isn't of type IPv4");
-    	IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 2536, "IPFilter with mask test: Captured less than %d packets", 2536);
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test: one of the captured packets isn't of type IPv4");
+		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
 		PCAPP_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), "255.255.255.0"), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
-    }
+	}
 
-    capturedPackets.clear();
+	rawPacketVec.clear();
 
-    ipFilterWithMask.setLen(24);
-    ipFilterWithMask.setAddr("212.199.202.9");
-    ipFilterWithMask.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(ipFilterWithMask), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+
+	ipFilterWithMask.setLen(24);
+	ipFilterWithMask.setAddr("212.199.202.9");
+	ipFilterWithMask.parseToString(filterAsString);
+
     PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev2.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
+    PCAPP_ASSERT(fileReaderDev2.setFilter(ipFilterWithMask), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
     fileReaderDev2.close();
-    liveDev->stopCapture();
-    PCAPP_ASSERT(capturedPackets.size() >= 2536, "IPFilter with mask test #2: Captured less than %d packets", 2536);
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test #2: one of the captured packets isn't of type IPv4");
-    	IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 2536, "IPFilter with mask test #2: Captured less than %d packets", 2536);
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test #2: one of the captured packets isn't of type IPv4");
+		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
 		PCAPP_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), "255.255.255.0"), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
-    }
-    capturedPackets.clear();
+	}
+	rawPacketVec.clear();
 
 
-    //-------------
-    //Port range
-    //-------------
-    PortRangeFilter portRangeFilter(40000, 50000, SRC);
-    portRangeFilter.parseToString(filterAsString);
-    PCAPP_ASSERT(liveDev->setFilter(portRangeFilter), "Could not set filter: %s", filterAsString.c_str());
-    PCAPP_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+	//-------------
+	//Port range
+	//-------------
+	PortRangeFilter portRangeFilter(40000, 50000, SRC);
+	portRangeFilter.parseToString(filterAsString);
+
     PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-    while (fileReaderDev2.getNextPacket(rawPacket))
-    {
-    	PCAPP_ASSERT(liveDev->sendPacket(rawPacket), "Could not send packet. Testing filter: '%s'", filterAsString.c_str());
-    }
+    PCAPP_ASSERT(fileReaderDev2.setFilter(portRangeFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
     fileReaderDev2.close();
-    liveDev->stopCapture();
-    PCAPP_ASSERT(capturedPackets.size() >= 1464, "PortRangeFilter: Captured less than %d packets", 1899);
 
-    for (RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
-    {
-    	Packet packet(*iter);
-    	PCAPP_ASSERT(packet.isPacketOfType(TCP) || packet.isPacketOfType(UDP), "PortRangeFilter: one of the captured packets isn't of type TCP or UDP");
-    	if (packet.isPacketOfType(TCP))
-    	{
-    		TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
-    		uint16_t portSrc = ntohs(tcpLayer->getTcpHeader()->portSrc);
-    		PCAPP_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: TCP packet source port is out of range (40000-50000). Src port: %d", portSrc);
-    	}
-    	else if (packet.isPacketOfType(UDP))
-    	{
-    		UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
-    		uint16_t portSrc = ntohs(udpLayer->getUdpHeader()->portSrc);
-    		PCAPP_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: UDP packet source port is out of range (40000-50000). Src port: %d", portSrc);
-    	}
-    }
-    capturedPackets.clear();
+	PCAPP_ASSERT(rawPacketVec.size() == 1464, "PortRangeFilter: Captured less than %d packets", 1464);
+
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(TCP) || packet.isPacketOfType(UDP), "PortRangeFilter: one of the captured packets isn't of type TCP or UDP");
+		if (packet.isPacketOfType(TCP))
+		{
+			TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
+			uint16_t portSrc = ntohs(tcpLayer->getTcpHeader()->portSrc);
+			PCAPP_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: TCP packet source port is out of range (40000-50000). Src port: %d", portSrc);
+		}
+		else if (packet.isPacketOfType(UDP))
+		{
+			UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
+			uint16_t portSrc = ntohs(udpLayer->getUdpHeader()->portSrc);
+			PCAPP_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: UDP packet source port is out of range (40000-50000). Src port: %d", portSrc);
+		}
+	}
+	rawPacketVec.clear();
 
 
-    liveDev->close();
+	//-------------------------
+	//TCP flags filter
+	//-------------------------
+	uint8_t tcpFlagsBitMask(TcpFlagsFilter::tcpSyn|TcpFlagsFilter::tcpAck);
+	TcpFlagsFilter tcpFlagsFilter(tcpFlagsBitMask, TcpFlagsFilter::MatchAll);
+	tcpFlagsFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev2.setFilter(tcpFlagsFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
+    fileReaderDev2.close();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 65, "TcpFlagsFilter test #1: Captured less than 65 packets");
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpFlagsFilter test #1: one of the captured packets isn't of type TCP");
+		TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
+		PCAPP_ASSERT(tcpLayer->getTcpHeader()->synFlag == 1 && tcpLayer->getTcpHeader()->ackFlag == 1, "TcpFlagsFilter test #1: TCP packet isn't a SYN/ACK packet");
+	}
+	rawPacketVec.clear();
+
+	tcpFlagsFilter.setTcpFlagsBitMask(tcpFlagsBitMask, TcpFlagsFilter::MatchOneAtLeast);
+	tcpFlagsFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev2.setFilter(tcpFlagsFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
+    fileReaderDev2.close();
+
+    PCAPP_ASSERT(rawPacketVec.size() == 4489, "TcpFlagsFilter test #2: Captured less than 4489 packets");
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(TCP), "TcpFlagsFilter test #2: one of the captured packets isn't of type TCP");
+		TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
+		PCAPP_ASSERT(tcpLayer->getTcpHeader()->synFlag == 1 || tcpLayer->getTcpHeader()->ackFlag == 1, "TcpFlagsFilter test #2: TCP packet isn't a SYN or ACK packet");
+	}
+
+	rawPacketVec.clear();
+
+
 	PCAPP_TEST_PASSED;
 }
 
@@ -5842,7 +5819,8 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestPcapLiveDeviceSpecialCfg, args, true);
 	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args, true);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceByInvalidIp, args, false);
-	PCAPP_RUN_TEST(TestPcapFilters, args, true);
+	PCAPP_RUN_TEST(TestPcapFiltersLive, args, true);
+	PCAPP_RUN_TEST(TestPcapFiltersOffline, args, false);
 	PCAPP_RUN_TEST(TestSendPacket, args, true);
 	PCAPP_RUN_TEST(TestSendPackets, args, true);
 	PCAPP_RUN_TEST(TestRemoteCapture, args, true);

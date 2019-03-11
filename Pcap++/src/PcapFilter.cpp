@@ -2,6 +2,7 @@
 
 #include "PcapFilter.h"
 #include "Logger.h"
+// #include "IPv4Layer.h"
 #include <sstream>
 #if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
 #include <winsock2.h>
@@ -151,7 +152,7 @@ void IPFilter::parseToString(std::string& result)
 	}
 }
 
-void IpV4IDFilter::parseToString(std::string& result)
+void IPv4IDFilter::parseToString(std::string& result)
 {
 	std::string op = parseOperator();
 	std::ostringstream stream;
@@ -159,7 +160,7 @@ void IpV4IDFilter::parseToString(std::string& result)
 	result = "ip[4:2] " + op + " " + stream.str();
 }
 
-void IpV4TotalLengthFilter::parseToString(std::string& result)
+void IPv4TotalLengthFilter::parseToString(std::string& result)
 {
 	std::string op = parseOperator();
 	std::ostringstream stream;
@@ -274,6 +275,8 @@ void NotFilter::parseToString(std::string& result)
 void ProtoFilter::parseToString(std::string& result)
 {
 	result = "";
+	//std::ostringstream stream;
+
 	switch (m_Proto)
 	{
 	case TCP:
@@ -300,6 +303,19 @@ void ProtoFilter::parseToString(std::string& result)
 	case Ethernet:
 		result += "ether";
 		break;
+	// case GRE:
+	// case GREv0:
+	// case GREv1:
+	// 	stream << "proto " << PACKETPP_IPPROTO_GRE;
+	// 	result += stream.str();
+	// 	break;
+	// case IGMP:
+	// case IGMPv1:
+	// case IGMPv2:
+	// case IGMPv3:
+	// 	stream << "proto " << PACKETPP_IPPROTO_IGMP;
+	// 	result += stream.str();
+	// 	break;
 	default:
 		break;
 	}

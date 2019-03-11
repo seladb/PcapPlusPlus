@@ -201,12 +201,12 @@ namespace pcpp
 
 
 	/**
-	 * @class IpV4IDFilter
+	 * @class IPv4IDFilter
 	 * A class for filtering IPv4 traffic by IP ID field of the IPv4 protocol, For example:
 	 * "filter only IPv4 traffic which IP ID is greater than 1234"<BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
-	class IpV4IDFilter : public IFilterWithOperator
+	class IPv4IDFilter : public IFilterWithOperator
 	{
 	private:
 		uint16_t m_IpID;
@@ -216,7 +216,7 @@ namespace pcpp
 		 * @param[in] ipID The IP ID to filter
 		 * @param[in] op The operator to use (e.g "equal", "greater than", etc.)
 		 */
-		IpV4IDFilter(uint16_t ipID, FilterOperator op) : IFilterWithOperator(op), m_IpID(ipID) {}
+		IPv4IDFilter(uint16_t ipID, FilterOperator op) : IFilterWithOperator(op), m_IpID(ipID) {}
 
 		void parseToString(std::string& result);
 
@@ -230,12 +230,12 @@ namespace pcpp
 
 
 	/**
-	 * @class IpV4TotalLengthFilter
+	 * @class IPv4TotalLengthFilter
 	 * A class for filtering IPv4 traffic by "total length" field of the IPv4 protocol, For example:
 	 * "filter only IPv4 traffic which "total length" value is less than 60B"<BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
-	class IpV4TotalLengthFilter : public IFilterWithOperator
+	class IPv4TotalLengthFilter : public IFilterWithOperator
 	{
 	private:
 		uint16_t m_TotalLength;
@@ -245,7 +245,7 @@ namespace pcpp
 		 * @param[in] totalLength The total length value to filter
 		 * @param[in] op The operator to use (e.g "equal", "greater than", etc.)
 		 */
-		IpV4TotalLengthFilter(uint16_t totalLength, FilterOperator op) : IFilterWithOperator(op), m_TotalLength(totalLength) {}
+		IPv4TotalLengthFilter(uint16_t totalLength, FilterOperator op) : IFilterWithOperator(op), m_TotalLength(totalLength) {}
 
 		void parseToString(std::string& result);
 
