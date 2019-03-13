@@ -411,6 +411,12 @@ namespace pcpp
 		 */
 		void addFilter(GeneralFilter* filter) { m_FilterList.push_back(filter); }
 
+		/**
+		 * Remove the current filters and set new ones
+		 * @param[in] filters The new filters to set. The previous ones will be removed
+		 */
+		void setFilters(std::vector<GeneralFilter*>& filters);
+
 		void parseToString(std::string& result);
 	};
 

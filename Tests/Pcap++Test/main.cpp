@@ -2023,6 +2023,85 @@ PCAPP_TEST(TestPcapFiltersOffline)
 	rawPacketVec.clear();
 
 
+	//-----------------------
+	//And filter - Proto + IP
+	//-----------------------
+
+	IPFilter ipFilter("10.0.0.6", SRC);
+	protoFilter.setProto(UDP);
+    std::vector<GeneralFilter*> filterVec;
+    filterVec.push_back(&ipFilter);
+    filterVec.push_back(&protoFilter);
+    AndFilter andFilter(filterVec);
+    andFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev2.setFilter(andFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev2.getNextPackets(rawPacketVec);
+    fileReaderDev2.close();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 69, "IP + Proto test: Captured less than %d packets", 69);
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		PCAPP_ASSERT(packet.isPacketOfType(UDP), "IP + Proto test: one of the captured packets isn't of type UDP");
+		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IP + Proto test: one of the captured packets isn't of type IPv4");
+		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
+		PCAPP_ASSERT(ipv4Layer->getSrcIpAddress() == IPv4Address(std::string("10.0.0.6")), "IP + Proto test: srcIP is not 10.0.0.6");
+	}
+
+	rawPacketVec.clear();
+
+
+	//------------------------------------------
+	//Complex filter - (Proto1 and IP) || Proto2
+	//------------------------------------------
+
+	protoFilter.setProto(GRE);
+	ipFilter.setAddr("20.0.0.1");
+	ipFilter.setDirection(SRC_OR_DST);
+
+	filterVec.clear();
+	filterVec.push_back(&protoFilter);
+	filterVec.push_back(&ipFilter);
+	andFilter.setFilters(filterVec);
+
+	filterVec.clear();
+	ProtoFilter protoFilter2(ARP);
+	filterVec.push_back(&protoFilter2);
+	filterVec.push_back(&andFilter);
+	OrFilter orFilter(filterVec);
+
+	orFilter.parseToString(filterAsString);
+
+    PCAPP_ASSERT(fileReaderDev3.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+    PCAPP_ASSERT(fileReaderDev3.setFilter(orFilter), "Could not set filter: %s", filterAsString.c_str());
+    fileReaderDev3.getNextPackets(rawPacketVec);
+    fileReaderDev3.close();
+
+	PCAPP_ASSERT(rawPacketVec.size() == 19, "Complex filter test: Captured less or more than 19 packets");
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		Packet packet(*iter);
+		if (packet.isPacketOfType(ARP))
+		{
+			continue;
+		}
+		else
+		{
+			PCAPP_ASSERT(packet.isPacketOfType(GRE), "Complex filter test: one of the captured packets isn't of type ARP or GRE");
+			PCAPP_ASSERT(packet.isPacketOfType(IPv4), "Complex filter test: one of the captured packets isn't of type IPv4");
+			IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
+			PCAPP_ASSERT(ipv4Layer->getSrcIpAddress() == IPv4Address(std::string("20.0.0.1"))
+					|| ipv4Layer->getDstIpAddress() == IPv4Address(std::string("20.0.0.1")),
+					"complex filter test: srcIP or dstIP is not 20.0.0.1");
+		}
+
+	}
+	rawPacketVec.clear();
+
+
+
 	PCAPP_TEST_PASSED;
 }
 

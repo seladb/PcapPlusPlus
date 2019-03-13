@@ -227,6 +227,16 @@ AndFilter::AndFilter(std::vector<GeneralFilter*>& filters)
 	}
 }
 
+void AndFilter::setFilters(std::vector<GeneralFilter*>& filters)
+{
+	m_FilterList.clear();
+
+	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
+	{
+		m_FilterList.push_back(*it);
+	}
+}
+
 void AndFilter::parseToString(std::string& result)
 {
 	result = "";
