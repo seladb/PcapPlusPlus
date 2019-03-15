@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
 	// Sending single packets
 	// ~~~~~~~~~~~~~~~~~~~~~~
 
-	printf("\nSending %d packets one by one...\n", packetVec.size());
+	printf("\nSending %d packets one by one...\n", (int)packetVec.size());
 
 	// go over the vector of packets and send them one by one
 	for (pcpp::RawPacketVector::ConstVectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
@@ -235,13 +235,13 @@ int main(int argc, char* argv[])
 			exit(1);
 		}
 	}
-	printf("%d packets sent\n", packetVec.size());
+	printf("%d packets sent\n", (int)packetVec.size());
 
 
 	// Sending batch of packets
 	// ~~~~~~~~~~~~~~~~~~~~~~~~
 
-	printf("\nSending %d packets...\n", packetVec.size());
+	printf("\nSending %d packets...\n", (int)packetVec.size());
 
 	// send all packets in the vector. The returned number shows how many packets were actually sent (expected to be equal to vector size)
 	int packetsSent = dev->sendPackets(packetVec);
