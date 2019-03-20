@@ -19,7 +19,7 @@ matrix:
         - DOCKER_IMAGE=centos7
     - os: linux
       env:
-        - DOCKER_IMAGE=fedora26
+        - DOCKER_IMAGE=fedora29
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1611
