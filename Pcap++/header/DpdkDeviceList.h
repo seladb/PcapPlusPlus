@@ -136,7 +136,7 @@ namespace pcpp
 		 * @param[in] pciAddr The port PCI address
 		 * @return A pointer to the DpdkDevice or NULL if no such device is found
 		 */
-		DpdkDevice* getDeviceByPciAddress(const PciAddress& pciAddr);
+		DpdkDevice* getDeviceByPciAddress(const std::string& pciAddr);
 
 		/**
 		 * @return A vector of all DpdkDevice instances

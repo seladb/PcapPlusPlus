@@ -127,7 +127,7 @@ void listDpdkPorts()
 		printf("    Port #%d: MAC address='%s'; PCI address='%s'; PMD='%s'\n",
 				dev->getDeviceId(),
 				dev->getMacAddress().toString().c_str(),
-				dev->getPciAddress().toString().c_str(),
+				dev->getPciAddress().c_str(),
 				dev->getPMDName().c_str());
 	}
 }
