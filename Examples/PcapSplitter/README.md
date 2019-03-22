@@ -1,7 +1,7 @@
 Pcap Splitter
 =============
 
-A utility for splitting a pcap file into smaller pcap files by a user-defined criteria:
+A utility for splitting a pcap/pcapng file into smaller pcap files by a user-defined criteria:
 - File-size - splits the pcap file to smaller pcap files, each file with a certain size defined by the user
 - Packet-count - splits the pcap file to smaller pcap files, each with number of packets defined by the user
 - Client-IP - splits the pcap file to smaller pcap files so each file contains all TCP/UDP connections initiated by a certain client-ip, for example: file#1 will contain connections initiated by 1.1.1.1, file#2 will contain 
@@ -26,7 +26,7 @@ Remarks
 - There is no limit on the size of the input file, the number of packets it contains or the number of connections it contains
 - The user can also set a BPF filter to instruct the application to handle only packets filtered by the filter. The rest of the packets in the input file will be ignored
 - In options 3-5 & 7 all packets which aren't UDP or TCP (hence don't belong to any connection) will be written to one output file, separate from the other output files (usually file#0)
-- Works only on files of the pcap (TCPDUMP) format
+- Works on both pcap and pcapng files. The output files will be in the same format as the input file (pcap/pcapng)
 
 Using the utility
 -----------------
