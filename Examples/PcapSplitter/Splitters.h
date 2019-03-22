@@ -70,8 +70,8 @@ public:
  */
 class SplitterWithMaxFiles : public Splitter
 {
-	// in order to support all OS's, the maximum number of concurrent open file is set to 500
-	static const int MAX_NUMBER_OF_CONCURRENT_OPEN_FILES = 500;
+	// in order to support all OS's, the maximum number of concurrent open file is set to 250
+	static const int MAX_NUMBER_OF_CONCURRENT_OPEN_FILES = 250;
 
 protected:
 	int m_MaxFiles;
