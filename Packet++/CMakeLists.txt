@@ -83,7 +83,7 @@ target_include_directories(PacketPP
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/header
 )
 
-target_link_libraries(PacketPP LINK_PUBLIC
+target_link_libraries(PacketPP PUBLIC
 	CommonPP
 	EndianPortable
 
