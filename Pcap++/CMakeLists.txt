@@ -42,7 +42,18 @@ target_include_directories(PcapPP
 	PUBLIC ${PCAP_INCLUDE_DIR}
 )
 
-target_link_libraries(PcapPP LINK_PUBLIC
+
+if(PCAPPP_USE_PF_RING)
+	target_include_directories(PcapPP SYSTEM
+		PUBLIC ${PF_RING_INCLUDE_DIRS}
+	)
+	
+	target_link_libraries(PcapPP PUBLIC
+		${PF_RING_LIBRARIES}
+	)
+endif()
+
+target_link_libraries(PcapPP PUBLIC
 	CommonPP
 	PacketPP
 	EndianPortable

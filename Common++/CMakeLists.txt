@@ -37,7 +37,7 @@ target_include_directories(CommonPP
 	PUBLIC /usr/include/netinet
 )
 
-target_link_libraries(CommonPP LINK_PUBLIC
+target_link_libraries(CommonPP PUBLIC
 
 )
 
