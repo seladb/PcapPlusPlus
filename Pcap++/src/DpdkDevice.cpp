@@ -503,11 +503,13 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	struct rte_eth_conf portConf;
 	memset(&portConf,0,sizeof(rte_eth_conf));
 	portConf.rxmode.split_hdr_size = DPDK_COFIG_SPLIT_HEADER_SIZE;
+#if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 11)
 	portConf.rxmode.header_split = DPDK_COFIG_HEADER_SPLIT;
 	portConf.rxmode.hw_ip_checksum = DPDK_COFIG_HW_IP_CHECKSUM;
 	portConf.rxmode.hw_vlan_filter = DPDK_COFIG_HW_VLAN_FILTER;
 	portConf.rxmode.jumbo_frame = DPDK_COFIG_JUMBO_FRAME;
 	portConf.rxmode.hw_strip_crc = DPDK_COFIG_HW_STRIP_CRC;
+#endif
 	portConf.rxmode.mq_mode = DPDK_CONFIG_MQ_MODE;
 	portConf.rx_adv_conf.rss_conf.rss_key = m_Config.rssKey;
 	portConf.rx_adv_conf.rss_conf.rss_key_len = m_Config.rssKeyLength;
@@ -712,12 +714,17 @@ void DpdkDevice::setDeviceInfo()
 	else
 		m_PMDType = PMD_UNKNOWN;
 
-	m_PciAddress = PciAddress(
-			portInfo.pci_dev->addr.domain,
-			portInfo.pci_dev->addr.bus,
-			portInfo.pci_dev->addr.devid,
-			portInfo.pci_dev->addr.function);
-
+#if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 5) // before 18.05
+	char pciName[30];
+	#if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11) // 17.11 - 18.02
+	rte_pci_device_name(&(portInfo.pci_dev->addr), pciName, 30);
+	#else // 16.11 - 17.11
+	rte_eal_pci_device_name(&(portInfo.pci_dev->addr), pciName, 30);
+	#endif
+	m_PciAddress = std::string(pciName);
+#else // 18.05 forward
+	m_PciAddress = std::string(portInfo.device->name);
+#endif 
 
 	LOG_DEBUG("Device [%s] has %d RX queues", m_DeviceName, portInfo.max_rx_queues);
 	LOG_DEBUG("Device [%s] has %d TX queues", m_DeviceName, portInfo.max_tx_queues);

@@ -54,6 +54,33 @@ public:
  */
 class FiveTupleSplitter : public ValueBasedSplitter
 {
+private:
+
+	// a flow table for saving TCP state per flow. Currently the only data that is saved is whether
+	// the last packet seen on the flow was a TCP SYN packet
+	std::map<uint32_t, bool> m_TcpFlowTable;
+
+	/**
+	 * A utility method that takes a packet and returns true if it's a TCP SYN packet
+	 */
+	bool isTcpSyn(pcpp::Packet& packet)
+	{
+		if (packet.isPacketOfType(pcpp::TCP))
+		{
+			// extract the TCP layer
+			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+
+			// extract SYN and ACK flags
+			bool isSyn = (tcpLayer->getTcpHeader()->synFlag == 1);
+			bool isNotAck = (tcpLayer->getTcpHeader()->ackFlag == 0);
+
+			// return true only if it's a pure SYN packet (and not SYN/ACK)
+			return (isSyn && isNotAck);
+		}
+
+		return false;
+	}
+
 public:
 
 	/**
@@ -75,12 +102,45 @@ public:
 		{
 			// create a new entry and get a new file number for it
 			m_FlowTable[hash] = getNextFileNumber(filesToClose);
+
+			// if this is s a TCP packet check whether it's a SYN packet
+			// and save this data in the TCP flow table
+			if (packet.isPacketOfType(pcpp::TCP))
+			{
+				m_TcpFlowTable[hash] = isTcpSyn(packet);
+			}
 		}
 		else // flow is found in the flow table
 		{
-			// indicate file is being written because this file may not be in the LRU list (and hence closed),
-			// so we need to put it there, open it, and maybe close another file
-			writingToFile(m_FlowTable[hash], filesToClose);
+			if (packet.isPacketOfType(pcpp::TCP))
+			{
+				// if this is a TCP flow, check if this is a SYN packet
+				bool isSyn = isTcpSyn(packet);
+
+				// if this is a SYN packet it means this is a beginning of a new flow
+				//(with the same 5-tuple as the previous one), so assign a new file number to it.
+				// unless the last packet was also SYN, which is an indication of SYN retransmission.
+				// In this case don't assign a new file number
+				if (isSyn && m_TcpFlowTable.find(hash) != m_TcpFlowTable.end() && m_TcpFlowTable[hash] == false)
+				{
+					m_FlowTable[hash] = getNextFileNumber(filesToClose);
+				}
+				else
+				{
+					// indicate file is being written because this file may not be in the LRU list (and hence closed),
+					// so we need to put it there, open it, and maybe close another file
+					writingToFile(m_FlowTable[hash], filesToClose);
+				}
+
+				// update the TCP flow table
+				m_TcpFlowTable[hash] = isSyn;
+			}
+			else
+			{
+				// indicate file is being written because this file may not be in the LRU list (and hence closed),
+				// so we need to put it there, open it, and maybe close another file
+				writingToFile(m_FlowTable[hash], filesToClose);
+			}
 		}
 
 		return m_FlowTable[hash];

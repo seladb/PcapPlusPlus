@@ -295,61 +295,6 @@ namespace pcpp
 	 */
 	typedef PointerVector<MBufRawPacket> MBufRawPacketVector;
 
-	/**
-	 * @class PciAddress
-	 * A class representing a PCI address
-	 */
-	class PciAddress
-	{
-	public:
-		/**
-		 * Default c'tor that initializes all PCI address fields to 0 (until set otherwise, address will look like: 0000:00:00.0)
-		 */
-		PciAddress() { domain = 0; bus = 0; devid = 0; function = 0; }
-
-		/**
-		 * A c'tor that initializes all PCI address fields
-		 * @param[in] domain Device domain
-		 * @param[in] bus Device bus id
-		 * @param[in] devid Device ID
-		 * @param[in] function Device function
-		 */
-		PciAddress(uint16_t domain, uint8_t bus, uint8_t devid, uint8_t function)
-		{
-			this->domain = domain;
-			this->bus = bus;
-			this->devid = devid;
-			this->function = function;
-		}
-
-		/** Device domain */
-		uint16_t domain;
-		/** Device bus id */
-		uint8_t bus;
-		/** Device ID */
-		uint8_t devid;
-		/** Device function */
-		uint8_t function;
-
-		/**
-		 * @return The string format of the PCI address (xxxx:xx:xx.x)
-		 */
-		std::string toString()
-		{
-			char pciString[15];
-			snprintf(pciString, 15, "%04x:%02x:%02x.%x", domain, bus, devid, function);
-			return std::string(pciString);
-		}
-
-		/**
-		 * Comparison operator overload. Two PCI addresses are equal if all of their address parts (domain, bus, devid, function) are equal
-		 */
-		bool operator==(const PciAddress &other) const
-		{
-			return (domain == other.domain && bus == other.bus && devid == other.devid && function == other.function);
-		}
-	};
-
 
 	/**
 	 * @class DpdkDevice
@@ -611,7 +556,7 @@ namespace pcpp
 		/**
 		 * @return The PCI address of the device
 		 */
-		inline PciAddress getPciAddress() { return m_PciAddress; }
+		inline std::string getPciAddress() { return m_PciAddress; }
 
 		/**
 		 * @return The device's maximum transmission unit (MTU) in bytes
@@ -998,7 +943,7 @@ namespace pcpp
 		char m_DeviceName[30];
 		DpdkPMDType m_PMDType;
 		std::string m_PMDName;
-		PciAddress m_PciAddress;
+		std::string m_PciAddress;
 
 		DpdkDeviceConfiguration m_Config;
 

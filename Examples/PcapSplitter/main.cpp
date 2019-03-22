@@ -341,9 +341,10 @@ int main(int argc, char* argv[])
 	std::string outputPcapFileName = outputPcapDir + std::string(1, SEPARATOR) + getFileNameWithoutExtension(inputPcapFileName) + "-";
 
 	// open a pcap file for reading
-	PcapFileReaderDevice reader(inputPcapFileName.c_str());
+	IFileReaderDevice* reader = IFileReaderDevice::getReader(inputPcapFileName.c_str());
+	bool isReaderPcapng = (dynamic_cast<PcapNgFileReaderDevice*>(reader) != NULL);
 
-	if (!reader.open())
+	if (reader == NULL || !reader->open())
 	{
 		EXIT_WITH_ERROR("Error opening input pcap file\n");
 	}
@@ -351,21 +352,24 @@ int main(int argc, char* argv[])
 	// set a filter if provided
 	if (filter != "")
 	{
-		if (!reader.setFilter(filter))
+		if (!reader->setFilter(filter))
 			EXIT_WITH_ERROR("Couldn't set filter '%s'", filter.c_str());
 	}
 
 	printf("Started...\n");
 
+	// determine output file extension
+	std::string outputFileExtenison = (isReaderPcapng ? ".pcapng" : ".pcap");
+
 	int packetCountSoFar = 0;
 	int numOfFiles = 0;
 	RawPacket rawPacket;
 
-	// prepare a map of file number to PcapFileWriterDevice
-	std::map<int, PcapFileWriterDevice*> outputFiles;
+	// prepare a map of file number to IFileWriterDevice
+	std::map<int, IFileWriterDevice*> outputFiles;
 
 	// read all packets from input file, for each packet do:
-	while (reader.getNextPacket(rawPacket))
+	while (reader->getNextPacket(rawPacket))
 	{
 		// parse the raw packet into a parsed packet
 		Packet parsedPacket(&rawPacket);
@@ -379,10 +383,19 @@ int main(int argc, char* argv[])
 		if (outputFiles.find(fileNum) == outputFiles.end())
 		{
 			// get file name from the splitter and add the .pcap extension
-			std::string fileName = splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + ".pcap";
+			std::string fileName = splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + outputFileExtenison;
 
-			// create a new PcapFileWriterDevice for this file
-			outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str(), reader.getLinkLayerType());
+			// create a new IFileWriterDevice for this file
+			if (isReaderPcapng)
+			{
+				// if reader is pcapng, create a pcapng writer
+				outputFiles[fileNum] = new PcapNgFileWriterDevice(fileName.c_str());
+			}
+			else
+			{
+				// if reader is pcap, create a pcap writer
+				outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str(), rawPacket.getLinkLayerType());
+			}
 
 			// open the writer
 			if (!outputFiles[fileNum]->open())
@@ -396,10 +409,19 @@ int main(int argc, char* argv[])
 		else if (outputFiles[fileNum] == NULL)
 		{
 			// get file name from the splitter and add the .pcap extension
-			std::string fileName = splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + ".pcap";
+			std::string fileName = splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + outputFileExtenison;
 
-			// re-create the PcapFileWriterDevice
-			outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str());
+			// re-create the IFileWriterDevice object
+			if (isReaderPcapng)
+			{
+				// if reader is pcapng, create a pcapng writer
+				outputFiles[fileNum] = new PcapNgFileWriterDevice(fileName.c_str());
+			}
+			else
+			{
+				// if reader is pcap, create a pcap writer
+				outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str(), rawPacket.getLinkLayerType());
+			}
 
 			// open the writer in __append__ mode
 			if (!outputFiles[fileNum]->open(true))
@@ -430,10 +452,13 @@ int main(int argc, char* argv[])
 	std::cout << "Finished. Read and written " << packetCountSoFar << " packets to " << numOfFiles << " files" << std::endl;
 
 	// close the reader file
-	reader.close();
+	reader->close();
+
+	// free reader memory
+	delete reader;
 
 	// close the writer files which are still open
-	for(std::map<int, PcapFileWriterDevice*>::iterator it = outputFiles.begin(); it != outputFiles.end(); ++it)
+	for(std::map<int, IFileWriterDevice*>::iterator it = outputFiles.begin(); it != outputFiles.end(); ++it)
 	{
 		if (it->second != NULL)
 			it->second->close();
