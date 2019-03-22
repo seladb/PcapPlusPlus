@@ -53,6 +53,12 @@ if(PCAPPP_USE_PF_RING)
 	)
 endif()
 
+if(PCAPPP_USE_DPDK)
+	target_include_directories(PcapPP 
+		PUBLIC ${DPDK_INCLUDE_DIRS}
+	)
+endif()
+
 target_link_libraries(PcapPP PUBLIC
 	CommonPP
 	PacketPP

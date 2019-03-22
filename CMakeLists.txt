@@ -23,6 +23,7 @@ endif()
 if(PCAPPP_USE_DPDK)
     add_definitions(-DUSE_DPDK)
     set(DPDK_HOME "" CACHE STRING "Sets DPDK home directoy.")
+	find_package(DPDK REQUIRED)
 endif()
 
 if(PCAPPP_USE_PF_RING)
