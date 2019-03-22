@@ -24,23 +24,11 @@ find_path(PF_RING_USER_INCLUDE_DIR pfring.h
 	${PF_RING_HOME}/userland/lib
 )
 
-if(PF_RING_USER_INCLUDE_DIR)
-	set(PF_RING_INCLUDE_DIRS ${PF_RING_INCLUDE_DIRS}
-		${PF_RING_USER_INCLUDE_DIR}
-	)
-endif()
-
 find_path(PF_RING_KERNEL_INCLUDE_DIR linux/pf_ring.h
 	HINTS 
 	${PF_RING_HOME}
 	${PF_RING_HOME}/kernel
 )
-
-if(PF_RING_KERNEL_INCLUDE_DIR)
-	set(PF_RING_INCLUDE_DIRS ${PF_RING_INCLUDE_DIRS}
-		${PF_RING_KERNEL_INCLUDE_DIR}
-	)
-endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(PF_RING
