@@ -10,8 +10,8 @@
 #  PF_RING_INCLUDE_DIRS         The PF_RING include directories.
 #  PF_RING_LIBRARIES            The PF_RING library
 
-find_library(PF_RING_LIBRARIES 
-	pfring 
+find_library(PF_RING_LIBRARIES pfring 
+	HINTS
 	${PF_RING_HOME}
 	${PF_RING_HOME}/userland/
 	${PF_RING_HOME}/userland/lib
