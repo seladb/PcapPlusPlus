@@ -33,7 +33,9 @@ find_package_handle_standard_args(DPDK
 		"DPDK not found! Please specify DPDK_HOME."
 )
 
+# NOTE(eteran): I wish I didn't need to do this globally, but the per-target verison requires bleeding edge cmake
 get_filename_component(DPDK_LIBRARY_PATH ${DPDK_LIBRARIES} DIRECTORY)
+link_directories(${DPDK_LIBRARY_PATH})
 
 set(DPDK_LIBRARIES 
 	${DPDK_LIBRARIES}
