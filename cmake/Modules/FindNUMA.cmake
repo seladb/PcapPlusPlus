@@ -10,11 +10,8 @@
 #  NUMA_INCLUDE_DIR          The NUMA include directories.
 #  NUMA_LIBRARY              The NUMA library
 
-find_library(NUMA_LIBRARY numa 
-)
-
-find_path(NUMA_INCLUDE_DIR numa.h
-)
+find_library(NUMA_LIBRARY numa )
+find_path(NUMA_INCLUDE_DIR numa.h)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(NUMA
