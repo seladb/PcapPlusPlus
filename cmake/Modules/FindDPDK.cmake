@@ -10,6 +10,9 @@
 #  DPDK_INCLUDE_DIRS         The DPDK include directories.
 #  DPDK_LIBRARIES            The DPDK library
 
+find_package(Threads)
+find_package(NUMA)
+
 find_library(DPDK_LIBRARIES dpdk
 	HINTS
 	${DPDK_HOME}/lib
@@ -40,9 +43,17 @@ link_directories(${DPDK_LIBRARY_PATH})
 set(DPDK_LIBRARIES 
 	${DPDK_LIBRARIES}
 	${CMAKE_DL_LIBS}
-	${CMAKE_THREAD_LIBS_INIT}
-	-lnuma
+	Threads::Threads
+	NUMA::NUMA
 )
 
+if(DPDK_FOUND AND NOT TARGET DPDK::DPDK)
+	add_library(DPDK::DPDK INTERFACE IMPORTED)
+
+	#TODO(eteran): actually test which flags we need to add!
+	set_property(TARGET DPDK::DPDK PROPERTY INTERFACE_COMPILE_OPTIONS -msse -msse2 -msse3 -mssse3)
+	set_property(TARGET DPDK::DPDK PROPERTY INTERFACE_LINK_LIBRARIES "${DPDK_LIBRARIES}")
+	set_property(TARGET DPDK::DPDK PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${DPDK_INCLUDE_DIRS}")
+endif()
 
 
