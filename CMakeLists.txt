@@ -21,9 +21,12 @@ if(PCAPPP_ENABLE_CPP_FEATURE_DETECTION)
 endif()
 
 if(PCAPPP_USE_DPDK)
+	find_package (Threads)
     add_definitions(-DUSE_DPDK)
     set(DPDK_HOME "" CACHE STRING "Sets DPDK home directoy.")
 	find_package(DPDK REQUIRED)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3 -mssse3")
+	link_directories(${DPDK_LIBRARY_PATH})
 endif()
 
 if(PCAPPP_USE_PF_RING)
