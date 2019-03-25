@@ -42,14 +42,9 @@ target_include_directories(PcapPP
 	PUBLIC ${PCAP_INCLUDE_DIR}
 )
 
-
 if(PCAPPP_USE_PF_RING)
-	target_include_directories(PcapPP SYSTEM
-		PUBLIC ${PF_RING_INCLUDE_DIRS}
-	)
-	
-	target_link_libraries(PcapPP PUBLIC
-		${PF_RING_LIBRARIES}
+	target_link_libraries(PcapPP
+		PUBLIC PF_RING::PF_RING
 	)
 endif()
 
@@ -65,7 +60,7 @@ target_link_libraries(PcapPP PUBLIC
 	EndianPortable
 	light_pcapng
 	${PCAP_LIBRARIES}
-	${CMAKE_THREAD_LIBS_INIT}
+	Threads::Threads
 )
 
 if(PCAPPP_HAS_PCAP_IMMEDIATE_MODE)
