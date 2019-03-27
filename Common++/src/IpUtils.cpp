@@ -19,6 +19,8 @@ namespace pcpp
 
 in_addr* sockaddr2in_addr(struct sockaddr *sa)
 {
+    if (sa == NULL)
+        return NULL;
     if (sa->sa_family == AF_INET)
         return &(((struct sockaddr_in*)sa)->sin_addr);
     LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
