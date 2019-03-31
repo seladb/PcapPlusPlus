@@ -10,7 +10,7 @@ rm -f $INSTALL_DIR/lib/libCommon++.a $INSTALL_DIR/lib/libPacket++.a $INSTALL_DIR
 rm -rf $INSTALL_DIR/include/pcapplusplus
 
 # remove examples
-for f in examples/*; do rm $INSTALL_DIR/bin/$(basename "$f"); done
+for f in examples/*; do rm -f $INSTALL_DIR/bin/$(basename "$f"); done
 
 # remove template makefile
 rm -f $INSTALL_DIR/etc/PcapPlusPlus.mk
