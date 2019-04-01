@@ -10,7 +10,7 @@ Its basic input is the target IP address and the interface name/IP to send the A
 Using the utility
 -----------------
 	Basic usage:
-		Arping [-hl] [-c count] [-w timeout] [-i interface] [-s mac_sddr] [-S ip_addr] -T ip_addr
+		Arping [-hl] [-c count] [-w timeout] [-s mac_sddr] [-S ip_addr] -i interface -T ip_addr
 
 	Options:
 		-h           : Displays this help message and exits
