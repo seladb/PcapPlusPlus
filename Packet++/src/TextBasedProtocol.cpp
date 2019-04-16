@@ -112,13 +112,21 @@ void TextBasedProtocolMessage::parseFields()
 	{
 		curOffset += curField->getFieldSize();
 		HeaderField* newField = new HeaderField(this, curOffset, nameValueSeperator, spacesAllowedBetweenNameAndValue);
-		LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", newField->getFieldName().c_str(), newField->m_NameOffsetInMessage, (int)newField->getFieldSize());
-		LOG_DEBUG("     Field value = %s", newField->getFieldValue().c_str());
-		curField->setNextField(newField);
-		curField = curField->getNextField();
-		fieldName = newField->getFieldName();
-		std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
-		m_FieldNameToFieldMap.insert(std::pair<std::string, HeaderField*>(fieldName, newField));
+		if(newField->getFieldSize() > 0)
+		{
+			LOG_DEBUG("Added new field: name='%s'; offset in packet=%d; length=%d", newField->getFieldName().c_str(), newField->m_NameOffsetInMessage, (int)newField->getFieldSize());
+			LOG_DEBUG("     Field value = %s", newField->getFieldValue().c_str());
+			curField->setNextField(newField);
+			curField = newField;
+			fieldName = newField->getFieldName();
+			std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
+			m_FieldNameToFieldMap.insert(std::pair<std::string, HeaderField *>(fieldName, newField));
+		}
+		else
+		{
+			delete newField;
+			break;
+		}
 	}
 
 	m_LastField = curField;
