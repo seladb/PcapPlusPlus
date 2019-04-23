@@ -136,7 +136,11 @@ std::string RadiusLayer::getRadiusMessageString(uint8_t radiusMessageCode)
 
 size_t RadiusLayer::getHeaderLen()
 {
-	return ntohs(getRadiusHeader()->length);
+	uint16_t len = ntohs(getRadiusHeader()->length);
+	if (len > m_DataLen)
+		return m_DataLen;
+
+	return len;
 }
 
 void RadiusLayer::computeCalculateFields()
