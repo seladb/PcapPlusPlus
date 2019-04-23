@@ -37,6 +37,8 @@ namespace pcpp
 		// private d'tor
 		~PcapLiveDeviceList();
 
+		void init();
+
 		void setDnsServers();
 	public:
 		/**
@@ -94,6 +96,11 @@ namespace pcpp
 		 * couldn't be extracted from some reason
 		 */
 		std::vector<IPv4Address>& getDnsServers();
+
+		/**
+		 * Reset the live device list and DNS server list, meaning clear and refetch them
+		 */
+		void reset();
 	};
 
 } // namespace pcpp

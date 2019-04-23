@@ -1260,7 +1260,21 @@ PCAPP_TEST(TestPcapLiveDeviceList)
     PCAPP_ASSERT(defaultGateway != IPv4Address::Zero, "Couldn't find default gateway for any of the interfaces");
 
     std::vector<IPv4Address> dnsServers = PcapLiveDeviceList::getInstance().getDnsServers();
+	size_t dnsServerCount = dnsServers.size();
     //PCAPP_ASSERT(dnsServers.size() > 0, "DNS server list is empty");
+
+	// reset the device list and make sure devices are back and there is no memory leak
+	PcapLiveDeviceList::getInstance().reset();
+
+	devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	PCAPP_ASSERT(!devList.empty(), "Device list is empty after reset");
+
+    for(vector<PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
+    {
+    	PCAPP_ASSERT(!((*iter)->getName() == NULL), "Device name is NULL after reset");
+	}
+
+	PCAPP_ASSERT(PcapLiveDeviceList::getInstance().getDnsServers().size() == dnsServerCount, "DNS server list before and after reset are not equal");
 
     PCAPP_TEST_PASSED;
 }

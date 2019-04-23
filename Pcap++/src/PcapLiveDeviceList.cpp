@@ -20,6 +20,20 @@ namespace pcpp
 
 PcapLiveDeviceList::PcapLiveDeviceList()
 {
+	init();
+}
+
+PcapLiveDeviceList::~PcapLiveDeviceList()
+{
+	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	{
+		delete (*devIter);
+	}
+
+}
+
+void PcapLiveDeviceList::init()
+{
 	pcap_if_t* interfaceList;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int err = pcap_findalldevs(&interfaceList, errbuf);
@@ -46,15 +60,6 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 
 	LOG_DEBUG("Freeing live device data");
 	pcap_freealldevs(interfaceList);
-}
-
-PcapLiveDeviceList::~PcapLiveDeviceList()
-{
-	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
-	{
-		delete (*devIter);
-	}
-
 }
 
 void PcapLiveDeviceList::setDnsServers()
@@ -306,6 +311,19 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 
 	return NULL;
 
+}
+
+void PcapLiveDeviceList::reset()
+{
+	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	{
+		delete (*devIter);
+	}
+
+	m_LiveDeviceList.clear();
+	m_DnsServers.clear();
+
+	init();
 }
 
 } // namespace pcpp
