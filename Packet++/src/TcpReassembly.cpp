@@ -261,7 +261,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 		else if (currTime.tv_sec == tcpReassemblyData->connData.endTime.tv_sec)
 		{
-			if (currTime.tv_usec < tcpReassemblyData->connData.endTime.tv_usec)
+			if (currTime.tv_usec > tcpReassemblyData->connData.endTime.tv_usec)
 			{
 				tcpReassemblyData->connData.setEndTime(currTime);
 			}
