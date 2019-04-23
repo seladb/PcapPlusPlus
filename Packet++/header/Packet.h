@@ -261,6 +261,21 @@ namespace pcpp
 		TLayer* getNextLayerOfType(Layer* after);
 
 		/**
+		 * A method makes attempt to parse next layer.
+		 * @return A pointer to the parsed layer, NULL if no more layer exists
+		 */
+		Layer* parseNextLayer();
+
+		/**
+		 * A method parses the next layers.
+		 * @param[in] parseUntil Parse the packet until it reaches this protocol. Can be useful for cases when you need to parse only up to a certain layer and want to avoid the
+		 * performance impact and memory consumption of parsing the whole packet. Default value is ::UnknownProtocol which means don't take this parameter into account
+		 * @param[in] parseUntilLayer Parse the packet until certain layer in OSI model. Can be useful for cases when you need to parse only up to a certain layer and want to avoid the
+		 * performance impact and memory consumption of parsing the whole packet. Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
+		 */
+		void parseNextLayers(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+
+    /**
 		 * Check whether the packet contains a certain protocol
 		 * @param[in] protocolType The protocol type to search
 		 * @return True if the packet contains the protocol, false otherwise
@@ -303,6 +318,8 @@ namespace pcpp
 		std::string printPacketInfo(bool timeAsLocalTime);
 
 		Layer* createFirstLayer(LinkLayerType linkType);
+
+		void appendTrailerLayer();
 	};
 
 	template<class TLayer>

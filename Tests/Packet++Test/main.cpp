@@ -7113,6 +7113,40 @@ PACKETPP_TEST(RadiusLayerEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
+PACKETPP_TEST(StepByStepParsing)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer3Length = 0;
+	uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/packet_trailer_ipv6.dat", buffer3Length);
+	PACKETPP_ASSERT(!(buffer3 == NULL), "cannot read file packet_trailer_ipv6.dat");
+
+	RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true);
+
+	Packet pkt1(&rawPacket3, Ethernet);
+	Packet pkt2(&rawPacket3, Ethernet);
+
+	while(pkt1.parseNextLayer());
+
+	PACKETPP_ASSERT(pkt1.isPacketOfType(IPv6) == true, "parseNextLayer(): packet isn't of type IPv6");
+	PACKETPP_ASSERT(pkt1.isPacketOfType(UDP) == true, "parseNextLayer(): packet isn't of type UDP");
+	PACKETPP_ASSERT(pkt1.isPacketOfType(DNS) == true, "parseNextLayer(): packet isn't of type DNS");
+	PACKETPP_ASSERT(pkt1.isPacketOfType(PacketTrailer) == true, "parseNextLayer(): packet isn't of type PacketTrailer");
+
+	// test 1
+	pkt2.parseNextLayers(IP);
+	PACKETPP_ASSERT(pkt2.getLastLayer()->getProtocol() == IPv6, "parseNextLayers(): test 1: packet isn't of type IPv6");
+	// test 2
+	pkt2.parseNextLayers(UnknownProtocol, OsiModelTransportLayer);
+	PACKETPP_ASSERT(pkt2.getLastLayer()->getProtocol() == UDP, "parseNextLayers(): test 2: packet isn't of type UDP");
+  // test 3
+	pkt2.parseNextLayers(); // parsing the remained layers
+	PACKETPP_ASSERT(pkt2.isPacketOfType(DNS) == true, "parseNextLayers(): test 3: packet isn't of type DNS");
+	PACKETPP_ASSERT(pkt2.isPacketOfType(PacketTrailer) == true, "parseNextLayers(): test 3: packet isn't of type PacketTrailer");
+
+	PACKETPP_TEST_PASSED;
+}
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -7204,5 +7238,6 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(RadiusLayerParsingTest);
 	PACKETPP_RUN_TEST(RadiusLayerCreationTest);
 	PACKETPP_RUN_TEST(RadiusLayerEditTest);
+	PACKETPP_RUN_TEST(StepByStepParsing);
 	PACKETPP_END_RUNNING_TESTS;
 }

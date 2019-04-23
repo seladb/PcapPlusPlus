@@ -79,24 +79,7 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 	}
 
 	if (parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
-	{
-		// find if there is data left in the raw packet that doesn't belong to any layer. In that case it's probably a packet trailer.
-		// create a PacketTrailerLayer layer and add it at the end of the packet
-		int trailerLen = (int)((m_RawPacket->getRawData() + m_RawPacket->getRawDataLen()) - (m_LastLayer->getData() + m_LastLayer->getDataLen()));
-		if (trailerLen > 0)
-		{
-			PacketTrailerLayer* trailerLayer = new PacketTrailerLayer(
-					(uint8_t*)(m_LastLayer->getData() + m_LastLayer->getDataLen()),
-					trailerLen,
-					m_LastLayer,
-					this);
-
-			trailerLayer->m_IsAllocatedInPacket = true;
-			m_LastLayer->setNextLayer(trailerLayer);
-			m_LastLayer = trailerLayer;
-			m_ProtocolTypes |= trailerLayer->getProtocol();
-		}
-	}
+		appendTrailerLayer();
 }
 
 Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
@@ -731,6 +714,75 @@ void Packet::toStringList(std::vector<std::string>& result, bool timeAsLocalTime
 	{
 		result.push_back(curLayer->toString());
 		curLayer = curLayer->getNextLayer();
+	}
+}
+
+Layer* Packet::parseNextLayer()
+{
+	if(m_RawPacket == NULL)
+		return NULL;
+
+	m_LastLayer->parseNextLayer();
+
+	Layer* curLayer = m_LastLayer->getNextLayer();
+	if(curLayer != NULL)
+	{
+		curLayer->m_IsAllocatedInPacket = true;
+		m_ProtocolTypes |= curLayer->getProtocol();
+		m_LastLayer = curLayer;
+		return curLayer;
+	}
+
+	appendTrailerLayer();
+	return NULL;
+}
+
+void Packet::parseNextLayers(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
+{
+	if(m_RawPacket == NULL)
+		return;
+
+	Layer* curLayer = m_LastLayer;
+	while(curLayer != NULL && (curLayer->getProtocol() & parseUntil) == 0 && curLayer->getOsiModelLayer() <= parseUntilLayer)
+	{
+		curLayer->parseNextLayer();
+		curLayer = curLayer->getNextLayer();
+		if(curLayer != NULL)
+		{
+			m_ProtocolTypes |= curLayer->getProtocol();
+			curLayer->m_IsAllocatedInPacket = true;
+			m_LastLayer = curLayer;
+		}
+	}
+
+	if(curLayer != NULL && curLayer->getOsiModelLayer() > parseUntilLayer)
+	{
+		m_LastLayer = curLayer->getPrevLayer();
+		delete curLayer;
+		m_LastLayer->m_NextLayer = NULL;
+	}
+
+	if(parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
+		appendTrailerLayer();
+}
+
+void Packet::appendTrailerLayer()
+{
+	// find if there is data left in the raw packet that doesn't belong to any layer. In that case it's probably a packet trailer.
+	// create a PacketTrailerLayer layer and add it at the end of the packet
+	int trailerLen = (int)((m_RawPacket->getRawData() + m_RawPacket->getRawDataLen()) - (m_LastLayer->getData() + m_LastLayer->getDataLen()));
+	if(trailerLen > 0)
+	{
+		PacketTrailerLayer *trailerLayer = new PacketTrailerLayer(
+			(uint8_t *)(m_LastLayer->getData() + m_LastLayer->getDataLen()),
+			trailerLen,
+			m_LastLayer,
+			this);
+
+		trailerLayer->m_IsAllocatedInPacket = true;
+		m_LastLayer->setNextLayer(trailerLayer);
+		m_LastLayer = trailerLayer;
+		m_ProtocolTypes |= trailerLayer->getProtocol();
 	}
 }
 
