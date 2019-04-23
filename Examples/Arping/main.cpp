@@ -124,10 +124,10 @@ int main(int argc, char* argv[])
 				sourceMac = MacAddress(optarg);
 				break;
 			case 'S':
-				sourceIP = IPv4Address(optarg);
+				sourceIP = IPv4Address(static_cast<char const *>(optarg));
 				break;
 			case 'T':
-				targetIP = IPv4Address(optarg);
+				targetIP = IPv4Address(static_cast<char const *>(optarg));
 				targetIpProvided = true;
 				break;
 			case 'c':

@@ -621,6 +621,14 @@ PCAPP_TEST(TestIPAddress)
 	PCAPP_ASSERT(secondIPv4Address.isValid() == true, "Valid address identified as non-valid");
 	PCAPP_ASSERT((*ip4AddrAfterCast) == secondIPv4Address, "IPv4Address assignment operator didn't work");
 
+	IPv4Address ipv4Addr("10.0.0.4"), subnet1("10.0.0.0"), subnet2("10.10.0.0"), mask("255.255.255.0");
+	PCAPP_ASSERT(ipv4Addr.isValid() == true, "Valid ipv4Addr identified as non-valid");
+	PCAPP_ASSERT(subnet1.isValid() == true, "Valid subnet1 identified as non-valid");
+	PCAPP_ASSERT(subnet2.isValid() == true, "Valid subnet2 identified as non-valid");
+	PCAPP_ASSERT(mask.isValid() == true, "Valid mask identified as non-valid");
+	PCAPP_ASSERT(ipv4Addr.matchSubnet(subnet1, mask) == true, "Incorrect result: ipv4Addr address does not belong to subnet1");
+	PCAPP_ASSERT(ipv4Addr.matchSubnet(subnet2, mask) == false, "Incorrect result: ipv4Addr address belongs to subnet2");
+
 	IPv4Address badAddress(std::string("sdgdfgd"));
 	PCAPP_ASSERT(badAddress.isValid() == false, "Non-valid address identified as valid");
 	IPv4Address anotherBadAddress = IPv4Address(std::string("321.123.1000.1"));
@@ -1832,7 +1840,7 @@ PCAPP_TEST(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
-		PCAPP_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), "255.255.255.0"), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
+		PCAPP_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), string("255.255.255.0")), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
 	}
 
 	rawPacketVec.clear();
@@ -1853,7 +1861,7 @@ PCAPP_TEST(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PCAPP_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test #2: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
-		PCAPP_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), "255.255.255.0"), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
+		PCAPP_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), string("255.255.255.0")), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
 	}
 	rawPacketVec.clear();
 
