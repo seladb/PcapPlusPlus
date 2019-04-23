@@ -191,6 +191,12 @@ public:
 	 */
 	inline ConnectionData getConnectionData() { return m_Connection; }
 
+	/**
+	 * A getter for the connection data
+	 * @return The const reference to connection data
+	 */
+	inline const ConnectionData& getConnectionDataRef() { return m_Connection; }
+
 private:
 	uint8_t* m_Data;
 	size_t m_DataLen;
