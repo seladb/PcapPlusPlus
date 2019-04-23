@@ -158,9 +158,9 @@ bool IPv4Address::matchSubnet(const IPv4Address& subnet, const std::string& subn
 
 bool IPv4Address::matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const
 {
-	unsigned int maskAsInt = subnetMask.toInt();
-	unsigned int thisAddrAfterMask = toInt() & maskAsInt;
-	unsigned int subnetAddrAfterMask = subnet.toInt() & maskAsInt;
+	uint32_t maskAsInt = subnetMask.toInt();
+	uint32_t thisAddrAfterMask = toInt() & maskAsInt;
+	uint32_t subnetAddrAfterMask = subnet.toInt() & maskAsInt;
 	return thisAddrAfterMask == subnetAddrAfterMask;
 }
 
