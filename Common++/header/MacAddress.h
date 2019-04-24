@@ -2,8 +2,13 @@
 #define PCAPPP_MACADDRESS
 
 #include <stdint.h>
+#include <string.h>
 #include <string>
-#include <memory>
+
+#if __cplusplus > 199711L
+#include <initializer_list>
+#include <algorithm>
+#endif
 
 /// @file
 
@@ -27,21 +32,21 @@ namespace pcpp
 		 * @todo there is no verification array length >= 6. If this is not the case, address will read uninitialized memory
 		 * @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
 		 */
-		MacAddress(uint8_t* addr);
+		MacAddress(uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof m_Address); }
 
 		/**
 		 *  A constructor that creates an instance of the class out of a (char*) string.
 		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
 		 *  @param[in] addr A pointer to the (char*) string
 		 */
-		MacAddress(const char* addr);
+		MacAddress(const char* addr) { init(addr); }
 
 		/**
 		 *  A constructor that creates an instance of the class out of a std::string.
 		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
-	*  	 *	@param[in] addr A pointer to the string
+	 	 *	@param[in] addr A pointer to the string
 		 */
-		MacAddress(const std::string& addr);
+		MacAddress(const std::string& addr) { init(addr.c_str()); }
 
 		/**
 		 *  A constructor that creates an instance of 6 bytes representing the MAC address
@@ -52,61 +57,70 @@ namespace pcpp
 		 *  @param[in] fifthOctet Represent the fifth octet in the address
 		 *  @param[in] sixthOctet Represent the sixth octet in the address
 		 */
-		MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet);
+		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet);
 
+#if __cplusplus > 199711L
 		/**
-		 * A copy constructor for this class
+		 * A constructor that creates an instance out of the initializer list. The length of the list must be equal to 6 (as MAC address is 6-byte long)
+		 * @param[in] addr An initializer list containing the values of type uint8_t representing the MAC address
 		 */
-		MacAddress(const MacAddress& other);
-
-		/**
-		 * Overload of the assignment operator
-		 */
-		MacAddress& operator=(const MacAddress& other);
+		MacAddress(std::initializer_list<uint8_t> octets) : m_IsValid { octets.size() == sizeof m_Address }
+		{
+			if(m_IsValid)
+				std::copy_n(std::cbegin(octets), sizeof m_Address, std::begin(m_Address));
+		}
+#endif
 
 		/**
 		 * Overload of the comparison operator
 		 * @return true if 2 addresses are equal. False otherwise
 		 */
-		inline bool operator==(const MacAddress& other)
-				{
-					for (int i = 0; i < 6; i++)
-						if (m_Address[i] != other.m_Address[i])
-							return false;
-					return true;
-				}
+		bool operator==(const MacAddress& other) const { return memcmp(m_Address, other.m_Address, sizeof m_Address) == 0; }
 
 		/**
 		 * Overload of the not-equal operator
 		 * @return true if 2 addresses are not equal. False otherwise
 		 */
-		inline bool operator!=(const MacAddress& other) {return !operator==(other);}
+		bool operator!=(const MacAddress& other) const { return !operator==(other); }
+
+#if __cplusplus > 199711L
+		/**
+		 * Overload of the assignment operator
+		 */
+		MacAddress &operator=(std::initializer_list<uint8_t> octets)
+		{
+			m_IsValid = (octets.size() == sizeof m_Address);
+			if(m_IsValid)
+				std::copy_n(std::cbegin(octets), sizeof m_Address, std::begin(m_Address));
+			return *this;
+		}
+#endif
 
 		/**
 		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from illegal input, for example:
 		 * invalid string
 		 * @return True if the address is valid, false otherwise
 		 */
-		bool isValid() { return m_IsValid; }
+		bool isValid() const { return m_IsValid; }
 
 		/**
 		 * Returns a std::string representation of the address
 		 * @return A string representation of the address
 		 */
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * Allocates a byte array of length 6 and copies address value into it. Array deallocation is user responsibility
 		 * @param[in] arr A pointer to where array will be allocated
 		 */
-		void copyTo(uint8_t** arr);
+		void copyTo(uint8_t** arr) const;
 
 		/**
 		 * Gets a pointer to an already allocated byte array and copies the address value to it.
 		 * This method assumes array allocated size is at least 6 (the size of a MAC address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t* arr) const;
+		void copyTo(uint8_t* arr) const { memcpy(arr, m_Address, sizeof m_Address); }
 
 		/**
 		 * A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
@@ -117,6 +131,17 @@ namespace pcpp
 		bool m_IsValid;
 		void init(const char* addr);
 	};
+
+	MacAddress::MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet)
+		: m_IsValid(true)
+	{
+		m_Address[0] = firstOctest;
+		m_Address[1] = secondOctet;
+		m_Address[2] = thirdOctet;
+		m_Address[3] = fourthOctet;
+		m_Address[4] = fifthOctet;
+		m_Address[5] = sixthOctet;
+	}
 
 } // namespace pcpp
 
