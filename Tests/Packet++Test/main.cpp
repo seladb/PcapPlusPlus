@@ -2051,7 +2051,7 @@ PACKETPP_TEST(HttpRequestLayerParsingTest)
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", bufferLength);
-	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file");
+	PACKETPP_ASSERT(!(buffer == NULL), "cannot read file TwoHttpRequests1.dat");
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -2072,6 +2072,38 @@ PACKETPP_TEST(HttpRequestLayerParsingTest)
 	PACKETPP_ASSERT(userAgent->getFieldValue().find("Safari/537.36") != std::string::npos, "User-agent field doesn't contain 'Safari/537.36'");
 
 	PACKETPP_ASSERT(requestLayer->getUrl() == "www.ynet.co.il/home/0,7340,L-8,00.html", "Got wrong URL from layer, url is: '%s'", requestLayer->getUrl().c_str());
+
+
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/PartialHttpRequest.dat", buffer2Length);
+	PACKETPP_ASSERT(!(buffer2 == NULL), "cannot read file PartialHttpRequest.dat");
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+
+	Packet httpPacket2(&rawPacket2);
+
+	PACKETPP_ASSERT(httpPacket2.isPacketOfType(HTTPRequest), "Packet2 isn't of type HTTPRequest");
+	requestLayer = httpPacket2.getLayerOfType<HttpRequestLayer>();
+	PACKETPP_ASSERT(requestLayer != NULL, "Couldn't get HttpRequestLayer from packet2");
+
+	PACKETPP_ASSERT(requestLayer->getFirstLine()->getMethod() == HttpRequestLayer::HttpGET, "Request2 method isn't GET");
+	PACKETPP_ASSERT(requestLayer->getFirstLine()->getVersion() == OneDotOne, "Request2 version isn't HTTP/1.1");
+	PACKETPP_ASSERT(requestLayer->getUrl() == "auth.wi-fi.ru/spa/vendor.bundle.5d388fb8db38cec4d554.js", "Parsed URL for request2 is different than expected");
+
+	userAgent = requestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
+	PACKETPP_ASSERT(userAgent != NULL, "Couldn't retrieve user-agent field for request2");
+	PACKETPP_ASSERT(userAgent->getFieldValue().find("Chrome/73.0.3683.90") != std::string::npos, "User-agent field in request2 doesn't contain 'Chrome/73.0.3683.90'");
+
+	HeaderField* acceptLang = requestLayer->getFieldByName(PCPP_HTTP_ACCEPT_LANGUAGE_FIELD);
+	PACKETPP_ASSERT(acceptLang != NULL, "Couldn't retrieve accept-language field for request2");
+	PACKETPP_ASSERT(acceptLang->getFieldValue() == "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7", "Accept-language field in request2 is different than expected");
+
+	HeaderField* cookie = requestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD);
+	PACKETPP_ASSERT(cookie != NULL, "Couldn't retrieve cookie field for request2");
+
+	PACKETPP_ASSERT(requestLayer->getFieldCount() == 8, "Field count isn't 8 in request2");
+	PACKETPP_ASSERT(requestLayer->isHeaderComplete() == false, "request2 header seems as complete");
 
 	PACKETPP_TEST_PASSED;
 }
