@@ -320,13 +320,19 @@ namespace pcpp
 		 * - The input fragment is malformed and will be ignored
 		 * - The input fragment is the last one and the packet is now fully reassembled. In this case the return value will contain
 		 *   a pointer to the reassebmled packet
+		 * @param[in] parseUntil Optional parameter. Parse the reassembled packet until you reach a certain protocol (inclusive). Can be useful for cases when you need to parse only up to a
+		 * certain layer and want to avoid the performance impact and memory consumption of parsing the whole packet. Default value is ::UnknownProtocol which means don't take this
+		 * parameter into account
+		 * @param[in] parseUntilLayer Optional parameter. Parse the reassembled packet until you reach a certain layer in the OSI model (inclusive). Can be useful for cases when you need to
+		 * parse only up to a certain OSI layer (for example transport layer) and want to avoid the performance impact and memory consumption of parsing the whole packet.
+		 * Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
 		 * @return
 		 * - If the input fragment isn't an IPv4/IPv6 packet or if it isn't an IPv4/IPv6 fragment, the return value is a pointer to the input fragment
 		 * - If the input fragment is the last one and the reassembled packet is ready - a pointer to the reassembled packet is
 		 *   returned. Notice it's the user's responsibility to free this pointer when done using it
 		 * - If the reassembled packet isn't ready then NULL is returned
 		 */
-		Packet* processPacket(Packet* fragment, ReassemblyStatus& status);
+		Packet* processPacket(Packet* fragment, ReassemblyStatus& status, ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * The main API that drives IPReassembly. This method should be called whenever a fragment arrives. This method finds the relevant
@@ -343,6 +349,12 @@ namespace pcpp
 		 * - The input fragment is malformed and will be ignored
 		 * - The input fragment is the last one and the packet is now fully reassembled. In this case the return value will contain
 		 *   a pointer to the reassebmled packet
+		 * @param[in] parseUntil Optional parameter. Parse the raw and reassembled packets until you reach a certain protocol (inclusive). Can be useful for cases when you need to parse only up to a
+		 * certain layer and want to avoid the performance impact and memory consumption of parsing the whole packet. Default value is ::UnknownProtocol which means don't take this
+		 * parameter into account
+		 * @param[in] parseUntilLayer Optional parameter. Parse the raw and reassembled packets until you reach a certain layer in the OSI model (inclusive). Can be useful for cases when you need to
+		 * parse only up to a certain OSI layer (for example transport layer) and want to avoid the performance impact and memory consumption of parsing the whole packet.
+		 * Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
 		 * @return
 		 * - If the input fragment isn't an IPv4/IPv6 packet or if it isn't an IPv4/IPv6 fragment, the return value is a pointer to a Packet object
 		 *   wrapping the input fragment RawPacket object. It's the user responsibility to free this instance
@@ -350,7 +362,7 @@ namespace pcpp
 		 *   returned. Notice it's the user's responsibility to free this pointer when done using it
 		 * - If the reassembled packet isn't ready then NULL is returned
 		 */
-		Packet* processPacket(RawPacket* fragment, ReassemblyStatus& status);
+		Packet* processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * Get a partially reassembled packet. This method returns all the reassembled data that was gathered so far which is obviously not

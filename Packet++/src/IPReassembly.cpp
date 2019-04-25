@@ -74,7 +74,7 @@ class IPv4FragmentWrapper : public IPFragmentWrapper
 public:
 	IPv4FragmentWrapper(Packet* fragment)
 	{
-		m_IPLayer =  fragment->getLayerOfType<IPv4Layer>();
+		m_IPLayer = fragment->isPacketOfType(IPv4) ? fragment->getLayerOfType<IPv4Layer>() : NULL;
 	}
 
 	// implement abstract methods
@@ -143,7 +143,7 @@ class IPv6FragmentWrapper : public IPFragmentWrapper
 public:
 	IPv6FragmentWrapper(Packet* fragment)
 	{
-		m_IPLayer =  fragment->getLayerOfType<IPv6Layer>();
+		m_IPLayer = fragment->isPacketOfType(IPv6) ? fragment->getLayerOfType<IPv6Layer>() : NULL;
 		if (m_IPLayer != NULL)
 			m_FragHeader = m_IPLayer->getExtensionOfType<IPv6FragmentationHeader>();
 		else
@@ -285,7 +285,7 @@ IPReassembly::~IPReassembly()
 	}
 }
 
-Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status)
+Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	status = NON_IP_PACKET;
 
@@ -448,7 +448,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status)
 		}
 
 		// create a new Packet object with the reassembled data as its RawPacket
-		Packet* reassembledPacket = new Packet(fragData->data, true);
+		Packet* reassembledPacket = new Packet(fragData->data, true, parseUntil, parseUntilLayer);
 
 		if (fragData->packetKey->getProtocolType() == IPv4)
 		{
@@ -486,10 +486,10 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status)
 	return NULL;
 }
 
-Packet* IPReassembly::processPacket(RawPacket* fragment, ReassemblyStatus& status)
+Packet* IPReassembly::processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
-	Packet* parsedFragment = new Packet(fragment);
-	Packet* result = processPacket(parsedFragment, status);
+	Packet* parsedFragment = new Packet(fragment, false, parseUntil, parseUntilLayer);
+	Packet* result = processPacket(parsedFragment, status, parseUntil, parseUntilLayer);
 	if (result != parsedFragment)
 		delete parsedFragment;
 
