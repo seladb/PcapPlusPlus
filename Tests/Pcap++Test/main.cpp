@@ -683,8 +683,34 @@ PCAPP_TEST(TestMacAddress)
 	uint8_t* arrToCopyTo = NULL;
 	macAddr3.copyTo(&arrToCopyTo);
 	PCAPP_ASSERT(arrToCopyTo[0] == 0x11 && arrToCopyTo[1] == 0x02 && arrToCopyTo[2] == 0x33 && arrToCopyTo[3] == 0x04 && arrToCopyTo[4] == 0x55 && arrToCopyTo[5] == 0x06, "Copy MacAddress to array failed");
-
 	delete [] arrToCopyTo;
+
+	uint8_t macBytes[6];
+	macAddr3.copyTo(macBytes);
+	PCAPP_ASSERT(memcmp(macBytes, addrAsArr, sizeof addrAsArr) == 0, "Incorrect result of calling copyTo(uint8_t* ptr)");
+
+	#if __cplusplus > 199711L
+	MacAddress macCpp11Valid { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
+	MacAddress macCpp11Wrong { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
+	PCAPP_ASSERT(macCpp11Valid.isValid(), "macCpp11Valid is not valid");
+	PCAPP_ASSERT(!macCpp11Wrong.isValid(), "macCpp11Wrong is valid");
+	#endif
+
+	MacAddress mac6(macAddr1);
+	PCAPP_ASSERT(mac6.isValid(), "Incorrect copy constructing: mac6 is not valid");
+	PCAPP_ASSERT(mac6 == macAddr1, "Incorrect copy constructing: mac6 is not equal to macAddr1");
+	mac6 = macAddr2;
+	PCAPP_ASSERT(mac6.isValid(), "Incorrect copy assignment: mac6 is not valid");
+	PCAPP_ASSERT(mac6 == macAddr2, "Incorrect copy assignment: mac6 is not equal to macAddr2");
+
+	MacAddress macWithZero("aa:aa:00:aa:00:aa");
+	MacAddress macWrong1("aa:aa:aa:aa:aa:aa:bb:bb:bb:bb");
+	MacAddress macWrong2("aa:aa:aa");
+	MacAddress macWrong3("aa:aa:aa:ZZ:aa:aa");
+	PCAPP_ASSERT(macWithZero.isValid(), "macWithZero is not valid");
+	PCAPP_ASSERT(!macWrong1.isValid(), "macWrong1 is valid");
+	PCAPP_ASSERT(!macWrong2.isValid(), "macWrong2 is valid");
+	PCAPP_ASSERT(!macWrong3.isValid(), "macWrong3 is valid");
 
 	PCAPP_TEST_PASSED;
 }

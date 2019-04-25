@@ -15,12 +15,6 @@ std::string MacAddress::toString() const
 	return std::string(str);
 }
 
-void MacAddress::copyTo(uint8_t** arr) const
-{
-	(*arr) = new uint8_t[sizeof m_Address];
-	memcpy((*arr), m_Address, sizeof m_Address);
-}
-
 void MacAddress::init(const char* addr)
 {
 	const unsigned int addrLen = sizeof m_Address;

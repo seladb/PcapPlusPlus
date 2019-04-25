@@ -7113,50 +7113,6 @@ PACKETPP_TEST(RadiusLayerEditTest)
 	PACKETPP_TEST_PASSED;
 }
 
-PACKETPP_TEST(MacAddressTests)
-{
-	uint8_t macAsBytes[6] = { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
-	MacAddress mac1(macAsBytes);
-	MacAddress mac2("aa:aa:00:aa:00:aa");
-	MacAddress mac3(0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB);
-	MacAddress macWrong1("aa:aa:aa:aa:aa:aa:bb:bb:bb:bb");
-	MacAddress macWrong2("aa:aa:aa");
-	MacAddress macWrong3("aa:aa:aa:ZZ:aa:aa");
-	#if __cplusplus > 199711L
-	MacAddress mac4 { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
-	MacAddress mac5 { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
-	PACKETPP_ASSERT(mac4.isValid(), "mac4 is not valid");
-	PACKETPP_ASSERT(!mac5.isValid(), "mac5 is valid");
-	#endif
-	PACKETPP_ASSERT(mac1.isValid(), "mac1 is not valid");
-	PACKETPP_ASSERT(mac2.isValid(), "mac2 is not valid");
-	PACKETPP_ASSERT(mac3.isValid(), "mac3 is not valid");
-	PACKETPP_ASSERT(!macWrong1.isValid(), "Incorrect macWrong1 is valid");
-	PACKETPP_ASSERT(!macWrong2.isValid(), "Incorrect macWrong2 is valid");
-	PACKETPP_ASSERT(!macWrong3.isValid(), "Incorrect macWrong3 is valid");
-
-	PACKETPP_ASSERT(mac3 == mac1, "mac3 is not equal to mac1");
-	PACKETPP_ASSERT(mac1 != mac2, "mac1 is equal to mac2");
-
-	MacAddress mac6(mac1);
-	PACKETPP_ASSERT(mac6.isValid(), "Incorrect copy constructing: mac6 is not valid");
-	PACKETPP_ASSERT(mac6 == mac1, "Incorrect copy constructing: mac6 is not equal to mac1");
-	mac6 = mac2;
-	PACKETPP_ASSERT(mac6.isValid(), "Incorrect copy assignment: mac6 is not valid");
-	PACKETPP_ASSERT(mac6 == mac2, "Incorrect copy assignment: mac6 is not equal to mac2");
-
-	const uint8_t bytes[6] = { 0xaa, 0xaa, 0x00, 0xaa, 0x00, 0xaa };
-	uint8_t macBytes[6];
-	mac2.copyTo(macBytes);
-	PACKETPP_ASSERT(memcmp(bytes, macBytes, sizeof bytes) == 0, "Incorrect result of calling copyTo(uint8_t* ptr)");
-
-	uint8_t *pMacBytes;
-	mac2.copyTo(&pMacBytes);
-	PACKETPP_ASSERT(memcmp(bytes, pMacBytes, sizeof bytes) == 0, "Incorrect result of calling copyTo(uint8_t** ptr)");
-	delete[] pMacBytes;
-
-	PACKETPP_TEST_PASSED;
-}
 
 int main(int argc, char* argv[]) {
 	start_leak_check();
@@ -7248,6 +7204,5 @@ int main(int argc, char* argv[]) {
 	PACKETPP_RUN_TEST(RadiusLayerParsingTest);
 	PACKETPP_RUN_TEST(RadiusLayerCreationTest);
 	PACKETPP_RUN_TEST(RadiusLayerEditTest);
-	PACKETPP_RUN_TEST(MacAddressTests);
 	PACKETPP_END_RUNNING_TESTS;
 }

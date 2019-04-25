@@ -113,7 +113,11 @@ namespace pcpp
 		 * Allocates a byte array of length 6 and copies address value into it. Array deallocation is user responsibility
 		 * @param[in] arr A pointer to where array will be allocated
 		 */
-		void copyTo(uint8_t** arr) const;
+		void copyTo(uint8_t** arr) const
+		{
+				(*arr) = new uint8_t[sizeof m_Address];
+				memcpy((*arr), m_Address, sizeof m_Address);
+		}
 
 		/**
 		 * Gets a pointer to an already allocated byte array and copies the address value to it.
