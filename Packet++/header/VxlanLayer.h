@@ -97,12 +97,12 @@ namespace pcpp
 		 * Get a pointer to the VXLAN header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the vxlan_header
 		 */
-		inline vxlan_header* getVxlanHeader() { return (vxlan_header*)m_Data; }
+		inline vxlan_header* getVxlanHeader() const { return (vxlan_header*)m_Data; }
 
 		/**
 		 * @return The VXLAN Network ID (VNI) value
 		 */
-		uint32_t getVNI();
+        uint32_t getVNI() const;
 
 		/**
 		 * Set VXLAN Network ID (VNI) value
@@ -130,7 +130,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 
 	};
 

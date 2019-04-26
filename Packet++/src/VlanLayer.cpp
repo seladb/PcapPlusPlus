@@ -33,15 +33,15 @@ VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t
 	vlanHeader->etherType = htons(etherType);
 }
 
-uint16_t VlanLayer::getVlanID() {
+uint16_t VlanLayer::getVlanID() const {
 	return htobe16(getVlanHeader()->vlan) & 0xFFF;
 }
 
-uint8_t VlanLayer::getCFI() {
+uint8_t VlanLayer::getCFI() const {
 	return ((htobe16(getVlanHeader()->vlan) >> 12) & 1);
 }
 
-uint8_t VlanLayer::getPriority() {
+uint8_t VlanLayer::getPriority() const {
 	return (htobe16(getVlanHeader()->vlan) >> 13) & 7;
 }
 

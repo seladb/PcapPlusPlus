@@ -157,7 +157,7 @@ namespace pcpp
 		/**
 		 * @return The OSI Model layer this protocol belongs to
 		 */
-		virtual OsiModelLayer getOsiModelLayer() = 0;
+        virtual OsiModelLayer getOsiModelLayer() const = 0;
 
 	protected:
 		uint8_t* m_Data;

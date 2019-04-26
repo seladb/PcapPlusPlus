@@ -292,7 +292,7 @@ namespace pcpp
 		 * Get raw data pointer
 		 * @return A pointer to the raw data
 		 */
-		const uint8_t* getRawData();
+        const uint8_t* getRawData() const;
 
 		/**
 		 * Get read only raw data pointer
@@ -321,7 +321,7 @@ namespace pcpp
 		 * Get raw data timestamp
 		 * @return Raw data timestamp
 		 */
-		timeval getPacketTimeStamp();
+        timeval getPacketTimeStamp() const;
 
 		/**
 		 * Get an indication whether raw data was already set for this instance.

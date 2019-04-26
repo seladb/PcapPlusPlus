@@ -86,7 +86,7 @@ namespace pcpp
 		virtual HeaderField* insertField(HeaderField* prevField, const std::string& fieldName, const std::string& fieldValue);
 		virtual HeaderField* insertField(HeaderField* prevField, const HeaderField& newField);
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 	protected:
 		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
@@ -197,7 +197,7 @@ namespace pcpp
 		 * This methods concatenates the hostname and URI to the full URL
 		 * @return The URL of the HTTP request message
 		 */
-		std::string getUrl();
+		std::string getUrl() const;
 
 		// implement Layer's abstract methods
 		std::string toString();

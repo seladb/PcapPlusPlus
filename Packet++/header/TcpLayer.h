@@ -212,7 +212,7 @@ namespace pcpp
 		 * @return TCP option type casted as pcpp::TcpOptionType enum. If the data is null a value
 		 * of ::TCPOPT_Unknown is returned
 		 */
-		inline TcpOptionType getTcpOptionType()
+		inline TcpOptionType getTcpOptionType() const
 		{
 			if (m_Data == NULL)
 				return TCPOPT_Unknown;
@@ -364,7 +364,7 @@ namespace pcpp
 		 * Get a pointer to the TCP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref tcphdr
 		 */
-		inline tcphdr* getTcpHeader() { return (tcphdr*)m_Data; }
+		inline tcphdr* getTcpHeader() const { return (tcphdr*)m_Data; }
 
 		/**
 		 * Get a TCP option by type
@@ -456,7 +456,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelTransportLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 
 	private:
 
