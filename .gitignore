@@ -69,3 +69,4 @@ Examples/Tutorials/**/*.exe
 
 #Conventional cmake build directory
 build
+CMakeLists.txt.user*
