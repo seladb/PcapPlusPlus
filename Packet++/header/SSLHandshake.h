@@ -319,7 +319,7 @@ public:
 	 * @return A struct containing common fields for client-hello and server-hello messages. Notice this points directly
 	 * to the data, so every change will change the actual packet data
 	 */
-	inline ssl_tls_client_server_hello* getClientHelloHeader() { return (ssl_tls_client_server_hello*)m_Data; }
+	inline ssl_tls_client_server_hello* getClientHelloHeader() const { return (ssl_tls_client_server_hello*)m_Data; }
 
 	/**
 	 * @return Handshake SSL/TLS version (notice it may be different than SSLLayer#getRecordVersion(). Each client-hello
@@ -434,7 +434,7 @@ public:
 	 * @return A struct containing common fields for client-hello and server-hello messages. Notice this points directly
 	 * to the data, so every change will change the actual packet data
 	 */
-	inline ssl_tls_client_server_hello* getServerHelloHeader() { return (ssl_tls_client_server_hello*)m_Data; }
+	inline ssl_tls_client_server_hello* getServerHelloHeader() const { return (ssl_tls_client_server_hello*)m_Data; }
 
 	/**
 	 * @return Handshake SSL/TLS version (notice it may be different than SSLLayer#getRecordVersion(). Each client-hello

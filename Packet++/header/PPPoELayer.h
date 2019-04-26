@@ -86,7 +86,7 @@ namespace pcpp
 		 * Get a pointer to the PPPoE header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the pppoe_header
 		 */
-		inline pppoe_header* getPPPoEHeader() { return (pppoe_header*)m_Data; }
+		inline pppoe_header* getPPPoEHeader() const { return (pppoe_header*)m_Data; }
 
 		// abstract methods implementation
 

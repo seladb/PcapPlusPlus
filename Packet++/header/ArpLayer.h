@@ -82,7 +82,7 @@ namespace pcpp
 		 * Get a pointer to the ARP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref arphdr
 		 */
-		inline arphdr* getArpHeader() { return (arphdr*)m_Data; }
+		inline arphdr* getArpHeader() const { return (arphdr*)m_Data; }
 
 		/**
 		 * Get the sender hardware address (SHA) in the form of MacAddress

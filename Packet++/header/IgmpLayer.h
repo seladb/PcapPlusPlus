@@ -177,7 +177,7 @@ public:
 	 * Get a pointer to the raw IGMPv1/IGMPv2 header. Notice this points directly to the data, so every change will change the actual packet data
 	 * @return A pointer to the @ref igmp_header
 	 */
-	inline igmp_header* getIgmpHeader() { return (igmp_header*)m_Data; }
+	inline igmp_header* getIgmpHeader() const { return (igmp_header*)m_Data; }
 
 	/**
 	 * @return The IPv4 multicast address stored igmp_header#groupAddress
@@ -428,7 +428,7 @@ public:
 	 * actual packet data
 	 * @return A pointer to the @ref igmpv3_report_header
 	 */
-	inline igmpv3_report_header* getReportHeader() { return (igmpv3_report_header*)m_Data; }
+	inline igmpv3_report_header* getReportHeader() const { return (igmpv3_report_header*)m_Data; }
 
 	/**
 	 * @return The number of group records in this message (as extracted from the igmpv3_report_header#numOfGroupRecords field)

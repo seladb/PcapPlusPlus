@@ -213,7 +213,7 @@ namespace pcpp
 		 * Please avoid doing so
 		 * @return A pointer to the gre_basic_header
 		 */
-		inline gre_basic_header* getGreHeader() { return (gre_basic_header*)m_Data; }
+		inline gre_basic_header* getGreHeader() const { return (gre_basic_header*)m_Data; }
 
 		/**
 		 * Get checksum value if field exists in layer
@@ -323,7 +323,7 @@ namespace pcpp
 		 * to some really weird bugs. Please avoid doing so
 		 * @return A pointer to the gre1_header
 		 */
-		inline gre1_header* getGreHeader() { return (gre1_header*)m_Data; }
+		inline gre1_header* getGreHeader() const { return (gre1_header*)m_Data; }
 
 		/**
 		 * Get acknowledgment (ack) number value if field exists in layer

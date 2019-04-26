@@ -410,7 +410,7 @@ namespace pcpp
 		 * Get a pointer to the basic ICMP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref icmphdr
 		 */
-		inline icmphdr* getIcmpHeader() { return (icmphdr*)m_Data; }
+		inline icmphdr* getIcmpHeader() const { return (icmphdr*)m_Data; }
 
 		/**
 		 * @return The ICMP message type

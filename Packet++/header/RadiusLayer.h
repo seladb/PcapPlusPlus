@@ -203,7 +203,7 @@ namespace pcpp
 		 * Get a pointer to the RADIUS header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the radius_header object
 		 */
-		inline radius_header* getRadiusHeader() { return (radius_header*)m_Data; }
+		inline radius_header* getRadiusHeader() const { return (radius_header*)m_Data; }
 
 		/**
 		 * @return A hex string representation of the radius_header#authenticator byte array value

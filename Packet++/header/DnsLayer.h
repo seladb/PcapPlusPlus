@@ -140,7 +140,7 @@ namespace pcpp
 		 * other methods of this layer. Notice the return value points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref dnshdr
 		 */
-		inline dnshdr* getDnsHeader() { return (dnshdr*)m_Data; }
+		inline dnshdr* getDnsHeader() const { return (dnshdr*)m_Data; }
 
 		/**
 		 * Searches for a DNS query by its name field. Notice this method returns only a query which its name equals to the requested name. If

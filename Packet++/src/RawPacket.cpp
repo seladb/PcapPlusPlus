@@ -92,7 +92,7 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval time
 	return true;
 }
 
-const uint8_t* RawPacket::getRawData()
+const uint8_t* RawPacket::getRawData() const
 {
 	return m_pRawData;
 }

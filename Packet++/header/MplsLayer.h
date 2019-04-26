@@ -29,7 +29,7 @@ namespace pcpp
 		};
 		#pragma pack(pop)
 
-		inline mpls_header* getMplsHeader() { return (mpls_header*)m_Data; }
+		inline mpls_header* getMplsHeader() const { return (mpls_header*)m_Data; }
 
 	public:
 		 /** A constructor that creates the layer from an existing packet raw data
