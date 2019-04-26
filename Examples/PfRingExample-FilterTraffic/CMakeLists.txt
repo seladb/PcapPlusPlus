@@ -10,7 +10,7 @@ target_link_libraries(PfRingTrafficFilter PUBLIC
 	PcapPP
 )
 
-set_property(TARGET PfRingTrafficFilter PROPERTY CXX_STANDARD 11)
+set_property(TARGET PfRingTrafficFilter PROPERTY CXX_STANDARD 14)
 set_property(TARGET PfRingTrafficFilter PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Examples/bin")
 set_property(TARGET PfRingTrafficFilter PROPERTY CXX_EXTENSIONS OFF)
 
