@@ -197,7 +197,7 @@ namespace pcpp
 		 * This methods concatenates the hostname and URI to the full URL
 		 * @return The URL of the HTTP request message
 		 */
-		std::string getUrl();
+		std::string getUrl() const;
 
 		// implement Layer's abstract methods
 		std::string toString();

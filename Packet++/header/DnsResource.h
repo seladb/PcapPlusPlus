@@ -51,7 +51,7 @@ namespace pcpp
 		inline IDnsResource* getNextResource() { return m_NextResource; }
 		inline void setNexResource(IDnsResource* next) { m_NextResource = next; }
 
-		uint8_t* getRawData();
+		uint8_t* getRawData() const;
 
 		void setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer);
 
@@ -73,7 +73,7 @@ namespace pcpp
 		/**
 		 * @return The DNS class of this record
 		 */
-		DnsClass getDnsClass();
+		DnsClass getDnsClass() const;
 
 		/**
 		 * Set DNS class for this record
@@ -84,12 +84,12 @@ namespace pcpp
 		/**
 		 * @return The name of this record
 		 */
-		std::string getName() { return m_DecodedName; }
+		std::string getName() const { return m_DecodedName; }
 
 		/**
 		 * @return The record name's offset in the packet
 		 */
-		size_t getNameOffset() { return m_OffsetInLayer; }
+		size_t getNameOffset() const { return m_OffsetInLayer; }
 
 		/**
 		 * Set the name of this record. The input name can be a standard hostname (e.g 'google.com'), or it may contain

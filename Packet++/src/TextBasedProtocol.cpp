@@ -370,14 +370,14 @@ void TextBasedProtocolMessage::shiftFieldsOffset(HeaderField* fromField, int num
 	}
 }
 
-HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName, int index)
+HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName, int index) const
 {
 	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
 
-	std::pair <std::multimap<std::string,HeaderField*>::iterator, std::multimap<std::string,HeaderField*>::iterator> range;
+	std::pair <std::multimap<std::string,HeaderField*>::const_iterator, std::multimap<std::string,HeaderField*>::const_iterator> range;
 	range = m_FieldNameToFieldMap.equal_range(fieldName);
 	int i = 0;
-    for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
+	for (std::multimap<std::string,HeaderField*>::const_iterator iter = range.first; iter != range.second; ++iter)
     {
     	if (i == index)
     		return iter->second;

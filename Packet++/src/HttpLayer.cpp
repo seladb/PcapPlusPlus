@@ -112,7 +112,7 @@ HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 }
 
 
-std::string HttpRequestLayer::getUrl()
+std::string HttpRequestLayer::getUrl() const
 {
 	HeaderField* hostField = getFieldByName(PCPP_HTTP_HOST_FIELD);
 	if (hostField == NULL)

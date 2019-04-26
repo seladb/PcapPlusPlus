@@ -212,7 +212,7 @@ namespace pcpp
 		 * @return TCP option type casted as pcpp::TcpOptionType enum. If the data is null a value
 		 * of ::TCPOPT_Unknown is returned
 		 */
-		inline TcpOptionType getTcpOptionType()
+		inline TcpOptionType getTcpOptionType() const
 		{
 			if (m_Data == NULL)
 				return TCPOPT_Unknown;

@@ -76,19 +76,19 @@ namespace pcpp
 		 * @return VLAN ID value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		uint16_t getVlanID();
+		uint16_t getVlanID() const;
 
 		/**
 		 * @return The CFI bit value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		uint8_t getCFI();
+		uint8_t getCFI() const;
 
 		/**
 		 * @return The priority value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		uint8_t getPriority();
+		uint8_t getPriority() const;
 
 		/**
 		 * Set VLAN ID. This method differs from setting vlan_header#vlanID because vlan_header#vlanID is 12 bits long in a 16 bit field.

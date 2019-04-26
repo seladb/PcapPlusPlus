@@ -88,25 +88,25 @@ namespace pcpp
 		 * Get the sender hardware address (SHA) in the form of MacAddress
 		 * @return A MacAddress containing the sender hardware address (SHA)
 		 */
-		inline MacAddress getSenderMacAddress() { return MacAddress(getArpHeader()->senderMacAddr); }
+		inline MacAddress getSenderMacAddress() const { return MacAddress(getArpHeader()->senderMacAddr); }
 
 		/**
 		 * Get the target hardware address (THA) in the form of MacAddress
 		 * @return A MacAddress containing the target hardware address (THA)
 		 */
-		inline MacAddress getTargetMacAddress() { return MacAddress(getArpHeader()->targetMacAddr); }
+		inline MacAddress getTargetMacAddress() const { return MacAddress(getArpHeader()->targetMacAddr); }
 
 		/**
 		 * Get the sender protocol address (SPA) in the form of IPv4Address
 		 * @return An IPv4Address containing the sender protocol address (SPA)
 		 */
-		inline IPv4Address getSenderIpAddr() { return IPv4Address(getArpHeader()->senderIpAddr); }
+		inline IPv4Address getSenderIpAddr() const { return IPv4Address(getArpHeader()->senderIpAddr); }
 
 		/**
 		 * Get the target protocol address (TPA) in the form of IPv4Address
 		 * @return An IPv4Address containing the target protocol address (TPA)
 		 */
-		inline IPv4Address getTargetIpAddr() { return IPv4Address(getArpHeader()->targetIpAddr); }
+		inline IPv4Address getTargetIpAddr() const { return IPv4Address(getArpHeader()->targetIpAddr); }
 
 
 		// implement abstract methods

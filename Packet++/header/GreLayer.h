@@ -126,7 +126,7 @@ namespace pcpp
 		 * @return True if sequence number field exists in layer. In this case seqNumber will be filled with the value.
 		 * Or false if sequence number field doesn't exist in layer
 		 */
-		bool getSequenceNumber(uint32_t& seqNumber);
+		bool getSequenceNumber(uint32_t& seqNumber) const;
 
 		/**
 		 * Set sequence number value. If field already exists (gre_basic_header#sequenceNumBit is set) then only the new
@@ -173,7 +173,7 @@ namespace pcpp
 			GreAck = 3
 		};
 
-		uint8_t* getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing);
+		uint8_t* getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing) const;
 
 		void computeCalculateFieldsInner();
 	};

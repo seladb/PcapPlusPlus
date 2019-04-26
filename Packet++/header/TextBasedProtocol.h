@@ -115,12 +115,12 @@ public:
 	 * The default value is 0 (get the first appearance of the field name as appears on the packet)
 	 * @return A pointer to an HeaderField instance, or NULL if field doesn't exist
 	 */
-	HeaderField* getFieldByName(std::string fieldName, int index = 0);
+    HeaderField* getFieldByName(std::string fieldName, int index = 0) const;
 
 	/**
 	 * @return A pointer to the first header field exists in this message, or NULL if no such field exists
 	 */
-	inline HeaderField* getFirstField() { return m_FieldList; }
+    inline HeaderField* getFirstField() const { return m_FieldList; }
 
 	/**
 	 * Get the field which appears after a certain field

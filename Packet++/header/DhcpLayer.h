@@ -614,7 +614,7 @@ namespace pcpp
 		/**
 		 * @return The client IPv4 address (as extracted from dhcp_header#clientIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getClientIpAddress();
+		IPv4Address getClientIpAddress() const;
 
 		/**
 		 * Set the client IPv4 address in dhcp_header#clientIpAddress
@@ -625,7 +625,7 @@ namespace pcpp
 		/**
 		 * @return The server IPv4 address (as extracted from dhcp_header#serverIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getServerIpAddress();
+		IPv4Address getServerIpAddress() const;
 
 		/**
 		 * Set the server IPv4 address in dhcp_header#serverIpAddress
@@ -636,7 +636,7 @@ namespace pcpp
 		/**
 		 * @return Your IPv4 address (as extracted from dhcp_header#yourIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getYourIpAddress();
+		IPv4Address getYourIpAddress() const;
 
 		/**
 		 * Set your IPv4 address in dhcp_header#yourIpAddress
@@ -647,7 +647,7 @@ namespace pcpp
 		/**
 		 * @return Gateway IPv4 address (as extracted from dhcp_header#gatewayIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getGatewayIpAddress();
+		IPv4Address getGatewayIpAddress() const;
 
 		/**
 		 * Set the gateway IPv4 address in dhcp_header#gatewayIpAddress
@@ -659,7 +659,7 @@ namespace pcpp
 		 * @return The client MAC address as extracted from dhcp_header#clientHardwareAddress, assuming dhcp_header#hardwareType is 1 (Ethernet)
 		 * and dhcp_header#hardwareAddressLength is 6 (MAC address length). Otherwise returns MacAddress#Zero
 		 */
-		MacAddress getClientHardwareAddress();
+		MacAddress getClientHardwareAddress() const;
 
 		/**
 		 * Set a MAC address into the first 6 bytes of dhcp_header#clientHardwareAddress. This method also sets dhcp_header#hardwareType

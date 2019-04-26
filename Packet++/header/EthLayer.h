@@ -106,7 +106,7 @@ namespace pcpp
 		 * Get the source MAC address
 		 * @return The source MAC address
 		 */
-		inline MacAddress getSourceMac() { return MacAddress(getEthHeader()->srcMac); }
+		inline MacAddress getSourceMac() const { return MacAddress(getEthHeader()->srcMac); }
 
 		/**
 		 * Set source MAC address
@@ -118,7 +118,7 @@ namespace pcpp
 		 * Get the destination MAC address
 		 * @return The destination MAC address
 		 */
-		inline MacAddress getDestMac() { return MacAddress(getEthHeader()->dstMac); }
+		inline MacAddress getDestMac() const { return MacAddress(getEthHeader()->dstMac); }
 
 		/**
 		 * Set destination MAC address
