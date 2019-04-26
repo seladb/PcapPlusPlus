@@ -335,12 +335,12 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServer = IPv4Address(optarg);
+				dnsServer = IPv4Address(static_cast<char const *>(optarg));
 				break;
 			}
 			case 'c':
 			{
-				clientIP = IPv4Address(optarg);
+				clientIP = IPv4Address(static_cast<char const *>(optarg));
 				clientIpSet = true;
 				break;
 			}

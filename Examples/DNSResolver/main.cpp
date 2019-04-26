@@ -132,12 +132,12 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServerIP = IPv4Address(optarg);
+				dnsServerIP = IPv4Address(static_cast<char const *>(optarg));
 				break;
 			}
 			case 'g':
 			{
-				gatewayIP = IPv4Address(optarg);
+				gatewayIP = IPv4Address(static_cast<char const *>(optarg));
 				break;
 			}
 			case 's':

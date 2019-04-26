@@ -93,7 +93,7 @@ IPAddress* IPv4Address::clone() const
 	return new IPv4Address(*this);
 }
 
-void IPv4Address::init(char* addressAsString)
+void IPv4Address::init(const char* addressAsString)
 {
 	m_pInAddr = new in_addr();
     if (inet_pton(AF_INET, addressAsString , m_pInAddr) == 0)
@@ -111,7 +111,7 @@ IPv4Address::~IPv4Address()
 	delete m_pInAddr;
 }
 
-IPv4Address::IPv4Address(char* addressAsString)
+IPv4Address::IPv4Address(const char* addressAsString)
 {
 	init(addressAsString);
 }
@@ -142,7 +142,7 @@ IPv4Address& IPv4Address::operator=(const IPv4Address& other)
     return *this;
 }
 
-bool IPv4Address::matchSubnet(const IPv4Address& subnet, const std::string& subnetMask)
+bool IPv4Address::matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const
 {
 	IPv4Address maskAsIpAddr(subnetMask);
 	if (!maskAsIpAddr.isValid())
@@ -154,6 +154,14 @@ bool IPv4Address::matchSubnet(const IPv4Address& subnet, const std::string& subn
 	int thisAddrAfterMask = toInt() & maskAsIpAddr.toInt();
 	int subnetAddrAfterMask = subnet.toInt() & maskAsIpAddr.toInt();
 	return (thisAddrAfterMask == subnetAddrAfterMask);
+}
+
+bool IPv4Address::matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const
+{
+	uint32_t maskAsInt = subnetMask.toInt();
+	uint32_t thisAddrAfterMask = toInt() & maskAsInt;
+	uint32_t subnetAddrAfterMask = subnet.toInt() & maskAsInt;
+	return thisAddrAfterMask == subnetAddrAfterMask;
 }
 
 
