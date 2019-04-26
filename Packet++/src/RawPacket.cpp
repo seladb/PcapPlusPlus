@@ -117,7 +117,7 @@ int RawPacket::getFrameLength() const
 	return m_FrameLength;
 }
 
-timeval RawPacket::getPacketTimeStamp()
+timeval RawPacket::getPacketTimeStamp() const
 {
 	return m_TimeStamp;
 }
