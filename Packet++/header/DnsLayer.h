@@ -430,7 +430,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelApplicationLayer; }
+        OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 		/**
 		 * @return A pointer to a map containing all UDP ports recognize as DNS

@@ -86,7 +86,7 @@ namespace pcpp
 		virtual HeaderField* insertField(HeaderField* prevField, const std::string& fieldName, const std::string& fieldValue);
 		virtual HeaderField* insertField(HeaderField* prevField, const HeaderField& newField);
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 	protected:
 		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}

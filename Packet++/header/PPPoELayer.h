@@ -95,7 +95,7 @@ namespace pcpp
 		 */
 		virtual void computeCalculateFields();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 
 	protected:
 

@@ -227,7 +227,7 @@ public:
 
 	std::string toString();
 
-	OsiModelLayer getOsiModelLayer() { return OsiModelNetworkLayer; }
+	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 };
 
 

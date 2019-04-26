@@ -302,7 +302,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
+        OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 
 	};
 }

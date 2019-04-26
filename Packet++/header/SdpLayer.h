@@ -153,7 +153,7 @@ namespace pcpp
 
 		// overridden methods
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
+        OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 
 		std::string toString();
 

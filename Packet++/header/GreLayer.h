@@ -158,7 +158,7 @@ namespace pcpp
 		 */
 		size_t getHeaderLen();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
 	protected:
 		GreLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { }
@@ -416,7 +416,7 @@ namespace pcpp
 
 		std::string toString() { return "PPP for PPTP Layer"; }
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 
 	};
 

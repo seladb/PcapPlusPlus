@@ -147,7 +147,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};
 
 } // namespace pcpp
