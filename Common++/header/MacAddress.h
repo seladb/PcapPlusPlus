@@ -91,7 +91,7 @@ namespace pcpp
 		{
 			m_IsValid = (octets.size() == sizeof m_Address);
 			if(m_IsValid)
-				std::copy_n(std::cbegin(octets), sizeof m_Address, std::begin(m_Address));
+				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 			return *this;
 		}
 #endif
