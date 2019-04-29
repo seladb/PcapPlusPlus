@@ -131,35 +131,35 @@ namespace pcpp
 			/**
 			 * @return IP ID value
 			 */
-			inline uint16_t getIpID() { return m_IpID; }
+			uint16_t getIpID() const { return m_IpID; }
 
 			/**
 			 * @return Source IP address
 			 */
-			inline IPv4Address getSrcIP() { return m_SrcIP; }
+			IPv4Address getSrcIP() const { return m_SrcIP; }
 
 			/**
 			 * @return Dest IP address
 			 */
-			inline IPv4Address getDstIP() { return m_DstIP; }
+			IPv4Address getDstIP() const { return m_DstIP; }
 
 			/**
 			 * Set IP ID
 			 * @param[in] ipID IP ID value to set
 			 */
-			inline void setIpID(uint16_t ipID) { m_IpID = ipID; }
+			void setIpID(uint16_t ipID) { m_IpID = ipID; }
 
 			/**
 			 * Set source IPv4 address
 			 * @param[in] srcIP Source IP to set
 			 */
-			inline void setSrcIP(const IPv4Address& srcIP) { m_SrcIP = srcIP; }
+			void setSrcIP(const IPv4Address& srcIP) { m_SrcIP = srcIP; }
 
 			/**
 			 * Set dest IPv4 address
 			 * @param[in] dstIP Dest IP to set
 			 */
-			inline void setDstIP(const IPv4Address& dstIP) { m_DstIP = dstIP; }
+			void setDstIP(const IPv4Address& dstIP) { m_DstIP = dstIP; }
 
 
 			// implement abstract methods
@@ -210,35 +210,35 @@ namespace pcpp
 			/**
 			 * @return Fragment ID value
 			 */
-			inline uint32_t getFragmentID() { return m_FragmentID; }
+			uint32_t getFragmentID() const { return m_FragmentID; }
 
 			/**
 			 * @return Source IP address
 			 */
-			inline IPv6Address getSrcIP() { return m_SrcIP; }
+			IPv6Address getSrcIP() const { return m_SrcIP; }
 
 			/**
 			 * @return Dest IP address
 			 */
-			inline IPv6Address getDstIP() { return m_DstIP; }
+			IPv6Address getDstIP() const { return m_DstIP; }
 
 			/**
 			 * Set fragment ID
 			 * @param[in] fragID Fragment ID value to set
 			 */
-			inline void setFragmentID(uint32_t fragID) { m_FragmentID = fragID; }
+			void setFragmentID(uint32_t fragID) { m_FragmentID = fragID; }
 
 			/**
 			 * Set source IPv6 address
 			 * @param[in] srcIP Source IP to set
 			 */
-			inline void setSrcIP(const IPv6Address& srcIP) { m_SrcIP = srcIP; }
+			void setSrcIP(const IPv6Address& srcIP) { m_SrcIP = srcIP; }
 
 			/**
 			 * Set dest IPv6 address
 			 * @param[in] dstIP Dest IP to set
 			 */
-			inline void setDstIP(const IPv6Address& dstIP) { m_DstIP = dstIP; }
+			void setDstIP(const IPv6Address& dstIP) { m_DstIP = dstIP; }
 
 
 			// implement abstract methods
@@ -385,12 +385,12 @@ namespace pcpp
 		/**
 		 * Get the maximum capacity as determined in the c'tor
 		 */
-		inline size_t getMaxCapacity() { return (int)m_PacketLRU->getMaxSize(); }
+		size_t getMaxCapacity() const { return (int)m_PacketLRU->getMaxSize(); }
 
 		/**
 		 * Get the current number of packets being processed
 		 */
-		inline size_t getCurrentCapacity() { return m_FragmentMap.size(); }
+		size_t getCurrentCapacity() const { return m_FragmentMap.size(); }
 
 	private:
 
