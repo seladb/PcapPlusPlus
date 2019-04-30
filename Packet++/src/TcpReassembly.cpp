@@ -789,7 +789,7 @@ const std::vector<ConnectionData>& TcpReassembly::getConnectionInformation() con
 	return m_ConnectionInfo;
 }
 
-int TcpReassembly::isConnectionOpen(const ConnectionData& connection)
+int TcpReassembly::isConnectionOpen(const ConnectionData& connection) const
 {
 	if (m_ConnectionList.find(connection.flowKey) != m_ConnectionList.end())
 		return 1;
