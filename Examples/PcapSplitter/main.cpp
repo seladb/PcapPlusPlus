@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
 				method = optarg;
 				break;
 			case 'p':
-				strncpy(param, optarg, 1000);
+				strncpy(param, optarg, 999);
 				paramWasSet = true;
 				break;
 			case 'i':

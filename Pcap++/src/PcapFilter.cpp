@@ -124,6 +124,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len)
 		}
 
 		ipAddrmodified = IPv6Address(addrAsArr).toString();
+		delete [] addrAsArr;
 	}
 	else
 	{

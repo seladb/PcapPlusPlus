@@ -270,6 +270,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr)
 			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
 			{
 				LOG_DEBUG("Found matched address!");
+				delete [] addrAsArr;
 				return (*devIter);
 			}
 
