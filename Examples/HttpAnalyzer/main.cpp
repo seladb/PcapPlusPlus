@@ -435,7 +435,8 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
 
 	// set a port 80 filter on the live device to capture only HTTP packets
 	PortFilter httpPortFilter(80, SRC_OR_DST);
-	dev->setFilter(httpPortFilter);
+	if (!dev->setFilter(httpPortFilter))
+		EXIT_WITH_ERROR("Could not set up filter on device");
 
 	// if needed to save the captured packets to file - open a writer device
 	PcapFileWriterDevice* pcapWriter = NULL;

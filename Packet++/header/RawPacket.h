@@ -219,14 +219,14 @@ namespace pcpp
 	class RawPacket
 	{
 	protected:
-		uint8_t* m_pRawData;
+		uint8_t* m_RawData;
 		int m_RawDataLen;
 		int m_FrameLength;
 		timeval m_TimeStamp;
 		bool m_DeleteRawDataAtDestructor;
 		bool m_RawPacketSet;
-		LinkLayerType m_linkLayerType;
-		void Init();
+		LinkLayerType m_LinkLayerType;
+		void init();
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 	public:
 		/**

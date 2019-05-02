@@ -301,7 +301,7 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 
 	// measure response time
 	clock_t diffticks = recieveTime-data->start;
-	double diffms = (diffticks*1000)/CLOCKS_PER_SEC;
+	double diffms = (diffticks*1000.0)/CLOCKS_PER_SEC;
 
 	data->dnsResponseTime = diffms;
 	data->result = dnsAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress();

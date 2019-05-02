@@ -141,7 +141,7 @@ static void __append_interface_block_to_file_info(const light_pcapng interface_b
 	struct _light_interface_description_block* interface_desc_block;
 	light_option ts_resolution_option = NULL;
 
-	if (info->interface_block_count > MAX_SUPPORTED_INTERFACE_BLOCKS)
+	if (info->interface_block_count >= MAX_SUPPORTED_INTERFACE_BLOCKS)
 		return;
 
 	light_get_block_info(interface_block, LIGHT_INFO_BODY, &interface_desc_block, NULL);

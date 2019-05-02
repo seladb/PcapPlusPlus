@@ -76,8 +76,8 @@ void light_free_option(light_option option)
 
 void light_free_block(light_pcapng pcapng)
 {
-	free(pcapng);
 	free(pcapng->block_body);
+	free(pcapng);
 }
 
 
