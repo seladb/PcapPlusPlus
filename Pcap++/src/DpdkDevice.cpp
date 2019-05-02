@@ -194,7 +194,7 @@ bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval 
 	m_TimeStamp = timestamp;
 	m_RawPacketSet = true;
 	m_FrameLength = frameLength;
-	m_linkLayerType = layerType;
+	m_LinkLayerType = layerType;
 
 	return true;
 }
