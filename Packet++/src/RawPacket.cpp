@@ -15,7 +15,6 @@ void RawPacket::init()
 	m_DeleteRawDataAtDestructor = true;
 	m_RawPacketSet = false;
 	m_LinkLayerType = LINKTYPE_ETHERNET;
-	m_TimeStamp = (struct timeval){0};
 }
 
 RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType)

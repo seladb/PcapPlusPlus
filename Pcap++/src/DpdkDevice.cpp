@@ -81,7 +81,7 @@ bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* de
 		return false;
 	}
 
-	m_pRawData = rte_pktmbuf_mtod(m_MBuf, uint8_t*);
+	m_RawData = rte_pktmbuf_mtod(m_MBuf, uint8_t*);
 	m_RawDataLen = rte_pktmbuf_pkt_len(m_MBuf);
 
 	copyDataFrom(*rawPacket, false);
@@ -95,7 +95,7 @@ MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 	m_MBuf = NULL;
 	m_RawDataLen = 0;
 	m_RawPacketSet = false;
-	m_pRawData = NULL;
+	m_RawData = NULL;
 	m_Device = other.m_Device;
 
 	rte_mbuf* newMbuf = rte_pktmbuf_alloc(other.m_MBuf->pool);
@@ -187,9 +187,9 @@ bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval 
 		}
 	}
 
-	m_pRawData = rte_pktmbuf_mtod(m_MBuf, uint8_t*);
+	m_RawData = rte_pktmbuf_mtod(m_MBuf, uint8_t*);
 	m_RawDataLen = rte_pktmbuf_pkt_len(m_MBuf);
-	memcpy(m_pRawData, pRawData, m_RawDataLen);
+	memcpy(m_RawData, pRawData, m_RawDataLen);
 	delete [] pRawData;
 	m_TimeStamp = timestamp;
 	m_RawPacketSet = true;
@@ -208,7 +208,7 @@ void MBufRawPacket::clear()
 
 	m_MBuf = NULL;
 
-	m_pRawData = NULL;
+	m_RawData = NULL;
 
 	RawPacket::clear();
 }
