@@ -206,7 +206,12 @@ HeaderField* TextBasedProtocolMessage::insertField(HeaderField* prevField, const
 		newFieldOffset = prevField->m_NameOffsetInMessage + prevField->getFieldSize();
 
 	// extend layer to make room for the new field. Field will be added just before the last field
-	extendLayer(newFieldOffset, newFieldToAdd->getFieldSize());
+	if (!extendLayer(newFieldOffset, newFieldToAdd->getFieldSize()))
+	{
+		LOG_ERROR("Cannot extend layer to insert the header");
+		delete newFieldToAdd;
+		return NULL;
+	}
 
 	HeaderField* curField = m_FieldList;
 	if (prevField != NULL)

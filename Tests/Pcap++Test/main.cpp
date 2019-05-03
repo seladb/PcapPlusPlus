@@ -1237,12 +1237,11 @@ PCAPP_TEST(TestPcapNgFileReadWriteAdv)
     // -------
 
     IFileReaderDevice* genericReader = IFileReaderDevice::getReader(EXAMPLE2_PCAP_PATH);
-    PCAPP_ASSERT(dynamic_cast<PcapFileReaderDevice*>(genericReader) != NULL, "Reader isn't of type PcapFileReaderDevice");
-    PCAPP_ASSERT(dynamic_cast<PcapNgFileReaderDevice*>(genericReader) == NULL, "Reader is wrongly of type PcapNgFileReaderDevice");
+    PCAPP_ASSERT_AND_RUN_COMMAND(dynamic_cast<PcapFileReaderDevice*>(genericReader) != NULL, delete genericReader, "Reader isn't of type PcapFileReaderDevice");
+    PCAPP_ASSERT_AND_RUN_COMMAND(dynamic_cast<PcapNgFileReaderDevice*>(genericReader) == NULL, delete genericReader, "Reader is wrongly of type PcapNgFileReaderDevice");
     delete genericReader;
 
     genericReader = IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_PATH);
-    PCAPP_ASSERT_AND_RUN_COMMAND(dynamic_cast<PcapFileReaderDevice*>(genericReader) == NULL, delete genericReader, "Reader is wrongly of type PcapFileReaderDevice");
     PCAPP_ASSERT_AND_RUN_COMMAND(dynamic_cast<PcapNgFileReaderDevice*>(genericReader) != NULL, delete genericReader, "Reader isn't of type PcapNgFileReaderDevice");
     delete genericReader;
 
@@ -1645,11 +1644,13 @@ PCAPP_TEST(TestPcapFiltersLive)
 			bool srcPortMatch = ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80;
 			bool srcIpMatch = false;
 			IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
+			uint32_t ipSrcAddrAsInt = 0;
 			if (pIPv4Layer != NULL)
 			{
 				srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt();
+				ipSrcAddrAsInt = pIPv4Layer->getIPv4Header()->ipSrc;
 			}
-			PCAPP_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", ntohs(pTcpLayer->getTcpHeader()->portSrc), pIPv4Layer->getIPv4Header()->ipSrc, args.ipToSendReceivePackets.c_str());
+			PCAPP_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", ntohs(pTcpLayer->getTcpHeader()->portSrc), ipSrcAddrAsInt, args.ipToSendReceivePackets.c_str());
 		} else
 		if (packet.isPacketOfType(IP))
 		{
@@ -5126,6 +5127,7 @@ PCAPP_TEST(TestIPFragOutOfOrder)
 		}
 	}
 
+	PCAPP_ASSERT(result != NULL, "Reassembled packet is NULL");
 	PCAPP_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PCAPP_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
