@@ -97,8 +97,10 @@ namespace pcpp
 		{
 			enum
 			{
-				// Must be correspond to RTE_KNI_NAMESIZE
-				KNI_NAME_SIZE = 32
+				// Must correspond to minimum of
+				// RTE_KNI_NAMESIZE [DPDK] = 32 and
+				// IFNAMSIZ [LINUX] = 16 (on most systems)
+				KNI_NAME_SIZE = 16
 			};
 			char name[KNI_NAME_SIZE];
 			IoctlCallbacks* callbacks;
