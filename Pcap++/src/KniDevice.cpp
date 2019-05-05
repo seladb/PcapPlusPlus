@@ -125,7 +125,9 @@ struct KniDeviceList
 {
 	enum
 	{
-		MAX_KNI_INTERFACES = 4 // This value have no meaning in current DPDK implementation
+		// This value have no meaning in current DPDK implementation (ver >= 18.11)
+		// In older versions have literal meaning
+		MAX_KNI_INTERFACES = 4
 	};
 	static KniDeviceList& Instance();
 
@@ -151,11 +153,15 @@ KniDeviceList::KniDeviceList() :
 		m_Initialized = false;
 		return;
 	}
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 1, 16)
 	if (rte_kni_init(MAX_KNI_INTERFACES) < 0)
 	{
 		LOG_ERROR("Failed to initialize KNI DPDK module");
 		m_Initialized = false;
 	}
+#else
+	rte_kni_init(MAX_KNI_INTERFACES);
+#endif
 }
 
 KniDeviceList::~KniDeviceList()
@@ -366,17 +372,30 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	kni_conf.core_id = conf.kthread_core_id;
 	kni_conf.mbuf_size = RTE_MBUF_DEFAULT_DATAROOM;
 	kni_conf.force_bind = conf.bind_kthread ? 1 : 0;
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 2, 16)
 	if (conf.mac != NULL)
 		conf.mac->copyTo((uint8_t*)kni_conf.mac_addr);
 	kni_conf.mtu = conf.mtu;
+#endif
+
 	kni_ops.port_id = conf.port_id;
+#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 6, 1)
 	if (conf.callbacks != NULL)
 	{
 		kni_ops.change_mtu = conf.callbacks->change_mtu;
 		kni_ops.config_network_if = conf.callbacks->config_network_if;
+	#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 2, 16)
 		kni_ops.config_mac_address = conf.callbacks->config_mac_address;
 		kni_ops.config_promiscusity = conf.callbacks->config_promiscusity;
+	#endif
 	}
+#else
+	if (conf.old_callbacks != NULL)
+	{
+		kni_ops.change_mtu = conf.old_callbacks->change_mtu;
+		kni_ops.config_network_if = conf.old_callbacks->config_network_if;
+	}
+#endif
 
 	m_Device = rte_kni_alloc(m_MBufMempool, &kni_conf, &kni_ops);
 	if (m_Device == NULL)
@@ -946,9 +965,9 @@ bool KniDevice::open()
 		case LINK_ERROR:
 			return m_DeviceOpened = false;
 		case LINK_NOT_SUPPORTED:
-		/* fall through */
+			/* fall through */
 		case LINK_DOWN:
-		/* fall through */
+			/* fall through */
 		case LINK_UP:
 			return m_DeviceOpened = true;
 	}
@@ -1023,6 +1042,35 @@ KniDevice* KniDevice::getDeviceByName(const std::string& name)
 			return kni_dev;
 	}
 	return kni_dev;
+}
+
+KniDevice::CallbackVersion KniDevice::callbackVersion()
+{
+#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 6, 1)
+	return KniDevice::CALLBACKS_NEW;
+#else
+	return KniDevice::CALLBACKS_OLD;
+#endif
+}
+
+bool KniDevice::callbackSupported(CallbackType cb_type)
+{
+	switch (cb_type)
+	{
+		case KniDevice::CALLBACK_MTU:
+			/* fall through */
+		case KniDevice::CALLBACK_LINK:
+			return true;
+		case KniDevice::CALLBACK_MAC:
+			/* fall through */
+		case KniDevice::CALLBACK_PROMISC:
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 2, 16)
+			return true;
+#else
+			return false;
+#endif
+	}
+	return false;
 }
 
 }

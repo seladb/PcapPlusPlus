@@ -81,6 +81,20 @@ namespace pcpp
 			PROMISC_ENABLE = 1
 		};
 
+		enum CallbackVersion
+		{
+			CALLBACKS_NEW = 0,
+			CALLBACKS_OLD = 1
+		};
+
+		enum CallbackType
+		{
+			CALLBACK_MTU,
+			CALLBACK_LINK,
+			CALLBACK_MAC,
+			CALLBACK_PROMISC
+		};
+
 		struct IoctlCallbacks
 		{
 			/* Pointer to function of changing MTU */
@@ -93,6 +107,14 @@ namespace pcpp
 			int (*config_promiscusity)(uint16_t port_id, uint8_t to_on);
 		};
 
+		struct OldIoctlCallbacks
+		{
+			/* Pointer to function of changing MTU */
+			int (*change_mtu)(uint8_t port_id, unsigned int new_mtu);
+			/* Pointer to function of configuring network interface */
+			int (*config_network_if)(uint8_t port_id, uint8_t if_up);
+		};
+
 		struct KniDeviceConfiguration
 		{
 			enum
@@ -103,7 +125,11 @@ namespace pcpp
 				KNI_NAME_SIZE = 16
 			};
 			char name[KNI_NAME_SIZE];
-			IoctlCallbacks* callbacks;
+			union
+			{
+				IoctlCallbacks* callbacks;
+				OldIoctlCallbacks* old_callbacks;
+			};
 			MacAddress* mac;
 			uint16_t port_id;
 			uint16_t mtu;
@@ -128,6 +154,10 @@ namespace pcpp
 		static KniDevice* getDeviceByPort(uint16_t port_id);
 
 		static KniDevice* getDeviceByName(const std::string& name);
+
+		static CallbackVersion callbackVersion();
+
+		static bool callbackSupported(CallbackType cb_type);
 
 		inline bool isInitialized() const { return !(m_Device == NULL || m_MBufMempool == NULL); }
 
