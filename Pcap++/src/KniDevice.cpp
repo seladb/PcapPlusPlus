@@ -159,7 +159,7 @@ KniDeviceList::KniDeviceList() :
 
 KniDeviceList::~KniDeviceList()
 {
-	for (int i{0}; i < m_Devices.size(); ++i)
+	for (int i = 0; i < m_Devices.size(); ++i)
 		delete m_Devices[i];
 	rte_kni_close();
 }
@@ -1010,7 +1010,7 @@ KniDevice* KniDevice::getDeviceByPort(uint16_t port_id)
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.m_Initialized)
 		return kni_dev;
-	for (int i{0}; i < list.m_Devices.size(); ++i)
+	for (int i = 0; i < list.m_Devices.size(); ++i)
 	{
 		kni_dev = list.m_Devices[i];
 		if (kni_dev && kni_dev->m_DeviceInfo.port_id == port_id)
@@ -1025,7 +1025,7 @@ KniDevice* KniDevice::getDeviceByName(const std::string& name)
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.m_Initialized)
 		return kni_dev;
-	for (int i{0}; i < list.m_Devices.size(); ++i)
+	for (int i = 0; i < list.m_Devices.size(); ++i)
 	{
 		kni_dev = list.m_Devices[i];
 		if (kni_dev && kni_dev->m_DeviceInfo.name == name)
