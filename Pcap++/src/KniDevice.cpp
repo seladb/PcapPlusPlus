@@ -342,26 +342,6 @@ inline struct rte_mempool* create_mempool(size_t mempoolSize, int unique, const 
 	return result;
 }
 
-struct KniReqestThreadPayload
-{
-	uint16_t sleep_time;
-	struct rte_kni* kni_dev;
-};
-
-void* kni_request_thread_main(void* data)
-{
-	KniReqestThreadPayload* ptr = (KniReqestThreadPayload*)data;
-	KniReqestThreadPayload p = *ptr;
-	delete ptr;
-	for(;;)
-	{
-		usleep(p.sleep_time);
-		pthread_testcancel();
-		rte_kni_handle_request(p.kni_dev);
-	}
-	return NULL;
-}
-
 } // namespace
 
 KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int unique) :
@@ -425,6 +405,21 @@ void KniDevice::KniRequests::cleanup()
 {
 	delete thread;
 	thread = NULL;
+	sleep_time = 0;
+}
+
+void* KniDevice::KniRequests::runRequests(void* p)
+{
+	KniDevice* device = (KniDevice*)p;
+	uint16_t sleep_time = device->m_Requests.sleep_time;
+	struct rte_kni* kni_dev = device->m_Device;
+	for(;;)
+	{
+		usleep(sleep_time);
+		pthread_testcancel();
+		rte_kni_handle_request(kni_dev);
+	}
+	return NULL;
 }
 
 bool KniDevice::startRequestHandlerThread(uint16_t sleep_time)
@@ -434,16 +429,10 @@ bool KniDevice::startRequestHandlerThread(uint16_t sleep_time)
 		LOG_DEBUG("KNI request thread is already started for device \"%s\"", m_DeviceInfo.name);
 		return false;
 	}
-	KniReqestThreadPayload* payload = new KniReqestThreadPayload;
-	payload->kni_dev = m_Device;
-	payload->sleep_time = sleep_time;
-	m_Requests.thread = new KniThread(KniThread::DETACHED, kni_request_thread_main, (void*)payload);
+	m_Requests.sleep_time = sleep_time;
+	m_Requests.thread = new KniThread(KniThread::DETACHED, KniRequests::runRequests, (void*)this);
 	if (m_Requests.thread->m_State == KniThread::INVALID)
 	{
-		// Next line may be not safe
-		// in case when thread is started but detach is failed
-		// but logically is not possible
-		delete payload;
 		m_Requests.cleanup();
 		return false;
 	}

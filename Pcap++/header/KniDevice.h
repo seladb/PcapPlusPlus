@@ -217,8 +217,10 @@ namespace pcpp
 		} m_Capturing;
 		struct KniRequests
 		{
+			uint16_t sleep_time;
 			KniThread* thread;
 
+			static void* runRequests(void* p);
 			void cleanup();
 		} m_Requests;
 	};
