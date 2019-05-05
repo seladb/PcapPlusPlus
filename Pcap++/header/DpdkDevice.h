@@ -144,7 +144,7 @@ namespace pcpp
 	{
 		friend class DpdkDevice;
 
-	private:
+	protected:
 		struct rte_mbuf* m_MBuf;
 		DpdkDevice* m_Device;
 		bool m_FreeMbuf;
