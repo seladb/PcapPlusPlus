@@ -310,7 +310,7 @@ inline KniDevice::KniLinkState set_kni_device_link_state(
 	{
 		return old_state = KniDevice::LINK_ERROR;
 	}
-	#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 1, 16)
+	#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 		old_state = (KniDevice::KniLinkState)rte_kni_update_link(kni_dev, state);
 		if (old_state == KniDevice::LINK_ERROR)
 		{
@@ -372,19 +372,19 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	kni_conf.core_id = conf.kthread_core_id;
 	kni_conf.mbuf_size = RTE_MBUF_DEFAULT_DATAROOM;
 	kni_conf.force_bind = conf.bind_kthread ? 1 : 0;
-#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 2, 16)
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 	if (conf.mac != NULL)
 		conf.mac->copyTo((uint8_t*)kni_conf.mac_addr);
 	kni_conf.mtu = conf.mtu;
 #endif
 
 	kni_ops.port_id = conf.port_id;
-#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 5, 16)
+#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
 	if (conf.callbacks != NULL)
 	{
 		kni_ops.change_mtu = conf.callbacks->change_mtu;
 		kni_ops.config_network_if = conf.callbacks->config_network_if;
-	#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 2, 16)
+	#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 		kni_ops.config_mac_address = conf.callbacks->config_mac_address;
 		kni_ops.config_promiscusity = conf.callbacks->config_promiscusity;
 	#endif
@@ -1046,7 +1046,7 @@ KniDevice* KniDevice::getDeviceByName(const std::string& name)
 
 KniDevice::CallbackVersion KniDevice::callbackVersion()
 {
-#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 5, 16)
+#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
 	return KniDevice::CALLBACKS_NEW;
 #else
 	return KniDevice::CALLBACKS_OLD;
@@ -1064,7 +1064,7 @@ bool KniDevice::callbackSupported(CallbackType cb_type)
 		case KniDevice::CALLBACK_MAC:
 			/* fall through */
 		case KniDevice::CALLBACK_PROMISC:
-#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 2, 16)
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 			return true;
 #else
 			return false;
