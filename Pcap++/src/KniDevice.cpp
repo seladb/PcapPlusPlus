@@ -18,6 +18,7 @@
 #include <rte_branch_prediction.h>
 
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <algorithm>
 
@@ -292,20 +293,20 @@ inline bool destroy_kni_device(struct rte_kni* kni_dev, const char* dev_name)
 inline KniDevice::KniLinkState set_kni_device_link_state(
 	struct rte_kni* kni_dev,
 	const char* dev_name,
-	KniDevice::KniLinkState state = KniDevice::KniLinkState::LINK_UP
+	KniDevice::KniLinkState state = KniDevice::LINK_UP
 )
 {
-	KniDevice::KniLinkState old_state = KniDevice::KniLinkState::LINK_NOT_SUPPORTED;
-	if (state != KniDevice::KniLinkState::LINK_UP ||
-		state != KniDevice::KniLinkState::LINK_DOWN ||
+	KniDevice::KniLinkState old_state = KniDevice::LINK_NOT_SUPPORTED;
+	if (state != KniDevice::LINK_UP ||
+		state != KniDevice::LINK_DOWN ||
 		kni_dev == NULL
 	)
 	{
-		return old_state = KniDevice::KniLinkState::LINK_ERROR;
+		return old_state = KniDevice::LINK_ERROR;
 	}
 	#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 1, 16)
 		old_state = (KniDevice::KniLinkState)rte_kni_update_link(kni_dev, state);
-		if (old_state == KniDevice::KniLinkState::LINK_ERROR)
+		if (old_state == KniDevice::LINK_ERROR)
 		{
 			LOG_ERROR("DPDK KNI Failed to update links state for device \"%s\"", dev_name);
 		}
@@ -321,7 +322,7 @@ inline struct rte_mempool* create_mempool(size_t mempoolSize, int unique, const 
 {
 	struct rte_mempool* result = NULL;
 	char mempoolName[64];
-	std::snprintf(mempoolName, sizeof(mempoolName),
+	snprintf(mempoolName, sizeof(mempoolName),
 		KNI_MEMPOOL_NAME "_%d",
 		unique
 	);
@@ -339,7 +340,7 @@ inline struct rte_mempool* create_mempool(size_t mempoolSize, int unique, const 
 	}
 	else
 	{
-		LOG_DEBUG("Successfully initialized packets pool of size [%d] for KNI device [%s]", mempoolSize, dev_name);
+		LOG_DEBUG("Successfully initialized packets pool of size [%lu] for KNI device [%s]", (unsigned long)mempoolSize, dev_name);
 	}
 	return result;
 }
@@ -361,7 +362,7 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 
 	std::memset(&kni_ops, 0, sizeof(kni_ops));
 	std::memset(&kni_conf, 0, sizeof(kni_conf));
-	std::snprintf(kni_conf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
+	snprintf(kni_conf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
 	kni_conf.core_id = conf.kthread_core_id;
 	kni_conf.mbuf_size = RTE_MBUF_DEFAULT_DATAROOM;
 	kni_conf.force_bind = conf.bind_kthread ? 1 : 0;
@@ -389,7 +390,7 @@ KniDevice::~KniDevice()
 	m_Requests.cleanup();
 	m_Capturing.cleanup();
 	m_DeviceInfo.cleanup();
-	set_kni_device_link_state(m_Device, m_DeviceInfo.name, KniLinkState::LINK_DOWN);
+	set_kni_device_link_state(m_Device, m_DeviceInfo.name, KniDevice::LINK_DOWN);
 	destroy_kni_device(m_Device, m_DeviceInfo.name);
 }
 
