@@ -159,7 +159,7 @@ KniDeviceList::KniDeviceList() :
 
 KniDeviceList::~KniDeviceList()
 {
-	for (int i = 0; i < m_Devices.size(); ++i)
+	for (size_t i = 0; i < m_Devices.size(); ++i)
 		delete m_Devices[i];
 	rte_kni_close();
 }
@@ -284,7 +284,9 @@ inline bool destroy_kni_device(struct rte_kni* kni_dev, const char* dev_name)
 	if (rte_kni_release(kni_dev) < 0)
 	{
 		LOG_ERROR("Failed to destroy DPDK KNI device %s", dev_name);
+		return true;
 	}
+	return false;
 }
 
 inline KniDevice::KniLinkState set_kni_device_link_state(
@@ -359,7 +361,7 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 
 	std::memset(&kni_ops, 0, sizeof(kni_ops));
 	std::memset(&kni_conf, 0, sizeof(kni_conf));
-	std::snprintf(kni_conf.name, RTE_KNI_NAMESIZE, conf.name);
+	std::snprintf(kni_conf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
 	kni_conf.core_id = conf.kthread_core_id;
 	kni_conf.mbuf_size = RTE_MBUF_DEFAULT_DATAROOM;
 	kni_conf.force_bind = conf.bind_kthread ? 1 : 0;
@@ -697,7 +699,6 @@ uint16_t KniDevice::sendPackets(RawPacketVector& rawPacketsVec)
 	KniRawPacket** allocated = CPP_VLA(KniRawPacket*, arrLength);
 	uint16_t allocated_count = 0, packetsSent = 0, pos = 0;
 	MBufRawPacket* rawPacket;
-	RawPacket* raw_pkt;
 
 	for (RawPacketVector::VectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); ++iter)
 	{
@@ -974,7 +975,7 @@ KniDevice* KniDevice::DeviceFactory(const KniDeviceConfiguration& conf, size_t m
 		LOG_DEBUG("Use KniDevice::getDeviceByName or KniDevice::getDeviceByPort.");
 		return NULL;
 	}
-	KniDevice* kni_dev = new KniDevice(conf, mempoolSize, list.m_KniUniqueId++);
+	kni_dev = new KniDevice(conf, mempoolSize, list.m_KniUniqueId++);
 	list.m_Devices.push_back(kni_dev);
 	return kni_dev;
 }
@@ -999,7 +1000,7 @@ KniDevice* KniDevice::getDeviceByPort(uint16_t port_id)
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.m_Initialized)
 		return kni_dev;
-	for (int i = 0; i < list.m_Devices.size(); ++i)
+	for (size_t i = 0; i < list.m_Devices.size(); ++i)
 	{
 		kni_dev = list.m_Devices[i];
 		if (kni_dev && kni_dev->m_DeviceInfo.port_id == port_id)
@@ -1014,7 +1015,7 @@ KniDevice* KniDevice::getDeviceByName(const std::string& name)
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.m_Initialized)
 		return kni_dev;
-	for (int i = 0; i < list.m_Devices.size(); ++i)
+	for (size_t i = 0; i < list.m_Devices.size(); ++i)
 	{
 		kni_dev = list.m_Devices[i];
 		if (kni_dev && kni_dev->m_DeviceInfo.name == name)
