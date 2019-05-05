@@ -379,7 +379,7 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 #endif
 
 	kni_ops.port_id = conf.port_id;
-#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 6, 1)
+#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 5, 16)
 	if (conf.callbacks != NULL)
 	{
 		kni_ops.change_mtu = conf.callbacks->change_mtu;
@@ -1046,7 +1046,7 @@ KniDevice* KniDevice::getDeviceByName(const std::string& name)
 
 KniDevice::CallbackVersion KniDevice::callbackVersion()
 {
-#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 6, 1)
+#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 5, 16)
 	return KniDevice::CALLBACKS_NEW;
 #else
 	return KniDevice::CALLBACKS_OLD;
