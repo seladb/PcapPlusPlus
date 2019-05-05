@@ -119,7 +119,7 @@ namespace pcpp
 		~KniDevice();
 
 	public:
-		static KniDevice* DeviceFabric(const KniDeviceConfiguration& conf, size_t mempoolSize);
+		static KniDevice* DeviceFactory(const KniDeviceConfiguration& conf, size_t mempoolSize);
 
 		static void DestroyDevice(KniDevice* kni_dev);
 

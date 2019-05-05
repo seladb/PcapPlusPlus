@@ -962,7 +962,7 @@ void KniDevice::close()
 	updateLinkState(LINK_DOWN);
 }
 
-KniDevice* KniDevice::DeviceFabric(const KniDeviceConfiguration& conf, size_t mempoolSize)
+KniDevice* KniDevice::DeviceFactory(const KniDeviceConfiguration& conf, size_t mempoolSize)
 {
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.isInitialized())
