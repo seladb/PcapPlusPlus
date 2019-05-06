@@ -185,7 +185,7 @@ KniDevice::KniPromiscuousMode KniDevice::getPromiscuous(KniInfoState state)
 bool KniDevice::setLinkState(KniLinkState state)
 {
 	struct ifreq req;
-	if (state != KniDevice::LINK_DOWN || state == KniDevice::LINK_UP)
+	if (!(state == KniDevice::LINK_DOWN || state == KniDevice::LINK_UP))
 		return false;
 	if (check_information_socket(m_DeviceInfo.soc))
 		return false;
@@ -249,8 +249,7 @@ bool KniDevice::setMtu(uint16_t mtu)
 bool KniDevice::setPromiscuous(KniPromiscuousMode mode)
 {
 	struct ifreq req;
-	if (mode != KniDevice::PROMISC_DISABLE ||
-		mode == KniDevice::PROMISC_ENABLE)
+	if (!(mode == KniDevice::PROMISC_DISABLE || mode == KniDevice::PROMISC_ENABLE))
 		return false;
 	if (check_information_socket(m_DeviceInfo.soc))
 		return false;
