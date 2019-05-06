@@ -420,7 +420,7 @@ KniDevice::KniLinkState KniDevice::updateLinkState(KniLinkState state)
 
 bool KniDevice::handleRequests()
 {
-	return rte_kni_handle_request(m_Device);
+	return rte_kni_handle_request(m_Device) == 0;
 }
 
 void KniDevice::KniRequests::cleanup()
