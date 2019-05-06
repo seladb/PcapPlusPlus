@@ -40,23 +40,23 @@ namespace pcpp
 
 struct KniDevice::KniThread
 {
-	enum cleanup_state
+	enum KniThreadCleanupState
 	{
 		JOINABLE,
 		DETACHED,
 		INVALID
 	};
 	typedef void*(*thread_main_f)(void*);
-	KniThread(cleanup_state s, thread_main_f main_f, void* data);
+	KniThread(KniThreadCleanupState s, thread_main_f main_f, void* data);
 	~KniThread();
 
 	bool cancel();
 
 	pthread_t m_Descriptor;
-	cleanup_state m_State;
+	KniThreadCleanupState m_State;
 };
 
-KniDevice::KniThread::KniThread(cleanup_state s, thread_main_f main_f, void* data) :
+KniDevice::KniThread::KniThread(KniThreadCleanupState s, thread_main_f main_f, void* data) :
 	m_State(s)
 {
 	int err = pthread_create(&m_Descriptor, NULL, main_f, data);
@@ -369,16 +369,16 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	std::memset(&kni_ops, 0, sizeof(kni_ops));
 	std::memset(&kni_conf, 0, sizeof(kni_conf));
 	snprintf(kni_conf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
-	kni_conf.core_id = conf.kthread_core_id;
+	kni_conf.core_id = conf.kthreadCoreId;
 	kni_conf.mbuf_size = RTE_MBUF_DEFAULT_DATAROOM;
-	kni_conf.force_bind = conf.bind_kthread ? 1 : 0;
+	kni_conf.force_bind = conf.bindKthread ? 1 : 0;
 #if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 	if (conf.mac != NULL)
 		conf.mac->copyTo((uint8_t*)kni_conf.mac_addr);
 	kni_conf.mtu = conf.mtu;
 #endif
 
-	kni_ops.port_id = conf.port_id;
+	kni_ops.port_id = conf.portId;
 #if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
 	if (conf.callbacks != NULL)
 	{
@@ -390,10 +390,10 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	#endif
 	}
 #else
-	if (conf.old_callbacks != NULL)
+	if (conf.oldCallbacks != NULL)
 	{
-		kni_ops.change_mtu = conf.old_callbacks->change_mtu;
-		kni_ops.config_network_if = conf.old_callbacks->config_network_if;
+		kni_ops.change_mtu = conf.oldCallbacks->change_mtu;
+		kni_ops.config_network_if = conf.oldCallbacks->config_network_if;
 	}
 #endif
 
@@ -427,31 +427,31 @@ void KniDevice::KniRequests::cleanup()
 {
 	delete thread;
 	thread = NULL;
-	sleep_time = 0;
+	sleepTime = 0;
 }
 
 void* KniDevice::KniRequests::runRequests(void* p)
 {
 	KniDevice* device = (KniDevice*)p;
-	uint16_t sleep_time = device->m_Requests.sleep_time;
+	uint16_t sleepTime = device->m_Requests.sleepTime;
 	struct rte_kni* kni_dev = device->m_Device;
 	for(;;)
 	{
-		usleep(sleep_time);
+		usleep(sleepTime);
 		pthread_testcancel();
 		rte_kni_handle_request(kni_dev);
 	}
 	return NULL;
 }
 
-bool KniDevice::startRequestHandlerThread(uint16_t sleep_time)
+bool KniDevice::startRequestHandlerThread(uint16_t sleepTime)
 {
 	if (m_Requests.thread != NULL)
 	{
 		LOG_DEBUG("KNI request thread is already started for device \"%s\"", m_DeviceInfo.name);
 		return false;
 	}
-	m_Requests.sleep_time = sleep_time;
+	m_Requests.sleepTime = sleepTime;
 	m_Requests.thread = new KniThread(KniThread::DETACHED, KniRequests::runRequests, (void*)this);
 	if (m_Requests.thread->m_State == KniThread::INVALID)
 	{
@@ -819,7 +819,7 @@ void* KniDevice::KniCapturing::runCapture(void* p)
 {
 	KniDevice* device = (KniDevice*)p;
 	OnKniPacketArriveCallback callback = device->m_Capturing.callback;
-	void* user_cookie = device->m_Capturing.user_cookie;
+	void* userCookie = device->m_Capturing.userCookie;
 	struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
 	struct rte_kni* kni_dev = device->m_Device;
 
@@ -845,7 +845,7 @@ void* KniDevice::KniCapturing::runCapture(void* p)
 				rawPackets[index].setMBuf(mBufArray[index], time);
 			}
 
-			if (!callback(rawPackets, numOfPktsReceived, device, user_cookie))
+			if (!callback(rawPackets, numOfPktsReceived, device, userCookie))
 				break;
 		}
 		pthread_testcancel();
@@ -858,7 +858,7 @@ void KniDevice::KniCapturing::cleanup()
 	delete thread;
 	thread = NULL;
 	callback = NULL;
-	user_cookie = NULL;
+	userCookie = NULL;
 }
 
 bool KniDevice::startCapture(
@@ -878,7 +878,7 @@ bool KniDevice::startCapture(
 	}
 
 	m_Capturing.callback = onPacketArrives;
-	m_Capturing.user_cookie = onPacketArrivesUserCookie;
+	m_Capturing.userCookie = onPacketArrivesUserCookie;
 
 	m_Capturing.thread = new KniThread(KniThread::JOINABLE, KniCapturing::runCapture, (void*)this);
 	if (m_Capturing.thread->m_State == KniThread::INVALID)
@@ -945,7 +945,7 @@ int KniDevice::startCaptureBlockingMode(
 				rawPackets[index].setMBuf(mBufArray[index], time);
 			}
 
-			if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.user_cookie))
+			if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))
 				return 1;
 		}
 	}
@@ -988,63 +988,63 @@ KniDevice* KniDevice::DeviceFactory(const KniDeviceConfiguration& conf, size_t m
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.isInitialized())
 		return NULL;
-	KniDevice* kni_dev = getDeviceByName(std::string(conf.name));
-	if (kni_dev != NULL)
+	KniDevice* kniDevice = getDeviceByName(std::string(conf.name));
+	if (kniDevice != NULL)
 	{
 		LOG_ERROR("Attempt to create DPDK KNI device with same name: \"%s\".", conf.name);
 		LOG_DEBUG("Use KniDevice::getDeviceByName or KniDevice::getDeviceByPort.");
 		return NULL;
 	}
-	kni_dev = new KniDevice(conf, mempoolSize, list.m_KniUniqueId++);
-	list.m_Devices.push_back(kni_dev);
-	return kni_dev;
+	kniDevice = new KniDevice(conf, mempoolSize, list.m_KniUniqueId++);
+	list.m_Devices.push_back(kniDevice);
+	return kniDevice;
 }
 
-void KniDevice::DestroyDevice(KniDevice* kni_dev)
+void KniDevice::DestroyDevice(KniDevice* kniDevice)
 {
 	KniDeviceList& list = KniDeviceList::Instance();
 	list.m_Devices.erase(
 		std::remove(
 			list.m_Devices.begin(),
 			list.m_Devices.end(),
-			kni_dev
+			kniDevice
 		),
 		list.m_Devices.end()
 	);
-	delete kni_dev;
+	delete kniDevice;
 }
 
-KniDevice* KniDevice::getDeviceByPort(uint16_t port_id)
+KniDevice* KniDevice::getDeviceByPort(uint16_t portId)
 {
-	KniDevice* kni_dev = NULL;
+	KniDevice* kniDevice = NULL;
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.m_Initialized)
-		return kni_dev;
+		return kniDevice;
 	for (size_t i = 0; i < list.m_Devices.size(); ++i)
 	{
-		kni_dev = list.m_Devices[i];
-		if (kni_dev && kni_dev->m_DeviceInfo.port_id == port_id)
-			return kni_dev;
+		kniDevice = list.m_Devices[i];
+		if (kniDevice && kniDevice->m_DeviceInfo.portId == portId)
+			return kniDevice;
 	}
-	return kni_dev;
+	return kniDevice;
 }
 
 KniDevice* KniDevice::getDeviceByName(const std::string& name)
 {
-	KniDevice* kni_dev = NULL;
+	KniDevice* kniDevice = NULL;
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.m_Initialized)
-		return kni_dev;
+		return kniDevice;
 	for (size_t i = 0; i < list.m_Devices.size(); ++i)
 	{
-		kni_dev = list.m_Devices[i];
-		if (kni_dev && kni_dev->m_DeviceInfo.name == name)
-			return kni_dev;
+		kniDevice = list.m_Devices[i];
+		if (kniDevice && kniDevice->m_DeviceInfo.name == name)
+			return kniDevice;
 	}
-	return kni_dev;
+	return kniDevice;
 }
 
-KniDevice::CallbackVersion KniDevice::callbackVersion()
+KniDevice::KniCallbackVersion KniDevice::callbackVersion()
 {
 #if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
 	return KniDevice::CALLBACKS_NEW;
@@ -1053,9 +1053,9 @@ KniDevice::CallbackVersion KniDevice::callbackVersion()
 #endif
 }
 
-bool KniDevice::callbackSupported(CallbackType cb_type)
+bool KniDevice::callbackSupported(KniCallbackType cbType)
 {
-	switch (cb_type)
+	switch (cbType)
 	{
 		case KniDevice::CALLBACK_MTU:
 			/* fall through */

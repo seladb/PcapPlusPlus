@@ -81,13 +81,13 @@ namespace pcpp
 			PROMISC_ENABLE = 1
 		};
 
-		enum CallbackVersion
+		enum KniCallbackVersion
 		{
 			CALLBACKS_NEW = 0,
 			CALLBACKS_OLD = 1
 		};
 
-		enum CallbackType
+		enum KniCallbackType
 		{
 			CALLBACK_MTU,
 			CALLBACK_LINK,
@@ -95,7 +95,7 @@ namespace pcpp
 			CALLBACK_PROMISC
 		};
 
-		struct IoctlCallbacks
+		struct KniIoctlCallbacks
 		{
 			/* Pointer to function of changing MTU */
 			int (*change_mtu)(uint16_t port_id, unsigned int new_mtu);
@@ -107,7 +107,7 @@ namespace pcpp
 			int (*config_promiscusity)(uint16_t port_id, uint8_t to_on);
 		};
 
-		struct OldIoctlCallbacks
+		struct KniOldIoctlCallbacks
 		{
 			/* Pointer to function of changing MTU */
 			int (*change_mtu)(uint8_t port_id, unsigned int new_mtu);
@@ -127,14 +127,14 @@ namespace pcpp
 			char name[KNI_NAME_SIZE];
 			union
 			{
-				IoctlCallbacks* callbacks;
-				OldIoctlCallbacks* old_callbacks;
+				KniIoctlCallbacks* callbacks;
+				KniOldIoctlCallbacks* oldCallbacks;
 			};
 			MacAddress* mac;
-			uint16_t port_id;
+			uint16_t portId;
 			uint16_t mtu;
-			bool bind_kthread;
-			uint32_t kthread_core_id;
+			bool bindKthread;
+			uint32_t kthreadCoreId;
 		};
 
 	private:
@@ -149,21 +149,21 @@ namespace pcpp
 	public:
 		static KniDevice* DeviceFactory(const KniDeviceConfiguration& conf, size_t mempoolSize);
 
-		static void DestroyDevice(KniDevice* kni_dev);
+		static void DestroyDevice(KniDevice* kniDevice);
 
-		static KniDevice* getDeviceByPort(uint16_t port_id);
+		static KniDevice* getDeviceByPort(uint16_t portId);
 
 		static KniDevice* getDeviceByName(const std::string& name);
 
-		static CallbackVersion callbackVersion();
+		static KniCallbackVersion callbackVersion();
 
-		static bool callbackSupported(CallbackType cb_type);
+		static bool callbackSupported(KniCallbackType cbType);
 
 		inline bool isInitialized() const { return !(m_Device == NULL || m_MBufMempool == NULL); }
 
 		inline std::string getName() const { return std::string(m_DeviceInfo.name); }
 
-		inline uint16_t getPort() const { return m_DeviceInfo.port_id; }
+		inline uint16_t getPort() const { return m_DeviceInfo.portId; }
 
 		KniLinkState getLinkState(KniInfoState state = INFO_CACHED);
 
@@ -185,7 +185,7 @@ namespace pcpp
 
 		bool handleRequests();
 
-		bool startRequestHandlerThread(uint16_t sleep_time);
+		bool startRequestHandlerThread(uint16_t sleepTime);
 
 		void stopRequestHandlerThread();
 
@@ -228,7 +228,7 @@ namespace pcpp
 			lin_socket_t soc;
 			KniLinkState link;
 			KniPromiscuousMode promisc;
-			uint16_t port_id;
+			uint16_t portId;
 			uint16_t mtu;
 			char name[KniDeviceConfiguration::KNI_NAME_SIZE];
 			MacAddress mac;
@@ -240,7 +240,7 @@ namespace pcpp
 		struct KniCapturing
 		{
 			OnKniPacketArriveCallback callback;
-			void* user_cookie;
+			void* userCookie;
 			KniThread* thread;
 
 			static void* runCapture(void* p);
@@ -249,7 +249,7 @@ namespace pcpp
 		} m_Capturing;
 		struct KniRequests
 		{
-			uint16_t sleep_time;
+			uint16_t sleepTime;
 			KniThread* thread;
 
 			static void* runRequests(void* p);

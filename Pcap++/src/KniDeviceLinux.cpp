@@ -86,7 +86,7 @@ void KniDevice::KniDeviceInfo::init(const KniDeviceConfiguration& conf)
 	soc = INVALID_SOCKET;
 	link = KniDevice::LINK_NOT_SUPPORTED;
 	promisc = KniDevice::PROMISC_DISABLE;
-	port_id = conf.port_id;
+	portId = conf.portId;
 	mtu = conf.mtu;
 	snprintf(name, sizeof(name), "%s", conf.name);
 	mac = conf.mac != NULL ? *conf.mac : MacAddress::Zero;
