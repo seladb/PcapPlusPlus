@@ -183,7 +183,7 @@ namespace pcpp
 
 		KniLinkState updateLinkState(KniLinkState state);
 
-		bool handleRequest();
+		bool handleRequests();
 
 		bool startRequestHandlerThread(uint16_t sleep_time);
 

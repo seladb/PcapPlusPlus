@@ -418,7 +418,7 @@ KniDevice::KniLinkState KniDevice::updateLinkState(KniLinkState state)
 	return set_kni_device_link_state(m_Device, m_DeviceInfo.name, state);
 }
 
-bool KniDevice::handleRequest()
+bool KniDevice::handleRequests()
 {
 	return rte_kni_handle_request(m_Device);
 }
