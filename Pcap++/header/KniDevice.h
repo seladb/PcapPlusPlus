@@ -157,7 +157,7 @@ namespace pcpp
 
 		static KniCallbackVersion callbackVersion();
 
-		static bool callbackSupported(KniCallbackType cbType);
+		static bool isCallbackSupported(KniCallbackType cbType);
 
 		inline bool isInitialized() const { return !(m_Device == NULL || m_MBufMempool == NULL); }
 

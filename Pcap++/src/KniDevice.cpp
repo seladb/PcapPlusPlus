@@ -1053,7 +1053,7 @@ KniDevice::KniCallbackVersion KniDevice::callbackVersion()
 #endif
 }
 
-bool KniDevice::callbackSupported(KniCallbackType cbType)
+bool KniDevice::isCallbackSupported(KniCallbackType cbType)
 {
 	switch (cbType)
 	{
