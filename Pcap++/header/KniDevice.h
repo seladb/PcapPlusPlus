@@ -119,11 +119,11 @@ namespace pcpp
 
 	/**
 	 * @class KniDevice
-	 * This class represents special kind of DPDK device called KNI - Kernel Network Interface
+	 * This class represents special kind of DPDK devices called KNI - Kernel Network Interface
 	 * that are used to exchange DPDK mbuf packets with Linux kernel network stack.
 	 * This devices are implemented via rte_kni kernel module and librte_kni DPDK library.
 	 * Currently KNI devices report speeds upto 10 GBit/s.
-	 * This devices may be created by application and will live as long as application will.
+	 * This devices may be created by application and will live as long as application will.<BR>
 	 * After application creates the device it may be setupped by Linux user as simple ethernet controller.
 	 * Currently KNI devices supports 4 kinds of settings:
 	 *   - change link status;
@@ -131,7 +131,7 @@ namespace pcpp
 	 *   - change MTU;
 	 *   - change promiscuous mode.
 	 * Changes in each of this settings generates an event/request that must be handled by application
-	 * that created the KNI device in 3 second period or it will be rejected.
+	 * that have created the KNI device in 3 second period or it will be rejected.<BR>
 	 * This devices have only one RX and one TX queue so MT readding or MT sending is not
 	 * safe but simultaneous reading and sending packets is MT safe.
 	 * The RX queue of KNI device is pointed from kernel to application and TX queue is
@@ -147,9 +147,9 @@ namespace pcpp
 	 *    - During lifetime the packets may be send to/received from KNI device via
 	 *      calls to synchronous API (send/receive methods) or asynchronously by
 	 *      running capturing thread using KniDevice#startCapture
-	 *    - KNI device may be destructed explicitly using KniDevice#DestroyDevice or
+	 *    - KNI device may be destroyed explicitly using KniDevice#DestroyDevice or
 	 *      implicitly on application exit. User must assure that NO OTHER linux application
-	 *      is using KNI device when and after it is beeing destructed otherwise Linux
+	 *      is using KNI device when and after it is beeing destroyed otherwise Linux
 	 *      kernel may crush dramatically.
 	 * There is a way to enable ethtool on KNI devices that include recompilation of DPDK
 	 * and strict correspondence between KNI port id and DPDK port id, but it is not currently
@@ -163,11 +163,11 @@ namespace pcpp
 	 *    device so all caveats apply;
 	 *  - I see a lot of unknown traffic - what is it?
 	 *    This must be Linux kernel trying to communicate with other devices from KNI device and it will do so as long as
-	 *    You give KNI device any IP address via ip or /etc/networking/interfaces;
+	 *    You give the KNI device any IP address via ip command or by record in /etc/networking/interfaces;
 	 *  - On old versions of DPDK only 4 KNI devices may be created:
 	 *    Yep this is a limitation. You can change MAX_KNI_INTERFACES constant in KniDevice.cpp to unlock this limit;
 	 *  - Any set* method never succeeds:
-	 *    You may forgot that they generate KNI requests that Your application must handle.
+	 *    You may forgot that they generate KNI requests that Your application MUST handle.
 	 *    Just use KniDevice#startRequestHandlerThread to handle all requests automatically.
 	 * Usefull links:
 	 *  - <a href="https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html">KNI interface concept DPDK documentation</a>
@@ -201,7 +201,7 @@ namespace pcpp
 		{
 			/** Used to identify intent to obtain cached version of KNI device information */
 			INFO_CACHED = 0,
-			/** Used to identify intent to renew KNI device information */
+			/** Used to identify intent to renew/update KNI device information */
 			INFO_RENEW = 1
 		};
 		/**
@@ -219,9 +219,9 @@ namespace pcpp
 		 */
 		enum KniCallbackVersion
 		{
-			/** Reports that DPDK used supports only KniIoctlCallbacks callback structure */
+			/** Reports that DPDK supports only KniIoctlCallbacks callback structure */
 			CALLBACKS_NEW = 0,
-			/** Reports that DPDK used supports only KniOldIoctlCallbacks callback structure */
+			/** Reports that DPDK supports only KniOldIoctlCallbacks callback structure */
 			CALLBACKS_OLD = 1
 		};
 		/**
@@ -241,11 +241,11 @@ namespace pcpp
 
 		/**
 		 * @brief New callbacks for KNI device events.
-		 * This structure must be used only when KniDevice#callbackVersion returns
+		 * This structure MUST be used ONLY when KniDevice#callbackVersion returns
 		 * KniCallbackVersion#CALLBACKS_NEW.
 		 * Or if You are sure that DPDK version used is 17.11 or higher.
 		 * If some callback is not provided (NULL) the request will always succeeds
-		 * if other is not specified.
+		 * if other is not specified in callback description.
 		 */
 		struct KniIoctlCallbacks
 		{
@@ -279,7 +279,7 @@ namespace pcpp
 
 		/**
 		 * @brief Old callbacks for KNI device events.
-		 * This structure must be used only when KniDevice#callbackVersion returns
+		 * This structure MUST be used ONLY when KniDevice#callbackVersion returns
 		 * KniCallbackVersion#CALLBACKS_OLD.
 		 * Or if You are sure that DPDK version used is lower than 17.11.
 		 * If some callback is not provided (NULL) the request will always succeeds.
@@ -301,7 +301,7 @@ namespace pcpp
 		/**
 		 * @brief KNI device initialization data.
 		 * Used to create new KNI device.
-		 * Usage of callbacks and oldCallbacks members is defined by
+		 * Usage of callbacks member or oldCallbacks member is defined by
 		 * result of KniDevice#callbackVersion
 		 */
 		struct KniDeviceConfiguration
@@ -324,9 +324,9 @@ namespace pcpp
 				KniOldIoctlCallbacks* oldCallbacks;
 			};
 			/**
-			 * Pinter to MAC (ETHERNET) address of new KNI device.
+			 * Pointer to MAC (ETHERNET) address of new KNI device.
 			 * If omitted (NULL) some valid address automatically generated.
-			 * If provided will be remembered by new KNI device info structure.
+			 * If provided will be cached by new KNI device info structure.
 			 */
 			MacAddress* mac;
 			/**
@@ -336,22 +336,22 @@ namespace pcpp
 			 * Can be set to UINT16_MAX.
 			 */
 			uint16_t portId;
-			/** MTU of new KNI device. Will be remembered by new KNI device info structure */
+			/** MTU of new KNI device. Will be cached by new KNI device info structure */
 			uint16_t mtu;
 			/**
 			 * If set forces to bind KNI Linux kernel thread (NOT userspace thread) to specific core.
-			 * If rte_kni kernel module is run with kthread_mode=single then -
+			 * If rte_kni kernel module is loaded with "kthread_mode=single" then -
 			 * rebinds kernel thread used for all KNI devices to specified core.
-			 * If rte_kni kernel module is run with kthread_mode=multiple then -
+			 * If rte_kni kernel module is loaded with "kthread_mode=multiple" then -
 			 * binds new kernel thread for this device to specified core.
 			 */
 			bool bindKthread;
-			/** ID of core to bind Linux kernel thread to (same as DPDK threads ids) */
+			/** ID of core to bind Linux kernel thread to (same as DPDK cores IDs) */
 			uint32_t kthreadCoreId;
 		};
 
 	private:
-		/** All instances of this class must be produced by DeviceFactory factory */
+		/** All instances of this class MUST be produced by DeviceFactory factory */
 		KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int unique);
 		/** This class is not copyable */
 		KniDevice(const KniDevice&);
@@ -361,7 +361,7 @@ namespace pcpp
 	protected:
 		friend struct KniDeviceList;
 		/**
-		 * All instances of this class must be destroyed by DestroyDevice method
+		 * All instances of this class MUST be destroyed by DestroyDevice method
 		 * or automatically on application exit by KniDeviceList singleton.
 		 */
 		~KniDevice();
@@ -371,10 +371,9 @@ namespace pcpp
 
 		/**
 		 * @brief Factory method for KNI devices.
-		 * Newly created device is remembered under portId and name provided in conf and can be found
-		 * later by them.
-		 * If KNI device is not destructed explicitly thru KniDevice#DestroyDevice
-		 * then it will be destructed implicitly by the time application exits.
+		 * Newly created device is remembered under portId and name provided in conf and can be found later by them.
+		 * If KNI device is not destroyed explicitly thru KniDevice#DestroyDevice
+		 * then it will be destroyed implicitly by the time application exits.
 		 * @warning NOT MT SAFE
 		 * @param[in] conf KNI device configuration structure
 		 * @param[in] mempoolSize Size of packet mempool used by this device
@@ -388,7 +387,7 @@ namespace pcpp
 		 * All threads running on this device are stopped (request and/or capturing).
 		 * The device can no longer be found by it's name or id.
 		 * @warning NOT MT SAFE
-		 * @param[in] kniDevice KNI device to be destructed explicitly
+		 * @param[in] kniDevice KNI device to be destroyed explicitly
 		 */
 		static void DestroyDevice(KniDevice* kniDevice);
 		/**
@@ -436,36 +435,36 @@ namespace pcpp
 		inline uint16_t getPort() const { return m_DeviceInfo.portId; }
 		/**
 		 * @brief Obtains link status of KNI device.
-		 * If called with INFO_CACHED - returns cached data about link state (SUPER FAST).
+		 * If called with INFO_CACHED - returns cached data about link state (SUPER FAST may be INACCURATE).
 		 * If called with INFO_RENEW - makes system call to Linux to obtain
-		 * link information and caches it (VERY SLOW).
+		 * link information and caches it (VERY SLOW but ACCURATE).
 		 * @param[in] state Defines information relevance level
 		 * @return LINK_UP, LINK_DOWN, LINK_NOT_SUPPORTED if device is not initialized, some times LINK_ERROR
 		 */
 		KniLinkState getLinkState(KniInfoState state = INFO_CACHED);
 		/**
 		 * @brief Obtains MAC address of KNI device.
-		 * If called with INFO_CACHED - returns cached data about MAC address (SUPER FAST).
+		 * If called with INFO_CACHED - returns cached data about MAC address (SUPER FAST may be INACCURATE).
 		 * If called with INFO_RENEW - makes system call to Linux to obtain
-		 * MAC address and caches it (VERY SLOW).
+		 * MAC address and caches it (VERY SLOW but ACCURATE).
 		 * @param[in] state Defines information relevance level
 		 * @return Known MAC address of KNI interface
 		 */
 		MacAddress getMacAddress(KniInfoState state = INFO_CACHED);
 		/**
 		 * @brief Obtains MTU of KNI device.
-		 * If called with INFO_CACHED - returns cached data about MTU (SUPER FAST).
+		 * If called with INFO_CACHED - returns cached data about MTU (SUPER FAST may be INACCURATE).
 		 * If called with INFO_RENEW - makes system call to Linux to obtain
-		 * MTU and caches it (VERY SLOW).
+		 * MTU and caches it (VERY SLOW but ACCURATE).
 		 * @param[in] state Defines information relevance level
 		 * @return Known MTU of KNI interface
 		 */
 		uint16_t getMtu(KniInfoState state = INFO_CACHED);
 		/**
 		 * @brief Obtains information about promiscuous mode of KNI device.
-		 * If called with INFO_CACHED - returns cached data about promiscuous mode (SUPER FAST).
+		 * If called with INFO_CACHED - returns cached data about promiscuous mode (SUPER FAST may be INACCURATE).
 		 * If called with INFO_RENEW - makes system call to Linux to obtain
-		 * promiscuous mode and caches it (VERY SLOW).
+		 * promiscuous mode and caches it (VERY SLOW but ACCURATE).
 		 * @param[in] state Defines information relevance level
 		 * @return Known promiscuous mode of KNI interface
 		 */
@@ -475,10 +474,10 @@ namespace pcpp
 
 		/**
 		 * @brief Sets link state of KNI device.
-		 * Firstly the link information is updated as in getLinkState(INFO_RENEW).
+		 * Firstly the link information is updated as by call to getLinkState(INFO_RENEW).
 		 * Then link state is set only if obtained state differs from provided.
 		 * New link state of KNI device is cached.
-		 * @note You must be using sudo or be root or have CAP_NET_ADMIN capability use this function
+		 * @note You must be using sudo or be root or have CAP_NET_ADMIN capability to use this function
 		 * @note Generates change link state request
 		 * @param[in] state Must be LINK_UP or LINK_DOWN
 		 * @return true if desired link state of KNI device is set (was as provided or set successfully),
@@ -487,9 +486,9 @@ namespace pcpp
 		bool setLinkState(KniLinkState state);
 		/**
 		 * @brief Sets MAC address of KNI device.
-		 * Unconditionally updates MAC of KNI device.
+		 * Unconditionally changes MAC of KNI device.
 		 * If MAC is updated successfully then it is cached.
-		 * @note You must be using sudo or be root or have CAP_NET_ADMIN capability use this function
+		 * @note You must be using sudo or be root or have CAP_NET_ADMIN capability to use this function
 		 * @note Generates change mac request
 		 * @param[in] mac New MAC address of KNI device
 		 * @return true if desired MAC address is set, false if not and some error occurred (debug info is printed)
@@ -497,9 +496,9 @@ namespace pcpp
 		bool setMacAddress(MacAddress mac);
 		/**
 		 * @brief Sets MTU of KNI device.
-		 * Unconditionally updates MTU of KNI device.
+		 * Unconditionally changes MTU of KNI device.
 		 * If MTU is updated successfully then it is cached.
-		 * @note You must be using sudo or be root or have CAP_NET_ADMIN capability use this function
+		 * @note You must be using sudo or be root or have CAP_NET_ADMIN capability to use this function
 		 * @note Generates change mtu request
 		 * @warning Low MTU values may crush Linux kernel. Follow Your kernel version documentation for details
 		 * @param[in] mtu New MTU address of KNI device
@@ -508,10 +507,10 @@ namespace pcpp
 		bool setMtu(uint16_t mtu);
 		/**
 		 * @brief Sets promiscuous mode of KNI device.
-		 * Firstly the promiscuous mode information is updated as in getPromiscuous(INFO_RENEW).
+		 * Firstly the promiscuous mode information is updated as by call to getPromiscuous(INFO_RENEW).
 		 * Then promiscuous mode is set only if obtained mode differs from provided.
 		 * New promiscuous mode of KNI device is cached.
-		 * @note You must be using sudo or be root or have CAP_NET_ADMIN capability use this function
+		 * @note You must be using sudo or be root or have CAP_NET_ADMIN capability to use this function
 		 * @note Generates promiscuous mode request
 		 * @param[in] mode Must be PROMISC_DISABLE or PROMISC_ENABLE
 		 * @return true if desired promiscuous mode of KNI device is set (was as provided or set successfully),
@@ -534,7 +533,7 @@ namespace pcpp
 		/* Requests */
 
 		/**
-		 * @brief Handle requests from Linux kernel synchronously in this thread.
+		 * @brief Handle requests from Linux kernel synchronously in calling thread.
 		 * When one of events which is needed application attention occurres it must be handled by calling this
 		 * function (or by running RequestHandlerThread for this device).
 		 * Until the request is handled the Linux kernel thread that manages this KNI is blocked.
@@ -544,8 +543,8 @@ namespace pcpp
 		 *  - change mtu: ip l set dev [interface] mtu [mtu_count]
 		 *  - change mac: ip l set [interface] address [new_mac]
 		 *  - change promiscuous mode: ip l set [interface] promisc on/off
-		 * Functions setLinkState, setMacAddress, setMtu and setPromiscuous will generate this requests.
-		 * @note Callbacks provided for this KNI device will be called synchronously in this thread during execution of this function
+		 * @warning Functions setLinkState, setMacAddress, setMtu and setPromiscuous will generate this requests.
+		 * @note Callbacks provided for this KNI device will be called synchronously in calling thread during execution of this function
 		 * @return true if no error happend during request handling false otherwise
 		 */
 		bool handleRequests();
@@ -565,19 +564,24 @@ namespace pcpp
 		/**
 		 * @brief Explicitly stops request thread for this device if it was running.
 		 * See description of handleRequests() about requests.
+		 * @warning There may be a rare error when request thread handles requests on already
+		 * destroyed device. It occurres only because request thread is detached one but it is really really rare.
+		 * In case of this error occuring (must be SIGSEGV) change type of created thread in startRequestHandlerThread
+		 * function from DETACHED to JOINABLE.
 		 */
 		void stopRequestHandlerThread();
 
 		/* Packet receive */
 
 		/**
-		 * Receive raw packets from the network
+		 * @brief Receive raw packets from the network.
 		 * @param[out] rawPacketsArr A vector where all received packets will be written into
 		 * @return The number of packets received. If an error occurred 0 will be returned and the error will be printed to log
 		 */
 		uint16_t receivePackets(MBufRawPacketVector& rawPacketsArr);
 		/**
-		 * Receive raw packets from the network. Please notice that in terms of performance, this is the best method to use
+		 * @brief Receive raw packets from the network.
+		 * Please notice that in terms of performance, this is the best method to use
 		 * for receiving packets because out of all receivePackets overloads this method requires the least overhead and is
 		 * almost as efficient as receiving packets directly through DPDK. So if performance is a critical factor in your
 		 * application, please use this method
@@ -589,7 +593,7 @@ namespace pcpp
 		 */
 		uint16_t receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPacketArrLength);
 		/**
-		 * Receive parsed packets from the network
+		 * @brief Receive parsed packets from the network.
 		 * @param[out] packetsArr A pointer to an allocated array of Packet pointers where all received packets will be written into. The array is expected to
 		 * be allocated by the user and its length should be provided in packetsArrLength. Number of packets received will be returned.
 		 * Notice it's the user responsibility to free the array and its content when done using it
@@ -689,13 +693,13 @@ namespace pcpp
 
 		/**
 		 * @brief Start capturing packets asynchronously on this KNI interface.
-		 * Each time a burst of packets are captured the onPacketArrives callback is called.
+		 * Each time a burst of packets is captured the onPacketArrives callback is called.
 		 * The capture is done on a new thread created by this method, meaning all callback
 		 * calls are done in a thread other than the caller thread.
 		 * Capture process will stop and this capture thread will be terminated when calling stopCapture().
 		 * This method must be called after the device is opened (i.e the open() method was called), otherwise an error will be returned.
 		 * Capturing thread will be terminated automatically on KNI device destruction or when close() is called.
-		 * @param[in] onPacketArrives A callback that is called each time a burst of packets are captured
+		 * @param[in] onPacketArrives A callback that is called each time a burst of packets is captured
 		 * @param[in] onPacketArrivesUserCookie A pointer to a user provided object. This object will be transferred to the onPacketArrives callback
 		 * each time it is called. This cookie is very useful for transferring objects that give context to the capture callback, for example:
 		 * objects that counts packets, manages flow state or manages the application state according to the packet that was captured
@@ -707,14 +711,14 @@ namespace pcpp
 		bool startCapture(OnKniPacketArriveCallback onPacketArrives, void* onPacketArrivesUserCookie);
 		/**
 		 * @brief Start capturing packets synchronously on this KNI interface in blocking mode.
-		 * Blocking mode meaning this method blocks and won't return untilthe user frees the blocking
+		 * Blocking mode means that this method block and won't return until the user frees the blocking
 		 * (via onPacketArrives callback) or until a user defined timeout expires.
-		 * Whenever a burst of packets are captured the onPacketArrives callback is called and lets the user handle the packet.
+		 * Whenever a burst of packets is captured the onPacketArrives callback is called and lets the user handle the packet.
 		 * In each callback call the user should return true if he wants to release the block or false if it wants it to keep blocking.
-		 * Regardless of this callback a timeout is defined when start capturing.
+		 * Regardless of this callback a timeout is defined when stop capturing.
 		 * When this timeout expires the method will return.<BR>
 		 * Please notice that stopCapture() isn't needed here because when the method returns (after timeout or per user decision) capturing
-		 * on the device is stopped
+		 * on the device is stopped.
 		 * @param[in] onPacketArrives A callback given by the user for handling incoming packets. After handling each burst of packets
 		 * the user needs to return a boolean value. True value indicates stop capturing and stop blocking and
 		 * false value indicates continue capturing and blocking
@@ -743,7 +747,7 @@ namespace pcpp
 		bool open();
 		/**
 		 * @brief Close the KNI device.
-		 * When device is closed it's not possible work with it.
+		 * When device is closed it's not possible to work with it.
 		 * Stops asynchronous packet capture if it is running.
 		 */
 		void close();
