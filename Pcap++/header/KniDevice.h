@@ -555,11 +555,13 @@ namespace pcpp
 		 * New thread is detached using pthread_detach.
 		 * This thread can be stoped explicitly by calling stopRequestHandlerThread() or
 		 * implicitly on KNI device destruction.
+		 * Linux <a href="http://man7.org/linux/man-pages/man2/nanosleep.2.html">nanosleep()</a> function is used for sleeping.
 		 * @note Callbacks provided for this KNI device will be called asynchronously in new thread
-		 * @param[in] sleepTime Sleeping time in microseconds (usleep is used, see Your Linux kernel version docs for maximum value)
+		 * @param[in] sleepSeconds Sleeping time in seconds
+		 * @param[in] sleepNanoSeconds Sleeping time in nanoseconds
 		 * @return true if new thread is started successfully false otherwise
 		 */
-		bool startRequestHandlerThread(uint16_t sleepTime);
+		bool startRequestHandlerThread(long sleepSeconds, long sleepNanoSeconds = 0);
 		/**
 		 * @brief Explicitly stops request thread for this device if it was running.
 		 * See description of handleRequests() about requests.
@@ -776,7 +778,8 @@ namespace pcpp
 		} m_Capturing;
 		struct KniRequests
 		{
-			uint16_t sleepTime;
+			long sleepS;
+			long sleepNs;
 			KniThread* thread;
 
 			static void* runRequests(void* p);

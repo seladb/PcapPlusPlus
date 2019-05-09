@@ -7,6 +7,7 @@
 #include "SystemUtils.h"
 
 #include <unistd.h>
+#include <time.h>
 #include <pthread.h>
 
 #include <rte_version.h>
@@ -430,32 +431,33 @@ void KniDevice::KniRequests::cleanup()
 {
 	delete thread;
 	thread = NULL;
-	sleepTime = 0;
+	sleepS = sleepNs = 0;
 }
 
 void* KniDevice::KniRequests::runRequests(void* p)
 {
 	KniDevice* device = (KniDevice*)p;
-	uint16_t sleepTime = device->m_Requests.sleepTime;
+	struct timespec sleepTime;
+	sleepTime.tv_sec = device->m_Requests.sleepS;
+	sleepTime.tv_nsec = device->m_Requests.sleepNs;
 	struct rte_kni* kni_dev = device->m_Device;
 	for(;;)
 	{
-		usleep(sleepTime);
-		//? usleep is not a cancelation point in newer Linux so we add one
-		pthread_testcancel();
+		nanosleep(&sleepTime, NULL);
 		rte_kni_handle_request(kni_dev);
 	}
 	return NULL;
 }
 
-bool KniDevice::startRequestHandlerThread(uint16_t sleepTime)
+bool KniDevice::startRequestHandlerThread(long sleepSeconds, long sleepNanoSeconds)
 {
 	if (m_Requests.thread != NULL)
 	{
 		LOG_DEBUG("KNI request thread is already started for device \"%s\"", m_DeviceInfo.name);
 		return false;
 	}
-	m_Requests.sleepTime = sleepTime;
+	m_Requests.sleepS = sleepSeconds;
+	m_Requests.sleepNs = sleepNanoSeconds;
 	m_Requests.thread = new KniThread(KniThread::DETACHED, KniRequests::runRequests, (void*)this);
 	if (m_Requests.thread->m_State == KniThread::INVALID)
 	{
