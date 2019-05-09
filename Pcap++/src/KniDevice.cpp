@@ -67,7 +67,7 @@ KniDevice::KniThread::KniThread(KniThreadCleanupState s, thread_main_f main_f, v
 		m_State = INVALID;
 		return;
 	}
-	if (m_State == INVALID)
+	if (m_State == DETACHED)
 	{
 		err = pthread_detach(m_Descriptor);
 		if (err != 0)
@@ -438,6 +438,7 @@ void* KniDevice::KniRequests::runRequests(void* p)
 	for(;;)
 	{
 		usleep(sleepTime);
+		//? usleep is not a cancelation point in newer Linux so we add one
 		pthread_testcancel();
 		rte_kni_handle_request(kni_dev);
 	}
@@ -1016,6 +1017,9 @@ void KniDevice::DestroyDevice(KniDevice* kniDevice)
 
 KniDevice* KniDevice::getDeviceByPort(uint16_t portId)
 {
+	//? Linear search here is optimal for low count of devices.
+	//? We assume that no one will create large count of devices or will rapidly search them.
+	//? Same for <getDeviceByName> function
 	KniDevice* kniDevice = NULL;
 	KniDeviceList& list = KniDeviceList::Instance();
 	if (!list.m_Initialized)
