@@ -415,7 +415,10 @@ KniDevice::~KniDevice()
 
 KniDevice::KniLinkState KniDevice::updateLinkState(KniLinkState state)
 {
-	return set_kni_device_link_state(m_Device, m_DeviceInfo.name, state);
+	KniLinkState oldState = set_kni_device_link_state(m_Device, m_DeviceInfo.name, state);
+	if (oldState != KniDevice::LINK_NOT_SUPPORTED && oldState != KniDevice::LINK_ERROR)
+		m_DeviceInfo.link = state;
+	return oldState;
 }
 
 bool KniDevice::handleRequests()
