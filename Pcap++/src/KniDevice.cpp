@@ -304,10 +304,7 @@ inline KniDevice::KniLinkState set_kni_device_link_state(
 )
 {
 	KniDevice::KniLinkState old_state = KniDevice::LINK_NOT_SUPPORTED;
-	if (state != KniDevice::LINK_UP ||
-		state != KniDevice::LINK_DOWN ||
-		kni_dev == NULL
-	)
+	if (kni_dev == NULL || !(state == KniDevice::LINK_UP || state == KniDevice::LINK_DOWN))
 	{
 		return old_state = KniDevice::LINK_ERROR;
 	}
