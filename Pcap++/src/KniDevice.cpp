@@ -930,29 +930,53 @@ int KniDevice::startCaptureBlockingMode(
 	}
 
 	struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
-	long startTimeSec = 0, startTimeNSec = 0;
-	long curTimeSec = 0, curTimeNSec = 0;
 
-	clockGetTime(startTimeSec, startTimeNSec);
-
-	while(curTimeSec <= (startTimeSec + timeout))
+	if (timeout <= 0)
 	{
-		clockGetTime(curTimeSec, curTimeNSec);
-		uint32_t numOfPktsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
-		if (likely(numOfPktsReceived != 0))
+		for(;;)
 		{
-			KniRawPacket rawPackets[MAX_BURST_SIZE];
-			timeval time;
-			time.tv_sec = curTimeSec;
-			time.tv_usec = curTimeNSec / 1000;
-
-			for (uint32_t index = 0; index < numOfPktsReceived; ++index)
+			uint32_t numOfPktsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
+			if (likely(numOfPktsReceived != 0))
 			{
-				rawPackets[index].setMBuf(mBufArray[index], time);
-			}
+				KniRawPacket rawPackets[MAX_BURST_SIZE];
+				timeval time;
+				gettimeofday(&time, NULL);
 
-			if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))
-				return 1;
+				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
+				{
+					rawPackets[index].setMBuf(mBufArray[index], time);
+				}
+
+				if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))
+					return 1;
+			}
+		}
+	}
+	else
+	{
+		long startTimeSec = 0, startTimeNSec = 0;
+		long curTimeSec = 0, curTimeNSec = 0;
+		clockGetTime(startTimeSec, startTimeNSec);
+
+		while(curTimeSec <= (startTimeSec + timeout))
+		{
+			clockGetTime(curTimeSec, curTimeNSec);
+			uint32_t numOfPktsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
+			if (likely(numOfPktsReceived != 0))
+			{
+				KniRawPacket rawPackets[MAX_BURST_SIZE];
+				timeval time;
+				time.tv_sec = curTimeSec;
+				time.tv_usec = curTimeNSec / 1000;
+
+				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
+				{
+					rawPackets[index].setMBuf(mBufArray[index], time);
+				}
+
+				if (!m_Capturing.callback(rawPackets, numOfPktsReceived, this, m_Capturing.userCookie))
+					return 1;
+			}
 		}
 	}
 	return -1;
