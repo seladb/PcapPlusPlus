@@ -105,6 +105,23 @@ sudo modprobe uio
 sudo insmod ${RTE_SDK}/build/kmod/igb_uio.ko
 echo "2. Install kernel module - DONE!"
 
+if [ -n "$INSERT_KNI" ]; then
+    if [ ! -f ${RTE_SDK}/build/kmod/rte_kni.ko ]; then
+        echo "ERROR: DPDK Target(/build) does not have the rte_kni.ko Kernel Module"
+        exit 1
+    fi
+    lsmod | grep -s rte_kni > /dev/null
+    if [ $? -eq 0 ] ; then
+        sudo rmmod rte_kni
+    fi
+    sudo insmod ${RTE_SDK}/build/kmod/rte_kni.ko
+    if [ $? -ne 0 ] ; then
+        echo "ERROR: Could not load kmod/rte_kni.ko"
+        exit 2
+    fi
+	echo "  2.1 Install KNI kernel module - DONE!"
+fi
+
 
 # bind network adapter
 IFS=","
