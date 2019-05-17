@@ -68,7 +68,7 @@ namespace pcpp
 		 * Get a pointer to the VLAN header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the vlan_header
 		 */
-		inline vlan_header* getVlanHeader() { return (vlan_header*)m_Data; }
+		inline vlan_header* getVlanHeader() const { return (vlan_header*)m_Data; }
 
 		/**
 		 * Get the VLAN ID value. This method differs from vlan_header#vlanID because vlan_header#vlanID is 12 bits long in a 16 bit field.
@@ -76,19 +76,19 @@ namespace pcpp
 		 * @return VLAN ID value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		uint16_t getVlanID();
+		uint16_t getVlanID() const;
 
 		/**
 		 * @return The CFI bit value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		uint8_t getCFI();
+		uint8_t getCFI() const;
 
 		/**
 		 * @return The priority value
 		 * @todo Verify it works in big endian machines as well
 		 */
-		uint8_t getPriority();
+		uint8_t getPriority() const;
 
 		/**
 		 * Set VLAN ID. This method differs from setting vlan_header#vlanID because vlan_header#vlanID is 12 bits long in a 16 bit field.
@@ -131,7 +131,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};
 
 } // namespace pcpp

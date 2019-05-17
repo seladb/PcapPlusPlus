@@ -592,7 +592,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
 	private:
 		int m_NumOfTrailingBytes;

@@ -66,7 +66,7 @@ namespace pcpp
 		 * Get a pointer to the Sll header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the sll_header
 		 */
-		inline sll_header* getSllHeader() { return (sll_header*)m_Data; }
+		inline sll_header* getSllHeader() const { return (sll_header*)m_Data; }
 
 		/**
 		 * A setter for the link layer address field
@@ -102,7 +102,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};
 
 } // namespace pcpp

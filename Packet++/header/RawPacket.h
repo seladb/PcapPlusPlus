@@ -219,14 +219,14 @@ namespace pcpp
 	class RawPacket
 	{
 	protected:
-		uint8_t* m_pRawData;
+		uint8_t* m_RawData;
 		int m_RawDataLen;
 		int m_FrameLength;
 		timeval m_TimeStamp;
 		bool m_DeleteRawDataAtDestructor;
 		bool m_RawPacketSet;
-		LinkLayerType m_linkLayerType;
-		void Init();
+		LinkLayerType m_LinkLayerType;
+		void init();
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 	public:
 		/**
@@ -292,7 +292,7 @@ namespace pcpp
 		 * Get raw data pointer
 		 * @return A pointer to the raw data
 		 */
-		const uint8_t* getRawData();
+        const uint8_t* getRawData() const;
 
 		/**
 		 * Get read only raw data pointer
@@ -321,7 +321,7 @@ namespace pcpp
 		 * Get raw data timestamp
 		 * @return Raw data timestamp
 		 */
-		timeval getPacketTimeStamp();
+        timeval getPacketTimeStamp() const;
 
 		/**
 		 * Get an indication whether raw data was already set for this instance.

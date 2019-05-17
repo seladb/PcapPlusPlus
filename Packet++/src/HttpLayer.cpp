@@ -112,7 +112,7 @@ HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 }
 
 
-std::string HttpRequestLayer::getUrl()
+std::string HttpRequestLayer::getUrl() const
 {
 	HeaderField* hostField = getFieldByName(PCPP_HTTP_HOST_FIELD);
 	if (hostField == NULL)
@@ -205,7 +205,10 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 		m_IsComplete = false;
 	}
 
-	LOG_DEBUG("Method='%s'; HTTP version='%s'; URI='%s'", MethodEnumToString[m_Method].c_str(), VersionEnumToString[m_Version].c_str(), getUri().c_str());
+	LOG_DEBUG("Method='%s'; HTTP version='%s'; URI='%s'",
+			m_Method == HttpRequestLayer::HttpMethodUnknown? "Unknown" : MethodEnumToString[m_Method].c_str(),
+			VersionEnumToString[m_Version].c_str(),
+			getUri().c_str());
 }
 
 HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, std::string uri)
@@ -1248,7 +1251,10 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 		m_IsComplete = false;
 	}
 
-	LOG_DEBUG("Version='%s'; Status code=%d '%s'", VersionEnumToString[m_Version].c_str(), StatusCodeEnumToInt[m_StatusCode], getStatusCodeString().c_str());
+	LOG_DEBUG("Version='%s'; Status code=%d '%s'",
+			m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version].c_str(),
+			m_StatusCode == HttpResponseLayer::HttpStatusCodeUnknown ? 0 : StatusCodeEnumToInt[m_StatusCode],
+			getStatusCodeString().c_str());
 }
 
 

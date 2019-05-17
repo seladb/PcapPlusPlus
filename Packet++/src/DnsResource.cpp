@@ -29,7 +29,7 @@ IDnsResource::IDnsResource(uint8_t* emptyRawData)
 {
 }
 
-uint8_t* IDnsResource::getRawData()
+uint8_t* IDnsResource::getRawData() const
 {
 	if (m_DnsLayer == NULL)
 		return m_ExternalRawData;
@@ -170,7 +170,7 @@ void IDnsResource::setDnsType(DnsType newType)
 	memcpy(getRawData() + m_NameLength, &newTypeAsInt, sizeof(uint16_t));
 }
 
-DnsClass IDnsResource::getDnsClass()
+DnsClass IDnsResource::getDnsClass() const
 {
 	uint16_t dnsClass = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
 	return (DnsClass)ntohs(dnsClass);

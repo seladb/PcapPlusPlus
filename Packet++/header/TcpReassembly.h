@@ -177,25 +177,25 @@ public:
 	 * A getter for the data buffer
 	 * @return A pointer to the buffer
 	 */
-	inline uint8_t* getData() { return m_Data; }
+	uint8_t* getData() const { return m_Data; }
 
 	/**
 	 * A getter for buffer length
 	 * @return Buffer length
 	 */
-	inline size_t getDataLength() { return m_DataLen; }
+	size_t getDataLength() const { return m_DataLen; }
 
 	/**
 	 * A getter for the connection data
 	 * @return The connection data
 	 */
-	inline ConnectionData getConnectionData() { return m_Connection; }
+	ConnectionData getConnectionData() const { return m_Connection; }
 
 	/**
 	 * A getter for the connection data
 	 * @return The const reference to connection data
 	 */
-	inline const ConnectionData& getConnectionDataRef() { return m_Connection; }
+	const ConnectionData& getConnectionDataRef() const { return m_Connection; }
 
 private:
 	uint8_t* m_Data;
@@ -306,7 +306,7 @@ public:
 	 * @param[in] connection The connection to check
 	 * @return A positive number (> 0) if connection is opened, zero (0) if connection is closed, and a negative number (< 0) if this connection isn't managed by this TcpReassembly instance
 	 */
-	int isConnectionOpen(const ConnectionData& connection);
+	int isConnectionOpen(const ConnectionData& connection) const;
 
 private:
 	struct TcpFragment

@@ -342,7 +342,9 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		fragData = iter->second;
 
 		// mark this packet as used
-		m_PacketLRU->put(hash);
+		uint32_t* removedElement = m_PacketLRU->put(hash);
+		if (removedElement != NULL)
+			delete removedElement;
 	}
 
 	bool gotLastFragment = false;

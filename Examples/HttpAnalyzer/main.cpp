@@ -399,7 +399,8 @@ void analyzeHttpFromPcapFile(std::string pcapFileName)
 
 	// set a port 80 filter on the reader device to process only HTTP packets
 	PortFilter httpPortFilter(80, SRC_OR_DST);
-	reader->setFilter(httpPortFilter);
+	if (!reader->setFilter(httpPortFilter))
+		EXIT_WITH_ERROR("Could not set up filter on file");
 
 	// read the input file packet by packet and give it to the HttpStatsCollector for collecting stats
 	HttpStatsCollector collector;
@@ -435,7 +436,8 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
 
 	// set a port 80 filter on the live device to capture only HTTP packets
 	PortFilter httpPortFilter(80, SRC_OR_DST);
-	dev->setFilter(httpPortFilter);
+	if (!dev->setFilter(httpPortFilter))
+		EXIT_WITH_ERROR("Could not set up filter on device");
 
 	// if needed to save the captured packets to file - open a writer device
 	PcapFileWriterDevice* pcapWriter = NULL;

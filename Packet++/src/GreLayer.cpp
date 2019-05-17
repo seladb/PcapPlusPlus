@@ -40,7 +40,7 @@ ProtocolType GreLayer::getGREVersion(uint8_t* greData, size_t greDataLen)
 		return UnknownProtocol;
 }
 
-uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing)
+uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing) const
 {
 	uint8_t* ptr = m_Data + sizeof(gre_basic_header);
 
@@ -133,7 +133,7 @@ void GreLayer::computeCalculateFieldsInner()
 	}
 }
 
-bool GreLayer::getSequenceNumber(uint32_t& seqNumber)
+bool GreLayer::getSequenceNumber(uint32_t& seqNumber) const
 {
 	gre_basic_header* header = (gre_basic_header*)m_Data;
 

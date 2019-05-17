@@ -85,7 +85,11 @@ MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 
 	//setup arp reply filter
 	ArpFilter arpFilter(ARP_REPLY);
-	pDevice->setFilter(arpFilter);
+	if (!pDevice->setFilter(arpFilter))
+	{
+		printf("Could not set ARP filter on device\n");
+		return MacAddress("");
+	}
 
 	//send the arp request and wait for arp reply
 	pDevice->sendPacket(&arpRequest);

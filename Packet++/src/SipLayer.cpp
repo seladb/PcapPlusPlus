@@ -126,7 +126,9 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 		m_IsComplete = false;
 	}
 
-	LOG_DEBUG("Method='%s'; SIP version='%s'; URI='%s'", SipMethodEnumToString[m_Method].c_str(), m_Version.c_str(), getUri().c_str());
+	LOG_DEBUG("Method='%s'; SIP version='%s'; URI='%s'",
+			m_Method == SipRequestLayer::SipMethodUnknown? "Unknown" : SipMethodEnumToString[m_Method].c_str(),
+			m_Version.c_str(), getUri().c_str());
 }
 
 SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, std::string version, std::string uri)
@@ -1202,7 +1204,9 @@ SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse) : m_Si
 		m_IsComplete = false;
 	}
 
-	LOG_DEBUG("Version='%s'; Status code=%d '%s'", m_Version.c_str(), StatusCodeEnumToInt[m_StatusCode], getStatusCodeString().c_str());
+	LOG_DEBUG("Version='%s'; Status code=%d '%s'", m_Version.c_str(),
+			m_StatusCode == SipResponseLayer::SipStatusCodeUnknown ? 0 : StatusCodeEnumToInt[m_StatusCode],
+			getStatusCodeString().c_str());
 }
 
 

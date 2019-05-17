@@ -380,6 +380,8 @@ static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, 
 					}
 				}
 			}
+
+			delete flowKeyToCloseFiles;
 		}
 
 		// get the file name according to the 5-tuple etc.

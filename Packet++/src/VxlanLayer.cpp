@@ -38,7 +38,7 @@ VxlanLayer::VxlanLayer(uint32_t vni, uint16_t groupPolicyID, bool setGbpFlag, bo
 		vxlanHeader->dontLearnFlag = 1;
 }
 
-uint32_t VxlanLayer::getVNI()
+uint32_t VxlanLayer::getVNI() const
 {
 	return (ntohl(getVxlanHeader()->vni) >> 8);
 }

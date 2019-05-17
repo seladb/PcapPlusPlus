@@ -57,7 +57,7 @@ namespace pcpp
 		 * Get a pointer to the UDP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref udphdr
 		 */
-		inline udphdr* getUdpHeader() { return (udphdr*)m_Data; }
+		inline udphdr* getUdpHeader() const { return (udphdr*)m_Data; }
 
 		/**
 		 * Calculate the checksum from header and data and possibly write the result to @ref udphdr#headerChecksum
@@ -86,7 +86,7 @@ namespace pcpp
 
 		std::string toString();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelTransportLayer; }
+        OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 	};
 
 } // namespace pcpp

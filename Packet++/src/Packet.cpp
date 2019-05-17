@@ -423,6 +423,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToRemove))
 	{
 		LOG_ERROR("Couldn't remove data from packet");
+		delete [] layerOldData;
 		return false;
 	}
 

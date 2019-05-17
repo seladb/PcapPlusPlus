@@ -126,7 +126,7 @@ namespace pcpp
 		 * @return True if sequence number field exists in layer. In this case seqNumber will be filled with the value.
 		 * Or false if sequence number field doesn't exist in layer
 		 */
-		bool getSequenceNumber(uint32_t& seqNumber);
+		bool getSequenceNumber(uint32_t& seqNumber) const;
 
 		/**
 		 * Set sequence number value. If field already exists (gre_basic_header#sequenceNumBit is set) then only the new
@@ -158,7 +158,7 @@ namespace pcpp
 		 */
 		size_t getHeaderLen();
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
 	protected:
 		GreLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { }
@@ -173,7 +173,7 @@ namespace pcpp
 			GreAck = 3
 		};
 
-		uint8_t* getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing);
+		uint8_t* getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing) const;
 
 		void computeCalculateFieldsInner();
 	};
@@ -213,7 +213,7 @@ namespace pcpp
 		 * Please avoid doing so
 		 * @return A pointer to the gre_basic_header
 		 */
-		inline gre_basic_header* getGreHeader() { return (gre_basic_header*)m_Data; }
+		inline gre_basic_header* getGreHeader() const { return (gre_basic_header*)m_Data; }
 
 		/**
 		 * Get checksum value if field exists in layer
@@ -323,7 +323,7 @@ namespace pcpp
 		 * to some really weird bugs. Please avoid doing so
 		 * @return A pointer to the gre1_header
 		 */
-		inline gre1_header* getGreHeader() { return (gre1_header*)m_Data; }
+		inline gre1_header* getGreHeader() const { return (gre1_header*)m_Data; }
 
 		/**
 		 * Get acknowledgment (ack) number value if field exists in layer
@@ -416,7 +416,7 @@ namespace pcpp
 
 		std::string toString() { return "PPP for PPTP Layer"; }
 
-		OsiModelLayer getOsiModelLayer() { return OsiModelSesionLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 
 	};
 
