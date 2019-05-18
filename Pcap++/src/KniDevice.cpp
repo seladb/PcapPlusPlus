@@ -1,4 +1,4 @@
-#ifdef USE_DPDK
+#if defined(USE_DPDK) && defined(LINUX)
 
 #define LOG_MODULE PcapLogModuleDpdkDevice
 
@@ -1003,4 +1003,4 @@ bool KniDevice::isCallbackSupported(KniCallbackType cbType)
 }
 
 }
-#endif /* USE_DPDK */
+#endif /* defined(USE_DPDK) && defined(LINUX) */
