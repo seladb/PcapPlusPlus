@@ -483,13 +483,13 @@ namespace pcpp
 		/* Packet receive */
 
 		/**
-		 * @brief Receive raw packets from the network.
+		 * @brief Receive raw packets from kernel.
 		 * @param[out] rawPacketsArr A vector where all received packets will be written into
 		 * @return The number of packets received. If an error occurred 0 will be returned and the error will be printed to log
 		 */
 		uint16_t receivePackets(MBufRawPacketVector& rawPacketsArr);
 		/**
-		 * @brief Receive raw packets from the network.
+		 * @brief Receive raw packets from kernel.
 		 * Please notice that in terms of performance, this is the best method to use
 		 * for receiving packets because out of all receivePackets overloads this method requires the least overhead and is
 		 * almost as efficient as receiving packets directly through DPDK. So if performance is a critical factor in your
@@ -502,7 +502,7 @@ namespace pcpp
 		 */
 		uint16_t receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPacketArrLength);
 		/**
-		 * @brief Receive parsed packets from the network.
+		 * @brief Receive parsed packets from kernel.
 		 * @param[out] packetsArr A pointer to an allocated array of Packet pointers where all received packets will be written into. The array is expected to
 		 * be allocated by the user and its length should be provided in packetsArrLength. Number of packets received will be returned.
 		 * Notice it's the user responsibility to free the array and its content when done using it
@@ -514,7 +514,7 @@ namespace pcpp
 		/* Packet send */
 
 		/**
-		 * @brief Send an array of MBufRawPacket to the network.
+		 * @brief Send an array of MBufRawPacket to kernel.
 		 * Please notice the following:<BR>
 		 * - In terms of performance, this is the best method to use for sending packets because out of all sendPackets overloads
 		 * this method requires the least overhead and is almost as efficient as sending the packets directly through DPDK. So if performance
@@ -529,7 +529,7 @@ namespace pcpp
 		 */
 		uint16_t sendPackets(MBufRawPacket** rawPacketsArr, uint16_t arrLength);
 		/**
-		 * @brief Send an array of parsed packets to the network.
+		 * @brief Send an array of parsed packets to kernel.
 		 * Please notice the following:<BR>
 		 * - If some or all of the packets contain raw packets which aren't of type MBufRawPacket, a new temp MBufRawPacket instances
 		 * will be created and packet data will be copied to them. This is necessary to allocate mbufs which will store the data to be sent.
@@ -545,7 +545,7 @@ namespace pcpp
 		 */
 		uint16_t sendPackets(Packet** packetsArr, uint16_t arrLength);
 		/**
-		 * @brief Send a vector of MBufRawPacket pointers to the network.
+		 * @brief Send a vector of MBufRawPacket pointers to kernel.
 		 * Please notice the following:<BR>
 		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending packets to DPDK, each
 		 * iteration of 64 packets
@@ -556,7 +556,7 @@ namespace pcpp
 		 */
 		uint16_t sendPackets(MBufRawPacketVector& rawPacketsVec);
 		/**
-		 * @brief Send a vector of RawPacket pointers to the network.
+		 * @brief Send a vector of RawPacket pointers to kernel.
 		 * Please notice the following:<BR>
 		 * - If some or all of the raw packets aren't of type MBufRawPacket, a new temp MBufRawPacket instances will be created
 		 * and packet data will be copied to them. This is necessary to allocate mbufs which will store the data to be sent. If
@@ -571,7 +571,7 @@ namespace pcpp
 		 */
 		uint16_t sendPackets(RawPacketVector& rawPacketsVec);
 		/**
-		 * @brief Send a raw packet to the network.
+		 * @brief Send a raw packet to kernel.
 		 * Please notice that if the raw packet isn't of type MBufRawPacket, a new temp MBufRawPacket
 		 * will be created and the data will be copied to it. This is necessary to allocate an mbuf which will store the data to be sent.
 		 * If performance is a critical factor please make sure you send a raw packet of type MBufRawPacket.
@@ -581,14 +581,14 @@ namespace pcpp
 		 */
 		bool sendPacket(RawPacket& rawPacket);
 		/**
-		 * @brief Send a MBufRawPacket to the network.
+		 * @brief Send a MBufRawPacket to kernel.
 		 * Please notice that the mbuf used in this method isn't freed by this method, it will be transparently freed by DPDK
 		 * @param[in] rawPacket The MBufRawPacket to send
 		 * @return True if packet was sent successfully or false if device is not opened or if the packet wasn't sent for any other reason
 		 */
 		bool sendPacket(MBufRawPacket& rawPacket);
 		/**
-		 * @brief Send a parsed packet to the network.
+		 * @brief Send a parsed packet to kernel.
 		 * Please notice that the mbuf used or allocated in this method isn't freed by this method, it will be transparently freed by DPDK
 		 * @param[in] packet The parsed packet to send. Please notice that if the packet contains a raw packet which isn't of type
 		 * MBufRawPacket, a new temp MBufRawPacket will be created and the data will be copied to it. This is necessary to
