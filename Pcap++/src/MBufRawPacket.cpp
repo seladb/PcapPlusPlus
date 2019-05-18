@@ -31,7 +31,7 @@ namespace pcpp
  * ===================
  */
 
-const size_t MBufRawPacket::MBUF_DATA_SIZE = MBUF_DATA_SIZE_DEFINE;
+const int MBufRawPacket::MBUF_DATA_SIZE = MBUF_DATA_SIZE_DEFINE;
 
 MBufRawPacket::~MBufRawPacket()
 {

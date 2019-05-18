@@ -44,7 +44,7 @@ namespace pcpp
 	{
 		friend class DpdkDevice;
 		friend class KniDevice;
-		static const size_t MBUF_DATA_SIZE;
+		static const int MBUF_DATA_SIZE;
 
 	protected:
 		struct rte_mbuf* m_MBuf;
