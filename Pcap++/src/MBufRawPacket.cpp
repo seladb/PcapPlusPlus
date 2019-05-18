@@ -18,11 +18,9 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#ifndef MBUF_DATA_SIZE
-#	define MBUF_DATA_SIZE 2048
+#ifndef MBUF_DATA_SIZE_DEFINE
+#	define MBUF_DATA_SIZE_DEFINE RTE_MBUF_DEFAULT_DATAROOM
 #endif
-
-enum { MBUF_SIZE = MBUF_DATA_SIZE + sizeof(struct rte_mbuf) + RTE_PKTMBUF_HEADROOM };
 
 namespace pcpp
 {
@@ -33,6 +31,8 @@ namespace pcpp
  * ===================
  */
 
+const size_t MBufRawPacket::MBUF_DATA_SIZE = MBUF_DATA_SIZE_DEFINE;
+
 MBufRawPacket::~MBufRawPacket()
 {
 	if (m_MBuf != NULL && m_FreeMbuf)
@@ -41,7 +41,7 @@ MBufRawPacket::~MBufRawPacket()
 	}
 }
 
-bool MBufRawPacket::init(DpdkDevice* device)
+bool MBufRawPacket::init(struct rte_mempool* mempool)
 {
 	if (m_MBuf != NULL)
 	{
@@ -49,21 +49,36 @@ bool MBufRawPacket::init(DpdkDevice* device)
 		return false;
 	}
 
-	m_MBuf = rte_pktmbuf_alloc(device->m_MBufMempool);
+	if (mempool == NULL)
+	{
+		LOG_ERROR("Could not initialize MBufRawPacket no mempool provided");
+		return false;
+	}
+
+	m_MBuf = rte_pktmbuf_alloc(mempool);
 	if (m_MBuf == NULL)
 	{
 		LOG_ERROR("Couldn't allocate mbuf");
 		return false;
 	}
 
-	m_Device = device;
-
+	m_Mempool = mempool;
 	return true;
 }
 
-bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* device)
+bool MBufRawPacket::init(DpdkDevice* device)
 {
-	if (!init(device))
+	return init(device->m_MBufMempool);
+}
+
+bool MBufRawPacket::init(KniDevice* device)
+{
+	return init(device->m_MBufMempool);
+}
+
+bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, struct rte_mempool* mempool)
+{
+	if (!init(mempool))
 		return false;
 
 	m_RawPacketSet = false;
@@ -83,6 +98,16 @@ bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* de
 	return true;
 }
 
+bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* device)
+{
+	return initFromRawPacket(rawPacket, device->m_MBufMempool);
+}
+
+bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, KniDevice* device)
+{
+	return initFromRawPacket(rawPacket, device->m_MBufMempool);
+}
+
 MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 {
 	m_DeleteRawDataAtDestructor = false;
@@ -90,9 +115,9 @@ MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 	m_RawDataLen = 0;
 	m_RawPacketSet = false;
 	m_RawData = NULL;
-	m_Device = other.m_Device;
+	m_Mempool = other.m_Mempool;
 
-	rte_mbuf* newMbuf = rte_pktmbuf_alloc(other.m_MBuf->pool);
+	rte_mbuf* newMbuf = rte_pktmbuf_alloc(m_Mempool);
 	if (newMbuf == NULL)
 	{
 		LOG_ERROR("Couldn't allocate mbuf");
@@ -156,7 +181,7 @@ bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval 
 
 	if (m_MBuf == NULL)
 	{
-		if (!(init(m_Device)))
+		if (!(init(m_Mempool)))
 		{
 			LOG_ERROR("Couldn't allocate new mBuf");
 			return false;

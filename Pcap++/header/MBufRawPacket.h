@@ -16,6 +16,7 @@ namespace pcpp
 {
 
 	class DpdkDevice;
+	class KniDevice;
 
 	#define MBUFRAWPACKET_OBJECT_TYPE 1
 
@@ -42,13 +43,17 @@ namespace pcpp
 	class MBufRawPacket : public RawPacket
 	{
 		friend class DpdkDevice;
+		friend class KniDevice;
+		static const size_t MBUF_DATA_SIZE;
 
 	protected:
 		struct rte_mbuf* m_MBuf;
-		DpdkDevice* m_Device;
+		struct rte_mempool* m_Mempool;
 		bool m_FreeMbuf;
 
 		void setMBuf(struct rte_mbuf* mBuf, timeval timestamp);
+		bool init(struct rte_mempool* mempool);
+		bool initFromRawPacket(const RawPacket* rawPacket, struct rte_mempool* mempool);
 	public:
 
 		/**
@@ -56,7 +61,7 @@ namespace pcpp
 		 * an mbuf the user should call the init() method. Without calling init() the instance of this class is not usable.
 		 * This c'tor can be used for initializing an array of MBufRawPacket (which requires an empty c'tor)
 		 */
-		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Device(NULL), m_FreeMbuf(true) { m_DeleteRawDataAtDestructor = false; }
+		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Mempool(NULL), m_FreeMbuf(true) { m_DeleteRawDataAtDestructor = false; }
 
 		/**
 		 * A d'tor for this class. Once called it frees the mbuf attached to it (returning it back to the mbuf pool it was allocated from)
@@ -80,6 +85,8 @@ namespace pcpp
 		 */
 		bool init(DpdkDevice* device);
 
+		bool init(KniDevice* device);
+
 		/**
 		 * Initialize an instance of this class and copies the content of a RawPacket object.
 		 * Initialization includes allocating an mbuf from the pool that resides in provided DpdkDevice, and copying the data
@@ -91,6 +98,8 @@ namespace pcpp
 		 * already attached) or if allocating an mbuf from the pool failed for some reason
 		 */
 		bool initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* device);
+
+		bool initFromRawPacket(const RawPacket* rawPacket, KniDevice* device);
 
 		/**
 		 * @return A pointer to the DPDK mbuf stored in this object

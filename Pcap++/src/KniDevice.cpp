@@ -26,7 +26,6 @@
 #define KNI_MEMPOOL_NAME "kni_mempool"
 #define MEMPOOL_CACHE_SIZE 256
 #define MAX_BURST_SIZE 64
-#define MBUF_DATA_SIZE RTE_MBUF_DEFAULT_DATAROOM
 
 #define CPP_VLA(TYPE, SIZE) (TYPE*)__builtin_alloca(sizeof(TYPE) * SIZE)
 
@@ -268,7 +267,7 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	std::memset(&kni_conf, 0, sizeof(kni_conf));
 	snprintf(kni_conf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
 	kni_conf.core_id = conf.kthreadCoreId;
-	kni_conf.mbuf_size = MBUF_DATA_SIZE;
+	kni_conf.mbuf_size = MBufRawPacket::MBUF_DATA_SIZE;
 	kni_conf.force_bind = conf.bindKthread ? 1 : 0;
 #if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 	if (conf.mac != NULL)

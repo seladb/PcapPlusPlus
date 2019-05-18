@@ -53,7 +53,8 @@
  *    - Send & receive packets...
  */
 
-
+struct rte_mbuf;
+struct rte_mempool;
 struct rte_eth_conf;
 struct rte_eth_dev_tx_buffer;
 

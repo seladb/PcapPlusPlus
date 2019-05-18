@@ -1,8 +1,9 @@
 #ifndef PCAPPP_KNI_DEVICE
 #define PCAPPP_KNI_DEVICE
 
-#include "DpdkDevice.h"
+#include "Device.h"
 #include "MacAddress.h"
+#include "MBufRawPacket.h"
 
 #include <string>
 
@@ -86,6 +87,7 @@ namespace pcpp
 	 */
 	class KniDevice : public IDevice
 	{
+		friend class MBufRawPacket;
 	public:
 		/**
 		 * Various link related constants for KNI device
