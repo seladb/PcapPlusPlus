@@ -77,28 +77,49 @@ namespace pcpp
 		MBufRawPacket(const MBufRawPacket& other);
 
 		/**
-		 * Initialize an instance of this class. Initialization includes allocating an mbuf from the pool that resides in DpdkDevice.
-		 * The user should call this method only once per instance. Calling it more than once will result with an error
+		 * @brief Initialize an instance of this class from DpdkDevice.
+		 * Initialization includes allocating an mbuf from the pool that resides in DpdkDevice.
+		 * The user should call this method only once per instance.
+		 * Calling it more than once will result with an error
 		 * @param[in] device The DpdkDevice which has the pool to allocate the mbuf from
 		 * @return True if initialization succeeded and false if this method was already called for this instance (and an mbuf is
 		 * already attached) or if allocating an mbuf from the pool failed for some reason
 		 */
 		bool init(DpdkDevice* device);
-
+		/**
+		 * @brief Initialize an instance of this class from KniDevice.
+		 * Initialization includes allocating an mbuf from the pool that resides in KniDevice.
+		 * The user should call this method only once per instance.
+		 * Calling it more than once will result with an error
+		 * @param[in] device The KniDevice which has the pool to allocate the mbuf from
+		 * @return True if initialization succeeded and false if this method was already called for this instance (and an mbuf is
+		 * already attached) or if allocating an mbuf from the pool failed for some reason
+		 */
 		bool init(KniDevice* device);
 
 		/**
-		 * Initialize an instance of this class and copies the content of a RawPacket object.
-		 * Initialization includes allocating an mbuf from the pool that resides in provided DpdkDevice, and copying the data
-		 * from the input RawPacket object into this mBuf.
-		 * The user should call this method only once per instance. Calling it more than once will result with an error
+		 * @brief Initialize an instance of this class and copies the content of a RawPacket object.
+		 * Initialization includes allocating an mbuf from the pool that resides in provided DpdkDevice,
+		 * and copying the data from the input RawPacket object into this mBuf.
+		 * The user should call this method only once per instance.
+		 * Calling it more than once will result with an error
 		 * @param[in] rawPacket A pointer to a RawPacket object from which data will be copied
 		 * @param[in] device The DpdkDevice which has the pool to allocate the mbuf from
 		 * @return True if initialization succeeded and false if this method was already called for this instance (and an mbuf is
 		 * already attached) or if allocating an mbuf from the pool failed for some reason
 		 */
 		bool initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* device);
-
+		/**
+		 * @brief Initialize an instance of this class and copies the content of a RawPacket object.
+		 * Initialization includes allocating an mbuf from the pool that resides in provided KniDevice,
+		 * and copying the data from the input RawPacket object into this mBuf.
+		 * The user should call this method only once per instance.
+		 * Calling it more than once will result with an error
+		 * @param[in] rawPacket A pointer to a RawPacket object from which data will be copied
+		 * @param[in] device The KniDevice which has the pool to allocate the mbuf from
+		 * @return True if initialization succeeded and false if this method was already called for this instance (and an mbuf is
+		 * already attached) or if allocating an mbuf from the pool failed for some reason
+		 */
 		bool initFromRawPacket(const RawPacket* rawPacket, KniDevice* device);
 
 		/**
