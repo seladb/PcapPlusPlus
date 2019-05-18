@@ -3,7 +3,7 @@
 
 #include <time.h>
 #include "Packet.h"
-#include "SystemUtils.h"
+#include "PointerVector.h"
 
 struct rte_mbuf;
 struct rte_mempool;
