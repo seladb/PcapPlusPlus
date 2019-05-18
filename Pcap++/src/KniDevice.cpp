@@ -368,7 +368,7 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	std::memset(&kni_conf, 0, sizeof(kni_conf));
 	snprintf(kni_conf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
 	kni_conf.core_id = conf.kthreadCoreId;
-	kni_conf.mbuf_size = RTE_MBUF_DEFAULT_DATAROOM;
+	kni_conf.mbuf_size = MBUF_DATA_SIZE;
 	kni_conf.force_bind = conf.bindKthread ? 1 : 0;
 #if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 	if (conf.mac != NULL)
