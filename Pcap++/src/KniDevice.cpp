@@ -885,8 +885,8 @@ bool KniDevice::open()
 		LOG_ERROR("KNI device \"%s\" is already opened", m_DeviceInfo.name);
 		return false;
 	}
-
-	switch (updateLinkState(LINK_UP))
+	(void) updateLinkState(LINK_UP);
+	switch (m_DeviceInfo.link)
 	{
 		case LINK_ERROR:
 			return m_DeviceOpened = false;
