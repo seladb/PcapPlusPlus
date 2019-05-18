@@ -1303,7 +1303,7 @@ uint16_t DpdkDevice::sendPackets(Packet** packetsArr, uint16_t arrLength, uint16
 	{
 		MBufRawPacket* rawPacket = NULL;
 		uint8_t rawPacketType = packetsArr[i]->getRawPacketReadOnly()->getObjectType();
-		if (!(rawPacketType == MBUFRAWPACKET_OBJECT_TYPE || rawPacketType == KNIRAWPACKET_OBJECT_TYPE))
+		if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 		{
 			rawPacket = new MBufRawPacket();
 			if (unlikely(!rawPacket->initFromRawPacket(packetsArr[i]->getRawPacketReadOnly(), this)))
@@ -1344,7 +1344,7 @@ uint16_t DpdkDevice::sendPackets(RawPacketVector& rawPacketsVec, uint16_t txQueu
 	{
 		MBufRawPacket* rawPacket = NULL;
 		uint8_t rawPacketType = (*iter)->getObjectType();
-		if (!(rawPacketType == MBUFRAWPACKET_OBJECT_TYPE || rawPacketType == KNIRAWPACKET_OBJECT_TYPE))
+		if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 		{
 			rawPacket = new MBufRawPacket();
 			if (unlikely(!rawPacket->initFromRawPacket(*iter, this)))
@@ -1389,7 +1389,7 @@ uint16_t DpdkDevice::sendPackets(MBufRawPacketVector& rawPacketsVec, uint16_t tx
 bool DpdkDevice::sendPacket(RawPacket& rawPacket, uint16_t txQueueId, bool useTxBuffer)
 {
 	uint8_t rawPacketType = rawPacket.getObjectType();
-	if (rawPacketType == MBUFRAWPACKET_OBJECT_TYPE || rawPacketType == KNIRAWPACKET_OBJECT_TYPE)
+	if (rawPacketType == MBUFRAWPACKET_OBJECT_TYPE)
 	{
 		bool packetSent = (sendPacketsInner(txQueueId, (MBufRawPacket*)&rawPacket, getNextPacketFromMBufRawPacket, 1, useTxBuffer) == 1);
 		bool needToFreeMbuf = (!useTxBuffer && !packetSent);

@@ -20,102 +20,11 @@ namespace pcpp
 	 */
 	struct KniDeviceList;
 	class KniDevice;
-	class KniRawPacket;
 
 	/**
 	 * Defines the signature callback used by capturing API on KNI device
 	 */
-	typedef bool (*OnKniPacketArriveCallback)(KniRawPacket* packets, uint32_t numOfPackets, KniDevice* device, void* userCookie);
-
-	/**
-	 * Defines raw packet type for KNI raw packets
-	 */
-	#define KNIRAWPACKET_OBJECT_TYPE 2
-
-	/**
-	 * @class KniRawPacket
-	 * This class build upon MBufRawPacket and adds necessary compatibility to work with KNI devices.
-	 * The limitations are the same as for MBufRawPacket class.
-	 * The KniRawPacket#init, KniRawPacket#initFromRawPacket and KniRawPacket#setRawData
-	 * of this class must be called directly not thru pointer to MBufRawPacket (MBufRawPacket*)
-	 * or reference to MBufRawPacket (MBufRawPacket&) because they are overriden to work with KNI devices.
-	 */
-	class KniRawPacket : public MBufRawPacket
-	{
-		friend class KniDevice;
-		KniDevice* m_KniDevice;
-
-		using MBufRawPacket::init;
-		using MBufRawPacket::initFromRawPacket;
-		using MBufRawPacket::setRawData;
-	public:
-		/**
-		 * @brief A default c'tor for this class.
-		 * Constructs an instance of this class without an mbuf attached to it.
-		 * In order to allocate an mbuf the user should call the init() method.
-		 * Without calling init() the instance of this class is not usable.
-		 * This c'tor can be used for initializing an array of KniRawPacket.
-		 */
-		KniRawPacket() : MBufRawPacket(), m_KniDevice(NULL) {}
-		/**
-		 * @brief A copy c'tor for this class.
-		 * Works same as MBufRawPacket copy c'tor.
-		 * @param[in] other The KniRawPacket instance to copy from
-		 */
-		KniRawPacket(const KniRawPacket& other) : MBufRawPacket(other), m_KniDevice(other.m_KniDevice) {}
-		/**
-		 * @brief A copy assignment operator for this class.
-		 * Works same as MBufRawPacket copy assignment operator.
-		 * @param[in] other The KniRawPacket instance to copy from
-		 */
-		KniRawPacket& operator=(const KniRawPacket& other)
-		{
-			if (this == &other)
-				return *this;
-			MBufRawPacket::operator=(other);
-			m_KniDevice = other.m_KniDevice;
-			return *this;
-		}
-		/**
-		 * @brief A d'tor for this class.
-		 * Works same as MBufRawPacket d'tor.
-		 */
-		~KniRawPacket() {}
-
-		/**
-		 * @brief Initialize an instance of this class.
-		 * Works same way as MBufRawPacket#init but with packet pool of KNI device.
-		 * @param[in] device KNI device to allocate MBuf from
-		 * @return true is packet was successfully initialized otherwise false
-		 */
-		bool init(KniDevice* device);
-		/**
-		 * @brief Initialize an instance of this class.
-		 * Works same way as MBufRawPacket#initFromRawPacket but with packet pool of KNI device.
-		 * @param[in] rawPacket A pointer to a RawPacket object from which data will be copied
-		 * @param[in] device KNI device to allocate MBuf from
-		 * @return true is packet was successfully initialized otherwise false
-		 */
-		bool initFromRawPacket(const RawPacket* rawPacket, KniDevice* device);
-		/**
-		 * @brief Initialize an instance of this class.
-		 * Works same way as MBufRawPacket#setRawData but with packet pool of KNI device.
-		 * @param[in] pRawData A pointer to the new raw data
-		 * @param[in] rawDataLen The new raw data length in bytes
-		 * @param[in] timestamp The timestamp packet was received by the NIC
-		 * @param[in] layerType The link layer type for this raw data. Default is Ethernet
-		 * @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the actual packet length. This parameter represents the packet
-		 * length. This parameter is optional, if not set or set to -1 it is assumed both lengths are equal
-		 * @return True if raw data was copied to the mbuf successfully, false if rawDataLen is larger than mbuf max size, if initialization
-		 * failed or if copying the data to the mbuf failed. In all of these cases an error will be printed to log
-		 */
-		bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
-
-		/**
-		 * @return KniRawPacket object type
-		 */
-		virtual inline uint8_t getObjectType() const { return KNIRAWPACKET_OBJECT_TYPE; }
-	};
+	typedef bool (*OnKniPacketArriveCallback)(MBufRawPacket* packets, uint32_t numOfPackets, KniDevice* device, void* userCookie);
 
 	/**
 	 * @class KniDevice
@@ -177,8 +86,6 @@ namespace pcpp
 	 */
 	class KniDevice : public IDevice
 	{
-		friend class KniRawPacket;
-
 	public:
 		/**
 		 * Various link related constants for KNI device
@@ -622,10 +529,10 @@ namespace pcpp
 		/**
 		 * @brief Send an array of parsed packets to the network.
 		 * Please notice the following:<BR>
-		 * - If some or all of the packets contain raw packets which aren't of type MBufRawPacket or KniRawPacket, a new temp KniRawPacket instances
+		 * - If some or all of the packets contain raw packets which aren't of type MBufRawPacket, a new temp MBufRawPacket instances
 		 * will be created and packet data will be copied to them. This is necessary to allocate mbufs which will store the data to be sent.
 		 * If performance is a critical factor please make sure you send parsed packets
-		 * that contain only raw packets of type MBufRawPacket or KniRawPacket
+		 * that contain only raw packets of type MBufRawPacket
 		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending packets to DPDK, each
 		 * iteration of 64 packets
 		 * - The mbufs used or allocated in this method aren't freed by this method, they will be transparently freed by DPDK
@@ -649,9 +556,9 @@ namespace pcpp
 		/**
 		 * @brief Send a vector of RawPacket pointers to the network.
 		 * Please notice the following:<BR>
-		 * - If some or all of the raw packets aren't of type MBufRawPacket or KniRawPacket, a new temp KniRawPacket instances will be created
+		 * - If some or all of the raw packets aren't of type MBufRawPacket, a new temp MBufRawPacket instances will be created
 		 * and packet data will be copied to them. This is necessary to allocate mbufs which will store the data to be sent. If
-		 * performance is a critical factor please make sure you send only raw packets of type MBufRawPacket or KniRawPacket
+		 * performance is a critical factor please make sure you send only raw packets of type MBufRawPacket
 		 * (or use the sendPackets overload that sends MBufRawPacketVector)
 		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending packets to DPDK, each
 		 * iteration of 64 packets
@@ -663,16 +570,16 @@ namespace pcpp
 		uint16_t sendPackets(RawPacketVector& rawPacketsVec);
 		/**
 		 * @brief Send a raw packet to the network.
-		 * Please notice that if the raw packet isn't of type MBufRawPacket or KniRawPacket, a new temp KniRawPacket
+		 * Please notice that if the raw packet isn't of type MBufRawPacket, a new temp MBufRawPacket
 		 * will be created and the data will be copied to it. This is necessary to allocate an mbuf which will store the data to be sent.
-		 * If performance is a critical factor please make sure you send a raw packet of type MBufRawPacket or KniRawPacket.
+		 * If performance is a critical factor please make sure you send a raw packet of type MBufRawPacket.
 		 * Please also notice that the mbuf used or allocated in this method isn't freed by this method, it will be transparently freed by DPDK
 		 * @param[in] rawPacket The raw packet to send
 		 * @return True if packet was sent successfully or false if the packet wasn't sent for any other reason
 		 */
 		bool sendPacket(RawPacket& rawPacket);
 		/**
-		 * @brief Send a MBufRawPacket or KniRawPacket to the network.
+		 * @brief Send a MBufRawPacket to the network.
 		 * Please notice that the mbuf used in this method isn't freed by this method, it will be transparently freed by DPDK
 		 * @param[in] rawPacket The MBufRawPacket to send
 		 * @return True if packet was sent successfully or false if device is not opened or if the packet wasn't sent for any other reason
@@ -682,9 +589,9 @@ namespace pcpp
 		 * @brief Send a parsed packet to the network.
 		 * Please notice that the mbuf used or allocated in this method isn't freed by this method, it will be transparently freed by DPDK
 		 * @param[in] packet The parsed packet to send. Please notice that if the packet contains a raw packet which isn't of type
-		 * MBufRawPacket or KniRawPacket, a new temp KniRawPacket will be created and the data will be copied to it. This is necessary to
+		 * MBufRawPacket, a new temp MBufRawPacket will be created and the data will be copied to it. This is necessary to
 		 * allocate an mbuf which will store the data to be sent. If performance is a critical factor please make sure you send a
-		 * parsed packet that contains a raw packet of type MBufRawPacket or KniRawPacket
+		 * parsed packet that contains a raw packet of type MBufRawPacket
 		 * @return True if packet was sent successfully or false if device is not opened or if the packet wasn't sent for any other reason
 		 */
 		bool sendPacket(Packet& packet);
