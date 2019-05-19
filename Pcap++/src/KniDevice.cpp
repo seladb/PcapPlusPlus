@@ -757,6 +757,7 @@ void* KniDevice::KniCapturing::runCapture(void* p)
 
 void KniDevice::KniCapturing::cleanup()
 {
+	thread->cancel();
 	delete thread;
 	thread = NULL;
 	callback = NULL;
