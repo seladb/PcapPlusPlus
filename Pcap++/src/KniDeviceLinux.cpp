@@ -41,8 +41,9 @@ inline lin_socket_t open_information_socket()
 			"Errno string: %s",
 			err
 		);
+		return soc = INVALID_SOCKET;
 	}
-	return soc = INVALID_SOCKET;
+	return soc;
 }
 
 inline void close_information_socket(lin_socket_t soc)
