@@ -237,6 +237,7 @@ bool KniDevice::setMtu(uint16_t mtu)
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
+	req.ifr_mtu = mtu;
 	if (!make_socket_request(m_DeviceInfo.soc, SIOCSIFMTU, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to set interface MTU");
