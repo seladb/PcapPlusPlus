@@ -956,7 +956,7 @@ KniDevice* KniDevice::getDeviceByPort(uint16_t portId)
 		if (kniDevice && kniDevice->m_DeviceInfo.portId == portId)
 			return kniDevice;
 	}
-	return kniDevice;
+	return kniDevice = NULL;
 }
 
 KniDevice* KniDevice::getDeviceByName(const std::string& name)
@@ -971,7 +971,7 @@ KniDevice* KniDevice::getDeviceByName(const std::string& name)
 		if (kniDevice && kniDevice->m_DeviceInfo.name == name)
 			return kniDevice;
 	}
-	return kniDevice;
+	return kniDevice = NULL;
 }
 
 KniDevice::KniCallbackVersion KniDevice::callbackVersion()
