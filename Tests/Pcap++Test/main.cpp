@@ -4105,7 +4105,7 @@ PCAPP_TEST(TestKniDeviceDestroy)
 	char buff[64];
 	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI::DEVICE1);
 	KniDevice* device = KniDevice::getDeviceByName(std::string(buff));
-	PCAPP_ASSERT(device == NULL,
+	PCAPP_ASSERT(device != NULL,
 		"Could not find KNI device " KNI_TEST_NAME " by name <%s>", KNI::DEVICE1, buff);
 	std::string name = device->getName();
 	device->stopRequestHandlerThread();
