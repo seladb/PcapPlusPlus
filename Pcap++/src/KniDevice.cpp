@@ -820,6 +820,8 @@ int KniDevice::startCaptureBlockingMode(
 		LOG_ERROR("KNI device \"%s\" is already capturing", m_DeviceInfo.name);
 		return 0;
 	}
+	m_Capturing.callback = onPacketArrives;
+	m_Capturing.userCookie = onPacketArrivesUserCookie;
 	if (unlikely(m_Capturing.callback == NULL))
 	{
 		LOG_ERROR("Attempt to start KNI device \"%s\" capturing in blocking mode without callback", m_DeviceInfo.name);
