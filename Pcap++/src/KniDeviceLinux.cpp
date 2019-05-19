@@ -137,7 +137,7 @@ MacAddress KniDevice::getMacAddress(KniInfoState state)
 		LOG_DEBUG("Last known MAC address for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.mac;
 	}
-	return m_DeviceInfo.mac = MacAddress(req.ifr_hwaddr.sa_data);
+	return m_DeviceInfo.mac = MacAddress((uint8_t*)req.ifr_hwaddr.sa_data);
 }
 
 uint16_t KniDevice::getMtu(KniInfoState state)
