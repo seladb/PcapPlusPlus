@@ -3802,7 +3802,7 @@ PCAPP_TEST(TestKniDevice)
 	devConfig.portId = KNI::TEST_PORT_ID0;
 	devConfig.mtu = KNI_TEST_MTU;
 	devConfig.bindKthread = false;
-	device = KniDevice::DeviceFactory(devConfig, 256);
+	device = KniDevice::DeviceFactory(devConfig, 512);
 	PCAPP_ASSERT(device != NULL, "Could not create KNI device " KNI_TEST_NAME, KNI::DEVICE0);
 	PCAPP_ASSERT(device->isInitialized(), "KNI device was not initialized correctly");
 	PCAPP_ASSERT(device == KniDevice::getDeviceByPort(KNI::TEST_PORT_ID0),
@@ -3995,7 +3995,7 @@ PCAPP_TEST(TestKniDeviceReceive)
 	devConfig.portId = KNI::TEST_PORT_ID1;
 	devConfig.mtu = KNI_MTU;
 	devConfig.bindKthread = false;
-	device = KniDevice::DeviceFactory(devConfig, 256);
+	device = KniDevice::DeviceFactory(devConfig, 512);
 	PCAPP_ASSERT(device != NULL, "Could not create KNI device " KNI_TEST_NAME, KNI::DEVICE1);
 	PCAPP_ASSERT(device->isInitialized(), "KNI device was not initialized correctly");
 	PCAPP_ASSERT(device->open(), "Failed to open KNI device");
