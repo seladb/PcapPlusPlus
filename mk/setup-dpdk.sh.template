@@ -106,6 +106,7 @@ sudo insmod ${RTE_SDK}/build/kmod/igb_uio.ko
 echo "2. Install kernel module - DONE!"
 
 if [ -n "$INSERT_KNI" ]; then
+    [ -z "$KNI_KMOD_PARAMS" ] && KNI_KMOD_PARAMS="carrier=on"
     if [ ! -f ${RTE_SDK}/build/kmod/rte_kni.ko ]; then
         echo "ERROR: DPDK Target(/build) does not have the rte_kni.ko Kernel Module"
         exit 1
@@ -114,9 +115,9 @@ if [ -n "$INSERT_KNI" ]; then
     if [ $? -eq 0 ] ; then
         sudo rmmod rte_kni
     fi
-    sudo insmod ${RTE_SDK}/build/kmod/rte_kni.ko
+    sudo insmod ${RTE_SDK}/build/kmod/rte_kni.ko $KNI_KMOD_PARAMS
     if [ $? -ne 0 ] ; then
-        echo "ERROR: Could not load kmod/rte_kni.ko"
+        echo "ERROR: Could not load kmod/rte_kni.ko with params: $KNI_KMOD_PARAMS"
         exit 2
     fi
 	echo "  2.1 Install KNI kernel module - DONE!"

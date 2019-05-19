@@ -1,4 +1,4 @@
-#ifdef USE_DPDK
+#if defined(USE_DPDK) && defined(LINUX)
 
 #define LOG_MODULE PcapLogModuleDpdkDevice
 
@@ -26,7 +26,6 @@
 #define KNI_MEMPOOL_NAME "kni_mempool"
 #define MEMPOOL_CACHE_SIZE 256
 #define MAX_BURST_SIZE 64
-#define MBUF_DATA_SIZE RTE_MBUF_DEFAULT_DATAROOM
 
 #define CPP_VLA(TYPE, SIZE) (TYPE*)__builtin_alloca(sizeof(TYPE) * SIZE)
 
@@ -146,15 +145,16 @@ public:
 };
 
 KniDeviceList::KniDeviceList() :
-	m_Devices(MAX_KNI_INTERFACES, (KniDevice*)NULL),
+	m_Devices(),
 	m_Initialized(true), m_KniUniqueId(0)
 {
+	m_Devices.reserve(MAX_KNI_INTERFACES);
 	if (!check_kni_driver())
 	{
 		m_Initialized = false;
 		return;
 	}
-#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 1, 16)
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 	if (rte_kni_init(MAX_KNI_INTERFACES) < 0)
 	{
 		LOG_ERROR("Failed to initialize KNI DPDK module");
@@ -176,106 +176,6 @@ KniDeviceList& KniDeviceList::Instance()
 {
 	static KniDeviceList g_KniDeviceList;
 	return g_KniDeviceList;
-}
-
-/**
- * ==================
- * Class KniRawPacket
- * ==================
- */
-
-bool KniRawPacket::init(KniDevice* device)
-{
-	if (m_MBuf != NULL)
-	{
-		LOG_ERROR("KniRawPacket already initialized");
-		return false;
-	}
-
-	m_MBuf = rte_pktmbuf_alloc(device->m_MBufMempool);
-	if (m_MBuf == NULL)
-	{
-		LOG_ERROR("Couldn't allocate mbuf for KniRawPacket. Device name: \"%s\"", device->m_DeviceInfo.name);
-		return false;
-	}
-
-	m_KniDevice = device;
-
-	return true;
-}
-
-bool KniRawPacket::initFromRawPacket(const RawPacket* rawPacket, KniDevice* device)
-{
-	if (!init(device))
-		return false;
-
-	m_RawPacketSet = false;
-
-	// mbuf is allocated with length of 0, need to adjust it to the size of other
-	if (rte_pktmbuf_append(m_MBuf, rawPacket->getRawDataLen()) == NULL)
-	{
-		LOG_ERROR("KNI Couldn't append %d bytes to mbuf", rawPacket->getRawDataLen());
-		return false;
-	}
-
-	m_RawData = rte_pktmbuf_mtod(m_MBuf, uint8_t*);
-	m_RawDataLen = rte_pktmbuf_pkt_len(m_MBuf);
-
-	copyDataFrom(*rawPacket, false);
-
-	return true;
-}
-
-bool KniRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType, int frameLength)
-{
-	if (rawDataLen > MBUF_DATA_SIZE)
-	{
-		LOG_ERROR(
-			"Cannot set raw data which length is larger than mBuf max size. "
-			"mBuf max length: %d; requested length: %d",
-			MBUF_DATA_SIZE,
-			rawDataLen
-		);
-		return false;
-	}
-
-	if (m_MBuf == NULL)
-	{
-		if (!(init(m_KniDevice)))
-		{
-			LOG_ERROR("KNI Couldn't allocate new mBuf");
-			return false;
-		}
-	}
-
-	// adjust the size of the mbuf to the new data
-	if (m_RawDataLen < rawDataLen)
-	{
-		if (rte_pktmbuf_append(m_MBuf, rawDataLen - m_RawDataLen) == NULL)
-		{
-			LOG_ERROR("KNI Couldn't append %d bytes to mbuf", rawDataLen - m_RawDataLen);
-			return false;
-		}
-	}
-	else if (m_RawDataLen > rawDataLen)
-	{
-		if (rte_pktmbuf_adj(m_MBuf, m_RawDataLen - rawDataLen) == NULL)
-		{
-			LOG_ERROR("KNI Couldn't remove %d bytes to mbuf", m_RawDataLen - rawDataLen);
-			return false;
-		}
-	}
-
-	m_RawData = rte_pktmbuf_mtod(m_MBuf, uint8_t*);
-	m_RawDataLen = rte_pktmbuf_pkt_len(m_MBuf);
-	std::memcpy(m_RawData, pRawData, m_RawDataLen);
-	delete [] pRawData;
-	m_TimeStamp = timestamp;
-	m_RawPacketSet = true;
-	m_FrameLength = frameLength;
-	m_LinkLayerType = layerType;
-
-	return true;
 }
 
 /**
@@ -311,8 +211,8 @@ inline KniDevice::KniLinkState set_kni_device_link_state(
 	#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 		old_state = (KniDevice::KniLinkState)rte_kni_update_link(kni_dev, state);
 		if (old_state == KniDevice::LINK_ERROR)
-		{
-			LOG_ERROR("DPDK KNI Failed to update links state for device \"%s\"", dev_name);
+		{	//? NOTE(echo-Mike): Not LOG_ERROR because will generate a lot of junk messages on some DPDK versions
+			LOG_DEBUG("DPDK KNI Failed to update links state for device \"%s\"", dev_name);
 		}
 	#else
 		// To avoid compiler warnings
@@ -368,7 +268,7 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	std::memset(&kni_conf, 0, sizeof(kni_conf));
 	snprintf(kni_conf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
 	kni_conf.core_id = conf.kthreadCoreId;
-	kni_conf.mbuf_size = MBUF_DATA_SIZE;
+	kni_conf.mbuf_size = MBufRawPacket::MBUF_DATA_SIZE;
 	kni_conf.force_bind = conf.bindKthread ? 1 : 0;
 #if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 	if (conf.mac != NULL)
@@ -426,6 +326,8 @@ bool KniDevice::handleRequests()
 
 void KniDevice::KniRequests::cleanup()
 {
+	if (thread)
+		thread->cancel();
 	delete thread;
 	thread = NULL;
 	sleepS = sleepNs = 0;
@@ -508,7 +410,7 @@ uint16_t KniDevice::receivePackets(MBufRawPacketVector& rawPacketsArr)
 	for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 	{
 		struct rte_mbuf* mBuf = mBufArray[index];
-		KniRawPacket* newRawPacket = new KniRawPacket();
+		MBufRawPacket* newRawPacket = new MBufRawPacket();
 		newRawPacket->setMBuf(mBuf, time);
 		rawPacketsArr.pushBack(newRawPacket);
 	}
@@ -555,9 +457,9 @@ uint16_t KniDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPa
 	{
 		struct rte_mbuf* mBuf = mBufArray[index];
 		if (rawPacketsArr[index] == NULL)
-			rawPacketsArr[index] = new KniRawPacket();
+			rawPacketsArr[index] = new MBufRawPacket();
 
-		((KniRawPacket*)rawPacketsArr[index])->setMBuf(mBuf, time);
+		((MBufRawPacket*)rawPacketsArr[index])->setMBuf(mBuf, time);
 	}
 
 	return packetsReceived;
@@ -597,7 +499,7 @@ uint16_t KniDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLengt
 	for (size_t index = 0; index < packetsReceived; ++index)
 	{
 		struct rte_mbuf* mBuf = mBufArray[index];
-		KniRawPacket* newRawPacket = new KniRawPacket();
+		MBufRawPacket* newRawPacket = new MBufRawPacket();
 		newRawPacket->setMBuf(mBuf, time);
 		if (packetsArr[index] == NULL)
 			packetsArr[index] = new Packet();
@@ -641,7 +543,7 @@ uint16_t KniDevice::sendPackets(Packet** packetsArr, uint16_t arrLength)
 
 	struct rte_mbuf** mBufArray = CPP_VLA(struct rte_mbuf*, arrLength);
 	MBufRawPacket** mBufRawPacketArr = CPP_VLA(MBufRawPacket*, arrLength);
-	KniRawPacket** allocated = CPP_VLA(KniRawPacket*, arrLength);
+	MBufRawPacket** allocated = CPP_VLA(MBufRawPacket*, arrLength);
 	uint16_t allocated_count = 0, packetsSent = 0;
 	MBufRawPacket* rawPacket;
 	RawPacket* raw_pkt;
@@ -650,9 +552,9 @@ uint16_t KniDevice::sendPackets(Packet** packetsArr, uint16_t arrLength)
 	{
 		raw_pkt = packetsArr[i]->getRawPacketReadOnly();
 		uint8_t raw_type = raw_pkt->getObjectType();
-		if (!(raw_type == MBUFRAWPACKET_OBJECT_TYPE || raw_type == KNIRAWPACKET_OBJECT_TYPE))
+		if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
 		{
-			KniRawPacket* pkt = new KniRawPacket();
+			MBufRawPacket* pkt = new MBufRawPacket();
 			if (unlikely(!pkt->initFromRawPacket(raw_pkt, this)))
 			{
 				delete pkt;
@@ -719,16 +621,16 @@ uint16_t KniDevice::sendPackets(RawPacketVector& rawPacketsVec)
 	size_t arrLength = rawPacketsVec.size();
 	struct rte_mbuf** mBufArray = CPP_VLA(struct rte_mbuf*, arrLength);
 	MBufRawPacket** mBufRawPacketArr = CPP_VLA(MBufRawPacket*, arrLength);
-	KniRawPacket** allocated = CPP_VLA(KniRawPacket*, arrLength);
+	MBufRawPacket** allocated = CPP_VLA(MBufRawPacket*, arrLength);
 	uint16_t allocated_count = 0, packetsSent = 0, pos = 0;
 	MBufRawPacket* rawPacket;
 
 	for (RawPacketVector::VectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); ++iter)
 	{
 		uint8_t raw_type = (*iter)->getObjectType();
-		if (!(raw_type == MBUFRAWPACKET_OBJECT_TYPE || raw_type == KNIRAWPACKET_OBJECT_TYPE))
+		if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
 		{
-			KniRawPacket* pkt = new KniRawPacket();
+			MBufRawPacket* pkt = new MBufRawPacket();
 			if (unlikely(!pkt->initFromRawPacket(*iter, this)))
 			{
 				delete pkt;
@@ -767,13 +669,13 @@ bool KniDevice::sendPacket(RawPacket& rawPacket)
 
 	struct rte_mbuf* mbuf;
 	MBufRawPacket* raw_packet;
-	KniRawPacket* kni_raw = NULL;
+	MBufRawPacket* kni_raw = NULL;
 	bool sent = false;
 
 	uint8_t raw_type = rawPacket.getObjectType();
-	if (!(raw_type == MBUFRAWPACKET_OBJECT_TYPE || raw_type == KNIRAWPACKET_OBJECT_TYPE))
+	if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
 	{
-		kni_raw = new KniRawPacket();
+		kni_raw = new MBufRawPacket();
 		if (unlikely(!kni_raw->initFromRawPacket(&rawPacket, this)))
 		{
 			delete kni_raw;
@@ -842,7 +744,7 @@ void* KniDevice::KniCapturing::runCapture(void* p)
 
 		if (likely(callback != NULL))
 		{
-			KniRawPacket rawPackets[MAX_BURST_SIZE];
+			MBufRawPacket rawPackets[MAX_BURST_SIZE];
 			for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 			{
 				rawPackets[index].setMBuf(mBufArray[index], time);
@@ -858,6 +760,8 @@ void* KniDevice::KniCapturing::runCapture(void* p)
 
 void KniDevice::KniCapturing::cleanup()
 {
+	if (thread)
+		thread->cancel();
 	delete thread;
 	thread = NULL;
 	callback = NULL;
@@ -920,6 +824,8 @@ int KniDevice::startCaptureBlockingMode(
 		LOG_ERROR("KNI device \"%s\" is already capturing", m_DeviceInfo.name);
 		return 0;
 	}
+	m_Capturing.callback = onPacketArrives;
+	m_Capturing.userCookie = onPacketArrivesUserCookie;
 	if (unlikely(m_Capturing.callback == NULL))
 	{
 		LOG_ERROR("Attempt to start KNI device \"%s\" capturing in blocking mode without callback", m_DeviceInfo.name);
@@ -935,7 +841,7 @@ int KniDevice::startCaptureBlockingMode(
 			uint32_t numOfPktsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
 			if (likely(numOfPktsReceived != 0))
 			{
-				KniRawPacket rawPackets[MAX_BURST_SIZE];
+				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				timeval time;
 				gettimeofday(&time, NULL);
 
@@ -961,7 +867,7 @@ int KniDevice::startCaptureBlockingMode(
 			uint32_t numOfPktsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
 			if (likely(numOfPktsReceived != 0))
 			{
-				KniRawPacket rawPackets[MAX_BURST_SIZE];
+				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				timeval time;
 				time.tv_sec = curTimeSec;
 				time.tv_usec = curTimeNSec / 1000;
@@ -986,8 +892,8 @@ bool KniDevice::open()
 		LOG_ERROR("KNI device \"%s\" is already opened", m_DeviceInfo.name);
 		return false;
 	}
-
-	switch (updateLinkState(LINK_UP))
+	(void) updateLinkState(LINK_UP);
+	switch (m_DeviceInfo.link)
 	{
 		case LINK_ERROR:
 			return m_DeviceOpened = false;
@@ -1008,6 +914,7 @@ void KniDevice::close()
 		m_Capturing.cleanup();
 	}
 	updateLinkState(LINK_DOWN);
+	m_DeviceOpened = false;
 }
 
 KniDevice* KniDevice::DeviceFactory(const KniDeviceConfiguration& conf, size_t mempoolSize)
@@ -1056,7 +963,7 @@ KniDevice* KniDevice::getDeviceByPort(uint16_t portId)
 		if (kniDevice && kniDevice->m_DeviceInfo.portId == portId)
 			return kniDevice;
 	}
-	return kniDevice;
+	return kniDevice = NULL;
 }
 
 KniDevice* KniDevice::getDeviceByName(const std::string& name)
@@ -1071,7 +978,7 @@ KniDevice* KniDevice::getDeviceByName(const std::string& name)
 		if (kniDevice && kniDevice->m_DeviceInfo.name == name)
 			return kniDevice;
 	}
-	return kniDevice;
+	return kniDevice = NULL;
 }
 
 KniDevice::KniCallbackVersion KniDevice::callbackVersion()
@@ -1104,4 +1011,4 @@ bool KniDevice::isCallbackSupported(KniCallbackType cbType)
 }
 
 }
-#endif /* USE_DPDK */
+#endif /* defined(USE_DPDK) && defined(LINUX) */
