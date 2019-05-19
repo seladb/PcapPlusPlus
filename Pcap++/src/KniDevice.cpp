@@ -210,8 +210,8 @@ inline KniDevice::KniLinkState set_kni_device_link_state(
 	#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 		old_state = (KniDevice::KniLinkState)rte_kni_update_link(kni_dev, state);
 		if (old_state == KniDevice::LINK_ERROR)
-		{
-			LOG_ERROR("DPDK KNI Failed to update links state for device \"%s\"", dev_name);
+		{	//? NOTE(echo-Mike): Not LOG_ERROR because will generate a lot of junk messages on some DPDK versions
+			LOG_DEBUG("DPDK KNI Failed to update links state for device \"%s\"", dev_name);
 		}
 	#else
 		// To avoid compiler warnings
