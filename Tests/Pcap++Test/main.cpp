@@ -421,7 +421,7 @@ public:
 };
 
 #ifdef LINUX
-struct KniRequestsCallbacks
+struct KniRequestsCallbacksMock
 {
 	static int change_mtu_new(uint16_t, unsigned int) { return 0; }
 	static int change_mtu_old(uint8_t, unsigned int) { return 0; }
@@ -460,8 +460,8 @@ struct KniRequestsCallbacks
 		cb_old.config_network_if = config_network_if_old;
 	}
 };
-KniDevice::KniIoctlCallbacks KniRequestsCallbacks::cb_new;
-KniDevice::KniOldIoctlCallbacks KniRequestsCallbacks::cb_old;
+KniDevice::KniIoctlCallbacks KniRequestsCallbacksMock::cb_new;
+KniDevice::KniOldIoctlCallbacks KniRequestsCallbacksMock::cb_old;
 
 namespace KNI {
 enum
@@ -3789,14 +3789,14 @@ PCAPP_TEST(TestKniDevice)
 	memset(&devConfig, 0, sizeof(devConfig));
 	snprintf(devConfig.name, sizeof(devConfig.name), KNI_TEST_NAME, KNI::DEVICE0);
 	strncpy(buff, devConfig.name, sizeof(buff));
-	KniRequestsCallbacks::setCallbacks();
+	KniRequestsCallbacksMock::setCallbacks();
 	if (KniDevice::callbackVersion() == KniDevice::CALLBACKS_NEW)
 	{
-		devConfig.callbacks = &KniRequestsCallbacks::cb_new;
+		devConfig.callbacks = &KniRequestsCallbacksMock::cb_new;
 	}
 	else
 	{
-		devConfig.oldCallbacks = &KniRequestsCallbacks::cb_old;
+		devConfig.oldCallbacks = &KniRequestsCallbacksMock::cb_old;
 	}
 	devConfig.mac = &kni_mac;
 	devConfig.portId = KNI::TEST_PORT_ID0;
@@ -3983,14 +3983,14 @@ PCAPP_TEST(TestKniDeviceReceive)
 
 	memset(&devConfig, 0, sizeof(devConfig));
 	snprintf(devConfig.name, sizeof(devConfig.name), KNI_TEST_NAME, KNI::DEVICE1);
-	KniRequestsCallbacks::setCallbacks();
+	KniRequestsCallbacksMock::setCallbacks();
 	if (KniDevice::callbackVersion() == KniDevice::CALLBACKS_NEW)
 	{
-		devConfig.callbacks = &KniRequestsCallbacks::cb_new;
+		devConfig.callbacks = &KniRequestsCallbacksMock::cb_new;
 	}
 	else
 	{
-		devConfig.oldCallbacks = &KniRequestsCallbacks::cb_old;
+		devConfig.oldCallbacks = &KniRequestsCallbacksMock::cb_old;
 	}
 	devConfig.portId = KNI::TEST_PORT_ID1;
 	devConfig.mtu = KNI_MTU;
@@ -4002,14 +4002,14 @@ PCAPP_TEST(TestKniDeviceReceive)
 	PCAPP_ASSERT(device->startRequestHandlerThread(0, 250000000),
 		"KNI device <" KNI_TEST_NAME "> can't start request handler thread", KNI::DEVICE1);
 	PCAP_SLEEP(2); // Wait for thread to start
-	PCAPP_ASSERT(device->startCapture(KniRequestsCallbacks::onPacketsCallbackSingleBurst, &counter),
+	PCAPP_ASSERT(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter),
 		"KNI failed to start capturing thread (single burst) on device " KNI_TEST_NAME, KNI::DEVICE1);
-	PCAPP_ASSERT(!device->startCapture(KniRequestsCallbacks::onPacketsMock, NULL),
+	PCAPP_ASSERT(!device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL),
 		"Managed to start second capturing thread on KNI device " KNI_TEST_NAME, KNI::DEVICE1);
 	device->stopCapture();
 	PCAPP_DEBUG_PRINT("KNI have captured %u packets in single burst on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
 	counter = 0;
-	PCAPP_ASSERT(device->startCapture(KniRequestsCallbacks::onPacketsCallback, &counter),
+	PCAPP_ASSERT(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter),
 		"KNI failed to start capturing thread on device " KNI_TEST_NAME, KNI::DEVICE1);
 	PCAPP_ASSERT(device->receivePackets(rawPacketVec) == 0,
 		"Managed to receive packets on KNI device while capturing via MBufRawPacketVector");
@@ -4020,7 +4020,7 @@ PCAPP_TEST(TestKniDeviceReceive)
 	device->stopCapture();
 	PCAPP_DEBUG_PRINT("KNI have captured %u packets on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
 	counter = 0;
-	int block_result = device->startCaptureBlockingMode(KniRequestsCallbacks::onPacketsCallbackSingleBurst, &counter, BLOCK_TIMEOUT);
+	int block_result = device->startCaptureBlockingMode(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter, BLOCK_TIMEOUT);
 	switch (block_result)
 	{
 		case -1:
