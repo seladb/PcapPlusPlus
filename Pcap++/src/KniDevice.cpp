@@ -145,9 +145,10 @@ public:
 };
 
 KniDeviceList::KniDeviceList() :
-	m_Devices(MAX_KNI_INTERFACES, (KniDevice*)NULL),
+	m_Devices(),
 	m_Initialized(true), m_KniUniqueId(0)
 {
+	m_Devices.reserve(MAX_KNI_INTERFACES);
 	if (!check_kni_driver())
 	{
 		m_Initialized = false;
