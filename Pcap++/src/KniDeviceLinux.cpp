@@ -179,7 +179,7 @@ KniDevice::KniPromiscuousMode KniDevice::getPromiscuous(KniInfoState state)
 		LOG_DEBUG("Last known Promiscuous mode for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.promisc;
 	}
-	return m_DeviceInfo.promisc = KniPromiscuousMode(req.ifr_flags & IFF_PROMISC);
+	return m_DeviceInfo.promisc = (req.ifr_flags & IFF_PROMISC) ? KniDevice::PROMISC_ENABLE : KniDevice::PROMISC_DISABLE;
 }
 
 bool KniDevice::setLinkState(KniLinkState state)
