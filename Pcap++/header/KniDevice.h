@@ -66,8 +66,9 @@ namespace pcpp
 	 * supported by Pcap++.
 	 * Known issues:
 	 *  - KNI device may not be able to set it's link status up (LINK_ERROR returned):
-	 *    The problem may lay in DPDK, it is recommended to load rte_kni module with "carrier=on"
-	 *    (default is "carrier=off") if Your DPDK version supports it;
+	 *    The problem may lay in DPDK, it is recommended to load rte_kni.ko module with "carrier=on"
+	 *    (DPDK default is "carrier=off", provided setup-dpdk.sh by default loads with "carrier=on")
+	 *    if Your DPDK version supports it;
 	 *  - Packets may not be seen by applications that have open sockets on KNI device:
 	 *    Check your iptables settings and other packet filters - KNI device is traditional network
 	 *    device so all caveats apply;
@@ -79,6 +80,7 @@ namespace pcpp
 	 *  - Any set* method never succeeds:
 	 *    You may forgot that they generate KNI requests that Your application MUST handle.
 	 *    Just use KniDevice#startRequestHandlerThread to handle all requests automatically.
+	 *    Or user running the application don't have suitable access rights (must have CAP_NET_ADMIN).
 	 * Usefull links:
 	 *  - <a href="https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html">KNI interface concept DPDK documentation</a>
 	 *  - <a href="https://doc.dpdk.org/guides/nics/kni.html">KNI PMD</a>
@@ -234,7 +236,7 @@ namespace pcpp
 			};
 			/**
 			 * Pointer to MAC (ETHERNET) address of new KNI device.
-			 * If omitted (NULL) some valid address automatically generated.
+			 * If omitted (NULL) some valid address will be automatically generated.
 			 * If provided will be cached by new KNI device info structure.
 			 */
 			MacAddress* mac;
@@ -322,7 +324,7 @@ namespace pcpp
 		 */
 		static KniCallbackVersion callbackVersion();
 		/**
-		 * Returns true is provided callback type is supported by used DPDK version
+		 * Returns true if provided callback type is supported by used DPDK version
 		 * @note MT SAFE
 		 * @param[in] cbType One of KniCallbackType enum values
 		 */
@@ -429,7 +431,7 @@ namespace pcpp
 		/**
 		 * @brief Updates link state of KNI device.
 		 * Unconditionally updates link state of KNI device via call to DPDK librte_kni API.
-		 * FASTER THAN setLinkState(state) but may not be supported of may fail.
+		 * FASTER THAN setLinkState(state) but may not be supported or may fail.
 		 * If link state is updated successfully then it is cached.
 		 * @param[in] state New link state of KNI device
 		 * @return LINK_NOT_SUPPORTED if this capability is not supported by DPDK version used (DPDK ver < 18.11),
