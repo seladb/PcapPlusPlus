@@ -432,7 +432,7 @@ struct KniRequestsCallbacks
 
 	static bool onPacketsCallbackSingleBurst(MBufRawPacket*, uint32_t numOfPackets, KniDevice*, void* userCookie)
 	{
-		size_t* counter = (size_t*)userCookie;
+		unsigned int* counter = (unsigned int*)userCookie;
 		*counter = numOfPackets;
 		// Break after first burst
 		return false;
@@ -443,7 +443,7 @@ struct KniRequestsCallbacks
 	}
 	static bool onPacketsCallback(MBufRawPacket*, uint32_t numOfPackets, KniDevice*, void* userCookie)
 	{
-		size_t* counter = (size_t*)userCookie;
+		unsigned int* counter = (unsigned int*)userCookie;
 		*counter = *counter + numOfPackets;
 		return true;
 	}
@@ -3782,7 +3782,7 @@ PCAPP_TEST(TestKniDevice)
 	enum { KNI_TEST_MTU = 1540, KNI_NEW_MTU = 1500 };
 	char buff[256];
 	bool is_link_up = true;
-	KniDevice* device = nullptr;
+	KniDevice* device = NULL;
 	KniDevice::KniDeviceConfiguration devConfig;
 	MacAddress kni_mac = MacAddress("00:11:33:55:77:99");
 	MacAddress kni_new_mac = MacAddress("00:22:44:66:88:AA");
@@ -3972,8 +3972,8 @@ PCAPP_TEST(TestKniDeviceReceive)
 #if defined(USE_DPDK) && defined(LINUX)
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	enum { KNI_MTU = 1500, BLOCK_TIMEOUT = 3 };
-	KniDevice* device = nullptr;
-	size_t counter = 0;
+	KniDevice* device = NULL;
+	unsigned int counter = 0;
 	KniDevice::KniDeviceConfiguration devConfig;
 	MBufRawPacketVector rawPacketVec;
 	MBufRawPacket* mBufRawPacketArr[32] = {};
@@ -4043,7 +4043,7 @@ PCAPP_TEST(TestKniDeviceReceive)
 PCAPP_TEST(TestKniDeviceSend)
 {
 #if defined(USE_DPDK) && defined(LINUX)
-	KniDevice* device = nullptr;
+	KniDevice* device = NULL;
 	PCAPP_ASSERT(device == KniDevice::getDeviceByPort(KNI::TEST_PORT_ID1),
 		"Could not find KNI device " KNI_TEST_NAME " thru port id %d", KNI::DEVICE1, KNI::TEST_PORT_ID1);
 	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
@@ -4096,7 +4096,7 @@ PCAPP_TEST(TestKniDeviceSend)
 PCAPP_TEST(TestKniDeviceDestroy)
 {
 #if defined(USE_DPDK) && defined(LINUX)
-	KniDevice* device = nullptr;
+	KniDevice* device = NULL;
 	PCAPP_ASSERT(device == KniDevice::getDeviceByPort(KNI::TEST_PORT_ID1),
 		"Could not find KNI device " KNI_TEST_NAME " thru port id %d", KNI::DEVICE1, KNI::TEST_PORT_ID1);
 	std::string name = device->getName();
