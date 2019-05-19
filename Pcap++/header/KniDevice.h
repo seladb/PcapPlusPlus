@@ -65,10 +65,13 @@ namespace pcpp
 	 * and strict correspondence between KNI port id and DPDK port id, but it is not currently
 	 * supported by Pcap++.
 	 * Known issues:
-	 *  - KNI device may not be able to set it's link status up (LINK_ERROR returned):
-	 *    The problem may lay in DPDK, it is recommended to load rte_kni.ko module with "carrier=on"
-	 *    (DPDK default is "carrier=off", provided setup-dpdk.sh by default loads with "carrier=on")
-	 *    if Your DPDK version supports it;
+	 *  - KNI device may not be able to set/update it's link status up (LINK_ERROR returned):
+	 *    The problem is laying in DPDK in rte_kni_update_link function
+	 *    (it is DPDK BUG if rte_kni_update_link is __rte_experimental).
+	 *    It is recommended to load rte_kni.ko module with "carrier=on" DPDK default is "carrier=off",
+	 *    provided setup-dpdk.sh by default loads with "carrier=on" if Your DPDK version supports it.
+	 *    The good indication of this issue are "DPDK KNI Failed to update links state for device"
+	 *    messages when Pcap++Test application is being run.
 	 *  - Packets may not be seen by applications that have open sockets on KNI device:
 	 *    Check your iptables settings and other packet filters - KNI device is traditional network
 	 *    device so all caveats apply;
