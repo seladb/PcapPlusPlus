@@ -4045,8 +4045,8 @@ PCAPP_TEST(TestKniDeviceReceive)
 PCAPP_TEST(TestKniDeviceSend)
 {
 #if defined(USE_DPDK) && defined(LINUX)
-	KniDevice* device = NULL;
-	PCAPP_ASSERT(device == KniDevice::getDeviceByPort(KNI::TEST_PORT_ID1),
+	KniDevice* device = KniDevice::getDeviceByPort(KNI::TEST_PORT_ID1);
+	PCAPP_ASSERT(device != NULL,
 		"Could not find KNI device " KNI_TEST_NAME " thru port id %d", KNI::DEVICE1, KNI::TEST_PORT_ID1);
 	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for " EXAMPLE_PCAP_PATH);
@@ -4098,9 +4098,11 @@ PCAPP_TEST(TestKniDeviceSend)
 PCAPP_TEST(TestKniDeviceDestroy)
 {
 #if defined(USE_DPDK) && defined(LINUX)
-	KniDevice* device = NULL;
-	PCAPP_ASSERT(device == KniDevice::getDeviceByPort(KNI::TEST_PORT_ID1),
-		"Could not find KNI device " KNI_TEST_NAME " thru port id %d", KNI::DEVICE1, KNI::TEST_PORT_ID1);
+	char buff[64];
+	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI::DEVICE1);
+	KniDevice* device = KniDevice::getDeviceByName(std::string(buff));
+	PCAPP_ASSERT(device == NULL,
+		"Could not find KNI device " KNI_TEST_NAME " by name <%s>", KNI::DEVICE1, buff);
 	std::string name = device->getName();
 	device->stopRequestHandlerThread();
 	device->close();
