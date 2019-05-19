@@ -4004,8 +4004,10 @@ PCAPP_TEST(TestKniDeviceReceive)
 	PCAP_SLEEP(1); // Wait for thread to start
 	PCAPP_ASSERT(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter),
 		"KNI failed to start capturing thread (single burst) on device " KNI_TEST_NAME, KNI::DEVICE1);
+	LoggerPP::getInstance().supressErrors();
 	PCAPP_ASSERT(!device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL),
 		"Managed to start second capturing thread on KNI device " KNI_TEST_NAME, KNI::DEVICE1);
+	LoggerPP::getInstance().enableErrors();
 	PCAP_SLEEP(1); // Give some time to start capture thread
 	device->stopCapture();
 	PCAPP_DEBUG_PRINT("KNI have captured %u packets in single burst on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
@@ -4013,12 +4015,14 @@ PCAPP_TEST(TestKniDeviceReceive)
 	PCAPP_ASSERT(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter),
 		"KNI failed to start capturing thread on device " KNI_TEST_NAME, KNI::DEVICE1);
 	PCAP_SLEEP(1); // Give some time to start capture thread
+	LoggerPP::getInstance().supressErrors();
 	PCAPP_ASSERT(device->receivePackets(rawPacketVec) == 0,
 		"Managed to receive packets on KNI device while capturing via MBufRawPacketVector");
 	PCAPP_ASSERT(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen) == 0,
 		"Managed to receive packets on KNI device while capturing via mBufRawPacketArr");
 	PCAPP_ASSERT(device->receivePackets(packetArr, packetArrLen) == 0,
 		"Managed to receive packets on KNI device while capturing via packetArr");
+	LoggerPP::getInstance().enableErrors();
 	device->stopCapture();
 	PCAPP_DEBUG_PRINT("KNI have captured %u packets on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
 	counter = 0;
