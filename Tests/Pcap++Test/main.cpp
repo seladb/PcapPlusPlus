@@ -6465,10 +6465,10 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestDpdkDevice, args, true);
 	PCAPP_RUN_TEST(TestDpdkMultiThread, args, true);
 	PCAPP_RUN_TEST(TestDpdkDeviceSendPackets, args, true);
-	PCAPP_RUN_TEST(TestKniDevice, args, false);
-	PCAPP_RUN_TEST(TestKniDeviceReceive, args, false);
-	PCAPP_RUN_TEST(TestKniDeviceSend, args, false);
-	PCAPP_RUN_TEST(TestKniDeviceDestroy, args, false);
+	PCAPP_RUN_TEST(TestKniDevice, args, true);
+	PCAPP_RUN_TEST(TestKniDeviceReceive, args, true);
+	PCAPP_RUN_TEST(TestKniDeviceSend, args, true);
+	PCAPP_RUN_TEST(TestKniDeviceDestroy, args, true);
 	PCAPP_RUN_TEST(TestDpdkMbufRawPacket, args, true);
 	PCAPP_RUN_TEST(TestDpdkDeviceWorkerThreads, args, true);
 	PCAPP_RUN_TEST(TestGetMacAddress, args, true);
