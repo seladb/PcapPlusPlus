@@ -153,7 +153,7 @@ KniDeviceList::KniDeviceList() :
 		m_Initialized = false;
 		return;
 	}
-#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 1, 16)
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 	if (rte_kni_init(MAX_KNI_INTERFACES) < 0)
 	{
 		LOG_ERROR("Failed to initialize KNI DPDK module");
