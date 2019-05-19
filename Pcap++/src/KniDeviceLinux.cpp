@@ -72,11 +72,11 @@ inline bool make_socket_request(lin_socket_t soc, unsigned long ioclt_type, stru
 	return true;
 }
 
-inline bool check_information_socket(lin_socket_t& soc)
+inline bool information_socket_is_invalid(lin_socket_t& soc)
 {
 	if (soc == INVALID_SOCKET)
-		return (soc = open_information_socket()) != INVALID_SOCKET;
-	return true;
+		return (soc = open_information_socket()) == INVALID_SOCKET;
+	return false;
 }
 
 } // namespace
@@ -102,7 +102,7 @@ KniDevice::KniLinkState KniDevice::getLinkState(KniInfoState state)
 	struct ifreq req;
 	if (state == KniDevice::INFO_CACHED)
 		return m_DeviceInfo.link;
-	if (check_information_socket(m_DeviceInfo.soc))
+	if (information_socket_is_invalid(m_DeviceInfo.soc))
 	{
 		LOG_DEBUG("Last known link state for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.link;
@@ -123,7 +123,7 @@ MacAddress KniDevice::getMacAddress(KniInfoState state)
 	struct ifreq req;
 	if (state == KniDevice::INFO_CACHED)
 		return m_DeviceInfo.mac;
-	if (check_information_socket(m_DeviceInfo.soc))
+	if (information_socket_is_invalid(m_DeviceInfo.soc))
 	{
 		LOG_DEBUG("Last known MAC address for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.mac;
@@ -145,7 +145,7 @@ uint16_t KniDevice::getMtu(KniInfoState state)
 	struct ifreq req;
 	if (state == KniDevice::INFO_CACHED)
 		return m_DeviceInfo.mtu;
-	if (check_information_socket(m_DeviceInfo.soc))
+	if (information_socket_is_invalid(m_DeviceInfo.soc))
 	{
 		LOG_DEBUG("Last known MTU for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.mtu;
@@ -166,7 +166,7 @@ KniDevice::KniPromiscuousMode KniDevice::getPromiscuous(KniInfoState state)
 	struct ifreq req;
 	if (state == KniDevice::INFO_CACHED)
 		return m_DeviceInfo.promisc;
-	if (check_information_socket(m_DeviceInfo.soc))
+	if (information_socket_is_invalid(m_DeviceInfo.soc))
 	{
 		LOG_DEBUG("Last known Promiscuous mode for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.promisc;
@@ -187,7 +187,7 @@ bool KniDevice::setLinkState(KniLinkState state)
 	struct ifreq req;
 	if (!(state == KniDevice::LINK_DOWN || state == KniDevice::LINK_UP))
 		return false;
-	if (check_information_socket(m_DeviceInfo.soc))
+	if (information_socket_is_invalid(m_DeviceInfo.soc))
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
@@ -215,7 +215,7 @@ bool KniDevice::setMacAddress(MacAddress mac)
 	struct ifreq req;
 	if (!mac.isValid())
 		return false;
-	if (check_information_socket(m_DeviceInfo.soc))
+	if (information_socket_is_invalid(m_DeviceInfo.soc))
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
@@ -233,7 +233,7 @@ bool KniDevice::setMacAddress(MacAddress mac)
 bool KniDevice::setMtu(uint16_t mtu)
 {
 	struct ifreq req;
-	if (check_information_socket(m_DeviceInfo.soc))
+	if (information_socket_is_invalid(m_DeviceInfo.soc))
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
@@ -251,7 +251,7 @@ bool KniDevice::setPromiscuous(KniPromiscuousMode mode)
 	struct ifreq req;
 	if (!(mode == KniDevice::PROMISC_DISABLE || mode == KniDevice::PROMISC_ENABLE))
 		return false;
-	if (check_information_socket(m_DeviceInfo.soc))
+	if (information_socket_is_invalid(m_DeviceInfo.soc))
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
