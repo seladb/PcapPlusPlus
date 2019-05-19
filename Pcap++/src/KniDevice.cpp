@@ -325,6 +325,8 @@ bool KniDevice::handleRequests()
 
 void KniDevice::KniRequests::cleanup()
 {
+	if (thread)
+		thread->cancel();
 	delete thread;
 	thread = NULL;
 	sleepS = sleepNs = 0;
@@ -757,7 +759,8 @@ void* KniDevice::KniCapturing::runCapture(void* p)
 
 void KniDevice::KniCapturing::cleanup()
 {
-	thread->cancel();
+	if (thread)
+		thread->cancel();
 	delete thread;
 	thread = NULL;
 	callback = NULL;
