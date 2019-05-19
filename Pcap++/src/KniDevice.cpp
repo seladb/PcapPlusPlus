@@ -907,6 +907,7 @@ void KniDevice::close()
 		m_Capturing.cleanup();
 	}
 	updateLinkState(LINK_DOWN);
+	m_DeviceOpened = false;
 }
 
 KniDevice* KniDevice::DeviceFactory(const KniDeviceConfiguration& conf, size_t mempoolSize)
