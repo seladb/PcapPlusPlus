@@ -5,7 +5,8 @@
 #include <stdint.h>
 #include <string>
 
-#define MAX_ADDR_STRING_LEN 40 //xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx
+#define MAX_ADDR_STRING_LEN 40 //xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx\0
+#define MAX_IPV4_STRING_LEN 16 //xxx.xxx.xxx.xxx\0
 
 /// @file
 
