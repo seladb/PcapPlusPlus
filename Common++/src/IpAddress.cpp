@@ -102,7 +102,8 @@ void IPv4Address::init(const char* addressAsString)
     	return;
     }
 
-    strncpy(m_AddressAsString, addressAsString, MAX_ADDR_STRING_LEN-1);
+    strncpy(m_AddressAsString, addressAsString, MAX_IPV4_STRING_LEN-1);
+	m_AddressAsString[MAX_IPV4_STRING_LEN - 1] = '\0';
     m_IsValid = true;
 }
 
@@ -173,6 +174,7 @@ IPv6Address::IPv6Address(const IPv6Address& other)
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in6_addr));
 
     strncpy(m_AddressAsString, other.m_AddressAsString, MAX_ADDR_STRING_LEN-1);
+	m_AddressAsString[MAX_ADDR_STRING_LEN - 1] = '\0';
     m_IsValid = other.m_IsValid;
 }
 
@@ -196,6 +198,7 @@ void IPv6Address::init(char* addressAsString)
     }
 
     strncpy(m_AddressAsString, addressAsString, MAX_ADDR_STRING_LEN-1);
+	m_AddressAsString[MAX_ADDR_STRING_LEN - 1] = '\0';
     m_IsValid = true;
 }
 
