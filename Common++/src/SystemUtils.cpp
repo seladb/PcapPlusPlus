@@ -170,29 +170,29 @@ void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& re
 
 std::string executeShellCommand(const std::string command)
 {
-    FILE* pipe = POPEN(command.c_str(), "r");
-    if (!pipe) return "ERROR";
-    char buffer[128];
-    std::string result = "";
-    while(!feof(pipe)) {
-    	if(fgets(buffer, 128, pipe) != NULL)
-    		result += buffer;
-    }
-    PCLOSE(pipe);
-    return result;
+	FILE* pipe = POPEN(command.c_str(), "r");
+	if (!pipe) return "ERROR";
+	char buffer[128];
+	std::string result = "";
+	while(!feof(pipe)) {
+		if(fgets(buffer, 128, pipe) != NULL)
+			result += buffer;
+	}
+	PCLOSE(pipe);
+	return result;
 }
 
 
 bool directoryExists(std::string dirPath)
 {
-    struct stat info;
+	struct stat info;
 
-    if (stat(dirPath.c_str(), &info) != 0)
-        return false;
-    else if(info.st_mode & S_IFDIR)
-        return true;
-    else
-        return false;
+	if (stat(dirPath.c_str(), &info) != 0)
+		return false;
+	else if(info.st_mode & S_IFDIR)
+		return true;
+	else
+		return false;
 }
 
 
@@ -210,50 +210,50 @@ int clockGetTime(long& sec, long& nsec)
 
 	LARGE_INTEGER count	;
 
-    if (clock_gettime_first_time)
-    {
-    	clock_gettime_first_time = 0;
+	if (clock_gettime_first_time)
+	{
+		clock_gettime_first_time = 0;
 
-        if (0 == QueryPerformanceFrequency(&clock_gettime_counts_per_sec))
-        {
-        	clock_gettime_counts_per_sec.QuadPart = 0;
-        }
-    }
+		if (0 == QueryPerformanceFrequency(&clock_gettime_counts_per_sec))
+		{
+			clock_gettime_counts_per_sec.QuadPart = 0;
+		}
+	}
 
-    if ((clock_gettime_counts_per_sec.QuadPart <= 0) || (0 == QueryPerformanceCounter(&count)))
-    {
-        return -1;
-    }
+	if ((clock_gettime_counts_per_sec.QuadPart <= 0) || (0 == QueryPerformanceCounter(&count)))
+	{
+		return -1;
+	}
 
-    sec = count.QuadPart / clock_gettime_counts_per_sec.QuadPart;
-    nsec = ((count.QuadPart % clock_gettime_counts_per_sec.QuadPart) * CLOCK_GETTIME_BILLION) / clock_gettime_counts_per_sec.QuadPart;
+	sec = count.QuadPart / clock_gettime_counts_per_sec.QuadPart;
+	nsec = ((count.QuadPart % clock_gettime_counts_per_sec.QuadPart) * CLOCK_GETTIME_BILLION) / clock_gettime_counts_per_sec.QuadPart;
 
-    return 0;
+	return 0;
 
 #elif MAC_OS_X
 
-    clock_serv_t cclock;
-    mach_timespec_t mts;
-    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-    clock_get_time(cclock, &mts);
-    mach_port_deallocate(mach_task_self(), cclock);
-    sec = mts.tv_sec;
-    nsec = mts.tv_nsec;
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+	clock_get_time(cclock, &mts);
+	mach_port_deallocate(mach_task_self(), cclock);
+	sec = mts.tv_sec;
+	nsec = mts.tv_nsec;
 
-    return 0;
+	return 0;
 
 #else // Linux
 
 	#include <time.h>
 
-    timespec ts;
-    int res = clock_gettime(CLOCK_REALTIME, &ts);
-    if (res == 0)
-    {
-        sec = ts.tv_sec;
-        nsec = ts.tv_nsec;
-    }
-    return res;
+	timespec ts;
+	int res = clock_gettime(CLOCK_REALTIME, &ts);
+	if (res == 0)
+	{
+		sec = ts.tv_sec;
+		nsec = ts.tv_nsec;
+	}
+	return res;
 
 #endif
 }

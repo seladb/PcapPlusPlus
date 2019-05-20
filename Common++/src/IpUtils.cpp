@@ -19,20 +19,20 @@ namespace pcpp
 
 in_addr* sockaddr2in_addr(struct sockaddr *sa)
 {
-    if (sa == NULL)
-        return NULL;
-    if (sa->sa_family == AF_INET)
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
-    return NULL;
+	if (sa == NULL)
+		return NULL;
+	if (sa->sa_family == AF_INET)
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
+	return NULL;
 }
 
 in6_addr* sockaddr2in6_addr(struct sockaddr *sa)
 {
-    if (sa->sa_family == AF_INET6)
-    	return &(((struct sockaddr_in6*)sa)->sin6_addr);
-    LOG_DEBUG("sockaddr family is not AF_INET6. Returning NULL");
-    return NULL;
+	if (sa->sa_family == AF_INET6)
+		return &(((struct sockaddr_in6*)sa)->sin6_addr);
+	LOG_DEBUG("sockaddr family is not AF_INET6. Returning NULL");
+	return NULL;
 }
 
 void sockaddr2string(struct sockaddr *sa, char* resultString)
@@ -109,16 +109,16 @@ static const uint32_t OFFSET_BASIS = 2166136261u;
 
 uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
 {
-    uint32_t hash = OFFSET_BASIS;
-    for (size_t i = 0; i < vecSize; ++i)
-    {
-    	for (size_t j = 0; j < vec[i].len; ++j)
-    	{
-    		hash *= FNV_PRIME;
-            hash ^= vec[i].buffer[j];
-    	}
-    }
-    return hash;
+	uint32_t hash = OFFSET_BASIS;
+	for (size_t i = 0; i < vecSize; ++i)
+	{
+		for (size_t j = 0; j < vec[i].len; ++j)
+		{
+			hash *= FNV_PRIME;
+			hash ^= vec[i].buffer[j];
+		}
+	}
+	return hash;
 }
 
 uint32_t fnv_hash(uint8_t* buffer, size_t bufSize)
@@ -150,7 +150,7 @@ inet_ntop4(const uint8_t* src, char* dst, size_t size)
 	char tmp[sizeof "255.255.255.255"];
 	int nprinted;
 	nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
-        /* Note: nprinted *excludes* the trailing '\0' character */
+		/* Note: nprinted *excludes* the trailing '\0' character */
 	if ((size_t)nprinted >= size) {
 		return (NULL);
 	}
@@ -219,7 +219,7 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	for (i = 0; i < (NS_IN6ADDRSZ / NS_INT16SZ); i++) {
 		/* Are we inside the best run of 0x00's? */
 		if (best.base != -1 && i >= best.base &&
-		    i < (best.base + best.len)) {
+			i < (best.base + best.len)) {
 			if (i == best.base)
 				*tp++ = ':';
 			continue;
@@ -229,7 +229,7 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 			*tp++ = ':';
 		/* Is this address an encapsulated IPv4? */
 		if (i == 6 && best.base == 0 &&
-		    (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
+			(best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
 			if (!inet_ntop4(src+12, tp, sizeof tmp - (tp - tmp)))
 				return (NULL);
 			tp += strlen(tp);
@@ -239,7 +239,7 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	}
 	/* Was it a trailing run of 0x00's? */
 	if (best.base != -1 && (best.base + best.len) ==
-	    (NS_IN6ADDRSZ / NS_INT16SZ))
+		(NS_IN6ADDRSZ / NS_INT16SZ))
 		*tp++ = ':';
 	*tp++ = '\0';
 
@@ -367,7 +367,7 @@ inet_pton6(const char* src, uint8_t* dst)
 			continue;
 		}
 		if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) &&
-		    inet_pton4(curtok, tp) > 0) {
+			inet_pton4(curtok, tp) > 0) {
 			tp += NS_INADDRSZ;
 			saw_xdigit = 0;
 			break;	/* '\0' was seen by inet_pton4(). */
