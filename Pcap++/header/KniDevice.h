@@ -200,29 +200,24 @@ namespace pcpp
 		 */
 		struct KniDeviceConfiguration
 		{
-			enum
-			{
-				// Must correspond to minimum of
-				// RTE_KNI_NAMESIZE [DPDK] = 32 and
-				// IFNAMSIZ [LINUX] = 16 (on most systems)
-				KNI_NAME_SIZE = 16
-			};
 			/**
 			 * Name used to display device in system.
 			 * Must not interfere with already existing network interfaces.
+			 * Must be less than or equal to IFNAMSIZ (16 chars including \0 on most systems)
 			 */
-			char name[KNI_NAME_SIZE];
+			std::string name;
 			union
 			{
 				KniIoctlCallbacks* callbacks;
 				KniOldIoctlCallbacks* oldCallbacks;
 			};
 			/**
-			 * Pointer to MAC (ETHERNET) address of new KNI device.
-			 * If omitted (NULL) some valid address will be automatically generated.
-			 * If provided will be cached by new KNI device info structure.
+			 * MAC (ETHERNET) address of new KNI device.
+			 * If MacAddress::Zero is provided then
+			 * some valid address will be automatically generated.
+			 * If provided (not MacAddress::Zero) will be cached by new KNI device info structure.
 			 */
-			MacAddress* mac;
+			MacAddress mac;
 			/**
 			 * Used in same way as DPDK port id.
 			 * If some new callbacks are omitted then have separate meaning
@@ -598,10 +593,10 @@ namespace pcpp
 			KniPromiscuousMode promisc;
 			uint16_t portId;
 			uint16_t mtu;
-			char name[KniDeviceConfiguration::KNI_NAME_SIZE];
 			MacAddress mac;
+			std::string name;
 
-			void init(const KniDeviceConfiguration& conf);
+			bool init(const KniDeviceConfiguration& conf);
 		} m_DeviceInfo;
 		struct KniThread;
 		struct KniCapturing
