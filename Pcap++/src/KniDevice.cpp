@@ -193,30 +193,30 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	kniConf.core_id = conf.kthreadCoreId;
 	kniConf.mbuf_size = MBufRawPacket::MBUF_DATA_SIZE;
 	kniConf.force_bind = conf.bindKthread ? 1 : 0;
-#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
-	if (conf.mac != NULL)
-		conf.mac->copyTo((uint8_t*)kniConf.mac_addr);
-	kniConf.mtu = conf.mtu;
-#endif
+	#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
+		if (conf.mac != NULL)
+			conf.mac->copyTo((uint8_t*)kniConf.mac_addr);
+		kniConf.mtu = conf.mtu;
+	#endif
 
 	kniOps.port_id = conf.portId;
-#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
-	if (conf.callbacks != NULL)
-	{
-		kniOps.change_mtu = conf.callbacks->change_mtu;
-		kniOps.config_network_if = conf.callbacks->config_network_if;
-	#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
-		kniOps.config_mac_address = conf.callbacks->config_mac_address;
-		kniOps.config_promiscusity = conf.callbacks->config_promiscusity;
+	#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
+		if (conf.callbacks != NULL)
+		{
+			kniOps.change_mtu = conf.callbacks->change_mtu;
+			kniOps.config_network_if = conf.callbacks->config_network_if;
+		#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
+			kniOps.config_mac_address = conf.callbacks->config_mac_address;
+			kniOps.config_promiscusity = conf.callbacks->config_promiscusity;
+		#endif
+		}
+	#else
+		if (conf.oldCallbacks != NULL)
+		{
+			kniOps.change_mtu = conf.oldCallbacks->change_mtu;
+			kniOps.config_network_if = conf.oldCallbacks->config_network_if;
+		}
 	#endif
-	}
-#else
-	if (conf.oldCallbacks != NULL)
-	{
-		kniOps.change_mtu = conf.oldCallbacks->change_mtu;
-		kniOps.config_network_if = conf.oldCallbacks->config_network_if;
-	}
-#endif
 
 	m_Device = rte_kni_alloc(m_MBufMempool, &kniConf, &kniOps);
 	if (m_Device == NULL)
