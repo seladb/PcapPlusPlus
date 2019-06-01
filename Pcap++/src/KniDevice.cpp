@@ -1,6 +1,6 @@
 #if defined(USE_DPDK) && defined(LINUX)
 
-#define LOG_MODULE PcapLogModuleDpdkDevice
+#define LOG_MODULE PcapLogModuleKniDevice
 
 #include "KniDevice.h"
 #include "Logger.h"
@@ -23,7 +23,7 @@
 #include <cstring>
 #include <algorithm>
 
-#define KNI_MEMPOOL_NAME "kni_mempool"
+#define KNI_MEMPOOL_NAME_PREFIX "kniMempool"
 #define MEMPOOL_CACHE_SIZE 256
 #define MAX_BURST_SIZE 64
 
@@ -46,8 +46,8 @@ struct KniDevice::KniThread
 		DETACHED,
 		INVALID
 	};
-	typedef void*(*thread_main_f)(void*);
-	KniThread(KniThreadCleanupState s, thread_main_f main_f, void* data);
+	typedef void*(*threadMain)(void*);
+	KniThread(KniThreadCleanupState s, threadMain tm, void* data);
 	~KniThread();
 
 	bool cancel();
@@ -56,10 +56,10 @@ struct KniDevice::KniThread
 	KniThreadCleanupState m_State;
 };
 
-KniDevice::KniThread::KniThread(KniThreadCleanupState s, thread_main_f main_f, void* data) :
+KniDevice::KniThread::KniThread(KniThreadCleanupState s, threadMain tm, void* data) :
 	m_State(s)
 {
-	int err = pthread_create(&m_Descriptor, NULL, main_f, data);
+	int err = pthread_create(&m_Descriptor, NULL, tm, data);
 	if (err != 0)
 	{
 		const char* errs = std::strerror(err);
@@ -107,7 +107,7 @@ bool KniDevice::KniThread::cancel()
 namespace
 {
 
-inline bool check_kni_driver()
+inline bool checkKniDriver()
 {
 	std::string execResult = executeShellCommand("lsmod | grep -s rte_kni");
 	if (execResult == "")
@@ -149,7 +149,7 @@ KniDeviceList::KniDeviceList() :
 	m_Initialized(true), m_KniUniqueId(0)
 {
 	m_Devices.reserve(MAX_KNI_INTERFACES);
-	if (!check_kni_driver())
+	if (!checkKniDriver())
 	{
 		m_Initialized = false;
 		return;
@@ -167,7 +167,7 @@ KniDeviceList::KniDeviceList() :
 
 KniDeviceList::~KniDeviceList()
 {
-	for (size_t i = 0; i < m_Devices.size(); ++i)
+	for (std::size_t i = 0; i < m_Devices.size(); ++i)
 		delete m_Devices[i];
 	rte_kni_close();
 }
@@ -187,47 +187,47 @@ KniDeviceList& KniDeviceList::Instance()
 namespace
 {
 
-inline bool destroy_kni_device(struct rte_kni* kni_dev, const char* dev_name)
+inline bool destroyKniDevice(struct rte_kni* kni, const char* deviceName)
 {
-	if (rte_kni_release(kni_dev) < 0)
+	if (rte_kni_release(kni) < 0)
 	{
-		LOG_ERROR("Failed to destroy DPDK KNI device %s", dev_name);
+		LOG_ERROR("Failed to destroy DPDK KNI device %s", deviceName);
 		return true;
 	}
 	return false;
 }
 
-inline KniDevice::KniLinkState set_kni_device_link_state(
-	struct rte_kni* kni_dev,
-	const char* dev_name,
+inline KniDevice::KniLinkState setKniDeviceLinkState(
+	struct rte_kni* kni,
+	const char* deviceName,
 	KniDevice::KniLinkState state = KniDevice::LINK_UP
 )
 {
-	KniDevice::KniLinkState old_state = KniDevice::LINK_NOT_SUPPORTED;
-	if (kni_dev == NULL || !(state == KniDevice::LINK_UP || state == KniDevice::LINK_DOWN))
+	KniDevice::KniLinkState oldState = KniDevice::LINK_NOT_SUPPORTED;
+	if (kni == NULL || !(state == KniDevice::LINK_UP || state == KniDevice::LINK_DOWN))
 	{
-		return old_state = KniDevice::LINK_ERROR;
+		return oldState = KniDevice::LINK_ERROR;
 	}
 	#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
-		old_state = (KniDevice::KniLinkState)rte_kni_update_link(kni_dev, state);
-		if (old_state == KniDevice::LINK_ERROR)
+		oldState = (KniDevice::KniLinkState)rte_kni_update_link(kni, state);
+		if (oldState == KniDevice::LINK_ERROR)
 		{	//? NOTE(echo-Mike): Not LOG_ERROR because will generate a lot of junk messages on some DPDK versions
-			LOG_DEBUG("DPDK KNI Failed to update links state for device \"%s\"", dev_name);
+			LOG_DEBUG("DPDK KNI Failed to update links state for device \"%s\"", deviceName);
 		}
 	#else
 		// To avoid compiler warnings
-		(void) kni_dev;
-		(void) dev_name;
+		(void) kni;
+		(void) deviceName;
 	#endif
-	return old_state;
+	return oldState;
 }
 
-inline struct rte_mempool* create_mempool(size_t mempoolSize, int unique, const char* dev_name)
+inline struct rte_mempool* createMempool(size_t mempoolSize, int unique, const char* deviceName)
 {
 	struct rte_mempool* result = NULL;
 	char mempoolName[64];
 	snprintf(mempoolName, sizeof(mempoolName),
-		KNI_MEMPOOL_NAME "_%d",
+		KNI_MEMPOOL_NAME_PREFIX "%d",
 		unique
 	);
 	result = rte_pktmbuf_pool_create(
@@ -240,11 +240,11 @@ inline struct rte_mempool* create_mempool(size_t mempoolSize, int unique, const 
 	);
 	if (result == NULL)
 	{
-		LOG_ERROR("Failed to create packets memory pool for KNI device %s, pool name: %s", dev_name, mempoolName);
+		LOG_ERROR("Failed to create packets memory pool for KNI device %s, pool name: %s", deviceName, mempoolName);
 	}
 	else
 	{
-		LOG_DEBUG("Successfully initialized packets pool of size [%lu] for KNI device [%s]", (unsigned long)mempoolSize, dev_name);
+		LOG_DEBUG("Successfully initialized packets pool of size [%lu] for KNI device [%s]", (unsigned long)mempoolSize, deviceName);
 	}
 	return result;
 }
@@ -254,48 +254,48 @@ inline struct rte_mempool* create_mempool(size_t mempoolSize, int unique, const 
 KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int unique) :
 	m_Device(NULL), m_MBufMempool(NULL)
 {
-	struct rte_kni_ops kni_ops;
-	struct rte_kni_conf kni_conf;
+	struct rte_kni_ops kniOps;
+	struct rte_kni_conf kniConf;
 	m_DeviceInfo.init(conf);
 	m_Requests.thread = NULL;
 	std::memset(&m_Capturing, 0, sizeof(m_Capturing));
 	std::memset(&m_Requests, 0, sizeof(m_Requests));
 
-	if ((m_MBufMempool = create_mempool(mempoolSize, unique, conf.name)) == NULL)
+	if ((m_MBufMempool = createMempool(mempoolSize, unique, conf.name)) == NULL)
 		return;
 
-	std::memset(&kni_ops, 0, sizeof(kni_ops));
-	std::memset(&kni_conf, 0, sizeof(kni_conf));
-	snprintf(kni_conf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
-	kni_conf.core_id = conf.kthreadCoreId;
-	kni_conf.mbuf_size = MBufRawPacket::MBUF_DATA_SIZE;
-	kni_conf.force_bind = conf.bindKthread ? 1 : 0;
+	std::memset(&kniOps, 0, sizeof(kniOps));
+	std::memset(&kniConf, 0, sizeof(kniConf));
+	snprintf(kniConf.name, RTE_KNI_NAMESIZE, "%s", conf.name);
+	kniConf.core_id = conf.kthreadCoreId;
+	kniConf.mbuf_size = MBufRawPacket::MBUF_DATA_SIZE;
+	kniConf.force_bind = conf.bindKthread ? 1 : 0;
 #if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 	if (conf.mac != NULL)
-		conf.mac->copyTo((uint8_t*)kni_conf.mac_addr);
-	kni_conf.mtu = conf.mtu;
+		conf.mac->copyTo((uint8_t*)kniConf.mac_addr);
+	kniConf.mtu = conf.mtu;
 #endif
 
-	kni_ops.port_id = conf.portId;
+	kniOps.port_id = conf.portId;
 #if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
 	if (conf.callbacks != NULL)
 	{
-		kni_ops.change_mtu = conf.callbacks->change_mtu;
-		kni_ops.config_network_if = conf.callbacks->config_network_if;
+		kniOps.change_mtu = conf.callbacks->change_mtu;
+		kniOps.config_network_if = conf.callbacks->config_network_if;
 	#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
-		kni_ops.config_mac_address = conf.callbacks->config_mac_address;
-		kni_ops.config_promiscusity = conf.callbacks->config_promiscusity;
+		kniOps.config_mac_address = conf.callbacks->config_mac_address;
+		kniOps.config_promiscusity = conf.callbacks->config_promiscusity;
 	#endif
 	}
 #else
 	if (conf.oldCallbacks != NULL)
 	{
-		kni_ops.change_mtu = conf.oldCallbacks->change_mtu;
-		kni_ops.config_network_if = conf.oldCallbacks->config_network_if;
+		kniOps.change_mtu = conf.oldCallbacks->change_mtu;
+		kniOps.config_network_if = conf.oldCallbacks->config_network_if;
 	}
 #endif
 
-	m_Device = rte_kni_alloc(m_MBufMempool, &kni_conf, &kni_ops);
+	m_Device = rte_kni_alloc(m_MBufMempool, &kniConf, &kniOps);
 	if (m_Device == NULL)
 	{
 		LOG_ERROR("DPDK have failed to create KNI device %s", conf.name);
@@ -307,13 +307,13 @@ KniDevice::~KniDevice()
 	m_Requests.cleanup();
 	m_Capturing.cleanup();
 	m_DeviceInfo.cleanup();
-	set_kni_device_link_state(m_Device, m_DeviceInfo.name, KniDevice::LINK_DOWN);
-	destroy_kni_device(m_Device, m_DeviceInfo.name);
+	setKniDeviceLinkState(m_Device, m_DeviceInfo.name, KniDevice::LINK_DOWN);
+	destroyKniDevice(m_Device, m_DeviceInfo.name);
 }
 
 KniDevice::KniLinkState KniDevice::updateLinkState(KniLinkState state)
 {
-	KniLinkState oldState = set_kni_device_link_state(m_Device, m_DeviceInfo.name, state);
+	KniLinkState oldState = setKniDeviceLinkState(m_Device, m_DeviceInfo.name, state);
 	if (oldState != KniDevice::LINK_NOT_SUPPORTED && oldState != KniDevice::LINK_ERROR)
 		m_DeviceInfo.link = state;
 	return oldState;
@@ -333,9 +333,9 @@ void KniDevice::KniRequests::cleanup()
 	sleepS = sleepNs = 0;
 }
 
-void* KniDevice::KniRequests::runRequests(void* p)
+void* KniDevice::KniRequests::runRequests(void* devicePointer)
 {
-	KniDevice* device = (KniDevice*)p;
+	KniDevice* device = (KniDevice*)devicePointer;
 	struct timespec sleepTime;
 	sleepTime.tv_sec = device->m_Requests.sleepS;
 	sleepTime.tv_nsec = device->m_Requests.sleepNs;
@@ -352,7 +352,7 @@ bool KniDevice::startRequestHandlerThread(long sleepSeconds, long sleepNanoSecon
 {
 	if (m_Requests.thread != NULL)
 	{
-		LOG_DEBUG("KNI request thread is already started for device \"%s\"", m_DeviceInfo.name);
+		LOG_ERROR("KNI request thread is already started for device \"%s\"", m_DeviceInfo.name);
 		return false;
 	}
 	m_Requests.sleepS = sleepSeconds;
@@ -387,7 +387,7 @@ uint16_t KniDevice::receivePackets(MBufRawPacketVector& rawPacketsArr)
 	{
 		LOG_ERROR(
 			"KNI device \"%s\" capture mode is currently running. "
-			"Cannot recieve packets in parallel",
+			"Cannot receive packets in parallel",
 			m_DeviceInfo.name
 		);
 		return 0;
@@ -622,7 +622,7 @@ uint16_t KniDevice::sendPackets(RawPacketVector& rawPacketsVec)
 	struct rte_mbuf** mBufArray = CPP_VLA(struct rte_mbuf*, arrLength);
 	MBufRawPacket** mBufRawPacketArr = CPP_VLA(MBufRawPacket*, arrLength);
 	MBufRawPacket** allocated = CPP_VLA(MBufRawPacket*, arrLength);
-	uint16_t allocated_count = 0, packetsSent = 0, pos = 0;
+	uint16_t allocatedCount = 0, packetsSent = 0, pos = 0;
 	MBufRawPacket* rawPacket;
 
 	for (RawPacketVector::VectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); ++iter)
@@ -636,7 +636,7 @@ uint16_t KniDevice::sendPackets(RawPacketVector& rawPacketsVec)
 				delete pkt;
 				goto error_out;
 			}
-			rawPacket = allocated[allocated_count++] = pkt;
+			rawPacket = allocated[allocatedCount++] = pkt;
 		}
 		else
 		{
@@ -654,7 +654,7 @@ uint16_t KniDevice::sendPackets(RawPacketVector& rawPacketsVec)
 	}
 
 error_out:
-	for (uint16_t i = 0; i < allocated_count; ++i)
+	for (uint16_t i = 0; i < allocatedCount; ++i)
 		delete allocated[i];
 	return packetsSent;
 }
@@ -668,32 +668,31 @@ bool KniDevice::sendPacket(RawPacket& rawPacket)
 	}
 
 	struct rte_mbuf* mbuf;
-	MBufRawPacket* raw_packet;
-	MBufRawPacket* kni_raw = NULL;
+	MBufRawPacket* mbufRawPacket = NULL;
 	bool sent = false;
+	bool wasAllocated = false;
 
-	uint8_t raw_type = rawPacket.getObjectType();
-	if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
+	if (rawPacket.getObjectType() != MBUFRAWPACKET_OBJECT_TYPE)
 	{
-		kni_raw = new MBufRawPacket();
-		if (unlikely(!kni_raw->initFromRawPacket(&rawPacket, this)))
+		mbufRawPacket = new MBufRawPacket();
+		if (unlikely(!mbufRawPacket->initFromRawPacket(&rawPacket, this)))
 		{
-			delete kni_raw;
+			delete mbufRawPacket;
 			return sent;
 		}
-		raw_packet = kni_raw;
-		mbuf = kni_raw->getMBuf();
+		mbuf = mbufRawPacket->getMBuf();
+		wasAllocated = true;
 	}
 	else
 	{
-		raw_packet = (MBufRawPacket*)(&rawPacket);
-		mbuf = raw_packet->getMBuf();
+		mbufRawPacket = (MBufRawPacket*)(&rawPacket);
+		mbuf = mbufRawPacket->getMBuf();
 	}
 
 	sent = rte_kni_tx_burst(m_Device, &mbuf, 1);
-	raw_packet->setFreeMbuf(!sent);
-	if (kni_raw != NULL)
-		delete kni_raw;
+	mbufRawPacket->setFreeMbuf(!sent);
+	if (wasAllocated)
+		delete mbufRawPacket;
 
 	return sent;
 }
@@ -720,19 +719,19 @@ bool KniDevice::sendPacket(Packet& packet)
 	return sendPacket(*packet.getRawPacket());
 }
 
-void* KniDevice::KniCapturing::runCapture(void* p)
+void* KniDevice::KniCapturing::runCapture(void* devicePointer)
 {
-	KniDevice* device = (KniDevice*)p;
+	KniDevice* device = (KniDevice*)devicePointer;
 	OnKniPacketArriveCallback callback = device->m_Capturing.callback;
 	void* userCookie = device->m_Capturing.userCookie;
 	struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
-	struct rte_kni* kni_dev = device->m_Device;
+	struct rte_kni* kni = device->m_Device;
 
 	LOG_DEBUG("Starting KNI capture thread for device \"%s\"", device->m_DeviceInfo.name);
 
 	for(;;)
 	{
-		uint32_t numOfPktsReceived = rte_kni_rx_burst(kni_dev, mBufArray, MAX_BURST_SIZE);
+		uint32_t numOfPktsReceived = rte_kni_rx_burst(kni, mBufArray, MAX_BURST_SIZE);
 		if (unlikely(numOfPktsReceived == 0))
 		{
 			pthread_testcancel();

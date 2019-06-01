@@ -1,6 +1,6 @@
 #if defined(USE_DPDK) && defined(LINUX)
 
-#define LOG_MODULE PcapLogModuleDpdkDevice
+#define LOG_MODULE PcapLogModuleKniDevice
 
 #include "KniDevice.h"
 #include "Logger.h"
@@ -30,7 +30,7 @@ enum
 };
 typedef int lin_socket_t;
 
-inline lin_socket_t open_information_socket()
+inline lin_socket_t openInformationSocket()
 {
 	lin_socket_t soc = socket(AF_INET, SOCK_DGRAM, 0);
 	if (soc < 0)
@@ -46,7 +46,7 @@ inline lin_socket_t open_information_socket()
 	return soc;
 }
 
-inline void close_information_socket(lin_socket_t soc)
+inline void closeInformationSocket(lin_socket_t soc)
 {
 	if (soc == INVALID_SOCKET)
 	{
@@ -56,9 +56,9 @@ inline void close_information_socket(lin_socket_t soc)
 	close(soc);
 }
 
-inline bool make_socket_request(lin_socket_t soc, unsigned long ioclt_type, struct ifreq* req)
+inline bool makeSocketRequest(lin_socket_t soc, unsigned long iocltType, struct ifreq* req)
 {
-	if (ioctl(soc, ioclt_type, req) != 0)
+	if (ioctl(soc, iocltType, req) != 0)
 	{
 		const char* err = std::strerror(errno);
 		LOG_ERROR(
@@ -72,10 +72,10 @@ inline bool make_socket_request(lin_socket_t soc, unsigned long ioclt_type, stru
 	return true;
 }
 
-inline bool information_socket_is_invalid(lin_socket_t& soc)
+inline bool informationSocketIsInvalid(lin_socket_t& soc)
 {
 	if (soc == INVALID_SOCKET)
-		return (soc = open_information_socket()) == INVALID_SOCKET;
+		return (soc = openInformationSocket()) == INVALID_SOCKET;
 	return false;
 }
 
@@ -94,7 +94,7 @@ void KniDevice::KniDeviceInfo::init(const KniDeviceConfiguration& conf)
 
 void KniDevice::KniDeviceInfo::cleanup()
 {
-	close_information_socket(soc);
+	closeInformationSocket(soc);
 }
 
 KniDevice::KniLinkState KniDevice::getLinkState(KniInfoState state)
@@ -102,14 +102,14 @@ KniDevice::KniLinkState KniDevice::getLinkState(KniInfoState state)
 	struct ifreq req;
 	if (state == KniDevice::INFO_CACHED)
 		return m_DeviceInfo.link;
-	if (information_socket_is_invalid(m_DeviceInfo.soc))
+	if (informationSocketIsInvalid(m_DeviceInfo.soc))
 	{
 		LOG_DEBUG("Last known link state for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.link;
 	}
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
-	if (!make_socket_request(m_DeviceInfo.soc, SIOCGIFFLAGS, &req))
+	if (!makeSocketRequest(m_DeviceInfo.soc, SIOCGIFFLAGS, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain interface link state from Linux");
 		LOG_DEBUG("Last known link state for device \"%s\" is returned", m_DeviceInfo.name);
@@ -123,7 +123,7 @@ MacAddress KniDevice::getMacAddress(KniInfoState state)
 	struct ifreq req;
 	if (state == KniDevice::INFO_CACHED)
 		return m_DeviceInfo.mac;
-	if (information_socket_is_invalid(m_DeviceInfo.soc))
+	if (informationSocketIsInvalid(m_DeviceInfo.soc))
 	{
 		LOG_DEBUG("Last known MAC address for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.mac;
@@ -131,7 +131,7 @@ MacAddress KniDevice::getMacAddress(KniInfoState state)
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
 	req.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-	if (!make_socket_request(m_DeviceInfo.soc, SIOCGIFHWADDR, &req))
+	if (!makeSocketRequest(m_DeviceInfo.soc, SIOCGIFHWADDR, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain MAC address from Linux");
 		LOG_DEBUG("Last known MAC address for device \"%s\" is returned", m_DeviceInfo.name);
@@ -145,14 +145,14 @@ uint16_t KniDevice::getMtu(KniInfoState state)
 	struct ifreq req;
 	if (state == KniDevice::INFO_CACHED)
 		return m_DeviceInfo.mtu;
-	if (information_socket_is_invalid(m_DeviceInfo.soc))
+	if (informationSocketIsInvalid(m_DeviceInfo.soc))
 	{
 		LOG_DEBUG("Last known MTU for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.mtu;
 	}
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
-	if (!make_socket_request(m_DeviceInfo.soc, SIOCGIFMTU, &req))
+	if (!makeSocketRequest(m_DeviceInfo.soc, SIOCGIFMTU, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain interface MTU from Linux");
 		LOG_DEBUG("Last known MTU for device \"%s\" is returned", m_DeviceInfo.name);
@@ -166,14 +166,14 @@ KniDevice::KniPromiscuousMode KniDevice::getPromiscuous(KniInfoState state)
 	struct ifreq req;
 	if (state == KniDevice::INFO_CACHED)
 		return m_DeviceInfo.promisc;
-	if (information_socket_is_invalid(m_DeviceInfo.soc))
+	if (informationSocketIsInvalid(m_DeviceInfo.soc))
 	{
 		LOG_DEBUG("Last known Promiscuous mode for device \"%s\" is returned", m_DeviceInfo.name);
 		return m_DeviceInfo.promisc;
 	}
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
-	if (!make_socket_request(m_DeviceInfo.soc, SIOCGIFFLAGS, &req))
+	if (!makeSocketRequest(m_DeviceInfo.soc, SIOCGIFFLAGS, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain interface Promiscuous mode from Linux");
 		LOG_DEBUG("Last known Promiscuous mode for device \"%s\" is returned", m_DeviceInfo.name);
@@ -187,11 +187,11 @@ bool KniDevice::setLinkState(KniLinkState state)
 	struct ifreq req;
 	if (!(state == KniDevice::LINK_DOWN || state == KniDevice::LINK_UP))
 		return false;
-	if (information_socket_is_invalid(m_DeviceInfo.soc))
+	if (informationSocketIsInvalid(m_DeviceInfo.soc))
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
-	if (!make_socket_request(m_DeviceInfo.soc, SIOCGIFFLAGS, &req))
+	if (!makeSocketRequest(m_DeviceInfo.soc, SIOCGIFFLAGS, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain interface flags from Linux");
 		return false;
@@ -200,7 +200,7 @@ bool KniDevice::setLinkState(KniLinkState state)
 		(state == KniDevice::LINK_UP && !(req.ifr_flags & IFF_UP)))
 	{
 		req.ifr_flags ^= IFF_UP;
-		if (!make_socket_request(m_DeviceInfo.soc, SIOCSIFFLAGS, &req))
+		if (!makeSocketRequest(m_DeviceInfo.soc, SIOCSIFFLAGS, &req))
 		{
 			LOG_ERROR("DPDK KNI failed to set \"%s\" link mode", m_DeviceInfo.name);
 			return false;
@@ -215,13 +215,13 @@ bool KniDevice::setMacAddress(MacAddress mac)
 	struct ifreq req;
 	if (!mac.isValid())
 		return false;
-	if (information_socket_is_invalid(m_DeviceInfo.soc))
+	if (informationSocketIsInvalid(m_DeviceInfo.soc))
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
 	req.ifr_hwaddr.sa_family = ARPHRD_ETHER;
 	mac.copyTo((uint8_t*)req.ifr_hwaddr.sa_data);
-	if (!make_socket_request(m_DeviceInfo.soc, SIOCSIFHWADDR, &req))
+	if (!makeSocketRequest(m_DeviceInfo.soc, SIOCSIFHWADDR, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to set MAC address");
 		return false;
@@ -233,12 +233,12 @@ bool KniDevice::setMacAddress(MacAddress mac)
 bool KniDevice::setMtu(uint16_t mtu)
 {
 	struct ifreq req;
-	if (information_socket_is_invalid(m_DeviceInfo.soc))
+	if (informationSocketIsInvalid(m_DeviceInfo.soc))
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
 	req.ifr_mtu = mtu;
-	if (!make_socket_request(m_DeviceInfo.soc, SIOCSIFMTU, &req))
+	if (!makeSocketRequest(m_DeviceInfo.soc, SIOCSIFMTU, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to set interface MTU");
 		return false;
@@ -252,11 +252,11 @@ bool KniDevice::setPromiscuous(KniPromiscuousMode mode)
 	struct ifreq req;
 	if (!(mode == KniDevice::PROMISC_DISABLE || mode == KniDevice::PROMISC_ENABLE))
 		return false;
-	if (information_socket_is_invalid(m_DeviceInfo.soc))
+	if (informationSocketIsInvalid(m_DeviceInfo.soc))
 		return false;
 	std::memset(&req, 0, sizeof(req));
 	snprintf(req.ifr_name, IFNAMSIZ, "%s", m_DeviceInfo.name);
-	if (!make_socket_request(m_DeviceInfo.soc, SIOCGIFFLAGS, &req))
+	if (!makeSocketRequest(m_DeviceInfo.soc, SIOCGIFFLAGS, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain interface flags from Linux");
 		return false;
@@ -265,7 +265,7 @@ bool KniDevice::setPromiscuous(KniPromiscuousMode mode)
 		(mode == KniDevice::PROMISC_ENABLE && !(req.ifr_flags & IFF_PROMISC)))
 	{
 		req.ifr_flags ^= IFF_PROMISC;
-		if (!make_socket_request(m_DeviceInfo.soc, SIOCSIFFLAGS, &req))
+		if (!makeSocketRequest(m_DeviceInfo.soc, SIOCSIFFLAGS, &req))
 		{
 			LOG_ERROR("DPDK KNI failed to set \"%s\" link mode", m_DeviceInfo.name);
 			return false;
