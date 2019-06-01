@@ -93,7 +93,7 @@ namespace pcpp
 	 */
 	class KniDevice : public IDevice
 	{
-		friend class MBufRawPacket;
+		friend class KniDeviceList;
 	public:
 		/**
 		 * Various link related constants for KNI device
@@ -129,35 +129,11 @@ namespace pcpp
 			/** Used to ENABLE promiscuous mode on KNI device */
 			PROMISC_ENABLE = 1
 		};
-		/**
-		 * Callback related constants for KNI device
-		 */
-		enum KniCallbackVersion
-		{
-			/** Reports that DPDK supports only KniIoctlCallbacks callback structure */
-			CALLBACKS_NEW = 0,
-			/** Reports that DPDK supports only KniOldIoctlCallbacks callback structure */
-			CALLBACKS_OLD = 1
-		};
-		/**
-		 * Various callback types supported by KNI device
-		 */
-		enum KniCallbackType
-		{
-			/** KniIoctlCallbacks#change_mtu and KniOldIoctlCallbacks#change_mtu callback */
-			CALLBACK_MTU,
-			/** KniIoctlCallbacks#config_network_if and KniOldIoctlCallbacks#config_network_if callback */
-			CALLBACK_LINK,
-			/** KniIoctlCallbacks#config_mac_address callback */
-			CALLBACK_MAC,
-			/** KniIoctlCallbacks#config_promiscusity callback */
-			CALLBACK_PROMISC
-		};
 
 		/**
 		 * @brief New callbacks for KNI device events.
-		 * This structure MUST be used ONLY when KniDevice#callbackVersion returns
-		 * KniCallbackVersion#CALLBACKS_NEW.
+		 * This structure MUST be used ONLY when KniDeviceList#callbackVersion returns
+		 * KniDeviceList#KniCallbackVersion#CALLBACKS_NEW.
 		 * Or if You are sure that DPDK version used is 17.11 or higher.
 		 * If some callback is not provided (NULL) the request will always succeeds
 		 * if other is not specified in callback description.
@@ -197,8 +173,8 @@ namespace pcpp
 
 		/**
 		 * @brief Old callbacks for KNI device events.
-		 * This structure MUST be used ONLY when KniDevice#callbackVersion returns
-		 * KniCallbackVersion#CALLBACKS_OLD.
+		 * This structure MUST be used ONLY when KniDeviceList#callbackVersion returns
+		 * KniDeviceList#KniCallbackVersion#CALLBACKS_OLD.
 		 * Or if You are sure that DPDK version used is lower than 17.11.
 		 * If some callback is not provided (NULL) the request will always succeeds.
 		 */
@@ -220,7 +196,7 @@ namespace pcpp
 		 * @brief KNI device initialization data.
 		 * Used to create new KNI device.
 		 * Usage of callbacks member or oldCallbacks member is defined by
-		 * result of KniDevice#callbackVersion
+		 * result of KniDeviceList#callbackVersion
 		 */
 		struct KniDeviceConfiguration
 		{
@@ -269,74 +245,16 @@ namespace pcpp
 		};
 
 	private:
-		/** All instances of this class MUST be produced by DeviceFactory factory */
+		/** All instances of this class MUST be produced by KniDeviceList class */
 		KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int unique);
 		/** This class is not copyable */
 		KniDevice(const KniDevice&);
 		/** This class is not copyable */
 		KniDevice& operator=(const KniDevice&);
-
-	protected:
-		friend struct KniDeviceList;
-		/**
-		 * All instances of this class MUST be destroyed by DestroyDevice method
-		 * or automatically on application exit by KniDeviceList singleton.
-		 */
+		/** All instances of this class MUST be destroyed by KniDeviceList class */
 		~KniDevice();
 
 	public:
-		/* Device manipulation */
-
-		/**
-		 * @brief Factory method for KNI devices.
-		 * Newly created device is remembered under portId and name provided in conf and can be found later by them.
-		 * If KNI device is not destroyed explicitly thru KniDevice#DestroyDevice
-		 * then it will be destroyed implicitly by the time application exits.
-		 * @warning NOT MT SAFE
-		 * @param[in] conf KNI device configuration structure
-		 * @param[in] mempoolSize Size of packet mempool used by this device
-		 * @return Pointer to new KNI device or NULL in case of error
-		 */
-		static KniDevice* DeviceFactory(const KniDeviceConfiguration& conf, size_t mempoolSize);
-		/**
-		 * @brief Explicit destruction of KNI device.
-		 * After this call device is no longer available for external (by Linux)
-		 * or internal (by application) usage.
-		 * All threads running on this device are stopped (request and/or capturing).
-		 * The device can no longer be found by it's name or id.
-		 * @warning NOT MT SAFE
-		 * @param[in] kniDevice KNI device to be destroyed explicitly
-		 */
-		static void DestroyDevice(KniDevice* kniDevice);
-		/**
-		 * @brief Returns one of KNI devices with specified portId.
-		 * @note MT SAFE if DeviceFactory or DestroyDevice is not called concurrently
-		 * @param[in] portId ID of KNI device to find
-		 * @return Pointer to KNI device or NULL if device not found
-		 */
-		static KniDevice* getDeviceByPort(uint16_t portId);
-		/**
-		 * @brief Returns one of KNI devices with specified name.
-		 * @note MT SAFE if DeviceFactory or DestroyDevice is not called concurrently
-		 * @param[in] name Name of KNI device to find
-		 * @return Pointer to KNI device or NULL if device not found
-		 */
-		static KniDevice* getDeviceByName(const std::string& name);
-
-		/* Static information */
-
-		/**
-		 * Returns KniCallbackVersion#CALLBACKS_NEW or KniCallbackVersion#CALLBACKS_OLD based on DPDK version used
-		 * @note MT SAFE
-		 */
-		static KniCallbackVersion callbackVersion();
-		/**
-		 * Returns true if provided callback type is supported by used DPDK version
-		 * @note MT SAFE
-		 * @param[in] cbType One of KniCallbackType enum values
-		 */
-		static bool isCallbackSupported(KniCallbackType cbType);
-
 		/* Information getters */
 
 		/**
