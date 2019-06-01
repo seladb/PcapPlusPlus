@@ -63,7 +63,7 @@ namespace pcpp
 	 *      kernel may crush dramatically.
 	 * There is a way to enable ethtool on KNI devices that include recompilation of DPDK
 	 * and strict correspondence between KNI port id and DPDK port id, but it is not currently
-	 * supported by Pcap++.
+	 * supported by PcapPlusPlus.
 	 * Known issues:
 	 *  - KNI device may not be able to set/update it's link status up (LINK_ERROR returned):
 	 *    The problem is laying in DPDK in rte_kni_update_link function
@@ -160,6 +160,9 @@ namespace pcpp
 		 * Or if You are sure that DPDK version used is 17.11 or higher.
 		 * If some callback is not provided (NULL) the request will always succeeds
 		 * if other is not specified in callback description.
+		 * @note This callbacks are direct copy of one defined in rte_kni_ops. Future
+		 * maintainers of KNI device feature MUST refer to rte_kni_ops structure in
+		 * rte_kni.h header file of DPDK to track the difference in signatures
 		 */
 		struct KniIoctlCallbacks
 		{
@@ -690,7 +693,7 @@ namespace pcpp
 			void* userCookie;
 			KniThread* thread;
 
-			static void* runCapture(void* p);
+			static void* runCapture(void* devicePointer);
 			inline bool isRunning() const { return thread != NULL; }
 			void cleanup();
 		} m_Capturing;
@@ -700,7 +703,7 @@ namespace pcpp
 			long sleepNs;
 			KniThread* thread;
 
-			static void* runRequests(void* p);
+			static void* runRequests(void* devicePointer);
 			void cleanup();
 		} m_Requests;
 	};
