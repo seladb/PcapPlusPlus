@@ -6,12 +6,13 @@ echo ""
 
 
 show_help() {
-        echo "usage: setup-dpdk.sh -g AMOUNT_OF_HUGE_PAGES_TO_ALLOCATE -n NICS_TO_BIND_IN_COMMA_SEPARATED_LIST [-s] [-h]"
+        echo "usage: setup-dpdk.sh -p AMOUNT_OF_HUGE_PAGES_TO_ALLOCATE -n NICS_TO_BIND_IN_COMMA_SEPARATED_LIST [-s] [-k] [-h]"
 	echo "options:"
 	echo "	-p	: amount of huge pages to allocate (huge pages are needed for DPDK's memory allocations)"
 	echo "	-n	: a comma-separated list of all NICs that will be unbinded from Linux and move to DPDK control"
 	echo "		  only these NICs will be used by DPDK. Example: eth0,eth1"
 	echo "	-s	: display current Ethernet device settings (which are binded to Linux and which to DPDK)"
+	echo "	-k	: additionally insert the DPDK KNI kernel module"
 	echo "	-h	: show this help screen"
 }
 
@@ -31,7 +32,7 @@ OPTIND=1	# Reset in case getopts has been used previously in the shell.
 HUGE_PAGE_TO_ALLOCATE=0
 NICS_TO_BIND=""
 
-while getopts "h?sp:n:" opt; do
+while getopts "h?skp:n:" opt; do
     case "$opt" in
     h|\?)
 	show_help
@@ -40,6 +41,8 @@ while getopts "h?sp:n:" opt; do
     p)  HUGE_PAGE_TO_ALLOCATE=$OPTARG
         ;;
     n)  NICS_TO_BIND=$OPTARG
+        ;;
+    k)  INSERT_KNI=1
         ;;
     s)  ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
         exit 0
