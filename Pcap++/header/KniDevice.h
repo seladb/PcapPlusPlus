@@ -4,6 +4,7 @@
 #include "Device.h"
 #include "MacAddress.h"
 #include "MBufRawPacket.h"
+#include "LinuxNicInformationSocket.h"
 
 #include <string>
 
@@ -674,8 +675,7 @@ namespace pcpp
 		struct rte_mempool* m_MBufMempool;
 		struct KniDeviceInfo
 		{
-			typedef int lin_socket_t;
-			lin_socket_t soc;
+			LinuxNicInformationSocket soc;
 			KniLinkState link;
 			KniPromiscuousMode promisc;
 			uint16_t portId;
@@ -684,7 +684,6 @@ namespace pcpp
 			MacAddress mac;
 
 			void init(const KniDeviceConfiguration& conf);
-			void cleanup();
 		} m_DeviceInfo;
 		struct KniThread;
 		struct KniCapturing
