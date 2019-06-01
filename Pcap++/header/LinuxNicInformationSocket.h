@@ -21,6 +21,7 @@ namespace pcpp
 	 * known ioctl type and properly filled ifreq structure for this ioctl type.
 	 * Filling of ifr_name may be omitted as it will be done automatically from
 	 * provided NIC name. 
+	 * @note Usage of this class requires the inclusion of <sys/ioctl.h> and <net/if.h> Linux headers
 	 */
 	class LinuxNicInformationSocket
 	{
@@ -48,8 +49,7 @@ namespace pcpp
 		/**
 		 * @brief Makes request to socket.
 		 * Firstly tries to open socket if it is not opened.
-		 * Then makes an ioctl(2) request to handled socket
-		 * with provided request structure.
+		 * Then makes an ioctl(2) request to handled socket with provided request structure.
 		 * See: <a href="http://man7.org/linux/man-pages/man7/netdevice.7.html">netdevice(7)</a>
 		 * for description of possible values of ioctlType and content of request.
 		 * @note User have no need to fill ifr_name field of request. It will be filled
