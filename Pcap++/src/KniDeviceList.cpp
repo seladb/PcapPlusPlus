@@ -47,6 +47,11 @@ KniDeviceList::KniDeviceList() :
 		m_Initialized = false;
 		return;
 	}
+	if (!DpdkDeviceList::getInstance().isInitialized())
+	{
+		m_Initialized = false;
+		return;
+	}
 	#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 		if (rte_kni_init(MAX_KNI_DEVICES) < 0)
 		{
