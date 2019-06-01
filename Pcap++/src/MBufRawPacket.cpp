@@ -1,6 +1,6 @@
 #ifdef USE_DPDK
 
-#define LOG_MODULE PcapLogModuleDpdkDevice
+#define LOG_MODULE PcapLogModuleMBufRawPacket
 
 #define __STDC_LIMIT_MACROS
 #define __STDC_FORMAT_MACROS
