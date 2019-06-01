@@ -230,8 +230,13 @@ KniDevice::~KniDevice()
 {
 	m_Requests.cleanup();
 	m_Capturing.cleanup();
-	setKniDeviceLinkState(m_Device, m_DeviceInfo.name.c_str(), KniDevice::LINK_DOWN);
-	destroyKniDevice(m_Device, m_DeviceInfo.name.c_str());
+	if (m_Device != NULL)
+	{
+		setKniDeviceLinkState(m_Device, m_DeviceInfo.name.c_str(), KniDevice::LINK_DOWN);
+		destroyKniDevice(m_Device, m_DeviceInfo.name.c_str());
+	}
+	if (m_MBufMempool != NULL)
+		rte_mempool_free(m_MBufMempool);
 }
 
 bool KniDevice::KniDeviceInfo::init(const KniDeviceConfiguration& conf)
