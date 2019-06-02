@@ -12,9 +12,11 @@
 #include <rte_version.h>
 #include <rte_kni.h>
 
+#ifndef MAX_KNI_DEVICES
 // This value have no meaning in current DPDK implementation (ver >= 18.11)
 // In older versions have literal meaning
-#define MAX_KNI_DEVICES 4
+#	define MAX_KNI_DEVICES 4
+#endif
 
 namespace pcpp
 {

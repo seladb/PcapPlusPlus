@@ -26,9 +26,15 @@
 #include <cstring>
 #include <algorithm>
 
-#define KNI_MEMPOOL_NAME_PREFIX "kniMempool"
-#define MEMPOOL_CACHE_SIZE 256
-#define MAX_BURST_SIZE 64
+#ifndef KNI_MEMPOOL_NAME_PREFIX
+#	define KNI_MEMPOOL_NAME_PREFIX "kniMempool"
+#endif
+#ifndef MEMPOOL_CACHE_SIZE
+#	define MEMPOOL_CACHE_SIZE 256
+#endif
+#ifndef MAX_BURST_SIZE
+#	define MAX_BURST_SIZE 64
+#endif
 
 #define CPP_VLA(TYPE, SIZE) (TYPE*)__builtin_alloca(sizeof(TYPE) * SIZE)
 
