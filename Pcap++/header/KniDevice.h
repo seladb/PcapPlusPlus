@@ -94,6 +94,7 @@ namespace pcpp
 	class KniDevice : public IDevice
 	{
 		friend class KniDeviceList;
+		friend class MBufRawPacket;
 	public:
 		/**
 		 * Various link related constants for KNI device
