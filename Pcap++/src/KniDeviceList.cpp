@@ -79,8 +79,8 @@ KniDeviceList& KniDeviceList::getInstance()
 }
 
 KniDevice* KniDeviceList::createDevice(
-	KniDevice::KniDeviceConfiguration& config,
-	size_t mempoolSize
+	const KniDevice::KniDeviceConfiguration& config,
+	const size_t mempoolSize
 )
 {
 	if (!isInitialized())
@@ -120,7 +120,7 @@ void KniDeviceList::destroyDevice(KniDevice* kniDevice)
 	delete kniDevice;
 }
 
-KniDevice* KniDeviceList::getDeviceByPort(uint16_t portId)
+KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId)
 {
 	//? Linear search here is optimal for low count of devices.
 	//? We assume that no one will create large count of devices or will rapidly search them.
@@ -160,7 +160,7 @@ KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion()
 	#endif
 }
 
-bool KniDeviceList::isCallbackSupported(KniCallbackType cbType)
+bool KniDeviceList::isCallbackSupported(const KniCallbackType cbType)
 {
 	switch (cbType)
 	{

@@ -88,14 +88,14 @@ namespace pcpp
 		 * @param[in] mempoolSize Size of packet mempool used by this device
 		 * @return Pointer to new KNI device or NULL in case of error
 		 */
-		KniDevice* createDevice(KniDevice::KniDeviceConfiguration& config, size_t mempoolSize);
+		KniDevice* createDevice(const KniDevice::KniDeviceConfiguration& config, const size_t mempoolSize);
 		/**
 		 * @brief Returns KNI device with specified portId.
 		 * @note MT SAFE if createDevice or destroyDevice is not called concurrently
 		 * @param[in] portId ID of KNI device to find
 		 * @return Pointer to KNI device or NULL if device not found
 		 */
-		KniDevice* getDeviceByPort(uint16_t portId);
+		KniDevice* getDeviceByPort(const uint16_t portId);
 		/**
 		 * @brief Returns KNI device with specified name.
 		 * @note MT SAFE if createDevice or destroyDevice is not called concurrently
@@ -117,7 +117,7 @@ namespace pcpp
 		 * @note MT SAFE
 		 * @param[in] cbType One of KniCallbackType enum values
 		 */
-		static bool isCallbackSupported(KniCallbackType cbType);
+		static bool isCallbackSupported(const KniCallbackType cbType);
 	private:
 		std::vector<KniDevice*> m_Devices;
 		bool m_Initialized;
