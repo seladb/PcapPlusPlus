@@ -1,12 +1,80 @@
 #ifndef PCAPPP_KNI_DEVICE
 #define PCAPPP_KNI_DEVICE
 
+#include <string>
+
 #include "Device.h"
 #include "MacAddress.h"
 #include "MBufRawPacket.h"
 #include "LinuxNicInformationSocket.h"
 
-#include <string>
+/**
+ * @file
+ * @brief This file and KniDeviceList.h provide PcapPlusPlus C++ wrapper
+ * for DPDK KNI (Kernel Network Interace) library (librte_kni).
+ * The main propose of the rte_kni library is to provide a way to forward
+ * packets received by DPDK application to Linux kernel (a.e. to processes that
+ * have opened some kind of a net socket) for further processing and to obtain
+ * packets from Linux kernel. The KNI device is the bridge that accomplish the
+ * translation between DPDK packets (mbuf) and Linux kernel/socket packets
+ * (skbuf). Currently KNI devices report speeds upto 10 GBit/s.<BR>
+ * KNI device is a virtual network interface so it can be created and destroyed
+ * programmatically at will. As a real network interface KNI deivice must
+ * be managed appropriately like other interfaces. To start operate it MUST be
+ * given an IP address for example by the means of <B>ip a</B> command and
+ * MUST be put up for example by <B>ip l set [interface] up</B>.<BR>
+ * Additionally KNI interfaces support 4 other settings (depends on DPDK
+ * version used):
+ *  - change link state: <B>ip l set [interface] up/down</B>
+ *  - change MTU: <B>ip l set dev [interface] mtu [mtu_count]</B>
+ *  - change MAC address: <B>ip l set [interface] address [new_mac]</B>
+ *  - change promiscuous mode: <B>ip l set [interface] promisc on/off</B>
+ *
+ * Changes of each of this settings generates an event/request that must be
+ * handled by an application that have created the KNI device in 3 second
+ * period or it will be rejected and Linux kernel will not apply the change.
+ * The way that this requests MUST be handeled is defined by DPDK and so for
+ * each type of request the application tht creates the KNI device must provide
+ * the callback function to call. This callbacks are set in time of KNI device
+ * creation via KniIoctlCallbacks or KniOldIoctlCallbacks structures (the
+ * structure used is dependent on DPDK version).<BR>
+ * There is a way to enable <B>ethtool</B> on KNI devices that include
+ * recompilation of DPDK and strict correspondence between KNI port id and DPDK
+ * port id, but it is not currently supported by PcapPlusPlus.<BR>
+ *
+ * Known issues:
+ *  - KNI device may not be able to set/update it's link status up
+ *    (LINK_ERROR returned):
+ *    The problem is laying in DPDK in rte_kni_update_link function
+ *    (it is DPDK BUG if rte_kni_update_link is __rte_experimental).
+ *    It is recommended to load rte_kni.ko module with "carrier=on" DPDK
+ *    default is "carrier=off", provided setup-dpdk.sh by default loads with
+ *    "carrier=on" if Your DPDK version supports it. The good indication of
+ *    this issue are "DPDK KNI Failed to update links state for device"
+ *    messages when Pcap++Test application is being run.
+ *  - Packets may not be seen by applications that have open sockets on KNI
+ *    device:
+ *    Check your <B>iptables</B> settings and other packet filters - KNI device
+ *    is traditional network device so all caveats apply;
+ *  - I see a lot of unknown traffic - what is it?
+ *    This must be Linux kernel trying to communicate with other devices from
+ *    KNI device and it will do so as long as You give the KNI device any IP
+ *    address via ip command or by record in /etc/networking/interfaces;
+ *  - On old versions of DPDK only 4 KNI devices may be created:
+ *    Yep this is a limitation. You can change MAX_KNI_DEVICES constant in
+ *    KniDeviceList.cpp to unlock this limit;
+ *  - Any set* method never succeeds:
+ *    You may forgot that they generate KNI requests that Your application MUST
+ *    handle. Just use KniDevice#startRequestHandlerThread to handle all
+ *    requests automatically. Or user running the application don't have
+ *    suitable access rights (must have CAP_NET_ADMIN).
+ *
+ * Usefull links:
+ *  - <a href="https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html">KNI interface concept DPDK documentation</a>
+ *  - <a href="https://doc.dpdk.org/guides/nics/kni.html">KNI PMD</a>
+ *  - <a href="https://doc.dpdk.org/guides/sample_app_ug/kernel_nic_interface.html">KNI DPDK sample application</a>
+ *  - <a href="https://doc.dpdk.org/dts/test_plans/kni_test_plan.html">KNI DPDK test plan</a>
+ */
 
 struct rte_kni;
 
@@ -16,12 +84,8 @@ struct rte_kni;
  */
 namespace pcpp
 {
-	/**
-	 * This structure is an internal one.
-	 * Use KniDevice#DeviceFactory and KniDevice#DestroyDevice to create and destroy KNI devices.
-	 */
-	struct KniDeviceList;
 	class KniDevice;
+	class KniDeviceList;
 
 	/**
 	 * Defines the signature callback used by capturing API on KNI device
@@ -32,64 +96,26 @@ namespace pcpp
 	 * @class KniDevice
 	 * This class represents special kind of DPDK devices called KNI - Kernel Network Interface
 	 * that are used to exchange DPDK mbuf packets with Linux kernel network stack.
-	 * This devices are implemented via rte_kni kernel module and librte_kni DPDK library.
-	 * Currently KNI devices report speeds upto 10 GBit/s.
-	 * This devices may be created by application and will live as long as application will.<BR>
-	 * After application creates the device it may be setupped by Linux user as simple ethernet controller.
-	 * Currently KNI devices supports 4 kinds of settings:
-	 *   - change link status;
-	 *   - change MAC address;
-	 *   - change MTU;
-	 *   - change promiscuous mode.
-	 * Changes in each of this settings generates an event/request that must be handled by application
-	 * that have created the KNI device in 3 second period or it will be rejected.<BR>
-	 * This devices have only one RX and one TX queue so MT readding or MT sending is not
-	 * safe but simultaneous reading and sending packets is MT safe.
+	 * This devices have only one RX and one TX queue so MT receiving or MT sending is not
+	 * safe but simultaneous receiving and sending packets is MT safe.
 	 * The RX queue of KNI device is pointed from kernel to application and TX queue is
 	 * pointed in opposite direction - from application to kernel. So receive* methods will
 	 * obtain packets from kernel and send* methods will send them to kernel.<BR>
 	 * The lifecycle of the KNI device is as follows:
-	 *    - KniDeviceConfiguration structure is created by user and filled with device settings;
-	 *    - KniDevice#DeviceFactory method is called to allocate new KNI device;
-	 *    - Device must be opened by calling KniDevice#open;
-	 *    - During lifetime the application must handle the requests from kernel either by calling
-	 *      handleRequests() to handle them synchronously or by starting sepparate thread
-	 *      to do this by calling KniDevice#startRequestHandlerThread
-	 *    - During lifetime the packets may be send to/received from KNI device via
-	 *      calls to synchronous API (send/receive methods) or asynchronously by
-	 *      running capturing thread using KniDevice#startCapture
-	 *    - KNI device may be destroyed explicitly using KniDevice#DestroyDevice or
-	 *      implicitly on application exit. User must assure that NO OTHER linux application
-	 *      is using KNI device when and after it is beeing destroyed otherwise Linux
-	 *      kernel may crush dramatically.
-	 * There is a way to enable ethtool on KNI devices that include recompilation of DPDK
-	 * and strict correspondence between KNI port id and DPDK port id, but it is not currently
-	 * supported by PcapPlusPlus.
-	 * Known issues:
-	 *  - KNI device may not be able to set/update it's link status up (LINK_ERROR returned):
-	 *    The problem is laying in DPDK in rte_kni_update_link function
-	 *    (it is DPDK BUG if rte_kni_update_link is __rte_experimental).
-	 *    It is recommended to load rte_kni.ko module with "carrier=on" DPDK default is "carrier=off",
-	 *    provided setup-dpdk.sh by default loads with "carrier=on" if Your DPDK version supports it.
-	 *    The good indication of this issue are "DPDK KNI Failed to update links state for device"
-	 *    messages when Pcap++Test application is being run.
-	 *  - Packets may not be seen by applications that have open sockets on KNI device:
-	 *    Check your iptables settings and other packet filters - KNI device is traditional network
-	 *    device so all caveats apply;
-	 *  - I see a lot of unknown traffic - what is it?
-	 *    This must be Linux kernel trying to communicate with other devices from KNI device and it will do so as long as
-	 *    You give the KNI device any IP address via ip command or by record in /etc/networking/interfaces;
-	 *  - On old versions of DPDK only 4 KNI devices may be created:
-	 *    Yep this is a limitation. You can change MAX_KNI_INTERFACES constant in KniDevice.cpp to unlock this limit;
-	 *  - Any set* method never succeeds:
-	 *    You may forgot that they generate KNI requests that Your application MUST handle.
-	 *    Just use KniDevice#startRequestHandlerThread to handle all requests automatically.
-	 *    Or user running the application don't have suitable access rights (must have CAP_NET_ADMIN).
-	 * Usefull links:
-	 *  - <a href="https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html">KNI interface concept DPDK documentation</a>
-	 *  - <a href="https://doc.dpdk.org/guides/nics/kni.html">KNI PMD</a>
-	 *  - <a href="https://doc.dpdk.org/guides/sample_app_ug/kernel_nic_interface.html">KNI DPDK sample application</a>
-	 *  - <a href="https://doc.dpdk.org/dts/test_plans/kni_test_plan.html">KNI DPDK test plan</a>
+	 *  - KniDeviceConfiguration structure is created by user and filled with device settings;
+	 *  - The KniDeviceList#getInstance method is called to initialize the KNI module and
+	 *    obtain the KniDeviceList singleton;
+	 *  - KniDeviceList#createDevice method of the singleton is called to allocate new KNI device;
+	 *  - Device then must be opened by calling KniDevice#open;
+	 *  - During lifetime the application must handle the requests from kernel either by calling
+	 *    KniDevice#handleRequests to handle them synchronously or by starting separate thread
+	 *    to do this by calling KniDevice#startRequestHandlerThread;
+	 *  - During lifetime the packets may be send to/received from KNI device via
+	 *    calls to synchronous API (send/receive methods) or asynchronously by
+	 *    running capturing thread using KniDevice#startCapture;
+	 *  - KNI device will be destroyed or implicitly on application exit. User must assure
+	 *    that NO OTHER linux application is using KNI device when and after it is beeing
+	 *    destroyed otherwise Linux kernel may crush dramatically.
 	 */
 	class KniDevice : public IDevice
 	{
