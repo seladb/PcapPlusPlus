@@ -23,15 +23,15 @@ matrix:
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1611
-        - DPDK_DIR=dpdk-stable-16.11.6
+        - DPDK_DIR=dpdk-stable-16.11.9
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1711
-        - DPDK_DIR=dpdk-stable-17.11.2
+        - DPDK_DIR=dpdk-stable-17.11.6
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1811
-        - DPDK_DIR=dpdk-18.11
+        - DPDK_DIR=dpdk-stable-18.11.1
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1902
