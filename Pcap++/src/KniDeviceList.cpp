@@ -88,7 +88,7 @@ KniDevice* KniDeviceList::createDevice(
 	KniDevice* kniDevice = getDeviceByName(std::string(config.name));
 	if (kniDevice != NULL)
 	{
-		LOG_ERROR("Attempt to create DPDK KNI device with same name: \"%s\"", config.name);
+		LOG_ERROR("Attempt to create DPDK KNI device with same name: \"%s\"", config.name.c_str());
 		LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
 		return NULL;
 	}
@@ -97,7 +97,7 @@ KniDevice* KniDeviceList::createDevice(
 		kniDevice = getDeviceByPort(config.portId);
 		if (kniDevice != NULL)
 		{
-			LOG_ERROR("Attempt to create DPDK KNI device with same port ID: %"PRIu16, config.portId);
+			LOG_ERROR("Attempt to create DPDK KNI device with same port ID: %" PRIu16, config.portId);
 			LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
 			return NULL;
 		}

@@ -478,7 +478,7 @@ enum
 inline bool setKniDeviceIp(const pcpp::IPAddress& ip, int kniDeviceId)
 {
 	char buff[256];
-	snprintf(buff, sizeof(buff), "ip a add %s/30 dev "KNI_TEST_NAME, ip.toString().c_str(), kniDeviceId);
+	snprintf(buff, sizeof(buff), "ip a add %s/30 dev " KNI_TEST_NAME, ip.toString().c_str(), kniDeviceId);
 	(void)executeShellCommand(buff);
 	snprintf(buff, sizeof(buff), "ip a | grep %s", ip.toString().c_str());
 	std::string result = executeShellCommand(buff);

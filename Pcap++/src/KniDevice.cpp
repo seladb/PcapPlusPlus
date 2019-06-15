@@ -563,7 +563,7 @@ uint16_t KniDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPa
 		if (rawPacketsArr[index] == NULL)
 			rawPacketsArr[index] = new MBufRawPacket();
 
-		((MBufRawPacket*)rawPacketsArr[index])->setMBuf(mBuf, time);
+		rawPacketsArr[index]->setMBuf(mBuf, time);
 	}
 
 	return packetsReceived;
