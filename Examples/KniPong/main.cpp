@@ -639,6 +639,7 @@ extern "C" void signal_handler(int)
 int main(int argc, char* argv[])
 {
 	PacketStats packetStats;
+	std::memset(&packetStats, 0, sizeof(packetStats));
 	KniPongArgs args;
 	std::srand(std::time(NULL));
 	pcpp::AppName::init(argc, argv);
