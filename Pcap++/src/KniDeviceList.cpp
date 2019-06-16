@@ -2,7 +2,6 @@
 
 #define LOG_MODULE PcapLogModuleKniDevice
 
-#include <cstdint>
 #include <cinttypes>
 #include <algorithm>
 
@@ -68,7 +67,7 @@ KniDeviceList::KniDeviceList() :
 
 KniDeviceList::~KniDeviceList()
 {
-	for (std::size_t i = 0; i < m_Devices.size(); ++i)
+	for (size_t i = 0; i < m_Devices.size(); ++i)
 		delete m_Devices[i];
 	rte_kni_close();
 }
