@@ -492,13 +492,17 @@ void pingPongProcess(const LinuxSocket& sock)
 		if (num_fds == -1)
 		{
 			int old_errno = errno;
-			close(sock);
-			EXIT_WITH_ERROR("poll returned an error\nErrno: %s", std::strerror(old_errno));
+			if (old_errno != EINTR)
+			{
+				close(sock);
+				EXIT_WITH_ERROR("poll returned an error\nErrno: %s", std::strerror(old_errno));
+			}
+			continue;
 		}
 
 		if (num_fds == 0)
 		{
-			std::printf("poll: timeout");
+			std::printf("poll: timeout\n");
 			continue;
 		}
 
