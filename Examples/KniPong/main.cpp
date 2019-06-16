@@ -301,7 +301,7 @@ inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer)
 	arpHdr.hardwareType = htons(0x0001); // ETHERNET
 	arpHdr.hardwareSize = sizeof(((pcpp::arphdr*)0)->senderMacAddr); // sizeof(MAC)
 	arpHdr.protocolSize = sizeof(((pcpp::arphdr*)0)->senderIpAddr);  // sizeof(IPv4)
-	arpHdr.opcode = htons(pcpp::ArpOpcode::ARP_REPLY);
+	arpHdr.opcode = htons(pcpp::ARP_REPLY);
 	std::memcpy(arpHdr.targetMacAddr, origArpHdr->senderMacAddr, sizeof(((pcpp::arphdr*)0)->senderMacAddr));
 	std::memcpy(&arpHdr.targetIpAddr, &origArpHdr->senderIpAddr, sizeof(((pcpp::arphdr*)0)->senderIpAddr));
 	std::memcpy(&arpHdr.senderIpAddr, &origArpHdr->targetIpAddr, sizeof(((pcpp::arphdr*)0)->senderIpAddr));
