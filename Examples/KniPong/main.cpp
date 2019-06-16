@@ -73,7 +73,7 @@ inline void printVersion()
 {
 	std::printf(
 		"%s %s\n"
-		"Built: %s"
+		"Built: %s\n"
 		"Built from: %s\n",
 		pcpp::AppName::get().c_str(), pcpp::getPcapPlusPlusVersionFull().c_str(),
 		pcpp::getBuildDateTime().c_str(),
@@ -84,14 +84,14 @@ inline void printVersion()
 inline void printUsage()
 {
 	std::printf(
-		"\nUsage:\n"
-		"%s -i <kni_ipv4> [-n <kni_device_name>] [-p <port>] [-v] [-h]\n"
+		"\nUsage:\n\n"
+		"    %s -i <kni_ipv4> [-n <kni_device_name>] [-p <port>] [-v] [-h]\n\n"
 		"Options:\n"
 		"    -i --ip <kni_ipv4>            : IP to assign to created KNI device. Must not be odd in LSB\n"
 		"    -n --name <kni_device_name>   : Name for KNI device. Default: \"" DEFAULT_KNI_NAME "\"\n"
 		"    -p --port <port>              : Port for communication. Default: %d\n"
 		"    -v --version                  : Displays the current version and exits\n"
-		"    -h --help                     : Displays this help message and exits\n",
+		"    -h --help                     : Displays this help message and exits\n\n",
 		pcpp::AppName::get().c_str(),
 		DEFAULT_PORT
 	);
