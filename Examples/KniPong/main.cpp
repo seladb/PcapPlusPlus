@@ -89,7 +89,7 @@ inline void printUsage()
 		"    %s -s <src_ipv4> -d <dst_ipv4> [-n <kni_device_name>] [-p <port>] [-v] [-h]\n\n"
 		"Options:\n"
 		"    -s --src <src_ipv4>           : IP to assign to created KNI device\n"
-		"    -d --dst <dst_ipv4>           : Virtual IP to comunicate with. Must be in /24 subnet with <src_ipv4>\n"
+		"    -d --dst <dst_ipv4>           : Virtual IP to communicate with. Must be in /24 subnet with <src_ipv4>\n"
 		"    -n --name <kni_device_name>   : Name for KNI device. Default: \"" DEFAULT_KNI_NAME "\"\n"
 		"    -p --port <port>              : Port for communication. Default: %d\n"
 		"    -v --version                  : Displays the current version and exits\n"
@@ -519,8 +519,8 @@ void pingPongProcess(const LinuxSocket& sock)
 		}
 
 		if (num_fds == 0)
-		{
-			std::printf("poll: timeout\n");
+		{	// Note (echo-Mike): uncomment if debug needed
+			// std::printf("poll: timeout\n");
 			continue;
 		}
 
@@ -679,7 +679,7 @@ int main(int argc, char* argv[])
 	device->close();
 	device->stopRequestHandlerThread();
 	std::printf(
-		"Packet statistics from KNI thread:\n"
+		"\nPacket statistics from KNI thread:\n"
 		"    Total packets met: %lu\n"
 		"    UDP packets met: %lu\n"
 		"    Failed PONG packets: %lu\n"
