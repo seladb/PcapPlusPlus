@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <cinttypes>
+#include <algorithm>
 
 #include "KniDeviceList.h"
 #include "Logger.h"
