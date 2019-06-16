@@ -40,6 +40,7 @@
 #include <DpdkDeviceList.h>
 #include <DpdkDevice.h>
 #include <KniDevice.h>
+#include <KniDeviceList.h>
 #include <NetworkUtils.h>
 #include <RawSocketDevice.h>
 #if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
@@ -135,6 +136,7 @@ struct PcapTestArgs
 	string remoteIp;
 	uint16_t remotePort;
 	int dpdkPort;
+	string kniIp;
 	char* errString;
 	bool runWithNetworking;
 };
@@ -469,8 +471,19 @@ enum
 	TEST_PORT_ID0 = 42,
 	TEST_PORT_ID1 = 43,
 	DEVICE0 = 0,
-	DEVICE1 = 1
+	DEVICE1 = 1,
+	TEST_MEMPOOL_CAPACITY = 512
 };
+
+inline bool setKniDeviceIp(const pcpp::IPAddress& ip, int kniDeviceId)
+{
+	char buff[256];
+	snprintf(buff, sizeof(buff), "ip a add %s/30 dev " KNI_TEST_NAME, ip.toString().c_str(), kniDeviceId);
+	(void)executeShellCommand(buff);
+	snprintf(buff, sizeof(buff), "ip a | grep %s", ip.toString().c_str());
+	std::string result = executeShellCommand(buff);
+	return result != "" && result != "ERROR";
+}
 } // namespace KNI
 #endif /* LINUX */
 #endif /* USE_DPDK */
@@ -1446,7 +1459,7 @@ PCAPP_TEST(TestPcapLiveDeviceNoNetworking)
 
     PCAPP_TEST_PASSED;
 }
- 
+
 PCAPP_TEST(TestPcapLiveDeviceStatsMode)
 {
 	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
@@ -3781,16 +3794,13 @@ PCAPP_TEST(TestKniDevice)
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	enum { KNI_TEST_MTU = 1540, KNI_NEW_MTU = 1500 };
 	char buff[256];
-	bool is_link_up = true;
+	bool isLinkUp = true;
 	KniDevice* device = NULL;
 	KniDevice::KniDeviceConfiguration devConfig;
-	MacAddress kni_mac = MacAddress("00:11:33:55:77:99");
-	MacAddress kni_new_mac = MacAddress("00:22:44:66:88:AA");
-	memset(&devConfig, 0, sizeof(devConfig));
-	snprintf(devConfig.name, sizeof(devConfig.name), KNI_TEST_NAME, KNI::DEVICE0);
-	strncpy(buff, devConfig.name, sizeof(buff));
+	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI::DEVICE0);
+	devConfig.name = buff;
 	KniRequestsCallbacksMock::setCallbacks();
-	if (KniDevice::callbackVersion() == KniDevice::CALLBACKS_NEW)
+	if (KniDeviceList::callbackVersion() == KniDeviceList::CALLBACKS_NEW)
 	{
 		devConfig.callbacks = &KniRequestsCallbacksMock::cb_new;
 	}
@@ -3798,16 +3808,18 @@ PCAPP_TEST(TestKniDevice)
 	{
 		devConfig.oldCallbacks = &KniRequestsCallbacksMock::cb_old;
 	}
-	devConfig.mac = &kni_mac;
+	devConfig.mac = MacAddress("00:11:33:55:77:99");
 	devConfig.portId = KNI::TEST_PORT_ID0;
 	devConfig.mtu = KNI_TEST_MTU;
 	devConfig.bindKthread = false;
-	device = KniDevice::DeviceFactory(devConfig, 512);
+	KniDeviceList& kniDeviceList = KniDeviceList::getInstance();
+	PCAPP_ASSERT(kniDeviceList.isInitialized(), "KNI module was not initialized properly");
+	device = kniDeviceList.createDevice(devConfig, KNI::TEST_MEMPOOL_CAPACITY);
 	PCAPP_ASSERT(device != NULL, "Could not create KNI device " KNI_TEST_NAME, KNI::DEVICE0);
 	PCAPP_ASSERT(device->isInitialized(), "KNI device was not initialized correctly");
-	PCAPP_ASSERT(device == KniDevice::getDeviceByPort(KNI::TEST_PORT_ID0),
+	PCAPP_ASSERT(device == kniDeviceList.getDeviceByPort(KNI::TEST_PORT_ID0),
 		"Could not find KNI device " KNI_TEST_NAME " thru port id %d", KNI::DEVICE0, KNI::TEST_PORT_ID0);
-	PCAPP_ASSERT(device == KniDevice::getDeviceByName(std::string(buff)),
+	PCAPP_ASSERT(device == kniDeviceList.getDeviceByName(std::string(buff)),
 		"Could not find KNI device " KNI_TEST_NAME " thru name \"%s\"", KNI::DEVICE0, buff);
 	{
 		std::string n = device->getName();
@@ -3815,9 +3827,9 @@ PCAPP_TEST(TestKniDevice)
 			"Name of device reported by KNI <%s> do not match one provided in config structure <%s>", n.c_str(), buff);
 	}
 	{
-		uint16_t p = device->getPort();
-		PCAPP_ASSERT(p == KNI::TEST_PORT_ID0,
-			"Port reported by KNI device <%u> do not match one provided in config structure <%d>", p, KNI::TEST_PORT_ID0);
+		uint16_t port = device->getPort();
+		PCAPP_ASSERT(port == KNI::TEST_PORT_ID0,
+			"Port reported by KNI device <%u> do not match one provided in config structure <%d>", port, KNI::TEST_PORT_ID0);
 	}
 	PCAPP_ASSERT(device->getLinkState() == KniDevice::LINK_NOT_SUPPORTED,
 		"Default link state after KNI device constrution must be LINK_NOT_SUPPORTED");
@@ -3826,20 +3838,20 @@ PCAPP_TEST(TestKniDevice)
 		PCAPP_ASSERT(ls == KniDevice::LINK_DOWN || ls == KniDevice::LINK_UP,
 			"Link state of KNI device after INFO_RENEW is not UP or DOWN");
 		if (ls == KniDevice::LINK_DOWN)
-			is_link_up = false;
+			isLinkUp = false;
 	}
 	{
 		MacAddress mac = device->getMacAddress();
-		PCAPP_ASSERT(mac == kni_mac,
+		PCAPP_ASSERT(mac == devConfig.mac,
 			"Cached MAC reported by KNI device <%s> is not as provided in config structure <%s>",
 			mac.toString().c_str(),
-			kni_mac.toString().c_str()
+			devConfig.mac.toString().c_str()
 		);
 		mac = device->getMacAddress(KniDevice::INFO_RENEW);
-		PCAPP_ASSERT(mac == kni_mac,
+		PCAPP_ASSERT(mac == devConfig.mac,
 			"MAC of KNI device reported by Linux Kernel <%s> is not as provided in config structure <%s>",
 			mac.toString().c_str(),
-			kni_mac.toString().c_str()
+			devConfig.mac.toString().c_str()
 		);
 	}
 	{
@@ -3860,19 +3872,19 @@ PCAPP_TEST(TestKniDevice)
 	PCAPP_ASSERT(device->startRequestHandlerThread(0, 150000000),
 		"KNI device can't start request handler thread");
 	PCAP_SLEEP(2); // Wait for thread to start
-	if (KniDevice::isCallbackSupported(KniDevice::CALLBACK_PROMISC))
+	if (KniDeviceList::isCallbackSupported(KniDeviceList::CALLBACK_PROMISC))
 	{
-		bool mode_set = device->setPromiscuous(KniDevice::PROMISC_ENABLE);
-		PCAPP_TRY(mode_set, "Could not set KNI device promiscuous mode ENABLE via setPromiscuous");
-		if (mode_set)
+		bool modeSet = device->setPromiscuous(KniDevice::PROMISC_ENABLE);
+		PCAPP_TRY(modeSet, "Could not set KNI device promiscuous mode ENABLE via setPromiscuous");
+		if (modeSet)
 		{
 			KniDevice::KniPromiscuousMode pm = device->getPromiscuous(KniDevice::INFO_RENEW);
 			PCAPP_TRY(pm == KniDevice::PROMISC_ENABLE,
 				"Linux kernel yields promiscuous mode DISABLE after it was ENABLED by call to setPromiscuous on KNI device");
-			mode_set = device->setPromiscuous(KniDevice::PROMISC_DISABLE);
-			PCAPP_TRY(mode_set,
+			modeSet = device->setPromiscuous(KniDevice::PROMISC_DISABLE);
+			PCAPP_TRY(modeSet,
 				"Could not set KNI device promiscuous mode DISABLE via setPromiscuous");
-			if (mode_set)
+			if (modeSet)
 			{
 				pm = device->getPromiscuous(KniDevice::INFO_RENEW);
 				PCAPP_TRY(pm == KniDevice::PROMISC_DISABLE,
@@ -3880,66 +3892,67 @@ PCAPP_TEST(TestKniDevice)
 			}
 		}
 	}
-	if (KniDevice::isCallbackSupported(KniDevice::CALLBACK_MTU))
+	if (KniDeviceList::isCallbackSupported(KniDeviceList::CALLBACK_MTU))
 	{
-		bool mtu_set = device->setMtu(KNI_NEW_MTU);
-		PCAPP_TRY(mtu_set, "Could not set KNI device MTU via setMtu");
-		if (mtu_set)
+		bool mtuSet = device->setMtu(KNI_NEW_MTU);
+		PCAPP_TRY(mtuSet, "Could not set KNI device MTU via setMtu");
+		if (mtuSet)
 		{
 			uint16_t mtu = device->getMtu(KniDevice::INFO_RENEW);
 			PCAPP_TRY(mtu == KNI_NEW_MTU,
 				"Linux kernel yields MTU <%u> after it was changed to <%d> by call to setMtu on KNI device", mtu, KNI_NEW_MTU);
 		}
 	}
-	if (KniDevice::isCallbackSupported(KniDevice::CALLBACK_MAC))
+	if (KniDeviceList::isCallbackSupported(KniDeviceList::CALLBACK_MAC))
 	{
-		bool mac_set = device->setMacAddress(kni_new_mac);
-		PCAPP_TRY(mac_set, "Could not set KNI device MAC via setMacAddress");
-		if (mac_set)
+		MacAddress kniNewMac = MacAddress("00:22:44:66:88:AA");
+		bool macSet = device->setMacAddress(kniNewMac);
+		PCAPP_TRY(macSet, "Could not set KNI device MAC via setMacAddress");
+		if (macSet)
 		{
 			MacAddress mac = device->getMacAddress(KniDevice::INFO_RENEW);
-			PCAPP_TRY(mac == kni_new_mac,
+			PCAPP_TRY(mac == kniNewMac,
 				"Linux kernel yields MAC <%s> after it was changed to <%s> by call to setMacAddress on KNI device",
 				mac.toString().c_str(),
-				kni_new_mac.toString().c_str()
+				kniNewMac.toString().c_str()
 			);
 		}
 	}
-	if (KniDevice::isCallbackSupported(KniDevice::CALLBACK_LINK))
+	if (KniDeviceList::isCallbackSupported(KniDeviceList::CALLBACK_LINK))
 	{
-		KniDevice::KniLinkState nls = is_link_up ? KniDevice::LINK_DOWN : KniDevice::LINK_UP;
-		KniDevice::KniLinkState ols = is_link_up ? KniDevice::LINK_UP : KniDevice::LINK_DOWN;
-		bool link_set = device->setLinkState(nls);
-		PCAPP_TRY(link_set,
+		KniDevice::KniLinkState nls = isLinkUp ? KniDevice::LINK_DOWN : KniDevice::LINK_UP;
+		KniDevice::KniLinkState ols = isLinkUp ? KniDevice::LINK_UP : KniDevice::LINK_DOWN;
+		bool linkSet = device->setLinkState(nls);
+		PCAPP_TRY(linkSet,
 			"Could not set KNI device link state %s via setLinkState",
-			is_link_up ? "DOWN" : "UP"
+			isLinkUp ? "DOWN" : "UP"
 		);
-		if (link_set)
+		if (linkSet)
 		{
 			KniDevice::KniLinkState ls = device->getLinkState(KniDevice::INFO_RENEW);
 			PCAPP_TRY(ls == nls,
 				"Linux kernel yields links state NOT %s after it was changed to %s by call to setLinkState on KNI device",
-				is_link_up ? "DOWN" : "UP",
-				is_link_up ? "DOWN" : "UP"
+				isLinkUp ? "DOWN" : "UP",
+				isLinkUp ? "DOWN" : "UP"
 			);
-			link_set = device->setLinkState(ols);
-			if (link_set)
+			linkSet = device->setLinkState(ols);
+			if (linkSet)
 			{
 				ls = device->getLinkState(KniDevice::INFO_RENEW);
 				PCAPP_TRY(ls == ols,
 					"Linux kernel yields links state NOT %s after it was changed to %s by call to setLinkState on KNI device",
-					is_link_up ? "UP" : "DOWN",
-					is_link_up ? "UP" : "DOWN"
+					isLinkUp ? "UP" : "DOWN",
+					isLinkUp ? "UP" : "DOWN"
 				);
 			}
 			else
 			{
-				is_link_up = !is_link_up;
+				isLinkUp = !isLinkUp;
 			}
 		}
 	}
 	{
-		KniDevice::KniLinkState ls = device->updateLinkState(is_link_up ? KniDevice::LINK_DOWN : KniDevice::LINK_UP);
+		KniDevice::KniLinkState ls = device->updateLinkState(isLinkUp ? KniDevice::LINK_DOWN : KniDevice::LINK_UP);
 		switch (ls)
 		{
 			case KniDevice::LINK_NOT_SUPPORTED:
@@ -3952,11 +3965,11 @@ PCAPP_TEST(TestKniDevice)
 			} break;
 			case KniDevice::LINK_DOWN:
 			{	// If previous known state was UP -> yield an error
-				PCAPP_ASSERT(!(is_link_up == true), "KNI updateLinkState returned invalid previous state: DOWN");
+				PCAPP_ASSERT(!(isLinkUp == true), "KNI updateLinkState returned invalid previous state: DOWN");
 			} break;
 			case KniDevice::LINK_UP:
 			{	// If previous known state was DOWN -> yield an error
-				PCAPP_ASSERT(!(is_link_up == false), "KNI updateLinkState returned invalid previous state: UP");
+				PCAPP_ASSERT(!(isLinkUp == false), "KNI updateLinkState returned invalid previous state: UP");
 			} break;
 		}
 	}
@@ -3967,24 +3980,23 @@ PCAPP_TEST(TestKniDevice)
 	PCAPP_TEST_PASSED;
 }
 
-PCAPP_TEST(TestKniDeviceReceive)
+PCAPP_TEST(TestKniDeviceSendReceive)
 {
 #if defined(USE_DPDK) && defined(LINUX)
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	enum { KNI_MTU = 1500, BLOCK_TIMEOUT = 3 };
+	char buff[256];
 	KniDevice* device = NULL;
 	unsigned int counter = 0;
 	KniDevice::KniDeviceConfiguration devConfig;
-	MBufRawPacketVector rawPacketVec;
-	MBufRawPacket* mBufRawPacketArr[32] = {};
-	size_t mBufRawPacketArrLen = 32;
-	Packet* packetArr[32] = {};
-	size_t packetArrLen = 32;
+	IPv4Address kniIp = args.kniIp;
+	PCAPP_ASSERT(kniIp.isValid(), "Invalid IP address provided for KNI interface");
 
-	memset(&devConfig, 0, sizeof(devConfig));
-	snprintf(devConfig.name, sizeof(devConfig.name), KNI_TEST_NAME, KNI::DEVICE1);
+	// KNI device setup
+	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI::DEVICE1);
+	devConfig.name = buff;
 	KniRequestsCallbacksMock::setCallbacks();
-	if (KniDevice::callbackVersion() == KniDevice::CALLBACKS_NEW)
+	if (KniDeviceList::callbackVersion() == KniDeviceList::CALLBACKS_NEW)
 	{
 		devConfig.callbacks = &KniRequestsCallbacksMock::cb_new;
 	}
@@ -3995,128 +4007,186 @@ PCAPP_TEST(TestKniDeviceReceive)
 	devConfig.portId = KNI::TEST_PORT_ID1;
 	devConfig.mtu = KNI_MTU;
 	devConfig.bindKthread = false;
-	device = KniDevice::DeviceFactory(devConfig, 512);
+
+	KniDeviceList& kniDeviceList = KniDeviceList::getInstance();
+	PCAPP_ASSERT(kniDeviceList.isInitialized(), "KNI module was not initialized properly");
+	device = kniDeviceList.createDevice(devConfig, KNI::TEST_MEMPOOL_CAPACITY);
 	PCAPP_ASSERT(device != NULL, "Could not create KNI device " KNI_TEST_NAME, KNI::DEVICE1);
 	PCAPP_ASSERT(device->isInitialized(), "KNI device was not initialized correctly");
 	PCAPP_ASSERT(device->open(), "Failed to open KNI device");
 	PCAPP_ASSERT(device->startRequestHandlerThread(0, 250000000),
 		"KNI device <" KNI_TEST_NAME "> can't start request handler thread", KNI::DEVICE1);
 	PCAP_SLEEP(1); // Wait for thread to start
-	PCAPP_ASSERT(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter),
-		"KNI failed to start capturing thread (single burst) on device " KNI_TEST_NAME, KNI::DEVICE1);
-	LoggerPP::getInstance().supressErrors();
-	PCAPP_ASSERT(!device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL),
-		"Managed to start second capturing thread on KNI device " KNI_TEST_NAME, KNI::DEVICE1);
-	LoggerPP::getInstance().enableErrors();
-	PCAP_SLEEP(1); // Give some time to start capture thread
-	device->stopCapture();
-	PCAPP_DEBUG_PRINT("KNI have captured %u packets in single burst on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
-	counter = 0;
-	PCAPP_ASSERT(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter),
-		"KNI failed to start capturing thread on device " KNI_TEST_NAME, KNI::DEVICE1);
-	PCAP_SLEEP(1); // Give some time to start capture thread
-	LoggerPP::getInstance().supressErrors();
-	PCAPP_ASSERT(device->receivePackets(rawPacketVec) == 0,
-		"Managed to receive packets on KNI device while capturing via MBufRawPacketVector");
-	PCAPP_ASSERT(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen) == 0,
-		"Managed to receive packets on KNI device while capturing via mBufRawPacketArr");
-	PCAPP_ASSERT(device->receivePackets(packetArr, packetArrLen) == 0,
-		"Managed to receive packets on KNI device while capturing via packetArr");
-	LoggerPP::getInstance().enableErrors();
-	device->stopCapture();
-	PCAPP_DEBUG_PRINT("KNI have captured %u packets on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
-	counter = 0;
-	int block_result = device->startCaptureBlockingMode(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter, BLOCK_TIMEOUT);
-	switch (block_result)
-	{
-		case -1:
-		{
-			PCAPP_DEBUG_PRINT("KNI startCaptureBlockingMode have exited by timeout");
-		} break;
-		case 0:
-		{
-			PCAPP_DEBUG_PRINT("KNI startCaptureBlockingMode have exited by an ERROR");
-		} break;
-		case 1:
-		{
-			PCAPP_DEBUG_PRINT("KNI have captured %u packets (blocking mode) on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
-		} break;
-	}
-#endif
-	PCAPP_TEST_PASSED;
-}
 
-PCAPP_TEST(TestKniDeviceSend)
-{
-#if defined(USE_DPDK) && defined(LINUX)
-	KniDevice* device = KniDevice::getDeviceByPort(KNI::TEST_PORT_ID1);
-	PCAPP_ASSERT(device != NULL,
-		"Could not find KNI device " KNI_TEST_NAME " thru port id %d", KNI::DEVICE1, KNI::TEST_PORT_ID1);
+	// KNI device management
+	PCAPP_ASSERT(KNI::setKniDeviceIp(kniIp, KNI::DEVICE1),
+		"Failed to set KNI device " KNI_TEST_NAME " IP address <%s>", KNI::DEVICE1, kniIp.toString().c_str());
+	PCAPP_ASSERT(device->setPromiscuous(KniDevice::PROMISC_ENABLE),
+		"Could not set the promiscuous mode on KNI device " KNI_TEST_NAME ". Needed for tests.", KNI::DEVICE1);
+	PCAPP_ASSERT(device->setLinkState(KniDevice::LINK_UP),
+		"Could not set the link state UP on KNI device " KNI_TEST_NAME ". Needed for tests.", KNI::DEVICE1);
+
+	// Other devices needed
+	RawSocketDevice rsdevice(kniIp);
 	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
-	PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for " EXAMPLE_PCAP_PATH);
+	PCAPP_ASSERT(rsdevice.open(), "Cannot open raw socket device for %s", kniIp.toString().c_str());
 
-	PointerVector<Packet> packetVec;
-	RawPacketVector rawPacketVec;
-	Packet* packetArr[10000];
-	uint16_t packetsRead = 0;
-	RawPacket rawPacket;
-	while(fileReaderDev.getNextPacket(rawPacket))
-	{
-		if (packetsRead == 100)
-			break;
-		RawPacket* newRawPacket = new RawPacket(rawPacket);
-		rawPacketVec.pushBack(newRawPacket);
-		Packet* newPacket = new Packet(newRawPacket, false);
-		packetVec.pushBack(newPacket);
-		packetArr[packetsRead] = newPacket;
+	{	// Receive test part
+		RawPacket rawPacket;
+		RawPacketVector rawPacketVec;
+		MBufRawPacketVector mbufRawPacketVec;
+		MBufRawPacket* mBufRawPacketArr[32] = {};
+		size_t mBufRawPacketArrLen = 32;
+		Packet* packetArr[32] = {};
+		size_t packetArrLen = 32;
+		PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for " EXAMPLE_PCAP_PATH);
 
-		packetsRead++;
+		PCAPP_ASSERT(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter),
+			"KNI failed to start capturing thread (single burst) on device " KNI_TEST_NAME, KNI::DEVICE1);
+		LoggerPP::getInstance().supressErrors();
+		PCAPP_ASSERT(!device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL),
+			"Managed to start second capturing thread on KNI device " KNI_TEST_NAME, KNI::DEVICE1);
+		LoggerPP::getInstance().enableErrors();
+		PCAP_SLEEP(1); // Give some time to start capture thread
+		for (int i = 0; i < 10; ++i)
+		{
+			fileReaderDev.getNextPacket(rawPacket);
+			RawPacket* newRawPacket = new RawPacket(rawPacket);
+			rawPacketVec.pushBack(newRawPacket);
+		}
+		LoggerPP::getInstance().supressErrors();
+		rsdevice.sendPackets(rawPacketVec);
+		LoggerPP::getInstance().enableErrors();
+		rawPacketVec.clear();
+		PCAP_SLEEP(1); // Give some time to receive packets
+		device->stopCapture();
+		PCAPP_DEBUG_PRINT("KNI have captured %u packets in single burst on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
+		counter = 0;
+		PCAPP_ASSERT(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter),
+			"KNI failed to start capturing thread on device " KNI_TEST_NAME, KNI::DEVICE1);
+		PCAP_SLEEP(1); // Give some time to start capture thread
+		LoggerPP::getInstance().supressErrors();
+		PCAPP_ASSERT(device->receivePackets(mbufRawPacketVec) == 0,
+			"Managed to receive packets on KNI device while capturing via MBufRawPacketVector");
+		PCAPP_ASSERT(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen) == 0,
+			"Managed to receive packets on KNI device while capturing via mBufRawPacketArr");
+		PCAPP_ASSERT(device->receivePackets(packetArr, packetArrLen) == 0,
+			"Managed to receive packets on KNI device while capturing via packetArr");
+		LoggerPP::getInstance().enableErrors();
+		for (int i = 0; i < 10; ++i)
+		{
+			fileReaderDev.getNextPacket(rawPacket);
+			RawPacket* newRawPacket = new RawPacket(rawPacket);
+			rawPacketVec.pushBack(newRawPacket);
+		}
+		LoggerPP::getInstance().supressErrors();
+		rsdevice.sendPackets(rawPacketVec);
+		LoggerPP::getInstance().enableErrors();
+		rawPacketVec.clear();
+		PCAP_SLEEP(1); // Give some time to receive packets
+		device->stopCapture();
+		PCAPP_DEBUG_PRINT("KNI have captured %u packets on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
+		counter = 0;
+		while (fileReaderDev.getNextPacket(rawPacket))
+		{
+			RawPacket* newRawPacket = new RawPacket(rawPacket);
+			rawPacketVec.pushBack(newRawPacket);
+		}
+		LoggerPP::getInstance().supressErrors();
+		rsdevice.sendPackets(rawPacketVec);
+		LoggerPP::getInstance().enableErrors();
+		rawPacketVec.clear();
+		//? Note(echo-Mike): Some amount of packets are always queued inside kernel
+		//? so blocking mode has a slight chance to obtain this packets
+		int blockResult = device->startCaptureBlockingMode(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter, BLOCK_TIMEOUT);
+		switch (blockResult)
+		{
+			case -1:
+			{
+				PCAPP_DEBUG_PRINT("KNI startCaptureBlockingMode have exited by timeout");
+			} break;
+			case 0:
+			{
+				PCAPP_DEBUG_PRINT("KNI startCaptureBlockingMode have exited by an ERROR");
+			} break;
+			case 1:
+			{
+				PCAPP_DEBUG_PRINT("KNI have captured %u packets (blocking mode) on device " KNI_TEST_NAME, counter, KNI::DEVICE1);
+			} break;
+		}
 	}
 
-	//send packets as parsed EthPacekt array
-	int packetsSentAsParsed = device->sendPackets(packetArr, packetsRead);
-	PCAPP_ASSERT(packetsSentAsParsed == packetsRead,
-		"KNI Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d",
-		packetsRead, packetsSentAsParsed
-	);
+	LoggerPP::getInstance().supressErrors();
+	fileReaderDev.close();
+	LoggerPP::getInstance().enableErrors();
+	PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for " EXAMPLE_PCAP_PATH " second time");
 
-	//send packets are RawPacketVector
-	int packetsSentAsRawVector = device->sendPackets(rawPacketVec);
-	PCAPP_ASSERT(packetsSentAsRawVector == packetsRead,
-		"KNI Not all packets were sent as raw vector. Expected (read from file): %d; Sent: %d",
-		packetsRead, packetsSentAsRawVector
-	);
+	{ // Send test part
+		PointerVector<Packet> packetVec;
+		RawPacketVector sendRawPacketVec;
+		RawPacketVector receiveRawPacketVec;
+		Packet* packetArr[10000];
+		uint16_t packetsRead = 0;
+		int packetsReceived = 0;
+		RawPacket rawPacket;
+		while(fileReaderDev.getNextPacket(rawPacket))
+		{
+			if (packetsRead == 100)
+				break;
+			RawPacket* newRawPacket = new RawPacket(rawPacket);
+			sendRawPacketVec.pushBack(newRawPacket);
+			Packet* newPacket = new Packet(newRawPacket, false);
+			packetVec.pushBack(newPacket);
+			packetArr[packetsRead] = newPacket;
 
-	PCAPP_ASSERT(device->sendPacket(*(rawPacketVec.at(packetsRead/3))) == true,
-		"KNI Couldn't send 1 raw packet");
-	PCAPP_ASSERT(device->sendPacket(*(packetArr[packetsRead/2])) == true,
-		"KNI Couldn't send 1 parsed packet");
+			packetsRead++;
+		}
 
+		//send packets as parsed EthPacekt array
+		int packetsSentAsParsed = device->sendPackets(packetArr, packetsRead);
+		PCAPP_ASSERT(packetsSentAsParsed == packetsRead,
+			"KNI Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d",
+			packetsRead, packetsSentAsParsed
+		);
+		// Check raw device for packets to come
+		{
+			int unused;
+			packetsReceived += rsdevice.receivePackets(receiveRawPacketVec, 3, unused);
+			receiveRawPacketVec.clear();
+		}
+		PCAPP_ASSERT(packetsReceived != 0,
+			"No packets received by RawSoacketDevice from KniDevice as parsed");
+		packetsReceived = 0;
+
+		//send packets are RawPacketVector
+		int packetsSentAsRawVector = device->sendPackets(sendRawPacketVec);
+		PCAPP_ASSERT(packetsSentAsRawVector == packetsRead,
+			"KNI Not all packets were sent as raw vector. Expected (read from file): %d; Sent: %d",
+			packetsRead, packetsSentAsRawVector
+		);
+		// Check raw device for packets to come
+		{
+			int unused;
+			packetsReceived += rsdevice.receivePackets(receiveRawPacketVec, 3, unused);
+			receiveRawPacketVec.clear();
+		}
+		PCAPP_ASSERT(packetsReceived != 0,
+			"No packets received by RawSoacketDevice from KniDevice as parsed");
+		packetsReceived = 0;
+
+		//? Note (echo-Mike): this will not be checked by raw socket because there is
+		//? a chance that packets will be thrown away before we can receive them
+		PCAPP_ASSERT(device->sendPacket(*(sendRawPacketVec.at(packetsRead/3))) == true,
+			"KNI Couldn't send 1 raw packet");
+		PCAPP_ASSERT(device->sendPacket(*(packetArr[packetsRead/2])) == true,
+			"KNI Couldn't send 1 parsed packet");
+	}
+
+	//! Note(echo-Mike): RawSocket device must be closed before KNI
+	rsdevice.close();
 	device->stopRequestHandlerThread();
 	device->close();
 	fileReaderDev.close();
-#endif
-	PCAPP_TEST_PASSED;
-}
-
-PCAPP_TEST(TestKniDeviceDestroy)
-{
-#if defined(USE_DPDK) && defined(LINUX)
-	char buff[64];
-	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI::DEVICE1);
-	KniDevice* device = KniDevice::getDeviceByName(std::string(buff));
-	PCAPP_ASSERT(device != NULL,
-		"Could not find KNI device " KNI_TEST_NAME " by name <%s>", KNI::DEVICE1, buff);
-	std::string name = device->getName();
-	device->stopRequestHandlerThread();
-	device->close();
-	//? Wait for detached request handler thread to finish
-	PCAP_SLEEP(2);
-	KniDevice::DestroyDevice(device);
-	PCAPP_ASSERT(KniDevice::getDeviceByPort(KNI::TEST_PORT_ID1) == NULL,
-		"KNI device " KNI_TEST_NAME " was found after destruction thru port id %d", KNI::DEVICE1, KNI::TEST_PORT_ID1);
-	PCAPP_ASSERT(KniDevice::getDeviceByName(name) == NULL,
-		"KNI device " KNI_TEST_NAME " was found after destruction by name %s", KNI::DEVICE1, name.c_str());
 #endif
 	PCAPP_TEST_PASSED;
 }
@@ -6342,12 +6412,13 @@ static struct option PcapTestOptions[] =
 	{"remote-port", required_argument, 0, 'p'},
 	{"dpdk-port", required_argument, 0, 'k' },
 	{"no-networking", no_argument, 0, 'n' },
+	{"kni-ip", no_argument, 0, 'a' },
     {0, 0, 0, 0}
 };
 
-void print_usage() 
+void print_usage()
 {
-    printf("Usage: Pcap++Test -i ip_to_use | -n [-d] [-r ip_addr] [-p port] [-k dpdk_port]\n\n"
+    printf("Usage: Pcap++Test -i ip_to_use | -n [-d] [-r ip_addr] [-p port] [-k dpdk_port] [-a ip_addr]\n\n"
     		"Flags:\n"
     		"-i --use-ip         IP to use for sending and receiving packets\n"
     		"-d --debug-mode     Set log level to DEBUG\n"
@@ -6355,6 +6426,10 @@ void print_usage()
     		"-p --remote-port    Port of remote machine running rpcapd to test remote capture\n"
     		"-k --dpdk-port      The DPDK NIC port to test. Required if compiling with DPDK\n"
     		"-n --no-networking  Do not run tests that requires networking\n"
+    		"-a --kni-ip         IP address for KNI device tests to use must not be the same\n"
+			"                    as any of existing network interfaces in your system.\n"
+			"                    Mandatory if -n flag is not specified. Must be an IPv4.\n"
+			"                    For Linux systems only\n"
     		);
 }
 
@@ -6369,11 +6444,14 @@ int main(int argc, char* argv[])
 
 	int optionIndex = 0;
 	char opt = 0;
-	while((opt = getopt_long (argc, argv, "di:r:p:k:n", PcapTestOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "di:r:p:k:a:n", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
 			case 0:
+				break;
+			case 'a':
+				args.kniIp = optarg;
 				break;
 			case 'i':
 				args.ipToSendReceivePackets = optarg;
@@ -6399,7 +6477,13 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(args.runWithNetworking && args.ipToSendReceivePackets == "")
+	if (args.runWithNetworking &&
+		(args.ipToSendReceivePackets == "" ||
+#if defined(USE_DPDK) && defined(LINUX)
+		args.kniIp == "" ))
+#else
+		false ))
+#endif
 	{
 		print_usage();
 		exit(1);
@@ -6466,9 +6550,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestDpdkMultiThread, args, true);
 	PCAPP_RUN_TEST(TestDpdkDeviceSendPackets, args, true);
 	PCAPP_RUN_TEST(TestKniDevice, args, true);
-	PCAPP_RUN_TEST(TestKniDeviceReceive, args, true);
-	PCAPP_RUN_TEST(TestKniDeviceSend, args, true);
-	PCAPP_RUN_TEST(TestKniDeviceDestroy, args, true);
+	PCAPP_RUN_TEST(TestKniDeviceSendReceive, args, true);
 	PCAPP_RUN_TEST(TestDpdkMbufRawPacket, args, true);
 	PCAPP_RUN_TEST(TestDpdkDeviceWorkerThreads, args, true);
 	PCAPP_RUN_TEST(TestGetMacAddress, args, true);

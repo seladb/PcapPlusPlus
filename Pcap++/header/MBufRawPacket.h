@@ -23,9 +23,9 @@ namespace pcpp
 	/**
 	 * @class MBufRawPacket
 	 * A class that inherits RawPacket and wraps DPDK's mbuf object (see some info about mbuf in DpdkDevice.h) but is
-	 * compatible with PcapPlusPlus framework. Using MBufRawPacket is be almost similar to using RawPacket, the implementation 
-	 * differences are encapsulated in the class implementation. For example: user can create and manipulate a Packet object from 
-	 * MBufRawPacket the same way it is done with RawPacket; User can use PcapFileWriterDevice to save MBufRawPacket to pcap the 
+	 * compatible with PcapPlusPlus framework. Using MBufRawPacket is be almost similar to using RawPacket, the implementation
+	 * differences are encapsulated in the class implementation. For example: user can create and manipulate a Packet object from
+	 * MBufRawPacket the same way it is done with RawPacket; User can use PcapFileWriterDevice to save MBufRawPacket to pcap the
 	 * same way it's used with RawPacket; etc.<BR>
 	 * The main difference is that RawPacket contains a pointer to the data itself and MBufRawPacket is holding a pointer to an mbuf
 	 * object which contains a pointer to the data. This implies that MBufRawPacket without an mbuf allocated to it is not usable.
@@ -34,7 +34,7 @@ namespace pcpp
 	 *      MBufRawPacket
 	 *    - Creating MBufRawPacket from scratch (in order to send it with DpdkDevice, for example). In this case the user should call
 	 *      the init() method after constructing the object in order to allocate a new mbuf from DPDK port pool (encapsulated by DpdkDevice)
-	 * 
+	 *
 	 * Limitations of this class:
 	 *    - Currently chained mbufs are not supported. An mbuf has the capability to be linked to another mbuf and create a linked list
 	 *      of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support this capability so there is no way to

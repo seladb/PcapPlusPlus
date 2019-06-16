@@ -57,6 +57,7 @@ namespace pcpp
 		virtual uint32_t getCoreId() = 0;
 	};
 
+	class KniDeviceList;
 
 	/**
 	 * @class DpdkDeviceList
@@ -69,6 +70,7 @@ namespace pcpp
 	 */
 	class DpdkDeviceList
 	{
+		friend class KniDeviceList;
 	private:
 		bool m_IsInitialized;
 		static bool m_IsDpdkInitialized;

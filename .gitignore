@@ -51,6 +51,7 @@ Tests/Pcap++Test/cUrl/curl_output.txt
 .cproject
 .project
 .vscode
+.favorites.json
 
 #Visual studio generated files
 *.pdb
