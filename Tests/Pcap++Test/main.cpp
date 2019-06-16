@@ -1459,7 +1459,7 @@ PCAPP_TEST(TestPcapLiveDeviceNoNetworking)
 
     PCAPP_TEST_PASSED;
 }
- 
+
 PCAPP_TEST(TestPcapLiveDeviceStatsMode)
 {
 	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(args.ipToSendReceivePackets.c_str());
@@ -4018,7 +4018,7 @@ PCAPP_TEST(TestKniDeviceSendReceive)
 		"KNI device <" KNI_TEST_NAME "> can't start request handler thread", KNI::DEVICE1);
 	PCAP_SLEEP(1); // Wait for thread to start
 
-	// KNI device management 
+	// KNI device management
 	PCAPP_ASSERT(KNI::setKniDeviceIp(kniIp, KNI::DEVICE1),
 		"Failed to set KNI device " KNI_TEST_NAME " IP address <%s>", KNI::DEVICE1, kniIp.toString().c_str());
 	PCAPP_ASSERT(device->setPromiscuous(KniDevice::PROMISC_ENABLE),
@@ -4175,7 +4175,7 @@ PCAPP_TEST(TestKniDeviceSendReceive)
 		packetsReceived = 0;
 
 		//? Note (echo-Mike): this will not be checked by raw socket because there is
-		//? a chance that packets will be thrown away before we can receive them 
+		//? a chance that packets will be thrown away before we can receive them
 		PCAPP_ASSERT(device->sendPacket(*(sendRawPacketVec.at(packetsRead/3))) == true,
 			"KNI Couldn't send 1 raw packet");
 		PCAPP_ASSERT(device->sendPacket(*(packetArr[packetsRead/2])) == true,
@@ -6416,7 +6416,7 @@ static struct option PcapTestOptions[] =
     {0, 0, 0, 0}
 };
 
-void print_usage() 
+void print_usage()
 {
     printf("Usage: Pcap++Test -i ip_to_use | -n [-d] [-r ip_addr] [-p port] [-k dpdk_port] [-a ip_addr]\n\n"
     		"Flags:\n"

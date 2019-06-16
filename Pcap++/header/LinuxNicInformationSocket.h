@@ -20,7 +20,7 @@ namespace pcpp
 	 * The user must call LinuxNicInformationSocket#makeRequest method with
 	 * known ioctl type and properly filled ifreq structure for this ioctl type.
 	 * Filling of ifr_name may be omitted as it will be done automatically from
-	 * provided NIC name. 
+	 * provided NIC name.
 	 * @note Usage of this class requires the inclusion of <sys/ioctl.h> and <net/if.h> Linux headers
 	 */
 	class LinuxNicInformationSocket

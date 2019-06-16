@@ -152,7 +152,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	}
 }
 
-// Simple dummy callbacks that always yields success for Linux Kernel 
+// Simple dummy callbacks that always yields success for Linux Kernel
 struct KniDummyCallbacks
 {
 	static int changeMtuNew(uint16_t, unsigned int) { return 0; }
@@ -401,7 +401,6 @@ void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args)
 		EXIT_WITH_ERROR("Could not connect socket\nErrno: %s", std::strerror(old_errno));
 	}
 }
-
 
 // Reworked fillbuf from netcat. See description in pingPongProcess
 ssize_t fillbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
