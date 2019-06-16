@@ -381,6 +381,8 @@ bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets, pcpp::Kn
 
 		// Other packets are just ignored
 	}
+
+	return true;
 }
 
 // Connect UDP socket to other IP:port pair derived from our
