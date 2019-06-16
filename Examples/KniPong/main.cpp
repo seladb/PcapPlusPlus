@@ -46,6 +46,7 @@ namespace
 struct KniPongArgs
 {
 	std::string kniIp;
+	std::string outIp;
 	std::string kniName;
 	uint16_t kniPort;
 };
@@ -85,9 +86,10 @@ inline void printUsage()
 {
 	std::printf(
 		"\nUsage:\n\n"
-		"    %s -i <kni_ipv4> [-n <kni_device_name>] [-p <port>] [-v] [-h]\n\n"
+		"    %s -s <src_ipv4> -d <dst_ipv4> [-n <kni_device_name>] [-p <port>] [-v] [-h]\n\n"
 		"Options:\n"
-		"    -i --ip <kni_ipv4>            : IP to assign to created KNI device. Must not be odd in LSB\n"
+		"    -s --src <src_ipv4>           : IP to assign to created KNI device\n"
+		"    -d --dst <dst_ipv4>           : Virtual IP to comunicate with. Must be in /24 subnet with <src_ipv4>\n"
 		"    -n --name <kni_device_name>   : Name for KNI device. Default: \"" DEFAULT_KNI_NAME "\"\n"
 		"    -p --port <port>              : Port for communication. Default: %d\n"
 		"    -v --version                  : Displays the current version and exits\n"
@@ -101,7 +103,8 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 {
 	struct option KniPongOptions[] =
 	{
-		{"ip", required_argument, NULL, 'i'},
+		{"src", required_argument, NULL, 's'},
+		{"dst", required_argument, NULL, 'd'},
 		{"name", optional_argument, NULL, 'n'},
 		{"port", optional_argument, NULL, 'p'},
 		{"help", no_argument, NULL, 'h'},
@@ -112,14 +115,17 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	args.kniPort = DEFAULT_PORT;
 	int optionIndex = 0;
 	char opt = 0;
-	while ((opt = getopt_long(argc, argv, "i:n:p:hv", KniPongOptions, &optionIndex)) != -1)
+	while ((opt = getopt_long(argc, argv, "s:d:n:p:hv", KniPongOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
 			case 0:
 				break;
-			case 'i':
+			case 's':
 				args.kniIp = optarg;
+				break;
+			case 'd':
+				args.outIp = optarg;
 				break;
 			case 'n':
 				args.kniName = optarg;
@@ -138,7 +144,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 			default:
 			{
 				printUsage();
-				EXIT_WITH_ERROR("Unknown option flag <%c>", opt);
+				EXIT_WITH_ERROR("Unknown option flag <%#0x>", opt);
 			} break;
 		}
 	}
@@ -149,6 +155,25 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	{
 		printUsage();
 		EXIT_WITH_ERROR("IP for KNI device not provided");
+	}
+	if (args.outIp.empty())
+	{
+		printUsage();
+		EXIT_WITH_ERROR("Virtual IP for communication not provided");
+	}
+	pcpp::IPv4Address kniIp = args.kniIp;
+	pcpp::IPv4Address outIp = args.outIp;
+	if (!(kniIp.isValid() && outIp.isValid()))
+	{
+		EXIT_WITH_ERROR("One of provided IPs is not valid");
+	}
+	if (!outIp.matchSubnet(kniIp, pcpp::IPv4Address("255.255.255.0")))
+	{
+		EXIT_WITH_ERROR(
+			"Provided Virtual IP <%s> is not in same required subnet <255.255.255.0> as KNI IP <%s>",
+			outIp.toString().c_str(),
+			kniIp.toString().c_str()
+		);
 	}
 }
 
@@ -179,10 +204,10 @@ pcpp::KniDevice::KniIoctlCallbacks KniDummyCallbacks::cbNew;
 pcpp::KniDevice::KniOldIoctlCallbacks KniDummyCallbacks::cbOld;
 
 // Setup IP of net device by calling the ip unix utility
-inline bool setKniIp(const pcpp::IPAddress& ip, const std::string& kniName)
+inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName)
 {
 	char buff[256];
-	snprintf(buff, sizeof(buff), "ip a add %s/30 dev %s", ip.toString().c_str(), kniName.c_str());
+	snprintf(buff, sizeof(buff), "ip a add %s/24 dev %s", ip.toString().c_str(), kniName.c_str());
 	(void)pcpp::executeShellCommand(buff);
 	snprintf(buff, sizeof(buff), "ip a | grep %s", ip.toString().c_str());
 	std::string result = pcpp::executeShellCommand(buff);
@@ -199,10 +224,6 @@ inline pcpp::KniDevice* setupKniDevice(const KniPongArgs& args)
 			EXIT_WITH_ERROR("Failed to init DPDK");
 	}
 	pcpp::IPv4Address kniIp = args.kniIp;
-	if (!kniIp.isValid())
-		EXIT_WITH_ERROR("Invalid KNI IP provided <%s>", args.kniIp.c_str());
-	if (kniIp.toInt() & 0x1)
-		EXIT_WITH_ERROR("KNI IP must not contain 1 in least significant bit");
 	// Setup device config
 	pcpp::KniDevice* device = NULL;
 	pcpp::KniDevice::KniDeviceConfiguration devConfig;
@@ -388,14 +409,11 @@ bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets, pcpp::Kn
 // Connect UDP socket to other IP:port pair derived from our
 void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args)
 {
-	pcpp::IPv4Address ingressAddr = args.kniIp;
-	// Make other communication side address from our
-	ingressAddr = pcpp::IPv4Address(ingressAddr.toInt() + 1);
 	struct sockaddr_in ingress;
 	std::memset(&ingress, 0, sizeof(ingress));
 	ingress.sin_family = AF_INET;
-	ingress.sin_addr.s_addr = inet_addr(ingressAddr.toString().c_str());
-	ingress.sin_port = args.kniPort;
+	ingress.sin_addr.s_addr = inet_addr(args.outIp.c_str());
+	ingress.sin_port = htons(args.kniPort);
 	if (connect(sock, (struct sockaddr*)&ingress, sizeof(ingress)) == -1)
 	{
 		int old_errno = errno;
@@ -653,6 +671,7 @@ int main(int argc, char* argv[])
 	}
 	connectUDPSocket(sock, args);
 	std::signal(SIGINT, signal_handler);
+	std::printf("Ready for input:\n");
 	pingPongProcess(sock);
 	//! Close socket before device
 	close(sock);
