@@ -2,7 +2,7 @@
 
 #define LOG_MODULE PcapLogModuleKniDevice
 
-#include <cinttypes>
+#include <inttypes.h>
 #include <algorithm>
 
 #include "KniDeviceList.h"
