@@ -174,6 +174,12 @@ namespace pcpp
 			 */
 			int packetBufferSize;
 
+            /**
+             * Set the direction for capture packets. You can read more here:
+             * https://www.tcpdump.org/manpages/pcap.3pcap.html.
+             */
+            pcap_direction_t direction;
+
 			/**
 			 * A c'tor for this struct
 			 * @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is promiscuous
@@ -182,7 +188,7 @@ namespace pcpp
 			 * @param[in] packetBufferSize The packet buffer size. Default value is 0 which means use the default value
 			 * (varies between different OS's)
 			 */
-			DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0)
+			DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0, pcap_direction_t direction = PCAP_D_INOUT)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;

@@ -261,6 +261,17 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	}
 #endif
 
+#ifdef HAS_DIRECTION_SET
+    ret = pcap_setdirection(pcap, config.direction);
+	if (ret == 0)
+	{
+	    LOG_DEBUG("Direction is set");
+	} else {
+	    LOG_ERROR("Failed to set direction, error code: '%d', error message: '%s'",
+	               ret, pcap_geterr(pcap));
+	}
+#endif
+
 	ret = pcap_activate(pcap);
 	if (ret != 0)
 	{

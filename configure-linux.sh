@@ -16,7 +16,7 @@ function HELP {
    echo "  1) Without any switches. In this case the script will guide you through using wizards"
    echo "  2) With switches, as described below"
    echo ""
-   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--direction-set-enable] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
    echo "The following switches are recognized:"
    echo "--default             --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""
@@ -27,6 +27,8 @@ function HELP {
    echo "--dpdk-home           --Sets DPDK home directoy. Use only when --dpdk is set"
    echo ""
    echo "--use-immediate-mode  --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
+   echo ""
+   echo "--direction-set-enable       --Use only when you want to change the direction for capture packets. (supported on libpcap>=1.5)"
    echo ""
    echo "--install-dir         --Installation directory. Default is /usr/local"
    echo ""
@@ -55,6 +57,7 @@ PF_RING_HOME=""
 COMPILE_WITH_DPDK=0
 DPDK_HOME=""
 HAS_PCAP_IMMEDIATE_MODE=0
+HAS_DIRECTION_SET=0
 
 # initializing libpcap include/lib dirs to an empty string 
 LIBPCAP_INLCUDE_DIR=""
@@ -118,7 +121,7 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,install-dir:,libpcap-include-dir:,libpcap-lib-dir: -- "$@"`
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,direction-set-enable,install-dir:,libpcap-include-dir:,libpcap-lib-dir: -- "$@"`
 
    # if user put an illegal switch - print HELP and exit
    if [ $? -ne 0 ]; then
@@ -165,6 +168,11 @@ else
        # enable libpcap immediate mode
        --use-immediate-mode)
          HAS_PCAP_IMMEDIATE_MODE=1
+         shift ;;
+
+       # enable direction set
+       --direction-set-enable)
+         HAS_DIRECTION_SET=1
          shift ;;
 
        # non-default libpcap include dir
@@ -305,6 +313,12 @@ fi
 if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
    echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
+
+
+if (( $HAS_DIRECTION_SET > 0 )) ; then
+   echo -e "HAS_DIRECTION_SET := 1\n\n" >> $PCAPPLUSPLUS_MK
+fi
+
 
 # non-default libpcap include dir
 if [ -n "$LIBPCAP_INLCUDE_DIR" ]; then
