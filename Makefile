@@ -123,6 +123,7 @@ clean:
 ifdef USE_DPDK
 	@cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 	@cd $(EXAMPLE_DPDK2)             && $(MAKE) clean
+	@cd $(EXAMPLE_KNI_PONG)          && $(MAKE) clean
 endif
 ifdef PF_RING_HOME
 	@cd $(EXAMPLE_PF_RING1)          && $(MAKE) clean
