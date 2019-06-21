@@ -35,6 +35,9 @@ endif
 ifdef MAC_OS_X
 DEPS := -DMAC_OS_X
 endif
+ifdef HAS_SET_DIRECTION_ENABLED
+DEPS += -DHAS_SET_DIRECTION_ENABLED
+endif
 
 COMMON_DEBUG_LIB_DIR := -L../../Common++/Lib/Debug
 
