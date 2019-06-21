@@ -12,9 +12,11 @@ SCRIPT=`basename ${BASH_SOURCE[0]}`
 # help function
 function HELP {
    echo -e \\n"Help documentation for ${SCRIPT}."\\n
-   echo -e "Basic usage: $SCRIPT [-h] [--use-immediate-mode] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--use-immediate-mode] [--set-direction-enabled] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
    echo "The following switches are recognized:"
    echo "--use-immediate-mode  --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
+   echo ""
+   echo "--set-direction-enabled  --Set direction for capturing incoming packets or outgoing packets (supported on libpcap>=0.9.1)"
    echo ""
    echo "--install-dir         --Set installation directory. Default is /usr/local"
    echo ""
@@ -34,6 +36,7 @@ function HELP {
 }
 
 HAS_PCAP_IMMEDIATE_MODE=0
+HAS_SET_DIRECTION_ENABLED=0
 
 # initializing libpcap include/lib dirs to an empty string 
 LIBPCAP_INLCUDE_DIR=""
@@ -63,6 +66,10 @@ case $i in
    # enable libpcap immediate mode
    --use-immediate-mode)
      HAS_PCAP_IMMEDIATE_MODE=1 ;;
+
+   # set direction enabled
+   --set-direction-enabled)
+     HAS_SET_DIRECTION_ENABLED=1 ;;
 
    # non-default libpcap include dir
    --libpcap-include-dir)
@@ -117,6 +124,10 @@ sed -i -e '1s|^|PCAPPLUSPLUS_HOME := '$PWD'\'$'\n''\'$'\n''|' $PCAPPLUSPLUS_MK
 if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
    echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
+
+if (( $HAS_SET_DIRECTION_ENABLED > 0 )) ; then 
+   echo -e "HAS_SET_DIRECTION_ENABLED := 1\n\n" >> $PCAPPLUSPLUS_MK
+fi 
 
 # non-default libpcap include dir
 if [ -n "$LIBPCAP_INLCUDE_DIR" ]; then

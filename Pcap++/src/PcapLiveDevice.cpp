@@ -47,6 +47,20 @@ struct PcapThread
 	pthread_t pthread;
 };
 
+#ifdef HAS_SET_DIRECTION_ENABLED
+static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction)
+{
+    	switch (direction)
+    	{
+        	case PcapLiveDevice::IN: return PCAP_D_IN;
+        	case PcapLiveDevice::OUT: return PCAP_D_OUT;
+        	case PcapLiveDevice::INOUT: return PCAP_D_INOUT;
+   	}
+}
+#endif
+
+
+
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
 		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
 {
@@ -261,6 +275,24 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	}
 #endif
 
+#ifdef HAS_SET_DIRECTION_ENABLED
+    	pcap_direction_t directionToSet = directionTypeMap(config.direction);
+	ret = pcap_setdirection(pcap, directionToSet);
+	if (ret != 0)
+    	{
+		if (config.direction == IN)
+		{
+		    	LOG_DEBUG("Only incoming traffics will be captured");
+		}else if (config.direction == OUT) {
+		    	LOG_DEBUG("Only outgoing traffics will be captured");
+		}else {
+	  		LOG_DEBUG("Both incoming and outgoing traffics will be captured");
+		}
+    	}else {
+			LOG_ERROR("Failed to set direction for capturing packets, error code: '%d', error message: '%s'",
+				       ret, pcap_geterr(pcap));
+	}
+#endif
 	ret = pcap_activate(pcap);
 	if (ret != 0)
 	{

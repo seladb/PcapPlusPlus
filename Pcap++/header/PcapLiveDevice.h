@@ -148,6 +148,20 @@ namespace pcpp
 		};
 
 
+		/*
+		 * Set direction for capturing packets
+		 */
+			enum PcapDirection
+		{
+			    /** Capture traffics both incoming and outgoing */
+			    INOUT = 0,
+			    /** Only capture incoming traffics */
+			    IN,
+			    /** Only capture outgoing traffics */
+			    OUT
+		};
+
+
 		/**
 		 * @struct DeviceConfiguration
 		 * A struct that contains user configurable parameters for opening a device. All parameters have default values so
@@ -174,6 +188,12 @@ namespace pcpp
 			 */
 			int packetBufferSize;
 
+            /**
+            * Set the direction for capturing packets. You can read more here:
+            * https://www.tcpdump.org/manpages/pcap.3pcap.html.
+            */
+			PcapDirection direction;
+
 			/**
 			 * A c'tor for this struct
 			 * @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is promiscuous
@@ -181,12 +201,15 @@ namespace pcpp
 			 * 1 or -1 (depends on the platform)
 			 * @param[in] packetBufferSize The packet buffer size. Default value is 0 which means use the default value
 			 * (varies between different OS's)
+			 * @param[in] direction Direction for capturing packtes. Default value is INOUT which means capture both incoming
+			 * and outgoing packets (not all platforms support this)
 			 */
-			DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0)
+			DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0, PcapDirection direction = INOUT)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
 				this->packetBufferSize = packetBufferSize;
+				this->direction = INOUT;
 			}
 		};
 
