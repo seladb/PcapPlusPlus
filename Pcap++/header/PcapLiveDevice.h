@@ -151,7 +151,7 @@ namespace pcpp
 		/*
 		 * Set direction for capturing packets
 		 */
-			enum PcapDirection
+		enum PcapDirection
 		{
 			    /** Capture traffics both incoming and outgoing */
 			    INOUT = 0,
@@ -188,10 +188,10 @@ namespace pcpp
 			 */
 			int packetBufferSize;
 
-            /**
-            * Set the direction for capturing packets. You can read more here:
-            * https://www.tcpdump.org/manpages/pcap.3pcap.html.
-            */
+		    	/**
+		    	* Set the direction for capturing packets. You can read more here:
+		    	* https://www.tcpdump.org/manpages/pcap.3pcap.html.
+		    	*/
 			PcapDirection direction;
 
 			/**
