@@ -57,7 +57,9 @@ namespace pcpp
 		PcapLogModuleLiveDevice, ///< PcapLiveDevice module (Pcap++)
 		PcapLogModuleFileDevice, ///< FileDevice module (Pcap++)
 		PcapLogModulePfRingDevice, ///< PfRingDevice module (Pcap++)
+		PcapLogModuleMBufRawPacket, ///< MBufRawPacket module (Pcap++)
 		PcapLogModuleDpdkDevice, ///< DpdkDevice module (Pcap++)
+		PcapLogModuleKniDevice, ///< KniDevice module (Pcap++)
 		NetworkUtils, ///< NetworkUtils module (Pcap++)
 		NumOfLogModules
 	};
