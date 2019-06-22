@@ -645,6 +645,7 @@ bool packetArrivesBlockingModeNoTimeoutPacketCount(RawPacket* pRawPacket, PcapLi
 	return false;
 }
 
+
 bool packetArrivesBlockingModeStartCapture(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie)
 {
 	LoggerPP::getInstance().supressErrors();
@@ -1568,8 +1569,23 @@ PCAPP_TEST(TestPcapLiveDeviceSpecialCfg)
 
 	PCAPP_ASSERT(packetCount > 0, "No packets are captured in non-default configuration mode");
 
+#ifdef HAS_SET_DIRECTION_ENABLED
+    	// create a non-default configuration with only cpturing incoming packets and open the device again
+    	PcapLiveDevice::DeviceConfiguration devConfgWithDirection(PcapLiveDevice::Promiscuous, 10, 2000000, PcapLiveDevice::PCPP_IN);
+    	
+	liveDev->open(devConfgWithDirection);
+		
+	packetCount = 0;
+
+	// start capturing in non-default configuration witch only captures incoming traffics
+    	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
+
+	PCAPP_ASSERT(packetCount > 0, "No packets are captured in non-default configuration mode");
+	liveDev->close();
+#endif 
 	PCAPP_TEST_PASSED;
 }
+
 
 PCAPP_TEST(TestWinPcapLiveDevice)
 {
@@ -6402,6 +6418,9 @@ PCAPP_TEST(TestRawSockets)
 
 	PCAPP_TEST_PASSED;
 }
+
+
+
 
 
 static struct option PcapTestOptions[] =
