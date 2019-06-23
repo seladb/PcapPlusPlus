@@ -109,6 +109,9 @@ bool isUnitTestDebugMode = false;
 
 #define PCAPP_TEST_PASSED printf("%-30s: PASSED\n", __FUNCTION__); return true
 
+#define PCAPP_TEST_SKIPPED printf("%-30s: SKIPPED\n", __FUNCTION__); return true
+
+
 #define PCAPP_START_RUNNING_TESTS(runWithNetworking) \
 	bool allTestsPassed = true; \
 	bool networking =  runWithNetworking;
@@ -1570,15 +1573,15 @@ PCAPP_TEST(TestPcapLiveDeviceSpecialCfg)
 	PCAPP_ASSERT(packetCount > 0, "No packets are captured in non-default configuration mode");
 
 #ifdef HAS_SET_DIRECTION_ENABLED
-    	// create a non-default configuration with only cpturing incoming packets and open the device again
-    	PcapLiveDevice::DeviceConfiguration devConfgWithDirection(PcapLiveDevice::Promiscuous, 10, 2000000, PcapLiveDevice::PCPP_IN);
+	// create a non-default configuration with only cpturing incoming packets and open the device again
+	PcapLiveDevice::DeviceConfiguration devConfgWithDirection(PcapLiveDevice::Promiscuous, 10, 2000000, PcapLiveDevice::PCPP_IN);
     	
 	liveDev->open(devConfgWithDirection);
 		
 	packetCount = 0;
 
 	// start capturing in non-default configuration witch only captures incoming traffics
-    	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
+	PCAPP_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
 
 	PCAPP_ASSERT(packetCount > 0, "No packets are captured in non-default configuration mode");
 	liveDev->close();
@@ -2727,9 +2730,11 @@ PCAPP_TEST(TestPfRingDevice)
 	PCAPP_DEBUG_PRINT("Packets dropped: %d", stats.drop);
 
 //	test filters
-#endif
 
 	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestPfRingDeviceSingleChannel)
@@ -2766,8 +2771,10 @@ PCAPP_TEST(TestPfRingDeviceSingleChannel)
 	dev->close();
 	PCAPP_ASSERT(dev->getNumOfOpenedRxChannels() == 0, "There are still open RX channels after device close");
 
-#endif
 	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 
@@ -2878,9 +2885,12 @@ bool TestPfRingDeviceMultiThread(CoreMask coreMask, PcapTestArgs args)
 
 		dev->close();
 	}
-#endif
 
-	return true;
+
+	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestPfRingMultiThreadAllCores)
@@ -2900,7 +2910,7 @@ PCAPP_TEST(TestPfRingMultiThreadAllCores)
 
 	return false;
 #else
-	PCAPP_TEST_PASSED;
+	PCAPP_TEST_SKIPPED;
 #endif
 
 }
@@ -2924,7 +2934,7 @@ PCAPP_TEST(TestPfRingMultiThreadSomeCores)
 
 	return false;
 #else
-	PCAPP_TEST_PASSED;
+	PCAPP_TEST_SKIPPED;
 #endif
 }
 
@@ -2986,8 +2996,10 @@ PCAPP_TEST(TestPfRingSendPacket)
 
     fileReaderDev.close();
 
-#endif
 	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestPfRingSendPackets)
@@ -3025,8 +3037,10 @@ PCAPP_TEST(TestPfRingSendPackets)
     dev->close();
     fileReaderDev.close();
 
+	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
 #endif
-    PCAPP_TEST_PASSED;
 }
 
 PCAPP_TEST(TestPfRingFilters)
@@ -3073,8 +3087,11 @@ PCAPP_TEST(TestPfRingFilters)
 	PCAP_SLEEP(10);
 	dev->stopCapture();
 	PCAPP_ASSERT(instruction.Instruction == 0, "All packet are still of type TCP although filter was removed");
-#endif
+
 	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestDnsParsing)
@@ -3369,8 +3386,12 @@ PCAPP_TEST(TestDpdkDevice)
 			packetData.PacketCount);
 	dev->close();
 	dev->close();
-#endif
+
 	PCAPP_TEST_PASSED;
+
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestDpdkMultiThread)
@@ -3538,8 +3559,12 @@ PCAPP_TEST(TestDpdkMultiThread)
 
 
 	dev->close();
-#endif
+
 	PCAPP_TEST_PASSED;
+
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestDpdkDeviceSendPackets)
@@ -3619,8 +3644,12 @@ PCAPP_TEST(TestDpdkDeviceSendPackets)
 
     dev->close();
     fileReaderDev.close();
-#endif
+
 	PCAPP_TEST_PASSED;
+
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestDpdkDeviceWorkerThreads)
@@ -3800,13 +3829,23 @@ PCAPP_TEST(TestDpdkDeviceWorkerThreads)
 
 	dev->close();
 
-#endif
 	PCAPP_TEST_PASSED;
+
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestKniDevice)
 {
 #if defined(USE_DPDK) && defined(LINUX)
+
+	if (args.kniIp == "")
+	{
+		PCAPP_TRY(false, "KNI IP not provided, skipping test");
+		PCAPP_TEST_SKIPPED;
+	}
+
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	enum { KNI_TEST_MTU = 1540, KNI_NEW_MTU = 1500 };
 	char buff[256];
@@ -3992,13 +4031,23 @@ PCAPP_TEST(TestKniDevice)
 	device->stopRequestHandlerThread();
 	device->close();
 	// Device will be destroyed later
-#endif
+
 	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestKniDeviceSendReceive)
 {
 #if defined(USE_DPDK) && defined(LINUX)
+
+	if (args.kniIp == "")
+	{
+		PCAPP_TRY(false, "KNI IP not provided, skipping test");
+		PCAPP_TEST_SKIPPED;
+	}
+
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	enum { KNI_MTU = 1500, BLOCK_TIMEOUT = 3 };
 	char buff[256];
@@ -4203,8 +4252,12 @@ PCAPP_TEST(TestKniDeviceSendReceive)
 	device->stopRequestHandlerThread();
 	device->close();
 	fileReaderDev.close();
-#endif
+
 	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
+	
 }
 
 PCAPP_TEST(TestDpdkMbufRawPacket)
@@ -4398,8 +4451,10 @@ PCAPP_TEST(TestDpdkMbufRawPacket)
 
 	dev->close();
 
-#endif
 	PCAPP_TEST_PASSED;
+#else
+	PCAPP_TEST_SKIPPED;
+#endif
 }
 
 PCAPP_TEST(TestGetMacAddress)
@@ -6447,7 +6502,7 @@ void print_usage()
     		"-n --no-networking  Do not run tests that requires networking\n"
     		"-a --kni-ip         IP address for KNI device tests to use must not be the same\n"
 			"                    as any of existing network interfaces in your system.\n"
-			"                    Mandatory if -n flag is not specified. Must be an IPv4.\n"
+			"                    If this parameter is omitted KNI tests will be skipped. Must be an IPv4.\n"
 			"                    For Linux systems only\n"
     		);
 }
@@ -6460,6 +6515,7 @@ int main(int argc, char* argv[])
 	args.debugMode = false;
 	args.dpdkPort = -1;
 	args.runWithNetworking = true;
+	args.kniIp = "";
 
 	int optionIndex = 0;
 	char opt = 0;
@@ -6496,25 +6552,21 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (args.runWithNetworking &&
-		(args.ipToSendReceivePackets == "" ||
-#if defined(USE_DPDK) && defined(LINUX)
-		args.kniIp == "" ))
-#else
-		false ))
-#endif
+	if (args.runWithNetworking && args.ipToSendReceivePackets == "")
 	{
+		printf("When testing with networking you must provide the NIC IP address from which packets will be captured and sent\n\n");
 		print_usage();
 		exit(1);
 	}
+
 #ifdef USE_DPDK
 	if (args.dpdkPort == -1)
 	{
-		printf("When testing with DPDK you must supply the DPDK NIC port to test\n\n");
+		printf("When testing with DPDK you must provide the DPDK NIC port to test\n\n");
 		print_usage();
 		exit(1);
 	}
-#endif
+#endif // USE_DPDK
 
 	if (args.debugMode)
 		LoggerPP::getInstance().setAllModlesToLogLevel(LoggerPP::Debug);
@@ -6524,6 +6576,13 @@ int main(int argc, char* argv[])
 	printf("Git info: %s\n", getGitInfo().c_str());
 	printf("Using ip: %s\n", args.ipToSendReceivePackets.c_str());
 	printf("Debug mode: %s\n", args.debugMode ? "on" : "off");
+#ifdef USE_DPDK
+	printf("Using DPDK port: %d\n", args.dpdkPort);
+	if (args.kniIp == "")
+		printf("DPDK KNI tests: skipped\n");
+	else
+		printf("Using IP address for KNI: %s\n", args.kniIp.c_str());
+#endif
 	printf("Starting tests...\n");
 
 	char errString[1000];
