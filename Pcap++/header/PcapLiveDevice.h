@@ -148,8 +148,8 @@ namespace pcpp
 		};
 
 
-		/*
-		 * Set direction for capturing packets
+		/**
+		 * Set direction for capturing packets (you can read more here: <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>)
 		 */
 		enum PcapDirection
 		{
@@ -190,7 +190,7 @@ namespace pcpp
 
 	    		/**
 		    	* Set the direction for capturing packets. You can read more here:
-		    	* https://www.tcpdump.org/manpages/pcap.3pcap.html.
+		    	* <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>.
 		    	*/
 			PcapDirection direction;
 
