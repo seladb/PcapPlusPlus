@@ -108,6 +108,7 @@ void TextBasedProtocolMessage::parseFields()
 	// last field can be one of:
 	// a.) \r\n\r\n or \n\n marking the end of the header
 	// b.) the end of the packet
+	int iterations = 0;
 	while (!curField->isEndOfHeader() && curOffset + curField->getFieldSize() < m_DataLen)
 	{
 		curOffset += curField->getFieldSize();
@@ -127,6 +128,11 @@ void TextBasedProtocolMessage::parseFields()
 			delete newField;
 			break;
 		}
+		if (iterations == 100)
+    { 
+			break;
+    }
+    iterations++;
 	}
 
 	m_LastField = curField;
