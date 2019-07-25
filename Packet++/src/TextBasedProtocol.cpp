@@ -128,11 +128,13 @@ void TextBasedProtocolMessage::parseFields()
 			delete newField;
 			break;
 		}
+		// The number of request fields is limited by default to 100 for Apache.  
+		// (see http://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfields)
 		if (iterations == 100)
-    { 
+		{ 
 			break;
-    }
-    iterations++;
+		}
+		iterations++;
 	}
 
 	m_LastField = curField;
