@@ -5,6 +5,17 @@
     <WinPcapHome>PUT_WIN_PCAP_HOME_HERE</WinPcapHome>
     <PThreadWin32Home>PUT_PTHREAD_HOME_HERE</PThreadWin32Home>
   </PropertyGroup>
+  <ItemGroup>
+    <BuildMacro Include="PcapPlusPlusHome">
+      <Value>$(PcapPlusPlusHome)</Value>
+    </BuildMacro>
+	<BuildMacro Include="WinPcapHome">
+      <Value>$(WinPcapHome)</Value>
+    </BuildMacro>
+	<BuildMacro Include="PThreadWin32Home">
+      <Value>$(PThreadWin32Home)</Value>
+    </BuildMacro>
+  </ItemGroup>
   <!-- pthreads-win32 project variables -->
   <ItemDefinitionGroup>
     <ClCompile>

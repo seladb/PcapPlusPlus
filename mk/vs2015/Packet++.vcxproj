@@ -105,7 +105,7 @@
     <PostBuildEvent>
       <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -127,7 +127,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <PostBuildEvent>
       <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -146,7 +146,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <PostBuildEvent>
       <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -168,7 +168,7 @@ xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F
     <PostBuildEvent>
       <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy $(PcapPlusPlusHome)\Packet++\header\* "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
+xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
