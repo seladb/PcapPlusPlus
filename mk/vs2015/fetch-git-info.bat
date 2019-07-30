@@ -11,6 +11,14 @@ echo   ^<PropertyGroup Label="UserMacros"^>>> GitInfoPropertySheet.props
 echo     ^<GitCommit^>%GIT_COMMIT%^</GitCommit^>>> GitInfoPropertySheet.props
 echo     ^<GitBranch^>%GIT_BRANCH%^</GitBranch^>>> GitInfoPropertySheet.props
 echo   ^</PropertyGroup^>>> GitInfoPropertySheet.props
+echo   ^<ItemGroup^>>> GitInfoPropertySheet.props
+echo   ^<BuildMacro Include="GitCommit"^>>> GitInfoPropertySheet.props
+echo   ^<Value^>$(GitCommit)^</Value^>>> GitInfoPropertySheet.props
+echo   ^</BuildMacro^>>> GitInfoPropertySheet.props
+echo   ^<BuildMacro Include="GitBranch"^>>> GitInfoPropertySheet.props
+echo   ^<Value^>$(GitBranch)^</Value^>>> GitInfoPropertySheet.props
+echo   ^</BuildMacro^>>> GitInfoPropertySheet.props
+echo   ^</ItemGroup^>>> GitInfoPropertySheet.props
 echo   ^<PropertyGroup /^>>> GitInfoPropertySheet.props
 echo   ^<ItemDefinitionGroup /^>>> GitInfoPropertySheet.props
 echo   ^<ItemGroup /^>>> GitInfoPropertySheet.props
