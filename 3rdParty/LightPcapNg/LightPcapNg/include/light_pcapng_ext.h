@@ -95,6 +95,8 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 
 void light_pcapng_close(light_pcapng_t *pcapng);
 
+void light_pcapng_flush(light_pcapng_t *pcapng);
+
 #ifdef __cplusplus
 }
 #endif

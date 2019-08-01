@@ -207,38 +207,40 @@ light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file
 	pcapng->file = light_open(file_path, LIGHT_OWRITE);
 	pcapng->file_info = file_info;
 
+	pcapng->pcapng = NULL;
+
 	struct _light_section_header section_header;
 	section_header.byteorder_magic = BYTE_ORDER_MAGIC;
 	section_header.major_version = file_info->major_version;
 	section_header.minor_version = file_info->minor_version;
 	section_header.section_length = 0xFFFFFFFFFFFFFFFFULL;
-	pcapng->pcapng = light_alloc_block(LIGHT_SECTION_HEADER_BLOCK, (const uint32_t*)&section_header, sizeof(section_header)+3*sizeof(uint32_t));
+	light_pcapng blocks_to_write = light_alloc_block(LIGHT_SECTION_HEADER_BLOCK, (const uint32_t*)&section_header, sizeof(section_header)+3*sizeof(uint32_t));
 
 	if (file_info->file_comment_size > 0)
 	{
 		light_option new_opt = light_create_option(LIGHT_OPTION_COMMENT, file_info->file_comment_size, file_info->file_comment);
-		light_add_option(pcapng->pcapng, pcapng->pcapng, new_opt, LIGHT_FALSE);
+		light_add_option(blocks_to_write, blocks_to_write, new_opt, LIGHT_FALSE);
 	}
 
 	if (file_info->hardware_desc_size > 0)
 	{
 		light_option new_opt = light_create_option(LIGHT_OPTION_SHB_HARDWARE, file_info->hardware_desc_size, file_info->hardware_desc);
-		light_add_option(pcapng->pcapng, pcapng->pcapng, new_opt, LIGHT_FALSE);
+		light_add_option(blocks_to_write, blocks_to_write, new_opt, LIGHT_FALSE);
 	}
 
 	if (file_info->os_desc_size > 0)
 	{
 		light_option new_opt = light_create_option(LIGHT_OPTION_SHB_OS, file_info->os_desc_size, file_info->os_desc);
-		light_add_option(pcapng->pcapng, pcapng->pcapng, new_opt, LIGHT_FALSE);
+		light_add_option(blocks_to_write, blocks_to_write, new_opt, LIGHT_FALSE);
 	}
 
 	if (file_info->user_app_desc_size > 0)
 	{
 		light_option new_opt = light_create_option(LIGHT_OPTION_SHB_USERAPPL, file_info->user_app_desc_size, file_info->user_app_desc);
-		light_add_option(pcapng->pcapng, pcapng->pcapng, new_opt, LIGHT_FALSE);
+		light_add_option(blocks_to_write, blocks_to_write, new_opt, LIGHT_FALSE);
 	}
 
-	pcapng->pcapng_iter = pcapng->pcapng;
+	light_pcapng next_block = blocks_to_write;
 	int i = 0;
 	for (i = 0; i < file_info->interface_block_count; i++)
 	{
@@ -248,14 +250,15 @@ light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file
 		interface_block.snapshot_length = 0;
 
 		light_pcapng iface_block_pcapng = light_alloc_block(LIGHT_INTERFACE_BLOCK, (const uint32_t*)&interface_block, sizeof(struct _light_interface_description_block)+3*sizeof(uint32_t));
-		light_add_block(pcapng->pcapng_iter, iface_block_pcapng);
-		pcapng->pcapng_iter = iface_block_pcapng;
+		light_add_block(next_block, iface_block_pcapng);
+		next_block = iface_block_pcapng;
 	}
 
 	size_t section_memory_size = 0;
-	uint32_t *file_memory = light_pcapng_to_memory(pcapng->pcapng, &section_memory_size);
+	uint32_t *file_memory = light_pcapng_to_memory(blocks_to_write, &section_memory_size);
 	light_write(pcapng->file, file_memory, section_memory_size);
 	free(file_memory);
+	light_pcapng_release(blocks_to_write);
 
 	return pcapng;
 }
@@ -275,6 +278,8 @@ light_pcapng_t *light_pcapng_open_append(const char* file_path)
 	}
 
 	pcapng->file = light_open(file_path, LIGHT_OAPPEND);
+
+	light_pcapng_release(pcapng->pcapng);
 
 	return pcapng;
 }
@@ -451,8 +456,6 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 		interface_block.snapshot_length = 0;
 
 		light_pcapng iface_block_pcapng = light_alloc_block(LIGHT_INTERFACE_BLOCK, (const uint32_t*)&interface_block, sizeof(struct _light_interface_description_block)+3*sizeof(uint32_t));
-		light_add_block(pcapng->pcapng_iter, iface_block_pcapng);
-		pcapng->pcapng_iter = iface_block_pcapng;
 
 		blocks_to_write = iface_block_pcapng;
 		__append_interface_block_to_file_info(iface_block_pcapng, pcapng->file_info);
@@ -472,29 +475,7 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 
 	memcpy(epb->packet_data, packet_data, packet_header->captured_length);
 
-//	int i = 0;
-//
-//	for (i = 0; i < packet_header->captured_length; i++)
-//	{
-//		if (i % 4 == 0)
-//			printf("  ");
-//
-//		printf("0x%X ", packet_data[i]);
-//	}
-//
-//	printf("\n\n\n");
-//
-//	for (i = 0; i < sizeof(struct _light_enhanced_packet_block) + packet_header->captured_length; i++)
-//	{
-//		if (i % 4 == 0)
-//			printf("  ");
-//
-//		printf("0x%X ", epb_memory[i]);
-//	}
-
-
 	light_pcapng packet_block_pcapng = light_alloc_block(LIGHT_ENHANCED_PACKET_BLOCK, (const uint32_t*)epb_memory, option_size+3*sizeof(uint32_t));
-	light_add_block(pcapng->pcapng_iter, packet_block_pcapng);
 	free(epb_memory);
 
 	if (packet_header->comment_length > 0)
@@ -503,15 +484,16 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 		light_add_option(NULL, packet_block_pcapng, packet_comment_opt, LIGHT_FALSE);
 	}
 
-	pcapng->pcapng_iter = packet_block_pcapng;
-
 	if (blocks_to_write == NULL)
 		blocks_to_write = packet_block_pcapng;
+	else
+		light_add_block(blocks_to_write, packet_block_pcapng);
 
 	size_t blocks_memory_size = 0;
 	uint32_t *file_memory = light_pcapng_to_memory(blocks_to_write, &blocks_memory_size);
 	light_write(pcapng->file, file_memory, blocks_memory_size);
 	free(file_memory);
+	light_pcapng_release(blocks_to_write);
 }
 
 void light_pcapng_close(light_pcapng_t *pcapng)
@@ -525,4 +507,9 @@ void light_pcapng_close(light_pcapng_t *pcapng)
 	}
 	light_free_file_info(pcapng->file_info);
 	free(pcapng);
+}
+
+void light_pcapng_flush(light_pcapng_t *pcapng)
+{
+	light_flush(pcapng->file);
 }
