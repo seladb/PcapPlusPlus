@@ -643,9 +643,10 @@ bool PcapFileWriterDevice::open(bool appendMode)
 // PcapNgFileWriterDevice members
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PcapNgFileWriterDevice::PcapNgFileWriterDevice(const char* fileName) : IFileWriterDevice(fileName)
+PcapNgFileWriterDevice::PcapNgFileWriterDevice(const char* fileName, int compressionLevel) : IFileWriterDevice(fileName)
 {
 	m_LightPcapNg = NULL;
+	m_compressionLevel = compressionLevel;
 	m_CurFilter = "";
 	m_BpfLinkType = -1;
 	m_BpfInitialized = false;
@@ -693,7 +694,7 @@ bool PcapNgFileWriterDevice::open(const char* os, const char* hardware, const ch
 
 	light_pcapng_file_info* info = light_create_file_info(os, hardware, captureApp, fileComment);
 
-	m_LightPcapNg = light_pcapng_open_write(m_FileName, info);
+	m_LightPcapNg = light_pcapng_open_write(m_FileName, info, m_compressionLevel);
 	if (m_LightPcapNg == NULL)
 	{
 		LOG_ERROR("Error opening file writer device for file '%s': light_pcapng_open_write returned NULL", m_FileName);
@@ -775,7 +776,7 @@ bool PcapNgFileWriterDevice::open()
 
 	light_pcapng_file_info* info = light_create_default_file_info();
 
-	m_LightPcapNg = light_pcapng_open_write(m_FileName, info);
+	m_LightPcapNg = light_pcapng_open_write(m_FileName, info, m_compressionLevel);
 	if (m_LightPcapNg == NULL)
 	{
 		LOG_ERROR("Error opening file writer device for file '%s': light_pcapng_open_write returned NULL", m_FileName);
