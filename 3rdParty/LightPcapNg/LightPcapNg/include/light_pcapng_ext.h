@@ -77,7 +77,8 @@ typedef struct _light_pcapng_file_info {
 
 light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read_all_interfaces);
 
-light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file_info *file_info);
+//Set compression level to 0 to disable compression!
+light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file_info *file_info, int compression_level);
 
 light_pcapng_t *light_pcapng_open_append(const char* file_path);
 

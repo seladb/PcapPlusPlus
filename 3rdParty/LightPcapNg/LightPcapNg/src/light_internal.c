@@ -30,6 +30,49 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+
+_compression_t * light_get_compression_context(int compression_level)
+{
+#if defined(USE_Z_STD)
+	struct _zstd_context *context = calloc(1, sizeof(struct _zstd_context));
+	context->cctx = ZSTD_createCCtx();
+	//Enough to handle a whole packet
+	context->buffer_in_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
+	//If we don't compress to a smaller or equal size then we are we compressing at all!
+	context->buffer_out_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
+	context->buffer_in = malloc(context->buffer_in_max_size);
+	context->buffer_out = malloc(context->buffer_out_max_size);
+	context->compression_level = compression_level;
+	assert(!ZSTD_isError(ZSTD_CCtx_setParameter(context->cctx, ZSTD_c_compressionLevel, compression_level)));
+
+	return context;
+#elif defined(USE_THIS_COMPRESSION_INSTEAD)
+
+#else
+	return NULL;
+
+#endif 
+}
+
+void light_free_compression_context(_compression_t* context)
+{
+	if (!context)
+		return;
+
+	if (context->cctx)
+		ZSTD_freeCCtx(context->cctx);
+	if (context->buffer_out)
+		free(context->buffer_out);
+	if (context->buffer_in)
+		free(context->buffer_in);
+
+	free(context);
+}
+
+
+
+
 struct _light_option *__copy_option(const struct _light_option *option)
 {
 	if (option == NULL) {

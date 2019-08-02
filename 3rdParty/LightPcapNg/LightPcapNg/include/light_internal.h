@@ -28,6 +28,40 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <assert.h>
+
+#if defined(USE_Z_STD)
+#include <zstd.h>      // presumes zstd library is installed
+
+//An ethernet packet should only ever be up to 1500 bytes + some header crap
+//We also expect some ovehead for the pcapng blocks which contain the ethernet packets
+//so allocate 1700 bytes as the max input size we expect in a single shot
+#define COMPRESSION_BUFFER_IN_MAX_SIZE 1700
+
+struct _zstd_context
+{
+	uint32_t* buffer_in;
+	uint32_t* buffer_out;
+	size_t buffer_in_max_size;
+	size_t buffer_out_max_size;
+	int compression_level;
+	ZSTD_CCtx* cctx;
+};
+
+typedef struct _zstd_context _compression_t;
+
+//Setup some other compression
+#elif defined(USE_THIS_COMPRESSION_INSTEAD)
+
+//No compression
+#else
+
+typedef void _compression_t;
+
+#endif
+
+void light_free_compression_context(_compression_t* context);
+_compression_t * light_get_compression_context(int compression_level);
 
 struct _light_pcapng {
 	uint32_t block_type;

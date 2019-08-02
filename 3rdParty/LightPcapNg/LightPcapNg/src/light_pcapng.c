@@ -26,6 +26,7 @@
 #include "light_debug.h"
 #include "light_internal.h"
 #include "light_util.h"
+#include "light_platform.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -363,6 +364,107 @@ uint32_t *light_pcapng_to_memory(const light_pcapng pcapng, size_t *size)
 	}
 
 	return block_mem;
+}
+
+size_t light_pcapng_to_file_stream(const light_pcapng pcapng, light_file file)
+{
+	light_pcapng iterator = pcapng;
+	uint32_t *block_mem = NULL;
+	uint32_t block_size = 0;
+
+	size_t total_bytes = 0;
+	while (iterator != NULL)
+	{
+		if (block_size < iterator->block_total_lenght)
+		{
+			//TODO this block of memory could be kept with the file and re-used as the reconstruction buffer
+			//Until the output file is actually closed
+			block_mem = realloc(block_mem, iterator->block_total_lenght);
+			block_size = iterator->block_total_lenght;
+		}
+		DCHECK_NULLP(block_mem, return NULL);
+		size_t body_length = iterator->block_total_lenght - 2 * sizeof(iterator->block_total_lenght) - sizeof(iterator->block_type);
+		size_t option_length;
+		uint32_t *option_mem = __get_option_size(iterator->options, &option_length);
+		body_length -= option_length;
+
+		block_mem[0] = iterator->block_type;
+		block_mem[1] = iterator->block_total_lenght;
+		memcpy(&block_mem[2], iterator->block_body, body_length);
+		memcpy(&block_mem[2 + body_length / 4], option_mem, option_length);
+		block_mem[iterator->block_total_lenght / 4 - 1] = iterator->block_total_lenght;
+
+		DCHECK_ASSERT(iterator->block_total_lenght, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
+
+		free(option_mem);
+		total_bytes += iterator->block_total_lenght;
+		light_write(file, block_mem, iterator->block_total_lenght);
+		iterator = iterator->next_block;
+	}
+
+	free(block_mem);
+
+	return total_bytes;
+}
+
+size_t light_pcapng_to_compressed_file_stream(const light_pcapng pcapng, light_file file, light_compression compression_context)
+{
+	light_pcapng iterator = pcapng;
+	uint32_t block_size = 0;
+
+	size_t total_bytes = 0;
+	while (iterator != NULL)
+	{
+		block_size = iterator->block_total_lenght;
+		//We will re-use the same input buffer over and over - but must resize if its ever too small
+		if (compression_context->buffer_in_max_size < iterator->block_total_lenght)
+		{
+			compression_context->buffer_in = realloc(compression_context->buffer_in, iterator->block_total_lenght);
+			compression_context->buffer_in_max_size = iterator->block_total_lenght;
+		}
+		DCHECK_NULLP(compression_context->buffer_in, return NULL);
+		size_t body_length = iterator->block_total_lenght - 2 * sizeof(iterator->block_total_lenght) - sizeof(iterator->block_type);
+		size_t option_length;
+		uint32_t *option_mem = __get_option_size(iterator->options, &option_length);
+		body_length -= option_length;
+
+		compression_context->buffer_in[0] = iterator->block_type;
+		compression_context->buffer_in[1] = iterator->block_total_lenght;
+		memcpy(&compression_context->buffer_in[2], iterator->block_body, body_length);
+		memcpy(&compression_context->buffer_in[2 + body_length / 4], option_mem, option_length);
+		compression_context->buffer_in[iterator->block_total_lenght / 4 - 1] = iterator->block_total_lenght;
+
+		DCHECK_ASSERT(iterator->block_total_lenght, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
+
+		free(option_mem);
+		total_bytes += iterator->block_total_lenght;
+
+		//Do compression here
+		/* Set the input buffer to what we just read.
+		* We compress until the input buffer is empty, each time flushing the
+		* output.
+		*/
+		ZSTD_inBuffer input = { compression_context->buffer_in, block_size, 0 };
+		int finished;
+		do
+		{
+			/* Compress into the output buffer and write all of the output to
+			* the file so we can reuse the buffer next iteration.
+			*/
+			ZSTD_outBuffer output = { compression_context->buffer_out, compression_context->buffer_out_max_size, 0 };
+			size_t const remaining = ZSTD_compressStream2(compression_context->cctx, &output, &input, ZSTD_e_continue);
+			assert(!ZSTD_isError(remaining));
+			light_write(file, output.dst, output.pos);
+			/* If we're on the last chunk we're finished when zstd returns 0,
+			 * We're finished when we've consumed all the input.
+			 */
+			finished = (input.pos == input.size);
+		} while (!finished);
+		
+		iterator = iterator->next_block;
+	}
+
+	return total_bytes;
 }
 
 int light_pcapng_validate(light_pcapng p0, uint32_t *p1)

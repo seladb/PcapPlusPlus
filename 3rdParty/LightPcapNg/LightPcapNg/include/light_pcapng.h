@@ -67,6 +67,8 @@ extern "C" {
 
 typedef struct _light_pcapng *light_pcapng;
 typedef struct _light_option *light_option;
+typedef struct _zstd_context *light_compression;
+typedef struct __fd_t *light_file;
 
 typedef struct _light_pair {
 	uint32_t key;
@@ -76,7 +78,12 @@ typedef struct _light_pair {
 // Read/Write Functions
 light_pcapng light_read_from_path(const char *file_name);
 light_pcapng light_read_from_memory(const uint32_t *memory, size_t size);
+//Favor light_pcapng_to_file_stream over this function
 uint32_t *light_pcapng_to_memory(const light_pcapng pcapng, size_t *size);
+
+size_t light_pcapng_to_file_stream(const light_pcapng pcapng, light_file file);
+size_t light_pcapng_to_compressed_file_stream(const light_pcapng pcapng, light_file file,const light_compression compression_context);
+
 int light_pcapng_to_file(const char *file_name, const light_pcapng pcapng);
 void light_pcapng_release(light_pcapng pcapng);
 

@@ -26,6 +26,7 @@
 #include "light_platform.h"
 #include "light_debug.h"
 #include "light_util.h"
+#include "light_internal.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +38,7 @@ struct _light_pcapng_t
 	light_pcapng_file_info *file_info;
 	light_pcapng pcapng_iter;
 	__fd_t file;
+	light_compression compression_context;
 };
 
 static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
@@ -198,7 +200,7 @@ light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read
 	return pcapng;
 }
 
-light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file_info *file_info)
+light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file_info *file_info, int compression_level)
 {
 	DCHECK_NULLP(file_info, return NULL);
 	DCHECK_NULLP(file_path, return NULL);
@@ -206,6 +208,12 @@ light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file
 	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
 	pcapng->file = light_open(file_path, LIGHT_OWRITE);
 	pcapng->file_info = file_info;
+
+	assert(0 <= compression_level && 10 >= compression_level);
+	if (0 < compression_level)
+		pcapng->compression_context = light_get_compression_context(compression_level);
+	else
+		pcapng->compression_context = NULL;
 
 	pcapng->pcapng = NULL;
 
@@ -254,10 +262,15 @@ light_pcapng_t *light_pcapng_open_write(const char* file_path, light_pcapng_file
 		next_block = iface_block_pcapng;
 	}
 
-	size_t section_memory_size = 0;
-	uint32_t *file_memory = light_pcapng_to_memory(blocks_to_write, &section_memory_size);
-	light_write(pcapng->file, file_memory, section_memory_size);
-	free(file_memory);
+	if (pcapng->compression_context)
+	{
+		light_pcapng_to_compressed_file_stream(blocks_to_write, pcapng->file, pcapng->compression_context);
+	}
+	else
+	{
+		light_pcapng_to_file_stream(blocks_to_write, pcapng->file);
+	}
+
 	light_pcapng_release(blocks_to_write);
 
 	return pcapng;
@@ -269,6 +282,8 @@ light_pcapng_t *light_pcapng_open_append(const char* file_path)
 
 	light_pcapng_t *pcapng = light_pcapng_open_read(file_path, LIGHT_TRUE);
 	DCHECK_NULLP(pcapng, return NULL);
+
+	pcapng->compression_context = NULL;
 
 	light_pcapng iter = pcapng->pcapng;
 	while (iter != NULL)
@@ -464,7 +479,7 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	size_t option_size = sizeof(struct _light_enhanced_packet_block) + packet_header->captured_length;
 	PADD32(option_size, &option_size);
 	uint8_t *epb_memory = calloc(1, option_size);
-	memset(epb_memory, 0, option_size);
+	//memset(epb_memory, 0, option_size); should be redundant with calloc
 	struct _light_enhanced_packet_block *epb = (struct _light_enhanced_packet_block *)epb_memory;
 	epb->interface_id = iface_id;
 	uint64_t timestamp_usec = (uint64_t)packet_header->timestamp.tv_sec * (uint64_t)1000000 + (uint64_t)packet_header->timestamp.tv_usec;
@@ -490,15 +505,39 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 		light_add_block(blocks_to_write, packet_block_pcapng);
 
 	size_t blocks_memory_size = 0;
-	uint32_t *file_memory = light_pcapng_to_memory(blocks_to_write, &blocks_memory_size);
-	light_write(pcapng->file, file_memory, blocks_memory_size);
-	free(file_memory);
+	uint32_t *file_memory;
+	if (pcapng->compression_context)
+	{
+		light_pcapng_to_compressed_file_stream(blocks_to_write, pcapng->file, pcapng->compression_context);
+	}
+	else
+	{
+		light_pcapng_to_file_stream(blocks_to_write, pcapng->file);
+	}
+
 	light_pcapng_release(blocks_to_write);
 }
 
 void light_pcapng_close(light_pcapng_t *pcapng)
 {
 	DCHECK_NULLP(pcapng, return);
+
+	//Wrap up the compression here
+	if (pcapng->compression_context)
+	{
+		ZSTD_inBuffer input = { 0,0,0 };
+		
+		int remaining = 1;
+
+		while (remaining != 0)
+		{
+			ZSTD_outBuffer output = { pcapng->compression_context->buffer_out,pcapng->compression_context->buffer_out_max_size, 0 };
+			remaining = ZSTD_compressStream2(pcapng->compression_context->cctx, &output, &input, ZSTD_e_end);
+			light_write(pcapng->file, output.dst, output.pos);
+		}
+	}
+	light_free_compression_context(pcapng->compression_context);
+
 	light_pcapng_release(pcapng->pcapng);
 	if (pcapng->file != NULL)
 	{
