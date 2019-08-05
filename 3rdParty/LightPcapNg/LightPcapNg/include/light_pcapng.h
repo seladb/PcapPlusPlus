@@ -62,6 +62,7 @@ extern "C" {
 #define LIGHT_OUT_OF_MEMORY    -2
 #define LIGHT_INVALID_ARGUMENT -3
 #define LIGHT_NOT_FOUND        -4
+#define LIGHT_FAILURE          -5
 
 /////////////////////////////// STANDARD PCAPNG STRUCTURES & FUNCTIONS ///////////////////////////////
 
@@ -86,6 +87,8 @@ size_t light_pcapng_to_file_stream(const light_pcapng pcapng, light_file file);
 size_t light_pcapng_to_compressed_file_stream(const light_pcapng pcapng, light_file file,const light_compression compression_context);
 
 int light_pcapng_to_file(const char *file_name, const light_pcapng pcapng);
+int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pcapng, int compression_level);
+
 void light_pcapng_release(light_pcapng pcapng);
 
 // For Debugging Purposes

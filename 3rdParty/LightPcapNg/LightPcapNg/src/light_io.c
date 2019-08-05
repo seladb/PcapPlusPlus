@@ -54,12 +54,35 @@ light_pcapng light_read_from_path(const char *file_name)
 
 int light_pcapng_to_file(const char *file_name, const light_pcapng pcapng)
 {
-	size_t size;
-	uint32_t *data = light_pcapng_to_memory(pcapng, &size);
 	__fd_t fd = light_open(file_name, LIGHT_OWRITE);
+	size_t written = 0;
+	if (fd)
+	{
+		written = light_pcapng_to_file_stream(pcapng, fd);
+		light_close(fd);
+	}
+	return written > 0 ? LIGHT_SUCCESS : LIGHT_FAILURE;
+}
 
-	light_write(fd, data, size);
-	light_close(fd);
-	free(data);
-	return LIGHT_SUCCESS;
+int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pcapng, int compression_level)
+{
+	light_compression compression_context;
+	ssert(0 <= compression_level && 10 >= compression_level);
+	if (0 < compression_level)
+		compression_context = light_get_compression_context(compression_level);
+	else
+		compression_context = NULL;
+
+	__fd_t fd = light_open(file_name, LIGHT_OWRITE);
+	size_t written = 0;
+
+	if (fd)
+	{
+		written = light_pcapng_to_compressed_file_stream(pcapng, fd, compression_context);
+		light_close(fd);
+	}
+
+	light_free_compression_context(compression_context);
+
+	return written > 0 ? LIGHT_SUCCESS : LIGHT_FAILURE;
 }
