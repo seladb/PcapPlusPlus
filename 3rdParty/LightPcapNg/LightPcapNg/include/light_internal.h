@@ -38,7 +38,10 @@
 //so allocate 1700 bytes as the max input size we expect in a single shot
 #define COMPRESSION_BUFFER_IN_MAX_SIZE 1700
 
-struct _zstd_context
+//This is the z-std compression type I would call it z-std type and realias 
+//2x but complier won't let me do that across bounds it seems
+//So I gave it a generic "light" name....
+struct light_compression_t
 {
 	uint32_t* buffer_in;
 	uint32_t* buffer_out;
@@ -48,7 +51,9 @@ struct _zstd_context
 	ZSTD_CCtx* cctx;
 };
 
-typedef struct _zstd_context _compression_t;
+//I really would like to use _compression_t everywhere and realias that to light_compression * in lightpcapng.h
+//but the complier does not seem to allow me to use 2x alias across files
+typedef struct light_compression_t _compression_t;
 
 //Setup some other compression
 #elif defined(USE_THIS_COMPRESSION_INSTEAD)

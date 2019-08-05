@@ -35,7 +35,7 @@
 _compression_t * light_get_compression_context(int compression_level)
 {
 #if defined(USE_Z_STD)
-	struct _zstd_context *context = calloc(1, sizeof(struct _zstd_context));
+	struct light_compression_t *context = calloc(1, sizeof(struct light_compression_t));
 	context->cctx = ZSTD_createCCtx();
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;

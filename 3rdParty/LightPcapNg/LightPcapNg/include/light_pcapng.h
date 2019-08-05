@@ -67,7 +67,8 @@ extern "C" {
 
 typedef struct _light_pcapng *light_pcapng;
 typedef struct _light_option *light_option;
-typedef struct _zstd_context *light_compression;
+struct light_compression_t;
+typedef struct light_compression_t *light_compression;
 typedef struct __fd_t *light_file;
 
 typedef struct _light_pair {
