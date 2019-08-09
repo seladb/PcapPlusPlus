@@ -48,13 +48,13 @@ __fd_t light_open(const char *file_name, const __read_mode_t mode)
 	return fd;
 }
 
-int light_read(__fd_t fd, void *buf, size_t count)
+size_t light_read(__fd_t fd, void *buf, size_t count)
 {
 	size_t bytes_read = fread(buf, 1, count, fd);
 	return  bytes_read != count ? -1 : bytes_read;
 }
 
-int light_write(__fd_t fd, const void *buf, size_t count)
+size_t light_write(__fd_t fd, const void *buf, size_t count)
 {
 	size_t bytes_written = fwrite(buf, 1, count, fd);
 	return  bytes_written != count ? -1 : bytes_written;
@@ -80,6 +80,21 @@ int light_close(__fd_t fd)
 int light_flush(__fd_t fd)
 {
 	return fflush(fd);
+}
+
+int light_eof(__fd_t fd)
+{
+	return feof(fd);
+}
+
+__file_pos_t light_get_pos(__fd_t fd)
+{
+	return ftell(fd);
+}
+
+int light_set_pos(__fd_t fd, __file_pos_t pos)
+{
+	return fseek(fd, pos, SEEK_SET);
 }
 
 #else
