@@ -108,11 +108,34 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
 		}
 
 		current->block_type = *local_data++;
-		current->block_total_lenght = *local_data++;
-		DCHECK_INT(((current->block_total_lenght % 4) == 0), 0, light_stop);
+		current->block_total_length = *local_data++;
+		DCHECK_INT(((current->block_total_length % 4) == 0), 0, light_stop);
 
-		switch (current->block_type)
-		{
+		parse_by_block_type(current, local_data, memory);
+
+		// Compute offset and return new link.
+		// Block total length.
+		DCHECK_ASSERT((bytes_read = *local_data++), current->block_total_length, light_stop);
+
+		bytes_read = current->block_total_length;
+		remaining -= bytes_read;
+		memory += bytes_read / sizeof(*memory);
+		block_count++;
+	}
+
+	return block_count;
+}
+
+/// <summary>
+/// Provided with a block pointer with populated type and length, this will actually parse out the body and options
+/// </summary>
+/// <param name="current">Block pointer with type and length filled out</param>
+/// <param name="local_data">Pointer to data which constitutes block body</param>
+/// <param name="block_start">Pointer to the start of the block data</param>
+static void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_data, const uint32_t *block_start)
+{
+	switch (current->block_type)
+	{
 		case LIGHT_SECTION_HEADER_BLOCK:
 		{
 			DPRINT_HERE(LIGHT_SECTION_HEADER_BLOCK);
@@ -130,8 +153,8 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
 			local_data += 2;
 
 			current->block_body = (uint32_t*)shb;
-			local_offset = (size_t)local_data - (size_t)memory;
-			opt = __parse_options((uint32_t **)&local_data, current->block_total_lenght - local_offset - sizeof(current->block_total_lenght));
+			local_offset = (size_t)local_data - (size_t)block_start;
+			opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
 			current->options = opt;
 		}
 		break;
@@ -148,8 +171,8 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
 			idb->reserved = (link_reserved >> 16) & 0xFFFF;
 			idb->snapshot_length = *local_data++;
 			current->block_body = (uint32_t*)idb;
-			local_offset = (size_t)local_data - (size_t)memory;
-			opt = __parse_options((uint32_t **)&local_data, current->block_total_lenght - local_offset - sizeof(current->block_total_lenght));
+			local_offset = (size_t)local_data - (size_t)block_start;
+			opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
 			current->options = opt;
 		}
 		break;
@@ -179,8 +202,8 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
 			memcpy(epb->packet_data, local_data, captured_packet_length); // Maybe actual_len?
 			local_data += actual_len / sizeof(uint32_t);
 			current->block_body = (uint32_t*)epb;
-			local_offset = (size_t)local_data - (size_t)memory;
-			opt = __parse_options((uint32_t **)&local_data, current->block_total_lenght - local_offset - sizeof(current->block_total_lenght));
+			local_offset = (size_t)local_data - (size_t)block_start;
+			opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
 			current->options = opt;
 		}
 		break;
@@ -190,7 +213,7 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
 			DPRINT_HERE(LIGHT_SIMPLE_PACKET_BLOCK);
 			struct _light_simple_packet_block *spb = NULL;
 			uint32_t original_packet_length = *local_data++;
-			uint32_t actual_len = current->block_total_lenght - 2 * sizeof(current->block_total_lenght) - sizeof(current->block_type) - sizeof(original_packet_length);
+			uint32_t actual_len = current->block_total_length - 2 * sizeof(current->block_total_length) - sizeof(current->block_type) - sizeof(original_packet_length);
 
 			spb = calloc(1, sizeof(struct _light_enhanced_packet_block) + actual_len);
 			spb->original_packet_length = original_packet_length;
@@ -222,8 +245,8 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
 			memcpy(cnb->packet_data, local_data, len); // Maybe actual_len?
 			local_data += actual_len / sizeof(uint32_t);
 			current->block_body = (uint32_t*)cnb;
-			local_offset = (size_t)local_data - (size_t)memory;
-			opt = __parse_options((uint32_t **)&local_data, current->block_total_lenght - local_offset - sizeof(current->block_total_lenght));
+			local_offset = (size_t)local_data - (size_t)block_start;
+			opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
 			current->options = opt;
 		}
 		break;
@@ -231,30 +254,25 @@ static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memo
 		default: // Could not find registered block type. Copying data as RAW.
 		{
 			DPRINT_HERE(default);
-			uint32_t raw_size = current->block_total_lenght - 2 * sizeof(current->block_total_lenght) - sizeof(current->block_type);
-			if (raw_size > 0) {
+			uint32_t raw_size = current->block_total_length - 2 * sizeof(current->block_total_length) - sizeof(current->block_type);
+			if (raw_size > 0)
+			{
 				current->block_body = calloc(raw_size, 1);
 				memcpy(current->block_body, local_data, raw_size);
 				local_data += raw_size / (sizeof(*local_data));
 			}
-			else {
+			else
+			{
 				current->block_body = NULL;
 			}
 		}
 		break;
-		}
+	}
+}
 
-		// Compute offset and return new link.
-		// Block total length.
-		DCHECK_ASSERT((bytes_read = *local_data++), current->block_total_lenght, light_stop);
 
-		bytes_read = current->block_total_lenght;
-		remaining -= bytes_read;
-		memory += bytes_read / sizeof(*memory);
-		block_count++;
 	}
 
-	return block_count;
 }
 
 light_pcapng light_read_from_memory(const uint32_t *memory, size_t size)
@@ -322,7 +340,7 @@ char *light_pcapng_to_string(light_pcapng pcapng)
 		char *next = calloc(128, 1);
 
 		sprintf(next, "---\nType = 0x%X\nLength = %u\nData Pointer = %p\nOption count = %d\n---\n",
-				iter->block_type, iter->block_total_lenght, (void*)iter->block_body, __option_count(iter->options));
+				iter->block_type, iter->block_total_length, (void*)iter->block_body, __option_count(iter->options));
 
 		memcpy(offset, next, strlen(next));
 		offset += strlen(next);
@@ -343,21 +361,21 @@ uint32_t *light_pcapng_to_memory(const light_pcapng pcapng, size_t *size)
 
 	*size = 0;
 	while (iterator != NULL && bytes > 0) {
-		size_t body_length = iterator->block_total_lenght - 2 * sizeof(iterator->block_total_lenght) - sizeof(iterator->block_type);
+		size_t body_length = iterator->block_total_length - 2 * sizeof(iterator->block_total_length) - sizeof(iterator->block_type);
 		size_t option_length;
 		uint32_t *option_mem = __get_option_size(iterator->options, &option_length);
 		body_length -= option_length;
 
 		block_offset[0] = iterator->block_type;
-		block_offset[1] = iterator->block_total_lenght;
+		block_offset[1] = iterator->block_total_length;
 		memcpy(&block_offset[2], iterator->block_body, body_length);
 		memcpy(&block_offset[2 + body_length / 4], option_mem, option_length);
-		block_offset[iterator->block_total_lenght / 4 - 1] = iterator->block_total_lenght;
+		block_offset[iterator->block_total_length / 4 - 1] = iterator->block_total_length;
 
-		DCHECK_ASSERT(iterator->block_total_lenght, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
-		block_offset += iterator->block_total_lenght / 4;
-		bytes -= iterator->block_total_lenght;
-		*size += iterator->block_total_lenght;
+		DCHECK_ASSERT(iterator->block_total_length, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
+		block_offset += iterator->block_total_length / 4;
+		bytes -= iterator->block_total_length;
+		*size += iterator->block_total_length;
 
 		free(option_mem);
 		iterator = iterator->next_block;
@@ -375,30 +393,30 @@ size_t light_pcapng_to_file_stream(const light_pcapng pcapng, light_file file)
 	size_t total_bytes = 0;
 	while (iterator != NULL)
 	{
-		if (block_size < iterator->block_total_lenght)
+		if (block_size < iterator->block_total_length)
 		{
 			//TODO this block of memory could be kept with the file and re-used as the reconstruction buffer
 			//Until the output file is actually closed
-			block_mem = realloc(block_mem, iterator->block_total_lenght);
-			block_size = iterator->block_total_lenght;
+			block_mem = realloc(block_mem, iterator->block_total_length);
+			block_size = iterator->block_total_length;
 		}
 		DCHECK_NULLP(block_mem, return NULL);
-		size_t body_length = iterator->block_total_lenght - 2 * sizeof(iterator->block_total_lenght) - sizeof(iterator->block_type);
+		size_t body_length = iterator->block_total_length - 2 * sizeof(iterator->block_total_length) - sizeof(iterator->block_type);
 		size_t option_length;
 		uint32_t *option_mem = __get_option_size(iterator->options, &option_length);
 		body_length -= option_length;
 
 		block_mem[0] = iterator->block_type;
-		block_mem[1] = iterator->block_total_lenght;
+		block_mem[1] = iterator->block_total_length;
 		memcpy(&block_mem[2], iterator->block_body, body_length);
 		memcpy(&block_mem[2 + body_length / 4], option_mem, option_length);
-		block_mem[iterator->block_total_lenght / 4 - 1] = iterator->block_total_lenght;
+		block_mem[iterator->block_total_length / 4 - 1] = iterator->block_total_length;
 
-		DCHECK_ASSERT(iterator->block_total_lenght, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
+		DCHECK_ASSERT(iterator->block_total_length, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
 
 		free(option_mem);
-		total_bytes += iterator->block_total_lenght;
-		light_write(file, block_mem, iterator->block_total_lenght);
+		total_bytes += iterator->block_total_length;
+		light_write(file, block_mem, iterator->block_total_length);
 		iterator = iterator->next_block;
 	}
 
@@ -415,29 +433,29 @@ size_t light_pcapng_to_compressed_file_stream(const light_pcapng pcapng, light_f
 	size_t total_bytes = 0;
 	while (iterator != NULL)
 	{
-		block_size = iterator->block_total_lenght;
+		block_size = iterator->block_total_length;
 		//We will re-use the same input buffer over and over - but must resize if its ever too small
-		if (compression_context->buffer_in_max_size < iterator->block_total_lenght)
+		if (compression_context->buffer_in_max_size < iterator->block_total_length)
 		{
-			compression_context->buffer_in = realloc(compression_context->buffer_in, iterator->block_total_lenght);
-			compression_context->buffer_in_max_size = iterator->block_total_lenght;
+			compression_context->buffer_in = realloc(compression_context->buffer_in, iterator->block_total_length);
+			compression_context->buffer_in_max_size = iterator->block_total_length;
 		}
 		DCHECK_NULLP(compression_context->buffer_in, return NULL);
-		size_t body_length = iterator->block_total_lenght - 2 * sizeof(iterator->block_total_lenght) - sizeof(iterator->block_type);
+		size_t body_length = iterator->block_total_length - 2 * sizeof(iterator->block_total_length) - sizeof(iterator->block_type);
 		size_t option_length;
 		uint32_t *option_mem = __get_option_size(iterator->options, &option_length);
 		body_length -= option_length;
 
 		compression_context->buffer_in[0] = iterator->block_type;
-		compression_context->buffer_in[1] = iterator->block_total_lenght;
+		compression_context->buffer_in[1] = iterator->block_total_length;
 		memcpy(&compression_context->buffer_in[2], iterator->block_body, body_length);
 		memcpy(&compression_context->buffer_in[2 + body_length / 4], option_mem, option_length);
-		compression_context->buffer_in[iterator->block_total_lenght / 4 - 1] = iterator->block_total_lenght;
+		compression_context->buffer_in[iterator->block_total_length / 4 - 1] = iterator->block_total_length;
 
-		DCHECK_ASSERT(iterator->block_total_lenght, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
+		DCHECK_ASSERT(iterator->block_total_length, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
 
 		free(option_mem);
-		total_bytes += iterator->block_total_lenght;
+		total_bytes += iterator->block_total_length;
 
 		//Do compression here
 		/* Set the input buffer to what we just read.
@@ -475,10 +493,10 @@ int light_pcapng_validate(light_pcapng p0, uint32_t *p1)
 
 	while (iterator0 != NULL && iterator1 != NULL) { // XXX find a better stop condition.
 		if (iterator0->block_type != iterator1[0] ||
-				iterator0->block_total_lenght != iterator1[1]) {
+				iterator0->block_total_length != iterator1[1]) {
 			fprintf(stderr, "Block type or length mismatch at block %d!\n", block_count);
 			fprintf(stderr, "Expected type: 0x%X == 0x%X and expected length: %u == %u\n",
-					iterator0->block_type, iterator1[0], iterator0->block_total_lenght, iterator1[1]);
+					iterator0->block_type, iterator1[0], iterator0->block_total_length, iterator1[1]);
 			return 0;
 		}
 		size_t size = 0;
@@ -579,7 +597,7 @@ size_t light_get_size(const light_pcapng pcapng)
 	size_t size = 0;
 
 	while (iterator != NULL) {
-		size += iterator->block_total_lenght;
+		size += iterator->block_total_length;
 		iterator = iterator->next_block;
 	}
 
@@ -622,7 +640,7 @@ int light_get_block_info(const light_pcapng pcapng, light_info info_flag, void *
 	{
 		uint32_t *length = (uint32_t *)info_data;
 		if (length)
-			*length = pcapng->block_total_lenght;
+			*length = pcapng->block_total_length;
 		if (data_size)
 			*data_size = sizeof(*length);
 		break;

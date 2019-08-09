@@ -100,12 +100,12 @@ struct _light_pcapng *__copy_block(const struct _light_pcapng *pcapng, const lig
 		return NULL;
 	}
 
-	size_t body_length = pcapng->block_total_lenght - 2 * sizeof(pcapng->block_total_lenght) - sizeof(pcapng->block_type);
+	size_t body_length = pcapng->block_total_length - 2 * sizeof(pcapng->block_total_length) - sizeof(pcapng->block_type);
 	struct _light_pcapng *pcopy = calloc(1, sizeof(struct _light_pcapng));
 	size_t option_length = 0;
 
 	pcopy->block_type = pcapng->block_type;
-	pcopy->block_total_lenght = pcapng->block_total_lenght;
+	pcopy->block_total_length = pcapng->block_total_length;
 	pcopy->options = __copy_option(pcapng->options);
 	option_length = __get_option_total_size(pcopy->options);
 	body_length -= option_length;
@@ -185,7 +185,7 @@ int __validate_section(struct _light_pcapng *section)
 	}
 
 	struct _light_section_header *shb = (struct _light_section_header *)section->block_body;
-	uint64_t size = section->block_total_lenght;
+	uint64_t size = section->block_total_length;
 	struct _light_pcapng *next_block = section->next_block;
 
 	while (next_block != NULL) {
@@ -194,7 +194,7 @@ int __validate_section(struct _light_pcapng *section)
 			return __validate_section(next_block);
 		}
 		else {
-			size += next_block->block_total_lenght;
+			size += next_block->block_total_length;
 			next_block = next_block->next_block;
 		}
 	}

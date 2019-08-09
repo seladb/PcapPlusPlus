@@ -70,7 +70,7 @@ _compression_t * light_get_compression_context(int compression_level);
 
 struct _light_pcapng {
 	uint32_t block_type;
-	uint32_t block_total_lenght;
+	uint32_t block_total_length;
 	uint32_t *block_body;
 	struct _light_option *options;
 	struct _light_pcapng *next_block;
