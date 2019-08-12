@@ -79,60 +79,13 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
 	}
 }
 
-// Parse memory and allocate _light_pcapng array.
-static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memory, const size_t size)
-{
-	struct _light_pcapng *current = NULL;
-	size_t bytes_read = 0;
-	size_t remaining = size;
-	size_t block_count = 0;
-
-	*iter = NULL;
-
-	while (remaining > 12) {
-		const uint32_t *local_data = (const uint32_t *)(memory);
-
-		if (current == NULL) {
-			current = calloc(1, sizeof(struct _light_pcapng));
-			DCHECK_NULLP(current, return block_count);
-
-			if (*iter == NULL) {
-				*iter = current;
-			}
-		}
-		else {
-			current->next_block = calloc(1, sizeof(struct _light_pcapng));
-			DCHECK_NULLP(current->next_block, return block_count);
-
-			current = current->next_block;
-		}
-
-		current->block_type = *local_data++;
-		current->block_total_length = *local_data++;
-		DCHECK_INT(((current->block_total_length % 4) == 0), 0, light_stop);
-
-		parse_by_block_type(current, local_data, memory);
-
-		// Compute offset and return new link.
-		// Block total length.
-		DCHECK_ASSERT((bytes_read = *local_data++), current->block_total_length, light_stop);
-
-		bytes_read = current->block_total_length;
-		remaining -= bytes_read;
-		memory += bytes_read / sizeof(*memory);
-		block_count++;
-	}
-
-	return block_count;
-}
-
 /// <summary>
 /// Provided with a block pointer with populated type and length, this will actually parse out the body and options
 /// </summary>
 /// <param name="current">Block pointer with type and length filled out</param>
 /// <param name="local_data">Pointer to data which constitutes block body</param>
 /// <param name="block_start">Pointer to the start of the block data</param>
-static void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_data, const uint32_t *block_start)
+void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_data, const uint32_t *block_start)
 {
 	switch (current->block_type)
 	{
@@ -270,9 +223,141 @@ static void parse_by_block_type(struct _light_pcapng *current, const uint32_t *l
 	}
 }
 
+// Parse memory and allocate _light_pcapng array.
+static size_t __parse_mem_copy(struct _light_pcapng **iter, const uint32_t *memory, const size_t size)
+{
+	struct _light_pcapng *current = NULL;
+	size_t bytes_read = 0;
+	size_t remaining = size;
+	size_t block_count = 0;
 
+	*iter = NULL;
+
+	while (remaining > 12) {
+		const uint32_t *local_data = (const uint32_t *)(memory);
+
+		if (current == NULL) {
+			current = calloc(1, sizeof(struct _light_pcapng));
+			DCHECK_NULLP(current, return block_count);
+
+			if (*iter == NULL) {
+				*iter = current;
+			}
+		}
+		else {
+			current->next_block = calloc(1, sizeof(struct _light_pcapng));
+			DCHECK_NULLP(current->next_block, return block_count);
+
+			current = current->next_block;
+		}
+
+		current->block_type = *local_data++;
+		current->block_total_length = *local_data++;
+		DCHECK_INT(((current->block_total_length % 4) == 0), 0, light_stop);
+
+		parse_by_block_type(current, local_data, memory);
+
+		// Compute offset and return new link.
+		// Block total length.
+		DCHECK_ASSERT((bytes_read = *local_data++), current->block_total_length, light_stop);
+
+		bytes_read = current->block_total_length;
+		remaining -= bytes_read;
+		memory += bytes_read / sizeof(*memory);
+		block_count++;
 	}
 
+	return block_count;
+}
+
+
+
+/// <summary>
+/// Returns a full record as read out of the file
+/// </summary>
+/// <param name="fd">File to read from</param>
+/// <returns>The block read from the file - may contain sub blocks</returns>
+void light_read_record(light_file fd, light_pcapng *record)
+{
+	//FYI general block structure is like this
+
+	//0                   1                   2                   3
+	//0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+	//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	//|								Block Type										|
+	//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	//|						Block Total Length									|
+	//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	///									Block Body                          /
+	///		         variable length, padded to 32 bits					/
+	//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	//|						Block Total Length									|
+	//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	if (record && *record)
+		light_pcapng_release(*record);
+
+	*record = NULL;
+
+	light_pcapng current;
+
+	//See the block type, if end of file this will tell us
+	uint32_t blockType, blockSize, bytesRead;
+	bytesRead = light_read(fd, &blockType, sizeof(blockType));
+	if (bytesRead != sizeof(blockType) || (bytesRead == EOF && feof(fd)))
+	{
+		current = NULL;
+		return;
+	}
+
+	//A block remains to be read so allocate here
+	current = calloc(1, sizeof(struct _light_pcapng));
+	DCHECK_NULLP(current, return NULL);
+	current->block_type = blockType;
+
+	//From here on if there is malformed block data we need to release the block we just allocated!
+
+	//Get block size
+	bytesRead = light_read(fd, &current->block_total_length, sizeof(blockSize));
+	if (bytesRead != sizeof(blockSize) || (bytesRead == EOF && feof(fd)))
+	{
+		free(current);
+		current = NULL;
+		return;
+	}
+
+	//rules for file say this must be on 32bit boundary
+	assert((current->block_total_length % 4) == 0);
+
+	//Pull out the block contents from the file
+	const uint32_t bytesToRead = current->block_total_length - 2 * sizeof(blockSize) - sizeof(blockType);
+	const uint32_t *local_data = calloc(bytesToRead, 1);
+	bytesRead = light_read(fd, local_data, bytesToRead);
+	if (bytesRead != bytesToRead || (bytesRead == EOF && feof(fd)))
+	{
+		free(current);
+		free(local_data);
+		current = NULL;
+		return;
+	}
+
+	//Need to move file to next record so read the footer, which is just the record length repeated
+	bytesRead = light_read(fd, &blockSize, sizeof(blockSize));
+	//Verify the two sizes match!!
+	if (blockSize != current->block_total_length || bytesRead != sizeof(blockSize) || (bytesRead == EOF && feof(fd)))
+	{
+		free(current);
+		free(local_data);
+		current = NULL;
+		return;
+	}
+
+	//This funciton needs a pointer to the "start" of the block which we don't actually have, but the block body always just has 8 bytes before it
+	//So we just cheat by decrementing the data pointer back 8 bytes;
+	parse_by_block_type(current, local_data, local_data - 2);
+
+	*record = current;
+
+	return;
 }
 
 light_pcapng light_read_from_memory(const uint32_t *memory, size_t size)
@@ -306,6 +391,9 @@ void light_pcapng_release(light_pcapng pcapng)
 		i++;
 		iter = iter->next_block;
 	}
+
+	if(pcapng)
+		pcapng->next_block = NULL;
 
 	for (i = 0; i < block_count; ++i) {
 		__free_option(block_pointers[i]->options);
@@ -543,11 +631,6 @@ light_pcapng light_get_block(const light_pcapng pcapng, uint32_t index)
 	}
 
 	return iterator;
-}
-
-light_pcapng light_next_block(const light_pcapng pcapng)
-{
-	return pcapng == NULL ? NULL : pcapng->next_block;
 }
 
 void light_pcapng_historgram(const light_pcapng pcapng, uint32_t (*key_master)(const light_pcapng),

@@ -89,13 +89,16 @@ size_t light_pcapng_to_compressed_file_stream(const light_pcapng pcapng, light_f
 int light_pcapng_to_file(const char *file_name, const light_pcapng pcapng);
 int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pcapng, int compression_level);
 
+//Read next record out of file, if you give an existing record I will free it for you
+//The returned record must be freed by either YOU or the next call to light_read_record!
+void light_read_record(light_file fd, light_pcapng *record);
+
 void light_pcapng_release(light_pcapng pcapng);
 
 // For Debugging Purposes
 char *light_pcapng_to_string(light_pcapng pcapng);
 uint32_t light_get_block_count(const light_pcapng pcapng);
 light_pcapng light_get_block(const light_pcapng pcapng, uint32_t index);
-light_pcapng light_next_block(const light_pcapng pcapng);
 size_t light_get_size(const light_pcapng pcapng);
 void light_pcapng_historgram(const light_pcapng pcapng, uint32_t (*key_master)(const light_pcapng),
 		light_pair **hist, size_t *size, size_t *rejected);
