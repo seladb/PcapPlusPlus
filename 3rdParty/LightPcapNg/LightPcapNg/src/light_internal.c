@@ -34,6 +34,9 @@
 
 _compression_t * light_get_compression_context(int compression_level)
 {
+	if (compression_level == 0)
+		return NULL;
+
 #if defined(USE_Z_STD)
 	struct light_compression_t *context = calloc(1, sizeof(struct light_compression_t));
 	context->cctx = ZSTD_createCCtx();
@@ -62,6 +65,41 @@ void light_free_compression_context(_compression_t* context)
 
 	if (context->cctx)
 		ZSTD_freeCCtx(context->cctx);
+	if (context->buffer_out)
+		free(context->buffer_out);
+	if (context->buffer_in)
+		free(context->buffer_in);
+
+	free(context);
+}
+
+_decompression_t * light_get_decompression_context()
+{
+#if defined(USE_Z_STD)
+	struct light_decompression_t *context = calloc(1, sizeof(struct light_decompression_t));
+	context->dctx = ZSTD_createDCtx();
+	//Enough to handle a whole packet
+	context->buffer_in_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
+	//ZSTD_DStreamOutSize() is big enough to hold atleast 1 full frame, but we can go bigger
+	context->buffer_out_max_size = max(ZSTD_DStreamOutSize(),COMPRESSION_BUFFER_IN_MAX_SIZE);
+	context->buffer_in = malloc(context->buffer_in_max_size);
+	context->buffer_out = malloc(context->buffer_out_max_size);
+	return context;
+#elif defined(USE_THIS_COMPRESSION_INSTEAD)
+
+#else
+	return NULL;
+
+#endif 
+}
+
+void light_free_decompression_context(_decompression_t* context)
+{
+	if (!context)
+		return;
+
+	if (context->dctx)
+		ZSTD_freeDCtx(context->dctx);
 	if (context->buffer_out)
 		free(context->buffer_out);
 	if (context->buffer_in)

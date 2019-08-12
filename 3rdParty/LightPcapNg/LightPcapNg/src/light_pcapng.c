@@ -513,66 +513,6 @@ size_t light_pcapng_to_file_stream(const light_pcapng pcapng, light_file file)
 	return total_bytes;
 }
 
-size_t light_pcapng_to_compressed_file_stream(const light_pcapng pcapng, light_file file, light_compression compression_context)
-{
-	light_pcapng iterator = pcapng;
-	uint32_t block_size = 0;
-
-	size_t total_bytes = 0;
-	while (iterator != NULL)
-	{
-		block_size = iterator->block_total_length;
-		//We will re-use the same input buffer over and over - but must resize if its ever too small
-		if (compression_context->buffer_in_max_size < iterator->block_total_length)
-		{
-			compression_context->buffer_in = realloc(compression_context->buffer_in, iterator->block_total_length);
-			compression_context->buffer_in_max_size = iterator->block_total_length;
-		}
-		DCHECK_NULLP(compression_context->buffer_in, return NULL);
-		size_t body_length = iterator->block_total_length - 2 * sizeof(iterator->block_total_length) - sizeof(iterator->block_type);
-		size_t option_length;
-		uint32_t *option_mem = __get_option_size(iterator->options, &option_length);
-		body_length -= option_length;
-
-		compression_context->buffer_in[0] = iterator->block_type;
-		compression_context->buffer_in[1] = iterator->block_total_length;
-		memcpy(&compression_context->buffer_in[2], iterator->block_body, body_length);
-		memcpy(&compression_context->buffer_in[2 + body_length / 4], option_mem, option_length);
-		compression_context->buffer_in[iterator->block_total_length / 4 - 1] = iterator->block_total_length;
-
-		DCHECK_ASSERT(iterator->block_total_length, body_length + option_length + 3 * sizeof(uint32_t), light_stop);
-
-		free(option_mem);
-		total_bytes += iterator->block_total_length;
-
-		//Do compression here
-		/* Set the input buffer to what we just read.
-		* We compress until the input buffer is empty, each time flushing the
-		* output.
-		*/
-		ZSTD_inBuffer input = { compression_context->buffer_in, block_size, 0 };
-		int finished;
-		do
-		{
-			/* Compress into the output buffer and write all of the output to
-			* the file so we can reuse the buffer next iteration.
-			*/
-			ZSTD_outBuffer output = { compression_context->buffer_out, compression_context->buffer_out_max_size, 0 };
-			size_t const remaining = ZSTD_compressStream2(compression_context->cctx, &output, &input, ZSTD_e_continue);
-			assert(!ZSTD_isError(remaining));
-			light_write(file, output.dst, output.pos);
-			/* If we're on the last chunk we're finished when zstd returns 0,
-			 * We're finished when we've consumed all the input.
-			 */
-			finished = (input.pos == input.size);
-		} while (!finished);
-		
-		iterator = iterator->next_block;
-	}
-
-	return total_bytes;
-}
-
 int light_pcapng_validate(light_pcapng p0, uint32_t *p1)
 {
 	light_pcapng iterator0 = p0;

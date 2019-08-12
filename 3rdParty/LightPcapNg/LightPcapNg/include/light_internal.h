@@ -51,9 +51,19 @@ struct light_compression_t
 	ZSTD_CCtx* cctx;
 };
 
+struct light_decompression_t
+{
+	uint32_t* buffer_in;
+	uint32_t* buffer_out;
+	size_t buffer_in_max_size;
+	size_t buffer_out_max_size;
+	ZSTD_DCtx* dctx;
+};
+
 //I really would like to use _compression_t everywhere and realias that to light_compression * in lightpcapng.h
 //but the complier does not seem to allow me to use 2x alias across files
 typedef struct light_compression_t _compression_t;
+typedef struct light_decompression_t _decompression_t;
 
 //Setup some other compression
 #elif defined(USE_THIS_COMPRESSION_INSTEAD)
@@ -67,6 +77,9 @@ typedef void _compression_t;
 
 void light_free_compression_context(_compression_t* context);
 _compression_t * light_get_compression_context(int compression_level);
+
+void light_free_decompression_context(_decompression_t* context);
+_decompression_t * light_get_decompression_context();
 
 struct _light_pcapng {
 	uint32_t block_type;
