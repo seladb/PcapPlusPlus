@@ -29,9 +29,9 @@
 
 #ifdef UNIVERSAL
 
-__fd_t light_open(const char *file_name, const __read_mode_t mode)
+light_file light_open(const char *file_name, const __read_mode_t mode)
 {
-	__fd_t fd = (__fd_t)INVALID_FILE;
+	light_file fd = (light_file)INVALID_FILE;
 
 	switch (mode) {
 	case LIGHT_OREAD:
@@ -48,19 +48,19 @@ __fd_t light_open(const char *file_name, const __read_mode_t mode)
 	return fd;
 }
 
-size_t light_read(__fd_t fd, void *buf, size_t count)
+size_t light_read(light_file fd, void *buf, size_t count)
 {
 	size_t bytes_read = fread(buf, 1, count, fd);
 	return  bytes_read != count ? -1 : bytes_read;
 }
 
-size_t light_write(__fd_t fd, const void *buf, size_t count)
+size_t light_write(light_file fd, const void *buf, size_t count)
 {
 	size_t bytes_written = fwrite(buf, 1, count, fd);
 	return  bytes_written != count ? -1 : bytes_written;
 }
 
-size_t light_size(__fd_t fd)
+size_t light_size(light_file fd)
 {
 	size_t size = 0;
 	size_t current = ftell(fd);
@@ -72,27 +72,27 @@ size_t light_size(__fd_t fd)
 	return size;
 }
 
-int light_close(__fd_t fd)
+int light_close(light_file fd)
 {
 	return fclose(fd);
 }
 
-int light_flush(__fd_t fd)
+int light_flush(light_file fd)
 {
 	return fflush(fd);
 }
 
-int light_eof(__fd_t fd)
+int light_eof(light_file fd)
 {
 	return feof(fd);
 }
 
-__file_pos_t light_get_pos(__fd_t fd)
+light_file_pos_t light_get_pos(light_file fd)
 {
 	return ftell(fd);
 }
 
-int light_set_pos(__fd_t fd, __file_pos_t pos)
+int light_set_pos(light_file fd, light_file_pos_t pos)
 {
 	return fseek(fd, pos, SEEK_SET);
 }

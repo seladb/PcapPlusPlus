@@ -30,6 +30,7 @@ extern "C" {
 
 #include "light_special.h"
 #include "light_types.h"
+#include "light_platform.h"
 
 #define LIGHT_SECTION_HEADER_BLOCK  0x0A0D0D0A
 #define LIGHT_INTERFACE_BLOCK       0x00000001
@@ -70,7 +71,6 @@ typedef struct _light_pcapng *light_pcapng;
 typedef struct _light_option *light_option;
 struct light_compression_t;
 typedef struct light_compression_t *light_compression;
-typedef struct __fd_t *light_file;
 
 typedef struct _light_pair {
 	uint32_t key;

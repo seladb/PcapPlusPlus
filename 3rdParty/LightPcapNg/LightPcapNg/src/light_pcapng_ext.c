@@ -37,7 +37,7 @@ struct _light_pcapng_t
 {
 	light_pcapng pcapng;
 	light_pcapng_file_info *file_info;
-	__fd_t file;
+	light_file file;
 	light_compression compression_context;
 };
 
@@ -191,7 +191,7 @@ light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read
 	if (read_all_interfaces)
 	{
 		//Bookmark our current location
-		__file_pos_t currentPos = light_get_pos(pcapng->file);
+		light_file_pos_t currentPos = light_get_pos(pcapng->file);
 		while (pcapng->pcapng != NULL)
 		{
 			light_read_record(pcapng->file, &pcapng->pcapng);

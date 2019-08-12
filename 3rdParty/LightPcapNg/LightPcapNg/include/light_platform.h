@@ -40,8 +40,8 @@ typedef enum {
 
 #include <stdio.h>
 
-typedef FILE* __fd_t;
-typedef long __file_pos_t;
+typedef FILE* light_file;
+typedef long light_file_pos_t;
 #define INVALID_FILE NULL
 
 #else
@@ -50,14 +50,14 @@ typedef long __file_pos_t;
 
 #endif
 
-__fd_t light_open(const char *file_name, const __read_mode_t mode);
-size_t light_read(__fd_t fd, void *buf, size_t count);
-size_t light_write(__fd_t fd, const void *buf, size_t count);
-size_t light_size(__fd_t fd);
-int light_close(__fd_t fd);
-int light_flush(__fd_t fd);
-int light_eof(__fd_t fd);
-__file_pos_t light_get_pos(__fd_t fd);
-__file_pos_t light_set_pos(__fd_t fd, __file_pos_t);
+light_file light_open(const char *file_name, const __read_mode_t mode);
+size_t light_read(light_file fd, void *buf, size_t count);
+size_t light_write(light_file fd, const void *buf, size_t count);
+size_t light_size(light_file fd);
+int light_close(light_file fd);
+int light_flush(light_file fd);
+int light_eof(light_file fd);
+light_file_pos_t light_get_pos(light_file fd);
+light_file_pos_t light_set_pos(light_file fd, light_file_pos_t);
 
 #endif /* INCLUDE_LIGHT_PLATFORM_H_ */

@@ -34,7 +34,7 @@ light_pcapng light_read_from_path(const char *file_name)
 	light_pcapng head;
 	uint32_t *memory;
 	size_t size = 0;
-	__fd_t fd = light_open(file_name, LIGHT_OREAD);
+	light_file fd = light_open(file_name, LIGHT_OREAD);
 	DCHECK_ASSERT_EXP(fd != NULL, "could not open file", return NULL);
 
 	size = light_size(fd);
@@ -54,7 +54,7 @@ light_pcapng light_read_from_path(const char *file_name)
 
 int light_pcapng_to_file(const char *file_name, const light_pcapng pcapng)
 {
-	__fd_t fd = light_open(file_name, LIGHT_OWRITE);
+	light_file fd = light_open(file_name, LIGHT_OWRITE);
 	size_t written = 0;
 	if (fd)
 	{
@@ -73,7 +73,7 @@ int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pc
 	else
 		compression_context = NULL;
 
-	__fd_t fd = light_open(file_name, LIGHT_OWRITE);
+	light_file fd = light_open(file_name, LIGHT_OWRITE);
 	size_t written = 0;
 
 	if (fd)
