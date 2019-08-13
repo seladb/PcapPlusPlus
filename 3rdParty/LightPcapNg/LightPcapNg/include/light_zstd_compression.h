@@ -23,9 +23,11 @@
 
 #ifndef INCLUDE_LIGHT_ZSTD_COMPRESSION_H_
 #define INCLUDE_LIGHT_ZSTD_COMPRESSION_H_
+#if defined(USE_Z_STD)
 
 #include <stdint.h>
 #include <zstd.h>      // presumes zstd library is installed
+
 
 //An ethernet packet should only ever be up to 1500 bytes + some header crap
 //We also expect some ovehead for the pcapng blocks which contain the ethernet packets
@@ -86,4 +88,5 @@ extern size_t(*read_compressed)(struct light_file_t *, void *, size_t);
 extern size_t(*write_compressed)(struct light_file_t *, const void *, size_t);
 extern int(*close_compressed)(struct light_file_t *);
 
+#endif //USE_Z_STD
 #endif /* INCLUDE_LIGHT_ZSTD_COMPRESSION_H_ */

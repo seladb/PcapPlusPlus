@@ -18,5 +18,8 @@
     <ClCompile Include="..\..\Tests\Pcap++Test\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\3rdParty\debug-new\debug_new.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

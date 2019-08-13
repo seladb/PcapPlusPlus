@@ -39,6 +39,18 @@
     <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_compression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_zstd_compression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_null_compression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\LightPcapNg\LightPcapNg\src\light_advanced.c">
@@ -69,6 +81,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\3rdParty\LightPcapNg\LightPcapNg\src\light_platform.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rdParty\LightPcapNg\LightPcapNg\src\light_compression.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rdParty\LightPcapNg\LightPcapNg\src\light_zstd_compression.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rdParty\LightPcapNg\LightPcapNg\src\light_null_compression.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

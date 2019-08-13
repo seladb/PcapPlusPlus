@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#ifdef USE_Z_STD
+
 #include "light_zstd_compression.h"
 #include "light_file.h"
 #include <stdlib.h>
@@ -224,3 +226,5 @@ int close_zstd_compresssed(light_file fd)
 		}
 	}
 }
+
+#endif // USE_Z_STD
