@@ -30,6 +30,7 @@
 
 #include <stddef.h>
 #include "light_internal.h"
+#include "light_file.h"
 
 typedef enum {
 	LIGHT_OREAD,
@@ -38,20 +39,6 @@ typedef enum {
 } __read_mode_t;
 
 #ifdef UNIVERSAL
-
-#include <stdio.h>
-
-typedef _compression_t *light_compression;
-typedef _decompression_t *light_decompression;
-
-typedef struct
-{
-	FILE* file;
-	light_compression compression_context;
-	light_decompression decompression_context;
-
-}
-light_file_t, *light_file;
 
 typedef long light_file_pos_t;
 #define INVALID_FILE NULL
