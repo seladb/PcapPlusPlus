@@ -26,52 +26,14 @@
 
 #include <stdint.h>
 
+//This block should include the compression type you want to build for
 #if defined(USE_Z_STD)
-#include <zstd.h>      // presumes zstd library is installed
-
-//An ethernet packet should only ever be up to 1500 bytes + some header crap
-//We also expect some ovehead for the pcapng blocks which contain the ethernet packets
-//so allocate 1700 bytes as the max input size we expect in a single shot
-#define COMPRESSION_BUFFER_IN_MAX_SIZE 1700
-
-//This is the z-std compression type I would call it z-std type and realias 
-//2x but complier won't let me do that across bounds it seems
-//So I gave it a generic "light" name....
-struct zstd_compression_t
-{
-	uint32_t* buffer_in;
-	uint32_t* buffer_out;
-	size_t buffer_in_max_size;
-	size_t buffer_out_max_size;
-	int compression_level;
-	ZSTD_CCtx* cctx;
-};
-
-struct zstd_decompression_t
-{
-	uint32_t* buffer_in;
-	uint32_t* buffer_out;
-	size_t buffer_in_max_size;
-	size_t buffer_out_max_size;
-	ZSTD_DCtx* dctx;
-	int outputReady;
-	ZSTD_outBuffer output;
-	ZSTD_inBuffer input;
-};
-
-
-typedef struct zstd_compression_t _compression_t;
-typedef struct zstd_decompression_t _decompression_t;
-
+#include "light_zstd_compression.h"
 //Setup some other compression
 #elif defined(USE_THIS_COMPRESSION_INSTEAD)
-
 //No compression
 #else
-
-typedef void _compression_t;
-typedef void _decompression_t;
-
+#include "light_null_compression.h"
 #endif
 
 #ifdef __cplusplus
@@ -101,7 +63,6 @@ size_t light_write_compressed(struct light_file_t *fd, const void *buf, size_t c
 
 //Called when the file being read/written is to be closed - this is called first!
 int light_close_compresssed(struct light_file_t *fd);
-
 #ifdef __cplusplus
 }
 #endif
