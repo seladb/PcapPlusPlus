@@ -63,7 +63,6 @@ typedef long light_file_pos_t;
 #endif
 
 light_file light_open(const char *file_name, const __read_mode_t mode);
-light_file light_open_decompression(const char *file_name, const __read_mode_t mode);
 light_file light_open_compression(const char *file_name, const __read_mode_t mode, int compression_level);
 size_t light_read(light_file fd, void *buf, size_t count);
 size_t light_write(light_file fd, const void *buf, size_t count);

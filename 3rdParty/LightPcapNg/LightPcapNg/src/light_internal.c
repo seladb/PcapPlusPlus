@@ -43,10 +43,10 @@ _compression_t * light_get_compression_context(int compression_level)
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
 	//If we don't compress to a smaller or equal size then we are we compressing at all!
-	context->buffer_out_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
+	context->buffer_out_max_size = max(ZSTD_CStreamOutSize(), COMPRESSION_BUFFER_IN_MAX_SIZE);
 	context->buffer_in = malloc(context->buffer_in_max_size);
 	context->buffer_out = malloc(context->buffer_out_max_size);
-	context->compression_level = compression_level;
+	context->compression_level = compression_level * 2; //Input is scale 0-10 but zstd goes 0 - 20!
 	assert(!ZSTD_isError(ZSTD_CCtx_setParameter(context->cctx, ZSTD_c_compressionLevel, compression_level)));
 
 	return context;
@@ -79,11 +79,17 @@ _decompression_t * light_get_decompression_context()
 	struct light_decompression_t *context = calloc(1, sizeof(struct light_decompression_t));
 	context->dctx = ZSTD_createDCtx();
 	//Enough to handle a whole packet
-	context->buffer_in_max_size = COMPRESSION_BUFFER_IN_MAX_SIZE;
+	context->buffer_in_max_size = ZSTD_DStreamInSize();;
 	//ZSTD_DStreamOutSize() is big enough to hold atleast 1 full frame, but we can go bigger
 	context->buffer_out_max_size = max(ZSTD_DStreamOutSize(),COMPRESSION_BUFFER_IN_MAX_SIZE);
 	context->buffer_in = malloc(context->buffer_in_max_size);
 	context->buffer_out = malloc(context->buffer_out_max_size);
+
+	context->output.dst = context->buffer_out;
+	context->output.size =context->buffer_out_max_size;
+	context->output.pos = 0;
+	context->outputReady = 0;
+
 	return context;
 #elif defined(USE_THIS_COMPRESSION_INSTEAD)
 

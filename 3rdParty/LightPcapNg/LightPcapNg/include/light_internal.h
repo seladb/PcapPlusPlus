@@ -58,6 +58,9 @@ struct light_decompression_t
 	size_t buffer_in_max_size;
 	size_t buffer_out_max_size;
 	ZSTD_DCtx* dctx;
+	int outputReady;
+	ZSTD_outBuffer output;
+	ZSTD_inBuffer input;
 };
 
 //I really would like to use _compression_t everywhere and realias that to light_compression * in lightpcapng.h
