@@ -185,7 +185,7 @@ light_file_pos_t light_get_pos(light_file fd)
 	return ftell(fd->file);
 }
 
-int light_set_pos(light_file fd, light_file_pos_t pos)
+light_file_pos_t light_set_pos(light_file fd, light_file_pos_t pos)
 {
 	return fseek(fd->file, pos, SEEK_SET);
 }

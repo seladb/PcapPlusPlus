@@ -30,13 +30,14 @@
 typedef _compression_t *light_compression;
 typedef _decompression_t *light_decompression;
 
-typedef struct
+typedef struct light_file_t
 {
 	FILE* file;
 	light_compression compression_context;
 	light_decompression decompression_context;
 
-}
-light_file_t, *light_file;
+} light_file_t;
+
+typedef light_file_t *light_file;
 
 #endif /* INCLUDE_LIGHT_FILE_H_ */

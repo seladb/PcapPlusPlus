@@ -770,7 +770,7 @@ PCAPP_TEST(TestMacAddress)
 	macAddr3.copyTo(macBytes);
 	PCAPP_ASSERT(memcmp(macBytes, addrAsArr, sizeof addrAsArr) == 0, "Incorrect result of calling copyTo(uint8_t* ptr)");
 
-	#if __cplusplus > 199711L
+	#if __cplusplus > 199711L || _MSC_VER >= 1800
 	MacAddress macCpp11Valid { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
 	MacAddress macCpp11Wrong { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
 	PCAPP_ASSERT(macCpp11Valid.isValid(), "macCpp11Valid is not valid");

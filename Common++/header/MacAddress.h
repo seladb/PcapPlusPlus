@@ -5,7 +5,7 @@
 #include <string.h>
 #include <string>
 
-#if __cplusplus > 199711L
+#if __cplusplus > 199711L || _MSC_VER >= 1800
 #include <initializer_list>
 #include <algorithm>
 #endif
@@ -65,7 +65,7 @@ namespace pcpp
 		 */
 		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet);
 
-#if __cplusplus > 199711L
+#if __cplusplus > 199711L || _MSC_VER >= 1800
 		/**
 		 * A constructor that creates an instance out of the initializer list. The length of the list must be equal to 6 (as MAC address is 6-byte long)
 		 * @param[in] addr An initializer list containing the values of type uint8_t representing the MAC address
@@ -89,7 +89,7 @@ namespace pcpp
 		 */
 		bool operator!=(const MacAddress& other) const { return !operator==(other); }
 
-#if __cplusplus > 199711L
+#if __cplusplus > 199711L || _MSC_VER >= 1800
 		/**
 		 * Overload of the assignment operator
 		 */
