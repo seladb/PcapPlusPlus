@@ -111,21 +111,26 @@ size_t light_read_compressed(light_file fd, void *buf, size_t count)
 {
 	if (read_compressed != NULL)
 		return read_compressed(fd,buf,count);
+	return 0;
 }
 
 size_t light_write_compressed(light_file fd, const void *buf, size_t count)
 {
 	if (write_compressed != NULL)
 		return write_compressed(fd,buf,count);
+	return 0;
 }
 
 int light_close_compresssed(light_file fd)
 {
+	int result = 0;
 	if (close_compressed != NULL)
-		close_compressed(fd);
+		result = close_compressed(fd);
 
 	light_free_compression_context(fd->compression_context);
 	light_free_decompression_context(fd->decompression_context);
+
+	return result;
 }
 
 #endif
