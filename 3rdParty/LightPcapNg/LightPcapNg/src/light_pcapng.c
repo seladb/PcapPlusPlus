@@ -303,7 +303,7 @@ void light_read_record(light_file fd, light_pcapng *record)
 	//See the block type, if end of file this will tell us
 	uint32_t blockType, blockSize, bytesRead;
 	bytesRead = light_read(fd, &blockType, sizeof(blockType));
-	if (bytesRead != sizeof(blockType) || (bytesRead == EOF && feof(fd)))
+	if (bytesRead != sizeof(blockType) || (bytesRead == EOF && feof(fd->file)))
 	{
 		current = NULL;
 		return;
@@ -311,14 +311,14 @@ void light_read_record(light_file fd, light_pcapng *record)
 
 	//A block remains to be read so allocate here
 	current = calloc(1, sizeof(struct _light_pcapng));
-	DCHECK_NULLP(current, return NULL);
+	DCHECK_NULLP(current, return);
 	current->block_type = blockType;
 
 	//From here on if there is malformed block data we need to release the block we just allocated!
 
 	//Get block size
 	bytesRead = light_read(fd, &current->block_total_length, sizeof(blockSize));
-	if (bytesRead != sizeof(blockSize) || (bytesRead == EOF && feof(fd)))
+	if (bytesRead != sizeof(blockSize) || (bytesRead == EOF && feof(fd->file)))
 	{
 		free(current);
 		current = NULL;
@@ -330,9 +330,9 @@ void light_read_record(light_file fd, light_pcapng *record)
 
 	//Pull out the block contents from the file
 	const uint32_t bytesToRead = current->block_total_length - 2 * sizeof(blockSize) - sizeof(blockType);
-	const uint32_t *local_data = calloc(bytesToRead, 1);
+	uint32_t *local_data = calloc(bytesToRead, 1);
 	bytesRead = light_read(fd, local_data, bytesToRead);
-	if (bytesRead != bytesToRead || (bytesRead == EOF && feof(fd)))
+	if (bytesRead != bytesToRead || (bytesRead == EOF && feof(fd->file)))
 	{
 		free(current);
 		free(local_data);
@@ -343,7 +343,7 @@ void light_read_record(light_file fd, light_pcapng *record)
 	//Need to move file to next record so read the footer, which is just the record length repeated
 	bytesRead = light_read(fd, &blockSize, sizeof(blockSize));
 	//Verify the two sizes match!!
-	if (blockSize != current->block_total_length || bytesRead != sizeof(blockSize) || (bytesRead == EOF && feof(fd)))
+	if (blockSize != current->block_total_length || bytesRead != sizeof(blockSize) || (bytesRead == EOF && feof(fd->file)))
 	{
 		free(current);
 		free(local_data);
@@ -488,7 +488,7 @@ size_t light_pcapng_to_file_stream(const light_pcapng pcapng, light_file file)
 			block_mem = realloc(block_mem, iterator->block_total_length);
 			block_size = iterator->block_total_length;
 		}
-		DCHECK_NULLP(block_mem, return NULL);
+		DCHECK_NULLP(block_mem, return 0);
 		size_t body_length = iterator->block_total_length - 2 * sizeof(iterator->block_total_length) - sizeof(iterator->block_type);
 		size_t option_length;
 		uint32_t *option_mem = __get_option_size(iterator->options, &option_length);

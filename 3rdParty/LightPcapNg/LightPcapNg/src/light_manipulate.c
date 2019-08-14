@@ -57,7 +57,7 @@
 #endif
 
 
-light_option light_create_option(const uint16_t option_code, uint16_t option_length, void *option_value)
+light_option light_create_option(const uint16_t option_code, const uint16_t option_length, void *option_value)
 {
 	uint16_t size = 0;
 	light_option option = calloc(1, sizeof(struct _light_option));

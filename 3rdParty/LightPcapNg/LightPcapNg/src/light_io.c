@@ -67,7 +67,7 @@ int light_pcapng_to_file(const char *file_name, const light_pcapng pcapng)
 int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pcapng, int compression_level)
 {
 	light_compression compression_context;
-	ssert(0 <= compression_level && 10 >= compression_level);
+	assert(0 <= compression_level && 10 >= compression_level);
 	if (0 < compression_level)
 		compression_context = light_get_compression_context(compression_level);
 	else
@@ -78,7 +78,7 @@ int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pc
 
 	if (fd)
 	{
-		written = light_pcapng_to_compressed_file_stream(pcapng, fd, compression_context);
+		written = light_pcapng_to_file_stream(pcapng, fd, compression_context);
 		light_close(fd);
 	}
 

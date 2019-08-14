@@ -503,8 +503,6 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	else
 		light_add_block(blocks_to_write, packet_block_pcapng);
 
-	size_t blocks_memory_size = 0;
-	uint32_t *file_memory;
 	light_pcapng_to_file_stream(blocks_to_write, pcapng->file);
 
 	light_pcapng_release(blocks_to_write);
