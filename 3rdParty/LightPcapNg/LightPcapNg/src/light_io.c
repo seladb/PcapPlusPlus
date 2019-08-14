@@ -66,7 +66,7 @@ int light_pcapng_to_file(const char *file_name, const light_pcapng pcapng)
 
 int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pcapng, int compression_level)
 {
-	light_file fd = light_open(file_name, LIGHT_OWRITE, compression_level);
+	light_file fd = light_open_compression(file_name, LIGHT_OWRITE, compression_level);
 	size_t written = 0;
 
 	if (fd)
