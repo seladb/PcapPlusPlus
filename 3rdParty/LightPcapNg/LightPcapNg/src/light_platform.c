@@ -29,6 +29,12 @@
 #include <stdio.h>
 #include <string.h>
 
+//Visual studio gives us min + max for free, but other OS does not....
+#if !defined(_MSC_VER) || (!defined(max) && !defined(min))
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#define UNDEF_MAX_MIN
+#endif
 
 
 #ifdef UNIVERSAL
@@ -194,4 +200,10 @@ light_file_pos_t light_set_pos(light_file fd, light_file_pos_t pos)
 
 #error UNIMPLEMENRTED
 
+#endif
+
+#if defined(UNDEF_MAX_MIN)
+#undef max
+#undef min
+#undef UNDEF_MAX_MIN
 #endif
