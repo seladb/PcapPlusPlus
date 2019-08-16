@@ -33,6 +33,7 @@
 #elif defined(USE_THIS_COMPRESSION_INSTEAD)
 //No compression
 #else
+#define USE_NULL_COMPRESSION
 #include "light_null_compression.h"
 #endif
 
@@ -63,6 +64,7 @@ size_t light_write_compressed(struct light_file_t *fd, const void *buf, size_t c
 
 //Called when the file being read/written is to be closed - this is called first!
 int light_close_compresssed(struct light_file_t *fd);
+
 #ifdef __cplusplus
 }
 #endif

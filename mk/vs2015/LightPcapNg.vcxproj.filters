@@ -51,6 +51,9 @@
     <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_null_compression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_compression_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\LightPcapNg\LightPcapNg\src\light_advanced.c">

@@ -24,38 +24,12 @@
 #ifndef __cplusplus
 
 #include "light_compression.h"
+#include "light_compression_functions.h"
 #include "light_file.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
-//I really wanted to define these as extern funciton pointers and then declare them inside the C
-//File for the compression implementation, but that doesn't seem to work (atleast when this is a lib)
-//So I am hacking it into here for now
-#if defined(USE_Z_STD)
-_compression_t * (*get_compression_context_ptr)(int) = &get_zstd_compression_context;
-void(*free_compression_context_ptr)(_compression_t*) = &free_zstd_compression_context;
-_compression_t * (*get_decompression_context_ptr)() = &get_zstd_decompression_context;
-void(*free_decompression_context_ptr)(_decompression_t*) = &free_zstd_decompression_context;
-int(*is_compressed_file)(const char*) = &is_zstd_compressed_file;
-size_t(*read_compressed)(struct light_file_t *, void *, size_t) = &read_zstd_compressed;
-size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = &write_zstd_compressed;
-int(*close_compressed)(struct light_file_t *) = &close_zstd_compresssed;
-
-#elif defined(USE_THIS_COMPRESSION_INSTEAD)
-
-#else
-_compression_t * (*get_compression_context_ptr)(int) = NULL;
-void(*free_compression_context_ptr)(_compression_t*) = NULL;
-_compression_t * (*get_decompression_context_ptr)() = NULL;
-void(*free_decompression_context_ptr)(_decompression_t*) = NULL;
-int(*is_compressed_file)(const char*) = NULL;
-size_t(*read_compressed)(struct light_file_t *, void *, size_t) = NULL;
-size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = NULL;
-int(*close_compressed)(struct light_file_t *) = NULL;
-
-#endif
 
 _compression_t * light_get_compression_context(int compression_level)
 {

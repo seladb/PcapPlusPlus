@@ -79,14 +79,5 @@ size_t write_zstd_compressed(struct light_file_t *fd, const void *buf, size_t co
 
 int close_zstd_compresssed(struct light_file_t *fd);
 
-extern _compression_t * (*get_compression_context_ptr)(int);
-extern void(*free_compression_context_ptr)(_compression_t*);
-extern _compression_t * (*get_decompression_context_ptr)();
-extern void(*free_decompression_context_ptr)(_decompression_t*);
-extern int(*is_compressed_file)(const char*);
-extern size_t(*read_compressed)(struct light_file_t *, void *, size_t);
-extern size_t(*write_compressed)(struct light_file_t *, const void *, size_t);
-extern int(*close_compressed)(struct light_file_t *);
-
 #endif //USE_Z_STD
 #endif /* INCLUDE_LIGHT_ZSTD_COMPRESSION_H_ */

@@ -24,21 +24,20 @@
 #ifdef USE_Z_STD
 
 #include "light_zstd_compression.h"
+#include "light_compression_functions.h"
 #include "light_file.h"
 #include <stdlib.h>
 #include <memory.h>
 #include <assert.h>
 
-/*
-_compression_t * (*get_compression_context_ptr)(int) = &get_zstd_compression_context;
-void(*free_compression_context_ptr)(_compression_t*) = &free_zstd_compression_context;
-_compression_t * (*get_decompression_context_ptr)() = &get_zstd_decompression_context;
-void(*free_decompression_context_ptr)(_decompression_t*) = &free_zstd_decompression_context;
+struct _compression_t * (*get_compression_context_ptr)(int) = &get_zstd_compression_context;
+void(*free_compression_context_ptr)(struct _compression_t*) = &free_zstd_compression_context;
+struct _decompression_t * (*get_decompression_context_ptr)() = &get_zstd_decompression_context;
+void(*free_decompression_context_ptr)(struct _decompression_t*) = &free_zstd_decompression_context;
 int(*is_compressed_file)(const char*) = &is_zstd_compressed_file;
 size_t(*read_compressed)(struct light_file_t *, void *, size_t) = &read_zstd_compressed;
 size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = &write_zstd_compressed;
 int(*close_compressed)(struct light_file_t *) = &close_zstd_compresssed;
-*/
 
 _compression_t * get_zstd_compression_context(int compression_level)
 {

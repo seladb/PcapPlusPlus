@@ -1,5 +1,5 @@
-// light_null_compression.c
-// Created on: Aug 13, 2019
+// light_compression.h
+// Created on: Aug 16, 2019
 
 // Copyright (c) 2019 TMEIC Corporation - Robert Kriener
 
@@ -21,20 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "light_null_compression.h"
-#include "light_compression_functions.h"
-#include "light_file.h"
+#ifndef INCLUDE_LIGHT_COMPRESSION_FUNCTIONS_H_
+#define INCLUDE_LIGHT_COMPRESSION_FUNCTIONS_H_
 
+#include <stdint.h>
 
-#if defined(USE_NULL_COMPRESSION)
-
-struct _compression_t * (*get_compression_context_ptr)(int) = NULL;
-void(*free_compression_context_ptr)(struct _compression_t*) = NULL;
-struct _decompression_t * (*get_decompression_context_ptr)() = NULL;
-void(*free_decompression_context_ptr)(struct _decompression_t*) = NULL;
-int(*is_compressed_file)(const char*) = NULL;
-size_t(*read_compressed)(struct light_file_t *, void *, size_t) = NULL;
-size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = NULL;
-int(*close_compressed)(struct light_file_t *) = NULL;
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+struct light_file_t;
+struct _compression_t;
+struct _decompression_t;
+
+extern struct _compression_t * (*get_compression_context_ptr)(int);
+extern void(*free_compression_context_ptr)(struct _compression_t*);
+extern struct _decompression_t * (*get_decompression_context_ptr)();
+extern void(*free_decompression_context_ptr)(struct _decompression_t*);
+extern int(*is_compressed_file)(const char*);
+extern size_t(*read_compressed)(struct light_file_t *, void *, size_t);
+extern size_t(*write_compressed)(struct light_file_t *, const void *, size_t);
+extern int(*close_compressed)(struct light_file_t *);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* INCLUDE_LIGHT_COMPRESSION_FUNCTIONS_H_ */

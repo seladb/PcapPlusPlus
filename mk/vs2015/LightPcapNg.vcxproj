@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_compression_functions.h" />
     <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_debug.h" />
     <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_file.h" />
     <ClInclude Include="..\..\3rdParty\LightPcapNg\LightPcapNg\include\light_internal.h" />
