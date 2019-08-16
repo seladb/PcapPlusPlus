@@ -6,12 +6,12 @@
     <GitBranch>unavailable</GitBranch>
   </PropertyGroup>
   <ItemGroup>
-  <BuildMacro Include="GitCommit">
-  <Value>$(GitCommit)</Value>
-  </BuildMacro>
-  <BuildMacro Include="GitBranch">
-  <Value>$(GitBranch)</Value>
-  </BuildMacro>
+    <BuildMacro Include="GitCommit">
+      <Value>$(GitCommit)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GitBranch">
+      <Value>$(GitBranch)</Value>
+    </BuildMacro>
   </ItemGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
