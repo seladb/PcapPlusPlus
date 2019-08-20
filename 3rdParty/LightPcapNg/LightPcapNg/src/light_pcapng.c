@@ -284,14 +284,14 @@ void light_read_record(light_file fd, light_pcapng *record)
    //0                   1                   2                   3
    //0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   //|								Block Type										|
+   //|                          Block Type                           |
    //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   //|						Block Total Length									|
+   //|                     Block Total Length                        |
    //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   ///									Block Body                          /
-   ///		         variable length, padded to 32 bits					/
+   ///                         Block Body                            /
+   ///		         variable length, padded to 32 bits              /
    //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   //|						Block Total Length									|
+   //|                     Block Total Length                        |
    //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    if (record && *record)
       light_pcapng_release(*record);
