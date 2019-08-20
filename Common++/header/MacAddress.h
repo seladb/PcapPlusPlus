@@ -8,6 +8,7 @@
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 #include <initializer_list>
 #include <algorithm>
+#include <iterator>
 #endif
 
 /// @file
@@ -73,7 +74,14 @@ namespace pcpp
 		MacAddress(std::initializer_list<uint8_t> octets) : m_IsValid { octets.size() == sizeof m_Address }
 		{
 			if(m_IsValid)
+			{
+				#if _MSC_VER >= 1800
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
+				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
+				#endif
+			}
+				
 		}
 #endif
 
@@ -97,7 +105,14 @@ namespace pcpp
 		{
 			m_IsValid = (octets.size() == sizeof m_Address);
 			if(m_IsValid)
+			{
+				#if _MSC_VER >= 1800
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
+				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
+				#endif
+			}
+
 			return *this;
 		}
 #endif
