@@ -622,6 +622,13 @@ void PcapLiveDevice::setDeviceMtu()
 {
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
+	if (m_IsLoopback)
+	{
+		LOG_DEBUG("Npcap Loopback Adapter - MTU is insignificant, setting MTU to max value (0xffff)");
+		m_DeviceMtu = 0xffff;
+		return;
+	}
+
 	uint32_t mtuValue = 0;
 	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name);
 	if (adapter == NULL)
