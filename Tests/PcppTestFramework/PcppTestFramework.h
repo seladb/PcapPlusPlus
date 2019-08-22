@@ -24,7 +24,7 @@ bool __ptfCheckTags(std::string testTags, std::string configTags)
     {
         return true;
     }
-    
+
     __ptfSplitString(testTags, testTagsVec);
     __ptfSplitString(configTags, configTagsVec);
 
@@ -42,13 +42,13 @@ bool __ptfCheckTags(std::string testTags, std::string configTags)
     return false;
 }
 
-#define PTF_TEST_CASE(TestName) void TestName(bool& result)
+#define PTF_TEST_CASE(TestName) void TestName(int& ptfResult)
 
 #define PTF_ASSERT(exp, assertFailedFormat, ...) \
 	if (!(exp)) \
 	{ \
 		printf("%-30s: FAILED. assertion failed: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
-		result = false; \
+		ptfResult = 0; \
         return; \
 	}
 
@@ -57,7 +57,7 @@ bool __ptfCheckTags(std::string testTags, std::string configTags)
 	{ \
 		printf("%-30s: FAILED. assertion failed: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
 		command; \
-		result = false; \
+		ptfResult = 0; \
         return; \
 	}
 
@@ -74,7 +74,7 @@ bool __ptfCheckTags(std::string testTags, std::string configTags)
 
 #define PTF_RUN_TEST(TestName, tags) \
     std::string TestName##_tags = std::string(#TestName) + ";" + tags; \
-    bool TestName##_result = true; \
+    int TestName##_result = 1; \
     if (!__ptfCheckTags(TestName##_tags, tagsToRun)) \
     { \
         printf("%-30s: SKIPPED (tags not match)\n", #TestName ""); \
@@ -82,15 +82,17 @@ bool __ptfCheckTags(std::string testTags, std::string configTags)
     else \
     { \
         TestName(TestName##_result); \
-        if (TestName##_result) \
+        if (TestName##_result == 1) \
         { \
             printf("%-30s: PASSED\n", #TestName ""); \
         } \
     } \
-    allTestsPassed &= TestName##_result
+    allTestsPassed &= (TestName##_result != 0)
 
-#define PTF_SKIP_TEST(TestName, why) \
-    printf("%-30s: SKIPPED (%s)\n", #TestName "", why); \
+#define PTF_SKIP_TEST(why) \
+    printf("%-30s: SKIPPED (%s)\n", __FUNCTION__, why); \
+    ptfResult = -1; \
+    return
 
 #define PTF_END_RUNNING_TESTS \
     if (allTestsPassed) \
