@@ -380,7 +380,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 
 	// randomize source port to a number >= 10000
 	int srcPortLowest = 10000;
-	int srcPortRange = (2^16) - srcPortLowest;
+	int srcPortRange = 65535 - srcPortLowest;
 	uint16_t srcPort = (rand() % srcPortRange) + srcPortLowest;
 	UdpLayer udpLayer(srcPort, DNS_PORT);
 
@@ -388,7 +388,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	DnsLayer dnsLayer;
 
 	// randomize transaction ID
-	uint16_t transactionID = rand() % (2^16);
+	uint16_t transactionID = rand() % 65535;
 	dnsLayer.getDnsHeader()->transactionID = htons(transactionID);
 	dnsLayer.addQuery(hostname, DNS_TYPE_A, DNS_CLASS_IN);
 
