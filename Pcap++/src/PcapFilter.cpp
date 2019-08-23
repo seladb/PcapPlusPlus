@@ -9,9 +9,61 @@
 #elif LINUX
 #include <in.h>
 #endif
+#include <pcap.h>
+#include "RawPacket.h"
 
 namespace pcpp
 {
+
+FilterTester::FilterTester(const std::string &filterStr) : filterStr(filterStr), prog(nullptr)
+{}
+
+FilterTester::~FilterTester()
+{
+	if(prog)
+		pcap_freecode(prog.get());
+}
+
+void FilterTester::parseToString(std::string& result)
+{
+	if (verifyFilter())
+		result = filterStr;
+}
+
+bool FilterTester::verifyFilter()
+{
+	if (verified)
+		return verifiedResult;
+
+	verified = true;
+	prog = Ptr_t(new bpf_program());
+	LOG_DEBUG("Compiling the filter '%s'", filterStr.c_str());
+	if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, prog.get(), filterStr.c_str(), 1, 0) < 0)
+	{
+		verifiedResult = false;
+	}
+	else
+	{
+		verifiedResult = true;
+	}
+
+	return verifiedResult;
+}
+
+bool FilterTester::matchPacketWithFilter(RawPacket* rawPacket)
+{
+	if (!verifyFilter())
+		return false;
+
+	struct pcap_pkthdr pktHdr;
+	pktHdr.caplen = rawPacket->getRawDataLen();
+	pktHdr.len = rawPacket->getRawDataLen();
+	pktHdr.ts = rawPacket->getPacketTimeStamp();
+
+	return (pcap_offline_filter(prog.get(), &pktHdr, rawPacket->getRawData()) != 0);
+}
+
+
 
 GeneralFilter::~GeneralFilter()
 {

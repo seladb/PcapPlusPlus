@@ -3,9 +3,13 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "ProtocolType.h"
 #include <stdint.h>
 #include "ArpLayer.h"
+
+//Required for FilterTester
+struct bpf_program;
 
 /**
  * @file
@@ -82,6 +86,52 @@ namespace pcpp
 		 * Virtual destructor, does nothing for this class
 		 */
 		virtual ~GeneralFilter();
+	};
+
+	//Used in FilterTester
+	class RawPacket;
+
+	/**
+	 * @class FilterTester
+	 * This class can be loaded with a filter string and then can be used to verify the string is valid and check if a packet matches it<BR>
+	 */
+	class FilterTester : public GeneralFilter
+	{
+#if __cplusplus > 199711L || _MSC_VER >= 1800 //Maybe this can be 1600 for VS2010
+		typedef std::unique_ptr<bpf_program> Ptr_t;
+#else
+		typedef std::auto_ptr<bpf_program> Ptr_t;
+#endif
+
+	private:
+		bool verified, verifiedResult;
+		const std::string filterStr;
+		Ptr_t prog;
+
+	public:
+		FilterTester(const std::string& filterStr);
+
+		virtual ~FilterTester();
+
+		/**
+		 * A method that parses the class instance into BPF string format
+		 * @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its content will be overridden
+		 */
+		virtual void parseToString(std::string& result);
+
+		/**
+		* Verify the filter is valid
+		* @return True if the filter is valid or false otherwise
+		*/
+		bool verifyFilter();
+
+		/**
+		 * Match a raw packet with a given BPF filter.
+		 * @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
+		 * @return True if a raw packet matches the BPF filter or false otherwise
+		 */
+		bool matchPacketWithFilter(RawPacket* rawPacket);
+
 	};
 
 
