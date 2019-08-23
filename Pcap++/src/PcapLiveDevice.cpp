@@ -515,6 +515,11 @@ void PcapLiveDevice::stopCapture()
 	m_StopThread = false;
 }
 
+bool PcapLiveDevice::captureActive()
+{
+	return m_CaptureThreadStarted;
+}
+
 void PcapLiveDevice::getStatistics(pcap_stat& stats)
 {
 	if(pcap_stats(m_PcapDescriptor, &stats) < 0)
