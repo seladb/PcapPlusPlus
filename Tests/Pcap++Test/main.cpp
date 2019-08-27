@@ -323,11 +323,19 @@ public:
 
 	bool run(uint32_t coreId)
 	{
-		PTF_ASSERT(m_Initialized == true, "Thread %d was not initialized", coreId);
+		if (!m_Initialized)
+		{
+			printf("Error: Thread %d was not initialized\n", coreId);
+			return false;
+		}
 
 		m_CoreId = coreId;
 
-		PTF_ASSERT(m_DpdkDevice != NULL, "DpdkDevice is NULL");
+		if (m_DpdkDevice == NULL)
+		{
+			printf("Error: DpdkDevice is NULL");
+			return false;
+		}
 
 		PTF_PRINT_VERBOSE("Worker thread on core %d is starting", m_CoreId);
 
@@ -342,7 +350,12 @@ public:
 			m_PacketCount += packetReceived;
 			pthread_mutex_lock(m_QueueLock);
 			uint16_t packetsSent = m_DpdkDevice->sendPackets(mBufArr, packetReceived, m_QueueId);
-			PTF_ASSERT(packetsSent == packetReceived, "Couldn't send all received packets on thread %d", m_CoreId);
+			if (packetsSent != packetReceived)
+			{
+				printf("Error: Couldn't send all received packets on thread %d", m_CoreId);
+				pthread_mutex_unlock(m_QueueLock);
+				return false;
+			}
 			pthread_mutex_unlock(m_QueueLock);
 		}
 
@@ -2643,8 +2656,8 @@ PTF_TEST_CASE(TestPfRingDevice)
 	PTF_PRINT_VERBOSE("TCP packets: %d", packetData.TcpCount);
 	PTF_PRINT_VERBOSE("UDP packets: %d", packetData.UdpCount);
 	PTF_PRINT_VERBOSE("Device statistics:");
-	PTF_PRINT_VERBOSE("Packets captured: %d", stats.recv);
-	PTF_PRINT_VERBOSE("Packets dropped: %d", stats.drop);
+	PTF_PRINT_VERBOSE("Packets captured: %d", (int)stats.recv);
+	PTF_PRINT_VERBOSE("Packets dropped: %d", (int)stats.drop);
 
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
@@ -2679,8 +2692,8 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 	PTF_PRINT_VERBOSE("IP packets: %d", packetData.IpCount);
 	PTF_PRINT_VERBOSE("TCP packets: %d", packetData.TcpCount);
 	PTF_PRINT_VERBOSE("UDP packets: %d", packetData.UdpCount);
-	PTF_PRINT_VERBOSE("Packets captured: %d", stats.recv);
-	PTF_PRINT_VERBOSE("Packets dropped: %d", stats.drop);
+	PTF_PRINT_VERBOSE("Packets captured: %d", (int)stats.recv);
+	PTF_PRINT_VERBOSE("Packets dropped: %d", (int)stats.drop);
 
 	dev->close();
 	PTF_ASSERT(dev->getNumOfOpenedRxChannels() == 0, "There are still open RX channels after device close");
@@ -2692,7 +2705,7 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 }
 
 
-void TestPfRingDeviceMultiThread(int& ptfResult, CoreMask coreMask, PcapTestArgs args)
+void TestPfRingDeviceMultiThread(int& ptfResult, CoreMask coreMask)
 {
 #ifdef USE_PF_RING
 	PfRingDeviceList& devList = PfRingDeviceList::getInstance();
@@ -2743,14 +2756,14 @@ void TestPfRingDeviceMultiThread(int& ptfResult, CoreMask coreMask, PcapTestArgs
 		dev->getThreadStatistics(SystemCores::IdToSystemCore[i], stats);
 		aggrStats.recv += stats.recv;
 		aggrStats.drop += stats.drop;
-		PTF_PRINT_VERBOSE("Packets captured: %d", stats.recv);
-		PTF_PRINT_VERBOSE("Packets dropped: %d", stats.drop);
+		PTF_PRINT_VERBOSE("Packets captured: %d", (int)stats.recv);
+		PTF_PRINT_VERBOSE("Packets dropped: %d", (int)stats.drop);
 		PTF_ASSERT(stats.recv == (uint32_t)packetDataMultiThread[i].PacketCount, "Stats received packet count is different than calculated packet count on thread %d", packetDataMultiThread[i].ThreadId);
 	}
 
 	dev->getStatistics(stats);
-	PTF_ASSERT(aggrStats.recv == stats.recv, "Aggregated stats weren't calculated correctly: aggr recv = %d, calc recv = %d", stats.recv, aggrStats.recv);
-	PTF_ASSERT(aggrStats.drop == stats.drop, "Aggregated stats weren't calculated correctly: aggr drop = %d, calc drop = %d", stats.drop, aggrStats.drop);
+	PTF_ASSERT(aggrStats.recv == stats.recv, "Aggregated stats weren't calculated correctly: aggr recv = %d, calc recv = %d", (int)stats.recv, (int)aggrStats.recv);
+	PTF_ASSERT(aggrStats.drop == stats.drop, "Aggregated stats weren't calculated correctly: aggr drop = %d, calc drop = %d", (int)stats.drop, (int)aggrStats.drop);
 
 	for (int firstCoreId = 0; firstCoreId < totalnumOfCores; firstCoreId++)
 	{
@@ -2815,7 +2828,7 @@ PTF_TEST_CASE(TestPfRingMultiThreadAllCores)
 		coreMask |= SystemCores::IdToSystemCore[i].Mask;
 	}
 
-	TestPfRingDeviceMultiThread(ptfResult, coreMask, args);
+	TestPfRingDeviceMultiThread(ptfResult, coreMask);
 
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
@@ -2835,7 +2848,7 @@ PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 		coreMask |= SystemCores::IdToSystemCore[i].Mask;
 	}
 
-	TestPfRingDeviceMultiThread(ptfResult, coreMask, args);
+	TestPfRingDeviceMultiThread(ptfResult, coreMask);
 
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
@@ -5779,16 +5792,19 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_ASSERT(ip4Packet4 == NULL, "IPv4 Packet4 first frag - result isn't NULL");
 	ip4Packet6 = ipReassembly.processPacket(ip4Packet6Frags.at(0), status);
 	PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv4 Packet6 first frag - status isn't FIRST_FRAGMENT");
+
 	PTF_ASSERT(ip4Packet6 == NULL, "IPv4 Packet6 first frag - result isn't NULL");
 	ip4Packet8 = ipReassembly.processPacket(ip4Packet8Frags.at(0), status);
 	PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv4 Packet8 first frag - status isn't FIRST_FRAGMENT");
 	PTF_ASSERT(ip4Packet8 == NULL, "IPv4 Packet8 first frag - result isn't NULL");
 	ip6Packet1 = ipReassembly.processPacket(ip6Packet1Frags.at(0), status);
+
 	PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv6 Packet1 first frag - status isn't FIRST_FRAGMENT");
 	PTF_ASSERT(ip6Packet1 == NULL, "IPv6 Packet1 first frag - result isn't NULL");
 	ip6Packet2 = ipReassembly.processPacket(ip6Packet2Frags.at(0), status);
 	PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv6 Packet2 first frag - status isn't FIRST_FRAGMENT");
 	PTF_ASSERT(ip6Packet2 == NULL, "IPv6 Packet2 first frag - result isn't NULL");
+
 	ip6Packet3 = ipReassembly.processPacket(ip6Packet3Frags.at(0), status);
 	PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv6 Packet3 first frag - status isn't FIRST_FRAGMENT");
 	PTF_ASSERT(ip6Packet3 == NULL, "IPv6 Packet3 first frag - result isn't NULL");
