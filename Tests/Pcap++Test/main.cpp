@@ -1791,38 +1791,38 @@ PCAPP_TEST(TestPcapFiltersOffline)
 	//------------------
 	//Test GeneralFilter bpf_program + BPFStringFilter
 	//------------------
-	{
-		//Try to make an invalid filter
-		BPFStringFilter badFilter("This is not a valid filter");
-		PCAPP_ASSERT(!badFilter.verifyFilter() || !IPcapDevice::verifyFilter("This is not a valid filter"), "Invalid BPFStringFilter was not caught!");
+	
+	//Try to make an invalid filter
+	BPFStringFilter badFilter("This is not a valid filter");
+	PTF_ASSERT(!badFilter.verifyFilter() || !IPcapDevice::verifyFilter("This is not a valid filter"), "Invalid BPFStringFilter was not caught!");
 
-		//Test stolen from MacAddress test below
-		MacAddress macAddrToFilter("00:13:c3:df:ae:18");
-		BPFStringFilter filter("ether dst " + macAddrToFilter.toString());
-		PCAPP_ASSERT(filter.verifyFilter(), "Cannot verify BPFStringFilter");
-		filter.parseToString(filterAsString);
+	//Test stolen from MacAddress test below
+	MacAddress macAddr("00:13:c3:df:ae:18");
+	BPFStringFilter bpfStringFilter("ether dst " + macAddr.toString());
+	PTF_ASSERT(bpfStringFilter.verifyFilter(), "Cannot verify BPFStringFilter");
+	bpfStringFilter.parseToString(filterAsString);
 
-		PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
-		fileReaderDev.getNextPackets(rawPacketVec);
-		fileReaderDev.close();
+	PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+	fileReaderDev.getNextPackets(rawPacketVec);
+	fileReaderDev.close();
 
-		int validCounter = 0;
+	int validCounter = 0;
 		
-		for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter) && IPcapDevice::matchPacketWithFilter(filterAsString, *iter))
 		{
-			if (filter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(filter, *iter) && IPcapDevice::matchPacketWithFilter(filterAsString, *iter))
-			{
-				++validCounter;
-				Packet packet(*iter);
-				EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
-				PCAPP_ASSERT(ethLayer->getDestMac() == macAddrToFilter, "BPFStringFilter test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
-			}
+			++validCounter;
+			Packet packet(*iter);
+			EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
+			PTF_ASSERT(ethLayer->getDestMac() == macAddr, "BPFStringFilter test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
 		}
-
-		PCAPP_ASSERT(validCounter == 5, "BPFStringFilter test: Captured: %d packets. Expected: %d packets", (int)rawPacketVec.size(), 5);
-
-		rawPacketVec.clear();
 	}
+
+	PTF_ASSERT(validCounter == 5, "BPFStringFilter test: Captured: %d packets. Expected: %d packets", validCounter, 5);
+
+	rawPacketVec.clear();
+	
 
     //-----------------
     //VLAN filter
