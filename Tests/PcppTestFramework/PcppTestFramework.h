@@ -1,6 +1,7 @@
 #ifndef PCPP_TEST_FRAMEWORK
 #define PCPP_TEST_FRAMEWORK
 
+#include "memplumber.h"
 #include <string>
 #include <vector>
 #include <sstream>
@@ -16,23 +17,23 @@ void __ptfSplitString(const std::string& input, std::vector<std::string>& result
 	}    
 }
 
-bool __ptfCheckTags(std::string testTags, std::string configTags)
+bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool emptyTagSetMeansAll)
 {
-    std::vector<std::string> testTagsVec, configTagsVec;
+    std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
 
-    if (configTags == "")
+    if (tagSetToCompareWith == "")
     {
-        return true;
+        return emptyTagSetMeansAll;
     }
 
-    __ptfSplitString(testTags, testTagsVec);
-    __ptfSplitString(configTags, configTagsVec);
+    __ptfSplitString(tagSet, tagSetVec);
+    __ptfSplitString(tagSetToCompareWith, tagSetToCompareWithVec);
 
-    for (std::vector<std::string>::const_iterator configTagIter = configTagsVec.begin(); configTagIter != configTagsVec.end(); configTagIter++)
+    for (std::vector<std::string>::const_iterator tagSetToCompareWithIter = tagSetToCompareWithVec.begin(); tagSetToCompareWithIter != tagSetToCompareWithVec.end(); tagSetToCompareWithIter++)
     {
-        for (std::vector<std::string>::const_iterator testTagIter = testTagsVec.begin(); testTagIter != testTagsVec.end(); testTagIter++)
+        for (std::vector<std::string>::const_iterator tagSetIter = tagSetVec.begin(); tagSetIter != tagSetVec.end(); tagSetIter++)
         {
-            if (*testTagIter == *configTagIter)
+            if (*tagSetIter == *tagSetToCompareWithIter)
             {
                 return true;
             }
@@ -67,21 +68,40 @@ bool __ptfCheckTags(std::string testTags, std::string configTags)
 		printf("%s, NON-CRITICAL: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
 	}
 
-#define PTF_START_RUNNING_TESTS(tags) \
+#define PTF_START_RUNNING_TESTS(userTags, configTags) \
     bool allTestsPassed = true; \
-    std::string tagsToRun = tags; \
+    std::string userTagsToRun = userTags; \
+    std::string configTagsToRun = configTags; \
     printf("Start running tests...\n\n")
 
 #define PTF_RUN_TEST(TestName, tags) \
     std::string TestName##_tags = std::string(#TestName) + ";" + tags; \
     int TestName##_result = 1; \
-    if (!__ptfCheckTags(TestName##_tags, tagsToRun)) \
+    if (!__ptfCheckTags(TestName##_tags, userTagsToRun, true)) \
     { \
-        printf("%-30s: SKIPPED (tags not match)\n", #TestName ""); \
+        printf("%-30s: SKIPPED (tags don't match)\n", #TestName ""); \
     } \
     else \
     { \
+        bool runMemLeakCheck = !__ptfCheckTags("skip_mem_leak_check", configTagsToRun, false) && !__ptfCheckTags(TestName##_tags, "skip_mem_leak_check", false); \
+        if (runMemLeakCheck) \
+        { \
+            bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", configTagsToRun, false); \
+            MemPlumber::start(memAllocVerbose); \
+        } \
         TestName(TestName##_result); \
+        if (runMemLeakCheck) \
+        { \
+            size_t memLeakCount = 0; \
+            uint64_t memLeakSize = 0; \
+            MemPlumber::memLeakCheck(memLeakCount, memLeakSize, true); \
+            MemPlumber::stopAndFreeAllMemory(); \
+            if (memLeakCount > 0 || memLeakSize > 0) \
+            { \
+                TestName##_result = 0; \
+                printf("%-30s: FAILED. Memory leak found! %d objects and %d[bytes] leaked\n", #TestName, (int)memLeakCount, (int)memLeakSize); \
+            } \
+        } \
         if (TestName##_result == 1) \
         { \
             printf("%-30s: PASSED\n", #TestName ""); \

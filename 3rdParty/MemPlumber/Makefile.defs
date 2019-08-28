@@ -1,0 +1,10 @@
+ifeq ($(wildcard ../../mk/platform.mk),)
+  $(error platform.mk not found! Please run configure script first)
+endif
+
+include ../../mk/platform.mk
+
+MEMPLUMBER_HOME := $(PCAPPLUSPLUS_HOME)/3rdParty/MemPlumber
+MEMPLUMBER_SOURCES := $(wildcard $(MEMPLUMBER_HOME)/MemPlumber/*.cpp)
+MEMPLUMBER_OBJS_FILENAMES := $(patsubst %.cpp,%.o,$(MEMPLUMBER_SOURCES))
+MEMPLUMBER_INCLUDES := $(MEMPLUMBER_HOME)/MemPlumber

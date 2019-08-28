@@ -1,0 +1,20 @@
+language: cpp
+
+sudo: false
+
+compiler:
+  - gcc
+  - clang
+
+os:
+  - linux
+  - osx
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake .. -DCOLLECT_STATIC_VAR_DATA=ON
+  - make
+
+script:
+  - ctest --verbose

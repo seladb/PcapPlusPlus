@@ -1,0 +1,42 @@
+version: 1.0.{build}
+
+environment:
+  matrix:
+    - compiler: mingw32
+    - compiler: mingw-w64
+    - compiler: vs2015
+      platform: Win32
+      config: Debug
+    - compiler: vs2015
+      platform: Win32
+      config: Release
+    - compiler: vs2015
+      platform: x64
+      config: Debug
+    - compiler: vs2015
+      platform: x64
+      config: Release    
+
+install:
+# Rename sh.exe as sh.exe in PATH interferes with MinGW
+- rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
+- if [%compiler%]==[mingw32] set PATH=C:\MinGW\bin;%PATH%
+- if [%compiler%]==[mingw-w64] set PATH=C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin;%PATH%
+
+before_build:
+- mkdir build
+- cd build
+- if "%compiler%"=="mingw32" (set GENERATOR="MinGW Makefiles")
+- if "%compiler%"=="mingw-w64" (set GENERATOR="MinGW Makefiles")
+- if "%compiler%"=="vs2015" if "%platform%"=="Win32" (set GENERATOR="Visual Studio 14")
+- if "%compiler%"=="vs2015" if "%platform%"=="x64" (set GENERATOR="Visual Studio 14 Win64")
+- cmake .. -G %GENERATOR% -DCOLLECT_STATIC_VAR_DATA=ON
+
+build_script:
+- if "%compiler%"=="mingw32" mingw32-make all
+- if "%compiler%"=="mingw-w64" mingw32-make all
+- if "%compiler%"=="vs2015" powershell -command "msbuild memplumber.sln /p:Configuration=%config% /p:Platform=%platform%"
+
+test_script:
+- cd c:\projects\MemPlumber\build
+- if "%compiler%"=="vs2015" (ctest --verbose -C %config%) else (ctest --verbose)

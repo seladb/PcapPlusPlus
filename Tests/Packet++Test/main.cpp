@@ -28,7 +28,6 @@
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
-#include <debug_new.h>
 #include "PcppTestFramework.h"
 #include <iostream>
 #include <sstream>
@@ -7086,33 +7085,46 @@ PTF_TEST_CASE(RadiusLayerEditTest)
 static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
+	{"mem-verbose", no_argument, 0, 'm' },
+	{"skip-mem-leak-check", no_argument, 0, 's' },
     {0, 0, 0, 0}
 };
 
 void print_usage()
 {
-    printf("Usage: Packet++Test [-t tags]\n\n"
+    printf("Usage: Packet++Test [-t tags] [-m] [-s]\n\n"
     		"Flags:\n"
-    		"-t         A list of semicolon separated tags for tests to run\n"
+    		"-t                       A list of semicolon separated tags for tests to run\n"
+			"-m --mem-verbose         Output information about each memory allocation and deallocation\n"			
+            "-s --skip-mem-leak-check Skip memory leak check\n"
     		);
 }
 
 
 int main(int argc, char* argv[]) {
-	start_leak_check();
 
 	int optionIndex = 0;
 	char opt = 0;
-	std::string tags = "";
-	while((opt = getopt_long (argc, argv, "t:", PacketTestOptions, &optionIndex)) != -1)
+	std::string userTags = "", configTags = "";
+	bool memVerbose = false;
+	bool skipMemLeakCheck = false;
+
+	while((opt = getopt_long (argc, argv, "mst:", PacketTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
 			case 0:
 				break;
 			case 't':
-				tags = optarg;
+				userTags = optarg;
 				break;
+			case 's':
+				skipMemLeakCheck = true;
+				break;
+			case 'm':
+				memVerbose = true;
+				break;				
+				
 			default:
 				print_usage();
 				exit(1);
@@ -7123,7 +7135,25 @@ int main(int argc, char* argv[]) {
 	printf("Built: %s\n", getBuildDateTime().c_str());
 	printf("Built from: %s\n", getGitInfo().c_str());
 
-	PTF_START_RUNNING_TESTS(tags);
+	if (skipMemLeakCheck)
+	{
+		if (configTags != "")
+			configTags += ";";
+
+		configTags += "skip_mem_leak_check";
+		printf("Skipping memory leak check for all test cases\n");
+	}
+
+	if (memVerbose)
+	{
+		if (configTags != "")
+			configTags += ";";
+
+		configTags += "mem_leak_check_verbose";
+		printf("Turning on verbose information on memory allocations\n");
+	}
+
+	PTF_START_RUNNING_TESTS(userTags, configTags);
 
 	PTF_RUN_TEST(EthPacketCreation, "eth");
 	PTF_RUN_TEST(EthPacketPointerCreation, "eth");
