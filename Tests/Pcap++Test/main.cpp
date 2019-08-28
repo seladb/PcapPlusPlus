@@ -47,6 +47,9 @@
 #include <in.h>
 #endif
 
+#pragma warning(push)
+#pragma warning(disable: 4996)	//Disable this warning - deprecated warning - for this file
+
 using namespace std;
 using namespace pcpp;
 
@@ -1810,7 +1813,9 @@ PCAPP_TEST(TestPcapFiltersOffline)
 		
 	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
-		if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter) && IPcapDevice::matchPacketWithFilter(filterAsString, *iter))
+		//Check if match using static local variable is leaking?
+		//if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter) && IPcapDevice::matchPacketWithFilter(filterAsString, *iter))
+		if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 		{
 			++validCounter;
 			Packet packet(*iter);
@@ -6688,3 +6693,5 @@ int main(int argc, char* argv[])
 
 	PCAPP_END_RUNNING_TESTS;
 }
+
+#pragma warning(pop)
