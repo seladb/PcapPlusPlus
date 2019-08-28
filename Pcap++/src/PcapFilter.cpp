@@ -20,20 +20,23 @@ GeneralFilter::GeneralFilter() : m_program(nullptr)
 
 bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 {
-	if (m_program == nullptr)
+	std::string filterStr;
+	parseToString(filterStr);
+
+	if (m_program == nullptr || m_lastProgramString != filterStr)
 	{
+		freeProgram();
+
 		m_program = new bpf_program();
-		std::string filterStr;
-		parseToString(filterStr);
+
 		LOG_DEBUG("Compiling the filter '%s'", filterStr.c_str());
 		if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, filterStr.c_str(), 1, 0) < 0)
 		{
 			//Filter not valid so delete member
-			pcap_freecode(m_program);
-			delete m_program;
-			m_program = nullptr;
+			freeProgram();
 			return false;
 		}
+		m_lastProgramString = filterStr;
 	}
 
 	struct pcap_pkthdr pktHdr;
@@ -44,17 +47,23 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 	return (pcap_offline_filter(m_program, &pktHdr, rawPacket->getRawData()) != 0);
 }
 
-GeneralFilter::~GeneralFilter()
+void GeneralFilter::freeProgram()
 {
 	if (m_program)
 	{
 		pcap_freecode(m_program);
 		delete m_program;
 		m_program = nullptr;
+		m_lastProgramString.clear();
 	}
 }
 
-BPFStringFilter::BPFStringFilter(const std::string &filterStr) : filterStr(filterStr)
+GeneralFilter::~GeneralFilter()
+{
+	freeProgram();
+}
+
+BPFStringFilter::BPFStringFilter(const std::string &filterStr) : m_filterStr(filterStr)
 {}
 
 BPFStringFilter::~BPFStringFilter()
@@ -63,7 +72,7 @@ BPFStringFilter::~BPFStringFilter()
 void BPFStringFilter::parseToString(std::string& result)
 {
 	if (verifyFilter())
-		result = filterStr;
+		result = m_filterStr;
 	else
 		result.clear();
 }
@@ -75,15 +84,14 @@ bool BPFStringFilter::verifyFilter()
 		return true;
 
 	m_program = new bpf_program();
-	LOG_DEBUG("Compiling the filter '%s'", filterStr.c_str());
-	if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, filterStr.c_str(), 1, 0) < 0)
+	LOG_DEBUG("Compiling the filter '%s'", m_filterStr.c_str());
+	if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, m_filterStr.c_str(), 1, 0) < 0)
 	{
 		//Filter not valid so delete member
-		pcap_freecode(m_program);
-		delete m_program;
-		m_program = nullptr;
+		freeProgram();
 		return false;
 	}
+	m_lastProgramString = m_filterStr;
 
 	return true;
 }

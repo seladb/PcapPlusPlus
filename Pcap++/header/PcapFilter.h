@@ -79,6 +79,12 @@ namespace pcpp
 	{
 	protected:
 		bpf_program* m_program;
+		std::string m_lastProgramString;
+
+		/**
+		* Free the held program and any resources allocated for it.
+		*/
+		void freeProgram();
 
 	public:
 		/**
@@ -109,7 +115,7 @@ namespace pcpp
 	class BPFStringFilter : public GeneralFilter
 	{
 	private:
-		const std::string filterStr;
+		const std::string m_filterStr;
 
 	public:
 		BPFStringFilter(const std::string& filterStr);
