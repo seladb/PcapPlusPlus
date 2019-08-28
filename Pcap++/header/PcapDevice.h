@@ -64,7 +64,9 @@ namespace pcpp
 		 * @param[in] filterAsString The filter in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
 		 * @return True if the filter is valid or false otherwise
 		 */
+#if __cplusplus > 201402L || _MSC_VER >= 1900
 		[[deprecated("Prefer building a BPFStringFilter class and calling verifyFilter on it to check if a filter string is valid see PcapFilter.h")]]
+#endif
 		static bool verifyFilter(std::string filterAsString);
 
 		/**
@@ -74,7 +76,9 @@ namespace pcpp
 		 * @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
 		 * @return True if raw packet matches the BPF filter or false otherwise
 		 */
+#if __cplusplus > 201402L || _MSC_VER >= 1900
 		[[deprecated("Prefer building a GeneralFilter class and calling matchPacketWithFilter using the constructed filter. See PcapFilter.h")]]
+#endif
 		static bool matchPacketWithFilter(std::string filterAsString, RawPacket* rawPacket);
 
 		/**
