@@ -1788,6 +1788,42 @@ PCAPP_TEST(TestPcapFiltersOffline)
 	PcapFileReaderDevice fileReaderDev3(EXAMPLE_PCAP_GRE);
 	PcapFileReaderDevice fileReaderDev4(EXAMPLE_PCAP_IGMP);
 
+	//------------------
+	//Test GeneralFilter bpf_program + BPFStringFilter
+	//------------------
+	{
+		//Try to make an invalid filter
+		BPFStringFilter badFilter("This is not a valid filter");
+		PCAPP_ASSERT(!badFilter.verifyFilter() || !IPcapDevice::verifyFilter("This is not a valid filter"), "Invalid BPFStringFilter was not caught!");
+
+		//Test stolen from MacAddress test below
+		MacAddress macAddrToFilter("00:13:c3:df:ae:18");
+		BPFStringFilter filter("ether dst " + macAddrToFilter.toString());
+		PCAPP_ASSERT(filter.verifyFilter(), "Cannot verify BPFStringFilter");
+		filter.parseToString(filterAsString);
+
+		PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+		fileReaderDev.getNextPackets(rawPacketVec);
+		fileReaderDev.close();
+
+		int validCounter = 0;
+		
+		for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+		{
+			if (filter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(filter, *iter) && IPcapDevice::matchPacketWithFilter(filterAsString, *iter))
+			{
+				++validCounter;
+				Packet packet(*iter);
+				EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
+				PCAPP_ASSERT(ethLayer->getDestMac() == macAddrToFilter, "BPFStringFilter test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
+			}
+		}
+
+		PCAPP_ASSERT(validCounter == 5, "BPFStringFilter test: Captured: %d packets. Expected: %d packets", (int)rawPacketVec.size(), 5);
+
+		rawPacketVec.clear();
+	}
+
     //-----------------
     //VLAN filter
     //-----------------
