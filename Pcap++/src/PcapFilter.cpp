@@ -15,7 +15,7 @@
 namespace pcpp
 {
 
-GeneralFilter::GeneralFilter() : m_program(nullptr)
+GeneralFilter::GeneralFilter() : m_program(NULL)
 {}
 
 bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
@@ -23,7 +23,7 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 	std::string filterStr;
 	parseToString(filterStr);
 
-	if (m_program == nullptr || m_lastProgramString != filterStr)
+	if (m_program == NULL || m_lastProgramString != filterStr)
 	{
 		freeProgram();
 
@@ -53,7 +53,7 @@ void GeneralFilter::freeProgram()
 	{
 		pcap_freecode(m_program);
 		delete m_program;
-		m_program = nullptr;
+		m_program = NULL;
 		m_lastProgramString.clear();
 	}
 }
