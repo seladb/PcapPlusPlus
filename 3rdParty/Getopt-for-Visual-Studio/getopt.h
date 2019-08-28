@@ -56,7 +56,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma warning(disable:4996);
+#pragma warning(push)
+#pragma warning(disable: 4996)	//Disable this warning for this file
 
 #define __GETOPT_H__
 
@@ -649,5 +650,7 @@ getopt_long_only(int nargc, char * const *nargv, const char *options,
 #ifdef __cplusplus
 }
 #endif
+
+#pragma warning(pop)
 
 #endif /* !defined(__UNISTD_H_SOURCED__) && !defined(__GETOPT_LONG_H__) */
