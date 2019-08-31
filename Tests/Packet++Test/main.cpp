@@ -7135,6 +7135,12 @@ int main(int argc, char* argv[]) {
 	printf("Built: %s\n", getBuildDateTime().c_str());
 	printf("Built from: %s\n", getGitInfo().c_str());
 
+	#ifdef NDEBUG
+	skipMemLeakCheck = true;
+	printf("Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:\n");
+	printf("     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958\n");
+	#endif
+	
 	if (skipMemLeakCheck)
 	{
 		if (configTags != "")

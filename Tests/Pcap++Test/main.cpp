@@ -6497,6 +6497,12 @@ int main(int argc, char* argv[])
 		userTags += "no_network";
 		printf("Running only tests that don't require network connection\n");
 	}
+	
+	#ifdef NDEBUG
+	skipMemLeakCheck = true;
+	printf("Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:\n");
+	printf("     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958\n");
+	#endif
 
 	if (skipMemLeakCheck)
 	{
