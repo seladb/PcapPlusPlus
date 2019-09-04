@@ -30,6 +30,7 @@ extern "C" {
 
 #include "light_special.h"
 #include "light_types.h"
+#include "light_platform.h"
 
 #define LIGHT_SECTION_HEADER_BLOCK  0x0A0D0D0A
 #define LIGHT_INTERFACE_BLOCK       0x00000001
@@ -62,6 +63,7 @@ extern "C" {
 #define LIGHT_OUT_OF_MEMORY    -2
 #define LIGHT_INVALID_ARGUMENT -3
 #define LIGHT_NOT_FOUND        -4
+#define LIGHT_FAILURE          -5
 
 /////////////////////////////// STANDARD PCAPNG STRUCTURES & FUNCTIONS ///////////////////////////////
 
@@ -76,15 +78,24 @@ typedef struct _light_pair {
 // Read/Write Functions
 light_pcapng light_read_from_path(const char *file_name);
 light_pcapng light_read_from_memory(const uint32_t *memory, size_t size);
+//Favor light_pcapng_to_file_stream over this function
 uint32_t *light_pcapng_to_memory(const light_pcapng pcapng, size_t *size);
+
+size_t light_pcapng_to_file_stream(const light_pcapng pcapng, light_file file);
+
 int light_pcapng_to_file(const char *file_name, const light_pcapng pcapng);
+int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pcapng, int compression_level);
+
+//Read next record out of file, if you give an existing record I will free it for you
+//The returned record must be freed by either YOU or the next call to light_read_record!
+void light_read_record(light_file fd, light_pcapng *record);
+
 void light_pcapng_release(light_pcapng pcapng);
 
 // For Debugging Purposes
 char *light_pcapng_to_string(light_pcapng pcapng);
 uint32_t light_get_block_count(const light_pcapng pcapng);
 light_pcapng light_get_block(const light_pcapng pcapng, uint32_t index);
-light_pcapng light_next_block(const light_pcapng pcapng);
 size_t light_get_size(const light_pcapng pcapng);
 void light_pcapng_historgram(const light_pcapng pcapng, uint32_t (*key_master)(const light_pcapng),
 		light_pair **hist, size_t *size, size_t *rejected);

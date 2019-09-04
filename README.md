@@ -1,24 +1,24 @@
-# PcapPlusPlus &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=PcapPlusPlus%20is%20a%20multiplatform%20cplusplus%20library%20for%20capturing%2C%20parsing%20and%20crafting%20network%20packets&url=http://seladb.github.io/PcapPlusPlus-Doc)
+![PcapPlusPlus Logo](https://pcapplusplus.github.io/resources/logo_color.png)
 
 [![Build Status](https://travis-ci.org/seladb/PcapPlusPlus.svg?branch=master)](https://travis-ci.org/seladb/PcapPlusPlus)
 [![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/18137/badge.svg)](https://scan.coverity.com/projects/pcapplusplus)
+<a href="https://twitter.com/intent/follow?screen_name=seladb">
+    <img src="https://img.shields.io/twitter/follow/seladb.svg?label=Follow%20PcapPlusPlus" alt="Follow PcapPlusPlus" />
+</a>
 
-[PcapPlusPlus](http://seladb.github.io/PcapPlusPlus-Doc) is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.
+[PcapPlusPlus](https://pcapplusplus.github.io/) is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.
 
 PcapPlusPlus enables decoding and forging capabilities for a large variety of network protocols. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [DPDK](https://www.dpdk.org/) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
 
 ## Table Of Contents
 
 - [Download](#download)
-- [Key Features](#key-features)
+- [Feature Overview](#feature-overview)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
 - [Multi Platform Support](#multi-platform-support)
-- [Package Content](#package-content)
 - [Supported Network Protocols](#supported-network-protocols)
-- [Supported Packet Capture Engines](#supported-packet-capture-engines)
-- [Useful Packet And Network Utilities](#useful-packet-and-network-utilities)
 - [DPDK And PF_RING Support](#dpdk-and-pf_ring-support)
 - [Benchmarks](#benchmarks)
 - [Provide Feedback](#provide-feedback)
@@ -27,7 +27,7 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
 
 ## Download
 
-You can choose between downloading pre-compiled binaries and build PcapPlusPlus yourself. For more details please visit the [Download](http://seladb.github.io/PcapPlusPlus-Doc/download.html) page in PcapPlusPlus web-site.
+You can choose between downloading pre-compiled binaries and build PcapPlusPlus yourself. For more details please visit the [Download](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
 
 ### Pre Compiled Binaries
 
@@ -56,20 +56,17 @@ Clone the git repository:
 git clone https://github.com/seladb/PcapPlusPlus.git
 ```
 
-Follow the build instructions according to your platform in the [Download](http://seladb.github.io/PcapPlusPlus-Doc/download.html) page in PcapPlusPlus web-site.
+Follow the build instructions according to your platform in the [Build From Source](https://pcapplusplus.github.io/docs/install#build-from-source) page in PcapPlusPlus web-site.
 
-## Key Features
+## Feature Overview
 
-- __Decoding and forging__ capabilities for a large variety of network protocols (see the full list [here](#supported-network-protocols))
-- __Capture and send network packets__ through an easy to use C++ wrapper for [libpcap](https://www.tcpdump.org/) and [WinPcap](https://www.winpcap.org/)
-- __Packet processing in line speed__ through an efficient and easy to use C++ wrapper for [DPDK](https://www.dpdk.org/) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)
-- __Read and write network packets to/from files__ in both __PCAP__ and __PCAPNG__ formats
-- __Multiplatform support__ including Linux, MacOS and Windows
-- Unique implementation of __TCP Reassembly__ logic which includes support of TCP retransmission, out-of-order TCP packets and missing TCP data
-- Implementation of __IP Fragmentation and Defragmentation__ logic to create and reassemble IPv4 and IPv6 fragments
-- __Remote packet capture__ on Windows using RPCAP protocol supported in WinPcap
-- __Vast object-oriented packet filtering__ that makes libpcap's BPF filters a lot more user-friendly
-- Designed to be __powerful and efficient__
+- __Packet capture__ through an easy to use C++ wrapper for popular packet capture engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [Intel DPDK](https://www.dpdk.org/), [ntop’s PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) and [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[Learn more](https://pcapplusplus.github.io/docs/features#packet-capture)]
+- __Packet parsing and crafting__ including detailed analysis of protocols and layers, packet generation and packet edit for a large variety of [network protocols](https://pcapplusplus.github.io/docs/features#supported-network-protocols) [[Learn more](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)]
+- __Read and write packets from/to files__ in both __PCAP__ and __PCAPNG__ formats [[Learn more](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
+- __Packet processing in line rate__ through an efficient and easy to use C++ wrapper for [DPDK](https://www.dpdk.org/) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) [[Learn more](https://pcapplusplus.github.io/docs/features#dpdk-support)]
+- __Multiplatform support__ - PcapPlusPlus is fully supported on Linux, MacOS and Windows
+- __Packet reassembly__ - unique implementation of __TCP Reassembly__ which includes TCP retransmission, out-of-order TCP packets and missing TCP data, and __IP Fragmentation and Defragmentation__ to create and reassemble IPv4 and IPv6 fragments [[Learn more](https://pcapplusplus.github.io/docs/features#packet-reassembly)]
+- __Packet filtering__ that makes libpcap's BPF filters a lot more user-friendly [[Learn more](https://pcapplusplus.github.io/docs/features#packet-filtering)]
 
 ## Getting Started
 
@@ -119,45 +116,26 @@ int main(int argc, char* argv[])
 }
 ```
 
-You can find much more information in the [Tutorials](http://seladb.github.io/PcapPlusPlus-Doc/tutorials.html) section in PcapPlusPlus web-site. These tutorials will walk you through the main concepts and features of PcapPlusPlus and also provide code examples that you can easily download and run.
+You can find much more information in the [Getting Started](https://pcapplusplus.github.io/docs/) page in PcapPlusPlus web-site. This page will walk you through few easy steps to have an app up and running.
 
 ## API Documentation
-
-You can find an extensive API documentation in the [API documentation section](http://seladb.github.io/PcapPlusPlus-Doc/Documentation) in PcapPlusPlus web-site.
-If you see any missing data please [contact us](#provide-feedback) and report it.
-
-## Multi Platform Support
-
-PcapPlusPlus is currently supported on __Windows__, __Linux__ and __MacOS__. It is being continuously tested on the following platforms:
-
-- Windows:
-  - Microsoft Visual Studio 2015 (32-bit + 64-bit compilation)
-  - MinGW32 (32-bit compilation only)
-  - MinGW-w64 (32-bit compilation only)
-
-- Linux:
-  - Ubuntu (12.04 LTS, 14.04 LTS, 16.04 LTS, 18.04 LTS)
-  - Fedora 26 & 29
-  - CentOS 7
-  - It should work on other Linux distributions as well
-
-- MacOS:
-  - El Capitan (10.11)
-  - Sierra (10.12)
-  - High Sierra (10.13)
-  - Mojave (10.14)
-
-## Package Content
 
 PcapPlusPlus consists of 3 libraries:
 
 1. __Packet++__ - a library for parsing, creating and editing network packets
 2. __Pcap++__ - a library for intercepting and sending packets, providing network and NIC info, stats, etc. It is actually a C++ wrapper for packet capturing engines such as libpcap, WinPcap, DPDK and PF_RING
-3. **Common++** - a library with some common code utilities used by both Packet++ and Pcap++
+3. __Common++__ - a library with some common code utilities used by both Packet++ and Pcap++
+
+You can find an extensive API documentation in the [API documentation section](https://pcapplusplus.github.io/api-docs/) in PcapPlusPlus web-site.
+If you see any missing data please [contact us](#provide-feedback).
+
+## Multi Platform Support
+
+PcapPlusPlus is currently supported on __Windows__, __Linux__ and __MacOS__. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/install/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
 ## Supported Network Protocols
 
-The Packet++ library currently supports parsing, editing and creation of packets of the following protocols:
+PcapPlusPlus currently supports parsing, editing and creation of packets of the following protocols:
 
 1. Ethernet
 2. SLL (Linux cooked capture)
@@ -185,29 +163,6 @@ The Packet++ library currently supports parsing, editing and creation of packets
 24. Packet trailer (a.k.a footer or padding)
 25. Generic payload
 
-## Supported Packet Capture Engines
-
-PcapPlusPlus currently works with the following packet capture engines:
-
-1. libpcap packet capture (on Linux and Mac OS X)
-2. WinPcap packet capture (on Windows)
-3. Vanilla PF_RING (on Linux)
-4. DPDK (on Linux)
-5. WinPcap remote capture (on Windows)
-6. PCAP and PCAPNG files
-7. Raw sockets (on Linux and Windows)
-
-## Useful Packet And Network Utilities
-
-1. TCP reassembly logic
-2. IP reassembly logic (a.k.a IP de-fragmentation). Works for both IPv4 and IPv6
-3. Packet hash key creation (by 5-tuple and 2-tuple)
-4. Retrieve remote machine MAC address using ARP protocol
-5. Retrieve host IPv4 address by using DNS protocol
-6. Checksum calculation
-
-In addition it contains many examples, tutorials and utilities documented in the [Examples](http://seladb.github.io/PcapPlusPlus-Doc/examples.html) and in the [Tutorials](http://seladb.github.io/PcapPlusPlus-Doc/tutorials.html) pages in PcapPlusPlus web-site.
-
 ## DPDK And PF_RING Support
 
 [The Data Plane Development Kit (DPDK)](https://www.dpdk.org/) is a set of data plane libraries and network interface controller drivers for fast packet processing.
@@ -215,13 +170,13 @@ In addition it contains many examples, tutorials and utilities documented in the
 [PF_RING™](https://www.ntop.org/products/packet-capture/pf_ring/) is a new type of network socket that dramatically improves the packet capture speed.
 
 Both frameworks provide very fast packets processing (up to line speed) and are used in many network applications such as routers, firewalls, load balancers, etc.
-PcapPlusPLus provides a C++ abstraction layer over DPDK & PF_RING. This abstraction layer provides an easy to use interface that removes a lot of the boilerplate involved in using these frameworks. You can learn more by visiting the [DPDK & PF_RING support](http://seladb.github.io/PcapPlusPlus-Doc/dpdk-pf_ring.html) page in PcapPlusPlus web-site.
+PcapPlusPLus provides a C++ abstraction layer over DPDK & PF_RING. This abstraction layer provides an easy to use interface that removes a lot of the boilerplate involved in using these frameworks. You can learn more by visiting the [DPDK](https://pcapplusplus.github.io/docs/dpdk) & [PF_RING](https://pcapplusplus.github.io/docs/features#pf_ring-support) support pages in PcapPlusPlus web-site.
 
 ## Benchmarks
 
 We used Matias Fontanini's [packet-capture-benchmarks](https://github.com/mfontanini/packet-capture-benchmarks) project to compare the performance of PcapPlusPlus with other similar C++ libraries (such as `libtins` and `libcrafter`).
 
-You can see the results in the [Benchmarks](http://seladb.github.io/PcapPlusPlus-Doc/benchmark.html) page in PcapPlusPlus web-site.
+You can see the results in the [Benchmarks](https://pcapplusplus.github.io/docs/benchmark) page in PcapPlusPlus web-site.
 
 ## Provide Feedback
 
@@ -234,9 +189,11 @@ We'd be more than happy to get feedback, please feel free to reach out to us in 
 
 If you like this project please __Star us on GitHub — it helps!__ :star: :star:
 
+Please visit the [PcapPlusPlus web-site](https://pcapplusplus.github.io/docs/community) to learn more.
+
 ## Contributing
 
-Please follow the notes captured in the [contributing](CONTRIBUTING.md) file to contribute to this project.
+We would very much appreciate any contribution to this project. If you're interested in contributing please visit the [contribution page](https://pcapplusplus.github.io/docs/community#contribute) in PcapPlusPlus web-site.
 
 ## License
 

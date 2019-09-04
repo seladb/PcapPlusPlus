@@ -5,9 +5,10 @@
 #include <string.h>
 #include <string>
 
-#if __cplusplus > 199711L
+#if __cplusplus > 199711L || _MSC_VER >= 1800
 #include <initializer_list>
 #include <algorithm>
+#include <iterator>
 #endif
 
 /// @file
@@ -65,7 +66,7 @@ namespace pcpp
 		 */
 		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet);
 
-#if __cplusplus > 199711L
+#if __cplusplus > 199711L || _MSC_VER >= 1800
 		/**
 		 * A constructor that creates an instance out of the initializer list. The length of the list must be equal to 6 (as MAC address is 6-byte long)
 		 * @param[in] addr An initializer list containing the values of type uint8_t representing the MAC address
@@ -73,7 +74,14 @@ namespace pcpp
 		MacAddress(std::initializer_list<uint8_t> octets) : m_IsValid { octets.size() == sizeof m_Address }
 		{
 			if(m_IsValid)
+			{
+				#if _MSC_VER >= 1800
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
+				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
+				#endif
+			}
+				
 		}
 #endif
 
@@ -89,7 +97,7 @@ namespace pcpp
 		 */
 		bool operator!=(const MacAddress& other) const { return !operator==(other); }
 
-#if __cplusplus > 199711L
+#if __cplusplus > 199711L || _MSC_VER >= 1800
 		/**
 		 * Overload of the assignment operator
 		 */
@@ -97,7 +105,14 @@ namespace pcpp
 		{
 			m_IsValid = (octets.size() == sizeof m_Address);
 			if(m_IsValid)
+			{
+				#if _MSC_VER >= 1800
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
+				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
+				#endif
+			}
+
 			return *this;
 		}
 #endif

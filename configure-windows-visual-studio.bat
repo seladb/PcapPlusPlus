@@ -161,7 +161,7 @@ echo.
 :: ask the user to type WinPcap dir
 set /p WINPCAP_HOME=    Please specify WinPcap developer's pack installed path: %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
-if not exist %WINPCAP_HOME%\ (echo Directory does not exist!! && goto while1)
+if not exist "%WINPCAP_HOME%"\ (echo Directory does not exist!! && goto while1)
 
 echo.
 echo.
@@ -174,7 +174,7 @@ echo.
 :: ask the user to type pthreads-win32 dir
 set /p PTHREAD_HOME=    Please specify pthreads-win32 path: %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
-if not exist %PTHREAD_HOME%\ (echo Directory does not exist!! && goto while2)
+if not exist "%PTHREAD_HOME%"\ (echo Directory does not exist!! && goto while2)
 
 
 :: both directories were read correctly, return to the caller

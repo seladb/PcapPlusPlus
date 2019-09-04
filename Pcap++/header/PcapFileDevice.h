@@ -387,6 +387,7 @@ namespace pcpp
 	{
 	private:
 		void* m_LightPcapNg;
+		int m_CompressionLevel;
 		struct bpf_program m_Bpf;
 		bool m_BpfInitialized;
 		int m_BpfLinkType;
@@ -404,8 +405,9 @@ namespace pcpp
 		 * A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice that after calling this
 		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file
+		 * @param[in] the compression level to use when writing the file, use 0 to disable compression or 10 for max compression. Default is 0 
 		 */
-		PcapNgFileWriterDevice(const char* fileName);
+		PcapNgFileWriterDevice(const char* fileName, int compressionLevel = 0);
 
 		/**
 		 * A destructor for this class

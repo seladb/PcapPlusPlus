@@ -57,7 +57,7 @@
 #endif
 
 
-light_option light_create_option(const uint16_t option_code, uint16_t option_length, void *option_value)
+light_option light_create_option(const uint16_t option_code, const uint16_t option_length, void *option_value)
 {
 	uint16_t size = 0;
 	light_option option = calloc(1, sizeof(struct _light_option));
@@ -114,7 +114,7 @@ int light_add_option(light_pcapng section, light_pcapng pcapng, light_option opt
 		option_list->next_option = opt_endofopt;
 	}
 
-	pcapng->block_total_lenght += option_size;
+	pcapng->block_total_length += option_size;
 
 	if (__is_section_header(section) == 1) {
 		struct _light_section_header *shb = (struct _light_section_header *)section->block_body;
@@ -148,7 +148,7 @@ int light_update_option(light_pcapng section, light_pcapng pcapng, light_option 
 		PADD32(iterator->option_length, &old_data_size);
 
 		int data_size_diff = (int)new_data_size - (int)old_data_size;
-		pcapng->block_total_lenght += data_size_diff;
+		pcapng->block_total_length += data_size_diff;
 
 		if (__is_section_header(section) == 1) {
 			struct _light_section_header *shb = (struct _light_section_header *)section->block_body;
