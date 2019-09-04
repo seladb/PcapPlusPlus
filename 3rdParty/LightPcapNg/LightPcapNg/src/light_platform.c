@@ -50,6 +50,9 @@ light_file light_open_decompression(const char *file_name, const __read_mode_t m
 		case LIGHT_OREAD:
 			fd->file = fopen(file_name, "rb");
 			break;
+
+		default:
+			break;
 	}
 
 	if (fd->file)
@@ -118,6 +121,8 @@ light_file light_open_compression(const char *file_name, const __read_mode_t mod
 		/*case LIGHT_OAPPEND:
 			fd->file = fopen(file_name, "ab");
 			break;*/
+		default:
+			break;
 	}
 
 	if (fd->file)

@@ -7,6 +7,11 @@
 #include <string.h>
 #include <iomanip>
 #include <stdlib.h>
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#include <winsock2.h>
+#elif LINUX
+#include <in.h>
+#endif
 
 namespace pcpp
 {
