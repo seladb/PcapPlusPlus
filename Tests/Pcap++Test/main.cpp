@@ -47,6 +47,9 @@
 #include <in.h>
 #endif
 
+#pragma warning(push)
+#pragma warning(disable: 4996)	//Disable this warning - deprecated warning - for this file
+
 using namespace std;
 using namespace pcpp;
 
@@ -1720,6 +1723,44 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
     PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
 	PcapFileReaderDevice fileReaderDev3(EXAMPLE_PCAP_GRE);
 	PcapFileReaderDevice fileReaderDev4(EXAMPLE_PCAP_IGMP);
+
+	//------------------
+	//Test GeneralFilter bpf_program + BPFStringFilter
+	//------------------
+	
+	//Try to make an invalid filter
+	BPFStringFilter badFilter("This is not a valid filter");
+	PTF_ASSERT(!badFilter.verifyFilter() || !IPcapDevice::verifyFilter("This is not a valid filter"), "Invalid BPFStringFilter was not caught!");
+
+	//Test stolen from MacAddress test below
+	MacAddress macAddr("00:13:c3:df:ae:18");
+	BPFStringFilter bpfStringFilter("ether dst " + macAddr.toString());
+	PTF_ASSERT(bpfStringFilter.verifyFilter(), "Cannot verify BPFStringFilter");
+	bpfStringFilter.parseToString(filterAsString);
+
+	PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+	fileReaderDev.getNextPackets(rawPacketVec);
+	fileReaderDev.close();
+
+	int validCounter = 0;
+		
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		//Check if match using static local variable is leaking?
+		//if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter) && IPcapDevice::matchPacketWithFilter(filterAsString, *iter))
+		if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+		{
+			++validCounter;
+			Packet packet(*iter);
+			EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
+			PTF_ASSERT(ethLayer->getDestMac() == macAddr, "BPFStringFilter test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
+		}
+	}
+
+	PTF_ASSERT(validCounter == 5, "BPFStringFilter test: Captured: %d packets. Expected: %d packets", validCounter, 5);
+
+	rawPacketVec.clear();
+	
 
     //-----------------
     //VLAN filter
@@ -6617,3 +6658,5 @@ int main(int argc, char* argv[])
 
 	PTF_END_RUNNING_TESTS;
 }
+
+#pragma warning(pop)

@@ -24,10 +24,15 @@
 #ifndef INCLUDE_LIGHT_NULL_COMPRESSION_H_
 #define INCLUDE_LIGHT_NULL_COMPRESSION_H_
 
+#if defined(USE_NULL_COMPRESSION)
+
 #include <stdlib.h>
 
 typedef void _compression_t;
 typedef void _decompression_t;
 
 struct light_file_t;
+
+#endif
+
 #endif /* INCLUDE_LIGHT_NULL_COMPRESSION_H_ */

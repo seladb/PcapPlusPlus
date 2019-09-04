@@ -1,4 +1,5 @@
 #include "PcapDevice.h"
+#include "PcapFilter.h"
 #include "Logger.h"
 #include <pcap.h>
 
@@ -90,6 +91,11 @@ bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* r
 	pktHdr.ts = rawPacket->getPacketTimeStamp();
 
 	return (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
+}
+
+bool IPcapDevice::matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket)
+{
+	return filter.matchPacketWithFilter(rawPacket);
 }
 
 std::string IPcapDevice::getPcapLibVersionInfo()
