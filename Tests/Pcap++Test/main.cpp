@@ -1781,36 +1781,33 @@ PCAPP_TEST(TestPcapFiltersLive)
 	PCAPP_TEST_PASSED;
 }
 
-PCAPP_TEST(TestPcapFiltersOffline)
+PCAPP_TEST(TestPcapFilters_General_BPFStr)
 {
 	RawPacketVector rawPacketVec;
 	string filterAsString;
 
-    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
-    PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
-	PcapFileReaderDevice fileReaderDev3(EXAMPLE_PCAP_GRE);
-	PcapFileReaderDevice fileReaderDev4(EXAMPLE_PCAP_IGMP);
+	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
 
 	//------------------
 	//Test GeneralFilter bpf_program + BPFStringFilter
 	//------------------
-	
+
 	//Try to make an invalid filter
 	BPFStringFilter badFilter("This is not a valid filter");
-	PTF_ASSERT(!badFilter.verifyFilter() || !IPcapDevice::verifyFilter("This is not a valid filter"), "Invalid BPFStringFilter was not caught!");
+	PCAPP_ASSERT(!badFilter.verifyFilter() || !IPcapDevice::verifyFilter("This is not a valid filter"), "Invalid BPFStringFilter was not caught!");
 
 	//Test stolen from MacAddress test below
 	MacAddress macAddr("00:13:c3:df:ae:18");
 	BPFStringFilter bpfStringFilter("ether dst " + macAddr.toString());
-	PTF_ASSERT(bpfStringFilter.verifyFilter(), "Cannot verify BPFStringFilter");
+	PCAPP_ASSERT(bpfStringFilter.verifyFilter(), "Cannot verify BPFStringFilter");
 	bpfStringFilter.parseToString(filterAsString);
 
-	PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+	PCAPP_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
 	fileReaderDev.getNextPackets(rawPacketVec);
 	fileReaderDev.close();
 
 	int validCounter = 0;
-		
+
 	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		//Check if match using static local variable is leaking?
@@ -1820,16 +1817,28 @@ PCAPP_TEST(TestPcapFiltersOffline)
 			++validCounter;
 			Packet packet(*iter);
 			EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
-			PTF_ASSERT(ethLayer->getDestMac() == macAddr, "BPFStringFilter test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
+			PCAPP_ASSERT(ethLayer->getDestMac() == macAddr, "BPFStringFilter test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
 		}
 	}
 
-	PTF_ASSERT(validCounter == 5, "BPFStringFilter test: Captured: %d packets. Expected: %d packets", validCounter, 5);
+	PCAPP_ASSERT(validCounter == 5, "BPFStringFilter test: Captured: %d packets. Expected: %d packets", validCounter, 5);
 
 	rawPacketVec.clear();
-	
 
-    //-----------------
+	PCAPP_TEST_PASSED;
+}
+
+PCAPP_TEST(TestPcapFiltersOffline)
+{
+	RawPacketVector rawPacketVec;
+	string filterAsString;
+
+	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
+	PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
+	PcapFileReaderDevice fileReaderDev3(EXAMPLE_PCAP_GRE);
+	PcapFileReaderDevice fileReaderDev4(EXAMPLE_PCAP_IGMP);
+
+	 //-----------------
     //VLAN filter
     //-----------------
 
@@ -6650,6 +6659,7 @@ int main(int argc, char* argv[])
 	PCAPP_RUN_TEST(TestWinPcapLiveDevice, args, true);
 	PCAPP_RUN_TEST(TestPcapLiveDeviceByInvalidIp, args, false);
 	PCAPP_RUN_TEST(TestPcapFiltersLive, args, true);
+	PCAPP_RUN_TEST(TestPcapFilters_General_BPFStr, args, false);
 	PCAPP_RUN_TEST(TestPcapFiltersOffline, args, false);
 	PCAPP_RUN_TEST(TestSendPacket, args, true);
 	PCAPP_RUN_TEST(TestSendPackets, args, true);
