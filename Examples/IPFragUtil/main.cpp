@@ -240,6 +240,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 	stats.clear();
 
 	RawPacket rawPacket;
+	BPFStringFilter filter(bpfFilter);
 
 	// read all packet from input file
 	while (reader->getNextPacket(rawPacket))
@@ -253,7 +254,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 		if (filterByBpf)
 		{
 			// check if packet matches the BPF filter supplied by the user
-			if (IPcapDevice::matchPacketWithFilter(bpfFilter, &rawPacket))
+			if (IPcapDevice::matchPacketWithFilter(filter, &rawPacket))
 			{
 				stats.ipPacketsMatchBpfFilter++;
 			}
@@ -432,7 +433,8 @@ int main(int argc, char* argv[])
 			{
 				filterByBpfFilter = true;
 				bpfFilter = optarg;
-				if (!IPcapDevice::verifyFilter(bpfFilter))
+				BPFStringFilter filter(bpfFilter);
+				if (!filter.verifyFilter())
 					EXIT_WITH_ERROR("Illegal BPF filter");
 				break;
 			}
