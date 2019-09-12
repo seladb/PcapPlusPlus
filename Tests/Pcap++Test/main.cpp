@@ -1714,20 +1714,17 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 
 }
 
-PTF_TEST_CASE(TestPcapFiltersOffline)
+PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 {
 	RawPacketVector rawPacketVec;
 	string filterAsString;
 
-    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
-    PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
-	PcapFileReaderDevice fileReaderDev3(EXAMPLE_PCAP_GRE);
-	PcapFileReaderDevice fileReaderDev4(EXAMPLE_PCAP_IGMP);
+	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
 
 	//------------------
 	//Test GeneralFilter bpf_program + BPFStringFilter
 	//------------------
-	
+
 	//Try to make an invalid filter
 	BPFStringFilter badFilter("This is not a valid filter");
 	PTF_ASSERT(!badFilter.verifyFilter() || !IPcapDevice::verifyFilter("This is not a valid filter"), "Invalid BPFStringFilter was not caught!");
@@ -1743,7 +1740,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev.close();
 
 	int validCounter = 0;
-		
+
 	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		//Check if match using static local variable is leaking?
@@ -1760,9 +1757,19 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	PTF_ASSERT(validCounter == 5, "BPFStringFilter test: Captured: %d packets. Expected: %d packets", validCounter, 5);
 
 	rawPacketVec.clear();
-	
+}
 
-    //-----------------
+PTF_TEST_CASE(TestPcapFiltersOffline)
+{
+	RawPacketVector rawPacketVec;
+	string filterAsString;
+
+	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
+	PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
+	PcapFileReaderDevice fileReaderDev3(EXAMPLE_PCAP_GRE);
+	PcapFileReaderDevice fileReaderDev4(EXAMPLE_PCAP_IGMP);
+
+	 //-----------------
     //VLAN filter
     //-----------------
 
@@ -2210,10 +2217,6 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	}
 	rawPacketVec.clear();
-
-
-
-
 }
 
 PTF_TEST_CASE(TestSendPacket)
@@ -6615,6 +6618,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
 	PTF_RUN_TEST(TestPcapLiveDeviceByInvalidIp, "no_network;live_device");
 	PTF_RUN_TEST(TestPcapFiltersLive, "filters");
+	PTF_RUN_TEST(TestPcapFilters_General_BPFStr, "no_network;filters;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapFiltersOffline, "no_network;filters");
 	PTF_RUN_TEST(TestSendPacket, "send");
 	PTF_RUN_TEST(TestSendPackets, "send");
