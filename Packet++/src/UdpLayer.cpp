@@ -10,6 +10,7 @@
 #include "VxlanLayer.h"
 #include "SipLayer.h"
 #include "RadiusLayer.h"
+#include "GtpLayer.h"
 #include "Logger.h"
 #include <string.h>
 #include <sstream>
@@ -101,6 +102,8 @@ void UdpLayer::parseNextLayer()
 		m_NextLayer = new SipResponseLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
 	else if ((portDst == 1812) || (portSrc == 1812) || (portDst == 1813) || (portSrc == 1813) || (portDst == 3799) || (portSrc == 3799))
 		m_NextLayer = new RadiusLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
+	else if (((portDst == 2152) || (portSrc == 2152) || (portDst == 2123) || (portSrc == 2123)) && (GtpV1Layer::isGTPv1(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr))))
+		m_NextLayer = new GtpV1Layer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
 }

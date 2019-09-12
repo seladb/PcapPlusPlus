@@ -119,7 +119,7 @@ bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool em
 		printf("%-30s: FAILED (line: %d). assert not null failed: %s is NULL\n", __FUNCTION__, __LINE__, #exp); \
 		ptfResult = 0; \
         return; \
-    } \
+    }
 
 #define PTF_ASSERT_NULL(exp) \
     if ((exp) != NULL) \
@@ -127,7 +127,7 @@ bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool em
 		printf("%-30s: FAILED (line: %d). assert null failed: %s is NULL\n", __FUNCTION__, __LINE__, #exp); \
 		ptfResult = 0; \
         return; \
-    } \    
+    }
 
 #define PTF_TRY(exp, assertFailedFormat, ...) \
 	if (!(exp)) \
