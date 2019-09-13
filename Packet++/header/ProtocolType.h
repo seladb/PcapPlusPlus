@@ -203,7 +203,18 @@ namespace pcpp
 		/**
 		 * RADIUS protocol
 		 */
-		Radius = 0x40000000
+		Radius = 0x40000000,
+
+		/**
+		 * GTPv1 protocol
+		 */
+		GTPv1 = 0x80000000,
+
+		/**
+		 * GTP protocol (currently the same as GTPv1)
+		 */
+		GTP = 0x80000000
+
 	};
 
 

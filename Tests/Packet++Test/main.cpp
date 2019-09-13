@@ -25,6 +25,7 @@
 #include <SdpLayer.h>
 #include <PacketTrailerLayer.h>
 #include <RadiusLayer.h>
+#include <GtpLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -7078,6 +7079,182 @@ PTF_TEST_CASE(RadiusLayerEditTest)
 	PTF_ASSERT(msg2OrigRadiusLayer->getAttribute(6).isNull() == true, "packet2: managed to fetch attribute 6 after removing all attributes");
 	PTF_ASSERT(msg2OrigRadiusLayer->getAttribute(80).isNull() == true, "packet2: managed to fetch attribute 6 after removing all attributes");
 
+}
+
+PTF_TEST_CASE(GtpLayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/gtp-u1.dat", buffer1Length);
+	PTF_ASSERT_NOT_NULL(buffer1);
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/gtp-u2.dat", buffer2Length);
+	PTF_ASSERT_NOT_NULL(buffer2);
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/gtp-c1.dat", buffer3Length);
+	PTF_ASSERT_NOT_NULL(buffer3);
+
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/gtp-u-ipv6.dat", buffer4Length);
+	PTF_ASSERT_NOT_NULL(buffer4);
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	Packet gtpPacket1(&rawPacket1);
+
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	Packet gtpPacket2(&rawPacket2);
+
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	Packet gtpPacket3(&rawPacket3);
+
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+	Packet gtpPacket4(&rawPacket4);
+
+
+	// GTP-U packet 1
+	PTF_ASSERT_TRUE(gtpPacket1.isPacketOfType(GTPv1));
+	PTF_ASSERT_TRUE(gtpPacket1.isPacketOfType(GTP));
+	GtpV1Layer* gtpLayer = gtpPacket1.getLayerOfType<GtpV1Layer>();
+	PTF_ASSERT_NOT_NULL(gtpLayer);
+
+	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
+	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->messageType, 0xff, hex);
+	PTF_ASSERT_EQUAL(ntohs(gtpLayer->getHeader()->messageLength), 88, u16);
+	PTF_ASSERT_EQUAL(ntohl(gtpLayer->getHeader()->teid), 1, u32);
+	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
+
+	uint16_t seqNum;
+	PTF_ASSERT_TRUE(gtpLayer->getSequenceNumber(seqNum));
+	PTF_ASSERT_EQUAL(seqNum, 10461, u16);
+
+	uint8_t npduNum;
+	PTF_ASSERT_FALSE(gtpLayer->getNpduNumber(npduNum));
+
+	uint8_t nextHeaderType;
+	PTF_ASSERT_FALSE(gtpLayer->getNextExtensionHeaderType(nextHeaderType));
+
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), GtpV1_GPDU, enum);
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "G-PDU", string);
+
+	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 12, size);
+	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 1", string);
+
+	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), IPv4, enum);
+	IPv4Layer* ip4Layer = dynamic_cast<IPv4Layer*>(gtpLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(ip4Layer->getSrcIpAddress().toString(), "202.11.40.158", string);
+	PTF_ASSERT_NOT_NULL(ip4Layer->getNextLayer());
+	PTF_ASSERT_EQUAL(ip4Layer->getNextLayer()->getProtocol(), ICMP, enum);
+
+	PTF_ASSERT_FALSE(gtpLayer->isGTPCMessage());
+	PTF_ASSERT_TRUE(gtpLayer->isGTPUMessage());
+
+
+
+	// GTP-U packet 2 (with GTP header extension)
+	gtpLayer = gtpPacket2.getLayerOfType<GtpV1Layer>();
+	PTF_ASSERT_NOT_NULL(gtpLayer);
+
+	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
+	PTF_ASSERT_EQUAL(ntohs(gtpLayer->getHeader()->messageLength), 1508, u16);
+	PTF_ASSERT_EQUAL(ntohl(gtpLayer->getHeader()->teid), 0x00100657, u32);
+	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
+
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), GtpV1_GPDU, enum);
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "G-PDU", string);
+
+	PTF_ASSERT_TRUE(gtpLayer->getSequenceNumber(seqNum));
+	PTF_ASSERT_EQUAL(seqNum, 5, u16);
+
+	PTF_ASSERT_FALSE(gtpLayer->getNpduNumber(npduNum));
+
+	PTF_ASSERT_TRUE(gtpLayer->getNextExtensionHeaderType(nextHeaderType));
+	PTF_ASSERT_EQUAL(nextHeaderType, 0xc0, hex);
+
+	GtpV1Layer::GtpExtension gtpExt = gtpLayer->getNextExtension();
+	PTF_ASSERT_FALSE(gtpExt.isNull());
+	PTF_ASSERT_EQUAL(gtpExt.getExtensionType(), 0xc0, hex);
+	PTF_ASSERT_EQUAL(gtpExt.getTotalLength(), 4, size);
+	PTF_ASSERT_EQUAL(gtpExt.getContentLength(), 2, size);
+	PTF_ASSERT_EQUAL(gtpExt.getNextExtensionHeaderType(), 0, u8);
+	PTF_ASSERT_TRUE(gtpExt.getNextExtension().isNull());
+
+	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 16, size);
+	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 1050199", string);
+
+	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), IPv4, enum);
+	ip4Layer = dynamic_cast<IPv4Layer*>(gtpLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(ip4Layer->getDstIpAddress().toString(), "10.155.186.57", string);
+	PTF_ASSERT_NOT_NULL(ip4Layer->getNextLayer());
+	PTF_ASSERT_EQUAL(ip4Layer->getNextLayer()->getProtocol(), TCP, enum);
+
+	PTF_ASSERT_FALSE(gtpLayer->isGTPCMessage());
+	PTF_ASSERT_TRUE(gtpLayer->isGTPUMessage());
+
+
+	
+	// GTP-U IPv6 packet
+	gtpLayer = gtpPacket4.getLayerOfType<GtpV1Layer>();
+	PTF_ASSERT_NOT_NULL(gtpLayer);
+
+	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
+	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->messageType, 0xff, hex);
+	PTF_ASSERT_EQUAL(ntohs(gtpLayer->getHeader()->messageLength), 496, u16);
+	PTF_ASSERT_EQUAL(ntohl(gtpLayer->getHeader()->teid), 2327461905, u32);
+	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
+
+	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 8, size);
+	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 2327461905", string);
+
+	PTF_ASSERT_FALSE(gtpLayer->getSequenceNumber(seqNum));
+	PTF_ASSERT_FALSE(gtpLayer->getNpduNumber(npduNum));
+	PTF_ASSERT_FALSE(gtpLayer->getNextExtensionHeaderType(nextHeaderType));
+
+	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), IPv6, enum);
+	IPv6Layer* ip6Layer = dynamic_cast<IPv6Layer*>(gtpLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(ip6Layer->getSrcIpAddress().toString(), "2001:507:0:1:200:8600:0:2", string);
+	PTF_ASSERT_NOT_NULL(ip6Layer->getNextLayer());
+	PTF_ASSERT_EQUAL(ip6Layer->getNextLayer()->getProtocol(), UDP, enum);
+
+	PTF_ASSERT_FALSE(gtpLayer->isGTPCMessage());
+	PTF_ASSERT_TRUE(gtpLayer->isGTPUMessage());
+
+
+
+	// GTP-C packet
+	PTF_ASSERT_TRUE(gtpPacket3.isPacketOfType(GTP));
+	PTF_ASSERT_TRUE(gtpPacket3.isPacketOfType(GTPv1));
+	gtpLayer = gtpPacket3.getLayerOfType<GtpV1Layer>();
+	PTF_ASSERT_NOT_NULL(gtpLayer);
+
+	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
+	PTF_ASSERT_EQUAL(ntohs(gtpLayer->getHeader()->messageLength), 44, u16);
+	PTF_ASSERT_EQUAL(ntohl(gtpLayer->getHeader()->teid), 0x09fe4b60, u32);
+	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
+
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), GtpV1_SGSNContextResponse, enum);
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "SGSN Context Response", string);
+
+	PTF_ASSERT_TRUE(gtpLayer->getSequenceNumber(seqNum));
+	PTF_ASSERT_EQUAL(seqNum, 34062, u16);
+
+	PTF_ASSERT_FALSE(gtpLayer->getNpduNumber(npduNum));
+
+	PTF_ASSERT_FALSE(gtpLayer->getNextExtensionHeaderType(nextHeaderType));
+
+	PTF_ASSERT_NULL(gtpLayer->getNextLayer());
+
+	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 52, size);
+	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-C message: SGSN Context Response, TEID: 167660384", string);
+
+	PTF_ASSERT_TRUE(gtpLayer->isGTPCMessage());
+	PTF_ASSERT_FALSE(gtpLayer->isGTPUMessage());
 
 }
 
@@ -7240,6 +7417,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(RadiusLayerParsingTest, "radius");
 	PTF_RUN_TEST(RadiusLayerCreationTest, "radius");
 	PTF_RUN_TEST(RadiusLayerEditTest, "radius");
+	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
 
 	PTF_END_RUNNING_TESTS;
 }

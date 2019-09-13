@@ -180,6 +180,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\DnsResourceData.h" />
     <ClInclude Include="..\..\Packet++\header\EthLayer.h" />
     <ClInclude Include="..\..\Packet++\header\GreLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\GtpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\HttpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\IcmpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\IgmpLayer.h" />
@@ -220,6 +221,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\DnsResourceData.cpp" />
     <ClCompile Include="..\..\Packet++\src\EthLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\GreLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\GtpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\HttpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IcmpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IgmpLayer.cpp" />

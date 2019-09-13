@@ -43,6 +43,35 @@ bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool em
     return false;
 }
 
+#define int_PTF_PRINT_FORMAT "%d"
+#define int_PTF_PRINT_TYPE(val) (int)(val)
+
+#define u8_PTF_PRINT_FORMAT "%u"
+#define u8_PTF_PRINT_TYPE(val) (uint8_t)(val)
+
+#define u16_PTF_PRINT_FORMAT "%u"
+#define u16_PTF_PRINT_TYPE(val) (uint16_t)(val)
+
+#define u32_PTF_PRINT_FORMAT "%u"
+#define u32_PTF_PRINT_TYPE(val) (uint32_t)(val)
+
+#ifndef PCAPPP_MINGW_ENV
+#define size_PTF_PRINT_FORMAT "%zu"
+#else
+#define size_PTF_PRINT_FORMAT "%u"
+#endif
+#define size_PTF_PRINT_TYPE(val) (size_t)(val)
+
+#define string_PTF_PRINT_FORMAT "%s"
+#define string_PTF_PRINT_TYPE(val) std::string(val).c_str()
+
+#define hex_PTF_PRINT_FORMAT "0x%X"
+#define hex_PTF_PRINT_TYPE(val) val 
+
+#define enum_PTF_PRINT_FORMAT "%d"
+#define enum_PTF_PRINT_TYPE(val) (int)(val)
+
+
 #define PTF_TEST_CASE(TestName) void TestName(int& ptfResult)
 
 #define PTF_ASSERT(exp, assertFailedFormat, ...) \
@@ -61,6 +90,44 @@ bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool em
 		ptfResult = 0; \
         return; \
 	}
+
+#define PTF_ASSERT_EQUAL(actual, expected, type) \
+    if (actual != expected) { \
+		printf("%-30s: FAILED (line: %d). assert equal failed: actual: " type##_PTF_PRINT_FORMAT " != expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
+		ptfResult = 0; \
+        return; \
+    }
+
+#define PTF_ASSERT_TRUE(exp) \
+    if (!(exp)) { \
+		printf("%-30s: FAILED (line: %d). assert true failed: %s\n", __FUNCTION__, __LINE__, #exp); \
+		ptfResult = 0; \
+        return; \
+    }
+
+#define PTF_ASSERT_FALSE(exp) \
+    if (exp) { \
+		printf("%-30s: FAILED (line: %d). assert false failed: %s\n", __FUNCTION__, __LINE__, #exp); \
+		ptfResult = 0; \
+        return; \
+    }
+
+
+#define PTF_ASSERT_NOT_NULL(exp) \
+    if ((exp) == NULL) \
+    { \
+		printf("%-30s: FAILED (line: %d). assert not null failed: %s is NULL\n", __FUNCTION__, __LINE__, #exp); \
+		ptfResult = 0; \
+        return; \
+    }
+
+#define PTF_ASSERT_NULL(exp) \
+    if ((exp) != NULL) \
+    { \
+		printf("%-30s: FAILED (line: %d). assert null failed: %s is NULL\n", __FUNCTION__, __LINE__, #exp); \
+		ptfResult = 0; \
+        return; \
+    }
 
 #define PTF_TRY(exp, assertFailedFormat, ...) \
 	if (!(exp)) \

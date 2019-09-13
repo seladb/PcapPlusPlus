@@ -56,7 +56,7 @@ namespace pcpp
 		 * automatically from provided nicName argument.
 		 * @param[in] nicName Name of internet controller as displayed by Linux
 		 * @param[in] ioctlType Value of ioctl to make
-		 * @param[in:out] request Pointer to ifreq structure that contains some information
+		 * @param[in,out] request Pointer to ifreq structure that contains some information
 		 *   or will be used for obtaining the information (depends on ioctlType)
 		 * @return false if request was not made or socket can't be opened otherwise true
 		 * @warning For some types of requests to succeed You need to be a root
