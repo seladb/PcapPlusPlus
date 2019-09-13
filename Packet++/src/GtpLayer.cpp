@@ -152,7 +152,7 @@ bool GtpV1Layer::getSequenceNumber(uint16_t& seqNumber)
     gtpv1_header_extra* headerExtra = getHeaderExtra();
     if (header != NULL && headerExtra != NULL && header->sequenceNumberFlag == 1)
     {
-        seqNumber = ntohs(headerExtra->sequenceNumber);
+        seqNumber = be16toh(headerExtra->sequenceNumber);
         return true;
     }
 
@@ -382,7 +382,7 @@ size_t GtpV1Layer::getHeaderLen()
 
     if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
     {
-        size_t msgLen = ntohs(header->messageLength);
+        size_t msgLen = be16toh(header->messageLength);
         res += (msgLen > m_DataLen - sizeof(gtpv1_header) ? m_DataLen - sizeof(gtpv1_header) : msgLen);
     }
     else
@@ -411,7 +411,7 @@ std::string GtpV1Layer::toString()
     if (header != NULL)
     {
    		std::stringstream teidStream;
-		teidStream << ntohl(header->teid);
+		teidStream << be32toh(header->teid);
 
         std::string gtpu_gtpc;
         if (header->messageType == PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
