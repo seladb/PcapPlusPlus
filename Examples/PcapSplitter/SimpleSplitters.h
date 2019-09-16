@@ -2,6 +2,7 @@
 
 #include "Splitters.h"
 #include "PcapDevice.h"
+#include "PcapFilter.h"
 
 /**
  * Splits a pcap file by number of packets
@@ -125,9 +126,10 @@ class BpfCriteriaSplitter : public Splitter
 {
 private:
 	std::string m_BpfFilter;
+	pcpp::BPFStringFilter filter;
 
 public:
-	BpfCriteriaSplitter(std::string bpfFilter)
+	BpfCriteriaSplitter(std::string bpfFilter) : filter(bpfFilter)
 	{
 		m_BpfFilter = bpfFilter;
 	}
@@ -137,7 +139,7 @@ public:
 	 */
 	int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
 	{
-		if (pcpp::IPcapDevice::matchPacketWithFilter(m_BpfFilter, packet.getRawPacket()))
+		if (pcpp::IPcapDevice::matchPacketWithFilter(filter, packet.getRawPacket()))
 			return 0;
 		return 1;
 	}
@@ -165,7 +167,9 @@ public:
 			return false;
 		}
 
-		bool filterValid = pcpp::IPcapDevice::verifyFilter(m_BpfFilter);
+		
+		pcpp::BPFStringFilter filter(m_BpfFilter);
+		bool filterValid = filter.verifyFilter();
 		if (!filterValid)
 			errorString = "BPF filter is not valid";
 

@@ -24,6 +24,9 @@
 */
 namespace pcpp
 {
+	//Forward Declaration - required for IPcapDevice::matchPacketWithFilter
+	class GeneralFilter;
+
 	/**
 	 * @class IPcapDevice
 	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap and RemoteCapture.
@@ -61,6 +64,9 @@ namespace pcpp
 		 * @param[in] filterAsString The filter in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
 		 * @return True if the filter is valid or false otherwise
 		 */
+#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("Prefer building a BPFStringFilter class and calling verifyFilter on it to check if a filter string is valid see PcapFilter.h")]]
+#endif
 		static bool verifyFilter(std::string filterAsString);
 
 		/**
@@ -70,7 +76,19 @@ namespace pcpp
 		 * @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
 		 * @return True if raw packet matches the BPF filter or false otherwise
 		 */
+#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("Prefer building a GeneralFilter class and calling matchPacketWithFilter using the constructed filter. See PcapFilter.h")]]
+#endif
 		static bool matchPacketWithFilter(std::string filterAsString, RawPacket* rawPacket);
+
+		/**
+		* Match a raw packet with a given BPF filter. Notice this method is static which means you don't need any device instance
+		* in order to perform this match
+		* @param[in] a filter class to test against
+		* @param[in] rawPacket A pointer to the raw packet to match the filter with
+		* @return True if raw packet matches the filter or false otherwise
+		*/
+		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
 
 		// implement abstract methods
