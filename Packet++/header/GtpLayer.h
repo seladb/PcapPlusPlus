@@ -223,6 +223,8 @@ namespace pcpp
 
 		gtpv1_header_extra* getHeaderExtra();
 
+		void init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum, uint8_t npduNum);
+
     public:
 
 		/**
@@ -240,6 +242,10 @@ namespace pcpp
 
 			GtpExtension(uint8_t* data, size_t dataLen, uint8_t type);
 
+			void setNextHeaderType(uint8_t nextHeaderType);
+
+			static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
+			
         public:
 
 			/**
@@ -311,6 +317,16 @@ namespace pcpp
 		GtpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = GTPv1; }
 
 		/**
+		 * TODO
+		 */
+		GtpV1Layer(GtpV1MessageType messageType, uint32_t teid);
+
+		/**
+		 * TODO
+		 */
+		GtpV1Layer(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum, uint8_t npduNum);
+
+		/**
 		 * A static method that takes a byte array and detects whether it is a GTP v1 message
 		 * @param[in] data A byte array
 		 * @param[in] dataSize The byte array size (in bytes)
@@ -354,6 +370,11 @@ namespace pcpp
         GtpExtension getNextExtension();
 
 		/**
+		 * TODO
+		 */
+		GtpExtension addExtension(uint8_t extensionType, uint16_t extensionContent);
+
+		/**
 		 * @return The message type of this GTP packet
 		 */
 		GtpV1MessageType getMessageType();
@@ -390,9 +411,9 @@ namespace pcpp
 		size_t getHeaderLen();
 
 		/**
-		 * Calculate the following fields: TBD
+		 * TODO
 		 */
-		void computeCalculateFields() {}
+		void computeCalculateFields();
 
 		std::string toString();
 
