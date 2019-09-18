@@ -348,12 +348,22 @@ namespace pcpp
         bool getSequenceNumber(uint16_t& seqNumber);
 
 		/**
+		 * TODO
+		 */
+		bool setSequenceNumber(const uint16_t seqNumber);
+
+		/**
 		 * Get the N-PDU number if exists on the message (N-PDU number is an optional field in GTP messages)
 		 * @param[out] npduNum Set with the N-PDU number value if exists in the layer. Otherwise remains unchanged
 		 * @return True if the N-PDU number field exists in layer, in which case npduNum is set with the value.
 		 * Or false otherwise
 		 */
         bool getNpduNumber(uint8_t& npduNum);
+
+		/**
+		 * TODO
+		 */
+		bool setNpduNumber(const uint8_t npduNum);
 
 		/**
 		 * Get the type of the next header extension if exists on the message (extensions are optional in GTP messages)

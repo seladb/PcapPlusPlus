@@ -50,6 +50,7 @@ namespace pcpp
 		PacketLogModuleSipLayer, ///< SipLayer module (Packet++)
 		PacketLogModuleSdpLayer, ///< SdpLayer module (Packet++)
 		PacketLogModuleRadiusLayer, ///< RadiusLayer module (Packet++)
+		PacketLogModuleGtpLayer, ///< GtpLayer module (Packet++)
 		PacketLogModuleTcpReassembly, ///< TcpReassembly module (Packet++)
 		PacketLogModuleIPReassembly, ///< IPReassembly module (Packet++)
 		PcapLogModuleWinPcapLiveDevice, ///< WinPcapLiveDevice module (Pcap++)

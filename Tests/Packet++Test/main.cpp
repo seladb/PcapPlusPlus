@@ -7341,6 +7341,64 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 	PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer3, newGtpPacket.getRawPacket()->getRawDataLen());
 }
 
+PTF_TEST_CASE(GtpLayerEditTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/gtp-u-ipv6.dat", buffer1Length);
+	PTF_ASSERT_NOT_NULL(buffer1);
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/gtp-u-ipv6-edited.dat", buffer2Length);
+	PTF_ASSERT_NOT_NULL(buffer2);
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	Packet gtpPacket1(&rawPacket1);
+
+	PTF_ASSERT_TRUE(gtpPacket1.isPacketOfType(GTP));
+	PTF_ASSERT_TRUE(gtpPacket1.isPacketOfType(GTPv1));
+	GtpV1Layer* gtpLayer = gtpPacket1.getLayerOfType<GtpV1Layer>();
+	PTF_ASSERT_NOT_NULL(gtpLayer);
+
+	gtpv1_header* gtpHeader = gtpLayer->getHeader();
+	PTF_ASSERT_NOT_NULL(gtpHeader);
+
+	gtpHeader->teid = htonl(10000);
+
+	gtpLayer->setSequenceNumber(20000);
+	gtpLayer->setNpduNumber(100);
+	gtpLayer->addExtension(0xc0, 1000);
+
+	uint16_t seqNum;
+	PTF_ASSERT_TRUE(gtpLayer->getSequenceNumber(seqNum));
+	PTF_ASSERT_EQUAL(seqNum, 20000, u16);
+
+	uint8_t npduNum;
+	PTF_ASSERT_TRUE(gtpLayer->getNpduNumber(npduNum));
+	PTF_ASSERT_EQUAL(npduNum, 100, u8);
+
+	uint8_t extType;
+	PTF_ASSERT_TRUE(gtpLayer->getNextExtensionHeaderType(extType));
+	PTF_ASSERT_EQUAL(extType, 0xc0, u8);
+
+	GtpV1Layer::GtpExtension gtpExtension = gtpLayer->getNextExtension();
+	PTF_ASSERT_FALSE(gtpExtension.isNull());
+	uint16_t* extContent = (uint16_t*)gtpExtension.getContent();
+	PTF_ASSERT_EQUAL(ntohs(extContent[0]), 1000, u16);
+
+	gtpHeader = gtpLayer->getHeader();
+	PTF_ASSERT_EQUAL(ntohl(gtpHeader->teid), 10000, u32);
+
+	gtpPacket1.computeCalculateFields();
+
+	PTF_ASSERT_EQUAL(buffer2Length, gtpPacket1.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(gtpPacket1.getRawPacket()->getRawData(), buffer2, gtpPacket1.getRawPacket()->getRawDataLen());
+
+	delete [] buffer2;
+}
+
 
 static struct option PacketTestOptions[] =
 {
@@ -7502,6 +7560,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(RadiusLayerEditTest, "radius");
 	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
 	PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
+	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
 
 	PTF_END_RUNNING_TESTS;
 }
