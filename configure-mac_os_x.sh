@@ -56,31 +56,35 @@ if [ $? -ne 0 ]; then
   HELP
 fi
 
-EXPECTING_VALUE=0
-for i in "$@"
+while [[ $# -gt 0 ]]
 do
-case $i in
+key="$1"
+case $key in
    # default switch - do nothing basically
    --default)
-     ;;
+     shift ;;
 
    # enable libpcap immediate mode
    --use-immediate-mode)
-     HAS_PCAP_IMMEDIATE_MODE=1 ;;
+     HAS_PCAP_IMMEDIATE_MODE=1
+     shift ;;
 
    # set direction enabled
    --set-direction-enabled)
-     HAS_SET_DIRECTION_ENABLED=1 ;;
+     HAS_SET_DIRECTION_ENABLED=1
+     shift ;;
 
    # non-default libpcap include dir
    --libpcap-include-dir)
      LIBPCAP_INLCUDE_DIR=$2
-     EXPECTING_VALUE=1 ;;
+     shift
+     shift ;;
 
    # non-default libpcap lib dir
    --libpcap-lib-dir)
      LIBPCAP_LIB_DIR=$2
-     EXPECTING_VALUE=1 ;;
+     shift
+     shift ;;
 
    # installation directory prefix
    --install-dir)
@@ -89,7 +93,8 @@ case $i in
         echo "Installation directory '$INSTALL_DIR' not found. Exiting..."
         exit 1
      fi
-     EXPECTING_VALUE=1 ;;
+     shift
+     shift ;;
 
    # help switch - display help and exit
    -h|--help)
@@ -101,12 +106,9 @@ case $i in
 
    # illegal switch
    *)
-     if [ "$EXPECTING_VALUE" -eq "1" ]; then
-        EXPECTING_VALUE=0
-     else
-        echo -e \\n"Option $i not allowed.";
-        HELP;
-     fi ;;
+     echo -e \\n"Option $key not allowed.";
+     HELP;
+     exit 1 ;;
 esac
 done
 
