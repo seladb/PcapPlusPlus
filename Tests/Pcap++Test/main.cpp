@@ -47,8 +47,10 @@
 #include <in.h>
 #endif
 
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4996)	//Disable this warning - deprecated warning - for this file
+#endif
 
 using namespace std;
 using namespace pcpp;
@@ -6674,4 +6676,6 @@ int main(int argc, char* argv[])
 	PTF_END_RUNNING_TESTS;
 }
 
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
