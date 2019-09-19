@@ -317,12 +317,20 @@ namespace pcpp
 		GtpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = GTPv1; }
 
 		/**
-		 * TODO
+		 * A constructor that creates a new GTPv1 layer and sets the message type and the TEID value
+		 * @param[in] messageType The GTPv1 message type to be set in the newly created layer
+		 * @param[in] teid The TEID value to be set in the newly created layer
 		 */
 		GtpV1Layer(GtpV1MessageType messageType, uint32_t teid);
 
 		/**
-		 * TODO
+		 * A constructor that creates a new GTPv1 layer and sets various parameters
+		 * @param[in] messageType The GTPv1 message type to be set in the newly created layer
+		 * @param[in] teid The TEID value to be set in the newly created layer
+		 * @param[in] setSeqNum A flag indicating whether to set a sequence number. If set to "false" then the parameter "seqNum" will be ignored
+		 * @param[in] seqNum The sequence number to be set in the newly created later. If "setSeqNum" is set to false this parameter will be ignored
+		 * @param[in] setNpduNum A flag indicating whether to set the N-PDU number. If set to "false" then the parameter "npduNum" will be ignored
+		 * @param[in] npduNum The N-PDU number to be set in the newly created later. If "setNpduNum" is set to false this parameter will be ignored
 		 */
 		GtpV1Layer(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum, uint8_t npduNum);
 
@@ -348,7 +356,9 @@ namespace pcpp
         bool getSequenceNumber(uint16_t& seqNumber);
 
 		/**
-		 * TODO
+		 * Set a sequence number
+		 * @param[in] seqNumber The sequence number to set
+		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error message will be written to log
 		 */
 		bool setSequenceNumber(const uint16_t seqNumber);
 
@@ -361,7 +371,9 @@ namespace pcpp
         bool getNpduNumber(uint8_t& npduNum);
 
 		/**
-		 * TODO
+		 * Set an N-PDU number
+		 * @param[in] npduNum The N-PDU number to set
+		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error message will be written to log
 		 */
 		bool setNpduNumber(const uint8_t npduNum);
 
@@ -380,7 +392,13 @@ namespace pcpp
         GtpExtension getNextExtension();
 
 		/**
-		 * TODO
+		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in legnth and its content is 2 bytes in length. 
+		 * If you need a different content size please reach out to me. This method takes care of extending the layer to make room for
+		 * the new extension and also sets the relevant flags and fields
+		 * @param[in] extensionType The type of the new extension
+		 * @param[in] extensionContent A 2-byte long content
+		 * @return An object representing the newly added extension. If there was an error adding the extension a null object will be
+		 * returned (meaning GtpExtension#isNull() will return "true") and a corresponding error message will be written to log
 		 */
 		GtpExtension addExtension(uint8_t extensionType, uint16_t extensionContent);
 
@@ -421,7 +439,8 @@ namespace pcpp
 		size_t getHeaderLen();
 
 		/**
-		 * TODO
+		 * Calculate the following fields:
+		 * - gtpv1_header#messageLength
 		 */
 		void computeCalculateFields();
 

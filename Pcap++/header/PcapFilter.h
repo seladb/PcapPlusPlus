@@ -109,7 +109,7 @@ namespace pcpp
 	};
 
 	/**
-	 * @class FilterTester
+	 * @class BPFStringFilter
 	 * This class can be loaded with a BPF filter string and then can be used to verify the string is valid.<BR>
 	 */
 	class BPFStringFilter : public GeneralFilter
