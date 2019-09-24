@@ -3,9 +3,13 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "ProtocolType.h"
 #include <stdint.h>
 #include "ArpLayer.h"
+
+//Forward Declaration - used in GeneralFilter
+struct bpf_program;
 
 /**
  * @file
@@ -29,6 +33,8 @@
 */
 namespace pcpp
 {
+	//Forward Declartation - used in GeneralFilter
+	class RawPacket;
 
 	/**
 	 * An enum that contains direction (source or destination)
@@ -71,6 +77,15 @@ namespace pcpp
 	 */
 	class GeneralFilter
 	{
+	protected:
+		bpf_program* m_program;
+		std::string m_lastProgramString;
+
+		/**
+		* Free the held program and any resources allocated for it.
+		*/
+		void freeProgram();
+
 	public:
 		/**
 		 * A method that parses the class instance into BPF string format
@@ -79,9 +94,46 @@ namespace pcpp
 		virtual void parseToString(std::string& result) = 0;
 
 		/**
-		 * Virtual destructor, does nothing for this class
+		* Match a raw packet with a given BPF filter.
+		* @param[in] rawPacket A pointer to the raw packet to match the BPF filter with
+		* @return True if a raw packet matches the BPF filter or false otherwise
+		*/
+		bool matchPacketWithFilter(RawPacket* rawPacket);
+
+		GeneralFilter();
+
+		/**
+		 * Virtual destructor, frees the bpf program
 		 */
 		virtual ~GeneralFilter();
+	};
+
+	/**
+	 * @class BPFStringFilter
+	 * This class can be loaded with a BPF filter string and then can be used to verify the string is valid.<BR>
+	 */
+	class BPFStringFilter : public GeneralFilter
+	{
+	private:
+		const std::string m_filterStr;
+
+	public:
+		BPFStringFilter(const std::string& filterStr);
+
+		virtual ~BPFStringFilter();
+
+		/**
+		 * A method that parses the class instance into BPF string format
+		 * @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its content will be overridden
+		 * If the filter is not valid the result will be an empty string
+		 */
+		virtual void parseToString(std::string& result);
+
+		/**
+		* Verify the filter is valid
+		* @return True if the filter is valid or false otherwise
+		*/
+		bool verifyFilter();
 	};
 
 

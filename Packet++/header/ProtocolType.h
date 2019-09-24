@@ -206,9 +206,20 @@ namespace pcpp
 		Radius = 0x40000000,
 
 		/**
-		 * BGP protocol
+		 * GTPv1 protocol
 		 */
-		BGP = 0x80000000
+		GTPv1 = 0x80000000,
+
+		/**
+		 * GTP protocol (currently the same as GTPv1)
+		 */
+		GTP = 0x80000000,
+
+		/**
+		* BGP protocol
+		*/
+		BGP = 0x100000000
+
 	};
 
 

@@ -383,7 +383,8 @@ int main(int argc, char* argv[])
 	}
 
 	// verify the search criteria is a valid BPF filter
-	if (!pcpp::IPcapDevice::verifyFilter(searchCriteria))
+	BPFStringFilter filter(searchCriteria);
+	if(!filter.verifyFilter())
 	{
 		EXIT_WITH_ERROR("Search criteria isn't valid");
 	}

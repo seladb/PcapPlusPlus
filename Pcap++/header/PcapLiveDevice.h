@@ -379,6 +379,12 @@ namespace pcpp
 		void stopCapture();
 
 		/**
+		 * Check if a capture thread is running
+		 * @return True if a capture thread is currently running
+		 */
+		bool captureActive();
+
+		/**
 		 * Send a RawPacket to the network
 		 * @param[in] rawPacket A reference to the raw packet to send. This method treats the raw packet as read-only, it doesn't change anything
 		 * in it

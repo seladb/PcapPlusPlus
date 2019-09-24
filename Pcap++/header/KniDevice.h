@@ -580,7 +580,7 @@ namespace pcpp
 		 * @param[in] onPacketArrives A callback given by the user for handling incoming packets. After handling each burst of packets
 		 * the user needs to return a boolean value. True value indicates stop capturing and stop blocking and
 		 * false value indicates continue capturing and blocking
-		 * @param[in] userCookie A pointer to a user provided object. This object will be transferred to the onPacketArrives callback
+		 * @param[in] onPacketArrivesUserCookie A pointer to a user provided object. This object will be transferred to the onPacketArrives callback
 		 * each time it is called. This cookie is very useful for transferring objects that give context to the capture callback, for example:
 		 * objects that counts packets, manages flow state or manages the application state according to the packet that was captured
 		 * @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in the onPacketArrives callback

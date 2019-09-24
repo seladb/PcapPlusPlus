@@ -47,6 +47,11 @@
 #include <in.h>
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)	//Disable this warning - deprecated warning - for this file
+#endif
+
 using namespace std;
 using namespace pcpp;
 
@@ -750,13 +755,24 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT(!macWrong3.isValid(), "macWrong3 is valid");
 }
 
+static void openAndValidateFileDevice(int& ptfResult, IFileDevice* fileDevice)
+{
+	PTF_ASSERT(fileDevice->open(), "cannot open file device");
+	PTF_ASSERT(fileDevice->isOpened(), "File device should be opened");
+}
+
+static void closeAndValidateFileDevice(int& ptfResult, IFileDevice* fileDevice)
+{
+	fileDevice->close();
+	PTF_ASSERT(!fileDevice->isOpened(), "File device should be closed");
+}
 
 PTF_TEST_CASE(TestPcapFileReadWrite)
 {
     PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
     PcapFileWriterDevice writerDev(EXAMPLE_PCAP_WRITE_PATH);
-    PTF_ASSERT(readerDev.open(), "cannot open reader device");
-    PTF_ASSERT(writerDev.open(), "cannot open writer device");
+    openAndValidateFileDevice(ptfResult, &readerDev);
+    openAndValidateFileDevice(ptfResult, &writerDev);
     PTF_ASSERT(readerDev.getFileName() == EXAMPLE_PCAP_PATH, "Reader file name different than expected");
     PTF_ASSERT(writerDev.getFileName() == EXAMPLE_PCAP_WRITE_PATH, "Writer file name different than expected");
     PTF_ASSERT(readerDev.getFileSize() == 3812643, "Reader file size different than expected. Expected: %d, got: %d", 3812643, (int)readerDev.getFileSize());
@@ -803,19 +819,19 @@ PTF_TEST_CASE(TestPcapFileReadWrite)
     PTF_ASSERT(tcpCount == 4492, "Incorrect number of IPv4 packets read. Expected: 4492; read: %d", tcpCount);
     PTF_ASSERT(udpCount == 139, "Incorrect number of IPv4 packets read. Expected: 139; read: %d", udpCount);
 
-    readerDev.close();
-    writerDev.close();
+    closeAndValidateFileDevice(ptfResult, &readerDev);
+    closeAndValidateFileDevice(ptfResult, &writerDev);
 
     // read all packets in a bulk
     PcapFileReaderDevice readerDev2(EXAMPLE_PCAP_PATH);
-    PTF_ASSERT(readerDev2.open(), "cannot open reader device 2");
+    openAndValidateFileDevice(ptfResult, &readerDev2);
 
     RawPacketVector packetVec;
     int numOfPacketsRead = readerDev2.getNextPackets(packetVec);
     PTF_ASSERT(numOfPacketsRead == 4631, "Bulk read: num of packets read isn't 4631");
     PTF_ASSERT(packetVec.size() == 4631, "Bulk read: num of packets in vec isn't 4631");
 
-    readerDev2.close();
+    closeAndValidateFileDevice(ptfResult, &readerDev2);
 }
 
 PTF_TEST_CASE(TestPcapSllFileReadWrite)
@@ -1711,17 +1727,62 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 
 }
 
+PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
+{
+	RawPacketVector rawPacketVec;
+	string filterAsString;
+
+	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
+
+	//------------------
+	//Test GeneralFilter bpf_program + BPFStringFilter
+	//------------------
+
+	//Try to make an invalid filter
+	BPFStringFilter badFilter("This is not a valid filter");
+	PTF_ASSERT(!badFilter.verifyFilter() || !IPcapDevice::verifyFilter("This is not a valid filter"), "Invalid BPFStringFilter was not caught!");
+
+	//Test stolen from MacAddress test below
+	MacAddress macAddr("00:13:c3:df:ae:18");
+	BPFStringFilter bpfStringFilter("ether dst " + macAddr.toString());
+	PTF_ASSERT(bpfStringFilter.verifyFilter(), "Cannot verify BPFStringFilter");
+	bpfStringFilter.parseToString(filterAsString);
+
+	PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
+	fileReaderDev.getNextPackets(rawPacketVec);
+	fileReaderDev.close();
+
+	int validCounter = 0;
+
+	for (RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		//Check if match using static local variable is leaking?
+		//if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter) && IPcapDevice::matchPacketWithFilter(filterAsString, *iter))
+		if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+		{
+			++validCounter;
+			Packet packet(*iter);
+			EthLayer* ethLayer = packet.getLayerOfType<EthLayer>();
+			PTF_ASSERT(ethLayer->getDestMac() == macAddr, "BPFStringFilter test: dest MAC different than expected, it's: '%s'", ethLayer->getDestMac().toString().c_str());
+		}
+	}
+
+	PTF_ASSERT(validCounter == 5, "BPFStringFilter test: Captured: %d packets. Expected: %d packets", validCounter, 5);
+
+	rawPacketVec.clear();
+}
+
 PTF_TEST_CASE(TestPcapFiltersOffline)
 {
 	RawPacketVector rawPacketVec;
 	string filterAsString;
 
-    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
-    PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
+	PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
+	PcapFileReaderDevice fileReaderDev2(EXAMPLE_PCAP_PATH);
 	PcapFileReaderDevice fileReaderDev3(EXAMPLE_PCAP_GRE);
 	PcapFileReaderDevice fileReaderDev4(EXAMPLE_PCAP_IGMP);
 
-    //-----------------
+	 //-----------------
     //VLAN filter
     //-----------------
 
@@ -2169,10 +2230,6 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	}
 	rawPacketVec.clear();
-
-
-
-
 }
 
 PTF_TEST_CASE(TestSendPacket)
@@ -6574,6 +6631,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
 	PTF_RUN_TEST(TestPcapLiveDeviceByInvalidIp, "no_network;live_device");
 	PTF_RUN_TEST(TestPcapFiltersLive, "filters");
+	PTF_RUN_TEST(TestPcapFilters_General_BPFStr, "no_network;filters;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapFiltersOffline, "no_network;filters");
 	PTF_RUN_TEST(TestSendPacket, "send");
 	PTF_RUN_TEST(TestSendPackets, "send");
@@ -6617,3 +6675,7 @@ int main(int argc, char* argv[])
 
 	PTF_END_RUNNING_TESTS;
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif

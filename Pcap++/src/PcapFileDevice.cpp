@@ -53,15 +53,14 @@ std::string IFileDevice::getFileName()
 
 void IFileDevice::close()
 {
-	if (m_PcapDescriptor == NULL)
+	if (m_PcapDescriptor != NULL)
 	{
-		LOG_DEBUG("Pcap descriptor already NULL. Nothing to do");
-		return;
+		pcap_close(m_PcapDescriptor);
+		LOG_DEBUG("Successfully closed file reader device for filename '%s'", m_FileName);
+		m_PcapDescriptor = NULL;
 	}
 
-	pcap_close(m_PcapDescriptor);
-	LOG_DEBUG("Successfully closed file reader device for filename '%s'", m_FileName);
-	m_PcapDescriptor = NULL;
+	m_DeviceOpened = false;
 }
 
 

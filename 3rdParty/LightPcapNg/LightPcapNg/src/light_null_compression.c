@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "light_compression.h"
 #include "light_null_compression.h"
 #include "light_compression_functions.h"
 #include "light_file.h"

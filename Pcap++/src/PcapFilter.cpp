@@ -9,12 +9,91 @@
 #elif LINUX
 #include <in.h>
 #endif
+#include <pcap.h>
+#include "RawPacket.h"
 
 namespace pcpp
 {
 
+GeneralFilter::GeneralFilter() : m_program(NULL)
+{}
+
+bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
+{
+	std::string filterStr;
+	parseToString(filterStr);
+
+	if (m_program == NULL || m_lastProgramString != filterStr)
+	{
+		freeProgram();
+
+		m_program = new bpf_program();
+
+		LOG_DEBUG("Compiling the filter '%s'", filterStr.c_str());
+		if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, filterStr.c_str(), 1, 0) < 0)
+		{
+			//Filter not valid so delete member
+			freeProgram();
+			return false;
+		}
+		m_lastProgramString = filterStr;
+	}
+
+	struct pcap_pkthdr pktHdr;
+	pktHdr.caplen = rawPacket->getRawDataLen();
+	pktHdr.len = rawPacket->getRawDataLen();
+	pktHdr.ts = rawPacket->getPacketTimeStamp();
+
+	return (pcap_offline_filter(m_program, &pktHdr, rawPacket->getRawData()) != 0);
+}
+
+void GeneralFilter::freeProgram()
+{
+	if (m_program)
+	{
+		pcap_freecode(m_program);
+		delete m_program;
+		m_program = NULL;
+		m_lastProgramString.clear();
+	}
+}
+
 GeneralFilter::~GeneralFilter()
 {
+	freeProgram();
+}
+
+BPFStringFilter::BPFStringFilter(const std::string &filterStr) : m_filterStr(filterStr)
+{}
+
+BPFStringFilter::~BPFStringFilter()
+{}
+
+void BPFStringFilter::parseToString(std::string& result)
+{
+	if (verifyFilter())
+		result = m_filterStr;
+	else
+		result.clear();
+}
+
+bool BPFStringFilter::verifyFilter()
+{
+	//If filter has been built before it must be valid
+	if (m_program)
+		return true;
+
+	m_program = new bpf_program();
+	LOG_DEBUG("Compiling the filter '%s'", m_filterStr.c_str());
+	if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, m_filterStr.c_str(), 1, 0) < 0)
+	{
+		//Filter not valid so delete member
+		freeProgram();
+		return false;
+	}
+	m_lastProgramString = m_filterStr;
+
+	return true;
 }
 
 void IFilterWithDirection::parseDirection(std::string& directionAsString)
