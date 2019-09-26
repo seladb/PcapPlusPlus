@@ -6,6 +6,14 @@
 
 /// @file
 
+#ifndef PCPP_NOEXCEPT
+	#if __cplusplus >= 201103L
+		#define PCPP_NOEXCEPT noexcept
+	#else
+		#define PCPP_NOEXCEPT throw()
+	#endif
+#endif
+
 /**
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
@@ -155,7 +163,7 @@ namespace pcpp
 
 		TLVRecordReader<RadiusAttribute> m_AttributeReader;
 
-		inline uint8_t* getAttributesBasePtr() { return m_Data + sizeof(radius_header); }
+		uint8_t* getAttributesBasePtr() const { return m_Data + sizeof(radius_header); }
 
 		RadiusAttribute addAttrAt(const RadiusAttributeBuilder& attrBuilder, int offset);
 
@@ -203,7 +211,7 @@ namespace pcpp
 		 * Get a pointer to the RADIUS header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the radius_header object
 		 */
-		inline radius_header* getRadiusHeader() const { return (radius_header*)m_Data; }
+		radius_header* getRadiusHeader() const { return (radius_header*)m_Data; }
 
 		/**
 		 * @return A hex string representation of the radius_header#authenticator byte array value
@@ -302,7 +310,15 @@ namespace pcpp
 
 		std::string toString();
 
-        OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
+
+		/**
+		 * The static method makes validation of UDP data
+		 * @param[in] udpData The pointer to the UDP payload data. It points to the first byte of RADIUS header.
+		 * @param[in] udpDataLen The payload data size
+		 * @return True if the data is valid and can represent the RADIUS packet
+		 */
+		static bool isDataValid(uint8_t const *udpData, size_t udpDataLen) PCPP_NOEXCEPT;
 
 	};
 }

@@ -244,4 +244,11 @@ bool RadiusLayer::removeAllAttributes()
 	return true;
 }
 
+bool RadiusLayer::isDataValid(uint8_t const *udpData, size_t udpDataLen) PCPP_NOEXCEPT
+{
+	radius_header const *radHdr = reinterpret_cast<radius_header const *>(udpData);
+	size_t radLen = ntohs(radHdr->length);
+	return radLen >= sizeof(radius_header) && radLen <= udpDataLen;
+}
+
 }
