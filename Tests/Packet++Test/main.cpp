@@ -6937,7 +6937,16 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 		radiusAttr = radiusLayer->getNextAttribute(radiusAttr);
 	}
 
+  // incorrect RADIUS packet
+  int buffer3Length = 0;
+  uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/radius_wrong.dat", buffer3Length);
+  PTF_ASSERT(buffer3 != NULL, "cannot read file");
 
+  RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true, LINKTYPE_NULL);
+  Packet radiusPacket3(&rawPacket3);
+  
+  radiusLayer = radiusPacket3.getLayerOfType<RadiusLayer>();
+  PTF_ASSERT(radiusLayer == NULL, "Packet3: Incorrect RADIUS packet is decoded as correct");
 }
 
 
