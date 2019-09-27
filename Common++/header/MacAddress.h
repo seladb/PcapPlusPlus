@@ -106,7 +106,7 @@ namespace pcpp
 			if(m_IsValid)
 			{
 				#if _MSC_VER >= 1800
-				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, sizeof m_Address));
 				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 				#endif
@@ -119,13 +119,13 @@ namespace pcpp
 		 * Returns the size of raw data
 		 * @return The size of raw data
 		 */
-		static constexpr size_t rawDataSize() { return sizeof m_Address; }
+		static constexpr size_t rawDataSize() { return 6; }
 #else
 		/**
 		 * Returns the size of raw data
 		 * @return The size of raw data
 		 */
-		static size_t rawDataSize() { return sizeof m_Address; }
+		static size_t rawDataSize() { return 6; }
 #endif
 
 		/**
