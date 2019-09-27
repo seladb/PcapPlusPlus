@@ -13,7 +13,7 @@ namespace pcpp
 	/**
 	 * An enum representing all protocols supported by PcapPlusPlus
 	 */
-	enum ProtocolType
+	enum ProtocolType : unsigned __int64
 	{
 		/**
 		 * Unknown protocol (or unsupported by PcapPlusPlus)

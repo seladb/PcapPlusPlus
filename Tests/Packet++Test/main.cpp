@@ -26,6 +26,7 @@
 #include <PacketTrailerLayer.h>
 #include <RadiusLayer.h>
 #include <GtpLayer.h>
+#include <BgpLayer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -7399,6 +7400,28 @@ PTF_TEST_CASE(GtpLayerEditTest)
 	delete [] buffer2;
 }
 
+PTF_TEST_CASE(BgpLayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/BgpKeepAlive.dat", buffer1Length);
+	PTF_ASSERT_NOT_NULL(buffer1);
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	Packet bgpPacket1(&rawPacket1);
+
+	PTF_ASSERT_TRUE(bgpPacket1.isPacketOfType(BGP));
+	BgpLayer* bgpLayer = bgpPacket1.getLayerOfType<BgpLayer>();
+	PTF_ASSERT_NOT_NULL(bgpLayer);
+
+	bgp_header* bgpHeader = bgpLayer->getBgpHeader();
+	PTF_ASSERT_NOT_NULL(bgpHeader);
+
+	PTF_ASSERT_TRUE(bgpHeader->messageType == BGP_KEEP_ALIVE);
+}
+
 
 static struct option PacketTestOptions[] =
 {
@@ -7561,6 +7584,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
 	PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
 	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
+	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
 
 	PTF_END_RUNNING_TESTS;
 }
