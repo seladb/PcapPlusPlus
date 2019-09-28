@@ -75,7 +75,7 @@ namespace pcpp
 				m_Data = (TLVRawData *)recordRawData;
 		}
 
-    /**
+		/**
 		 * Overload of the assignment operator. This operator doesn't copy the TLV data, but rather copies the pointer to it,
 		 * which means that after calling it both the old and the new instance will point to the same TLV raw data
 		 * @param[in] other The TLVRecord instance to assign
@@ -260,9 +260,9 @@ namespace pcpp
 		 */
 		TLVRecordType getNextTLVRecord(TLVRecordType& record, uint8_t* tlvDataBasePtr, size_t tlvDataLen)
 		{
-      TLVRecordType resRec(NULL); // for NRVO optimization
+			TLVRecordType resRec(NULL); // for NRVO optimization
 
-      if (record.isNull())
+			if (record.isNull())
 				return resRec;
 
 			// record pointer is out-bounds of the TLV records memory

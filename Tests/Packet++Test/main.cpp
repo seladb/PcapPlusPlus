@@ -55,9 +55,9 @@ int getFileLength(const char* filename)
 	if (!infile)
 		return -1;
 	infile.seekg(0, infile.end);
-    int length = infile.tellg();
-    infile.close();
-    return length;
+	int length = infile.tellg();
+	infile.close();
+	return length;
 }
 
 uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength)
@@ -6937,16 +6937,16 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 		radiusAttr = radiusLayer->getNextAttribute(radiusAttr);
 	}
 
-  // incorrect RADIUS packet
-  int buffer3Length = 0;
-  uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/radius_wrong.dat", buffer3Length);
-  PTF_ASSERT(buffer3 != NULL, "cannot read file");
+	// incorrect RADIUS packet
+	int buffer3Length = 0;
+	uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/radius_wrong.dat", buffer3Length);
+	PTF_ASSERT(buffer3 != NULL, "cannot read file");
 
-  RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true, LINKTYPE_NULL);
-  Packet radiusPacket3(&rawPacket3);
-  
-  radiusLayer = radiusPacket3.getLayerOfType<RadiusLayer>();
-  PTF_ASSERT(radiusLayer == NULL, "Packet3: Incorrect RADIUS packet is decoded as correct");
+	RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true, LINKTYPE_NULL);
+	Packet radiusPacket3(&rawPacket3);
+
+	radiusLayer = radiusPacket3.getLayerOfType<RadiusLayer>();
+	PTF_ASSERT(radiusLayer == NULL, "Packet3: Incorrect RADIUS packet is decoded as correct");
 }
 
 
@@ -7414,7 +7414,7 @@ static struct option PacketTestOptions[] =
 	{"tags",  required_argument, 0, 't'},
 	{"mem-verbose", no_argument, 0, 'm' },
 	{"skip-mem-leak-check", no_argument, 0, 's' },
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 void print_usage()
