@@ -7400,13 +7400,13 @@ PTF_TEST_CASE(GtpLayerEditTest)
 	delete [] buffer2;
 }
 
-PTF_TEST_CASE(BgpLayerParsingTest)
+static void readFileAndValidateMessageType(int& ptfResult, const char *filename, BgpMessageType messageType)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
 
 	int buffer1Length = 0;
-	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/BgpKeepAlive.dat", buffer1Length);
+	uint8_t* buffer1 = readFileIntoBuffer(filename, buffer1Length);
 	PTF_ASSERT_NOT_NULL(buffer1);
 
 	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
@@ -7419,7 +7419,14 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	bgp_header* bgpHeader = bgpLayer->getBgpHeader();
 	PTF_ASSERT_NOT_NULL(bgpHeader);
 
-	PTF_ASSERT_TRUE(bgpHeader->messageType == BGP_KEEP_ALIVE);
+	PTF_ASSERT_TRUE(bgpHeader->messageType == messageType);
+}
+
+PTF_TEST_CASE(BgpLayerParsingTest)
+{
+	readFileAndValidateMessageType(ptfResult, "PacketExamples/BgpKeepAlive.dat", BGP_KEEP_ALIVE);
+	readFileAndValidateMessageType(ptfResult, "PacketExamples/BgpOpen.dat", BGP_OPEN);
+ 	readFileAndValidateMessageType(ptfResult, "PacketExamples/BgpUpdate.dat", BGP_UPDATE);
 }
 
 

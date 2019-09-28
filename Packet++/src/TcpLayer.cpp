@@ -347,7 +347,7 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = new SipRequestLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	else if (((portDst == 5060) || (portDst == 5061)) && (SipResponseFirstLine::parseStatusCode((char*)(m_Data + headerLen), m_DataLen - headerLen) != SipResponseLayer::SipStatusCodeUnknown))
 		m_NextLayer = new SipResponseLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
-	else if (portDst == 179)
+	else if (portDst == 179 || portSrc == 179)
 		m_NextLayer = new BgpLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
