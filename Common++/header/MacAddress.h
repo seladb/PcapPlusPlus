@@ -81,7 +81,6 @@ namespace pcpp
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 				#endif
 			}
-				
 		}
 #endif
 
@@ -107,15 +106,20 @@ namespace pcpp
 			if(m_IsValid)
 			{
 				#if _MSC_VER >= 1800
-				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, sizeof m_Address));
 				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 				#endif
 			}
-
 			return *this;
 		}
 #endif
+
+		/**
+		 * Returns the pointer to raw data
+		 * @return The pointer to raw data
+		 */
+		const uint8_t *getRawData() const { return m_Address; }
 
 		/**
 		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from illegal input, for example:
@@ -136,8 +140,8 @@ namespace pcpp
 		 */
 		void copyTo(uint8_t** arr) const
 		{
-				(*arr) = new uint8_t[sizeof m_Address];
-				memcpy((*arr), m_Address, sizeof m_Address);
+			*arr = new uint8_t[sizeof m_Address];
+			memcpy(*arr, m_Address, sizeof m_Address);
 		}
 
 		/**
@@ -151,6 +155,7 @@ namespace pcpp
 		 * A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		 */
 		static MacAddress Zero;
+
 	private:
 		uint8_t m_Address[6];
 		bool m_IsValid;
