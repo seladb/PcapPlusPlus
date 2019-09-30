@@ -111,21 +111,8 @@ namespace pcpp
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 				#endif
 			}
-
 			return *this;
 		}
-
-		/**
-		 * Returns the size of raw data
-		 * @return The size of raw data
-		 */
-		static constexpr size_t rawDataSize() { return 6; }
-#else
-		/**
-		 * Returns the size of raw data
-		 * @return The size of raw data
-		 */
-		static size_t rawDataSize() { return 6; }
 #endif
 
 		/**
