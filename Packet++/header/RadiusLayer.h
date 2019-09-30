@@ -6,14 +6,6 @@
 
 /// @file
 
-#ifndef PCPP_NOEXCEPT
-	#if __cplusplus >= 201103L
-		#define PCPP_NOEXCEPT noexcept
-	#else
-		#define PCPP_NOEXCEPT throw()
-	#endif
-#endif
-
 /**
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
@@ -318,7 +310,7 @@ namespace pcpp
 		 * @param[in] udpDataLen The payload data size
 		 * @return True if the data is valid and can represent the RADIUS packet
 		 */
-		static bool isDataValid(uint8_t const *udpData, size_t udpDataLen) PCPP_NOEXCEPT;
+		static bool isDataValid(const uint8_t *udpData, size_t udpDataLen);
 
 	};
 }
