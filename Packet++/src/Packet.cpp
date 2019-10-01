@@ -663,7 +663,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime)
 	else
 		nowtm = gmtime(&nowtime);
 
-	char tmbuf[64], buf[64];
+	char tmbuf[64], buf[128];
 	if (nowtm != NULL)
 	{
 		strftime(tmbuf, sizeof(tmbuf), "%Y-%m-%d %H:%M:%S", nowtm);
