@@ -84,7 +84,7 @@ namespace pcpp
 		/**
 		* Match a raw packet with a given BPF filter. Notice this method is static which means you don't need any device instance
 		* in order to perform this match
-		* @param[in] a filter class to test against
+		* @param[in] filter A filter class to test against
 		* @param[in] rawPacket A pointer to the raw packet to match the filter with
 		* @return True if raw packet matches the filter or false otherwise
 		*/

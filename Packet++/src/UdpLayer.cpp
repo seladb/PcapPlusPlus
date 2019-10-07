@@ -90,22 +90,25 @@ void UdpLayer::parseNextLayer()
 	uint16_t portDst = ntohs(udpHder->portDst);
 	uint16_t portSrc = ntohs(udpHder->portSrc);
 
+	uint8_t *udpData = m_Data + sizeof(udphdr);
+	size_t udpDataLen = m_DataLen - sizeof(udphdr);
+
 	if ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) || (portSrc == 67 && portDst == 67))
-		m_NextLayer = new DhcpLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
+		m_NextLayer = new DhcpLayer(udpData, udpDataLen, this, m_Packet);
 	else if (portDst == 4789)
-		m_NextLayer = new VxlanLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
-	else if ((m_DataLen - sizeof(udphdr) >= sizeof(dnshdr)) && (DnsLayer::getDNSPortMap()->find(portDst) != DnsLayer::getDNSPortMap()->end() || DnsLayer::getDNSPortMap()->find(portSrc) != DnsLayer::getDNSPortMap()->end()))
-		m_NextLayer = new DnsLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
-	else if (((portDst == 5060) || (portDst == 5061) || (portSrc == 5060) || (portSrc == 5061)) && (SipRequestFirstLine::parseMethod((char*)(m_Data + sizeof(udphdr)), m_DataLen - sizeof(udphdr)) != SipRequestLayer::SipMethodUnknown))
-		m_NextLayer = new SipRequestLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
-	else if (((portDst == 5060) || (portDst == 5061) || (portSrc == 5060) || (portSrc == 5061)) && (SipResponseFirstLine::parseStatusCode((char*)(m_Data + sizeof(udphdr)), m_DataLen - sizeof(udphdr)) != SipResponseLayer::SipStatusCodeUnknown))
-		m_NextLayer = new SipResponseLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
-	else if ((portDst == 1812) || (portSrc == 1812) || (portDst == 1813) || (portSrc == 1813) || (portDst == 3799) || (portSrc == 3799))
-		m_NextLayer = new RadiusLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
-	else if (((portDst == 2152) || (portSrc == 2152) || (portDst == 2123) || (portSrc == 2123)) && (GtpV1Layer::isGTPv1(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr))))
-		m_NextLayer = new GtpV1Layer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
+		m_NextLayer = new VxlanLayer(udpData, udpDataLen, this, m_Packet);
+	else if ((udpDataLen >= sizeof(dnshdr)) && (DnsLayer::getDNSPortMap()->find(portDst) != DnsLayer::getDNSPortMap()->end() || DnsLayer::getDNSPortMap()->find(portSrc) != DnsLayer::getDNSPortMap()->end()))
+		m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
+	else if ((portDst == 5060 || portDst == 5061 || portSrc == 5060 || portSrc == 5061) && (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown))
+		m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
+	else if ((portDst == 5060 || portDst == 5061 || portSrc == 5060 || portSrc == 5061) && (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) != SipResponseLayer::SipStatusCodeUnknown))
+		m_NextLayer = new SipResponseLayer(udpData, udpDataLen, this, m_Packet);
+	else if ((portDst == 1812 || portSrc == 1812 || portDst == 1813 || portSrc == 1813 || portDst == 3799 || portSrc == 3799) && RadiusLayer::isDataValid(udpData, udpDataLen))
+		m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, m_Packet);
+	else if ((portDst == 2152 || portSrc == 2152 || portDst == 2123 || portSrc == 2123) && GtpV1Layer::isGTPv1(udpData, udpDataLen))
+		m_NextLayer = new GtpV1Layer(udpData, udpDataLen, this, m_Packet);
 	else
-		m_NextLayer = new PayloadLayer(m_Data + sizeof(udphdr), m_DataLen - sizeof(udphdr), this, m_Packet);
+		m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 }
 
 void UdpLayer::computeCalculateFields()

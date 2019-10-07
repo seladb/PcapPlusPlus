@@ -71,6 +71,9 @@ bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool em
 #define enum_PTF_PRINT_FORMAT "%d"
 #define enum_PTF_PRINT_TYPE(val) (int)(val)
 
+#define object_PTF_PRINT_FORMAT "%s"
+#define object_PTF_PRINT_TYPE(val) #val
+
 
 #define PTF_TEST_CASE(TestName) void TestName(int& ptfResult)
 
@@ -94,6 +97,13 @@ bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool em
 #define PTF_ASSERT_EQUAL(actual, expected, type) \
     if (actual != expected) { \
 		printf("%-30s: FAILED (line: %d). assert equal failed: actual: " type##_PTF_PRINT_FORMAT " != expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
+		ptfResult = 0; \
+        return; \
+    }
+
+#define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) \
+    if (memcmp(buf1, buf2, size) != 0) { \
+		printf("%-30s: FAILED (line: %d). assert buffer compare failed: %s != %s\n", __FUNCTION__, __LINE__, #buf1, #buf2); \
 		ptfResult = 0; \
         return; \
     }

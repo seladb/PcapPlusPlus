@@ -45,10 +45,7 @@ namespace pcpp
 		 */
 		TLVRecord(uint8_t* recordRawData)
 		{
-			if (recordRawData == NULL)
-				m_Data = NULL;
-			else
-				m_Data = (TLVRawData*)recordRawData;
+			assign(recordRawData);
 		}
 
 		/**
@@ -67,6 +64,18 @@ namespace pcpp
 		virtual ~TLVRecord() { }
 
 		/**
+		 * Assign a pointer to the TLV record raw data (byte array)
+		 * @param[in] recordRawData A pointer to the TLV record raw data
+		 */
+		void assign(uint8_t *recordRawData)
+		{
+			if(recordRawData == NULL)
+				m_Data = NULL;
+			else
+				m_Data = (TLVRawData *)recordRawData;
+		}
+
+		/**
 		 * Overload of the assignment operator. This operator doesn't copy the TLV data, but rather copies the pointer to it,
 		 * which means that after calling it both the old and the new instance will point to the same TLV raw data
 		 * @param[in] other The TLVRecord instance to assign
@@ -83,7 +92,7 @@ namespace pcpp
 		 * @param[in] rhs The object to compare to
 		 * @return True if both objects are equal, false otherwise
 		 */
-		bool operator==(const TLVRecord& rhs)
+		bool operator==(const TLVRecord& rhs) const
 		{
 			if (m_Data == rhs.m_Data)
 				return true;
@@ -101,27 +110,27 @@ namespace pcpp
 		/**
 		 * @return The type field of the record (the 'T' in __Type__-Length-Value)
 		 */
-		uint8_t getType() { return m_Data->recordType; }
+		uint8_t getType() const { return m_Data->recordType; }
 
 		/**
 		 * @return A pointer to the value of the record as byte array (the 'V' in Type-Length- __Value__)
 		 */
-		uint8_t* getValue() { return m_Data->recordValue; }
+		uint8_t* getValue() const { return m_Data->recordValue; }
 
 		/**
 		 * @return True if the TLV record raw data is NULL, false otherwise
 		 */
-		bool isNull() { return (m_Data == NULL); }
+		bool isNull() const { return (m_Data == NULL); }
 
 		/**
 		 * @return True if the TLV record raw data is not NULL, false otherwise
 		 */
-		bool isNotNull() { return (m_Data != NULL); }
+		bool isNotNull() const { return (m_Data != NULL); }
 
 		/**
 		 * @return A pointer to the TLV record raw data byte stream
 		 */
-		uint8_t* getRecordBasePtr() { return (uint8_t*)m_Data; }
+		uint8_t* getRecordBasePtr() const { return (uint8_t*)m_Data; }
 
 		/**
 		 * Free the memory of the TLV record raw data
@@ -176,7 +185,6 @@ namespace pcpp
 		 * @return The size of the record value (meaning the size of the 'V' part in TLV)
 		 */
 		virtual size_t getDataSize() = 0;
-
 	};
 
 
@@ -231,11 +239,14 @@ namespace pcpp
 		 */
 		TLVRecordType getFirstTLVRecord(uint8_t* tlvDataBasePtr, size_t tlvDataLen)
 		{
-			// check if there are records at all
-			if (tlvDataLen == 0)
-				return TLVRecordType(NULL);
+			// In most cases tlvDataLen is not zero and the size is correct therefore the overhead is not significant if the checks will be done later
+			TLVRecordType resRec(tlvDataBasePtr); // for NRVO optimization
 
-			return TLVRecordType(tlvDataBasePtr);
+			// check if there are records at all and the total size is not zero
+			if (tlvDataLen == 0 || resRec.getTotalSize() == 0)
+				resRec.assign(NULL);
+
+			return resRec;
 		}
 
 		/**
@@ -249,18 +260,24 @@ namespace pcpp
 		 */
 		TLVRecordType getNextTLVRecord(TLVRecordType& record, uint8_t* tlvDataBasePtr, size_t tlvDataLen)
 		{
+			TLVRecordType resRec(NULL); // for NRVO optimization
+
 			if (record.isNull())
-				return TLVRecordType(NULL);
+				return resRec;
 
 			// record pointer is out-bounds of the TLV records memory
 			if ((record.getRecordBasePtr() - tlvDataBasePtr) < 0)
-				return TLVRecordType(NULL);
+				return resRec;
 
 			// record pointer is out-bounds of the TLV records memory
-			if (record.getRecordBasePtr() - tlvDataBasePtr + (int)record.getTotalSize()  >= (int)tlvDataLen)
-				return TLVRecordType(NULL);
+			if (record.getRecordBasePtr() - tlvDataBasePtr + (int)record.getTotalSize() >= (int)tlvDataLen)
+				return resRec;
 
-			return TLVRecordType(record.getRecordBasePtr() + record.getTotalSize());
+			resRec.assign(record.getRecordBasePtr() + record.getTotalSize());
+			if (resRec.getTotalSize() == 0)
+				resRec.assign(NULL);
+
+			return resRec;
 		}
 
 		/**
@@ -282,7 +299,8 @@ namespace pcpp
 				curRec = getNextTLVRecord(curRec, tlvDataBasePtr, tlvDataLen);
 			}
 
-			return TLVRecordType(NULL);
+			curRec.assign(NULL);
+			return curRec; // for NRVO optimization
 		}
 
 		/**
