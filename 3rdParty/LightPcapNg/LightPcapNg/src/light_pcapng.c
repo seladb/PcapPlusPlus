@@ -355,6 +355,7 @@ void light_read_record(light_file fd, light_pcapng *record)
    //So we just cheat by decrementing the data pointer back 8 bytes;
    parse_by_block_type(current, local_data, local_data - 2);
 
+   free(local_data);
    *record = current;
 
    return;
