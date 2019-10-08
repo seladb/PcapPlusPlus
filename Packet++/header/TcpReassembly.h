@@ -5,6 +5,9 @@
 #include "IpAddress.h"
 #include "PointerVector.h"
 #include <map>
+#include <list>
+#include <time.h>
+
 
 /**
  * @file
@@ -40,12 +43,25 @@
  *
  * __Basic Usage and APIs:__
  * - pcpp#TcpReassembly c'tor - Create an instance, provide the callbacks and the user cookie to the instance
- * - pcpp#TcpReassembly#ReassemblePacket() - Feed pcpp#TcpReassembly instance with packets
+ * - pcpp#TcpReassembly#reassemblePacket() - Feed pcpp#TcpReassembly instance with packets
  * - pcpp#TcpReassembly#closeConnection() - Manually close a connection by a flow key
  * - pcpp#TcpReassembly#closeAllConnections() - Manually close all currently opened connections
  * - pcpp#TcpReassembly#OnTcpMessageReady callback - Invoked when new data arrives on a certain connection. Contains the new data as well as connection data (5-tuple, flow key)
  * - pcpp#TcpReassembly#OnTcpConnectionStart callback - Invoked when a new connection is identified
  * - pcpp#TcpReassembly#OnTcpConnectionEnd callback - Invoked when a connection ends (either by FIN/RST or manually by the user)
+ *
+ * __Additional information:__
+ * When the connection is closed the information is not being deleted from memory immediately. There is a delay between these moments. Existence of this delay is caused by two reasons:
+ * - pcpp#TcpReassembly#reassemblePacket() should detect the packets that arrive after the FIN packet has been received
+ * - the user can use the information about connections managed by pcpp#TcpReassembly instance. Following methods are used for this purpose: pcpp#TcpReassembly#getConnectionInformation and pcpp#TcpReassembly#isConnectionOpen.
+ * Cleaning of memory can be performed automatically (the default behavior) by pcpp#TcpReassembly#reassemblePacket() or manually by calling pcpp#TcpReassembly#purgeClosedConnections in the user code.
+ * Automatic cleaning is performed once per second.
+ *
+ * The struct pcpp#TcpReassemblyConfiguration allows to setup the parameters of cleanup. Following parameters are supported:
+ * - pcpp#TcpReassemblyConfiguration#doNotRemoveConnInfo - if this member is set to false the automatic cleanup mode is applied
+ * - pcpp#TcpReassemblyConfiguration#closedConnectionDelay - the value of delay expressed in seconds. The minimum value is 1
+ * - pcpp#TcpReassemblyConfiguration#maxNumToClean - to avoid performance overhead when the cleanup is being performed, this parameter is used. It defines the maximum number of items to be removed per one call of pcpp#TcpReassembly#purgeClosedConnections
+ *
  */
 
 /**
@@ -197,6 +213,12 @@ public:
 	 */
 	const ConnectionData& getConnectionDataRef() const { return m_Connection; }
 
+	/**
+	 * A getter for the connection data
+	 * @return The const reference to connection data
+	 */
+	const ConnectionData& getConnectionDataRef() { return m_Connection; }
+
 private:
 	uint8_t* m_Data;
 	size_t m_DataLen;
@@ -205,6 +227,29 @@ private:
 
 	void setDeleteDataOnDestruction(bool flag) { m_DeleteDataOnDestruction = flag; }
 	void copyData(const TcpStreamData& other);
+};
+
+
+/**
+ * @struct TcpReassemblyConfiguration
+ * A structure for configuring the TcpReassembly class
+ */
+struct TcpReassemblyConfiguration
+{
+	/** The flag indicating whether to remove the connection data after a connection is closed */
+	bool doNotRemoveConnInfo;
+	/** How long the closed connections will not be cleaned up. The value is expressed in seconds. If the value is set to 0 then TcpReassembly should use the default value */
+	uint32_t closedConnectionDelay;
+	/** The maximum number of items to be cleaned up per one call of purgeClosedConnections. If the value is set to 0 then TcpReassembly should use the default value */
+	uint32_t maxNumToClean;
+
+	/**
+	 * A c'tor for this struct
+	 */
+	TcpReassemblyConfiguration(bool doNotRemoveConnInfo = false, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 5000) :
+		doNotRemoveConnInfo(doNotRemoveConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean)
+	{
+	}
 };
 
 
@@ -226,6 +271,11 @@ public:
 		/** Connection ended manually by the user */
 		TcpReassemblyConnectionClosedManually
 	};
+
+	/**
+	 * The type for storing the connection information
+	 */
+	typedef std::map<uint32_t, ConnectionData> ConnectionInfoList;
 
 	/**
 	 * @typedef OnTcpMessageReady
@@ -259,8 +309,9 @@ public:
 	 * @param[in] userCookie A pointer to an object provided by the user. This pointer will be returned when invoking the various callbacks. This parameter is optional, default cookie is NULL
 	 * @param[in] onConnectionStartCallback The callback to be invoked when a new connection is identified. This parameter is optional
 	 * @param[in] onConnectionEndCallback The callback to be invoked when a new connection is terminated (either by a FIN/RST packet or manually by the user). This parameter is optional
+	 * @param[in] config Optional parameter for defining special configuration parameters. If not set the default parameters will be set
 	 */
-	TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie = NULL, OnTcpConnectionStart onConnectionStartCallback = NULL, OnTcpConnectionEnd onConnectionEndCallback = NULL);
+	TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie = NULL, OnTcpConnectionStart onConnectionStartCallback = NULL, OnTcpConnectionEnd onConnectionEndCallback = NULL, const TcpReassemblyConfiguration &config = TcpReassemblyConfiguration());
 
 	/**
 	 * A d'tor for this class. Frees all internal structures. Notice that if the d'tor is called while connections are still open, all data is lost and TcpReassembly#OnTcpConnectionEnd won't
@@ -299,7 +350,7 @@ public:
 	 * Get a list of all connections managed by this TcpReassembly instance (both connections that are open and those that are already closed)
 	 * @return A list of all connections managed. Notice this list is constant and cannot be changed by the user
 	 */
-	const std::vector<ConnectionData>& getConnectionInformation() const;
+	const ConnectionInfoList &getConnectionInformation() const { return m_ConnectionInfo; }
 
 	/**
 	 * Check if a certain connection managed by this TcpReassembly instance is currently opened or closed
@@ -307,6 +358,13 @@ public:
 	 * @return A positive number (> 0) if connection is opened, zero (0) if connection is closed, and a negative number (< 0) if this connection isn't managed by this TcpReassembly instance
 	 */
 	int isConnectionOpen(const ConnectionData& connection) const;
+
+	/**
+	 * Clean up the closed connections from the memory
+	 * @param[in] currentTime Current time
+	 * @param[in] maxNumToClean The maximum number of items to be cleaned up per one call. This parameter, when its value is not zero, overrides the value that was set by the constructor.
+	 */
+	void purgeClosedConnections(time_t currentTime = time(NULL), uint32_t maxNumToClean = 0);
 
 private:
 	struct TcpFragment
@@ -343,14 +401,23 @@ private:
 
 		TcpReassemblyData() { numOfSides = 0; prevSide = -1; }
 	};
+	
+	typedef std::map<uint32_t, bool> ClosedConnectionList;
+	typedef std::map<uint32_t, TcpReassemblyData *> ConnectionList;
+	typedef std::map<time_t, std::list<uint32_t> > CleanupList;
 
 	OnTcpMessageReady m_OnMessageReadyCallback;
 	OnTcpConnectionStart m_OnConnStart;
 	OnTcpConnectionEnd m_OnConnEnd;
 	void* m_UserCookie;
-	std::map<uint32_t, TcpReassemblyData*> m_ConnectionList;
-	std::map<uint32_t, bool> m_ClosedConnectionList;
-	std::vector<ConnectionData> m_ConnectionInfo;
+	ConnectionList m_ConnectionList;
+	ClosedConnectionList m_ClosedConnectionList;
+	ConnectionInfoList m_ConnectionInfo;
+	CleanupList m_CleanupList;
+	bool m_DoNotRemoveConnInfo;
+	uint32_t m_ClosedConnectionDelay;
+	uint32_t m_MaxNumToClean;
+	time_t m_PurgeTimepoint;
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int sideIndex, bool cleanWholeFragList);
 
@@ -359,6 +426,8 @@ private:
 	void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int sideIndex, uint32_t flowKey);
 
 	void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
+
+	void insertIntoCleanupList(uint32_t flowKey, time_t currentTime = time(NULL));
 };
 
 }
