@@ -5362,7 +5362,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	tcpReassembly.purgeClosedConnections(); // manually initiated cleanup of 1 item
 	PTF_ASSERT(managedConnections.size() == 1, "Size of managed connection list isn't 1");
 
-	tcpReassembly.purgeClosedConnections(time(NULL), UINT32_MAX); // manually initiated cleanup of all items
+	tcpReassembly.purgeClosedConnections(time(NULL), 0xFFFFFFFF); // manually initiated cleanup of all items
 	PTF_ASSERT(managedConnections.size() == 0, "Size of managed connection list isn't zero");
 
 	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn1->second) == -1, "Connection #1 still exists");
