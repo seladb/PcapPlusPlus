@@ -23,23 +23,18 @@ matrix:
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1611
-        - DPDK_DIR=dpdk-stable-16.11.9
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1711
-        - DPDK_DIR=dpdk-stable-17.11.6
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1811
-        - DPDK_DIR=dpdk-stable-18.11.1
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1902
-        - DPDK_DIR=dpdk-19.02
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1908
-        - DPDK_DIR=dpdk-19.08
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-pfring
@@ -86,7 +81,7 @@ before_install:
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --default"; fi
-  - if [[ ! -z $DPDK_DIR ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --dpdk --dpdk-home /$DPDK_DIR"; fi
+  - if [[ $DOCKER_IMAGE == *"dpdk"* ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --dpdk --dpdk-home /dpdk"; fi
   - if [[ ! -z $PF_RING ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING"; fi
   
 script:
