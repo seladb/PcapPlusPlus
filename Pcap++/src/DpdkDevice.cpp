@@ -57,7 +57,11 @@ DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize)
 {
 	snprintf((char*)m_DeviceName, 30, "DPDK_%d", m_Id);
 
+#if (RTE_VER_YEAR > 19) || (RTE_VER_YEAR == 19 && RTE_VER_MONTH >= 8)
+	struct rte_ether_addr etherAddr;
+#else
 	struct ether_addr etherAddr;
+#endif
 	rte_eth_macaddr_get((uint8_t) m_Id, &etherAddr);
 	m_MacAddress = MacAddress(etherAddr.addr_bytes[0], etherAddr.addr_bytes[1],
 			etherAddr.addr_bytes[2], etherAddr.addr_bytes[3],
