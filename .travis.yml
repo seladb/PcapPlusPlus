@@ -36,6 +36,7 @@ matrix:
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1902
         - DPDK_DIR=dpdk-19.02
+    - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1908
         - DPDK_DIR=dpdk-19.08
