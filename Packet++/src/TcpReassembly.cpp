@@ -140,8 +140,8 @@ TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* use
 	m_OnConnStart = onConnectionStartCallback;
 	m_OnConnEnd = onConnectionEndCallback;
 	m_ClosedConnectionDelay = (config.closedConnectionDelay > 0) ? config.closedConnectionDelay : 5;
-	m_DoNotRemoveConnInfo = config.doNotRemoveConnInfo;
-	m_MaxNumToClean = (config.doNotRemoveConnInfo == false && config.maxNumToClean == 0) ? 5000 : config.maxNumToClean;
+	m_RemoveConnInfo = config.removeConnInfo;
+	m_MaxNumToClean = (config.removeConnInfo == true && config.maxNumToClean == 0) ? 30 : config.maxNumToClean;
 	m_PurgeTimepoint = time(NULL) + PURGE_FREQ_SECS;
 }
 
@@ -157,7 +157,7 @@ TcpReassembly::~TcpReassembly()
 void TcpReassembly::reassemblePacket(Packet& tcpData)
 {
 	// automatic cleanup
-	if(m_DoNotRemoveConnInfo == false)
+	if(m_RemoveConnInfo == true)
 	{
 		time_t currentTime = time(NULL);
 		if(currentTime >= m_PurgeTimepoint)
@@ -810,14 +810,19 @@ int TcpReassembly::isConnectionOpen(const ConnectionData& connection) const
 	return -1;
 }
 
-void TcpReassembly::insertIntoCleanupList(uint32_t flowKey, time_t currentTime)
+void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
 {
-	std::pair<CleanupList::iterator, bool> pair = m_CleanupList.insert(std::make_pair(currentTime + m_ClosedConnectionDelay, CleanupList::mapped_type()));
+	// m_CleanupList is a map with key of type time_t (expiration time). The mapped type is a list that stores the flow keys to be cleared in certain point of time.
+	// m_CleanupList.insert inserts an empty list if the container does not already contain an element with an equivalent key,
+	// otherwise this method returns an iterator to the element that prevents insertion.
+	std::pair<CleanupList::iterator, bool> pair = m_CleanupList.insert(std::make_pair(time(NULL) + m_ClosedConnectionDelay, CleanupList::mapped_type()));
+
+	// dereferencing of map iterator and getting the reference to list
 	CleanupList::mapped_type &keysList = pair.first->second;
 	keysList.push_back(flowKey);
 }
 
-void TcpReassembly::purgeClosedConnections(time_t currentTime, uint32_t maxNumToClean)
+uint32_t TcpReassembly::purgeClosedConnections(time_t currentTime, uint32_t maxNumToClean)
 {
 	uint32_t count = 0;
 
@@ -842,6 +847,8 @@ void TcpReassembly::purgeClosedConnections(time_t currentTime, uint32_t maxNumTo
 		else
 			++iterTime;
 	}
+
+	return count;
 }
 
 }

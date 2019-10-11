@@ -213,12 +213,6 @@ public:
 	 */
 	const ConnectionData& getConnectionDataRef() const { return m_Connection; }
 
-	/**
-	 * A getter for the connection data
-	 * @return The const reference to connection data
-	 */
-	const ConnectionData& getConnectionDataRef() { return m_Connection; }
-
 private:
 	uint8_t* m_Data;
 	size_t m_DataLen;
@@ -237,17 +231,22 @@ private:
 struct TcpReassemblyConfiguration
 {
 	/** The flag indicating whether to remove the connection data after a connection is closed */
-	bool doNotRemoveConnInfo;
+	bool removeConnInfo;
+
 	/** How long the closed connections will not be cleaned up. The value is expressed in seconds. If the value is set to 0 then TcpReassembly should use the default value */
 	uint32_t closedConnectionDelay;
+
 	/** The maximum number of items to be cleaned up per one call of purgeClosedConnections. If the value is set to 0 then TcpReassembly should use the default value */
 	uint32_t maxNumToClean;
 
 	/**
 	 * A c'tor for this struct
+	 * @param[in] removeConnInfo The flag indicating whether to remove the connection data after a connection is closed. The default is true
+	 * @param[in] closedConnectionDelay How long the closed connections will not be cleaned up. The value is expressed in seconds. If it's set to 0 the default value will be used. The default is 5.
+	 * @param[in] maxNumToClean The maximum number of items to be cleaned up per one call of purgeClosedConnections. If it's set to 0 the default value will be used. The default is 30.
 	 */
-	TcpReassemblyConfiguration(bool doNotRemoveConnInfo = false, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 5000) :
-		doNotRemoveConnInfo(doNotRemoveConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean)
+	TcpReassemblyConfiguration(bool removeConnInfo = true, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 30) :
+		removeConnInfo(removeConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean)
 	{
 	}
 };
@@ -347,8 +346,8 @@ public:
 	void closeAllConnections();
 
 	/**
-	 * Get a list of all connections managed by this TcpReassembly instance (both connections that are open and those that are already closed)
-	 * @return A list of all connections managed. Notice this list is constant and cannot be changed by the user
+	 * Get a map of all connections managed by this TcpReassembly instance (both connections that are open and those that are already closed)
+	 * @return A map of all connections managed. Notice this map is constant and cannot be changed by the user
 	 */
 	const ConnectionInfoList &getConnectionInformation() const { return m_ConnectionInfo; }
 
@@ -363,8 +362,9 @@ public:
 	 * Clean up the closed connections from the memory
 	 * @param[in] currentTime Current time
 	 * @param[in] maxNumToClean The maximum number of items to be cleaned up per one call. This parameter, when its value is not zero, overrides the value that was set by the constructor.
+	 * @return The number of cleared items
 	 */
-	void purgeClosedConnections(time_t currentTime = time(NULL), uint32_t maxNumToClean = 0);
+	uint32_t purgeClosedConnections(time_t currentTime = time(NULL), uint32_t maxNumToClean = 0);
 
 private:
 	struct TcpFragment
@@ -414,7 +414,7 @@ private:
 	ClosedConnectionList m_ClosedConnectionList;
 	ConnectionInfoList m_ConnectionInfo;
 	CleanupList m_CleanupList;
-	bool m_DoNotRemoveConnInfo;
+	bool m_RemoveConnInfo;
 	uint32_t m_ClosedConnectionDelay;
 	uint32_t m_MaxNumToClean;
 	time_t m_PurgeTimepoint;
@@ -427,7 +427,7 @@ private:
 
 	void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
 
-	void insertIntoCleanupList(uint32_t flowKey, time_t currentTime = time(NULL));
+	void insertIntoCleanupList(uint32_t flowKey);
 };
 
 }

@@ -5324,7 +5324,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	TcpReassemblyMultipleConnStats results;
 	std::string errMsg;
 
-	TcpReassemblyConfiguration config(false, 1, 1);
+	TcpReassemblyConfiguration config(true, 1, 1);
 	TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config);
 
 	std::vector<RawPacket> packetStream;
