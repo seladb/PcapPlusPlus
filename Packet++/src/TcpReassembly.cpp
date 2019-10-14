@@ -16,6 +16,7 @@
 #include <arpa/inet.h> //for using ntohl, ntohs, etc.
 #endif
 
+#define PURGE_FREQ_SECS 1
 
 namespace pcpp
 {
@@ -132,12 +133,16 @@ void TcpReassembly::TcpOneSideData::setSrcIP(IPAddress* sourrcIP)
 }
 
 
-TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie, OnTcpConnectionStart onConnectionStartCallback, OnTcpConnectionEnd onConnectionEndCallback)
+TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie, OnTcpConnectionStart onConnectionStartCallback, OnTcpConnectionEnd onConnectionEndCallback, const TcpReassemblyConfiguration &config)
 {
 	m_OnMessageReadyCallback = onMessageReadyCallback;
 	m_UserCookie = userCookie;
 	m_OnConnStart = onConnectionStartCallback;
 	m_OnConnEnd = onConnectionEndCallback;
+	m_ClosedConnectionDelay = (config.closedConnectionDelay > 0) ? config.closedConnectionDelay : 5;
+	m_RemoveConnInfo = config.removeConnInfo;
+	m_MaxNumToClean = (config.removeConnInfo == true && config.maxNumToClean == 0) ? 30 : config.maxNumToClean;
+	m_PurgeTimepoint = time(NULL) + PURGE_FREQ_SECS;
 }
 
 TcpReassembly::~TcpReassembly()
@@ -151,6 +156,16 @@ TcpReassembly::~TcpReassembly()
 
 void TcpReassembly::reassemblePacket(Packet& tcpData)
 {
+	// automatic cleanup
+	if(m_RemoveConnInfo == true)
+	{
+		if(time(NULL) >= m_PurgeTimepoint)
+		{
+			purgeClosedConnections();
+			m_PurgeTimepoint = time(NULL) + PURGE_FREQ_SECS;
+		}
+	}
+
 	// get IP layer
 	Layer* ipLayer = NULL;
 	if (tcpData.isPacketOfType(IPv4))
@@ -230,7 +245,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	}
 
 	// find the connection in the connection map
-	std::map<uint32_t, TcpReassemblyData*>::iterator iter = m_ConnectionList.find(flowKey);
+	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
 	if (iter == m_ConnectionList.end())
 	{
 		// if it's a packet of a new connection, create a TcpReassemblyData object and add it to the active connection list
@@ -244,8 +259,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData->connData.setStartTime(ts);
 
 		m_ConnectionList[flowKey] = tcpReassemblyData;
-
-		m_ConnectionInfo.push_back(tcpReassemblyData->connData);
+		m_ConnectionInfo[flowKey] = tcpReassemblyData->connData;
 
 		// fire connection start callback
 		if (m_OnConnStart != NULL)
@@ -727,7 +741,7 @@ void TcpReassembly::closeConnection(uint32_t flowKey)
 void TcpReassembly::closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason)
 {
 	TcpReassemblyData* tcpReassemblyData = NULL;
-	std::map<uint32_t, TcpReassemblyData*>::iterator iter = m_ConnectionList.find(flowKey);
+	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
 	if (iter == m_ConnectionList.end())
 	{
 		LOG_ERROR("Cannot close flow with key 0x%X: cannot find flow", flowKey);
@@ -750,6 +764,7 @@ void TcpReassembly::closeConnectionInternal(uint32_t flowKey, ConnectionEndReaso
 	delete tcpReassemblyData;
 	m_ConnectionList.erase(iter);
 	m_ClosedConnectionList[flowKey] = true;
+	insertIntoCleanupList(flowKey);
 
 	LOG_DEBUG("Connection with flow key 0x%X is closed", flowKey);
 }
@@ -777,16 +792,10 @@ void TcpReassembly::closeAllConnections()
 		delete tcpReassemblyData;
 		m_ConnectionList.erase(m_ConnectionList.begin());
 		m_ClosedConnectionList[flowKey] = true;
+		insertIntoCleanupList(flowKey);
 
 		LOG_DEBUG("Connection with flow key 0x%X is closed", flowKey);
 	}
-
-	m_ConnectionInfo.clear();
-}
-
-const std::vector<ConnectionData>& TcpReassembly::getConnectionInformation() const
-{
-	return m_ConnectionInfo;
 }
 
 int TcpReassembly::isConnectionOpen(const ConnectionData& connection) const
@@ -798,6 +807,47 @@ int TcpReassembly::isConnectionOpen(const ConnectionData& connection) const
 		return 0;
 
 	return -1;
+}
+
+void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
+{
+	// m_CleanupList is a map with key of type time_t (expiration time). The mapped type is a list that stores the flow keys to be cleared in certain point of time.
+	// m_CleanupList.insert inserts an empty list if the container does not already contain an element with an equivalent key,
+	// otherwise this method returns an iterator to the element that prevents insertion.
+	std::pair<CleanupList::iterator, bool> pair = m_CleanupList.insert(std::make_pair(time(NULL) + m_ClosedConnectionDelay, CleanupList::mapped_type()));
+
+	// dereferencing of map iterator and getting the reference to list
+	CleanupList::mapped_type &keysList = pair.first->second;
+	keysList.push_back(flowKey);
+}
+
+uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
+{
+	uint32_t count = 0;
+
+	if(maxNumToClean == 0)
+		maxNumToClean = m_MaxNumToClean;
+
+	CleanupList::iterator iterTime = m_CleanupList.begin(), iterTimeEnd = m_CleanupList.upper_bound(time(NULL));
+	while(iterTime != iterTimeEnd && count < maxNumToClean)
+	{
+		CleanupList::mapped_type &keysList = iterTime->second;
+		CleanupList::mapped_type::iterator iterKey = keysList.begin(), iterKeyEnd = keysList.end();
+
+		for(; iterKey != iterKeyEnd && count < maxNumToClean; ++count)
+		{
+			m_ConnectionInfo.erase(*iterKey);
+			m_ClosedConnectionList.erase(*iterKey);
+			keysList.erase(iterKey++);
+		}
+
+		if(keysList.empty())
+			m_CleanupList.erase(iterTime++);
+		else
+			++iterTime;
+	}
+
+	return count;
 }
 
 }
