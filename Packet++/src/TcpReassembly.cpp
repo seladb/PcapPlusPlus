@@ -159,10 +159,9 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	// automatic cleanup
 	if(m_RemoveConnInfo == true)
 	{
-		time_t currentTime = time(NULL);
-		if(currentTime >= m_PurgeTimepoint)
+		if(time(NULL) >= m_PurgeTimepoint)
 		{
-			purgeClosedConnections(currentTime, 0);
+			purgeClosedConnections();
 			m_PurgeTimepoint = time(NULL) + PURGE_FREQ_SECS;
 		}
 	}
@@ -822,14 +821,14 @@ void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
 	keysList.push_back(flowKey);
 }
 
-uint32_t TcpReassembly::purgeClosedConnections(time_t currentTime, uint32_t maxNumToClean)
+uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
 {
 	uint32_t count = 0;
 
 	if(maxNumToClean == 0)
 		maxNumToClean = m_MaxNumToClean;
 
-	CleanupList::iterator iterTime = m_CleanupList.begin(), iterTimeEnd = m_CleanupList.upper_bound(currentTime);
+	CleanupList::iterator iterTime = m_CleanupList.begin(), iterTimeEnd = m_CleanupList.upper_bound(time(NULL));
 	while(iterTime != iterTimeEnd && count < maxNumToClean)
 	{
 		CleanupList::mapped_type &keysList = iterTime->second;

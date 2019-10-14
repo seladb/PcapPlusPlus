@@ -5328,7 +5328,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config);
 
 	std::vector<RawPacket> packetStream;
-	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/three_http_streams.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	PTF_ASSERT_TRUE(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/three_http_streams.pcap", packetStream, errMsg));
 
 	RawPacket lastPacket = packetStream.back();
 
@@ -5341,8 +5341,8 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	}
 
 	TcpReassembly::ConnectionInfoList managedConnections = tcpReassembly.getConnectionInformation(); // make a copy of list
-	PTF_ASSERT(managedConnections.size() == 3, "Size of managed connection list isn't 3");
-	PTF_ASSERT(results.flowKeysList.size() == 3, "Num of flow keys isn't 3");
+	PTF_ASSERT_EQUAL(managedConnections.size(), 3, size);
+	PTF_ASSERT_EQUAL(results.flowKeysList.size(), 3, size);
 
 	TcpReassembly::ConnectionInfoList::const_iterator iterConn1 = managedConnections.find(results.flowKeysList[0]);
 	TcpReassembly::ConnectionInfoList::const_iterator iterConn2 = managedConnections.find(results.flowKeysList[1]);
@@ -5350,20 +5350,20 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT(iterConn1 != managedConnections.end(), "Connection #1 not found");
 	PTF_ASSERT(iterConn2 != managedConnections.end(), "Connection #2 not found");
 	PTF_ASSERT(iterConn3 != managedConnections.end(), "Connection #3 not found");
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn1->second) == 0, "Connection #1 is still open");
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn2->second) == 0, "Connection #2 is still open");
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn3->second) == 0, "Connection #3 is still open");
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), 0, int);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0, int);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0, int);
 
 	PCAP_SLEEP(2);
 
 	tcpReassembly.reassemblePacket(&lastPacket); // automatic cleanup of 1 item
-	PTF_ASSERT(tcpReassembly.getConnectionInformation().size() == 2, "Size of managed connection list isn't 2");
+	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 2, size);
 
 	tcpReassembly.purgeClosedConnections(); // manually initiated cleanup of 1 item
-	PTF_ASSERT(tcpReassembly.getConnectionInformation().size() == 1, "Size of managed connection list isn't 1");
+	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 1, size);
 
-	tcpReassembly.purgeClosedConnections(time(NULL), 0xFFFFFFFF); // manually initiated cleanup of all items
-	PTF_ASSERT(tcpReassembly.getConnectionInformation().size() == 0, "Size of managed connection list isn't zero");
+	tcpReassembly.purgeClosedConnections(0xFFFFFFFF); // manually initiated cleanup of all items
+	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 0, size);
 
 	const TcpReassemblyMultipleConnStats::FlowKeysList &flowKeys = results.flowKeysList;
 	iterConn1 = managedConnections.find(flowKeys[0]);
@@ -5372,9 +5372,9 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT(iterConn1 != managedConnections.end(), "Connection #1 not found in flow keys list");
 	PTF_ASSERT(iterConn2 != managedConnections.end(), "Connection #2 not found in flow keys list");
 	PTF_ASSERT(iterConn3 != managedConnections.end(), "Connection #3 not found in flow keys list");
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn1->second) == -1, "Connection #1 still exists");
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn2->second) == -1, "Connection #2 still exists");
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn3->second) == -1, "Connection #3 still exists");
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), -1, int);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), -1, int);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), -1, int);
 }
 
 

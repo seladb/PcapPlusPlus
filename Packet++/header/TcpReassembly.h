@@ -233,10 +233,14 @@ struct TcpReassemblyConfiguration
 	/** The flag indicating whether to remove the connection data after a connection is closed */
 	bool removeConnInfo;
 
-	/** How long the closed connections will not be cleaned up. The value is expressed in seconds. If the value is set to 0 then TcpReassembly should use the default value */
+	/** How long the closed connections will not be cleaned up. The value is expressed in seconds. If the value is set to 0 then TcpReassembly should use the default value.
+	 * This parameter is only relevant if removeConnInfo is equal to true.
+	 */
 	uint32_t closedConnectionDelay;
 
-	/** The maximum number of items to be cleaned up per one call of purgeClosedConnections. If the value is set to 0 then TcpReassembly should use the default value */
+	/** The maximum number of items to be cleaned up per one call of purgeClosedConnections. If the value is set to 0 then TcpReassembly should use the default value.
+	 * This parameter is only relevant if removeConnInfo is equal to true.
+	 */
 	uint32_t maxNumToClean;
 
 	/**
@@ -360,11 +364,10 @@ public:
 
 	/**
 	 * Clean up the closed connections from the memory
-	 * @param[in] currentTime Current time
 	 * @param[in] maxNumToClean The maximum number of items to be cleaned up per one call. This parameter, when its value is not zero, overrides the value that was set by the constructor.
 	 * @return The number of cleared items
 	 */
-	uint32_t purgeClosedConnections(time_t currentTime = time(NULL), uint32_t maxNumToClean = 0);
+	uint32_t purgeClosedConnections(uint32_t maxNumToClean = 0);
 
 private:
 	struct TcpFragment
