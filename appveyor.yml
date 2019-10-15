@@ -4,16 +4,36 @@ environment:
   matrix:
     - compiler: mingw32
     - compiler: mingw-w64
-    - compiler: vs2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      compiler: vs2017
       platform: x86
       config: Debug
-    - compiler: vs2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      compiler: vs2017
+      platform: x64
+      config: Release
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      compiler: vs2019
       platform: x86
       config: Release
-    - compiler: vs2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      compiler: vs2019
       platform: x64
       config: Debug
-    - compiler: vs2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      compiler: vs2015
+      platform: x86
+      config: Debug
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      compiler: vs2015
+      platform: x86
+      config: Release
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      compiler: vs2015
+      platform: x64
+      config: Debug
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      compiler: vs2015
       platform: x64
       config: Release
 
@@ -33,7 +53,7 @@ before_build:
 - cd C:\projects\PcapPlusPlus
 - if "%compiler%"=="mingw32" configure-windows-mingw.bat mingw32 -m C:\MinGW -w C:\WpdPack
 - if "%compiler%"=="mingw-w64" configure-windows-mingw.bat mingw-w64 -m C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32 -w C:\WpdPack -s C:\msys64
-- if "%compiler%"=="vs2015" configure-windows-visual-studio.bat -v vs2015 -w C:\WpdPack -p C:\pthreads
+- if "%compiler%"=="vs2015" configure-windows-visual-studio.bat -v %compiler% -w C:\WpdPack -p C:\pthreads
 
 build_script:
 - if "%compiler%"=="mingw32" mingw32-make all
