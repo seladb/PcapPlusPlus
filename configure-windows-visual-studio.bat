@@ -24,6 +24,7 @@ if "%1" NEQ "" (
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
 
 :: verify that both variables PTHREAD_HOME and WINPCAP_HOME are set
+if "%VS_VERSION%"=="" echo Visual studio version was not supplied. Exiting & exit /B 1
 if "%PTHREAD_HOME%"=="" echo pthread-win32 directory was not supplied. Exiting & exit /B 1
 if "%WINPCAP_HOME%"=="" echo WinPcap directory was not supplied. Exiting & exit /B 1
 
@@ -45,9 +46,56 @@ if "%WINPCAP_HOME:~-1%"=="\" set WINPCAP_HOME=%WINPCAP_HOME:~,-1%
 
 move /Y pcpp_temp.xml %VS_PROPERTY_SHEET% >nul
 
+
+:: find Windows SDK version
+set WindowsTargetPlatformVersion=8.1
+call mk\vs2015\find-latest-win-sdk.bat
+
+:: set default VS params
+set ToolsVersion=14.0
+set PlatformToolset=v140
+
+:: set VS2015 params
+if "%VS_VERSION%"=="vs2015" ( 
+	set ToolsVersion=14.0
+	set PlatformToolset=v140
+)
+
+:: set VS2017 params
+if "%VS_VERSION%"=="vs2017" ( 
+	set ToolsVersion=15.0
+	set PlatformToolset=v141
+)
+
+:: set VS2019 params
+if "%VS_VERSION%"=="vs2019" ( 
+	set ToolsVersion=Current
+	set PlatformToolset=v142
+)
+
+:: go over all vcxproj template files and set the params according to the request VS version
+setlocal enabledelayedexpansion
+set PROJ_LIST_LOCAL=
+for %%P in (mk\vs2015\*.vcxproj.template) do (
+	set "TEMPALTE_PROJ_NAME=%%P"
+	set "PROJ_NAME=!TEMPALTE_PROJ_NAME:.template=!"
+	set PROJ_LIST_LOCAL=!PROJ_LIST_LOCAL!, !PROJ_NAME!
+
+	(for /F "tokens=* delims=" %%A in ('type "!TEMPALTE_PROJ_NAME!"') do (
+		set "LINE=%%A"
+		set "LINE=!LINE:PUT_TOOLS_VERSION_HERE=%ToolsVersion%!"
+		set "LINE=!LINE:PUT_WIN_TARGET_PLATFORM_HERE=%WindowsTargetPlatformVersion%!"
+		set "LINE=!LINE:PUT_PLATORM_TOOLSET_HERE=%PlatformToolset%!"
+		echo !LINE!
+	))>pcpp_temp.xml
+
+	move /Y pcpp_temp.xml !PROJ_NAME! >nul
+)
+endlocal & set PROJ_LIST=%PROJ_LIST_LOCAL%
+
 :: configuration completed
 echo.
-echo PcapPlusPlus Visual Studio 2015 configuration is complete. Files created (or modified): %VS_PROPERTY_SHEET%
+echo PcapPlusPlus Visual Studio 2015 configuration is complete. Files created (or modified): %VS_PROPERTY_SHEET%%PROJ_LIST%
 
 :: exit script
 exit /B 0
@@ -126,6 +174,20 @@ goto GETOPT_START
 	:: exit ok
 	exit /B 0
 
+:: handling -v or --vs-version switches
+:CASE-v
+:CASE--vs-version
+	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
+	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
+	:: verify the VS version supplied is one of the supported versions
+	if "%2" NEQ "vs2015" if "%2" NEQ "vs2017" if "%2" NEQ "vs2019" call :GETOPT_ERROR "Visual Studio version must be one of: vs2015, vs2017, vs2019" & exit /B 3
+	:: if all went well, set the VS_VERSION variable
+	set VS_VERSION=%2
+	:: notify GETOPT this switch has a parameter
+	set HAS_PARAM=1
+	:: exit ok
+	exit /B 0
+
 :: a required parameter error case, may get to here if a parameter was missing for a certain switch
 :: the parameter for this "function" is the switch that didn't have the parameter
 :GETOPT_REQUIRED_PARAM
@@ -152,6 +214,16 @@ goto GETOPT_START
 :: -------------------------------------------------------------------
 :: a "function" that implements the wizard mode which reads MinGW home and WinPcap home by displaying a wizard for the user
 :READ_PARAMS_FROM_USER
+
+echo Choose Visual Studio version.
+echo.
+:while0
+:: ask the user to type VS version
+set /p VS_VERSION=     Currently supported options are: vs2015, vs2017 or vs2019: %=%
+if "%VS_VERSION%" NEQ "vs2015" if "%VS_VERSION%" NEQ "vs2017" if "%VS_VERSION%" NEQ "vs2019" (echo Please choose one of "vs2015", "vs2017", "vs2019" && goto while0)
+
+echo.
+echo.
 
 :: get WinPcap dev pack location from user and verify it exists
 echo WinPcap developer's pack is required for compiling PcapPlusPlus. 
@@ -196,6 +268,7 @@ echo.
 echo The following switches are recognized:
 echo -p^|--pthreads-home   --Sets pthreads-win32 home directory
 echo -w^|--winpcap-home    --Sets WinPcap home directory
+echo -v^|--vs-version      --Sets Visual Studio version to configure
 echo -h^|--help            --Displays this help message and exits. No further actions are performed
 echo.
 :: done printing, exit

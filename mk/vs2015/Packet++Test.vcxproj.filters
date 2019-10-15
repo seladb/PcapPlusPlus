@@ -18,7 +18,7 @@
     <ClCompile Include="..\..\Tests\Packet++Test\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\3rdParty\debug-new\debug_new.cpp">
+    <ClCompile Include="..\..\MemPlumber\MemPlumber\memplumber.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>	
   </ItemGroup>
