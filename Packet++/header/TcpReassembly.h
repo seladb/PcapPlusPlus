@@ -405,7 +405,6 @@ private:
 		TcpReassemblyData() { numOfSides = 0; prevSide = -1; }
 	};
 	
-	typedef std::map<uint32_t, bool> ClosedConnectionList;
 	typedef std::map<uint32_t, TcpReassemblyData *> ConnectionList;
 	typedef std::map<time_t, std::list<uint32_t> > CleanupList;
 
@@ -414,7 +413,6 @@ private:
 	OnTcpConnectionEnd m_OnConnEnd;
 	void* m_UserCookie;
 	ConnectionList m_ConnectionList;
-	ClosedConnectionList m_ClosedConnectionList;
 	ConnectionInfoList m_ConnectionInfo;
 	CleanupList m_CleanupList;
 	bool m_RemoveConnInfo;
