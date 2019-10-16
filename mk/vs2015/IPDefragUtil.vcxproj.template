@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="PUT_TOOLS_VERSION_HERE" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,35 +19,35 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F13C0C39-621C-452C-AFC6-E8E4A8F0ADB3}</ProjectGuid>
+    <ProjectGuid>{9FA4D556-863E-4766-B993-097E014533F5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>IcmpFileTransfer</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <RootNamespace>IPDefragUtil</RootNamespace>
+    <WindowsTargetPlatformVersion>PUT_WIN_TARGET_PLATFORM_HERE</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -75,30 +75,30 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\ObjPitcher</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\IPDefragUtil\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\ObjPitcher</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\IPDefragUtil\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\ObjPitcher</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\IPDefragUtil\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\ObjPitcher</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\IPDefragUtil\Obj</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -109,8 +109,8 @@
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -119,7 +119,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WINx64;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINx64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -130,8 +130,8 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -143,7 +143,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHo
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -156,8 +156,8 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHo
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -169,7 +169,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WINx64;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINx64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Dist\header;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -182,20 +182,13 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\IcmpFileTransfer\BinPitcher\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\IPDefragUtil\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\IcmpFileTransfer\IcmpFileTransfer-pitcher.cpp" />
-    <ClCompile Include="..\..\Examples\IcmpFileTransfer\Common.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Examples\IcmpFileTransfer\Common.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Examples\IcmpFileTransfer\README.md" />
+    <ClCompile Include="..\..\Examples\IPDefragUtil\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

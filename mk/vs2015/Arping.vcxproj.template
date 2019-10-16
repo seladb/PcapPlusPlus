@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="PUT_TOOLS_VERSION_HERE" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -21,33 +21,33 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D79AF4DA-8676-45FC-9BD5-D1062DB923E1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Tutorial-PcapFiles</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <RootNamespace>Arping</RootNamespace>
+    <WindowsTargetPlatformVersion>PUT_WIN_TARGET_PLATFORM_HERE</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -75,25 +75,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Arping\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Arping\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Arping\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Arping\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
-    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Arping\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Arping\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Arping\Bin</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Arping\Obj</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -111,7 +109,9 @@
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Arping\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\Arping\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,7 +130,9 @@
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Arping\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\Arping\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -154,7 +156,9 @@
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Arping\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\Arping\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -178,11 +182,13 @@
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-PcapFiles" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Arping\Bin" /Y
+xcopy "$(PcapPlusPlusHome)\Examples\Arping\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\Tutorials\Tutorial-PcapFiles\main.cpp" />
+    <ClCompile Include="..\..\Examples\Arping\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

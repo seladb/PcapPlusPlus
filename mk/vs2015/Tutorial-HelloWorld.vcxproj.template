@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="PUT_TOOLS_VERSION_HERE" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,35 +19,35 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{50AEB02B-2C6A-44FF-8F97-7ED5D33FBB32}</ProjectGuid>
+    <ProjectGuid>{48A388AF-9D6D-48BC-9CBE-7D7F04B5C73C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ArpSpoofing</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <RootNamespace>Tutorial-HelloWorld</RootNamespace>
+    <WindowsTargetPlatformVersion>PUT_WIN_TARGET_PLATFORM_HERE</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>PUT_PLATORM_TOOLSET_HERE</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -75,23 +75,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin</OutDir>
-    <IntDir>$(PcapPlusPlusHome)\Examples\ArpSpoofing\Obj</IntDir>
+    <OutDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld</OutDir>
+    <IntDir>$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -109,9 +109,7 @@
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,9 +128,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -156,9 +152,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHo
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -182,13 +176,11 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\ArpSpoofing\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Tutorials\Tutorial-HelloWorld" /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\ArpSpoofing\main.cpp" />
+    <ClCompile Include="..\..\Examples\Tutorials\Tutorial-HelloWorld\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
