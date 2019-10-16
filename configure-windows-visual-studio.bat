@@ -98,9 +98,11 @@ for %%P in (mk\vs\*.vcxproj.template) do (
 )
 endlocal & set PROJ_LIST=%PROJ_LIST_LOCAL%
 
-:: copy all solution and vcxproj.filters files
+:: copy solution, vcxproj.filters, and git version fetch related files
 xcopy /Y /Q mk\vs\*.sln %VS_PROJ_DIR%\ >nul
 xcopy /Y /Q mk\vs\*.vcxproj.filters %VS_PROJ_DIR%\ >nul
+xcopy /Y /Q mk\vs\fetch-git-info.bat %VS_PROJ_DIR%\ >nul
+xcopy /Y /Q mk\vs\GitInfoPropertySheet.props %VS_PROJ_DIR%\ >nul
 
 :: configuration completed
 echo.

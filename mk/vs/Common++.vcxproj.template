@@ -111,7 +111,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>"$(PcapPlusPlusHome)\mk\vs2015\fetch-git-info.bat"</Command>
+      <Command>"$(ProjectDir)\fetch-git-info.bat"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,7 +136,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>"$(PcapPlusPlusHome)\mk\vs2015\fetch-git-info.bat"</Command>
+      <Command>"$(ProjectDir)\fetch-git-info.bat"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -158,7 +158,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>"$(PcapPlusPlusHome)\mk\vs2015\fetch-git-info.bat"</Command>
+      <Command>"$(ProjectDir)\fetch-git-info.bat"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -183,7 +183,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>"$(PcapPlusPlusHome)\mk\vs2015\fetch-git-info.bat"</Command>
+      <Command>"$(ProjectDir)\fetch-git-info.bat"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
