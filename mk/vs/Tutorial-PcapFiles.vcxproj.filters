@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Examples\Tutorial\Tutorial-PcapFiles\main.cpp">
+    <ClCompile Include="..\..\Examples\Tutorials\Tutorial-PcapFiles\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

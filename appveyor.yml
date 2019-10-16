@@ -58,9 +58,9 @@ before_build:
 build_script:
 - if "%compiler%"=="mingw32" mingw32-make all
 - if "%compiler%"=="mingw-w64" mingw32-make all
-- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\vs2015\PcapPlusPlus.sln /p:Configuration=%config% /p:Platform=%platform%"
-- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\vs2015\PcapPlusPlus-Examples.sln /p:Configuration=%config% /p:Platform=%platform%"
-- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\vs2015\Tutorials.sln /p:Configuration=%config% /p:Platform=%platform%"
+- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\PcapPlusPlus.sln /p:Configuration=%config% /p:Platform=%platform%"
+- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\PcapPlusPlus-Examples.sln /p:Configuration=%config% /p:Platform=%platform%"
+- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\Tutorials.sln /p:Configuration=%config% /p:Platform=%platform%"
 
 test_script:
 - cd C:\projects\PcapPlusPlus\Tests\Packet++Test

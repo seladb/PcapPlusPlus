@@ -7,9 +7,6 @@ echo PcapPlusPlus Visual Studio 2015 configuration script
 echo ****************************************************
 echo.
 
-set VS_PROPERTY_SHEET=mk\vs2015\PcapPlusPlusPropertySheet.props
-set VS_PROPERTY_SHEET_TEMPLATE=%VS_PROPERTY_SHEET%.template
-
 :: initially set WINPCAP_HOME and PTHREAD_HOME to empty values
 set WINPCAP_HOME=
 set PTHREAD_HOME=
@@ -33,6 +30,13 @@ if "%PTHREAD_HOME:~-1%"=="\" set PTHREAD_HOME=%PTHREAD_HOME:~,-1%
 :: remove trailing "\" in WINPCAP_HOME if exists
 if "%WINPCAP_HOME:~-1%"=="\" set WINPCAP_HOME=%WINPCAP_HOME:~,-1%
 
+set VS_PROJ_DIR=mk\%VS_VERSION%
+set VS_PROPERTY_SHEET=PcapPlusPlusPropertySheet.props
+set VS_PROPERTY_SHEET_TEMPLATE=mk\vs\%VS_PROPERTY_SHEET%.template
+
+:: create VS project directory
+if not exist "%VS_PROJ_DIR%" mkdir %VS_PROJ_DIR%
+
 :: set PcapPlusPlus home, pthread-win32 and WinPcap locations in %VS_PROPERTY_SHEET%
 (for /F "tokens=* delims=" %%A in ('type "%VS_PROPERTY_SHEET_TEMPLATE%"') do (
     set "LINE=%%A"
@@ -44,12 +48,12 @@ if "%WINPCAP_HOME:~-1%"=="\" set WINPCAP_HOME=%WINPCAP_HOME:~,-1%
     endlocal
 ))>pcpp_temp.xml
 
-move /Y pcpp_temp.xml %VS_PROPERTY_SHEET% >nul
+move /Y pcpp_temp.xml %VS_PROJ_DIR%\%VS_PROPERTY_SHEET% >nul
 
 
 :: find Windows SDK version
 set WindowsTargetPlatformVersion=8.1
-call mk\vs2015\find-latest-win-sdk.bat
+call mk\vs\find-latest-win-sdk.bat
 
 :: set default VS params
 set ToolsVersion=14.0
@@ -76,12 +80,13 @@ if "%VS_VERSION%"=="vs2019" (
 :: go over all vcxproj template files and set the params according to the request VS version
 setlocal enabledelayedexpansion
 set PROJ_LIST_LOCAL=
-for %%P in (mk\vs2015\*.vcxproj.template) do (
-	set "TEMPALTE_PROJ_NAME=%%P"
-	set "PROJ_NAME=!TEMPALTE_PROJ_NAME:.template=!"
+for %%P in (mk\vs\*.vcxproj.template) do (
+	set "TEMPALTE_PROJ_PATH=%%P"
+	set "TEMPLATE_PROJ_FILENAME=%%~nxP"
+	set "PROJ_NAME=!TEMPLATE_PROJ_FILENAME:.template=!"
 	set PROJ_LIST_LOCAL=!PROJ_LIST_LOCAL!, !PROJ_NAME!
 
-	(for /F "tokens=* delims=" %%A in ('type "!TEMPALTE_PROJ_NAME!"') do (
+	(for /F "tokens=* delims=" %%A in ('type "!TEMPALTE_PROJ_PATH!"') do (
 		set "LINE=%%A"
 		set "LINE=!LINE:PUT_TOOLS_VERSION_HERE=%ToolsVersion%!"
 		set "LINE=!LINE:PUT_WIN_TARGET_PLATFORM_HERE=%WindowsTargetPlatformVersion%!"
@@ -89,9 +94,13 @@ for %%P in (mk\vs2015\*.vcxproj.template) do (
 		echo !LINE!
 	))>pcpp_temp.xml
 
-	move /Y pcpp_temp.xml !PROJ_NAME! >nul
+	move /Y pcpp_temp.xml %VS_PROJ_DIR%\!PROJ_NAME! >nul
 )
 endlocal & set PROJ_LIST=%PROJ_LIST_LOCAL%
+
+:: copy all solution and vcxproj.filters files
+xcopy /Y /Q mk\vs\*.sln %VS_PROJ_DIR%\ >nul
+xcopy /Y /Q mk\vs\*.vcxproj.filters %VS_PROJ_DIR%\ >nul
 
 :: configuration completed
 echo.
@@ -268,7 +277,7 @@ echo.
 echo The following switches are recognized:
 echo -p^|--pthreads-home   --Sets pthreads-win32 home directory
 echo -w^|--winpcap-home    --Sets WinPcap home directory
-echo -v^|--vs-version      --Sets Visual Studio version to configure
+echo -v^|--vs-version      --Sets Visual Studio version to configure. Should be one of: vs2015, vs2017, vs2019
 echo -h^|--help            --Displays this help message and exits. No further actions are performed
 echo.
 :: done printing, exit
