@@ -149,7 +149,8 @@ TcpReassembly::~TcpReassembly()
 {
 	while (!m_ConnectionList.empty())
 	{
-		delete m_ConnectionList.begin()->second;
+		if(m_ConnectionList.begin()->second != NULL)
+			delete m_ConnectionList.begin()->second;
 		m_ConnectionList.erase(m_ConnectionList.begin());
 	}
 }
@@ -215,8 +216,12 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	// calculate flow key for this packet
 	uint32_t flowKey = hash5Tuple(&tcpData);
 
-	// if this packet belongs to a connection that was already closed (for example: data packet that comes after FIN), ignore it
-	if (m_ClosedConnectionList.find(flowKey) != m_ClosedConnectionList.end())
+	// find the connection in the connection map
+	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
+
+	// if this packet belongs to a connection that was already closed (for example: data packet that comes after FIN), ignore it.
+	// the connection is already closed when the value of mapped type is NULL
+	if (iter != m_ConnectionList.end() && iter->second == NULL)
 	{
 		LOG_DEBUG("Ignoring packet of already closed flow [0x%X]", flowKey);
 		return;
@@ -244,8 +249,6 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		dstIP = &dstIP6Addr;
 	}
 
-	// find the connection in the connection map
-	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
 	if (iter == m_ConnectionList.end())
 	{
 		// if it's a packet of a new connection, create a TcpReassemblyData object and add it to the active connection list
@@ -748,6 +751,9 @@ void TcpReassembly::closeConnectionInternal(uint32_t flowKey, ConnectionEndReaso
 		return;
 	}
 
+	if (iter->second == NULL) // the connection is already closed
+		return;
+
 	LOG_DEBUG("Closing connection with flow key 0x%X", flowKey);
 
 	tcpReassemblyData = iter->second;
@@ -762,8 +768,7 @@ void TcpReassembly::closeConnectionInternal(uint32_t flowKey, ConnectionEndReaso
 		m_OnConnEnd(tcpReassemblyData->connData, reason, m_UserCookie);
 
 	delete tcpReassemblyData;
-	m_ConnectionList.erase(iter);
-	m_ClosedConnectionList[flowKey] = true;
+	iter->second = NULL; // mark the connection as closed
 	insertIntoCleanupList(flowKey);
 
 	LOG_DEBUG("Connection with flow key 0x%X is closed", flowKey);
@@ -773,9 +778,13 @@ void TcpReassembly::closeAllConnections()
 {
 	LOG_DEBUG("Closing all flows");
 
-	while (!m_ConnectionList.empty())
+	ConnectionList::iterator iter = m_ConnectionList.begin(), iterEnd = m_ConnectionList.end();
+	for (; iter != iterEnd; ++iter)
 	{
-		TcpReassemblyData* tcpReassemblyData = m_ConnectionList.begin()->second;
+		if (iter->second == NULL) // the connection is already closed, skip it
+			continue;
+
+		TcpReassemblyData *tcpReassemblyData = iter->second;
 
 		uint32_t flowKey = tcpReassemblyData->connData.flowKey;
 		LOG_DEBUG("Closing connection with flow key 0x%X", flowKey);
@@ -790,8 +799,7 @@ void TcpReassembly::closeAllConnections()
 			m_OnConnEnd(tcpReassemblyData->connData, TcpReassemblyConnectionClosedManually, m_UserCookie);
 
 		delete tcpReassemblyData;
-		m_ConnectionList.erase(m_ConnectionList.begin());
-		m_ClosedConnectionList[flowKey] = true;
+		iter->second = NULL; // mark the connection as closed
 		insertIntoCleanupList(flowKey);
 
 		LOG_DEBUG("Connection with flow key 0x%X is closed", flowKey);
@@ -800,11 +808,9 @@ void TcpReassembly::closeAllConnections()
 
 int TcpReassembly::isConnectionOpen(const ConnectionData& connection) const
 {
-	if (m_ConnectionList.find(connection.flowKey) != m_ConnectionList.end())
-		return 1;
-
-	if (m_ClosedConnectionList.find(connection.flowKey) != m_ClosedConnectionList.end())
-		return 0;
+	ConnectionList::const_iterator iter = m_ConnectionList.find(connection.flowKey);
+	if (iter != m_ConnectionList.end())
+		return iter->second != NULL; // If the value of mapped type is NULL then this connection is closed
 
 	return -1;
 }
@@ -837,7 +843,7 @@ uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
 		for(; iterKey != iterKeyEnd && count < maxNumToClean; ++count)
 		{
 			m_ConnectionInfo.erase(*iterKey);
-			m_ClosedConnectionList.erase(*iterKey);
+			m_ConnectionList.erase(*iterKey);
 			keysList.erase(iterKey++);
 		}
 
