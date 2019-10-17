@@ -2,9 +2,9 @@
 setlocal
 
 echo.
-echo ****************************************************
-echo PcapPlusPlus Visual Studio 2015 configuration script 
-echo ****************************************************
+echo ***********************************************
+echo PcapPlusPlus Visual Studio configuration script 
+echo ***********************************************
 echo.
 
 :: initially set WINPCAP_HOME and PTHREAD_HOME to empty values
