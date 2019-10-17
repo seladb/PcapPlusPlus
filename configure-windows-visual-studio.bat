@@ -20,7 +20,7 @@ if "%1" NEQ "" (
 :: if one of the modes returned with an error, exit script
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
 
-:: verify that both variables PTHREAD_HOME and WINPCAP_HOME are set
+:: verify that all variables: PTHREAD_HOME, WINPCAP_HOME, VS_VERSION are set
 if "%VS_VERSION%"=="" echo Visual studio version was not supplied. Exiting & exit /B 1
 if "%PTHREAD_HOME%"=="" echo pthread-win32 directory was not supplied. Exiting & exit /B 1
 if "%WINPCAP_HOME%"=="" echo WinPcap directory was not supplied. Exiting & exit /B 1
@@ -34,7 +34,7 @@ set VS_PROJ_DIR=mk\%VS_VERSION%
 set VS_PROPERTY_SHEET=PcapPlusPlusPropertySheet.props
 set VS_PROPERTY_SHEET_TEMPLATE=mk\vs\%VS_PROPERTY_SHEET%.template
 
-:: create VS project directory
+:: create VS project directory if doesn't exist already
 if not exist "%VS_PROJ_DIR%" mkdir %VS_PROJ_DIR%
 
 :: set PcapPlusPlus home, pthread-win32 and WinPcap locations in %VS_PROPERTY_SHEET%
@@ -77,7 +77,8 @@ if "%VS_VERSION%"=="vs2019" (
 	set PlatformToolset=v142
 )
 
-:: go over all vcxproj template files and set the params according to the request VS version
+:: go over all vcxproj template files and set the project params according to the requested VS version
+:: create vcxproj files and copy them to the VS project directory
 setlocal enabledelayedexpansion
 set PROJ_LIST_LOCAL=
 for %%P in (mk\vs\*.vcxproj.template) do (
@@ -98,7 +99,7 @@ for %%P in (mk\vs\*.vcxproj.template) do (
 )
 endlocal & set PROJ_LIST=%PROJ_LIST_LOCAL%
 
-:: copy solution, vcxproj.filters, and git version fetch related files
+:: copy solution, vcxproj.filters, and git info fetch files to VS project directory
 xcopy /Y /Q mk\vs\*.sln %VS_PROJ_DIR%\ >nul
 xcopy /Y /Q mk\vs\*.vcxproj.filters %VS_PROJ_DIR%\ >nul
 xcopy /Y /Q mk\vs\fetch-git-info.bat %VS_PROJ_DIR%\ >nul
@@ -266,7 +267,7 @@ exit /B 0
 
 
 :: -------------------------------------------------------------------
-:: a "function" that prints help for this script
+:: a "function" that prints help information for this script
 :HELP
 echo.
 echo Help documentation for %~nx0
@@ -277,10 +278,10 @@ echo.
 echo Basic usage: %~nx0 [-h] -p PTHREADS_WIN32_DIR -w WINPCAP_HOME_DIR
 echo.
 echo The following switches are recognized:
-echo -p^|--pthreads-home   --Sets pthreads-win32 home directory
-echo -w^|--winpcap-home    --Sets WinPcap home directory
-echo -v^|--vs-version      --Sets Visual Studio version to configure. Should be one of: vs2015, vs2017, vs2019
-echo -h^|--help            --Displays this help message and exits. No further actions are performed
+echo -v^|--vs-version      --Set Visual Studio version to configure. Must be one of: vs2015, vs2017, vs2019
+echo -p^|--pthreads-home   --Set pthreads-win32 home directory
+echo -w^|--winpcap-home    --Set WinPcap home directory
+echo -h^|--help            --Display this help message and exits. No further actions are performed
 echo.
 :: done printing, exit
 exit /B 0
