@@ -275,7 +275,7 @@ echo This script has 2 modes of operation:
 echo   1) Without any switches. In this case the script will guide you through using wizards
 echo   2) With switches, as described below
 echo.
-echo Basic usage: %~nx0 [-h] -p PTHREADS_WIN32_DIR -w WINPCAP_HOME_DIR
+echo Basic usage: %~nx0 [-h] -v VS_VERSION -p PTHREADS_WIN32_DIR -w WINPCAP_HOME_DIR
 echo.
 echo The following switches are recognized:
 echo -v^|--vs-version      --Set Visual Studio version to configure. Must be one of: vs2015, vs2017, vs2019
