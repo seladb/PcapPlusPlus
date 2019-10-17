@@ -107,7 +107,7 @@ xcopy /Y /Q mk\vs\GitInfoPropertySheet.props %VS_PROJ_DIR%\ >nul
 
 :: configuration completed
 echo.
-echo PcapPlusPlus Visual Studio 2015 configuration is complete. Files created (or modified): %VS_PROPERTY_SHEET%%PROJ_LIST%
+echo PcapPlusPlus Visual Studio configuration is complete. Files created (or modified): %VS_PROPERTY_SHEET%%PROJ_LIST%
 
 :: exit script
 exit /B 0
