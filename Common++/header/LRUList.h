@@ -49,10 +49,14 @@ namespace pcpp
 		T* put(const T& element)
 		{
 			m_CacheItemsList.push_front(element);
-			MapIterator iter = m_CacheItemsMap.find(element);
-			if (iter != m_CacheItemsMap.end())
-				m_CacheItemsList.erase(iter->second);
-			m_CacheItemsMap[element] = m_CacheItemsList.begin();
+
+			// Inserting a new element. If an element with an equivalent key already exists the method returns an iterator to the element that prevented the insertion
+			std::pair<MapIterator, bool> pair = m_CacheItemsMap.insert(std::make_pair(element, m_CacheItemsList.begin()));
+			if(pair.second == false) // already exists
+			{
+				m_CacheItemsList.erase(pair.first->second);
+				pair.first->second = m_CacheItemsList.begin();
+			}
 
 			if (m_CacheItemsList.size() > m_MaxSize)
 			{
