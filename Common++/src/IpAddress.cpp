@@ -131,10 +131,8 @@ uint32_t IPv4Address::toInt() const
 
 IPv4Address& IPv4Address::operator=(const IPv4Address& other)
 {
-	if (m_pInAddr != NULL)
-		delete m_pInAddr;
-
-	m_pInAddr = new in_addr();
+	if (m_pInAddr == NULL)
+		m_pInAddr = new in_addr();
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in_addr));
 
 	strncpy(m_AddressAsString, other.m_AddressAsString, 40);
@@ -180,7 +178,7 @@ IPv6Address::IPv6Address(const IPv6Address& other)
 
 IPv6Address::~IPv6Address()
 {
-	delete m_pInAddr;
+	delete[] m_pInAddr;
 }
 
 IPAddress* IPv6Address::clone() const
@@ -246,10 +244,8 @@ bool IPv6Address::operator!=(const IPv6Address& other)
 
 IPv6Address& IPv6Address::operator=(const IPv6Address& other)
 {
-	if (m_pInAddr != NULL)
-		delete m_pInAddr;
-
-	m_pInAddr = (in6_addr*)new uint8_t[sizeof(in6_addr)];
+	if (m_pInAddr == NULL)
+		m_pInAddr = (in6_addr*)new uint8_t[sizeof(in6_addr)];
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in6_addr));
 
 	strncpy(m_AddressAsString, other.m_AddressAsString, 40);
