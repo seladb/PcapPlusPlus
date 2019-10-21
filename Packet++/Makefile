@@ -24,6 +24,9 @@ endif
 ifdef MAC_OS_X
 DEPS := -DMAC_OS_X
 endif
+ifdef FREEBSD
+DEPS := -DFREEBSD
+endif
 
 INCLUDES := -I"./src" \
 			-I"./header" \

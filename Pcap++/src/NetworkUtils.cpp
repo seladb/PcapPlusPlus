@@ -16,6 +16,9 @@
 #include <errno.h>
 #elif MAC_OS_X
 #include <sys/errno.h>
+#elif FREEBSD
+#include <arpa/inet.h>
+#include <sys/errno.h>
 #endif
 #ifdef _MSC_VER
 #include "SystemUtils.h"

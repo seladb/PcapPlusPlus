@@ -34,8 +34,10 @@ UNAME := $(shell uname)
 .SILENT:
 
 all: libs
+ifndef FREEBSD
 	@cd $(PACKETPP_TEST)             && $(MAKE) Packet++Test
 	@cd $(PCAPPP_TEST)               && $(MAKE) Pcap++Test
+endif
 	@cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) ArpSpoofing
 	@cd $(EXAMPLE_ARPING)            && $(MAKE) Arping
 	@cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) DnsSpoofing

@@ -29,9 +29,9 @@
 #include <net/if_dl.h>
 #endif
 
-// On Mac OS X timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
+// On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
 // On Linux and Windows this is not the case so we keep the -1 value
-#ifdef MAC_OS_X
+#if defined(MAC_OS_X) || defined(FREEBSD)
 #define LIBPCAP_OPEN_LIVE_TIMEOUT 1
 #else
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
