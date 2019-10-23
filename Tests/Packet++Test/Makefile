@@ -51,11 +51,7 @@ dependents:
 
 Packet++Test: start create-directories $(OBJS_FILENAMES)
 	@cd $(MEMPLUMBER_HOME) && $(MAKE) memplumber_sources
-ifdef FREEBSD
-	@$(CXX) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -lexecinfo -o "./Bin/Packet++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(MEMPLUMBER_OBJS_FILENAMES) $(PCAPPP_LIBS) 
-else
 	@$(CXX) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Packet++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(MEMPLUMBER_OBJS_FILENAMES) $(PCAPPP_LIBS) 
-endif
 	@$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
