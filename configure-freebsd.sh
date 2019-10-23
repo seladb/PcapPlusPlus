@@ -148,7 +148,7 @@ if [ -n "$LIBPCAP_LIB_DIR" ]; then
 fi
 
 # generate installation and uninstallation scripts
-cp mk/install.sh.template mk/install.sh
+cp mk/install.sh.freebsd.template mk/install.sh
 sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/install.sh && rm mk/install.sh.bak
 chmod +x mk/install.sh
 
