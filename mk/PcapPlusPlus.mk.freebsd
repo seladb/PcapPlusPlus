@@ -1,4 +1,4 @@
-### LINUX ###
+### FreeBSD ###
 
 # includes
 PCAPPP_INCLUDES += -I/usr/include/netinet
