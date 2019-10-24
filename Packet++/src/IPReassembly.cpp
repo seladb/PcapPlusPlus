@@ -411,16 +411,26 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			LOG_DEBUG("[FragID=0x%X] Got out-of-ordered fragment with offset %d (expected: %d). Adding it to out-of-order list", fragWrapper->getFragmentId(), (int)fragOffset, (int)fragData->currentOffset);
 
 			// create a new IPFragment and copy the fragment data and params to it
-			IPFragment* newFrag = new IPFragment();
-			newFrag->fragmentOffset = fragWrapper->getFragmentOffset();
-			newFrag->fragmentData = new uint8_t[fragWrapper->getIPLayerPayloadSize()];
-			newFrag->fragmentDataLen = fragWrapper->getIPLayerPayloadSize();
-			memcpy(newFrag->fragmentData, fragWrapper->getIPLayerPayload(), newFrag->fragmentDataLen);
-			newFrag->lastFragment = fragWrapper->isLastFragment();
+			IPFragment *newFrag = new IPFragment();
+			try
+			{
+				newFrag->fragmentOffset = fragWrapper->getFragmentOffset();
+				newFrag->fragmentData = new uint8_t[fragWrapper->getIPLayerPayloadSize()];
+				newFrag->fragmentDataLen = fragWrapper->getIPLayerPayloadSize();
+				memcpy(newFrag->fragmentData, fragWrapper->getIPLayerPayload(), newFrag->fragmentDataLen);
+				newFrag->lastFragment = fragWrapper->isLastFragment();
 
-			// store the IPFragment in the out-of-order fragment list
-			fragData->outOfOrderFragments.pushBack(newFrag);
-
+				// store the IPFragment in the out-of-order fragment list
+				fragData->outOfOrderFragments.pushBack(newFrag);
+			}
+			catch(...)
+			{
+				// There are two cases when we should remove created object:
+				// 1. An exception is thrown by new[] operator. In this case the newFrag has not been inserted into a fragment list.
+				// 2. An exception is thrown by method push_back.
+				delete newFrag;
+				throw;
+			}
 			status = OUT_OF_ORDER_FRAGMENT;
 			return NULL;
 		}
