@@ -536,7 +536,7 @@ bool sendURLRequest(string url)
 	string cmd = "cUrl\\curl_win32.exe -s -o cUrl\\curl_output.txt";
 #elif LINUX
 	string cmd = "cUrl/curl.linux32 -s -o cUrl/curl_output.txt";
-#elif MAC_OS_X
+#elif MAC_OS_X || FREEBSD
 	string cmd = "curl -s -o cUrl/curl_output.txt";
 #endif
 

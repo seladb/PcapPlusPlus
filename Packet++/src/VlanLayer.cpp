@@ -13,6 +13,8 @@
 #include <winsock2.h>
 #elif LINUX
 #include <in.h>
+#elif FREEBSD
+#include <arpa/inet.h>
 #endif
 #include "EndianPortable.h"
 

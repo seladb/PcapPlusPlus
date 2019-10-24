@@ -7,7 +7,7 @@
 #include <winsock2.h>
 #elif LINUX
 #include <in.h>
-#elif MAC_OS_X
+#elif MAC_OS_X || FREEBSD
 #include <arpa/inet.h>
 #endif
 

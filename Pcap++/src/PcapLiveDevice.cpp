@@ -25,13 +25,13 @@
 #include <sys/sysctl.h>
 #include <net/if.h>
 #endif
-#ifdef MAC_OS_X
+#if defined(MAC_OS_X) || defined(FREEBSD)
 #include <net/if_dl.h>
 #endif
 
-// On Mac OS X timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
+// On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
 // On Linux and Windows this is not the case so we keep the -1 value
-#ifdef MAC_OS_X
+#if defined(MAC_OS_X) || defined(FREEBSD)
 #define LIBPCAP_OPEN_LIVE_TIMEOUT 1
 #else
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
@@ -737,7 +737,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	}
 
     m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
-#elif MAC_OS_X
+#elif MAC_OS_X || FREEBSD
     int	mib[6];
     size_t len;
 
@@ -749,19 +749,19 @@ void PcapLiveDevice::setDeviceMacAddress()
 	mib[5] = if_nametoindex(m_Name);
 
 	if (mib[5] == 0){
-		LOG_ERROR("Error in retrieving MAC address: if_nametoindex error");
+		LOG_DEBUG("Error in retrieving MAC address: if_nametoindex error");
 		return;
 	}
 
 	if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0) {
-		LOG_ERROR("Error in retrieving MAC address: sysctl 1 error");
+		LOG_DEBUG("Error in retrieving MAC address: sysctl 1 error");
 		return;
 	}
 
 	uint8_t buf[len];
 
 	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
-		LOG_ERROR("Error in retrieving MAC address: sysctl 2 error");
+		LOG_DEBUG("Error in retrieving MAC address: sysctl 2 error");
 		return;
 	}
 
@@ -831,7 +831,7 @@ void PcapLiveDevice::setDefaultGateway()
 	    interfaceGatewayStream >> interfaceGatewayIPInt;
 	    m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
 	}
-#elif MAC_OS_X
+#elif MAC_OS_X || FREEBSD
 	std::string ifaceStr = std::string(m_Name);
 	std::string command = "netstat -nr | grep default | grep " + ifaceStr;
 	std::string ifaceInfo = executeShellCommand(command);

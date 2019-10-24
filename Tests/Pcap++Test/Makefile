@@ -31,6 +31,9 @@ endif
 ifdef LINUX
 DEPS := -DLINUX
 endif
+ifdef FREEBSD
+DEPS := -DFREEBSD
+endif
 ifdef PF_RING_HOME
 DEPS += -DUSE_PF_RING
 endif

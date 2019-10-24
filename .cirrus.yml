@@ -1,0 +1,12 @@
+task:
+  name: Test FreeBSD
+  freebsd_instance:
+    image_family: freebsd-11-2
+  install_script: pkg install -y git libpcap bash gsed gmake
+  get_code_script: git clone https://github.com/seladb/PcapPlusPlus.git
+  configure_script:
+    - cd PcapPlusPlus
+    - ./configure-freebsd.sh --default
+  build_script:
+    - cd PcapPlusPlus
+    - gmake all
