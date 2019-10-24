@@ -332,9 +332,16 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 
 		// create the IPFragmentData object
 		fragData = new IPFragmentData(fragWrapper->createPacketKey(), fragWrapper->getFragmentId());
-
-		// add the new fragment to the map
-		addNewFragment(hash, fragData);
+		try
+		{
+			// add the new fragment to the map
+			addNewFragment(hash, fragData);
+		}
+		catch(...)
+		{
+			delete fragData;
+			throw;
+		}
 	}
 	else // packet was seen before
 	{
@@ -422,6 +429,9 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 
 				// store the IPFragment in the out-of-order fragment list
 				fragData->outOfOrderFragments.pushBack(newFrag);
+
+				status = OUT_OF_ORDER_FRAGMENT;
+				return NULL;
 			}
 			catch(...)
 			{
@@ -431,14 +441,11 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 				delete newFrag;
 				throw;
 			}
-			status = OUT_OF_ORDER_FRAGMENT;
-			return NULL;
 		}
 		else
 		{
 			LOG_DEBUG("[FragID=0x%X] Got a fragment with an offset that was already seen: %d (current offset is: %d), probably duplicated fragment", fragWrapper->getFragmentId(), (int)fragOffset, (int)fragData->currentOffset);
 		}
-
 	}
 
 	// if seen the last fragment
@@ -462,33 +469,41 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		// create a new Packet object with the reassembled data as its RawPacket
 		Packet* reassembledPacket = new Packet(fragData->data, true, parseUntil, parseUntilLayer);
 
-		if (fragData->packetKey->getProtocolType() == IPv4)
+		try
 		{
-			// set the fragment offset to 0
-			IPv4Layer* ipLayer = reassembledPacket->getLayerOfType<IPv4Layer>();
-			ipLayer->getIPv4Header()->fragmentOffset = 0;
+			if (fragData->packetKey->getProtocolType() == IPv4)
+			{
+				// set the fragment offset to 0
+				IPv4Layer *ipLayer = reassembledPacket->getLayerOfType<IPv4Layer>();
+				ipLayer->getIPv4Header()->fragmentOffset = 0;
 
-			// re-calculate all IPv4 fields
-			ipLayer->computeCalculateFields();
+				// re-calculate all IPv4 fields
+				ipLayer->computeCalculateFields();
+			}
+			else
+			{
+				// remove fragment extension
+				IPv6Layer *ipLayer = reassembledPacket->getLayerOfType<IPv6Layer>();
+				ipLayer->removeAllExtensions();
+
+				// re-calculate all IPv4 fields
+				ipLayer->computeCalculateFields();
+			}
+
+			LOG_DEBUG("[FragID=0x%X] Deleting fragment data from map", fragWrapper->getFragmentId());
+
+			// delete the IPFragmentData object and remove it from the map
+			delete fragData;
+			m_FragmentMap.erase(iter);
+			m_PacketLRU->eraseElement(hash);
+			status = REASSEMBLED;
+			return reassembledPacket;
 		}
-		else
-		{
-			// remove fragment extension
-			IPv6Layer* ipLayer = reassembledPacket->getLayerOfType<IPv6Layer>();
-			ipLayer->removeAllExtensions();
-
-			// re-calculate all IPv4 fields
-			ipLayer->computeCalculateFields();
+		catch(...)
+		{ // removeAllExtensions() may throw bad_alloc
+			delete reassembledPacket;
+			throw;
 		}
-
-		LOG_DEBUG("[FragID=0x%X] Deleting fragment data from map", fragWrapper->getFragmentId());
-
-		// delete the IPFragmentData object and remove it from the map
-		delete fragData;
-		m_FragmentMap.erase(iter);
-		m_PacketLRU->eraseElement(hash);
-		status = REASSEMBLED;
-		return reassembledPacket;
 	}
 
 	// if got to here it means this fragment is either the first fragment or a fragment in the middle. Set the appropriate status and return
@@ -501,11 +516,18 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 Packet* IPReassembly::processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	Packet* parsedFragment = new Packet(fragment, false, parseUntil, parseUntilLayer);
-	Packet* result = processPacket(parsedFragment, status, parseUntil, parseUntilLayer);
-	if (result != parsedFragment)
+	try
+	{
+		Packet *result = processPacket(parsedFragment, status, parseUntil, parseUntilLayer);
+		if (result != parsedFragment)
+			delete parsedFragment;
+		return result;
+	}
+	catch(...)
+	{
 		delete parsedFragment;
-
-	return result;
+		throw;
+	}
 }
 
 Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
@@ -540,23 +562,35 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 			}
 
 			// create a packet object wrapping the RawPacket we've just created
-			Packet* partialDataPacket = new Packet(partialRawPacket, true);
-
-			// prepare the packet and return it
-			if (key.getProtocolType() == IPv4)
+			Packet *partialDataPacket = NULL;
+			try
 			{
-				IPv4Layer* ipLayer = partialDataPacket->getLayerOfType<IPv4Layer>();
-				ipLayer->getIPv4Header()->fragmentOffset = 0;
-				ipLayer->computeCalculateFields();
-			}
-			else // key.getProtocolType() == IPv6
-			{
-				IPv6Layer* ipLayer = partialDataPacket->getLayerOfType<IPv6Layer>();
-				ipLayer->removeAllExtensions();
-				ipLayer->computeCalculateFields();
-			}
+				partialDataPacket = new Packet(partialRawPacket, true);
 
-			return partialDataPacket;
+				// prepare the packet and return it
+				if (key.getProtocolType() == IPv4)
+				{
+					IPv4Layer *ipLayer = partialDataPacket->getLayerOfType<IPv4Layer>();
+					ipLayer->getIPv4Header()->fragmentOffset = 0;
+					ipLayer->computeCalculateFields();
+				}
+				else // key.getProtocolType() == IPv6
+				{
+					IPv6Layer *ipLayer = partialDataPacket->getLayerOfType<IPv6Layer>();
+					ipLayer->removeAllExtensions();
+					ipLayer->computeCalculateFields();
+				}
+
+				return partialDataPacket;
+			}
+			catch(...)
+			{ // removeAllExtensions() may throw bad_alloc
+				if (partialDataPacket == NULL)
+					delete partialRawPacket;
+				else
+					delete partialDataPacket; // partialRawPacket is being deleted by Packet's destructor
+				throw;
+			}
 		}
 	}
 
