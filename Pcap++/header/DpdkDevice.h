@@ -240,7 +240,7 @@ namespace pcpp
 			 */
 			uint16_t flushTxBufferTimeout;
 
- 			/**
+			/**
 			 * When configuring a DPDK device, DPDK supports to activate the Receive Side Scaling (RSS) feature to distribute traffic between the RX queues
 			 * This parameter points to an array holding the RSS key to use for hashing specific header fields of received packets.
 			 * The length of this array should be indicated by rssKeyLength below.

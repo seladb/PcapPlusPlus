@@ -332,21 +332,21 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 
 bool DpdkDevice::initMemPool(struct rte_mempool*& memPool, const char* mempoolName, uint32_t mBufPoolSize)
 {
-    bool ret = false;
+	bool ret = false;
 
-    // create mbuf pool
-    memPool = rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
-
-    if (memPool == NULL)
+	// create mbuf pool
+	memPool = rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
+	if (memPool == NULL)
 	{
-		LOG_ERROR("Failed to create packets memory pool for port %d, pool name: %s", m_Id, mempoolName);
+		LOG_ERROR("Failed to create packets memory pool for port %d, pool name: %s. Error was: '%s' [Error code: %d]",
+			m_Id, mempoolName, rte_strerror(rte_errno), rte_errno);
 	}
 	else
 	{
 		LOG_DEBUG("Successfully initialized packets pool of size [%d] for device [%s]", mBufPoolSize, m_DeviceName);
 		ret = true;
 	}
-    return ret;
+	return ret;
 }
 
 bool DpdkDevice::startDevice()
@@ -354,7 +354,7 @@ bool DpdkDevice::startDevice()
 	int ret = rte_eth_dev_start((uint8_t) m_Id);
 	if (ret < 0)
 	{
-	    LOG_ERROR("Failed to start device %d. Error is %d", m_Id, ret);
+		LOG_ERROR("Failed to start device %d. Error is %d", m_Id, ret);
 		return false;
 	}
 
@@ -549,23 +549,23 @@ bool DpdkDevice::startCaptureSingleThread(OnDpdkPacketsArriveCallback onPacketsA
 
 	for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 	{
-    	if (coreId == (int)rte_get_master_lcore() || !rte_lcore_is_enabled(coreId))
-    		continue;
+		if (coreId == (int)rte_get_master_lcore() || !rte_lcore_is_enabled(coreId))
+			continue;
 
-    	m_CoreConfiguration[coreId].IsCoreInUse = true;
-    	m_CoreConfiguration[coreId].RxQueueId = 0;
+		m_CoreConfiguration[coreId].IsCoreInUse = true;
+		m_CoreConfiguration[coreId].RxQueueId = 0;
 
-    	LOG_DEBUG("Trying to start capturing on core %d", coreId);
-    	int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
-    	if (err != 0)
-    	{
-    		LOG_ERROR("Cannot create capture thread for device '%s'", m_DeviceName);
-        	m_CoreConfiguration[coreId].IsCoreInUse = false;
-    		return false;
-    	}
+		LOG_DEBUG("Trying to start capturing on core %d", coreId);
+		int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
+		if (err != 0)
+		{
+			LOG_ERROR("Cannot create capture thread for device '%s'", m_DeviceName);
+				m_CoreConfiguration[coreId].IsCoreInUse = false;
+			return false;
+		}
 
-    	LOG_DEBUG("Capturing started for device [%s]", m_DeviceName);
-    	return true;
+		LOG_DEBUG("Capturing started for device [%s]", m_DeviceName);
+		return true;
 	}
 
 	LOG_ERROR("Could not find initialized core so capturing thread cannot be initialized");
