@@ -453,58 +453,58 @@ namespace pcpp
 		 * Get a pointer to the IPv4 header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref iphdr
 		 */
-		inline iphdr* getIPv4Header() { return (iphdr*)m_Data; }
+		iphdr* getIPv4Header() const { return (iphdr*)m_Data; }
 
 		/**
 		 * Get the source IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the source address
 		 */
-		inline IPv4Address getSrcIpAddress() { return IPv4Address(getIPv4Header()->ipSrc); }
+		IPv4Address getSrcIpAddress() const { return IPv4Address(getIPv4Header()->ipSrc); }
 
 		/**
 		 * Set the source IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		inline void setSrcIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toInt(); }
+		void setSrcIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toInt(); }
 
 		/**
 		 * Get the destination IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the destination address
 		 */
-		inline IPv4Address getDstIpAddress() { return IPv4Address(getIPv4Header()->ipDst); }
+		IPv4Address getDstIpAddress() const { return IPv4Address(getIPv4Header()->ipDst); }
 
 		/**
 		 * Set the dest IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		inline void setDstIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toInt(); }
+		void setDstIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toInt(); }
 
 		/**
 		 * @return True if this packet is a fragment (in sense of IP fragmentation), false otherwise
 		 */
-		bool isFragment();
+		bool isFragment() const;
 
 		/**
 		 * @return True if this packet is a fragment (in sense of IP fragmentation) and is the first fragment
 		 * (which usually contains the L4 header). Return false otherwise (not a fragment or not the first fragment)
 		 */
-		bool isFirstFragment();
+		bool isFirstFragment() const;
 
 		/**
 		 * @return True if this packet is a fragment (in sense of IP fragmentation) and is the last fragment.
 		 * Return false otherwise (not a fragment or not the last fragment)
 		 */
-		bool isLastFragment();
+		bool isLastFragment() const;
 
 		/**
 		 * @return A bitmask containing the fragmentation flags (e.g IP_DONT_FRAGMENT or IP_MORE_FRAGMENTS)
 		 */
-		uint8_t getFragmentFlags();
+		uint8_t getFragmentFlags() const;
 
 		/**
 		 * @return The fragment offset in case this packet is a fragment, 0 otherwise
 		 */
-		uint16_t getFragmentOffset();
+		uint16_t getFragmentOffset() const;
 
 		/**
 		 * Get an IPv4 option by type.
@@ -579,7 +579,7 @@ namespace pcpp
 		/**
 		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		inline size_t getHeaderLen() { return (size_t)(getIPv4Header()->internetHeaderLength*4) + m_TempHeaderExtension; }
+		size_t getHeaderLen() { return (size_t)(getIPv4Header()->internetHeaderLength*4) + m_TempHeaderExtension; }
 
 		/**
 		 * Calculate the following fields:
@@ -593,6 +593,14 @@ namespace pcpp
 		std::string toString();
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+
+		/**
+		 * The static method makes validation of input data
+		 * @param[in] data The pointer to the beginning of byte stream of IP packet
+		 * @param[in] dataLen The length of byte stream
+		 * @return True if the data is valid and can represent the IPv4 packet
+		 */
+		static bool isDataValid(const uint8_t *data, size_t dataLen);
 
 	private:
 		int m_NumOfTrailingBytes;

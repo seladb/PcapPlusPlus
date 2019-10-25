@@ -213,7 +213,7 @@ namespace pcpp
 		 * Please avoid doing so
 		 * @return A pointer to the gre_basic_header
 		 */
-		inline gre_basic_header* getGreHeader() const { return (gre_basic_header*)m_Data; }
+		gre_basic_header* getGreHeader() const { return (gre_basic_header*)m_Data; }
 
 		/**
 		 * Get checksum value if field exists in layer
@@ -323,7 +323,7 @@ namespace pcpp
 		 * to some really weird bugs. Please avoid doing so
 		 * @return A pointer to the gre1_header
 		 */
-		inline gre1_header* getGreHeader() const { return (gre1_header*)m_Data; }
+		gre1_header* getGreHeader() const { return (gre1_header*)m_Data; }
 
 		/**
 		 * Get acknowledgment (ack) number value if field exists in layer
@@ -393,7 +393,7 @@ namespace pcpp
 		 * Get a pointer to the PPP-PPTP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref ppp_pptp_header
 		 */
-		inline ppp_pptp_header* getPPP_PPTPHeader() { return (ppp_pptp_header*)m_Data; }
+		ppp_pptp_header* getPPP_PPTPHeader() const { return (ppp_pptp_header*)m_Data; }
 
 
 		// implement abstract methods
@@ -406,7 +406,7 @@ namespace pcpp
 		/**
 		 * @return The size of @ref ppp_pptp_header
 		 */
-		inline size_t getHeaderLen() { return sizeof(ppp_pptp_header); }
+		size_t getHeaderLen() { return sizeof(ppp_pptp_header); }
 
 		/**
 		 * Calculate the following fields:

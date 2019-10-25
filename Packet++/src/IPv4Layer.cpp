@@ -160,12 +160,14 @@ IPv4Option IPv4OptionBuilder::build() const
 /// IPv4Layer
 /// ~~~~~~~~~
 
+
 void IPv4Layer::initLayer()
 {
-	m_DataLen = sizeof(iphdr);
-	m_Data = new uint8_t[m_DataLen];
+	const size_t headerLen = sizeof(iphdr);
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
 	m_Protocol = IPv4;
-	memset(m_Data, 0, sizeof(iphdr));
+	memset(m_Data, 0, headerLen);
 	iphdr* ipHdr = getIPv4Header();
 	ipHdr->internetHeaderLength = (5 & 0xf);
 	m_NumOfTrailingBytes = 0;
@@ -344,27 +346,27 @@ void IPv4Layer::computeCalculateFields()
 	ipHdr->headerChecksum = htons(compute_checksum(&scalar, 1));
 }
 
-bool IPv4Layer::isFragment()
+bool IPv4Layer::isFragment() const
 {
 	return ((getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0 || getFragmentOffset() != 0);
 }
 
-bool IPv4Layer::isFirstFragment()
+bool IPv4Layer::isFirstFragment() const
 {
 	return isFragment() && (getFragmentOffset() == 0);
 }
 
-bool IPv4Layer::isLastFragment()
+bool IPv4Layer::isLastFragment() const
 {
 	return isFragment() && ((getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) == 0);
 }
 
-uint8_t IPv4Layer::getFragmentFlags()
+uint8_t IPv4Layer::getFragmentFlags() const
 {
 	return getIPv4Header()->fragmentOffset & 0xE0;
 }
 
-uint16_t IPv4Layer::getFragmentOffset()
+uint16_t IPv4Layer::getFragmentOffset() const
 {
 	return ntohs(getIPv4Header()->fragmentOffset & (uint16_t)0xFF1F) * 8;
 }
@@ -551,6 +553,19 @@ bool IPv4Layer::removeAllOptions()
 	m_NumOfTrailingBytes = 0;
 	m_OptionReader.changeTLVRecordCount(0-getOptionCount());
 	return true;
+}
+
+bool IPv4Layer::isDataValid(const uint8_t *data, size_t dataLen)
+{
+	if (dataLen >= 20)
+	{
+		const iphdr *hdr = reinterpret_cast<const iphdr *>(data);
+
+		return hdr->ipVersion == 4
+			&& hdr->internetHeaderLength >= 5
+			&& ntohs(hdr->totalLength) <= 65535;
+	}
+	return false;
 }
 
 } // namespace pcpp
