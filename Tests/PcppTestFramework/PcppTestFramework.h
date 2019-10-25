@@ -77,6 +77,10 @@ bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool em
 
 #define PTF_TEST_CASE(TestName) void TestName(int& ptfResult)
 
+#define PTF_TEST_CASE_PASSED \
+    ptfResult = 1; \
+    return
+
 #define PTF_ASSERT(exp, assertFailedFormat, ...) \
 	if (!(exp)) \
 	{ \

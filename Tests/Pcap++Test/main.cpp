@@ -6435,7 +6435,7 @@ PTF_TEST_CASE(TestRawSockets)
 		LoggerPP::getInstance().enableErrors();
 	}
 
-
+	PTF_TEST_CASE_PASSED;
 
 #endif
 
