@@ -429,6 +429,7 @@ bool HttpRequestFirstLine::setMethod(HttpRequestLayer::HttpMethod newMethod)
 
 	memcpy(m_HttpRequest->m_Data, MethodEnumToString[newMethod].c_str(), MethodEnumToString[newMethod].length());
 
+	m_Method = newMethod;
 	m_UriOffset += lengthDifference;
 	m_VersionOffset += lengthDifference;
 
@@ -492,6 +493,8 @@ void HttpRequestFirstLine::setVersion(HttpVersion newVersion)
 
 	char* verPos = (char*)(m_HttpRequest->m_Data + m_VersionOffset);
 	memcpy(verPos, VersionEnumToString[newVersion].c_str(), 3);
+
+	m_Version = newVersion;
 }
 
 
@@ -858,6 +861,8 @@ void HttpResponseFirstLine::setVersion(HttpVersion newVersion)
 
 	char* verPos = (char*)(m_HttpResponse->m_Data + 5);
 	memcpy(verPos, VersionEnumToString[newVersion].c_str(), 3);
+
+	m_Version = newVersion;
 }
 
 HttpResponseLayer::HttpResponseStatusCode HttpResponseFirstLine::validateStatusCode(char* data, size_t dataLen, HttpResponseLayer::HttpResponseStatusCode potentialCode)
