@@ -6,4 +6,6 @@ PCAPPP_INCLUDES += -I/usr/include/netinet
 # libs
 PCAPPP_LIBS += -lpcap -lpthread
 
+# allow user to add custom LDFLAGS
+PCAPPP_BUILD_FLAGS += $(LDFLAGS)
 
