@@ -191,7 +191,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		return;
 	}
 
-	// calculate the TCP payload size
+	// set the TCP payload size
 	size_t tcpPayloadSize = tcpLayer->getLayerPayloadSize();
 
 	// calculate if this packet has FIN or RST flags
@@ -202,14 +202,6 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	// ignore ACK packets or TCP packets with no payload (except for SYN, FIN or RST packets which we'll later need)
 	if (tcpPayloadSize == 0 && tcpLayer->getTcpHeader()->synFlag == 0 && !isFinOrRst)
 		return;
-
-	// if the actual TCP payload is smaller than the value written in IPV4's "total length" field then adjust tcpPayloadSize to avoid buffer overflow
-	if (tcpLayer->getLayerPayloadSize() < tcpPayloadSize)
-	{
-		LOG_DEBUG("Got a packet where actual TCP payload size is smaller then the value written in IPv4's 'total length' header. Adjusting tcpPayloadSize to avoid buffer overflow");
-		tcpPayloadSize = tcpLayer->getLayerPayloadSize();
-	}
-
 
 	TcpReassemblyData* tcpReassemblyData = NULL;
 
