@@ -2105,6 +2105,9 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 	PTF_ASSERT(httpPacket.addLayer(&httpLayer), "Adding HTTP request layer failed");
 	hostField->setFieldValue("www.ynet.co.il");
 	httpLayer.getFirstLine()->setMethod(HttpRequestLayer::HttpGET);
+	PTF_ASSERT(httpLayer.getFirstLine()->getMethod() == HttpRequestLayer::HttpGET, "Couldn't set method");
+	httpLayer.getFirstLine()->setVersion(pcpp::OneDotOne);
+	PTF_ASSERT(httpLayer.getFirstLine()->getVersion() == pcpp::OneDotOne, "Couldn't set version");
 	httpLayer.getFirstLine()->setUri("/home/0,7340,L-8,00.html");
 	PTF_ASSERT(httpLayer.removeField("Dummy-Field2") == true, "Couldn't remove Dummy-Field2");
 	userAgentField->setFieldValue("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
