@@ -5324,7 +5324,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	TcpReassemblyMultipleConnStats results;
 	std::string errMsg;
 
-	TcpReassemblyConfiguration config(true, 1, 1);
+	TcpReassemblyConfiguration config(true, 2, 1);
 	TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config);
 
 	std::vector<RawPacket> packetStream;
@@ -5354,7 +5354,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0, int);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0, int);
 
-	PCAP_SLEEP(2);
+	PCAP_SLEEP(3);
 
 	tcpReassembly.reassemblePacket(&lastPacket); // automatic cleanup of 1 item
 	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 2, size);
