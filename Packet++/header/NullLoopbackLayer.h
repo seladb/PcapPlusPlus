@@ -75,7 +75,7 @@ namespace pcpp
 		/**
 		 * @return Size of Null/Loopback header = 4B
 		 */
-		inline size_t getHeaderLen() { return sizeof(uint32_t); }
+		size_t getHeaderLen() { return sizeof(uint32_t); }
 
 		/**
 		 * Does nothing for this layer

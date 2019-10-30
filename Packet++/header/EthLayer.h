@@ -100,25 +100,25 @@ namespace pcpp
 		 * Get a pointer to the Ethernet header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the ether_header
 		 */
-		inline ether_header* getEthHeader() const { return (ether_header*)m_Data; }
+		ether_header* getEthHeader() const { return (ether_header*)m_Data; }
 
 		/**
 		 * Get the source MAC address
 		 * @return The source MAC address
 		 */
-		inline MacAddress getSourceMac() const { return MacAddress(getEthHeader()->srcMac); }
+		MacAddress getSourceMac() const { return MacAddress(getEthHeader()->srcMac); }
 
 		/**
 		 * Set source MAC address
 		 * @param sourceMac Source MAC to set
 		 */
-		inline void setSourceMac(const MacAddress& sourceMac) { sourceMac.copyTo(getEthHeader()->srcMac); }
+		void setSourceMac(const MacAddress& sourceMac) { sourceMac.copyTo(getEthHeader()->srcMac); }
 
 		/**
 		 * Get the destination MAC address
 		 * @return The destination MAC address
 		 */
-		inline MacAddress getDestMac() const { return MacAddress(getEthHeader()->dstMac); }
+		MacAddress getDestMac() const { return MacAddress(getEthHeader()->dstMac); }
 
 		/**
 		 * Set destination MAC address
@@ -138,7 +138,7 @@ namespace pcpp
 		/**
 		 * @return Size of ether_header
 		 */
-		inline size_t getHeaderLen() { return sizeof(ether_header); }
+		size_t getHeaderLen() { return sizeof(ether_header); }
 
 		/**
 		 * Calculate ether_header#etherType for known protocols: IPv4, IPv6, ARP, VLAN

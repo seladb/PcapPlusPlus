@@ -356,17 +356,17 @@ PTF_TEST_CASE(Ipv4PacketParsing)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/IcmpPacket.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file IcmpPacket.dat");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 
 	Packet ip4Packet(&rawPacket);
-	PTF_ASSERT(ip4Packet.isPacketOfType(Ethernet), "Packet is not of type Ethernet");
-	PTF_ASSERT(ip4Packet.getLayerOfType<EthLayer>() != NULL, "Ethernet layer doesn't exist");
-	PTF_ASSERT(ip4Packet.isPacketOfType(IPv4), "Packet is not of type IPv4");
-	PTF_ASSERT(ip4Packet.getLayerOfType<IPv4Layer>() != NULL, "IPv4 layer doesn't exist");
+	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(Ethernet));
+	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<EthLayer>());
+	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(IPv4));
+	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<IPv4Layer>());
 
 	EthLayer* ethLayer = ip4Packet.getLayerOfType<EthLayer>();
 	PTF_ASSERT(ntohs(ethLayer->getEthHeader()->etherType) == PCPP_ETHERTYPE_IP, "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
@@ -374,31 +374,41 @@ PTF_TEST_CASE(Ipv4PacketParsing)
 	IPv4Layer* ipv4Layer = ip4Packet.getLayerOfType<IPv4Layer>();
 	IPv4Address ip4addr1(string("10.0.0.4"));
 	IPv4Address ip4addr2(string("1.1.1.1"));
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->protocol == 1, "Protocol read from packet isnt ICMP (=1). Protocol is: %d", ipv4Layer->getIPv4Header()->protocol);
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->ipVersion == 4, "IP version isn't 4. Version is: %d", ipv4Layer->getIPv4Header()->ipVersion);
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->ipSrc == ip4addr1.toInt(), "incorrect source address");
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->ipDst == ip4addr2.toInt(), "incorrect dest address");
-	PTF_ASSERT(ipv4Layer->getFirstOption().isNull() == true, "Managed to get the first IPv4 option although packet doesn't contain any options");
-	PTF_ASSERT(ipv4Layer->getOption(IPV4OPT_CommercialSecurity).isNull() == true, "Managed to get an IPv4 option by type although packet doesn't contain any options");
-	PTF_ASSERT(ipv4Layer->getOptionCount() == 0, "IPv4 option count isn't 0");
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->protocol, 1, u8);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipVersion, 4, u8);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toInt(), u32);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ip4addr2.toInt(), u32);
+	PTF_ASSERT_TRUE(ipv4Layer->getFirstOption().isNull());
+	PTF_ASSERT_TRUE(ipv4Layer->getOption(IPV4OPT_CommercialSecurity).isNull());
+	PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 0, size);
 
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IPv4-TSO.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IPv4-TSO.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
 
 	Packet ip4TSO(&rawPacket2);
 
 	ipv4Layer = ip4TSO.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipv4Layer != NULL, "IPv4 TSO: cannot get IPv4 layer");
-	PTF_ASSERT(ipv4Layer->getHeaderLen() == 20, "IPv4 TSO: header len is not 20");
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->totalLength == 0 ,"IPv4 TSO: total length is not 0, it's %d", ipv4Layer->getIPv4Header()->totalLength);
-	PTF_ASSERT(ipv4Layer->getDataLen() == 60, "IPv4 TSO: data len is not 60");
-	PTF_ASSERT(ipv4Layer->getNextLayer() != NULL, "IPv4 TSO: next layer is NULL");
-	PTF_ASSERT(ipv4Layer->getNextLayer()->getProtocol() == ICMP, "IPv4 TSO: next layer type isn't ICMP");
+	PTF_ASSERT_NOT_NULL(ipv4Layer);
+	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 20, size);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->totalLength, 0, u16);
+	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 60, size);
+	PTF_ASSERT_NOT_NULL(ipv4Layer->getNextLayer());
+	PTF_ASSERT_EQUAL(ipv4Layer->getNextLayer()->getProtocol(), ICMP, enum);
 
+
+	int buffer3Length = 0;
+	uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/IPv4-bad.dat", buffer3Length);
+	PTF_ASSERT_NOT_NULL(buffer3);
+
+	RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true);
+	Packet bogusPkt(&rawPacket3, IPv4);
+
+	ipv4Layer = bogusPkt.getLayerOfType<IPv4Layer>();
+	PTF_ASSERT_NULL(ipv4Layer);
 }
 
 PTF_TEST_CASE(Ipv4FragmentationTest)
