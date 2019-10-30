@@ -29,12 +29,18 @@ uint32_t NullLoopbackLayer::getFamily()
 	if ((family & 0xFFFF0000) != 0)
 	{
 		if ((family & 0xFF000000) == 0 && (family & 0x00FF0000) < 0x00060000)
+		{
 			family >>= 16;
+		}
 		else
+		{
 			family = BSWAP32(family);
+		}
 	}
 	else if ((family & 0x000000FF) == 0 && (family & 0x0000FF00) < 0x00000600)
+	{
 		family = BSWAP16(family & 0xFFFF);
+	}
 
 	return family;
 }
@@ -52,7 +58,9 @@ void NullLoopbackLayer::parseNextLayer()
 	switch (getFamily())
 	{
 	case PCPP_BSD_AF_INET:
-		m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer *>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_BSD_AF_INET6_BSD:
 	case PCPP_BSD_AF_INET6_FREEBSD:

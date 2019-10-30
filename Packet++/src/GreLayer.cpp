@@ -212,8 +212,9 @@ void GreLayer::parseNextLayer()
 	switch (ntohs(header->protocol))
 	{
 	case PCPP_ETHERTYPE_IP:
-		if(IPv4Layer::isDataValid(payload, payloadLen))
-			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer *>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_ETHERTYPE_IPV6:
 		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
@@ -570,8 +571,9 @@ void PPP_PPTPLayer::parseNextLayer()
 	switch (ntohs(getPPP_PPTPHeader()->protocol))
 	{
 	case PCPP_PPP_IP:
-		if(IPv4Layer::isDataValid(payload, payloadLen))
-			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer *>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_PPP_IPV6:
 		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);

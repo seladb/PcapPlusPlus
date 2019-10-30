@@ -306,7 +306,7 @@ namespace pcpp
 		/**
 		 * @return IPv4 option type casted as pcpp::IPv4OptionTypes enum
 		 */
-		inline IPv4OptionTypes getIPv4OptionType() const
+		IPv4OptionTypes getIPv4OptionType() const
 		{
 			if (m_Data == NULL)
 				return IPV4OPT_Unknown;
@@ -608,7 +608,7 @@ namespace pcpp
 		TLVRecordReader<IPv4Option> m_OptionReader;
 
 		void copyLayerData(const IPv4Layer& other);
-		inline uint8_t* getOptionsBasePtr() { return m_Data + sizeof(iphdr); }
+		uint8_t* getOptionsBasePtr() const { return m_Data + sizeof(iphdr); }
 		IPv4Option addOptionAt(const IPv4OptionBuilder& optionBuilder, int offset);
 		void adjustOptionsTrailer(size_t totalOptSize);
 		void initLayer();
