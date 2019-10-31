@@ -20,9 +20,10 @@ namespace pcpp
 
 UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst)
 {
-	m_DataLen = sizeof(udphdr);
-	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, m_DataLen);
+	const size_t headerLen = sizeof(udphdr);
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
+	memset(m_Data, 0, headerLen);
 	udphdr* udpHdr = (udphdr*)m_Data;
 	udpHdr->portDst = htons(portDst);
 	udpHdr->portSrc = htons(portSrc);

@@ -31,8 +31,8 @@ Packet::Packet(size_t maxPacketLen) :
 {
 	timeval time;
 	gettimeofday(&time, NULL);
-	uint8_t* data = new uint8_t[m_MaxPacketLen];
-	memset(data, 0, m_MaxPacketLen);
+	uint8_t* data = new uint8_t[maxPacketLen];
+	memset(data, 0, maxPacketLen);
 	m_RawPacket = new RawPacket((const uint8_t*)data, 0, time, true, LINKTYPE_ETHERNET);
 }
 
@@ -504,7 +504,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	return true;
 }
 
-Layer* Packet::getLayerOfType(ProtocolType layerType, int index)
+Layer* Packet::getLayerOfType(ProtocolType layerType, int index) const
 {
 	Layer* curLayer = getFirstLayer();
 	int curIndex = 0;

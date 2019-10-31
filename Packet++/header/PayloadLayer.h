@@ -42,13 +42,13 @@ namespace pcpp
 		 * Get a pointer to the payload data
 		 * @return A pointer to the payload data
 		 */
-		inline uint8_t* getPayload() { return m_Data; }
+		uint8_t* getPayload() const { return m_Data; }
 
 		/**
 		 * Get the payload data length
 		 * @return The payload data length in bytes
 		 */
-		inline size_t getPayloadLen() { return m_DataLen; }
+		size_t getPayloadLen() const { return m_DataLen; }
 
 		// implement abstract methods
 
@@ -60,7 +60,7 @@ namespace pcpp
 		/**
 		 * @return Payload data length in bytes
 		 */
-		inline size_t getHeaderLen() { return m_DataLen; }
+		size_t getHeaderLen() { return m_DataLen; }
 
 		/**
 		 * Does nothing for this layer

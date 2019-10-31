@@ -28,7 +28,6 @@ TextBasedProtocolMessage::TextBasedProtocolMessage(uint8_t* data, size_t dataLen
 TextBasedProtocolMessage::TextBasedProtocolMessage(const TextBasedProtocolMessage& other) : Layer(other)
 {
 	copyDataFrom(other);
-
 }
 
 TextBasedProtocolMessage& TextBasedProtocolMessage::operator=(const TextBasedProtocolMessage& other)
@@ -80,7 +79,6 @@ void TextBasedProtocolMessage::copyDataFrom(const TextBasedProtocolMessage& othe
 	{
 		m_FieldNameToFieldMap.insert(std::pair<std::string, HeaderField*>(field->getFieldName(), field));
 	}
-
 }
 
 
@@ -259,16 +257,16 @@ bool TextBasedProtocolMessage::removeField(std::string fieldName, int index)
 	std::pair <std::multimap<std::string,HeaderField*>::iterator, std::multimap<std::string,HeaderField*>::iterator> range;
 	range = m_FieldNameToFieldMap.equal_range(fieldName);
 	int i = 0;
-    for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
-    {
-    	if (i == index)
-    	{
-    		fieldToRemove = iter->second;
-    		break;
-    	}
+	for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
+	{
+		if (i == index)
+		{
+			fieldToRemove = iter->second;
+			break;
+		}
 
-    	i++;
-    }
+		i++;
+	}
 
 	if (fieldToRemove != NULL)
 		return removeField(fieldToRemove);
@@ -341,14 +339,14 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
 	std::pair <std::multimap<std::string,HeaderField*>::iterator, std::multimap<std::string,HeaderField*>::iterator> range;
 	range = m_FieldNameToFieldMap.equal_range(fieldName);
-    for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
-    {
-    	if (iter->second == fieldToRemove)
-    	{
-    		m_FieldNameToFieldMap.erase(iter);
-    		break;
-    	}
-    }
+	for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
+	{
+		if (iter->second == fieldToRemove)
+		{
+			m_FieldNameToFieldMap.erase(iter);
+			break;
+		}
+	}
 
 	// finally - delete this field
 	delete fieldToRemove;
@@ -356,7 +354,7 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 	return true;
 }
 
-bool TextBasedProtocolMessage::isHeaderComplete()
+bool TextBasedProtocolMessage::isHeaderComplete() const
 {
 	if (m_LastField == NULL)
 		return false;
@@ -383,17 +381,17 @@ HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName, int
 	range = m_FieldNameToFieldMap.equal_range(fieldName);
 	int i = 0;
 	for (std::multimap<std::string,HeaderField*>::const_iterator iter = range.first; iter != range.second; ++iter)
-    {
-    	if (i == index)
-    		return iter->second;
+	{
+		if (i == index)
+			return iter->second;
 
-    	i++;
-    }
+		i++;
+	}
 
-    return NULL;
+	return NULL;
 }
 
-int TextBasedProtocolMessage::getFieldCount()
+int TextBasedProtocolMessage::getFieldCount() const
 {
 	int result = 0;
 

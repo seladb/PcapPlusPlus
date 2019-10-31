@@ -209,7 +209,7 @@ namespace pcpp
 		/**
 		 * @return The IPv4 address stored in this object
 		 */
-		IPv4Address getIpAddress() { return m_Data; }
+		IPv4Address getIpAddress() const { return m_Data; }
 
 		// implement abstract methods
 
@@ -258,7 +258,7 @@ namespace pcpp
 		/**
 		 * @return The IPv6 address stored in this object
 		 */
-		IPv6Address getIpAddress() { return m_Data; }
+		IPv6Address getIpAddress() const { return m_Data; }
 
 		// implement abstract methods
 
@@ -320,7 +320,7 @@ namespace pcpp
 		/**
 		 * @return The MX data stored in this object
 		 */
-		MxData getMxData() { return m_Data; }
+		MxData getMxData() const { return m_Data; }
 
 		/**
 		 * Set the MX data stored in this object

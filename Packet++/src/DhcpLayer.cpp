@@ -47,8 +47,8 @@ DhcpLayer::DhcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pa
 void DhcpLayer::initDhcpLayer(size_t numOfBytesToAllocate)
 {
 	m_DataLen = numOfBytesToAllocate;
-	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, m_DataLen);
+	m_Data = new uint8_t[numOfBytesToAllocate];
+	memset(m_Data, 0, numOfBytesToAllocate);
 	m_Protocol = DHCP;
 }
 

@@ -80,7 +80,7 @@ namespace pcpp
 		 * parses this field, extracts its value and return it. If this field doesn't exist 0 is returned
 		 * @return SIP response body length determined by "Content-Length" field
 		 */
-		int getContentLength();
+		int getContentLength() const;
 
 		/**
 		 * The length of the body of many SIP messages is determined by a header field called "Content-Length". This method sets
@@ -99,7 +99,7 @@ namespace pcpp
 
 		// Overridden methods
 
-        OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 
 		/**
 		 * Currently identifies only SDP if content-length field exists and set to a value greater than zero.
@@ -215,7 +215,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		inline SipRequestFirstLine* getFirstLine() { return m_FirstLine; }
+		SipRequestFirstLine* getFirstLine() const { return m_FirstLine; }
 
 		// implement Layer's abstract methods
 
@@ -441,7 +441,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		inline SipResponseFirstLine* getFirstLine() { return m_FirstLine; }
+		SipResponseFirstLine* getFirstLine() const { return m_FirstLine; }
 
 		// implement Layer's abstract methods
 
@@ -471,7 +471,7 @@ namespace pcpp
 		/**
 		 * @return The SIP request method
 		 */
-		inline SipRequestLayer::SipMethod getMethod() { return m_Method; }
+		SipRequestLayer::SipMethod getMethod() const { return m_Method; }
 
 		/**
 		 * Set the SIP request method
@@ -495,7 +495,7 @@ namespace pcpp
 		/**
 		 * @return The SIP version
 		 */
-		inline std::string getVersion() { return m_Version; }
+		std::string getVersion() const { return m_Version; }
 
 		/**
 		 * A static method for parsing the SIP method out of raw data
@@ -508,7 +508,7 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the SIP request first line
 		 */
-		inline int getSize() { return m_FirstLineEndOffset; }
+		int getSize() const { return m_FirstLineEndOffset; }
 
 		/**
 		 * As explained in SipRequestLayer, a SIP message can sometimes spread over more than 1 packet, so when looking at a single packet
@@ -516,7 +516,7 @@ namespace pcpp
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		inline bool isComplete() { return m_IsComplete; }
+		bool isComplete() const { return m_IsComplete; }
 
 		/**
 		 * @class SipRequestFirstLineException
@@ -573,17 +573,17 @@ namespace pcpp
 		/**
 		 * @return The status code as SipResponseLayer#SipResponseStatusCode enum
 		 */
-		inline SipResponseLayer::SipResponseStatusCode getStatusCode() { return m_StatusCode; }
+		SipResponseLayer::SipResponseStatusCode getStatusCode() const { return m_StatusCode; }
 
 		/**
 		 * @return The status code number as integer (e.g 200, 100, etc.)
 		 */
-		int getStatusCodeAsInt();
+		int getStatusCodeAsInt() const;
 
 		/**
 		 * @return The status code message (e.g "OK", "Trying", etc.)
 		 */
-		std::string getStatusCodeString();
+		std::string getStatusCodeString() const;
 
 		/**
 		 * Set the status code
@@ -596,7 +596,7 @@ namespace pcpp
 		/**
 		 * @return The SIP version
 		 */
-		inline std::string getVersion() { return m_Version; }
+		std::string getVersion() const { return m_Version; }
 
 		/**
 		 * Set the SIP version. The version to set is expected to be in the format of SIP/x.y otherwise an error will be written to log
@@ -615,7 +615,7 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the SIP response first line
 		 */
-		inline int getSize() { return m_FirstLineEndOffset; }
+		int getSize() const { return m_FirstLineEndOffset; }
 
 		/**
 		 * As explained in SipResponseLayer, A SIP message can sometimes spread over more than 1 packet, so when looking at a single packet
@@ -623,7 +623,7 @@ namespace pcpp
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		inline bool isComplete() { return m_IsComplete; }
+		bool isComplete() const { return m_IsComplete; }
 
 		/**
 		 * @class SipResponseFirstLineException

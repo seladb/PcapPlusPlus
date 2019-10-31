@@ -23,35 +23,35 @@ namespace pcpp
 	#pragma pack(push, 1)
 	struct dhcp_header {
 		/** BootP opcode */
-        uint8_t opCode;
-        /** Hardware type, set to 1 (Ethernet) by default */
-        uint8_t hardwareType;
-        /** Hardware address length, set to 6 (MAC address length) by default */
-        uint8_t hardwareAddressLength;
-        /** Hop count */
-        uint8_t hops;
-        /** DHCP/BootP transaction ID */
-        uint32_t transactionID;
-        /** The elapsed time, in seconds since the client sent its first BOOTREQUEST message */
-        uint16_t secondsElapsed;
-        /** BootP flags */
-        uint16_t flags;
-        /** Client IPv4 address */
-        uint32_t clientIpAddress;
-        /** Your IPv4 address */
-        uint32_t yourIpAddress;
-        /** Server IPv4 address */
-        uint32_t serverIpAddress;
-        /** Gateway IPv4 address */
-        uint32_t gatewayIpAddress;
-        /** Client hardware address, by default contains the MAC address (only 6 first bytes are used) */
-        uint8_t clientHardwareAddress[16];
-        /** BootP server name */
-        uint8_t serverName[64];
-        /** BootP boot file name */
-        uint8_t bootFilename[128];
-        /** DHCP magic number (set to the default value of 0x63538263) */
-        uint32_t magicNumber;
+		uint8_t opCode;
+		/** Hardware type, set to 1 (Ethernet) by default */
+		uint8_t hardwareType;
+		/** Hardware address length, set to 6 (MAC address length) by default */
+		uint8_t hardwareAddressLength;
+		/** Hop count */
+		uint8_t hops;
+		/** DHCP/BootP transaction ID */
+		uint32_t transactionID;
+		/** The elapsed time, in seconds since the client sent its first BOOTREQUEST message */
+		uint16_t secondsElapsed;
+		/** BootP flags */
+		uint16_t flags;
+		/** Client IPv4 address */
+		uint32_t clientIpAddress;
+		/** Your IPv4 address */
+		uint32_t yourIpAddress;
+		/** Server IPv4 address */
+		uint32_t serverIpAddress;
+		/** Gateway IPv4 address */
+		uint32_t gatewayIpAddress;
+		/** Client hardware address, by default contains the MAC address (only 6 first bytes are used) */
+		uint8_t clientHardwareAddress[16];
+		/** BootP server name */
+		uint8_t serverName[64];
+		/** BootP boot file name */
+		uint8_t bootFilename[128];
+		/** DHCP magic number (set to the default value of 0x63538263) */
+		uint32_t magicNumber;
 	};
 	#pragma pack(pop)
 
@@ -67,327 +67,327 @@ namespace pcpp
 		DHCP_BOOTREPLY = 2
 	};
 
-    /**
-     * DHCP message types
-     */
-    enum DhcpMessageType {
-    	/** Unknown message type */
-    	DHCP_UNKNOWN_MSG_TYPE = 0,
-    	/** Discover message type */
-    	DHCP_DISCOVER         = 1,
-    	/** Offer message type */
-    	DHCP_OFFER            = 2,
-    	/** Request message type */
-    	DHCP_REQUEST          = 3,
-    	/** Decline message type */
-    	DHCP_DECLINE          = 4,
-    	/** Acknowledge message type */
-    	DHCP_ACK              = 5,
-    	/** Non-acknowledge message type */
-    	DHCP_NAK              = 6,
-    	/** Release message type */
-    	DHCP_RELEASE          = 7,
-    	/** Inform message type */
-    	DHCP_INFORM           = 8
-    };
+	/**
+	 * DHCP message types
+	 */
+	enum DhcpMessageType {
+		/** Unknown message type */
+		DHCP_UNKNOWN_MSG_TYPE = 0,
+		/** Discover message type */
+		DHCP_DISCOVER         = 1,
+		/** Offer message type */
+		DHCP_OFFER            = 2,
+		/** Request message type */
+		DHCP_REQUEST          = 3,
+		/** Decline message type */
+		DHCP_DECLINE          = 4,
+		/** Acknowledge message type */
+		DHCP_ACK              = 5,
+		/** Non-acknowledge message type */
+		DHCP_NAK              = 6,
+		/** Release message type */
+		DHCP_RELEASE          = 7,
+		/** Inform message type */
+		DHCP_INFORM           = 8
+	};
 
-    /**
-     * DHCP option types.
-     */
-    enum DhcpOptionTypes {
-    	/** Unknown option type */
-    	DHCPOPT_UNKNOWN = -1,
-    	/** Pad */
-    	DHCPOPT_PAD = 0,
-    	/** Subnet Mask Value */
-    	DHCPOPT_SUBNET_MASK = 1,
-    	/** Time Offset in Seconds from UTC */
-    	DHCPOPT_TIME_OFFSET = 2,
-    	/** N/4 Router addresses */
-    	DHCPOPT_ROUTERS = 3,
-    	/** N/4 Timeserver addresses */
-    	DHCPOPT_TIME_SERVERS = 4,
-    	/** N/4 IEN-116 Server addresses */
-    	DHCPOPT_NAME_SERVERS = 5,
-    	/** N/4 DNS Server addresses */
-    	DHCPOPT_DOMAIN_NAME_SERVERS = 6,
-    	/** N/4 Logging Server addresses */
-    	DHCPOPT_LOG_SERVERS = 7,
-    	/** N/4 Quotes Server addresses */
-    	DHCPOPT_QUOTES_SERVERS = 8,
-    	/** N/4 Quotes Server addresses */
-    	DHCPOPT_LPR_SERVERS = 9,
-    	/** N/4 Quotes Server addresses */
-    	DHCPOPT_IMPRESS_SERVERS = 10,
-    	/** N/4 RLP Server addresses */
-    	DHCPOPT_RESOURCE_LOCATION_SERVERS = 11,
-    	/** Hostname string */
-    	DHCPOPT_HOST_NAME = 12,
-    	/** Size of boot file in 512 byte chunks */
-    	DHCPOPT_BOOT_SIZE = 13,
-    	/** Client to dump and name the file to dump it to */
-    	DHCPOPT_MERIT_DUMP = 14,
-    	/** The DNS domain name of the client */
-    	DHCPOPT_DOMAIN_NAME = 15,
-    	/** Swap Server address */
-    	DHCPOPT_SWAP_SERVER = 16,
-    	/** Path name for root disk */
-    	DHCPOPT_ROOT_PATH = 17,
-    	/** Path name for more BOOTP info */
-    	DHCPOPT_EXTENSIONS_PATH = 18,
-    	/** Enable/Disable IP Forwarding */
-    	DHCPOPT_IP_FORWARDING = 19,
-    	/** Enable/Disable Source Routing */
-    	DHCPOPT_NON_LOCAL_SOURCE_ROUTING = 20,
-    	/** Routing Policy Filters */
-    	DHCPOPT_POLICY_FILTER = 21,
-    	/** Max Datagram Reassembly Size */
-    	DHCPOPT_MAX_DGRAM_REASSEMBLY = 22,
-    	/** Default IP Time to Live */
-    	DEFAULT_IP_TTL = 23,
-    	/** Path MTU Aging Timeout */
-    	DHCPOPT_PATH_MTU_AGING_TIMEOUT = 24,
-    	/** Path MTU Plateau Table */
-    	PATH_MTU_PLATEAU_TABLE = 25,
-    	/** Interface MTU Size */
-    	DHCPOPT_INTERFACE_MTU = 26,
-    	/** All Subnets are Local */
-    	DHCPOPT_ALL_SUBNETS_LOCAL = 27,
-    	/** Broadcast Address */
-    	DHCPOPT_BROADCAST_ADDRESS = 28,
-    	/** Perform Mask Discovery */
-    	DHCPOPT_PERFORM_MASK_DISCOVERY = 29,
-    	/** Provide Mask to Others */
-    	DHCPOPT_MASK_SUPPLIER = 30,
-    	/** Perform Router Discovery */
-    	DHCPOPT_ROUTER_DISCOVERY = 31,
-    	/** Router Solicitation Address */
-    	DHCPOPT_ROUTER_SOLICITATION_ADDRESS = 32,
-    	/** Static Routing Table */
-    	DHCPOPT_STATIC_ROUTES = 33,
-    	/** Trailer Encapsulation */
-    	DHCPOPT_TRAILER_ENCAPSULATION  =34,
-    	/** ARP Cache Timeout */
-    	DHCPOPT_ARP_CACHE_TIMEOUT = 35,
-    	/** IEEE802.3 Encapsulation */
-    	DHCPOPT_IEEE802_3_ENCAPSULATION = 36,
-    	/** Default TCP Time to Live */
-    	DHCPOPT_DEFAULT_TCP_TTL = 37,
-    	/** TCP Keepalive Interval */
-    	DHCPOPT_TCP_KEEPALIVE_INTERVAL = 38,
-    	/** TCP Keepalive Garbage */
-    	DHCPOPT_TCP_KEEPALIVE_GARBAGE = 39,
-    	/** NIS Domain Name */
-    	DHCPOPT_NIS_DOMAIN = 40,
-    	/** NIS Server Addresses */
-    	DHCPOPT_NIS_SERVERS = 41,
-    	/** NTP Server Addresses */
-    	DHCPOPT_NTP_SERVERS = 42,
-    	/** Vendor Specific Information */
-    	DHCPOPT_VENDOR_ENCAPSULATED_OPTIONS = 43,
-    	/** NETBIOS Name Servers */
-    	DHCPOPT_NETBIOS_NAME_SERVERS = 44,
-    	/** NETBIOS Datagram Distribution */
-    	DHCPOPT_NETBIOS_DD_SERVER = 45,
-    	/** NETBIOS Node Type */
-    	DHCPOPT_NETBIOS_NODE_TYPE = 46,
-    	/** NETBIOS Scope */
-    	DHCPOPT_NETBIOS_SCOPE = 47,
-    	/** X Window Font Server */
-    	DHCPOPT_FONT_SERVERS = 48,
-    	/** X Window Display Manager */
-    	DHCPOPT_X_DISPLAY_MANAGER = 49,
-    	/** Requested IP Address */
-    	DHCPOPT_DHCP_REQUESTED_ADDRESS = 50,
-    	/** IP Address Lease Time */
-    	DHCPOPT_DHCP_LEASE_TIME = 51,
-    	/** Overload "sname" or "file" */
-    	DHCPOPT_DHCP_OPTION_OVERLOAD = 52,
-    	/** DHCP Message Type */
-    	DHCPOPT_DHCP_MESSAGE_TYPE = 53,
-    	/** DHCP Server Identification */
-    	DHCPOPT_DHCP_SERVER_IDENTIFIER = 54,
-    	/** Parameter Request List */
-    	DHCPOPT_DHCP_PARAMETER_REQUEST_LIST = 55,
-    	/** DHCP Error Message */
-    	DHCPOPT_DHCP_MESSAGE = 56,
-    	/** DHCP Maximum Message Size */
-    	DHCPOPT_DHCP_MAX_MESSAGE_SIZE = 57,
-    	/** DHCP Renewal (T1) Time */
-    	DHCPOPT_DHCP_RENEWAL_TIME = 58,
-    	/** DHCP Rebinding (T2) Time */
-    	DHCPOPT_DHCP_REBINDING_TIME = 59,
-    	/** Class Identifier */
-    	DHCPOPT_VENDOR_CLASS_IDENTIFIER = 60,
-    	/** Class Identifier */
-    	DHCPOPT_DHCP_CLIENT_IDENTIFIER = 61,
-    	/** NetWare/IP Domain Name */
-    	DHCPOPT_NWIP_DOMAIN_NAME = 62,
-    	/** NetWare/IP sub Options */
-    	DHCPOPT_NWIP_SUBOPTIONS = 63,
-    	/** NIS+ v3 Client Domain Name */
-    	DHCPOPT_NIS_DOMAIN_NAME = 64,
-    	/** NIS+ v3 Server Addresses */
-    	DHCPOPT_NIS_SERVER_ADDRESS = 65,
-    	/** TFTP Server Name */
-    	DHCPOPT_TFTP_SERVER_NAME = 66,
-    	/** Boot File Name */
-    	DHCPOPT_BOOTFILE_NAME = 67,
-    	/** Home Agent Addresses */
-    	DHCPOPT_HOME_AGENT_ADDRESS = 68,
-    	/** Simple Mail Server (SMTP) Addresses */
-    	DHCPOPT_SMTP_SERVER = 69,
-    	/** Post Office (POP3) Server Addresses */
-    	DHCPOPT_POP3_SERVER = 70,
-    	/** Network News (NNTP) Server Addresses */
-    	DHCPOPT_NNTP_SERVER = 71,
-    	/** WWW Server Addresses */
-    	DHCPOPT_WWW_SERVER = 72,
-    	/** Finger Server Addresses */
-    	DHCPOPT_FINGER_SERVER = 73,
-    	/** Chat (IRC) Server Addresses */
-    	DHCPOPT_IRC_SERVER = 74,
-    	/** StreetTalk Server Addresses */
-    	DHCPOPT_STREETTALK_SERVER = 75,
-    	/** ST Directory Assist. Addresses */
-    	DHCPOPT_STDA_SERVER = 76,
-    	/** User Class Information */
-    	DHCPOPT_USER_CLASS = 77,
-    	/** Directory Agent Information */
-    	DHCPOPT_DIRECTORY_AGENT = 78,
-    	/** Service Location Agent Scope */
-    	DHCPOPT_SERVICE_SCOPE = 79,
-    	/** Rapid Commit */
-    	DHCPOPT_RAPID_COMMIT = 80,
-    	/** Fully Qualified Domain Name */
-    	DHCPOPT_FQDN = 81,
-    	/** Relay Agent Information */
-    	DHCPOPT_DHCP_AGENT_OPTIONS = 82,
-    	/** Internet Storage Name Service */
-    	DHCPOPT_ISNS = 83,
-    	/** Novell Directory Services */
-    	DHCPOPT_NDS_SERVERS = 85,
-    	/** Novell Directory Services */
-    	DHCPOPT_NDS_TREE_NAME = 86,
-    	/** Novell Directory Services */
-    	DHCPOPT_NDS_CONTEXT = 87,
-    	/** BCMCS Controller Domain Name list */
-    	DHCPOPT_BCMCS_CONTROLLER_DOMAIN_NAME_LIST = 88,
-    	/** BCMCS Controller IPv4 address option */
-    	DHCPOPT_BCMCS_CONTROLLER_IPV4_ADDRESS = 89,
-    	/** Authentication */
-    	DHCPOPT_AUTHENTICATION = 90,
-    	/** Client Last Transaction Time */
-    	DHCPOPT_CLIENT_LAST_TXN_TIME = 91,
-    	/** Associated IP */
-    	DHCPOPT_ASSOCIATED_IP = 92,
-    	/** Client System Architecture */
-    	DHCPOPT_CLIENT_SYSTEM = 93,
-    	/** Client Network Device Interface */
-    	DHCPOPT_CLIENT_NDI = 94,
-    	/** Lightweight Directory Access Protocol 	[ */
-    	DHCPOPT_LDAP = 95,
-    	/** UUID/GUID-based Client Identifier */
-    	DHCPOPT_UUID_GUID = 97,
-    	/** Open Group's User Authentication */
-    	DHCPOPT_USER_AUTH = 98,
-    	/** GEOCONF_CIVIC */
-    	DHCPOPT_GEOCONF_CIVIC = 99,
-    	/** IEEE 1003.1 TZ String */
-    	DHCPOPT_PCODE = 100,
-    	/** Reference to the TZ Database */
-    	DHCPOPT_TCODE = 101,
-    	/** NetInfo Parent Server Address */
-    	DHCPOPT_NETINFO_ADDRESS = 112,
-    	/** NetInfo Parent Server Tag */
-    	DHCPOPT_NETINFO_TAG = 113,
-    	/** URL */
-    	DHCPOPT_URL = 114,
-    	/** DHCP Auto-Configuration */
-    	DHCPOPT_AUTO_CONFIG = 116,
-    	/** Name Service Search */
-    	DHCPOPT_NAME_SERVICE_SEARCH = 117,
-    	/** Subnet Selection Option */
-    	DHCPOPT_SUBNET_SELECTION = 118,
-    	/** DNS Domain Search List */
-    	DHCPOPT_DOMAIN_SEARCH = 119,
-    	/** SIP Servers DHCP Option */
-    	DHCPOPT_SIP_SERVERS = 120,
-    	/** Classless Static Route Option */
-    	DHCPOPT_CLASSLESS_STATIC_ROUTE = 121,
-    	/** CableLabs Client Configuration */
-    	DHCPOPT_CCC = 122,
-    	/** GeoConf Option */
-    	DHCPOPT_GEOCONF = 123,
-    	/** Vendor-Identifying Vendor Class */
-    	DHCPOPT_V_I_VENDOR_CLASS = 124,
-    	/** Vendor-Identifying Vendor-Specific Information */
-    	DHCPOPT_V_I_VENDOR_OPTS = 125,
-    	/** OPTION_PANA_AGENT */
-    	DHCPOPT_OPTION_PANA_AGENT = 136,
-    	/** OPTION_V4_LOST */
-    	DHCPOPT_OPTION_V4_LOST  =137,
-    	/** CAPWAP Access Controller addresses */
-    	DHCPOPT_OPTION_CAPWAP_AC_V4 = 138,
-    	/** A Series Of Suboptions */
-    	DHCPOPT_OPTION_IPV4_ADDRESS_MOS = 139,
-    	/** A Series Of Suboptions */
-    	DHCPOPT_OPTION_IPV4_FQDN_MOS = 140,
-    	/** List of domain names to search for SIP User Agent Configuration */
-    	DHCPOPT_SIP_UA_CONFIG = 141,
-    	/** ANDSF IPv4 Address Option for DHCPv4 */
-    	DHCPOPT_OPTION_IPV4_ADDRESS_ANDSF = 142,
-    	/** Geospatial Location with Uncertainty 	[RF */
-    	DHCPOPT_GEOLOC = 144,
-    	/** Forcerenew Nonce Capable */
-    	DHCPOPT_FORCERENEW_NONCE_CAPABLE = 145,
-    	/** Information for selecting RDNSS */
-    	DHCPOPT_RDNSS_SELECTION = 146,
-    	/** Status code and optional N byte text message describing status */
-    	DHCPOPT_STATUS_CODE = 151,
-    	/** Absolute time (seconds since Jan 1, 1970) message was sent */
-    	DHCPOPT_BASE_TIME = 152,
-    	/** Number of seconds in the past when client entered current state */
-    	DHCPOPT_START_TIME_OF_STATE = 153,
-    	/** Absolute time (seconds since Jan 1, 1970) for beginning of query */
-    	DHCPOPT_QUERY_START_TIME = 154,
-    	/** Absolute time (seconds since Jan 1, 1970) for end of query */
-    	DHCPOPT_QUERY_END_TIME = 155,
-    	/** State of IP address */
-    	DHCPOPT_DHCP_STATE = 156,
-    	/** Indicates information came from local or remote server */
-    	DHCPOPT_DATA_SOURCE = 157,
-    	/** Includes one or multiple lists of PCP server IP addresses; each list is treated as a separate PCP server */
-    	DHCPOPT_OPTION_V4_PCP_SERVER = 158,
-    	/** This option is used to configure a set of ports bound to a shared IPv4 address */
-    	DHCPOPT_OPTION_V4_PORTPARAMS = 159,
-    	/** DHCP Captive-Portal */
-    	DHCPOPT_CAPTIVE_PORTAL = 160,
-    	/** Manufacturer Usage Descriptions */
-    	DHCPOPT_OPTION_MUD_URL_V4 = 161,
-    	/** Etherboot  */
-    	DHCPOPT_ETHERBOOT = 175,
-    	/** IP Telephone */
-    	DHCPOPT_IP_TELEPHONE = 176,
-    	/** Magic string = F1:00:74:7E */
-    	DHCPOPT_PXELINUX_MAGIC = 208,
-    	/** Configuration file */
-    	DHCPOPT_CONFIGURATION_FILE = 209,
-    	/** Path Prefix Option */
-    	DHCPOPT_PATH_PREFIX = 210,
-    	/** Reboot Time */
-    	DHCPOPT_REBOOT_TIME = 211,
-    	/** OPTION_6RD with N/4 6rd BR addresses */
-    	DHCPOPT_OPTION_6RD = 212,
-    	/** Access Network Domain Name */
-    	DHCPOPT_OPTION_V4_ACCESS_DOMAIN = 213,
-    	/** Subnet Allocation Option */
-    	DHCPOPT_SUBNET_ALLOCATION = 220,
-    	/** Virtual Subnet Selection (VSS) Option */
-    	DHCPOPT_VIRTUAL_SUBNET_SELECTION = 221,
-    	/** End (last option) */
-    	DHCPOPT_END	= 255
-    };
+	/**
+	 * DHCP option types.
+	 */
+	enum DhcpOptionTypes {
+		/** Unknown option type */
+		DHCPOPT_UNKNOWN = -1,
+		/** Pad */
+		DHCPOPT_PAD = 0,
+		/** Subnet Mask Value */
+		DHCPOPT_SUBNET_MASK = 1,
+		/** Time Offset in Seconds from UTC */
+		DHCPOPT_TIME_OFFSET = 2,
+		/** N/4 Router addresses */
+		DHCPOPT_ROUTERS = 3,
+		/** N/4 Timeserver addresses */
+		DHCPOPT_TIME_SERVERS = 4,
+		/** N/4 IEN-116 Server addresses */
+		DHCPOPT_NAME_SERVERS = 5,
+		/** N/4 DNS Server addresses */
+		DHCPOPT_DOMAIN_NAME_SERVERS = 6,
+		/** N/4 Logging Server addresses */
+		DHCPOPT_LOG_SERVERS = 7,
+		/** N/4 Quotes Server addresses */
+		DHCPOPT_QUOTES_SERVERS = 8,
+		/** N/4 Quotes Server addresses */
+		DHCPOPT_LPR_SERVERS = 9,
+		/** N/4 Quotes Server addresses */
+		DHCPOPT_IMPRESS_SERVERS = 10,
+		/** N/4 RLP Server addresses */
+		DHCPOPT_RESOURCE_LOCATION_SERVERS = 11,
+		/** Hostname string */
+		DHCPOPT_HOST_NAME = 12,
+		/** Size of boot file in 512 byte chunks */
+		DHCPOPT_BOOT_SIZE = 13,
+		/** Client to dump and name the file to dump it to */
+		DHCPOPT_MERIT_DUMP = 14,
+		/** The DNS domain name of the client */
+		DHCPOPT_DOMAIN_NAME = 15,
+		/** Swap Server address */
+		DHCPOPT_SWAP_SERVER = 16,
+		/** Path name for root disk */
+		DHCPOPT_ROOT_PATH = 17,
+		/** Path name for more BOOTP info */
+		DHCPOPT_EXTENSIONS_PATH = 18,
+		/** Enable/Disable IP Forwarding */
+		DHCPOPT_IP_FORWARDING = 19,
+		/** Enable/Disable Source Routing */
+		DHCPOPT_NON_LOCAL_SOURCE_ROUTING = 20,
+		/** Routing Policy Filters */
+		DHCPOPT_POLICY_FILTER = 21,
+		/** Max Datagram Reassembly Size */
+		DHCPOPT_MAX_DGRAM_REASSEMBLY = 22,
+		/** Default IP Time to Live */
+		DEFAULT_IP_TTL = 23,
+		/** Path MTU Aging Timeout */
+		DHCPOPT_PATH_MTU_AGING_TIMEOUT = 24,
+		/** Path MTU Plateau Table */
+		PATH_MTU_PLATEAU_TABLE = 25,
+		/** Interface MTU Size */
+		DHCPOPT_INTERFACE_MTU = 26,
+		/** All Subnets are Local */
+		DHCPOPT_ALL_SUBNETS_LOCAL = 27,
+		/** Broadcast Address */
+		DHCPOPT_BROADCAST_ADDRESS = 28,
+		/** Perform Mask Discovery */
+		DHCPOPT_PERFORM_MASK_DISCOVERY = 29,
+		/** Provide Mask to Others */
+		DHCPOPT_MASK_SUPPLIER = 30,
+		/** Perform Router Discovery */
+		DHCPOPT_ROUTER_DISCOVERY = 31,
+		/** Router Solicitation Address */
+		DHCPOPT_ROUTER_SOLICITATION_ADDRESS = 32,
+		/** Static Routing Table */
+		DHCPOPT_STATIC_ROUTES = 33,
+		/** Trailer Encapsulation */
+		DHCPOPT_TRAILER_ENCAPSULATION = 34,
+		/** ARP Cache Timeout */
+		DHCPOPT_ARP_CACHE_TIMEOUT = 35,
+		/** IEEE802.3 Encapsulation */
+		DHCPOPT_IEEE802_3_ENCAPSULATION = 36,
+		/** Default TCP Time to Live */
+		DHCPOPT_DEFAULT_TCP_TTL = 37,
+		/** TCP Keepalive Interval */
+		DHCPOPT_TCP_KEEPALIVE_INTERVAL = 38,
+		/** TCP Keepalive Garbage */
+		DHCPOPT_TCP_KEEPALIVE_GARBAGE = 39,
+		/** NIS Domain Name */
+		DHCPOPT_NIS_DOMAIN = 40,
+		/** NIS Server Addresses */
+		DHCPOPT_NIS_SERVERS = 41,
+		/** NTP Server Addresses */
+		DHCPOPT_NTP_SERVERS = 42,
+		/** Vendor Specific Information */
+		DHCPOPT_VENDOR_ENCAPSULATED_OPTIONS = 43,
+		/** NETBIOS Name Servers */
+		DHCPOPT_NETBIOS_NAME_SERVERS = 44,
+		/** NETBIOS Datagram Distribution */
+		DHCPOPT_NETBIOS_DD_SERVER = 45,
+		/** NETBIOS Node Type */
+		DHCPOPT_NETBIOS_NODE_TYPE = 46,
+		/** NETBIOS Scope */
+		DHCPOPT_NETBIOS_SCOPE = 47,
+		/** X Window Font Server */
+		DHCPOPT_FONT_SERVERS = 48,
+		/** X Window Display Manager */
+		DHCPOPT_X_DISPLAY_MANAGER = 49,
+		/** Requested IP Address */
+		DHCPOPT_DHCP_REQUESTED_ADDRESS = 50,
+		/** IP Address Lease Time */
+		DHCPOPT_DHCP_LEASE_TIME = 51,
+		/** Overload "sname" or "file" */
+		DHCPOPT_DHCP_OPTION_OVERLOAD = 52,
+		/** DHCP Message Type */
+		DHCPOPT_DHCP_MESSAGE_TYPE = 53,
+		/** DHCP Server Identification */
+		DHCPOPT_DHCP_SERVER_IDENTIFIER = 54,
+		/** Parameter Request List */
+		DHCPOPT_DHCP_PARAMETER_REQUEST_LIST = 55,
+		/** DHCP Error Message */
+		DHCPOPT_DHCP_MESSAGE = 56,
+		/** DHCP Maximum Message Size */
+		DHCPOPT_DHCP_MAX_MESSAGE_SIZE = 57,
+		/** DHCP Renewal (T1) Time */
+		DHCPOPT_DHCP_RENEWAL_TIME = 58,
+		/** DHCP Rebinding (T2) Time */
+		DHCPOPT_DHCP_REBINDING_TIME = 59,
+		/** Class Identifier */
+		DHCPOPT_VENDOR_CLASS_IDENTIFIER = 60,
+		/** Class Identifier */
+		DHCPOPT_DHCP_CLIENT_IDENTIFIER = 61,
+		/** NetWare/IP Domain Name */
+		DHCPOPT_NWIP_DOMAIN_NAME = 62,
+		/** NetWare/IP sub Options */
+		DHCPOPT_NWIP_SUBOPTIONS = 63,
+		/** NIS+ v3 Client Domain Name */
+		DHCPOPT_NIS_DOMAIN_NAME = 64,
+		/** NIS+ v3 Server Addresses */
+		DHCPOPT_NIS_SERVER_ADDRESS = 65,
+		/** TFTP Server Name */
+		DHCPOPT_TFTP_SERVER_NAME = 66,
+		/** Boot File Name */
+		DHCPOPT_BOOTFILE_NAME = 67,
+		/** Home Agent Addresses */
+		DHCPOPT_HOME_AGENT_ADDRESS = 68,
+		/** Simple Mail Server (SMTP) Addresses */
+		DHCPOPT_SMTP_SERVER = 69,
+		/** Post Office (POP3) Server Addresses */
+		DHCPOPT_POP3_SERVER = 70,
+		/** Network News (NNTP) Server Addresses */
+		DHCPOPT_NNTP_SERVER = 71,
+		/** WWW Server Addresses */
+		DHCPOPT_WWW_SERVER = 72,
+		/** Finger Server Addresses */
+		DHCPOPT_FINGER_SERVER = 73,
+		/** Chat (IRC) Server Addresses */
+		DHCPOPT_IRC_SERVER = 74,
+		/** StreetTalk Server Addresses */
+		DHCPOPT_STREETTALK_SERVER = 75,
+		/** ST Directory Assist. Addresses */
+		DHCPOPT_STDA_SERVER = 76,
+		/** User Class Information */
+		DHCPOPT_USER_CLASS = 77,
+		/** Directory Agent Information */
+		DHCPOPT_DIRECTORY_AGENT = 78,
+		/** Service Location Agent Scope */
+		DHCPOPT_SERVICE_SCOPE = 79,
+		/** Rapid Commit */
+		DHCPOPT_RAPID_COMMIT = 80,
+		/** Fully Qualified Domain Name */
+		DHCPOPT_FQDN = 81,
+		/** Relay Agent Information */
+		DHCPOPT_DHCP_AGENT_OPTIONS = 82,
+		/** Internet Storage Name Service */
+		DHCPOPT_ISNS = 83,
+		/** Novell Directory Services */
+		DHCPOPT_NDS_SERVERS = 85,
+		/** Novell Directory Services */
+		DHCPOPT_NDS_TREE_NAME = 86,
+		/** Novell Directory Services */
+		DHCPOPT_NDS_CONTEXT = 87,
+		/** BCMCS Controller Domain Name list */
+		DHCPOPT_BCMCS_CONTROLLER_DOMAIN_NAME_LIST = 88,
+		/** BCMCS Controller IPv4 address option */
+		DHCPOPT_BCMCS_CONTROLLER_IPV4_ADDRESS = 89,
+		/** Authentication */
+		DHCPOPT_AUTHENTICATION = 90,
+		/** Client Last Transaction Time */
+		DHCPOPT_CLIENT_LAST_TXN_TIME = 91,
+		/** Associated IP */
+		DHCPOPT_ASSOCIATED_IP = 92,
+		/** Client System Architecture */
+		DHCPOPT_CLIENT_SYSTEM = 93,
+		/** Client Network Device Interface */
+		DHCPOPT_CLIENT_NDI = 94,
+		/** Lightweight Directory Access Protocol [ */
+		DHCPOPT_LDAP = 95,
+		/** UUID/GUID-based Client Identifier */
+		DHCPOPT_UUID_GUID = 97,
+		/** Open Group's User Authentication */
+		DHCPOPT_USER_AUTH = 98,
+		/** GEOCONF_CIVIC */
+		DHCPOPT_GEOCONF_CIVIC = 99,
+		/** IEEE 1003.1 TZ String */
+		DHCPOPT_PCODE = 100,
+		/** Reference to the TZ Database */
+		DHCPOPT_TCODE = 101,
+		/** NetInfo Parent Server Address */
+		DHCPOPT_NETINFO_ADDRESS = 112,
+		/** NetInfo Parent Server Tag */
+		DHCPOPT_NETINFO_TAG = 113,
+		/** URL */
+		DHCPOPT_URL = 114,
+		/** DHCP Auto-Configuration */
+		DHCPOPT_AUTO_CONFIG = 116,
+		/** Name Service Search */
+		DHCPOPT_NAME_SERVICE_SEARCH = 117,
+		/** Subnet Selection Option */
+		DHCPOPT_SUBNET_SELECTION = 118,
+		/** DNS Domain Search List */
+		DHCPOPT_DOMAIN_SEARCH = 119,
+		/** SIP Servers DHCP Option */
+		DHCPOPT_SIP_SERVERS = 120,
+		/** Classless Static Route Option */
+		DHCPOPT_CLASSLESS_STATIC_ROUTE = 121,
+		/** CableLabs Client Configuration */
+		DHCPOPT_CCC = 122,
+		/** GeoConf Option */
+		DHCPOPT_GEOCONF = 123,
+		/** Vendor-Identifying Vendor Class */
+		DHCPOPT_V_I_VENDOR_CLASS = 124,
+		/** Vendor-Identifying Vendor-Specific Information */
+		DHCPOPT_V_I_VENDOR_OPTS = 125,
+		/** OPTION_PANA_AGENT */
+		DHCPOPT_OPTION_PANA_AGENT = 136,
+		/** OPTION_V4_LOST */
+		DHCPOPT_OPTION_V4_LOST = 137,
+		/** CAPWAP Access Controller addresses */
+		DHCPOPT_OPTION_CAPWAP_AC_V4 = 138,
+		/** A Series Of Suboptions */
+		DHCPOPT_OPTION_IPV4_ADDRESS_MOS = 139,
+		/** A Series Of Suboptions */
+		DHCPOPT_OPTION_IPV4_FQDN_MOS = 140,
+		/** List of domain names to search for SIP User Agent Configuration */
+		DHCPOPT_SIP_UA_CONFIG = 141,
+		/** ANDSF IPv4 Address Option for DHCPv4 */
+		DHCPOPT_OPTION_IPV4_ADDRESS_ANDSF = 142,
+		/** Geospatial Location with Uncertainty [RF */
+		DHCPOPT_GEOLOC = 144,
+		/** Forcerenew Nonce Capable */
+		DHCPOPT_FORCERENEW_NONCE_CAPABLE = 145,
+		/** Information for selecting RDNSS */
+		DHCPOPT_RDNSS_SELECTION = 146,
+		/** Status code and optional N byte text message describing status */
+		DHCPOPT_STATUS_CODE = 151,
+		/** Absolute time (seconds since Jan 1, 1970) message was sent */
+		DHCPOPT_BASE_TIME = 152,
+		/** Number of seconds in the past when client entered current state */
+		DHCPOPT_START_TIME_OF_STATE = 153,
+		/** Absolute time (seconds since Jan 1, 1970) for beginning of query */
+		DHCPOPT_QUERY_START_TIME = 154,
+		/** Absolute time (seconds since Jan 1, 1970) for end of query */
+		DHCPOPT_QUERY_END_TIME = 155,
+		/** State of IP address */
+		DHCPOPT_DHCP_STATE = 156,
+		/** Indicates information came from local or remote server */
+		DHCPOPT_DATA_SOURCE = 157,
+		/** Includes one or multiple lists of PCP server IP addresses; each list is treated as a separate PCP server */
+		DHCPOPT_OPTION_V4_PCP_SERVER = 158,
+		/** This option is used to configure a set of ports bound to a shared IPv4 address */
+		DHCPOPT_OPTION_V4_PORTPARAMS = 159,
+		/** DHCP Captive-Portal */
+		DHCPOPT_CAPTIVE_PORTAL = 160,
+		/** Manufacturer Usage Descriptions */
+		DHCPOPT_OPTION_MUD_URL_V4 = 161,
+		/** Etherboot */
+		DHCPOPT_ETHERBOOT = 175,
+		/** IP Telephone */
+		DHCPOPT_IP_TELEPHONE = 176,
+		/** Magic string = F1:00:74:7E */
+		DHCPOPT_PXELINUX_MAGIC = 208,
+		/** Configuration file */
+		DHCPOPT_CONFIGURATION_FILE = 209,
+		/** Path Prefix Option */
+		DHCPOPT_PATH_PREFIX = 210,
+		/** Reboot Time */
+		DHCPOPT_REBOOT_TIME = 211,
+		/** OPTION_6RD with N/4 6rd BR addresses */
+		DHCPOPT_OPTION_6RD = 212,
+		/** Access Network Domain Name */
+		DHCPOPT_OPTION_V4_ACCESS_DOMAIN = 213,
+		/** Subnet Allocation Option */
+		DHCPOPT_SUBNET_ALLOCATION = 220,
+		/** Virtual Subnet Selection (VSS) Option */
+		DHCPOPT_VIRTUAL_SUBNET_SELECTION = 221,
+		/** End (last option) */
+		DHCPOPT_END	= 255
+	};
 
 
 	/**
@@ -403,7 +403,7 @@ namespace pcpp
 		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
 		 * @param[in] optionRawData A pointer to the option raw data
 		 */
-    	DhcpOption(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
+		DhcpOption(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
 
 		/**
 		 * A d'tor for this class, currently does nothing
@@ -434,17 +434,17 @@ namespace pcpp
 
 		/**
 		 * Retrieve DHCP option data as string. Relevant only if option value is indeed a string
-         * @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For example:
-         * when retrieving Client FQDN option, you may ignore the flags and RCODE fields using this method like this:
-         * getValueAsString(3). The default is 0 - start copying from the beginning of option data
+		 * @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For example:
+		 * when retrieving Client FQDN option, you may ignore the flags and RCODE fields using this method like this:
+		 * getValueAsString(3). The default is 0 - start copying from the beginning of option data
 		 * @return DHCP option data as string
 		 */
-		std::string getValueAsString(int valueOffset = 0)
+		std::string getValueAsString(int valueOffset = 0) const
 		{
 			if (m_Data->recordLen - valueOffset < 1)
 				return "";
 
-			return std::string((char*)m_Data->recordValue + valueOffset, m_Data->recordLen - valueOffset);
+			return std::string((const char*)m_Data->recordValue + valueOffset, (int)m_Data->recordLen - valueOffset);
 		}
 
 		/**
@@ -458,10 +458,10 @@ namespace pcpp
 		void setValueString(const std::string& stringValue, int valueOffset = 0)
 		{
 			std::string val = stringValue;
-			if (stringValue.length() > (size_t)m_Data->recordLen-(size_t)valueOffset)
-				val = stringValue.substr(0, m_Data->recordLen-valueOffset);
+			if (stringValue.length() > (size_t)m_Data->recordLen - (size_t)valueOffset)
+				val = stringValue.substr(0, (size_t)m_Data->recordLen - valueOffset);
 
-			memcpy(m_Data->recordValue+valueOffset, val.c_str(), val.length());
+			memcpy(m_Data->recordValue + valueOffset, val.c_str(), val.length());
 		}
 
 
@@ -767,7 +767,7 @@ namespace pcpp
 
 		std::string toString();
 
-        OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 	private:
 

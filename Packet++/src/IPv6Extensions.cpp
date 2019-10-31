@@ -77,23 +77,23 @@ IPv6FragmentationHeader::IPv6FragmentationHeader(uint32_t fragId, uint16_t fragO
 	fragHdr->fragOffsetAndFlags = fragOffset;
 }
 
-bool IPv6FragmentationHeader::isFirstFragment()
+bool IPv6FragmentationHeader::isFirstFragment() const
 {
 	return (getFragmentOffset() == 0);
 }
 
-bool IPv6FragmentationHeader::isLastFragment()
+bool IPv6FragmentationHeader::isLastFragment() const
 {
 	return (!isMoreFragments());
 }
 
-bool IPv6FragmentationHeader::isMoreFragments()
+bool IPv6FragmentationHeader::isMoreFragments() const
 {
 	uint8_t isMoreFragsBit = (getFragHeader()->fragOffsetAndFlags & (uint16_t)0x0100) >> 8;
 	return (isMoreFragsBit == 1);
 }
 
-uint16_t IPv6FragmentationHeader::getFragmentOffset()
+uint16_t IPv6FragmentationHeader::getFragmentOffset() const
 {
 	uint16_t fragOffset = (ntohs(getFragHeader()->fragOffsetAndFlags & (uint16_t)0xf8ff) >> 3) * 8;
 	return fragOffset;
@@ -127,22 +127,22 @@ IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::IPv6TLVOptionBuilder::build
 // IPv6TLVOptionHeader
 // ===================
 
-IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getOption(uint8_t optionType)
+IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getOption(uint8_t optionType) const
 {
 	return m_OptionReader.getTLVRecord(optionType, getDataPtr() + sizeof(ipv6_ext_base_header), getExtensionLen() - sizeof(ipv6_ext_base_header));
 }
 
-IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getFirstOption()
+IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getFirstOption() const
 {
 	return m_OptionReader.getFirstTLVRecord(getDataPtr() + sizeof(ipv6_ext_base_header), getExtensionLen() - sizeof(ipv6_ext_base_header));
 }
 
-IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getNextOption(IPv6TLVOptionHeader::IPv6Option& option)
+IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getNextOption(IPv6TLVOptionHeader::IPv6Option& option) const
 {
 	return m_OptionReader.getNextTLVRecord(option, getDataPtr() + sizeof(ipv6_ext_base_header), getExtensionLen() - sizeof(ipv6_ext_base_header));
 }
 
-size_t IPv6TLVOptionHeader::getOptionCount()
+size_t IPv6TLVOptionHeader::getOptionCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getDataPtr() + sizeof(ipv6_ext_base_header), getExtensionLen() - sizeof(ipv6_ext_base_header));
 }
@@ -212,7 +212,7 @@ IPv6RoutingHeader::IPv6RoutingHeader(uint8_t routingType, uint8_t segmentsLeft, 
 	}
 }
 
-uint8_t* IPv6RoutingHeader::getRoutingAdditionalData()
+uint8_t* IPv6RoutingHeader::getRoutingAdditionalData() const
 {
 	if (getExtensionLen() > sizeof(ipv6_routing_header))
 		return (uint8_t*)(getDataPtr() + sizeof(ipv6_routing_header));
@@ -220,7 +220,7 @@ uint8_t* IPv6RoutingHeader::getRoutingAdditionalData()
 	return NULL;
 }
 
-size_t IPv6RoutingHeader::getRoutingAdditionalDataLength()
+size_t IPv6RoutingHeader::getRoutingAdditionalDataLength() const
 {
 	int result = getExtensionLen() - sizeof(ipv6_routing_header);
 	if (result < 0)
@@ -229,7 +229,7 @@ size_t IPv6RoutingHeader::getRoutingAdditionalDataLength()
 	return (size_t)result;
 }
 
-IPv6Address IPv6RoutingHeader::getRoutingAdditionalDataAsIPv6Address(size_t offset)
+IPv6Address IPv6RoutingHeader::getRoutingAdditionalDataAsIPv6Address(size_t offset) const
 {
 
 	size_t routingAddDataLen = getRoutingAdditionalDataLength();
@@ -268,7 +268,7 @@ IPv6AuthenticationHeader::IPv6AuthenticationHeader(uint32_t securityParametersIn
 	}
 }
 
-uint8_t* IPv6AuthenticationHeader::getIntegrityCheckValue()
+uint8_t* IPv6AuthenticationHeader::getIntegrityCheckValue() const
 {
 	if (getExtensionLen() > sizeof(ipv6_authentication_header))
 		return (uint8_t*)(getDataPtr() + sizeof(ipv6_authentication_header));
@@ -276,7 +276,7 @@ uint8_t* IPv6AuthenticationHeader::getIntegrityCheckValue()
 	return NULL;
 }
 
-size_t IPv6AuthenticationHeader::getIntegrityCheckValueLength()
+size_t IPv6AuthenticationHeader::getIntegrityCheckValueLength() const
 {
 	int result = getExtensionLen() - sizeof(ipv6_authentication_header);
 	if (result < 0)

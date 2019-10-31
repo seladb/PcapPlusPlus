@@ -32,7 +32,7 @@ namespace pcpp
 		char m_AddressAsString[MAX_ADDR_STRING_LEN];
 
 		// protected c'tor
-		IPAddress() : m_IsValid(false) {}
+		IPAddress() : m_IsValid(false) { m_AddressAsString[0] = '\0'; }
 	public:
 		//Visual studio has always been stupid about returning something useful for __cplusplus
 		//Only recently was this fixed - and even then it requires a specific hack to the command line during build

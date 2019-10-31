@@ -12,13 +12,13 @@ namespace pcpp
 
 std::vector<std::string> splitByWhiteSpaces(std::string str)
 {
-    std::string buf;
-    std::stringstream stream(str);
-    std::vector<std::string> result;
-    while (stream >> buf)
-        result.push_back(buf);
+	std::string buf;
+	std::stringstream stream(str);
+	std::vector<std::string> result;
+	while (stream >> buf)
+		result.push_back(buf);
 
-    return result;
+	return result;
 }
 
 
@@ -72,7 +72,7 @@ std::string SdpLayer::toString()
 	return "SDP Layer";
 }
 
-IPv4Address SdpLayer::getOwnerIPv4Address()
+IPv4Address SdpLayer::getOwnerIPv4Address() const
 {
 	HeaderField* originator = getFieldByName(PCPP_SDP_ORIGINATOR_FIELD);
 	if (originator == NULL)
@@ -88,7 +88,7 @@ IPv4Address SdpLayer::getOwnerIPv4Address()
 	return IPv4Address(tokens[5]);
 }
 
-uint16_t SdpLayer::getMediaPort(std::string mediaType)
+uint16_t SdpLayer::getMediaPort(std::string mediaType) const
 {
 	int mediaFieldIndex = 0;
 	HeaderField* mediaDesc = getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldIndex);

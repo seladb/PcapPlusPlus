@@ -23,16 +23,9 @@ namespace pcpp
 	 * For example: for a standard HTTP request packet the layer will look like this: EthLayer -> IPv4Layer -> TcpLayer -> HttpRequestLayer <BR>
 	 * Packet instance isn't read only. The user can add or remove layers, update current layer, etc.
 	 */
-	class Packet {
+	class Packet
+	{
 		friend class Layer;
-	private:
-		RawPacket* m_RawPacket;
-		Layer* m_FirstLayer;
-		Layer* m_LastLayer;
-		uint64_t m_ProtocolTypes;
-		size_t m_MaxPacketLen;
-		bool m_FreeRawPacket;
-
 	public:
 
 		/**
@@ -107,7 +100,7 @@ namespace pcpp
 		 * Get a pointer to the Packet's RawPacket
 		 * @return A pointer to the Packet's RawPacket
 		 */
-		inline RawPacket* getRawPacket() { return m_RawPacket; }
+		RawPacket* getRawPacket() const { return m_RawPacket; }
 
 		/**
 		 * Set a RawPacket and re-construct all packet layers
@@ -124,19 +117,19 @@ namespace pcpp
 		 * Get a pointer to the Packet's RawPacket in a read-only manner
 		 * @return A pointer to the Packet's RawPacket
 		 */
-		inline RawPacket* getRawPacketReadOnly() const { return m_RawPacket; }
+		RawPacket* getRawPacketReadOnly() const { return m_RawPacket; }
 
 		/**
 		 * Get a pointer to the first (lowest) layer in the packet
 		 * @return A pointer to the first (lowest) layer in the packet
 		 */
-		inline Layer* getFirstLayer() { return m_FirstLayer; }
+		Layer* getFirstLayer() const { return m_FirstLayer; }
 
 		/**
 		 * Get a pointer to the last (highest) layer in the packet
 		 * @return A pointer to the last (highest) layer in the packet
 		 */
-		inline Layer* getLastLayer() { return m_LastLayer; }
+		Layer* getLastLayer() const { return m_LastLayer; }
 
 		/**
 		 * Add a new layer as the last layer in the packet. This method gets a pointer to the new layer as a parameter
@@ -240,14 +233,14 @@ namespace pcpp
 		 * value is 0, meaning fetch the first layer of this type
 		 * @return A pointer to the layer or NULL if no such layer was found
 		 */
-		Layer* getLayerOfType(ProtocolType layerType, int index = 0);
+		Layer* getLayerOfType(ProtocolType layerType, int index = 0) const;
 
 		/**
 		 * A templated method to get a layer of a certain type (protocol). If no layer of such type is found, NULL is returned
 		 * @return A pointer to the layer of the requested type, NULL if not found
 		 */
 		template<class TLayer>
-		TLayer* getLayerOfType();
+		TLayer* getLayerOfType() const;
 
 		/**
 		 * A templated method to get the first layer of a certain type (protocol), start searching from a certain layer.
@@ -258,14 +251,14 @@ namespace pcpp
 		 * @return A pointer to the layer of the requested type, NULL if not found
 		 */
 		template<class TLayer>
-		TLayer* getNextLayerOfType(Layer* after);
+		TLayer* getNextLayerOfType(Layer* after) const;
 
 		/**
 		 * Check whether the packet contains a certain protocol
 		 * @param[in] protocolType The protocol type to search
 		 * @return True if the packet contains the protocol, false otherwise
 		 */
-		inline bool isPacketOfType(ProtocolType protocolType) { return m_ProtocolTypes & protocolType; }
+		bool isPacketOfType(ProtocolType protocolType) const { return m_ProtocolTypes & protocolType; }
 
 		/**
 		 * Each layer can have fields that can be calculate automatically from other fields using Layer#computeCalculateFields(). This method forces all layers to calculate these
@@ -289,6 +282,13 @@ namespace pcpp
 		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true);
 
 	private:
+		RawPacket *m_RawPacket;
+		Layer *m_FirstLayer;
+		Layer *m_LastLayer;
+		uint64_t m_ProtocolTypes;
+		size_t m_MaxPacketLen;
+		bool m_FreeRawPacket;
+
 		void copyDataFrom(const Packet& other);
 
 		void destructPacketData();
@@ -306,7 +306,7 @@ namespace pcpp
 	};
 
 	template<class TLayer>
-	TLayer* Packet::getLayerOfType()
+	TLayer* Packet::getLayerOfType() const
 	{
 		if (dynamic_cast<TLayer*>(m_FirstLayer) != NULL)
 			return (TLayer*)m_FirstLayer;
@@ -315,7 +315,7 @@ namespace pcpp
 	}
 
 	template<class TLayer>
-	TLayer* Packet::getNextLayerOfType(Layer* after)
+	TLayer* Packet::getNextLayerOfType(Layer* after) const
 	{
 		if (after == NULL)
 			return NULL;

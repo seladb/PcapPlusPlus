@@ -731,7 +731,7 @@ HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::s
 	return contentLengthField;
 }
 
-int HttpResponseLayer::getContentLength()
+int HttpResponseLayer::getContentLength() const
 {
 	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
@@ -779,12 +779,12 @@ std::string HttpResponseLayer::toString()
 
 
 
-int HttpResponseFirstLine::getStatusCodeAsInt()
+int HttpResponseFirstLine::getStatusCodeAsInt() const
 {
 	return StatusCodeEnumToInt[m_StatusCode];
 }
 
-std::string HttpResponseFirstLine::getStatusCodeString()
+std::string HttpResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
 	int statusStringOffset = 13;

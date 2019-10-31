@@ -74,7 +74,7 @@ bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResourc
 
 	uint32_t addrAsInt = m_Data.toInt();
 	arrLength = sizeof(addrAsInt);
-	memcpy(arr, &addrAsInt, arrLength);
+	memcpy(arr, &addrAsInt, sizeof addrAsInt);
 
 	return true;
 }
@@ -155,8 +155,8 @@ GenericDnsResourceData::GenericDnsResourceData(uint8_t* dataPtr, size_t dataLen)
 	if (dataLen > 0 && dataPtr != NULL)
 	{
 		m_DataLen = dataLen;
-		m_Data = new uint8_t[m_DataLen];
-		memcpy(m_Data, dataPtr, m_DataLen);
+		m_Data = new uint8_t[dataLen];
+		memcpy(m_Data, dataPtr, dataLen);
 	}
 }
 

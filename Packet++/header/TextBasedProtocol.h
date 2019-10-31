@@ -115,24 +115,24 @@ public:
 	 * The default value is 0 (get the first appearance of the field name as appears on the packet)
 	 * @return A pointer to an HeaderField instance, or NULL if field doesn't exist
 	 */
-    HeaderField* getFieldByName(std::string fieldName, int index = 0) const;
+	HeaderField* getFieldByName(std::string fieldName, int index = 0) const;
 
 	/**
 	 * @return A pointer to the first header field exists in this message, or NULL if no such field exists
 	 */
-    inline HeaderField* getFirstField() const { return m_FieldList; }
+	HeaderField* getFirstField() const { return m_FieldList; }
 
 	/**
 	 * Get the field which appears after a certain field
 	 * @param[in] prevField A pointer to the field
 	 * @return The field after prevField or NULL if prevField is the last field. If prevField is NULL, this method will return NULL
 	 */
-	inline HeaderField* getNextField(HeaderField* prevField) { if (prevField != NULL) return prevField->getNextField(); else return NULL; }
+	HeaderField* getNextField(HeaderField* prevField) const { if (prevField != NULL) return prevField->getNextField(); else return NULL; }
 
 	/**
 	 * @return The number of header fields currently in the layer (not including CRLF at the end of the header)
 	 */
-	int getFieldCount();
+	int getFieldCount() const;
 
 	/**
 	 * Add a new header field to this message. This field will be added last (before the end-of-header field)
@@ -203,7 +203,7 @@ public:
 	 * Indicate whether the header is complete (ending with end-of-header "\r\n\r\n" or "\n\n") or spread over more packets
 	 * @return True if the header is complete or false if not
 	 */
-	bool isHeaderComplete();
+	bool isHeaderComplete() const;
 
 	// implement Layer's abstract methods
 

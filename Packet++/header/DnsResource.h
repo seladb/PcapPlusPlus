@@ -48,8 +48,8 @@ namespace pcpp
 		size_t decodeName(const char* encodedName, char* result, int iteration = 1);
 		void encodeName(const std::string& decodedName, char* result, size_t& resultLen);
 
-		inline IDnsResource* getNextResource() { return m_NextResource; }
-		inline void setNexResource(IDnsResource* next) { m_NextResource = next; }
+		IDnsResource* getNextResource() const { return m_NextResource; }
+		void setNexResource(IDnsResource* next) { m_NextResource = next; }
 
 		uint8_t* getRawData() const;
 
@@ -62,7 +62,7 @@ namespace pcpp
 		/**
 		 * @return The DNS type of this record
 		 */
-		DnsType getDnsType();
+		DnsType getDnsType() const;
 
 		/**
 		 * Set DNS type for this record
@@ -137,7 +137,7 @@ namespace pcpp
 	public:
 		virtual ~DnsQuery() {}
 
-		// abstract methods
+		// implementation of abstract methods
 		virtual size_t getSize() { return m_NameLength + 2*sizeof(uint16_t); }
 		virtual DnsResourceType getType() { return DnsQueryType; }
 	};
@@ -164,7 +164,7 @@ namespace pcpp
 		/**
 		 * @return The time-to-leave value for this record
 		 */
-		uint32_t getTTL();
+		uint32_t getTTL() const;
 
 		/**
 		 * Set time-to-leave value for this record
@@ -175,7 +175,7 @@ namespace pcpp
 		/**
 		 * @return The data length value for this record (taken from the "data length" field of the record)
 		 */
-		size_t getDataLength();
+		size_t getDataLength() const;
 
 		/**
 		 * @return A smart pointer to an IDnsResourceData object that contains the DNS resource data. It is guaranteed that the
@@ -193,7 +193,7 @@ namespace pcpp
 		/**
 		 * @return The offset of data in the DNS layer
 		 */
-		size_t getDataOffset();
+		size_t getDataOffset() const;
 
 		/**
 		 * Set resource data. The given IDnsResourceData input object is validated against the DNS type of the resource. For example: if DNS type is A
@@ -217,7 +217,7 @@ namespace pcpp
 		 * user to receive these bytes
 		 * @return The value stored in this place
 		 */
-		uint16_t getCustomDnsClass();
+		uint16_t getCustomDnsClass() const;
 
 		/**
 		 * Some records don't have a DNS class and the bytes used for storing the DNS class are used for other purpose. This method enables the
@@ -226,7 +226,7 @@ namespace pcpp
 		 */
 		void setCustomDnsClass(uint16_t customValue);
 
-		// abstract methods
+		// implementation of abstract methods
 		virtual size_t getSize() { return m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
 		virtual DnsResourceType getType() { return m_ResourceType; }
 

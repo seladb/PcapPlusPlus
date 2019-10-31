@@ -68,7 +68,7 @@ namespace pcpp
 		 * Get a pointer to the VLAN header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the vlan_header
 		 */
-		inline vlan_header* getVlanHeader() const { return (vlan_header*)m_Data; }
+		vlan_header* getVlanHeader() const { return (vlan_header*)m_Data; }
 
 		/**
 		 * Get the VLAN ID value. This method differs from vlan_header#vlanID because vlan_header#vlanID is 12 bits long in a 16 bit field.
@@ -122,7 +122,7 @@ namespace pcpp
 		/**
 		 * @return Size of vlan_header
 		 */
-		inline size_t getHeaderLen() { return sizeof(vlan_header); }
+		size_t getHeaderLen() { return sizeof(vlan_header); }
 
 		/**
 		 * Does nothing for this layer
