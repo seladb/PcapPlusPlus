@@ -44,16 +44,16 @@ public:
 		if (m_IsInitialized)
 			return;
 
-	    // Load Winsock
+		// Load Winsock
 		WSADATA wsaData;
-		int res;
-	    if ((res = WSAStartup(MAKEWORD(2,2), &wsaData)) != 0)
-	    {
-	    	LOG_ERROR("WSAStartup failed with error code: %d", res);
-	    	m_IsInitialized = false;
-	    }
+		int res = WSAStartup(MAKEWORD(2,2), &wsaData);
+		if (res != 0)
+		{
+			LOG_ERROR("WSAStartup failed with error code: %d", res);
+			m_IsInitialized = false;
+		}
 
-	    m_IsInitialized = true;
+		m_IsInitialized = true;
 	}
 };
 
@@ -549,7 +549,7 @@ void RawSocketDevice::close()
 	}
 }
 
-RawSocketDevice::RecvPacketResult RawSocketDevice::getError(int& errorCode)
+RawSocketDevice::RecvPacketResult RawSocketDevice::getError(int& errorCode) const
 {
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 	errorCode = WSAGetLastError();

@@ -50,12 +50,12 @@ struct PcapThread
 #ifdef HAS_SET_DIRECTION_ENABLED
 static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction)
 {
-    	switch (direction)
-    	{
-        	case PcapLiveDevice::PCPP_IN: return PCAP_D_IN;
-        	case PcapLiveDevice::PCPP_OUT: return PCAP_D_OUT;
-        	case PcapLiveDevice::PCPP_INOUT: return PCAP_D_INOUT;
-   	}
+	switch (direction)
+	{
+		case PcapLiveDevice::PCPP_IN:    return PCAP_D_IN;
+		case PcapLiveDevice::PCPP_OUT:   return PCAP_D_OUT;
+		case PcapLiveDevice::PCPP_INOUT: return PCAP_D_INOUT;
+	}
 }
 #endif
 
@@ -64,7 +64,6 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
 		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
 {
-
 	m_Name = NULL;
 	m_Description = NULL;
 	m_DeviceMtu = 0;
@@ -201,7 +200,6 @@ void* PcapLiveDevice::captureThreadMain(void *ptr)
 	{
 		while (!pThis->m_StopThread)
 			pcap_dispatch(pThis->m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)pThis);
-
 	}
 	LOG_DEBUG("Ended capture thread for device '%s'", pThis->m_Name);
 	return 0;
@@ -269,28 +267,34 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	if (ret == 0)
 	{
 		LOG_DEBUG("Immediate mode is activated");
-	} else {
-		LOG_ERROR("Failed to activate immediate mode, error code: '%d', error message: '%s'",
-			       ret, pcap_geterr(pcap));
+	}
+	else
+	{
+		LOG_ERROR("Failed to activate immediate mode, error code: '%d', error message: '%s'", ret, pcap_geterr(pcap));
 	}
 #endif
 
 #ifdef HAS_SET_DIRECTION_ENABLED
-    	pcap_direction_t directionToSet = directionTypeMap(config.direction);
+	pcap_direction_t directionToSet = directionTypeMap(config.direction);
 	ret = pcap_setdirection(pcap, directionToSet);
 	if (ret != 0)
-    	{
+	{
 		if (config.direction == PCPP_IN)
 		{
-		    	LOG_DEBUG("Only incoming traffics will be captured");
-		}else if (config.direction == PCPP_OUT) {
-		    	LOG_DEBUG("Only outgoing traffics will be captured");
-		}else {
-	  		LOG_DEBUG("Both incoming and outgoing traffics will be captured");
+		  LOG_DEBUG("Only incoming traffics will be captured");
 		}
-    	}else {
-			LOG_ERROR("Failed to set direction for capturing packets, error code: '%d', error message: '%s'",
-				       ret, pcap_geterr(pcap));
+		else if (config.direction == PCPP_OUT) 
+		{
+		  LOG_DEBUG("Only outgoing traffics will be captured");
+		}
+		else
+		{
+			LOG_DEBUG("Both incoming and outgoing traffics will be captured");
+		}
+	}
+	else
+	{
+		LOG_ERROR("Failed to set direction for capturing packets, error code: '%d', error message: '%s'", ret, pcap_geterr(pcap));
 	}
 #endif
 	ret = pcap_activate(pcap);
@@ -469,7 +473,6 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	}
 	else
 	{
-
 		while (!m_StopThread && curTimeSec <= (startTimeSec + timeout))
 		{
 			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
@@ -520,7 +523,7 @@ bool PcapLiveDevice::captureActive()
 	return m_CaptureThreadStarted;
 }
 
-void PcapLiveDevice::getStatistics(pcap_stat& stats)
+void PcapLiveDevice::getStatistics(pcap_stat& stats) const
 {
 	if(pcap_stats(m_PcapDescriptor, &stats) < 0)
 	{
@@ -610,17 +613,17 @@ int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets)
 
 std::string PcapLiveDevice::printThreadId(PcapThread* id)
 {
-    size_t i;
-    std::string result("");
-    pthread_t pthread = id->pthread;
-    for (i = sizeof(pthread); i; --i)
-    {
-    	char currByte[3];
-    	snprintf(currByte, 3, "%02x", *(((unsigned char*) &pthread) + i - 1));
-    	result += currByte;
-    }
+	size_t i;
+	std::string result("");
+	pthread_t pthread = id->pthread;
+	for (i = sizeof(pthread); i; --i)
+	{
+		char currByte[3];
+		snprintf(currByte, 3, "%02x", *(((unsigned char*) &pthread) + i - 1));
+		result += currByte;
+	}
 
-    return result;
+	return result;
 }
 
 void PcapLiveDevice::setDeviceMtu()
@@ -644,28 +647,28 @@ void PcapLiveDevice::setDeviceMtu()
 
 	uint8_t buffer[512];
 	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
-    oidData->Oid = OID_GEN_MAXIMUM_TOTAL_SIZE;
-    oidData->Length = sizeof(uint32_t);
-    memcpy(oidData->Data, &mtuValue, sizeof(uint32_t));
-    bool status = PacketRequest(adapter, false, oidData);
-    if(status)
-    {
-        if(oidData->Length <= sizeof(uint32_t))
-        {
-            /* copy value from driver */
-            memcpy(&mtuValue, oidData->Data, oidData->Length);
-            m_DeviceMtu = mtuValue;
-        } else
-        {
-            /* the driver returned a value that is longer than expected (and longer than the given buffer) */
-            LOG_ERROR("Error in retrieving MTU: Size of Oid larger than uint32_t, OidLen:%lu", oidData->Length);
-            return;
-        }
-    }
-    else
-    {
-    	LOG_ERROR("Error in retrieving MTU: PacketRequest failed");
-    }
+	oidData->Oid = OID_GEN_MAXIMUM_TOTAL_SIZE;
+	oidData->Length = sizeof(uint32_t);
+	memcpy(oidData->Data, &mtuValue, sizeof(uint32_t));
+	if(PacketRequest(adapter, false, oidData))
+	{
+		if(oidData->Length <= sizeof(uint32_t))
+		{
+			/* copy value from driver */
+			memcpy(&mtuValue, oidData->Data, oidData->Length);
+			m_DeviceMtu = mtuValue;
+		}
+		else
+		{
+			/* the driver returned a value that is longer than expected (and longer than the given buffer) */
+			LOG_ERROR("Error in retrieving MTU: Size of Oid larger than uint32_t, OidLen:%lu", oidData->Length);
+			return;
+		}
+	}
+	else
+	{
+		LOG_ERROR("Error in retrieving MTU: PacketRequest failed");
+	}
 
 #else
 	struct ifreq ifr;
@@ -698,31 +701,31 @@ void PcapLiveDevice::setDeviceMacAddress()
 
 	uint8_t buffer[512];
 	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
-    oidData->Oid = OID_802_3_CURRENT_ADDRESS;
-    oidData->Length = 6;
-    oidData->Data[0] = 0;
-    bool status = PacketRequest(adapter, false, oidData);
-    if(status)
-    {
-        if(oidData->Length == 6)
-        {
+	oidData->Oid = OID_802_3_CURRENT_ADDRESS;
+	oidData->Length = 6;
+	oidData->Data[0] = 0;
+	if(PacketRequest(adapter, false, oidData))
+	{
+		if(oidData->Length == 6)
+		{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-            /* copy value from driver */
-        	m_MacAddress = MacAddress(oidData->Data[0], oidData->Data[1], oidData->Data[2], oidData->Data[3], oidData->Data[4], oidData->Data[5]);
+			/* copy value from driver */
+			m_MacAddress = MacAddress(oidData->Data[0], oidData->Data[1], oidData->Data[2], oidData->Data[3], oidData->Data[4], oidData->Data[5]);
 #pragma GCC diagnostic pop
-        	LOG_DEBUG("   MAC address: %s", m_MacAddress.toString().c_str());
-        } else
-        {
-            /* the driver returned a value that is longer than expected (and longer than the given buffer) */
-        	LOG_DEBUG("Error in retrieving MAC address: Size of Oid larger than 6, OidLen:%lu", oidData->Length);
-            return;
-        }
-    }
-    else
-    {
-    	LOG_DEBUG("Error in retrieving MAC address: PacketRequest failed");
-    }
+			LOG_DEBUG("   MAC address: %s", m_MacAddress.toString().c_str());
+		}
+		else
+		{
+			/* the driver returned a value that is longer than expected (and longer than the given buffer) */
+			LOG_DEBUG("Error in retrieving MAC address: Size of Oid larger than 6, OidLen:%lu", oidData->Length);
+			return;
+		}
+	}
+	else
+	{
+		LOG_DEBUG("Error in retrieving MAC address: PacketRequest failed");
+	}
 #elif LINUX
 	struct ifreq ifr;
 
@@ -736,10 +739,10 @@ void PcapLiveDevice::setDeviceMacAddress()
 		return;
 	}
 
-    m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
+	m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
 #elif MAC_OS_X || FREEBSD
-    int	mib[6];
-    size_t len;
+	int	mib[6];
+	size_t len;
 
 	mib[0] = CTL_NET;
 	mib[1] = AF_ROUTE;
@@ -782,10 +785,10 @@ void PcapLiveDevice::setDefaultGateway()
 
 	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
 	uint8_t* buffer2 = new uint8_t[outBufLen];
-    if (retVal == ERROR_BUFFER_OVERFLOW)
-        adapterInfo = (IP_ADAPTER_INFO *)buffer2;
+	if (retVal == ERROR_BUFFER_OVERFLOW)
+		adapterInfo = (IP_ADAPTER_INFO *)buffer2;
 
-    retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
+	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
 
 	if (retVal == NO_ERROR)
 	{
@@ -796,7 +799,7 @@ void PcapLiveDevice::setDefaultGateway()
 			if (name.find(curAdapterInfo->AdapterName) != std::string::npos)
 				m_DefaultGateway = IPv4Address(curAdapterInfo->GatewayList.IpAddress.String);
 
-            curAdapterInfo = curAdapterInfo->Next;
+			curAdapterInfo = curAdapterInfo->Next;
 		}
 	}
 	else
@@ -811,25 +814,25 @@ void PcapLiveDevice::setDefaultGateway()
 	std::string line;
 	while (std::getline(routeFile, line))
 	{
-	    std::stringstream lineStream(line);
-	    std::string interfaceName;
-	    std::getline(lineStream, interfaceName, '\t');
-	    if (interfaceName != std::string(m_Name))
-	    	continue;
+	  std::stringstream lineStream(line);
+	  std::string interfaceName;
+	  std::getline(lineStream, interfaceName, '\t');
+	  if (interfaceName != std::string(m_Name))
+	    continue;
 
-	    std::string interfaceDest;
-	    std::getline(lineStream, interfaceDest, '\t');
-	    if (interfaceDest != "00000000")
-	    	continue;
+	  std::string interfaceDest;
+	  std::getline(lineStream, interfaceDest, '\t');
+	  if (interfaceDest != "00000000")
+	    continue;
 
-	    std::string interfaceGateway;
-	    std::getline(lineStream, interfaceGateway, '\t');
+	  std::string interfaceGateway;
+	  std::getline(lineStream, interfaceGateway, '\t');
 
-	    uint32_t interfaceGatewayIPInt;
-	    std::stringstream interfaceGatewayStream;
-	    interfaceGatewayStream << std::hex << interfaceGateway;
-	    interfaceGatewayStream >> interfaceGatewayIPInt;
-	    m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
+	  uint32_t interfaceGatewayIPInt;
+	  std::stringstream interfaceGatewayStream;
+	  interfaceGatewayStream << std::hex << interfaceGateway;
+	  interfaceGatewayStream >> interfaceGatewayIPInt;
+	  m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
 	}
 #elif MAC_OS_X || FREEBSD
 	std::string ifaceStr = std::string(m_Name);
@@ -855,9 +858,9 @@ void PcapLiveDevice::setDefaultGateway()
 #endif
 }
 
-IPv4Address PcapLiveDevice::getIPv4Address()
+IPv4Address PcapLiveDevice::getIPv4Address() const
 {
-	for(std::vector<pcap_addr_t>::iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
+	for(std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
 	{
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 		{
@@ -880,12 +883,12 @@ IPv4Address PcapLiveDevice::getIPv4Address()
 }
 
 
-IPv4Address PcapLiveDevice::getDefaultGateway()
+IPv4Address PcapLiveDevice::getDefaultGateway() const
 {
 	return m_DefaultGateway;
 }
 
-std::vector<IPv4Address>& PcapLiveDevice::getDnsServers()
+std::vector<IPv4Address>& PcapLiveDevice::getDnsServers() const
 {
 	return PcapLiveDeviceList::getInstance().getDnsServers();
 }

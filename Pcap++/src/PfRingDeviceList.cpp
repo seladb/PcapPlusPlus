@@ -83,20 +83,20 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
 {
 	pfring* ringPtr = (pfring*)ring;
 	uint32_t version;
-    if (pfring_version(ringPtr, &version) < 0)
-    {
-    	LOG_ERROR("Couldn't retrieve PF_RING version, pfring_version returned an error");
-    	return;
-    }
+	if (pfring_version(ringPtr, &version) < 0)
+	{
+		LOG_ERROR("Couldn't retrieve PF_RING version, pfring_version returned an error");
+		return;
+	}
 
-    char versionAsString[25];
-    sprintf(versionAsString, "PF_RING v.%d.%d.%d\n",
-	   (version & 0xFFFF0000) >> 16,
-	   (version & 0x0000FF00) >> 8,
-	   version & 0x000000FF);
+	char versionAsString[25];
+	sprintf(versionAsString, "PF_RING v.%d.%d.%d\n",
+	  (version & 0xFFFF0000) >> 16,
+	  (version & 0x0000FF00) >> 8,
+	  version & 0x000000FF);
 
-    LOG_DEBUG("PF_RING version is: %s", versionAsString);
-    m_PfRingVersion = std::string(versionAsString);
+	LOG_DEBUG("PF_RING version is: %s", versionAsString);
+	m_PfRingVersion = std::string(versionAsString);
 }
 
 } // namespace pcpp

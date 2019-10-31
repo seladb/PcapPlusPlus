@@ -54,7 +54,7 @@ namespace pcpp
 		 * @return The current amount of data in the kernel buffer that causes a read from the application to return (see also
 		 * setMinAmountOfDataToCopyFromKernelToApplication())
 		 */
-		int getMinAmountOfDataToCopyFromKernelToApplication() { return m_MinAmountOfDataToCopyFromKernelToApplication; }
+		int getMinAmountOfDataToCopyFromKernelToApplication() const { return m_MinAmountOfDataToCopyFromKernelToApplication; }
 	};
 
 } // namespace pcpp

@@ -88,60 +88,60 @@ namespace pcpp
 		/**
 		 * @return The IP address of the remote machine
 		 */
-		IPAddress* getRemoteMachineIpAddress() { return m_RemoteMachineIpAddress; }
+		IPAddress* getRemoteMachineIpAddress() const { return m_RemoteMachineIpAddress; }
 
 		/**
 		 * @return The port of the remote machine where packets are transmitted from the remote machine to the client machine
 		 */
-		uint16_t getRemoteMachinePort() { return m_RemoteMachinePort; }
+		uint16_t getRemoteMachinePort() const { return m_RemoteMachinePort; }
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv4 address
 		 * @param[in] ip4Addr The IPv4 address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPv4Address ip4Addr);
+		PcapRemoteDevice* getRemoteDeviceByIP(IPv4Address ip4Addr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPv6Address ip6Addr);
+		PcapRemoteDevice* getRemoteDeviceByIP(IPv6Address ip6Addr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		 * @param[in] ipAddr The IP address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPAddress* ipAddr);
+		PcapRemoteDevice* getRemoteDeviceByIP(IPAddress* ipAddr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
 		 * @param[in] ipAddrAsString The IP address in string format
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(const char* ipAddrAsString);
+		PcapRemoteDevice* getRemoteDeviceByIP(const char* ipAddrAsString) const;
 
 		/**
 		 * @return An iterator object pointing to the first PcapRemoteDevice in list
 		 */
-		inline RemoteDeviceListIterator begin() { return m_RemoteDeviceList.begin(); }
+		RemoteDeviceListIterator begin() { return m_RemoteDeviceList.begin(); }
 
 		/**
 		 * @return A const iterator object pointing to the first PcapRemoteDevice in list
 		 */
-		inline ConstRemoteDeviceListIterator begin() const { return m_RemoteDeviceList.begin(); }
+		ConstRemoteDeviceListIterator begin() const { return m_RemoteDeviceList.begin(); }
 
 		/**
 		 * @return An iterator object pointing to the last PcapRemoteDevice in list
 		 */
-		inline RemoteDeviceListIterator end() { return m_RemoteDeviceList.end(); }
+		RemoteDeviceListIterator end() { return m_RemoteDeviceList.end(); }
 
 		/**
 		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
 		 */
-		inline ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceList.end(); }
+		ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceList.end(); }
 
 	};
 

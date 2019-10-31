@@ -15,26 +15,26 @@ WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool c
 
 bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie)
 {
-    //Put the interface in capture mode
-    if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
-    {
-        LOG_ERROR("Error setting the capture mode for device '%s'", m_Name);
-        return false;
-    }
+	//Put the interface in capture mode
+	if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
+	{
+		LOG_ERROR("Error setting the capture mode for device '%s'", m_Name);
+		return false;
+	}
 
-    return PcapLiveDevice::startCapture(onPacketArrives, onPacketArrivesUserCookie, intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUsrrCookie);
+	return PcapLiveDevice::startCapture(onPacketArrives, onPacketArrivesUserCookie, intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUsrrCookie);
 }
 
 bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
-    //Put the interface in statistics mode
-    if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
-    {
-        LOG_ERROR("Error setting the statistics mode for device '%s'", m_Name);
-        return false;
-    }
+	//Put the interface in statistics mode
+	if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
+	{
+		LOG_ERROR("Error setting the statistics mode for device '%s'", m_Name);
+		return false;
+	}
 
-    return PcapLiveDevice::startCapture(intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
+	return PcapLiveDevice::startCapture(intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
 }
 
 int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
@@ -64,22 +64,22 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 
 	int res;
 	if ((res = pcap_sendqueue_transmit(m_PcapDescriptor, sendQueue, 0)) < (int)(sendQueue->len))
-    {
-        LOG_ERROR("An error occurred sending the packets: %s. Only %d bytes were sent\n", pcap_geterr(m_PcapDescriptor), res);
-        packetsSent = 0;
-        dataSize = 0;
-    	for (int i = 0; i < arrLength; i++)
-    	{
-    		dataSize += rawPacketsArr[i].getRawDataLen();
-    		//printf("dataSize = %d\n", dataSize);
-    		if (dataSize > res)
-    		{
-    			return packetsSent;
-    		}
-    		packetsSent++;
-    	}
-    	return packetsSent;
-    }
+	{
+		LOG_ERROR("An error occurred sending the packets: %s. Only %d bytes were sent\n", pcap_geterr(m_PcapDescriptor), res);
+		packetsSent = 0;
+		dataSize = 0;
+		for (int i = 0; i < arrLength; i++)
+		{
+			dataSize += rawPacketsArr[i].getRawDataLen();
+			//printf("dataSize = %d\n", dataSize);
+			if (dataSize > res)
+			{
+				return packetsSent;
+			}
+			packetsSent++;
+		}
+		return packetsSent;
+	}
 	LOG_DEBUG("Packets were sent successfully");
 
 	pcap_sendqueue_destroy(sendQueue);

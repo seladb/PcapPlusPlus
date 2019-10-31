@@ -100,8 +100,8 @@ int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring** ring)
 
 	if (pfring_enable_rss_rehash(*ring) < 0 || pfring_enable_ring(*ring) < 0)
 	{
-	    pfring_close(*ring);
-	    return 2;
+		pfring_close(*ring);
+		return 2;
 	}
 
 	LOG_DEBUG("pfring enabled for device [%s]", deviceName);
@@ -111,20 +111,20 @@ int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring** ring)
 
 bool PfRingDevice::setPfRingDeviceClock(pfring* ring)
 {
-    struct timespec ltime;
-    if (clock_gettime(CLOCK_REALTIME, &ltime) != 0)
-    {
-    	LOG_ERROR("Could not set pfring devices clock, clock_gettime failed");
-    	return false;
-    }
+	struct timespec ltime;
+	if (clock_gettime(CLOCK_REALTIME, &ltime) != 0)
+	{
+		LOG_ERROR("Could not set pfring devices clock, clock_gettime failed");
+		return false;
+	}
 
-   	if (pfring_set_device_clock(ring, &ltime) < 0)
-   	{
-   		LOG_DEBUG("Could not set pfring devices clock, pfring_set_device_clock failed");
-   		return false;
-   	}
+	if (pfring_set_device_clock(ring, &ltime) < 0)
+	{
+		LOG_DEBUG("Could not set pfring devices clock, pfring_set_device_clock failed");
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 bool PfRingDevice::openMultiRxChannels(const uint8_t* channelIds, int numOfChannelIds)
@@ -261,7 +261,6 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 			{
 				LOG_ERROR("Couldn't set ring [%d] in channel [%d] to the cluster [%d]", numOfRingsPerRxChannel+1, channelId, channelId);
 				break;
-
 			}
 
 			ringsOpen++;
@@ -274,9 +273,9 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 
 	if (ringsOpen < numOfRxChannelsToOpen)
 	{
-	    for (uint8_t i = 0; i < ringsOpen; i++)
-	    	pfring_close(m_PfRingDescriptors[i]);
-	    return false;
+	  for (uint8_t i = 0; i < ringsOpen; i++)
+	    pfring_close(m_PfRingDescriptors[i]);
+	  return false;
 	}
 
 	if (getIsHwClockEnable())
@@ -293,11 +292,11 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 	{
 		if (pfring_enable_rss_rehash(m_PfRingDescriptors[i]) < 0 || pfring_enable_ring(m_PfRingDescriptors[i]) < 0)
 		{
-		    LOG_ERROR("Unable to enable ring [%d] for device [%s]", i, m_DeviceName);
-		    // close all pfring's that were enabled until now
-		    for (int j = 0; j <ringsOpen; j++)
-		    	pfring_close(m_PfRingDescriptors[j]);
-		    return false;
+		  LOG_ERROR("Unable to enable ring [%d] for device [%s]", i, m_DeviceName);
+		  // close all pfring's that were enabled until now
+		  for (int j = 0; j <ringsOpen; j++)
+		    pfring_close(m_PfRingDescriptors[j]);
+		  return false;
 		}
 	}
 
@@ -307,7 +306,7 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 	return true;
 }
 
-uint8_t PfRingDevice::getTotalNumOfRxChannels()
+uint8_t PfRingDevice::getTotalNumOfRxChannels() const
 {
 	if (m_NumOfOpenedRxChannels > 0)
 	{
@@ -325,7 +324,7 @@ uint8_t PfRingDevice::getTotalNumOfRxChannels()
 }
 
 
-SystemCore PfRingDevice::getCurrentCoreId()
+SystemCore PfRingDevice::getCurrentCoreId() const
 {
 	return SystemCores::IdToSystemCore[sched_getcpu()];
 }
@@ -354,8 +353,8 @@ bool PfRingDevice::setFilter(std::string filterAsString)
 
 	m_IsFilterCurrentlySet = true;
 
-    LOG_DEBUG("Successfully set filter '%s'", filterAsString.c_str());
-    return true;
+	LOG_DEBUG("Successfully set filter '%s'", filterAsString.c_str());
+	return true;
 }
 
 
@@ -376,12 +375,12 @@ bool PfRingDevice::clearFilter()
 
 	m_IsFilterCurrentlySet = false;
 
-    LOG_DEBUG("Successfully removed filter from all open RX channels");
-    return true;
+	LOG_DEBUG("Successfully removed filter from all open RX channels");
+	return true;
 }
 
 
-bool PfRingDevice::isFilterCurrentlySet()
+bool PfRingDevice::isFilterCurrentlySet() const
 {
 	return m_IsFilterCurrentlySet;
 }
@@ -514,18 +513,18 @@ bool PfRingDevice::startCaptureSingleThread(OnPfRingPacketsArriveCallback onPack
 	}
 
 	cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
+	CPU_ZERO(&cpuset);
 	pthread_getaffinity_np(newThread, sizeof(cpu_set_t), &cpuset);
-    for (int i = 0; i < CPU_SETSIZE; i++)
-    {
-        if (CPU_ISSET(i, &cpuset))
-        {
-        	m_CoreConfiguration[i].IsInUse = true;
-        	m_CoreConfiguration[i].Channel = m_PfRingDescriptors[0];
-        	m_CoreConfiguration[i].RxThread = newThread;
-        	m_CoreConfiguration[i].IsAffinitySet = false;
-        }
-    }
+	for (int i = 0; i < CPU_SETSIZE; i++)
+	{
+		if (CPU_ISSET(i, &cpuset))
+		{
+			m_CoreConfiguration[i].IsInUse = true;
+			m_CoreConfiguration[i].Channel = m_PfRingDescriptors[0];
+			m_CoreConfiguration[i].RxThread = newThread;
+			m_CoreConfiguration[i].IsAffinitySet = false;
+		}
+	}
 
 	LOG_DEBUG("Capturing started for device [%s]", m_DeviceName);
 	return true;
@@ -602,7 +601,7 @@ void* PfRingDevice::captureThreadMain(void *ptr)
 	return (void*)NULL;
 }
 
-void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats)
+void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats) const
 {
 	pfring* ring = NULL;
 	uint8_t coreId = core.Id;
@@ -626,12 +625,12 @@ void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats)
 	}
 }
 
-void PfRingDevice::getCurrentThreadStatistics(PfRingStats& stats)
+void PfRingDevice::getCurrentThreadStatistics(PfRingStats& stats) const
 {
 	getThreadStatistics(getCurrentCoreId(), stats);
 }
 
-void PfRingDevice::getStatistics(PfRingStats& stats)
+void PfRingDevice::getStatistics(PfRingStats& stats) const
 {
 	stats.drop = 0;
 	stats.recv = 0;
