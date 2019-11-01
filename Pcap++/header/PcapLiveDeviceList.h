@@ -95,7 +95,7 @@ namespace pcpp
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
 		 * couldn't be extracted from some reason
 		 */
-		std::vector<IPv4Address> &getDnsServers() { return m_DnsServers; } // TODO: Should this method really return a non-const reference?
+		std::vector<IPv4Address>& getDnsServers() { return m_DnsServers; } // TODO: Should this method really return a non-const reference?
 
 		/**
 		 * Reset the live device list and DNS server list, meaning clear and refetch them

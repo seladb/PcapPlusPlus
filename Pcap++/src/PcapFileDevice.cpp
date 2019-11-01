@@ -13,13 +13,13 @@ namespace pcpp
 
 struct pcap_file_header
 {
-    uint32_t magic;
-    uint16_t version_major;
-    uint16_t version_minor;
-    int32_t thiszone;
-    uint32_t sigfigs;
-    uint32_t snaplen;
-    uint32_t linktype;
+	uint32_t magic;
+	uint16_t version_major;
+	uint16_t version_minor;
+	int32_t thiszone;
+	uint32_t sigfigs;
+	uint32_t snaplen;
+	uint32_t linktype;
 };
 
 struct packet_header

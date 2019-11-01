@@ -118,7 +118,7 @@ namespace pcpp
 		const std::string m_filterStr;
 
 	public:
-		BPFStringFilter(const std::string &filterStr) : m_filterStr(filterStr) {}
+		BPFStringFilter(const std::string& filterStr) : m_filterStr(filterStr) {}
 
 		virtual ~BPFStringFilter() {}
 

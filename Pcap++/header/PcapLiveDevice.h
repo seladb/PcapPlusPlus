@@ -113,11 +113,11 @@ namespace pcpp
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
-		static void* captureThreadMain(void *ptr);
-		static void* statsThreadMain(void *ptr);
-		static void onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
-		static void onPacketArrivesNoCallback(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
-		static void onPacketArrivesBlockingMode(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
+		static void* captureThreadMain(void* ptr);
+		static void* statsThreadMain(void* ptr);
+		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		std::string printThreadId(PcapThread* id);
 		virtual ThreadStart getCaptureThreadStart();
 	public:

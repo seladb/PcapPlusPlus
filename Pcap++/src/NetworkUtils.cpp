@@ -86,7 +86,7 @@ static void arpPacketRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void
 	// signal the main thread the ARP reply was received
 	pthread_mutex_lock(data->mutex);
 	pthread_cond_signal(data->cond);
-  pthread_mutex_unlock(data->mutex);
+	pthread_mutex_unlock(data->mutex);
 }
 
 
@@ -313,7 +313,7 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 	// signal the main thread the ARP reply was received
 	pthread_mutex_lock(data->mutex);
 	pthread_cond_signal(data->cond);
-  pthread_mutex_unlock(data->mutex);
+	pthread_mutex_unlock(data->mutex);
 }
 
 

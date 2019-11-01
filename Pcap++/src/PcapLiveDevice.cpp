@@ -135,7 +135,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	}
 }
 
-void PcapLiveDevice::onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet)
+void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
 	if (pThis == NULL)
@@ -150,7 +150,7 @@ void PcapLiveDevice::onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pk
 		pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
 }
 
-void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet)
+void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
 	if (pThis == NULL)
@@ -165,7 +165,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t *user, const struct pcap_
 	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 }
 
-void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet)
+void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
 	if (pThis == NULL)
@@ -181,7 +181,7 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t *user, const struct pca
 			pThis->m_StopThread = true;
 }
 
-void* PcapLiveDevice::captureThreadMain(void *ptr)
+void* PcapLiveDevice::captureThreadMain(void* ptr)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)ptr;
 	if (pThis == NULL)
@@ -205,7 +205,7 @@ void* PcapLiveDevice::captureThreadMain(void *ptr)
 	return 0;
 }
 
-void* PcapLiveDevice::statsThreadMain(void *ptr)
+void* PcapLiveDevice::statsThreadMain(void* ptr)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)ptr;
 	if (pThis == NULL)
@@ -308,7 +308,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	if (pcap)
 	{
 		int dlt = pcap_datalink(pcap);
-		const char *dlt_name = pcap_datalink_val_to_name(dlt);
+		const char* dlt_name = pcap_datalink_val_to_name(dlt);
 		if (dlt_name)
 		{
 			LOG_DEBUG("link-type %u: %s (%s)\n", dlt, dlt_name, pcap_datalink_val_to_description(dlt));
@@ -525,7 +525,7 @@ bool PcapLiveDevice::captureActive()
 
 void PcapLiveDevice::getStatistics(pcap_stat& stats) const
 {
-	if(pcap_stats(m_PcapDescriptor, &stats) < 0)
+	if (pcap_stats(m_PcapDescriptor, &stats) < 0)
 	{
 		LOG_ERROR("Error getting statistics from live device '%s'", m_Name);
 	}
@@ -650,9 +650,9 @@ void PcapLiveDevice::setDeviceMtu()
 	oidData->Oid = OID_GEN_MAXIMUM_TOTAL_SIZE;
 	oidData->Length = sizeof(uint32_t);
 	memcpy(oidData->Data, &mtuValue, sizeof(uint32_t));
-	if(PacketRequest(adapter, false, oidData))
+	if (PacketRequest(adapter, false, oidData))
 	{
-		if(oidData->Length <= sizeof(uint32_t))
+		if (oidData->Length <= sizeof(uint32_t))
 		{
 			/* copy value from driver */
 			memcpy(&mtuValue, oidData->Data, oidData->Length);
@@ -704,9 +704,9 @@ void PcapLiveDevice::setDeviceMacAddress()
 	oidData->Oid = OID_802_3_CURRENT_ADDRESS;
 	oidData->Length = 6;
 	oidData->Data[0] = 0;
-	if(PacketRequest(adapter, false, oidData))
+	if (PacketRequest(adapter, false, oidData))
 	{
-		if(oidData->Length == 6)
+		if (oidData->Length == 6)
 		{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
