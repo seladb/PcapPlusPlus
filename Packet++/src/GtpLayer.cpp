@@ -78,15 +78,15 @@ size_t GtpV1Layer::GtpExtension::getContentLength() const
 {
 	size_t res = getTotalLength();
 
-	if (res >= 2 * sizeof(uint8_t))
+	if (res >= 2*sizeof(uint8_t))
 	{
-		return (size_t)(res - 2 * sizeof(uint8_t));
+		return (size_t)(res - 2*sizeof(uint8_t));
 	}
 
 	return 0;
 }
 
-uint8_t *GtpV1Layer::GtpExtension::getContent() const
+uint8_t* GtpV1Layer::GtpExtension::getContent() const
 {
 	if (m_Data == NULL || getContentLength() == 0)
 	{
@@ -103,7 +103,7 @@ uint8_t GtpV1Layer::GtpExtension::getNextExtensionHeaderType() const
 		return 0;
 	}
 
-	uint8_t res = *(uint8_t *)(m_Data + sizeof(uint8_t) + getContentLength());
+	uint8_t res = *(uint8_t*)(m_Data + sizeof(uint8_t) + getContentLength());
 
 	return res;
 }
@@ -130,9 +130,9 @@ void GtpV1Layer::GtpExtension::setNextHeaderType(uint8_t nextHeaderType)
 	}
 }
 
-GtpV1Layer::GtpExtension GtpV1Layer::GtpExtension::createGtpExtension(uint8_t *data, size_t dataLen, uint8_t extType, uint16_t content)
+GtpV1Layer::GtpExtension GtpV1Layer::GtpExtension::createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content)
 {
-	if (dataLen < 4 * sizeof(uint8_t))
+	if (dataLen < 4*sizeof(uint8_t))
 	{
 		return GtpExtension();
 	}
@@ -176,7 +176,7 @@ void GtpV1Layer::init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNu
 	memset(m_Data, 0, dataLen);
 	m_Protocol = GTPv1;
 
-	gtpv1_header *hdr = getHeader();
+	gtpv1_header* hdr = getHeader();
 	hdr->version = 1;
 	hdr->protocolType = 1;
 	hdr->messageType = (uint8_t)messageType;
@@ -185,7 +185,7 @@ void GtpV1Layer::init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNu
 	if (setSeqNum || setNpduNum)
 	{
 		hdr->messageLength = htobe16(sizeof(gtpv1_header_extra));
-		gtpv1_header_extra *extraHdr = getHeaderExtra();
+		gtpv1_header_extra* extraHdr = getHeaderExtra();
 		if (setSeqNum)
 		{
 			hdr->sequenceNumberFlag = 1;
@@ -201,7 +201,7 @@ void GtpV1Layer::init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNu
 }
 
 
-bool GtpV1Layer::isGTPv1(const uint8_t *data, size_t dataSize)
+bool GtpV1Layer::isGTPv1(const uint8_t* data, size_t dataSize)
 {
 	if(data != NULL && dataSize > 1 && (data[0] & 0xE0) == 0x20)
 	{
@@ -211,20 +211,20 @@ bool GtpV1Layer::isGTPv1(const uint8_t *data, size_t dataSize)
 	return false;
 }
 
-GtpV1Layer::gtpv1_header_extra *GtpV1Layer::getHeaderExtra() const
+GtpV1Layer::gtpv1_header_extra* GtpV1Layer::getHeaderExtra() const
 {
 	if (m_Data != NULL && m_DataLen >= sizeof(gtpv1_header) + sizeof(gtpv1_header_extra))
 	{
-		return (gtpv1_header_extra *)(m_Data + sizeof(gtpv1_header));
+		return (gtpv1_header_extra*)(m_Data + sizeof(gtpv1_header));
 	}
 
 	return NULL;
 }
 
-bool GtpV1Layer::getSequenceNumber(uint16_t &seqNumber) const
+bool GtpV1Layer::getSequenceNumber(uint16_t& seqNumber) const
 {
-	gtpv1_header *header = getHeader();
-	gtpv1_header_extra *headerExtra = getHeaderExtra();
+	gtpv1_header* header = getHeader();
+	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (header != NULL && headerExtra != NULL && header->sequenceNumberFlag == 1)
 	{
 		seqNumber = be16toh(headerExtra->sequenceNumber);
@@ -237,7 +237,7 @@ bool GtpV1Layer::getSequenceNumber(uint16_t &seqNumber) const
 bool GtpV1Layer::setSequenceNumber(const uint16_t seqNumber)
 {
 	// get GTP header
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
 		LOG_ERROR("Set sequence failed: GTP header is NULL");
@@ -247,7 +247,7 @@ bool GtpV1Layer::setSequenceNumber(const uint16_t seqNumber)
 	// if all flags are unset then create the GTP extra header
 	if (header->npduNumberFlag == 0 && header->sequenceNumberFlag == 0 && header->extensionHeaderFlag == 0)
 	{
-		if(!extendLayer(sizeof(gtpv1_header), sizeof(gtpv1_header_extra)))
+		if (!extendLayer(sizeof(gtpv1_header), sizeof(gtpv1_header_extra)))
 		{
 			LOG_ERROR("Set sequence failed: cannot extend layer");
 			return false;
@@ -256,7 +256,7 @@ bool GtpV1Layer::setSequenceNumber(const uint16_t seqNumber)
 	}
 
 	// get the extra header
-	gtpv1_header_extra *headerExtra = getHeaderExtra();
+	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (headerExtra == NULL)
 	{
 		LOG_ERROR("Set sequence failed: extra header is NULL");
@@ -273,10 +273,10 @@ bool GtpV1Layer::setSequenceNumber(const uint16_t seqNumber)
 	return true;
 }
 
-bool GtpV1Layer::getNpduNumber(uint8_t &npduNum) const
+bool GtpV1Layer::getNpduNumber(uint8_t& npduNum) const
 {
-	gtpv1_header *header = getHeader();
-	gtpv1_header_extra *headerExtra = getHeaderExtra();
+	gtpv1_header* header = getHeader();
+	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (header != NULL && headerExtra != NULL && header->npduNumberFlag == 1)
 	{
 		npduNum = headerExtra->npduNumber;
@@ -289,7 +289,7 @@ bool GtpV1Layer::getNpduNumber(uint8_t &npduNum) const
 bool GtpV1Layer::setNpduNumber(const uint8_t npduNum)
 {
 	// get GTP header
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
 		LOG_ERROR("Set N-PDU failed: GTP header is NULL");
@@ -299,7 +299,7 @@ bool GtpV1Layer::setNpduNumber(const uint8_t npduNum)
 	// if all flags are unset then create the GTP extra header
 	if (header->npduNumberFlag == 0 && header->sequenceNumberFlag == 0 && header->extensionHeaderFlag == 0)
 	{
-		if(!extendLayer(sizeof(gtpv1_header), sizeof(gtpv1_header_extra)))
+		if (!extendLayer(sizeof(gtpv1_header), sizeof(gtpv1_header_extra)))
 		{
 			LOG_ERROR("Set N-PDU failed: cannot extend layer");
 			return false;
@@ -308,7 +308,7 @@ bool GtpV1Layer::setNpduNumber(const uint8_t npduNum)
 	}
 
 	// get the extra header
-	gtpv1_header_extra *headerExtra = getHeaderExtra();
+	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (headerExtra == NULL)
 	{
 		LOG_ERROR("Set N-PDU failed: extra header is NULL");
@@ -325,10 +325,10 @@ bool GtpV1Layer::setNpduNumber(const uint8_t npduNum)
 	return true;
 }
 
-bool GtpV1Layer::getNextExtensionHeaderType(uint8_t &nextExtType) const
+bool GtpV1Layer::getNextExtensionHeaderType(uint8_t& nextExtType) const
 {
-	gtpv1_header *header = getHeader();
-	gtpv1_header_extra *headerExtra = getHeaderExtra();
+	gtpv1_header* header = getHeader();
+	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (header != NULL && headerExtra != NULL && header->extensionHeaderFlag == 1)
 	{
 		nextExtType = headerExtra->nextExtensionHeader;
@@ -353,7 +353,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::getNextExtension() const
 GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_t extensionContent)
 {
 	// get GTP header
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
 		LOG_ERROR("Add extension failed: GTP header is NULL");
@@ -374,7 +374,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 	}
 
 	// get the extra header
-	gtpv1_header_extra *headerExtra = getHeaderExtra();
+	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (headerExtra == NULL)
 	{
 		LOG_ERROR("Add extension failed: extra header is NULL");
@@ -402,7 +402,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 	}
 
 	// allocate extension space in layer (assuming extension length can only be 4 bytes)
-	if (!extendLayer(offsetForNewExtension, 4 * sizeof(uint8_t)))
+	if (!extendLayer(offsetForNewExtension, 4*sizeof(uint8_t)))
 	{
 		LOG_ERROR("Add extension failed: cannot extend layer");
 		return GtpExtension();
@@ -431,7 +431,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 
 GtpV1MessageType GtpV1Layer::getMessageType() const
 {
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 
 	if (header == NULL)
 	{
@@ -522,7 +522,7 @@ const std::map<uint8_t, std::string> GTPv1MsgTypeToStringMap = createGtpV1Messag
 
 std::string GtpV1Layer::getMessageTypeAsString() const
 {
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 
 	if (header == NULL)
 	{
@@ -542,7 +542,7 @@ std::string GtpV1Layer::getMessageTypeAsString() const
 
 bool GtpV1Layer::isGTPUMessage() const
 {
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
 		return false;
@@ -553,7 +553,7 @@ bool GtpV1Layer::isGTPUMessage() const
 
 bool GtpV1Layer::isGTPCMessage() const
 {
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
 		return false;
@@ -572,7 +572,7 @@ void GtpV1Layer::parseNextLayer()
 		return;
 	}
 
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 	if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
 	{
 		// this is a GTP-C message, hence it is the last layer
@@ -587,7 +587,7 @@ void GtpV1Layer::parseNextLayer()
 
 	// GTP-U message, try to parse the next layer
 
-	uint8_t subProto = *(uint8_t *)(m_Data + headerLen);
+	uint8_t subProto = *(uint8_t*)(m_Data + headerLen);
 	if (subProto >= 0x45 && subProto <= 0x4e)
 	{
 		m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
@@ -604,7 +604,7 @@ void GtpV1Layer::parseNextLayer()
 
 size_t GtpV1Layer::getHeaderLen()
 {
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
 		return 0;
@@ -619,7 +619,7 @@ size_t GtpV1Layer::getHeaderLen()
 	}
 	else
 	{
-		gtpv1_header_extra *headerExtra = getHeaderExtra();
+		gtpv1_header_extra* headerExtra = getHeaderExtra();
 		if (headerExtra != NULL && (header->extensionHeaderFlag == 1 || header->sequenceNumberFlag == 1 || header->npduNumberFlag == 1))
 		{
 			res += sizeof(gtpv1_header_extra);
@@ -639,7 +639,7 @@ std::string GtpV1Layer::toString()
 {
 	std::string res = "GTP v1 Layer";
 
-	gtpv1_header *header = getHeader();
+	gtpv1_header* header = getHeader();
 	if (header != NULL)
 	{
 		std::stringstream teidStream;
@@ -663,7 +663,7 @@ std::string GtpV1Layer::toString()
 
 void GtpV1Layer::computeCalculateFields()
 {
-	gtpv1_header *hdr = getHeader();
+	gtpv1_header* hdr = getHeader();
 	if (hdr == NULL)
 	{
 		return;

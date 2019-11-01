@@ -54,15 +54,15 @@ void PPPoESessionLayer::parseNextLayer()
 	if (m_DataLen <= headerLen)
 		return;
 
-	uint8_t *payload = m_Data + headerLen;
+	uint8_t* payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;
 
 	switch (getPPPNextProtocol())
 	{
 	case PCPP_PPP_IP:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			? static_cast<Layer *>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_PPP_IPV6:
 		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);

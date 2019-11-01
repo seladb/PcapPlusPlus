@@ -206,15 +206,15 @@ void GreLayer::parseNextLayer()
 		return;
 
 	gre_basic_header* header = (gre_basic_header*)m_Data;
-	uint8_t *payload = m_Data + headerLen;
+	uint8_t* payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;
 
 	switch (ntohs(header->protocol))
 	{
 	case PCPP_ETHERTYPE_IP:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			? static_cast<Layer *>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_ETHERTYPE_IPV6:
 		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
@@ -565,15 +565,15 @@ void PPP_PPTPLayer::parseNextLayer()
 	if (m_DataLen <= headerLen)
 		return;
 
-	uint8_t *payload = m_Data + headerLen;
+	uint8_t* payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;
 
 	switch (ntohs(getPPP_PPTPHeader()->protocol))
 	{
 	case PCPP_PPP_IP:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			? static_cast<Layer *>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_PPP_IPV6:
 		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);

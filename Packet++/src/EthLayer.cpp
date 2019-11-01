@@ -41,15 +41,15 @@ void EthLayer::parseNextLayer()
 		return;
 
 	ether_header* hdr = getEthHeader();
-	uint8_t *payload = m_Data + sizeof(ether_header);
+	uint8_t* payload = m_Data + sizeof(ether_header);
 	size_t payloadLen = m_DataLen - sizeof(ether_header);
 
 	switch (ntohs(hdr->etherType))
 	{
 	case PCPP_ETHERTYPE_IP:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			? static_cast<Layer *>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_ETHERTYPE_IPV6:
 		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);

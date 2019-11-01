@@ -611,7 +611,7 @@ DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass 
 	}
 
 	// increase number of queries
-	getDnsHeader()->numberOfQuestions = htons((uint16_t)getQueryCount() + 1);
+	getDnsHeader()->numberOfQuestions = htons(getQueryCount() + 1);
 
 	return newQuery;
 }
