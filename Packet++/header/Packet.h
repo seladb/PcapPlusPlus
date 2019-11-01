@@ -282,9 +282,9 @@ namespace pcpp
 		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true);
 
 	private:
-		RawPacket *m_RawPacket;
-		Layer *m_FirstLayer;
-		Layer *m_LastLayer;
+		RawPacket* m_RawPacket;
+		Layer* m_FirstLayer;
+		Layer* m_LastLayer;
 		uint64_t m_ProtocolTypes;
 		size_t m_MaxPacketLen;
 		bool m_FreeRawPacket;

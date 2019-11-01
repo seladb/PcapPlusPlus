@@ -112,7 +112,7 @@ void MplsLayer::parseNextLayer()
 	if (m_DataLen < headerLen + 1)
 		return;
 
-	uint8_t *payload = m_Data + sizeof(mpls_header);
+	uint8_t* payload = m_Data + sizeof(mpls_header);
 	size_t payloadLen = m_DataLen - sizeof(mpls_header);
 
 	if (!isBottomOfStack())

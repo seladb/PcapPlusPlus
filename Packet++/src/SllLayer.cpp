@@ -43,7 +43,7 @@ bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 
 	sll_header* sllHdr = (sll_header*)m_Data;
 	memcpy(sllHdr->link_layer_addr, addr, addrLength);
-	sllHdr->link_layer_addr_len = htons((uint16_t)addrLength);
+	sllHdr->link_layer_addr_len = htons(addrLength);
 
 	return true;
 }
@@ -66,7 +66,7 @@ void SllLayer::parseNextLayer()
 	if (m_DataLen <= sizeof(sll_header))
 		return;
 
-	uint8_t *payload = m_Data + sizeof(sll_header);
+	uint8_t* payload = m_Data + sizeof(sll_header);
 	size_t payloadLen = m_DataLen - sizeof(sll_header);
 
 	sll_header* hdr = getSllHeader();

@@ -76,7 +76,7 @@ namespace pcpp
 			if(m_IsValid)
 			{
 				#if _MSC_VER >= 1800
-				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t *>(m_Address, 6));
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
 				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 				#endif
@@ -100,7 +100,7 @@ namespace pcpp
 		/**
 		 * Overload of the assignment operator
 		 */
-		MacAddress &operator=(std::initializer_list<uint8_t> octets)
+		MacAddress& operator=(std::initializer_list<uint8_t> octets)
 		{
 			m_IsValid = (octets.size() == sizeof m_Address);
 			if(m_IsValid)
