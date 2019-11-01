@@ -105,10 +105,10 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 // For debug purpose only
 // void savePacketToPcap(Packet& packet, std::string fileName)
 // {
-//    pcap_t *pcap;
+//    pcap_t* pcap;
 //    pcap = pcap_open_dead(1, 65565);
 
-//    pcap_dumper_t *d;
+//    pcap_dumper_t* d;
 //    /* open output file */
 //    d = pcap_dump_open(pcap, fileName.c_str());
 //    if (d == NULL)
@@ -123,7 +123,7 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 //    hdr.ts.tv_usec = 0; /* ms */
 //    hdr.caplen = hdr.len = packet.getRawPacket()->getRawDataLen();
 //    /* write single IP packet */
-//    pcap_dump((u_char *)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
+//    pcap_dump((u_char*)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
 //
 //    /* finish up */
 //    pcap_dump_close(d);
@@ -166,12 +166,12 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 {
 	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
-	EthLayer *ethLayer = new EthLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+	EthLayer* ethLayer = new EthLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
-	PayloadLayer *payloadLayer = new PayloadLayer(payload, 4, true);
+	PayloadLayer* payloadLayer = new PayloadLayer(payload, 4, true);
 
-	Packet *ethPacket = new Packet(1);
+	Packet* ethPacket = new Packet(1);
 	PTF_ASSERT_TRUE(ethPacket->addLayer(ethLayer, true));
 	PTF_ASSERT_TRUE(ethPacket->addLayer(payloadLayer, true));
 
@@ -412,10 +412,10 @@ PTF_TEST_CASE(Ipv4PacketParsing)
 
 
 	int buffer3Length = 0;
-	uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/IPv4-bad.dat", buffer3Length);
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IPv4-bad.dat", buffer3Length);
 	PTF_ASSERT_NOT_NULL(buffer3);
 
-	RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
 	Packet bogusPkt(&rawPacket3, IPv4);
 
 	ipv4Layer = bogusPkt.getLayerOfType<IPv4Layer>();
@@ -5833,43 +5833,43 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 PTF_TEST_CASE(ParsePartialPacketTest)
 {
 	int buffer1Length = 0;
-	uint8_t *buffer1 = readFileIntoBuffer("PacketExamples/SSL-ClientHello1.dat", buffer1Length);
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/SSL-ClientHello1.dat", buffer1Length);
 	PTF_ASSERT(!(buffer1 == NULL), "cannot read file SSL-ClientHello1.dat");
 
 	int buffer2Length = 0;
-	uint8_t *buffer2 = readFileIntoBuffer("PacketExamples/IGMPv1_1.dat", buffer2Length);
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IGMPv1_1.dat", buffer2Length);
 	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IGMPv1_1.dat.dat");
 
 	int buffer3Length = 0;
-	uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", buffer3Length);
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", buffer3Length);
 	PTF_ASSERT(!(buffer3 == NULL), "cannot read file TwoHttpRequests1.dat");
 
 	int buffer4Length = 0;
-	uint8_t *buffer4 = readFileIntoBuffer("PacketExamples/PPPoESession2.dat", buffer4Length);
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/PPPoESession2.dat", buffer4Length);
 	PTF_ASSERT(!(buffer4 == NULL), "cannot read file PPPoESession2.dat");
 
 	int buffer5Length = 0;
-	uint8_t *buffer5 = readFileIntoBuffer("PacketExamples/TwoHttpRequests2.dat", buffer5Length);
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/TwoHttpRequests2.dat", buffer5Length);
 	PTF_ASSERT(!(buffer5 == NULL), "cannot read file TwoHttpRequests2.dat");
 
 	int buffer6Length = 0;
-	uint8_t *buffer6 = readFileIntoBuffer("PacketExamples/IcmpTimestampRequest.dat", buffer6Length);
+	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IcmpTimestampRequest.dat", buffer6Length);
 	PTF_ASSERT(!(buffer6 == NULL), "cannot read file IcmpTimestampRequest.dat");
 
 	int buffer7Length = 0;
-	uint8_t *buffer7 = readFileIntoBuffer("PacketExamples/GREv0_2.dat", buffer7Length);
+	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/GREv0_2.dat", buffer7Length);
 	PTF_ASSERT(!(buffer7 == NULL), "cannot read file GREv0_2.dat");
 
 
 	timeval time;
 	gettimeofday(&time, NULL);
-	RawPacket rawPacket1((const uint8_t *)buffer1, buffer1Length, time, true);
-	RawPacket rawPacket2((const uint8_t *)buffer2, buffer2Length, time, true);
-	RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true);
-	RawPacket rawPacket4((const uint8_t *)buffer4, buffer4Length, time, true);
-	RawPacket rawPacket5((const uint8_t *)buffer5, buffer5Length, time, true);
-	RawPacket rawPacket6((const uint8_t *)buffer6, buffer6Length, time, true);
-	RawPacket rawPacket7((const uint8_t *)buffer7, buffer7Length, time, true);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+	RawPacket rawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
+	RawPacket rawPacket6((const uint8_t*)buffer6, buffer6Length, time, true);
+	RawPacket rawPacket7((const uint8_t*)buffer7, buffer7Length, time, true);
 
 	Packet sslPacket(&rawPacket1, TCP);
 	Packet igmpPacket(&rawPacket2, IP);
@@ -5938,7 +5938,7 @@ PTF_TEST_CASE(ParsePartialPacketTest)
 	PTF_ASSERT(grePacket.isPacketOfType(IPv4) == true, "gre packet isn't of type IPv4");
 	PTF_ASSERT(grePacket.isPacketOfType(GREv0) == true, "gre packet isn't of type GREv0");
 	PTF_ASSERT(grePacket.isPacketOfType(UDP) == false, "gre packet is of type UDP");
-	Layer *curLayer = grePacket.getFirstLayer();
+	Layer* curLayer = grePacket.getFirstLayer();
 	PTF_ASSERT(curLayer != NULL && curLayer->getProtocol() == Ethernet, "gre first layer isn't Ethernet");
 	curLayer = curLayer->getNextLayer();
 	PTF_ASSERT(curLayer != NULL && curLayer->getProtocol() == IPv4, "gre second layer isn't IPv4");
@@ -6981,10 +6981,10 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 
 	// incorrect RADIUS packet
 	int buffer3Length = 0;
-	uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/radius_wrong.dat", buffer3Length);
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/radius_wrong.dat", buffer3Length);
 	PTF_ASSERT(buffer3 != NULL, "cannot read file");
 
-	RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true, LINKTYPE_NULL);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true, LINKTYPE_NULL);
 	Packet radiusPacket3(&rawPacket3);
 
 	radiusLayer = radiusPacket3.getLayerOfType<RadiusLayer>();
