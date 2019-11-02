@@ -234,6 +234,17 @@ namespace pcpp
 			class GtpExtension
 			{
 				friend class GtpV1Layer;
+
+			private:
+				uint8_t* m_Data;
+				size_t m_DataLen;
+				uint8_t m_ExtType;
+
+				GtpExtension(uint8_t* data, size_t dataLen, uint8_t type);
+
+				void setNextHeaderType(uint8_t nextHeaderType);
+
+				static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
 			
 			public:
 
@@ -293,17 +304,6 @@ namespace pcpp
 				 * one that GtpExtension#isNull() returns "true"
 				 */
 				GtpExtension getNextExtension() const;
-
-			private:
-				uint8_t* m_Data;
-				size_t m_DataLen;
-				uint8_t m_ExtType;
-
-				GtpExtension(uint8_t* data, size_t dataLen, uint8_t type);
-
-				void setNextHeaderType(uint8_t nextHeaderType);
-
-				static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
 			}; // GtpExtension
 
 			virtual ~GtpV1Layer() {}
@@ -449,6 +449,6 @@ namespace pcpp
 			OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 		};
 
-} // namespace
+}
 
 #endif //PACKETPP_GTP_LAYER

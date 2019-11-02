@@ -46,7 +46,7 @@ StringDnsResourceData::StringDnsResourceData(const uint8_t* dataPtr, size_t data
 	m_Data = tempResult;
 }
 
-bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource)
 {
 	encodeName(m_Data, (char*)arr, arrLength, dnsResource);
 	return true;
@@ -64,7 +64,7 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	m_Data = IPv4Address(addrAsInt);
 }
 
-bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource)
 {
 	if (!m_Data.isValid())
 	{
@@ -90,7 +90,7 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	m_Data = IPv6Address((uint8_t*)dataPtr);
 }
 
-bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource)
 {
 	if (!m_Data.isValid())
 	{
@@ -138,7 +138,7 @@ std::string MxDnsResourceData::toString()
 	return result.str();
 }
 
-bool MxDnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool MxDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource)
 {
 	uint16_t netOrderPreference = htons(m_Data.preference);
 	memcpy(arr, &netOrderPreference, sizeof(uint16_t));
@@ -201,7 +201,7 @@ std::string GenericDnsResourceData::toString()
 	return byteArrayToHexString(m_Data, m_DataLen);
 }
 
-bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource)
 {
 	if (m_DataLen == 0 || m_Data == NULL)
 	{

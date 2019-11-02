@@ -67,12 +67,12 @@ namespace pcpp
 		 * Assign a pointer to the TLV record raw data (byte array)
 		 * @param[in] recordRawData A pointer to the TLV record raw data
 		 */
-		void assign(uint8_t *recordRawData)
+		void assign(uint8_t* recordRawData)
 		{
 			if(recordRawData == NULL)
 				m_Data = NULL;
 			else
-				m_Data = (TLVRawData *)recordRawData;
+				m_Data = (TLVRawData*)recordRawData;
 		}
 
 		/**

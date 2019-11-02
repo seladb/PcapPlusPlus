@@ -756,7 +756,7 @@ namespace pcpp
 		bool initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesToInit);
 		bool startDevice();
 
-		static int dpdkCaptureThreadMain(void *ptr);
+		static int dpdkCaptureThreadMain(void* ptr);
 
 		void clearCoreConfiguration();
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);

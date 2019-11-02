@@ -17,7 +17,7 @@
 namespace pcpp
 {
 
-in_addr* sockaddr2in_addr(struct sockaddr *sa)
+in_addr* sockaddr2in_addr(struct sockaddr* sa)
 {
 	if (sa == NULL)
 		return NULL;
@@ -27,7 +27,7 @@ in_addr* sockaddr2in_addr(struct sockaddr *sa)
 	return NULL;
 }
 
-in6_addr* sockaddr2in6_addr(struct sockaddr *sa)
+in6_addr* sockaddr2in6_addr(struct sockaddr* sa)
 {
 	if (sa->sa_family == AF_INET6)
 		return &(((struct sockaddr_in6*)sa)->sin6_addr);
@@ -35,7 +35,7 @@ in6_addr* sockaddr2in6_addr(struct sockaddr *sa)
 	return NULL;
 }
 
-void sockaddr2string(struct sockaddr *sa, char* resultString)
+void sockaddr2string(struct sockaddr* sa, char* resultString)
 {
 	in_addr* ipv4Addr = sockaddr2in_addr(sa);
 	if (ipv4Addr != NULL)
@@ -336,7 +336,7 @@ inet_pton6(const char* src, uint8_t* dst)
 	saw_xdigit = 0;
 	val = 0;
 	while ((ch = *src++) != '\0') {
-		const char *pch;
+		const char* pch;
 
 		if ((pch = strchr((xdigits = xdigits_l), ch)) == NULL)
 			pch = strchr((xdigits = xdigits_u), ch);

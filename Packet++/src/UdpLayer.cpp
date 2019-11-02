@@ -91,7 +91,7 @@ void UdpLayer::parseNextLayer()
 	uint16_t portDst = ntohs(udpHder->portDst);
 	uint16_t portSrc = ntohs(udpHder->portSrc);
 
-	uint8_t *udpData = m_Data + sizeof(udphdr);
+	uint8_t* udpData = m_Data + sizeof(udphdr);
 	size_t udpDataLen = m_DataLen - sizeof(udphdr);
 
 	if ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) || (portSrc == 67 && portDst == 67))

@@ -776,7 +776,7 @@ void TcpReassembly::closeAllConnections()
 		if (iter->second == NULL) // the connection is already closed, skip it
 			continue;
 
-		TcpReassemblyData *tcpReassemblyData = iter->second;
+		TcpReassemblyData* tcpReassemblyData = iter->second;
 
 		uint32_t flowKey = tcpReassemblyData->connData.flowKey;
 		LOG_DEBUG("Closing connection with flow key 0x%X", flowKey);

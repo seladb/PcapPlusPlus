@@ -119,7 +119,7 @@ namespace pcpp
 		 * Returns the pointer to raw data
 		 * @return The pointer to raw data
 		 */
-		const uint8_t *getRawData() const { return m_Address; }
+		const uint8_t* getRawData() const { return m_Address; }
 
 		/**
 		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from illegal input, for example:

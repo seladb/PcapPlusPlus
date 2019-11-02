@@ -353,7 +353,7 @@ public:
 	 * Get a map of all connections managed by this TcpReassembly instance (both connections that are open and those that are already closed)
 	 * @return A map of all connections managed. Notice this map is constant and cannot be changed by the user
 	 */
-	const ConnectionInfoList &getConnectionInformation() const { return m_ConnectionInfo; }
+	const ConnectionInfoList& getConnectionInformation() const { return m_ConnectionInfo; }
 
 	/**
 	 * Check if a certain connection managed by this TcpReassembly instance is currently opened or closed

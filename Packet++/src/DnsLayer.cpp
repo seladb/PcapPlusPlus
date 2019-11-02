@@ -642,7 +642,7 @@ bool DnsLayer::removeQuery(DnsQuery* queryToRemove)
 	if (res)
 	{
 		// decrease number of query records
-		getDnsHeader()->numberOfQuestions = htons((uint16_t)getQueryCount() - 1);
+		getDnsHeader()->numberOfQuestions = htons(getQueryCount() - 1);
 	}
 
 	return res;
@@ -654,7 +654,7 @@ DnsResource* DnsLayer::addAnswer(const std::string& name, DnsType dnsType, DnsCl
 	if (res != NULL)
 	{
 		// increase number of answer records
-		getDnsHeader()->numberOfAnswers = htons((uint16_t)getAnswerCount() + 1);
+		getDnsHeader()->numberOfAnswers = htons(getAnswerCount() + 1);
 	}
 
 	return res;
@@ -686,7 +686,7 @@ bool DnsLayer::removeAnswer(DnsResource* answerToRemove)
 	if (res)
 	{
 		// decrease number of answer records
-		getDnsHeader()->numberOfAnswers = htons((uint16_t)getAnswerCount() - 1);
+		getDnsHeader()->numberOfAnswers = htons(getAnswerCount() - 1);
 	}
 
 	return res;
@@ -704,7 +704,7 @@ DnsResource* DnsLayer::addAuthority(const std::string& name, DnsType dnsType, Dn
 	if (res != NULL)
 	{
 		// increase number of authority records
-		getDnsHeader()->numberOfAuthority = htons((uint16_t)getAuthorityCount() + 1);
+		getDnsHeader()->numberOfAuthority = htons(getAuthorityCount() + 1);
 	}
 
 	return res;
@@ -736,7 +736,7 @@ bool DnsLayer::removeAuthority(DnsResource* authorityToRemove)
 	if (res)
 	{
 		// decrease number of authority records
-		getDnsHeader()->numberOfAuthority = htons((uint16_t)getAuthorityCount() - 1);
+		getDnsHeader()->numberOfAuthority = htons(getAuthorityCount() - 1);
 	}
 
 	return res;
@@ -749,7 +749,7 @@ DnsResource* DnsLayer::addAdditionalRecord(const std::string& name, DnsType dnsT
 	if (res != NULL)
 	{
 		// increase number of authority records
-		getDnsHeader()->numberOfAdditional = htons((uint16_t)getAdditionalRecordCount() + 1);
+		getDnsHeader()->numberOfAdditional = htons(getAdditionalRecordCount() + 1);
 	}
 
 	return res;
@@ -792,7 +792,7 @@ bool DnsLayer::removeAdditionalRecord(DnsResource* additionalRecordToRemove)
 	if (res)
 	{
 		// decrease number of additional records
-		getDnsHeader()->numberOfAdditional = htons((uint16_t)getAdditionalRecordCount() - 1);
+		getDnsHeader()->numberOfAdditional = htons(getAdditionalRecordCount() - 1);
 	}
 
 	return res;

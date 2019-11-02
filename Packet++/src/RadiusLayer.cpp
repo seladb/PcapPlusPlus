@@ -244,11 +244,11 @@ bool RadiusLayer::removeAllAttributes()
 	return true;
 }
 
-bool RadiusLayer::isDataValid(const uint8_t *udpData, size_t udpDataLen)
+bool RadiusLayer::isDataValid(const uint8_t* udpData, size_t udpDataLen)
 {
 	if(udpData != NULL)
 	{
-		const radius_header *radHdr = reinterpret_cast<const radius_header *>(udpData);
+		const radius_header* radHdr = reinterpret_cast<const radius_header*>(udpData);
 		size_t radLen = ntohs(radHdr->length);
 		return radLen >= sizeof(radius_header) && radLen <= udpDataLen;
 	}
