@@ -292,11 +292,11 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 	{
 		if (pfring_enable_rss_rehash(m_PfRingDescriptors[i]) < 0 || pfring_enable_ring(m_PfRingDescriptors[i]) < 0)
 		{
-		  LOG_ERROR("Unable to enable ring [%d] for device [%s]", i, m_DeviceName);
-		  // close all pfring's that were enabled until now
-		  for (int j = 0; j <ringsOpen; j++)
-		    pfring_close(m_PfRingDescriptors[j]);
-		  return false;
+			LOG_ERROR("Unable to enable ring [%d] for device [%s]", i, m_DeviceName);
+			// close all pfring's that were enabled until now
+			for (int j = 0; j <ringsOpen; j++)
+				pfring_close(m_PfRingDescriptors[j]);
+			return false;
 		}
 	}
 
@@ -545,7 +545,7 @@ void PfRingDevice::stopCapture()
 	LOG_DEBUG("All capturing threads stopped");
 }
 
-void* PfRingDevice::captureThreadMain(void *ptr)
+void* PfRingDevice::captureThreadMain(void* ptr)
 {
 	PfRingDevice* device = (PfRingDevice*)ptr;
 	int coreId = device->getCurrentCoreId().Id;
