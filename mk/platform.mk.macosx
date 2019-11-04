@@ -6,9 +6,9 @@ LIB_PREFIX := lib
 
 LIB_EXT := .a
 
-CXX := g++
+CXX := clang++
 
-CC := gcc
+CC := clang
 
 AR := ar
 
@@ -21,3 +21,5 @@ MKDIR := mkdir
 INSTALL_SCRIPT := install.sh
 
 UNINSTALL_SCRIPT := uninstall.sh
+
+PCAPPP_ENABLE_CPP_FEATURE_DETECTION := YES

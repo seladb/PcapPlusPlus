@@ -22,6 +22,7 @@ EXAMPLE_PCAPSPLITTER := Examples/PcapSplitter
 EXAMPLE_PCAPSEARCH   := Examples/PcapSearch
 EXAMPLE_ICMP_FT      := Examples/IcmpFileTransfer
 EXAMPLE_TCP_REASM    := Examples/TcpReassembly
+EXAMPLE_TCP_SORT     := Examples/TcpSorter
 EXAMPLE_IP_FRAG      := Examples/IPFragUtil
 EXAMPLE_IP_DEFRAG    := Examples/IPDefragUtil
 EXAMPLE_DPDK2        := Examples/DpdkBridge
@@ -47,6 +48,7 @@ all: libs
 	@cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) PcapSearch
 	@cd $(EXAMPLE_ICMP_FT)           && $(MAKE) IcmpFileTransfer-pitcher && $(MAKE) IcmpFileTransfer-catcher
 	@cd $(EXAMPLE_TCP_REASM)         && $(MAKE) TcpReassembly
+	@cd $(EXAMPLE_TCP_SORT)          && $(MAKE) TcpSorter
 	@cd $(EXAMPLE_IP_FRAG)           && $(MAKE) IPFragUtil
 	@cd $(EXAMPLE_IP_DEFRAG)         && $(MAKE) IPDefragUtil
 ifdef USE_DPDK
@@ -70,6 +72,7 @@ endif
 	$(CP) $(EXAMPLE_PCAPSEARCH)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_ICMP_FT)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_TCP_REASM)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_TCP_SORT)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_IP_FRAG)/Bin/* ./Dist/examples	
 	$(CP) $(EXAMPLE_IP_DEFRAG)/Bin/* ./Dist/examples	
 ifdef USE_DPDK
@@ -118,6 +121,7 @@ clean:
 	@cd $(EXAMPLE_PCAPSEARCH)        && $(MAKE) clean
 	@cd $(EXAMPLE_ICMP_FT)           && $(MAKE) clean
 	@cd $(EXAMPLE_TCP_REASM)         && $(MAKE) clean
+	@cd $(EXAMPLE_TCP_SORT)          && $(MAKE) clean
 	@cd $(EXAMPLE_IP_FRAG)           && $(MAKE) clean
 	@cd $(EXAMPLE_IP_DEFRAG)         && $(MAKE) clean
 ifdef USE_DPDK
