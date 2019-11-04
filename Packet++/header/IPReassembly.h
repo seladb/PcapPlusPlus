@@ -298,7 +298,8 @@ namespace pcpp
 		 * onFragmentsCleanCallback. This parameter is optional, default cookie is NULL
 		 * @param[in] maxPacketsToStore Set the capacity limit of the IP reassembly mechanism. Default capacity is #PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE
 		 */
-		IPReassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, void* callbackUserCookie = NULL, size_t maxPacketsToStore = PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE);
+		IPReassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, void *callbackUserCookie = NULL, size_t maxPacketsToStore = PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE)
+			: m_PacketLRU(maxPacketsToStore), m_OnFragmentsCleanCallback(onFragmentsCleanCallback), m_CallbackUserCookie(callbackUserCookie) {}
 
 		/**
 		 * A d'tor for this class
@@ -385,7 +386,7 @@ namespace pcpp
 		/**
 		 * Get the maximum capacity as determined in the c'tor
 		 */
-		size_t getMaxCapacity() const { return (int)m_PacketLRU->getMaxSize(); }
+		size_t getMaxCapacity() const { return m_PacketLRU.getMaxSize(); }
 
 		/**
 		 * Get the current number of packets being processed
@@ -416,7 +417,7 @@ namespace pcpp
 			~IPFragmentData() { delete packetKey; if (deleteData && data != NULL) { delete data; } }
 		};
 
-		LRUList<uint32_t>* m_PacketLRU;
+		LRUList<uint32_t> m_PacketLRU;
 		std::map<uint32_t, IPFragmentData*> m_FragmentMap;
 		OnFragmentsClean m_OnFragmentsCleanCallback;
 		void* m_CallbackUserCookie;
