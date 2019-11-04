@@ -74,7 +74,7 @@ bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 
 	uint32_t addrAsInt = m_Data.toInt();
 	arrLength = sizeof(addrAsInt);
-	memcpy(arr, &addrAsInt, sizeof addrAsInt);
+	memcpy(arr, &addrAsInt, sizeof(addrAsInt));
 
 	return true;
 }
