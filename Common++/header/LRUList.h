@@ -40,7 +40,7 @@ namespace pcpp
 		/**
 		 * Puts an element in the list. This element will be inserted (or advanced if it already exists) to the head of the
 		 * list as the most recently used element. If the list already reached its max size and the element is new this method
-		 * will remove the least recently used element and return a pointer to it. Method complexity is O(log(size()))
+		 * will remove the least recently used element and return a pointer to it. Method complexity is O(log(getSize()))
 		 * @param[in] element The element to insert or to advance to the head of the list (if already exists)
 		 * @return A pointer to the element that was removed from the list in case the list already reached its max size.
 		 * If the list didn't reach its max size NULL will be returned. Notice it's the responsibility of the user to free
@@ -75,12 +75,12 @@ namespace pcpp
 		/**
 		 * Puts an element in the list. This element will be inserted (or advanced if it already exists) to the head of the
 		 * list as the most recently used element. If the list already reached its max size and the element is new this method
-		 * will remove the least recently used element and return a value in deletedValue. Method complexity is O(log(size())).
+		 * will remove the least recently used element and return a value in deletedValue. Method complexity is O(log(getSize())).
 		 * This is a optimized version of the method T* put(const T&).
 		 * @param[in] element The element to insert or to advance to the head of the list (if already exists)
 		 * @param[out] deletedValue The value of deleted element (if a pointer is not NULL)
 		 * @return 0 if the list didn't reach its max size, 1 otherwise. In case the list already reached its max size
-		 * and deletedValue is not NULL the value of deleted element is copied into the place the deletedValue is points to.
+		 * and deletedValue is not NULL the value of deleted element is copied into the place the deletedValue points to.
 		 */
 		int put(const T& element, T* deletedValue)
 		{
