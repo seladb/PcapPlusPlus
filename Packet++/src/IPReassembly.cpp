@@ -442,13 +442,13 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		{
 			Packet tempPacket(fragData->data, IPv4);
 			iphdr* iphdr = tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header();
-            iphdr->totalLength = htons(fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen());
-            iphdr->fragmentOffset = 0;
+			iphdr->totalLength = htons(fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen());
+			iphdr->fragmentOffset = 0;
 		}
 		else
 		{
 			Packet tempPacket(fragData->data, IPv6);
-			tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset;	
+			tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset;
 		}
 
 		// create a new Packet object with the reassembled data as its RawPacket
