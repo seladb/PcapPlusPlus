@@ -441,12 +441,14 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		if (fragData->packetKey->getProtocolType() == IPv4)
 		{
 			Packet tempPacket(fragData->data, IPv4);
-			tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header()->totalLength = htons(fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen());
+			iphdr* iphdr = tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header();
+            iphdr->totalLength = htons(fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen());
+            iphdr->fragmentOffset = 0;
 		}
 		else
 		{
 			Packet tempPacket(fragData->data, IPv6);
-			tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset;
+			tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset;	
 		}
 
 		// create a new Packet object with the reassembled data as its RawPacket
@@ -454,12 +456,8 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 
 		if (fragData->packetKey->getProtocolType() == IPv4)
 		{
-			// set the fragment offset to 0
-			IPv4Layer* ipLayer = reassembledPacket->getLayerOfType<IPv4Layer>();
-			ipLayer->getIPv4Header()->fragmentOffset = 0;
-
 			// re-calculate all IPv4 fields
-			ipLayer->computeCalculateFields();
+			reassembledPacket->getLayerOfType<IPv4Layer>()->computeCalculateFields();
 		}
 		else
 		{
