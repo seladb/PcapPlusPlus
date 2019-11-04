@@ -4,6 +4,10 @@
 #include <map>
 #include <list>
 
+#if __cplusplus > 199711L || _MSC_VER >= 1800
+#include <utility>
+#endif
+
 /// @file
 
 /**
@@ -100,8 +104,11 @@ namespace pcpp
 				lruIter--;
 
 				if (deletedValue != NULL)
+#if __cplusplus > 199711L || _MSC_VER >= 1800
+					*deletedValue = std::move(*lruIter);
+#else
 					*deletedValue = *lruIter;
-
+#endif
 				m_CacheItemsMap.erase(*lruIter);
 				m_CacheItemsList.erase(lruIter);
 				return 1;
