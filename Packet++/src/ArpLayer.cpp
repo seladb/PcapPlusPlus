@@ -38,10 +38,7 @@ void ArpLayer::computeCalculateFields()
 	arpHeader->protocolType = htons(PCPP_ETHERTYPE_IP); //assume IPv4 over ARP
 	arpHeader->protocolSize = 4; //assume IPv4 over ARP
 	if (arpHeader->opcode == htons(ARP_REQUEST))
-	{
-		MacAddress targetMacAddress("00:00:00:00:00:00");
-		targetMacAddress.copyTo(arpHeader->targetMacAddr);
-	}
+		MacAddress::Zero.copyTo(arpHeader->targetMacAddr);
 }
 
 std::string ArpLayer::toString()
