@@ -21,13 +21,18 @@ static std::map<uint16_t, bool> createSSLPortMap()
 	std::map<uint16_t, bool> result;
 
 	result[0]   = true; //default
+	result[261] = true; //NSIIOPS
 	result[443] = true; //HTTPS
+	result[448] = true; //DDM-SSL
 	result[465] = true; //SMTPS
+	result[563] = true; //NNTPS
+	result[614] = true; //SSHELL
 	result[636] = true; //LDAPS
 	result[989] = true; //FTPS - data
 	result[990] = true; //FTPS - control
 	result[992] = true; //Telnet over TLS/SSL
 	result[993] = true; //IMAPS
+	result[994] = true; //IRCS
 	result[995] = true; //POP3S
 
 	return result;
@@ -35,6 +40,31 @@ static std::map<uint16_t, bool> createSSLPortMap()
 
 static const std::map<uint16_t, bool> SSLPortMap = createSSLPortMap();
 
+static bool isSSLPort(uint16_t port)
+{
+	if (port == 443) // HTTPS, this is likely case
+		return true;
+
+	switch (port)
+	{
+	case 0:   // default
+	case 261: // NSIIOPS
+	case 448: // DDM-SSL
+	case 465: // SMTPS
+	case 563: // NNTPS
+	case 614: // SSHELL
+	case 636: // LDAPS
+	case 989: // FTPS - data
+	case 990: // FTPS - control
+	case 992: // Telnet over TLS/SSL
+	case 993: // IMAPS
+	case 994: // IRCS
+	case 995: // POP3S
+		return true;
+	default:
+		return false;
+	}
+}
 
 // ----------------
 // SSLLayer methods
@@ -43,7 +73,7 @@ static const std::map<uint16_t, bool> SSLPortMap = createSSLPortMap();
 bool SSLLayer::IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen)
 {
 	// check the port map first
-	if (SSLPortMap.find(srcPort) == SSLPortMap.end() && SSLPortMap.find(dstPort) == SSLPortMap.end())
+	if (!isSSLPort(srcPort) && !isSSLPort(dstPort))
 		return false;
 
 	if (dataLen < sizeof(ssl_tls_record_layer))
