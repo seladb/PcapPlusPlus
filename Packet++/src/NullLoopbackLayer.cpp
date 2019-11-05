@@ -52,15 +52,15 @@ void NullLoopbackLayer::setFamily(uint32_t family)
 
 void NullLoopbackLayer::parseNextLayer()
 {
-	uint8_t *payload = m_Data + sizeof(uint32_t);
+	uint8_t* payload = m_Data + sizeof(uint32_t);
 	size_t payloadLen = m_DataLen - sizeof(uint32_t);
 
 	switch (getFamily())
 	{
 	case PCPP_BSD_AF_INET:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
-			? static_cast<Layer *>(new IPv4Layer(payload, payloadLen, this, m_Packet))
-			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_BSD_AF_INET6_BSD:
 	case PCPP_BSD_AF_INET6_FREEBSD:

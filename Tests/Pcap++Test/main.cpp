@@ -5430,6 +5430,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_reassembled.txt", bufferLength);
 
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "IPv4: Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "IPv4: Reassembled packet data is different than expected");
 
@@ -5474,6 +5475,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	// small fix for payload length which is wrong in the original packet
 	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(737);
 
@@ -5570,6 +5572,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 
@@ -5610,10 +5613,12 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 
@@ -5651,6 +5656,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
@@ -5700,6 +5706,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 

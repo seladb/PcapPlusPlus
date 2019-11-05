@@ -46,7 +46,7 @@ IcmpLayer::IcmpLayer() : Layer()
 	m_Protocol = ICMP;
 }
 
-IcmpMessageType IcmpLayer::getMessageType()
+IcmpMessageType IcmpLayer::getMessageType() const
 {
 	uint8_t type = getIcmpHeader()->type;
 	if (type > 18)
@@ -55,7 +55,7 @@ IcmpMessageType IcmpLayer::getMessageType()
 	return (IcmpMessageType)type;
 }
 
-bool IcmpLayer::isMessageOfType(IcmpMessageType type)
+bool IcmpLayer::isMessageOfType(IcmpMessageType type) const
 {
 	return (getMessageType() == type);
 }

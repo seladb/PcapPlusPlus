@@ -158,7 +158,7 @@ void IDnsResource::encodeName(const std::string& decodedName, char* result, size
 }
 
 
-DnsType IDnsResource::getDnsType()
+DnsType IDnsResource::getDnsType() const
 {
 	uint16_t dnsType = *(uint16_t*)(getRawData() + m_NameLength);
 	return (DnsType)ntohs(dnsType);
@@ -210,8 +210,8 @@ bool IDnsResource::setName(const std::string& newName)
 	{
 		size_t size = getSize();
 		char* tempData = new char[size];
-		memcpy(tempData, m_ExternalRawData, getSize());
-		memcpy(m_ExternalRawData + encodedNameLen, tempData, getSize());
+		memcpy(tempData, m_ExternalRawData, size);
+		memcpy(m_ExternalRawData + encodedNameLen, tempData, size);
 		delete[] tempData;
 	}
 
@@ -230,7 +230,7 @@ void IDnsResource::setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer)
 	m_ExternalRawData = NULL;
 }
 
-uint32_t DnsResource::getTTL()
+uint32_t DnsResource::getTTL() const
 {
 	uint32_t ttl = *(uint32_t*)(getRawData() + m_NameLength + 2*sizeof(uint16_t));
 	return ntohl(ttl);
@@ -242,7 +242,7 @@ void DnsResource::setTTL(uint32_t newTTL)
 	memcpy(getRawData() + m_NameLength + 2*sizeof(uint16_t), &newTTL, sizeof(uint32_t));
 }
 
-size_t DnsResource::getDataLength()
+size_t DnsResource::getDataLength() const
 {
 	uint16_t dataLength = *(uint16_t*)(getRawData() + m_NameLength + 2*sizeof(uint16_t) + sizeof(uint32_t));
 	return ntohs(dataLength);
@@ -293,7 +293,7 @@ DnsResourceDataPtr DnsResource::getData()
 	}
 }
 
-size_t DnsResource::getDataOffset()
+size_t DnsResource::getDataOffset() const
 {
 	return (size_t)(m_OffsetInLayer + m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t));
 }
@@ -396,13 +396,13 @@ bool DnsResource::setData(IDnsResourceData* data)
 	// write data to resource
 	memcpy(getRawData() + dataOffset, dataAsByteArr, dataLength);
 	//update data length in resource
-	dataLength = htons(dataLength);
+	dataLength = htons((uint16_t)dataLength);
 	memcpy(getRawData() + dataLengthOffset, &dataLength, sizeof(uint16_t));
 
 	return true;
 }
 
-uint16_t DnsResource::getCustomDnsClass()
+uint16_t DnsResource::getCustomDnsClass() const
 {
 	uint16_t value = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
 	return ntohs(value);

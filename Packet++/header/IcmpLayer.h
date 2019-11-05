@@ -410,18 +410,18 @@ namespace pcpp
 		 * Get a pointer to the basic ICMP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref icmphdr
 		 */
-		inline icmphdr* getIcmpHeader() const { return (icmphdr*)m_Data; }
+		icmphdr* getIcmpHeader() const { return (icmphdr*)m_Data; }
 
 		/**
 		 * @return The ICMP message type
 		 */
-		IcmpMessageType getMessageType();
+		IcmpMessageType getMessageType() const;
 
 		/**
 		 * @param[in] type Type to check
 		 * @return True if the layer if of the given type, false otherwise
 		 */
-		bool isMessageOfType(IcmpMessageType type);
+		bool isMessageOfType(IcmpMessageType type) const;
 
 		/**
 		 * @return ICMP echo (ping) request data. If the layer isn't of type ICMP echo request NULL is returned
@@ -695,7 +695,7 @@ namespace pcpp
 
 		std::string toString();
 
-        OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 	};
 
 } // namespace pcpp

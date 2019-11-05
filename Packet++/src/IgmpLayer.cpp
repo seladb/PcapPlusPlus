@@ -39,7 +39,7 @@ void IgmpLayer::setGroupAddress(const IPv4Address& groupAddr)
 	hdr->groupAddress = groupAddr.toInt();
 }
 
-IgmpType IgmpLayer::getType()
+IgmpType IgmpLayer::getType() const
 {
 	uint8_t type = getIgmpHeader()->type;
 	if (type < (uint8_t)IgmpType_MembershipQuery ||
@@ -102,7 +102,7 @@ uint16_t IgmpLayer::calculateChecksum()
 	return compute_checksum(&buffer, 1);
 }
 
-size_t IgmpLayer::getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType)
+size_t IgmpLayer::getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const
 {
 	if (igmpVer == IGMPv1 || igmpVer == IGMPv2)
 		return sizeof(igmp_header);
@@ -255,12 +255,12 @@ IgmpV3QueryLayer::IgmpV3QueryLayer(const IPv4Address& multicastAddr, uint8_t max
 	getIgmpV3QueryHeader()->s_qrv = s_qrv;
 }
 
-uint16_t IgmpV3QueryLayer::getSourceAddressCount()
+uint16_t IgmpV3QueryLayer::getSourceAddressCount() const
 {
 	return ntohs(getIgmpV3QueryHeader()->numOfSources);
 }
 
-IPv4Address IgmpV3QueryLayer::getSourceAddressAtIndex(int index)
+IPv4Address IgmpV3QueryLayer::getSourceAddressAtIndex(int index) const
 {
 	uint16_t numOfSources = getSourceAddressCount();
 	if (index < 0 || index >= numOfSources)
@@ -393,7 +393,7 @@ IgmpV3ReportLayer::IgmpV3ReportLayer() :
 {
 }
 
-uint16_t IgmpV3ReportLayer::getGroupRecordCount()
+uint16_t IgmpV3ReportLayer::getGroupRecordCount() const
 {
 	return ntohs(getReportHeader()->numOfGroupRecords);
 
@@ -568,28 +568,28 @@ bool IgmpV3ReportLayer::removeAllGroupRecords()
  * igmpv3_group_record
  *********************/
 
-IPv4Address igmpv3_group_record::getMulticastAddress()
+IPv4Address igmpv3_group_record::getMulticastAddress() const
 {
 	return IPv4Address(multicastAddress);
 }
 
-uint16_t igmpv3_group_record::getSourceAdressCount()
+uint16_t igmpv3_group_record::getSourceAdressCount() const
 {
 	return ntohs(numOfSources);
 }
 
-IPv4Address igmpv3_group_record::getSoruceAddressAtIndex(int index)
+IPv4Address igmpv3_group_record::getSoruceAddressAtIndex(int index) const
 {
 	uint16_t numOfRecords = getSourceAdressCount();
 	if (index < 0 || index >= numOfRecords)
 		return IPv4Address::Zero;
 
 	int offset = index * sizeof(uint32_t);
-	uint8_t* ptr = sourceAddresses + offset;
+	const uint8_t* ptr = sourceAddresses + offset;
 	return IPv4Address(*(uint32_t*)ptr);
 }
 
-size_t igmpv3_group_record::getRecordLen()
+size_t igmpv3_group_record::getRecordLen() const
 {
 	uint16_t numOfRecords = getSourceAdressCount();
 

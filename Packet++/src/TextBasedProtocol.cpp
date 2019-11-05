@@ -9,9 +9,9 @@ namespace pcpp
 {
 
 // this implementation of strnlen is required since mingw doesn't have strnlen
-size_t tbp_my_own_strnlen(const char *s, size_t n)
+size_t tbp_my_own_strnlen(const char* s, size_t n)
 {
-	const char *p = s;
+	const char* p = s;
 	/* We don't check here for NULL pointers.  */
 	for (;*p != 0 && n > 0; p++, n--)
 		;
@@ -28,7 +28,6 @@ TextBasedProtocolMessage::TextBasedProtocolMessage(uint8_t* data, size_t dataLen
 TextBasedProtocolMessage::TextBasedProtocolMessage(const TextBasedProtocolMessage& other) : Layer(other)
 {
 	copyDataFrom(other);
-
 }
 
 TextBasedProtocolMessage& TextBasedProtocolMessage::operator=(const TextBasedProtocolMessage& other)
@@ -80,7 +79,6 @@ void TextBasedProtocolMessage::copyDataFrom(const TextBasedProtocolMessage& othe
 	{
 		m_FieldNameToFieldMap.insert(std::pair<std::string, HeaderField*>(field->getFieldName(), field));
 	}
-
 }
 
 
@@ -120,7 +118,7 @@ void TextBasedProtocolMessage::parseFields()
 			curField = newField;
 			fieldName = newField->getFieldName();
 			std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
-			m_FieldNameToFieldMap.insert(std::pair<std::string, HeaderField *>(fieldName, newField));
+			m_FieldNameToFieldMap.insert(std::pair<std::string, HeaderField*>(fieldName, newField));
 		}
 		else
 		{
@@ -259,16 +257,16 @@ bool TextBasedProtocolMessage::removeField(std::string fieldName, int index)
 	std::pair <std::multimap<std::string,HeaderField*>::iterator, std::multimap<std::string,HeaderField*>::iterator> range;
 	range = m_FieldNameToFieldMap.equal_range(fieldName);
 	int i = 0;
-    for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
-    {
-    	if (i == index)
-    	{
-    		fieldToRemove = iter->second;
-    		break;
-    	}
+	for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
+	{
+		if (i == index)
+		{
+			fieldToRemove = iter->second;
+			break;
+		}
 
-    	i++;
-    }
+		i++;
+	}
 
 	if (fieldToRemove != NULL)
 		return removeField(fieldToRemove);
@@ -341,14 +339,14 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 	std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
 	std::pair <std::multimap<std::string,HeaderField*>::iterator, std::multimap<std::string,HeaderField*>::iterator> range;
 	range = m_FieldNameToFieldMap.equal_range(fieldName);
-    for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
-    {
-    	if (iter->second == fieldToRemove)
-    	{
-    		m_FieldNameToFieldMap.erase(iter);
-    		break;
-    	}
-    }
+	for (std::multimap<std::string,HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
+	{
+		if (iter->second == fieldToRemove)
+		{
+			m_FieldNameToFieldMap.erase(iter);
+			break;
+		}
+	}
 
 	// finally - delete this field
 	delete fieldToRemove;
@@ -356,7 +354,7 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 	return true;
 }
 
-bool TextBasedProtocolMessage::isHeaderComplete()
+bool TextBasedProtocolMessage::isHeaderComplete() const
 {
 	if (m_LastField == NULL)
 		return false;
@@ -383,17 +381,17 @@ HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName, int
 	range = m_FieldNameToFieldMap.equal_range(fieldName);
 	int i = 0;
 	for (std::multimap<std::string,HeaderField*>::const_iterator iter = range.first; iter != range.second; ++iter)
-    {
-    	if (i == index)
-    		return iter->second;
+	{
+		if (i == index)
+			return iter->second;
 
-    	i++;
-    }
+		i++;
+	}
 
-    return NULL;
+	return NULL;
 }
 
-int TextBasedProtocolMessage::getFieldCount()
+int TextBasedProtocolMessage::getFieldCount() const
 {
 	int result = 0;
 
@@ -440,7 +438,7 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 {
 	char* fieldData = (char*)(m_TextBasedProtocolMessage->m_Data + m_NameOffsetInMessage);
 	//char* fieldEndPtr = strchr(fieldData, '\n');
-	char* fieldEndPtr = (char *)memchr(fieldData, '\n',m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
+	char* fieldEndPtr = (char*)memchr(fieldData, '\n',m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
 	if (fieldEndPtr == NULL)
 		m_FieldSize = tbp_my_own_strnlen(fieldData, m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
 	else
@@ -459,7 +457,7 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 		m_IsEndOfHeaderField = false;
 
 //	char* fieldValuePtr = strchr(fieldData, ':');
-	char* fieldValuePtr = (char *)memchr(fieldData, nameValueSeperator, m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
+	char* fieldValuePtr = (char*)memchr(fieldData, nameValueSeperator, m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
 	// could not find the position of the separator, meaning field value position is unknown
 	if (fieldValuePtr == NULL)
 	{

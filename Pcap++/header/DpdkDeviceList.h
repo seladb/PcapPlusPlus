@@ -85,7 +85,7 @@ namespace pcpp
 		bool initDpdkDevices(uint32_t mBufPoolSizePerDevice);
 		static bool verifyHugePagesAndDpdkDriver();
 
-		static int dpdkWorkerThreadStart(void *ptr);
+		static int dpdkWorkerThreadStart(void* ptr);
 	public:
 
 		~DpdkDeviceList();

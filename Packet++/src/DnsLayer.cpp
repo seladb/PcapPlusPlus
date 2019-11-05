@@ -46,9 +46,10 @@ DnsLayer::DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pack
 
 DnsLayer::DnsLayer()
 {
-	m_DataLen = sizeof(dnshdr);
-	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, m_DataLen);
+	const size_t headerLen = sizeof(dnshdr);
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
+	memset(m_Data, 0, headerLen);
 	m_Protocol = DNS;
 
 	m_ResourceList = NULL;
@@ -228,7 +229,7 @@ void DnsLayer::parseResources()
 
 }
 
-IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name, bool exactMatch)
+IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name, bool exactMatch) const
 {
 	uint16_t i = 0;
 	while (i < resourceCount)
@@ -260,13 +261,13 @@ DnsQuery* DnsLayer::getQuery(const std::string& name, bool exactMatch)
 }
 
 
-DnsQuery* DnsLayer::getFirstQuery()
+DnsQuery* DnsLayer::getFirstQuery() const
 {
 	return m_FirstQuery;
 }
 
 
-DnsQuery* DnsLayer::getNextQuery(DnsQuery* query)
+DnsQuery* DnsLayer::getNextQuery(DnsQuery* query) const
 {
 	if (query == NULL 
 		|| query->getNextResource() == NULL 
@@ -277,12 +278,12 @@ DnsQuery* DnsLayer::getNextQuery(DnsQuery* query)
 	return (DnsQuery*)(query->getNextResource());
 }
 
-size_t DnsLayer::getQueryCount()
+size_t DnsLayer::getQueryCount() const
 {
 	return ntohs(getDnsHeader()->numberOfQuestions);
 }
 
-DnsResource* DnsLayer::getAnswer(const std::string& name, bool exactMatch)
+DnsResource* DnsLayer::getAnswer(const std::string& name, bool exactMatch) const
 {
 	uint16_t numOfAnswers = ntohs(getDnsHeader()->numberOfAnswers);
 	IDnsResource* res = getResourceByName(m_FirstAnswer, numOfAnswers, name, exactMatch);
@@ -291,12 +292,12 @@ DnsResource* DnsLayer::getAnswer(const std::string& name, bool exactMatch)
 	return NULL;
 }
 
-DnsResource* DnsLayer::getFirstAnswer()
+DnsResource* DnsLayer::getFirstAnswer() const
 {
 	return m_FirstAnswer;
 }
 
-DnsResource* DnsLayer::getNextAnswer(DnsResource* answer)
+DnsResource* DnsLayer::getNextAnswer(DnsResource* answer) const
 {
 	if (answer == NULL
 		|| answer->getNextResource() == NULL
@@ -307,12 +308,12 @@ DnsResource* DnsLayer::getNextAnswer(DnsResource* answer)
 	return (DnsResource*)(answer->getNextResource());
 }
 
-size_t DnsLayer::getAnswerCount()
+size_t DnsLayer::getAnswerCount() const
 {
 	return ntohs(getDnsHeader()->numberOfAnswers);
 }
 
-DnsResource* DnsLayer::getAuthority(const std::string& name, bool exactMatch)
+DnsResource* DnsLayer::getAuthority(const std::string& name, bool exactMatch) const
 {
 	uint16_t numOfAuthorities = ntohs(getDnsHeader()->numberOfAuthority);
 	IDnsResource* res = getResourceByName(m_FirstAuthority, numOfAuthorities, name, exactMatch);
@@ -321,12 +322,12 @@ DnsResource* DnsLayer::getAuthority(const std::string& name, bool exactMatch)
 	return NULL;
 }
 
-DnsResource* DnsLayer::getFirstAuthority()
+DnsResource* DnsLayer::getFirstAuthority() const
 {
 	return m_FirstAuthority;
 }
 
-DnsResource* DnsLayer::getNextAuthority(DnsResource* authority)
+DnsResource* DnsLayer::getNextAuthority(DnsResource* authority) const
 {
 	if (authority == NULL
 		|| authority->getNextResource() == NULL
@@ -337,12 +338,12 @@ DnsResource* DnsLayer::getNextAuthority(DnsResource* authority)
 	return (DnsResource*)(authority->getNextResource());
 }
 
-size_t DnsLayer::getAuthorityCount()
+size_t DnsLayer::getAuthorityCount() const
 {
 	return ntohs(getDnsHeader()->numberOfAuthority);
 }
 
-DnsResource* DnsLayer::getAdditionalRecord(const std::string& name, bool exactMatch)
+DnsResource* DnsLayer::getAdditionalRecord(const std::string& name, bool exactMatch) const
 {
 	uint16_t numOfAdditionalRecords = ntohs(getDnsHeader()->numberOfAdditional);
 	IDnsResource* res = getResourceByName(m_FirstAdditional, numOfAdditionalRecords, name, exactMatch);
@@ -351,12 +352,12 @@ DnsResource* DnsLayer::getAdditionalRecord(const std::string& name, bool exactMa
 	return NULL;
 }
 
-DnsResource* DnsLayer::getFirstAdditionalRecord()
+DnsResource* DnsLayer::getFirstAdditionalRecord() const
 {
 	return m_FirstAdditional;
 }
 
-DnsResource* DnsLayer::getNextAdditionalRecord(DnsResource* additionalRecord)
+DnsResource* DnsLayer::getNextAdditionalRecord(DnsResource* additionalRecord) const
 {
 	if (additionalRecord == NULL
 		|| additionalRecord->getNextResource() == NULL
@@ -367,7 +368,7 @@ DnsResource* DnsLayer::getNextAdditionalRecord(DnsResource* additionalRecord)
 	return (DnsResource*)(additionalRecord->getNextResource());
 }
 
-size_t DnsLayer::getAdditionalRecordCount()
+size_t DnsLayer::getAdditionalRecordCount() const
 {
 	return ntohs(getDnsHeader()->numberOfAdditional);
 }
@@ -416,7 +417,7 @@ std::string DnsLayer::toString()
 	}
 }
 
-IDnsResource* DnsLayer::getFirstResource(DnsResourceType resType)
+IDnsResource* DnsLayer::getFirstResource(DnsResourceType resType) const
 {
 	switch (resType)
 	{
@@ -475,7 +476,7 @@ DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& n
 {
 	// create new query on temporary buffer
 	uint8_t newResourceRawData[256];
-	memset(newResourceRawData, 0, 256);
+	memset(newResourceRawData, 0, sizeof(newResourceRawData));
 
 	DnsResource* newResource = new DnsResource(newResourceRawData, resType);
 

@@ -188,7 +188,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		inline HttpRequestFirstLine* getFirstLine() { return m_FirstLine; }
+		HttpRequestFirstLine* getFirstLine() const { return m_FirstLine; }
 
 		/**
 		 * The URL is hostname+uri. So given the following URL, for example: "www.cnn.com/main.html", the hostname is "www.cnn.com" and the URI
@@ -439,7 +439,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		inline HttpResponseFirstLine* getFirstLine() { return m_FirstLine; }
+		HttpResponseFirstLine* getFirstLine() const { return m_FirstLine; }
 
 		/**
 		 * The length of the body of many HTTP response messages is determined by a HTTP header field called "Content-Length". This method sets
@@ -460,7 +460,7 @@ namespace pcpp
 		 * parses this field, extracts its value and return it. If this field doesn't exist the method will return 0
 		 * @return HTTP response body length determined by "Content-Length" field
 		 */
-		int getContentLength();
+		int getContentLength() const;
 
 		// implement Layer's abstract methods
 
@@ -607,17 +607,17 @@ namespace pcpp
 		/**
 		 * @return The status code as HttpResponseLayer::HttpResponseStatusCode enum
 		 */
-		inline HttpResponseLayer::HttpResponseStatusCode getStatusCode() { return m_StatusCode; }
+		HttpResponseLayer::HttpResponseStatusCode getStatusCode() const { return m_StatusCode; }
 
 		/**
 		 * @return The status code number as integer (e.g 200, 404, etc.)
 		 */
-		int getStatusCodeAsInt();
+		int getStatusCodeAsInt() const;
 
 		/**
 		 * @return The status code message (e.g "OK", "Not Found", etc.)
 		 */
-		std::string getStatusCodeString();
+		std::string getStatusCodeString() const;
 
 		/**
 		 * Set the status code

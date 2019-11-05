@@ -194,7 +194,7 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	parseVersion();
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = (char *)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n', m_HttpRequest->m_DataLen-(size_t)m_VersionOffset)) != NULL)
+	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n', m_HttpRequest->m_DataLen-(size_t)m_VersionOffset)) != NULL)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_HttpRequest->m_Data + 1;
 		m_IsComplete = true;
@@ -731,7 +731,7 @@ HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::s
 	return contentLengthField;
 }
 
-int HttpResponseLayer::getContentLength()
+int HttpResponseLayer::getContentLength() const
 {
 	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
@@ -779,12 +779,12 @@ std::string HttpResponseLayer::toString()
 
 
 
-int HttpResponseFirstLine::getStatusCodeAsInt()
+int HttpResponseFirstLine::getStatusCodeAsInt() const
 {
 	return StatusCodeEnumToInt[m_StatusCode];
 }
 
-std::string HttpResponseFirstLine::getStatusCodeString()
+std::string HttpResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
 	int statusStringOffset = 13;
@@ -1245,7 +1245,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = (char *)memchr((char*)(m_HttpResponse->m_Data), '\n', m_HttpResponse->m_DataLen)) != NULL)
+	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpResponse->m_Data), '\n', m_HttpResponse->m_DataLen)) != NULL)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_HttpResponse->m_Data + 1;
 		m_IsComplete = true;

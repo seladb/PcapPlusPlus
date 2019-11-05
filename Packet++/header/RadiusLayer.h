@@ -310,7 +310,7 @@ namespace pcpp
 		 * @param[in] udpDataLen The payload data size
 		 * @return True if the data is valid and can represent the RADIUS packet
 		 */
-		static bool isDataValid(const uint8_t *udpData, size_t udpDataLen);
+		static bool isDataValid(const uint8_t* udpData, size_t udpDataLen);
 
 	};
 }

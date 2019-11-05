@@ -274,7 +274,7 @@ namespace pcpp
 		/**
 		 * @return RawPacket object type. Each derived class should return a different value
 		 */
-		virtual inline uint8_t getObjectType() const { return 0; }
+		virtual uint8_t getObjectType() const { return 0; }
 
 		/**
 		 * Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be freed first
@@ -292,7 +292,7 @@ namespace pcpp
 		 * Get raw data pointer
 		 * @return A pointer to the raw data
 		 */
-        const uint8_t* getRawData() const;
+		const uint8_t* getRawData() const;
 
 		/**
 		 * Get read only raw data pointer
@@ -321,7 +321,7 @@ namespace pcpp
 		 * Get raw data timestamp
 		 * @return Raw data timestamp
 		 */
-        timeval getPacketTimeStamp() const;
+		timeval getPacketTimeStamp() const;
 
 		/**
 		 * Get an indication whether raw data was already set for this instance.
@@ -329,7 +329,7 @@ namespace pcpp
 		 * the copy constructor or using the assignment operator. Returns false otherwise, for example: if the instance was created using the
 		 * default constructor or clear() was called
 		 */
-		inline bool isPacketSet() { return m_RawPacketSet; }
+		bool isPacketSet() const { return m_RawPacketSet; }
 
 		/**
 		 * Clears all members of this instance, meaning setting raw data to NULL, raw data length to 0, etc. Currently raw data is always freed,

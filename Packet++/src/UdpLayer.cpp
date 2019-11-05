@@ -20,9 +20,10 @@ namespace pcpp
 
 UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst)
 {
-	m_DataLen = sizeof(udphdr);
-	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, m_DataLen);
+	const size_t headerLen = sizeof(udphdr);
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
+	memset(m_Data, 0, headerLen);
 	udphdr* udpHdr = (udphdr*)m_Data;
 	udpHdr->portDst = htons(portDst);
 	udpHdr->portSrc = htons(portSrc);
@@ -90,7 +91,7 @@ void UdpLayer::parseNextLayer()
 	uint16_t portDst = ntohs(udpHder->portDst);
 	uint16_t portSrc = ntohs(udpHder->portSrc);
 
-	uint8_t *udpData = m_Data + sizeof(udphdr);
+	uint8_t* udpData = m_Data + sizeof(udphdr);
 	size_t udpDataLen = m_DataLen - sizeof(udphdr);
 
 	if ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) || (portSrc == 67 && portDst == 67))

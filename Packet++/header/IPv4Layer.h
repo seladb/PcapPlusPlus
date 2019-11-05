@@ -163,8 +163,6 @@ namespace pcpp
 	 */
 	struct IPv4TimestampOptionValue
 	{
-	public:
-
 		/**
 		 * An enum for IPv4 timestamp option types
 		 */
@@ -188,6 +186,9 @@ namespace pcpp
 
 		/** A list of IPv4 addresses parsed from the IPv4 timestamp option value */
 		std::vector<IPv4Address> ipAddresses;
+
+		/** The default constructor */
+		IPv4TimestampOptionValue() : type(IPv4TimestampOptionValue::Unknown) {}
 
 		/**
 		 * Clear the structure. Clean the timestamps and IP addresses vectors and set the type as IPv4TimestampOptionValue#Unknown
@@ -600,7 +601,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of byte stream
 		 * @return True if the data is valid and can represent the IPv4 packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen);
+		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
 	private:
 		int m_NumOfTrailingBytes;

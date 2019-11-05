@@ -221,7 +221,7 @@ namespace pcpp
 			uint8_t nextExtensionHeader;
 		};
 
-		gtpv1_header_extra* getHeaderExtra();
+		gtpv1_header_extra* getHeaderExtra() const;
 
 		void init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum, uint8_t npduNum);
 
@@ -267,46 +267,46 @@ namespace pcpp
 			 * @return Instances of this class may be initialized as empty, meaning they don't contain any data. In
 			 * these cases this method returns true
 			 */
-            bool isNull();
+            bool isNull() const;
 
 			/**
 			 * @return The extension type. If the object is empty a value of zero is returned
 			 */
-			uint8_t getExtensionType();
+			uint8_t getExtensionType() const;
 
 			/**
 			 * @return The total length of the extension including the length and next extension type fields.
 			 * If the object is empty a value of zero is returned
 			 */
-            size_t getTotalLength();
+            size_t getTotalLength() const;
 
 			/**
 			 * @return The length of the extension's content, excluding the extension length and next extension type fields.
 			 * If the object is empty a value of zero is returned
 			 */
-            size_t getContentLength();
+            size_t getContentLength() const;
 
 			/**
 			 * @return A byte array that includes the extension's content. The length of this array can be determined by
 			 * getContentLength(). If the object is empty a null value is returned
 			 */
-            uint8_t* getContent();
+            uint8_t* getContent() const;
 
 			/**
 			 * @return The extension type of the next header. If there are no more header extensions or if this object is empty 
 			 * a value of zero is returned
 			 */
-            uint8_t getNextExtensionHeaderType();
+            uint8_t getNextExtensionHeaderType() const;
 
 			/**
 			 * @return An instance of this class representing the next extension header, if exists in the message. If there are 
 			 * no more header extensions or if this object is empty an empty instance of GtpExtension is returned, meaning
 			 * one that GtpExtension#isNull() returns "true"
 			 */
-            GtpExtension getNextExtension();
+            GtpExtension getNextExtension() const;
         };
 
-        virtual ~GtpV1Layer() {}
+		virtual ~GtpV1Layer() {}
 
 		 /** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -345,7 +345,7 @@ namespace pcpp
 		/**
 		 * @return The GTP v1 common header structure. Notice this points directly to the data, so every change will change the actual packet data
 		 */
-        inline gtpv1_header* getHeader() const { return (gtpv1_header*)m_Data; }
+		gtpv1_header* getHeader() const { return (gtpv1_header*)m_Data; }
 
 		/**
 		 * Get the sequence number if exists on the message (sequence number is an optional field in GTP messages)
@@ -353,7 +353,7 @@ namespace pcpp
 		 * @return True if the sequence number field exists in layer, in which case seqNumber is set with the value.
 		 * Or false otherwise
 		 */
-        bool getSequenceNumber(uint16_t& seqNumber);
+		bool getSequenceNumber(uint16_t& seqNumber) const;
 
 		/**
 		 * Set a sequence number
@@ -368,7 +368,7 @@ namespace pcpp
 		 * @return True if the N-PDU number field exists in layer, in which case npduNum is set with the value.
 		 * Or false otherwise
 		 */
-        bool getNpduNumber(uint8_t& npduNum);
+		bool getNpduNumber(uint8_t& npduNum) const;
 
 		/**
 		 * Set an N-PDU number
@@ -383,13 +383,13 @@ namespace pcpp
 		 * @return True if the message contains header extensions, in which case nextExtType is set to the next
 		 * header extension type. If there are no header extensions false is returned and nextExtType remains unchanged
 		 */
-        bool getNextExtensionHeaderType(uint8_t& nextExtType);
+		bool getNextExtensionHeaderType(uint8_t& nextExtType) const;
 
 		/**
 		 * @return An object that represents the next extension header, if exists in the message. If there are no extensions
 		 * an empty object is returned, meaning an object which GtpExtension#isNull() returns "true"
 		 */
-        GtpExtension getNextExtension();
+		GtpExtension getNextExtension() const;
 
 		/**
 		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in legnth and its content is 2 bytes in length. 
@@ -405,25 +405,25 @@ namespace pcpp
 		/**
 		 * @return The message type of this GTP packet
 		 */
-		GtpV1MessageType getMessageType();
+		GtpV1MessageType getMessageType() const;
 
 		/**
 		 * @return A string representation of the packet's message type
 		 */
-		std::string getMessageTypeAsString();
+		std::string getMessageTypeAsString() const;
 
 		/**
 		 * @return True if this is a GTP-U message, false otherwise
 		 */
-		bool isGTPUMessage();
+		bool isGTPUMessage() const;
 
 		/**
 		 * @return True if this is a GTP-C message, false otherwise
 		 */
-		bool isGTPCMessage();
+		bool isGTPCMessage() const;
 
 
-   		// implement abstract methods
+   	// implement abstract methods
 
 		/**
 		 * Identifies the following next layers for GTP-U packets: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer

@@ -41,7 +41,7 @@ namespace pcpp
 	protected:
 
 		// unimplemented private copy c'tor
-		IDnsResourceData(const IDnsResourceData &other);
+		IDnsResourceData(const IDnsResourceData& other);
 		IDnsResourceData() { }
 
 		size_t decodeName(const char* encodedName, char* result, IDnsResource* dnsResource);
@@ -82,7 +82,7 @@ namespace pcpp
 		 * @return True if the DNS RR data was successfully converted into a byte array and written to the given array or
 		 * false if stored DNS RR data is invalid or if it could not be written to the given array
 		 */
-		virtual bool toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource) = 0;
+		virtual bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) = 0;
 	};
 
 
@@ -165,7 +165,7 @@ namespace pcpp
 		// implement abstract methods
 
 		std::string toString() { return m_Data; }
-		bool toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource);
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
 	};
 
 
@@ -209,12 +209,12 @@ namespace pcpp
 		/**
 		 * @return The IPv4 address stored in this object
 		 */
-		IPv4Address getIpAddress() { return m_Data; }
+		IPv4Address getIpAddress() const { return m_Data; }
 
 		// implement abstract methods
 
 		std::string toString() { return m_Data.toString(); }
-		bool toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource);
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
 	};
 
 
@@ -258,12 +258,12 @@ namespace pcpp
 		/**
 		 * @return The IPv6 address stored in this object
 		 */
-		IPv6Address getIpAddress() { return m_Data; }
+		IPv6Address getIpAddress() const { return m_Data; }
 
 		// implement abstract methods
 
 		std::string toString() { return m_Data.toString(); }
-		bool toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource);
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
 	};
 
 
@@ -320,7 +320,7 @@ namespace pcpp
 		/**
 		 * @return The MX data stored in this object
 		 */
-		MxData getMxData() { return m_Data; }
+		MxData getMxData() const { return m_Data; }
 
 		/**
 		 * Set the MX data stored in this object
@@ -337,7 +337,7 @@ namespace pcpp
 		 */
 		std::string toString();
 
-		bool toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource);
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
 
 	private:
 		MxData m_Data;
@@ -385,7 +385,7 @@ namespace pcpp
 		// implement abstract methods
 
 		std::string toString();
-		bool toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource);
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
 	};
 
 }

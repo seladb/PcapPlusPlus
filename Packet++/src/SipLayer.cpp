@@ -34,7 +34,7 @@ const std::string SipMethodEnumToString[14] = {
 
 // -------- Class SipLayer -----------------
 
-int SipLayer::getContentLength()
+int SipLayer::getContentLength() const
 {
 	std::string contentLengthFieldName(PCPP_SIP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
@@ -723,12 +723,12 @@ std::string SipResponseLayer::toString()
 
 // -------- Class SipResponseFirstLine -----------------
 
-int SipResponseFirstLine::getStatusCodeAsInt()
+int SipResponseFirstLine::getStatusCodeAsInt() const
 {
 	return StatusCodeEnumToInt[m_StatusCode];
 }
 
-std::string SipResponseFirstLine::getStatusCodeString()
+std::string SipResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
 	int statusStringOffset = 12;
