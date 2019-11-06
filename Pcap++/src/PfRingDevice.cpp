@@ -273,9 +273,9 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 
 	if (ringsOpen < numOfRxChannelsToOpen)
 	{
-	  for (uint8_t i = 0; i < ringsOpen; i++)
-	    pfring_close(m_PfRingDescriptors[i]);
-	  return false;
+		for (uint8_t i = 0; i < ringsOpen; i++)
+			pfring_close(m_PfRingDescriptors[i]);
+		return false;
 	}
 
 	if (getIsHwClockEnable())
