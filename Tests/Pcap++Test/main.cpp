@@ -5464,6 +5464,15 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_reassembled.txt", bufferLength);
 
+	PTF_ASSERT_TRUE(result->isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(result->isPacketOfType(TCP));
+	PTF_ASSERT_TRUE(result->isPacketOfType(HTTPRequest));
+	HttpRequestLayer* httpReq = result->getLayerOfType<HttpRequestLayer>();
+	PTF_ASSERT_NOT_NULL(httpReq);
+	PTF_ASSERT_EQUAL(httpReq->getUrl(), "js.bizographics.com/convert_data.js?partner_id=29", string);
+	PTF_ASSERT_EQUAL(httpReq->getFieldCount(), 10, int);
+
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "IPv4: Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "IPv4: Reassembled packet data is different than expected");
 
