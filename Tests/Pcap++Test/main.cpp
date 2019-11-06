@@ -5390,7 +5390,6 @@ PTF_TEST_CASE(TestLRUList)
 	PTF_ASSERT_EQUAL(deletedValue, 0, int);
 
 	PTF_ASSERT_EQUAL(lruList.put(2, NULL), 0, int);
-	PTF_ASSERT_EQUAL(deletedValue, 0, int);
 
 	PTF_ASSERT_EQUAL(lruList.put(3, &deletedValue), 1, int);
 	PTF_ASSERT_EQUAL(deletedValue, 1, u32);
@@ -5517,6 +5516,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	// small fix for payload length which is wrong in the original packet
 	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(737);
 
@@ -5613,6 +5613,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 
@@ -5653,10 +5654,12 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 
@@ -5694,6 +5697,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
@@ -5743,6 +5747,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 
