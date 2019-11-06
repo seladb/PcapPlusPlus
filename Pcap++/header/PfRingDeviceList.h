@@ -46,7 +46,7 @@ namespace pcpp
 		 * Return a list of all available PF_RING devices
 		 * @return a list of all available PF_RING devices
 		 */
-		const std::vector<PfRingDevice*>& getPfRingDevicesList() { return m_PfRingDeviceList; } // TODO: Should this method really return a non-const reference?
+		const std::vector<PfRingDevice*>& getPfRingDevicesList() const { return m_PfRingDeviceList; }
 
 		/**
 		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig

@@ -251,7 +251,7 @@ namespace pcpp
 		/**
 		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
 		 */
-		std::vector<pcap_addr_t>& getAddresses() { return m_Addresses; } // TODO: Should getAddress really return non-const reference?
+		const std::vector<pcap_addr_t>& getAddresses() const { return m_Addresses; }
 
 		/**
 		 * @return The MAC address for this interface
@@ -275,7 +275,7 @@ namespace pcpp
 		 * couldn't be extracted from some reason. This list is created in PcapLiveDeviceList class and can be also retrieved from there.
 		 * This method exists for convenience - so it'll be possible to get this list from PcapLiveDevice as well
 		 */
-		std::vector<IPv4Address>& getDnsServers() const;
+		const std::vector<IPv4Address>& getDnsServers() const;
 
 		/**
 		 * Start capturing packets on this network interface (device). Each time a packet is captured the onPacketArrives callback is called.

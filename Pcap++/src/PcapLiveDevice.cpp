@@ -888,7 +888,7 @@ IPv4Address PcapLiveDevice::getDefaultGateway() const
 	return m_DefaultGateway;
 }
 
-std::vector<IPv4Address>& PcapLiveDevice::getDnsServers() const
+const std::vector<IPv4Address>& PcapLiveDevice::getDnsServers() const
 {
 	return PcapLiveDeviceList::getInstance().getDnsServers();
 }
