@@ -24,28 +24,28 @@ namespace pcpp
 		/** A 1-bit value that states whether there is a N-PDU number optional field */
 		uint8_t npduNumberFlag:1,
 		/** A 1-bit value that states whether there is a Sequence Number optional field */
-				sequenceNumberFlag:1,
+		sequenceNumberFlag:1,
 		/** A 1-bit value that states whether there is an extension header optional field */
-				extensionHeaderFlag:1,
+		extensionHeaderFlag:1,
 		/** Reserved bit */
-				reserved:1,
+		reserved:1,
 		/** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
-				protocolType:1,
+		protocolType:1,
 		/** GTP version */
-				version:3;
+		version:3;
 #else
 		/** GTP version */
 		uint8_t version:3,
 		/** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
-				protocolType:1,
+		protocolType:1,
 		/** Reserved bit */
-				reserved:1,
+		reserved:1,
 		/** A 1-bit value that states whether there is an extension header optional field */
-				extensionHeaderFlag:1,
+		extensionHeaderFlag:1,
 		/** A 1-bit value that states whether there is a Sequence Number optional field */
-				sequenceNumberFlag:1,
+		sequenceNumberFlag:1,
 		/** A 1-bit value that states whether there is a N-PDU number optional field */
-				npduNumberFlag:1;
+		npduNumberFlag:1;
 #endif
 		/** An 8-bit field that indicates the type of GTP message */
 		uint8_t messageType;
