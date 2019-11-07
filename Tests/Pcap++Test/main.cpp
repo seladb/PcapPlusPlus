@@ -5319,6 +5319,7 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
 }
 
 
+
 PTF_TEST_CASE(TestTcpReassemblyCleanup)
 {
 	TcpReassemblyMultipleConnStats results;
@@ -5365,7 +5366,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	tcpReassembly.purgeClosedConnections(0xFFFFFFFF); // manually initiated cleanup of all items
 	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 0, size);
 
-	const TcpReassemblyMultipleConnStats::FlowKeysList &flowKeys = results.flowKeysList;
+	const TcpReassemblyMultipleConnStats::FlowKeysList& flowKeys = results.flowKeysList;
 	iterConn1 = managedConnections.find(flowKeys[0]);
 	iterConn2 = managedConnections.find(flowKeys[1]);
 	iterConn3 = managedConnections.find(flowKeys[2]);
@@ -5375,7 +5376,29 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), -1, int);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), -1, int);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), -1, int);
-}
+} // TestTcpReassemblyCleanup
+
+
+
+PTF_TEST_CASE(TestLRUList)
+{
+	LRUList<uint32_t> lruList(2);
+
+	uint32_t deletedValue = 0;
+	PTF_ASSERT_EQUAL(lruList.put(1, &deletedValue), 0, int);
+	PTF_ASSERT_EQUAL(deletedValue, 0, int);
+
+	PTF_ASSERT_EQUAL(lruList.put(2, NULL), 0, int);
+
+	PTF_ASSERT_EQUAL(lruList.put(3, &deletedValue), 1, int);
+	PTF_ASSERT_EQUAL(deletedValue, 1, u32);
+
+	lruList.eraseElement(1);
+	lruList.eraseElement(2);
+	lruList.eraseElement(3);
+	PTF_ASSERT_EQUAL(lruList.getSize(), 0, size);
+} // TestLRUList
+
 
 
 void savePacketToFile(RawPacket& packet, std::string fileName)
@@ -6782,6 +6805,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPFragMapOverflow, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
 	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
+	PTF_RUN_TEST(TestLRUList, "no_network");
 
 	PTF_END_RUNNING_TESTS;
 }

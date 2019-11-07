@@ -266,17 +266,8 @@ uint32_t IPReassembly::IPv6PacketKey::getHashValue() const
 
 
 
-IPReassembly::IPReassembly(OnFragmentsClean onFragmentsCleanCallback, void* callbackUserCookie, size_t maxPacketsToStore)
-{
-	m_PacketLRU = new LRUList<uint32_t>(maxPacketsToStore);
-	m_OnFragmentsCleanCallback = onFragmentsCleanCallback;
-	m_CallbackUserCookie = callbackUserCookie;
-}
-
 IPReassembly::~IPReassembly()
 {
-	delete m_PacketLRU;
-
 	// empty the map - go over all keys, delete all IPFragmentData objects and remove them from the map
 	while (!m_FragmentMap.empty())
 	{
@@ -342,9 +333,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		fragData = iter->second;
 
 		// mark this packet as used
-		uint32_t* removedElement = m_PacketLRU->put(hash);
-		if (removedElement != NULL)
-			delete removedElement;
+		m_PacketLRU.put(hash, NULL);
 	}
 
 	bool gotLastFragment = false;
@@ -474,7 +463,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		// delete the IPFragmentData object and remove it from the map
 		delete fragData;
 		m_FragmentMap.erase(iter);
-		m_PacketLRU->eraseElement(hash);
+		m_PacketLRU.eraseElement(hash);
 		status = REASSEMBLED;
 		return reassembledPacket;
 	}
@@ -567,21 +556,25 @@ void IPReassembly::removePacket(const PacketKey& key)
 		m_FragmentMap.erase(iter);
 
 		// remove from LRU list
-		m_PacketLRU->eraseElement(hash);
+		m_PacketLRU.eraseElement(hash);
 	}
 }
 
 void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 {
 	// put the new frag in the LRU list
-	uint32_t* packetRemoved = m_PacketLRU->put(hash);
+	uint32_t packetRemoved;
 
-	if (packetRemoved != NULL) // this means LRU list was full and the least recently used item was removed
+	if (m_PacketLRU.put(hash, &packetRemoved) == 1) // this means LRU list was full and the least recently used item was removed
 	{
 		// remove this item from the fragment map
-		std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(*packetRemoved);
+		std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(packetRemoved);
 		IPFragmentData* dataRemoved = iter->second;
-		PacketKey* key = dataRemoved->packetKey->clone();
+
+		PacketKey* key = NULL;
+		if (m_OnFragmentsCleanCallback != NULL)
+			key = dataRemoved->packetKey->clone();
+
 		LOG_DEBUG("Reached maximum packet capacity, removing data for FragID=0x%X", dataRemoved->fragmentID);
 		delete dataRemoved;
 		m_FragmentMap.erase(iter);
@@ -590,10 +583,8 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 		if (m_OnFragmentsCleanCallback != NULL)
 		{
 			m_OnFragmentsCleanCallback(key, m_CallbackUserCookie);
+			delete key;
 		}
-
-		delete key;
-		delete packetRemoved;
 	}
 
 	// add the new fragment to the map

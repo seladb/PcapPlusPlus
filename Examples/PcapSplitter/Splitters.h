@@ -83,14 +83,11 @@ protected:
 	 * This method puts the file in the LRU list, and if the list is full it pulls out the least recently used file
 	 * and returns it in filesToClose vector. The application will take care of closing that file
 	 */
-	inline void writingToFile(int fileNum, std::vector<int>& filesToClose)
+	void writingToFile(int fileNum, std::vector<int>& filesToClose)
 	{
-		int* fileToClose = m_LRUFileList.put(fileNum);
-		if (fileToClose != NULL)
-		{
-			filesToClose.push_back(*fileToClose);
-			delete fileToClose;
-		}
+		int fileToClose;
+		if (m_LRUFileList.put(fileNum, &fileToClose) == 1)
+			filesToClose.push_back(fileToClose);
 	}
 
 	/**
@@ -100,7 +97,7 @@ protected:
 	 * In addition the method puts the next file in the LRU list and if the list is full it pulls out the least recently
 	 * used file and returns it in filesToClose vector. The application will take care of closing that file
 	 */
-	inline int getNextFileNumber(std::vector<int>& filesToClose)
+	int getNextFileNumber(std::vector<int>& filesToClose)
 	{
 		int nextFile = 0;
 
@@ -115,12 +112,11 @@ protected:
 
 
 		// put the next file in the LRU list
-		int* fileToClose = m_LRUFileList.put(nextFile);
-		if (fileToClose != NULL)
+		int fileToClose;
+		if (m_LRUFileList.put(nextFile, &fileToClose) == 1)
 		{
 			// if a file is pulled out of the LRU list - return it
-			filesToClose.push_back(*fileToClose);
-			delete fileToClose;
+			filesToClose.push_back(fileToClose);
 		}
 		return nextFile;
 	}
