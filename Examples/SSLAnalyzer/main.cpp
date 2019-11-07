@@ -397,11 +397,11 @@ void analyzeSSLFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, 
 	// set SSL/TLS ports filter on the live device to capture only SSL/TLS packets
 	std::vector<GeneralFilter*> portFilterVec;
 
-	// get all ports considered as SSL/TLS traffic and add them to the filter
-	for (std::map<uint16_t, bool>::const_iterator it = SSLLayer::getSSLPortMap()->begin(); it != SSLLayer::getSSLPortMap()->end(); ++it)
-	{
-		portFilterVec.push_back(new PortFilter(it->first, pcpp::SRC_OR_DST));
-	}
+	// Detect all ports considered as SSL/TLS traffic and add them to the filter.
+	// The check is made for well known ports because currently SSLLayer does not support customizing of ports considered as SSL/TLS.
+	for (uint16_t port = 0; port < 1024; ++port)
+		if (pcpp::SSLLayer::isSSLPort(port))
+			portFilterVec.push_back(new PortFilter(port, pcpp::SRC_OR_DST));
 
 	// make an OR filter out of all port filters
 	OrFilter orFilter(portFilterVec);

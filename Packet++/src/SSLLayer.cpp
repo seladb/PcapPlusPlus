@@ -10,37 +10,13 @@
 #include <arpa/inet.h> //for using ntohl, ntohs, etc.
 #endif
 #include <sstream>
-#include <map>
 
 
 namespace pcpp
 {
 
-static std::map<uint16_t, bool> createSSLPortMap()
-{
-	std::map<uint16_t, bool> result;
 
-	result[0]   = true; //default
-	result[261] = true; //NSIIOPS
-	result[443] = true; //HTTPS
-	result[448] = true; //DDM-SSL
-	result[465] = true; //SMTPS
-	result[563] = true; //NNTPS
-	result[614] = true; //SSHELL
-	result[636] = true; //LDAPS
-	result[989] = true; //FTPS - data
-	result[990] = true; //FTPS - control
-	result[992] = true; //Telnet over TLS/SSL
-	result[993] = true; //IMAPS
-	result[994] = true; //IRCS
-	result[995] = true; //POP3S
-
-	return result;
-}
-
-static const std::map<uint16_t, bool> SSLPortMap = createSSLPortMap();
-
-static bool isSSLPort(uint16_t port)
+bool SSLLayer::isSSLPort(uint16_t port)
 {
 	if (port == 443) // HTTPS, this is likely case
 		return true;
@@ -148,18 +124,13 @@ std::string SSLLayer::sslVersionToString(SSLVersion ver)
 	}
 }
 
-const std::map<uint16_t, bool>* SSLLayer::getSSLPortMap()
-{
-	return &SSLPortMap;
-}
-
-SSLVersion SSLLayer::getRecordVersion()
+SSLVersion SSLLayer::getRecordVersion() const
 {
 	uint16_t recordVersion = ntohs(getRecordLayer()->recordVersion);
 	return (SSLVersion)recordVersion;
 }
 
-SSLRecordType SSLLayer::getRecordType()
+SSLRecordType SSLLayer::getRecordType() const
 {
 	return (SSLRecordType)(getRecordLayer()->recordType);
 }
@@ -191,14 +162,14 @@ std::string SSLHandshakeLayer::toString()
 {
 	std::stringstream result;
 	result << sslVersionToString(getRecordVersion()) << " Layer, Handshake:";
-    for(size_t i = 0; i < m_MessageList.size(); i++)
-    {
-    	if (i == 0)
-    		result << " " << m_MessageList.at(i)->toString();
-    	else
-    		result << ", " << m_MessageList.at(i)->toString();
-    }
-	return  result.str();
+	for(size_t i = 0; i < m_MessageList.size(); i++)
+	{
+		if (i == 0)
+			result << " " << m_MessageList.at(i)->toString();
+		else
+			result << ", " << m_MessageList.at(i)->toString();
+	}
+	return result.str();
 }
 
 SSLHandshakeLayer::SSLHandshakeLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -244,7 +215,7 @@ std::string SSLChangeCipherSpecLayer::toString()
 {
 	std::stringstream result;
 	result << sslVersionToString(getRecordVersion()) << " Layer, Change Cipher Spec";
-	return  result.str();
+	return result.str();
 }
 
 // ---------------------
@@ -259,7 +230,6 @@ SSLAlertLevel SSLAlertLayer::getAlertLevel()
 		return (SSLAlertLevel)alertLevel;
 	else
 		return SSL_ALERT_LEVEL_ENCRYPTED;
-
 }
 
 SSLAlertDescription SSLAlertLayer::getAlertDescription()
