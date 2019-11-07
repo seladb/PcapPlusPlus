@@ -1,8 +1,6 @@
 #ifndef PACKETPP_SSL_LAYER
 #define PACKETPP_SSL_LAYER
 
-#include <map>
-#include <vector>
 #include "PointerVector.h"
 #include "Layer.h"
 #include "SSLCommon.h"
@@ -175,6 +173,12 @@ namespace pcpp
 	public:
 
 		/**
+		 * A static method that checks whether the port is considered as SSL/TLS
+		 * @param[in] port The port number to be checked
+		 */
+		static bool isSSLPort(uint16_t port);
+
+		/**
 		 * A static methods that gets raw data of a layer and checks whether this data is a SSL/TLS record or not. This check is
 		 * done using the source/dest port and matching of a legal record type in the raw data. The list of ports identified
 		 * as SSL/TLS is hard-coded and includes the following ports:
@@ -216,25 +220,20 @@ namespace pcpp
 		static std::string sslVersionToString(SSLVersion ver);
 
 		/**
-		 * @return A pointer to a map containing all TCP ports recognize as SSL/TLS
-		 */
-		static const std::map<uint16_t, bool>* getSSLPortMap();
-
-		/**
 		 * Get a pointer to the record header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref ssl_tls_record_layer
 		 */
-		inline ssl_tls_record_layer* getRecordLayer() { return (ssl_tls_record_layer*)m_Data; }
+		ssl_tls_record_layer* getRecordLayer() const { return (ssl_tls_record_layer*)m_Data; }
 
 		/**
 		 * @return The SSL/TLS version used in this record (parsed from the record)
 		 */
-		SSLVersion getRecordVersion();
+		SSLVersion getRecordVersion() const;
 
 		/**
 		 * @return The SSL/TLS record type as parsed from the record
 		 */
-		SSLRecordType getRecordType();
+		SSLRecordType getRecordType() const;
 
 		// implement abstract methods
 
@@ -249,7 +248,7 @@ namespace pcpp
 		 */
 		void parseNextLayer();
 
-        OsiModelLayer getOsiModelLayer() const { return OsiModelPresentationLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelPresentationLayer; }
 
 	protected:
 		SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = SSL; }

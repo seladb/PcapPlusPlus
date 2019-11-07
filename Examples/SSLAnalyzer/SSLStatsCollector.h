@@ -259,7 +259,7 @@ private:
 			// find the SSL/TLS port and add it to the port count
 			uint16_t srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
 			uint16_t dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
-			if (pcpp::SSLLayer::getSSLPortMap()->find(srcPort) != pcpp::SSLLayer::getSSLPortMap()->end())
+			if (pcpp::SSLLayer::isSSLPort(srcPort))
 				m_GeneralStats.sslPortCount[srcPort]++;
 			else
 				m_GeneralStats.sslPortCount[dstPort]++;
