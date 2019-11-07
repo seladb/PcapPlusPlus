@@ -82,9 +82,9 @@ struct ConnectionData
 	/** Destination IP address */
 	IPAddress* dstIP;
 	/** Source TCP/UDP port */
-	size_t srcPort;
+	uint16_t srcPort;
 	/** Destination TCP/UDP port */
-	size_t dstPort;
+	uint16_t dstPort;
 	/** A 4-byte hash key representing the connection */
 	uint32_t flowKey;
 	/** Start TimeStamp of the connection */
