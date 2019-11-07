@@ -15,9 +15,6 @@
 namespace pcpp
 {
 
-GeneralFilter::GeneralFilter() : m_program(NULL)
-{}
-
 bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 {
 	std::string filterStr;
@@ -58,16 +55,6 @@ void GeneralFilter::freeProgram()
 	}
 }
 
-GeneralFilter::~GeneralFilter()
-{
-	freeProgram();
-}
-
-BPFStringFilter::BPFStringFilter(const std::string &filterStr) : m_filterStr(filterStr)
-{}
-
-BPFStringFilter::~BPFStringFilter()
-{}
 
 void BPFStringFilter::parseToString(std::string& result)
 {
@@ -133,10 +120,9 @@ std::string IFilterWithOperator::parseOperator()
 	}
 }
 
-void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask)
+void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const
 {
 	if (m_IPv4Mask == "")
-
 		return;
 
 	// Handle the mask
@@ -167,7 +153,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();
 }
 
-void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len)
+void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) const
 {
 	if (m_Len == 0)
 		return;

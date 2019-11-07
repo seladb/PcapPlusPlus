@@ -56,7 +56,7 @@ namespace pcpp
 		 * freeing this memory
 		 * @return A pcap_rmtauth that is converted from this class
 		 */
-		pcap_rmtauth getPcapRmAuth();
+		pcap_rmtauth getPcapRmAuth() const;
 	};
 
 	/**
@@ -103,28 +103,28 @@ namespace pcpp
 		/**
 		 * @return The IP address of the remote machine where packets are transmitted from the remote machine to the client machine
 		 */
-		IPAddress* getRemoteMachineIpAddress() { return m_RemoteMachineIpAddress; }
+		IPAddress* getRemoteMachineIpAddress() const { return m_RemoteMachineIpAddress; }
 
 		/**
 		 * @return The port of the remote machine where packets are transmitted from the remote machine to the client machine
 		 */
-		uint16_t getRemoteMachinePort() { return m_RemoteMachinePort; }
+		uint16_t getRemoteMachinePort() const { return m_RemoteMachinePort; }
 
 		//overridden methods
 
-		virtual LiveDeviceType getDeviceType() { return RemoteDevice; }
+		virtual LiveDeviceType getDeviceType() const { return RemoteDevice; }
 
 		/**
 		 * MTU isn't supported for remote devices
 		 * @return 0
 		 */
-		virtual uint16_t getMtu();
+		virtual uint16_t getMtu() const;
 
 		/**
 		 * MAC address isn't supported for remote devices
 		 * @return MacAddress#Zero
 		 */
-		virtual MacAddress getMacAddress();
+		virtual MacAddress getMacAddress() const;
 
 		/**
 		 * Open the device using pcap_open. Opening the device makes the connection to the remote daemon (including authentication if needed
@@ -137,7 +137,7 @@ namespace pcpp
 		 */
 		virtual bool open();
 
-		void getStatistics(pcap_stat& stats);
+		virtual void getStatistics(pcap_stat& stats) const;
 	};
 
 } // namespace pcpp

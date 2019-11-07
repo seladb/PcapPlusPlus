@@ -100,12 +100,12 @@ namespace pcpp
 		*/
 		bool matchPacketWithFilter(RawPacket* rawPacket);
 
-		GeneralFilter();
+		GeneralFilter() : m_program(NULL) {}
 
 		/**
 		 * Virtual destructor, frees the bpf program
 		 */
-		virtual ~GeneralFilter();
+		virtual ~GeneralFilter() { freeProgram(); }
 	};
 
 	/**
@@ -118,9 +118,9 @@ namespace pcpp
 		const std::string m_filterStr;
 
 	public:
-		BPFStringFilter(const std::string& filterStr);
+		BPFStringFilter(const std::string& filterStr) : m_filterStr(filterStr) {}
 
-		virtual ~BPFStringFilter();
+		virtual ~BPFStringFilter() {}
 
 		/**
 		 * A method that parses the class instance into BPF string format
@@ -148,7 +148,7 @@ namespace pcpp
 		Direction m_Dir;
 	protected:
 		void parseDirection(std::string& directionAsString);
-		inline Direction getDir() { return m_Dir; }
+		Direction getDir() const { return m_Dir; }
 		IFilterWithDirection(Direction dir) { m_Dir = dir; }
 	public:
 		/**
@@ -171,7 +171,7 @@ namespace pcpp
 		FilterOperator m_Operator;
 	protected:
 		std::string parseOperator();
-		inline FilterOperator getOperator() { return m_Operator; }
+		FilterOperator getOperator() const { return m_Operator; }
 		IFilterWithOperator(FilterOperator op) { m_Operator = op; }
 	public:
 		/**
@@ -195,8 +195,8 @@ namespace pcpp
 		std::string m_Address;
 		std::string m_IPv4Mask;
 		int m_Len;
-		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask);
-		void convertToIPAddressWithLen(std::string& ipAddrmodified, int& len);
+		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const;
+		void convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) const;
 	public:
 		/**
 		 * The basic constructor that creates the filter from an IPv4 address and direction (source or destination)

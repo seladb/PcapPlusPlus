@@ -101,7 +101,7 @@ DpdkDevice::~DpdkDevice()
 		delete [] m_TxBufferLastDrainTsc;
 }
 
-uint32_t DpdkDevice::getCurrentCoreId()
+uint32_t DpdkDevice::getCurrentCoreId() const
 {
 	return rte_lcore_id();
 }
@@ -455,7 +455,7 @@ void DpdkDevice::setDeviceInfo()
 }
 
 
-bool DpdkDevice::isVirtual()
+bool DpdkDevice::isVirtual() const
 {
 	switch (m_PMDType)
 	{
@@ -474,7 +474,7 @@ bool DpdkDevice::isVirtual()
 }
 
 
-void DpdkDevice::getLinkStatus(LinkStatus& linkStatus)
+void DpdkDevice::getLinkStatus(LinkStatus& linkStatus) const
 {
 	struct rte_eth_link link;
 	rte_eth_link_get((uint8_t) m_Id, &link);
@@ -674,7 +674,7 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 
 #define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
 
-void DpdkDevice::getStatistics(DpdkDeviceStats& stats)
+void DpdkDevice::getStatistics(DpdkDeviceStats& stats) const
 {
 	timespec timestamp;
 	clock_gettime(CLOCK_MONOTONIC, &timestamp);
@@ -741,7 +741,7 @@ bool DpdkDevice::setFilter(std::string filterAsString)
 	return false;
 }
 
-uint16_t DpdkDevice::receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t rxQueueId)
+uint16_t DpdkDevice::receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t rxQueueId) const
 {
 	if (!m_DeviceOpened)
 	{
@@ -786,7 +786,7 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t
 	return numOfPktsReceived;
 }
 
-uint16_t DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPacketArrLength, uint16_t rxQueueId)
+uint16_t DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPacketArrLength, uint16_t rxQueueId) const
 {
 	if (unlikely(!m_DeviceOpened))
 	{
@@ -836,7 +836,7 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawP
 	return packetsReceived;
 }
 
-uint16_t DpdkDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLength, uint16_t rxQueueId)
+uint16_t DpdkDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLength, uint16_t rxQueueId) const
 {
 	if (unlikely(!m_DeviceOpened))
 	{
@@ -1141,17 +1141,17 @@ bool DpdkDevice::sendPacket(Packet& packet, uint16_t txQueueId, bool useTxBuffer
 	return sendPacket(*(packet.getRawPacket()), txQueueId);
 }
 
-int DpdkDevice::getAmountOfFreeMbufs()
+int DpdkDevice::getAmountOfFreeMbufs() const
 {
 	return (int)rte_mempool_avail_count(m_MBufMempool);
 }
 
-int DpdkDevice::getAmountOfMbufsInUse()
+int DpdkDevice::getAmountOfMbufsInUse() const
 {
 	return (int)rte_mempool_in_use_count(m_MBufMempool);
 }
 
-uint64_t DpdkDevice::convertRssHfToDpdkRssHf(uint64_t rssHF)
+uint64_t DpdkDevice::convertRssHfToDpdkRssHf(uint64_t rssHF) const
 {
 	if (rssHF == (uint64_t)-1)
 	{
@@ -1225,7 +1225,7 @@ uint64_t DpdkDevice::convertRssHfToDpdkRssHf(uint64_t rssHF)
 	return dpdkRssHF;
 }
 
-uint64_t DpdkDevice::convertDpdkRssHfToRssHf(uint64_t dpdkRssHF)
+uint64_t DpdkDevice::convertDpdkRssHfToRssHf(uint64_t dpdkRssHF) const
 {
 	uint64_t rssHF = 0;
 
@@ -1292,12 +1292,12 @@ uint64_t DpdkDevice::convertDpdkRssHfToRssHf(uint64_t dpdkRssHF)
 	return rssHF;
 }
 
-bool DpdkDevice::isDeviceSupportRssHashFunction(DpdkRssHashFunction rssHF)
+bool DpdkDevice::isDeviceSupportRssHashFunction(DpdkRssHashFunction rssHF) const
 {
 	return isDeviceSupportRssHashFunction((uint64_t)rssHF);
 }
 
-bool DpdkDevice::isDeviceSupportRssHashFunction(uint64_t rssHFMask)
+bool DpdkDevice::isDeviceSupportRssHashFunction(uint64_t rssHFMask) const
 {
 	uint64_t dpdkRssHF = convertRssHfToDpdkRssHf(rssHFMask);
 
@@ -1307,7 +1307,7 @@ bool DpdkDevice::isDeviceSupportRssHashFunction(uint64_t rssHFMask)
 	return ((devInfo.flow_type_rss_offloads & dpdkRssHF) == dpdkRssHF);
 }
 
-uint64_t DpdkDevice::getSupportedRssHashFunctions()
+uint64_t DpdkDevice::getSupportedRssHashFunctions() const
 {
 	rte_eth_dev_info devInfo;
 	rte_eth_dev_info_get(m_Id, &devInfo);

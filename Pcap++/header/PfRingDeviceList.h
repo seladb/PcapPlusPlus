@@ -36,7 +36,7 @@ namespace pcpp
 		 * A static method that returns the singleton object for PfRingDeviceList
 		 * @return PfRingDeviceList singleton
 		 */
-		static inline PfRingDeviceList& getInstance()
+		static PfRingDeviceList& getInstance()
 		{
 			static PfRingDeviceList instance;
 			return instance;
@@ -46,7 +46,7 @@ namespace pcpp
 		 * Return a list of all available PF_RING devices
 		 * @return a list of all available PF_RING devices
 		 */
-		inline const std::vector<PfRingDevice*>& getPfRingDevicesList() { return m_PfRingDeviceList; }
+		const std::vector<PfRingDevice*>& getPfRingDevicesList() const { return m_PfRingDeviceList; }
 
 		/**
 		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
@@ -60,7 +60,7 @@ namespace pcpp
 		 * Get installed PF_RING version
 		 * @return A string representing PF_RING version
 		 */
-		inline std::string getPfRingVersion() { return m_PfRingVersion; }
+		std::string getPfRingVersion() const { return m_PfRingVersion; }
 	};
 
 } // namespace pcpp

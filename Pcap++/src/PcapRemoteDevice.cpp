@@ -10,7 +10,7 @@
 namespace pcpp
 {
 
-pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth()
+pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 {
 	pcap_rmtauth result;
 	result.type = RPCAP_RMTAUTH_PWD;
@@ -109,7 +109,7 @@ ThreadStart PcapRemoteDevice::getCaptureThreadStart()
 	return &remoteDeviceCaptureThreadMain;
 }
 
-void PcapRemoteDevice::getStatistics(pcap_stat& stats)
+void PcapRemoteDevice::getStatistics(pcap_stat& stats) const
 {
 	int allocatedMemory;
 	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
@@ -123,13 +123,13 @@ void PcapRemoteDevice::getStatistics(pcap_stat& stats)
 	stats.ps_ifdrop = tempStats->ps_ifdrop;
 }
 
-uint16_t PcapRemoteDevice::getMtu()
+uint16_t PcapRemoteDevice::getMtu() const
 {
 	LOG_DEBUG("MTU isn't supported for remote devices");
 	return 0;
 }
 
-MacAddress PcapRemoteDevice::getMacAddress()
+MacAddress PcapRemoteDevice::getMacAddress() const
 {
 	LOG_ERROR("MAC address isn't supported for remote devices");
 	return MacAddress::Zero;
