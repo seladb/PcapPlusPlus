@@ -5384,7 +5384,6 @@ PTF_TEST_CASE(TestLRUList)
 {
 	LRUList<uint32_t> lruList(2);
 
-	// testing "int put(const T&, T*)"
 	uint32_t deletedValue = 0;
 	PTF_ASSERT_EQUAL(lruList.put(1, &deletedValue), 0, int);
 	PTF_ASSERT_EQUAL(deletedValue, 0, int);
@@ -5398,15 +5397,6 @@ PTF_TEST_CASE(TestLRUList)
 	lruList.eraseElement(2);
 	lruList.eraseElement(3);
 	PTF_ASSERT_EQUAL(lruList.getSize(), 0, size);
-
-	// testing "T* put(const T&)"
-	PTF_ASSERT_NULL(lruList.put(1));
-	PTF_ASSERT_NULL(lruList.put(2));
-
-	uint32_t* pDeletedValue = lruList.put(3);
-	PTF_ASSERT_NOT_NULL(pDeletedValue);
-	PTF_ASSERT_EQUAL(*pDeletedValue, 1, u32);
-	delete pDeletedValue;
 } // TestLRUList
 
 

@@ -72,7 +72,7 @@ static struct option PcapSplitterOptions[] =
 	{"filter", required_argument, 0, 'i'},
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
@@ -334,6 +334,7 @@ int main(int argc, char* argv[])
 	std::string errorStr;
 	if (!splitter->isSplitterParamLegal(errorStr))
 	{
+		delete splitter;
 		EXIT_WITH_ERROR("%s", errorStr.c_str());
 	}
 
@@ -456,12 +457,16 @@ int main(int argc, char* argv[])
 
 	// free reader memory
 	delete reader;
+	delete splitter;
 
 	// close the writer files which are still open
 	for(std::map<int, IFileWriterDevice*>::iterator it = outputFiles.begin(); it != outputFiles.end(); ++it)
 	{
 		if (it->second != NULL)
+		{
 			it->second->close();
+			delete it->second;
+		}
 	}
 
 	return 0;
