@@ -30,7 +30,7 @@ namespace pcpp
 		/**
 		* @return The name of the file
 		*/
-		std::string getFileName();
+		std::string getFileName() const;
 
 
 		//override methods
@@ -69,7 +69,7 @@ namespace pcpp
 		/**
 		* @return The file size in bytes
 		*/
-		uint64_t getFileSize();
+		uint64_t getFileSize() const;
 
 		virtual bool getNextPacket(RawPacket& rawPacket) = 0;
 
@@ -145,7 +145,7 @@ namespace pcpp
 		 * Get statistics of packets read so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		void getStatistics(pcap_stat& stats);
+		void getStatistics(pcap_stat& stats) const;
 	};
 
 
@@ -187,7 +187,7 @@ namespace pcpp
 		 * returns it
 		 * @return The operating system string if exists, or an empty string otherwise
 		 */
-		std::string getOS();
+		std::string getOS() const;
 
 		/**
 		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string specifying the
@@ -195,7 +195,7 @@ namespace pcpp
 		 * returns it
 		 * @return The hardware string if exists, or an empty string otherwise
 		 */
-		std::string getHardware();
+		std::string getHardware() const;
 
 		/**
 		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string specifying the
@@ -203,7 +203,7 @@ namespace pcpp
 		 * returns it
 		 * @return The capture application string if exists, or an empty string otherwise
 		 */
-		std::string getCaptureApplication();
+		std::string getCaptureApplication() const;
 
 		/**
 		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string containing a user-defined
@@ -211,7 +211,7 @@ namespace pcpp
 		 * returns it
 		 * @return The comment written inside the file if exists, or an empty string otherwise
 		 */
-		std::string getCaptureFileComment();
+		std::string getCaptureFileComment() const;
 
 		/**
 		 * The pcap-ng format allows storing a user-defined comment for every packet (besides the comment per-file). This method reads
@@ -244,7 +244,7 @@ namespace pcpp
 		 * Get statistics of packets read so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		void getStatistics(pcap_stat& stats);
+		void getStatistics(pcap_stat& stats) const;
 
 		/**
 		 * Set a filter for PcapNG reader device. Only packets that match the filter will be received
@@ -372,7 +372,7 @@ namespace pcpp
 		 * Get statistics of packets written so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		virtual void getStatistics(pcap_stat& stats);
+		virtual void getStatistics(pcap_stat& stats) const;
 	};
 
 
@@ -488,7 +488,7 @@ namespace pcpp
 		 * Get statistics of packets written so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		void getStatistics(pcap_stat& stats);
+		void getStatistics(pcap_stat& stats) const;
 
 		/**
 		 * Set a filter for PcapNG writer device. Only packets that match the filter will be persisted

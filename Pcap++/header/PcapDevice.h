@@ -50,7 +50,7 @@ namespace pcpp
 		 * - pcap_stat#ps_ifdorp: number of packets dropped by interface
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		virtual void getStatistics(pcap_stat& stats) = 0;
+		virtual void getStatistics(pcap_stat& stats) const = 0;
 
 		/**
 		 * A static method for retreiving pcap lib (libpcap/WinPcap/etc.) version information. This method is actually

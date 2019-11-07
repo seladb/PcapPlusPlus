@@ -113,11 +113,11 @@ namespace pcpp
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
-		static void* captureThreadMain(void *ptr);
-		static void* statsThreadMain(void *ptr);
-		static void onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
-		static void onPacketArrivesNoCallback(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
-		static void onPacketArrivesBlockingMode(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
+		static void* captureThreadMain(void* ptr);
+		static void* statsThreadMain(void* ptr);
+		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		std::string printThreadId(PcapThread* id);
 		virtual ThreadStart getCaptureThreadStart();
 	public:
@@ -153,10 +153,10 @@ namespace pcpp
 		 */
 		enum PcapDirection
 		{
-		    	/** Capture traffics both incoming and outgoing */
-		    	PCPP_INOUT = 0,
-	    		/** Only capture incoming traffics */
-		    	PCPP_IN,
+			/** Capture traffics both incoming and outgoing */
+			PCPP_INOUT = 0,
+			/** Only capture incoming traffics */
+			PCPP_IN,
 			/** Only capture outgoing traffics */
 			PCPP_OUT
 		};
@@ -188,10 +188,10 @@ namespace pcpp
 			 */
 			int packetBufferSize;
 
-	    		/**
-		    	* Set the direction for capturing packets. You can read more here:
-		    	* <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>.
-		    	*/
+			/**
+			 * Set the direction for capturing packets. You can read more here:
+			 * <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>.
+			*/
 			PcapDirection direction;
 
 			/**
@@ -222,60 +222,60 @@ namespace pcpp
 		/**
 		 * @return The type of the device (libPcap, WinPcap or a remote device)
 		 */
-		virtual LiveDeviceType getDeviceType() { return LibPcapDevice; }
+		virtual LiveDeviceType getDeviceType() const { return LibPcapDevice; }
 
 		/**
 		 * @return The name of the device (e.g eth0), taken from pcap_if_t->name
 		 */
-		inline const char* getName() { return m_Name; }
+		const char* getName() const { return m_Name; }
 
 		/**
 		 * @return A human-readable description of the device, taken from pcap_if_t->description. May be NULL in some interfaces
 		 */
-		inline const char* getDesc() { return m_Description; }
+		const char* getDesc() const { return m_Description; }
 
 		/**
 		 * @return True if this interface is a loopback interface, false otherwise
 		 */
-		inline bool getLoopback() { return m_IsLoopback; }
+		bool getLoopback() const { return m_IsLoopback; }
 
 		/**
 		 * @return The device's maximum transmission unit (MTU) in bytes
 		 */
-		virtual inline uint16_t getMtu() { return m_DeviceMtu; }
+		virtual uint16_t getMtu() const { return m_DeviceMtu; }
 
 		/**
 		 * @return The device's link layer type
 		 */
-		virtual inline LinkLayerType getLinkType() { return m_LinkType; }
+		virtual LinkLayerType getLinkType() const { return m_LinkType; }
 		/**
 		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
 		 */
-		inline std::vector<pcap_addr_t>& getAddresses() { return m_Addresses; }
+		const std::vector<pcap_addr_t>& getAddresses() const { return m_Addresses; }
 
 		/**
 		 * @return The MAC address for this interface
 		 */
-		virtual inline MacAddress getMacAddress() { return m_MacAddress; }
+		virtual MacAddress getMacAddress() const { return m_MacAddress; }
 
 		/**
 		 * @return The IPv4 address for this interface. If multiple IPv4 addresses are defined for this interface, the first will be picked.
 		 * If no IPv4 addresses are defined, a zeroed IPv4 address (IPv4Address#Zero) will be returned
 		 */
-		IPv4Address getIPv4Address();
+		IPv4Address getIPv4Address() const;
 
 		/**
 		 * @return The default gateway defined for this interface. If no default gateway is defined, if it's not IPv4 or if couldn't extract
 		 * default gateway IPv4Address#Zero will be returned. If multiple gateways were defined the first one will be returned
 		 */
-		IPv4Address getDefaultGateway();
+		IPv4Address getDefaultGateway() const;
 
 		/**
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
 		 * couldn't be extracted from some reason. This list is created in PcapLiveDeviceList class and can be also retrieved from there.
 		 * This method exists for convenience - so it'll be possible to get this list from PcapLiveDevice as well
 		 */
-		std::vector<IPv4Address>& getDnsServers();
+		const std::vector<IPv4Address>& getDnsServers() const;
 
 		/**
 		 * Start capturing packets on this network interface (device). Each time a packet is captured the onPacketArrives callback is called.
@@ -479,7 +479,7 @@ namespace pcpp
 
 		void close();
 
-		virtual void getStatistics(pcap_stat& stats);
+		virtual void getStatistics(pcap_stat& stats) const;
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);

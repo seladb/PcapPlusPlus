@@ -13,13 +13,13 @@ namespace pcpp
 
 struct pcap_file_header
 {
-    uint32_t magic;
-    uint16_t version_major;
-    uint16_t version_minor;
-    int32_t thiszone;
-    uint32_t sigfigs;
-    uint32_t snaplen;
-    uint32_t linktype;
+	uint32_t magic;
+	uint16_t version_major;
+	uint16_t version_minor;
+	int32_t thiszone;
+	uint32_t sigfigs;
+	uint32_t snaplen;
+	uint32_t linktype;
 };
 
 struct packet_header
@@ -46,7 +46,7 @@ IFileDevice::~IFileDevice()
 	delete[] m_FileName;
 }
 
-std::string IFileDevice::getFileName()
+std::string IFileDevice::getFileName() const
 {
 	return std::string(m_FileName);
 }
@@ -85,7 +85,7 @@ IFileReaderDevice* IFileReaderDevice::getReader(const char* fileName)
 		return new PcapFileReaderDevice(fileName);
 }
 
-uint64_t IFileReaderDevice::getFileSize()
+uint64_t IFileReaderDevice::getFileSize() const
 {
 	std::ifstream fileStream(m_FileName, std::ifstream::ate | std::ifstream::binary);
 	return fileStream.tellg();
@@ -155,7 +155,7 @@ bool PcapFileReaderDevice::open()
 	return true;
 }
 
-void PcapFileReaderDevice::getStatistics(pcap_stat& stats)
+void PcapFileReaderDevice::getStatistics(pcap_stat& stats) const
 {
 	stats.ps_recv = m_NumOfPacketsRead;
 	stats.ps_drop = m_NumOfPacketsNotParsed;
@@ -306,7 +306,7 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	return getNextPacket(rawPacket, temp);
 }
 
-void PcapNgFileReaderDevice::getStatistics(pcap_stat& stats)
+void PcapNgFileReaderDevice::getStatistics(pcap_stat& stats) const
 {
 	stats.ps_recv = m_NumOfPacketsRead;
 	stats.ps_drop = m_NumOfPacketsNotParsed;
@@ -342,7 +342,7 @@ void PcapNgFileReaderDevice::close()
 }
 
 
-std::string PcapNgFileReaderDevice::getOS()
+std::string PcapNgFileReaderDevice::getOS() const
 {
 	if (m_LightPcapNg == NULL)
 	{
@@ -359,7 +359,7 @@ std::string PcapNgFileReaderDevice::getOS()
 	return std::string(res, len);
 }
 
-std::string PcapNgFileReaderDevice::getHardware()
+std::string PcapNgFileReaderDevice::getHardware() const
 {
 	if (m_LightPcapNg == NULL)
 	{
@@ -376,7 +376,7 @@ std::string PcapNgFileReaderDevice::getHardware()
 	return std::string(res, len);
 }
 
-std::string PcapNgFileReaderDevice::getCaptureApplication()
+std::string PcapNgFileReaderDevice::getCaptureApplication() const
 {
 	if (m_LightPcapNg == NULL)
 	{
@@ -393,7 +393,7 @@ std::string PcapNgFileReaderDevice::getCaptureApplication()
 	return std::string(res, len);
 }
 
-std::string PcapNgFileReaderDevice::getCaptureFileComment()
+std::string PcapNgFileReaderDevice::getCaptureFileComment() const
 {
 	if (m_LightPcapNg == NULL)
 	{
@@ -575,7 +575,7 @@ void PcapFileWriterDevice::close()
 	LOG_DEBUG("File writer closed for file '%s'", m_FileName);
 }
 
-void PcapFileWriterDevice::getStatistics(pcap_stat& stats)
+void PcapFileWriterDevice::getStatistics(pcap_stat& stats) const
 {
 	stats.ps_recv = m_NumOfPacketsWritten;
 	stats.ps_drop = m_NumOfPacketsNotWritten;
@@ -824,7 +824,7 @@ void PcapNgFileWriterDevice::close()
 	LOG_DEBUG("File writer closed for file '%s'", m_FileName);
 }
 
-void PcapNgFileWriterDevice::getStatistics(pcap_stat& stats)
+void PcapNgFileWriterDevice::getStatistics(pcap_stat& stats) const
 {
 	stats.ps_recv = m_NumOfPacketsWritten;
 	stats.ps_drop = m_NumOfPacketsNotWritten;

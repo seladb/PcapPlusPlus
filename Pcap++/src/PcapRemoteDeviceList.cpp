@@ -71,7 +71,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 	return resultList;
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString)
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString) const
 {
 	IPAddress::Ptr_t apAddr = IPAddress::fromString(ipAddrAsString);
 	if (!apAddr->isValid())
@@ -84,7 +84,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAs
 	return result;
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* ipAddr)
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* ipAddr) const
 {
 	if (ipAddr->getType() == IPAddress::IPv4AddressType)
 	{
@@ -99,10 +99,10 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* ipAddr)
 }
 
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr) const
 {
 	LOG_DEBUG("Searching all remote devices in list...");
-	for(RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
+	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
@@ -133,10 +133,10 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr)
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr) const
 {
 	LOG_DEBUG("Searching all remote devices in list...");
-	for(RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
+	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)

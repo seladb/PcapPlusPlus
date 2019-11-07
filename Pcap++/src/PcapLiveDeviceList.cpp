@@ -29,7 +29,6 @@ PcapLiveDeviceList::~PcapLiveDeviceList()
 	{
 		delete (*devIter);
 	}
-
 }
 
 void PcapLiveDeviceList::init()
@@ -196,7 +195,7 @@ void PcapLiveDeviceList::setDnsServers()
 #endif
 }
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* ipAddr)
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* ipAddr) const
 {
 	if (ipAddr->getType() == IPAddress::IPv4AddressType)
 	{
@@ -210,10 +209,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* ipAddr)
 	}
 }
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr)
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr) const
 {
 	LOG_DEBUG("Searching all live devices...");
-	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
@@ -243,10 +242,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr)
 	return NULL;
 }
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr)
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr) const
 {
 	LOG_DEBUG("Searching all live devices...");
-	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
@@ -281,12 +280,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr)
 	return NULL;
 }
 
-std::vector<IPv4Address>& PcapLiveDeviceList::getDnsServers()
-{
-	return m_DnsServers;
-}
-
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsString)
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsString) const
 {
 	IPAddress::Ptr_t apAddr = IPAddress::fromString(ipAddrAsString);
 	if (apAddr.get() == NULL || !apAddr->isValid())
@@ -300,10 +294,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsSt
 }
 
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name)
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
 {
 	LOG_DEBUG("Searching all live devices...");
-	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
 		std::string devName((*devIter)->getName());
 		if (name == devName)

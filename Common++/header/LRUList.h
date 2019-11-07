@@ -76,7 +76,7 @@ namespace pcpp
 		 * Get the most recently used element (the one at the beginning of the list)
 		 * @return The most recently used element
 		 */
-		const T& getMRUElement()
+		const T& getMRUElement() const
 		{
 			return m_CacheItemsList.front();
 		}
@@ -85,7 +85,7 @@ namespace pcpp
 		 * Get the least recently used element (the one at the end of the list)
 		 * @return The least recently used element
 		 */
-		const T& getLRUElement()
+		const T& getLRUElement() const
 		{
 			return m_CacheItemsList.back();
 		}
@@ -107,12 +107,12 @@ namespace pcpp
 		/**
 		 * @return The max size of this list as determined in the c'tor
 		 */
-		inline size_t getMaxSize() { return m_MaxSize; }
+		size_t getMaxSize() const { return m_MaxSize; }
 
 		/**
 		 * @return The number of elements currently in this list
 		 */
-		inline size_t getSize() { return m_CacheItemsMap.size(); }
+		size_t getSize() const { return m_CacheItemsMap.size(); }
 
 	private:
 		std::list<T> m_CacheItemsList;
