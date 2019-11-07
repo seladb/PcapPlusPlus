@@ -32,7 +32,7 @@ namespace pcpp
 		/** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
 				protocolType:1,
 		/** GTP version */
-		        version:3;
+				version:3;
 #else
 		/** GTP version */
 		uint8_t version:3,
@@ -47,16 +47,15 @@ namespace pcpp
 		/** A 1-bit value that states whether there is a N-PDU number optional field */
 				npduNumberFlag:1;
 #endif
-        /** An 8-bit field that indicates the type of GTP message */
-        uint8_t messageType;
+		/** An 8-bit field that indicates the type of GTP message */
+		uint8_t messageType;
 
-        /** A 16-bit field that indicates the length of the payload in bytes (rest of the packet following the mandatory 8-byte GTP header). Includes the optional fields */
-        uint16_t messageLength;
+		/** A 16-bit field that indicates the length of the payload in bytes (rest of the packet following the mandatory 8-byte GTP header). Includes the optional fields */
+		uint16_t messageLength;
 
-        /** Tunnel endpoint identifier - A 32-bit(4-octet) field used to multiplex different connections in the same GTP tunnel */
-        uint32_t teid;
-
-    };
+		/** Tunnel endpoint identifier - A 32-bit(4-octet) field used to multiplex different connections in the same GTP tunnel */
+		uint32_t teid;
+	};
 
 #pragma pack(pop)
 
@@ -211,8 +210,8 @@ namespace pcpp
 	 * @class GtpV1Layer
 	 * A class representing the [GTP v1](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol) protocol.
 	 */
-    class GtpV1Layer : public Layer
-    {
+	class GtpV1Layer : public Layer
+	{
 	private:
 		struct gtpv1_header_extra
 		{
@@ -225,18 +224,18 @@ namespace pcpp
 
 		void init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum, uint8_t npduNum);
 
-    public:
+	public:
 
 		/**
 		 * @class GtpExtension
 		 * A class that represents [GTP header extensions](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol)
 		 */
-        class GtpExtension
-        {
+		class GtpExtension
+		{
 			friend class GtpV1Layer;
 
-        private:
-            uint8_t* m_Data;
+		private:
+			uint8_t* m_Data;
 			size_t m_DataLen;
 			uint8_t m_ExtType;
 
@@ -246,7 +245,7 @@ namespace pcpp
 
 			static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
 			
-        public:
+		public:
 
 			/**
 			 * An empty c'tor that creates an empty object, meaning one that isNull() returns "true")
@@ -267,7 +266,7 @@ namespace pcpp
 			 * @return Instances of this class may be initialized as empty, meaning they don't contain any data. In
 			 * these cases this method returns true
 			 */
-            bool isNull() const;
+			bool isNull() const;
 
 			/**
 			 * @return The extension type. If the object is empty a value of zero is returned
@@ -278,33 +277,33 @@ namespace pcpp
 			 * @return The total length of the extension including the length and next extension type fields.
 			 * If the object is empty a value of zero is returned
 			 */
-            size_t getTotalLength() const;
+			size_t getTotalLength() const;
 
 			/**
 			 * @return The length of the extension's content, excluding the extension length and next extension type fields.
 			 * If the object is empty a value of zero is returned
 			 */
-            size_t getContentLength() const;
+			size_t getContentLength() const;
 
 			/**
 			 * @return A byte array that includes the extension's content. The length of this array can be determined by
 			 * getContentLength(). If the object is empty a null value is returned
 			 */
-            uint8_t* getContent() const;
+			uint8_t* getContent() const;
 
 			/**
 			 * @return The extension type of the next header. If there are no more header extensions or if this object is empty 
 			 * a value of zero is returned
 			 */
-            uint8_t getNextExtensionHeaderType() const;
+			uint8_t getNextExtensionHeaderType() const;
 
 			/**
 			 * @return An instance of this class representing the next extension header, if exists in the message. If there are 
 			 * no more header extensions or if this object is empty an empty instance of GtpExtension is returned, meaning
 			 * one that GtpExtension#isNull() returns "true"
 			 */
-            GtpExtension getNextExtension() const;
-        };
+			GtpExtension getNextExtension() const;
+		}; // GtpExtension
 
 		virtual ~GtpV1Layer() {}
 
@@ -423,7 +422,7 @@ namespace pcpp
 		bool isGTPCMessage() const;
 
 
-   	// implement abstract methods
+		// implement abstract methods
 
 		/**
 		 * Identifies the following next layers for GTP-U packets: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
@@ -447,7 +446,7 @@ namespace pcpp
 		std::string toString();
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
-    };
+	};
 }
 
 #endif //PACKETPP_GTP_LAYER
