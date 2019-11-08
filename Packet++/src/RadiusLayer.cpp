@@ -134,7 +134,7 @@ std::string RadiusLayer::getRadiusMessageString(uint8_t radiusMessageCode)
 	}
 }
 
-size_t RadiusLayer::getHeaderLen()
+size_t RadiusLayer::getHeaderLen() const
 {
 	uint16_t len = ntohs(getRadiusHeader()->length);
 	if (len > m_DataLen)
@@ -148,7 +148,7 @@ void RadiusLayer::computeCalculateFields()
 	getRadiusHeader()->length = htons(m_DataLen);
 }
 
-std::string RadiusLayer::toString()
+std::string RadiusLayer::toString() const
 {
 	std::ostringstream str;
 	str << "RADIUS Layer, " <<

@@ -327,7 +327,7 @@ icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddre
 	return header;
 }
 
-icmp_router_advertisement* IcmpLayer::getRouterAdvertisementData()
+icmp_router_advertisement* IcmpLayer::getRouterAdvertisementData() const
 {
 	if (!isMessageOfType(ICMP_ROUTER_ADV))
 		return NULL;
@@ -592,7 +592,7 @@ void IcmpLayer::parseNextLayer()
 	}
 }
 
-size_t IcmpLayer::getHeaderLen()
+size_t IcmpLayer::getHeaderLen() const
 {
 	IcmpMessageType type = getMessageType();
 	size_t routerAdvSize = 0;
@@ -650,7 +650,7 @@ void IcmpLayer::computeCalculateFields()
 	getIcmpHeader()->checksum = htons(checksum);
 }
 
-std::string IcmpLayer::toString()
+std::string IcmpLayer::toString() const
 {
 	std::string messageTypeAsString;
 	IcmpMessageType type = getMessageType();

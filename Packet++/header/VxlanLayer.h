@@ -121,14 +121,14 @@ namespace pcpp
 		/**
 		 * @return Size of vxlan_header
 		 */
-		size_t getHeaderLen() { return sizeof(vxlan_header); }
+		size_t getHeaderLen() const { return sizeof(vxlan_header); }
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 

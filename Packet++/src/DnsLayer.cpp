@@ -373,7 +373,7 @@ size_t DnsLayer::getAdditionalRecordCount() const
 	return ntohs(getDnsHeader()->numberOfAdditional);
 }
 
-std::string DnsLayer::toString()
+std::string DnsLayer::toString() const
 {
 	std::ostringstream tidAsString;
 	tidAsString << ntohs(getDnsHeader()->transactionID);

@@ -580,7 +580,7 @@ namespace pcpp
 		/**
 		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		size_t getHeaderLen() { return (size_t)(getIPv4Header()->internetHeaderLength*4) + m_TempHeaderExtension; }
+		size_t getHeaderLen() const { return (size_t)(getIPv4Header()->internetHeaderLength) * 4 + m_TempHeaderExtension; }
 
 		/**
 		 * Calculate the following fields:
@@ -591,7 +591,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 

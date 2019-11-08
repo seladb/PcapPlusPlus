@@ -219,7 +219,7 @@ namespace pcpp
 
 		// implement Layer's abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 	private:
 		SipRequestFirstLine* m_FirstLine;
@@ -445,7 +445,7 @@ namespace pcpp
 
 		// implement Layer's abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 	private:
 		SipResponseFirstLine* m_FirstLine;

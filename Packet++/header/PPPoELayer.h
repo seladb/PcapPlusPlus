@@ -140,7 +140,7 @@ namespace pcpp
 		 * @return The protocol after the PPPoE session header. The return value is one of the PPP_* macros listed below. This method is also
 		 * used when parsing a packet (this way we know which layer comes after the PPPoE session)
 		 */
-		uint16_t getPPPNextProtocol();
+		uint16_t getPPPNextProtocol() const;
 
 		/**
 		 * Set the field that describes which header comes after the PPPoE session header
@@ -158,9 +158,9 @@ namespace pcpp
 		/**
 		 * @return Size of @ref pppoe_header
 		 */
-		virtual size_t getHeaderLen() { return sizeof(pppoe_header) + sizeof(uint16_t); }
+		virtual size_t getHeaderLen() const { return sizeof(pppoe_header) + sizeof(uint16_t); }
 
-		virtual std::string toString();
+		virtual std::string toString() const;
 	};
 
 
@@ -372,9 +372,9 @@ namespace pcpp
 		/**
 		 * @return The header length which is size of strcut pppoe_header plus the total size of tags
 		 */
-		virtual size_t getHeaderLen();
+		virtual size_t getHeaderLen() const;
 
-		virtual std::string toString() { return "PPP-over-Ethernet Discovery (" + codeToString((PPPoELayer::PPPoECode)getPPPoEHeader()->code) + ")"; }
+		virtual std::string toString() const { return "PPP-over-Ethernet Discovery (" + codeToString((PPPoELayer::PPPoECode)getPPPoEHeader()->code) + ")"; }
 
 	private:
 		int m_TagCount;
@@ -383,7 +383,7 @@ namespace pcpp
 
 		PPPoETag* castPtrToPPPoETag(uint8_t* ptr);
 
-		std::string codeToString(PPPoECode code);
+		std::string codeToString(PPPoECode code) const;
 	};
 
 

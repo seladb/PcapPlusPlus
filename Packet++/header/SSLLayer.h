@@ -240,7 +240,7 @@ namespace pcpp
 		/**
 		 * @return The record size as extracted from the record data (in ssl_tls_record_layer#length)
 		 */
-		size_t getHeaderLen();
+		size_t getHeaderLen() const;
 
 		/**
 		 * Several SSL/TLS records can reside in a single packets. So this method checks the remaining data and if it's
@@ -350,7 +350,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * There are no calculated fields for this layer
@@ -385,7 +385,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * There are no calculated fields for this layer
@@ -418,7 +418,7 @@ namespace pcpp
 		/**
 		 * @return SSL/TLS alert level. Will return ::SSL_ALERT_LEVEL_ENCRYPTED if alert is encrypted
 		 */
-		SSLAlertLevel getAlertLevel();
+		SSLAlertLevel getAlertLevel() const;
 
 		/**
 		 * @return SSL/TLS alert description. Will return ::SSL_ALERT_ENCRYPRED if alert is encrypted
@@ -427,7 +427,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * There are no calculated fields for this layer
@@ -470,7 +470,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * There are no calculated fields for this layer

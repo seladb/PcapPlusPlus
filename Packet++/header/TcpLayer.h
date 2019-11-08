@@ -364,7 +364,7 @@ namespace pcpp
 		 * Get a pointer to the TCP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref tcphdr
 		 */
-		inline tcphdr* getTcpHeader() const { return (tcphdr*)m_Data; }
+		tcphdr* getTcpHeader() const { return (tcphdr*)m_Data; }
 
 		/**
 		 * Get a TCP option by type
@@ -447,14 +447,14 @@ namespace pcpp
 		/**
 		 * @return Size of @ref tcphdr + all TCP options
 		 */
-		inline size_t getHeaderLen() { return getTcpHeader()->dataOffset*4 ;}
+		size_t getHeaderLen() const { return getTcpHeader()->dataOffset*4 ;}
 
 		/**
 		 * Calculate @ref tcphdr#headerChecksum field
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 

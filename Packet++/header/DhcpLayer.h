@@ -672,7 +672,7 @@ namespace pcpp
 		 * @return DHCP message type as extracted from ::DHCPOPT_DHCP_MESSAGE_TYPE option. If this option doesn't exist the value of
 		 * ::DHCP_UNKNOWN_MSG_TYPE is returned
 		 */
-		DhcpMessageType getMesageType();
+		DhcpMessageType getMesageType() const;
 
 		/**
 		 * Set DHCP message type. This method searches for existing ::DHCPOPT_DHCP_MESSAGE_TYPE option. If found, it sets the requested
@@ -705,7 +705,7 @@ namespace pcpp
 		 * @return A DhcpOption object containing the first DHCP option data that matches this type, or logical NULL
 		 * (DhcpOption#isNull() == true) if no such option found
 		 */
-		DhcpOption getOptionData(DhcpOptionTypes option);
+		DhcpOption getOptionData(DhcpOptionTypes option) const;
 
 		/**
 		 * @return The number of DHCP options in this layer
@@ -752,7 +752,7 @@ namespace pcpp
 		/**
 		 * @return The size of @ref dhcp_header + size of options
 		 */
-		size_t getHeaderLen();
+		size_t getHeaderLen() const { return m_DataLen; }
 
 		/**
 		 * Calculate the following fields:
@@ -765,13 +765,13 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 	private:
 
-		inline uint8_t* getOptionsBasePtr() { return m_Data + sizeof(dhcp_header); }
+		uint8_t* getOptionsBasePtr() const { return m_Data + sizeof(dhcp_header); }
 
 		TLVRecordReader<DhcpOption> m_OptionReader;
 

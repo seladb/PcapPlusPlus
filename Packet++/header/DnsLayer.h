@@ -416,14 +416,14 @@ namespace pcpp
 		 * Return the size of the DNS data in the packet including he DNS header and size of all queries, answers, authorities and additional
 		 * records
 		 */
-		size_t getHeaderLen() { return m_DataLen; } //No layer above DNS
+		size_t getHeaderLen() const { return m_DataLen; } //No layer above DNS
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 

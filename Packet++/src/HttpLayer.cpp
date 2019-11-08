@@ -126,7 +126,7 @@ HttpRequestLayer::~HttpRequestLayer()
 	delete m_FirstLine;
 }
 
-std::string HttpRequestLayer::toString()
+std::string HttpRequestLayer::toString() const
 {
 	static const int maxLengthToPrint = 120;
 	std::string result = "HTTP request, ";
@@ -741,7 +741,7 @@ int HttpResponseLayer::getContentLength() const
 	return 0;
 }
 
-std::string HttpResponseLayer::toString()
+std::string HttpResponseLayer::toString() const
 {
 	static const int maxLengthToPrint = 120;
 	std::string result = "HTTP response, ";

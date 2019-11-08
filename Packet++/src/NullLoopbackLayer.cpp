@@ -73,7 +73,7 @@ void NullLoopbackLayer::parseNextLayer()
 }
 
 
-std::string NullLoopbackLayer::toString()
+std::string NullLoopbackLayer::toString() const
 {
 	return "Null/Loopback";
 }

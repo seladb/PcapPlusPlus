@@ -135,7 +135,7 @@ SSLRecordType SSLLayer::getRecordType() const
 	return (SSLRecordType)(getRecordLayer()->recordType);
 }
 
-size_t SSLLayer::getHeaderLen()
+size_t SSLLayer::getHeaderLen() const
 {
 	size_t len = sizeof(ssl_tls_record_layer) + ntohs(getRecordLayer()->length);
 	if (len > m_DataLen)
@@ -158,7 +158,7 @@ void SSLLayer::parseNextLayer()
 // SSLHandshakeLayer methods
 // -------------------------
 
-std::string SSLHandshakeLayer::toString()
+std::string SSLHandshakeLayer::toString() const
 {
 	std::stringstream result;
 	result << sslVersionToString(getRecordVersion()) << " Layer, Handshake:";
@@ -211,7 +211,7 @@ SSLHandshakeMessage* SSLHandshakeLayer::getHandshakeMessageAt(int index)
 // SSLChangeCipherSpecLayer methods
 // --------------------------------
 
-std::string SSLChangeCipherSpecLayer::toString()
+std::string SSLChangeCipherSpecLayer::toString() const
 {
 	std::stringstream result;
 	result << sslVersionToString(getRecordVersion()) << " Layer, Change Cipher Spec";
@@ -222,7 +222,7 @@ std::string SSLChangeCipherSpecLayer::toString()
 // SSLAlertLayer methods
 // ---------------------
 
-SSLAlertLevel SSLAlertLayer::getAlertLevel()
+SSLAlertLevel SSLAlertLayer::getAlertLevel() const
 {
 	uint8_t* pos = m_Data + sizeof(ssl_tls_record_layer);
 	uint8_t alertLevel = *pos;
@@ -273,7 +273,7 @@ SSLAlertDescription SSLAlertLayer::getAlertDescription()
 	}
 }
 
-std::string SSLAlertLayer::toString()
+std::string SSLAlertLayer::toString() const
 {
 	std::stringstream result;
 	result << sslVersionToString(getRecordVersion()) << " Layer, ";
@@ -306,7 +306,7 @@ size_t SSLApplicationDataLayer::getEncrpytedDataLen()
 	return (size_t)result;
 }
 
-std::string SSLApplicationDataLayer::toString()
+std::string SSLApplicationDataLayer::toString() const
 {
 	return sslVersionToString(getRecordVersion()) + " Layer, Application Data";
 }

@@ -75,14 +75,14 @@ namespace pcpp
 		/**
 		 * @return Size of Null/Loopback header = 4B
 		 */
-		size_t getHeaderLen() { return sizeof(uint32_t); }
+		size_t getHeaderLen() const { return sizeof(uint32_t); }
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};

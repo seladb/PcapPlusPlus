@@ -94,19 +94,19 @@ namespace pcpp
 		 * Get a pointer to the IPv6 header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref ip6_hdr
 		 */
-		inline ip6_hdr* getIPv6Header() { return (ip6_hdr*)m_Data; }
+		ip6_hdr* getIPv6Header() const { return (ip6_hdr*)m_Data; }
 
 		/**
 		 * Get the source IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the source address
 		 */
-		inline IPv6Address getSrcIpAddress() { return IPv6Address(getIPv6Header()->ipSrc); }
+		IPv6Address getSrcIpAddress() const { return IPv6Address(getIPv6Header()->ipSrc); }
 
 		/**
 		 * Get the destination IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the destination address
 		 */
-		inline IPv6Address getDstIpAddress() { return IPv6Address(getIPv6Header()->ipDst); }
+		IPv6Address getDstIpAddress() const { return IPv6Address(getIPv6Header()->ipDst); }
 
 		/**
 		 * @return Number of IPv6 extensions in this layer
@@ -154,7 +154,7 @@ namespace pcpp
 		/**
 		 * @return Size of @ref ip6_hdr
 		 */
-		inline size_t getHeaderLen() { return sizeof(ip6_hdr) + m_ExtensionsLen; }
+		size_t getHeaderLen() const { return sizeof(ip6_hdr) + m_ExtensionsLen; }
 
 		/**
 		 * Calculate the following fields:
@@ -164,7 +164,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 

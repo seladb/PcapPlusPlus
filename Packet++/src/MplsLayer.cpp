@@ -144,7 +144,7 @@ void MplsLayer::computeCalculateFields()
 	}
 }
 
-std::string MplsLayer::toString()
+std::string MplsLayer::toString() const
 {
 	std::ostringstream labelStream;
 	labelStream << getMplsLabel();

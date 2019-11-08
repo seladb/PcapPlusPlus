@@ -97,7 +97,7 @@ void VlanLayer::parseNextLayer()
 	}
 }
 
-std::string VlanLayer::toString()
+std::string VlanLayer::toString() const
 {
 	std::ostringstream cfiStream;
 	cfiStream << (int)getCFI();

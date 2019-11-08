@@ -415,7 +415,7 @@ void TextBasedProtocolMessage::parseNextLayer()
 	m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 }
 
-size_t TextBasedProtocolMessage::getHeaderLen()
+size_t TextBasedProtocolMessage::getHeaderLen() const
 {
 	return m_LastField->m_NameOffsetInMessage + m_LastField->m_FieldSize;
 }

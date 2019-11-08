@@ -124,7 +124,7 @@ void SllLayer::computeCalculateFields()
 	}
 }
 
-std::string SllLayer::toString()
+std::string SllLayer::toString() const
 {
 	return "Linux cooked header";
 }

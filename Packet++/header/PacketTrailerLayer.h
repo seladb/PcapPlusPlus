@@ -67,14 +67,14 @@ namespace pcpp
 		/**
 		 * @return trailer data length in bytes
 		 */
-		size_t getHeaderLen() { return m_DataLen; }
+		size_t getHeaderLen() const { return m_DataLen; }
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};

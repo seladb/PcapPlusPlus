@@ -155,7 +155,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 
-		std::string toString();
+		std::string toString() const;
 
 	protected:
 

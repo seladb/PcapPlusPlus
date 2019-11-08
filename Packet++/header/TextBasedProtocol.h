@@ -215,7 +215,7 @@ public:
 	/**
 	 * @return The message length
 	 */
-	size_t getHeaderLen();
+	size_t getHeaderLen() const;
 
 	/**
 	 * Does nothing for this class

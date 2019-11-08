@@ -74,7 +74,7 @@ void PPPoESessionLayer::parseNextLayer()
 
 }
 
-uint16_t PPPoESessionLayer::getPPPNextProtocol()
+uint16_t PPPoESessionLayer::getPPPNextProtocol() const
 {
 	if (m_DataLen < getHeaderLen())
 	{
@@ -239,7 +239,7 @@ std::map<uint16_t, std::string> createPPPNextProtoToStringMap()
 
 const std::map<uint16_t, std::string> PPPNextProtoToString = createPPPNextProtoToStringMap();
 
-std::string PPPoESessionLayer::toString()
+std::string PPPoESessionLayer::toString() const
 {
 	std::map<uint16_t, std::string>::const_iterator iter = PPPNextProtoToString.find(getPPPNextProtocol());
 	std::string nextProtocol;
@@ -370,7 +370,7 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::addTag(PPPoETagTypes tagType
 	return addTagAt(tagType, tagLength, tagData, getHeaderLen());
 }
 
-size_t PPPoEDiscoveryLayer::getHeaderLen()
+size_t PPPoEDiscoveryLayer::getHeaderLen() const
 {
 	return sizeof(pppoe_header) + ntohs(getPPPoEHeader()->payloadLength);
 }
@@ -400,7 +400,7 @@ bool PPPoEDiscoveryLayer::removeAllTags()
 	return shortenLayer(offset, m_DataLen-offset);
 }
 
-std::string PPPoEDiscoveryLayer::codeToString(PPPoECode code)
+std::string PPPoEDiscoveryLayer::codeToString(PPPoECode code) const
 {
 	switch (code)
 	{

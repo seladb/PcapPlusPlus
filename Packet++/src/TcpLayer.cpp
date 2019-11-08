@@ -358,7 +358,7 @@ void TcpLayer::computeCalculateFields()
 	calculateChecksum(true);
 }
 
-std::string TcpLayer::toString()
+std::string TcpLayer::toString() const
 {
 	tcphdr* hdr = getTcpHeader();
 	std::string result = "TCP Layer, ";

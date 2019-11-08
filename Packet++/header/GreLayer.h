@@ -156,7 +156,7 @@ namespace pcpp
 		/**
 		 * @return Size of GRE header (may change if optional fields are added or removed)
 		 */
-		size_t getHeaderLen();
+		size_t getHeaderLen() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
@@ -286,7 +286,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 	};
 
@@ -359,7 +359,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 	};
 
@@ -406,7 +406,7 @@ namespace pcpp
 		/**
 		 * @return The size of @ref ppp_pptp_header
 		 */
-		size_t getHeaderLen() { return sizeof(ppp_pptp_header); }
+		size_t getHeaderLen() const { return sizeof(ppp_pptp_header); }
 
 		/**
 		 * Calculate the following fields:
@@ -414,7 +414,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString() { return "PPP for PPTP Layer"; }
+		std::string toString() const { return "PPP for PPTP Layer"; }
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 

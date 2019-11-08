@@ -1042,7 +1042,7 @@ SSLExtension::SSLExtension(uint8_t* data)
 	m_RawData = data;
 }
 
-SSLExtensionType SSLExtension::getType()
+SSLExtensionType SSLExtension::getType() const
 {
 	uint16_t typeAsInt = getTypeAsInt();
 	if (typeAsInt <= 24 || typeAsInt == 35 || typeAsInt == 65281)
@@ -1051,22 +1051,22 @@ SSLExtensionType SSLExtension::getType()
 	return SSL_EXT_Unknown;
 }
 
-uint16_t SSLExtension::getTypeAsInt()
+uint16_t SSLExtension::getTypeAsInt() const
 {
 	return ntohs(getExtensionStruct()->extensionType);
 }
 
-uint16_t SSLExtension::getLength()
+uint16_t SSLExtension::getLength() const
 {
 	return ntohs(getExtensionStruct()->extensionDataLength);
 }
 
-uint16_t SSLExtension::getTotalLength()
+uint16_t SSLExtension::getTotalLength() const
 {
 	return getLength() + 2*sizeof(uint16_t);
 }
 
-uint8_t* SSLExtension::getData()
+uint8_t* SSLExtension::getData() const
 {
 	return getExtensionStruct()->extensionData;
 }
@@ -1076,7 +1076,7 @@ uint8_t* SSLExtension::getData()
 // SSLServerNameIndicationExtension methods
 // ----------------------------------------
 
-std::string SSLServerNameIndicationExtension::getHostName()
+std::string SSLServerNameIndicationExtension::getHostName() const
 {
 	uint8_t* hostNameLengthPos = getData() + sizeof(uint16_t) + sizeof(uint8_t);
 	uint16_t hostNameLength = ntohs(*(uint16_t*)hostNameLengthPos);
@@ -1137,13 +1137,13 @@ SSLHandshakeMessage* SSLHandshakeMessage::createHandhakeMessage(uint8_t* data, s
 	}
 }
 
-SSLHandshakeType SSLHandshakeMessage::getHandshakeType()
+SSLHandshakeType SSLHandshakeMessage::getHandshakeType() const
 {
 	ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
 	return (SSLHandshakeType)handshakeLayer->handshakeType;
 }
 
-size_t SSLHandshakeMessage::getMessageLength()
+size_t SSLHandshakeMessage::getMessageLength() const
 {
 	ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
 	//TODO: add handshakeLayer->length1 to the calculation
@@ -1154,7 +1154,7 @@ size_t SSLHandshakeMessage::getMessageLength()
 	return len;
 }
 
-bool SSLHandshakeMessage::isMessageComplete()
+bool SSLHandshakeMessage::isMessageComplete() const
 {
 	if (m_DataLen < sizeof(ssl_tls_handshake_layer))
 		return false;
@@ -1199,13 +1199,13 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	}
 }
 
-SSLVersion SSLClientHelloMessage::getHandshakeVersion()
+SSLVersion SSLClientHelloMessage::getHandshakeVersion() const
 {
 	uint16_t handshakeVersion = ntohs(getClientHelloHeader()->handshakeVersion);
 	return (SSLVersion)handshakeVersion;
 }
 
-uint8_t SSLClientHelloMessage::getSessionIDLength()
+uint8_t SSLClientHelloMessage::getSessionIDLength() const
 {
 	uint8_t val = *(m_Data + sizeof(ssl_tls_client_server_hello));
 	if ((size_t)val > m_DataLen - sizeof(ssl_tls_client_server_hello) - 1)
@@ -1214,7 +1214,7 @@ uint8_t SSLClientHelloMessage::getSessionIDLength()
 	return val;
 }
 
-uint8_t* SSLClientHelloMessage::getSessionID()
+uint8_t* SSLClientHelloMessage::getSessionID() const
 {
 	if (getSessionIDLength() > 0)
 		return (m_Data + sizeof(ssl_tls_client_server_hello) + 1);
@@ -1222,7 +1222,7 @@ uint8_t* SSLClientHelloMessage::getSessionID()
 		return NULL;
 }
 
-int SSLClientHelloMessage::getCipherSuiteCount()
+int SSLClientHelloMessage::getCipherSuiteCount() const
 {
 	size_t cipherSuiteOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength();
 	if (cipherSuiteOffset + sizeof(uint16_t) > m_DataLen)
@@ -1232,7 +1232,7 @@ int SSLClientHelloMessage::getCipherSuiteCount()
 	return ntohs(cipherSuiteLen) / 2;
 }
 
-SSLCipherSuite* SSLClientHelloMessage::getCipherSuite(int index)
+SSLCipherSuite* SSLClientHelloMessage::getCipherSuite(int index) const
 {
 	if (index < 0 || index >= getCipherSuiteCount())
 		return NULL;
@@ -1245,7 +1245,7 @@ SSLCipherSuite* SSLClientHelloMessage::getCipherSuite(int index)
 	return SSLCipherSuite::getCipherSuiteByID(ntohs(*(cipherSuiteStartPos+index)));
 }
 
-uint8_t SSLClientHelloMessage::getCompressionMethodsValue()
+uint8_t SSLClientHelloMessage::getCompressionMethodsValue() const
 {
 	size_t offset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + sizeof(uint8_t);
 	if (offset + sizeof(uint8_t) > m_DataLen)
@@ -1255,12 +1255,12 @@ uint8_t SSLClientHelloMessage::getCompressionMethodsValue()
 	return *pos;
 }
 
-int SSLClientHelloMessage::getExtensionCount()
+int SSLClientHelloMessage::getExtensionCount() const
 {
 	return m_ExtensionList.size();
 }
 
-uint16_t SSLClientHelloMessage::getExtensionsLenth()
+uint16_t SSLClientHelloMessage::getExtensionsLenth() const
 {
 	size_t extensionLengthOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + 2*sizeof(uint8_t);
 	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
@@ -1270,17 +1270,17 @@ uint16_t SSLClientHelloMessage::getExtensionsLenth()
 	return ntohs(*(uint16_t*)extensionLengthPos);
 }
 
-SSLExtension* SSLClientHelloMessage::getExtension(int index)
+SSLExtension* SSLClientHelloMessage::getExtension(int index) const
 {
-	return m_ExtensionList.at(index);
+	return const_cast<SSLExtension*>(m_ExtensionList.at(index));
 }
 
-SSLExtension* SSLClientHelloMessage::getExtensionOfType(uint16_t type)
+SSLExtension* SSLClientHelloMessage::getExtensionOfType(uint16_t type) const
 {
 	size_t vecSize = m_ExtensionList.size();
 	for (size_t i = 0; i < vecSize; i++)
 	{
-		SSLExtension* curElem = m_ExtensionList.at(i);
+		SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 		if (curElem->getTypeAsInt() == type)
 			return curElem;
 	}
@@ -1288,12 +1288,12 @@ SSLExtension* SSLClientHelloMessage::getExtensionOfType(uint16_t type)
 	return NULL;
 }
 
-SSLExtension* SSLClientHelloMessage::getExtensionOfType(SSLExtensionType type)
+SSLExtension* SSLClientHelloMessage::getExtensionOfType(SSLExtensionType type) const
 {
 	size_t vecSize = m_ExtensionList.size();
 	for (size_t i = 0; i < vecSize; i++)
 	{
-		SSLExtension* curElem = m_ExtensionList.at(i);
+		SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 		if (curElem->getType() == type)
 			return curElem;
 	}
@@ -1301,7 +1301,7 @@ SSLExtension* SSLClientHelloMessage::getExtensionOfType(SSLExtensionType type)
 	return NULL;
 }
 
-std::string SSLClientHelloMessage::toString()
+std::string SSLClientHelloMessage::toString() const
 {
 	return "Client Hello message";
 }
@@ -1341,13 +1341,13 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	}
 }
 
-SSLVersion SSLServerHelloMessage::getHandshakeVersion()
+SSLVersion SSLServerHelloMessage::getHandshakeVersion() const
 {
 	uint16_t handshakeVersion = ntohs(getServerHelloHeader()->handshakeVersion);
 	return (SSLVersion)handshakeVersion;
 
 }
-uint8_t SSLServerHelloMessage::getSessionIDLength()
+uint8_t SSLServerHelloMessage::getSessionIDLength() const
 {
 	uint8_t val = *(m_Data + sizeof(ssl_tls_client_server_hello));
 	if ((size_t)val > m_DataLen - sizeof(ssl_tls_client_server_hello) - 1)
@@ -1356,7 +1356,7 @@ uint8_t SSLServerHelloMessage::getSessionIDLength()
 	return val;
 }
 
-uint8_t* SSLServerHelloMessage::getSessionID()
+uint8_t* SSLServerHelloMessage::getSessionID() const
 {
 	if (getSessionIDLength() > 0)
 		return (m_Data + sizeof(ssl_tls_client_server_hello) + 1);
@@ -1364,7 +1364,7 @@ uint8_t* SSLServerHelloMessage::getSessionID()
 		return NULL;
 }
 
-SSLCipherSuite* SSLServerHelloMessage::getCipherSuite()
+SSLCipherSuite* SSLServerHelloMessage::getCipherSuite() const
 {
 	size_t cipherSuiteStartOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength();
 	if (cipherSuiteStartOffset + sizeof(uint16_t) > m_DataLen)
@@ -1374,7 +1374,7 @@ SSLCipherSuite* SSLServerHelloMessage::getCipherSuite()
 	return SSLCipherSuite::getCipherSuiteByID(ntohs(*(cipherSuiteStartPos)));
 }
 
-uint8_t SSLServerHelloMessage::getCompressionMethodsValue()
+uint8_t SSLServerHelloMessage::getCompressionMethodsValue() const
 {
 	size_t offset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t);
 	if (offset + sizeof(uint8_t) > m_DataLen)
@@ -1384,12 +1384,12 @@ uint8_t SSLServerHelloMessage::getCompressionMethodsValue()
 	return *pos;
 }
 
-int SSLServerHelloMessage::getExtensionCount()
+int SSLServerHelloMessage::getExtensionCount() const
 {
 	return m_ExtensionList.size();
 }
 
-uint16_t SSLServerHelloMessage::getExtensionsLenth()
+uint16_t SSLServerHelloMessage::getExtensionsLenth() const
 {
 	size_t extensionLengthOffset  = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint8_t);
 	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
@@ -1399,20 +1399,20 @@ uint16_t SSLServerHelloMessage::getExtensionsLenth()
 	return ntohs(*extensionLengthPos);
 }
 
-SSLExtension* SSLServerHelloMessage::getExtension(int index)
+SSLExtension* SSLServerHelloMessage::getExtension(int index) const
 {
 	if (index < 0 || index >= (int)m_ExtensionList.size())
 		return NULL;
 
-	return m_ExtensionList.at(index);
+	return const_cast<SSLExtension*>(m_ExtensionList.at(index));
 }
 
-SSLExtension* SSLServerHelloMessage::getExtensionOfType(uint16_t type)
+SSLExtension* SSLServerHelloMessage::getExtensionOfType(uint16_t type) const
 {
 	size_t vecSize = m_ExtensionList.size();
 	for (size_t i = 0; i < vecSize; i++)
 	{
-		SSLExtension* curElem = m_ExtensionList.at(i);
+		SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 		if (curElem->getType() == type)
 			return curElem;
 	}
@@ -1420,12 +1420,12 @@ SSLExtension* SSLServerHelloMessage::getExtensionOfType(uint16_t type)
 	return NULL;
 }
 
-SSLExtension* SSLServerHelloMessage::getExtensionOfType(SSLExtensionType type)
+SSLExtension* SSLServerHelloMessage::getExtensionOfType(SSLExtensionType type) const
 {
 	size_t vecSize = m_ExtensionList.size();
 	for (size_t i = 0; i < vecSize; i++)
 	{
-		SSLExtension* curElem = m_ExtensionList.at(i);
+		SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 		if (curElem->getType() == type)
 			return curElem;
 	}
@@ -1433,7 +1433,7 @@ SSLExtension* SSLServerHelloMessage::getExtensionOfType(SSLExtensionType type)
 	return NULL;
 }
 
-std::string SSLServerHelloMessage::toString()
+std::string SSLServerHelloMessage::toString() const
 {
 	return "Server Hello message";
 }
@@ -1492,17 +1492,17 @@ SSLCertificateMessage::SSLCertificateMessage(uint8_t* data, size_t dataLen, SSLH
 	}
 }
 
-std::string SSLCertificateMessage::toString()
+std::string SSLCertificateMessage::toString() const
 {
 	return "Certificate message";
 }
 
-int SSLCertificateMessage::getNumOfCertificates()
+int SSLCertificateMessage::getNumOfCertificates() const
 {
 	return m_CertificateList.size();
 }
 
-SSLx509Certificate* SSLCertificateMessage::getCertificate(int index)
+SSLx509Certificate* SSLCertificateMessage::getCertificate(int index) const
 {
 	if (index < 0 || index > (int)m_CertificateList.size())
 	{
@@ -1510,7 +1510,7 @@ SSLx509Certificate* SSLCertificateMessage::getCertificate(int index)
 		return NULL;
 	}
 
-	return m_CertificateList.at(index);
+	return const_cast<SSLx509Certificate*>(m_CertificateList.at(index));
 }
 
 
@@ -1519,7 +1519,7 @@ SSLx509Certificate* SSLCertificateMessage::getCertificate(int index)
 // SSLHelloRequestMessage methods
 // ------------------------------
 
-std::string SSLHelloRequestMessage::toString()
+std::string SSLHelloRequestMessage::toString() const
 {
 	return "Hello Request message";
 }
@@ -1529,7 +1529,7 @@ std::string SSLHelloRequestMessage::toString()
 // SSLServerHelloDoneMessage methods
 // ---------------------------------
 
-std::string SSLServerHelloDoneMessage::toString()
+std::string SSLServerHelloDoneMessage::toString() const
 {
 	return "Server Hello Done message";
 }
@@ -1538,7 +1538,7 @@ std::string SSLServerHelloDoneMessage::toString()
 // SSLServerKeyExchangeMessage methods
 // -----------------------------------
 
-uint8_t* SSLServerKeyExchangeMessage::getServerKeyExchangeParams()
+uint8_t* SSLServerKeyExchangeMessage::getServerKeyExchangeParams() const
 {
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
@@ -1546,7 +1546,7 @@ uint8_t* SSLServerKeyExchangeMessage::getServerKeyExchangeParams()
 	return NULL;
 }
 
-size_t SSLServerKeyExchangeMessage::getServerKeyExchangeParamsLength()
+size_t SSLServerKeyExchangeMessage::getServerKeyExchangeParamsLength() const
 {
 	size_t msgLength = getMessageLength();
 	if (msgLength <= sizeof(ssl_tls_handshake_layer))
@@ -1555,7 +1555,7 @@ size_t SSLServerKeyExchangeMessage::getServerKeyExchangeParamsLength()
 	return msgLength - sizeof(ssl_tls_handshake_layer);
 }
 
-std::string SSLServerKeyExchangeMessage::toString()
+std::string SSLServerKeyExchangeMessage::toString() const
 {
 	return "Server Key Exchange message";
 }
@@ -1564,7 +1564,7 @@ std::string SSLServerKeyExchangeMessage::toString()
 // SSLClientKeyExchangeMessage methods
 // -----------------------------------
 
-uint8_t* SSLClientKeyExchangeMessage::getClientKeyExchangeParams()
+uint8_t* SSLClientKeyExchangeMessage::getClientKeyExchangeParams() const
 {
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
@@ -1572,7 +1572,7 @@ uint8_t* SSLClientKeyExchangeMessage::getClientKeyExchangeParams()
 	return NULL;
 }
 
-size_t SSLClientKeyExchangeMessage::getClientKeyExchangeParamsLength()
+size_t SSLClientKeyExchangeMessage::getClientKeyExchangeParamsLength() const
 {
 	size_t msgLength = getMessageLength();
 	if (msgLength <= sizeof(ssl_tls_handshake_layer))
@@ -1581,7 +1581,7 @@ size_t SSLClientKeyExchangeMessage::getClientKeyExchangeParamsLength()
 	return msgLength - sizeof(ssl_tls_handshake_layer);
 }
 
-std::string SSLClientKeyExchangeMessage::toString()
+std::string SSLClientKeyExchangeMessage::toString() const
 {
 	return "Client Key Exchange message";
 }
@@ -1625,7 +1625,7 @@ std::vector<SSLClientCertificateType>& SSLCertificateRequestMessage::getCertific
 	return m_ClientCertificateTypes;
 }
 
-uint8_t* SSLCertificateRequestMessage::getCertificateAuthorityData()
+uint8_t* SSLCertificateRequestMessage::getCertificateAuthorityData() const
 {
 	size_t messageLen = getMessageLength();
 	size_t offset = sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t) + m_ClientCertificateTypes.size() + sizeof(uint16_t);
@@ -1635,7 +1635,7 @@ uint8_t* SSLCertificateRequestMessage::getCertificateAuthorityData()
 	return m_Data + offset;
 }
 
-size_t SSLCertificateRequestMessage::getCertificateAuthorityLength()
+size_t SSLCertificateRequestMessage::getCertificateAuthorityLength() const
 {
 	size_t messageLen = getMessageLength();
 	size_t offset = sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t) + m_ClientCertificateTypes.size();
@@ -1652,7 +1652,7 @@ size_t SSLCertificateRequestMessage::getCertificateAuthorityLength()
 	return certAuthLen;
 }
 
-std::string SSLCertificateRequestMessage::toString()
+std::string SSLCertificateRequestMessage::toString() const
 {
 	return "Certificate Request message";
 }
@@ -1662,7 +1662,7 @@ std::string SSLCertificateRequestMessage::toString()
 // SSLCertificateVerifyMessage methods
 // -----------------------------------
 
-uint8_t* SSLCertificateVerifyMessage::getSignedHash()
+uint8_t* SSLCertificateVerifyMessage::getSignedHash() const
 {
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
@@ -1670,7 +1670,7 @@ uint8_t* SSLCertificateVerifyMessage::getSignedHash()
 	return NULL;
 }
 
-size_t SSLCertificateVerifyMessage::getSignedHashLength()
+size_t SSLCertificateVerifyMessage::getSignedHashLength() const
 {
 	size_t msgLength = getMessageLength();
 	if (msgLength <= sizeof(ssl_tls_handshake_layer))
@@ -1679,7 +1679,7 @@ size_t SSLCertificateVerifyMessage::getSignedHashLength()
 	return msgLength - sizeof(ssl_tls_handshake_layer);
 }
 
-std::string SSLCertificateVerifyMessage::toString()
+std::string SSLCertificateVerifyMessage::toString() const
 {
 	return "Certificate Verify message";
 }
@@ -1688,7 +1688,7 @@ std::string SSLCertificateVerifyMessage::toString()
 // SSLFinishedMessage methods
 // --------------------------
 
-uint8_t* SSLFinishedMessage::getSignedHash()
+uint8_t* SSLFinishedMessage::getSignedHash() const
 {
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
@@ -1696,7 +1696,7 @@ uint8_t* SSLFinishedMessage::getSignedHash()
 	return NULL;
 }
 
-size_t SSLFinishedMessage::getSignedHashLength()
+size_t SSLFinishedMessage::getSignedHashLength() const
 {
 	size_t msgLength = getMessageLength();
 	if (msgLength <= sizeof(ssl_tls_handshake_layer))
@@ -1705,7 +1705,7 @@ size_t SSLFinishedMessage::getSignedHashLength()
 	return msgLength - sizeof(ssl_tls_handshake_layer);
 }
 
-std::string SSLFinishedMessage::toString()
+std::string SSLFinishedMessage::toString() const
 {
 	return "Finished message";
 }
@@ -1715,7 +1715,7 @@ std::string SSLFinishedMessage::toString()
 // SSLNewSessionTicketMessage methods
 // ----------------------------------
 
-uint8_t* SSLNewSessionTicketMessage::getSessionTicketData()
+uint8_t* SSLNewSessionTicketMessage::getSessionTicketData() const
 {
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
@@ -1723,7 +1723,7 @@ uint8_t* SSLNewSessionTicketMessage::getSessionTicketData()
 	return NULL;
 }
 
-size_t SSLNewSessionTicketMessage::getSessionTicketDataLength()
+size_t SSLNewSessionTicketMessage::getSessionTicketDataLength() const
 {
 	size_t msgLength = getMessageLength();
 	if (msgLength <= sizeof(ssl_tls_handshake_layer))
@@ -1732,7 +1732,7 @@ size_t SSLNewSessionTicketMessage::getSessionTicketDataLength()
 	return msgLength - sizeof(ssl_tls_handshake_layer);
 }
 
-std::string SSLNewSessionTicketMessage::toString()
+std::string SSLNewSessionTicketMessage::toString() const
 {
 	return "New Session Ticket message";
 }
@@ -1742,14 +1742,14 @@ std::string SSLNewSessionTicketMessage::toString()
 // SSLUnknownMessage methods
 // -------------------------
 
-SSLHandshakeType SSLUnknownMessage::getHandshakeType()
+SSLHandshakeType SSLUnknownMessage::getHandshakeType() const
 {
 	// if message type is unknown, it may be some encrypted message so message type isn't necessarily written
 	// in clear in the first byte. So always return SSL_HANDSHAKE_UNKNOWN
 	return SSL_HANDSHAKE_UNKNOWN;
 }
 
-size_t SSLUnknownMessage::getMessageLength()
+size_t SSLUnknownMessage::getMessageLength() const
 {
 	// if message type is unknown, it may be some encrypted message so message length isn't necessarily written
 	// in clear. So in this case assume message is in length of all remaining data
@@ -1757,7 +1757,7 @@ size_t SSLUnknownMessage::getMessageLength()
 }
 
 
-std::string SSLUnknownMessage::toString()
+std::string SSLUnknownMessage::toString() const
 {
 	return "Unknown message";
 }

@@ -602,7 +602,7 @@ void GtpV1Layer::parseNextLayer()
 	}
 }
 
-size_t GtpV1Layer::getHeaderLen()
+size_t GtpV1Layer::getHeaderLen() const
 {
 	gtpv1_header* header = getHeader();
 	if (header == NULL)
@@ -635,7 +635,7 @@ size_t GtpV1Layer::getHeaderLen()
 	return res;
 }
 
-std::string GtpV1Layer::toString()
+std::string GtpV1Layer::toString() const
 {
 	std::string res = "GTP v1 Layer";
 

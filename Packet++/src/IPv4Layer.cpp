@@ -371,7 +371,7 @@ uint16_t IPv4Layer::getFragmentOffset() const
 	return ntohs(getIPv4Header()->fragmentOffset & (uint16_t)0xFF1F) * 8;
 }
 
-std::string IPv4Layer::toString()
+std::string IPv4Layer::toString() const
 {
 	std::string fragmet = "";
 	if (isFragment())
@@ -387,7 +387,6 @@ std::string IPv4Layer::toString()
 		sstm << fragmet << " [offset= " << getFragmentOffset() << "], ";
 		fragmet = sstm.str();
 	}
-
 
 	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 }

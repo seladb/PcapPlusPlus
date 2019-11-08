@@ -200,7 +200,7 @@ namespace pcpp
 		std::string getUrl() const;
 
 		// implement Layer's abstract methods
-		std::string toString();
+		std::string toString() const;
 
 	private:
 		HttpRequestFirstLine* m_FirstLine;
@@ -464,7 +464,7 @@ namespace pcpp
 
 		// implement Layer's abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 	private:
 		HttpResponseFirstLine* m_FirstLine;

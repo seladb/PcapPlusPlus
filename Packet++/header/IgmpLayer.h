@@ -223,9 +223,9 @@ public:
 	/**
 	 * @return Size of IGMP header = 8B
 	 */
-	size_t getHeaderLen() { return sizeof(igmp_header); }
+	size_t getHeaderLen() const { return sizeof(igmp_header); }
 
-	std::string toString();
+	std::string toString() const;
 
 	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 };
@@ -395,7 +395,7 @@ public:
 	/**
 	 * @return The message size in bytes which include the size of the basic header + the size of the source address list
 	 */
-	size_t getHeaderLen();
+	size_t getHeaderLen() const;
 };
 
 
@@ -501,7 +501,7 @@ public:
 	/**
 	 * @return The message size in bytes which include the size of the basic header + the size of the group record list
 	 */
-	size_t getHeaderLen();
+	size_t getHeaderLen() const { return m_DataLen; }
 };
 
 }

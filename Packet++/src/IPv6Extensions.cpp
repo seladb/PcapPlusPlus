@@ -174,7 +174,7 @@ IPv6TLVOptionHeader::IPv6TLVOptionHeader(const std::vector<IPv6TLVOptionBuilder>
 	for (std::vector<IPv6TLVOptionBuilder>::const_iterator iter = options.begin(); iter != options.end(); iter++)
 	{
 		IPv6Option option = iter->build();
-		memcpy((uint8_t*)(getDataPtr() + offset), option.getRecordBasePtr(), option.getTotalSize());
+		memcpy(getDataPtr() + offset, option.getRecordBasePtr(), option.getTotalSize());
 		offset += option.getTotalSize();
 		option.purgeRecordData();
 	}
@@ -207,7 +207,7 @@ IPv6RoutingHeader::IPv6RoutingHeader(uint8_t routingType, uint8_t segmentsLeft, 
 
 	if (additionalRoutingDataLen > 0 && additionalRoutingData != NULL)
 	{
-		uint8_t* additionalDataPtr = (uint8_t*)(getDataPtr() + sizeof(ipv6_routing_header));
+		uint8_t* additionalDataPtr = getDataPtr() + sizeof(ipv6_routing_header);
 		memcpy(additionalDataPtr, additionalRoutingData, additionalRoutingDataLen);
 	}
 }
@@ -215,7 +215,7 @@ IPv6RoutingHeader::IPv6RoutingHeader(uint8_t routingType, uint8_t segmentsLeft, 
 uint8_t* IPv6RoutingHeader::getRoutingAdditionalData() const
 {
 	if (getExtensionLen() > sizeof(ipv6_routing_header))
-		return (uint8_t*)(getDataPtr() + sizeof(ipv6_routing_header));
+		return getDataPtr() + sizeof(ipv6_routing_header);
 
 	return NULL;
 }
@@ -263,7 +263,7 @@ IPv6AuthenticationHeader::IPv6AuthenticationHeader(uint32_t securityParametersIn
 
 	if (integrityCheckValueLen > 0 && integrityCheckValue != NULL)
 	{
-		uint8_t* icvPtr = (uint8_t*)(getDataPtr() + sizeof(ipv6_authentication_header));
+		uint8_t* icvPtr = getDataPtr() + sizeof(ipv6_authentication_header);
 		memcpy(icvPtr, integrityCheckValue, integrityCheckValueLen);
 	}
 }
@@ -271,7 +271,7 @@ IPv6AuthenticationHeader::IPv6AuthenticationHeader(uint32_t securityParametersIn
 uint8_t* IPv6AuthenticationHeader::getIntegrityCheckValue() const
 {
 	if (getExtensionLen() > sizeof(ipv6_authentication_header))
-		return (uint8_t*)(getDataPtr() + sizeof(ipv6_authentication_header));
+		return getDataPtr() + sizeof(ipv6_authentication_header);
 
 	return NULL;
 }

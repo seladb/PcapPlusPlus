@@ -233,7 +233,7 @@ void GreLayer::parseNextLayer()
 	}
 }
 
-size_t GreLayer::getHeaderLen()
+size_t GreLayer::getHeaderLen() const
 {
 	size_t result = sizeof(gre_basic_header);
 
@@ -442,7 +442,7 @@ void GREv0Layer::computeCalculateFields()
 	setChecksum(checksum);
 }
 
-std::string GREv0Layer::toString()
+std::string GREv0Layer::toString() const
 {
 	return "GRE Layer, version 0";
 }
@@ -534,7 +534,7 @@ void GREv1Layer::computeCalculateFields()
 	getGreHeader()->payloadLength = htons(m_DataLen - getHeaderLen());
 }
 
-std::string GREv1Layer::toString()
+std::string GREv1Layer::toString() const
 {
 	return "GRE Layer, version 1";
 }
