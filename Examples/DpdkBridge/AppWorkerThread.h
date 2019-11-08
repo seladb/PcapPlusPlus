@@ -82,7 +82,7 @@ public:
 		m_Stop = true;
 	}
 
-	uint32_t getCoreId()
+	uint32_t getCoreId() const
 	{
 		return m_CoreId;
 	}
