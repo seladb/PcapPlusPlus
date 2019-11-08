@@ -760,7 +760,7 @@ namespace pcpp
 
 		void clearCoreConfiguration();
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
-		int getCoresInUseCount();
+		int getCoresInUseCount() const;
 
 		void setDeviceInfo();
 

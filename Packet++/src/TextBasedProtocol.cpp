@@ -565,12 +565,22 @@ HeaderField::HeaderField(const HeaderField& other) : m_NameValueSeperator('\0'),
 	initNewField(other.getFieldName(), other.getFieldValue());
 }
 
-char* HeaderField::getData()
+char* HeaderField::getData() const
 {
 	if (m_TextBasedProtocolMessage == NULL)
 		return (char*)m_NewFieldData;
 	else
 		return (char*)(m_TextBasedProtocolMessage->m_Data);
+}
+
+void HeaderField::setNextField(HeaderField* nextField)
+{
+	m_NextField = nextField;
+}
+
+HeaderField* HeaderField::getNextField() const
+{
+	return m_NextField;
 }
 
 std::string HeaderField::getFieldName() const
@@ -616,7 +626,7 @@ bool HeaderField::setFieldValue(std::string newValue)
 	// new value is shorter than current value
 	else if (lengthDifference < 0)
 	{
-		if (!m_TextBasedProtocolMessage->shortenLayer(m_ValueOffsetInMessage, 0-lengthDifference))
+		if (!m_TextBasedProtocolMessage->shortenLayer(m_ValueOffsetInMessage, 0 - lengthDifference))
 		{
 			LOG_ERROR("Could not shorten layer");
 			return false;

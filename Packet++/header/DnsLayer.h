@@ -144,7 +144,7 @@ namespace pcpp
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 		 * @return The first matching DNS query or NULL if no queries were found
 		 */
-		DnsQuery* getQuery(const std::string& name, bool exactMatch);
+		DnsQuery* getQuery(const std::string& name, bool exactMatch) const;
 
 		/**
 		 * @return The first DNS query in the packet or NULL if packet doesn't contain any queries

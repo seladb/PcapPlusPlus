@@ -439,7 +439,7 @@ public:
 	 * @return A pointer to the first group record or NULL if no group records exist. Notice the return value is a pointer to the real data,
 	 * so changes in the return value will affect the packet data
 	 */
-	igmpv3_group_record* getFirstGroupRecord();
+	igmpv3_group_record* getFirstGroupRecord() const;
 
 	/**
 	 * Get the group record that comes next to a given group record. If "groupRecord" is NULL then NULL will be returned.
@@ -449,7 +449,7 @@ public:
 	 * @param[in] groupRecord The group record to start searching from
 	 * @return The next group record or NULL if "groupRecord" is NULL, last or out of layer bounds
 	 */
-	igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord);
+	igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord) const;
 
 	/**
 	 * Add a new group record at a the end of the group record list. The igmpv3_report_header#numOfGroupRecords field will be

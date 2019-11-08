@@ -18,7 +18,7 @@
 namespace pcpp
 {
 
-icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int index)
+icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int index) const
 {
 	if (index < 0 || index >= header->advertisementCount)
 		return NULL;

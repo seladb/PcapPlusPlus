@@ -24,12 +24,12 @@ namespace pcpp
 		/** Traffic class */
 		uint8_t trafficClass:4,
 		/** IP version number, has the value of 6 for IPv6 */
-				ipVersion:4;
+		ipVersion:4;
 		#else
 		/** IP version number, has the value of 6 for IPv6 */
 		uint8_t ipVersion:4,
 		/** Traffic class */
-				trafficClass:4;
+		trafficClass:4;
 		#endif
 		/** Flow label */
 		uint8_t flowLabel[3];
@@ -111,7 +111,7 @@ namespace pcpp
 		/**
 		 * @return Number of IPv6 extensions in this layer
 		 */
-		size_t getExtensionCount();
+		size_t getExtensionCount() const;
 
 		/**
 		 * A templated getter for an IPv6 extension of a type TIPv6Extension. TIPv6Extension has to be one of the supported IPv6 extensions,
@@ -119,7 +119,7 @@ namespace pcpp
 		 * @return A pointer to the extension instance or NULL if the requested extension type isn't found
 		 */
 		template<class TIPv6Extension>
-		TIPv6Extension* getExtensionOfType();
+		TIPv6Extension* getExtensionOfType() const;
 
 		/**
 		 * Add a new extension of type TIPv6Extension to the layer. This is a templated method and TIPv6Extension has to be one of
@@ -141,7 +141,7 @@ namespace pcpp
 		/**
 		 * @return True if this packet is an IPv6 fragment, meaning if it has an IPv6FragmentationHeader extension
 		 */
-		bool isFragment();
+		bool isFragment() const;
 
 
 		// implement abstract methods
@@ -180,7 +180,7 @@ namespace pcpp
 
 
 	template<class TIPv6Extension>
-	TIPv6Extension* IPv6Layer::getExtensionOfType()
+	TIPv6Extension* IPv6Layer::getExtensionOfType() const
 	{
 		IPv6Extension* curExt = m_FirstExtension;
 		while (curExt != NULL && dynamic_cast<TIPv6Extension*>(curExt) == NULL)

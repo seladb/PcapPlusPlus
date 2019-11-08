@@ -656,7 +656,7 @@ void PfRingDevice::clearCoreConfiguration()
 		m_CoreConfiguration[i].clear();
 }
 
-int PfRingDevice::getCoresInUseCount()
+int PfRingDevice::getCoresInUseCount() const
 {
 	int res = 0;
 	for (int i = 0; i < MAX_NUM_OF_CORES; i++)

@@ -414,7 +414,7 @@ namespace pcpp
 		 * Retrieve DHCP option data as IPv4 address. Relevant only if option value is indeed an IPv4 address
 		 * @return DHCP option data as IPv4 address
 		 */
-		IPv4Address getValueAsIpAddr()
+		IPv4Address getValueAsIpAddr() const
 		{
 			uint32_t addrAsInt = getValueAs<uint32_t>();
 			return IPv4Address(addrAsInt);
@@ -475,7 +475,7 @@ namespace pcpp
 			return sizeof(uint8_t)*2 + (size_t)m_Data->recordLen;
 		}
 
-		size_t getDataSize()
+		size_t getDataSize() const
 		{
 			if (m_Data->recordType == (uint8_t)DHCPOPT_END || m_Data->recordType == (uint8_t)DHCPOPT_PAD)
 				return 0;
@@ -604,12 +604,12 @@ namespace pcpp
 		 * Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref dhcp_header
 		 */
-		inline dhcp_header* getDhcpHeader() const { return (dhcp_header*)m_Data; }
+		dhcp_header* getDhcpHeader() const { return (dhcp_header*)m_Data; }
 
 		/**
 		 * @return The BootP opcode of this message
 		 */
-		inline BootpOpCodes getOpCode() { return (BootpOpCodes)getDhcpHeader()->opCode; }
+		BootpOpCodes getOpCode() const { return (BootpOpCodes)getDhcpHeader()->opCode; }
 
 		/**
 		 * @return The client IPv4 address (as extracted from dhcp_header#clientIpAddress converted to IPv4Address object)
@@ -688,7 +688,7 @@ namespace pcpp
 		 * @return The first DHCP option in the packet. If there are no DHCP options the returned value will contain
 		 * a logical NULL (DhcpOption#isNull() == true)
 		 */
-		DhcpOption getFirstOptionData();
+		DhcpOption getFirstOptionData() const;
 
 		/**
 		 * Get the DHCP option that comes after a given option. If the given option was the last one, the
@@ -697,7 +697,7 @@ namespace pcpp
 		 * @return A DhcpOption object containing the option data that comes next, or logical NULL if the given DHCP
 		 * option: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
 		 */
-		DhcpOption getNextOptionData(DhcpOption dhcpOption);
+		DhcpOption getNextOptionData(DhcpOption dhcpOption) const;
 
 		/**
 		 * Get a DHCP option by type
@@ -710,7 +710,7 @@ namespace pcpp
 		/**
 		 * @return The number of DHCP options in this layer
 		 */
-		size_t getOptionsCount();
+		size_t getOptionsCount() const;
 
 		/**
 		 * Add a new DHCP option at the end of the layer

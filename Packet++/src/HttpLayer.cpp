@@ -436,11 +436,11 @@ bool HttpRequestFirstLine::setMethod(HttpRequestLayer::HttpMethod newMethod)
 	return true;
 }
 
-std::string HttpRequestFirstLine::getUri()
+std::string HttpRequestFirstLine::getUri() const
 {
 	std::string result;
 	if (m_UriOffset != -1 && m_VersionOffset != -1)
-		result.assign((char*)(m_HttpRequest->m_Data + m_UriOffset), m_VersionOffset-6-m_UriOffset);
+		result.assign((const char*)m_HttpRequest->m_Data + m_UriOffset, m_VersionOffset - 6 - m_UriOffset);
 
 	//else first line is illegal, return empty string
 

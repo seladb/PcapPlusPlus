@@ -111,7 +111,7 @@ namespace pcpp
 		 * isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		PcapFileReaderDevice(const char* fileName);
+		PcapFileReaderDevice(const char* fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
 
 		/**
 		 * A destructor for this class
@@ -121,7 +121,7 @@ namespace pcpp
 		/**
 		* @return The link layer type of this file
 		*/
-		LinkLayerType getLinkLayerType();
+		LinkLayerType getLinkLayerType() const { return m_PcapLinkLayerType; }
 
 
 		//overridden methods

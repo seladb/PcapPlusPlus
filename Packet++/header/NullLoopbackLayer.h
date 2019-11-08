@@ -53,7 +53,7 @@ namespace pcpp
 		/**
 		 * @return The protocol family in this layer
 		 */
-		uint32_t getFamily();
+		uint32_t getFamily() const;
 
 		/**
 		 * Set a protocol family

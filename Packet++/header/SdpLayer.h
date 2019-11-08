@@ -160,8 +160,8 @@ namespace pcpp
 	protected:
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() { return '='; }
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() { return false; }
+		char getHeaderFieldNameValueSeparator() const { return '='; }
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return false; }
 
 	};
 }

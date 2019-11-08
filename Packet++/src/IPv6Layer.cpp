@@ -157,7 +157,7 @@ void IPv6Layer::deleteExtensions()
 
 }
 
-size_t IPv6Layer::getExtensionCount()
+size_t IPv6Layer::getExtensionCount() const
 {
 	size_t extensionCount = 0;
 
@@ -182,7 +182,7 @@ void IPv6Layer::removeAllExtensions()
 	deleteExtensions();
 }
 
-bool IPv6Layer::isFragment()
+bool IPv6Layer::isFragment() const
 {
 	IPv6FragmentationHeader* fragHdr = getExtensionOfType<IPv6FragmentationHeader>();
 	return (fragHdr != NULL);

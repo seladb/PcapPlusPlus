@@ -261,7 +261,7 @@ std::string PPPoESessionLayer::toString() const
 /// ~~~~~~~~~~~~~~~~~~~
 
 
-PPPoEDiscoveryLayer::PPPoETagTypes PPPoEDiscoveryLayer::PPPoETag::getType()
+PPPoEDiscoveryLayer::PPPoETagTypes PPPoEDiscoveryLayer::PPPoETag::getType() const
 {
 	return (PPPoEDiscoveryLayer::PPPoETagTypes)ntohs(tagType);
 }
@@ -271,7 +271,7 @@ size_t PPPoEDiscoveryLayer::PPPoETag::getTagTotalSize() const
 	return 2*sizeof(uint16_t) + ntohs(tagDataLength);
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType)
+PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const
 {
 	// check if there are tags at all
 	if (m_DataLen <= sizeof(pppoe_header))
@@ -290,7 +290,7 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::
 	return NULL;
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getFirstTag()
+PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getFirstTag() const
 {
 	// check if there are tags at all
 	if (m_DataLen <= sizeof(pppoe_header))
@@ -300,7 +300,7 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getFirstTag()
 	return castPtrToPPPoETag(curTagPtr);
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getNextTag(PPPoEDiscoveryLayer::PPPoETag* tag)
+PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getNextTag(PPPoEDiscoveryLayer::PPPoETag* tag) const
 {
 	if (tag == NULL)
 		return NULL;
@@ -312,7 +312,7 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getNextTag(PPPoEDiscoveryLay
 	return castPtrToPPPoETag((uint8_t*)tag + tag->getTagTotalSize());
 }
 
-int PPPoEDiscoveryLayer::getTagCount()
+int PPPoEDiscoveryLayer::getTagCount() const
 {
 	if (m_TagCount != -1)
 		return m_TagCount;
@@ -375,7 +375,7 @@ size_t PPPoEDiscoveryLayer::getHeaderLen() const
 	return sizeof(pppoe_header) + ntohs(getPPPoEHeader()->payloadLength);
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::castPtrToPPPoETag(uint8_t* ptr)
+PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::castPtrToPPPoETag(uint8_t* ptr) const
 {
 	return (PPPoEDiscoveryLayer::PPPoETag*)ptr;
 }

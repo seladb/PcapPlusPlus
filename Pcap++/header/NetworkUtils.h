@@ -54,7 +54,7 @@ namespace pcpp
 		 * to log
 		 */
 		MacAddress getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device, double& arpResponseTimeMS,
-				MacAddress sourceMac = MacAddress::Zero, IPv4Address sourceIP = IPv4Address::Zero, int arpTimeout = -1);
+				MacAddress sourceMac = MacAddress::Zero, IPv4Address sourceIP = IPv4Address::Zero, int arpTimeout = -1) const;
 
 
 		/**
@@ -77,7 +77,7 @@ namespace pcpp
 		 * @return The resolved IPv4 address or IPv4Address#Zero if something went wrong (in this case an error will be printed to log)
 		 */
 		IPv4Address getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
-				int dnsTimeout = -1, IPv4Address dnsServerIP = IPv4Address::Zero, IPv4Address gatewayIP = IPv4Address::Zero);
+				int dnsTimeout = -1, IPv4Address dnsServerIP = IPv4Address::Zero, IPv4Address gatewayIP = IPv4Address::Zero) const;
 
 	private:
 

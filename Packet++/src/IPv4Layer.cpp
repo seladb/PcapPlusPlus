@@ -391,22 +391,22 @@ std::string IPv4Layer::toString() const
 	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 }
 
-IPv4Option IPv4Layer::getOption(IPv4OptionTypes option)
+IPv4Option IPv4Layer::getOption(IPv4OptionTypes option) const
 {
 	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-IPv4Option IPv4Layer::getFirstOption()
+IPv4Option IPv4Layer::getFirstOption() const
 {
 	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-IPv4Option IPv4Layer::getNextOption(IPv4Option& option)
+IPv4Option IPv4Layer::getNextOption(IPv4Option& option) const
 {
 	return m_OptionReader.getNextTLVRecord(option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-size_t IPv4Layer::getOptionCount()
+size_t IPv4Layer::getOptionCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
@@ -479,7 +479,6 @@ IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int of
 IPv4Option IPv4Layer::addOption(const IPv4OptionBuilder& optionBuilder)
 {
 	return addOptionAt(optionBuilder, getHeaderLen()-m_NumOfTrailingBytes);
-
 }
 
 IPv4Option IPv4Layer::addOptionAfter(const IPv4OptionBuilder& optionBuilder, IPv4OptionTypes prevOptionType)

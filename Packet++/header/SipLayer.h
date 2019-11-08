@@ -119,8 +119,8 @@ namespace pcpp
 		SipLayer& operator=(const SipLayer& other) { TextBasedProtocolMessage::operator=(other); return *this; }
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() { return ':'; }
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() { return true; }
+		char getHeaderFieldNameValueSeparator() const { return ':'; }
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return true; }
 	};
 
 
@@ -483,7 +483,7 @@ namespace pcpp
 		/**
 		 * @return A copied version of the URI (notice changing the return value won't change the actual data of the packet)
 		 */
-		std::string getUri();
+		std::string getUri() const;
 
 		/**
 		 * Set the URI

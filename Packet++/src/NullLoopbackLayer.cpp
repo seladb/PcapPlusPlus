@@ -23,7 +23,7 @@ NullLoopbackLayer::NullLoopbackLayer(uint32_t family)
 	setFamily(family);
 }
 
-uint32_t NullLoopbackLayer::getFamily()
+uint32_t NullLoopbackLayer::getFamily() const
 {
 	uint32_t family = *(uint32_t*)m_Data;
 	if ((family & 0xFFFF0000) != 0)

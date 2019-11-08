@@ -54,7 +54,7 @@ namespace pcpp
 		 * as a parameter)
 		 * @return The core ID the worker is running on
 		 */
-		virtual uint32_t getCoreId() = 0;
+		virtual uint32_t getCoreId() const = 0;
 	};
 
 	class KniDeviceList;

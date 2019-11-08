@@ -244,17 +244,17 @@ DhcpOption DhcpLayer::getOptionData(DhcpOptionTypes option) const
 	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-DhcpOption DhcpLayer::getFirstOptionData()
+DhcpOption DhcpLayer::getFirstOptionData() const
 {
 	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-DhcpOption DhcpLayer::getNextOptionData(DhcpOption dhcpOption)
+DhcpOption DhcpLayer::getNextOptionData(DhcpOption dhcpOption) const
 {
 	return m_OptionReader.getNextTLVRecord(dhcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-size_t DhcpLayer::getOptionsCount()
+size_t DhcpLayer::getOptionsCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }

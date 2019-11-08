@@ -322,7 +322,7 @@ namespace pcpp
 		 * @return A pointer to the router advertisement on the packet or null if index is out of range (less than zero or
 		 * greater than the number of router advertisement records on this message, determined by advertisementCount field)
 		 */
-		icmp_router_address_structure* getRouterAddress(int index);
+		icmp_router_address_structure* getRouterAddress(int index) const;
 	};
 
 

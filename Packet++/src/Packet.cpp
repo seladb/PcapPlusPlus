@@ -649,7 +649,7 @@ Packet::~Packet()
 	destructPacketData();
 }
 
-std::string Packet::printPacketInfo(bool timeAsLocalTime)
+std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 {
 	std::ostringstream dataLenStream;
 	dataLenStream << m_RawPacket->getRawDataLen();
@@ -723,7 +723,7 @@ std::string Packet::toString(bool timeAsLocalTime)
 	return result;
 }
 
-void Packet::toStringList(std::vector<std::string>& result, bool timeAsLocalTime)
+void Packet::toStringList(std::vector<std::string>& result, bool timeAsLocalTime) const
 {
 	result.clear();
 	result.push_back(printPacketInfo(timeAsLocalTime));

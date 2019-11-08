@@ -287,7 +287,7 @@ namespace pcpp
 		 * @param[out] result A string vector that will contain all strings
 		 * @param[in] timeAsLocalTime Print time as local time or GMT. Default (true value) is local time, for GMT set to false
 		 */
-		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true);
+		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true) const;
 
 	private:
 		void copyDataFrom(const Packet& other);
@@ -301,7 +301,7 @@ namespace pcpp
 
 		bool removeLayer(Layer* layer, bool tryToDelete);
 
-		std::string printPacketInfo(bool timeAsLocalTime);
+		std::string printPacketInfo(bool timeAsLocalTime) const;
 
 		Layer* createFirstLayer(LinkLayerType linkType);
 	};

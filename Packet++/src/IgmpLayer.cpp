@@ -399,7 +399,7 @@ uint16_t IgmpV3ReportLayer::getGroupRecordCount() const
 
 }
 
-igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord()
+igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord() const
 {
 	// check if there are group records at all
 	if (getHeaderLen() <= sizeof(igmpv3_report_header))
@@ -409,7 +409,7 @@ igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord()
 	return (igmpv3_group_record*)curGroupPtr;
 }
 
-igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord)
+igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord) const
 {
 	if (groupRecord == NULL)
 		return NULL;

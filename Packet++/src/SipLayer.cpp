@@ -360,7 +360,7 @@ bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
 	return true;
 }
 
-std::string SipRequestFirstLine::getUri()
+std::string SipRequestFirstLine::getUri() const
 {
 	std::string result;
 	if (m_UriOffset != -1 && m_VersionOffset != -1)

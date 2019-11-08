@@ -24,16 +24,16 @@ namespace pcpp
 		/** PPPoE version */
 		uint8_t version:4,
 		/** PPPoE type */
-				type:4;
+		type:4;
 		/** PPPoE code */
 		uint8_t code;
 #else
 		/** PPPoE version */
 		uint16_t version:4,
 		/** PPPoE type */
-				type:4,
+		type:4,
 		/** PPPoE code */
-				code:8;
+		code:8;
 #endif
 		/** PPPoE session ID (relevant for PPPoE session packets only) */
 		uint16_t sessionId;
@@ -86,7 +86,7 @@ namespace pcpp
 		 * Get a pointer to the PPPoE header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the pppoe_header
 		 */
-		inline pppoe_header* getPPPoEHeader() const { return (pppoe_header*)m_Data; }
+		pppoe_header* getPPPoEHeader() const { return (pppoe_header*)m_Data; }
 
 		// abstract methods implementation
 
@@ -240,10 +240,10 @@ namespace pcpp
 			 * @return The tag data as type T
 			 */
 			template<typename T>
-			T getTagDataAs(int tagDataOffset = 0)
+			T getTagDataAs(int tagDataOffset = 0) const
 			{
 				T result;
-				memcpy(&result, tagData+tagDataOffset, sizeof(T));
+				memcpy(&result, tagData + tagDataOffset, sizeof(T));
 				return result;
 			}
 
@@ -269,7 +269,7 @@ namespace pcpp
 			/**
 			 * @return The tag type converted to PPPoEDiscoveryLayer#PPPoETagTypes enum
 			 */
-			PPPoEDiscoveryLayer::PPPoETagTypes getType();
+			PPPoEDiscoveryLayer::PPPoETagTypes getType() const;
 		private:
 			// private c'tor which isn't implemented to make this struct impossible to construct
 			PPPoETag();
@@ -305,13 +305,13 @@ namespace pcpp
 		 * @param[in] tagType The type of the tag to search
 		 * @return A pointer to the tag data casted to PPPoETag*
 		 */
-		PPPoETag* getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType);
+		PPPoETag* getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const;
 
 		/**
 		 * @return The first tag in the PPPoE discovery layer, or NULL if no tags exist. Notice the return value is a pointer to the real data casted to PPPoETag type (as opposed
 		 * to a copy of the tag data). So changes in the return value will affect the packet data
 		 */
-		PPPoETag* getFirstTag();
+		PPPoETag* getFirstTag() const;
 
 		/**
 		 * Get the tag which come next to "tag" parameter. If "tag" is NULL or then NULL will be returned. If "tag" is the last tag NULL will be
@@ -320,12 +320,12 @@ namespace pcpp
 		 * @param[in] tag The tag to start search
 		 * @return The next tag or NULL if "tag" is NULL or "tag" is the last tag
 		 */
-		PPPoETag* getNextTag(PPPoETag* tag);
+		PPPoETag* getNextTag(PPPoETag* tag) const;
 
 		/**
 		 * @return The number of tags in this layer
 		 */
-		int getTagCount();
+		int getTagCount() const;
 
 		/**
 		 * Add a new tag at the end of the layer (after the last tag)
@@ -377,11 +377,11 @@ namespace pcpp
 		virtual std::string toString() const { return "PPP-over-Ethernet Discovery (" + codeToString((PPPoELayer::PPPoECode)getPPPoEHeader()->code) + ")"; }
 
 	private:
-		int m_TagCount;
+		mutable int m_TagCount;
 
 		PPPoETag* addTagAt(PPPoETagTypes tagType, uint16_t tagLength, const uint8_t* tagData, int offset);
 
-		PPPoETag* castPtrToPPPoETag(uint8_t* ptr);
+		PPPoETag* castPtrToPPPoETag(uint8_t* ptr) const;
 
 		std::string codeToString(PPPoECode code) const;
 	};

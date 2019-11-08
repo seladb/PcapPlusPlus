@@ -95,8 +95,8 @@ namespace pcpp
 		HttpMessage& operator=(const HttpMessage& other) { TextBasedProtocolMessage::operator=(other); return *this; }
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() { return ':'; }
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() { return true; }
+		char getHeaderFieldNameValueSeparator() const { return ':'; }
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return true; }
 	};
 
 
@@ -495,7 +495,7 @@ namespace pcpp
 		/**
 		 * @return The HTTP method
 		 */
-		inline HttpRequestLayer::HttpMethod getMethod() { return m_Method; }
+		HttpRequestLayer::HttpMethod getMethod() const { return m_Method; }
 
 		/**
 		 * Set the HTTP method
@@ -507,7 +507,7 @@ namespace pcpp
 		/**
 		 * @return A copied version of the URI (notice changing the return value won't change the actual data of the packet)
 		 */
-		std::string getUri();
+		std::string getUri() const;
 
 		/**
 		 * Set the URI
@@ -519,7 +519,7 @@ namespace pcpp
 		/**
 		 * @return The HTTP version
 		 */
-		inline HttpVersion getVersion() { return m_Version; }
+		HttpVersion getVersion() const { return m_Version; }
 
 		/**
 		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same size
@@ -539,7 +539,7 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the HTTP first line
 		 */
-		inline int getSize() { return m_FirstLineEndOffset; }
+		int getSize() const { return m_FirstLineEndOffset; }
 
 		/**
 		 * As explained in HttpRequestLayer, an HTTP header can spread over more than 1 packet, so when looking at a single packet
@@ -547,7 +547,7 @@ namespace pcpp
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		inline bool isComplete() { return m_IsComplete; }
+		bool isComplete() const { return m_IsComplete; }
 
 		/**
 		 * @class HttpRequestFirstLineException
@@ -630,7 +630,7 @@ namespace pcpp
 		/**
 		 * @return The HTTP version
 		 */
-		inline HttpVersion getVersion() { return m_Version; }
+		HttpVersion getVersion() const { return m_Version; }
 
 		/**
 		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same size
@@ -650,7 +650,7 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the HTTP first line
 		 */
-		inline int getSize() { return m_FirstLineEndOffset; }
+		int getSize() const { return m_FirstLineEndOffset; }
 
 		/**
 		 * As explained in HttpResponseLayer, an HTTP header can spread over more than 1 packet, so when looking at a single packet
@@ -658,7 +658,7 @@ namespace pcpp
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		inline bool isComplete() { return m_IsComplete; }
+		bool isComplete() const { return m_IsComplete; }
 
 		/**
 		 * @class HttpResponseFirstLineException

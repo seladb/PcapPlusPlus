@@ -251,7 +251,7 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 	return NULL;
 }
 
-DnsQuery* DnsLayer::getQuery(const std::string& name, bool exactMatch)
+DnsQuery* DnsLayer::getQuery(const std::string& name, bool exactMatch) const
 {
 	uint16_t numOfQueries = ntohs(getDnsHeader()->numberOfQuestions);
 	IDnsResource* res = getResourceByName(m_FirstQuery, numOfQueries, name, exactMatch);

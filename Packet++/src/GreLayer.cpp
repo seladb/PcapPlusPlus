@@ -347,7 +347,7 @@ bool GREv0Layer::unsetChecksum()
 	return true;
 }
 
-bool GREv0Layer::getOffset(uint16_t& offset)
+bool GREv0Layer::getOffset(uint16_t& offset) const
 {
 	if (getGreHeader()->routingBit == 0)
 		return false;
@@ -360,7 +360,7 @@ bool GREv0Layer::getOffset(uint16_t& offset)
 	return true;
 }
 
-bool GREv0Layer::getKey(uint32_t& key)
+bool GREv0Layer::getKey(uint32_t& key) const
 {
 	if (getGreHeader()->keyBit == 0)
 		return false;
@@ -466,7 +466,7 @@ GREv1Layer::GREv1Layer(uint16_t callID)
 	header->callID = htons(callID);
 }
 
-bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum)
+bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum) const
 {
 	if (getGreHeader()->ackSequenceNumBit == 0)
 		return false;

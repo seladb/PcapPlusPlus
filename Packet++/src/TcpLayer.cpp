@@ -70,17 +70,17 @@ TcpOption TcpOptionBuilder::build() const
 /// ~~~~~~~~
 
 
-TcpOption TcpLayer::getTcpOption(TcpOptionType option)
+TcpOption TcpLayer::getTcpOption(TcpOptionType option) const
 {
 	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
 
-TcpOption TcpLayer::getFirstTcpOption()
+TcpOption TcpLayer::getFirstTcpOption() const
 {
 	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
 
-TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption)
+TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption) const
 {
 	TcpOption nextOpt = m_OptionReader.getNextTLVRecord(tcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 	if (nextOpt.isNotNull() && nextOpt.getType() == TCPOPT_DUMMY)
@@ -89,7 +89,7 @@ TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption)
 	return nextOpt;
 }
 
-size_t TcpLayer::getTcpOptionCount()
+size_t TcpLayer::getTcpOptionCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
