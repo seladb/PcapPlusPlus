@@ -587,18 +587,21 @@ void GtpV1Layer::parseNextLayer()
 
 	// GTP-U message, try to parse the next layer
 
-	uint8_t subProto = *(uint8_t*)(m_Data + headerLen);
+	uint8_t* payload = m_Data + headerLen;
+	size_t payloadLen = m_DataLen - headerLen;
+
+	uint8_t subProto = *payload;
 	if (subProto >= 0x45 && subProto <= 0x4e)
 	{
-		m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
 	}
 	else if ((subProto & 0xf0) == 0x60)
 	{
-		m_NextLayer = new IPv6Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
 	}
 	else
 	{
-		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 }
 

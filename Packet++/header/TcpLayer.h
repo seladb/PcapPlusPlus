@@ -86,13 +86,13 @@ namespace pcpp
 	 */
 	enum TcpOptionType {
 		/** Padding */
-		PCPP_TCPOPT_NOP = 			1,
+		PCPP_TCPOPT_NOP =       1,
 		/** End of options */
-		PCPP_TCPOPT_EOL = 			0,
+		PCPP_TCPOPT_EOL =       0,
 		/** Segment size negotiating */
-		TCPOPT_MSS = 		      	2,
+		TCPOPT_MSS =          	2,
 		/** Window scaling */
-		PCPP_TCPOPT_WINDOW = 		3,
+		PCPP_TCPOPT_WINDOW =    3,
 		/** SACK Permitted */
 		TCPOPT_SACK_PERM =      4,
 		/** SACK Block */

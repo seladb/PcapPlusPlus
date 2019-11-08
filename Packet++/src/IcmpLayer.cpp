@@ -570,22 +570,19 @@ icmp_info_reply* IcmpLayer::setInfoReplyData(uint16_t id, uint16_t sequence)
 
 void IcmpLayer::parseNextLayer()
 {
-	IcmpMessageType type = getMessageType();
-	size_t headerLen = 0;
+	size_t headerLen = getHeaderLen();
 
-	switch (type)
+	switch (getMessageType())
 	{
 	case ICMP_DEST_UNREACHABLE:
 	case ICMP_SOURCE_QUENCH:
 	case ICMP_TIME_EXCEEDED:
 	case ICMP_REDIRECT:
 	case ICMP_PARAM_PROBLEM:
-		headerLen = getHeaderLen();
 		if (m_DataLen - headerLen >= sizeof(iphdr))
 			m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet, false);
 		return;
 	default:
-		headerLen = getHeaderLen();
 		if (m_DataLen > headerLen)
 			m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 		return;

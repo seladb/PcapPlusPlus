@@ -378,9 +378,9 @@ public:
 
 	void stop() { m_Stop = true; }
 
-	uint32_t getCoreId() { return m_CoreId; }
+	uint32_t getCoreId() const { return m_CoreId; }
 
-	int getPacketCount() { return m_PacketCount; }
+	int getPacketCount() const { return m_PacketCount; }
 
 	bool threadRanAndStopped() { return m_RanAndStopped; }
 };

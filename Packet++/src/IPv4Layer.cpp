@@ -247,11 +247,14 @@ void IPv4Layer::parseNextLayer()
 
 	uint8_t ipVersion = 0;
 
+	uint8_t* payload = m_Data + hdrLen;
+	size_t payloadLen = m_DataLen - hdrLen;
+
 	// If it's a fragment don't parse upper layers, unless if it's the first fragment
 	// TODO: assuming first fragment contains at least L4 header, what if it's not true?
 	if (isFragment())
 	{
-		m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;
 	}
 
@@ -259,52 +262,51 @@ void IPv4Layer::parseNextLayer()
 	{
 	case PACKETPP_IPPROTO_UDP:
 		if (m_DataLen - hdrLen >= sizeof(udphdr))
-			m_NextLayer = new UdpLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new UdpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_TCP:
 		if (m_DataLen - hdrLen >= sizeof(tcphdr))
-			m_NextLayer = new TcpLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new TcpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_ICMP:
-		m_NextLayer = new IcmpLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+		m_NextLayer = new IcmpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IPIP:
 		ipVersion = *(m_Data + hdrLen);
 		if (ipVersion >> 4 == 4)
-			m_NextLayer = new IPv4Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
 		else if (ipVersion >> 4 == 6)
-			m_NextLayer = new IPv6Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
 		else
-			m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_GRE:
-		greVer = GreLayer::getGREVersion(m_Data + hdrLen, m_DataLen - hdrLen);
+		greVer = GreLayer::getGREVersion(payload, payloadLen);
 		if (greVer == GREv0)
-			m_NextLayer = new GREv0Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
 		else if (greVer == GREv1)
-			m_NextLayer = new GREv1Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
 		else
-			m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IGMP:
-		igmpVer = IgmpLayer::getIGMPVerFromData(m_Data + hdrLen, ntohs(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
+		igmpVer = IgmpLayer::getIGMPVerFromData(payload, ntohs(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
 		if (igmpVer == IGMPv1)
-			m_NextLayer = new IgmpV1Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new IgmpV1Layer(payload, payloadLen, this, m_Packet);
 		else if (igmpVer == IGMPv2)
-			m_NextLayer = new IgmpV2Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new IgmpV2Layer(payload, payloadLen, this, m_Packet);
 		else if (igmpVer == IGMPv3)
 		{
 			if (igmpQuery)
-				m_NextLayer = new IgmpV3QueryLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+				m_NextLayer = new IgmpV3QueryLayer(payload, payloadLen, this, m_Packet);
 			else
-				m_NextLayer = new IgmpV3ReportLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+				m_NextLayer = new IgmpV3ReportLayer(payload, payloadLen, this, m_Packet);
 		}
 		else
-			m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	default:
-		m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
-		return;
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 }
 
