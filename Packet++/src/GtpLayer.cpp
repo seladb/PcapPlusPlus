@@ -587,7 +587,7 @@ void GtpV1Layer::parseNextLayer()
 
 	// GTP-U message, try to parse the next layer
 
-	uint8_t* payload = m_Data + headerLen;
+	uint8_t* payload = (uint8_t*)(m_Data + headerLen);
 	size_t payloadLen = m_DataLen - headerLen;
 
 	uint8_t subProto = *payload;

@@ -256,22 +256,33 @@ DnsResourceDataPtr DnsResource::getData() const
 	switch (getDnsType())
 	{
 	case DNS_TYPE_A:
+	{
 		return DnsResourceDataPtr(new IPv4DnsResourceData(resourceRawData, dataLength));
+	}
 
 	case DNS_TYPE_AAAA:
+	{
 		return DnsResourceDataPtr(new IPv6DnsResourceData(resourceRawData, dataLength));
+	}
 
 	case DNS_TYPE_NS:
 	case DNS_TYPE_CNAME:
 	case DNS_TYPE_DNAM:
 	case DNS_TYPE_PTR:
+	{
 		return DnsResourceDataPtr(new StringDnsResourceData(resourceRawData, dataLength, const_cast<IDnsResource*>(static_cast<const IDnsResource*>(this))));
+	}
 
 	case DNS_TYPE_MX:
+	{
 		return DnsResourceDataPtr(new MxDnsResourceData(resourceRawData, dataLength, const_cast<IDnsResource*>(static_cast<const IDnsResource*>(this))));
+	}
 
 	default:
+	{
 		return DnsResourceDataPtr(new GenericDnsResourceData(resourceRawData, dataLength));
+	}
+
 	}
 }
 

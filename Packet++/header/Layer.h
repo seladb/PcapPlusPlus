@@ -129,7 +129,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		uint8_t* getDataPtr(size_t offset = 0) const { return m_Data + offset; }
+		uint8_t* getDataPtr(size_t offset = 0) const { return (uint8_t*)(m_Data + offset); }
 
 
 		// abstract methods

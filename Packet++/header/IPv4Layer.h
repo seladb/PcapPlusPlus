@@ -239,7 +239,7 @@ namespace pcpp
 			if (dataSize < 2)
 				return res;
 
-			uint8_t valueOffset = 1;
+			uint8_t valueOffset = (uint8_t)(1);
 
 			while (valueOffset < dataSize)
 			{
@@ -250,7 +250,7 @@ namespace pcpp
 
 				res.push_back(IPv4Address(curValue));
 
-				valueOffset += 4;
+				valueOffset += (uint8_t)(4);
 			}
 
 			return res;
@@ -280,7 +280,7 @@ namespace pcpp
 
 			res.type = (IPv4TimestampOptionValue::TimestampType)m_Data->recordValue[1];
 
-			uint8_t valueOffset = 2;
+			uint8_t valueOffset = (uint8_t)(2);
 			bool readIPAddr = (res.type == IPv4TimestampOptionValue::TimestampAndIP);
 
 			while (valueOffset < dataSize)
@@ -298,7 +298,7 @@ namespace pcpp
 				if (res.type == IPv4TimestampOptionValue::TimestampAndIP)
 					readIPAddr = !readIPAddr;
 
-				valueOffset += 4;
+				valueOffset += (uint8_t)(4);
 			}
 
 			return res;
@@ -580,7 +580,7 @@ namespace pcpp
 		/**
 		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		size_t getHeaderLen() const { return (size_t)(getIPv4Header()->internetHeaderLength) * 4 + m_TempHeaderExtension; }
+		size_t getHeaderLen() const { return (size_t)((uint16_t)(getIPv4Header()->internetHeaderLength) * 4) + m_TempHeaderExtension; }
 
 		/**
 		 * Calculate the following fields:
