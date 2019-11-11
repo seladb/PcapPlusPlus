@@ -155,6 +155,16 @@ namespace pcpp
 			return m_Vector.at(index);
 		}
 
+		/**
+		 * Return a const pointer to the element in a certain index
+		 * @param[in] index The index to retrieve the element from
+		 * @return The element at the specified position in the vector
+		 */
+		const T* at(int index) const
+		{
+			return m_Vector.at(index);
+		}
+
 	private:
 		std::vector<T*> m_Vector;
 	};

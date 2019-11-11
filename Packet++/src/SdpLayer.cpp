@@ -67,7 +67,7 @@ SdpLayer::SdpLayer(std::string username, long sessionID, long sessionVersion, IP
 	addField(PCPP_SDP_TIME_FIELD, startTimeStream.str() + " " + stopTimeStream.str());
 }
 
-std::string SdpLayer::toString()
+std::string SdpLayer::toString() const
 {
 	return "SDP Layer";
 }

@@ -41,7 +41,7 @@ Layer& Layer::operator=(const Layer& other)
 	return *this;
 }
 
-void Layer::copyData(uint8_t* toArr)
+void Layer::copyData(uint8_t* toArr) const
 {
 	memcpy(toArr, m_Data, m_DataLen);
 }

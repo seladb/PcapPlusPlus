@@ -233,7 +233,7 @@ void GreLayer::parseNextLayer()
 	}
 }
 
-size_t GreLayer::getHeaderLen()
+size_t GreLayer::getHeaderLen() const
 {
 	size_t result = sizeof(gre_basic_header);
 
@@ -347,7 +347,7 @@ bool GREv0Layer::unsetChecksum()
 	return true;
 }
 
-bool GREv0Layer::getOffset(uint16_t& offset)
+bool GREv0Layer::getOffset(uint16_t& offset) const
 {
 	if (getGreHeader()->routingBit == 0)
 		return false;
@@ -360,7 +360,7 @@ bool GREv0Layer::getOffset(uint16_t& offset)
 	return true;
 }
 
-bool GREv0Layer::getKey(uint32_t& key)
+bool GREv0Layer::getKey(uint32_t& key) const
 {
 	if (getGreHeader()->keyBit == 0)
 		return false;
@@ -442,7 +442,7 @@ void GREv0Layer::computeCalculateFields()
 	setChecksum(checksum);
 }
 
-std::string GREv0Layer::toString()
+std::string GREv0Layer::toString() const
 {
 	return "GRE Layer, version 0";
 }
@@ -466,7 +466,7 @@ GREv1Layer::GREv1Layer(uint16_t callID)
 	header->callID = htons(callID);
 }
 
-bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum)
+bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum) const
 {
 	if (getGreHeader()->ackSequenceNumBit == 0)
 		return false;
@@ -534,7 +534,7 @@ void GREv1Layer::computeCalculateFields()
 	getGreHeader()->payloadLength = htons(m_DataLen - getHeaderLen());
 }
 
-std::string GREv1Layer::toString()
+std::string GREv1Layer::toString() const
 {
 	return "GRE Layer, version 1";
 }

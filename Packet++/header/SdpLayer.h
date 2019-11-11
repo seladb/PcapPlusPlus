@@ -155,13 +155,13 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 
-		std::string toString();
+		std::string toString() const;
 
 	protected:
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() { return '='; }
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() { return false; }
+		char getHeaderFieldNameValueSeparator() const { return '='; }
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return false; }
 
 	};
 }

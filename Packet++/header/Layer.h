@@ -28,7 +28,7 @@ namespace pcpp
 		 * @param[in] offset Get a pointer in a certain offset. Default is 0 - get a pointer to start of data
 		 * @return A pointer to the data
 		 */
-		virtual uint8_t* getDataPtr(size_t offset = 0) = 0;
+		virtual uint8_t* getDataPtr(size_t offset = 0) const = 0;
 
 		virtual ~IDataContainer() {}
 	};
@@ -103,12 +103,12 @@ namespace pcpp
 		/**
 		 * @return A pointer for the layer payload, meaning the first byte after the header
 		 */
-		uint8_t* getLayerPayload() { return m_Data + getHeaderLen(); }
+		uint8_t* getLayerPayload() const { return m_Data + getHeaderLen(); }
 
 		/**
 		 * @return The size in bytes of the payload
 		 */
-		size_t getLayerPayloadSize() { return m_DataLen - getHeaderLen(); }
+		size_t getLayerPayloadSize() const { return m_DataLen - getHeaderLen(); }
 
 		/**
 		 * Raw data in layers can come from one of sources:
@@ -124,12 +124,12 @@ namespace pcpp
 		 * Copy the raw data of this layer to another array
 		 * @param[out] toArr The destination byte array
 		 */
-		void copyData(uint8_t* toArr);
+		void copyData(uint8_t* toArr) const;
 
 
 		// implement abstract methods
 
-		uint8_t* getDataPtr(size_t offset = 0) { return (uint8_t*)(m_Data + offset); }
+		uint8_t* getDataPtr(size_t offset = 0) const { return (uint8_t*)(m_Data + offset); }
 
 
 		// abstract methods
@@ -142,7 +142,7 @@ namespace pcpp
 		/**
 		 * @return The header length in bytes
 		 */
-		virtual size_t getHeaderLen() = 0;
+		virtual size_t getHeaderLen() const = 0;
 
 		/**
 		 * Each layer can compute field values automatically using this method. This is an abstract method
@@ -152,7 +152,7 @@ namespace pcpp
 		/**
 		 * @return A string representation of the layer most important data (should look like the layer description in Wireshark)
 		 */
-		virtual std::string toString() = 0;
+		virtual std::string toString() const = 0;
 
 		/**
 		 * @return The OSI Model layer this protocol belongs to

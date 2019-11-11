@@ -147,7 +147,7 @@ namespace pcpp
 		 * @return The record data as type T
 		 */
 		template<typename T>
-		T getValueAs(size_t offset = 0)
+		T getValueAs(size_t offset = 0) const
 		{
 			if (getDataSize() - offset < sizeof(T))
 				return 0;
@@ -184,7 +184,7 @@ namespace pcpp
 		/**
 		 * @return The size of the record value (meaning the size of the 'V' part in TLV)
 		 */
-		virtual size_t getDataSize() = 0;
+		virtual size_t getDataSize() const = 0;
 	};
 
 

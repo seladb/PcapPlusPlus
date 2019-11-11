@@ -119,7 +119,7 @@ namespace pcpp
 		/**
 		 * @return The size of @ref arphdr
 		 */
-		size_t getHeaderLen() { return sizeof(arphdr); }
+		size_t getHeaderLen() const { return sizeof(arphdr); }
 
 		/**
 		 * Calculate the following fields:
@@ -131,7 +131,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 	};

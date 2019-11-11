@@ -108,7 +108,7 @@ namespace pcpp
 		/**
 		 * @return Size of MPLS header (4 bytes)
 		 */
-		size_t getHeaderLen() { return sizeof(mpls_header); }
+		size_t getHeaderLen() const { return sizeof(mpls_header); }
 
 		/**
 		 * Set/unset the bottom-of-stack bit according to next layer: if it's a MPLS layer then bottom-of-stack will be unset. If it's not a
@@ -116,7 +116,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 	};

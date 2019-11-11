@@ -118,7 +118,7 @@ size_t IgmpLayer::getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpT
 	return 0;
 }
 
-std::string IgmpLayer::toString()
+std::string IgmpLayer::toString() const
 {
 	std::string igmpVer = "";
 	switch (getProtocol())
@@ -275,7 +275,7 @@ IPv4Address IgmpV3QueryLayer::getSourceAddressAtIndex(int index) const
 	return IPv4Address(*(uint32_t*)ptr);
 }
 
-size_t IgmpV3QueryLayer::getHeaderLen()
+size_t IgmpV3QueryLayer::getHeaderLen() const
 {
 	uint16_t numOfSources = getSourceAddressCount();
 
@@ -399,7 +399,7 @@ uint16_t IgmpV3ReportLayer::getGroupRecordCount() const
 
 }
 
-igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord()
+igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord() const
 {
 	// check if there are group records at all
 	if (getHeaderLen() <= sizeof(igmpv3_report_header))
@@ -409,7 +409,7 @@ igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord()
 	return (igmpv3_group_record*)curGroupPtr;
 }
 
-igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord)
+igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord) const
 {
 	if (groupRecord == NULL)
 		return NULL;
@@ -421,11 +421,6 @@ igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* 
 	igmpv3_group_record* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
 
 	return nextGroup;
-}
-
-size_t IgmpV3ReportLayer::getHeaderLen()
-{
-	return m_DataLen;
 }
 
 void IgmpV3ReportLayer::computeCalculateFields()

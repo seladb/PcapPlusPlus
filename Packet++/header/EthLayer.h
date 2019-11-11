@@ -138,14 +138,14 @@ namespace pcpp
 		/**
 		 * @return Size of ether_header
 		 */
-		size_t getHeaderLen() { return sizeof(ether_header); }
+		size_t getHeaderLen() const { return sizeof(ether_header); }
 
 		/**
 		 * Calculate ether_header#etherType for known protocols: IPv4, IPv6, ARP, VLAN
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};

@@ -118,15 +118,6 @@ int IFileReaderDevice::getNextPackets(RawPacketVector& packetVec, int numOfPacke
 // PcapFileReaderDevice members
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PcapFileReaderDevice::PcapFileReaderDevice(const char* fileName) : IFileReaderDevice(fileName)
-{
-	m_PcapLinkLayerType = LINKTYPE_ETHERNET;
-}
-
-LinkLayerType PcapFileReaderDevice::getLinkLayerType()
-{
-	return m_PcapLinkLayerType;
-}
 
 bool PcapFileReaderDevice::open()
 {

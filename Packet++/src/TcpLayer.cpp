@@ -70,17 +70,17 @@ TcpOption TcpOptionBuilder::build() const
 /// ~~~~~~~~
 
 
-TcpOption TcpLayer::getTcpOption(TcpOptionType option)
+TcpOption TcpLayer::getTcpOption(TcpOptionType option) const
 {
 	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
 
-TcpOption TcpLayer::getFirstTcpOption()
+TcpOption TcpLayer::getFirstTcpOption() const
 {
 	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
 
-TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption)
+TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption) const
 {
 	TcpOption nextOpt = m_OptionReader.getNextTLVRecord(tcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 	if (nextOpt.isNotNull() && nextOpt.getType() == TCPOPT_DUMMY)
@@ -89,7 +89,7 @@ TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption)
 	return nextOpt;
 }
 
-size_t TcpLayer::getTcpOptionCount()
+size_t TcpLayer::getTcpOptionCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
@@ -333,21 +333,24 @@ void TcpLayer::parseNextLayer()
 	if (m_DataLen <= headerLen)
 		return;
 
+	uint8_t* payload = m_Data + headerLen;
+	size_t payloadLen = m_DataLen - headerLen;
 	tcphdr* tcpHder = getTcpHeader();
 	uint16_t portDst = ntohs(tcpHder->portDst);
 	uint16_t portSrc = ntohs(tcpHder->portSrc);
-	if ((HttpMessage::getHTTPPortMap()->find(portDst) != HttpMessage::getHTTPPortMap()->end()) && HttpRequestFirstLine::parseMethod((char*)(m_Data + headerLen), m_DataLen - headerLen) != HttpRequestLayer::HttpMethodUnknown)
-		m_NextLayer = new HttpRequestLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
-	else if ((HttpMessage::getHTTPPortMap()->find(portSrc) != HttpMessage::getHTTPPortMap()->end()) && HttpResponseFirstLine::parseStatusCode((char*)(m_Data + headerLen), m_DataLen - headerLen) != HttpResponseLayer::HttpStatusCodeUnknown)
+
+	if ((HttpMessage::getHTTPPortMap()->find(portDst) != HttpMessage::getHTTPPortMap()->end()) && HttpRequestFirstLine::parseMethod((char*)payload, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
+		m_NextLayer = new HttpRequestLayer(payload, payloadLen, this, m_Packet);
+	else if ((HttpMessage::getHTTPPortMap()->find(portSrc) != HttpMessage::getHTTPPortMap()->end()) && HttpResponseFirstLine::parseStatusCode((char*)payload, payloadLen) != HttpResponseLayer::HttpStatusCodeUnknown)
 		m_NextLayer = new HttpResponseLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
-	else if (SSLLayer::IsSSLMessage(portSrc, portDst, m_Data + headerLen, m_DataLen - headerLen))
-		m_NextLayer = SSLLayer::createSSLMessage(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
-	else if (((portDst == 5060) || (portDst == 5061)) && (SipRequestFirstLine::parseMethod((char*)(m_Data + headerLen), m_DataLen - headerLen) != SipRequestLayer::SipMethodUnknown))
+	else if (SSLLayer::IsSSLMessage(portSrc, portDst, payload, payloadLen))
+		m_NextLayer = SSLLayer::createSSLMessage(payload, payloadLen, this, m_Packet);
+	else if (((portDst == 5060) || (portDst == 5061)) && (SipRequestFirstLine::parseMethod((char*)payload, payloadLen) != SipRequestLayer::SipMethodUnknown))
 		m_NextLayer = new SipRequestLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
-	else if (((portDst == 5060) || (portDst == 5061)) && (SipResponseFirstLine::parseStatusCode((char*)(m_Data + headerLen), m_DataLen - headerLen) != SipResponseLayer::SipStatusCodeUnknown))
-		m_NextLayer = new SipResponseLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+	else if (((portDst == 5060) || (portDst == 5061)) && (SipResponseFirstLine::parseStatusCode((char*)payload, payloadLen) != SipResponseLayer::SipStatusCodeUnknown))
+		m_NextLayer = new SipResponseLayer(payload, payloadLen, this, m_Packet);
 	else
-		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
 
 void TcpLayer::computeCalculateFields()
@@ -358,7 +361,7 @@ void TcpLayer::computeCalculateFields()
 	calculateChecksum(true);
 }
 
-std::string TcpLayer::toString()
+std::string TcpLayer::toString() const
 {
 	tcphdr* hdr = getTcpHeader();
 	std::string result = "TCP Layer, ";

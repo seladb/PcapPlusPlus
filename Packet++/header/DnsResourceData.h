@@ -44,8 +44,8 @@ namespace pcpp
 		IDnsResourceData(const IDnsResourceData& other);
 		IDnsResourceData() { }
 
-		size_t decodeName(const char* encodedName, char* result, IDnsResource* dnsResource);
-		void encodeName(const std::string& decodedName, char* result, size_t& resultLen, IDnsResource* dnsResource);
+		size_t decodeName(const char* encodedName, char* result, IDnsResource* dnsResource) const;
+		void encodeName(const std::string& decodedName, char* result, size_t& resultLen, IDnsResource* dnsResource) const;
 
 	public:
 		/**
@@ -67,12 +67,12 @@ namespace pcpp
 		 * @return A pointer to the current instance casted as the requested type or NULL if this instance isn't of this type
 		 */
 		template <class IDnsResourceDataType>
-		IDnsResourceDataType* castAs() { return dynamic_cast<IDnsResourceDataType*>(this);}
+		IDnsResourceDataType* castAs() { return dynamic_cast<IDnsResourceDataType*>(this); }
 
 		/**
 		 * @return A string that represents the current DNS RR data
 		 */
-		virtual std::string toString() = 0;
+		virtual std::string toString() const = 0;
 
 		/**
 		 * Convert the DNS RR data into a byte array
@@ -82,7 +82,7 @@ namespace pcpp
 		 * @return True if the DNS RR data was successfully converted into a byte array and written to the given array or
 		 * false if stored DNS RR data is invalid or if it could not be written to the given array
 		 */
-		virtual bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) = 0;
+		virtual bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const = 0;
 	};
 
 
@@ -124,7 +124,6 @@ namespace pcpp
 		 */
 		template <class IDnsResourceDataType>
 		IDnsResourceDataType* castAs() { return get()->castAs<IDnsResourceDataType>();}
-
 	};
 
 
@@ -164,8 +163,8 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() { return m_Data; }
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
+		std::string toString() const { return m_Data; }
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
 
 
@@ -213,8 +212,8 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() { return m_Data.toString(); }
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
+		std::string toString() const { return m_Data.toString(); }
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
 
 
@@ -262,8 +261,8 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() { return m_Data.toString(); }
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
+		std::string toString() const { return m_Data.toString(); }
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
 
 
@@ -335,9 +334,9 @@ namespace pcpp
 		 * A string representation of the MX data stored in this object. The string format is as follows:
 		 * 'pref: {preference_value}; mx: {mail_exchange_hostname_value}'
 		 */
-		std::string toString();
+		std::string toString() const;
 
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 
 	private:
 		MxData m_Data;
@@ -384,8 +383,8 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString();
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource);
+		std::string toString() const;
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
 
 }

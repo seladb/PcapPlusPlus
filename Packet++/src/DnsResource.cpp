@@ -248,25 +248,21 @@ size_t DnsResource::getDataLength() const
 	return ntohs(dataLength);
 }
 
-DnsResourceDataPtr DnsResource::getData()
+DnsResourceDataPtr DnsResource::getData() const
 {
 	uint8_t* resourceRawData = getRawData() + m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t);
 	size_t dataLength = getDataLength();
 
-	DnsType dnsType = getDnsType();
-
-	switch (dnsType)
+	switch (getDnsType())
 	{
 	case DNS_TYPE_A:
 	{
 		return DnsResourceDataPtr(new IPv4DnsResourceData(resourceRawData, dataLength));
-		break;
 	}
 
 	case DNS_TYPE_AAAA:
 	{
 		return DnsResourceDataPtr(new IPv6DnsResourceData(resourceRawData, dataLength));
-		break;
 	}
 
 	case DNS_TYPE_NS:
@@ -274,20 +270,17 @@ DnsResourceDataPtr DnsResource::getData()
 	case DNS_TYPE_DNAM:
 	case DNS_TYPE_PTR:
 	{
-		return DnsResourceDataPtr(new StringDnsResourceData(resourceRawData, dataLength, this));
-		break;
+		return DnsResourceDataPtr(new StringDnsResourceData(resourceRawData, dataLength, const_cast<IDnsResource*>(static_cast<const IDnsResource*>(this))));
 	}
 
 	case DNS_TYPE_MX:
 	{
-		return DnsResourceDataPtr(new MxDnsResourceData(resourceRawData, dataLength, this));
-		break;
+		return DnsResourceDataPtr(new MxDnsResourceData(resourceRawData, dataLength, const_cast<IDnsResource*>(static_cast<const IDnsResource*>(this))));
 	}
 
 	default:
 	{
 		return DnsResourceDataPtr(new GenericDnsResourceData(resourceRawData, dataLength));
-		break;
 	}
 
 	}

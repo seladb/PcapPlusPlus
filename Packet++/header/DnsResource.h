@@ -112,12 +112,12 @@ namespace pcpp
 		/**
 		 * @return The total size in bytes of this record
 		 */
-		virtual size_t getSize() = 0;
+		virtual size_t getSize() const = 0;
 
 		/**
 		 * @return The type of this record (query, answer, authority, additional)
 		 */
-		virtual DnsResourceType getType() = 0;
+		virtual DnsResourceType getType() const = 0;
 	};
 
 
@@ -138,8 +138,8 @@ namespace pcpp
 		virtual ~DnsQuery() {}
 
 		// implementation of abstract methods
-		virtual size_t getSize() { return m_NameLength + 2*sizeof(uint16_t); }
-		virtual DnsResourceType getType() { return DnsQueryType; }
+		virtual size_t getSize() const { return m_NameLength + 2*sizeof(uint16_t); }
+		virtual DnsResourceType getType() const { return DnsQueryType; }
 	};
 
 
@@ -188,7 +188,7 @@ namespace pcpp
 		 *   mail exchange name)<BR>
 		 * - For all other types: the return value is a smart pointer to GenericDnsResourceData which contains a byte array of the data
 		 */
-		DnsResourceDataPtr getData();
+		DnsResourceDataPtr getData() const;
 
 		/**
 		 * @return The offset of data in the DNS layer
@@ -227,8 +227,8 @@ namespace pcpp
 		void setCustomDnsClass(uint16_t customValue);
 
 		// implementation of abstract methods
-		virtual size_t getSize() { return m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
-		virtual DnsResourceType getType() { return m_ResourceType; }
+		virtual size_t getSize() const { return m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
+		virtual DnsResourceType getType() const { return m_ResourceType; }
 
 	};
 

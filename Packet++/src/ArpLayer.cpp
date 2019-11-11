@@ -41,7 +41,7 @@ void ArpLayer::computeCalculateFields()
 		MacAddress::Zero.copyTo(arpHeader->targetMacAddr);
 }
 
-std::string ArpLayer::toString()
+std::string ArpLayer::toString() const
 {
 	if (ntohs(getArpHeader()->opcode) == ARP_REQUEST)
 	{

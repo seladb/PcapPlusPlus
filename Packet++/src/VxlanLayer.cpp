@@ -49,7 +49,7 @@ void VxlanLayer::setVNI(uint32_t vni)
 	getVxlanHeader()->vni = htonl(vni << 8);
 }
 
-std::string VxlanLayer::toString()
+std::string VxlanLayer::toString() const
 {
 	return "VXLAN Layer";
 }

@@ -240,7 +240,7 @@ namespace pcpp
 		/**
 		 * @return The record size as extracted from the record data (in ssl_tls_record_layer#length)
 		 */
-		size_t getHeaderLen();
+		size_t getHeaderLen() const;
 
 		/**
 		 * Several SSL/TLS records can reside in a single packets. So this method checks the remaining data and if it's
@@ -318,7 +318,7 @@ namespace pcpp
 		/**
 		 * @return The number of messages in this layer instance
 		 */
-		size_t getHandshakeMessagesCount();
+		size_t getHandshakeMessagesCount() const { return m_MessageList.size(); }
 
 		/**
 		 * Get a pointer to an handshake message by index. The message are numbered according to their order of appearance
@@ -327,14 +327,14 @@ namespace pcpp
 		 * @param[in] index The index of the message to return
 		 * @return The pointer to the message object or NULL if index is out of bounds
 		 */
-		SSLHandshakeMessage* getHandshakeMessageAt(int index);
+		SSLHandshakeMessage* getHandshakeMessageAt(int index) const;
 
 		/**
 		 * A templated method to get a message of a certain type. If no message of such type is found, NULL is returned
 		 * @return A pointer to the message of the requested type, NULL if not found
 		 */
 		template<class THandshakeMessage>
-		THandshakeMessage* getHandshakeMessageOfType();
+		THandshakeMessage* getHandshakeMessageOfType() const;
 
 		/**
 		 * A templated method to get the first message of a certain type, starting to search from a certain message.
@@ -346,11 +346,11 @@ namespace pcpp
 		 * @return A pointer to the message of the requested type, NULL if not found
 		 */
 		template<class THandshakeMessage>
-		THandshakeMessage* getNextHandshakeMessageOfType(SSLHandshakeMessage* after);
+		THandshakeMessage* getNextHandshakeMessageOfType(SSLHandshakeMessage* after) const;
 
 		// implement abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * There are no calculated fields for this layer
@@ -385,7 +385,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * There are no calculated fields for this layer
@@ -418,7 +418,7 @@ namespace pcpp
 		/**
 		 * @return SSL/TLS alert level. Will return ::SSL_ALERT_LEVEL_ENCRYPTED if alert is encrypted
 		 */
-		SSLAlertLevel getAlertLevel();
+		SSLAlertLevel getAlertLevel() const;
 
 		/**
 		 * @return SSL/TLS alert description. Will return ::SSL_ALERT_ENCRYPRED if alert is encrypted
@@ -427,7 +427,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * There are no calculated fields for this layer
@@ -461,16 +461,16 @@ namespace pcpp
 		 * @return A pointer to the encrypted data. This data can be decrypted only if you have the symmetric key
 		 * that was agreed between the client and the server during SSL/TLS handshake process
 		 */
-		uint8_t* getEncrpytedData();
+		uint8_t* getEncrpytedData() const;
 
 		/**
 		 * @return The length in bytes of the encrypted data returned in getEncrpytedData()
 		 */
-		size_t getEncrpytedDataLen();
+		size_t getEncrpytedDataLen() const;
 
 		// implement abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 		/**
 		 * There are no calculated fields for this layer
@@ -479,12 +479,12 @@ namespace pcpp
 	};
 
 	template<class THandshakeMessage>
-	THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType()
+	THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType() const
 	{
 		size_t vecSize = m_MessageList.size();
 		for (size_t i = 0; i < vecSize; i++)
 		{
-			SSLHandshakeMessage* curElem = m_MessageList.at(i);
+			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
 			 if (dynamic_cast<THandshakeMessage*>(curElem) != NULL)
 				 return (THandshakeMessage*)curElem;
 		}
@@ -494,7 +494,7 @@ namespace pcpp
 	}
 
 	template<class THandshakeMessage>
-	THandshakeMessage* SSLHandshakeLayer::getNextHandshakeMessageOfType(SSLHandshakeMessage* after)
+	THandshakeMessage* SSLHandshakeLayer::getNextHandshakeMessageOfType(SSLHandshakeMessage* after) const
 	{
 		size_t vecSize = m_MessageList.size();
 		size_t afterIndex;
@@ -502,7 +502,7 @@ namespace pcpp
 		// find the index of "after"
 		for (afterIndex = 0; afterIndex < vecSize; afterIndex++)
 		{
-			SSLHandshakeMessage* curElem = m_MessageList.at(afterIndex);
+			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(afterIndex));
 			if (curElem == after)
 				break;
 		}
@@ -513,7 +513,7 @@ namespace pcpp
 
 		for (size_t i = afterIndex+1; i < vecSize; i++)
 		{
-			SSLHandshakeMessage* curElem = m_MessageList.at(i);
+			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
 			 if (dynamic_cast<THandshakeMessage*>(curElem) != NULL)
 				 return (THandshakeMessage*)curElem;
 		}

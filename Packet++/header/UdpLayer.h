@@ -77,14 +77,14 @@ namespace pcpp
 		/**
 		 * @return Size of @ref udphdr
 		 */
-		size_t getHeaderLen() { return sizeof(udphdr); }
+		size_t getHeaderLen() const { return sizeof(udphdr); }
 
 		/**
 		 * Calculate @ref udphdr#headerChecksum field
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 	};

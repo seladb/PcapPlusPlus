@@ -360,7 +360,7 @@ bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
 	return true;
 }
 
-std::string SipRequestFirstLine::getUri()
+std::string SipRequestFirstLine::getUri() const
 {
 	std::string result;
 	if (m_UriOffset != -1 && m_VersionOffset != -1)
@@ -456,7 +456,7 @@ SipRequestLayer::~SipRequestLayer()
 	delete m_FirstLine;
 }
 
-std::string SipRequestLayer::toString()
+std::string SipRequestLayer::toString() const
 {
 	static const int maxLengthToPrint = 120;
 	std::string result = "SIP request, ";
@@ -687,7 +687,7 @@ SipResponseLayer& SipResponseLayer::operator=(const SipResponseLayer& other)
 	return *this;
 }
 
-std::string SipResponseLayer::toString()
+std::string SipResponseLayer::toString() const
 {
 	static const int maxLengthToPrint = 120;
 	std::string result = "SIP response, ";

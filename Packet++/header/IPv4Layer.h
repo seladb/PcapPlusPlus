@@ -26,12 +26,12 @@ namespace pcpp
 		/** IP header length, has the value of 5 for IPv4 */
 		uint8_t internetHeaderLength:4,
 		/** IP version number, has the value of 4 for IPv4 */
-				ipVersion:4;
+		ipVersion:4;
 #else
 		/** IP version number, has the value of 4 for IPv4 */
 		uint8_t ipVersion:4,
 		/** IP header length, has the value of 5 for IPv4 */
-				internetHeaderLength:4;
+		internetHeaderLength:4;
 #endif
 		/** type of service, same as Differentiated Services Code Point (DSCP)*/
 		uint8_t typeOfService;
@@ -228,14 +228,14 @@ namespace pcpp
 		 * (meaning zeroed addresses - 0.0.0.0) will not be added to the returned list. If some error occurs during the parsing or the value is invalid an empty vector is returned
 		 * @return A vector of IPv4 addresses parsed from the IPv4 option value
 		 */
-		std::vector<IPv4Address> getValueAsIpList()
+		std::vector<IPv4Address> getValueAsIpList() const
 		{
 			std::vector<IPv4Address> res;
 
 			if (m_Data == NULL)
 				return res;
 
-			size_t dataSize =  getDataSize();
+			size_t dataSize = getDataSize();
 			if (dataSize < 2)
 				return res;
 
@@ -263,7 +263,7 @@ namespace pcpp
 		 * the lists. If some error occurs during the parsing or the value is invalid an empty result is returned
 		 * @return A structured containing the IPv4 timestamp value
 		 */
-		IPv4TimestampOptionValue getTimestampOptionValue()
+		IPv4TimestampOptionValue getTimestampOptionValue() const
 		{
 			IPv4TimestampOptionValue res;
 			res.clear();
@@ -329,7 +329,7 @@ namespace pcpp
 			return (size_t)m_Data->recordLen;
 		}
 
-		size_t getDataSize()
+		size_t getDataSize() const
 		{
 			if (m_Data == NULL)
 				return 0;
@@ -513,13 +513,13 @@ namespace pcpp
 		 * @return An IPv4Option object that contains the first option that matches this type, or logical NULL
 		 * (IPv4Option#isNull() == true) if no such option found
 		 */
-		IPv4Option getOption(IPv4OptionTypes option);
+		IPv4Option getOption(IPv4OptionTypes option) const;
 
 		/**
 		 * @return The first IPv4 option in the packet. If the current layer contains no options the returned value will contain
 		 * a logical NULL (IPv4Option#isNull() == true)
 		 */
-		IPv4Option getFirstOption();
+		IPv4Option getFirstOption() const;
 
 		/**
 		 * Get the IPv4 option that comes after a given option. If the given option was the last one, the
@@ -528,12 +528,12 @@ namespace pcpp
 		 * @return A IPv4Option object that contains the IPv4 option data that comes next, or logical NULL if the given
 		 * IPv4 option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
 		 */
-		IPv4Option getNextOption(IPv4Option& option);
+		IPv4Option getNextOption(IPv4Option& option) const;
 
 		/**
 		 * @return The number of IPv4 options in this layer
 		 */
-		size_t getOptionCount();
+		size_t getOptionCount() const;
 
 		/**
 		 * Add a new IPv4 option at the end of the layer (after the last IPv4 option)
@@ -580,7 +580,7 @@ namespace pcpp
 		/**
 		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		size_t getHeaderLen() { return (size_t)(getIPv4Header()->internetHeaderLength*4) + m_TempHeaderExtension; }
+		size_t getHeaderLen() const { return (size_t)((uint16_t)(getIPv4Header()->internetHeaderLength) * 4) + m_TempHeaderExtension; }
 
 		/**
 		 * Calculate the following fields:
@@ -591,7 +591,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 

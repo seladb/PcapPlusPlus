@@ -15,7 +15,7 @@ PayloadLayer::PayloadLayer(const uint8_t* data, size_t dataLen, bool dummy) : La
 	m_Protocol = GenericPayload;
 }
 
-std::string PayloadLayer::toString()
+std::string PayloadLayer::toString() const
 {
 	std::ostringstream dataLenStream;
 	dataLenStream << m_DataLen;

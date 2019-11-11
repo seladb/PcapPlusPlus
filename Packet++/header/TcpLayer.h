@@ -31,43 +31,43 @@ namespace pcpp
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		uint16_t reserved:4,
 		/** Specifies the size of the TCP header in 32-bit words */
-			dataOffset:4,
+		dataOffset:4,
 		/** FIN flag */
-			finFlag:1,
+		finFlag:1,
 		/** SYN flag */
-			synFlag:1,
+		synFlag:1,
 		/** RST flag */
-			rstFlag:1,
+		rstFlag:1,
 		/** PSH flag */
-			pshFlag:1,
+		pshFlag:1,
 		/** ACK flag */
-			ackFlag:1,
+		ackFlag:1,
 		/** URG flag */
-			urgFlag:1,
+		urgFlag:1,
 		/** ECE flag */
-			eceFlag:1,
+		eceFlag:1,
 		/** CWR flag */
-			cwrFlag:1;
+		cwrFlag:1;
 #elif (BYTE_ORDER == BIG_ENDIAN)
 		/** Specifies the size of the TCP header in 32-bit words */
 		uint16_t dataOffset:4,
-			reserved:4,
+		reserved:4,
 		/** CWR flag */
-			cwrFlag:1,
+		cwrFlag:1,
 		/** ECE flag */
-			eceFlag:1,
+		eceFlag:1,
 		/** URG flag */
-			urgFlag:1,
+		urgFlag:1,
 		/** ACK flag */
-			ackFlag:1,
+		ackFlag:1,
 		/** PSH flag */
-			pshFlag:1,
+		pshFlag:1,
 		/** RST flag */
-			rstFlag:1,
+		rstFlag:1,
 		/** SYN flag */
-			synFlag:1,
+		synFlag:1,
 		/** FIN flag */
-			finFlag:1;
+		finFlag:1;
 #else
 #error	"Endian is not LE nor BE..."
 #endif
@@ -86,23 +86,23 @@ namespace pcpp
 	 */
 	enum TcpOptionType {
 		/** Padding */
-		PCPP_TCPOPT_NOP = 			1,
+		PCPP_TCPOPT_NOP =       1,
 		/** End of options */
-		PCPP_TCPOPT_EOL = 			0,
+		PCPP_TCPOPT_EOL =       0,
 		/** Segment size negotiating */
-		TCPOPT_MSS = 			2,
+		TCPOPT_MSS =          	2,
 		/** Window scaling */
-		PCPP_TCPOPT_WINDOW = 		3,
+		PCPP_TCPOPT_WINDOW =    3,
 		/** SACK Permitted */
-		TCPOPT_SACK_PERM = 		4,
+		TCPOPT_SACK_PERM =      4,
 		/** SACK Block */
-		PCPP_TCPOPT_SACK =           5,
+		PCPP_TCPOPT_SACK =      5,
 		/** Echo (obsoleted by option ::PCPP_TCPOPT_TIMESTAMP) */
 		TCPOPT_ECHO =           6,
 		/** Echo Reply (obsoleted by option ::PCPP_TCPOPT_TIMESTAMP) */
 		TCPOPT_ECHOREPLY =      7,
 		/** TCP Timestamps */
-		PCPP_TCPOPT_TIMESTAMP =      8,
+		PCPP_TCPOPT_TIMESTAMP = 8,
 		/** CC (obsolete) */
 		TCPOPT_CC =             11,
 		/** CC.NEW (obsolete) */
@@ -212,7 +212,7 @@ namespace pcpp
 		 * @return TCP option type casted as pcpp::TcpOptionType enum. If the data is null a value
 		 * of ::TCPOPT_Unknown is returned
 		 */
-		inline TcpOptionType getTcpOptionType() const
+		TcpOptionType getTcpOptionType() const
 		{
 			if (m_Data == NULL)
 				return TCPOPT_Unknown;
@@ -222,7 +222,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		inline size_t getTotalSize() const
+		size_t getTotalSize() const
 		{
 			if (m_Data == NULL)
 				return (size_t)0;
@@ -233,7 +233,7 @@ namespace pcpp
 			return (size_t)m_Data->recordLen;
 		}
 
-		size_t getDataSize()
+		size_t getDataSize() const
 		{
 			if (m_Data == NULL)
 				return 0;
@@ -364,7 +364,7 @@ namespace pcpp
 		 * Get a pointer to the TCP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref tcphdr
 		 */
-		inline tcphdr* getTcpHeader() const { return (tcphdr*)m_Data; }
+		tcphdr* getTcpHeader() const { return (tcphdr*)m_Data; }
 
 		/**
 		 * Get a TCP option by type
@@ -372,13 +372,13 @@ namespace pcpp
 		 * @return An TcpOption object that contains the first option that matches this type, or logical NULL
 		 * (TcpOption#isNull() == true) if no such option found
 		 */
-		TcpOption getTcpOption(TcpOptionType option);
+		TcpOption getTcpOption(TcpOptionType option) const;
 
 		/**
 		 * @return The first TCP option in the packet. If the current layer contains no options the returned value will contain
 		 * a logical NULL (TcpOption#isNull() == true)
 		 */
-		TcpOption getFirstTcpOption();
+		TcpOption getFirstTcpOption() const;
 
 		/**
 		 * Get the TCP option that comes after a given option. If the given option was the last one, the
@@ -387,12 +387,12 @@ namespace pcpp
 		 * @return A TcpOption object that contains the TCP option data that comes next, or logical NULL if the given
 		 * TCP option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
 		 */
-		TcpOption getNextTcpOption(TcpOption& tcpOption);
+		TcpOption getNextTcpOption(TcpOption& tcpOption) const;
 
 		/**
 		 * @return The number of TCP options in this layer
 		 */
-		size_t getTcpOptionCount();
+		size_t getTcpOptionCount() const;
 
 		/**
 		 * Add a new TCP option at the end of the layer (after the last TCP option)
@@ -447,14 +447,14 @@ namespace pcpp
 		/**
 		 * @return Size of @ref tcphdr + all TCP options
 		 */
-		inline size_t getHeaderLen() { return getTcpHeader()->dataOffset*4 ;}
+		size_t getHeaderLen() const { return getTcpHeader()->dataOffset*4 ;}
 
 		/**
 		 * Calculate @ref tcphdr#headerChecksum field
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 
@@ -464,7 +464,7 @@ namespace pcpp
 		int m_NumOfTrailingBytes;
 
 		void initLayer();
-		inline uint8_t* getOptionsBasePtr() { return m_Data + sizeof(tcphdr); }
+		uint8_t* getOptionsBasePtr() const { return m_Data + sizeof(tcphdr); }
 		TcpOption addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int offset);
 		void adjustTcpOptionTrailer(size_t totalOptSize);
 		void copyLayerData(const TcpLayer& other);

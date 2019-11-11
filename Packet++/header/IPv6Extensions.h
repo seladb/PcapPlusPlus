@@ -222,7 +222,7 @@ namespace pcpp
 				return (size_t)(m_Data->recordLen + sizeof(uint16_t));
 			}
 
-			size_t getDataSize()
+			size_t getDataSize() const
 			{
 				if (m_Data->recordType == Pad0OptionType)
 					return (size_t)0;

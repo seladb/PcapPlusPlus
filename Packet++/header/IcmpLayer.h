@@ -322,7 +322,7 @@ namespace pcpp
 		 * @return A pointer to the router advertisement on the packet or null if index is out of range (less than zero or
 		 * greater than the number of router advertisement records on this message, determined by advertisementCount field)
 		 */
-		icmp_router_address_structure* getRouterAddress(int index);
+		icmp_router_address_structure* getRouterAddress(int index) const;
 	};
 
 
@@ -380,7 +380,7 @@ namespace pcpp
 	{
 	private:
 		icmp_echo_request m_EchoData;
-		icmp_router_advertisement m_RouterAdvData;
+		mutable icmp_router_advertisement m_RouterAdvData;
 
 		bool cleanIcmpLayer();
 
@@ -551,7 +551,7 @@ namespace pcpp
 		/**
 		 * @return ICMP router advertisement data. If the layer isn't of type ICMP router advertisement NULL is returned
 		 */
-		icmp_router_advertisement* getRouterAdvertisementData();
+		icmp_router_advertisement* getRouterAdvertisementData() const;
 
 		/**
 		 * Set router advertisement message data
@@ -686,14 +686,14 @@ namespace pcpp
 		 * IPv4 and L4 headers in case ICMP message type are: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH, ICMP_TIME_EXCEEDED,
 		 * ICMP_REDIRECT, ICMP_PARAM_PROBLEM
 		 */
-		size_t getHeaderLen();
+		size_t getHeaderLen() const;
 
 		/**
 		 * Calculate ICMP checksum field
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 	};

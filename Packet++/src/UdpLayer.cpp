@@ -119,7 +119,7 @@ void UdpLayer::computeCalculateFields()
 	calculateChecksum(true);
 }
 
-std::string UdpLayer::toString()
+std::string UdpLayer::toString() const
 {
 	std::ostringstream srcPortStream;
 	srcPortStream << ntohs(getUdpHeader()->portSrc);

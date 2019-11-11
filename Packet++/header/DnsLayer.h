@@ -144,7 +144,7 @@ namespace pcpp
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 		 * @return The first matching DNS query or NULL if no queries were found
 		 */
-		DnsQuery* getQuery(const std::string& name, bool exactMatch);
+		DnsQuery* getQuery(const std::string& name, bool exactMatch) const;
 
 		/**
 		 * @return The first DNS query in the packet or NULL if packet doesn't contain any queries
@@ -416,14 +416,14 @@ namespace pcpp
 		 * Return the size of the DNS data in the packet including he DNS header and size of all queries, answers, authorities and additional
 		 * records
 		 */
-		size_t getHeaderLen() { return m_DataLen; } //No layer above DNS
+		size_t getHeaderLen() const { return m_DataLen; } //No layer above DNS
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 

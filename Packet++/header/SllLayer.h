@@ -93,14 +93,14 @@ namespace pcpp
 		/**
 		 * @return Size of sll_header
 		 */
-		size_t getHeaderLen() { return sizeof(sll_header); }
+		size_t getHeaderLen() const { return sizeof(sll_header); }
 
 		/**
 		 * Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};

@@ -435,7 +435,7 @@ namespace pcpp
 		 * the size of gtpv1_header plus the size of the optional fields such as sequence number, N-PDU 
 		 * or extensions if exist)
 		 */
-		size_t getHeaderLen();
+		size_t getHeaderLen() const;
 
 		/**
 		 * Calculate the following fields:
@@ -443,7 +443,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 	};

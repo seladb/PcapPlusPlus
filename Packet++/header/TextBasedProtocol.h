@@ -46,7 +46,7 @@ public:
 	 * @return The field length in bytes, meaning count of all characters from the previous CRLF (not inclusive) until the next CRLF (inclusive)
 	 * For example: the field "Host: www.wikipedia.org\r\n" will have the length of 25
 	 */
-	inline size_t getFieldSize() { return m_FieldSize; }
+	size_t getFieldSize() const { return m_FieldSize; }
 
 	/**
 	 * @return The field name as string. Notice the return data is copied data, so changing it won't change the packet data
@@ -68,16 +68,18 @@ public:
 	 * Get an indication whether the field is a field that ends the header (meaning contain only CRLF - see class explanation)
 	 * @return True if this is a end-of-header field, false otherwise
 	 */
-	inline bool isEndOfHeader() { return m_IsEndOfHeaderField; }
+	bool isEndOfHeader() const { return m_IsEndOfHeaderField; }
 
 private:
 	HeaderField(std::string name, std::string value, char nameValueSeperator, bool spacesAllowedBetweenNameAndValue);
 	HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int offsetInMessage, char nameValueSeperator, bool spacesAllowedBetweenNameAndValue);
-	char* getData();
-	inline void setNextField(HeaderField* nextField) { m_NextField = nextField; }
-	inline HeaderField* getNextField() { return m_NextField; }
+
+	char* getData() const;
+	void setNextField(HeaderField* nextField);
+	HeaderField *getNextField() const;
 	void initNewField(std::string name, std::string value);
 	void attachToTextBasedProtocolMessage(TextBasedProtocolMessage* message, int fieldOffsetInMessage);
+
 	uint8_t* m_NewFieldData;
 	TextBasedProtocolMessage* m_TextBasedProtocolMessage;
 	int m_NameOffsetInMessage;
@@ -215,7 +217,7 @@ public:
 	/**
 	 * @return The message length
 	 */
-	size_t getHeaderLen();
+	size_t getHeaderLen() const;
 
 	/**
 	 * Does nothing for this class
@@ -236,8 +238,8 @@ protected:
 	void shiftFieldsOffset(HeaderField* fromField, int numOfBytesToShift);
 
 	// abstract methods
-	virtual char getHeaderFieldNameValueSeparator() = 0;
-	virtual bool spacesAllowedBetweenHeaderFieldNameAndValue() = 0;
+	virtual char getHeaderFieldNameValueSeparator() const = 0;
+	virtual bool spacesAllowedBetweenHeaderFieldNameAndValue() const = 0;
 
 	HeaderField* m_FieldList;
 	HeaderField* m_LastField;
