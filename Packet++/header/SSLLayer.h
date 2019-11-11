@@ -178,7 +178,7 @@ namespace pcpp
 		 * A static method that checks whether the port is considered as SSL/TLS
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isSSLPort(uint16_t port) { return m_PortList.contains(port); }
+		static bool isSSLPort(uint16_t port);
 
 		/**
 		 * A static methods that gets raw data of a layer and checks whether this data is a SSL/TLS record or not. This check is
