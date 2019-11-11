@@ -43,6 +43,9 @@
 #include <SystemUtils.h>
 #endif
 
+// for perfomance tests
+#include <chrono>
+
 // For debug purpose only
 // #include <pcap.h>
 
@@ -7455,6 +7458,66 @@ PTF_TEST_CASE(GtpLayerEditTest)
 } // GtpLayerEditTest
 
 
+
+PTF_TEST_CASE(SSLLayerPerformanceTest)
+{
+	constexpr auto tryCount = 1000000000U;
+	constexpr uint16_t portToSearch = 443;
+	auto count = 0U;
+
+	std::cout << "\nMeasurement of lookup performance for port number " << portToSearch << '\n';
+
+	// function
+	auto startTime = std::chrono::steady_clock::now();
+
+	for(auto i = 0U; i < tryCount; ++i)
+		if(SSLLayer::isSSLPort(portToSearch))
+			++count;
+
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime);
+	std::cout << "isSSLPort() with operator switch: duration(ms): " << duration.count() << ", iterations: " << count << "\n\n";
+
+	{ // PortList
+		auto const &portList = SSLLayer::getPortList();
+
+		std::cout << "SSL ports: ";
+		auto ports = portList.getPorts();
+		for(auto port : ports)
+			std::cout << port << ' ';
+		std::cout << '\n';
+
+		count = 0;
+		startTime = std::chrono::steady_clock::now();
+
+		for(auto i = 0U; i < tryCount; ++i)
+			if(portList.contains(portToSearch))
+				++count;
+
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime);
+		std::cout << "PortList::contains(): duration(ms): " << duration.count() << ", iterations: " << count << "\n\n";
+	}
+
+	{ // PortList2
+		auto const &portList = SSLLayer::getPortList2();
+
+		std::cout << "SSL ports: ";
+		auto ports = portList.getPorts();
+		for(auto port : ports)
+			std::cout << port << ' ';
+		std::cout << '\n';
+
+		count = 0;
+		startTime = std::chrono::steady_clock::now();
+
+		for(auto i = 0U; i < tryCount; ++i)
+			if(portList.contains(portToSearch))
+				++count;
+
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime);
+		std::cout << "PortList2::contains(): duration(ms): " << duration.count() << ", iterations: " << count << "\n\n";
+	}
+}
+
 static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
@@ -7616,6 +7679,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
 	PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
 	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
-
+	PTF_RUN_TEST(SSLLayerPerformanceTest, "no_network");
+	
 	PTF_END_RUNNING_TESTS;
 }

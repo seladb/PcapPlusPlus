@@ -15,32 +15,44 @@
 namespace pcpp
 {
 
+// init a static member
+PortList SSLLayer::m_PortList
+(
+	0,   // default
+	261, // NSIIOPS
+	443, // HTTPS
+	448, // DDM-SSL
+	465, // SMTPS
+	563, // NNTPS
+	614, // SSHELL
+	636, // LDAPS
+	989, // FTPS - data
+	990, // FTPS - control
+	992, // Telnet over TLS/SSL
+	993, // IMAPS
+	994, // IRCS
+	995  // POP3S
+);
 
-bool SSLLayer::isSSLPort(uint16_t port)
-{
-	if (port == 443) // HTTPS, this is likely case
-		return true;
+// init a static member (the order of ports does matter)
+PortList2 SSLLayer::m_PortList2
+(
+	443, // HTTPS
+	0,   // default
+	261, // NSIIOPS
+	448, // DDM-SSL
+	465, // SMTPS
+	563, // NNTPS
+	614, // SSHELL
+	636, // LDAPS
+	989, // FTPS - data
+	990, // FTPS - control
+	992, // Telnet over TLS/SSL
+	993, // IMAPS
+	994, // IRCS
+	995  // POP3S
+);
 
-	switch (port)
-	{
-	case 0:   // default
-	case 261: // NSIIOPS
-	case 448: // DDM-SSL
-	case 465: // SMTPS
-	case 563: // NNTPS
-	case 614: // SSHELL
-	case 636: // LDAPS
-	case 989: // FTPS - data
-	case 990: // FTPS - control
-	case 992: // Telnet over TLS/SSL
-	case 993: // IMAPS
-	case 994: // IRCS
-	case 995: // POP3S
-		return true;
-	default:
-		return false;
-	}
-}
 
 // ----------------
 // SSLLayer methods
@@ -66,7 +78,8 @@ bool SSLLayer::IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, s
 
 	uint16_t recordVersion = ntohs(recordLayer->recordVersion);
 
-	if (recordVersion != SSL3 &&
+	if (recordVersion != SSL2 && 
+			recordVersion != SSL3 &&
 			recordVersion != TLS1_0 &&
 			recordVersion != TLS1_1 &&
 			recordVersion != TLS1_2)

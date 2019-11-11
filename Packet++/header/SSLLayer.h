@@ -6,6 +6,7 @@
 #include "SSLCommon.h"
 #include "SSLHandshake.h"
 #include "PortList.h"
+#include "PortList2.h"
 
 /**
  * @file
@@ -177,7 +178,7 @@ namespace pcpp
 		 * A static method that checks whether the port is considered as SSL/TLS
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isSSLPort(uint16_t port);
+		static bool isSSLPort(uint16_t port) { return m_PortList.contains(port); }
 
 		/**
 		 * A static methods that gets raw data of a layer and checks whether this data is a SSL/TLS record or not. This check is
@@ -251,10 +252,24 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelPresentationLayer; }
 
+		/**
+		 * A static method that returns a reference to static object that contains the port numbers supported by this layer at certain point of time.
+		 * The port list can be changed by the user in any time.
+		 * @return A reference to static object that contains the port numbers supported by the layer.
+		 */
+		static PortList& getPortList() { return m_PortList; }
+		static PortList2& getPortList2() { return m_PortList2; }
+
 	protected:
 		SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = SSL; }
 
+
+		/**
+		 * A static object that contains the port list supported by this layer at certain point of time.
+		 * This list are filled in by the well known port numbers but can be changed by the users in any time.
+		 */
 		static PortList m_PortList;
+		static PortList2 m_PortList2;
 	};
 
 
