@@ -26,7 +26,7 @@ namespace pcpp
 		/**
 		 * The default constructor that creates an empty list
 		 */
-		PortList() : m_Ports() {}
+		PortList() : m_Ports(65536, false) {}
 
 		/**
 		 * A constructor that creates an object by the port number
@@ -360,7 +360,7 @@ namespace pcpp
 		}
 
 	protected:
-		bool m_Ports[65536];
+		std::vector<bool> m_Ports;
 	}; // class PortList
 
 
@@ -369,20 +369,20 @@ namespace pcpp
 	// implementation of inline methods
 
 	PortList::PortList(uint16_t p1)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] = true;
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] = true;
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -390,7 +390,7 @@ namespace pcpp
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -399,7 +399,7 @@ namespace pcpp
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -409,7 +409,7 @@ namespace pcpp
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -420,7 +420,7 @@ namespace pcpp
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -432,7 +432,7 @@ namespace pcpp
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -445,7 +445,7 @@ namespace pcpp
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -459,7 +459,7 @@ namespace pcpp
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -474,7 +474,7 @@ namespace pcpp
 	}
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -491,7 +491,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -509,7 +509,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12,	uint16_t p13)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -528,7 +528,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12,	uint16_t p13, uint16_t p14)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -548,7 +548,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12,	uint16_t p13, uint16_t p14, uint16_t p15)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -569,7 +569,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12,	uint16_t p13, uint16_t p14, uint16_t p15, uint16_t p16)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -591,7 +591,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12,	uint16_t p13, uint16_t p14, uint16_t p15, uint16_t p16, uint16_t p17)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -614,7 +614,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12,	uint16_t p13, uint16_t p14, uint16_t p15, uint16_t p16, uint16_t p17, uint16_t p18)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -638,7 +638,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12,	uint16_t p13, uint16_t p14, uint16_t p15, uint16_t p16, uint16_t p17, uint16_t p18, uint16_t p19)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
@@ -663,7 +663,7 @@ namespace pcpp
 
 	PortList::PortList(uint16_t p1, uint16_t p2, uint16_t p3, uint16_t p4, uint16_t p5, uint16_t p6, uint16_t p7, uint16_t p8, uint16_t p9, uint16_t p10, uint16_t p11,
 		uint16_t p12,	uint16_t p13, uint16_t p14, uint16_t p15, uint16_t p16, uint16_t p17, uint16_t p18, uint16_t p19, uint16_t p20)
-		: m_Ports()
+		: m_Ports(65536, false)
 	{
 		m_Ports[p1] =
 			m_Ports[p2] =
