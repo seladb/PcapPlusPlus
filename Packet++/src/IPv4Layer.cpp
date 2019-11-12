@@ -272,10 +272,10 @@ void IPv4Layer::parseNextLayer()
 		m_NextLayer = new IcmpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IPIP:
-		ipVersion = *(m_Data + hdrLen);
-		if (ipVersion >> 4 == 4)
+		ipVersion = *payload >> 4;
+		if (ipVersion == 4)
 			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
-		else if (ipVersion >> 4 == 6)
+		else if (ipVersion == 6)
 			m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);

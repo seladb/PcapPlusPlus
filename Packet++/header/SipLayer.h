@@ -112,6 +112,12 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
+		/**
+		 * A static method that checks whether the port is considered as SIP
+		 * @param[in] port The port number to be checked
+		 */
+		static bool isSipPort(uint16_t port) { return port == 5060 || port == 5061; }
+
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
 		SipLayer() : TextBasedProtocolMessage() {}
@@ -122,7 +128,6 @@ namespace pcpp
 		char getHeaderFieldNameValueSeparator() const { return ':'; }
 		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return true; }
 	};
-
 
 
 	class SipRequestFirstLine;

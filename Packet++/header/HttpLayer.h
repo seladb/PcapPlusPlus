@@ -4,7 +4,6 @@
 #include "TextBasedProtocol.h"
 #include <string>
 #include <exception>
-#include <map>
 
 /// @file
 
@@ -75,9 +74,10 @@ namespace pcpp
 		virtual ~HttpMessage() {}
 
 		/**
-		 * @return A pointer to a map containing all TCP ports recognize as HTTP
+		 * A static method that checks whether the port is considered as HTTP
+		 * @param[in] port The port number to be checked
 		 */
-		static const std::map<uint16_t, bool>* getHTTPPortMap();
+		static bool isHttpPort(uint16_t port) { return port == 80 || port == 8080; }
 
 		// overriden methods
 
@@ -103,7 +103,6 @@ namespace pcpp
 
 
 	class HttpRequestFirstLine;
-
 
 
 
