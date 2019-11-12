@@ -182,6 +182,19 @@ void DpdkDevice::close()
 	m_NumOfTxQueuesOpened = 0;
 	rte_eth_dev_stop(m_Id);
 	LOG_DEBUG("Called rte_eth_dev_stop for device [%s]", m_DeviceName);
+
+	if (m_TxBuffers != NULL)
+	{
+		delete [] m_TxBuffers;
+		m_TxBuffers = NULL;
+	}
+
+	if (m_TxBufferLastDrainTsc != NULL)
+	{
+		delete [] m_TxBufferLastDrainTsc;
+		m_TxBufferLastDrainTsc = NULL;
+	}
+	
 	m_DeviceOpened = false;
 }
 

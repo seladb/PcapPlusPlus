@@ -3252,27 +3252,32 @@ PTF_TEST_CASE(TestDnsParsing)
 }
 
 
+PTF_TEST_CASE(TestDpdkInitDevice)
+{
+#ifdef USE_DPDK
+	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
+	PTF_ASSERT_EQUAL(devList.getDpdkDeviceList().size(), 0, size);
+
+	CoreMask coreMask = 0;
+	for (int i = 0; i < getNumOfCores(); i++)
+		coreMask |= SystemCores::IdToSystemCore[i].Mask;
+	PTF_ASSERT_TRUE(DpdkDeviceList::initDpdk(coreMask, 16383));
+	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+
+	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), LoggerPP::Normal, enum);
+	devList.setDpdkLogLevel(LoggerPP::Debug);
+	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), LoggerPP::Debug, enum);
+	devList.setDpdkLogLevel(LoggerPP::Normal);
+#else
+	PTF_SKIP_TEST("DPDK not configured");
+#endif
+}
+
+
 PTF_TEST_CASE(TestDpdkDevice)
 {
 #ifdef USE_DPDK
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	PTF_ASSERT(devList.getDpdkDeviceList().size() == 0, "DpdkDevices initialized before DPDK is initialized");
-	LoggerPP::getInstance().enableErrors();
-
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		CoreMask coreMask = 0;
-		for (int i = 0; i < getNumOfCores(); i++)
-			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-
-	PTF_ASSERT(devList.getDpdkLogLevel() == LoggerPP::Normal, "DPDK log level is in Debug and should be on Normal");
-	devList.setDpdkLogLevel(LoggerPP::Debug);
-	PTF_ASSERT(devList.getDpdkLogLevel() == LoggerPP::Debug, "DPDK log level is in Normal and should be on Debug");
-	devList.setDpdkLogLevel(LoggerPP::Normal);
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
@@ -3368,20 +3373,8 @@ PTF_TEST_CASE(TestDpdkDevice)
 PTF_TEST_CASE(TestDpdkMultiThread)
 {
 #ifdef USE_DPDK
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	LoggerPP::getInstance().enableErrors();
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		CoreMask coreMask = 0;
-		for (int i = 0; i < getNumOfCores(); i++)
-			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
 
@@ -3423,7 +3416,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 		packetDataMultiThread[i].PacketCount = 0;
 
 	CoreMask coreMask = 0;
-	SystemCore masterCore = devList.getDpdkMasterCore();
+	SystemCore masterCore = DpdkDeviceList::getInstance().getDpdkMasterCore();
 	int j = 0;
 	for (int i = 0; i < getNumOfCores(); i++)
 	{
@@ -3541,20 +3534,8 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 {
 #ifdef USE_DPDK
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	LoggerPP::getInstance().enableErrors();
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		CoreMask coreMask = 0;
-		for (int i = 0; i < getNumOfCores(); i++)
-			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
 
@@ -3626,20 +3607,7 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 {
 #ifdef USE_DPDK
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	LoggerPP::getInstance().enableErrors();
-
-	CoreMask coreMask = 0;
-	for (int i = 0; i < getNumOfCores(); i++)
-		coreMask |= SystemCores::IdToSystemCore[i].Mask;
-
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
@@ -3734,7 +3702,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	for (int i = 0; i < getNumOfCores(); i++)
 	{
 		SystemCore core = SystemCores::IdToSystemCore[i];
-		if (core == devList.getDpdkMasterCore())
+		if (core == DpdkDeviceList::getInstance().getDpdkMasterCore())
 			continue;
 		DpdkTestWorkerThread* newWorkerThread = new DpdkTestWorkerThread();
 		int queueId = core.Id % numOfRxQueues;
@@ -3746,10 +3714,10 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	PTF_PRINT_VERBOSE("Initiating %d worker threads", (int)workerThreadVec.size());
 
 	LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(devList.startDpdkWorkerThreads(0, workerThreadVec) == false, "Managed to start DPDK worker thread with core mask 0");
+	PTF_ASSERT(DpdkDeviceList::getInstance().startDpdkWorkerThreads(0, workerThreadVec) == false, "Managed to start DPDK worker thread with core mask 0");
 	LoggerPP::getInstance().enableErrors();
 
-	PTF_ASSERT(devList.startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec) == true, "Couldn't start DPDK worker threads");
+	PTF_ASSERT(DpdkDeviceList::getInstance().startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec) == true, "Couldn't start DPDK worker threads");
 	PTF_PRINT_VERBOSE("Worker threads started");
 
 	for (int i = 0; i < 10; i++)
@@ -3774,7 +3742,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 
 	PTF_PRINT_VERBOSE("Worker threads stopping");
-	devList.stopDpdkWorkerThreads();
+	DpdkDeviceList::getInstance().stopDpdkWorkerThreads();
 	PTF_PRINT_VERBOSE("Worker threads stopped");
 
 	// we can't guarantee all threads receive packets, it depends on the NIC load balancing and the traffic. So we check that all threads were run and
@@ -3813,7 +3781,6 @@ PTF_TEST_CASE(TestKniDevice)
 
 	if (PcapGlobalArgs.kniIp == "")
 	{
-		PTF_TRY(false, "KNI IP not provided, skipping test");
 		PTF_SKIP_TEST("KNI IP not provided");
 	}
 
@@ -4015,7 +3982,6 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 
 	if (PcapGlobalArgs.kniIp == "")
 	{
-		PTF_TRY(false, "KNI IP not provided, skipping test");
 		PTF_SKIP_TEST("KNI IP not provided");
 	}
 
@@ -4234,21 +4200,8 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 PTF_TEST_CASE(TestDpdkMbufRawPacket)
 {
 #ifdef USE_DPDK
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	LoggerPP::getInstance().enableErrors();
-
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		CoreMask coreMask = 0;
-		for (int i = 0; i < getNumOfCores(); i++)
-			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
 
@@ -6779,6 +6732,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPfRingSendPackets, "pf_ring");
 	PTF_RUN_TEST(TestPfRingFilters, "pf_ring");
 	PTF_RUN_TEST(TestDnsParsing, "no_network;dns");
+	PTF_RUN_TEST(TestDpdkInitDevice, "dpdk;dpdk-init;skip_mem_leak_check");
 	PTF_RUN_TEST(TestDpdkDevice, "dpdk");
 	PTF_RUN_TEST(TestDpdkMultiThread, "dpdk");
 	PTF_RUN_TEST(TestDpdkDeviceSendPackets, "dpdk");
