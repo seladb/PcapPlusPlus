@@ -3722,6 +3722,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	PTF_ASSERT(DpdkDeviceList::getInstance().startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec) == true, "Couldn't start DPDK worker threads");
 	PTF_PRINT_VERBOSE("Worker threads started");
 
+	DpdkDevice::DpdkDeviceStats initStats;
+	dev->getStatistics(initStats);
+	uint64_t curPackets = initStats.aggregatedRxStats.packets;
 	numOfAttempts = 0;
 	while (numOfAttempts < 20)
 	{
@@ -3742,7 +3745,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 		PCAP_SLEEP(1);
 
-		if (stats.aggregatedRxStats.packets > 0)
+		if (stats.aggregatedRxStats.packets > curPackets)
 			break;
 		numOfAttempts++;
 	}

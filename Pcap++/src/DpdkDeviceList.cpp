@@ -387,7 +387,7 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 	}
 
 	m_WorkerThreads.clear();
-	m_WorkerThreads.shrink_to_fit();
+	std::vector<DpdkWorkerThread*>(m_WorkerThreads).swap(m_WorkerThreads);
 
 	LOG_DEBUG("All worker threads stopped");
 }
