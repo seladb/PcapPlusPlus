@@ -3255,8 +3255,10 @@ PTF_TEST_CASE(TestDnsParsing)
 PTF_TEST_CASE(TestDpdkInitDevice)
 {
 #ifdef USE_DPDK
+	LoggerPP::getInstance().supressErrors();
 	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
 	PTF_ASSERT_EQUAL(devList.getDpdkDeviceList().size(), 0, size);
+	LoggerPP::getInstance().enableErrors();
 
 	CoreMask coreMask = 0;
 	for (int i = 0; i < getNumOfCores(); i++)
@@ -3642,7 +3644,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	PTF_ASSERT(dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues()) == true, "Cannot open DPDK device");
 
 	int numOfAttempts = 0;
-	while (numOfAttempts < 10)
+	while (numOfAttempts < 20)
 	{
 		dev->receivePackets(rawPacketVec, 0);
 		PCAP_SLEEP(1);
@@ -3651,11 +3653,11 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		numOfAttempts++;
 	}
 
-	PTF_ASSERT(numOfAttempts < 10, "No packets were received using RawPacketVector");
+	PTF_ASSERT(numOfAttempts < 20, "No packets were received using RawPacketVector");
 	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using RawPacketVector", (int)rawPacketVec.size(), numOfAttempts);
 
 	numOfAttempts = 0;
-	while (numOfAttempts < 10)
+	while (numOfAttempts < 20)
 	{
 		mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, 0);
 		PCAP_SLEEP(1);
@@ -3664,7 +3666,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		numOfAttempts++;
 	}
 
-	PTF_ASSERT(numOfAttempts < 10, "No packets were received using mBuf raw packet arr");
+	PTF_ASSERT(numOfAttempts < 20, "No packets were received using mBuf raw packet arr");
 	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using mBuf raw packet arr", (int)mBufRawPacketArrLen, numOfAttempts);
 	for (int i = 0; i < 32; i++)
 	{
@@ -3674,7 +3676,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 
 	numOfAttempts = 0;
-	while (numOfAttempts < 10)
+	while (numOfAttempts < 20)
 	{
 		packetArrLen = dev->receivePackets(packetArr, 32, 0);
 		PCAP_SLEEP(1);
@@ -3683,7 +3685,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		numOfAttempts++;
 	}
 
-	PTF_ASSERT(numOfAttempts < 10, "No packets were received using packet arr");
+	PTF_ASSERT(numOfAttempts < 20, "No packets were received using packet arr");
 	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using packet arr", (int)packetArrLen, numOfAttempts);
 	for (int i = 0; i < 32; i++)
 	{
@@ -3720,7 +3722,8 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	PTF_ASSERT(DpdkDeviceList::getInstance().startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec) == true, "Couldn't start DPDK worker threads");
 	PTF_PRINT_VERBOSE("Worker threads started");
 
-	for (int i = 0; i < 10; i++)
+	numOfAttempts = 0;
+	while (numOfAttempts < 20)
 	{
 		DpdkDevice::DpdkDeviceStats stats;
 		dev->getStatistics(stats);
@@ -3738,6 +3741,10 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		}
 
 		PCAP_SLEEP(1);
+
+		if (stats.aggregatedRxStats.packets > 0)
+			break;
+		numOfAttempts++;
 	}
 
 

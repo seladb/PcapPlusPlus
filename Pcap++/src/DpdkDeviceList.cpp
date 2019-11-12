@@ -386,6 +386,9 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 		LOG_DEBUG("Thread on core [%d] stopped", (*iter)->getCoreId());
 	}
 
+	m_WorkerThreads.clear();
+	m_WorkerThreads.shrink_to_fit();
+
 	LOG_DEBUG("All worker threads stopped");
 }
 
