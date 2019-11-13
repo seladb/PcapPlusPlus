@@ -5416,6 +5416,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_reassembled.txt", bufferLength);
 
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT_TRUE(result->isPacketOfType(IPv4));
 	PTF_ASSERT_TRUE(result->isPacketOfType(TCP));
 	PTF_ASSERT_TRUE(result->isPacketOfType(HTTPRequest));
