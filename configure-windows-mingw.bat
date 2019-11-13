@@ -27,7 +27,7 @@ if "%ERRORLEVEL%" NEQ "0" exit /B 1
 :: verify that both variables MINGW_HOME, WINPCAP_HOME, MSYS_HOME are set
 if "%MINGW_TYPE%"=="" echo MinGW compiler (mingw32 or mingw-w64) was not supplied. Exiting & exit /B 1
 if "%MINGW_HOME%"=="" echo MinGW directory was not supplied. Exiting & exit /B 1
-if "%MINGW_TYPE%"=="mingw-w64" if "%MSYS_HOME%"=="" echo MSYS/MSYS2 directory was not supplied. Exiting & exit /B 1
+if "%MINGW_TYPE%"=="mingw-w64" if "%MSYS_HOME%"=="" echo MSYS2 directory was not supplied. Exiting & exit /B 1
 if "%MINGW_TYPE%"=="mingw32" set MSYS_HOME=$(MINGW_HOME)/msys/1.0
 if "%WINPCAP_HOME%"=="" echo WinPcap directory was not supplied. Exiting & exit /B 1
 
@@ -160,8 +160,8 @@ goto GETOPT_START
 :CASE--msys-home
 	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
 	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
-	:: verify the MSYS dir supplied by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
-	if not exist %2\ call :GETOPT_ERROR "MSYS/MSYS2 directory '%2' does not exist" & exit /B 3
+	:: verify the MSYS2 dir supplied by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
+	if not exist %2\ call :GETOPT_ERROR "MSYS2 directory '%2' does not exist" & exit /B 3
 	:: if all went well, set the MSYS_HOME variable with the directory given by the user
 	set MSYS_HOME=%2
 	:: notify GETOPT this switch has a parameter
@@ -228,7 +228,7 @@ if "%MINGW_TYPE%"=="mingw-w64" echo mingw-w64 can be downloaded from: sourceforg
 echo.
 :while1
 :: ask the user to type MinGW dir
-set /p MINGW_HOME=    Please specify %MINGW_TYPE% installed path (the folder that includes "bin", "lib" and "include" directories): %=%
+set /p MINGW_HOME=    Please specify %MINGW_TYPE% installed path (for example: C:\MinGW or C:\i686-8.1.0-posix-dwarf-rt_v6-rev0): %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
 if not exist %MINGW_HOME%\ (echo Directory does not exist!! && goto while1)
 
@@ -237,13 +237,13 @@ echo.
 
 if "%MINGW_TYPE%"=="mingw32" goto msys-not-required
 
-:: get MSYS location from user and verify it exists
-echo MSYS or MSYS2 are required for compiling PcapPlusPlus. 
-echo If MSYS/MSYS2 are not installed, please download and install it
+:: get MSYS2 location from user and verify it exists
+echo MSYS2 is required for compiling PcapPlusPlus. 
+echo If MSYS2 are not installed, please download and install it from: https://www.msys2.org/
 echo.
 :while3
-:: ask the user to type MSYS dir
-set /p MSYS_HOME=    Please specify MSYS/MSYS2 installed path: %=%
+:: ask the user to type MSYS2 dir
+set /p MSYS_HOME=    Please specify MSYS2 installed path: %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
 if not exist %MSYS_HOME%\ (echo Directory does not exist!! && goto while3)
 
@@ -280,7 +280,7 @@ echo.
 echo The following switches are recognized:
 echo MINGW_COMPILER        --The MinGW compiler to use. Can be either "mingw32" or "mingw-w64"
 echo -m^|--mingw-home      --Sets MinGW home directory (the folder that includes "bin", "lib" and "include" directories)
-echo -s^|--msys-home       --Sets MSYS or MSYS2 home directory (must for mingw-w64, not must for mingw32)
+echo -s^|--msys-home       --Sets MSYS2 home directory (must for mingw-w64, not must for mingw32)
 echo -w^|--winpcap-home    --Sets WinPcap home directory
 echo -h^|--help            --Displays this help message and exits. No further actions are performed
 echo.
