@@ -463,14 +463,14 @@ namespace pcpp
 
 	bool DnsLayer::isDnsPort(uint16_t port)
 	{
-		switch(port)
+		switch (port)
 		{
-			case 53:
-			case 5353:
-			case 5355:
-				return true;
-			default:
-				return false;
+		case 53:
+		case 5353:
+		case 5355:
+			return true;
+		default:
+			return false;
 		}
 	}
 

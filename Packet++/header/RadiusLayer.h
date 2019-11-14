@@ -323,14 +323,14 @@ namespace pcpp
 
 	bool RadiusLayer::isRadiusPort(uint16_t port)
 	{
-		switch(port)
+		switch (port)
 		{
-			case 1812:
-			case 1813:
-			case 3799:
-				return true;
-			default:
-				return false;
+		case 1812:
+		case 1813:
+		case 3799:
+			return true;
+		default:
+			return false;
 		}
 	} // isRadiusPort
 
