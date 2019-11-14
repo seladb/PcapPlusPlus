@@ -84,8 +84,9 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		}
 		else
 		{
-			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen)
-				return encodedNameLength;
+			// return if next word would be outside of the DNS layer or overflow the buffer behind resultPtr
+                        if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen || encodedNameLength + wordLength > 255)
+                                return encodedNameLength;
 
 			memcpy(resultPtr, encodedName+1, wordLength);
 			resultPtr += wordLength;
