@@ -55,9 +55,6 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 	// A string to parse
 	while (wordLength != 0)
 	{
-		// Return if next word makes total domain name size > 255
-		if (encodedNameLength + wordLength > 255)
-			return encodedNameLength;
 
 		// A pointer to another place in the packet
 		if ((wordLength & 0xc0) == 0xc0)
@@ -88,7 +85,9 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		}
 		else
 		{
-			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen)
+			
+			// return if next word would be outside of the DNS layer or overflow the buffer behind resultPtr
+			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen || encodedNameLength + wordLength > 255)
 				return encodedNameLength;
 
 			memcpy(resultPtr, encodedName+1, wordLength);
