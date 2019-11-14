@@ -55,6 +55,10 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 	// A string to parse
 	while (wordLength != 0)
 	{
+		// Return if next word makes total domain name size > 255
+		if (encodedNameLength + wordLength > 255)
+			return encodedNameLength;
+
 		// A pointer to another place in the packet
 		if ((wordLength & 0xc0) == 0xc0)
 		{
