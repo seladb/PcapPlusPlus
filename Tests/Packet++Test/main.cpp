@@ -2782,6 +2782,27 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT(curAnswer->getData()->toString() == "pref: 1; mx: mta6.am0.yahoodns.net", "Third answer MX data string is not as expected");
 	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference == 1, "Third answer MX data: preference is not 1");
 	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange == "mta6.am0.yahoodns.net", "Third answer MX data: mail exchange is not 'mta6.am0.yahoodns.net'");
+
+
+
+	int buffer5Length = 0;
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/dns_stack_overflow.dat", buffer5Length);
+	PTF_ASSERT_NOT_NULL(buffer5);
+	
+	RawPacket rawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
+	Packet dnsPacket5(&rawPacket5);
+
+	dnsLayer = dnsPacket5.getLayerOfType<DnsLayer>();
+	PTF_ASSERT_NOT_NULL(dnsLayer);
+
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
+	firstQuery = dnsLayer->getFirstQuery();
+	PTF_ASSERT_NOT_NULL(firstQuery);
+	PTF_ASSERT_EQUAL(firstQuery->getName(), 
+		"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.", 
+		string);
+	PTF_ASSERT_EQUAL(firstQuery->getSize(), 133, size);
+	PTF_ASSERT_NULL(dnsLayer->getNextQuery(firstQuery));
 } // DnsLayerParsingTest
 
 
