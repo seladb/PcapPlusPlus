@@ -39,8 +39,7 @@ bool SSLLayer::IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, s
 
 	uint16_t recordVersion = ntohs(recordLayer->recordVersion);
 
-	if (recordVersion != SSL2 &&
-			recordVersion != SSL3 &&
+	if (recordVersion != SSL3 &&
 			recordVersion != TLS1_0 &&
 			recordVersion != TLS1_1 &&
 			recordVersion != TLS1_2)
