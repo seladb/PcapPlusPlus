@@ -39,7 +39,7 @@ namespace pcpp
 		 * @todo there is no verification array length >= 6. If this is not the case, address will read uninitialized memory
 		 * @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
 		 */
-		MacAddress(uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof(m_Address)); }
+		MacAddress(const uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof(m_Address)); }
 
 		/**
 		 *  A constructor that creates an instance of the class out of a (char*) string.
