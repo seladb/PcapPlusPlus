@@ -84,8 +84,19 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		}
 		else
 		{
-			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen)
+			// return if next word would be outside of the DNS layer or overflow the buffer behind resultPtr
+			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen || encodedNameLength + wordLength > 255)
+			{
+				// add the last '\0' to the decoded string
+				if (encodedNameLength == 256)
+					resultPtr--;
+				else
+					encodedNameLength++;
+				
+				resultPtr[0] = 0;	
 				return encodedNameLength;
+			}
+				
 
 			memcpy(resultPtr, encodedName+1, wordLength);
 			resultPtr += wordLength;
@@ -96,7 +107,16 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 
 			curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
 			if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
+			{
+				// add the last '\0' to the decoded string
+				if (encodedNameLength == 256)
+					resultPtr--;
+				else
+					encodedNameLength++;
+				
+				resultPtr[0] = 0;	
 				return encodedNameLength;
+			}
 
 			wordLength = encodedName[0];
 		}

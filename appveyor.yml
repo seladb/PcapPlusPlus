@@ -52,7 +52,7 @@ install:
 before_build:
 - cd C:\projects\PcapPlusPlus
 - if "%compiler%"=="mingw32" configure-windows-mingw.bat mingw32 -m C:\MinGW -w C:\WpdPack
-- if "%compiler%"=="mingw-w64" configure-windows-mingw.bat mingw-w64 -m C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32 -w C:\WpdPack -s C:\msys64
+- if "%compiler%"=="mingw-w64" configure-windows-mingw.bat mingw-w64 -m C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1 -w C:\WpdPack -s C:\msys64\mingw32
 - if "%compiler:~0,4%"=="vs20" configure-windows-visual-studio.bat -v %compiler% -w C:\WpdPack -p C:\pthreads
 
 build_script:
