@@ -205,12 +205,12 @@ public:
 	 * A getter for the connection data
 	 * @return The const reference to connection data
 	 */
-	const ConnectionData& getConnectionData() const { return m_Connection; }
+	const ConnectionData& getConnectionData() const { return *m_Connection; }
 
 private:
 	uint8_t* m_Data;
 	size_t m_DataLen;
-	ConnectionData m_Connection;
+	const ConnectionData* m_Connection;
 	bool m_DeleteDataOnDestruction;
 
 	void setDeleteDataOnDestruction(bool flag) { m_DeleteDataOnDestruction = flag; }
@@ -281,7 +281,7 @@ public:
 	 * @param[in] tcpData The TCP data itself + connection information
 	 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or NULL if no cookie provided)
 	 */
-	typedef void (*OnTcpMessageReady)(int side, TcpStreamData tcpData, void* userCookie);
+	typedef void (*OnTcpMessageReady)(int side, const TcpStreamData& tcpData, void* userCookie);
 
 	/**
 	 * @typedef OnTcpConnectionStart
@@ -289,7 +289,7 @@ public:
 	 * @param[in] connectionData Connection information
 	 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or NULL if no cookie provided)
 	 */
-	typedef void (*OnTcpConnectionStart)(ConnectionData connectionData, void* userCookie);
+	typedef void (*OnTcpConnectionStart)(const ConnectionData& connectionData, void* userCookie);
 
 	/**
 	 * @typedef OnTcpConnectionEnd
@@ -298,7 +298,7 @@ public:
 	 * @param[in] reason The reason for connection termination: FIN/RST packet or manually by the user
 	 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or NULL if no cookie provided)
 	 */
-	typedef void (*OnTcpConnectionEnd)(ConnectionData connectionData, ConnectionEndReason reason, void* userCookie);
+	typedef void (*OnTcpConnectionEnd)(const ConnectionData& connectionData, ConnectionEndReason reason, void* userCookie);
 
 	/**
 	 * A c'tor for this class
