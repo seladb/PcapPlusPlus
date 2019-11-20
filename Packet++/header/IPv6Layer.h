@@ -143,6 +143,18 @@ namespace pcpp
 		 */
 		bool isFragment() const;
 
+		/**
+		 * This method overrides the method of base class (Layer) to improve performance in some cases
+		 * @return A pointer for the layer payload, meaning the first byte after the header
+		 */
+		virtual uint8_t* getLayerPayload() const { return getData() + getHeaderLen(); }
+
+		/**
+		 * This method overrides the method of base class (Layer) to improve performance in some cases
+		 * @return The size in bytes of the payload
+		 */
+		virtual size_t getLayerPayloadSize() const { return getDataLen() - getHeaderLen(); }
+
 
 		// implement abstract methods
 

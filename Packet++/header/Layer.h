@@ -103,12 +103,12 @@ namespace pcpp
 		/**
 		 * @return A pointer for the layer payload, meaning the first byte after the header
 		 */
-		uint8_t* getLayerPayload() const { return m_Data + getHeaderLen(); }
+		virtual uint8_t* getLayerPayload() const { return m_Data + getHeaderLen(); }
 
 		/**
 		 * @return The size in bytes of the payload
 		 */
-		size_t getLayerPayloadSize() const { return m_DataLen - getHeaderLen(); }
+		virtual size_t getLayerPayloadSize() const { return m_DataLen - getHeaderLen(); }
 
 		/**
 		 * Raw data in layers can come from one of sources:
