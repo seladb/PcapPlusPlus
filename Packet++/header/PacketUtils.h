@@ -29,6 +29,15 @@ namespace pcpp
 	 */
 	uint32_t hash2Tuple(Packet* packet);
 
+
+	namespace experimental
+	{
+
+		uint32_t hash5Tuple(Packet *packet);
+		uint32_t hash5TupleWithoutChecks(Packet *packet, const Layer *networkLayer, const Layer *transportLayer);
+
+	} // namespace experimental
+
 } // namespace pcpp
 
 #endif /* PACKETPP_PACKET_UTILS */
