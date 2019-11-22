@@ -15,6 +15,12 @@ WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool c
 
 bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie)
 {
+	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	{
+		LOG_ERROR("Device '%s' not opened", m_Name);
+		return false;
+	}
+
 	//Put the interface in capture mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
 	{
@@ -27,6 +33,12 @@ bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, vo
 
 bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
+	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	{
+		LOG_ERROR("Device '%s' not opened", m_Name);
+		return false;
+	}
+
 	//Put the interface in statistics mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
 	{
@@ -39,6 +51,12 @@ bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStats
 
 int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 {
+	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	{
+		LOG_ERROR("Device '%s' not opened", m_Name);
+		return 0;
+	}
+
 	int dataSize = 0;
 	int packetsSent = 0;
 	for (int i = 0; i < arrLength; i++)

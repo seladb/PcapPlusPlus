@@ -325,6 +325,12 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 
 bool PcapLiveDevice::open(const DeviceConfiguration& config)
 {
+	if (m_DeviceOpened)
+	{
+		LOG_DEBUG("Device '%s' already opened", m_Name);
+		return true;
+	}
+
 	m_PcapDescriptor = doOpen(config);
 	m_PcapSendDescriptor = doOpen(config);
 	if (m_PcapDescriptor == NULL || m_PcapSendDescriptor == NULL)
@@ -362,6 +368,8 @@ void PcapLiveDevice::close()
 		pcap_close(m_PcapSendDescriptor);
 		LOG_DEBUG("Send pcap descriptor closed");
 	}
+
+	m_DeviceOpened = false;
 	LOG_DEBUG("Device '%s' closed", m_Name);
 }
 
@@ -377,13 +385,19 @@ bool PcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpd
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
-	m_IntervalToUpdateStats = intervalInSecondsToUpdateStats;
-
-	if (m_CaptureThreadStarted || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' already capturing or not opened", m_Name);
+		LOG_ERROR("Device '%s' not opened", m_Name);
 		return false;
 	}
+
+	if (m_CaptureThreadStarted)
+	{
+		LOG_ERROR("Device '%s' already capturing traffic", m_Name);
+		return false;
+	}
+
+	m_IntervalToUpdateStats = intervalInSecondsToUpdateStats;
 
 	m_CaptureCallbackMode = true;
 	m_cbOnPacketArrives = onPacketArrives;
@@ -416,14 +430,20 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 
 bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 {
-	m_CapturedPackets = &capturedPacketsVector;
-	m_CapturedPackets->clear();
-
-	if (m_CaptureThreadStarted || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' already capturing or not opened", m_Name);
+		LOG_ERROR("Device '%s' not opened", m_Name);
 		return false;
 	}
+
+	if (m_CaptureThreadStarted)
+	{
+		LOG_ERROR("Device '%s' already capturing traffic", m_Name);
+		return false;
+	}
+
+	m_CapturedPackets = &capturedPacketsVector;
+	m_CapturedPackets->clear();
 
 	m_CaptureCallbackMode = false;
 	int err = pthread_create(&(m_CaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
@@ -441,9 +461,15 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 
 int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, int timeout)
 {
-	if (m_CaptureThreadStarted || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' already capturing or not opened", m_Name);
+		LOG_ERROR("Device '%s' not opened", m_Name);
+		return 0;
+	}
+
+	if (m_CaptureThreadStarted)
+	{
+		LOG_ERROR("Device '%s' already capturing traffic", m_Name);
 		return 0;
 	}
 
