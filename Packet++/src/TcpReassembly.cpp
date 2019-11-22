@@ -75,7 +75,7 @@ TcpStreamData::TcpStreamData()
 	m_DeleteDataOnDestruction = false;
 }
 
-TcpStreamData::TcpStreamData(uint8_t* tcpData, size_t tcpDataLength, ConnectionData connData)
+TcpStreamData::TcpStreamData(uint8_t* tcpData, size_t tcpDataLength, const ConnectionData& connData)
 {
 	m_Data = tcpData;
 	m_DataLen = tcpDataLength;

@@ -167,7 +167,7 @@ public:
 	 * @param[in] tcpDataLength The length of the buffer
 	 * @param[in] connData TCP connection information for this TCP data
 	 */
-	TcpStreamData(uint8_t* tcpData, size_t tcpDataLength, ConnectionData connData);
+	TcpStreamData(uint8_t* tcpData, size_t tcpDataLength, const ConnectionData& connData);
 
 	/**
 	 * A d'tor for this class
@@ -203,15 +203,9 @@ public:
 
 	/**
 	 * A getter for the connection data
-	 * @return The connection data
-	 */
-	ConnectionData getConnectionData() const { return m_Connection; }
-
-	/**
-	 * A getter for the connection data
 	 * @return The const reference to connection data
 	 */
-	const ConnectionData& getConnectionDataRef() const { return m_Connection; }
+	const ConnectionData& getConnectionData() const { return m_Connection; }
 
 private:
 	uint8_t* m_Data;
