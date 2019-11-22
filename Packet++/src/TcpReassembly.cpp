@@ -206,7 +206,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	TcpReassemblyData* tcpReassemblyData = NULL;
 
 	// calculate flow key for this packet
-	uint32_t flowKey = hash5Tuple(&tcpData);
+	uint32_t flowKey = hash5Tuple(&tcpData, ipLayer, tcpLayer);
 
 	// find the connection in the connection map
 	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
