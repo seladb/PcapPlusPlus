@@ -42,10 +42,10 @@ uint32_t hash5Tuple(const Packet* packet, const Layer* networkLayer, const Layer
 
 		if (portSrc == portDst && ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
 			srcPosition = 1;
-			
-		vec[2 + srcPosition].buffer = (uint8_t *)&ipv4Layer->getIPv4Header()->ipSrc;
+
+		vec[2 + srcPosition].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipSrc;
 		vec[2 + srcPosition].len = 4;
-		vec[3 - srcPosition].buffer = (uint8_t *)&ipv4Layer->getIPv4Header()->ipDst;
+		vec[3 - srcPosition].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipDst;
 		vec[3 - srcPosition].len = 4;
 		vec[4].buffer = &(ipv4Layer->getIPv4Header()->protocol);
 		vec[4].len = 1;
