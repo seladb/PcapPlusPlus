@@ -330,7 +330,7 @@ void listInterfaces()
 /**
  * The callback being called by the TCP reassembly module whenever new data arrives on a certain connection
  */
-static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* userCookie)
+static void tcpReassemblyMsgReadyCallback(int sideIndex, const TcpStreamData& tcpData, void* userCookie)
 {
 	// extract the connection manager from the user cookie
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;
@@ -412,7 +412,7 @@ static void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, 
 /**
  * The callback being called by the TCP reassembly module whenever a new connection is found. This method adds the connection to the connection manager
  */
-static void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* userCookie)
+static void tcpReassemblyConnectionStartCallback(const ConnectionData& connectionData, void* userCookie)
 {
 	// get a pointer to the connection manager
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;
@@ -433,7 +433,7 @@ static void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, 
  * The callback being called by the TCP reassembly module whenever a connection is ending. This method removes the connection from the connection manager and writes the metadata file if requested
  * by the user
  */
-static void tcpReassemblyConnectionEndCallback(ConnectionData connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
+static void tcpReassemblyConnectionEndCallback(const ConnectionData& connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
 {
 	// get a pointer to the connection manager
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;

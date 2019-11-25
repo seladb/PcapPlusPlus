@@ -4516,7 +4516,7 @@ void saveStringToFile(std::string& str, std::string fileName)
     outfile.close();
 }
 
-void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* userCookie)
+void tcpReassemblyMsgReadyCallback(int sideIndex, const TcpStreamData& tcpData, void* userCookie)
 {
 	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
@@ -4539,7 +4539,7 @@ void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* u
 	//printf("\n***** got %d bytes from side %d conn 0x%X *****\n", tcpData.getDataLength(), sideIndex, tcpData.getConnectionData().flowKey);
 }
 
-void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* userCookie)
+void tcpReassemblyConnectionStartCallback(const ConnectionData& connectionData, void* userCookie)
 {
 	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
@@ -4560,7 +4560,7 @@ void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* u
 	//printf("conn 0x%X started\n", connectionData.flowKey);
 }
 
-void tcpReassemblyConnectionEndCallback(ConnectionData connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
+void tcpReassemblyConnectionEndCallback(const ConnectionData& connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
 {
 	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
