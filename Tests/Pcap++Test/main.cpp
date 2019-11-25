@@ -1367,10 +1367,10 @@ PTF_TEST_CASE(TestPcapLiveDevice)
     liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
     PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
     PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
-    PTF_ASSERT(liveDev->open(), "Cannot open live device");
+    PTF_ASSERT_TRUE(liveDev->open());
     int packetCount = 0;
     int numOfTimeStatsWereInvoked = 0;
-    PTF_ASSERT(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked), "Cannot start capture");
+    PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
     PCAP_SLEEP(20);
     liveDev->stopCapture();
     PTF_ASSERT(packetCount > 0, "No packets were captured");
@@ -1380,6 +1380,12 @@ PTF_TEST_CASE(TestPcapLiveDevice)
     //Bad test - on high traffic libpcap/winpcap sometimes drop packets
     //PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
     liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	LoggerPP::getInstance().enableErrors();
 }
 
 PTF_TEST_CASE(TestPcapLiveDeviceByInvalidIp)
@@ -1420,9 +1426,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 {
 	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
-	PTF_ASSERT(liveDev->open(), "Cannot open live device");
+	PTF_ASSERT_TRUE(liveDev->open());
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked), "Cannot start capture");
+	PTF_ASSERT_TRUE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
 	sendURLRequest("www.ebay.com");
 	PCAP_SLEEP(5);
 	liveDev->stopCapture();
@@ -1433,6 +1439,12 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
     //Bad test - on high traffic libpcap/winpcap sometimes drop packets
     //PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
     liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	LoggerPP::getInstance().enableErrors();
 }
 
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
@@ -1491,6 +1503,13 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	liveDev->stopCapture();
 	PTF_ASSERT(packetCount > 0, "Step 9: Couldn't capture any packet on non-blocking capture 2");
 
+	liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
+	LoggerPP::getInstance().enableErrors();
 }
 
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
@@ -1506,6 +1525,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	PTF_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
 
 	liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT(packetCount > 0, "No packets are captured in default configuration mode");
 
@@ -1514,11 +1534,13 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	// create a non-default configuration with timeout of 10ms and open the device again
 	PcapLiveDevice::DeviceConfiguration devConfig(PcapLiveDevice::Promiscuous, 10, 2000000);
 	liveDev->open(devConfig);
+	PTF_ASSERT_TRUE(liveDev->isOpened());
 
 	// start capturing in non-default configuration
 	PTF_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
 
 	liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT(packetCount > 0, "No packets are captured in non-default configuration mode");
 
@@ -1547,23 +1569,29 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT(liveDev->getDeviceType() == PcapLiveDevice::WinPcapDevice, "Live device is not of type LibPcapDevice");
 
-	WinPcapLiveDevice* pWinPcapLiveDevice = static_cast<WinPcapLiveDevice*>(liveDev);
-	int defaultDataToCopy = pWinPcapLiveDevice->getMinAmountOfDataToCopyFromKernelToApplication();
+	WinPcapLiveDevice* winPcapLiveDevice = static_cast<WinPcapLiveDevice*>(liveDev);
+	int defaultDataToCopy = winPcapLiveDevice->getMinAmountOfDataToCopyFromKernelToApplication();
 	PTF_ASSERT(defaultDataToCopy == 16000, "Data to copy isn't at its default size (16000)");
-	PTF_ASSERT(pWinPcapLiveDevice->open(), "Cannot open live device");
-	PTF_ASSERT(pWinPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(100000), "Set data to copy to 100000 failed. Error string: %s", PcapGlobalArgs.errString);
+	PTF_ASSERT(winPcapLiveDevice->open(), "Cannot open live device");
+	PTF_ASSERT(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(100000), "Set data to copy to 100000 failed. Error string: %s", PcapGlobalArgs.errString);
     int packetCount = 0;
     int numOfTimeStatsWereInvoked = 0;
-    PTF_ASSERT(pWinPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked), "Cannot start capture");
+    PTF_ASSERT(winPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked), "Cannot start capture");
 	for (int i = 0; i < 5; i++)
 		sendURLRequest("www.ebay.com");
 	pcap_stat statistics;
-	pWinPcapLiveDevice->getStatistics(statistics);
+	winPcapLiveDevice->getStatistics(statistics);
     PTF_ASSERT(statistics.ps_recv > 20, "No packets were captured");
     PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
-    pWinPcapLiveDevice->stopCapture();
-	PTF_ASSERT(pWinPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(defaultDataToCopy), "Could not set data to copy back to default value. Error string: %s", PcapGlobalArgs.errString);
-	pWinPcapLiveDevice->close();
+    winPcapLiveDevice->stopCapture();
+	PTF_ASSERT(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(defaultDataToCopy), "Could not set data to copy back to default value. Error string: %s", PcapGlobalArgs.errString);
+	winPcapLiveDevice->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(winPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	LoggerPP::getInstance().enableErrors();
 #else
 	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT(liveDev->getDeviceType() == PcapLiveDevice::LibPcapDevice, "Live device is not of type LibPcapDevice");
@@ -4488,7 +4516,7 @@ void saveStringToFile(std::string& str, std::string fileName)
     outfile.close();
 }
 
-void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* userCookie)
+void tcpReassemblyMsgReadyCallback(int sideIndex, const TcpStreamData& tcpData, void* userCookie)
 {
 	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
@@ -4511,7 +4539,7 @@ void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* u
 	//printf("\n***** got %d bytes from side %d conn 0x%X *****\n", tcpData.getDataLength(), sideIndex, tcpData.getConnectionData().flowKey);
 }
 
-void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* userCookie)
+void tcpReassemblyConnectionStartCallback(const ConnectionData& connectionData, void* userCookie)
 {
 	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
@@ -4532,7 +4560,7 @@ void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* u
 	//printf("conn 0x%X started\n", connectionData.flowKey);
 }
 
-void tcpReassemblyConnectionEndCallback(ConnectionData connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
+void tcpReassemblyConnectionEndCallback(const ConnectionData& connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
 {
 	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
