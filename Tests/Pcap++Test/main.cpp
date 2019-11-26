@@ -3291,7 +3291,18 @@ PTF_TEST_CASE(TestDpdkInitDevice)
 	CoreMask coreMask = 0;
 	for (int i = 0; i < getNumOfCores(); i++)
 		coreMask |= SystemCores::IdToSystemCore[i].Mask;
-	PTF_ASSERT_TRUE(DpdkDeviceList::initDpdk(coreMask, 16383));
+
+	std::vector<DpdkOption> options;
+	options.push_back(DpdkOption());
+	std::vector<DpdkOption>::iterator memChannelsOptionIter = options.insert(options.end(), DpdkOption(DpdkOption::Type::OptionMemChannels));
+
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(DpdkDeviceList::initDpdk(coreMask, 16383, 0, options));
+	LoggerPP::getInstance().enableErrors();
+
+	memChannelsOptionIter->value = "2";
+	PTF_ASSERT_TRUE(DpdkDeviceList::initDpdk(coreMask, 16383, 0, options));
+
 	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 
 	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), LoggerPP::Normal, enum);

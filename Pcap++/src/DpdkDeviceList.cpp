@@ -34,11 +34,12 @@
 #include <rte_mbuf.h>
 #include <rte_version.h>
 
-#include <sstream>
 #include <iomanip>
-#include <string>
 #include <algorithm>
+#include <utility>
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 namespace pcpp
 {
@@ -62,11 +63,49 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-const uint32_t initDpdkArgc = 7;
-const uint32_t maxArgLen = 20;
-char** initDpdkArgv;
 
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore)
+struct DpdkOptionDescription
+{
+	DpdkOption::Type type;
+	const char* name;
+	size_t nameLen; // the name length including trailing '\0'
+	bool hasArgument;
+	const char* typeStr;
+};
+
+static const DpdkOptionDescription optionDescr[] =
+{
+	{ DpdkOption::Type::OptionServiceCoreMask,      "-s",                  sizeof("-s"),                  true,  "ServiceCoreMask"      },
+	{ DpdkOption::Type::OptionPciBlackList,         "-b",                  sizeof("-b"),                  true,  "PciBlackList"         },
+	{ DpdkOption::Type::OptionPciWhiteList,         "-w",                  sizeof("-w"),                  true,  "PciWhiteList"         },
+	{ DpdkOption::Type::OptionVirtualDevice,        "--vdev",              sizeof("--vdev"),              true,  "VirtualDevice"        },
+	{ DpdkOption::Type::OptionLoadExternalDriver,   "-d",                  sizeof("-d"),                  true,  "LoadExternalDriver"   },
+	{ DpdkOption::Type::OptionNoPci,                "--no-pci",            sizeof("--no-pci"),            false, "NoPci"                },
+	{ DpdkOption::Type::OptionVmWareTsc,            "--vmware-tsc-map",    sizeof("--vmware-tsc-map"),    false, "VmWareTsc"            },
+	{ DpdkOption::Type::OptionNoHPET,               "--no-hpet",           sizeof("--no-hpet"),           false, "NoHPET"               },
+	{ DpdkOption::Type::OptionFilePrefix,           "--file-prefix",       sizeof("--file-prefix"),       true,  "FilePrefix"           },
+	{ DpdkOption::Type::OptionMemChannels,          "-n",                  sizeof("-n"),                  true,  "MemChannels"          },
+	{ DpdkOption::Type::OptionMemPreallocate,       "-m",                  sizeof("-m"),                  true,  "MemPreallocate"       },
+	{ DpdkOption::Type::OptionMemIovaMode,          "--iova-mode",         sizeof("--iova-mode"),         true,  "MemIovaMode"          },
+	{ DpdkOption::Type::OptionMemSocketPreallocate, "--socket-mem",        sizeof("--socket-mem"),        true,  "MemSocketPreallocate" },
+	{ DpdkOption::Type::OptionMemSocketLimit,       "--socket-limit",      sizeof("--socket-limit"),      true,  "MemSocketLimit"       },
+	{ DpdkOption::Type::OptionMemFreeHugepages,     "--match-allocations", sizeof("--match-allocations"), false, "MemFreeHugepages"     },
+	{ DpdkOption::Type::OptionLogLevel,             "--log-level",         sizeof("--log-level"),         true,  "LogLevel"             }
+};
+static const size_t optionDescrLen = sizeof(optionDescr) / sizeof(optionDescr[0]);
+
+
+static const DpdkOptionDescription* findOptionDescription(DpdkOption::Type type)
+{
+	for(size_t i = 0; i < optionDescrLen; ++i)
+		if(optionDescr[i].type == type)
+			return &optionDescr[i];
+
+	return NULL;
+}
+
+
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, const std::vector<DpdkOption>& options)
 {
 	if (m_IsDpdkInitialized)
 	{
@@ -92,48 +131,98 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 		return false;
 	}
 
+	std::vector<char*> initDpdkArgv;
+	initDpdkArgv.reserve(options.size() * 2 + 1 /* app name */ + 2 /* master lcore */ + 2 /* core mask */ + 2 /* mem channels if an option is not defined */);
 
-	std::stringstream dpdkParamsStream;
-	dpdkParamsStream << "pcapplusplusapp ";
-	dpdkParamsStream << "-n ";
-	dpdkParamsStream << "2 ";
-	dpdkParamsStream << "-c ";
-	dpdkParamsStream << "0x" << std::hex << std::setw(2) << std::setfill('0') << coreMask << " ";
-	dpdkParamsStream << "--master-lcore ";
-	dpdkParamsStream << (int)masterCore;
+	// creating mandatory options
+	char tempBuf[32];
+	typedef std::pair<std::string, std::string> MandatoryOption;
+	std::vector<MandatoryOption> mandatoryOptions;
 
-	std::string dpdkParamsArray[initDpdkArgc];
-	initDpdkArgv = new char*[initDpdkArgc];
-	uint32_t i = 0;
-    while (dpdkParamsStream.good() && i < initDpdkArgc){
-    	dpdkParamsStream >> dpdkParamsArray[i];
-    	initDpdkArgv[i] = new char[maxArgLen];
-    	strcpy(initDpdkArgv[i], dpdkParamsArray[i].c_str());
-        i++;
-    }
+	// application name
+	mandatoryOptions.push_back(std::make_pair("pcapplusplusapp", std::string()));
+	// core mask
+	snprintf(tempBuf, sizeof(tempBuf), "0x%X", coreMask);
+	mandatoryOptions.push_back(std::make_pair("-c", tempBuf));
+	// master lcore
+	snprintf(tempBuf, sizeof(tempBuf), "%d", masterCore);
+	mandatoryOptions.push_back(std::make_pair("--master-lcore", tempBuf));
+	// mem channels
+	mandatoryOptions.push_back(std::make_pair("-n", "2"));
 
-    char* lastParam = initDpdkArgv[i-1];
-
-	for (i = 0; i < initDpdkArgc; i++)
+	for (size_t i = 0; i < mandatoryOptions.size(); ++i)
 	{
-		LOG_DEBUG("DPDK initialization params: %s", initDpdkArgv[i]);
+		const MandatoryOption& opt = mandatoryOptions[i];
+		// option name
+		initDpdkArgv.push_back(new char[opt.first.length() + 1]);
+		strcpy(initDpdkArgv.back(), opt.first.c_str());
+		// option value
+		if (!opt.second.empty())
+		{
+			initDpdkArgv.push_back(new char[opt.second.length() + 1]);
+			strcpy(initDpdkArgv.back(), opt.second.c_str());
+		}
+	}
+
+	size_t optValueMemChannelsPos = initDpdkArgv.size() - 1;
+
+	// processing the user-defined options
+	for (size_t i = 0; i < options.size(); ++i)
+	{
+		const DpdkOption& userOption = options[i];
+
+		if (userOption.type == DpdkOption::OptionUnknown)
+			continue;
+
+		const DpdkOptionDescription* optDescrPtr = findOptionDescription(userOption.type);
+		if (optDescrPtr == NULL) // should not happen
+			continue;
+
+		if (optDescrPtr->hasArgument && userOption.value.empty())
+		{
+			LOG_ERROR("An option of type %s must have an argument", optDescrPtr->typeStr);
+			return false;
+		}
+
+		// mandatory option overriden by the user
+		if (optDescrPtr->type == DpdkOption::Type::OptionMemChannels)
+		{
+			delete[] initDpdkArgv[optValueMemChannelsPos];
+			initDpdkArgv[optValueMemChannelsPos] = new char[userOption.value.length() + 1];
+			strcpy(initDpdkArgv[optValueMemChannelsPos], userOption.value.c_str());
+			continue;
+		}
+
+		// option name
+		initDpdkArgv.push_back(new char[optDescrPtr->nameLen]);
+		strcpy(initDpdkArgv.back(), optDescrPtr->name);
+
+		// option value
+		if (!userOption.value.empty())
+		{
+			initDpdkArgv.push_back(new char[userOption.value.length() + 1]);
+			strcpy(initDpdkArgv.back(), userOption.value.c_str());
+		}
+	} // for, user-defined options
+
+	if (IS_DEBUG)
+	{
+		for (size_t i = 0; i < initDpdkArgv.size(); ++i)
+		{
+			LOG_DEBUG("DPDK initialization params: %s", initDpdkArgv[i]);
+		}
 	}
 
 	optind = 1;
 	// init the EAL
-	int ret = rte_eal_init(initDpdkArgc, (char**)initDpdkArgv);
-	if (ret < 0) {
+	if (rte_eal_init(static_cast<int>(initDpdkArgv.size()), &initDpdkArgv[0]) < 0)
+	{
 		LOG_ERROR("failed to init the DPDK EAL");
 		return false;
 	}
 
-	for (i = 0; i < initDpdkArgc-1; i++)
-	{
-		delete [] initDpdkArgv[i];
-	}
-	delete [] lastParam;
-
-	delete [] initDpdkArgv;
+	for (size_t i = 0; i < initDpdkArgv.size(); ++i)
+		delete[] initDpdkArgv[i];
 
 	m_CoreMask = coreMask;
 	m_IsDpdkInitialized = true;
