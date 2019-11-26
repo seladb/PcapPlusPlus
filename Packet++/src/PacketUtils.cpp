@@ -11,6 +11,9 @@ namespace pcpp
 
 uint32_t hash5Tuple(const Packet* packet, const Layer* networkLayer, const Layer* transportLayer)
 {
+	if (packet->isPacketOfType(ICMP)) // refer to issue #124
+		return 0;
+
 	ScalarBuffer<uint8_t> vec[5];
 
 	uint16_t portSrc;
@@ -71,9 +74,6 @@ uint32_t hash5Tuple(const Packet* packet, const Layer* networkLayer, const Layer
 
 uint32_t hash5Tuple(const Packet* packet)
 {
-	if (packet->isPacketOfType(ICMP)) // refer to issue #124
-		return 0;
-
 	const Layer* networkLayer;
 
 	if (packet->isPacketOfType(IPv4))
