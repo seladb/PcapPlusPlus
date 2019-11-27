@@ -69,6 +69,7 @@ namespace pcpp
 	*/
 	class Layer : public IDataContainer {
 		friend class Packet;
+		friend class PacketDecoder;
 	public:
 		/**
 		 * A destructor for this class. Frees the data if it was allocated by the layer constructor (see isAllocatedToPacket() for more info)

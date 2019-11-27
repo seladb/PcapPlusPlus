@@ -26,6 +26,7 @@ namespace pcpp
 	class Packet
 	{
 		friend class Layer;
+		friend class PacketDecoder;
 	private:
 		RawPacket* m_RawPacket;
 		Layer* m_FirstLayer;
@@ -304,7 +305,8 @@ namespace pcpp
 		std::string printPacketInfo(bool timeAsLocalTime) const;
 
 		Layer* createFirstLayer(LinkLayerType linkType);
-	};
+	}; // class Packet
+
 
 	template<class TLayer>
 	TLayer* Packet::getLayerOfType() const
@@ -314,6 +316,7 @@ namespace pcpp
 
 		return getNextLayerOfType<TLayer>(m_FirstLayer);
 	}
+
 
 	template<class TLayer>
 	TLayer* Packet::getNextLayerOfType(Layer* after) const
@@ -329,6 +332,40 @@ namespace pcpp
 
 		return (TLayer*)curLayer;
 	}
+
+
+	/**
+	 * @class PacketDecoder
+	 * A class for parsing a packet. It provides the ability to parse the next layers for partially decoded packets
+	 *
+	 * For example: the gradually parsing the RADIUS and HTTP protocols with the next logic:
+	 *  1. create the packet by parsing until IP layer, in order to pass the partially parsed packet into IPReassembly::processPacket.
+	 *     It gains the performance because the parsing of the next layers is useless for the fragmented IP datagrams
+	 *  2. parse the reassembled/non-fragmented packets until transport layer (UDP, TCP)
+	 *  3. pass the partially parsed TCP packets into TcpReassembly::ReassemblePacket to reconstruct a TCP stream before HTTP protocol parsing
+	 *  4. parse the next layers of UDP packets until RADIUS layer
+	 */
+	class PacketDecoder
+	{
+	public:
+
+		/**
+		 * A static method that attempts to parse next layer
+		 * @param[in] pkt The pointer to packet to be decoded
+		 * @return A pointer to the parsed layer or NULL if there are no more layers
+		 */
+		static Layer* parseNextLayer(Packet* pkt);
+
+		/**
+		 * A method decodes the next layers in a packet
+		 * @param[in] parseUntil Parse the packet until it reaches this protocol. The default value is ::UnknownProtocol which means don't take this parameter into account
+		 * @param[in] parseUntilLayer Parse the packet until certain layer in OSI model. The default value is ::OsiModelLayerUnknown which means don't take this parameter into account
+		 */
+		static void parseLayers(Packet* pkt, ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+
+	private:
+		static Layer* appendTrailerLayer(Packet *pkt);
+	}; // class PacketDecoder
 
 } // namespace pcpp
 
