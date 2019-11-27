@@ -152,8 +152,8 @@ cp mk/install.sh.freebsd.template mk/install.sh
 sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/install.sh && rm mk/install.sh.bak
 chmod +x mk/install.sh
 
-cp mk/uninstall.sh.template mk/uninstall.sh
+cp mk/uninstall.sh.freebsd.template mk/uninstall.sh
 sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/uninstall.sh && rm mk/uninstall.sh.bak
-chmod +x mk/install.sh
+chmod +x mk/uninstall.sh
 
 echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK", mk/install.sh, mk/uninstall.sh
