@@ -22,7 +22,7 @@
 #else
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
-#include <sys/sysctl.h>
+#include <linux/sysctl.h>
 #include <net/if.h>
 #endif
 #if defined(MAC_OS_X) || defined(FREEBSD)
