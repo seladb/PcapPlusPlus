@@ -22,11 +22,11 @@
 #else
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
-#include <sys/sysctl.h>
 #include <net/if.h>
 #endif
 #if defined(MAC_OS_X) || defined(FREEBSD)
 #include <net/if_dl.h>
+#include <sys/sysctl.h>
 #endif
 
 // On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
