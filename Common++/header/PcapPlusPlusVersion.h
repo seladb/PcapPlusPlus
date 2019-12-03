@@ -11,8 +11,8 @@
  */
 namespace pcpp
 {
-	#define PCAPPLUSPLUS_VERSION "19.04+"
-	#define PCAPPLUSPLUS_VERSION_OFFICIAL "non-official release"
+	#define PCAPPLUSPLUS_VERSION "19.12"
+	#define PCAPPLUSPLUS_VERSION_OFFICIAL "official release"
 
 	#define PCAPPLUSPLUS_VERSION_FULL "v" PCAPPLUSPLUS_VERSION " (" PCAPPLUSPLUS_VERSION_OFFICIAL ")"
 
@@ -23,8 +23,8 @@ namespace pcpp
 	inline std::string getPcapPlusPlusVersion() { return PCAPPLUSPLUS_VERSION; }
 
 	/**
-	 * @return PcapPlusPlus long version string which includes the version and info whether it's an official or non-official release. For example: "v17.02+ (non-official release)"
-	 * or "v17.02 (official release)"
+	 * @return PcapPlusPlus long version string which includes the version and info whether it's an official or non-official release. For example: "v19.12+ (non-official release)"
+	 * or "v19.12 (official release)"
 	 */
 	inline std::string getPcapPlusPlusVersionFull() { return PCAPPLUSPLUS_VERSION_FULL; }
 
