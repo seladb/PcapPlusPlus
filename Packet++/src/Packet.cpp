@@ -225,22 +225,21 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 		return false;
 	}
 
-	if (m_RawPacket->getRawDataLen() + newLayer->getHeaderLen() > m_MaxPacketLen)
+	size_t newLayerHeaderLen = newLayer->getHeaderLen();
+	if (m_RawPacket->getRawDataLen() + newLayerHeaderLen > m_MaxPacketLen)
 	{
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
-		if (m_RawPacket->getRawDataLen() + newLayer->getHeaderLen() > m_MaxPacketLen*2)
-			reallocateRawData(m_RawPacket->getRawDataLen() + newLayer->getHeaderLen() + m_MaxPacketLen);
+		if (m_RawPacket->getRawDataLen() + newLayerHeaderLen > m_MaxPacketLen*2)
+			reallocateRawData(m_RawPacket->getRawDataLen() + newLayerHeaderLen + m_MaxPacketLen);
 		else
 			reallocateRawData(m_MaxPacketLen*2);
 	}
 
-	size_t appendDataLen = newLayer->getHeaderLen();
-
 	// insert layer data to raw packet
 	int indexToInsertData = 0;
 	if (prevLayer != NULL)
-		indexToInsertData = prevLayer->m_Data+prevLayer->getHeaderLen() - m_RawPacket->getRawData();
-	m_RawPacket->insertData(indexToInsertData, newLayer->m_Data, appendDataLen);
+		indexToInsertData = prevLayer->m_Data + prevLayer->getHeaderLen() - m_RawPacket->getRawData();
+	m_RawPacket->insertData(indexToInsertData, newLayer->m_Data, newLayerHeaderLen);
 
 	//delete previous layer data
 	delete[] newLayer->m_Data;
@@ -413,12 +412,13 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	}
 
 	// before removing the layer's data, copy it so it can be later assigned as the removed layer's data
-	size_t layerOldDataSize = layer->getHeaderLen();
+	size_t headerLen = layer->getHeaderLen();
+	size_t layerOldDataSize = headerLen;
 	uint8_t* layerOldData = new uint8_t[layerOldDataSize];
 	memcpy(layerOldData, layer->m_Data, layerOldDataSize);
 
 	// remove data from raw packet
-	size_t numOfBytesToRemove = layer->getHeaderLen();
+	size_t numOfBytesToRemove = headerLen;
 	int indexOfDataToRemove = layer->m_Data - m_RawPacket->getRawData();
 	if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToRemove))
 	{

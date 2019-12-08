@@ -380,12 +380,13 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 
 			LOG_DEBUG("[FragID=0x%X] Found next matching fragment with offset %d, adding fragment data to reassembled packet", fragWrapper->getFragmentId(), (int)fragOffset);
 
+			size_t payloadSize = fragWrapper->getIPLayerPayloadSize();
 			// copy fragment data to reassembled packet
-			fragData->data->reallocateData(fragData->data->getRawDataLen() + fragWrapper->getIPLayerPayloadSize());
-			fragData->data->appendData(fragWrapper->getIPLayerPayload(), fragWrapper->getIPLayerPayloadSize());
+			fragData->data->reallocateData(fragData->data->getRawDataLen() + payloadSize);
+			fragData->data->appendData(fragWrapper->getIPLayerPayload(), payloadSize);
 
 			// update expected offset
-			fragData->currentOffset += fragWrapper->getIPLayerPayloadSize();
+			fragData->currentOffset += payloadSize;
 
 			// if this is the last fragment - mark it
 			if (fragWrapper->isLastFragment())
@@ -400,10 +401,11 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			LOG_DEBUG("[FragID=0x%X] Got out-of-ordered fragment with offset %d (expected: %d). Adding it to out-of-order list", fragWrapper->getFragmentId(), (int)fragOffset, (int)fragData->currentOffset);
 
 			// create a new IPFragment and copy the fragment data and params to it
+			size_t payloadSize = fragWrapper->getIPLayerPayloadSize();
 			IPFragment* newFrag = new IPFragment();
 			newFrag->fragmentOffset = fragWrapper->getFragmentOffset();
-			newFrag->fragmentData = new uint8_t[fragWrapper->getIPLayerPayloadSize()];
-			newFrag->fragmentDataLen = fragWrapper->getIPLayerPayloadSize();
+			newFrag->fragmentData = new uint8_t[payloadSize];
+			newFrag->fragmentDataLen = payloadSize;
 			memcpy(newFrag->fragmentData, fragWrapper->getIPLayerPayload(), newFrag->fragmentDataLen);
 			newFrag->lastFragment = fragWrapper->isLastFragment();
 
@@ -430,8 +432,9 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		if (fragData->packetKey->getProtocolType() == IPv4)
 		{
 			Packet tempPacket(fragData->data, IPv4);
-			iphdr* iphdr = tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header();
-			iphdr->totalLength = htons(fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen());
+			IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
+			iphdr* iphdr = ipLayer->getIPv4Header();
+			iphdr->totalLength = htons(fragData->currentOffset + ipLayer->getHeaderLen());
 			iphdr->fragmentOffset = 0;
 		}
 		else
@@ -508,7 +511,8 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 			if (fragData->packetKey->getProtocolType() == IPv4)
 			{
 				Packet tempPacket(partialRawPacket, IPv4);
-				tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header()->totalLength = htons(fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen());
+				IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
+				ipLayer->getIPv4Header()->totalLength = htons(fragData->currentOffset + ipLayer->getHeaderLen());
 			}
 			else
 			{
