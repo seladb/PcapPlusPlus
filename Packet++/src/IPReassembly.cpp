@@ -432,15 +432,9 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		if (fragData->packetKey->getProtocolType() == IPv4)
 		{
 			Packet tempPacket(fragData->data, IPv4);
-<<<<<<< HEAD
-			IPv4Layer* ipv4Layer = tempPacket.getLayerOfType<IPv4Layer>();
-			iphdr* iphdr = ipv4Layer->getIPv4Header();
-			iphdr->totalLength = htons(fragData->currentOffset + ipv4Layer->getHeaderLen());
-=======
 			IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
 			iphdr* iphdr = ipLayer->getIPv4Header();
 			iphdr->totalLength = htons(fragData->currentOffset + ipLayer->getHeaderLen());
->>>>>>> 018ba14a37f526d31508d34df6cd216d5b2b6606
 			iphdr->fragmentOffset = 0;
 		}
 		else
@@ -517,13 +511,8 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 			if (fragData->packetKey->getProtocolType() == IPv4)
 			{
 				Packet tempPacket(partialRawPacket, IPv4);
-<<<<<<< HEAD
-				IPv4Layer* ipv4Layer = tempPacket.getLayerOfType<IPv4Layer>();
-				ipv4Layer->getIPv4Header()->totalLength = htons(fragData->currentOffset + ipv4Layer->getHeaderLen());
-=======
 				IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
 				ipLayer->getIPv4Header()->totalLength = htons(fragData->currentOffset + ipLayer->getHeaderLen());
->>>>>>> 018ba14a37f526d31508d34df6cd216d5b2b6606
 			}
 			else
 			{
