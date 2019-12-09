@@ -1,5 +1,3 @@
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
 #include "PcapRemoteDevice.h"
@@ -136,5 +134,3 @@ MacAddress PcapRemoteDevice::getMacAddress() const
 }
 
 } // namespace pcpp
-
-#endif // WIN32 || WINx64
