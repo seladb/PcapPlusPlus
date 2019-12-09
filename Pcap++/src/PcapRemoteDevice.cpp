@@ -2,8 +2,8 @@
 
 #include "PcapRemoteDevice.h"
 #include "Logger.h"
-#include <pcap.h>
 
+#include <pcap.h>
 
 namespace pcpp
 {
@@ -107,10 +107,11 @@ ThreadStart PcapRemoteDevice::getCaptureThreadStart()
 	return &remoteDeviceCaptureThreadMain;
 }
 
-void PcapRemoteDevice::getStatistics(pcap_stat& stats) const
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+void PcapRemoteDevice::getStatistics(pcap_stat &stats) const
 {
 	int allocatedMemory;
-	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
+	pcap_stat *tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
 	if (allocatedMemory < (int)sizeof(pcap_stat))
 	{
 		LOG_ERROR("Error getting statistics from live device '%s': WinPcap did not allocate the entire struct", m_Name);
@@ -120,6 +121,22 @@ void PcapRemoteDevice::getStatistics(pcap_stat& stats) const
 	stats.ps_drop = tempStats->ps_drop + tempStats->ps_netdrop;
 	stats.ps_ifdrop = tempStats->ps_ifdrop;
 }
+#else
+void PcapRemoteDevice::getStatistics(pcap_stat &stats) const
+{
+	pcap_stat *tempStats = new pcap_stat;
+	int error = pcap_stats(m_PcapDescriptor, tempStats);
+	if (error != 0)
+	{
+		LOG_ERROR("Error getting statistics from live device '%s': TODO: proper error management", m_Name); // TODO: proper error management
+		return;
+	}
+	stats.ps_recv = tempStats->ps_recv;
+	stats.ps_drop = tempStats->ps_drop;
+	stats.ps_ifdrop = tempStats->ps_ifdrop;
+	delete tempStats;
+}
+#endif
 
 uint16_t PcapRemoteDevice::getMtu() const
 {
