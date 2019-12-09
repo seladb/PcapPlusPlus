@@ -42,7 +42,7 @@ From [Conan](https://bintray.com/bincrafters/public-conan/pcapplusplus%3Abincraf
 
 ```shell
 conan remote add public-conan https://api.bintray.com/conan/bincrafters/public-conan
-conan install pcapplusplus/19.04@bincrafters/stable -r public-conan
+conan install pcapplusplus/19.12@bincrafters/stable -r public-conan
 ```
 
 From GitHub release page:
