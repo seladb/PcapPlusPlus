@@ -5408,13 +5408,13 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	// basic IPv4 reassembly test
 	// ==========================
 
-	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	PTF_ASSERT_TRUE(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg));
 
 	IPReassembly ipReassembly;
 	IPReassembly::ReassemblyStatus status;
 
-	PTF_ASSERT(ipReassembly.getMaxCapacity() == PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, "Max capacity isn't PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE");
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 0, "Capacity before reassembly isn't 0");
+	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, size);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, size);
 
 	Packet* result = NULL;
 
@@ -5424,26 +5424,28 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		result = ipReassembly.processPacket(&packet, status);
 		if (i == 0)
 		{
-			PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv4: First frag status isn't FIRST_FRAGMENT");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 1, "IPv4: Current capacity isn't 1");
+			PTF_ASSERT_EQUAL(status, IPReassembly::FIRST_FRAGMENT, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, size);
 		}
-		else if (i < (packetStream.size()-1))
+		else if (i < (packetStream.size() - 1))
 		{
 			PTF_ASSERT(result == NULL, "IPv4: Got reassembled packet too soon on fragment #%d", (int)i);
-			PTF_ASSERT(status == IPReassembly::FRAGMENT, "IPv4: Frag status isn't FRAGMENT");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 1, "IPv4: Current capacity isn't 1");
+			PTF_ASSERT_EQUAL(status, IPReassembly::FRAGMENT, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, size);
 		}
 		else
 		{
-			PTF_ASSERT(result != NULL, "IPv4: Didn't get reassembled packet on the last fragment");
-			PTF_ASSERT(status == IPReassembly::REASSEMBLED, "IPv4: Last frag status isn't REASSEMBLED");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 0, "IPv4: Capacity after reassembly isn't 0");
+			PTF_ASSERT_NOT_NULL(result);
+			PTF_ASSERT_EQUAL(status, IPReassembly::REASSEMBLED, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, size);
 		}
 	}
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_reassembled.txt", bufferLength);
 
+	PTF_ASSERT_NOT_NULL(buffer);
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT_TRUE(result->isPacketOfType(IPv4));
 	PTF_ASSERT_TRUE(result->isPacketOfType(TCP));
 	PTF_ASSERT_TRUE(result->isPacketOfType(HTTPRequest));
@@ -5453,8 +5455,8 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_ASSERT_EQUAL(httpReq->getFieldCount(), 10, int);
 
 	PTF_ASSERT_NOT_NULL(result);
-	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "IPv4: Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "IPv4: Reassembled packet data is different than expected");
+	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
 	delete [] buffer;
@@ -5464,11 +5466,11 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	// ==========================
 
 	PcapFileReaderDevice reader("PcapExamples/ip6_fragments.pcap");
-	PTF_ASSERT(reader.open(), "Cannot open file PcapExamples/ip6_fragments.pcap");
+	PTF_ASSERT_TRUE(reader.open());
 
 	RawPacketVector packet1Frags;
 
-	PTF_ASSERT(reader.getNextPackets(packet1Frags, 7) == 7, "IPv6: Cannot read 7 frags of packet 1");
+	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1Frags, 7), 7, int);
 
 	reader.close();
 
@@ -5480,20 +5482,20 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		result = ipReassembly.processPacket(&packet, status);
 		if (i == 0)
 		{
-			PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv6: First frag status isn't FIRST_FRAGMENT");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 1, "IPv6: Current capacity isn't 1");
+			PTF_ASSERT_EQUAL(status, IPReassembly::FIRST_FRAGMENT, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, size);
 		}
-		else if (i < (packet1Frags.size()-1))
+		else if (i < (packet1Frags.size() - 1))
 		{
 			PTF_ASSERT(result == NULL, "IPv6: Got reassembled packet too soon on fragment #%d", (int)i);
-			PTF_ASSERT(status == IPReassembly::FRAGMENT, "IPv6: Frag status isn't FRAGMENT");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 1, "IPv6: Current capacity isn't 1");
+			PTF_ASSERT_EQUAL(status, IPReassembly::FRAGMENT, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, size);
 		}
 		else
 		{
-			PTF_ASSERT(result != NULL, "IPv6: Didn't get reassembled packet on the last fragment");
-			PTF_ASSERT(status == IPReassembly::REASSEMBLED, "IPv6: Last frag status isn't REASSEMBLED");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 0, "IPv6: Capacity after reassembly isn't 0");
+			PTF_ASSERT_NOT_NULL(result);
+			PTF_ASSERT_EQUAL(status, IPReassembly::REASSEMBLED, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, size);
 		}
 	}
 
@@ -5504,8 +5506,9 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	bufferLength = 0;
 	buffer = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", bufferLength);
 
-	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "IPv6: Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "IPv6: Reassembled packet data is different than expected");
+	PTF_ASSERT_NOT_NULL(buffer);
+	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
 	delete [] buffer;
@@ -5515,7 +5518,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	// ==================
 
 	packetStream.clear();
-	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/VlanPackets.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	PTF_ASSERT_TRUE(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/VlanPackets.pcap", packetStream, errMsg));
 
 	for (size_t i = 0; i < 20; i++)
 	{
@@ -5523,7 +5526,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		result = ipReassembly.processPacket(&packet, status);
 
 		PTF_ASSERT(result == &packet, "Non-fragment test: didn't get the same non-fragment packet in the result");
-		PTF_ASSERT(status == IPReassembly::NON_FRAGMENT, "Non-fragment test: status isn't NON_FRAGMENT");
+		PTF_ASSERT_EQUAL(status, IPReassembly::NON_FRAGMENT, enum);
 	}
 
 
@@ -5536,11 +5539,9 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		result = ipReassembly.processPacket(&packet, status);
 
 		PTF_ASSERT(result == &packet, "Non-IP test: didn't get the same non-IP packet in the result");
-		PTF_ASSERT(status == IPReassembly::NON_IP_PACKET, "Non-IP test: status isn't NON_IP_PACKET");
+		PTF_ASSERT_EQUAL(status, IPReassembly::NON_IP_PACKET, enum);
 	}
-
-
-}
+} // TestIPFragmentationSanity
 
 
 PTF_TEST_CASE(TestIPFragOutOfOrder)
