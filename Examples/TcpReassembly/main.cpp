@@ -199,6 +199,14 @@ public:
 		static GlobalConfig instance;
 		return instance;
 	}
+	
+	/**
+	 * d'tor
+	 */
+	~GlobalConfig()
+	{
+		delete m_RecentConnsWithActivity;
+	}
 };
 
 
