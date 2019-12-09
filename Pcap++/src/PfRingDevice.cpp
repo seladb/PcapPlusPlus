@@ -789,13 +789,13 @@ bool PfRingDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 
 bool PfRingDevice::sendPacket(const RawPacket& rawPacket)
 {
-	return sendData(rawPacket.getRawDataReadOnly(), rawPacket.getRawDataLen(), true);
+	return sendData(rawPacket.getRawData(), rawPacket.getRawDataLen(), true);
 }
 
 
 bool PfRingDevice::sendPacket(const Packet& packet)
 {
-	return sendData(packet.getRawPacketReadOnly()->getRawDataReadOnly(), packet.getRawPacketReadOnly()->getRawDataLen(), true);
+	return sendData(packet.getRawPacketReadOnly()->getRawData(), packet.getRawPacketReadOnly()->getRawDataLen(), true);
 }
 
 
@@ -804,7 +804,7 @@ int PfRingDevice::sendPackets(const RawPacket* rawPacketsArr, int arrLength)
 	int packetsSent = 0;
 	for (int i = 0; i < arrLength; i++)
 	{
-		if (!sendData(rawPacketsArr[i].getRawDataReadOnly(), rawPacketsArr[i].getRawDataLen(), false))
+		if (!sendData(rawPacketsArr[i].getRawData(), rawPacketsArr[i].getRawDataLen(), false))
 			break;
 		else
 			packetsSent++;
@@ -823,7 +823,7 @@ int PfRingDevice::sendPackets(const Packet** packetsArr, int arrLength)
 	int packetsSent = 0;
 	for (int i = 0; i < arrLength; i++)
 	{
-		if (!sendData(packetsArr[i]->getRawPacketReadOnly()->getRawDataReadOnly(), packetsArr[i]->getRawPacketReadOnly()->getRawDataLen(), false))
+		if (!sendData(packetsArr[i]->getRawPacketReadOnly()->getRawData(), packetsArr[i]->getRawPacketReadOnly()->getRawDataLen(), false))
 			break;
 		else
 			packetsSent++;
@@ -842,7 +842,7 @@ int PfRingDevice::sendPackets(const RawPacketVector& rawPackets)
 	int packetsSent = 0;
 	for (RawPacketVector::ConstVectorIterator iter = rawPackets.begin(); iter != rawPackets.end(); iter++)
 	{
-		if (!sendData((*iter)->getRawDataReadOnly(), (*iter)->getRawDataLen(), false))
+		if (!sendData((*iter)->getRawData(), (*iter)->getRawDataLen(), false))
 			break;
 		else
 			packetsSent++;
