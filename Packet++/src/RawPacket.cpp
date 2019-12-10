@@ -94,36 +94,6 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval time
 	return true;
 }
 
-const uint8_t* RawPacket::getRawData() const
-{
-	return m_RawData;
-}
-
-const uint8_t* RawPacket::getRawDataReadOnly() const
-{
-	return m_RawData;
-}
-		
-LinkLayerType RawPacket::getLinkLayerType() const
-{
-	return m_LinkLayerType;
-}
-
-int RawPacket::getRawDataLen() const
-{
-	return m_RawDataLen;
-}
-
-int RawPacket::getFrameLength() const
-{
-	return m_FrameLength;
-}
-
-timeval RawPacket::getPacketTimeStamp() const
-{
-	return m_TimeStamp;
-}
-
 void RawPacket::clear()
 {
 	if (m_RawData != 0)
