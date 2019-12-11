@@ -5,8 +5,6 @@
 #include "DnsResource.h"
 #include "DnsResourceData.h"
 #include "Layer.h"
-#include <vector>
-#include <map>
 
 /// @file
 
@@ -428,9 +426,11 @@ namespace pcpp
 		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 		/**
-		 * @return A pointer to a map containing all UDP ports recognize as DNS
+		 * A static method that checks whether the port is considered as DNS
+		 * @param[in] port The port number to be checked
 		 */
-		static const std::map<uint16_t, bool>* getDNSPortMap();
+		static inline bool isDnsPort(uint16_t port);
+
 	private:
 		IDnsResource* m_ResourceList;
 		DnsQuery*     m_FirstQuery;
@@ -457,6 +457,22 @@ namespace pcpp
 		bool removeResource(IDnsResource* resourceToRemove);
 
 	};
+
+
+	// implementation of inline methods
+
+	bool DnsLayer::isDnsPort(uint16_t port)
+	{
+		switch (port)
+		{
+		case 53:
+		case 5353:
+		case 5355:
+			return true;
+		default:
+			return false;
+		}
+	}
 
 } // namespace pcpp
 

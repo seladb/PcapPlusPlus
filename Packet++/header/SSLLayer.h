@@ -176,7 +176,7 @@ namespace pcpp
 		 * A static method that checks whether the port is considered as SSL/TLS
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isSSLPort(uint16_t port);
+		static inline bool isSSLPort(uint16_t port);
 
 		/**
 		 * A static methods that gets raw data of a layer and checks whether this data is a SSL/TLS record or not. This check is
@@ -253,7 +253,7 @@ namespace pcpp
 	protected:
 		SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = SSL; }
 
-	};
+	}; // class SSLLayer
 
 
 	/**
@@ -359,7 +359,7 @@ namespace pcpp
 
 	private:
 		PointerVector<SSLHandshakeMessage> m_MessageList;
-	};
+	}; // class SSLHandshakeLayer
 
 
 	/**
@@ -391,7 +391,7 @@ namespace pcpp
 		 * There are no calculated fields for this layer
 		 */
 		void computeCalculateFields() {}
-	};
+	}; // class SSLChangeCipherSpecLayer
 
 
 	/**
@@ -433,7 +433,7 @@ namespace pcpp
 		 * There are no calculated fields for this layer
 		 */
 		void computeCalculateFields() {}
-	};
+	}; // class SSLAlertLayer
 
 
 	/**
@@ -476,7 +476,8 @@ namespace pcpp
 		 * There are no calculated fields for this layer
 		 */
 		void computeCalculateFields() {}
-	};
+	}; // class SSLApplicationDataLayer
+
 
 	template<class THandshakeMessage>
 	THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType() const
@@ -491,7 +492,8 @@ namespace pcpp
 
 		// element not found
 		return NULL;
-	}
+	} // getHandshakeMessageOfType
+
 
 	template<class THandshakeMessage>
 	THandshakeMessage* SSLHandshakeLayer::getNextHandshakeMessageOfType(SSLHandshakeMessage* after) const
@@ -520,7 +522,36 @@ namespace pcpp
 
 		// element not found
 		return NULL;
-	}
+	} // getNextHandshakeMessageOfType
+
+
+	// implementation of inline methods
+
+	bool SSLLayer::isSSLPort(uint16_t port)
+	{
+		if (port == 443) // HTTPS, this is likely case
+			return true;
+
+		switch (port)
+		{
+		case 0:   // default
+		case 261: // NSIIOPS
+		case 448: // DDM-SSL
+		case 465: // SMTPS
+		case 563: // NNTPS
+		case 614: // SSHELL
+		case 636: // LDAPS
+		case 989: // FTPS - data
+		case 990: // FTPS - control
+		case 992: // Telnet over TLS/SSL
+		case 993: // IMAPS
+		case 994: // IRCS
+		case 995: // POP3S
+			return true;
+		default:
+			return false;
+		}
+	} // isSSLPort
 
 } // namespace pcpp
 

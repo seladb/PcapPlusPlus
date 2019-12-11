@@ -282,6 +282,19 @@ namespace pcpp
 		 */
 		bool removeAllAttributes();
 
+		/**
+		 * The static method makes validation of UDP data
+		 * @param[in] udpData The pointer to the UDP payload data. It points to the first byte of RADIUS header.
+		 * @param[in] udpDataLen The payload data size
+		 * @return True if the data is valid and can represent the RADIUS packet
+		 */
+		static bool isDataValid(const uint8_t* udpData, size_t udpDataLen);
+
+		/**
+		 * A static method that checks whether the port is considered as RADIUS
+		 * @param[in] port The port number to be checked
+		 */
+		static inline bool isRadiusPort(uint16_t port);
 
 		// implement abstract methods
 
@@ -303,16 +316,24 @@ namespace pcpp
 		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
-
-		/**
-		 * The static method makes validation of UDP data
-		 * @param[in] udpData The pointer to the UDP payload data. It points to the first byte of RADIUS header.
-		 * @param[in] udpDataLen The payload data size
-		 * @return True if the data is valid and can represent the RADIUS packet
-		 */
-		static bool isDataValid(const uint8_t* udpData, size_t udpDataLen);
-
 	};
-}
+
+
+	// implementation of inline methods
+
+	bool RadiusLayer::isRadiusPort(uint16_t port)
+	{
+		switch (port)
+		{
+		case 1812:
+		case 1813:
+		case 3799:
+			return true;
+		default:
+			return false;
+		}
+	} // isRadiusPort
+
+} // namespace pcpp
 
 #endif // PACKETPP_RADIUS_LAYER

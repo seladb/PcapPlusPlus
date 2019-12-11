@@ -421,6 +421,12 @@ namespace pcpp
 		 */
 		bool isGTPCMessage() const;
 
+		/**
+		 * A static method that checks whether the port is considered as GTPv1
+		 * @param[in] port The port number to be checked
+		 */
+		static bool isGTPv1Port(uint16_t port) { return port == 2152 /* GTP-U */ || port == 2123 /* GTP-C */; }
+
 
 		// implement abstract methods
 

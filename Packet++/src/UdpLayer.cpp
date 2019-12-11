@@ -96,17 +96,22 @@ void UdpLayer::parseNextLayer()
 
 	if ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) || (portSrc == 67 && portDst == 67))
 		m_NextLayer = new DhcpLayer(udpData, udpDataLen, this, m_Packet);
-	else if (portDst == 4789)
+	else if (VxlanLayer::isVxlanPort(portDst))
 		m_NextLayer = new VxlanLayer(udpData, udpDataLen, this, m_Packet);
-	else if ((udpDataLen >= sizeof(dnshdr)) && (DnsLayer::getDNSPortMap()->find(portDst) != DnsLayer::getDNSPortMap()->end() || DnsLayer::getDNSPortMap()->find(portSrc) != DnsLayer::getDNSPortMap()->end()))
+	else if ((udpDataLen >= sizeof(dnshdr)) && (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
-	else if ((portDst == 5060 || portDst == 5061 || portSrc == 5060 || portSrc == 5061) && (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown))
-		m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
-	else if ((portDst == 5060 || portDst == 5061 || portSrc == 5060 || portSrc == 5061) && (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) != SipResponseLayer::SipStatusCodeUnknown))
-		m_NextLayer = new SipResponseLayer(udpData, udpDataLen, this, m_Packet);
-	else if ((portDst == 1812 || portSrc == 1812 || portDst == 1813 || portSrc == 1813 || portDst == 3799 || portSrc == 3799) && RadiusLayer::isDataValid(udpData, udpDataLen))
+	else if(SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
+	{
+		if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown)
+			m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
+		else if (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) != SipResponseLayer::SipStatusCodeUnknown)
+			m_NextLayer = new SipResponseLayer(udpData, udpDataLen, this, m_Packet);
+		else
+			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+	}
+	else if ((RadiusLayer::isRadiusPort(portDst) || RadiusLayer::isRadiusPort(portSrc)) && RadiusLayer::isDataValid(udpData, udpDataLen))
 		m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, m_Packet);
-	else if ((portDst == 2152 || portSrc == 2152 || portDst == 2123 || portSrc == 2123) && GtpV1Layer::isGTPv1(udpData, udpDataLen))
+	else if ((GtpV1Layer::isGTPv1Port(portDst) || GtpV1Layer::isGTPv1Port(portSrc)) && GtpV1Layer::isGTPv1(udpData, udpDataLen))
 		m_NextLayer = new GtpV1Layer(udpData, udpDataLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
