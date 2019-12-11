@@ -88,12 +88,12 @@ namespace experimental
 		/**
 		 * Overload of the equal-to operator
 		 */
-		bool operator==(const IPv4Address& rhs) const {	return toUInt() == rhs.toUInt(); }
+		bool operator==(const IPv4Address& rhs) const { return toUInt() == rhs.toUInt(); }
 
 		/**
 		 * Overload of the not-equal-to operator
 		 */
-		bool operator!=(const IPv4Address& rhs) const	{	return !(*this == rhs);	}
+		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
 
 	private:
 		in_addr m_InAddr;
