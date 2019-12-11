@@ -5,6 +5,7 @@
 #include <map>
 #include <Logger.h>
 #include <IpAddress.h>
+#include <IpAddresses.h>
 #include <MacAddress.h>
 #include <Packet.h>
 #include <PacketUtils.h>
@@ -702,6 +703,35 @@ PTF_TEST_CASE(TestIPAddress)
 	IPv6Address anotherBadIp6Address = badIp6Address;
 	PTF_ASSERT(anotherBadIp6Address.isValid() == false, "Non-valid IPv6 address copied by copy c'tor identified as valid");
 }
+
+
+PTF_TEST_CASE(TestIPAddresses)
+{
+	{
+		static const uint8_t bytes[4] = { 0x01, 0x02, 0x03, 0x04 };
+		pcpp::experimental::IPv4Address addr1(htonl(0x01020304)), addr2(bytes), addr3;
+
+		PTF_ASSERT_FALSE(addr1.isUnspecified());
+		PTF_ASSERT_FALSE(addr2.isUnspecified());
+		PTF_ASSERT_TRUE(addr3.isUnspecified());
+
+		PTF_ASSERT_EQUAL(addr1.toUInt(), 0x04030201, u32);
+		PTF_ASSERT_EQUAL(addr2.toUInt(), htonl(0x01020304), u32);
+		PTF_ASSERT_EQUAL(addr1.toUInt(), addr2.toUInt(), u32);
+		PTF_ASSERT_BUF_COMPARE(addr1.toBytes(), addr2.toBytes(), sizeof(uint32_t));
+		PTF_ASSERT_TRUE(addr1 == addr2);
+		PTF_ASSERT_TRUE(addr1 != addr3);
+
+		PTF_ASSERT_EQUAL(addr1.toString(), std::string("1.2.3.4"), string);
+	}
+
+	{
+		pcpp::experimental::IPv4Address addr(htonl(0x0A000004)), subnet1(htonl(0x0A000000)), subnet2(htonl(0x0A0A0000)), mask(htonl(0xFFFFFF00));
+		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, mask));
+		PTF_ASSERT_FALSE(addr.matchSubnet(subnet2, mask));
+	}
+} // TestIPAddresses
+
 
 PTF_TEST_CASE(TestMacAddress)
 {
@@ -6736,6 +6766,8 @@ int main(int argc, char* argv[])
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
 	PcapLiveDeviceList::getInstance();
+	PTF_RUN_TEST(TestIPAddresses, "no_network;ip");
+	PTF_END_RUNNING_TESTS;
 
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
