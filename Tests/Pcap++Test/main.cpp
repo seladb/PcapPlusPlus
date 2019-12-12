@@ -707,6 +707,7 @@ PTF_TEST_CASE(TestIPAddress)
 
 PTF_TEST_CASE(TestIPAddresses)
 {
+	// IPv4Address
 	{
 		static const uint8_t bytes[4] = { 0x01, 0x02, 0x03, 0x04 };
 		pcpp::experimental::IPv4Address addr1(htonl(0x01020304)), addr2(bytes), addr3;
@@ -726,9 +727,79 @@ PTF_TEST_CASE(TestIPAddresses)
 	}
 
 	{
-		pcpp::experimental::IPv4Address addr(htonl(0x0A000004)), subnet1(htonl(0x0A000000)), subnet2(htonl(0x0A0A0000)), mask(htonl(0xFFFFFF00));
+		int errorCode;
+		pcpp::experimental::IPv4Address addr = pcpp::experimental::makeIPv4Address("10.0.0.4", errorCode);
+		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		PTF_ASSERT_FALSE(addr.isUnspecified());
+
+		pcpp::experimental::IPv4Address subnet1 = pcpp::experimental::makeIPv4Address("10.0.0.0", errorCode);
+		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		PTF_ASSERT_FALSE(subnet1.isUnspecified());
+
+		pcpp::experimental::IPv4Address subnet2 = pcpp::experimental::makeIPv4Address("10.10.0.0", errorCode);
+		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		PTF_ASSERT_FALSE(subnet2.isUnspecified());
+
+		pcpp::experimental::IPv4Address mask = pcpp::experimental::makeIPv4Address(std::string("255.255.255.0"), errorCode);
+		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		PTF_ASSERT_FALSE(mask.isUnspecified());
+
 		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, mask));
 		PTF_ASSERT_FALSE(addr.matchSubnet(subnet2, mask));
+		PTF_ASSERT_FALSE(addr.matchSubnet("10.10.0.0", "255.255.0.0"));
+		// wrong mask
+		LoggerPP::getInstance().supressErrors();
+		PTF_ASSERT_FALSE(addr.matchSubnet("10.10.0.0", "255.255.255"));
+		LoggerPP::getInstance().enableErrors();
+	}
+
+	{
+		int errorCode;
+		pcpp::experimental::IPv4Address addr1 = pcpp::experimental::makeIPv4Address("10.0.0.4", errorCode);
+		pcpp::experimental::IPv4Address addr2;
+		addr2 = addr1;
+		PTF_ASSERT_EQUAL(addr1, addr2, object);
+
+		pcpp::experimental::IPv4Address addr3(addr1);
+		PTF_ASSERT_EQUAL(addr2, addr3, object);
+	}
+
+	// IPv6Address
+	{
+		pcpp::experimental::IPv6Address zeroAddress;
+		PTF_ASSERT_TRUE(zeroAddress.isUnspecified());
+
+		const uint8_t bytes[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
+		pcpp::experimental::IPv6Address addr(bytes);
+		PTF_ASSERT_FALSE(addr.isUnspecified());
+		PTF_ASSERT_FALSE(zeroAddress == addr);
+
+		addr = zeroAddress;
+		PTF_ASSERT_FALSE(zeroAddress != addr);
+		PTF_ASSERT_TRUE(addr.isUnspecified());
+	}
+
+	{
+		const uint8_t bytes[16] = { 0x26, 0x70, 0xF0, 0xD0, 0x10, 0x20, 0x22, 0x51, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x40 };
+		pcpp::experimental::IPv6Address addr(bytes);
+		PTF_ASSERT_EQUAL(addr.toString(), std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), object);
+	}
+
+	{
+		const uint8_t expectedBytes[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
+		int errorCode;
+		pcpp::experimental::IPv6Address addr1 = pcpp::experimental::makeIPv6Address(string("2607:f0d0:1002:0051::4"), errorCode);
+		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		PTF_ASSERT_FALSE(addr1.isUnspecified());
+		PTF_ASSERT_BUF_COMPARE(addr1.toBytes(), expectedBytes, sizeof(expectedBytes));
+
+		pcpp::experimental::IPv6Address addr2 = pcpp::experimental::makeIPv6Address(expectedBytes);
+		PTF_ASSERT_FALSE(addr2.isUnspecified());
+		PTF_ASSERT_TRUE(addr1 == addr2);
+
+		pcpp::experimental::IPv6Address badAddr = pcpp::experimental::makeIPv6Address(string("avbrgththj"), errorCode);
+		PTF_ASSERT_TRUE(badAddr.isUnspecified());
+		PTF_ASSERT_TRUE(errorCode != 0);
 	}
 } // TestIPAddresses
 
