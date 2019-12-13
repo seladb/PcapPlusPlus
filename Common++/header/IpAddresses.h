@@ -81,27 +81,6 @@ namespace experimental
 		bool isUnspecified() const { return toUInt() == 0; }
 
 		/**
-		 * Checks whether the address matches a subnet.
-		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
-		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
-		 * @param[in] subnet A string representing the subnet to be verified
-		 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
-		 *
-		 */
-		bool matchSubnet(const char* subnet, const char* subnetMask) const;
-
-		/**
-		 * Checks whether the address matches a subnet.
-		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
-		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
-		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
-		 * (it'll be ignored if subnet mask is correct)
-		 * @param[in] subnetMask The subnet mask to compare the address with the subnet
-		 *
-		 */
-		bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
-
-		/**
 		 * Overload of the equal-to operator
 		 */
 		bool operator==(const IPv4Address& rhs) const { return toUInt() == rhs.toUInt(); }
@@ -149,6 +128,30 @@ namespace experimental
 	 * @return An instance of class IPv4Address. If an error occured the return address will be an unspecified/zero
 	 */
 	inline IPv4Address makeIPv4Address(const std::string& addrAsString, int& errorCode) {	return makeIPv4Address(addrAsString.c_str(), errorCode); }
+
+
+	// Helper functions
+
+	/**
+	 * Checks whether the address matches a subnet.
+	 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
+	 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
+	 * @param[in] addr The address to be checked
+	 * @param[in] subnet A string representing the subnet to be verified
+	 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
+	 */
+	bool matchSubnet(const IPv4Address& addr, const char* subnet, const char* subnetMask);
+
+	/**
+	 * Checks whether the address matches a subnet.
+	 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
+	 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
+	 * @param[in] addr The address to be checked
+	 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
+	 * (it'll be ignored if subnet mask is correct)
+	 * @param[in] subnetMask The subnet mask to compare the address with the subnet
+	 */
+	bool matchSubnet(const IPv4Address& addr, const IPv4Address& subnet, const IPv4Address& subnetMask);
 
 
 

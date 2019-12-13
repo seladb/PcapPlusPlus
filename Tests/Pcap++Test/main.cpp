@@ -744,12 +744,12 @@ PTF_TEST_CASE(TestIPAddresses)
 		PTF_ASSERT_EQUAL(errorCode, 0, int);
 		PTF_ASSERT_FALSE(mask.isUnspecified());
 
-		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, mask));
-		PTF_ASSERT_FALSE(addr.matchSubnet(subnet2, mask));
-		PTF_ASSERT_FALSE(addr.matchSubnet("10.10.0.0", "255.255.0.0"));
+		PTF_ASSERT_TRUE(pcpp::experimental::matchSubnet(addr, subnet1, mask));
+		PTF_ASSERT_FALSE(pcpp::experimental::matchSubnet(addr, subnet2, mask));
+		PTF_ASSERT_FALSE(pcpp::experimental::matchSubnet(addr, "10.10.0.0", "255.255.0.0"));
 		// wrong mask
 		LoggerPP::getInstance().supressErrors();
-		PTF_ASSERT_FALSE(addr.matchSubnet("10.10.0.0", "255.255.255"));
+		PTF_ASSERT_FALSE(pcpp::experimental::matchSubnet(addr, "10.10.0.0", "255.255.255"));
 		LoggerPP::getInstance().enableErrors();
 	}
 

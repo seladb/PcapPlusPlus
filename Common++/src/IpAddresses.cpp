@@ -24,7 +24,7 @@ namespace experimental
 	}
 
 
-	bool IPv4Address::matchSubnet(const char* subnet, const char* subnetMask) const
+	bool matchSubnet(const IPv4Address& addr, const char* subnet, const char* subnetMask)
 	{
 		int errorCode;
 
@@ -42,13 +42,13 @@ namespace experimental
 			return false;
 		}
 
-		return matchSubnet(subnetAsIpAddr, maskAsIpAddr);
+		return matchSubnet(addr, subnetAsIpAddr, maskAsIpAddr);
 	}
 
 
-	bool IPv4Address::matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const
+	bool matchSubnet(const IPv4Address& addr, const IPv4Address& subnet, const IPv4Address& subnetMask)
 	{
-		uint32_t thisAddrAfterMask = toUInt() & subnetMask.toUInt();
+		uint32_t thisAddrAfterMask = addr.toUInt() & subnetMask.toUInt();
 		uint32_t subnetAddrAfterMask = subnet.toUInt() & subnetMask.toUInt();
 		return thisAddrAfterMask == subnetAddrAfterMask;
 	}
