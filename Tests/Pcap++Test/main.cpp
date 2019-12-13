@@ -801,6 +801,98 @@ PTF_TEST_CASE(TestIPAddresses)
 		PTF_ASSERT_TRUE(badAddr.isUnspecified());
 		PTF_ASSERT_TRUE(errorCode != 0);
 	}
+
+	// IPAddress
+	{
+		pcpp::experimental::IPAddress v4Zero;
+		PTF_ASSERT_TRUE(v4Zero.isIPv4());
+		PTF_ASSERT_TRUE(v4Zero.isUnspecified());
+		PTF_ASSERT_FALSE(v4Zero.isIPv6());
+
+		pcpp::experimental::IPv4Address ipv4Zero;
+		pcpp::experimental::IPAddress v4Zero1(ipv4Zero);
+		PTF_ASSERT_TRUE(v4Zero1.isIPv4());
+		PTF_ASSERT_TRUE(v4Zero1.isUnspecified());
+
+		pcpp::experimental::IPv6Address ipv6Zero;
+		pcpp::experimental::IPAddress v6Zero1(ipv6Zero);
+		PTF_ASSERT_TRUE(v6Zero1.isIPv6());
+		PTF_ASSERT_TRUE(v6Zero1.isUnspecified());
+	}
+
+	{
+		int errorCode;
+		pcpp::experimental::IPv4Address
+			ipv4Addr1 = pcpp::experimental::makeIPv4Address("10.0.0.4", errorCode),
+			ipv4Addr2 = pcpp::experimental::makeIPv4Address("10.0.0.5", errorCode);
+		pcpp::experimental::IPv6Address
+			ipv6Addr1 = pcpp::experimental::makeIPv6Address("2607:f0d0:1002:0051::4", errorCode),
+			ipv6Addr2 = pcpp::experimental::makeIPv6Address("2607:f0d0:1002:0051::5", errorCode);
+
+		pcpp::experimental::IPAddress v4Addr(ipv4Addr1);
+		PTF_ASSERT_TRUE(v4Addr.isIPv4());
+		PTF_ASSERT_FALSE(v4Addr.isUnspecified());
+		PTF_ASSERT_FALSE(v4Addr.isIPv6());
+
+		pcpp::experimental::IPAddress v6Addr(ipv6Addr1);
+		PTF_ASSERT_FALSE(v6Addr.isIPv4());
+		PTF_ASSERT_FALSE(v6Addr.isUnspecified());
+		PTF_ASSERT_TRUE(v6Addr.isIPv6());
+
+		v4Addr = ipv4Addr2;
+		PTF_ASSERT_TRUE(v4Addr.isIPv4());
+		PTF_ASSERT_FALSE(v4Addr.isUnspecified());
+		PTF_ASSERT_FALSE(v4Addr.isIPv6());
+		PTF_ASSERT_NOT_NULL(v4Addr.getIPv4());
+		PTF_ASSERT_TRUE(*v4Addr.getIPv4() == ipv4Addr2);
+
+		v6Addr = ipv6Addr2;
+		PTF_ASSERT_FALSE(v6Addr.isIPv4());
+		PTF_ASSERT_FALSE(v6Addr.isUnspecified());
+		PTF_ASSERT_TRUE(v6Addr.isIPv6());
+		PTF_ASSERT_NOT_NULL(v6Addr.getIPv6());
+		PTF_ASSERT_TRUE(*v6Addr.getIPv6() == ipv6Addr2);
+	}
+
+	{
+		int errorCode;
+		pcpp::experimental::IPAddress	badAddr = pcpp::experimental::makeAddress("abcdfefegg", errorCode);
+		PTF_ASSERT_TRUE(errorCode != 0);
+		PTF_ASSERT_TRUE(badAddr.isUnspecified());
+		PTF_ASSERT_TRUE(badAddr.isIPv4());
+
+		pcpp::experimental::IPAddress
+			v4Addr1 = pcpp::experimental::makeAddress("10.0.0.4", errorCode),
+			v4Addr2 = pcpp::experimental::makeAddress("10.0.0.5", errorCode),
+			v4Addr3 = v4Addr1;
+		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		PTF_ASSERT_TRUE(v4Addr2.isIPv4());
+		PTF_ASSERT_FALSE(v4Addr2.isUnspecified());
+		PTF_ASSERT_FALSE(v4Addr2.isIPv6());
+
+		pcpp::experimental::IPAddress
+			v6Addr1 = pcpp::experimental::makeAddress("2607:f0d0:1002:0051::4", errorCode),
+			v6Addr2 = pcpp::experimental::makeAddress("2607:f0d0:1002:0051::5", errorCode),
+			v6Addr3 = v6Addr1;
+		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		PTF_ASSERT_TRUE(v6Addr2.isIPv6());
+		PTF_ASSERT_FALSE(v6Addr2.isUnspecified());
+		PTF_ASSERT_FALSE(v6Addr2.isIPv4());
+
+		PTF_ASSERT_FALSE(v4Addr1 == v4Addr2);
+		PTF_ASSERT_TRUE(v4Addr1 != v6Addr2);
+		PTF_ASSERT_TRUE(v6Addr1 != v6Addr2);
+		PTF_ASSERT_TRUE(v4Addr1 == v4Addr3);
+		PTF_ASSERT_TRUE(v6Addr1 == v6Addr3);
+	}
+
+	{
+		int errorCode;
+		pcpp::experimental::IPAddress	v4Addr = pcpp::experimental::makeAddress(std::string("10.0.0.4"), errorCode);
+		pcpp::experimental::IPAddress	v6Addr = pcpp::experimental::makeAddress(std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), errorCode);
+		PTF_ASSERT_EQUAL(v4Addr.toString(), std::string("10.0.0.4"), object);
+		PTF_ASSERT_EQUAL(v6Addr.toString(), std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), object);
+	}
 } // TestIPAddresses
 
 
@@ -6837,10 +6929,8 @@ int main(int argc, char* argv[])
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
 	PcapLiveDeviceList::getInstance();
-	PTF_RUN_TEST(TestIPAddresses, "no_network;ip");
-	PTF_END_RUNNING_TESTS;
-
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
+	PTF_RUN_TEST(TestIPAddresses, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSllFileReadWrite, "no_network;pcap");

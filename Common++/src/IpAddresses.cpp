@@ -29,14 +29,14 @@ namespace experimental
 		int errorCode;
 
 		IPv4Address subnetAsIpAddr = makeIPv4Address(subnet, errorCode);
-		if(errorCode != 0)
+		if (errorCode != 0)
 		{
 			LOG_ERROR("Subnet '%s' is in illegal format", subnet);
 			return false;
 		}
 
 		IPv4Address maskAsIpAddr = makeIPv4Address(subnetMask, errorCode);
-		if(errorCode != 0)
+		if (errorCode != 0)
 		{
 			LOG_ERROR("Subnet mask '%s' is in illegal format", subnetMask);
 			return false;
@@ -58,7 +58,7 @@ namespace experimental
 	{
 		uint8_t buf[sizeof(in_addr)];
 
-		if(inet_pton(AF_INET, addrAsString, buf) > 0)
+		if (inet_pton(AF_INET, addrAsString, buf) > 0)
 		{
 			errorCode = 0;
 			return IPv4Address(buf);
@@ -76,7 +76,7 @@ namespace experimental
 	{
 		char addrBuffer[INET6_ADDRSTRLEN];
 
-		if(inet_ntop(AF_INET6, toBytes(), addrBuffer, sizeof(addrBuffer)) != NULL)
+		if (inet_ntop(AF_INET6, toBytes(), addrBuffer, sizeof(addrBuffer)) != NULL)
 			return std::string(addrBuffer);
 
 		return std::string();
@@ -87,7 +87,7 @@ namespace experimental
 	{
 		uint8_t buf[sizeof(in6_addr)];
 
-		if(inet_pton(AF_INET6, addrAsString, buf) > 0)
+		if (inet_pton(AF_INET6, addrAsString, buf) > 0)
 		{
 			errorCode = 0;
 			return IPv6Address(buf);
@@ -95,6 +95,21 @@ namespace experimental
 
 		errorCode = EINVAL;
 		return IPv6Address(); // unspecified address
+	}
+
+
+	IPAddress makeAddress(const char* addrAsString, int& errorCode)
+	{
+		IPv6Address ipv6Addr = makeIPv6Address(addrAsString, errorCode);
+		if (errorCode != 0) // not IPv6
+		{
+			IPv4Address ipv4Addr = makeIPv4Address(addrAsString, errorCode);
+			if (errorCode == 0)
+				return IPAddress(ipv4Addr);
+
+			return IPAddress(); // IPv4, unspecified
+		}
+		return IPAddress(ipv6Addr);
 	}
 
 } // namespace experimental

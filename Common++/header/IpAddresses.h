@@ -31,6 +31,8 @@ namespace pcpp
 
 namespace experimental
 {
+	// The implementation of the classes is based on document N4771 "Working Draft, C++ Extensions for Networking"
+	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4771.pdf
 
 	/**
 	 * @class IPv4Address
@@ -117,39 +119,36 @@ namespace experimental
 	// Creation of IPv4Address
 
 	/**
-		* A function that creates an instance of the class IPv4Address out of 4-byte array.
-		* @param[in] bytes The address as 4-byte array in network byte order
-		* @return An instance of class IPv4Address
-		*/
+	 * A function that creates an instance of the class IPv4Address out of 4-byte array.
+	 * @param[in] bytes The address as 4-byte array in network byte order
+	 * @return An instance of class IPv4Address
+	 */
 	inline IPv4Address makeIPv4Address(uint32_t addrAsInt) { return IPv4Address(addrAsInt); }
 
 	/**
-		* A function that creates an instance of the class IPv4Address out of 4-byte array.
-		* @param[in] bytes The address as 4-byte array in network byte order
-		* @return An instance of class IPv4Address
-		*/
+	 * A function that creates an instance of the class IPv4Address out of 4-byte array.
+	 * @param[in] bytes The address as 4-byte array in network byte order
+	 * @return An instance of class IPv4Address
+	 */
 	inline IPv4Address makeIPv4Address(const uint8_t bytes[4]) { return IPv4Address(bytes); }
 
 	/**
-		* A function that creates an instance of the class out of string (char*) value
-		* If the string doesn't represent a valid IPv4 address an errorCode will be set to non-zero value
-		* @param[in] addressAsString The string (char*) representation of the address
-		* @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-		* @return An instance of class IPv4Address. If an error occured the return address will be an unspecified/zero
-		*/
+	 * A function that creates an instance of the class out of string (char*) value
+	 * If the string doesn't represent a valid IPv4 address an errorCode will be set to non-zero value
+	 * @param[in] addressAsString The string (char*) representation of the address
+	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
+	 * @return An instance of class IPv4Address. If an error occured the return address will be an unspecified/zero
+	 */
 	IPv4Address makeIPv4Address(const char* addrAsString, int& errorCode);
 
 	/**
-		* A function that creates an instance of the class out of std::string value
-		* If the string doesn't represent a valid IPv4 address an errorCode will be set to non-zero value
-		* @param[in] addressAsString The std::string representation of the address
-		* @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-		* @return An instance of class IPv4Address. If an error occured the return address will be an unspecified/zero
-		*/
-	inline IPv4Address makeIPv4Address(const std::string& addrAsString, int& errorCode)
-	{
-		return makeIPv4Address(addrAsString.c_str(), errorCode);
-	}
+	 * A function that creates an instance of the class out of std::string value
+	 * If the string doesn't represent a valid IPv4 address an errorCode will be set to non-zero value
+	 * @param[in] addressAsString The std::string representation of the address
+	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
+	 * @return An instance of class IPv4Address. If an error occured the return address will be an unspecified/zero
+	 */
+	inline IPv4Address makeIPv4Address(const std::string& addrAsString, int& errorCode) {	return makeIPv4Address(addrAsString.c_str(), errorCode); }
 
 
 
@@ -204,36 +203,32 @@ namespace experimental
 	}; // class IPv6Address
 
 
-
 	// Creation of IPv6Address
 
 	/**
-		* A function that creates an instance of the class IPv6Address out of 16-byte array.
-		* @param[in] bytes The address as 16-byte array in network byte order
-		* @return An instance of class IPv6Address
-		*/
+	 * A function that creates an instance of the class IPv6Address out of 16-byte array.
+	 * @param[in] bytes The address as 16-byte array in network byte order
+	 * @return An instance of class IPv6Address
+	 */
 	inline IPv6Address makeIPv6Address(const uint8_t bytes[16]) { return IPv6Address(bytes); }
 
 	/**
-		* A function that creates an instance of the class out of string (char*) value
-		* If the string doesn't represent a valid IPv6 address an errorCode will be set to non-zero value
-		* @param[in] addressAsString The string (char*) representation of the address
-		* @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-		* @return An instance of class IPv6Address. If an error occured the return address will be an unspecified/zero
-		*/
+	 * A function that creates an instance of the class out of string (char*) value
+	 * If the string doesn't represent a valid IPv6 address an errorCode will be set to non-zero value
+	 * @param[in] addressAsString The string (char*) representation of the address
+	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
+	 * @return An instance of class IPv6Address. If an error occured the return address will be an unspecified/zero
+	 */
 	IPv6Address makeIPv6Address(const char* addrAsString, int& errorCode);
 
 	/**
-		* A function that creates an instance of the class out of std::string value
-		* If the string doesn't represent a valid IPv6 address an errorCode will be set to non-zero value
-		* @param[in] addressAsString The std::string representation of the address
-		* @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-		* @return An instance of class IPv6Address. If an error occured the return address will be an unspecified/zero
-		*/
-	inline IPv6Address makeIPv6Address(const std::string& addrAsString, int& errorCode)
-	{
-		return makeIPv6Address(addrAsString.c_str(), errorCode);
-	}
+	 * A function that creates an instance of the class out of std::string value
+	 * If the string doesn't represent a valid IPv6 address an errorCode will be set to non-zero value
+	 * @param[in] addressAsString The std::string representation of the address
+	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
+	 * @return An instance of class IPv6Address. If an error occured the return address will be an unspecified/zero
+	 */
+	inline IPv6Address makeIPv6Address(const std::string& addrAsString, int& errorCode) {	return makeIPv6Address(addrAsString.c_str(), errorCode); }
 
 
 
@@ -245,16 +240,150 @@ namespace experimental
 	class IPAddress
 	{
 	public:
+		/**
+		 * An enum representing the address type: IPv4 or IPv6
+		 */
+		enum AddressType
+		{
+			/**
+			 * IPv4 address type
+			 */
+			IPv4AddressType,
+			/**
+			 * IPv6 address type
+			 */
+			IPv6AddressType
+		};
+
+		/**
+		 * A default constructor that creates an instance of the class with unspecified IPv4 address
+		 */
+		IPAddress() : m_Type(IPv4AddressType) {}
+
+		/**
+		 * A constructor that creates an instance of the class out of IPv4Address.
+		 * @param[in] addr A const reference to instance of IPv4Address
+		 */
+		IPAddress(const IPv4Address& addr) : m_Type(IPv4AddressType), m_IPv4(addr) {}
+
+		/**
+		 * A constructor that creates an instance of the class out of IPv6Address.
+		 * @param[in] addr A const reference to instance of IPv6Address
+		 */
+		IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr) {}
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] addr A const reference to instance of IPv4Address
+		 */
+		inline IPAddress& operator=(const IPv4Address& addr);
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] addr A const reference to instance of IPv6Address
+		 */
+		inline IPAddress& operator=(const IPv6Address& addr);
+
+		/**
+		 * Gets the address type: IPv4 or IPv6
+		 * @return The address type
+		 */
+		AddressType getType() const { return static_cast<AddressType>(m_Type); }
+
+		/**
+		 * Returns a std::string representation of the address
+		 * @return A string representation of the address
+		 */
+		std::string toString() const { return (getType() == IPv4AddressType) ? m_IPv4.toString() : m_IPv6.toString();	}
+
+		/**
+		 * Determine whether the address is unspecified
+		 */
+		bool isUnspecified() const { return (getType() == IPv4AddressType) ? m_IPv4.isUnspecified() : m_IPv6.isUnspecified(); }
+
+		/**
+		 * Determine whether the object contains an IP version 4 address
+		 */
+		bool isIPv4() const { return getType() == IPv4AddressType; }
+
+		/**
+		 * Determine whether the object contains an IP version 6 address
+		 */
+		bool isIPv6() const { return getType() == IPv6AddressType; }
+
+		/**
+		 * Get a pointer to IPv4 address instance
+		 * @return The const pointer to IPv4Address instance or NULL if the object does not contain an IP version 4 address
+		 */
+		const IPv4Address* getIPv4() const { return isIPv4() ? &m_IPv4 : NULL; }
+
+		/**
+		 * Get a pointer to IPv6 address instance
+		 * @return The const pointer to IPv6Address instance or NULL if the object does not contain an IP version 6 address
+		 */
+		const IPv6Address* getIPv6() const { return isIPv6 () ? &m_IPv6 : NULL; }
+
+		/**
+		 * Overload of the equal-to operator
+		 */
+		inline bool operator==(const IPAddress& rhs) const;
+
+		/**
+		 * Overload of the not-equal-to operator
+		 */
+		bool operator!=(const IPAddress& rhs) const { return !(*this == rhs); }
 
 	private:
-		enum { IPv4, IPv6 };
-
-		uint8_t m_Family;
+		uint8_t m_Type;
 		IPv4Address m_IPv4;
 		IPv6Address m_IPv6;
 	};
 
 
+	// implementation of inline methods
+
+	bool IPAddress::operator==(const IPAddress& rhs) const
+	{
+		if (isIPv4())
+			return rhs.isIPv4() ? (m_IPv4 == rhs.m_IPv4) : false;
+
+		return m_IPv6 == rhs.m_IPv6;
+	}
+
+	IPAddress& IPAddress::operator=(const IPv4Address& addr)
+	{
+		m_Type = IPv4AddressType;
+		m_IPv4 = addr;
+		return *this;
+	}
+
+	IPAddress& IPAddress::operator=(const IPv6Address& addr)
+	{
+		m_Type = IPv6AddressType;
+		m_IPv6 = addr;
+		return *this;
+	}
+
+
+	// Creation of IPAddress
+
+	/**
+	 * A function that creates an instance of the class out of string (char*) value
+	 * If the string doesn't represent a valid IPv6 or IPv4 address an errorCode will be set to non-zero value
+	 * @param[in] addressAsString The string (char*) representation of the address
+	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
+	 * @return An instance of class IPAddress. If an error occured the return value will contain an unspecified IPv4Address address
+	 */
+	IPAddress makeAddress(const char* addrAsString, int& errorCode);
+
+	/**
+	 * A function that creates an instance of the class out of std::string value
+	 * If the string doesn't represent a valid IPv6 or IPv4 address an errorCode will be set to non-zero value
+	 * @param[in] addressAsString The std::string representation of the address
+	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
+	 * @return An instance of class IPAddress. If an error occured the return value will contain an unspecified IPv4Address address
+	 */
+	inline IPAddress makeAddress(const std::string& addrAsString, int& errorCode) { return makeAddress(addrAsString.c_str(), errorCode); }
 
 } // namespace experimental
 
