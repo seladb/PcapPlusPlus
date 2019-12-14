@@ -5,7 +5,6 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PacketUtils.h"
-#include "IpAddress.h"
 #include "Logger.h"
 #include <sstream>
 #include <vector>
@@ -21,62 +20,6 @@
 
 namespace pcpp
 {
-
-ConnectionData::~ConnectionData()
-{
-	if (srcIP != NULL)
-		delete srcIP;
-
-	if (dstIP != NULL)
-		delete dstIP;
-}
-
-ConnectionData::ConnectionData(const ConnectionData& other)
-{
-	copyData(other);
-}
-
-ConnectionData& ConnectionData::operator=(const ConnectionData& other)
-{
-	if (srcIP != NULL)
-		delete srcIP;
-
-	if (dstIP != NULL)
-		delete dstIP;
-
-	copyData(other);
-
-	return *this;
-}
-
-void ConnectionData::copyData(const ConnectionData& other)
-{
-	if (other.srcIP != NULL)
-		srcIP = other.srcIP->clone();
-	else
-		srcIP = NULL;
-
-	if (other.dstIP != NULL)
-		dstIP = other.dstIP->clone();
-	else
-		dstIP = NULL;
-
-	flowKey = other.flowKey;
-	srcPort = other.srcPort;
-	dstPort = other.dstPort;
-	startTime = other.startTime;
-	endTime = other.endTime;
-}
-
-
-void TcpReassembly::TcpOneSideData::setSrcIP(IPAddress* sourrcIP)
-{
-	if (srcIP != NULL)
-		delete srcIP;
-
-	srcIP = sourrcIP->clone();
-}
-
 
 TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie, OnTcpConnectionStart onConnectionStartCallback, OnTcpConnectionEnd onConnectionEndCallback, const TcpReassemblyConfiguration &config)
 {
@@ -99,6 +42,26 @@ TcpReassembly::~TcpReassembly()
 		m_ConnectionList.erase(m_ConnectionList.begin());
 	}
 }
+
+
+enum AddressType { SrcAddress, DstAddress };
+
+static pcpp::experimental::IPAddress makeAddress(const Layer* ipLayer, AddressType addrType)
+{
+	if (ipLayer->getProtocol() == IPv4)
+	{
+		const IPv4Layer* ipv4Layer = static_cast<const IPv4Layer*>(ipLayer);
+		return (addrType == AddressType::SrcAddress)
+			? pcpp::experimental::IPv4Address(ipv4Layer->getIPv4Header()->ipSrc)
+			: pcpp::experimental::IPv4Address(ipv4Layer->getIPv4Header()->ipDst);
+	}
+
+	const IPv6Layer* ipv6Layer = static_cast<const IPv6Layer*>(ipLayer);
+	return (addrType == AddressType::SrcAddress)
+		? pcpp::experimental::IPv6Address(ipv6Layer->getIPv6Header()->ipSrc)
+		: pcpp::experimental::IPv6Address(ipv6Layer->getIPv6Header()->ipDst);
+}
+
 
 void TcpReassembly::reassemblePacket(Packet& tcpData)
 {
@@ -164,26 +127,14 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		return;
 	}
 
-	// calculate packet's source and dest IP address
-	IPAddress* srcIP = NULL;
-	IPAddress* dstIP = NULL;
-	IPv4Address srcIP4Addr = IPv4Address::Zero;
-	IPv6Address srcIP6Addr = IPv6Address::Zero;
-	IPv4Address dstIP4Addr = IPv4Address::Zero;
-	IPv6Address dstIP6Addr = IPv6Address::Zero;
-	if (ipLayer->getProtocol() == IPv4)
+	// calculate packet's source and dest IP addresses
+	pcpp::experimental::IPAddress srcIP = makeAddress(ipLayer, AddressType::SrcAddress);
+	pcpp::experimental::IPAddress dstIP = makeAddress(ipLayer, AddressType::DstAddress);
+	// in real traffic the IP addresses cannot be an unspecified
+	if (srcIP.isUnspecified() || dstIP.isUnspecified())
 	{
-		srcIP4Addr = ((IPv4Layer*)ipLayer)->getSrcIpAddress();
-		srcIP = &srcIP4Addr;
-		dstIP4Addr = ((IPv4Layer*)ipLayer)->getDstIpAddress();
-		dstIP = &dstIP4Addr;
-	}
-	else if (ipLayer->getProtocol() == IPv6)
-	{
-		srcIP6Addr = ((IPv6Layer*)ipLayer)->getSrcIpAddress();
-		srcIP = &srcIP6Addr;
-		dstIP6Addr = ((IPv6Layer*)ipLayer)->getDstIpAddress();
-		dstIP = &dstIP6Addr;
+		LOG_ERROR("Some IP address is unspecified: srcIP [%s], dstIP [%s]. Ignoring this packet", srcIP.toString().c_str(), dstIP.toString().c_str());
+		return;
 	}
 
 	if (iter == m_ConnectionList.end())
@@ -244,7 +195,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 1)
 	{
 		// check if packet belongs to that side
-		if (tcpReassemblyData->twoSides[0].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcPort == srcPort && tcpReassemblyData->twoSides[0].srcIP == srcIP)
 		{
 			sideIndex = 0;
 		}
@@ -263,12 +214,12 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 2)
 	{
 		// check if packet matches side 0
-		if (tcpReassemblyData->twoSides[0].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcPort == srcPort && tcpReassemblyData->twoSides[0].srcIP == srcIP)
 		{
 			sideIndex = 0;
 		}
 		// check if packet matches side 1
-		else if (tcpReassemblyData->twoSides[1].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[1].srcPort == srcPort)
+		else if (tcpReassemblyData->twoSides[1].srcPort == srcPort && tcpReassemblyData->twoSides[1].srcIP == srcIP)
 		{
 			sideIndex = 1;
 		}

@@ -2,7 +2,7 @@
 #define PACKETPP_TCP_REASSEMBLY
 
 #include "Packet.h"
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "PointerVector.h"
 #include <map>
 #include <list>
@@ -78,9 +78,9 @@ namespace pcpp
 struct ConnectionData
 {
 	/** Source IP address */
-	IPAddress* srcIP;
+	pcpp::experimental::IPAddress srcIP;
 	/** Destination IP address */
-	IPAddress* dstIP;
+	pcpp::experimental::IPAddress dstIP;
 	/** Source TCP/UDP port */
 	uint16_t srcPort;
 	/** Destination TCP/UDP port */
@@ -95,50 +95,31 @@ struct ConnectionData
 	/**
 	 * A c'tor for this struct that basically zeros all members
 	 */
-	ConnectionData() : srcIP(NULL), dstIP(NULL), srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()  {}
-
-	/**
-	 * A d'tor for this strcut. Notice it frees the memory of srcIP and dstIP members
-	 */
-	~ConnectionData();
-
-	/**
-	 * A copy constructor for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
-	 */
-	ConnectionData(const ConnectionData& other);
-
-	/**
-	 * An assignment operator for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
-	 */
-	ConnectionData& operator=(const ConnectionData& other);
+	ConnectionData() : srcPort(0), dstPort(0), flowKey(0), startTime(), endTime() {}
 
 	/**
 	 * Set source IP
-	 * @param[in] sourceIP A pointer to the source IP to set. Notice the IPAddress object will be cloned
+	 * @param[in] sourceIP A const reference to the source IP to set
 	 */
-	void setSrcIpAddress(const IPAddress* sourceIP) { srcIP = sourceIP->clone(); }
+	void setSrcIpAddress(const pcpp::experimental::IPAddress& sourceIP) { srcIP = sourceIP; }
 
 	/**
 	 * Set destination IP
-	 * @param[in] destIP A pointer to the destination IP to set. Notice the IPAddress object will be cloned
+	 * @param[in] destIP A const reference to the destination IP to set
 	 */
-	void setDstIpAddress(const IPAddress* destIP) { dstIP = destIP->clone(); }
+	void setDstIpAddress(const pcpp::experimental::IPAddress& destIP) { dstIP = destIP; }
 
 	/**
 	 * Set startTime of Connection
 	 * @param[in] startTime integer value
 	 */
-	void setStartTime(const timeval &startTime) { this->startTime = startTime; }
+	void setStartTime(const timeval& startTime) { this->startTime = startTime; }
 
 	/**
 	 * Set endTime of Connection
 	 * @param[in] endTime integer value
 	 */
-	void setEndTime(const timeval &endTime) { this->endTime = endTime; }
-
-private:
-
-	void copyData(const ConnectionData& other);
+	void setEndTime(const timeval& endTime) { this->endTime = endTime; }
 };
 
 
@@ -347,17 +328,15 @@ private:
 
 	struct TcpOneSideData
 	{
-		IPAddress* srcIP;
+		pcpp::experimental::IPAddress srcIP;
 		uint16_t srcPort;
 		uint32_t sequence;
 		PointerVector<TcpFragment> tcpFragmentList;
 		bool gotFinOrRst;
 
-		void setSrcIP(IPAddress* sourrcIP);
+		void setSrcIP(const pcpp::experimental::IPAddress& sourceIP) { srcIP = sourceIP; }
 
-		TcpOneSideData() { srcIP = NULL; srcPort = 0; sequence = 0; gotFinOrRst = false; }
-
-		~TcpOneSideData() { if (srcIP != NULL) delete srcIP; }
+		TcpOneSideData() : srcPort(0), sequence(0), gotFinOrRst(false) {}
 	};
 
 	struct TcpReassemblyData
