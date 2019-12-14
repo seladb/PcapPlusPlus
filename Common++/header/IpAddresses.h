@@ -5,22 +5,12 @@
 #include <string.h>
 #include <string>
 
-#ifdef LINUX
-#include <in.h>
-#include <arpa/inet.h>
-#endif
-#ifdef MAC_OS_X
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#endif
+// for in_addr, in6_addr
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#endif
-#ifdef FREEBSD
-#include <sys/socket.h>
+#else
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #endif
 
 /// @file
