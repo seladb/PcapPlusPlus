@@ -51,13 +51,13 @@ static pcpp::experimental::IPAddress makeAddress(const Layer* ipLayer, AddressTy
 	if (ipLayer->getProtocol() == IPv4)
 	{
 		const IPv4Layer* ipv4Layer = static_cast<const IPv4Layer*>(ipLayer);
-		return (addrType == AddressType::SrcAddress)
+		return (addrType == SrcAddress)
 			? pcpp::experimental::IPv4Address(ipv4Layer->getIPv4Header()->ipSrc)
 			: pcpp::experimental::IPv4Address(ipv4Layer->getIPv4Header()->ipDst);
 	}
 
 	const IPv6Layer* ipv6Layer = static_cast<const IPv6Layer*>(ipLayer);
-	return (addrType == AddressType::SrcAddress)
+	return (addrType == SrcAddress)
 		? pcpp::experimental::IPv6Address(ipv6Layer->getIPv6Header()->ipSrc)
 		: pcpp::experimental::IPv6Address(ipv6Layer->getIPv6Header()->ipDst);
 }
@@ -128,8 +128,8 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	}
 
 	// calculate packet's source and dest IP addresses
-	pcpp::experimental::IPAddress srcIP = makeAddress(ipLayer, AddressType::SrcAddress);
-	pcpp::experimental::IPAddress dstIP = makeAddress(ipLayer, AddressType::DstAddress);
+	pcpp::experimental::IPAddress srcIP = makeAddress(ipLayer, SrcAddress);
+	pcpp::experimental::IPAddress dstIP = makeAddress(ipLayer, DstAddress);
 	// in real traffic the IP addresses cannot be an unspecified
 	if (srcIP.isUnspecified() || dstIP.isUnspecified())
 	{
