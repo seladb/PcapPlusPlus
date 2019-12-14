@@ -6,6 +6,10 @@
 #include "IpUtils.h"
 #include "IpAddresses.h"
 
+// for AF_INET, AF_INET6
+#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
+#include <sys/socket.h>
+#endif
 
 namespace pcpp
 {
