@@ -3,7 +3,7 @@
 
 #include "Packet.h"
 #include "LRUList.h"
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "PointerVector.h"
 #include <map>
 
@@ -92,13 +92,6 @@ namespace pcpp
 			 * @return A pointer to a new instance which is a clone of the current instance
 			 */
 			virtual PacketKey* clone() const = 0;
-
-		protected:
-			// private c'tor
-			PacketKey() {}
-
-			// private copy c'tor
-			PacketKey(const PacketKey& other);
 		};
 
 
@@ -113,7 +106,7 @@ namespace pcpp
 			/**
 			 * A default c'tor which zeros all members
 			 */
-			IPv4PacketKey() : m_IpID(0), m_SrcIP(IPv4Address::Zero), m_DstIP(IPv4Address::Zero) { }
+			IPv4PacketKey() : m_IpID(0) {}
 
 			/**
 			 * A c'tor that sets values in each one of the members
@@ -121,12 +114,8 @@ namespace pcpp
 			 * @param[in] srcip Source IPv4 address
 			 * @param[in] dstip Dest IPv4 address
 			 */
-			IPv4PacketKey(uint16_t ipid, IPv4Address srcip, IPv4Address dstip) : m_IpID(ipid), m_SrcIP(srcip), m_DstIP(dstip) { }
-
-			/**
-			 * A copy c'tor for this class
-			 */
-			IPv4PacketKey(const IPv4PacketKey& other) : m_IpID(other.m_IpID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+			IPv4PacketKey(uint16_t ipid, pcpp::experimental::IPv4Address srcip, pcpp::experimental::IPv4Address dstip)
+				: m_IpID(ipid), m_SrcIP(srcip), m_DstIP(dstip) {}
 
 			/**
 			 * @return IP ID value
@@ -136,12 +125,12 @@ namespace pcpp
 			/**
 			 * @return Source IP address
 			 */
-			IPv4Address getSrcIP() const { return m_SrcIP; }
+			const pcpp::experimental::IPv4Address& getSrcIP() const { return m_SrcIP; }
 
 			/**
 			 * @return Dest IP address
 			 */
-			IPv4Address getDstIP() const { return m_DstIP; }
+			const pcpp::experimental::IPv4Address& getDstIP() const { return m_DstIP; }
 
 			/**
 			 * Set IP ID
@@ -153,13 +142,13 @@ namespace pcpp
 			 * Set source IPv4 address
 			 * @param[in] srcIP Source IP to set
 			 */
-			void setSrcIP(const IPv4Address& srcIP) { m_SrcIP = srcIP; }
+			void setSrcIP(const pcpp::experimental::IPv4Address& srcIP) { m_SrcIP = srcIP; }
 
 			/**
 			 * Set dest IPv4 address
 			 * @param[in] dstIP Dest IP to set
 			 */
-			void setDstIP(const IPv4Address& dstIP) { m_DstIP = dstIP; }
+			void setDstIP(const pcpp::experimental::IPv4Address& dstIP) { m_DstIP = dstIP; }
 
 
 			// implement abstract methods
@@ -175,8 +164,8 @@ namespace pcpp
 
 		private:
 			uint16_t m_IpID;
-			IPv4Address m_SrcIP;
-			IPv4Address m_DstIP;
+			pcpp::experimental::IPv4Address m_SrcIP;
+			pcpp::experimental::IPv4Address m_DstIP;
 		};
 
 
@@ -192,7 +181,7 @@ namespace pcpp
 			/**
 			 * A default c'tor which zeros all members
 			 */
-			IPv6PacketKey() : m_FragmentID(0), m_SrcIP(IPv6Address::Zero), m_DstIP(IPv6Address::Zero) { }
+			IPv6PacketKey() : m_FragmentID(0) {}
 
 			/**
 			 * A c'tor that sets values in each one of the members
@@ -200,12 +189,8 @@ namespace pcpp
 			 * @param[in] srcip Source IPv6 address
 			 * @param[in] dstip Dest IPv6 address
 			 */
-			IPv6PacketKey(uint32_t fragmentID, IPv6Address srcip, IPv6Address dstip) : m_FragmentID(fragmentID), m_SrcIP(srcip), m_DstIP(dstip) { }
-
-			/**
-			 * A copy c'tor for this class
-			 */
-			IPv6PacketKey(const IPv6PacketKey& other) : m_FragmentID(other.m_FragmentID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+			IPv6PacketKey(uint32_t fragmentID, const pcpp::experimental::IPv6Address& srcip, const pcpp::experimental::IPv6Address& dstip)
+				: m_FragmentID(fragmentID), m_SrcIP(srcip), m_DstIP(dstip) {}
 
 			/**
 			 * @return Fragment ID value
@@ -215,12 +200,12 @@ namespace pcpp
 			/**
 			 * @return Source IP address
 			 */
-			IPv6Address getSrcIP() const { return m_SrcIP; }
+			const pcpp::experimental::IPv6Address& getSrcIP() const { return m_SrcIP; }
 
 			/**
 			 * @return Dest IP address
 			 */
-			IPv6Address getDstIP() const { return m_DstIP; }
+			const pcpp::experimental::IPv6Address& getDstIP() const { return m_DstIP; }
 
 			/**
 			 * Set fragment ID
@@ -232,13 +217,13 @@ namespace pcpp
 			 * Set source IPv6 address
 			 * @param[in] srcIP Source IP to set
 			 */
-			void setSrcIP(const IPv6Address& srcIP) { m_SrcIP = srcIP; }
+			void setSrcIP(const pcpp::experimental::IPv6Address& srcIP) { m_SrcIP = srcIP; }
 
 			/**
 			 * Set dest IPv6 address
 			 * @param[in] dstIP Dest IP to set
 			 */
-			void setDstIP(const IPv6Address& dstIP) { m_DstIP = dstIP; }
+			void setDstIP(const pcpp::experimental::IPv6Address& dstIP) { m_DstIP = dstIP; }
 
 
 			// implement abstract methods
@@ -254,8 +239,8 @@ namespace pcpp
 
 		private:
 			uint32_t m_FragmentID;
-			IPv6Address m_SrcIP;
-			IPv6Address m_DstIP;
+			pcpp::experimental::IPv6Address m_SrcIP;
+			pcpp::experimental::IPv6Address m_DstIP;
 		};
 
 

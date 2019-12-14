@@ -6019,6 +6019,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 
 }
 
+
 PTF_TEST_CASE(TestIPFragPartialData)
 {
 	std::vector<RawPacket> packetStream;
@@ -6032,8 +6033,9 @@ PTF_TEST_CASE(TestIPFragPartialData)
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_partial.txt", bufferLength);
+	PTF_ASSERT_NOT_NULL(buffer);
 
-	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	PTF_ASSERT_TRUE(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg));
 
 	for (size_t i = 0; i < 6; i++)
 	{
@@ -6041,12 +6043,18 @@ PTF_TEST_CASE(TestIPFragPartialData)
 		ipReassembly.processPacket(&packet, status);
 	}
 
-	IPReassembly::IPv4PacketKey ip4Key(16991, IPv4Address(std::string("172.16.133.54")), IPv4Address(std::string("216.137.33.81")));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		srcIPv4 = pcpp::experimental::makeIPv4Address("172.16.133.54", errorCode),
+		dstIPv4 = pcpp::experimental::makeIPv4Address("216.137.33.81", errorCode);
+	PTF_ASSERT_FALSE(srcIPv4.isUnspecified());
+	PTF_ASSERT_FALSE(dstIPv4.isUnspecified());
+	IPReassembly::IPv4PacketKey ip4Key(16991, srcIPv4, dstIPv4);
 	Packet* partialPacket = ipReassembly.getCurrentPacket(ip4Key);
 
-	PTF_ASSERT(partialPacket != NULL, "IPv4: Cannot retrieve partial packet");
-	PTF_ASSERT(bufferLength == partialPacket->getRawPacket()->getRawDataLen(), "IPv4: Partial packet len (%d) is different than read packet len (%d)", partialPacket->getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(partialPacket->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "IPv4: Partial packet data is different than expected");
+	PTF_ASSERT_NOT_NULL(partialPacket);
+	PTF_ASSERT_EQUAL(bufferLength, partialPacket->getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(partialPacket->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete partialPacket;
 	delete [] buffer;
@@ -6057,13 +6065,14 @@ PTF_TEST_CASE(TestIPFragPartialData)
 
 	bufferLength = 0;
 	buffer = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1_partial.txt", bufferLength);
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	PcapFileReaderDevice reader("PcapExamples/ip6_fragments.pcap");
-	PTF_ASSERT(reader.open(), "Cannot open file PcapExamples/ip6_fragments.pcap");
+	PTF_ASSERT_TRUE(reader.open());
 
 	RawPacketVector packet1PartialFrags;
 
-	PTF_ASSERT(reader.getNextPackets(packet1PartialFrags, 5) == 5, "IPv6: Cannot read 5 first frags of packet 1");
+	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1PartialFrags, 5), 5, int);
 
 	reader.close();
 
@@ -6073,18 +6082,22 @@ PTF_TEST_CASE(TestIPFragPartialData)
 		ipReassembly.processPacket(&packet, status);
 	}
 
-	IPReassembly::IPv6PacketKey ip6Key(0x2c5323, IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")), IPv6Address(std::string("ff02::fb")));
+	pcpp::experimental::IPv6Address
+		srcIPv6 = pcpp::experimental::makeIPv6Address("fe80::21f:f3ff:fecd:f617", errorCode),
+		dstIPv6 = pcpp::experimental::makeIPv6Address("ff02::fb", errorCode);
+	PTF_ASSERT_FALSE(srcIPv6.isUnspecified());
+	PTF_ASSERT_FALSE(dstIPv6.isUnspecified());
+	IPReassembly::IPv6PacketKey ip6Key(0x2c5323, srcIPv6, dstIPv6);
 	partialPacket = ipReassembly.getCurrentPacket(ip6Key);
-	PTF_ASSERT(bufferLength == partialPacket->getRawPacket()->getRawDataLen(), "IPv6: Partial packet len (%d) is different than read packet len (%d)", partialPacket->getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(partialPacket->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "IPv6: Partial packet data is different than expected");
 
-	PTF_ASSERT(partialPacket != NULL, "IPv6: Cannot retrieve partial packet");
+	PTF_ASSERT_NOT_NULL(partialPacket);
+	PTF_ASSERT_EQUAL(bufferLength, partialPacket->getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(partialPacket->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete partialPacket;
 	delete [] buffer;
+} // TestIPFragPartialData
 
-
-}
 
 PTF_TEST_CASE(TestIPFragMultipleFrags)
 {
@@ -6407,8 +6420,6 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	delete buffer6;
 	delete buffer61;
 	delete buffer62;
-
-
 }
 
 
@@ -6421,10 +6432,10 @@ void ipReassemblyOnFragmentsClean(const IPReassembly::PacketKey* key, void* user
 PTF_TEST_CASE(TestIPFragMapOverflow)
 {
 	PcapFileReaderDevice reader("PcapExamples/ip4_fragments.pcap");
-	PTF_ASSERT(reader.open(), "Cannot open file PcapExamples/ip4_fragments.pcap");
+	PTF_ASSERT_TRUE(reader.open());
 
 	PcapFileReaderDevice reader2("PcapExamples/ip6_fragments.pcap");
-	PTF_ASSERT(reader2.open(), "Cannot open file PcapExamples/ip6_fragments.pcap");
+	PTF_ASSERT_TRUE(reader2.open());
 
 	RawPacketVector ip4Packet1Frags;
 	RawPacketVector ip4Packet2Frags;
@@ -6440,31 +6451,31 @@ PTF_TEST_CASE(TestIPFragMapOverflow)
 	RawPacketVector ip6Packet3Frags;
 	RawPacketVector ip6Packet4Frags;
 
-	PTF_ASSERT(reader.getNextPackets(ip4Packet1Frags, 6) == 6, "Cannot read 6 frags of IPv4 packet 1");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet2Frags, 6) == 6, "Cannot read 6 frags of IPv4 packet 2");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet3Frags, 6) == 6, "Cannot read 6 frags of IPv4 packet 3");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet4Frags, 10) == 10, "Cannot read 10 frags of IPv4 packet 4");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet5Vec, 1) == 1, "Cannot read IPv4 packet 5");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet4Frags, 1) == 1, "Cannot read last (11th) frag of IPv4 packet 4");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet6Frags, 10) == 10, "Cannot read 10 frags of IPv4 packet 5");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet7Vec, 1) == 1, "Cannot read IPv4 packet 7");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet6Frags, 1) == 1, "Cannot read last (11th) frag of IPv4 packet 6");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet8Frags, 8) == 8, "Cannot read 8 frags of IPv4 packet 8");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet9Vec, 1) == 1, "Cannot read IPv4 packet 9");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet8Frags, 2) == 2, "Cannot read last 2 frags of IPv4 packet 8");
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet1Frags, 6), 6, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet2Frags, 6), 6, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet3Frags, 6), 6, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 10), 10, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet5Vec, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 10), 10, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet7Vec, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 8), 8, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet9Vec, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 2), 2, int);
 
-	PTF_ASSERT(reader2.getNextPackets(ip6Packet1Frags, 7) == 7, "Cannot read 7 frags of IPv6 packet 1");
-	PTF_ASSERT(reader2.getNextPackets(ip6Packet2Frags, 13) == 13, "Cannot read 13 frags of IPv6 packet 2");
-	PTF_ASSERT(reader2.getNextPackets(ip6Packet3Frags, 9) == 9, "Cannot read 9 frags of IPv6 packet 3");
-	PTF_ASSERT(reader2.getNextPackets(ip6Packet4Frags, 7) == 7, "Cannot read 7 frags of IPv6 packet 4");
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet1Frags, 7), 7, int);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet2Frags, 13), 13, int);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet3Frags, 9), 9, int);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet4Frags, 7), 7, int);
 
 
 	PointerVector<IPReassembly::PacketKey> packetsRemovedFromIPReassemblyEngine;
 
 	IPReassembly ipReassembly(ipReassemblyOnFragmentsClean, &packetsRemovedFromIPReassemblyEngine, 3);
 
-	PTF_ASSERT(ipReassembly.getMaxCapacity() == 3, "Max capacity isn't 3");
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 0, "Capacity before reassembly isn't 0");
+	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), 3, size);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, size);
 
 
 	IPReassembly::ReassemblyStatus status;
@@ -6482,60 +6493,59 @@ PTF_TEST_CASE(TestIPFragMapOverflow)
 	ipReassembly.processPacket(ip4Packet6Frags.at(0), status);
 	ipReassembly.processPacket(ip4Packet8Frags.at(0), status);
 
-	PTF_ASSERT(ipReassembly.getMaxCapacity() == 3, "Max capacity isn't 3");
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 3, "Capacity after reassembly isn't 3");
+	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), 3, size);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 3, size);
 
-	PTF_ASSERT(packetsRemovedFromIPReassemblyEngine.size() == 5, "Number of packets that have been removed isn't 5, it's %d", (int)packetsRemovedFromIPReassemblyEngine.size());
+	PTF_ASSERT_EQUAL(packetsRemovedFromIPReassemblyEngine.size(), 5, size);
 
 	IPReassembly::IPv4PacketKey* ip4Key = NULL;
 	IPReassembly::IPv6PacketKey* ip6Key = NULL;
 
+	int errorCode;
 	// 1st packet removed should be ip6Packet1Frags
 	ip6Key = dynamic_cast<IPReassembly::IPv6PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(0));
-	PTF_ASSERT(ip6Key != NULL, "First packet removed isn't IPv6");
-	PTF_ASSERT(ip6Key->getFragmentID() == 0x2c5323, "First packet removed fragment ID isn't 0x2c5323");
-	PTF_ASSERT(ip6Key->getSrcIP() == IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")), "First packet removed src IP isn't fe80::21f:f3ff:fecd:f617");
-	PTF_ASSERT(ip6Key->getDstIP() == IPv6Address(std::string("ff02::fb")), "First packet removed dst IP isn't ff02::fb");
+	PTF_ASSERT_NOT_NULL(ip6Key);
+	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x2c5323, u32);
+	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::experimental::makeIPv6Address("fe80::21f:f3ff:fecd:f617", errorCode), object);
+	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::experimental::makeIPv6Address("ff02::fb", errorCode), object);
 
 	// 2nd packet removed should be ip4Packet2Frags
 	ip4Key = dynamic_cast<IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(1));
-	PTF_ASSERT(ip4Key != NULL, "Second packet removed isn't IPv4");
-	PTF_ASSERT(ip4Key->getIpID() == 0x1ea1, "Second packet removed ID isn't 0x1ea1");
-	PTF_ASSERT(ip4Key->getSrcIP() == IPv4Address(std::string("10.118.213.212")), "Second packet removed src IP isn't 10.118.213.212");
-	PTF_ASSERT(ip4Key->getDstIP() == IPv4Address(std::string("10.118.213.211")), "Second packet removed dst IP isn't 10.118.213.211");
+	PTF_ASSERT_NOT_NULL(ip4Key);
+	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea1, u16);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::makeIPv4Address("10.118.213.212", errorCode), object);
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::makeIPv4Address("10.118.213.211", errorCode), object);
 
 	// 3rd packet removed should be ip4Packet3Frags
 	ip4Key = dynamic_cast<IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(2));
-	PTF_ASSERT(ip4Key != NULL, "Third packet removed isn't IPv4");
-	PTF_ASSERT(ip4Key->getIpID() == 0x1ea2, "Third packet removed ID isn't 0x1ea2");
-	PTF_ASSERT(ip4Key->getSrcIP() == IPv4Address(std::string("10.118.213.212")), "Third packet removed src IP isn't 10.118.213.212");
-	PTF_ASSERT(ip4Key->getDstIP() == IPv4Address(std::string("10.118.213.211")), "Third packet removed dst IP isn't 10.118.213.211");
+	PTF_ASSERT_NOT_NULL(ip4Key);
+	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea2, u16);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::makeIPv4Address("10.118.213.212", errorCode), object);
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::makeIPv4Address("10.118.213.211", errorCode), object);
 
 	// 4th packet removed should be ip6Packet2Frags
 	ip6Key = dynamic_cast<IPReassembly::IPv6PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(3));
-	PTF_ASSERT(ip6Key != NULL, "Fourth packet removed isn't IPv6");
-	PTF_ASSERT(ip6Key->getFragmentID() == 0x98d687d1, "Fourth packet removed fragment ID isn't 0x98d687d1");
-	PTF_ASSERT(ip6Key->getSrcIP() == IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")), "Fourth packet removed src IP isn't fe80::21f:f3ff:fecd:f617");
-	PTF_ASSERT(ip6Key->getDstIP() == IPv6Address(std::string("ff02::fb")), "Fourth packet removed dst IP isn't ff02::fb");
+	PTF_ASSERT_NOT_NULL(ip6Key);
+	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x98d687d1, u32);
+	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::experimental::makeIPv6Address("fe80::21f:f3ff:fecd:f617", errorCode), object);
+	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::experimental::makeIPv6Address("ff02::fb", errorCode), object);
 
 	// 5th packet removed should be ip4Packet4Frags
 	ip4Key = dynamic_cast<IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(4));
-	PTF_ASSERT(ip4Key != NULL, "Fifth packet removed isn't IPv4");
-	PTF_ASSERT(ip4Key->getIpID() == 0x1ea3, "Fifth packet removed ID isn't 0x1ea3");
-	PTF_ASSERT(ip4Key->getSrcIP() == IPv4Address(std::string("10.118.213.212")), "Fifth packet removed src IP isn't 10.118.213.212");
-	PTF_ASSERT(ip4Key->getDstIP() == IPv4Address(std::string("10.118.213.211")), "Fifth packet removed dst IP isn't 10.118.213.211");
-
-
-}
+	PTF_ASSERT_NOT_NULL(ip4Key);
+	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea3, u16);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::makeIPv4Address("10.118.213.212", errorCode), object);
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::makeIPv4Address("10.118.213.211", errorCode), object);
+} // TestIPFragMapOverflow
 
 
 PTF_TEST_CASE(TestIPFragRemove)
 {
 	PcapFileReaderDevice reader("PcapExamples/ip4_fragments.pcap");
-	PTF_ASSERT(reader.open(), "Cannot open file PcapExamples/ip4_fragments.pcap");
+	PTF_ASSERT_TRUE(reader.open());
 
 	PcapFileReaderDevice reader2("PcapExamples/ip6_fragments.pcap");
-	PTF_ASSERT(reader2.open(), "Cannot open file PcapExamples/ip6_fragments.pcap");
+	PTF_ASSERT_TRUE(reader2.open());
 
 	RawPacketVector ip4Packet1Frags;
 	RawPacketVector ip4Packet2Frags;
@@ -6551,23 +6561,23 @@ PTF_TEST_CASE(TestIPFragRemove)
 	RawPacketVector ip6Packet3Frags;
 	RawPacketVector ip6Packet4Frags;
 
-	PTF_ASSERT(reader.getNextPackets(ip4Packet1Frags, 6) == 6, "Cannot read 6 frags of IPv4 packet 1");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet2Frags, 6) == 6, "Cannot read 6 frags of IPv4 packet 2");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet3Frags, 6) == 6, "Cannot read 6 frags of IPv4 packet 3");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet4Frags, 10) == 10, "Cannot read 10 frags of IPv4 packet 4");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet5Vec, 1) == 1, "Cannot read IPv4 packet 5");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet4Frags, 1) == 1, "Cannot read last (11th) frag of IPv4 packet 4");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet6Frags, 10) == 10, "Cannot read 10 frags of IPv4 packet 5");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet7Vec, 1) == 1, "Cannot read IPv4 packet 7");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet6Frags, 1) == 1, "Cannot read last (11th) frag of IPv4 packet 6");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet8Frags, 8) == 8, "Cannot read 8 frags of IPv4 packet 8");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet9Vec, 1) == 1, "Cannot read IPv4 packet 9");
-	PTF_ASSERT(reader.getNextPackets(ip4Packet8Frags, 2) == 2, "Cannot read last 2 frags of IPv4 packet 8");
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet1Frags, 6), 6, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet2Frags, 6), 6, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet3Frags, 6), 6, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 10), 10, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet5Vec, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 10), 10, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet7Vec, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 8), 8, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet9Vec, 1), 1, int);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 2), 2, int);
 
-	PTF_ASSERT(reader2.getNextPackets(ip6Packet1Frags, 7) == 7, "Cannot read 7 frags of IPv6 packet 1");
-	PTF_ASSERT(reader2.getNextPackets(ip6Packet2Frags, 13) == 13, "Cannot read 13 frags of IPv6 packet 2");
-	PTF_ASSERT(reader2.getNextPackets(ip6Packet3Frags, 9) == 9, "Cannot read 9 frags of IPv6 packet 3");
-	PTF_ASSERT(reader2.getNextPackets(ip6Packet4Frags, 7) == 7, "Cannot read 7 frags of IPv6 packet 4");
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet1Frags, 7), 7, int);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet2Frags, 13), 13, int);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet3Frags, 9), 9, int);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet4Frags, 7), 7, int);
 
 	IPReassembly ipReassembly;
 
@@ -6588,51 +6598,53 @@ PTF_TEST_CASE(TestIPFragRemove)
 	ipReassembly.processPacket(ip4Packet8Frags.at(0), status);
 	ipReassembly.processPacket(ip6Packet4Frags.at(0), status);
 
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 10, "Capacity before delete isn't 10");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 10, size);
 
+	int errorCode;
 	IPReassembly::IPv4PacketKey ip4Key;
-	ip4Key.setSrcIP(IPv4Address(std::string("10.118.213.212")));
-	ip4Key.setDstIP(IPv4Address(std::string("10.118.213.211")));
+	PTF_ASSERT_TRUE(ip4Key.getSrcIP().isUnspecified());
+	PTF_ASSERT_TRUE(ip4Key.getDstIP().isUnspecified());
+	ip4Key.setSrcIP(pcpp::experimental::makeIPv4Address("10.118.213.212", errorCode));
+	ip4Key.setDstIP(pcpp::experimental::makeIPv4Address("10.118.213.211", errorCode));
 
 	ip4Key.setIpID(0x1ea0);
 	ipReassembly.removePacket(ip4Key);
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 9, "Capacity after 1st delete isn't 9");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 9, size);
 
 	ip4Key.setIpID(0x1ea5);
 	ipReassembly.removePacket(ip4Key);
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 8, "Capacity after 2nd delete isn't 8");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 8, size);
 
 	// IPv4 key doesn't exist
 	ip4Key.setIpID(0x1ea9);
 	ipReassembly.removePacket(ip4Key);
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 8, "Capacity after delete with non-existing IPv4 packet isn't 8");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 8, size);
 
 	ip4Key.setIpID(0x1ea4);
 	ipReassembly.removePacket(ip4Key);
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 7, "Capacity after 3rd delete isn't 7");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 7, size);
 
 	IPReassembly::IPv6PacketKey ip6Key;
-	ip6Key.setSrcIP(IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")));
-	ip6Key.setDstIP(IPv6Address(std::string("ff02::fb")));
+	ip6Key.setSrcIP(pcpp::experimental::makeIPv6Address("fe80::21f:f3ff:fecd:f617", errorCode));
+	ip6Key.setDstIP(pcpp::experimental::makeIPv6Address("ff02::fb", errorCode));
 
 	ip6Key.setFragmentID(0x98d687d1);
 	ipReassembly.removePacket(ip6Key);
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 6, "Capacity after 4th delete isn't 6");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6, size);
 
 	// IPv6 key doesn't exist
 	ip6Key.setFragmentID(0xaaaaaaaa);
 	ipReassembly.removePacket(ip6Key);
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 6, "Capacity after delete with non-existing IPv6 packet isn't 6");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6, size);
 
 	ip6Key.setFragmentID(0x2c5323);
 	ipReassembly.removePacket(ip6Key);
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 5, "Capacity after 5th delete isn't 5");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 5, size);
 
 	ipReassembly.processPacket(ip4Packet8Frags.at(0), status);
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 6, "Capacity after delete and 1st add isn't 6");
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6, size);
+} // TestIPFragRemove
 
-
-}
 
 PTF_TEST_CASE(TestRawSockets)
 {
