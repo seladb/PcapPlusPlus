@@ -843,15 +843,13 @@ PTF_TEST_CASE(TestIPAddresses)
 		PTF_ASSERT_TRUE(v4Addr.isIPv4());
 		PTF_ASSERT_FALSE(v4Addr.isUnspecified());
 		PTF_ASSERT_FALSE(v4Addr.isIPv6());
-		PTF_ASSERT_NOT_NULL(v4Addr.getIPv4());
-		PTF_ASSERT_TRUE(*v4Addr.getIPv4() == ipv4Addr2);
+		PTF_ASSERT_TRUE(v4Addr.getIPv4() == ipv4Addr2);
 
 		v6Addr = ipv6Addr2;
 		PTF_ASSERT_FALSE(v6Addr.isIPv4());
 		PTF_ASSERT_FALSE(v6Addr.isUnspecified());
 		PTF_ASSERT_TRUE(v6Addr.isIPv6());
-		PTF_ASSERT_NOT_NULL(v6Addr.getIPv6());
-		PTF_ASSERT_TRUE(*v6Addr.getIPv6() == ipv6Addr2);
+		PTF_ASSERT_TRUE(v6Addr.getIPv6() == ipv6Addr2);
 	}
 
 	{
