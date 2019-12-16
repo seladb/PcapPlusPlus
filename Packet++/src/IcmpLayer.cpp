@@ -24,18 +24,13 @@ icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int i
 		return NULL;
 
 	uint8_t* headerAsByteArr = (uint8_t*)header;
-	return (icmp_router_address_structure*)(headerAsByteArr + sizeof(icmp_router_advertisement_hdr) + index*sizeof(icmp_router_address_structure));
+	return (icmp_router_address_structure*)(headerAsByteArr + sizeof(icmp_router_advertisement_hdr) + index * sizeof(icmp_router_address_structure));
 }
 
-void icmp_router_address_structure::setRouterAddress(IPv4Address addr, uint32_t preference)
+void icmp_router_address_structure::setRouterAddress(pcpp::experimental::IPv4Address addr, uint32_t preference)
 {
-	routerAddress = addr.toInt();
+	routerAddress = addr.toUInt();
 	preferenceLevel = htonl(preference);
-}
-
-IPv4Address icmp_router_address_structure::getAddress()
-{
-	return IPv4Address(routerAddress);
 }
 
 IcmpLayer::IcmpLayer() : Layer()
@@ -53,11 +48,6 @@ IcmpMessageType IcmpLayer::getMessageType() const
 		return ICMP_UNSUPPORTED;
 
 	return (IcmpMessageType)type;
-}
-
-bool IcmpLayer::isMessageOfType(IcmpMessageType type) const
-{
-	return (getMessageType() == type);
 }
 
 bool IcmpLayer::cleanIcmpLayer()
@@ -301,7 +291,7 @@ icmp_redirect* IcmpLayer::getRedirectData()
 	return (icmp_redirect*)m_Data;
 }
 
-icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddress, IPv4Layer* ipHeader, Layer* l4Header)
+icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, pcpp::experimental::IPv4Address gatewayAddress, IPv4Layer* ipHeader, Layer* l4Header)
 {
 	if (code > 3)
 	{
@@ -319,7 +309,7 @@ icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddre
 
 	icmp_redirect* header = getRedirectData();
 	header->code = code;
-	header->gatewayAddress = gatewayAddress.toInt();
+	header->gatewayAddress = gatewayAddress.toUInt();
 
 	if (!setIpAndL4Layers(ipHeader, l4Header))
 		return NULL;
@@ -469,7 +459,7 @@ icmp_address_mask_request* IcmpLayer::getAddressMaskRequestData()
 	return (icmp_address_mask_request*)m_Data;
 }
 
-icmp_address_mask_request* IcmpLayer::setAddressMaskRequestData(uint16_t id, uint16_t sequence, IPv4Address mask)
+icmp_address_mask_request* IcmpLayer::setAddressMaskRequestData(uint16_t id, uint16_t sequence, pcpp::experimental::IPv4Address mask)
 {
 	if (!cleanIcmpLayer())
 		return NULL;
@@ -483,7 +473,7 @@ icmp_address_mask_request* IcmpLayer::setAddressMaskRequestData(uint16_t id, uin
 	header->code = 0;
 	header->id = htons(id);
 	header->sequence = htons(sequence);
-	header->addressMask = mask.toInt();
+	header->addressMask = mask.toUInt();
 
 	return header;
 }
@@ -496,7 +486,7 @@ icmp_address_mask_reply* IcmpLayer::getAddressMaskReplyData()
 	return (icmp_address_mask_reply*)m_Data;
 }
 
-icmp_address_mask_reply* IcmpLayer::setAddressMaskReplyData(uint16_t id, uint16_t sequence, IPv4Address mask)
+icmp_address_mask_reply* IcmpLayer::setAddressMaskReplyData(uint16_t id, uint16_t sequence, pcpp::experimental::IPv4Address mask)
 {
 	if (!cleanIcmpLayer())
 		return NULL;
@@ -510,7 +500,7 @@ icmp_address_mask_reply* IcmpLayer::setAddressMaskReplyData(uint16_t id, uint16_
 	header->code = 0;
 	header->id = htons(id);
 	header->sequence = htons(sequence);
-	header->addressMask = htonl(mask.toInt());
+	header->addressMask = htonl(mask.toUInt());
 
 	return header;
 }

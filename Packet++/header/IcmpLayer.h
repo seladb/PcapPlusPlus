@@ -3,6 +3,7 @@
 
 #include "Layer.h"
 #include "IPv4Layer.h"
+#include "IpAddresses.h"
 #ifdef _MSC_VER
 #include <Winsock2.h>
 #else
@@ -279,12 +280,12 @@ namespace pcpp
 		 * @param[in] addr IPv4 address to set
 		 * @param[in] preference Preference level to set
 		 */
-		void setRouterAddress(IPv4Address addr, uint32_t preference);
+		void setRouterAddress(pcpp::experimental::IPv4Address addr, uint32_t preference);
 
 		/**
 		 * @return The IPv4 address extracted from icmp_router_address_structure#routerAddress field
 		 */
-		IPv4Address getAddress();
+		pcpp::experimental::IPv4Address getAddress() const { return routerAddress; }
 	};
 #pragma pack(pop)
 
@@ -421,7 +422,7 @@ namespace pcpp
 		 * @param[in] type Type to check
 		 * @return True if the layer if of the given type, false otherwise
 		 */
-		bool isMessageOfType(IcmpMessageType type) const;
+		bool isMessageOfType(IcmpMessageType type) const { return getMessageType() == type; }
 
 		/**
 		 * @return ICMP echo (ping) request data. If the layer isn't of type ICMP echo request NULL is returned
@@ -546,7 +547,7 @@ namespace pcpp
 		 * @return A pointer to the redirect data that have been set or NULL if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_redirect* setRedirectData(uint8_t code, IPv4Address gatewayAddress, IPv4Layer* ipHeader, Layer* l4Header);
+		icmp_redirect* setRedirectData(uint8_t code, pcpp::experimental::IPv4Address gatewayAddress, IPv4Layer* ipHeader, Layer* l4Header);
 
 		/**
 		 * @return ICMP router advertisement data. If the layer isn't of type ICMP router advertisement NULL is returned
@@ -626,7 +627,7 @@ namespace pcpp
 		 * @return A pointer to the address mask request data that have been set or NULL if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_address_mask_request* setAddressMaskRequestData(uint16_t id, uint16_t sequence, IPv4Address mask);
+		icmp_address_mask_request* setAddressMaskRequestData(uint16_t id, uint16_t sequence, pcpp::experimental::IPv4Address mask);
 
 		/**
 		 * @return ICMP address mask reply data. If the layer isn't of type ICMP address mask reply NULL is returned
@@ -641,7 +642,7 @@ namespace pcpp
 		 * @return A pointer to the address mask reply data that have been set or NULL if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_address_mask_reply* setAddressMaskReplyData(uint16_t id, uint16_t sequence, IPv4Address mask);
+		icmp_address_mask_reply* setAddressMaskReplyData(uint16_t id, uint16_t sequence, pcpp::experimental::IPv4Address mask);
 
 		/**
 		 * @return ICMP address information request data. If the layer isn't of type ICMP information request NULL is returned

@@ -27,6 +27,7 @@
 #include <RadiusLayer.h>
 #include <GtpLayer.h>
 #include <IpAddress.h>
+#include <IpAddresses.h>
 #include <fstream>
 #include <stdlib.h>
 #include "PcppTestFramework.h"
@@ -3859,35 +3860,35 @@ PTF_TEST_CASE(IcmpCreationTest)
 	int buffer15Length = 0;
 
 	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IcmpEchoRequest.dat", buffer1Length);
-	PTF_ASSERT(!(buffer1 == NULL), "cannot read file IcmpEchoRequest.dat");
+	PTF_ASSERT_NOT_NULL(buffer1);
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IcmpEchoReply.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IcmpEchoReply.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IcmpTimestampRequest.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file IcmpTimestampRequest.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IcmpTimestampReply.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file IcmpTimestampReply.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/IcmpRedirect.dat", buffer5Length);
-	PTF_ASSERT(!(buffer5 == NULL), "cannot read file IcmpRedirect.dat");
+	PTF_ASSERT_NOT_NULL(buffer5);
 	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IcmpRouterAdv1.dat", buffer6Length);
-	PTF_ASSERT(!(buffer6 == NULL), "cannot read file IcmpRouterAdv1.dat");
+	PTF_ASSERT_NOT_NULL(buffer6);
 	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/IcmpRouterAdv2.dat", buffer7Length);
-	PTF_ASSERT(!(buffer7 == NULL), "cannot read file IcmpRouterAdv2.dat");
+	PTF_ASSERT_NOT_NULL(buffer7);
 	uint8_t* buffer8 = readFileIntoBuffer("PacketExamples/IcmpRouterSol.dat", buffer8Length);
-	PTF_ASSERT(!(buffer8 == NULL), "cannot read file IcmpRouterSol.dat");
+	PTF_ASSERT_NOT_NULL(buffer8);
 	uint8_t* buffer9 = readFileIntoBuffer("PacketExamples/IcmpTimeExceededUdp.dat", buffer9Length);
-	PTF_ASSERT(!(buffer9 == NULL), "cannot read file IcmpTimeExceededUdp.dat");
+	PTF_ASSERT_NOT_NULL(buffer9);
 	uint8_t* buffer10 = readFileIntoBuffer("PacketExamples/IcmpDestUnreachableUdp.dat", buffer10Length);
-	PTF_ASSERT(!(buffer10 == NULL), "cannot read file IcmpDestUnreachableUdp.dat");
+	PTF_ASSERT_NOT_NULL(buffer10);
 	uint8_t* buffer11 = readFileIntoBuffer("PacketExamples/IcmpTimeExceededEcho.dat", buffer11Length);
-	PTF_ASSERT(!(buffer11 == NULL), "cannot read file IcmpTimeExceededEcho.dat");
+	PTF_ASSERT_NOT_NULL(buffer11);
 	uint8_t* buffer12 = readFileIntoBuffer("PacketExamples/IcmpDestUnreachableEcho.dat", buffer12Length);
-	PTF_ASSERT(!(buffer12 == NULL), "cannot read file IcmpDestUnreachableEcho.dat");
+	PTF_ASSERT_NOT_NULL(buffer12);
 	uint8_t* buffer13 = readFileIntoBuffer("PacketExamples/IcmpSourceQuench.dat", buffer13Length);
-	PTF_ASSERT(!(buffer13 == NULL), "cannot read file IcmpSourceQuench.dat");
+	PTF_ASSERT_NOT_NULL(buffer13);
 	uint8_t* buffer14 = readFileIntoBuffer("PacketExamples/IcmpAddrMaskReq.dat", buffer14Length);
-	PTF_ASSERT(!(buffer14 == NULL), "cannot read file IcmpAddrMaskReq.dat");
+	PTF_ASSERT_NOT_NULL(buffer14);
 	uint8_t* buffer15 = readFileIntoBuffer("PacketExamples/IcmpAddrMaskRep.dat", buffer15Length);
-	PTF_ASSERT(!(buffer15 == NULL), "cannot read file IcmpAddrMaskRep.dat");
+	PTF_ASSERT_NOT_NULL(buffer15);
 
 	EthLayer ethLayer(MacAddress("11:22:33:44:55:66"), MacAddress("66:55:44:33:22:11"));
 
@@ -3901,13 +3902,13 @@ PTF_TEST_CASE(IcmpCreationTest)
 	// Echo request creation
 	Packet echoRequestPacket(1);
 	IcmpLayer echoReqLayer;
-	PTF_ASSERT(echoReqLayer.setEchoRequestData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48) != NULL, "Couldn't set echo request data");
+	PTF_ASSERT_NOT_NULL(echoReqLayer.setEchoRequestData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48));
 	echoRequestPacket.addLayer(&ethLayer);
 	echoRequestPacket.addLayer(&ipLayer);
 	echoRequestPacket.addLayer(&echoReqLayer);
 	echoRequestPacket.computeCalculateFields();
-	PTF_ASSERT(echoRequestPacket.getRawPacket()->getRawDataLen() == buffer1Length, "Echo request data len is different than expected");
-	PTF_ASSERT(memcmp(echoRequestPacket.getRawPacket()->getRawData()+34, buffer1+34, buffer1Length-34) == 0, "Echo request raw data is different than expected");
+	PTF_ASSERT_EQUAL(echoRequestPacket.getRawPacket()->getRawDataLen(), buffer1Length, int);
+	PTF_ASSERT_BUF_COMPARE(echoRequestPacket.getRawPacket()->getRawData() + 34, buffer1 + 34, buffer1Length - 34);
 
 	// Echo reply creation
 	EthLayer ethLayer2(ethLayer);
@@ -3917,17 +3918,17 @@ PTF_TEST_CASE(IcmpCreationTest)
 	echoReplyPacket.addLayer(&ethLayer2);
 	echoReplyPacket.addLayer(&ipLayer2);
 	echoReplyPacket.addLayer(&echoRepLayer);
-	PTF_ASSERT(echoRepLayer.setEchoReplyData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48) != NULL, "Couldn't set echo reply data");
+	PTF_ASSERT_NOT_NULL(echoRepLayer.setEchoReplyData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48));
 	echoReplyPacket.computeCalculateFields();
-	PTF_ASSERT(echoReplyPacket.getRawPacket()->getRawDataLen() == buffer2Length, "Echo reply data len is different than expected");
-	PTF_ASSERT(memcmp(echoReplyPacket.getRawPacket()->getRawData()+34, buffer2+34, buffer2Length-34) == 0, "Echo reply raw data is different than expected");
+	PTF_ASSERT_EQUAL(echoReplyPacket.getRawPacket()->getRawDataLen(), buffer2Length, int);
+	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData() + 34, buffer2 + 34, buffer2Length - 34);
 
 	// Time exceeded creation
 	EthLayer ethLayer3(ethLayer);
 	IPv4Layer ipLayer3(ipLayer);
 	IcmpLayer timeExceededLayer;
 	LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(timeExceededLayer.setTimeExceededData(1, NULL, NULL) == NULL, "Managed to set time exceeded data on a layer not attached to a packet");
+	PTF_ASSERT_NULL(timeExceededLayer.setTimeExceededData(1, NULL, NULL));
 	LoggerPP::getInstance().enableErrors();
 	Packet timeExceededPacket(10);
 	timeExceededPacket.addLayer(&ethLayer3);
@@ -3939,10 +3940,10 @@ PTF_TEST_CASE(IcmpCreationTest)
 	ipLayerForTimeExceeded.getIPv4Header()->ipId = ntohs(2846);
 	IcmpLayer icmpLayerForTimeExceeded;
 	icmpLayerForTimeExceeded.setEchoRequestData(3175, 1, 0x00058bbd569f3d49ULL, data, 48);
-	PTF_ASSERT(timeExceededLayer.setTimeExceededData(0, &ipLayerForTimeExceeded, &icmpLayerForTimeExceeded) != NULL, "Failed to set time exceeded data");
+	PTF_ASSERT_NOT_NULL(timeExceededLayer.setTimeExceededData(0, &ipLayerForTimeExceeded, &icmpLayerForTimeExceeded));
 	timeExceededPacket.computeCalculateFields();
-	PTF_ASSERT(timeExceededPacket.getRawPacket()->getRawDataLen() == buffer11Length, "Time exceeded data len is different than expected");
-	PTF_ASSERT(memcmp(timeExceededPacket.getRawPacket()->getRawData()+34, buffer11+34, buffer11Length-34) == 0, "Time exceeded raw data is different than expected");
+	PTF_ASSERT_EQUAL(timeExceededPacket.getRawPacket()->getRawDataLen(), buffer11Length, int);
+	PTF_ASSERT_BUF_COMPARE(timeExceededPacket.getRawPacket()->getRawData() + 34, buffer11 + 34, buffer11Length - 34);
 
 	// Dest unreachable creation
 	EthLayer ethLayer4(ethLayer);
@@ -3959,10 +3960,10 @@ PTF_TEST_CASE(IcmpCreationTest)
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
 	ipLayerForDestUnreachable.getIPv4Header()->ipId = ntohs(230);
 	UdpLayer udpLayerForDestUnreachable(49182, 33446);
-	PTF_ASSERT(destUnreachableLayer.setDestUnreachableData(IcmpPortUnreachable, 0, &ipLayerForDestUnreachable, &udpLayerForDestUnreachable) != NULL, "Failed to set dest unreachable data");
+	PTF_ASSERT_NOT_NULL(destUnreachableLayer.setDestUnreachableData(IcmpPortUnreachable, 0, &ipLayerForDestUnreachable, &udpLayerForDestUnreachable));
 	destUnreachablePacket.computeCalculateFields();
-	PTF_ASSERT(destUnreachablePacket.getRawPacket()->getRawDataLen() == buffer10Length, "Dest unreachable data len is different than expected");
-	PTF_ASSERT(memcmp(destUnreachablePacket.getRawPacket()->getRawData()+34, buffer10+34, buffer10Length-34) == 0, "Dest unreachable raw data is different than expected");
+	PTF_ASSERT_EQUAL(destUnreachablePacket.getRawPacket()->getRawDataLen(), buffer10Length, int);
+	PTF_ASSERT_BUF_COMPARE(destUnreachablePacket.getRawPacket()->getRawData() + 34, buffer10 + 34, buffer10Length - 34);
 
 	// Timestamp reply
 	EthLayer ethLayer5(ethLayer);
@@ -3974,10 +3975,10 @@ PTF_TEST_CASE(IcmpCreationTest)
 	timeval orig = { 16131, 171000 };
 	timeval recv = { 16133, 474000 };
 	timeval tran = { 16133, 474000 };
-	PTF_ASSERT(timestampReplyLayer.setTimestampReplyData(14640, 0, orig, recv, tran) != NULL, "Couldn't set timestamp reply data");
+	PTF_ASSERT_NOT_NULL(timestampReplyLayer.setTimestampReplyData(14640, 0, orig, recv, tran));
 	timestampReplyPacket.addLayer(&timestampReplyLayer);
 	timestampReplyPacket.computeCalculateFields();
-	PTF_ASSERT(timestampReplyPacket.getRawPacket()->getRawDataLen() == buffer4Length-6, "Timestamp reply data len is different than expected");
+	PTF_ASSERT_EQUAL(timestampReplyPacket.getRawPacket()->getRawDataLen(), buffer4Length - 6, int);
 
 	// Address mask request
 	EthLayer ethLayer6(ethLayer);
@@ -3986,11 +3987,11 @@ PTF_TEST_CASE(IcmpCreationTest)
 	Packet addressMaskRequestPacket(30);
 	addressMaskRequestPacket.addLayer(&ethLayer6);
 	addressMaskRequestPacket.addLayer(&ipLayer6);
-	PTF_ASSERT(addressMaskRequestLayer.setAddressMaskRequestData(45068, 1536, IPv4Address::Zero) != NULL, "Couldn't set address mask request data");
+	PTF_ASSERT_NOT_NULL(addressMaskRequestLayer.setAddressMaskRequestData(45068, 1536, pcpp::experimental::IPv4Address()));
 	addressMaskRequestPacket.addLayer(&addressMaskRequestLayer);
 	addressMaskRequestPacket.computeCalculateFields();
-	PTF_ASSERT(addressMaskRequestPacket.getRawPacket()->getRawDataLen() == buffer14Length-14, "Address mask request data len is different than expected");
-	PTF_ASSERT(memcmp(addressMaskRequestPacket.getRawPacket()->getRawData()+34, buffer14+34, buffer14Length-34-14) == 0, "Address mask request raw data is different than expected");
+	PTF_ASSERT_EQUAL(addressMaskRequestPacket.getRawPacket()->getRawDataLen(), buffer14Length - 14, int);
+	PTF_ASSERT_BUF_COMPARE(addressMaskRequestPacket.getRawPacket()->getRawData() + 34, buffer14 + 34, buffer14Length - 34 - 14);
 
 	// Redirect creation
 	EthLayer ethLayer7(ethLayer);
@@ -4008,9 +4009,11 @@ PTF_TEST_CASE(IcmpCreationTest)
 	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;
 	IcmpLayer icmpLayerForRedirect;
 	icmpLayerForRedirect.setEchoRequestData(512, 12544, 0, NULL, 0);
-	PTF_ASSERT(redirectLayer.setRedirectData(1, IPv4Address(std::string("10.2.99.98")), &ipLayerForRedirect, &icmpLayerForRedirect) != NULL, "Failed to set redirect data");
+	int errorCode;
+	PTF_ASSERT_NOT_NULL(redirectLayer.setRedirectData(1, pcpp::experimental::makeIPv4Address("10.2.99.98", errorCode), &ipLayerForRedirect, &icmpLayerForRedirect));
+	PTF_ASSERT_EQUAL(errorCode, 0, int);
 	redirectPacket.computeCalculateFields();
-	PTF_ASSERT(redirectPacket.getRawPacket()->getRawDataLen() == buffer5Length+8, "Redirect data len is different than expected");
+	PTF_ASSERT_EQUAL(redirectPacket.getRawPacket()->getRawDataLen(), buffer5Length + 8, int);
 
 	// Router advertisement creation
 	EthLayer ethLayer8(ethLayer);
@@ -4021,19 +4024,22 @@ PTF_TEST_CASE(IcmpCreationTest)
 	routerAdvPacket.addLayer(&ipLayer8);
 	routerAdvPacket.addLayer(&routerAdvLayer);
 	icmp_router_address_structure addr1;
-	addr1.setRouterAddress(IPv4Address(std::string("192.168.144.2")), (uint32_t)0x08000000);
+	addr1.setRouterAddress(pcpp::experimental::makeIPv4Address("192.168.144.2", errorCode), (uint32_t)0x08000000);
+	PTF_ASSERT_FALSE(addr1.getAddress().isUnspecified());
 	icmp_router_address_structure addr2;
-	addr2.setRouterAddress(IPv4Address(std::string("1.1.1.1")), (uint32_t)1000);
+	addr2.setRouterAddress(pcpp::experimental::makeIPv4Address("1.1.1.1", errorCode), (uint32_t)1000);
+	PTF_ASSERT_FALSE(addr2.getAddress().isUnspecified());
 	icmp_router_address_structure addr3;
-	addr3.setRouterAddress(IPv4Address(std::string("10.0.0.138")), (uint32_t)30000);
+	addr3.setRouterAddress(pcpp::experimental::makeIPv4Address("10.0.0.138", errorCode), (uint32_t)30000);
+	PTF_ASSERT_FALSE(addr3.getAddress().isUnspecified());
 	std::vector<icmp_router_address_structure> routerAddresses;
 	routerAddresses.push_back(addr1);
 	routerAddresses.push_back(addr2);
 	routerAddresses.push_back(addr3);
-	PTF_ASSERT(routerAdvLayer.setRouterAdvertisementData(16, 200, routerAddresses) != NULL, "Failed to set router adv data");
+	PTF_ASSERT_NOT_NULL(routerAdvLayer.setRouterAdvertisementData(16, 200, routerAddresses));
 	routerAdvPacket.computeCalculateFields();
-	PTF_ASSERT(routerAdvLayer.getHeaderLen() == 32, "Router adv header len != 32");
-	PTF_ASSERT(routerAdvPacket.getRawPacket()->getRawDataLen() == buffer6Length-18, "Router adv len is different than expected");
+	PTF_ASSERT_EQUAL(routerAdvLayer.getHeaderLen(), 32, size);
+	PTF_ASSERT_EQUAL(routerAdvPacket.getRawPacket()->getRawDataLen(), buffer6Length - 18, int);
 
 
 	delete [] buffer1;
