@@ -305,16 +305,16 @@ namespace experimental
 		bool isIPv6() const { return getType() == IPv6AddressType; }
 
 		/**
-		 * Get a pointer to IPv4 address instance
-		 * @return The const pointer to IPv4Address instance or NULL if the object does not contain an IP version 4 address
+		 * Get a reference to IPv4 address instance
+		 * @return The const reference to IPv4Address instance
 		 */
-		const IPv4Address* getIPv4() const { return isIPv4() ? &m_IPv4 : NULL; }
+		const IPv4Address& getIPv4() const { return m_IPv4; }
 
 		/**
-		 * Get a pointer to IPv6 address instance
-		 * @return The const pointer to IPv6Address instance or NULL if the object does not contain an IP version 6 address
+		 * Get a reference to IPv6 address instance
+		 * @return The const reference to IPv6Address instance
 		 */
-		const IPv6Address* getIPv6() const { return isIPv6 () ? &m_IPv6 : NULL; }
+		const IPv6Address& getIPv6() const { return m_IPv6; }
 
 		/**
 		 * Overload of the equal-to operator
