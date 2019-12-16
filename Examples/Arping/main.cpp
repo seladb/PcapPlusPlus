@@ -7,7 +7,6 @@
 
 #include <stdlib.h>
 #include <MacAddress.h>
-#include <IpAddress.h>
 #include <Logger.h>
 #include <PcapPlusPlusVersion.h>
 #include <PcapLiveDeviceList.h>
@@ -101,13 +100,11 @@ int main(int argc, char* argv[])
 
 	int maxTries = DEFAULT_MAX_TRIES;
 	MacAddress sourceMac = MacAddress::Zero;
-	IPv4Address sourceIP = IPv4Address::Zero;
-	IPv4Address targetIP = IPv4Address::Zero;
-	bool targetIpProvided = false;
-	std::string ifaceNameOrIP = "";
-	bool ifaceNameOrIpProvided = false;
+	pcpp::experimental::IPv4Address sourceIP, targetIP;
+	std::string ifaceNameOrIP;
 	int timeoutSec = NetworkUtils::DefaultTimeout;
 	int optionIndex = 0;
+	int errorCode;
 	char opt = 0;
 
 	while((opt = getopt_long (argc, argv, "i:s:S:T:c:hvlw:", ArpingOptions, &optionIndex)) != -1)
@@ -118,17 +115,19 @@ int main(int argc, char* argv[])
 				break;
 			case 'i':
 				ifaceNameOrIP = optarg;
-				ifaceNameOrIpProvided = true;
 				break;
 			case 's':
 				sourceMac = MacAddress(optarg);
 				break;
 			case 'S':
-				sourceIP = IPv4Address(static_cast<char const *>(optarg));
+				sourceIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
+				if (errorCode != 0)
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Invalid source IP address");
 				break;
 			case 'T':
-				targetIP = IPv4Address(static_cast<char const *>(optarg));
-				targetIpProvided = true;
+				targetIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
+				if (errorCode != 0)
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Invalid target IP address");
 				break;
 			case 'c':
 				maxTries = atoi(optarg);;
@@ -152,39 +151,30 @@ int main(int argc, char* argv[])
 	}
 
 	// verify that interface name or IP were provided
-	if (!ifaceNameOrIpProvided)
+	if (ifaceNameOrIP.empty())
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("You must provide at least interface name or interface IP (-i switch)");
 
 	// verify target IP was provided
-	if (!targetIpProvided)
+	if (targetIP.isUnspecified())
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("You must provide target IP (-T switch)");
-
-	// verify target IP is value
-	if (!targetIP.isValid())
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Target IP is not valid");
 
 
 	PcapLiveDevice* dev = NULL;
 
 	// Search interface by name or IP
-	if (ifaceNameOrIP != "")
+	pcpp::experimental::IPv4Address interfaceIP = pcpp::experimental::makeIPv4Address(ifaceNameOrIP, errorCode);
+	if (errorCode == 0 && !interfaceIP.isUnspecified())
 	{
-		IPv4Address interfaceIP(ifaceNameOrIP);
-		if (interfaceIP.isValid())
-		{
-			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
-			if (dev == NULL)
-				EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided IP");
-		}
-		else
-		{
-			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ifaceNameOrIP);
-			if (dev == NULL)
-				EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided name");
-		}
+		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP.toUInt()); // TODO: remove toUInt() when migration has done
+		if (dev == NULL)
+			EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided IP");
 	}
 	else
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Interface name or IP empty");
+	{
+		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ifaceNameOrIP);
+		if (dev == NULL)
+			EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided name");
+	}
 
 	// open device in promiscuous mode
 	if (!dev->open())
@@ -202,10 +192,10 @@ int main(int argc, char* argv[])
 	if (!sourceMac.isValid() || sourceMac == MacAddress::Zero)
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("MAC address couldn't be extracted from interface");
 
-	if (!sourceIP.isValid() || sourceIP == IPv4Address::Zero)
-		sourceIP = dev->getIPv4Address();
+	if (sourceIP.isUnspecified())
+		sourceIP = dev->getIPv4Address().toInt(); // TODO: remove toInt() when migration has done
 
-	if (!sourceIP.isValid() || sourceIP == IPv4Address::Zero)
+	if (sourceIP.isUnspecified())
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IPv4 address wasn't supplied and couldn't be retrieved from interface");
 
 	// let's go

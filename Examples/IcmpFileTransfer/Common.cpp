@@ -92,13 +92,12 @@ void listInterfaces()
 void readCommandLineArguments(int argc, char* argv[],
 		std::string thisSide, std::string otherSide,
 		bool& sender, bool& receiver,
-		pcpp::IPv4Address& myIP, pcpp::IPv4Address& otherSideIP,
+		pcpp::experimental::IPv4Address& myIP, pcpp::experimental::IPv4Address& otherSideIP,
 		std::string& fileNameToSend,
 		int& packetsPerSec, size_t& blockSize)
 {
-	std::string interfaceNameOrIP = "";
-	std::string otherSideIPAsString = "";
-	fileNameToSend = "";
+	std::string interfaceNameOrIP, otherSideIPAsString;
+	fileNameToSend.clear();
 	packetsPerSec = -1;
 	bool packetsPerSecSet = false;
 	receiver = false;
@@ -157,26 +156,24 @@ void readCommandLineArguments(int argc, char* argv[],
 	if (interfaceNameOrIP == "")
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide %s interface name or IP", thisSide.c_str());
 
-	IPv4Address interfaceIP(interfaceNameOrIP);
-	if (!interfaceIP.isValid())
+	int errorCode;
+	myIP = pcpp::experimental::makeIPv4Address(interfaceNameOrIP, errorCode);
+	if (errorCode != 0)
 	{
 		PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
 		if (dev == NULL)
 			EXIT_WITH_ERROR_PRINT_USAGE("Cannot find interface by provided name");
 
-		myIP = dev->getIPv4Address();
+		myIP = dev->getIPv4Address().toInt(); // TODO: remove toInt() when migration has done
 	}
-	else
-		myIP = interfaceIP;
 
 	// validate pitcher/catcher IP address
-	if (otherSideIPAsString == "")
+	if (otherSideIPAsString.empty())
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide %s IP address", otherSide.c_str());
 
-	IPv4Address tempIP = IPv4Address(otherSideIPAsString);
-	if (!tempIP.isValid())
+	otherSideIP = pcpp::experimental::makeIPv4Address(otherSideIPAsString, errorCode);
+	if (errorCode != 0)
 		EXIT_WITH_ERROR_PRINT_USAGE("Invalid %s IP address", otherSide.c_str());
-	otherSideIP = tempIP;
 
 	// verify only one of sender and receiver switches are set
 	if (sender && receiver)
@@ -200,7 +197,7 @@ void readCommandLineArguments(int argc, char* argv[],
 
 bool sendIcmpMessage(PcapLiveDevice* dev,
 		MacAddress srcMacAddr, MacAddress dstMacAddr,
-		IPv4Address srcIPAddr, IPv4Address dstIPAddr,
+		pcpp::experimental::IPv4Address srcIPAddr, pcpp::experimental::IPv4Address dstIPAddr,
 		size_t icmpMsgId,
 		uint64_t msgType,
 		uint8_t* data, size_t dataLen,
@@ -219,7 +216,7 @@ bool sendIcmpMessage(PcapLiveDevice* dev,
 	EthLayer ethLayer(srcMacAddr, dstMacAddr, PCPP_ETHERTYPE_IP);
 
 	// then IPv4 (IPv6 is not supported)
-	IPv4Layer ipLayer(srcIPAddr, dstIPAddr);
+	IPv4Layer ipLayer(srcIPAddr.toUInt(), dstIPAddr.toUInt()); // TODO: remove toUInt() when migration has done
 	ipLayer.getIPv4Header()->timeToLive = 128;
 	// set and increment the IP ID
 	ipLayer.getIPv4Header()->ipId = htons(ipID++);
@@ -244,7 +241,7 @@ bool sendIcmpMessage(PcapLiveDevice* dev,
 
 bool sendIcmpRequest(PcapLiveDevice* dev,
 		MacAddress srcMacAddr, const MacAddress dstMacAddr,
-		IPv4Address srcIPAddr, const IPv4Address dstIPAddr,
+		pcpp::experimental::IPv4Address srcIPAddr, pcpp::experimental::IPv4Address dstIPAddr,
 		size_t icmpMsgId,
 		uint64_t msgType,
 		uint8_t* data, size_t dataLen)
@@ -254,7 +251,7 @@ bool sendIcmpRequest(PcapLiveDevice* dev,
 
 bool sendIcmpResponse(PcapLiveDevice* dev,
 		MacAddress srcMacAddr, MacAddress dstMacAddr,
-		IPv4Address srcIPAddr, IPv4Address dstIPAddr,
+		pcpp::experimental::IPv4Address srcIPAddr, pcpp::experimental::IPv4Address dstIPAddr,
 		size_t icmpMsgId,
 		uint64_t msgType,
 		uint8_t* data, size_t dataLen)

@@ -2,7 +2,7 @@
 #define COMMON_H_
 
 #include "MacAddress.h"
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "PcapLiveDevice.h"
 
 
@@ -39,7 +39,7 @@ void listInterfaces();
 void readCommandLineArguments(int argc, char* argv[],
 		std::string thisSide, std::string otherSide,
 		bool& sender,  bool& receiver,
-		pcpp::IPv4Address& myIP, pcpp::IPv4Address& otherSideIP,
+		pcpp::experimental::IPv4Address& myIP, pcpp::experimental::IPv4Address& otherSideIP,
 		std::string& fileNameToSend,
 		int& packetPerSec, size_t& blockSize);
 
@@ -49,7 +49,7 @@ void readCommandLineArguments(int argc, char* argv[],
  */
 bool sendIcmpRequest(pcpp::PcapLiveDevice* dev,
 		pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
-		pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr,
+		pcpp::experimental::IPv4Address srcIPAddr, pcpp::experimental::IPv4Address dstIPAddr,
 		size_t icmpMsgId,
 		uint64_t msgType,
 		uint8_t* data, size_t dataLen);
@@ -60,7 +60,7 @@ bool sendIcmpRequest(pcpp::PcapLiveDevice* dev,
  */
 bool sendIcmpResponse(pcpp::PcapLiveDevice* dev,
 		pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
-		pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr,
+		pcpp::experimental::IPv4Address srcIPAddr, pcpp::experimental::IPv4Address dstIPAddr,
 		size_t icmpMsgId,
 		uint64_t msgType,
 		uint8_t* data, size_t dataLen);

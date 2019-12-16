@@ -27,7 +27,7 @@
 #define ETIMEDOUT  10060
 #endif
 
-#define DNS_PORT	    53
+#define DNS_PORT 53
 
 
 namespace pcpp
@@ -40,7 +40,7 @@ struct ArpingRecievedData
 {
 	pthread_mutex_t* mutex;
 	pthread_cond_t* cond;
-	IPv4Address ipAddr;
+	pcpp::experimental::IPv4Address ipAddr;
 	clock_t start;
 	MacAddress result;
 	double arpResponseTime;
@@ -77,8 +77,8 @@ static void arpPacketRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void
 		return;
 
 	// measure response time
-	double diffticks = recieveTime-data->start;
-	double diffms = (diffticks*1000)/CLOCKS_PER_SEC;
+	double diffticks = recieveTime - data->start;
+	double diffms = (diffticks * 1000) / CLOCKS_PER_SEC;
 
 	data->arpResponseTime = diffms;
 	data->result = arpReplyLayer->getSenderMacAddress();
@@ -90,8 +90,8 @@ static void arpPacketRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void
 }
 
 
-MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device, double& arpResponseTimeMS,
-		MacAddress sourceMac, IPv4Address sourceIP, int arpTimeout) const
+MacAddress NetworkUtils::getMacAddress(pcpp::experimental::IPv4Address ipAddr, PcapLiveDevice* device, double& arpResponseTimeMS,
+		MacAddress sourceMac, pcpp::experimental::IPv4Address sourceIP, int arpTimeout) const
 {
 	MacAddress result = MacAddress::Zero;
 
@@ -110,8 +110,8 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	if (sourceMac == MacAddress::Zero)
 		sourceMac = device->getMacAddress();
 
-	if (sourceIP == IPv4Address::Zero)
-		sourceIP = device->getIPv4Address();
+	if (sourceIP.isUnspecified())
+		sourceIP = device->getIPv4Address().toInt(); // TODO: remove toInt() when migration has done
 
 	if (arpTimeout <= 0)
 		arpTimeout = NetworkUtils::DefaultTimeout;
@@ -225,7 +225,7 @@ struct DNSRecievedData
 	std::string hostname;
 	uint16_t transactionID;
 	clock_t start;
-	IPv4Address result;
+	pcpp::experimental::IPv4Address result;
 	uint32_t ttl;
 	double dnsResponseTime;
 };
@@ -303,11 +303,11 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 	// if we got here it means an IPv4 resolving was found
 
 	// measure response time
-	clock_t diffticks = recieveTime-data->start;
-	double diffms = (diffticks*1000.0)/CLOCKS_PER_SEC;
+	clock_t diffticks = recieveTime - data->start;
+	double diffms = (diffticks * 1000.0) / CLOCKS_PER_SEC;
 
 	data->dnsResponseTime = diffms;
-	data->result = dnsAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress();
+	data->result = dnsAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress().toInt(); // TODO: remove toInt() when migration has done
 	data->ttl = dnsAnswer->getTTL();
 
 	// signal the main thread the ARP reply was received
@@ -317,10 +317,10 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 }
 
 
-IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
-		int dnsTimeout, IPv4Address dnsServerIP, IPv4Address gatewayIP) const
+pcpp::experimental::IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
+		int dnsTimeout, pcpp::experimental::IPv4Address dnsServerIP, pcpp::experimental::IPv4Address gatewayIP) const
 {
-	IPv4Address result = IPv4Address::Zero;
+	pcpp::experimental::IPv4Address result;
 
 	// open the device if not already opened
 	bool closeDeviceAtTheEnd = false;
@@ -337,14 +337,14 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	// first - resolve gateway MAC address
 
 	// if gateway IP wasn't provided - try to find the default gateway
-	if (gatewayIP == IPv4Address::Zero)
+	if (gatewayIP.isUnspecified())
 	{
-		gatewayIP = device->getDefaultGateway();
+		gatewayIP = device->getDefaultGateway().toInt(); // TODO: remove toInt() when migration has done
 	}
 
-	if (!gatewayIP.isValid() || gatewayIP == IPv4Address::Zero)
+	if (gatewayIP.isUnspecified())
 	{
-		LOG_ERROR("Gateway address isn't valid or couldn't find default gateway");
+		LOG_ERROR("Couldn't find default gateway");
 		return result;
 	}
 
@@ -362,14 +362,14 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 		dnsTimeout = NetworkUtils::DefaultTimeout;
 
 	// validate DNS server IP. If it wasn't provided - set the system-configured DNS server
-	if (dnsServerIP == IPv4Address::Zero && device->getDnsServers().size() > 0)
+	if (dnsServerIP.isUnspecified() && device->getDnsServers().size() > 0)
 	{
-		dnsServerIP = device->getDnsServers().at(0);
+		dnsServerIP = device->getDnsServers().at(0).toInt(); // TODO: remove toInt() when migration has done
 	}
 
-	if (!dnsServerIP.isValid())
+	if (dnsServerIP.isUnspecified())
 	{
-		LOG_ERROR("DNS server IP isn't valid");
+		LOG_ERROR("DNS server IP is unspecified");
 		return result;
 	}
 
@@ -378,7 +378,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	Packet dnsRequest(100);
 	MacAddress sourceMac = device->getMacAddress();
 	EthLayer ethLayer(sourceMac, gatewayMacAddress, PCPP_ETHERTYPE_IP);
-	IPv4Layer ipLayer(device->getIPv4Address(), dnsServerIP);
+	IPv4Layer ipLayer(device->getIPv4Address(), dnsServerIP.toUInt()); // TODO: remove toUInt() when migration has done
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
 	// randomize source port to a number >= 10000
@@ -431,7 +431,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 			hostname,
 			transactionID,
 			clock(),
-			IPv4Address::Zero,
+			pcpp::experimental::IPv4Address(),
 			0,
 			0
 	};

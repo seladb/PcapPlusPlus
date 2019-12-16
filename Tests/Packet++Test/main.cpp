@@ -224,7 +224,7 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->hardwareSize, 6, u8);
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->protocolSize, 4, u8);
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->opcode, htons(ARP_REPLY), u16);
-	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), IPv4Address(string("10.0.0.138")), object);
+	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr().toString(), "10.0.0.138", string);
 	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), MacAddress("6c:f0:49:b2:de:6e"), object);
 } // EthAndArpPacketParsing
 
@@ -236,7 +236,10 @@ PTF_TEST_CASE(ArpPacketCreation)
 	MacAddress dstMac("ff:ff:ff:ff:ff:ff:");
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_ARP);
 
-	ArpLayer arpLayer(ARP_REQUEST, srcMac, srcMac, IPv4Address(string("10.0.0.1")), IPv4Address(string("10.0.0.138")));
+	int errorCode;
+	ArpLayer arpLayer(ARP_REQUEST, srcMac, srcMac,
+		pcpp::experimental::makeIPv4Address("10.0.0.1", errorCode),
+		pcpp::experimental::makeIPv4Address("10.0.0.138", errorCode));
 
 	Packet arpRequestPacket(1);
 	PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&ethLayer));
@@ -253,7 +256,7 @@ PTF_TEST_CASE(ArpPacketCreation)
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/ArpRequestPacket.dat", bufferLength);
-	PTF_ASSERT(buffer != NULL, "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 	PTF_ASSERT_EQUAL(bufferLength, arpRequestPacket.getRawPacket()->getRawDataLen(), int);
 	PTF_ASSERT_BUF_COMPARE(arpRequestPacket.getRawPacket()->getRawData(), buffer, bufferLength);
 
@@ -280,23 +283,24 @@ PTF_TEST_CASE(VlanParseAndCreation)
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/ArpRequestWithVlan.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 	Packet arpWithVlan(&rawPacket);
 
-	VlanLayer* pFirstVlanLayer = NULL;
-	VlanLayer* pSecondVlanLayer = NULL;
-	PTF_ASSERT((pFirstVlanLayer = arpWithVlan.getLayerOfType<VlanLayer>()) != NULL, "Couldn't get first vlan layer from packet");
-	PTF_ASSERT(pFirstVlanLayer->getVlanID() == 666, "first vlan ID != 666, it's 0x%04X", pFirstVlanLayer->getVlanID());
-	PTF_ASSERT(pFirstVlanLayer->getCFI() == 1, "first vlan CFI != 1");
-	PTF_ASSERT(pFirstVlanLayer->getPriority() == 5, "first vlan priority != 5");
-	PTF_ASSERT((pSecondVlanLayer = arpWithVlan.getNextLayerOfType<VlanLayer>(pFirstVlanLayer)) != NULL, "Couldn't get second vlan layer from packet");
-	PTF_ASSERT(pSecondVlanLayer->getVlanID() == 200, "second vlan ID != 200");
-	PTF_ASSERT(pSecondVlanLayer->getCFI() == 0, "second vlan CFI != 0");
-	PTF_ASSERT(pSecondVlanLayer->getPriority() == 2, "second vlan priority != 2");
+	VlanLayer* pFirstVlanLayer = arpWithVlan.getLayerOfType<VlanLayer>();
+	PTF_ASSERT_NOT_NULL(pFirstVlanLayer);
+	PTF_ASSERT_EQUAL(pFirstVlanLayer->getVlanID(), 666, u16);
+	PTF_ASSERT_EQUAL(pFirstVlanLayer->getCFI(), 1, u8);
+	PTF_ASSERT_EQUAL(pFirstVlanLayer->getPriority(), 5, u8);
+
+	VlanLayer* pSecondVlanLayer = arpWithVlan.getNextLayerOfType<VlanLayer>(pFirstVlanLayer);
+	PTF_ASSERT_NOT_NULL(pSecondVlanLayer);
+	PTF_ASSERT_EQUAL(pSecondVlanLayer->getVlanID(), 200, u16);
+	PTF_ASSERT_EQUAL(pSecondVlanLayer->getCFI(), 0, u8);
+	PTF_ASSERT_EQUAL(pSecondVlanLayer->getPriority(), 2, u8);
 
 	Packet arpWithVlanNew(1);
 	MacAddress macSrc("ca:03:0d:b4:00:1c");
@@ -304,16 +308,19 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	EthLayer ethLayer(macSrc, macDest, PCPP_ETHERTYPE_VLAN);
 	VlanLayer firstVlanLayer(666, 1, 5, PCPP_ETHERTYPE_VLAN);
 	VlanLayer secondVlanLayer(200, 0, 2, PCPP_ETHERTYPE_ARP);
-	ArpLayer arpLayer(ARP_REQUEST, macSrc, MacAddress("00:00:00:00:00:00"), IPv4Address(string("192.168.2.200")), IPv4Address(string("192.168.2.254")));
-	PTF_ASSERT(arpWithVlanNew.addLayer(&ethLayer), "Couldn't add eth layer");
-	PTF_ASSERT(arpWithVlanNew.addLayer(&firstVlanLayer), "Couldn't add first vlan layer");
-	PTF_ASSERT(arpWithVlanNew.addLayer(&secondVlanLayer), "Couldn't add second vlan layer");
-	PTF_ASSERT(arpWithVlanNew.addLayer(&arpLayer), "Couldn't add second arp layer");
+	int errorCode;
+	ArpLayer arpLayer(ARP_REQUEST, macSrc, MacAddress("00:00:00:00:00:00"),
+		pcpp::experimental::makeIPv4Address("192.168.2.200", errorCode),
+		pcpp::experimental::makeIPv4Address("192.168.2.254", errorCode));
+	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&firstVlanLayer));
+	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&secondVlanLayer));
+	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&arpLayer));
 
 	arpWithVlanNew.computeCalculateFields();
 
-	PTF_ASSERT(bufferLength == arpWithVlanNew.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", arpWithVlanNew.getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(arpWithVlanNew.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(bufferLength, arpWithVlanNew.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(arpWithVlanNew.getRawPacket()->getRawData(), buffer, bufferLength);
 } // VlanParseAndCreation
 
 

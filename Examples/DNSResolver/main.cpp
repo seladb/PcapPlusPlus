@@ -93,10 +93,8 @@ int main(int argc, char* argv[])
 	std::string hostname;
 	bool hostnameProvided = false;
 	std::string interfaceNameOrIP;
-	bool interfaceNameOrIPProvided = false;
-	IPv4Address dnsServerIP = IPv4Address::Zero;
-	IPv4Address gatewayIP = IPv4Address::Zero;
-	int timeoutSec = -1;
+	pcpp::experimental::IPv4Address dnsServerIP, gatewayIP;
+	int timeoutSec = -1, errorCode;
 
 	int optionIndex = 0;
 	char opt = 0;
@@ -127,17 +125,20 @@ int main(int argc, char* argv[])
 			case 'i':
 			{
 				interfaceNameOrIP = optarg;
-				interfaceNameOrIPProvided = true;
 				break;
 			}
 			case 'd':
 			{
-				dnsServerIP = IPv4Address(static_cast<char const *>(optarg));
+				dnsServerIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
+				if (errorCode != 0)
+					EXIT_WITH_ERROR("Invalid DNS server address");
 				break;
 			}
 			case 'g':
 			{
-				gatewayIP = IPv4Address(static_cast<char const *>(optarg));
+				gatewayIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
+				if (errorCode != 0)
+					EXIT_WITH_ERROR("Invalid gateway address");
 				break;
 			}
 			case 's':
@@ -167,7 +168,7 @@ int main(int argc, char* argv[])
 	PcapLiveDevice* dev = NULL;
 
 	// if interface name or IP was provided - find the device accordingly
-	if (interfaceNameOrIPProvided)
+	if (!interfaceNameOrIP.empty())
 	{
 		IPv4Address interfaceIP(interfaceNameOrIP);
 		if (interfaceIP.isValid())
@@ -206,12 +207,11 @@ int main(int argc, char* argv[])
 	// find the IPv4 address for provided hostname
 	double responseTime = 0;
 	uint32_t dnsTTL = 0;
-	IPv4Address resultIP = NetworkUtils::getInstance().getIPv4Address(hostname, dev, responseTime, dnsTTL, timeoutSec, dnsServerIP, gatewayIP);
+	pcpp::experimental::IPv4Address resultIP = NetworkUtils::getInstance().getIPv4Address(hostname, dev, responseTime, dnsTTL, timeoutSec, dnsServerIP, gatewayIP);
 
 	// print resolved IPv4 address if found
-	if (resultIP == IPv4Address::Zero)
+	if (resultIP.isUnspecified())
 		printf("\nCould not resolve hostname [%s]\n", hostname.c_str());
 	else
 		printf("\nIP address of [%s] is: %s  DNS-TTL=%d  time=%dms\n", hostname.c_str(), resultIP.toString().c_str(), dnsTTL, (int)responseTime);
-
 }

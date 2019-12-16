@@ -28,8 +28,8 @@ using namespace pcpp;
  */
 struct IcmpFileTransferStart
 {
-	IPv4Address pitcherIPAddr;
-	IPv4Address catcherIPAddr;
+	pcpp::experimental::IPv4Address pitcherIPAddr;
+	pcpp::experimental::IPv4Address catcherIPAddr;
 	std::string fileName;
 	uint16_t icmpId;
 };
@@ -39,8 +39,8 @@ struct IcmpFileTransferStart
  */
 struct IcmpFileContentDataRecv
 {
-	IPv4Address pitcherIPAddr;
-	IPv4Address catcherIPAddr;
+	pcpp::experimental::IPv4Address pitcherIPAddr;
+	pcpp::experimental::IPv4Address catcherIPAddr;
 	std::ofstream* file;
 	std::string fileName;
 	uint16_t expectedIcmpId;
@@ -53,8 +53,8 @@ struct IcmpFileContentDataRecv
  */
 struct IcmpFileContentDataSend
 {
-	IPv4Address pitcherIPAddr;
-	IPv4Address catcherIPAddr;
+	pcpp::experimental::IPv4Address pitcherIPAddr;
+	pcpp::experimental::IPv4Address catcherIPAddr;
 	std::ifstream* file;
 	bool readingFromFile;
 	uint32_t MBSent;
@@ -88,7 +88,7 @@ static bool waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, 
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpFTStart->catcherIPAddr)
+	if (ip4Layer->getSrcIpAddress().toInt() != icmpFTStart->pitcherIPAddr.toUInt() || ip4Layer->getDstIpAddress().toInt() != icmpFTStart->catcherIPAddr.toUInt()) // TODO: remove toUInt()/toInt() when migration has done
 		return false;
 
 	// check the ICMP timestamp field which contains the type of message delivered between pitcher and catcher
@@ -147,7 +147,7 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpData->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpData->catcherIPAddr)
+	if (ip4Layer->getSrcIpAddress().toInt() != icmpData->pitcherIPAddr.toUInt() || ip4Layer->getDstIpAddress().toInt() != icmpData->catcherIPAddr.toUInt()) // TODO: remove toUInt()/toInt() when migration has done
 		return false;
 
 	// extract message type from the ICMP request. Message type is written in ICMP request timestamp field
@@ -205,10 +205,10 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 /**
  * Receive a file from the pitcher
  */
-void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
+void receiveFile(pcpp::experimental::IPv4Address pitcherIP, pcpp::experimental::IPv4Address catcherIP)
 {
 	// identify the interface to listen and send packets to
-	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(&catcherIP);
+	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP.toUInt()); // TODO: remove toUInt() when migration has done
 	if (dev == NULL)
 		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", catcherIP.toString().c_str());
 
@@ -296,7 +296,7 @@ static bool startFileTransfer(RawPacket* rawPacket, PcapLiveDevice* dev, void* i
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpFTStart->catcherIPAddr)
+	if (ip4Layer->getSrcIpAddress().toInt() != icmpFTStart->pitcherIPAddr.toUInt() || ip4Layer->getDstIpAddress().toInt() != icmpFTStart->catcherIPAddr.toUInt()) // // TODO: remove toUInt() when migration has done
 		return false;
 
 	// check the ICMP timestamp field which contains the type of message delivered between pitcher and catcher
@@ -346,7 +346,7 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpFileContentData->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpFileContentData->catcherIPAddr)
+	if (ip4Layer->getSrcIpAddress().toInt() != icmpFileContentData->pitcherIPAddr.toUInt() || ip4Layer->getDstIpAddress().toInt() != icmpFileContentData->catcherIPAddr.toUInt())
 		return false;
 
 	// check the ICMP timestamp field which contains the type of message delivered between pitcher and catcher
@@ -430,10 +430,10 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 /**
  * Send a file to the pitcher
  */
-void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP, size_t blockSize)
+void sendFile(std::string filePath, pcpp::experimental::IPv4Address pitcherIP, pcpp::experimental::IPv4Address catcherIP, size_t blockSize)
 {
 	// identify the interface to listen and send packets to
-	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(&catcherIP);
+	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP.toUInt()); // TODO: remove toUInt() when migration has done
 	if (dev == NULL)
 		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", catcherIP.toString().c_str());
 
@@ -522,9 +522,8 @@ int main(int argc, char* argv[])
 	AppName::init(argc, argv);
 
 	bool sender, receiver;
-	IPv4Address pitcherIP = IPv4Address::Zero;
-	IPv4Address catcherIP = IPv4Address::Zero;
-	std::string fileNameToSend = "";
+	pcpp::experimental::IPv4Address pitcherIP, catcherIP;
+	std::string fileNameToSend;
 	int packetsPerSec = 0;
 	size_t blockSize = 0;
 

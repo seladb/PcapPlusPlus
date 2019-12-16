@@ -4615,47 +4615,46 @@ PTF_TEST_CASE(TestGetMacAddress)
 	PcapLiveDevice* liveDev = NULL;
 	IPv4Address ipToSearch(PcapGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
-    PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
-    PTF_ASSERT(liveDev->open(), "Cannot open live device");
+  PTF_ASSERT_NOT_NULL(liveDev);
+  PTF_ASSERT_TRUE(liveDev->open());
 
-    //fetch all IP addresses from arp table
-    std::string ipsInArpTableAsString;
+  //fetch all IP addresses from arp table
+  std::string ipsInArpTableAsString;
 #ifdef WIN32
-    ipsInArpTableAsString = executeShellCommand("arp -a | for /f \"tokens=1\" \%i in ('findstr dynamic') do @echo \%i");
-    ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
+  ipsInArpTableAsString = executeShellCommand("arp -a | for /f \"tokens=1\" \%i in ('findstr dynamic') do @echo \%i");
+  ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
 #else
-    ipsInArpTableAsString = executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
+  ipsInArpTableAsString = executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
 #endif
 
-    PTF_ASSERT(ipsInArpTableAsString != "", "Couldn't find IP addresses in arp-table to compare the result to. Aborting");
+  PTF_ASSERT_FALSE(ipsInArpTableAsString.empty());
 
-    // iterate all IP addresses and arping each one until one of them answers
-    MacAddress result = MacAddress::Zero;
-    std::stringstream sstream(ipsInArpTableAsString);
-    std::string ip;
-    double time = -1;
-    while (std::getline(sstream, ip, '\n'))
+  // iterate all IP addresses and arping each one until one of them answers
+  MacAddress result = MacAddress::Zero;
+  std::stringstream sstream(ipsInArpTableAsString);
+  std::string ip;
+  double time = -1;
+  while (std::getline(sstream, ip, '\n'))
+  {
+		int errorCode;
+		pcpp::experimental::IPv4Address ipAddr = pcpp::experimental::makeIPv4Address(ip, errorCode);
+    PTF_ASSERT_EQUAL(errorCode, 0, int);
+    LoggerPP::getInstance().supressErrors();
+    result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+    LoggerPP::getInstance().enableErrors();
+    if (result != MacAddress::Zero)
     {
-    	IPv4Address ipAddr(ip);
-    	PTF_ASSERT(ipAddr.isValid(), "Got non-valid ip from arp-table: '%s'", ip.c_str());
-    	LoggerPP::getInstance().supressErrors();
-    	result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
-    	LoggerPP::getInstance().enableErrors();
-    	if (result != MacAddress::Zero)
-    	{
-    		PTF_ASSERT_AND_RUN_COMMAND(time >= 0, liveDev->close(), "Time is zero");
-    		result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
-    		PTF_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping with MAC address and IPv4 address failed");
-    		break;
-    	}
+    	PTF_ASSERT_AND_RUN_COMMAND(time >= 0, liveDev->close(), "Time is zero");
+    	result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address().toInt()); // TODO: remove toInt() when migration has done
+    	PTF_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping with MAC address and IPv4 address failed");
+    	break;
     }
+  }
 
-    PTF_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping to all IPs in arp-table failed");
+  PTF_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping to all IPs in arp-table failed");
 
-    liveDev->close();
-
-
-}
+  liveDev->close();
+} // TestGetMacAddress
 
 
 struct TcpReassemblyStats

@@ -6,7 +6,6 @@
 #include <winsock2.h>
 #endif
 #include <MacAddress.h>
-#include <IpAddress.h>
 #include <PcapPlusPlusVersion.h>
 #include <SystemUtils.h>
 #include <PlatformSpecificUtils.h>
@@ -47,7 +46,7 @@ void printUsage() {
 			"    -g gateway_ip     : The IPv4 address of the gateway\n"
 			"    -h                : Displays this help message and exits\n"
 			"    -v                : Displays the current version and exists\n", AppName::get().c_str());
-			
+
 	exit(0);
 }
 
@@ -64,7 +63,7 @@ void printAppVersion()
 }
 
 
-MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
+MacAddress getMacAddress(const pcpp::experimental::IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 {
 	// Create an ARP packet and change its fields
 	Packet arpRequest(500);
@@ -75,7 +74,7 @@ MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 	ArpLayer arpLayer(ARP_REQUEST,
 						pDevice->getMacAddress(),
 						pDevice->getMacAddress(),
-						pDevice->getIPv4Address(),
+						pDevice->getIPv4Address().toInt(), // TODO: remove toInt() when migration has done
 						ipAddr);
 
 
@@ -115,7 +114,7 @@ MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 }
 
 
-bool doArpSpoofing(PcapLiveDevice* pDevice, const IPv4Address& gatewayAddr, const IPv4Address& victimAddr)
+bool doArpSpoofing(PcapLiveDevice* pDevice, const pcpp::experimental::IPv4Address& gatewayAddr, const pcpp::experimental::IPv4Address& victimAddr)
 {
 	// Get the gateway MAC address
 	MacAddress gatewayMacAddr = getMacAddress(gatewayAddr, pDevice);
@@ -220,11 +219,16 @@ int main(int argc, char* argv[])
 	}
 
 	//Currently supports only IPv4 addresses
-	IPv4Address ifaceAddr(iface);
-	IPv4Address victimAddr(victim);
-	IPv4Address gatewayAddr(gateway);
+	int errorCode;
 
-	PcapLiveDevice* pIfaceDevice = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr);
+	pcpp::experimental::IPv4Address ifaceAddr = pcpp::experimental::makeIPv4Address(iface, errorCode);
+	if (errorCode != 0)
+	{
+		printf("Interface address is invalid. Exiting...\n");
+		exit(-1);
+	}
+
+	PcapLiveDevice* pIfaceDevice = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr.toUInt()); // TODO: remove toUInt() when migration has done
 
 	//Verifying interface is valid
 	if (pIfaceDevice == NULL)
@@ -233,15 +237,17 @@ int main(int argc, char* argv[])
 		exit(-1);
 	}
 
-	if (!victimAddr.isValid())
+	pcpp::experimental::IPv4Address victimAddr = pcpp::experimental::makeIPv4Address(victim, errorCode);
+	if (errorCode != 0)
 	{
-		printf("Victim address not valid. Exiting...\n");
+		printf("Victim address is invalid. Exiting...\n");
 		exit(-1);
 	}
 
-	if (!gatewayAddr.isValid())
+	pcpp::experimental::IPv4Address gatewayAddr = pcpp::experimental::makeIPv4Address(gateway, errorCode);
+	if (errorCode != 0)
 	{
-		printf("Gateway address not valid. Exiting...\n");
+		printf("Gateway address is invalid. Exiting...\n");
 		exit(-1);
 	}
 
