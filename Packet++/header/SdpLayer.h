@@ -1,7 +1,7 @@
 #ifndef PACKETPP_SDP_LAYER
 #define PACKETPP_SDP_LAYER
 
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "TextBasedProtocol.h"
 #include <vector>
 
@@ -93,7 +93,7 @@ namespace pcpp
 		 * @param[in] startTime The start time of the session
 		 * @param[in] stopTime The stop time of the session
 		 */
-		SdpLayer(std::string username, long sessionID, long sessionVersion, IPv4Address ipAddress, std::string sessionName, long startTime, long stopTime);
+		SdpLayer(std::string username, long sessionID, long sessionVersion, pcpp::experimental::IPv4Address ipAddress, std::string sessionName, long startTime, long stopTime);
 
 		~SdpLayer() {}
 
@@ -114,11 +114,11 @@ namespace pcpp
 		/**
 		 * The 'originator' field (o=) contains the IP address of the the machine from which the session is created.
 		 * This IP address can be used to track the RTP data relevant for the call. This method extracts this IP address from the 'originator' field and returns it.
-		 * A value of IPv4Address#Zero will be returned in the following cases: (1) if 'originator' field doesn't exist; (2) if it doesn't contain the IP address;
+		 * An unspecified IPv4 address will be returned in the following cases: (1) if 'originator' field doesn't exist; (2) if it doesn't contain the IP address;
 		 * (3) if it contains a non-IPv4 address
 		 * @return Te IP address of the the machine from which the session is created
 		 */
-		IPv4Address getOwnerIPv4Address() const;
+		pcpp::experimental::IPv4Address getOwnerIPv4Address() const;
 
 		/**
 		 * The 'media-description' field (m=) contains the transport port to which the media stream is sent. This port can be used to track the RTP data relevant for the call.

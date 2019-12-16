@@ -35,7 +35,7 @@ SdpLayer::SdpLayer()
 	m_FieldsOffset = 0;
 }
 
-SdpLayer::SdpLayer(std::string username, long sessionID, long sessionVersion, IPv4Address ipAddress, std::string sessionName, long startTime, long stopTime)
+SdpLayer::SdpLayer(std::string username, long sessionID, long sessionVersion, pcpp::experimental::IPv4Address ipAddress, std::string sessionName, long startTime, long stopTime)
 {
 	m_Protocol = SDP;
 	m_FieldsOffset = 0;
@@ -72,20 +72,21 @@ std::string SdpLayer::toString() const
 	return "SDP Layer";
 }
 
-IPv4Address SdpLayer::getOwnerIPv4Address() const
+pcpp::experimental::IPv4Address SdpLayer::getOwnerIPv4Address() const
 {
 	HeaderField* originator = getFieldByName(PCPP_SDP_ORIGINATOR_FIELD);
 	if (originator == NULL)
-		return IPv4Address::Zero;
+		return pcpp::experimental::IPv4Address();
 
 	std::vector<std::string> tokens = splitByWhiteSpaces(originator->getFieldValue());
 	if (tokens.size() < 6)
-		return IPv4Address::Zero;
+		return pcpp::experimental::IPv4Address();
 
 	if (tokens[3] != "IN" || tokens[4] != "IP4")
-		return IPv4Address::Zero;
+		return pcpp::experimental::IPv4Address();
 
-	return IPv4Address(tokens[5]);
+	int errorCode;
+	return pcpp::experimental::makeIPv4Address(tokens[5], errorCode);
 }
 
 uint16_t SdpLayer::getMediaPort(std::string mediaType) const
