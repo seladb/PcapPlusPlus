@@ -173,9 +173,9 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	IPv6Address dstIP6Addr = IPv6Address::Zero;
 	if (ipLayer->getProtocol() == IPv4)
 	{
-		srcIP4Addr = ((IPv4Layer*)ipLayer)->getSrcIpAddress();
+		srcIP4Addr = ((IPv4Layer*)ipLayer)->getSrcIpAddress().toUInt(); // TODO: delete toUInt() when migration has completed
 		srcIP = &srcIP4Addr;
-		dstIP4Addr = ((IPv4Layer*)ipLayer)->getDstIpAddress();
+		dstIP4Addr = ((IPv4Layer*)ipLayer)->getDstIpAddress().toUInt(); // TODO: delete toUInt() when migration has completed
 		dstIP = &dstIP4Addr;
 	}
 	else if (ipLayer->getProtocol() == IPv6)

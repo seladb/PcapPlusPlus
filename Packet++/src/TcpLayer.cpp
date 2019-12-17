@@ -241,8 +241,8 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 
 		if (m_PrevLayer->getProtocol() == IPv4)
 		{
-			uint32_t srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIpAddress().toInt();
-			uint32_t dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIpAddress().toInt();
+			uint32_t srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIpAddress().toUInt(); // TODO: delete toUInt() when migration has completed
+			uint32_t dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIpAddress().toUInt(); // TODO: delete toUInt() when migration has completed
 			uint16_t pseudoHeader[6];
 			pseudoHeader[0] = srcIP >> 16;
 			pseudoHeader[1] = srcIP & 0xFFFF;

@@ -325,40 +325,41 @@ PTF_TEST_CASE(Ipv4PacketCreation)
 	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
-	PTF_ASSERT(ip4Packet.addLayer(&ethLayer), "Adding ethernet layer failed");
+	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ethLayer));
 
 	Packet tmpPacket(50);
 	LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(!tmpPacket.addLayer(&ethLayer), "Wrongly succeeded to add the same Ethernet layer into 2 different packets");
+	PTF_ASSERT_FALSE(tmpPacket.addLayer(&ethLayer));
 	LoggerPP::getInstance().enableErrors();
 
 	RawPacket* rawPacket = ip4Packet.getRawPacket();
-	PTF_ASSERT(rawPacket != NULL, "Raw packet is NULL");
-	PTF_ASSERT(rawPacket->getRawDataLen() == 14, "Raw packet length expected to be 14 but it's %d", rawPacket->getRawDataLen());
+	PTF_ASSERT_NOT_NULL(rawPacket);
+	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 14, int);
 
-
-	IPv4Address ipSrc(string("1.1.1.1"));
-	IPv4Address ipDst(string("20.20.20.20"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		ipSrc = pcpp::experimental::makeIPv4Address("1.1.1.1", errorCode),
+		ipDst = pcpp::experimental::makeIPv4Address("20.20.20.20", errorCode);
 	IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
-	PTF_ASSERT(ip4Packet.addLayer(&ip4Layer), "Adding IPv4 layer failed");
+	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ip4Layer));
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
 	PayloadLayer payloadLayer(payload, 10, true);
-	PTF_ASSERT(ip4Packet.addLayer(&payloadLayer), "Adding payload layer failed");
+	PTF_ASSERT_TRUE(ip4Packet.addLayer(&payloadLayer));
 
 	ip4Packet.computeCalculateFields();
 
-	PTF_ASSERT(ip4Packet.getLayerOfType<EthLayer>()->getDataLen() == 44, "Eth Layer data len != 44, it's %d", (int)ip4Packet.getLayerOfType<EthLayer>()->getDataLen());
-	PTF_ASSERT(ip4Packet.getLayerOfType<IPv4Layer>() != NULL, "Packet doesn't contain IPv4 layer");
+	PTF_ASSERT_EQUAL(ip4Packet.getLayerOfType<EthLayer>()->getDataLen(), 44, size);
+	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<IPv4Layer>());
 	iphdr* ipHeader = ip4Layer.getIPv4Header();
-	PTF_ASSERT(ip4Layer.getSrcIpAddress() == ipSrc, "IPv4 Layer src IP isn't equal to inserted src IP");
-	PTF_ASSERT(ip4Layer.getDstIpAddress() == ipDst, "IPv4 Layer dst IP isn't equal to inserted dst IP");
-	PTF_ASSERT(ipHeader->ipVersion == 4, "IPv4 Layer version != 4, Actual: %d", ipHeader->ipVersion);
-	PTF_ASSERT(ipHeader->internetHeaderLength == 5, "IPv4 Layer header length != 5, Actual: %d", ipHeader->internetHeaderLength);
-	PTF_ASSERT(ipHeader->totalLength == htons(30), "IPv4 Layer total length != 30");
-	PTF_ASSERT(ipHeader->protocol == PACKETPP_IPPROTO_TCP, "IPv4 Layer protocol isn't PACKETPP_IPPROTO_TCP");
-	PTF_ASSERT(ipHeader->headerChecksum == htons(0x90b1), "IPv4 Layer header checksum is wrong. Expected: 0x%4X, Actual: 0x%4X", 0x90b1, ipHeader->headerChecksum);
+	PTF_ASSERT_EQUAL(ip4Layer.getSrcIpAddress(), ipSrc, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getDstIpAddress(), ipDst, object);
+	PTF_ASSERT_EQUAL(ipHeader->ipVersion, 4, u8);
+	PTF_ASSERT_EQUAL(ipHeader->internetHeaderLength, 5, u8);
+	PTF_ASSERT_EQUAL(ipHeader->totalLength, htons(30), u16);
+	PTF_ASSERT_EQUAL(ipHeader->protocol, PACKETPP_IPPROTO_TCP, enum);
+	PTF_ASSERT_EQUAL(ipHeader->headerChecksum, htons(0x90b1), u16);
 } // Ipv4PacketCreation
 
 
@@ -591,7 +592,7 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_RecordRoute, "ipOpt4 first option isn't record-route");
 	PTF_ASSERT(opt.getDataSize() == 37, "ipOpt4 first option data size isn't 37");
 	PTF_ASSERT(opt.getTotalSize() == 39, "ipOpt4 first option total size isn't 39");
-	std::vector<IPv4Address> ipAddrs = opt.getValueAsIpList();
+	std::vector<pcpp::experimental::IPv4Address> ipAddrs = opt.getValueAsIpList();
 	PTF_ASSERT(ipAddrs.size() == 3, "ipOpt4 number of IP addresses isn't 3");
 	PTF_ASSERT(ipAddrs.at(0) == IPv4Address(std::string("1.2.3.4")), "ipOpt4 first IP addr isn't 1.2.3.4");
 	PTF_ASSERT(ipAddrs.at(1) == IPv4Address(std::string("10.0.0.138")), "ipOpt4 second IP addr isn't 10.0.0.138");
@@ -764,14 +765,14 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	PTF_ASSERT(buffer33Length == ipOpt3.getRawPacket()->getRawDataLen(), "ipOpt3 len (%d) is different than read packet len (%d)", ipOpt3.getRawPacket()->getRawDataLen(), buffer33Length);
 	PTF_ASSERT(memcmp(ipOpt3.getRawPacket()->getRawData(), buffer33, ipOpt3.getRawPacket()->getRawDataLen()) == 0, "ipOpt3: Raw packet data is different than expected");
 
-
+	int errorCode;
 	ipLayer = ipOpt4.getLayerOfType<IPv4Layer>();
-	std::vector<IPv4Address> ipListValue;
-	ipListValue.push_back(IPv4Address(std::string("1.2.3.4")));
-	ipListValue.push_back(IPv4Address(std::string("10.0.0.138")));
-	ipListValue.push_back(IPv4Address(std::string("10.0.0.138")));
+	std::vector<pcpp::experimental::IPv4Address> ipListValue;
+	ipListValue.push_back(pcpp::experimental::makeIPv4Address("1.2.3.4", errorCode));
+	ipListValue.push_back(pcpp::experimental::makeIPv4Address("10.0.0.138", errorCode));
+	ipListValue.push_back(pcpp::experimental::makeIPv4Address("10.0.0.138", errorCode));
 	for (int i = 0; i < 6; i++)
-		ipListValue.push_back(IPv4Address::Zero);
+		ipListValue.push_back(pcpp::experimental::IPv4Address());
 	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_RecordRoute, ipListValue)).isNull() == false, "Cannot add record route option to packet 4");
 	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 4");
 	ipOpt4.computeCalculateFields();
@@ -785,10 +786,10 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull() == true, "Managed to add an empty timestamp value");
 	LoggerPP::getInstance().enableErrors();
 	tsOption.type = IPv4TimestampOptionValue::TimestampAndIP;
-	tsOption.ipAddresses.push_back(IPv4Address(std::string("10.0.0.6")));
-	tsOption.ipAddresses.push_back(IPv4Address(std::string("10.0.0.138")));
-	tsOption.ipAddresses.push_back(IPv4Address(std::string("10.0.0.138")));
-	tsOption.ipAddresses.push_back(IPv4Address::Zero);
+	tsOption.ipAddresses.push_back(pcpp::experimental::makeIPv4Address("10.0.0.6", errorCode));
+	tsOption.ipAddresses.push_back(pcpp::experimental::makeIPv4Address("10.0.0.138", errorCode));
+	tsOption.ipAddresses.push_back(pcpp::experimental::makeIPv4Address("10.0.0.138", errorCode));
+	tsOption.ipAddresses.push_back(pcpp::experimental::IPv4Address());
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull() == true, "Managed to set timestamp option value with non-equal number of timestamps and IPs");
 	LoggerPP::getInstance().enableErrors();
@@ -813,7 +814,7 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 
 	ipLayer = ipOpt6.getLayerOfType<IPv4Layer>();
 	ipListValue.clear();
-	ipListValue.push_back(IPv4Address::Zero);
+	ipListValue.push_back(pcpp::experimental::IPv4Address());
 	optData = ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_StrictSourceRoute, ipListValue));
 	PTF_ASSERT(optData.isNull() == false, "Cannot add strict source route option to packet 6");
 	PTF_ASSERT(optData.getIPv4OptionType() == IPV4OPT_StrictSourceRoute, "Packet 6: strict source route option doesn't have type IPV4OPT_StrictSourceRoute");
@@ -831,7 +832,7 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	ipLayer = ipOpt7.getLayerOfType<IPv4Layer>();
 	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_NOP, NULL, 0)).isNull() == false, "Cannot add NOP option to packet 7");
 	ipListValue.clear();
-	ipListValue.push_back(IPv4Address::Zero);
+	ipListValue.push_back(pcpp::experimental::IPv4Address());
 	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_LooseSourceRoute, ipListValue)).isNull() == false, "Cannot add loose source route option to packet 7");
 	ipOpt7.computeCalculateFields();
 	PTF_ASSERT(buffer77Length == ipOpt7.getRawPacket()->getRawDataLen(), "ipOpt7 len (%d) is different than read packet len (%d)", ipOpt7.getRawPacket()->getRawDataLen(), buffer77Length);
@@ -840,8 +841,8 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 
 	tsOption.clear();
 	tsOption.type = IPv4TimestampOptionValue::TimestampAndIP;
-	tsOption.ipAddresses.push_back(IPv4Address(std::string("10.0.0.6")));
-	tsOption.ipAddresses.push_back(IPv4Address::Zero);
+	tsOption.ipAddresses.push_back(pcpp::experimental::makeIPv4Address("10.0.0.6", errorCode));
+	tsOption.ipAddresses.push_back(pcpp::experimental::IPv4Address());
 	tsOption.timestamps.push_back(70037668);
 	tsOption.timestamps.push_back(70037669);
 	PTF_ASSERT(ipLayer->addOptionAfter(IPv4OptionBuilder(tsOption), IPV4OPT_NOP).isNull() == false, "Cannot add timestamp option to packet 7");
@@ -1495,8 +1496,10 @@ PTF_TEST_CASE(TcpPacketCreation)
 	MacAddress srcMac("30:46:9a:23:fb:fa");
 	MacAddress dstMac("08:00:27:19:1c:78");
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
-	IPv4Address dstIP(string("10.0.0.6"));
-	IPv4Address srcIP(string("212.199.202.9"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		dstIP = pcpp::experimental::makeIPv4Address("10.0.0.6", errorCode),
+		srcIP = pcpp::experimental::makeIPv4Address("212.199.202.9", errorCode);
 	IPv4Layer ipLayer(srcIP, dstIP);
 	ipLayer.getIPv4Header()->ipId = htons(20300);
 	ipLayer.getIPv4Header()->fragmentOffset = htons(0x4000);
@@ -1564,8 +1567,10 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	MacAddress srcMac("08:00:27:19:1c:78");
 	MacAddress dstMac("30:46:9a:23:fb:fa");
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
-	IPv4Address dstIP(string("23.44.242.127"));
-	IPv4Address srcIP(string("10.0.0.6"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		dstIP = pcpp::experimental::makeIPv4Address("23.44.242.127", errorCode),
+		srcIP = pcpp::experimental::makeIPv4Address("10.0.0.6", errorCode);
 	IPv4Layer ipLayer(srcIP, dstIP);
 	ipLayer.getIPv4Header()->ipId = htons(1556);
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
@@ -1669,8 +1674,10 @@ PTF_TEST_CASE(InsertDataToPacket)
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PTF_ASSERT(ip4Packet.addLayer(&ethLayer), "Adding ethernet layer failed");
 
-	IPv4Address ipSrc(string("1.1.1.1"));
-	IPv4Address ipDst(string("20.20.20.20"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		ipSrc = pcpp::experimental::makeIPv4Address("1.1.1.1", errorCode),
+		ipDst = pcpp::experimental::makeIPv4Address("20.20.20.20", errorCode);
 	IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
 	PTF_ASSERT(ip4Packet.addLayer(&ip4Layer), "Adding IPv4 layer failed");
@@ -1890,8 +1897,10 @@ PTF_TEST_CASE(RemoveLayerTest)
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PTF_ASSERT(testPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
 
-	IPv4Address ipSrc(string("1.1.1.1"));
-	IPv4Address ipDst(string("20.20.20.20"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		ipSrc = pcpp::experimental::makeIPv4Address("1.1.1.1", errorCode),
+		ipDst = pcpp::experimental::makeIPv4Address("20.20.20.20", errorCode);
 	IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
 	PTF_ASSERT(testPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
@@ -3891,7 +3900,8 @@ PTF_TEST_CASE(IcmpCreationTest)
 
 	EthLayer ethLayer(MacAddress("11:22:33:44:55:66"), MacAddress("66:55:44:33:22:11"));
 
-	IPv4Layer ipLayer(IPv4Address(std::string("1.1.1.1")), IPv4Address(std::string("2.2.2.2")));
+	int errorCode;
+	IPv4Layer ipLayer(pcpp::experimental::makeIPv4Address("1.1.1.1", errorCode), pcpp::experimental::makeIPv4Address("2.2.2.2", errorCode));
 
 
 	uint8_t data[48] = { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a,
@@ -3933,7 +3943,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	timeExceededPacket.addLayer(&ethLayer3);
 	timeExceededPacket.addLayer(&ipLayer3);
 	timeExceededPacket.addLayer(&timeExceededLayer);
-	IPv4Layer ipLayerForTimeExceeded(IPv4Address(std::string("10.0.0.6")), IPv4Address(std::string("8.8.8.8")));
+	IPv4Layer ipLayerForTimeExceeded(pcpp::experimental::makeIPv4Address("10.0.0.6", errorCode), pcpp::experimental::makeIPv4Address("8.8.8.8", errorCode));
 	ipLayerForTimeExceeded.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayerForTimeExceeded.getIPv4Header()->timeToLive = 1;
 	ipLayerForTimeExceeded.getIPv4Header()->ipId = ntohs(2846);
@@ -3955,7 +3965,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	destUnreachablePacket.addLayer(&ethLayer4);
 	destUnreachablePacket.addLayer(&ipLayer4);
 	destUnreachablePacket.addLayer(&destUnreachableLayer);
-	IPv4Layer ipLayerForDestUnreachable(IPv4Address(std::string("10.0.1.2")), IPv4Address(std::string("172.16.0.2")));
+	IPv4Layer ipLayerForDestUnreachable(pcpp::experimental::makeIPv4Address("10.0.1.2", errorCode), pcpp::experimental::makeIPv4Address("172.16.0.2", errorCode));
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
 	ipLayerForDestUnreachable.getIPv4Header()->ipId = ntohs(230);
 	UdpLayer udpLayerForDestUnreachable(49182, 33446);
@@ -4003,7 +4013,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	redirectPacket.addLayer(&ethLayer7);
 	redirectPacket.addLayer(&ipLayer7);
 	redirectPacket.addLayer(&redirectLayer);
-	IPv4Layer ipLayerForRedirect(IPv4Address(std::string("10.2.10.2")), IPv4Address(std::string("10.3.71.7")));
+	IPv4Layer ipLayerForRedirect(pcpp::experimental::makeIPv4Address("10.2.10.2", errorCode), pcpp::experimental::makeIPv4Address("10.3.71.7", errorCode));
 	ipLayerForRedirect.getIPv4Header()->ipId = ntohs(14848);
 	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;
 	IcmpLayer icmpLayerForRedirect;
@@ -4133,7 +4143,8 @@ PTF_TEST_CASE(IcmpEditTest)
 
 	// convert echo request to dest unreachable
 
-	IPv4Layer ipLayerForDestUnreachable(IPv4Address(std::string("10.0.0.7")), IPv4Address(std::string("10.0.0.111")));
+	int errorCode;
+	IPv4Layer ipLayerForDestUnreachable(pcpp::experimental::makeIPv4Address("10.0.0.7", errorCode), pcpp::experimental::makeIPv4Address("10.0.0.111", errorCode));
 	ipLayerForDestUnreachable.getIPv4Header()->fragmentOffset = 0x0040;
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 64;
 	ipLayerForDestUnreachable.getIPv4Header()->ipId = ntohs(10203);
@@ -4312,8 +4323,9 @@ PTF_TEST_CASE(GreCreationTest)
 
 	// GREv1 packet creation
 
+	int errorCode;
 	EthLayer ethLayer(MacAddress("00:90:4b:1f:a4:f7"), MacAddress("00:0d:ed:7b:48:f4"));
-	IPv4Layer ipLayer(IPv4Address(std::string("192.168.2.65")), IPv4Address(std::string("192.168.2.254")));
+	IPv4Layer ipLayer(pcpp::experimental::makeIPv4Address("192.168.2.65", errorCode), pcpp::experimental::makeIPv4Address("192.168.2.254", errorCode));
 	ipLayer.getIPv4Header()->ipId = htons(1660);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
@@ -4344,10 +4356,10 @@ PTF_TEST_CASE(GreCreationTest)
 	// GREv0 packet creation
 
 	EthLayer ethLayer2(MacAddress("00:01:01:00:00:01"), MacAddress("00:01:01:00:00:02"));
-	IPv4Layer ipLayer2(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
+	IPv4Layer ipLayer2(pcpp::experimental::makeIPv4Address("127.0.0.1", errorCode), pcpp::experimental::makeIPv4Address("127.0.0.1", errorCode));
 	ipLayer2.getIPv4Header()->ipId = htons(1);
 	ipLayer2.getIPv4Header()->timeToLive = 64;
-	IPv4Layer ipLayer3(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
+	IPv4Layer ipLayer3(pcpp::experimental::makeIPv4Address("127.0.0.1", errorCode), pcpp::experimental::makeIPv4Address("127.0.0.1", errorCode));
 	ipLayer3.getIPv4Header()->ipId = htons(46845);
 	ipLayer3.getIPv4Header()->timeToLive = 64;
 
@@ -5116,7 +5128,8 @@ PTF_TEST_CASE(SllPacketCreationTest)
 	sllLayer.getSllHeader()->link_layer_addr[6] = 0xf6;
 	sllLayer.getSllHeader()->link_layer_addr[7] = 0x7f;
 
-	IPv4Layer ipLayer(IPv4Address(std::string("130.217.250.13")), IPv4Address(std::string("130.217.250.128")));
+	int errorCode;
+	IPv4Layer ipLayer(pcpp::experimental::makeIPv4Address("130.217.250.13", errorCode), pcpp::experimental::makeIPv4Address("130.217.250.128", errorCode));
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayer.getIPv4Header()->ipId = htons(63242);
 	ipLayer.getIPv4Header()->timeToLive = 64;
@@ -5279,8 +5292,10 @@ PTF_TEST_CASE(DhcpCreationTest)
 {
 	EthLayer ethLayer(MacAddress("00:13:72:25:fa:cd"), MacAddress("00:e0:b1:49:39:02"));
 
-	IPv4Address srcIp(std::string("172.22.178.234"));
-	IPv4Address dstIp(std::string("10.10.8.240"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		srcIp = pcpp::experimental::makeIPv4Address("172.22.178.234", errorCode),
+		dstIp = pcpp::experimental::makeIPv4Address("10.10.8.240", errorCode);
 	IPv4Layer ipLayer(srcIp, dstIp);
 	ipLayer.getIPv4Header()->ipId = htons(20370);
 	ipLayer.getIPv4Header()->timeToLive = 128;
@@ -5471,7 +5486,8 @@ PTF_TEST_CASE(NullLoopbackTest)
 
 	Packet newNullPacket(1);
 	NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
-	IPv4Layer newIp4Layer(IPv4Address(std::string("172.16.1.117")), IPv4Address(std::string("172.16.1.255")));
+	int errorCode;
+	IPv4Layer newIp4Layer(pcpp::experimental::makeIPv4Address("172.16.1.117", errorCode), pcpp::experimental::makeIPv4Address("172.16.1.255", errorCode));
 	newIp4Layer.getIPv4Header()->ipId = htons(49513);
 	newIp4Layer.getIPv4Header()->timeToLive = 64;
 
@@ -5543,10 +5559,12 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 	EthLayer ethLayer1(srcMac1, dstMac1);
 	EthLayer ethLayer2(srcMac2, dstMac2);
 
-	IPv4Address srcIp1(std::string("10.0.200.151"));
-	IPv4Address dstIp1(std::string("224.0.0.1"));
-	IPv4Address srcIp2(std::string("10.60.2.7"));
-	IPv4Address dstIp2(std::string("239.255.255.250"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		srcIp1 = pcpp::experimental::makeIPv4Address("10.0.200.151", errorCode),
+		dstIp1 = pcpp::experimental::makeIPv4Address("224.0.0.1", errorCode),
+		srcIp2 = pcpp::experimental::makeIPv4Address("10.60.2.7", errorCode),
+		dstIp2 = pcpp::experimental::makeIPv4Address("239.255.255.250", errorCode);
 	IPv4Layer ipLayer1(srcIp1, dstIp1);
 	IPv4Layer ipLayer2(srcIp2, dstIp2);
 
@@ -5670,8 +5688,10 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 {
 	EthLayer ethLayer(MacAddress("00:01:01:00:00:01"), MacAddress("01:00:5e:00:00:09"));
 
-	IPv4Address srcIp(std::string("127.0.0.1"));
-	IPv4Address dstIp(std::string("224.0.0.9"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		srcIp = pcpp::experimental::makeIPv4Address("127.0.0.1", errorCode),
+		dstIp = pcpp::experimental::makeIPv4Address("224.0.0.9", errorCode);
 	IPv4Layer ipLayer(srcIp, dstIp);
 
 	ipLayer.getIPv4Header()->ipId = htons(36760);
@@ -5757,8 +5777,10 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 {
 	EthLayer ethLayer(MacAddress("00:01:01:00:00:02"), MacAddress("01:00:5e:00:00:16"));
 
-	IPv4Address srcIp(std::string("127.0.0.1"));
-	IPv4Address dstIp(std::string("224.0.0.22"));
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		srcIp = pcpp::experimental::makeIPv4Address("127.0.0.1", errorCode),
+		dstIp = pcpp::experimental::makeIPv4Address("224.0.0.22", errorCode);
 	IPv4Layer ipLayer(srcIp, dstIp);
 
 	ipLayer.getIPv4Header()->ipId = htons(3941);
@@ -6874,7 +6896,8 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// rebuild packet starting from trailer
 	EthLayer newEthLayer(MacAddress("30:46:9a:23:fb:fa"), MacAddress("6c:f0:49:b2:de:6e"), PCPP_ETHERTYPE_IP);
 	trailerIPv4Packet.insertLayer(NULL, &newEthLayer);
-	IPv4Layer newIp4Layer(IPv4Address(std::string("173.194.78.104")), IPv4Address(std::string("10.0.0.1")));
+	int errorCode;
+	IPv4Layer newIp4Layer(pcpp::experimental::makeIPv4Address("173.194.78.104", errorCode), pcpp::experimental::makeIPv4Address("10.0.0.1", errorCode));
 	newIp4Layer.getIPv4Header()->ipId = htons(40382);
 	newIp4Layer.getIPv4Header()->timeToLive = 46;
 	trailerIPv4Packet.insertLayer(&newEthLayer, &newIp4Layer);

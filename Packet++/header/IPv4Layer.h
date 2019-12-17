@@ -3,7 +3,7 @@
 
 #include "Layer.h"
 #include "TLVData.h"
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include <string.h>
 #include <vector>
 
@@ -185,7 +185,7 @@ namespace pcpp
 		std::vector<uint32_t> timestamps;
 
 		/** A list of IPv4 addresses parsed from the IPv4 timestamp option value */
-		std::vector<IPv4Address> ipAddresses;
+		std::vector<pcpp::experimental::IPv4Address> ipAddresses;
 
 		/** The default constructor */
 		IPv4TimestampOptionValue() : type(IPv4TimestampOptionValue::Unknown) {}
@@ -228,9 +228,9 @@ namespace pcpp
 		 * (meaning zeroed addresses - 0.0.0.0) will not be added to the returned list. If some error occurs during the parsing or the value is invalid an empty vector is returned
 		 * @return A vector of IPv4 addresses parsed from the IPv4 option value
 		 */
-		std::vector<IPv4Address> getValueAsIpList() const
+		std::vector<pcpp::experimental::IPv4Address> getValueAsIpList() const
 		{
-			std::vector<IPv4Address> res;
+			std::vector<pcpp::experimental::IPv4Address> res;
 
 			if (m_Data == NULL)
 				return res;
@@ -248,7 +248,7 @@ namespace pcpp
 				if (curValue == 0)
 					break;
 
-				res.push_back(IPv4Address(curValue));
+				res.push_back(pcpp::experimental::IPv4Address(curValue));
 
 				valueOffset += (uint8_t)(4);
 			}
@@ -291,7 +291,7 @@ namespace pcpp
 					break;
 
 				if (readIPAddr)
-					res.ipAddresses.push_back(IPv4Address(curValue));
+					res.ipAddresses.push_back(pcpp::experimental::IPv4Address(curValue));
 				else
 					res.timestamps.push_back(curValue);
 
@@ -382,7 +382,7 @@ namespace pcpp
 		 * @param[in] optionType IPv4 option type
 		 * @param[in] ipList A vector of IPv4 addresses that will be used as the option value
 		 */
-		IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList);
+		IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vector<pcpp::experimental::IPv4Address>& ipList);
 
 		/**
 		 * A c'tor for building IPv4 timestamp option (::IPV4OPT_Timestamp). The IPv4Option object can be later retrieved by calling build()
@@ -438,7 +438,7 @@ namespace pcpp
 		 * @param[in] srcIP Source IPv4 address
 		 * @param[in] dstIP Destination IPv4 address
 		 */
-		IPv4Layer(const IPv4Address& srcIP, const IPv4Address& dstIP);
+		IPv4Layer(const pcpp::experimental::IPv4Address& srcIP, const pcpp::experimental::IPv4Address& dstIP);
 
 		/**
 		 * A copy constructor that copy the entire header from the other IPv4Layer (including IPv4 options)
@@ -460,25 +460,25 @@ namespace pcpp
 		 * Get the source IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the source address
 		 */
-		IPv4Address getSrcIpAddress() const { return IPv4Address(getIPv4Header()->ipSrc); }
+		pcpp::experimental::IPv4Address getSrcIpAddress() const { return getIPv4Header()->ipSrc; }
 
 		/**
 		 * Set the source IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setSrcIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toInt(); }
+		void setSrcIpAddress(const pcpp::experimental::IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toUInt(); }
 
 		/**
 		 * Get the destination IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the destination address
 		 */
-		IPv4Address getDstIpAddress() const { return IPv4Address(getIPv4Header()->ipDst); }
+		pcpp::experimental::IPv4Address getDstIpAddress() const { return getIPv4Header()->ipDst; }
 
 		/**
 		 * Set the dest IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setDstIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toInt(); }
+		void setDstIpAddress(const pcpp::experimental::IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toUInt(); }
 
 		/**
 		 * @return True if this packet is a fragment (in sense of IP fragmentation), false otherwise

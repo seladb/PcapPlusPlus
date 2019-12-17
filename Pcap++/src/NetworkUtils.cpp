@@ -378,7 +378,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	Packet dnsRequest(100);
 	MacAddress sourceMac = device->getMacAddress();
 	EthLayer ethLayer(sourceMac, gatewayMacAddress, PCPP_ETHERTYPE_IP);
-	IPv4Layer ipLayer(device->getIPv4Address(), dnsServerIP);
+	IPv4Layer ipLayer(device->getIPv4Address().toInt(), dnsServerIP.toInt()); // TODO: delete toInt() when migration has completed
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
 	// randomize source port to a number >= 10000

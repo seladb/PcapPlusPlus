@@ -120,7 +120,7 @@ public:
 
 	IPReassembly::PacketKey* createPacketKey()
 	{
-		return new IPReassembly::IPv4PacketKey(ntohs(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getSrcIpAddress(), m_IPLayer->getDstIpAddress());
+		return new IPReassembly::IPv4PacketKey(ntohs(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getSrcIpAddress().toUInt(), m_IPLayer->getDstIpAddress().toUInt()); // TODO: delete toUInt() when migration has completed
 	}
 
 	uint8_t* getIPLayerPayload()
