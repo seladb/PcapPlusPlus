@@ -219,7 +219,7 @@ bool sendIcmpMessage(PcapLiveDevice* dev,
 	EthLayer ethLayer(srcMacAddr, dstMacAddr, PCPP_ETHERTYPE_IP);
 
 	// then IPv4 (IPv6 is not supported)
-	IPv4Layer ipLayer(srcIPAddr, dstIPAddr);
+	IPv4Layer ipLayer(srcIPAddr.toInt(), dstIPAddr.toInt());
 	ipLayer.getIPv4Header()->timeToLive = 128;
 	// set and increment the IP ID
 	ipLayer.getIPv4Header()->ipId = htons(ipID++);

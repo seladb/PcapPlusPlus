@@ -136,9 +136,9 @@ void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 	ethLayer->setDestMac(srcMac);
 
 	// reverse src and dst IP addresses
-	IPv4Address srcIP = ip4Layer->getSrcIpAddress();
+	IPv4Address srcIP = ip4Layer->getSrcIpAddress().toUInt();
 	ip4Layer->setSrcIpAddress(ip4Layer->getDstIpAddress());
-	ip4Layer->setDstIpAddress(srcIP);
+	ip4Layer->setDstIpAddress(srcIP.toInt());
 
 	ip4Layer->getIPv4Header()->ipId = 0;
 
