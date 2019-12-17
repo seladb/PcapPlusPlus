@@ -5,6 +5,9 @@
 #include <string.h>
 #include <string>
 
+// TODO: remove when migration has completed
+#include "IpAddress.h"
+
 // for in_addr, in6_addr
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #include <winsock2.h>
@@ -80,6 +83,74 @@ namespace experimental
 		 */
 		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
 
+
+		// Following methods are placed for backward compatibility and will be deleted in the future
+
+		/**
+		 * Clone the object
+		 * Notice this method is deprecated and will be deleted in the future
+		 * @return A newly allocated instance which is a clone of the current instance
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
+		#endif
+		IPv4Address* clone() const { return new IPv4Address(*this); }
+
+		/**
+		 * Converts the IPv4 address into a 4B integer
+		 * Notice this method is deprecated and will be deleted in the future. Prefer toUInt method
+		 * @return a 4B integer representing the IPv4 address
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is replaced by toUInt() method. It will be deleted in the future")]]
+		#endif
+		uint32_t toInt() const { return toUInt(); }
+
+		/**
+		 * Returns a in_addr struct pointer representing the IPv4 address
+		 * Notice this method is deprecated and will be deleted in the future. Prefer toBytes method
+		 * @return a in_addr struct pointer representing the IPv4 address
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is replaced by toBytes() method. It will be deleted in the future")]]
+		#endif
+		const in_addr* toInAddr() const { return &m_InAddr; }
+
+		/**
+		 * Checks whether the address matches a subnet.
+		 * Notice this method is deprecated and will be deleted in the future. Prefer one of the functions matchSubnet
+		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
+		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
+		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
+		 * (it'll be ignored if subnet mask is correct)
+		 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is deprecated and will be deleted in the future. Prefer one of the functions matchSubnet")]]
+		#endif
+		bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const;
+
+		/**
+		 * Checks whether the address matches a subnet.
+		 * Notice this method is deprecated and will be deleted in the future. Prefer one of the functions matchSubnet
+		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
+		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
+		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
+		 * (it'll be ignored if subnet mask is correct)
+		 * @param[in] subnetMask The subnet mask to compare the address with the subnet
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is deprecated and will be deleted in the future. Prefer one of the functions matchSubnet")]]
+		#endif
+		bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
+
+		/**
+		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0"
+		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
+		 * In order to check whether the address is zero the method isUnspecified can be used
+		 */
+		static const IPv4Address Zero;
+
 	private:
 		in_addr m_InAddr;
 	}; // class IPv4Address
@@ -145,6 +216,7 @@ namespace experimental
 
 
 
+
 	/**
 	 * @class IPv6Address
 	 * Represents an IPv6 address (of type xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx).
@@ -189,10 +261,60 @@ namespace experimental
 		 */
 		bool operator!=(const IPv6Address &rhs) const { return !(*this == rhs); }
 
+
+		// Following methods are placed for backward compatibility and will be deleted in the future
+
+		/**
+		 * Clone the object
+		 * Notice this method is deprecated and will be deleted in the future
+		 * @return A newly allocated instance which is a clone of the current instance
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
+		#endif
+		IPv6Address *clone() const { return new IPv6Address(*this); }
+
+		/**
+		 * Returns a in6_addr struct pointer representing the IPv6 address
+		 * Notice this method is deprecated and will be deleted in the future. Prefer toBytes method
+		 * @return a in6_addr struct pointer representing the IPv6 address
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is replaced by toBytes() method. It will be deleted in the future")]]
+		#endif
+		const in6_addr* toIn6Addr() const { return &m_In6Addr; }
+
+		/**
+		 * Allocates a byte array and copies address value into it. Array deallocation is user responsibility
+		 * Notice this method is deprecated and will be deleted in the future
+		 * @param[in] arr A pointer to where array will be allocated
+		 * @param[out] length Returns the length in bytes of the array that was allocated
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
+		#endif
+		void copyTo(uint8_t** arr, size_t& length) const;
+
+		/**
+		 * Gets a pointer to an already allocated byte array and copies the address value to it.
+		 * Notice this method is deprecated and will be deleted in the future
+		 * This method assumes array allocated size is at least 16 (the size of an IPv6 address)
+		 * @param[in] arr A pointer to the array which address will be copied to
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
+		#endif
+		void copyTo(uint8_t* arr) const;
+
+		/**
+		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
+		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
+		 * In order to check whether the address is zero the method isUnspecified can be used
+		 */
+		static const IPv6Address Zero;
+
 	private:
 		in6_addr m_In6Addr;
-
-		static const IPv6Address Zero;
 	}; // class IPv6Address
 
 
@@ -222,7 +344,6 @@ namespace experimental
 	 * @return An instance of class IPv6Address. If an error occured the return address will be an unspecified/zero
 	 */
 	inline IPv6Address makeIPv6Address(const std::string& addrAsString, int& errorCode) {	return makeIPv6Address(addrAsString.c_str(), errorCode); }
-
 
 
 
@@ -326,6 +447,29 @@ namespace experimental
 		 */
 		bool operator!=(const IPAddress& rhs) const { return !(*this == rhs); }
 
+
+		// Following methods are placed for backward compatibility and will be deleted in the future
+
+		/**
+		 * Clone the object
+		 * Notice this method is deprecated and will be deleted in the future
+		 * @return A newly allocated instance which is a clone of the current instance
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
+		#endif
+		IPAddress *clone() const { return new IPAddress(*this); }
+
+		/**
+		 * Compare between this IP address and another IP address
+		 * Notice this method is deprecated and will be deleted in the future. Prefer an equal-to operator
+		 * @return True if addresses match or false otherwise
+		 */
+		#if __cplusplus > 201402L || _MSC_VER >= 1900
+		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future. Prefer an equal-to operator")]]
+		#endif
+		bool equals(const IPAddress* other) const { return *this == *other; }
+
 	private:
 		uint8_t m_Type;
 		IPv4Address m_IPv4;
@@ -379,6 +523,18 @@ namespace experimental
 	inline IPAddress makeAddress(const std::string& addrAsString, int& errorCode) { return makeAddress(addrAsString.c_str(), errorCode); }
 
 } // namespace experimental
+
+
+	// TODO: remove following functions when migration has completed
+	inline bool operator==(const IPv4Address& lhs, const pcpp::experimental::IPv4Address& rhs) { return lhs.toInt() == rhs.toUInt();	}
+	inline bool operator==(const pcpp::experimental::IPv4Address& lhs, const IPv4Address& rhs) { return rhs == lhs; }
+	inline bool operator!=(const IPv4Address &lhs, const pcpp::experimental::IPv4Address &rhs) { return !(lhs == rhs); }
+	inline bool operator!=(const pcpp::experimental::IPv4Address &lhs, const IPv4Address &rhs) { return !(lhs == rhs); }
+
+	inline bool operator==(const IPv6Address& lhs, const pcpp::experimental::IPv6Address& rhs) { return memcmp(lhs.toIn6Addr()->s6_addr, rhs.toBytes(), 16) == 0; }
+	inline bool operator==(const pcpp::experimental::IPv6Address& lhs, const IPv6Address& rhs) { return rhs == lhs; }
+	inline bool operator!=(const IPv6Address& lhs, const pcpp::experimental::IPv6Address& rhs) { return !(lhs == rhs); }
+	inline bool operator!=(const pcpp::experimental::IPv6Address& lhs, const IPv6Address& rhs) { return !(lhs == rhs); }
 
 } // namespace pcpp
 
