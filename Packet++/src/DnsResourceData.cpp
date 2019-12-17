@@ -52,55 +52,70 @@ bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResou
 	return true;
 }
 
-IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen) : m_Data(IPv4Address::Zero)
+IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
+	: m_Data(pcpp::experimental::IPv4Address()), m_IsValid(true)
 {
 	if (dataLen != 4)
 	{
+		m_IsValid = false;
 		LOG_ERROR("DNS type is A but resource length is not 4 - malformed data");
 		return;
 	}
 
 	uint32_t addrAsInt = *(uint32_t*)dataPtr;
-	m_Data = IPv4Address(addrAsInt);
+	m_Data = pcpp::experimental::IPv4Address(addrAsInt);
 }
+
+IPv4DnsResourceData::IPv4DnsResourceData(const std::string& addrAsString)
+{
+	int errorCode;
+	m_Data = pcpp::experimental::makeIPv4Address(addrAsString, errorCode);
+	m_IsValid = (errorCode == 0);
+}
+
 
 bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	if (!m_Data.isValid())
+	if (!m_IsValid)
 	{
 		LOG_ERROR("Cannot convert IPv4 address to byte array because address is not valid");
 		return false;
 	}
 
-	uint32_t addrAsInt = m_Data.toInt();
-	arrLength = sizeof(addrAsInt);
-	memcpy(arr, &addrAsInt, sizeof(addrAsInt));
-
+	arrLength = sizeof(uint32_t);
+	memcpy(arr, m_Data.toBytes(), sizeof(uint32_t));
 	return true;
 }
 
-IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen) : m_Data(IPv6Address::Zero)
+IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen) : m_Data(pcpp::experimental::IPv6Address()), m_IsValid(true)
 {
 	if (dataLen != 16)
 	{
+		m_IsValid = false;
 		LOG_ERROR("DNS type is AAAA but resource length is not 16 - malformed data");
 		return;
 	}
 
-	m_Data = IPv6Address((uint8_t*)dataPtr);
+	m_Data = pcpp::experimental::IPv6Address((uint8_t*)dataPtr);
+}
+
+IPv6DnsResourceData::IPv6DnsResourceData(const std::string& addrAsString)
+{
+	int errorCode;
+	m_Data = pcpp::experimental::makeIPv6Address(addrAsString, errorCode);
+	m_IsValid = (errorCode == 0);
 }
 
 bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	if (!m_Data.isValid())
+	if (!m_IsValid)
 	{
 		LOG_ERROR("Cannot convert IPv6 address to byte array because address is not valid");
 		return false;
 	}
 
 	arrLength = 16;
-	m_Data.copyTo(arr);
-
+	memcpy(arr, m_Data.toBytes(), 16);
 	return true;
 }
 

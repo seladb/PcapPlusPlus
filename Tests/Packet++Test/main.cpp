@@ -2707,8 +2707,6 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
 	int answerCount = 2;
-	IPv4Address subnet(std::string("212.199.219.0"));
-	std::string subnetMask = "255.255.255.0";
 	while (curAnswer != NULL)
 	{
 		PTF_ASSERT(curAnswer->getDnsType() == DNS_TYPE_A, "Answer #%d type isn't A", answerCount);
@@ -2716,7 +2714,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 		PTF_ASSERT(curAnswer->getTTL() == 117, "Answer #%d TTL != 117", answerCount);
 		PTF_ASSERT(curAnswer->getName() == "www-google-analytics.L.google.com", "Answer #%d name isn't 'www-google-analytics.L.google.com'", answerCount);
 		PTF_ASSERT(curAnswer->getDataLength() == 4, "Answer #%d data size != 4", answerCount);
-		PTF_ASSERT(curAnswer->getData().castAs<IPv4DnsResourceData>()->getIpAddress().matchSubnet(subnet, subnetMask) == true, "Answer #%d data != '212.199.219.X'", answerCount);
+		PTF_ASSERT_TRUE(pcpp::experimental::matchSubnet(curAnswer->getData().castAs<IPv4DnsResourceData>()->getIpAddress(), "212.199.219.0", "255.255.255.0"));
 
 		curAnswer = dnsLayer->getNextAnswer(curAnswer);
 		answerCount++;

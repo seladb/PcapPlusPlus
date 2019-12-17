@@ -307,7 +307,7 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 	double diffms = (diffticks*1000.0)/CLOCKS_PER_SEC;
 
 	data->dnsResponseTime = diffms;
-	data->result = dnsAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress();
+	data->result = dnsAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress().toUInt();
 	data->ttl = dnsAnswer->getTTL();
 
 	// signal the main thread the ARP reply was received

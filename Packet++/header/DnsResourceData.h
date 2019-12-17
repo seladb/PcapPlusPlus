@@ -2,7 +2,7 @@
 #define PACKETPP_DNS_RESOURCE_DATA
 
 #include "DnsResource.h"
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include <string>
 #include <stdint.h>
 
@@ -175,7 +175,8 @@ namespace pcpp
 	class IPv4DnsResourceData : public IDnsResourceData
 	{
 	private:
-		IPv4Address m_Data;
+		pcpp::experimental::IPv4Address m_Data;
+		bool m_IsValid;
 
 	public:
 
@@ -190,13 +191,13 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] addr The IPv4 address to store in this object
 		 */
-		IPv4DnsResourceData(const IPv4Address& addr) : m_Data(addr) {}
+		IPv4DnsResourceData(const pcpp::experimental::IPv4Address& addr) : m_Data(addr), m_IsValid(true) {}
 
 		/**
 		 * A c'tor for this class
 		 * @param[in] addrAsString A string representation of an IPv4 address to store in this object
 		 */
-		IPv4DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString) {}
+		IPv4DnsResourceData(const std::string& addrAsString);
 
 		/**
 		 * Equality operator overload for this class that compares the IPv4 addresses stored in each object
@@ -208,7 +209,7 @@ namespace pcpp
 		/**
 		 * @return The IPv4 address stored in this object
 		 */
-		IPv4Address getIpAddress() const { return m_Data; }
+		pcpp::experimental::IPv4Address getIpAddress() const { return m_Data; }
 
 		// implement abstract methods
 
@@ -224,7 +225,8 @@ namespace pcpp
 	class IPv6DnsResourceData : public IDnsResourceData
 	{
 	private:
-		IPv6Address m_Data;
+		pcpp::experimental::IPv6Address m_Data;
+		bool m_IsValid;
 
 	public:
 
@@ -239,13 +241,13 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] addr The IPv6 address to store in this object
 		 */
-		IPv6DnsResourceData(const IPv6Address& addr) : m_Data(addr) {}
+		IPv6DnsResourceData(const pcpp::experimental::IPv6Address& addr) : m_Data(addr), m_IsValid(true) {}
 
 		/**
 		 * A c'tor for this class
 		 * @param[in] addrAsString A string representation of an IPv6 address to store in this object
 		 */
-		IPv6DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString) {}
+		IPv6DnsResourceData(const std::string& addrAsString);
 
 		/**
 		 * Equality operator overload for this class that compares the IPv6 addresses stored in each object
@@ -257,7 +259,7 @@ namespace pcpp
 		/**
 		 * @return The IPv6 address stored in this object
 		 */
-		IPv6Address getIpAddress() const { return m_Data; }
+		pcpp::experimental::IPv6Address getIpAddress() const { return m_Data; }
 
 		// implement abstract methods
 
