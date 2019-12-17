@@ -2,6 +2,7 @@
 
 #include "Packet.h"
 #include "EthLayer.h"
+#include "EthDot3Layer.h"
 #include "SllLayer.h"
 #include "NullLoopbackLayer.h"
 #include "IPv4Layer.h"
@@ -9,6 +10,7 @@
 #include "PayloadLayer.h"
 #include "PacketTrailerLayer.h"
 #include "Logger.h"
+#include "EndianPortable.h"
 #include <string.h>
 #include <typeinfo>
 #include <sstream>
@@ -679,7 +681,25 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 {
 	if (linkType == LINKTYPE_ETHERNET)
 	{
-		return new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+		// In order to distinguish between Ethernet II and IEEE 802.3 Ethernet the common method is
+		// to check the length field. In IEEE 802.3 Ethernet the length value should be equal or 
+		// less than 0x5DC which corresponds to 1500 bytes. If the value is larger than 0x5DC
+		// it means the value is an Ether Type which belongs to Ethernet II.
+		// You can read more in this link:
+		// https://www.ibm.com/support/pages/ethernet-version-2-versus-ieee-8023-ethernet
+
+		size_t rawDataLen = (size_t)m_RawPacket->getRawDataLen();
+		const uint8_t* rawData = m_RawPacket->getRawData();
+		if (rawDataLen >= sizeof(ether_header))
+		{
+			uint16_t ethTypeOrLength = ntohs(*(uint16_t*)(rawData + 12));
+			if (ethTypeOrLength <= (uint16_t)0x5dc && ethTypeOrLength != 0)
+			{
+				return new EthDot3Layer((uint8_t*)rawData, rawDataLen, this);
+			}
+		}
+		
+		return new EthLayer((uint8_t*)rawData, rawDataLen, this);
 	}
 	else if (linkType == LINKTYPE_LINUX_SLL)
 	{

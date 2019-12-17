@@ -8,14 +8,8 @@
 #include "VlanLayer.h"
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
+#include "EndianPortable.h"
 #include <string.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h>
-#endif
 
 namespace pcpp
 {
