@@ -206,7 +206,9 @@ public:
 
 	IPReassembly::PacketKey* createPacketKey()
 	{
-		return new IPReassembly::IPv6PacketKey(ntohl(m_FragHeader->getFragHeader()->id), m_IPLayer->getSrcIpAddress(), m_IPLayer->getDstIpAddress());
+		return new IPReassembly::IPv6PacketKey(ntohl(m_FragHeader->getFragHeader()->id),
+			const_cast<uint8_t*>(m_IPLayer->getSrcIpAddress().toBytes()),
+			const_cast<uint8_t *>(m_IPLayer->getDstIpAddress().toBytes())); // TODO: delete toBytes() when migration has completed
 	}
 
 	uint8_t* getIPLayerPayload()

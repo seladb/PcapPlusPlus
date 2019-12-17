@@ -2,7 +2,7 @@
 #define PACKETPP_IPV6_EXTENSION
 
 #include <vector>
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "Layer.h"
 #include "TLVData.h"
 
@@ -441,7 +441,7 @@ namespace pcpp
 		 * @return The IPv6 address stored in the additional routing data buffer from the offset defined by the user. If offset is out-of-bounds
 		 * of the extension of doesn't have 16 bytes (== the length of IPv6 address) until the end of the buffer - IPv6Address#Zero is returned
 		 */
-		IPv6Address getRoutingAdditionalDataAsIPv6Address(size_t offset = 0) const;
+		pcpp::experimental::IPv6Address getRoutingAdditionalDataAsIPv6Address(size_t offset = 0) const;
 
 	private:
 

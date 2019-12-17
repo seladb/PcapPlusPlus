@@ -43,12 +43,12 @@ IPv6Layer::IPv6Layer()
 	initLayer();
 }
 
-IPv6Layer::IPv6Layer(const IPv6Address& srcIP, const IPv6Address& dstIP)
+IPv6Layer::IPv6Layer(const pcpp::experimental::IPv6Address& srcIP, const pcpp::experimental::IPv6Address& dstIP)
 {
 	initLayer();
 	ip6_hdr* ipHdr = getIPv6Header();
-	srcIP.copyTo(ipHdr->ipSrc);
-	dstIP.copyTo(ipHdr->ipDst);
+	memcpy(ipHdr->ipSrc, srcIP.toBytes(), 16);
+	memcpy(ipHdr->ipDst, dstIP.toBytes(), 16);
 }
 
 IPv6Layer::IPv6Layer(const IPv6Layer& other) : Layer(other)

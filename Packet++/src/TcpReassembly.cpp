@@ -180,9 +180,9 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	}
 	else if (ipLayer->getProtocol() == IPv6)
 	{
-		srcIP6Addr = ((IPv6Layer*)ipLayer)->getSrcIpAddress();
+		srcIP6Addr = const_cast<uint8_t*>(((IPv6Layer*)ipLayer)->getSrcIpAddress().toBytes()); // TODO: delete toBytes() when migration has completed
 		srcIP = &srcIP6Addr;
-		dstIP6Addr = ((IPv6Layer*)ipLayer)->getDstIpAddress();
+		dstIP6Addr = const_cast<uint8_t*>(((IPv6Layer*)ipLayer)->getDstIpAddress().toBytes()); // TODO: delete toBytes() when migration has completed
 		dstIP = &dstIP6Addr;
 	}
 

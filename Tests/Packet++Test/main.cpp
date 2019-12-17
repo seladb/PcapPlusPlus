@@ -930,8 +930,10 @@ PTF_TEST_CASE(Ipv6UdpPacketParseAndCreate)
 	PTF_ASSERT((ipv6Layer = ip6UdpPacket.getLayerOfType<IPv6Layer>()) != NULL, "IPv6 layer doesn't exist");
 	PTF_ASSERT(ipv6Layer->getIPv6Header()->nextHeader == 17, "Protocol read from packet isnt UDP (17). Protocol is: %d", ipv6Layer->getIPv6Header()->nextHeader);
 	PTF_ASSERT(ipv6Layer->getIPv6Header()->ipVersion == 6, "IP version isn't 6. Version is: %d", ipv6Layer->getIPv6Header()->ipVersion);
-	IPv6Address srcIP(string("fe80::4dc7:f593:1f7b:dc11"));
-	IPv6Address dstIP(string("ff02::c"));
+	int errorCode;
+	pcpp::experimental::IPv6Address
+		srcIP = pcpp::experimental::makeIPv6Address("fe80::4dc7:f593:1f7b:dc11", errorCode),
+		dstIP = pcpp::experimental::makeIPv6Address("ff02::c", errorCode);
 	PTF_ASSERT(ipv6Layer->getSrcIpAddress() == srcIP, "incorrect source address");
 	PTF_ASSERT(ipv6Layer->getDstIpAddress() == dstIP, "incorrect dest address");
 	UdpLayer* pUdpLayer = NULL;
@@ -4561,7 +4563,8 @@ PTF_TEST_CASE(GreEditTest)
 
 	PTF_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == 0, "PPP protocol isn't 0 after removing top layers");
 
-	IPv6Layer ipv6Layer(IPv6Address(std::string("2402:f000:1:8e01::5555")), IPv6Address(std::string("2607:fcd0:100:2300::b108:2a6b")));
+	int errorCode;
+	IPv6Layer ipv6Layer(pcpp::experimental::makeIPv6Address("2402:f000:1:8e01::5555", errorCode), pcpp::experimental::makeIPv6Address("2607:fcd0:100:2300::b108:2a6b", errorCode));
 	PTF_ASSERT(grev1Packet.addLayer(&ipv6Layer), "Couldn't add IPv6 layer to GREv1 packet");
 	grev1Packet.computeCalculateFields();
 

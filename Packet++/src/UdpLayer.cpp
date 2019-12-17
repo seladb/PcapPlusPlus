@@ -63,8 +63,8 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 		else if (m_PrevLayer->getProtocol() == IPv6)
 		{
 			uint16_t pseudoHeader[18];
-			((IPv6Layer*)m_PrevLayer)->getSrcIpAddress().copyTo((uint8_t*)pseudoHeader);
-			((IPv6Layer*)m_PrevLayer)->getDstIpAddress().copyTo((uint8_t*)(pseudoHeader+8));
+			memcpy(pseudoHeader, ((IPv6Layer*)m_PrevLayer)->getSrcIpAddress().toBytes(), 16);
+			memcpy(pseudoHeader + 8, ((IPv6Layer*)m_PrevLayer)->getDstIpAddress().toBytes(), 16);
 			pseudoHeader[16] = 0xffff & udpHdr->length;
 			pseudoHeader[17] = htons(0x00ff & PACKETPP_IPPROTO_UDP);
 			vec[1].buffer = pseudoHeader;

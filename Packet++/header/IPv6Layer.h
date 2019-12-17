@@ -3,7 +3,7 @@
 
 #include "Layer.h"
 #include "IPv6Extensions.h"
-#include "IpAddress.h"
+#include "IpAddresses.h"
 
 /// @file
 
@@ -73,7 +73,7 @@ namespace pcpp
 		 * @param[in] srcIP Source IPv6 address
 		 * @param[in] dstIP Destination IPv6 address
 		 */
-		IPv6Layer(const IPv6Address& srcIP, const IPv6Address& dstIP);
+		IPv6Layer(const pcpp::experimental::IPv6Address& srcIP, const pcpp::experimental::IPv6Address& dstIP);
 
 		/**
 		 * A copy constructor that copies the entire header from the other IPv6Layer (including IPv6 extensions)
@@ -100,13 +100,13 @@ namespace pcpp
 		 * Get the source IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the source address
 		 */
-		IPv6Address getSrcIpAddress() const { return IPv6Address(getIPv6Header()->ipSrc); }
+		pcpp::experimental::IPv6Address getSrcIpAddress() const { return getIPv6Header()->ipSrc; }
 
 		/**
 		 * Get the destination IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the destination address
 		 */
-		IPv6Address getDstIpAddress() const { return IPv6Address(getIPv6Header()->ipDst); }
+		pcpp::experimental::IPv6Address getDstIpAddress() const { return getIPv6Header()->ipDst; }
 
 		/**
 		 * @return Number of IPv6 extensions in this layer

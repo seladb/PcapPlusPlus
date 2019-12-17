@@ -229,14 +229,14 @@ size_t IPv6RoutingHeader::getRoutingAdditionalDataLength() const
 	return (size_t)result;
 }
 
-IPv6Address IPv6RoutingHeader::getRoutingAdditionalDataAsIPv6Address(size_t offset) const
+pcpp::experimental::IPv6Address IPv6RoutingHeader::getRoutingAdditionalDataAsIPv6Address(size_t offset) const
 {
 
 	size_t routingAddDataLen = getRoutingAdditionalDataLength();
 	if (routingAddDataLen - offset >= 16)
-		return IPv6Address((uint8_t*)(getRoutingAdditionalData() + offset));
+		return pcpp::experimental::IPv6Address((uint8_t*)(getRoutingAdditionalData() + offset));
 
-	return IPv6Address::Zero;
+	return pcpp::experimental::IPv6Address();
 }
 
 
