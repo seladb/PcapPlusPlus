@@ -18,6 +18,10 @@ namespace pcpp
 namespace experimental
 {
 
+	const IPv4Address IPv4Address::Zero;
+	const IPv6Address IPv6Address::Zero;
+
+
 	std::string IPv4Address::toString() const
 	{
 		char addrBuffer[INET_ADDRSTRLEN];
@@ -74,8 +78,26 @@ namespace experimental
 	}
 
 
-	// Unspecified/zero address
-	const IPv6Address IPv6Address::Zero;
+	bool IPv4Address::matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const
+	{
+		int errorCode;
+		IPv4Address maskAsIpAddr = makeIPv4Address(subnetMask, errorCode);
+		if (errorCode != 0)
+		{
+			LOG_ERROR("Subnet mask '%s' is in illegal format", subnetMask.c_str());
+			return false;
+		}
+
+		return pcpp::experimental::matchSubnet(*this, subnet, maskAsIpAddr);
+	}
+
+
+	bool IPv4Address::matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const
+	{
+		return pcpp::experimental::matchSubnet(*this, subnet, subnetMask);
+	}
+
+
 
 	std::string IPv6Address::toString() const
 	{
@@ -115,6 +137,21 @@ namespace experimental
 			return IPAddress(); // IPv4, unspecified
 		}
 		return IPAddress(ipv6Addr);
+	}
+
+
+	void IPv6Address::copyTo(uint8_t** arr, size_t& length) const
+	{
+		const size_t addrLen = sizeof(in6_addr);
+		length = addrLen;
+		*arr = new uint8_t[addrLen];
+		memcpy(*arr, m_In6Addr.s6_addr, addrLen);
+	}
+
+
+	void IPv6Address::copyTo(uint8_t* arr) const
+	{
+		memcpy(arr, m_In6Addr.s6_addr, sizeof(in6_addr));
 	}
 
 } // namespace experimental
