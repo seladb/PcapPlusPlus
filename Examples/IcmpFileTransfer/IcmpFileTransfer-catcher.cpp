@@ -88,7 +88,7 @@ static bool waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, 
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress().toInt() != icmpFTStart->pitcherIPAddr.toUInt() || ip4Layer->getDstIpAddress().toInt() != icmpFTStart->catcherIPAddr.toUInt()) // TODO: remove toUInt()/toInt() when migration has done
+	if (ip4Layer->getSrcIpAddress() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpFTStart->catcherIPAddr)
 		return false;
 
 	// check the ICMP timestamp field which contains the type of message delivered between pitcher and catcher
@@ -147,7 +147,7 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress().toInt() != icmpData->pitcherIPAddr.toUInt() || ip4Layer->getDstIpAddress().toInt() != icmpData->catcherIPAddr.toUInt()) // TODO: remove toUInt()/toInt() when migration has done
+	if (ip4Layer->getSrcIpAddress() != icmpData->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpData->catcherIPAddr)
 		return false;
 
 	// extract message type from the ICMP request. Message type is written in ICMP request timestamp field
@@ -296,7 +296,7 @@ static bool startFileTransfer(RawPacket* rawPacket, PcapLiveDevice* dev, void* i
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress().toInt() != icmpFTStart->pitcherIPAddr.toUInt() || ip4Layer->getDstIpAddress().toInt() != icmpFTStart->catcherIPAddr.toUInt()) // // TODO: remove toUInt() when migration has done
+	if (ip4Layer->getSrcIpAddress() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpFTStart->catcherIPAddr)
 		return false;
 
 	// check the ICMP timestamp field which contains the type of message delivered between pitcher and catcher
