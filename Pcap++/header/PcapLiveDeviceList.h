@@ -1,7 +1,7 @@
 #ifndef PCAPPP_LIVE_DEVICE_LIST
 #define PCAPPP_LIVE_DEVICE_LIST
 
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "PcapLiveDevice.h"
 #include "WinPcapLiveDevice.h"
 #include <vector>
@@ -27,7 +27,7 @@ namespace pcpp
 	private:
 		std::vector<PcapLiveDevice*> m_LiveDeviceList;
 
-		std::vector<IPv4Address> m_DnsServers;
+		std::vector<pcpp::experimental::IPv4Address> m_DnsServers;
 
 		// private c'tor
 		PcapLiveDeviceList();
@@ -61,21 +61,21 @@ namespace pcpp
 		 * @param[in] ipAddr The IP address defined for the device
 		 * @return A pointer to the live device if this IP address exists. NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByIp(IPAddress* ipAddr) const;
+		inline PcapLiveDevice* getPcapLiveDeviceByIp(const pcpp::experimental::IPAddress& ipAddr) const;
 
 		/**
 		 * Get a pointer to the live device by its IPv4 address
 		 * @param[in] ipAddr The IPv4 address defined for the device
 		 * @return A pointer to the live device if this IPv4 address exists. NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByIp(IPv4Address ipAddr) const;
+		PcapLiveDevice* getPcapLiveDeviceByIp(const pcpp::experimental::IPv4Address& ipAddr) const;
 
 		/**
 		 * Get a pointer to the live device by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address defined for the device
 		 * @return A pointer to the live device if this IPv6 address exists. NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByIp(IPv6Address ip6Addr) const;
+		PcapLiveDevice* getPcapLiveDeviceByIp(const pcpp::experimental::IPv6Address& ip6Addr) const;
 
 		/**
 		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
@@ -95,13 +95,21 @@ namespace pcpp
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
 		 * couldn't be extracted from some reason
 		 */
-		const std::vector<IPv4Address>& getDnsServers() const { return m_DnsServers; }
+		const std::vector<pcpp::experimental::IPv4Address>& getDnsServers() const { return m_DnsServers; }
 
 		/**
 		 * Reset the live device list and DNS server list, meaning clear and refetch them
 		 */
 		void reset();
 	};
+
+	// implementation of inline methods
+	PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const pcpp::experimental::IPAddress& ipAddr) const
+	{
+		return (ipAddr.getType() == IPAddress::IPv4AddressType)
+			? getPcapLiveDeviceByIp(ipAddr.getIPv4())
+			: getPcapLiveDeviceByIp(ipAddr.getIPv6());
+	}
 
 } // namespace pcpp
 

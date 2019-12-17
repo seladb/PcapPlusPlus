@@ -1529,21 +1529,20 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 PTF_TEST_CASE(TestPcapLiveDeviceList)
 {
-    vector<PcapLiveDevice*> devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
-    PTF_ASSERT(!devList.empty(), "Device list is empty");
+  vector<PcapLiveDevice*> devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+  PTF_ASSERT(!devList.empty(), "Device list is empty");
 
-    IPv4Address defaultGateway = IPv4Address::Zero;
-    for(vector<PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
-    {
-    	PTF_ASSERT(!((*iter)->getName() == NULL), "Device name is NULL");
-    	if (defaultGateway == IPv4Address::Zero)
-    		defaultGateway = (*iter)->getDefaultGateway();
+  pcpp::experimental::IPv4Address defaultGateway;
+  for(vector<PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
+  {
+    PTF_ASSERT(!((*iter)->getName() == NULL), "Device name is NULL");
+    if (defaultGateway.isUnspecified())
+    	defaultGateway = (*iter)->getDefaultGateway();
+  }
 
-    }
+  PTF_ASSERT(defaultGateway != IPv4Address::Zero, "Couldn't find default gateway for any of the interfaces");
 
-    PTF_ASSERT(defaultGateway != IPv4Address::Zero, "Couldn't find default gateway for any of the interfaces");
-
-    std::vector<IPv4Address> dnsServers = PcapLiveDeviceList::getInstance().getDnsServers();
+  std::vector<pcpp::experimental::IPv4Address> dnsServers = PcapLiveDeviceList::getInstance().getDnsServers();
 	size_t dnsServerCount = dnsServers.size();
     //PTF_ASSERT(dnsServers.size() > 0, "DNS server list is empty");
 
@@ -1580,23 +1579,24 @@ PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 PTF_TEST_CASE(TestPcapLiveDevice)
 {
 	PcapLiveDevice* liveDev = NULL;
-    IPv4Address ipToSearch(PcapGlobalArgs.ipToSendReceivePackets.c_str());
-    liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
-    PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
-    PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
-    PTF_ASSERT_TRUE(liveDev->open());
-    int packetCount = 0;
-    int numOfTimeStatsWereInvoked = 0;
-    PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
-    PCAP_SLEEP(20);
-    liveDev->stopCapture();
-    PTF_ASSERT(packetCount > 0, "No packets were captured");
-    PTF_ASSERT(numOfTimeStatsWereInvoked > 18, "Stat callback was called less than expected: %d", numOfTimeStatsWereInvoked);
-    pcap_stat statistics;
-    liveDev->getStatistics(statistics);
-    //Bad test - on high traffic libpcap/winpcap sometimes drop packets
-    //PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
-    liveDev->close();
+	int errorCode;
+	pcpp::experimental::IPv4Address ipToSearch = pcpp::experimental::makeIPv4Address(PcapGlobalArgs.ipToSendReceivePackets, errorCode);
+  liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+  PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
+  PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
+  PTF_ASSERT_TRUE(liveDev->open());
+  int packetCount = 0;
+  int numOfTimeStatsWereInvoked = 0;
+  PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+  PCAP_SLEEP(20);
+  liveDev->stopCapture();
+  PTF_ASSERT(packetCount > 0, "No packets were captured");
+  PTF_ASSERT(numOfTimeStatsWereInvoked > 18, "Stat callback was called less than expected: %d", numOfTimeStatsWereInvoked);
+  pcap_stat statistics;
+  liveDev->getStatistics(statistics);
+  //Bad test - on high traffic libpcap/winpcap sometimes drop packets
+  //PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
+  liveDev->close();
 	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	// a negative test
@@ -1820,24 +1820,25 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 PTF_TEST_CASE(TestPcapFiltersLive)
 {
 	PcapLiveDevice* liveDev = NULL;
-    IPv4Address ipToSearch(PcapGlobalArgs.ipToSendReceivePackets.c_str());
-    liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
-    PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
+	int errorCode;
+	pcpp::experimental::IPv4Address ipToSearch = pcpp::experimental::makeIPv4Address(PcapGlobalArgs.ipToSendReceivePackets, errorCode);
+  liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+  PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
 
-    string filterAsString;
-    PTF_ASSERT(liveDev->open(), "Cannot open live device");
-    RawPacketVector capturedPackets;
+  string filterAsString;
+  PTF_ASSERT(liveDev->open(), "Cannot open live device");
+  RawPacketVector capturedPackets;
 
-    //-----------
-    //IP filter
-    //-----------
-    string filterAddrAsString(PcapGlobalArgs.ipToSendReceivePackets);
-    IPFilter ipFilter(filterAddrAsString, DST);
-    ipFilter.parseToString(filterAsString);
-    PTF_ASSERT(liveDev->setFilter(ipFilter), "Could not set filter: %s", filterAsString.c_str());
-    PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-    PTF_ASSERT(sendURLRequest("www.google.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
-    //let the capture work for couple of seconds
+  //-----------
+  //IP filter
+  //-----------
+  string filterAddrAsString(PcapGlobalArgs.ipToSendReceivePackets);
+  IPFilter ipFilter(filterAddrAsString, DST);
+  ipFilter.parseToString(filterAsString);
+  PTF_ASSERT(liveDev->setFilter(ipFilter), "Could not set filter: %s", filterAsString.c_str());
+  PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+  PTF_ASSERT(sendURLRequest("www.google.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
+  //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PTF_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
@@ -1848,20 +1849,20 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "Filter '%s', Packet captured isn't of type IP", filterAsString.c_str());
 		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ipv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "'IP Filter' failed. Packet IP dst is %X, expected %X", ipv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
+		PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ipToSearch.toUInt(), u32);
 	}
 
 
-    //------------
-    //Port filter
-    //------------
-    uint16_t filterPort = 80;
-    PortFilter portFilter(filterPort, SRC);
-    portFilter.parseToString(filterAsString);
-    PTF_ASSERT(liveDev->setFilter(portFilter), "Could not set filter: %s", filterAsString.c_str());
-    PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-    PTF_ASSERT(sendURLRequest("www.yahoo.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
-    //let the capture work for couple of seconds
+  //------------
+  //Port filter
+  //------------
+  uint16_t filterPort = 80;
+  PortFilter portFilter(filterPort, SRC);
+  portFilter.parseToString(filterAsString);
+  PTF_ASSERT(liveDev->setFilter(portFilter), "Could not set filter: %s", filterAsString.c_str());
+  PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+  PTF_ASSERT(sendURLRequest("www.yahoo.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
+  //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PTF_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
@@ -1875,18 +1876,18 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	capturedPackets.clear();
 
 
-    //----------------
-    //IP & Port filter
-    //----------------
-    std::vector<GeneralFilter*> andFilterFilters;
-    andFilterFilters.push_back(&ipFilter);
-    andFilterFilters.push_back(&portFilter);
-    AndFilter andFilter(andFilterFilters);
-    andFilter.parseToString(filterAsString);
-    PTF_ASSERT(liveDev->setFilter(andFilter), "Could not set filter: %s", filterAsString.c_str());
-    PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-    PTF_ASSERT(sendURLRequest("www.walla.co.il"), "Could not send URL request for filter '%s'", filterAsString.c_str());
-    //let the capture work for couple of seconds
+  //----------------
+  //IP & Port filter
+  //----------------
+  std::vector<GeneralFilter*> andFilterFilters;
+  andFilterFilters.push_back(&ipFilter);
+  andFilterFilters.push_back(&portFilter);
+  AndFilter andFilter(andFilterFilters);
+  andFilter.parseToString(filterAsString);
+  PTF_ASSERT(liveDev->setFilter(andFilter), "Could not set filter: %s", filterAsString.c_str());
+  PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+  PTF_ASSERT(sendURLRequest("www.walla.co.il"), "Could not send URL request for filter '%s'", filterAsString.c_str());
+  //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PTF_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
@@ -1897,24 +1898,24 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
 		IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
 		PTF_ASSERT(ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80, "'And Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
-		PTF_ASSERT(pIPv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "Filter failed. Packet IP dst is %X, expected %X", pIPv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
+		PTF_ASSERT_EQUAL(pIPv4Layer->getIPv4Header()->ipDst, ipToSearch.toUInt(), u32);
 	}
 	capturedPackets.clear();
 
 
-    //-----------------
-    //IP || Port filter
-    //-----------------
-    std::vector<GeneralFilter*> orFilterFilters;
-    ipFilter.setDirection(SRC);
-    orFilterFilters.push_back(&ipFilter);
-    orFilterFilters.push_back(&portFilter);
-    OrFilter orFilter(orFilterFilters);
-    orFilter.parseToString(filterAsString);
-    PTF_ASSERT(liveDev->setFilter(orFilter), "Could not set filter: %s", filterAsString.c_str());
-    PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-    PTF_ASSERT(sendURLRequest("www.youtube.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
-    //let the capture work for couple of seconds
+  //-----------------
+  //IP || Port filter
+  //-----------------
+  std::vector<GeneralFilter*> orFilterFilters;
+  ipFilter.setDirection(SRC);
+  orFilterFilters.push_back(&ipFilter);
+  orFilterFilters.push_back(&portFilter);
+  OrFilter orFilter(orFilterFilters);
+  orFilter.parseToString(filterAsString);
+  PTF_ASSERT(liveDev->setFilter(orFilter), "Could not set filter: %s", filterAsString.c_str());
+  PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+  PTF_ASSERT(sendURLRequest("www.youtube.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
+  //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PTF_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
@@ -1930,7 +1931,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 			uint32_t ipSrcAddrAsInt = 0;
 			if (pIPv4Layer != NULL)
 			{
-				srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt();
+				srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toUInt();
 				ipSrcAddrAsInt = pIPv4Layer->getIPv4Header()->ipSrc;
 			}
 			PTF_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", ntohs(pTcpLayer->getTcpHeader()->portSrc), ipSrcAddrAsInt, PcapGlobalArgs.ipToSendReceivePackets.c_str());
@@ -1938,22 +1939,22 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(IP))
 		{
 			IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
-			PTF_ASSERT(pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt(), "Filter failed. Packet IP src is %X, expected %X", pIPv4Layer->getIPv4Header()->ipSrc, ipToSearch.toInt());
+			PTF_ASSERT_EQUAL(pIPv4Layer->getIPv4Header()->ipSrc, ipToSearch.toUInt(), u32);
 		}
 		else
 			PTF_ASSERT(true, "Filter '%s', Packet isn't of type IP or TCP", filterAddrAsString.c_str());
 	}
 	capturedPackets.clear();
 
-    //----------
-    //Not filter
-    //----------
-    NotFilter notFilter(&ipFilter);
-    notFilter.parseToString(filterAsString);
-    PTF_ASSERT(liveDev->setFilter(notFilter), "Could not set filter: %s", filterAsString.c_str());
-    PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
-    PTF_ASSERT(sendURLRequest("www.ebay.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
-    //let the capture work for couple of seconds
+  //----------
+  //Not filter
+  //----------
+  NotFilter notFilter(&ipFilter);
+  notFilter.parseToString(filterAsString);
+  PTF_ASSERT(liveDev->setFilter(notFilter), "Could not set filter: %s", filterAsString.c_str());
+  PTF_ASSERT(liveDev->startCapture(capturedPackets), "Cannot start capture for filter '%s'", filterAsString.c_str());
+  PTF_ASSERT(sendURLRequest("www.ebay.com"), "Could not send URL request for filter '%s'", filterAsString.c_str());
+  //let the capture work for couple of seconds
 	PCAP_SLEEP(2);
 	liveDev->stopCapture();
 	PTF_ASSERT(capturedPackets.size() >= 2, "Captured less than 2 packets (HTTP request and response)");
@@ -1963,15 +1964,14 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(IPv4))
 		{
 			IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-			PTF_ASSERT(ipv4Layer->getIPv4Header()->ipSrc != ipToSearch.toInt(), "'Not Filter' failed. Packet IP src is %X, the same as %X", ipv4Layer->getIPv4Header()->ipSrc, ipToSearch.toInt());
+			PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ipToSearch.toUInt(), u32);
 		}
 	}
 	capturedPackets.clear();
 
-
-    liveDev->close();
-
+  liveDev->close();
 }
+
 
 PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 {
@@ -2481,45 +2481,46 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 PTF_TEST_CASE(TestSendPacket)
 {
 	PcapLiveDevice* liveDev = NULL;
-	IPv4Address ipToSearch(PcapGlobalArgs.ipToSendReceivePackets.c_str());
+	int errorCode;
+	pcpp::experimental::IPv4Address ipToSearch = pcpp::experimental::makeIPv4Address(PcapGlobalArgs.ipToSendReceivePackets, errorCode);
 	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
-    PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
-    PTF_ASSERT(liveDev->open(), "Cannot open live device");
+  PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
+  PTF_ASSERT(liveDev->open(), "Cannot open live device");
 
-    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
-    PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
+  PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
+  PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
 
-    PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
-    uint16_t mtu = liveDev->getMtu();
-    int buffLen = mtu+1;
-    uint8_t* buff = new uint8_t[buffLen];
-    memset(buff, 0, buffLen);
-    PTF_ASSERT(!liveDev->sendPacket(buff, buffLen), "Defected packet was sent successfully");
+  PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
+  uint16_t mtu = liveDev->getMtu();
+  int buffLen = mtu+1;
+  uint8_t* buff = new uint8_t[buffLen];
+  memset(buff, 0, buffLen);
+  PTF_ASSERT(!liveDev->sendPacket(buff, buffLen), "Defected packet was sent successfully");
 
-    RawPacket rawPacket;
-    int packetsSent = 0;
-    int packetsRead = 0;
-    while(fileReaderDev.getNextPacket(rawPacket))
-    {
-    	packetsRead++;
+  RawPacket rawPacket;
+  int packetsSent = 0;
+  int packetsRead = 0;
+  while(fileReaderDev.getNextPacket(rawPacket))
+  {
+    packetsRead++;
 
-    	//send packet as RawPacket
-    	PTF_ASSERT(liveDev->sendPacket(rawPacket), "Could not send raw packet");
+    //send packet as RawPacket
+    PTF_ASSERT(liveDev->sendPacket(rawPacket), "Could not send raw packet");
 
-    	//send packet as raw data
-    	PTF_ASSERT(liveDev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()), "Could not send raw data");
+    //send packet as raw data
+    PTF_ASSERT(liveDev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()), "Could not send raw data");
 
-    	//send packet as parsed EthPacekt
-    	Packet packet(&rawPacket);
-    	PTF_ASSERT(liveDev->sendPacket(&packet), "Could not send parsed packet");
+    //send packet as parsed EthPacekt
+    Packet packet(&rawPacket);
+    PTF_ASSERT(liveDev->sendPacket(&packet), "Could not send parsed packet");
 
-   		packetsSent++;
-    }
+   	packetsSent++;
+  }
 
-    PTF_ASSERT(packetsRead == packetsSent, "Unexpected number of packets sent. Expected (read from file): %d; Sent: %d", packetsRead, packetsSent);
+  PTF_ASSERT(packetsRead == packetsSent, "Unexpected number of packets sent. Expected (read from file): %d; Sent: %d", packetsRead, packetsSent);
 
-    liveDev->close();
-    fileReaderDev.close();
+  liveDev->close();
+  fileReaderDev.close();
 
 	delete[] buff;
 }
@@ -2527,36 +2528,37 @@ PTF_TEST_CASE(TestSendPacket)
 PTF_TEST_CASE(TestSendPackets)
 {
 	PcapLiveDevice* liveDev = NULL;
-	IPv4Address ipToSearch(PcapGlobalArgs.ipToSendReceivePackets.c_str());
+	int errorCode;
+	pcpp::experimental::IPv4Address ipToSearch = pcpp::experimental::makeIPv4Address(PcapGlobalArgs.ipToSendReceivePackets, errorCode);
 	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
-    PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
-    PTF_ASSERT(liveDev->open(), "Cannot open live device");
+  PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
+  PTF_ASSERT(liveDev->open(), "Cannot open live device");
 
-    PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
-    PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
+  PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
+  PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
 
-    RawPacket rawPacketArr[10000];
-    PointerVector<Packet> packetVec;
-    Packet* packetArr[10000];
-    int packetsRead = 0;
-    while(fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
-    {
-    	packetVec.pushBack(new Packet(&rawPacketArr[packetsRead]));
-    	packetsRead++;
-    }
+  RawPacket rawPacketArr[10000];
+  PointerVector<Packet> packetVec;
+  Packet* packetArr[10000];
+  int packetsRead = 0;
+  while(fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
+  {
+    packetVec.pushBack(new Packet(&rawPacketArr[packetsRead]));
+    packetsRead++;
+  }
 
-    //send packets as RawPacket array
-    int packetsSentAsRaw = liveDev->sendPackets(rawPacketArr, packetsRead);
+  //send packets as RawPacket array
+  int packetsSentAsRaw = liveDev->sendPackets(rawPacketArr, packetsRead);
 
-    //send packets as parsed EthPacekt array
-    std::copy(packetVec.begin(), packetVec.end(), packetArr);
-    int packetsSentAsParsed = liveDev->sendPackets(packetArr, packetsRead);
+  //send packets as parsed EthPacekt array
+  std::copy(packetVec.begin(), packetVec.end(), packetArr);
+  int packetsSentAsParsed = liveDev->sendPackets(packetArr, packetsRead);
 
-    PTF_ASSERT(packetsSentAsRaw == packetsRead, "Not all packets were sent as raw. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsRaw);
-    PTF_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsParsed);
+  PTF_ASSERT(packetsSentAsRaw == packetsRead, "Not all packets were sent as raw. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsRaw);
+  PTF_ASSERT(packetsSentAsParsed == packetsRead, "Not all packets were sent as parsed. Expected (read from file): %d; Sent: %d", packetsRead, packetsSentAsParsed);
 
-    liveDev->close();
-    fileReaderDev.close();
+  liveDev->close();
+  fileReaderDev.close();
 }
 
 PTF_TEST_CASE(TestRemoteCapture)
@@ -4639,49 +4641,48 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 PTF_TEST_CASE(TestGetMacAddress)
 {
 	PcapLiveDevice* liveDev = NULL;
-	IPv4Address ipToSearch(PcapGlobalArgs.ipToSendReceivePackets.c_str());
+	int errorCode;
+	pcpp::experimental::IPv4Address ipToSearch = pcpp::experimental::makeIPv4Address(PcapGlobalArgs.ipToSendReceivePackets, errorCode);
 	liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
-    PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
-    PTF_ASSERT(liveDev->open(), "Cannot open live device");
+  PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
+  PTF_ASSERT(liveDev->open(), "Cannot open live device");
 
-    //fetch all IP addresses from arp table
-    std::string ipsInArpTableAsString;
+  //fetch all IP addresses from arp table
+  std::string ipsInArpTableAsString;
 #ifdef WIN32
-    ipsInArpTableAsString = executeShellCommand("arp -a | for /f \"tokens=1\" \%i in ('findstr dynamic') do @echo \%i");
-    ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
+  ipsInArpTableAsString = executeShellCommand("arp -a | for /f \"tokens=1\" \%i in ('findstr dynamic') do @echo \%i");
+  ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
 #else
-    ipsInArpTableAsString = executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
+  ipsInArpTableAsString = executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
 #endif
 
-    PTF_ASSERT(ipsInArpTableAsString != "", "Couldn't find IP addresses in arp-table to compare the result to. Aborting");
+  PTF_ASSERT(ipsInArpTableAsString != "", "Couldn't find IP addresses in arp-table to compare the result to. Aborting");
 
-    // iterate all IP addresses and arping each one until one of them answers
-    MacAddress result = MacAddress::Zero;
-    std::stringstream sstream(ipsInArpTableAsString);
-    std::string ip;
-    double time = -1;
-    while (std::getline(sstream, ip, '\n'))
+  // iterate all IP addresses and arping each one until one of them answers
+  MacAddress result = MacAddress::Zero;
+  std::stringstream sstream(ipsInArpTableAsString);
+  std::string ip;
+  double time = -1;
+  while (std::getline(sstream, ip, '\n'))
+  {
+		pcpp::experimental::IPv4Address ipAddr = pcpp::experimental::makeIPv4Address(ip, errorCode);
+    PTF_ASSERT_EQUAL(errorCode, 0, int);
+    LoggerPP::getInstance().supressErrors();
+    result = NetworkUtils::getInstance().getMacAddress(ipAddr.toUInt(), liveDev, time); // TODO: delete toUInt() when migration has done
+    LoggerPP::getInstance().enableErrors();
+    if (result != MacAddress::Zero)
     {
-    	IPv4Address ipAddr(ip);
-    	PTF_ASSERT(ipAddr.isValid(), "Got non-valid ip from arp-table: '%s'", ip.c_str());
-    	LoggerPP::getInstance().supressErrors();
-    	result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
-    	LoggerPP::getInstance().enableErrors();
-    	if (result != MacAddress::Zero)
-    	{
-    		PTF_ASSERT_AND_RUN_COMMAND(time >= 0, liveDev->close(), "Time is zero");
-    		result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
-    		PTF_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping with MAC address and IPv4 address failed");
-    		break;
-    	}
+    	PTF_ASSERT_AND_RUN_COMMAND(time >= 0, liveDev->close(), "Time is zero");
+    	result = NetworkUtils::getInstance().getMacAddress(ipAddr.toUInt(), liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address().toUInt()); // TODO: delete toUInt() when migration has done
+    	PTF_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping with MAC address and IPv4 address failed");
+    	break;
     }
+  }
 
-    PTF_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping to all IPs in arp-table failed");
+  PTF_ASSERT_AND_RUN_COMMAND(result != MacAddress::Zero, liveDev->close(), "Arping to all IPs in arp-table failed");
 
-    liveDev->close();
-
-
-}
+  liveDev->close();
+} // TestGetMacAddress
 
 
 struct TcpReassemblyStats

@@ -111,7 +111,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 		sourceMac = device->getMacAddress();
 
 	if (sourceIP == IPv4Address::Zero)
-		sourceIP = device->getIPv4Address();
+		sourceIP = device->getIPv4Address().toUInt(); // TODO: delete toUInt() when migration has completed
 
 	if (arpTimeout <= 0)
 		arpTimeout = NetworkUtils::DefaultTimeout;
@@ -339,7 +339,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	// if gateway IP wasn't provided - try to find the default gateway
 	if (gatewayIP == IPv4Address::Zero)
 	{
-		gatewayIP = device->getDefaultGateway();
+		gatewayIP = device->getDefaultGateway().toUInt(); // TODO: delete toUInt() when migration has completed
 	}
 
 	if (!gatewayIP.isValid() || gatewayIP == IPv4Address::Zero)
@@ -364,7 +364,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	// validate DNS server IP. If it wasn't provided - set the system-configured DNS server
 	if (dnsServerIP == IPv4Address::Zero && device->getDnsServers().size() > 0)
 	{
-		dnsServerIP = device->getDnsServers().at(0);
+		dnsServerIP = device->getDnsServers().at(0).toUInt(); // TODO: delete toUInt() when migration has completed
 	}
 
 	if (!dnsServerIP.isValid())
@@ -378,7 +378,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	Packet dnsRequest(100);
 	MacAddress sourceMac = device->getMacAddress();
 	EthLayer ethLayer(sourceMac, gatewayMacAddress, PCPP_ETHERTYPE_IP);
-	IPv4Layer ipLayer(device->getIPv4Address(), dnsServerIP);
+	IPv4Layer ipLayer(device->getIPv4Address().toUInt(), dnsServerIP); // TODO: delete toUInt() when migration has completed
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
 	// randomize source port to a number >= 10000

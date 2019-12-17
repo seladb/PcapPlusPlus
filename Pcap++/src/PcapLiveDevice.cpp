@@ -61,8 +61,7 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
-		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(), m_MacAddress("")
 {
 	m_Name = NULL;
 	m_Description = NULL;
@@ -822,8 +821,9 @@ void PcapLiveDevice::setDefaultGateway()
 		while (curAdapterInfo != NULL)
 		{
 			std::string name(m_Name);
+			int errorCode;
 			if (name.find(curAdapterInfo->AdapterName) != std::string::npos)
-				m_DefaultGateway = IPv4Address(curAdapterInfo->GatewayList.IpAddress.String);
+				m_DefaultGateway = pcpp::experimental::makeIPv4Address(curAdapterInfo->GatewayList.IpAddress.String, errorCode);
 
 			curAdapterInfo = curAdapterInfo->Next;
 		}
@@ -858,7 +858,7 @@ void PcapLiveDevice::setDefaultGateway()
 	  std::stringstream interfaceGatewayStream;
 	  interfaceGatewayStream << std::hex << interfaceGateway;
 	  interfaceGatewayStream >> interfaceGatewayIPInt;
-	  m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
+	  m_DefaultGateway = pcpp::experimental::IPv4Address(interfaceGatewayIPInt);
 	}
 #elif MAC_OS_X || FREEBSD
 	std::string ifaceStr = std::string(m_Name);
@@ -880,11 +880,12 @@ void PcapLiveDevice::setDefaultGateway()
 	// erase string after gateway IP address
 	ifaceInfo.resize(ifaceInfo.find(' ', 0));
 
-	m_DefaultGateway = IPv4Address(ifaceInfo);
+	int errorCode;
+	m_DefaultGateway = pcpp::experimental::makeIPv4Address(ifaceInfo, errorCode);
 #endif
 }
 
-IPv4Address PcapLiveDevice::getIPv4Address() const
+pcpp::experimental::IPv4Address PcapLiveDevice::getIPv4Address() const
 {
 	for(std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
 	{
@@ -902,19 +903,14 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 			continue;
 		}
 
-		return IPv4Address(currAddr);
+		return pcpp::experimental::IPv4Address(currAddr->s_addr);
 	}
 
-	return IPv4Address::Zero;
+	return pcpp::experimental::IPv4Address();
 }
 
 
-IPv4Address PcapLiveDevice::getDefaultGateway() const
-{
-	return m_DefaultGateway;
-}
-
-const std::vector<IPv4Address>& PcapLiveDevice::getDnsServers() const
+const std::vector<pcpp::experimental::IPv4Address>& PcapLiveDevice::getDnsServers() const
 {
 	return PcapLiveDeviceList::getInstance().getDnsServers();
 }

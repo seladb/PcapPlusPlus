@@ -63,6 +63,7 @@ void PcapLiveDeviceList::init()
 
 void PcapLiveDeviceList::setDnsServers()
 {
+	int errorCode;
 #if defined(WIN32) || defined(WINx64)
 	FIXED_INFO * fixedInfo;
 	ULONG    ulOutBufLen;
@@ -84,14 +85,14 @@ void PcapLiveDeviceList::setDnsServers()
 		LOG_ERROR("Call to GetNetworkParams failed. Return Value: %08lx\n", dwRetVal);
 	else
 	{
-		m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
+		m_DnsServers.push_back(pcpp::experimental::makeIPv4Address(fixedInfo->DnsServerList.IpAddress.String, errorCode));
 		int i = 1;
 		LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, fixedInfo->DnsServerList.IpAddress.String );
 
 		pIPAddr = fixedInfo->DnsServerList.Next;
 		while ( pIPAddr )
 		{
-			m_DnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
+			m_DnsServers.push_back(pcpp::experimental::makeIPv4Address(pIPAddr->IpAddress.String, errorCode));
 			LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, pIPAddr->IpAddress.String);
 			pIPAddr = pIPAddr -> Next;
 		}
@@ -137,8 +138,8 @@ void PcapLiveDeviceList::setDnsServers()
 		std::string dnsIP;
 		lineStream >> headline;
 		lineStream >> dnsIP;
-		IPv4Address dnsIPAddr(dnsIP);
-		if (!dnsIPAddr.isValid())
+		pcpp::experimental::IPv4Address dnsIPAddr = pcpp::experimental::makeIPv4Address(dnsIP, errorCode);
+		if (errorCode != 0)
 			continue;
 
 		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
@@ -186,7 +187,7 @@ void PcapLiveDeviceList::setDnsServers()
 		uint8_t buf[20];
 		char* serverAddressCString = (char*)buf;
 		CFStringGetCString(serverAddress, serverAddressCString, 20, kCFStringEncodingUTF8);
-		m_DnsServers.push_back(IPv4Address(serverAddressCString));
+		m_DnsServers.push_back(pcpp::experimental::makeIPv4Address(serverAddressCString, errorCode));
 		LOG_DEBUG("Default DNS server IP #%d: %s\n", (int)(i+1), serverAddressCString);
 	}
 
@@ -195,21 +196,7 @@ void PcapLiveDeviceList::setDnsServers()
 #endif
 }
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* ipAddr) const
-{
-	if (ipAddr->getType() == IPAddress::IPv4AddressType)
-	{
-		IPv4Address* ip4Addr = static_cast<IPv4Address*>(ipAddr);
-		return getPcapLiveDeviceByIp(*ip4Addr);
-	}
-	else //IPAddress::IPv6AddressType
-	{
-		IPv6Address* ip6Addr = static_cast<IPv6Address*>(ipAddr);
-		return getPcapLiveDeviceByIp(*ip6Addr);
-	}
-}
-
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr) const
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const pcpp::experimental::IPv4Address& ipAddr) const
 {
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
@@ -231,7 +218,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr) co
 				continue;
 			}
 
-			if (currAddr->s_addr == ipAddr.toInAddr()->s_addr)
+			if (currAddr->s_addr == ipAddr.toUInt())
 			{
 				LOG_DEBUG("Found matched address!");
 				return (*devIter);
@@ -242,7 +229,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr) co
 	return NULL;
 }
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr) const
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const pcpp::experimental::IPv6Address& ip6Addr) const
 {
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
@@ -264,16 +251,11 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr) c
 				continue;
 			}
 
-			uint8_t* addrAsArr; size_t addrLen;
-			ip6Addr.copyTo(&addrAsArr, addrLen);
-			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
+			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
 				LOG_DEBUG("Found matched address!");
-				delete [] addrAsArr;
 				return (*devIter);
 			}
-
-			delete [] addrAsArr;
 		}
 	}
 
@@ -282,15 +264,15 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr) c
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsString) const
 {
-	IPAddress::Ptr_t apAddr = IPAddress::fromString(ipAddrAsString);
-	if (apAddr.get() == NULL || !apAddr->isValid())
+	int errorCode;
+	pcpp::experimental::IPAddress ipAddr = pcpp::experimental::makeAddress(ipAddrAsString, errorCode);
+	if (errorCode != 0)
 	{
-		LOG_ERROR("IP address illegal");
+		LOG_ERROR("IP address is illegal");
 		return NULL;
 	}
 
-	PcapLiveDevice* result = PcapLiveDeviceList::getPcapLiveDeviceByIp(apAddr.get());
-	return result;
+	return PcapLiveDeviceList::getPcapLiveDeviceByIp(ipAddr);
 }
 
 
@@ -305,7 +287,6 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 	}
 
 	return NULL;
-
 }
 
 void PcapLiveDeviceList::reset()
