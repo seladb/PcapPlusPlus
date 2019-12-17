@@ -11,7 +11,7 @@ namespace pcpp
 
 DhcpOption DhcpOptionBuilder::build() const
 {
-	size_t recSize = 2*sizeof(uint8_t) + m_RecValueLen;
+	size_t recSize = 2 * sizeof(uint8_t) + m_RecValueLen;
 
 	if ((m_RecType == DHCPOPT_END || m_RecType == DHCPOPT_PAD))
 	{
@@ -71,44 +71,44 @@ DhcpLayer::DhcpLayer(DhcpMessageType msgType, const MacAddress& clientMacAddr) :
 	msgTypeOptionPtr[3] =  (uint8_t)DHCPOPT_END;
 }
 
-IPv4Address DhcpLayer::getClientIpAddress() const
+pcpp::experimental::IPv4Address DhcpLayer::getClientIpAddress() const
 {
-	return IPv4Address(getDhcpHeader()->clientIpAddress);
+	return getDhcpHeader()->clientIpAddress;
 }
 
-void DhcpLayer::setClientIpAddress(const IPv4Address& addr)
+void DhcpLayer::setClientIpAddress(const pcpp::experimental::IPv4Address& addr)
 {
-	getDhcpHeader()->clientIpAddress = addr.toInt();
+	getDhcpHeader()->clientIpAddress = addr.toUInt();
 }
 
-IPv4Address DhcpLayer::getServerIpAddress() const
+pcpp::experimental::IPv4Address DhcpLayer::getServerIpAddress() const
 {
-	return IPv4Address(getDhcpHeader()->serverIpAddress);
+	return getDhcpHeader()->serverIpAddress;
 }
 
-void DhcpLayer::setServerIpAddress(const IPv4Address& addr)
+void DhcpLayer::setServerIpAddress(const pcpp::experimental::IPv4Address& addr)
 {
-	getDhcpHeader()->serverIpAddress = addr.toInt();
+	getDhcpHeader()->serverIpAddress = addr.toUInt();
 }
 
-IPv4Address DhcpLayer::getYourIpAddress() const
+pcpp::experimental::IPv4Address DhcpLayer::getYourIpAddress() const
 {
-	return IPv4Address(getDhcpHeader()->yourIpAddress);
+	return getDhcpHeader()->yourIpAddress;
 }
 
-void DhcpLayer::setYourIpAddress(const IPv4Address& addr)
+void DhcpLayer::setYourIpAddress(const pcpp::experimental::IPv4Address& addr)
 {
-	getDhcpHeader()->yourIpAddress = addr.toInt();
+	getDhcpHeader()->yourIpAddress = addr.toUInt();
 }
 
-IPv4Address DhcpLayer::getGatewayIpAddress() const
+pcpp::experimental::IPv4Address DhcpLayer::getGatewayIpAddress() const
 {
-	return IPv4Address(getDhcpHeader()->gatewayIpAddress);
+	return getDhcpHeader()->gatewayIpAddress;
 }
 
-void DhcpLayer::setGatewayIpAddress(const IPv4Address& addr)
+void DhcpLayer::setGatewayIpAddress(const pcpp::experimental::IPv4Address& addr)
 {
-	getDhcpHeader()->gatewayIpAddress = addr.toInt();
+	getDhcpHeader()->gatewayIpAddress = addr.toUInt();
 }
 
 MacAddress DhcpLayer::getClientHardwareAddress() const

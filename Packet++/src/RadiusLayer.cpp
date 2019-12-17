@@ -24,7 +24,7 @@ RadiusAttribute RadiusAttributeBuilder::build() const
 	recordBuffer[0] = m_RecType;
 	recordBuffer[1] = recSize;
 	if (m_RecValueLen > 0)
-		memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
+		memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
 
 	return RadiusAttribute(recordBuffer);
 }

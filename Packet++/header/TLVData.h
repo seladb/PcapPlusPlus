@@ -2,7 +2,7 @@
 #define PACKETPP_TLV_DATA
 
 #include "Layer.h"
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include <string.h>
 
 /// @file
@@ -362,7 +362,7 @@ namespace pcpp
 
 		TLVRecordBuilder(uint8_t recType, uint32_t recValue);
 
-		TLVRecordBuilder(uint8_t recType, const IPv4Address& recValue);
+		TLVRecordBuilder(uint8_t recType, const pcpp::experimental::IPv4Address& recValue);
 
 		TLVRecordBuilder(uint8_t recType, const std::string& recValue);
 

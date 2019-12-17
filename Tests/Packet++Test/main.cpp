@@ -5279,9 +5279,11 @@ PTF_TEST_CASE(DhcpCreationTest)
 {
 	EthLayer ethLayer(MacAddress("00:13:72:25:fa:cd"), MacAddress("00:e0:b1:49:39:02"));
 
-	IPv4Address srcIp(std::string("172.22.178.234"));
-	IPv4Address dstIp(std::string("10.10.8.240"));
-	IPv4Layer ipLayer(srcIp, dstIp);
+	int errorCode;
+	pcpp::experimental::IPv4Address
+		srcIp = pcpp::experimental::makeIPv4Address("172.22.178.234", errorCode),
+		dstIp = pcpp::experimental::makeIPv4Address("10.10.8.240", errorCode);
+	IPv4Layer ipLayer(srcIp.toUInt(), dstIp.toUInt()); // TODO: remove toUInt() when migration has completed
 	ipLayer.getIPv4Header()->ipId = htons(20370);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
@@ -5292,36 +5294,37 @@ PTF_TEST_CASE(DhcpCreationTest)
 	dhcpLayer.getDhcpHeader()->hops = 1;
 	dhcpLayer.getDhcpHeader()->transactionID = htonl(0x7771cf85);
 	dhcpLayer.getDhcpHeader()->secondsElapsed = htons(10);
-	IPv4Address yourIP(std::string("10.10.8.235"));
-	IPv4Address serverIP(std::string("172.22.178.234"));
-	IPv4Address gatewayIP(std::string("10.10.8.240"));
+	pcpp::experimental::IPv4Address
+		yourIP = pcpp::experimental::makeIPv4Address("10.10.8.235", errorCode),
+		serverIP = pcpp::experimental::makeIPv4Address("172.22.178.234", errorCode),
+		gatewayIP = pcpp::experimental::makeIPv4Address("10.10.8.240", errorCode);
 	dhcpLayer.setYourIpAddress(yourIP);
 	dhcpLayer.setServerIpAddress(serverIP);
 	dhcpLayer.setGatewayIpAddress(gatewayIP);
 
-	DhcpOption subnetMaskOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_SUBNET_MASK, IPv4Address(std::string("255.255.255.0"))));
-	PTF_ASSERT(subnetMaskOpt.isNull() == false, "Couldn't add subnet mask option");
+	DhcpOption subnetMaskOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_SUBNET_MASK, pcpp::experimental::makeIPv4Address("255.255.255.0", errorCode)));
+	PTF_ASSERT_FALSE(subnetMaskOpt.isNull());
 
 	uint8_t sipServersData[] = { 0x01, 0xac, 0x16, 0xb2, 0xea };
 	DhcpOption sipServersOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_SIP_SERVERS, sipServersData, 5));
-	PTF_ASSERT(sipServersOpt.isNull() == false, "Couldn't add SIP servers option");
+	PTF_ASSERT_FALSE(sipServersOpt.isNull());
 
 	uint8_t agentData[] = { 0x01, 0x14, 0x20, 0x50, 0x4f, 0x4e, 0x20, 0x31, 0x2f, 0x31, 0x2f, 0x30, 0x37, 0x2f, 0x30, 0x31, 0x3a, 0x31, 0x2e, 0x30, 0x2e, 0x31 };
 	DhcpOption agentOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_DHCP_AGENT_OPTIONS, agentData, 22));
-	PTF_ASSERT(agentOpt.isNull() == false, "Couldn't add agent option");
+	PTF_ASSERT_FALSE(agentOpt.isNull());
 
 	DhcpOption clientIdOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_CLIENT_IDENTIFIER, NULL, 16), DHCPOPT_SIP_SERVERS);
 	clientIdOpt.setValue<uint8_t>(0);
 	clientIdOpt.setValueString("nathan1clientid", 1);
-	PTF_ASSERT(clientIdOpt.isNull() == false, "Couldn't add client ID option");
+	PTF_ASSERT_FALSE(clientIdOpt.isNull());
 
 	uint8_t authOptData[] = { 0x01, 0x01, 0x00, 0xc8, 0x78, 0xc4, 0x52, 0x56, 0x40, 0x20, 0x81, 0x31, 0x32, 0x33, 0x34, 0x8f, 0xe0, 0xcc, 0xe2, 0xee, 0x85, 0x96,
 			0xab, 0xb2, 0x58, 0x17, 0xc4, 0x80, 0xb2, 0xfd, 0x30};
 	DhcpOption authOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_AUTHENTICATION, authOptData, 31), DHCPOPT_DHCP_CLIENT_IDENTIFIER);
-	PTF_ASSERT(authOpt.isNull() == false, "Couldn't add authentication option");
+	PTF_ASSERT_FALSE(authOpt.isNull());
 
-	DhcpOption dhcpServerIdOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_SERVER_IDENTIFIER, IPv4Address(std::string("172.22.178.234"))), DHCPOPT_SUBNET_MASK);
-	PTF_ASSERT(dhcpServerIdOpt.isNull() == false, "Couldn't add DHCP server ID option");
+	DhcpOption dhcpServerIdOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_SERVER_IDENTIFIER, pcpp::experimental::makeIPv4Address("172.22.178.234", errorCode)), DHCPOPT_SUBNET_MASK);
+	PTF_ASSERT_FALSE(dhcpServerIdOpt.isNull());
 
 	Packet newPacket(6);
 	newPacket.addLayer(&ethLayer);
@@ -5329,30 +5332,31 @@ PTF_TEST_CASE(DhcpCreationTest)
 	newPacket.addLayer(&udpLayer);
 	newPacket.addLayer(&dhcpLayer);
 
-	DhcpOption routerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_ROUTERS, IPv4Address(std::string("10.10.8.254"))), DHCPOPT_DHCP_SERVER_IDENTIFIER);
-	PTF_ASSERT(routerOpt.isNull() == false, "Couldn't add routers option");
+	DhcpOption routerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_ROUTERS, pcpp::experimental::makeIPv4Address("10.10.8.254", errorCode)), DHCPOPT_DHCP_SERVER_IDENTIFIER);
+	PTF_ASSERT_FALSE(routerOpt.isNull());
 
-	DhcpOption tftpServerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_TFTP_SERVER_NAME, std::string("172.22.178.234")), DHCPOPT_ROUTERS);
-	PTF_ASSERT(tftpServerOpt.isNull() == false, "Couldn't add TFTP server name option");
+	DhcpOption tftpServerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_TFTP_SERVER_NAME, "172.22.178.234"), DHCPOPT_ROUTERS);
+	PTF_ASSERT_FALSE(tftpServerOpt.isNull());
 
 	DhcpOption dnsOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DOMAIN_NAME_SERVERS, NULL, 8), DHCPOPT_ROUTERS);
-	PTF_ASSERT(dnsOpt.isNull() == false, "Couldn't add DNS option");
-	IPv4Address dns1IP = IPv4Address(std::string("143.209.4.1"));
-	IPv4Address dns2IP = IPv4Address(std::string("143.209.5.1"));
+	PTF_ASSERT_FALSE(dnsOpt.isNull());
+	pcpp::experimental::IPv4Address
+		dns1IP = pcpp::experimental::makeIPv4Address("143.209.4.1", errorCode),
+		dns2IP = pcpp::experimental::makeIPv4Address("143.209.5.1", errorCode);
 	dnsOpt.setValueIpAddr(dns1IP);
 	dnsOpt.setValueIpAddr(dns2IP, 4);
 
 	DhcpOption leaseOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_LEASE_TIME, (uint32_t)43200), DHCPOPT_DHCP_SERVER_IDENTIFIER);
-	PTF_ASSERT(leaseOpt.isNull() == false, "Couldn't add lease option");
+	PTF_ASSERT_FALSE(leaseOpt.isNull());
 
 	newPacket.computeCalculateFields();
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/Dhcp1.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
-	PTF_ASSERT(bufferLength == newPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", newPacket.getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(newPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(bufferLength, newPacket.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(newPacket.getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete [] buffer;
 } // DhcpCreationTest
@@ -5363,7 +5367,7 @@ PTF_TEST_CASE(DhcpEditTest)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/Dhcp4.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file Dhcp4.dat");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -5373,58 +5377,58 @@ PTF_TEST_CASE(DhcpEditTest)
 
 	DhcpLayer* dhcpLayer = dhcpPacket.getLayerOfType<DhcpLayer>();
 
-	PTF_ASSERT(dhcpLayer->removeOption(DHCPOPT_TFTP_SERVER_NAME) == true, "Couldn't remove DHCPOPT_TFTP_SERVER_NAME");
+	PTF_ASSERT_TRUE(dhcpLayer->removeOption(DHCPOPT_TFTP_SERVER_NAME));
 
-	PTF_ASSERT(dhcpLayer->removeOption(DHCPOPT_TFTP_SERVER_NAME) == false, "Managed to remove DHCPOPT_TFTP_SERVER_NAME twice");
+	PTF_ASSERT_FALSE(dhcpLayer->removeOption(DHCPOPT_TFTP_SERVER_NAME));
 
-	PTF_ASSERT(dhcpLayer->removeOption(DHCPOPT_IRC_SERVER) == false, "Managed to remove non-existing DHCPOPT_IRC_SERVER");
+	PTF_ASSERT_FALSE(dhcpLayer->removeOption(DHCPOPT_IRC_SERVER));
 
-	PTF_ASSERT(dhcpLayer->removeOption(DHCPOPT_DHCP_MAX_MESSAGE_SIZE) == true, "Couldn't remove DHCPOPT_DHCP_MAX_MESSAGE_SIZE");
+	PTF_ASSERT_TRUE(dhcpLayer->removeOption(DHCPOPT_DHCP_MAX_MESSAGE_SIZE));
 
 	DhcpOption opt = dhcpLayer->getOptionData(DHCPOPT_SUBNET_MASK);
-	IPv4Address newSubnet(std::string("255.255.255.0"));
-	opt.setValueIpAddr(newSubnet);
+	int errorCode;
+	opt.setValueIpAddr(pcpp::experimental::makeIPv4Address("255.255.255.0", errorCode));
 
-	PTF_ASSERT(dhcpLayer->setMesageType(DHCP_ACK) == true, "Couldn't change message type");
+	PTF_ASSERT_TRUE(dhcpLayer->setMesageType(DHCP_ACK));
 
-	IPv4Address newRouter(std::string("192.168.2.1"));
+	pcpp::experimental::IPv4Address newRouter = pcpp::experimental::makeIPv4Address("192.168.2.1", errorCode);
 
 	opt = dhcpLayer->addOptionAfter(DhcpOptionBuilder(DHCPOPT_ROUTERS, newRouter), DHCPOPT_SUBNET_MASK);
-	PTF_ASSERT(opt.isNull() == false, "Couldn't add DHCPOPT_ROUTERS option");
+	PTF_ASSERT_FALSE(opt.isNull());
 
 	opt = dhcpLayer->addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_SERVER_IDENTIFIER, newRouter), DHCPOPT_DHCP_MESSAGE_TYPE);
-	PTF_ASSERT(opt.isNull() == false, "Couldn't add DHCPOPT_DHCP_SERVER_IDENTIFIER option");
+	PTF_ASSERT_FALSE(opt.isNull());
 
 	dhcpPacket.computeCalculateFields();
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/Dhcp3.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file Dhcp3.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
-	PTF_ASSERT(buffer2Length == dhcpPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dhcpPacket.getRawPacket()->getRawDataLen(), buffer2Length);
-	PTF_ASSERT(memcmp(dhcpPacket.getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(buffer2Length, dhcpPacket.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(dhcpPacket.getRawPacket()->getRawData(), buffer2, buffer2Length);
 
 	delete [] buffer2;
 
-	PTF_ASSERT(dhcpLayer->removeAllOptions() == true, "Couldn't remove all options");
+	PTF_ASSERT_TRUE(dhcpLayer->removeAllOptions());
 
-	PTF_ASSERT(dhcpLayer->getOptionsCount() == 0, "Option count isn't 0 after removing all options");
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 0, size);
 
-	PTF_ASSERT(dhcpLayer->getDataLen() == sizeof(dhcp_header), "DHCP layer data isn't sizeof(dhcp_header) after removing all options");
+	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(dhcp_header), size);
 
-	PTF_ASSERT(dhcpLayer->getMesageType() == DHCP_UNKNOWN_MSG_TYPE, "Managed to get message type after all options removed");
+	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), DHCP_UNKNOWN_MSG_TYPE, enum);
 
-	PTF_ASSERT(dhcpLayer->addOption(DhcpOptionBuilder(DHCPOPT_END, NULL, 0)).isNull() == false, "Couldn't set DHCPOPT_END");
+	PTF_ASSERT_FALSE(dhcpLayer->addOption(DhcpOptionBuilder(DHCPOPT_END, NULL, 0)).isNull());
 
-	PTF_ASSERT(dhcpLayer->setMesageType(DHCP_UNKNOWN_MSG_TYPE) == false, "Managed to set message type to DHCP_UNKNOWN_MSG_TYPE");
+	PTF_ASSERT_FALSE(dhcpLayer->setMesageType(DHCP_UNKNOWN_MSG_TYPE));
 
-	PTF_ASSERT(dhcpLayer->setMesageType(DHCP_DISCOVER) == true, "Couldn't set message type to DHCP_DISCOVER");
+	PTF_ASSERT_TRUE(dhcpLayer->setMesageType(DHCP_DISCOVER));
 
-	PTF_ASSERT(dhcpLayer->getOptionsCount() == 2, "Option count isn't 2 after re-adding 2 options");
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 2, size);
 
-	PTF_ASSERT(dhcpLayer->getDataLen() == sizeof(dhcp_header)+4, "DHCP layer data isn't sizeof(dhcp_header)+4 after re-adding 2 options");
+	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(dhcp_header) + 4, size);
 
-	PTF_ASSERT(dhcpLayer->getMesageType() == DHCP_DISCOVER, "Message type isn't DHCP_DISCOVER after re-adding options");
+	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), DHCP_DISCOVER, enum);
 
 	dhcpPacket.computeCalculateFields();
 } // DhcpEditTest
@@ -7021,7 +7025,7 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 
 	int buffer11Length = 0;
 	uint8_t* buffer11 = readFileIntoBuffer("PacketExamples/radius_11.dat", buffer11Length);
-	PTF_ASSERT(!(buffer11 == NULL), "cannot read file radius_11.dat");
+	PTF_ASSERT_NOT_NULL(buffer11);
 
 	RawPacket rawPacket((const uint8_t*)buffer11, buffer11Length, time, true);
 
@@ -7030,60 +7034,61 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 	Packet newRadiusPacket;
 
 	EthLayer ethLayer(*radiusPacket.getLayerOfType<EthLayer>());
-	PTF_ASSERT(newRadiusPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
+	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&ethLayer));
 
 	IPv4Layer ip4Layer;
 	ip4Layer = *(radiusPacket.getLayerOfType<IPv4Layer>());
-	PTF_ASSERT(newRadiusPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
+	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&ip4Layer));
 
 	UdpLayer udpLayer(*radiusPacket.getLayerOfType<UdpLayer>());
-	PTF_ASSERT(newRadiusPacket.addLayer(&udpLayer), "Adding UDP layer failed");
+	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&udpLayer));
 
 	RadiusLayer radiusLayer(11, 5, "f050649184625d36f14c9075b7a48b83");
-	RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(8, IPv4Address(std::string("255.255.255.254"))));
-	PTF_ASSERT(radiusNewAttr.isNull() == false, "New attr type 8: attr is null");
-	PTF_ASSERT(radiusNewAttr.getType() == 8, "New attr type 8: type isn't 8");
-	PTF_ASSERT(radiusNewAttr.getDataSize() == 4, "New attr type 8: data size isn't 4");
+	int errorCode;
+	RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(8, pcpp::experimental::makeIPv4Address("255.255.255.254", errorCode)));
+	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
+	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 8, u8);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, size);
 
 	radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(12, (uint32_t)576));
-	PTF_ASSERT(radiusNewAttr.isNull() == false, "New attr type 12: attr is null");
-	PTF_ASSERT(radiusNewAttr.getType() == 12, "New attr type 12: type isn't 12");
-	PTF_ASSERT(radiusNewAttr.getDataSize() == 4, "New attr type 12: data size isn't 4");
-	PTF_ASSERT(radiusNewAttr.getValueAs<uint32_t>() == htonl(576), "New attr type 12: data isn't 576");
+	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
+	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 12, u8);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, size);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getValueAs<uint32_t>(), htonl(576), u32);
 
 	PTF_ASSERT(newRadiusPacket.addLayer(&radiusLayer), "Adding Radius layer failed");
 
 	radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(18, std::string("Hello, %u")));
-	PTF_ASSERT(radiusNewAttr.isNull() == false, "New attr type 18: attr is null");
-	PTF_ASSERT(radiusNewAttr.getType() == 18, "New attr type 18: type isn't 18");
-	PTF_ASSERT(radiusNewAttr.getDataSize() == 9, "New attr type 18: data size isn't 9");
+	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
+	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 18, u8);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 9, size);
 
 	radiusNewAttr = radiusLayer.addAttributeAfter(RadiusAttributeBuilder(6, (uint32_t)2), 12);
-	PTF_ASSERT(radiusNewAttr.isNull() == false, "New attr type 6: attr is null");
-	PTF_ASSERT(radiusNewAttr.getType() == 6, "New attr type 6: type isn't 6");
-	PTF_ASSERT(radiusNewAttr.getDataSize() == 4, "New attr type 6: data size isn't 4");
+	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
+	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 6, u8);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, size);
 
 	uint8_t attrValue1[] = { 0xc6, 0xd1, 0x95, 0x03, 0x2f, 0xdc, 0x30, 0x24, 0x0f, 0x73, 0x13, 0xb2, 0x31, 0xef, 0x1d, 0x77 };
 	uint8_t attrValue1Len = 16;
 	radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(24, attrValue1, attrValue1Len));
-	PTF_ASSERT(radiusNewAttr.isNull() == false, "New attr type 24: attr is null");
+	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
 
 	uint8_t attrValue2[] = { 0x01, 0x01, 0x00, 0x16, 0x04, 0x10, 0x26, 0x6b, 0x0e, 0x9a, 0x58, 0x32, 0x2f, 0x4d, 0x01, 0xab, 0x25, 0xb3, 0x5f, 0x87, 0x94, 0x64 };
 	uint8_t attrValue2Len = 22;
 	radiusNewAttr = radiusLayer.addAttributeAfter(RadiusAttributeBuilder(79, attrValue2, attrValue2Len), 18);
-	PTF_ASSERT(radiusNewAttr.isNull() == false, "New attr type 79: attr is null");
+	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
 
 	uint8_t attrValue3[] = { 0x11, 0xb5, 0x04, 0x3c, 0x8a, 0x28, 0x87, 0x58, 0x17, 0x31, 0x33, 0xa5, 0xe0, 0x74, 0x34, 0xcf };
 	uint8_t attrValue3Len = 16;
 	radiusNewAttr = radiusLayer.addAttributeAfter(RadiusAttributeBuilder(80, attrValue3, attrValue3Len), 79);
-	PTF_ASSERT(radiusNewAttr.isNull() == false, "New attr type 80: attr is null");
+	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
 
 	newRadiusPacket.computeCalculateFields();
 
 	RadiusLayer* origRadiusLayer = radiusPacket.getLayerOfType<RadiusLayer>();
 	RadiusLayer* newRadiusLayer = newRadiusPacket.getLayerOfType<RadiusLayer>();
-	PTF_ASSERT(origRadiusLayer->getDataLen() == newRadiusLayer->getDataLen(), "New radius data len is different than orig data len");
-	PTF_ASSERT(memcmp(origRadiusLayer->getData(), newRadiusLayer->getData(), origRadiusLayer->getDataLen()) == 0, "Raw layer data is different than expected");
+	PTF_ASSERT_EQUAL(origRadiusLayer->getDataLen(), newRadiusLayer->getDataLen(), size);
+	PTF_ASSERT_BUF_COMPARE(origRadiusLayer->getData(), newRadiusLayer->getData(), origRadiusLayer->getDataLen());
 } // RadiusLayerCreationTest
 
 

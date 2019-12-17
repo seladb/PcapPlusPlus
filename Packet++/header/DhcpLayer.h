@@ -3,7 +3,7 @@
 
 #include "Layer.h"
 #include "TLVData.h"
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "MacAddress.h"
 #include <string.h>
 
@@ -414,10 +414,9 @@ namespace pcpp
 		 * Retrieve DHCP option data as IPv4 address. Relevant only if option value is indeed an IPv4 address
 		 * @return DHCP option data as IPv4 address
 		 */
-		IPv4Address getValueAsIpAddr() const
+		pcpp::experimental::IPv4Address getValueAsIpAddr() const
 		{
-			uint32_t addrAsInt = getValueAs<uint32_t>();
-			return IPv4Address(addrAsInt);
+			return getValueAs<uint32_t>();
 		}
 
 		/**
@@ -427,9 +426,9 @@ namespace pcpp
 		 * if option data is 20 bytes long and you want to set the IP address in the 4 last bytes then use this method like this:
 		 * setValueIpAddr(your_addr, 16)
 		 */
-		void setValueIpAddr(const IPv4Address& addr, int valueOffset = 0)
+		void setValueIpAddr(const pcpp::experimental::IPv4Address& addr, int valueOffset = 0)
 		{
-			setValue<uint32_t>(addr.toInt(), valueOffset);
+			setValue<uint32_t>(addr.toUInt(), valueOffset);
 		}
 
 		/**
@@ -537,7 +536,7 @@ namespace pcpp
 		 * @param[in] optionType DHCP option type
 		 * @param[in] optionValue The IPv4 address option value
 		 */
-		DhcpOptionBuilder(DhcpOptionTypes optionType, const IPv4Address& optionValue) :
+		DhcpOptionBuilder(DhcpOptionTypes optionType, const pcpp::experimental::IPv4Address& optionValue) :
 			TLVRecordBuilder((uint8_t)optionType, optionValue) { }
 
 		/**
@@ -614,46 +613,46 @@ namespace pcpp
 		/**
 		 * @return The client IPv4 address (as extracted from dhcp_header#clientIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getClientIpAddress() const;
+		pcpp::experimental::IPv4Address getClientIpAddress() const;
 
 		/**
 		 * Set the client IPv4 address in dhcp_header#clientIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setClientIpAddress(const IPv4Address& addr);
+		void setClientIpAddress(const pcpp::experimental::IPv4Address& addr);
 
 		/**
 		 * @return The server IPv4 address (as extracted from dhcp_header#serverIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getServerIpAddress() const;
+		pcpp::experimental::IPv4Address getServerIpAddress() const;
 
 		/**
 		 * Set the server IPv4 address in dhcp_header#serverIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setServerIpAddress(const IPv4Address& addr);
+		void setServerIpAddress(const pcpp::experimental::IPv4Address& addr);
 
 		/**
 		 * @return Your IPv4 address (as extracted from dhcp_header#yourIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getYourIpAddress() const;
+		pcpp::experimental::IPv4Address getYourIpAddress() const;
 
 		/**
 		 * Set your IPv4 address in dhcp_header#yourIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setYourIpAddress(const IPv4Address& addr);
+		void setYourIpAddress(const pcpp::experimental::IPv4Address& addr);
 
 		/**
 		 * @return Gateway IPv4 address (as extracted from dhcp_header#gatewayIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getGatewayIpAddress() const;
+		pcpp::experimental::IPv4Address getGatewayIpAddress() const;
 
 		/**
 		 * Set the gateway IPv4 address in dhcp_header#gatewayIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setGatewayIpAddress(const IPv4Address& addr);
+		void setGatewayIpAddress(const pcpp::experimental::IPv4Address& addr);
 
 		/**
 		 * @return The client MAC address as extracted from dhcp_header#clientHardwareAddress, assuming dhcp_header#hardwareType is 1 (Ethernet)

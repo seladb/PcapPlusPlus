@@ -40,9 +40,9 @@ TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, uint32_t recValue)
 	init(recType, (uint8_t*)&recValue, sizeof(uint32_t));
 }
 
-TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, const IPv4Address& recValue)
+TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, const pcpp::experimental::IPv4Address& recValue)
 {
-	uint32_t recIntValue = recValue.toInt();
+	uint32_t recIntValue = recValue.toUInt();
 	init(recType, (uint8_t*)&recIntValue, sizeof(uint32_t));
 }
 

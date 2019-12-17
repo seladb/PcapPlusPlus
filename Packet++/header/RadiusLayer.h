@@ -3,6 +3,7 @@
 
 #include "Layer.h"
 #include "TLVData.h"
+#include "IpAddresses.h"
 
 /// @file
 
@@ -118,7 +119,7 @@ namespace pcpp
 		 * @param[in] attrType RADIUS attribute type
 		 * @param[in] attrValue The IPv4 address attribute value
 		 */
-		RadiusAttributeBuilder(uint8_t attrType, const IPv4Address& attrValue) :
+		RadiusAttributeBuilder(uint8_t attrType, const pcpp::experimental::IPv4Address& attrValue) :
 			TLVRecordBuilder(attrType, attrValue) { }
 
 		/**
