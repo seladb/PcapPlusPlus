@@ -3,6 +3,7 @@
 #include "PcapFilter.h"
 #include "Logger.h"
 #include "IPv4Layer.h"
+#include "IpAddresses.h"
 #include <sstream>
 #if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
 #include <winsock2.h>
@@ -162,39 +163,38 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) 
 
 	// The following code lines verify IP address is valid (IPv4 or IPv6)
 
-	IPAddress::Ptr_t ipAddr = IPAddress::fromString(ipAddrmodified);
-	if (ipAddr.get()->getType() == IPAddress::IPv4AddressType)
+	int errorCode;
+	pcpp::experimental::IPAddress ipAddr = pcpp::experimental::makeAddress(ipAddrmodified, errorCode);
+
+	if (errorCode != 0)
 	{
-		IPv4Address* ip4Addr = (IPv4Address*)ipAddr.get();
-		uint32_t addrAsInt = ip4Addr->toInt();
-		uint32_t mask = ((uint32_t)-1) >> ((sizeof(uint32_t)*8)-m_Len);
-		addrAsInt &= mask;
-		ipAddrmodified = IPv4Address(addrAsInt).toString();
+		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
+		len = 0;
 	}
-	else if (ipAddr.get()->getType() == IPAddress::IPv6AddressType)
+	else if (ipAddr.getType() == pcpp::experimental::IPAddress::IPv4AddressType)
 	{
-		IPv6Address* ip6Addr = (IPv6Address*)ipAddr.get();
-		uint8_t* addrAsArr; size_t addrLen;
-		ip6Addr->copyTo(&addrAsArr, addrLen);
+		uint32_t addrAsInt = ipAddr.getIPv4().toUInt();
+		uint32_t mask = ((uint32_t) - 1) >> ((sizeof(uint32_t) * 8) - m_Len);
+		addrAsInt &= mask;
+		ipAddrmodified = pcpp::experimental::IPv4Address(addrAsInt).toString();
+	}
+	else // IPv6Address
+	{
+		uint8_t addrAsArr[16];
+		memcpy(addrAsArr, ipAddr.getIPv6().toBytes(), 16);
 		uint64_t addrLowerBytes = (long)addrAsArr;
-		uint64_t addrHigherBytes = (long)(addrAsArr+8);
-		if (len > (int)(sizeof(uint64_t)*8))
+		uint64_t addrHigherBytes = (long)(addrAsArr + 8);
+		if (len > (int)(sizeof(uint64_t) * 8))
 		{
 			addrLowerBytes = 0;
-			addrHigherBytes &= (-1 << (len-sizeof(uint64_t)));
+			addrHigherBytes &= (-1 << (len - sizeof(uint64_t)));
 		}
 		else
 		{
 			addrLowerBytes &= (-1 << len);
 		}
 
-		ipAddrmodified = IPv6Address(addrAsArr).toString();
-		delete [] addrAsArr;
-	}
-	else
-	{
-		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
-		len = 0;
+		ipAddrmodified = pcpp::experimental::IPv6Address(addrAsArr).toString();
 	}
 }
 
