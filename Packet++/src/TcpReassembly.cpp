@@ -38,13 +38,31 @@ ConnectionData::ConnectionData(const ConnectionData& other)
 
 ConnectionData& ConnectionData::operator=(const ConnectionData& other)
 {
-	if (srcIP != NULL)
-		delete srcIP;
+	if (this != &other)
+	{
+		if (srcIP != NULL)
+			delete srcIP;
 
-	if (dstIP != NULL)
-		delete dstIP;
+		if (dstIP != NULL)
+			delete dstIP;
 
-	copyData(other);
+		copyData(other);
+	}
+
+	return *this;
+}
+
+ConnectionData::ConnectionData(ConnectionData&& other)
+{
+	moveData(other);
+}
+
+ConnectionData& ConnectionData::operator=(ConnectionData&& other)
+{
+	if (this != &other)
+	{
+		moveData(other);
+	}
 
 	return *this;
 }
@@ -68,6 +86,19 @@ void ConnectionData::copyData(const ConnectionData& other)
 	endTime = other.endTime;
 }
 
+void ConnectionData::moveData(ConnectionData& other)
+{
+	srcIP = other.srcIP;
+	dstIP = other.dstIP;
+	flowKey = other.flowKey;
+	srcPort = other.srcPort;
+	dstPort = other.dstPort;
+	startTime = other.startTime;
+	endTime = other.endTime;
+
+	other.srcIP = NULL;
+	other.dstIP = NULL;
+}
 
 void TcpReassembly::TcpOneSideData::setSrcIP(IPAddress* sourrcIP)
 {

@@ -113,6 +113,16 @@ struct ConnectionData
 	ConnectionData& operator=(const ConnectionData& other);
 
 	/**
+	 * A move constructor for this struct.
+	 */
+	ConnectionData(ConnectionData&& other);
+
+	/**
+	 * A move assignment operator constructor for this struct.
+	 */
+	ConnectionData& operator=(ConnectionData&& other);
+
+	/**
 	 * Set source IP
 	 * @param[in] sourceIP A pointer to the source IP to set. Notice the IPAddress object will be cloned
 	 */
@@ -139,6 +149,8 @@ struct ConnectionData
 private:
 
 	void copyData(const ConnectionData& other);
+
+	void moveData(ConnectionData& other);
 };
 
 
