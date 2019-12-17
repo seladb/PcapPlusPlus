@@ -15,7 +15,7 @@
 #include <in.h>
 #include <errno.h>
 #endif
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "RawPacket.h"
 #include "ProtocolType.h"
 #include "Packet.h"
@@ -69,12 +69,12 @@ struct DnsSpoofStats
  */
 struct DnsSpoofingArgs
 {
-	IPv4Address dnsServer;
+	pcpp::experimental::IPv4Address dnsServer;
 	std::vector<std::string> dnsHostsToSpoof;
 	DnsSpoofStats stats;
 	bool shouldStop;
 
-	DnsSpoofingArgs() : dnsServer(IPv4Address::Zero), shouldStop(false) {}
+	DnsSpoofingArgs() : shouldStop(false) {}
 };
 
 
@@ -136,9 +136,9 @@ void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 	ethLayer->setDestMac(srcMac);
 
 	// reverse src and dst IP addresses
-	IPv4Address srcIP = ip4Layer->getSrcIpAddress();
-	ip4Layer->setSrcIpAddress(ip4Layer->getDstIpAddress());
-	ip4Layer->setDstIpAddress(srcIP);
+	pcpp::experimental::IPv4Address srcIP = ip4Layer->getSrcIpAddress().toInt(); // TODO: delete toInt()/toUInt() when migration has completed
+	ip4Layer->setSrcIpAddress(ip4Layer->getDstIpAddress().toInt());
+	ip4Layer->setDstIpAddress(srcIP.toUInt());
 
 	ip4Layer->getIPv4Header()->ipId = 0;
 
@@ -189,7 +189,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * Activate DNS spoofing: prepare the device and start capturing DNS requests
  */
-void doDnsSpoofing(PcapLiveDevice* dev, IPv4Address dnsServer, IPv4Address clientIP, std::vector<std::string> dnsHostsToSpoof)
+void doDnsSpoofing(PcapLiveDevice* dev, pcpp::experimental::IPv4Address dnsServer, pcpp::experimental::IPv4Address clientIP, std::vector<std::string> dnsHostsToSpoof)
 {
 	// open device
 	if (!dev->open())
@@ -197,7 +197,7 @@ void doDnsSpoofing(PcapLiveDevice* dev, IPv4Address dnsServer, IPv4Address clien
 
 	// set a filter to capture only DNS requests and client IP if provided
 	PortFilter dnsPortFilter(53, DST);
-	if (clientIP == IPv4Address::Zero)
+	if (clientIP.isUnspecified())
 	{
 		if (!dev->setFilter(dnsPortFilter))
 			EXIT_WITH_ERROR("Cannot set DNS filter for device");
@@ -293,15 +293,12 @@ int main(int argc, char* argv[])
 {
 	AppName::init(argc, argv);
 
-	int optionIndex = 0;
+	int optionIndex = 0, errorCode;
 	char opt = 0;
 
 	std::string interfaceNameOrIP("");
 
-	IPv4Address dnsServer = IPv4Address::Zero;
-
-	IPv4Address clientIP = IPv4Address::Zero;
-	bool clientIpSet = false;
+	pcpp::experimental::IPv4Address dnsServer, clientIP;
 
 	std::vector<std::string> hostList;
 
@@ -335,13 +332,16 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServer = IPv4Address(static_cast<char const *>(optarg));
+				dnsServer =	pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
+				if (errorCode != 0)
+					EXIT_WITH_ERROR("DNS server IP is invalid");
 				break;
 			}
 			case 'c':
 			{
-				clientIP = IPv4Address(static_cast<char const *>(optarg));
-				clientIpSet = true;
+				clientIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
+				if (errorCode != 0)
+					EXIT_WITH_ERROR("Client IP to spoof is invalid");
 				break;
 			}
 			case 'o':
@@ -370,10 +370,10 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Interface name or IP weren't provided. Please use the -i switch or -h for help");
 	}
 
-	IPv4Address interfaceIP(interfaceNameOrIP);
-	if (interfaceIP.isValid())
+	pcpp::experimental::IPv4Address interfaceIP = pcpp::experimental::makeIPv4Address(interfaceNameOrIP, errorCode);
+	if (errorCode == 0)
 	{
-		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
+		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP.toUInt());
 		if (dev == NULL)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP");
 	}
@@ -385,12 +385,12 @@ int main(int argc, char* argv[])
 	}
 
 	// verify DNS server IP is a valid IPv4 address
-	if (dnsServer == IPv4Address::Zero ||  !dnsServer.isValid())
-		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or not a valid IPv4 address");
+	if (dnsServer.isUnspecified())
+		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty");
 
 	// verify client IP is valid if set
-	if (clientIpSet && !clientIP.isValid())
-		EXIT_WITH_ERROR("Client IP to spoof is invalid");
+	if (clientIP.isUnspecified())
+		EXIT_WITH_ERROR("Client IP to spoof is unspecified");
 
 
 	doDnsSpoofing(dev, dnsServer, clientIP, hostList);
