@@ -1192,7 +1192,7 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	PTF_ASSERT(routingExt->getRoutingHeader()->segmentsLeft == 1, "Routing ext packet2: segments left isn't 1");
 	PTF_ASSERT(routingExt->getRoutingAdditionalDataLength() == 20, "Routing ext packet2: additional data len isn't 20");
 	PTF_ASSERT(routingExt->getRoutingAdditionalDataAsIPv6Address(4) == IPv6Address(std::string("2200::210:2:0:0:4")), "Routing ext packet2: IPv6 address is wrong");
-	PTF_ASSERT(routingExt->getRoutingAdditionalDataAsIPv6Address(20) == IPv6Address::Zero, "Routing ext packet2: additional data out-of-bounds but isn't returned as zero IPv6 address");
+	PTF_ASSERT(routingExt->getRoutingAdditionalDataAsIPv6Address(20).isUnspecified(), "Routing ext packet2: additional data out-of-bounds but isn't returned as zero IPv6 address");
 
 
 	// parsing of authentication header extension
