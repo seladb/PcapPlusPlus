@@ -745,6 +745,8 @@ PTF_TEST_CASE(TestIPAddresses)
 		PTF_ASSERT_FALSE(mask.isUnspecified());
 
 		PTF_ASSERT_TRUE(pcpp::experimental::matchSubnet(addr, subnet1, mask));
+		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, mask));
+		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, std::string("255.255.255.0")));
 		PTF_ASSERT_FALSE(pcpp::experimental::matchSubnet(addr, subnet2, mask));
 		PTF_ASSERT_FALSE(pcpp::experimental::matchSubnet(addr, "10.10.0.0", "255.255.0.0"));
 		// wrong mask
@@ -890,6 +892,30 @@ PTF_TEST_CASE(TestIPAddresses)
 		pcpp::experimental::IPAddress	v6Addr = pcpp::experimental::makeAddress(std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), errorCode);
 		PTF_ASSERT_EQUAL(v4Addr.toString(), std::string("10.0.0.4"), object);
 		PTF_ASSERT_EQUAL(v6Addr.toString(), std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), object);
+	}
+
+	// TODO: remove the code block when migration has completed
+	{
+		int errorCode;
+		IPv4Address oldIPv4("10.10.10.10");
+		pcpp::experimental::IPv4Address newIPv4(oldIPv4.toInt()), differentNewIPv4 = pcpp::experimental::makeIPv4Address("10.10.10.11", errorCode);
+		PTF_ASSERT_TRUE(oldIPv4 == newIPv4);
+		PTF_ASSERT_TRUE(newIPv4 == oldIPv4);
+		PTF_ASSERT_FALSE(oldIPv4 != newIPv4);
+		PTF_ASSERT_FALSE(newIPv4 != oldIPv4);
+		PTF_ASSERT_TRUE(oldIPv4 != differentNewIPv4);
+		PTF_ASSERT_FALSE(oldIPv4 == differentNewIPv4);
+
+		IPv6Address oldIPv6(std::string("2607:f0d0:1002:0051::4"));
+		pcpp::experimental::IPv6Address
+			newIPv6 = pcpp::experimental::makeIPv6Address("2607:f0d0:1002:0051::4", errorCode),
+			differentNewIPv6 = pcpp::experimental::makeIPv6Address("2607:f0d0:1002:0051::5", errorCode);
+		PTF_ASSERT_TRUE(oldIPv6 == newIPv6);
+		PTF_ASSERT_TRUE(newIPv6 == oldIPv6);
+		PTF_ASSERT_FALSE(oldIPv6 != newIPv6);
+		PTF_ASSERT_FALSE(newIPv6 != oldIPv6);
+		PTF_ASSERT_TRUE(oldIPv6 != differentNewIPv6);
+		PTF_ASSERT_FALSE(oldIPv6 == differentNewIPv6);
 	}
 } // TestIPAddresses
 
