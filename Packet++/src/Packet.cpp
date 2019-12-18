@@ -2,6 +2,7 @@
 
 #include "Packet.h"
 #include "EthLayer.h"
+#include "EthDot3Layer.h"
 #include "SllLayer.h"
 #include "NullLoopbackLayer.h"
 #include "IPv4Layer.h"
@@ -9,6 +10,7 @@
 #include "PayloadLayer.h"
 #include "PacketTrailerLayer.h"
 #include "Logger.h"
+#include "EndianPortable.h"
 #include <string.h>
 #include <typeinfo>
 #include <sstream>
@@ -277,22 +279,21 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 		return false;
 	}
 
-	if (m_RawPacket->getRawDataLen() + newLayer->getHeaderLen() > m_MaxPacketLen)
+	size_t newLayerHeaderLen = newLayer->getHeaderLen();
+	if (m_RawPacket->getRawDataLen() + newLayerHeaderLen > m_MaxPacketLen)
 	{
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
-		if (m_RawPacket->getRawDataLen() + newLayer->getHeaderLen() > m_MaxPacketLen*2)
-			reallocateRawData(m_RawPacket->getRawDataLen() + newLayer->getHeaderLen() + m_MaxPacketLen);
+		if (m_RawPacket->getRawDataLen() + newLayerHeaderLen > m_MaxPacketLen*2)
+			reallocateRawData(m_RawPacket->getRawDataLen() + newLayerHeaderLen + m_MaxPacketLen);
 		else
 			reallocateRawData(m_MaxPacketLen*2);
 	}
 
-	size_t appendDataLen = newLayer->getHeaderLen();
-
 	// insert layer data to raw packet
 	int indexToInsertData = 0;
 	if (prevLayer != NULL)
-		indexToInsertData = prevLayer->m_Data+prevLayer->getHeaderLen() - m_RawPacket->getRawData();
-	m_RawPacket->insertData(indexToInsertData, newLayer->m_Data, appendDataLen);
+		indexToInsertData = prevLayer->m_Data + prevLayer->getHeaderLen() - m_RawPacket->getRawData();
+	m_RawPacket->insertData(indexToInsertData, newLayer->m_Data, newLayerHeaderLen);
 
 	//delete previous layer data
 	delete[] newLayer->m_Data;
@@ -465,12 +466,13 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	}
 
 	// before removing the layer's data, copy it so it can be later assigned as the removed layer's data
-	size_t layerOldDataSize = layer->getHeaderLen();
+	size_t headerLen = layer->getHeaderLen();
+	size_t layerOldDataSize = headerLen;
 	uint8_t* layerOldData = new uint8_t[layerOldDataSize];
 	memcpy(layerOldData, layer->m_Data, layerOldDataSize);
 
 	// remove data from raw packet
-	size_t numOfBytesToRemove = layer->getHeaderLen();
+	size_t numOfBytesToRemove = headerLen;
 	int indexOfDataToRemove = layer->m_Data - m_RawPacket->getRawData();
 	if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToRemove))
 	{
@@ -719,7 +721,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	if (nowtm != NULL)
 	{
 		strftime(tmbuf, sizeof(tmbuf), "%Y-%m-%d %H:%M:%S", nowtm);
-		snprintf(buf, sizeof(buf), "%s.%06lu", tmbuf, timestamp.tv_usec);
+		snprintf(buf, sizeof(buf), "%s.%06lu", tmbuf, (unsigned long)timestamp.tv_usec);
 	}
 	else
 		snprintf(buf, sizeof(buf), "0000-00-00 00:00:00.000000");
@@ -731,7 +733,25 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 {
 	if (linkType == LINKTYPE_ETHERNET)
 	{
-		return new EthLayer((uint8_t*)m_RawPacket->getRawData(), m_RawPacket->getRawDataLen(), this);
+		// In order to distinguish between Ethernet II and IEEE 802.3 Ethernet the common method is
+		// to check the length field. In IEEE 802.3 Ethernet the length value should be equal or 
+		// less than 0x5DC which corresponds to 1500 bytes. If the value is larger than 0x5DC
+		// it means the value is an Ether Type which belongs to Ethernet II.
+		// You can read more in this link:
+		// https://www.ibm.com/support/pages/ethernet-version-2-versus-ieee-8023-ethernet
+
+		size_t rawDataLen = (size_t)m_RawPacket->getRawDataLen();
+		const uint8_t* rawData = m_RawPacket->getRawData();
+		if (rawDataLen >= sizeof(ether_header))
+		{
+			uint16_t ethTypeOrLength = be16toh(*(uint16_t*)(rawData + 12));
+			if (ethTypeOrLength <= (uint16_t)0x5dc && ethTypeOrLength != 0)
+			{
+				return new EthDot3Layer((uint8_t*)rawData, rawDataLen, this);
+			}
+		}
+		
+		return new EthLayer((uint8_t*)rawData, rawDataLen, this);
 	}
 	else if (linkType == LINKTYPE_LINUX_SLL)
 	{

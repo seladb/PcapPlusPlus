@@ -339,7 +339,7 @@ chmod +x mk/install.sh
 
 cp mk/uninstall.sh.template mk/uninstall.sh
 sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/uninstall.sh && rm mk/uninstall.sh.bak
-chmod +x mk/install.sh
+chmod +x mk/uninstall.sh
 
 
 # finished setup script

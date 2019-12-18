@@ -237,7 +237,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	struct rte_eth_conf portConf;
 	memset(&portConf,0,sizeof(rte_eth_conf));
 	portConf.rxmode.split_hdr_size = DPDK_COFIG_SPLIT_HEADER_SIZE;
-#if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 11)
+#if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 8)
 	portConf.rxmode.header_split = DPDK_COFIG_HEADER_SPLIT;
 	portConf.rxmode.hw_ip_checksum = DPDK_COFIG_HW_IP_CHECKSUM;
 	portConf.rxmode.hw_vlan_filter = DPDK_COFIG_HW_VLAN_FILTER;

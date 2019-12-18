@@ -34,7 +34,7 @@ echo 'Description: a multiplatform C++ network sniffing and packet parsing and c
 printf 'Version: '>>PcapPlusPlus.pc
 grep '#define PCAPPLUSPLUS_VERSION ' header/PcapPlusPlusVersion.h | cut -d " " -f3 | tr -d "\"" | tr -d '\n'>>PcapPlusPlus.pc
 printf '\n'>>PcapPlusPlus.pc
-echo 'URL: https://seladb.github.io/PcapPlusPlus-Doc'>>PcapPlusPlus.pc
+echo 'URL: https://pcapplusplus.github.io'>>PcapPlusPlus.pc
 printf 'Libs: '>>PcapPlusPlus.pc
 grep PCAPPP_LIBS PcapPlusPlus.mk | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
 printf '\nCFlags: '>>PcapPlusPlus.pc

@@ -339,16 +339,21 @@ void TcpLayer::parseNextLayer()
 	uint16_t portDst = ntohs(tcpHder->portDst);
 	uint16_t portSrc = ntohs(tcpHder->portSrc);
 
-	if ((HttpMessage::getHTTPPortMap()->find(portDst) != HttpMessage::getHTTPPortMap()->end()) && HttpRequestFirstLine::parseMethod((char*)payload, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
+	if (HttpMessage::isHttpPort(portDst) && HttpRequestFirstLine::parseMethod((char*)payload, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
 		m_NextLayer = new HttpRequestLayer(payload, payloadLen, this, m_Packet);
-	else if ((HttpMessage::getHTTPPortMap()->find(portSrc) != HttpMessage::getHTTPPortMap()->end()) && HttpResponseFirstLine::parseStatusCode((char*)payload, payloadLen) != HttpResponseLayer::HttpStatusCodeUnknown)
-		m_NextLayer = new HttpResponseLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+	else if (HttpMessage::isHttpPort(portSrc) && HttpResponseFirstLine::parseStatusCode((char*)payload, payloadLen) != HttpResponseLayer::HttpStatusCodeUnknown)
+		m_NextLayer = new HttpResponseLayer(payload, payloadLen, this, m_Packet);
 	else if (SSLLayer::IsSSLMessage(portSrc, portDst, payload, payloadLen))
 		m_NextLayer = SSLLayer::createSSLMessage(payload, payloadLen, this, m_Packet);
-	else if (((portDst == 5060) || (portDst == 5061)) && (SipRequestFirstLine::parseMethod((char*)payload, payloadLen) != SipRequestLayer::SipMethodUnknown))
-		m_NextLayer = new SipRequestLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
-	else if (((portDst == 5060) || (portDst == 5061)) && (SipResponseFirstLine::parseStatusCode((char*)payload, payloadLen) != SipResponseLayer::SipStatusCodeUnknown))
-		m_NextLayer = new SipResponseLayer(payload, payloadLen, this, m_Packet);
+	else if (SipLayer::isSipPort(portDst))
+	{
+		if (SipRequestFirstLine::parseMethod((char*)payload, payloadLen) != SipRequestLayer::SipMethodUnknown)
+			m_NextLayer = new SipRequestLayer(payload, payloadLen, this, m_Packet);
+		else if (SipResponseFirstLine::parseStatusCode((char*)payload, payloadLen) != SipResponseLayer::SipStatusCodeUnknown)
+			m_NextLayer = new SipResponseLayer(payload, payloadLen, this, m_Packet);
+		else
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+	}
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }

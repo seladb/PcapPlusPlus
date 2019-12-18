@@ -145,7 +145,7 @@ public:
 	 */
 	std::ostream* openFileStream(std::string fileName, bool reopen)
 	{
-		// if the user chooses to write only to consoe, don't open anything and return std::cout
+		// if the user chooses to write only to console, don't open anything and return std::cout
 		if (writeToConsole)
 			return &std::cout;
 
@@ -180,7 +180,7 @@ public:
 	 */
 	LRUList<uint32_t>* getRecentConnsWithActivity()
 	{
-		// his is a lazy implementation - the instance isn't created until the user requests it for the first time.
+		// This is a lazy implementation - the instance isn't created until the user requests it for the first time.
 		// the side of the LRU list is determined by the max number of allowed open files at any point in time. Default is DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES
 		// but the user can choose another number
 		if (m_RecentConnsWithActivity == NULL)
@@ -198,6 +198,14 @@ public:
 	{
 		static GlobalConfig instance;
 		return instance;
+	}
+	
+	/**
+	 * d'tor
+	 */
+	~GlobalConfig()
+	{
+		delete m_RecentConnsWithActivity;
 	}
 };
 
@@ -293,7 +301,7 @@ void printUsage()
 			"    -m            : Write a metadata file for each connection\n"
 			"    -s            : Write each side of each connection to a separate file (default is writing both sides of each connection to the same file)\n"
 			"    -l            : Print the list of interfaces and exit\n"
-			"    -v            : Displays the current version and exists\n"
+			"    -v            : Display the current version and exit\n"
 			"    -h            : Display this help message and exit\n\n", AppName::get().c_str());
 	exit(0);
 }

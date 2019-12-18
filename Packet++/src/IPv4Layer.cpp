@@ -27,7 +27,7 @@ namespace pcpp
 IPv4OptionBuilder::IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList)
 {
 	m_RecType = (uint8_t)optionType;
-	m_RecValueLen = ipList.size()*sizeof(uint32_t) + sizeof(uint8_t);
+	m_RecValueLen = ipList.size() * sizeof(uint32_t) + sizeof(uint8_t);
 	m_RecValue = new uint8_t[m_RecValueLen];
 
 	size_t curOffset = 0;
@@ -44,7 +44,7 @@ IPv4OptionBuilder::IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vect
 		if (!firstZero && ipAddrAsInt == 0)
 			firstZero = true;
 
-		memcpy(m_RecValue + curOffset , &ipAddrAsInt, sizeof(uint32_t));
+		memcpy(m_RecValue + curOffset, &ipAddrAsInt, sizeof(uint32_t));
 		curOffset += sizeof(uint32_t);
 	}
 
@@ -78,11 +78,11 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 		return;
 	}
 
-	m_RecValueLen = timestampValue.timestamps.size()*sizeof(uint32_t) + 2*sizeof(uint8_t);
+	m_RecValueLen = timestampValue.timestamps.size() * sizeof(uint32_t) + 2 * sizeof(uint8_t);
 
 	if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
 	{
-		m_RecValueLen += timestampValue.timestamps.size()*sizeof(uint32_t);
+		m_RecValueLen += timestampValue.timestamps.size() * sizeof(uint32_t);
 	}
 
 	m_RecValue = new uint8_t[m_RecValueLen];
@@ -114,9 +114,9 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 	// calculate pointer field
 	if (firstZero > -1)
 	{
-		uint8_t pointerVal = (uint8_t)(4*sizeof(uint8_t) + firstZero*sizeof(uint32_t) + 1);
+		uint8_t pointerVal = (uint8_t)(4 * sizeof(uint8_t) + firstZero * sizeof(uint32_t) + 1);
 		if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
-			pointerVal += (uint8_t)(firstZero*sizeof(uint32_t));
+			pointerVal += (uint8_t)(firstZero * sizeof(uint32_t));
 
 		m_RecValue[0] = pointerVal;
 	}
@@ -129,7 +129,7 @@ IPv4Option IPv4OptionBuilder::build() const
 	if (!m_BuilderParamsValid)
 		return IPv4Option(NULL);
 
-	size_t optionSize = m_RecValueLen + 2*sizeof(uint8_t);
+	size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
 	if ((m_RecType == (uint8_t)IPV4OPT_NOP || m_RecType == (uint8_t)IPV4OPT_EndOfOtionsList))
 	{
@@ -149,7 +149,7 @@ IPv4Option IPv4OptionBuilder::build() const
 	{
 		recordBuffer[1] = (uint8_t)optionSize;
 		if (optionSize > 2 && m_RecValue != NULL)
-			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
+			memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
 	}
 
 	return IPv4Option(recordBuffer);
@@ -272,10 +272,10 @@ void IPv4Layer::parseNextLayer()
 		m_NextLayer = new IcmpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IPIP:
-		ipVersion = *(m_Data + hdrLen);
-		if (ipVersion >> 4 == 4)
+		ipVersion = *payload >> 4;
+		if (ipVersion == 4)
 			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
-		else if (ipVersion >> 4 == 6)
+		else if (ipVersion == 6)
 			m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
@@ -480,7 +480,7 @@ IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int of
 
 IPv4Option IPv4Layer::addOption(const IPv4OptionBuilder& optionBuilder)
 {
-	return addOptionAt(optionBuilder, getHeaderLen()-m_NumOfTrailingBytes);
+	return addOptionAt(optionBuilder, getHeaderLen() - m_NumOfTrailingBytes);
 }
 
 IPv4Option IPv4Layer::addOptionAfter(const IPv4OptionBuilder& optionBuilder, IPv4OptionTypes prevOptionType)
@@ -531,7 +531,7 @@ bool IPv4Layer::removeOption(IPv4OptionTypes option)
 
 	// setting this m_TempHeaderExtension because adjustOptionsTrailer() may extend or shorten the layer and the extend or shorten methods need to know the accurate
 	// current size of the header. m_TempHeaderExtension will be added to the length extracted from getIPv4Header()->internetHeaderLength as the temp new size
-	m_TempHeaderExtension = 0-sizeToShorten;
+	m_TempHeaderExtension = 0 - sizeToShorten;
 	adjustOptionsTrailer(totalOptSize);
 	// the adjustOptionsTrailer() adds or removed the trailing bytes and sets getIPv4Header()->internetHeaderLength to the correct size, so the m_TempHeaderExtension
 	// isn't needed anymore
@@ -546,12 +546,12 @@ bool IPv4Layer::removeAllOptions()
 {
 	int offset = sizeof(iphdr);
 
-	if (!shortenLayer(offset, getHeaderLen()-offset))
+	if (!shortenLayer(offset, getHeaderLen() - offset))
 		return false;
 
 	getIPv4Header()->internetHeaderLength = (5 & 0xf);
 	m_NumOfTrailingBytes = 0;
-	m_OptionReader.changeTLVRecordCount(0-getOptionCount());
+	m_OptionReader.changeTLVRecordCount(0 - getOptionCount());
 	return true;
 }
 

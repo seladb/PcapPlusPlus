@@ -15,33 +15,6 @@
 namespace pcpp
 {
 
-
-bool SSLLayer::isSSLPort(uint16_t port)
-{
-	if (port == 443) // HTTPS, this is likely case
-		return true;
-
-	switch (port)
-	{
-	case 0:   // default
-	case 261: // NSIIOPS
-	case 448: // DDM-SSL
-	case 465: // SMTPS
-	case 563: // NNTPS
-	case 614: // SSHELL
-	case 636: // LDAPS
-	case 989: // FTPS - data
-	case 990: // FTPS - control
-	case 992: // Telnet over TLS/SSL
-	case 993: // IMAPS
-	case 994: // IRCS
-	case 995: // POP3S
-		return true;
-	default:
-		return false;
-	}
-}
-
 // ----------------
 // SSLLayer methods
 // ----------------
