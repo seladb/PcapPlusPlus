@@ -138,7 +138,7 @@ PcapPlusPlus is currently supported on __Windows__, __Linux__, __MacOS__ and __F
 
 PcapPlusPlus currently supports parsing, editing and creation of packets of the following protocols:
 
-1. Ethernet
+1. Ethernet II
 2. IEEE 802.3 Ethernet
 3. SLL (Linux cooked capture)
 4. Null/Loopback
