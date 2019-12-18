@@ -2596,7 +2596,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/Dns3.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file Dns3.dat");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -2606,181 +2606,182 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 	DnsLayer* dnsLayer = dnsPacket.getLayerOfType<DnsLayer>();
 
-	PTF_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
-	PTF_ASSERT(dnsLayer->getQueryCount() == 2, "Number of DNS queries != 2");
-	PTF_ASSERT(dnsLayer->getAnswerCount() == 0, "Number of DNS answers != 0");
-	PTF_ASSERT(dnsLayer->getAuthorityCount() == 2, "Number of DNS authority != 2");
-	PTF_ASSERT(dnsLayer->getAdditionalRecordCount() == 1, "Number of DNS additional != 1");
-	PTF_ASSERT(ntohs(dnsLayer->getDnsHeader()->transactionID) == 0, "DNS transaction ID != 0");
-	PTF_ASSERT(dnsLayer->getDnsHeader()->queryOrResponse == 0, "Packet isn't a query");
+	PTF_ASSERT_NOT_NULL(dnsLayer);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 2, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 2, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1, size);
+	PTF_ASSERT_EQUAL(ntohs(dnsLayer->getDnsHeader()->transactionID), 0, u16);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->queryOrResponse, 0, u16);
 
 	DnsQuery* firstQuery = dnsLayer->getFirstQuery();
-	PTF_ASSERT(firstQuery != NULL, "First query returned NULL");
-	PTF_ASSERT(firstQuery->getName() == "Yaels-iPhone.local", "First query name != 'Yaels-iPhone.local'");
-	PTF_ASSERT(firstQuery->getDnsType() == DNS_TYPE_ALL, "First query type != DNS_TYPE_ALL, it's %d", firstQuery->getDnsType());
-	PTF_ASSERT(firstQuery->getDnsClass() == DNS_CLASS_IN, "First query class != DNS_CLASS_IN");
+	PTF_ASSERT_NOT_NULL(firstQuery);
+	PTF_ASSERT_EQUAL(firstQuery->getName(), "Yaels-iPhone.local", string);
+	PTF_ASSERT_EQUAL(firstQuery->getDnsType(), DNS_TYPE_ALL, enum);
+	PTF_ASSERT_EQUAL(firstQuery->getDnsClass(), DNS_CLASS_IN, enum);
 
 	DnsQuery* secondQuery = dnsLayer->getNextQuery(firstQuery);
-	PTF_ASSERT(secondQuery != NULL, "Second query returned NULL");
-	PTF_ASSERT(secondQuery->getName() == "Yaels-iPhone.local", "Second query name != 'Yaels-iPhone.local'");
-	PTF_ASSERT(secondQuery->getDnsType() == DNS_TYPE_ALL, "Second query type != DNS_TYPE_ALL");
-	PTF_ASSERT(secondQuery->getDnsClass() == DNS_CLASS_IN, "Second query class != DNS_CLASS_IN");
-	PTF_ASSERT(dnsLayer->getNextQuery(secondQuery) == NULL, "Unexpected third query in packet");
+	PTF_ASSERT_NOT_NULL(secondQuery);
+	PTF_ASSERT_EQUAL(secondQuery->getName(), "Yaels-iPhone.local", string);
+	PTF_ASSERT_EQUAL(secondQuery->getDnsType(), DNS_TYPE_ALL, enum);
+	PTF_ASSERT_EQUAL(secondQuery->getDnsClass(), DNS_CLASS_IN, enum);
+	PTF_ASSERT_NULL(dnsLayer->getNextQuery(secondQuery));
 
 	DnsQuery* queryByName = dnsLayer->getQuery(string("Yaels-iPhone.local"), true);
-	PTF_ASSERT(queryByName != NULL, "Query by name returned NULL");
+	PTF_ASSERT_NOT_NULL(queryByName);
 	PTF_ASSERT(queryByName == firstQuery, "Query by name returned a query different from first query");
-	PTF_ASSERT(dnsLayer->getQuery(string("www.seladb.com"), true) == NULL, "Query by wrong name returned a result");
+	PTF_ASSERT_NULL(dnsLayer->getQuery(string("www.seladb.com"), true));
 
+	int errorCode;
 	DnsResource* firstAuthority = dnsLayer->getFirstAuthority();
-	PTF_ASSERT(firstAuthority != NULL, "Get first authority returned NULL");
-	PTF_ASSERT(firstAuthority->getDnsType() == DNS_TYPE_A, "First authority type isn't A");
-	PTF_ASSERT(firstAuthority->getDnsClass() == DNS_CLASS_IN, "First authority class isn't IN");
-	PTF_ASSERT(firstAuthority->getTTL() == 120, "First authority TTL != 120");
-	PTF_ASSERT(firstAuthority->getName() == "Yaels-iPhone.local", "First authority name isn't 'Yaels-iPhone.local'");
-	PTF_ASSERT(firstAuthority->getDataLength() == 4, "First authority data size != 4");
-	PTF_ASSERT(firstAuthority->getData()->toString() == "10.0.0.2", "First authority data != string 10.0.0.2");
-	PTF_ASSERT(firstAuthority->getData().castAs<IPv4DnsResourceData>()->getIpAddress() == IPv4Address(std::string("10.0.0.2")), "First authority data != IPv4Address 10.0.0.2");
-	PTF_ASSERT(firstAuthority->getSize() == 16, "First authority total size != 16");
+	PTF_ASSERT_NOT_NULL(firstAuthority);
+	PTF_ASSERT_EQUAL(firstAuthority->getDnsType(), DNS_TYPE_A, enum);
+	PTF_ASSERT_EQUAL(firstAuthority->getDnsClass(), DNS_CLASS_IN, enum);
+	PTF_ASSERT_EQUAL(firstAuthority->getTTL(), 120, u32);
+	PTF_ASSERT_EQUAL(firstAuthority->getName(), "Yaels-iPhone.local", string);
+	PTF_ASSERT_EQUAL(firstAuthority->getDataLength(), 4, size);
+	PTF_ASSERT_EQUAL(firstAuthority->getData()->toString(), "10.0.0.2", string);
+	PTF_ASSERT_EQUAL(firstAuthority->getData().castAs<IPv4DnsResourceData>()->getIpAddress(), pcpp::experimental::makeIPv4Address("10.0.0.2", errorCode), object);
+	PTF_ASSERT_EQUAL(firstAuthority->getSize(), 16, size);
 
 	DnsResource* secondAuthority = dnsLayer->getNextAuthority(firstAuthority);
-	PTF_ASSERT(secondAuthority != NULL, "Get next authority returned NULL");
-	PTF_ASSERT(secondAuthority->getDnsType() == DNS_TYPE_AAAA, "Second authority type isn't AAAA");
-	PTF_ASSERT(secondAuthority->getDnsClass() == DNS_CLASS_IN, "Second authority class isn't IN");
-	PTF_ASSERT(secondAuthority->getTTL() == 120, "Second authority TTL != 120");
-	PTF_ASSERT(secondAuthority->getName() == "Yaels-iPhone.local", "Second authority name isn't 'Yaels-iPhone.local'");
-	PTF_ASSERT(secondAuthority->getDataLength() == 16, "Second authority data size != 16");
-	PTF_ASSERT(secondAuthority->getData()->toString() == "fe80::5a1f:aaff:fe4f:3f9d", "Second authority data != string fe80::5a1f:aaff:fe4f:3f9d");
-	PTF_ASSERT(secondAuthority->getData().castAs<IPv6DnsResourceData>()->getIpAddress() == IPv6Address(std::string("fe80::5a1f:aaff:fe4f:3f9d")), "Second authority data != IPv6Address fe80::5a1f:aaff:fe4f:3f9d");
-	PTF_ASSERT(secondAuthority->getSize() == 28, "Second authority total size != 28");
+	PTF_ASSERT_NOT_NULL(secondAuthority);
+	PTF_ASSERT_EQUAL(secondAuthority->getDnsType(), DNS_TYPE_AAAA, enum);
+	PTF_ASSERT_EQUAL(secondAuthority->getDnsClass(), DNS_CLASS_IN, enum);
+	PTF_ASSERT_EQUAL(secondAuthority->getTTL(), 120, u32);
+	PTF_ASSERT_EQUAL(secondAuthority->getName(), "Yaels-iPhone.local", string);
+	PTF_ASSERT_EQUAL(secondAuthority->getDataLength(), 16, size);
+	PTF_ASSERT_EQUAL(secondAuthority->getData()->toString(), "fe80::5a1f:aaff:fe4f:3f9d", string);
+	PTF_ASSERT_EQUAL(secondAuthority->getData().castAs<IPv6DnsResourceData>()->getIpAddress(), pcpp::experimental::makeIPv6Address("fe80::5a1f:aaff:fe4f:3f9d", errorCode), object);
+	PTF_ASSERT_EQUAL(secondAuthority->getSize(), 28, size);
 
 	DnsResource* thirdAuthority = dnsLayer->getNextAuthority(secondAuthority);
-	PTF_ASSERT(thirdAuthority == NULL, "Found an imaginary third authority");
+	PTF_ASSERT_NULL(thirdAuthority);
 
 	PTF_ASSERT(dnsLayer->getAuthority("Yaels-iPhon", false) == firstAuthority, "Get authority by name didn't return the first authority");
-	PTF_ASSERT(dnsLayer->getAuthority("www.google.com", false) == NULL, "Found imaginary authority record");
+	PTF_ASSERT_NULL(dnsLayer->getAuthority("www.google.com", false));
 
 	DnsResource* additionalRecord = dnsLayer->getFirstAdditionalRecord();
-	PTF_ASSERT(additionalRecord != NULL, "Couldn't find additional record");
-	PTF_ASSERT(additionalRecord->getDnsType() == DNS_TYPE_OPT, "Additional record type isn't OPT");
-	PTF_ASSERT(additionalRecord->getDnsClass() == 0x05a0, "Additional record 'class' isn't 0x05a0, it's 0x%X", additionalRecord->getDnsClass());
-	PTF_ASSERT(additionalRecord->getTTL() == 0x1194, "Additional record 'TTL' != 0x1194, it's 0x%X", additionalRecord->getTTL());
-	PTF_ASSERT(additionalRecord->getName() == "", "Additional record name isn't empty");
-	PTF_ASSERT(additionalRecord->getDataLength() == 12, "Second authority data size != 12");
-	PTF_ASSERT(additionalRecord->getData()->toString() == "0004000800df581faa4f3f9d", "Additional record unexpected data: %s", additionalRecord->getData()->toString().c_str());
-	PTF_ASSERT(additionalRecord->getSize() == 23, "Second authority total size != 23");
-	PTF_ASSERT(dnsLayer->getNextAdditionalRecord(additionalRecord) == NULL, "Found imaginary additional record");
+	PTF_ASSERT_NOT_NULL(additionalRecord);
+	PTF_ASSERT_EQUAL(additionalRecord->getDnsType(), DNS_TYPE_OPT, enum);
+	PTF_ASSERT_EQUAL(additionalRecord->getDnsClass(), 0x05a0, enum);
+	PTF_ASSERT_EQUAL(additionalRecord->getTTL(), 0x1194, u32);
+	PTF_ASSERT_TRUE(additionalRecord->getName().empty());
+	PTF_ASSERT_EQUAL(additionalRecord->getDataLength(), 12, size);
+	PTF_ASSERT_EQUAL(additionalRecord->getData()->toString(), "0004000800df581faa4f3f9d", string);
+	PTF_ASSERT_EQUAL(additionalRecord->getSize(), 23, size);
+	PTF_ASSERT_NULL(dnsLayer->getNextAdditionalRecord(additionalRecord));
 	PTF_ASSERT(dnsLayer->getAdditionalRecord("", true) == additionalRecord, "Couldn't find additional record by (empty) name");
 
-	PTF_ASSERT(dnsLayer->toString() == "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", "Dns3 toString gave the wrong output");
+	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", string);
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/Dns1.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file Dns1.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
 
 	Packet dnsPacket2(&rawPacket2);
 
 	dnsLayer = dnsPacket2.getLayerOfType<DnsLayer>();
-	PTF_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
-	PTF_ASSERT(ntohs(dnsLayer->getDnsHeader()->transactionID) == 0x2d6d, "DNS transaction ID != 0x2d6d");
-	PTF_ASSERT(dnsLayer->getDnsHeader()->queryOrResponse == 1, "Packet isn't a response");
-	PTF_ASSERT(dnsLayer->getDnsHeader()->recursionAvailable == 1, "recursionAvailable flag != 1");
-	PTF_ASSERT(dnsLayer->getDnsHeader()->recursionDesired == 1, "recursionDesired flag != 1");
-	PTF_ASSERT(dnsLayer->getDnsHeader()->opcode == 0, "opCode flag != 0");
-	PTF_ASSERT(dnsLayer->getDnsHeader()->authoritativeAnswer == 0, "authoritativeAnswer flag != 0");
-	PTF_ASSERT(dnsLayer->getDnsHeader()->checkingDisabled == 0, "checkingDisabled flag != 0");
+	PTF_ASSERT_NOT_NULL(dnsLayer);
+	PTF_ASSERT_EQUAL(ntohs(dnsLayer->getDnsHeader()->transactionID), 0x2d6d, u16);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->queryOrResponse, 1, u16);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->recursionAvailable, 1, u16);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->recursionDesired, 1, u16);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->opcode, 0, u16);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->authoritativeAnswer, 0, u16);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->checkingDisabled, 0, u16);
 	firstQuery = dnsLayer->getFirstQuery();
-	PTF_ASSERT(firstQuery != NULL, "First query returned NULL for Dns1.dat");
-	PTF_ASSERT(firstQuery->getName() == "www.google-analytics.com", "First query name != 'www.google-analytics.com'");
-	PTF_ASSERT(firstQuery->getDnsType() == DNS_TYPE_A, "DNS type != DNS_TYPE_A");
+	PTF_ASSERT_NOT_NULL(firstQuery);
+	PTF_ASSERT_EQUAL(firstQuery->getName(), "www.google-analytics.com", string);
+	PTF_ASSERT_EQUAL(firstQuery->getDnsType(), DNS_TYPE_A, enum);
 
 	DnsResource* curAnswer = dnsLayer->getFirstAnswer();
-	PTF_ASSERT(curAnswer != NULL, "Couldn't find first answer");
-	PTF_ASSERT(curAnswer->getDnsType() == DNS_TYPE_CNAME, "First answer type isn't CNAME");
-	PTF_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "First answer class isn't IN");
-	PTF_ASSERT(curAnswer->getTTL() == 57008, "First answer TTL != 57008");
-	PTF_ASSERT(curAnswer->getName() == "www.google-analytics.com", "First answer name isn't 'www.google-analytics.com'");
-	PTF_ASSERT(curAnswer->getDataLength() == 32, "First answer data size != 32");
-	PTF_ASSERT(curAnswer->getData()->toString() == "www-google-analytics.l.google.com", "First answer data != 'www-google-analytics.l.google.com'. It's '%s'", curAnswer->getData()->toString().c_str());
-	PTF_ASSERT(curAnswer->getSize() == 44, "First authority total size != 44");
+	PTF_ASSERT_NOT_NULL(curAnswer);
+	PTF_ASSERT_EQUAL(curAnswer->getDnsType(), DNS_TYPE_CNAME, enum);
+	PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), DNS_CLASS_IN, enum);
+	PTF_ASSERT_EQUAL(curAnswer->getTTL(), 57008, u32);
+	PTF_ASSERT_EQUAL(curAnswer->getName(), "www.google-analytics.com", string);
+	PTF_ASSERT_EQUAL(curAnswer->getDataLength(), 32, size);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "www-google-analytics.l.google.com", string);
+	PTF_ASSERT_EQUAL(curAnswer->getSize(), 44, size);
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
 	int answerCount = 2;
 	while (curAnswer != NULL)
 	{
-		PTF_ASSERT(curAnswer->getDnsType() == DNS_TYPE_A, "Answer #%d type isn't A", answerCount);
-		PTF_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "Answer #%d class isn't IN", answerCount);
-		PTF_ASSERT(curAnswer->getTTL() == 117, "Answer #%d TTL != 117", answerCount);
-		PTF_ASSERT(curAnswer->getName() == "www-google-analytics.L.google.com", "Answer #%d name isn't 'www-google-analytics.L.google.com'", answerCount);
-		PTF_ASSERT(curAnswer->getDataLength() == 4, "Answer #%d data size != 4", answerCount);
+		PTF_ASSERT_EQUAL(curAnswer->getDnsType(), DNS_TYPE_A, enum);
+		PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), DNS_CLASS_IN, enum);
+		PTF_ASSERT_EQUAL(curAnswer->getTTL(), 117, u32);
+		PTF_ASSERT_EQUAL(curAnswer->getName(), "www-google-analytics.L.google.com", string);
+		PTF_ASSERT_EQUAL(curAnswer->getDataLength(), 4, size);
 		PTF_ASSERT_TRUE(pcpp::experimental::matchSubnet(curAnswer->getData().castAs<IPv4DnsResourceData>()->getIpAddress(), "212.199.219.0", "255.255.255.0"));
 
 		curAnswer = dnsLayer->getNextAnswer(curAnswer);
 		answerCount++;
 	}
 
-	PTF_ASSERT(answerCount == 18, "Found more/less than 17 answers");
+	PTF_ASSERT_EQUAL(answerCount, 18, int);
 
 	PTF_ASSERT(dnsLayer->getAnswer("www.google-analytics.com", false) == dnsLayer->getFirstAnswer(), "Couldn't find answer by name 1");
 	PTF_ASSERT(dnsLayer->getAnswer("www-google-analytics.L.google.com", true) == dnsLayer->getNextAnswer(dnsLayer->getFirstAnswer()), "Couldn't find answer by name 2");
 
-	PTF_ASSERT(dnsLayer->toString() == "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0", "Dns1 toString gave the wrong output");
+	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0", string);
 
 
 
 	int buffer3Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/Dns2.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file Dns2.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 
 	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
 
 	Packet dnsPacket3(&rawPacket3);
 
 	dnsLayer = dnsPacket3.getLayerOfType<DnsLayer>();
-	PTF_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
+	PTF_ASSERT_NOT_NULL(dnsLayer);
 	queryByName = dnsLayer->getQuery(string("Yaels-iPhone.loca"), false);
-	PTF_ASSERT(queryByName != NULL, "Query by name returned NULL for Dns2.dat");
-	PTF_ASSERT(queryByName->getDnsClass() == DNS_CLASS_IN_QU, "Query class != DNS_CLASS_IN_QU");
+	PTF_ASSERT_NOT_NULL(queryByName);
+	PTF_ASSERT_EQUAL(queryByName->getDnsClass(), DNS_CLASS_IN_QU, enum);
 
-	PTF_ASSERT(dnsLayer->toString() == "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", "Dns2 toString gave the wrong output");
+	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", string);
 
 
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/Dns4.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file Dns4.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 
 	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
 
 	Packet dnsPacket4(&rawPacket4);
 	dnsLayer = dnsPacket4.getLayerOfType<DnsLayer>();
-	PTF_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
+	PTF_ASSERT_NOT_NULL(dnsLayer);
 
 	curAnswer = dnsLayer->getFirstAnswer();
-	PTF_ASSERT(curAnswer != NULL, "Couldn't find first answer");
-	PTF_ASSERT(curAnswer->getDnsType() == DNS_TYPE_MX, "First answer type isn't MX");
-	PTF_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "First answer class isn't IN");
-	PTF_ASSERT(curAnswer->getData()->toString() == "pref: 1; mx: mta5.am0.yahoodns.net", "First answer MX data string is not as expected");
-	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference == 1, "First answer MX data: preference is not 1");
-	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange == "mta5.am0.yahoodns.net", "First answer MX data: mail exchange is not 'mta5.am0.yahoodns.net'");
+	PTF_ASSERT_NOT_NULL(curAnswer);
+	PTF_ASSERT_EQUAL(curAnswer->getDnsType(), DNS_TYPE_MX, enum);
+	PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), DNS_CLASS_IN, enum);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta5.am0.yahoodns.net", string);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference, 1, u16);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange, "mta5.am0.yahoodns.net", string);
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
-	PTF_ASSERT(curAnswer != NULL, "Couldn't find second answer");
-	PTF_ASSERT(curAnswer->getDnsType() == DNS_TYPE_MX, "Second answer type isn't MX");
-	PTF_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "Second answer class isn't IN");
-	PTF_ASSERT(curAnswer->getData()->toString() == "pref: 1; mx: mta7.am0.yahoodns.net", "Second answer MX data string is not as expected");
-	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference == 1, "Second answer MX data: preference is not 1");
-	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange == "mta7.am0.yahoodns.net", "Second answer MX data: mail exchange is not 'mta7.am0.yahoodns.net'");
+	PTF_ASSERT_NOT_NULL(curAnswer);
+	PTF_ASSERT_EQUAL(curAnswer->getDnsType(), DNS_TYPE_MX, enum);
+	PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), DNS_CLASS_IN, enum);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta7.am0.yahoodns.net", string);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference, 1, u16);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange, "mta7.am0.yahoodns.net", string);
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
-	PTF_ASSERT(curAnswer != NULL, "Couldn't find third answer");
-	PTF_ASSERT(curAnswer->getDnsType() == DNS_TYPE_MX, "Third answer type isn't MX");
-	PTF_ASSERT(curAnswer->getDnsClass() == DNS_CLASS_IN, "Third answer class isn't IN");
-	PTF_ASSERT(curAnswer->getData()->toString() == "pref: 1; mx: mta6.am0.yahoodns.net", "Third answer MX data string is not as expected");
-	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference == 1, "Third answer MX data: preference is not 1");
-	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange == "mta6.am0.yahoodns.net", "Third answer MX data: mail exchange is not 'mta6.am0.yahoodns.net'");
+	PTF_ASSERT_NOT_NULL(curAnswer);
+	PTF_ASSERT_EQUAL(curAnswer->getDnsType(), DNS_TYPE_MX, enum);
+	PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), DNS_CLASS_IN, enum);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta6.am0.yahoodns.net", string);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference, 1, u16);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange, "mta6.am0.yahoodns.net", string);
 
 
 
@@ -2810,7 +2811,7 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 {
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/DnsEdit2.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file DnsEdit2.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -2821,34 +2822,34 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 	Packet dnsEdit2Packet(1);
 
 	EthLayer ethLayer2(*dnsEdit2RefPacket.getLayerOfType<EthLayer>());
-	PTF_ASSERT(dnsEdit2Packet.addLayer(&ethLayer2), "Add EthLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&ethLayer2));
 
 	IPv4Layer ipLayer2(*dnsEdit2RefPacket.getLayerOfType<IPv4Layer>());
-	PTF_ASSERT(dnsEdit2Packet.addLayer(&ipLayer2), "Add IPv4Layer failed");
+	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&ipLayer2));
 
 	UdpLayer udpLayer2(*dnsEdit2RefPacket.getLayerOfType<UdpLayer>());
-	PTF_ASSERT(dnsEdit2Packet.addLayer(&udpLayer2), "Add UdpLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&udpLayer2));
 
 	DnsLayer dns2Layer;
 	dns2Layer.getDnsHeader()->recursionDesired = true;
 	dns2Layer.getDnsHeader()->transactionID = htons(0xb179);
 	DnsQuery* newQuery = dns2Layer.addQuery("mail-attachment.googleusercontent.com", DNS_TYPE_A, DNS_CLASS_IN);
-	PTF_ASSERT(newQuery != NULL, "Couldn't add query for DnsEdit2");
-	PTF_ASSERT(dns2Layer.getQueryCount() == 1, "Query count != 1 after adding a query for DnsEdit2");
-	PTF_ASSERT(newQuery->getName() == "mail-attachment.googleusercontent.com", "Name of new query is wrong");
+	PTF_ASSERT_NOT_NULL(newQuery);
+	PTF_ASSERT_EQUAL(dns2Layer.getQueryCount(), 1, size);
+	PTF_ASSERT_EQUAL(newQuery->getName(), "mail-attachment.googleusercontent.com", string);
 
 	dnsEdit2Packet.addLayer(&dns2Layer);
 
 	dnsEdit2Packet.computeCalculateFields();
 
-	PTF_ASSERT(buffer2Length == dnsEdit2Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit2Packet.getRawPacket()->getRawDataLen(), buffer2Length);
+	PTF_ASSERT_EQUAL(buffer2Length, dnsEdit2Packet.getRawPacket()->getRawDataLen(), int);
 
-	PTF_ASSERT(memcmp(dnsEdit2Packet.getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "Raw packet data is different than expected DnsEdit2");
+	PTF_ASSERT_BUF_COMPARE(dnsEdit2Packet.getRawPacket()->getRawData(), buffer2, buffer2Length);
 
 
 	int buffer1Length = 0;
 	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/DnsEdit1.dat", buffer1Length);
-	PTF_ASSERT(!(buffer1 == NULL), "cannot read file DnsEdit1.dat");
+	PTF_ASSERT_NOT_NULL(buffer1);
 
 	gettimeofday(&time, NULL);
 	RawPacket raw1Packet((const uint8_t*)buffer1, buffer1Length, time, true);
@@ -2858,36 +2859,36 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 	Packet dnsEdit1Packet(1);
 
 	EthLayer ethLayer1(*dnsEdit1RefPacket.getLayerOfType<EthLayer>());
-	PTF_ASSERT(dnsEdit1Packet.addLayer(&ethLayer1), "Add EthLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&ethLayer1));
 
 	IPv4Layer ipLayer1(*dnsEdit1RefPacket.getLayerOfType<IPv4Layer>());
-	PTF_ASSERT(dnsEdit1Packet.addLayer(&ipLayer1), "Add IPv4Layer failed");
+	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&ipLayer1));
 
 	UdpLayer udpLayer1(*dnsEdit1RefPacket.getLayerOfType<UdpLayer>());
-	PTF_ASSERT(dnsEdit1Packet.addLayer(&udpLayer1), "Add UdpLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&udpLayer1));
 
 	DnsLayer dns1Layer;
 
 	dnsEdit1Packet.addLayer(&dns1Layer);
 
 	newQuery = dns1Layer.addQuery("_apple-mobdev._tcp.local", DNS_TYPE_PTR, DNS_CLASS_IN);
-	PTF_ASSERT(newQuery != NULL, "Couldn't add query for DnsEdit1");
-	PTF_ASSERT(dns1Layer.getQueryCount() == 1, "Query count != 1 after adding a query for DnsEdit1");
+	PTF_ASSERT_NOT_NULL(newQuery);
+	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 1, size);
 
 	newQuery = dns1Layer.addQuery(newQuery);
-	PTF_ASSERT(newQuery != NULL, "Couldn't add second query for DnsEdit1");
-	PTF_ASSERT(dns1Layer.getQueryCount() == 2, "Query count != 2 after adding a second query for DnsEdit1");
+	PTF_ASSERT_NOT_NULL(newQuery);
+	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 2, size);
 
-	PTF_ASSERT(newQuery->setName("_sleep-proxy._udp.local") == true, "Couldn't set name for DnsEdit1");
+	PTF_ASSERT_TRUE(newQuery->setName("_sleep-proxy._udp.local"));
 
-	PTF_ASSERT(dns1Layer.addQuery(NULL) == NULL, "adding a null record accidently succeeded");
-	PTF_ASSERT(dns1Layer.getQueryCount() == 2, "Query count != 2 after adding a second query and null query for DnsEdit1");
+	PTF_ASSERT_NULL(dns1Layer.addQuery(NULL));
+	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 2, size);
 
 	dnsEdit1Packet.computeCalculateFields();
 
-	PTF_ASSERT(buffer1Length == dnsEdit1Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit1Packet.getRawPacket()->getRawDataLen(), buffer1Length);
+	PTF_ASSERT_EQUAL(buffer1Length, dnsEdit1Packet.getRawPacket()->getRawDataLen(), int);
 
-	PTF_ASSERT(memcmp(dnsEdit1Packet.getRawPacket()->getRawData(), buffer1, buffer1Length) == 0, "Raw packet data is different than expected DnsEdit1");
+	PTF_ASSERT_BUF_COMPARE(dnsEdit1Packet.getRawPacket()->getRawData(), buffer1, buffer1Length);
 } // DnsLayerQueryCreationTest
 
 
@@ -2896,7 +2897,7 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 {
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/DnsEdit4.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file DnsEdit4.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -2907,13 +2908,13 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	Packet dnsEdit4Packet(1);
 
 	EthLayer ethLayer4(*dnsEdit4RefPacket.getLayerOfType<EthLayer>());
-	PTF_ASSERT(dnsEdit4Packet.addLayer(&ethLayer4), "Add EthLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&ethLayer4));
 
 	IPv4Layer ipLayer4(*dnsEdit4RefPacket.getLayerOfType<IPv4Layer>());
-	PTF_ASSERT(dnsEdit4Packet.addLayer(&ipLayer4), "Add IPv4Layer failed");
+	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&ipLayer4));
 
 	UdpLayer udpLayer4(*dnsEdit4RefPacket.getLayerOfType<UdpLayer>());
-	PTF_ASSERT(dnsEdit4Packet.addLayer(&udpLayer4), "Add UdpLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&udpLayer4));
 
 	DnsLayer dns4Layer;
 	dns4Layer.getDnsHeader()->transactionID = htons(14627);
@@ -2923,49 +2924,49 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	StringDnsResourceData stringDnsData("assets.pinterest.com.cdngc.net");
 	DnsResource* firstAnswer = dns4Layer.addAnswer("assets.pinterest.com", DNS_TYPE_CNAME, DNS_CLASS_IN, 228, &stringDnsData);
-	PTF_ASSERT(firstAnswer != NULL, "Couldn't add first answer");
+	PTF_ASSERT_NOT_NULL(firstAnswer);
 	PTF_ASSERT(dns4Layer.getFirstAnswer() == firstAnswer, "Couldn't retrieve first answer from layer");
-	PTF_ASSERT(firstAnswer->getData()->toString() == "assets.pinterest.com.cdngc.net", "Couldn't retrieve data for first answer");
+	PTF_ASSERT_EQUAL(firstAnswer->getData()->toString(), "assets.pinterest.com.cdngc.net", string);
 
-	PTF_ASSERT(dnsEdit4Packet.addLayer(&dns4Layer), "Add DnsLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&dns4Layer));
 
 	PTF_ASSERT(dnsEdit4Packet.getLayerOfType<DnsLayer>()->getFirstAnswer() == firstAnswer, "Couldn't retrieve first answer from layer after adding layer to packet");
 
 	IPv4DnsResourceData ipv4DnsData(std::string("151.249.90.217"));
 	DnsResource* secondAnswer = dns4Layer.addAnswer("assets.pinterest.com.cdngc.net", DNS_TYPE_A, DNS_CLASS_IN, 3, &ipv4DnsData);
-	PTF_ASSERT(secondAnswer != NULL, "Couldn't add second answer");
-	PTF_ASSERT(secondAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress() == ipv4DnsData.getIpAddress(), "Couldn't retrieve data for second answer");
+	PTF_ASSERT_NOT_NULL(secondAnswer);
+	PTF_ASSERT_EQUAL(secondAnswer->getData()->castAs<IPv4DnsResourceData>()->getIpAddress(), ipv4DnsData.getIpAddress(), object);
 
 	DnsQuery* query = dns4Layer.addQuery("assets.pinterest.com", DNS_TYPE_A, DNS_CLASS_IN);
-	PTF_ASSERT(query != NULL, "Couldn't add query");
+	PTF_ASSERT_NOT_NULL(query);
 
 	PTF_ASSERT(dnsEdit4Packet.getLayerOfType<DnsLayer>()->getFirstAnswer() == firstAnswer, "Couldn't retrieve first answer from layer after adding query");
 	PTF_ASSERT(dnsEdit4Packet.getLayerOfType<DnsLayer>()->getNextAnswer(firstAnswer) == secondAnswer, "Couldn't retrieve second answer from layer after adding query");
 
 	DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
-	PTF_ASSERT(thirdAnswer != NULL, "Couldn't add third answer");
+	PTF_ASSERT_NOT_NULL(thirdAnswer);
 	LoggerPP::getInstance().supressErrors();
 	ipv4DnsData = IPv4DnsResourceData(std::string("256.249.90.238"));
-	PTF_ASSERT(thirdAnswer->setData(&ipv4DnsData) == false, "Managed to set illegal IPv4 address in third answer");
+	PTF_ASSERT_FALSE(thirdAnswer->setData(&ipv4DnsData));
 	LoggerPP::getInstance().enableErrors();
 	ipv4DnsData = IPv4DnsResourceData(std::string("151.249.90.238"));
-	PTF_ASSERT(thirdAnswer->setData(&ipv4DnsData) == true, "Couldn't set data for third answer");
+	PTF_ASSERT_TRUE(thirdAnswer->setData(&ipv4DnsData));
 
-	PTF_ASSERT(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", true)->getData()->toString() == "151.249.90.217", "Couldn't retrieve data for second answer after adding third answer");
-	PTF_ASSERT(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", false))->getData()->toString() == "151.249.90.238", "Couldn't retrieve data for third answer after adding third answer");
+	PTF_ASSERT_EQUAL(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", true)->getData()->toString(), "151.249.90.217", string);
+	PTF_ASSERT_EQUAL(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", false))->getData()->toString(), "151.249.90.238", string);
 
 	dnsEdit4Packet.computeCalculateFields();
 
-	PTF_ASSERT(buffer4Length == dnsEdit4Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit4Packet.getRawPacket()->getRawDataLen(), buffer4Length);
+	PTF_ASSERT_EQUAL(buffer4Length, dnsEdit4Packet.getRawPacket()->getRawDataLen(), int);
 
-	PTF_ASSERT(memcmp(dnsEdit4Packet.getRawPacket()->getRawData(), buffer4, buffer4Length) == 0, "Raw packet data is different than expected DnsEdit4");
+	PTF_ASSERT_BUF_COMPARE(dnsEdit4Packet.getRawPacket()->getRawData(), buffer4, buffer4Length);
 
 
 
 
 	int buffer6Length = 0;
 	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/DnsEdit6.dat", buffer6Length);
-	PTF_ASSERT(!(buffer6 == NULL), "cannot read file DnsEdit6.dat");
+	PTF_ASSERT_NOT_NULL(buffer6);
 
 	gettimeofday(&time, NULL);
 	RawPacket raw6Packet((const uint8_t*)buffer6, buffer6Length, time, true);
@@ -2975,71 +2976,71 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	Packet dnsEdit6Packet(52);
 
 	EthLayer ethLayer6(*dnsEdit6RefPacket.getLayerOfType<EthLayer>());
-	PTF_ASSERT(dnsEdit6Packet.addLayer(&ethLayer6), "Add EthLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&ethLayer6));
 
 	IPv6Layer ipLayer6(*dnsEdit6RefPacket.getLayerOfType<IPv6Layer>());
-	PTF_ASSERT(dnsEdit6Packet.addLayer(&ipLayer6), "Add IPv6Layer failed");
+	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&ipLayer6));
 
 	UdpLayer udpLayer6(*dnsEdit6RefPacket.getLayerOfType<UdpLayer>());
-	PTF_ASSERT(dnsEdit6Packet.addLayer(&udpLayer6), "Add UdpLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&udpLayer6));
 
 	DnsLayer dnsLayer6;
 
 	ipv4DnsData = IPv4DnsResourceData(std::string("10.0.0.2"));
 	DnsResource* authority = dnsLayer6.addAuthority("Yaels-iPhone.local", DNS_TYPE_A, DNS_CLASS_IN, 120, &ipv4DnsData);
-	PTF_ASSERT(authority != NULL, "Couldn't add first authority");
+	PTF_ASSERT_NOT_NULL(authority);
 
 	query = dnsLayer6.addQuery(query);
-	PTF_ASSERT(query->setName("Yaels-iPhone.local") == true, "Couldn't set name for first query in DnsEdit6");
+	PTF_ASSERT_TRUE(query->setName("Yaels-iPhone.local"));
 	query->setDnsClass(DNS_CLASS_CH);
 	query->setDnsType(DNS_TYPE_ALL);
 
-	PTF_ASSERT(dnsEdit6Packet.addLayer(&dnsLayer6), "Couldn't set DNS layer for packet DnsEdit6");
+	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&dnsLayer6));
 
-	PTF_ASSERT(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString() == "10.0.0.2", "Couldn't retrieve data from first authority");
+	PTF_ASSERT_EQUAL(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), "10.0.0.2", string);
 
 	authority = dnsLayer6.addAuthority(authority);
 	LoggerPP::getInstance().supressErrors();
 	IPv6DnsResourceData ipv6DnsData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
-	PTF_ASSERT(authority->setData(&ipv6DnsData) == false, "Managed to set IPv6 data for DNS authority record of type IPv4");
+	PTF_ASSERT_FALSE(authority->setData(&ipv6DnsData));
 	LoggerPP::getInstance().enableErrors();
 	authority->setDnsType(DNS_TYPE_AAAA);
 	LoggerPP::getInstance().supressErrors();
 	ipv6DnsData = IPv6DnsResourceData(std::string("fe80::5a1f:aaff$fe4f:3f9d"));
-	PTF_ASSERT(authority->setData(&ipv6DnsData) == false, "Managed to set malformed IPv6 data for DNS authority record");
+	PTF_ASSERT_FALSE(authority->setData(&ipv6DnsData));
 	LoggerPP::getInstance().enableErrors();
 	ipv6DnsData = IPv6DnsResourceData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
-	PTF_ASSERT(authority->setData(&ipv6DnsData) == true, "Couldn't IPv6 data for DNS authority record");
+	PTF_ASSERT_TRUE(authority->setData(&ipv6DnsData));
 
 	query = dnsLayer6.addQuery(query);
 	query->setDnsClass(DNS_CLASS_ANY);
 
-	PTF_ASSERT(dnsLayer6.getQueryCount() == 2, "Query count != 2, it's %d", (int)dnsLayer6.getQueryCount());
-	PTF_ASSERT(dnsLayer6.getAuthorityCount() == 2, "Authority count != 2");
-	PTF_ASSERT(dnsLayer6.getAnswerCount() == 0, "Answers count != 0");
-	PTF_ASSERT(dnsLayer6.getAdditionalRecordCount() == 0, "Additional record count != 0");
+	PTF_ASSERT_EQUAL(dnsLayer6.getQueryCount(), 2, size);
+	PTF_ASSERT_EQUAL(dnsLayer6.getAuthorityCount(), 2, size);
+	PTF_ASSERT_EQUAL(dnsLayer6.getAnswerCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer6.getAdditionalRecordCount(), 0, size);
 
 	GenericDnsResourceData genericData("0004000800df581faa4f3f9d");
 	DnsResource* additional = dnsLayer6.addAdditionalRecord("", DNS_TYPE_OPT, 0xa005, 0x1194, &genericData);
-	PTF_ASSERT(additional != NULL, "Couldn't add additional record");
+	PTF_ASSERT_NOT_NULL(additional);
 	LoggerPP::getInstance().supressErrors();
 	genericData = GenericDnsResourceData("a0123");
-	PTF_ASSERT(additional->setData(&genericData) == false, "Managed to set hex data with odd number of characters");
+	PTF_ASSERT_FALSE(additional->setData(&genericData));
 	genericData = GenericDnsResourceData("a01j34");
-	PTF_ASSERT(additional->setData(&genericData) == false, "Managed to set hex data with illegal hex characters");
+	PTF_ASSERT_FALSE(additional->setData(&genericData));
 	LoggerPP::getInstance().enableErrors();
 
 	dnsEdit6Packet.computeCalculateFields();
 
-	PTF_ASSERT(buffer6Length == dnsEdit6Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit6Packet.getRawPacket()->getRawDataLen(), buffer6Length);
+	PTF_ASSERT_EQUAL(buffer6Length, dnsEdit6Packet.getRawPacket()->getRawDataLen(), int);
 
-	PTF_ASSERT(memcmp(dnsEdit6Packet.getRawPacket()->getRawData(), buffer6, buffer6Length) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_BUF_COMPARE(dnsEdit6Packet.getRawPacket()->getRawData(), buffer6, buffer6Length);
 
 
 
 	int buffer7Length = 0;
 	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/DnsEdit7.dat", buffer7Length);
-	PTF_ASSERT(!(buffer7 == NULL), "cannot read file DnsEdit7.dat");
+	PTF_ASSERT_NOT_NULL(buffer7);
 
 	RawPacket raw7Packet((const uint8_t*)buffer7, buffer7Length, time, true);
 
@@ -3048,13 +3049,13 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	Packet dnsEdit7Packet(60);
 
 	EthLayer ethLayer7(*dnsEdit7RefPacket.getLayerOfType<EthLayer>());
-	PTF_ASSERT(dnsEdit7Packet.addLayer(&ethLayer7), "Add EthLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&ethLayer7));
 
 	IPv4Layer ipLayer7(*dnsEdit7RefPacket.getLayerOfType<IPv4Layer>());
-	PTF_ASSERT(dnsEdit7Packet.addLayer(&ipLayer7), "Add IPv4Layer failed");
+	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&ipLayer7));
 
 	UdpLayer udpLayer7(*dnsEdit7RefPacket.getLayerOfType<UdpLayer>());
-	PTF_ASSERT(dnsEdit7Packet.addLayer(&udpLayer7), "Add UdpLayer failed");
+	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&udpLayer7));
 
 	DnsLayer dnsLayer7;
 	dnsLayer7.getDnsHeader()->transactionID = htons(612);
@@ -3063,31 +3064,31 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	dnsLayer7.getDnsHeader()->recursionAvailable = 1;
 
 	query = dnsLayer7.addQuery("yahoo.com", DNS_TYPE_MX, DNS_CLASS_IN);
-	PTF_ASSERT(query != NULL, "Couldn't add query to dnsLayer7");
+	PTF_ASSERT_NOT_NULL(query);
 
 	std::stringstream queryNameOffset;
 	queryNameOffset << "#" << query->getNameOffset();
 
 	MxDnsResourceData mxDnsData(1, "mta5.am0.yahoodns.net");
 	DnsResource* answer = dnsLayer7.addAnswer(queryNameOffset.str(), DNS_TYPE_MX, DNS_CLASS_IN, 187, &mxDnsData);
-	PTF_ASSERT(answer != NULL, "Couldn't add first answer to dnsLayer7");
+	PTF_ASSERT_NOT_NULL(answer);
 
 	std::stringstream firsAnswerMxOffset;
 	firsAnswerMxOffset << "#" << (answer->getDataOffset() + 2 + 5);
 
 	mxDnsData.setMxData(1, "mta7." + firsAnswerMxOffset.str());
 	answer = dnsLayer7.addAnswer(queryNameOffset.str(), DNS_TYPE_MX, DNS_CLASS_IN, 187, &mxDnsData);
-	PTF_ASSERT(answer != NULL, "Couldn't add second answer to dnsLayer7");
+	PTF_ASSERT_NOT_NULL(answer);
 
 	mxDnsData.setMxData(1, "mta6." + firsAnswerMxOffset.str());
 	answer = dnsLayer7.addAnswer(queryNameOffset.str(), DNS_TYPE_MX, DNS_CLASS_IN, 187, &mxDnsData);
-	PTF_ASSERT(answer != NULL, "Couldn't add third answer to dnsLayer7");
+	PTF_ASSERT_NOT_NULL(answer);
 
-	PTF_ASSERT(dnsEdit7Packet.addLayer(&dnsLayer7), "Couldn't set DNS layer for packet DnsEdit7");
+	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&dnsLayer7));
 
 	dnsEdit7Packet.computeCalculateFields();
 
-	PTF_ASSERT(buffer7Length == dnsEdit7Packet.getRawPacket()->getRawDataLen(), "DnsEdit7: Generated packet len (%d) is different than read packet len (%d)", dnsEdit7Packet.getRawPacket()->getRawDataLen(), buffer7Length);
+	PTF_ASSERT_EQUAL(buffer7Length, dnsEdit7Packet.getRawPacket()->getRawDataLen(), int);
 
 	PTF_ASSERT(memcmp(dnsEdit7Packet.getRawPacket()->getRawData(), buffer7, buffer7Length) == 0, "DnsEdit7: Raw packet data is different than expected");
 } // DnsLayerResourceCreationTest
@@ -3099,9 +3100,9 @@ PTF_TEST_CASE(DnsLayerEditTest)
 	int buffer3Length = 0;
 	int buffer5Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/DnsEdit3.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file DnsEdit3.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/DnsEdit5.dat", buffer5Length);
-	PTF_ASSERT(!(buffer5 == NULL), "cannot read file DnsEdit5.dat");
+	PTF_ASSERT_NOT_NULL(buffer5);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -3113,24 +3114,24 @@ PTF_TEST_CASE(DnsLayerEditTest)
 	Packet dnsEdit5(&raw5Packet);
 
 	DnsLayer* dnsLayer3 = dnsEdit3.getLayerOfType<DnsLayer>();
-	PTF_ASSERT(dnsLayer3 != NULL, "Couldn't retrieve DnsLayer for DnsEdit3");
+	PTF_ASSERT_NOT_NULL(dnsLayer3);
 
 	DnsLayer* dnsLayer5 = dnsEdit5.getLayerOfType<DnsLayer>();
-	PTF_ASSERT(dnsLayer5 != NULL, "Couldn't retrieve DnsLayer for DnsEdit5");
+	PTF_ASSERT_NOT_NULL(dnsLayer5);
 
-	PTF_ASSERT(dnsLayer3->getFirstQuery()->setName("www.mora.fr") == true, "Couldn't set name for DnsEdit3");
+	PTF_ASSERT_TRUE(dnsLayer3->getFirstQuery()->setName("www.mora.fr"));
 	dnsLayer3->getDnsHeader()->transactionID = htons(35240);
-	PTF_ASSERT(dnsLayer3->getHeaderLen() == dnsLayer5->getHeaderLen(), "DNS layers length of DnsEdit3 and DnsEdit5 after edit differ");
-	PTF_ASSERT(memcmp(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen()) == 0, "Raw data for DNS layers of DnsEdit3 and DnsEdit5 differ");
+	PTF_ASSERT_EQUAL(dnsLayer3->getHeaderLen(), dnsLayer5->getHeaderLen(), size);
+	PTF_ASSERT_BUF_COMPARE(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen());
 
 	dnsEdit3 = Packet(&raw3PacketCopy);
 	dnsLayer3 = dnsEdit3.getLayerOfType<DnsLayer>();
-	PTF_ASSERT(dnsLayer3 != NULL, "Couldn't retrieve DnsLayer for DnsEdit3");
+	PTF_ASSERT_NOT_NULL(dnsLayer3);
 
 	dnsLayer5->getDnsHeader()->transactionID = htons(14627);
-	PTF_ASSERT(dnsLayer5->getFirstQuery()->setName("assets.pinterest.com") == true, "Couldn't set name for DnsEdit5");
-	PTF_ASSERT(dnsLayer3->getHeaderLen() == dnsLayer5->getHeaderLen(), "DNS layers length of DnsEdit3 and DnsEdit5 after edit differ");
-	PTF_ASSERT(memcmp(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen()) == 0, "Raw data for DNS layers of DnsEdit3 and DnsEdit5 differ");
+	PTF_ASSERT_TRUE(dnsLayer5->getFirstQuery()->setName("assets.pinterest.com"));
+	PTF_ASSERT_EQUAL(dnsLayer3->getHeaderLen(), dnsLayer5->getHeaderLen(), size);
+	PTF_ASSERT_BUF_COMPARE(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen());
 } // DnsLayerEditTest
 
 
@@ -3139,7 +3140,7 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 {
 	int buffer6Length = 0;
 	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/DnsEdit6.dat", buffer6Length);
-	PTF_ASSERT(!(buffer6 == NULL), "cannot read file DnsEdit6.dat");
+	PTF_ASSERT_NOT_NULL(buffer6);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -3148,24 +3149,24 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	Packet dnsEdit6Packet(&raw6Packet);
 
 	DnsLayer* dnsLayer6 = dnsEdit6Packet.getLayerOfType<DnsLayer>();
-	PTF_ASSERT(dnsLayer6 != NULL, "Couldn't retrieve DnsLayer for DnsEdit6");
+	PTF_ASSERT_NOT_NULL(dnsLayer6);
 
 	DnsLayer origDnsLayer6(*dnsLayer6);
 
 	DnsQuery* firstQuery = dnsLayer6->getFirstQuery();
 	size_t firstQuerySize = firstQuery->getSize();
 	DnsQuery* secondQuery = dnsLayer6->getNextQuery(firstQuery);
-	PTF_ASSERT(firstQuery != NULL, "Couldn't find first query in DnsEdit6");
-	PTF_ASSERT(secondQuery != NULL, "Couldn't find second query in DnsEdit6");
-	PTF_ASSERT(dnsLayer6->removeQuery(firstQuery) == true, "Couldn't remove first query from DnsEdit6");
+	PTF_ASSERT_NOT_NULL(firstQuery);
+	PTF_ASSERT_NOT_NULL(secondQuery);
+	PTF_ASSERT_TRUE(dnsLayer6->removeQuery(firstQuery));
 
 	PTF_ASSERT(dnsLayer6->getFirstQuery() == secondQuery, "Remove query didn't remove the query properly from the resources linked list");
-	PTF_ASSERT(dnsLayer6->getFirstQuery()->getDnsType() == DNS_TYPE_ALL, "Remove query didn't properly removed query data from layer");
-	PTF_ASSERT(dnsLayer6->getQueryCount() == 1, "Query count after removing the first query != 1");
-	PTF_ASSERT(dnsLayer6->getFirstAuthority()->getData()->toString() == "10.0.0.2", "Remove query didn't properly removed query data from layer");
-	PTF_ASSERT(dnsLayer6->getFirstAdditionalRecord()->getDnsType() == DNS_TYPE_OPT, "Remove query didn't properly removed query data from layer");
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstQuery()->getDnsType(), DNS_TYPE_ALL, enum);
+	PTF_ASSERT_EQUAL(dnsLayer6->getQueryCount(), 1, size);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAuthority()->getData()->toString(), "10.0.0.2", string);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAdditionalRecord()->getDnsType(), DNS_TYPE_OPT, enum);
 
-	PTF_ASSERT(dnsLayer6->getHeaderLen() == origDnsLayer6.getHeaderLen()-firstQuerySize, "DNS layer size after removing the first query is wrong");
+	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen() - firstQuerySize, size);
 
 //	printf("\n\n\n");
 //	for(int i = 0; i<dnsLayer6->getHeaderLen(); i++)
@@ -3180,39 +3181,41 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 //	}
 //	printf("\n\n\n");
 
-	PTF_ASSERT(memcmp(dnsLayer6->getData()+sizeof(dnshdr), origDnsLayer6.getData()+sizeof(dnshdr)+firstQuerySize , dnsLayer6->getHeaderLen()-sizeof(dnshdr)) == 0, "Raw data for DNS layer of DnsEdit6 after removing first query isn't as expected");
+	PTF_ASSERT_BUF_COMPARE(dnsLayer6->getData() + sizeof(dnshdr),
+		origDnsLayer6.getData() + sizeof(dnshdr) + firstQuerySize,
+		dnsLayer6->getHeaderLen() - sizeof(dnshdr));
 
 	DnsResource* firstAuthority = dnsLayer6->getFirstAuthority();
 	DnsResource* secondAuthority = dnsLayer6->getNextAuthority(firstAuthority);
-	PTF_ASSERT(secondAuthority != NULL, "Couldn't find second authority in DnsEdit6");
+	PTF_ASSERT_NOT_NULL(secondAuthority);
 	size_t secondAuthoritySize = secondAuthority->getSize();
 
-	PTF_ASSERT(dnsLayer6->removeAuthority(secondAuthority) == true, "Couldn't remove second authority from DnsEdit6");
-	PTF_ASSERT(dnsLayer6->getAuthorityCount() == 1, "Authority count after removing the second authority != 1");
+	PTF_ASSERT_TRUE(dnsLayer6->removeAuthority(secondAuthority));
+	PTF_ASSERT_EQUAL(dnsLayer6->getAuthorityCount(), 1, size);
 	PTF_ASSERT(dnsLayer6->getFirstAuthority() == firstAuthority, "Cannot find first authority after removing second authority");
-	PTF_ASSERT(dnsLayer6->getNextAuthority(firstAuthority) == NULL, "Authority list after removing second authority contains more than 1 element");
-	PTF_ASSERT(firstAuthority->getTTL() == 120, "First authority TTL after removing second authority != 120");
-	PTF_ASSERT(dnsLayer6->getFirstAdditionalRecord()->getDnsType() == DNS_TYPE_OPT, "Remove query didn't properly removed query data from layer");
-	PTF_ASSERT(dnsLayer6->getFirstAdditionalRecord()->getDataLength() == 12, "Remove authority didn't properly removed query data from layer");
-	PTF_ASSERT(dnsLayer6->getHeaderLen() == origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize, "DNS layer size after removing the second authority is wrong");
+	PTF_ASSERT_NULL(dnsLayer6->getNextAuthority(firstAuthority));
+	PTF_ASSERT_EQUAL(firstAuthority->getTTL(), 120, u32);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAdditionalRecord()->getDnsType(), DNS_TYPE_OPT, enum);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAdditionalRecord()->getDataLength(), 12, size);
+	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen() - firstQuerySize - secondAuthoritySize, size);
 
-	PTF_ASSERT(dnsLayer6->removeQuery("BlaBla", true) == false, "Managed to remove a query which doesn't exist");
-	PTF_ASSERT(dnsLayer6->removeAuthority(secondAuthority) == false, "Managed to remove an authority which was already removed");
-	PTF_ASSERT(dnsLayer6->removeAdditionalRecord(NULL) == false, "Managed to remove a NULL additional record");
+	PTF_ASSERT_FALSE(dnsLayer6->removeQuery("BlaBla", true));
+	PTF_ASSERT_FALSE(dnsLayer6->removeAuthority(secondAuthority));
+	PTF_ASSERT_FALSE(dnsLayer6->removeAdditionalRecord(NULL));
 
 	size_t additionalRecordSize = dnsLayer6->getFirstAdditionalRecord()->getSize();
-	PTF_ASSERT(dnsLayer6->removeAdditionalRecord(dnsLayer6->getFirstAdditionalRecord()) == true, "Couldn't remove additional record");
-	PTF_ASSERT(dnsLayer6->getAdditionalRecordCount() == 0, "Additional record count after removing the additional record != 0");
-	PTF_ASSERT(dnsLayer6->getFirstAdditionalRecord() == NULL, "Getting first additional record after removing all records gave result != NULL");
-	PTF_ASSERT(dnsLayer6->getFirstAuthority()->getData()->toString() == "10.0.0.2", "First authority data after removing additional record is different than expected");
-	PTF_ASSERT(dnsLayer6->getHeaderLen() == origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize-additionalRecordSize, "DNS layer size after removing the additional record is wrong");
+	PTF_ASSERT_TRUE(dnsLayer6->removeAdditionalRecord(dnsLayer6->getFirstAdditionalRecord()));
+	PTF_ASSERT_EQUAL(dnsLayer6->getAdditionalRecordCount(), 0, size);
+	PTF_ASSERT_NULL(dnsLayer6->getFirstAdditionalRecord());
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAuthority()->getData()->toString(), "10.0.0.2", string);
+	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen() - firstQuerySize-secondAuthoritySize - additionalRecordSize, size);
 
 
 
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/DnsEdit4.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file DnsEdit4.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 
 	gettimeofday(&time, NULL);
 	RawPacket raw4Packet((const uint8_t*)buffer4, buffer4Length, time, true);
@@ -3220,42 +3223,42 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	Packet dnsEdit4Packet(&raw4Packet);
 
 	DnsLayer* dnsLayer4 = dnsEdit4Packet.getLayerOfType<DnsLayer>();
-	PTF_ASSERT(dnsLayer4 != NULL, "Couldn't retrieve DnsLayer for DnsEdit4");
+	PTF_ASSERT_NOT_NULL(dnsLayer4);
 
 	DnsLayer origDnsLayer4(*dnsLayer4);
 
 	firstQuerySize = dnsLayer4->getFirstQuery()->getSize();
-	PTF_ASSERT(dnsLayer4->removeQuery("pinter", false) == true, "Couldn't remove query in DnsEdit4");
-	PTF_ASSERT(dnsLayer4->getQueryCount() == 0, "Query count after removing the only query > 0");
-	PTF_ASSERT(dnsLayer4->getHeaderLen() == origDnsLayer4.getHeaderLen()-firstQuerySize, "DNS layer size after removing the first query is wrong");
+	PTF_ASSERT_TRUE(dnsLayer4->removeQuery("pinter", false));
+	PTF_ASSERT_EQUAL(dnsLayer4->getQueryCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen() - firstQuerySize, size);
 
 	DnsResource* firstAnswer = dnsLayer4->getFirstAnswer();
-	PTF_ASSERT(firstAnswer != NULL, "Couldn't find first answer");
+	PTF_ASSERT_NOT_NULL(firstAnswer);
 	size_t firstAnswerSize = firstAnswer->getSize();
-	PTF_ASSERT(dnsLayer4->getFirstAnswer()->getData()->toString() == "assets.pinterest.com.cdngc.net", "First answer data after removing first query is wrong");
+	PTF_ASSERT_EQUAL(dnsLayer4->getFirstAnswer()->getData()->toString(), "assets.pinterest.com.cdngc.net", string);
 
 	DnsResource* secondAnswer = dnsLayer4->getNextAnswer(firstAnswer);
-	PTF_ASSERT(secondAnswer != NULL, "Couldn't find second answer");
+	PTF_ASSERT_NOT_NULL(secondAnswer);
 	size_t secondAnswerSize = secondAnswer->getSize();
 
 	DnsResource* thirdAnswer = dnsLayer4->getNextAnswer(secondAnswer);
-	PTF_ASSERT(thirdAnswer != NULL, "Couldn't find third answer");
+	PTF_ASSERT_NOT_NULL(thirdAnswer);
 
-	PTF_ASSERT(dnsLayer4->removeAnswer("assets.pinterest.com.cdngc.net", true) == true, "Couldn't remove second answer by name");
-	PTF_ASSERT(dnsLayer4->getAnswerCount() == 2, "Answer count after removing the second answer != 2");
+	PTF_ASSERT_TRUE(dnsLayer4->removeAnswer("assets.pinterest.com.cdngc.net", true));
+	PTF_ASSERT_EQUAL(dnsLayer4->getAnswerCount(), 2, size);
 	PTF_ASSERT(dnsLayer4->getFirstAnswer() == firstAnswer, "First answer after removing the second answer isn't as expected");
 	PTF_ASSERT(dnsLayer4->getNextAnswer(dnsLayer4->getFirstAnswer()) == thirdAnswer, "Second answer after removing the second answer isn't as expected");
-	PTF_ASSERT(dnsLayer4->getHeaderLen() == origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize, "DNS layer size after removing the second answer is wrong");
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen() - firstQuerySize - secondAnswerSize, size);
 
-	PTF_ASSERT(dnsLayer4->removeAnswer(firstAnswer) == true, "Couldn't remove first answer");
-	PTF_ASSERT(dnsLayer4->getAnswerCount() == 1, "Answer count after removing the first answer != 1");
+	PTF_ASSERT_TRUE(dnsLayer4->removeAnswer(firstAnswer));
+	PTF_ASSERT_EQUAL(dnsLayer4->getAnswerCount(), 1, size);
 	PTF_ASSERT(dnsLayer4->getFirstAnswer() == thirdAnswer, "First answer after removing the first answer isn't as expected");
-	PTF_ASSERT(dnsLayer4->getFirstAnswer()->getData()->toString() == "151.249.90.238", "Third answer data isn't as expected");
-	PTF_ASSERT(dnsLayer4->getHeaderLen() == origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize-firstAnswerSize, "DNS layer size after removing the first answer is wrong");
+	PTF_ASSERT_EQUAL(dnsLayer4->getFirstAnswer()->getData()->toString(), "151.249.90.238", string);
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen() - firstQuerySize - secondAnswerSize - firstAnswerSize, size);
 
-	PTF_ASSERT(dnsLayer4->removeAnswer(thirdAnswer) == true, "Couldn't remove third answer");
-	PTF_ASSERT(dnsLayer4->removeAdditionalRecord("blabla", false) == false, "Managed to remove an additional record that doesn't exist");
-	PTF_ASSERT(dnsLayer4->getHeaderLen() == sizeof(dnshdr), "After removing all resources, header size is expected to be sizeof(dnshdr), but this is not the case");
+	PTF_ASSERT_TRUE(dnsLayer4->removeAnswer(thirdAnswer));
+	PTF_ASSERT_FALSE(dnsLayer4->removeAdditionalRecord("blabla", false));
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), sizeof(dnshdr), size);
 } // DnsLayerRemoveResourceTest
 
 
