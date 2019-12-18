@@ -3,7 +3,7 @@
 
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
-#include "IpAddress.h"
+#include "IpAddresses.h"
 #include "PcapRemoteDevice.h"
 
 /// @file
@@ -29,17 +29,17 @@ namespace pcpp
 	{
 	private:
 		std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
-		IPAddress* m_RemoteMachineIpAddress;
+		pcpp::experimental::IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
 		PcapRemoteAuthentication* m_RemoteAuthentication;
 
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
-		PcapRemoteDeviceList() : m_RemoteMachineIpAddress(NULL), m_RemoteMachinePort(0), m_RemoteAuthentication(NULL) {}
+		PcapRemoteDeviceList() : m_RemoteMachinePort(0), m_RemoteAuthentication(NULL) {}
 		// private copy c'tor
 		PcapRemoteDeviceList(const PcapRemoteDeviceList& other);
 		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other);
 
-		void setRemoteMachineIpAddress(const IPAddress* ipAddress);
+		void setRemoteMachineIpAddress(const pcpp::experimental::IPAddress& ipAddress);
 		void setRemoteMachinePort(uint16_t port);
 		void setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth);
 
@@ -69,7 +69,7 @@ namespace pcpp
 		 * - WinPcap encountered an error in creating the remote connection string
 		 * - WinPcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
-		static PcapRemoteDeviceList* getRemoteDeviceList(IPAddress* ipAddress, uint16_t port);
+		static PcapRemoteDeviceList* getRemoteDeviceList(const pcpp::experimental::IPAddress& ipAddress, uint16_t port);
 
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
@@ -83,12 +83,12 @@ namespace pcpp
 		 * - WinPcap encountered an error in creating the remote connection string
 		 * - WinPcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
-		static PcapRemoteDeviceList* getRemoteDeviceList(IPAddress* ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
+		static PcapRemoteDeviceList* getRemoteDeviceList(const pcpp::experimental::IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
 
 		/**
 		 * @return The IP address of the remote machine
 		 */
-		IPAddress* getRemoteMachineIpAddress() const { return m_RemoteMachineIpAddress; }
+		const pcpp::experimental::IPAddress& getRemoteMachineIpAddress() const { return m_RemoteMachineIpAddress; }
 
 		/**
 		 * @return The port of the remote machine where packets are transmitted from the remote machine to the client machine
@@ -100,21 +100,21 @@ namespace pcpp
 		 * @param[in] ip4Addr The IPv4 address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPv4Address ip4Addr) const;
+		PcapRemoteDevice* getRemoteDeviceByIP(pcpp::experimental::IPv4Address ip4Addr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPv6Address ip6Addr) const;
+		PcapRemoteDevice* getRemoteDeviceByIP(pcpp::experimental::IPv6Address ip6Addr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		 * @param[in] ipAddr The IP address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPAddress* ipAddr) const;
+		PcapRemoteDevice* getRemoteDeviceByIP(const pcpp::experimental::IPAddress& ipAddr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
