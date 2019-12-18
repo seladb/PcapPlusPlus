@@ -15,7 +15,7 @@ namespace pcpp
 
 	/**
 	 * @struct ether_header
-	 * Represents an Ethernet header
+	 * Represents an Ethernet II header
 	 */
 #pragma pack(push, 1)
 	struct ether_header {
@@ -30,10 +30,6 @@ namespace pcpp
 
 	/* Ethernet protocol ID's */
 
-	/** Xerox PUP */
-#define	PCPP_ETHERTYPE_PUP		0x0200
-	/** Sprite */
-#define PCPP_ETHERTYPE_SPRITE	0x0500
 	/** IP */
 #define	PCPP_ETHERTYPE_IP		0x0800
 	/** Address resolution */
@@ -64,7 +60,7 @@ namespace pcpp
 
 	/**
 	 * @class EthLayer
-	 * Represents an Ethernet protocol layer
+	 * Represents an Ethernet II protocol layer
 	 */
 	class EthLayer : public Layer
 	{
