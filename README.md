@@ -138,32 +138,33 @@ PcapPlusPlus is currently supported on __Windows__, __Linux__, __MacOS__ and __F
 
 PcapPlusPlus currently supports parsing, editing and creation of packets of the following protocols:
 
-1. Ethernet
-2. SLL (Linux cooked capture)
-3. Null/Loopback
-4. Raw IP (IPv4 & IPv6)
-5. IPv4
-6. IPv6
-7. ARP
-8. VLAN
-9. VXLAN
-10. MPLS
-11. PPPoE
-12. GRE
-13. TCP
-14. UDP
-15. GTP (v1)
-16. ICMP
-17. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-18. SIP
-19. SDP
-20. Radius
-21. DNS
-22. DHCP
-23. HTTP headers (request & response)
-24. SSL/TLS - parsing only (no editing capabilities)
-25. Packet trailer (a.k.a footer or padding)
-26. Generic payload
+1. Ethernet II
+2. IEEE 802.3 Ethernet
+3. SLL (Linux cooked capture)
+4. Null/Loopback
+5. Raw IP (IPv4 & IPv6)
+6. IPv4
+7. IPv6
+8. ARP
+9. VLAN
+10. VXLAN
+11. MPLS
+12. PPPoE
+13. GRE
+14. TCP
+15. UDP
+16. GTP (v1)
+17. ICMP
+18. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+19. SIP
+20. SDP
+21. Radius
+22. DNS
+23. DHCP
+24. HTTP headers (request & response)
+25. SSL/TLS - parsing only (no editing capabilities)
+26. Packet trailer (a.k.a footer or padding)
+27. Generic payload
 
 ## DPDK And PF_RING Support
 
