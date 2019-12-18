@@ -7505,8 +7505,6 @@ PTF_TEST_CASE(EthDot3LayerParsingTest)
 	PTF_ASSERT_EQUAL(payloadLayer->getDataLen(), 46, size);
 
 	PTF_ASSERT_NULL(payloadLayer->getNextLayer());
-
-	delete [] buffer1;
 } // EthDot3LayerParsingTest
 
 

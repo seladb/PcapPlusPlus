@@ -16,7 +16,7 @@ EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMa
 	ether_dot3_header* ethHdr = (ether_dot3_header*)m_Data;
 	destMac.copyTo(ethHdr->dstMac);
 	sourceMac.copyTo(ethHdr->srcMac);
-	ethHdr->length = htons(length);
+	ethHdr->length = be16toh(length);
 	m_Protocol = Ethernet;
 }
 
