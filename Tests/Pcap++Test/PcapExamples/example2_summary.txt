@@ -171,12 +171,12 @@ Payload Layer, Data length: 355 [Bytes]
 
 
 Packet length: 375 [Bytes], Arrival time: 2010-06-29 19:42:05.369320
-Ethernet II Layer, Src: 00:0f:34:5f:16:8d, Dst: 01:00:0c:cc:cc:cc
+IEEE 802.3 Ethernet, Src: 00:0f:34:5f:16:8d, Dst: 01:00:0c:cc:cc:cc
 Payload Layer, Data length: 361 [Bytes]
 
 
 Packet length: 375 [Bytes], Arrival time: 2010-06-29 19:42:05.404193
-Ethernet II Layer, Src: 00:13:c4:12:0f:0d, Dst: 01:00:0c:cc:cc:cc
+IEEE 802.3 Ethernet, Src: 00:13:c4:12:0f:0d, Dst: 01:00:0c:cc:cc:cc
 Payload Layer, Data length: 361 [Bytes]
 
 
