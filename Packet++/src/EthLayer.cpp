@@ -8,14 +8,8 @@
 #include "VlanLayer.h"
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
+#include "EndianPortable.h"
 #include <string.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h>
-#endif
 
 namespace pcpp
 {
@@ -31,7 +25,7 @@ EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint1
 	ether_header* ethHdr = (ether_header*)m_Data;
 	destMac.copyTo(ethHdr->dstMac);
 	sourceMac.copyTo(ethHdr->srcMac);
-	ethHdr->etherType = htons(etherType);
+	ethHdr->etherType = htobe16(etherType);
 	m_Protocol = Ethernet;
 }
 
@@ -44,7 +38,7 @@ void EthLayer::parseNextLayer()
 	uint8_t* payload = m_Data + sizeof(ether_header);
 	size_t payloadLen = m_DataLen - sizeof(ether_header);
 
-	switch (ntohs(hdr->etherType))
+	switch (be16toh(hdr->etherType))
 	{
 	case PCPP_ETHERTYPE_IP:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
@@ -82,16 +76,16 @@ void EthLayer::computeCalculateFields()
 	switch (m_NextLayer->getProtocol())
 	{
 	case IPv4:
-		getEthHeader()->etherType = htons(PCPP_ETHERTYPE_IP);
+		getEthHeader()->etherType = htobe16(PCPP_ETHERTYPE_IP);
 		break;
 	case IPv6:
-		getEthHeader()->etherType = htons(PCPP_ETHERTYPE_IPV6);
+		getEthHeader()->etherType = htobe16(PCPP_ETHERTYPE_IPV6);
 		break;
 	case ARP:
-		getEthHeader()->etherType = htons(PCPP_ETHERTYPE_ARP);
+		getEthHeader()->etherType = htobe16(PCPP_ETHERTYPE_ARP);
 		break;
 	case VLAN:
-		getEthHeader()->etherType = htons(PCPP_ETHERTYPE_VLAN);
+		getEthHeader()->etherType = htobe16(PCPP_ETHERTYPE_VLAN);
 		break;
 	default:
 		return;
