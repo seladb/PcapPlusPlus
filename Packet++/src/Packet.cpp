@@ -692,7 +692,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 		const uint8_t* rawData = m_RawPacket->getRawData();
 		if (rawDataLen >= sizeof(ether_header))
 		{
-			uint16_t ethTypeOrLength = ntohs(*(uint16_t*)(rawData + 12));
+			uint16_t ethTypeOrLength = be16toh(*(uint16_t*)(rawData + 12));
 			if (ethTypeOrLength <= (uint16_t)0x5dc && ethTypeOrLength != 0)
 			{
 				return new EthDot3Layer((uint8_t*)rawData, rawDataLen, this);
