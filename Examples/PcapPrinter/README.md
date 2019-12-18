@@ -9,10 +9,10 @@ The result is printed to stdout (by default) or to a file (if specified). It can
 Using the utility
 -----------------
 	Basic usage:
-		PcapPrinter [-h] [-o output_file] [-c packet_count] [-i filter] [-s] -f pcap_file
+		PcapPrinter pcap_file [-h] [-o output_file] [-c packet_count] [-i filter] [-s]
 	
 	Options:
-		-f pcap_file   : Input pcap/pcapng file name
+		pcap_file      : Input pcap/pcapng file name
 		-o output_file : Save output to text file (default output is stdout)
 		-c packet_count: Print only first packet_count number of packet
 		-i filter      : Apply a BPF filter, meaning only filtered packets will be printed

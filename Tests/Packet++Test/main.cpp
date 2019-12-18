@@ -26,6 +26,7 @@
 #include <PacketTrailerLayer.h>
 #include <RadiusLayer.h>
 #include <GtpLayer.h>
+#include <EthDot3Layer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -287,16 +288,16 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 	Packet arpWithVlan(&rawPacket);
 
-	VlanLayer* pFirstVlanLayer = NULL;
-	VlanLayer* pSecondVlanLayer = NULL;
-	PTF_ASSERT((pFirstVlanLayer = arpWithVlan.getLayerOfType<VlanLayer>()) != NULL, "Couldn't get first vlan layer from packet");
-	PTF_ASSERT(pFirstVlanLayer->getVlanID() == 666, "first vlan ID != 666, it's 0x%04X", pFirstVlanLayer->getVlanID());
-	PTF_ASSERT(pFirstVlanLayer->getCFI() == 1, "first vlan CFI != 1");
-	PTF_ASSERT(pFirstVlanLayer->getPriority() == 5, "first vlan priority != 5");
-	PTF_ASSERT((pSecondVlanLayer = arpWithVlan.getNextLayerOfType<VlanLayer>(pFirstVlanLayer)) != NULL, "Couldn't get second vlan layer from packet");
-	PTF_ASSERT(pSecondVlanLayer->getVlanID() == 200, "second vlan ID != 200");
-	PTF_ASSERT(pSecondVlanLayer->getCFI() == 0, "second vlan CFI != 0");
-	PTF_ASSERT(pSecondVlanLayer->getPriority() == 2, "second vlan priority != 2");
+	VlanLayer* firstVlanLayerPtr = NULL;
+	VlanLayer* secondVlanLayerPtr = NULL;
+	PTF_ASSERT((firstVlanLayerPtr = arpWithVlan.getLayerOfType<VlanLayer>()) != NULL, "Couldn't get first vlan layer from packet");
+	PTF_ASSERT(firstVlanLayerPtr->getVlanID() == 666, "first vlan ID != 666, it's 0x%04X", firstVlanLayerPtr->getVlanID());
+	PTF_ASSERT(firstVlanLayerPtr->getCFI() == 1, "first vlan CFI != 1");
+	PTF_ASSERT(firstVlanLayerPtr->getPriority() == 5, "first vlan priority != 5");
+	PTF_ASSERT((secondVlanLayerPtr = arpWithVlan.getNextLayerOfType<VlanLayer>(firstVlanLayerPtr)) != NULL, "Couldn't get second vlan layer from packet");
+	PTF_ASSERT(secondVlanLayerPtr->getVlanID() == 200, "second vlan ID != 200");
+	PTF_ASSERT(secondVlanLayerPtr->getCFI() == 0, "second vlan CFI != 0");
+	PTF_ASSERT(secondVlanLayerPtr->getPriority() == 2, "second vlan priority != 2");
 
 	Packet arpWithVlanNew(1);
 	MacAddress macSrc("ca:03:0d:b4:00:1c");
@@ -7476,6 +7477,90 @@ PTF_TEST_CASE(GtpLayerEditTest)
 } // GtpLayerEditTest
 
 
+
+PTF_TEST_CASE(EthDot3LayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/EthDot3.dat", buffer1Length);
+	PTF_ASSERT_NOT_NULL(buffer1);
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	Packet ethDot3Packet(&rawPacket1);
+
+	PTF_ASSERT_TRUE(ethDot3Packet.isPacketOfType(EthernetDot3));
+	EthDot3Layer* ethDot3Layer = ethDot3Packet.getLayerOfType<EthDot3Layer>();
+	PTF_ASSERT_NOT_NULL(ethDot3Layer);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getHeaderLen(), 14, size);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getSourceMac(), MacAddress("00:13:f7:11:5e:db"), object);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getDestMac(), MacAddress("01:80:c2:00:00:00"), object);
+	PTF_ASSERT_EQUAL(ntohs(ethDot3Layer->getEthHeader()->length), 38, u16);
+
+	PTF_ASSERT_NOT_NULL(ethDot3Layer->getNextLayer());
+	PTF_ASSERT_EQUAL(ethDot3Layer->getNextLayer()->getProtocol(), GenericPayload, enum);
+	PayloadLayer* payloadLayer = (PayloadLayer*)ethDot3Layer->getNextLayer();
+	PTF_ASSERT_NOT_NULL(payloadLayer);
+	PTF_ASSERT_EQUAL(payloadLayer->getDataLen(), 46, size);
+
+	PTF_ASSERT_NULL(payloadLayer->getNextLayer());
+} // EthDot3LayerParsingTest
+
+
+
+PTF_TEST_CASE(EthDot3LayerCreateEditTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/EthDot3.dat", buffer1Length);
+	PTF_ASSERT_NOT_NULL(buffer1);
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/EthDot3_2.dat", buffer2Length);
+	PTF_ASSERT_NOT_NULL(buffer2);
+
+	// create a new EthDot3 packet
+
+	MacAddress srcAddr("00:13:f7:11:5e:db");
+	MacAddress dstAddr("01:80:c2:00:00:00");
+	EthDot3Layer ethDot3NewLayer(srcAddr, dstAddr, 38);
+
+	PayloadLayer newPayloadLayer("424203000000000000000013f71edff00000271080000013f7115ec0801b0100140002000f000000000000000000");
+	PTF_ASSERT_EQUAL(newPayloadLayer.getDataLen(), 46, size);
+
+	Packet newEthDot3Packet;
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&ethDot3NewLayer));
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer));
+	newEthDot3Packet.computeCalculateFields();
+
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer1, buffer1Length);
+
+
+	// edit an EthDot3 packet
+
+	ethDot3NewLayer.setSourceMac(MacAddress("00:1a:a1:97:d1:85"));
+	ethDot3NewLayer.getEthHeader()->length = htons(121);
+
+	PayloadLayer newPayloadLayer2("424203000003027c8000000c305dd100000000008000000c305dd10080050000140002000f000000500000000"
+			"00000000000000000000000000000000000000000000000000000000000000055bf4e8a44b25d442868549c1bf7720f00030d408000001a"
+			"a197d180137c8005000c305dd10000030d40808013");
+
+	PTF_ASSERT_TRUE(newEthDot3Packet.detachLayer(&newPayloadLayer));
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer2));
+	newEthDot3Packet.computeCalculateFields();
+
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer2, buffer2Length);
+
+	delete [] buffer1;
+	delete [] buffer2;
+
+} // EthDot3LayerCreateEditTest
+
+
+
 static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
@@ -7555,9 +7640,9 @@ int main(int argc, char* argv[]) {
 
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
-	PTF_RUN_TEST(EthPacketCreation, "eth");
-	PTF_RUN_TEST(EthPacketPointerCreation, "eth");
-	PTF_RUN_TEST(EthAndArpPacketParsing, "eth");
+	PTF_RUN_TEST(EthPacketCreation, "eth2;eth");
+	PTF_RUN_TEST(EthPacketPointerCreation, "eth2;eth");
+	PTF_RUN_TEST(EthAndArpPacketParsing, "eth2;eth;arp");
 	PTF_RUN_TEST(ArpPacketCreation, "arp");
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(Ipv4PacketCreation, "ipv4");
@@ -7637,6 +7722,8 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
 	PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
 	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
+	PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
+	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
 
 	PTF_END_RUNNING_TESTS;
 }
