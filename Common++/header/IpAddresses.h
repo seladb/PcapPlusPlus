@@ -9,6 +9,7 @@
 #include "IpAddress.h"
 
 // for in_addr, in6_addr
+// TODO: remove the following includes when toInAddr() and toIn6Addr() will be removed
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -37,30 +38,30 @@ namespace experimental
 		/**
 		 * A default constructor that creates an instance of the class with unspecified/zero address
 		 */
-		IPv4Address() { memset(&m_InAddr, 0, sizeof(m_InAddr)); }
+		IPv4Address() { memset(m_Bytes, 0, sizeof(m_Bytes)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of 4-byte integer value. 
 		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
-		IPv4Address(uint32_t addrAsInt) { memcpy(&m_InAddr, &addrAsInt, sizeof(m_InAddr)); }
+		IPv4Address(uint32_t addrAsInt) { memcpy(m_Bytes, &addrAsInt, sizeof(m_Bytes)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of 4-byte array.
 		 * @param[in] bytes The address as 4-byte array in network byte order
 		 */
-		IPv4Address(const uint8_t bytes[4]) { memcpy(&m_InAddr, bytes, sizeof(m_InAddr)); }
+		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
 
 		/**
 		 * Converts the IPv4 address into a 4B integer
 		 * @return a 4B integer in network byte order representing the IPv4 address
 		 */
-		uint32_t toUInt() const { return m_InAddr.s_addr; }
+		inline uint32_t toUInt() const;
 
 		/**
 		 * Returns a pointer to 4-byte array representing the IPv4 address
 		 */
-		const uint8_t* toBytes() const { return reinterpret_cast<const uint8_t*>(&m_InAddr); }
+		const uint8_t* toBytes() const { return m_Bytes; }
 
 		/**
 		 * Returns a std::string representation of the address
@@ -114,7 +115,7 @@ namespace experimental
 		#if __cplusplus > 201402L || _MSC_VER >= 1900
 		[[deprecated("This method is replaced by toBytes() method. It will be deleted in the future")]]
 		#endif
-		const in_addr* toInAddr() const { return &m_InAddr; }
+		const in_addr* toInAddr() const { return reinterpret_cast<const in_addr*>(m_Bytes); }
 
 		/**
 		 * Checks whether the address matches a subnet.
@@ -152,8 +153,17 @@ namespace experimental
 		static const IPv4Address Zero;
 
 	private:
-		in_addr m_InAddr;
+		uint8_t m_Bytes[4];
 	}; // class IPv4Address
+
+
+	// Implementation of inline methods
+	uint32_t IPv4Address::toUInt() const
+	{
+		uint32_t addr;
+		memcpy(&addr, m_Bytes, sizeof(m_Bytes));
+		return addr;
+	}
 
 
 	// Creation of IPv4Address
@@ -227,18 +237,18 @@ namespace experimental
 		/**
 		 * A default constructor that creates an instance of the class with unspecified/zero address
 		 */
-		IPv6Address() { memset(&m_In6Addr, 0, sizeof(m_In6Addr)); }
+		IPv6Address() { memset(m_Bytes, 0, sizeof(m_Bytes)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of 16-byte array.
 		 * @param[in] bytes The address as 16-byte array in network byte order
 		 */
-		IPv6Address(const uint8_t bytes[16]) { memcpy(&m_In6Addr, bytes, sizeof(m_In6Addr)); }
+		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
 
 		/**
 		 * Returns a pointer to 16-byte array representing the IPv6 address
 		 */
-		const uint8_t* toBytes() const { return m_In6Addr.s6_addr; }
+		const uint8_t* toBytes() const { return m_Bytes; }
 
 		/**
 		 * Returns a std::string representation of the address
@@ -254,7 +264,7 @@ namespace experimental
 		/**
 		 * Overload of the equal-to operator
 		 */
-		bool operator==(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_In6Addr)) == 0; }
+		bool operator==(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) == 0; }
 
 		/**
 		 * Overload of the not-equal-to operator
@@ -282,7 +292,7 @@ namespace experimental
 		#if __cplusplus > 201402L || _MSC_VER >= 1900
 		[[deprecated("This method is replaced by toBytes() method. It will be deleted in the future")]]
 		#endif
-		const in6_addr* toIn6Addr() const { return &m_In6Addr; }
+		const in6_addr* toIn6Addr() const { return reinterpret_cast<const in6_addr*>(m_Bytes); }
 
 		/**
 		 * Allocates a byte array and copies address value into it. Array deallocation is user responsibility
@@ -314,7 +324,7 @@ namespace experimental
 		static const IPv6Address Zero;
 
 	private:
-		in6_addr m_In6Addr;
+		uint8_t m_Bytes[16];
 	}; // class IPv6Address
 
 

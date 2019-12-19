@@ -142,16 +142,16 @@ namespace experimental
 
 	void IPv6Address::copyTo(uint8_t** arr, size_t& length) const
 	{
-		const size_t addrLen = sizeof(in6_addr);
+		const size_t addrLen = sizeof(m_Bytes);
 		length = addrLen;
 		*arr = new uint8_t[addrLen];
-		memcpy(*arr, m_In6Addr.s6_addr, addrLen);
+		memcpy(*arr, m_Bytes, addrLen);
 	}
 
 
 	void IPv6Address::copyTo(uint8_t* arr) const
 	{
-		memcpy(arr, m_In6Addr.s6_addr, sizeof(in6_addr));
+		memcpy(arr, m_Bytes, sizeof(m_Bytes));
 	}
 
 } // namespace experimental
