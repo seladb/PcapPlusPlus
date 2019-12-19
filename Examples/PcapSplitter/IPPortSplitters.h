@@ -196,7 +196,7 @@ protected:
 		if (packet.isPacketOfType(pcpp::IPv4))
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress().toInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toIn6Addr(), 16);
+			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toBytes(), 16);
 		else
 			return 0;
 	}
@@ -209,7 +209,7 @@ protected:
 		if (packet.isPacketOfType(pcpp::IPv4))
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress().toInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toIn6Addr(), 16);
+			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toBytes(), 16);
 		else
 			return 0;
 	}
