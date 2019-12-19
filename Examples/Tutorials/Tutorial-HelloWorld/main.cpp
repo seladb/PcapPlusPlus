@@ -27,8 +27,8 @@ int main(int argc, char* argv[])
 	if (parsedPacket.isPacketOfType(pcpp::IPv4))
 	{
 		// extract source and dest IPs
-		pcpp::IPv4Address srcIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress();
-		pcpp::IPv4Address destIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress();
+		pcpp::experimental::IPv4Address srcIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress();
+		pcpp::experimental::IPv4Address destIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress();
 
 		// print source and dest IPs
 		printf("Source IP is '%s'; Dest IP is '%s'\n", srcIP.toString().c_str(), destIP.toString().c_str());
