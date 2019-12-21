@@ -369,6 +369,11 @@ namespace pcpp
 		virtual void close();
 
 		/**
+		 * Flush packets to disk.
+		 */
+		void flush();
+
+		/**
 		 * Get statistics of packets written so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
