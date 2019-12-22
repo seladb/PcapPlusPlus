@@ -511,7 +511,7 @@ void TcpSorter::flushPacket(SPTcpSorterData tcpSorterData, uint32_t ack, int rcv
 		// found missing packets
 		else
 		{
-			m_OnPacketMissingCallback(rcvIdx, tcpSorterData->connData, seq, seq - expSeq, m_UserCookie);
+			m_OnPacketMissingCallback(rcvIdx, tcpSorterData->connData, expSeq, seq - expSeq, m_UserCookie);
 			// update expected sequence number with packet sequence number
 			expSeq = seq;
 			// add back packet to the front
