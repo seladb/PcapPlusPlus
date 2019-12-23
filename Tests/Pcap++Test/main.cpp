@@ -6477,7 +6477,7 @@ PTF_TEST_CASE(TestRawSockets)
 		RawPacket rawPacket;
 		PTF_ASSERT(rawSock.receivePacket(rawPacket, true, 10) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket");
 		Packet parsedPacket(&rawPacket);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 	}
 
 	// receive multiple packets
@@ -6488,7 +6488,7 @@ PTF_TEST_CASE(TestRawSockets)
 	for (RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
 	{
 		Packet parsedPacket(*iter);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 	}
 
 	// receive with timeout
@@ -6533,11 +6533,11 @@ PTF_TEST_CASE(TestRawSockets)
 		RawPacket rawPacket;
 		PTF_ASSERT(rawSock.receivePacket(rawPacket, true, 5) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket 1");
 		Packet parsedPacket(&rawPacket);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet 1 is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 		RawPacket rawPacket2;
 		PTF_ASSERT(rawSock2.receivePacket(rawPacket2, true, 5) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket 2");
 		Packet parsedPacket2(&rawPacket2);
-		PTF_ASSERT(parsedPacket2.isPacketOfType(protocol) == true, "Received packet 2 is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket2.isPacketOfType(protocol));
 	}
 
 	if (sendSupported)
