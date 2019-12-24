@@ -25,14 +25,13 @@ using namespace pcpp;
 
 static struct option PcapPrinterOptions[] =
 {
-	{"input-file",  required_argument, 0, 'f'},
 	{"output-file", required_argument, 0, 'o'},
 	{"packet-count", required_argument, 0, 'c'},
 	{"filter", required_argument, 0, 'i'},
 	{"summary", no_argument, 0, 's'},
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
@@ -51,15 +50,15 @@ void printUsage()
 {
 	printf("\nUsage:\n"
 			"-------\n"
-			"%s [-h] [-v] [-o output_file] [-c packet_count] [-i filter] [-s] -f pcap_file\n"
+			"%s pcap_file [-h] [-v] [-o output_file] [-c packet_count] [-i filter] [-s]\n"
 			"\nOptions:\n\n"
-			"    -f pcap_file   : Input pcap/pcapng file name\n"
+			"    pcap_file      : Input pcap/pcapng file name\n"
 			"    -o output_file : Save output to text file (default output is stdout)\n"
 			"    -c packet_count: Print only first packet_count number of packet\n"
 			"    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed\n"
 			"    -s             : Print only file summary and exit\n"
-			"    -v             : Displays the current version and exists\n"
-			"    -h             : Displays this help message and exits\n", AppName::get().c_str());
+			"    -v             : Display the current version and exit\n"
+			"    -h             : Display this help message and exit\n", AppName::get().c_str());
 	exit(0);
 }
 
@@ -207,14 +206,11 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	while((opt = getopt_long (argc, argv, "f:o:c:i:svh", PcapPrinterOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "o:c:i:svh", PcapPrinterOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
 			case 0:
-				break;
-			case 'f':
-				inputPcapFileName = optarg;
 				break;
 			case 'o':
 				outputPcapFileName = optarg;
@@ -238,6 +234,11 @@ int main(int argc, char* argv[])
 				printUsage();
 				exit(-1);
 		}
+	}
+
+	if (optind < argc)
+	{
+		inputPcapFileName = argv[optind];
 	}
 
 	if (inputPcapFileName == "")

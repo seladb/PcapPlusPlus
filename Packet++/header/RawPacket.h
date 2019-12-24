@@ -295,7 +295,7 @@ namespace pcpp
 		const uint8_t* getRawData() const { return m_RawData; }
 
 		/**
-		 * Get the link layer tpye
+		 * Get the link layer type
 		 * @return the type of the link layer
 		 */
 		LinkLayerType getLinkLayerType() const { return m_LinkLayerType; }
