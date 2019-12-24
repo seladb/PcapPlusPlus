@@ -6065,10 +6065,7 @@ PTF_TEST_CASE(TestIPFragPartialData)
 		ipReassembly.processPacket(&packet, status);
 	}
 
-	int errorCode;
-	pcpp::experimental::IPv4Address
-		srcIPv4 = pcpp::experimental::makeIPv4Address("172.16.133.54", errorCode),
-		dstIPv4 = pcpp::experimental::makeIPv4Address("216.137.33.81", errorCode);
+	pcpp::experimental::IPv4Address srcIPv4("172.16.133.54"), dstIPv4("216.137.33.81");
 	PTF_ASSERT_FALSE(srcIPv4.isUnspecified());
 	PTF_ASSERT_FALSE(dstIPv4.isUnspecified());
 	IPReassembly::IPv4PacketKey ip4Key(16991, srcIPv4, dstIPv4);
@@ -6104,9 +6101,7 @@ PTF_TEST_CASE(TestIPFragPartialData)
 		ipReassembly.processPacket(&packet, status);
 	}
 
-	pcpp::experimental::IPv6Address
-		srcIPv6 = pcpp::experimental::makeIPv6Address("fe80::21f:f3ff:fecd:f617", errorCode),
-		dstIPv6 = pcpp::experimental::makeIPv6Address("ff02::fb", errorCode);
+	pcpp::experimental::IPv6Address srcIPv6("fe80::21f:f3ff:fecd:f617"), dstIPv6("ff02::fb");
 	PTF_ASSERT_FALSE(srcIPv6.isUnspecified());
 	PTF_ASSERT_FALSE(dstIPv6.isUnspecified());
 	IPReassembly::IPv6PacketKey ip6Key(0x2c5323, srcIPv6, dstIPv6);
@@ -6523,41 +6518,40 @@ PTF_TEST_CASE(TestIPFragMapOverflow)
 	IPReassembly::IPv4PacketKey* ip4Key = NULL;
 	IPReassembly::IPv6PacketKey* ip6Key = NULL;
 
-	int errorCode;
 	// 1st packet removed should be ip6Packet1Frags
 	ip6Key = dynamic_cast<IPReassembly::IPv6PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(0));
 	PTF_ASSERT_NOT_NULL(ip6Key);
 	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x2c5323, u32);
-	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::experimental::makeIPv6Address("fe80::21f:f3ff:fecd:f617", errorCode), object);
-	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::experimental::makeIPv6Address("ff02::fb", errorCode), object);
+	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::experimental::IPv6Address("fe80::21f:f3ff:fecd:f617"), object);
+	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::experimental::IPv6Address("ff02::fb"), object);
 
 	// 2nd packet removed should be ip4Packet2Frags
 	ip4Key = dynamic_cast<IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(1));
 	PTF_ASSERT_NOT_NULL(ip4Key);
 	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea1, u16);
-	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::makeIPv4Address("10.118.213.212", errorCode), object);
-	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::makeIPv4Address("10.118.213.211", errorCode), object);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::IPv4Address("10.118.213.212"), object);
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::IPv4Address("10.118.213.211"), object);
 
 	// 3rd packet removed should be ip4Packet3Frags
 	ip4Key = dynamic_cast<IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(2));
 	PTF_ASSERT_NOT_NULL(ip4Key);
 	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea2, u16);
-	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::makeIPv4Address("10.118.213.212", errorCode), object);
-	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::makeIPv4Address("10.118.213.211", errorCode), object);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::IPv4Address("10.118.213.212"), object);
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::IPv4Address("10.118.213.211"), object);
 
 	// 4th packet removed should be ip6Packet2Frags
 	ip6Key = dynamic_cast<IPReassembly::IPv6PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(3));
 	PTF_ASSERT_NOT_NULL(ip6Key);
 	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x98d687d1, u32);
-	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::experimental::makeIPv6Address("fe80::21f:f3ff:fecd:f617", errorCode), object);
-	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::experimental::makeIPv6Address("ff02::fb", errorCode), object);
+	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::experimental::IPv6Address("fe80::21f:f3ff:fecd:f617"), object);
+	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::experimental::IPv6Address("ff02::fb"), object);
 
 	// 5th packet removed should be ip4Packet4Frags
 	ip4Key = dynamic_cast<IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(4));
 	PTF_ASSERT_NOT_NULL(ip4Key);
 	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea3, u16);
-	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::makeIPv4Address("10.118.213.212", errorCode), object);
-	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::makeIPv4Address("10.118.213.211", errorCode), object);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::experimental::IPv4Address("10.118.213.212"), object);
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::experimental::IPv4Address("10.118.213.211"), object);
 } // TestIPFragMapOverflow
 
 
@@ -6622,12 +6616,11 @@ PTF_TEST_CASE(TestIPFragRemove)
 
 	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 10, size);
 
-	int errorCode;
 	IPReassembly::IPv4PacketKey ip4Key;
 	PTF_ASSERT_TRUE(ip4Key.getSrcIP().isUnspecified());
 	PTF_ASSERT_TRUE(ip4Key.getDstIP().isUnspecified());
-	ip4Key.setSrcIP(pcpp::experimental::makeIPv4Address("10.118.213.212", errorCode));
-	ip4Key.setDstIP(pcpp::experimental::makeIPv4Address("10.118.213.211", errorCode));
+	ip4Key.setSrcIP(pcpp::experimental::IPv4Address("10.118.213.212"));
+	ip4Key.setDstIP(pcpp::experimental::IPv4Address("10.118.213.211"));
 
 	ip4Key.setIpID(0x1ea0);
 	ipReassembly.removePacket(ip4Key);
@@ -6647,8 +6640,8 @@ PTF_TEST_CASE(TestIPFragRemove)
 	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 7, size);
 
 	IPReassembly::IPv6PacketKey ip6Key;
-	ip6Key.setSrcIP(pcpp::experimental::makeIPv6Address("fe80::21f:f3ff:fecd:f617", errorCode));
-	ip6Key.setDstIP(pcpp::experimental::makeIPv6Address("ff02::fb", errorCode));
+	ip6Key.setSrcIP(pcpp::experimental::IPv6Address("fe80::21f:f3ff:fecd:f617"));
+	ip6Key.setDstIP(pcpp::experimental::IPv6Address("ff02::fb"));
 
 	ip6Key.setFragmentID(0x98d687d1);
 	ipReassembly.removePacket(ip6Key);

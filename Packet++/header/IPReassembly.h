@@ -399,7 +399,7 @@ namespace pcpp
 			PacketKey* packetKey;
 			PointerVector<IPFragment> outOfOrderFragments;
 			IPFragmentData(PacketKey* pktKey, uint32_t fragId) { currentOffset = 0; data = NULL; deleteData = true; fragmentID = fragId; packetKey = pktKey; }
-			~IPFragmentData() { delete packetKey; if (deleteData && data != NULL) { delete data; } }
+			~IPFragmentData() { delete packetKey; if (deleteData) { delete data; } }
 		};
 
 		LRUList<uint32_t> m_PacketLRU;

@@ -582,8 +582,7 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 	}
 
 	// add the new fragment to the map
-	std::pair<uint32_t, IPFragmentData*> pair(hash, fragData);
-	m_FragmentMap.insert(pair);
+	m_FragmentMap.insert(std::make_pair(hash, fragData));
 }
 
 bool IPReassembly::matchOutOfOrderFragments(IPFragmentData* fragData)
