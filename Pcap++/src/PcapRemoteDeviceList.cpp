@@ -73,23 +73,19 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const pcpp::expe
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString) const
 {
-	int errorCode;
-	pcpp::experimental::IPAddress ipAddr = pcpp::experimental::makeAddress(ipAddrAsString, errorCode);
-	if (errorCode != 0)
+	pcpp::experimental::IPAddress ipAddr(ipAddrAsString);
+	if (ipAddr.isUnspecified())
 	{
 		LOG_ERROR("IP address is illegal");
 		return NULL;
 	}
 
-	PcapRemoteDevice* result = getRemoteDeviceByIP(ipAddr);
-	return result;
+	return getRemoteDeviceByIP(ipAddr);
 }
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const pcpp::experimental::IPAddress& ipAddr) const
 {
-	return (ipAddr.getType() == pcpp::experimental::IPAddress::IPv4AddressType)
-		? getRemoteDeviceByIP(ipAddr.getIPv4())
-		: getRemoteDeviceByIP(ipAddr.getIPv6());
+	return ipAddr.isIPv4() ? getRemoteDeviceByIP(ipAddr.getIPv4()) : getRemoteDeviceByIP(ipAddr.getIPv6());
 }
 
 
@@ -124,7 +120,6 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(pcpp::experimental::
 	}
 
 	return NULL;
-
 }
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(pcpp::experimental::IPv6Address ip6Addr) const
@@ -158,7 +153,6 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(pcpp::experimental::
 	}
 
 	return NULL;
-
 }
 
 void PcapRemoteDeviceList::setRemoteMachineIpAddress(const pcpp::experimental::IPAddress& ipAddress)
@@ -177,8 +171,7 @@ void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthenticatio
 		m_RemoteAuthentication = new PcapRemoteAuthentication(*remoteAuth);
 	else
 	{
-		if (m_RemoteAuthentication != NULL)
-			delete m_RemoteAuthentication;
+		delete m_RemoteAuthentication;
 		m_RemoteAuthentication = NULL;
 	}
 }
@@ -192,10 +185,7 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 		m_RemoteDeviceList.erase(devIter);
 	}
 
-	if (m_RemoteAuthentication != NULL)
-	{
-		delete m_RemoteAuthentication;
-	}
+	delete m_RemoteAuthentication;
 }
 
 } // namespace pcpp

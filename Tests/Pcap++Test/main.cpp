@@ -2541,9 +2541,8 @@ PTF_TEST_CASE(TestRemoteCapture)
 		PTF_ASSERT(rpcapdHandle != NULL, "Could not create rpcapd process. Error was: %lu", GetLastError());
 	}
 
-	int errorCode;
-	pcpp::experimental::IPv4Address remoteDeviceIPAddr = pcpp::experimental::makeIPv4Address(remoteDeviceIP, errorCode);
-	PTF_ASSERT_EQUAL(errorCode, 0, int);
+	pcpp::experimental::IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
+	PTF_ASSERT_FALSE(remoteDeviceIPAddr.isUnspecified());
 	PcapRemoteDeviceList* remoteDevices = PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
 	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices != NULL, terminateRpcapdServer(rpcapdHandle), "Error on retrieving remote devices on IP: %s port: %d. Error string was: %s", remoteDeviceIP.c_str(), remoteDevicePort, PcapGlobalArgs.errString);
 	for (PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
