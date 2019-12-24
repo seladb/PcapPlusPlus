@@ -727,37 +727,30 @@ PTF_TEST_CASE(TestIPAddresses)
 	}
 
 	{
-		int errorCode;
-		pcpp::experimental::IPv4Address addr = pcpp::experimental::makeIPv4Address("10.0.0.4", errorCode);
-		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		pcpp::experimental::IPv4Address addr("10.0.0.4");
 		PTF_ASSERT_FALSE(addr.isUnspecified());
 
-		pcpp::experimental::IPv4Address subnet1 = pcpp::experimental::makeIPv4Address("10.0.0.0", errorCode);
-		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		pcpp::experimental::IPv4Address subnet1("10.0.0.0");
 		PTF_ASSERT_FALSE(subnet1.isUnspecified());
 
-		pcpp::experimental::IPv4Address subnet2 = pcpp::experimental::makeIPv4Address("10.10.0.0", errorCode);
-		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		pcpp::experimental::IPv4Address subnet2("10.10.0.0");
 		PTF_ASSERT_FALSE(subnet2.isUnspecified());
 
-		pcpp::experimental::IPv4Address mask = pcpp::experimental::makeIPv4Address(std::string("255.255.255.0"), errorCode);
-		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		pcpp::experimental::IPv4Address mask(std::string("255.255.255.0"));
 		PTF_ASSERT_FALSE(mask.isUnspecified());
 
-		PTF_ASSERT_TRUE(pcpp::experimental::matchSubnet(addr, subnet1, mask));
 		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, mask));
 		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, std::string("255.255.255.0")));
-		PTF_ASSERT_FALSE(pcpp::experimental::matchSubnet(addr, subnet2, mask));
-		PTF_ASSERT_FALSE(pcpp::experimental::matchSubnet(addr, "10.10.0.0", "255.255.0.0"));
+		PTF_ASSERT_FALSE(addr.matchSubnet(subnet2, mask));
+		PTF_ASSERT_FALSE(addr.matchSubnet(pcpp::experimental::IPv4Address("10.10.0.0"), "255.255.0.0"));
 		// wrong mask
 		LoggerPP::getInstance().supressErrors();
-		PTF_ASSERT_FALSE(pcpp::experimental::matchSubnet(addr, "10.10.0.0", "255.255.255"));
+		PTF_ASSERT_FALSE(addr.matchSubnet(pcpp::experimental::IPv4Address("10.10.0.0"), "255.255.255"));
 		LoggerPP::getInstance().enableErrors();
 	}
 
 	{
-		int errorCode;
-		pcpp::experimental::IPv4Address addr1 = pcpp::experimental::makeIPv4Address("10.0.0.4", errorCode);
+		pcpp::experimental::IPv4Address addr1("10.0.0.4");
 		pcpp::experimental::IPv4Address addr2;
 		addr2 = addr1;
 		PTF_ASSERT_EQUAL(addr1, addr2, object);
@@ -789,19 +782,12 @@ PTF_TEST_CASE(TestIPAddresses)
 
 	{
 		const uint8_t expectedBytes[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
-		int errorCode;
-		pcpp::experimental::IPv6Address addr1 = pcpp::experimental::makeIPv6Address(string("2607:f0d0:1002:0051::4"), errorCode);
-		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		pcpp::experimental::IPv6Address addr1("2607:f0d0:1002:0051::4");
 		PTF_ASSERT_FALSE(addr1.isUnspecified());
 		PTF_ASSERT_BUF_COMPARE(addr1.toBytes(), expectedBytes, sizeof(expectedBytes));
 
-		pcpp::experimental::IPv6Address addr2 = pcpp::experimental::makeIPv6Address(expectedBytes);
-		PTF_ASSERT_FALSE(addr2.isUnspecified());
-		PTF_ASSERT_TRUE(addr1 == addr2);
-
-		pcpp::experimental::IPv6Address badAddr = pcpp::experimental::makeIPv6Address(string("avbrgththj"), errorCode);
+		pcpp::experimental::IPv6Address badAddr("avbrgththj");
 		PTF_ASSERT_TRUE(badAddr.isUnspecified());
-		PTF_ASSERT_TRUE(errorCode != 0);
 	}
 
 	// IPAddress
@@ -823,13 +809,8 @@ PTF_TEST_CASE(TestIPAddresses)
 	}
 
 	{
-		int errorCode;
-		pcpp::experimental::IPv4Address
-			ipv4Addr1 = pcpp::experimental::makeIPv4Address("10.0.0.4", errorCode),
-			ipv4Addr2 = pcpp::experimental::makeIPv4Address("10.0.0.5", errorCode);
-		pcpp::experimental::IPv6Address
-			ipv6Addr1 = pcpp::experimental::makeIPv6Address("2607:f0d0:1002:0051::4", errorCode),
-			ipv6Addr2 = pcpp::experimental::makeIPv6Address("2607:f0d0:1002:0051::5", errorCode);
+		pcpp::experimental::IPv4Address ipv4Addr1("10.0.0.4"), ipv4Addr2("10.0.0.5");
+		pcpp::experimental::IPv6Address ipv6Addr1("2607:f0d0:1002:0051::4"), ipv6Addr2("2607:f0d0:1002:0051::5");
 
 		pcpp::experimental::IPAddress v4Addr(ipv4Addr1);
 		PTF_ASSERT_TRUE(v4Addr.isIPv4());
@@ -855,26 +836,16 @@ PTF_TEST_CASE(TestIPAddresses)
 	}
 
 	{
-		int errorCode;
-		pcpp::experimental::IPAddress	badAddr = pcpp::experimental::makeAddress("abcdfefegg", errorCode);
-		PTF_ASSERT_TRUE(errorCode != 0);
+		pcpp::experimental::IPAddress	badAddr("abcdfefegg");
 		PTF_ASSERT_TRUE(badAddr.isUnspecified());
 		PTF_ASSERT_TRUE(badAddr.isIPv4());
 
-		pcpp::experimental::IPAddress
-			v4Addr1 = pcpp::experimental::makeAddress("10.0.0.4", errorCode),
-			v4Addr2 = pcpp::experimental::makeAddress("10.0.0.5", errorCode),
-			v4Addr3 = v4Addr1;
-		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		pcpp::experimental::IPAddress	v4Addr1("10.0.0.4"), v4Addr2("10.0.0.5"),	v4Addr3 = v4Addr1;
 		PTF_ASSERT_TRUE(v4Addr2.isIPv4());
 		PTF_ASSERT_FALSE(v4Addr2.isUnspecified());
 		PTF_ASSERT_FALSE(v4Addr2.isIPv6());
 
-		pcpp::experimental::IPAddress
-			v6Addr1 = pcpp::experimental::makeAddress("2607:f0d0:1002:0051::4", errorCode),
-			v6Addr2 = pcpp::experimental::makeAddress("2607:f0d0:1002:0051::5", errorCode),
-			v6Addr3 = v6Addr1;
-		PTF_ASSERT_EQUAL(errorCode, 0, int);
+		pcpp::experimental::IPAddress v6Addr1("2607:f0d0:1002:0051::4"), v6Addr2("2607:f0d0:1002:0051::5"), v6Addr3 = v6Addr1;
 		PTF_ASSERT_TRUE(v6Addr2.isIPv6());
 		PTF_ASSERT_FALSE(v6Addr2.isUnspecified());
 		PTF_ASSERT_FALSE(v6Addr2.isIPv4());
@@ -887,18 +858,16 @@ PTF_TEST_CASE(TestIPAddresses)
 	}
 
 	{
-		int errorCode;
-		pcpp::experimental::IPAddress	v4Addr = pcpp::experimental::makeAddress(std::string("10.0.0.4"), errorCode);
-		pcpp::experimental::IPAddress	v6Addr = pcpp::experimental::makeAddress(std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), errorCode);
+		pcpp::experimental::IPAddress	v4Addr("10.0.0.4");
+		pcpp::experimental::IPAddress	v6Addr("2670:f0d0:1020:2251:1010:1010:1010:1040");
 		PTF_ASSERT_EQUAL(v4Addr.toString(), std::string("10.0.0.4"), object);
 		PTF_ASSERT_EQUAL(v6Addr.toString(), std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), object);
 	}
 
 	// TODO: remove the code block when migration has completed
 	{
-		int errorCode;
 		IPv4Address oldIPv4("10.10.10.10");
-		pcpp::experimental::IPv4Address newIPv4(oldIPv4.toInt()), differentNewIPv4 = pcpp::experimental::makeIPv4Address("10.10.10.11", errorCode);
+		pcpp::experimental::IPv4Address newIPv4(oldIPv4.toInt()), differentNewIPv4 = pcpp::experimental::IPv4Address("10.10.10.11");
 		PTF_ASSERT_TRUE(oldIPv4 == newIPv4);
 		PTF_ASSERT_TRUE(newIPv4 == oldIPv4);
 		PTF_ASSERT_FALSE(oldIPv4 != newIPv4);
@@ -907,9 +876,7 @@ PTF_TEST_CASE(TestIPAddresses)
 		PTF_ASSERT_FALSE(oldIPv4 == differentNewIPv4);
 
 		IPv6Address oldIPv6(std::string("2607:f0d0:1002:0051::4"));
-		pcpp::experimental::IPv6Address
-			newIPv6 = pcpp::experimental::makeIPv6Address("2607:f0d0:1002:0051::4", errorCode),
-			differentNewIPv6 = pcpp::experimental::makeIPv6Address("2607:f0d0:1002:0051::5", errorCode);
+		pcpp::experimental::IPv6Address newIPv6("2607:f0d0:1002:0051::4"), differentNewIPv6("2607:f0d0:1002:0051::5");
 		PTF_ASSERT_TRUE(oldIPv6 == newIPv6);
 		PTF_ASSERT_TRUE(newIPv6 == oldIPv6);
 		PTF_ASSERT_FALSE(oldIPv6 != newIPv6);

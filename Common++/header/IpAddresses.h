@@ -8,14 +8,6 @@
 // TODO: remove when migration has completed
 #include "IpAddress.h"
 
-// for in_addr, in6_addr
-// TODO: remove the following includes when toInAddr() and toIn6Addr() will be removed
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif
 
 /// @file
 
@@ -53,6 +45,13 @@ namespace experimental
 		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
 
 		/**
+		 * A constructor that creates an instance of the class out of std::string value
+		 * If the string doesn't represent a valid IPv4 address, an instance will store an unspecified address
+		 * @param[in] addressAsString The std::string representation of the address
+		 */
+		IPv4Address(const std::string& addrAsString);
+
+		/**
 		 * Converts the IPv4 address into a 4B integer
 		 * @return a 4B integer in network byte order representing the IPv4 address
 		 */
@@ -84,65 +83,24 @@ namespace experimental
 		 */
 		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
 
-
-		// Following methods are placed for backward compatibility and will be deleted in the future
-
-		/**
-		 * Clone the object
-		 * Notice this method is deprecated and will be deleted in the future
-		 * @return A newly allocated instance which is a clone of the current instance
-		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
-		#endif
-		IPv4Address* clone() const { return new IPv4Address(*this); }
-
-		/**
-		 * Converts the IPv4 address into a 4B integer
-		 * Notice this method is deprecated and will be deleted in the future. Prefer toUInt method
-		 * @return a 4B integer representing the IPv4 address
-		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is replaced by toUInt() method. It will be deleted in the future")]]
-		#endif
-		uint32_t toInt() const { return toUInt(); }
-
-		/**
-		 * Returns a in_addr struct pointer representing the IPv4 address
-		 * Notice this method is deprecated and will be deleted in the future. Prefer toBytes method
-		 * @return a in_addr struct pointer representing the IPv4 address
-		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is replaced by toBytes() method. It will be deleted in the future")]]
-		#endif
-		const in_addr* toInAddr() const { return reinterpret_cast<const in_addr*>(m_Bytes); }
-
 		/**
 		 * Checks whether the address matches a subnet.
-		 * Notice this method is deprecated and will be deleted in the future. Prefer one of the functions matchSubnet
 		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
 		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
 		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
 		 * (it'll be ignored if subnet mask is correct)
 		 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
 		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is deprecated and will be deleted in the future. Prefer one of the functions matchSubnet")]]
-		#endif
 		bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const;
 
 		/**
 		 * Checks whether the address matches a subnet.
-		 * Notice this method is deprecated and will be deleted in the future. Prefer one of the functions matchSubnet
 		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
 		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
 		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
 		 * (it'll be ignored if subnet mask is correct)
 		 * @param[in] subnetMask The subnet mask to compare the address with the subnet
 		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is deprecated and will be deleted in the future. Prefer one of the functions matchSubnet")]]
-		#endif
 		bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
 
 		/**
@@ -158,6 +116,7 @@ namespace experimental
 
 
 	// Implementation of inline methods
+
 	uint32_t IPv4Address::toUInt() const
 	{
 		uint32_t addr;
@@ -165,64 +124,6 @@ namespace experimental
 		return addr;
 	}
 
-
-	// Creation of IPv4Address
-
-	/**
-	 * A function that creates an instance of the class IPv4Address out of 4-byte array.
-	 * @param[in] bytes The address as 4-byte array in network byte order
-	 * @return An instance of class IPv4Address
-	 */
-	inline IPv4Address makeIPv4Address(uint32_t addrAsInt) { return IPv4Address(addrAsInt); }
-
-	/**
-	 * A function that creates an instance of the class IPv4Address out of 4-byte array.
-	 * @param[in] bytes The address as 4-byte array in network byte order
-	 * @return An instance of class IPv4Address
-	 */
-	inline IPv4Address makeIPv4Address(const uint8_t bytes[4]) { return IPv4Address(bytes); }
-
-	/**
-	 * A function that creates an instance of the class out of string (char*) value
-	 * If the string doesn't represent a valid IPv4 address an errorCode will be set to non-zero value
-	 * @param[in] addressAsString The string (char*) representation of the address
-	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-	 * @return An instance of class IPv4Address. If an error occured the return address will be an unspecified/zero
-	 */
-	IPv4Address makeIPv4Address(const char* addrAsString, int& errorCode);
-
-	/**
-	 * A function that creates an instance of the class out of std::string value
-	 * If the string doesn't represent a valid IPv4 address an errorCode will be set to non-zero value
-	 * @param[in] addressAsString The std::string representation of the address
-	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-	 * @return An instance of class IPv4Address. If an error occured the return address will be an unspecified/zero
-	 */
-	inline IPv4Address makeIPv4Address(const std::string& addrAsString, int& errorCode) {	return makeIPv4Address(addrAsString.c_str(), errorCode); }
-
-
-	// Helper functions
-
-	/**
-	 * Checks whether the address matches a subnet.
-	 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
-	 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
-	 * @param[in] addr The address to be checked
-	 * @param[in] subnet A string representing the subnet to be verified
-	 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
-	 */
-	bool matchSubnet(const IPv4Address& addr, const char* subnet, const char* subnetMask);
-
-	/**
-	 * Checks whether the address matches a subnet.
-	 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
-	 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
-	 * @param[in] addr The address to be checked
-	 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
-	 * (it'll be ignored if subnet mask is correct)
-	 * @param[in] subnetMask The subnet mask to compare the address with the subnet
-	 */
-	bool matchSubnet(const IPv4Address& addr, const IPv4Address& subnet, const IPv4Address& subnetMask);
 
 
 
@@ -244,6 +145,13 @@ namespace experimental
 		 * @param[in] bytes The address as 16-byte array in network byte order
 		 */
 		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
+
+		/**
+		 * A constructor that creates an instance of the class out of std::string value
+		 * If the string doesn't represent a valid IPv6 address, an instance will store an unspecified address
+		 * @param[in] addressAsString The std::string representation of the address
+		 */
+		IPv6Address(const std::string& addrAsString);
 
 		/**
 		 * Returns a pointer to 16-byte array representing the IPv6 address
@@ -273,26 +181,6 @@ namespace experimental
 
 
 		// Following methods are placed for backward compatibility and will be deleted in the future
-
-		/**
-		 * Clone the object
-		 * Notice this method is deprecated and will be deleted in the future
-		 * @return A newly allocated instance which is a clone of the current instance
-		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
-		#endif
-		IPv6Address *clone() const { return new IPv6Address(*this); }
-
-		/**
-		 * Returns a in6_addr struct pointer representing the IPv6 address
-		 * Notice this method is deprecated and will be deleted in the future. Prefer toBytes method
-		 * @return a in6_addr struct pointer representing the IPv6 address
-		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is replaced by toBytes() method. It will be deleted in the future")]]
-		#endif
-		const in6_addr* toIn6Addr() const { return reinterpret_cast<const in6_addr*>(m_Bytes); }
 
 		/**
 		 * Allocates a byte array and copies address value into it. Array deallocation is user responsibility
@@ -328,32 +216,7 @@ namespace experimental
 	}; // class IPv6Address
 
 
-	// Creation of IPv6Address
 
-	/**
-	 * A function that creates an instance of the class IPv6Address out of 16-byte array.
-	 * @param[in] bytes The address as 16-byte array in network byte order
-	 * @return An instance of class IPv6Address
-	 */
-	inline IPv6Address makeIPv6Address(const uint8_t bytes[16]) { return IPv6Address(bytes); }
-
-	/**
-	 * A function that creates an instance of the class out of string (char*) value
-	 * If the string doesn't represent a valid IPv6 address an errorCode will be set to non-zero value
-	 * @param[in] addressAsString The string (char*) representation of the address
-	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-	 * @return An instance of class IPv6Address. If an error occured the return address will be an unspecified/zero
-	 */
-	IPv6Address makeIPv6Address(const char* addrAsString, int& errorCode);
-
-	/**
-	 * A function that creates an instance of the class out of std::string value
-	 * If the string doesn't represent a valid IPv6 address an errorCode will be set to non-zero value
-	 * @param[in] addressAsString The std::string representation of the address
-	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-	 * @return An instance of class IPv6Address. If an error occured the return address will be an unspecified/zero
-	 */
-	inline IPv6Address makeIPv6Address(const std::string& addrAsString, int& errorCode) {	return makeIPv6Address(addrAsString.c_str(), errorCode); }
 
 
 
@@ -395,6 +258,13 @@ namespace experimental
 		 * @param[in] addr A const reference to instance of IPv6Address
 		 */
 		IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr) {}
+
+		/**
+		 * A constructor that creates an instance of the class out of std::string value
+		 * If the string doesn't represent a valid IPv4 or IPv6 address, an instance will store an unspecified address
+		 * @param[in] addressAsString The std::string representation of the address
+		 */
+		IPAddress(const std::string& addrAsString);
 
 		/**
 		 * Overload of an assignment operator.
@@ -457,29 +327,6 @@ namespace experimental
 		 */
 		bool operator!=(const IPAddress& rhs) const { return !(*this == rhs); }
 
-
-		// Following methods are placed for backward compatibility and will be deleted in the future
-
-		/**
-		 * Clone the object
-		 * Notice this method is deprecated and will be deleted in the future
-		 * @return A newly allocated instance which is a clone of the current instance
-		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
-		#endif
-		IPAddress *clone() const { return new IPAddress(*this); }
-
-		/**
-		 * Compare between this IP address and another IP address
-		 * Notice this method is deprecated and will be deleted in the future. Prefer an equal-to operator
-		 * @return True if addresses match or false otherwise
-		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future. Prefer an equal-to operator")]]
-		#endif
-		bool equals(const IPAddress* other) const { return *this == *other; }
-
 	private:
 		uint8_t m_Type;
 		IPv4Address m_IPv4;
@@ -511,27 +358,6 @@ namespace experimental
 		return *this;
 	}
 
-
-	// Creation of IPAddress
-
-	/**
-	 * A function that creates an instance of the class out of string (char*) value
-	 * If the string doesn't represent a valid IPv6 or IPv4 address an errorCode will be set to non-zero value
-	 * @param[in] addressAsString The string (char*) representation of the address
-	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-	 * @return An instance of class IPAddress. If an error occured the return value will contain an unspecified IPv4Address address
-	 */
-	IPAddress makeAddress(const char* addrAsString, int& errorCode);
-
-	/**
-	 * A function that creates an instance of the class out of std::string value
-	 * If the string doesn't represent a valid IPv6 or IPv4 address an errorCode will be set to non-zero value
-	 * @param[in] addressAsString The std::string representation of the address
-	 * @param[out] errorCode Contains 0 if a string represents a valid address, otherwise a non-zero value
-	 * @return An instance of class IPAddress. If an error occured the return value will contain an unspecified IPv4Address address
-	 */
-	inline IPAddress makeAddress(const std::string& addrAsString, int& errorCode) { return makeAddress(addrAsString.c_str(), errorCode); }
-
 } // namespace experimental
 
 
@@ -541,7 +367,7 @@ namespace experimental
 	inline bool operator!=(const IPv4Address &lhs, const pcpp::experimental::IPv4Address &rhs) { return !(lhs == rhs); }
 	inline bool operator!=(const pcpp::experimental::IPv4Address &lhs, const IPv4Address &rhs) { return !(lhs == rhs); }
 
-	inline bool operator==(const IPv6Address& lhs, const pcpp::experimental::IPv6Address& rhs) { return memcmp(lhs.toIn6Addr()->s6_addr, rhs.toBytes(), 16) == 0; }
+	inline bool operator==(const IPv6Address& lhs, const pcpp::experimental::IPv6Address& rhs) { return memcmp(lhs.toIn6Addr(), rhs.toBytes(), 16) == 0; }
 	inline bool operator==(const pcpp::experimental::IPv6Address& lhs, const IPv6Address& rhs) { return rhs == lhs; }
 	inline bool operator!=(const IPv6Address& lhs, const pcpp::experimental::IPv6Address& rhs) { return !(lhs == rhs); }
 	inline bool operator!=(const pcpp::experimental::IPv6Address& lhs, const IPv6Address& rhs) { return !(lhs == rhs); }
