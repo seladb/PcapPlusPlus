@@ -7,13 +7,7 @@
 #include "Logger.h"
 #include <map>
 #include <sstream>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif FREEBSD
-#include <arpa/inet.h>
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -32,14 +26,14 @@ PPPoELayer::PPPoELayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code
 	pppoeHdr->version = (version & 0xf);
 	pppoeHdr->type = (type & 0x0f);
 	pppoeHdr->code = code;
-	pppoeHdr->sessionId = htons(sessionId);
+	pppoeHdr->sessionId = htobe16(sessionId);
 	pppoeHdr->payloadLength = 0;
 }
 
 void PPPoELayer::computeCalculateFields()
 {
 	pppoe_header* pppoeHdr = (pppoe_header*)m_Data;
-	pppoeHdr->payloadLength = htons(m_DataLen - sizeof(pppoe_header));
+	pppoeHdr->payloadLength = htobe16(m_DataLen - sizeof(pppoe_header));
 }
 
 
@@ -83,7 +77,7 @@ uint16_t PPPoESessionLayer::getPPPNextProtocol() const
 	}
 
 	uint16_t pppNextProto = *(uint16_t*)(m_Data + sizeof(pppoe_header));
-	return ntohs(pppNextProto);
+	return be16toh(pppNextProto);
 }
 
 void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol)
@@ -95,7 +89,7 @@ void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol)
 	}
 
 	uint16_t* pppProto = (uint16_t*)(m_Data + sizeof(pppoe_header));
-	*pppProto = htons(nextProtocol);
+	*pppProto = htobe16(nextProtocol);
 }
 
 std::map<uint16_t, std::string> createPPPNextProtoToStringMap()
@@ -263,12 +257,12 @@ std::string PPPoESessionLayer::toString() const
 
 PPPoEDiscoveryLayer::PPPoETagTypes PPPoEDiscoveryLayer::PPPoETag::getType() const
 {
-	return (PPPoEDiscoveryLayer::PPPoETagTypes)ntohs(tagType);
+	return (PPPoEDiscoveryLayer::PPPoETagTypes)be16toh(tagType);
 }
 
 size_t PPPoEDiscoveryLayer::PPPoETag::getTagTotalSize() const
 {
-	return 2*sizeof(uint16_t) + ntohs(tagDataLength);
+	return 2*sizeof(uint16_t) + be16toh(tagDataLength);
 }
 
 PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const
@@ -281,7 +275,7 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::
 	while ((curTagPtr - m_Data) < (int)m_DataLen)
 	{
 		PPPoEDiscoveryLayer::PPPoETag* curTag = castPtrToPPPoETag(curTagPtr);
-		if (curTag->tagType == htons(tagType))
+		if (curTag->tagType == htobe16(tagType))
 			return curTag;
 
 		curTagPtr += curTag->getTagTotalSize();
@@ -337,16 +331,16 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::addTagAt(PPPoETagTypes tagTy
 		return NULL;
 	}
 
-	uint16_t tagTypeVal = htons((uint16_t)tagType);
-	tagLength = htons(tagLength);
+	uint16_t tagTypeVal = htobe16((uint16_t)tagType);
+	tagLength = htobe16(tagLength);
 	memcpy(m_Data + offset, &tagTypeVal, sizeof(uint16_t));
 	memcpy(m_Data + offset + sizeof(uint16_t), &tagLength, sizeof(uint16_t));
 	if (tagLength > 0 && tagData != NULL)
-		memcpy(m_Data + offset + 2*sizeof(uint16_t), tagData, ntohs(tagLength));
+		memcpy(m_Data + offset + 2*sizeof(uint16_t), tagData, be16toh(tagLength));
 
 	uint8_t* newTagPtr = m_Data + offset;
 
-	getPPPoEHeader()->payloadLength += htons(tagTotalLength);
+	getPPPoEHeader()->payloadLength += htobe16(tagTotalLength);
 	m_TagCount++;
 
 	return castPtrToPPPoETag(newTagPtr);
@@ -372,7 +366,7 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::addTag(PPPoETagTypes tagType
 
 size_t PPPoEDiscoveryLayer::getHeaderLen() const
 {
-	return sizeof(pppoe_header) + ntohs(getPPPoEHeader()->payloadLength);
+	return sizeof(pppoe_header) + be16toh(getPPPoEHeader()->payloadLength);
 }
 
 PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::castPtrToPPPoETag(uint8_t* ptr) const

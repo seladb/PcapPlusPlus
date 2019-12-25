@@ -2,13 +2,7 @@
 
 #include "Logger.h"
 #include "SSLLayer.h"
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 #include <sstream>
 
 
@@ -37,7 +31,7 @@ bool SSLLayer::IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, s
 	if (recordLayer->recordType < 20 || recordLayer->recordType > 23)
 		return false;
 
-	uint16_t recordVersion = ntohs(recordLayer->recordVersion);
+	uint16_t recordVersion = be16toh(recordLayer->recordVersion);
 
 	if (recordVersion != SSL3 &&
 			recordVersion != TLS1_0 &&
@@ -99,7 +93,7 @@ std::string SSLLayer::sslVersionToString(SSLVersion ver)
 
 SSLVersion SSLLayer::getRecordVersion() const
 {
-	uint16_t recordVersion = ntohs(getRecordLayer()->recordVersion);
+	uint16_t recordVersion = be16toh(getRecordLayer()->recordVersion);
 	return (SSLVersion)recordVersion;
 }
 
@@ -110,7 +104,7 @@ SSLRecordType SSLLayer::getRecordType() const
 
 size_t SSLLayer::getHeaderLen() const
 {
-	size_t len = sizeof(ssl_tls_record_layer) + ntohs(getRecordLayer()->length);
+	size_t len = sizeof(ssl_tls_record_layer) + be16toh(getRecordLayer()->length);
 	if (len > m_DataLen)
 		return m_DataLen;
 	return len;
@@ -149,7 +143,7 @@ SSLHandshakeLayer::SSLHandshakeLayer(uint8_t* data, size_t dataLen, Layer* prevL
 	: SSLLayer(data, dataLen, prevLayer, packet)
 {
 	uint8_t* curPos = m_Data + sizeof(ssl_tls_record_layer);
-	size_t recordDataLen = ntohs(getRecordLayer()->length);
+	size_t recordDataLen = be16toh(getRecordLayer()->length);
 	if (recordDataLen > m_DataLen - sizeof(ssl_tls_record_layer))
 		recordDataLen = m_DataLen - sizeof(ssl_tls_record_layer);
 

@@ -44,9 +44,7 @@
 #include <NetworkUtils.h>
 #include <RawSocketDevice.h>
 #include "PcppTestFramework.h"
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
-#include <in.h>
-#endif
+#include <EndianPortable.h>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -652,7 +650,7 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT(ip4Addr->getType() == IPAddress::IPv4AddressType, "IPv4 address is not of type IPv4Address");
 	PTF_ASSERT(strcmp(ip4Addr->toString().c_str(), "10.0.0.4") == 0, "IPv4 toString doesn't return the correct string");
 	IPv4Address* ip4AddrAfterCast = static_cast<IPv4Address*>(ip4Addr.get());
-	PTF_ASSERT(ntohl(ip4AddrAfterCast->toInt()) == 0x0A000004, "toInt() gave wrong result: %X", ip4AddrAfterCast->toInt());
+	PTF_ASSERT(be32toh(ip4AddrAfterCast->toInt()) == 0x0A000004, "toInt() gave wrong result: %X", ip4AddrAfterCast->toInt());
 	IPv4Address secondIPv4Address(string("1.1.1.1"));
 	secondIPv4Address = *ip4AddrAfterCast;
 	PTF_ASSERT(secondIPv4Address.isValid() == true, "Valid address identified as non-valid");
@@ -4641,7 +4639,7 @@ RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, in
 	if (layerToRemove != NULL)
 		packet.removeLayer(layerToRemove->getProtocol());
 
-	tcpLayer->getTcpHeader()->sequenceNumber = htonl(ntohl(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
+	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(be32toh(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 
 	PayloadLayer newPayloadLayer(newPayload, numOfBytes, false);
 	packet.addLayer(&newPayloadLayer);

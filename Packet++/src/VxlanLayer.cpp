@@ -1,14 +1,7 @@
 #include "VxlanLayer.h"
 #include "EthLayer.h"
 #include <string.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
-
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -27,7 +20,7 @@ VxlanLayer::VxlanLayer(uint32_t vni, uint16_t groupPolicyID, bool setGbpFlag, bo
 	vxlan_header* vxlanHeader = getVxlanHeader();
 
 	if (groupPolicyID != 0)
-		vxlanHeader->groupPolicyID = htons(groupPolicyID);
+		vxlanHeader->groupPolicyID = htobe16(groupPolicyID);
 
 	vxlanHeader->vniPresentFlag = 1;
 
@@ -41,12 +34,12 @@ VxlanLayer::VxlanLayer(uint32_t vni, uint16_t groupPolicyID, bool setGbpFlag, bo
 
 uint32_t VxlanLayer::getVNI() const
 {
-	return (ntohl(getVxlanHeader()->vni) >> 8);
+	return (be32toh(getVxlanHeader()->vni) >> 8);
 }
 
 void VxlanLayer::setVNI(uint32_t vni)
 {
-	getVxlanHeader()->vni = htonl(vni << 8);
+	getVxlanHeader()->vni = htobe32(vni << 8);
 }
 
 std::string VxlanLayer::toString() const

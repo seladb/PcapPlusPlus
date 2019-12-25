@@ -9,13 +9,7 @@
 #include "Logger.h"
 #include <sstream>
 #include <vector>
-#if defined(WIN32) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 
 #define PURGE_FREQ_SECS 1
 
@@ -192,8 +186,8 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData = new TcpReassemblyData();
 		tcpReassemblyData->connData.setSrcIpAddress(srcIP);
 		tcpReassemblyData->connData.setDstIpAddress(dstIP);
-		tcpReassemblyData->connData.srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
-		tcpReassemblyData->connData.dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
+		tcpReassemblyData->connData.srcPort = be16toh(tcpLayer->getTcpHeader()->portSrc);
+		tcpReassemblyData->connData.dstPort = be16toh(tcpLayer->getTcpHeader()->portDst);
 		tcpReassemblyData->connData.flowKey = flowKey;
 		timeval ts = tcpData.getRawPacket()->getPacketTimeStamp();
 		tcpReassemblyData->connData.setStartTime(ts);
@@ -321,7 +315,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	tcpReassemblyData->prevSide = sideIndex;
 
 	// extract sequence value from packet
-	uint32_t sequence = ntohl(tcpLayer->getTcpHeader()->sequenceNumber);
+	uint32_t sequence = be32toh(tcpLayer->getTcpHeader()->sequenceNumber);
 
 	// if it's the first packet we see on this side of the connection
 	if (first)

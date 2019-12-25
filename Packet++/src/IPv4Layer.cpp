@@ -12,6 +12,7 @@
 #include <sstream>
 #include "IpUtils.h"
 #include "Logger.h"
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -94,7 +95,7 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 	int firstZero = -1;
 	for (int i = 0; i < (int)timestampValue.timestamps.size(); i++)
 	{
-		uint32_t timestamp = htonl(timestampValue.timestamps.at(i));
+		uint32_t timestamp = htobe32(timestampValue.timestamps.at(i));
 
 		// for pointer calculation - find the first timestamp equals to 0
 		if (timestamp == 0 && firstZero == -1)
@@ -181,7 +182,7 @@ void IPv4Layer::initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLaye
 	m_TempHeaderExtension = 0;
 	if (setTotalLenAsDataLen)
 	{
-		size_t totalLen = ntohs(getIPv4Header()->totalLength);
+		size_t totalLen = be16toh(getIPv4Header()->totalLength);
 		// if totalLen == 0 this usually means TCP Segmentation Offload (TSO). In this case we should ignore the value of totalLen
 		// and look at the data captured on the wire
 		if ((totalLen < m_DataLen) && (totalLen !=0))
@@ -290,7 +291,7 @@ void IPv4Layer::parseNextLayer()
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IGMP:
-		igmpVer = IgmpLayer::getIGMPVerFromData(payload, ntohs(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
+		igmpVer = IgmpLayer::getIGMPVerFromData(payload, be16toh(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
 		if (igmpVer == IGMPv1)
 			m_NextLayer = new IgmpV1Layer(payload, payloadLen, this, m_Packet);
 		else if (igmpVer == IGMPv2)
@@ -314,7 +315,7 @@ void IPv4Layer::computeCalculateFields()
 {
 	iphdr* ipHdr = getIPv4Header();
 	ipHdr->ipVersion = (4 & 0x0f);
-	ipHdr->totalLength = htons(m_DataLen);
+	ipHdr->totalLength = htobe16(m_DataLen);
 	ipHdr->headerChecksum = 0;
 
 	if (m_NextLayer != NULL)
@@ -345,7 +346,7 @@ void IPv4Layer::computeCalculateFields()
 	}
 
 	ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength*4) } ;
-	ipHdr->headerChecksum = htons(compute_checksum(&scalar, 1));
+	ipHdr->headerChecksum = htobe16(compute_checksum(&scalar, 1));
 }
 
 bool IPv4Layer::isFragment() const
@@ -370,7 +371,7 @@ uint8_t IPv4Layer::getFragmentFlags() const
 
 uint16_t IPv4Layer::getFragmentOffset() const
 {
-	return ntohs(getIPv4Header()->fragmentOffset & (uint16_t)0xFF1F) * 8;
+	return be16toh(getIPv4Header()->fragmentOffset & (uint16_t)0xFF1F) * 8;
 }
 
 std::string IPv4Layer::toString() const
@@ -563,7 +564,7 @@ bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
 
 		return hdr->ipVersion == 4
 			&& hdr->internetHeaderLength >= 5
-			&& ntohs(hdr->totalLength) <= 65535;
+			&& be16toh(hdr->totalLength) <= 65535;
 	}
 	return false;
 }
