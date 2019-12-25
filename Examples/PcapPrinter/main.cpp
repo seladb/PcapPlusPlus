@@ -31,7 +31,7 @@ static struct option PcapPrinterOptions[] =
 	{"summary", no_argument, 0, 's'},
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
@@ -57,8 +57,8 @@ void printUsage()
 			"    -c packet_count: Print only first packet_count number of packet\n"
 			"    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed\n"
 			"    -s             : Print only file summary and exit\n"
-			"    -v             : Displays the current version and exists\n"
-			"    -h             : Displays this help message and exits\n", AppName::get().c_str());
+			"    -v             : Display the current version and exit\n"
+			"    -h             : Display this help message and exit\n", AppName::get().c_str());
 	exit(0);
 }
 
