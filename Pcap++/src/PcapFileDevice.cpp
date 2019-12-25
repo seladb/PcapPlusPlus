@@ -541,8 +541,11 @@ bool PcapFileWriterDevice::open()
 	return true;
 }
 
-void PcapFileWriterDevice::close()
+void PcapFileWriterDevice::flush()
 {
+	if (!m_DeviceOpened)
+		return;
+
 	if (!m_AppendMode && pcap_dump_flush(m_PcapDumpHandler) == -1)
 	{
 		LOG_ERROR("Error while flushing the packets to file");
@@ -552,6 +555,12 @@ void PcapFileWriterDevice::close()
 	{
 		LOG_ERROR("Error while flushing the packets to file");
 	}
+
+}
+
+void PcapFileWriterDevice::close()
+{
+	flush();
 
 	IFileDevice::close();
 

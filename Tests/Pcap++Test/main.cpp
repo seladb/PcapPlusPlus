@@ -4718,8 +4718,6 @@ PTF_TEST_CASE(TestTcpReassemblySanity)
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
-
-
 }
 
 PTF_TEST_CASE(TestTcpReassemblyRetran)
@@ -5367,6 +5365,39 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), -1, int);
 } // TestTcpReassemblyCleanup
 
+
+PTF_TEST_CASE(TestTcpReassemblyMaxSeq)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+
+	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_tcp_stream_max_seq.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT_EQUAL(stats.size(), 1, size);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 19, int);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[0], 2, int);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[1], 2, int);
+	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
+	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
+	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
+	PTF_ASSERT_NOT_NULL(stats.begin()->second.connData.srcIP);
+	PTF_ASSERT_NOT_NULL(stats.begin()->second.connData.dstIP);
+	IPv4Address expectedSrcIP(std::string("10.0.0.1"));
+	IPv4Address expectedDstIP(std::string("81.218.72.15"));
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP));
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP->equals(&expectedDstIP));
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
+	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData, string);
+} //TestTcpReassemblyMaxSeq
 
 
 PTF_TEST_CASE(TestLRUList)
@@ -6475,7 +6506,7 @@ PTF_TEST_CASE(TestRawSockets)
 		RawPacket rawPacket;
 		PTF_ASSERT(rawSock.receivePacket(rawPacket, true, 10) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket");
 		Packet parsedPacket(&rawPacket);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 	}
 
 	// receive multiple packets
@@ -6486,7 +6517,7 @@ PTF_TEST_CASE(TestRawSockets)
 	for (RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
 	{
 		Packet parsedPacket(*iter);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 	}
 
 	// receive with timeout
@@ -6531,11 +6562,11 @@ PTF_TEST_CASE(TestRawSockets)
 		RawPacket rawPacket;
 		PTF_ASSERT(rawSock.receivePacket(rawPacket, true, 5) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket 1");
 		Packet parsedPacket(&rawPacket);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet 1 is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 		RawPacket rawPacket2;
 		PTF_ASSERT(rawSock2.receivePacket(rawPacket2, true, 5) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket 2");
 		Packet parsedPacket2(&rawPacket2);
-		PTF_ASSERT(parsedPacket2.isPacketOfType(protocol) == true, "Received packet 2 is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket2.isPacketOfType(protocol));
 	}
 
 	if (sendSupported)
@@ -6789,6 +6820,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestTcpReassemblyIPv6MultConns, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyIPv6_OOO, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyCleanup, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyMaxSeq, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragOutOfOrder, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragPartialData, "no_network;ip_frag");
