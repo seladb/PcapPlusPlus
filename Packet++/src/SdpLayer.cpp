@@ -85,8 +85,7 @@ pcpp::experimental::IPv4Address SdpLayer::getOwnerIPv4Address() const
 	if (tokens[3] != "IN" || tokens[4] != "IP4")
 		return pcpp::experimental::IPv4Address();
 
-	int errorCode;
-	return pcpp::experimental::makeIPv4Address(tokens[5], errorCode);
+	return pcpp::experimental::IPv4Address(tokens[5]);
 }
 
 uint16_t SdpLayer::getMediaPort(std::string mediaType) const

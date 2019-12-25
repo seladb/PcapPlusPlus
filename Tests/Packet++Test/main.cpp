@@ -6626,8 +6626,7 @@ PTF_TEST_CASE(SdpLayerCreationTest)
 	SipResponseLayer sipLayer = *(sdpPacket.getLayerOfType<SipResponseLayer>());
 	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&sipLayer));
 
-	int errorCode;
-	SdpLayer newSdpLayer("IPP", 782647527, 782647407, pcpp::experimental::makeIPv4Address("10.33.6.100", errorCode), "Phone-Call", 0, 0);
+	SdpLayer newSdpLayer("IPP", 782647527, 782647407, pcpp::experimental::IPv4Address("10.33.6.100"), "Phone-Call", 0, 0);
 
 	std::vector<std::string> audioAttributes;
 	audioAttributes.push_back("rtpmap:8 PCMA/8000");
