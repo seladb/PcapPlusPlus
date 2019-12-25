@@ -5528,10 +5528,8 @@ PTF_TEST_CASE(IgmpParsingTest)
 	IgmpV2Layer* igmpv2Layer = igmpv2Packet.getLayerOfType<IgmpV2Layer>();
 	PTF_ASSERT_NOT_NULL(igmpv2Layer);
 
-	int errorCode;
 	PTF_ASSERT_EQUAL(igmpv2Layer->getType(), IgmpType_MembershipReportV2, enum);
-	PTF_ASSERT_EQUAL(igmpv2Layer->getGroupAddress(), pcpp::experimental::makeIPv4Address("239.255.255.250", errorCode), object);
-	PTF_ASSERT_EQUAL(errorCode, 0, int);
+	PTF_ASSERT_EQUAL(igmpv2Layer->getGroupAddress(), pcpp::experimental::IPv4Address("239.255.255.250"), object);
 	PTF_ASSERT_EQUAL(igmpv2Layer->toString(), "IGMPv2 Layer, Membership Report message", string);
 } // IgmpParsingTest
 
@@ -5558,10 +5556,8 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 	ipLayer2.getIPv4Header()->ipId = htons(3655);
 	ipLayer2.getIPv4Header()->timeToLive = 1;
 
-	int errorCode;
 	IgmpV1Layer igmpV1Layer(IgmpType_MembershipQuery);
-	IgmpV2Layer igmpV2Layer(IgmpType_MembershipReportV2, pcpp::experimental::makeIPv4Address("239.255.255.250", errorCode));
-	PTF_ASSERT_EQUAL(errorCode, 0, int);
+	IgmpV2Layer igmpV2Layer(IgmpType_MembershipReportV2, pcpp::experimental::IPv4Address("239.255.255.250"));
 
 	Packet igmpv1Packet(1);
 	igmpv1Packet.addLayer(&ethLayer1);
@@ -5593,7 +5589,7 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 
 	IgmpV1Layer* igmpLayer = igmpv1Packet.getLayerOfType<IgmpV1Layer>();
 	igmpLayer->setType(IgmpType_MembershipReportV2);
-	igmpLayer->setGroupAddress(pcpp::experimental::makeIPv4Address("239.255.255.250", errorCode));
+	igmpLayer->setGroupAddress(pcpp::experimental::IPv4Address("239.255.255.250"));
 	igmpv1Packet.computeCalculateFields();
 
 	PTF_ASSERT_BUF_COMPARE(igmpLayer->getData(), igmpV2Layer.getData(), igmpLayer->getHeaderLen());
@@ -5682,20 +5678,19 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 	ipLayer.getIPv4Header()->ipId = htons(36760);
 	ipLayer.getIPv4Header()->timeToLive = 1;
 
-	int errorCode;
-	IgmpV3QueryLayer igmpV3QueryLayer(pcpp::experimental::makeIPv4Address("224.0.0.11", errorCode), 1, 0x0f);
+	IgmpV3QueryLayer igmpV3QueryLayer(pcpp::experimental::IPv4Address("224.0.0.11"), 1, 0x0f);
 
-	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddress(pcpp::experimental::makeIPv4Address("192.168.20.222", errorCode)));
+	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddress(pcpp::experimental::IPv4Address("192.168.20.222")));
 
 	Packet igmpv3QueryPacket(33);
 	igmpv3QueryPacket.addLayer(&ethLayer);
 	igmpv3QueryPacket.addLayer(&ipLayer);
 	igmpv3QueryPacket.addLayer(&igmpV3QueryLayer);
 
-	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddress(pcpp::experimental::makeIPv4Address("1.2.3.4", errorCode)));
-	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddressAtIndex(pcpp::experimental::makeIPv4Address("10.20.30.40", errorCode), 0));
+	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddress(pcpp::experimental::IPv4Address("1.2.3.4")));
+	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddressAtIndex(pcpp::experimental::IPv4Address("10.20.30.40"), 0));
 
-	pcpp::experimental::IPv4Address srcAddr = pcpp::experimental::makeIPv4Address("100.200.255.255", errorCode);
+	pcpp::experimental::IPv4Address srcAddr = pcpp::experimental::IPv4Address("100.200.255.255");
 
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr, -1));
@@ -5706,7 +5701,7 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 	LoggerPP::getInstance().enableErrors();
 
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr, 2));
-	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddressAtIndex(pcpp::experimental::makeIPv4Address("11.22.33.44", errorCode), 4));
+	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddressAtIndex(pcpp::experimental::IPv4Address("11.22.33.44"), 4));
 
 	igmpv3QueryPacket.computeCalculateFields();
 
@@ -5733,7 +5728,7 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.removeSourceAddressAtIndex(1));
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.removeSourceAddressAtIndex(1));
 
-	igmpV3QueryLayer.setGroupAddress(pcpp::experimental::makeIPv4Address("224.0.0.9", errorCode));
+	igmpV3QueryLayer.setGroupAddress(pcpp::experimental::IPv4Address("224.0.0.9"));
 
 	igmpv3QueryPacket.computeCalculateFields();
 
@@ -5763,35 +5758,34 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 
 	IgmpV3ReportLayer igmpV3ReportLayer;
 
-	int errorCode;
 	std::vector<pcpp::experimental::IPv4Address> srcAddrVec1;
-	srcAddrVec1.push_back(pcpp::experimental::makeIPv4Address("192.168.20.222", errorCode));
-	igmpv3_group_record* groupRec = igmpV3ReportLayer.addGroupRecord(1, pcpp::experimental::makeIPv4Address("224.0.0.9", errorCode), srcAddrVec1);
+	srcAddrVec1.push_back(pcpp::experimental::IPv4Address("192.168.20.222"));
+	igmpv3_group_record* groupRec = igmpV3ReportLayer.addGroupRecord(1, pcpp::experimental::IPv4Address("224.0.0.9"), srcAddrVec1);
 	PTF_ASSERT_NOT_NULL(groupRec);
 	PTF_ASSERT_EQUAL(groupRec->getSoruceAddressAtIndex(0).toString(), "192.168.20.222", string);
 
 	std::vector<pcpp::experimental::IPv4Address> srcAddrVec2;
-	srcAddrVec2.push_back(pcpp::experimental::makeIPv4Address("1.2.3.4", errorCode));
-	srcAddrVec2.push_back(pcpp::experimental::makeIPv4Address("11.22.33.44", errorCode));
-	srcAddrVec2.push_back(pcpp::experimental::makeIPv4Address("111.222.33.44", errorCode));
-	groupRec = igmpV3ReportLayer.addGroupRecord(2, pcpp::experimental::makeIPv4Address("4.3.2.1", errorCode), srcAddrVec2);
+	srcAddrVec2.push_back(pcpp::experimental::IPv4Address("1.2.3.4"));
+	srcAddrVec2.push_back(pcpp::experimental::IPv4Address("11.22.33.44"));
+	srcAddrVec2.push_back(pcpp::experimental::IPv4Address("111.222.33.44"));
+	groupRec = igmpV3ReportLayer.addGroupRecord(2, pcpp::experimental::IPv4Address("4.3.2.1"), srcAddrVec2);
 	PTF_ASSERT_NOT_NULL(groupRec);
 	PTF_ASSERT_EQUAL(groupRec->getSourceAdressCount(), 3, u16);
 
 	std::vector<pcpp::experimental::IPv4Address> srcAddrVec3;
-	srcAddrVec3.push_back(pcpp::experimental::makeIPv4Address("12.34.56.78", errorCode));
-	srcAddrVec3.push_back(pcpp::experimental::makeIPv4Address("88.77.66.55", errorCode));
-	srcAddrVec3.push_back(pcpp::experimental::makeIPv4Address("44.33.22.11", errorCode));
-	srcAddrVec3.push_back(pcpp::experimental::makeIPv4Address("255.255.255.255", errorCode));
-	groupRec = igmpV3ReportLayer.addGroupRecordAtIndex(3, pcpp::experimental::makeIPv4Address("1.1.1.1", errorCode), srcAddrVec3, 0);
+	srcAddrVec3.push_back(pcpp::experimental::IPv4Address("12.34.56.78"));
+	srcAddrVec3.push_back(pcpp::experimental::IPv4Address("88.77.66.55"));
+	srcAddrVec3.push_back(pcpp::experimental::IPv4Address("44.33.22.11"));
+	srcAddrVec3.push_back(pcpp::experimental::IPv4Address("255.255.255.255"));
+	groupRec = igmpV3ReportLayer.addGroupRecordAtIndex(3, pcpp::experimental::IPv4Address("1.1.1.1"), srcAddrVec3, 0);
 	PTF_ASSERT_NOT_NULL(groupRec);
 	PTF_ASSERT_EQUAL(groupRec->getRecordLen(), 24, size);
 
 	std::vector<pcpp::experimental::IPv4Address> srcAddrVec4;
-	srcAddrVec4.push_back(pcpp::experimental::makeIPv4Address("13.24.57.68", errorCode));
-	srcAddrVec4.push_back(pcpp::experimental::makeIPv4Address("31.42.75.86", errorCode));
+	srcAddrVec4.push_back(pcpp::experimental::IPv4Address("13.24.57.68"));
+	srcAddrVec4.push_back(pcpp::experimental::IPv4Address("31.42.75.86"));
 
-	pcpp::experimental::IPv4Address multicastAddr = pcpp::experimental::makeIPv4Address("1.3.5.7", errorCode);
+	pcpp::experimental::IPv4Address multicastAddr("1.3.5.7");
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, multicastAddr, srcAddrVec4, -1));
 	PTF_ASSERT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, multicastAddr, srcAddrVec4, 4));
@@ -5799,7 +5793,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	LoggerPP::getInstance().enableErrors();
 
 	PTF_ASSERT_NOT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, multicastAddr, srcAddrVec4, 1));
-	PTF_ASSERT_NOT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(5, pcpp::experimental::makeIPv4Address("2.4.6.8", errorCode), srcAddrVec4, 4));
+	PTF_ASSERT_NOT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(5, pcpp::experimental::IPv4Address("2.4.6.8"), srcAddrVec4, 4));
 
 
 	Packet igmpv3ReportPacket;
