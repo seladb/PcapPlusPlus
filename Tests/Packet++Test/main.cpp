@@ -5280,10 +5280,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 {
 	EthLayer ethLayer(MacAddress("00:13:72:25:fa:cd"), MacAddress("00:e0:b1:49:39:02"));
 
-	int errorCode;
-	pcpp::experimental::IPv4Address
-		srcIp = pcpp::experimental::makeIPv4Address("172.22.178.234", errorCode),
-		dstIp = pcpp::experimental::makeIPv4Address("10.10.8.240", errorCode);
+	pcpp::experimental::IPv4Address srcIp("172.22.178.234"), dstIp("10.10.8.240");
 	IPv4Layer ipLayer(srcIp.toUInt(), dstIp.toUInt()); // TODO: remove toUInt() when migration has completed
 	ipLayer.getIPv4Header()->ipId = htons(20370);
 	ipLayer.getIPv4Header()->timeToLive = 128;
@@ -5295,15 +5292,12 @@ PTF_TEST_CASE(DhcpCreationTest)
 	dhcpLayer.getDhcpHeader()->hops = 1;
 	dhcpLayer.getDhcpHeader()->transactionID = htonl(0x7771cf85);
 	dhcpLayer.getDhcpHeader()->secondsElapsed = htons(10);
-	pcpp::experimental::IPv4Address
-		yourIP = pcpp::experimental::makeIPv4Address("10.10.8.235", errorCode),
-		serverIP = pcpp::experimental::makeIPv4Address("172.22.178.234", errorCode),
-		gatewayIP = pcpp::experimental::makeIPv4Address("10.10.8.240", errorCode);
+	pcpp::experimental::IPv4Address yourIP("10.10.8.235"), serverIP("172.22.178.234"), gatewayIP("10.10.8.240");
 	dhcpLayer.setYourIpAddress(yourIP);
 	dhcpLayer.setServerIpAddress(serverIP);
 	dhcpLayer.setGatewayIpAddress(gatewayIP);
 
-	DhcpOption subnetMaskOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_SUBNET_MASK, pcpp::experimental::makeIPv4Address("255.255.255.0", errorCode)));
+	DhcpOption subnetMaskOpt = dhcpLayer.addOption(DhcpOptionBuilder(DHCPOPT_SUBNET_MASK, pcpp::experimental::IPv4Address("255.255.255.0")));
 	PTF_ASSERT_FALSE(subnetMaskOpt.isNull());
 
 	uint8_t sipServersData[] = { 0x01, 0xac, 0x16, 0xb2, 0xea };
@@ -5324,7 +5318,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 	DhcpOption authOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_AUTHENTICATION, authOptData, 31), DHCPOPT_DHCP_CLIENT_IDENTIFIER);
 	PTF_ASSERT_FALSE(authOpt.isNull());
 
-	DhcpOption dhcpServerIdOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_SERVER_IDENTIFIER, pcpp::experimental::makeIPv4Address("172.22.178.234", errorCode)), DHCPOPT_SUBNET_MASK);
+	DhcpOption dhcpServerIdOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_SERVER_IDENTIFIER, pcpp::experimental::IPv4Address("172.22.178.234")), DHCPOPT_SUBNET_MASK);
 	PTF_ASSERT_FALSE(dhcpServerIdOpt.isNull());
 
 	Packet newPacket(6);
@@ -5333,7 +5327,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 	newPacket.addLayer(&udpLayer);
 	newPacket.addLayer(&dhcpLayer);
 
-	DhcpOption routerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_ROUTERS, pcpp::experimental::makeIPv4Address("10.10.8.254", errorCode)), DHCPOPT_DHCP_SERVER_IDENTIFIER);
+	DhcpOption routerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_ROUTERS, pcpp::experimental::IPv4Address("10.10.8.254")), DHCPOPT_DHCP_SERVER_IDENTIFIER);
 	PTF_ASSERT_FALSE(routerOpt.isNull());
 
 	DhcpOption tftpServerOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_TFTP_SERVER_NAME, "172.22.178.234"), DHCPOPT_ROUTERS);
@@ -5341,9 +5335,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 
 	DhcpOption dnsOpt = dhcpLayer.addOptionAfter(DhcpOptionBuilder(DHCPOPT_DOMAIN_NAME_SERVERS, NULL, 8), DHCPOPT_ROUTERS);
 	PTF_ASSERT_FALSE(dnsOpt.isNull());
-	pcpp::experimental::IPv4Address
-		dns1IP = pcpp::experimental::makeIPv4Address("143.209.4.1", errorCode),
-		dns2IP = pcpp::experimental::makeIPv4Address("143.209.5.1", errorCode);
+	pcpp::experimental::IPv4Address dns1IP("143.209.4.1"), dns2IP("143.209.5.1");
 	dnsOpt.setValueIpAddr(dns1IP);
 	dnsOpt.setValueIpAddr(dns2IP, 4);
 
@@ -5387,12 +5379,11 @@ PTF_TEST_CASE(DhcpEditTest)
 	PTF_ASSERT_TRUE(dhcpLayer->removeOption(DHCPOPT_DHCP_MAX_MESSAGE_SIZE));
 
 	DhcpOption opt = dhcpLayer->getOptionData(DHCPOPT_SUBNET_MASK);
-	int errorCode;
-	opt.setValueIpAddr(pcpp::experimental::makeIPv4Address("255.255.255.0", errorCode));
+	opt.setValueIpAddr(pcpp::experimental::IPv4Address("255.255.255.0"));
 
 	PTF_ASSERT_TRUE(dhcpLayer->setMesageType(DHCP_ACK));
 
-	pcpp::experimental::IPv4Address newRouter = pcpp::experimental::makeIPv4Address("192.168.2.1", errorCode);
+	pcpp::experimental::IPv4Address newRouter("192.168.2.1");
 
 	opt = dhcpLayer->addOptionAfter(DhcpOptionBuilder(DHCPOPT_ROUTERS, newRouter), DHCPOPT_SUBNET_MASK);
 	PTF_ASSERT_FALSE(opt.isNull());
@@ -7045,8 +7036,7 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&udpLayer));
 
 	RadiusLayer radiusLayer(11, 5, "f050649184625d36f14c9075b7a48b83");
-	int errorCode;
-	RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(8, pcpp::experimental::makeIPv4Address("255.255.255.254", errorCode)));
+	RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(RadiusAttributeBuilder(8, pcpp::experimental::IPv4Address("255.255.255.254")));
 	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
 	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 8, u8);
 	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, size);
