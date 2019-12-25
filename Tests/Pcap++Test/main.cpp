@@ -2176,7 +2176,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT_TRUE(pcpp::experimental::matchSubnet(ipLayer->getSrcIpAddress(), "212.199.202.9", "255.255.255.0"));
+		PTF_ASSERT_TRUE(ipLayer->getSrcIpAddress().matchSubnet(pcpp::experimental::IPv4Address("212.199.202.9"), "255.255.255.0"));
 	}
 
 	rawPacketVec.clear();
@@ -2197,7 +2197,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test #2: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT_TRUE(pcpp::experimental::matchSubnet(ipLayer->getSrcIpAddress(), "212.199.202.9", "255.255.255.0"));
+		PTF_ASSERT_TRUE(ipLayer->getSrcIpAddress().matchSubnet(pcpp::experimental::IPv4Address("212.199.202.9"), "255.255.255.0"));
 	}
 	rawPacketVec.clear();
 
