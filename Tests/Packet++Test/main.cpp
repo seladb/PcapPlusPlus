@@ -4010,9 +4010,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;
 	IcmpLayer icmpLayerForRedirect;
 	icmpLayerForRedirect.setEchoRequestData(512, 12544, 0, NULL, 0);
-	int errorCode;
-	PTF_ASSERT_NOT_NULL(redirectLayer.setRedirectData(1, pcpp::experimental::makeIPv4Address("10.2.99.98", errorCode), &ipLayerForRedirect, &icmpLayerForRedirect));
-	PTF_ASSERT_EQUAL(errorCode, 0, int);
+	PTF_ASSERT_NOT_NULL(redirectLayer.setRedirectData(1, pcpp::experimental::IPv4Address("10.2.99.98"), &ipLayerForRedirect, &icmpLayerForRedirect));
 	redirectPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(redirectPacket.getRawPacket()->getRawDataLen(), buffer5Length + 8, int);
 
@@ -4025,13 +4023,13 @@ PTF_TEST_CASE(IcmpCreationTest)
 	routerAdvPacket.addLayer(&ipLayer8);
 	routerAdvPacket.addLayer(&routerAdvLayer);
 	icmp_router_address_structure addr1;
-	addr1.setRouterAddress(pcpp::experimental::makeIPv4Address("192.168.144.2", errorCode), (uint32_t)0x08000000);
+	addr1.setRouterAddress(pcpp::experimental::IPv4Address("192.168.144.2"), (uint32_t)0x08000000);
 	PTF_ASSERT_FALSE(addr1.getAddress().isUnspecified());
 	icmp_router_address_structure addr2;
-	addr2.setRouterAddress(pcpp::experimental::makeIPv4Address("1.1.1.1", errorCode), (uint32_t)1000);
+	addr2.setRouterAddress(pcpp::experimental::IPv4Address("1.1.1.1"), (uint32_t)1000);
 	PTF_ASSERT_FALSE(addr2.getAddress().isUnspecified());
 	icmp_router_address_structure addr3;
-	addr3.setRouterAddress(pcpp::experimental::makeIPv4Address("10.0.0.138", errorCode), (uint32_t)30000);
+	addr3.setRouterAddress(pcpp::experimental::IPv4Address("10.0.0.138"), (uint32_t)30000);
 	PTF_ASSERT_FALSE(addr3.getAddress().isUnspecified());
 	std::vector<icmp_router_address_structure> routerAddresses;
 	routerAddresses.push_back(addr1);
