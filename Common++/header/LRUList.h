@@ -111,7 +111,7 @@ namespace pcpp
 				return;
 
 			m_CacheItemsList.erase(iter->second);
-			m_CacheItemsMap.erase(element);
+			m_CacheItemsMap.erase(iter);
 		}
 
 		/**
