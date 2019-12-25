@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
 {
 	AppName::init(argc, argv);
 
-	int optionIndex = 0, errorCode;
+	int optionIndex = 0;
 	char opt = 0;
 
 	std::string interfaceNameOrIP("");
@@ -332,16 +332,12 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServer =	pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
-				if (errorCode != 0)
-					EXIT_WITH_ERROR("DNS server IP is invalid");
+				dnsServer =	pcpp::experimental::IPv4Address(optarg);
 				break;
 			}
 			case 'c':
 			{
-				clientIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
-				if (errorCode != 0)
-					EXIT_WITH_ERROR("Client IP to spoof is invalid");
+				clientIP = pcpp::experimental::IPv4Address(optarg);
 				break;
 			}
 			case 'o':
@@ -370,8 +366,8 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Interface name or IP weren't provided. Please use the -i switch or -h for help");
 	}
 
-	pcpp::experimental::IPv4Address interfaceIP = pcpp::experimental::makeIPv4Address(interfaceNameOrIP, errorCode);
-	if (errorCode == 0)
+	pcpp::experimental::IPv4Address interfaceIP(interfaceNameOrIP);
+	if (!interfaceIP.isUnspecified())
 	{
 		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP.toUInt());
 		if (dev == NULL)
@@ -386,11 +382,11 @@ int main(int argc, char* argv[])
 
 	// verify DNS server IP is a valid IPv4 address
 	if (dnsServer.isUnspecified())
-		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty");
+		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or invalid");
 
 	// verify client IP is valid if set
 	if (clientIP.isUnspecified())
-		EXIT_WITH_ERROR("Client IP to spoof is unspecified");
+		EXIT_WITH_ERROR("Client IP to spoof is unspecified or invalid");
 
 
 	doDnsSpoofing(dev, dnsServer, clientIP, hostList);

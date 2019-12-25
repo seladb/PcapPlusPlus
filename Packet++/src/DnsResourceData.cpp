@@ -68,9 +68,8 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 
 IPv4DnsResourceData::IPv4DnsResourceData(const std::string& addrAsString)
 {
-	int errorCode;
-	m_Data = pcpp::experimental::makeIPv4Address(addrAsString, errorCode);
-	m_IsValid = (errorCode == 0);
+	m_Data = pcpp::experimental::IPv4Address(addrAsString);
+	m_IsValid = !m_Data.isUnspecified();
 }
 
 
@@ -101,9 +100,8 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 
 IPv6DnsResourceData::IPv6DnsResourceData(const std::string& addrAsString)
 {
-	int errorCode;
-	m_Data = pcpp::experimental::makeIPv6Address(addrAsString, errorCode);
-	m_IsValid = (errorCode == 0);
+	m_Data = pcpp::experimental::IPv6Address(addrAsString);
+	m_IsValid = !m_Data.isUnspecified();
 }
 
 bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const

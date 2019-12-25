@@ -2632,7 +2632,6 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT(queryByName == firstQuery, "Query by name returned a query different from first query");
 	PTF_ASSERT_NULL(dnsLayer->getQuery(string("www.seladb.com"), true));
 
-	int errorCode;
 	DnsResource* firstAuthority = dnsLayer->getFirstAuthority();
 	PTF_ASSERT_NOT_NULL(firstAuthority);
 	PTF_ASSERT_EQUAL(firstAuthority->getDnsType(), DNS_TYPE_A, enum);
@@ -2641,7 +2640,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(firstAuthority->getName(), "Yaels-iPhone.local", string);
 	PTF_ASSERT_EQUAL(firstAuthority->getDataLength(), 4, size);
 	PTF_ASSERT_EQUAL(firstAuthority->getData()->toString(), "10.0.0.2", string);
-	PTF_ASSERT_EQUAL(firstAuthority->getData().castAs<IPv4DnsResourceData>()->getIpAddress(), pcpp::experimental::makeIPv4Address("10.0.0.2", errorCode), object);
+	PTF_ASSERT_EQUAL(firstAuthority->getData().castAs<IPv4DnsResourceData>()->getIpAddress(), pcpp::experimental::IPv4Address("10.0.0.2"), object);
 	PTF_ASSERT_EQUAL(firstAuthority->getSize(), 16, size);
 
 	DnsResource* secondAuthority = dnsLayer->getNextAuthority(firstAuthority);
@@ -2652,7 +2651,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(secondAuthority->getName(), "Yaels-iPhone.local", string);
 	PTF_ASSERT_EQUAL(secondAuthority->getDataLength(), 16, size);
 	PTF_ASSERT_EQUAL(secondAuthority->getData()->toString(), "fe80::5a1f:aaff:fe4f:3f9d", string);
-	PTF_ASSERT_EQUAL(secondAuthority->getData().castAs<IPv6DnsResourceData>()->getIpAddress(), pcpp::experimental::makeIPv6Address("fe80::5a1f:aaff:fe4f:3f9d", errorCode), object);
+	PTF_ASSERT_EQUAL(secondAuthority->getData().castAs<IPv6DnsResourceData>()->getIpAddress(), pcpp::experimental::IPv6Address("fe80::5a1f:aaff:fe4f:3f9d"), object);
 	PTF_ASSERT_EQUAL(secondAuthority->getSize(), 28, size);
 
 	DnsResource* thirdAuthority = dnsLayer->getNextAuthority(secondAuthority);
@@ -2716,7 +2715,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 		PTF_ASSERT_EQUAL(curAnswer->getTTL(), 117, u32);
 		PTF_ASSERT_EQUAL(curAnswer->getName(), "www-google-analytics.L.google.com", string);
 		PTF_ASSERT_EQUAL(curAnswer->getDataLength(), 4, size);
-		PTF_ASSERT_TRUE(pcpp::experimental::matchSubnet(curAnswer->getData().castAs<IPv4DnsResourceData>()->getIpAddress(), "212.199.219.0", "255.255.255.0"));
+		PTF_ASSERT_TRUE(curAnswer->getData().castAs<IPv4DnsResourceData>()->getIpAddress().matchSubnet(pcpp::experimental::IPv4Address("212.199.219.0"), "255.255.255.0"));
 
 		curAnswer = dnsLayer->getNextAnswer(curAnswer);
 		answerCount++;
