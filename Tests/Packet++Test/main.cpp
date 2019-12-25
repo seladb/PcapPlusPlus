@@ -7561,6 +7561,32 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 
 
 
+PTF_TEST_CASE(PacketLayerLookupTest)
+{
+	// reverse lookup
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/radius_1.dat", bufferLength);
+	PTF_ASSERT_NOT_NULL(buffer);
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+	Packet radiusPacket(&rawPacket);
+
+	RadiusLayer* radiusLayer = radiusPacket.getLayerOfType<RadiusLayer>(true);
+	PTF_ASSERT_NOT_NULL(radiusLayer);
+
+	EthLayer* ethLayer = radiusPacket.getLayerOfType<EthLayer>(true);
+	PTF_ASSERT_NOT_NULL(ethLayer);
+
+	IPv4Layer* ipLayer = radiusPacket.getPrevLayerOfType<IPv4Layer>(radiusLayer);
+	PTF_ASSERT_NOT_NULL(ipLayer);
+
+	TcpLayer* tcpLayer = radiusPacket.getPrevLayerOfType<TcpLayer>(ipLayer);
+	PTF_ASSERT_NULL(tcpLayer);
+}
+
+
 static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
@@ -7724,6 +7750,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
 	PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
 	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
+	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
 
 	PTF_END_RUNNING_TESTS;
 }

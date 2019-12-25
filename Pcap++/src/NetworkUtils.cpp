@@ -63,7 +63,7 @@ static void arpPacketRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void
 		return;
 
 	// extract the ARP layer from the packet
-	ArpLayer* arpReplyLayer = packet.getLayerOfType<ArpLayer>();
+	ArpLayer* arpReplyLayer = packet.getLayerOfType<ArpLayer>(true); // lookup in reverse order
 	if (arpReplyLayer == NULL)
 		return;
 
@@ -246,7 +246,7 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 		return;
 
 	// extract the DNS layer from the packet
-	DnsLayer* dnsResponseLayer = packet.getLayerOfType<DnsLayer>();
+	DnsLayer* dnsResponseLayer = packet.getLayerOfType<DnsLayer>(true); // lookup in reverse order
 	if (dnsResponseLayer == NULL)
 		return;
 
