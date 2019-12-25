@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 	bool hostnameProvided = false;
 	std::string interfaceNameOrIP;
 	pcpp::experimental::IPv4Address dnsServerIP, gatewayIP;
-	int timeoutSec = -1, errorCode;
+	int timeoutSec = -1;
 
 	int optionIndex = 0;
 	char opt = 0;
@@ -129,15 +129,15 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServerIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
-				if (errorCode != 0)
+				dnsServerIP = pcpp::experimental::IPv4Address(optarg);
+				if (dnsServerIP.isUnspecified())
 					EXIT_WITH_ERROR("Invalid DNS server address");
 				break;
 			}
 			case 'g':
 			{
-				gatewayIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
-				if (errorCode != 0)
+				gatewayIP = pcpp::experimental::IPv4Address(optarg);
+				if (gatewayIP.isUnspecified())
 					EXIT_WITH_ERROR("Invalid gateway address");
 				break;
 			}

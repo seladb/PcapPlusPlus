@@ -156,9 +156,8 @@ void readCommandLineArguments(int argc, char* argv[],
 	if (interfaceNameOrIP == "")
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide %s interface name or IP", thisSide.c_str());
 
-	int errorCode;
-	myIP = pcpp::experimental::makeIPv4Address(interfaceNameOrIP, errorCode);
-	if (errorCode != 0)
+	myIP = pcpp::experimental::IPv4Address(interfaceNameOrIP);
+	if (myIP.isUnspecified())
 	{
 		PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
 		if (dev == NULL)
@@ -171,8 +170,8 @@ void readCommandLineArguments(int argc, char* argv[],
 	if (otherSideIPAsString.empty())
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide %s IP address", otherSide.c_str());
 
-	otherSideIP = pcpp::experimental::makeIPv4Address(otherSideIPAsString, errorCode);
-	if (errorCode != 0)
+	otherSideIP = pcpp::experimental::IPv4Address(otherSideIPAsString);
+	if (otherSideIP.isUnspecified())
 		EXIT_WITH_ERROR_PRINT_USAGE("Invalid %s IP address", otherSide.c_str());
 
 	// verify only one of sender and receiver switches are set

@@ -4629,9 +4629,8 @@ PTF_TEST_CASE(TestGetMacAddress)
   double time = -1;
   while (std::getline(sstream, ip, '\n'))
   {
-		int errorCode;
-		pcpp::experimental::IPv4Address ipAddr = pcpp::experimental::makeIPv4Address(ip, errorCode);
-    PTF_ASSERT_EQUAL(errorCode, 0, int);
+		pcpp::experimental::IPv4Address ipAddr(ip);
+    PTF_ASSERT_FALSE(ipAddr.isUnspecified());
     LoggerPP::getInstance().supressErrors();
     result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
     LoggerPP::getInstance().enableErrors();

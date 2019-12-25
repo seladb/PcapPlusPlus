@@ -237,10 +237,7 @@ PTF_TEST_CASE(ArpPacketCreation)
 	MacAddress dstMac("ff:ff:ff:ff:ff:ff:");
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_ARP);
 
-	int errorCode;
-	ArpLayer arpLayer(ARP_REQUEST, srcMac, srcMac,
-		pcpp::experimental::makeIPv4Address("10.0.0.1", errorCode),
-		pcpp::experimental::makeIPv4Address("10.0.0.138", errorCode));
+	ArpLayer arpLayer(ARP_REQUEST, srcMac, srcMac, pcpp::experimental::IPv4Address("10.0.0.1"),	pcpp::experimental::IPv4Address("10.0.0.138"));
 
 	Packet arpRequestPacket(1);
 	PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&ethLayer));
@@ -309,10 +306,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	EthLayer ethLayer(macSrc, macDest, PCPP_ETHERTYPE_VLAN);
 	VlanLayer firstVlanLayer(666, 1, 5, PCPP_ETHERTYPE_VLAN);
 	VlanLayer secondVlanLayer(200, 0, 2, PCPP_ETHERTYPE_ARP);
-	int errorCode;
-	ArpLayer arpLayer(ARP_REQUEST, macSrc, MacAddress("00:00:00:00:00:00"),
-		pcpp::experimental::makeIPv4Address("192.168.2.200", errorCode),
-		pcpp::experimental::makeIPv4Address("192.168.2.254", errorCode));
+	ArpLayer arpLayer(ARP_REQUEST, macSrc, MacAddress("00:00:00:00:00:00"), pcpp::experimental::IPv4Address("192.168.2.200"), pcpp::experimental::IPv4Address("192.168.2.254"));
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&firstVlanLayer));
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&secondVlanLayer));

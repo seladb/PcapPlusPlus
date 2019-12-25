@@ -104,7 +104,6 @@ int main(int argc, char* argv[])
 	std::string ifaceNameOrIP;
 	int timeoutSec = NetworkUtils::DefaultTimeout;
 	int optionIndex = 0;
-	int errorCode;
 	char opt = 0;
 
 	while((opt = getopt_long (argc, argv, "i:s:S:T:c:hvlw:", ArpingOptions, &optionIndex)) != -1)
@@ -120,14 +119,10 @@ int main(int argc, char* argv[])
 				sourceMac = MacAddress(optarg);
 				break;
 			case 'S':
-				sourceIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
-				if (errorCode != 0)
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Invalid source IP address");
+				sourceIP = pcpp::experimental::IPv4Address(optarg);
 				break;
 			case 'T':
-				targetIP = pcpp::experimental::makeIPv4Address(static_cast<char const *>(optarg), errorCode);
-				if (errorCode != 0)
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Invalid target IP address");
+				targetIP = pcpp::experimental::IPv4Address(optarg);
 				break;
 			case 'c':
 				maxTries = atoi(optarg);;
@@ -156,14 +151,14 @@ int main(int argc, char* argv[])
 
 	// verify target IP was provided
 	if (targetIP.isUnspecified())
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("You must provide target IP (-T switch)");
+		EXIT_WITH_ERROR_AND_PRINT_USAGE("You must provide valid target IP (-T switch)");
 
 
 	PcapLiveDevice* dev = NULL;
 
 	// Search interface by name or IP
-	pcpp::experimental::IPv4Address interfaceIP = pcpp::experimental::makeIPv4Address(ifaceNameOrIP, errorCode);
-	if (errorCode == 0 && !interfaceIP.isUnspecified())
+	pcpp::experimental::IPv4Address interfaceIP(ifaceNameOrIP);
+	if (!interfaceIP.isUnspecified())
 	{
 		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP.toUInt()); // TODO: remove toUInt() when migration has done
 		if (dev == NULL)

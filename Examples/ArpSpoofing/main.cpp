@@ -219,10 +219,9 @@ int main(int argc, char* argv[])
 	}
 
 	//Currently supports only IPv4 addresses
-	int errorCode;
 
-	pcpp::experimental::IPv4Address ifaceAddr = pcpp::experimental::makeIPv4Address(iface, errorCode);
-	if (errorCode != 0)
+	pcpp::experimental::IPv4Address ifaceAddr(iface);
+	if (ifaceAddr.isUnspecified())
 	{
 		printf("Interface address is invalid. Exiting...\n");
 		exit(-1);
@@ -237,15 +236,15 @@ int main(int argc, char* argv[])
 		exit(-1);
 	}
 
-	pcpp::experimental::IPv4Address victimAddr = pcpp::experimental::makeIPv4Address(victim, errorCode);
-	if (errorCode != 0)
+	pcpp::experimental::IPv4Address victimAddr(victim);
+	if (victimAddr.isUnspecified())
 	{
 		printf("Victim address is invalid. Exiting...\n");
 		exit(-1);
 	}
 
-	pcpp::experimental::IPv4Address gatewayAddr = pcpp::experimental::makeIPv4Address(gateway, errorCode);
-	if (errorCode != 0)
+	pcpp::experimental::IPv4Address gatewayAddr(gateway);
+	if (gatewayAddr.isUnspecified())
 	{
 		printf("Gateway address is invalid. Exiting...\n");
 		exit(-1);
