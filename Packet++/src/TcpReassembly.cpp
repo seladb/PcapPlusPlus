@@ -19,6 +19,11 @@
 
 #define PURGE_FREQ_SECS 1
 
+#define SEQ_LT(a,b)  ((int32_t)((a)-(b)) < 0)
+#define SEQ_LEQ(a,b) ((int32_t)((a)-(b)) <= 0)
+#define SEQ_GT(a,b)  ((int32_t)((a)-(b)) > 0)
+#define SEQ_GEQ(a,b) ((int32_t)((a)-(b)) >= 0)
+
 namespace pcpp
 {
 
@@ -349,7 +354,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	}
 
 	// if packet sequence is smaller than expected - this means that part or all of the TCP data is being re-transmitted
-	if (sequence < tcpReassemblyData->twoSides[sideIndex].sequence)
+	if (SEQ_LT(sequence, tcpReassemblyData->twoSides[sideIndex].sequence))
 	{
 		LOG_DEBUG("Found new data with the sequence lower than expected");
 
@@ -357,7 +362,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		uint32_t newSequence = sequence + tcpPayloadSize;
 
 		// this means that some of payload is new
-		if (newSequence > tcpReassemblyData->twoSides[sideIndex].sequence)
+		if (SEQ_GT(newSequence, tcpReassemblyData->twoSides[sideIndex].sequence))
 		{
 			// calculate the size of the new data
 			uint32_t newLength = tcpReassemblyData->twoSides[sideIndex].sequence - sequence;
@@ -545,13 +550,13 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				}
 
 				// if fragment sequence has lower sequence than the current sequence
-				if (curTcpFrag->sequence < tcpReassemblyData->twoSides[sideIndex].sequence)
+				if (SEQ_LT(curTcpFrag->sequence, tcpReassemblyData->twoSides[sideIndex].sequence))
 				{
 					// check if it still has new data
 					uint32_t newSequence = curTcpFrag->sequence + curTcpFrag->dataLength;
 
 					// it has new data
-					if (newSequence > tcpReassemblyData->twoSides[sideIndex].sequence)
+					if (SEQ_GT(newSequence, tcpReassemblyData->twoSides[sideIndex].sequence))
 					{
 						// calculate the delta new data size
 						uint32_t newLength = tcpReassemblyData->twoSides[sideIndex].sequence - curTcpFrag->sequence;
@@ -601,6 +606,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		// Search for the fragment with the closest sequence to the current one
 
 		uint32_t closestSequence = 0xffffffff;
+		bool closestSequenceDefined = false;
 		int closestSequenceFragIndex = -1;
 		index = 0;
 
@@ -610,10 +616,11 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 			TcpFragment* curTcpFrag = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.at(index);
 
 			// check if its sequence is closer than current closest sequence
-			if (curTcpFrag->sequence < closestSequence)
+			if (!closestSequenceDefined || SEQ_LT(curTcpFrag->sequence, closestSequence))
 			{
 				closestSequence = curTcpFrag->sequence;
 				closestSequenceFragIndex = index;
+				closestSequenceDefined = true;
 			}
 
 			index++;
