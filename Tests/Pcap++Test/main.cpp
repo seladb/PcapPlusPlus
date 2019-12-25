@@ -1651,7 +1651,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(TCP), "Filter '%s', Packet captured isn't of type TCP", filterAsString.c_str());
 		TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
-		PTF_ASSERT(ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80, "'Port Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
+		PTF_ASSERT(be16toh(pTcpLayer->getTcpHeader()->portSrc) == 80, "'Port Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
 	}
 	capturedPackets.clear();
 
@@ -1677,7 +1677,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		PTF_ASSERT(packet.isPacketOfType(TCP), "Filter '%s', Packet captured isn't of type TCP", filterAsString.c_str());
 		TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
 		IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80, "'And Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
+		PTF_ASSERT(be16toh(pTcpLayer->getTcpHeader()->portSrc) == 80, "'And Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
 		PTF_ASSERT(pIPv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "Filter failed. Packet IP dst is %X, expected %X", pIPv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
 	}
 	capturedPackets.clear();
@@ -1705,7 +1705,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(TCP))
 		{
 			TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
-			bool srcPortMatch = ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80;
+			bool srcPortMatch = be16toh(pTcpLayer->getTcpHeader()->portSrc) == 80;
 			bool srcIpMatch = false;
 			IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
 			uint32_t ipSrcAddrAsInt = 0;
@@ -1714,7 +1714,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 				srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt();
 				ipSrcAddrAsInt = pIPv4Layer->getIPv4Header()->ipSrc;
 			}
-			PTF_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", ntohs(pTcpLayer->getTcpHeader()->portSrc), ipSrcAddrAsInt, PcapGlobalArgs.ipToSendReceivePackets.c_str());
+			PTF_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", be16toh(pTcpLayer->getTcpHeader()->portSrc), ipSrcAddrAsInt, PcapGlobalArgs.ipToSendReceivePackets.c_str());
 		} else
 		if (packet.isPacketOfType(IP))
 		{
@@ -1895,7 +1895,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPv4IDFilter test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ntohs(ipv4Layer->getIPv4Header()->ipId) > ipID, "IPv4IDFilter test: IP ID less than %d, it's %d", ipID, ntohs(ipv4Layer->getIPv4Header()->ipId));
+		PTF_ASSERT(be16toh(ipv4Layer->getIPv4Header()->ipId) > ipID, "IPv4IDFilter test: IP ID less than %d, it's %d", ipID, be16toh(ipv4Layer->getIPv4Header()->ipId));
 	}
 
 	rawPacketVec.clear();
@@ -1919,7 +1919,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPv4TotalLengthFilter test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ntohs(ipv4Layer->getIPv4Header()->totalLength) <= totalLength, "IPv4TotalLengthFilter test: IP total length more than %d, it's %d", totalLength, ntohs(ipv4Layer->getIPv4Header()->totalLength));
+		PTF_ASSERT(be16toh(ipv4Layer->getIPv4Header()->totalLength) <= totalLength, "IPv4TotalLengthFilter test: IP total length more than %d, it's %d", totalLength, be16toh(ipv4Layer->getIPv4Header()->totalLength));
 	}
 
 	rawPacketVec.clear();
@@ -1943,7 +1943,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(TCP), "TcpWindowSizeFilter test: one of the captured packets isn't of type TCP");
 		TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
-		PTF_ASSERT(ntohs(tcpLayer->getTcpHeader()->windowSize) != windowSize, "TcpWindowSizeFilter test: TCP window size equals %d", windowSize);
+		PTF_ASSERT(be16toh(tcpLayer->getTcpHeader()->windowSize) != windowSize, "TcpWindowSizeFilter test: TCP window size equals %d", windowSize);
 	}
 
 	rawPacketVec.clear();
@@ -1967,7 +1967,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(UDP), "UdpLengthFilter test: one of the captured packets isn't of type UDP");
 		UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
-		PTF_ASSERT(ntohs(udpLayer->getUdpHeader()->length) == udpLength, "UdpLengthFilter test: UDP length != %d, it's %d", udpLength, ntohs(udpLayer->getUdpHeader()->length));
+		PTF_ASSERT(be16toh(udpLayer->getUdpHeader()->length) == udpLength, "UdpLengthFilter test: UDP length != %d, it's %d", udpLength, be16toh(udpLayer->getUdpHeader()->length));
 	}
 
 	rawPacketVec.clear();
@@ -2036,13 +2036,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		if (packet.isPacketOfType(TCP))
 		{
 			TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
-			uint16_t portSrc = ntohs(tcpLayer->getTcpHeader()->portSrc);
+			uint16_t portSrc = be16toh(tcpLayer->getTcpHeader()->portSrc);
 			PTF_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: TCP packet source port is out of range (40000-50000). Src port: %d", portSrc);
 		}
 		else if (packet.isPacketOfType(UDP))
 		{
 			UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
-			uint16_t portSrc = ntohs(udpLayer->getUdpHeader()->portSrc);
+			uint16_t portSrc = be16toh(udpLayer->getUdpHeader()->portSrc);
 			PTF_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: UDP packet source port is out of range (40000-50000). Src port: %d", portSrc);
 		}
 	}
@@ -4377,7 +4377,7 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 
 	DnsLayer dnsQueryLayer;
 	dnsQueryLayer.getDnsHeader()->recursionDesired = true;
-	dnsQueryLayer.getDnsHeader()->transactionID = htons(0xb179);
+	dnsQueryLayer.getDnsHeader()->transactionID = htobe16(0xb179);
 	DnsQuery* newQuery = dnsQueryLayer.addQuery("no-name", DNS_TYPE_A, DNS_CLASS_IN);
 	PTF_ASSERT(newQuery != NULL, "Couldn't add query for dns layer");
 
@@ -4614,7 +4614,7 @@ RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, in
 	if (ipLayer == NULL)
 		throw;
 
-	int tcpPayloadSize = ntohs(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
+	int tcpPayloadSize = be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
 
 	if (numOfBytes <= 0)
 		numOfBytes = tcpPayloadSize-beginning;
@@ -4997,7 +4997,7 @@ PTF_TEST_CASE(TestTcpReassemblyMalformedPkts)
 	Packet malPacket(&packetStream.at(8));
 	IPv4Layer* ipLayer = malPacket.getLayerOfType<IPv4Layer>();
 	PTF_ASSERT(ipLayer != NULL, "Cannot find the IPv4 layer of the packet");
-	ipLayer->getIPv4Header()->totalLength = ntohs(htons(ipLayer->getIPv4Header()->totalLength) + 40);
+	ipLayer->getIPv4Header()->totalLength = be16toh(htobe16(ipLayer->getIPv4Header()->totalLength) + 40);
 
 //	PcapFileWriterDevice writer("pasdasda.pcap");
 //	writer.open();
@@ -5499,7 +5499,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 
 	PTF_ASSERT_NOT_NULL(result);
 	// small fix for payload length which is wrong in the original packet
-	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(737);
+	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(737);
 
 	bufferLength = 0;
 	buffer = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", bufferLength);
@@ -5811,7 +5811,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	uint8_t* buffer2 = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", buffer2Length);
 
 	// small fix for payload length which is wrong in the original packet
-	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(737);
+	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(737);
 
 	PTF_ASSERT(buffer2Length == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), buffer2Length);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "Reassembled packet data is different than expected");
@@ -6181,14 +6181,14 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	int buffer61Length = 0;
 	uint8_t* buffer61 = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", buffer61Length);
 	// small fix for payload length which is wrong in the original packet
-	ip6Packet1->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(737);
+	ip6Packet1->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(737);
 	PTF_ASSERT(buffer61Length == ip6Packet1->getRawPacket()->getRawDataLen(), "IPv6 Packet1 len (%d) is different than read packet len (%d)", ip6Packet1->getRawPacket()->getRawDataLen(), buffer61Length);
 	PTF_ASSERT(memcmp(ip6Packet1->getRawPacket()->getRawData(), buffer61, buffer61Length) == 0, "IPv6 packet1 data is different than expected");
 
 	int buffer62Length = 0;
 	uint8_t* buffer62 = readFileIntoBuffer("PcapExamples/ip6_fragments_packet2.txt", buffer62Length);
 	// small fix for payload length which is wrong in the original packet
-	ip6Packet2->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(1448);
+	ip6Packet2->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(1448);
 	PTF_ASSERT(buffer62Length == ip6Packet2->getRawPacket()->getRawDataLen(), "IPv6 Packet2 len (%d) is different than read packet len (%d)", ip6Packet2->getRawPacket()->getRawDataLen(), buffer62Length);
 	PTF_ASSERT(memcmp(ip6Packet2->getRawPacket()->getRawData(), buffer62, buffer62Length) == 0, "IPv6 packet2 data is different than expected");
 
