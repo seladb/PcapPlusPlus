@@ -931,10 +931,7 @@ PTF_TEST_CASE(Ipv6UdpPacketParseAndCreate)
 	PTF_ASSERT_NOT_NULL(ipv6Layer);
 	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->nextHeader, 17, u8);
 	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->ipVersion, 6, u8);
-	int errorCode;
-	pcpp::experimental::IPv6Address
-		srcIP = pcpp::experimental::makeIPv6Address("fe80::4dc7:f593:1f7b:dc11", errorCode),
-		dstIP = pcpp::experimental::makeIPv6Address("ff02::c", errorCode);
+	pcpp::experimental::IPv6Address srcIP("fe80::4dc7:f593:1f7b:dc11"), dstIP("ff02::c");
 	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIpAddress(), srcIP, object);
 	PTF_ASSERT_EQUAL(ipv6Layer->getDstIpAddress(), dstIP, object);
 	UdpLayer* pUdpLayer = ip6UdpPacket.getLayerOfType<UdpLayer>();
@@ -1180,9 +1177,8 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->routingType, 0, u8);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->segmentsLeft, 2, u8);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataLength(), 36, size);
-	int errorCode;
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::experimental::makeIPv6Address("2200::210:2:0:0:4", errorCode), object);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::experimental::makeIPv6Address("2200::240:2:0:0:4", errorCode), object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::experimental::IPv6Address("2200::210:2:0:0:4"), object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::experimental::IPv6Address("2200::240:2:0:0:4"), object);
 
 
 	// parsing of routing extension #2
@@ -1193,7 +1189,7 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->routingType, 0, u8);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->segmentsLeft, 1, u8);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataLength(), 20, size);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::experimental::makeIPv6Address("2200::210:2:0:0:4", errorCode), object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::experimental::IPv6Address("2200::210:2:0:0:4"), object);
 	PTF_ASSERT_TRUE(routingExt->getRoutingAdditionalDataAsIPv6Address(20).isUnspecified());
 
 
@@ -4561,8 +4557,7 @@ PTF_TEST_CASE(GreEditTest)
 
 	PTF_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == 0, "PPP protocol isn't 0 after removing top layers");
 
-	int errorCode;
-	IPv6Layer ipv6Layer(pcpp::experimental::makeIPv6Address("2402:f000:1:8e01::5555", errorCode), pcpp::experimental::makeIPv6Address("2607:fcd0:100:2300::b108:2a6b", errorCode));
+	IPv6Layer ipv6Layer(pcpp::experimental::IPv6Address("2402:f000:1:8e01::5555"), pcpp::experimental::IPv6Address("2607:fcd0:100:2300::b108:2a6b"));
 	PTF_ASSERT(grev1Packet.addLayer(&ipv6Layer), "Couldn't add IPv6 layer to GREv1 packet");
 	grev1Packet.computeCalculateFields();
 
