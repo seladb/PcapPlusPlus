@@ -4,6 +4,7 @@ task:
     matrix:
       image_family: freebsd-11-3-snap
       image_family: freebsd-12-0
+  update_script: pkg update
   install_script: pkg install -y git libpcap bash gsed gmake
   configure_script:
     - ./configure-freebsd.sh --default
