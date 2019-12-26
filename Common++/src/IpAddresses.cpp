@@ -100,11 +100,6 @@ namespace experimental
 	}
 
 
-	void IPv6Address::copyTo(uint8_t* arr) const
-	{
-		memcpy(arr, m_Bytes, sizeof(m_Bytes));
-	}
-
 } // namespace experimental
 
 } // namespace pcpp
