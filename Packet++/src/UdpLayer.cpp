@@ -1,5 +1,6 @@
 #define LOG_MODULE PacketLogModuleUdpLayer
 
+#include "EndianPortable.h"
 #include "UdpLayer.h"
 #include "IpUtils.h"
 #include "PayloadLayer.h"
@@ -25,8 +26,8 @@ UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst)
 	m_Data = new uint8_t[headerLen];
 	memset(m_Data, 0, headerLen);
 	udphdr* udpHdr = (udphdr*)m_Data;
-	udpHdr->portDst = htons(portDst);
-	udpHdr->portSrc = htons(portSrc);
+	udpHdr->portDst = htobe16(portDst);
+	udpHdr->portSrc = htobe16(portSrc);
 	m_Protocol = UDP;
 }
 
@@ -54,7 +55,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 			pseudoHeader[2] = dstIP >> 16;
 			pseudoHeader[3] = dstIP & 0xFFFF;
 			pseudoHeader[4] = 0xffff & udpHdr->length;
-			pseudoHeader[5] = htons(0x00ff & PACKETPP_IPPROTO_UDP);
+			pseudoHeader[5] = htobe16(0x00ff & PACKETPP_IPPROTO_UDP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
 			checksumRes = compute_checksum(vec, 2);
@@ -66,7 +67,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 			((IPv6Layer*)m_PrevLayer)->getSrcIpAddress().copyTo((uint8_t*)pseudoHeader);
 			((IPv6Layer*)m_PrevLayer)->getDstIpAddress().copyTo((uint8_t*)(pseudoHeader+8));
 			pseudoHeader[16] = 0xffff & udpHdr->length;
-			pseudoHeader[17] = htons(0x00ff & PACKETPP_IPPROTO_UDP);
+			pseudoHeader[17] = htobe16(0x00ff & PACKETPP_IPPROTO_UDP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
 			checksumRes = compute_checksum(vec, 2);
@@ -75,7 +76,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 	}
 
 	if(writeResultToPacket)
-		udpHdr->headerChecksum = htons(checksumRes);
+		udpHdr->headerChecksum = htobe16(checksumRes);
 	else
 		udpHdr->headerChecksum = currChecksumValue;
 
@@ -88,8 +89,8 @@ void UdpLayer::parseNextLayer()
 		return;
 
 	udphdr* udpHder = getUdpHeader();
-	uint16_t portDst = ntohs(udpHder->portDst);
-	uint16_t portSrc = ntohs(udpHder->portSrc);
+	uint16_t portDst = be16toh(udpHder->portDst);
+	uint16_t portSrc = be16toh(udpHder->portSrc);
 
 	uint8_t* udpData = m_Data + sizeof(udphdr);
 	size_t udpDataLen = m_DataLen - sizeof(udphdr);
@@ -120,16 +121,16 @@ void UdpLayer::parseNextLayer()
 void UdpLayer::computeCalculateFields()
 {
 	udphdr* udpHdr = (udphdr*)m_Data;
-	udpHdr->length = htons(m_DataLen);
+	udpHdr->length = htobe16(m_DataLen);
 	calculateChecksum(true);
 }
 
 std::string UdpLayer::toString() const
 {
 	std::ostringstream srcPortStream;
-	srcPortStream << ntohs(getUdpHeader()->portSrc);
+	srcPortStream << be16toh(getUdpHeader()->portSrc);
 	std::ostringstream dstPortStream;
-	dstPortStream << ntohs(getUdpHeader()->portDst);
+	dstPortStream << be16toh(getUdpHeader()->portDst);
 
 	return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
 }

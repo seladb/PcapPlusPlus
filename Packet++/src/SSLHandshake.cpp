@@ -1,12 +1,6 @@
 #define LOG_MODULE PacketLogModuleSSLLayer
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 #include <string.h>
 #include <sstream>
 #include <map>
@@ -1053,12 +1047,12 @@ SSLExtensionType SSLExtension::getType() const
 
 uint16_t SSLExtension::getTypeAsInt() const
 {
-	return ntohs(getExtensionStruct()->extensionType);
+	return be16toh(getExtensionStruct()->extensionType);
 }
 
 uint16_t SSLExtension::getLength() const
 {
-	return ntohs(getExtensionStruct()->extensionDataLength);
+	return be16toh(getExtensionStruct()->extensionDataLength);
 }
 
 uint16_t SSLExtension::getTotalLength() const
@@ -1079,7 +1073,7 @@ uint8_t* SSLExtension::getData() const
 std::string SSLServerNameIndicationExtension::getHostName() const
 {
 	uint8_t* hostNameLengthPos = getData() + sizeof(uint16_t) + sizeof(uint8_t);
-	uint16_t hostNameLength = ntohs(*(uint16_t*)hostNameLengthPos);
+	uint16_t hostNameLength = be16toh(*(uint16_t*)hostNameLengthPos);
 
 	char* hostNameAsCharArr = new char[hostNameLength+1];
 	memset(hostNameAsCharArr, 0, hostNameLength+1);
@@ -1147,7 +1141,7 @@ size_t SSLHandshakeMessage::getMessageLength() const
 {
 	ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
 	//TODO: add handshakeLayer->length1 to the calculation
-	size_t len = sizeof(ssl_tls_handshake_layer) + ntohs(handshakeLayer->length2);
+	size_t len = sizeof(ssl_tls_handshake_layer) + be16toh(handshakeLayer->length2);
 	if (len > m_DataLen)
 		return m_DataLen;
 
@@ -1160,7 +1154,7 @@ bool SSLHandshakeMessage::isMessageComplete() const
 		return false;
 
 	ssl_tls_handshake_layer* handshakeLayer = (ssl_tls_handshake_layer*)m_Data;
-	size_t len = sizeof(ssl_tls_handshake_layer) + ntohs(handshakeLayer->length2);
+	size_t len = sizeof(ssl_tls_handshake_layer) + be16toh(handshakeLayer->length2);
 	return len <= m_DataLen;
 }
 
@@ -1184,7 +1178,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	while ((curPos - extensionPos) < (int)extensionLength && (curPos - m_Data) < (int)messageLen)
 	{
 		SSLExtension* newExt = NULL;
-		uint16_t sslExtType = ntohs(*(uint16_t*)curPos);
+		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
 		if (sslExtType == SSL_EXT_SERVER_NAME)
 		{
 			newExt = new SSLServerNameIndicationExtension(curPos);
@@ -1201,7 +1195,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 
 SSLVersion SSLClientHelloMessage::getHandshakeVersion() const
 {
-	uint16_t handshakeVersion = ntohs(getClientHelloHeader()->handshakeVersion);
+	uint16_t handshakeVersion = be16toh(getClientHelloHeader()->handshakeVersion);
 	return (SSLVersion)handshakeVersion;
 }
 
@@ -1229,7 +1223,7 @@ int SSLClientHelloMessage::getCipherSuiteCount() const
 		return 0;
 
 	uint16_t cipherSuiteLen = *(uint16_t*)(m_Data + cipherSuiteOffset);
-	return ntohs(cipherSuiteLen) / 2;
+	return be16toh(cipherSuiteLen) / 2;
 }
 
 SSLCipherSuite* SSLClientHelloMessage::getCipherSuite(int index) const
@@ -1242,7 +1236,7 @@ SSLCipherSuite* SSLClientHelloMessage::getCipherSuite(int index) const
 		return NULL;
 
 	uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + cipherSuiteStartOffset);
-	return SSLCipherSuite::getCipherSuiteByID(ntohs(*(cipherSuiteStartPos+index)));
+	return SSLCipherSuite::getCipherSuiteByID(be16toh(*(cipherSuiteStartPos+index)));
 }
 
 uint8_t SSLClientHelloMessage::getCompressionMethodsValue() const
@@ -1267,7 +1261,7 @@ uint16_t SSLClientHelloMessage::getExtensionsLenth() const
 		return 0;
 
 	uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
-	return ntohs(*(uint16_t*)extensionLengthPos);
+	return be16toh(*(uint16_t*)extensionLengthPos);
 }
 
 SSLExtension* SSLClientHelloMessage::getExtension(int index) const
@@ -1326,7 +1320,7 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	while ((curPos - extensionPos) < (int)extensionLength && (curPos - m_Data) < (int)messageLen)
 	{
 		SSLExtension* newExt = NULL;
-		uint16_t sslExtType = ntohs(*(uint16_t*)curPos);
+		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
 		if (sslExtType == SSL_EXT_SERVER_NAME)
 		{
 			newExt = new SSLServerNameIndicationExtension(curPos);
@@ -1343,7 +1337,7 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 
 SSLVersion SSLServerHelloMessage::getHandshakeVersion() const
 {
-	uint16_t handshakeVersion = ntohs(getServerHelloHeader()->handshakeVersion);
+	uint16_t handshakeVersion = be16toh(getServerHelloHeader()->handshakeVersion);
 	return (SSLVersion)handshakeVersion;
 
 }
@@ -1371,7 +1365,7 @@ SSLCipherSuite* SSLServerHelloMessage::getCipherSuite() const
 		return NULL;
 
 	uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + cipherSuiteStartOffset);
-	return SSLCipherSuite::getCipherSuiteByID(ntohs(*(cipherSuiteStartPos)));
+	return SSLCipherSuite::getCipherSuiteByID(be16toh(*(cipherSuiteStartPos)));
 }
 
 uint8_t SSLServerHelloMessage::getCompressionMethodsValue() const
@@ -1396,7 +1390,7 @@ uint16_t SSLServerHelloMessage::getExtensionsLenth() const
 		return 0;
 
 	uint16_t* extensionLengthPos = (uint16_t*)(m_Data + extensionLengthOffset);
-	return ntohs(*extensionLengthPos);
+	return be16toh(*extensionLengthPos);
 }
 
 SSLExtension* SSLServerHelloMessage::getExtension(int index) const
@@ -1454,7 +1448,7 @@ SSLCertificateMessage::SSLCertificateMessage(uint8_t* data, size_t dataLen, SSLH
 	// read certificates length
 	// TODO: certificates length is 3B. Currently assuming the MSB is 0 and reading only 2 LSBs
 	uint8_t* curPos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
-	uint16_t certificatesLength = ntohs(*(uint16_t*)(curPos));
+	uint16_t certificatesLength = be16toh(*(uint16_t*)(curPos));
 	if (certificatesLength == 0)
 		return;
 
@@ -1470,7 +1464,7 @@ SSLCertificateMessage::SSLCertificateMessage(uint8_t* data, size_t dataLen, SSLH
 
 		// read certificate length
 		curPos += sizeof(uint8_t);
-		uint16_t certificateLength = ntohs(*(uint16_t*)(curPos));
+		uint16_t certificateLength = be16toh(*(uint16_t*)(curPos));
 
 		// advance to start position of certificate
 		curPos += sizeof(uint16_t);
@@ -1642,7 +1636,7 @@ size_t SSLCertificateRequestMessage::getCertificateAuthorityLength() const
 	if (offset + sizeof(uint16_t) >= messageLen)
 		return 0;
 
-	uint16_t certAuthLen = ntohs(*(uint16_t*)(m_Data + offset));
+	uint16_t certAuthLen = be16toh(*(uint16_t*)(m_Data + offset));
 
 	offset += sizeof(uint16_t);
 
