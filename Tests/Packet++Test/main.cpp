@@ -7613,7 +7613,7 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 
 		// get the first layer
 		EthLayer* ethLayer = vxlanPacket.getPrevLayerOfType<EthLayer>(ipLayer);
-		PTF_ASSERT_NOT_NULL(ipLayer);
+		PTF_ASSERT_NOT_NULL(ethLayer);
 		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<EthLayer>(ethLayer));
 		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<EthLayer>(vxlanPacket.getFirstLayer()));
 
