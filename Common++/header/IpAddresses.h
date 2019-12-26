@@ -180,29 +180,19 @@ namespace experimental
 		bool operator!=(const IPv6Address &rhs) const { return !(*this == rhs); }
 
 
-		// Following methods are placed for backward compatibility and will be deleted in the future
-
 		/**
 		 * Allocates a byte array and copies address value into it. Array deallocation is user responsibility
-		 * Notice this method is deprecated and will be deleted in the future
 		 * @param[in] arr A pointer to where array will be allocated
 		 * @param[out] length Returns the length in bytes of the array that was allocated
 		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
-		#endif
 		void copyTo(uint8_t** arr, size_t& length) const;
 
 		/**
 		 * Gets a pointer to an already allocated byte array and copies the address value to it.
-		 * Notice this method is deprecated and will be deleted in the future
 		 * This method assumes array allocated size is at least 16 (the size of an IPv6 address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		#if __cplusplus > 201402L || _MSC_VER >= 1900
-		[[deprecated("This method is now unnecessary and added for backward compatibility. It will be deleted in the future")]]
-		#endif
-		void copyTo(uint8_t* arr) const;
+		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
 
 		/**
 		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
