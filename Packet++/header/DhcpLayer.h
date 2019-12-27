@@ -457,11 +457,11 @@ namespace pcpp
 		 */
 		void setValueString(const std::string& stringValue, int valueOffset = 0)
 		{
-			std::string val = stringValue;
-			if (stringValue.length() > (size_t)m_Data->recordLen - (size_t)valueOffset)
-				val = stringValue.substr(0, (size_t)m_Data->recordLen - valueOffset);
+			size_t len = (size_t)m_Data->recordLen - (size_t)valueOffset;
+			if (stringValue.length() < len)
+				len = stringValue.length();
 
-			memcpy(m_Data->recordValue + valueOffset, val.c_str(), val.length());
+			memcpy(m_Data->recordValue + valueOffset, stringValue.data(), len);
 		}
 
 
@@ -472,7 +472,7 @@ namespace pcpp
 			if (m_Data->recordType == (uint8_t)DHCPOPT_END || m_Data->recordType == (uint8_t)DHCPOPT_PAD)
 				return sizeof(uint8_t);
 
-			return sizeof(uint8_t)*2 + (size_t)m_Data->recordLen;
+			return sizeof(uint8_t) * 2 + (size_t)m_Data->recordLen;
 		}
 
 		size_t getDataSize() const
