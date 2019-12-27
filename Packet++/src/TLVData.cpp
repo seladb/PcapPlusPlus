@@ -1,12 +1,5 @@
 #include "TLVData.h"
-
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -30,13 +23,13 @@ TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, uint8_t recValue)
 
 TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, uint16_t recValue)
 {
-	recValue = htons(recValue);
+	recValue = htobe16(recValue);
 	init(recType, (uint8_t*)&recValue, sizeof(uint16_t));
 }
 
 TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, uint32_t recValue)
 {
-	recValue = htonl(recValue);
+	recValue = htobe32(recValue);
 	init(recType, (uint8_t*)&recValue, sizeof(uint32_t));
 }
 

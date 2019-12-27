@@ -11,15 +11,7 @@
 #include "DnsLayer.h"
 #include "PcapFilter.h"
 #include "NetworkUtils.h"
-#ifdef LINUX //for using ntohl, ntohs, etc.
-#include <in.h>
-#include <errno.h>
-#elif MAC_OS_X
-#include <sys/errno.h>
-#elif FREEBSD
-#include <arpa/inet.h>
-#include <sys/errno.h>
-#endif
+#include "EndianPortable.h"
 #ifdef _MSC_VER
 #include "SystemUtils.h"
 #endif
@@ -63,13 +55,13 @@ static void arpPacketRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void
 		return;
 
 	// extract the ARP layer from the packet
-	ArpLayer* arpReplyLayer = packet.getLayerOfType<ArpLayer>();
+	ArpLayer* arpReplyLayer = packet.getLayerOfType<ArpLayer>(true); // lookup in reverse order
 	if (arpReplyLayer == NULL)
 		return;
 
 	// verify it's the right ARP response
-	if (arpReplyLayer->getArpHeader()->hardwareType != htons(1) /* Ethernet */
-			|| arpReplyLayer->getArpHeader()->protocolType != htons(PCPP_ETHERTYPE_IP))
+	if (arpReplyLayer->getArpHeader()->hardwareType != htobe16(1) /* Ethernet */
+			|| arpReplyLayer->getArpHeader()->protocolType != htobe16(PCPP_ETHERTYPE_IP))
 		return;
 
 	// verify the ARP response is the response for out request (and not some arbitrary ARP response)
@@ -246,14 +238,14 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 		return;
 
 	// extract the DNS layer from the packet
-	DnsLayer* dnsResponseLayer = packet.getLayerOfType<DnsLayer>();
+	DnsLayer* dnsResponseLayer = packet.getLayerOfType<DnsLayer>(true); // lookup in reverse order
 	if (dnsResponseLayer == NULL)
 		return;
 
 	// verify it's the right DNS response
 	if (dnsResponseLayer->getDnsHeader()->queryOrResponse != 1 /* DNS response */
-			|| dnsResponseLayer->getDnsHeader()->numberOfAnswers < htons(1)
-			|| dnsResponseLayer->getDnsHeader()->transactionID != htons(data->transactionID))
+			|| dnsResponseLayer->getDnsHeader()->numberOfAnswers < htobe16(1)
+			|| dnsResponseLayer->getDnsHeader()->transactionID != htobe16(data->transactionID))
 	{
 		return;
 	}
@@ -392,7 +384,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 
 	// randomize transaction ID
 	uint16_t transactionID = rand() % 65535;
-	dnsLayer.getDnsHeader()->transactionID = htons(transactionID);
+	dnsLayer.getDnsHeader()->transactionID = htobe16(transactionID);
 	dnsLayer.addQuery(hostname, DNS_TYPE_A, DNS_CLASS_IN);
 
 	// add all layers to packet
