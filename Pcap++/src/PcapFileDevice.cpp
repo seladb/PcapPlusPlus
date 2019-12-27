@@ -80,7 +80,7 @@ IFileReaderDevice* IFileReaderDevice::getReader(const char* fileName)
 
 	size_t dotLocation = fileNameStr.rfind('.');
 	if (dotLocation != std::string::npos)
-		fileExtension.append(fileNameStr, dotLocation);
+		fileExtension.append(fileNameStr, dotLocation, std::string::npos);
 
 	if (fileExtension == ".pcapng")
 		return new PcapNgFileReaderDevice(fileName);
