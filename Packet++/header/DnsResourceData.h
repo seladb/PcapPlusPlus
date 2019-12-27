@@ -176,7 +176,6 @@ namespace pcpp
 	{
 	private:
 		pcpp::experimental::IPv4Address m_Data;
-		bool m_IsValid;
 
 	public:
 
@@ -191,7 +190,7 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] addr The IPv4 address to store in this object
 		 */
-		IPv4DnsResourceData(const pcpp::experimental::IPv4Address& addr) : m_Data(addr), m_IsValid(true) {}
+		IPv4DnsResourceData(const pcpp::experimental::IPv4Address& addr) : m_Data(addr) {}
 
 		/**
 		 * A c'tor for this class
@@ -226,7 +225,6 @@ namespace pcpp
 	{
 	private:
 		pcpp::experimental::IPv6Address m_Data;
-		bool m_IsValid;
 
 	public:
 
@@ -241,7 +239,7 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] addr The IPv6 address to store in this object
 		 */
-		IPv6DnsResourceData(const pcpp::experimental::IPv6Address& addr) : m_Data(addr), m_IsValid(true) {}
+		IPv6DnsResourceData(const pcpp::experimental::IPv6Address& addr) : m_Data(addr) {}
 
 		/**
 		 * A c'tor for this class

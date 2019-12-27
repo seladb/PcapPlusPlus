@@ -53,11 +53,9 @@ bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResou
 }
 
 IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
-	: m_Data(pcpp::experimental::IPv4Address()), m_IsValid(true)
 {
 	if (dataLen != 4)
 	{
-		m_IsValid = false;
 		LOG_ERROR("DNS type is A but resource length is not 4 - malformed data");
 		return;
 	}
@@ -69,13 +67,12 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 IPv4DnsResourceData::IPv4DnsResourceData(const std::string& addrAsString)
 {
 	m_Data = pcpp::experimental::IPv4Address(addrAsString);
-	m_IsValid = !m_Data.isUnspecified();
 }
 
 
 bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	if (!m_IsValid)
+	if (m_Data.isUnspecified())
 	{
 		LOG_ERROR("Cannot convert IPv4 address to byte array because address is not valid");
 		return false;
@@ -86,11 +83,10 @@ bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 	return true;
 }
 
-IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen) : m_Data(pcpp::experimental::IPv6Address()), m_IsValid(true)
+IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 {
 	if (dataLen != 16)
 	{
-		m_IsValid = false;
 		LOG_ERROR("DNS type is AAAA but resource length is not 16 - malformed data");
 		return;
 	}
@@ -101,19 +97,18 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 IPv6DnsResourceData::IPv6DnsResourceData(const std::string& addrAsString)
 {
 	m_Data = pcpp::experimental::IPv6Address(addrAsString);
-	m_IsValid = !m_Data.isUnspecified();
 }
 
 bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	if (!m_IsValid)
+	if (m_Data.isUnspecified())
 	{
 		LOG_ERROR("Cannot convert IPv6 address to byte array because address is not valid");
 		return false;
 	}
 
 	arrLength = 16;
-	memcpy(arr, m_Data.toBytes(), 16);
+	m_Data.copyTo(arr);
 	return true;
 }
 
