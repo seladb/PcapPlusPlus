@@ -5538,7 +5538,10 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 	EthLayer ethLayer1(srcMac1, dstMac1);
 	EthLayer ethLayer2(srcMac2, dstMac2);
 
-	pcpp::experimental::IPv4Address srcIp1("10.0.200.151"), dstIp1("224.0.0.1"), srcIp2("10.60.2.7"), dstIp2("239.255.255.250");
+	pcpp::experimental::IPv4Address srcIp1("10.0.200.151");
+	pcpp::experimental::IPv4Address dstIp1("224.0.0.1");
+	pcpp::experimental::IPv4Address srcIp2("10.60.2.7");
+	pcpp::experimental::IPv4Address dstIp2("239.255.255.250");
 	IPv4Layer ipLayer1(srcIp1, dstIp1);
 	IPv4Layer ipLayer2(srcIp2, dstIp2);
 
@@ -5662,7 +5665,8 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 {
 	EthLayer ethLayer(MacAddress("00:01:01:00:00:01"), MacAddress("01:00:5e:00:00:09"));
 
-	pcpp::experimental::IPv4Address srcIp("127.0.0.1"), dstIp("224.0.0.9");
+	pcpp::experimental::IPv4Address srcIp("127.0.0.1");
+	pcpp::experimental::IPv4Address dstIp("224.0.0.9");
 	IPv4Layer ipLayer(srcIp, dstIp);
 
 	ipLayer.getIPv4Header()->ipId = htons(36760);
@@ -5748,7 +5752,8 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 {
 	EthLayer ethLayer(MacAddress("00:01:01:00:00:02"), MacAddress("01:00:5e:00:00:16"));
 
-	pcpp::experimental::IPv4Address srcIp("127.0.0.1"), dstIp("224.0.0.22");
+	pcpp::experimental::IPv4Address srcIp("127.0.0.1");
+	pcpp::experimental::IPv4Address dstIp("224.0.0.22");
 	IPv4Layer ipLayer(srcIp, dstIp);
 
 	ipLayer.getIPv4Header()->ipId = htons(3941);
