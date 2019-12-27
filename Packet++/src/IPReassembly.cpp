@@ -6,11 +6,7 @@
 #include "IpUtils.h"
 #include "Logger.h"
 #include <string.h>
-#if defined(WIN32) || defined(WINx64)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -98,7 +94,7 @@ public:
 
 	uint32_t getFragmentId()
 	{
-		return (uint32_t)ntohs(m_IPLayer->getIPv4Header()->ipId);
+		return (uint32_t)be16toh(m_IPLayer->getIPv4Header()->ipId);
 	}
 
 	uint32_t hashPacket()
@@ -117,7 +113,7 @@ public:
 
 	IPReassembly::PacketKey* createPacketKey()
 	{
-		return new IPReassembly::IPv4PacketKey(ntohs(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getIPv4Header()->ipSrc, m_IPLayer->getIPv4Header()->ipDst);
+		return new IPReassembly::IPv4PacketKey(be16toh(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getIPv4Header()->ipSrc, m_IPLayer->getIPv4Header()->ipDst);
 	}
 
 	uint8_t* getIPLayerPayload()
@@ -181,7 +177,7 @@ public:
 
 	uint32_t getFragmentId()
 	{
-		return ntohl(m_FragHeader->getFragHeader()->id);
+		return be32toh(m_FragHeader->getFragHeader()->id);
 	}
 
 	uint32_t hashPacket()
@@ -203,7 +199,7 @@ public:
 
 	IPReassembly::PacketKey* createPacketKey()
 	{
-		return new IPReassembly::IPv6PacketKey(ntohl(m_FragHeader->getFragHeader()->id), m_IPLayer->getIPv6Header()->ipSrc, m_IPLayer->getIPv6Header()->ipDst);
+		return new IPReassembly::IPv6PacketKey(be32toh(m_FragHeader->getFragHeader()->id), m_IPLayer->getIPv6Header()->ipSrc, m_IPLayer->getIPv6Header()->ipDst);
 	}
 
 	uint8_t* getIPLayerPayload()
@@ -226,11 +222,11 @@ uint32_t IPReassembly::IPv4PacketKey::getHashValue() const
 {
 	ScalarBuffer<uint8_t> vec[3];
 
-	uint16_t ipIdNetworkOrder = htons(m_IpID);
+	uint16_t ipIdNetworkOrder = htobe16(m_IpID);
 
 	vec[0].buffer = const_cast<uint8_t*>(m_SrcIP.toBytes()); // TODO: to remove const_cast operator the fnv_hash should take "const ScalarBuffer<const uint8_t>" as argument
 	vec[0].len = 4;
-	vec[1].buffer = const_cast<uint8_t*>(m_DstIP.toBytes()); // TODO: remove const_cast
+	vec[1].buffer = const_cast<uint8_t*>(m_DstIP.toBytes());
 	vec[1].len = 4;
 	vec[2].buffer = (uint8_t*)&ipIdNetworkOrder;
 	vec[2].len = 2;
@@ -242,11 +238,11 @@ uint32_t IPReassembly::IPv6PacketKey::getHashValue() const
 {
 	ScalarBuffer<uint8_t> vec[3];
 
-	uint32_t fragIdNetworkOrder = htonl(m_FragmentID);
+	uint32_t fragIdNetworkOrder = htobe32(m_FragmentID);
 
-	vec[0].buffer = const_cast<uint8_t*>(m_SrcIP.toBytes()); // TODO: remove const_cast
+	vec[0].buffer = const_cast<uint8_t*>(m_SrcIP.toBytes());
 	vec[0].len = 16;
-	vec[1].buffer = const_cast<uint8_t*>(m_DstIP.toBytes()); // TODO: remove const_cast
+	vec[1].buffer = const_cast<uint8_t*>(m_DstIP.toBytes());
 	vec[1].len = 16;
 	vec[2].buffer = (uint8_t*)&fragIdNetworkOrder;
 	vec[2].len = 4;
@@ -424,7 +420,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			Packet tempPacket(fragData->data, IPv4);
 			IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
 			iphdr* iphdr = ipLayer->getIPv4Header();
-			iphdr->totalLength = htons(fragData->currentOffset + ipLayer->getHeaderLen());
+			iphdr->totalLength = htobe16(fragData->currentOffset + ipLayer->getHeaderLen());
 			iphdr->fragmentOffset = 0;
 		}
 		else
@@ -502,7 +498,7 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 			{
 				Packet tempPacket(partialRawPacket, IPv4);
 				IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
-				ipLayer->getIPv4Header()->totalLength = htons(fragData->currentOffset + ipLayer->getHeaderLen());
+				ipLayer->getIPv4Header()->totalLength = htobe16(fragData->currentOffset + ipLayer->getHeaderLen());
 			}
 			else
 			{
