@@ -28,7 +28,7 @@ std::string byteArrayToHexString(const uint8_t* byteArr, size_t byteArrSize, int
 	return dataStream.str();
 }
 
-static char char2int(char input)
+static int char2int(char input)
 {
 	if(input >= '0' && input <= '9')
 		return input - '0';
