@@ -4,13 +4,7 @@
 #include "IpUtils.h"
 #include "Logger.h"
 #include <string.h>
-#ifdef WIN32 //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -197,7 +191,7 @@ void IgmpV1Layer::computeCalculateFields()
 {
 	igmp_header* hdr = getIgmpHeader();
 	hdr->checksum = 0;
-	hdr->checksum = htons(calculateChecksum());
+	hdr->checksum = htobe16(calculateChecksum());
 	hdr->maxResponseTime = 0;
 }
 
@@ -214,7 +208,7 @@ void IgmpV2Layer::computeCalculateFields()
 {
 	igmp_header* hdr = getIgmpHeader();
 	hdr->checksum = 0;
-	hdr->checksum = htons(calculateChecksum());
+	hdr->checksum = htobe16(calculateChecksum());
 }
 
 
@@ -239,7 +233,7 @@ IgmpV3QueryLayer::IgmpV3QueryLayer(const pcpp::experimental::IPv4Address& multic
 
 uint16_t IgmpV3QueryLayer::getSourceAddressCount() const
 {
-	return ntohs(getIgmpV3QueryHeader()->numOfSources);
+	return be16toh(getIgmpV3QueryHeader()->numOfSources);
 }
 
 pcpp::experimental::IPv4Address IgmpV3QueryLayer::getSourceAddressAtIndex(int index) const
@@ -274,7 +268,7 @@ void IgmpV3QueryLayer::computeCalculateFields()
 {
 	igmpv3_query_header* hdr = getIgmpV3QueryHeader();
 	hdr->checksum = 0;
-	hdr->checksum = htons(calculateChecksum());
+	hdr->checksum = htobe16(calculateChecksum());
 }
 
 bool IgmpV3QueryLayer::addSourceAddress(const pcpp::experimental::IPv4Address& addr)
@@ -307,7 +301,7 @@ bool IgmpV3QueryLayer::addSourceAddressAtIndex(const pcpp::experimental::IPv4Add
 
 	memcpy(m_Data + offset, addr.toBytes(), sizeof(uint32_t));
 
-	getIgmpV3QueryHeader()->numOfSources = htons(sourceAddrCount+1);
+	getIgmpV3QueryHeader()->numOfSources = htobe16(sourceAddrCount+1);
 
 	return true;
 }
@@ -335,7 +329,7 @@ bool IgmpV3QueryLayer::removeSourceAddressAtIndex(int index)
 		return false;
 	}
 
-	getIgmpV3QueryHeader()->numOfSources = htons(sourceAddrCount-1);
+	getIgmpV3QueryHeader()->numOfSources = htobe16(sourceAddrCount-1);
 
 	return true;
 }
@@ -367,7 +361,7 @@ bool IgmpV3QueryLayer::removeAllSourceAddresses()
 
 uint16_t IgmpV3ReportLayer::getGroupRecordCount() const
 {
-	return ntohs(getReportHeader()->numOfGroupRecords);
+	return be16toh(getReportHeader()->numOfGroupRecords);
 }
 
 igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord() const
@@ -398,7 +392,7 @@ void IgmpV3ReportLayer::computeCalculateFields()
 {
 	igmpv3_report_header* hdr = getReportHeader();
 	hdr->checksum = 0;
-	hdr->checksum = htons(calculateChecksum());
+	hdr->checksum = htobe16(calculateChecksum());
 }
 
 igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, const pcpp::experimental::IPv4Address& multicastAddress, const std::vector<pcpp::experimental::IPv4Address>& sourceAddresses, int offset)
@@ -423,7 +417,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 	newGroupRecord->multicastAddress = multicastAddress.toUInt();
 	newGroupRecord->recordType = recordType;
 	newGroupRecord->auxDataLen = 0;
-	newGroupRecord->numOfSources = htons(sourceAddresses.size());
+	newGroupRecord->numOfSources = htobe16(sourceAddresses.size());
 
 	int srcAddrOffset = 0;
 	for (std::vector<pcpp::experimental::IPv4Address>::const_iterator iter = sourceAddresses.begin(); iter != sourceAddresses.end(); iter++)
@@ -436,7 +430,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 
 	delete[] groupRecordBuffer;
 
-	getReportHeader()->numOfGroupRecords = htons(getGroupRecordCount() + 1);
+	getReportHeader()->numOfGroupRecords = htobe16(getGroupRecordCount() + 1);
 
 	return (igmpv3_group_record*)(m_Data + offset);
 }
@@ -505,7 +499,7 @@ bool IgmpV3ReportLayer::removeGroupRecordAtIndex(int index)
 		return false;
 	}
 
-	getReportHeader()->numOfGroupRecords = htons(groupCnt-1);
+	getReportHeader()->numOfGroupRecords = htobe16(groupCnt-1);
 
 	return true;
 }
@@ -535,7 +529,7 @@ bool IgmpV3ReportLayer::removeAllGroupRecords()
 
 uint16_t igmpv3_group_record::getSourceAdressCount() const
 {
-	return ntohs(numOfSources);
+	return be16toh(numOfSources);
 }
 
 pcpp::experimental::IPv4Address igmpv3_group_record::getSoruceAddressAtIndex(int index) const

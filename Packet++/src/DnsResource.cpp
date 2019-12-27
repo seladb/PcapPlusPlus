@@ -4,14 +4,7 @@
 #include "Logger.h"
 #include <sstream>
 #include <string.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
-
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -181,24 +174,24 @@ void IDnsResource::encodeName(const std::string& decodedName, char* result, size
 DnsType IDnsResource::getDnsType() const
 {
 	uint16_t dnsType = *(uint16_t*)(getRawData() + m_NameLength);
-	return (DnsType)ntohs(dnsType);
+	return (DnsType)be16toh(dnsType);
 }
 
 void IDnsResource::setDnsType(DnsType newType)
 {
-	uint16_t newTypeAsInt = htons((uint16_t)newType);
+	uint16_t newTypeAsInt = htobe16((uint16_t)newType);
 	memcpy(getRawData() + m_NameLength, &newTypeAsInt, sizeof(uint16_t));
 }
 
 DnsClass IDnsResource::getDnsClass() const
 {
 	uint16_t dnsClass = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
-	return (DnsClass)ntohs(dnsClass);
+	return (DnsClass)be16toh(dnsClass);
 }
 
 void IDnsResource::setDnsClass(DnsClass newClass)
 {
-	uint16_t newClassAsInt = htons((uint16_t)newClass);
+	uint16_t newClassAsInt = htobe16((uint16_t)newClass);
 	memcpy(getRawData() + m_NameLength + sizeof(uint16_t), &newClassAsInt, sizeof(uint16_t));
 }
 
@@ -253,19 +246,19 @@ void IDnsResource::setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer)
 uint32_t DnsResource::getTTL() const
 {
 	uint32_t ttl = *(uint32_t*)(getRawData() + m_NameLength + 2*sizeof(uint16_t));
-	return ntohl(ttl);
+	return be32toh(ttl);
 }
 
 void DnsResource::setTTL(uint32_t newTTL)
 {
-	newTTL = htonl(newTTL);
+	newTTL = htobe32(newTTL);
 	memcpy(getRawData() + m_NameLength + 2*sizeof(uint16_t), &newTTL, sizeof(uint32_t));
 }
 
 size_t DnsResource::getDataLength() const
 {
 	uint16_t dataLength = *(uint16_t*)(getRawData() + m_NameLength + 2*sizeof(uint16_t) + sizeof(uint32_t));
-	return ntohs(dataLength);
+	return be16toh(dataLength);
 }
 
 DnsResourceDataPtr DnsResource::getData() const
@@ -409,7 +402,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 	// write data to resource
 	memcpy(getRawData() + dataOffset, dataAsByteArr, dataLength);
 	//update data length in resource
-	dataLength = htons((uint16_t)dataLength);
+	dataLength = htobe16((uint16_t)dataLength);
 	memcpy(getRawData() + dataLengthOffset, &dataLength, sizeof(uint16_t));
 
 	return true;
@@ -418,7 +411,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 uint16_t DnsResource::getCustomDnsClass() const
 {
 	uint16_t value = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
-	return ntohs(value);
+	return be16toh(value);
 }
 
 void DnsResource::setCustomDnsClass(uint16_t customValue)

@@ -1,8 +1,5 @@
 #include "RawSocketDevice.h"
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#endif
+#include "EndianPortable.h"
 #ifdef LINUX
 #include <fcntl.h>
 #include <errno.h>
@@ -283,8 +280,8 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 
 	sockaddr_ll addr;
 	memset(&addr, 0, sizeof(struct sockaddr_ll));
-	addr.sll_family = htons(PF_PACKET);
-	addr.sll_protocol = htons(ETH_P_ALL);
+	addr.sll_family = htobe16(PF_PACKET);
+	addr.sll_protocol = htobe16(ETH_P_ALL);
 	addr.sll_halen = 6;
 	addr.sll_ifindex = ((SocketContainer*)m_Socket)->interfaceIndex;
 
@@ -327,8 +324,8 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 
 	sockaddr_ll addr;
 	memset(&addr, 0, sizeof(struct sockaddr_ll));
-	addr.sll_family = htons(PF_PACKET);
-	addr.sll_protocol = htons(ETH_P_ALL);
+	addr.sll_family = htobe16(PF_PACKET);
+	addr.sll_protocol = htobe16(ETH_P_ALL);
 	addr.sll_halen = 6;
 	addr.sll_ifindex = ((SocketContainer*)m_Socket)->interfaceIndex;
 
@@ -455,7 +452,7 @@ bool RawSocketDevice::open()
 		return false;
 	}
 
-	int fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+	int fd = socket(AF_PACKET, SOCK_RAW, htobe16(ETH_P_ALL));
 	if (fd < 0)
 	{
 		LOG_ERROR("Failed to create raw socket. Error code was %d", errno);

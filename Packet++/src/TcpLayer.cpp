@@ -1,5 +1,6 @@
 #define LOG_MODULE PacketLogModuleTcpLayer
 
+#include "EndianPortable.h"
 #include "TcpLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -248,8 +249,8 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			pseudoHeader[1] = srcIP & 0xFFFF;
 			pseudoHeader[2] = dstIP >> 16;
 			pseudoHeader[3] = dstIP & 0xFFFF;
-			pseudoHeader[4] = 0xffff & htons(m_DataLen);
-			pseudoHeader[5] = htons(0x00ff & PACKETPP_IPPROTO_TCP);
+			pseudoHeader[4] = 0xffff & htobe16(m_DataLen);
+			pseudoHeader[5] = htobe16(0x00ff & PACKETPP_IPPROTO_TCP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
 			checksumRes = compute_checksum(vec, 2);
@@ -262,8 +263,8 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			uint16_t pseudoHeader[18];
 			((IPv6Layer*)m_PrevLayer)->getSrcIpAddress().copyTo((uint8_t*)pseudoHeader);
 			((IPv6Layer*)m_PrevLayer)->getDstIpAddress().copyTo((uint8_t*)(pseudoHeader+8));
-			pseudoHeader[16] = 0xffff & htons(m_DataLen);
-			pseudoHeader[17] = htons(0x00ff & PACKETPP_IPPROTO_TCP);
+			pseudoHeader[16] = 0xffff & htobe16(m_DataLen);
+			pseudoHeader[17] = htobe16(0x00ff & PACKETPP_IPPROTO_TCP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
 			checksumRes = compute_checksum(vec, 2);
@@ -272,7 +273,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 	}
 
 	if(writeResultToPacket)
-		tcpHdr->headerChecksum = htons(checksumRes);
+		tcpHdr->headerChecksum = htobe16(checksumRes);
 	else
 		tcpHdr->headerChecksum = currChecksumValue;
 
@@ -303,8 +304,8 @@ TcpLayer::TcpLayer()
 TcpLayer::TcpLayer(uint16_t portSrc, uint16_t portDst)
 {
 	initLayer();
-	getTcpHeader()->portDst = htons(portDst);
-	getTcpHeader()->portSrc = htons(portSrc);
+	getTcpHeader()->portDst = htobe16(portDst);
+	getTcpHeader()->portSrc = htobe16(portSrc);
 }
 
 void TcpLayer::copyLayerData(const TcpLayer& other)
