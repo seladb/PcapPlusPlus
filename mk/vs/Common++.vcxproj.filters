@@ -48,6 +48,9 @@
     <ClInclude Include="..\..\Common++\header\TablePrinter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common++\header\IpAddresses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Common++\src\GeneralUtils.cpp">
@@ -72,6 +75,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common++\src\TablePrinter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common++\src\IpAddresses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

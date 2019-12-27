@@ -5,6 +5,7 @@
 #include <map>
 #include <Logger.h>
 #include <IpAddress.h>
+#include <IpAddresses.h>
 #include <MacAddress.h>
 #include <Packet.h>
 #include <PacketUtils.h>
@@ -700,6 +701,189 @@ PTF_TEST_CASE(TestIPAddress)
 	IPv6Address anotherBadIp6Address = badIp6Address;
 	PTF_ASSERT(anotherBadIp6Address.isValid() == false, "Non-valid IPv6 address copied by copy c'tor identified as valid");
 }
+
+
+PTF_TEST_CASE(TestIPAddresses)
+{
+	// IPv4Address
+	{
+		static const uint8_t bytes[4] = { 0x01, 0x02, 0x03, 0x04 };
+		pcpp::experimental::IPv4Address addr1(htonl(0x01020304)), addr2(bytes), addr3;
+
+		PTF_ASSERT_FALSE(addr1.isUnspecified());
+		PTF_ASSERT_FALSE(addr2.isUnspecified());
+		PTF_ASSERT_TRUE(addr3.isUnspecified());
+
+		PTF_ASSERT_EQUAL(addr1.toUInt(), 0x04030201, u32);
+		PTF_ASSERT_EQUAL(addr2.toUInt(), htonl(0x01020304), u32);
+		PTF_ASSERT_EQUAL(addr1.toUInt(), addr2.toUInt(), u32);
+		PTF_ASSERT_BUF_COMPARE(addr1.toBytes(), addr2.toBytes(), sizeof(uint32_t));
+		PTF_ASSERT_TRUE(addr1 == addr2);
+		PTF_ASSERT_TRUE(addr1 != addr3);
+
+		PTF_ASSERT_EQUAL(addr1.toString(), std::string("1.2.3.4"), string);
+	}
+
+	{
+		pcpp::experimental::IPv4Address addr("10.0.0.4");
+		PTF_ASSERT_FALSE(addr.isUnspecified());
+
+		pcpp::experimental::IPv4Address subnet1("10.0.0.0");
+		PTF_ASSERT_FALSE(subnet1.isUnspecified());
+
+		pcpp::experimental::IPv4Address subnet2("10.10.0.0");
+		PTF_ASSERT_FALSE(subnet2.isUnspecified());
+
+		pcpp::experimental::IPv4Address mask(std::string("255.255.255.0"));
+		PTF_ASSERT_FALSE(mask.isUnspecified());
+
+		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, mask));
+		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, std::string("255.255.255.0")));
+		PTF_ASSERT_FALSE(addr.matchSubnet(subnet2, mask));
+		PTF_ASSERT_FALSE(addr.matchSubnet(pcpp::experimental::IPv4Address("10.10.0.0"), "255.255.0.0"));
+		// wrong mask
+		LoggerPP::getInstance().supressErrors();
+		PTF_ASSERT_FALSE(addr.matchSubnet(pcpp::experimental::IPv4Address("10.10.0.0"), "255.255.255"));
+		LoggerPP::getInstance().enableErrors();
+	}
+
+	{
+		pcpp::experimental::IPv4Address addr1("10.0.0.4");
+		pcpp::experimental::IPv4Address addr2;
+		addr2 = addr1;
+		PTF_ASSERT_EQUAL(addr1, addr2, object);
+
+		pcpp::experimental::IPv4Address addr3(addr1);
+		PTF_ASSERT_EQUAL(addr2, addr3, object);
+	}
+
+	// IPv6Address
+	{
+		pcpp::experimental::IPv6Address zeroAddress;
+		PTF_ASSERT_TRUE(zeroAddress.isUnspecified());
+
+		const uint8_t bytes[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
+		pcpp::experimental::IPv6Address addr(bytes);
+		PTF_ASSERT_FALSE(addr.isUnspecified());
+		PTF_ASSERT_FALSE(zeroAddress == addr);
+
+		addr = zeroAddress;
+		PTF_ASSERT_FALSE(zeroAddress != addr);
+		PTF_ASSERT_TRUE(addr.isUnspecified());
+	}
+
+	{
+		const uint8_t bytes[16] = { 0x26, 0x70, 0xF0, 0xD0, 0x10, 0x20, 0x22, 0x51, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x40 };
+		pcpp::experimental::IPv6Address addr(bytes);
+		PTF_ASSERT_EQUAL(addr.toString(), std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), object);
+	}
+
+	{
+		const uint8_t expectedBytes[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
+		pcpp::experimental::IPv6Address addr1("2607:f0d0:1002:0051::4");
+		PTF_ASSERT_FALSE(addr1.isUnspecified());
+		PTF_ASSERT_BUF_COMPARE(addr1.toBytes(), expectedBytes, sizeof(expectedBytes));
+
+		pcpp::experimental::IPv6Address badAddr("avbrgththj");
+		PTF_ASSERT_TRUE(badAddr.isUnspecified());
+	}
+
+	// IPAddress
+	{
+		pcpp::experimental::IPAddress v4Zero;
+		PTF_ASSERT_TRUE(v4Zero.isIPv4());
+		PTF_ASSERT_TRUE(v4Zero.isUnspecified());
+		PTF_ASSERT_FALSE(v4Zero.isIPv6());
+
+		pcpp::experimental::IPv4Address ipv4Zero;
+		pcpp::experimental::IPAddress v4Zero1(ipv4Zero);
+		PTF_ASSERT_TRUE(v4Zero1.isIPv4());
+		PTF_ASSERT_TRUE(v4Zero1.isUnspecified());
+
+		pcpp::experimental::IPv6Address ipv6Zero;
+		pcpp::experimental::IPAddress v6Zero1(ipv6Zero);
+		PTF_ASSERT_TRUE(v6Zero1.isIPv6());
+		PTF_ASSERT_TRUE(v6Zero1.isUnspecified());
+	}
+
+	{
+		pcpp::experimental::IPv4Address ipv4Addr1("10.0.0.4"), ipv4Addr2("10.0.0.5");
+		pcpp::experimental::IPv6Address ipv6Addr1("2607:f0d0:1002:0051::4"), ipv6Addr2("2607:f0d0:1002:0051::5");
+
+		pcpp::experimental::IPAddress v4Addr(ipv4Addr1);
+		PTF_ASSERT_TRUE(v4Addr.isIPv4());
+		PTF_ASSERT_FALSE(v4Addr.isUnspecified());
+		PTF_ASSERT_FALSE(v4Addr.isIPv6());
+
+		pcpp::experimental::IPAddress v6Addr(ipv6Addr1);
+		PTF_ASSERT_FALSE(v6Addr.isIPv4());
+		PTF_ASSERT_FALSE(v6Addr.isUnspecified());
+		PTF_ASSERT_TRUE(v6Addr.isIPv6());
+
+		v4Addr = ipv4Addr2;
+		PTF_ASSERT_TRUE(v4Addr.isIPv4());
+		PTF_ASSERT_FALSE(v4Addr.isUnspecified());
+		PTF_ASSERT_FALSE(v4Addr.isIPv6());
+		PTF_ASSERT_TRUE(v4Addr.getIPv4() == ipv4Addr2);
+
+		v6Addr = ipv6Addr2;
+		PTF_ASSERT_FALSE(v6Addr.isIPv4());
+		PTF_ASSERT_FALSE(v6Addr.isUnspecified());
+		PTF_ASSERT_TRUE(v6Addr.isIPv6());
+		PTF_ASSERT_TRUE(v6Addr.getIPv6() == ipv6Addr2);
+	}
+
+	{
+		pcpp::experimental::IPAddress	badAddr("abcdfefegg");
+		PTF_ASSERT_TRUE(badAddr.isUnspecified());
+		PTF_ASSERT_TRUE(badAddr.isIPv4());
+
+		pcpp::experimental::IPAddress	v4Addr1("10.0.0.4"), v4Addr2("10.0.0.5"),	v4Addr3 = v4Addr1;
+		PTF_ASSERT_TRUE(v4Addr2.isIPv4());
+		PTF_ASSERT_FALSE(v4Addr2.isUnspecified());
+		PTF_ASSERT_FALSE(v4Addr2.isIPv6());
+
+		pcpp::experimental::IPAddress v6Addr1("2607:f0d0:1002:0051::4"), v6Addr2("2607:f0d0:1002:0051::5"), v6Addr3 = v6Addr1;
+		PTF_ASSERT_TRUE(v6Addr2.isIPv6());
+		PTF_ASSERT_FALSE(v6Addr2.isUnspecified());
+		PTF_ASSERT_FALSE(v6Addr2.isIPv4());
+
+		PTF_ASSERT_FALSE(v4Addr1 == v4Addr2);
+		PTF_ASSERT_TRUE(v4Addr1 != v6Addr2);
+		PTF_ASSERT_TRUE(v6Addr1 != v6Addr2);
+		PTF_ASSERT_TRUE(v4Addr1 == v4Addr3);
+		PTF_ASSERT_TRUE(v6Addr1 == v6Addr3);
+	}
+
+	{
+		pcpp::experimental::IPAddress	v4Addr("10.0.0.4");
+		pcpp::experimental::IPAddress	v6Addr("2670:f0d0:1020:2251:1010:1010:1010:1040");
+		PTF_ASSERT_EQUAL(v4Addr.toString(), std::string("10.0.0.4"), object);
+		PTF_ASSERT_EQUAL(v6Addr.toString(), std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), object);
+	}
+
+	// TODO: remove the code block when migration has completed
+	{
+		IPv4Address oldIPv4("10.10.10.10");
+		pcpp::experimental::IPv4Address newIPv4(oldIPv4.toInt()), differentNewIPv4 = pcpp::experimental::IPv4Address("10.10.10.11");
+		PTF_ASSERT_TRUE(oldIPv4 == newIPv4);
+		PTF_ASSERT_TRUE(newIPv4 == oldIPv4);
+		PTF_ASSERT_FALSE(oldIPv4 != newIPv4);
+		PTF_ASSERT_FALSE(newIPv4 != oldIPv4);
+		PTF_ASSERT_TRUE(oldIPv4 != differentNewIPv4);
+		PTF_ASSERT_FALSE(oldIPv4 == differentNewIPv4);
+
+		IPv6Address oldIPv6(std::string("2607:f0d0:1002:0051::4"));
+		pcpp::experimental::IPv6Address newIPv6("2607:f0d0:1002:0051::4"), differentNewIPv6("2607:f0d0:1002:0051::5");
+		PTF_ASSERT_TRUE(oldIPv6 == newIPv6);
+		PTF_ASSERT_TRUE(newIPv6 == oldIPv6);
+		PTF_ASSERT_FALSE(oldIPv6 != newIPv6);
+		PTF_ASSERT_FALSE(newIPv6 != oldIPv6);
+		PTF_ASSERT_TRUE(oldIPv6 != differentNewIPv6);
+		PTF_ASSERT_FALSE(oldIPv6 == differentNewIPv6);
+	}
+} // TestIPAddresses
+
 
 PTF_TEST_CASE(TestMacAddress)
 {
@@ -6765,8 +6949,8 @@ int main(int argc, char* argv[])
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
 	PcapLiveDeviceList::getInstance();
-
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
+	PTF_RUN_TEST(TestIPAddresses, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSllFileReadWrite, "no_network;pcap");
