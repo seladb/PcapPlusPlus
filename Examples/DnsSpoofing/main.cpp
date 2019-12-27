@@ -332,7 +332,7 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServer =	pcpp::experimental::IPv4Address(optarg);
+				dnsServer = pcpp::experimental::IPv4Address(optarg);
 				break;
 			}
 			case 'c':
