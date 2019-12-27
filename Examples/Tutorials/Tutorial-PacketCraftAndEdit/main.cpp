@@ -57,8 +57,7 @@ int main(int argc, char* argv[])
 	// let's get the IPv4 layer
 	pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	// change source IP address
-	int errorCode;
-	ipLayer->setSrcIpAddress(pcpp::experimental::makeIPv4Address("1.1.1.1", errorCode));
+	ipLayer->setSrcIpAddress(pcpp::experimental::IPv4Address("1.1.1.1"));
 	// change IP ID
 	ipLayer->getIPv4Header()->ipId = htons(4000);
 	// change TTL value
@@ -111,7 +110,7 @@ int main(int argc, char* argv[])
 	pcpp::EthLayer newEthernetLayer(pcpp::MacAddress("00:50:43:11:22:33"), pcpp::MacAddress("aa:bb:cc:dd:ee"));
 
 	// create a new IPv4 layer
-	pcpp::IPv4Layer newIPLayer(pcpp::experimental::makeIPv4Address("192.168.1.1", errorCode), pcpp::experimental::makeIPv4Address("10.0.0.1", errorCode));
+	pcpp::IPv4Layer newIPLayer(pcpp::experimental::IPv4Address("192.168.1.1"), pcpp::experimental::IPv4Address("10.0.0.1"));
 	newIPLayer.getIPv4Header()->ipId = htons(2000);
 	newIPLayer.getIPv4Header()->timeToLive = 64;
 
