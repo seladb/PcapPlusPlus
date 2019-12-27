@@ -139,7 +139,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,7 +160,7 @@ xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -181,7 +181,7 @@ xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WINx64;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -202,7 +202,7 @@ xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WINx64;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Pcap++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\include;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

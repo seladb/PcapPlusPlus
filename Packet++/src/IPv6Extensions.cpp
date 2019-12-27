@@ -1,13 +1,7 @@
 #define LOG_MODULE PacketLogModuleIPv6ExtensionLayer
 
 #include <sstream>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 #include "Logger.h"
 #include "IPv6Extensions.h"
 #include "IPv6Layer.h"
@@ -67,10 +61,10 @@ IPv6FragmentationHeader::IPv6FragmentationHeader(uint32_t fragId, uint16_t fragO
 	ipv6_frag_header* fragHdr = getFragHeader();
 	fragHdr->nextHeader = 0;
 	fragHdr->headerLen = 0;
-	fragHdr->id = htonl(fragId);
+	fragHdr->id = htobe32(fragId);
 
 	fragOffset /= 8;
-	fragOffset = htons(fragOffset << 3) & (uint16_t)0xf8ff;
+	fragOffset = htobe16(fragOffset << 3) & (uint16_t)0xf8ff;
 	if (!lastFragment)
 		fragOffset = fragOffset | 0x0100;
 
@@ -95,7 +89,7 @@ bool IPv6FragmentationHeader::isMoreFragments() const
 
 uint16_t IPv6FragmentationHeader::getFragmentOffset() const
 {
-	uint16_t fragOffset = (ntohs(getFragHeader()->fragOffsetAndFlags & (uint16_t)0xf8ff) >> 3) * 8;
+	uint16_t fragOffset = (be16toh(getFragHeader()->fragOffsetAndFlags & (uint16_t)0xf8ff) >> 3) * 8;
 	return fragOffset;
 }
 
@@ -258,8 +252,8 @@ IPv6AuthenticationHeader::IPv6AuthenticationHeader(uint32_t securityParametersIn
 	ipv6_authentication_header* authHeader = getAuthHeader();
 	authHeader->nextHeader = 0;
 	authHeader->headerLen = ((totalSize / 4) - 2);
-	authHeader->securityParametersIndex = htonl(securityParametersIndex);
-	authHeader->sequenceNumber = htonl(sequenceNumber);
+	authHeader->securityParametersIndex = htobe32(securityParametersIndex);
+	authHeader->sequenceNumber = htobe32(sequenceNumber);
 
 	if (integrityCheckValueLen > 0 && integrityCheckValue != NULL)
 	{
