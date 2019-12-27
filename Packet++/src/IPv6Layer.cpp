@@ -47,8 +47,8 @@ IPv6Layer::IPv6Layer(const pcpp::experimental::IPv6Address& srcIP, const pcpp::e
 {
 	initLayer();
 	ip6_hdr* ipHdr = getIPv6Header();
-	memcpy(ipHdr->ipSrc, srcIP.toBytes(), 16);
-	memcpy(ipHdr->ipDst, dstIP.toBytes(), 16);
+	srcIP.copyTo(ipHdr->ipSrc);
+	dstIP.copyTo(ipHdr->ipDst);
 }
 
 IPv6Layer::IPv6Layer(const IPv6Layer& other) : Layer(other)
