@@ -102,7 +102,7 @@ TcpReassembly::~TcpReassembly()
 void TcpReassembly::reassemblePacket(Packet& tcpData)
 {
 	// automatic cleanup
-	if(m_RemoveConnInfo == true)
+	if (m_RemoveConnInfo == true)
 	{
 		if(time(NULL) >= m_PurgeTimepoint)
 		{
@@ -122,12 +122,12 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		return;
 
 	// Ignore non-TCP packets
-	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>();
+	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true); // lookup in reverse order
 	if (tcpLayer == NULL)
 		return;
 
 	// Ignore the packet if it's an ICMP packet that has a TCP layer
-    // Several ICMP messages (like "destination unreachable") have TCP data as part of the ICMP message.
+	// Several ICMP messages (like "destination unreachable") have TCP data as part of the ICMP message.
 	// This is not real TCP data and packet can be ignored
 	if (tcpData.isPacketOfType(ICMP))
 	{

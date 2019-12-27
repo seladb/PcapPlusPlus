@@ -7557,6 +7557,68 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 
 
 
+PTF_TEST_CASE(PacketLayerLookupTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	{
+		int bufferLength = 0;
+		uint8_t* buffer = readFileIntoBuffer("PacketExamples/radius_1.dat", bufferLength);
+		PTF_ASSERT_NOT_NULL(buffer);
+
+		RawPacket rawPacket(buffer, bufferLength, time, true);
+		Packet radiusPacket(&rawPacket);
+
+		RadiusLayer* radiusLayer = radiusPacket.getLayerOfType<RadiusLayer>(true);
+		PTF_ASSERT_NOT_NULL(radiusLayer);
+
+		EthLayer* ethLayer = radiusPacket.getLayerOfType<EthLayer>(true);
+		PTF_ASSERT_NOT_NULL(ethLayer);
+
+		IPv4Layer* ipLayer = radiusPacket.getPrevLayerOfType<IPv4Layer>(radiusLayer);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+
+		TcpLayer* tcpLayer = radiusPacket.getPrevLayerOfType<TcpLayer>(ipLayer);
+		PTF_ASSERT_NULL(tcpLayer);
+	}
+
+	{
+		int bufferLength = 0;
+		uint8_t* buffer = readFileIntoBuffer("PacketExamples/Vxlan1.dat", bufferLength);
+		PTF_ASSERT_NOT_NULL(buffer);
+
+		// current packet contains the following layers: Eth(1) -> IPv4(1) -> UDP -> VXLAN -> Eth(2) -> IPv4(2) -> ICMP
+		RawPacket rawPacket(buffer, bufferLength, time, true);
+		Packet vxlanPacket(&rawPacket);
+
+		// get the last IPv4 layer
+		IPv4Layer* ipLayer = vxlanPacket.getLayerOfType<IPv4Layer>(true);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), IPv4Address("192.168.203.3"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), IPv4Address("192.168.203.5"), object);
+
+		// get the first IPv4 layer
+		ipLayer = vxlanPacket.getPrevLayerOfType<IPv4Layer>(ipLayer);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), IPv4Address("192.168.203.1"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), IPv4Address("192.168.202.1"), object);
+
+		// try to get one more IPv4 layer
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<IPv4Layer>(ipLayer));
+
+		// get the first layer
+		EthLayer* ethLayer = vxlanPacket.getPrevLayerOfType<EthLayer>(ipLayer);
+		PTF_ASSERT_NOT_NULL(ethLayer);
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<EthLayer>(ethLayer));
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<EthLayer>(vxlanPacket.getFirstLayer()));
+
+		// try to get nonexistent layer
+		PTF_ASSERT_NULL(vxlanPacket.getLayerOfType<RadiusLayer>(true));
+	}
+}
+
+
 static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
@@ -7720,6 +7782,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
 	PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
 	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
+	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
 
 	PTF_END_RUNNING_TESTS;
 }
