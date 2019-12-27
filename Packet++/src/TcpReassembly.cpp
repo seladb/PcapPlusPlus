@@ -8,13 +8,7 @@
 #include "Logger.h"
 #include <sstream>
 #include <vector>
-#if defined(WIN32) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 
 #define PURGE_FREQ_SECS 1
 
@@ -71,7 +65,7 @@ static pcpp::experimental::IPAddress makeAddress(const Layer* ipLayer, AddressTy
 void TcpReassembly::reassemblePacket(Packet& tcpData)
 {
 	// automatic cleanup
-	if(m_RemoveConnInfo == true)
+	if (m_RemoveConnInfo == true)
 	{
 		if(time(NULL) >= m_PurgeTimepoint)
 		{
@@ -91,12 +85,12 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		return;
 
 	// Ignore non-TCP packets
-	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>();
+	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true); // lookup in reverse order
 	if (tcpLayer == NULL)
 		return;
 
 	// Ignore the packet if it's an ICMP packet that has a TCP layer
-    // Several ICMP messages (like "destination unreachable") have TCP data as part of the ICMP message.
+	// Several ICMP messages (like "destination unreachable") have TCP data as part of the ICMP message.
 	// This is not real TCP data and packet can be ignored
 	if (tcpData.isPacketOfType(ICMP))
 	{
@@ -148,8 +142,8 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData = new TcpReassemblyData();
 		tcpReassemblyData->connData.setSrcIpAddress(srcIP);
 		tcpReassemblyData->connData.setDstIpAddress(dstIP);
-		tcpReassemblyData->connData.srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
-		tcpReassemblyData->connData.dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
+		tcpReassemblyData->connData.srcPort = be16toh(tcpLayer->getTcpHeader()->portSrc);
+		tcpReassemblyData->connData.dstPort = be16toh(tcpLayer->getTcpHeader()->portDst);
 		tcpReassemblyData->connData.flowKey = flowKey;
 		timeval ts = tcpData.getRawPacket()->getPacketTimeStamp();
 		tcpReassemblyData->connData.setStartTime(ts);
@@ -277,7 +271,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	tcpReassemblyData->prevSide = sideIndex;
 
 	// extract sequence value from packet
-	uint32_t sequence = ntohl(tcpLayer->getTcpHeader()->sequenceNumber);
+	uint32_t sequence = be32toh(tcpLayer->getTcpHeader()->sequenceNumber);
 
 	// if it's the first packet we see on this side of the connection
 	if (first)
@@ -711,9 +705,9 @@ void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
 	// otherwise this method returns an iterator to the element that prevents insertion.
 	std::pair<CleanupList::iterator, bool> pair = m_CleanupList.insert(std::make_pair(time(NULL) + m_ClosedConnectionDelay, CleanupList::mapped_type()));
 
-	// dereferencing of map iterator and getting the reference to list
-	CleanupList::mapped_type &keysList = pair.first->second;
-	keysList.push_back(flowKey);
+	// getting the reference to list
+	CleanupList::mapped_type& keysList = pair.first->second;
+	keysList.push_front(flowKey);
 }
 
 uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
@@ -726,14 +720,14 @@ uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
 	CleanupList::iterator iterTime = m_CleanupList.begin(), iterTimeEnd = m_CleanupList.upper_bound(time(NULL));
 	while(iterTime != iterTimeEnd && count < maxNumToClean)
 	{
-		CleanupList::mapped_type &keysList = iterTime->second;
-		CleanupList::mapped_type::iterator iterKey = keysList.begin(), iterKeyEnd = keysList.end();
+		CleanupList::mapped_type& keysList = iterTime->second;
 
-		for(; iterKey != iterKeyEnd && count < maxNumToClean; ++count)
+		for (; !keysList.empty() && count < maxNumToClean; ++count)
 		{
-			m_ConnectionInfo.erase(*iterKey);
-			m_ConnectionList.erase(*iterKey);
-			keysList.erase(iterKey++);
+			const CleanupList::mapped_type::reference key = keysList.front();
+			m_ConnectionInfo.erase(key);
+			m_ConnectionList.erase(key);
+			keysList.pop_front();
 		}
 
 		if(keysList.empty())

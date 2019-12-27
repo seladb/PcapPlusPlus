@@ -26,7 +26,7 @@ uint32_t hash5Tuple(Packet* packet)
 	uint16_t portDst = 0;
 	int srcPosition = 0;
 
-	TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>();
+	TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>(true); // lookup in reverse order
 	if (tcpLayer != NULL)
 	{
 		portSrc = tcpLayer->getTcpHeader()->portSrc;
@@ -34,7 +34,7 @@ uint32_t hash5Tuple(Packet* packet)
 	}
 	else
 	{
-		UdpLayer* udpLayer = packet->getLayerOfType<UdpLayer>();
+		UdpLayer* udpLayer = packet->getLayerOfType<UdpLayer>(true);
 		portSrc = udpLayer->getUdpHeader()->portSrc;
 		portDst = udpLayer->getUdpHeader()->portDst;
 	}
