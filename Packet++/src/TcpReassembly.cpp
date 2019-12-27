@@ -754,9 +754,9 @@ void TcpReassembly::insertIntoCleanupList(uint32_t flowKey)
 	// otherwise this method returns an iterator to the element that prevents insertion.
 	std::pair<CleanupList::iterator, bool> pair = m_CleanupList.insert(std::make_pair(time(NULL) + m_ClosedConnectionDelay, CleanupList::mapped_type()));
 
-	// dereferencing of map iterator and getting the reference to list
-	CleanupList::mapped_type &keysList = pair.first->second;
-	keysList.push_back(flowKey);
+	// getting the reference to list
+	CleanupList::mapped_type& keysList = pair.first->second;
+	keysList.push_front(flowKey);
 }
 
 uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
@@ -769,14 +769,14 @@ uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
 	CleanupList::iterator iterTime = m_CleanupList.begin(), iterTimeEnd = m_CleanupList.upper_bound(time(NULL));
 	while(iterTime != iterTimeEnd && count < maxNumToClean)
 	{
-		CleanupList::mapped_type &keysList = iterTime->second;
-		CleanupList::mapped_type::iterator iterKey = keysList.begin(), iterKeyEnd = keysList.end();
+		CleanupList::mapped_type& keysList = iterTime->second;
 
-		for(; iterKey != iterKeyEnd && count < maxNumToClean; ++count)
+		for (; !keysList.empty() && count < maxNumToClean; ++count)
 		{
-			m_ConnectionInfo.erase(*iterKey);
-			m_ConnectionList.erase(*iterKey);
-			keysList.erase(iterKey++);
+			const CleanupList::mapped_type::reference key = keysList.front();
+			m_ConnectionInfo.erase(key);
+			m_ConnectionList.erase(key);
+			keysList.pop_front();
 		}
 
 		if(keysList.empty())
