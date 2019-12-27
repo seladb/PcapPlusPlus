@@ -708,14 +708,14 @@ PTF_TEST_CASE(TestIPAddresses)
 	// IPv4Address
 	{
 		static const uint8_t bytes[4] = { 0x01, 0x02, 0x03, 0x04 };
-		pcpp::experimental::IPv4Address addr1(htonl(0x01020304)), addr2(bytes), addr3;
+		pcpp::experimental::IPv4Address addr1(htobe32(0x01020304)), addr2(bytes), addr3;
 
 		PTF_ASSERT_FALSE(addr1.isUnspecified());
 		PTF_ASSERT_FALSE(addr2.isUnspecified());
 		PTF_ASSERT_TRUE(addr3.isUnspecified());
 
 		PTF_ASSERT_EQUAL(addr1.toUInt(), 0x04030201, u32);
-		PTF_ASSERT_EQUAL(addr2.toUInt(), htonl(0x01020304), u32);
+		PTF_ASSERT_EQUAL(addr2.toUInt(), htobe32(0x01020304), u32);
 		PTF_ASSERT_EQUAL(addr1.toUInt(), addr2.toUInt(), u32);
 		PTF_ASSERT_BUF_COMPARE(addr1.toBytes(), addr2.toBytes(), sizeof(uint32_t));
 		PTF_ASSERT_TRUE(addr1 == addr2);

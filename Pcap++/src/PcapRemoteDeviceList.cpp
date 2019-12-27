@@ -157,6 +157,11 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(pcpp::experimental::
 
 void PcapRemoteDeviceList::setRemoteMachineIpAddress(const pcpp::experimental::IPAddress& ipAddress)
 {
+	if (ipAddress.isUnspecified())
+	{
+		LOG_ERROR("Trying to set an unspecified IP address to PcapRemoteDeviceList");
+		return;
+	}
 	m_RemoteMachineIpAddress = ipAddress;
 }
 
