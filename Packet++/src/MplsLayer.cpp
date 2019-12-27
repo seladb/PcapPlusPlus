@@ -7,13 +7,7 @@
 #include "Logger.h"
 #include <string.h>
 #include <sstream>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif FREEBSD
-#include <arpa/inet.h>
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -74,7 +68,7 @@ bool MplsLayer::setExperimentalUseValue(uint8_t val)
 
 uint32_t MplsLayer::getMplsLabel() const
 {
-	return (htons(getMplsHeader()->hiLabel) << 4) | ((getMplsHeader()->misc & 0xF0) >> 4);
+	return (htobe16(getMplsHeader()->hiLabel) << 4) | ((getMplsHeader()->misc & 0xF0) >> 4);
 }
 
 bool MplsLayer::setMplsLabel(uint32_t label)
@@ -100,7 +94,7 @@ bool MplsLayer::setMplsLabel(uint32_t label)
 	label = label >> 4;
 
 	// set the high 2 bytes of the label
-	hdr->hiLabel = (uint16_t)htons(label);
+	hdr->hiLabel = (uint16_t)htobe16(label);
 
 	return true;
 }
