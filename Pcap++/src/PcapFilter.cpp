@@ -123,7 +123,7 @@ std::string IFilterWithOperator::parseOperator()
 
 void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const
 {
-	if (m_IPv4Mask.empty())
+	if (m_IPv4Mask == "")
 		return;
 
 	// Handle the mask
@@ -135,7 +135,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	if (!ipAddr.isValid())
 	{
 		LOG_ERROR("IP filter with mask must be used with IPv4 valid address. Setting the mask to an empty value");
-		mask.clear();
+		mask = "";
 		return;
 	}
 
@@ -143,7 +143,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	if (!maskAsAddr.isValid())
 	{
 		LOG_ERROR("Invalid IPv4 mask. Setting the mask to an empty");
-		mask.clear();
+		mask = "";
 		return;
 	}
 
@@ -154,7 +154,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();
 }
 
-void IPFilter::convertToIPAddressWithLen(std::string& ipAddrModified, int& len) const
+void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) const
 {
 	if (m_Len == 0)
 		return;
@@ -162,11 +162,11 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrModified, int& len) 
 	// Handle the length
 
 	// The following code line verify IP address is valid (IPv4 or IPv6)
-	pcpp::experimental::IPAddress ipAddr(ipAddrModified);
+	pcpp::experimental::IPAddress ipAddr(ipAddrmodified);
 
 	if (ipAddr.isUnspecified())
 	{
-		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrModified.c_str());
+		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
 		len = 0;
 	}
 	else if (ipAddr.isIPv4())
@@ -174,7 +174,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrModified, int& len) 
 		uint32_t addrAsInt = ipAddr.getIPv4().toUInt();
 		uint32_t mask = ((uint32_t) - 1) >> ((sizeof(uint32_t) * 8) - m_Len);
 		addrAsInt &= mask;
-		ipAddrModified = pcpp::experimental::IPv4Address(addrAsInt).toString();
+		ipAddrmodified = pcpp::experimental::IPv4Address(addrAsInt).toString();
 	}
 	else // IPv6Address
 	{
@@ -192,7 +192,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrModified, int& len) 
 			addrLowerBytes &= (-1 << len);
 		}
 
-		ipAddrModified = pcpp::experimental::IPv6Address(addrAsArr).toString();
+		ipAddrmodified = pcpp::experimental::IPv6Address(addrAsArr).toString();
 	}
 }
 
@@ -206,13 +206,13 @@ void IPFilter::parseToString(std::string& result)
 	convertToIPAddressWithLen(ipAddr, len);
 	parseDirection(dir);
 	result = "ip and " + dir + " net " + ipAddr;
-	if (!m_IPv4Mask.empty())
+	if (m_IPv4Mask != "")
 		result += " mask " + mask;
 	else if (m_Len > 0)
 	{
 		std::ostringstream stream;
 		stream << m_Len;
-		result += '/' + stream.str();
+		result += "/" + stream.str();
 	}
 }
 
@@ -221,7 +221,7 @@ void IPv4IDFilter::parseToString(std::string& result)
 	std::string op = parseOperator();
 	std::ostringstream stream;
 	stream << m_IpID;
-	result = "ip[4:2] " + op + ' ' + stream.str();
+	result = "ip[4:2] " + op + " " + stream.str();
 }
 
 void IPv4TotalLengthFilter::parseToString(std::string& result)
@@ -229,7 +229,7 @@ void IPv4TotalLengthFilter::parseToString(std::string& result)
 	std::string op = parseOperator();
 	std::ostringstream stream;
 	stream << m_TotalLength;
-	result = "ip[2:2] " + op + ' ' + stream.str();
+	result = "ip[2:2] " + op + " " + stream.str();
 }
 
 void PortFilter::portToString(uint16_t portAsInt)
@@ -261,7 +261,7 @@ void PortRangeFilter::parseToString(std::string& result)
 	std::ostringstream toPortStream;
 	toPortStream << (int)m_ToPort;
 
-	result = dir + " portrange " + fromPortStream.str() + '-' + toPortStream.str();
+	result = dir + " portrange " + fromPortStream.str() + "-" + toPortStream.str();
 }
 
 void MacAddressFilter::parseToString(std::string& result)
@@ -270,7 +270,7 @@ void MacAddressFilter::parseToString(std::string& result)
 	{
 		std::string dir;
 		parseDirection(dir);
-		result = "ether " + dir + ' ' + m_MacAddress.toString();
+		result = "ether " + dir + " " + m_MacAddress.toString();
 	}
 	else
 		result = "ether host " + m_MacAddress.toString();
@@ -303,12 +303,12 @@ void AndFilter::setFilters(std::vector<GeneralFilter*>& filters)
 
 void AndFilter::parseToString(std::string& result)
 {
-	result.clear();
+	result = "";
 	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
 	{
 		std::string innerFilter;
 		(*it)->parseToString(innerFilter);
-		result += '(' + innerFilter + ')';
+		result += "(" + innerFilter + ")";
 		if (m_FilterList.back() != *it)
 		{
 			result += " and ";
@@ -326,12 +326,12 @@ OrFilter::OrFilter(std::vector<GeneralFilter*>& filters)
 
 void OrFilter::parseToString(std::string& result)
 {
-	result.clear();
+	result = "";
 	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
 	{
 		std::string innerFilter;
 		(*it)->parseToString(innerFilter);
-		result += '(' + innerFilter + ')';
+		result += "(" + innerFilter + ")";
 		if (m_FilterList.back() != *it)
 		{
 			result += " or ";
@@ -343,46 +343,47 @@ void NotFilter::parseToString(std::string& result)
 {
 	std::string innerFilterAsString;
 	m_FilterToInverse->parseToString(innerFilterAsString);
-	result = "not (" + innerFilterAsString + ')';
+	result = "not (" + innerFilterAsString + ")";
 }
 
 void ProtoFilter::parseToString(std::string& result)
 {
+	result = "";
 	std::ostringstream stream;
 
 	switch (m_Proto)
 	{
 	case TCP:
-		result = "tcp";
+		result += "tcp";
 		break;
 	case UDP:
-		result = "udp";
+		result += "udp";
 		break;
 	case ICMP:
-		result = "icmp";
+		result += "icmp";
 		break;
 	case VLAN:
-		result = "vlan";
+		result += "vlan";
 		break;
 	case IPv4:
-		result = "ip";
+		result += "ip";
 		break;
 	case IPv6:
-		result = "ip6";
+		result += "ip6";
 		break;
 	case ARP:
-		result = "arp";
+		result += "arp";
 		break;
 	case Ethernet:
-		result = "ether";
+		result += "ether";
 		break;
 	case GRE:
 		stream << "proto " << PACKETPP_IPPROTO_GRE;
-		result = stream.str();
+		result += stream.str();
 		break;
 	case IGMP:
 		stream << "proto " << PACKETPP_IPPROTO_IGMP;
-		result = stream.str();
+		result += stream.str();
 		break;
 	default:
 		break;
@@ -405,11 +406,9 @@ void VlanFilter::parseToString(std::string& result)
 
 void TcpFlagsFilter::parseToString(std::string& result)
 {
+	result = "";
 	if (m_TcpFlagsBitMask == 0)
-	{
-		result.clear();
 		return;
-	}
 
 	result = "tcp[tcpflags] & (";
 	if ((m_TcpFlagsBitMask & tcpFin) != 0)
@@ -426,8 +425,8 @@ void TcpFlagsFilter::parseToString(std::string& result)
 		result += "tcp-urg|";
 
 	//remove the last '|' character
-	result.erase(result.end() - 1);
-	result += ')';
+	result = result.substr(0, result.size()-1);
+	result += ")";
 
 	if (m_MatchOption == MatchOneAtLeast)
 		result += " != 0";
@@ -443,14 +442,14 @@ void TcpWindowSizeFilter::parseToString(std::string& result)
 {
 	std::ostringstream stream;
 	stream << m_WindowSize;
-	result = "tcp[14:2] " + parseOperator() + ' ' + stream.str();
+	result = "tcp[14:2] " + parseOperator() + " " + stream.str();
 }
 
 void UdpLengthFilter::parseToString(std::string& result)
 {
 	std::ostringstream stream;
 	stream << m_Length;
-	result = "udp[4:2] " + parseOperator() + ' ' + stream.str();
+	result = "udp[4:2] " + parseOperator() + " " + stream.str();
 }
 
 } // namespace pcpp
