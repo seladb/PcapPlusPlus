@@ -427,9 +427,8 @@ void TcpFlagsFilter::parseToString(std::string& result)
 	if ((m_TcpFlagsBitMask & tcpUrg) != 0)
 		result += "tcp-urg|";
 
-	//remove the last '|' character
-	result.erase(result.end() - 1);
-	result += ')';
+	// replace the last '|' character
+	result[result.size() - 1] = ')';
 
 	if (m_MatchOption == MatchOneAtLeast)
 		result += " != 0";

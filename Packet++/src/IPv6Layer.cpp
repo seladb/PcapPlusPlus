@@ -322,10 +322,8 @@ std::string IPv6Layer::toString() const
 			curExt = curExt->getNextHeader();
 		}
 
-		//remove last ','
-		result.erase(result.end() - 1);
-
-		result += ']';
+		// replace the last ','
+		result[result.size() - 1] = ']';
 	}
 
 	return result;
