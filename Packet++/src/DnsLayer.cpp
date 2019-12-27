@@ -7,13 +7,7 @@
 #include <string.h>
 #include <iomanip>
 #include <stdlib.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif FREEBSD
-#include <arpa/inet.h>
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -132,10 +126,10 @@ void DnsLayer::parseResources()
 	size_t offsetInPacket = sizeof(dnshdr);
 	IDnsResource* curResource = m_ResourceList;
 
-	uint16_t numOfQuestions = ntohs(getDnsHeader()->numberOfQuestions);
-	uint16_t numOfAnswers = ntohs(getDnsHeader()->numberOfAnswers);
-	uint16_t numOfAuthority = ntohs(getDnsHeader()->numberOfAuthority);
-	uint16_t numOfAdditional = ntohs(getDnsHeader()->numberOfAdditional);
+	uint16_t numOfQuestions = be16toh(getDnsHeader()->numberOfQuestions);
+	uint16_t numOfAnswers = be16toh(getDnsHeader()->numberOfAnswers);
+	uint16_t numOfAuthority = be16toh(getDnsHeader()->numberOfAuthority);
+	uint16_t numOfAdditional = be16toh(getDnsHeader()->numberOfAdditional);
 
 	uint16_t numOfOtherResources = numOfQuestions + numOfAnswers + numOfAuthority + numOfAdditional;
 
@@ -241,7 +235,7 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 
 DnsQuery* DnsLayer::getQuery(const std::string& name, bool exactMatch) const
 {
-	uint16_t numOfQueries = ntohs(getDnsHeader()->numberOfQuestions);
+	uint16_t numOfQueries = be16toh(getDnsHeader()->numberOfQuestions);
 	IDnsResource* res = getResourceByName(m_FirstQuery, numOfQueries, name, exactMatch);
 	if (res != NULL)
 		return dynamic_cast<DnsQuery*>(res);
@@ -268,12 +262,12 @@ DnsQuery* DnsLayer::getNextQuery(DnsQuery* query) const
 
 size_t DnsLayer::getQueryCount() const
 {
-	return ntohs(getDnsHeader()->numberOfQuestions);
+	return be16toh(getDnsHeader()->numberOfQuestions);
 }
 
 DnsResource* DnsLayer::getAnswer(const std::string& name, bool exactMatch) const
 {
-	uint16_t numOfAnswers = ntohs(getDnsHeader()->numberOfAnswers);
+	uint16_t numOfAnswers = be16toh(getDnsHeader()->numberOfAnswers);
 	IDnsResource* res = getResourceByName(m_FirstAnswer, numOfAnswers, name, exactMatch);
 	if (res != NULL)
 		return dynamic_cast<DnsResource*>(res);
@@ -298,12 +292,12 @@ DnsResource* DnsLayer::getNextAnswer(DnsResource* answer) const
 
 size_t DnsLayer::getAnswerCount() const
 {
-	return ntohs(getDnsHeader()->numberOfAnswers);
+	return be16toh(getDnsHeader()->numberOfAnswers);
 }
 
 DnsResource* DnsLayer::getAuthority(const std::string& name, bool exactMatch) const
 {
-	uint16_t numOfAuthorities = ntohs(getDnsHeader()->numberOfAuthority);
+	uint16_t numOfAuthorities = be16toh(getDnsHeader()->numberOfAuthority);
 	IDnsResource* res = getResourceByName(m_FirstAuthority, numOfAuthorities, name, exactMatch);
 	if (res != NULL)
 		return dynamic_cast<DnsResource*>(res);
@@ -328,12 +322,12 @@ DnsResource* DnsLayer::getNextAuthority(DnsResource* authority) const
 
 size_t DnsLayer::getAuthorityCount() const
 {
-	return ntohs(getDnsHeader()->numberOfAuthority);
+	return be16toh(getDnsHeader()->numberOfAuthority);
 }
 
 DnsResource* DnsLayer::getAdditionalRecord(const std::string& name, bool exactMatch) const
 {
-	uint16_t numOfAdditionalRecords = ntohs(getDnsHeader()->numberOfAdditional);
+	uint16_t numOfAdditionalRecords = be16toh(getDnsHeader()->numberOfAdditional);
 	IDnsResource* res = getResourceByName(m_FirstAdditional, numOfAdditionalRecords, name, exactMatch);
 	if (res != NULL)
 		return dynamic_cast<DnsResource*>(res);
@@ -358,13 +352,13 @@ DnsResource* DnsLayer::getNextAdditionalRecord(DnsResource* additionalRecord) co
 
 size_t DnsLayer::getAdditionalRecordCount() const
 {
-	return ntohs(getDnsHeader()->numberOfAdditional);
+	return be16toh(getDnsHeader()->numberOfAdditional);
 }
 
 std::string DnsLayer::toString() const
 {
 	std::ostringstream tidAsString;
-	tidAsString << ntohs(getDnsHeader()->transactionID);
+	tidAsString << be16toh(getDnsHeader()->transactionID);
 
 	std::ostringstream queryCount;
 	queryCount << getQueryCount();
@@ -599,7 +593,7 @@ DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass 
 	}
 
 	// increase number of queries
-	getDnsHeader()->numberOfQuestions = htons(getQueryCount() + 1);
+	getDnsHeader()->numberOfQuestions = htobe16(getQueryCount() + 1);
 
 	return newQuery;
 }
@@ -630,7 +624,7 @@ bool DnsLayer::removeQuery(DnsQuery* queryToRemove)
 	if (res)
 	{
 		// decrease number of query records
-		getDnsHeader()->numberOfQuestions = htons(getQueryCount() - 1);
+		getDnsHeader()->numberOfQuestions = htobe16(getQueryCount() - 1);
 	}
 
 	return res;
@@ -642,7 +636,7 @@ DnsResource* DnsLayer::addAnswer(const std::string& name, DnsType dnsType, DnsCl
 	if (res != NULL)
 	{
 		// increase number of answer records
-		getDnsHeader()->numberOfAnswers = htons(getAnswerCount() + 1);
+		getDnsHeader()->numberOfAnswers = htobe16(getAnswerCount() + 1);
 	}
 
 	return res;
@@ -674,7 +668,7 @@ bool DnsLayer::removeAnswer(DnsResource* answerToRemove)
 	if (res)
 	{
 		// decrease number of answer records
-		getDnsHeader()->numberOfAnswers = htons(getAnswerCount() - 1);
+		getDnsHeader()->numberOfAnswers = htobe16(getAnswerCount() - 1);
 	}
 
 	return res;
@@ -687,7 +681,7 @@ DnsResource* DnsLayer::addAuthority(const std::string& name, DnsType dnsType, Dn
 	if (res != NULL)
 	{
 		// increase number of authority records
-		getDnsHeader()->numberOfAuthority = htons(getAuthorityCount() + 1);
+		getDnsHeader()->numberOfAuthority = htobe16(getAuthorityCount() + 1);
 	}
 
 	return res;
@@ -719,7 +713,7 @@ bool DnsLayer::removeAuthority(DnsResource* authorityToRemove)
 	if (res)
 	{
 		// decrease number of authority records
-		getDnsHeader()->numberOfAuthority = htons(getAuthorityCount() - 1);
+		getDnsHeader()->numberOfAuthority = htobe16(getAuthorityCount() - 1);
 	}
 
 	return res;
@@ -732,7 +726,7 @@ DnsResource* DnsLayer::addAdditionalRecord(const std::string& name, DnsType dnsT
 	if (res != NULL)
 	{
 		// increase number of authority records
-		getDnsHeader()->numberOfAdditional = htons(getAdditionalRecordCount() + 1);
+		getDnsHeader()->numberOfAdditional = htobe16(getAdditionalRecordCount() + 1);
 	}
 
 	return res;
@@ -775,7 +769,7 @@ bool DnsLayer::removeAdditionalRecord(DnsResource* additionalRecordToRemove)
 	if (res)
 	{
 		// decrease number of additional records
-		getDnsHeader()->numberOfAdditional = htons(getAdditionalRecordCount() - 1);
+		getDnsHeader()->numberOfAdditional = htobe16(getAdditionalRecordCount() - 1);
 	}
 
 	return res;
