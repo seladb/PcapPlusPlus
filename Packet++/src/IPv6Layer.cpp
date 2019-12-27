@@ -9,6 +9,7 @@
 #include "Packet.h"
 #include <string.h>
 #include "IpUtils.h"
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -33,7 +34,7 @@ IPv6Layer::IPv6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pa
 
 	parseExtensions();
 
-	size_t totalLen = ntohs(getIPv6Header()->payloadLength) + getHeaderLen();
+	size_t totalLen = be16toh(getIPv6Header()->payloadLength) + getHeaderLen();
 	if (totalLen < m_DataLen)
 		m_DataLen = totalLen;
 }
@@ -253,7 +254,7 @@ void IPv6Layer::parseNextLayer()
 void IPv6Layer::computeCalculateFields()
 {
 	ip6_hdr* ipHdr = getIPv6Header();
-	ipHdr->payloadLength = htons(m_DataLen - sizeof(ip6_hdr));
+	ipHdr->payloadLength = htobe16(m_DataLen - sizeof(ip6_hdr));
 	ipHdr->ipVersion = (6 & 0x0f);
 
 	if (m_NextLayer != NULL)

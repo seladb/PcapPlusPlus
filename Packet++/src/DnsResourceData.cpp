@@ -5,13 +5,7 @@
 #include "GeneralUtils.h"
 #include <sstream>
 #include <string.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -106,7 +100,7 @@ bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 
 MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
 {
-	uint16_t preference = ntohs(*(uint16_t*)dataPtr);
+	uint16_t preference = be16toh(*(uint16_t*)dataPtr);
 	char tempMX[256];
 	decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
 	m_Data.preference = preference;
@@ -140,7 +134,7 @@ std::string MxDnsResourceData::toString() const
 
 bool MxDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	uint16_t netOrderPreference = htons(m_Data.preference);
+	uint16_t netOrderPreference = htobe16(m_Data.preference);
 	memcpy(arr, &netOrderPreference, sizeof(uint16_t));
 	encodeName(m_Data.mailExchange, (char*)(arr + sizeof(uint16_t)), arrLength, dnsResource);
 	arrLength += sizeof(uint16_t);
