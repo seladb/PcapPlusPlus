@@ -85,7 +85,7 @@ private:
 	/**
 	 * A private c'tor (as this is a singleton)
 	 */
-	GlobalConfig() { writeMetadata = false; outputDir = ""; writeToConsole = false; separateSides = false; maxOpenFiles = DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES; m_RecentConnsWithActivity = NULL; }
+	GlobalConfig() { writeMetadata = false; writeToConsole = false; separateSides = false; maxOpenFiles = DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES; m_RecentConnsWithActivity = NULL; }
 
 	// A least-recently-used (LRU) list of all connections seen so far. Each connection is represented by its flow key. This LRU list is used to decide which connection was seen least
 	// recently in case we reached max number of open file descriptors and we need to decide which files to close
@@ -118,11 +118,11 @@ public:
 		std::stringstream stream;
 
 		// if user chooses to write to a directory other than the current directory - add the dir path to the return value
-		if (outputDir != "")
+		if (!outputDir.empty())
 			stream << outputDir << SEPARATOR;
 
-		std::string sourceIP = connData.srcIP->toString();
-		std::string destIP = connData.dstIP->toString();
+		std::string sourceIP(connData.srcIP.toString());
+		std::string destIP(connData.dstIP.toString());
 
 		// for IPv6 addresses, replace ':' with '_'
 		std::replace(sourceIP.begin(), sourceIP.end(), ':', '_');
@@ -130,9 +130,9 @@ public:
 
 		// side == 0 means data is sent from client->server
 		if (side <= 0 || separareSides == false)
-			stream << sourceIP << "." << connData.srcPort << "-" << destIP << "." << connData.dstPort;
+			stream << sourceIP << '.' << connData.srcPort << '-' << destIP << '.' << connData.dstPort;
 		else // side == 1 means data is sent from server->client
-			stream << destIP << "." << connData.dstPort << "-" << sourceIP << "." << connData.srcPort;
+			stream << destIP << '.' << connData.dstPort << '-' << sourceIP << '.' << connData.srcPort;
 
 		// return the file path
 		return stream.str();
@@ -510,7 +510,7 @@ void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembl
 		EXIT_WITH_ERROR("Cannot open pcap/pcapng file");
 
 	// set BPF filter if set by the user
-	if (bpfFiler != "")
+	if (!bpfFiler.empty())
 	{
 		if (!reader->setFilter(bpfFiler))
 			EXIT_WITH_ERROR("Cannot set BPF filter to pcap file");
@@ -549,7 +549,7 @@ void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassem
 		EXIT_WITH_ERROR("Cannot open interface");
 
 	// set BPF filter if set by the user
-	if (bpfFiler != "")
+	if (!bpfFiler.empty())
 	{
 		if (!dev->setFilter(bpfFiler))
 			EXIT_WITH_ERROR("Cannot set BPF filter to interface");
@@ -586,10 +586,10 @@ int main(int argc, char* argv[])
 {
 	AppName::init(argc, argv);
 
-	std::string interfaceNameOrIP = "";
-	std::string inputPcapFileName = "";
-	std::string bpfFilter = "";
-	std::string outputDir = "";
+	std::string interfaceNameOrIP;
+	std::string inputPcapFileName;
+	std::string bpfFilter;
+	std::string outputDir;
 	bool writeMetadata = false;
 	bool writeToConsole = false;
 	bool separateSides = false;
@@ -644,11 +644,11 @@ int main(int argc, char* argv[])
 	}
 
 	// if no interface nor input pcap file were provided - exit with error
-	if (inputPcapFileName == "" && interfaceNameOrIP == "")
+	if (inputPcapFileName.empty() && interfaceNameOrIP.empty())
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
 
 	// verify output dir exists
-	if (outputDir != "" && !directoryExists(outputDir))
+	if (!outputDir.empty() && !directoryExists(outputDir))
 		EXIT_WITH_ERROR("Output directory doesn't exist");
 
 	// set global config singleton with input configuration
@@ -665,7 +665,7 @@ int main(int argc, char* argv[])
 	TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &connMgr, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
 
 	// analyze in pcap file mode
-	if (inputPcapFileName != "")
+	if (!inputPcapFileName.empty())
 	{
 		doTcpReassemblyOnPcapFile(inputPcapFileName, tcpReassembly, bpfFilter);
 	}

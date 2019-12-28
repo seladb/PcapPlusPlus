@@ -4634,9 +4634,9 @@ std::string readFileIntoString(std::string fileName)
 
 void saveStringToFile(std::string& str, std::string fileName)
 {
-    std::ofstream outfile(fileName.c_str());
-    outfile << str;
-    outfile.close();
+  std::ofstream outfile(fileName.c_str());
+  outfile << str;
+  outfile.close();
 }
 
 void tcpReassemblyMsgReadyCallback(int sideIndex, const TcpStreamData& tcpData, void* userCookie)
@@ -4708,7 +4708,7 @@ void tcpReassemblyConnectionEndCallback(const ConnectionData& connectionData, Tc
 
 bool tcpReassemblyReadPcapIntoPacketVec(std::string pcapFileName, std::vector<RawPacket>& packetStream, std::string& errMsg)
 {
-	errMsg = "";
+	errMsg.clear();
 	packetStream.clear();
 
 	PcapFileReaderDevice reader(pcapFileName.c_str());
@@ -4812,6 +4812,8 @@ bool tcpReassemblyTest(std::vector<RawPacket>& packetStream, TcpReassemblyMultip
 	return true;
 }
 
+
+
 PTF_TEST_CASE(TestTcpReassemblySanity)
 {
 	std::string errMsg;
@@ -4830,12 +4832,12 @@ PTF_TEST_CASE(TestTcpReassemblySanity)
 	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "Connections wasn't opened");
 	PTF_ASSERT(stats.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
 	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
-	PTF_ASSERT(stats.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
-	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isIPv4());
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isIPv4());
 	IPv4Address expectedSrcIP(std::string("10.0.0.1"));
 	IPv4Address expectedDstIP(std::string("81.218.72.15"));
-	PTF_ASSERT(*stats.begin()->second.connData.srcIP == expectedSrcIP, "Source IP isn't 10.0.0.1");
-	PTF_ASSERT(*stats.begin()->second.connData.dstIP == expectedDstIP, "Source IP isn't 81.218.72.15");
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP.getIPv4(), expectedSrcIP, object);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP.getIPv4(), expectedDstIP, object);
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
@@ -4843,7 +4845,9 @@ PTF_TEST_CASE(TestTcpReassemblySanity)
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
-}
+} // TestTcpReassemblySanity
+
+
 
 PTF_TEST_CASE(TestTcpReassemblyRetran)
 {
@@ -4883,9 +4887,9 @@ PTF_TEST_CASE(TestTcpReassemblyRetran)
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_retransmission_output.txt"));
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
+} // TestTcpReassemblyRetran
 
 
-}
 
 PTF_TEST_CASE(TestTcpReassemblyMissingData)
 {
@@ -4922,8 +4926,7 @@ PTF_TEST_CASE(TestTcpReassemblyMissingData)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
-
+	expectedReassemblyData.clear();
 
 
 	// test flow without SYN packet
@@ -4942,9 +4945,9 @@ PTF_TEST_CASE(TestTcpReassemblyMissingData)
 
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
+} // TestTcpReassemblyMissingData
 
 
-}
 
 PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 {
@@ -4986,7 +4989,7 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 
 
@@ -5017,16 +5020,16 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_missing_data_output_ooo.txt"));
 
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "OOO + missing data test: Reassembly data different than expected");
+} // TestTcpReassemblyOutOfOrder
 
 
-}
 
 PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 {
 	std::string errMsg;
 	std::vector<RawPacket> packetStream;
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
-	std::string expectedReassemblyData = "";
+	std::string expectedReassemblyData;
 
 	// test fin packet in end of connection
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
@@ -5045,7 +5048,7 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 	// test rst packet in end of connection
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_rst.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
@@ -5063,7 +5066,7 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 	//test fin packet in end of connection that has also data
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
@@ -5081,7 +5084,7 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 	// test missing data before fin
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
@@ -5102,16 +5105,16 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == false, "Missing data before FIN test: Connection wasn ended manually");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output2.txt"));
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Missing data before FIN test: Reassembly data different than expected");
+} // TestTcpReassemblyWithFIN_RST
 
 
-}
 
 PTF_TEST_CASE(TestTcpReassemblyMalformedPkts)
 {
 	std::string errMsg;
 	std::vector<RawPacket> packetStream;
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
-	std::string expectedReassemblyData = "";
+	std::string expectedReassemblyData;
 
 	// test retransmission with new data but payload doesn't really contain all the new data
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
@@ -5144,16 +5147,15 @@ PTF_TEST_CASE(TestTcpReassemblyMalformedPkts)
 	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == false, "Connection wasn ended manually");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output.txt"));
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
+} // TestTcpReassemblyMalformedPkts
 
-
-}
 
 
 PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 {
 	TcpReassemblyMultipleConnStats results;
 	std::string errMsg;
-	std::string expectedReassemblyData = "";
+	std::string expectedReassemblyData;
 
 	TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
 
@@ -5244,9 +5246,8 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 
 	PTF_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended supposedly ended with FIN or RST after FIN packets sent although ended manually before");
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections isn't ended after FIN packets sent even though ended manually before");
+} // TestTcpReassemblyMultipleConns
 
-
-}
 
 
 PTF_TEST_CASE(TestTcpReassemblyIPv6)
@@ -5267,12 +5268,12 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6)
 	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "Connections wasn't opened");
 	PTF_ASSERT(stats.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
 	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
-	PTF_ASSERT(stats.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
-	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isIPv6());
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isIPv6());
 	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
 	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
-	PTF_ASSERT(*stats.begin()->second.connData.srcIP == expectedSrcIP, "Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(*stats.begin()->second.connData.dstIP == expectedDstIP, "Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP.getIPv6(), expectedSrcIP, object);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP.getIPv6(), expectedDstIP, object);
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
@@ -5280,16 +5281,15 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6)
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
+} // TestTcpReassemblyIPv6
 
-
-}
 
 
 PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 {
 	std::string errMsg;
 	std::vector<RawPacket> packetStream;
-	std::string expectedReassemblyData = "";
+	std::string expectedReassemblyData;
 
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/four_ipv6_http_streams.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
 
@@ -5311,10 +5311,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connectionsStarted == true, "Conn #1: Connection wasn't opened");
 	PTF_ASSERT(iter->second.connectionsEnded == false, "Conn #1: Connection ended with FIN or RST");
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #1: Connections wasn't ended manually");
-	PTF_ASSERT(iter->second.connData.srcIP != NULL, "Conn #1: Source IP is NULL");
-	PTF_ASSERT(iter->second.connData.dstIP != NULL, "Conn #1: Source IP is NULL");
-	PTF_ASSERT(*iter->second.connData.srcIP == expectedSrcIP, "Conn #1: Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(*iter->second.connData.dstIP == expectedDstIP1, "Conn #1: Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT_TRUE(iter->second.connData.srcIP.isIPv6());
+	PTF_ASSERT_TRUE(iter->second.connData.dstIP.isIPv6());
+	PTF_ASSERT_EQUAL(iter->second.connData.srcIP.getIPv6(), expectedSrcIP, object);
+	PTF_ASSERT_EQUAL(iter->second.connData.dstIP.getIPv6(), expectedDstIP1, object);
 	PTF_ASSERT(iter->second.connData.srcPort == 35995, "Conn #1: source port isn't 35995");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
@@ -5331,10 +5331,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connectionsStarted == true, "Conn #2: Connection wasn't opened");
 	PTF_ASSERT(iter->second.connectionsEnded == false, "Conn #2: Connection ended with FIN or RST");
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #2: Connections wasn't ended manually");
-	PTF_ASSERT(iter->second.connData.srcIP != NULL, "Conn #2: Source IP is NULL");
-	PTF_ASSERT(iter->second.connData.dstIP != NULL, "Conn #2: Source IP is NULL");
-	PTF_ASSERT(*iter->second.connData.srcIP == expectedSrcIP, "Conn #2: Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(*iter->second.connData.dstIP == expectedDstIP1, "Conn #2: Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT_TRUE(iter->second.connData.srcIP.isIPv6());
+	PTF_ASSERT_TRUE(iter->second.connData.dstIP.isIPv6());
+	PTF_ASSERT_EQUAL(iter->second.connData.srcIP.getIPv6(), expectedSrcIP, object);
+	PTF_ASSERT_EQUAL(iter->second.connData.dstIP.getIPv6(), expectedDstIP1, object);
 	PTF_ASSERT(iter->second.connData.srcPort == 35999, "Conn #2: source port isn't 35999");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
@@ -5349,10 +5349,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connectionsStarted == true, "Conn #3: Connection wasn't opened");
 	PTF_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended with FIN or RST");
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections wasn't ended manually");
-	PTF_ASSERT(iter->second.connData.srcIP != NULL, "Conn #3: Source IP is NULL");
-	PTF_ASSERT(iter->second.connData.dstIP != NULL, "Conn #3: Source IP is NULL");
-	PTF_ASSERT(*iter->second.connData.srcIP == expectedSrcIP, "Conn #3: Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(*iter->second.connData.dstIP == expectedDstIP2, "Conn #3: Source IP isn't 2001:638:902:1:202:b3ff:feee:5dc2");
+	PTF_ASSERT_TRUE(iter->second.connData.srcIP.isIPv6());
+	PTF_ASSERT_TRUE(iter->second.connData.dstIP.isIPv6());
+	PTF_ASSERT_EQUAL(iter->second.connData.srcIP.getIPv6(), expectedSrcIP, object);
+	PTF_ASSERT_EQUAL(iter->second.connData.dstIP.getIPv6(), expectedDstIP2, object);
 	PTF_ASSERT(iter->second.connData.srcPort == 40426, "Conn #3: source port isn't 40426");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
@@ -5369,10 +5369,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connectionsStarted == true, "Conn #4: Connection wasn't opened");
 	PTF_ASSERT(iter->second.connectionsEnded == false, "Conn #4: Connection ended with FIN or RST");
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #4: Connections wasn't ended manually");
-	PTF_ASSERT(iter->second.connData.srcIP != NULL, "Conn #4: Source IP is NULL");
-	PTF_ASSERT(iter->second.connData.dstIP != NULL, "Conn #4: Source IP is NULL");
-	PTF_ASSERT(*iter->second.connData.srcIP == expectedSrcIP, "Conn #4: Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(*iter->second.connData.dstIP == expectedDstIP1, "Conn #4: Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT_TRUE(iter->second.connData.srcIP.isIPv6());
+	PTF_ASSERT_TRUE(iter->second.connData.dstIP.isIPv6());
+	PTF_ASSERT_EQUAL(iter->second.connData.srcIP.getIPv6(), expectedSrcIP, object);
+	PTF_ASSERT_EQUAL(iter->second.connData.dstIP.getIPv6(), expectedDstIP1, object);
 	PTF_ASSERT(iter->second.connData.srcPort == 35997, "Conn #4: source port isn't 35997");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
@@ -5380,9 +5380,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream2.txt"));
 	PTF_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #4: Reassembly data different than expected");
+} // TestTcpReassemblyIPv6MultConns
 
-
-}
 
 
 PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
@@ -5413,12 +5412,12 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
 	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "Connections wasn't opened");
 	PTF_ASSERT(stats.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
 	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
-	PTF_ASSERT(stats.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
-	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isIPv6());
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isIPv6());
 	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
 	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
-	PTF_ASSERT(*stats.begin()->second.connData.srcIP == expectedSrcIP, "Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(*stats.begin()->second.connData.dstIP == expectedDstIP, "Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP.getIPv6(), expectedSrcIP, object);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP.getIPv6(), expectedDstIP, object);
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
@@ -5426,9 +5425,7 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
 	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
-
-
-}
+} // TestTcpReassemblyIPv6_OOO
 
 
 
@@ -5509,12 +5506,12 @@ PTF_TEST_CASE(TestTcpReassemblyMaxSeq)
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
 	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
-	PTF_ASSERT_NOT_NULL(stats.begin()->second.connData.srcIP);
-	PTF_ASSERT_NOT_NULL(stats.begin()->second.connData.dstIP);
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isIPv4());
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isIPv4());
 	IPv4Address expectedSrcIP(std::string("10.0.0.1"));
 	IPv4Address expectedDstIP(std::string("81.218.72.15"));
-	PTF_ASSERT_TRUE(*stats.begin()->second.connData.srcIP == expectedSrcIP);
-	PTF_ASSERT_TRUE(*stats.begin()->second.connData.dstIP == expectedDstIP);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP.getIPv4(), expectedSrcIP, object);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP.getIPv4(), expectedDstIP, object);
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
