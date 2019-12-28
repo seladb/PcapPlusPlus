@@ -116,13 +116,13 @@ struct ConnectionData
 	 * Set source IP
 	 * @param[in] sourceIP A pointer to the source IP to set. Notice the IPAddress object will be cloned
 	 */
-	void setSrcIpAddress(const IPAddress* sourceIP) { srcIP = sourceIP->clone(); }
+	void setSrcIpAddress(const IPAddress* sourceIP) { srcIP = new IPAddress(*sourceIP); }
 
 	/**
 	 * Set destination IP
 	 * @param[in] destIP A pointer to the destination IP to set. Notice the IPAddress object will be cloned
 	 */
-	void setDstIpAddress(const IPAddress* destIP) { dstIP = destIP->clone(); }
+	void setDstIpAddress(const IPAddress *destIP) { dstIP = new IPAddress(*destIP); }
 
 	/**
 	 * Set startTime of Connection

@@ -902,7 +902,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 			continue;
 		}
 
-		return IPv4Address(currAddr);
+		return IPv4Address(currAddr->s_addr);
 	}
 
 	return IPv4Address::Zero;

@@ -429,7 +429,7 @@ namespace pcpp
 		 */
 		void setValueIpAddr(const IPv4Address& addr, int valueOffset = 0)
 		{
-			setValue<uint32_t>(addr.toInt(), valueOffset);
+			setValue<uint32_t>(addr.toUInt(), valueOffset);
 		}
 
 		/**

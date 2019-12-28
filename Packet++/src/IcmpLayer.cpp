@@ -23,7 +23,7 @@ icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int i
 
 void icmp_router_address_structure::setRouterAddress(IPv4Address addr, uint32_t preference)
 {
-	routerAddress = addr.toInt();
+	routerAddress = addr.toUInt();
 	preferenceLevel = htobe32(preference);
 }
 
@@ -313,7 +313,7 @@ icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddre
 
 	icmp_redirect* header = getRedirectData();
 	header->code = code;
-	header->gatewayAddress = gatewayAddress.toInt();
+	header->gatewayAddress = gatewayAddress.toUInt();
 
 	if (!setIpAndL4Layers(ipHeader, l4Header))
 		return NULL;
@@ -477,7 +477,7 @@ icmp_address_mask_request* IcmpLayer::setAddressMaskRequestData(uint16_t id, uin
 	header->code = 0;
 	header->id = htobe16(id);
 	header->sequence = htobe16(sequence);
-	header->addressMask = mask.toInt();
+	header->addressMask = mask.toUInt();
 
 	return header;
 }
@@ -504,7 +504,7 @@ icmp_address_mask_reply* IcmpLayer::setAddressMaskReplyData(uint16_t id, uint16_
 	header->code = 0;
 	header->id = htobe16(id);
 	header->sequence = htobe16(sequence);
-	header->addressMask = htobe32(mask.toInt());
+	header->addressMask = htobe32(mask.toUInt());
 
 	return header;
 }

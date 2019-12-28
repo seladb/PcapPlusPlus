@@ -30,7 +30,7 @@ IgmpLayer::IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxRes
 void IgmpLayer::setGroupAddress(const IPv4Address& groupAddr)
 {
 	igmp_header* hdr = getIgmpHeader();
-	hdr->groupAddress = groupAddr.toInt();
+	hdr->groupAddress = groupAddr.toUInt();
 }
 
 IgmpType IgmpLayer::getType() const
@@ -317,7 +317,7 @@ bool IgmpV3QueryLayer::addSourceAddressAtIndex(const IPv4Address& addr, int inde
 		return false;
 	}
 
-	uint32_t addrAsInt = addr.toInt();
+	uint32_t addrAsInt = addr.toUInt();
 	memcpy(m_Data + offset, &addrAsInt, sizeof(uint32_t));
 
 	getIgmpV3QueryHeader()->numOfSources = htobe16(sourceAddrCount+1);
@@ -443,7 +443,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 	uint8_t* groupRecordBuffer = new uint8_t[groupRecordSize];
 	memset(groupRecordBuffer, 0, groupRecordSize);
 	igmpv3_group_record* newGroupRecord = (igmpv3_group_record*)groupRecordBuffer;
-	newGroupRecord->multicastAddress = multicastAddress.toInt();
+	newGroupRecord->multicastAddress = multicastAddress.toUInt();
 	newGroupRecord->recordType = recordType;
 	newGroupRecord->auxDataLen = 0;
 	newGroupRecord->numOfSources = htobe16(sourceAddresses.size());
@@ -451,7 +451,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 	int srcAddrOffset = 0;
 	for (std::vector<IPv4Address>::const_iterator iter = sourceAddresses.begin(); iter != sourceAddresses.end(); iter++)
 	{
-		uint32_t addrAsInt = iter->toInt();
+		uint32_t addrAsInt = iter->toUInt();
 		memcpy(newGroupRecord->sourceAddresses + srcAddrOffset, &addrAsInt, sizeof(uint32_t));
 		srcAddrOffset += sizeof(uint32_t);
 	}

@@ -384,8 +384,8 @@ PTF_TEST_CASE(Ipv4PacketParsing)
 	IPv4Address ip4addr2(string("1.1.1.1"));
 	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->protocol, 1, u8);
 	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipVersion, 4, u8);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toInt(), u32);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ip4addr2.toInt(), u32);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toUInt(), u32);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ip4addr2.toUInt(), u32);
 	PTF_ASSERT_TRUE(ipv4Layer->getFirstOption().isNull());
 	PTF_ASSERT_TRUE(ipv4Layer->getOption(IPV4OPT_CommercialSecurity).isNull());
 	PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 0, size);

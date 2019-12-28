@@ -194,9 +194,9 @@ protected:
 	uint32_t getSrcIPValue(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
-			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress().toInt();
+			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress().toUInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toIn6Addr(), 16);
+			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toBytes(), 16);
 		else
 			return 0;
 	}
@@ -207,9 +207,9 @@ protected:
 	uint32_t getDstIPValue(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
-			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress().toInt();
+			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress().toUInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toIn6Addr(), 16);
+			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toBytes(), 16);
 		else
 			return 0;
 	}

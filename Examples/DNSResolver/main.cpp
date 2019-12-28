@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 	if (interfaceNameOrIPProvided)
 	{
 		IPv4Address interfaceIP(interfaceNameOrIP);
-		if (interfaceIP.isValid())
+		if (!interfaceIP.isUnspecified())
 		{
 			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
 			if (dev == NULL)

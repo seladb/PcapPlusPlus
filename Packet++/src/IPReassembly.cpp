@@ -30,8 +30,8 @@ uint32_t IPReassemblyHashBy3Tuple(const IPv4Address& ipSrc, const IPv4Address& i
 	ScalarBuffer<uint8_t> vec[3];
 
 	uint16_t ipIdNetworkOrder = htobe16(ipID);
-	uint32_t ipSrcAsInt = ipSrc.toInt();
-	uint32_t ipDstAsInt = ipDst.toInt();
+	uint32_t ipSrcAsInt = ipSrc.toUInt();
+	uint32_t ipDstAsInt = ipDst.toUInt();
 
 
 	vec[0].buffer = (uint8_t*)&ipSrcAsInt;
@@ -227,8 +227,8 @@ uint32_t IPReassembly::IPv4PacketKey::getHashValue() const
 	ScalarBuffer<uint8_t> vec[3];
 
 	uint16_t ipIdNetworkOrder = htobe16(m_IpID);
-	uint32_t ipSrcAsInt = m_SrcIP.toInt();
-	uint32_t ipDstAsInt = m_DstIP.toInt();
+	uint32_t ipSrcAsInt = m_SrcIP.toUInt();
+	uint32_t ipDstAsInt = m_DstIP.toUInt();
 
 	vec[0].buffer = (uint8_t*)&ipSrcAsInt;
 	vec[0].len = 4;

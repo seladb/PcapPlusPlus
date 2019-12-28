@@ -1,196 +1,82 @@
-#ifndef PCAPPP_IPADDRESS
-#define PCAPPP_IPADDRESS
+#ifndef PCAPPP_IP_ADDRESSES
+#define PCAPPP_IP_ADDRESSES
 
-#include <memory>
 #include <stdint.h>
+#include <string.h>
 #include <string>
 
-#define MAX_ADDR_STRING_LEN 40 //xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx\0
-#define MAX_IPV4_STRING_LEN 16 //xxx.xxx.xxx.xxx\0
 
 /// @file
 
-struct in_addr;
-struct in6_addr;
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
 namespace pcpp
 {
 
+	// The implementation of the classes is based on document N4771 "Working Draft, C++ Extensions for Networking"
+	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4771.pdf
+
 	/**
-	 * @class IPAddress
-	 * Base class for IPv4Address and IPv6Address. It's an abstract class and cannot be used as is.
-	 * The only useful method in this class are the 2 static methods that constructs an IP address class from string
+	 * @class IPv4Address
+	 * Represents an IPv4 address (of type XXX.XXX.XXX.XXX)
 	 */
-	class IPAddress
+	class IPv4Address
 	{
-	protected:
-		bool m_IsValid;
-		char m_AddressAsString[MAX_ADDR_STRING_LEN];
-
-		// protected c'tor
-		IPAddress() : m_IsValid(false) { m_AddressAsString[0] = '\0'; }
 	public:
-		//Visual studio has always been stupid about returning something useful for __cplusplus
-		//Only recently was this fixed - and even then it requires a specific hack to the command line during build
-		//Its easier/more consistent to test _MSC_VER in VS 
-		//https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=vs-2017
-
-#if __cplusplus > 199711L || _MSC_VER >= 1800 //Maybe this can be 1600 for VS2010
-		typedef std::unique_ptr<IPAddress> Ptr_t;
-#else
-		typedef std::auto_ptr<IPAddress> Ptr_t;
-#endif
+		/**
+		 * A default constructor that creates an instance of the class with unspecified/zero address
+		 */
+		IPv4Address() { memset(m_Bytes, 0, sizeof(m_Bytes)); }
 
 		/**
-		 * An enum representing the address type: IPv4 or IPv6
+		 * A constructor that creates an instance of the class out of 4-byte integer value. 
+		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
-		enum AddressType {
-			/**
-			 * IPv4 address type
-			 */
-			IPv4AddressType,
-			/**
-			 * IPv6 address type
-			 */
-			IPv6AddressType
-		};
-
-		virtual ~IPAddress() {}
+		IPv4Address(uint32_t addrAsInt) { memcpy(m_Bytes, &addrAsInt, sizeof(m_Bytes)); }
 
 		/**
-		 * Gets the address type: IPv4 or IPv6
-		 * @return The address type
+		 * A constructor that creates an instance of the class out of 4-byte array.
+		 * @param[in] bytes The address as 4-byte array in network byte order
 		 */
-		virtual AddressType getType() const = 0;
+		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
+
+		/**
+		 * A constructor that creates an instance of the class out of std::string value
+		 * If the string doesn't represent a valid IPv4 address, an instance will store an unspecified address
+		 * @param[in] addressAsString The std::string representation of the address
+		 */
+		IPv4Address(const std::string& addrAsString);
+
+		/**
+		 * Converts the IPv4 address into a 4B integer
+		 * @return a 4B integer in network byte order representing the IPv4 address
+		 */
+		inline uint32_t toUInt() const;
+
+		/**
+		 * Returns a pointer to 4-byte array representing the IPv4 address
+		 */
+		const uint8_t* toBytes() const { return m_Bytes; }
 
 		/**
 		 * Returns a std::string representation of the address
 		 * @return A string representation of the address
 		 */
-		std::string toString() const { return std::string(m_AddressAsString); }
+		std::string toString() const;
 
 		/**
-		 * Get an indication if the address is valid. An address can be invalid if it was constructed from illegal input, for example:
-		 * An IPv4 address that was constructed form the string "999.999.999.999"
-		 * @return True if the address is valid, false otherwise
+		 * Determine whether the address is unspecified
 		 */
-		bool isValid() const { return m_IsValid; }
+		bool isUnspecified() const { return toUInt() == 0; }
 
 		/**
-		 * Clone the object
-		 * @return A newly allocated instance which is a clone of the current instance
+		 * Overload of the equal-to operator
 		 */
-		virtual IPAddress* clone() const = 0;
+		bool operator==(const IPv4Address& rhs) const { return toUInt() == rhs.toUInt(); }
 
 		/**
-		 * Compare between this IP address and another IP address. This method is different than operator==() implemented in IPv4Address
-		 * and IPv6Address in the sense that you can compare any IP type: IPv6 to IPv6, IPv4 to IPv4 or IPv4 to IPv6.
-		 * It fits cases when you're not sure which type you currently have
-		 * @return True if addresses match or false otherwise
+		 * Overload of the not-equal-to operator
 		 */
-		bool equals(const IPAddress* other) const;
-
-		/**
-		 * Constructs an IP address of type IPv4 or IPv6 from a string (char*) representation
-		 * @param[in] addressAsString The address in string (char*) representation
-		 * @return an auto-pointer to IPv4Address or IPv6Address instance that the string address represents, or an auto-pointer to NULL if
-		 * the string doesn't represent either of types
-		 */
-		static Ptr_t fromString(char* addressAsString);
-
-		/**
-		 * Constructs an IP address of type IPv4 or IPv6 from a std::string representation
-		 * @param[in] addressAsString The address in std::string representation
-		 * @return an auto-pointer to IPv4Address or IPv6Address instance that the string address represents, or an auto-pointer to NULL if
-		 * the string doesn't represent either of types
-		 */
-		static Ptr_t fromString(std::string addressAsString);
-	};
-
-	/**
-	 * @class IPv4Address
-	 * Represents an IPv4 address (of type XXX.XXX.XXX.XXX). An instance of this class can be constructed from string,
-	 * 4-byte integer or from the in_addr struct. It can be converted to each of these types
-	 */
-	class IPv4Address : public IPAddress
-	{
-	private:
-		in_addr* m_pInAddr;
-		void init(const char* addressAsString);
-	public:
-		/**
-		 * A constructor that creates an instance of the class out of 4-byte integer value
-		 * @todo consider endianess in this method
-		 * @param[in] addressAsInt The address as 4-byte integer
-		 */
-		IPv4Address(uint32_t addressAsInt);
-
-		/**
-		 * A constructor that creates an instance of the class out of string (char*) value
-		 * If the string doesn't represent a valid IPv4 address, instance will be invalid, meaning isValid() will return false
-		 * @param[in] addressAsString The string (char*) representation of the address
-		 */
-		IPv4Address(const char* addressAsString);
-
-		/**
-		 * A constructor that creates an instance of the class out of std::string value
-		 * If the string doesn't represent a valid IPv4 address, instance will be invalid, meaning isValid() will return false
-		 * @param[in] addressAsString The std::string representation of the address
-		 */
-		IPv4Address(std::string addressAsString);
-
-		/**
-		 * A constructor that creates an instance of the class out of in_addr struct pointer
-		 * @param[in] inAddr The in_addr struct representation of the address
-		 */
-		IPv4Address(in_addr* inAddr);
-
-		~IPv4Address();
-
-		/**
-		 * A copy constructor for this class
-		 */
-		IPv4Address(const IPv4Address& other);
-
-		/**
-		 * @return IPv4AddressType
-		 */
-		AddressType getType() const { return IPv4AddressType; }
-
-		IPAddress* clone() const;
-
-		/**
-		 * Converts the IPv4 address into a 4B integer
-		 * @return a 4B integer representing the IPv4 address
-		 */
-		uint32_t toInt() const;
-
-		/**
-		 * Returns a in_addr struct pointer representing the IPv4 address
-		 * @return a in_addr struct pointer representing the IPv4 address
-		 */
-		in_addr* toInAddr() const { return m_pInAddr; }
-
-		/**
-		 * Overload of the comparison operator
-		 * @return true if 2 addresses are equal. False otherwise
-		 */
-		bool operator==(const IPv4Address& other) const { return toInt() == other.toInt(); }
-
-		/**
-		 * Overload of the non-equal operator
-		 * @return true if 2 addresses are not equal. False otherwise
-		 */
-		bool operator!=(const IPv4Address& other) const { return toInt() != other.toInt(); }
-
-		/**
-		 * Overload of the assignment operator
-		 */
-		IPv4Address& operator=(const IPv4Address& other);
+		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
 
 		/**
 		 * Checks whether the address matches a subnet.
@@ -199,7 +85,6 @@ namespace pcpp
 		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
 		 * (it'll be ignored if subnet mask is correct)
 		 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
-		 *
 		 */
 		bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const;
 
@@ -210,68 +95,85 @@ namespace pcpp
 		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
 		 * (it'll be ignored if subnet mask is correct)
 		 * @param[in] subnetMask The subnet mask to compare the address with the subnet
-		 *
 		 */
 		bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
 
 		/**
 		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0"
+		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
+		 * In order to check whether the address is zero the method isUnspecified can be used
 		 */
-		static IPv4Address Zero;
-	};
+		static const IPv4Address Zero;
+
+	private:
+		uint8_t m_Bytes[4];
+	}; // class IPv4Address
+
+
+	// Implementation of inline methods
+
+	uint32_t IPv4Address::toUInt() const
+	{
+		uint32_t addr;
+		memcpy(&addr, m_Bytes, sizeof(m_Bytes));
+		return addr;
+	}
+
+
+
 
 
 	/**
 	 * @class IPv6Address
-	 * Represents an IPv6 address (of type xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx). An instance of this class can be constructed from string,
-	 * 16-byte array or from the in6_addr struct. It can be converted or copied to each of these types
+	 * Represents an IPv6 address (of type xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx).
 	 */
-	class IPv6Address : public IPAddress
+	class IPv6Address
 	{
-	private:
-		in6_addr* m_pInAddr;
-		void init(char* addressAsString);
 	public:
-		~IPv6Address();
+		/**
+		 * A default constructor that creates an instance of the class with unspecified/zero address
+		 */
+		IPv6Address() { memset(m_Bytes, 0, sizeof(m_Bytes)); }
 
 		/**
-		 * A constructor that creates an instance of the class out of a 16-Byte long byte array.
-		 * Array size must be 16 bytes, otherwise instance will be invalid, meaning isValid() will return false
-		 * @param addressAsUintArr A 16-byte array containing address value
+		 * A constructor that creates an instance of the class out of 16-byte array.
+		 * @param[in] bytes The address as 16-byte array in network byte order
 		 */
-		IPv6Address(uint8_t* addressAsUintArr);
+		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
 
 		/**
-		 * A constructor that creates an instance of the class out of string (char*) value.
-		 * If the string doesn't represent a valid IPv6 address, instance will be invalid, meaning isValid() will return false
-		 * @param[in] addressAsString The string (char*) representation of the address
+		 * A constructor that creates an instance of the class out of std::string value
+		 * If the string doesn't represent a valid IPv6 address, an instance will store an unspecified address
+		 * @param[in] addressAsString The std::string representation of the address
 		 */
-		IPv6Address(char* addressAsString);
+		IPv6Address(const std::string& addrAsString);
 
 		/**
-		 * A constructor that creates an instance of the class out of string std::string value
-		 * If the string doesn't represent a valid IPv6 address, instance will be invalid, meaning isValid() will return false
-		 * @param[in] addressAsString The string std::string representation of the address
+		 * Returns a pointer to 16-byte array representing the IPv6 address
 		 */
-		IPv6Address(std::string addressAsString);
+		const uint8_t* toBytes() const { return m_Bytes; }
 
 		/**
-		 * A copy constructor for this class
+		 * Returns a std::string representation of the address
+		 * @return A string representation of the address
 		 */
-		IPv6Address(const IPv6Address& other);
+		std::string toString() const;
 
 		/**
-		 * @return IPv6AddressType
+		 * Determine whether the address is unspecified
 		 */
-		AddressType getType() const { return IPv6AddressType; }
-
-		IPAddress* clone() const;
+		bool isUnspecified() const { return *this == Zero; }
 
 		/**
-		 * Returns a in6_addr struct pointer representing the IPv6 address
-		 * @return a in6_addr struct pointer representing the IPv6 address
+		 * Overload of the equal-to operator
 		 */
-		in6_addr* toIn6Addr() const { return m_pInAddr; }
+		bool operator==(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) == 0; }
+
+		/**
+		 * Overload of the not-equal-to operator
+		 */
+		bool operator!=(const IPv6Address &rhs) const { return !(*this == rhs); }
+
 
 		/**
 		 * Allocates a byte array and copies address value into it. Array deallocation is user responsibility
@@ -285,31 +187,162 @@ namespace pcpp
 		 * This method assumes array allocated size is at least 16 (the size of an IPv6 address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t* arr) const;
+		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
 
 		/**
-		 * Overload of the comparison operator
-		 * @return true if 2 addresses are equal. False otherwise
+		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
+		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
+		 * In order to check whether the address is zero the method isUnspecified can be used
 		 */
-		bool operator==(const IPv6Address& other) const;
+		static const IPv6Address Zero;
+
+	private:
+		uint8_t m_Bytes[16];
+	}; // class IPv6Address
+
+
+
+
+
+
+	///**
+	// * @class IPAddress
+	// * The class is a version-independent representation for an IP address
+	// */
+	class IPAddress
+	{
+	public:
+		/**
+		 * An enum representing the address type: IPv4 or IPv6
+		 */
+		enum AddressType
+		{
+			/**
+			 * IPv4 address type
+			 */
+			IPv4AddressType,
+			/**
+			 * IPv6 address type
+			 */
+			IPv6AddressType
+		};
 
 		/**
-		 * Overload of the non-equal operator
-		 * @return true if 2 addresses are not equal. False otherwise
+		 * A default constructor that creates an instance of the class with unspecified IPv4 address
 		 */
-		bool operator!=(const IPv6Address& other) const;
+		IPAddress() : m_Type(IPv4AddressType) {}
 
 		/**
-		 * Overload of the assignment operator
+		 * A constructor that creates an instance of the class out of IPv4Address.
+		 * @param[in] addr A const reference to instance of IPv4Address
 		 */
-		IPv6Address& operator=(const IPv6Address& other);
+		IPAddress(const IPv4Address& addr) : m_Type(IPv4AddressType), m_IPv4(addr) {}
 
 		/**
-		 * A static value representing a zero value of IPv6 address, meaning address of value
-		 * "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
+		 * A constructor that creates an instance of the class out of IPv6Address.
+		 * @param[in] addr A const reference to instance of IPv6Address
 		 */
-		static IPv6Address Zero;
+		IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr) {}
+
+		/**
+		 * A constructor that creates an instance of the class out of std::string value
+		 * If the string doesn't represent a valid IPv4 or IPv6 address, an instance will store an unspecified address
+		 * @param[in] addressAsString The std::string representation of the address
+		 */
+		IPAddress(const std::string& addrAsString);
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] addr A const reference to instance of IPv4Address
+		 */
+		inline IPAddress& operator=(const IPv4Address& addr);
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] addr A const reference to instance of IPv6Address
+		 */
+		inline IPAddress& operator=(const IPv6Address& addr);
+
+		/**
+		 * Gets the address type: IPv4 or IPv6
+		 * @return The address type
+		 */
+		AddressType getType() const { return static_cast<AddressType>(m_Type); }
+
+		/**
+		 * Returns a std::string representation of the address
+		 * @return A string representation of the address
+		 */
+		std::string toString() const { return (getType() == IPv4AddressType) ? m_IPv4.toString() : m_IPv6.toString();	}
+
+		/**
+		 * Determine whether the address is unspecified
+		 */
+		bool isUnspecified() const { return (getType() == IPv4AddressType) ? m_IPv4.isUnspecified() : m_IPv6.isUnspecified(); }
+
+		/**
+		 * Determine whether the object contains an IP version 4 address
+		 */
+		bool isIPv4() const { return getType() == IPv4AddressType; }
+
+		/**
+		 * Determine whether the object contains an IP version 6 address
+		 */
+		bool isIPv6() const { return getType() == IPv6AddressType; }
+
+		/**
+		 * Get a reference to IPv4 address instance
+		 * @return The const reference to IPv4Address instance
+		 */
+		const IPv4Address& getIPv4() const { return m_IPv4; }
+
+		/**
+		 * Get a reference to IPv6 address instance
+		 * @return The const reference to IPv6Address instance
+		 */
+		const IPv6Address& getIPv6() const { return m_IPv6; }
+
+		/**
+		 * Overload of the equal-to operator
+		 */
+		inline bool operator==(const IPAddress& rhs) const;
+
+		/**
+		 * Overload of the not-equal-to operator
+		 */
+		bool operator!=(const IPAddress& rhs) const { return !(*this == rhs); }
+
+	private:
+		uint8_t m_Type;
+		IPv4Address m_IPv4;
+		IPv6Address m_IPv6;
 	};
+
+
+	// implementation of inline methods
+
+	bool IPAddress::operator==(const IPAddress& rhs) const
+	{
+		if (isIPv4())
+			return rhs.isIPv4() ? (m_IPv4 == rhs.m_IPv4) : false;
+
+		return m_IPv6 == rhs.m_IPv6;
+	}
+
+	IPAddress& IPAddress::operator=(const IPv4Address& addr)
+	{
+		m_Type = IPv4AddressType;
+		m_IPv4 = addr;
+		return *this;
+	}
+
+	IPAddress& IPAddress::operator=(const IPv6Address& addr)
+	{
+		m_Type = IPv6AddressType;
+		m_IPv6 = addr;
+		return *this;
+	}
+
 
 } // namespace pcpp
 

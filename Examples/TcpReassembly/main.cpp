@@ -674,7 +674,7 @@ int main(int argc, char* argv[])
 		// extract pcap live device by interface name or IP address
 		PcapLiveDevice* dev = NULL;
 		IPv4Address interfaceIP(interfaceNameOrIP);
-		if (interfaceIP.isValid())
+		if (!interfaceIP.isUnspecified())
 		{
 			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
 			if (dev == NULL)

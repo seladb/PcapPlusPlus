@@ -60,13 +60,13 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 
 bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	if (!m_Data.isValid())
+	if (m_Data.isUnspecified())
 	{
 		LOG_ERROR("Cannot convert IPv4 address to byte array because address is not valid");
 		return false;
 	}
 
-	uint32_t addrAsInt = m_Data.toInt();
+	uint32_t addrAsInt = m_Data.toUInt();
 	arrLength = sizeof(addrAsInt);
 	memcpy(arr, &addrAsInt, sizeof(addrAsInt));
 
@@ -86,7 +86,7 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 
 bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	if (!m_Data.isValid())
+	if (m_Data.isUnspecified())
 	{
 		LOG_ERROR("Cannot convert IPv6 address to byte array because address is not valid");
 		return false;
