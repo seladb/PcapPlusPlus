@@ -457,7 +457,10 @@ namespace pcpp
 		 */
 		void setValueString(const std::string& stringValue, int valueOffset = 0)
 		{
+			// calculate the maximum length of the destination buffer
 			size_t len = (size_t)m_Data->recordLen - (size_t)valueOffset;
+
+			// use the length of input string if a buffer is large enough for whole string
 			if (stringValue.length() < len)
 				len = stringValue.length();
 
