@@ -79,14 +79,14 @@ RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_So
 
 #elif LINUX
 
-	m_InterfaceIP = interfaceIP.clone();
+	m_InterfaceIP = new IPAddress(interfaceIP);
 	m_SockFamily = Ethernet;
 
 #else
 
 	m_InterfaceIP = NULL;
 	m_SockFamily = Ethernet;
-	
+
 #endif
 }
 
@@ -446,7 +446,7 @@ bool RawSocketDevice::open()
 
 #elif LINUX
 
-	if (!m_InterfaceIP->isValid())
+	if (m_InterfaceIP->isUnspecified())
 	{
 		LOG_ERROR("IP address is not valid");
 		return false;

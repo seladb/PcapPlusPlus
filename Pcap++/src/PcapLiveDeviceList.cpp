@@ -138,7 +138,7 @@ void PcapLiveDeviceList::setDnsServers()
 		lineStream >> headline;
 		lineStream >> dnsIP;
 		IPv4Address dnsIPAddr(dnsIP);
-		if (!dnsIPAddr.isValid())
+		if (dnsIPAddr.isUnspecified())
 			continue;
 
 		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
@@ -229,7 +229,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr) co
 				continue;
 			}
 
-			if (memcmp(currAddr, ipAddr.toBytes(), sizeof(currAddr)) == 0)
+			if (memcmp(currAddr, ipAddr.toBytes(), sizeof(*currAddr)) == 0)
 			{
 				LOG_DEBUG("Found matched address!");
 				return (*devIter);
