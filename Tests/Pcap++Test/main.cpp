@@ -4153,7 +4153,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	unsigned int counter = 0;
 	KniDevice::KniDeviceConfiguration devConfig;
 	IPv4Address kniIp = PcapGlobalArgs.kniIp;
-	PTF_ASSERT(kniIp.isValid(), "Invalid IP address provided for KNI interface");
+	PTF_ASSERT(!kniIp.isUnspecified(), "Invalid IP address provided for KNI interface");
 
 	// KNI device setup
 	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI::DEVICE1);

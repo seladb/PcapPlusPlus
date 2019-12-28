@@ -343,7 +343,7 @@ int main(int argc, char* argv[])
 			case 'i':
 			{
 				srcIPToMatch = IPv4Address(optarg);
-				if (!srcIPToMatch.isValid())
+				if (srcIPToMatch.isUnspecified())
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IP to match isn't a valid IP address");
 				}
@@ -352,7 +352,7 @@ int main(int argc, char* argv[])
 			case 'I':
 			{
 				dstIPToMatch = IPv4Address(optarg);
-				if (!dstIPToMatch.isValid())
+				if (dstIPToMatch.isUnspecified())
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination IP to match isn't a valid IP address");
 				}
