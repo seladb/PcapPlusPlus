@@ -76,14 +76,14 @@ IPv4Address SdpLayer::getOwnerIPv4Address() const
 {
 	HeaderField* originator = getFieldByName(PCPP_SDP_ORIGINATOR_FIELD);
 	if (originator == NULL)
-		return IPv4Address::Zero;
+		return IPv4Address();
 
 	std::vector<std::string> tokens = splitByWhiteSpaces(originator->getFieldValue());
 	if (tokens.size() < 6)
-		return IPv4Address::Zero;
+		return IPv4Address();
 
 	if (tokens[3] != "IN" || tokens[4] != "IP4")
-		return IPv4Address::Zero;
+		return IPv4Address();
 
 	return IPv4Address(tokens[5]);
 }
