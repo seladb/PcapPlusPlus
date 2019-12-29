@@ -11,38 +11,38 @@
 namespace pcpp
 {
 
-uint32_t IPReassemblyHashPacket(IPv4Layer* ipv4Layer)
-{
-	ScalarBuffer<uint8_t> vec[3];
 
-	vec[0].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipSrc;
-	vec[0].len = 4;
-	vec[1].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipDst;
-	vec[1].len = 4;
-	vec[2].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipId;
-	vec[2].len = 2;
+// The following functions are not used
+//uint32_t IPReassemblyHashPacket(IPv4Layer* ipv4Layer)
+//{
+//	ScalarBuffer<uint8_t> vec[3];
+//
+//	vec[0].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipSrc;
+//	vec[0].len = 4;
+//	vec[1].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipDst;
+//	vec[1].len = 4;
+//	vec[2].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipId;
+//	vec[2].len = 2;
+//
+//	return pcpp::fnv_hash(vec, 3);
+//}
+//
+//uint32_t IPReassemblyHashBy3Tuple(const IPv4Address& ipSrc, const IPv4Address& ipDst, uint16_t ipID)
+//{
+//	ScalarBuffer<uint8_t> vec[3];
+//
+//	uint16_t ipIdNetworkOrder = htons(ipID);
+//
+//	vec[0].buffer = const_cast<uint8_t*>(ipSrc.toBytes());
+//	vec[0].len = 4;
+//	vec[1].buffer = const_cast<uint8_t*>(ipDst.toBytes());
+//	vec[1].len = 4;
+//	vec[2].buffer = (uint8_t*)&ipIdNetworkOrder;
+//	vec[2].len = 2;
+//
+//	return pcpp::fnv_hash(vec, 3);
+//}
 
-	return pcpp::fnv_hash(vec, 3);
-}
-
-uint32_t IPReassemblyHashBy3Tuple(const IPv4Address& ipSrc, const IPv4Address& ipDst, uint16_t ipID)
-{
-	ScalarBuffer<uint8_t> vec[3];
-
-	uint16_t ipIdNetworkOrder = htobe16(ipID);
-	uint32_t ipSrcAsInt = ipSrc.toUInt();
-	uint32_t ipDstAsInt = ipDst.toUInt();
-
-
-	vec[0].buffer = (uint8_t*)&ipSrcAsInt;
-	vec[0].len = 4;
-	vec[1].buffer = (uint8_t*)&ipDstAsInt;
-	vec[1].len = 4;
-	vec[2].buffer = (uint8_t*)&ipIdNetworkOrder;
-	vec[2].len = 2;
-
-	return pcpp::fnv_hash(vec, 3);
-}
 
 class IPFragmentWrapper
 {
@@ -58,12 +58,9 @@ public:
 	virtual uint8_t* getIPLayerPayload() = 0;
 	virtual size_t getIPLayerPayloadSize() = 0;
 
-	virtual ~IPFragmentWrapper() { }
-
-protected:
-
-	IPFragmentWrapper() {}
+	virtual ~IPFragmentWrapper() {}
 };
+
 
 class IPv4FragmentWrapper : public IPFragmentWrapper
 {
@@ -131,8 +128,8 @@ public:
 
 private:
 	IPv4Layer* m_IPLayer;
+}; // class IPv4FragmentWrapper
 
-};
 
 class IPv6FragmentWrapper : public IPFragmentWrapper
 {
@@ -218,7 +215,6 @@ public:
 private:
 	IPv6Layer* m_IPLayer;
 	IPv6FragmentationHeader* m_FragHeader;
-
 };
 
 
@@ -227,12 +223,10 @@ uint32_t IPReassembly::IPv4PacketKey::getHashValue() const
 	ScalarBuffer<uint8_t> vec[3];
 
 	uint16_t ipIdNetworkOrder = htobe16(m_IpID);
-	uint32_t ipSrcAsInt = m_SrcIP.toUInt();
-	uint32_t ipDstAsInt = m_DstIP.toUInt();
 
-	vec[0].buffer = (uint8_t*)&ipSrcAsInt;
+	vec[0].buffer = const_cast<uint8_t*>(m_SrcIP.toBytes()); // TODO: to remove const_cast operator the fnv_hash should take "const ScalarBuffer<const uint8_t>" as argument
 	vec[0].len = 4;
-	vec[1].buffer = (uint8_t*)&ipDstAsInt;
+	vec[1].buffer = const_cast<uint8_t*>(m_DstIP.toBytes());
 	vec[1].len = 4;
 	vec[2].buffer = (uint8_t*)&ipIdNetworkOrder;
 	vec[2].len = 2;
@@ -245,14 +239,10 @@ uint32_t IPReassembly::IPv6PacketKey::getHashValue() const
 	ScalarBuffer<uint8_t> vec[3];
 
 	uint32_t fragIdNetworkOrder = htobe32(m_FragmentID);
-	uint8_t ipSrcAsByteArr[16];
-	uint8_t ipDstAsByteArr[16];
-	m_SrcIP.copyTo(ipSrcAsByteArr);
-	m_DstIP.copyTo(ipDstAsByteArr);
 
-	vec[0].buffer = ipSrcAsByteArr;
+	vec[0].buffer = const_cast<uint8_t*>(m_SrcIP.toBytes());
 	vec[0].len = 16;
-	vec[1].buffer = ipDstAsByteArr;
+	vec[1].buffer = const_cast<uint8_t*>(m_DstIP.toBytes());
 	vec[1].len = 16;
 	vec[2].buffer = (uint8_t*)&fragIdNetworkOrder;
 	vec[2].len = 4;
@@ -290,7 +280,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// create fragment wrapper
 	IPv4FragmentWrapper ipv4Wrapper(fragment);
 	IPv6FragmentWrapper ipv6Wrapper(fragment);
-	IPFragmentWrapper* fragWrapper = NULL;
+	IPFragmentWrapper* fragWrapper;
 	if (fragment->isPacketOfType(IPv4))
 		fragWrapper = &ipv4Wrapper;
 	else // fragment->isPacketOfType(IPv6)
@@ -588,8 +578,7 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 	}
 
 	// add the new fragment to the map
-	std::pair<uint32_t, IPFragmentData*> pair(hash, fragData);
-	m_FragmentMap.insert(pair);
+	m_FragmentMap.insert(std::make_pair(hash, fragData));
 }
 
 bool IPReassembly::matchOutOfOrderFragments(IPFragmentData* fragData)
