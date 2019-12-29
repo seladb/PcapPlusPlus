@@ -2482,22 +2482,22 @@ PTF_TEST_CASE(TestRemoteCapture)
 	IPAddress remoteDeviceIPAddr(remoteDeviceIP);
 	PTF_ASSERT_FALSE(remoteDeviceIPAddr.isUnspecified());
 	PTF_ASSERT_TRUE(remoteDeviceIPAddr.isIPv4());
-	PcapRemoteDeviceList* remoteDevices = PcapRemoteDeviceList::getRemoteDeviceList(&remoteDeviceIPAddr, remoteDevicePort);
+	PcapRemoteDeviceList* remoteDevices = PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
 	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices != NULL, terminateRpcapdServer(rpcapdHandle), "Error on retrieving remote devices on IP: %s port: %d. Error string was: %s", remoteDeviceIP.c_str(), remoteDevicePort, PcapGlobalArgs.errString);
 	for (PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
 	{
 		PTF_ASSERT_AND_RUN_COMMAND((*remoteDevIter)->getName() != NULL, terminateRpcapdServer(rpcapdHandle), "One of the remote devices has no name");
 	}
-	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices->getRemoteMachineIpAddress()->toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device list doesn't match provided IP");
+	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices->getRemoteMachineIpAddress().toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device list doesn't match provided IP");
 	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices->getRemoteMachinePort() == remoteDevicePort, terminateRpcapdServer(rpcapdHandle), "Remote machine port got from device list doesn't match provided port");
 
-	PcapRemoteDevice* pRemoteDevice = remoteDevices->getRemoteDeviceByIP(&remoteDeviceIPAddr);
+	PcapRemoteDevice* pRemoteDevice = remoteDevices->getRemoteDeviceByIP(remoteDeviceIPAddr);
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getDeviceType() == PcapLiveDevice::RemoteDevice, terminateRpcapdServer(rpcapdHandle), "Remote device type isn't 'RemoteDevice'");
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getMtu() == 0, terminateRpcapdServer(rpcapdHandle), "MTU of remote device isn't 0");
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getMacAddress() == MacAddress::Zero, terminateRpcapdServer(rpcapdHandle), "MAC address of remote device isn't zero");
 	LoggerPP::getInstance().enableErrors();
-	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getRemoteMachineIpAddress()->toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device doesn't match provided IP");
+	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getRemoteMachineIpAddress().toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device doesn't match provided IP");
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getRemoteMachinePort() == remoteDevicePort, terminateRpcapdServer(rpcapdHandle), "Remote machine port got from device doesn't match provided port");
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->open(), terminateRpcapdServer(rpcapdHandle), "Could not open the remote device. Error was: %s", PcapGlobalArgs.errString);
 	RawPacketVector capturedPackets;
