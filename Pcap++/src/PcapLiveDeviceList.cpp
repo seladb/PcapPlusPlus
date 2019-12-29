@@ -186,8 +186,8 @@ void PcapLiveDeviceList::setDnsServers()
 		uint8_t buf[20];
 		char* serverAddressCString = (char*)buf;
 		CFStringGetCString(serverAddress, serverAddressCString, 20, kCFStringEncodingUTF8);
-		m_DnsServers.push_back(makeIPv4Address(serverAddressCString, errorCode));
-		LOG_DEBUG("Default DNS server IP #%d: %s\n", (int)(i+1), serverAddressCString);
+		m_DnsServers.push_back(IPv4Address(serverAddressCString));
+		LOG_DEBUG("Default DNS server IP #%d: %s\n", (int)(i + 1), serverAddressCString);
 	}
 
 	CFRelease(dynRef);
