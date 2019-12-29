@@ -334,8 +334,8 @@ PTF_TEST_CASE(Ipv4PacketCreation)
 	PTF_ASSERT(rawPacket->getRawDataLen() == 14, "Raw packet length expected to be 14 but it's %d", rawPacket->getRawDataLen());
 
 
-	IPv4Address ipSrc(string("1.1.1.1"));
-	IPv4Address ipDst(string("20.20.20.20"));
+	IPv4Address ipSrc("1.1.1.1");
+	IPv4Address ipDst("20.20.20.20");
 	IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
 	PTF_ASSERT(ip4Packet.addLayer(&ip4Layer), "Adding IPv4 layer failed");
@@ -380,8 +380,8 @@ PTF_TEST_CASE(Ipv4PacketParsing)
 	PTF_ASSERT(be16toh(ethLayer->getEthHeader()->etherType) == PCPP_ETHERTYPE_IP, "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
 
 	IPv4Layer* ipv4Layer = ip4Packet.getLayerOfType<IPv4Layer>();
-	IPv4Address ip4addr1(string("10.0.0.4"));
-	IPv4Address ip4addr2(string("1.1.1.1"));
+	IPv4Address ip4addr1("10.0.0.4");
+	IPv4Address ip4addr2("1.1.1.1");
 	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->protocol, 1, u8);
 	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipVersion, 4, u8);
 	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toUInt(), u32);
@@ -480,31 +480,31 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 {
 	int buffer1Length = 0;
 	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IPv4Option1.dat", buffer1Length);
-	PTF_ASSERT(!(buffer1 == NULL), "cannot read file IPv4Option1.dat");
+	PTF_ASSERT_NOT_NULL(buffer1);
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IPv4Option2.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IPv4Option2.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	int buffer3Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IPv4Option3.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file IPv4Option3.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IPv4Option4.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file IPv4Option4.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 
 	int buffer5Length = 0;
 	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/IPv4Option5.dat", buffer5Length);
-	PTF_ASSERT(!(buffer5 == NULL), "cannot read file IPv4Option5.dat");
+	PTF_ASSERT_NOT_NULL(buffer5);
 
 	int buffer6Length = 0;
 	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IPv4Option6.dat", buffer6Length);
-	PTF_ASSERT(!(buffer6 == NULL), "cannot read file IPv4Option6.dat");
+	PTF_ASSERT_NOT_NULL(buffer6);
 
 	int buffer7Length = 0;
 	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/IPv4Option7.dat", buffer7Length);
-	PTF_ASSERT(!(buffer7 == NULL), "cannot read file IPv4Option7.dat");
+	PTF_ASSERT_NOT_NULL(buffer7);
 
 
 	timeval time;
@@ -526,137 +526,137 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 	Packet ipOpt7(&rawPacket7);
 
 	IPv4Layer* ipLayer = ipOpt1.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer != NULL, "Coudln't find ipOpt1 IPv4 layer");
-	PTF_ASSERT(ipLayer->getHeaderLen() == 44, "ipOpt1 header length isn't 44 Bytes");
-	PTF_ASSERT(ipLayer->getOptionCount() == 3, "ipOpt1 option count isn't 3");
+	PTF_ASSERT_NOT_NULL(ipLayer);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 44, size);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 3, size);
 	IPv4Option opt = ipLayer->getFirstOption();
-	PTF_ASSERT(opt.isNull() == false, "ipOpt1 first option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_CommercialSecurity, "ipOpt1 first option isn't commercial-security");
-	PTF_ASSERT(opt.getDataSize() == 20, "ipOpt1 first option data size isn't 20");
-	PTF_ASSERT(opt.getTotalSize() == 22, "ipOpt1 first option total size isn't 22");
-	PTF_ASSERT(opt.getValueAs<uint32_t>() == htobe32(2), "ipOpt1 first int value isn't 2");
-	PTF_ASSERT(opt.getValueAs<uint8_t>(4) == 2, "ipOpt1 value in offset 4 isn't 2");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_CommercialSecurity, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 20, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 22, size);
+	PTF_ASSERT_EQUAL(opt.getValueAs<uint32_t>(), htobe32(2), u32);
+	PTF_ASSERT_EQUAL(opt.getValueAs<uint8_t>(4), 2, u8);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == false, "ipOpt1 second option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOtionsList, "ipOpt1 second option isn't end-of-option-list");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_EndOfOtionsList, enum);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == false, "ipOpt1 third option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOtionsList, "ipOpt1 second option isn't end-of-option-list");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_EndOfOtionsList, enum);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == true, "ipOpt1 fourth option isn't NULL");
+	PTF_ASSERT_TRUE(opt.isNull());
 	opt = ipLayer->getOption(IPV4OPT_EndOfOtionsList);
-	PTF_ASSERT(opt.isNull() == false, "ipOpt1 couldn't retrieve option by type");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOtionsList, "ipOpt1 type if retrieved option isn't end-of-option-list");
-	PTF_ASSERT(ipLayer->getOption(IPV4OPT_Timestamp).isNull() == true, "ipOpt1 Managed to reprieve timestamp option although doens't exist in the packet");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_EndOfOtionsList, enum);
+	PTF_ASSERT_TRUE(ipLayer->getOption(IPV4OPT_Timestamp).isNull());
 
 	ipLayer = ipOpt2.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer != NULL, "Coudln't find ipOpt2 IPv4 layer");
-	PTF_ASSERT(ipLayer->getHeaderLen() == 60, "ipOpt2 header length isn't 60 Bytes");
-	PTF_ASSERT(ipLayer->getOptionCount() == 1, "ipOpt2 option count isn't 1");
+	PTF_ASSERT_NOT_NULL(ipLayer);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 60, size);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1, size);
 	opt = ipLayer->getFirstOption();
-	PTF_ASSERT(opt.isNull() == false, "ipOpt2 first option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_Timestamp, "ipOpt2 first option isn't timestamp");
-	PTF_ASSERT(opt.getDataSize() == 38, "ipOpt2 first option data size isn't 38");
-	PTF_ASSERT(opt.getTotalSize() == 40, "ipOpt2 first option total size isn't 40");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_Timestamp, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 38, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 40, size);
 	IPv4TimestampOptionValue tsValue = opt.getTimestampOptionValue();
-	PTF_ASSERT(tsValue.type == IPv4TimestampOptionValue::TimestampOnly, "ipOpt2 ts type isn't TimestampOnly");
-	PTF_ASSERT(tsValue.timestamps.size() == 1, "ipOpt2 ts value contains more than 1 ts");
-	PTF_ASSERT(tsValue.ipAddresses.size() == 0, "ipOpt2 ts value contains more than 0 IPs");
-	PTF_ASSERT(tsValue.timestamps.at(0) == htobe32(82524601), "ipOpt2 ts value first ts isn't 82524601");
+	PTF_ASSERT_EQUAL(tsValue.type, IPv4TimestampOptionValue::TimestampOnly, enum);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.size(), 1, size);
+	PTF_ASSERT_EQUAL(tsValue.ipAddresses.size(), 0, size);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.at(0), htobe32(82524601), u32);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == true, "ipOpt2 second option isn't NULL");
+	PTF_ASSERT_TRUE(opt.isNull());
 
 	ipLayer = ipOpt3.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer != NULL, "Coudln't find ipOpt3 IPv4 layer");
-	PTF_ASSERT(ipLayer->getHeaderLen() == 24, "ipOpt3 header length isn't 24 Bytes");
-	PTF_ASSERT(ipLayer->getOptionCount() == 1, "ipOpt3 option count isn't 1");
+	PTF_ASSERT_NOT_NULL(ipLayer);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 24, size);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1, size);
 	opt = ipLayer->getFirstOption();
-	PTF_ASSERT(opt.isNull() == false, "ipOpt3 first option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_RouterAlert, "ipOpt3 first option isn't router-alert");
-	PTF_ASSERT(opt.getDataSize() == 2, "ipOpt3 first option data size isn't 2");
-	PTF_ASSERT(opt.getTotalSize() == 4, "ipOpt3 first option total size isn't 4");
-	PTF_ASSERT(opt.getValueAs<uint16_t>() == 0, "ipOpt3 value isn't 0");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_RouterAlert, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 2, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 4, size);
+	PTF_ASSERT_EQUAL(opt.getValueAs<uint16_t>(), 0, u16);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == true, "ipOpt3 second option isn't NULL");
+	PTF_ASSERT_TRUE(opt.isNull());
 
 	ipLayer = ipOpt4.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer != NULL, "Coudln't find ipOpt4 IPv4 layer");
-	PTF_ASSERT(ipLayer->getHeaderLen() == 60, "ipOpt4 header length isn't 60 Bytes");
-	PTF_ASSERT(ipLayer->getOptionCount() == 2, "ipOpt4 option count isn't 2");
+	PTF_ASSERT_NOT_NULL(ipLayer);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 60, size);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, size);
 	opt = ipLayer->getFirstOption();
-	PTF_ASSERT(opt.isNull() == false, "ipOpt4 first option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_RecordRoute, "ipOpt4 first option isn't record-route");
-	PTF_ASSERT(opt.getDataSize() == 37, "ipOpt4 first option data size isn't 37");
-	PTF_ASSERT(opt.getTotalSize() == 39, "ipOpt4 first option total size isn't 39");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_RecordRoute, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 37, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 39, size);
 	std::vector<IPv4Address> ipAddrs = opt.getValueAsIpList();
-	PTF_ASSERT(ipAddrs.size() == 3, "ipOpt4 number of IP addresses isn't 3");
-	PTF_ASSERT(ipAddrs.at(0) == IPv4Address(std::string("1.2.3.4")), "ipOpt4 first IP addr isn't 1.2.3.4");
-	PTF_ASSERT(ipAddrs.at(1) == IPv4Address(std::string("10.0.0.138")), "ipOpt4 second IP addr isn't 10.0.0.138");
-	PTF_ASSERT(ipAddrs.at(2) == IPv4Address(std::string("10.0.0.138")), "ipOpt4 third IP addr isn't 10.0.0.138");
+	PTF_ASSERT_EQUAL(ipAddrs.size(), 3, size);
+	PTF_ASSERT_EQUAL(ipAddrs.at(0), IPv4Address("1.2.3.4"), object);
+	PTF_ASSERT_EQUAL(ipAddrs.at(1), IPv4Address("10.0.0.138"), object);
+	PTF_ASSERT_EQUAL(ipAddrs.at(2), IPv4Address("10.0.0.138"), object);
 	IPv4Option opt2 = ipLayer->getOption(IPV4OPT_RecordRoute);
-	PTF_ASSERT(opt2.isNull() == false, "ipOpt4 couldn't retrieve option by type");
-	PTF_ASSERT(opt2 == opt, "ipOpt4 option retrieved by type and by getFirstOptionData aren't the same pointer");
+	PTF_ASSERT_FALSE(opt2.isNull());
+	PTF_ASSERT_TRUE(opt2 == opt);
 
 	ipLayer = ipOpt5.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer != NULL, "Coudln't find ipOpt5 IPv4 layer");
-	PTF_ASSERT(ipLayer->getHeaderLen() == 56, "ipOpt5 header length isn't 56 Bytes");
-	PTF_ASSERT(ipLayer->getOptionCount() == 1, "ipOpt5 option count isn't 1");
+	PTF_ASSERT_NOT_NULL(ipLayer);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 56, size);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1, size);
 	opt = ipLayer->getFirstOption();
-	PTF_ASSERT(opt.isNull() == false, "ipOpt5 first option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_Timestamp, "ipOpt5 first option isn't timestamp");
-	PTF_ASSERT(opt.getDataSize() == 34, "ipOpt5 first option data size isn't 34");
-	PTF_ASSERT(opt.getTotalSize() == 36, "ipOpt5 first option total size isn't 36");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_Timestamp, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 34, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 36, size);
 	tsValue = opt.getTimestampOptionValue();
-	PTF_ASSERT(tsValue.type == IPv4TimestampOptionValue::TimestampAndIP, "ipOpt5 ts type isn't TimestampAndIP");
-	PTF_ASSERT(tsValue.timestamps.size() == 3, "ipOpt5 ts value doesn't contain 3 ts");
-	PTF_ASSERT(tsValue.ipAddresses.size() == 3, "ipOpt5 ts value deosn't contain 3 IPs");
-	PTF_ASSERT(tsValue.timestamps.at(0) == htobe32(70037668), "ipOpt5 ts value first ts isn't 70037668");
-	PTF_ASSERT(tsValue.timestamps.at(2) == htobe32(77233718), "ipOpt5 ts value third ts isn't 77233718");
-	PTF_ASSERT(tsValue.ipAddresses.at(0) == IPv4Address(std::string("10.0.0.6")), "ipOpt5 ts value first IP isn't 10.0.0.6");
-	PTF_ASSERT(tsValue.ipAddresses.at(1) == IPv4Address(std::string("10.0.0.138")), "ipOpt5 ts value second IP isn't 10.0.0.138");
+	PTF_ASSERT_EQUAL(tsValue.type, IPv4TimestampOptionValue::TimestampAndIP, enum);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.size(), 3, size);
+	PTF_ASSERT_EQUAL(tsValue.ipAddresses.size(), 3, size);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.at(0), htobe32(70037668), u32);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.at(2), htobe32(77233718), u32);
+	PTF_ASSERT_EQUAL(tsValue.ipAddresses.at(0), IPv4Address("10.0.0.6"), object);
+	PTF_ASSERT_EQUAL(tsValue.ipAddresses.at(1), IPv4Address("10.0.0.138"), object);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == true, "ipOpt5 second option isn't NULL");
+	PTF_ASSERT_TRUE(opt.isNull());
 
 	ipLayer = ipOpt6.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer != NULL, "Coudln't find ipOpt6 IPv4 layer");
-	PTF_ASSERT(ipLayer->getHeaderLen() == 28, "ipOpt6 header length isn't 28 Bytes");
-	PTF_ASSERT(ipLayer->getOptionCount() == 2, "ipOpt6 option count isn't 2");
+	PTF_ASSERT_NOT_NULL(ipLayer);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 28, size);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, size);
 	opt = ipLayer->getFirstOption();
-	PTF_ASSERT(opt.isNull() == false, "ipOpt6 first option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_NOP, "ipOpt6 first option isn't nop");
-	PTF_ASSERT(opt.getDataSize() == 0, "ipOpt6 first option data size isn't 0");
-	PTF_ASSERT(opt.getTotalSize() == 1, "ipOpt6 first option total size isn't 1");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_NOP, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 0, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 1, size);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == false, "ipOpt6 second option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_StrictSourceRoute, "ipOpt6 second option isn't strict-source-route");
-	PTF_ASSERT(opt.getDataSize() == 5, "ipOpt6 second option data size isn't 5");
-	PTF_ASSERT(opt.getTotalSize() == 7, "ipOpt6 second option total size isn't 7");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_StrictSourceRoute, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 5, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 7, size);
 	ipAddrs = opt.getValueAsIpList();
-	PTF_ASSERT(ipAddrs.size() == 0, "ipOpt6 number of IP addresses isn't 0");
+	PTF_ASSERT_EQUAL(ipAddrs.size(), 0, size);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == true, "ipOpt6 third option isn't NULL");
+	PTF_ASSERT_TRUE(opt.isNull());
 
 	ipLayer = ipOpt7.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer != NULL, "Coudln't find ipOpt7 IPv4 layer");
-	PTF_ASSERT(ipLayer->getHeaderLen() == 28, "ipOpt7 header length isn't 28 Bytes");
-	PTF_ASSERT(ipLayer->getOptionCount() == 2, "ipOpt7 option count isn't 2");
+	PTF_ASSERT_NOT_NULL(ipLayer);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 28, size);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, size);
 	opt = ipLayer->getFirstOption();
-	PTF_ASSERT(opt.isNull() == false, "ipOpt7 first option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_NOP, "ipOpt7 first option isn't nop");
-	PTF_ASSERT(opt.getDataSize() == 0, "ipOpt7 first option data size isn't 0");
-	PTF_ASSERT(opt.getTotalSize() == 1, "ipOpt7 first option total size isn't 1");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_NOP, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 0, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 1, size);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == false, "ipOpt7 second option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_LooseSourceRoute, "ipOpt7 second option isn't loose-source-route");
-	PTF_ASSERT(opt.getDataSize() == 5, "ipOpt7 second option data size isn't 5");
-	PTF_ASSERT(opt.getTotalSize() == 7, "ipOpt7 second option total size isn't 7");
+	PTF_ASSERT_FALSE(opt.isNull());
+	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), IPV4OPT_LooseSourceRoute, enum);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 5, size);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 7, size);
 	ipAddrs = opt.getValueAsIpList();
-	PTF_ASSERT(ipAddrs.size() == 0, "ipOpt7 number of IP addresses isn't 0");
+	PTF_ASSERT_EQUAL(ipAddrs.size(), 0, size);
 	opt2 = ipLayer->getOption(IPV4OPT_LooseSourceRoute);
-	PTF_ASSERT(opt2.isNull() == false, "ipOpt7 couldn't retrieve option by type");
-	PTF_ASSERT(opt2 == opt, "ipOpt7 option retrieved by type and by getNextOptionData aren't the same pointer");
+	PTF_ASSERT_FALSE(opt2.isNull());
+	PTF_ASSERT_TRUE(opt2 == opt);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT(opt.isNull() == true, "ipOpt7 third option isn't NULL");
+	PTF_ASSERT_TRUE(opt.isNull());
 } // Ipv4OptionsParsingTest
 
 
@@ -665,52 +665,52 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 {
 	int buffer1Length = 0;
 	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IPv4-NoOptions1.dat", buffer1Length);
-	PTF_ASSERT(!(buffer1 == NULL), "cannot read file IPv4-NoOptions1.dat");
+	PTF_ASSERT_NOT_NULL(buffer1);
 	int buffer11Length = 0;
 	uint8_t* buffer11 = readFileIntoBuffer("PacketExamples/IPv4Option1.dat", buffer11Length);
-	PTF_ASSERT(!(buffer11 == NULL), "cannot read file IPv4Option1.dat");
+	PTF_ASSERT_NOT_NULL(buffer11);
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IPv4-NoOptions2.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IPv4-NoOptions2.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 	int buffer22Length = 0;
 	uint8_t* buffer22 = readFileIntoBuffer("PacketExamples/IPv4Option2.dat", buffer22Length);
-	PTF_ASSERT(!(buffer22 == NULL), "cannot read file IPv4Option2.dat");
+	PTF_ASSERT_NOT_NULL(buffer22);
 
 	int buffer3Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IPv4-NoOptions3.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file IPv4-NoOptions3.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 	int buffer33Length = 0;
 	uint8_t* buffer33 = readFileIntoBuffer("PacketExamples/IPv4Option3.dat", buffer33Length);
-	PTF_ASSERT(!(buffer33 == NULL), "cannot read file IPv4Option3.dat");
+	PTF_ASSERT_NOT_NULL(buffer33);
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IPv4-NoOptions4.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file IPv4-NoOptions4.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 	int buffer44Length = 0;
 	uint8_t* buffer44 = readFileIntoBuffer("PacketExamples/IPv4Option4.dat", buffer44Length);
-	PTF_ASSERT(!(buffer44 == NULL), "cannot read file IPv4Option4.dat");
+	PTF_ASSERT_NOT_NULL(buffer44);
 
 	int buffer5Length = 0;
 	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/IPv4-NoOptions5.dat", buffer5Length);
-	PTF_ASSERT(!(buffer5 == NULL), "cannot read file IPv4-NoOptions5.dat");
+	PTF_ASSERT_NOT_NULL(buffer5);
 	int buffer55Length = 0;
 	uint8_t* buffer55 = readFileIntoBuffer("PacketExamples/IPv4Option5.dat", buffer55Length);
-	PTF_ASSERT(!(buffer55 == NULL), "cannot read file IPv4Option5.dat");
+	PTF_ASSERT_NOT_NULL(buffer55);
 
 	int buffer6Length = 0;
 	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IPv4-NoOptions6.dat", buffer6Length);
-	PTF_ASSERT(!(buffer6 == NULL), "cannot read file IPv4-NoOptions6.dat");
+	PTF_ASSERT_NOT_NULL(buffer6);
 	int buffer66Length = 0;
 	uint8_t* buffer66 = readFileIntoBuffer("PacketExamples/IPv4Option6.dat", buffer66Length);
-	PTF_ASSERT(!(buffer66 == NULL), "cannot read file IPv4Option6.dat");
+	PTF_ASSERT_NOT_NULL(buffer66);
 
 	int buffer7Length = 0;
 	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/IPv4-NoOptions7.dat", buffer7Length);
-	PTF_ASSERT(!(buffer7 == NULL), "cannot read file IPv4-NoOptions7.dat");
+	PTF_ASSERT_NOT_NULL(buffer7);
 	int buffer77Length = 0;
 	uint8_t* buffer77 = readFileIntoBuffer("PacketExamples/IPv4Option7.dat", buffer77Length);
-	PTF_ASSERT(!(buffer77 == NULL), "cannot read file IPv4Option7.dat");
+	PTF_ASSERT_NOT_NULL(buffer77);
 
 
 	timeval time;
@@ -733,14 +733,14 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 
 	IPv4Layer* ipLayer = ipOpt1.getLayerOfType<IPv4Layer>();
 	uint8_t commSecOptionData[] = { 0x00, 0x00, 0x00, 0x02, 0x02, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x05, 0x00, 0x06, 0x00, 0xef };
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_CommercialSecurity, commSecOptionData, 20)).isNull() == false, "Cannot add commercial security option to packet 1");
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 1");
-	PTF_ASSERT(ipLayer->addOptionAfter(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0), IPV4OPT_CommercialSecurity).isNull() == false, "Cannot add 2nd end-of-opt-list option to packet 1");
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_CommercialSecurity, commSecOptionData, 20)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0), IPV4OPT_CommercialSecurity).isNull());
 	ipOpt1.computeCalculateFields();
 
 
-	PTF_ASSERT(buffer11Length == ipOpt1.getRawPacket()->getRawDataLen(), "ipOpt1 len (%d) is different than read packet len (%d)", ipOpt1.getRawPacket()->getRawDataLen(), buffer11Length);
-	PTF_ASSERT(memcmp(ipOpt1.getRawPacket()->getRawData(), buffer11, ipOpt1.getRawPacket()->getRawDataLen()) == 0, "ipOpt1: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(buffer11Length, ipOpt1.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt1.getRawPacket()->getRawData(), buffer11, ipOpt1.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt2.getLayerOfType<IPv4Layer>();
 	IPv4TimestampOptionValue tsOption;
@@ -748,18 +748,18 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	tsOption.timestamps.push_back(82524601);
 	for (int i = 0; i < 8; i++)
 		tsOption.timestamps.push_back(0);
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull() == false, "Cannot add timestamp option to packet 2");
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull());
 	ipOpt2.computeCalculateFields();
-	PTF_ASSERT(buffer22Length == ipOpt2.getRawPacket()->getRawDataLen(), "ipOpt2 len (%d) is different than read packet len (%d)", ipOpt2.getRawPacket()->getRawDataLen(), buffer22Length);
-	PTF_ASSERT(memcmp(ipOpt2.getRawPacket()->getRawData(), buffer22, ipOpt2.getRawPacket()->getRawDataLen()) == 0, "ipOpt2: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(buffer22Length, ipOpt2.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt2.getRawPacket()->getRawData(), buffer22, ipOpt2.getRawPacket()->getRawDataLen());
 
 
 	ipLayer = ipOpt3.getLayerOfType<IPv4Layer>();
 	uint16_t routerAlerVal = 0;
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull() == false, "Cannot add router alert option to packet 3");
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
 	ipOpt3.computeCalculateFields();
-	PTF_ASSERT(buffer33Length == ipOpt3.getRawPacket()->getRawDataLen(), "ipOpt3 len (%d) is different than read packet len (%d)", ipOpt3.getRawPacket()->getRawDataLen(), buffer33Length);
-	PTF_ASSERT(memcmp(ipOpt3.getRawPacket()->getRawData(), buffer33, ipOpt3.getRawPacket()->getRawDataLen()) == 0, "ipOpt3: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(buffer33Length, ipOpt3.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt3.getRawPacket()->getRawData(), buffer33, ipOpt3.getRawPacket()->getRawDataLen());
 
 
 	ipLayer = ipOpt4.getLayerOfType<IPv4Layer>();
@@ -768,110 +768,110 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	ipListValue.push_back(IPv4Address(std::string("10.0.0.138")));
 	ipListValue.push_back(IPv4Address(std::string("10.0.0.138")));
 	for (int i = 0; i < 6; i++)
-		ipListValue.push_back(IPv4Address::Zero);
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_RecordRoute, ipListValue)).isNull() == false, "Cannot add record route option to packet 4");
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 4");
+		ipListValue.push_back(IPv4Address());
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_RecordRoute, ipListValue)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0)).isNull());
 	ipOpt4.computeCalculateFields();
-	PTF_ASSERT(buffer44Length == ipOpt4.getRawPacket()->getRawDataLen(), "ipOpt4 len (%d) is different than read packet len (%d)", ipOpt4.getRawPacket()->getRawDataLen(), buffer44Length);
-	PTF_ASSERT(memcmp(ipOpt4.getRawPacket()->getRawData(), buffer44, ipOpt4.getRawPacket()->getRawDataLen()) == 0, "ipOpt4: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(buffer44Length, ipOpt4.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt4.getRawPacket()->getRawData(), buffer44, ipOpt4.getRawPacket()->getRawDataLen());
 
 
 	ipLayer = ipOpt5.getLayerOfType<IPv4Layer>();
 	tsOption.clear();
 	LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull() == true, "Managed to add an empty timestamp value");
+	PTF_ASSERT_TRUE(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull());
 	LoggerPP::getInstance().enableErrors();
 	tsOption.type = IPv4TimestampOptionValue::TimestampAndIP;
-	tsOption.ipAddresses.push_back(IPv4Address(std::string("10.0.0.6")));
-	tsOption.ipAddresses.push_back(IPv4Address(std::string("10.0.0.138")));
-	tsOption.ipAddresses.push_back(IPv4Address(std::string("10.0.0.138")));
-	tsOption.ipAddresses.push_back(IPv4Address::Zero);
+	tsOption.ipAddresses.push_back(IPv4Address("10.0.0.6"));
+	tsOption.ipAddresses.push_back(IPv4Address("10.0.0.138"));
+	tsOption.ipAddresses.push_back(IPv4Address("10.0.0.138"));
+	tsOption.ipAddresses.push_back(IPv4Address());
 	LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull() == true, "Managed to set timestamp option value with non-equal number of timestamps and IPs");
+	PTF_ASSERT_TRUE(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull());
 	LoggerPP::getInstance().enableErrors();
 	tsOption.timestamps.push_back(70037668);
 	tsOption.timestamps.push_back(77233718);
 	tsOption.timestamps.push_back(77233718);
 	tsOption.timestamps.push_back(0);
 	IPv4Option optData = ipLayer->addOption(IPv4OptionBuilder(tsOption));
-	PTF_ASSERT(optData.isNull() == false, "Cannot add timestamp option to packet 5");
-	PTF_ASSERT(optData.getIPv4OptionType() == IPV4OPT_Timestamp, "Packet 5: timestamp option doesn't have type IPV4OPT_Timestamp");
-	PTF_ASSERT(optData.getTotalSize() == 36, "Packet 5: timestamp option length isn't 36");
+	PTF_ASSERT_FALSE(optData.isNull());
+	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), IPV4OPT_Timestamp, enum);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 36, size);
 	tsOption.clear();
 	tsOption = optData.getTimestampOptionValue();
-	PTF_ASSERT(tsOption.type == IPv4TimestampOptionValue::TimestampAndIP, "Packet 5: timestamp data type isn't TimestampAndIP");
-	PTF_ASSERT(tsOption.timestamps.size() == 3, "Packet 5: number of timestamps isn't 3");
-	PTF_ASSERT(tsOption.timestamps.at(1) == htobe32(77233718), "Packet 5: timestamps[1] isn't 77233718");
-	PTF_ASSERT(tsOption.ipAddresses.size() == 3, "Packet 5: number of IP addresses isn't 3");
-	PTF_ASSERT(tsOption.ipAddresses.at(2) == IPv4Address(std::string("10.0.0.138")), "Packet 5: IP[2] isn't 10.0.0.138");
+	PTF_ASSERT_EQUAL(tsOption.type, IPv4TimestampOptionValue::TimestampAndIP, enum);
+	PTF_ASSERT_EQUAL(tsOption.timestamps.size(), 3, size);
+	PTF_ASSERT_EQUAL(tsOption.timestamps.at(1), htobe32(77233718), u32);
+	PTF_ASSERT_EQUAL(tsOption.ipAddresses.size(), 3, size);
+	PTF_ASSERT_EQUAL(tsOption.ipAddresses.at(2), IPv4Address("10.0.0.138"), object);
 	ipOpt5.computeCalculateFields();
-	PTF_ASSERT(buffer55Length == ipOpt5.getRawPacket()->getRawDataLen(), "ipOpt5 len (%d) is different than read packet len (%d)", ipOpt5.getRawPacket()->getRawDataLen(), buffer55Length);
-	PTF_ASSERT(memcmp(ipOpt5.getRawPacket()->getRawData(), buffer55, ipOpt5.getRawPacket()->getRawDataLen()) == 0, "ipOpt5: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(buffer55Length, ipOpt5.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt5.getRawPacket()->getRawData(), buffer55, ipOpt5.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt6.getLayerOfType<IPv4Layer>();
 	ipListValue.clear();
-	ipListValue.push_back(IPv4Address::Zero);
+	ipListValue.push_back(IPv4Address());
 	optData = ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_StrictSourceRoute, ipListValue));
-	PTF_ASSERT(optData.isNull() == false, "Cannot add strict source route option to packet 6");
-	PTF_ASSERT(optData.getIPv4OptionType() == IPV4OPT_StrictSourceRoute, "Packet 6: strict source route option doesn't have type IPV4OPT_StrictSourceRoute");
-	PTF_ASSERT(optData.getTotalSize() == 7, "Packet 6: strict source route length isn't 7");
+	PTF_ASSERT_FALSE(optData.isNull());
+	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), IPV4OPT_StrictSourceRoute, enum);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 7, size);
 	ipListValue = optData.getValueAsIpList();
-	PTF_ASSERT(ipListValue.size() == 0, "Packet 6: strict source route IP list value length isn't 0");
+	PTF_ASSERT_EQUAL(ipListValue.size(), 0, size);
 	optData = ipLayer->addOptionAfter(IPv4OptionBuilder(IPV4OPT_NOP, NULL, 0));
-	PTF_ASSERT(optData.isNull() == false, "Cannot add NOP option to packet 6");
-	PTF_ASSERT(optData.getIPv4OptionType() == IPV4OPT_NOP, "Packet 6: NOP option doesn't have type NOP");
-	PTF_ASSERT(optData.getTotalSize() == 1, "Packet 6: NOP option length isn't 1");
+	PTF_ASSERT_FALSE(optData.isNull());
+	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), IPV4OPT_NOP, enum);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 1, size);
 	ipOpt6.computeCalculateFields();
-	PTF_ASSERT(buffer66Length == ipOpt6.getRawPacket()->getRawDataLen(), "ipOpt6 len (%d) is different than read packet len (%d)", ipOpt6.getRawPacket()->getRawDataLen(), buffer66Length);
-	PTF_ASSERT(memcmp(ipOpt6.getRawPacket()->getRawData(), buffer66, ipOpt6.getRawPacket()->getRawDataLen()) == 0, "ipOpt6: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(buffer66Length, ipOpt6.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt6.getRawPacket()->getRawData(), buffer66, ipOpt6.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt7.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_NOP, NULL, 0)).isNull() == false, "Cannot add NOP option to packet 7");
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_NOP, NULL, 0)).isNull());
 	ipListValue.clear();
-	ipListValue.push_back(IPv4Address::Zero);
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_LooseSourceRoute, ipListValue)).isNull() == false, "Cannot add loose source route option to packet 7");
+	ipListValue.push_back(IPv4Address());
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_LooseSourceRoute, ipListValue)).isNull());
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(buffer77Length == ipOpt7.getRawPacket()->getRawDataLen(), "ipOpt7 len (%d) is different than read packet len (%d)", ipOpt7.getRawPacket()->getRawDataLen(), buffer77Length);
-	PTF_ASSERT(memcmp(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen()) == 0, "ipOpt7: Raw packet data is different than expected");
-	PTF_ASSERT(ipLayer->getOptionCount() == 2, "Packet 7 option count after adding loose source route isn't 2, it's %d", (int)ipLayer->getOptionCount());
+	PTF_ASSERT_EQUAL(buffer77Length, ipOpt7.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, size);
 
 	tsOption.clear();
 	tsOption.type = IPv4TimestampOptionValue::TimestampAndIP;
-	tsOption.ipAddresses.push_back(IPv4Address(std::string("10.0.0.6")));
-	tsOption.ipAddresses.push_back(IPv4Address::Zero);
+	tsOption.ipAddresses.push_back(IPv4Address("10.0.0.6"));
+	tsOption.ipAddresses.push_back(IPv4Address());
 	tsOption.timestamps.push_back(70037668);
 	tsOption.timestamps.push_back(70037669);
-	PTF_ASSERT(ipLayer->addOptionAfter(IPv4OptionBuilder(tsOption), IPV4OPT_NOP).isNull() == false, "Cannot add timestamp option to packet 7");
-	PTF_ASSERT(ipLayer->addOptionAfter(IPv4OptionBuilder(IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull() == false, "Cannot add router alert option to packet 7");
-	PTF_ASSERT(ipLayer->getOptionCount() == 4, "Packet 7 option count after adding router alert option isn't 4");
+	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(IPv4OptionBuilder(tsOption), IPV4OPT_NOP).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(IPv4OptionBuilder(IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 4, size);
 	ipOpt7.computeCalculateFields();
 	tsOption.clear();
 	tsOption.type = IPv4TimestampOptionValue::TimestampOnly;
 	tsOption.timestamps.push_back(70037670);
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull() == false, "Cannot add 2nd timestamp option to packet 7");
-	PTF_ASSERT(ipLayer->getOptionCount() == 5, "Packet 7 option count after adding 2nd timestamp option isn't 5");
+	PTF_ASSERT_FALSE(ipLayer->addOption(IPv4OptionBuilder(tsOption)).isNull());
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5, size);
 	LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull() == true, "Managed to add an option to packet 7 although max option size exceeded");
+	PTF_ASSERT_TRUE(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
 	LoggerPP::getInstance().enableErrors();
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(ipLayer->getOptionCount() == 5, "Packet 7 option count after adding all options isn't 5");
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5, size);
 
-	PTF_ASSERT(ipLayer->removeOption(IPV4OPT_Timestamp) == true, "Cannot remove timestamp option");
-	PTF_ASSERT(ipLayer->getOptionCount() == 4, "Packet 7 option count after removing 1st timestamp option isn't 4");
+	PTF_ASSERT_TRUE(ipLayer->removeOption(IPV4OPT_Timestamp));
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 4, size);
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(ipLayer->removeOption(IPV4OPT_RouterAlert) == true, "Cannot remove router alert option");
+	PTF_ASSERT_TRUE(ipLayer->removeOption(IPV4OPT_RouterAlert));
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(ipLayer->removeOption(IPV4OPT_Timestamp) == true, "Cannot remove 2nd timestamp option");
-	PTF_ASSERT(ipLayer->getOptionCount() == 2, "Packet 7 option count after removing 2nd timestamp option isn't 2");
+	PTF_ASSERT_TRUE(ipLayer->removeOption(IPV4OPT_Timestamp));
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, size);
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(buffer77Length == ipOpt7.getRawPacket()->getRawDataLen(), "ipOpt7 len (%d) is different than read packet len (%d)", ipOpt7.getRawPacket()->getRawDataLen(), buffer77Length);
-	PTF_ASSERT(memcmp(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen()) == 0, "ipOpt7: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(buffer77Length, ipOpt7.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen());
 
-	PTF_ASSERT(ipLayer->removeAllOptions() == true, "Cannot remove all remaining options");
+	PTF_ASSERT_TRUE(ipLayer->removeAllOptions());
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(ipOpt7.getRawPacketReadOnly()->getRawDataLen() == 42, "Packet 7 length after removing all options isn't 42");
+	PTF_ASSERT_EQUAL(ipOpt7.getRawPacketReadOnly()->getRawDataLen(), 42, int);
 	ipLayer = ipOpt7.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipLayer->getOptionCount() == 0, "Packet 7 option count after removing all options isn't 0");
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 0, size);
 
 	delete [] buffer11;
 	delete [] buffer22;
@@ -914,29 +914,28 @@ PTF_TEST_CASE(Ipv6UdpPacketParseAndCreate)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/IPv6UdpPacket.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 
 	Packet ip6UdpPacket(&rawPacket);
-	PTF_ASSERT(!ip6UdpPacket.isPacketOfType(IPv4), "Packet is of type IPv4 instead IPv6");
-	PTF_ASSERT(!ip6UdpPacket.isPacketOfType(TCP), "Packet is of type TCP where it shouldn't");
-	IPv6Layer* ipv6Layer = NULL;
-	PTF_ASSERT((ipv6Layer = ip6UdpPacket.getLayerOfType<IPv6Layer>()) != NULL, "IPv6 layer doesn't exist");
-	PTF_ASSERT(ipv6Layer->getIPv6Header()->nextHeader == 17, "Protocol read from packet isnt UDP (17). Protocol is: %d", ipv6Layer->getIPv6Header()->nextHeader);
-	PTF_ASSERT(ipv6Layer->getIPv6Header()->ipVersion == 6, "IP version isn't 6. Version is: %d", ipv6Layer->getIPv6Header()->ipVersion);
-	IPv6Address srcIP(string("fe80::4dc7:f593:1f7b:dc11"));
-	IPv6Address dstIP(string("ff02::c"));
-	PTF_ASSERT(ipv6Layer->getSrcIpAddress() == srcIP, "incorrect source address");
-	PTF_ASSERT(ipv6Layer->getDstIpAddress() == dstIP, "incorrect dest address");
-	UdpLayer* pUdpLayer = NULL;
-	PTF_ASSERT((pUdpLayer = ip6UdpPacket.getLayerOfType<UdpLayer>()) != NULL, "UDP layer doesn't exist");
-	PTF_ASSERT(pUdpLayer->getUdpHeader()->portDst == htobe16(1900), "UDP dest port != 1900");
-	PTF_ASSERT(pUdpLayer->getUdpHeader()->portSrc == htobe16(63628), "UDP dest port != 63628");
-	PTF_ASSERT(pUdpLayer->getUdpHeader()->length == htobe16(154), "UDP dest port != 154");
-	PTF_ASSERT(pUdpLayer->getUdpHeader()->headerChecksum == htobe16(0x5fea), "UDP dest port != 0x5fea");
+	PTF_ASSERT_FALSE(ip6UdpPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_FALSE(ip6UdpPacket.isPacketOfType(TCP));
+	IPv6Layer* ipv6Layer = ip6UdpPacket.getLayerOfType<IPv6Layer>();
+	PTF_ASSERT_NOT_NULL(ipv6Layer);
+	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->nextHeader, 17, u8);
+	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->ipVersion, 6, u8);
+	IPv6Address srcIP("fe80::4dc7:f593:1f7b:dc11"), dstIP("ff02::c");
+	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIpAddress(), srcIP, object);
+	PTF_ASSERT_EQUAL(ipv6Layer->getDstIpAddress(), dstIP, object);
+	UdpLayer* pUdpLayer = ip6UdpPacket.getLayerOfType<UdpLayer>();
+	PTF_ASSERT_NOT_NULL(pUdpLayer);
+	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->portDst, htobe16(1900), u16);
+	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->portSrc, htobe16(63628), u16);
+	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->length, htobe16(154), u16);
+	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->headerChecksum, htobe16(0x5fea), u16);
 
 	Packet ip6UdpPacketNew(1);
 	EthLayer ethLayer(MacAddress("6c:f0:49:b2:de:6e"), MacAddress ("33:33:00:00:00:0c"));
@@ -953,14 +952,14 @@ PTF_TEST_CASE(Ipv6UdpPacketParseAndCreate)
 	afterIpv6Layer->copyData(payloadData);
 	PayloadLayer payloadLayer(payloadData, afterIpv6Layer->getDataLen(), true);
 
-	PTF_ASSERT(ip6UdpPacketNew.addLayer(&ethLayer), "Couldn't add eth layer");
-	PTF_ASSERT(ip6UdpPacketNew.addLayer(&ip6Layer), "Couldn't add IPv6 layer");
-	PTF_ASSERT(ip6UdpPacketNew.addLayer(&udpLayer), "Couldn't add udp layer");
-	PTF_ASSERT(ip6UdpPacketNew.addLayer(&payloadLayer), "Couldn't add payload layer");
+	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&ip6Layer));
+	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&udpLayer));
+	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&payloadLayer));
 	ip6UdpPacketNew.computeCalculateFields();
 
-	PTF_ASSERT(bufferLength == ip6UdpPacketNew.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", ip6UdpPacketNew.getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(ip6UdpPacketNew.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(bufferLength, ip6UdpPacketNew.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ip6UdpPacketNew.getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete[] payloadData;
 } // Ipv6UdpPacketParseAndCreate
@@ -971,19 +970,19 @@ PTF_TEST_CASE(Ipv6FragmentationTest)
 {
 	int buffer1Length = 0;
 	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/IPv6Frag1.dat", buffer1Length);
-	PTF_ASSERT(!(buffer1 == NULL), "cannot read file IPv6Frag1.dat");
+	PTF_ASSERT_NOT_NULL(buffer1);
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IPv6Frag2.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IPv6Frag2.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	int buffer3Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IPv6Frag3.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file IPv6Frag3.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/IPv6Frag4.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file IPv6Frag4.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -999,51 +998,51 @@ PTF_TEST_CASE(Ipv6FragmentationTest)
 
 	IPv6Layer* ipv6Layer = frag1.getLayerOfType<IPv6Layer>();
 	IPv6FragmentationHeader* fragHeader = ipv6Layer->getExtensionOfType<IPv6FragmentationHeader>();
-	PTF_ASSERT(fragHeader->getExtensionType() == IPv6Extension::IPv6Fragmentation, "Frag1 extension type isn't IPv6Fragmentation");
-	PTF_ASSERT(fragHeader != NULL, "Frag1 - can't retrieve frag header");
-	PTF_ASSERT(fragHeader->isFirstFragment() == true, "Frag1 isn't first fragment");
-	PTF_ASSERT(fragHeader->isLastFragment() == false, "Frag1 is marked as last fragment");
-	PTF_ASSERT(fragHeader->getFragmentOffset() == 0, "Frag1 offset isn't 0");
-	PTF_ASSERT(be32toh(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag1 frag id isn't as expected");
-	PTF_ASSERT(fragHeader->getFragHeader()->nextHeader == PACKETPP_IPPROTO_UDP, "Frag1 next header isn't UDP, it's %d", fragHeader->getFragHeader()->nextHeader);
+	PTF_ASSERT_EQUAL(fragHeader->getExtensionType(), IPv6Extension::IPv6Fragmentation, enum);
+	PTF_ASSERT_NOT_NULL(fragHeader);
+	PTF_ASSERT_TRUE(fragHeader->isFirstFragment());
+	PTF_ASSERT_FALSE(fragHeader->isLastFragment());
+	PTF_ASSERT_EQUAL(fragHeader->getFragmentOffset(), 0, u16);
+	PTF_ASSERT_EQUAL(be32toh(fragHeader->getFragHeader()->id), 0xf88eb466, u32);
+	PTF_ASSERT_EQUAL(fragHeader->getFragHeader()->nextHeader, PACKETPP_IPPROTO_UDP, enum);
 
 	ipv6Layer = frag2.getLayerOfType<IPv6Layer>();
 	fragHeader = ipv6Layer->getExtensionOfType<IPv6FragmentationHeader>();
-	PTF_ASSERT(fragHeader->getExtensionType() == IPv6Extension::IPv6Fragmentation, "Frag2 extension type isn't IPv6Fragmentation");
-	PTF_ASSERT(fragHeader != NULL, "Frag2 - can't retrieve frag header");
-	PTF_ASSERT(fragHeader->isFirstFragment() == false, "Frag2 is marked as first fragment");
-	PTF_ASSERT(fragHeader->isLastFragment() == false, "Frag2 is marked as last fragment");
-	PTF_ASSERT(fragHeader->getFragmentOffset() == 1448, "Frag2 offset isn't 1448");
-	PTF_ASSERT(be32toh(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag2 frag id isn't as expected");
-	PTF_ASSERT(fragHeader->getFragHeader()->nextHeader == PACKETPP_IPPROTO_UDP, "Frag2 next header isn't UDP");
+	PTF_ASSERT_EQUAL(fragHeader->getExtensionType(), IPv6Extension::IPv6Fragmentation, enum);
+	PTF_ASSERT_NOT_NULL(fragHeader);
+	PTF_ASSERT_FALSE(fragHeader->isFirstFragment());
+	PTF_ASSERT_FALSE(fragHeader->isLastFragment());
+	PTF_ASSERT_EQUAL(fragHeader->getFragmentOffset(), 1448, u16);
+	PTF_ASSERT_EQUAL(be32toh(fragHeader->getFragHeader()->id), 0xf88eb466, u32);
+	PTF_ASSERT_EQUAL(fragHeader->getFragHeader()->nextHeader, PACKETPP_IPPROTO_UDP, enum);
 
 	ipv6Layer = frag3.getLayerOfType<IPv6Layer>();
 	fragHeader = ipv6Layer->getExtensionOfType<IPv6FragmentationHeader>();
-	PTF_ASSERT(fragHeader->getExtensionType() == IPv6Extension::IPv6Fragmentation, "Frag3 extension type isn't IPv6Fragmentation");
-	PTF_ASSERT(fragHeader != NULL, "Frag3 - can't retrieve frag header");
-	PTF_ASSERT(fragHeader->isFirstFragment() == false, "Frag3 is marked as first fragment");
-	PTF_ASSERT(fragHeader->isLastFragment() == false, "Frag3 is marked as last fragment");
-	PTF_ASSERT(fragHeader->getFragmentOffset() == 2896, "Frag3 offset isn't 2896");
-	PTF_ASSERT(be32toh(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag3 frag id isn't as expected");
-	PTF_ASSERT(fragHeader->getFragHeader()->nextHeader == PACKETPP_IPPROTO_UDP, "Frag3 next header isn't UDP");
+	PTF_ASSERT_EQUAL(fragHeader->getExtensionType(), IPv6Extension::IPv6Fragmentation, enum);
+	PTF_ASSERT_NOT_NULL(fragHeader);
+	PTF_ASSERT_FALSE(fragHeader->isFirstFragment());
+	PTF_ASSERT_FALSE(fragHeader->isLastFragment());
+	PTF_ASSERT_EQUAL(fragHeader->getFragmentOffset(), 2896, u16);
+	PTF_ASSERT_EQUAL(be32toh(fragHeader->getFragHeader()->id), 0xf88eb466, u32);
+	PTF_ASSERT_EQUAL(fragHeader->getFragHeader()->nextHeader, PACKETPP_IPPROTO_UDP, enum);
 
 	ipv6Layer = frag4.getLayerOfType<IPv6Layer>();
-	PTF_ASSERT(ipv6Layer->getHeaderLen() == 48, "Frag4 IPv6 layer len isn't 48");
+	PTF_ASSERT_EQUAL(ipv6Layer->getHeaderLen(), 48, size);
 	fragHeader = ipv6Layer->getExtensionOfType<IPv6FragmentationHeader>();
-	PTF_ASSERT(fragHeader->getExtensionType() == IPv6Extension::IPv6Fragmentation, "Frag4 extension type isn't IPv6Fragmentation");
-	PTF_ASSERT(fragHeader != NULL, "Frag4 - can't retrieve frag header");
-	PTF_ASSERT(fragHeader->isFirstFragment() == false, "Frag4 is marked as first fragment");
-	PTF_ASSERT(fragHeader->isLastFragment() == true, "Frag4 isn't last fragment");
-	PTF_ASSERT(fragHeader->getFragmentOffset() == 4344, "Frag4 offset isn't 4344");
-	PTF_ASSERT(be32toh(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag4 frag id isn't as expected");
-	PTF_ASSERT(fragHeader->getFragHeader()->nextHeader == PACKETPP_IPPROTO_UDP, "Frag4 next header isn't UDP");
+	PTF_ASSERT_EQUAL(fragHeader->getExtensionType(), IPv6Extension::IPv6Fragmentation, enum);
+	PTF_ASSERT_NOT_NULL(fragHeader);
+	PTF_ASSERT_FALSE(fragHeader->isFirstFragment());
+	PTF_ASSERT_TRUE(fragHeader->isLastFragment());
+	PTF_ASSERT_EQUAL(fragHeader->getFragmentOffset(), 4344, u16);
+	PTF_ASSERT_EQUAL(be32toh(fragHeader->getFragHeader()->id), 0xf88eb466, u32);
+	PTF_ASSERT_EQUAL(fragHeader->getFragHeader()->nextHeader, PACKETPP_IPPROTO_UDP, enum);
 
 	EthLayer newEthLayer(*frag1.getLayerOfType<EthLayer>());
 
 	IPv6Layer newIPv6Layer(*frag1.getLayerOfType<IPv6Layer>());
-	PTF_ASSERT(newIPv6Layer.getHeaderLen() == 48, "New IPv6 layer len with old extensions isn't 48");
+	PTF_ASSERT_EQUAL(newIPv6Layer.getHeaderLen(), 48, size);
 	newIPv6Layer.removeAllExtensions();
-	PTF_ASSERT(newIPv6Layer.getHeaderLen() == 40, "New IPv6 layer len without extensions isn't 40");
+	PTF_ASSERT_EQUAL(newIPv6Layer.getHeaderLen(), 40, size);
 
 	PayloadLayer newPayloadLayer(*frag4.getLayerOfType<PayloadLayer>());
 
@@ -1054,12 +1053,12 @@ PTF_TEST_CASE(Ipv6FragmentationTest)
 
 	IPv6FragmentationHeader newFragHeader(0xf88eb466, 4344, true);
 	newIPv6Layer.addExtension<IPv6FragmentationHeader>(newFragHeader);
-	PTF_ASSERT(newIPv6Layer.getHeaderLen() == 48, "New IPv6 layer len with new frag extension isn't 48");
+	PTF_ASSERT_EQUAL(newIPv6Layer.getHeaderLen(), 48, size);
 
 	newFrag.computeCalculateFields();
 
-	PTF_ASSERT(frag4.getRawPacket()->getRawDataLen() == newFrag.getRawPacket()->getRawDataLen(), "Generated fragment len (%d) is different than frag4 len (%d)", newFrag.getRawPacket()->getRawDataLen(), frag4.getRawPacket()->getRawDataLen());
-	PTF_ASSERT(memcmp(frag4.getRawPacket()->getRawData(), newFrag.getRawPacket()->getRawData(), frag4.getRawPacket()->getRawDataLen()) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(frag4.getRawPacket()->getRawDataLen(), newFrag.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(frag4.getRawPacket()->getRawData(), newFrag.getRawPacket()->getRawData(), frag4.getRawPacket()->getRawDataLen());
 } // Ipv6FragmentationTest
 
 
@@ -1068,27 +1067,27 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 {
 	int buffer1Length = 0;
 	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/ipv6_options_destination.dat", buffer1Length);
-	PTF_ASSERT(!(buffer1 == NULL), "cannot read file ipv6_options_destination.dat");
+	PTF_ASSERT_NOT_NULL(buffer1);
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/ipv6_options_hop_by_hop.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file ipv6_options_hop_by_hop.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	int buffer3Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/ipv6_options_routing1.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file ipv6_options_routing1.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/ipv6_options_routing2.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file ipv6_options_routing2.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 
 	int buffer5Length = 0;
 	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/ipv6_options_ah.dat", buffer5Length);
-	PTF_ASSERT(!(buffer5== NULL), "cannot read file ipv6_options_ah.dat");
+	PTF_ASSERT_NOT_NULL(buffer5);
 
 	int buffer6Length = 0;
 	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/ipv6_options_multi.dat", buffer6Length);
-	PTF_ASSERT(!(buffer6== NULL), "cannot read file ipv6_options_multi.dat");
+	PTF_ASSERT_NOT_NULL(buffer6);
 
 
 	timeval time;
@@ -1110,122 +1109,118 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 
 	// parsing of Destionation extension
 	IPv6Layer* ipv6Layer = ipv6Dest.getLayerOfType<IPv6Layer>();
-	PTF_ASSERT(ipv6Layer->getExtensionCount() == 1, "Dest ext packet1: num of extensions isn't 1");
+	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionCount(), 1, size);
 	IPv6HopByHopHeader* hopByHopExt = ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>();
 	IPv6DestinationHeader* destExt = ipv6Layer->getExtensionOfType<IPv6DestinationHeader>();
-	PTF_ASSERT(hopByHopExt == NULL, "Dest ext packet: Found Hop-By-Hop extension although it doesn't exist");
-	PTF_ASSERT(destExt != NULL, "Dest ext packet: Cannot find dest extension");
-	PTF_ASSERT(destExt->getExtensionType() == IPv6Extension::IPv6Destination, "Dest ext packet: Dest ext type isn't IPv6Extension::IPv6Destination");
-	PTF_ASSERT(destExt->getOptionCount() == 2, "Dest ext packet: Number of options isn't 2");
+	PTF_ASSERT_NULL(hopByHopExt);
+	PTF_ASSERT_NOT_NULL(destExt);
+	PTF_ASSERT_EQUAL(destExt->getExtensionType(), IPv6Extension::IPv6Destination, enum);
+	PTF_ASSERT_EQUAL(destExt->getOptionCount(), 2, size);
 	IPv6TLVOptionHeader::IPv6Option option = destExt->getFirstOption();
-	PTF_ASSERT(option.isNull() == false, "Dest ext packet: First option is null");
-	PTF_ASSERT(option.getType() == 11, "Dest ext packet: First option type isn't 11");
-	PTF_ASSERT(option.getTotalSize() == 3, "Dest ext packet: First option total size isn't 3");
-	PTF_ASSERT(option.getDataSize() == 1, "Dest ext packet: First option data size isn't 1");
-	PTF_ASSERT(option.getValueAs<uint8_t>() == 9, "Dest ext packet: First option data isn't 9");
+	PTF_ASSERT_FALSE(option.isNull());
+	PTF_ASSERT_EQUAL(option.getType(), 11, u8);
+	PTF_ASSERT_EQUAL(option.getTotalSize(), 3, size);
+	PTF_ASSERT_EQUAL(option.getDataSize(), 1, size);
+	PTF_ASSERT_EQUAL(option.getValueAs<uint8_t>(), 9, u8);
 	option = destExt->getNextOption(option);
-	PTF_ASSERT(option.isNull() == false, "Dest ext packet: Second option is null");
-	PTF_ASSERT(option.getType() == 1, "Dest ext packet: Second option type isn't 1");
-	PTF_ASSERT(option.getTotalSize() == 3, "Dest ext packet: Second option total size isn't 3");
-	PTF_ASSERT(option.getDataSize() == 1, "Dest ext packet: Second option data size isn't 1");
-	PTF_ASSERT(option.getValueAs<uint8_t>() == 0, "Dest ext packet: Second option data isn't 0");
+	PTF_ASSERT_FALSE(option.isNull());
+	PTF_ASSERT_EQUAL(option.getType(), 1, u8);
+	PTF_ASSERT_EQUAL(option.getTotalSize(), 3, size);
+	PTF_ASSERT_EQUAL(option.getDataSize(), 1, size);
+	PTF_ASSERT_EQUAL(option.getValueAs<uint8_t>(), 0, u8);
 	option = destExt->getNextOption(option);
-	PTF_ASSERT(option.isNull() == true, "Dest ext packet: Found third option");
+	PTF_ASSERT_TRUE(option.isNull());
 	option = destExt->getOption(11);
-	PTF_ASSERT(option.isNull() == false, "Dest ext packet: Cannot find option with type 11");
-	PTF_ASSERT(option.getTotalSize() == 3, "Dest ext packet: Option with type 11 total size isn't 3");
-	PTF_ASSERT(destExt->getOption(12).isNull() == true, "Dest ext packet: Found option with type 12");
-	PTF_ASSERT(destExt->getOption(0).isNull() == true, "Dest ext packet: Found option with type 0");
+	PTF_ASSERT_FALSE(option.isNull());
+	PTF_ASSERT_EQUAL(option.getTotalSize(), 3, size);
+	PTF_ASSERT_TRUE(destExt->getOption(12).isNull());
+	PTF_ASSERT_TRUE(destExt->getOption(0).isNull());
 
 
 	// parsing of Hop-By-Hop extension
 	ipv6Layer = ipv6HopByHop.getLayerOfType<IPv6Layer>();
 	hopByHopExt = ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>();
 	destExt = ipv6Layer->getExtensionOfType<IPv6DestinationHeader>();
-	PTF_ASSERT(destExt == NULL, "Hop-By-Hop ext packet: Found dest extension although it doesn't exist");
-	PTF_ASSERT(hopByHopExt != NULL, "Hop-By-Hop ext packet: Cannot find Hop-By-Hop extension");
-	PTF_ASSERT(hopByHopExt->getExtensionType() == IPv6Extension::IPv6HopByHop, "Hop-By-Hop ext packet: Hop-By-Hop ext type isn't IPv6Extension::IPv6HopByHop");
-	PTF_ASSERT(hopByHopExt->getOptionCount() == 2, "Hop-By-Hop ext packet: Number of options isn't 2");
-	PTF_ASSERT(hopByHopExt->getOption(3).isNull() == true, "Hop-By-Hop ext packet: Found option with type 3");
-	PTF_ASSERT(hopByHopExt->getOption(0).isNull() == true, "Hop-By-Hop ext packet: Found option with type 0");
+	PTF_ASSERT_NULL(destExt);
+	PTF_ASSERT_NOT_NULL(hopByHopExt);
+	PTF_ASSERT_EQUAL(hopByHopExt->getExtensionType(), IPv6Extension::IPv6HopByHop, enum);
+	PTF_ASSERT_EQUAL(hopByHopExt->getOptionCount(), 2, size);
+	PTF_ASSERT_TRUE(hopByHopExt->getOption(3).isNull());
+	PTF_ASSERT_TRUE(hopByHopExt->getOption(0).isNull());
 	option = hopByHopExt->getFirstOption();
-	PTF_ASSERT(option.getType() == 5, "Hop-By-Hop ext packet: First option type isn't 5");
-	PTF_ASSERT(option.getTotalSize() == 4, "Hop-By-Hop ext packet: First option total size isn't 4");
-	PTF_ASSERT(option.getDataSize() == 2, "Hop-By-Hop ext packet: First option data size isn't 2");
-	PTF_ASSERT(option.getValueAs<uint16_t>() == (uint16_t)0, "Hop-By-Hop ext packet: First option data isn't 0");
+	PTF_ASSERT_EQUAL(option.getType(), 5, u8);
+	PTF_ASSERT_EQUAL(option.getTotalSize(), 4, size);
+	PTF_ASSERT_EQUAL(option.getDataSize(), 2, size);
+	PTF_ASSERT_EQUAL(option.getValueAs<uint16_t>(), (uint16_t)0, u16);
 	option = hopByHopExt->getNextOption(option);
-	PTF_ASSERT(option.isNull() == false, "Hop-By-Hop ext packet: Second option is null");
-	PTF_ASSERT(option.getType() == 1, "Hop-By-Hop ext packet: Second option type isn't 1");
-	PTF_ASSERT(option.getTotalSize() == 2, "Hop-By-Hop ext packet: Second option total size isn't 2");
-	PTF_ASSERT(option.getDataSize() == 0, "Hop-By-Hop ext packet: Second option data size isn't 0");
-	PTF_ASSERT(option.getValueAs<uint8_t>() == 0, "Hop-By-Hop ext packet: Second option data isn't 0");
+	PTF_ASSERT_FALSE(option.isNull());
+	PTF_ASSERT_EQUAL(option.getType(), 1, u8);
+	PTF_ASSERT_EQUAL(option.getTotalSize(), 2, size);
+	PTF_ASSERT_EQUAL(option.getDataSize(), 0, size);
+	PTF_ASSERT_EQUAL(option.getValueAs<uint8_t>(), 0, u8);
 	option = hopByHopExt->getNextOption(option);
-	PTF_ASSERT(option.isNull() == true, "Hop-By-Hop ext packet: Found third option");
+	PTF_ASSERT_TRUE(option.isNull());
 
 
 	// parsing of routing extension #1
 	ipv6Layer = ipv6Routing1.getLayerOfType<IPv6Layer>();
 	hopByHopExt = ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>();
-	PTF_ASSERT(ipv6Layer->getExtensionCount() == 1, "Routing ext packet1: num of extensions isn't 1");
+	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionCount(), 1, size);
 	IPv6RoutingHeader* routingExt = ipv6Layer->getExtensionOfType<IPv6RoutingHeader>();
-	PTF_ASSERT(destExt == NULL, "Routing ext packet1: Found dest extension although it doesn't exist");
-	PTF_ASSERT(routingExt != NULL, "Routing ext packet1: Cannot find routing extension");
-	PTF_ASSERT(routingExt->getExtensionType() == IPv6Extension::IPv6Routing, "Routing ext packet1: routing ext isn't of type IPv6Extension::IPv6Routing");
-	PTF_ASSERT(routingExt->getRoutingHeader()->routingType == 0, "Routing ext packet1: routing type isn't 0");
-	PTF_ASSERT(routingExt->getRoutingHeader()->segmentsLeft == 2, "Routing ext packet1: segments left isn't 2");
-	PTF_ASSERT(routingExt->getRoutingAdditionalDataLength() == 36, "Routing ext packet1: additional data len isn't 36");
-	PTF_ASSERT(routingExt->getRoutingAdditionalDataAsIPv6Address(4) == IPv6Address(std::string("2200::210:2:0:0:4")), "Routing ext packet1: IPv6 address is wrong");
-	PTF_ASSERT(routingExt->getRoutingAdditionalDataAsIPv6Address(20) == IPv6Address(std::string("2200::240:2:0:0:4")), "Routing ext packet1: second IPv6 address is wrong");
+	PTF_ASSERT_NULL(destExt);
+	PTF_ASSERT_NOT_NULL(routingExt);
+	PTF_ASSERT_EQUAL(routingExt->getExtensionType(), IPv6Extension::IPv6Routing, enum);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->routingType, 0, u8);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->segmentsLeft, 2, u8);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataLength(), 36, size);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), IPv6Address("2200::210:2:0:0:4"), object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), IPv6Address("2200::240:2:0:0:4"), object);
 
 
 	// parsing of routing extension #2
 	ipv6Layer = ipv6Routing2.getLayerOfType<IPv6Layer>();
 	routingExt = ipv6Layer->getExtensionOfType<IPv6RoutingHeader>();
-	PTF_ASSERT(routingExt != NULL, "Routing ext packet2: Cannot find routing extension");
-	PTF_ASSERT(routingExt->getExtensionType() == IPv6Extension::IPv6Routing, "Routing ext packet2: routing ext isn't of type IPv6Extension::IPv6Routing");
-	PTF_ASSERT(routingExt->getRoutingHeader()->routingType == 0, "Routing ext packet2: routing type isn't 0");
-	PTF_ASSERT(routingExt->getRoutingHeader()->segmentsLeft == 1, "Routing ext packet2: segments left isn't 1");
-	PTF_ASSERT(routingExt->getRoutingAdditionalDataLength() == 20, "Routing ext packet2: additional data len isn't 20");
-	PTF_ASSERT(routingExt->getRoutingAdditionalDataAsIPv6Address(4) == IPv6Address(std::string("2200::210:2:0:0:4")), "Routing ext packet2: IPv6 address is wrong");
-	PTF_ASSERT(routingExt->getRoutingAdditionalDataAsIPv6Address(20) == IPv6Address::Zero, "Routing ext packet2: additional data out-of-bounds but isn't returned as zero IPv6 address");
+	PTF_ASSERT_NOT_NULL(routingExt);
+	PTF_ASSERT_EQUAL(routingExt->getExtensionType(), IPv6Extension::IPv6Routing, enum);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->routingType, 0, u8);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->segmentsLeft, 1, u8);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataLength(), 20, size);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), IPv6Address("2200::210:2:0:0:4"), object);
+	PTF_ASSERT_TRUE(routingExt->getRoutingAdditionalDataAsIPv6Address(20).isUnspecified());
 
 
 	// parsing of authentication header extension
 	ipv6Layer = ipv6AuthHdr.getLayerOfType<IPv6Layer>();
 	IPv6AuthenticationHeader* authHdrExt = ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>();
-	PTF_ASSERT(authHdrExt != NULL, "AH ext packet: Cannot find AH extension");
-	PTF_ASSERT(authHdrExt->getExtensionType() == IPv6Extension::IPv6AuthenticationHdr, "AH ext packet: AH ext isn't of type IPv6Extension::IPv6AuthenticationHdr");
-	PTF_ASSERT(authHdrExt->getAuthHeader()->securityParametersIndex == htobe32(0x100), "AH ext packet: SPI isn't 0x100");
-	PTF_ASSERT(authHdrExt->getAuthHeader()->sequenceNumber == htobe32(32), "AH ext packet: sequence isn't 32");
-	PTF_ASSERT(authHdrExt->getIntegrityCheckValueLength() == 12, "AH ext packet: ICV len isn't 12");
+	PTF_ASSERT_NOT_NULL(authHdrExt);
+	PTF_ASSERT_EQUAL(authHdrExt->getExtensionType(), IPv6Extension::IPv6AuthenticationHdr, enum);
+	PTF_ASSERT_EQUAL(authHdrExt->getAuthHeader()->securityParametersIndex, htobe32(0x100), u32);
+	PTF_ASSERT_EQUAL(authHdrExt->getAuthHeader()->sequenceNumber, htobe32(32), u32);
+	PTF_ASSERT_EQUAL(authHdrExt->getIntegrityCheckValueLength(), 12, size);
 	uint8_t expectedICV[12] = { 0x35, 0x48, 0x21, 0x48, 0xb2, 0x43, 0x5a, 0x23, 0xdc, 0xdd, 0x55, 0x36 };
-	PTF_ASSERT(memcmp(expectedICV, authHdrExt->getIntegrityCheckValue(), authHdrExt->getIntegrityCheckValueLength()) == 0, "AH ext packet: ICV value isn't as expected");
+	PTF_ASSERT_BUF_COMPARE(expectedICV, authHdrExt->getIntegrityCheckValue(), authHdrExt->getIntegrityCheckValueLength());
 
 
 	// parsing of multiple options in one IPv6 layer
 	ipv6Layer = ipv6MultipleOptions.getLayerOfType<IPv6Layer>();
-	PTF_ASSERT(ipv6Layer->getExtensionCount() == 4, "Multiple ext packet: Num of extensions isn't 4");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>() != NULL, "Multiple ext packet: Cannot find AH extension");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>()->getAuthHeader()->securityParametersIndex = be32toh(0x100),
-			"Multiple ext packet: AH ext SPI isn't 0x100");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>() != NULL, "Multiple ext packet: Cannot find Dest extension");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>()->getFirstOption().getType() == 11,
-			"Multiple ext packet: Dest ext first option type isn't 11");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>() != NULL, "Multiple ext packet: Cannot find Hop-By-Hop extension");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>()->getFirstOption().getType() == 5,
-			"Multiple ext packet: Hop-By-Hop ext first option type isn't 5");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6RoutingHeader>() != NULL, "Multiple ext packet: Cannot find Routing extension");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6RoutingHeader>()->getRoutingHeader()->routingType == 0,
-			"Multiple ext packet: Routing ext - routing type isn't 0");
+	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionCount(), 4, size);
+	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>());
+	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>()->getAuthHeader()->securityParametersIndex, be32toh(0x100), u32);
+	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>());
+	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>()->getFirstOption().getType(), 11, u8);
+	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>());
+	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<IPv6HopByHopHeader>()->getFirstOption().getType(), 5, u8);
+	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<IPv6RoutingHeader>());
+	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<IPv6RoutingHeader>()->getRoutingHeader()->routingType, 0, u8);
 
 
 	// creation of Destination extension
 	EthLayer newEthLayer(*ipv6Dest.getLayerOfType<EthLayer>());
 
 	IPv6Layer newIPv6Layer(*ipv6Dest.getLayerOfType<IPv6Layer>());
-	PTF_ASSERT(newIPv6Layer.getHeaderLen() == 48, "New IPv6 layer len with old extensions isn't 48");
+	PTF_ASSERT_EQUAL(newIPv6Layer.getHeaderLen(), 48, size);
 	newIPv6Layer.removeAllExtensions();
-	PTF_ASSERT(newIPv6Layer.getHeaderLen() == 40, "New IPv6 layer len without extensions isn't 40");
+	PTF_ASSERT_EQUAL(newIPv6Layer.getHeaderLen(), 40, size);
 
 	std::vector<IPv6TLVOptionHeader::IPv6TLVOptionBuilder> destExtOptions;
 	destExtOptions.push_back(IPv6TLVOptionHeader::IPv6TLVOptionBuilder(11, (uint8_t)9));
@@ -1243,17 +1238,17 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	newPacket.addLayer(&newPayloadLayer);
 	newPacket.computeCalculateFields();
 
-	PTF_ASSERT(ipv6Dest.getRawPacket()->getRawDataLen() == newPacket.getRawPacket()->getRawDataLen(), "IPv6 Dest ext: Generated packet len (%d) is different than original packet len (%d)", newPacket.getRawPacket()->getRawDataLen(), ipv6Dest.getRawPacket()->getRawDataLen());
-	PTF_ASSERT(memcmp(ipv6Dest.getRawPacket()->getRawData(), newPacket.getRawPacket()->getRawData(), ipv6Dest.getRawPacket()->getRawDataLen()) == 0, "IPv6 Dest ext: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipv6Dest.getRawPacket()->getRawDataLen(), newPacket.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipv6Dest.getRawPacket()->getRawData(), newPacket.getRawPacket()->getRawData(), ipv6Dest.getRawPacket()->getRawDataLen());
 
 
 	// creation of hop-by-hop extension
 	EthLayer newEthLayer2(*ipv6HopByHop.getLayerOfType<EthLayer>());
 
 	IPv6Layer newIPv6Layer2(*ipv6HopByHop.getLayerOfType<IPv6Layer>());
-	PTF_ASSERT(newIPv6Layer2.getHeaderLen() == 48, "New IPv6 layer len with old extensions isn't 48");
+	PTF_ASSERT_EQUAL(newIPv6Layer2.getHeaderLen(), 48, size);
 	newIPv6Layer2.removeAllExtensions();
-	PTF_ASSERT(newIPv6Layer2.getHeaderLen() == 40, "New IPv6 layer len without extensions isn't 40");
+	PTF_ASSERT_EQUAL(newIPv6Layer2.getHeaderLen(), 40, size);
 
 	std::vector<IPv6TLVOptionHeader::IPv6TLVOptionBuilder> hopByHopExtOptions;
 	hopByHopExtOptions.push_back(IPv6TLVOptionHeader::IPv6TLVOptionBuilder(5, (uint16_t)0));
@@ -1269,17 +1264,17 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	newPacket2.addLayer(&newPayloadLayer2);
 	newPacket2.computeCalculateFields();
 
-	PTF_ASSERT(ipv6HopByHop.getRawPacket()->getRawDataLen() == newPacket2.getRawPacket()->getRawDataLen(), "IPv6 hop-by-hop ext: Generated packet len (%d) is different than original packet len (%d)", newPacket2.getRawPacket()->getRawDataLen(), ipv6HopByHop.getRawPacket()->getRawDataLen());
-	PTF_ASSERT(memcmp(ipv6HopByHop.getRawPacket()->getRawData(), newPacket2.getRawPacket()->getRawData(), ipv6HopByHop.getRawPacket()->getRawDataLen()) == 0, "IPv6 hop-by-hop ext: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipv6HopByHop.getRawPacket()->getRawDataLen(), newPacket2.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipv6HopByHop.getRawPacket()->getRawData(), newPacket2.getRawPacket()->getRawData(), ipv6HopByHop.getRawPacket()->getRawDataLen());
 
 
 	// creation of routing extension
 	EthLayer newEthLayer3(*ipv6Routing2.getLayerOfType<EthLayer>());
 
 	IPv6Layer newIPv6Layer3(*ipv6Routing2.getLayerOfType<IPv6Layer>());
-	PTF_ASSERT(newIPv6Layer3.getHeaderLen() == 64, "New IPv6 layer len with old extensions isn't 64");
+	PTF_ASSERT_EQUAL(newIPv6Layer3.getHeaderLen(), 64, size);
 	newIPv6Layer3.removeAllExtensions();
-	PTF_ASSERT(newIPv6Layer3.getHeaderLen() == 40, "New IPv6 layer len without extensions isn't 40");
+	PTF_ASSERT_EQUAL(newIPv6Layer3.getHeaderLen(), 40, size);
 
 	uint8_t* routingAdditionalData = new uint8_t[20];
 	memset(routingAdditionalData, 0, 20);
@@ -1296,17 +1291,17 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	newPacket3.addLayer(&newIPv6Layer3);
 	newPacket3.addLayer(&newUdpLayer3);
 
-	PTF_ASSERT(ipv6Routing2.getRawPacket()->getRawDataLen() == newPacket3.getRawPacket()->getRawDataLen(), "IPv6 routing ext: Generated packet len (%d) is different than original packet len (%d)", newPacket3.getRawPacket()->getRawDataLen(), ipv6Routing2.getRawPacket()->getRawDataLen());
-	PTF_ASSERT(memcmp(ipv6Routing2.getRawPacket()->getRawData(), newPacket3.getRawPacket()->getRawData(), ipv6Routing2.getRawPacket()->getRawDataLen()) == 0, "IPv6 routing ext: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipv6Routing2.getRawPacket()->getRawDataLen(), newPacket3.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipv6Routing2.getRawPacket()->getRawData(), newPacket3.getRawPacket()->getRawData(), ipv6Routing2.getRawPacket()->getRawDataLen());
 
 
 	// creation of AH extension
 	EthLayer newEthLayer4(*ipv6AuthHdr.getLayerOfType<EthLayer>());
 
 	IPv6Layer newIPv6Layer4(*ipv6AuthHdr.getLayerOfType<IPv6Layer>());
-	PTF_ASSERT(newIPv6Layer4.getHeaderLen() == 64, "New IPv6 layer len with old extensions isn't 64");
+	PTF_ASSERT_EQUAL(newIPv6Layer4.getHeaderLen(), 64, size);
 	newIPv6Layer4.removeAllExtensions();
-	PTF_ASSERT(newIPv6Layer4.getHeaderLen() == 40, "New IPv6 layer len without extensions isn't 40");
+	PTF_ASSERT_EQUAL(newIPv6Layer4.getHeaderLen(), 40, size);
 
 	IPv6AuthenticationHeader newAHExtension(0x100, 32, expectedICV, 12);
 	newIPv6Layer4.addExtension<IPv6AuthenticationHeader>(newAHExtension);
@@ -1319,8 +1314,8 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	newPacket4.addLayer(&newPayloadLayer4);
 	newPacket4.computeCalculateFields();
 
-	PTF_ASSERT(ipv6AuthHdr.getRawPacket()->getRawDataLen() == newPacket4.getRawPacket()->getRawDataLen(), "IPv6 AH ext: Generated packet len (%d) is different than original packet len (%d)", newPacket4.getRawPacket()->getRawDataLen(), ipv6AuthHdr.getRawPacket()->getRawDataLen());
-	PTF_ASSERT(memcmp(ipv6AuthHdr.getRawPacket()->getRawData(), newPacket4.getRawPacket()->getRawData(), ipv6AuthHdr.getRawPacket()->getRawDataLen()) == 0, "IPv6 AH ext: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipv6AuthHdr.getRawPacket()->getRawDataLen(), newPacket4.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipv6AuthHdr.getRawPacket()->getRawData(), newPacket4.getRawPacket()->getRawData(), ipv6AuthHdr.getRawPacket()->getRawDataLen());
 
 
 	// creation of packet with several extensions
@@ -1342,8 +1337,8 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	newPacket5.addLayer(&newPayloadLayer5);
 	newPacket5.computeCalculateFields();
 
-	PTF_ASSERT(ipv6MultipleOptions.getRawPacket()->getRawDataLen() == newPacket5.getRawPacket()->getRawDataLen(), "IPv6 multiple ext: Generated packet len (%d) is different than original packet len (%d)", newPacket5.getRawPacket()->getRawDataLen(), ipv6MultipleOptions.getRawPacket()->getRawDataLen());
-	PTF_ASSERT(memcmp(ipv6MultipleOptions.getRawPacket()->getRawData(), newPacket5.getRawPacket()->getRawData(), ipv6MultipleOptions.getRawPacket()->getRawDataLen()) == 0, "IPv6 multiple ext: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipv6MultipleOptions.getRawPacket()->getRawDataLen(), newPacket5.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(ipv6MultipleOptions.getRawPacket()->getRawData(), newPacket5.getRawPacket()->getRawData(), ipv6MultipleOptions.getRawPacket()->getRawDataLen());
 } // Ipv6ExtensionsTest
 
 
@@ -1492,8 +1487,8 @@ PTF_TEST_CASE(TcpPacketCreation)
 	MacAddress srcMac("30:46:9a:23:fb:fa");
 	MacAddress dstMac("08:00:27:19:1c:78");
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
-	IPv4Address dstIP(string("10.0.0.6"));
-	IPv4Address srcIP(string("212.199.202.9"));
+	IPv4Address dstIP("10.0.0.6");
+	IPv4Address srcIP("212.199.202.9");
 	IPv4Layer ipLayer(srcIP, dstIP);
 	ipLayer.getIPv4Header()->ipId = htobe16(20300);
 	ipLayer.getIPv4Header()->fragmentOffset = htobe16(0x4000);
@@ -1561,8 +1556,8 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	MacAddress srcMac("08:00:27:19:1c:78");
 	MacAddress dstMac("30:46:9a:23:fb:fa");
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
-	IPv4Address dstIP(string("23.44.242.127"));
-	IPv4Address srcIP(string("10.0.0.6"));
+	IPv4Address dstIP("23.44.242.127");
+	IPv4Address srcIP("10.0.0.6");
 	IPv4Layer ipLayer(srcIP, dstIP);
 	ipLayer.getIPv4Header()->ipId = htobe16(1556);
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
@@ -1666,8 +1661,8 @@ PTF_TEST_CASE(InsertDataToPacket)
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PTF_ASSERT(ip4Packet.addLayer(&ethLayer), "Adding ethernet layer failed");
 
-	IPv4Address ipSrc(string("1.1.1.1"));
-	IPv4Address ipDst(string("20.20.20.20"));
+	IPv4Address ipSrc("1.1.1.1");
+	IPv4Address ipDst("20.20.20.20");
 	IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
 	PTF_ASSERT(ip4Packet.addLayer(&ip4Layer), "Adding IPv4 layer failed");
@@ -1887,8 +1882,8 @@ PTF_TEST_CASE(RemoveLayerTest)
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PTF_ASSERT(testPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
 
-	IPv4Address ipSrc(string("1.1.1.1"));
-	IPv4Address ipDst(string("20.20.20.20"));
+	IPv4Address ipSrc("1.1.1.1");
+	IPv4Address ipDst("20.20.20.20");
 	IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = PACKETPP_IPPROTO_TCP;
 	PTF_ASSERT(testPacket.addLayer(&ip4Layer), "Adding IPv4 layer failed");
@@ -3888,7 +3883,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 
 	EthLayer ethLayer(MacAddress("11:22:33:44:55:66"), MacAddress("66:55:44:33:22:11"));
 
-	IPv4Layer ipLayer(IPv4Address(std::string("1.1.1.1")), IPv4Address(std::string("2.2.2.2")));
+	IPv4Layer ipLayer(IPv4Address("1.1.1.1"), IPv4Address("2.2.2.2"));
 
 
 	uint8_t data[48] = { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a,
@@ -3930,7 +3925,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	timeExceededPacket.addLayer(&ethLayer3);
 	timeExceededPacket.addLayer(&ipLayer3);
 	timeExceededPacket.addLayer(&timeExceededLayer);
-	IPv4Layer ipLayerForTimeExceeded(IPv4Address(std::string("10.0.0.6")), IPv4Address(std::string("8.8.8.8")));
+	IPv4Layer ipLayerForTimeExceeded(IPv4Address("10.0.0.6"), IPv4Address("8.8.8.8"));
 	ipLayerForTimeExceeded.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayerForTimeExceeded.getIPv4Header()->timeToLive = 1;
 	ipLayerForTimeExceeded.getIPv4Header()->ipId = be16toh(2846);
@@ -3952,7 +3947,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	destUnreachablePacket.addLayer(&ethLayer4);
 	destUnreachablePacket.addLayer(&ipLayer4);
 	destUnreachablePacket.addLayer(&destUnreachableLayer);
-	IPv4Layer ipLayerForDestUnreachable(IPv4Address(std::string("10.0.1.2")), IPv4Address(std::string("172.16.0.2")));
+	IPv4Layer ipLayerForDestUnreachable(IPv4Address("10.0.1.2"), IPv4Address("172.16.0.2"));
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
 	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(230);
 	UdpLayer udpLayerForDestUnreachable(49182, 33446);
@@ -4000,7 +3995,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	redirectPacket.addLayer(&ethLayer7);
 	redirectPacket.addLayer(&ipLayer7);
 	redirectPacket.addLayer(&redirectLayer);
-	IPv4Layer ipLayerForRedirect(IPv4Address(std::string("10.2.10.2")), IPv4Address(std::string("10.3.71.7")));
+	IPv4Layer ipLayerForRedirect(IPv4Address("10.2.10.2"), IPv4Address("10.3.71.7"));
 	ipLayerForRedirect.getIPv4Header()->ipId = be16toh(14848);
 	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;
 	IcmpLayer icmpLayerForRedirect;
@@ -4130,7 +4125,7 @@ PTF_TEST_CASE(IcmpEditTest)
 
 	// convert echo request to dest unreachable
 
-	IPv4Layer ipLayerForDestUnreachable(IPv4Address(std::string("10.0.0.7")), IPv4Address(std::string("10.0.0.111")));
+	IPv4Layer ipLayerForDestUnreachable(IPv4Address("10.0.0.7"), IPv4Address("10.0.0.111"));
 	ipLayerForDestUnreachable.getIPv4Header()->fragmentOffset = 0x0040;
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 64;
 	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(10203);
@@ -4310,7 +4305,7 @@ PTF_TEST_CASE(GreCreationTest)
 	// GREv1 packet creation
 
 	EthLayer ethLayer(MacAddress("00:90:4b:1f:a4:f7"), MacAddress("00:0d:ed:7b:48:f4"));
-	IPv4Layer ipLayer(IPv4Address(std::string("192.168.2.65")), IPv4Address(std::string("192.168.2.254")));
+	IPv4Layer ipLayer(IPv4Address("192.168.2.65"), IPv4Address("192.168.2.254"));
 	ipLayer.getIPv4Header()->ipId = htobe16(1660);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
@@ -4341,10 +4336,10 @@ PTF_TEST_CASE(GreCreationTest)
 	// GREv0 packet creation
 
 	EthLayer ethLayer2(MacAddress("00:01:01:00:00:01"), MacAddress("00:01:01:00:00:02"));
-	IPv4Layer ipLayer2(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
+	IPv4Layer ipLayer2(IPv4Address("127.0.0.1"), IPv4Address("127.0.0.1"));
 	ipLayer2.getIPv4Header()->ipId = htobe16(1);
 	ipLayer2.getIPv4Header()->timeToLive = 64;
-	IPv4Layer ipLayer3(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
+	IPv4Layer ipLayer3(IPv4Address("127.0.0.1"), IPv4Address("127.0.0.1"));
 	ipLayer3.getIPv4Header()->ipId = htobe16(46845);
 	ipLayer3.getIPv4Header()->timeToLive = 64;
 
@@ -5113,7 +5108,7 @@ PTF_TEST_CASE(SllPacketCreationTest)
 	sllLayer.getSllHeader()->link_layer_addr[6] = 0xf6;
 	sllLayer.getSllHeader()->link_layer_addr[7] = 0x7f;
 
-	IPv4Layer ipLayer(IPv4Address(std::string("130.217.250.13")), IPv4Address(std::string("130.217.250.128")));
+	IPv4Layer ipLayer(IPv4Address("130.217.250.13"), IPv4Address("130.217.250.128"));
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayer.getIPv4Header()->ipId = htobe16(63242);
 	ipLayer.getIPv4Header()->timeToLive = 64;
@@ -5276,8 +5271,8 @@ PTF_TEST_CASE(DhcpCreationTest)
 {
 	EthLayer ethLayer(MacAddress("00:13:72:25:fa:cd"), MacAddress("00:e0:b1:49:39:02"));
 
-	IPv4Address srcIp(std::string("172.22.178.234"));
-	IPv4Address dstIp(std::string("10.10.8.240"));
+	IPv4Address srcIp("172.22.178.234");
+	IPv4Address dstIp("10.10.8.240");
 	IPv4Layer ipLayer(srcIp, dstIp);
 	ipLayer.getIPv4Header()->ipId = htobe16(20370);
 	ipLayer.getIPv4Header()->timeToLive = 128;
@@ -5468,7 +5463,7 @@ PTF_TEST_CASE(NullLoopbackTest)
 
 	Packet newNullPacket(1);
 	NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
-	IPv4Layer newIp4Layer(IPv4Address(std::string("172.16.1.117")), IPv4Address(std::string("172.16.1.255")));
+	IPv4Layer newIp4Layer(IPv4Address("172.16.1.117"), IPv4Address("172.16.1.255"));
 	newIp4Layer.getIPv4Header()->ipId = htobe16(49513);
 	newIp4Layer.getIPv4Header()->timeToLive = 64;
 
@@ -5540,10 +5535,10 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 	EthLayer ethLayer1(srcMac1, dstMac1);
 	EthLayer ethLayer2(srcMac2, dstMac2);
 
-	IPv4Address srcIp1(std::string("10.0.200.151"));
-	IPv4Address dstIp1(std::string("224.0.0.1"));
-	IPv4Address srcIp2(std::string("10.60.2.7"));
-	IPv4Address dstIp2(std::string("239.255.255.250"));
+	IPv4Address srcIp1("10.0.200.151");
+	IPv4Address dstIp1("224.0.0.1");
+	IPv4Address srcIp2("10.60.2.7");
+	IPv4Address dstIp2("239.255.255.250");
 	IPv4Layer ipLayer1(srcIp1, dstIp1);
 	IPv4Layer ipLayer2(srcIp2, dstIp2);
 
@@ -5667,8 +5662,8 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 {
 	EthLayer ethLayer(MacAddress("00:01:01:00:00:01"), MacAddress("01:00:5e:00:00:09"));
 
-	IPv4Address srcIp(std::string("127.0.0.1"));
-	IPv4Address dstIp(std::string("224.0.0.9"));
+	IPv4Address srcIp("127.0.0.1");
+	IPv4Address dstIp("224.0.0.9");
 	IPv4Layer ipLayer(srcIp, dstIp);
 
 	ipLayer.getIPv4Header()->ipId = htobe16(36760);
@@ -5754,8 +5749,8 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 {
 	EthLayer ethLayer(MacAddress("00:01:01:00:00:02"), MacAddress("01:00:5e:00:00:16"));
 
-	IPv4Address srcIp(std::string("127.0.0.1"));
-	IPv4Address dstIp(std::string("224.0.0.22"));
+	IPv4Address srcIp("127.0.0.1");
+	IPv4Address dstIp("224.0.0.22");
 	IPv4Layer ipLayer(srcIp, dstIp);
 
 	ipLayer.getIPv4Header()->ipId = htobe16(3941);
@@ -6871,7 +6866,7 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// rebuild packet starting from trailer
 	EthLayer newEthLayer(MacAddress("30:46:9a:23:fb:fa"), MacAddress("6c:f0:49:b2:de:6e"), PCPP_ETHERTYPE_IP);
 	trailerIPv4Packet.insertLayer(NULL, &newEthLayer);
-	IPv4Layer newIp4Layer(IPv4Address(std::string("173.194.78.104")), IPv4Address(std::string("10.0.0.1")));
+	IPv4Layer newIp4Layer(IPv4Address("173.194.78.104"), IPv4Address("10.0.0.1"));
 	newIp4Layer.getIPv4Header()->ipId = htobe16(40382);
 	newIp4Layer.getIPv4Header()->timeToLive = 46;
 	trailerIPv4Packet.insertLayer(&newEthLayer, &newIp4Layer);

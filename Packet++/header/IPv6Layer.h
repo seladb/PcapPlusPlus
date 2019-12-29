@@ -100,13 +100,13 @@ namespace pcpp
 		 * Get the source IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the source address
 		 */
-		IPv6Address getSrcIpAddress() const { return IPv6Address(getIPv6Header()->ipSrc); }
+		IPv6Address getSrcIpAddress() const { return getIPv6Header()->ipSrc; }
 
 		/**
 		 * Get the destination IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the destination address
 		 */
-		IPv6Address getDstIpAddress() const { return IPv6Address(getIPv6Header()->ipDst); }
+		IPv6Address getDstIpAddress() const { return getIPv6Header()->ipDst; }
 
 		/**
 		 * @return Number of IPv6 extensions in this layer
