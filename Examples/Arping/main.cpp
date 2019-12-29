@@ -100,11 +100,11 @@ int main(int argc, char* argv[])
 	AppName::init(argc, argv);
 
 	int maxTries = DEFAULT_MAX_TRIES;
-	MacAddress sourceMac = MacAddress::Zero;
-	IPv4Address sourceIP = IPv4Address::Zero;
-	IPv4Address targetIP = IPv4Address::Zero;
+	MacAddress sourceMac;
+	IPv4Address sourceIP;
+	IPv4Address targetIP;
 	bool targetIpProvided = false;
-	std::string ifaceNameOrIP = "";
+	std::string ifaceNameOrIP;
 	bool ifaceNameOrIpProvided = false;
 	int timeoutSec = NetworkUtils::DefaultTimeout;
 	int optionIndex = 0;
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
 	PcapLiveDevice* dev = NULL;
 
 	// Search interface by name or IP
-	if (ifaceNameOrIP != "")
+	if (!ifaceNameOrIP.empty())
 	{
 		IPv4Address interfaceIP(ifaceNameOrIP);
 		if (!interfaceIP.isUnspecified())
