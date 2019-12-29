@@ -84,7 +84,7 @@ namespace pcpp
 		/**
 		 * @return The name of this record
 		 */
-		std::string getName() const { return m_DecodedName; }
+		const std::string& getName() const { return m_DecodedName; }
 
 		/**
 		 * @return The record name's offset in the packet
@@ -138,7 +138,7 @@ namespace pcpp
 		virtual ~DnsQuery() {}
 
 		// implementation of abstract methods
-		virtual size_t getSize() const { return m_NameLength + 2*sizeof(uint16_t); }
+		virtual size_t getSize() const { return m_NameLength + 2 * sizeof(uint16_t); }
 		virtual DnsResourceType getType() const { return DnsQueryType; }
 	};
 
@@ -227,7 +227,7 @@ namespace pcpp
 		void setCustomDnsClass(uint16_t customValue);
 
 		// implementation of abstract methods
-		virtual size_t getSize() const { return m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
+		virtual size_t getSize() const { return m_NameLength + 3 * sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
 		virtual DnsResourceType getType() const { return m_ResourceType; }
 
 	};
