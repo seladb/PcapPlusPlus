@@ -260,15 +260,15 @@ namespace pcpp
 
 		/**
 		 * @return The IPv4 address for this interface. If multiple IPv4 addresses are defined for this interface, the first will be picked.
-		 * If no IPv4 addresses are defined, a zeroed IPv4 address (IPv4Address#Zero) will be returned
+		 * If no IPv4 addresses are defined, an unspecified IPv4 address will be returned
 		 */
 		IPv4Address getIPv4Address() const;
 
 		/**
 		 * @return The default gateway defined for this interface. If no default gateway is defined, if it's not IPv4 or if couldn't extract
-		 * default gateway IPv4Address#Zero will be returned. If multiple gateways were defined the first one will be returned
+		 * default gateway, an unspecified IPv4 address will be returned. If multiple gateways were defined the first one will be returned
 		 */
-		IPv4Address getDefaultGateway() const;
+		IPv4Address getDefaultGateway() const { return m_DefaultGateway; }
 
 		/**
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
