@@ -111,7 +111,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 				continue;
 			}
 
-			if (memcmp(currAddr, ip4Addr.toBytes(), sizeof(struct in_addr)) == 0)
+			if (currAddr->s_addr == ip4Addr.toUInt())
 			{
 				LOG_DEBUG("Found matched address!");
 				return (*devIter);
