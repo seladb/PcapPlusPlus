@@ -217,7 +217,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 				continue;
 			}
 
-			if (memcmp(currAddr, ipAddr.toBytes(), sizeof(struct in_addr)) == 0)
+			if (currAddr->s_addr == ipAddr.toUInt())
 			{
 				LOG_DEBUG("Found matched address!");
 				return (*devIter);
