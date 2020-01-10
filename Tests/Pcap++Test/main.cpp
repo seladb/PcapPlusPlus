@@ -2272,7 +2272,7 @@ PTF_TEST_CASE(TestSendPacket)
     PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
 
     PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
-    uint16_t mtu = liveDev->getMtu();
+    uint32_t mtu = liveDev->getMtu();
     int buffLen = mtu+1;
     uint8_t* buff = new uint8_t[buffLen];
     memset(buff, 0, buffLen);
