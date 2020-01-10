@@ -371,7 +371,7 @@ int main(int argc, char* argv[])
 	}
 
 	IPv4Address interfaceIP(interfaceNameOrIP);
-	if (interfaceIP.isValid())
+	if (!interfaceIP.isUnspecified())
 	{
 		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
 		if (dev == NULL)
@@ -385,11 +385,11 @@ int main(int argc, char* argv[])
 	}
 
 	// verify DNS server IP is a valid IPv4 address
-	if (dnsServer == IPv4Address::Zero ||  !dnsServer.isValid())
+	if (dnsServer.isUnspecified())
 		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or not a valid IPv4 address");
 
 	// verify client IP is valid if set
-	if (clientIpSet && !clientIP.isValid())
+	if (clientIpSet && clientIP.isUnspecified())
 		EXIT_WITH_ERROR("Client IP to spoof is invalid");
 
 

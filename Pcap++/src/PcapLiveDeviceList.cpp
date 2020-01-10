@@ -138,7 +138,7 @@ void PcapLiveDeviceList::setDnsServers()
 		lineStream >> headline;
 		lineStream >> dnsIP;
 		IPv4Address dnsIPAddr(dnsIP);
-		if (!dnsIPAddr.isValid())
+		if (dnsIPAddr.isUnspecified())
 			continue;
 
 		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
@@ -197,15 +197,13 @@ void PcapLiveDeviceList::setDnsServers()
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* ipAddr) const
 {
-	if (ipAddr->getType() == IPAddress::IPv4AddressType)
+	if (ipAddr->isIPv4())
 	{
-		IPv4Address* ip4Addr = static_cast<IPv4Address*>(ipAddr);
-		return getPcapLiveDeviceByIp(*ip4Addr);
+		return getPcapLiveDeviceByIp(ipAddr->getIPv4());
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		IPv6Address* ip6Addr = static_cast<IPv6Address*>(ipAddr);
-		return getPcapLiveDeviceByIp(*ip6Addr);
+		return getPcapLiveDeviceByIp(ipAddr->getIPv6());
 	}
 }
 
@@ -231,7 +229,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr) co
 				continue;
 			}
 
-			if (currAddr->s_addr == ipAddr.toInAddr()->s_addr)
+			if (currAddr->s_addr == ipAddr.toUInt())
 			{
 				LOG_DEBUG("Found matched address!");
 				return (*devIter);
@@ -282,14 +280,14 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr) c
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsString) const
 {
-	IPAddress::Ptr_t apAddr = IPAddress::fromString(ipAddrAsString);
-	if (apAddr.get() == NULL || !apAddr->isValid())
+	IPAddress apAddr(ipAddrAsString);
+	if (apAddr.isUnspecified())
 	{
 		LOG_ERROR("IP address illegal");
 		return NULL;
 	}
 
-	PcapLiveDevice* result = PcapLiveDeviceList::getPcapLiveDeviceByIp(apAddr.get());
+	PcapLiveDevice* result = PcapLiveDeviceList::getPcapLiveDeviceByIp(&apAddr);
 	return result;
 }
 

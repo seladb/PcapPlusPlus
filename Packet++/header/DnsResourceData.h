@@ -5,6 +5,7 @@
 #include "IpAddress.h"
 #include <string>
 #include <stdint.h>
+#include <memory>
 
 /// @file
 

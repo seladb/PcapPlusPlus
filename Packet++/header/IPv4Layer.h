@@ -466,7 +466,7 @@ namespace pcpp
 		 * Set the source IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setSrcIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toInt(); }
+		void setSrcIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toUInt(); }
 
 		/**
 		 * Get the destination IP address in the form of IPv4Address
@@ -478,7 +478,7 @@ namespace pcpp
 		 * Set the dest IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setDstIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toInt(); }
+		void setDstIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toUInt(); }
 
 		/**
 		 * @return True if this packet is a fragment (in sense of IP fragmentation), false otherwise

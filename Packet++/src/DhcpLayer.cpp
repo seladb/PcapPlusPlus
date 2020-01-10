@@ -78,7 +78,7 @@ IPv4Address DhcpLayer::getClientIpAddress() const
 
 void DhcpLayer::setClientIpAddress(const IPv4Address& addr)
 {
-	getDhcpHeader()->clientIpAddress = addr.toInt();
+	getDhcpHeader()->clientIpAddress = addr.toUInt();
 }
 
 IPv4Address DhcpLayer::getServerIpAddress() const
@@ -88,7 +88,7 @@ IPv4Address DhcpLayer::getServerIpAddress() const
 
 void DhcpLayer::setServerIpAddress(const IPv4Address& addr)
 {
-	getDhcpHeader()->serverIpAddress = addr.toInt();
+	getDhcpHeader()->serverIpAddress = addr.toUInt();
 }
 
 IPv4Address DhcpLayer::getYourIpAddress() const
@@ -98,7 +98,7 @@ IPv4Address DhcpLayer::getYourIpAddress() const
 
 void DhcpLayer::setYourIpAddress(const IPv4Address& addr)
 {
-	getDhcpHeader()->yourIpAddress = addr.toInt();
+	getDhcpHeader()->yourIpAddress = addr.toUInt();
 }
 
 IPv4Address DhcpLayer::getGatewayIpAddress() const
@@ -108,7 +108,7 @@ IPv4Address DhcpLayer::getGatewayIpAddress() const
 
 void DhcpLayer::setGatewayIpAddress(const IPv4Address& addr)
 {
-	getDhcpHeader()->gatewayIpAddress = addr.toInt();
+	getDhcpHeader()->gatewayIpAddress = addr.toUInt();
 }
 
 MacAddress DhcpLayer::getClientHardwareAddress() const

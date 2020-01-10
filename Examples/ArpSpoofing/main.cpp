@@ -233,13 +233,13 @@ int main(int argc, char* argv[])
 		exit(-1);
 	}
 
-	if (!victimAddr.isValid())
+	if (victimAddr.isUnspecified())
 	{
 		printf("Victim address not valid. Exiting...\n");
 		exit(-1);
 	}
 
-	if (!gatewayAddr.isValid())
+	if (gatewayAddr.isUnspecified())
 	{
 		printf("Gateway address not valid. Exiting...\n");
 		exit(-1);

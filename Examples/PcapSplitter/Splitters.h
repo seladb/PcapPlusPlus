@@ -1,7 +1,7 @@
 #pragma once
 
 #include <LRUList.h>
-#include <IpUtils.h>
+
 #include <RawPacket.h>
 #include <Packet.h>
 #include <IPv4Layer.h>

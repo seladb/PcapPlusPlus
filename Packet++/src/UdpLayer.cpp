@@ -47,8 +47,8 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 
 		if (m_PrevLayer->getProtocol() == IPv4)
 		{
-			uint32_t srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIpAddress().toInt();
-			uint32_t dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIpAddress().toInt();
+			uint32_t srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIpAddress().toUInt();
+			uint32_t dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIpAddress().toUInt();
 			uint16_t pseudoHeader[6];
 			pseudoHeader[0] = srcIP >> 16;
 			pseudoHeader[1] = srcIP & 0xFFFF;

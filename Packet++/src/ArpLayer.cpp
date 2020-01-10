@@ -20,8 +20,8 @@ ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacA
 	arpHeader->opcode = htobe16(static_cast<uint16_t>(opCode));
 	targetMacAddr.copyTo(arpHeader->targetMacAddr);
 	senderMacAddr.copyTo(arpHeader->senderMacAddr);
-	arpHeader->targetIpAddr = targetIpAddr.toInt();
-	arpHeader->senderIpAddr = senderIpAddr.toInt();
+	arpHeader->targetIpAddr = targetIpAddr.toUInt();
+	arpHeader->senderIpAddr = senderIpAddr.toUInt();
 }
 
 void ArpLayer::computeCalculateFields()

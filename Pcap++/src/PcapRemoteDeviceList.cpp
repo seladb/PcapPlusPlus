@@ -17,7 +17,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
-	if (ipAddress == NULL || !ipAddress->isValid())
+	if (ipAddress == NULL || ipAddress->isUnspecified())
 	{
 		LOG_ERROR("IP address is NULL or not valid");
 		return NULL;
@@ -73,28 +73,26 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString) const
 {
-	IPAddress::Ptr_t apAddr = IPAddress::fromString(ipAddrAsString);
-	if (!apAddr->isValid())
+	IPAddress apAddr(ipAddrAsString);
+	if (apAddr.isUnspecified())
 	{
 		LOG_ERROR("IP address illegal");
 		return NULL;
 	}
 
-	PcapRemoteDevice* result = getRemoteDeviceByIP(apAddr.get());
+	PcapRemoteDevice* result = getRemoteDeviceByIP(&apAddr);
 	return result;
 }
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* ipAddr) const
 {
-	if (ipAddr->getType() == IPAddress::IPv4AddressType)
+	if (ipAddr->isIPv4())
 	{
-		IPv4Address* ip4Addr = static_cast<IPv4Address*>(ipAddr);
-		return getRemoteDeviceByIP(*ip4Addr);
+		return getRemoteDeviceByIP(ipAddr->getIPv4());
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		IPv6Address* ip6Addr = static_cast<IPv6Address*>(ipAddr);
-		return getRemoteDeviceByIP(*ip6Addr);
+		return getRemoteDeviceByIP(ipAddr->getIPv6());
 	}
 }
 
@@ -121,7 +119,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 				continue;
 			}
 
-			if (currAddr->s_addr == ip4Addr.toInAddr()->s_addr)
+			if (currAddr->s_addr == ip4Addr.toUInt())
 			{
 				LOG_DEBUG("Found matched address!");
 				return (*devIter);
@@ -184,11 +182,11 @@ void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress* ipAddress)
 
 	if (ipAddress->getType() == IPAddress::IPv4AddressType)
 	{
-		m_RemoteMachineIpAddress = new IPv4Address(ipAddress->toString());
+		m_RemoteMachineIpAddress = new IPAddress(ipAddress->getIPv4());
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		m_RemoteMachineIpAddress = new IPv6Address(ipAddress->toString());
+		m_RemoteMachineIpAddress = new IPAddress(ipAddress->getIPv6());
 	}
 }
 

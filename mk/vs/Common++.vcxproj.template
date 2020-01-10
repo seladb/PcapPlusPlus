@@ -189,7 +189,6 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
   <ItemGroup>
     <ClInclude Include="..\..\Common++\header\GeneralUtils.h" />
     <ClInclude Include="..\..\Common++\header\IpAddress.h" />
-    <ClInclude Include="..\..\Common++\header\IpAddresses.h" />
     <ClInclude Include="..\..\Common++\header\IpUtils.h" />
     <ClInclude Include="..\..\Common++\header\Logger.h" />
     <ClInclude Include="..\..\Common++\header\LRUList.h" />
@@ -203,7 +202,6 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
   <ItemGroup>
     <ClCompile Include="..\..\Common++\src\GeneralUtils.cpp" />
     <ClCompile Include="..\..\Common++\src\IpAddress.cpp" />
-    <ClCompile Include="..\..\Common++\src\IpAddresses.cpp" />
     <ClCompile Include="..\..\Common++\src\IpUtils.cpp" />
     <ClCompile Include="..\..\Common++\src\Logger.cpp" />
     <ClCompile Include="..\..\Common++\src\MacAddress.cpp" />

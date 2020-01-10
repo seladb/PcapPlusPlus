@@ -5,7 +5,6 @@
 #include <map>
 #include <Logger.h>
 #include <IpAddress.h>
-#include <IpAddresses.h>
 #include <MacAddress.h>
 #include <Packet.h>
 #include <PacketUtils.h>
@@ -644,79 +643,19 @@ bool packetArrivesBlockingModeStopCapture(RawPacket* pRawPacket, PcapLiveDevice*
 }
 
 
-
-PTF_TEST_CASE(TestIPAddress)
-{
-	IPAddress::Ptr_t ip4Addr = IPAddress::fromString((char*)"10.0.0.4");
-	PTF_ASSERT(ip4Addr.get() != NULL, "IPv4 address is NULL");
-	PTF_ASSERT(ip4Addr->getType() == IPAddress::IPv4AddressType, "IPv4 address is not of type IPv4Address");
-	PTF_ASSERT(strcmp(ip4Addr->toString().c_str(), "10.0.0.4") == 0, "IPv4 toString doesn't return the correct string");
-	IPv4Address* ip4AddrAfterCast = static_cast<IPv4Address*>(ip4Addr.get());
-	PTF_ASSERT(be32toh(ip4AddrAfterCast->toInt()) == 0x0A000004, "toInt() gave wrong result: %X", ip4AddrAfterCast->toInt());
-	IPv4Address secondIPv4Address(string("1.1.1.1"));
-	secondIPv4Address = *ip4AddrAfterCast;
-	PTF_ASSERT(secondIPv4Address.isValid() == true, "Valid address identified as non-valid");
-	PTF_ASSERT((*ip4AddrAfterCast) == secondIPv4Address, "IPv4Address assignment operator didn't work");
-
-	IPv4Address ipv4Addr("10.0.0.4"), subnet1("10.0.0.0"), subnet2("10.10.0.0"), mask("255.255.255.0");
-	PTF_ASSERT(ipv4Addr.isValid() == true, "Valid ipv4Addr identified as non-valid");
-	PTF_ASSERT(subnet1.isValid() == true, "Valid subnet1 identified as non-valid");
-	PTF_ASSERT(subnet2.isValid() == true, "Valid subnet2 identified as non-valid");
-	PTF_ASSERT(mask.isValid() == true, "Valid mask identified as non-valid");
-	PTF_ASSERT(ipv4Addr.matchSubnet(subnet1, mask) == true, "Incorrect result: ipv4Addr address does not belong to subnet1");
-	PTF_ASSERT(ipv4Addr.matchSubnet(subnet2, mask) == false, "Incorrect result: ipv4Addr address belongs to subnet2");
-
-	IPv4Address badAddress(std::string("sdgdfgd"));
-	PTF_ASSERT(badAddress.isValid() == false, "Non-valid address identified as valid");
-	IPv4Address anotherBadAddress = IPv4Address(std::string("321.123.1000.1"));
-	PTF_ASSERT(anotherBadAddress.isValid() == false, "Non-valid address copied by copy c'tor identified as valid");
-
-	string ip6AddrString("2607:f0d0:1002:51::4");
-	IPAddress::Ptr_t ip6Addr = IPAddress::fromString(ip6AddrString);
-	PTF_ASSERT(ip6Addr.get() != NULL, "IPv6 address is NULL");
-	PTF_ASSERT(ip6Addr->getType() == IPAddress::IPv6AddressType, "IPv6 address is not of type IPv6Address");
-	PTF_ASSERT(strcmp(ip6Addr->toString().c_str(), "2607:f0d0:1002:51::4") == 0, "IPv6 toString doesn't return the correct string");
-	IPv6Address* ip6AddrAfterCast = static_cast<IPv6Address*>(ip6Addr.get());
-	size_t length = 0;
-	uint8_t* addrAsByteArray;
-	ip6AddrAfterCast->copyTo(&addrAsByteArray, length);
-	PTF_ASSERT(length == 16, "IPv6 packet length is wrong. Expected 16, got %d", (int)length);
-	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00 , 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
-	for (int i = 0; i < 16; i++)
-		PTF_ASSERT_AND_RUN_COMMAND(addrAsByteArray[i] == expectedByteArray[i], delete [] addrAsByteArray, "Failed to convert IPv6 address to byte array; byte #%d: expected 0x%X got 0x%X", i, expectedByteArray[i], addrAsByteArray[i]);
-
-	delete [] addrAsByteArray;
-	ip6Addr = IPAddress::fromString(string("2607:f0d0:1002:0051:0000:0000:0000:0004"));
-	PTF_ASSERT(ip6Addr.get() != NULL, "IPv6 address is NULL");
-	PTF_ASSERT(ip6Addr->getType() == IPAddress::IPv6AddressType, "IPv6 address is not of type IPv6Address");
-	PTF_ASSERT(strcmp(ip6Addr->toString().c_str(), "2607:f0d0:1002:0051:0000:0000:0000:0004") == 0, "IPv6 toString doesn't return the correct string");
-	IPv6Address secondIPv6Address(string("2607:f0d0:1002:52::5"));
-	ip6AddrAfterCast = static_cast<IPv6Address*>(ip6Addr.get());
-	secondIPv6Address = *ip6AddrAfterCast;
-	PTF_ASSERT(ip6Addr->isValid() == true, "Valid IPv6 address identified as non-valid");
-	PTF_ASSERT((*ip6AddrAfterCast) == secondIPv6Address, "IPv6Address assignment operator didn't work");
-
-	char badIp6AddressStr[] = "lasdfklsdkfdls";
-	IPv6Address badIp6Address(badIp6AddressStr);
-	PTF_ASSERT(badIp6Address.isValid() == false, "Non-valid IPv6 address identified as valid");
-	IPv6Address anotherBadIp6Address = badIp6Address;
-	PTF_ASSERT(anotherBadIp6Address.isValid() == false, "Non-valid IPv6 address copied by copy c'tor identified as valid");
-}
-
-
 PTF_TEST_CASE(TestIPAddresses)
 {
 	// IPv4Address
 	{
 		static const uint8_t bytes[4] = { 0x01, 0x02, 0x03, 0x04 };
-		pcpp::experimental::IPv4Address addr1(htonl(0x01020304)), addr2(bytes), addr3;
+		IPv4Address addr1(htobe32(0x01020304)), addr2(bytes), addr3;
 
 		PTF_ASSERT_FALSE(addr1.isUnspecified());
 		PTF_ASSERT_FALSE(addr2.isUnspecified());
 		PTF_ASSERT_TRUE(addr3.isUnspecified());
 
 		PTF_ASSERT_EQUAL(addr1.toUInt(), 0x04030201, u32);
-		PTF_ASSERT_EQUAL(addr2.toUInt(), htonl(0x01020304), u32);
+		PTF_ASSERT_EQUAL(addr2.toUInt(), htobe32(0x01020304), u32);
 		PTF_ASSERT_EQUAL(addr1.toUInt(), addr2.toUInt(), u32);
 		PTF_ASSERT_BUF_COMPARE(addr1.toBytes(), addr2.toBytes(), sizeof(uint32_t));
 		PTF_ASSERT_TRUE(addr1 == addr2);
@@ -726,45 +665,45 @@ PTF_TEST_CASE(TestIPAddresses)
 	}
 
 	{
-		pcpp::experimental::IPv4Address addr("10.0.0.4");
+		IPv4Address addr("10.0.0.4");
 		PTF_ASSERT_FALSE(addr.isUnspecified());
 
-		pcpp::experimental::IPv4Address subnet1("10.0.0.0");
+		IPv4Address subnet1("10.0.0.0");
 		PTF_ASSERT_FALSE(subnet1.isUnspecified());
 
-		pcpp::experimental::IPv4Address subnet2("10.10.0.0");
+		IPv4Address subnet2("10.10.0.0");
 		PTF_ASSERT_FALSE(subnet2.isUnspecified());
 
-		pcpp::experimental::IPv4Address mask(std::string("255.255.255.0"));
+		IPv4Address mask(std::string("255.255.255.0"));
 		PTF_ASSERT_FALSE(mask.isUnspecified());
 
 		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, mask));
 		PTF_ASSERT_TRUE(addr.matchSubnet(subnet1, std::string("255.255.255.0")));
 		PTF_ASSERT_FALSE(addr.matchSubnet(subnet2, mask));
-		PTF_ASSERT_FALSE(addr.matchSubnet(pcpp::experimental::IPv4Address("10.10.0.0"), "255.255.0.0"));
+		PTF_ASSERT_FALSE(addr.matchSubnet(IPv4Address("10.10.0.0"), "255.255.0.0"));
 		// wrong mask
 		LoggerPP::getInstance().supressErrors();
-		PTF_ASSERT_FALSE(addr.matchSubnet(pcpp::experimental::IPv4Address("10.10.0.0"), "255.255.255"));
+		PTF_ASSERT_FALSE(addr.matchSubnet(IPv4Address("10.10.0.0"), "255.255.255"));
 		LoggerPP::getInstance().enableErrors();
 	}
 
 	{
-		pcpp::experimental::IPv4Address addr1("10.0.0.4");
-		pcpp::experimental::IPv4Address addr2;
+		IPv4Address addr1("10.0.0.4");
+		IPv4Address addr2;
 		addr2 = addr1;
 		PTF_ASSERT_EQUAL(addr1, addr2, object);
 
-		pcpp::experimental::IPv4Address addr3(addr1);
+		IPv4Address addr3(addr1);
 		PTF_ASSERT_EQUAL(addr2, addr3, object);
 	}
 
 	// IPv6Address
 	{
-		pcpp::experimental::IPv6Address zeroAddress;
+		IPv6Address zeroAddress;
 		PTF_ASSERT_TRUE(zeroAddress.isUnspecified());
 
 		const uint8_t bytes[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
-		pcpp::experimental::IPv6Address addr(bytes);
+		IPv6Address addr(bytes);
 		PTF_ASSERT_FALSE(addr.isUnspecified());
 		PTF_ASSERT_FALSE(zeroAddress == addr);
 
@@ -775,48 +714,48 @@ PTF_TEST_CASE(TestIPAddresses)
 
 	{
 		const uint8_t bytes[16] = { 0x26, 0x70, 0xF0, 0xD0, 0x10, 0x20, 0x22, 0x51, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x40 };
-		pcpp::experimental::IPv6Address addr(bytes);
+		IPv6Address addr(bytes);
 		PTF_ASSERT_EQUAL(addr.toString(), std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), object);
 	}
 
 	{
 		const uint8_t expectedBytes[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
-		pcpp::experimental::IPv6Address addr1("2607:f0d0:1002:0051::4");
+		IPv6Address addr1("2607:f0d0:1002:0051::4");
 		PTF_ASSERT_FALSE(addr1.isUnspecified());
 		PTF_ASSERT_BUF_COMPARE(addr1.toBytes(), expectedBytes, sizeof(expectedBytes));
 
-		pcpp::experimental::IPv6Address badAddr("avbrgththj");
+		IPv6Address badAddr("avbrgththj");
 		PTF_ASSERT_TRUE(badAddr.isUnspecified());
 	}
 
 	// IPAddress
 	{
-		pcpp::experimental::IPAddress v4Zero;
+		IPAddress v4Zero;
 		PTF_ASSERT_TRUE(v4Zero.isIPv4());
 		PTF_ASSERT_TRUE(v4Zero.isUnspecified());
 		PTF_ASSERT_FALSE(v4Zero.isIPv6());
 
-		pcpp::experimental::IPv4Address ipv4Zero;
-		pcpp::experimental::IPAddress v4Zero1(ipv4Zero);
+		IPv4Address ipv4Zero;
+		IPAddress v4Zero1(ipv4Zero);
 		PTF_ASSERT_TRUE(v4Zero1.isIPv4());
 		PTF_ASSERT_TRUE(v4Zero1.isUnspecified());
 
-		pcpp::experimental::IPv6Address ipv6Zero;
-		pcpp::experimental::IPAddress v6Zero1(ipv6Zero);
+		IPv6Address ipv6Zero;
+		IPAddress v6Zero1(ipv6Zero);
 		PTF_ASSERT_TRUE(v6Zero1.isIPv6());
 		PTF_ASSERT_TRUE(v6Zero1.isUnspecified());
 	}
 
 	{
-		pcpp::experimental::IPv4Address ipv4Addr1("10.0.0.4"), ipv4Addr2("10.0.0.5");
-		pcpp::experimental::IPv6Address ipv6Addr1("2607:f0d0:1002:0051::4"), ipv6Addr2("2607:f0d0:1002:0051::5");
+		IPv4Address ipv4Addr1("10.0.0.4"), ipv4Addr2("10.0.0.5");
+		IPv6Address ipv6Addr1("2607:f0d0:1002:0051::4"), ipv6Addr2("2607:f0d0:1002:0051::5");
 
-		pcpp::experimental::IPAddress v4Addr(ipv4Addr1);
+		IPAddress v4Addr(ipv4Addr1);
 		PTF_ASSERT_TRUE(v4Addr.isIPv4());
 		PTF_ASSERT_FALSE(v4Addr.isUnspecified());
 		PTF_ASSERT_FALSE(v4Addr.isIPv6());
 
-		pcpp::experimental::IPAddress v6Addr(ipv6Addr1);
+		IPAddress v6Addr(ipv6Addr1);
 		PTF_ASSERT_FALSE(v6Addr.isIPv4());
 		PTF_ASSERT_FALSE(v6Addr.isUnspecified());
 		PTF_ASSERT_TRUE(v6Addr.isIPv6());
@@ -835,16 +774,16 @@ PTF_TEST_CASE(TestIPAddresses)
 	}
 
 	{
-		pcpp::experimental::IPAddress	badAddr("abcdfefegg");
+		IPAddress	badAddr("abcdfefegg");
 		PTF_ASSERT_TRUE(badAddr.isUnspecified());
 		PTF_ASSERT_TRUE(badAddr.isIPv4());
 
-		pcpp::experimental::IPAddress	v4Addr1("10.0.0.4"), v4Addr2("10.0.0.5"),	v4Addr3 = v4Addr1;
+		IPAddress	v4Addr1("10.0.0.4"), v4Addr2("10.0.0.5"),	v4Addr3 = v4Addr1;
 		PTF_ASSERT_TRUE(v4Addr2.isIPv4());
 		PTF_ASSERT_FALSE(v4Addr2.isUnspecified());
 		PTF_ASSERT_FALSE(v4Addr2.isIPv6());
 
-		pcpp::experimental::IPAddress v6Addr1("2607:f0d0:1002:0051::4"), v6Addr2("2607:f0d0:1002:0051::5"), v6Addr3 = v6Addr1;
+		IPAddress v6Addr1("2607:f0d0:1002:0051::4"), v6Addr2("2607:f0d0:1002:0051::5"), v6Addr3 = v6Addr1;
 		PTF_ASSERT_TRUE(v6Addr2.isIPv6());
 		PTF_ASSERT_FALSE(v6Addr2.isUnspecified());
 		PTF_ASSERT_FALSE(v6Addr2.isIPv4());
@@ -857,8 +796,8 @@ PTF_TEST_CASE(TestIPAddresses)
 	}
 
 	{
-		pcpp::experimental::IPAddress	v4Addr("10.0.0.4");
-		pcpp::experimental::IPAddress	v6Addr("2670:f0d0:1020:2251:1010:1010:1010:1040");
+		IPAddress	v4Addr("10.0.0.4");
+		IPAddress	v6Addr("2670:f0d0:1020:2251:1010:1010:1010:1040");
 		PTF_ASSERT_EQUAL(v4Addr.toString(), std::string("10.0.0.4"), object);
 		PTF_ASSERT_EQUAL(v6Addr.toString(), std::string("2670:f0d0:1020:2251:1010:1010:1010:1040"), object);
 	}
@@ -866,7 +805,7 @@ PTF_TEST_CASE(TestIPAddresses)
 	// TODO: remove the code block when migration has completed
 	{
 		IPv4Address oldIPv4("10.10.10.10");
-		pcpp::experimental::IPv4Address newIPv4(oldIPv4.toInt()), differentNewIPv4 = pcpp::experimental::IPv4Address("10.10.10.11");
+		IPv4Address newIPv4(oldIPv4.toUInt()), differentNewIPv4 = IPv4Address("10.10.10.11");
 		PTF_ASSERT_TRUE(oldIPv4 == newIPv4);
 		PTF_ASSERT_TRUE(newIPv4 == oldIPv4);
 		PTF_ASSERT_FALSE(oldIPv4 != newIPv4);
@@ -875,7 +814,7 @@ PTF_TEST_CASE(TestIPAddresses)
 		PTF_ASSERT_FALSE(oldIPv4 == differentNewIPv4);
 
 		IPv6Address oldIPv6(std::string("2607:f0d0:1002:0051::4"));
-		pcpp::experimental::IPv6Address newIPv6("2607:f0d0:1002:0051::4"), differentNewIPv6("2607:f0d0:1002:0051::5");
+		IPv6Address newIPv6("2607:f0d0:1002:0051::4"), differentNewIPv6("2607:f0d0:1002:0051::5");
 		PTF_ASSERT_TRUE(oldIPv6 == newIPv6);
 		PTF_ASSERT_TRUE(newIPv6 == oldIPv6);
 		PTF_ASSERT_FALSE(oldIPv6 != newIPv6);
@@ -1814,7 +1753,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "Filter '%s', Packet captured isn't of type IP", filterAsString.c_str());
 		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ipv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "'IP Filter' failed. Packet IP dst is %X, expected %X", ipv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
+		PTF_ASSERT(ipv4Layer->getIPv4Header()->ipDst == ipToSearch.toUInt(), "'IP Filter' failed. Packet IP dst is %X, expected %X", ipv4Layer->getIPv4Header()->ipDst, ipToSearch.toUInt());
 	}
 
 
@@ -1863,7 +1802,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
 		IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
 		PTF_ASSERT(be16toh(pTcpLayer->getTcpHeader()->portSrc) == 80, "'And Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
-		PTF_ASSERT(pIPv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "Filter failed. Packet IP dst is %X, expected %X", pIPv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
+		PTF_ASSERT(pIPv4Layer->getIPv4Header()->ipDst == ipToSearch.toUInt(), "Filter failed. Packet IP dst is %X, expected %X", pIPv4Layer->getIPv4Header()->ipDst, ipToSearch.toUInt());
 	}
 	capturedPackets.clear();
 
@@ -1896,7 +1835,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 			uint32_t ipSrcAddrAsInt = 0;
 			if (pIPv4Layer != NULL)
 			{
-				srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt();
+				srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toUInt();
 				ipSrcAddrAsInt = pIPv4Layer->getIPv4Header()->ipSrc;
 			}
 			PTF_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", be16toh(pTcpLayer->getTcpHeader()->portSrc), ipSrcAddrAsInt, PcapGlobalArgs.ipToSendReceivePackets.c_str());
@@ -1904,7 +1843,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(IP))
 		{
 			IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
-			PTF_ASSERT(pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt(), "Filter failed. Packet IP src is %X, expected %X", pIPv4Layer->getIPv4Header()->ipSrc, ipToSearch.toInt());
+			PTF_ASSERT(pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toUInt(), "Filter failed. Packet IP src is %X, expected %X", pIPv4Layer->getIPv4Header()->ipSrc, ipToSearch.toUInt());
 		}
 		else
 			PTF_ASSERT(true, "Filter '%s', Packet isn't of type IP or TCP", filterAddrAsString.c_str());
@@ -1929,7 +1868,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(IPv4))
 		{
 			IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-			PTF_ASSERT(ipv4Layer->getIPv4Header()->ipSrc != ipToSearch.toInt(), "'Not Filter' failed. Packet IP src is %X, the same as %X", ipv4Layer->getIPv4Header()->ipSrc, ipToSearch.toInt());
+			PTF_ASSERT(ipv4Layer->getIPv4Header()->ipSrc != ipToSearch.toUInt(), "'Not Filter' failed. Packet IP src is %X, the same as %X", ipv4Layer->getIPv4Header()->ipSrc, ipToSearch.toUInt());
 		}
 	}
 	capturedPackets.clear();
@@ -2540,7 +2479,9 @@ PTF_TEST_CASE(TestRemoteCapture)
 
 	}
 
-	IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
+	IPAddress remoteDeviceIPAddr(remoteDeviceIP);
+	PTF_ASSERT_FALSE(remoteDeviceIPAddr.isUnspecified());
+	PTF_ASSERT_TRUE(remoteDeviceIPAddr.isIPv4());
 	PcapRemoteDeviceList* remoteDevices = PcapRemoteDeviceList::getRemoteDeviceList(&remoteDeviceIPAddr, remoteDevicePort);
 	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices != NULL, terminateRpcapdServer(rpcapdHandle), "Error on retrieving remote devices on IP: %s port: %d. Error string was: %s", remoteDeviceIP.c_str(), remoteDevicePort, PcapGlobalArgs.errString);
 	for (PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
@@ -4213,7 +4154,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	unsigned int counter = 0;
 	KniDevice::KniDeviceConfiguration devConfig;
 	IPv4Address kniIp = PcapGlobalArgs.kniIp;
-	PTF_ASSERT(kniIp.isValid(), "Invalid IP address provided for KNI interface");
+	PTF_ASSERT(!kniIp.isUnspecified(), "Invalid IP address provided for KNI interface");
 
 	// KNI device setup
 	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI::DEVICE1);
@@ -4629,7 +4570,7 @@ PTF_TEST_CASE(TestGetMacAddress)
     while (std::getline(sstream, ip, '\n'))
     {
     	IPv4Address ipAddr(ip);
-    	PTF_ASSERT(ipAddr.isValid(), "Got non-valid ip from arp-table: '%s'", ip.c_str());
+    	PTF_ASSERT(!ipAddr.isUnspecified(), "Got non-valid ip from arp-table: '%s'", ip.c_str());
     	LoggerPP::getInstance().supressErrors();
     	result = NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
     	LoggerPP::getInstance().enableErrors();
@@ -4894,8 +4835,8 @@ PTF_TEST_CASE(TestTcpReassemblySanity)
 	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
 	IPv4Address expectedSrcIP(std::string("10.0.0.1"));
 	IPv4Address expectedDstIP(std::string("81.218.72.15"));
-	PTF_ASSERT(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 10.0.0.1");
-	PTF_ASSERT(stats.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 81.218.72.15");
+	PTF_ASSERT(*stats.begin()->second.connData.srcIP == expectedSrcIP, "Source IP isn't 10.0.0.1");
+	PTF_ASSERT(*stats.begin()->second.connData.dstIP == expectedDstIP, "Source IP isn't 81.218.72.15");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
@@ -5331,8 +5272,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6)
 	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
 	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
 	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
-	PTF_ASSERT(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(stats.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT(*stats.begin()->second.connData.srcIP == expectedSrcIP, "Source IP isn't 2001:618:400::5199:cc70");
+	PTF_ASSERT(*stats.begin()->second.connData.dstIP == expectedDstIP, "Source IP isn't 2001:618:1:8000::5");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
@@ -5373,8 +5314,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #1: Connections wasn't ended manually");
 	PTF_ASSERT(iter->second.connData.srcIP != NULL, "Conn #1: Source IP is NULL");
 	PTF_ASSERT(iter->second.connData.dstIP != NULL, "Conn #1: Source IP is NULL");
-	PTF_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #1: Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #1: Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT(*iter->second.connData.srcIP == expectedSrcIP, "Conn #1: Source IP isn't 2001:618:400::5199:cc70");
+	PTF_ASSERT(*iter->second.connData.dstIP == expectedDstIP1, "Conn #1: Source IP isn't 2001:618:1:8000::5");
 	PTF_ASSERT(iter->second.connData.srcPort == 35995, "Conn #1: source port isn't 35995");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
@@ -5393,8 +5334,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #2: Connections wasn't ended manually");
 	PTF_ASSERT(iter->second.connData.srcIP != NULL, "Conn #2: Source IP is NULL");
 	PTF_ASSERT(iter->second.connData.dstIP != NULL, "Conn #2: Source IP is NULL");
-	PTF_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #2: Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #2: Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT(*iter->second.connData.srcIP == expectedSrcIP, "Conn #2: Source IP isn't 2001:618:400::5199:cc70");
+	PTF_ASSERT(*iter->second.connData.dstIP == expectedDstIP1, "Conn #2: Source IP isn't 2001:618:1:8000::5");
 	PTF_ASSERT(iter->second.connData.srcPort == 35999, "Conn #2: source port isn't 35999");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
@@ -5411,8 +5352,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections wasn't ended manually");
 	PTF_ASSERT(iter->second.connData.srcIP != NULL, "Conn #3: Source IP is NULL");
 	PTF_ASSERT(iter->second.connData.dstIP != NULL, "Conn #3: Source IP is NULL");
-	PTF_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #3: Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP2), "Conn #3: Source IP isn't 2001:638:902:1:202:b3ff:feee:5dc2");
+	PTF_ASSERT(*iter->second.connData.srcIP == expectedSrcIP, "Conn #3: Source IP isn't 2001:618:400::5199:cc70");
+	PTF_ASSERT(*iter->second.connData.dstIP == expectedDstIP2, "Conn #3: Source IP isn't 2001:638:902:1:202:b3ff:feee:5dc2");
 	PTF_ASSERT(iter->second.connData.srcPort == 40426, "Conn #3: source port isn't 40426");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
@@ -5431,8 +5372,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #4: Connections wasn't ended manually");
 	PTF_ASSERT(iter->second.connData.srcIP != NULL, "Conn #4: Source IP is NULL");
 	PTF_ASSERT(iter->second.connData.dstIP != NULL, "Conn #4: Source IP is NULL");
-	PTF_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #4: Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #4: Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT(*iter->second.connData.srcIP == expectedSrcIP, "Conn #4: Source IP isn't 2001:618:400::5199:cc70");
+	PTF_ASSERT(*iter->second.connData.dstIP == expectedDstIP1, "Conn #4: Source IP isn't 2001:618:1:8000::5");
 	PTF_ASSERT(iter->second.connData.srcPort == 35997, "Conn #4: source port isn't 35997");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
@@ -5477,8 +5418,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
 	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
 	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
 	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
-	PTF_ASSERT(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(stats.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT(*stats.begin()->second.connData.srcIP == expectedSrcIP, "Source IP isn't 2001:618:400::5199:cc70");
+	PTF_ASSERT(*stats.begin()->second.connData.dstIP == expectedDstIP, "Source IP isn't 2001:618:1:8000::5");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
@@ -5573,8 +5514,8 @@ PTF_TEST_CASE(TestTcpReassemblyMaxSeq)
 	PTF_ASSERT_NOT_NULL(stats.begin()->second.connData.dstIP);
 	IPv4Address expectedSrcIP(std::string("10.0.0.1"));
 	IPv4Address expectedDstIP(std::string("81.218.72.15"));
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP));
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP->equals(&expectedDstIP));
+	PTF_ASSERT_TRUE(*stats.begin()->second.connData.srcIP == expectedSrcIP);
+	PTF_ASSERT_TRUE(*stats.begin()->second.connData.dstIP == expectedDstIP);
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
 	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
 	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
@@ -6683,12 +6624,12 @@ PTF_TEST_CASE(TestIPFragRemove)
 
 PTF_TEST_CASE(TestRawSockets)
 {
-	IPAddress::Ptr_t ipAddr = IPAddress::fromString(PcapGlobalArgs.ipToSendReceivePackets);
-	PTF_ASSERT(ipAddr.get() != NULL && ipAddr.get()->isValid(), "IP address is not valid");
-	RawSocketDevice rawSock(*(ipAddr.get()));
+	IPAddress ipAddr(PcapGlobalArgs.ipToSendReceivePackets);
+	PTF_ASSERT(!ipAddr.isUnspecified(), "IP address is not valid");
+	RawSocketDevice rawSock(ipAddr);
 
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-	ProtocolType protocol = (ipAddr.get()->getType() == IPAddress::IPv4AddressType ? IPv4 : IPv6);
+	ProtocolType protocol = (ipAddr.isIPv4() ? IPv4 : IPv6);
 	bool sendSupported = false;
 #elif LINUX
 	ProtocolType protocol = Ethernet;
@@ -6764,7 +6705,7 @@ PTF_TEST_CASE(TestRawSockets)
 	PTF_ASSERT(rawSock.open() == true, "Couldn't reopen raw socket");
 
 	// open another socket on the same interface
-	RawSocketDevice rawSock2(*(ipAddr.get()));
+	RawSocketDevice rawSock2(ipAddr);
 	PTF_ASSERT(rawSock2.open() == true, "Couldn't open raw socket 2");
 
 	// receive packet on 2 sockets
@@ -6976,7 +6917,6 @@ int main(int argc, char* argv[])
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
 	PcapLiveDeviceList::getInstance();
-	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
 	PTF_RUN_TEST(TestIPAddresses, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");

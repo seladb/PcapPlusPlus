@@ -74,19 +74,19 @@ RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_So
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 	WinSockInitializer::initialize();
-	m_InterfaceIP = interfaceIP.clone();
+	m_InterfaceIP = new IPAddress(interfaceIP);
 	m_SockFamily = (m_InterfaceIP->getType() == IPAddress::IPv4AddressType ? IPv4 : IPv6);
 
 #elif LINUX
 
-	m_InterfaceIP = interfaceIP.clone();
+	m_InterfaceIP = new IPAddress(interfaceIP);
 	m_SockFamily = Ethernet;
 
 #else
 
 	m_InterfaceIP = NULL;
 	m_SockFamily = Ethernet;
-	
+
 #endif
 }
 
@@ -368,7 +368,7 @@ bool RawSocketDevice::open()
 {
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
-	if (!m_InterfaceIP->isValid())
+	if (m_InterfaceIP->isUnspecified())
 	{
 		LOG_ERROR("IP address is not valid");
 		return false;
@@ -446,7 +446,7 @@ bool RawSocketDevice::open()
 
 #elif LINUX
 
-	if (!m_InterfaceIP->isValid())
+	if (m_InterfaceIP->isUnspecified())
 	{
 		LOG_ERROR("IP address is not valid");
 		return false;

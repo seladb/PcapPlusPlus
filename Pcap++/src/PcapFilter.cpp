@@ -131,7 +131,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	// The IPv4 limitation comes from the fact libPcap/WinPcap doesn't support mask for IPv6 addresses
 
 	IPv4Address ipAddr(m_Address);
-	if (!ipAddr.isValid())
+	if (ipAddr.isUnspecified())
 	{
 		LOG_ERROR("IP filter with mask must be used with IPv4 valid address. Setting the mask to an empty value");
 		mask.clear();
@@ -139,7 +139,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	}
 
 	IPv4Address maskAsAddr(m_IPv4Mask);
-	if (!maskAsAddr.isValid())
+	if (maskAsAddr.isUnspecified())
 	{
 		LOG_ERROR("Invalid IPv4 mask. Setting the mask to an empty");
 		mask.clear();
@@ -149,7 +149,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	// If all addresses are IPv4 valid addresses, make sure ipAddress matches the mask. If it's not, mask the address with the mask
 	// The reason for doing that is libPcap/WinPcap doesn't allow filtering an IP address that doesn't match the mask
 
-	uint32_t addrAsIntAfterMask = ipAddr.toInt() & maskAsAddr.toInt();
+	uint32_t addrAsIntAfterMask = ipAddr.toUInt() & maskAsAddr.toUInt();
 	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();
 }
 
@@ -162,20 +162,25 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) 
 
 	// The following code lines verify IP address is valid (IPv4 or IPv6)
 
-	IPAddress::Ptr_t ipAddr = IPAddress::fromString(ipAddrmodified);
-	if (ipAddr.get()->getType() == IPAddress::IPv4AddressType)
+	IPAddress ipAddr(ipAddrmodified);
+	if (ipAddr.isUnspecified())
 	{
-		IPv4Address* ip4Addr = (IPv4Address*)ipAddr.get();
-		uint32_t addrAsInt = ip4Addr->toInt();
-		uint32_t mask = ((uint32_t) - 1) >> ((sizeof(uint32_t) * 8) - m_Len);
+		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
+		len = 0;
+	}
+	else if (ipAddr.isIPv4())
+	{
+		const IPv4Address& ip4Addr = ipAddr.getIPv4();
+		uint32_t addrAsInt = ip4Addr.toUInt();
+		uint32_t mask = ((uint32_t)-1) >> ((sizeof(uint32_t)*8)-m_Len);
 		addrAsInt &= mask;
 		ipAddrmodified = IPv4Address(addrAsInt).toString();
 	}
-	else if (ipAddr.get()->getType() == IPAddress::IPv6AddressType)
+	else // IPv6
 	{
-		IPv6Address* ip6Addr = (IPv6Address*)ipAddr.get();
+		const IPv6Address& ip6Addr = ipAddr.getIPv6();
 		uint8_t* addrAsArr; size_t addrLen;
-		ip6Addr->copyTo(&addrAsArr, addrLen);
+		ip6Addr.copyTo(&addrAsArr, addrLen);
 		uint64_t addrLowerBytes = (long)addrAsArr;
 		uint64_t addrHigherBytes = (long)(addrAsArr + 8);
 		if (len > (int)(sizeof(uint64_t) * 8))
@@ -190,11 +195,6 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) 
 
 		ipAddrmodified = IPv6Address(addrAsArr).toString();
 		delete [] addrAsArr;
-	}
-	else
-	{
-		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
-		len = 0;
 	}
 }
 

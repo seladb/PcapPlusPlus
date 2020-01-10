@@ -37,7 +37,7 @@ IPv4OptionBuilder::IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vect
 	bool firstZero = false;
 	for (std::vector<IPv4Address>::const_iterator iter = ipList.begin(); iter != ipList.end(); iter++)
 	{
-		uint32_t ipAddrAsInt = iter->toInt();
+		uint32_t ipAddrAsInt = iter->toUInt();
 
 		if (!firstZero)
 			m_RecValue[0] += (uint8_t)4;
@@ -103,7 +103,7 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 
 		if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
 		{
-			uint32_t ipAddrAsInt = timestampValue.ipAddresses.at(i).toInt();
+			uint32_t ipAddrAsInt = timestampValue.ipAddresses.at(i).toUInt();
 			memcpy(m_RecValue + curOffset , &ipAddrAsInt, sizeof(uint32_t));
 			curOffset += sizeof(uint32_t);
 		}
@@ -216,8 +216,8 @@ IPv4Layer::IPv4Layer(const IPv4Address& srcIP, const IPv4Address& dstIP)
 {
 	initLayer();
 	iphdr* ipHdr = getIPv4Header();
-	ipHdr->ipSrc = srcIP.toInt();
-	ipHdr->ipDst = dstIP.toInt();
+	ipHdr->ipSrc = srcIP.toUInt();
+	ipHdr->ipDst = dstIP.toUInt();
 }
 
 IPv4Layer::IPv4Layer(const IPv4Layer& other) : Layer(other)

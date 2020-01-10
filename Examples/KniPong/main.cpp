@@ -164,7 +164,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	}
 	pcpp::IPv4Address kniIp = args.kniIp;
 	pcpp::IPv4Address outIp = args.outIp;
-	if (!(kniIp.isValid() && outIp.isValid()))
+	if (kniIp.isUnspecified() || outIp.isUnspecified())
 	{
 		EXIT_WITH_ERROR("One of provided IPs is not valid");
 	}

@@ -158,7 +158,7 @@ void readCommandLineArguments(int argc, char* argv[],
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide %s interface name or IP", thisSide.c_str());
 
 	IPv4Address interfaceIP(interfaceNameOrIP);
-	if (!interfaceIP.isValid())
+	if (interfaceIP.isUnspecified())
 	{
 		PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
 		if (dev == NULL)
@@ -174,7 +174,7 @@ void readCommandLineArguments(int argc, char* argv[],
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide %s IP address", otherSide.c_str());
 
 	IPv4Address tempIP = IPv4Address(otherSideIPAsString);
-	if (!tempIP.isValid())
+	if (tempIP.isUnspecified())
 		EXIT_WITH_ERROR_PRINT_USAGE("Invalid %s IP address", otherSide.c_str());
 	otherSideIP = tempIP;
 
