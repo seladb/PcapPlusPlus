@@ -4635,9 +4635,9 @@ std::string readFileIntoString(std::string fileName)
 
 void saveStringToFile(std::string& str, std::string fileName)
 {
-  std::ofstream outfile(fileName.c_str());
-  outfile << str;
-  outfile.close();
+	std::ofstream outfile(fileName.c_str());
+	outfile << str;
+	outfile.close();
 }
 
 void tcpReassemblyMsgReadyCallback(int sideIndex, const TcpStreamData& tcpData, void* userCookie)
