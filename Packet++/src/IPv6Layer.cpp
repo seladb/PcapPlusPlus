@@ -284,7 +284,6 @@ void IPv6Layer::computeCalculateFields()
 				m_LastExtension->getBaseHeader()->nextHeader = nextHeader;
 			else
 				ipHdr->nextHeader = nextHeader;
-
 		}
 	}
 }
@@ -323,10 +322,8 @@ std::string IPv6Layer::toString() const
 			curExt = curExt->getNextHeader();
 		}
 
-		//remove last ','
-		result = result.substr(0, result.size()-1);
-
-		result +="]";
+		// replace the last ','
+		result[result.size() - 1] = ']';
 	}
 
 	return result;
