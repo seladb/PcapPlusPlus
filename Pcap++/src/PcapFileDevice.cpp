@@ -560,6 +560,9 @@ void PcapFileWriterDevice::flush()
 
 void PcapFileWriterDevice::close()
 {
+	if (!m_DeviceOpened)
+		return;
+
 	flush();
 
 	IFileDevice::close();
