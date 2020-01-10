@@ -114,7 +114,7 @@ namespace pcpp
 		 * @param[in] ipAddr The IP address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(const IPAddress& ipAddr) const;
+		inline PcapRemoteDevice* getRemoteDeviceByIP(const IPAddress& ipAddr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
@@ -142,8 +142,15 @@ namespace pcpp
 		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
 		 */
 		ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceList.end(); }
-
 	};
+
+
+	// implementation of inline methods
+
+	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
+	{
+		return ipAddr.isIPv4() ? getRemoteDeviceByIP(ipAddr.getIPv4()) : getRemoteDeviceByIP(ipAddr.getIPv6());
+	}
 
 } // namespace pcpp
 

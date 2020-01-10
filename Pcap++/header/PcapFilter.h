@@ -204,7 +204,7 @@ namespace pcpp
 		 * written to log and parsing this filter will fail
 		 * @param[in] dir The address direction to filter (source or destination)
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
+		IPFilter(const std::string& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_Len(0) {}
 
 		/**
 		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
@@ -226,7 +226,7 @@ namespace pcpp
 		 * @param[in] dir The address direction to filter (source or destination)
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
+		IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress),  m_Len(len) {}
 
 		void parseToString(std::string& result);
 
@@ -247,7 +247,7 @@ namespace pcpp
 		 * Set the subnet
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		void setLen(int len) { m_IPv4Mask = ""; m_Len = len; }
+		void setLen(int len) { m_IPv4Mask.clear(); m_Len = len; }
 	};
 
 

@@ -83,12 +83,6 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAs
 	return getRemoteDeviceByIP(ipAddr);
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
-{
-	return ipAddr.isIPv4() ? getRemoteDeviceByIP(ipAddr.getIPv4()) : getRemoteDeviceByIP(ipAddr.getIPv6());
-}
-
-
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr) const
 {
 	LOG_DEBUG("Searching all remote devices in list...");

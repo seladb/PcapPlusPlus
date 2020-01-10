@@ -95,7 +95,6 @@ void IFilterWithDirection::parseDirection(std::string& directionAsString)
 		break;
 	default: //SRC_OR_DST:
 		directionAsString = "src or dst";
-		break;
 	}
 }
 
