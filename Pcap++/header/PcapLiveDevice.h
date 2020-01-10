@@ -209,7 +209,7 @@ namespace pcpp
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
 				this->packetBufferSize = packetBufferSize;
-				this->direction = PCPP_INOUT;
+				this->direction = direction;
 			}
 		};
 
