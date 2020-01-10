@@ -1367,11 +1367,11 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portDst, htobe16(60388), u16);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portSrc, htobe16(80), u16);
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->sequenceNumber, htobe32(0xbeab364a), hex);
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackNumber, htobe32(0xf9ffb58e), hex);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->sequenceNumber, htobe32(0xbeab364a), u32);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackNumber, htobe32(0xf9ffb58e), u32);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->dataOffset, 5, u16);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->urgentPointer, 0, u16);
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->headerChecksum, htobe16(0x4c03), hex);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->headerChecksum, htobe16(0x4c03), u16);
 
 	// Flags
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackFlag, 1, u16);
@@ -7275,7 +7275,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->messageType, 0xff, hex);
 	PTF_ASSERT_EQUAL(be16toh(gtpLayer->getHeader()->messageLength), 496, u16);
-	PTF_ASSERT_EQUAL(be32toh(gtpLayer->getHeader()->teid), 2327461905, u32);
+	PTF_ASSERT_EQUAL(be32toh(gtpLayer->getHeader()->teid), 2327461905U, u32);
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 8, size);
