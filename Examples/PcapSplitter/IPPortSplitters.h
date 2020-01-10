@@ -4,6 +4,7 @@
 #if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
 #include <in.h>
 #endif
+#include <IpUtils.h>
 
 
 /**
