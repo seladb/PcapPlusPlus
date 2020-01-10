@@ -49,15 +49,11 @@ static IPAddress makeAddress(const Layer* ipLayer, AddressType addrType)
 	if (ipLayer->getProtocol() == IPv4)
 	{
 		const IPv4Layer* ipv4Layer = static_cast<const IPv4Layer*>(ipLayer);
-		return (addrType == SrcAddress)
-			? IPv4Address(ipv4Layer->getIPv4Header()->ipSrc)
-			: IPv4Address(ipv4Layer->getIPv4Header()->ipDst);
+		return (addrType == SrcAddress) ? ipv4Layer->getSrcIpAddress() : ipv4Layer->getDstIpAddress();
 	}
 
 	const IPv6Layer* ipv6Layer = static_cast<const IPv6Layer*>(ipLayer);
-	return (addrType == SrcAddress)
-		? IPv6Address(ipv6Layer->getIPv6Header()->ipSrc)
-		: IPv6Address(ipv6Layer->getIPv6Header()->ipDst);
+	return (addrType == SrcAddress)	? ipv6Layer->getSrcIpAddress() : ipv6Layer->getDstIpAddress();
 }
 
 
