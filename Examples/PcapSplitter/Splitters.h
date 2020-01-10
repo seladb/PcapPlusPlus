@@ -2,10 +2,6 @@
 
 #include <LRUList.h>
 
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
-#include <netinet/in.h>
-#endif
-#include <IpUtils.h>
 #include <RawPacket.h>
 #include <Packet.h>
 #include <IPv4Layer.h>
