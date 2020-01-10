@@ -46,6 +46,7 @@
 #include <RawSocketDevice.h>
 #include "PcppTestFramework.h"
 #include <EndianPortable.h>
+#include <GeneralUtils.h>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -5604,6 +5605,32 @@ PTF_TEST_CASE(TestLRUList)
 } // TestLRUList
 
 
+PTF_TEST_CASE(TestGeneralUtils)
+{
+	uint8_t resultArr[4];
+	const uint8_t expectedBytes[] = { 0xaa, 0xbb };
+	size_t result = hexStringToByteArray("AABB", resultArr, sizeof(resultArr));
+	PTF_ASSERT_TRUE(result > 0);
+	PTF_ASSERT_TRUE(result <= sizeof(resultArr));
+	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes, result);
+
+	LoggerPP::getInstance().supressErrors();
+	// odd length
+	result = hexStringToByteArray("aab", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 0, size);
+	// wrong input
+	result = hexStringToByteArray("zzvv", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 0, size);
+	PTF_ASSERT_TRUE(resultArr[0] == '\0');
+	LoggerPP::getInstance().enableErrors();
+
+	// short buffer
+	const uint8_t expectedBytes2[] = { 0x01, 0x02, 0x03, 0x04 };
+	result = hexStringToByteArray("0102030405", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 4, size);
+	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes2, result);
+} // TestGeneralUtils
+
 
 void savePacketToFile(RawPacket& packet, std::string fileName)
 {
@@ -7013,6 +7040,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
 	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
 	PTF_RUN_TEST(TestLRUList, "no_network");
+	PTF_RUN_TEST(TestGeneralUtils, "no_network");
 
 	PTF_END_RUNNING_TESTS;
 }
