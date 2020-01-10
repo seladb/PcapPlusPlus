@@ -2394,7 +2394,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	size_t capturedPacketsSize = capturedPackets.size();
 	while (iter != capturedPackets.end())
 	{
-		if ((*iter)->getRawDataLen() <= pRemoteDevice->getMtu())
+		if ((*iter)->getRawDataLen() <= (int)pRemoteDevice->getMtu())
 		{
 			packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
 		}
