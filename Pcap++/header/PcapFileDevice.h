@@ -166,7 +166,7 @@ namespace pcpp
 		PcapNgFileReaderDevice(const PcapNgFileReaderDevice& other);
 		PcapNgFileReaderDevice& operator=(const PcapNgFileReaderDevice& other);
 
-		bool matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType);
+		bool matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType);
 
 	public:
 		/**
@@ -402,7 +402,7 @@ namespace pcpp
 		PcapNgFileWriterDevice(const PcapFileWriterDevice& other);
 		PcapNgFileWriterDevice& operator=(const PcapNgFileWriterDevice& other);
 
-		bool matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType);
+		bool matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType);
 
 	public:
 

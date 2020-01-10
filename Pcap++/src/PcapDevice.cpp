@@ -88,7 +88,8 @@ bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* r
 	struct pcap_pkthdr pktHdr;
 	pktHdr.caplen = rawPacket->getRawDataLen();
 	pktHdr.len = rawPacket->getRawDataLen();
-	pktHdr.ts = rawPacket->getPacketTimeStamp();
+	timespec ts = rawPacket->getPacketTimeStamp();
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &ts)
 
 	return (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
 }

@@ -181,7 +181,6 @@ void Packet::reallocateRawData(size_t newSize)
 
 	// allocate a new array with size newSize
 	m_MaxPacketLen = newSize;
-
 	// set the new array to RawPacket
 	if (!m_RawPacket->reallocateData(m_MaxPacketLen))
 	{
@@ -657,7 +656,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	dataLenStream << m_RawPacket->getRawDataLen();
 
 	// convert raw packet timestamp to printable format
-	timeval timestamp = m_RawPacket->getPacketTimeStamp();
+	timespec timestamp = m_RawPacket->getPacketTimeStamp();
 	time_t nowtime = timestamp.tv_sec;
 	struct tm *nowtm = NULL;
 	if (timeAsLocalTime)
@@ -669,7 +668,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	if (nowtm != NULL)
 	{
 		strftime(tmbuf, sizeof(tmbuf), "%Y-%m-%d %H:%M:%S", nowtm);
-		snprintf(buf, sizeof(buf), "%s.%06lu", tmbuf, (unsigned long)timestamp.tv_usec);
+		snprintf(buf, sizeof(buf), "%s.%09lu", tmbuf, (unsigned long)timestamp.tv_nsec);
 	}
 	else
 		snprintf(buf, sizeof(buf), "0000-00-00 00:00:00.000000");

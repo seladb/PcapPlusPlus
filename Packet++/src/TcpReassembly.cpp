@@ -194,8 +194,10 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData->connData.srcPort = be16toh(tcpLayer->getTcpHeader()->portSrc);
 		tcpReassemblyData->connData.dstPort = be16toh(tcpLayer->getTcpHeader()->portDst);
 		tcpReassemblyData->connData.flowKey = flowKey;
-		timeval ts = tcpData.getRawPacket()->getPacketTimeStamp();
-		tcpReassemblyData->connData.setStartTime(ts);
+		timespec ts = tcpData.getRawPacket()->getPacketTimeStamp();
+		timeval ts_usec;
+		TIMESPEC_TO_TIMEVAL(&ts_usec, &ts);
+		tcpReassemblyData->connData.setStartTime(ts_usec);
 
 		m_ConnectionList[flowKey] = tcpReassemblyData;
 		m_ConnectionInfo[flowKey] = tcpReassemblyData->connData;
@@ -207,7 +209,9 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else // connection already exists
 	{
 		tcpReassemblyData = iter->second;
-		timeval currTime = tcpData.getRawPacket()->getPacketTimeStamp();
+		timespec currTime_nsec = tcpData.getRawPacket()->getPacketTimeStamp();
+		timeval currTime;
+		TIMESPEC_TO_TIMEVAL(&currTime, &currTime_nsec);
 		if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
 		{
 			tcpReassemblyData->connData.setEndTime(currTime); 

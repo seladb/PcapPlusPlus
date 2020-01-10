@@ -49,7 +49,7 @@ typedef struct _light_pcapng_t light_pcapng_t;
 
 typedef struct _light_packet_header {
 	uint32_t interface_id;
-	struct timeval timestamp;
+	struct timespec timestamp;
 	uint32_t captured_length;
 	uint32_t original_length;
 	uint16_t data_link;

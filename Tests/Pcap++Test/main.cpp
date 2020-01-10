@@ -1224,13 +1224,13 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_sec - rawPacket2.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
 		}
 
-		if (rawPacket.getPacketTimeStamp().tv_usec < rawPacket2.getPacketTimeStamp().tv_usec)
+		if (rawPacket.getPacketTimeStamp().tv_nsec < rawPacket2.getPacketTimeStamp().tv_nsec)
 		{
-			PTF_ASSERT((rawPacket2.getPacketTimeStamp().tv_usec - rawPacket.getPacketTimeStamp().tv_usec) < 100, "Timestamps are differ in more than 100 usecs");
+			PTF_ASSERT((rawPacket2.getPacketTimeStamp().tv_nsec - rawPacket.getPacketTimeStamp().tv_nsec) < 100, "Timestamps are differ in more than 100 nsecs");
 		}
 		else
 		{
-			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_usec - rawPacket2.getPacketTimeStamp().tv_usec) < 100, "Timestamps are differ in more than 100 usecs");
+			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_nsec - rawPacket2.getPacketTimeStamp().tv_nsec) < 100, "Timestamps are differ in more than 100 nsecs");
 		}
 
     }

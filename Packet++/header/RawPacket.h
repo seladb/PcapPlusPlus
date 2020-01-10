@@ -222,7 +222,7 @@ namespace pcpp
 		uint8_t* m_RawData;
 		int m_RawDataLen;
 		int m_FrameLength;
-		timeval m_TimeStamp;
+		timespec m_TimeStamp;
 		bool m_DeleteRawDataAtDestructor;
 		bool m_RawPacketSet;
 		LinkLayerType m_LinkLayerType;
@@ -241,6 +241,7 @@ namespace pcpp
 		 * @param[in] layerType The link layer type of this raw packet. The default is Ethernet
 		 */
 		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType = LINKTYPE_ETHERNET);
+		RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType = LINKTYPE_ETHERNET);
 
 		/**
 		 * A default constructor that initializes class'es attributes to default value:
@@ -287,6 +288,7 @@ namespace pcpp
 		 * @return True if raw data was set successfully, false otherwise
 		 */
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
 		/**
 		 * Get raw data pointer
@@ -315,7 +317,7 @@ namespace pcpp
 		 * Get raw data timestamp
 		 * @return Raw data timestamp
 		 */
-		timeval getPacketTimeStamp() const { return m_TimeStamp; }
+		timespec getPacketTimeStamp() const { return m_TimeStamp; }
 
 		/**
 		 * Get an indication whether raw data was already set for this instance.
