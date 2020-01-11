@@ -40,10 +40,9 @@ uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMis
 
 	gre_basic_header* header = (gre_basic_header*)m_Data;
 
-	GreField curField = GreChecksumOrRouting;
-
-	while (curField < 4)
+	for (int curFieldAsInt = static_cast<int>(GreChecksumOrRouting); curFieldAsInt < 4 /* this value is out of scope of GreField enum values */; ++curFieldAsInt)
 	{
+		const GreField curField = static_cast<GreField>(curFieldAsInt);
 		bool curFieldExists = false;
 
 		uint8_t* origPtr = ptr;
@@ -86,14 +85,10 @@ uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMis
 		{
 			if (curFieldExists || returnOffsetEvenIfFieldMissing)
 				return origPtr;
-			else
-				return NULL;
-		}
 
-		int curFieldAsInt = (int)curField;
-		curFieldAsInt++;
-		curField = static_cast<GreField>(curFieldAsInt);
-	}
+			return NULL;
+		}
+	} // for
 
 	return NULL;
 }
