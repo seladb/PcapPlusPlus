@@ -567,11 +567,15 @@ void PcapFileWriterDevice::close()
 
 	IFileDevice::close();
 
-	if (!m_AppendMode)
+	if (!m_AppendMode && m_PcapDumpHandler != NULL)
+	{
 		pcap_dump_close(m_PcapDumpHandler);
-	else
+	}
+	else if (m_AppendMode && m_File != NULL)
+	{
 		// in append mode it's impossible to use pcap_dump_close, see comment above pcap_dump
 		fclose(m_File);
+	}
 
 	m_PcapDumpHandler = NULL;
 	m_File = NULL;
