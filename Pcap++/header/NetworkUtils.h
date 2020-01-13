@@ -47,14 +47,14 @@ namespace pcpp
 		 * @param[in] sourceMac An optional parameter to set the source MAC address that will be sent with the ARP request
 		 * if this parameter isn't set or set with MacAddress#Zero the MAC address of the interface will be used
 		 * @param[in] sourceIP An optional parameter to set the source IPv4 address that will be sent with the ARP request
-		 * if this parameter isn't set or set with IPv4Address#Zero the default IPv4 address of the interface will be used
+		 * if this parameter isn't set or set to an unspecified IPv4 address the default IPv4 address of the interface will be used
 		 * @param[in] arpTimeout An optional parameter to set the timeout to wait for the ARP response to return.
 		 * If this parameter isn't set or set with a number smaller than 0, a default timeout of 5 seconds will be set
 		 * @return The resolved MAC address or MacAddress#Zero if an error occurred or address could not be resolved. Errors will be printed
 		 * to log
 		 */
 		MacAddress getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device, double& arpResponseTimeMS,
-				MacAddress sourceMac = MacAddress::Zero, IPv4Address sourceIP = IPv4Address::Zero, int arpTimeout = -1) const;
+				MacAddress sourceMac = MacAddress::Zero, IPv4Address sourceIP = IPv4Address(), int arpTimeout = -1) const;
 
 
 		/**
@@ -71,13 +71,13 @@ namespace pcpp
 		 * @param[in] dnsTimeout An optional parameter to specify the timeout to wait for a DNS response. If not specified the default timeout
 		 * is 5 sec
 		 * @param[in] dnsServerIP An optional parameter to specify the DNS server IP to send the DNS request to. If not specified
-		 * or specified with IPv4Address#Zero the DNS request will be sent to the default DNS server configured in the system
+		 * or set to an unspecified IPv4 address the DNS request will be sent to the default DNS server configured in the system
 		 * @param[in] gatewayIP An optional parameter to specify the LAN gateway to send the DNS request through. If not specified
-		 * or specified with IPv4Address#Zero the interface's default gateway will be used
-		 * @return The resolved IPv4 address or IPv4Address#Zero if something went wrong (in this case an error will be printed to log)
+		 * or set to an unspecified IPv4 address the interface's default gateway will be used
+		 * @return The resolved IPv4 address or an unspecified IPv4 address if something went wrong (in this case an error will be printed to log)
 		 */
 		IPv4Address getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
-				int dnsTimeout = -1, IPv4Address dnsServerIP = IPv4Address::Zero, IPv4Address gatewayIP = IPv4Address::Zero) const;
+				int dnsTimeout = -1, IPv4Address dnsServerIP = IPv4Address(), IPv4Address gatewayIP = IPv4Address()) const;
 
 	private:
 
