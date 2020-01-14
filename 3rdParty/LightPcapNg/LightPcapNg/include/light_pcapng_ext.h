@@ -34,6 +34,7 @@ extern "C" {
 #include <stdint.h>
 #ifdef _MSC_VER
 #include <Winsock2.h>
+#include <time.h>
 #else
 #include <sys/time.h>
 #endif

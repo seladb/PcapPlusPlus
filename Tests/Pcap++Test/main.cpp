@@ -1215,22 +1215,28 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 		readerDev3.getNextPacket(rawPacket2);
 
-		if (rawPacket.getPacketTimeStamp().tv_sec < rawPacket2.getPacketTimeStamp().tv_sec)
+		auto packet1_timestamp = rawPacket.getPacketTimeStamp();
+		auto packet2_timestamp = rawPacket2.getPacketTimeStamp();
+		if (packet1_timestamp.tv_sec < packet2_timestamp.tv_sec)
 		{
-			PTF_ASSERT((rawPacket2.getPacketTimeStamp().tv_sec - rawPacket.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
+			PTF_ASSERT((packet2_timestamp.tv_sec - packet1_timestamp.tv_sec) < 2,
+					"Timestamps are differ in more than 2 secs: %ld and %ld", packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
 		else
 		{
-			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_sec - rawPacket2.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
+			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_sec - rawPacket2.getPacketTimeStamp().tv_sec) < 2,
+					"Timestamps are differ in more than 2 secs: %ld and %ld", packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
 
-		if (rawPacket.getPacketTimeStamp().tv_nsec < rawPacket2.getPacketTimeStamp().tv_nsec)
+		if (packet1_timestamp.tv_nsec < packet2_timestamp.tv_nsec)
 		{
-			PTF_ASSERT((rawPacket2.getPacketTimeStamp().tv_nsec - rawPacket.getPacketTimeStamp().tv_nsec) < 100, "Timestamps are differ in more than 100 nsecs");
+			PTF_ASSERT((packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec) < 100,
+					"Timestamps are differ in more than 100 nsecs: %ld and %ld", packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
 		}
 		else
 		{
-			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_nsec - rawPacket2.getPacketTimeStamp().tv_nsec) < 100, "Timestamps are differ in more than 100 nsecs");
+			PTF_ASSERT((packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec) < 100,
+					"Timestamps are differ in more than 100 nsecs: %ld and %ld", packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
 		}
 
     }

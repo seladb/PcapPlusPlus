@@ -3,6 +3,7 @@
 #include "RawPacket.h"
 #include <string.h>
 #include "Logger.h"
+#include "TimespecTimeval.h"
 
 namespace pcpp
 {
@@ -20,7 +21,7 @@ void RawPacket::init()
 RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType)
 {
 	timespec nsec_time;
-	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time)
+	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
 	init();
 	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
 	setRawData(pRawData, rawDataLen, nsec_time, layerType);
@@ -91,7 +92,7 @@ void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType, int frameLength)
 {
 	timespec nsec_time;
-	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time)
+	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
 	return setRawData(pRawData, rawDataLen, nsec_time, layerType, frameLength);
 }
 

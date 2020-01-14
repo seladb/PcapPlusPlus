@@ -4,6 +4,7 @@
 
 #include "WinPcapLiveDevice.h"
 #include "Logger.h"
+#include "TimespecTimeval.h"
 
 namespace pcpp
 {
@@ -69,7 +70,8 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	{
 		packetHeader[i].caplen = rawPacketsArr[i].getRawDataLen();
 		packetHeader[i].len = rawPacketsArr[i].getRawDataLen();
-		packetHeader[i].ts = rawPacketsArr[i].getPacketTimeStamp();
+		timespec packet_time = rawPacketsArr[i].getPacketTimeStamp();
+		TIMESPEC_TO_TIMEVAL(&packetHeader[i].ts, &packet_time);
 		if (pcap_sendqueue_queue(sendQueue, &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
 		{
 			LOG_ERROR("pcap_send_queue is too small for all packets. Sending only %d packets", i);

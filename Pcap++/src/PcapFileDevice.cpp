@@ -5,6 +5,7 @@
 #include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
+#include "TimespecTimeval.h"
 #include <string.h>
 #include <fstream>
 
@@ -461,7 +462,7 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	pktHdr.caplen = ((RawPacket&)packet).getRawDataLen();
 	pktHdr.len = ((RawPacket&)packet).getFrameLength();
 	timespec packet_timestamp = ((RawPacket&)packet).getPacketTimeStamp();
-	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp)
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 	if (!m_AppendMode)
 		pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
 	else
@@ -677,7 +678,7 @@ bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, si
 	struct pcap_pkthdr pktHdr;
 	pktHdr.caplen = packetLen;
 	pktHdr.len = packetLen;
-	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp)
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
 	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 

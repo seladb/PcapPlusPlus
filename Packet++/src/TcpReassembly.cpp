@@ -10,6 +10,10 @@
 #include <sstream>
 #include <vector>
 #include "EndianPortable.h"
+#include "TimespecTimeval.h"
+#ifdef _MSC_VER
+#include <time.h>
+#endif
 
 #define PURGE_FREQ_SECS 1
 
