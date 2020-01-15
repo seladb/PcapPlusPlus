@@ -341,8 +341,8 @@ private:
 
 	struct TcpReassemblyData
 	{
-		int numOfSides;
-		int prevSide;
+		int8_t numOfSides;
+		int8_t prevSide;
 		TcpOneSideData twoSides[2];
 		ConnectionData connData;
 
