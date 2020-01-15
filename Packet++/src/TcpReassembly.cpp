@@ -414,10 +414,10 @@ void TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
 	reassemblePacket(parsedPacket);
 }
 
-std::string TcpReassembly::prepareMissingDataMessage(uint32_t missingDataLen)
+static std::string prepareMissingDataMessage(uint32_t missingDataLen)
 {
 	std::stringstream missingDataTextStream;
-	missingDataTextStream << "[" << missingDataLen << " bytes missing]";
+	missingDataTextStream << '[' << missingDataLen << " bytes missing]";
 	return missingDataTextStream.str();
 }
 

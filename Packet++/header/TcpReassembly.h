@@ -366,8 +366,6 @@ private:
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int sideIndex, bool cleanWholeFragList);
 
-	std::string prepareMissingDataMessage(uint32_t missingDataLen);
-
 	void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int sideIndex, uint32_t flowKey);
 
 	void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
