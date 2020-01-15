@@ -10,13 +10,7 @@
 #include "PayloadLayer.h"
 #include "Logger.h"
 #include "IpUtils.h"
-#if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X || FREEBSD
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 
 // ==============
 // GreLayer class
@@ -46,10 +40,9 @@ uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMis
 
 	gre_basic_header* header = (gre_basic_header*)m_Data;
 
-	GreField curField = GreChecksumOrRouting;
-
-	while (curField < 4)
+	for (int curFieldAsInt = static_cast<int>(GreChecksumOrRouting); curFieldAsInt < 4 /* this value is out of scope of GreField enum values */; ++curFieldAsInt)
 	{
+		const GreField curField = static_cast<GreField>(curFieldAsInt);
 		bool curFieldExists = false;
 
 		uint8_t* origPtr = ptr;
@@ -92,14 +85,10 @@ uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMis
 		{
 			if (curFieldExists || returnOffsetEvenIfFieldMissing)
 				return origPtr;
-			else
-				return NULL;
-		}
 
-		int curFieldAsInt = (int)curField;
-		curFieldAsInt++;
-		curField = static_cast<GreField>(curFieldAsInt);
-	}
+			return NULL;
+		}
+	} // for
 
 	return NULL;
 }
@@ -112,19 +101,19 @@ void GreLayer::computeCalculateFieldsInner()
 		switch (m_NextLayer->getProtocol())
 		{
 		case IPv4:
-			header->protocol = htons(PCPP_ETHERTYPE_IP);
+			header->protocol = htobe16(PCPP_ETHERTYPE_IP);
 			break;
 		case IPv6:
-			header->protocol = htons(PCPP_ETHERTYPE_IPV6);
+			header->protocol = htobe16(PCPP_ETHERTYPE_IPV6);
 			break;
 		case VLAN:
-			header->protocol = htons(PCPP_ETHERTYPE_VLAN);
+			header->protocol = htobe16(PCPP_ETHERTYPE_VLAN);
 			break;
 		case MPLS:
-			header->protocol = htons(PCPP_ETHERTYPE_MPLS);
+			header->protocol = htobe16(PCPP_ETHERTYPE_MPLS);
 			break;
 		case PPP_PPTP:
-			header->protocol = htons(PCPP_ETHERTYPE_PPP);
+			header->protocol = htobe16(PCPP_ETHERTYPE_PPP);
 			break;
 
 		default:
@@ -144,7 +133,7 @@ bool GreLayer::getSequenceNumber(uint32_t& seqNumber) const
 	if (val == NULL)
 		return false;
 
-	seqNumber = ntohl(*val);
+	seqNumber = be32toh(*val);
 	return true;
 }
 
@@ -170,7 +159,7 @@ bool GreLayer::setSequenceNumber(uint32_t seqNumber)
 	header = (gre_basic_header*)m_Data;
 	header->sequenceNumBit = 1;
 	uint32_t* seqPtr = (uint32_t*)(m_Data + offset);
-	*seqPtr = htonl(seqNumber);
+	*seqPtr = htobe32(seqNumber);
 
 	return true;
 }
@@ -209,7 +198,7 @@ void GreLayer::parseNextLayer()
 	uint8_t* payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;
 
-	switch (ntohs(header->protocol))
+	switch (be16toh(header->protocol))
 	{
 	case PCPP_ETHERTYPE_IP:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
@@ -276,7 +265,7 @@ bool GREv0Layer::getChecksum(uint16_t& checksum)
 	if (val == NULL)
 		return false;
 
-	checksum = ntohs(*val);
+	checksum = be16toh(*val);
 	return true;
 }
 
@@ -299,7 +288,7 @@ bool GREv0Layer::setChecksum(uint16_t checksum)
 	}
 
 	uint16_t* checksumPtr = (uint16_t*)(m_Data + offset);
-	*checksumPtr = htons(checksum);
+	*checksumPtr = htobe16(checksum);
 
 	// if layer was extended in 4 bytes, make sure the offset field stays 0
 	if (needToExtendLayer)
@@ -356,7 +345,7 @@ bool GREv0Layer::getOffset(uint16_t& offset) const
 	if (val == NULL)
 		return false;
 
-	offset = ntohs(*(val+2));
+	offset = be16toh(*(val+2));
 	return true;
 }
 
@@ -369,7 +358,7 @@ bool GREv0Layer::getKey(uint32_t& key) const
 	if (val == NULL)
 		return false;
 
-	key = ntohl(*val);
+	key = be32toh(*val);
 	return true;
 }
 
@@ -395,7 +384,7 @@ bool GREv0Layer::setKey(uint32_t key)
 	header = getGreHeader();
 	header->keyBit = 1;
 	uint32_t* keyPtr = (uint32_t*)(m_Data + offset);
-	*keyPtr = htonl(key);
+	*keyPtr = htobe32(key);
 
 	return true;
 }
@@ -463,7 +452,7 @@ GREv1Layer::GREv1Layer(uint16_t callID)
 	gre1_header* header = getGreHeader();
 	header->keyBit = 1;
 	header->version = 1;
-	header->callID = htons(callID);
+	header->callID = htobe16(callID);
 }
 
 bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum) const
@@ -475,7 +464,7 @@ bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum) const
 	if (val == NULL)
 		return false;
 
-	ackNum = ntohl(*val);
+	ackNum = be32toh(*val);
 	return true;
 }
 
@@ -499,7 +488,7 @@ bool GREv1Layer::setAcknowledgmentNum(uint32_t ackNum)
 	header = getGreHeader();
 	header->ackSequenceNumBit = 1;
 	uint32_t* ackPtr = (uint32_t*)(m_Data + offset);
-	*ackPtr = htonl(ackNum);
+	*ackPtr = htobe32(ackNum);
 	return true;
 }
 
@@ -531,7 +520,7 @@ void GREv1Layer::computeCalculateFields()
 {
 	computeCalculateFieldsInner();
 
-	getGreHeader()->payloadLength = htons(m_DataLen - getHeaderLen());
+	getGreHeader()->payloadLength = htobe16(m_DataLen - getHeaderLen());
 }
 
 std::string GREv1Layer::toString() const
@@ -568,7 +557,7 @@ void PPP_PPTPLayer::parseNextLayer()
 	uint8_t* payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;
 
-	switch (ntohs(getPPP_PPTPHeader()->protocol))
+	switch (be16toh(getPPP_PPTPHeader()->protocol))
 	{
 	case PCPP_PPP_IP:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
@@ -592,10 +581,10 @@ void PPP_PPTPLayer::computeCalculateFields()
 		switch (m_NextLayer->getProtocol())
 		{
 		case IPv4:
-			header->protocol = htons(PCPP_PPP_IP);
+			header->protocol = htobe16(PCPP_PPP_IP);
 			break;
 		case IPv6:
-			header->protocol = htons(PCPP_PPP_IPV6);
+			header->protocol = htobe16(PCPP_PPP_IPV6);
 			break;
 		default:
 			break;

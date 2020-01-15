@@ -76,13 +76,12 @@ IFileReaderDevice::IFileReaderDevice(const char* fileName) : IFileDevice(fileNam
 
 IFileReaderDevice* IFileReaderDevice::getReader(const char* fileName)
 {
-	std::string fileNameStr = std::string(fileName);
-	size_t dotLocation = fileNameStr.find_last_of(".");
-	std::string fileExtension = ( dotLocation == std::string::npos ? "" : fileNameStr.substr(dotLocation) );
-	if (fileExtension == ".pcapng")
+	const char* fileExtension = strrchr(fileName, '.');
+
+	if (fileExtension != NULL && strcmp(fileExtension, ".pcapng") == 0)
 		return new PcapNgFileReaderDevice(fileName);
-	else
-		return new PcapFileReaderDevice(fileName);
+
+	return new PcapFileReaderDevice(fileName);
 }
 
 uint64_t IFileReaderDevice::getFileSize() const
@@ -541,8 +540,11 @@ bool PcapFileWriterDevice::open()
 	return true;
 }
 
-void PcapFileWriterDevice::close()
+void PcapFileWriterDevice::flush()
 {
+	if (!m_DeviceOpened)
+		return;
+
 	if (!m_AppendMode && pcap_dump_flush(m_PcapDumpHandler) == -1)
 	{
 		LOG_ERROR("Error while flushing the packets to file");
@@ -553,13 +555,26 @@ void PcapFileWriterDevice::close()
 		LOG_ERROR("Error while flushing the packets to file");
 	}
 
+}
+
+void PcapFileWriterDevice::close()
+{
+	if (!m_DeviceOpened)
+		return;
+
+	flush();
+
 	IFileDevice::close();
 
-	if (!m_AppendMode)
+	if (!m_AppendMode && m_PcapDumpHandler != NULL)
+	{
 		pcap_dump_close(m_PcapDumpHandler);
-	else
+	}
+	else if (m_AppendMode && m_File != NULL)
+	{
 		// in append mode it's impossible to use pcap_dump_close, see comment above pcap_dump
 		fclose(m_File);
+	}
 
 	m_PcapDumpHandler = NULL;
 	m_File = NULL;

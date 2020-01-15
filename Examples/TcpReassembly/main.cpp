@@ -376,7 +376,7 @@ static void tcpReassemblyMsgReadyCallback(int sideIndex, const TcpStreamData& tc
 			if (iter2 != connMgr->end())
 			{
 				// close files on both sides (if they're open)
-				for (int index = 0; index < 1; index++)
+				for (int index = 0; index < 2; index++)
 				{
 					if (iter2->second.fileStreams[index] != NULL)
 					{

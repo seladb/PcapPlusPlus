@@ -9,13 +9,6 @@
 #include "MplsLayer.h"
 #include <string.h>
 #include <sstream>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif FREEBSD
-#include <arpa/inet.h>
-#endif
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -33,7 +26,7 @@ VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t
 	setVlanID(vlanID);
 	setCFI(cfi);
 	setPriority(priority);
-	vlanHeader->etherType = htons(etherType);
+	vlanHeader->etherType = htobe16(etherType);
 }
 
 uint16_t VlanLayer::getVlanID() const {
@@ -69,7 +62,7 @@ void VlanLayer::parseNextLayer()
 	size_t payloadLen = m_DataLen - sizeof(vlan_header);
 
 	vlan_header* hdr = getVlanHeader();
-	switch (ntohs(hdr->etherType))
+	switch (be16toh(hdr->etherType))
 	{
 	case PCPP_ETHERTYPE_IP:
 		m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);

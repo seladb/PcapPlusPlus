@@ -123,7 +123,7 @@ void PcapRemoteDevice::getStatistics(pcap_stat& stats) const
 	stats.ps_ifdrop = tempStats->ps_ifdrop;
 }
 
-uint16_t PcapRemoteDevice::getMtu() const
+uint32_t PcapRemoteDevice::getMtu() const
 {
 	LOG_DEBUG("MTU isn't supported for remote devices");
 	return 0;
