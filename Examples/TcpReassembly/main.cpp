@@ -121,8 +121,8 @@ public:
 		if (!outputDir.empty())
 			stream << outputDir << SEPARATOR;
 
-		std::string sourceIP(connData.srcIP.toString());
-		std::string destIP(connData.dstIP.toString());
+		std::string sourceIP = connData.srcIP.toString();
+		std::string destIP = connData.dstIP.toString();
 
 		// for IPv6 addresses, replace ':' with '_'
 		std::replace(sourceIP.begin(), sourceIP.end(), ':', '_');
