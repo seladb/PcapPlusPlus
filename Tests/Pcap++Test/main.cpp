@@ -1224,7 +1224,7 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 		}
 		else
 		{
-			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_sec - rawPacket2.getPacketTimeStamp().tv_sec) < 2,
+			PTF_ASSERT((packet1_timestamp.tv_sec - packet2_timestamp.tv_sec) < 2,
 					"Timestamps are differ in more than 2 secs: %ld and %ld", packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
 

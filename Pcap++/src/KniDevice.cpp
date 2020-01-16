@@ -508,8 +508,8 @@ uint16_t KniDevice::receivePackets(MBufRawPacketVector& rawPacketsArr)
 		return 0;
 	}
 
-	timeval time;
-	gettimeofday(&time, NULL);
+	timespec time;
+	clock_gettime(CLOCK_REALTIME, &time);
 
 	for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 	{
@@ -554,8 +554,8 @@ uint16_t KniDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPa
 		return 0;
 	}
 
-	timeval time;
-	gettimeofday(&time, NULL);
+	timespec time;
+	clock_gettime(CLOCK_REALTIME, &time);
 
 	for (size_t index = 0; index < packetsReceived; ++index)
 	{
@@ -597,8 +597,8 @@ uint16_t KniDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLengt
 		return 0;
 	}
 
-	timeval time;
-	gettimeofday(&time, NULL);
+	timespec time;
+	clock_gettime(CLOCK_REALTIME, &time);
 
 	for (size_t index = 0; index < packetsReceived; ++index)
 	{
@@ -842,8 +842,8 @@ void* KniDevice::KniCapturing::runCapture(void* devicePointer)
 			continue;
 		}
 
-		timeval time;
-		gettimeofday(&time, NULL);
+		timespec time;
+		clock_gettime(CLOCK_REALTIME, &time);
 
 		if (likely(callback != NULL))
 		{
@@ -945,8 +945,8 @@ int KniDevice::startCaptureBlockingMode(
 			if (likely(numOfPktsReceived != 0))
 			{
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
-				timeval time;
-				gettimeofday(&time, NULL);
+				timespec time;
+				clock_gettime(CLOCK_REALTIME, &time);
 
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 				{
@@ -971,9 +971,9 @@ int KniDevice::startCaptureBlockingMode(
 			if (likely(numOfPktsReceived != 0))
 			{
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
-				timeval time;
+				timespec time;
 				time.tv_sec = curTimeSec;
-				time.tv_usec = curTimeNSec / 1000;
+				time.tv_nsec = curTimeNSec;
 
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 				{
