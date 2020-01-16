@@ -414,7 +414,7 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 		timestamp += epb->timestamp_low;
 		double timestamp_res = pcapng->file_info->timestamp_resolution[epb->interface_id];
 		uint64_t packet_secs = timestamp * timestamp_res;
-		if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
+		if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE && packet_secs != 0)
 		{
 			packet_header->timestamp.tv_sec = packet_secs;
 			packet_header->timestamp.tv_nsec =
