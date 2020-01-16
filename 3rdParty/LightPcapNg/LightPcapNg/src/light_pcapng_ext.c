@@ -172,6 +172,11 @@ static light_boolean __is_open_for_write(const struct _light_pcapng_t* pcapng)
 	return LIGHT_FALSE;
 }
 
+// if timestamp of the packet contains number of seconds, which exceeds a limit, with which it will be possible to
+// write it with nsec precision, we invalidate that timestamp, but still write the packet; this makes sense, as
+// such timestamps (> 18446744073) refer to year (> 2554), so we can allow ourselves not to support them for now
+static const uint64_t MAXIMUM_PACKET_SECONDS_VALUE = UINT64_MAX / 1000000000;
+
 light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read_all_interfaces)
 {
 	DCHECK_NULLP(file_path, return NULL);
@@ -408,11 +413,21 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 		timestamp = timestamp << 32;
 		timestamp += epb->timestamp_low;
 		double timestamp_res = pcapng->file_info->timestamp_resolution[epb->interface_id];
-		packet_header->timestamp.tv_sec = timestamp * timestamp_res;
-		packet_header->timestamp.tv_nsec =
-				(timestamp - (packet_header->timestamp.tv_sec / timestamp_res))	// number of time units less than seconds
-				* timestamp_res 												// shift . to the left to get 0.{previous_number}
-				* 1000000000;													// get the nanoseconds
+		uint64_t packet_secs = timestamp * timestamp_res;
+		if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
+		{
+			packet_header->timestamp.tv_sec = packet_secs;
+			packet_header->timestamp.tv_nsec =
+					(timestamp - (packet_header->timestamp.tv_sec / timestamp_res))	// number of time units less than seconds
+					* timestamp_res 												// shift . to the left to get 0.{previous_number}
+					* 1000000000;													// get the nanoseconds
+		}
+		else
+		{
+			packet_header->timestamp.tv_sec = 0;
+			packet_header->timestamp.tv_nsec = 0;
+		}
+
 		if (epb->interface_id < pcapng->file_info->interface_block_count)
 			packet_header->data_link = pcapng->file_info->link_types[epb->interface_id];
 
@@ -493,9 +508,15 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	//memset(epb_memory, 0, option_size); should be redundant with calloc
 	struct _light_enhanced_packet_block *epb = (struct _light_enhanced_packet_block *)epb_memory;
 	epb->interface_id = iface_id;
-	uint64_t timestamp_nsec = (uint64_t)packet_header->timestamp.tv_sec * (uint64_t)1000000000 + (uint64_t)packet_header->timestamp.tv_nsec;
-	epb->timestamp_high = timestamp_nsec >> 32;
-	epb->timestamp_low = timestamp_nsec & 0xFFFFFFFF;
+
+	uint64_t timestamp, packet_secs = (uint64_t)packet_header->timestamp.tv_sec;
+	if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
+		timestamp = packet_secs * (uint64_t)1000000000 + (uint64_t)packet_header->timestamp.tv_nsec;
+	else
+		timestamp = 0;
+	epb->timestamp_high = timestamp >> 32;
+	epb->timestamp_low = timestamp & 0xFFFFFFFF;
+
 	epb->capture_packet_length = packet_header->captured_length;
 	epb->original_capture_length = packet_header->original_length;
 

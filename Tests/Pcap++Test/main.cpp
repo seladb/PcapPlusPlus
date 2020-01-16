@@ -1215,8 +1215,8 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 		readerDev3.getNextPacket(rawPacket2);
 
-		auto packet1_timestamp = rawPacket.getPacketTimeStamp();
-		auto packet2_timestamp = rawPacket2.getPacketTimeStamp();
+		timespec packet1_timestamp = rawPacket.getPacketTimeStamp();
+		timespec packet2_timestamp = rawPacket2.getPacketTimeStamp();
 		if (packet1_timestamp.tv_sec < packet2_timestamp.tv_sec)
 		{
 			PTF_ASSERT((packet2_timestamp.tv_sec - packet1_timestamp.tv_sec) < 2,
