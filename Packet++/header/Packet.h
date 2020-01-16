@@ -87,14 +87,14 @@ namespace pcpp
 		 * class, for example layers that were added by addLayer() or insertLayer() ). In addition it frees the raw packet if it was allocated by
 		 * this instance (meaning if it was allocated by this instance constructor)
 		 */
-		virtual ~Packet();
+		virtual ~Packet() { destructPacketData(); }
 
 		/**
 		 * A copy constructor for this class. This copy constructor copies all the raw data and re-create all layers. So when the original Packet
 		 * is being freed, no data will be lost in the copied instance
 		 * @param[in] other The instance to copy from
 		 */
-		Packet(const Packet& other);
+		Packet(const Packet& other) { copyDataFrom(other); }
 
 		/**
 		 * Assignment operator overloading. It first frees all layers allocated by this instance (Notice: it doesn't free layers that weren't allocated by this
@@ -149,7 +149,7 @@ namespace pcpp
 		 * @return True if everything went well or false otherwise (an appropriate error log message will be printed in
 		 * such cases)
 		 */
-		bool addLayer(Layer* newLayer, bool ownInPacket = false);
+		bool addLayer(Layer* newLayer, bool ownInPacket = false) { return insertLayer(m_LastLayer, newLayer, ownInPacket); }
 
 		/**
 		 * Insert a new layer after an existing layer in the packet. This method gets a pointer to the new layer as a
@@ -232,7 +232,7 @@ namespace pcpp
 		 * @return True if the layer was detached successfully, or false if something went wrong. In any case of failure an 
 		 * appropriate error log message will be printed
 		 */
-		bool detachLayer(Layer* layer);
+		bool detachLayer(Layer* layer) { return removeLayer(layer, false); }
 
 		/**
 		 * Get a pointer to the layer of a certain type (protocol). This method goes through the layers and returns a layer
@@ -319,6 +319,8 @@ namespace pcpp
 		Layer* createFirstLayer(LinkLayerType linkType);
 	}; // class Packet
 
+
+	// implementation of inline methods
 
 	template<class TLayer>
 	TLayer* Packet::getLayerOfType(bool reverse) const

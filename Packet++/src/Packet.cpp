@@ -137,7 +137,7 @@ Packet::Packet(size_t maxPacketLen) :
 	gettimeofday(&time, NULL);
 	uint8_t* data = new uint8_t[maxPacketLen];
 	memset(data, 0, maxPacketLen);
-	m_RawPacket = new RawPacket((const uint8_t*)data, 0, time, true, LINKTYPE_ETHERNET);
+	m_RawPacket = new RawPacket(data, 0, time, true, LINKTYPE_ETHERNET);
 }
 
 void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
@@ -184,11 +184,6 @@ Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
 	m_RawPacket = NULL;
 	m_FirstLayer = NULL;
 	setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
-}
-
-Packet::Packet(const Packet& other)
-{
-	copyDataFrom(other);
 }
 
 void Packet::destructPacketData()
@@ -252,11 +247,6 @@ void Packet::reallocateRawData(size_t newSize)
 		dataPtr += curLayer->getHeaderLen();
 		curLayer = curLayer->getNextLayer();
 	}
-}
-
-bool Packet::addLayer(Layer* newLayer, bool ownInPacket)
-{
-	return insertLayer(m_LastLayer, newLayer, ownInPacket);
 }
 
 bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
@@ -433,11 +423,6 @@ Layer* Packet::detachLayer(ProtocolType layerType, int index)
 		LOG_ERROR("Layer of the requested type was not found in packet");
 		return NULL;
 	}
-}
-
-bool Packet::detachLayer(Layer* layer)
-{
-	return removeLayer(layer, false);
 }
 
 bool Packet::removeLayer(Layer* layer, bool tryToDelete)
@@ -698,11 +683,6 @@ void Packet::computeCalculateFields()
 	}
 }
 
-Packet::~Packet()
-{
-	destructPacketData();
-}
-
 std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 {
 	std::ostringstream dataLenStream;
@@ -789,7 +769,7 @@ std::string Packet::toString(bool timeAsLocalTime)
 	toStringList(stringList, timeAsLocalTime);
 	for (std::vector<std::string>::iterator iter = stringList.begin(); iter != stringList.end(); iter++)
 	{
-		result += *iter + "\n";
+		result += *iter + '\n';
 	}
 
 	return result;
