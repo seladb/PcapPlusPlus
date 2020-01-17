@@ -1188,6 +1188,7 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
     RawPacket rawPacket2;
 
+    int packet_count = 0;
     while (readerDev2.getNextPacket(rawPacket, pktComment))
     {
     	packetCount++;
@@ -1220,25 +1221,29 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 		if (packet1_timestamp.tv_sec < packet2_timestamp.tv_sec)
 		{
 			PTF_ASSERT((packet2_timestamp.tv_sec - packet1_timestamp.tv_sec) < 2,
-					"Timestamps are differ in more than 2 secs: %ld and %ld", packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
+					"Timestamps are differ in packets %d in more than 2 secs: %lld and %lld; nsec are %lld and %lld",
+					packet_count, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
 		}
 		else
 		{
 			PTF_ASSERT((packet1_timestamp.tv_sec - packet2_timestamp.tv_sec) < 2,
-					"Timestamps are differ in more than 2 secs: %ld and %ld", packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
+					"Timestamps are differ in packets %d in more than 2 secs: %lld and %lld; nsec are %lld and %lld",
+					packet_count, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
 		}
 
 		if (packet1_timestamp.tv_nsec < packet2_timestamp.tv_nsec)
 		{
 			PTF_ASSERT((packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec) < 100,
-					"Timestamps are differ in more than 100 nsecs: %ld and %ld", packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
+					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %lld and %lld",
+					packet_count,  packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
 		else
 		{
 			PTF_ASSERT((packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec) < 100,
-					"Timestamps are differ in more than 100 nsecs: %ld and %ld", packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
+					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %lld and %lld",
+					packet_count,  packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
-
+		packet_count++;
     }
 
     PTF_ASSERT(packetCount == 159, "Read cycle 2: Incorrect number of packets read. Expected: 159; read: %d", packetCount);

@@ -418,9 +418,9 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 		{
 			packet_header->timestamp.tv_sec = packet_secs;
 			packet_header->timestamp.tv_nsec =
-					(timestamp - (packet_header->timestamp.tv_sec / timestamp_res))	// number of time units less than seconds
-					* timestamp_res 												// shift . to the left to get 0.{previous_number}
-					* 1000000000;													// get the nanoseconds
+					(timestamp - ((uint64_t)(packet_header->timestamp.tv_sec / timestamp_res)))	// number of time units less than seconds
+					* timestamp_res 															// shift . to the left to get 0.{previous_number}
+					* 1000000000;																// get the nanoseconds
 		}
 		else
 		{
