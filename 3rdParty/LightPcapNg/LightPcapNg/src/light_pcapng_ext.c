@@ -510,7 +510,7 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	epb->interface_id = iface_id;
 
 	uint64_t timestamp, packet_secs = (uint64_t)packet_header->timestamp.tv_sec;
-	if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
+	if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE && packet_secs != 0)
 		timestamp = packet_secs * (uint64_t)1000000000 + (uint64_t)packet_header->timestamp.tv_nsec;
 	else
 		timestamp = 0;
