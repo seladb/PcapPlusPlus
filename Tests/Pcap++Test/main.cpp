@@ -1233,13 +1233,13 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 		if (packet1_timestamp.tv_nsec < packet2_timestamp.tv_nsec)
 		{
-			PTF_ASSERT((packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec) < 100,
+			PTF_ASSERT((packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec) < 100000,
 					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %lld and %lld",
 					packet_count,  packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
 		else
 		{
-			PTF_ASSERT((packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec) < 100,
+			PTF_ASSERT((packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec) < 100000,
 					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %lld and %lld",
 					packet_count,  packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
