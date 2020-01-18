@@ -102,7 +102,7 @@ void PcapLiveDeviceList::setDnsServers()
 	// verify that nmcli exist
 	std::string command = "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";
 	std::string nmcliExists = executeShellCommand(command);
-	if (nmcliExists != "")
+	if (!nmcliExists.empty())
 	{
 		LOG_DEBUG("Error retrieving DNS server list: nmcli doesn't exist");
 		return;
@@ -121,7 +121,7 @@ void PcapLiveDeviceList::setDnsServers()
 		command = "nmcli dev show | grep IP4.DNS";
 
 	std::string dnsServersInfo = executeShellCommand(command);
-	if (dnsServersInfo == "")
+	if (dnsServersInfo.empty())
 	{
 		LOG_DEBUG("Error retrieving DNS server list: call to nmcli gave no output");
 		return;
@@ -187,7 +187,7 @@ void PcapLiveDeviceList::setDnsServers()
 		char* serverAddressCString = (char*)buf;
 		CFStringGetCString(serverAddress, serverAddressCString, 20, kCFStringEncodingUTF8);
 		m_DnsServers.push_back(IPv4Address(serverAddressCString));
-		LOG_DEBUG("Default DNS server IP #%d: %s\n", (int)(i+1), serverAddressCString);
+		LOG_DEBUG("Default DNS server IP #%d: %s\n", (int)(i + 1), serverAddressCString);
 	}
 
 	CFRelease(dynRef);
@@ -195,19 +195,7 @@ void PcapLiveDeviceList::setDnsServers()
 #endif
 }
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPAddress* ipAddr) const
-{
-	if (ipAddr->isIPv4())
-	{
-		return getPcapLiveDeviceByIp(ipAddr->getIPv4());
-	}
-	else //IPAddress::IPv6AddressType
-	{
-		return getPcapLiveDeviceByIp(ipAddr->getIPv6());
-	}
-}
-
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr) const
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
 {
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
@@ -240,7 +228,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv4Address ipAddr) co
 	return NULL;
 }
 
-PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr) const
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
 {
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
@@ -262,16 +250,11 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(IPv6Address ip6Addr) c
 				continue;
 			}
 
-			uint8_t* addrAsArr; size_t addrLen;
-			ip6Addr.copyTo(&addrAsArr, addrLen);
-			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
+			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
 				LOG_DEBUG("Found matched address!");
-				delete [] addrAsArr;
 				return (*devIter);
 			}
-
-			delete [] addrAsArr;
 		}
 	}
 
@@ -283,12 +266,11 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const char* ipAddrAsSt
 	IPAddress apAddr(ipAddrAsString);
 	if (apAddr.isUnspecified())
 	{
-		LOG_ERROR("IP address illegal");
+		LOG_ERROR("IP address is illegal");
 		return NULL;
 	}
 
-	PcapLiveDevice* result = PcapLiveDeviceList::getPcapLiveDeviceByIp(&apAddr);
-	return result;
+	return PcapLiveDeviceList::getPcapLiveDeviceByIp(apAddr);
 }
 
 
@@ -303,7 +285,6 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 	}
 
 	return NULL;
-
 }
 
 void PcapLiveDeviceList::reset()
