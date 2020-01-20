@@ -334,8 +334,6 @@ private:
 		PointerVector<TcpFragment> tcpFragmentList;
 		bool gotFinOrRst;
 
-		void setSrcIP(const IPAddress& sourceIP) { srcIP = sourceIP; }
-
 		TcpOneSideData() : srcPort(0), sequence(0), gotFinOrRst(false) {}
 	};
 
