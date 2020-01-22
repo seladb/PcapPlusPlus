@@ -2114,7 +2114,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), string("255.255.255.0")), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
+		PTF_ASSERT_TRUE(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address("212.199.202.9"), "255.255.255.0"));
 	}
 
 	rawPacketVec.clear();
@@ -2135,7 +2135,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test #2: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), string("255.255.255.0")), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
+		PTF_ASSERT_TRUE(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address("212.199.202.9"), "255.255.255.0"));
 	}
 	rawPacketVec.clear();
 
