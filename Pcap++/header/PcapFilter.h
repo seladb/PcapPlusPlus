@@ -194,9 +194,10 @@ namespace pcpp
 	private:
 		std::string m_Address;
 		std::string m_IPv4Mask;
-		int m_Len;
-		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const;
-		void convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) const;
+		/* The number of bits describing the net address */
+		int m_NetBitsLen;
+		void convertToIPAddressWithMask(std::string& ipAddrModified, std::string& mask) const;
+		void convertToIPAddressWithLen(std::string& ipAddrModified, int& len) const;
 	public:
 		/**
 		 * The basic constructor that creates the filter from an IPv4 address and direction (source or destination)
@@ -204,7 +205,7 @@ namespace pcpp
 		 * written to log and parsing this filter will fail
 		 * @param[in] dir The address direction to filter (source or destination)
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_Len(0) {}
+		IPFilter(const std::string& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_NetBitsLen(0) {}
 
 		/**
 		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
@@ -215,7 +216,8 @@ namespace pcpp
 		 * @param[in] dir The address direction to filter (source or destination)
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
+		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask)
+			: IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_NetBitsLen(0) {}
 
 		/**
 		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
@@ -226,7 +228,7 @@ namespace pcpp
 		 * @param[in] dir The address direction to filter (source or destination)
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress),  m_Len(len) {}
+		IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress),  m_NetBitsLen(len) {}
 
 		void parseToString(std::string& result);
 
@@ -241,13 +243,13 @@ namespace pcpp
 		 * Set the IPv4 mask
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 		 */
-		void setMask(const std::string& ipv4Mask) { m_IPv4Mask = ipv4Mask; m_Len = 0; }
+		void setMask(const std::string& ipv4Mask) { m_IPv4Mask = ipv4Mask; m_NetBitsLen = 0; }
 
 		/**
 		 * Set the subnet
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		void setLen(int len) { m_IPv4Mask.clear(); m_Len = len; }
+		void setLen(int len) { m_IPv4Mask.clear(); m_NetBitsLen = len; }
 	};
 
 

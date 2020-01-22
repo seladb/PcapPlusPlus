@@ -119,7 +119,7 @@ std::string IFilterWithOperator::parseOperator()
 	}
 }
 
-void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const
+void IPFilter::convertToIPAddressWithMask(std::string& ipAddrModified, std::string& mask) const
 {
 	if (m_IPv4Mask.empty())
 		return;
@@ -149,30 +149,31 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	// The reason for doing that is libPcap/WinPcap doesn't allow filtering an IP address that doesn't match the mask
 
 	uint32_t addrAsIntAfterMask = ipAddr.toUInt() & maskAsAddr.toUInt();
-	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();
+	ipAddrModified = IPv4Address(addrAsIntAfterMask).toString();
 }
 
-void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) const
+void IPFilter::convertToIPAddressWithLen(std::string& ipAddrModified, int& len) const
 {
-	if (m_Len == 0)
+	if (m_NetBitsLen == 0)
 		return;
 
 	// Handle the length
 
 	// The following code lines verify IP address is valid (IPv4 or IPv6)
 
-	IPAddress ipAddr(ipAddrmodified);
+	IPAddress ipAddr(ipAddrModified);
 	if (ipAddr.isUnspecified())
 	{
-		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
+		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrModified.c_str());
 		len = 0;
 	}
 	else if (ipAddr.isIPv4())
 	{
 		uint32_t addrAsInt = ipAddr.getIPv4().toUInt();
-		uint32_t mask = (uint32_t)(-1) >> ((sizeof(uint32_t) * 8) - m_Len);
+		const uint32_t maskBitsLen = (sizeof(uint32_t) * 8) - m_NetBitsLen; // the total number of bits in uint32 minus the number of net bits
+		const uint32_t mask = 0xFFFFFFFF >> maskBitsLen;
 		addrAsInt &= mask;
-		ipAddrmodified = IPv4Address(addrAsInt).toString();
+		ipAddrModified = IPv4Address(addrAsInt).toString();
 	}
 	else // IPv6
 	{
@@ -183,14 +184,14 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) 
 		if (len > (int)(sizeof(uint64_t) * 8))
 		{
 			addrLowerBytes = 0;
-			addrHigherBytes &= (-1 << (len - sizeof(uint64_t)));
+			addrHigherBytes &= (0xFFFFFFFFFFFFFFFF << (len - sizeof(uint64_t)));
 		}
 		else
 		{
-			addrLowerBytes &= (-1 << len);
+			addrLowerBytes &= (0xFFFFFFFFFFFFFFFF << len);
 		}
 
-		ipAddrmodified = IPv6Address(addrAsArr).toString();
+		ipAddrModified = IPv6Address(addrAsArr).toString();
 	}
 }
 
@@ -199,17 +200,17 @@ void IPFilter::parseToString(std::string& result)
 	std::string dir;
 	std::string ipAddr = m_Address;
 	std::string mask = m_IPv4Mask;
-	int len = m_Len;
+	int len = m_NetBitsLen;
 	convertToIPAddressWithMask(ipAddr, mask);
 	convertToIPAddressWithLen(ipAddr, len);
 	parseDirection(dir);
 	result = "ip and " + dir + " net " + ipAddr;
 	if (!m_IPv4Mask.empty())
 		result += " mask " + mask;
-	else if (m_Len > 0)
+	else if (m_NetBitsLen > 0)
 	{
 		std::ostringstream stream;
-		stream << m_Len;
+		stream << m_NetBitsLen;
 		result += '/' + stream.str();
 	}
 }
