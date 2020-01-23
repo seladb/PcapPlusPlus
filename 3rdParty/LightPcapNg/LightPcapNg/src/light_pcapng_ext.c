@@ -418,7 +418,7 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 		{
 			packet_header->timestamp.tv_sec = packet_secs;
 			packet_header->timestamp.tv_nsec =
-					(timestamp - ((uint64_t)(packet_header->timestamp.tv_sec / timestamp_res)))	// number of time units less than seconds
+					(timestamp - (packet_secs / timestamp_res))	// number of time units less than seconds
 					* timestamp_res 															// shift . to the left to get 0.{previous_number}
 					* 1000000000;																// get the nanoseconds
 		}
@@ -510,6 +510,9 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	epb->interface_id = iface_id;
 
 	uint64_t timestamp, packet_secs = (uint64_t)packet_header->timestamp.tv_sec;
+	if (sizeof(packet_header->timestamp.tv_sec) < sizeof(packet_secs))
+		packet_secs = 0x00000000FFFFFFFF & packet_secs;
+
 	if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE && packet_secs != 0)
 		timestamp = packet_secs * (uint64_t)1000000000 + (uint64_t)packet_header->timestamp.tv_nsec;
 	else
