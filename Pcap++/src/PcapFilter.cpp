@@ -159,40 +159,20 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrModified, int& len) 
 
 	// Handle the length
 
-	// The following code lines verify IP address is valid (IPv4 or IPv6)
-
-	IPAddress ipAddr(ipAddrModified);
+	// The following code lines verify IP address is valid
+	IPv4Address ipAddr(ipAddrModified);
 	if (ipAddr.isUnspecified())
 	{
-		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrModified.c_str());
+		LOG_ERROR("Invalid IPv4 address '%s', setting len to zero", ipAddrModified.c_str());
 		len = 0;
+		return;
 	}
-	else if (ipAddr.isIPv4())
-	{
-		uint32_t addrAsInt = ipAddr.getIPv4().toUInt();
-		const uint32_t maskBitsLen = (sizeof(uint32_t) * 8) - m_NetBitsLen; // the total number of bits in uint32 minus the number of net bits
-		const uint32_t mask = 0xFFFFFFFF >> maskBitsLen;
-		addrAsInt &= mask;
-		ipAddrModified = IPv4Address(addrAsInt).toString();
-	}
-	else // IPv6
-	{
-		uint8_t addrAsArr[16];
-		ipAddr.getIPv6().copyTo(addrAsArr);
-		uint64_t addrLowerBytes = (long)addrAsArr;
-		uint64_t addrHigherBytes = (long)(addrAsArr + 8);
-		if (len > (int)(sizeof(uint64_t) * 8))
-		{
-			addrLowerBytes = 0;
-			addrHigherBytes &= (0xFFFFFFFFFFFFFFFF << (len - sizeof(uint64_t)));
-		}
-		else
-		{
-			addrLowerBytes &= (0xFFFFFFFFFFFFFFFF << len);
-		}
 
-		ipAddrModified = IPv6Address(addrAsArr).toString();
-	}
+	uint32_t addrAsInt = ipAddr.toUInt();
+	const uint32_t maskBitsLen = (sizeof(uint32_t) * 8) - m_NetBitsLen; // the total number of bits in uint32 minus the number of net bits
+	const uint32_t mask = 0xFFFFFFFF >> maskBitsLen;
+	addrAsInt &= mask;
+	ipAddrModified = IPv4Address(addrAsInt).toString();
 }
 
 void IPFilter::parseToString(std::string& result)
