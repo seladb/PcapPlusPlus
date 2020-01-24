@@ -181,6 +181,7 @@ void Packet::reallocateRawData(size_t newSize)
 
 	// allocate a new array with size newSize
 	m_MaxPacketLen = newSize;
+
 	// set the new array to RawPacket
 	if (!m_RawPacket->reallocateData(m_MaxPacketLen))
 	{

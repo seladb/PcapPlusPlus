@@ -419,8 +419,8 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 			packet_header->timestamp.tv_sec = packet_secs;
 			packet_header->timestamp.tv_nsec =
 					(timestamp - (packet_secs / timestamp_res))	// number of time units less than seconds
-					* timestamp_res 															// shift . to the left to get 0.{previous_number}
-					* 1000000000;																// get the nanoseconds
+					* timestamp_res								// shift . to the left to get 0.{previous_number}
+					* 1000000000;								// get the nanoseconds
 		}
 		else
 		{
@@ -464,6 +464,8 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 	return 1;
 }
 
+static const uint8_t NSEC_PRECISION = 9;
+
 void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packet_header, const uint8_t *packet_data)
 {
 	DCHECK_NULLP(pcapng, return);
@@ -481,8 +483,8 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	light_pcapng blocks_to_write = NULL;
 
 	// TODO: most probably, this section should be removed as soon as possibility to write interface blocks
-	// manually is added, as all this section does is basically creating "mock" interface blocks with default
-	// parameters in case interface ID of packet block to be written does not exist - was not read previously
+	// is added, as all this section does is basically creating "mock" interface blocks with default parameters
+	// in case interface ID of packet block to be written does not exist - was not read previously
 	if (iface_id >= pcapng->file_info->interface_block_count)
 	{
 		struct _light_interface_description_block interface_block;
@@ -492,10 +494,9 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 
 		light_pcapng iface_block_pcapng = light_alloc_block(LIGHT_INTERFACE_BLOCK, (const uint32_t*)&interface_block, sizeof(struct _light_interface_description_block)+3*sizeof(uint32_t));
 
-		// let all written packets has a timestamp resolution in nsec - this way we will not loose precision at all;
+		// let all written packets has a timestamp resolution in nsec - this way we will not loose the precision;
 		// when a possibility to write interface blocks is added, the precision should be taken from them
-		uint8_t nsec_precision = 9;
-		light_option resolution_option = light_create_option(LIGHT_OPTION_IF_TSRESOL, sizeof(uint8_t), &nsec_precision);
+		light_option resolution_option = light_create_option(LIGHT_OPTION_IF_TSRESOL, sizeof(NSEC_PRECISION), &NSEC_PRECISION);
 		light_add_option(NULL, iface_block_pcapng, resolution_option, LIGHT_FALSE);
 
 		blocks_to_write = iface_block_pcapng;

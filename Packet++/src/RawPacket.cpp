@@ -8,12 +8,12 @@
 namespace pcpp
 {
 
-void RawPacket::init()
+void RawPacket::init(bool deleteRawDataAtDestructor)
 {
 	m_RawData = 0;
 	m_RawDataLen = 0;
 	m_FrameLength = 0;
-	m_DeleteRawDataAtDestructor = true;
+	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
 	m_RawPacketSet = false;
 	m_LinkLayerType = LINKTYPE_ETHERNET;
 }
@@ -22,15 +22,13 @@ RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp,
 {
 	timespec nsec_time;
 	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
-	init();
-	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
+	init(deleteRawDataAtDestructor);
 	setRawData(pRawData, rawDataLen, nsec_time, layerType);
 }
 
 RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType)
 {
-	init();
-	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
+	init(deleteRawDataAtDestructor);
 	setRawData(pRawData, rawDataLen, timestamp, layerType);
 }
 

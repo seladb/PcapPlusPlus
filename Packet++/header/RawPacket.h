@@ -227,7 +227,7 @@ namespace pcpp
 		bool m_DeleteRawDataAtDestructor;
 		bool m_RawPacketSet;
 		LinkLayerType m_LinkLayerType;
-		void init();
+		void init(bool deleteRawDataAtDestructor = true);
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 	public:
 		/**
