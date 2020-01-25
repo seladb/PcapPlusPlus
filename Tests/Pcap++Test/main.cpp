@@ -2098,10 +2098,20 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 
 	//-------------------------
+	//IP filter with len
+	//-------------------------
+	IPFilter ipFilterWithLen("212.199.202.9", SRC, 24);
+	ipFilterWithLen.parseToString(filterAsString);
+	PTF_ASSERT_TRUE(filterAsString.find("net 212.199.202.0/24") != std::string::npos);
+
+
+	//-------------------------
 	//IP filter with mask
 	//-------------------------
 	IPFilter ipFilterWithMask("212.199.202.9", SRC, "255.255.255.0");
 	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_TRUE(filterAsString.find("net 212.199.202.0") != std::string::npos);
+	PTF_ASSERT_TRUE(filterAsString.find("mask 255.255.255.0") != std::string::npos);
 
     PTF_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
     PTF_ASSERT(fileReaderDev2.setFilter(ipFilterWithMask), "Could not set filter: %s", filterAsString.c_str());
