@@ -10,25 +10,25 @@
 namespace pcpp
 {
 
-PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAddress, uint16_t port)
+PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port)
 {
 	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, NULL);
 }
 
-PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
+PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
-	if (ipAddress == NULL || ipAddress->isUnspecified())
+	if (ipAddress.isUnspecified())
 	{
-		LOG_ERROR("IP address is NULL or not valid");
+		LOG_ERROR("IP address is unspecified");
 		return NULL;
 	}
 
 	char portAsCharArr[6];
 	sprintf(portAsCharArr, "%d", port);
-	LOG_DEBUG("Searching remote devices on IP: %s and port: %d", ipAddress->toString().c_str(), port);
+	LOG_DEBUG("Searching remote devices on IP: %s and port: %d", ipAddress.toString().c_str(), port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
 	char errbuf[PCAP_ERRBUF_SIZE];
-	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress->toString().c_str(), portAsCharArr, NULL, errbuf) != 0)
+	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), portAsCharArr, NULL, errbuf) != 0)
 	{
 		LOG_ERROR("Error in creating the remote connection string. Error was: %s", errbuf);
 		return NULL;
@@ -73,29 +73,15 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString) const
 {
-	IPAddress apAddr(ipAddrAsString);
-	if (apAddr.isUnspecified())
+	IPAddress ipAddr(ipAddrAsString);
+	if (ipAddr.isUnspecified())
 	{
-		LOG_ERROR("IP address illegal");
+		LOG_ERROR("IP address is illegal");
 		return NULL;
 	}
 
-	PcapRemoteDevice* result = getRemoteDeviceByIP(&apAddr);
-	return result;
+	return getRemoteDeviceByIP(ipAddr);
 }
-
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* ipAddr) const
-{
-	if (ipAddr->isIPv4())
-	{
-		return getRemoteDeviceByIP(ipAddr->getIPv4());
-	}
-	else //IPAddress::IPv6AddressType
-	{
-		return getRemoteDeviceByIP(ipAddr->getIPv6());
-	}
-}
-
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr) const
 {
@@ -128,7 +114,6 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 	}
 
 	return NULL;
-
 }
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr) const
@@ -153,41 +138,26 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr)
 				continue;
 			}
 
-			uint8_t* addrAsArr; size_t addrLen;
-			ip6Addr.copyTo(&addrAsArr, addrLen);
-			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
+			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
 				LOG_DEBUG("Found matched address!");
-				delete [] addrAsArr;
 				return (*devIter);
 			}
-			delete [] addrAsArr;
 		}
 	}
 
 	return NULL;
-
 }
 
-void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress* ipAddress)
+void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress& ipAddress)
 {
-	if (ipAddress == NULL)
+	if (ipAddress.isUnspecified())
 	{
-		LOG_ERROR("Trying to set a NULL IP address to PcapRemoteDeviceList");
+		LOG_ERROR("Trying to set an unspecified IP address to PcapRemoteDeviceList");
 		return;
 	}
 
-	if (m_RemoteMachineIpAddress != NULL)
-		delete m_RemoteMachineIpAddress;
-
-	if (ipAddress->getType() == IPAddress::IPv4AddressType)
-	{
-		m_RemoteMachineIpAddress = new IPAddress(ipAddress->getIPv4());
-	}
-	else //IPAddress::IPv6AddressType
-	{
-		m_RemoteMachineIpAddress = new IPAddress(ipAddress->getIPv6());
-	}
+	m_RemoteMachineIpAddress = ipAddress;
 }
 
 void PcapRemoteDeviceList::setRemoteMachinePort(uint16_t port)
@@ -201,8 +171,7 @@ void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthenticatio
 		m_RemoteAuthentication = new PcapRemoteAuthentication(*remoteAuth);
 	else
 	{
-		if (m_RemoteAuthentication != NULL)
-			delete m_RemoteAuthentication;
+		delete m_RemoteAuthentication;
 		m_RemoteAuthentication = NULL;
 	}
 }
@@ -216,15 +185,7 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 		m_RemoteDeviceList.erase(devIter);
 	}
 
-	if (m_RemoteMachineIpAddress != NULL)
-	{
-		delete m_RemoteMachineIpAddress;
-	}
-
-	if (m_RemoteAuthentication != NULL)
-	{
-		delete m_RemoteAuthentication;
-	}
+	delete m_RemoteAuthentication;
 }
 
 } // namespace pcpp
