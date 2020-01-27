@@ -236,12 +236,24 @@ namespace pcpp
 		 * memory and give the user a pointer to it + a timestamp it has arrived to the device
 		 * @param[in] pRawData A pointer to the raw data
 		 * @param[in] rawDataLen The raw data length in bytes
-		 * @param[in] timestamp The timestamp packet was received by the NIC
+		 * @param[in] timestamp The timestamp packet was received by the NIC (in usec precision)
 		 * @param[in] deleteRawDataAtDestructor An indicator whether raw data pointer should be freed when the instance is freed or not. If set
 		 * to 'true' than pRawData will be freed when instanced is being freed
 		 * @param[in] layerType The link layer type of this raw packet. The default is Ethernet
 		 */
 		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType = LINKTYPE_ETHERNET);
+
+		/**
+		 * A constructor that receives a pointer to the raw data (allocated elsewhere). This constructor is usually used when packet
+		 * is captured using a packet capturing engine (like libPcap. WinPcap, PF_RING, etc.). The capturing engine allocates the raw data
+		 * memory and give the user a pointer to it + a timestamp it has arrived to the device
+		 * @param[in] pRawData A pointer to the raw data
+		 * @param[in] rawDataLen The raw data length in bytes
+		 * @param[in] timestamp The timestamp packet was received by the NIC (in nsec precision)
+		 * @param[in] deleteRawDataAtDestructor An indicator whether raw data pointer should be freed when the instance is freed or not. If set
+		 * to 'true' than pRawData will be freed when instanced is being freed
+		 * @param[in] layerType The link layer type of this raw packet. The default is Ethernet
+		 */
 		RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType = LINKTYPE_ETHERNET);
 
 		/**
@@ -282,13 +294,24 @@ namespace pcpp
 		 * Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be freed first
 		 * @param[in] pRawData A pointer to the new raw data
 		 * @param[in] rawDataLen The new raw data length in bytes
-		 * @param[in] timestamp The timestamp packet was received by the NIC
+		 * @param[in] timestamp The timestamp packet was received by the NIC (in usec precision)
 		 * @param[in] layerType The link layer type for this raw data
 		 * @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the actual packet length. This parameter represents the packet 
 		 * length. This parameter is optional, if not set or set to -1 it is assumed both lengths are equal
 		 * @return True if raw data was set successfully, false otherwise
 		 */
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+
+		/**
+		 * Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be freed first
+		 * @param[in] pRawData A pointer to the new raw data
+		 * @param[in] rawDataLen The new raw data length in bytes
+		 * @param[in] timestamp The timestamp packet was received by the NIC (in nsec precision)
+		 * @param[in] layerType The link layer type for this raw data
+		 * @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the actual packet length. This parameter represents the packet
+		 * length. This parameter is optional, if not set or set to -1 it is assumed both lengths are equal
+		 * @return True if raw data was set successfully, false otherwise
+		 */
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
 		/**
