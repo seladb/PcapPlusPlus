@@ -558,13 +558,10 @@ bool IPv4Layer::removeAllOptions()
 
 bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
 {
-	if (dataLen >= 20)
+	if (dataLen >= sizeof(iphdr))
 	{
 		const iphdr* hdr = reinterpret_cast<const iphdr*>(data);
-
-		return hdr->ipVersion == 4
-			&& hdr->internetHeaderLength >= 5
-			&& be16toh(hdr->totalLength) <= 65535;
+		return hdr->ipVersion == 4 && hdr->internetHeaderLength >= 5;
 	}
 	return false;
 }
