@@ -601,7 +601,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of byte stream
 		 * @return True if the data is valid and can represent the IPv4 packet
 		 */
-		static bool isDataValid(const uint8_t* data, size_t dataLen);
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 	private:
 		int m_NumOfTrailingBytes;
@@ -615,6 +615,15 @@ namespace pcpp
 		void initLayer();
 		void initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen);
 	};
+
+
+	// implementation of inline methods
+
+	bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		const iphdr* hdr = reinterpret_cast<const iphdr*>(data);
+		return dataLen >= sizeof(iphdr) && hdr->ipVersion == 4 && hdr->internetHeaderLength >= 5;
+	}
 
 } // namespace pcpp
 
