@@ -665,8 +665,8 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 		if (unlikely(numOfPktsReceived == 0))
 			continue;
 
-		timeval time;
-		gettimeofday(&time, NULL);
+		timespec time;
+		clock_gettime(CLOCK_REALTIME, &time);
 
 		if (likely(pThis->m_OnPacketsArriveCallback != NULL))
 		{
@@ -785,8 +785,8 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t
 		return 0;
 	}
 
-	timeval time;
-	gettimeofday(&time, NULL);
+	timespec time;
+	clock_gettime(CLOCK_REALTIME, &time);
 
 	for (uint32_t index = 0; index < numOfPktsReceived; ++index)
 	{
@@ -834,8 +834,8 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawP
 		return 0;
 	}
 
-	timeval time;
-	gettimeofday(&time, NULL);
+	timespec time;
+	clock_gettime(CLOCK_REALTIME, &time);
 
 	for (size_t index = 0; index < packetsReceived; ++index)
 	{
@@ -878,8 +878,8 @@ uint16_t DpdkDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLeng
 		return 0;
 	}
 
-	timeval time;
-	gettimeofday(&time, NULL);
+	timespec time;
+	clock_gettime(CLOCK_REALTIME, &time);
 
 	for (size_t index = 0; index < packetsReceived; ++index)
 	{
