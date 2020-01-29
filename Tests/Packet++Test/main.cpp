@@ -1487,6 +1487,25 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2)
 
 
 
+PTF_TEST_CASE(TcpMalformedPacketParsing)
+{
+	// malformed TCP packet
+	int bufferLength = 0;
+	uint8_t *buffer = readFileIntoBuffer("PacketExamples/tcp-malformed1.dat", bufferLength);
+	PTF_ASSERT_NOT_NULL(buffer);
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet badTcpPacket(&rawPacket);
+
+	PTF_ASSERT_NOT_NULL(badTcpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NULL(badTcpPacket.getLayerOfType<TcpLayer>());
+} // TcpMalformedPacketParsing
+
+
+
 PTF_TEST_CASE(TcpPacketCreation)
 {
 	MacAddress srcMac("30:46:9a:23:fb:fa");
@@ -7719,6 +7738,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
+	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
 	PTF_RUN_TEST(InsertDataToPacket, "insert");
 	PTF_RUN_TEST(InsertVlanToPacket, "vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "remove_layer");
