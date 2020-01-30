@@ -262,12 +262,13 @@ void IPv4Layer::parseNextLayer()
 	switch (ipHdr->protocol)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		if (m_DataLen - hdrLen >= sizeof(udphdr))
+		if (payloadLen >= sizeof(udphdr))
 			m_NextLayer = new UdpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_TCP:
-		if (m_DataLen - hdrLen >= sizeof(tcphdr))
-			m_NextLayer = new TcpLayer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new TcpLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_ICMP:
 		m_NextLayer = new IcmpLayer(payload, payloadLen, this, m_Packet);
@@ -554,19 +555,6 @@ bool IPv4Layer::removeAllOptions()
 	m_NumOfTrailingBytes = 0;
 	m_OptionReader.changeTLVRecordCount(0 - getOptionCount());
 	return true;
-}
-
-bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
-{
-	if (dataLen >= 20)
-	{
-		const iphdr* hdr = reinterpret_cast<const iphdr*>(data);
-
-		return hdr->ipVersion == 4
-			&& hdr->internetHeaderLength >= 5
-			&& be16toh(hdr->totalLength) <= 65535;
-	}
-	return false;
 }
 
 } // namespace pcpp

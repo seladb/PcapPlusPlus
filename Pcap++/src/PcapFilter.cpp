@@ -11,6 +11,7 @@
 #endif
 #include <pcap.h>
 #include "RawPacket.h"
+#include "TimespecTimeval.h"
 
 namespace pcpp
 {
@@ -39,7 +40,8 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 	struct pcap_pkthdr pktHdr;
 	pktHdr.caplen = rawPacket->getRawDataLen();
 	pktHdr.len = rawPacket->getRawDataLen();
-	pktHdr.ts = rawPacket->getPacketTimeStamp();
+	timespec ts = rawPacket->getPacketTimeStamp();
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &ts);
 
 	return (pcap_offline_filter(m_program, &pktHdr, rawPacket->getRawData()) != 0);
 }
