@@ -496,7 +496,7 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 
 		// let all written packets has a timestamp resolution in nsec - this way we will not loose the precision;
 		// when a possibility to write interface blocks is added, the precision should be taken from them
-		light_option resolution_option = light_create_option(LIGHT_OPTION_IF_TSRESOL, sizeof(NSEC_PRECISION), &NSEC_PRECISION);
+		light_option resolution_option = light_create_option(LIGHT_OPTION_IF_TSRESOL, sizeof(NSEC_PRECISION), (uint8_t*)&NSEC_PRECISION);
 		light_add_option(NULL, iface_block_pcapng, resolution_option, LIGHT_FALSE);
 
 		blocks_to_write = iface_block_pcapng;
