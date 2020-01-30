@@ -74,7 +74,7 @@ namespace pcpp
 		 * @param[in] senderIpAddr The sender IP address (will be put in arphdr#senderIpAddr)
 		 * @param[in] targetIpAddr The target IP address (will be put in arphdr#targetIpAddr)
 		 */
-		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr, const IPv4Address senderIpAddr, const IPv4Address& targetIpAddr);
+		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr, const IPv4Address& senderIpAddr, const IPv4Address& targetIpAddr);
 
 		~ArpLayer() {}
 
@@ -100,13 +100,13 @@ namespace pcpp
 		 * Get the sender protocol address (SPA) in the form of IPv4Address
 		 * @return An IPv4Address containing the sender protocol address (SPA)
 		 */
-		IPv4Address getSenderIpAddr() const { return IPv4Address(getArpHeader()->senderIpAddr); }
+		IPv4Address getSenderIpAddr() const { return getArpHeader()->senderIpAddr; }
 
 		/**
 		 * Get the target protocol address (TPA) in the form of IPv4Address
 		 * @return An IPv4Address containing the target protocol address (TPA)
 		 */
-		IPv4Address getTargetIpAddr() const { return IPv4Address(getArpHeader()->targetIpAddr); }
+		IPv4Address getTargetIpAddr() const { return getArpHeader()->targetIpAddr; }
 
 
 		// implement abstract methods

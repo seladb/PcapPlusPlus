@@ -2098,10 +2098,20 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 
 	//-------------------------
+	//IP filter with len
+	//-------------------------
+	IPFilter ipFilterWithLen("212.199.202.9", SRC, 24);
+	ipFilterWithLen.parseToString(filterAsString);
+	PTF_ASSERT_TRUE(filterAsString.find("net 212.199.202.0/24") != std::string::npos);
+
+
+	//-------------------------
 	//IP filter with mask
 	//-------------------------
 	IPFilter ipFilterWithMask("212.199.202.9", SRC, "255.255.255.0");
 	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_TRUE(filterAsString.find("net 212.199.202.0") != std::string::npos);
+	PTF_ASSERT_TRUE(filterAsString.find("mask 255.255.255.0") != std::string::npos);
 
     PTF_ASSERT(fileReaderDev2.open(), "Cannot open file reader device for filter '%s'", filterAsString.c_str());
     PTF_ASSERT(fileReaderDev2.setFilter(ipFilterWithMask), "Could not set filter: %s", filterAsString.c_str());
@@ -2114,7 +2124,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), string("255.255.255.0")), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
+		PTF_ASSERT_TRUE(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address("212.199.202.9"), "255.255.255.0"));
 	}
 
 	rawPacketVec.clear();
@@ -2135,7 +2145,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPFilter with mask test #2: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipLayer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address(string("212.199.202.9")), string("255.255.255.0")), "IPFilter with mask test: packet doesn't match subnet mask. IP src: '%s'", ipLayer->getSrcIpAddress().toString().c_str());
+		PTF_ASSERT_TRUE(ipLayer->getSrcIpAddress().matchSubnet(IPv4Address("212.199.202.9"), "255.255.255.0"));
 	}
 	rawPacketVec.clear();
 
@@ -2482,22 +2492,22 @@ PTF_TEST_CASE(TestRemoteCapture)
 	IPAddress remoteDeviceIPAddr(remoteDeviceIP);
 	PTF_ASSERT_FALSE(remoteDeviceIPAddr.isUnspecified());
 	PTF_ASSERT_TRUE(remoteDeviceIPAddr.isIPv4());
-	PcapRemoteDeviceList* remoteDevices = PcapRemoteDeviceList::getRemoteDeviceList(&remoteDeviceIPAddr, remoteDevicePort);
+	PcapRemoteDeviceList* remoteDevices = PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
 	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices != NULL, terminateRpcapdServer(rpcapdHandle), "Error on retrieving remote devices on IP: %s port: %d. Error string was: %s", remoteDeviceIP.c_str(), remoteDevicePort, PcapGlobalArgs.errString);
 	for (PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
 	{
 		PTF_ASSERT_AND_RUN_COMMAND((*remoteDevIter)->getName() != NULL, terminateRpcapdServer(rpcapdHandle), "One of the remote devices has no name");
 	}
-	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices->getRemoteMachineIpAddress()->toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device list doesn't match provided IP");
+	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices->getRemoteMachineIpAddress().toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device list doesn't match provided IP");
 	PTF_ASSERT_AND_RUN_COMMAND(remoteDevices->getRemoteMachinePort() == remoteDevicePort, terminateRpcapdServer(rpcapdHandle), "Remote machine port got from device list doesn't match provided port");
 
-	PcapRemoteDevice* pRemoteDevice = remoteDevices->getRemoteDeviceByIP(&remoteDeviceIPAddr);
+	PcapRemoteDevice* pRemoteDevice = remoteDevices->getRemoteDeviceByIP(remoteDeviceIPAddr);
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getDeviceType() == PcapLiveDevice::RemoteDevice, terminateRpcapdServer(rpcapdHandle), "Remote device type isn't 'RemoteDevice'");
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getMtu() == 0, terminateRpcapdServer(rpcapdHandle), "MTU of remote device isn't 0");
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getMacAddress() == MacAddress::Zero, terminateRpcapdServer(rpcapdHandle), "MAC address of remote device isn't zero");
 	LoggerPP::getInstance().enableErrors();
-	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getRemoteMachineIpAddress()->toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device doesn't match provided IP");
+	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getRemoteMachineIpAddress().toString() == remoteDeviceIP, terminateRpcapdServer(rpcapdHandle), "Remote machine IP got from device doesn't match provided IP");
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->getRemoteMachinePort() == remoteDevicePort, terminateRpcapdServer(rpcapdHandle), "Remote machine port got from device doesn't match provided port");
 	PTF_ASSERT_AND_RUN_COMMAND(pRemoteDevice->open(), terminateRpcapdServer(rpcapdHandle), "Could not open the remote device. Error was: %s", PcapGlobalArgs.errString);
 	RawPacketVector capturedPackets;

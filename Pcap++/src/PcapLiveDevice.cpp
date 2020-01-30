@@ -61,8 +61,7 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
-		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(), m_MacAddress("")
 {
 	m_Name = NULL;
 	m_Description = NULL;
@@ -640,7 +639,7 @@ int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets)
 std::string PcapLiveDevice::printThreadId(PcapThread* id)
 {
 	size_t i;
-	std::string result("");
+	std::string result;
 	pthread_t pthread = id->pthread;
 	for (i = sizeof(pthread); i; --i)
 	{
@@ -819,9 +818,9 @@ void PcapLiveDevice::setDefaultGateway()
 	if (retVal == NO_ERROR)
 	{
 		PIP_ADAPTER_INFO curAdapterInfo = adapterInfo;
+		std::string name(m_Name);
 		while (curAdapterInfo != NULL)
 		{
-			std::string name(m_Name);
 			if (name.find(curAdapterInfo->AdapterName) != std::string::npos)
 				m_DefaultGateway = IPv4Address(curAdapterInfo->GatewayList.IpAddress.String);
 
@@ -843,7 +842,7 @@ void PcapLiveDevice::setDefaultGateway()
 	  std::stringstream lineStream(line);
 	  std::string interfaceName;
 	  std::getline(lineStream, interfaceName, '\t');
-	  if (interfaceName != std::string(m_Name))
+	  if (interfaceName != m_Name)
 	    continue;
 
 	  std::string interfaceDest;
@@ -861,10 +860,10 @@ void PcapLiveDevice::setDefaultGateway()
 	  m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
 	}
 #elif MAC_OS_X || FREEBSD
-	std::string ifaceStr = std::string(m_Name);
+	std::string ifaceStr(m_Name);
 	std::string command = "netstat -nr | grep default | grep " + ifaceStr;
 	std::string ifaceInfo = executeShellCommand(command);
-	if (ifaceInfo == "")
+	if (ifaceInfo.empty())
 	{
 		LOG_DEBUG("Error retrieving default gateway address: couldn't get netstat output");
 		return;
@@ -905,14 +904,9 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 		return IPv4Address(currAddr->s_addr);
 	}
 
-	return IPv4Address::Zero;
+	return IPv4Address();
 }
 
-
-IPv4Address PcapLiveDevice::getDefaultGateway() const
-{
-	return m_DefaultGateway;
-}
 
 const std::vector<IPv4Address>& PcapLiveDevice::getDnsServers() const
 {
@@ -926,10 +920,8 @@ ThreadStart PcapLiveDevice::getCaptureThreadStart()
 
 PcapLiveDevice::~PcapLiveDevice()
 {
-	if (m_Name != NULL)
-		delete [] m_Name;
-	if (m_Description != NULL)
-		delete [] m_Description;
+	delete [] m_Name;
+	delete [] m_Description;
 	delete m_CaptureThread;
 	delete m_StatsThread;
 }

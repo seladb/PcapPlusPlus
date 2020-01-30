@@ -94,7 +94,7 @@ struct igmpv3_group_record
 	/**
 	 * @return The multicast address in igmpv3_group_record#multicastAddress as IPv4Address instance
 	 */
-	IPv4Address getMulticastAddress() const;
+	IPv4Address getMulticastAddress() const { return multicastAddress; }
 
 	/**
 	 * @return The number of source addresses in this group record
@@ -162,7 +162,7 @@ class IgmpLayer : public Layer
 {
 protected:
 
-	IgmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType igmpVer) : Layer(data, dataLen, NULL, packet) { m_Protocol = igmpVer; }
+	IgmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType igmpVer): Layer(data, dataLen, NULL, packet) { m_Protocol = igmpVer; }
 
 	IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer);
 
@@ -182,7 +182,7 @@ public:
 	/**
 	 * @return The IPv4 multicast address stored igmp_header#groupAddress
 	 */
-	IPv4Address getGroupAddress() const { return IPv4Address(getIgmpHeader()->groupAddress); }
+	IPv4Address getGroupAddress() const { return getIgmpHeader()->groupAddress; }
 
 	/**
 	 * Set the IPv4 multicast address
@@ -244,15 +244,17 @@ public:
 	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
-	IgmpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+	IgmpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		: IgmpLayer(data, dataLen, prevLayer, packet, IGMPv1) {}
 
 	/**
 	 * A constructor that allocates a new IGMPv1 header
 	 * @param[in] type The message type to set
-	 * @param[in] groupAddr The multicast address to set. This is an optional parameter and has a default value of IPv4Address#Zero
+	 * @param[in] groupAddr The multicast address to set. This is an optional parameter and has a default value of unspecified(zero) IPv4 address
 	 * if not provided
 	 */
-	IgmpV1Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address::Zero);
+	IgmpV1Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address())
+		: IgmpLayer(type, groupAddr, 0, IGMPv1) {}
 
 	/**
 	 * A destructor for this layer (does nothing)
@@ -283,15 +285,17 @@ public:
 	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
-	IgmpV2Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+	IgmpV2Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		: IgmpLayer(data, dataLen, prevLayer, packet, IGMPv2) {}
 
 	/**
 	 * A constructor that allocates a new IGMPv2 header
 	 * @param[in] type The message type to set
-	 * @param[in] groupAddr The multicast address to set. This is an optional parameter and has a default value of IPv4Address#Zero
+	 * @param[in] groupAddr The multicast address to set. This is an optional parameter and has a default value of unspecified IPv4 address
 	 * @param[in] maxResponseTime The max response time to set. This is an optional parameter and has a default value of 0 if not provided
 	 */
-	IgmpV2Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address::Zero, uint8_t maxResponseTime = 0);
+	IgmpV2Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address(), uint8_t maxResponseTime = 0)
+		: IgmpLayer(type, groupAddr, maxResponseTime, IGMPv2) {}
 
 	/**
 	 * A destructor for this layer (does nothing)
@@ -326,13 +330,13 @@ public:
 
 	/**
 	 * A constructor that allocates a new IGMPv3 membership query
-	 * @param[in] multicastAddr The multicast address to set. This is an optional parameter and has a default value of IPv4Address#Zero
+	 * @param[in] multicastAddr The multicast address to set. This is an optional parameter and has a default value of unspecified IPv4 address
 	 * if not provided
 	 * @param[in] maxResponseTime The max response time to set. This is an optional parameter and has a default value of 0 if not provided
 	 * @param[in] s_qrv A 1-byte value representing the value in Suppress Router-side Processing Flag + Querier's Robustness Variable
 	 * (igmpv3_query_header#s_qrv field). This is an optional parameter and has a default value of 0 if not provided
 	 */
-	IgmpV3QueryLayer(const IPv4Address& multicastAddr = IPv4Address::Zero, uint8_t maxResponseTime = 0, uint8_t s_qrv = 0);
+	IgmpV3QueryLayer(const IPv4Address& multicastAddr = IPv4Address(), uint8_t maxResponseTime = 0, uint8_t s_qrv = 0);
 
 	/**
 	 * Get a pointer to the raw IGMPv3 membership query header. Notice this points directly to the data, so every change will change the
@@ -416,12 +420,13 @@ public:
 	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
-	IgmpV3ReportLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+	IgmpV3ReportLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		: IgmpLayer(data, dataLen, prevLayer, packet, IGMPv3) {}
 
 	/**
 	 * A constructor that allocates a new IGMPv3 membership report with 0 group addresses
 	 */
-	IgmpV3ReportLayer();
+	IgmpV3ReportLayer() : IgmpLayer(IgmpType_MembershipReportV3, IPv4Address(), 0, IGMPv3) {}
 
 	/**
 	 * Get a pointer to the raw IGMPv3 membership report header. Notice this points directly to the data, so every change will change the
