@@ -5,6 +5,7 @@
 #include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
+#include "TimespecTimeval.h"
 #include <string.h>
 #include <fstream>
 
@@ -76,13 +77,12 @@ IFileReaderDevice::IFileReaderDevice(const char* fileName) : IFileDevice(fileNam
 
 IFileReaderDevice* IFileReaderDevice::getReader(const char* fileName)
 {
-	std::string fileNameStr(fileName);
-	size_t dotLocation = fileNameStr.find_last_of(".");
-	std::string fileExtension = ( dotLocation == std::string::npos ? "" : fileNameStr.substr(dotLocation) );
-	if (fileExtension == ".pcapng")
+	const char* fileExtension = strrchr(fileName, '.');
+
+	if (fileExtension != NULL && strcmp(fileExtension, ".pcapng") == 0)
 		return new PcapNgFileReaderDevice(fileName);
-	else
-		return new PcapFileReaderDevice(fileName);
+
+	return new PcapFileReaderDevice(fileName);
 }
 
 uint64_t IFileReaderDevice::getFileSize() const
@@ -194,7 +194,7 @@ PcapNgFileReaderDevice::PcapNgFileReaderDevice(const char* fileName) : IFileRead
 	m_BpfInitialized = false;
 }
 
-bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType)
+bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType)
 {
 	if (m_CurFilter == "")
 		return true;
@@ -219,7 +219,7 @@ bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, si
 	struct pcap_pkthdr pktHdr;
 	pktHdr.caplen = packetLen;
 	pktHdr.len = packetLen;
-	pktHdr.ts = packetTimestamp;
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
 	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 
@@ -460,7 +460,8 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	pcap_pkthdr pktHdr;
 	pktHdr.caplen = ((RawPacket&)packet).getRawDataLen();
 	pktHdr.len = ((RawPacket&)packet).getFrameLength();
-	pktHdr.ts = ((RawPacket&)packet).getPacketTimeStamp();
+	timespec packet_timestamp = ((RawPacket&)packet).getPacketTimeStamp();
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 	if (!m_AppendMode)
 		pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
 	else
@@ -560,15 +561,22 @@ void PcapFileWriterDevice::flush()
 
 void PcapFileWriterDevice::close()
 {
+	if (!m_DeviceOpened)
+		return;
+
 	flush();
 
 	IFileDevice::close();
 
-	if (!m_AppendMode)
+	if (!m_AppendMode && m_PcapDumpHandler != NULL)
+	{
 		pcap_dump_close(m_PcapDumpHandler);
-	else
+	}
+	else if (m_AppendMode && m_File != NULL)
+	{
 		// in append mode it's impossible to use pcap_dump_close, see comment above pcap_dump
 		fclose(m_File);
+	}
 
 	m_PcapDumpHandler = NULL;
 	m_File = NULL;
@@ -651,7 +659,7 @@ PcapNgFileWriterDevice::PcapNgFileWriterDevice(const char* fileName, int compres
 	m_BpfInitialized = false;
 }
 
-bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType)
+bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType)
 {
 	if (m_CurFilter == "")
 		return true;
@@ -676,7 +684,7 @@ bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, si
 	struct pcap_pkthdr pktHdr;
 	pktHdr.caplen = packetLen;
 	pktHdr.len = packetLen;
-	pktHdr.ts = packetTimestamp;
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
 	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 

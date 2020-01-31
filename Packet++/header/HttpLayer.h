@@ -252,7 +252,7 @@ namespace pcpp
 			/** 204 No Content*/
 			Http204NoContent,
 			/** 205 Reset Content*/
-			http205ResetContent,
+			Http205ResetContent,
 			/** 206 Partial Content */
 			Http206PartialContent,
 			/** 207 Multi-Status */

@@ -99,7 +99,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	if (calculateMTU)
 	{
 		setDeviceMtu();
-		LOG_DEBUG("   MTU: %d", m_DeviceMtu);
+		LOG_DEBUG("   MTU: %d", (int)m_DeviceMtu);
 	}
 
 	if (calculateDefaultGateway)
@@ -575,9 +575,9 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 		return false;
 	}
 
-	if (packetDataLength > m_DeviceMtu)
+	if (packetDataLength > (int)m_DeviceMtu)
 	{
-		LOG_ERROR("Packet length [%d] is larger than device MTU [%d]\n", packetDataLength, m_DeviceMtu);
+		LOG_ERROR("Packet length [%d] is larger than device MTU [%d]\n", packetDataLength, (int)m_DeviceMtu);
 		return false;
 	}
 
@@ -657,8 +657,8 @@ void PcapLiveDevice::setDeviceMtu()
 
 	if (m_IsLoopback)
 	{
-		LOG_DEBUG("Npcap Loopback Adapter - MTU is insignificant, setting MTU to max value (0xffff)");
-		m_DeviceMtu = 0xffff;
+		LOG_DEBUG("Npcap Loopback Adapter - MTU is insignificant, setting MTU to max value (0xffffffff)");
+		m_DeviceMtu = 0xffffffff;
 		return;
 	}
 

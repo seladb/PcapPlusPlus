@@ -4,6 +4,7 @@
 #include <stdint.h>
 #ifdef _MSC_VER
 #include <WinSock2.h>
+#include <time.h>
 #else
 #include <sys/time.h>
 #endif
@@ -222,11 +223,11 @@ namespace pcpp
 		uint8_t* m_RawData;
 		int m_RawDataLen;
 		int m_FrameLength;
-		timeval m_TimeStamp;
+		timespec m_TimeStamp;
 		bool m_DeleteRawDataAtDestructor;
 		bool m_RawPacketSet;
 		LinkLayerType m_LinkLayerType;
-		void init();
+		void init(bool deleteRawDataAtDestructor = true);
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 	public:
 		/**
@@ -235,12 +236,25 @@ namespace pcpp
 		 * memory and give the user a pointer to it + a timestamp it has arrived to the device
 		 * @param[in] pRawData A pointer to the raw data
 		 * @param[in] rawDataLen The raw data length in bytes
-		 * @param[in] timestamp The timestamp packet was received by the NIC
+		 * @param[in] timestamp The timestamp packet was received by the NIC (in usec precision)
 		 * @param[in] deleteRawDataAtDestructor An indicator whether raw data pointer should be freed when the instance is freed or not. If set
 		 * to 'true' than pRawData will be freed when instanced is being freed
 		 * @param[in] layerType The link layer type of this raw packet. The default is Ethernet
 		 */
 		RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType = LINKTYPE_ETHERNET);
+
+		/**
+		 * A constructor that receives a pointer to the raw data (allocated elsewhere). This constructor is usually used when packet
+		 * is captured using a packet capturing engine (like libPcap. WinPcap, PF_RING, etc.). The capturing engine allocates the raw data
+		 * memory and give the user a pointer to it + a timestamp it has arrived to the device
+		 * @param[in] pRawData A pointer to the raw data
+		 * @param[in] rawDataLen The raw data length in bytes
+		 * @param[in] timestamp The timestamp packet was received by the NIC (in nsec precision)
+		 * @param[in] deleteRawDataAtDestructor An indicator whether raw data pointer should be freed when the instance is freed or not. If set
+		 * to 'true' than pRawData will be freed when instanced is being freed
+		 * @param[in] layerType The link layer type of this raw packet. The default is Ethernet
+		 */
+		RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType = LINKTYPE_ETHERNET);
 
 		/**
 		 * A default constructor that initializes class'es attributes to default value:
@@ -280,13 +294,25 @@ namespace pcpp
 		 * Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be freed first
 		 * @param[in] pRawData A pointer to the new raw data
 		 * @param[in] rawDataLen The new raw data length in bytes
-		 * @param[in] timestamp The timestamp packet was received by the NIC
+		 * @param[in] timestamp The timestamp packet was received by the NIC (in usec precision)
 		 * @param[in] layerType The link layer type for this raw data
 		 * @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the actual packet length. This parameter represents the packet 
 		 * length. This parameter is optional, if not set or set to -1 it is assumed both lengths are equal
 		 * @return True if raw data was set successfully, false otherwise
 		 */
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+
+		/**
+		 * Set a raw data. If data was already set and deleteRawDataAtDestructor was set to 'true' the old data will be freed first
+		 * @param[in] pRawData A pointer to the new raw data
+		 * @param[in] rawDataLen The new raw data length in bytes
+		 * @param[in] timestamp The timestamp packet was received by the NIC (in nsec precision)
+		 * @param[in] layerType The link layer type for this raw data
+		 * @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the actual packet length. This parameter represents the packet
+		 * length. This parameter is optional, if not set or set to -1 it is assumed both lengths are equal
+		 * @return True if raw data was set successfully, false otherwise
+		 */
+		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
 		/**
 		 * Get raw data pointer
@@ -315,7 +341,7 @@ namespace pcpp
 		 * Get raw data timestamp
 		 * @return Raw data timestamp
 		 */
-		timeval getPacketTimeStamp() const { return m_TimeStamp; }
+		timespec getPacketTimeStamp() const { return m_TimeStamp; }
 
 		/**
 		 * Get an indication whether raw data was already set for this instance.
