@@ -97,11 +97,8 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		return;
 
 	// in real traffic the IP addresses cannot be an unspecified
-	if(srcIP.isUnspecified() || dstIP.isUnspecified())
-	{
-		LOG_ERROR("Some IP address is unspecified: srcIP [%s], dstIP [%s]. Ignoring this packet", srcIP.toString().c_str(), dstIP.toString().c_str());
+	if (srcIP.isUnspecified() || dstIP.isUnspecified())
 		return;
-	}
 
 
 	// Ignore non-TCP packets
@@ -114,7 +111,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	// This is not real TCP data and packet can be ignored
 	if (tcpData.isPacketOfType(ICMP))
 	{
-		LOG_DEBUG("Packet is of type ICMP so TCP data is probably  part of the ICMP message. Ignoring this packet");
+		LOG_DEBUG("Packet is of type ICMP so TCP data is probably part of the ICMP message. Ignoring this packet");
 		return;
 	}
 
