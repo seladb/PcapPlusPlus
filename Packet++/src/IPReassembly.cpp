@@ -280,7 +280,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// create fragment wrapper
 	IPv4FragmentWrapper ipv4Wrapper(fragment);
 	IPv6FragmentWrapper ipv6Wrapper(fragment);
-	IPFragmentWrapper* fragWrapper;
+	IPFragmentWrapper* fragWrapper = NULL;
 	if (fragment->isPacketOfType(IPv4))
 		fragWrapper = &ipv4Wrapper;
 	else // fragment->isPacketOfType(IPv6)
