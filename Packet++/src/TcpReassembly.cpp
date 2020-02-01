@@ -10,6 +10,10 @@
 #include <sstream>
 #include <vector>
 #include "EndianPortable.h"
+#include "TimespecTimeval.h"
+#ifdef _MSC_VER
+#include <time.h>
+#endif
 
 #define PURGE_FREQ_SECS 1
 
@@ -17,6 +21,16 @@
 #define SEQ_LEQ(a,b) ((int32_t)((a)-(b)) <= 0)
 #define SEQ_GT(a,b)  ((int32_t)((a)-(b)) > 0)
 #define SEQ_GEQ(a,b) ((int32_t)((a)-(b)) >= 0)
+
+namespace
+{
+	timeval timespec_to_timeval(const timespec &in)
+	{
+		timeval out;
+		TIMESPEC_TO_TIMEVAL(&out, &in);
+		return out;
+	}
+}
 
 namespace pcpp
 {
@@ -187,7 +201,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData->connData.srcPort = be16toh(tcpLayer->getTcpHeader()->portSrc);
 		tcpReassemblyData->connData.dstPort = be16toh(tcpLayer->getTcpHeader()->portDst);
 		tcpReassemblyData->connData.flowKey = flowKey;
-		timeval ts = tcpData.getRawPacket()->getPacketTimeStamp();
+		timeval ts = timespec_to_timeval(tcpData.getRawPacket()->getPacketTimeStamp());
 		tcpReassemblyData->connData.setStartTime(ts);
 
 		m_ConnectionList[flowKey] = tcpReassemblyData;
@@ -200,7 +214,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else // connection already exists
 	{
 		tcpReassemblyData = iter->second;
-		timeval currTime = tcpData.getRawPacket()->getPacketTimeStamp();
+		timeval currTime = timespec_to_timeval(tcpData.getRawPacket()->getPacketTimeStamp());
 		if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
 		{
 			tcpReassemblyData->connData.setEndTime(currTime); 

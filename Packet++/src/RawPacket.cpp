@@ -3,24 +3,32 @@
 #include "RawPacket.h"
 #include <string.h>
 #include "Logger.h"
+#include "TimespecTimeval.h"
 
 namespace pcpp
 {
 
-void RawPacket::init()
+void RawPacket::init(bool deleteRawDataAtDestructor)
 {
 	m_RawData = 0;
 	m_RawDataLen = 0;
 	m_FrameLength = 0;
-	m_DeleteRawDataAtDestructor = true;
+	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
 	m_RawPacketSet = false;
 	m_LinkLayerType = LINKTYPE_ETHERNET;
 }
 
 RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType)
 {
-	init();
-	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
+	timespec nsec_time;
+	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
+	init(deleteRawDataAtDestructor);
+	setRawData(pRawData, rawDataLen, nsec_time, layerType);
+}
+
+RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timespec timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType)
+{
+	init(deleteRawDataAtDestructor);
 	setRawData(pRawData, rawDataLen, timestamp, layerType);
 }
 
@@ -80,6 +88,13 @@ void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 }
 
 bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType, int frameLength)
+{
+	timespec nsec_time;
+	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
+	return setRawData(pRawData, rawDataLen, nsec_time, layerType, frameLength);
+}
+
+bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType, int frameLength)
 {
 	if(frameLength == -1)
 		frameLength = rawDataLen;

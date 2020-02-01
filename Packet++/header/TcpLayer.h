@@ -437,6 +437,14 @@ namespace pcpp
 		 */
 		uint16_t calculateChecksum(bool writeResultToPacket);
 
+		/**
+		 * The static method makes validation of input data
+		 * @param[in] data The pointer to the beginning of byte stream of TCP packet
+		 * @param[in] dataLen The length of byte stream
+		 * @return True if the data is valid and can represent a TCP packet
+		 */
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
 		// implement abstract methods
 
 		/**
@@ -469,6 +477,17 @@ namespace pcpp
 		void adjustTcpOptionTrailer(size_t totalOptSize);
 		void copyLayerData(const TcpLayer& other);
 	};
+
+
+	// implementation of inline methods
+
+	bool TcpLayer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		const tcphdr* hdr = reinterpret_cast<const tcphdr*>(data);
+		return dataLen >= sizeof(tcphdr)
+			&& hdr->dataOffset >= 5 /* the minimum TCP header size */
+			&& dataLen >= hdr->dataOffset * sizeof(uint32_t);
+	}
 
 } // namespace pcpp
 

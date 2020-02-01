@@ -1275,12 +1275,12 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
     pcap_stat writerStatistics;
 
     readerDev.getStatistics(readerStatistics);
-    PTF_ASSERT(readerStatistics.ps_recv == 159, "Incorrect number of packets read from file. Expected: 159; read: %d", readerStatistics.ps_recv);
-    PTF_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %d", readerStatistics.ps_drop);
+    PTF_ASSERT(readerStatistics.ps_recv == 159, "Incorrect number of packets read from file. Expected: 159; read: %u", readerStatistics.ps_recv);
+    PTF_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %u", readerStatistics.ps_drop);
 
     writerDev.getStatistics(writerStatistics);
-    PTF_ASSERT(writerStatistics.ps_recv == 159, "Incorrect number of packets written to file. Expected: 159; written: %d", writerStatistics.ps_recv);
-    PTF_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
+    PTF_ASSERT(writerStatistics.ps_recv == 159, "Incorrect number of packets written to file. Expected: 159; written: %u", writerStatistics.ps_recv);
+    PTF_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %u", writerStatistics.ps_drop);
 
     readerDev.close();
     writerDev.close();
@@ -1311,6 +1311,7 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
     RawPacket rawPacket2;
 
+    int packet_count = 0;
     while (readerDev2.getNextPacket(rawPacket, pktComment))
     {
     	packetCount++;
@@ -1338,24 +1339,34 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 		readerDev3.getNextPacket(rawPacket2);
 
-		if (rawPacket.getPacketTimeStamp().tv_sec < rawPacket2.getPacketTimeStamp().tv_sec)
+		timespec packet1_timestamp = rawPacket.getPacketTimeStamp();
+		timespec packet2_timestamp = rawPacket2.getPacketTimeStamp();
+		if (packet1_timestamp.tv_sec < packet2_timestamp.tv_sec)
 		{
-			PTF_ASSERT((rawPacket2.getPacketTimeStamp().tv_sec - rawPacket.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
+			PTF_ASSERT((packet2_timestamp.tv_sec - packet1_timestamp.tv_sec) < 2,
+					"Timestamps are differ in packets %d in more than 2 secs: %ld and %ld; nsec are %ld and %ld",
+					packet_count, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
 		}
 		else
 		{
-			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_sec - rawPacket2.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
+			PTF_ASSERT((packet1_timestamp.tv_sec - packet2_timestamp.tv_sec) < 2,
+					"Timestamps are differ in packets %d in more than 2 secs: %ld and %ld; nsec are %ld and %ld",
+					packet_count, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
 		}
 
-		if (rawPacket.getPacketTimeStamp().tv_usec < rawPacket2.getPacketTimeStamp().tv_usec)
+		if (packet1_timestamp.tv_nsec < packet2_timestamp.tv_nsec)
 		{
-			PTF_ASSERT((rawPacket2.getPacketTimeStamp().tv_usec - rawPacket.getPacketTimeStamp().tv_usec) < 100, "Timestamps are differ in more than 100 usecs");
+			PTF_ASSERT((packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec) < 100000,
+					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %ld and %ld",
+					packet_count,  packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
 		else
 		{
-			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_usec - rawPacket2.getPacketTimeStamp().tv_usec) < 100, "Timestamps are differ in more than 100 usecs");
+			PTF_ASSERT((packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec) < 100000,
+					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %ld and %ld",
+					packet_count,  packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
-
+		packet_count++;
     }
 
     PTF_ASSERT(packetCount == 159, "Read cycle 2: Incorrect number of packets read. Expected: 159; read: %d", packetCount);
@@ -2405,7 +2416,7 @@ PTF_TEST_CASE(TestSendPacket)
     PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
 
     PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
-    uint16_t mtu = liveDev->getMtu();
+    uint32_t mtu = liveDev->getMtu();
     int buffLen = mtu+1;
     uint8_t* buff = new uint8_t[buffLen];
     memset(buff, 0, buffLen);
@@ -2529,7 +2540,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	size_t capturedPacketsSize = capturedPackets.size();
 	while (iter != capturedPackets.end())
 	{
-		if ((*iter)->getRawDataLen() <= pRemoteDevice->getMtu())
+		if ((*iter)->getRawDataLen() <= (int)pRemoteDevice->getMtu())
 		{
 			packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
 		}

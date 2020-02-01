@@ -1367,11 +1367,11 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portDst, htobe16(60388), u16);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portSrc, htobe16(80), u16);
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->sequenceNumber, htobe32(0xbeab364a), hex);
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackNumber, htobe32(0xf9ffb58e), hex);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->sequenceNumber, htobe32(0xbeab364a), u32);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackNumber, htobe32(0xf9ffb58e), u32);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->dataOffset, 5, u16);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->urgentPointer, 0, u16);
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->headerChecksum, htobe16(0x4c03), hex);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->headerChecksum, htobe16(0x4c03), u16);
 
 	// Flags
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackFlag, 1, u16);
@@ -1484,6 +1484,25 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2)
 	curOpt = tcpLayer->getNextTcpOption(curOpt);
 	PTF_ASSERT_TRUE(curOpt.isNull());
 } // TcpPacketWithOptionsParsing2
+
+
+
+PTF_TEST_CASE(TcpMalformedPacketParsing)
+{
+	// malformed TCP packet
+	int bufferLength = 0;
+	uint8_t *buffer = readFileIntoBuffer("PacketExamples/tcp-malformed1.dat", bufferLength);
+	PTF_ASSERT_NOT_NULL(buffer);
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet badTcpPacket(&rawPacket);
+
+	PTF_ASSERT_NOT_NULL(badTcpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NULL(badTcpPacket.getLayerOfType<TcpLayer>());
+} // TcpMalformedPacketParsing
 
 
 
@@ -5852,31 +5871,31 @@ PTF_TEST_CASE(ParsePartialPacketTest)
 {
 	int buffer1Length = 0;
 	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/SSL-ClientHello1.dat", buffer1Length);
-	PTF_ASSERT(!(buffer1 == NULL), "cannot read file SSL-ClientHello1.dat");
+	PTF_ASSERT_NOT_NULL(buffer1);
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IGMPv1_1.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IGMPv1_1.dat.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	int buffer3Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file TwoHttpRequests1.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/PPPoESession2.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file PPPoESession2.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 
 	int buffer5Length = 0;
 	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/TwoHttpRequests2.dat", buffer5Length);
-	PTF_ASSERT(!(buffer5 == NULL), "cannot read file TwoHttpRequests2.dat");
+	PTF_ASSERT_NOT_NULL(buffer5);
 
 	int buffer6Length = 0;
 	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IcmpTimestampRequest.dat", buffer6Length);
-	PTF_ASSERT(!(buffer6 == NULL), "cannot read file IcmpTimestampRequest.dat");
+	PTF_ASSERT_NOT_NULL(buffer6);
 
 	int buffer7Length = 0;
 	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/GREv0_2.dat", buffer7Length);
-	PTF_ASSERT(!(buffer7 == NULL), "cannot read file GREv0_2.dat");
+	PTF_ASSERT_NOT_NULL(buffer7);
 
 
 	timeval time;
@@ -5897,73 +5916,76 @@ PTF_TEST_CASE(ParsePartialPacketTest)
 	Packet icmpPacket(&rawPacket6, OsiModelNetworkLayer);
 	Packet grePacket(&rawPacket7, GRE);
 
-	PTF_ASSERT(sslPacket.isPacketOfType(IPv4) == true, "ssl packet isn't of type IPv4");
-	PTF_ASSERT(sslPacket.isPacketOfType(TCP) == true, "ssl packet isn't of type TCP");
-	PTF_ASSERT(sslPacket.isPacketOfType(SSL) == false, "ssl packet is of type SSL");
-	PTF_ASSERT(sslPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<TcpLayer>()->getNextLayer() == NULL, "layer after TCP layer isn't NULL for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<SSLHandshakeLayer>() == NULL, "managed to fetch SSL layer for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for ssl packet");
+	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(TCP));
+	PTF_ASSERT_FALSE(sslPacket.isPacketOfType(SSL));
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<TcpLayer>());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<TcpLayer>()->getNextLayer());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<SSLHandshakeLayer>());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<PayloadLayer>());
 
-	PTF_ASSERT(igmpPacket.isPacketOfType(IPv4) == true, "igmp packet isn't of type IPv4");
-	PTF_ASSERT(igmpPacket.isPacketOfType(Ethernet) == true, "igmp packet isn't of type Ethernet");
-	PTF_ASSERT(igmpPacket.isPacketOfType(IGMP) == false, "igmp packet is of type IGMP");
-	PTF_ASSERT(igmpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for igmp packet");
-	PTF_ASSERT(igmpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for igmp packet");
-	PTF_ASSERT(igmpPacket.getLayerOfType<IgmpV1Layer>() == NULL, "managed to fetch IGMPv1 layer for igmp packet");
-	PTF_ASSERT(igmpPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for igmp packet");
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(IGMP));
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<PayloadLayer>());
 
-	PTF_ASSERT(httpPacket.isPacketOfType(IPv4) == true, "http packet isn't of type IPv4");
-	PTF_ASSERT(httpPacket.isPacketOfType(Ethernet) == true, "http packet isn't of type Ethernet");
-	PTF_ASSERT(httpPacket.isPacketOfType(TCP) == true, "http packet isn't of type TCP");
-	PTF_ASSERT(httpPacket.isPacketOfType(HTTP) == false, "http packet is of type HTTP");
-	PTF_ASSERT(httpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for http packet");
-	PTF_ASSERT(httpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for http packet");
-	PTF_ASSERT(httpPacket.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for http packet");
-	PTF_ASSERT(httpPacket.getLayerOfType<HttpRequestLayer>() == NULL, "managed to fetch HTTP request layer for http packet");
-	PTF_ASSERT(httpPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for http packet");
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(TCP));
+	PTF_ASSERT_FALSE(httpPacket.isPacketOfType(HTTP));
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<TcpLayer>());
+	PTF_ASSERT_NULL(httpPacket.getLayerOfType<HttpRequestLayer>());
+	PTF_ASSERT_NULL(httpPacket.getLayerOfType<PayloadLayer>());
 
-	PTF_ASSERT(pppoePacket.isPacketOfType(Ethernet) == true, "pppoe packet isn't of type Ethernet");
-	PTF_ASSERT(pppoePacket.isPacketOfType(PPPoESession) == true, "pppoe packet isn't of type PPPoE");
-	PTF_ASSERT(pppoePacket.isPacketOfType(IPv6) == false, "pppoe packet is of type IPv6");
-	PTF_ASSERT(pppoePacket.isPacketOfType(UDP) == false, "pppoe packet is of type UDP");
-	PTF_ASSERT(pppoePacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for pppoe packet");
-	PTF_ASSERT(pppoePacket.getLayerOfType<PPPoESessionLayer>() != NULL, "couldn't fetch PPPoE session layer for pppoe packet");
-	PTF_ASSERT(pppoePacket.getLayerOfType<IPv6Layer>() == NULL, "managed to fetch IPv6 layer for pppoe packet");
+	PTF_ASSERT_TRUE(pppoePacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(pppoePacket.isPacketOfType(PPPoESession));
+	PTF_ASSERT_FALSE(pppoePacket.isPacketOfType(IPv6));
+	PTF_ASSERT_FALSE(pppoePacket.isPacketOfType(UDP));
+	PTF_ASSERT_NOT_NULL(pppoePacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(pppoePacket.getLayerOfType<PPPoESessionLayer>());
+	PTF_ASSERT_NULL(pppoePacket.getLayerOfType<IPv6Layer>());
 
-	PTF_ASSERT(httpPacket2.isPacketOfType(IPv4) == true, "http2 packet isn't of type IPv4");
-	PTF_ASSERT(httpPacket2.isPacketOfType(Ethernet) == true, "http2 packet isn't of type Ethernet");
-	PTF_ASSERT(httpPacket2.isPacketOfType(TCP) == true, "http2 packet isn't of type TCP");
-	PTF_ASSERT(httpPacket2.isPacketOfType(HTTP) == false, "http2 packet is of type HTTP");
-	PTF_ASSERT(httpPacket2.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<TcpLayer>()->getNextLayer() == NULL, "Next layer for TCP isn't NULL in http2 packet");
-	PTF_ASSERT(httpPacket2.getLastLayer()->getProtocol() == TCP, "TCP isn't the last layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<HttpRequestLayer>() == NULL, "managed to fetch HTTP request layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for http2 packet");
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(TCP));
+	PTF_ASSERT_FALSE(httpPacket2.isPacketOfType(HTTP));
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<TcpLayer>());
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<TcpLayer>()->getNextLayer());
+	PTF_ASSERT_EQUAL(httpPacket2.getLastLayer()->getProtocol(), TCP, enum);
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<HttpRequestLayer>());
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<PayloadLayer>());
 
-	PTF_ASSERT(icmpPacket.isPacketOfType(IPv4) == true, "icmp packet isn't of type IPv4");
-	PTF_ASSERT(icmpPacket.isPacketOfType(Ethernet) == true, "icmp packet isn't of type Ethernet");
-	PTF_ASSERT(icmpPacket.isPacketOfType(ICMP) == true, "icmp packet isn't of type ICMP");
-	PTF_ASSERT(icmpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for icmp packet");
-	PTF_ASSERT(icmpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for icmp packet");
-	PTF_ASSERT(icmpPacket.getLayerOfType<IcmpLayer>() != NULL, "couldn't fetch ICMP layer for icmp packet");
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(ICMP));
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<IcmpLayer>());
 
-	PTF_ASSERT(grePacket.isPacketOfType(Ethernet) == true, "gre packet isn't of type Ethernet");
-	PTF_ASSERT(grePacket.isPacketOfType(IPv4) == true, "gre packet isn't of type IPv4");
-	PTF_ASSERT(grePacket.isPacketOfType(GREv0) == true, "gre packet isn't of type GREv0");
-	PTF_ASSERT(grePacket.isPacketOfType(UDP) == false, "gre packet is of type UDP");
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(GREv0));
+	PTF_ASSERT_FALSE(grePacket.isPacketOfType(UDP));
 	Layer* curLayer = grePacket.getFirstLayer();
-	PTF_ASSERT(curLayer != NULL && curLayer->getProtocol() == Ethernet, "gre first layer isn't Ethernet");
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), Ethernet, enum);
 	curLayer = curLayer->getNextLayer();
-	PTF_ASSERT(curLayer != NULL && curLayer->getProtocol() == IPv4, "gre second layer isn't IPv4");
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), IPv4, enum);
 	curLayer = curLayer->getNextLayer();
-	PTF_ASSERT(curLayer != NULL && curLayer->getProtocol() == GREv0, "gre third layer isn't GRE");
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), GREv0, enum);
 	curLayer = curLayer->getNextLayer();
-	PTF_ASSERT(curLayer == NULL, "found fourth layer for gre packet");
+	PTF_ASSERT_NULL(curLayer);
 } // ParsePartialPacketTest
 
 
@@ -7275,7 +7297,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->messageType, 0xff, hex);
 	PTF_ASSERT_EQUAL(be16toh(gtpLayer->getHeader()->messageLength), 496, u16);
-	PTF_ASSERT_EQUAL(be32toh(gtpLayer->getHeader()->teid), 2327461905, u32);
+	PTF_ASSERT_EQUAL(be32toh(gtpLayer->getHeader()->teid), 2327461905U, u32);
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 8, size);
@@ -7716,6 +7738,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
+	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
 	PTF_RUN_TEST(InsertDataToPacket, "insert");
 	PTF_RUN_TEST(InsertVlanToPacket, "vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "remove_layer");
