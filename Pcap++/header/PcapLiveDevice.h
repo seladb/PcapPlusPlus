@@ -84,7 +84,7 @@ namespace pcpp
 		const char* m_Name;
 		const char* m_Description;
 		bool m_IsLoopback;
-		uint16_t m_DeviceMtu;
+		uint32_t m_DeviceMtu;
 		std::vector<pcap_addr_t> m_Addresses;
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
@@ -209,7 +209,7 @@ namespace pcpp
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
 				this->packetBufferSize = packetBufferSize;
-				this->direction = PCPP_INOUT;
+				this->direction = direction;
 			}
 		};
 
@@ -242,7 +242,7 @@ namespace pcpp
 		/**
 		 * @return The device's maximum transmission unit (MTU) in bytes
 		 */
-		virtual uint16_t getMtu() const { return m_DeviceMtu; }
+		virtual uint32_t getMtu() const { return m_DeviceMtu; }
 
 		/**
 		 * @return The device's link layer type

@@ -171,7 +171,7 @@ MBufRawPacket& MBufRawPacket::operator=(const MBufRawPacket& other)
 	return *this;
 }
 
-bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType, int frameLength)
+bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType, int frameLength)
 {
 	if (rawDataLen > MBUF_DATA_SIZE)
 	{
@@ -313,7 +313,7 @@ bool MBufRawPacket::reallocateData(size_t newBufferLength)
 	return true;
 }
 
-void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timeval timestamp)
+void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp)
 {
 	if (m_MBuf != NULL && m_FreeMbuf)
 		rte_pktmbuf_free(m_MBuf);

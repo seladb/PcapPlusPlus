@@ -120,7 +120,7 @@ namespace pcpp
 		 * MTU isn't supported for remote devices
 		 * @return 0
 		 */
-		virtual uint16_t getMtu() const;
+		virtual uint32_t getMtu() const;
 
 		/**
 		 * MAC address isn't supported for remote devices

@@ -197,14 +197,14 @@ void IPv6Layer::parseNextLayer()
 		return;
 
 	uint8_t* payload = m_Data + headerLen;
-	size_t payloadlen = m_DataLen - headerLen;
+	size_t payloadLen = m_DataLen - headerLen;
 
 	uint8_t nextHdr;
 	if (m_LastExtension != NULL)
 	{
 		if (m_LastExtension->getExtensionType() == IPv6Extension::IPv6Fragmentation)
 		{
-			m_NextLayer = new PayloadLayer(payload, payloadlen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 			return;
 		}
 
@@ -218,35 +218,37 @@ void IPv6Layer::parseNextLayer()
 	switch (nextHdr)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		m_NextLayer = new UdpLayer(payload, payloadlen, this, m_Packet);
+		m_NextLayer = new UdpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_TCP:
-		m_NextLayer = new TcpLayer(payload, payloadlen, this, m_Packet);
+		m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new TcpLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_IPIP:
 	{
 		uint8_t ipVersion = *payload >> 4;
 		if (ipVersion == 4)
-			m_NextLayer = new IPv4Layer(payload, payloadlen, this, m_Packet);
+			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
 		else if (ipVersion == 6)
-			m_NextLayer = new IPv6Layer(payload, payloadlen, this, m_Packet);
+			m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
 		else
-			m_NextLayer = new PayloadLayer(payload, payloadlen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	}
 	case PACKETPP_IPPROTO_GRE:
 	{
-		ProtocolType greVer = GreLayer::getGREVersion(payload, payloadlen);
+		ProtocolType greVer = GreLayer::getGREVersion(payload, payloadLen);
 		if (greVer == GREv0)
-			m_NextLayer = new GREv0Layer(payload, payloadlen, this, m_Packet);
+			m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
 		else if (greVer == GREv1)
-			m_NextLayer = new GREv1Layer(payload, payloadlen, this, m_Packet);
+			m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
 		else
-			m_NextLayer = new PayloadLayer(payload, payloadlen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	}
 	default:
-		m_NextLayer = new PayloadLayer(payload, payloadlen, this, m_Packet);
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;
 	}
 }
