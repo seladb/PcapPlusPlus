@@ -78,9 +78,9 @@ namespace pcpp
 struct ConnectionData
 {
 	/** Source IP address */
-	IPAddress* srcIP;
+	IPAddress srcIP;
 	/** Destination IP address */
-	IPAddress* dstIP;
+	IPAddress dstIP;
 	/** Source TCP/UDP port */
 	uint16_t srcPort;
 	/** Destination TCP/UDP port */
@@ -95,34 +95,19 @@ struct ConnectionData
 	/**
 	 * A c'tor for this struct that basically zeros all members
 	 */
-	ConnectionData() : srcIP(NULL), dstIP(NULL), srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()  {}
-
-	/**
-	 * A d'tor for this strcut. Notice it frees the memory of srcIP and dstIP members
-	 */
-	~ConnectionData();
-
-	/**
-	 * A copy constructor for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
-	 */
-	ConnectionData(const ConnectionData& other);
-
-	/**
-	 * An assignment operator for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
-	 */
-	ConnectionData& operator=(const ConnectionData& other);
+	ConnectionData() : srcPort(0), dstPort(0), flowKey(0), startTime(), endTime() {}
 
 	/**
 	 * Set source IP
 	 * @param[in] sourceIP A pointer to the source IP to set. Notice the IPAddress object will be cloned
 	 */
-	void setSrcIpAddress(const IPAddress* sourceIP) { srcIP = new IPAddress(*sourceIP); }
+	void setSrcIpAddress(const IPAddress& sourceIP) { srcIP = sourceIP; }
 
 	/**
 	 * Set destination IP
 	 * @param[in] destIP A pointer to the destination IP to set. Notice the IPAddress object will be cloned
 	 */
-	void setDstIpAddress(const IPAddress *destIP) { dstIP = new IPAddress(*destIP); }
+	void setDstIpAddress(const IPAddress& destIP) { dstIP = destIP; }
 
 	/**
 	 * Set startTime of Connection
@@ -134,11 +119,7 @@ struct ConnectionData
 	 * Set endTime of Connection
 	 * @param[in] endTime integer value
 	 */
-	void setEndTime(const timeval &endTime) { this->endTime = endTime; }
-
-private:
-
-	void copyData(const ConnectionData& other);
+	void setEndTime(const timeval& endTime) { this->endTime = endTime; }
 };
 
 
@@ -341,23 +322,19 @@ private:
 		size_t dataLength;
 		uint8_t* data;
 
-		TcpFragment() { sequence = 0; dataLength = 0; data = NULL; }
-		~TcpFragment() { if (data != NULL) delete [] data; }
+		TcpFragment() : sequence(0), dataLength(0), data(NULL) {}
+		~TcpFragment() { delete [] data; }
 	};
 
 	struct TcpOneSideData
 	{
-		IPAddress* srcIP;
+		IPAddress srcIP;
 		uint16_t srcPort;
 		uint32_t sequence;
 		PointerVector<TcpFragment> tcpFragmentList;
 		bool gotFinOrRst;
 
-		void setSrcIP(IPAddress* sourrcIP);
-
-		TcpOneSideData() { srcIP = NULL; srcPort = 0; sequence = 0; gotFinOrRst = false; }
-
-		~TcpOneSideData() { if (srcIP != NULL) delete srcIP; }
+		TcpOneSideData() : srcPort(0), sequence(0), gotFinOrRst(false) {}
 	};
 
 	struct TcpReassemblyData
@@ -367,7 +344,7 @@ private:
 		TcpOneSideData twoSides[2];
 		ConnectionData connData;
 
-		TcpReassemblyData() { numOfSides = 0; prevSide = -1; }
+		TcpReassemblyData() : numOfSides(0), prevSide(-1) {}
 	};
 	
 	typedef std::map<uint32_t, TcpReassemblyData *> ConnectionList;
@@ -386,8 +363,6 @@ private:
 	time_t m_PurgeTimepoint;
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int sideIndex, bool cleanWholeFragList);
-
-	std::string prepareMissingDataMessage(uint32_t missingDataLen);
 
 	void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int sideIndex, uint32_t flowKey);
 

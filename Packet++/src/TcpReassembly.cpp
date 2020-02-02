@@ -5,7 +5,6 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PacketUtils.h"
-#include "IpAddress.h"
 #include "Logger.h"
 #include <sstream>
 #include <vector>
@@ -35,62 +34,6 @@ namespace
 namespace pcpp
 {
 
-ConnectionData::~ConnectionData()
-{
-	if (srcIP != NULL)
-		delete srcIP;
-
-	if (dstIP != NULL)
-		delete dstIP;
-}
-
-ConnectionData::ConnectionData(const ConnectionData& other)
-{
-	copyData(other);
-}
-
-ConnectionData& ConnectionData::operator=(const ConnectionData& other)
-{
-	if (srcIP != NULL)
-		delete srcIP;
-
-	if (dstIP != NULL)
-		delete dstIP;
-
-	copyData(other);
-
-	return *this;
-}
-
-void ConnectionData::copyData(const ConnectionData& other)
-{
-	if (other.srcIP != NULL)
-		srcIP = new IPAddress(*other.srcIP);
-	else
-		srcIP = NULL;
-
-	if (other.dstIP != NULL)
-		dstIP = new IPAddress(*other.dstIP);
-	else
-		dstIP = NULL;
-
-	flowKey = other.flowKey;
-	srcPort = other.srcPort;
-	dstPort = other.dstPort;
-	startTime = other.startTime;
-	endTime = other.endTime;
-}
-
-
-void TcpReassembly::TcpOneSideData::setSrcIP(IPAddress* sourrcIP)
-{
-	if (srcIP != NULL)
-		delete srcIP;
-
-	srcIP = new IPAddress(*sourrcIP);
-}
-
-
 TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie, OnTcpConnectionStart onConnectionStartCallback, OnTcpConnectionEnd onConnectionEndCallback, const TcpReassemblyConfiguration &config)
 {
 	m_OnMessageReadyCallback = onMessageReadyCallback;
@@ -107,8 +50,7 @@ TcpReassembly::~TcpReassembly()
 {
 	while (!m_ConnectionList.empty())
 	{
-		if(m_ConnectionList.begin()->second != NULL)
-			delete m_ConnectionList.begin()->second;
+		delete m_ConnectionList.begin()->second;
 		m_ConnectionList.erase(m_ConnectionList.begin());
 	}
 }
@@ -125,15 +67,39 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 	}
 
-	// get IP layer
-	Layer* ipLayer = NULL;
-	if (tcpData.isPacketOfType(IPv4))
-		ipLayer = (Layer*)tcpData.getLayerOfType<IPv4Layer>();
-	else if (tcpData.isPacketOfType(IPv6))
-		ipLayer = (Layer*)tcpData.getLayerOfType<IPv6Layer>();
 
-	if (ipLayer == NULL)
+	// calculate packet's source and dest IP addresses
+	IPAddress srcIP, dstIP;
+
+	if (tcpData.isPacketOfType(IPv4))
+	{
+		const IPv4Layer* ipv4Layer = tcpData.getLayerOfType<IPv4Layer>();
+		if (ipv4Layer != NULL)
+		{
+			srcIP = ipv4Layer->getSrcIpAddress();
+			dstIP = ipv4Layer->getDstIpAddress();
+		}
+		else
+			return;
+	}
+	else if (tcpData.isPacketOfType(IPv6))
+	{
+		const IPv6Layer* ipv6Layer = tcpData.getLayerOfType<IPv6Layer>();
+		if (ipv6Layer != NULL)
+		{
+			srcIP = ipv6Layer->getSrcIpAddress();
+			dstIP = ipv6Layer->getDstIpAddress();
+		}
+		else
+			return;
+	}
+	else
 		return;
+
+	// in real traffic the IP addresses cannot be an unspecified
+	if (srcIP.isUnspecified() || dstIP.isUnspecified())
+		return;
+
 
 	// Ignore non-TCP packets
 	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true); // lookup in reverse order
@@ -145,7 +111,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	// This is not real TCP data and packet can be ignored
 	if (tcpData.isPacketOfType(ICMP))
 	{
-		LOG_DEBUG("Packet is of type ICMP so TCP data is probably  part of the ICMP message. Ignoring this packet");
+		LOG_DEBUG("Packet is of type ICMP so TCP data is probably part of the ICMP message. Ignoring this packet");
 		return;
 	}
 
@@ -169,29 +135,6 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	// find the connection in the connection map
 	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
 
-	// if this packet belongs to a connection that was already closed (for example: data packet that comes after FIN), ignore it.
-	// the connection is already closed when the value of mapped type is NULL
-	if (iter != m_ConnectionList.end() && iter->second == NULL)
-	{
-		LOG_DEBUG("Ignoring packet of already closed flow [0x%X]", flowKey);
-		return;
-	}
-
-	// calculate packet's source and dest IP address
-	IPAddress srcAddr, dstAddr;
-	IPAddress* srcIP = &srcAddr;
-	IPAddress* dstIP = &dstAddr;
-	if (ipLayer->getProtocol() == IPv4)
-	{
-		srcAddr = ((IPv4Layer*)ipLayer)->getSrcIpAddress();
-		dstAddr = ((IPv4Layer *)ipLayer)->getDstIpAddress();
-	}
-	else if (ipLayer->getProtocol() == IPv6)
-	{
-		srcAddr = ((IPv6Layer*)ipLayer)->getSrcIpAddress();
-		dstAddr = ((IPv6Layer*)ipLayer)->getDstIpAddress();
-	}
-
 	if (iter == m_ConnectionList.end())
 	{
 		// if it's a packet of a new connection, create a TcpReassemblyData object and add it to the active connection list
@@ -213,6 +156,14 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	}
 	else // connection already exists
 	{
+		// if this packet belongs to a connection that was already closed (for example: data packet that comes after FIN), ignore it.
+		// the connection is already closed when the value of mapped type is NULL
+		if (iter->second == NULL)
+		{
+			LOG_DEBUG("Ignoring packet of already closed flow [0x%X]", flowKey);
+			return;
+		}
+
 		tcpReassemblyData = iter->second;
 		timeval currTime = timespec_to_timeval(tcpData.getRawPacket()->getPacketTimeStamp());
 		if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
@@ -241,7 +192,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 
 		// open the first side of the connection, side index is 0
 		sideIndex = 0;
-		tcpReassemblyData->twoSides[sideIndex].setSrcIP(srcIP);
+		tcpReassemblyData->twoSides[sideIndex].srcIP = srcIP;
 		tcpReassemblyData->twoSides[sideIndex].srcPort = srcPort;
 		tcpReassemblyData->numOfSides++;
 		first = true;
@@ -250,7 +201,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 1)
 	{
 		// check if packet belongs to that side
-		if (*tcpReassemblyData->twoSides[0].srcIP == *srcIP && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcPort == srcPort && tcpReassemblyData->twoSides[0].srcIP == srcIP)
 		{
 			sideIndex = 0;
 		}
@@ -259,7 +210,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 			// this means packet belong to the second side which doesn't yet exist. Open a second side with side index 1
 			LOG_DEBUG("Setting second side of a connection");
 			sideIndex = 1;
-			tcpReassemblyData->twoSides[sideIndex].setSrcIP(srcIP);
+			tcpReassemblyData->twoSides[sideIndex].srcIP = srcIP;
 			tcpReassemblyData->twoSides[sideIndex].srcPort = srcPort;
 			tcpReassemblyData->numOfSides++;
 			first = true;
@@ -269,12 +220,12 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 2)
 	{
 		// check if packet matches side 0
-		if (*tcpReassemblyData->twoSides[0].srcIP == *srcIP && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcPort == srcPort && tcpReassemblyData->twoSides[0].srcIP == srcIP)
 		{
 			sideIndex = 0;
 		}
 		// check if packet matches side 1
-		else if (*tcpReassemblyData->twoSides[1].srcIP == *srcIP && tcpReassemblyData->twoSides[1].srcPort == srcPort)
+		else if (tcpReassemblyData->twoSides[1].srcPort == srcPort && tcpReassemblyData->twoSides[1].srcIP == srcIP)
 		{
 			sideIndex = 1;
 		}
@@ -475,10 +426,10 @@ void TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
 	reassemblePacket(parsedPacket);
 }
 
-std::string TcpReassembly::prepareMissingDataMessage(uint32_t missingDataLen)
+static std::string prepareMissingDataMessage(uint32_t missingDataLen)
 {
 	std::stringstream missingDataTextStream;
-	missingDataTextStream << "[" << missingDataLen << " bytes missing]";
+	missingDataTextStream << '[' << missingDataLen << " bytes missing]";
 	return missingDataTextStream.str();
 }
 
@@ -780,7 +731,7 @@ uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
 
 		for (; !keysList.empty() && count < maxNumToClean; ++count)
 		{
-			const CleanupList::mapped_type::reference key = keysList.front();
+			CleanupList::mapped_type::const_reference key = keysList.front();
 			m_ConnectionInfo.erase(key);
 			m_ConnectionList.erase(key);
 			keysList.pop_front();
