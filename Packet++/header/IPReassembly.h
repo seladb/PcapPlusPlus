@@ -92,13 +92,6 @@ namespace pcpp
 			 * @return A pointer to a new instance which is a clone of the current instance
 			 */
 			virtual PacketKey* clone() const = 0;
-
-		protected:
-			// private c'tor
-			PacketKey() {}
-
-			// private copy c'tor
-			PacketKey(const PacketKey& other);
 		};
 
 
@@ -113,7 +106,7 @@ namespace pcpp
 			/**
 			 * A default c'tor which zeros all members
 			 */
-			IPv4PacketKey() : m_IpID(0), m_SrcIP(IPv4Address::Zero), m_DstIP(IPv4Address::Zero) { }
+			IPv4PacketKey() : m_IpID(0) {}
 
 			/**
 			 * A c'tor that sets values in each one of the members
@@ -121,12 +114,8 @@ namespace pcpp
 			 * @param[in] srcip Source IPv4 address
 			 * @param[in] dstip Dest IPv4 address
 			 */
-			IPv4PacketKey(uint16_t ipid, IPv4Address srcip, IPv4Address dstip) : m_IpID(ipid), m_SrcIP(srcip), m_DstIP(dstip) { }
-
-			/**
-			 * A copy c'tor for this class
-			 */
-			IPv4PacketKey(const IPv4PacketKey& other) : m_IpID(other.m_IpID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+			IPv4PacketKey(uint16_t ipId, IPv4Address srcIp, IPv4Address dstIp)
+				: m_IpID(ipId), m_SrcIP(srcIp), m_DstIP(dstIp) {}
 
 			/**
 			 * @return IP ID value
@@ -136,12 +125,12 @@ namespace pcpp
 			/**
 			 * @return Source IP address
 			 */
-			IPv4Address getSrcIP() const { return m_SrcIP; }
+			const IPv4Address& getSrcIP() const { return m_SrcIP; }
 
 			/**
 			 * @return Dest IP address
 			 */
-			IPv4Address getDstIP() const { return m_DstIP; }
+			const IPv4Address& getDstIP() const { return m_DstIP; }
 
 			/**
 			 * Set IP ID
@@ -192,7 +181,7 @@ namespace pcpp
 			/**
 			 * A default c'tor which zeros all members
 			 */
-			IPv6PacketKey() : m_FragmentID(0), m_SrcIP(IPv6Address::Zero), m_DstIP(IPv6Address::Zero) { }
+			IPv6PacketKey() : m_FragmentID(0) {}
 
 			/**
 			 * A c'tor that sets values in each one of the members
@@ -200,12 +189,8 @@ namespace pcpp
 			 * @param[in] srcip Source IPv6 address
 			 * @param[in] dstip Dest IPv6 address
 			 */
-			IPv6PacketKey(uint32_t fragmentID, IPv6Address srcip, IPv6Address dstip) : m_FragmentID(fragmentID), m_SrcIP(srcip), m_DstIP(dstip) { }
-
-			/**
-			 * A copy c'tor for this class
-			 */
-			IPv6PacketKey(const IPv6PacketKey& other) : m_FragmentID(other.m_FragmentID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+			IPv6PacketKey(uint32_t fragmentID, const IPv6Address& srcIp, const IPv6Address& dstIp)
+				: m_FragmentID(fragmentID), m_SrcIP(srcIp), m_DstIP(dstIp) {}
 
 			/**
 			 * @return Fragment ID value
@@ -215,12 +200,12 @@ namespace pcpp
 			/**
 			 * @return Source IP address
 			 */
-			IPv6Address getSrcIP() const { return m_SrcIP; }
+			const IPv6Address& getSrcIP() const { return m_SrcIP; }
 
 			/**
 			 * @return Dest IP address
 			 */
-			IPv6Address getDstIP() const { return m_DstIP; }
+			const IPv6Address& getDstIP() const { return m_DstIP; }
 
 			/**
 			 * Set fragment ID
@@ -414,7 +399,7 @@ namespace pcpp
 			PacketKey* packetKey;
 			PointerVector<IPFragment> outOfOrderFragments;
 			IPFragmentData(PacketKey* pktKey, uint32_t fragId) { currentOffset = 0; data = NULL; deleteData = true; fragmentID = fragId; packetKey = pktKey; }
-			~IPFragmentData() { delete packetKey; if (deleteData && data != NULL) { delete data; } }
+			~IPFragmentData() { delete packetKey; if (deleteData) delete data; }
 		};
 
 		LRUList<uint32_t> m_PacketLRU;
