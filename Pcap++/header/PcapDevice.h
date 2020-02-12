@@ -47,7 +47,7 @@ namespace pcpp
 		 * Get statistics from device:
 		 * - pcap_stat#ps_recv: number of packets received
 		 * - pcap_stat#ps_drop: number of packets dropped
-		 * - pcap_stat#ps_ifdorp: number of packets dropped by interface
+		 * - pcap_stat#ps_ifdrop: number of packets dropped by interface
 		 * @param[out] stats The stats struct where stats are returned
 		 */
 		virtual void getStatistics(pcap_stat& stats) const = 0;
