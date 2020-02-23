@@ -15,6 +15,12 @@
 #include <fstream>
 #include <sstream>
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+// The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are 
+// compilation errors due to struct redefinition when including both Packet32.h and pcap.h
+// This define statement eliminates these errors
+#ifndef BPF_MAJOR_VERSION
+#define BPF_MAJOR_VERSION 1
+#endif // BPF_MAJOR_VERSION
 #include <ws2tcpip.h>
 #include <Packet32.h>
 #include <ntddndis.h>
@@ -23,7 +29,7 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
-#endif
+#endif // if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #if defined(MAC_OS_X) || defined(FREEBSD)
 #include <net/if_dl.h>
 #include <sys/sysctl.h>
