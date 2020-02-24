@@ -1,6 +1,6 @@
-appveyor DownloadFile https://nmap.org/npcap/dist/npcap-0.96.exe
+appveyor DownloadFile https://nmap.org/npcap/dist/npcap-0.86.exe
 echo DONE DONWLOADING Npcap
-npcap-0.96.exe /S /winpcap_mode
+npcap-0.86.exe /S /winpcap_mode
 echo DONE INSTALLING
 xcopy C:\Windows\System32\Npcap\*.dll C:\Windows\System32
 echo DONE COPING System32
