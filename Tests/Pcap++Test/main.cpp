@@ -1387,7 +1387,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
     PTF_ASSERT(numOfTimeStatsWereInvoked > 18, "Stat callback was called less than expected: %d", numOfTimeStatsWereInvoked);
     pcap_stat statistics;
     liveDev->getStatistics(statistics);
-    //Bad test - on high traffic libpcap/winpcap sometimes drop packets
+    //Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
     //PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
     liveDev->close();
 	PTF_ASSERT_FALSE(liveDev->isOpened());
@@ -1446,7 +1446,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
     pcap_stat statistics;
     liveDev->getStatistics(statistics);
     PTF_ASSERT(statistics.ps_recv > 2, "No packets were captured");
-    //Bad test - on high traffic libpcap/winpcap sometimes drop packets
+    //Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
     //PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
     liveDev->close();
 	PTF_ASSERT_FALSE(liveDev->isOpened());

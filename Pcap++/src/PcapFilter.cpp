@@ -130,7 +130,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	// Handle the mask
 
 	// The following code lines verify both ipAddress and ipv4Mask are valid IPv4 addresses
-	// The IPv4 limitation comes from the fact libPcap/WinPcap doesn't support mask for IPv6 addresses
+	// The IPv4 limitation comes from the fact libPcap/WinPcap/Npcap doesn't support mask for IPv6 addresses
 
 	IPv4Address ipAddr(m_Address);
 	if (!ipAddr.isValid())
@@ -149,7 +149,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	}
 
 	// If all addresses are IPv4 valid addresses, make sure ipAddress matches the mask. If it's not, mask the address with the mask
-	// The reason for doing that is libPcap/WinPcap doesn't allow filtering an IP address that doesn't match the mask
+	// The reason for doing that is libPcap/WinPcap/Npcap doesn't allow filtering an IP address that doesn't match the mask
 
 	uint32_t addrAsIntAfterMask = ipAddr.toInt() & maskAsAddr.toInt();
 	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();

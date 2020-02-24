@@ -29,7 +29,7 @@ namespace pcpp
 
 	/**
 	 * @class IPcapDevice
-	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap and RemoteCapture.
+	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and RemoteCapture.
 	 * This class is abstract and cannot be instantiated
 	 */
 	class IPcapDevice : public IDevice, public IFilterableDevice

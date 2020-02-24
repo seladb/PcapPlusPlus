@@ -232,7 +232,7 @@ namespace pcpp
 	public:
 		/**
 		 * A constructor that receives a pointer to the raw data (allocated elsewhere). This constructor is usually used when packet
-		 * is captured using a packet capturing engine (like libPcap. WinPcap, PF_RING, etc.). The capturing engine allocates the raw data
+		 * is captured using a packet capturing engine (like libPcap. WinPcap, Npcap, PF_RING, etc.). The capturing engine allocates the raw data
 		 * memory and give the user a pointer to it + a timestamp it has arrived to the device
 		 * @param[in] pRawData A pointer to the raw data
 		 * @param[in] rawDataLen The raw data length in bytes
@@ -245,7 +245,7 @@ namespace pcpp
 
 		/**
 		 * A constructor that receives a pointer to the raw data (allocated elsewhere). This constructor is usually used when packet
-		 * is captured using a packet capturing engine (like libPcap. WinPcap, PF_RING, etc.). The capturing engine allocates the raw data
+		 * is captured using a packet capturing engine (like libPcap. WinPcap, Npcap, PF_RING, etc.). The capturing engine allocates the raw data
 		 * memory and give the user a pointer to it + a timestamp it has arrived to the device
 		 * @param[in] pRawData A pointer to the raw data
 		 * @param[in] rawDataLen The raw data length in bytes

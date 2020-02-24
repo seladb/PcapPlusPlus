@@ -466,11 +466,11 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 		pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
 	else
 	{
-		// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on Windows using WinPcap
-		// you can't pass pointers between libraries compiled with different compilers. In this case - PcapPlusPlus and WinPcap weren't
-		// compiled with the same compiler so it's impossible to fopen a file in PcapPlusPlus, pass the pointer to WinPcap and use the
+		// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on Windows using WinPcap/Npcap
+		// you can't pass pointers between libraries compiled with different compilers. In this case - PcapPlusPlus and WinPcap/Npcap weren't
+		// compiled with the same compiler so it's impossible to fopen a file in PcapPlusPlus, pass the pointer to WinPcap/Npcap and use the
 		// FILE* pointer there. Doing this throws an exception. So the only option when implementing append to pcap is to write all relevant
-		// WinPcap code that handles opening/closing/writing to pcap files inside PcapPlusPlus code
+		// WinPcap/Npcap code that handles opening/closing/writing to pcap files inside PcapPlusPlus code
 
 		// the reason to create this packet_header struct is timeval has different sizes in 32-bit and 64-bit systems,
 		// but pcap format uses the 32-bit timeval version, so we need to align timeval to that
@@ -510,7 +510,7 @@ bool PcapFileWriterDevice::open()
 	{
 		case LINKTYPE_RAW:
 		case LINKTYPE_DLT_RAW2:
-			LOG_ERROR("The only Raw IP link type supported in libpcap/WinPcap is LINKTYPE_DLT_RAW1, please use that instead");
+			LOG_ERROR("The only Raw IP link type supported in libpcap/WinPcap/Npcap is LINKTYPE_DLT_RAW1, please use that instead");
 			return false;
 		default:
 			break;

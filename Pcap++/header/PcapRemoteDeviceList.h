@@ -23,7 +23,7 @@ namespace pcpp
 	 * not a public constructor for this class, so the only way to get an instance of it is through getRemoteDeviceList(). After getting
 	 * this object, this class provides ways to access the PcapRemoteDevice instances: either through IP address of the remote network interface or
 	 * by iterating the PcapRemoteDevice instances (through the PcapRemoteDeviceList#RemoteDeviceListIterator iterator)<BR>
-	 * Since Remote Capture is supported in WinPcap only, this class is available in Windows only
+	 * Since Remote Capture is supported in WinPcap and Npcap only, this class is available in Windows only
 	 */
 	class PcapRemoteDeviceList
 	{
@@ -66,8 +66,8 @@ namespace pcpp
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
 		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
 		 * - IP address provided is NULL or not valid
-		 * - WinPcap encountered an error in creating the remote connection string
-		 * - WinPcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(IPAddress* ipAddress, uint16_t port);
 
@@ -80,8 +80,8 @@ namespace pcpp
 		 * daemon
 		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
 		 * - IP address provided is NULL or not valid
-		 * - WinPcap encountered an error in creating the remote connection string
-		 * - WinPcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(IPAddress* ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
 
