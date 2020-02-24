@@ -10,10 +10,10 @@ echo.
 set PLATFORM_MK=mk\platform.mk
 set PCAPPLUSPLUS_MK=mk\PcapPlusPlus.mk
 
-:: initially set MINGW_TYPE, MINGW_HOME and WINPCAP_HOME to empty values
+:: initially set MINGW_TYPE, MINGW_HOME and PCAP_SDK_HOME to empty values
 set MINGW_TYPE=
 set MINGW_HOME=
-set WINPCAP_HOME=
+set PCAP_SDK_HOME=
 
 :: check the number of arguments: If got at least one argument continue to command-line mode, else continue to wizard mode
 if "%1" NEQ "" ( 
@@ -24,12 +24,12 @@ if "%1" NEQ "" (
 :: if one of the modes returned with an error, exit script
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
 
-:: verify that both variables MINGW_HOME, WINPCAP_HOME, MSYS_HOME are set
-if "%MINGW_TYPE%"=="" echo MinGW compiler (mingw32 or mingw-w64) was not supplied. Exiting & exit /B 1
-if "%MINGW_HOME%"=="" echo MinGW directory was not supplied. Exiting & exit /B 1
-if "%MINGW_TYPE%"=="mingw-w64" if "%MSYS_HOME%"=="" echo MSYS2 directory was not supplied. Exiting & exit /B 1
+:: verify that both variables MINGW_HOME, PCAP_SDK_HOME, MSYS_HOME are set
+if "%MINGW_TYPE%"=="" echo MinGW compiler (mingw32 or mingw-w64) was not provided. Exiting & exit /B 1
+if "%MINGW_HOME%"=="" echo MinGW directory was not provided. Exiting & exit /B 1
+if "%MINGW_TYPE%"=="mingw-w64" if "%MSYS_HOME%"=="" echo MSYS2 directory was not provided. Exiting & exit /B 1
 if "%MINGW_TYPE%"=="mingw32" set MSYS_HOME=$(MINGW_HOME)/msys/1.0
-if "%WINPCAP_HOME%"=="" echo WinPcap directory was not supplied. Exiting & exit /B 1
+if "%PCAP_SDK_HOME%"=="" echo WinPcap/Npcap SDK directory was not provided. Exiting & exit /B 1
 
 :: replace "\" with "/" in MINGW_HOME
 set MINGW_HOME=%MINGW_HOME:\=/%
@@ -39,10 +39,10 @@ if "%MINGW_HOME:~-1%"=="/" set MINGW_HOME=%MINGW_HOME:~,-1%
 set MSYS_HOME=%MSYS_HOME:\=/%
 :: remove trailing "/" in MSYS_HOME if exists
 if "%MSYS_HOME:~-1%"=="/" set MSYS_HOME=%MSYS_HOME:~,-1%
-:: replace "\" with "/" in WINPCAP_HOME
-set WINPCAP_HOME=%WINPCAP_HOME:\=/%
-:: remove trailing "/" in WINPCAP_HOME if exists
-if "%WINPCAP_HOME:~-1%"=="/" set WINPCAP_HOME=%WINPCAP_HOME:~,-1%
+:: replace "\" with "/" in PCAP_SDK_HOME
+set PCAP_SDK_HOME=%PCAP_SDK_HOME:\=/%
+:: remove trailing "/" in PCAP_SDK_HOME if exists
+if "%PCAP_SDK_HOME:~-1%"=="/" set PCAP_SDK_HOME=%PCAP_SDK_HOME:~,-1%
 
 :: delete existing platform.mk and PcapPlusPlus.mk if exist
 if exist %PLATFORM_MK% (del %PLATFORM_MK%)
@@ -54,7 +54,7 @@ echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PLATFORM_MK%
 echo. >> %PLATFORM_MK%
 echo MINGW_HOME := %MINGW_HOME%>> %PLATFORM_MK%
 echo. >> %PLATFORM_MK%
-echo WINPCAP_HOME := %WINPCAP_HOME%>> %PLATFORM_MK%
+echo PCAP_SDK_HOME := %PCAP_SDK_HOME%>> %PLATFORM_MK%
 echo. >> %PLATFORM_MK%
 echo MSYS_HOME := %MSYS_HOME%>> %PLATFORM_MK%
 echo. >> %PLATFORM_MK%
@@ -68,7 +68,7 @@ echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PCAPPLUSPLUS_MK%
 echo. >> %PCAPPLUSPLUS_MK%
 echo MINGW_HOME := %MINGW_HOME%>> %PCAPPLUSPLUS_MK%
 echo. >> %PCAPPLUSPLUS_MK%
-echo WINPCAP_HOME := %WINPCAP_HOME%>> %PCAPPLUSPLUS_MK%
+echo PCAP_SDK_HOME := %PCAP_SDK_HOME%>> %PCAPPLUSPLUS_MK%
 echo. >> %PCAPPLUSPLUS_MK%
 echo MSYS_HOME := %MSYS_HOME%>> %PCAPPLUSPLUS_MK%
 echo. >> %PCAPPLUSPLUS_MK%
@@ -93,11 +93,11 @@ exit /B 0
 :: it returns with the following exit codes:
 ::   - exit code 0 if arguments were parsed ok
 ::   - exit code 1 if an unknown argument was given or none arguments were given at all
-::   - exit code 2 if a required parameter was not supplied for one of the switches (for example: -g instead of -g <NUM>)
+::   - exit code 2 if a required parameter was not provided for one of the switches (for example: -g instead of -g <NUM>)
 ::   - exit code 3 if one of the command-line arguments asked to exit the script (for example the -h switch displays help and exits)
 :GETOPT
 :: if no arguments were passed exit with error code 1
-if "%1"=="" call :GETOPT_ERROR "No parameters suppplied" & exit /B 1
+if "%1"=="" call :GETOPT_ERROR "No parameters provided" & exit /B 1
 
 :GETOPT_START
 :: the HAS_PARAM varaible states whether the switch has a parameter, for example '-a 111' means switch '-a' has the parameter '111'
@@ -146,7 +146,7 @@ goto GETOPT_START
 :CASE--mingw-home
 	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
 	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
-	:: verify the MinGW dir supplied by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
+	:: verify the MinGW dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
 	if not exist %2\ call :GETOPT_ERROR "MinGW directory '%2' does not exist" & exit /B 3
 	:: if all went well, set the MINGW_HOME variable with the directory given by the user
 	set MINGW_HOME=%2
@@ -160,7 +160,7 @@ goto GETOPT_START
 :CASE--msys-home
 	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
 	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
-	:: verify the MSYS2 dir supplied by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
+	:: verify the MSYS2 dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
 	if not exist %2\ call :GETOPT_ERROR "MSYS2 directory '%2' does not exist" & exit /B 3
 	:: if all went well, set the MSYS_HOME variable with the directory given by the user
 	set MSYS_HOME=%2
@@ -169,15 +169,15 @@ goto GETOPT_START
 	:: exit ok
 	exit /B 0
 
-:: handling -w or --winpcap-home switches
+:: handling -w or --pcap-sdk switches
 :CASE-w
-:CASE--winpcap-home
+:CASE--pcap-sdk
 	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
 	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
-	:: verify the WinPcap dir supplied by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
-	if not exist %2\ call :GETOPT_ERROR "WinPcap directory '%2' does not exist" & exit /B 3
-	:: if all went well, set the WINPCAP_HOME variable with the directory given by the user
-	set WINPCAP_HOME=%2
+	:: verify the WinPcap/Npcap SDK dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
+	if not exist %2\ call :GETOPT_ERROR "WinPcap/Npcap SDK directory '%2' does not exist" & exit /B 3
+	:: if all went well, set the PCAP_SDK_HOME variable with the directory given by the user
+	set PCAP_SDK_HOME=%2
 	:: notify GETOPT this switch has a parameter
 	set HAS_PARAM=1
 	:: exit ok
@@ -187,7 +187,7 @@ goto GETOPT_START
 :: the parameter for this "function" is the switch that didn't have the parameter
 :GETOPT_REQUIRED_PARAM
 	:: print the error message
-	echo Required parameter not supplied for switch "%1"
+	echo Required parameter not provided for switch "%1"
 	:: exit with error code 2, meaining switch is missing a parameter
 	exit /B 2
 
@@ -196,7 +196,7 @@ goto GETOPT_START
 :GETOPT_ERROR
 	:: reset error level
 	VER > NUL # reset ERRORLEVEL
-	:: print the error as was supplied by the user. The %~1 removes quotes if were given
+	:: print the error as was provided by the user. The %~1 removes quotes if were given
 	echo %~1
 	:: exit with error code 1
 	exit /B 1
@@ -207,7 +207,7 @@ goto GETOPT_START
 
 
 :: -------------------------------------------------------------------
-:: a "function" that implements the wizard mode which reads MinGW home and WinPcap home by displaying a wizard for the user
+:: a "function" that implements the wizard mode which reads MinGW home and WinPcap/Npcap SDK by displaying a wizard for the user
 :READ_PARAMS_FROM_USER
 
 echo MinGW32 or MinGW-w64 are required for compiling PcapPlusPlus. Please specify 
@@ -252,15 +252,16 @@ echo.
 
 :msys-not-required
 
-:: get WinPcap dev pack location from user and verify it exists
-echo WinPcap developer's pack is required for compiling PcapPlusPlus. 
-echo If WinPcap developer's pack is not installed, please download and install it from https://www.winpcap.org/devel.htm
+:: get WinPcap/Npcap SDK location from user and verify it exists
+echo WinPcap or Npcap SDK is required for compiling PcapPlusPlus.
+echo For downloading WinPcap SDK (developer's pack) please go to https://www.winpcap.org/devel.htm
+echo For downloading Npcap SDK please go to https://nmap.org/npcap/#download
 echo.
 :while2
-:: ask the user to type WinPcap dir
-set /p WINPCAP_HOME=    Please specify WinPcap developer's pack installed path: %=%
+:: ask the user to type WinPcap/Npcap SDK dir
+set /p PCAP_SDK_HOME=    Please specify WinPcap/Npcap SDK path: %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
-if not exist %WINPCAP_HOME%\ (echo Directory does not exist!! && goto while2)
+if not exist %PCAP_SDK_HOME%\ (echo Directory does not exist!! && goto while2)
 :: both directories were read correctly, return to the caller
 
 exit /B 0
@@ -275,14 +276,14 @@ echo This script has 2 modes of operation:
 echo   1) Without any switches. In this case the script will guide you through using wizards
 echo   2) With switches, as described below
 echo.
-echo Basic usage: %~nx0 [-h] MINGW_COMPILER -m MINGW_HOME_DIR -w WINPCAP_HOME_DIR [-s MSYS_HOME_DIR]
+echo Basic usage: %~nx0 [-h] MINGW_COMPILER -m MINGW_HOME_DIR -w PCAP_SDK_DIR [-s MSYS_HOME_DIR]
 echo.
 echo The following switches are recognized:
 echo MINGW_COMPILER        --The MinGW compiler to use. Can be either "mingw32" or "mingw-w64"
-echo -m^|--mingw-home      --Sets MinGW home directory (the folder that includes "bin", "lib" and "include" directories)
-echo -s^|--msys-home       --Sets MSYS2 home directory (must for mingw-w64, not must for mingw32)
-echo -w^|--winpcap-home    --Sets WinPcap home directory
-echo -h^|--help            --Displays this help message and exits. No further actions are performed
+echo -m^|--mingw-home      --Set MinGW home directory (the folder that includes "bin", "lib" and "include" directories)
+echo -s^|--msys-home       --Set MSYS2 home directory (must for mingw-w64, not must for mingw32)
+echo -w^|--pcap-sdk        --Set WinPcap/Npcap SDK directory
+echo -h^|--help            --Display this help message and exits. No further actions are performed
 echo.
 :: done printing, exit
 exit /B 0

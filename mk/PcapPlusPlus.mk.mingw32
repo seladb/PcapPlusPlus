@@ -1,10 +1,10 @@
 ### WIN32 - MINGW32 ###
 
 # includes
-PCAPPP_INCLUDES += -I$(WINPCAP_HOME)/Include
+PCAPPP_INCLUDES += -I$(PCAP_SDK_HOME)/Include
 
 # libs dir
-PCAPPP_LIBS_DIR += -L$(WINPCAP_HOME)/lib -L$(MINGW_HOME)/lib
+PCAPPP_LIBS_DIR += -L$(PCAP_SDK_HOME)/lib -L$(MINGW_HOME)/lib
 
 # libs
 PCAPPP_LIBS += -lwpcap -lPacket -Wl,-Bstatic -lpthread -Wl,-Bdynamic -lws2_32 -liphlpapi

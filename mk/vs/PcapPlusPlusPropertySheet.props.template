@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
     <PcapPlusPlusHome>PUT_PCAPPLUSPLUS_HOME_HERE</PcapPlusPlusHome>
-    <WinPcapHome>PUT_WIN_PCAP_HOME_HERE</WinPcapHome>
+    <WinPcapHome>PUT_PCAP_SDK_HOME_HERE</WinPcapHome>
     <PThreadWin32Home>PUT_PTHREAD_HOME_HERE</PThreadWin32Home>
   </PropertyGroup>
   <ItemGroup>

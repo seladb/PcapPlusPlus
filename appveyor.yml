@@ -6,6 +6,11 @@ environment:
       pcap_lib: npcap
     - compiler: mingw-w64
       pcap_lib: npcap
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      compiler: vs2017
+      platform: x86
+      config: Debug
+      pcap_lib: npcap
 
 install:
 - if "%pcap_lib%"=="npcap" (ci\install_npcap.bat) else (ci\install_winpcap.bat)

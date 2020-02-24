@@ -49,7 +49,7 @@ INCLUDES := -I"./src" \
 			
 ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \
-			-I$(WINPCAP_HOME)/Include
+			-I$(PCAP_SDK_HOME)/Include
 endif
 ifdef LINUX
 INCLUDES += -I/usr/include/netinet
