@@ -1,7 +1,7 @@
 ![PcapPlusPlus Logo](https://pcapplusplus.github.io/resources/logo_color.png)
 
 [![Build Status](https://travis-ci.org/seladb/PcapPlusPlus.svg?branch=master)](https://travis-ci.org/seladb/PcapPlusPlus)
-[![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc/branch/master?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
 [![Build Status](https://api.cirrus-ci.com/github/seladb/PcapPlusPlus.svg)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/18137/badge.svg)](https://scan.coverity.com/projects/pcapplusplus)
 <a href="https://twitter.com/intent/follow?screen_name=seladb">
