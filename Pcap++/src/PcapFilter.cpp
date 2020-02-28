@@ -74,7 +74,7 @@ bool BPFStringFilter::verifyFilter()
 
 	m_program = new bpf_program();
 	LOG_DEBUG("Compiling the filter '%s'", m_filterStr.c_str());
-	if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, m_filterStr.c_str(), 1, 0) < 0)
+	if (m_filterStr.empty() || pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, m_filterStr.c_str(), 1, 0) < 0)
 	{
 		//Filter not valid so delete member
 		freeProgram();
