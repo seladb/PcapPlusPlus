@@ -4,6 +4,7 @@
     <PcapPlusPlusHome>PUT_PCAPPLUSPLUS_HOME_HERE</PcapPlusPlusHome>
     <WinPcapHome>PUT_PCAP_SDK_HOME_HERE</WinPcapHome>
     <PThreadWin32Home>PUT_PTHREAD_HOME_HERE</PThreadWin32Home>
+	<ZStdHome>PUT_ZSTD_HOME_HERE</ZStdHome>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PcapPlusPlusHome">
@@ -14,6 +15,9 @@
     </BuildMacro>
 	<BuildMacro Include="PThreadWin32Home">
       <Value>$(PThreadWin32Home)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ZStdHome">
+      <Value>$(ZStdHome)</Value>
     </BuildMacro>
   </ItemGroup>
   <!-- pthreads-win32 project variables -->

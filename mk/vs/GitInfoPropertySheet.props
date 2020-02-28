@@ -2,8 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <GitCommit>unavailable</GitCommit>
-    <GitBranch>unavailable</GitBranch>
+    <GitCommit>a9fe051678ee9e05fefecbf0cf7d29452ce8792f</GitCommit>
+    <GitBranch>master</GitBranch>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="GitCommit">

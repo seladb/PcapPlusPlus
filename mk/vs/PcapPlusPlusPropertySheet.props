@@ -1,24 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?> 
-<Project InitialTargets="ValidateDependencies" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Target Name="ValidateDependencies">  
-      <Error 
-        Condition="'$(PCAPPLUSPLUS_CONFIG_OVERRIDE)'==''"
-        Text=
-"
-Please close visual studio and run configure-windows-visual-studio.bat 
-BEFORE OPENING THIS SOLUTION.  It generates variables for dependencies 
-which are required for building. Alternatively, if you're using a package manager 
-to provide these dependencies, you must set the following two variables manually: 
-
-  set PCAPPLUSPLUS_CONFIG_OVERRIDE=True
-  set PCAPPLUSPLUSHOME=path_to_pcapplusplus_repo_root
-
-You can set these as environment variables (shown above), 
-or pass them as properties to the MSBuild CLI (shown below):
-
-  /p:PCAPPLUSPLUS_CONFIG_OVERRIDE=True 
-  /p:PCAPPLUSPLUSHOME=path_to_pcapplusplus_repo_root
-" 
-      />
-    </Target>
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <PcapHome>D:\OneDrive - TMEIC\My Documents\Libraries (Code)\C++\PcapPlusPlus</PcapHome>
+    <PcapPlusPlusHome>$(PcapHome)</PcapPlusPlusHome>
+    <Framework4DLibLocation>C:\Program Files\TMEIC\4DFrameworkLibraries\VS2017</Framework4DLibLocation>
+    <PThreadWin32Home>$(Framework4DLibLocation)\pthreads-win32</PThreadWin32Home>
+    <WinPcapHome>$(Framework4DLibLocation)\Npcap</WinPcapHome>
+    <ZStdHome>$(Framework4DLibLocation)\zstd</ZStdHome>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LibraryPath>$(PcapHome)\Dist\$(Platform)\$(Configuration);$(PThreadWin32Home)\lib\$(Platform);$(WinPcapHome)\lib\$(Platform);$(ZStdHome)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>Packet++.lib;Pcap++.lib;Common++.lib;pthreadVC2.lib;wpcap.lib;packet.lib;IPHLPAPI.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <DelayLoadDLLs>wpcap.dll;packet.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(WinPcapHome)\include;$(PThreadWin32Home)\include;$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;$(PcapPlusPlusHome)\3rdParty\dirent-for-Visual-Studio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>BPF_MAJOR_VERSION;WPCAP;HAVE_REMOTE;HAVE_STRUCT_TIMESPEC</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="PcapHome">
+      <Value>$(PcapHome)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PcapPlusPlusHome">
+      <Value>$(PcapPlusPlusHome)</Value>
+    </BuildMacro>
+    <BuildMacro Include="Framework4DLibLocation">
+      <Value>$(Framework4DLibLocation)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PThreadWin32Home">
+      <Value>$(PThreadWin32Home)</Value>
+    </BuildMacro>
+    <BuildMacro Include="WinPcapHome">
+      <Value>$(WinPcapHome)</Value>
+    </BuildMacro>
+    <BuildMacro Include="ZStdHome">
+      <Value>$(ZStdHome)</Value>
+    </BuildMacro>
+  </ItemGroup>
 </Project>

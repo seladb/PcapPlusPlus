@@ -72,6 +72,8 @@ using namespace pcpp;
 #define EXAMPLE2_PCAPNG_PATH "PcapExamples/pcapng-example.pcapng"
 #define EXAMPLE_PCAPNG_WRITE_PATH "PcapExamples/many_interfaces_copy.pcapng"
 #define EXAMPLE2_PCAPNG_WRITE_PATH "PcapExamples/pcapng-example-write.pcapng"
+#define EXAMPLE_PCAPNG_ZSTD_WRITE_PATH "PcapExamples/many_interfaces_copy.pcapng.zstd"
+#define EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH "PcapExamples/pcapng-example-write.pcapng.zstd"
 #define EXAMPLE_PCAP_GRE "PcapExamples/GrePackets.cap"
 #define EXAMPLE_PCAP_IGMP "PcapExamples/IgmpPackets.pcap"
 
@@ -1067,6 +1069,81 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 
 }
 
+PTF_TEST_CASE(TestPcapNgFileReadWriteCompress)
+{
+	PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_PATH);
+	PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_ZSTD_WRITE_PATH,5);
+	PTF_ASSERT(readerDev.open(), "cannot open reader device");
+	PTF_ASSERT(writerDev.open(), "cannot open writer device");
+	PTF_ASSERT(readerDev.getFileName() == EXAMPLE_PCAPNG_PATH, "Reader file name different than expected");
+	PTF_ASSERT(writerDev.getFileName() == EXAMPLE_PCAPNG_ZSTD_WRITE_PATH, "Writer file name different than expected");
+	PTF_ASSERT(readerDev.getFileSize() == 20704, "Reader file size different than expected. Expected: %d, got: %d", 20704, (int)readerDev.getFileSize());
+	PTF_ASSERT(readerDev.getOS() == "Mac OS X 10.10.4, build 14E46 (Darwin 14.4.0)", "OS read incorrectly");
+	PTF_ASSERT(readerDev.getCaptureApplication() == "Dumpcap 1.12.6 (v1.12.6-0-gee1fce6 from master-1.12)", "User app read incorrectly");
+	PTF_ASSERT(readerDev.getCaptureFileComment() == "", "File comment isn't empty");
+	PTF_ASSERT(readerDev.getHardware() == "", "Hardware string isn't empty");
+	RawPacket rawPacket;
+	int packetCount = 0;
+	int ethLinkLayerCount = 0;
+	int nullLinkLayerCount = 0;
+	int otherLinkLayerCount = 0;
+	int ethCount = 0;
+	int nullLoopbackCount = 0;
+	int ipCount = 0;
+	int tcpCount = 0;
+	int udpCount = 0;
+	while (readerDev.getNextPacket(rawPacket))
+	{
+		packetCount++;
+
+		LinkLayerType linkType = rawPacket.getLinkLayerType();
+		if (linkType == LINKTYPE_ETHERNET)
+			ethLinkLayerCount++;
+		else if (linkType == LINKTYPE_NULL)
+			nullLinkLayerCount++;
+		else
+			otherLinkLayerCount++;
+
+		Packet packet(&rawPacket);
+		if (packet.isPacketOfType(Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(NULL_LOOPBACK))
+			nullLoopbackCount++;
+		if (packet.isPacketOfType(IPv4))
+			ipCount++;
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+
+		PTF_ASSERT(writerDev.writePacket(rawPacket) == true, "Couldn't write packet #%d", packetCount);
+	}
+
+	pcap_stat readerStatistics;
+	pcap_stat writerStatistics;
+
+	readerDev.getStatistics(readerStatistics);
+	PTF_ASSERT(readerStatistics.ps_recv == 64, "Incorrect number of packets read from file. Expected: 64; read: %d", readerStatistics.ps_recv);
+	PTF_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %d", readerStatistics.ps_drop);
+
+	writerDev.getStatistics(writerStatistics);
+	PTF_ASSERT(writerStatistics.ps_recv == 64, "Incorrect number of packets written to file. Expected: 64; written: %d", writerStatistics.ps_recv);
+	PTF_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
+
+	PTF_ASSERT(ethLinkLayerCount == 62, "Incorrect number of Ethernet link-type packets read. Expected: 62; read: %d", ethLinkLayerCount);
+	PTF_ASSERT(nullLinkLayerCount == 2, "Incorrect number of Null link-type packets read. Expected: 2; read: %d", nullLinkLayerCount);
+	PTF_ASSERT(otherLinkLayerCount == 0, "Incorrect number of other link-type packets read. Expected: 0; read: %d", otherLinkLayerCount);
+	PTF_ASSERT(ethCount == 62, "Incorrect number of Ethernet packets read. Expected: 62; read: %d", ethCount);
+	PTF_ASSERT(nullLoopbackCount == 2, "Incorrect number of Null/Loopback packets read. Expected: 2; read: %d", nullLoopbackCount);
+	PTF_ASSERT(ipCount == 64, "Incorrect number of IPv4 packets read. Expected: 64; read: %d", ipCount);
+	PTF_ASSERT(tcpCount == 32, "Incorrect number of TCP packets read. Expected: 32; read: %d", tcpCount);
+	PTF_ASSERT(udpCount == 32, "Incorrect number of UDP packets read. Expected: 32; read: %d", udpCount);
+
+	readerDev.close();
+	writerDev.close();
+
+}
+
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 {
 	PcapNgFileReaderDevice readerDev(EXAMPLE2_PCAPNG_PATH);
@@ -1315,6 +1392,262 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
     PTF_ASSERT(filteredReadPacketCount == 14, "Number of packets matched to reader filter != 14, it's %d", filteredReadPacketCount);
     PTF_ASSERT(filteredWritePacketCount == 3, "Number of packets matched to writer filter != 3, it's %d", filteredWritePacketCount);
+
+	readerDev5.close();
+	writerDev2.close();
+}
+
+PTF_TEST_CASE(TestPcapNgFileReadWriteAdvCompress)
+{
+	PcapNgFileReaderDevice readerDev(EXAMPLE2_PCAPNG_PATH);
+
+	// negative tests
+	readerDev.close();
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT(readerDev.getOS() == "", "Managed to read OS before device is opened");
+	LoggerPP::getInstance().enableErrors();
+	// --------------
+
+	PTF_ASSERT(readerDev.open(), "cannot open reader device");
+	PTF_ASSERT(readerDev.getOS() == "Linux 3.18.1-1-ARCH", "OS read incorrectly");
+	PTF_ASSERT(readerDev.getCaptureApplication() == "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)", "User app read incorrectly");
+	PTF_ASSERT(readerDev.getCaptureFileComment() == "CLIENT_RANDOM E39B5BF4903C68684E8512FB2F60213E9EE843A0810B4982B607914D8092D482 95A5D39B02693BC1FB39254B179E9293007F6D37C66172B1EE4EF0D5E25CE1DABE878B6143DC3B266883E51A75E99DF9                                                   ", "File comment read incorrectly");
+	PTF_ASSERT(readerDev.getHardware() == "", "Hardware string isn't empty");
+
+	PcapNgFileWriterDevice writerDev(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH,5);
+
+	// negative tests
+	writerDev.close();
+	// --------------
+
+	PTF_ASSERT(writerDev.open(readerDev.getOS().c_str(), "My Hardware", readerDev.getCaptureApplication().c_str(), "This is a comment in a pcap-ng file") == true, "Couldn't open writer file");
+
+	RawPacket rawPacket;
+	int packetCount = 0;
+	int capLenNotMatchOrigLen = 0;
+	int ethCount = 0;
+	int sllCount = 0;
+	int ip4Count = 0;
+	int ip6Count = 0;
+	int tcpCount = 0;
+	int udpCount = 0;
+	int httpCount = 0;
+	int commentCount = 0;
+	std::string pktComment;
+
+	while (readerDev.getNextPacket(rawPacket, pktComment))
+	{
+		packetCount++;
+
+		if (rawPacket.getRawDataLen() != rawPacket.getFrameLength())
+			capLenNotMatchOrigLen++;
+
+		Packet packet(&rawPacket);
+		if (packet.isPacketOfType(Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(SLL))
+			sllCount++;
+		if (packet.isPacketOfType(IPv4))
+			ip4Count++;
+		if (packet.isPacketOfType(IPv6))
+			ip6Count++;
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+		if (packet.isPacketOfType(HTTP))
+			httpCount++;
+
+		if (pktComment != "")
+		{
+			PTF_ASSERT(pktComment.compare(0, 8, "Packet #") == 0, "Packet comment is '%s' and is not the expected one", pktComment.c_str());
+			commentCount++;
+		}
+
+		PTF_ASSERT(writerDev.writePacket(rawPacket, pktComment.c_str()) == true, "Couldn't write packet #%d", packetCount);
+	}
+
+	PTF_ASSERT(packetCount == 159, "Incorrect number of packets read. Expected: 159; read: %d", packetCount);
+	PTF_ASSERT(capLenNotMatchOrigLen == 39, "Incorrect number of packets where captured length doesn't match original length. Expected: 39; read: %d", capLenNotMatchOrigLen);
+	PTF_ASSERT(ethCount == 59, "Incorrect number of Ethernet packets read. Expected: 59; read: %d", ethCount);
+	PTF_ASSERT(sllCount == 100, "Incorrect number of SLL packets read. Expected: 100; read: %d", sllCount);
+	PTF_ASSERT(ip4Count == 155, "Incorrect number of IPv4 packets read. Expected: 155; read: %d", ip4Count);
+	PTF_ASSERT(ip6Count == 4, "Incorrect number of IPv6 packets read. Expected: 4; read: %d", ip6Count);
+	PTF_ASSERT(tcpCount == 159, "Incorrect number of TCP packets read. Expected: 159; read: %d", tcpCount);
+	PTF_ASSERT(udpCount == 0, "Incorrect number of UDP packets read. Expected: 0; read: %d", udpCount);
+	PTF_ASSERT(httpCount == 1, "Incorrect number of HTTP packets read. Expected: 1; read: %d", httpCount);
+	PTF_ASSERT(commentCount == 100, "Incorrect number of packets with comment read. Expected: 100; read: %d", commentCount);
+
+	pcap_stat readerStatistics;
+	pcap_stat writerStatistics;
+
+	readerDev.getStatistics(readerStatistics);
+	PTF_ASSERT(readerStatistics.ps_recv == 159, "Incorrect number of packets read from file. Expected: 159; read: %u", readerStatistics.ps_recv);
+	PTF_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %u", readerStatistics.ps_drop);
+
+	writerDev.getStatistics(writerStatistics);
+	PTF_ASSERT(writerStatistics.ps_recv == 159, "Incorrect number of packets written to file. Expected: 159; written: %u", writerStatistics.ps_recv);
+	PTF_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %u", writerStatistics.ps_drop);
+
+	readerDev.close();
+	writerDev.close();
+
+	// -------
+
+	PcapNgFileReaderDevice readerDev2(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH);
+	PcapNgFileReaderDevice readerDev3(EXAMPLE2_PCAPNG_PATH);
+
+	PTF_ASSERT(readerDev2.open(), "cannot open reader device 2");
+	PTF_ASSERT(readerDev3.open(), "cannot open reader device 3");
+
+	PTF_ASSERT(readerDev2.getOS() == "Linux 3.18.1-1-ARCH\0", "OS read incorrectly");
+	PTF_ASSERT(readerDev2.getCaptureApplication() == "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)", "User app read incorrectly");
+	PTF_ASSERT(readerDev2.getCaptureFileComment() == "This is a comment in a pcap-ng file", "File comment read incorrectly");
+	PTF_ASSERT(readerDev2.getHardware() == "My Hardware", "Hardware read incorrectly");
+
+	packetCount = 0;
+	ethCount = 0;
+	sllCount = 0;
+	ip4Count = 0;
+	ip6Count = 0;
+	tcpCount = 0;
+	udpCount = 0;
+	httpCount = 0;
+	commentCount = 0;
+
+
+	RawPacket rawPacket2;
+
+	int packet_count = 0;
+	while (readerDev2.getNextPacket(rawPacket, pktComment))
+	{
+		packetCount++;
+		Packet packet(&rawPacket);
+		if (packet.isPacketOfType(Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(SLL))
+			sllCount++;
+		if (packet.isPacketOfType(IPv4))
+			ip4Count++;
+		if (packet.isPacketOfType(IPv6))
+			ip6Count++;
+		if (packet.isPacketOfType(TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(UDP))
+			udpCount++;
+		if (packet.isPacketOfType(HTTP))
+			httpCount++;
+
+		if (pktComment != "")
+		{
+			PTF_ASSERT(pktComment.compare(0, 8, "Packet #") == 0, "Packet comment is '%s' and is not the expected one", pktComment.c_str());
+			commentCount++;
+		}
+
+		readerDev3.getNextPacket(rawPacket2);
+
+		timespec packet1_timestamp = rawPacket.getPacketTimeStamp();
+		timespec packet2_timestamp = rawPacket2.getPacketTimeStamp();
+		if (packet1_timestamp.tv_sec < packet2_timestamp.tv_sec)
+		{
+			PTF_ASSERT((packet2_timestamp.tv_sec - packet1_timestamp.tv_sec) < 2,
+					"Timestamps are differ in packets %d in more than 2 secs: %ld and %ld; nsec are %ld and %ld",
+					packet_count, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
+		}
+		else
+		{
+			PTF_ASSERT((packet1_timestamp.tv_sec - packet2_timestamp.tv_sec) < 2,
+					"Timestamps are differ in packets %d in more than 2 secs: %ld and %ld; nsec are %ld and %ld",
+					packet_count, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
+		}
+
+		if (packet1_timestamp.tv_nsec < packet2_timestamp.tv_nsec)
+		{
+			PTF_ASSERT((packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec) < 100000,
+					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %ld and %ld",
+					packet_count, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
+		}
+		else
+		{
+			PTF_ASSERT((packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec) < 100000,
+					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %ld and %ld",
+					packet_count, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
+		}
+		packet_count++;
+	}
+
+	PTF_ASSERT(packetCount == 159, "Read cycle 2: Incorrect number of packets read. Expected: 159; read: %d", packetCount);
+	PTF_ASSERT(ethCount == 59, "Read cycle 2: Incorrect number of Ethernet packets read. Expected: 59; read: %d", ethCount);
+	PTF_ASSERT(sllCount == 100, "Read cycle 2: Incorrect number of SLL packets read. Expected: 100; read: %d", sllCount);
+	PTF_ASSERT(ip4Count == 155, "Read cycle 2: Incorrect number of IPv4 packets read. Expected: 155; read: %d", ip4Count);
+	PTF_ASSERT(ip6Count == 4, "Read cycle 2: Incorrect number of IPv6 packets read. Expected: 4; read: %d", ip6Count);
+	PTF_ASSERT(tcpCount == 159, "Read cycle 2: Incorrect number of TCP packets read. Expected: 159; read: %d", tcpCount);
+	PTF_ASSERT(udpCount == 0, "Read cycle 2: Incorrect number of UDP packets read. Expected: 0; read: %d", udpCount);
+	PTF_ASSERT(httpCount == 1, "Read cycle 2: Incorrect number of HTTP packets read. Expected: 1; read: %d", httpCount);
+	PTF_ASSERT(commentCount == 100, "Read cycle 2: Incorrect number of packets with comment read. Expected: 100; read: %d", commentCount);
+
+	readerDev2.close();
+	readerDev3.close();
+
+	//////////////////////////// COMPRESSION DOES NOT YET SUPPORT APPEND WRITE
+	
+	//PcapNgFileWriterDevice appendDev(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH);
+	//PTF_ASSERT(appendDev.open(true) == true, "Couldn't open file in append mode");
+
+	//PTF_ASSERT(appendDev.writePacket(rawPacket2, "Additional packet #1") == true, "Couldn't append packet #1");
+	//PTF_ASSERT(appendDev.writePacket(rawPacket2, "Additional packet #2") == true, "Couldn't append packet #2");
+
+	//appendDev.close();
+
+	//PcapNgFileReaderDevice readerDev4(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH);
+	//PTF_ASSERT(readerDev4.open(), "cannot open reader device 4");
+
+	//packetCount = 0;
+
+	//while (readerDev4.getNextPacket(rawPacket, pktComment))
+	//{
+	//	packetCount++;
+	//}
+
+	//PTF_ASSERT(packetCount == 161, "Number of packets after append != 161, it's %d", packetCount);
+
+	// -------
+
+	IFileReaderDevice* genericReader = IFileReaderDevice::getReader(EXAMPLE2_PCAP_PATH);
+	PTF_ASSERT_AND_RUN_COMMAND(dynamic_cast<PcapFileReaderDevice*>(genericReader) != NULL, delete genericReader, "Reader isn't of type PcapFileReaderDevice");
+	PTF_ASSERT_AND_RUN_COMMAND(dynamic_cast<PcapNgFileReaderDevice*>(genericReader) == NULL, delete genericReader, "Reader is wrongly of type PcapNgFileReaderDevice");
+	delete genericReader;
+
+	genericReader = IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_PATH);
+	PTF_ASSERT_AND_RUN_COMMAND(dynamic_cast<PcapNgFileReaderDevice*>(genericReader) != NULL, delete genericReader, "Reader isn't of type PcapNgFileReaderDevice");
+	delete genericReader;
+
+	// -------
+
+	PcapNgFileReaderDevice readerDev5(EXAMPLE2_PCAPNG_PATH);
+	PTF_ASSERT(readerDev5.open(), "cannot open reader device 5");
+	PTF_ASSERT(readerDev5.setFilter("bla bla bla") == false, "Managed to set illegal filter to reader device");
+	PTF_ASSERT(readerDev5.setFilter("src net 130.217.250.129") == true, "Couldn't set filter to reader device");
+
+	PcapNgFileWriterDevice writerDev2(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH,5);
+	//////////////////////////// COMPRESSION DOES NOT YET SUPPORT APPEND WRITE
+	//PTF_ASSERT(writerDev2.open(true) == true, "Couldn't writer dev 2 in append mode");
+	PTF_ASSERT(writerDev2.open() == true, "Couldn't writer dev 2");
+	PTF_ASSERT(writerDev2.setFilter("bla bla bla") == false, "Managed to set illegal filter to writer device");
+	PTF_ASSERT(writerDev2.setFilter("dst port 35938") == true, "Couldn't set filter to writer device");
+
+	int filteredReadPacketCount = 0;
+	int filteredWritePacketCount = 0;
+
+	while (readerDev5.getNextPacket(rawPacket, pktComment))
+	{
+		filteredReadPacketCount++;
+		if (writerDev2.writePacket(rawPacket))
+			filteredWritePacketCount++;
+	}
+
+	PTF_ASSERT(filteredReadPacketCount == 14, "Number of packets matched to reader filter != 14, it's %d", filteredReadPacketCount);
+	PTF_ASSERT(filteredWritePacketCount == 3, "Number of packets matched to writer filter != 3, it's %d", filteredWritePacketCount);
 
 	readerDev5.close();
 	writerDev2.close();
@@ -6811,7 +7144,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapRawIPFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileAppend, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapNgFileReadWrite, "no_network;pcap;pcapng");
+	PTF_RUN_TEST(TestPcapNgFileReadWriteCompress, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapNgFileReadWriteAdv, "no_network;pcap;pcapng");
+	PTF_RUN_TEST(TestPcapNgFileReadWriteAdvCompress, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDevice, "live_device");

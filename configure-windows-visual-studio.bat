@@ -10,6 +10,9 @@ echo.
 :: initially set PCAP_SDK_HOME and PTHREAD_HOME to empty values
 set PCAP_SDK_HOME=
 set PTHREAD_HOME=
+set ZSTD_HOME=\
+set ZSTD_INCLUDE_PATH=
+set ZSTD_LIB_NAME=
 
 :: check the number of arguments: If got at least one argument continue to command-line mode, else continue to wizard mode
 if "%1" NEQ "" ( 
@@ -24,11 +27,14 @@ if "%ERRORLEVEL%" NEQ "0" exit /B 1
 if "%VS_VERSION%"=="" echo Visual studio version was not provided. Exiting & exit /B 1
 if "%PTHREAD_HOME%"=="" echo pthread-win32 directory was not provided. Exiting & exit /B 1
 if "%PCAP_SDK_HOME%"=="" echo WinPcap/Npcap SDK directory was not provided. Exiting & exit /B 1
+if "%ZSTD_HOME%"=="" echo WinPcap/Npcap SDK directory was not provided. ZSTD Support will be skipped!
 
 :: remove trailing "\" in PTHREAD_HOME if exists
 if "%PTHREAD_HOME:~-1%"=="\" set PTHREAD_HOME=%PTHREAD_HOME:~,-1%
 :: remove trailing "\" in PCAP_SDK_HOME if exists
 if "%PCAP_SDK_HOME:~-1%"=="\" set PCAP_SDK_HOME=%PCAP_SDK_HOME:~,-1%
+:: remove trailing "\" in ZSTD_HOME if exists
+if "%ZSTD_HOME:~-1%"=="\" set ZSTD_HOME=%ZSTD_HOME:~,-1%
 
 set VS_PROJ_DIR=mk\%VS_VERSION%
 set VS_PROPERTY_SHEET=PcapPlusPlusPropertySheet.props
@@ -44,6 +50,7 @@ if not exist "%VS_PROJ_DIR%" mkdir %VS_PROJ_DIR%
     set "LINE=!LINE:PUT_PCAPPLUSPLUS_HOME_HERE=%cd%!"
 	set "LINE=!LINE:PUT_PCAP_SDK_HOME_HERE=%PCAP_SDK_HOME%!"
 	set "LINE=!LINE:PUT_PTHREAD_HOME_HERE=%PTHREAD_HOME%!"
+	set "LINE=!LINE:PUT_ZSTD_HOME_HERE=%ZSTD_HOME%!"
     echo !LINE!
     endlocal
 ))>pcpp_temp.xml
@@ -92,6 +99,9 @@ for %%P in (mk\vs\*.vcxproj.template) do (
 		set "LINE=!LINE:PUT_TOOLS_VERSION_HERE=%ToolsVersion%!"
 		set "LINE=!LINE:PUT_WIN_TARGET_PLATFORM_HERE=%WindowsTargetPlatformVersion%!"
 		set "LINE=!LINE:PUT_PLATORM_TOOLSET_HERE=%PlatformToolset%!"
+		set "LINE=!LINE:PUT_USE_ZSTD_HERE;=%USE_ZSTD%!"
+		set "LINE=!LINE:PUT_ZSTD_LIB_NAME_HERE;=%ZSTD_LIB_NAME%!"
+		set "LINE=!LINE:PUT_ZSTD_INCLUDE_PATH_HERE;=%ZSTD_INCLUDE_PATH%!"
 		echo !LINE!
 	))>pcpp_temp.xml
 
@@ -261,8 +271,41 @@ set /p PTHREAD_HOME=    Please specify pthreads-win32 path: %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
 if not exist "%PTHREAD_HOME%"\ (echo Directory does not exist!! && goto while2)
 
+echo.
+echo.
 
-:: both directories were read correctly, return to the caller
+:: ask user about using zstd
+echo ZStd compression support may be added when compiling PcapPlusPlus.
+echo For downloading ZStd SDK (developer's pack) please go to https://github.com/facebook/zstd/releases
+:while3
+set /p USE_ZSTD=     To enable ZStd support type use_zstd otherwise type no: %=%
+if "%USE_ZSTD%" NEQ "use_zstd" if "%USE_ZSTD%" NEQ "no" (echo Please choose one of "use_zstd" or "no" && goto while3)
+
+
+if "%USE_ZSTD%" EQU "use_zstd" (
+::Can't use set staement inside an if so we have to do a little trickery here
+goto while4
+)
+goto skipWhile4
+
+:while4
+:: ask the user to type WinPcap/Npcap SDK dir
+set /p ZSTD_HOME=    Please specify ZStd SDK path: %=%
+:: if input dir doesn't exist print an error to the user and go back to previous line
+if not exist "%ZSTD_HOME%"\ (echo Directory does not exist!! && goto while4)
+set USE_ZSTD=USE_Z_STD;
+set "ZSTD_INCLUDE_PATH=$(ZStdHome)\include;"
+set ZSTD_LIB_NAME=libzstd.lib;
+
+:skipWhile4
+
+if "%USE_ZSTD%" EQU "no" set USE_ZSTD=
+
+echo.
+echo.
+
+
+:: all directories were read correctly, return to the caller
 
 exit /B 0
 

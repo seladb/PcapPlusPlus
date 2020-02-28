@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pcap++", "Pcap++.vcxproj", "{D4FDF54C-0ECC-4BD2-9EDA-6622E832AF16}"
 EndProject
@@ -56,7 +56,6 @@ Global
 		{A1CB5FEB-C53D-48D3-AA16-65E7F6A2D4DA}.Release|x86.ActiveCfg = Release|Win32
 		{A1CB5FEB-C53D-48D3-AA16-65E7F6A2D4DA}.Release|x86.Build.0 = Release|Win32
 		{2C772A6A-D240-4495-831F-883DCA70BE58}.Debug|x64.ActiveCfg = Debug|x64
-		{2C772A6A-D240-4495-831F-883DCA70BE58}.Debug|x64.Build.0 = Debug|x64
 		{2C772A6A-D240-4495-831F-883DCA70BE58}.Debug|x86.ActiveCfg = Debug|Win32
 		{2C772A6A-D240-4495-831F-883DCA70BE58}.Debug|x86.Build.0 = Debug|Win32
 		{2C772A6A-D240-4495-831F-883DCA70BE58}.Release|x64.ActiveCfg = Release|x64
@@ -74,5 +73,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ACEB59C0-84C0-4AAA-B552-50547F3551D8}
 	EndGlobalSection
 EndGlobal
