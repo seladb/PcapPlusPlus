@@ -13,6 +13,7 @@ set PTHREAD_HOME=
 set ZSTD_HOME=\
 set ZSTD_INCLUDE_PATH=
 set ZSTD_LIB_NAME=
+set USE_ZSTD=
 
 :: check the number of arguments: If got at least one argument continue to command-line mode, else continue to wizard mode
 if "%1" NEQ "" ( 
