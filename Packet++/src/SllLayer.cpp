@@ -10,25 +10,20 @@
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
 #include <string.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#elif MAC_OS_X
-#include <arpa/inet.h>
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
 
 SllLayer::SllLayer(uint16_t packetType, uint16_t ARPHRDType)
 {
-	m_DataLen = sizeof(sll_header);
-	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, m_DataLen);
+	const size_t headerLen = sizeof(sll_header);
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
+	memset(m_Data, 0, headerLen);
 	sll_header* sllHdr = (sll_header*)m_Data;
-	sllHdr->packet_type = htons(packetType);
-	sllHdr->ARPHRD_type = htons(ARPHRDType);
+	sllHdr->packet_type = htobe16(packetType);
+	sllHdr->ARPHRD_type = htobe16(ARPHRDType);
 	m_Protocol = SLL;
 }
 
@@ -42,7 +37,7 @@ bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 
 	sll_header* sllHdr = (sll_header*)m_Data;
 	memcpy(sllHdr->link_layer_addr, addr, addrLength);
-	sllHdr->link_layer_addr_len = htons(addrLength);
+	sllHdr->link_layer_addr_len = htobe16(addrLength);
 
 	return true;
 }
@@ -65,32 +60,35 @@ void SllLayer::parseNextLayer()
 	if (m_DataLen <= sizeof(sll_header))
 		return;
 
+	uint8_t* payload = m_Data + sizeof(sll_header);
+	size_t payloadLen = m_DataLen - sizeof(sll_header);
+
 	sll_header* hdr = getSllHeader();
-	switch (ntohs(hdr->protocol_type))
+	switch (be16toh(hdr->protocol_type))
 	{
 	case PCPP_ETHERTYPE_IP:
-		m_NextLayer = new IPv4Layer(m_Data + sizeof(sll_header), m_DataLen - sizeof(sll_header), this, m_Packet);
+		m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
 		break;
 	case PCPP_ETHERTYPE_IPV6:
-		m_NextLayer = new IPv6Layer(m_Data + sizeof(sll_header), m_DataLen - sizeof(sll_header), this, m_Packet);
+		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
 		break;
 	case PCPP_ETHERTYPE_ARP:
-		m_NextLayer = new ArpLayer(m_Data + sizeof(sll_header), m_DataLen - sizeof(sll_header), this, m_Packet);
+		m_NextLayer = new ArpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PCPP_ETHERTYPE_VLAN:
-		m_NextLayer = new VlanLayer(m_Data + sizeof(sll_header), m_DataLen - sizeof(sll_header), this, m_Packet);
+		m_NextLayer = new VlanLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PCPP_ETHERTYPE_PPPOES:
-		m_NextLayer = new PPPoESessionLayer(m_Data + sizeof(sll_header), m_DataLen - sizeof(sll_header), this, m_Packet);
+		m_NextLayer = new PPPoESessionLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PCPP_ETHERTYPE_PPPOED:
-		m_NextLayer = new PPPoEDiscoveryLayer(m_Data + sizeof(sll_header), m_DataLen - sizeof(sll_header), this, m_Packet);
+		m_NextLayer = new PPPoEDiscoveryLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PCPP_ETHERTYPE_MPLS:
-		m_NextLayer = new MplsLayer(m_Data + sizeof(sll_header), m_DataLen - sizeof(sll_header), this, m_Packet);
+		m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
 		break;
 	default:
-		m_NextLayer = new PayloadLayer(m_Data + sizeof(sll_header), m_DataLen - sizeof(sll_header), this, m_Packet);
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 
 }
@@ -104,23 +102,23 @@ void SllLayer::computeCalculateFields()
 	switch (m_NextLayer->getProtocol())
 	{
 		case IPv4:
-			hdr->protocol_type = htons(PCPP_ETHERTYPE_IP);
+			hdr->protocol_type = htobe16(PCPP_ETHERTYPE_IP);
 			break;
 		case IPv6:
-			hdr->protocol_type = htons(PCPP_ETHERTYPE_IPV6);
+			hdr->protocol_type = htobe16(PCPP_ETHERTYPE_IPV6);
 			break;
 		case ARP:
-			hdr->protocol_type = htons(PCPP_ETHERTYPE_ARP);
+			hdr->protocol_type = htobe16(PCPP_ETHERTYPE_ARP);
 			break;
 		case VLAN:
-			hdr->protocol_type = htons(PCPP_ETHERTYPE_VLAN);
+			hdr->protocol_type = htobe16(PCPP_ETHERTYPE_VLAN);
 			break;
 		default:
 			return;
 	}
 }
 
-std::string SllLayer::toString()
+std::string SllLayer::toString() const
 {
 	return "Linux cooked header";
 }

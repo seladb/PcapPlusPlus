@@ -156,7 +156,7 @@ namespace pcpp
 		/**
 		 * @return Size of GRE header (may change if optional fields are added or removed)
 		 */
-		size_t getHeaderLen();
+		size_t getHeaderLen() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
@@ -213,7 +213,7 @@ namespace pcpp
 		 * Please avoid doing so
 		 * @return A pointer to the gre_basic_header
 		 */
-		inline gre_basic_header* getGreHeader() const { return (gre_basic_header*)m_Data; }
+		gre_basic_header* getGreHeader() const { return (gre_basic_header*)m_Data; }
 
 		/**
 		 * Get checksum value if field exists in layer
@@ -249,7 +249,7 @@ namespace pcpp
 		 * @return True if offset field exists in layer. In this case offset parameter will be filled with the value.
 		 * Or false if offset field doesn't exist in layer
 		 */
-		bool getOffset(uint16_t& offset);
+		bool getOffset(uint16_t& offset) const;
 
 		/**
 		 * Get key value if field exists in layer
@@ -257,7 +257,7 @@ namespace pcpp
 		 * @return True if key field exists in layer. In this case key parameter will be filled with the value.
 		 * Or false if key field doesn't exist in layer
 		 */
-		bool getKey(uint32_t& key);
+		bool getKey(uint32_t& key) const;
 
 		/**
 		 * Set key value. If field already exists (gre_basic_header#keyBit is set) then only the new value is set.
@@ -286,7 +286,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 	};
 
@@ -323,7 +323,7 @@ namespace pcpp
 		 * to some really weird bugs. Please avoid doing so
 		 * @return A pointer to the gre1_header
 		 */
-		inline gre1_header* getGreHeader() const { return (gre1_header*)m_Data; }
+		gre1_header* getGreHeader() const { return (gre1_header*)m_Data; }
 
 		/**
 		 * Get acknowledgment (ack) number value if field exists in layer
@@ -331,7 +331,7 @@ namespace pcpp
 		 * @return True if ack number field exists in layer. In this case ackNum will be filled with the value.
 		 * Or false if ack number field doesn't exist in layer
 		 */
-		bool getAcknowledgmentNum(uint32_t& ackNum);
+		bool getAcknowledgmentNum(uint32_t& ackNum) const;
 
 		/**
 		 * Set acknowledgment (ack) number value. If field already exists (gre_basic_header#ackSequenceNumBit is set)
@@ -359,7 +359,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 	};
 
@@ -393,7 +393,7 @@ namespace pcpp
 		 * Get a pointer to the PPP-PPTP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref ppp_pptp_header
 		 */
-		inline ppp_pptp_header* getPPP_PPTPHeader() { return (ppp_pptp_header*)m_Data; }
+		ppp_pptp_header* getPPP_PPTPHeader() const { return (ppp_pptp_header*)m_Data; }
 
 
 		// implement abstract methods
@@ -406,7 +406,7 @@ namespace pcpp
 		/**
 		 * @return The size of @ref ppp_pptp_header
 		 */
-		inline size_t getHeaderLen() { return sizeof(ppp_pptp_header); }
+		size_t getHeaderLen() const { return sizeof(ppp_pptp_header); }
 
 		/**
 		 * Calculate the following fields:
@@ -414,7 +414,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString() { return "PPP for PPTP Layer"; }
+		std::string toString() const { return "PPP for PPTP Layer"; }
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 

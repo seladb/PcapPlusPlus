@@ -94,12 +94,12 @@ struct igmpv3_group_record
 	/**
 	 * @return The multicast address in igmpv3_group_record#multicastAddress as IPv4Address instance
 	 */
-	IPv4Address getMulticastAddress();
+	IPv4Address getMulticastAddress() const;
 
 	/**
 	 * @return The number of source addresses in this group record
 	 */
-	uint16_t getSourceAdressCount();
+	uint16_t getSourceAdressCount() const;
 
 	/**
 	 * Get the source address at a certain index
@@ -107,12 +107,12 @@ struct igmpv3_group_record
 	 * @return The source address in the requested index. If index is negative or higher than the number of source addresses in this
 	 * group record the value if IPv4Address#Zero is returned
 	 */
-	IPv4Address getSoruceAddressAtIndex(int index);
+	IPv4Address getSoruceAddressAtIndex(int index) const;
 
 	/**
 	 * @return The total size in bytes of the group record
 	 */
-	size_t getRecordLen();
+	size_t getRecordLen() const;
 };
 
 
@@ -168,7 +168,7 @@ protected:
 
 	uint16_t calculateChecksum();
 
-	size_t getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType);
+	size_t getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const;
 public:
 
 	virtual ~IgmpLayer() {}
@@ -177,12 +177,12 @@ public:
 	 * Get a pointer to the raw IGMPv1/IGMPv2 header. Notice this points directly to the data, so every change will change the actual packet data
 	 * @return A pointer to the @ref igmp_header
 	 */
-	inline igmp_header* getIgmpHeader() const { return (igmp_header*)m_Data; }
+	igmp_header* getIgmpHeader() const { return (igmp_header*)m_Data; }
 
 	/**
 	 * @return The IPv4 multicast address stored igmp_header#groupAddress
 	 */
-	inline IPv4Address getGroupAddress() { return IPv4Address(getIgmpHeader()->groupAddress); }
+	IPv4Address getGroupAddress() const { return IPv4Address(getIgmpHeader()->groupAddress); }
 
 	/**
 	 * Set the IPv4 multicast address
@@ -194,7 +194,7 @@ public:
 	 * @return IGMP type set in igmp_header#type as ::IgmpType enum. Notice that if igmp_header#type contains a value
 	 * that doesn't appear in the ::IgmpType enum, ::IgmpType_Unknown will be returned
 	 */
-	IgmpType getType();
+	IgmpType getType() const;
 
 	/**
 	 * Set IGMP type (will be written to igmp_header#type field)
@@ -223,9 +223,9 @@ public:
 	/**
 	 * @return Size of IGMP header = 8B
 	 */
-	inline size_t getHeaderLen() { return sizeof(igmp_header); }
+	size_t getHeaderLen() const { return sizeof(igmp_header); }
 
-	std::string toString();
+	std::string toString() const;
 
 	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 };
@@ -339,19 +339,19 @@ public:
 	 * actual packet data
 	 * @return A pointer to the @ref igmpv3_query_header
 	 */
-	inline igmpv3_query_header* getIgmpV3QueryHeader() { return (igmpv3_query_header*)m_Data; }
+	igmpv3_query_header* getIgmpV3QueryHeader() const { return (igmpv3_query_header*)m_Data; }
 
 	/**
 	 * @return The number of source addresses in this message (as extracted from the igmpv3_query_header#numOfSources field)
 	 */
-	uint16_t getSourceAddressCount();
+	uint16_t getSourceAddressCount() const;
 
 	/**
 	 * Get the IPV4 source address in a certain index
 	 * @param[in] index The requested index of the source address
 	 * @return The IPv4 source address, or IPv4Address#Zero if index is out of bounds (of the message or of the layer)
 	 */
-	IPv4Address getSourceAddressAtIndex(int index);
+	IPv4Address getSourceAddressAtIndex(int index) const;
 
 	/**
 	 * Add a new source address at the end of the source address list. The igmpv3_query_header#numOfSources field will be incremented accordingly
@@ -395,7 +395,7 @@ public:
 	/**
 	 * @return The message size in bytes which include the size of the basic header + the size of the source address list
 	 */
-	size_t getHeaderLen();
+	size_t getHeaderLen() const;
 };
 
 
@@ -428,18 +428,18 @@ public:
 	 * actual packet data
 	 * @return A pointer to the @ref igmpv3_report_header
 	 */
-	inline igmpv3_report_header* getReportHeader() const { return (igmpv3_report_header*)m_Data; }
+	igmpv3_report_header* getReportHeader() const { return (igmpv3_report_header*)m_Data; }
 
 	/**
 	 * @return The number of group records in this message (as extracted from the igmpv3_report_header#numOfGroupRecords field)
 	 */
-	uint16_t getGroupRecordCount();
+	uint16_t getGroupRecordCount() const;
 
 	/**
 	 * @return A pointer to the first group record or NULL if no group records exist. Notice the return value is a pointer to the real data,
 	 * so changes in the return value will affect the packet data
 	 */
-	igmpv3_group_record* getFirstGroupRecord();
+	igmpv3_group_record* getFirstGroupRecord() const;
 
 	/**
 	 * Get the group record that comes next to a given group record. If "groupRecord" is NULL then NULL will be returned.
@@ -449,7 +449,7 @@ public:
 	 * @param[in] groupRecord The group record to start searching from
 	 * @return The next group record or NULL if "groupRecord" is NULL, last or out of layer bounds
 	 */
-	igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord);
+	igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord) const;
 
 	/**
 	 * Add a new group record at a the end of the group record list. The igmpv3_report_header#numOfGroupRecords field will be
@@ -501,7 +501,7 @@ public:
 	/**
 	 * @return The message size in bytes which include the size of the basic header + the size of the group record list
 	 */
-	size_t getHeaderLen();
+	size_t getHeaderLen() const { return m_DataLen; }
 };
 
 }

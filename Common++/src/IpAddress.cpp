@@ -13,12 +13,7 @@
 namespace pcpp
 {
 
-IPAddress::~IPAddress()
-{
-
-}
-
-bool IPAddress::equals(const IPAddress* other)
+bool IPAddress::equals(const IPAddress* other) const
 {
 	if (other == NULL)
 		return false;
@@ -64,7 +59,7 @@ IPv4Address::IPv4Address(const IPv4Address& other)
 	m_pInAddr = new in_addr();
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in_addr));
 
-	strncpy(m_AddressAsString, other.m_AddressAsString, 40);
+	strncpy(m_AddressAsString, other.m_AddressAsString, MAX_ADDR_STRING_LEN);
 	m_IsValid = other.m_IsValid;
 }
 
@@ -131,13 +126,11 @@ uint32_t IPv4Address::toInt() const
 
 IPv4Address& IPv4Address::operator=(const IPv4Address& other)
 {
-	if (m_pInAddr != NULL)
-		delete m_pInAddr;
-
-	m_pInAddr = new in_addr();
+	if (m_pInAddr == NULL)
+		m_pInAddr = new in_addr();
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in_addr));
 
-	strncpy(m_AddressAsString, other.m_AddressAsString, 40);
+	strncpy(m_AddressAsString, other.m_AddressAsString, MAX_ADDR_STRING_LEN);
 	m_IsValid = other.m_IsValid;
 
 	return *this;
@@ -173,14 +166,13 @@ IPv6Address::IPv6Address(const IPv6Address& other)
 	m_pInAddr = (in6_addr*)new uint8_t[sizeof(in6_addr)];
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in6_addr));
 
-	strncpy(m_AddressAsString, other.m_AddressAsString, MAX_ADDR_STRING_LEN-1);
-	m_AddressAsString[MAX_ADDR_STRING_LEN - 1] = '\0';
+	strncpy(m_AddressAsString, other.m_AddressAsString, MAX_ADDR_STRING_LEN);
 	m_IsValid = other.m_IsValid;
 }
 
 IPv6Address::~IPv6Address()
 {
-	delete m_pInAddr;
+	delete[] m_pInAddr;
 }
 
 IPAddress* IPv6Address::clone() const
@@ -205,7 +197,7 @@ void IPv6Address::init(char* addressAsString)
 IPv6Address::IPv6Address(uint8_t* addressAsUintArr)
 {
 	m_pInAddr = (in6_addr*)new uint8_t[sizeof(in6_addr)];
-	memcpy(m_pInAddr, addressAsUintArr, 16);
+	memcpy(m_pInAddr, addressAsUintArr, sizeof(in6_addr));
 	if (inet_ntop(AF_INET6, m_pInAddr, m_AddressAsString, MAX_ADDR_STRING_LEN) == 0)
 		m_IsValid = false;
 	else
@@ -222,37 +214,36 @@ IPv6Address::IPv6Address(std::string addressAsString)
 	init((char*)addressAsString.c_str());
 }
 
-void IPv6Address::copyTo(uint8_t** arr, size_t& length)
+void IPv6Address::copyTo(uint8_t** arr, size_t& length) const
 {
-	length = 16;
-	(*arr) = new uint8_t[length];
-	memcpy((*arr), m_pInAddr, length);
+	const size_t addrLen = sizeof(in6_addr);
+	length = addrLen;
+	(*arr) = new uint8_t[addrLen];
+	memcpy((*arr), m_pInAddr, addrLen);
 }
 
 void IPv6Address::copyTo(uint8_t* arr) const
 {
-	memcpy(arr, m_pInAddr, 16);
+	memcpy(arr, m_pInAddr, sizeof(in6_addr));
 }
 
 bool IPv6Address::operator==(const IPv6Address& other) const
 {
-	return (memcmp(m_pInAddr, other.m_pInAddr, 16) == 0);
+	return (memcmp(m_pInAddr, other.m_pInAddr, sizeof(in6_addr)) == 0);
 }
 
-bool IPv6Address::operator!=(const IPv6Address& other)
+bool IPv6Address::operator!=(const IPv6Address& other) const
 {
 	return !(*this == other);
 }
 
 IPv6Address& IPv6Address::operator=(const IPv6Address& other)
 {
-	if (m_pInAddr != NULL)
-		delete m_pInAddr;
-
-	m_pInAddr = (in6_addr*)new uint8_t[sizeof(in6_addr)];
+	if (m_pInAddr == NULL)
+		m_pInAddr = (in6_addr*)new uint8_t[sizeof(in6_addr)];
 	memcpy(m_pInAddr, other.m_pInAddr, sizeof(in6_addr));
 
-	strncpy(m_AddressAsString, other.m_AddressAsString, 40);
+	strncpy(m_AddressAsString, other.m_AddressAsString, MAX_ADDR_STRING_LEN);
 	m_IsValid = other.m_IsValid;
 
 	return *this;

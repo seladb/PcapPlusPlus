@@ -59,7 +59,7 @@ namespace pcpp
 			return (size_t)m_Data->recordLen;
 		}
 
-		size_t getDataSize()
+		size_t getDataSize() const
 		{
 			return (size_t)m_Data->recordLen - 2*sizeof(uint8_t);
 		}
@@ -208,7 +208,7 @@ namespace pcpp
 		/**
 		 * @return A hex string representation of the radius_header#authenticator byte array value
 		 */
-		std::string getAuthenticatorValue();
+		std::string getAuthenticatorValue() const;
 
 		/**
 		 * Setter for radius_header#authenticator
@@ -228,7 +228,7 @@ namespace pcpp
 		 * @return The first RADIUS attribute in the packet. If there are no attributes the returned value will contain
 		 * a logical NULL (RadiusAttribute#isNull() == true)
 		 */
-		RadiusAttribute getFirstAttribute();
+		RadiusAttribute getFirstAttribute() const;
 
 		/**
 		 * Get the RADIUS attribute that comes after a given attribute. If the given attribute was the last one, the
@@ -237,7 +237,7 @@ namespace pcpp
 		 * @return A RadiusAttribute object containing the attribute data that comes next, or logical NULL if the given
 		 * attribute: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
 		 */
-		RadiusAttribute getNextAttribute(RadiusAttribute& attr);
+		RadiusAttribute getNextAttribute(RadiusAttribute& attr) const;
 
 		/**
 		 * Get a RADIUS attribute by attribute type
@@ -245,12 +245,12 @@ namespace pcpp
 		 * @return A RadiusAttribute object containing the first attribute data that matches this type, or logical NULL
 		 * (RadiusAttribute#isNull() == true) if no such attribute found
 		 */
-		RadiusAttribute getAttribute(uint8_t attrType);
+		RadiusAttribute getAttribute(uint8_t attrType) const;
 
 		/**
 		 * @return The number of RADIUS attributes in the packet
 		 */
-		size_t getAttributeCount();
+		size_t getAttributeCount() const;
 
 		/**
 		 * Add a new RADIUS attribute at the end of the layer
@@ -282,13 +282,26 @@ namespace pcpp
 		 */
 		bool removeAllAttributes();
 
+		/**
+		 * The static method makes validation of UDP data
+		 * @param[in] udpData The pointer to the UDP payload data. It points to the first byte of RADIUS header.
+		 * @param[in] udpDataLen The payload data size
+		 * @return True if the data is valid and can represent the RADIUS packet
+		 */
+		static bool isDataValid(const uint8_t* udpData, size_t udpDataLen);
+
+		/**
+		 * A static method that checks whether the port is considered as RADIUS
+		 * @param[in] port The port number to be checked
+		 */
+		static inline bool isRadiusPort(uint16_t port);
 
 		// implement abstract methods
 
 		/**
 		 * @return The size written in radius_header#length
 		 */
-		size_t getHeaderLen();
+		size_t getHeaderLen() const;
 
 		/**
 		 * Does nothing for this layer, RADIUS is always last
@@ -300,19 +313,27 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
-
-		/**
-		 * The static method makes validation of UDP data
-		 * @param[in] udpData The pointer to the UDP payload data. It points to the first byte of RADIUS header.
-		 * @param[in] udpDataLen The payload data size
-		 * @return True if the data is valid and can represent the RADIUS packet
-		 */
-		static bool isDataValid(const uint8_t *udpData, size_t udpDataLen);
-
 	};
-}
+
+
+	// implementation of inline methods
+
+	bool RadiusLayer::isRadiusPort(uint16_t port)
+	{
+		switch (port)
+		{
+		case 1812:
+		case 1813:
+		case 3799:
+			return true;
+		default:
+			return false;
+		}
+	} // isRadiusPort
+
+} // namespace pcpp
 
 #endif // PACKETPP_RADIUS_LAYER

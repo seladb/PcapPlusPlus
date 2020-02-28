@@ -80,7 +80,7 @@ namespace pcpp
 		 * parses this field, extracts its value and return it. If this field doesn't exist 0 is returned
 		 * @return SIP response body length determined by "Content-Length" field
 		 */
-		int getContentLength();
+		int getContentLength() const;
 
 		/**
 		 * The length of the body of many SIP messages is determined by a header field called "Content-Length". This method sets
@@ -99,7 +99,7 @@ namespace pcpp
 
 		// Overridden methods
 
-        OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelSesionLayer; }
 
 		/**
 		 * Currently identifies only SDP if content-length field exists and set to a value greater than zero.
@@ -112,6 +112,12 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
+		/**
+		 * A static method that checks whether the port is considered as SIP
+		 * @param[in] port The port number to be checked
+		 */
+		static bool isSipPort(uint16_t port) { return port == 5060 || port == 5061; }
+
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
 		SipLayer() : TextBasedProtocolMessage() {}
@@ -119,10 +125,9 @@ namespace pcpp
 		SipLayer& operator=(const SipLayer& other) { TextBasedProtocolMessage::operator=(other); return *this; }
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() { return ':'; }
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() { return true; }
+		char getHeaderFieldNameValueSeparator() const { return ':'; }
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return true; }
 	};
-
 
 
 	class SipRequestFirstLine;
@@ -215,11 +220,11 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		inline SipRequestFirstLine* getFirstLine() { return m_FirstLine; }
+		SipRequestFirstLine* getFirstLine() const { return m_FirstLine; }
 
 		// implement Layer's abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 	private:
 		SipRequestFirstLine* m_FirstLine;
@@ -441,11 +446,11 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		inline SipResponseFirstLine* getFirstLine() { return m_FirstLine; }
+		SipResponseFirstLine* getFirstLine() const { return m_FirstLine; }
 
 		// implement Layer's abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 	private:
 		SipResponseFirstLine* m_FirstLine;
@@ -471,7 +476,7 @@ namespace pcpp
 		/**
 		 * @return The SIP request method
 		 */
-		inline SipRequestLayer::SipMethod getMethod() { return m_Method; }
+		SipRequestLayer::SipMethod getMethod() const { return m_Method; }
 
 		/**
 		 * Set the SIP request method
@@ -483,7 +488,7 @@ namespace pcpp
 		/**
 		 * @return A copied version of the URI (notice changing the return value won't change the actual data of the packet)
 		 */
-		std::string getUri();
+		std::string getUri() const;
 
 		/**
 		 * Set the URI
@@ -495,7 +500,7 @@ namespace pcpp
 		/**
 		 * @return The SIP version
 		 */
-		inline std::string getVersion() { return m_Version; }
+		std::string getVersion() const { return m_Version; }
 
 		/**
 		 * A static method for parsing the SIP method out of raw data
@@ -508,7 +513,7 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the SIP request first line
 		 */
-		inline int getSize() { return m_FirstLineEndOffset; }
+		int getSize() const { return m_FirstLineEndOffset; }
 
 		/**
 		 * As explained in SipRequestLayer, a SIP message can sometimes spread over more than 1 packet, so when looking at a single packet
@@ -516,7 +521,7 @@ namespace pcpp
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		inline bool isComplete() { return m_IsComplete; }
+		bool isComplete() const { return m_IsComplete; }
 
 		/**
 		 * @class SipRequestFirstLineException
@@ -573,17 +578,17 @@ namespace pcpp
 		/**
 		 * @return The status code as SipResponseLayer#SipResponseStatusCode enum
 		 */
-		inline SipResponseLayer::SipResponseStatusCode getStatusCode() { return m_StatusCode; }
+		SipResponseLayer::SipResponseStatusCode getStatusCode() const { return m_StatusCode; }
 
 		/**
 		 * @return The status code number as integer (e.g 200, 100, etc.)
 		 */
-		int getStatusCodeAsInt();
+		int getStatusCodeAsInt() const;
 
 		/**
 		 * @return The status code message (e.g "OK", "Trying", etc.)
 		 */
-		std::string getStatusCodeString();
+		std::string getStatusCodeString() const;
 
 		/**
 		 * Set the status code
@@ -596,7 +601,7 @@ namespace pcpp
 		/**
 		 * @return The SIP version
 		 */
-		inline std::string getVersion() { return m_Version; }
+		std::string getVersion() const { return m_Version; }
 
 		/**
 		 * Set the SIP version. The version to set is expected to be in the format of SIP/x.y otherwise an error will be written to log
@@ -615,7 +620,7 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the SIP response first line
 		 */
-		inline int getSize() { return m_FirstLineEndOffset; }
+		int getSize() const { return m_FirstLineEndOffset; }
 
 		/**
 		 * As explained in SipResponseLayer, A SIP message can sometimes spread over more than 1 packet, so when looking at a single packet
@@ -623,7 +628,7 @@ namespace pcpp
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		inline bool isComplete() { return m_IsComplete; }
+		bool isComplete() const { return m_IsComplete; }
 
 		/**
 		 * @class SipResponseFirstLineException

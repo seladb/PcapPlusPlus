@@ -78,13 +78,13 @@ namespace pcpp
 		friend class PcapLiveDeviceList;
 	protected:
 		// This is a second descriptor for the same device. It is needed because of a bug
-		// that occurs in libpcap on Linux (on Windows using WinPcap it works well):
+		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
 		pcap_t* m_PcapSendDescriptor;
 		const char* m_Name;
 		const char* m_Description;
 		bool m_IsLoopback;
-		uint16_t m_DeviceMtu;
+		uint32_t m_DeviceMtu;
 		std::vector<pcap_addr_t> m_Addresses;
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
@@ -113,11 +113,11 @@ namespace pcpp
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
-		static void* captureThreadMain(void *ptr);
-		static void* statsThreadMain(void *ptr);
-		static void onPacketArrives(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
-		static void onPacketArrivesNoCallback(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
-		static void onPacketArrivesBlockingMode(uint8_t *user, const struct pcap_pkthdr *pkthdr, const uint8_t *packet);
+		static void* captureThreadMain(void* ptr);
+		static void* statsThreadMain(void* ptr);
+		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		std::string printThreadId(PcapThread* id);
 		virtual ThreadStart getCaptureThreadStart();
 	public:
@@ -129,9 +129,9 @@ namespace pcpp
 		{
 			/** libPcap live device */
 			LibPcapDevice,
-			/** WinPcap live device */
+			/** WinPcap/Npcap live device */
 			WinPcapDevice,
-			/** WinPcap Remote Capture device */
+			/** WinPcap/Npcap Remote Capture device */
 			RemoteDevice
 		};
 
@@ -153,10 +153,10 @@ namespace pcpp
 		 */
 		enum PcapDirection
 		{
-		    	/** Capture traffics both incoming and outgoing */
-		    	PCPP_INOUT = 0,
-	    		/** Only capture incoming traffics */
-		    	PCPP_IN,
+			/** Capture traffics both incoming and outgoing */
+			PCPP_INOUT = 0,
+			/** Only capture incoming traffics */
+			PCPP_IN,
 			/** Only capture outgoing traffics */
 			PCPP_OUT
 		};
@@ -188,10 +188,10 @@ namespace pcpp
 			 */
 			int packetBufferSize;
 
-	    		/**
-		    	* Set the direction for capturing packets. You can read more here:
-		    	* <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>.
-		    	*/
+			/**
+			 * Set the direction for capturing packets. You can read more here:
+			 * <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>.
+			*/
 			PcapDirection direction;
 
 			/**
@@ -209,7 +209,7 @@ namespace pcpp
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
 				this->packetBufferSize = packetBufferSize;
-				this->direction = PCPP_INOUT;
+				this->direction = direction;
 			}
 		};
 
@@ -220,62 +220,62 @@ namespace pcpp
 		virtual ~PcapLiveDevice();
 
 		/**
-		 * @return The type of the device (libPcap, WinPcap or a remote device)
+		 * @return The type of the device (libPcap, WinPcap/Npcap or a remote device)
 		 */
-		virtual LiveDeviceType getDeviceType() { return LibPcapDevice; }
+		virtual LiveDeviceType getDeviceType() const { return LibPcapDevice; }
 
 		/**
 		 * @return The name of the device (e.g eth0), taken from pcap_if_t->name
 		 */
-		inline const char* getName() { return m_Name; }
+		const char* getName() const { return m_Name; }
 
 		/**
 		 * @return A human-readable description of the device, taken from pcap_if_t->description. May be NULL in some interfaces
 		 */
-		inline const char* getDesc() { return m_Description; }
+		const char* getDesc() const { return m_Description; }
 
 		/**
 		 * @return True if this interface is a loopback interface, false otherwise
 		 */
-		inline bool getLoopback() { return m_IsLoopback; }
+		bool getLoopback() const { return m_IsLoopback; }
 
 		/**
 		 * @return The device's maximum transmission unit (MTU) in bytes
 		 */
-		virtual inline uint16_t getMtu() { return m_DeviceMtu; }
+		virtual uint32_t getMtu() const { return m_DeviceMtu; }
 
 		/**
 		 * @return The device's link layer type
 		 */
-		virtual inline LinkLayerType getLinkType() { return m_LinkType; }
+		virtual LinkLayerType getLinkType() const { return m_LinkType; }
 		/**
 		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
 		 */
-		inline std::vector<pcap_addr_t>& getAddresses() { return m_Addresses; }
+		const std::vector<pcap_addr_t>& getAddresses() const { return m_Addresses; }
 
 		/**
 		 * @return The MAC address for this interface
 		 */
-		virtual inline MacAddress getMacAddress() { return m_MacAddress; }
+		virtual MacAddress getMacAddress() const { return m_MacAddress; }
 
 		/**
 		 * @return The IPv4 address for this interface. If multiple IPv4 addresses are defined for this interface, the first will be picked.
 		 * If no IPv4 addresses are defined, a zeroed IPv4 address (IPv4Address#Zero) will be returned
 		 */
-		IPv4Address getIPv4Address();
+		IPv4Address getIPv4Address() const;
 
 		/**
 		 * @return The default gateway defined for this interface. If no default gateway is defined, if it's not IPv4 or if couldn't extract
 		 * default gateway IPv4Address#Zero will be returned. If multiple gateways were defined the first one will be returned
 		 */
-		IPv4Address getDefaultGateway();
+		IPv4Address getDefaultGateway() const;
 
 		/**
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
 		 * couldn't be extracted from some reason. This list is created in PcapLiveDeviceList class and can be also retrieved from there.
 		 * This method exists for convenience - so it'll be possible to get this list from PcapLiveDevice as well
 		 */
-		std::vector<IPv4Address>& getDnsServers();
+		const std::vector<IPv4Address>& getDnsServers() const;
 
 		/**
 		 * Start capturing packets on this network interface (device). Each time a packet is captured the onPacketArrives callback is called.
@@ -392,7 +392,7 @@ namespace pcpp
 		 * - Device is not opened
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
-		 * - Packet could not be sent due to some error in libpcap/WinPcap
+		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		bool sendPacket(RawPacket const& rawPacket);
 
@@ -404,7 +404,7 @@ namespace pcpp
 		 * - Device is not opened
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
-		 * - Packet could not be sent due to some error in libpcap/WinPcap
+		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		bool sendPacket(const uint8_t* packetData, int packetDataLength);
 
@@ -415,7 +415,7 @@ namespace pcpp
 		 * - Device is not opened
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
-		 * - Packet could not be sent due to some error in libpcap/WinPcap
+		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		bool sendPacket(Packet* packet);
 
@@ -428,7 +428,7 @@ namespace pcpp
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
-		 * - Packet could not be sent due to some error in libpcap/WinPcap
+		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
 
@@ -441,7 +441,7 @@ namespace pcpp
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
-		 * - Packet could not be sent due to some error in libpcap/WinPcap
+		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		virtual int sendPackets(Packet** packetsArr, int arrLength);
 
@@ -453,7 +453,7 @@ namespace pcpp
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
-		 * - Packet could not be sent due to some error in libpcap/WinPcap
+		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		virtual int sendPackets(const RawPacketVector& rawPackets);
 
@@ -479,7 +479,7 @@ namespace pcpp
 
 		void close();
 
-		virtual void getStatistics(pcap_stat& stats);
+		virtual void getStatistics(pcap_stat& stats) const;
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);

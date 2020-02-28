@@ -48,32 +48,32 @@ public:
 	/**
 	 * @return Cipher-suite ID
 	 */
-	inline uint16_t getID() { return m_Id; }
+	uint16_t getID() const { return m_Id; }
 
 	/**
 	 * @return String representation of this cipher-suite
 	 */
-	inline std::string asString() { return m_Name; }
+	std::string asString() const { return m_Name; }
 
 	/**
 	 * @return Key-exchange algorithm used in this cipher-suite
 	 */
-	inline SSLKeyExchangeAlgorithm getKeyExchangeAlg() { return m_KeyExAlg; }
+	SSLKeyExchangeAlgorithm getKeyExchangeAlg() const { return m_KeyExAlg; }
 
 	/**
 	 * @return Authentication algorithm used in this cipher-suite
 	 */
-	inline SSLAuthenticationAlgorithm getAuthAlg() { return m_AuthAlg; }
+	SSLAuthenticationAlgorithm getAuthAlg() const { return m_AuthAlg; }
 
 	/**
 	 * @return Symmetric key algorithm used in this cipher-suite
 	 */
-	inline SSLSymetricEncryptionAlgorithm getSymKeyAlg() { return m_SymKeyAlg; }
+	SSLSymetricEncryptionAlgorithm getSymKeyAlg() const { return m_SymKeyAlg; }
 
 	/**
 	 * @return MAC algorithm used in this cipher-suite
 	 */
-	inline SSLHashingAlgorithm getMACAlg() { return m_MACAlg; }
+	SSLHashingAlgorithm getMACAlg() const { return m_MACAlg; }
 
 	/**
 	 * A static method that returns a cipher-suite instance by ID
@@ -119,27 +119,27 @@ public:
 	/**
 	 * @return The type of the extension as enum
 	 */
-	SSLExtensionType getType();
+	SSLExtensionType getType() const;
 
 	/**
 	 * @return The type of the extension as a numeric value
 	 */
-	uint16_t getTypeAsInt();
+	uint16_t getTypeAsInt() const;
 
 	/**
 	 * @return The length of the extension data in bytes (not including the type and length fields)
 	 */
-	uint16_t getLength();
+	uint16_t getLength() const;
 
 	/**
 	 * @return The total length of the extension, including type and length fields and the extension data field
 	 */
-	uint16_t getTotalLength();
+	uint16_t getTotalLength() const;
 
 	/**
 	 * @return A pointer to the raw data of the extension
 	 */
-	uint8_t* getData();
+	uint8_t* getData() const;
 
 protected:
 
@@ -159,7 +159,7 @@ protected:
 
 	uint8_t* m_RawData;
 
-	inline SSLExtensionStruct* getExtensionStruct() { return (SSLExtensionStruct*)m_RawData; }
+	SSLExtensionStruct* getExtensionStruct() const { return (SSLExtensionStruct*)m_RawData; }
 };
 
 
@@ -180,7 +180,7 @@ public:
 	/**
 	 * @return The hostname written in the extension data
 	 */
-	std::string getHostName();
+	std::string getHostName() const;
 };
 
 
@@ -208,19 +208,19 @@ public:
 	/**
 	 * @return A pointer to the raw data
 	 */
-	uint8_t* getData() { return m_Data; }
+	uint8_t* getData() const { return m_Data; }
 
 	/**
 	 * @return Raw data length
 	 */
-	size_t getDataLength() { return m_DataLen; }
+	size_t getDataLength() const { return m_DataLen; }
 
 	/**
 	 * Certificate messages usually spread on more than 1 packet. So a certificate is likely to split between 2 packets
 	 * or more. This method provides an indication whether all certificate data exists or only part of it
 	 * @return True if this data contains all certificate data, false otherwise
 	 */
-	bool allDataExists() { return m_AllDataExists; }
+	bool allDataExists() const { return m_AllDataExists; }
 
 private:
 	uint8_t* m_Data;
@@ -258,13 +258,13 @@ public:
 	/**
 	 * @return The handshake message type
 	 */
-	virtual SSLHandshakeType getHandshakeType();
+	virtual SSLHandshakeType getHandshakeType() const;
 
 	/**
 	 * @return The handshake message length in bytes. Notice that sometimes the handshake message is divided between
 	 * several packets, in this case this method will return the length of part of the message in the current packet
 	 */
-	virtual size_t getMessageLength();
+	virtual size_t getMessageLength() const;
 
 	/**
 	 * @return True if current packet contains the entire message or false otherwise. This method is important
@@ -272,17 +272,17 @@ public:
 	 * which usually contain several KB of data which is larger than standard packet size, so the message is divided between
 	 * several packets)
 	 */
-	virtual bool isMessageComplete();
+	virtual bool isMessageComplete() const;
 
 	/**
 	 * @return A pointer to the SSLHandshakeLayer instance containing this message
 	 */
-	inline SSLHandshakeLayer* getContainingLayer() { return m_Container; }
+	 SSLHandshakeLayer* getContainingLayer() const { return m_Container; }
 
 	/**
 	 * @return A string representation of the message type (e.g "Client Hello message")
 	 */
-	virtual std::string toString() = 0;
+	virtual std::string toString() const = 0;
 
 protected:
 
@@ -319,28 +319,28 @@ public:
 	 * @return A struct containing common fields for client-hello and server-hello messages. Notice this points directly
 	 * to the data, so every change will change the actual packet data
 	 */
-	inline ssl_tls_client_server_hello* getClientHelloHeader() const { return (ssl_tls_client_server_hello*)m_Data; }
+	ssl_tls_client_server_hello* getClientHelloHeader() const { return (ssl_tls_client_server_hello*)m_Data; }
 
 	/**
 	 * @return Handshake SSL/TLS version (notice it may be different than SSLLayer#getRecordVersion(). Each client-hello
 	 * or server-hello message has both record version and handshake version and they may differ from one another)
 	 */
-	SSLVersion getHandshakeVersion();
+	SSLVersion getHandshakeVersion() const;
 
 	/**
 	 * @return Session ID length in bytes. If server-hello message doesn't include session ID 0 will be returned
 	 */
-	uint8_t getSessionIDLength();
+	uint8_t getSessionIDLength() const;
 
 	/**
 	 * @return Session ID as byte array. If server-hello message doesn't include session ID NULL will be returned
 	 */
-	uint8_t* getSessionID();
+	uint8_t* getSessionID() const;
 
 	/**
 	 * @return The number of cipher-suites included in this message
 	 */
-	int getCipherSuiteCount();
+	int getCipherSuiteCount() const;
 
 	/**
 	 * Get a pointer to a cipher-suite by index. The cipher-suites are numbered according to their order of appearance
@@ -349,22 +349,22 @@ public:
 	 * @param[in] index The index of the cipher-suite to return
 	 * @return The pointer to the cipher-suite object or NULL if index is out of bounds
 	 */
-	SSLCipherSuite* getCipherSuite(int index);
+	SSLCipherSuite* getCipherSuite(int index) const;
 
 	/**
 	 * @return The value of the compression method byte
 	 */
-	uint8_t getCompressionMethodsValue();
+	uint8_t getCompressionMethodsValue() const;
 
 	/**
 	 * @return The number of extensions in this message
 	 */
-	int getExtensionCount();
+	int getExtensionCount() const;
 
 	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
 	 */
-	uint16_t getExtensionsLenth();
+	uint16_t getExtensionsLenth() const;
 
 	/**
 	 * Get a pointer to an extension by index. The extensions are numbered according to their order of appearance
@@ -373,7 +373,7 @@ public:
 	 * @param[in] index The index of the extension to return
 	 * @return The pointer to the extension or NULL if index is out of bounds
 	 */
-	SSLExtension* getExtension(int index);
+	SSLExtension* getExtension(int index) const;
 
 	/**
 	 * Get a pointer to an extension by numeric type field. Every extension has a 2-byte numeric value representing
@@ -382,14 +382,14 @@ public:
 	 * @param[in] type The 2-byte numeric type of the extension
 	 * @return A pointer to the extension object of NULL if this type doesn't exist in this message
 	 */
-	SSLExtension* getExtensionOfType(uint16_t type);
+	SSLExtension* getExtensionOfType(uint16_t type) const;
 
 	/**
 	 * Get a pointer to an extension by its enum type
 	 * @param[in] type The type of extension to return
 	 * @return A pointer to the extension object or NULL if this type doesn't exist in this message
 	 */
-	SSLExtension* getExtensionOfType(SSLExtensionType type);
+	SSLExtension* getExtensionOfType(SSLExtensionType type) const;
 
 	/**
 	 * Get a pointer to an extension by its class type. This is a templated method that is used with the type of the
@@ -398,11 +398,11 @@ public:
 	 *
 	 */
 	template<class TExtension>
-	TExtension* getExtensionOfType();
+	TExtension* getExtensionOfType() const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 
 private:
 	PointerVector<SSLExtension> m_ExtensionList;
@@ -434,44 +434,44 @@ public:
 	 * @return A struct containing common fields for client-hello and server-hello messages. Notice this points directly
 	 * to the data, so every change will change the actual packet data
 	 */
-	inline ssl_tls_client_server_hello* getServerHelloHeader() const { return (ssl_tls_client_server_hello*)m_Data; }
+	ssl_tls_client_server_hello* getServerHelloHeader() const { return (ssl_tls_client_server_hello*)m_Data; }
 
 	/**
 	 * @return Handshake SSL/TLS version (notice it may be different than SSLLayer#getRecordVersion(). Each client-hello
 	 * or server-hello message has both record version and handshake version and they may differ from one another)
 	 */
-	SSLVersion getHandshakeVersion();
+	SSLVersion getHandshakeVersion() const;
 
 	/**
 	 * @return Session ID length in bytes. If server-hello message doesn't include session ID 0 will be returned
 	 */
-	uint8_t getSessionIDLength();
+	uint8_t getSessionIDLength() const;
 
 	/**
 	 * @return Session ID as byte array. If server-hello message doesn't include session ID NULL will be returned
 	 */
-	uint8_t* getSessionID();
+	uint8_t* getSessionID() const;
 
 	/**
 	 * @return A pointer to the cipher suite encapsulated in this message (server-hello message contains one
 	 * cipher-suite, the one that will be used to for encryption between client and server)
 	 */
-	SSLCipherSuite* getCipherSuite();
+	SSLCipherSuite* getCipherSuite() const;
 
 	/**
 	 * @return The value of the compression method byte
 	 */
-	uint8_t getCompressionMethodsValue();
+	uint8_t getCompressionMethodsValue() const;
 
 	/**
 	 * @return The number of extensions in this message
 	 */
-	int getExtensionCount();
+	int getExtensionCount() const;
 
 	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
 	 */
-	uint16_t getExtensionsLenth();
+	uint16_t getExtensionsLenth() const;
 
 	/**
 	 * Get a pointer to an extension by index. The extensions are numbered according to their order of appearance
@@ -480,7 +480,7 @@ public:
 	 * @param[in] index The index of the extension to return
 	 * @return The pointer to the extension or NULL if index is out of bounds
 	 */
-	SSLExtension* getExtension(int index);
+	SSLExtension* getExtension(int index) const;
 
 	/**
 	 * Get a pointer to an extension by numeric type field. Every extension has a 2-byte numeric value representing
@@ -489,14 +489,14 @@ public:
 	 * @param[in] type The 2-byte numeric type of the extension
 	 * @return A pointer to the extension object of NULL if this type doesn't exist in this message
 	 */
-	SSLExtension* getExtensionOfType(uint16_t type);
+	SSLExtension* getExtensionOfType(uint16_t type) const;
 
 	/**
 	 * Get a pointer to an extension by its enum type
 	 * @param[in] type The type of extension to return
 	 * @return A pointer to the extension object or NULL if this type doesn't exist in this message
 	 */
-	SSLExtension* getExtensionOfType(SSLExtensionType type);
+	SSLExtension* getExtensionOfType(SSLExtensionType type) const;
 
 	/**
 	 * Get a pointer to an extension by its class type. This is a templated method that is used with the type of the
@@ -505,11 +505,11 @@ public:
 	 *
 	 */
 	template<class TExtension>
-	TExtension* getExtensionOfType();
+	TExtension* getExtensionOfType() const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 
 private:
 	PointerVector<SSLExtension> m_ExtensionList;
@@ -546,7 +546,7 @@ public:
 	 * certificates) but this message actually contains only 1 certificate as the other 2 are spread over the other
 	 * packets
 	 */
-	int getNumOfCertificates();
+	int getNumOfCertificates() const;
 
 	/**
 	 * Get a certificate by index
@@ -554,11 +554,11 @@ public:
 	 * @return A pointer to the certificate object. Notice that if index < 0 or index > num of certificates encapsulated
 	 * in current packet a NULL value will be returned
 	 */
-	SSLx509Certificate* getCertificate(int index);
+	SSLx509Certificate* getCertificate(int index) const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 
 private:
 	PointerVector<SSLx509Certificate> m_CertificateList;
@@ -587,7 +587,7 @@ public:
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 };
 
 
@@ -617,7 +617,7 @@ public:
 	 * raw, parsing may be added in the future. Notice that if the message is spread over more than 1 packet in a way
 	 * params doesn't exist in the first packet, NULL will be returned
 	 */
-	uint8_t* getServerKeyExchangeParams();
+	uint8_t* getServerKeyExchangeParams() const;
 
 	/**
 	 * @return The size of the params field. Notice that if the message is spread over more than 1 packet in a way the
@@ -625,11 +625,11 @@ public:
 	 * exist in current packet (and the rest are on consequent packets), the size that will be returned is the size
 	 * of the part that exists in the current packet (and not total size of params)
 	 */
-	size_t getServerKeyExchangeParamsLength();
+	size_t getServerKeyExchangeParamsLength() const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 };
 
 
@@ -659,7 +659,7 @@ public:
 	 * as raw, parsing may be added in the future. Notice that if the message is spread over more than 1 packet in
 	 * a way params doesn't exist in the first packet, NULL will be returned
 	 */
-	uint8_t* getClientKeyExchangeParams();
+	uint8_t* getClientKeyExchangeParams() const;
 
 	/**
 	 * @return The size of the params field. Notice that if the message is spread over more than 1 packet in a way the
@@ -667,11 +667,11 @@ public:
 	 * exist in current packet (and the rest are on consequent packets), the size that will be returned is the size
 	 * of the part that exists in the current packet (and not the total size of params)
 	 */
-	size_t getClientKeyExchangeParamsLength();
+	size_t getClientKeyExchangeParamsLength() const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 };
 
 
@@ -705,7 +705,7 @@ public:
 	 * in the future. Notice that if this message is spread over several packets in a way none of the certificate
 	 * authority data exists in this packet, NULL will be returned
 	 */
-	uint8_t* getCertificateAuthorityData();
+	uint8_t* getCertificateAuthorityData() const;
 
 	/**
 	 * @return The length of certificate authority data returned by getCertificateAuthorityData(). Notice that if
@@ -713,11 +713,11 @@ public:
 	 * packet, 0 will be returned. Also, if some of the data exists in the consequent packets, the length that will be
 	 * returned is the length of data exists in the current packet only (and not the total length)
 	 */
-	size_t getCertificateAuthorityLength();
+	size_t getCertificateAuthorityLength() const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 
 private:
 	std::vector<SSLClientCertificateType> m_ClientCertificateTypes;
@@ -746,7 +746,7 @@ public:
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 };
 
 
@@ -776,7 +776,7 @@ public:
 	 * in the future. Notice that if this message is spread over several packets in a way none of the signed hash data
 	 * exists in this packet, NULL will be returned
 	 */
-	uint8_t* getSignedHash();
+	uint8_t* getSignedHash() const;
 
 	/**
 	 * @return The length of signed hash data returned by getSignedHash(). Notice that if this message is spread over
@@ -784,11 +784,11 @@ public:
 	 * the data exists in the consequent packets, the length that will be returned will be the length of data exists in
 	 * the current packet only (and not the total length)
 	 */
-	size_t getSignedHashLength();
+	size_t getSignedHashLength() const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 };
 
 
@@ -818,7 +818,7 @@ public:
 	 * in the future. Notice that if this message is spread over several packets in a way none of the signed hash data
 	 * exists in this packet, NULL will be returned
 	 */
-	uint8_t* getSignedHash();
+	uint8_t* getSignedHash() const;
 
 	/**
 	 * @return The length of signed hash data returned by getSignedHash(). Notice that if the message is spread over
@@ -826,11 +826,11 @@ public:
 	 * the data exists in the consequent packets, the length that will be returned will be the length of data exists
 	 * in the current packet only (and not the total length)
 	 */
-	size_t getSignedHashLength();
+	size_t getSignedHashLength() const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 };
 
 
@@ -859,7 +859,7 @@ public:
 	 * in the future. Notice that if this message is spread over several packets in a way none of the signed hash data
 	 * exists in current packet, NULL will be returned
 	 */
-	uint8_t* getSessionTicketData();
+	uint8_t* getSessionTicketData() const;
 
 	/**
 	 * @return The length of session ticket data returned by getSessionTicketData(). Notice that if this message is
@@ -867,11 +867,11 @@ public:
 	 * if some of the data exist in the consequent packets, the length that will be returned will be the length of the
 	 * data existing in the current packet only (and not the total length)
 	 */
-	size_t getSessionTicketDataLength();
+	size_t getSessionTicketDataLength() const;
 
 	// implement abstract methods
 
-	std::string toString();
+	std::string toString() const;
 };
 
 
@@ -901,25 +901,25 @@ public:
 	/**
 	 * @return Always ::SSL_HANDSHAKE_UNKNOWN (overridden from SSLHandshakeMessage)
 	 */
-	SSLHandshakeType getHandshakeType();
+	SSLHandshakeType getHandshakeType() const;
 
 	/**
 	 * @return The length of the data from message start until the end of the layer. Since it's an unknown type
 	 * or an encrypted message the length parsed from the message can't be guaranteed to be the correct length. That's
 	 * why the length returned is the size until the end of the layer
 	 */
-	size_t getMessageLength();
+	size_t getMessageLength() const;
 
-	std::string toString();
+	std::string toString() const;
 };
 
 template<class TExtension>
-TExtension* SSLClientHelloMessage::getExtensionOfType()
+TExtension* SSLClientHelloMessage::getExtensionOfType() const
 {
 	size_t vecSize = m_ExtensionList.size();
 	for (size_t i = 0; i < vecSize; i++)
 	{
-		SSLExtension* curElem = m_ExtensionList.at(i);
+		SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 		 if (dynamic_cast<TExtension*>(curElem) != NULL)
 			 return (TExtension*)curElem;
 	}
@@ -928,12 +928,12 @@ TExtension* SSLClientHelloMessage::getExtensionOfType()
 }
 
 template<class TExtension>
-TExtension* SSLServerHelloMessage::getExtensionOfType()
+TExtension* SSLServerHelloMessage::getExtensionOfType() const
 {
 	size_t vecSize = m_ExtensionList.size();
 	for (size_t i = 0; i < vecSize; i++)
 	{
-		SSLExtension* curElem = m_ExtensionList.at(i);
+		SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 		 if (dynamic_cast<TExtension*>(curElem) != NULL)
 			 return (TExtension*)curElem;
 	}

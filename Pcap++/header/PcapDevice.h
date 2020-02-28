@@ -29,7 +29,7 @@ namespace pcpp
 
 	/**
 	 * @class IPcapDevice
-	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap and RemoteCapture.
+	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and RemoteCapture.
 	 * This class is abstract and cannot be instantiated
 	 */
 	class IPcapDevice : public IDevice, public IFilterableDevice
@@ -47,10 +47,10 @@ namespace pcpp
 		 * Get statistics from device:
 		 * - pcap_stat#ps_recv: number of packets received
 		 * - pcap_stat#ps_drop: number of packets dropped
-		 * - pcap_stat#ps_ifdorp: number of packets dropped by interface
+		 * - pcap_stat#ps_ifdrop: number of packets dropped by interface
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		virtual void getStatistics(pcap_stat& stats) = 0;
+		virtual void getStatistics(pcap_stat& stats) const = 0;
 
 		/**
 		 * A static method for retreiving pcap lib (libpcap/WinPcap/etc.) version information. This method is actually

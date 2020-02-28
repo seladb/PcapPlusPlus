@@ -53,7 +53,7 @@ namespace pcpp
 		/**
 		 * @return The protocol family in this layer
 		 */
-		uint32_t getFamily();
+		uint32_t getFamily() const;
 
 		/**
 		 * Set a protocol family
@@ -75,14 +75,14 @@ namespace pcpp
 		/**
 		 * @return Size of Null/Loopback header = 4B
 		 */
-		inline size_t getHeaderLen() { return sizeof(uint32_t); }
+		size_t getHeaderLen() const { return sizeof(uint32_t); }
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};

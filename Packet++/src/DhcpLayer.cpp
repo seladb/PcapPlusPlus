@@ -47,8 +47,8 @@ DhcpLayer::DhcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pa
 void DhcpLayer::initDhcpLayer(size_t numOfBytesToAllocate)
 {
 	m_DataLen = numOfBytesToAllocate;
-	m_Data = new uint8_t[m_DataLen];
-	memset(m_Data, 0, m_DataLen);
+	m_Data = new uint8_t[numOfBytesToAllocate];
+	memset(m_Data, 0, numOfBytesToAllocate);
 	m_Protocol = DHCP;
 }
 
@@ -130,12 +130,6 @@ void DhcpLayer::setClientHardwareAddress(const MacAddress& addr)
 	addr.copyTo(hdr->clientHardwareAddress);
 }
 
-size_t DhcpLayer::getHeaderLen()
-{
-	// assuming no more layers DHCP
-	return m_DataLen;
-}
-
 void DhcpLayer::computeCalculateFields()
 {
 	dhcp_header* hdr = getDhcpHeader();
@@ -166,7 +160,7 @@ void DhcpLayer::computeCalculateFields()
 	hdr->hardwareAddressLength = 6; // MAC address length
 }
 
-std::string DhcpLayer::toString()
+std::string DhcpLayer::toString() const
 {
 	std::string msgType = "Unknown";
 	switch (getMesageType())
@@ -219,7 +213,7 @@ std::string DhcpLayer::toString()
 	return "DHCP layer (" + msgType + ")";
 }
 
-DhcpMessageType DhcpLayer::getMesageType()
+DhcpMessageType DhcpLayer::getMesageType() const
 {
 	DhcpOption opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
 	if (opt.isNull())
@@ -245,22 +239,22 @@ bool DhcpLayer::setMesageType(DhcpMessageType msgType)
 	return true;
 }
 
-DhcpOption DhcpLayer::getOptionData(DhcpOptionTypes option)
+DhcpOption DhcpLayer::getOptionData(DhcpOptionTypes option) const
 {
 	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-DhcpOption DhcpLayer::getFirstOptionData()
+DhcpOption DhcpLayer::getFirstOptionData() const
 {
 	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-DhcpOption DhcpLayer::getNextOptionData(DhcpOption dhcpOption)
+DhcpOption DhcpLayer::getNextOptionData(DhcpOption dhcpOption) const
 {
 	return m_OptionReader.getNextTLVRecord(dhcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }
 
-size_t DhcpLayer::getOptionsCount()
+size_t DhcpLayer::getOptionsCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcp_header));
 }

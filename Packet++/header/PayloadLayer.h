@@ -36,19 +36,28 @@ namespace pcpp
 		 */
 		PayloadLayer(const uint8_t* data, size_t dataLen, bool dummy);
 
+		/**
+		 * A constructor that allocates a new payload from an hex stream
+		 * @param[in] payloadAsHexStream A string that represents an hex stream of the payload. For example: 0001080006040002842b2b774c56c0a80078000000000000c0a8.
+		 * In order for the hex stream to be valid it has to contain valid hex chars only (which means, for example, that it can't begin with "0x") and it also has
+		 * to have an even number of chars (each char represents one nibble). If the string is not a valid hex stream an error will be printed to log and the payload
+		 * layer will be empty (no data) 
+		 */
+		PayloadLayer(const std::string& payloadAsHexStream);
+
 		~PayloadLayer() {}
 
 		/**
 		 * Get a pointer to the payload data
 		 * @return A pointer to the payload data
 		 */
-		inline uint8_t* getPayload() { return m_Data; }
+		uint8_t* getPayload() const { return m_Data; }
 
 		/**
 		 * Get the payload data length
 		 * @return The payload data length in bytes
 		 */
-		inline size_t getPayloadLen() { return m_DataLen; }
+		size_t getPayloadLen() const { return m_DataLen; }
 
 		// implement abstract methods
 
@@ -60,14 +69,14 @@ namespace pcpp
 		/**
 		 * @return Payload data length in bytes
 		 */
-		inline size_t getHeaderLen() { return m_DataLen; }
+		size_t getHeaderLen() const { return m_DataLen; }
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 

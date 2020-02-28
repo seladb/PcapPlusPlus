@@ -1,7 +1,8 @@
 ![PcapPlusPlus Logo](https://pcapplusplus.github.io/resources/logo_color.png)
 
 [![Build Status](https://travis-ci.org/seladb/PcapPlusPlus.svg?branch=master)](https://travis-ci.org/seladb/PcapPlusPlus)
-[![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc/branch/master?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
+[![Build Status](https://api.cirrus-ci.com/github/seladb/PcapPlusPlus.svg)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/18137/badge.svg)](https://scan.coverity.com/projects/pcapplusplus)
 <a href="https://twitter.com/intent/follow?screen_name=seladb">
     <img src="https://img.shields.io/twitter/follow/seladb.svg?label=Follow%20PcapPlusPlus" alt="Follow PcapPlusPlus" />
@@ -9,7 +10,7 @@
 
 [PcapPlusPlus](https://pcapplusplus.github.io/) is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.
 
-PcapPlusPlus enables decoding and forging capabilities for a large variety of network protocols. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [DPDK](https://www.dpdk.org/) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
+PcapPlusPlus enables decoding and forging capabilities for a large variety of network protocols. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
 
 ## Table Of Contents
 
@@ -41,7 +42,7 @@ From [Conan](https://bintray.com/bincrafters/public-conan/pcapplusplus%3Abincraf
 
 ```shell
 conan remote add public-conan https://api.bintray.com/conan/bincrafters/public-conan
-conan install pcapplusplus/19.04@bincrafters/stable -r public-conan
+conan install pcapplusplus/19.12@bincrafters/stable -r public-conan
 ```
 
 From GitHub release page:
@@ -64,7 +65,7 @@ Follow the build instructions according to your platform in the [Build From Sour
 - __Packet parsing and crafting__ including detailed analysis of protocols and layers, packet generation and packet edit for a large variety of [network protocols](https://pcapplusplus.github.io/docs/features#supported-network-protocols) [[Learn more](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)]
 - __Read and write packets from/to files__ in both __PCAP__ and __PCAPNG__ formats [[Learn more](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
 - __Packet processing in line rate__ through an efficient and easy to use C++ wrapper for [DPDK](https://www.dpdk.org/) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) [[Learn more](https://pcapplusplus.github.io/docs/features#dpdk-support)]
-- __Multiplatform support__ - PcapPlusPlus is fully supported on Linux, MacOS and Windows
+- __Multiplatform support__ - PcapPlusPlus is fully supported on Linux, MacOS, Windows and FreeBSD
 - __Packet reassembly__ - unique implementation of __TCP Reassembly__ which includes TCP retransmission, out-of-order TCP packets and missing TCP data, and __IP Fragmentation and Defragmentation__ to create and reassemble IPv4 and IPv6 fragments [[Learn more](https://pcapplusplus.github.io/docs/features#packet-reassembly)]
 - __Packet filtering__ that makes libpcap's BPF filters a lot more user-friendly [[Learn more](https://pcapplusplus.github.io/docs/features#packet-filtering)]
 
@@ -123,7 +124,7 @@ You can find much more information in the [Getting Started](https://pcapplusplus
 PcapPlusPlus consists of 3 libraries:
 
 1. __Packet++__ - a library for parsing, creating and editing network packets
-2. __Pcap++__ - a library for intercepting and sending packets, providing network and NIC info, stats, etc. It is actually a C++ wrapper for packet capturing engines such as libpcap, WinPcap, DPDK and PF_RING
+2. __Pcap++__ - a library for intercepting and sending packets, providing network and NIC info, stats, etc. It is actually a C++ wrapper for packet capturing engines such as libpcap, WinPcap, Npcap, DPDK and PF_RING
 3. __Common++__ - a library with some common code utilities used by both Packet++ and Pcap++
 
 You can find an extensive API documentation in the [API documentation section](https://pcapplusplus.github.io/api-docs/) in PcapPlusPlus web-site.
@@ -131,38 +132,39 @@ If you see any missing data please [contact us](#provide-feedback).
 
 ## Multi Platform Support
 
-PcapPlusPlus is currently supported on __Windows__, __Linux__ and __MacOS__. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/install/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
+PcapPlusPlus is currently supported on __Windows__, __Linux__, __MacOS__ and __FreeBSD__. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/install/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
 ## Supported Network Protocols
 
 PcapPlusPlus currently supports parsing, editing and creation of packets of the following protocols:
 
-1. Ethernet
-2. SLL (Linux cooked capture)
-3. Null/Loopback
-4. Raw IP (IPv4 & IPv6)
-5. IPv4
-6. IPv6
-7. ARP
-8. VLAN
-9. VXLAN
-10. MPLS
-11. PPPoE
-12. GRE
-13. TCP
-14. UDP
-15. GTP (v1)
-16. ICMP
-17. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-18. SIP
-19. SDP
-20. Radius
-21. DNS
-22. DHCP
-23. HTTP headers (request & response)
-24. SSL/TLS - parsing only (no editing capabilities)
-25. Packet trailer (a.k.a footer or padding)
-26. Generic payload
+1. Ethernet II
+2. IEEE 802.3 Ethernet
+3. SLL (Linux cooked capture)
+4. Null/Loopback
+5. Raw IP (IPv4 & IPv6)
+6. IPv4
+7. IPv6
+8. ARP
+9. VLAN
+10. VXLAN
+11. MPLS
+12. PPPoE
+13. GRE
+14. TCP
+15. UDP
+16. GTP (v1)
+17. ICMP
+18. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+19. SIP
+20. SDP
+21. Radius
+22. DNS
+23. DHCP
+24. HTTP headers (request & response)
+25. SSL/TLS - parsing only (no editing capabilities)
+26. Packet trailer (a.k.a footer or padding)
+27. Generic payload
 
 ## DPDK And PF_RING Support
 

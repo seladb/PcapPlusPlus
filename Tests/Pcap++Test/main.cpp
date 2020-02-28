@@ -30,6 +30,7 @@
 #include <string.h>
 #include <iostream>
 #include <string>
+#include <vector>
 #include <PcapFilter.h>
 #include <PlatformSpecificUtils.h>
 #include <PcapPlusPlusVersion.h>
@@ -43,9 +44,8 @@
 #include <NetworkUtils.h>
 #include <RawSocketDevice.h>
 #include "PcppTestFramework.h"
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
-#include <in.h>
-#endif
+#include <EndianPortable.h>
+#include <GeneralUtils.h>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -377,9 +377,9 @@ public:
 
 	void stop() { m_Stop = true; }
 
-	uint32_t getCoreId() { return m_CoreId; }
+	uint32_t getCoreId() const { return m_CoreId; }
 
-	int getPacketCount() { return m_PacketCount; }
+	int getPacketCount() const { return m_PacketCount; }
 
 	bool threadRanAndStopped() { return m_RanAndStopped; }
 };
@@ -535,7 +535,7 @@ bool sendURLRequest(string url)
 	string cmd = "cUrl\\curl_win32.exe -s -o cUrl\\curl_output.txt";
 #elif LINUX
 	string cmd = "cUrl/curl.linux32 -s -o cUrl/curl_output.txt";
-#elif MAC_OS_X
+#elif MAC_OS_X || FREEBSD
 	string cmd = "curl -s -o cUrl/curl_output.txt";
 #endif
 
@@ -651,7 +651,7 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT(ip4Addr->getType() == IPAddress::IPv4AddressType, "IPv4 address is not of type IPv4Address");
 	PTF_ASSERT(strcmp(ip4Addr->toString().c_str(), "10.0.0.4") == 0, "IPv4 toString doesn't return the correct string");
 	IPv4Address* ip4AddrAfterCast = static_cast<IPv4Address*>(ip4Addr.get());
-	PTF_ASSERT(ntohl(ip4AddrAfterCast->toInt()) == 0x0A000004, "toInt() gave wrong result: %X", ip4AddrAfterCast->toInt());
+	PTF_ASSERT(be32toh(ip4AddrAfterCast->toInt()) == 0x0A000004, "toInt() gave wrong result: %X", ip4AddrAfterCast->toInt());
 	IPv4Address secondIPv4Address(string("1.1.1.1"));
 	secondIPv4Address = *ip4AddrAfterCast;
 	PTF_ASSERT(secondIPv4Address.isValid() == true, "Valid address identified as non-valid");
@@ -1152,12 +1152,12 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
     pcap_stat writerStatistics;
 
     readerDev.getStatistics(readerStatistics);
-    PTF_ASSERT(readerStatistics.ps_recv == 159, "Incorrect number of packets read from file. Expected: 159; read: %d", readerStatistics.ps_recv);
-    PTF_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %d", readerStatistics.ps_drop);
+    PTF_ASSERT(readerStatistics.ps_recv == 159, "Incorrect number of packets read from file. Expected: 159; read: %u", readerStatistics.ps_recv);
+    PTF_ASSERT(readerStatistics.ps_drop == 0, "Packets were not read properly from file. Number of packets dropped: %u", readerStatistics.ps_drop);
 
     writerDev.getStatistics(writerStatistics);
-    PTF_ASSERT(writerStatistics.ps_recv == 159, "Incorrect number of packets written to file. Expected: 159; written: %d", writerStatistics.ps_recv);
-    PTF_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %d", writerStatistics.ps_drop);
+    PTF_ASSERT(writerStatistics.ps_recv == 159, "Incorrect number of packets written to file. Expected: 159; written: %u", writerStatistics.ps_recv);
+    PTF_ASSERT(writerStatistics.ps_drop == 0, "Packets were not written properly to file. Number of packets dropped: %u", writerStatistics.ps_drop);
 
     readerDev.close();
     writerDev.close();
@@ -1188,6 +1188,7 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
     RawPacket rawPacket2;
 
+    int packet_count = 0;
     while (readerDev2.getNextPacket(rawPacket, pktComment))
     {
     	packetCount++;
@@ -1215,24 +1216,34 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 		readerDev3.getNextPacket(rawPacket2);
 
-		if (rawPacket.getPacketTimeStamp().tv_sec < rawPacket2.getPacketTimeStamp().tv_sec)
+		timespec packet1_timestamp = rawPacket.getPacketTimeStamp();
+		timespec packet2_timestamp = rawPacket2.getPacketTimeStamp();
+		if (packet1_timestamp.tv_sec < packet2_timestamp.tv_sec)
 		{
-			PTF_ASSERT((rawPacket2.getPacketTimeStamp().tv_sec - rawPacket.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
+			PTF_ASSERT((packet2_timestamp.tv_sec - packet1_timestamp.tv_sec) < 2,
+					"Timestamps are differ in packets %d in more than 2 secs: %ld and %ld; nsec are %ld and %ld",
+					packet_count, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
 		}
 		else
 		{
-			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_sec - rawPacket2.getPacketTimeStamp().tv_sec) < 2, "Timestamps are differ in more than 2 secs");
+			PTF_ASSERT((packet1_timestamp.tv_sec - packet2_timestamp.tv_sec) < 2,
+					"Timestamps are differ in packets %d in more than 2 secs: %ld and %ld; nsec are %ld and %ld",
+					packet_count, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec, packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec);
 		}
 
-		if (rawPacket.getPacketTimeStamp().tv_usec < rawPacket2.getPacketTimeStamp().tv_usec)
+		if (packet1_timestamp.tv_nsec < packet2_timestamp.tv_nsec)
 		{
-			PTF_ASSERT((rawPacket2.getPacketTimeStamp().tv_usec - rawPacket.getPacketTimeStamp().tv_usec) < 100, "Timestamps are differ in more than 100 usecs");
+			PTF_ASSERT((packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec) < 100000,
+					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %ld and %ld",
+					packet_count,  packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
 		else
 		{
-			PTF_ASSERT((rawPacket.getPacketTimeStamp().tv_usec - rawPacket2.getPacketTimeStamp().tv_usec) < 100, "Timestamps are differ in more than 100 usecs");
+			PTF_ASSERT((packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec) < 100000,
+					"Timestamps are differ in packets %d in more than 100 nsecs: %ld and %ld; secs are %ld and %ld",
+					packet_count,  packet1_timestamp.tv_nsec, packet2_timestamp.tv_nsec, packet1_timestamp.tv_sec, packet2_timestamp.tv_sec);
 		}
-
+		packet_count++;
     }
 
     PTF_ASSERT(packetCount == 159, "Read cycle 2: Incorrect number of packets read. Expected: 159; read: %d", packetCount);
@@ -1366,19 +1377,25 @@ PTF_TEST_CASE(TestPcapLiveDevice)
     liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
     PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
     PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
-    PTF_ASSERT(liveDev->open(), "Cannot open live device");
+    PTF_ASSERT_TRUE(liveDev->open());
     int packetCount = 0;
     int numOfTimeStatsWereInvoked = 0;
-    PTF_ASSERT(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked), "Cannot start capture");
+    PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
     PCAP_SLEEP(20);
     liveDev->stopCapture();
     PTF_ASSERT(packetCount > 0, "No packets were captured");
     PTF_ASSERT(numOfTimeStatsWereInvoked > 18, "Stat callback was called less than expected: %d", numOfTimeStatsWereInvoked);
     pcap_stat statistics;
     liveDev->getStatistics(statistics);
-    //Bad test - on high traffic libpcap/winpcap sometimes drop packets
+    //Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
     //PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
     liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	LoggerPP::getInstance().enableErrors();
 }
 
 PTF_TEST_CASE(TestPcapLiveDeviceByInvalidIp)
@@ -1419,9 +1436,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 {
 	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
-	PTF_ASSERT(liveDev->open(), "Cannot open live device");
+	PTF_ASSERT_TRUE(liveDev->open());
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked), "Cannot start capture");
+	PTF_ASSERT_TRUE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
 	sendURLRequest("www.ebay.com");
 	PCAP_SLEEP(5);
 	liveDev->stopCapture();
@@ -1429,9 +1446,15 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
     pcap_stat statistics;
     liveDev->getStatistics(statistics);
     PTF_ASSERT(statistics.ps_recv > 2, "No packets were captured");
-    //Bad test - on high traffic libpcap/winpcap sometimes drop packets
+    //Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
     //PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
     liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	LoggerPP::getInstance().enableErrors();
 }
 
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
@@ -1490,6 +1513,13 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	liveDev->stopCapture();
 	PTF_ASSERT(packetCount > 0, "Step 9: Couldn't capture any packet on non-blocking capture 2");
 
+	liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
+	LoggerPP::getInstance().enableErrors();
 }
 
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
@@ -1505,6 +1535,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	PTF_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
 
 	liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT(packetCount > 0, "No packets are captured in default configuration mode");
 
@@ -1513,11 +1544,13 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	// create a non-default configuration with timeout of 10ms and open the device again
 	PcapLiveDevice::DeviceConfiguration devConfig(PcapLiveDevice::Promiscuous, 10, 2000000);
 	liveDev->open(devConfig);
+	PTF_ASSERT_TRUE(liveDev->isOpened());
 
 	// start capturing in non-default configuration
 	PTF_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7) == -1, "Step 2: Capture blocking mode didn't return on callback");
 
 	liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
 
 	PTF_ASSERT(packetCount > 0, "No packets are captured in non-default configuration mode");
 
@@ -1546,23 +1579,29 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	PTF_ASSERT(liveDev != NULL, "Device used in this test %s doesn't exist", PcapGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT(liveDev->getDeviceType() == PcapLiveDevice::WinPcapDevice, "Live device is not of type LibPcapDevice");
 
-	WinPcapLiveDevice* pWinPcapLiveDevice = static_cast<WinPcapLiveDevice*>(liveDev);
-	int defaultDataToCopy = pWinPcapLiveDevice->getMinAmountOfDataToCopyFromKernelToApplication();
+	WinPcapLiveDevice* winPcapLiveDevice = static_cast<WinPcapLiveDevice*>(liveDev);
+	int defaultDataToCopy = winPcapLiveDevice->getMinAmountOfDataToCopyFromKernelToApplication();
 	PTF_ASSERT(defaultDataToCopy == 16000, "Data to copy isn't at its default size (16000)");
-	PTF_ASSERT(pWinPcapLiveDevice->open(), "Cannot open live device");
-	PTF_ASSERT(pWinPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(100000), "Set data to copy to 100000 failed. Error string: %s", PcapGlobalArgs.errString);
+	PTF_ASSERT(winPcapLiveDevice->open(), "Cannot open live device");
+	PTF_ASSERT(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(100000), "Set data to copy to 100000 failed. Error string: %s", PcapGlobalArgs.errString);
     int packetCount = 0;
     int numOfTimeStatsWereInvoked = 0;
-    PTF_ASSERT(pWinPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked), "Cannot start capture");
+    PTF_ASSERT(winPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked), "Cannot start capture");
 	for (int i = 0; i < 5; i++)
 		sendURLRequest("www.ebay.com");
 	pcap_stat statistics;
-	pWinPcapLiveDevice->getStatistics(statistics);
+	winPcapLiveDevice->getStatistics(statistics);
     PTF_ASSERT(statistics.ps_recv > 20, "No packets were captured");
     PTF_ASSERT(statistics.ps_drop == 0, "Packets were dropped: %d", statistics.ps_drop);
-    pWinPcapLiveDevice->stopCapture();
-	PTF_ASSERT(pWinPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(defaultDataToCopy), "Could not set data to copy back to default value. Error string: %s", PcapGlobalArgs.errString);
-	pWinPcapLiveDevice->close();
+    winPcapLiveDevice->stopCapture();
+	PTF_ASSERT(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(defaultDataToCopy), "Could not set data to copy back to default value. Error string: %s", PcapGlobalArgs.errString);
+	winPcapLiveDevice->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(winPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	LoggerPP::getInstance().enableErrors();
 #else
 	PcapLiveDevice* liveDev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT(liveDev->getDeviceType() == PcapLiveDevice::LibPcapDevice, "Live device is not of type LibPcapDevice");
@@ -1624,7 +1663,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(TCP), "Filter '%s', Packet captured isn't of type TCP", filterAsString.c_str());
 		TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
-		PTF_ASSERT(ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80, "'Port Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
+		PTF_ASSERT(be16toh(pTcpLayer->getTcpHeader()->portSrc) == 80, "'Port Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
 	}
 	capturedPackets.clear();
 
@@ -1650,7 +1689,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		PTF_ASSERT(packet.isPacketOfType(TCP), "Filter '%s', Packet captured isn't of type TCP", filterAsString.c_str());
 		TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
 		IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80, "'And Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
+		PTF_ASSERT(be16toh(pTcpLayer->getTcpHeader()->portSrc) == 80, "'And Filter' failed. Packet port src is %d, expected 80", pTcpLayer->getTcpHeader()->portSrc);
 		PTF_ASSERT(pIPv4Layer->getIPv4Header()->ipDst == ipToSearch.toInt(), "Filter failed. Packet IP dst is %X, expected %X", pIPv4Layer->getIPv4Header()->ipDst, ipToSearch.toInt());
 	}
 	capturedPackets.clear();
@@ -1678,7 +1717,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(TCP))
 		{
 			TcpLayer* pTcpLayer = packet.getLayerOfType<TcpLayer>();
-			bool srcPortMatch = ntohs(pTcpLayer->getTcpHeader()->portSrc) == 80;
+			bool srcPortMatch = be16toh(pTcpLayer->getTcpHeader()->portSrc) == 80;
 			bool srcIpMatch = false;
 			IPv4Layer* pIPv4Layer = packet.getLayerOfType<IPv4Layer>();
 			uint32_t ipSrcAddrAsInt = 0;
@@ -1687,7 +1726,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 				srcIpMatch = pIPv4Layer->getIPv4Header()->ipSrc == ipToSearch.toInt();
 				ipSrcAddrAsInt = pIPv4Layer->getIPv4Header()->ipSrc;
 			}
-			PTF_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", ntohs(pTcpLayer->getTcpHeader()->portSrc), ipSrcAddrAsInt, PcapGlobalArgs.ipToSendReceivePackets.c_str());
+			PTF_ASSERT(srcIpMatch || srcPortMatch, "'Or Filter' failed. Src port is: %d; Src IP is: %X, Expected: port 80 or IP %s", be16toh(pTcpLayer->getTcpHeader()->portSrc), ipSrcAddrAsInt, PcapGlobalArgs.ipToSendReceivePackets.c_str());
 		} else
 		if (packet.isPacketOfType(IP))
 		{
@@ -1868,7 +1907,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPv4IDFilter test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ntohs(ipv4Layer->getIPv4Header()->ipId) > ipID, "IPv4IDFilter test: IP ID less than %d, it's %d", ipID, ntohs(ipv4Layer->getIPv4Header()->ipId));
+		PTF_ASSERT(be16toh(ipv4Layer->getIPv4Header()->ipId) > ipID, "IPv4IDFilter test: IP ID less than %d, it's %d", ipID, be16toh(ipv4Layer->getIPv4Header()->ipId));
 	}
 
 	rawPacketVec.clear();
@@ -1892,7 +1931,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(IPv4), "IPv4TotalLengthFilter test: one of the captured packets isn't of type IPv4");
 		IPv4Layer* ipv4Layer = packet.getLayerOfType<IPv4Layer>();
-		PTF_ASSERT(ntohs(ipv4Layer->getIPv4Header()->totalLength) <= totalLength, "IPv4TotalLengthFilter test: IP total length more than %d, it's %d", totalLength, ntohs(ipv4Layer->getIPv4Header()->totalLength));
+		PTF_ASSERT(be16toh(ipv4Layer->getIPv4Header()->totalLength) <= totalLength, "IPv4TotalLengthFilter test: IP total length more than %d, it's %d", totalLength, be16toh(ipv4Layer->getIPv4Header()->totalLength));
 	}
 
 	rawPacketVec.clear();
@@ -1916,7 +1955,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(TCP), "TcpWindowSizeFilter test: one of the captured packets isn't of type TCP");
 		TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
-		PTF_ASSERT(ntohs(tcpLayer->getTcpHeader()->windowSize) != windowSize, "TcpWindowSizeFilter test: TCP window size equals %d", windowSize);
+		PTF_ASSERT(be16toh(tcpLayer->getTcpHeader()->windowSize) != windowSize, "TcpWindowSizeFilter test: TCP window size equals %d", windowSize);
 	}
 
 	rawPacketVec.clear();
@@ -1940,7 +1979,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		Packet packet(*iter);
 		PTF_ASSERT(packet.isPacketOfType(UDP), "UdpLengthFilter test: one of the captured packets isn't of type UDP");
 		UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
-		PTF_ASSERT(ntohs(udpLayer->getUdpHeader()->length) == udpLength, "UdpLengthFilter test: UDP length != %d, it's %d", udpLength, ntohs(udpLayer->getUdpHeader()->length));
+		PTF_ASSERT(be16toh(udpLayer->getUdpHeader()->length) == udpLength, "UdpLengthFilter test: UDP length != %d, it's %d", udpLength, be16toh(udpLayer->getUdpHeader()->length));
 	}
 
 	rawPacketVec.clear();
@@ -2009,13 +2048,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		if (packet.isPacketOfType(TCP))
 		{
 			TcpLayer* tcpLayer = packet.getLayerOfType<TcpLayer>();
-			uint16_t portSrc = ntohs(tcpLayer->getTcpHeader()->portSrc);
+			uint16_t portSrc = be16toh(tcpLayer->getTcpHeader()->portSrc);
 			PTF_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: TCP packet source port is out of range (40000-50000). Src port: %d", portSrc);
 		}
 		else if (packet.isPacketOfType(UDP))
 		{
 			UdpLayer* udpLayer = packet.getLayerOfType<UdpLayer>();
-			uint16_t portSrc = ntohs(udpLayer->getUdpHeader()->portSrc);
+			uint16_t portSrc = be16toh(udpLayer->getUdpHeader()->portSrc);
 			PTF_ASSERT(portSrc >= 40000 && portSrc <=50000, "PortRangeFilter: UDP packet source port is out of range (40000-50000). Src port: %d", portSrc);
 		}
 	}
@@ -2244,7 +2283,7 @@ PTF_TEST_CASE(TestSendPacket)
     PTF_ASSERT(fileReaderDev.open(), "Cannot open file reader device");
 
     PTF_ASSERT(liveDev->getMtu() > 0, "Could not get live device MTU");
-    uint16_t mtu = liveDev->getMtu();
+    uint32_t mtu = liveDev->getMtu();
     int buffLen = mtu+1;
     uint8_t* buff = new uint8_t[buffLen];
     memset(buff, 0, buffLen);
@@ -2366,7 +2405,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	size_t capturedPacketsSize = capturedPackets.size();
 	while (iter != capturedPackets.end())
 	{
-		if ((*iter)->getRawDataLen() <= pRemoteDevice->getMtu())
+		if ((*iter)->getRawDataLen() <= (int)pRemoteDevice->getMtu())
 		{
 			packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
 		}
@@ -3251,27 +3290,34 @@ PTF_TEST_CASE(TestDnsParsing)
 }
 
 
-PTF_TEST_CASE(TestDpdkDevice)
+PTF_TEST_CASE(TestDpdkInitDevice)
 {
 #ifdef USE_DPDK
 	LoggerPP::getInstance().supressErrors();
 	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	PTF_ASSERT(devList.getDpdkDeviceList().size() == 0, "DpdkDevices initialized before DPDK is initialized");
+	PTF_ASSERT_EQUAL(devList.getDpdkDeviceList().size(), 0, size);
 	LoggerPP::getInstance().enableErrors();
 
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		CoreMask coreMask = 0;
-		for (int i = 0; i < getNumOfCores(); i++)
-			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
+	CoreMask coreMask = 0;
+	for (int i = 0; i < getNumOfCores(); i++)
+		coreMask |= SystemCores::IdToSystemCore[i].Mask;
+	PTF_ASSERT_TRUE(DpdkDeviceList::initDpdk(coreMask, 16383));
+	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 
-	PTF_ASSERT(devList.getDpdkLogLevel() == LoggerPP::Normal, "DPDK log level is in Debug and should be on Normal");
+	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), LoggerPP::Normal, enum);
 	devList.setDpdkLogLevel(LoggerPP::Debug);
-	PTF_ASSERT(devList.getDpdkLogLevel() == LoggerPP::Debug, "DPDK log level is in Normal and should be on Debug");
+	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), LoggerPP::Debug, enum);
 	devList.setDpdkLogLevel(LoggerPP::Normal);
+#else
+	PTF_SKIP_TEST("DPDK not configured");
+#endif
+}
+
+
+PTF_TEST_CASE(TestDpdkDevice)
+{
+#ifdef USE_DPDK
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
@@ -3367,20 +3413,8 @@ PTF_TEST_CASE(TestDpdkDevice)
 PTF_TEST_CASE(TestDpdkMultiThread)
 {
 #ifdef USE_DPDK
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	LoggerPP::getInstance().enableErrors();
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		CoreMask coreMask = 0;
-		for (int i = 0; i < getNumOfCores(); i++)
-			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
 
@@ -3422,7 +3456,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 		packetDataMultiThread[i].PacketCount = 0;
 
 	CoreMask coreMask = 0;
-	SystemCore masterCore = devList.getDpdkMasterCore();
+	SystemCore masterCore = DpdkDeviceList::getInstance().getDpdkMasterCore();
 	int j = 0;
 	for (int i = 0; i < getNumOfCores(); i++)
 	{
@@ -3540,20 +3574,8 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 {
 #ifdef USE_DPDK
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	LoggerPP::getInstance().enableErrors();
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		CoreMask coreMask = 0;
-		for (int i = 0; i < getNumOfCores(); i++)
-			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
 
@@ -3625,20 +3647,7 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 {
 #ifdef USE_DPDK
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	LoggerPP::getInstance().enableErrors();
-
-	CoreMask coreMask = 0;
-	for (int i = 0; i < getNumOfCores(); i++)
-		coreMask |= SystemCores::IdToSystemCore[i].Mask;
-
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
@@ -3673,7 +3682,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	PTF_ASSERT(dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues()) == true, "Cannot open DPDK device");
 
 	int numOfAttempts = 0;
-	while (numOfAttempts < 10)
+	while (numOfAttempts < 20)
 	{
 		dev->receivePackets(rawPacketVec, 0);
 		PCAP_SLEEP(1);
@@ -3682,11 +3691,11 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		numOfAttempts++;
 	}
 
-	PTF_ASSERT(numOfAttempts < 10, "No packets were received using RawPacketVector");
+	PTF_ASSERT(numOfAttempts < 20, "No packets were received using RawPacketVector");
 	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using RawPacketVector", (int)rawPacketVec.size(), numOfAttempts);
 
 	numOfAttempts = 0;
-	while (numOfAttempts < 10)
+	while (numOfAttempts < 20)
 	{
 		mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, 0);
 		PCAP_SLEEP(1);
@@ -3695,7 +3704,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		numOfAttempts++;
 	}
 
-	PTF_ASSERT(numOfAttempts < 10, "No packets were received using mBuf raw packet arr");
+	PTF_ASSERT(numOfAttempts < 20, "No packets were received using mBuf raw packet arr");
 	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using mBuf raw packet arr", (int)mBufRawPacketArrLen, numOfAttempts);
 	for (int i = 0; i < 32; i++)
 	{
@@ -3705,7 +3714,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 
 	numOfAttempts = 0;
-	while (numOfAttempts < 10)
+	while (numOfAttempts < 20)
 	{
 		packetArrLen = dev->receivePackets(packetArr, 32, 0);
 		PCAP_SLEEP(1);
@@ -3714,7 +3723,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		numOfAttempts++;
 	}
 
-	PTF_ASSERT(numOfAttempts < 10, "No packets were received using packet arr");
+	PTF_ASSERT(numOfAttempts < 20, "No packets were received using packet arr");
 	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using packet arr", (int)packetArrLen, numOfAttempts);
 	for (int i = 0; i < 32; i++)
 	{
@@ -3733,7 +3742,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	for (int i = 0; i < getNumOfCores(); i++)
 	{
 		SystemCore core = SystemCores::IdToSystemCore[i];
-		if (core == devList.getDpdkMasterCore())
+		if (core == DpdkDeviceList::getInstance().getDpdkMasterCore())
 			continue;
 		DpdkTestWorkerThread* newWorkerThread = new DpdkTestWorkerThread();
 		int queueId = core.Id % numOfRxQueues;
@@ -3745,13 +3754,17 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	PTF_PRINT_VERBOSE("Initiating %d worker threads", (int)workerThreadVec.size());
 
 	LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(devList.startDpdkWorkerThreads(0, workerThreadVec) == false, "Managed to start DPDK worker thread with core mask 0");
+	PTF_ASSERT(DpdkDeviceList::getInstance().startDpdkWorkerThreads(0, workerThreadVec) == false, "Managed to start DPDK worker thread with core mask 0");
 	LoggerPP::getInstance().enableErrors();
 
-	PTF_ASSERT(devList.startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec) == true, "Couldn't start DPDK worker threads");
+	PTF_ASSERT(DpdkDeviceList::getInstance().startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec) == true, "Couldn't start DPDK worker threads");
 	PTF_PRINT_VERBOSE("Worker threads started");
 
-	for (int i = 0; i < 10; i++)
+	DpdkDevice::DpdkDeviceStats initStats;
+	dev->getStatistics(initStats);
+	uint64_t curPackets = initStats.aggregatedRxStats.packets;
+	numOfAttempts = 0;
+	while (numOfAttempts < 20)
 	{
 		DpdkDevice::DpdkDeviceStats stats;
 		dev->getStatistics(stats);
@@ -3769,11 +3782,15 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		}
 
 		PCAP_SLEEP(1);
+
+		if (stats.aggregatedRxStats.packets > curPackets)
+			break;
+		numOfAttempts++;
 	}
 
 
 	PTF_PRINT_VERBOSE("Worker threads stopping");
-	devList.stopDpdkWorkerThreads();
+	DpdkDeviceList::getInstance().stopDpdkWorkerThreads();
 	PTF_PRINT_VERBOSE("Worker threads stopped");
 
 	// we can't guarantee all threads receive packets, it depends on the NIC load balancing and the traffic. So we check that all threads were run and
@@ -3812,7 +3829,6 @@ PTF_TEST_CASE(TestKniDevice)
 
 	if (PcapGlobalArgs.kniIp == "")
 	{
-		PTF_TRY(false, "KNI IP not provided, skipping test");
 		PTF_SKIP_TEST("KNI IP not provided");
 	}
 
@@ -4014,7 +4030,6 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 
 	if (PcapGlobalArgs.kniIp == "")
 	{
-		PTF_TRY(false, "KNI IP not provided, skipping test");
 		PTF_SKIP_TEST("KNI IP not provided");
 	}
 
@@ -4233,21 +4248,8 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 PTF_TEST_CASE(TestDpdkMbufRawPacket)
 {
 #ifdef USE_DPDK
+	PTF_ASSERT(DpdkDeviceList::getInstance().getDpdkDeviceList().size() > 0, "Couldn't find DPDK device, please run the TestDpdkInitDevice test-case");
 
-	LoggerPP::getInstance().supressErrors();
-	DpdkDeviceList& devList = DpdkDeviceList::getInstance();
-	LoggerPP::getInstance().enableErrors();
-
-	if(devList.getDpdkDeviceList().size() == 0)
-	{
-		CoreMask coreMask = 0;
-		for (int i = 0; i < getNumOfCores(); i++)
-			coreMask |= SystemCores::IdToSystemCore[i].Mask;
-
-		PTF_ASSERT(DpdkDeviceList::initDpdk(coreMask, 16383) == true, "Couldn't initialize DPDK with core mask %X", coreMask);
-		PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
-	}
-	PTF_ASSERT(devList.getDpdkDeviceList().size() > 0, "No DPDK devices");
 	DpdkDevice* dev = DpdkDeviceList::getInstance().getDeviceByPort(PcapGlobalArgs.dpdkPort);
 	PTF_ASSERT(dev != NULL, "DpdkDevice is NULL");
 
@@ -4387,7 +4389,7 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 
 	DnsLayer dnsQueryLayer;
 	dnsQueryLayer.getDnsHeader()->recursionDesired = true;
-	dnsQueryLayer.getDnsHeader()->transactionID = htons(0xb179);
+	dnsQueryLayer.getDnsHeader()->transactionID = htobe16(0xb179);
 	DnsQuery* newQuery = dnsQueryLayer.addQuery("no-name", DNS_TYPE_A, DNS_CLASS_IN);
 	PTF_ASSERT(newQuery != NULL, "Couldn't add query for dns layer");
 
@@ -4491,8 +4493,21 @@ struct TcpReassemblyStats
 	void clear() { reassembledData = ""; numOfDataPackets = 0; curSide = -1; numOfMessagesFromSide[0] = 0; numOfMessagesFromSide[1] = 0; connectionsStarted = false; connectionsEnded = false; connectionsEndedManually = false; }
 };
 
-typedef std::map<uint32_t, TcpReassemblyStats> TcpReassemblyMultipleConnStats;
-typedef std::map<uint32_t, TcpReassemblyStats>::iterator TcpReassemblyMultipleConnStatsIter;
+typedef struct
+{
+	typedef std::vector<uint32_t> FlowKeysList;
+	typedef std::map<uint32_t, TcpReassemblyStats> Stats;
+
+	Stats stats;
+	FlowKeysList flowKeysList;
+
+	void clear()
+	{
+		stats.clear();
+		flowKeysList.clear();
+	}
+
+} TcpReassemblyMultipleConnStats;
 
 std::string readFileIntoString(std::string fileName)
 {
@@ -4511,15 +4526,15 @@ void saveStringToFile(std::string& str, std::string fileName)
     outfile.close();
 }
 
-void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* userCookie)
+void tcpReassemblyMsgReadyCallback(int sideIndex, const TcpStreamData& tcpData, void* userCookie)
 {
-	TcpReassemblyMultipleConnStats* stats = (TcpReassemblyMultipleConnStats*)userCookie;
+	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
-	TcpReassemblyMultipleConnStatsIter iter = stats->find(tcpData.getConnectionData().flowKey);
-	if (iter == stats->end())
+	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.find(tcpData.getConnectionData().flowKey);
+	if (iter == stats.end())
 	{
-		stats->insert(std::make_pair(tcpData.getConnectionData().flowKey, TcpReassemblyStats()));
-		iter = stats->find(tcpData.getConnectionData().flowKey);
+		stats.insert(std::make_pair(tcpData.getConnectionData().flowKey, TcpReassemblyStats()));
+		iter = stats.find(tcpData.getConnectionData().flowKey);
 	}
 
 
@@ -4534,16 +4549,20 @@ void tcpReassemblyMsgReadyCallback(int sideIndex, TcpStreamData tcpData, void* u
 	//printf("\n***** got %d bytes from side %d conn 0x%X *****\n", tcpData.getDataLength(), sideIndex, tcpData.getConnectionData().flowKey);
 }
 
-void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* userCookie)
+void tcpReassemblyConnectionStartCallback(const ConnectionData& connectionData, void* userCookie)
 {
-	TcpReassemblyMultipleConnStats* stats = (TcpReassemblyMultipleConnStats*)userCookie;
+	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
-	TcpReassemblyMultipleConnStatsIter iter = stats->find(connectionData.flowKey);
-	if (iter == stats->end())
+	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.find(connectionData.flowKey);
+	if (iter == stats.end())
 	{
-		stats->insert(std::make_pair(connectionData.flowKey, TcpReassemblyStats()));
-		iter = stats->find(connectionData.flowKey);
+		stats.insert(std::make_pair(connectionData.flowKey, TcpReassemblyStats()));
+		iter = stats.find(connectionData.flowKey);
 	}
+
+	TcpReassemblyMultipleConnStats::FlowKeysList &flowKeys = ((TcpReassemblyMultipleConnStats *)userCookie)->flowKeysList;
+	if(std::find(flowKeys.begin(), flowKeys.end(), connectionData.flowKey) == flowKeys.end())
+		flowKeys.push_back(connectionData.flowKey);
 
 	iter->second.connectionsStarted = true;
 	iter->second.connData = connectionData;
@@ -4551,16 +4570,20 @@ void tcpReassemblyConnectionStartCallback(ConnectionData connectionData, void* u
 	//printf("conn 0x%X started\n", connectionData.flowKey);
 }
 
-void tcpReassemblyConnectionEndCallback(ConnectionData connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
+void tcpReassemblyConnectionEndCallback(const ConnectionData& connectionData, TcpReassembly::ConnectionEndReason reason, void* userCookie)
 {
-	TcpReassemblyMultipleConnStats* stats = (TcpReassemblyMultipleConnStats*)userCookie;
+	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
-	TcpReassemblyMultipleConnStatsIter iter = stats->find(connectionData.flowKey);
-	if (iter == stats->end())
+	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.find(connectionData.flowKey);
+	if (iter == stats.end())
 	{
-		stats->insert(std::make_pair(connectionData.flowKey, TcpReassemblyStats()));
-		iter = stats->find(connectionData.flowKey);
+		stats.insert(std::make_pair(connectionData.flowKey, TcpReassemblyStats()));
+		iter = stats.find(connectionData.flowKey);
 	}
+
+	TcpReassemblyMultipleConnStats::FlowKeysList &flowKeys = ((TcpReassemblyMultipleConnStats *)userCookie)->flowKeysList;
+	if(std::find(flowKeys.begin(), flowKeys.end(), connectionData.flowKey) == flowKeys.end())
+		flowKeys.push_back(connectionData.flowKey);
 
 	if (reason == TcpReassembly::TcpReassemblyConnectionClosedManually)
 		iter->second.connectionsEndedManually = true;
@@ -4603,7 +4626,7 @@ RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, in
 	if (ipLayer == NULL)
 		throw;
 
-	int tcpPayloadSize = ntohs(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
+	int tcpPayloadSize = be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
 
 	if (numOfBytes <= 0)
 		numOfBytes = tcpPayloadSize-beginning;
@@ -4628,7 +4651,7 @@ RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, in
 	if (layerToRemove != NULL)
 		packet.removeLayer(layerToRemove->getProtocol());
 
-	tcpLayer->getTcpHeader()->sequenceNumber = htonl(ntohl(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
+	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(be32toh(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 
 	PayloadLayer newPayloadLayer(newPayload, numOfBytes, false);
 	packet.addLayer(&newPayloadLayer);
@@ -4655,18 +4678,18 @@ bool tcpReassemblyTest(std::vector<RawPacket>& packetStream, TcpReassemblyMultip
 		tcpReassembly->reassemblePacket(packet);
 	}
 
-//	for(TcpReassemblyMultipleConnStatsIter iter = results.begin(); iter != results.end(); iter++)
-//	{
-//		// replace \r\n with \n
-//		size_t index = 0;
-//		while (true)
-//		{
-//			 index = iter->second.reassembledData.find("\r\n", index);
-//			 if (index == string::npos) break;
-//			 iter->second.reassembledData.replace(index, 2, "\n");
-//			 index += 1;
-//		}
-//	}
+	//for(TcpReassemblyMultipleConnStats::Stats::iterator iter = results.stats.begin(); iter != results.stats.end(); iter++)
+	//{
+	//	// replace \r\n with \n
+	//	size_t index = 0;
+	//	while (true)
+	//	{
+	//		 index = iter->second.reassembledData.find("\r\n", index);
+	//		 if (index == string::npos) break;
+	//		 iter->second.reassembledData.replace(index, 2, "\n");
+	//		 index += 1;
+	//	}
+	//}
 
 	if (closeConnsManually)
 		tcpReassembly->closeAllConnections();
@@ -4686,28 +4709,27 @@ PTF_TEST_CASE(TestTcpReassemblySanity)
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 19, "Num of data packets isn't 19, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connections wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 1, "Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 19, "Num of data packets isn't 19, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "Connections wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
+	PTF_ASSERT(stats.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
+	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
 	IPv4Address expectedSrcIP(std::string("10.0.0.1"));
 	IPv4Address expectedDstIP(std::string("81.218.72.15"));
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 10.0.0.1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 81.218.72.15");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 10.0.0.1");
+	PTF_ASSERT(stats.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 81.218.72.15");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
-
-
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
 }
 
 PTF_TEST_CASE(TestTcpReassemblyRetran)
@@ -4740,13 +4762,14 @@ PTF_TEST_CASE(TestTcpReassemblyRetran)
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, false, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 21, "Num of data packets isn't 21, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 1, "Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 21, "Num of data packets isn't 21, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_retransmission_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
 
 
 }
@@ -4775,13 +4798,14 @@ PTF_TEST_CASE(TestTcpReassemblyMissingData)
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, false, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 17, "Num of data packets isn't 21, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 1, "Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 17, "Num of data packets isn't 21, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_missing_data_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
@@ -4798,13 +4822,13 @@ PTF_TEST_CASE(TestTcpReassemblyMissingData)
 
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, false, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 19, "Num of data packets isn't 19, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
+	PTF_ASSERT(stats.size() == 1, "Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 19, "Num of data packets isn't 19, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 2, "Num of messages from side 0 isn't 2");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 2, "Num of messages from side 1 isn't 2");
 
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
 
 
 }
@@ -4835,16 +4859,17 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "OOO test: Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 19, "OOO test: Num of data packets isn't 19, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "OOO test: Num of messages from side 0 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "OOO test: Num of messages from side 1 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "OOO test: Connection wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "OOO test: Connection ended with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "OOO test: Connection wasn't ended manually");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 1, "OOO test: Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 19, "OOO test: Num of data packets isn't 19, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 2, "OOO test: Num of messages from side 0 isn't 2");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 2, "OOO test: Num of messages from side 1 isn't 2");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "OOO test: Connection wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == false, "OOO test: Connection ended with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == true, "OOO test: Connection wasn't ended manually");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_out_of_order_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "OOO test: Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "OOO test: Reassembly data different than expected");
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
@@ -4868,17 +4893,17 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "OOO + missing data test: Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 18, "OOO + missing data test: Num of data packets isn't 18, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 2, "OOO + missing data test: Num of messages from side 0 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 2, "OOO + missing data test: Num of messages from side 1 isn't 2");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "OOO + missing data test: Connection wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "OOO + missing data test: Connection ended with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "OOO + missing data test: Connection wasn't ended manually");
+	PTF_ASSERT(stats.size() == 1, "OOO + missing data test: Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 18, "OOO + missing data test: Num of data packets isn't 18, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 2, "OOO + missing data test: Num of messages from side 0 isn't 2");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 2, "OOO + missing data test: Num of messages from side 1 isn't 2");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "OOO + missing data test: Connection wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == false, "OOO + missing data test: Connection ended with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == true, "OOO + missing data test: Connection wasn't ended manually");
 
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_missing_data_output_ooo.txt"));
 
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "OOO + missing data test: Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "OOO + missing data test: Reassembly data different than expected");
 
 
 }
@@ -4894,15 +4919,16 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "FIN test: Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 5, "FIN test: Num of data packets isn't 5, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "FIN test: Num of messages from side 0 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "FIN test: Num of messages from side 1 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "FIN test: Connection wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "FIN test: Connection didn't end with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "FIN test: Connection wasn ended manually");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 1, "FIN test: Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 5, "FIN test: Num of data packets isn't 5, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 1, "FIN test: Num of messages from side 0 isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 1, "FIN test: Num of messages from side 1 isn't 1");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "FIN test: Connection wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == true, "FIN test: Connection didn't end with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == false, "FIN test: Connection wasn ended manually");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "FIN test: Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "FIN test: Reassembly data different than expected");
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
@@ -4912,15 +4938,15 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_rst.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "RST test: Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 2, "RST test: Num of data packets isn't 2, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "RST test: Num of messages from side 0 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "RST test: Num of messages from side 1 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "RST test: Connection wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "RST test: Connection didn't end with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "RST test: Connection wasn ended manually");
+	PTF_ASSERT(stats.size() == 1, "RST test: Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 2, "RST test: Num of data packets isn't 2, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 1, "RST test: Num of messages from side 0 isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 1, "RST test: Num of messages from side 1 isn't 1");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "RST test: Connection wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == true, "RST test: Connection didn't end with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == false, "RST test: Connection wasn ended manually");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_rst_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "RST test: Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "RST test: Reassembly data different than expected");
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
@@ -4930,15 +4956,15 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "FIN with data test: Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 6, "FIN with data test: Num of data packets isn't 6, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "FIN with data test: Num of messages from side 0 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "FIN with data test: Num of messages from side 1 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "FIN with data test: Connection wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "FIN with data test: Connection didn't end with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "FIN with data test: Connection wasn ended manually");
+	PTF_ASSERT(stats.size() == 1, "FIN with data test: Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 6, "FIN with data test: Num of data packets isn't 6, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 1, "FIN with data test: Num of messages from side 0 isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 1, "FIN with data test: Num of messages from side 1 isn't 1");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "FIN with data test: Connection wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == true, "FIN with data test: Connection didn't end with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == false, "FIN with data test: Connection wasn ended manually");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "FIN with data test: Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "FIN with data test: Reassembly data different than expected");
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
@@ -4954,15 +4980,15 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "Missing data before FIN test: Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 5, "Missing data before FIN test: Num of data packets isn't 5, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "Missing data before FIN test: Num of messages from side 0 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "Missing data before FIN test: Num of messages from side 1 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Missing data before FIN test: Connection wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "Missing data before FIN test: Connection didn't end with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "Missing data before FIN test: Connection wasn ended manually");
+	PTF_ASSERT(stats.size() == 1, "Missing data before FIN test: Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 5, "Missing data before FIN test: Num of data packets isn't 5, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 1, "Missing data before FIN test: Num of messages from side 0 isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 1, "Missing data before FIN test: Num of messages from side 1 isn't 1");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "Missing data before FIN test: Connection wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == true, "Missing data before FIN test: Connection didn't end with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == false, "Missing data before FIN test: Connection wasn ended manually");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output2.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Missing data before FIN test: Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Missing data before FIN test: Reassembly data different than expected");
 
 
 }
@@ -4981,7 +5007,7 @@ PTF_TEST_CASE(TestTcpReassemblyMalformedPkts)
 	Packet malPacket(&packetStream.at(8));
 	IPv4Layer* ipLayer = malPacket.getLayerOfType<IPv4Layer>();
 	PTF_ASSERT(ipLayer != NULL, "Cannot find the IPv4 layer of the packet");
-	ipLayer->getIPv4Header()->totalLength = ntohs(htons(ipLayer->getIPv4Header()->totalLength) + 40);
+	ipLayer->getIPv4Header()->totalLength = be16toh(htobe16(ipLayer->getIPv4Header()->totalLength) + 40);
 
 //	PcapFileWriterDevice writer("pasdasda.pcap");
 //	writer.open();
@@ -4995,15 +5021,16 @@ PTF_TEST_CASE(TestTcpReassemblyMalformedPkts)
 
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 6, "Num of data packets isn't 6, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 1, "Num of messages from side 0 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 1, "Num of messages from side 1 isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connection wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == true, "Connection didn't end with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == false, "Connection wasn ended manually");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 1, "Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 6, "Num of data packets isn't 6, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 1, "Num of messages from side 0 isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 1, "Num of messages from side 1 isn't 1");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "Connection wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == true, "Connection didn't end with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == false, "Connection wasn ended manually");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_http_stream_fin2_output.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
 
 
 }
@@ -5032,9 +5059,11 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 		tcpReassembly.reassemblePacket(packet);
 	}
 
-	PTF_ASSERT(results.size() == 3, "Num of connections isn't 3");
+	TcpReassemblyMultipleConnStats::Stats &stats = results.stats;
+	PTF_ASSERT(stats.size() == 3, "Num of connections isn't 3");
+	PTF_ASSERT(results.flowKeysList.size() == 3, "Num of flow keys isn't 3");
 
-	TcpReassemblyMultipleConnStatsIter iter = results.begin();
+	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.begin();
 
 	PTF_ASSERT(iter->second.numOfDataPackets == 2, "Conn #1: Num of data packets isn't 2, it's %d", iter->second.numOfDataPackets);
 	PTF_ASSERT(iter->second.numOfMessagesFromSide[0] == 1, "Conn #1: Num of messages from side 0 isn't 1");
@@ -5070,16 +5099,18 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 
 	// test getConnectionInformation and isConnectionOpen
 
-	const std::vector<ConnectionData> managedConnections = tcpReassembly.getConnectionInformation();
+	const TcpReassembly::ConnectionInfoList &managedConnections = tcpReassembly.getConnectionInformation();
 	PTF_ASSERT(managedConnections.size() == 3, "Size of managed connection list isn't 3");
-	std::vector<ConnectionData>::const_iterator connIter = managedConnections.begin();
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(*connIter) > 0, "Connection #1 is closed");
 
-	connIter++;
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(*connIter) == 0, "Connection #2 is still open");
-
-	connIter++;
-	PTF_ASSERT(tcpReassembly.isConnectionOpen(*connIter) == 0, "Connection #3 is still open");
+	TcpReassembly::ConnectionInfoList::const_iterator iterConn1 = managedConnections.find(results.flowKeysList[0]);
+	TcpReassembly::ConnectionInfoList::const_iterator iterConn2 = managedConnections.find(results.flowKeysList[1]);
+	TcpReassembly::ConnectionInfoList::const_iterator iterConn3 = managedConnections.find(results.flowKeysList[2]);
+	PTF_ASSERT(iterConn1 != managedConnections.end(), "Connection #1 not found");
+	PTF_ASSERT(iterConn2 != managedConnections.end(), "Connection #2 not found");
+	PTF_ASSERT(iterConn3 != managedConnections.end(), "Connection #3 not found");
+	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn1->second) > 0, "Connection #1 is closed");
+	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn2->second) == 0, "Connection #2 is still open");
+	PTF_ASSERT(tcpReassembly.isConnectionOpen(iterConn3->second) == 0, "Connection #3 is still open");
 
 	ConnectionData dummyConn;
 	dummyConn.flowKey = 0x12345678;
@@ -5115,26 +5146,27 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6)
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 10, "Num of data packets isn't 10, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 3, "Num of messages from side 0 isn't 3");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 3, "Num of messages from side 1 isn't 3");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connections wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 1, "Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 10, "Num of data packets isn't 10, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 3, "Num of messages from side 0 isn't 3");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 3, "Num of messages from side 1 isn't 3");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "Connections wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
+	PTF_ASSERT(stats.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
+	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
 	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
 	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
+	PTF_ASSERT(stats.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
 
 
 }
@@ -5151,9 +5183,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 4, "Num of connections isn't 4");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 4, "Num of connections isn't 4");
 
-	TcpReassemblyMultipleConnStatsIter iter = tcpReassemblyResults.begin();
+	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.begin();
 
 	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
 	IPv6Address expectedDstIP1(std::string("2001:618:1:8000::5"));
@@ -5170,10 +5203,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #1: Source IP isn't 2001:618:400::5199:cc70");
 	PTF_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #1: Source IP isn't 2001:618:1:8000::5");
 	PTF_ASSERT(iter->second.connData.srcPort == 35995, "Conn #1: source port isn't 35995");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream4.txt"));
 	PTF_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #1: Reassembly data different than expected");
 
@@ -5190,10 +5223,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #2: Source IP isn't 2001:618:400::5199:cc70");
 	PTF_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #2: Source IP isn't 2001:618:1:8000::5");
 	PTF_ASSERT(iter->second.connData.srcPort == 35999, "Conn #2: source port isn't 35999");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 
 	iter++;
 
@@ -5208,10 +5241,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #3: Source IP isn't 2001:618:400::5199:cc70");
 	PTF_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP2), "Conn #3: Source IP isn't 2001:638:902:1:202:b3ff:feee:5dc2");
 	PTF_ASSERT(iter->second.connData.srcPort == 40426, "Conn #3: source port isn't 40426");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream3.txt"));
 	PTF_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #3: Reassembly data different than expected");
 
@@ -5228,10 +5261,10 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT(iter->second.connData.srcIP->equals(&expectedSrcIP), "Conn #4: Source IP isn't 2001:618:400::5199:cc70");
 	PTF_ASSERT(iter->second.connData.dstIP->equals(&expectedDstIP1), "Conn #4: Source IP isn't 2001:618:1:8000::5");
 	PTF_ASSERT(iter->second.connData.srcPort == 35997, "Conn #4: source port isn't 35997");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551795, "Bad start time seconds, expected 1147551795");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 526632, "Bad start time microseconds, expected 526632");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream2.txt"));
 	PTF_ASSERT(expectedReassemblyData == iter->second.reassembledData, "Conn #4: Reassembly data different than expected");
 
@@ -5259,37 +5292,179 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
 
-	PTF_ASSERT(tcpReassemblyResults.size() == 1, "Num of connections isn't 1");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfDataPackets == 10, "Num of data packets isn't 10, it's %d", tcpReassemblyResults.begin()->second.numOfDataPackets);
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[0] == 3, "Num of messages from side 0 isn't 3");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.numOfMessagesFromSide[1] == 3, "Num of messages from side 1 isn't 3");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsStarted == true, "Connections wasn't opened");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT(stats.size() == 1, "Num of connections isn't 1");
+	PTF_ASSERT(stats.begin()->second.numOfDataPackets == 10, "Num of data packets isn't 10, it's %d", stats.begin()->second.numOfDataPackets);
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[0] == 3, "Num of messages from side 0 isn't 3");
+	PTF_ASSERT(stats.begin()->second.numOfMessagesFromSide[1] == 3, "Num of messages from side 1 isn't 3");
+	PTF_ASSERT(stats.begin()->second.connectionsStarted == true, "Connections wasn't opened");
+	PTF_ASSERT(stats.begin()->second.connectionsEnded == false, "Connection was ended with FIN or RST");
+	PTF_ASSERT(stats.begin()->second.connectionsEndedManually == true, "Connection wasn't ended manually");
+	PTF_ASSERT(stats.begin()->second.connData.srcIP != NULL, "Source IP is NULL");
+	PTF_ASSERT(stats.begin()->second.connData.dstIP != NULL, "Source IP is NULL");
 	IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
 	IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
-	PTF_ASSERT(tcpReassemblyResults.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP), "Source IP isn't 2001:618:400::5199:cc70");
+	PTF_ASSERT(stats.begin()->second.connData.dstIP->equals(&expectedDstIP), "Source IP isn't 2001:618:1:8000::5");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1147551796, "Bad start time seconds, expected 1147551796");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 702602, "Bad start time microseconds, expected 702602");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
-	PTF_ASSERT(expectedReassemblyData == tcpReassemblyResults.begin()->second.reassembledData, "Reassembly data different than expected");
+	PTF_ASSERT(expectedReassemblyData == stats.begin()->second.reassembledData, "Reassembly data different than expected");
 
 
 }
 
 
+
+PTF_TEST_CASE(TestTcpReassemblyCleanup)
+{
+	TcpReassemblyMultipleConnStats results;
+	std::string errMsg;
+
+	TcpReassemblyConfiguration config(true, 2, 1);
+	TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config);
+
+	std::vector<RawPacket> packetStream;
+	PTF_ASSERT_TRUE(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/three_http_streams.pcap", packetStream, errMsg));
+
+	RawPacket lastPacket = packetStream.back();
+
+	packetStream.pop_back();
+
+	for(std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	{
+		Packet packet(&(*iter));
+		tcpReassembly.reassemblePacket(packet);
+	}
+
+	TcpReassembly::ConnectionInfoList managedConnections = tcpReassembly.getConnectionInformation(); // make a copy of list
+	PTF_ASSERT_EQUAL(managedConnections.size(), 3, size);
+	PTF_ASSERT_EQUAL(results.flowKeysList.size(), 3, size);
+
+	TcpReassembly::ConnectionInfoList::const_iterator iterConn1 = managedConnections.find(results.flowKeysList[0]);
+	TcpReassembly::ConnectionInfoList::const_iterator iterConn2 = managedConnections.find(results.flowKeysList[1]);
+	TcpReassembly::ConnectionInfoList::const_iterator iterConn3 = managedConnections.find(results.flowKeysList[2]);
+	PTF_ASSERT(iterConn1 != managedConnections.end(), "Connection #1 not found");
+	PTF_ASSERT(iterConn2 != managedConnections.end(), "Connection #2 not found");
+	PTF_ASSERT(iterConn3 != managedConnections.end(), "Connection #3 not found");
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), 0, int);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0, int);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0, int);
+
+	PCAP_SLEEP(3);
+
+	tcpReassembly.reassemblePacket(&lastPacket); // automatic cleanup of 1 item
+	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 2, size);
+
+	tcpReassembly.purgeClosedConnections(); // manually initiated cleanup of 1 item
+	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 1, size);
+
+	tcpReassembly.purgeClosedConnections(0xFFFFFFFF); // manually initiated cleanup of all items
+	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 0, size);
+
+	const TcpReassemblyMultipleConnStats::FlowKeysList& flowKeys = results.flowKeysList;
+	iterConn1 = managedConnections.find(flowKeys[0]);
+	iterConn2 = managedConnections.find(flowKeys[1]);
+	iterConn3 = managedConnections.find(flowKeys[2]);
+	PTF_ASSERT(iterConn1 != managedConnections.end(), "Connection #1 not found in flow keys list");
+	PTF_ASSERT(iterConn2 != managedConnections.end(), "Connection #2 not found in flow keys list");
+	PTF_ASSERT(iterConn3 != managedConnections.end(), "Connection #3 not found in flow keys list");
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), -1, int);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), -1, int);
+	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), -1, int);
+} // TestTcpReassemblyCleanup
+
+
+PTF_TEST_CASE(TestTcpReassemblyMaxSeq)
+{
+	std::string errMsg;
+	std::vector<RawPacket> packetStream;
+
+	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/one_tcp_stream_max_seq.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT_EQUAL(stats.size(), 1, size);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 19, int);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[0], 2, int);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[1], 2, int);
+	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
+	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
+	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
+	PTF_ASSERT_NOT_NULL(stats.begin()->second.connData.srcIP);
+	PTF_ASSERT_NOT_NULL(stats.begin()->second.connData.dstIP);
+	IPv4Address expectedSrcIP(std::string("10.0.0.1"));
+	IPv4Address expectedDstIP(std::string("81.218.72.15"));
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP->equals(&expectedSrcIP));
+	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP->equals(&expectedDstIP));
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_sec == 1491516383, "Bad start time seconds, expected 1491516383");
+	PTF_ASSERT(stats.begin()->second.connData.startTime.tv_usec == 915793, "Bad start time microseconds, expected 915793");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_sec == 0, "Bad end time seconds, expected 0");
+	PTF_ASSERT(stats.begin()->second.connData.endTime.tv_usec == 0, "Bad end time microseconds, expected 0");
+
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
+	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData, string);
+} //TestTcpReassemblyMaxSeq
+
+
+PTF_TEST_CASE(TestLRUList)
+{
+	LRUList<uint32_t> lruList(2);
+
+	uint32_t deletedValue = 0;
+	PTF_ASSERT_EQUAL(lruList.put(1, &deletedValue), 0, int);
+	PTF_ASSERT_EQUAL(deletedValue, 0, int);
+
+	PTF_ASSERT_EQUAL(lruList.put(2, NULL), 0, int);
+
+	PTF_ASSERT_EQUAL(lruList.put(3, &deletedValue), 1, int);
+	PTF_ASSERT_EQUAL(deletedValue, 1, u32);
+
+	lruList.eraseElement(1);
+	lruList.eraseElement(2);
+	lruList.eraseElement(3);
+	PTF_ASSERT_EQUAL(lruList.getSize(), 0, size);
+} // TestLRUList
+
+
+PTF_TEST_CASE(TestGeneralUtils)
+{
+	uint8_t resultArr[4];
+	const uint8_t expectedBytes[] = { 0xaa, 0xbb };
+	size_t result = hexStringToByteArray("AABB", resultArr, sizeof(resultArr));
+	PTF_ASSERT_TRUE(result > 0);
+	PTF_ASSERT_TRUE(result <= sizeof(resultArr));
+	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes, result);
+
+	LoggerPP::getInstance().supressErrors();
+	// odd length
+	result = hexStringToByteArray("aab", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 0, size);
+	// wrong input
+	result = hexStringToByteArray("zzvv", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 0, size);
+	PTF_ASSERT_TRUE(resultArr[0] == '\0');
+	LoggerPP::getInstance().enableErrors();
+
+	// short buffer
+	const uint8_t expectedBytes2[] = { 0x01, 0x02, 0x03, 0x04 };
+	result = hexStringToByteArray("0102030405", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 4, size);
+	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes2, result);
+} // TestGeneralUtils
+
+
 void savePacketToFile(RawPacket& packet, std::string fileName)
 {
-    PcapFileWriterDevice writerDev(fileName.c_str());
-    writerDev.open();
-    writerDev.writePacket(packet);
-    writerDev.close();
+	PcapFileWriterDevice writerDev(fileName.c_str());
+	writerDev.open();
+	writerDev.writePacket(packet);
+	writerDev.close();
 }
 
 PTF_TEST_CASE(TestIPFragmentationSanity)
@@ -5300,13 +5475,13 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	// basic IPv4 reassembly test
 	// ==========================
 
-	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	PTF_ASSERT_TRUE(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/frag_http_req.pcap", packetStream, errMsg));
 
 	IPReassembly ipReassembly;
 	IPReassembly::ReassemblyStatus status;
 
-	PTF_ASSERT(ipReassembly.getMaxCapacity() == PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, "Max capacity isn't PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE");
-	PTF_ASSERT(ipReassembly.getCurrentCapacity() == 0, "Capacity before reassembly isn't 0");
+	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, size);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, size);
 
 	Packet* result = NULL;
 
@@ -5316,28 +5491,39 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		result = ipReassembly.processPacket(&packet, status);
 		if (i == 0)
 		{
-			PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv4: First frag status isn't FIRST_FRAGMENT");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 1, "IPv4: Current capacity isn't 1");
+			PTF_ASSERT_EQUAL(status, IPReassembly::FIRST_FRAGMENT, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, size);
 		}
-		else if (i < (packetStream.size()-1))
+		else if (i < (packetStream.size() - 1))
 		{
 			PTF_ASSERT(result == NULL, "IPv4: Got reassembled packet too soon on fragment #%d", (int)i);
-			PTF_ASSERT(status == IPReassembly::FRAGMENT, "IPv4: Frag status isn't FRAGMENT");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 1, "IPv4: Current capacity isn't 1");
+			PTF_ASSERT_EQUAL(status, IPReassembly::FRAGMENT, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, size);
 		}
 		else
 		{
-			PTF_ASSERT(result != NULL, "IPv4: Didn't get reassembled packet on the last fragment");
-			PTF_ASSERT(status == IPReassembly::REASSEMBLED, "IPv4: Last frag status isn't REASSEMBLED");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 0, "IPv4: Capacity after reassembly isn't 0");
+			PTF_ASSERT_NOT_NULL(result);
+			PTF_ASSERT_EQUAL(status, IPReassembly::REASSEMBLED, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, size);
 		}
 	}
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_http_req_reassembled.txt", bufferLength);
 
-	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "IPv4: Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "IPv4: Reassembled packet data is different than expected");
+	PTF_ASSERT_NOT_NULL(buffer);
+	PTF_ASSERT_NOT_NULL(result);
+	PTF_ASSERT_TRUE(result->isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(result->isPacketOfType(TCP));
+	PTF_ASSERT_TRUE(result->isPacketOfType(HTTPRequest));
+	HttpRequestLayer* httpReq = result->getLayerOfType<HttpRequestLayer>();
+	PTF_ASSERT_NOT_NULL(httpReq);
+	PTF_ASSERT_EQUAL(httpReq->getUrl(), "js.bizographics.com/convert_data.js?partner_id=29", string);
+	PTF_ASSERT_EQUAL(httpReq->getFieldCount(), 10, int);
+
+	PTF_ASSERT_NOT_NULL(result);
+	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
 	delete [] buffer;
@@ -5347,11 +5533,11 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	// ==========================
 
 	PcapFileReaderDevice reader("PcapExamples/ip6_fragments.pcap");
-	PTF_ASSERT(reader.open(), "Cannot open file PcapExamples/ip6_fragments.pcap");
+	PTF_ASSERT_TRUE(reader.open());
 
 	RawPacketVector packet1Frags;
 
-	PTF_ASSERT(reader.getNextPackets(packet1Frags, 7) == 7, "IPv6: Cannot read 7 frags of packet 1");
+	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1Frags, 7), 7, int);
 
 	reader.close();
 
@@ -5363,31 +5549,33 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		result = ipReassembly.processPacket(&packet, status);
 		if (i == 0)
 		{
-			PTF_ASSERT(status == IPReassembly::FIRST_FRAGMENT, "IPv6: First frag status isn't FIRST_FRAGMENT");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 1, "IPv6: Current capacity isn't 1");
+			PTF_ASSERT_EQUAL(status, IPReassembly::FIRST_FRAGMENT, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, size);
 		}
-		else if (i < (packet1Frags.size()-1))
+		else if (i < (packet1Frags.size() - 1))
 		{
 			PTF_ASSERT(result == NULL, "IPv6: Got reassembled packet too soon on fragment #%d", (int)i);
-			PTF_ASSERT(status == IPReassembly::FRAGMENT, "IPv6: Frag status isn't FRAGMENT");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 1, "IPv6: Current capacity isn't 1");
+			PTF_ASSERT_EQUAL(status, IPReassembly::FRAGMENT, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, size);
 		}
 		else
 		{
-			PTF_ASSERT(result != NULL, "IPv6: Didn't get reassembled packet on the last fragment");
-			PTF_ASSERT(status == IPReassembly::REASSEMBLED, "IPv6: Last frag status isn't REASSEMBLED");
-			PTF_ASSERT(ipReassembly.getCurrentCapacity() == 0, "IPv6: Capacity after reassembly isn't 0");
+			PTF_ASSERT_NOT_NULL(result);
+			PTF_ASSERT_EQUAL(status, IPReassembly::REASSEMBLED, enum);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, size);
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	// small fix for payload length which is wrong in the original packet
-	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(737);
+	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(737);
 
 	bufferLength = 0;
 	buffer = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", bufferLength);
 
-	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "IPv6: Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "IPv6: Reassembled packet data is different than expected");
+	PTF_ASSERT_NOT_NULL(buffer);
+	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
 	delete [] buffer;
@@ -5397,7 +5585,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	// ==================
 
 	packetStream.clear();
-	PTF_ASSERT(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/VlanPackets.pcap", packetStream, errMsg) == true, "Error reading pcap file: %s", errMsg.c_str());
+	PTF_ASSERT_TRUE(tcpReassemblyReadPcapIntoPacketVec("PcapExamples/VlanPackets.pcap", packetStream, errMsg));
 
 	for (size_t i = 0; i < 20; i++)
 	{
@@ -5405,7 +5593,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		result = ipReassembly.processPacket(&packet, status);
 
 		PTF_ASSERT(result == &packet, "Non-fragment test: didn't get the same non-fragment packet in the result");
-		PTF_ASSERT(status == IPReassembly::NON_FRAGMENT, "Non-fragment test: status isn't NON_FRAGMENT");
+		PTF_ASSERT_EQUAL(status, IPReassembly::NON_FRAGMENT, enum);
 	}
 
 
@@ -5418,11 +5606,9 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		result = ipReassembly.processPacket(&packet, status);
 
 		PTF_ASSERT(result == &packet, "Non-IP test: didn't get the same non-IP packet in the result");
-		PTF_ASSERT(status == IPReassembly::NON_IP_PACKET, "Non-IP test: status isn't NON_IP_PACKET");
+		PTF_ASSERT_EQUAL(status, IPReassembly::NON_IP_PACKET, enum);
 	}
-
-
-}
+} // TestIPFragmentationSanity
 
 
 PTF_TEST_CASE(TestIPFragOutOfOrder)
@@ -5476,6 +5662,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 
@@ -5516,10 +5703,12 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 
@@ -5557,6 +5746,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 		}
 	}
 
+	PTF_ASSERT_NOT_NULL(result);
 	PTF_ASSERT(bufferLength == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
@@ -5606,6 +5796,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Reassembled packet data is different than expected");
 
 	delete result;
+	result = NULL;
 
 	packetStream.clear();
 
@@ -5689,7 +5880,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	uint8_t* buffer2 = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", buffer2Length);
 
 	// small fix for payload length which is wrong in the original packet
-	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(737);
+	result->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(737);
 
 	PTF_ASSERT(buffer2Length == result->getRawPacket()->getRawDataLen(), "Reassembled packet len (%d) is different than read packet len (%d)", result->getRawPacket()->getRawDataLen(), buffer2Length);
 	PTF_ASSERT(memcmp(result->getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "Reassembled packet data is different than expected");
@@ -6059,14 +6250,14 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	int buffer61Length = 0;
 	uint8_t* buffer61 = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", buffer61Length);
 	// small fix for payload length which is wrong in the original packet
-	ip6Packet1->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(737);
+	ip6Packet1->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(737);
 	PTF_ASSERT(buffer61Length == ip6Packet1->getRawPacket()->getRawDataLen(), "IPv6 Packet1 len (%d) is different than read packet len (%d)", ip6Packet1->getRawPacket()->getRawDataLen(), buffer61Length);
 	PTF_ASSERT(memcmp(ip6Packet1->getRawPacket()->getRawData(), buffer61, buffer61Length) == 0, "IPv6 packet1 data is different than expected");
 
 	int buffer62Length = 0;
 	uint8_t* buffer62 = readFileIntoBuffer("PcapExamples/ip6_fragments_packet2.txt", buffer62Length);
 	// small fix for payload length which is wrong in the original packet
-	ip6Packet2->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htons(1448);
+	ip6Packet2->getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(1448);
 	PTF_ASSERT(buffer62Length == ip6Packet2->getRawPacket()->getRawDataLen(), "IPv6 Packet2 len (%d) is different than read packet len (%d)", ip6Packet2->getRawPacket()->getRawDataLen(), buffer62Length);
 	PTF_ASSERT(memcmp(ip6Packet2->getRawPacket()->getRawData(), buffer62, buffer62Length) == 0, "IPv6 packet2 data is different than expected");
 
@@ -6341,7 +6532,7 @@ PTF_TEST_CASE(TestRawSockets)
 		LoggerPP::getInstance().enableErrors();
 	}
 
-
+	PTF_TEST_CASE_PASSED;
 
 #endif
 
@@ -6353,7 +6544,7 @@ PTF_TEST_CASE(TestRawSockets)
 		RawPacket rawPacket;
 		PTF_ASSERT(rawSock.receivePacket(rawPacket, true, 10) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket");
 		Packet parsedPacket(&rawPacket);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 	}
 
 	// receive multiple packets
@@ -6364,7 +6555,7 @@ PTF_TEST_CASE(TestRawSockets)
 	for (RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
 	{
 		Packet parsedPacket(*iter);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 	}
 
 	// receive with timeout
@@ -6409,11 +6600,11 @@ PTF_TEST_CASE(TestRawSockets)
 		RawPacket rawPacket;
 		PTF_ASSERT(rawSock.receivePacket(rawPacket, true, 5) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket 1");
 		Packet parsedPacket(&rawPacket);
-		PTF_ASSERT(parsedPacket.isPacketOfType(protocol) == true, "Received packet 1 is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 		RawPacket rawPacket2;
 		PTF_ASSERT(rawSock2.receivePacket(rawPacket2, true, 5) == RawSocketDevice::RecvSuccess, "Couldn't receive packet on raw socket 2");
 		Packet parsedPacket2(&rawPacket2);
-		PTF_ASSERT(parsedPacket2.isPacketOfType(protocol) == true, "Received packet 2 is not of type 0x%X", protocol);
+		PTF_ASSERT_TRUE(parsedPacket2.isPacketOfType(protocol));
 	}
 
 	if (sendSupported)
@@ -6647,6 +6838,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPfRingSendPackets, "pf_ring");
 	PTF_RUN_TEST(TestPfRingFilters, "pf_ring");
 	PTF_RUN_TEST(TestDnsParsing, "no_network;dns");
+	PTF_RUN_TEST(TestDpdkInitDevice, "dpdk;dpdk-init;skip_mem_leak_check");
 	PTF_RUN_TEST(TestDpdkDevice, "dpdk");
 	PTF_RUN_TEST(TestDpdkMultiThread, "dpdk");
 	PTF_RUN_TEST(TestDpdkDeviceSendPackets, "dpdk");
@@ -6665,6 +6857,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestTcpReassemblyIPv6, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyIPv6MultConns, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyIPv6_OOO, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyCleanup, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyMaxSeq, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragOutOfOrder, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragPartialData, "no_network;ip_frag");
@@ -6672,6 +6866,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPFragMapOverflow, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
 	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
+	PTF_RUN_TEST(TestLRUList, "no_network");
+	PTF_RUN_TEST(TestGeneralUtils, "no_network");
 
 	PTF_END_RUNNING_TESTS;
 }

@@ -66,7 +66,7 @@ namespace pcpp
 		 * Get a pointer to the Sll header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the sll_header
 		 */
-		inline sll_header* getSllHeader() const { return (sll_header*)m_Data; }
+		sll_header* getSllHeader() const { return (sll_header*)m_Data; }
 
 		/**
 		 * A setter for the link layer address field
@@ -93,14 +93,14 @@ namespace pcpp
 		/**
 		 * @return Size of sll_header
 		 */
-		inline size_t getHeaderLen() { return sizeof(sll_header); }
+		size_t getHeaderLen() const { return sizeof(sll_header); }
 
 		/**
 		 * Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};

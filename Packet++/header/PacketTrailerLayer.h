@@ -44,18 +44,18 @@ namespace pcpp
 		 * Get a pointer to the trailer data
 		 * @return A pointer to the trailer data
 		 */
-		inline uint8_t* getTrailerData() { return m_Data; }
+		uint8_t* getTrailerData() const { return m_Data; }
 
 		/**
 		 * @return Trailer data as hex string
 		 */
-		std::string getTrailerDataAsHexString();
+		std::string getTrailerDataAsHexString() const;
 
 		/**
 		 * Get the trailer data length
 		 * @return The trailer data length in bytes
 		 */
-		inline size_t getTrailerLen() { return m_DataLen; }
+		size_t getTrailerLen() const { return m_DataLen; }
 
 		// implement abstract methods
 
@@ -67,14 +67,14 @@ namespace pcpp
 		/**
 		 * @return trailer data length in bytes
 		 */
-		inline size_t getHeaderLen() { return m_DataLen; }
+		size_t getHeaderLen() const { return m_DataLen; }
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 	};

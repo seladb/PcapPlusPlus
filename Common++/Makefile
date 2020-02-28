@@ -23,6 +23,9 @@ endif
 ifdef MAC_OS_X
 DEPS := -DMAC_OS_X
 endif
+ifdef FREEBSD
+DEPS := -DFREEBSD
+endif
 
 GIT_CUR_COMMIT := $(shell git rev-parse --verify HEAD)
 GIT_CUR_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
@@ -33,13 +36,13 @@ INCLUDES := -I"./src" \
 			
 ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \
-			-I$(WINPCAP_HOME)/Include
+			-I$(PCAP_SDK_HOME)/Include
 endif
 ifdef LINUX
 INCLUDES += -I/usr/include/netinet
 endif
 ifdef MAC_OS_X
-INCLUDES += -I/usr/include/malloc
+INCLUDES += -I$(MACOS_SDK_HOME)/usr/include/malloc
 endif
 			
 Obj/%.o: src/%.cpp

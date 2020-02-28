@@ -34,7 +34,7 @@ const std::string SipMethodEnumToString[14] = {
 
 // -------- Class SipLayer -----------------
 
-int SipLayer::getContentLength()
+int SipLayer::getContentLength() const
 {
 	std::string contentLengthFieldName(PCPP_SIP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
@@ -360,7 +360,7 @@ bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
 	return true;
 }
 
-std::string SipRequestFirstLine::getUri()
+std::string SipRequestFirstLine::getUri() const
 {
 	std::string result;
 	if (m_UriOffset != -1 && m_VersionOffset != -1)
@@ -456,7 +456,7 @@ SipRequestLayer::~SipRequestLayer()
 	delete m_FirstLine;
 }
 
-std::string SipRequestLayer::toString()
+std::string SipRequestLayer::toString() const
 {
 	static const int maxLengthToPrint = 120;
 	std::string result = "SIP request, ";
@@ -687,7 +687,7 @@ SipResponseLayer& SipResponseLayer::operator=(const SipResponseLayer& other)
 	return *this;
 }
 
-std::string SipResponseLayer::toString()
+std::string SipResponseLayer::toString() const
 {
 	static const int maxLengthToPrint = 120;
 	std::string result = "SIP response, ";
@@ -723,12 +723,12 @@ std::string SipResponseLayer::toString()
 
 // -------- Class SipResponseFirstLine -----------------
 
-int SipResponseFirstLine::getStatusCodeAsInt()
+int SipResponseFirstLine::getStatusCodeAsInt() const
 {
 	return StatusCodeEnumToInt[m_StatusCode];
 }
 
-std::string SipResponseFirstLine::getStatusCodeString()
+std::string SipResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
 	int statusStringOffset = 12;

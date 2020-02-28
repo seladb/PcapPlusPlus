@@ -5,8 +5,6 @@
 #include "DnsResource.h"
 #include "DnsResourceData.h"
 #include "Layer.h"
-#include <vector>
-#include <map>
 
 /// @file
 
@@ -135,7 +133,7 @@ namespace pcpp
 		 * other methods of this layer. Notice the return value points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref dnshdr
 		 */
-		inline dnshdr* getDnsHeader() const { return (dnshdr*)m_Data; }
+		dnshdr* getDnsHeader() const { return (dnshdr*)m_Data; }
 
 		/**
 		 * Searches for a DNS query by its name field. Notice this method returns only a query which its name equals to the requested name. If
@@ -144,24 +142,24 @@ namespace pcpp
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 		 * @return The first matching DNS query or NULL if no queries were found
 		 */
-		DnsQuery* getQuery(const std::string& name, bool exactMatch);
+		DnsQuery* getQuery(const std::string& name, bool exactMatch) const;
 
 		/**
 		 * @return The first DNS query in the packet or NULL if packet doesn't contain any queries
 		 */
-		DnsQuery* getFirstQuery();
+		DnsQuery* getFirstQuery() const;
 
 		/**
 		 * Get the DNS query following a certain query
 		 * @param[in] query A pointer to a DNS query that exist in the packet
 		 * @return The DNS query following 'query'. If 'query' is NULL or 'query' is the last query in the packet NULL will be returned
 		 */
-		DnsQuery* getNextQuery(DnsQuery* query);
+		DnsQuery* getNextQuery(DnsQuery* query) const;
 
 		/**
 		 * @return The number of DNS queries in the packet
 		 */
-		size_t getQueryCount();
+		size_t getQueryCount() const;
 
 		/**
 		 * Add a new DNS query to the layer
@@ -203,24 +201,24 @@ namespace pcpp
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 		 * @return The first matching DNS answer or NULL if no answers were found
 		 */
-		DnsResource* getAnswer(const std::string& name, bool exactMatch);
+		DnsResource* getAnswer(const std::string& name, bool exactMatch) const;
 
 		/**
 		 * @return The first DNS answer in the packet or NULL if packet doesn't contain any answers
 		 */
-		DnsResource* getFirstAnswer();
+		DnsResource* getFirstAnswer() const;
 
 		/**
 		 * Get the DNS answer following a certain answer
 		 * @param[in] answer A pointer to a DNS answer that exist in the packet
 		 * @return The DNS answer following 'answer'. If 'answer' is NULL or 'answer' is the last answer in the packet NULL will be returned
 		 */
-		DnsResource* getNextAnswer(DnsResource* answer);
+		DnsResource* getNextAnswer(DnsResource* answer) const;
 
 		/**
 		 * @return The number of DNS answers in the packet
 		 */
-		size_t getAnswerCount();
+		size_t getAnswerCount() const;
 
 		/**
 		 * Add a new DNS answer to the layer
@@ -267,24 +265,24 @@ namespace pcpp
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 		 * @return The first matching DNS authority or NULL if no authorities were found
 		 */
-		DnsResource* getAuthority(const std::string& name, bool exactMatch);
+		DnsResource* getAuthority(const std::string& name, bool exactMatch) const;
 
 		/**
 		 * @return The first DNS authority in the packet or NULL if packet doesn't contain any authorities
 		 */
-		DnsResource* getFirstAuthority();
+		DnsResource* getFirstAuthority() const;
 
 		/**
 		 * Get the DNS authority following a certain authority
 		 * @param[in] authority A pointer to a DNS authority that exist in the packet
 		 * @return The DNS authority following 'authority'. If 'authority' is NULL or 'authority' is the last authority in the packet NULL will be returned
 		 */
-		DnsResource* getNextAuthority(DnsResource* authority);
+		DnsResource* getNextAuthority(DnsResource* authority) const;
 
 		/**
 		 * @return The number of DNS authorities in the packet
 		 */
-		size_t getAuthorityCount();
+		size_t getAuthorityCount() const;
 
 		/**
 		 * Add a new DNS authority to the layer
@@ -332,12 +330,12 @@ namespace pcpp
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
 		 * @return The first matching DNS additional record or NULL if no additional records were found
 		 */
-		DnsResource* getAdditionalRecord(const std::string& name, bool exactMatch);
+		DnsResource* getAdditionalRecord(const std::string& name, bool exactMatch) const;
 
 		/**
 		 * @return The first DNS additional record in the packet or NULL if packet doesn't contain any additional records
 		 */
-		DnsResource* getFirstAdditionalRecord();
+		DnsResource* getFirstAdditionalRecord() const;
 
 		/**
 		 * Get the DNS additional record following a certain additional record
@@ -345,12 +343,12 @@ namespace pcpp
 		 * @return The DNS additional record following 'additionalRecord'. If 'additionalRecord' is NULL or 'additionalRecord' is the
 		 * last additional record in the packet NULL will be returned
 		 */
-		DnsResource* getNextAdditionalRecord(DnsResource* additionalRecord);
+		DnsResource* getNextAdditionalRecord(DnsResource* additionalRecord) const;
 
 		/**
 		 * @return The number of DNS additional records in the packet
 		 */
-		size_t getAdditionalRecordCount();
+		size_t getAdditionalRecordCount() const;
 
 		/**
 		 * Add a new DNS additional record to the layer
@@ -416,29 +414,31 @@ namespace pcpp
 		 * Return the size of the DNS data in the packet including he DNS header and size of all queries, answers, authorities and additional
 		 * records
 		 */
-		inline size_t getHeaderLen() { return m_DataLen; } //No layer above DNS
+		size_t getHeaderLen() const { return m_DataLen; } //No layer above DNS
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
-        OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 		/**
-		 * @return A pointer to a map containing all UDP ports recognize as DNS
+		 * A static method that checks whether the port is considered as DNS
+		 * @param[in] port The port number to be checked
 		 */
-		static const std::map<uint16_t, bool>* getDNSPortMap();
-	private:
-		IDnsResource* 	m_ResourceList;
-		DnsQuery* 		m_FirstQuery;
-		DnsResource* 	m_FirstAnswer;
-		DnsResource* 	m_FirstAuthority;
-		DnsResource* 	m_FirstAdditional;
+		static inline bool isDnsPort(uint16_t port);
 
-		IDnsResource* getFirstResource(DnsResourceType resType);
+	private:
+		IDnsResource* m_ResourceList;
+		DnsQuery*     m_FirstQuery;
+		DnsResource*  m_FirstAnswer;
+		DnsResource*  m_FirstAuthority;
+		DnsResource*  m_FirstAdditional;
+
+		IDnsResource* getFirstResource(DnsResourceType resType) const;
 		void setFirstResource(DnsResourceType resType, IDnsResource* resource);
 
 		using Layer::extendLayer;
@@ -447,7 +447,7 @@ namespace pcpp
 		using Layer::shortenLayer;
 		bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten, IDnsResource* resource);
 
-		IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name, bool exactMatch);
+		IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name, bool exactMatch) const;
 
 		void parseResources();
 
@@ -457,6 +457,22 @@ namespace pcpp
 		bool removeResource(IDnsResource* resourceToRemove);
 
 	};
+
+
+	// implementation of inline methods
+
+	bool DnsLayer::isDnsPort(uint16_t port)
+	{
+		switch (port)
+		{
+		case 53:
+		case 5353:
+		case 5355:
+			return true;
+		default:
+			return false;
+		}
+	}
 
 } // namespace pcpp
 

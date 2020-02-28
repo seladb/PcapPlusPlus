@@ -79,31 +79,31 @@ namespace pcpp
 		/**
 		 * Add a new (pointer to an) element to the vector
 		 */
-		inline void pushBack(T* element) { m_Vector.push_back(element); }
+		void pushBack(T* element) { m_Vector.push_back(element); }
 
 		/**
 		 * Get the first element of the vector
 		 * @return An iterator object pointing to the first element of the vector
 		 */
-		inline VectorIterator begin() { return m_Vector.begin(); }
+		VectorIterator begin() { return m_Vector.begin(); }
 
 		/**
 		 * Get the first element of a constant vector
 		 * @return A const iterator object pointing to the first element of the vector
 		 */
-		inline ConstVectorIterator begin() const { return m_Vector.begin(); }
+		ConstVectorIterator begin() const { return m_Vector.begin(); }
 
 		/**
 		 * Get the last element of the vector
 		 * @return An iterator object pointing to the last element of the vector
 		 */
-		inline VectorIterator end() { return m_Vector.end(); }
+		VectorIterator end() { return m_Vector.end(); }
 
 		/**
 		 * Get the last element of a constant vector
 		 * @return A const iterator object pointing to the last element of the vector
 		 */
-		inline ConstVectorIterator end() const { return m_Vector.end(); }
+		ConstVectorIterator end() const { return m_Vector.end(); }
 
 
 		//inline size_t size() { return m_Vector.size(); }
@@ -112,20 +112,20 @@ namespace pcpp
 		 * Get number of elements in the vector
 		 * @return The number of elements in the vector
 		 */
-		inline size_t size() const { return m_Vector.size(); }
+		size_t size() const { return m_Vector.size(); }
 
 		/**
 		 * Returns a pointer of the first element in the vector
 		 * @return A pointer of the first element in the vector
 		 */
-		inline T* front() { return m_Vector.front(); }
+		T* front() { return m_Vector.front(); }
 
 		/**
 		 * Removes from the vector a single element (position). Once the element is erased, it's also freed
 		 * @param[in] position The position of the element to erase
 		 * @return An iterator pointing to the new location of the element that followed the last element erased by the function call
 		 */
-		inline VectorIterator erase(VectorIterator position)
+		VectorIterator erase(VectorIterator position)
 		{
 			delete (*position);
 			return m_Vector.erase(position);
@@ -136,7 +136,7 @@ namespace pcpp
 		 * param[in] position The position of the element to remove from the vector
 		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free it
 		 */
-		inline T* getAndRemoveFromVector(VectorIterator& position)
+		T* getAndRemoveFromVector(VectorIterator& position)
 		{
 			T* result = (*position);
 			VectorIterator tempPos = position;
@@ -150,7 +150,17 @@ namespace pcpp
 		 * @param[in] index The index to retrieve the element from
 		 * @return The element at the specified position in the vector
 		 */
-		inline T* at(int index)
+		T* at(int index)
+		{
+			return m_Vector.at(index);
+		}
+
+		/**
+		 * Return a const pointer to the element in a certain index
+		 * @param[in] index The index to retrieve the element from
+		 * @return The element at the specified position in the vector
+		 */
+		const T* at(int index) const
 		{
 			return m_Vector.at(index);
 		}

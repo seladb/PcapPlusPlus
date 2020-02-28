@@ -4,7 +4,6 @@
 #include "TextBasedProtocol.h"
 #include <string>
 #include <exception>
-#include <map>
 
 /// @file
 
@@ -75,9 +74,10 @@ namespace pcpp
 		virtual ~HttpMessage() {}
 
 		/**
-		 * @return A pointer to a map containing all TCP ports recognize as HTTP
+		 * A static method that checks whether the port is considered as HTTP
+		 * @param[in] port The port number to be checked
 		 */
-		static const std::map<uint16_t, bool>* getHTTPPortMap();
+		static bool isHttpPort(uint16_t port) { return port == 80 || port == 8080; }
 
 		// overriden methods
 
@@ -95,15 +95,14 @@ namespace pcpp
 		HttpMessage& operator=(const HttpMessage& other) { TextBasedProtocolMessage::operator=(other); return *this; }
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() { return ':'; }
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() { return true; }
+		char getHeaderFieldNameValueSeparator() const { return ':'; }
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return true; }
 	};
 
 
 
 
 	class HttpRequestFirstLine;
-
 
 
 
@@ -188,7 +187,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		inline HttpRequestFirstLine* getFirstLine() { return m_FirstLine; }
+		HttpRequestFirstLine* getFirstLine() const { return m_FirstLine; }
 
 		/**
 		 * The URL is hostname+uri. So given the following URL, for example: "www.cnn.com/main.html", the hostname is "www.cnn.com" and the URI
@@ -200,7 +199,7 @@ namespace pcpp
 		std::string getUrl() const;
 
 		// implement Layer's abstract methods
-		std::string toString();
+		std::string toString() const;
 
 	private:
 		HttpRequestFirstLine* m_FirstLine;
@@ -253,7 +252,7 @@ namespace pcpp
 			/** 204 No Content*/
 			Http204NoContent,
 			/** 205 Reset Content*/
-			http205ResetContent,
+			Http205ResetContent,
 			/** 206 Partial Content */
 			Http206PartialContent,
 			/** 207 Multi-Status */
@@ -439,7 +438,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		inline HttpResponseFirstLine* getFirstLine() { return m_FirstLine; }
+		HttpResponseFirstLine* getFirstLine() const { return m_FirstLine; }
 
 		/**
 		 * The length of the body of many HTTP response messages is determined by a HTTP header field called "Content-Length". This method sets
@@ -460,11 +459,11 @@ namespace pcpp
 		 * parses this field, extracts its value and return it. If this field doesn't exist the method will return 0
 		 * @return HTTP response body length determined by "Content-Length" field
 		 */
-		int getContentLength();
+		int getContentLength() const;
 
 		// implement Layer's abstract methods
 
-		std::string toString();
+		std::string toString() const;
 
 	private:
 		HttpResponseFirstLine* m_FirstLine;
@@ -495,7 +494,7 @@ namespace pcpp
 		/**
 		 * @return The HTTP method
 		 */
-		inline HttpRequestLayer::HttpMethod getMethod() { return m_Method; }
+		HttpRequestLayer::HttpMethod getMethod() const { return m_Method; }
 
 		/**
 		 * Set the HTTP method
@@ -507,7 +506,7 @@ namespace pcpp
 		/**
 		 * @return A copied version of the URI (notice changing the return value won't change the actual data of the packet)
 		 */
-		std::string getUri();
+		std::string getUri() const;
 
 		/**
 		 * Set the URI
@@ -519,7 +518,7 @@ namespace pcpp
 		/**
 		 * @return The HTTP version
 		 */
-		inline HttpVersion getVersion() { return m_Version; }
+		HttpVersion getVersion() const { return m_Version; }
 
 		/**
 		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same size
@@ -539,7 +538,7 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the HTTP first line
 		 */
-		inline int getSize() { return m_FirstLineEndOffset; }
+		int getSize() const { return m_FirstLineEndOffset; }
 
 		/**
 		 * As explained in HttpRequestLayer, an HTTP header can spread over more than 1 packet, so when looking at a single packet
@@ -547,7 +546,7 @@ namespace pcpp
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		inline bool isComplete() { return m_IsComplete; }
+		bool isComplete() const { return m_IsComplete; }
 
 		/**
 		 * @class HttpRequestFirstLineException
@@ -607,17 +606,17 @@ namespace pcpp
 		/**
 		 * @return The status code as HttpResponseLayer::HttpResponseStatusCode enum
 		 */
-		inline HttpResponseLayer::HttpResponseStatusCode getStatusCode() { return m_StatusCode; }
+		HttpResponseLayer::HttpResponseStatusCode getStatusCode() const { return m_StatusCode; }
 
 		/**
 		 * @return The status code number as integer (e.g 200, 404, etc.)
 		 */
-		int getStatusCodeAsInt();
+		int getStatusCodeAsInt() const;
 
 		/**
 		 * @return The status code message (e.g "OK", "Not Found", etc.)
 		 */
-		std::string getStatusCodeString();
+		std::string getStatusCodeString() const;
 
 		/**
 		 * Set the status code
@@ -630,7 +629,7 @@ namespace pcpp
 		/**
 		 * @return The HTTP version
 		 */
-		inline HttpVersion getVersion() { return m_Version; }
+		HttpVersion getVersion() const { return m_Version; }
 
 		/**
 		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same size
@@ -650,7 +649,7 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the HTTP first line
 		 */
-		inline int getSize() { return m_FirstLineEndOffset; }
+		int getSize() const { return m_FirstLineEndOffset; }
 
 		/**
 		 * As explained in HttpResponseLayer, an HTTP header can spread over more than 1 packet, so when looking at a single packet
@@ -658,7 +657,7 @@ namespace pcpp
 		 * whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		inline bool isComplete() { return m_IsComplete; }
+		bool isComplete() const { return m_IsComplete; }
 
 		/**
 		 * @class HttpResponseFirstLineException

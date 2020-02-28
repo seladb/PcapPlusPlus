@@ -4,6 +4,10 @@
 #include <map>
 #include <list>
 
+#if __cplusplus > 199711L || _MSC_VER >= 1800
+#include <utility>
+#endif
+
 /// @file
 
 /**
@@ -40,39 +44,49 @@ namespace pcpp
 		/**
 		 * Puts an element in the list. This element will be inserted (or advanced if it already exists) to the head of the
 		 * list as the most recently used element. If the list already reached its max size and the element is new this method
-		 * will remove the least recently used element and return a pointer to it. Method complexity is O(1)
+		 * will remove the least recently used element and return a value in deletedValue. Method complexity is O(log(getSize())).
+		 * This is a optimized version of the method T* put(const T&).
 		 * @param[in] element The element to insert or to advance to the head of the list (if already exists)
-		 * @return A pointer to the element that was removed from the list in case the list already reached its max size.
-		 * If the list didn't reach its max size NULL will be returned. Notice it's the responsibility of the user to free
-		 * this pointer's memory when done using it
+		 * @param[out] deletedValue The value of deleted element if a pointer is not NULL. This parameter is optional.
+		 * @return 0 if the list didn't reach its max size, 1 otherwise. In case the list already reached its max size
+		 * and deletedValue is not NULL the value of deleted element is copied into the place the deletedValue points to.
 		 */
-		T* put(const T& element)
+		int put(const T& element, T* deletedValue = NULL)
 		{
 			m_CacheItemsList.push_front(element);
-			MapIterator iter = m_CacheItemsMap.find(element);
-			if (iter != m_CacheItemsMap.end())
-				m_CacheItemsList.erase(iter->second);
-			m_CacheItemsMap[element] = m_CacheItemsList.begin();
 
-			if (m_CacheItemsList.size() > m_MaxSize)
+			// Inserting a new element. If an element with an equivalent key already exists the method returns an iterator to the element that prevented the insertion
+			std::pair<MapIterator, bool> pair = m_CacheItemsMap.insert(std::make_pair(element, m_CacheItemsList.begin()));
+			if (pair.second == false) // already exists
+			{
+				m_CacheItemsList.erase(pair.first->second);
+				pair.first->second = m_CacheItemsList.begin();
+			}
+
+			if (m_CacheItemsMap.size() > m_MaxSize)
 			{
 				ListIterator lruIter = m_CacheItemsList.end();
 				lruIter--;
-				T* deletedValue = new T(*lruIter);
+
+				if (deletedValue != NULL)
+#if __cplusplus > 199711L || _MSC_VER >= 1800
+					*deletedValue = std::move(*lruIter);
+#else
+					*deletedValue = *lruIter;
+#endif
 				m_CacheItemsMap.erase(*lruIter);
 				m_CacheItemsList.erase(lruIter);
-
-				return deletedValue;
+				return 1;
 			}
 
-			return NULL;
+			return 0;
 		}
 
 		/**
 		 * Get the most recently used element (the one at the beginning of the list)
 		 * @return The most recently used element
 		 */
-		const T& getMRUElement()
+		const T& getMRUElement() const
 		{
 			return m_CacheItemsList.front();
 		}
@@ -81,7 +95,7 @@ namespace pcpp
 		 * Get the least recently used element (the one at the end of the list)
 		 * @return The least recently used element
 		 */
-		const T& getLRUElement()
+		const T& getLRUElement() const
 		{
 			return m_CacheItemsList.back();
 		}
@@ -97,18 +111,18 @@ namespace pcpp
 				return;
 
 			m_CacheItemsList.erase(iter->second);
-			m_CacheItemsMap.erase(element);
+			m_CacheItemsMap.erase(iter);
 		}
 
 		/**
 		 * @return The max size of this list as determined in the c'tor
 		 */
-		inline size_t getMaxSize() { return m_MaxSize; }
+		size_t getMaxSize() const { return m_MaxSize; }
 
 		/**
 		 * @return The number of elements currently in this list
 		 */
-		inline size_t getSize() { return m_CacheItemsMap.size(); }
+		size_t getSize() const { return m_CacheItemsMap.size(); }
 
 	private:
 		std::list<T> m_CacheItemsList;

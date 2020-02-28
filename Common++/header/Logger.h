@@ -109,7 +109,7 @@ namespace pcpp
 		 * @param[in] module PcapPlusPlus module
 		 * @return True if this module log level is "debug". False otherwise
 		 */
-		inline bool isDebugEnabled(LogModule module) { return m_LogModulesArray[module] == Debug; }
+		bool isDebugEnabled(LogModule module) const { return m_LogModulesArray[module] == Debug; }
 
 		/**
 		 * Get an array that contains log level information for all modules. User can access this array with a certain PcapPlusPlus module
@@ -118,19 +118,19 @@ namespace pcpp
 		 * if (myLogLevelArr[PacketLogModuleUdpLayer] == LogLevel::Debug) ....
 		 * @return A pointer to the LogLevel array
 		 */
-		inline LogLevel* getLogModulesArr() { return m_LogModulesArray; }
+		const LogLevel* getLogModulesArr() const { return m_LogModulesArray; }
 
 		/**
 		 * Check whether error string was already set
 		 * @return true if error string was already set, false otherwise
 		 */
-		inline bool isErrorStringSet() { return m_ErrorString != NULL; }
+		bool isErrorStringSet() const { return m_ErrorString != NULL; }
 
 		/**
 		 * Get the pointer to the error string set by the user. If no such pointer was provided by the user, NULL will be returned
 		 * @return A pointer to the string
 		 */
-		inline char* getErrorString() { return m_ErrorString; }
+		char* getErrorString() const { return m_ErrorString; }
 
 		/**
 		 * Set the error string to a string pointer provided by the user. By default all errors are printed to stderr.
@@ -144,7 +144,7 @@ namespace pcpp
 		 * Get the user-defined error string length. If no such pointer was provided by the user, 0 will be returned
 		 * @return The user-defined error string length
 		 **/
-		inline int getErrorStringLength() { return m_ErrorStringLen; }
+		int getErrorStringLength() const { return m_ErrorStringLen; }
 
 		/**
 		 * Suppress all errors in all PcapPlusPlusModules
@@ -160,14 +160,14 @@ namespace pcpp
 		 * Get an indication if errors are currently suppressed
 		 * @return True if errors are currently suppressed, false otherwise
 		 */
-		inline bool isSupressErrors() { return m_SuppressErrors; }
+		bool isSupressErrors() const { return m_SuppressErrors; }
 
 		/**
 		 * Get access to LoggerPP singleton
 		 * @todo: make this singleton thread-safe/
 		 * @return a pointer to the LoggerPP singleton
 		**/
-		static inline LoggerPP& getInstance()
+		static LoggerPP& getInstance()
 		{
 			static LoggerPP instance;
 			return instance;

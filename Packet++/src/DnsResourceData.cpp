@@ -5,18 +5,12 @@
 #include "GeneralUtils.h"
 #include <sstream>
 #include <string.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
 
-size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsResource* dnsResource)
+size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsResource* dnsResource) const
 {
 	if (dnsResource == NULL)
 	{
@@ -27,7 +21,7 @@ size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsR
 	return dnsResource->decodeName(encodedName, result);
 }
 
-void IDnsResourceData::encodeName(const std::string& decodedName, char* result, size_t& resultLen, IDnsResource* dnsResource)
+void IDnsResourceData::encodeName(const std::string& decodedName, char* result, size_t& resultLen, IDnsResource* dnsResource) const
 {
 	if (dnsResource == NULL)
 	{
@@ -46,7 +40,7 @@ StringDnsResourceData::StringDnsResourceData(const uint8_t* dataPtr, size_t data
 	m_Data = tempResult;
 }
 
-bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
 	encodeName(m_Data, (char*)arr, arrLength, dnsResource);
 	return true;
@@ -64,7 +58,7 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	m_Data = IPv4Address(addrAsInt);
 }
 
-bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
 	if (!m_Data.isValid())
 	{
@@ -74,7 +68,7 @@ bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResourc
 
 	uint32_t addrAsInt = m_Data.toInt();
 	arrLength = sizeof(addrAsInt);
-	memcpy(arr, &addrAsInt, arrLength);
+	memcpy(arr, &addrAsInt, sizeof(addrAsInt));
 
 	return true;
 }
@@ -90,7 +84,7 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	m_Data = IPv6Address((uint8_t*)dataPtr);
 }
 
-bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
 	if (!m_Data.isValid())
 	{
@@ -106,7 +100,7 @@ bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResourc
 
 MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
 {
-	uint16_t preference = ntohs(*(uint16_t*)dataPtr);
+	uint16_t preference = be16toh(*(uint16_t*)dataPtr);
 	char tempMX[256];
 	decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
 	m_Data.preference = preference;
@@ -131,16 +125,16 @@ void MxDnsResourceData::setMxData(uint16_t preference, std::string mailExchange)
 	m_Data.mailExchange = mailExchange;
 }
 
-std::string MxDnsResourceData::toString()
+std::string MxDnsResourceData::toString() const
 {
 	std::stringstream result;
 	result << "pref: " << m_Data.preference << "; mx: " << m_Data.mailExchange;
 	return result.str();
 }
 
-bool MxDnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool MxDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	uint16_t netOrderPreference = htons(m_Data.preference);
+	uint16_t netOrderPreference = htobe16(m_Data.preference);
 	memcpy(arr, &netOrderPreference, sizeof(uint16_t));
 	encodeName(m_Data.mailExchange, (char*)(arr + sizeof(uint16_t)), arrLength, dnsResource);
 	arrLength += sizeof(uint16_t);
@@ -155,8 +149,8 @@ GenericDnsResourceData::GenericDnsResourceData(uint8_t* dataPtr, size_t dataLen)
 	if (dataLen > 0 && dataPtr != NULL)
 	{
 		m_DataLen = dataLen;
-		m_Data = new uint8_t[m_DataLen];
-		memcpy(m_Data, dataPtr, m_DataLen);
+		m_Data = new uint8_t[dataLen];
+		memcpy(m_Data, dataPtr, dataLen);
 	}
 }
 
@@ -196,12 +190,12 @@ bool GenericDnsResourceData::operator==(const GenericDnsResourceData& other) con
 	return (memcmp(m_Data, other.m_Data, m_DataLen) == 0);
 }
 
-std::string GenericDnsResourceData::toString()
+std::string GenericDnsResourceData::toString() const
 {
 	return byteArrayToHexString(m_Data, m_DataLen);
 }
 
-bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t &arrLength, IDnsResource* dnsResource)
+bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
 	if (m_DataLen == 0 || m_Data == NULL)
 	{

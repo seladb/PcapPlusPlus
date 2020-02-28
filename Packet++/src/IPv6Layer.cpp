@@ -9,6 +9,7 @@
 #include "Packet.h"
 #include <string.h>
 #include "IpUtils.h"
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -33,7 +34,7 @@ IPv6Layer::IPv6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* pa
 
 	parseExtensions();
 
-	size_t totalLen = ntohs(getIPv6Header()->payloadLength) + getHeaderLen();
+	size_t totalLen = be16toh(getIPv6Header()->payloadLength) + getHeaderLen();
 	if (totalLen < m_DataLen)
 		m_DataLen = totalLen;
 }
@@ -157,7 +158,7 @@ void IPv6Layer::deleteExtensions()
 
 }
 
-size_t IPv6Layer::getExtensionCount()
+size_t IPv6Layer::getExtensionCount() const
 {
 	size_t extensionCount = 0;
 
@@ -182,7 +183,7 @@ void IPv6Layer::removeAllExtensions()
 	deleteExtensions();
 }
 
-bool IPv6Layer::isFragment()
+bool IPv6Layer::isFragment() const
 {
 	IPv6FragmentationHeader* fragHdr = getExtensionOfType<IPv6FragmentationHeader>();
 	return (fragHdr != NULL);
@@ -195,12 +196,15 @@ void IPv6Layer::parseNextLayer()
 	if (m_DataLen <= headerLen)
 		return;
 
-	uint8_t nextHdr = 0;
+	uint8_t* payload = m_Data + headerLen;
+	size_t payloadLen = m_DataLen - headerLen;
+
+	uint8_t nextHdr;
 	if (m_LastExtension != NULL)
 	{
 		if (m_LastExtension->getExtensionType() == IPv6Extension::IPv6Fragmentation)
 		{
-			m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 			return;
 		}
 
@@ -211,38 +215,40 @@ void IPv6Layer::parseNextLayer()
 		nextHdr = getIPv6Header()->nextHeader;
 	}
 
-	ProtocolType greVer = UnknownProtocol;
-
-	uint8_t ipVersion = 0;
-
 	switch (nextHdr)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		m_NextLayer = new UdpLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = new UdpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_TCP:
-		m_NextLayer = new TcpLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new TcpLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_IPIP:
-		ipVersion = *(m_Data + headerLen);
-		if (ipVersion >> 4 == 4)
-			m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
-		else if (ipVersion >> 4 == 6)
-			m_NextLayer = new IPv6Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+	{
+		uint8_t ipVersion = *payload >> 4;
+		if (ipVersion == 4)
+			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+		else if (ipVersion == 6)
+			m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
 		else
-			m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
+	}
 	case PACKETPP_IPPROTO_GRE:
-		greVer = GreLayer::getGREVersion(m_Data + headerLen, m_DataLen - headerLen);
+	{
+		ProtocolType greVer = GreLayer::getGREVersion(payload, payloadLen);
 		if (greVer == GREv0)
-			m_NextLayer = new GREv0Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
 		else if (greVer == GREv1)
-			m_NextLayer = new GREv1Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
 		else
-			m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
+	}
 	default:
-		m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;
 	}
 }
@@ -250,7 +256,7 @@ void IPv6Layer::parseNextLayer()
 void IPv6Layer::computeCalculateFields()
 {
 	ip6_hdr* ipHdr = getIPv6Header();
-	ipHdr->payloadLength = htons(m_DataLen - sizeof(ip6_hdr));
+	ipHdr->payloadLength = htobe16(m_DataLen - sizeof(ip6_hdr));
 	ipHdr->ipVersion = (6 & 0x0f);
 
 	if (m_NextLayer != NULL)
@@ -280,12 +286,11 @@ void IPv6Layer::computeCalculateFields()
 				m_LastExtension->getBaseHeader()->nextHeader = nextHeader;
 			else
 				ipHdr->nextHeader = nextHeader;
-
 		}
 	}
 }
 
-std::string IPv6Layer::toString()
+std::string IPv6Layer::toString() const
 {
 	std::string result = "IPv6 Layer, Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 	if (m_ExtensionsLen > 0)
@@ -319,10 +324,8 @@ std::string IPv6Layer::toString()
 			curExt = curExt->getNextHeader();
 		}
 
-		//remove last ','
-		result = result.substr(0, result.size()-1);
-
-		result +="]";
+		// replace the last ','
+		result[result.size() - 1] = ']';
 	}
 
 	return result;

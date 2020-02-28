@@ -48,12 +48,12 @@ namespace pcpp
 		/**
 		 * @return The size of extension in bytes, meaning (for most extensions): 8 * ([headerLen field] + 1)
 		 */
-		virtual inline size_t getExtensionLen() const { return 8 * (getBaseHeader()->headerLen+1); }
+		virtual size_t getExtensionLen() const { return 8 * (getBaseHeader()->headerLen+1); }
 
 		/**
 		 * @return The type of the extension
 		 */
-		inline IPv6ExtensionType getExtensionType() { return m_ExtType; }
+		IPv6ExtensionType getExtensionType() const { return m_ExtType; }
 
 		/**
 		 * A destructor for this class
@@ -63,7 +63,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the next header or NULL if the extension is the last one
 		 */
-		inline IPv6Extension* getNextHeader() const { return m_NextHeader; }
+		IPv6Extension* getNextHeader() const { return m_NextHeader; }
 
 	protected:
 
@@ -90,7 +90,7 @@ namespace pcpp
 
 		ipv6_ext_base_header* getBaseHeader() const { return (ipv6_ext_base_header*)getDataPtr(); }
 
-		inline void setNextHeader(IPv6Extension* nextHeader) { m_NextHeader = nextHeader; }
+		void setNextHeader(IPv6Extension* nextHeader) { m_NextHeader = nextHeader; }
 
 		IPv6Extension* m_NextHeader;
 		IPv6ExtensionType m_ExtType;
@@ -150,22 +150,22 @@ namespace pcpp
 		/**
 		 * @return True if this is the first fragment (which usually contains the L4 header), false otherwise
 		 */
-		bool isFirstFragment();
+		bool isFirstFragment() const;
 
 		/**
 		 * @return True if this is the last fragment, false otherwise
 		 */
-		bool isLastFragment();
+		bool isLastFragment() const;
 
 		/**
 		 * @return True if the "more fragments" bit is set, meaning more fragments are expected to follow this fragment
 		 */
-		bool isMoreFragments();
+		bool isMoreFragments() const;
 
 		/**
 		 * @return The fragment offset
 		 */
-		uint16_t getFragmentOffset();
+		uint16_t getFragmentOffset() const;
 
 	private:
 
@@ -222,7 +222,7 @@ namespace pcpp
 				return (size_t)(m_Data->recordLen + sizeof(uint16_t));
 			}
 
-			size_t getDataSize()
+			size_t getDataSize() const
 			{
 				if (m_Data->recordType == Pad0OptionType)
 					return (size_t)0;
@@ -290,12 +290,12 @@ namespace pcpp
 		 * @return An IPv6Option object that wraps the option data. If option isn't found a logical NULL is returned
 		 * (IPv6Option#isNull() == true)
 		 */
-		IPv6Option getOption(uint8_t optionType);
+		IPv6Option getOption(uint8_t optionType) const;
 
 		/**
 		 * @return An IPv6Option that wraps the first option data or logical NULL (IPv6Option#isNull() == true) if no options exist
 		 */
-		IPv6Option getFirstOption();
+		IPv6Option getFirstOption() const;
 
 		/**
 		 * Returns a pointer to the option that comes after the option given as the parameter
@@ -306,12 +306,12 @@ namespace pcpp
 		 * (2) the next option doesn't exist or 
 		 * (3) the input option is NULL
 		 */
-		IPv6Option getNextOption(IPv6Option& option);
+		IPv6Option getNextOption(IPv6Option& option) const;
 
 		/**
 		 * @returns The number of options this IPv6 extension contains
 		 */
-		size_t getOptionCount();
+		size_t getOptionCount() const;
 
 	protected:
 
@@ -425,12 +425,12 @@ namespace pcpp
 		 * @return A pointer to the buffer containing the additional routing data for this extension. Notice that any change in this buffer
 		 * will lead to a change in the extension data
 		 */
-		uint8_t* getRoutingAdditionalData();
+		uint8_t* getRoutingAdditionalData() const;
 
 		/**
 		 * @return The length of the additional routing parameters buffer
 		 */
-		size_t getRoutingAdditionalDataLength();
+		size_t getRoutingAdditionalDataLength() const;
 
 		/**
 		 * In many cases the additional routing data is actually IPv6 address(es). This method converts the raw buffer data into an IPv6 address
@@ -441,7 +441,7 @@ namespace pcpp
 		 * @return The IPv6 address stored in the additional routing data buffer from the offset defined by the user. If offset is out-of-bounds
 		 * of the extension of doesn't have 16 bytes (== the length of IPv6 address) until the end of the buffer - IPv6Address#Zero is returned
 		 */
-		IPv6Address getRoutingAdditionalDataAsIPv6Address(size_t offset = 0);
+		IPv6Address getRoutingAdditionalDataAsIPv6Address(size_t offset = 0) const;
 
 	private:
 
@@ -501,12 +501,12 @@ namespace pcpp
 		 * @return A pointer to the buffer containing the integrity check value (ICV) for this extension. Notice that any change in this buffer
 		 * will lead to a change in the extension data
 		 */
-		uint8_t* getIntegrityCheckValue();
+		uint8_t* getIntegrityCheckValue() const;
 
 		/**
 		 * @return The length of the integrity check value (ICV) buffer
 		 */
-		size_t getIntegrityCheckValueLength();
+		size_t getIntegrityCheckValueLength() const;
 
 		// overridden methods
 

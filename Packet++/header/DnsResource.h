@@ -48,8 +48,8 @@ namespace pcpp
 		size_t decodeName(const char* encodedName, char* result, int iteration = 1);
 		void encodeName(const std::string& decodedName, char* result, size_t& resultLen);
 
-		inline IDnsResource* getNextResource() { return m_NextResource; }
-		inline void setNexResource(IDnsResource* next) { m_NextResource = next; }
+		IDnsResource* getNextResource() const { return m_NextResource; }
+		void setNexResource(IDnsResource* next) { m_NextResource = next; }
 
 		uint8_t* getRawData() const;
 
@@ -62,7 +62,7 @@ namespace pcpp
 		/**
 		 * @return The DNS type of this record
 		 */
-		DnsType getDnsType();
+		DnsType getDnsType() const;
 
 		/**
 		 * Set DNS type for this record
@@ -112,12 +112,12 @@ namespace pcpp
 		/**
 		 * @return The total size in bytes of this record
 		 */
-		virtual size_t getSize() = 0;
+		virtual size_t getSize() const = 0;
 
 		/**
 		 * @return The type of this record (query, answer, authority, additional)
 		 */
-		virtual DnsResourceType getType() = 0;
+		virtual DnsResourceType getType() const = 0;
 	};
 
 
@@ -137,9 +137,9 @@ namespace pcpp
 	public:
 		virtual ~DnsQuery() {}
 
-		// abstract methods
-		virtual size_t getSize() { return m_NameLength + 2*sizeof(uint16_t); }
-		virtual DnsResourceType getType() { return DnsQueryType; }
+		// implementation of abstract methods
+		virtual size_t getSize() const { return m_NameLength + 2*sizeof(uint16_t); }
+		virtual DnsResourceType getType() const { return DnsQueryType; }
 	};
 
 
@@ -164,7 +164,7 @@ namespace pcpp
 		/**
 		 * @return The time-to-leave value for this record
 		 */
-		uint32_t getTTL();
+		uint32_t getTTL() const;
 
 		/**
 		 * Set time-to-leave value for this record
@@ -175,7 +175,7 @@ namespace pcpp
 		/**
 		 * @return The data length value for this record (taken from the "data length" field of the record)
 		 */
-		size_t getDataLength();
+		size_t getDataLength() const;
 
 		/**
 		 * @return A smart pointer to an IDnsResourceData object that contains the DNS resource data. It is guaranteed that the
@@ -188,12 +188,12 @@ namespace pcpp
 		 *   mail exchange name)<BR>
 		 * - For all other types: the return value is a smart pointer to GenericDnsResourceData which contains a byte array of the data
 		 */
-		DnsResourceDataPtr getData();
+		DnsResourceDataPtr getData() const;
 
 		/**
 		 * @return The offset of data in the DNS layer
 		 */
-		size_t getDataOffset();
+		size_t getDataOffset() const;
 
 		/**
 		 * Set resource data. The given IDnsResourceData input object is validated against the DNS type of the resource. For example: if DNS type is A
@@ -217,7 +217,7 @@ namespace pcpp
 		 * user to receive these bytes
 		 * @return The value stored in this place
 		 */
-		uint16_t getCustomDnsClass();
+		uint16_t getCustomDnsClass() const;
 
 		/**
 		 * Some records don't have a DNS class and the bytes used for storing the DNS class are used for other purpose. This method enables the
@@ -226,9 +226,9 @@ namespace pcpp
 		 */
 		void setCustomDnsClass(uint16_t customValue);
 
-		// abstract methods
-		virtual size_t getSize() { return m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
-		virtual DnsResourceType getType() { return m_ResourceType; }
+		// implementation of abstract methods
+		virtual size_t getSize() const { return m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t) + getDataLength(); }
+		virtual DnsResourceType getType() const { return m_ResourceType; }
 
 	};
 

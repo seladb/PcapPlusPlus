@@ -97,18 +97,24 @@ namespace pcpp
 		 * Get a pointer to the VXLAN header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the vxlan_header
 		 */
-		inline vxlan_header* getVxlanHeader() const { return (vxlan_header*)m_Data; }
+		vxlan_header* getVxlanHeader() const { return (vxlan_header*)m_Data; }
 
 		/**
 		 * @return The VXLAN Network ID (VNI) value
 		 */
-        uint32_t getVNI() const;
+		uint32_t getVNI() const;
 
 		/**
 		 * Set VXLAN Network ID (VNI) value
 		 * @param[in] vni VNI value to set
 		 */
 		void setVNI(uint32_t vni);
+
+		/**
+		 * A static method that checks whether the port is considered as VxLAN
+		 * @param[in] port The port number to be checked
+		 */
+		static bool isVxlanPort(uint16_t port) { return port == 4789; }
 
 
 		// implement abstract methods
@@ -121,14 +127,14 @@ namespace pcpp
 		/**
 		 * @return Size of vxlan_header
 		 */
-		inline size_t getHeaderLen() { return sizeof(vxlan_header); }
+		size_t getHeaderLen() const { return sizeof(vxlan_header); }
 
 		/**
 		 * Does nothing for this layer
 		 */
 		void computeCalculateFields() {}
 
-		std::string toString();
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 

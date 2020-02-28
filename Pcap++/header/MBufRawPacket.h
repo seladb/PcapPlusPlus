@@ -51,7 +51,7 @@ namespace pcpp
 		struct rte_mempool* m_Mempool;
 		bool m_FreeMbuf;
 
-		void setMBuf(struct rte_mbuf* mBuf, timeval timestamp);
+		void setMBuf(struct rte_mbuf* mBuf, timespec timestamp);
 		bool init(struct rte_mempool* mempool);
 		bool initFromRawPacket(const RawPacket* rawPacket, struct rte_mempool* mempool);
 	public:
@@ -156,7 +156,7 @@ namespace pcpp
 		 * @return True if raw data was copied to the mbuf successfully, false if rawDataLen is larger than mbuf max size, if initialization
 		 * failed or if copying the data to the mbuf failed. In all of these cases an error will be printed to log
 		 */
-		bool setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
+		bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
 		/**
 		 * Clears the object and frees the mbuf

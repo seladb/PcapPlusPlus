@@ -23,19 +23,18 @@ matrix:
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1611
-        - DPDK_DIR=dpdk-stable-16.11.9
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1711
-        - DPDK_DIR=dpdk-stable-17.11.6
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1811
-        - DPDK_DIR=dpdk-stable-18.11.1
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1902
-        - DPDK_DIR=dpdk-19.02
+    - os: linux
+      env:
+        - DOCKER_IMAGE=ubuntu1604-dpdk1908
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-pfring
@@ -45,32 +44,25 @@ matrix:
       osx_image: xcode7.3
     - os: osx
       compiler: clang
-      osx_image: xcode8
-    - os: osx
-      compiler: clang
       osx_image: xcode8.3
-    - os: osx
-      compiler: clang
-      osx_image: xcode9
-    - os: osx
-      compiler: clang
-      osx_image: xcode9.1
     - os: osx
       compiler: clang
       osx_image: xcode9.2
     - os: osx
       compiler: clang
-      osx_image: xcode9.3
-    - os: osx
-      compiler: clang
       osx_image: xcode9.4
     - os: osx
       compiler: clang
-      osx_image: xcode10
+      osx_image: xcode10.1
     - os: osx
       compiler: clang
-      osx_image: xcode10.1
-
+      osx_image: xcode10.3
+    - os: osx
+      compiler: clang
+      osx_image: xcode11
+    - os: osx
+      compiler: clang
+      osx_image: xcode11.2
 
 
 before_install:
@@ -82,7 +74,7 @@ before_install:
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --default"; fi
-  - if [[ ! -z $DPDK_DIR ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --dpdk --dpdk-home /$DPDK_DIR"; fi
+  - if [[ $DOCKER_IMAGE == *"dpdk"* ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --dpdk --dpdk-home /dpdk"; fi
   - if [[ ! -z $PF_RING ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING"; fi
   
 script:

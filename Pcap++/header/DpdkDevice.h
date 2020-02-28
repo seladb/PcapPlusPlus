@@ -240,7 +240,7 @@ namespace pcpp
 			 */
 			uint16_t flushTxBufferTimeout;
 
- 			/**
+			/**
 			 * When configuring a DPDK device, DPDK supports to activate the Receive Side Scaling (RSS) feature to distribute traffic between the RX queues
 			 * This parameter points to an array holding the RSS key to use for hashing specific header fields of received packets.
 			 * The length of this array should be indicated by rssKeyLength below.
@@ -360,38 +360,38 @@ namespace pcpp
 		/**
 		 * @return The device ID (DPDK port ID)
 		 */
-		inline int getDeviceId() { return m_Id; }
+		int getDeviceId() const { return m_Id; }
 		/**
 		 * @return The device name which is in the format of 'DPDK_[PORT-ID]'
 		 */
-		inline std::string getDeviceName() { return std::string(m_DeviceName); }
+		std::string getDeviceName() const { return std::string(m_DeviceName); }
 
 		/**
 		 * @return The MAC address of the device (DPDK port)
 		 */
-		inline MacAddress getMacAddress() { return m_MacAddress; }
+		MacAddress getMacAddress() const { return m_MacAddress; }
 
 		/**
 		 * @return The name of the PMD (poll mode driver) DPDK is using for this device. You can read about PMDs in the DPDK documentation:
 		 * http://dpdk.org/doc/guides/prog_guide/poll_mode_drv.html
 		 */
-		inline std::string getPMDName() { return m_PMDName; }
+		std::string getPMDName() const { return m_PMDName; }
 
 		/**
 		 * @return The enum type of the PMD (poll mode driver) DPDK is using for this device. You can read about PMDs in the DPDK documentation:
 		 * http://dpdk.org/doc/guides/prog_guide/poll_mode_drv.html
 		 */
-		inline DpdkPMDType getPMDType() { return m_PMDType; }
+		DpdkPMDType getPMDType() const { return m_PMDType; }
 
 		/**
 		 * @return The PCI address of the device
 		 */
-		inline std::string getPciAddress() { return m_PciAddress; }
+		std::string getPciAddress() const { return m_PciAddress; }
 
 		/**
 		 * @return The device's maximum transmission unit (MTU) in bytes
 		 */
-		inline uint16_t getMtu() { return m_DeviceMtu; }
+		uint16_t getMtu() const { return m_DeviceMtu; }
 
 		/**
 		 * Set a new maximum transmission unit (MTU) for this device
@@ -403,38 +403,38 @@ namespace pcpp
 		/**
 		 * @return True if this device is a virtual interface (such as VMXNET3, 1G/10G virtual function, etc.), false otherwise
 		 */
-		bool isVirtual();
+		bool isVirtual() const;
 
 		/**
 		 * Get the link status (link up/down, link speed and link duplex)
 		 * @param[out] linkStatus A reference to object the result shall be written to
 		 */
-		void getLinkStatus(LinkStatus& linkStatus);
+		void getLinkStatus(LinkStatus& linkStatus) const;
 
 		/**
 		 * @return The core ID used in this context
 		 */
-		uint32_t getCurrentCoreId();
+		uint32_t getCurrentCoreId() const;
 
 		/**
 		 * @return The number of RX queues currently opened for this device (as configured in openMultiQueues() )
 		 */
-		uint16_t getNumOfOpenedRxQueues() { return m_NumOfRxQueuesOpened; }
+		uint16_t getNumOfOpenedRxQueues() const { return m_NumOfRxQueuesOpened; }
 
 		/**
 		 * @return The number of TX queues currently opened for this device (as configured in openMultiQueues() )
 		 */
-		uint16_t getNumOfOpenedTxQueues() { return m_NumOfTxQueuesOpened; }
+		uint16_t getNumOfOpenedTxQueues() const { return m_NumOfTxQueuesOpened; }
 
 		/**
 		 * @return The total number of RX queues available on this device
 		 */
-		uint16_t getTotalNumOfRxQueues() { return m_TotalAvailableRxQueues; }
+		uint16_t getTotalNumOfRxQueues() const { return m_TotalAvailableRxQueues; }
 
 		/**
 		 * @return The total number of TX queues available on this device
 		 */
-		uint16_t getTotalNumOfTxQueues() { return m_TotalAvailableTxQueues; }
+		uint16_t getTotalNumOfTxQueues() const { return m_TotalAvailableTxQueues; }
 
 
 		/**
@@ -443,7 +443,7 @@ namespace pcpp
 		 * @param[in] rxQueueId The RX queue to receive packets from
 		 * @return The number of packets received. If an error occurred 0 will be returned and the error will be printed to log
 		 */
-		uint16_t receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t rxQueueId);
+		uint16_t receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t rxQueueId) const;
 
 		/**
 		 * Receive raw packets from the network. Please notice that in terms of performance, this is the best method to use
@@ -457,7 +457,7 @@ namespace pcpp
 		 * @param[in] rxQueueId The RX queue to receive packets from
 		 * @return The number of packets received. If an error occurred 0 will be returned and the error will be printed to log
 		 */
-		uint16_t receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPacketArrLength, uint16_t rxQueueId);
+		uint16_t receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPacketArrLength, uint16_t rxQueueId) const;
 
 		/**
 		 * Receive parsed packets from the network
@@ -468,7 +468,7 @@ namespace pcpp
 		 * @param[in] rxQueueId The RX queue to receive packets from
 		 * @return The number of packets received. If an error occurred 0 will be returned and the error will be printed to log
 		 */
-		uint16_t receivePackets(Packet** packetsArr, uint16_t packetsArrLength, uint16_t rxQueueId);
+		uint16_t receivePackets(Packet** packetsArr, uint16_t packetsArrLength, uint16_t rxQueueId) const;
 
 		/**
 		 * Send an array of MBufRawPacket to the network. Please notice the following:<BR>
@@ -668,18 +668,18 @@ namespace pcpp
 		/**
 		 * @return The number of free mbufs in device's mbufs pool
 		 */
-		int getAmountOfFreeMbufs();
+		int getAmountOfFreeMbufs() const;
 
 		/**
 		 * @return The number of mbufs currently in use in device's mbufs pool
 		 */
-		int getAmountOfMbufsInUse();
+		int getAmountOfMbufsInUse() const;
 
 		/**
 		 * Retrieve RX/TX statistics from device
 		 * @param[out] stats A reference to a DpdkDeviceStats object where stats will be written into
 		 */
-		void getStatistics(DpdkDeviceStats& stats);
+		void getStatistics(DpdkDeviceStats& stats) const;
 
 		/**
 		 * Clear device statistics
@@ -706,20 +706,20 @@ namespace pcpp
 		 * @param[in] rssHF RSS hash function to check
 		 * @return True if this hash function is supported, false otherwise
 		 */
-		bool isDeviceSupportRssHashFunction(DpdkRssHashFunction rssHF);
+		bool isDeviceSupportRssHashFunction(DpdkRssHashFunction rssHF) const;
 
 		/**
 		 * Check whether a mask of RSS hash functions is supported by this device (PMD)
 		 * @param[in] rssHFMask RSS hash functions mask to check. This mask should be built from values in DpdkRssHashFunction enum
 		 * @return True if all hash functions in this mask are supported, false otherwise
 		 */
-		bool isDeviceSupportRssHashFunction(uint64_t rssHFMask);
+		bool isDeviceSupportRssHashFunction(uint64_t rssHFMask) const;
 
 		/**
 		 * @return A mask of all RSS hash functions supported by this device (PMD). This mask is built from values in DpdkRssHashFunction enum.
 		 * Value of zero means RSS is not supported by this device
 		 */
-		uint64_t getSupportedRssHashFunctions();
+		uint64_t getSupportedRssHashFunctions() const;
 
 
 		//overridden methods
@@ -756,19 +756,19 @@ namespace pcpp
 		bool initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesToInit);
 		bool startDevice();
 
-		static int dpdkCaptureThreadMain(void *ptr);
+		static int dpdkCaptureThreadMain(void* ptr);
 
 		void clearCoreConfiguration();
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
-		int getCoresInUseCount();
+		int getCoresInUseCount() const;
 
 		void setDeviceInfo();
 
 		typedef rte_mbuf* (*PacketIterator)(void* packetStorage, int index);
 		uint16_t sendPacketsInner(uint16_t txQueueId, void* packetStorage, PacketIterator iter, int arrLength, bool useTxBuffer);
 
-		uint64_t convertRssHfToDpdkRssHf(uint64_t rssHF);
-		uint64_t convertDpdkRssHfToRssHf(uint64_t dpdkRssHF);
+		uint64_t convertRssHfToDpdkRssHf(uint64_t rssHF) const;
+		uint64_t convertDpdkRssHfToRssHf(uint64_t dpdkRssHF) const;
 
 		char m_DeviceName[30];
 		DpdkPMDType m_PMDType;
@@ -798,7 +798,7 @@ namespace pcpp
 		 // RSS key used by the NIC for load balancing the packets between cores
 		static uint8_t m_RSSKey[40];
 
-		DpdkDeviceStats m_PrevStats;
+		mutable DpdkDeviceStats m_PrevStats;
 	};
 
 } // namespace pcpp

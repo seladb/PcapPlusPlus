@@ -32,7 +32,7 @@ namespace pcpp
 		char m_AddressAsString[MAX_ADDR_STRING_LEN];
 
 		// protected c'tor
-		IPAddress() : m_IsValid(false) {}
+		IPAddress() : m_IsValid(false) { m_AddressAsString[0] = '\0'; }
 	public:
 		//Visual studio has always been stupid about returning something useful for __cplusplus
 		//Only recently was this fixed - and even then it requires a specific hack to the command line during build
@@ -59,7 +59,7 @@ namespace pcpp
 			IPv6AddressType
 		};
 
-		virtual ~IPAddress();
+		virtual ~IPAddress() {}
 
 		/**
 		 * Gets the address type: IPv4 or IPv6
@@ -92,7 +92,7 @@ namespace pcpp
 		 * It fits cases when you're not sure which type you currently have
 		 * @return True if addresses match or false otherwise
 		 */
-		bool equals(const IPAddress* other);
+		bool equals(const IPAddress* other) const;
 
 		/**
 		 * Constructs an IP address of type IPv4 or IPv6 from a string (char*) representation
@@ -173,7 +173,7 @@ namespace pcpp
 		 * Returns a in_addr struct pointer representing the IPv4 address
 		 * @return a in_addr struct pointer representing the IPv4 address
 		 */
-		in_addr* toInAddr() { return m_pInAddr; }
+		in_addr* toInAddr() const { return m_pInAddr; }
 
 		/**
 		 * Overload of the comparison operator
@@ -271,14 +271,14 @@ namespace pcpp
 		 * Returns a in6_addr struct pointer representing the IPv6 address
 		 * @return a in6_addr struct pointer representing the IPv6 address
 		 */
-		in6_addr* toIn6Addr() { return m_pInAddr; }
+		in6_addr* toIn6Addr() const { return m_pInAddr; }
 
 		/**
 		 * Allocates a byte array and copies address value into it. Array deallocation is user responsibility
 		 * @param[in] arr A pointer to where array will be allocated
 		 * @param[out] length Returns the length in bytes of the array that was allocated
 		 */
-		void copyTo(uint8_t** arr, size_t& length);
+		void copyTo(uint8_t** arr, size_t& length) const;
 
 		/**
 		 * Gets a pointer to an already allocated byte array and copies the address value to it.
@@ -297,7 +297,7 @@ namespace pcpp
 		 * Overload of the non-equal operator
 		 * @return true if 2 addresses are not equal. False otherwise
 		 */
-		bool operator!=(const IPv6Address& other);
+		bool operator!=(const IPv6Address& other) const;
 
 		/**
 		 * Overload of the assignment operator

@@ -23,7 +23,7 @@ namespace pcpp
 	 * not a public constructor for this class, so the only way to get an instance of it is through getRemoteDeviceList(). After getting
 	 * this object, this class provides ways to access the PcapRemoteDevice instances: either through IP address of the remote network interface or
 	 * by iterating the PcapRemoteDevice instances (through the PcapRemoteDeviceList#RemoteDeviceListIterator iterator)<BR>
-	 * Since Remote Capture is supported in WinPcap only, this class is available in Windows only
+	 * Since Remote Capture is supported in WinPcap and Npcap only, this class is available in Windows only
 	 */
 	class PcapRemoteDeviceList
 	{
@@ -66,8 +66,8 @@ namespace pcpp
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
 		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
 		 * - IP address provided is NULL or not valid
-		 * - WinPcap encountered an error in creating the remote connection string
-		 * - WinPcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(IPAddress* ipAddress, uint16_t port);
 
@@ -80,68 +80,68 @@ namespace pcpp
 		 * daemon
 		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
 		 * - IP address provided is NULL or not valid
-		 * - WinPcap encountered an error in creating the remote connection string
-		 * - WinPcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(IPAddress* ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
 
 		/**
 		 * @return The IP address of the remote machine
 		 */
-		IPAddress* getRemoteMachineIpAddress() { return m_RemoteMachineIpAddress; }
+		IPAddress* getRemoteMachineIpAddress() const { return m_RemoteMachineIpAddress; }
 
 		/**
 		 * @return The port of the remote machine where packets are transmitted from the remote machine to the client machine
 		 */
-		uint16_t getRemoteMachinePort() { return m_RemoteMachinePort; }
+		uint16_t getRemoteMachinePort() const { return m_RemoteMachinePort; }
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv4 address
 		 * @param[in] ip4Addr The IPv4 address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPv4Address ip4Addr);
+		PcapRemoteDevice* getRemoteDeviceByIP(IPv4Address ip4Addr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPv6Address ip6Addr);
+		PcapRemoteDevice* getRemoteDeviceByIP(IPv6Address ip6Addr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		 * @param[in] ipAddr The IP address
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(IPAddress* ipAddr);
+		PcapRemoteDevice* getRemoteDeviceByIP(IPAddress* ipAddr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
 		 * @param[in] ipAddrAsString The IP address in string format
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
-		PcapRemoteDevice* getRemoteDeviceByIP(const char* ipAddrAsString);
+		PcapRemoteDevice* getRemoteDeviceByIP(const char* ipAddrAsString) const;
 
 		/**
 		 * @return An iterator object pointing to the first PcapRemoteDevice in list
 		 */
-		inline RemoteDeviceListIterator begin() { return m_RemoteDeviceList.begin(); }
+		RemoteDeviceListIterator begin() { return m_RemoteDeviceList.begin(); }
 
 		/**
 		 * @return A const iterator object pointing to the first PcapRemoteDevice in list
 		 */
-		inline ConstRemoteDeviceListIterator begin() const { return m_RemoteDeviceList.begin(); }
+		ConstRemoteDeviceListIterator begin() const { return m_RemoteDeviceList.begin(); }
 
 		/**
 		 * @return An iterator object pointing to the last PcapRemoteDevice in list
 		 */
-		inline RemoteDeviceListIterator end() { return m_RemoteDeviceList.end(); }
+		RemoteDeviceListIterator end() { return m_RemoteDeviceList.end(); }
 
 		/**
 		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
 		 */
-		inline ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceList.end(); }
+		ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceList.end(); }
 
 	};
 

@@ -1,13 +1,7 @@
 #define LOG_MODULE PacketLogModuleIPv6ExtensionLayer
 
 #include <sstream>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
+#include "EndianPortable.h"
 #include "Logger.h"
 #include "IPv6Extensions.h"
 #include "IPv6Layer.h"
@@ -67,35 +61,35 @@ IPv6FragmentationHeader::IPv6FragmentationHeader(uint32_t fragId, uint16_t fragO
 	ipv6_frag_header* fragHdr = getFragHeader();
 	fragHdr->nextHeader = 0;
 	fragHdr->headerLen = 0;
-	fragHdr->id = htonl(fragId);
+	fragHdr->id = htobe32(fragId);
 
 	fragOffset /= 8;
-	fragOffset = htons(fragOffset << 3) & (uint16_t)0xf8ff;
+	fragOffset = htobe16(fragOffset << 3) & (uint16_t)0xf8ff;
 	if (!lastFragment)
 		fragOffset = fragOffset | 0x0100;
 
 	fragHdr->fragOffsetAndFlags = fragOffset;
 }
 
-bool IPv6FragmentationHeader::isFirstFragment()
+bool IPv6FragmentationHeader::isFirstFragment() const
 {
 	return (getFragmentOffset() == 0);
 }
 
-bool IPv6FragmentationHeader::isLastFragment()
+bool IPv6FragmentationHeader::isLastFragment() const
 {
 	return (!isMoreFragments());
 }
 
-bool IPv6FragmentationHeader::isMoreFragments()
+bool IPv6FragmentationHeader::isMoreFragments() const
 {
 	uint8_t isMoreFragsBit = (getFragHeader()->fragOffsetAndFlags & (uint16_t)0x0100) >> 8;
 	return (isMoreFragsBit == 1);
 }
 
-uint16_t IPv6FragmentationHeader::getFragmentOffset()
+uint16_t IPv6FragmentationHeader::getFragmentOffset() const
 {
-	uint16_t fragOffset = (ntohs(getFragHeader()->fragOffsetAndFlags & (uint16_t)0xf8ff) >> 3) * 8;
+	uint16_t fragOffset = (be16toh(getFragHeader()->fragOffsetAndFlags & (uint16_t)0xf8ff) >> 3) * 8;
 	return fragOffset;
 }
 
@@ -127,22 +121,22 @@ IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::IPv6TLVOptionBuilder::build
 // IPv6TLVOptionHeader
 // ===================
 
-IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getOption(uint8_t optionType)
+IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getOption(uint8_t optionType) const
 {
 	return m_OptionReader.getTLVRecord(optionType, getDataPtr() + sizeof(ipv6_ext_base_header), getExtensionLen() - sizeof(ipv6_ext_base_header));
 }
 
-IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getFirstOption()
+IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getFirstOption() const
 {
 	return m_OptionReader.getFirstTLVRecord(getDataPtr() + sizeof(ipv6_ext_base_header), getExtensionLen() - sizeof(ipv6_ext_base_header));
 }
 
-IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getNextOption(IPv6TLVOptionHeader::IPv6Option& option)
+IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::getNextOption(IPv6TLVOptionHeader::IPv6Option& option) const
 {
 	return m_OptionReader.getNextTLVRecord(option, getDataPtr() + sizeof(ipv6_ext_base_header), getExtensionLen() - sizeof(ipv6_ext_base_header));
 }
 
-size_t IPv6TLVOptionHeader::getOptionCount()
+size_t IPv6TLVOptionHeader::getOptionCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getDataPtr() + sizeof(ipv6_ext_base_header), getExtensionLen() - sizeof(ipv6_ext_base_header));
 }
@@ -174,7 +168,7 @@ IPv6TLVOptionHeader::IPv6TLVOptionHeader(const std::vector<IPv6TLVOptionBuilder>
 	for (std::vector<IPv6TLVOptionBuilder>::const_iterator iter = options.begin(); iter != options.end(); iter++)
 	{
 		IPv6Option option = iter->build();
-		memcpy((uint8_t*)(getDataPtr() + offset), option.getRecordBasePtr(), option.getTotalSize());
+		memcpy(getDataPtr() + offset, option.getRecordBasePtr(), option.getTotalSize());
 		offset += option.getTotalSize();
 		option.purgeRecordData();
 	}
@@ -207,20 +201,20 @@ IPv6RoutingHeader::IPv6RoutingHeader(uint8_t routingType, uint8_t segmentsLeft, 
 
 	if (additionalRoutingDataLen > 0 && additionalRoutingData != NULL)
 	{
-		uint8_t* additionalDataPtr = (uint8_t*)(getDataPtr() + sizeof(ipv6_routing_header));
+		uint8_t* additionalDataPtr = getDataPtr() + sizeof(ipv6_routing_header);
 		memcpy(additionalDataPtr, additionalRoutingData, additionalRoutingDataLen);
 	}
 }
 
-uint8_t* IPv6RoutingHeader::getRoutingAdditionalData()
+uint8_t* IPv6RoutingHeader::getRoutingAdditionalData() const
 {
 	if (getExtensionLen() > sizeof(ipv6_routing_header))
-		return (uint8_t*)(getDataPtr() + sizeof(ipv6_routing_header));
+		return getDataPtr() + sizeof(ipv6_routing_header);
 
 	return NULL;
 }
 
-size_t IPv6RoutingHeader::getRoutingAdditionalDataLength()
+size_t IPv6RoutingHeader::getRoutingAdditionalDataLength() const
 {
 	int result = getExtensionLen() - sizeof(ipv6_routing_header);
 	if (result < 0)
@@ -229,7 +223,7 @@ size_t IPv6RoutingHeader::getRoutingAdditionalDataLength()
 	return (size_t)result;
 }
 
-IPv6Address IPv6RoutingHeader::getRoutingAdditionalDataAsIPv6Address(size_t offset)
+IPv6Address IPv6RoutingHeader::getRoutingAdditionalDataAsIPv6Address(size_t offset) const
 {
 
 	size_t routingAddDataLen = getRoutingAdditionalDataLength();
@@ -258,25 +252,25 @@ IPv6AuthenticationHeader::IPv6AuthenticationHeader(uint32_t securityParametersIn
 	ipv6_authentication_header* authHeader = getAuthHeader();
 	authHeader->nextHeader = 0;
 	authHeader->headerLen = ((totalSize / 4) - 2);
-	authHeader->securityParametersIndex = htonl(securityParametersIndex);
-	authHeader->sequenceNumber = htonl(sequenceNumber);
+	authHeader->securityParametersIndex = htobe32(securityParametersIndex);
+	authHeader->sequenceNumber = htobe32(sequenceNumber);
 
 	if (integrityCheckValueLen > 0 && integrityCheckValue != NULL)
 	{
-		uint8_t* icvPtr = (uint8_t*)(getDataPtr() + sizeof(ipv6_authentication_header));
+		uint8_t* icvPtr = getDataPtr() + sizeof(ipv6_authentication_header);
 		memcpy(icvPtr, integrityCheckValue, integrityCheckValueLen);
 	}
 }
 
-uint8_t* IPv6AuthenticationHeader::getIntegrityCheckValue()
+uint8_t* IPv6AuthenticationHeader::getIntegrityCheckValue() const
 {
 	if (getExtensionLen() > sizeof(ipv6_authentication_header))
-		return (uint8_t*)(getDataPtr() + sizeof(ipv6_authentication_header));
+		return getDataPtr() + sizeof(ipv6_authentication_header);
 
 	return NULL;
 }
 
-size_t IPv6AuthenticationHeader::getIntegrityCheckValueLength()
+size_t IPv6AuthenticationHeader::getIntegrityCheckValueLength() const
 {
 	int result = getExtensionLen() - sizeof(ipv6_authentication_header);
 	if (result < 0)

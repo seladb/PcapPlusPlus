@@ -31,7 +31,7 @@ namespace pcpp
 		 * Default constructor for this class.
 		 * Initializes object to me MacAddress::Zero
 		 */
-		MacAddress() : m_IsValid(true) { memset(m_Address, 0, sizeof m_Address); }
+		MacAddress() : m_IsValid(true) { memset(m_Address, 0, sizeof(m_Address)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of a byte array. The byte array length must be equal or greater to 6
@@ -39,7 +39,7 @@ namespace pcpp
 		 * @todo there is no verification array length >= 6. If this is not the case, address will read uninitialized memory
 		 * @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
 		 */
-		MacAddress(uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof m_Address); }
+		MacAddress(const uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof(m_Address)); }
 
 		/**
 		 *  A constructor that creates an instance of the class out of a (char*) string.
@@ -71,7 +71,7 @@ namespace pcpp
 		 * A constructor that creates an instance out of the initializer list. The length of the list must be equal to 6 (as MAC address is 6-byte long)
 		 * @param[in] addr An initializer list containing the values of type uint8_t representing the MAC address
 		 */
-		MacAddress(std::initializer_list<uint8_t> octets) : m_IsValid { octets.size() == sizeof m_Address }
+		MacAddress(std::initializer_list<uint8_t> octets) : m_IsValid { octets.size() == sizeof(m_Address) }
 		{
 			if(m_IsValid)
 			{
@@ -81,6 +81,8 @@ namespace pcpp
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 				#endif
 			}
+			else
+				memset(m_Address, 0, sizeof(m_Address));
 		}
 #endif
 
@@ -88,7 +90,7 @@ namespace pcpp
 		 * Overload of the comparison operator
 		 * @return true if 2 addresses are equal. False otherwise
 		 */
-		bool operator==(const MacAddress& other) const { return memcmp(m_Address, other.m_Address, sizeof m_Address) == 0; }
+		bool operator==(const MacAddress& other) const { return memcmp(m_Address, other.m_Address, sizeof(m_Address)) == 0; }
 
 		/**
 		 * Overload of the not-equal operator
@@ -100,13 +102,13 @@ namespace pcpp
 		/**
 		 * Overload of the assignment operator
 		 */
-		MacAddress &operator=(std::initializer_list<uint8_t> octets)
+		MacAddress& operator=(std::initializer_list<uint8_t> octets)
 		{
 			m_IsValid = (octets.size() == sizeof m_Address);
 			if(m_IsValid)
 			{
 				#if _MSC_VER >= 1800
-				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, sizeof m_Address));
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, sizeof(m_Address)));
 				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 				#endif
@@ -119,7 +121,7 @@ namespace pcpp
 		 * Returns the pointer to raw data
 		 * @return The pointer to raw data
 		 */
-		const uint8_t *getRawData() const { return m_Address; }
+		const uint8_t* getRawData() const { return m_Address; }
 
 		/**
 		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from illegal input, for example:
@@ -140,8 +142,8 @@ namespace pcpp
 		 */
 		void copyTo(uint8_t** arr) const
 		{
-			*arr = new uint8_t[sizeof m_Address];
-			memcpy(*arr, m_Address, sizeof m_Address);
+			*arr = new uint8_t[sizeof(m_Address)];
+			memcpy(*arr, m_Address, sizeof(m_Address));
 		}
 
 		/**
@@ -149,7 +151,7 @@ namespace pcpp
 		 * This method assumes array allocated size is at least 6 (the size of a MAC address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t* arr) const { memcpy(arr, m_Address, sizeof m_Address); }
+		void copyTo(uint8_t* arr) const { memcpy(arr, m_Address, sizeof(m_Address)); }
 
 		/**
 		 * A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"

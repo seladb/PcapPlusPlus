@@ -29,7 +29,7 @@ namespace pcpp
 		};
 		#pragma pack(pop)
 
-		inline mpls_header* getMplsHeader() const { return (mpls_header*)m_Data; }
+		mpls_header* getMplsHeader() const { return (mpls_header*)m_Data; }
 
 	public:
 		 /** A constructor that creates the layer from an existing packet raw data
@@ -54,19 +54,19 @@ namespace pcpp
 		/**
 		 * @return TTL value of the MPLS header
 		 */
-		inline uint8_t getTTL() { return getMplsHeader()->ttl; }
+		uint8_t getTTL() const { return getMplsHeader()->ttl; }
 
 		/**
 		 * Set the TTL value
 		 * @param[in] ttl The TTL value to set
 		 */
-		inline void setTTL(uint8_t ttl) { getMplsHeader()->ttl = ttl; }
+		void setTTL(uint8_t ttl) { getMplsHeader()->ttl = ttl; }
 
 		/**
 		 * Get an indication whether the next layer is also be a MPLS label or not
 		 * @return True if it's the last MPLS layer, false otherwise
 		 */
-		bool isBottomOfStack();
+		bool isBottomOfStack() const;
 
 		/**
 		 * Set the bottom-of-stack bit in the MPLS label
@@ -77,7 +77,7 @@ namespace pcpp
 		/**
 		 * @return The exp value (3 bits) of the MPLS label
 		 */
-		uint8_t getExperimentalUseValue();
+		uint8_t getExperimentalUseValue() const;
 
 		/**
 		 * Set the exp value (3 bits) of the MPLS label
@@ -89,7 +89,7 @@ namespace pcpp
 		/**
 		 * @return The MPLS label value (20 bits)
 		 */
-		uint32_t getMplsLabel();
+		uint32_t getMplsLabel() const;
 
 		/**
 		 * Set the MPLS label (20 bits)
@@ -108,7 +108,7 @@ namespace pcpp
 		/**
 		 * @return Size of MPLS header (4 bytes)
 		 */
-		inline size_t getHeaderLen() { return sizeof(mpls_header); }
+		size_t getHeaderLen() const { return sizeof(mpls_header); }
 
 		/**
 		 * Set/unset the bottom-of-stack bit according to next layer: if it's a MPLS layer then bottom-of-stack will be unset. If it's not a
@@ -116,9 +116,9 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		std::string toString();
+		std::string toString() const;
 
-        OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 	};
 
 } // namespace pcpp

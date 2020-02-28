@@ -6,11 +6,7 @@
 #include "IpUtils.h"
 #include "Logger.h"
 #include <string.h>
-#if defined(WIN32) || defined(WINx64)
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#endif
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -33,7 +29,7 @@ uint32_t IPReassemblyHashBy3Tuple(const IPv4Address& ipSrc, const IPv4Address& i
 {
 	ScalarBuffer<uint8_t> vec[3];
 
-	uint16_t ipIdNetworkOrder = htons(ipID);
+	uint16_t ipIdNetworkOrder = htobe16(ipID);
 	uint32_t ipSrcAsInt = ipSrc.toInt();
 	uint32_t ipDstAsInt = ipDst.toInt();
 
@@ -101,7 +97,7 @@ public:
 
 	uint32_t getFragmentId()
 	{
-		return (uint32_t)ntohs(m_IPLayer->getIPv4Header()->ipId);
+		return (uint32_t)be16toh(m_IPLayer->getIPv4Header()->ipId);
 	}
 
 	uint32_t hashPacket()
@@ -120,7 +116,7 @@ public:
 
 	IPReassembly::PacketKey* createPacketKey()
 	{
-		return new IPReassembly::IPv4PacketKey(ntohs(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getSrcIpAddress(), m_IPLayer->getDstIpAddress());
+		return new IPReassembly::IPv4PacketKey(be16toh(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getSrcIpAddress(), m_IPLayer->getDstIpAddress());
 	}
 
 	uint8_t* getIPLayerPayload()
@@ -184,7 +180,7 @@ public:
 
 	uint32_t getFragmentId()
 	{
-		return ntohl(m_FragHeader->getFragHeader()->id);
+		return be32toh(m_FragHeader->getFragHeader()->id);
 	}
 
 	uint32_t hashPacket()
@@ -206,7 +202,7 @@ public:
 
 	IPReassembly::PacketKey* createPacketKey()
 	{
-		return new IPReassembly::IPv6PacketKey(ntohl(m_FragHeader->getFragHeader()->id), m_IPLayer->getSrcIpAddress(), m_IPLayer->getDstIpAddress());
+		return new IPReassembly::IPv6PacketKey(be32toh(m_FragHeader->getFragHeader()->id), m_IPLayer->getSrcIpAddress(), m_IPLayer->getDstIpAddress());
 	}
 
 	uint8_t* getIPLayerPayload()
@@ -230,7 +226,7 @@ uint32_t IPReassembly::IPv4PacketKey::getHashValue() const
 {
 	ScalarBuffer<uint8_t> vec[3];
 
-	uint16_t ipIdNetworkOrder = htons(m_IpID);
+	uint16_t ipIdNetworkOrder = htobe16(m_IpID);
 	uint32_t ipSrcAsInt = m_SrcIP.toInt();
 	uint32_t ipDstAsInt = m_DstIP.toInt();
 
@@ -248,7 +244,7 @@ uint32_t IPReassembly::IPv6PacketKey::getHashValue() const
 {
 	ScalarBuffer<uint8_t> vec[3];
 
-	uint32_t fragIdNetworkOrder = htonl(m_FragmentID);
+	uint32_t fragIdNetworkOrder = htobe32(m_FragmentID);
 	uint8_t ipSrcAsByteArr[16];
 	uint8_t ipDstAsByteArr[16];
 	m_SrcIP.copyTo(ipSrcAsByteArr);
@@ -266,17 +262,8 @@ uint32_t IPReassembly::IPv6PacketKey::getHashValue() const
 
 
 
-IPReassembly::IPReassembly(OnFragmentsClean onFragmentsCleanCallback, void* callbackUserCookie, size_t maxPacketsToStore)
-{
-	m_PacketLRU = new LRUList<uint32_t>(maxPacketsToStore);
-	m_OnFragmentsCleanCallback = onFragmentsCleanCallback;
-	m_CallbackUserCookie = callbackUserCookie;
-}
-
 IPReassembly::~IPReassembly()
 {
-	delete m_PacketLRU;
-
 	// empty the map - go over all keys, delete all IPFragmentData objects and remove them from the map
 	while (!m_FragmentMap.empty())
 	{
@@ -342,9 +329,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		fragData = iter->second;
 
 		// mark this packet as used
-		uint32_t* removedElement = m_PacketLRU->put(hash);
-		if (removedElement != NULL)
-			delete removedElement;
+		m_PacketLRU.put(hash, NULL);
 	}
 
 	bool gotLastFragment = false;
@@ -391,12 +376,13 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 
 			LOG_DEBUG("[FragID=0x%X] Found next matching fragment with offset %d, adding fragment data to reassembled packet", fragWrapper->getFragmentId(), (int)fragOffset);
 
+			size_t payloadSize = fragWrapper->getIPLayerPayloadSize();
 			// copy fragment data to reassembled packet
-			fragData->data->reallocateData(fragData->data->getRawDataLen() + fragWrapper->getIPLayerPayloadSize());
-			fragData->data->appendData(fragWrapper->getIPLayerPayload(), fragWrapper->getIPLayerPayloadSize());
+			fragData->data->reallocateData(fragData->data->getRawDataLen() + payloadSize);
+			fragData->data->appendData(fragWrapper->getIPLayerPayload(), payloadSize);
 
 			// update expected offset
-			fragData->currentOffset += fragWrapper->getIPLayerPayloadSize();
+			fragData->currentOffset += payloadSize;
 
 			// if this is the last fragment - mark it
 			if (fragWrapper->isLastFragment())
@@ -411,10 +397,11 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			LOG_DEBUG("[FragID=0x%X] Got out-of-ordered fragment with offset %d (expected: %d). Adding it to out-of-order list", fragWrapper->getFragmentId(), (int)fragOffset, (int)fragData->currentOffset);
 
 			// create a new IPFragment and copy the fragment data and params to it
+			size_t payloadSize = fragWrapper->getIPLayerPayloadSize();
 			IPFragment* newFrag = new IPFragment();
 			newFrag->fragmentOffset = fragWrapper->getFragmentOffset();
-			newFrag->fragmentData = new uint8_t[fragWrapper->getIPLayerPayloadSize()];
-			newFrag->fragmentDataLen = fragWrapper->getIPLayerPayloadSize();
+			newFrag->fragmentData = new uint8_t[payloadSize];
+			newFrag->fragmentDataLen = payloadSize;
 			memcpy(newFrag->fragmentData, fragWrapper->getIPLayerPayload(), newFrag->fragmentDataLen);
 			newFrag->lastFragment = fragWrapper->isLastFragment();
 
@@ -441,7 +428,10 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		if (fragData->packetKey->getProtocolType() == IPv4)
 		{
 			Packet tempPacket(fragData->data, IPv4);
-			tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header()->totalLength = htons(fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen());
+			IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
+			iphdr* iphdr = ipLayer->getIPv4Header();
+			iphdr->totalLength = htobe16(fragData->currentOffset + ipLayer->getHeaderLen());
+			iphdr->fragmentOffset = 0;
 		}
 		else
 		{
@@ -454,12 +444,8 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 
 		if (fragData->packetKey->getProtocolType() == IPv4)
 		{
-			// set the fragment offset to 0
-			IPv4Layer* ipLayer = reassembledPacket->getLayerOfType<IPv4Layer>();
-			ipLayer->getIPv4Header()->fragmentOffset = 0;
-
 			// re-calculate all IPv4 fields
-			ipLayer->computeCalculateFields();
+			reassembledPacket->getLayerOfType<IPv4Layer>()->computeCalculateFields();
 		}
 		else
 		{
@@ -476,7 +462,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		// delete the IPFragmentData object and remove it from the map
 		delete fragData;
 		m_FragmentMap.erase(iter);
-		m_PacketLRU->eraseElement(hash);
+		m_PacketLRU.eraseElement(hash);
 		status = REASSEMBLED;
 		return reassembledPacket;
 	}
@@ -521,7 +507,8 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 			if (fragData->packetKey->getProtocolType() == IPv4)
 			{
 				Packet tempPacket(partialRawPacket, IPv4);
-				tempPacket.getLayerOfType<IPv4Layer>()->getIPv4Header()->totalLength = htons(fragData->currentOffset + tempPacket.getLayerOfType<IPv4Layer>()->getHeaderLen());
+				IPv4Layer* ipLayer = tempPacket.getLayerOfType<IPv4Layer>();
+				ipLayer->getIPv4Header()->totalLength = htobe16(fragData->currentOffset + ipLayer->getHeaderLen());
 			}
 			else
 			{
@@ -569,21 +556,25 @@ void IPReassembly::removePacket(const PacketKey& key)
 		m_FragmentMap.erase(iter);
 
 		// remove from LRU list
-		m_PacketLRU->eraseElement(hash);
+		m_PacketLRU.eraseElement(hash);
 	}
 }
 
 void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 {
 	// put the new frag in the LRU list
-	uint32_t* packetRemoved = m_PacketLRU->put(hash);
+	uint32_t packetRemoved;
 
-	if (packetRemoved != NULL) // this means LRU list was full and the least recently used item was removed
+	if (m_PacketLRU.put(hash, &packetRemoved) == 1) // this means LRU list was full and the least recently used item was removed
 	{
 		// remove this item from the fragment map
-		std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(*packetRemoved);
+		std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(packetRemoved);
 		IPFragmentData* dataRemoved = iter->second;
-		PacketKey* key = dataRemoved->packetKey->clone();
+
+		PacketKey* key = NULL;
+		if (m_OnFragmentsCleanCallback != NULL)
+			key = dataRemoved->packetKey->clone();
+
 		LOG_DEBUG("Reached maximum packet capacity, removing data for FragID=0x%X", dataRemoved->fragmentID);
 		delete dataRemoved;
 		m_FragmentMap.erase(iter);
@@ -592,10 +583,8 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 		if (m_OnFragmentsCleanCallback != NULL)
 		{
 			m_OnFragmentsCleanCallback(key, m_CallbackUserCookie);
+			delete key;
 		}
-
-		delete key;
-		delete packetRemoved;
 	}
 
 	// add the new fragment to the map

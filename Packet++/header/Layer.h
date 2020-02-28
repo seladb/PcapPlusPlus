@@ -28,7 +28,7 @@ namespace pcpp
 		 * @param[in] offset Get a pointer in a certain offset. Default is 0 - get a pointer to start of data
 		 * @return A pointer to the data
 		 */
-		virtual uint8_t* getDataPtr(size_t offset = 0) = 0;
+		virtual uint8_t* getDataPtr(size_t offset = 0) const = 0;
 
 		virtual ~IDataContainer() {}
 	};
@@ -78,37 +78,37 @@ namespace pcpp
 		/**
 		 * @return A pointer to the next layer in the protocol stack or NULL if the layer is the last one
 		 */
-		inline Layer* getNextLayer() { return m_NextLayer; }
+		Layer* getNextLayer() const { return m_NextLayer; }
 
 		/**
 		 * @return A pointer to the previous layer in the protocol stack or NULL if the layer is the first one
 		 */
-		inline Layer* getPrevLayer() { return m_PrevLayer; }
+		Layer* getPrevLayer() const { return m_PrevLayer; }
 
 		/**
 		 * @return The protocol enum
 		 */
-		inline ProtocolType getProtocol() { return m_Protocol; }
+		ProtocolType getProtocol() const { return m_Protocol; }
 
 		/**
 		 * @return A pointer to the layer raw data. In most cases it'll be a pointer to the first byte of the header
 		 */
-		inline uint8_t* getData() { return m_Data; }
+		uint8_t* getData() const { return m_Data; }
 
 		/**
 		 * @return The length in bytes of the data from the first byte of the header until the end of the packet
 		 */
-		inline size_t getDataLen() { return m_DataLen; }
+		size_t getDataLen() const { return m_DataLen; }
 
 		/**
 		 * @return A pointer for the layer payload, meaning the first byte after the header
 		 */
-		uint8_t* getLayerPayload() { return m_Data + getHeaderLen(); }
+		uint8_t* getLayerPayload() const { return m_Data + getHeaderLen(); }
 
 		/**
 		 * @return The size in bytes of the payload
 		 */
-		size_t getLayerPayloadSize() { return m_DataLen - getHeaderLen(); }
+		size_t getLayerPayloadSize() const { return m_DataLen - getHeaderLen(); }
 
 		/**
 		 * Raw data in layers can come from one of sources:
@@ -118,18 +118,18 @@ namespace pcpp
 		 *
 		 * @return Returns true if the data was allocated by an external source (a packet) or false if it was allocated by the layer itself
 		 */
-		inline bool isAllocatedToPacket() { return m_Packet != NULL; }
+		bool isAllocatedToPacket() const { return m_Packet != NULL; }
 
 		/**
 		 * Copy the raw data of this layer to another array
 		 * @param[out] toArr The destination byte array
 		 */
-		void copyData(uint8_t* toArr);
+		void copyData(uint8_t* toArr) const;
 
 
 		// implement abstract methods
 
-		uint8_t* getDataPtr(size_t offset = 0) { return (uint8_t*)(m_Data + offset); }
+		uint8_t* getDataPtr(size_t offset = 0) const { return (uint8_t*)(m_Data + offset); }
 
 
 		// abstract methods
@@ -142,7 +142,7 @@ namespace pcpp
 		/**
 		 * @return The header length in bytes
 		 */
-		virtual size_t getHeaderLen() = 0;
+		virtual size_t getHeaderLen() const = 0;
 
 		/**
 		 * Each layer can compute field values automatically using this method. This is an abstract method
@@ -152,12 +152,12 @@ namespace pcpp
 		/**
 		 * @return A string representation of the layer most important data (should look like the layer description in Wireshark)
 		 */
-		virtual std::string toString() = 0;
+		virtual std::string toString() const = 0;
 
 		/**
 		 * @return The OSI Model layer this protocol belongs to
 		 */
-        virtual OsiModelLayer getOsiModelLayer() const = 0;
+		virtual OsiModelLayer getOsiModelLayer() const = 0;
 
 	protected:
 		uint8_t* m_Data;
@@ -179,8 +179,8 @@ namespace pcpp
 		Layer(const Layer& other);
 		Layer& operator=(const Layer& other);
 
-		inline void setNextLayer(Layer* nextLayer) { m_NextLayer = nextLayer; }
-		inline void setPrevLayer(Layer* prevLayer) { m_PrevLayer = prevLayer; }
+		void setNextLayer(Layer* nextLayer) { m_NextLayer = nextLayer; }
+		void setPrevLayer(Layer* prevLayer) { m_PrevLayer = prevLayer; }
 
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);

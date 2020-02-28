@@ -156,7 +156,7 @@ namespace pcpp
 		void* m_Socket;
 		IPAddress* m_InterfaceIP;
 
-		RecvPacketResult getError(int& errorCode);
+		RecvPacketResult getError(int& errorCode) const;
 
 	};
 }

@@ -67,12 +67,12 @@ namespace pcpp
 		 * Assign a pointer to the TLV record raw data (byte array)
 		 * @param[in] recordRawData A pointer to the TLV record raw data
 		 */
-		void assign(uint8_t *recordRawData)
+		void assign(uint8_t* recordRawData)
 		{
 			if(recordRawData == NULL)
 				m_Data = NULL;
 			else
-				m_Data = (TLVRawData *)recordRawData;
+				m_Data = (TLVRawData*)recordRawData;
 		}
 
 		/**
@@ -147,7 +147,7 @@ namespace pcpp
 		 * @return The record data as type T
 		 */
 		template<typename T>
-		T getValueAs(size_t offset = 0)
+		T getValueAs(size_t offset = 0) const
 		{
 			if (getDataSize() - offset < sizeof(T))
 				return 0;
@@ -184,7 +184,7 @@ namespace pcpp
 		/**
 		 * @return The size of the record value (meaning the size of the 'V' part in TLV)
 		 */
-		virtual size_t getDataSize() = 0;
+		virtual size_t getDataSize() const = 0;
 	};
 
 
@@ -197,7 +197,7 @@ namespace pcpp
 	class TLVRecordReader
 	{
 	private:
-		size_t m_RecordCount;
+		mutable size_t m_RecordCount;
 
 	public:
 
@@ -237,7 +237,7 @@ namespace pcpp
 		 * tlvDataLen is zero the returned TLVRecordType instance will be logically NULL, meaning TLVRecordType.isNull() will
 		 * return true
 		 */
-		TLVRecordType getFirstTLVRecord(uint8_t* tlvDataBasePtr, size_t tlvDataLen)
+		TLVRecordType getFirstTLVRecord(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
 			// In most cases tlvDataLen is not zero and the size is correct therefore the overhead is not significant if the checks will be done later
 			TLVRecordType resRec(tlvDataBasePtr); // for NRVO optimization
@@ -258,7 +258,7 @@ namespace pcpp
 		 * input record.isNull() is true or if the next record is out of bounds of the byte stream, a logical NULL instance
 		 * of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
 		 */
-		TLVRecordType getNextTLVRecord(TLVRecordType& record, uint8_t* tlvDataBasePtr, size_t tlvDataLen)
+		TLVRecordType getNextTLVRecord(TLVRecordType& record, uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
 			TLVRecordType resRec(NULL); // for NRVO optimization
 
@@ -288,7 +288,7 @@ namespace pcpp
 		 * @return An instance of type TLVRecordType that contains the result record. If record was not found a logical
 		 * NULL instance of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
 		 */
-		TLVRecordType getTLVRecord(uint8_t recordType, uint8_t* tlvDataBasePtr, size_t tlvDataLen)
+		TLVRecordType getTLVRecord(uint8_t recordType, uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
 			TLVRecordType curRec = getFirstTLVRecord(tlvDataBasePtr, tlvDataLen);
 			while (!curRec.isNull())
@@ -312,7 +312,7 @@ namespace pcpp
 		 * @param[in] tlvDataLen The TLV data byte stream length
 		 * @return The TLV record count
 		 */
-		size_t getTLVRecordCount(uint8_t* tlvDataBasePtr, size_t tlvDataLen)
+		size_t getTLVRecordCount(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
 			if (m_RecordCount != (size_t)-1)
 				return m_RecordCount;

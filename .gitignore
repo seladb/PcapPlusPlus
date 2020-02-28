@@ -64,6 +64,11 @@ Tests/Pcap++Test/cUrl/curl_output.txt
 *.vcxproj.user
 **/.vs
 
+#Visual Studio Projects
+mk/vs2015/**
+mk/vs2017/**
+mk/vs2019/**
+
 #Tutorial outputs
 Examples/Tutorials/**/Makefile
 Examples/Tutorials/**/*.exe

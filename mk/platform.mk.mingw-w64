@@ -1,6 +1,6 @@
 WIN32 := 1
 
-export PATH := $(MINGW_HOME)/bin;$(MSYS_HOME)/bin:$(PATH)
+export PATH := $(MINGW_HOME)/mingw32/bin;$(MSYS_HOME)/usr/bin:$(PATH)
 
 BIN_EXT := .exe
 

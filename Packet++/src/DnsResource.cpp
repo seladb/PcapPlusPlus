@@ -4,14 +4,7 @@
 #include "Logger.h"
 #include <sstream>
 #include <string.h>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h> //for using ntohl, ntohs, etc.
-#elif MAC_OS_X
-#include <arpa/inet.h> //for using ntohl, ntohs, etc.
-#endif
-
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -84,8 +77,19 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		}
 		else
 		{
-			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen)
+			// return if next word would be outside of the DNS layer or overflow the buffer behind resultPtr
+			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen || encodedNameLength + wordLength > 255)
+			{
+				// add the last '\0' to the decoded string
+				if (encodedNameLength == 256)
+					resultPtr--;
+				else
+					encodedNameLength++;
+				
+				resultPtr[0] = 0;	
 				return encodedNameLength;
+			}
+				
 
 			memcpy(resultPtr, encodedName+1, wordLength);
 			resultPtr += wordLength;
@@ -96,7 +100,16 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 
 			curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
 			if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
+			{
+				// add the last '\0' to the decoded string
+				if (encodedNameLength == 256)
+					resultPtr--;
+				else
+					encodedNameLength++;
+				
+				resultPtr[0] = 0;	
 				return encodedNameLength;
+			}
 
 			wordLength = encodedName[0];
 		}
@@ -158,27 +171,27 @@ void IDnsResource::encodeName(const std::string& decodedName, char* result, size
 }
 
 
-DnsType IDnsResource::getDnsType()
+DnsType IDnsResource::getDnsType() const
 {
 	uint16_t dnsType = *(uint16_t*)(getRawData() + m_NameLength);
-	return (DnsType)ntohs(dnsType);
+	return (DnsType)be16toh(dnsType);
 }
 
 void IDnsResource::setDnsType(DnsType newType)
 {
-	uint16_t newTypeAsInt = htons((uint16_t)newType);
+	uint16_t newTypeAsInt = htobe16((uint16_t)newType);
 	memcpy(getRawData() + m_NameLength, &newTypeAsInt, sizeof(uint16_t));
 }
 
 DnsClass IDnsResource::getDnsClass() const
 {
 	uint16_t dnsClass = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
-	return (DnsClass)ntohs(dnsClass);
+	return (DnsClass)be16toh(dnsClass);
 }
 
 void IDnsResource::setDnsClass(DnsClass newClass)
 {
-	uint16_t newClassAsInt = htons((uint16_t)newClass);
+	uint16_t newClassAsInt = htobe16((uint16_t)newClass);
 	memcpy(getRawData() + m_NameLength + sizeof(uint16_t), &newClassAsInt, sizeof(uint16_t));
 }
 
@@ -210,8 +223,8 @@ bool IDnsResource::setName(const std::string& newName)
 	{
 		size_t size = getSize();
 		char* tempData = new char[size];
-		memcpy(tempData, m_ExternalRawData, getSize());
-		memcpy(m_ExternalRawData + encodedNameLen, tempData, getSize());
+		memcpy(tempData, m_ExternalRawData, size);
+		memcpy(m_ExternalRawData + encodedNameLen, tempData, size);
 		delete[] tempData;
 	}
 
@@ -230,43 +243,39 @@ void IDnsResource::setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer)
 	m_ExternalRawData = NULL;
 }
 
-uint32_t DnsResource::getTTL()
+uint32_t DnsResource::getTTL() const
 {
 	uint32_t ttl = *(uint32_t*)(getRawData() + m_NameLength + 2*sizeof(uint16_t));
-	return ntohl(ttl);
+	return be32toh(ttl);
 }
 
 void DnsResource::setTTL(uint32_t newTTL)
 {
-	newTTL = htonl(newTTL);
+	newTTL = htobe32(newTTL);
 	memcpy(getRawData() + m_NameLength + 2*sizeof(uint16_t), &newTTL, sizeof(uint32_t));
 }
 
-size_t DnsResource::getDataLength()
+size_t DnsResource::getDataLength() const
 {
 	uint16_t dataLength = *(uint16_t*)(getRawData() + m_NameLength + 2*sizeof(uint16_t) + sizeof(uint32_t));
-	return ntohs(dataLength);
+	return be16toh(dataLength);
 }
 
-DnsResourceDataPtr DnsResource::getData()
+DnsResourceDataPtr DnsResource::getData() const
 {
 	uint8_t* resourceRawData = getRawData() + m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t);
 	size_t dataLength = getDataLength();
 
-	DnsType dnsType = getDnsType();
-
-	switch (dnsType)
+	switch (getDnsType())
 	{
 	case DNS_TYPE_A:
 	{
 		return DnsResourceDataPtr(new IPv4DnsResourceData(resourceRawData, dataLength));
-		break;
 	}
 
 	case DNS_TYPE_AAAA:
 	{
 		return DnsResourceDataPtr(new IPv6DnsResourceData(resourceRawData, dataLength));
-		break;
 	}
 
 	case DNS_TYPE_NS:
@@ -274,26 +283,23 @@ DnsResourceDataPtr DnsResource::getData()
 	case DNS_TYPE_DNAM:
 	case DNS_TYPE_PTR:
 	{
-		return DnsResourceDataPtr(new StringDnsResourceData(resourceRawData, dataLength, this));
-		break;
+		return DnsResourceDataPtr(new StringDnsResourceData(resourceRawData, dataLength, const_cast<IDnsResource*>(static_cast<const IDnsResource*>(this))));
 	}
 
 	case DNS_TYPE_MX:
 	{
-		return DnsResourceDataPtr(new MxDnsResourceData(resourceRawData, dataLength, this));
-		break;
+		return DnsResourceDataPtr(new MxDnsResourceData(resourceRawData, dataLength, const_cast<IDnsResource*>(static_cast<const IDnsResource*>(this))));
 	}
 
 	default:
 	{
 		return DnsResourceDataPtr(new GenericDnsResourceData(resourceRawData, dataLength));
-		break;
 	}
 
 	}
 }
 
-size_t DnsResource::getDataOffset()
+size_t DnsResource::getDataOffset() const
 {
 	return (size_t)(m_OffsetInLayer + m_NameLength + 3*sizeof(uint16_t) + sizeof(uint32_t));
 }
@@ -396,16 +402,16 @@ bool DnsResource::setData(IDnsResourceData* data)
 	// write data to resource
 	memcpy(getRawData() + dataOffset, dataAsByteArr, dataLength);
 	//update data length in resource
-	dataLength = htons(dataLength);
+	dataLength = htobe16((uint16_t)dataLength);
 	memcpy(getRawData() + dataLengthOffset, &dataLength, sizeof(uint16_t));
 
 	return true;
 }
 
-uint16_t DnsResource::getCustomDnsClass()
+uint16_t DnsResource::getCustomDnsClass() const
 {
 	uint16_t value = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
-	return ntohs(value);
+	return be16toh(value);
 }
 
 void DnsResource::setCustomDnsClass(uint16_t customValue)

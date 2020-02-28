@@ -26,6 +26,7 @@
 #include <PacketTrailerLayer.h>
 #include <RadiusLayer.h>
 #include <GtpLayer.h>
+#include <EthDot3Layer.h>
 #include <IpAddress.h>
 #include <fstream>
 #include <stdlib.h>
@@ -34,11 +35,7 @@
 #include <sstream>
 #include <string.h>
 #include <getopt.h>
-#ifdef WIN32
-#include <winsock2.h>
-#else
-#include <in.h>
-#endif
+#include <EndianPortable.h>
 #ifdef _MSC_VER
 #include <SystemUtils.h>
 #endif
@@ -105,10 +102,10 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 // For debug purpose only
 // void savePacketToPcap(Packet& packet, std::string fileName)
 // {
-//    pcap_t *pcap;
+//    pcap_t* pcap;
 //    pcap = pcap_open_dead(1, 65565);
 
-//    pcap_dumper_t *d;
+//    pcap_dumper_t* d;
 //    /* open output file */
 //    d = pcap_dump_open(pcap, fileName.c_str());
 //    if (d == NULL)
@@ -123,7 +120,7 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 //    hdr.ts.tv_usec = 0; /* ms */
 //    hdr.caplen = hdr.len = packet.getRawPacket()->getRawDataLen();
 //    /* write single IP packet */
-//    pcap_dump((u_char *)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
+//    pcap_dump((u_char*)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
 //
 //    /* finish up */
 //    pcap_dump_close(d);
@@ -131,7 +128,9 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 // }
 
 
-PTF_TEST_CASE(EthPacketCreation) {
+
+PTF_TEST_CASE(EthPacketCreation)
+{
 	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
 	EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
@@ -140,56 +139,62 @@ PTF_TEST_CASE(EthPacketCreation) {
 	PayloadLayer payloadLayer(payload, 4, true);
 
 	Packet ethPacket(1);
-	PTF_ASSERT(ethPacket.addLayer(&ethLayer), "Adding ethernet layer failed");
-	PTF_ASSERT(ethPacket.addLayer(&payloadLayer), "Adding payload layer failed");
+	PTF_ASSERT_TRUE(ethPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(ethPacket.addLayer(&payloadLayer));
 
-	PTF_ASSERT(ethPacket.isPacketOfType(Ethernet), "Packet is not of type Ethernet");
-	PTF_ASSERT(ethPacket.getLayerOfType<EthLayer>() != NULL, "Ethernet layer doesn't exist");
+	PTF_ASSERT_TRUE(ethPacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_NOT_NULL(ethPacket.getLayerOfType<EthLayer>());
 	PTF_ASSERT(ethPacket.getLayerOfType<EthLayer>() == &ethLayer, "Ethernet layer doesn't equal to inserted layer");
-	PTF_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getDestMac() == dstMac, "Packet dest mac isn't equal to intserted dest mac");
-	PTF_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getSourceMac() == srcMac, "Packet src mac isn't equal to intserted src mac");
-	PTF_ASSERT(ethPacket.getLayerOfType<EthLayer>()->getEthHeader()->etherType == ntohs(PCPP_ETHERTYPE_IP), "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
+	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<EthLayer>()->getDestMac(), dstMac, object);
+	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<EthLayer>()->getSourceMac(), srcMac, object);
+	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<EthLayer>()->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_IP), u16);
 
 	RawPacket* rawPacket = ethPacket.getRawPacket();
-	PTF_ASSERT(rawPacket != NULL, "Raw packet is NULL");
-	PTF_ASSERT(rawPacket->getRawDataLen() == 18, "Raw packet length expected to be 18 but it's %d", rawPacket->getRawDataLen());
+	PTF_ASSERT_NOT_NULL(rawPacket);
+	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 18, int);
 
 	uint8_t expectedBuffer[18] = { 0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x08, 0x00, 0x01, 0x02, 0x03, 0x04 };
-	PTF_ASSERT(memcmp(rawPacket->getRawData(), expectedBuffer, 18) == 0, "Raw packet data is different than expected");
-}
+	PTF_ASSERT_BUF_COMPARE(rawPacket->getRawData(), expectedBuffer, 18);
+} // EthPacketCreation
 
-PTF_TEST_CASE(EthPacketPointerCreation) {
+
+
+PTF_TEST_CASE(EthPacketPointerCreation)
+{
 	MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	MacAddress dstMac("bb:bb:bb:bb:bb:bb");
-	EthLayer *ethLayer = new EthLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+	EthLayer* ethLayer = new EthLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
-	PayloadLayer *payloadLayer = new PayloadLayer(payload, 4, true);
+	PayloadLayer* payloadLayer = new PayloadLayer(payload, 4, true);
 
-	Packet *ethPacket = new Packet(1);
-	PTF_ASSERT(ethPacket->addLayer(ethLayer, true), "Adding ethernet layer failed");
-	PTF_ASSERT(ethPacket->addLayer(payloadLayer, true), "Adding payload layer failed");
+	Packet* ethPacket = new Packet(1);
+	PTF_ASSERT_TRUE(ethPacket->addLayer(ethLayer, true));
+	PTF_ASSERT_TRUE(ethPacket->addLayer(payloadLayer, true));
 
-	PTF_ASSERT(ethPacket->isPacketOfType(Ethernet), "Packet is not of type Ethernet");
-	PTF_ASSERT(ethPacket->getLayerOfType<EthLayer>() != NULL, "Ethernet layer doesn't exist");
+	PTF_ASSERT_TRUE(ethPacket->isPacketOfType(Ethernet));
+	PTF_ASSERT_NOT_NULL(ethPacket->getLayerOfType<EthLayer>());
 	PTF_ASSERT(ethPacket->getLayerOfType<EthLayer>() == ethLayer, "Ethernet layer doesn't equal to inserted layer");
-	PTF_ASSERT(ethPacket->getLayerOfType<EthLayer>()->getDestMac() == dstMac, "Packet dest mac isn't equal to intserted dest mac");
-	PTF_ASSERT(ethPacket->getLayerOfType<EthLayer>()->getSourceMac() == srcMac, "Packet src mac isn't equal to intserted src mac");
-	PTF_ASSERT(ethPacket->getLayerOfType<EthLayer>()->getEthHeader()->etherType == ntohs(PCPP_ETHERTYPE_IP), "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
+	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<EthLayer>()->getDestMac(), dstMac, object);
+	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<EthLayer>()->getSourceMac(), srcMac, object);
+	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<EthLayer>()->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_IP), u16);
 
 	RawPacket* rawPacket = ethPacket->getRawPacket();
-	PTF_ASSERT(rawPacket != NULL, "Raw packet is NULL");
-	PTF_ASSERT(rawPacket->getRawDataLen() == 18, "Raw packet length expected to be 18 but it's %d", rawPacket->getRawDataLen());
+	PTF_ASSERT_NOT_NULL(rawPacket);
+	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 18, int);
 
 	uint8_t expectedBuffer[18] = { 0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0xbb, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x08, 0x00, 0x01, 0x02, 0x03, 0x04 };
-	PTF_ASSERT(memcmp(rawPacket->getRawData(), expectedBuffer, 18) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_BUF_COMPARE(rawPacket->getRawData(), expectedBuffer, 18);
 	delete(ethPacket);
-}
+} // EthPacketPointerCreation
 
-PTF_TEST_CASE(EthAndArpPacketParsing) {
+
+
+PTF_TEST_CASE(EthAndArpPacketParsing)
+{
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/ArpResponsePacket.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 //	int* abba = new int[1000];
 //	std::cout << abba[500];
@@ -205,22 +210,22 @@ PTF_TEST_CASE(EthAndArpPacketParsing) {
 	MacAddress expectedSrcMac(0x30, 0x46, 0x9a, 0x23, 0xfb, 0xfa);
 	MacAddress expectedDstMac(0x6c, 0xf0, 0x49, 0xb2, 0xde, 0x6e);
 	EthLayer* ethLayer = ethPacket.getLayerOfType<EthLayer>();
-	PTF_ASSERT(ethLayer->getDestMac() == expectedDstMac, "Packet dest mac isn't equal to intserted dest mac");
-	PTF_ASSERT(ethLayer->getSourceMac() == expectedSrcMac, "Packet src mac isn't equal to intserted src mac");
-	PTF_ASSERT(ethLayer->getEthHeader()->etherType == ntohs(PCPP_ETHERTYPE_ARP), "Packet ether type isn't equal to PCPP_ETHERTYPE_ARP, it's 0x%x", ethLayer->getEthHeader()->etherType);
+	PTF_ASSERT_EQUAL(ethLayer->getDestMac(), expectedDstMac, object);
+	PTF_ASSERT_EQUAL(ethLayer->getSourceMac(), expectedSrcMac, object);
+	PTF_ASSERT_EQUAL(ethLayer->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_ARP), hex);
 
-	PTF_ASSERT(ethLayer->getNextLayer()->getProtocol() == ARP, "Next layer isn't of type 'ARP'");
+	PTF_ASSERT_EQUAL(ethLayer->getNextLayer()->getProtocol(), ARP, enum);
 	ArpLayer* arpLayer = (ArpLayer*)ethLayer->getNextLayer();
-	PTF_ASSERT(arpLayer->getArpHeader()->hardwareType == htons(1), "ARP hardwareType != 1");
-	PTF_ASSERT(arpLayer->getArpHeader()->protocolType == htons(PCPP_ETHERTYPE_IP), "ARP protocolType != PCPP_ETHERTYPE_IP, it's 0x%4X", ntohs(arpLayer->getArpHeader()->protocolType));
-	PTF_ASSERT(arpLayer->getArpHeader()->hardwareSize == 6, "ARP hardwareSize != 6");
-	PTF_ASSERT(arpLayer->getArpHeader()->protocolSize == 4, "ARP protocolSize != 4");
-	PTF_ASSERT(arpLayer->getArpHeader()->opcode == htons(ARP_REPLY), "ARP opcode != ARP_REPLY");
-	PTF_ASSERT(arpLayer->getSenderIpAddr() == IPv4Address(string("10.0.0.138")), "ARP sender IP addr != 10.0.0.138");
-	PTF_ASSERT(arpLayer->getTargetMacAddress() == MacAddress("6c:f0:49:b2:de:6e"), "ARP target mac addr != 6c:f0:49:b2:de:6e");
+	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->hardwareType, htobe16(1), u16);
+	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->protocolType, htobe16(PCPP_ETHERTYPE_IP), hex);
+	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->hardwareSize, 6, u8);
+	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->protocolSize, 4, u8);
+	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->opcode, htobe16(ARP_REPLY), u16);
+	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), IPv4Address(string("10.0.0.138")), object);
+	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), MacAddress("6c:f0:49:b2:de:6e"), object);
+} // EthAndArpPacketParsing
 
 
-}
 
 PTF_TEST_CASE(ArpPacketCreation)
 {
@@ -231,27 +236,28 @@ PTF_TEST_CASE(ArpPacketCreation)
 	ArpLayer arpLayer(ARP_REQUEST, srcMac, srcMac, IPv4Address(string("10.0.0.1")), IPv4Address(string("10.0.0.138")));
 
 	Packet arpRequestPacket(1);
-	PTF_ASSERT(arpRequestPacket.addLayer(&ethLayer), "Couldn't add eth layer");
-	PTF_ASSERT(arpRequestPacket.addLayer(&arpLayer), "Couldn't add arp layer");
+	PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&arpLayer));
 	arpRequestPacket.computeCalculateFields();
-	PTF_ASSERT(arpRequestPacket.getRawPacket()->getRawDataLen() == 42, "arp packet size != 42 bytes, Actual: %d", arpRequestPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(arpRequestPacket.getRawPacket()->getRawDataLen(), 42, int);
 
 	ArpLayer* pArpLayer = arpRequestPacket.getLayerOfType<ArpLayer>();
-	PTF_ASSERT(pArpLayer != NULL, "Packet doesn't contain arp layer");
+	PTF_ASSERT_NOT_NULL(pArpLayer);
 
 	arphdr* arpHeader = pArpLayer->getArpHeader();
-	PTF_ASSERT(arpHeader->hardwareSize == 6, "Arp header: hardwareSize != 6, Actual: %d", arpHeader->hardwareSize);
-	PTF_ASSERT(arpHeader->protocolType == htons(PCPP_ETHERTYPE_IP), "Arp header: protocolType != PCPP_ETHERTYPE_IP, Actual: %d", arpHeader->protocolType);
+	PTF_ASSERT_EQUAL(arpHeader->hardwareSize, 6, u8);
+	PTF_ASSERT_EQUAL(arpHeader->protocolType, htobe16(PCPP_ETHERTYPE_IP), u16);
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/ArpRequestPacket.dat", bufferLength);
 	PTF_ASSERT(buffer != NULL, "cannot read file");
-	PTF_ASSERT(bufferLength == arpRequestPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", arpRequestPacket.getRawPacket()->getRawDataLen(), bufferLength);
-	PTF_ASSERT(memcmp(arpRequestPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(bufferLength, arpRequestPacket.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(arpRequestPacket.getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete [] buffer;
+} // ArpPacketCreation
 
-}
+
 
 PTF_TEST_CASE(VlanParseAndCreation)
 {
@@ -278,16 +284,16 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 	Packet arpWithVlan(&rawPacket);
 
-	VlanLayer* pFirstVlanLayer = NULL;
-	VlanLayer* pSecondVlanLayer = NULL;
-	PTF_ASSERT((pFirstVlanLayer = arpWithVlan.getLayerOfType<VlanLayer>()) != NULL, "Couldn't get first vlan layer from packet");
-	PTF_ASSERT(pFirstVlanLayer->getVlanID() == 666, "first vlan ID != 666, it's 0x%04X", pFirstVlanLayer->getVlanID());
-	PTF_ASSERT(pFirstVlanLayer->getCFI() == 1, "first vlan CFI != 1");
-	PTF_ASSERT(pFirstVlanLayer->getPriority() == 5, "first vlan priority != 5");
-	PTF_ASSERT((pSecondVlanLayer = arpWithVlan.getNextLayerOfType<VlanLayer>(pFirstVlanLayer)) != NULL, "Couldn't get second vlan layer from packet");
-	PTF_ASSERT(pSecondVlanLayer->getVlanID() == 200, "second vlan ID != 200");
-	PTF_ASSERT(pSecondVlanLayer->getCFI() == 0, "second vlan CFI != 0");
-	PTF_ASSERT(pSecondVlanLayer->getPriority() == 2, "second vlan priority != 2");
+	VlanLayer* firstVlanLayerPtr = NULL;
+	VlanLayer* secondVlanLayerPtr = NULL;
+	PTF_ASSERT((firstVlanLayerPtr = arpWithVlan.getLayerOfType<VlanLayer>()) != NULL, "Couldn't get first vlan layer from packet");
+	PTF_ASSERT(firstVlanLayerPtr->getVlanID() == 666, "first vlan ID != 666, it's 0x%04X", firstVlanLayerPtr->getVlanID());
+	PTF_ASSERT(firstVlanLayerPtr->getCFI() == 1, "first vlan CFI != 1");
+	PTF_ASSERT(firstVlanLayerPtr->getPriority() == 5, "first vlan priority != 5");
+	PTF_ASSERT((secondVlanLayerPtr = arpWithVlan.getNextLayerOfType<VlanLayer>(firstVlanLayerPtr)) != NULL, "Couldn't get second vlan layer from packet");
+	PTF_ASSERT(secondVlanLayerPtr->getVlanID() == 200, "second vlan ID != 200");
+	PTF_ASSERT(secondVlanLayerPtr->getCFI() == 0, "second vlan CFI != 0");
+	PTF_ASSERT(secondVlanLayerPtr->getPriority() == 2, "second vlan priority != 2");
 
 	Packet arpWithVlanNew(1);
 	MacAddress macSrc("ca:03:0d:b4:00:1c");
@@ -305,8 +311,9 @@ PTF_TEST_CASE(VlanParseAndCreation)
 
 	PTF_ASSERT(bufferLength == arpWithVlanNew.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", arpWithVlanNew.getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(arpWithVlanNew.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+} // VlanParseAndCreation
 
-}
+
 
 PTF_TEST_CASE(Ipv4PacketCreation)
 {
@@ -346,60 +353,73 @@ PTF_TEST_CASE(Ipv4PacketCreation)
 	PTF_ASSERT(ip4Layer.getDstIpAddress() == ipDst, "IPv4 Layer dst IP isn't equal to inserted dst IP");
 	PTF_ASSERT(ipHeader->ipVersion == 4, "IPv4 Layer version != 4, Actual: %d", ipHeader->ipVersion);
 	PTF_ASSERT(ipHeader->internetHeaderLength == 5, "IPv4 Layer header length != 5, Actual: %d", ipHeader->internetHeaderLength);
-	PTF_ASSERT(ipHeader->totalLength == htons(30), "IPv4 Layer total length != 30");
+	PTF_ASSERT(ipHeader->totalLength == htobe16(30), "IPv4 Layer total length != 30");
 	PTF_ASSERT(ipHeader->protocol == PACKETPP_IPPROTO_TCP, "IPv4 Layer protocol isn't PACKETPP_IPPROTO_TCP");
-	PTF_ASSERT(ipHeader->headerChecksum == htons(0x90b1), "IPv4 Layer header checksum is wrong. Expected: 0x%4X, Actual: 0x%4X", 0x90b1, ipHeader->headerChecksum);
+	PTF_ASSERT(ipHeader->headerChecksum == htobe16(0x90b1), "IPv4 Layer header checksum is wrong. Expected: 0x%4X, Actual: 0x%4X", 0x90b1, ipHeader->headerChecksum);
+} // Ipv4PacketCreation
 
-}
+
 
 PTF_TEST_CASE(Ipv4PacketParsing)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/IcmpPacket.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file IcmpPacket.dat");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 
 	Packet ip4Packet(&rawPacket);
-	PTF_ASSERT(ip4Packet.isPacketOfType(Ethernet), "Packet is not of type Ethernet");
-	PTF_ASSERT(ip4Packet.getLayerOfType<EthLayer>() != NULL, "Ethernet layer doesn't exist");
-	PTF_ASSERT(ip4Packet.isPacketOfType(IPv4), "Packet is not of type IPv4");
-	PTF_ASSERT(ip4Packet.getLayerOfType<IPv4Layer>() != NULL, "IPv4 layer doesn't exist");
+	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(Ethernet));
+	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<EthLayer>());
+	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(IPv4));
+	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<IPv4Layer>());
 
 	EthLayer* ethLayer = ip4Packet.getLayerOfType<EthLayer>();
-	PTF_ASSERT(ntohs(ethLayer->getEthHeader()->etherType) == PCPP_ETHERTYPE_IP, "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
+	PTF_ASSERT(be16toh(ethLayer->getEthHeader()->etherType) == PCPP_ETHERTYPE_IP, "Packet ether type isn't equal to PCPP_ETHERTYPE_IP");
 
 	IPv4Layer* ipv4Layer = ip4Packet.getLayerOfType<IPv4Layer>();
 	IPv4Address ip4addr1(string("10.0.0.4"));
 	IPv4Address ip4addr2(string("1.1.1.1"));
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->protocol == 1, "Protocol read from packet isnt ICMP (=1). Protocol is: %d", ipv4Layer->getIPv4Header()->protocol);
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->ipVersion == 4, "IP version isn't 4. Version is: %d", ipv4Layer->getIPv4Header()->ipVersion);
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->ipSrc == ip4addr1.toInt(), "incorrect source address");
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->ipDst == ip4addr2.toInt(), "incorrect dest address");
-	PTF_ASSERT(ipv4Layer->getFirstOption().isNull() == true, "Managed to get the first IPv4 option although packet doesn't contain any options");
-	PTF_ASSERT(ipv4Layer->getOption(IPV4OPT_CommercialSecurity).isNull() == true, "Managed to get an IPv4 option by type although packet doesn't contain any options");
-	PTF_ASSERT(ipv4Layer->getOptionCount() == 0, "IPv4 option count isn't 0");
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->protocol, 1, u8);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipVersion, 4, u8);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toInt(), u32);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ip4addr2.toInt(), u32);
+	PTF_ASSERT_TRUE(ipv4Layer->getFirstOption().isNull());
+	PTF_ASSERT_TRUE(ipv4Layer->getOption(IPV4OPT_CommercialSecurity).isNull());
+	PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 0, size);
 
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IPv4-TSO.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IPv4-TSO.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
 
 	Packet ip4TSO(&rawPacket2);
 
 	ipv4Layer = ip4TSO.getLayerOfType<IPv4Layer>();
-	PTF_ASSERT(ipv4Layer != NULL, "IPv4 TSO: cannot get IPv4 layer");
-	PTF_ASSERT(ipv4Layer->getHeaderLen() == 20, "IPv4 TSO: header len is not 20");
-	PTF_ASSERT(ipv4Layer->getIPv4Header()->totalLength == 0 ,"IPv4 TSO: total length is not 0, it's %d", ipv4Layer->getIPv4Header()->totalLength);
-	PTF_ASSERT(ipv4Layer->getDataLen() == 60, "IPv4 TSO: data len is not 60");
-	PTF_ASSERT(ipv4Layer->getNextLayer() != NULL, "IPv4 TSO: next layer is NULL");
-	PTF_ASSERT(ipv4Layer->getNextLayer()->getProtocol() == ICMP, "IPv4 TSO: next layer type isn't ICMP");
+	PTF_ASSERT_NOT_NULL(ipv4Layer);
+	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 20, size);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->totalLength, 0, u16);
+	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 60, size);
+	PTF_ASSERT_NOT_NULL(ipv4Layer->getNextLayer());
+	PTF_ASSERT_EQUAL(ipv4Layer->getNextLayer()->getProtocol(), ICMP, enum);
 
-}
+
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/IPv4-bad.dat", buffer3Length);
+	PTF_ASSERT_NOT_NULL(buffer3);
+
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	Packet bogusPkt(&rawPacket3, IPv4);
+
+	ipv4Layer = bogusPkt.getLayerOfType<IPv4Layer>();
+	PTF_ASSERT_NULL(ipv4Layer);
+} // Ipv4PacketParsing
+
+
 
 PTF_TEST_CASE(Ipv4FragmentationTest)
 {
@@ -452,8 +472,9 @@ PTF_TEST_CASE(Ipv4FragmentationTest)
 	PTF_ASSERT(ipLayer->getFragmentOffset() == 2960, "Frag3 fragment offset != 2960");
 	PTF_ASSERT(ipLayer->getFragmentFlags() == 0, "Frag3 mistakenly contains flags, 0x%X", ipLayer->getFragmentFlags());
 	PTF_ASSERT(ipLayer->getNextLayer() != NULL && ipLayer->getNextLayer()->getProtocol() == pcpp::GenericPayload, "Frag3 next protocol is not generic payload");
+} // Ipv4FragmentationTest
 
-}
+
 
 PTF_TEST_CASE(Ipv4OptionsParsingTest)
 {
@@ -513,7 +534,7 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_CommercialSecurity, "ipOpt1 first option isn't commercial-security");
 	PTF_ASSERT(opt.getDataSize() == 20, "ipOpt1 first option data size isn't 20");
 	PTF_ASSERT(opt.getTotalSize() == 22, "ipOpt1 first option total size isn't 22");
-	PTF_ASSERT(opt.getValueAs<uint32_t>() == htonl(2), "ipOpt1 first int value isn't 2");
+	PTF_ASSERT(opt.getValueAs<uint32_t>() == htobe32(2), "ipOpt1 first int value isn't 2");
 	PTF_ASSERT(opt.getValueAs<uint8_t>(4) == 2, "ipOpt1 value in offset 4 isn't 2");
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT(opt.isNull() == false, "ipOpt1 second option is NULL");
@@ -541,7 +562,7 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 	PTF_ASSERT(tsValue.type == IPv4TimestampOptionValue::TimestampOnly, "ipOpt2 ts type isn't TimestampOnly");
 	PTF_ASSERT(tsValue.timestamps.size() == 1, "ipOpt2 ts value contains more than 1 ts");
 	PTF_ASSERT(tsValue.ipAddresses.size() == 0, "ipOpt2 ts value contains more than 0 IPs");
-	PTF_ASSERT(tsValue.timestamps.at(0) == htonl(82524601), "ipOpt2 ts value first ts isn't 82524601");
+	PTF_ASSERT(tsValue.timestamps.at(0) == htobe32(82524601), "ipOpt2 ts value first ts isn't 82524601");
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT(opt.isNull() == true, "ipOpt2 second option isn't NULL");
 
@@ -589,8 +610,8 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 	PTF_ASSERT(tsValue.type == IPv4TimestampOptionValue::TimestampAndIP, "ipOpt5 ts type isn't TimestampAndIP");
 	PTF_ASSERT(tsValue.timestamps.size() == 3, "ipOpt5 ts value doesn't contain 3 ts");
 	PTF_ASSERT(tsValue.ipAddresses.size() == 3, "ipOpt5 ts value deosn't contain 3 IPs");
-	PTF_ASSERT(tsValue.timestamps.at(0) == htonl(70037668), "ipOpt5 ts value first ts isn't 70037668");
-	PTF_ASSERT(tsValue.timestamps.at(2) == htonl(77233718), "ipOpt5 ts value third ts isn't 77233718");
+	PTF_ASSERT(tsValue.timestamps.at(0) == htobe32(70037668), "ipOpt5 ts value first ts isn't 70037668");
+	PTF_ASSERT(tsValue.timestamps.at(2) == htobe32(77233718), "ipOpt5 ts value third ts isn't 77233718");
 	PTF_ASSERT(tsValue.ipAddresses.at(0) == IPv4Address(std::string("10.0.0.6")), "ipOpt5 ts value first IP isn't 10.0.0.6");
 	PTF_ASSERT(tsValue.ipAddresses.at(1) == IPv4Address(std::string("10.0.0.138")), "ipOpt5 ts value second IP isn't 10.0.0.138");
 	opt = ipLayer->getNextOption(opt);
@@ -636,8 +657,9 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 	PTF_ASSERT(opt2 == opt, "ipOpt7 option retrieved by type and by getNextOptionData aren't the same pointer");
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT(opt.isNull() == true, "ipOpt7 third option isn't NULL");
+} // Ipv4OptionsParsingTest
 
-}
+
 
 PTF_TEST_CASE(Ipv4OptionsEditTest)
 {
@@ -779,7 +801,7 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	tsOption = optData.getTimestampOptionValue();
 	PTF_ASSERT(tsOption.type == IPv4TimestampOptionValue::TimestampAndIP, "Packet 5: timestamp data type isn't TimestampAndIP");
 	PTF_ASSERT(tsOption.timestamps.size() == 3, "Packet 5: number of timestamps isn't 3");
-	PTF_ASSERT(tsOption.timestamps.at(1) == htonl(77233718), "Packet 5: timestamps[1] isn't 77233718");
+	PTF_ASSERT(tsOption.timestamps.at(1) == htobe32(77233718), "Packet 5: timestamps[1] isn't 77233718");
 	PTF_ASSERT(tsOption.ipAddresses.size() == 3, "Packet 5: number of IP addresses isn't 3");
 	PTF_ASSERT(tsOption.ipAddresses.at(2) == IPv4Address(std::string("10.0.0.138")), "Packet 5: IP[2] isn't 10.0.0.138");
 	ipOpt5.computeCalculateFields();
@@ -858,8 +880,9 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	delete [] buffer55;
 	delete [] buffer66;
 	delete [] buffer77;
+} // Ipv4OptionsEditTest
 
-}
+
 
 PTF_TEST_CASE(Ipv4UdpChecksum)
 {
@@ -870,20 +893,22 @@ PTF_TEST_CASE(Ipv4UdpChecksum)
 		string fileName = strStream.str();
 		int bufferLength = 0;
 		uint8_t* buffer = readFileIntoBuffer(fileName.c_str(), bufferLength);
-		PTF_ASSERT(!(buffer == NULL), "cannot read file '%s'", fileName.c_str());
+		PTF_ASSERT_NOT_NULL(buffer);
 
 		timeval time;
 		gettimeofday(&time, NULL);
 		RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 
 		Packet udpPacket(&rawPacket);
-		UdpLayer* udpLayer = NULL;
-		PTF_ASSERT((udpLayer = udpPacket.getLayerOfType<UdpLayer>()) != NULL, "UDP layer doesn't exist");
+		UdpLayer* udpLayer = udpPacket.getLayerOfType<UdpLayer>();
+		PTF_ASSERT_NOT_NULL(udpLayer);
 		uint16_t packetChecksum = udpLayer->getUdpHeader()->headerChecksum;
 		udpLayer->computeCalculateFields();
-		PTF_ASSERT(udpLayer->getUdpHeader()->headerChecksum == packetChecksum, "Calculated checksum (0x%4X) != original checksum (0x%4X)", udpLayer->getUdpHeader()->headerChecksum, packetChecksum);
+		PTF_ASSERT_EQUAL(udpLayer->getUdpHeader()->headerChecksum, packetChecksum, hex);
 	}
-}
+} // Ipv4UdpChecksum
+
+
 
 PTF_TEST_CASE(Ipv6UdpPacketParseAndCreate)
 {
@@ -908,10 +933,10 @@ PTF_TEST_CASE(Ipv6UdpPacketParseAndCreate)
 	PTF_ASSERT(ipv6Layer->getDstIpAddress() == dstIP, "incorrect dest address");
 	UdpLayer* pUdpLayer = NULL;
 	PTF_ASSERT((pUdpLayer = ip6UdpPacket.getLayerOfType<UdpLayer>()) != NULL, "UDP layer doesn't exist");
-	PTF_ASSERT(pUdpLayer->getUdpHeader()->portDst == htons(1900), "UDP dest port != 1900");
-	PTF_ASSERT(pUdpLayer->getUdpHeader()->portSrc == htons(63628), "UDP dest port != 63628");
-	PTF_ASSERT(pUdpLayer->getUdpHeader()->length == htons(154), "UDP dest port != 154");
-	PTF_ASSERT(pUdpLayer->getUdpHeader()->headerChecksum == htons(0x5fea), "UDP dest port != 0x5fea");
+	PTF_ASSERT(pUdpLayer->getUdpHeader()->portDst == htobe16(1900), "UDP dest port != 1900");
+	PTF_ASSERT(pUdpLayer->getUdpHeader()->portSrc == htobe16(63628), "UDP dest port != 63628");
+	PTF_ASSERT(pUdpLayer->getUdpHeader()->length == htobe16(154), "UDP dest port != 154");
+	PTF_ASSERT(pUdpLayer->getUdpHeader()->headerChecksum == htobe16(0x5fea), "UDP dest port != 0x5fea");
 
 	Packet ip6UdpPacketNew(1);
 	EthLayer ethLayer(MacAddress("6c:f0:49:b2:de:6e"), MacAddress ("33:33:00:00:00:0c"));
@@ -938,8 +963,9 @@ PTF_TEST_CASE(Ipv6UdpPacketParseAndCreate)
 	PTF_ASSERT(memcmp(ip6UdpPacketNew.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
 
 	delete[] payloadData;
+} // Ipv6UdpPacketParseAndCreate
 
-}
+
 
 PTF_TEST_CASE(Ipv6FragmentationTest)
 {
@@ -978,7 +1004,7 @@ PTF_TEST_CASE(Ipv6FragmentationTest)
 	PTF_ASSERT(fragHeader->isFirstFragment() == true, "Frag1 isn't first fragment");
 	PTF_ASSERT(fragHeader->isLastFragment() == false, "Frag1 is marked as last fragment");
 	PTF_ASSERT(fragHeader->getFragmentOffset() == 0, "Frag1 offset isn't 0");
-	PTF_ASSERT(ntohl(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag1 frag id isn't as expected");
+	PTF_ASSERT(be32toh(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag1 frag id isn't as expected");
 	PTF_ASSERT(fragHeader->getFragHeader()->nextHeader == PACKETPP_IPPROTO_UDP, "Frag1 next header isn't UDP, it's %d", fragHeader->getFragHeader()->nextHeader);
 
 	ipv6Layer = frag2.getLayerOfType<IPv6Layer>();
@@ -988,7 +1014,7 @@ PTF_TEST_CASE(Ipv6FragmentationTest)
 	PTF_ASSERT(fragHeader->isFirstFragment() == false, "Frag2 is marked as first fragment");
 	PTF_ASSERT(fragHeader->isLastFragment() == false, "Frag2 is marked as last fragment");
 	PTF_ASSERT(fragHeader->getFragmentOffset() == 1448, "Frag2 offset isn't 1448");
-	PTF_ASSERT(ntohl(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag2 frag id isn't as expected");
+	PTF_ASSERT(be32toh(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag2 frag id isn't as expected");
 	PTF_ASSERT(fragHeader->getFragHeader()->nextHeader == PACKETPP_IPPROTO_UDP, "Frag2 next header isn't UDP");
 
 	ipv6Layer = frag3.getLayerOfType<IPv6Layer>();
@@ -998,7 +1024,7 @@ PTF_TEST_CASE(Ipv6FragmentationTest)
 	PTF_ASSERT(fragHeader->isFirstFragment() == false, "Frag3 is marked as first fragment");
 	PTF_ASSERT(fragHeader->isLastFragment() == false, "Frag3 is marked as last fragment");
 	PTF_ASSERT(fragHeader->getFragmentOffset() == 2896, "Frag3 offset isn't 2896");
-	PTF_ASSERT(ntohl(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag3 frag id isn't as expected");
+	PTF_ASSERT(be32toh(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag3 frag id isn't as expected");
 	PTF_ASSERT(fragHeader->getFragHeader()->nextHeader == PACKETPP_IPPROTO_UDP, "Frag3 next header isn't UDP");
 
 	ipv6Layer = frag4.getLayerOfType<IPv6Layer>();
@@ -1009,7 +1035,7 @@ PTF_TEST_CASE(Ipv6FragmentationTest)
 	PTF_ASSERT(fragHeader->isFirstFragment() == false, "Frag4 is marked as first fragment");
 	PTF_ASSERT(fragHeader->isLastFragment() == true, "Frag4 isn't last fragment");
 	PTF_ASSERT(fragHeader->getFragmentOffset() == 4344, "Frag4 offset isn't 4344");
-	PTF_ASSERT(ntohl(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag4 frag id isn't as expected");
+	PTF_ASSERT(be32toh(fragHeader->getFragHeader()->id) == 0xf88eb466, "Frag4 frag id isn't as expected");
 	PTF_ASSERT(fragHeader->getFragHeader()->nextHeader == PACKETPP_IPPROTO_UDP, "Frag4 next header isn't UDP");
 
 	EthLayer newEthLayer(*frag1.getLayerOfType<EthLayer>());
@@ -1034,8 +1060,9 @@ PTF_TEST_CASE(Ipv6FragmentationTest)
 
 	PTF_ASSERT(frag4.getRawPacket()->getRawDataLen() == newFrag.getRawPacket()->getRawDataLen(), "Generated fragment len (%d) is different than frag4 len (%d)", newFrag.getRawPacket()->getRawDataLen(), frag4.getRawPacket()->getRawDataLen());
 	PTF_ASSERT(memcmp(frag4.getRawPacket()->getRawData(), newFrag.getRawPacket()->getRawData(), frag4.getRawPacket()->getRawDataLen()) == 0, "Raw packet data is different than expected");
+} // Ipv6FragmentationTest
 
-}
+
 
 PTF_TEST_CASE(Ipv6ExtensionsTest)
 {
@@ -1168,8 +1195,8 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	IPv6AuthenticationHeader* authHdrExt = ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>();
 	PTF_ASSERT(authHdrExt != NULL, "AH ext packet: Cannot find AH extension");
 	PTF_ASSERT(authHdrExt->getExtensionType() == IPv6Extension::IPv6AuthenticationHdr, "AH ext packet: AH ext isn't of type IPv6Extension::IPv6AuthenticationHdr");
-	PTF_ASSERT(authHdrExt->getAuthHeader()->securityParametersIndex == htonl(0x100), "AH ext packet: SPI isn't 0x100");
-	PTF_ASSERT(authHdrExt->getAuthHeader()->sequenceNumber == htonl(32), "AH ext packet: sequence isn't 32");
+	PTF_ASSERT(authHdrExt->getAuthHeader()->securityParametersIndex == htobe32(0x100), "AH ext packet: SPI isn't 0x100");
+	PTF_ASSERT(authHdrExt->getAuthHeader()->sequenceNumber == htobe32(32), "AH ext packet: sequence isn't 32");
 	PTF_ASSERT(authHdrExt->getIntegrityCheckValueLength() == 12, "AH ext packet: ICV len isn't 12");
 	uint8_t expectedICV[12] = { 0x35, 0x48, 0x21, 0x48, 0xb2, 0x43, 0x5a, 0x23, 0xdc, 0xdd, 0x55, 0x36 };
 	PTF_ASSERT(memcmp(expectedICV, authHdrExt->getIntegrityCheckValue(), authHdrExt->getIntegrityCheckValueLength()) == 0, "AH ext packet: ICV value isn't as expected");
@@ -1179,7 +1206,7 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 	ipv6Layer = ipv6MultipleOptions.getLayerOfType<IPv6Layer>();
 	PTF_ASSERT(ipv6Layer->getExtensionCount() == 4, "Multiple ext packet: Num of extensions isn't 4");
 	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>() != NULL, "Multiple ext packet: Cannot find AH extension");
-	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>()->getAuthHeader()->securityParametersIndex = ntohl(0x100),
+	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6AuthenticationHeader>()->getAuthHeader()->securityParametersIndex = be32toh(0x100),
 			"Multiple ext packet: AH ext SPI isn't 0x100");
 	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>() != NULL, "Multiple ext packet: Cannot find Dest extension");
 	PTF_ASSERT(ipv6Layer->getExtensionOfType<IPv6DestinationHeader>()->getFirstOption().getType() == 11,
@@ -1317,96 +1344,101 @@ PTF_TEST_CASE(Ipv6ExtensionsTest)
 
 	PTF_ASSERT(ipv6MultipleOptions.getRawPacket()->getRawDataLen() == newPacket5.getRawPacket()->getRawDataLen(), "IPv6 multiple ext: Generated packet len (%d) is different than original packet len (%d)", newPacket5.getRawPacket()->getRawDataLen(), ipv6MultipleOptions.getRawPacket()->getRawDataLen());
 	PTF_ASSERT(memcmp(ipv6MultipleOptions.getRawPacket()->getRawData(), newPacket5.getRawPacket()->getRawData(), ipv6MultipleOptions.getRawPacket()->getRawDataLen()) == 0, "IPv6 multiple ext: Raw packet data is different than expected");
+} // Ipv6ExtensionsTest
 
-}
+
 
 PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TcpPacketNoOptions.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 
 	Packet tcpPaketNoOptions(&rawPacket);
-	PTF_ASSERT(tcpPaketNoOptions.isPacketOfType(IPv4), "Packet isn't of type IPv4");
-	PTF_ASSERT(tcpPaketNoOptions.isPacketOfType(TCP), "Packet isn't of type TCP");
-	TcpLayer* tcpLayer = NULL;
-	PTF_ASSERT((tcpLayer = tcpPaketNoOptions.getLayerOfType<TcpLayer>()) != NULL, "TCP layer is NULL");
+	PTF_ASSERT_TRUE(tcpPaketNoOptions.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(tcpPaketNoOptions.isPacketOfType(TCP));
 
-	PTF_ASSERT(tcpLayer->getTcpHeader()->portDst == htons(60388), "Dest port != 60388, it's %d", ntohs(tcpLayer->getTcpHeader()->portDst));
-	PTF_ASSERT(tcpLayer->getTcpHeader()->portSrc == htons(80), "Src port != 80, it's %d", ntohs(tcpLayer->getTcpHeader()->portSrc));
-	PTF_ASSERT(tcpLayer->getTcpHeader()->sequenceNumber == htonl(0xbeab364a), "Sequence number != 0xbeab364a, it's 0x%X", (int)ntohl(tcpLayer->getTcpHeader()->sequenceNumber));
-	PTF_ASSERT(tcpLayer->getTcpHeader()->ackNumber == htonl(0xf9ffb58e), "Ack number != 0xf9ffb58e, it's 0x%X", (int)ntohl(tcpLayer->getTcpHeader()->ackNumber));
-	PTF_ASSERT(tcpLayer->getTcpHeader()->dataOffset == 5, "Header length != 5 (20 bytes), it's %d", tcpLayer->getTcpHeader()->dataOffset);
-	PTF_ASSERT(tcpLayer->getTcpHeader()->urgentPointer == 0, "Urgent pointer != 0, it's %d", tcpLayer->getTcpHeader()->urgentPointer);
-	PTF_ASSERT(tcpLayer->getTcpHeader()->headerChecksum == htons(0x4c03), "Header checksum != 0x4c03, it's 0x%4X", ntohs(tcpLayer->getTcpHeader()->headerChecksum));
+	TcpLayer* tcpLayer = tcpPaketNoOptions.getLayerOfType<TcpLayer>();
+	PTF_ASSERT_NOT_NULL(tcpLayer);
+
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portDst, htobe16(60388), u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portSrc, htobe16(80), u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->sequenceNumber, htobe32(0xbeab364a), u32);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackNumber, htobe32(0xf9ffb58e), u32);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->dataOffset, 5, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->urgentPointer, 0, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->headerChecksum, htobe16(0x4c03), u16);
 
 	// Flags
-	PTF_ASSERT(tcpLayer->getTcpHeader()->ackFlag == 1, "ACK Flag != 1");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->pshFlag == 1, "PSH Flag != 1");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->urgFlag == 0, "URG Flag != 0");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->cwrFlag == 0, "CWE Flag != 0");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->synFlag == 0, "SYN Flag != 0");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->finFlag == 0, "FIN Flag != 0");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->rstFlag == 0, "RST Flag != 0");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->eceFlag == 0, "ECE Flag != 0");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->reserved == 0, "Reserved != 0");
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackFlag, 1, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->pshFlag, 1, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->urgFlag, 0, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->cwrFlag, 0, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->synFlag, 0, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->finFlag, 0, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->rstFlag, 0, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->eceFlag, 0, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->reserved, 0, u16);
 
 	// TCP options
-	PTF_ASSERT(tcpLayer->getTcpOptionCount() == 0, "TCP options count isn't 0, it's %d", (int)tcpLayer->getTcpOptionCount());
-	PTF_ASSERT(tcpLayer->getTcpOption(PCPP_TCPOPT_NOP).isNull(), "TCP option NOP isn't NULL");
-	PTF_ASSERT(tcpLayer->getTcpOption(PCPP_TCPOPT_TIMESTAMP).isNull(), "TCP option Timestamp isn't NULL");
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpOptionCount(), 0, size);
+	PTF_ASSERT_TRUE(tcpLayer->getTcpOption(PCPP_TCPOPT_NOP).isNull());
+	PTF_ASSERT_TRUE(tcpLayer->getTcpOption(PCPP_TCPOPT_TIMESTAMP).isNull());
 
 	Layer* afterTcpLayer = tcpLayer->getNextLayer();
-	PTF_ASSERT(afterTcpLayer != NULL, "Layer after TCP is NULL");
-	PTF_ASSERT(afterTcpLayer->getProtocol() == HTTPResponse, "Protocol layer after TCP isn't HTTPResponse");
+	PTF_ASSERT_NOT_NULL(afterTcpLayer);
+	PTF_ASSERT_EQUAL(afterTcpLayer->getProtocol(), HTTPResponse, enum);
+} // TcpPacketNoOptionsParsing
 
-}
+
 
 PTF_TEST_CASE(TcpPacketWithOptionsParsing)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TcpPacketWithOptions.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
 	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
 
 	Packet tcpPaketWithOptions(&rawPacket);
-	PTF_ASSERT(tcpPaketWithOptions.isPacketOfType(IPv4), "Packet isn't of type IPv4");
-	PTF_ASSERT(tcpPaketWithOptions.isPacketOfType(TCP), "Packet isn't of type TCP");
-	TcpLayer* tcpLayer = NULL;
-	PTF_ASSERT((tcpLayer = tcpPaketWithOptions.getLayerOfType<TcpLayer>()) != NULL, "TCP layer is NULL");
+	PTF_ASSERT_TRUE(tcpPaketWithOptions.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(tcpPaketWithOptions.isPacketOfType(TCP));
 
-	PTF_ASSERT(tcpLayer->getTcpHeader()->portSrc == htons(44147), "Src port != 44147, it's %d", ntohs(tcpLayer->getTcpHeader()->portSrc));
-	PTF_ASSERT(tcpLayer->getTcpHeader()->portDst == htons(80), "Dest port != 80, it's %d", ntohs(tcpLayer->getTcpHeader()->portDst));
-	PTF_ASSERT(tcpLayer->getTcpHeader()->ackFlag == 1, "ACK Flag != 1");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->pshFlag == 1, "PSH Flag != 1");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->synFlag == 0, "SYN Flag != 0");
-	PTF_ASSERT(tcpLayer->getTcpHeader()->urgentPointer == 0, "Urgent pointer != 0, it's %d", tcpLayer->getTcpHeader()->urgentPointer);
+	TcpLayer* tcpLayer = tcpPaketWithOptions.getLayerOfType<TcpLayer>();
+	PTF_ASSERT_NOT_NULL(tcpLayer);
+
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portSrc, htobe16(44147), u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portDst, htobe16(80), u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackFlag, 1, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->pshFlag, 1, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->synFlag, 0, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->urgentPointer, 0, u16);
 
 	// TCP options
-	PTF_ASSERT(tcpLayer->getTcpOptionCount() == 3, "TCP options count != 3, it's %d", (int)tcpLayer->getTcpOptionCount());
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpOptionCount(), 3, size);
 	TcpOption timestampOptionData = tcpLayer->getTcpOption(PCPP_TCPOPT_TIMESTAMP);
-	PTF_ASSERT(!timestampOptionData.isNull(), "TCP option Timestamp is NULL");
-	PTF_ASSERT(!tcpLayer->getTcpOption(PCPP_TCPOPT_NOP).isNull(), "TCP option NOP is NULL");
-	PTF_ASSERT(timestampOptionData.getTotalSize() == 10, "TCP option Timestamp length != 10, it's %d", (int)timestampOptionData.getTotalSize());
+	PTF_ASSERT_TRUE(!timestampOptionData.isNull());
+	PTF_ASSERT_TRUE(!tcpLayer->getTcpOption(PCPP_TCPOPT_NOP).isNull());
+	PTF_ASSERT_EQUAL(timestampOptionData.getTotalSize(), 10, size);
 	uint32_t tsValue = timestampOptionData.getValueAs<uint32_t>();
 	uint32_t tsEchoReply = timestampOptionData.getValueAs<uint32_t>(4);
-	PTF_ASSERT(tsValue == htonl(195102), "TCP option Timestamp option: timestamp value != 195102, it's %d", (int)ntohl(tsValue));
-	PTF_ASSERT(tsEchoReply == htonl(3555729271UL), "TCP option Timestamp option: echo reply value != 3555729271, it's %d", (int)ntohl(tsEchoReply));
+	PTF_ASSERT_EQUAL(tsValue, htobe32(195102), u32);
+	PTF_ASSERT_EQUAL(tsEchoReply, htobe32(3555729271UL), u32);
+} // TcpPacketWithOptionsParsing
 
-}
+
 
 PTF_TEST_CASE(TcpPacketWithOptionsParsing2)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TcpPacketWithOptions3.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -1414,45 +1446,65 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2)
 
 	Packet tcpPaketWithOptions(&rawPacket);
 
-	TcpLayer* tcpLayer = NULL;
-	PTF_ASSERT((tcpLayer = tcpPaketWithOptions.getLayerOfType<TcpLayer>()) != NULL, "TCP layer is NULL");
+	TcpLayer* tcpLayer = tcpPaketWithOptions.getLayerOfType<TcpLayer>();
+	PTF_ASSERT_NOT_NULL(tcpLayer);
 
-	PTF_ASSERT(tcpLayer->getTcpOptionCount() == 5, "TCP options count != 5, it's %d", (int)tcpLayer->getTcpOptionCount());
+	PTF_ASSERT_EQUAL(tcpLayer->getTcpOptionCount(), 5, size);
 	TcpOption mssOption = tcpLayer->getTcpOption(TCPOPT_MSS);
 	TcpOption sackParmOption = tcpLayer->getTcpOption(TCPOPT_SACK_PERM);
 	TcpOption windowScaleOption = tcpLayer->getTcpOption(PCPP_TCPOPT_WINDOW);
-	PTF_ASSERT(mssOption.isNotNull(), "TCP option MSS is NULL");
-	PTF_ASSERT(sackParmOption.isNotNull(), "TCP option SACK perm is NULL");
-	PTF_ASSERT(windowScaleOption.isNotNull(), "TCP option window scale is NULL");
+	PTF_ASSERT_TRUE(mssOption.isNotNull());
+	PTF_ASSERT_TRUE(sackParmOption.isNotNull());
+	PTF_ASSERT_TRUE(windowScaleOption.isNotNull());
 
-	PTF_ASSERT(mssOption.getTcpOptionType() == TCPOPT_MSS, "MSS option isn't of type TCPOPT_MSS");
-	PTF_ASSERT(sackParmOption.getTcpOptionType() == TCPOPT_SACK_PERM, "Sack perm option isn't of type TCPOPT_SACK_PERM");
-	PTF_ASSERT(windowScaleOption.getTcpOptionType() == PCPP_TCPOPT_WINDOW, "Window scale option isn't of type PCPP_TCPOPT_WINDOW");
+	PTF_ASSERT_EQUAL(mssOption.getTcpOptionType(), TCPOPT_MSS, enum);
+	PTF_ASSERT_EQUAL(sackParmOption.getTcpOptionType(), TCPOPT_SACK_PERM, enum);
+	PTF_ASSERT_EQUAL(windowScaleOption.getTcpOptionType(), PCPP_TCPOPT_WINDOW, enum);
 
-	PTF_ASSERT(mssOption.getTotalSize() == 4, "TCP option Timestamp length != 4, it's %d", (int)mssOption.getTotalSize());
-	PTF_ASSERT(sackParmOption.getTotalSize() == 2, "TCP option SACK perm length != 2, it's %d", (int)sackParmOption.getTotalSize());
-	PTF_ASSERT(windowScaleOption.getTotalSize() == 3, "TCP option window scale length != 3, it's %d", (int)mssOption.getTotalSize());
+	PTF_ASSERT_EQUAL(mssOption.getTotalSize(), 4, size);
+	PTF_ASSERT_EQUAL(sackParmOption.getTotalSize(), 2, size);
+	PTF_ASSERT_EQUAL(windowScaleOption.getTotalSize(), 3, size);
 
-	PTF_ASSERT(mssOption.getValueAs<uint16_t>() == htons(1460), "TCP option MSS option: value != 1460, it's %d", ntohs(mssOption.getValueAs<uint16_t>()));
-	PTF_ASSERT(windowScaleOption.getValueAs<uint8_t>() == 4, "TCP option window scale option: value != 4, it's %d", windowScaleOption.getValueAs<uint8_t>());
-	PTF_ASSERT(sackParmOption.getValueAs<uint32_t>() == 0, "TCP option sack perm option: value != 0, it's %d", sackParmOption.getValueAs<uint32_t>());
-	PTF_ASSERT(mssOption.getValueAs<uint32_t>() == 0, "Wrongly fetched MSS value as uint32_t");
-	PTF_ASSERT(mssOption.getValueAs<uint16_t>(1) == 0, "Wrongly fetched MSS value as uint16_t from offset 1");
+	PTF_ASSERT_EQUAL(mssOption.getValueAs<uint16_t>(), htobe16(1460), u16);
+	PTF_ASSERT_EQUAL(windowScaleOption.getValueAs<uint8_t>(), 4, u8);
+	PTF_ASSERT_EQUAL(sackParmOption.getValueAs<uint32_t>(), 0, u32);
+	PTF_ASSERT_EQUAL(mssOption.getValueAs<uint32_t>(), 0, u32);
+	PTF_ASSERT_EQUAL(mssOption.getValueAs<uint16_t>(1), 0, u16);
 
 	TcpOption curOpt = tcpLayer->getFirstTcpOption();
-	PTF_ASSERT(curOpt.isNotNull() && curOpt.getTcpOptionType() == TCPOPT_MSS, "First option isn't of type TCPOPT_MSS");
+	PTF_ASSERT_TRUE(curOpt.isNotNull() && curOpt.getTcpOptionType() == TCPOPT_MSS);
 	curOpt = tcpLayer->getNextTcpOption(curOpt);
-	PTF_ASSERT(curOpt.isNotNull() && curOpt.getTcpOptionType() == TCPOPT_SACK_PERM, "Second option isn't of type TCPOPT_SACK_PERM");
+	PTF_ASSERT_TRUE(curOpt.isNotNull() && curOpt.getTcpOptionType() == TCPOPT_SACK_PERM);
 	curOpt = tcpLayer->getNextTcpOption(curOpt);
-	PTF_ASSERT(curOpt.isNotNull() && curOpt.getTcpOptionType() == PCPP_TCPOPT_TIMESTAMP, "Third option isn't of type PCPP_TCPOPT_TIMESTAMP");
+	PTF_ASSERT_TRUE(curOpt.isNotNull() && curOpt.getTcpOptionType() == PCPP_TCPOPT_TIMESTAMP);
 	curOpt = tcpLayer->getNextTcpOption(curOpt);
-	PTF_ASSERT(curOpt.isNotNull() && curOpt.getTcpOptionType() == PCPP_TCPOPT_NOP, "Fourth option isn't of type PCPP_TCPOPT_NOP");
+	PTF_ASSERT_TRUE(curOpt.isNotNull() && curOpt.getTcpOptionType() == PCPP_TCPOPT_NOP);
 	curOpt = tcpLayer->getNextTcpOption(curOpt);
-	PTF_ASSERT(curOpt.isNotNull() && curOpt.getTcpOptionType() == PCPP_TCPOPT_WINDOW, "Fifth option isn't of type PCPP_TCPOPT_WINDOW");
+	PTF_ASSERT_TRUE(curOpt.isNotNull() && curOpt.getTcpOptionType() == PCPP_TCPOPT_WINDOW);
 	curOpt = tcpLayer->getNextTcpOption(curOpt);
-	PTF_ASSERT(curOpt.isNull(), "There is sixth TCP option");
+	PTF_ASSERT_TRUE(curOpt.isNull());
+} // TcpPacketWithOptionsParsing2
 
-}
+
+
+PTF_TEST_CASE(TcpMalformedPacketParsing)
+{
+	// malformed TCP packet
+	int bufferLength = 0;
+	uint8_t *buffer = readFileIntoBuffer("PacketExamples/tcp-malformed1.dat", bufferLength);
+	PTF_ASSERT_NOT_NULL(buffer);
+
+	timeval time;
+	gettimeofday(&time, NULL);
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	Packet badTcpPacket(&rawPacket);
+
+	PTF_ASSERT_NOT_NULL(badTcpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NULL(badTcpPacket.getLayerOfType<TcpLayer>());
+} // TcpMalformedPacketParsing
+
+
 
 PTF_TEST_CASE(TcpPacketCreation)
 {
@@ -1462,22 +1514,22 @@ PTF_TEST_CASE(TcpPacketCreation)
 	IPv4Address dstIP(string("10.0.0.6"));
 	IPv4Address srcIP(string("212.199.202.9"));
 	IPv4Layer ipLayer(srcIP, dstIP);
-	ipLayer.getIPv4Header()->ipId = htons(20300);
-	ipLayer.getIPv4Header()->fragmentOffset = htons(0x4000);
+	ipLayer.getIPv4Header()->ipId = htobe16(20300);
+	ipLayer.getIPv4Header()->fragmentOffset = htobe16(0x4000);
 	ipLayer.getIPv4Header()->timeToLive = 59;
 	TcpLayer tcpLayer((uint16_t)80, (uint16_t)44160);
-	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0xb829cb98);
-	tcpLayer.getTcpHeader()->ackNumber = htonl(0xe9771586);
+	tcpLayer.getTcpHeader()->sequenceNumber = htobe32(0xb829cb98);
+	tcpLayer.getTcpHeader()->ackNumber = htobe32(0xe9771586);
 	tcpLayer.getTcpHeader()->ackFlag = 1;
 	tcpLayer.getTcpHeader()->pshFlag = 1;
-	tcpLayer.getTcpHeader()->windowSize = htons(20178);
-	PTF_ASSERT(tcpLayer.addTcpOption(TcpOptionBuilder(TcpOptionBuilder::NOP)).isNotNull(), "Couldn't add 1st NOP option");
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 24, "Header len isn't 24 after 1st NOP addition")
-	PTF_ASSERT(tcpLayer.addTcpOption(TcpOptionBuilder(TcpOptionBuilder::NOP)).isNotNull(), "Couldn't add 2nd NOP option");
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 24, "Header len isn't 24 after 2nd NOP addition")
-	PTF_ASSERT(tcpLayer.addTcpOption(TcpOptionBuilder(PCPP_TCPOPT_TIMESTAMP, NULL, PCPP_TCPOLEN_TIMESTAMP-2)).isNotNull(), "Couldn't add timestamp option");
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 32, "Header len isn't 32 after timestamp addition")
-	PTF_ASSERT(tcpLayer.getTcpOptionCount() == 3, "TCP option count isn't 3");
+	tcpLayer.getTcpHeader()->windowSize = htobe16(20178);
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(TcpOptionBuilder(TcpOptionBuilder::NOP)).isNotNull());
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 24, size)
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(TcpOptionBuilder(TcpOptionBuilder::NOP)).isNotNull());
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 24, size)
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(TcpOptionBuilder(PCPP_TCPOPT_TIMESTAMP, NULL, PCPP_TCPOLEN_TIMESTAMP-2)).isNotNull());
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 32, size)
+	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 3, size);
 
 	uint8_t payloadData[9] = { 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82 };
 	PayloadLayer PayloadLayer(payloadData, 9, true);
@@ -1488,20 +1540,20 @@ PTF_TEST_CASE(TcpPacketCreation)
 	tcpPacket.addLayer(&tcpLayer);
 	tcpPacket.addLayer(&PayloadLayer);
 
-	uint32_t tsEchoReply = htonl(196757);
-	uint32_t tsValue = htonl(3555735960UL);
+	uint32_t tsEchoReply = htobe32(196757);
+	uint32_t tsValue = htobe32(3555735960UL);
 	TcpOption tsOption = tcpLayer.getTcpOption(PCPP_TCPOPT_TIMESTAMP);
-	PTF_ASSERT(tsOption.isNotNull(), "Couldn't get timestamp option");
+	PTF_ASSERT_TRUE(tsOption.isNotNull());
 	tsOption.setValue<uint32_t>(tsValue);
 	tsOption.setValue<uint32_t>(tsEchoReply, 4);
 
-	PTF_ASSERT(tcpLayer.getTcpOptionCount() == 3, "TCP option count (2nd check) isn't 3");
+	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 3, size);
 
 	tcpPacket.computeCalculateFields();
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TcpPacketWithOptions2.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 //	printf("\n\n\n");
 //	for(int i = 0; i<bufferLength; i++)
@@ -1516,11 +1568,12 @@ PTF_TEST_CASE(TcpPacketCreation)
 //	}
 //	printf("\n\n\n");
 
-	PTF_ASSERT(memcmp(tcpPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete [] buffer;
+} // TcpPacketCreation
 
-}
+
 
 PTF_TEST_CASE(TcpPacketCreation2)
 {
@@ -1530,35 +1583,35 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	IPv4Address dstIP(string("23.44.242.127"));
 	IPv4Address srcIP(string("10.0.0.6"));
 	IPv4Layer ipLayer(srcIP, dstIP);
-	ipLayer.getIPv4Header()->ipId = htons(1556);
+	ipLayer.getIPv4Header()->ipId = htobe16(1556);
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayer.getIPv4Header()->timeToLive = 64;
 	TcpLayer tcpLayer((uint16_t)60225, (uint16_t)80);
-	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x2d3904e0);
+	tcpLayer.getTcpHeader()->sequenceNumber = htobe32(0x2d3904e0);
 	tcpLayer.getTcpHeader()->ackNumber = 0;
 	tcpLayer.getTcpHeader()->synFlag = 1;
-	tcpLayer.getTcpHeader()->windowSize = htons(14600);
+	tcpLayer.getTcpHeader()->windowSize = htobe16(14600);
 
-	PTF_ASSERT(tcpLayer.addTcpOption(TcpOptionBuilder(TcpOptionBuilder::NOP)).isNotNull(), "Couldn't add NOP option");
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 24, "Header len isn't 24 after NOP addition");
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(TcpOptionBuilder(TcpOptionBuilder::NOP)).isNotNull());
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 24, size);
 
-	PTF_ASSERT(tcpLayer.addTcpOptionAfter(TcpOptionBuilder(TCPOPT_MSS, (uint16_t)1460)).isNotNull(), "Couldn't add MSS option");
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 28, "Header len isn't 28 after MSS addition")
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOptionAfter(TcpOptionBuilder(TCPOPT_MSS, (uint16_t)1460)).isNotNull());
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 28, size)
 
 	TcpOption tsOption = tcpLayer.addTcpOptionAfter(TcpOptionBuilder(PCPP_TCPOPT_TIMESTAMP, NULL, PCPP_TCPOLEN_TIMESTAMP-2), TCPOPT_MSS);
-	PTF_ASSERT(tsOption.isNotNull(), "Couldn't add timestamp option");
-	tsOption.setValue<uint32_t>(htonl(197364));
+	PTF_ASSERT_TRUE(tsOption.isNotNull());
+	tsOption.setValue<uint32_t>(htobe32(197364));
 	tsOption.setValue<uint32_t>(0, 4);
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 36, "Header len isn't 36 after timestamp addition")
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 36, size)
 
 	TcpOption winScaleOption = tcpLayer.addTcpOption(TcpOptionBuilder(PCPP_TCPOPT_WINDOW, (uint8_t)4));
-	PTF_ASSERT(winScaleOption.isNotNull(), "Couldn't add Window Scale option");
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 40, "Header len isn't 40 after Window scale addition");
+	PTF_ASSERT_TRUE(winScaleOption.isNotNull());
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 40, size);
 
-	PTF_ASSERT(tcpLayer.addTcpOptionAfter(TcpOptionBuilder(TCPOPT_SACK_PERM, NULL, 0), TCPOPT_MSS).isNotNull(), "Couldn't add SACK PERM option");
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 40, "Header len isn't 40 after SACK PERM addition")
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOptionAfter(TcpOptionBuilder(TCPOPT_SACK_PERM, NULL, 0), TCPOPT_MSS).isNotNull());
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 40, size)
 
-	PTF_ASSERT(tcpLayer.getTcpOptionCount() == 5, "TCP option count isn't 5");
+	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 5, size);
 
 	Packet tcpPacket(1);
 	tcpPacket.addLayer(&ethLayer);
@@ -1571,7 +1624,7 @@ PTF_TEST_CASE(TcpPacketCreation2)
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TcpPacketWithOptions3.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 //	printf("\n\n\n");
 //	for(int i = 0; i<bufferLength; i++)
@@ -1586,38 +1639,38 @@ PTF_TEST_CASE(TcpPacketCreation2)
 //	}
 //	printf("\n\n\n");
 
-	PTF_ASSERT(memcmp(tcpPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer, bufferLength);
 
 
 	TcpOption qsOption = tcpLayer.addTcpOptionAfter(TcpOptionBuilder(TCPOPT_QS, NULL, PCPP_TCPOLEN_QS), TCPOPT_MSS);
-	PTF_ASSERT(qsOption.isNotNull(), "Cannot add QS option");
-	PTF_ASSERT(qsOption.setValue(htonl(9999)), "Cannot set QS value of 9999");
-	PTF_ASSERT(tcpLayer.addTcpOption(TcpOptionBuilder(TCPOPT_SNACK, (uint32_t)htonl(1000))).isNotNull(), "Cannot add SNACK option");
-	PTF_ASSERT(tcpLayer.addTcpOptionAfter(TcpOptionBuilder(TcpOptionBuilder::NOP), PCPP_TCPOPT_TIMESTAMP).isNotNull(), "Cannot add 2nd NOP option");
+	PTF_ASSERT_TRUE(qsOption.isNotNull());
+	PTF_ASSERT_TRUE(qsOption.setValue(htobe32(9999)));
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(TcpOptionBuilder(TCPOPT_SNACK, (uint32_t)htobe32(1000))).isNotNull());
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOptionAfter(TcpOptionBuilder(TcpOptionBuilder::NOP), PCPP_TCPOPT_TIMESTAMP).isNotNull());
 
-	PTF_ASSERT(tcpLayer.getTcpOptionCount() == 8, "TCP option count isn't 8");
+	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 8, size);
 
-	PTF_ASSERT(tcpLayer.removeTcpOption(TCPOPT_QS) == true, "Cannot remove QS option");
-	PTF_ASSERT(tcpLayer.getTcpOptionCount() == 7, "TCP option count isn't 7");
-	PTF_ASSERT(tcpLayer.removeTcpOption(TCPOPT_SNACK) == true, "Cannot remove SNACK option");
-	PTF_ASSERT(tcpLayer.removeTcpOption(PCPP_TCPOPT_NOP) == true, "Cannot remove NOP option");
-	PTF_ASSERT(tcpLayer.getTcpOptionCount() == 5, "TCP option count isn't 5 again");
+	PTF_ASSERT_TRUE(tcpLayer.removeTcpOption(TCPOPT_QS));
+	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 7, size);
+	PTF_ASSERT_TRUE(tcpLayer.removeTcpOption(TCPOPT_SNACK));
+	PTF_ASSERT_TRUE(tcpLayer.removeTcpOption(PCPP_TCPOPT_NOP));
+	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 5, size);
 
-	PTF_ASSERT(memcmp(tcpPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+	PTF_ASSERT_BUF_COMPARE(tcpPacket.getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete [] buffer;
 
-	PTF_ASSERT(tcpLayer.removeAllTcpOptions() == true, "Couldn't remove all TCP options");
-	PTF_ASSERT(tcpLayer.getTcpOptionCount() == 0, "TCP option count isn't zero after removing all of them");
-	PTF_ASSERT(tcpLayer.getFirstTcpOption().isNull(), "Found TCP option after removing all of them");
-	PTF_ASSERT(tcpLayer.getHeaderLen() == 20, "Header len isn't 20 after removing all TCP options");
-	PTF_ASSERT(tcpLayer.getTcpOption(PCPP_TCPOPT_TIMESTAMP).isNull(), "Found TS option after removing all of TCP options");
+	PTF_ASSERT_TRUE(tcpLayer.removeAllTcpOptions());
+	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 0, size);
+	PTF_ASSERT_TRUE(tcpLayer.getFirstTcpOption().isNull());
+	PTF_ASSERT_EQUAL(tcpLayer.getHeaderLen(), 20, size);
+	PTF_ASSERT_TRUE(tcpLayer.getTcpOption(PCPP_TCPOPT_TIMESTAMP).isNull());
 
 	TcpOption tcpSnackOption = tcpLayer.addTcpOption(TcpOptionBuilder(TCPOPT_SNACK, NULL, PCPP_TCPOLEN_SNACK));
-	PTF_ASSERT(tcpSnackOption.isNotNull(), "Cannot add SNACK option again");
-	PTF_ASSERT(tcpSnackOption.setValue(htonl(1000)), "Cannot set SNACK option value");
+	PTF_ASSERT_TRUE(tcpSnackOption.isNotNull());
+	PTF_ASSERT_TRUE(tcpSnackOption.setValue(htobe32(1000)));
+} // TcpPacketCreation2
 
-}
 
 
 PTF_TEST_CASE(InsertDataToPacket)
@@ -1712,14 +1765,15 @@ PTF_TEST_CASE(InsertDataToPacket)
 //	for(int i = 0; i<testPacket.getRawPacket()->getRawDataLen(); i++)
 //		printf("0x%2X ", testPacket.getRawPacket()->getRawData()[i]);
 //	printf("\n\n\n");
+} // InsertDataToPacket
 
-}
+
 
 PTF_TEST_CASE(InsertVlanToPacket)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TcpPacketWithOptions3.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -1740,12 +1794,13 @@ PTF_TEST_CASE(InsertVlanToPacket)
 //		printf("0x%2X ", tcpPacket.getRawPacket()->getRawData()[i]);
 //	printf("\n\n\n");
 
-	PTF_ASSERT(tcpPacket.getRawPacket()->getRawDataLen() == 78, "Size of packet after vlan insert isn't 78, it's %d", tcpPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(tcpPacket.getRawPacket()->getRawDataLen(), 78, int);
 	PTF_ASSERT(tcpPacket.getFirstLayer()->getNextLayer() == &vlanLayer, "VLAN layer isn't the second layer as expected");
-	PTF_ASSERT(vlanLayer.getNextLayer() != NULL, "VLAN layer next layer is null");
-	PTF_ASSERT(vlanLayer.getNextLayer()->getProtocol() == IPv4, "VLAN layer next layer isn't IPv4");
+	PTF_ASSERT_NOT_NULL(vlanLayer.getNextLayer());
+	PTF_ASSERT_EQUAL(vlanLayer.getNextLayer()->getProtocol(), IPv4, enum);
+} // InsertVlanToPacket
 
-}
+
 
 PTF_TEST_CASE(RemoveLayerTest)
 {
@@ -1989,8 +2044,9 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT(memcmp(packetWithoutTunnel.getRawPacket()->getRawData(), buffer4, buffer4Length) == 0, "Generated ICMP packet with tunnel data is different than expected");
 
 	delete [] buffer4;
+} // RemoveLayerTest
 
-}
+
 
 PTF_TEST_CASE(HttpRequestLayerParsingTest)
 {
@@ -2052,8 +2108,9 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	PTF_ASSERT(requestLayer->getFieldCount() == 8, "Field count isn't 8 in request2");
 	PTF_ASSERT(requestLayer->isHeaderComplete() == false, "request2 header seems as complete");
+} // HttpRequestLayerParsingTest
 
-}
+
 
 PTF_TEST_CASE(HttpRequestLayerCreationTest)
 {
@@ -2105,6 +2162,9 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 	PTF_ASSERT(httpPacket.addLayer(&httpLayer), "Adding HTTP request layer failed");
 	hostField->setFieldValue("www.ynet.co.il");
 	httpLayer.getFirstLine()->setMethod(HttpRequestLayer::HttpGET);
+	PTF_ASSERT(httpLayer.getFirstLine()->getMethod() == HttpRequestLayer::HttpGET, "Couldn't set method");
+	httpLayer.getFirstLine()->setVersion(pcpp::OneDotOne);
+	PTF_ASSERT(httpLayer.getFirstLine()->getVersion() == pcpp::OneDotOne, "Couldn't set version");
 	httpLayer.getFirstLine()->setUri("/home/0,7340,L-8,00.html");
 	PTF_ASSERT(httpLayer.removeField("Dummy-Field2") == true, "Couldn't remove Dummy-Field2");
 	userAgentField->setFieldValue("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
@@ -2135,14 +2195,15 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 
 	PTF_ASSERT(bufferLength == httpPacket.getRawPacket()->getRawDataLen(), "Raw packet length (%d) != expected length (%d)", httpPacket.getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(buffer, httpPacket.getRawPacket()->getRawData(), bufferLength) == 0, "Constructed packet data is different than expected");
+} // HttpRequestLayerCreationTest
 
-}
+
 
 PTF_TEST_CASE(HttpRequestLayerEditTest)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -2151,36 +2212,37 @@ PTF_TEST_CASE(HttpRequestLayerEditTest)
 	Packet httpRequest(&rawPacket);
 
 	IPv4Layer* ip4Layer = httpRequest.getLayerOfType<IPv4Layer>();
-	ip4Layer->getIPv4Header()->ipId = htons(30170);
+	ip4Layer->getIPv4Header()->ipId = htobe16(30170);
 
 	TcpLayer* tcpLayer = httpRequest.getLayerOfType<TcpLayer>();
-	tcpLayer->getTcpHeader()->portSrc = htons(60383);
-	tcpLayer->getTcpHeader()->sequenceNumber = htonl(0x876143cb);
-	tcpLayer->getTcpHeader()->ackNumber = htonl(0xa66ed328);
-	tcpLayer->getTcpHeader()->windowSize = htons(16660);
+	tcpLayer->getTcpHeader()->portSrc = htobe16(60383);
+	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(0x876143cb);
+	tcpLayer->getTcpHeader()->ackNumber = htobe32(0xa66ed328);
+	tcpLayer->getTcpHeader()->windowSize = htobe16(16660);
 
 	HttpRequestLayer* httpReqLayer = httpRequest.getLayerOfType<HttpRequestLayer>();
-	PTF_ASSERT(httpReqLayer->getFirstLine()->setUri("/Common/Api/Video/CmmLightboxPlayerJs/0,14153,061014181713,00.js") == true, "Couldn't change URI");
+	PTF_ASSERT_TRUE(httpReqLayer->getFirstLine()->setUri("/Common/Api/Video/CmmLightboxPlayerJs/0,14153,061014181713,00.js"));
 	HeaderField* acceptField = httpReqLayer->getFieldByName(PCPP_HTTP_ACCEPT_FIELD);
-	PTF_ASSERT(acceptField != NULL, "Cannot find ACCEPT field");
+	PTF_ASSERT_NOT_NULL(acceptField);
 	acceptField->setFieldValue("*/*");
 	HeaderField* userAgentField = httpReqLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
-	PTF_ASSERT(userAgentField != NULL, "Cannot find USER-AGENT field");
+	PTF_ASSERT_NOT_NULL(userAgentField);
 	httpReqLayer->insertField(userAgentField, PCPP_HTTP_REFERER_FIELD, "http://www.ynet.co.il/home/0,7340,L-8,00.html");
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/TwoHttpRequests2.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
-	PTF_ASSERT(buffer2Length == httpRequest.getRawPacket()->getRawDataLen(), "Raw packet length (%d) != expected length (%d)", httpRequest.getRawPacket()->getRawDataLen(), buffer2Length);
+	PTF_ASSERT_EQUAL(buffer2Length, httpRequest.getRawPacket()->getRawDataLen(), int);
 
 	httpRequest.computeCalculateFields();
 
-	PTF_ASSERT(memcmp(buffer2, httpRequest.getRawPacket()->getRawData(), buffer2Length) == 0, "Constructed packet data is different than expected");
+	PTF_ASSERT_BUF_COMPARE(buffer2, httpRequest.getRawPacket()->getRawData(), buffer2Length);
 
 	delete [] buffer2;
+} // HttpRequestLayerEditTest
 
-}
+
 
 PTF_TEST_CASE(HttpResponseLayerParsingTest)
 {
@@ -2189,7 +2251,7 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses1.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -2197,23 +2259,24 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 
 	Packet httpPacket(&rawPacket);
 
-	PTF_ASSERT(httpPacket.isPacketOfType(HTTPResponse), "Packet isn't of type HTTPResponse");
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(HTTPResponse));
 	HttpResponseLayer* responseLayer = httpPacket.getLayerOfType<HttpResponseLayer>();
-	PTF_ASSERT(responseLayer != NULL, "Couldn't get HttpResponseLayer from packet");
+	PTF_ASSERT_NOT_NULL(responseLayer);
 
-	PTF_ASSERT(responseLayer->getFirstLine()->getStatusCode() == HttpResponseLayer::Http200OK, "Response status code isn't 200 OK");
-	PTF_ASSERT(responseLayer->getFirstLine()->getVersion() == OneDotOne, "Response version isn't HTTP/1.1");
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), HttpResponseLayer::Http200OK, enum);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getVersion(), OneDotOne, enum);
 
 	HeaderField* contentLengthField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
-	PTF_ASSERT(contentLengthField != NULL, "Couldn't retrieve content-length field");
+	PTF_ASSERT_NOT_NULL(contentLengthField);
 	int contentLength = atoi(contentLengthField->getFieldValue().c_str());
-	PTF_ASSERT(contentLength == 1616, "Content length != 1616, it's %d", contentLength);
+	PTF_ASSERT_EQUAL(contentLength, 1616, int);
 
 	HeaderField* contentTypeField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
-	PTF_ASSERT(contentTypeField != NULL, "Couldn't retrieve content-type field");
-	PTF_ASSERT(contentTypeField->getFieldValue() == "application/x-javascript", "Content type isn't 'application/x-javascript'");
+	PTF_ASSERT_NOT_NULL(contentTypeField);
+	PTF_ASSERT_EQUAL(contentTypeField->getFieldValue(), "application/x-javascript", string);
+} // HttpResponseLayerParsingTest
 
-}
+
 
 PTF_TEST_CASE(HttpResponseLayerCreationTest)
 {
@@ -2278,15 +2341,15 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 	PTF_ASSERT(httpResponse.getHeaderLen() == 382, "HTTP header length is different than expected. Expected: %d; Actual: %d", 382, (int)httpResponse.getHeaderLen());
 
 	PTF_ASSERT(memcmp(buffer, httpPacket.getRawPacket()->getRawData(), ethLayer.getHeaderLen()+ip4Layer.getHeaderLen()+tcpLayer.getHeaderLen()+httpResponse.getHeaderLen()) == 0, "Constructed packet data is different than expected");
+} // HttpResponseLayerCreationTest
 
-}
 
 
 PTF_TEST_CASE(HttpResponseLayerEditTest)
 {
 	int bufferLength = 0;
 	uint8_t* buffer = readFileIntoBuffer("PacketExamples/TwoHttpResponses2.dat", bufferLength);
-	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+	PTF_ASSERT_NOT_NULL(buffer);
 
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -2294,31 +2357,32 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 
 	Packet httpPacket(&rawPacket);
 
-	PTF_ASSERT(httpPacket.isPacketOfType(HTTPResponse), "Packet isn't of type HTTPResponse");
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(HTTPResponse));
 	HttpResponseLayer* responseLayer = httpPacket.getLayerOfType<HttpResponseLayer>();
-	PTF_ASSERT(responseLayer != NULL, "Couldn't get HttpResponseLayer from packet");
+	PTF_ASSERT_NOT_NULL(responseLayer);
 
-	PTF_ASSERT(responseLayer->getFirstLine()->isComplete() == true, "Http response not complete");
+	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->isComplete());
 	responseLayer->getFirstLine()->setVersion(OneDotOne);
-	PTF_ASSERT(responseLayer->getFirstLine()->setStatusCode(HttpResponseLayer::Http505HTTPVersionNotSupported) == true, "Couldn't change status code to 505");
-	PTF_ASSERT(responseLayer->getFirstLine()->getStatusCode() == HttpResponseLayer::Http505HTTPVersionNotSupported, "Status code isn't HttpResponseLayer::Http505HTTPVersionNotSupported");
-	PTF_ASSERT(responseLayer->getFirstLine()->getStatusCodeAsInt() == 505, "Status code isn't 505");
-	PTF_ASSERT(responseLayer->getFirstLine()->getStatusCodeString() == "HTTP Version Not Supported", "Status isn't 'HTTP Version Not Supported'");
+	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(HttpResponseLayer::Http505HTTPVersionNotSupported));
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), HttpResponseLayer::Http505HTTPVersionNotSupported, enum);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 505, int);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported", string);
 
-	PTF_ASSERT(responseLayer->setContentLength(345) != NULL, "Couldn't change content length");
+	PTF_ASSERT_NOT_NULL(responseLayer->setContentLength(345));
 
 	std::string expectedHttpResponse("HTTP/1.1 505 HTTP Version Not Supported\r\nContent-Length: 345\r\n");
 
-	PTF_ASSERT(memcmp(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length()) == 0, "Edited HTTP response is different than expected");
+	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
 
-	PTF_ASSERT(responseLayer->getFirstLine()->setStatusCode(HttpResponseLayer::Http413RequestEntityTooLarge, "This is a test") == true, "Couldn't change status code to 413");
-	PTF_ASSERT(responseLayer->getFirstLine()->getStatusCodeAsInt() == 413, "Status code isn't 413");
-	PTF_ASSERT(responseLayer->getFirstLine()->getStatusCodeString() == "This is a test", "Status isn't 'HTTP Version Not Supported'");
+	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(HttpResponseLayer::Http413RequestEntityTooLarge, "This is a test"));
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 413, int);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "This is a test", string);
 
 	expectedHttpResponse = "HTTP/1.1 413 This is a test\r\nContent-Length: 345\r\n";
-	PTF_ASSERT(memcmp(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length()) == 0, "Edited HTTP response is different than expected (2)");
+	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
+} // HttpResponseLayerEditTest
 
-}
+
 
 PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 {
@@ -2345,13 +2409,14 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 	PTF_ASSERT(pppoeSessionLayer->getPPPoEHeader()->code == PPPoELayer::PPPOE_CODE_SESSION, "PPPoE code isn't PPPOE_CODE_SESSION");
 	PTF_ASSERT(pppoeSessionLayer->getPPPoEHeader()->version == 1, "PPPoE version isn't 1");
 	PTF_ASSERT(pppoeSessionLayer->getPPPoEHeader()->type == 1, "PPPoE type isn't 1");
-	PTF_ASSERT(pppoeSessionLayer->getPPPoEHeader()->sessionId == htons(0x0011), "PPPoE session ID isn't 0x0011");
-	PTF_ASSERT(pppoeSessionLayer->getPPPoEHeader()->payloadLength == htons(20), "PPPoE payload length isn't 20");
+	PTF_ASSERT(pppoeSessionLayer->getPPPoEHeader()->sessionId == htobe16(0x0011), "PPPoE session ID isn't 0x0011");
+	PTF_ASSERT(pppoeSessionLayer->getPPPoEHeader()->payloadLength == htobe16(20), "PPPoE payload length isn't 20");
 	PTF_ASSERT(pppoeSessionLayer->getPPPNextProtocol() == PCPP_PPP_LCP, "PPPoE next protocol isn't LCP");
 
 	PTF_ASSERT(pppoeSessionLayer->toString() == string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"), "PPPoESession toString failed");
+} // PPPoESessionLayerParsingTest
 
-}
+
 
 PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 {
@@ -2386,8 +2451,9 @@ PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 
 	PTF_ASSERT(bufferLength == pppoesPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", pppoesPacket.getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT(memcmp(pppoesPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
+} // PPPoESessionLayerCreationTest
 
-}
+
 
 PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 {
@@ -2414,8 +2480,8 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 	PTF_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->code == PPPoELayer::PPPOE_CODE_PADS, "PPPoE code isn't PPPOE_CODE_PADS");
 	PTF_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->version == 1, "PPPoE version isn't 1");
 	PTF_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->type == 1, "PPPoE type isn't 1");
-	PTF_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->sessionId == htons(0x0011), "PPPoE session ID isn't 0x0011");
-	PTF_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->payloadLength == htons(40), "PPPoE payload length isn't 40");
+	PTF_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->sessionId == htobe16(0x0011), "PPPoE session ID isn't 0x0011");
+	PTF_ASSERT(pppoeDiscoveryLayer->getPPPoEHeader()->payloadLength == htobe16(40), "PPPoE payload length isn't 40");
 
 	PPPoEDiscoveryLayer::PPPoETag* firstTag = pppoeDiscoveryLayer->getFirstTag();
 	PTF_ASSERT(firstTag != NULL, "Couldn't retrieve first tag, NULL returned");
@@ -2425,21 +2491,21 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 	PPPoEDiscoveryLayer::PPPoETag* secondTag = pppoeDiscoveryLayer->getNextTag(firstTag);
 	PTF_ASSERT(secondTag != NULL, "Couldn't retrieve second tag, NULL returned");
 	PTF_ASSERT(secondTag->getType() == PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, "Second tag type isn't PPPOE_TAG_HOST_UNIQ");
-	PTF_ASSERT(secondTag->tagDataLength == htons(4), "Second tag length != 4");
-	PTF_ASSERT(ntohl(secondTag->getTagDataAs<uint32_t>()) == 0x64138518, "Second tag data is wrong");
+	PTF_ASSERT(secondTag->tagDataLength == htobe16(4), "Second tag length != 4");
+	PTF_ASSERT(be32toh(secondTag->getTagDataAs<uint32_t>()) == 0x64138518, "Second tag data is wrong");
 
 	PPPoEDiscoveryLayer::PPPoETag* thirdTag = pppoeDiscoveryLayer->getTag(PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME);
 	PTF_ASSERT(thirdTag != NULL, "Couldn't retrieve tag PPPOE_TAG_AC_NAME by name, NULL returned");
 	PTF_ASSERT(thirdTag == pppoeDiscoveryLayer->getNextTag(secondTag), "getTag and getNextTag returned different results for third tag");
 	PTF_ASSERT(thirdTag->getType() == PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, "Third tag type isn't PPPOE_TAG_AC_NAME");
-	PTF_ASSERT(thirdTag->tagDataLength == htons(4), "Third tag length != 4");
-	PTF_ASSERT(ntohl(thirdTag->getTagDataAs<uint32_t>()) == 0x42524153, "Third tag data is wrong");
+	PTF_ASSERT(thirdTag->tagDataLength == htobe16(4), "Third tag length != 4");
+	PTF_ASSERT(be32toh(thirdTag->getTagDataAs<uint32_t>()) == 0x42524153, "Third tag data is wrong");
 
 	PPPoEDiscoveryLayer::PPPoETag* fourthTag = pppoeDiscoveryLayer->getTag(PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE);
 	PTF_ASSERT(fourthTag != NULL, "Couldn't retrieve tag PPPOE_TAG_AC_COOKIE by name, NULL returned");
 	PTF_ASSERT(fourthTag == pppoeDiscoveryLayer->getNextTag(thirdTag), "getTag and getNextTag returned different results for fourth tag");
 	PTF_ASSERT(fourthTag->getType() == PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, "Fourth tag type isn't PPPOE_TAG_AC_COOKIE");
-	PTF_ASSERT(fourthTag->tagDataLength == htons(16), "Fourth tag length != 16");
+	PTF_ASSERT(fourthTag->tagDataLength == htobe16(16), "Fourth tag length != 16");
 	PTF_ASSERT(fourthTag->getTagDataAs<uint64_t>() == 0xf284240687050f3dULL, "Fourth tag data is wrong in first 8 bytes");
 	PTF_ASSERT(fourthTag->getTagDataAs<uint64_t>(8) == 0x5bbd77fdddb932dfULL, "Fourth tag data is wrong in last 8 bytes");
 	PTF_ASSERT(pppoeDiscoveryLayer->getNextTag(fourthTag) == NULL, "Fourth tag should be the last one but it isn't");
@@ -2447,8 +2513,9 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 	PTF_ASSERT(pppoeDiscoveryLayer->getTagCount() == 4, "Number of tags != 4, it's %d", pppoeDiscoveryLayer->getTagCount());
 
 	PTF_ASSERT(pppoeDiscoveryLayer->toString() == string("PPP-over-Ethernet Discovery (PADS)"), "PPPoEDiscovery toString returned unexpected result");
+} // PPPoEDiscoveryLayerParsingTest
 
-}
+
 
 PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 {
@@ -2473,7 +2540,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 
 	PPPoEDiscoveryLayer::PPPoETag* svcNamePtr = pppoedLayer.addTag(PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME, 0, NULL);
 
-	uint32_t hostUniqData = htonl(0x64138518);
+	uint32_t hostUniqData = htobe32(0x64138518);
 	pppoedLayer.addTagAfter(PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, sizeof(uint32_t), (uint8_t*)(&hostUniqData), svcNamePtr);
 
 	pppoedPacket.computeCalculateFields();
@@ -2491,7 +2558,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 	ethLayerPtr->setDestMac(MacAddress("cc:05:0e:88:00:00"));
 
 	pppoedLayer.getPPPoEHeader()->code = PPPoELayer::PPPOE_CODE_PADS;
-	pppoedLayer.getPPPoEHeader()->sessionId = htons(0x11);
+	pppoedLayer.getPPPoEHeader()->sessionId = htobe16(0x11);
 
 	PPPoEDiscoveryLayer::PPPoETag* acCookieTag = pppoedLayer.addTag(PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, 16, NULL);
 	acCookieTag->setTagData<uint64_t>(0xf284240687050f3dULL);
@@ -2502,7 +2569,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 	PPPoEDiscoveryLayer::PPPoETag* hostUniqTag = pppoedLayer.getTag(PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ);
 	PTF_ASSERT(hostUniqTag != NULL, "Couldn't retrieve tag PPPOE_TAG_HOST_UNIQ");
 	PPPoEDiscoveryLayer::PPPoETag* acNameTag = pppoedLayer.addTagAfter(PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, 4, NULL, hostUniqTag);
-	acNameTag->setTagData<uint32_t>(htonl(0x42524153));
+	acNameTag->setTagData<uint32_t>(htobe32(0x42524153));
 
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT(pppoedLayer.removeTag(PPPoEDiscoveryLayer::PPPOE_TAG_CREDITS) == false, "Managed to remove a tag that doesn't exist");
@@ -2536,8 +2603,9 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 
 	PTF_ASSERT(pppoedLayer.getHeaderLen() == sizeof(pppoe_header), "PPPoED layer after removing all tags doesn't equal sizeof(pppoe_header)");
 	PTF_ASSERT(pppoedLayer.getPPPoEHeader()->payloadLength == 0, "PayloadLength after removing all tags isn't 0");
+} // PPPoEDiscoveryLayerCreateTest
 
-}
+
 
 PTF_TEST_CASE(DnsLayerParsingTest)
 {
@@ -2558,7 +2626,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT(dnsLayer->getAnswerCount() == 0, "Number of DNS answers != 0");
 	PTF_ASSERT(dnsLayer->getAuthorityCount() == 2, "Number of DNS authority != 2");
 	PTF_ASSERT(dnsLayer->getAdditionalRecordCount() == 1, "Number of DNS additional != 1");
-	PTF_ASSERT(ntohs(dnsLayer->getDnsHeader()->transactionID) == 0, "DNS transaction ID != 0");
+	PTF_ASSERT(be16toh(dnsLayer->getDnsHeader()->transactionID) == 0, "DNS transaction ID != 0");
 	PTF_ASSERT(dnsLayer->getDnsHeader()->queryOrResponse == 0, "Packet isn't a query");
 
 	DnsQuery* firstQuery = dnsLayer->getFirstQuery();
@@ -2631,7 +2699,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 	dnsLayer = dnsPacket2.getLayerOfType<DnsLayer>();
 	PTF_ASSERT(dnsLayer != NULL, "Couldn't find DnsLayer");
-	PTF_ASSERT(ntohs(dnsLayer->getDnsHeader()->transactionID) == 0x2d6d, "DNS transaction ID != 0x2d6d");
+	PTF_ASSERT(be16toh(dnsLayer->getDnsHeader()->transactionID) == 0x2d6d, "DNS transaction ID != 0x2d6d");
 	PTF_ASSERT(dnsLayer->getDnsHeader()->queryOrResponse == 1, "Packet isn't a response");
 	PTF_ASSERT(dnsLayer->getDnsHeader()->recursionAvailable == 1, "recursionAvailable flag != 1");
 	PTF_ASSERT(dnsLayer->getDnsHeader()->recursionDesired == 1, "recursionDesired flag != 1");
@@ -2731,7 +2799,29 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().preference == 1, "Third answer MX data: preference is not 1");
 	PTF_ASSERT(curAnswer->getData()->castAs<MxDnsResourceData>()->getMxData().mailExchange == "mta6.am0.yahoodns.net", "Third answer MX data: mail exchange is not 'mta6.am0.yahoodns.net'");
 
-}
+
+
+	int buffer5Length = 0;
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/dns_stack_overflow.dat", buffer5Length);
+	PTF_ASSERT_NOT_NULL(buffer5);
+	
+	RawPacket rawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
+	Packet dnsPacket5(&rawPacket5);
+
+	dnsLayer = dnsPacket5.getLayerOfType<DnsLayer>();
+	PTF_ASSERT_NOT_NULL(dnsLayer);
+
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
+	firstQuery = dnsLayer->getFirstQuery();
+	PTF_ASSERT_NOT_NULL(firstQuery);
+	PTF_ASSERT_EQUAL(firstQuery->getName(), 
+		"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.", 
+		string);
+	PTF_ASSERT_EQUAL(firstQuery->getSize(), 134, size);
+	PTF_ASSERT_NULL(dnsLayer->getNextQuery(firstQuery));
+} // DnsLayerParsingTest
+
+
 
 PTF_TEST_CASE(DnsLayerQueryCreationTest)
 {
@@ -2758,7 +2848,7 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 
 	DnsLayer dns2Layer;
 	dns2Layer.getDnsHeader()->recursionDesired = true;
-	dns2Layer.getDnsHeader()->transactionID = htons(0xb179);
+	dns2Layer.getDnsHeader()->transactionID = htobe16(0xb179);
 	DnsQuery* newQuery = dns2Layer.addQuery("mail-attachment.googleusercontent.com", DNS_TYPE_A, DNS_CLASS_IN);
 	PTF_ASSERT(newQuery != NULL, "Couldn't add query for DnsEdit2");
 	PTF_ASSERT(dns2Layer.getQueryCount() == 1, "Query count != 1 after adding a query for DnsEdit2");
@@ -2815,9 +2905,9 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 	PTF_ASSERT(buffer1Length == dnsEdit1Packet.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", dnsEdit1Packet.getRawPacket()->getRawDataLen(), buffer1Length);
 
 	PTF_ASSERT(memcmp(dnsEdit1Packet.getRawPacket()->getRawData(), buffer1, buffer1Length) == 0, "Raw packet data is different than expected DnsEdit1");
+} // DnsLayerQueryCreationTest
 
 
-}
 
 PTF_TEST_CASE(DnsLayerResourceCreationTest)
 {
@@ -2843,7 +2933,7 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT(dnsEdit4Packet.addLayer(&udpLayer4), "Add UdpLayer failed");
 
 	DnsLayer dns4Layer;
-	dns4Layer.getDnsHeader()->transactionID = htons(14627);
+	dns4Layer.getDnsHeader()->transactionID = htobe16(14627);
 	dns4Layer.getDnsHeader()->queryOrResponse = 1;
 	dns4Layer.getDnsHeader()->recursionDesired = 1;
 	dns4Layer.getDnsHeader()->recursionAvailable = 1;
@@ -2984,7 +3074,7 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT(dnsEdit7Packet.addLayer(&udpLayer7), "Add UdpLayer failed");
 
 	DnsLayer dnsLayer7;
-	dnsLayer7.getDnsHeader()->transactionID = htons(612);
+	dnsLayer7.getDnsHeader()->transactionID = htobe16(612);
 	dnsLayer7.getDnsHeader()->queryOrResponse = 1;
 	dnsLayer7.getDnsHeader()->recursionDesired = 1;
 	dnsLayer7.getDnsHeader()->recursionAvailable = 1;
@@ -3017,10 +3107,9 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT(buffer7Length == dnsEdit7Packet.getRawPacket()->getRawDataLen(), "DnsEdit7: Generated packet len (%d) is different than read packet len (%d)", dnsEdit7Packet.getRawPacket()->getRawDataLen(), buffer7Length);
 
 	PTF_ASSERT(memcmp(dnsEdit7Packet.getRawPacket()->getRawData(), buffer7, buffer7Length) == 0, "DnsEdit7: Raw packet data is different than expected");
+} // DnsLayerResourceCreationTest
 
 
-
-}
 
 PTF_TEST_CASE(DnsLayerEditTest)
 {
@@ -3047,7 +3136,7 @@ PTF_TEST_CASE(DnsLayerEditTest)
 	PTF_ASSERT(dnsLayer5 != NULL, "Couldn't retrieve DnsLayer for DnsEdit5");
 
 	PTF_ASSERT(dnsLayer3->getFirstQuery()->setName("www.mora.fr") == true, "Couldn't set name for DnsEdit3");
-	dnsLayer3->getDnsHeader()->transactionID = htons(35240);
+	dnsLayer3->getDnsHeader()->transactionID = htobe16(35240);
 	PTF_ASSERT(dnsLayer3->getHeaderLen() == dnsLayer5->getHeaderLen(), "DNS layers length of DnsEdit3 and DnsEdit5 after edit differ");
 	PTF_ASSERT(memcmp(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen()) == 0, "Raw data for DNS layers of DnsEdit3 and DnsEdit5 differ");
 
@@ -3055,13 +3144,13 @@ PTF_TEST_CASE(DnsLayerEditTest)
 	dnsLayer3 = dnsEdit3.getLayerOfType<DnsLayer>();
 	PTF_ASSERT(dnsLayer3 != NULL, "Couldn't retrieve DnsLayer for DnsEdit3");
 
-	dnsLayer5->getDnsHeader()->transactionID = htons(14627);
+	dnsLayer5->getDnsHeader()->transactionID = htobe16(14627);
 	PTF_ASSERT(dnsLayer5->getFirstQuery()->setName("assets.pinterest.com") == true, "Couldn't set name for DnsEdit5");
 	PTF_ASSERT(dnsLayer3->getHeaderLen() == dnsLayer5->getHeaderLen(), "DNS layers length of DnsEdit3 and DnsEdit5 after edit differ");
 	PTF_ASSERT(memcmp(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen()) == 0, "Raw data for DNS layers of DnsEdit3 and DnsEdit5 differ");
+} // DnsLayerEditTest
 
 
-}
 
 PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 {
@@ -3184,9 +3273,9 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	PTF_ASSERT(dnsLayer4->removeAnswer(thirdAnswer) == true, "Couldn't remove third answer");
 	PTF_ASSERT(dnsLayer4->removeAdditionalRecord("blabla", false) == false, "Managed to remove an additional record that doesn't exist");
 	PTF_ASSERT(dnsLayer4->getHeaderLen() == sizeof(dnshdr), "After removing all resources, header size is expected to be sizeof(dnshdr), but this is not the case");
+} // DnsLayerRemoveResourceTest
 
 
-}
 
 PTF_TEST_CASE(MplsLayerTest)
 {
@@ -3255,10 +3344,9 @@ PTF_TEST_CASE(MplsLayerTest)
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT(mplsLayer->setMplsLabel(0xFFFFFF) == false, "Managed to set an out-of-range MPLS label value");
 	LoggerPP::getInstance().enableErrors();
+} // MplsLayerTest
 
 
-
-}
 
 PTF_TEST_CASE(CopyLayerAndPacketTest)
 {
@@ -3484,11 +3572,9 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT(copyDnsLayer.getAnswerCount() == origDnsLayer->getAnswerCount(), "Answer count differs");
 
 	PTF_ASSERT(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString() == origDnsLayer->getAdditionalRecord("", true)->getData()->toString(), "Additional data differs");
+} // CopyLayerAndPacketTest
 
 
-
-
-}
 
 PTF_TEST_CASE(IcmpParsingTest)
 {
@@ -3747,7 +3833,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	icmp_router_advertisement* routerAdvData = icmpLayer->getRouterAdvertisementData();
 	PTF_ASSERT(routerAdvData != NULL, "ICMP router adv1 data is NULL");
 	PTF_ASSERT(routerAdvData->header->advertisementCount == 1, "ICMP router adv1 count != 1");
-	PTF_ASSERT(routerAdvData->header->lifetime == htons(200), "ICMP router adv1 lifetime != 200");
+	PTF_ASSERT(routerAdvData->header->lifetime == htobe16(200), "ICMP router adv1 lifetime != 200");
 	PTF_ASSERT(routerAdvData->getRouterAddress(1) == NULL && routerAdvData->getRouterAddress(100) == NULL, "ICMP router adv1 managed to get addr in indices > 0");
 	icmp_router_address_structure* routerAddr = routerAdvData->getRouterAddress(0);
 	PTF_ASSERT(routerAddr != NULL, "ICMP router adv1 router addr #0 is null");
@@ -3766,9 +3852,9 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT(routerAddr != NULL, "ICMP router adv1 router addr #0 is null");
 	PTF_ASSERT(IPv4Address(routerAddr->routerAddress) == IPv4Address(std::string("14.80.84.66")), "ICMP router adv2 router addr #0 != 14.80.84.66");
 	PTF_ASSERT(routerAddr->preferenceLevel == 0, "ICMP router adv2 router addr #0 preference level != 0");
+} // IcmpParsingTest
 
 
-}
 
 PTF_TEST_CASE(IcmpCreationTest)
 {
@@ -3866,7 +3952,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	IPv4Layer ipLayerForTimeExceeded(IPv4Address(std::string("10.0.0.6")), IPv4Address(std::string("8.8.8.8")));
 	ipLayerForTimeExceeded.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayerForTimeExceeded.getIPv4Header()->timeToLive = 1;
-	ipLayerForTimeExceeded.getIPv4Header()->ipId = ntohs(2846);
+	ipLayerForTimeExceeded.getIPv4Header()->ipId = be16toh(2846);
 	IcmpLayer icmpLayerForTimeExceeded;
 	icmpLayerForTimeExceeded.setEchoRequestData(3175, 1, 0x00058bbd569f3d49ULL, data, 48);
 	PTF_ASSERT(timeExceededLayer.setTimeExceededData(0, &ipLayerForTimeExceeded, &icmpLayerForTimeExceeded) != NULL, "Failed to set time exceeded data");
@@ -3887,7 +3973,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	destUnreachablePacket.addLayer(&destUnreachableLayer);
 	IPv4Layer ipLayerForDestUnreachable(IPv4Address(std::string("10.0.1.2")), IPv4Address(std::string("172.16.0.2")));
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
-	ipLayerForDestUnreachable.getIPv4Header()->ipId = ntohs(230);
+	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(230);
 	UdpLayer udpLayerForDestUnreachable(49182, 33446);
 	PTF_ASSERT(destUnreachableLayer.setDestUnreachableData(IcmpPortUnreachable, 0, &ipLayerForDestUnreachable, &udpLayerForDestUnreachable) != NULL, "Failed to set dest unreachable data");
 	destUnreachablePacket.computeCalculateFields();
@@ -3934,7 +4020,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	redirectPacket.addLayer(&ipLayer7);
 	redirectPacket.addLayer(&redirectLayer);
 	IPv4Layer ipLayerForRedirect(IPv4Address(std::string("10.2.10.2")), IPv4Address(std::string("10.3.71.7")));
-	ipLayerForRedirect.getIPv4Header()->ipId = ntohs(14848);
+	ipLayerForRedirect.getIPv4Header()->ipId = be16toh(14848);
 	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;
 	IcmpLayer icmpLayerForRedirect;
 	icmpLayerForRedirect.setEchoRequestData(512, 12544, 0, NULL, 0);
@@ -3981,9 +4067,9 @@ PTF_TEST_CASE(IcmpCreationTest)
 	delete [] buffer13;
 	delete [] buffer14;
 	delete [] buffer15;
+} // IcmpCreationTest
 
 
-}
 
 PTF_TEST_CASE(IcmpEditTest)
 {
@@ -4026,7 +4112,7 @@ PTF_TEST_CASE(IcmpEditTest)
 	icmp_echo_request* echoReq = icmpLayer->setEchoRequestData(55099, 0, 0xe45104007dd6a751ULL, data, 48);
 	PTF_ASSERT(echoReq != NULL, "Couldn't convert router adv to echo request");
 	PTF_ASSERT(icmpLayer->getHeaderLen() == 64, "Echo request length != 64");
-	PTF_ASSERT(echoReq->header->id == htons(55099), "Echo request id != 55099");
+	PTF_ASSERT(echoReq->header->id == htobe16(55099), "Echo request id != 55099");
 	PTF_ASSERT(echoReq->dataLength == 48, "Echo request data len != 48");
 	icmpRouterAdv1.computeCalculateFields();
 	PTF_ASSERT(icmpLayer->getRouterAdvertisementData() == NULL, "Managed to extract router adv data although packet converted to echo request");
@@ -4038,7 +4124,7 @@ PTF_TEST_CASE(IcmpEditTest)
 	icmp_echo_reply* echoReply = icmpLayer->setEchoReplyData(55099, 0, 0xe45104007dd6a751ULL, data, 48);
 	PTF_ASSERT(icmpLayer->getEchoRequestData() == NULL, "Managed to extract echo request data although packet converted to echo reply");
 	icmpRouterAdv1.computeCalculateFields();
-	PTF_ASSERT(echoReply->header->checksum == htons(0xc3b3), "Wrong checksum for echo reply");
+	PTF_ASSERT(echoReply->header->checksum == htobe16(0xc3b3), "Wrong checksum for echo reply");
 	PTF_ASSERT(memcmp(icmpRouterAdv1.getRawPacket()->getRawData()+34, buffer3+34, buffer3Length-34) == 0, "Echo reply raw data is different than expected");
 
 
@@ -4053,9 +4139,9 @@ PTF_TEST_CASE(IcmpEditTest)
 	echoReq = icmpLayer->setEchoRequestData(55090, 0, 0xe45104007dd6a751ULL, data, 48);
 	PTF_ASSERT(echoReq != NULL, "Couldn't convert time exceeded to echo request");
 	PTF_ASSERT(icmpLayer->getHeaderLen() == 64, "Echo request length != 64");
-	PTF_ASSERT(echoReq->header->id == htons(55090), "Echo request id != 55090");
-	echoReq->header->id = htons(55099);
-	PTF_ASSERT(echoReq->header->id == htons(55099), "Echo request id != 55099");
+	PTF_ASSERT(echoReq->header->id == htobe16(55090), "Echo request id != 55090");
+	echoReq->header->id = htobe16(55099);
+	PTF_ASSERT(echoReq->header->id == htobe16(55099), "Echo request id != 55099");
 	PTF_ASSERT(echoReq->dataLength == 48, "Echo request data len != 48");
 	icmpTimeExceededUdp.computeCalculateFields();
 	PTF_ASSERT(memcmp(icmpTimeExceededUdp.getRawPacket()->getRawData()+34, buffer2+34, buffer2Length-34) == 0, "Echo request raw data is different than expected");
@@ -4066,7 +4152,7 @@ PTF_TEST_CASE(IcmpEditTest)
 	IPv4Layer ipLayerForDestUnreachable(IPv4Address(std::string("10.0.0.7")), IPv4Address(std::string("10.0.0.111")));
 	ipLayerForDestUnreachable.getIPv4Header()->fragmentOffset = 0x0040;
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 64;
-	ipLayerForDestUnreachable.getIPv4Header()->ipId = ntohs(10203);
+	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(10203);
 	IcmpLayer icmpLayerForDestUnreachable;
 	icmpLayerForDestUnreachable.setEchoRequestData(3189, 4, 0x000809f2569f3e41ULL, data, 48);
 	icmp_destination_unreachable* destUnreachable = icmpLayer->setDestUnreachableData(IcmpHostUnreachable, 0, &ipLayerForDestUnreachable, &icmpLayerForDestUnreachable);
@@ -4081,16 +4167,16 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT(icmpLayer->isMessageOfType(ICMP_ECHO_REQUEST) == true, "Dest unreachable ICMP layer isn't of type echo request");
 	echoReq = icmpLayer->getEchoRequestData();
 	PTF_ASSERT(echoReq != NULL, "Coulnd't extract echo request data from dest unreachable ICMP layer");
-	PTF_ASSERT(echoReq->header->sequence == htons(4), "Dest unreachable ICMP layer sequence != 4");
+	PTF_ASSERT(echoReq->header->sequence == htobe16(4), "Dest unreachable ICMP layer sequence != 4");
 	icmpTimeExceededUdp.computeCalculateFields();
 	PTF_ASSERT(memcmp(icmpTimeExceededUdp.getRawPacket()->getRawData()+34, buffer5+34, buffer5Length-34) == 0, "Dest unreachable raw data is different than expected");
 
 	delete [] buffer2;
 	delete [] buffer3;
 	delete [] buffer5;
+} // IcmpEditTest
 
 
-}
 
 PTF_TEST_CASE(GreParsingTest)
 {
@@ -4136,7 +4222,7 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 1 seq bit set");
 	PTF_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 1 recursion isn't 0");
 	PTF_ASSERT(grev0Layer->getGreHeader()->flags == 0, "GREv0 Packet 1 flags isn't 0");
-	PTF_ASSERT(grev0Layer->getGreHeader()->protocol == htons(PCPP_ETHERTYPE_IP), "GREv0 Packet 1 protocol isn't IPv4");
+	PTF_ASSERT(grev0Layer->getGreHeader()->protocol == htobe16(PCPP_ETHERTYPE_IP), "GREv0 Packet 1 protocol isn't IPv4");
 	PTF_ASSERT(grev0Layer->getChecksum(value16) == true, "GREv0 Packet 1 couldn't retrieve checksum");
 	PTF_ASSERT(value16 == 30719, "GREv0 Packet 1 checksum isn't 30719");
 	value16 = 40000;
@@ -4158,7 +4244,7 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT(grev0Layer->getGreHeader()->checksumBit == 0, "GREv0 Packet 2 checksum bit set");
 	PTF_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 2 seq bit set");
 	PTF_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 2 recursion isn't 0");
-	PTF_ASSERT(grev0Layer->getGreHeader()->protocol == htons(PCPP_ETHERTYPE_IP), "GREv0 Packet 2 protocol isn't IPv4");
+	PTF_ASSERT(grev0Layer->getGreHeader()->protocol == htobe16(PCPP_ETHERTYPE_IP), "GREv0 Packet 2 protocol isn't IPv4");
 	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT(grev0Layer->getChecksum(value16) == false, "GREv0 Packet 2 checksum valid");
@@ -4172,7 +4258,7 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT(grev0Layer->getGreHeader()->checksumBit == 0, "GREv0 Packet 2 2nd GRE checksum bit set");
 	PTF_ASSERT(grev0Layer->getGreHeader()->sequenceNumBit == 0, "GREv0 Packet 2 2nd GRE seq bit set");
 	PTF_ASSERT(grev0Layer->getGreHeader()->recursionControl == 0, "GREv0 Packet 2 2nd GRE recursion isn't 0");
-	PTF_ASSERT(grev0Layer->getGreHeader()->protocol == htons(PCPP_ETHERTYPE_IP), "GREv0 Packet 2 2nd GRE protocol isn't IPv4");
+	PTF_ASSERT(grev0Layer->getGreHeader()->protocol == htobe16(PCPP_ETHERTYPE_IP), "GREv0 Packet 2 2nd GRE protocol isn't IPv4");
 	PTF_ASSERT(grev0Layer->getNextLayer() != NULL && grev0Layer->getNextLayer()->getProtocol() == IPv4, "GREv0 Packet 2 2nd GRE next protocol isn't IPv4");
 	grev0Layer = NULL;
 
@@ -4185,7 +4271,7 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT(grev1Layer->getGreHeader()->sequenceNumBit == 0, "GREv1 Packet 1 seq bit set");
 	PTF_ASSERT(grev1Layer->getGreHeader()->keyBit == 1, "GREv1 Packet 1 key bit not set");
 	PTF_ASSERT(grev1Layer->getGreHeader()->ackSequenceNumBit == 1, "GREv1 Packet 1 ack bit not set");
-	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htons(6), "GREv1 Packet 1 call id isn't 6");
+	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htobe16(6), "GREv1 Packet 1 call id isn't 6");
 	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == 0, "GREv1 Packet 1 payload length isn't 0");
 	value16 = 40000;
 	value32 = 40000;
@@ -4207,8 +4293,8 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT(grev1Layer->getGreHeader()->sequenceNumBit == 1, "GREv1 Packet 2 seq bit not set");
 	PTF_ASSERT(grev1Layer->getGreHeader()->keyBit == 1, "GREv1 Packet 1 key bit not set");
 	PTF_ASSERT(grev1Layer->getGreHeader()->ackSequenceNumBit == 0, "GREv1 Packet 1 ack bit set");
-	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htons(17), "GREv1 Packet 1 call id isn't 17");
-	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == htons(178), "GREv1 Packet 1 payload length isn't 178");
+	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htobe16(17), "GREv1 Packet 1 call id isn't 17");
+	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == htobe16(178), "GREv1 Packet 1 payload length isn't 178");
 	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT(grev1Layer->getAcknowledgmentNum(value32) == false, "GREv1 Packet 2 ack valid");
@@ -4222,12 +4308,12 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT(pppLayer ==  grev1Layer->getNextLayer(), "GREv1 Packet 2 PPP layer from packet isn't equal to PPP layer after GRE");
 	PTF_ASSERT(pppLayer->getPPP_PPTPHeader()->address == 0xff, "GREv1 Packet 2 PPP layer address != 0xff");
 	PTF_ASSERT(pppLayer->getPPP_PPTPHeader()->control == 3, "GREv1 Packet 2 PPP layer control != 3");
-	PTF_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htons(PCPP_PPP_IP), "GREv1 Packet 2 PPP layer protocol isn't PPP_IP");
+	PTF_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htobe16(PCPP_PPP_IP), "GREv1 Packet 2 PPP layer protocol isn't PPP_IP");
 	PTF_ASSERT(pppLayer->getNextLayer() != NULL && pppLayer->getNextLayer()->getProtocol() == IPv4, "GREv1 Packet 2 PPP layer next protocol isn't IPv4");
 	grev1Layer = NULL;
+} // GreParsingTest
 
 
-}
 
 PTF_TEST_CASE(GreCreationTest)
 {
@@ -4244,13 +4330,13 @@ PTF_TEST_CASE(GreCreationTest)
 
 	EthLayer ethLayer(MacAddress("00:90:4b:1f:a4:f7"), MacAddress("00:0d:ed:7b:48:f4"));
 	IPv4Layer ipLayer(IPv4Address(std::string("192.168.2.65")), IPv4Address(std::string("192.168.2.254")));
-	ipLayer.getIPv4Header()->ipId = htons(1660);
+	ipLayer.getIPv4Header()->ipId = htobe16(1660);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
 	GREv1Layer grev1Layer(6);
 
 	PPP_PPTPLayer pppLayer(0xff, 3);
-	pppLayer.getPPP_PPTPHeader()->protocol = htons(PCPP_PPP_CCP);
+	pppLayer.getPPP_PPTPHeader()->protocol = htobe16(PCPP_PPP_CCP);
 
 	uint8_t data[4] = { 0x06, 0x04, 0x00, 0x04 };
 	PayloadLayer payloadLayer(data, 4, true);
@@ -4275,10 +4361,10 @@ PTF_TEST_CASE(GreCreationTest)
 
 	EthLayer ethLayer2(MacAddress("00:01:01:00:00:01"), MacAddress("00:01:01:00:00:02"));
 	IPv4Layer ipLayer2(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
-	ipLayer2.getIPv4Header()->ipId = htons(1);
+	ipLayer2.getIPv4Header()->ipId = htobe16(1);
 	ipLayer2.getIPv4Header()->timeToLive = 64;
 	IPv4Layer ipLayer3(IPv4Address(std::string("127.0.0.1")), IPv4Address(std::string("127.0.0.1")));
-	ipLayer3.getIPv4Header()->ipId = htons(46845);
+	ipLayer3.getIPv4Header()->ipId = htobe16(46845);
 	ipLayer3.getIPv4Header()->timeToLive = 64;
 
 	GREv0Layer grev0Layer1;
@@ -4301,9 +4387,8 @@ PTF_TEST_CASE(GreCreationTest)
 
 	delete [] buffer1;
 	delete [] buffer2;
+} // GreCreationTest
 
-
-}
 
 
 PTF_TEST_CASE(GreEditTest)
@@ -4436,11 +4521,11 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT(grev1Layer->getGreHeader()->checksumBit == 0, "GREv1 layer after set ack checksun bit set");
 	PTF_ASSERT(grev1Layer->getSequenceNumber(value32), "GREv1 layer after set ack seq num is not valid");
 	PTF_ASSERT(value32 == 539320, "GREv1 layer after set ack wrong seq num");
-	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htons(17), "GREv1 layer after set ack wrong call id");
-	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == htons(178), "GREv1 layer after set ack wrong payload length");
+	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htobe16(17), "GREv1 layer after set ack wrong call id");
+	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == htobe16(178), "GREv1 layer after set ack wrong payload length");
 
 	PTF_ASSERT(grev1Layer->setSequenceNumber(12345), "GREv1 layer couldn't set seq num");
-	grev1Layer->getGreHeader()->callID = htons(123);
+	grev1Layer->getGreHeader()->callID = htobe16(123);
 	grev1Packet.computeCalculateFields();
 
 	PTF_ASSERT(grev1Layer->getHeaderLen() == 16, "GREv1 layer after set seq num wrong header len");
@@ -4456,8 +4541,8 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT(!grev1Layer->getSequenceNumber(value32), "GREv1 layer after unset seq num seq num still valid");
 	PTF_ASSERT(grev1Layer->getAcknowledgmentNum(value32), "GREv1 layer after unset seq num ack is not valid");
 	PTF_ASSERT(value32 == 56789, "GREv1 layer after unset seq num wrong ack");
-	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htons(123), "GREv1 layer after unset seq num wrong call id");
-	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == htons(178), "GREv1 layer after unset seq num wrong payload length");
+	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htobe16(123), "GREv1 layer after unset seq num wrong call id");
+	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == htobe16(178), "GREv1 layer after unset seq num wrong payload length");
 
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT(!grev0Layer->unsetSequenceNumber(), "GREv1 layer managed to unset seq num although already unset");
@@ -4471,8 +4556,8 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT(grev1Layer->getGreHeader()->ackSequenceNumBit == 0, "GREv1 layer after unset ack num bit still set");
 	PTF_ASSERT(grev1Layer->getGreHeader()->sequenceNumBit == 0, "GREv1 layer after unset ack num seq bit set");
 	PTF_ASSERT(grev1Layer->getGreHeader()->keyBit == 1, "GREv1 layer after unset ack num key bit unset");
-	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htons(123), "GREv1 layer after unset ack num wrong call id");
-	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == htons(178), "GREv1 layer after unset ack num wrong payload length");
+	PTF_ASSERT(grev1Layer->getGreHeader()->callID == htobe16(123), "GREv1 layer after unset ack num wrong call id");
+	PTF_ASSERT(grev1Layer->getGreHeader()->payloadLength == htobe16(178), "GREv1 layer after unset ack num wrong payload length");
 
 	PTF_ASSERT(grev1Layer->getNextLayer() != NULL && grev1Layer->getNextLayer()->getProtocol() == PPP_PPTP, "GREv1 layer next protocol isn't PPP");
 	PPP_PPTPLayer* pppLayer = dynamic_cast<PPP_PPTPLayer*>(grev1Layer->getNextLayer());
@@ -4497,10 +4582,9 @@ PTF_TEST_CASE(GreEditTest)
 	grev1Packet.computeCalculateFields();
 
 	PTF_ASSERT(pppLayer->getNextLayer() != NULL && pppLayer->getNextLayer()->getProtocol() == IPv6, "PPP next layer isnt' IPv6");
-	PTF_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htons(PCPP_PPP_IPV6), "PPP layer protocol isn't IPv6");
+	PTF_ASSERT(pppLayer->getPPP_PPTPHeader()->protocol == htobe16(PCPP_PPP_IPV6), "PPP layer protocol isn't IPv6");
+} // GreEditTest
 
-
-}
 
 
 PTF_TEST_CASE(SSLClientHelloParsingTest)
@@ -4639,9 +4723,8 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 		PTF_ASSERT(curExt->getLength() == extLength[i], "SSL ext no. %d is not of the correct length", i);
 		PTF_ASSERT(clientHelloMessage->getExtensionOfType(extTypes[i]) == curExt, "SSL ext no. %d: fetching the extension by type failed", i);
 	}
+} // SSLClientHelloParsingTest
 
-
-}
 
 
 PTF_TEST_CASE(SSLAppDataParsingTest)
@@ -4680,9 +4763,9 @@ PTF_TEST_CASE(SSLAppDataParsingTest)
 	PTF_ASSERT(appDataLayer->getEncrpytedData()[40] == 0xec, "41th byte of encrypted data != 0xec");
 
 	PTF_ASSERT(appDataLayer->getNextLayer() == NULL, "We have extra layer that shouldn't exist")
+} // SSLAppDataParsingTest
 
 
-}
 
 PTF_TEST_CASE(SSLAlertParsingTest)
 {
@@ -4710,7 +4793,7 @@ PTF_TEST_CASE(SSLAlertParsingTest)
 	PTF_ASSERT(clearAlertLayer->getRecordType() == SSL_ALERT, "Record type isn't ssl alert");
 	PTF_ASSERT(clearAlertLayer->getAlertLevel() == SSL_ALERT_LEVEL_FATAL, "Alert level isn't fatal");
 	PTF_ASSERT(clearAlertLayer->getAlertDescription() == SSL_ALERT_PROTOCOL_VERSION, "Alert desc isn't protocol version");
-	PTF_ASSERT(clearAlertLayer->getRecordLayer()->length == ntohs(2), "Record length isn't 2");
+	PTF_ASSERT(clearAlertLayer->getRecordLayer()->length == be16toh(2), "Record length isn't 2");
 	PTF_ASSERT(clearAlertLayer->getNextLayer() == NULL, "Alert layer isn't the last layer");
 
 	PTF_ASSERT(encAlertPacket.isPacketOfType(SSL) == true, "Packet isn't of type SSL");
@@ -4720,11 +4803,11 @@ PTF_TEST_CASE(SSLAlertParsingTest)
 	PTF_ASSERT(encAlertLayer->getRecordType() == SSL_ALERT, "Record type isn't ssl alert");
 	PTF_ASSERT(encAlertLayer->getAlertLevel() == SSL_ALERT_LEVEL_ENCRYPTED, "Alert level isn't encrypted");
 	PTF_ASSERT(encAlertLayer->getAlertDescription() == SSL_ALERT_ENCRYPRED, "Alert desc isn't encrypted");
-	PTF_ASSERT(encAlertLayer->getRecordLayer()->length == ntohs(26), "Record length isn't 26");
+	PTF_ASSERT(encAlertLayer->getRecordLayer()->length == be16toh(26), "Record length isn't 26");
 	PTF_ASSERT(encAlertLayer->getHeaderLen() == 31, "Header length isn't 31");
+} // SSLAlertParsingTest
 
 
-}
 
 /**
  * Testing: server-hello, change-cipher-spec, hello-request
@@ -4790,9 +4873,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 	PTF_ASSERT(handshakeLayer->getHandshakeMessageAt(2) != NULL, "Couldn't find the 3rd handshake message");
 	PTF_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getHandshakeType() == SSL_HANDSHAKE_UNKNOWN, "3rd handshake message isn't of type unknown");
 	PTF_ASSERT(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength() == 32, "Unknown handshake message isn't of length 32, it's %d", (int)(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength()));
+} // SSLMultipleRecordParsingTest
 
 
-}
 
 /**
  * Testing: client-key-exchange
@@ -4822,9 +4905,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsing2Test)
 	PTF_ASSERT(clientKeyExMsg->getClientKeyExchangeParams()[0] == 0x41, "Server-key-exchange params - 1st byte != 0x41");
 	PTF_ASSERT(clientKeyExMsg->getClientKeyExchangeParams()[10] == 0xf2, "Server-key-exchange params - 11th byte != 0xf2");
 	PTF_ASSERT(clientKeyExMsg->getClientKeyExchangeParams()[65] == 0xdc, "Server-key-exchange params - 66th byte != 0xdc");
+} // SSLMultipleRecordParsing2Test
 
 
-}
 
 /**
  * Testing - certificate, certificate-request
@@ -4889,9 +4972,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
 	PTF_ASSERT(certReqMsg->getCertificateAuthorityData()[1] == 0x6c, "Cert auth data in index 1 isn't 0x6c");
 	PTF_ASSERT(certReqMsg->getCertificateAuthorityData()[14] == 0x2, "Cert auth data in index 14 isn't 0x2");
 	PTF_ASSERT(certReqMsg->getCertificateAuthorityData()[47] == 0x13, "Cert auth data in index 47 isn't 0x13");
+} // SSLMultipleRecordParsing3Test
 
 
-}
 
 /**
  * Testing: server-key-exchange, server-hello-done
@@ -4930,9 +5013,9 @@ PTF_TEST_CASE(SSLMultipleRecordParsing4Test)
 	PTF_ASSERT(serverHelloDoneMsg->getHandshakeType() == SSL_SERVER_DONE, "Server-hello-done message isn't of the right type");
 	PTF_ASSERT(serverHelloDoneMsg->getMessageLength() == 4, "Server-hello-done message length != 4");
 	PTF_ASSERT(serverHelloDoneMsg == handshakeLayer->getHandshakeMessageAt(0), "Server-hello-done message isn't equal to msg at 0");
+} // SSLMultipleRecordParsing4Test
 
 
-}
 
 PTF_TEST_CASE(SSLPartialCertificateParseTest)
 {
@@ -4979,9 +5062,9 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 	cert = certMsg->getCertificate(0);
 	PTF_ASSERT(cert->allDataExists() == false, "Cert falsely complete");
 	PTF_ASSERT(cert->getDataLength() == 1268, "Wrong cert length");
+} // SSLPartialCertificateParseTest
 
 
-}
 
 PTF_TEST_CASE(SSLNewSessionTicketParseTest)
 {
@@ -5008,9 +5091,9 @@ PTF_TEST_CASE(SSLNewSessionTicketParseTest)
 	PTF_ASSERT(newSessionTicketMsg->getSessionTicketData()[0] == 0, "New session ticket data - byte#0 isn't 0x0");
 	PTF_ASSERT(newSessionTicketMsg->getSessionTicketData()[16] == 0xf9, "New session ticket data - byte#17 isn't 0xf9");
 	PTF_ASSERT(newSessionTicketMsg->getSessionTicketData()[213] == 0x75, "New session ticket data - byte#213 isn't 0x7f");
+} // SSLNewSessionTicketParseTest
 
 
-}
 
 PTF_TEST_CASE(SllPacketParsingTest)
 {
@@ -5032,14 +5115,15 @@ PTF_TEST_CASE(SllPacketParsingTest)
 	PTF_ASSERT(sllLayer != NULL, "Couldn't find SllLayer");
 	PTF_ASSERT(sllLayer == sllPacket.getFirstLayer(), "SLL isn't the first layer");
 	PTF_ASSERT(sllLayer->getSllHeader()->packet_type == 0, "Packet type isn't 0");
-	PTF_ASSERT(sllLayer->getSllHeader()->ARPHRD_type == htons(1), "ARPHRD_type isn't 1");
-	PTF_ASSERT(sllLayer->getSllHeader()->link_layer_addr_len == htons(6), "link_layer_addr_len isn't 6");
+	PTF_ASSERT(sllLayer->getSllHeader()->ARPHRD_type == htobe16(1), "ARPHRD_type isn't 1");
+	PTF_ASSERT(sllLayer->getSllHeader()->link_layer_addr_len == htobe16(6), "link_layer_addr_len isn't 6");
 	MacAddress macAddrFromPacket(sllLayer->getSllHeader()->link_layer_addr);
 	MacAddress macAddrRef("00:12:44:1e:74:00");
 	PTF_ASSERT(macAddrRef == macAddrFromPacket, "MAC address isn't correct, %s", macAddrFromPacket.toString().c_str());
-	PTF_ASSERT(sllLayer->getSllHeader()->protocol_type == htons(PCPP_ETHERTYPE_IPV6), "Next protocol isn't IPv4");
+	PTF_ASSERT(sllLayer->getSllHeader()->protocol_type == htobe16(PCPP_ETHERTYPE_IPV6), "Next protocol isn't IPv4");
+} // SllPacketParsingTest
 
-}
+
 
 PTF_TEST_CASE(SllPacketCreationTest)
 {
@@ -5050,20 +5134,20 @@ PTF_TEST_CASE(SllPacketCreationTest)
 
 	IPv4Layer ipLayer(IPv4Address(std::string("130.217.250.13")), IPv4Address(std::string("130.217.250.128")));
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
-	ipLayer.getIPv4Header()->ipId = htons(63242);
+	ipLayer.getIPv4Header()->ipId = htobe16(63242);
 	ipLayer.getIPv4Header()->timeToLive = 64;
 
 	TcpLayer tcpLayer((uint16_t)55013, (uint16_t)6000);
-	tcpLayer.getTcpHeader()->sequenceNumber = htonl(0x92f2ad86);
-	tcpLayer.getTcpHeader()->ackNumber = htonl(0x7633e977);
+	tcpLayer.getTcpHeader()->sequenceNumber = htobe32(0x92f2ad86);
+	tcpLayer.getTcpHeader()->ackNumber = htobe32(0x7633e977);
 	tcpLayer.getTcpHeader()->ackFlag = 1;
-	tcpLayer.getTcpHeader()->windowSize = htons(4098);
+	tcpLayer.getTcpHeader()->windowSize = htobe16(4098);
 	PTF_ASSERT(tcpLayer.addTcpOption(TcpOptionBuilder(TcpOptionBuilder::NOP)).isNotNull(), "Cannot add 1st NOP option");
 	PTF_ASSERT(tcpLayer.addTcpOption(TcpOptionBuilder(TcpOptionBuilder::NOP)).isNotNull(), "Cannot add 2nd NOP option");
 	TcpOption tsOption = tcpLayer.addTcpOption(TcpOptionBuilder(PCPP_TCPOPT_TIMESTAMP, NULL, PCPP_TCPOLEN_TIMESTAMP-2));
 	PTF_ASSERT(tsOption.isNotNull(), "Couldn't set timestamp TCP option");
-	tsOption.setValue<uint32_t>(htonl(0x0402383b));
-	tsOption.setValue<uint32_t>(htonl(0x03ff37f5), 4);
+	tsOption.setValue<uint32_t>(htobe32(0x0402383b));
+	tsOption.setValue<uint32_t>(htobe32(0x03ff37f5), 4);
 
 	Packet sllPacket(1);
 	sllPacket.addLayer(&sllLayer);
@@ -5080,9 +5164,9 @@ PTF_TEST_CASE(SllPacketCreationTest)
 	PTF_ASSERT(memcmp(sllPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
 
 	delete [] buffer;
+} // SllPacketCreationTest
 
 
-}
 
 PTF_TEST_CASE(DhcpParsingTest)
 {
@@ -5100,9 +5184,9 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_ASSERT(dhcpLayer != NULL, "Couldn't extract DHCP layer");
 
 	PTF_ASSERT(dhcpLayer->getOpCode() == DHCP_BOOTREPLY, "Op code isn't boot reply");
-	PTF_ASSERT(dhcpLayer->getDhcpHeader()->secondsElapsed == ntohs(10), "Seconds elapsed isn't 10");
+	PTF_ASSERT(dhcpLayer->getDhcpHeader()->secondsElapsed == be16toh(10), "Seconds elapsed isn't 10");
 	PTF_ASSERT(dhcpLayer->getDhcpHeader()->hops == 1, "hops isn't 1");
-	PTF_ASSERT(dhcpLayer->getDhcpHeader()->transactionID == ntohl(0x7771cf85), "hops isn't 0x7771cf85, it's 0x%x", dhcpLayer->getDhcpHeader()->transactionID);
+	PTF_ASSERT(dhcpLayer->getDhcpHeader()->transactionID == be32toh(0x7771cf85), "hops isn't 0x7771cf85, it's 0x%x", dhcpLayer->getDhcpHeader()->transactionID);
 	PTF_ASSERT(dhcpLayer->getClientIpAddress() == IPv4Address::Zero, "Client IP address isn't 0.0.0.0");
 	PTF_ASSERT(dhcpLayer->getYourIpAddress() == IPv4Address(string("10.10.8.235")), "Your IP address isn't 10.10.8.235");
 	PTF_ASSERT(dhcpLayer->getServerIpAddress() == IPv4Address(string("172.22.178.234")), "Server IP address isn't 172.22.178.234");
@@ -5145,7 +5229,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 
 	PTF_ASSERT(dhcpLayer->getOptionData(DHCPOPT_SUBNET_MASK).getValueAsIpAddr() == IPv4Address(std::string("255.255.255.0")), "Subnet mask isn't 255.255.255.0");
 	PTF_ASSERT(dhcpLayer->getOptionData(DHCPOPT_DHCP_SERVER_IDENTIFIER).getValueAsIpAddr() == IPv4Address(std::string("172.22.178.234")), "Server id isn't 172.22.178.234");
-	PTF_ASSERT(dhcpLayer->getOptionData(DHCPOPT_DHCP_LEASE_TIME).getValueAs<uint32_t>() == htonl(43200), "Lease time isn't 43200");
+	PTF_ASSERT(dhcpLayer->getOptionData(DHCPOPT_DHCP_LEASE_TIME).getValueAs<uint32_t>() == htobe32(43200), "Lease time isn't 43200");
 	PTF_ASSERT(dhcpLayer->getOptionData(DHCPOPT_TFTP_SERVER_NAME).getValueAsString() == "172.22.178.234", "TFTP server isn't 172.22.178.234");
 
 	PTF_ASSERT(dhcpLayer->getMesageType() == DHCP_OFFER, "Message type isn't DHCP_OFFER");
@@ -5203,9 +5287,9 @@ PTF_TEST_CASE(DhcpParsingTest)
 	}
 
 	PTF_ASSERT(dhcpLayer->getMesageType() == DHCP_DISCOVER, "Message type isn't DHCP_DISCOVER");
+} // DhcpParsingTest
 
 
-}
 
 PTF_TEST_CASE(DhcpCreationTest)
 {
@@ -5214,7 +5298,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 	IPv4Address srcIp(std::string("172.22.178.234"));
 	IPv4Address dstIp(std::string("10.10.8.240"));
 	IPv4Layer ipLayer(srcIp, dstIp);
-	ipLayer.getIPv4Header()->ipId = htons(20370);
+	ipLayer.getIPv4Header()->ipId = htobe16(20370);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
 	UdpLayer udpLayer((uint16_t)67, (uint16_t)67);
@@ -5222,8 +5306,8 @@ PTF_TEST_CASE(DhcpCreationTest)
 	MacAddress clientMac(std::string("00:0e:86:11:c0:75"));
 	DhcpLayer dhcpLayer(DHCP_OFFER, clientMac);
 	dhcpLayer.getDhcpHeader()->hops = 1;
-	dhcpLayer.getDhcpHeader()->transactionID = htonl(0x7771cf85);
-	dhcpLayer.getDhcpHeader()->secondsElapsed = htons(10);
+	dhcpLayer.getDhcpHeader()->transactionID = htobe32(0x7771cf85);
+	dhcpLayer.getDhcpHeader()->secondsElapsed = htobe16(10);
 	IPv4Address yourIP(std::string("10.10.8.235"));
 	IPv4Address serverIP(std::string("172.22.178.234"));
 	IPv4Address gatewayIP(std::string("10.10.8.240"));
@@ -5287,9 +5371,9 @@ PTF_TEST_CASE(DhcpCreationTest)
 	PTF_ASSERT(memcmp(newPacket.getRawPacket()->getRawData(), buffer, bufferLength) == 0, "Raw packet data is different than expected");
 
 	delete [] buffer;
+} // DhcpCreationTest
 
 
-}
 
 PTF_TEST_CASE(DhcpEditTest)
 {
@@ -5359,9 +5443,9 @@ PTF_TEST_CASE(DhcpEditTest)
 	PTF_ASSERT(dhcpLayer->getMesageType() == DHCP_DISCOVER, "Message type isn't DHCP_DISCOVER after re-adding options");
 
 	dhcpPacket.computeCalculateFields();
+} // DhcpEditTest
 
 
-}
 
 PTF_TEST_CASE(NullLoopbackTest)
 {
@@ -5404,7 +5488,7 @@ PTF_TEST_CASE(NullLoopbackTest)
 	Packet newNullPacket(1);
 	NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
 	IPv4Layer newIp4Layer(IPv4Address(std::string("172.16.1.117")), IPv4Address(std::string("172.16.1.255")));
-	newIp4Layer.getIPv4Header()->ipId = htons(49513);
+	newIp4Layer.getIPv4Header()->ipId = htobe16(49513);
 	newIp4Layer.getIPv4Header()->timeToLive = 64;
 
 	UdpLayer newUdpLayer(55369, 8612);
@@ -5421,9 +5505,9 @@ PTF_TEST_CASE(NullLoopbackTest)
 
 	PTF_ASSERT(buffer2Length == newNullPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", newNullPacket.getRawPacket()->getRawDataLen(), buffer2Length);
 	PTF_ASSERT(memcmp(newNullPacket.getRawPacket()->getRawData(), buffer2, buffer2Length) == 0, "Raw packet data is different than expected");
+} // NullLoopbackTest
 
 
-}
 
 PTF_TEST_CASE(IgmpParsingTest)
 {
@@ -5462,9 +5546,9 @@ PTF_TEST_CASE(IgmpParsingTest)
 	PTF_ASSERT(igmpv2Layer->getType() == IgmpType_MembershipReportV2, "IGMPv2 type isn't membership report");
 	PTF_ASSERT(igmpv2Layer->getGroupAddress() == IPv4Address(std::string("239.255.255.250")), "IGMPv2 group address isn't 239.255.255.250");
 	PTF_ASSERT(igmpv2Layer->toString() == "IGMPv2 Layer, Membership Report message", "IGMPv2 to string failed");
+} // IgmpParsingTest
 
 
-}
 
 PTF_TEST_CASE(IgmpCreateAndEditTest)
 {
@@ -5482,9 +5566,9 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 	IPv4Layer ipLayer1(srcIp1, dstIp1);
 	IPv4Layer ipLayer2(srcIp2, dstIp2);
 
-	ipLayer1.getIPv4Header()->ipId = htons(2);
+	ipLayer1.getIPv4Header()->ipId = htobe16(2);
 	ipLayer1.getIPv4Header()->timeToLive = 1;
-	ipLayer2.getIPv4Header()->ipId = htons(3655);
+	ipLayer2.getIPv4Header()->ipId = htobe16(3655);
 	ipLayer2.getIPv4Header()->timeToLive = 1;
 
 	IgmpV1Layer igmpV1Layer(IgmpType_MembershipQuery);
@@ -5527,8 +5611,9 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 
 	delete [] buffer1;
 	delete [] buffer2;
+} // IgmpCreateAndEditTest
 
-}
+
 
 PTF_TEST_CASE(Igmpv3ParsingTest)
 {
@@ -5563,7 +5648,7 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	PTF_ASSERT(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString() == "0.0.0.0", "Source address at index -1 isn't zero");
 	PTF_ASSERT(igmpv3QueryLayer->toString() == "IGMPv3 Layer, Membership Query message", "Query to string failed");
 
-	igmpv3QueryLayer->getIgmpV3QueryHeader()->numOfSources = htons(100);
+	igmpv3QueryLayer->getIgmpV3QueryHeader()->numOfSources = htobe16(100);
 
 	PTF_ASSERT(igmpv3QueryLayer->getSourceAddressCount() == 100, "Number of records after change isn't 100");
 	PTF_ASSERT(igmpv3QueryLayer->getHeaderLen() == 16, "query header len after change isn't 16");
@@ -5593,9 +5678,9 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	curGroup = igmpv3ReportLayer->getNextGroupRecord(curGroup);
 	PTF_ASSERT(curGroup == NULL, "Second record is not null");
 	PTF_ASSERT(igmpv3ReportLayer->toString() == "IGMPv3 Layer, Membership Report message", "Report to string failed");
+} // Igmpv3ParsingTest
 
 
-}
 
 PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 {
@@ -5605,7 +5690,7 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 	IPv4Address dstIp(std::string("224.0.0.9"));
 	IPv4Layer ipLayer(srcIp, dstIp);
 
-	ipLayer.getIPv4Header()->ipId = htons(36760);
+	ipLayer.getIPv4Header()->ipId = htobe16(36760);
 	ipLayer.getIPv4Header()->timeToLive = 1;
 
 	IPv4Address multicastAddr(std::string("224.0.0.11"));
@@ -5630,9 +5715,9 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, -1) == false, "Managed to add src addr at index -1");
 	PTF_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 4) == false, "Managed to add src addr at index 4");
-	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htons(100);
+	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(100);
 	PTF_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 4) == false, "Managed to add src addr at index 4 2");
-	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htons(3);
+	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(3);
 	LoggerPP::getInstance().enableErrors();
 
 	PTF_ASSERT(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 2) == true, "Couldn't add src addr 4");
@@ -5656,9 +5741,9 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 	LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(4) == false, "Managed to remove non-existing index 4");
 	PTF_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(-1) == false, "Managed to remove non-existing index 4");
-	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htons(100);
+	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(100);
 	PTF_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(4) == false, "Managed to remove non-existing index 4 2");
-	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htons(4);
+	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(4);
 	LoggerPP::getInstance().enableErrors();
 
 	PTF_ASSERT(igmpV3QueryLayer.removeSourceAddressAtIndex(0) == true, "Couldn't remove src addr at index 0");
@@ -5680,9 +5765,9 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 	delete[] buffer;
 
 	PTF_ASSERT(igmpV3QueryLayer.removeAllSourceAddresses() == true, "Couldn't remove all source addresses");
+} // Igmpv3QueryCreateAndEditTest
 
 
-}
 
 PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 {
@@ -5692,7 +5777,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	IPv4Address dstIp(std::string("224.0.0.22"));
 	IPv4Layer ipLayer(srcIp, dstIp);
 
-	ipLayer.getIPv4Header()->ipId = htons(3941);
+	ipLayer.getIPv4Header()->ipId = htobe16(3941);
 	ipLayer.getIPv4Header()->timeToLive = 1;
 
 	IgmpV3ReportLayer igmpV3ReportLayer;
@@ -5778,39 +5863,39 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	delete[] buffer;
 
 	PTF_ASSERT(igmpV3ReportLayer.removeAllGroupRecords() == true, "Couldn't remove all group records");
+} // Igmpv3ReportCreateAndEditTest
 
 
-}
 
 PTF_TEST_CASE(ParsePartialPacketTest)
 {
 	int buffer1Length = 0;
 	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/SSL-ClientHello1.dat", buffer1Length);
-	PTF_ASSERT(!(buffer1 == NULL), "cannot read file SSL-ClientHello1.dat");
+	PTF_ASSERT_NOT_NULL(buffer1);
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/IGMPv1_1.dat", buffer2Length);
-	PTF_ASSERT(!(buffer2 == NULL), "cannot read file IGMPv1_1.dat.dat");
+	PTF_ASSERT_NOT_NULL(buffer2);
 
 	int buffer3Length = 0;
 	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/TwoHttpRequests1.dat", buffer3Length);
-	PTF_ASSERT(!(buffer3 == NULL), "cannot read file TwoHttpRequests1.dat");
+	PTF_ASSERT_NOT_NULL(buffer3);
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/PPPoESession2.dat", buffer4Length);
-	PTF_ASSERT(!(buffer4 == NULL), "cannot read file PPPoESession2.dat");
+	PTF_ASSERT_NOT_NULL(buffer4);
 
 	int buffer5Length = 0;
 	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/TwoHttpRequests2.dat", buffer5Length);
-	PTF_ASSERT(!(buffer5 == NULL), "cannot read file TwoHttpRequests2.dat");
+	PTF_ASSERT_NOT_NULL(buffer5);
 
 	int buffer6Length = 0;
 	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/IcmpTimestampRequest.dat", buffer6Length);
-	PTF_ASSERT(!(buffer6 == NULL), "cannot read file IcmpTimestampRequest.dat");
+	PTF_ASSERT_NOT_NULL(buffer6);
 
 	int buffer7Length = 0;
 	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/GREv0_2.dat", buffer7Length);
-	PTF_ASSERT(!(buffer7 == NULL), "cannot read file GREv0_2.dat");
+	PTF_ASSERT_NOT_NULL(buffer7);
 
 
 	timeval time;
@@ -5831,76 +5916,79 @@ PTF_TEST_CASE(ParsePartialPacketTest)
 	Packet icmpPacket(&rawPacket6, OsiModelNetworkLayer);
 	Packet grePacket(&rawPacket7, GRE);
 
-	PTF_ASSERT(sslPacket.isPacketOfType(IPv4) == true, "ssl packet isn't of type IPv4");
-	PTF_ASSERT(sslPacket.isPacketOfType(TCP) == true, "ssl packet isn't of type TCP");
-	PTF_ASSERT(sslPacket.isPacketOfType(SSL) == false, "ssl packet is of type SSL");
-	PTF_ASSERT(sslPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<TcpLayer>()->getNextLayer() == NULL, "layer after TCP layer isn't NULL for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<SSLHandshakeLayer>() == NULL, "managed to fetch SSL layer for ssl packet");
-	PTF_ASSERT(sslPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for ssl packet");
+	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(TCP));
+	PTF_ASSERT_FALSE(sslPacket.isPacketOfType(SSL));
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<TcpLayer>());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<TcpLayer>()->getNextLayer());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<SSLHandshakeLayer>());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<PayloadLayer>());
 
-	PTF_ASSERT(igmpPacket.isPacketOfType(IPv4) == true, "igmp packet isn't of type IPv4");
-	PTF_ASSERT(igmpPacket.isPacketOfType(Ethernet) == true, "igmp packet isn't of type Ethernet");
-	PTF_ASSERT(igmpPacket.isPacketOfType(IGMP) == false, "igmp packet is of type IGMP");
-	PTF_ASSERT(igmpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for igmp packet");
-	PTF_ASSERT(igmpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for igmp packet");
-	PTF_ASSERT(igmpPacket.getLayerOfType<IgmpV1Layer>() == NULL, "managed to fetch IGMPv1 layer for igmp packet");
-	PTF_ASSERT(igmpPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for igmp packet");
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(IGMP));
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<PayloadLayer>());
 
-	PTF_ASSERT(httpPacket.isPacketOfType(IPv4) == true, "http packet isn't of type IPv4");
-	PTF_ASSERT(httpPacket.isPacketOfType(Ethernet) == true, "http packet isn't of type Ethernet");
-	PTF_ASSERT(httpPacket.isPacketOfType(TCP) == true, "http packet isn't of type TCP");
-	PTF_ASSERT(httpPacket.isPacketOfType(HTTP) == false, "http packet is of type HTTP");
-	PTF_ASSERT(httpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for http packet");
-	PTF_ASSERT(httpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for http packet");
-	PTF_ASSERT(httpPacket.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for http packet");
-	PTF_ASSERT(httpPacket.getLayerOfType<HttpRequestLayer>() == NULL, "managed to fetch HTTP request layer for http packet");
-	PTF_ASSERT(httpPacket.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for http packet");
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(TCP));
+	PTF_ASSERT_FALSE(httpPacket.isPacketOfType(HTTP));
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<TcpLayer>());
+	PTF_ASSERT_NULL(httpPacket.getLayerOfType<HttpRequestLayer>());
+	PTF_ASSERT_NULL(httpPacket.getLayerOfType<PayloadLayer>());
 
-	PTF_ASSERT(pppoePacket.isPacketOfType(Ethernet) == true, "pppoe packet isn't of type Ethernet");
-	PTF_ASSERT(pppoePacket.isPacketOfType(PPPoESession) == true, "pppoe packet isn't of type PPPoE");
-	PTF_ASSERT(pppoePacket.isPacketOfType(IPv6) == false, "pppoe packet is of type IPv6");
-	PTF_ASSERT(pppoePacket.isPacketOfType(UDP) == false, "pppoe packet is of type UDP");
-	PTF_ASSERT(pppoePacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for pppoe packet");
-	PTF_ASSERT(pppoePacket.getLayerOfType<PPPoESessionLayer>() != NULL, "couldn't fetch PPPoE session layer for pppoe packet");
-	PTF_ASSERT(pppoePacket.getLayerOfType<IPv6Layer>() == NULL, "managed to fetch IPv6 layer for pppoe packet");
+	PTF_ASSERT_TRUE(pppoePacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(pppoePacket.isPacketOfType(PPPoESession));
+	PTF_ASSERT_FALSE(pppoePacket.isPacketOfType(IPv6));
+	PTF_ASSERT_FALSE(pppoePacket.isPacketOfType(UDP));
+	PTF_ASSERT_NOT_NULL(pppoePacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(pppoePacket.getLayerOfType<PPPoESessionLayer>());
+	PTF_ASSERT_NULL(pppoePacket.getLayerOfType<IPv6Layer>());
 
-	PTF_ASSERT(httpPacket2.isPacketOfType(IPv4) == true, "http2 packet isn't of type IPv4");
-	PTF_ASSERT(httpPacket2.isPacketOfType(Ethernet) == true, "http2 packet isn't of type Ethernet");
-	PTF_ASSERT(httpPacket2.isPacketOfType(TCP) == true, "http2 packet isn't of type TCP");
-	PTF_ASSERT(httpPacket2.isPacketOfType(HTTP) == false, "http2 packet is of type HTTP");
-	PTF_ASSERT(httpPacket2.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<TcpLayer>() != NULL, "couldn't fetch TCP layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<TcpLayer>()->getNextLayer() == NULL, "Next layer for TCP isn't NULL in http2 packet");
-	PTF_ASSERT(httpPacket2.getLastLayer()->getProtocol() == TCP, "TCP isn't the last layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<HttpRequestLayer>() == NULL, "managed to fetch HTTP request layer for http2 packet");
-	PTF_ASSERT(httpPacket2.getLayerOfType<PayloadLayer>() == NULL, "managed to fetch generic payload layer for http2 packet");
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(TCP));
+	PTF_ASSERT_FALSE(httpPacket2.isPacketOfType(HTTP));
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<TcpLayer>());
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<TcpLayer>()->getNextLayer());
+	PTF_ASSERT_EQUAL(httpPacket2.getLastLayer()->getProtocol(), TCP, enum);
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<HttpRequestLayer>());
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<PayloadLayer>());
 
-	PTF_ASSERT(icmpPacket.isPacketOfType(IPv4) == true, "icmp packet isn't of type IPv4");
-	PTF_ASSERT(icmpPacket.isPacketOfType(Ethernet) == true, "icmp packet isn't of type Ethernet");
-	PTF_ASSERT(icmpPacket.isPacketOfType(ICMP) == true, "icmp packet isn't of type ICMP");
-	PTF_ASSERT(icmpPacket.getLayerOfType<EthLayer>() != NULL, "couldn't fetch Eth layer for icmp packet");
-	PTF_ASSERT(icmpPacket.getLayerOfType<IPv4Layer>() != NULL, "couldn't fetch IPv4 layer for icmp packet");
-	PTF_ASSERT(icmpPacket.getLayerOfType<IcmpLayer>() != NULL, "couldn't fetch ICMP layer for icmp packet");
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(ICMP));
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<EthLayer>());
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<IcmpLayer>());
 
-	PTF_ASSERT(grePacket.isPacketOfType(Ethernet) == true, "gre packet isn't of type Ethernet");
-	PTF_ASSERT(grePacket.isPacketOfType(IPv4) == true, "gre packet isn't of type IPv4");
-	PTF_ASSERT(grePacket.isPacketOfType(GREv0) == true, "gre packet isn't of type GREv0");
-	PTF_ASSERT(grePacket.isPacketOfType(UDP) == false, "gre packet is of type UDP");
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(Ethernet));
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(IPv4));
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(GREv0));
+	PTF_ASSERT_FALSE(grePacket.isPacketOfType(UDP));
 	Layer* curLayer = grePacket.getFirstLayer();
-	PTF_ASSERT(curLayer != NULL && curLayer->getProtocol() == Ethernet, "gre first layer isn't Ethernet");
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), Ethernet, enum);
 	curLayer = curLayer->getNextLayer();
-	PTF_ASSERT(curLayer != NULL && curLayer->getProtocol() == IPv4, "gre second layer isn't IPv4");
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), IPv4, enum);
 	curLayer = curLayer->getNextLayer();
-	PTF_ASSERT(curLayer != NULL && curLayer->getProtocol() == GREv0, "gre third layer isn't GRE");
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), GREv0, enum);
 	curLayer = curLayer->getNextLayer();
-	PTF_ASSERT(curLayer == NULL, "found fourth layer for gre packet");
+	PTF_ASSERT_NULL(curLayer);
+} // ParsePartialPacketTest
 
 
-}
 
 PTF_TEST_CASE(VxlanParsingAndCreationTest)
 {
@@ -5922,7 +6010,7 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	VxlanLayer* vxlanLayer = vxlanPacket.getLayerOfType<VxlanLayer>();
 	PTF_ASSERT(vxlanLayer != NULL, "VXLAN layer doesn't exist");
 	PTF_ASSERT(vxlanLayer->getVNI() == 3000001, "VNI isn't 3000001");
-	PTF_ASSERT(vxlanLayer->getVxlanHeader()->groupPolicyID == htons(100), "Group policy ID isn't 100");
+	PTF_ASSERT(vxlanLayer->getVxlanHeader()->groupPolicyID == htobe16(100), "Group policy ID isn't 100");
 	PTF_ASSERT(vxlanLayer->getVxlanHeader()->dontLearnFlag == 1, "Don't learn flag isn't set");
 	PTF_ASSERT(vxlanLayer->getVxlanHeader()->gbpFlag == 1, "GBP flag isn't set");
 	PTF_ASSERT(vxlanLayer->getVxlanHeader()->vniPresentFlag == 1, "VNI present flag isn't set");
@@ -5933,7 +6021,7 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	// edit vxlan fields
 	vxlanLayer->getVxlanHeader()->gbpFlag = 0;
 	vxlanLayer->getVxlanHeader()->dontLearnFlag = 0;
-	vxlanLayer->getVxlanHeader()->groupPolicyID = htons(32639);
+	vxlanLayer->getVxlanHeader()->groupPolicyID = htobe16(32639);
 	vxlanLayer->setVNI(300);
 
 	vxlanPacket.computeCalculateFields();
@@ -5955,9 +6043,8 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	PTF_ASSERT(memcmp(vxlanPacket.getRawPacket()->getRawData(), buffer1, vxlanPacket.getRawPacket()->getRawDataLen()) == 0, "Generated raw packet data after edit is different than expected");
 
 	delete [] buffer2;
+} // VxlanParsingAndCreationTest
 
-
-}
 
 
 PTF_TEST_CASE(SipRequestLayerParsingTest)
@@ -6085,9 +6172,8 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 //	{
 //		printf("!!!%s!!!: !!!%s!!!\n", field->getFieldName().c_str(), field->getFieldValue().c_str());
 //	}
+} // SipRequestLayerParsingTest
 
-
-}
 
 
 PTF_TEST_CASE(SipRequestLayerCreationTest)
@@ -6149,9 +6235,8 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 
 	PTF_ASSERT(buffer1Length == newSipPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", newSipPacket.getRawPacket()->getRawDataLen(), buffer1Length);
 	PTF_ASSERT(memcmp(newSipPacket.getRawPacket()->getRawData(), buffer1, newSipPacket.getRawPacket()->getRawDataLen()) == 0, "Generated raw packet data after edit is different than expected");
+} // SipRequestLayerCreationTest
 
-
-}
 
 
 PTF_TEST_CASE(SipRequestLayerEditTest)
@@ -6215,9 +6300,8 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 	PTF_ASSERT(secondSipReqLayer->getFirstLine()->getVersion() == sipReqLayer->getFirstLine()->getVersion(), "Version of edited packet is different than expected");
 	PTF_ASSERT(secondSipReqLayer->getFieldCount() == sipReqLayer->getFieldCount(), "Number of header fields in edited packet is not as expected");
 	PTF_ASSERT(memcmp(secondSipReqLayer->getData(), sipReqLayer->getData(), secondSipReqLayer->getHeaderLen()) == 0, "Edited raw data is different than expected");
+} // SipRequestLayerEditTest
 
-
-}
 
 
 PTF_TEST_CASE(SipResponseLayerParsingTest)
@@ -6345,9 +6429,9 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	PTF_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_RETRY_AFTER_FIELD) != NULL, "SIP response7: Cannot find field 'Retry-After'");
 	PTF_ASSERT(sipRespLayer->getFieldByName(PCPP_SIP_RETRY_AFTER_FIELD)->getFieldValue() == "0", "SIP response7: Value of first 'Retry-After' is different than expected");
 	PTF_ASSERT(sipRespLayer->getContentLength() == 0, "SIP response7: content length isn't 0");
+} // SipResponseLayerParsingTest
 
 
-}
 
 PTF_TEST_CASE(SipResponseLayerCreationTest)
 {
@@ -6397,9 +6481,9 @@ PTF_TEST_CASE(SipResponseLayerCreationTest)
 
 	PTF_ASSERT(buffer6Length == newSipPacket.getRawPacket()->getRawDataLen(), "Generated packet len (%d) is different than read packet len (%d)", newSipPacket.getRawPacket()->getRawDataLen(), buffer6Length);
 	PTF_ASSERT(memcmp(newSipPacket.getRawPacket()->getRawData(), buffer6, newSipPacket.getRawPacket()->getRawDataLen()) == 0, "Generated raw packet data after edit is different than expected");
+} // SipResponseLayerCreationTest
 
 
-}
 
 PTF_TEST_CASE(SipResponseLayerEditTest)
 {
@@ -6466,9 +6550,9 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 	PTF_ASSERT(secondSipRespLayer->getFirstLine()->getStatusCode() == sipRespLayer->getFirstLine()->getStatusCode(), "Status code of edited packet is different than expected");
 	PTF_ASSERT(secondSipRespLayer->getFieldCount() == sipRespLayer->getFieldCount(), "Number of header fields in edited packet is not as expected");
 	PTF_ASSERT(memcmp(secondSipRespLayer->getData(), sipRespLayer->getData(), secondSipRespLayer->getHeaderLen()) == 0, "Edited raw data is different than expected");
+} // SipResponseLayerEditTest
 
 
-}
 
 PTF_TEST_CASE(SdpLayerParsingTest)
 {
@@ -6528,9 +6612,9 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 	PTF_ASSERT(sdpLayer->getOwnerIPv4Address() == IPv4Address(std::string("10.33.6.100")), "Owner IP address isn't 10.33.6.100 in packet2");
 	PTF_ASSERT(sdpLayer->getMediaPort("audio") == 6010, "Audio port isn't 6010 in packet2");
 	PTF_ASSERT(sdpLayer->getMediaPort("image") == 6012, "Image port isn't 6012 in packet2");
+} // SdpLayerParsingTest
 
 
-}
 
 PTF_TEST_CASE(SdpLayerCreationTest)
 {
@@ -6600,9 +6684,9 @@ PTF_TEST_CASE(SdpLayerCreationTest)
 	PTF_ASSERT(copiedSdpLayer.getFieldCount() == 18, "Number of header fields in copied layer isn't 18");
 	PTF_ASSERT(copiedSdpLayer.getHeaderLen() == 406, "SDP copied message len isn't 406");
 	PTF_ASSERT(memcmp(copiedSdpLayer.getData(), sdpLayerPtr->getData(), sdpLayerPtr->getHeaderLen()) == 0, "Copied data is different from expected");
+} // SdpLayerCreationTest
 
 
-}
 
 PTF_TEST_CASE(SdpLayerEditTest)
 {
@@ -6664,9 +6748,8 @@ PTF_TEST_CASE(SdpLayerEditTest)
 	PTF_ASSERT(sdpLayer->getMediaPort("audio") == targetSdpLayer->getMediaPort("audio"), "Different audio port in edited and target SDP layers");
 	PTF_ASSERT(sdpLayer->getMediaPort("image") == targetSdpLayer->getMediaPort("image"), "Different image port in edited and target SDP layers");
 	PTF_ASSERT(memcmp(sdpLayer->getData(), targetSdpLayer->getData(), targetSdpLayer->getHeaderLen()) == 0, "Edited SDP data is different from target SDP data");
+} // SdpLayerEditTest
 
-
-}
 
 
 PTF_TEST_CASE(PacketTrailerTest)
@@ -6732,14 +6815,14 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT(ethLayer != NULL, "trailerIPv4Packet isn't of type Ethernet");
 	PTF_ASSERT(ip4Layer != NULL, "trailerIPv4Packet isn't of type IPv4");
 	PTF_ASSERT(ethLayer->getDataLen() - ethLayer->getHeaderLen() > ip4Layer->getDataLen(), "trailerIPv4Packet - eth data isn't larger than ip4 data");
-	PTF_ASSERT(ip4Layer->getDataLen() == ntohs(ip4Layer->getIPv4Header()->totalLength), "trailerIPv4Packet - dataLen != totalLength");
+	PTF_ASSERT(ip4Layer->getDataLen() == be16toh(ip4Layer->getIPv4Header()->totalLength), "trailerIPv4Packet - dataLen != totalLength");
 
 	ethLayer = trailerIPv6Packet.getLayerOfType<EthLayer>();
 	IPv6Layer* ip6Layer = trailerIPv6Packet.getLayerOfType<IPv6Layer>();
 	PTF_ASSERT(ethLayer != NULL, "trailerIPv6Packet isn't of type Ethernet");
 	PTF_ASSERT(ip6Layer != NULL, "trailerIPv6Packet isn't of type IPv6");
 	PTF_ASSERT(ethLayer->getDataLen() - ethLayer->getHeaderLen() > ip6Layer->getDataLen(), "trailerIPv6Packet - eth data isn't larger than ip6 data");
-	PTF_ASSERT(ip6Layer->getDataLen() == ntohs(ip6Layer->getIPv6Header()->payloadLength) + ip6Layer->getHeaderLen(), "trailerIPv6Packet - dataLen != totalLength");
+	PTF_ASSERT(ip6Layer->getDataLen() == be16toh(ip6Layer->getIPv6Header()->payloadLength) + ip6Layer->getHeaderLen(), "trailerIPv6Packet - dataLen != totalLength");
 
 	// add layer before trailer
 	VlanLayer newVlanLayer(123, true, 1, PCPP_ETHERTYPE_IPV6);
@@ -6811,14 +6894,14 @@ PTF_TEST_CASE(PacketTrailerTest)
 	EthLayer newEthLayer(MacAddress("30:46:9a:23:fb:fa"), MacAddress("6c:f0:49:b2:de:6e"), PCPP_ETHERTYPE_IP);
 	trailerIPv4Packet.insertLayer(NULL, &newEthLayer);
 	IPv4Layer newIp4Layer(IPv4Address(std::string("173.194.78.104")), IPv4Address(std::string("10.0.0.1")));
-	newIp4Layer.getIPv4Header()->ipId = htons(40382);
+	newIp4Layer.getIPv4Header()->ipId = htobe16(40382);
 	newIp4Layer.getIPv4Header()->timeToLive = 46;
 	trailerIPv4Packet.insertLayer(&newEthLayer, &newIp4Layer);
 	TcpLayer newTcpLayer(443, 55194);
-	newTcpLayer.getTcpHeader()->ackNumber = htonl(0x807df56c);
-	newTcpLayer.getTcpHeader()->sequenceNumber = htonl(0x46529f28);
+	newTcpLayer.getTcpHeader()->ackNumber = htobe32(0x807df56c);
+	newTcpLayer.getTcpHeader()->sequenceNumber = htobe32(0x46529f28);
 	newTcpLayer.getTcpHeader()->ackFlag = 1;
-	newTcpLayer.getTcpHeader()->windowSize = htons(344);
+	newTcpLayer.getTcpHeader()->windowSize = htobe16(344);
 	trailerIPv4Packet.insertLayer(&newIp4Layer, &newTcpLayer);
 	trailerIPv4Packet.computeCalculateFields();
 	PTF_ASSERT(trailerIPv4Packet.getLayerOfType<EthLayer>()->getDataLen() == 60, "trailerIPv4Packet rebuild - eth layer len isn't 60");
@@ -6866,9 +6949,8 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT(trailerPPPoEDPacket.getLayerOfType<EthLayer>()->getDataLen() == 48, "trailerPPPoEDPacket shorten layer - eth layer len isn't 48");
 	PTF_ASSERT(trailerPPPoEDPacket.getLayerOfType<PPPoEDiscoveryLayer>()->getDataLen() == 6, "trailerPPPoEDPacket shorten layer - pppoed layer len isn't 6");
 	PTF_ASSERT(trailerPPPoEDPacket.getLayerOfType<PacketTrailerLayer>()->getDataLen() == 28, "trailerPPPoEDPacket shorten layer - trailer layer len isn't 28");
+} // PacketTrailerTest
 
-
-}
 
 
 PTF_TEST_CASE(RadiusLayerParsingTest)
@@ -6907,7 +6989,7 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	PTF_ASSERT(radiusAttr.getType() == 6, "Packet1: attribute is not of type 6");
 	PTF_ASSERT(radiusAttr.getDataSize() == 4, "Packet1: data size of attribute of type 6 isn't 4");
 	PTF_ASSERT(radiusAttr.getTotalSize() == 6, "Packet1: total size of attribute of type 6 isn't 6");
-	PTF_ASSERT(htonl(radiusAttr.getValueAs<int>()) == 2, "Packet1: value of attribute of type 6 isn't 2");
+	PTF_ASSERT(htobe32(radiusAttr.getValueAs<int>()) == 2, "Packet1: value of attribute of type 6 isn't 2");
 
 	int buffer2Length = 0;
 	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/radius_3.dat", buffer2Length);
@@ -6939,15 +7021,16 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 
 	// incorrect RADIUS packet
 	int buffer3Length = 0;
-	uint8_t *buffer3 = readFileIntoBuffer("PacketExamples/radius_wrong.dat", buffer3Length);
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/radius_wrong.dat", buffer3Length);
 	PTF_ASSERT(buffer3 != NULL, "cannot read file");
 
-	RawPacket rawPacket3((const uint8_t *)buffer3, buffer3Length, time, true, LINKTYPE_NULL);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true, LINKTYPE_NULL);
 	Packet radiusPacket3(&rawPacket3);
 
 	radiusLayer = radiusPacket3.getLayerOfType<RadiusLayer>();
 	PTF_ASSERT(radiusLayer == NULL, "Packet3: Incorrect RADIUS packet is decoded as correct");
-}
+} // RadiusLayerParsingTest
+
 
 
 PTF_TEST_CASE(RadiusLayerCreationTest)
@@ -6985,7 +7068,7 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 	PTF_ASSERT(radiusNewAttr.isNull() == false, "New attr type 12: attr is null");
 	PTF_ASSERT(radiusNewAttr.getType() == 12, "New attr type 12: type isn't 12");
 	PTF_ASSERT(radiusNewAttr.getDataSize() == 4, "New attr type 12: data size isn't 4");
-	PTF_ASSERT(radiusNewAttr.getValueAs<uint32_t>() == htonl(576), "New attr type 12: data isn't 576");
+	PTF_ASSERT(radiusNewAttr.getValueAs<uint32_t>() == htobe32(576), "New attr type 12: data isn't 576");
 
 	PTF_ASSERT(newRadiusPacket.addLayer(&radiusLayer), "Adding Radius layer failed");
 
@@ -7020,9 +7103,9 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 	RadiusLayer* newRadiusLayer = newRadiusPacket.getLayerOfType<RadiusLayer>();
 	PTF_ASSERT(origRadiusLayer->getDataLen() == newRadiusLayer->getDataLen(), "New radius data len is different than orig data len");
 	PTF_ASSERT(memcmp(origRadiusLayer->getData(), newRadiusLayer->getData(), origRadiusLayer->getDataLen()) == 0, "Raw layer data is different than expected");
+} // RadiusLayerCreationTest
 
 
-}
 
 PTF_TEST_CASE(RadiusLayerEditTest)
 {
@@ -7077,7 +7160,6 @@ PTF_TEST_CASE(RadiusLayerEditTest)
 	PTF_ASSERT(memcmp(msg2OrigRadiusLayer->getData(), radiusLayer->getData(), msg2OrigRadiusLayer->getDataLen()) == 0, "raw layer data is different than expected");
 
 
-
 	// remove all attributes test
 
 	PTF_ASSERT(msg2OrigRadiusLayer->removeAllAttributes() == true, "cannot remove all attributes in packet2");
@@ -7087,8 +7169,9 @@ PTF_TEST_CASE(RadiusLayerEditTest)
 	PTF_ASSERT(msg2OrigRadiusLayer->getFirstAttribute().isNull() == true, "packet2: managed to fetch first attribute after removing all attributes");
 	PTF_ASSERT(msg2OrigRadiusLayer->getAttribute(6).isNull() == true, "packet2: managed to fetch attribute 6 after removing all attributes");
 	PTF_ASSERT(msg2OrigRadiusLayer->getAttribute(80).isNull() == true, "packet2: managed to fetch attribute 6 after removing all attributes");
+} // RadiusLayerEditTest
 
-}
+
 
 PTF_TEST_CASE(GtpLayerParsingTest)
 {
@@ -7132,8 +7215,8 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 
 	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->messageType, 0xff, hex);
-	PTF_ASSERT_EQUAL(ntohs(gtpLayer->getHeader()->messageLength), 88, u16);
-	PTF_ASSERT_EQUAL(ntohl(gtpLayer->getHeader()->teid), 1, u32);
+	PTF_ASSERT_EQUAL(be16toh(gtpLayer->getHeader()->messageLength), 88, u16);
+	PTF_ASSERT_EQUAL(be32toh(gtpLayer->getHeader()->teid), 1, u32);
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
 
 	uint16_t seqNum;
@@ -7169,8 +7252,8 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer);
 
 	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
-	PTF_ASSERT_EQUAL(ntohs(gtpLayer->getHeader()->messageLength), 1508, u16);
-	PTF_ASSERT_EQUAL(ntohl(gtpLayer->getHeader()->teid), 0x00100657, u32);
+	PTF_ASSERT_EQUAL(be16toh(gtpLayer->getHeader()->messageLength), 1508, u16);
+	PTF_ASSERT_EQUAL(be32toh(gtpLayer->getHeader()->teid), 0x00100657, u32);
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
 
 	PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), GtpV1_GPDU, enum);
@@ -7213,8 +7296,8 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 
 	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->messageType, 0xff, hex);
-	PTF_ASSERT_EQUAL(ntohs(gtpLayer->getHeader()->messageLength), 496, u16);
-	PTF_ASSERT_EQUAL(ntohl(gtpLayer->getHeader()->teid), 2327461905, u32);
+	PTF_ASSERT_EQUAL(be16toh(gtpLayer->getHeader()->messageLength), 496, u16);
+	PTF_ASSERT_EQUAL(be32toh(gtpLayer->getHeader()->teid), 2327461905U, u32);
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 8, size);
@@ -7243,8 +7326,8 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer);
 
 	PTF_ASSERT_NOT_NULL(gtpLayer->getHeader());
-	PTF_ASSERT_EQUAL(ntohs(gtpLayer->getHeader()->messageLength), 44, u16);
-	PTF_ASSERT_EQUAL(ntohl(gtpLayer->getHeader()->teid), 0x09fe4b60, u32);
+	PTF_ASSERT_EQUAL(be16toh(gtpLayer->getHeader()->messageLength), 44, u16);
+	PTF_ASSERT_EQUAL(be32toh(gtpLayer->getHeader()->teid), 0x09fe4b60, u32);
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1, u8);
 
 	PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), GtpV1_SGSNContextResponse, enum);
@@ -7264,8 +7347,9 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 
 	PTF_ASSERT_TRUE(gtpLayer->isGTPCMessage());
 	PTF_ASSERT_FALSE(gtpLayer->isGTPUMessage());
+} // GtpLayerParsingTest
 
-}
+
 
 PTF_TEST_CASE(GtpLayerCreationTest)
 {
@@ -7323,7 +7407,7 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 	PTF_ASSERT_EQUAL(newExt1.getTotalLength(), 4*sizeof(uint8_t), size);
 	PTF_ASSERT_EQUAL(newExt1.getContentLength(), 2*sizeof(uint8_t), size);
 	uint16_t* content = (uint16_t*)newExt1.getContent();
-	PTF_ASSERT_EQUAL(ntohs(content[0]), 2308, u16);
+	PTF_ASSERT_EQUAL(be16toh(content[0]), 2308, u16);
 	PTF_ASSERT_TRUE(newExt1.getNextExtension().isNull()); 
 
 	newGtpPacket.computeCalculateFields();
@@ -7337,7 +7421,7 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 	PTF_ASSERT_EQUAL(newExt2.getTotalLength(), 4*sizeof(uint8_t), size);
 	PTF_ASSERT_EQUAL(newExt2.getContentLength(), 2*sizeof(uint8_t), size);
 	content = (uint16_t*)newExt2.getContent();
-	PTF_ASSERT_EQUAL(ntohs(content[0]), 1308, u16);
+	PTF_ASSERT_EQUAL(be16toh(content[0]), 1308, u16);
 	PTF_ASSERT_TRUE(newExt2.getNextExtension().isNull());
 
 	newGtpPacket.computeCalculateFields();
@@ -7348,7 +7432,9 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 
 	PTF_ASSERT_EQUAL(buffer3Length, newGtpPacket.getRawPacket()->getRawDataLen(), int);
 	PTF_ASSERT_BUF_COMPARE(newGtpPacket.getRawPacket()->getRawData(), buffer3, newGtpPacket.getRawPacket()->getRawDataLen());
-}
+} // GtpLayerCreationTest
+
+
 
 PTF_TEST_CASE(GtpLayerEditTest)
 {
@@ -7374,7 +7460,7 @@ PTF_TEST_CASE(GtpLayerEditTest)
 	gtpv1_header* gtpHeader = gtpLayer->getHeader();
 	PTF_ASSERT_NOT_NULL(gtpHeader);
 
-	gtpHeader->teid = htonl(10000);
+	gtpHeader->teid = htobe32(10000);
 
 	gtpLayer->setSequenceNumber(20000);
 	gtpLayer->setNpduNumber(100);
@@ -7395,10 +7481,10 @@ PTF_TEST_CASE(GtpLayerEditTest)
 	GtpV1Layer::GtpExtension gtpExtension = gtpLayer->getNextExtension();
 	PTF_ASSERT_FALSE(gtpExtension.isNull());
 	uint16_t* extContent = (uint16_t*)gtpExtension.getContent();
-	PTF_ASSERT_EQUAL(ntohs(extContent[0]), 1000, u16);
+	PTF_ASSERT_EQUAL(be16toh(extContent[0]), 1000, u16);
 
 	gtpHeader = gtpLayer->getHeader();
-	PTF_ASSERT_EQUAL(ntohl(gtpHeader->teid), 10000, u32);
+	PTF_ASSERT_EQUAL(be32toh(gtpHeader->teid), 10000, u32);
 
 	gtpPacket1.computeCalculateFields();
 
@@ -7406,6 +7492,152 @@ PTF_TEST_CASE(GtpLayerEditTest)
 	PTF_ASSERT_BUF_COMPARE(gtpPacket1.getRawPacket()->getRawData(), buffer2, gtpPacket1.getRawPacket()->getRawDataLen());
 
 	delete [] buffer2;
+} // GtpLayerEditTest
+
+
+
+PTF_TEST_CASE(EthDot3LayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/EthDot3.dat", buffer1Length);
+	PTF_ASSERT_NOT_NULL(buffer1);
+
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	Packet ethDot3Packet(&rawPacket1);
+
+	PTF_ASSERT_TRUE(ethDot3Packet.isPacketOfType(EthernetDot3));
+	EthDot3Layer* ethDot3Layer = ethDot3Packet.getLayerOfType<EthDot3Layer>();
+	PTF_ASSERT_NOT_NULL(ethDot3Layer);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getHeaderLen(), 14, size);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getSourceMac(), MacAddress("00:13:f7:11:5e:db"), object);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getDestMac(), MacAddress("01:80:c2:00:00:00"), object);
+	PTF_ASSERT_EQUAL(be16toh(ethDot3Layer->getEthHeader()->length), 38, u16);
+
+	PTF_ASSERT_NOT_NULL(ethDot3Layer->getNextLayer());
+	PTF_ASSERT_EQUAL(ethDot3Layer->getNextLayer()->getProtocol(), GenericPayload, enum);
+	PayloadLayer* payloadLayer = (PayloadLayer*)ethDot3Layer->getNextLayer();
+	PTF_ASSERT_NOT_NULL(payloadLayer);
+	PTF_ASSERT_EQUAL(payloadLayer->getDataLen(), 46, size);
+
+	PTF_ASSERT_NULL(payloadLayer->getNextLayer());
+} // EthDot3LayerParsingTest
+
+
+
+PTF_TEST_CASE(EthDot3LayerCreateEditTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/EthDot3.dat", buffer1Length);
+	PTF_ASSERT_NOT_NULL(buffer1);
+
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/EthDot3_2.dat", buffer2Length);
+	PTF_ASSERT_NOT_NULL(buffer2);
+
+	// create a new EthDot3 packet
+
+	MacAddress srcAddr("00:13:f7:11:5e:db");
+	MacAddress dstAddr("01:80:c2:00:00:00");
+	EthDot3Layer ethDot3NewLayer(srcAddr, dstAddr, 38);
+
+	PayloadLayer newPayloadLayer("424203000000000000000013f71edff00000271080000013f7115ec0801b0100140002000f000000000000000000");
+	PTF_ASSERT_EQUAL(newPayloadLayer.getDataLen(), 46, size);
+
+	Packet newEthDot3Packet;
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&ethDot3NewLayer));
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer));
+	newEthDot3Packet.computeCalculateFields();
+
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer1, buffer1Length);
+
+
+	// edit an EthDot3 packet
+
+	ethDot3NewLayer.setSourceMac(MacAddress("00:1a:a1:97:d1:85"));
+	ethDot3NewLayer.getEthHeader()->length = htobe16(121);
+
+	PayloadLayer newPayloadLayer2("424203000003027c8000000c305dd100000000008000000c305dd10080050000140002000f000000500000000"
+			"00000000000000000000000000000000000000000000000000000000000000055bf4e8a44b25d442868549c1bf7720f00030d408000001a"
+			"a197d180137c8005000c305dd10000030d40808013");
+
+	PTF_ASSERT_TRUE(newEthDot3Packet.detachLayer(&newPayloadLayer));
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer2));
+	newEthDot3Packet.computeCalculateFields();
+
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer2, buffer2Length);
+
+	delete [] buffer1;
+	delete [] buffer2;
+
+} // EthDot3LayerCreateEditTest
+
+
+
+PTF_TEST_CASE(PacketLayerLookupTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	{
+		int bufferLength = 0;
+		uint8_t* buffer = readFileIntoBuffer("PacketExamples/radius_1.dat", bufferLength);
+		PTF_ASSERT_NOT_NULL(buffer);
+
+		RawPacket rawPacket(buffer, bufferLength, time, true);
+		Packet radiusPacket(&rawPacket);
+
+		RadiusLayer* radiusLayer = radiusPacket.getLayerOfType<RadiusLayer>(true);
+		PTF_ASSERT_NOT_NULL(radiusLayer);
+
+		EthLayer* ethLayer = radiusPacket.getLayerOfType<EthLayer>(true);
+		PTF_ASSERT_NOT_NULL(ethLayer);
+
+		IPv4Layer* ipLayer = radiusPacket.getPrevLayerOfType<IPv4Layer>(radiusLayer);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+
+		TcpLayer* tcpLayer = radiusPacket.getPrevLayerOfType<TcpLayer>(ipLayer);
+		PTF_ASSERT_NULL(tcpLayer);
+	}
+
+	{
+		int bufferLength = 0;
+		uint8_t* buffer = readFileIntoBuffer("PacketExamples/Vxlan1.dat", bufferLength);
+		PTF_ASSERT_NOT_NULL(buffer);
+
+		// current packet contains the following layers: Eth(1) -> IPv4(1) -> UDP -> VXLAN -> Eth(2) -> IPv4(2) -> ICMP
+		RawPacket rawPacket(buffer, bufferLength, time, true);
+		Packet vxlanPacket(&rawPacket);
+
+		// get the last IPv4 layer
+		IPv4Layer* ipLayer = vxlanPacket.getLayerOfType<IPv4Layer>(true);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), IPv4Address("192.168.203.3"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), IPv4Address("192.168.203.5"), object);
+
+		// get the first IPv4 layer
+		ipLayer = vxlanPacket.getPrevLayerOfType<IPv4Layer>(ipLayer);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), IPv4Address("192.168.203.1"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), IPv4Address("192.168.202.1"), object);
+
+		// try to get one more IPv4 layer
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<IPv4Layer>(ipLayer));
+
+		// get the first layer
+		EthLayer* ethLayer = vxlanPacket.getPrevLayerOfType<EthLayer>(ipLayer);
+		PTF_ASSERT_NOT_NULL(ethLayer);
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<EthLayer>(ethLayer));
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<EthLayer>(vxlanPacket.getFirstLayer()));
+
+		// try to get nonexistent layer
+		PTF_ASSERT_NULL(vxlanPacket.getLayerOfType<RadiusLayer>(true));
+	}
 }
 
 
@@ -7488,9 +7720,9 @@ int main(int argc, char* argv[]) {
 
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
-	PTF_RUN_TEST(EthPacketCreation, "eth");
-	PTF_RUN_TEST(EthPacketPointerCreation, "eth");
-	PTF_RUN_TEST(EthAndArpPacketParsing, "eth");
+	PTF_RUN_TEST(EthPacketCreation, "eth2;eth");
+	PTF_RUN_TEST(EthPacketPointerCreation, "eth2;eth");
+	PTF_RUN_TEST(EthAndArpPacketParsing, "eth2;eth;arp");
 	PTF_RUN_TEST(ArpPacketCreation, "arp");
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(Ipv4PacketCreation, "ipv4");
@@ -7506,6 +7738,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
+	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
 	PTF_RUN_TEST(InsertDataToPacket, "insert");
 	PTF_RUN_TEST(InsertVlanToPacket, "vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "remove_layer");
@@ -7570,6 +7803,9 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
 	PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
 	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
+	PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
+	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
+	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
 
 	PTF_END_RUNNING_TESTS;
 }

@@ -118,6 +118,14 @@ PCAPPLUSPLUS_MK="mk/PcapPlusPlus.mk"
 
 cp -f mk/platform.mk.macosx $PLATFORM_MK
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
+
+# set SDK home if MacOS verion >= 10.14
+MACOS_MINOR_VERSION=`(sw_vers -productVersion) | awk -F '.' '{print $2}'`
+if [[ $MACOS_MINOR_VERSION -ge 14 ]]; then
+   echo -e "\n# setting SDK home for MacOS version >= 10.14" >> $PCAPPLUSPLUS_MK
+   echo -e "MACOS_SDK_HOME := /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\n" >> $PCAPPLUSPLUS_MK
+fi
+
 cat mk/PcapPlusPlus.mk.macosx >> $PCAPPLUSPLUS_MK
 
 echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
@@ -153,6 +161,6 @@ chmod +x mk/install.sh
 
 cp mk/uninstall.sh.template mk/uninstall.sh
 sed -i.bak "s|{{INSTALL_DIR}}|$INSTALL_DIR|g" mk/uninstall.sh && rm mk/uninstall.sh.bak
-chmod +x mk/install.sh
+chmod +x mk/uninstall.sh
 
 echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK", mk/install.sh, mk/uninstall.sh

@@ -5,6 +5,7 @@
 #include "PcapFileDevice.h"
 #include "light_pcapng_ext.h"
 #include "Logger.h"
+#include "TimespecTimeval.h"
 #include <string.h>
 #include <fstream>
 
@@ -13,13 +14,13 @@ namespace pcpp
 
 struct pcap_file_header
 {
-    uint32_t magic;
-    uint16_t version_major;
-    uint16_t version_minor;
-    int32_t thiszone;
-    uint32_t sigfigs;
-    uint32_t snaplen;
-    uint32_t linktype;
+	uint32_t magic;
+	uint16_t version_major;
+	uint16_t version_minor;
+	int32_t thiszone;
+	uint32_t sigfigs;
+	uint32_t snaplen;
+	uint32_t linktype;
 };
 
 struct packet_header
@@ -46,7 +47,7 @@ IFileDevice::~IFileDevice()
 	delete[] m_FileName;
 }
 
-std::string IFileDevice::getFileName()
+std::string IFileDevice::getFileName() const
 {
 	return std::string(m_FileName);
 }
@@ -76,16 +77,15 @@ IFileReaderDevice::IFileReaderDevice(const char* fileName) : IFileDevice(fileNam
 
 IFileReaderDevice* IFileReaderDevice::getReader(const char* fileName)
 {
-	std::string fileNameStr = std::string(fileName);
-	size_t dotLocation = fileNameStr.find_last_of(".");
-	std::string fileExtension = ( dotLocation == std::string::npos ? "" : fileNameStr.substr(dotLocation) );
-	if (fileExtension == ".pcapng")
+	const char* fileExtension = strrchr(fileName, '.');
+
+	if (fileExtension != NULL && strcmp(fileExtension, ".pcapng") == 0)
 		return new PcapNgFileReaderDevice(fileName);
-	else
-		return new PcapFileReaderDevice(fileName);
+
+	return new PcapFileReaderDevice(fileName);
 }
 
-uint64_t IFileReaderDevice::getFileSize()
+uint64_t IFileReaderDevice::getFileSize() const
 {
 	std::ifstream fileStream(m_FileName, std::ifstream::ate | std::ifstream::binary);
 	return fileStream.tellg();
@@ -118,15 +118,6 @@ int IFileReaderDevice::getNextPackets(RawPacketVector& packetVec, int numOfPacke
 // PcapFileReaderDevice members
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PcapFileReaderDevice::PcapFileReaderDevice(const char* fileName) : IFileReaderDevice(fileName)
-{
-	m_PcapLinkLayerType = LINKTYPE_ETHERNET;
-}
-
-LinkLayerType PcapFileReaderDevice::getLinkLayerType()
-{
-	return m_PcapLinkLayerType;
-}
 
 bool PcapFileReaderDevice::open()
 {
@@ -155,7 +146,7 @@ bool PcapFileReaderDevice::open()
 	return true;
 }
 
-void PcapFileReaderDevice::getStatistics(pcap_stat& stats)
+void PcapFileReaderDevice::getStatistics(pcap_stat& stats) const
 {
 	stats.ps_recv = m_NumOfPacketsRead;
 	stats.ps_drop = m_NumOfPacketsNotParsed;
@@ -203,7 +194,7 @@ PcapNgFileReaderDevice::PcapNgFileReaderDevice(const char* fileName) : IFileRead
 	m_BpfInitialized = false;
 }
 
-bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType)
+bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType)
 {
 	if (m_CurFilter == "")
 		return true;
@@ -228,7 +219,7 @@ bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, si
 	struct pcap_pkthdr pktHdr;
 	pktHdr.caplen = packetLen;
 	pktHdr.len = packetLen;
-	pktHdr.ts = packetTimestamp;
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
 	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 
@@ -306,7 +297,7 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	return getNextPacket(rawPacket, temp);
 }
 
-void PcapNgFileReaderDevice::getStatistics(pcap_stat& stats)
+void PcapNgFileReaderDevice::getStatistics(pcap_stat& stats) const
 {
 	stats.ps_recv = m_NumOfPacketsRead;
 	stats.ps_drop = m_NumOfPacketsNotParsed;
@@ -342,7 +333,7 @@ void PcapNgFileReaderDevice::close()
 }
 
 
-std::string PcapNgFileReaderDevice::getOS()
+std::string PcapNgFileReaderDevice::getOS() const
 {
 	if (m_LightPcapNg == NULL)
 	{
@@ -359,7 +350,7 @@ std::string PcapNgFileReaderDevice::getOS()
 	return std::string(res, len);
 }
 
-std::string PcapNgFileReaderDevice::getHardware()
+std::string PcapNgFileReaderDevice::getHardware() const
 {
 	if (m_LightPcapNg == NULL)
 	{
@@ -376,7 +367,7 @@ std::string PcapNgFileReaderDevice::getHardware()
 	return std::string(res, len);
 }
 
-std::string PcapNgFileReaderDevice::getCaptureApplication()
+std::string PcapNgFileReaderDevice::getCaptureApplication() const
 {
 	if (m_LightPcapNg == NULL)
 	{
@@ -393,7 +384,7 @@ std::string PcapNgFileReaderDevice::getCaptureApplication()
 	return std::string(res, len);
 }
 
-std::string PcapNgFileReaderDevice::getCaptureFileComment()
+std::string PcapNgFileReaderDevice::getCaptureFileComment() const
 {
 	if (m_LightPcapNg == NULL)
 	{
@@ -469,16 +460,17 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	pcap_pkthdr pktHdr;
 	pktHdr.caplen = ((RawPacket&)packet).getRawDataLen();
 	pktHdr.len = ((RawPacket&)packet).getFrameLength();
-	pktHdr.ts = ((RawPacket&)packet).getPacketTimeStamp();
+	timespec packet_timestamp = ((RawPacket&)packet).getPacketTimeStamp();
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 	if (!m_AppendMode)
 		pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
 	else
 	{
-		// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on Windows using WinPcap
-		// you can't pass pointers between libraries compiled with different compilers. In this case - PcapPlusPlus and WinPcap weren't
-		// compiled with the same compiler so it's impossible to fopen a file in PcapPlusPlus, pass the pointer to WinPcap and use the
+		// Below are actually the lines run by pcap_dump. The reason I had to put them instead pcap_dump is that on Windows using WinPcap/Npcap
+		// you can't pass pointers between libraries compiled with different compilers. In this case - PcapPlusPlus and WinPcap/Npcap weren't
+		// compiled with the same compiler so it's impossible to fopen a file in PcapPlusPlus, pass the pointer to WinPcap/Npcap and use the
 		// FILE* pointer there. Doing this throws an exception. So the only option when implementing append to pcap is to write all relevant
-		// WinPcap code that handles opening/closing/writing to pcap files inside PcapPlusPlus code
+		// WinPcap/Npcap code that handles opening/closing/writing to pcap files inside PcapPlusPlus code
 
 		// the reason to create this packet_header struct is timeval has different sizes in 32-bit and 64-bit systems,
 		// but pcap format uses the 32-bit timeval version, so we need to align timeval to that
@@ -518,7 +510,7 @@ bool PcapFileWriterDevice::open()
 	{
 		case LINKTYPE_RAW:
 		case LINKTYPE_DLT_RAW2:
-			LOG_ERROR("The only Raw IP link type supported in libpcap/WinPcap is LINKTYPE_DLT_RAW1, please use that instead");
+			LOG_ERROR("The only Raw IP link type supported in libpcap/WinPcap/Npcap is LINKTYPE_DLT_RAW1, please use that instead");
 			return false;
 		default:
 			break;
@@ -550,8 +542,11 @@ bool PcapFileWriterDevice::open()
 	return true;
 }
 
-void PcapFileWriterDevice::close()
+void PcapFileWriterDevice::flush()
 {
+	if (!m_DeviceOpened)
+		return;
+
 	if (!m_AppendMode && pcap_dump_flush(m_PcapDumpHandler) == -1)
 	{
 		LOG_ERROR("Error while flushing the packets to file");
@@ -562,20 +557,33 @@ void PcapFileWriterDevice::close()
 		LOG_ERROR("Error while flushing the packets to file");
 	}
 
+}
+
+void PcapFileWriterDevice::close()
+{
+	if (!m_DeviceOpened)
+		return;
+
+	flush();
+
 	IFileDevice::close();
 
-	if (!m_AppendMode)
+	if (!m_AppendMode && m_PcapDumpHandler != NULL)
+	{
 		pcap_dump_close(m_PcapDumpHandler);
-	else
+	}
+	else if (m_AppendMode && m_File != NULL)
+	{
 		// in append mode it's impossible to use pcap_dump_close, see comment above pcap_dump
 		fclose(m_File);
+	}
 
 	m_PcapDumpHandler = NULL;
 	m_File = NULL;
 	LOG_DEBUG("File writer closed for file '%s'", m_FileName);
 }
 
-void PcapFileWriterDevice::getStatistics(pcap_stat& stats)
+void PcapFileWriterDevice::getStatistics(pcap_stat& stats) const
 {
 	stats.ps_recv = m_NumOfPacketsWritten;
 	stats.ps_drop = m_NumOfPacketsNotWritten;
@@ -651,7 +659,7 @@ PcapNgFileWriterDevice::PcapNgFileWriterDevice(const char* fileName, int compres
 	m_BpfInitialized = false;
 }
 
-bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timeval packetTimestamp, uint16_t linkType)
+bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType)
 {
 	if (m_CurFilter == "")
 		return true;
@@ -676,7 +684,7 @@ bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, si
 	struct pcap_pkthdr pktHdr;
 	pktHdr.caplen = packetLen;
 	pktHdr.len = packetLen;
-	pktHdr.ts = packetTimestamp;
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
 	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 
@@ -824,7 +832,7 @@ void PcapNgFileWriterDevice::close()
 	LOG_DEBUG("File writer closed for file '%s'", m_FileName);
 }
 
-void PcapNgFileWriterDevice::getStatistics(pcap_stat& stats)
+void PcapNgFileWriterDevice::getStatistics(pcap_stat& stats) const
 {
 	stats.ps_recv = m_NumOfPacketsWritten;
 	stats.ps_drop = m_NumOfPacketsNotWritten;

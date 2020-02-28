@@ -12,6 +12,7 @@
 #include <sstream>
 #include "IpUtils.h"
 #include "Logger.h"
+#include "EndianPortable.h"
 
 namespace pcpp
 {
@@ -27,7 +28,7 @@ namespace pcpp
 IPv4OptionBuilder::IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vector<IPv4Address>& ipList)
 {
 	m_RecType = (uint8_t)optionType;
-	m_RecValueLen = ipList.size()*sizeof(uint32_t) + sizeof(uint8_t);
+	m_RecValueLen = ipList.size() * sizeof(uint32_t) + sizeof(uint8_t);
 	m_RecValue = new uint8_t[m_RecValueLen];
 
 	size_t curOffset = 0;
@@ -44,7 +45,7 @@ IPv4OptionBuilder::IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vect
 		if (!firstZero && ipAddrAsInt == 0)
 			firstZero = true;
 
-		memcpy(m_RecValue + curOffset , &ipAddrAsInt, sizeof(uint32_t));
+		memcpy(m_RecValue + curOffset, &ipAddrAsInt, sizeof(uint32_t));
 		curOffset += sizeof(uint32_t);
 	}
 
@@ -78,11 +79,11 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 		return;
 	}
 
-	m_RecValueLen = timestampValue.timestamps.size()*sizeof(uint32_t) + 2*sizeof(uint8_t);
+	m_RecValueLen = timestampValue.timestamps.size() * sizeof(uint32_t) + 2 * sizeof(uint8_t);
 
 	if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
 	{
-		m_RecValueLen += timestampValue.timestamps.size()*sizeof(uint32_t);
+		m_RecValueLen += timestampValue.timestamps.size() * sizeof(uint32_t);
 	}
 
 	m_RecValue = new uint8_t[m_RecValueLen];
@@ -94,7 +95,7 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 	int firstZero = -1;
 	for (int i = 0; i < (int)timestampValue.timestamps.size(); i++)
 	{
-		uint32_t timestamp = htonl(timestampValue.timestamps.at(i));
+		uint32_t timestamp = htobe32(timestampValue.timestamps.at(i));
 
 		// for pointer calculation - find the first timestamp equals to 0
 		if (timestamp == 0 && firstZero == -1)
@@ -114,9 +115,9 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 	// calculate pointer field
 	if (firstZero > -1)
 	{
-		uint8_t pointerVal = (uint8_t)(4*sizeof(uint8_t) + firstZero*sizeof(uint32_t) + 1);
+		uint8_t pointerVal = (uint8_t)(4 * sizeof(uint8_t) + firstZero * sizeof(uint32_t) + 1);
 		if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP)
-			pointerVal += (uint8_t)(firstZero*sizeof(uint32_t));
+			pointerVal += (uint8_t)(firstZero * sizeof(uint32_t));
 
 		m_RecValue[0] = pointerVal;
 	}
@@ -129,7 +130,7 @@ IPv4Option IPv4OptionBuilder::build() const
 	if (!m_BuilderParamsValid)
 		return IPv4Option(NULL);
 
-	size_t optionSize = m_RecValueLen + 2*sizeof(uint8_t);
+	size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
 	if ((m_RecType == (uint8_t)IPV4OPT_NOP || m_RecType == (uint8_t)IPV4OPT_EndOfOtionsList))
 	{
@@ -149,7 +150,7 @@ IPv4Option IPv4OptionBuilder::build() const
 	{
 		recordBuffer[1] = (uint8_t)optionSize;
 		if (optionSize > 2 && m_RecValue != NULL)
-			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
+			memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
 	}
 
 	return IPv4Option(recordBuffer);
@@ -160,12 +161,14 @@ IPv4Option IPv4OptionBuilder::build() const
 /// IPv4Layer
 /// ~~~~~~~~~
 
+
 void IPv4Layer::initLayer()
 {
-	m_DataLen = sizeof(iphdr);
-	m_Data = new uint8_t[m_DataLen];
+	const size_t headerLen = sizeof(iphdr);
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
 	m_Protocol = IPv4;
-	memset(m_Data, 0, sizeof(iphdr));
+	memset(m_Data, 0, headerLen);
 	iphdr* ipHdr = getIPv4Header();
 	ipHdr->internetHeaderLength = (5 & 0xf);
 	m_NumOfTrailingBytes = 0;
@@ -179,7 +182,7 @@ void IPv4Layer::initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLaye
 	m_TempHeaderExtension = 0;
 	if (setTotalLenAsDataLen)
 	{
-		size_t totalLen = ntohs(getIPv4Header()->totalLength);
+		size_t totalLen = be16toh(getIPv4Header()->totalLength);
 		// if totalLen == 0 this usually means TCP Segmentation Offload (TSO). In this case we should ignore the value of totalLen
 		// and look at the data captured on the wire
 		if ((totalLen < m_DataLen) && (totalLen !=0))
@@ -245,64 +248,67 @@ void IPv4Layer::parseNextLayer()
 
 	uint8_t ipVersion = 0;
 
+	uint8_t* payload = m_Data + hdrLen;
+	size_t payloadLen = m_DataLen - hdrLen;
+
 	// If it's a fragment don't parse upper layers, unless if it's the first fragment
 	// TODO: assuming first fragment contains at least L4 header, what if it's not true?
 	if (isFragment())
 	{
-		m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;
 	}
 
 	switch (ipHdr->protocol)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		if (m_DataLen - hdrLen >= sizeof(udphdr))
-			m_NextLayer = new UdpLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+		if (payloadLen >= sizeof(udphdr))
+			m_NextLayer = new UdpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_TCP:
-		if (m_DataLen - hdrLen >= sizeof(tcphdr))
-			m_NextLayer = new TcpLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+		m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new TcpLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_ICMP:
-		m_NextLayer = new IcmpLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+		m_NextLayer = new IcmpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IPIP:
-		ipVersion = *(m_Data + hdrLen);
-		if (ipVersion >> 4 == 4)
-			m_NextLayer = new IPv4Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
-		else if (ipVersion >> 4 == 6)
-			m_NextLayer = new IPv6Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+		ipVersion = *payload >> 4;
+		if (ipVersion == 4)
+			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+		else if (ipVersion == 6)
+			m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
 		else
-			m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_GRE:
-		greVer = GreLayer::getGREVersion(m_Data + hdrLen, m_DataLen - hdrLen);
+		greVer = GreLayer::getGREVersion(payload, payloadLen);
 		if (greVer == GREv0)
-			m_NextLayer = new GREv0Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
 		else if (greVer == GREv1)
-			m_NextLayer = new GREv1Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
 		else
-			m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IGMP:
-		igmpVer = IgmpLayer::getIGMPVerFromData(m_Data + hdrLen, ntohs(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
+		igmpVer = IgmpLayer::getIGMPVerFromData(payload, be16toh(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
 		if (igmpVer == IGMPv1)
-			m_NextLayer = new IgmpV1Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new IgmpV1Layer(payload, payloadLen, this, m_Packet);
 		else if (igmpVer == IGMPv2)
-			m_NextLayer = new IgmpV2Layer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new IgmpV2Layer(payload, payloadLen, this, m_Packet);
 		else if (igmpVer == IGMPv3)
 		{
 			if (igmpQuery)
-				m_NextLayer = new IgmpV3QueryLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+				m_NextLayer = new IgmpV3QueryLayer(payload, payloadLen, this, m_Packet);
 			else
-				m_NextLayer = new IgmpV3ReportLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+				m_NextLayer = new IgmpV3ReportLayer(payload, payloadLen, this, m_Packet);
 		}
 		else
-			m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	default:
-		m_NextLayer = new PayloadLayer(m_Data + hdrLen, m_DataLen - hdrLen, this, m_Packet);
-		return;
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 }
 
@@ -310,7 +316,7 @@ void IPv4Layer::computeCalculateFields()
 {
 	iphdr* ipHdr = getIPv4Header();
 	ipHdr->ipVersion = (4 & 0x0f);
-	ipHdr->totalLength = htons(m_DataLen);
+	ipHdr->totalLength = htobe16(m_DataLen);
 	ipHdr->headerChecksum = 0;
 
 	if (m_NextLayer != NULL)
@@ -341,35 +347,35 @@ void IPv4Layer::computeCalculateFields()
 	}
 
 	ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength*4) } ;
-	ipHdr->headerChecksum = htons(compute_checksum(&scalar, 1));
+	ipHdr->headerChecksum = htobe16(compute_checksum(&scalar, 1));
 }
 
-bool IPv4Layer::isFragment()
+bool IPv4Layer::isFragment() const
 {
 	return ((getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0 || getFragmentOffset() != 0);
 }
 
-bool IPv4Layer::isFirstFragment()
+bool IPv4Layer::isFirstFragment() const
 {
 	return isFragment() && (getFragmentOffset() == 0);
 }
 
-bool IPv4Layer::isLastFragment()
+bool IPv4Layer::isLastFragment() const
 {
 	return isFragment() && ((getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) == 0);
 }
 
-uint8_t IPv4Layer::getFragmentFlags()
+uint8_t IPv4Layer::getFragmentFlags() const
 {
 	return getIPv4Header()->fragmentOffset & 0xE0;
 }
 
-uint16_t IPv4Layer::getFragmentOffset()
+uint16_t IPv4Layer::getFragmentOffset() const
 {
-	return ntohs(getIPv4Header()->fragmentOffset & (uint16_t)0xFF1F) * 8;
+	return be16toh(getIPv4Header()->fragmentOffset & (uint16_t)0xFF1F) * 8;
 }
 
-std::string IPv4Layer::toString()
+std::string IPv4Layer::toString() const
 {
 	std::string fragmet = "";
 	if (isFragment())
@@ -386,26 +392,25 @@ std::string IPv4Layer::toString()
 		fragmet = sstm.str();
 	}
 
-
 	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
 }
 
-IPv4Option IPv4Layer::getOption(IPv4OptionTypes option)
+IPv4Option IPv4Layer::getOption(IPv4OptionTypes option) const
 {
 	return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-IPv4Option IPv4Layer::getFirstOption()
+IPv4Option IPv4Layer::getFirstOption() const
 {
 	return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-IPv4Option IPv4Layer::getNextOption(IPv4Option& option)
+IPv4Option IPv4Layer::getNextOption(IPv4Option& option) const
 {
 	return m_OptionReader.getNextTLVRecord(option, getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
 
-size_t IPv4Layer::getOptionCount()
+size_t IPv4Layer::getOptionCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(iphdr));
 }
@@ -477,8 +482,7 @@ IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int of
 
 IPv4Option IPv4Layer::addOption(const IPv4OptionBuilder& optionBuilder)
 {
-	return addOptionAt(optionBuilder, getHeaderLen()-m_NumOfTrailingBytes);
-
+	return addOptionAt(optionBuilder, getHeaderLen() - m_NumOfTrailingBytes);
 }
 
 IPv4Option IPv4Layer::addOptionAfter(const IPv4OptionBuilder& optionBuilder, IPv4OptionTypes prevOptionType)
@@ -529,7 +533,7 @@ bool IPv4Layer::removeOption(IPv4OptionTypes option)
 
 	// setting this m_TempHeaderExtension because adjustOptionsTrailer() may extend or shorten the layer and the extend or shorten methods need to know the accurate
 	// current size of the header. m_TempHeaderExtension will be added to the length extracted from getIPv4Header()->internetHeaderLength as the temp new size
-	m_TempHeaderExtension = 0-sizeToShorten;
+	m_TempHeaderExtension = 0 - sizeToShorten;
 	adjustOptionsTrailer(totalOptSize);
 	// the adjustOptionsTrailer() adds or removed the trailing bytes and sets getIPv4Header()->internetHeaderLength to the correct size, so the m_TempHeaderExtension
 	// isn't needed anymore
@@ -544,12 +548,12 @@ bool IPv4Layer::removeAllOptions()
 {
 	int offset = sizeof(iphdr);
 
-	if (!shortenLayer(offset, getHeaderLen()-offset))
+	if (!shortenLayer(offset, getHeaderLen() - offset))
 		return false;
 
 	getIPv4Header()->internetHeaderLength = (5 & 0xf);
 	m_NumOfTrailingBytes = 0;
-	m_OptionReader.changeTLVRecordCount(0-getOptionCount());
+	m_OptionReader.changeTLVRecordCount(0 - getOptionCount());
 	return true;
 }
 

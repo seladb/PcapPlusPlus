@@ -18,7 +18,7 @@ namespace pcpp
 	 * @class WinPcapLiveDevice
 	 * A class that wraps a Windows network interface (each of the interfaces listed in ipconfig).
 	 * This class is almost similar in its capabilities to PcapLiveDevice (its parent class) with some small changes that mainly result from
-	 * differences between libpcap and WinPcap. Please see the reference for PcapLiveDevice for more details
+	 * differences between libpcap and WinPcap/Npcap. Please see the reference for PcapLiveDevice for more details
 	 */
 	class WinPcapLiveDevice : public PcapLiveDevice
 	{
@@ -33,7 +33,7 @@ namespace pcpp
 		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other);
 
 	public:
-		virtual LiveDeviceType getDeviceType() { return WinPcapDevice; }
+		virtual LiveDeviceType getDeviceType() const { return WinPcapDevice; }
 
 		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie);
 		bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
@@ -42,7 +42,7 @@ namespace pcpp
 		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
 
 		/**
-		 * WinPcap has an ability (that doesn't exist in libpcap) to change the minimum amount of data in the kernel buffer that causes a read
+		 * WinPcap/Npcap have a feature (that doesn't exist in libpcap) to change the minimum amount of data in the kernel buffer that causes a read
 		 * from the application to return (unless the timeout expires). Please see documentation for pcap_setmintocopy for more info. This method
 		 * enables the user to change this size. Note the device must be open for this method to work
 		 * @param[in] size The size to set in bytes
@@ -54,7 +54,7 @@ namespace pcpp
 		 * @return The current amount of data in the kernel buffer that causes a read from the application to return (see also
 		 * setMinAmountOfDataToCopyFromKernelToApplication())
 		 */
-		int getMinAmountOfDataToCopyFromKernelToApplication() { return m_MinAmountOfDataToCopyFromKernelToApplication; }
+		int getMinAmountOfDataToCopyFromKernelToApplication() const { return m_MinAmountOfDataToCopyFromKernelToApplication; }
 	};
 
 } // namespace pcpp
