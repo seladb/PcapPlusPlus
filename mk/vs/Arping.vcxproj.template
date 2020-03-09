@@ -106,7 +106,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Arping\Bin" /Y
@@ -127,7 +127,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Arping\Bin" /Y
@@ -153,7 +153,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHo
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Arping\Bin" /Y
@@ -179,7 +179,7 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Common++.lib;Packet++.lib;Pcap++.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\Arping\Bin" /Y
