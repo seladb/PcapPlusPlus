@@ -103,8 +103,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+      <Command>xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Packet++\Lib\Packet++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
