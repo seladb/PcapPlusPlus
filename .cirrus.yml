@@ -3,7 +3,7 @@ task:
   freebsd_instance:
     matrix:
       image_family: freebsd-11-3-snap
-      image_family: freebsd-12-0
+      image_family: freebsd-12-1-snap
   update_script: pkg update -f
   install_script: pkg install -y libpcap bash gsed gmake
   configure_script:
