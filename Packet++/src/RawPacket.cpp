@@ -187,4 +187,17 @@ bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 	return true;
 }
 
+bool RawPacket::setPacketTimeStamp(timeval timestamp)
+{
+	timespec nsec_time;
+	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
+	return setPacketTimeStamp(nsec_time);
+}
+
+bool RawPacket::setPacketTimeStamp(timespec timestamp)
+{
+	m_TimeStamp = timestamp;
+	return true;
+}
+
 } // namespace pcpp
