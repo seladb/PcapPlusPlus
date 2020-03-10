@@ -17,9 +17,9 @@ set USE_ZSTD=
 
 :: check the number of arguments: If got at least one argument continue to command-line mode, else continue to wizard mode
 if "%1" NEQ "" ( 
-	call :GETOPT %1 %2 %3 %4 %5 %6 %7 %8 %9 
+    call :GETOPT %1 %2 %3 %4 %5 %6 %7 %8 %9 
 ) else ( 
-	call :READ_PARAMS_FROM_USER 
+    call :READ_PARAMS_FROM_USER 
 )
 :: if one of the modes returned with an error, exit script
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
@@ -28,7 +28,7 @@ if "%ERRORLEVEL%" NEQ "0" exit /B 1
 if "%VS_VERSION%"=="" echo Visual studio version was not provided. Exiting & exit /B 1
 if "%PTHREAD_HOME%"=="" echo pthread-win32 directory was not provided. Exiting & exit /B 1
 if "%PCAP_SDK_HOME%"=="" echo WinPcap/Npcap SDK directory was not provided. Exiting & exit /B 1
-if "%ZSTD_HOME%"=="" echo WinPcap/Npcap SDK directory was not provided. ZSTD Support will be skipped!
+if "%ZSTD_HOME%"=="" echo ZStd directory was not provided. ZSTD Support will be skipped!
 
 :: remove trailing "\" in PTHREAD_HOME if exists
 if "%PTHREAD_HOME:~-1%"=="\" set PTHREAD_HOME=%PTHREAD_HOME:~,-1%
@@ -49,9 +49,9 @@ if not exist "%VS_PROJ_DIR%" mkdir %VS_PROJ_DIR%
     set "LINE=%%A"
     setlocal enabledelayedexpansion
     set "LINE=!LINE:PUT_PCAPPLUSPLUS_HOME_HERE=%cd%!"
-	set "LINE=!LINE:PUT_PCAP_SDK_HOME_HERE=%PCAP_SDK_HOME%!"
-	set "LINE=!LINE:PUT_PTHREAD_HOME_HERE=%PTHREAD_HOME%!"
-	set "LINE=!LINE:PUT_ZSTD_HOME_HERE=%ZSTD_HOME%!"
+    set "LINE=!LINE:PUT_PCAP_SDK_HOME_HERE=%PCAP_SDK_HOME%!"
+    set "LINE=!LINE:PUT_PTHREAD_HOME_HERE=%PTHREAD_HOME%!"
+    set "LINE=!LINE:PUT_ZSTD_HOME_HERE=%ZSTD_HOME%!"
     echo !LINE!
     endlocal
 ))>pcpp_temp.xml
@@ -69,20 +69,20 @@ set PlatformToolset=v140
 
 :: set VS2015 params
 if "%VS_VERSION%"=="vs2015" ( 
-	set ToolsVersion=14.0
-	set PlatformToolset=v140
+    set ToolsVersion=14.0
+    set PlatformToolset=v140
 )
 
 :: set VS2017 params
 if "%VS_VERSION%"=="vs2017" ( 
-	set ToolsVersion=15.0
-	set PlatformToolset=v141
+    set ToolsVersion=15.0
+    set PlatformToolset=v141
 )
 
 :: set VS2019 params
 if "%VS_VERSION%"=="vs2019" ( 
-	set ToolsVersion=Current
-	set PlatformToolset=v142
+    set ToolsVersion=Current
+    set PlatformToolset=v142
 )
 
 :: go over all vcxproj template files and set the project params according to the requested VS version
@@ -90,23 +90,23 @@ if "%VS_VERSION%"=="vs2019" (
 setlocal enabledelayedexpansion
 set PROJ_LIST_LOCAL=
 for %%P in (mk\vs\*.vcxproj.template) do (
-	set "TEMPALTE_PROJ_PATH=%%P"
-	set "TEMPLATE_PROJ_FILENAME=%%~nxP"
-	set "PROJ_NAME=!TEMPLATE_PROJ_FILENAME:.template=!"
-	set PROJ_LIST_LOCAL=!PROJ_LIST_LOCAL!, !PROJ_NAME!
+    set "TEMPALTE_PROJ_PATH=%%P"
+    set "TEMPLATE_PROJ_FILENAME=%%~nxP"
+    set "PROJ_NAME=!TEMPLATE_PROJ_FILENAME:.template=!"
+    set PROJ_LIST_LOCAL=!PROJ_LIST_LOCAL!, !PROJ_NAME!
 
-	(for /F "tokens=* delims=" %%A in ('type "!TEMPALTE_PROJ_PATH!"') do (
-		set "LINE=%%A"
-		set "LINE=!LINE:PUT_TOOLS_VERSION_HERE=%ToolsVersion%!"
-		set "LINE=!LINE:PUT_WIN_TARGET_PLATFORM_HERE=%WindowsTargetPlatformVersion%!"
-		set "LINE=!LINE:PUT_PLATORM_TOOLSET_HERE=%PlatformToolset%!"
-		set "LINE=!LINE:PUT_USE_ZSTD_HERE;=%USE_ZSTD%!"
-		set "LINE=!LINE:PUT_ZSTD_LIB_NAME_HERE;=%ZSTD_LIB_NAME%!"
-		set "LINE=!LINE:PUT_ZSTD_INCLUDE_PATH_HERE;=%ZSTD_INCLUDE_PATH%!"
-		echo !LINE!
-	))>pcpp_temp.xml
+    (for /F "tokens=* delims=" %%A in ('type "!TEMPALTE_PROJ_PATH!"') do (
+        set "LINE=%%A"
+        set "LINE=!LINE:PUT_TOOLS_VERSION_HERE=%ToolsVersion%!"
+        set "LINE=!LINE:PUT_WIN_TARGET_PLATFORM_HERE=%WindowsTargetPlatformVersion%!"
+        set "LINE=!LINE:PUT_PLATORM_TOOLSET_HERE=%PlatformToolset%!"
+        set "LINE=!LINE:PUT_USE_ZSTD_HERE;=%USE_ZSTD%!"
+        set "LINE=!LINE:PUT_ZSTD_LIB_NAME_HERE;=%ZSTD_LIB_NAME%!"
+        set "LINE=!LINE:PUT_ZSTD_INCLUDE_PATH_HERE;=%ZSTD_INCLUDE_PATH%!"
+        echo !LINE!
+    ))>pcpp_temp.xml
 
-	move /Y pcpp_temp.xml %VS_PROJ_DIR%\!PROJ_NAME! >nul
+    move /Y pcpp_temp.xml %VS_PROJ_DIR%\!PROJ_NAME! >nul
 )
 endlocal & set PROJ_LIST=%PROJ_LIST_LOCAL%
 
@@ -164,74 +164,74 @@ goto GETOPT_START
 :: handling help switches (-h or --help)
 :CASE--help
 :CASE-h
-	:: call the HELP "function" 
-	call :HELP
-	:: exit with error code 3, meaning ask the caller to exit the script
-	exit /B 3
+    :: call the HELP "function" 
+    call :HELP
+    :: exit with error code 3, meaning ask the caller to exit the script
+    exit /B 3
 
 :: handling -p or --pthread-home switches
 :CASE-p
 :CASE--pthreadS-home
-	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
-	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
-	:: verify the MSYS dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
-	if not exist %2\ call :GETOPT_ERROR "pthreads-win32 directory '%2' does not exist" & exit /B 3
-	:: if all went well, set the PTHREAD_HOME variable with the directory given by the user
-	set PTHREAD_HOME=%2
-	:: notify GETOPT this switch has a parameter
-	set HAS_PARAM=1
-	:: exit ok
-	exit /B 0
+    :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
+    if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
+    :: verify the MSYS dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
+    if not exist %2\ call :GETOPT_ERROR "pthreads-win32 directory '%2' does not exist" & exit /B 3
+    :: if all went well, set the PTHREAD_HOME variable with the directory given by the user
+    set PTHREAD_HOME=%2
+    :: notify GETOPT this switch has a parameter
+    set HAS_PARAM=1
+    :: exit ok
+    exit /B 0
 
 :: handling -w or --pcap-sdk switches
 :CASE-w
 :CASE--pcap-sdk
-	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
-	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
-	:: verify the WinPcap/Npcap SDK dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
-	if not exist %2\ call :GETOPT_ERROR "WinPcap/Npcap SDK directory '%2' does not exist" & exit /B 3
-	:: if all went well, set the PCAP_SDK_HOME variable with the directory given by the user
-	set PCAP_SDK_HOME=%2
-	:: notify GETOPT this switch has a parameter
-	set HAS_PARAM=1
-	:: exit ok
-	exit /B 0
+    :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
+    if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
+    :: verify the WinPcap/Npcap SDK dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
+    if not exist %2\ call :GETOPT_ERROR "WinPcap/Npcap SDK directory '%2' does not exist" & exit /B 3
+    :: if all went well, set the PCAP_SDK_HOME variable with the directory given by the user
+    set PCAP_SDK_HOME=%2
+    :: notify GETOPT this switch has a parameter
+    set HAS_PARAM=1
+    :: exit ok
+    exit /B 0
 
 :: handling -v or --vs-version switches
 :CASE-v
 :CASE--vs-version
-	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
-	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
-	:: verify the VS version provided is one of the supported versions
-	if "%2" NEQ "vs2015" if "%2" NEQ "vs2017" if "%2" NEQ "vs2019" call :GETOPT_ERROR "Visual Studio version must be one of: vs2015, vs2017, vs2019" & exit /B 3
-	:: if all went well, set the VS_VERSION variable
-	set VS_VERSION=%2
-	:: notify GETOPT this switch has a parameter
-	set HAS_PARAM=1
-	:: exit ok
-	exit /B 0
+    :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
+    if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
+    :: verify the VS version provided is one of the supported versions
+    if "%2" NEQ "vs2015" if "%2" NEQ "vs2017" if "%2" NEQ "vs2019" call :GETOPT_ERROR "Visual Studio version must be one of: vs2015, vs2017, vs2019" & exit /B 3
+    :: if all went well, set the VS_VERSION variable
+    set VS_VERSION=%2
+    :: notify GETOPT this switch has a parameter
+    set HAS_PARAM=1
+    :: exit ok
+    exit /B 0
 
 :: a required parameter error case, may get to here if a parameter was missing for a certain switch
 :: the parameter for this "function" is the switch that didn't have the parameter
 :GETOPT_REQUIRED_PARAM
-	:: print the error message
-	echo Required parameter not provided for switch "%1"
-	:: exit with error code 2, meaining switch is missing a parameter
-	exit /B 2
+    :: print the error message
+    echo Required parameter not provided for switch "%1"
+    :: exit with error code 2, meaining switch is missing a parameter
+    exit /B 2
 
 :: both switch cases and getopt may get to here if there was an error that needs to be reported to the user
 :: calling this "function" has one parameter which is the error to print to the user
 :GETOPT_ERROR
-	:: reset error level
-	VER > NUL # reset ERRORLEVEL
-	:: print the error as was provided by the user. The %~1 removes quotes if were given
-	echo %~1
-	:: exit with error code 1
-	exit /B 1
+    :: reset error level
+    VER > NUL # reset ERRORLEVEL
+    :: print the error as was provided by the user. The %~1 removes quotes if were given
+    echo %~1
+    :: exit with error code 1
+    exit /B 1
 
 :: getopt finished successfully, exit ok
 :GETOPT_END
-	exit /B 0
+    exit /B 0
 
 
 :: -------------------------------------------------------------------

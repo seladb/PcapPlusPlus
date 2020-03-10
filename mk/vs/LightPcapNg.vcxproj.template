@@ -106,7 +106,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib</OutDir>
     <IntDir>$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Obj</IntDir>
-	<LibraryPath>$(ZStdHome)\dll;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(ZStdHome)\dll;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib</OutDir>
@@ -136,7 +136,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>PUT_ZSTD_LIB_NAME_HERE;%(AdditionalDependencies)</AdditionalDependencies>
-	  <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -172,7 +172,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>PUT_ZSTD_LIB_NAME_HERE;%(AdditionalDependencies)</AdditionalDependencies>
-	  <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -192,7 +192,7 @@
     </Link>
     <Lib>
       <AdditionalDependencies>PUT_ZSTD_LIB_NAME_HERE;%(AdditionalDependencies)</AdditionalDependencies>
-	  <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
