@@ -7,9 +7,10 @@ echo PcapPlusPlus Visual Studio configuration script
 echo ***********************************************
 echo.
 
-:: initially set PCAP_SDK_HOME and PTHREAD_HOME to empty values
+:: initially set PCAP_SDK_HOME and PTHREAD_HOME and ZSTD variables to empty values
 set PCAP_SDK_HOME=
 set PTHREAD_HOME=
+:: note ZSTD_HOME is set to a slash otherwise the remove trailing "\" code below will blow up
 set ZSTD_HOME=\
 set ZSTD_INCLUDE_PATH=
 set ZSTD_LIB_NAME=
@@ -21,6 +22,7 @@ if "%1" NEQ "" (
 ) else ( 
     call :READ_PARAMS_FROM_USER 
 )
+
 :: if one of the modes returned with an error, exit script
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
 
@@ -173,11 +175,11 @@ goto GETOPT_START
 :CASE-p
 :CASE--pthreadS-home
     :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
-    if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
+    if "%~2"=="" goto GETOPT_REQUIRED_PARAM %1
     :: verify the MSYS dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
     if not exist %2\ call :GETOPT_ERROR "pthreads-win32 directory '%2' does not exist" & exit /B 3
     :: if all went well, set the PTHREAD_HOME variable with the directory given by the user
-    set PTHREAD_HOME=%2
+    set PTHREAD_HOME=%~2
     :: notify GETOPT this switch has a parameter
     set HAS_PARAM=1
     :: exit ok
@@ -187,11 +189,28 @@ goto GETOPT_START
 :CASE-w
 :CASE--pcap-sdk
     :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
-    if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
+    if "%~2"=="" goto GETOPT_REQUIRED_PARAM %1
     :: verify the WinPcap/Npcap SDK dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
     if not exist %2\ call :GETOPT_ERROR "WinPcap/Npcap SDK directory '%2' does not exist" & exit /B 3
     :: if all went well, set the PCAP_SDK_HOME variable with the directory given by the user
-    set PCAP_SDK_HOME=%2
+    set PCAP_SDK_HOME=%~2
+    :: notify GETOPT this switch has a parameter
+    set HAS_PARAM=1
+    :: exit ok
+    exit /B 0
+
+:: handling -z or --zstd-sdk switches
+:CASE-z
+:CASE--zstd-sdk
+    :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
+    if "%~2"=="" goto GETOPT_REQUIRED_PARAM %1
+    :: verify the WinPcap/Npcap SDK dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
+    if not exist %2\ call :GETOPT_ERROR "ZStd SDK directory '%2' does not exist" & exit /B 3
+    :: if all went well, set the ZSTD_HOME variable with the directory given by the user and other variables required for ZStd configuration
+    set ZSTD_HOME=%~2
+    set USE_ZSTD=USE_Z_STD;
+    set "ZSTD_INCLUDE_PATH=$(ZStdHome)\include;"
+    set ZSTD_LIB_NAME=libzstd.lib;
     :: notify GETOPT this switch has a parameter
     set HAS_PARAM=1
     :: exit ok
@@ -201,7 +220,7 @@ goto GETOPT_START
 :CASE-v
 :CASE--vs-version
     :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
-    if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
+    if "%~2"=="" goto GETOPT_REQUIRED_PARAM %1
     :: verify the VS version provided is one of the supported versions
     if "%2" NEQ "vs2015" if "%2" NEQ "vs2017" if "%2" NEQ "vs2019" call :GETOPT_ERROR "Visual Studio version must be one of: vs2015, vs2017, vs2019" & exit /B 3
     :: if all went well, set the VS_VERSION variable
@@ -278,20 +297,10 @@ echo.
 :: ask user about using zstd
 echo ZStd compression support may be added when compiling PcapPlusPlus.
 echo For downloading ZStd SDK (developer's pack) please go to https://github.com/facebook/zstd/releases
-:while3
-set /p USE_ZSTD=     To enable ZStd support type use_zstd otherwise type no: %=%
-if "%USE_ZSTD%" NEQ "use_zstd" if "%USE_ZSTD%" NEQ "no" (echo Please choose one of "use_zstd" or "no" && goto while3)
-
-
-if "%USE_ZSTD%" EQU "use_zstd" (
-::Can't use set staement inside an if so we have to do a little trickery here
-goto while4
-)
-goto skipWhile4
-
 :while4
-:: ask the user to type WinPcap/Npcap SDK dir
-set /p ZSTD_HOME=    Please specify ZStd SDK path: %=%
+:: ask the user to type ZStd SDK dir
+set /p ZSTD_HOME=    Please specify ZStd SDK path or type "no" to build without ZStd: %=%
+if "%USE_ZSTD%" EQU "no" goto skipWhile4
 :: if input dir doesn't exist print an error to the user and go back to previous line
 if not exist "%ZSTD_HOME%"\ (echo Directory does not exist!! && goto while4)
 set USE_ZSTD=USE_Z_STD;
@@ -326,6 +335,7 @@ echo The following switches are recognized:
 echo -v^|--vs-version      --Set Visual Studio version to configure. Must be one of: vs2015, vs2017, vs2019
 echo -p^|--pthreads-home   --Set pthreads-win32 home directory
 echo -w^|--pcap-sdk        --Set WinPcap/Npcap SDK directory
+echo -z^|--zstd-sdk        --Set ZStd SDK directory
 echo -h^|--help            --Display this help message and exits. No further actions are performed
 echo.
 :: done printing, exit
