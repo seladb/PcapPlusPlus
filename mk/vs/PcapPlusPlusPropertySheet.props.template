@@ -52,6 +52,15 @@
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\3rdParty\Getopt-for-Visual-Studio;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
+  <!-- ZStd Modifications -->
+  <ItemDefinitionGroup>
+    <Lib>
+      <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+    <Link>
+        <DelayLoadDLLs>libzstd.dll</DelayLoadDLLs>
+    </Link>
+  </ItemDefinitionGroup>
   <!-- dirent project variables -->
   <ItemDefinitionGroup>
     <ClCompile>

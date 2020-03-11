@@ -136,7 +136,6 @@
     </Link>
     <Lib>
       <AdditionalDependencies>PUT_ZSTD_LIB_NAME_HERE;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -152,7 +151,6 @@
     </Link>
     <Lib>
       <AdditionalDependencies>PUT_ZSTD_LIB_NAME_HERE;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -172,7 +170,6 @@
     </Link>
     <Lib>
       <AdditionalDependencies>PUT_ZSTD_LIB_NAME_HERE;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -192,7 +189,6 @@
     </Link>
     <Lib>
       <AdditionalDependencies>PUT_ZSTD_LIB_NAME_HERE;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
