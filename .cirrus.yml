@@ -34,7 +34,7 @@ task:
     - cd pcapplusplus.github.io/api-docs/doxygen
     - doxygen Doxyfile-ci
   upload_documentation_script: |
-    if [ "$CIRRUS_BRANCH" == "master" ]; then
+    if [ "$CIRRUS_BRANCH" == "master" -a "$CIRRUS_REPO_OWNER" == "seladb" ]; then
       find pcapplusplus.github.io/api-docs/ -maxdepth 1 -type f -exec rm {} \;
       rm -rf pcapplusplus.github.io/api-docs/search/
       mv pcapplusplus.github.io/api-docs/html/* pcapplusplus.github.io/api-docs/
