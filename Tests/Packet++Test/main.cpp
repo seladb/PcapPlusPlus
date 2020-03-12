@@ -7640,6 +7640,40 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 	}
 }
 
+PTF_TEST_CASE(RawPacketTimeStampSetterTest)
+{
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PacketExamples/IPv6UdpPacket.dat", bufferLength);
+	PTF_ASSERT(!(buffer == NULL), "cannot read file");
+
+	timeval time;
+	timeval usec_test_time;
+	timespec nsec_test_time;
+	timespec expected_ts;
+	gettimeofday(&time, NULL);
+	//initialize test RawPacket instance
+	RawPacket rawPacket((const uint8_t*)buffer, bufferLength, time, true);
+
+	//test usec-precision setter
+	usec_test_time.tv_sec = 1583840642; //10.03.2020 15:44
+	usec_test_time.tv_usec = 111222;
+	expected_ts.tv_sec = usec_test_time.tv_sec;
+	expected_ts.tv_nsec = usec_test_time.tv_usec * 1000;
+
+	PTF_ASSERT_TRUE(rawPacket.setPacketTimeStamp(usec_test_time));
+	PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_sec, expected_ts.tv_sec, u32);
+	PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec, u32);
+
+	//test nsec-precision setter
+	nsec_test_time.tv_sec = 1583842105; //10.03.2020 16:08
+	nsec_test_time.tv_nsec = 111222987;
+	expected_ts = nsec_test_time;
+
+	PTF_ASSERT_TRUE(rawPacket.setPacketTimeStamp(nsec_test_time));
+	PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_sec, expected_ts.tv_sec, u32);
+	PTF_ASSERT_EQUAL(rawPacket.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec, u32);
+}
+
 
 static struct option PacketTestOptions[] =
 {
@@ -7806,6 +7840,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
 	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
 	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
+	PTF_RUN_TEST(RawPacketTimeStampSetterTest, "packet");
 
 	PTF_END_RUNNING_TESTS;
 }

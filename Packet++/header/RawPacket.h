@@ -344,6 +344,20 @@ namespace pcpp
 		timespec getPacketTimeStamp() const { return m_TimeStamp; }
 
 		/**
+		 * Set raw packet timestamp with usec precision
+		 * @param[in] timestamp The timestamp to set (with usec precision)
+		 * @return True if timestamp was set successfully, false otherwise
+		 */
+		virtual bool setPacketTimeStamp(timeval timestamp);
+
+		/**
+		 * Set raw packet timestamp with nsec precision
+		 * @param[in] timestamp The timestamp to set (with nsec precision)
+		 * @return True if timestamp was set successfully, false otherwise
+		 */
+		virtual bool setPacketTimeStamp(timespec timestamp);
+
+		/**
 		 * Get an indication whether raw data was already set for this instance.
 		 * @return True if raw data was set for this instance. Raw data can be set using the non-default constructor, using setRawData(), using
 		 * the copy constructor or using the assignment operator. Returns false otherwise, for example: if the instance was created using the
