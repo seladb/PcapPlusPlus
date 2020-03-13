@@ -4,16 +4,16 @@
     <PcapPlusPlusHome>PUT_PCAPPLUSPLUS_HOME_HERE</PcapPlusPlusHome>
     <WinPcapHome>PUT_PCAP_SDK_HOME_HERE</WinPcapHome>
     <PThreadWin32Home>PUT_PTHREAD_HOME_HERE</PThreadWin32Home>
-	<ZStdHome>PUT_ZSTD_HOME_HERE</ZStdHome>
+    <ZStdHome>PUT_ZSTD_HOME_HERE</ZStdHome>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PcapPlusPlusHome">
       <Value>$(PcapPlusPlusHome)</Value>
     </BuildMacro>
-	<BuildMacro Include="WinPcapHome">
+    <BuildMacro Include="WinPcapHome">
       <Value>$(WinPcapHome)</Value>
     </BuildMacro>
-	<BuildMacro Include="PThreadWin32Home">
+    <BuildMacro Include="PThreadWin32Home">
       <Value>$(PThreadWin32Home)</Value>
     </BuildMacro>
     <BuildMacro Include="ZStdHome">
@@ -58,7 +58,7 @@
       <AdditionalOptions>/delayload:libzstd.dll %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <Link>
-        <DelayLoadDLLs>libzstd.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>libzstd.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <!-- dirent project variables -->
