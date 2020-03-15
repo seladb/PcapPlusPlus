@@ -12,11 +12,17 @@ if "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
 	echo Using Npcap OEM version %NPCAP_FILE%
 	curl --digest --user %NPCAP_USERNAME%:%NPCAP_PASSWORD% https://nmap.org/npcap/oem/dist/%NPCAP_FILE% --output %NPCAP_FILE%
 ) else (
-    echo Using Npcap free version %NPCAP_FILE%
+	echo Using Npcap free version %NPCAP_FILE%
 	appveyor DownloadFile https://nmap.org/npcap/dist/%NPCAP_FILE%
 )
 
 %NPCAP_FILE% /S /winpcap_mode
+
+if not "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
+	xcopy C:\Windows\System32\Npcap\*.dll C:\Windows\System32
+	xcopy C:\Windows\SysWOW64\Npcap\*.dll C:\Windows\SysWOW64
+)
+
 appveyor DownloadFile https://nmap.org/npcap/dist/npcap-sdk-1.04.zip
 mkdir C:\Npcap-sdk
 7z x .\npcap-sdk-1.04.zip -oC:\Npcap-sdk
