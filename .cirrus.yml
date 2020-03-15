@@ -3,7 +3,7 @@ task:
   freebsd_instance:
     matrix:
       image_family: freebsd-11-3-snap
-      image_family: freebsd-12-0
+      image_family: freebsd-12-1-snap
   update_script: pkg update -f
   install_script: pkg install -y libpcap bash gsed gmake
   configure_script:
@@ -13,3 +13,35 @@ task:
   test_script:
     - cd Tests/Packet++Test && Bin/Packet++Test
     - cd ../Pcap++Test && sudo Bin/Pcap++Test -n
+
+task:
+  name: Build Doxygen Documentation
+  container:
+    image: seladb/ubuntu1804:latest
+  env:
+    - GITHUB_EMAIL: ENCRYPTED[ae4956ec74c9f329f7787cdfe3a6b5842870659275d0a9b513a0f6e64cd9c71cd2eb64219a9dc695f446fbd93c48fb04]
+    - GITHUB_TOKEN: ENCRYPTED[ab88249da2005c70f25f5910b08e907139f73bc0efb31a19b33f832e9e3bffe3cfc8e81932f21d7734c7aceca2a77188]
+  get_code_script: 
+    - git clone https://github.com/seladb/PcapPlusPlus.git
+    - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
+  configure_script:
+    - cd PcapPlusPlus
+    - ./configure-linux.sh --default
+  build_script: 
+    - cd PcapPlusPlus
+    - make all
+  build_documentation_script:
+    - cd pcapplusplus.github.io/api-docs/doxygen
+    - doxygen Doxyfile-ci
+  upload_documentation_script: |
+    if [ "$CIRRUS_BRANCH" == "master" -a "$CIRRUS_REPO_OWNER" == "seladb" ]; then
+      find pcapplusplus.github.io/api-docs/ -maxdepth 1 -type f -exec rm {} \;
+      rm -rf pcapplusplus.github.io/api-docs/search/
+      mv pcapplusplus.github.io/api-docs/html/* pcapplusplus.github.io/api-docs/
+      cd pcapplusplus.github.io/api-docs/
+      git config user.name "seladb"
+      git config user.email "${GITHUB_EMAIL}"
+      git add .
+      git commit -m "Update API documentation for commit ${CIRRUS_CHANGE_IN_REPO}"
+      git push --quiet "https://${GITHUB_TOKEN}@github.com/PcapPlusPlus/pcapplusplus.github.io" master      
+    fi

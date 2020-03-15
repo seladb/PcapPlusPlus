@@ -257,9 +257,9 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 			}
 
 			// setting a cluster for all rings in the same channel to enable hashing between them
-			if (pfring_set_cluster(m_PfRingDescriptors[ringsOpen], channelId, clusterType) < 0)
+			if (pfring_set_cluster(m_PfRingDescriptors[ringsOpen], channelId+1, clusterType) < 0)
 			{
-				LOG_ERROR("Couldn't set ring [%d] in channel [%d] to the cluster [%d]", numOfRingsPerRxChannel+1, channelId, channelId);
+				LOG_ERROR("Couldn't set ring [%d] in channel [%d] to the cluster [%d]", numOfRingsPerRxChannel+1, channelId, channelId+1);
 				break;
 			}
 

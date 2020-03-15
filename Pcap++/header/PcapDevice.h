@@ -96,7 +96,9 @@ namespace pcpp
 		using IFilterableDevice::setFilter;
 
 		/**
-		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be received
+		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be received.
+		 * Please note that when the device is closed the filter is reset so when reopening the device you need to call this 
+		 * method again in order to reactivate the filter
 		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
 		 * @return True if filter set successfully, false otherwise
 		 */

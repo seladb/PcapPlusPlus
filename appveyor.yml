@@ -1,6 +1,10 @@
 version: 1.0.{build}
 
 environment:
+  NPCAP_USERNAME:
+    secure: iVuVl18E7ZfsuRjz0YKJKQ==
+  NPCAP_PASSWORD:
+    secure: 8sWBrDudyutFv+4Eq6teJA==
   matrix:
     - compiler: mingw32
       pcap_lib: npcap
