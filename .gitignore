@@ -36,6 +36,7 @@ Dist/
 mk/PcapPlusPlus.mk
 mk/platform.mk
 mk/PcapPlusPlus.mk-e
+3rdParty/LightPcapNg/zstd.mk
 
 #auto generated files
 install.sh
