@@ -30,14 +30,19 @@
 #include <memory.h>
 #include <assert.h>
 
-struct _compression_t * (*get_compression_context_ptr)(int) = &get_zstd_compression_context;
-void(*free_compression_context_ptr)(struct _compression_t*) = &free_zstd_compression_context;
-struct _decompression_t * (*get_decompression_context_ptr)() = &get_zstd_decompression_context;
-void(*free_decompression_context_ptr)(struct _decompression_t*) = &free_zstd_decompression_context;
+_compression_t * (*get_compression_context_ptr)(int) = &get_zstd_compression_context;
+void(*free_compression_context_ptr)(_compression_t*) = &free_zstd_compression_context;
+_decompression_t * (*get_decompression_context_ptr)() = &get_zstd_decompression_context;
+void(*free_decompression_context_ptr)(_decompression_t*) = &free_zstd_decompression_context;
 int(*is_compressed_file)(const char*) = &is_zstd_compressed_file;
 size_t(*read_compressed)(struct light_file_t *, void *, size_t) = &read_zstd_compressed;
 size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = &write_zstd_compressed;
 int(*close_compressed)(struct light_file_t *) = &close_zstd_compresssed;
+
+ #define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
 
 _compression_t * get_zstd_compression_context(int compression_level)
 {
@@ -223,7 +228,11 @@ int close_zstd_compresssed(light_file fd)
 			remaining = ZSTD_compressStream2(fd->compression_context->cctx, &output, &input, ZSTD_e_end);
 			fwrite(output.dst, 1, output.pos, fd->file);
 		}
+
+		return 0;
 	}
+
+	return -1;
 }
 
 #endif // USE_Z_STD

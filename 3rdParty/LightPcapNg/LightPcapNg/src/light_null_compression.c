@@ -29,10 +29,10 @@
 
 #if defined(USE_NULL_COMPRESSION)
 
-struct _compression_t * (*get_compression_context_ptr)(int) = NULL;
-void(*free_compression_context_ptr)(struct _compression_t*) = NULL;
-struct _decompression_t * (*get_decompression_context_ptr)() = NULL;
-void(*free_decompression_context_ptr)(struct _decompression_t*) = NULL;
+_compression_t * (*get_compression_context_ptr)(int) = NULL;
+void(*free_compression_context_ptr)(_compression_t*) = NULL;
+_decompression_t * (*get_decompression_context_ptr)() = NULL;
+void(*free_decompression_context_ptr)(_decompression_t*) = NULL;
 int(*is_compressed_file)(const char*) = NULL;
 size_t(*read_compressed)(struct light_file_t *, void *, size_t) = NULL;
 size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = NULL;
