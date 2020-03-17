@@ -15,6 +15,18 @@ task:
     - cd ../Pcap++Test && sudo Bin/Pcap++Test -n
 
 task:
+  name: Test Zstd Linux
+  container:
+    image: seladb/ubuntu1804-zstd:latest
+  install_script:
+    - ./configure-linux.sh --use-zstd
+  build_script:
+    - make all
+  test_script:
+    - cd Tests/Packet++Test && Bin/Packet++Test
+    - cd ../Pcap++Test && sudo Bin/Pcap++Test -n
+
+task:
   name: Build Doxygen Documentation
   container:
     image: seladb/ubuntu1804:latest
