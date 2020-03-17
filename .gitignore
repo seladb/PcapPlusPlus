@@ -20,6 +20,7 @@
 #pcap and pcapng files
 *.pcap
 *.pcapng
+*.pcapng.zstd
 *.cap
 
 #Bin and Obj directories
