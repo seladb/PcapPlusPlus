@@ -18,7 +18,21 @@ task:
   name: Test Zstd Linux
   container:
     image: seladb/ubuntu1804-zstd:latest
-  install_script:
+  configure_script:
+    - ./configure-linux.sh --use-zstd
+    - ldconfig
+  build_script:
+    - make all
+  test_script:
+    - cd Tests/Packet++Test && Bin/Packet++Test
+    - cd ../Pcap++Test && Bin/Pcap++Test -n
+
+task:
+  name: Test Zstd MacOS
+  osx_instance:
+    image: catalina-xcode
+  configure_script:
+    - brew install zstd
     - ./configure-linux.sh --use-zstd
   build_script:
     - make all
