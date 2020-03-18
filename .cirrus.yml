@@ -33,7 +33,7 @@ task:
     image: catalina-xcode
   configure_script:
     - brew install zstd
-    - ./configure-linux.sh --use-zstd
+    - ./configure-mac_os_x.sh --use-zstd
   build_script:
     - make all
   test_script:
