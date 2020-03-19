@@ -39,10 +39,12 @@ size_t(*read_compressed)(struct light_file_t *, void *, size_t) = &read_zstd_com
 size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = &write_zstd_compressed;
 int(*close_compressed)(struct light_file_t *) = &close_zstd_compresssed;
 
- #define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a > _b ? _a : _b; })
+#if !defined(_MSC_VER) || !defined(max)
+#define max(a,b) \
+	({ __typeof__ (a) _a = (a); \
+			__typeof__ (b) _b = (b); \
+		_a > _b ? _a : _b; })
+#endif // !defined(_MSC_VER) || !defined(max)
 
 _compression_t * get_zstd_compression_context(int compression_level)
 {
