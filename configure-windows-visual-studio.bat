@@ -291,29 +291,6 @@ set /p PTHREAD_HOME=    Please specify pthreads-win32 path: %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
 if not exist "%PTHREAD_HOME%"\ (echo Directory does not exist!! && goto while2)
 
-echo.
-echo.
-
-:: ask user about using zstd
-echo ZStd compression support may be added when compiling PcapPlusPlus.
-echo For downloading ZStd SDK (developer's pack) please go to https://github.com/facebook/zstd/releases
-:while4
-:: ask the user to type ZStd SDK dir
-set /p ZSTD_HOME=    Please specify ZStd SDK path or type "no" to build without ZStd: %=%
-if "%USE_ZSTD%" EQU "no" goto skipWhile4
-:: if input dir doesn't exist print an error to the user and go back to previous line
-if not exist "%ZSTD_HOME%"\ (echo Directory does not exist!! && goto while4)
-set USE_ZSTD=USE_Z_STD;
-set "ZSTD_INCLUDE_PATH=$(ZStdHome)\include;"
-set ZSTD_LIB_NAME=libzstd.lib;
-
-:skipWhile4
-
-if "%USE_ZSTD%" EQU "no" set USE_ZSTD=
-
-echo.
-echo.
-
 
 :: all directories were read correctly, return to the caller
 
