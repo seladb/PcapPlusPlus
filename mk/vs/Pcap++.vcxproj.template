@@ -148,8 +148,7 @@
       <Command>lib /out:"$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib"
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I
-if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I</Command>
+xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -172,8 +171,7 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
       <Command>lib /out:"$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib"
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I
-if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I</Command>
+xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -192,8 +190,7 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
       <Command>lib /out:"$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib"
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I
-if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I</Command>
+xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -216,8 +213,7 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
       <Command>lib /out:"$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\3rdParty\LightPcapNg\LightPcapNg\Lib\LightPcapNg.lib"
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I
-if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I</Command>
+xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
