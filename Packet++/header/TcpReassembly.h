@@ -350,12 +350,13 @@ private:
 		IPAddress* srcIP;
 		uint16_t srcPort;
 		uint32_t sequence;
-		PointerVector<TcpFragment> tcpFragmentList;
+		uint32_t ack_sequence;
+		std::multimap<uint32_t, TcpFragment*> tcpFragmentList;
 		bool gotFinOrRst;
 
 		void setSrcIP(IPAddress* sourrcIP);
 
-		TcpOneSideData() { srcIP = NULL; srcPort = 0; sequence = 0; gotFinOrRst = false; }
+		TcpOneSideData() { srcIP = NULL; srcPort = 0; sequence = 0; ack_sequence = 0; gotFinOrRst = false; }
 
 		~TcpOneSideData() { if (srcIP != NULL) delete srcIP; }
 	};
@@ -369,7 +370,7 @@ private:
 
 		TcpReassemblyData() { numOfSides = 0; prevSide = -1; }
 	};
-	
+
 	typedef std::map<uint32_t, TcpReassemblyData *> ConnectionList;
 	typedef std::map<time_t, std::list<uint32_t> > CleanupList;
 
