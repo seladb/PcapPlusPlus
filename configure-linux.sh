@@ -16,7 +16,7 @@ function HELP {
    echo "  1) Without any switches. In this case the script will guide you through using wizards"
    echo "  2) With switches, as described below"
    echo ""
-   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--set-direction-enabled] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--set-direction-enabled] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir] [--use-zstd]"\\n
    echo "The following switches are recognized:"
    echo "--default                --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""
@@ -36,6 +36,7 @@ function HELP {
    echo "                           the header files in the default include paths"
    echo "--libpcap-lib-dir        --libpcap pre compiled lib directory. This parameter is optional and if omitted PcapPlusPlus will look for"
    echo "                           the lib file in the default lib paths"
+   echo "--use-zstd               --Use Zstd for pcapng files compression/decompression. This parameter is optional"
    echo ""
    echo -e "-h|--help                --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
@@ -122,7 +123,7 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,set-direction-enabled,install-dir:,libpcap-include-dir:,libpcap-lib-dir: -- "$@"`
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,set-direction-enabled,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,use-zstd -- "$@"`
 
    # if user put an illegal switch - print HELP and exit
    if [ $? -ne 0 ]; then
@@ -194,6 +195,11 @@ else
             exit 1
          fi
          shift 2 ;;
+
+       # use Zstd
+       --use-zstd)
+         USE_ZSTD=1
+         shift ;;
 
        # help switch - display help and exit
        -h|--help)
@@ -318,6 +324,12 @@ fi
 if (( $HAS_SET_DIRECTION_ENABLED > 0 )) ; then 
    echo -e "HAS_SET_DIRECTION_ENABLED := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
+
+if [ -n "$USE_ZSTD" ]; then
+   echo -e "DEFS += -DUSE_Z_STD" > 3rdParty/LightPcapNg/zstd.mk
+   cat mk/PcapPlusPlus.mk.zstd >> $PCAPPLUSPLUS_MK
+fi
+
 # non-default libpcap include dir
 if [ -n "$LIBPCAP_INLCUDE_DIR" ]; then
    echo -e "# non-default libpcap include dir" >> $PCAPPLUSPLUS_MK

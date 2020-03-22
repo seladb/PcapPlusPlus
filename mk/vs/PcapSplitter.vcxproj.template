@@ -76,28 +76,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\PcapSplitter\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\PcapSplitter\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\PcapSplitter\Obj</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(PcapPlusPlusHome)\Dist\header;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PcapPlusPlusHome)\Dist;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Examples\PcapSplitter\Obj</IntDir>
   </PropertyGroup>
@@ -117,7 +117,9 @@
     <PostBuildEvent>
       <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin" /Y
 xcopy "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin" /Y
+if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -136,7 +138,9 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
     <PostBuildEvent>
       <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin" /Y
 xcopy "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin" /Y
+if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -160,7 +164,9 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHo
     <PostBuildEvent>
       <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin" /Y
 xcopy "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin" /Y
+if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -184,7 +190,9 @@ xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHo
     <PostBuildEvent>
       <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin" /Y
 xcopy "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y</Command>
+xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Examples\PcapSplitter\Bin" /Y
+if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

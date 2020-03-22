@@ -1,0 +1,5 @@
+### Zstd ###
+
+PCAPPP_LIBS_DIR += -L/usr/local/lib
+
+PCAPPP_LIBS += -lzstd

@@ -106,8 +106,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -131,8 +131,8 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -153,8 +153,8 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -178,8 +178,8 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
-xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\" /F /R /Y /I
+      <Command>xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.lib" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
+xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
     <PreBuildEvent>

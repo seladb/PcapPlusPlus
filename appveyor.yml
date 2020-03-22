@@ -26,6 +26,7 @@ environment:
       compiler: vs2019
       platform: x64
       config: Debug
+      use_zstd: true
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       compiler: vs2015
       platform: x86
@@ -34,6 +35,7 @@ environment:
       compiler: vs2015
       platform: x86
       config: Release
+      use_zstd: true
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       compiler: vs2015
       platform: x64
@@ -50,13 +52,15 @@ install:
 - if "%compiler%"=="mingw32" set PATH=%PATH%;C:\MinGW\bin&& appveyor DownloadFile http://ftp.ntua.gr/mirror/mingw/MinGW/Base/pthreads-w32/pthreads-w32-2.10-pre-20160821-1/pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz && 7z e pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz -oC:\pthreads && 7z x C:\pthreads\pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar -oC:\pthreads && xcopy /Y C:\pthreads\include\* C:\MinGW\include && xcopy /Y C:\pthreads\lib\* C:\MinGW\lib
 - if "%compiler%"=="mingw-w64" set PATH=%PATH%;C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin
 - if "%compiler:~0,4%"=="vs20" powershell -command "Invoke-WebRequest ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip -OutFile pthreads-w32-2-9-1-release.zip" && 7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
+- if "%use_zstd%"=="true" ci\install_zstd.bat %platform%
 
 before_build:
 - if "%pcap_lib%"=="npcap" (set PCAP_SDK_DIR=C:\Npcap-sdk) else (set PCAP_SDK_DIR=C:\WpdPack)
 - cd C:\projects\PcapPlusPlus
 - if "%compiler%"=="mingw32" configure-windows-mingw.bat mingw32 -m C:\MinGW -w %PCAP_SDK_DIR%
 - if "%compiler%"=="mingw-w64" configure-windows-mingw.bat mingw-w64 -m C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1 -w %PCAP_SDK_DIR% -s C:\msys64\mingw32
-- if "%compiler:~0,4%"=="vs20" configure-windows-visual-studio.bat -v %compiler% -w %PCAP_SDK_DIR% -p C:\pthreads
+- if "%use_zstd%"=="true" set ZSTD_HOME_PARAM=-z C:\zstd
+- if "%compiler:~0,4%"=="vs20" configure-windows-visual-studio.bat -v %compiler% -w %PCAP_SDK_DIR% -p C:\pthreads %ZSTD_HOME_PARAM%
 
 build_script:
 - if "%compiler%"=="mingw32" mingw32-make all

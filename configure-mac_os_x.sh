@@ -12,7 +12,7 @@ SCRIPT=`basename ${BASH_SOURCE[0]}`
 # help function
 function HELP {
    echo -e \\n"Help documentation for ${SCRIPT}."\\n
-   echo -e "Basic usage: $SCRIPT [-h] [--use-immediate-mode] [--set-direction-enabled] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--use-immediate-mode] [--set-direction-enabled] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir] [--use-zstd]"\\n
    echo "The following switches are recognized:"
    echo "--use-immediate-mode     --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
    echo ""
@@ -24,6 +24,7 @@ function HELP {
    echo "                           the header files in the default include paths"
    echo "--libpcap-lib-dir        --libpcap pre compiled lib directory. This parameter is optional and if omitted PcapPlusPlus will look for"
    echo "                           the lib file in the default lib paths"
+   echo "--use-zstd               --Use Zstd for pcapng files compression/decompression. This parameter is optional"
    echo ""
    echo -e "-h|--help                --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
@@ -96,6 +97,11 @@ case $key in
      shift
      shift ;;
 
+   # use Zstd
+   --use-zstd)
+     USE_ZSTD=1
+     shift ;;     
+
    # help switch - display help and exit
    -h|--help)
      HELP ;;
@@ -152,6 +158,11 @@ if [ -n "$LIBPCAP_LIB_DIR" ]; then
    echo -e "# non-default libpcap lib dir" >> $PCAPPLUSPLUS_MK
    echo -e "LIBPCAP_LIB_DIR := $LIBPCAP_LIB_DIR" >> $PCAPPLUSPLUS_MK
    echo -e "PCAPPP_LIBS_DIR += -L\$(LIBPCAP_LIB_DIR)\n" >> $PCAPPLUSPLUS_MK
+fi
+
+if [ -n "$USE_ZSTD" ]; then
+   echo -e "DEFS += -DUSE_Z_STD" > 3rdParty/LightPcapNg/zstd.mk
+   cat mk/PcapPlusPlus.mk.zstd >> $PCAPPLUSPLUS_MK
 fi
 
 # generate installation and uninstallation scripts

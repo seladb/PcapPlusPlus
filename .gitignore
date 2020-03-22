@@ -20,6 +20,7 @@
 #pcap and pcapng files
 *.pcap
 *.pcapng
+*.pcapng.zstd
 *.cap
 
 #Bin and Obj directories
@@ -36,6 +37,7 @@ Dist/
 mk/PcapPlusPlus.mk
 mk/platform.mk
 mk/PcapPlusPlus.mk-e
+3rdParty/LightPcapNg/zstd.mk
 
 #auto generated files
 install.sh
