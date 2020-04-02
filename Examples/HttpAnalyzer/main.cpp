@@ -31,6 +31,8 @@
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 #include <getopt.h>
+#include <iostream>
+#include <sstream>
 
 #define EXIT_WITH_ERROR(reason, ...) do { \
 	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
@@ -70,7 +72,6 @@ static struct option HttpAnalyzerOptions[] =
 };
 
 
-
 struct HttpPacketArrivedData
 {
 	HttpStatsCollector* statsCollector;
@@ -94,7 +95,7 @@ void printUsage()
 			"-------------------------\n"
 			"%s [-hvld] [-o output_file] [-r calc_period] -i interface\n"
 			"\nOptions:\n\n"
-			"    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address\n"
+			"    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address with port (e.g 192.168.1.1 or 192.168.1.1:80)\n"
 			"    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause performance degradation\n"
 			"    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds\n"
 			"    -d             : Disable periodic rates calculation\n"
@@ -398,9 +399,18 @@ void analyzeHttpFromPcapFile(std::string pcapFileName)
 		EXIT_WITH_ERROR("Could not open input pcap file");
 
 	// set a port 80 filter on the reader device to process only HTTP packets
-	PortFilter httpPortFilter(80, SRC_OR_DST);
-	if (!reader->setFilter(httpPortFilter))
-		EXIT_WITH_ERROR("Could not set up filter on file");
+	if (GlobalConfig::getInstance().setDstFilterPort)
+	{
+		PortFilter httpPortFilter(GlobalConfig::getInstance().dstFilterPort, DST);
+		if (!reader->setFilter(httpPortFilter))
+			EXIT_WITH_ERROR("Could not set up filter on file");
+	}
+	else
+	{
+		PortFilter httpPortFilter(80, SRC_OR_DST);
+		if (!reader->setFilter(httpPortFilter))
+			EXIT_WITH_ERROR("Could not set up filter on file");
+	}
 
 	// read the input file packet by packet and give it to the HttpStatsCollector for collecting stats
 	HttpStatsCollector collector;
@@ -434,10 +444,18 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
 	if (!dev->open())
 		EXIT_WITH_ERROR("Could not open the device");
 
-	// set a port 80 filter on the live device to capture only HTTP packets
-	PortFilter httpPortFilter(80, SRC_OR_DST);
-	if (!dev->setFilter(httpPortFilter))
-		EXIT_WITH_ERROR("Could not set up filter on device");
+	if (GlobalConfig::getInstance().setDstFilterPort)
+	{
+		PortFilter httpPortFilter(GlobalConfig::getInstance().dstFilterPort, DST);
+		if (!dev->setFilter(httpPortFilter))
+			EXIT_WITH_ERROR("Could not set up filter on device");
+	}
+	else
+	{
+		PortFilter httpPortFilter(80, SRC_OR_DST);
+		if (!dev->setFilter(httpPortFilter))
+			EXIT_WITH_ERROR("Could not set up filter on device");
+	}
 
 	// if needed to save the captured packets to file - open a writer device
 	PcapFileWriterDevice* pcapWriter = NULL;
@@ -511,6 +529,7 @@ int main(int argc, char* argv[])
 
 	int optionIndex = 0;
 	char opt = 0;
+	std::size_t found;
 
 	while((opt = getopt_long (argc, argv, "i:f:o:r:hvld", HttpAnalyzerOptions, &optionIndex)) != -1)
 	{
@@ -520,6 +539,27 @@ int main(int argc, char* argv[])
 				break;
 			case 'i':
 				interfaceNameOrIP = optarg;
+				found = interfaceNameOrIP.find(":");
+				if (found != std::string::npos)
+				{
+					std::string strPort = interfaceNameOrIP.substr(found + 1, interfaceNameOrIP.length() - found - 1);
+					std::istringstream is(strPort);
+					unsigned short nPort = -1;
+					is >> nPort;
+					if (is.fail())
+					{
+						printUsage();
+						exit(-1);
+					}
+					if (nPort < 0 || nPort > 65535)
+					{
+						printUsage();
+						exit(-1);
+					}
+					GlobalConfig::getInstance().setDstFilterPort = true;
+					GlobalConfig::getInstance().dstFilterPort = nPort;
+					interfaceNameOrIP = interfaceNameOrIP.substr(0, found);
+				}
 				break;
 			case 'f':
 				readPacketsFromPcapFileName = optarg;
