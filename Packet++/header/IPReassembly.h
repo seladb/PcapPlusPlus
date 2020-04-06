@@ -125,8 +125,21 @@ namespace pcpp
 
 			/**
 			 * A copy c'tor for this class
+			 * @param[in] other The instance to copy from
 			 */
 			IPv4PacketKey(const IPv4PacketKey& other) : m_IpID(other.m_IpID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+
+			/**
+			 * Assignment operator for this class
+			 * @param[in] other The instance to assign from
+			 */
+			IPv4PacketKey operator=(const IPv4PacketKey& other)
+			{
+				m_IpID = other.m_IpID;
+				m_SrcIP = other.m_SrcIP;
+				m_DstIP = other.m_DstIP;
+				return *this;
+			}
 
 			/**
 			 * @return IP ID value
@@ -204,8 +217,21 @@ namespace pcpp
 
 			/**
 			 * A copy c'tor for this class
+			 * @param[in] other The instance to copy from
 			 */
 			IPv6PacketKey(const IPv6PacketKey& other) : m_FragmentID(other.m_FragmentID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+
+			/**
+			 * Assignment operator for this class
+			 * @param[in] other The instance to assign from
+			 */
+			IPv6PacketKey& operator=(const IPv6PacketKey& other)
+			{
+				m_FragmentID = other.m_FragmentID;
+				m_SrcIP = other.m_SrcIP;
+				m_SrcIP = other.m_DstIP;
+				return *this;
+			}
 
 			/**
 			 * @return Fragment ID value

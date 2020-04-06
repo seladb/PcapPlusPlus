@@ -278,6 +278,16 @@ namespace pcpp
 				TLVRecordBuilder(other) {}
 
 			/**
+			 * Assignment operator that copies all data from another instance of IPv6TLVOptionBuilder
+			 * @param[in] other The instance to assign from
+			 */
+			IPv6TLVOptionBuilder& operator=(const IPv6TLVOptionBuilder& other)
+			{
+				TLVRecordBuilder::operator=(other);
+				return *this;
+			}
+
+			/**
 			 * Build the IPv6Option object out of the parameters defined in the c'tor
 			 * @return The IPv6Option object
 			 */

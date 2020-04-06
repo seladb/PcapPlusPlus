@@ -45,7 +45,7 @@ TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, const std::string& recValue)
 	init(recType, recValueByteArr, recValue.length());
 }
 
-TLVRecordBuilder::TLVRecordBuilder(const TLVRecordBuilder& other)
+void TLVRecordBuilder::copyData(const TLVRecordBuilder& other)
 {
 	m_RecType = other.m_RecType;
 	m_RecValueLen = other.m_RecValueLen;
@@ -55,6 +55,24 @@ TLVRecordBuilder::TLVRecordBuilder(const TLVRecordBuilder& other)
 		m_RecValue = new uint8_t[m_RecValueLen];
 		memcpy(m_RecValue, other.m_RecValue, m_RecValueLen);
 	}
+}
+
+TLVRecordBuilder::TLVRecordBuilder(const TLVRecordBuilder& other)
+{
+	copyData(other);
+}
+
+TLVRecordBuilder& TLVRecordBuilder::operator=(const TLVRecordBuilder& other)
+{
+	if (m_RecValue != NULL)
+	{
+		delete [] m_RecValue;
+		m_RecValue = NULL;
+	}
+
+	copyData(other);
+
+	return *this;
 }
 
 TLVRecordBuilder::~TLVRecordBuilder()
