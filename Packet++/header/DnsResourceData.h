@@ -370,6 +370,12 @@ namespace pcpp
 		 */
 		GenericDnsResourceData(const std::string& dataAsHexString);
 
+		/**
+		 * A copy c'tor for this class
+		 * @param[in] other The instance to copy from
+		 */
+		GenericDnsResourceData(const GenericDnsResourceData& other);
+
 		~GenericDnsResourceData() { if (m_Data != NULL) delete [] m_Data; }
 
 		GenericDnsResourceData& operator=(const GenericDnsResourceData& other);

@@ -565,6 +565,17 @@ HeaderField::HeaderField(const HeaderField& other) : m_NameValueSeperator('\0'),
 	initNewField(other.getFieldName(), other.getFieldValue());
 }
 
+HeaderField& HeaderField::operator=(const HeaderField& other)
+{
+	m_NameValueSeperator = other.m_NameValueSeperator;
+	m_SpacesAllowedBetweenNameAndValue = other.m_SpacesAllowedBetweenNameAndValue;
+	if (m_NewFieldData != NULL)
+		delete [] m_NewFieldData;
+	initNewField(other.getFieldName(), other.getFieldValue());
+
+	return (*this);
+}
+
 char* HeaderField::getData() const
 {
 	if (m_TextBasedProtocolMessage == NULL)

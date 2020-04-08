@@ -320,7 +320,7 @@ namespace pcpp
 		/**
 		 * A destructor for this class
 		 */
-		~PcapFileWriterDevice();
+		~PcapFileWriterDevice() {}
 
 		/**
 		 * Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change the

@@ -294,11 +294,6 @@ namespace pcpp
 		PPPoEDiscoveryLayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code, uint16_t sessionId) : PPPoELayer(version, type, code, sessionId) { m_Protocol = PPPoEDiscovery; m_TagCount = -1; }
 
 		/**
-		 * A copy constructor that copies the entire header from the other PPPoEDiscoveryLayer
-		 */
-		PPPoEDiscoveryLayer(const PPPoEDiscoveryLayer& other) : PPPoELayer(other) { m_TagCount = other.m_TagCount; }
-
-		/**
 		 * Retrieve a PPPoE tag by tag type. If packet consists of multiple tags of the same type, the first tag will be returned. If packet contains
 		 * no tags of the tag type NULL will be returned. Notice the return value is a pointer to the real data casted to PPPoETag type (as opposed
 		 * to a copy of the tag data). So changes in the return value will affect the packet data

@@ -513,7 +513,7 @@ bool RawSocketDevice::open()
 		return false;		
 	}
 
-	m_Socket = new SocketContainer();
+	m_Socket = new SocketContainer(); // lgtm [cpp/resource-not-released-in-destructor]
 	((SocketContainer*)m_Socket)->fd = fd;
 	((SocketContainer*)m_Socket)->interfaceIndex = ifaceIndex;
 	((SocketContainer*)m_Socket)->interfaceName = ifaceName;

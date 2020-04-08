@@ -43,7 +43,7 @@ IFileDevice::IFileDevice(const char* fileName) : IPcapDevice()
 
 IFileDevice::~IFileDevice()
 {
-	close();
+	IFileDevice::close();
 	delete[] m_FileName;
 }
 
@@ -425,11 +425,6 @@ PcapFileWriterDevice::PcapFileWriterDevice(const char* fileName, LinkLayerType l
 	m_PcapLinkLayerType = linkLayerType;
 	m_AppendMode = false;
 	m_File = NULL;
-}
-
-PcapFileWriterDevice::~PcapFileWriterDevice()
-{
-
 }
 
 void PcapFileWriterDevice::closeFile()

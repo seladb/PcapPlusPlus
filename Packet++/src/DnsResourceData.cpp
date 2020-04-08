@@ -166,6 +166,17 @@ GenericDnsResourceData::GenericDnsResourceData(const std::string& dataAsHexStrin
 	}
 }
 
+GenericDnsResourceData::GenericDnsResourceData(const GenericDnsResourceData& other)
+{
+	m_DataLen = other.m_DataLen;
+
+	if (m_DataLen > 0 && other.m_Data != NULL)
+	{
+		m_Data = new uint8_t[m_DataLen];
+		memcpy(m_Data, other.m_Data, m_DataLen);
+	}
+}
+
 GenericDnsResourceData& GenericDnsResourceData::operator=(const GenericDnsResourceData& other)
 {
 	if (m_Data != NULL)

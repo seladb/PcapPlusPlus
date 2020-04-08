@@ -43,6 +43,13 @@ public:
 	HeaderField(const HeaderField& other);
 
 	/**
+	 * Assignment operator for this class. This method copies the data from the other instance and will not share any resources with it.
+	 * Also, if the instance already contains data it will be deleted or zeroed
+	 * @param[in] other The instance to assign from
+	 */
+	HeaderField& operator=(const HeaderField& other);
+
+	/**
 	 * @return The field length in bytes, meaning count of all characters from the previous CRLF (not inclusive) until the next CRLF (inclusive)
 	 * For example: the field "Host: www.wikipedia.org\r\n" will have the length of 25
 	 */

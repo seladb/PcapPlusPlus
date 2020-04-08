@@ -133,7 +133,7 @@ namespace pcpp
 			 * Assignment operator for this class
 			 * @param[in] other The instance to assign from
 			 */
-			IPv4PacketKey operator=(const IPv4PacketKey& other)
+			IPv4PacketKey& operator=(const IPv4PacketKey& other)
 			{
 				m_IpID = other.m_IpID;
 				m_SrcIP = other.m_SrcIP;
