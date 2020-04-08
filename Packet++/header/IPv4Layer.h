@@ -241,7 +241,7 @@ namespace pcpp
 
 			uint8_t valueOffset = (uint8_t)(1);
 
-			while (valueOffset < dataSize)
+			while ((size_t)valueOffset < dataSize)
 			{
 				uint32_t curValue;
 				memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
@@ -283,7 +283,7 @@ namespace pcpp
 			uint8_t valueOffset = (uint8_t)(2);
 			bool readIPAddr = (res.type == IPv4TimestampOptionValue::TimestampAndIP);
 
-			while (valueOffset < dataSize)
+			while ((size_t)valueOffset < dataSize)
 			{
 				uint32_t curValue;
 				memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));

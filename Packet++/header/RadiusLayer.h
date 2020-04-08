@@ -138,6 +138,16 @@ namespace pcpp
 			TLVRecordBuilder(other) { }
 
 		/**
+		 * Assignment operator that copies all data from another instance of RadiusAttributeBuilder
+		 * @param[in] other The instance to assign from
+		 */
+		RadiusAttributeBuilder& operator=(const RadiusAttributeBuilder& other)
+		{
+			TLVRecordBuilder::operator=(other);
+			return *this;
+		}
+
+		/**
 		 * Build the RadiusAttribute object out of the parameters defined in the c'tor
 		 * @return The RadiusAttribute object
 		 */

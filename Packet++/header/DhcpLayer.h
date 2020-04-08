@@ -560,6 +560,16 @@ namespace pcpp
 			TLVRecordBuilder(other) { }
 
 		/**
+		 * Assignment operator that copies all data from another instance of DhcpOptionBuilder
+		 * @param[in] other The instance to assign from
+		 */
+		DhcpOptionBuilder& operator=(const DhcpOptionBuilder& other)
+		{
+			TLVRecordBuilder::operator=(other);
+			return *this;
+		}
+
+		/**
 		 * Build the DhcpOption object out of the parameters defined in the c'tor
 		 * @return The DhcpOption object
 		 */

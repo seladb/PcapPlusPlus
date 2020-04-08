@@ -368,6 +368,8 @@ namespace pcpp
 
 		TLVRecordBuilder(const TLVRecordBuilder& other);
 
+		TLVRecordBuilder& operator=(const TLVRecordBuilder& other);
+
 		virtual ~TLVRecordBuilder();
 
 		void init(uint8_t recType, const uint8_t* recValue, uint8_t recValueLen);
@@ -375,6 +377,10 @@ namespace pcpp
 		uint8_t* m_RecValue;
 		uint8_t m_RecValueLen;
 		uint8_t m_RecType;
+	
+	private:
+
+		void copyData(const TLVRecordBuilder& other);
 	};
 }
 #endif // PACKETPP_TLV_DATA

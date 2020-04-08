@@ -213,8 +213,8 @@ void DnsLayer::parseResources()
 
 IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name, bool exactMatch) const
 {
-	uint16_t i = 0;
-	while (i < resourceCount)
+	size_t index = 0;
+	while (index < resourceCount)
 	{
 		if (startFrom == NULL)
 			return NULL;
@@ -227,7 +227,7 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 
 		startFrom = startFrom->getNextResource();
 
-		i++;
+		index++;
 	}
 
 	return NULL;
