@@ -61,6 +61,7 @@ using namespace pcpp;
 static struct option HttpAnalyzerOptions[] =
 {
 	{"interface",  required_argument, 0, 'i'},
+	{"dst-port",  required_argument, 0, 'p'},
 	{"input-file",  required_argument, 0, 'f'},
 	{"output-file", required_argument, 0, 'o'},
 	{"rate-calc-period", required_argument, 0, 'r'},
@@ -95,7 +96,8 @@ void printUsage()
 			"-------------------------\n"
 			"%s [-hvld] [-o output_file] [-r calc_period] -i interface\n"
 			"\nOptions:\n\n"
-			"    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address with port (e.g 192.168.1.1 or 192.168.1.1:80)\n"
+			"    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address\n"
+		    "    -p dst_port    : Use the specified port (default is 80)\n"
 			"    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause performance degradation\n"
 			"    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds\n"
 			"    -d             : Disable periodic rates calculation\n"
@@ -390,7 +392,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * activate HTTP analysis from pcap file
  */
-void analyzeHttpFromPcapFile(std::string pcapFileName)
+void analyzeHttpFromPcapFile(std::string pcapFileName, unsigned short dstPort)
 {
 	// open input file (pcap or pcapng file)
 	IFileReaderDevice* reader = IFileReaderDevice::getReader(pcapFileName.c_str());
@@ -398,22 +400,13 @@ void analyzeHttpFromPcapFile(std::string pcapFileName)
 	if (!reader->open())
 		EXIT_WITH_ERROR("Could not open input pcap file");
 
-	// set a port 80 filter on the reader device to process only HTTP packets
-	if (GlobalConfig::getInstance().setDstFilterPort)
-	{
-		PortFilter httpPortFilter(GlobalConfig::getInstance().dstFilterPort, DST);
-		if (!reader->setFilter(httpPortFilter))
-			EXIT_WITH_ERROR("Could not set up filter on file");
-	}
-	else
-	{
-		PortFilter httpPortFilter(80, SRC_OR_DST);
-		if (!reader->setFilter(httpPortFilter))
-			EXIT_WITH_ERROR("Could not set up filter on file");
-	}
+	// set a port  filter on the reader device to process only HTTP packets
+	PortFilter httpPortFilter(dstPort, DST);
+	if (!reader->setFilter(httpPortFilter))
+		EXIT_WITH_ERROR("Could not set up filter on file");
 
 	// read the input file packet by packet and give it to the HttpStatsCollector for collecting stats
-	HttpStatsCollector collector;
+	HttpStatsCollector collector(dstPort);
 	RawPacket rawPacket;
 	while(reader->getNextPacket(rawPacket))
 	{
@@ -438,24 +431,15 @@ void analyzeHttpFromPcapFile(std::string pcapFileName)
 /**
  * activate HTTP analysis from live traffic
  */
-void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, int printRatePeriod, std::string savePacketsToFileName)
+void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, int printRatePeriod, std::string savePacketsToFileName,unsigned short dstPort)
 {
 	// open the device
 	if (!dev->open())
 		EXIT_WITH_ERROR("Could not open the device");
 
-	if (GlobalConfig::getInstance().setDstFilterPort)
-	{
-		PortFilter httpPortFilter(GlobalConfig::getInstance().dstFilterPort, DST);
-		if (!dev->setFilter(httpPortFilter))
-			EXIT_WITH_ERROR("Could not set up filter on device");
-	}
-	else
-	{
-		PortFilter httpPortFilter(80, SRC_OR_DST);
-		if (!dev->setFilter(httpPortFilter))
-			EXIT_WITH_ERROR("Could not set up filter on device");
-	}
+	PortFilter httpPortFilter(dstPort, DST);
+	if (!dev->setFilter(httpPortFilter))
+		EXIT_WITH_ERROR("Could not set up filter on device");
 
 	// if needed to save the captured packets to file - open a writer device
 	PcapFileWriterDevice* pcapWriter = NULL;
@@ -470,7 +454,7 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
 
 	// start capturing packets and collecting stats
 	HttpPacketArrivedData data;
-	HttpStatsCollector collector;
+	HttpStatsCollector collector(dstPort);
 	data.statsCollector = &collector;
 	data.pcapWriter = pcapWriter;
 	dev->startCapture(httpPacketArrive, &data);
@@ -520,6 +504,7 @@ int main(int argc, char* argv[])
 	AppName::init(argc, argv);
 
 	std::string interfaceNameOrIP = "";
+	std::string port = "80";
 	bool printRatesPeriodicaly = true;
 	int printRatePeriod = DEFAULT_CALC_RATES_PERIOD_SEC;
 	std::string savePacketsToFileName = "";
@@ -531,7 +516,7 @@ int main(int argc, char* argv[])
 	char opt = 0;
 	std::size_t found;
 
-	while((opt = getopt_long (argc, argv, "i:f:o:r:hvld", HttpAnalyzerOptions, &optionIndex)) != -1)
+	while((opt = getopt_long (argc, argv, "i:p:f:o:r:hvld", HttpAnalyzerOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -539,27 +524,9 @@ int main(int argc, char* argv[])
 				break;
 			case 'i':
 				interfaceNameOrIP = optarg;
-				found = interfaceNameOrIP.find(":");
-				if (found != std::string::npos)
-				{
-					std::string strPort = interfaceNameOrIP.substr(found + 1, interfaceNameOrIP.length() - found - 1);
-					std::istringstream is(strPort);
-					unsigned short nPort = -1;
-					is >> nPort;
-					if (is.fail())
-					{
-						printUsage();
-						exit(-1);
-					}
-					if (nPort < 0 || nPort > 65535)
-					{
-						printUsage();
-						exit(-1);
-					}
-					GlobalConfig::getInstance().setDstFilterPort = true;
-					GlobalConfig::getInstance().dstFilterPort = nPort;
-					interfaceNameOrIP = interfaceNameOrIP.substr(0, found);
-				}
+				break;
+			case 'p':
+				port = optarg;
 				break;
 			case 'f':
 				readPacketsFromPcapFileName = optarg;
@@ -592,10 +559,25 @@ int main(int argc, char* argv[])
 	if (readPacketsFromPcapFileName == "" && interfaceNameOrIP == "")
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
 
+	//get the port
+	std::istringstream is(port);
+	unsigned short nPort = -1;
+	is >> nPort;
+	if (is.fail())
+	{
+		printUsage();
+		exit(-1);
+	}
+	if (nPort < 0 || nPort > 65535)
+	{
+		printUsage();
+		exit(-1);
+	}
+
 	// analyze in pcap file mode
 	if (readPacketsFromPcapFileName != "")
 	{
-		analyzeHttpFromPcapFile(readPacketsFromPcapFileName);
+		analyzeHttpFromPcapFile(readPacketsFromPcapFileName, nPort);
 	}
 	else // analyze in live traffic mode
 	{
@@ -616,6 +598,6 @@ int main(int argc, char* argv[])
 		}
 
 		// start capturing and analyzing traffic
-		analyzeHttpFromLiveTraffic(dev, printRatesPeriodicaly, printRatePeriod, savePacketsToFileName);
+		analyzeHttpFromLiveTraffic(dev, printRatesPeriodicaly, printRatePeriod, savePacketsToFileName, nPort);
 	}
 }

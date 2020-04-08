@@ -9,27 +9,6 @@
 #include "PacketUtils.h"
 #include "SystemUtils.h"
 
-class GlobalConfig
-{
-private:
-	GlobalConfig() : setDstFilterPort(false) {}
-public:
-	// a flag indicating whether to set dst filter port
-	bool setDstFilterPort;
-
-	// dst filter port
-	unsigned short dstFilterPort;
-	/**
-	 * The singleton implementation of this class
-	 */
-	static GlobalConfig& getInstance()
-	{
-		static GlobalConfig instance;
-		return instance;
-	}
-};
-
-
 /**
  * An auxiliary struct for encapsulating rate stats
  */
@@ -155,9 +134,10 @@ public:
 	/**
 	 * C'tor - clear all structures
 	 */
-	HttpStatsCollector()
+	HttpStatsCollector(unsigned short dstPort)
 	{
 		clear();
+		m_dstPort = dstPort;
 	}
 
 	/**
@@ -171,16 +151,8 @@ public:
 
 		// verify packet is port 80
 		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
-		if (GlobalConfig::getInstance().setDstFilterPort)
-		{
-			if (!(tcpLayer->getTcpHeader()->portDst == htons(GlobalConfig::getInstance().dstFilterPort)))
-				return;
-		}
-		else
-		{
-			if (!(tcpLayer->getTcpHeader()->portDst == htons(80) || tcpLayer->getTcpHeader()->portSrc == htons(80)))
-				return;
-		}
+		if (!(tcpLayer->getTcpHeader()->portDst == htons(m_dstPort)))
+			return;
 
 		// collect general HTTP traffic stats on this packet
 		uint32_t hashVal = collectHttpTrafficStats(httpPacket);
@@ -493,4 +465,5 @@ private:
 
 	double m_LastCalcRateTime;
 	double m_StartTime;
+	unsigned short m_dstPort;
 };
