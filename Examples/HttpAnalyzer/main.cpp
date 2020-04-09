@@ -97,7 +97,7 @@ void printUsage()
 			"%s [-hvld] [-o output_file] [-r calc_period] -i interface\n"
 			"\nOptions:\n\n"
 			"    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address\n"
-		    "    -p dst_port    : Use the specified port (default is 80)\n"
+			"    -p dst_port    : Use the specified port (default is 80)\n"
 			"    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause performance degradation\n"
 			"    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds\n"
 			"    -d             : Disable periodic rates calculation\n"
