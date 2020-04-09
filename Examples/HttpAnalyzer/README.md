@@ -140,10 +140,11 @@ When analyzing HTTP traffic from a pcap/pcap-ng file:
 When analyzing HTTP traffic on live traffic:
 
 	Basic usage:
-		HttpAnalyzer [-hld] [-o output_file] [-r calc_period] -i interface
+		HttpAnalyzer [-hld] [-o output_file] [-r calc_period] [-p dst_port] -i interface
 
 	Options:
 		-i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address
+		-p dst_port    : Use the specified port (optional parameter, the default is 80)		
 		-o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause performance degradation
 		-r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds
 		-d             : Disable periodic rates calculation
