@@ -565,12 +565,10 @@ int main(int argc, char* argv[])
 	is >> nPort;
 	if (is.fail())
 	{
-		printUsage();
 		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
 	}
 	if (nPort < 0 || nPort > 65535)
 	{
-		printUsage();
 		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
 	}
 
