@@ -640,10 +640,27 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	timespec timestamp = m_RawPacket->getPacketTimeStamp();
 	time_t nowtime = timestamp.tv_sec;
 	struct tm *nowtm = NULL;
+#if __cplusplus > 199711L && !defined(WIN32)
+  // localtime_r and gmtime_r are thread-safe versions of localtime and gmtime,
+	// but they're defined only in newer compilers (>= C++0x).
+	// on Windows localtime and gmtime are already thread-safe so there is not need
+	// to use localtime_r and gmtime_r
+	struct tm nowtm_r;
 	if (timeAsLocalTime)
-		nowtm = localtime(&nowtime);
+		nowtm = localtime_r(&nowtime, &nowtm_r);
 	else
-		nowtm = gmtime(&nowtime);
+		nowtm = gmtime_r(&nowtime, &nowtm_r);
+
+	if (nowtm != NULL)
+		nowtm = &nowtm_r;
+#else
+	// on Window compilers localtime and gmtime are already thread safe.
+	// in old compilers (< C++0x) gmtime_r and localtime_r were not defined so we have to fall back to localtime and gmtime
+	if (timeAsLocalTime)
+		nowtm = localtime(&nowtime); // lgtm [cpp/potentially-dangerous-function]
+	else
+		nowtm = gmtime(&nowtime); // lgtm [cpp/potentially-dangerous-function]
+#endif
 
 	char tmbuf[64], buf[128];
 	if (nowtm != NULL)
