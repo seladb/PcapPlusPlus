@@ -9,7 +9,6 @@
 #include "PacketUtils.h"
 #include "SystemUtils.h"
 
-
 /**
  * An auxiliary struct for encapsulating rate stats
  */
@@ -135,9 +134,10 @@ public:
 	/**
 	 * C'tor - clear all structures
 	 */
-	HttpStatsCollector()
+	HttpStatsCollector(uint16_t dstPort)
 	{
 		clear();
+		m_DstPort = dstPort;
 	}
 
 	/**
@@ -151,7 +151,7 @@ public:
 
 		// verify packet is port 80
 		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
-		if (!(tcpLayer->getTcpHeader()->portDst == htons(80) || tcpLayer->getTcpHeader()->portSrc == htons(80)))
+		if (!(tcpLayer->getTcpHeader()->portDst == htons(m_DstPort) || tcpLayer->getTcpHeader()->portSrc == htons(m_DstPort) ))
 			return;
 
 		// collect general HTTP traffic stats on this packet
@@ -465,4 +465,5 @@ private:
 
 	double m_LastCalcRateTime;
 	double m_StartTime;
+	uint16_t m_DstPort;
 };
