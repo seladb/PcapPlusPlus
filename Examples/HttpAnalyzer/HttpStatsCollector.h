@@ -134,10 +134,10 @@ public:
 	/**
 	 * C'tor - clear all structures
 	 */
-	HttpStatsCollector(unsigned short dstPort)
+	HttpStatsCollector(uint16_t dstPort)
 	{
 		clear();
-		m_dstPort = dstPort;
+		m_DstPort = dstPort;
 	}
 
 	/**
@@ -151,7 +151,7 @@ public:
 
 		// verify packet is port 80
 		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
-		if (!(tcpLayer->getTcpHeader()->portDst == htons(m_dstPort)))
+		if (!(tcpLayer->getTcpHeader()->portDst == htons(m_DstPort) || tcpLayer->getTcpHeader()->portSrc == htons(m_DstPort) ))
 			return;
 
 		// collect general HTTP traffic stats on this packet
@@ -465,5 +465,5 @@ private:
 
 	double m_LastCalcRateTime;
 	double m_StartTime;
-	unsigned short m_dstPort;
+	uint16_t m_DstPort;
 };

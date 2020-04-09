@@ -392,7 +392,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * activate HTTP analysis from pcap file
  */
-void analyzeHttpFromPcapFile(std::string pcapFileName, unsigned short dstPort)
+void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
 {
 	// open input file (pcap or pcapng file)
 	IFileReaderDevice* reader = IFileReaderDevice::getReader(pcapFileName.c_str());
@@ -401,7 +401,7 @@ void analyzeHttpFromPcapFile(std::string pcapFileName, unsigned short dstPort)
 		EXIT_WITH_ERROR("Could not open input pcap file");
 
 	// set a port  filter on the reader device to process only HTTP packets
-	PortFilter httpPortFilter(dstPort, DST);
+	PortFilter httpPortFilter(dstPort, SRC_OR_DST);
 	if (!reader->setFilter(httpPortFilter))
 		EXIT_WITH_ERROR("Could not set up filter on file");
 
@@ -431,13 +431,13 @@ void analyzeHttpFromPcapFile(std::string pcapFileName, unsigned short dstPort)
 /**
  * activate HTTP analysis from live traffic
  */
-void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, int printRatePeriod, std::string savePacketsToFileName,unsigned short dstPort)
+void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, int printRatePeriod, std::string savePacketsToFileName, uint16_t dstPort)
 {
 	// open the device
 	if (!dev->open())
 		EXIT_WITH_ERROR("Could not open the device");
 
-	PortFilter httpPortFilter(dstPort, DST);
+	PortFilter httpPortFilter(dstPort, SRC_OR_DST);
 	if (!dev->setFilter(httpPortFilter))
 		EXIT_WITH_ERROR("Could not set up filter on device");
 
@@ -561,17 +561,17 @@ int main(int argc, char* argv[])
 
 	//get the port
 	std::istringstream is(port);
-	unsigned short nPort = -1;
+	uint16_t nPort = -1;
 	is >> nPort;
 	if (is.fail())
 	{
 		printUsage();
-		exit(-1);
+		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
 	}
 	if (nPort < 0 || nPort > 65535)
 	{
 		printUsage();
-		exit(-1);
+		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
 	}
 
 	// analyze in pcap file mode
