@@ -130,6 +130,15 @@ namespace pcpp
 		IPv4Address(uint32_t addressAsInt);
 
 		/**
+		 * A constructor that creates an instance of the class out of four 1-byte octets
+		 * @param[in] oct1 First octet
+		 * @param[in] oct2 Second octet
+		 * @param[in] oct3 Third octet
+		 * @param[in] oct4 Fourth octet
+		 */
+		IPv4Address(uint8_t oct1, uint8_t oct2, uint8_t oct3, uint8_t oct4);
+
+		/**
 		 * A constructor that creates an instance of the class out of string (char*) value
 		 * If the string doesn't represent a valid IPv4 address, instance will be invalid, meaning isValid() will return false
 		 * @param[in] addressAsString The string (char*) representation of the address

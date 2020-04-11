@@ -222,6 +222,10 @@ namespace pcpp
 	 */
 	const ProtocolType EthernetDot3 = 0x100000000;
 
+	/**
+	 * Border Gateway Protocol (BGP) version 4 protocol
+	 */
+	const ProtocolType BGP = 0x200000000;
 
 	/**
 	 * An enum representing OSI model layers

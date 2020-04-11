@@ -8,6 +8,7 @@
 #include "HttpLayer.h"
 #include "SSLLayer.h"
 #include "SipLayer.h"
+#include "BgpLayer.h"
 #include "IpUtils.h"
 #include "Logger.h"
 #include <string.h>
@@ -355,6 +356,8 @@ void TcpLayer::parseNextLayer()
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
+	else if (BgpLayer::isBgpPort(portSrc, portDst))
+		m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
