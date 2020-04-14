@@ -7745,6 +7745,19 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(be16toh(bgpOpenLayer->getOpenMsgHeader()->holdTime), 180, u16);
 	PTF_ASSERT_EQUAL(bgpOpenLayer->getOpenMsgHeader()->optionalParameterLength, 28, u8);
 	PTF_ASSERT_EQUAL(bgpOpenLayer->getBgpIdAsIPv4Address(), IPv4Address("1.1.1.1"), object);
+	std::vector<BgpOpenMessageLayer::optional_parameter> optionalParams;
+	bgpOpenLayer->getOptionalParameters(optionalParams);
+	PTF_ASSERT_EQUAL(optionalParams.size(), 5, size);
+	uint8_t optParamsLength[5] = { 6, 2, 2, 2, 6 };
+	int optParamsDataInedx[5] = { 3, 1, 0, 0, 5 };
+	uint8_t optParamsData[5] = { 1, 0, 2, 0x46, 1 };
+	for (int i = 0; i < 5; i++)
+	{
+		BgpOpenMessageLayer::optional_parameter optParam = optionalParams[i];
+		PTF_ASSERT_EQUAL(optParam.type, 2, u8);
+		PTF_ASSERT_EQUAL(optParam.length, optParamsLength[i], u8);
+		PTF_ASSERT_EQUAL(optParam.value[optParamsDataInedx[i]], optParamsData[i], u8);
+	}
 
 
 
@@ -7802,10 +7815,10 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(bgpUpdateLayer->getBgpMessageType(), BgpLayer::Update, enum);
 	PTF_ASSERT_EQUAL(bgpUpdateLayer->getHeaderLen(), 38, size);
 	PTF_ASSERT_EQUAL(bgpUpdateLayer->getWithdrawnRoutesLength(), 15, size);
-	std::vector<BgpUpdateMessageLayer::withdrawn_route> withdrawnRoutes;
+	std::vector<BgpUpdateMessageLayer::prefix_and_ip> withdrawnRoutes;
 	bgpUpdateLayer->getWithdrawnRoutes(withdrawnRoutes);
 	PTF_ASSERT_EQUAL(withdrawnRoutes.size(), 4, size);
-	BgpUpdateMessageLayer::withdrawn_route wr = withdrawnRoutes[0];
+	BgpUpdateMessageLayer::prefix_and_ip wr = withdrawnRoutes[0];
 	PTF_ASSERT_EQUAL(wr.prefix, 24, u8);
 	PTF_ASSERT_EQUAL(wr.ipAddr, IPv4Address("40.1.1.0"), object);
 	wr = withdrawnRoutes[1];
@@ -7858,7 +7871,14 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(pathAttr.type, 3, u8);
 	PTF_ASSERT_EQUAL(pathAttr.length, 4, u8);
 	PTF_ASSERT_EQUAL(pathAttr.data[2], 0x1e, u8);
-	size_t pathAttrSize[3] = {28, 24, 0}; 
+	PTF_ASSERT_EQUAL(bgpUpdateLayer->getNetworkLayerReachabilityInfoLength(), 4, size);
+	std::vector<BgpUpdateMessageLayer::prefix_and_ip> nlriVec;
+	bgpUpdateLayer->getNetworkLayerReachabilityInfo(nlriVec);
+	PTF_ASSERT_EQUAL(nlriVec.size(), 1, size);
+	BgpUpdateMessageLayer::prefix_and_ip nlri = nlriVec[0];
+	PTF_ASSERT_EQUAL(nlri.prefix, 24, u8);
+	PTF_ASSERT_EQUAL(nlri.ipAddr, IPv4Address("104.104.40.0"), object);	
+	size_t pathAttrSize[3] = {28, 24, 0};
 	for (int i = 0; i < 3; i++)
 	{
 		PTF_ASSERT_NOT_NULL(bgpUpdateLayer->getNextLayer());
@@ -7867,7 +7887,162 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 		PTF_ASSERT_NOT_NULL(bgpUpdateLayer);
 		PTF_ASSERT_EQUAL(bgpUpdateLayer->getPathAttributesLength(), pathAttrSize[i], size);
 	}
+}
 
+
+PTF_TEST_CASE(BgpLayerCreationTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	int buffer1Length = 0;
+	uint8_t* buffer1 = readFileIntoBuffer("PacketExamples/Bgp_keepalive.dat", buffer1Length);
+	PTF_ASSERT_NOT_NULL(buffer1);
+	int buffer2Length = 0;
+	uint8_t* buffer2 = readFileIntoBuffer("PacketExamples/Bgp_route-refresh.dat", buffer2Length);
+	PTF_ASSERT_NOT_NULL(buffer2);
+	int buffer3Length = 0;
+	uint8_t* buffer3 = readFileIntoBuffer("PacketExamples/Bgp_notification.dat", buffer3Length);
+	PTF_ASSERT_NOT_NULL(buffer3);
+	int buffer4Length = 0;
+	uint8_t* buffer4 = readFileIntoBuffer("PacketExamples/Bgp_notification2.dat", buffer4Length);
+	PTF_ASSERT_NOT_NULL(buffer4);
+	int buffer5Length = 0;
+	uint8_t* buffer5 = readFileIntoBuffer("PacketExamples/Bgp_update1.dat", buffer5Length);
+	PTF_ASSERT_NOT_NULL(buffer5);
+	int buffer6Length = 0;
+	uint8_t* buffer6 = readFileIntoBuffer("PacketExamples/Bgp_update2.dat", buffer6Length);
+	PTF_ASSERT_NOT_NULL(buffer6);
+	int buffer7Length = 0;
+	uint8_t* buffer7 = readFileIntoBuffer("PacketExamples/Bgp_open.dat", buffer7Length);
+	PTF_ASSERT_NOT_NULL(buffer7);
+
+
+	uint8_t origBuffer[1500];
+
+	memcpy(origBuffer, buffer1, buffer1Length);
+	RawPacket rawPacket1((const uint8_t*)buffer1, buffer1Length, time, true);
+	Packet bgpKAPacket(&rawPacket1);
+	BgpKeepaliveMessageLayer* origKAMessage = dynamic_cast<BgpKeepaliveMessageLayer*>(bgpKAPacket.detachLayer(BGP));
+	PTF_ASSERT_NOT_NULL(origKAMessage);
+	BgpKeepaliveMessageLayer newKAMessage;
+	PTF_ASSERT_EQUAL(newKAMessage.getDataLen(), origKAMessage->getDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(newKAMessage.getData(), origKAMessage->getData(), origKAMessage->getDataLen());
+	PTF_ASSERT_TRUE(bgpKAPacket.addLayer(&newKAMessage));
+	bgpKAPacket.computeCalculateFields();
+	PTF_ASSERT_EQUAL(bgpKAPacket.getRawPacket()->getRawDataLen(), buffer1Length, int);
+	PTF_ASSERT_BUF_COMPARE(bgpKAPacket.getRawPacket()->getRawData(), origBuffer, buffer1Length);
+	delete origKAMessage;
+
+
+	memcpy(origBuffer, buffer2, buffer2Length);
+	RawPacket rawPacket2((const uint8_t*)buffer2, buffer2Length, time, true);
+	Packet bgpRouteRefreshPacket(&rawPacket2);
+	BgpRouteRefreshMessageLayer* origRouteRefreshMessage = dynamic_cast<BgpRouteRefreshMessageLayer*>(bgpRouteRefreshPacket.detachLayer(BGP));
+	PTF_ASSERT_NOT_NULL(origRouteRefreshMessage);
+	BgpRouteRefreshMessageLayer newRouteRefreshMessage(1, 1);
+	newRouteRefreshMessage.getRouteRefreshHeader()->reserved = 1;
+	PTF_ASSERT_EQUAL(newRouteRefreshMessage.getDataLen(), origRouteRefreshMessage->getDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(newRouteRefreshMessage.getData(), origRouteRefreshMessage->getData(), origRouteRefreshMessage->getDataLen());
+	PTF_ASSERT_TRUE(bgpRouteRefreshPacket.addLayer(&newRouteRefreshMessage));
+	bgpRouteRefreshPacket.computeCalculateFields();
+	PTF_ASSERT_EQUAL(bgpRouteRefreshPacket.getRawPacket()->getRawDataLen(), buffer2Length, int);
+	PTF_ASSERT_BUF_COMPARE(bgpRouteRefreshPacket.getRawPacket()->getRawData(), origBuffer, buffer2Length);
+	delete origRouteRefreshMessage;
+
+
+	memcpy(origBuffer, buffer3, buffer3Length);
+	RawPacket rawPacket3((const uint8_t*)buffer3, buffer3Length, time, true);
+	Packet bgpNotificationPacket(&rawPacket3);
+	BgpNotificationMessageLayer* origNotificationMessage = dynamic_cast<BgpNotificationMessageLayer*>(bgpNotificationPacket.detachLayer(BGP));
+	PTF_ASSERT_NOT_NULL(origNotificationMessage);
+	std::string notificationData = "7c4e54542077696c6c20706572666f726d206d61696e74656e616e6365206f6e207468697320726f757465722e205468697320697320747261636b656420696e205449434b45542d312d32343832343239342e20436f6e74616374206e6f63406e74742e6e657420666f72206d6f726520696e666f726d6174696f6e2e";
+	BgpNotificationMessageLayer newNotificationMessage(6, 2, notificationData);
+	PTF_ASSERT_EQUAL(newNotificationMessage.getDataLen(), origNotificationMessage->getDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(newNotificationMessage.getData(), origNotificationMessage->getData(), origNotificationMessage->getDataLen());
+	PTF_ASSERT_TRUE(bgpNotificationPacket.addLayer(&newNotificationMessage));
+	bgpNotificationPacket.computeCalculateFields();
+	PTF_ASSERT_EQUAL(bgpNotificationPacket.getRawPacket()->getRawDataLen(), buffer3Length, int);
+	PTF_ASSERT_BUF_COMPARE(bgpNotificationPacket.getRawPacket()->getRawData(), origBuffer, buffer3Length);
+	delete origNotificationMessage;
+
+	memcpy(origBuffer, buffer4, buffer4Length);
+	RawPacket rawPacket4((const uint8_t*)buffer4, buffer4Length, time, true);
+	Packet bgpNotificationPacket2(&rawPacket4);
+	origNotificationMessage = dynamic_cast<BgpNotificationMessageLayer*>(bgpNotificationPacket2.detachLayer(BGP));
+	PTF_ASSERT_NOT_NULL(origNotificationMessage);
+	BgpNotificationMessageLayer newNotificationMessage2(6, 4);
+	PTF_ASSERT_EQUAL(newNotificationMessage2.getDataLen(), origNotificationMessage->getDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(newNotificationMessage2.getData(), origNotificationMessage->getData(), origNotificationMessage->getDataLen());
+	PTF_ASSERT_TRUE(bgpNotificationPacket2.addLayer(&newNotificationMessage2));
+	bgpNotificationPacket2.computeCalculateFields();
+	PTF_ASSERT_EQUAL(bgpNotificationPacket2.getRawPacket()->getRawDataLen(), buffer4Length, int);
+	PTF_ASSERT_BUF_COMPARE(bgpNotificationPacket2.getRawPacket()->getRawData(), origBuffer, buffer4Length);
+	delete origNotificationMessage;
+
+
+	memcpy(origBuffer, buffer5, buffer5Length);
+	RawPacket rawPacket5((const uint8_t*)buffer5, buffer5Length, time, true);
+	Packet bgpUpdatePacket1(&rawPacket5);
+	BgpUpdateMessageLayer* origUpdateMessage = dynamic_cast<BgpUpdateMessageLayer*>(bgpUpdatePacket1.detachLayer(BGP));
+	PTF_ASSERT_NOT_NULL(origUpdateMessage);
+	std::vector<BgpUpdateMessageLayer::prefix_and_ip> withdrawnRoutes;
+	withdrawnRoutes.push_back(BgpUpdateMessageLayer::prefix_and_ip(24, "40.1.1.0"));
+	withdrawnRoutes.push_back(BgpUpdateMessageLayer::prefix_and_ip(24, "40.40.40.0"));
+	withdrawnRoutes.push_back(BgpUpdateMessageLayer::prefix_and_ip(16, "103.103.0.0"));
+	withdrawnRoutes.push_back(BgpUpdateMessageLayer::prefix_and_ip(24, "103.103.40.0"));
+	BgpUpdateMessageLayer newUpdateMessage(withdrawnRoutes);
+	PTF_ASSERT_EQUAL(newUpdateMessage.getDataLen(), origUpdateMessage->getDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(newUpdateMessage.getData(), origUpdateMessage->getData(), origUpdateMessage->getDataLen());
+	PTF_ASSERT_TRUE(bgpUpdatePacket1.insertLayer(bgpUpdatePacket1.getLayerOfType(TCP), &newUpdateMessage));
+	bgpUpdatePacket1.computeCalculateFields();
+	PTF_ASSERT_EQUAL(bgpUpdatePacket1.getRawPacket()->getRawDataLen(), buffer5Length, int);
+	PTF_ASSERT_BUF_COMPARE(bgpUpdatePacket1.getRawPacket()->getRawData(), origBuffer, buffer5Length);
+	delete origUpdateMessage;
+
+	memcpy(origBuffer, buffer6, buffer6Length);
+	RawPacket rawPacket6((const uint8_t*)buffer6, buffer6Length, time, true);
+	Packet bgpUpdatePacket2(&rawPacket6);
+	origUpdateMessage = dynamic_cast<BgpUpdateMessageLayer*>(bgpUpdatePacket2.detachLayer(BGP));
+	PTF_ASSERT_NOT_NULL(origUpdateMessage);
+	std::vector<BgpUpdateMessageLayer::path_attribute> pathAttributes;
+	pathAttributes.push_back(BgpUpdateMessageLayer::path_attribute(0x40, 1, "02"));
+	pathAttributes.push_back(BgpUpdateMessageLayer::path_attribute(0x40, 2, "02030000000a0000001400000028"));
+	pathAttributes.push_back(BgpUpdateMessageLayer::path_attribute(0x40, 3, "1e031e03"));
+	std::vector<BgpUpdateMessageLayer::prefix_and_ip> nlri;
+	nlri.push_back(BgpUpdateMessageLayer::prefix_and_ip(24, "104.104.40.0"));
+	BgpUpdateMessageLayer newUpdateMessage2(std::vector<BgpUpdateMessageLayer::prefix_and_ip>(), pathAttributes, nlri);
+	PTF_ASSERT_EQUAL(newUpdateMessage2.getDataLen(), origUpdateMessage->getDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(newUpdateMessage2.getData(), origUpdateMessage->getData(), origUpdateMessage->getDataLen());
+	PTF_ASSERT_TRUE(bgpUpdatePacket2.insertLayer(bgpUpdatePacket2.getLayerOfType(TCP), &newUpdateMessage2));
+	bgpUpdatePacket2.computeCalculateFields();
+	PTF_ASSERT_EQUAL(bgpUpdatePacket2.getRawPacket()->getRawDataLen(), buffer6Length, int);
+	PTF_ASSERT_BUF_COMPARE(bgpUpdatePacket2.getRawPacket()->getRawData(), origBuffer, buffer6Length);
+	delete origUpdateMessage;
+
+
+	memcpy(origBuffer, buffer7, buffer7Length);
+	RawPacket rawPacket7((const uint8_t*)buffer7, buffer7Length, time, true);
+	Packet bgpOpenPacket(&rawPacket7);
+	BgpOpenMessageLayer* origOpenMessage = dynamic_cast<BgpOpenMessageLayer*>(bgpOpenPacket.detachLayer(BGP));
+	PTF_ASSERT_NOT_NULL(origOpenMessage);
+	std::vector<BgpOpenMessageLayer::optional_parameter> optionalParams;
+	optionalParams.push_back(BgpOpenMessageLayer::optional_parameter(2, "010400010001"));
+	optionalParams.push_back(BgpOpenMessageLayer::optional_parameter(2, "8000"));
+	optionalParams.push_back(BgpOpenMessageLayer::optional_parameter(2, "0200"));
+	optionalParams.push_back(BgpOpenMessageLayer::optional_parameter(2, "4600"));
+	optionalParams.push_back(BgpOpenMessageLayer::optional_parameter(2, "410400000001"));
+	BgpOpenMessageLayer newOpenMessage(1, 180, IPv4Address("1.1.1.1"), optionalParams);
+	PTF_ASSERT_EQUAL(newOpenMessage.getDataLen(), origOpenMessage->getDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(newOpenMessage.getData(), origOpenMessage->getData(), origOpenMessage->getDataLen());
+	PTF_ASSERT_TRUE(bgpOpenPacket.addLayer(&newOpenMessage));
+	bgpOpenPacket.computeCalculateFields();
+	PTF_ASSERT_EQUAL(bgpOpenPacket.getRawPacket()->getRawDataLen(), buffer7Length, int);
+	PTF_ASSERT_BUF_COMPARE(bgpOpenPacket.getRawPacket()->getRawData(), origBuffer, buffer7Length);
+	delete origOpenMessage;
+
+	//savePacketToPcap(bgpOpenPacket, "elad.pcap");
+	//savePacketToPcap(bgpNotificationPacket2, "elad2.pcap");
 }
 
 
@@ -8038,6 +8213,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
 	PTF_RUN_TEST(RawPacketTimeStampSetterTest, "packet");
 	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
+	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 
 	PTF_END_RUNNING_TESTS;
 }

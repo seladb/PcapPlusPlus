@@ -135,6 +135,14 @@ uint32_t IPv4Address::toInt() const
 	return result;
 }
 
+IPv4Address::ipv4_octets IPv4Address::toOctets() const
+{
+	uint8_t byteArr[4];
+	memcpy(byteArr, m_pInAddr, 4*sizeof(uint8_t));
+	IPv4Address::ipv4_octets result = { byteArr[0], byteArr[1], byteArr[2], byteArr[3] };
+	return result;
+}
+
 IPv4Address& IPv4Address::operator=(const IPv4Address& other)
 {
 	if (m_pInAddr == NULL)
