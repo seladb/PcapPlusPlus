@@ -88,7 +88,7 @@ std::string BgpLayer::toString() const
   return "BGP Layer, " + getMessageTypeAsString() + " message";
 }
 
-void BgpLayer::computeGeneralBGPCalculateFields()
+void BgpLayer::computeCalculateFields()
 {
 	bgp_common_header* bgpHeader = getBasicHeader();
   memset(bgpHeader->marker, 0xff, 16*sizeof(uint8_t));
@@ -187,6 +187,22 @@ size_t BgpOpenMessageLayer::optionalParamsToByteArray(const std::vector<optional
   return dataLen;
 }
 
+void BgpOpenMessageLayer::setBgpId(const IPv4Address& newBgpId)
+{
+  if (!newBgpId.isValid())
+  {
+    return;
+  }
+
+  bgp_open_message* msgHdr = getOpenMsgHeader();
+  if (msgHdr == NULL)
+  {
+    return;
+  }
+
+  msgHdr->bgpId = newBgpId.toInt();
+}
+
 void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>& optionalParameters)
 {
   bgp_open_message* msgHdr = getOpenMsgHeader();
@@ -226,6 +242,59 @@ void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>&
     byteCount += totalLen;
     dataPtr += totalLen;
   }
+}
+
+size_t BgpOpenMessageLayer::getOptionalParametersLength()
+{
+  bgp_open_message* msgHdr = getOpenMsgHeader();
+  if (msgHdr != NULL)
+  {
+    return (size_t)(msgHdr->optionalParameterLength);
+  }
+
+  return 0;
+}
+
+bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_parameter>& optionalParameters)
+{
+  uint8_t newOptionalParamsData[1500];
+  size_t newOptionalParamsDataLen = optionalParamsToByteArray(optionalParameters, newOptionalParamsData, 1500);
+  size_t curOptionalParamsDataLen = getOptionalParametersLength();
+
+  if (newOptionalParamsDataLen > curOptionalParamsDataLen)
+  {
+    bool res = extendLayer(sizeof(bgp_open_message), newOptionalParamsDataLen - curOptionalParamsDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
+      return res;
+    }
+  }
+  else if (newOptionalParamsDataLen < curOptionalParamsDataLen)
+  {
+    bool res = shortenLayer(sizeof(bgp_open_message), curOptionalParamsDataLen - newOptionalParamsDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
+      return res;
+    }
+  }
+
+  if (newOptionalParamsDataLen > 0)
+  {
+    memcpy(m_Data + sizeof(bgp_open_message), newOptionalParamsData, newOptionalParamsDataLen);
+  }
+
+  getOpenMsgHeader()->optionalParameterLength = (uint8_t)newOptionalParamsDataLen;
+  getOpenMsgHeader()->length = htobe16(sizeof(bgp_open_message) + newOptionalParamsDataLen);
+  
+  return true;
+
+}
+
+bool BgpOpenMessageLayer::clearOptionalParameters()
+{
+  return setOptionalParameters(std::vector<optional_parameter>());
 }
 
 
@@ -611,6 +680,63 @@ std::string BgpNotificationMessageLayer::getNotificationDataAsHexString() const
   }
 
   return byteArrayToHexString(notificationData, getNotificationDataLen());
+}
+
+bool BgpNotificationMessageLayer::setNotificationData(const uint8_t* newNotificationData, size_t newNotificationDataLen)
+{
+  if (newNotificationData == NULL)
+  {
+    newNotificationDataLen = 0;
+  }
+
+  size_t curNotificationDataLen = getNotificationDataLen();
+
+  if (newNotificationDataLen > curNotificationDataLen)
+  {
+    bool res = extendLayer(sizeof(bgp_notification_message), newNotificationDataLen - curNotificationDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't extend BGP notification layer to include the additional notification data");
+      return res;
+    }
+  }
+  else if (newNotificationDataLen < curNotificationDataLen)
+  {
+    bool res = shortenLayer(sizeof(bgp_notification_message), curNotificationDataLen - newNotificationDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't shorten BGP notification layer to set the right size of the notification data");
+      return res;
+    }
+  }
+
+  if (newNotificationDataLen > 0)
+  {
+    memcpy(m_Data + sizeof(bgp_notification_message), newNotificationData, newNotificationDataLen);
+  }
+
+  getNotificationMsgHeader()->length = htobe16(sizeof(bgp_notification_message) + newNotificationDataLen);
+  
+  return true;
+}
+
+bool BgpNotificationMessageLayer::setNotificationData(const std::string& newNotificationDataAsHexString)
+{
+  if (newNotificationDataAsHexString.empty())
+  {
+    return setNotificationData(NULL, 0);
+  }
+
+  uint8_t newNotificationData[1500];
+  size_t newNotificationDataLen = hexStringToByteArray(newNotificationDataAsHexString, newNotificationData, 1500);
+
+  if (newNotificationDataLen == 0)
+  {
+    LOG_ERROR("newNotificationDataAsHexString is not a valid hex sting");
+    return false;
+  }
+
+  return setNotificationData(newNotificationData, newNotificationDataLen);
 }
 
 

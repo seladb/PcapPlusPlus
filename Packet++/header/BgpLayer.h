@@ -27,11 +27,15 @@ public:
    */
   enum BgpMessageType
   {
-    Unknown = 0,
+    /** BGP OPEN message */
     Open = 1,
+    /** BGP UPDATE message */
     Update = 2,
+    /** BGP NOTIFICATION message */
     Notification = 3,
+    /** BGP KEEPALIVE message */
     Keepalive = 4,
+    /** BGP ROUTE-REFRESH message */
     RouteRefresh = 5,
   };
 
@@ -97,6 +101,14 @@ public:
 
   OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
+  /**
+   * Calculates the basic BGP fields:
+   * - Set marker to all ones
+   * - Set message type value
+   * - Set message length
+   */
+  virtual void computeCalculateFields();
+
 protected:
 
   // protected c'tors, this class cannot be instanciated by users
@@ -108,8 +120,6 @@ protected:
   bgp_common_header* getBasicHeader() const { return (bgp_common_header*)m_Data; }
 
   void setBgpFields(size_t messageLen = 0);
-
-  void computeGeneralBGPCalculateFields();
 
 };
 
@@ -143,14 +153,30 @@ public:
   } bgp_open_message;
   #pragma pack(pop)
 
+  /**
+   * @struct optional_parameter
+   * A structure that represents BGP OPEN message optional parameters
+   */
   struct optional_parameter
   {
+    /** Parameter type */
     uint8_t type;
+    /** Parameter length */
     uint8_t length;
+    /** Parameter data */
     uint8_t value[32];
 
+    /**
+     * A default c'tor that zeroes all data
+     */
     optional_parameter() {}
 
+    /**
+     * A c'tor that initializes the values of the struct
+     * @param[in] typeVal Path attribute type value
+     * @param[in] valueAsHexString Parameter data as hex string. The length field will be set accordingly. 
+     * If this parameter is not a valid hex string the data will remain zeroed and length will be also zero
+     */
     optional_parameter(uint8_t typeVal, std::string valueAsHexString);
   };
 
@@ -163,27 +189,67 @@ public:
    */
   BgpOpenMessageLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : BgpLayer(data, dataLen, prevLayer, packet) {}
 
+  /**
+   * A c'tor that creates a new BGP Open message
+   * @param[in] myAutonomousSystem The Autonomous System number of the sender
+   * @param[in] holdTime The number of seconds the sender proposes for the value of the Hold Timer
+   * @param[in] bgpId The BGP Identifier of the sender
+   * @param[in] optionalParams A vector of optional parameters. This parameter is optional and if not provided no parameters will be 
+   * set on the message
+   */
   BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId, 
     const std::vector<optional_parameter>& optionalParams = std::vector<optional_parameter>());
 
+  /**
+   * Get a pointer to the open message data. Notice this points directly to the data, so any change will modify the actual packet data
+   * @return A pointer to a bgp_open_message structure containing the data
+   */
   bgp_open_message* getOpenMsgHeader() const { return (bgp_open_message*)m_Data; }
 
-  IPv4Address getBgpIdAsIPv4Address() const { return IPv4Address(getOpenMsgHeader()->bgpId); }
+  /**
+   * @return The BGP identifier as IPv4Address object
+   */
+  IPv4Address getBgpId() const { return IPv4Address(getOpenMsgHeader()->bgpId); }
 
+  /**
+   * Set the BGP identifier
+   * @param[in] newBgpId The new BGP identifier. If value is not a valid IPv4 address it won't be set
+   */
+  void setBgpId(const IPv4Address& newBgpId);
+
+  /**
+   * Get a vector of the optional paramters in the message
+   * @param[out] optionalParameters The vector where the optional parameters will be pushed to. This method doesn't remove any
+   * existing data on this vector before pushing data to it 
+   */
   void getOptionalParameters(std::vector<optional_parameter>& optionalParameters);
+
+  /**
+   * @return The length in bytes of the optional paramters data in this message
+   */
+  size_t getOptionalParametersLength();
+
+  /**
+   * Set optional parameters in this message. This method will override any existing optional parameters in the message. 
+   * If the input is an empty vector all optional parameters in the message will be removed. This method autmatically sets the 
+   * header length and the optional parameters length in the message
+   * @param[in] optionalParameters New optional parameter to set in the message
+   * @return True if all optional parameters were set successfully or false otherwise. In case of an error an appropriate message
+   * will be printed to log
+   */
+  bool setOptionalParameters(const std::vector<optional_parameter>& optionalParameters);
+
+  /**
+   * Clear all optional parameters currently in the message. This is equivalent to call setOptionalParameters() with an empty
+   * vector as a parameter
+   * @return True if all optional parameters were successfully cleared or false otherwise. In case of an error an appropriate message
+   * will be printed to log
+   */
+  bool clearOptionalParameters();
 
   // implement abstract methods
 
   BgpMessageType getBgpMessageType() const { return BgpLayer::Open; }
-
-  /**
-   * Calculates the basic BGP fields:
-   * - Set marker to all ones
-   * - Set message type as OPEN (1)
-   * - Set message length
-   * ................
-   */
-  void computeCalculateFields() { computeGeneralBGPCalculateFields(); }
 
 private:
 
@@ -302,7 +368,7 @@ public:
    * - Set message length
    * ................
    */
-  void computeCalculateFields() { computeGeneralBGPCalculateFields(); }
+  void computeCalculateFields() { }
 
 private:
 
@@ -372,26 +438,53 @@ public:
    */
   BgpNotificationMessageLayer(uint8_t errorCode, uint8_t errorSubCode, const std::string& notificationData);
 
+  /**
+   * Get a pointer to the notification message data. Notice this points directly to the data, so any change will modify the actual packet data
+   * @return A pointer to a bgp_notification_message structure containing the data
+   */
   bgp_notification_message* getNotificationMsgHeader() const { return (bgp_notification_message*)m_Data; }
 
+  /**
+   * @return The size of the notification data. Notification data is a variable-length field used to diagnose the reason for
+   * the BGP NOTIFICATION
+   */
   size_t getNotificationDataLen() const;
 
+  /**
+   * @return A pointer to the notification data. Notification data is a variable-length field used to diagnose the reason for
+   * the BGP NOTIFICATION
+   */
   uint8_t* getNotificationData() const;
 
+  /**
+   * @return A hex string which represents the notification data. Notification data is a variable-length field used to diagnose the reason for
+   * the BGP NOTIFICATION
+   */
   std::string getNotificationDataAsHexString() const;
+
+  /**
+   * Set the notification data. This method will extend or shorten the existing layer to include the new notification data.
+   * If newNotificationData is NULL or newNotificationDataLen is zero then notification data will be set to none.
+   * @param[in] newNotificationData A byte array containing the new notification data
+   * @param[in] newNotificationDataLen The size of the byte array
+   * @return True if notification data was set successfully or false if any error occurred. In case of an error an appropriate
+   * error message will be printed to log
+   */
+  bool setNotificationData(const uint8_t* newNotificationData, size_t newNotificationDataLen);
+
+  /**
+   * Set the notification data. This method will extend or shorten the existing layer to include the new notification data.
+   * If newNotificationDataAsHexString is an empty string then notification data will be set to none.
+   * @param[in] newNotificationDataAsHexString A hex string representing the new notification data. If the string is not a valid hex string
+   * no data will be changed and an error will be returned
+   * @return True if notification data was set successfully or false if any error occurred or if the string is not a valid hex string. 
+   * In case of an error an appropriate error message will be printed to log
+   */
+  bool setNotificationData(const std::string& newNotificationDataAsHexString);
 
   // implement abstract methods
 
   BgpMessageType getBgpMessageType() const { return BgpLayer::Notification; }
-
-  /**
-   * Calculates the basic BGP fields:
-   * - Set marker to all ones
-   * - Set message type as NOTIFICATION (3)
-   * - Set message length
-   * ................
-   */
-  void computeCalculateFields() { computeGeneralBGPCalculateFields(); }
 
 private:
 
@@ -429,19 +522,15 @@ public:
    */
   BgpKeepaliveMessageLayer();
 
+  /**
+   * Get a pointer to the KeepAlive message data. Notice this points directly to the data, so any change will modify the actual packet data
+   * @return A pointer to a bpg_keepalive_message structure containing the data
+   */
   bpg_keepalive_message* getKeepaliveHeader() const { return (bpg_keepalive_message*)getBasicHeader(); }
 
   // implement abstract methods
 
   BgpMessageType getBgpMessageType() const { return BgpLayer::Keepalive; }
-
-  /**
-   * Calculates the basic BGP fields:
-   * - Set marker to all ones
-   * - Set message type as KEEPALIVE (4)
-   * - Set message length
-   */
-  void computeCalculateFields() { computeGeneralBGPCalculateFields(); }
 
 };
 
@@ -487,19 +576,15 @@ public:
    */
   BgpRouteRefreshMessageLayer(uint16_t afi, uint8_t safi);
 
+  /**
+   * Get a pointer to the Route-Refresh message data. Notice this points directly to the data, so any change will modify the actual packet data
+   * @return A pointer to a bgp_route_refresh_message structure containing the data
+   */
   bgp_route_refresh_message* getRouteRefreshHeader() const { return (bgp_route_refresh_message*)getBasicHeader(); }
 
   // implement abstract methods
 
   BgpMessageType getBgpMessageType() const { return BgpLayer::RouteRefresh; }
-
-  /**
-   * Calculates the basic BGP fields:
-   * - Set marker to all ones
-   * - Set message type as ROUTE-REFRESH (5)
-   * - Set message length
-   */
-  void computeCalculateFields() { computeGeneralBGPCalculateFields(); }
 
 };
 
