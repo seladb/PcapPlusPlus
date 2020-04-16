@@ -8080,8 +8080,8 @@ PTF_TEST_CASE(BgpLayerEditTest)
 	PTF_ASSERT_EQUAL(bgpNotificationMessage1->getDataLen(), bgpNotificationMessage2->getDataLen(), int);
 	PTF_ASSERT_BUF_COMPARE(bgpNotificationMessage1->getData(), bgpNotificationMessage2->getData(), bgpNotificationMessage2->getDataLen());
 
-	rawPacket1.setRawData(origBuffer, buffer1Length, time);
-	bgpNotificationPacket1.setRawPacket(&rawPacket1, false);
+	RawPacket rawPacket1Tag(origBuffer, buffer1Length, time, false);
+	bgpNotificationPacket1.setRawPacket(&rawPacket1Tag, false);
 	bgpNotificationMessage1 = bgpNotificationPacket1.getLayerOfType<BgpNotificationMessageLayer>();
 	std::string notificationData = "7c4e54542077696c6c20706572666f726d206d61696e74656e616e6365206f6e207468697320726f757465722e205468697320697320747261636b656420696e205449434b45542d312d32343832343239342e20436f6e74616374206e6f63406e74742e6e657420666f72206d6f726520696e666f726d6174696f6e2e";
 	PTF_ASSERT_TRUE(bgpNotificationMessage2->setNotificationData(notificationData));
