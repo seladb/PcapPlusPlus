@@ -349,13 +349,25 @@ public:
 
   void getWithdrawnRoutes(std::vector<prefix_and_ip>& withdrawnRoutes);
 
+  bool setWithdrawnRoutes(const std::vector<prefix_and_ip>& withdrawnRoutes);
+
+  bool clearWithdrawnRoutes();
+
   size_t getPathAttributesLength() const;
 
   void getPathAttributes(std::vector<path_attribute>& pathAttributes);
 
+  bool setPathAttributes(const std::vector<path_attribute>& pathAttributes);
+
+  bool clearPathAttributes();
+
   size_t getNetworkLayerReachabilityInfoLength() const;
 
   void getNetworkLayerReachabilityInfo(std::vector<prefix_and_ip>& nlri);
+  
+  bool setNetworkLayerReachabilityInfo(const std::vector<prefix_and_ip>& nlri);
+
+  bool clearNetworkLayerReachabilityInfo();
 
   // implement abstract methods
 

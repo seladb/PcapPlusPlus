@@ -289,7 +289,6 @@ bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_param
   getOpenMsgHeader()->length = htobe16(sizeof(bgp_open_message) + newOptionalParamsDataLen);
   
   return true;
-
 }
 
 bool BgpOpenMessageLayer::clearOptionalParameters()
@@ -548,6 +547,49 @@ size_t BgpUpdateMessageLayer::getPathAttributesLength() const
   return 0;
 }
 
+bool BgpUpdateMessageLayer::setWithdrawnRoutes(const std::vector<prefix_and_ip>& withdrawnRoutes)
+{
+  uint8_t newWithdrawnRoutesData[1500];
+  size_t newWithdrawnRoutesDataLen = prefixAndIPDataToByteArray(withdrawnRoutes, newWithdrawnRoutesData, 1500);
+  size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
+
+  if (newWithdrawnRoutesDataLen > curWithdrawnRoutesDataLen)
+  {
+    bool res = extendLayer(sizeof(bgp_common_header) + sizeof(uint16_t), newWithdrawnRoutesDataLen - curWithdrawnRoutesDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't extend BGP update layer to include the additional withdrawn routes");
+      return res;
+    }
+  }
+  else if (newWithdrawnRoutesDataLen < curWithdrawnRoutesDataLen)
+  {
+    bool res = shortenLayer(sizeof(bgp_common_header) + sizeof(uint16_t), curWithdrawnRoutesDataLen - newWithdrawnRoutesDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the withdrawn routes data");
+      return res;
+    }
+  }
+
+  if (newWithdrawnRoutesDataLen > 0)
+  {
+    memcpy(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t), newWithdrawnRoutesData, newWithdrawnRoutesDataLen);
+  }
+
+  getBasicHeader()->length = htobe16(be16toh(getBasicHeader()->length) + newWithdrawnRoutesDataLen - curWithdrawnRoutesDataLen);
+
+  uint16_t newWithdrawnRoutesDataLenBE = htobe16(newWithdrawnRoutesDataLen);
+  memcpy(m_Data + sizeof(bgp_common_header), &newWithdrawnRoutesDataLenBE, sizeof(uint16_t));
+
+  return true;
+}
+
+bool BgpUpdateMessageLayer::clearWithdrawnRoutes()
+{
+  return setWithdrawnRoutes(std::vector<prefix_and_ip>());
+}
+
 void BgpUpdateMessageLayer::getPathAttributes(std::vector<path_attribute>& pathAttributes)
 {
   size_t pathAttrLen = getPathAttributesLength();
@@ -575,6 +617,50 @@ void BgpUpdateMessageLayer::getPathAttributes(std::vector<path_attribute>& pathA
     dataPtr += curByteCount;
     byteCount += curByteCount;
   }
+}
+
+bool BgpUpdateMessageLayer::setPathAttributes(const std::vector<path_attribute>& pathAttributes)
+{
+  uint8_t newPathAttributesData[1500];
+  size_t newPathAttributesDataLen = pathAttributesToByteArray(pathAttributes, newPathAttributesData, 1500);
+  size_t curPathAttributesDataLen = getPathAttributesLength();
+  size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
+
+  if (newPathAttributesDataLen > curPathAttributesDataLen)
+  {
+    bool res = extendLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen, newPathAttributesDataLen - curPathAttributesDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't extend BGP update layer to include the additional path attributes");
+      return res;
+    }
+  }
+  else if (newPathAttributesDataLen < curPathAttributesDataLen)
+  {
+    bool res = shortenLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen, curPathAttributesDataLen - newPathAttributesDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the path attributes data");
+      return res;
+    }
+  }
+
+  if (newPathAttributesDataLen > 0)
+  {
+    memcpy(m_Data + sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen, newPathAttributesData, newPathAttributesDataLen);
+  }
+
+  getBasicHeader()->length = htobe16(be16toh(getBasicHeader()->length) + newPathAttributesDataLen - curPathAttributesDataLen);
+
+  uint16_t newWithdrawnRoutesDataLenBE = htobe16(newPathAttributesDataLen);
+  memcpy(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t) + curWithdrawnRoutesDataLen, &newWithdrawnRoutesDataLenBE, sizeof(uint16_t));
+
+  return true;
+}
+
+bool BgpUpdateMessageLayer::clearPathAttributes()
+{
+  return setPathAttributes(std::vector<path_attribute>());
 }
 
 size_t BgpUpdateMessageLayer::getNetworkLayerReachabilityInfoLength() const
@@ -608,6 +694,49 @@ void BgpUpdateMessageLayer::getNetworkLayerReachabilityInfo(std::vector<prefix_a
   uint8_t* dataPtr = m_Data + sizeof(bgp_common_header) + 2*sizeof(uint16_t) + getWithdrawnRoutesLength() + getPathAttributesLength();
   parsePrefixAndIPData(dataPtr, nlriSize, nlri);
 }
+
+bool BgpUpdateMessageLayer::setNetworkLayerReachabilityInfo(const std::vector<prefix_and_ip>& nlri)
+{
+  uint8_t newNlriData[1500];
+  size_t newNlriDataLen = prefixAndIPDataToByteArray(nlri, newNlriData, 1500);
+  size_t curNlriDataLen = getNetworkLayerReachabilityInfoLength();
+  size_t curPathAttributesDataLen = getPathAttributesLength();
+  size_t curWithdrawnRoutesDataLen = getWithdrawnRoutesLength();
+
+  if (newNlriDataLen > curNlriDataLen)
+  {
+    bool res = extendLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen + curPathAttributesDataLen, newNlriDataLen - curNlriDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
+      return res;
+    }
+  }
+  else if (newNlriDataLen < curNlriDataLen)
+  {
+    bool res = shortenLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen + curPathAttributesDataLen, curNlriDataLen - newNlriDataLen);
+    if (!res)
+    {
+      LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the NLRI data");
+      return res;
+    }
+  }
+
+  if (newNlriDataLen > 0)
+  {
+    memcpy(m_Data + sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen + curPathAttributesDataLen, newNlriData, newNlriDataLen);
+  }
+
+  getBasicHeader()->length = htobe16(be16toh(getBasicHeader()->length) + newNlriDataLen - curNlriDataLen);
+
+  return true;
+}
+
+bool BgpUpdateMessageLayer::clearNetworkLayerReachabilityInfo()
+{
+  return setNetworkLayerReachabilityInfo(std::vector<prefix_and_ip>());
+}
+
 
 
 
