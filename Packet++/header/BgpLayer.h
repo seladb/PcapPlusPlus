@@ -5,7 +5,13 @@
 #include "Layer.h"
 #include "IpAddress.h"
 
-/// @file
+/**
+ * @file
+ * This file contains classes for parsing, creating and editing Border Gateway Protocol (BGP) version 4 packets.
+ * It contains an abstract class named BgpLayer which has common functionality and 5 inherited classes that 
+ * represent the different BGP message types: OPEN, UPDATE, NOTIFICATION, KEEPALIVE and ROUTE-REFRESH.
+ * Each of these classes contains unique functionality for parsing. creating and editing of the specific message.
+ */
 
 /**
  * \namespace pcpp
@@ -16,7 +22,8 @@ namespace pcpp
 
 /**
  * @class BgpLayer
- * Represents an BGP v4 protocol layer
+ * Represents an BGP v4 protocol layer. This is an abstract class that cannot be instanciated,
+ * and contains functionality which is common for all BGP message types.
  */
 class BgpLayer : public Layer
 {
@@ -68,7 +75,8 @@ public:
 
   /**
    * A static method that checks whether the port is considered as BGP
-   * @param[in] port The port number to be checked
+   * @param[in] portSrc The source port number to be checked
+   * @param[in] portDst The dest port number to be checked
    */
   static bool isBgpPort(uint16_t portSrc, uint16_t portDst) { return portSrc == 179 || portDst == 179; }
 
@@ -107,14 +115,12 @@ public:
    * - Set message type value
    * - Set message length
    */
-  virtual void computeCalculateFields();
+  void computeCalculateFields();
 
 protected:
 
   // protected c'tors, this class cannot be instanciated by users
-
   BgpLayer() {}
-
   BgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = BGP; }
 
   bgp_common_header* getBasicHeader() const { return (bgp_common_header*)m_Data; }
@@ -231,8 +237,8 @@ public:
 
   /**
    * Set optional parameters in this message. This method will override any existing optional parameters in the message. 
-   * If the input is an empty vector all optional parameters in the message will be removed. This method autmatically sets the 
-   * header length and the optional parameters length in the message
+   * If the input is an empty vector all optional parameters will be removed. This method autmatically sets the 
+   * header length and the optional parameters length fields
    * @param[in] optionalParameters New optional parameter to set in the message
    * @return True if all optional parameters were set successfully or false otherwise. In case of an error an appropriate message
    * will be printed to log
@@ -343,44 +349,102 @@ public:
     const std::vector<path_attribute>& pathAttributes = std::vector<path_attribute>(),
     const std::vector<prefix_and_ip>& nlri = std::vector<prefix_and_ip>());
 
+  /**
+   * Get a pointer to the basic BGP message data. Notice this points directly to the data, so any change will modify the actual packet data
+   * @return A pointer to a bgp_notification_message structure containing the data
+   */
   bgp_common_header* getBasicMsgHeader() const { return (bgp_common_header*)m_Data; }
 
+  /**
+   * @return The size in [bytes] of the Withdrawn Routes data
+   */
   size_t getWithdrawnRoutesLength() const;
 
+  /**
+   * Get a vector of the Withdrawn Routes currently in the message
+   * @param[out] withdrawnRoutes A reference to the vector the Withdrawn Routes will be written into
+   */
   void getWithdrawnRoutes(std::vector<prefix_and_ip>& withdrawnRoutes);
 
+  /**
+   * Set Withdrawn Routes in this message. This method will override any existing Withdrawn Routes in the message. 
+   * If the input is an empty vector all Withdrawn Routes will be removed. This method autmatically sets the 
+   * header length and the Withdrawn Routes length fields
+   * @param[in] withdrawnRoutes New Withdrawn Routes to set in the message
+   * @return True if all Withdrawn Routes were set successfully or false otherwise. In case of an error an appropriate message
+   * will be printed to log
+   */
   bool setWithdrawnRoutes(const std::vector<prefix_and_ip>& withdrawnRoutes);
 
+  /**
+   * Clear all Withdrawn Routes currently in the message. This is equivalent to call setWithdrawnRoutes() with an empty
+   * vector as a parameter
+   * @return True if all Withdrawn Routes were successfully cleared or false otherwise. In case of an error an appropriate message
+   * will be printed to log
+   */
   bool clearWithdrawnRoutes();
 
+  /**
+   * @return The size in [bytes] of the Path Attributes data
+   */
   size_t getPathAttributesLength() const;
 
+  /**
+   * Get a vector of the Path Attributes currently in the message
+   * @param[out] pathAttributes A reference to the vector the Path Attributes will be written into
+   */
   void getPathAttributes(std::vector<path_attribute>& pathAttributes);
 
+  /**
+   * Set Path Attributes in this message. This method will override any existing Path Attributes in the message. 
+   * If the input is an empty vector all Path Attributes will be removed. This method autmatically sets the 
+   * header length and the Path Attributes length fields
+   * @param[in] pathAttributes New Path Attributes to set in the message
+   * @return True if all Path Attributes were set successfully or false otherwise. In case of an error an appropriate message
+   * will be printed to log
+   */
   bool setPathAttributes(const std::vector<path_attribute>& pathAttributes);
 
+  /**
+   * Clear all Path Attributes currently in the message. This is equivalent to call setPathAttributes() with an empty
+   * vector as a parameter
+   * @return True if all Path Attributes were successfully cleared or false otherwise. In case of an error an appropriate message
+   * will be printed to log
+   */
   bool clearPathAttributes();
 
+  /**
+   * @return The size in [bytes] of the Network Layer Reachability Info
+   */
   size_t getNetworkLayerReachabilityInfoLength() const;
 
+  /**
+   * Get a vector of the NLRI currently in the message
+   * @param[out] nlri A reference to the vector the NLRI will be written into
+   */
   void getNetworkLayerReachabilityInfo(std::vector<prefix_and_ip>& nlri);
   
+  /**
+   * Set NLRI data in this message. This method will override any existing NLRI in the message. 
+   * If the input is an empty vector all NLRI data will be removed. This method autmatically sets the 
+   * header length field
+   * @param[in] nlri New NLRI data to set in the message
+   * @return True if all NLRI data was set successfully or false otherwise. In case of an error an appropriate message
+   * will be printed to log
+   */  
   bool setNetworkLayerReachabilityInfo(const std::vector<prefix_and_ip>& nlri);
 
+  /**
+   * Clear all NLRI data currently in the message. This is equivalent to call setNetworkLayerReachabilityInfo() with an empty
+   * vector as a parameter
+   * @return True if all NLRI were successfully cleared or false otherwise. In case of an error an appropriate message
+   * will be printed to log
+   */
   bool clearNetworkLayerReachabilityInfo();
 
   // implement abstract methods
 
   BgpMessageType getBgpMessageType() const { return BgpLayer::Update; }
-
-  /**
-   * Calculates the basic BGP fields:
-   * - Set marker to all ones
-   * - Set message type as UPDATE (2)
-   * - Set message length
-   * ................
-   */
-  void computeCalculateFields() { }
 
 private:
 
