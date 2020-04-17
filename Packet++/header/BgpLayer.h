@@ -10,7 +10,7 @@
  * This file contains classes for parsing, creating and editing Border Gateway Protocol (BGP) version 4 packets.
  * It contains an abstract class named BgpLayer which has common functionality and 5 inherited classes that 
  * represent the different BGP message types: OPEN, UPDATE, NOTIFICATION, KEEPALIVE and ROUTE-REFRESH.
- * Each of these classes contains unique functionality for parsing. creating and editing of the specific message.
+ * Each of these classes contains unique functionality for parsing. creating and editing of these message.
  */
 
 /**
@@ -22,8 +22,8 @@ namespace pcpp
 
 /**
  * @class BgpLayer
- * Represents an BGP v4 protocol layer. This is an abstract class that cannot be instanciated,
- * and contains functionality which is common for all BGP message types.
+ * Represents Border Gateway Protocol (BGP) v4 protocol layer. This is an abstract class that cannot be instanciated,
+ * and contains functionality which is common to all BGP message types.
  */
 class BgpLayer : public Layer
 {
@@ -48,7 +48,7 @@ public:
 
   /**
    * @struct bgp_common_header
-   * Represents the common field of every BGP 4 message
+   * Represents the common fields of a BGP 4 message
    */
   #pragma pack(push, 1)
   struct bgp_common_header
@@ -68,24 +68,24 @@ public:
   virtual BgpMessageType getBgpMessageType() const = 0;
 
   /**
-   * @return BGP message type as string. Return value can be one of the following options:
+   * @return BGP message type as string. Return value can be one of the following:
    * "OPEN", "UPDATE", "NOTIFICATION", "KEEPALIVE", "ROUTE-REFRESH", "Unknown"
    */
   std::string getMessageTypeAsString() const;
 
   /**
-   * A static method that checks whether the port is considered as BGP
-   * @param[in] portSrc The source port number to be checked
-   * @param[in] portDst The dest port number to be checked
+   * A static method that checks whether a source or dest port match those associated with the BGP protocol
+   * @param[in] portSrc Source port number to check
+   * @param[in] portDst Dest port number to check
    */
   static bool isBgpPort(uint16_t portSrc, uint16_t portDst) { return portSrc == 179 || portDst == 179; }
 
   /**
-   * A method that creates a BGP layer from an existing packet raw data
-   * @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+   * A method that creates a BGP layer from packet raw data
+   * @param[in] data A pointer to the raw data
    * @param[in] dataLen Size of the data in bytes
    * @param[in] prevLayer A pointer to the previous layer
-   * @param[in] packet A pointer to the Packet instance where layer will be stored in
+   * @param[in] packet A pointer to the Packet instance where layer will be stored
    * @return A newly allocated BGP layer of one of the following types (according to the message type):
    * BgpOpenMessageLayer, BgpUpdateMessageLayer, BgpNotificationMessageLayer, BgpKeepaliveMessageLayer, 
    * BgpRouteRefreshMessageLayer
@@ -133,7 +133,7 @@ protected:
 
 /**
  * @class BgpOpenMessageLayer
- * Represents an BGP v4 OPEN message
+ * Represents a BGP v4 OPEN message
  */
 class BgpOpenMessageLayer : public BgpLayer
 {
@@ -179,7 +179,7 @@ public:
 
     /**
      * A c'tor that initializes the values of the struct
-     * @param[in] typeVal Path attribute type value
+     * @param[in] typeVal Parameter type value
      * @param[in] valueAsHexString Parameter data as hex string. The length field will be set accordingly. 
      * If this parameter is not a valid hex string the data will remain zeroed and length will be also zero
      */
@@ -188,7 +188,7 @@ public:
 
   /**
    * A constructor that creates the layer from an existing packet raw data
-   * @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+   * @param[in] data A pointer to the raw data
    * @param[in] dataLen Size of the data in bytes
    * @param[in] prevLayer A pointer to the previous layer
    * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -196,7 +196,7 @@ public:
   BgpOpenMessageLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : BgpLayer(data, dataLen, prevLayer, packet) {}
 
   /**
-   * A c'tor that creates a new BGP Open message
+   * A c'tor that creates a new BGP OPEN message
    * @param[in] myAutonomousSystem The Autonomous System number of the sender
    * @param[in] holdTime The number of seconds the sender proposes for the value of the Hold Timer
    * @param[in] bgpId The BGP Identifier of the sender
@@ -219,34 +219,34 @@ public:
 
   /**
    * Set the BGP identifier
-   * @param[in] newBgpId The new BGP identifier. If value is not a valid IPv4 address it won't be set
+   * @param[in] newBgpId BGP identifier to set. If value is not a valid IPv4 address it won't be set
    */
   void setBgpId(const IPv4Address& newBgpId);
 
   /**
    * Get a vector of the optional paramters in the message
-   * @param[out] optionalParameters The vector where the optional parameters will be pushed to. This method doesn't remove any
+   * @param[out] optionalParameters The vector where the optional parameters will be written to. This method doesn't remove any
    * existing data on this vector before pushing data to it 
    */
   void getOptionalParameters(std::vector<optional_parameter>& optionalParameters);
 
   /**
-   * @return The length in bytes of the optional paramters data in this message
+   * @return The length in [bytes] of the optional paramters data in the message
    */
   size_t getOptionalParametersLength();
 
   /**
-   * Set optional parameters in this message. This method will override any existing optional parameters in the message. 
-   * If the input is an empty vector all optional parameters will be removed. This method autmatically sets the 
-   * header length and the optional parameters length fields
-   * @param[in] optionalParameters New optional parameter to set in the message
+   * Set optional parameters in the message. This method will override all existing optional parameters currently in the message. 
+   * If the input is an empty vector all optional parameters will be cleared. This method autmatically sets the 
+   * bgp_common_header#length and the bgp_open_message#optionalParameterLength fields on the message
+   * @param[in] optionalParameters A vector of new optional parameters to set in the message
    * @return True if all optional parameters were set successfully or false otherwise. In case of an error an appropriate message
    * will be printed to log
    */
   bool setOptionalParameters(const std::vector<optional_parameter>& optionalParameters);
 
   /**
-   * Clear all optional parameters currently in the message. This is equivalent to call setOptionalParameters() with an empty
+   * Clear all optional parameters currently in the message. This is equivalent to calling setOptionalParameters() with an empty
    * vector as a parameter
    * @return True if all optional parameters were successfully cleared or false otherwise. In case of an error an appropriate message
    * will be printed to log
@@ -267,7 +267,7 @@ private:
 
 /**
  * @class BgpUpdateMessageLayer
- * Represents an BGP v4 UPDATE message
+ * Represents a BGP v4 UPDATE message
  */
 class BgpUpdateMessageLayer : public BgpLayer
 {
@@ -301,7 +301,7 @@ public:
 
   /**
    * @struct path_attribute
-   * A structure that represents BGP Path Attributes information
+   * A structure that represents BGP OPEN message Path Attributes information
    */
   struct path_attribute
   {
@@ -323,15 +323,15 @@ public:
      * A c'tor that initializes the values of the struct
      * @param[in] flagsVal Path attribute flags value
      * @param[in] typeVal Path attribute type value
-     * @param[in] dataAsHexString Path attribute data as hex string. The length field will be set accordingly. 
-     * If this parameter is not a valid hex string the data will remain zeroed and length will be also zero
+     * @param[in] dataAsHexString Path attribute data as hex string. The path_attribute#length field will be set accordingly. 
+     * If this parameter is not a valid hex string the data will remain zeroed and length will be also set to zero
      */
     path_attribute(uint8_t flagsVal, uint8_t typeVal, std::string dataAsHexString);
   };
 
   /**
    * A constructor that creates the layer from an existing packet raw data
-   * @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+   * @param[in] data A pointer to the raw data
    * @param[in] dataLen Size of the data in bytes
    * @param[in] prevLayer A pointer to the previous layer
    * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -339,10 +339,10 @@ public:
   BgpUpdateMessageLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : BgpLayer(data, dataLen, prevLayer, packet) {}
 
   /**
-   * A c'tor that creates a new BGP Update message
-   * @param[in] withdrawnRoutes A vector of withdrawn routes data. If left empty (which is the default value) no withdrawn route information will be written to message
-   * @param[in] pathAttributes A vector of path attributes data. If left empty (which is the default value) no path attribute information will be written to message
-   * @param[in] nlri A vector of network layer reachability data. If left empty (which is the default value) no reachability information will be written to message
+   * A c'tor that creates a new BGP UPDATE message
+   * @param[in] withdrawnRoutes A vector of withdrawn routes data. If left empty (which is the default value) no withdrawn route information will be written to the message
+   * @param[in] pathAttributes A vector of path attributes data. If left empty (which is the default value) no path attribute information will be written to the message
+   * @param[in] nlri A vector of network layer reachability data. If left empty (which is the default value) no reachability information will be written to the message
    */
   BgpUpdateMessageLayer(
     const std::vector<prefix_and_ip>& withdrawnRoutes = std::vector<prefix_and_ip>(),
@@ -351,7 +351,7 @@ public:
 
   /**
    * Get a pointer to the basic BGP message data. Notice this points directly to the data, so any change will modify the actual packet data
-   * @return A pointer to a bgp_notification_message structure containing the data
+   * @return A pointer to a bgp_common_header structure containing the data
    */
   bgp_common_header* getBasicMsgHeader() const { return (bgp_common_header*)m_Data; }
 
@@ -362,14 +362,14 @@ public:
 
   /**
    * Get a vector of the Withdrawn Routes currently in the message
-   * @param[out] withdrawnRoutes A reference to the vector the Withdrawn Routes will be written into
+   * @param[out] withdrawnRoutes A reference to a vector the Withdrawn Routes data will be written to
    */
   void getWithdrawnRoutes(std::vector<prefix_and_ip>& withdrawnRoutes);
 
   /**
    * Set Withdrawn Routes in this message. This method will override any existing Withdrawn Routes in the message. 
    * If the input is an empty vector all Withdrawn Routes will be removed. This method autmatically sets the 
-   * header length and the Withdrawn Routes length fields
+   * bgp_common_header#length and the Withdrawn Routes length fields in the message
    * @param[in] withdrawnRoutes New Withdrawn Routes to set in the message
    * @return True if all Withdrawn Routes were set successfully or false otherwise. In case of an error an appropriate message
    * will be printed to log
@@ -377,7 +377,7 @@ public:
   bool setWithdrawnRoutes(const std::vector<prefix_and_ip>& withdrawnRoutes);
 
   /**
-   * Clear all Withdrawn Routes currently in the message. This is equivalent to call setWithdrawnRoutes() with an empty
+   * Clear all Withdrawn Routes data currently in the message. This is equivalent to calling setWithdrawnRoutes() with an empty
    * vector as a parameter
    * @return True if all Withdrawn Routes were successfully cleared or false otherwise. In case of an error an appropriate message
    * will be printed to log
@@ -391,14 +391,14 @@ public:
 
   /**
    * Get a vector of the Path Attributes currently in the message
-   * @param[out] pathAttributes A reference to the vector the Path Attributes will be written into
+   * @param[out] pathAttributes A reference to a vector the Path Attributes data will be written to
    */
   void getPathAttributes(std::vector<path_attribute>& pathAttributes);
 
   /**
    * Set Path Attributes in this message. This method will override any existing Path Attributes in the message. 
    * If the input is an empty vector all Path Attributes will be removed. This method autmatically sets the 
-   * header length and the Path Attributes length fields
+   * bgp_common_header#length and the Path Attributes length fields in the message
    * @param[in] pathAttributes New Path Attributes to set in the message
    * @return True if all Path Attributes were set successfully or false otherwise. In case of an error an appropriate message
    * will be printed to log
@@ -406,7 +406,7 @@ public:
   bool setPathAttributes(const std::vector<path_attribute>& pathAttributes);
 
   /**
-   * Clear all Path Attributes currently in the message. This is equivalent to call setPathAttributes() with an empty
+   * Clear all Path Attributes data currently in the message. This is equivalent to calling setPathAttributes() with an empty
    * vector as a parameter
    * @return True if all Path Attributes were successfully cleared or false otherwise. In case of an error an appropriate message
    * will be printed to log
@@ -419,15 +419,15 @@ public:
   size_t getNetworkLayerReachabilityInfoLength() const;
 
   /**
-   * Get a vector of the NLRI currently in the message
-   * @param[out] nlri A reference to the vector the NLRI will be written into
+   * Get a vector of the Network Layer Reachability Info currently in the message
+   * @param[out] nlri A reference to a vector the NLRI data will be written to
    */
   void getNetworkLayerReachabilityInfo(std::vector<prefix_and_ip>& nlri);
   
   /**
-   * Set NLRI data in this message. This method will override any existing NLRI in the message. 
-   * If the input is an empty vector all NLRI data will be removed. This method autmatically sets the 
-   * header length field
+   * Set NLRI data in this message. This method will override any existing NLRI data in the message.
+   * If the input is an empty vector all NLRI data will be removed. This method autmatically sets the
+   * bgp_common_header#length field in the message
    * @param[in] nlri New NLRI data to set in the message
    * @return True if all NLRI data was set successfully or false otherwise. In case of an error an appropriate message
    * will be printed to log
@@ -435,7 +435,7 @@ public:
   bool setNetworkLayerReachabilityInfo(const std::vector<prefix_and_ip>& nlri);
 
   /**
-   * Clear all NLRI data currently in the message. This is equivalent to call setNetworkLayerReachabilityInfo() with an empty
+   * Clear all NLRI data currently in the message. This is equivalent to calling setNetworkLayerReachabilityInfo() with an empty
    * vector as a parameter
    * @return True if all NLRI were successfully cleared or false otherwise. In case of an error an appropriate message
    * will be printed to log
@@ -460,7 +460,7 @@ private:
 
 /**
  * @class BgpNotificationMessageLayer
- * Represents an BGP v4 NOTIFICATION message
+ * Represents a BGP v4 NOTIFICATION message
  */
 class BgpNotificationMessageLayer : public BgpLayer
 {
@@ -482,7 +482,7 @@ public:
 
   /**
    * A constructor that creates the layer from an existing packet raw data
-   * @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+   * @param[in] data A pointer to the raw data
    * @param[in] dataLen Size of the data in bytes
    * @param[in] prevLayer A pointer to the previous layer
    * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -490,7 +490,7 @@ public:
   BgpNotificationMessageLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : BgpLayer(data, dataLen, prevLayer, packet) {}
 
   /**
-   * A c'tor that creates a new BGP Notification message
+   * A c'tor that creates a new BGP NOTIFICATION message
    * @param[in] errorCode BGP notification error code
    * @param[in] errorSubCode BGP notification error sub code
    */
@@ -521,7 +521,7 @@ public:
   bgp_notification_message* getNotificationMsgHeader() const { return (bgp_notification_message*)m_Data; }
 
   /**
-   * @return The size of the notification data. Notification data is a variable-length field used to diagnose the reason for
+   * @return The size in [bytes] of the notification data. Notification data is a variable-length field used to diagnose the reason for
    * the BGP NOTIFICATION
    */
   size_t getNotificationDataLen() const;
@@ -572,21 +572,21 @@ private:
 
 /**
  * @class BgpKeepaliveMessageLayer
- * Represents an BGP v4 KEEPALIVE message
+ * Represents a BGP v4 KEEPALIVE message
  */
 class BgpKeepaliveMessageLayer : public BgpLayer
 {
 public:
 
   /**
-   * @typedef bpg_keepalive_message
+   * @typedef bgp_keepalive_message
    * BGP KEEPALIVE message structure
    */
-  typedef bgp_common_header bpg_keepalive_message;
+  typedef bgp_common_header bgp_keepalive_message;
 
   /**
    * A constructor that creates the layer from an existing packet raw data
-   * @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+   * @param[in] data A pointer to the raw data
    * @param[in] dataLen Size of the data in bytes
    * @param[in] prevLayer A pointer to the previous layer
    * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -594,15 +594,15 @@ public:
   BgpKeepaliveMessageLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : BgpLayer(data, dataLen, prevLayer, packet) {}
 
   /**
-   * A c'tor that creates a new BGP KeepAlive message
+   * A c'tor that creates a new BGP KEEPALIVE message
    */
   BgpKeepaliveMessageLayer();
 
   /**
    * Get a pointer to the KeepAlive message data. Notice this points directly to the data, so any change will modify the actual packet data
-   * @return A pointer to a bpg_keepalive_message structure containing the data
+   * @return A pointer to a bgp_keepalive_message structure containing the data
    */
-  bpg_keepalive_message* getKeepaliveHeader() const { return (bpg_keepalive_message*)getBasicHeader(); }
+  bgp_keepalive_message* getKeepaliveHeader() const { return (bgp_keepalive_message*)getBasicHeader(); }
 
   // implement abstract methods
 
@@ -614,7 +614,7 @@ public:
 
 /**
  * @class BgpRouteRefreshMessageLayer
- * Represents an BGP v4 ROUTE-REFRESH message
+ * Represents a BGP v4 ROUTE-REFRESH message
  */
 class BgpRouteRefreshMessageLayer : public BgpLayer
 {
@@ -638,7 +638,7 @@ public:
 
   /**
    * A constructor that creates the layer from an existing packet raw data
-   * @param[in] data A pointer to the raw data (will be casted to @ref arphdr)
+   * @param[in] data A pointer to the raw data
    * @param[in] dataLen Size of the data in bytes
    * @param[in] prevLayer A pointer to the previous layer
    * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -646,14 +646,14 @@ public:
   BgpRouteRefreshMessageLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : BgpLayer(data, dataLen, prevLayer, packet) {}
 
   /**
-   * A c'tor that creates a new BGP Route-Refresh message
+   * A c'tor that creates a new BGP ROUTE-REFRESH message
    * @param[in] afi The Address Family Identifier (AFI) value to set in the message
    * @param[in] safi The Subsequent Address Family Identifier (SAFI) value to set in the message
    */
   BgpRouteRefreshMessageLayer(uint16_t afi, uint8_t safi);
 
   /**
-   * Get a pointer to the Route-Refresh message data. Notice this points directly to the data, so any change will modify the actual packet data
+   * Get a pointer to the ROUTE-REFRESH message data. Notice this points directly to the data, so any change will modify the actual packet data
    * @return A pointer to a bgp_route_refresh_message structure containing the data
    */
   bgp_route_refresh_message* getRouteRefreshHeader() const { return (bgp_route_refresh_message*)getBasicHeader(); }

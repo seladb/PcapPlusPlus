@@ -53,7 +53,6 @@ namespace pcpp
 		PacketLogModuleGtpLayer, ///< GtpLayer module (Packet++)
 		PacketLogModuleBgpLayer, ///< GtpLayer module (Packet++)
 		PacketLogModuleTcpReassembly, ///< TcpReassembly module (Packet++)
-		//PacketLogModuleTcpSorter, ///< TcpSorter module (Packet++)
 		PacketLogModuleIPReassembly, ///< IPReassembly module (Packet++)
 		PcapLogModuleWinPcapLiveDevice, ///< WinPcapLiveDevice module (Pcap++)
 		PcapLogModuleRemoteDevice, ///< WinPcapRemoteDevice module (Pcap++)
