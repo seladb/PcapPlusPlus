@@ -502,15 +502,17 @@ bool RawSocketDevice::open()
 		return false;
 	}
 
-	// bind raw socket to interface
-	struct ifreq ifr;
-	memset(&ifr, 0, sizeof(ifr));
-	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
-	if (setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) == -1)
+	// bind raw socket to interface index
+	struct sockaddr_ll sll;
+	bzero(&sll , sizeof(sll));
+	sll.sll_family = AF_PACKET;
+	sll.sll_ifindex = ifaceIndex;
+	sll.sll_protocol = htobe16(ETH_P_ALL);
+	if ((bind(fd , (struct sockaddr *)&sll , sizeof(sll))) ==-1)
 	{
 		LOG_ERROR("Cannot bind raw socket to interface '%s'", ifaceName.c_str());
 		::close(fd);
-		return false;		
+		return false;
 	}
 
 	m_Socket = new SocketContainer(); // lgtm [cpp/resource-not-released-in-destructor]
