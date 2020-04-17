@@ -11,8 +11,7 @@
 #include <sstream>
 #include <utility>
 #include <map>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <in.h>
+#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
 #include <errno.h>
 #endif
 #include "IpAddress.h"

@@ -4,11 +4,6 @@
 #include "Logger.h"
 #include "IPv4Layer.h"
 #include <sstream>
-#if defined(WIN32) || defined(WINx64) //for using ntohl, ntohs, etc.
-#include <winsock2.h>
-#elif LINUX
-#include <in.h>
-#endif
 #include <pcap.h>
 #include "RawPacket.h"
 #include "TimespecTimeval.h"
