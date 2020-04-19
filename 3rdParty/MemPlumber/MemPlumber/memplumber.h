@@ -16,7 +16,7 @@ void operator delete(void* pointer, std::size_t size);
 void operator delete[](void* pointer, std::size_t size);
 
 // Macros
-#define new new(__FILE__, __LINE__)
+//#define new new(__FILE__, __LINE__)
 
 /**
  * @class MemPlumber

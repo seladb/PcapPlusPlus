@@ -8,6 +8,7 @@ COMMONPP_HOME        := Common++
 PACKETPP_HOME        := Packet++
 PCAPPP_HOME          := Pcap++
 PACKETPP_TEST        := Tests/Packet++Test
+PACKETPP_TEST_NEW    := Tests/Packet++Test-new
 PCAPPP_TEST          := Tests/Pcap++Test
 EXAMPLE_ARPSPOOF     := Examples/ArpSpoofing
 EXAMPLE_ARPING       := Examples/Arping
@@ -35,6 +36,7 @@ UNAME := $(shell uname)
 
 all: libs
 	@cd $(PACKETPP_TEST)             && $(MAKE) Packet++Test
+	@cd $(PACKETPP_TEST_NEW)         && $(MAKE) Packet++Test
 	@cd $(PCAPPP_TEST)               && $(MAKE) Pcap++Test
 	@cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) ArpSpoofing
 	@cd $(EXAMPLE_ARPING)            && $(MAKE) Arping
@@ -106,6 +108,7 @@ clean:
 	@cd $(PACKETPP_HOME)             && $(MAKE) clean
 	@cd $(PCAPPP_HOME)               && $(MAKE) clean
 	@cd $(PACKETPP_TEST)             && $(MAKE) clean
+	@cd $(PACKETPP_TEST_NEW)         && $(MAKE) clean
 	@cd $(PCAPPP_TEST)               && $(MAKE) clean
 	@cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) clean
 	@cd $(EXAMPLE_ARPING)            && $(MAKE) clean

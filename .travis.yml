@@ -82,11 +82,13 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
        make all || ERR_CODE=$?;
        cd Tests/Packet++Test && Bin/Packet++Test || ERR_CODE=$?;
+       cd Tests/Packet++Test-new && Bin/Packet++Test || ERR_CODE=$?;
        cd ../Pcap++Test && sudo Bin/Pcap++Test -n || ERR_CODE=$?;
        cd ../../ && sudo make install || ERR_CODE=$?;
     else
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make all" || ERR_CODE=$?;
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Packet++Test && Bin/Packet++Test" || ERR_CODE=$?;
+       docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Packet++Test-new && Bin/Packet++Test" || ERR_CODE=$?;
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Pcap++Test && Bin/Pcap++Test -n -k 0" || ERR_CODE=$?;
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make install" || ERR_CODE=$?;
     fi
