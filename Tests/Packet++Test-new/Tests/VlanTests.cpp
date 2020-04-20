@@ -1,9 +1,9 @@
 #include "../Utils/TestUtils.h"
-#include "SystemUtils.h"
 #include "Packet.h"
 #include "ArpLayer.h"
 #include "VlanLayer.h"
 #include "../TestDefinition.h"
+#include "SystemUtils.h"
 
 PTF_TEST_CASE(VlanParseAndCreation)
 {

@@ -1,5 +1,4 @@
 #include "../Utils/TestUtils.h"
-#include "SystemUtils.h"
 #include "EndianPortable.h"
 #include "MacAddress.h"
 #include "IpAddress.h"
@@ -8,6 +7,7 @@
 #include "PayloadLayer.h"
 #include "Packet.h"
 #include "../TestDefinition.h"
+#include "SystemUtils.h"
 
 PTF_TEST_CASE(EthPacketCreation)
 {

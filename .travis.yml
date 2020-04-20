@@ -82,7 +82,7 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
        make all || ERR_CODE=$?;
        cd Tests/Packet++Test && Bin/Packet++Test || ERR_CODE=$?;
-       cd Tests/Packet++Test-new && Bin/Packet++Test || ERR_CODE=$?;
+       cd ../Packet++Test-new && Bin/Packet++Test || ERR_CODE=$?;
        cd ../Pcap++Test && sudo Bin/Pcap++Test -n || ERR_CODE=$?;
        cd ../../ && sudo make install || ERR_CODE=$?;
     else

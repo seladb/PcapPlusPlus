@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Packet++Test", "Packet++Tes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pcap++Test", "Pcap++Test.vcxproj", "{0F4925BF-2343-4862-86F8-01947BA8302D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Packet++Test-new", "Packet++Test-new.vcxproj", "{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,14 @@ Global
 		{0F4925BF-2343-4862-86F8-01947BA8302D}.Release|x64.Build.0 = Release|x64
 		{0F4925BF-2343-4862-86F8-01947BA8302D}.Release|x86.ActiveCfg = Release|Win32
 		{0F4925BF-2343-4862-86F8-01947BA8302D}.Release|x86.Build.0 = Release|Win32
+		{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}.Debug|x64.ActiveCfg = Debug|x64
+		{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}.Debug|x64.Build.0 = Debug|x64
+		{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}.Debug|x86.ActiveCfg = Debug|Win32
+		{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}.Debug|x86.Build.0 = Debug|Win32
+		{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}.Release|x64.ActiveCfg = Release|x64
+		{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}.Release|x64.Build.0 = Release|x64
+		{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}.Release|x86.ActiveCfg = Release|Win32
+		{AD99F368-BE5D-4383-8BE6-AAB108A3A79A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -12,7 +12,7 @@ task:
     - gmake all
   test_script:
     - cd Tests/Packet++Test && Bin/Packet++Test
-    - cd Tests/Packet++Test-new && Bin/Packet++Test
+    - cd ../Packet++Test-new && Bin/Packet++Test
     - cd ../Pcap++Test && sudo Bin/Pcap++Test -n
 
 task:
@@ -26,7 +26,7 @@ task:
     - make all
   test_script:
     - cd Tests/Packet++Test && Bin/Packet++Test
-    - cd Tests/Packet++Test-new && Bin/Packet++Test  
+    - cd ../Packet++Test-new && Bin/Packet++Test  
     - cd ../Pcap++Test && Bin/Pcap++Test -n
 
 task:
@@ -40,7 +40,7 @@ task:
     - make all
   test_script:
     - cd Tests/Packet++Test && Bin/Packet++Test
-    - cd Tests/Packet++Test-new && Bin/Packet++Test
+    - cd ../Tests/Packet++Test-new && Bin/Packet++Test
     - cd ../Pcap++Test && Bin/Pcap++Test -n
 
 task:
