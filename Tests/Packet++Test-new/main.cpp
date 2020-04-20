@@ -1,3 +1,5 @@
+#include <stdio.h> 
+#include <stdlib.h>
 #include <getopt.h>
 #include "PcapPlusPlusVersion.h"
 #include "../PcppTestFramework2/PcppTestFrameworkRun.h"
