@@ -77,21 +77,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test-new\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test-new\Obj</IntDir>
+    <TargetName>Packet++Test</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test-new\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test-new\Obj</IntDir>
+    <TargetName>Packet++Test</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test-new\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test-new\Obj</IntDir>
+    <TargetName>Packet++Test</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(PcapPlusPlusHome)\Tests\Packet++Test-new\Bin</OutDir>
     <IntDir>$(PcapPlusPlusHome)\Tests\Packet++Test-new\Obj</IntDir>
+    <TargetName>Packet++Test</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
