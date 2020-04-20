@@ -26,8 +26,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ArpRequestWithVlan.dat");
 
-	pcpp::RawPacket rawPacket((const uint8_t*)buffer1, bufferLength1, time, true);
-	pcpp::Packet arpWithVlan(&rawPacket);
+	pcpp::Packet arpWithVlan(&rawPacket1);
 
 	pcpp::VlanLayer* firstVlanLayerPtr = arpWithVlan.getLayerOfType<pcpp::VlanLayer>();
 	PTF_ASSERT_NOT_NULL(firstVlanLayerPtr);

@@ -1,6 +1,7 @@
 #ifndef PCPP_TEST_FRAMEWORK
 #define PCPP_TEST_FRAMEWORK
 
+#include <stdio.h>
 #include "../../3rdParty/MemPlumber/MemPlumber/memplumber.h"
 
 #define int_PTF_PRINT_FORMAT "%d"
