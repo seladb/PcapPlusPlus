@@ -1,0 +1,4 @@
+### FUZZING ###
+
+PCAPPP_BUILD_FLAGS += -fsanitize=fuzzer-no-link
+

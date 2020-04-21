@@ -30,6 +30,10 @@ function HELP {
    echo ""
    echo "--set-direction-enabled  --Set direction for capturing incoming or outgoing packets (supported on libpcap>=0.9.1)"
    echo ""
+   echo "--asan                   --Build PcapPlusPlus with Address Sanitizer enabled"
+   echo ""
+   echo "--fuzzing                --Build PcapPlusPlus with Clang enabling Coverage for fuzzing and compile existing fuzzers"
+   echo ""
    echo "--install-dir            --Installation directory. Default is /usr/local"
    echo ""
    echo "--libpcap-include-dir    --libpcap header files directory. This parameter is optional and if omitted PcapPlusPlus will look for"
@@ -60,6 +64,10 @@ COMPILE_WITH_DPDK=0
 DPDK_HOME=""
 HAS_PCAP_IMMEDIATE_MODE=0
 HAS_SET_DIRECTION_ENABLED=0
+
+# initializing fuzzing and asan variables
+HAS_ASAN_ENABLED=0
+COMPILE_FOR_FUZZING=0
 
 # initializing libpcap include/lib dirs to an empty string 
 LIBPCAP_INLCUDE_DIR=""
@@ -123,7 +131,7 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,set-direction-enabled,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,use-zstd -- "$@"`
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,set-direction-enabled,asan,fuzzing,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,use-zstd -- "$@"`
 
    # if user put an illegal switch - print HELP and exit
    if [ $? -ne 0 ]; then
@@ -175,6 +183,16 @@ else
        # set direction enabled
        --set-direction-enabled)
          HAS_SET_DIRECTION_ENABLED=1
+         shift ;;
+
+       # asan
+       --asan)
+	     HAS_ASAN_ENABLED=1
+         shift ;;
+
+       # fuzzing
+       --fuzzing)
+	     COMPILE_FOR_FUZZING=1
          shift ;;
 
        # non-default libpcap include dir
@@ -239,6 +257,16 @@ PCAPPLUSPLUS_MK="mk/PcapPlusPlus.mk"
 
 # copy the basic Linux platform.mk
 cp -f mk/platform.mk.linux $PLATFORM_MK
+
+# if fuzzing is enabled compile with Clang
+if (( $COMPILE_FOR_FUZZING > 0 )); then
+   cat mk/platform.mk.clang >> $PLATFORM_MK
+fi
+
+# if asan or fuzzing is enabled compile fuzzers
+if (( $COMPILE_FOR_FUZZING > 0 || $HAS_ASAN_ENABLED )); then
+   echo -e "\n\nCOMPILE_FUZZERS := 1" >> $PLATFORM_MK
+fi
 
 # copy the common (all platforms) PcapPlusPlus.mk
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
@@ -328,6 +356,16 @@ fi
 if [ -n "$USE_ZSTD" ]; then
    echo -e "DEFS += -DUSE_Z_STD" > 3rdParty/LightPcapNg/zstd.mk
    cat mk/PcapPlusPlus.mk.zstd >> $PCAPPLUSPLUS_MK
+fi
+
+# if compile with ASAN
+if (( $HAS_ASAN_ENABLED > 0 )) ; then 
+   cat mk/PcapPlusPlus.mk.asan >> $PCAPPLUSPLUS_MK
+fi
+
+# if compile for fuzzing
+if (( $COMPILE_FOR_FUZZING > 0 )) ; then 
+   cat mk/PcapPlusPlus.mk.fuzzing >> $PCAPPLUSPLUS_MK
 fi
 
 # non-default libpcap include dir

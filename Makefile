@@ -9,6 +9,7 @@ PACKETPP_HOME        := Packet++
 PCAPPP_HOME          := Pcap++
 PACKETPP_TEST        := Tests/Packet++Test
 PCAPPP_TEST          := Tests/Pcap++Test
+FUZZERS_HOME		 := Tests/Fuzzers
 EXAMPLE_ARPSPOOF     := Examples/ArpSpoofing
 EXAMPLE_ARPING       := Examples/Arping
 EXAMPLE_DPDK1        := Examples/DpdkExample-FilterTraffic
@@ -49,6 +50,9 @@ all: libs
 	@cd $(EXAMPLE_TCP_REASM)         && $(MAKE) TcpReassembly
 	@cd $(EXAMPLE_IP_FRAG)           && $(MAKE) IPFragUtil
 	@cd $(EXAMPLE_IP_DEFRAG)         && $(MAKE) IPDefragUtil
+ifdef COMPILE_FUZZERS
+	@cd $(FUZZERS_HOME)              && $(MAKE)
+endif
 ifdef USE_DPDK
 	@cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
 	@cd $(EXAMPLE_DPDK2)             && $(MAKE) DpdkBridge
@@ -120,6 +124,9 @@ clean:
 	@cd $(EXAMPLE_TCP_REASM)         && $(MAKE) clean
 	@cd $(EXAMPLE_IP_FRAG)           && $(MAKE) clean
 	@cd $(EXAMPLE_IP_DEFRAG)         && $(MAKE) clean
+ifdef COMPILE_FUZZERS
+	@cd $(FUZZERS_HOME)              && $(MAKE) clean
+endif
 ifdef USE_DPDK
 	@cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 	@cd $(EXAMPLE_DPDK2)             && $(MAKE) clean
