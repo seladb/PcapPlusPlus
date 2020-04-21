@@ -58,7 +58,7 @@ before_build:
 - if "%pcap_lib%"=="npcap" (set PCAP_SDK_DIR=C:\Npcap-sdk) else (set PCAP_SDK_DIR=C:\WpdPack)
 - cd C:\projects\PcapPlusPlus
 - if "%compiler%"=="mingw32" configure-windows-mingw.bat mingw32 -m C:\MinGW -w %PCAP_SDK_DIR%
-- if "%compiler%"=="mingw-w64" configure-windows-mingw.bat mingw-w64 -m C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1 -w %PCAP_SDK_DIR% -s C:\msys64
+- if "%compiler%"=="mingw-w64" configure-windows-mingw.bat mingw-w64 -m C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1 -w %PCAP_SDK_DIR% -s C:\msys64\mingw32
 - if "%use_zstd%"=="true" set ZSTD_HOME_PARAM=-z C:\zstd
 - if "%compiler:~0,4%"=="vs20" configure-windows-visual-studio.bat -v %compiler% -w %PCAP_SDK_DIR% -p C:\pthreads %ZSTD_HOME_PARAM%
 
