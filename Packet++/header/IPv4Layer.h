@@ -111,7 +111,7 @@ namespace pcpp
 	enum IPv4OptionTypes
 	{
 		/** End of Options List */
-		IPV4OPT_EndOfOtionsList = 0,
+		IPV4OPT_EndOfOptionsList = 0,
 		/** No Operation */
 		IPV4OPT_NOP = 1,
 		/** Record Route */
@@ -323,7 +323,7 @@ namespace pcpp
 			if (m_Data == NULL)
 				return 0;
 
-			if (getIPv4OptionType() == (uint8_t)IPV4OPT_EndOfOtionsList || m_Data->recordType == (uint8_t)IPV4OPT_NOP)
+			if (getIPv4OptionType() == (uint8_t)IPV4OPT_EndOfOptionsList || m_Data->recordType == (uint8_t)IPV4OPT_NOP)
 				return sizeof(uint8_t);
 
 			return (size_t)m_Data->recordLen;
@@ -334,7 +334,7 @@ namespace pcpp
 			if (m_Data == NULL)
 				return 0;
 
-			if (getIPv4OptionType() == (uint8_t)IPV4OPT_EndOfOtionsList || m_Data->recordType == (uint8_t)IPV4OPT_NOP)
+			if (getIPv4OptionType() == (uint8_t)IPV4OPT_EndOfOptionsList || m_Data->recordType == (uint8_t)IPV4OPT_NOP)
 				return (size_t)0;
 
 			return (size_t)m_Data->recordLen - (2*sizeof(uint8_t));
@@ -359,7 +359,7 @@ namespace pcpp
 		 * retrieved by calling build()
 		 * @param[in] optionType IPv4 option type
 		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any way.
-		 * For option types ::IPV4OPT_NOP and ::IPV4OPT_EndOfOtionsList this parameter is ignored (expected to be NULL) as these
+		 * For option types ::IPV4OPT_NOP and ::IPV4OPT_EndOfOptionsList this parameter is ignored (expected to be NULL) as these
 		 * option types don't contain any data
 		 * @param[in] optionValueLen Option value length in bytes
 		 */

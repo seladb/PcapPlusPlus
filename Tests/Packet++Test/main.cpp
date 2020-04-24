@@ -539,15 +539,15 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 	PTF_ASSERT(opt.getValueAs<uint8_t>(4) == 2, "ipOpt1 value in offset 4 isn't 2");
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT(opt.isNull() == false, "ipOpt1 second option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOtionsList, "ipOpt1 second option isn't end-of-option-list");
+	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOptionsList, "ipOpt1 second option isn't end-of-option-list");
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT(opt.isNull() == false, "ipOpt1 third option is NULL");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOtionsList, "ipOpt1 second option isn't end-of-option-list");
+	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOptionsList, "ipOpt1 second option isn't end-of-option-list");
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT(opt.isNull() == true, "ipOpt1 fourth option isn't NULL");
-	opt = ipLayer->getOption(IPV4OPT_EndOfOtionsList);
+	opt = ipLayer->getOption(IPV4OPT_EndOfOptionsList);
 	PTF_ASSERT(opt.isNull() == false, "ipOpt1 couldn't retrieve option by type");
-	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOtionsList, "ipOpt1 type if retrieved option isn't end-of-option-list");
+	PTF_ASSERT(opt.getIPv4OptionType() == IPV4OPT_EndOfOptionsList, "ipOpt1 type if retrieved option isn't end-of-option-list");
 	PTF_ASSERT(ipLayer->getOption(IPV4OPT_Timestamp).isNull() == true, "ipOpt1 Managed to reprieve timestamp option although doens't exist in the packet");
 
 	ipLayer = ipOpt2.getLayerOfType<IPv4Layer>();
@@ -735,8 +735,8 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	IPv4Layer* ipLayer = ipOpt1.getLayerOfType<IPv4Layer>();
 	uint8_t commSecOptionData[] = { 0x00, 0x00, 0x00, 0x02, 0x02, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x05, 0x00, 0x06, 0x00, 0xef };
 	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_CommercialSecurity, commSecOptionData, 20)).isNull() == false, "Cannot add commercial security option to packet 1");
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 1");
-	PTF_ASSERT(ipLayer->addOptionAfter(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0), IPV4OPT_CommercialSecurity).isNull() == false, "Cannot add 2nd end-of-opt-list option to packet 1");
+	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOptionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 1");
+	PTF_ASSERT(ipLayer->addOptionAfter(IPv4OptionBuilder(IPV4OPT_EndOfOptionsList, NULL, 0), IPV4OPT_CommercialSecurity).isNull() == false, "Cannot add 2nd end-of-opt-list option to packet 1");
 	ipOpt1.computeCalculateFields();
 
 
@@ -771,7 +771,7 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	for (int i = 0; i < 6; i++)
 		ipListValue.push_back(IPv4Address::Zero);
 	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_RecordRoute, ipListValue)).isNull() == false, "Cannot add record route option to packet 4");
-	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOtionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 4");
+	PTF_ASSERT(ipLayer->addOption(IPv4OptionBuilder(IPV4OPT_EndOfOptionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 4");
 	ipOpt4.computeCalculateFields();
 	PTF_ASSERT(buffer44Length == ipOpt4.getRawPacket()->getRawDataLen(), "ipOpt4 len (%d) is different than read packet len (%d)", ipOpt4.getRawPacket()->getRawDataLen(), buffer44Length);
 	PTF_ASSERT(memcmp(ipOpt4.getRawPacket()->getRawData(), buffer44, ipOpt4.getRawPacket()->getRawDataLen()) == 0, "ipOpt4: Raw packet data is different than expected");

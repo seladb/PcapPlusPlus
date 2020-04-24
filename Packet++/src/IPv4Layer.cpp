@@ -132,7 +132,7 @@ IPv4Option IPv4OptionBuilder::build() const
 
 	size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
-	if ((m_RecType == (uint8_t)IPV4OPT_NOP || m_RecType == (uint8_t)IPV4OPT_EndOfOtionsList))
+	if ((m_RecType == (uint8_t)IPV4OPT_NOP || m_RecType == (uint8_t)IPV4OPT_EndOfOptionsList))
 	{
 		if (m_RecValueLen != 0)
 		{

@@ -93,14 +93,17 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(ArpPacketCreation, "arp");
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
-	// PTF_RUN_TEST(Ipv4PacketCreation, "ipv4");
-	// PTF_RUN_TEST(Ipv4PacketParsing, "ipv4");
-	// PTF_RUN_TEST(Ipv4FragmentationTest, "ipv4");
-	// PTF_RUN_TEST(Ipv4OptionsParsingTest, "ipv4");
-	// PTF_RUN_TEST(Ipv4OptionsEditTest, "ipv4");
-	// PTF_RUN_TEST(Ipv4UdpChecksum, "ipv4");
-	// PTF_RUN_TEST(Ipv6UdpPacketParseAndCreate, "ipv6");
-	// PTF_RUN_TEST(Ipv6ExtensionsTest, "ipv6");
+
+	PTF_RUN_TEST(Ipv4PacketCreation, "ipv4");
+	PTF_RUN_TEST(Ipv4PacketParsing, "ipv4");
+	PTF_RUN_TEST(Ipv4FragmentationTest, "ipv4");
+	PTF_RUN_TEST(Ipv4OptionsParsingTest, "ipv4");
+	PTF_RUN_TEST(Ipv4OptionsEditTest, "ipv4");
+	PTF_RUN_TEST(Ipv4UdpChecksum, "ipv4");
+
+	PTF_RUN_TEST(IPv6UdpPacketParseAndCreate, "ipv6");
+	PTF_RUN_TEST(IPv6FragmentationTest, "ipv6");
+	PTF_RUN_TEST(IPv6ExtensionsTest, "ipv6");
 	// PTF_RUN_TEST(TcpPacketNoOptionsParsing, "tcp");
 	// PTF_RUN_TEST(TcpPacketWithOptionsParsing, "tcp");
 	// PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
