@@ -16,6 +16,9 @@
 #define u32_PTF_PRINT_FORMAT "%u"
 #define u32_PTF_PRINT_TYPE(val) (uint32_t)(val)
 
+#define u64_PTF_PRINT_FORMAT "%llu"
+#define u64_PTF_PRINT_TYPE(val) (uint64_t)(val)
+
 #ifndef PCAPPP_MINGW_ENV
 #define size_PTF_PRINT_FORMAT "%zu"
 #else

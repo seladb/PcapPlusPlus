@@ -111,9 +111,10 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
 	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
-	// PTF_RUN_TEST(InsertDataToPacket, "insert");
-	// PTF_RUN_TEST(InsertVlanToPacket, "vlan;insert");
-	// PTF_RUN_TEST(RemoveLayerTest, "remove_layer");
+
+	PTF_RUN_TEST(InsertDataToPacket, "insert");
+	PTF_RUN_TEST(InsertVlanToPacket, "vlan;insert");
+	PTF_RUN_TEST(RemoveLayerTest, "remove_layer");
 	// PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
 	// PTF_RUN_TEST(HttpRequestLayerCreationTest, "http");
 	// PTF_RUN_TEST(HttpRequestLayerEditTest, "http");

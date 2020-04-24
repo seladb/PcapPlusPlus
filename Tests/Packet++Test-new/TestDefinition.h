@@ -31,3 +31,8 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2);
 PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
 PTF_TEST_CASE(TcpPacketCreation2);
+
+// Implemented in PacketTests.cpp
+PTF_TEST_CASE(InsertDataToPacket);
+PTF_TEST_CASE(InsertVlanToPacket);
+PTF_TEST_CASE(RemoveLayerTest);
