@@ -8,6 +8,7 @@
 #include "PayloadLayer.h"
 #include "Packet.h"
 #include "../TestDefinition.h"
+#include "SystemUtils.h"
 
 PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 {

@@ -104,12 +104,13 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(IPv6UdpPacketParseAndCreate, "ipv6");
 	PTF_RUN_TEST(IPv6FragmentationTest, "ipv6");
 	PTF_RUN_TEST(IPv6ExtensionsTest, "ipv6");
-	// PTF_RUN_TEST(TcpPacketNoOptionsParsing, "tcp");
-	// PTF_RUN_TEST(TcpPacketWithOptionsParsing, "tcp");
-	// PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
-	// PTF_RUN_TEST(TcpPacketCreation, "tcp");
-	// PTF_RUN_TEST(TcpPacketCreation2, "tcp");
-	// PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
+
+	PTF_RUN_TEST(TcpPacketNoOptionsParsing, "tcp");
+	PTF_RUN_TEST(TcpPacketWithOptionsParsing, "tcp");
+	PTF_RUN_TEST(TcpPacketWithOptionsParsing2, "tcp");
+	PTF_RUN_TEST(TcpPacketCreation, "tcp");
+	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
+	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
 	// PTF_RUN_TEST(InsertDataToPacket, "insert");
 	// PTF_RUN_TEST(InsertVlanToPacket, "vlan;insert");
 	// PTF_RUN_TEST(RemoveLayerTest, "remove_layer");

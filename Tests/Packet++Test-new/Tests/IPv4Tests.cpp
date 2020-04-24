@@ -9,6 +9,7 @@
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
 #include "../TestDefinition.h"
+#include "SystemUtils.h"
 
 PTF_TEST_CASE(Ipv4PacketCreation)
 {
