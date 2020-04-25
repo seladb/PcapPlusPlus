@@ -228,7 +228,7 @@ void IPv6Layer::parseNextLayer()
 	case PACKETPP_IPPROTO_IPIP:
 	{
 		uint8_t ipVersion = *payload >> 4;
-		if (ipVersion == 4)
+		if (ipVersion == 4 && IPv4Layer::isDataValid(payload, payloadLen))
 			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
 		else if (ipVersion == 6)
 			m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
