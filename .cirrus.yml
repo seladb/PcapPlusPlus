@@ -48,14 +48,12 @@ task:
     - GITHUB_EMAIL: ENCRYPTED[ae4956ec74c9f329f7787cdfe3a6b5842870659275d0a9b513a0f6e64cd9c71cd2eb64219a9dc695f446fbd93c48fb04]
     - GITHUB_TOKEN: ENCRYPTED[ab88249da2005c70f25f5910b08e907139f73bc0efb31a19b33f832e9e3bffe3cfc8e81932f21d7734c7aceca2a77188]
   get_code_script:
-    - BRANCH_TO_PULL=
-    - if [[ $CIRRUS_BRANCH = pull/* ]]; then
-        BRANCH_TO_PULL=$CIRRUS_BASE_BRANCH
-      else
-        BRANCH_TO_PULL=$CIRRUS_BRANCH
-      fi
-    - git clone -b $BRANCH_TO_PULL $CIRRUS_REPO_CLONE_URL
     - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
+    - if [[ $CIRRUS_BRANCH = pull/* ]]; then
+        git clone -b $CIRRUS_BASE_BRANCH $CIRRUS_REPO_CLONE_URL;
+      else
+        git clone -b $CIRRUS_BRANCH $CIRRUS_REPO_CLONE_URL;
+      fi
   configure_script:
     - cd PcapPlusPlus
     - ./configure-linux.sh --default
