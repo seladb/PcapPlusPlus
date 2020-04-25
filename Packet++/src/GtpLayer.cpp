@@ -593,7 +593,9 @@ void GtpV1Layer::parseNextLayer()
 	uint8_t subProto = *payload;
 	if (subProto >= 0x45 && subProto <= 0x4e)
 	{
-		m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 	}
 	else if ((subProto & 0xf0) == 0x60)
 	{

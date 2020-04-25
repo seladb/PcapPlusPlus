@@ -119,7 +119,9 @@ void MplsLayer::parseNextLayer()
 	switch (nextNibble)
 	{
 		case 4:
-			m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
+				? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+				: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 			break;
 		case 6:
 			m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);

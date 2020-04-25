@@ -67,7 +67,9 @@ void SllLayer::parseNextLayer()
 	switch (be16toh(hdr->protocol_type))
 	{
 	case PCPP_ETHERTYPE_IP:
-		m_NextLayer = new IPv4Layer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_ETHERTYPE_IPV6:
 		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);

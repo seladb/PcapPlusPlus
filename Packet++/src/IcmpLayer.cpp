@@ -573,8 +573,9 @@ void IcmpLayer::parseNextLayer()
 	case ICMP_TIME_EXCEEDED:
 	case ICMP_REDIRECT:
 	case ICMP_PARAM_PROBLEM:
-		if (m_DataLen - headerLen >= sizeof(iphdr))
-			m_NextLayer = new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet, false);
+		m_NextLayer = IPv4Layer::isDataValid(m_Data + headerLen, m_DataLen - headerLen)
+			? static_cast<Layer*>(new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet));
 		return;
 	default:
 		if (m_DataLen > headerLen)
