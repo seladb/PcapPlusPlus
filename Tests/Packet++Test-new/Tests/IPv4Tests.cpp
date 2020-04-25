@@ -317,19 +317,19 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 	gettimeofday(&time, NULL);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4-NoOptions1.dat");
-	READ_FILE_AND_CREATE_PACKET(11, "PacketExamples/IPv4Option1.dat");
+	READ_FILE_INTO_BUFFER(11, "PacketExamples/IPv4Option1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4-NoOptions2.dat");
-	READ_FILE_AND_CREATE_PACKET(22, "PacketExamples/IPv4Option2.dat");
+	READ_FILE_INTO_BUFFER(22, "PacketExamples/IPv4Option2.dat");
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IPv4-NoOptions3.dat");
-	READ_FILE_AND_CREATE_PACKET(33, "PacketExamples/IPv4Option3.dat");
+	READ_FILE_INTO_BUFFER(33, "PacketExamples/IPv4Option3.dat");
 	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IPv4-NoOptions4.dat");
-	READ_FILE_AND_CREATE_PACKET(44, "PacketExamples/IPv4Option4.dat");
+	READ_FILE_INTO_BUFFER(44, "PacketExamples/IPv4Option4.dat");
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/IPv4-NoOptions5.dat");
-	READ_FILE_AND_CREATE_PACKET(55, "PacketExamples/IPv4Option5.dat");
+	READ_FILE_INTO_BUFFER(55, "PacketExamples/IPv4Option5.dat");
 	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IPv4-NoOptions6.dat");
-	READ_FILE_AND_CREATE_PACKET(66, "PacketExamples/IPv4Option6.dat");
+	READ_FILE_INTO_BUFFER(66, "PacketExamples/IPv4Option6.dat");
 	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/IPv4-NoOptions7.dat");
-	READ_FILE_AND_CREATE_PACKET(77, "PacketExamples/IPv4Option7.dat");
+	READ_FILE_INTO_BUFFER(77, "PacketExamples/IPv4Option7.dat");
 
 	pcpp::Packet ipOpt1(&rawPacket1);
 	pcpp::Packet ipOpt2(&rawPacket2);
