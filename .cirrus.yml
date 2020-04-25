@@ -50,7 +50,7 @@ task:
   get_code_script:
     - BRANCH_TO_PULL=
     - if [[ $CIRRUS_BRANCH = pull/* ]]; then
-	      BRANCH_TO_PULL=$CIRRUS_BASE_BRANCH
+        BRANCH_TO_PULL=$CIRRUS_BASE_BRANCH
       else
         BRANCH_TO_PULL=$CIRRUS_BRANCH
       fi
