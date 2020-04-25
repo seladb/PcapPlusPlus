@@ -28,6 +28,18 @@ task:
     - cd ../Pcap++Test && Bin/Pcap++Test -n
 
 task:
+  name: Regression Tests Linux
+  container:
+    image: zlowram/ubuntu1910-clang:latest
+  configure_script:
+    - ./configure-linux.sh --asan
+    - ldconfig
+  build_script:
+    - make all
+  test_script:
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+
+task:
   name: Test Zstd MacOS
   osx_instance:
     image: catalina-xcode

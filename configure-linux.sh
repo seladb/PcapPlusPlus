@@ -16,7 +16,7 @@ function HELP {
    echo "  1) Without any switches. In this case the script will guide you through using wizards"
    echo "  2) With switches, as described below"
    echo ""
-   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--set-direction-enabled] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir] [--use-zstd]"\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--set-direction-enabled] [--asan] [--fuzzing] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir] [--use-zstd]"\\n
    echo "The following switches are recognized:"
    echo "--default                --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""
@@ -30,9 +30,12 @@ function HELP {
    echo ""
    echo "--set-direction-enabled  --Set direction for capturing incoming or outgoing packets (supported on libpcap>=0.9.1)"
    echo ""
-   echo "--asan                   --Build PcapPlusPlus with Address Sanitizer enabled"
+   echo "--asan                   --Build PcapPlusPlus with Address Sanitizer enabled. Address Sanitizer (ASan) is a memory error detector"
+   echo "                           for C/C++. It is really useful to detect memory errors while fuzzing. For more information"
+   echo "                           visit: https://github.com/google/sanitizers/wiki/AddressSanitizer"
    echo ""
-   echo "--fuzzing                --Build PcapPlusPlus with Clang enabling Coverage for fuzzing and compile existing fuzzers"
+   echo "--fuzzing                --Build PcapPlusPlus with Clang enabling code coverage for fuzzing and compile existing fuzzers. For more"
+   echo "                           information about fuzzing and libFuzzer visit: https://en.wikipedia.org/wiki/Fuzzing and https://llvm.org/docs/LibFuzzer.html"
    echo ""
    echo "--install-dir            --Installation directory. Default is /usr/local"
    echo ""
