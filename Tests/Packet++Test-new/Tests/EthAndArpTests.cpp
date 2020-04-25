@@ -1,6 +1,5 @@
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "MacAddress.h"
 #include "IpAddress.h"
 #include "EthLayer.h"
 #include "ArpLayer.h"
