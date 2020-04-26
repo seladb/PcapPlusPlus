@@ -94,12 +94,12 @@ int main(int argc, char* argv[]) {
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 
-	PTF_RUN_TEST(Ipv4PacketCreation, "ipv4");
-	PTF_RUN_TEST(Ipv4PacketParsing, "ipv4");
-	PTF_RUN_TEST(Ipv4FragmentationTest, "ipv4");
-	PTF_RUN_TEST(Ipv4OptionsParsingTest, "ipv4");
-	PTF_RUN_TEST(Ipv4OptionsEditTest, "ipv4");
-	PTF_RUN_TEST(Ipv4UdpChecksum, "ipv4");
+	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");
+	PTF_RUN_TEST(IPv4PacketParsing, "ipv4");
+	PTF_RUN_TEST(IPv4FragmentationTest, "ipv4");
+	PTF_RUN_TEST(IPv4OptionsParsingTest, "ipv4");
+	PTF_RUN_TEST(IPv4OptionsEditTest, "ipv4");
+	PTF_RUN_TEST(IPv4UdpChecksum, "ipv4");
 
 	PTF_RUN_TEST(IPv6UdpPacketParseAndCreate, "ipv6");
 	PTF_RUN_TEST(IPv6FragmentationTest, "ipv6");
@@ -112,9 +112,10 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
 	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
 
-	PTF_RUN_TEST(InsertDataToPacket, "insert");
-	PTF_RUN_TEST(InsertVlanToPacket, "vlan;insert");
-	PTF_RUN_TEST(RemoveLayerTest, "remove_layer");
+	PTF_RUN_TEST(InsertDataToPacket, "packet;insert");
+	PTF_RUN_TEST(InsertVlanToPacket, "packet;vlan;insert");
+	PTF_RUN_TEST(RemoveLayerTest, "packet;remove_layer");
+	PTF_RUN_TEST(CopyLayerAndPacketTest, "packet;copy_layer");
 
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerCreationTest, "http");
@@ -122,18 +123,18 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(HttpResponseLayerParsingTest, "http");
 	PTF_RUN_TEST(HttpResponseLayerCreationTest, "http");
 	PTF_RUN_TEST(HttpResponseLayerEditTest, "http");
-	// PTF_RUN_TEST(PPPoESessionLayerParsingTest, "pppoe");
-	// PTF_RUN_TEST(PPPoESessionLayerCreationTest, "pppoe");
-	// PTF_RUN_TEST(PPPoEDiscoveryLayerParsingTest, "pppoe");
-	// PTF_RUN_TEST(PPPoEDiscoveryLayerCreateTest, "pppoe");
+
+	PTF_RUN_TEST(PPPoESessionLayerParsingTest, "pppoe");
+	PTF_RUN_TEST(PPPoESessionLayerCreationTest, "pppoe");
+	PTF_RUN_TEST(PPPoEDiscoveryLayerParsingTest, "pppoe");
+	PTF_RUN_TEST(PPPoEDiscoveryLayerCreateTest, "pppoe");
 	// PTF_RUN_TEST(DnsLayerParsingTest, "dns");
 	// PTF_RUN_TEST(DnsLayerQueryCreationTest, "dns");
 	// PTF_RUN_TEST(DnsLayerResourceCreationTest, "dns");
 	// PTF_RUN_TEST(DnsLayerEditTest, "dns");
 	// PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
 	// PTF_RUN_TEST(MplsLayerTest, "mpls");
-	// PTF_RUN_TEST(CopyLayerAndPacketTest, "copy_layer");
-	// PTF_RUN_TEST(IcmpParsingTest, "icmp");
+		// PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	// PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	// PTF_RUN_TEST(IcmpEditTest, "icmp");
 	// PTF_RUN_TEST(GreParsingTest, "gre");

@@ -21,6 +21,10 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
   READ_FILE_INTO_BUFFER(num, filename); \
 	pcpp::RawPacket rawPacket##num((const uint8_t*)buffer##num, bufferLength##num, time, true)
 
+#define READ_FILE_AND_CREATE_PACKET_LINKTYPE(num, filename, linktype) \
+  READ_FILE_INTO_BUFFER(num, filename); \
+	pcpp::RawPacket rawPacket##num((const uint8_t*)buffer##num, bufferLength##num, time, true, linktype)
+
 #ifdef PCPP_TESTS_DEBUG
 void savePacketToPcap(Packet& packet, std::string fileName);
 #endif

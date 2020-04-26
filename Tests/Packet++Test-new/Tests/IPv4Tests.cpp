@@ -11,7 +11,7 @@
 #include "../TestDefinition.h"
 #include "SystemUtils.h"
 
-PTF_TEST_CASE(Ipv4PacketCreation)
+PTF_TEST_CASE(IPv4PacketCreation)
 {
 	pcpp::Packet ip4Packet(1);
 
@@ -56,7 +56,7 @@ PTF_TEST_CASE(Ipv4PacketCreation)
 
 
 
-PTF_TEST_CASE(Ipv4PacketParsing)
+PTF_TEST_CASE(IPv4PacketParsing)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -107,7 +107,7 @@ PTF_TEST_CASE(Ipv4PacketParsing)
 
 
 
-PTF_TEST_CASE(Ipv4FragmentationTest)
+PTF_TEST_CASE(IPv4FragmentationTest)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -154,7 +154,7 @@ PTF_TEST_CASE(Ipv4FragmentationTest)
 
 
 
-PTF_TEST_CASE(Ipv4OptionsParsingTest)
+PTF_TEST_CASE(IPv4OptionsParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -311,7 +311,7 @@ PTF_TEST_CASE(Ipv4OptionsParsingTest)
 
 
 
-PTF_TEST_CASE(Ipv4OptionsEditTest)
+PTF_TEST_CASE(IPv4OptionsEditTest)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
@@ -492,7 +492,7 @@ PTF_TEST_CASE(Ipv4OptionsEditTest)
 
 
 
-PTF_TEST_CASE(Ipv4UdpChecksum)
+PTF_TEST_CASE(IPv4UdpChecksum)
 {
 	for (int i = 1; i<6; i++)
 	{

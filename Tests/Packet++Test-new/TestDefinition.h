@@ -12,12 +12,12 @@ PTF_TEST_CASE(ArpPacketCreation);
 PTF_TEST_CASE(VlanParseAndCreation);
 
 // Implemented in IPv4Tests.cpp
-PTF_TEST_CASE(Ipv4PacketCreation);
-PTF_TEST_CASE(Ipv4PacketParsing);
-PTF_TEST_CASE(Ipv4FragmentationTest);
-PTF_TEST_CASE(Ipv4OptionsParsingTest);
-PTF_TEST_CASE(Ipv4OptionsEditTest);
-PTF_TEST_CASE(Ipv4UdpChecksum);
+PTF_TEST_CASE(IPv4PacketCreation);
+PTF_TEST_CASE(IPv4PacketParsing);
+PTF_TEST_CASE(IPv4FragmentationTest);
+PTF_TEST_CASE(IPv4OptionsParsingTest);
+PTF_TEST_CASE(IPv4OptionsEditTest);
+PTF_TEST_CASE(IPv4UdpChecksum);
 
 // Implemented in IPv6Tests.cpp
 PTF_TEST_CASE(IPv6UdpPacketParseAndCreate);
@@ -36,6 +36,7 @@ PTF_TEST_CASE(TcpPacketCreation2);
 PTF_TEST_CASE(InsertDataToPacket);
 PTF_TEST_CASE(InsertVlanToPacket);
 PTF_TEST_CASE(RemoveLayerTest);
+PTF_TEST_CASE(CopyLayerAndPacketTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestLayerParsingTest);
@@ -44,3 +45,9 @@ PTF_TEST_CASE(HttpRequestLayerEditTest);
 PTF_TEST_CASE(HttpResponseLayerParsingTest);
 PTF_TEST_CASE(HttpResponseLayerCreationTest);
 PTF_TEST_CASE(HttpResponseLayerEditTest);
+
+// Implemented in PPPoETests.cpp
+PTF_TEST_CASE(PPPoESessionLayerParsingTest);
+PTF_TEST_CASE(PPPoESessionLayerCreationTest);
+PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest);
+PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest);
