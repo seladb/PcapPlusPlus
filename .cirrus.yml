@@ -30,12 +30,12 @@ task:
 task:
   name: Regression Tests Linux
   container:
-    image: zlowram/ubuntu1910-clang:latest
+    image: seladb/ubuntu1804:latest
   configure_script:
-    - ./configure-linux.sh --asan
+    - ./configure-fuzzing.sh --default
     - ldconfig
   build_script:
-    - make all
+    - make fuzzers
   test_script:
     - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
 

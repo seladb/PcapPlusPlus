@@ -1,4 +1,0 @@
-### ASAN ###
-
-PCAPPP_BUILD_FLAGS += -fsanitize=address
-

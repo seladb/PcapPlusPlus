@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SAMPLES=regression_samples
-BINARY=../Bin/fuzz_target
+BINARY=../Bin/FuzzTarget
 ERR_CODE=0
 
 RED='\033[0;31m'
