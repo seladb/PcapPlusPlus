@@ -33,6 +33,7 @@ uint8_t* IDnsResource::getRawData() const
 size_t IDnsResource::decodeName(const char* encodedName, char* result, int iteration)
 {
 	size_t encodedNameLength = 0;
+	size_t decodedNameLength = 0;
 	char* resultPtr = result;
 	resultPtr[0] = 0;
 
@@ -64,15 +65,16 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 			char tempResult[256];
 			int i = 0;
 			decodeName((const char*)(m_DnsLayer->m_Data + offsetInLayer), tempResult, iteration+1);
-			while (tempResult[i] != 0)
+			while (tempResult[i] != 0 && decodedNameLength < 255)
 			{
 				resultPtr[0] = tempResult[i++];
 				resultPtr++;
+				decodedNameLength++;
 			}
 
 			resultPtr[0] = 0;
 
-			// in this case the length of the pointer is: 1B for 0xc0 + 1B for the offset itself
+			// in this case the length of the pointer is: 1 byte for 0xc0 + 1 byte for the offset itself
 			return encodedNameLength + sizeof(uint16_t);
 		}
 		else
@@ -82,11 +84,16 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 			{
 				// add the last '\0' to the decoded string
 				if (encodedNameLength == 256)
+				{
 					resultPtr--;
+					decodedNameLength--;
+				}
 				else
+				{
 					encodedNameLength++;
-				
-				resultPtr[0] = 0;	
+				}
+					
+				resultPtr[0] = 0;
 				return encodedNameLength;
 			}
 				
@@ -95,6 +102,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 			resultPtr += wordLength;
 			resultPtr[0] = '.';
 			resultPtr++;
+			decodedNameLength += wordLength + 1;
 			encodedName += wordLength + 1;
 			encodedNameLength += wordLength + 1;
 
@@ -103,9 +111,14 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 			{
 				// add the last '\0' to the decoded string
 				if (encodedNameLength == 256)
+				{
+					decodedNameLength--;
 					resultPtr--;
+				}
 				else
+				{
 					encodedNameLength++;
+				}
 				
 				resultPtr[0] = 0;	
 				return encodedNameLength;
