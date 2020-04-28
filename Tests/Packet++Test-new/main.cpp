@@ -128,13 +128,14 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(PPPoESessionLayerCreationTest, "pppoe");
 	PTF_RUN_TEST(PPPoEDiscoveryLayerParsingTest, "pppoe");
 	PTF_RUN_TEST(PPPoEDiscoveryLayerCreateTest, "pppoe");
-	// PTF_RUN_TEST(DnsLayerParsingTest, "dns");
-	// PTF_RUN_TEST(DnsLayerQueryCreationTest, "dns");
-	// PTF_RUN_TEST(DnsLayerResourceCreationTest, "dns");
-	// PTF_RUN_TEST(DnsLayerEditTest, "dns");
-	// PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
+
+	PTF_RUN_TEST(DnsLayerParsingTest, "dns");
+	PTF_RUN_TEST(DnsLayerQueryCreationTest, "dns");
+	PTF_RUN_TEST(DnsLayerResourceCreationTest, "dns");
+	PTF_RUN_TEST(DnsLayerEditTest, "dns");
+	PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
 	// PTF_RUN_TEST(MplsLayerTest, "mpls");
-		// PTF_RUN_TEST(IcmpParsingTest, "icmp");
+	// PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	// PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	// PTF_RUN_TEST(IcmpEditTest, "icmp");
 	// PTF_RUN_TEST(GreParsingTest, "gre");

@@ -51,3 +51,10 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest);
 PTF_TEST_CASE(PPPoESessionLayerCreationTest);
 PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest);
 PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest);
+
+// Implemented in DnsTests.cpp
+PTF_TEST_CASE(DnsLayerParsingTest);
+PTF_TEST_CASE(DnsLayerQueryCreationTest);
+PTF_TEST_CASE(DnsLayerResourceCreationTest);
+PTF_TEST_CASE(DnsLayerEditTest);
+PTF_TEST_CASE(DnsLayerRemoveResourceTest);
