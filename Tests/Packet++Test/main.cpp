@@ -8290,6 +8290,25 @@ PTF_TEST_CASE(BgpLayerEditTest)
 } // BgpLayerEditTest
 
 
+PTF_TEST_CASE(ResizeLayerTest)
+{
+	// Creating a packet
+	Packet packet(1500);
+		
+	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
+	PayloadLayer payloadLayer(payload, 10, true);
+	PTF_ASSERT(packet.addLayer(&payloadLayer), "Adding payload layer failed");
+
+	// Starting Resize testing
+	PTF_ASSERT(packet.getRawPacket()->getRawDataLen() == 10, "Size of packet before resizing is not correct");
+
+
+
+
+
+} // ResizeLayerTest
+
+
 static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
@@ -8459,6 +8478,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
+	PTF_RUN_TEST(ResizeLayerTest, "resize");
 
 	PTF_END_RUNNING_TESTS;
 }
