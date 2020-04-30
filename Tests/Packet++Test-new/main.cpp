@@ -92,6 +92,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(EthPacketPointerCreation, "eth2;eth");
 	PTF_RUN_TEST(EthAndArpPacketParsing, "eth2;eth;arp");
 	PTF_RUN_TEST(ArpPacketCreation, "arp");
+	PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
+	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
@@ -118,6 +120,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(InsertVlanToPacket, "packet;vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "packet;remove_layer");
 	PTF_RUN_TEST(CopyLayerAndPacketTest, "packet;copy_layer");
+	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
+	PTF_RUN_TEST(RawPacketTimeStampSetterTest, "packet");
 
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerCreationTest, "http");
@@ -181,13 +185,10 @@ int main(int argc, char* argv[])
 	// PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
 	// PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
 	// PTF_RUN_TEST(GtpLayerEditTest, "gtp");
-	// PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
-	// PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
-	// PTF_RUN_TEST(PacketLayerLookupTest, "packet");
-	// PTF_RUN_TEST(RawPacketTimeStampSetterTest, "packet");
-	// PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
-	// PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
-	// PTF_RUN_TEST(BgpLayerEditTest, "bgp");
+
+	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
+	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
+	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
 
 	PTF_END_RUNNING_TESTS;
 }

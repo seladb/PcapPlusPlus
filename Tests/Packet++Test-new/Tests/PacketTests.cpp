@@ -8,6 +8,7 @@
 #include "TcpLayer.h"
 #include "DnsLayer.h"
 #include "HttpLayer.h"
+#include "RadiusLayer.h"
 #include "PayloadLayer.h"
 #include "../TestDefinition.h"
 #include "SystemUtils.h"
@@ -493,3 +494,88 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(), origDnsLayer->getAdditionalRecord("", true)->getData()->toString(), string);
 
 } // CopyLayerAndPacketTest
+
+
+PTF_TEST_CASE(PacketLayerLookupTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_1.dat");
+		pcpp::Packet radiusPacket(&rawPacket1);
+
+		pcpp::RadiusLayer* radiusLayer = radiusPacket.getLayerOfType<pcpp::RadiusLayer>(true);
+		PTF_ASSERT_NOT_NULL(radiusLayer);
+
+		pcpp::EthLayer* ethLayer = radiusPacket.getLayerOfType<pcpp::EthLayer>(true);
+		PTF_ASSERT_NOT_NULL(ethLayer);
+
+		pcpp::IPv4Layer* ipLayer = radiusPacket.getPrevLayerOfType<pcpp::IPv4Layer>(radiusLayer);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+
+		pcpp::TcpLayer* tcpLayer = radiusPacket.getPrevLayerOfType<pcpp::TcpLayer>(ipLayer);
+		PTF_ASSERT_NULL(tcpLayer);
+	}
+
+	{
+		READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Vxlan1.dat");
+		pcpp::Packet vxlanPacket(&rawPacket2);
+
+		// get the last IPv4 layer
+		pcpp::IPv4Layer* ipLayer = vxlanPacket.getLayerOfType<pcpp::IPv4Layer>(true);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), pcpp::IPv4Address("192.168.203.3"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address("192.168.203.5"), object);
+
+		// get the first IPv4 layer
+		ipLayer = vxlanPacket.getPrevLayerOfType<pcpp::IPv4Layer>(ipLayer);
+		PTF_ASSERT_NOT_NULL(ipLayer);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), pcpp::IPv4Address("192.168.203.1"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address("192.168.202.1"), object);
+
+		// try to get one more IPv4 layer
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<pcpp::IPv4Layer>(ipLayer));
+
+		// get the first layer
+		pcpp::EthLayer* ethLayer = vxlanPacket.getPrevLayerOfType<pcpp::EthLayer>(ipLayer);
+		PTF_ASSERT_NOT_NULL(ethLayer);
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<pcpp::EthLayer>(ethLayer));
+		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<pcpp::EthLayer>(vxlanPacket.getFirstLayer()));
+
+		// try to get nonexistent layer
+		PTF_ASSERT_NULL(vxlanPacket.getLayerOfType<pcpp::RadiusLayer>(true));
+	}
+} // PacketLayerLookupTest
+
+
+PTF_TEST_CASE(RawPacketTimeStampSetterTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6UdpPacket.dat");
+
+	timeval usec_test_time;
+	timespec nsec_test_time;
+	timespec expected_ts;
+
+	//test usec-precision setter
+	usec_test_time.tv_sec = 1583840642; //10.03.2020 15:44
+	usec_test_time.tv_usec = 111222;
+	expected_ts.tv_sec = usec_test_time.tv_sec;
+	expected_ts.tv_nsec = usec_test_time.tv_usec * 1000;
+
+	PTF_ASSERT_TRUE(rawPacket1.setPacketTimeStamp(usec_test_time));
+	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_sec, expected_ts.tv_sec, u32);
+	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec, u32);
+
+	//test nsec-precision setter
+	nsec_test_time.tv_sec = 1583842105; //10.03.2020 16:08
+	nsec_test_time.tv_nsec = 111222987;
+	expected_ts = nsec_test_time;
+
+	PTF_ASSERT_TRUE(rawPacket1.setPacketTimeStamp(nsec_test_time));
+	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_sec, expected_ts.tv_sec, u32);
+	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec, u32);
+} // RawPacketTimeStampSetterTest

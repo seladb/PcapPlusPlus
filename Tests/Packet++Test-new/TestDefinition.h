@@ -7,6 +7,8 @@ PTF_TEST_CASE(EthPacketCreation);
 PTF_TEST_CASE(EthPacketPointerCreation);
 PTF_TEST_CASE(EthAndArpPacketParsing);
 PTF_TEST_CASE(ArpPacketCreation);
+PTF_TEST_CASE(EthDot3LayerParsingTest);
+PTF_TEST_CASE(EthDot3LayerCreateEditTest);
 
 // Implemented in VlanMplsTests.cpp
 PTF_TEST_CASE(VlanParseAndCreation);
@@ -38,6 +40,8 @@ PTF_TEST_CASE(InsertDataToPacket);
 PTF_TEST_CASE(InsertVlanToPacket);
 PTF_TEST_CASE(RemoveLayerTest);
 PTF_TEST_CASE(CopyLayerAndPacketTest);
+PTF_TEST_CASE(PacketLayerLookupTest);
+PTF_TEST_CASE(RawPacketTimeStampSetterTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestLayerParsingTest);
@@ -64,3 +68,8 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest);
 PTF_TEST_CASE(IcmpParsingTest);
 PTF_TEST_CASE(IcmpCreationTest);
 PTF_TEST_CASE(IcmpEditTest);
+
+// Implemented in BgpTests.cpp
+PTF_TEST_CASE(BgpLayerParsingTest);
+PTF_TEST_CASE(BgpLayerCreationTest);
+PTF_TEST_CASE(BgpLayerEditTest);

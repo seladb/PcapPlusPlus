@@ -2,6 +2,7 @@
 #include "EndianPortable.h"
 #include "IpAddress.h"
 #include "EthLayer.h"
+#include "EthDot3Layer.h"
 #include "ArpLayer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
@@ -66,7 +67,6 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 } // EthPacketPointerCreation
 
 
-
 PTF_TEST_CASE(EthAndArpPacketParsing)
 {
 	timeval time;
@@ -96,6 +96,7 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), pcpp::MacAddress("6c:f0:49:b2:de:6e"), object);
 } // EthAndArpPacketParsing
 
+
 PTF_TEST_CASE(ArpPacketCreation)
 {
 	pcpp::MacAddress srcMac("6c:f0:49:b2:de:6e");
@@ -124,3 +125,75 @@ PTF_TEST_CASE(ArpPacketCreation)
 
 	delete [] buffer1;
 } // ArpPacketCreation
+
+
+PTF_TEST_CASE(EthDot3LayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/EthDot3.dat");
+	pcpp::Packet ethDot3Packet(&rawPacket1);
+
+	PTF_ASSERT_TRUE(ethDot3Packet.isPacketOfType(pcpp::EthernetDot3));
+	pcpp::EthDot3Layer* ethDot3Layer = ethDot3Packet.getLayerOfType<pcpp::EthDot3Layer>();
+	PTF_ASSERT_NOT_NULL(ethDot3Layer);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getHeaderLen(), 14, size);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getSourceMac(), pcpp::MacAddress("00:13:f7:11:5e:db"), object);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getDestMac(), pcpp::MacAddress("01:80:c2:00:00:00"), object);
+	PTF_ASSERT_EQUAL(be16toh(ethDot3Layer->getEthHeader()->length), 38, u16);
+
+	PTF_ASSERT_NOT_NULL(ethDot3Layer->getNextLayer());
+	PTF_ASSERT_EQUAL(ethDot3Layer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
+	pcpp::PayloadLayer* payloadLayer = (pcpp::PayloadLayer*)ethDot3Layer->getNextLayer();
+	PTF_ASSERT_NOT_NULL(payloadLayer);
+	PTF_ASSERT_EQUAL(payloadLayer->getDataLen(), 46, size);
+
+	PTF_ASSERT_NULL(payloadLayer->getNextLayer());
+} // EthDot3LayerParsingTest
+
+
+PTF_TEST_CASE(EthDot3LayerCreateEditTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_INTO_BUFFER(1, "PacketExamples/EthDot3.dat");
+	READ_FILE_INTO_BUFFER(2, "PacketExamples/EthDot3_2.dat");
+
+	// create a new EthDot3 packet
+
+	pcpp::MacAddress srcAddr("00:13:f7:11:5e:db");
+	pcpp::MacAddress dstAddr("01:80:c2:00:00:00");
+	pcpp::EthDot3Layer ethDot3NewLayer(srcAddr, dstAddr, 38);
+
+	pcpp::PayloadLayer newPayloadLayer("424203000000000000000013f71edff00000271080000013f7115ec0801b0100140002000f000000000000000000");
+	PTF_ASSERT_EQUAL(newPayloadLayer.getDataLen(), 46, size);
+
+	pcpp::Packet newEthDot3Packet;
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&ethDot3NewLayer));
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer));
+	newEthDot3Packet.computeCalculateFields();
+
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer1, bufferLength1);
+
+
+	// edit an EthDot3 packet
+
+	ethDot3NewLayer.setSourceMac(pcpp::MacAddress("00:1a:a1:97:d1:85"));
+	ethDot3NewLayer.getEthHeader()->length = htobe16(121);
+
+	pcpp::PayloadLayer newPayloadLayer2("424203000003027c8000000c305dd100000000008000000c305dd10080050000140002000f000000500000000"
+			"00000000000000000000000000000000000000000000000000000000000000055bf4e8a44b25d442868549c1bf7720f00030d408000001a"
+			"a197d180137c8005000c305dd10000030d40808013");
+
+	PTF_ASSERT_TRUE(newEthDot3Packet.detachLayer(&newPayloadLayer));
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer2));
+	newEthDot3Packet.computeCalculateFields();
+
+	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer2, bufferLength2);
+
+	delete [] buffer1;
+	delete [] buffer2;
+
+} // EthDot3LayerCreateEditTest
