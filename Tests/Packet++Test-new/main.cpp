@@ -26,7 +26,8 @@ void print_usage()
 }
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) 
+{
 
 	int optionIndex = 0;
 	char opt = 0;
@@ -93,6 +94,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(ArpPacketCreation, "arp");
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
+	PTF_RUN_TEST(MplsLayerTest, "mpls");
 
 	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");
 	PTF_RUN_TEST(IPv4PacketParsing, "ipv4");
@@ -134,10 +136,10 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(DnsLayerResourceCreationTest, "dns");
 	PTF_RUN_TEST(DnsLayerEditTest, "dns");
 	PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
-	// PTF_RUN_TEST(MplsLayerTest, "mpls");
-	// PTF_RUN_TEST(IcmpParsingTest, "icmp");
-	// PTF_RUN_TEST(IcmpCreationTest, "icmp");
-	// PTF_RUN_TEST(IcmpEditTest, "icmp");
+
+	PTF_RUN_TEST(IcmpParsingTest, "icmp");
+	PTF_RUN_TEST(IcmpCreationTest, "icmp");
+	PTF_RUN_TEST(IcmpEditTest, "icmp");
 	// PTF_RUN_TEST(GreParsingTest, "gre");
 	// PTF_RUN_TEST(GreCreationTest, "gre");
 	// PTF_RUN_TEST(GreEditTest, "gre");

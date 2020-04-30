@@ -32,6 +32,9 @@
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\HttpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\IcmpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\IPv4Tests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
@@ -47,7 +50,7 @@
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\TcpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\VlanTests.cpp">
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\VlanMplsTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test-new\Utils\TestUtils.cpp">
