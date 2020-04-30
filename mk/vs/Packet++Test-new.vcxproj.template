@@ -178,6 +178,7 @@
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\IPv6Tests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\PacketTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\PPPoETests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\SllNullLoopbackTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\TcpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\VlanMplsTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\main.cpp" />

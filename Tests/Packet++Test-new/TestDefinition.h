@@ -69,6 +69,11 @@ PTF_TEST_CASE(IcmpParsingTest);
 PTF_TEST_CASE(IcmpCreationTest);
 PTF_TEST_CASE(IcmpEditTest);
 
+// Implemented in SllNullLoopbackTests.cpp
+PTF_TEST_CASE(SllPacketParsingTest);
+PTF_TEST_CASE(SllPacketCreationTest);
+PTF_TEST_CASE(NullLoopbackTest);
+
 // Implemented in BgpTests.cpp
 PTF_TEST_CASE(BgpLayerParsingTest);
 PTF_TEST_CASE(BgpLayerCreationTest);
