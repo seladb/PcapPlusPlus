@@ -64,7 +64,7 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
             bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", configTagsToRun, false); \
             MemPlumber::start(memAllocVerbose); \
         } \
-        TestName(TestName##_result); \
+        TestName(TestName##_result, verboseMode); \
         if (runMemLeakCheck) \
         { \
             size_t memLeakCount = 0; \
@@ -106,11 +106,5 @@ static bool verboseMode = false;
 #define PTF_SET_VERBOSE_MODE(flag) verboseMode = flag
 
 #define PTF_IS_VERBOSE_MODE verboseMode
-
-#define PTF_PRINT_VERBOSE(format, ...) do { \
-		if(verboseMode) { \
-			printf(format "\n", ## __VA_ARGS__); \
-		} \
-} while(0)
 
 #endif // PCPP_TEST_FRAMEWORK_RUN

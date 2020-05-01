@@ -43,7 +43,7 @@
 #define object_PTF_PRINT_TYPE(val) #val
 
 
-#define PTF_TEST_CASE(TestName) void TestName(int& ptfResult)
+#define PTF_TEST_CASE(TestName) void TestName(int& ptfResult, bool printVerbose)
 
 #define PTF_TEST_CASE_PASSED \
     ptfResult = 1; \
@@ -115,5 +115,11 @@
 	{ \
 		printf("%s, NON-CRITICAL: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
 	}
+
+#define PTF_PRINT_VERBOSE(format, ...) do { \
+		if(printVerbose) { \
+			printf(format "\n", ## __VA_ARGS__); \
+		} \
+} while(0)
 
 #endif // PCPP_TEST_FRAMEWORK

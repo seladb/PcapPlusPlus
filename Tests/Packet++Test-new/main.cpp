@@ -10,6 +10,7 @@ static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
 	{"mem-verbose", no_argument, 0, 'm' },
+	{"verbose", no_argument, 0, 'v' },
 	{"skip-mem-leak-check", no_argument, 0, 's' },
 	{0, 0, 0, 0}
 };
@@ -52,6 +53,7 @@ int main(int argc, char* argv[])
 				break;
 			case 'v':
 				PTF_SET_VERBOSE_MODE(true);
+				break;
 			default:
 				print_usage();
 				exit(1);
