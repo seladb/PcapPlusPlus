@@ -74,6 +74,16 @@ PTF_TEST_CASE(SllPacketParsingTest);
 PTF_TEST_CASE(SllPacketCreationTest);
 PTF_TEST_CASE(NullLoopbackTest);
 
+// Implemented in GreTests.cpp
+PTF_TEST_CASE(GreParsingTest);
+PTF_TEST_CASE(GreCreationTest);
+PTF_TEST_CASE(GreEditTest);
+
+// Implemented in GtpTests.cpp
+PTF_TEST_CASE(GtpLayerParsingTest);
+PTF_TEST_CASE(GtpLayerCreationTest);
+PTF_TEST_CASE(GtpLayerEditTest);
+
 // Implemented in BgpTests.cpp
 PTF_TEST_CASE(BgpLayerParsingTest);
 PTF_TEST_CASE(BgpLayerCreationTest);

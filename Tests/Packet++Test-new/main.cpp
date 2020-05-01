@@ -144,9 +144,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	PTF_RUN_TEST(IcmpEditTest, "icmp");
-	// PTF_RUN_TEST(GreParsingTest, "gre");
-	// PTF_RUN_TEST(GreCreationTest, "gre");
-	// PTF_RUN_TEST(GreEditTest, "gre");
+	
+	PTF_RUN_TEST(GreParsingTest, "gre");
+	PTF_RUN_TEST(GreCreationTest, "gre");
+	PTF_RUN_TEST(GreEditTest, "gre");
 	// PTF_RUN_TEST(SSLClientHelloParsingTest, "ssl");
 	// PTF_RUN_TEST(SSLAppDataParsingTest, "ssl");
 	// PTF_RUN_TEST(SSLAlertParsingTest, "ssl");
@@ -182,9 +183,9 @@ int main(int argc, char* argv[])
 	// PTF_RUN_TEST(RadiusLayerParsingTest, "radius");
 	// PTF_RUN_TEST(RadiusLayerCreationTest, "radius");
 	// PTF_RUN_TEST(RadiusLayerEditTest, "radius");
-	// PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
-	// PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
-	// PTF_RUN_TEST(GtpLayerEditTest, "gtp");
+	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
+	PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
+	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
 
 	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");

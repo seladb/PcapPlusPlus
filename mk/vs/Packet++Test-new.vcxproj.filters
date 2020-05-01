@@ -32,6 +32,12 @@
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\EthAndArpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\GreTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\GtpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\HttpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>

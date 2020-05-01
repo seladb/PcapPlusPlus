@@ -172,6 +172,8 @@
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\BgpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\DnsTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\EthAndArpTests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\GreTests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\GtpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\HttpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\IcmpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\IPv4Tests.cpp" />
