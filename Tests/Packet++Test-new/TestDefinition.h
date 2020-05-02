@@ -79,6 +79,17 @@ PTF_TEST_CASE(GreParsingTest);
 PTF_TEST_CASE(GreCreationTest);
 PTF_TEST_CASE(GreEditTest);
 
+// Implemented in SSLTests.cpp
+PTF_TEST_CASE(SSLClientHelloParsingTest);
+PTF_TEST_CASE(SSLAppDataParsingTest);
+PTF_TEST_CASE(SSLAlertParsingTest);
+PTF_TEST_CASE(SSLMultipleRecordParsingTest);
+PTF_TEST_CASE(SSLMultipleRecordParsing2Test);
+PTF_TEST_CASE(SSLMultipleRecordParsing3Test);
+PTF_TEST_CASE(SSLMultipleRecordParsing4Test);
+PTF_TEST_CASE(SSLPartialCertificateParseTest);
+PTF_TEST_CASE(SSLNewSessionTicketParseTest);
+
 // Implemented in GtpTests.cpp
 PTF_TEST_CASE(GtpLayerParsingTest);
 PTF_TEST_CASE(GtpLayerCreationTest);

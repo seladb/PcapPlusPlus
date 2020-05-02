@@ -197,7 +197,7 @@ SSLAlertLevel SSLAlertLayer::getAlertLevel() const
 SSLAlertDescription SSLAlertLayer::getAlertDescription()
 {
 	if (getAlertLevel() == SSL_ALERT_LEVEL_ENCRYPTED)
-		return SSL_ALERT_ENCRYPRED;
+		return SSL_ALERT_ENCRYPTED;
 
 	uint8_t* pos = m_Data + sizeof(ssl_tls_record_layer) + sizeof(uint8_t);
 	uint8_t alertDesc = *pos;
@@ -231,7 +231,7 @@ SSLAlertDescription SSLAlertLayer::getAlertDescription()
 		return (SSLAlertDescription)alertDesc;
 		break;
 	default:
-		return SSL_ALERT_ENCRYPRED;
+		return SSL_ALERT_ENCRYPTED;
 	}
 }
 

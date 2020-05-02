@@ -223,7 +223,7 @@ namespace pcpp
 		/** Unsupported extension alert */
 		SSL_ALERT_UNSUPPORTED_EXTENSION   = 110,
 		/** Encrtpyed alert (cannot determine its type) */
-		SSL_ALERT_ENCRYPRED				= 255
+		SSL_ALERT_ENCRYPTED               = 255
 	};
 
 	/**
@@ -239,9 +239,9 @@ namespace pcpp
 		SSL_KEYX_DH,
 		/** Diffie-Hellman ephemeral */
 		SSL_KEYX_DHE,
-		/** Elliptic curve Diffie–Hellman */
+		/** Elliptic curve Diffieï¿½Hellman */
 		SSL_KEYX_ECDH,
-		/** Elliptic curve Diffie–Hellman ephemeral */
+		/** Elliptic curve Diffieï¿½Hellman ephemeral */
 		SSL_KEYX_ECDHE,
 		/** Fortezza Crypto Card */
 		SSL_KEYX_FORTEZZA,

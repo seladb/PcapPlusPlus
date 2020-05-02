@@ -421,7 +421,7 @@ namespace pcpp
 		SSLAlertLevel getAlertLevel() const;
 
 		/**
-		 * @return SSL/TLS alert description. Will return ::SSL_ALERT_ENCRYPRED if alert is encrypted
+		 * @return SSL/TLS alert description. Will return ::SSL_ALERT_ENCRYPTED if alert is encrypted
 		 */
 		SSLAlertDescription getAlertDescription();
 

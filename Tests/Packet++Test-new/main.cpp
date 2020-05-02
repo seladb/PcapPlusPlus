@@ -150,15 +150,17 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(GreParsingTest, "gre");
 	PTF_RUN_TEST(GreCreationTest, "gre");
 	PTF_RUN_TEST(GreEditTest, "gre");
-	// PTF_RUN_TEST(SSLClientHelloParsingTest, "ssl");
-	// PTF_RUN_TEST(SSLAppDataParsingTest, "ssl");
-	// PTF_RUN_TEST(SSLAlertParsingTest, "ssl");
-	// PTF_RUN_TEST(SSLMultipleRecordParsingTest, "ssl");
-	// PTF_RUN_TEST(SSLMultipleRecordParsing2Test, "ssl");
-	// PTF_RUN_TEST(SSLMultipleRecordParsing3Test, "ssl");
-	// PTF_RUN_TEST(SSLMultipleRecordParsing4Test, "ssl");
-	// PTF_RUN_TEST(SSLPartialCertificateParseTest, "ssl");
-	// PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
+
+	PTF_RUN_TEST(SSLClientHelloParsingTest, "ssl");
+	PTF_RUN_TEST(SSLAppDataParsingTest, "ssl");
+	PTF_RUN_TEST(SSLAlertParsingTest, "ssl");
+	PTF_RUN_TEST(SSLMultipleRecordParsingTest, "ssl");
+	PTF_RUN_TEST(SSLMultipleRecordParsing2Test, "ssl");
+	PTF_RUN_TEST(SSLMultipleRecordParsing3Test, "ssl");
+	PTF_RUN_TEST(SSLMultipleRecordParsing4Test, "ssl");
+	PTF_RUN_TEST(SSLPartialCertificateParseTest, "ssl");
+	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
+	
 	PTF_RUN_TEST(SllPacketParsingTest, "sll");
 	PTF_RUN_TEST(SllPacketCreationTest, "sll");
 	PTF_RUN_TEST(NullLoopbackTest, "null_loopback");

@@ -601,10 +601,10 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	PTF_ASSERT_NOT_NULL(thirdAnswer);
 
 	PTF_ASSERT_TRUE(dnsLayer4->removeAnswer("assets.pinterest.com.cdngc.net", true));
-	PTF_ASSERT(dnsLayer4->getAnswerCount() == 2, "Answer count after removing the second answer != 2");
-	PTF_ASSERT(dnsLayer4->getFirstAnswer() == firstAnswer, "First answer after removing the second answer isn't as expected");
-	PTF_ASSERT(dnsLayer4->getNextAnswer(dnsLayer4->getFirstAnswer()) == thirdAnswer, "Second answer after removing the second answer isn't as expected");
-	PTF_ASSERT(dnsLayer4->getHeaderLen() == origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize, "DNS layer size after removing the second answer is wrong");
+	PTF_ASSERT_EQUAL(dnsLayer4->getAnswerCount(), 2, size);
+	PTF_ASSERT_TRUE(dnsLayer4->getFirstAnswer() == firstAnswer);
+	PTF_ASSERT_TRUE(dnsLayer4->getNextAnswer(dnsLayer4->getFirstAnswer()) == thirdAnswer);
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize, size);
 
 	PTF_ASSERT_TRUE(dnsLayer4->removeAnswer(firstAnswer));
 	PTF_ASSERT_EQUAL(dnsLayer4->getAnswerCount(), 1, size);

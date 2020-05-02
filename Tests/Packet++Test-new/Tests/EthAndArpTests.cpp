@@ -24,7 +24,7 @@ PTF_TEST_CASE(EthPacketCreation)
 
 	PTF_ASSERT_TRUE(ethPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_NOT_NULL(ethPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT(ethPacket.getLayerOfType<pcpp::EthLayer>() == &ethLayer, "Ethernet layer doesn't equal to inserted layer");
+	PTF_ASSERT_TRUE(ethPacket.getLayerOfType<pcpp::EthLayer>() == &ethLayer);
 	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getDestMac(), dstMac, object);
 	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getSourceMac(), srcMac, object);
 	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_IP), u16);
@@ -52,7 +52,7 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 
 	PTF_ASSERT_TRUE(ethPacket->isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_NOT_NULL(ethPacket->getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT(ethPacket->getLayerOfType<pcpp::EthLayer>() == ethLayer, "Ethernet layer doesn't equal to inserted layer");
+	PTF_ASSERT_TRUE(ethPacket->getLayerOfType<pcpp::EthLayer>() == ethLayer);
 	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getDestMac(), dstMac, object);
 	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getSourceMac(), srcMac, object);
 	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_IP), u16);
@@ -75,8 +75,8 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ArpResponsePacket.dat");
 
 	pcpp::Packet ethPacket(&rawPacket1);
-	PTF_ASSERT(ethPacket.isPacketOfType(pcpp::Ethernet), "Packet is not of type Ethernet");
-	PTF_ASSERT(ethPacket.getLayerOfType<pcpp::EthLayer>() != NULL, "Ethernet layer doesn't exist");
+	PTF_ASSERT_TRUE(ethPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_NOT_NULL(ethPacket.getLayerOfType<pcpp::EthLayer>());
 
 	pcpp::MacAddress expectedSrcMac(0x30, 0x46, 0x9a, 0x23, 0xfb, 0xfa);
 	pcpp::MacAddress expectedDstMac(0x6c, 0xf0, 0x49, 0xb2, 0xde, 0x6e);

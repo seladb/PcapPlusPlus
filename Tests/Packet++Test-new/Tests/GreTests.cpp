@@ -189,7 +189,7 @@ PTF_TEST_CASE(GreCreationTest)
 	ipLayer3.getIPv4Header()->timeToLive = 64;
 
 	pcpp::GREv0Layer grev0Layer1;
-	PTF_ASSERT(grev0Layer1.setChecksum(1), "Couldn't set checksum");
+	PTF_ASSERT_TRUE(grev0Layer1.setChecksum(1));
 
 	pcpp::GREv0Layer grev0Layer2;
 
