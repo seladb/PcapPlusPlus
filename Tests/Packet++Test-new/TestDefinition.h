@@ -44,6 +44,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest);
 PTF_TEST_CASE(PacketLayerLookupTest);
 PTF_TEST_CASE(RawPacketTimeStampSetterTest);
 PTF_TEST_CASE(ParsePartialPacketTest);
+PTF_TEST_CASE(PacketTrailerTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestLayerParsingTest);
@@ -91,6 +92,17 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test);
 PTF_TEST_CASE(SSLMultipleRecordParsing4Test);
 PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
+
+// Implemented in SipSdpTests.cpp
+PTF_TEST_CASE(SipRequestLayerParsingTest);
+PTF_TEST_CASE(SipRequestLayerCreationTest);
+PTF_TEST_CASE(SipRequestLayerEditTest);
+PTF_TEST_CASE(SipResponseLayerParsingTest);
+PTF_TEST_CASE(SipResponseLayerCreationTest);
+PTF_TEST_CASE(SipResponseLayerEditTest);
+PTF_TEST_CASE(SdpLayerParsingTest);
+PTF_TEST_CASE(SdpLayerCreationTest);
+PTF_TEST_CASE(SdpLayerEditTest);
 
 // Implemented in GtpTests.cpp
 PTF_TEST_CASE(GtpLayerParsingTest);
