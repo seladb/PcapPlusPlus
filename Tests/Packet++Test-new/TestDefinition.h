@@ -13,6 +13,7 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest);
 // Implemented in VlanMplsTests.cpp
 PTF_TEST_CASE(VlanParseAndCreation);
 PTF_TEST_CASE(MplsLayerTest);
+PTF_TEST_CASE(VxlanParsingAndCreationTest);
 
 // Implemented in IPv4Tests.cpp
 PTF_TEST_CASE(IPv4PacketCreation);
@@ -42,6 +43,7 @@ PTF_TEST_CASE(RemoveLayerTest);
 PTF_TEST_CASE(CopyLayerAndPacketTest);
 PTF_TEST_CASE(PacketLayerLookupTest);
 PTF_TEST_CASE(RawPacketTimeStampSetterTest);
+PTF_TEST_CASE(ParsePartialPacketTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestLayerParsingTest);

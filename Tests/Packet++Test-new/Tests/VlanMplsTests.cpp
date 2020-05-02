@@ -1,9 +1,12 @@
 #include "../Utils/TestUtils.h"
+#include "EndianPortable.h"
 #include "Logger.h"
 #include "Packet.h"
 #include "ArpLayer.h"
 #include "VlanLayer.h"
 #include "MplsLayer.h"
+#include "VxlanLayer.h"
+#include "UdpLayer.h"
 #include "../TestDefinition.h"
 #include "SystemUtils.h"
 
@@ -120,3 +123,54 @@ PTF_TEST_CASE(MplsLayerTest)
 	PTF_ASSERT_FALSE(mplsLayer->setMplsLabel(0xFFFFFF));
 	pcpp::LoggerPP::getInstance().enableErrors();
 } // MplsLayerTest
+
+
+
+PTF_TEST_CASE(VxlanParsingAndCreationTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Vxlan1.dat");
+	READ_FILE_INTO_BUFFER(2, "PacketExamples/Vxlan2.dat");
+
+	pcpp::Packet vxlanPacket(&rawPacket1);
+
+	// test vxlan parsing
+	pcpp::VxlanLayer* vxlanLayer = vxlanPacket.getLayerOfType<pcpp::VxlanLayer>();
+	PTF_ASSERT_NOT_NULL(vxlanLayer);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVNI(), 3000001, u32);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->groupPolicyID, htobe16(100), u16);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->dontLearnFlag, 1, u16);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->gbpFlag, 1, u16);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->vniPresentFlag, 1, u16);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->policyAppliedFlag, 1, u16);
+	PTF_ASSERT_NOT_NULL(vxlanLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(vxlanLayer->getNextLayer()->getProtocol(), pcpp::Ethernet, u64);
+
+	// edit vxlan fields
+	vxlanLayer->getVxlanHeader()->gbpFlag = 0;
+	vxlanLayer->getVxlanHeader()->dontLearnFlag = 0;
+	vxlanLayer->getVxlanHeader()->groupPolicyID = htobe16(32639);
+	vxlanLayer->setVNI(300);
+
+	vxlanPacket.computeCalculateFields();
+
+	// verify edited fields
+	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength2, int);
+	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer2, vxlanPacket.getRawPacket()->getRawDataLen());
+
+	// remove vxlan layer
+	PTF_ASSERT_TRUE(vxlanPacket.removeLayer(pcpp::VXLAN));
+	vxlanPacket.computeCalculateFields();
+
+	// create new vxlan layer
+	pcpp::VxlanLayer newVxlanLayer(3000001, 100, true, true, true);
+	PTF_ASSERT_TRUE(vxlanPacket.insertLayer(vxlanPacket.getLayerOfType<pcpp::UdpLayer>(), &newVxlanLayer));
+
+	// verify new vxlan layer
+	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength1, int);
+	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer1, vxlanPacket.getRawPacket()->getRawDataLen());
+
+	delete [] buffer2;
+} // VxlanParsingAndCreationTest

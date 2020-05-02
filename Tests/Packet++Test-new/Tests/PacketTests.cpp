@@ -3,11 +3,15 @@
 #include "Packet.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
+#include "IPv6Layer.h"
+#include "PPPoELayer.h"
 #include "VlanLayer.h"
 #include "IcmpLayer.h"
 #include "TcpLayer.h"
+#include "IgmpLayer.h"
 #include "DnsLayer.h"
 #include "HttpLayer.h"
+#include "SSLLayer.h"
 #include "RadiusLayer.h"
 #include "PayloadLayer.h"
 #include "../TestDefinition.h"
@@ -579,3 +583,98 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_sec, expected_ts.tv_sec, u32);
 	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec, u32);
 } // RawPacketTimeStampSetterTest
+
+
+
+PTF_TEST_CASE(ParsePartialPacketTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-ClientHello1.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IGMPv1_1.dat");
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/TwoHttpRequests1.dat");
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/PPPoESession2.dat");
+	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/TwoHttpRequests2.dat");
+	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IcmpTimestampRequest.dat");
+	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/GREv0_2.dat");
+
+	pcpp::Packet sslPacket(&rawPacket1, pcpp::TCP);
+	pcpp::Packet igmpPacket(&rawPacket2, pcpp::IP);
+	pcpp::Packet httpPacket(&rawPacket3, pcpp::OsiModelTransportLayer);
+	pcpp::Packet pppoePacket(&rawPacket4, pcpp::OsiModelDataLinkLayer);
+	pcpp::Packet httpPacket2(&rawPacket5, pcpp::OsiModelPresentationLayer);
+	pcpp::Packet icmpPacket(&rawPacket6, pcpp::OsiModelNetworkLayer);
+	pcpp::Packet grePacket(&rawPacket7, pcpp::GRE);
+
+	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(pcpp::TCP));
+	PTF_ASSERT_FALSE(sslPacket.isPacketOfType(pcpp::SSL));
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<pcpp::IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(sslPacket.getLayerOfType<pcpp::TcpLayer>());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<pcpp::TcpLayer>()->getNextLayer());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<pcpp::SSLHandshakeLayer>());
+	PTF_ASSERT_NULL(sslPacket.getLayerOfType<pcpp::PayloadLayer>());
+
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(igmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_FALSE(igmpPacket.isPacketOfType(pcpp::IGMP));
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(igmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::IgmpV1Layer>());
+	PTF_ASSERT_NULL(igmpPacket.getLayerOfType<pcpp::PayloadLayer>());
+
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::TCP));
+	PTF_ASSERT_FALSE(httpPacket.isPacketOfType(pcpp::HTTP));
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<pcpp::IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(httpPacket.getLayerOfType<pcpp::TcpLayer>());
+	PTF_ASSERT_NULL(httpPacket.getLayerOfType<pcpp::HttpRequestLayer>());
+	PTF_ASSERT_NULL(httpPacket.getLayerOfType<pcpp::PayloadLayer>());
+
+	PTF_ASSERT_TRUE(pppoePacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(pppoePacket.isPacketOfType(pcpp::PPPoESession));
+	PTF_ASSERT_FALSE(pppoePacket.isPacketOfType(pcpp::IPv6));
+	PTF_ASSERT_FALSE(pppoePacket.isPacketOfType(pcpp::UDP));
+	PTF_ASSERT_NOT_NULL(pppoePacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(pppoePacket.getLayerOfType<pcpp::PPPoESessionLayer>());
+	PTF_ASSERT_NULL(pppoePacket.getLayerOfType<pcpp::IPv6Layer>());
+
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(httpPacket2.isPacketOfType(pcpp::TCP));
+	PTF_ASSERT_FALSE(httpPacket2.isPacketOfType(pcpp::HTTP));
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<pcpp::IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(httpPacket2.getLayerOfType<pcpp::TcpLayer>());
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<pcpp::TcpLayer>()->getNextLayer());
+	PTF_ASSERT_EQUAL(httpPacket2.getLastLayer()->getProtocol(), pcpp::TCP, enum);
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<pcpp::HttpRequestLayer>());
+	PTF_ASSERT_NULL(httpPacket2.getLayerOfType<pcpp::PayloadLayer>());
+
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(icmpPacket.isPacketOfType(pcpp::ICMP));
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<pcpp::IPv4Layer>());
+	PTF_ASSERT_NOT_NULL(icmpPacket.getLayerOfType<pcpp::IcmpLayer>());
+
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(pcpp::Ethernet));
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(grePacket.isPacketOfType(pcpp::GREv0));
+	PTF_ASSERT_FALSE(grePacket.isPacketOfType(pcpp::UDP));
+	pcpp::Layer* curLayer = grePacket.getFirstLayer();
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), pcpp::Ethernet, enum);
+	curLayer = curLayer->getNextLayer();
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), pcpp::IPv4, enum);
+	curLayer = curLayer->getNextLayer();
+	PTF_ASSERT_NOT_NULL(curLayer);
+	PTF_ASSERT_EQUAL(curLayer->getProtocol(), pcpp::GREv0, enum);
+	curLayer = curLayer->getNextLayer();
+	PTF_ASSERT_NULL(curLayer);
+} // ParsePartialPacketTest

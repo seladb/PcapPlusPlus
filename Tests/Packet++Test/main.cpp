@@ -4803,7 +4803,7 @@ PTF_TEST_CASE(SSLAlertParsingTest)
 	PTF_ASSERT(encAlertLayer->getRecordVersion() == TLS1_2, "Record TLS version isn't SSLv1.2");
 	PTF_ASSERT(encAlertLayer->getRecordType() == SSL_ALERT, "Record type isn't ssl alert");
 	PTF_ASSERT(encAlertLayer->getAlertLevel() == SSL_ALERT_LEVEL_ENCRYPTED, "Alert level isn't encrypted");
-	PTF_ASSERT(encAlertLayer->getAlertDescription() == SSL_ALERT_ENCRYPRED, "Alert desc isn't encrypted");
+	PTF_ASSERT(encAlertLayer->getAlertDescription() == SSL_ALERT_ENCRYPTED, "Alert desc isn't encrypted");
 	PTF_ASSERT(encAlertLayer->getRecordLayer()->length == be16toh(26), "Record length isn't 26");
 	PTF_ASSERT(encAlertLayer->getHeaderLen() == 31, "Header length isn't 31");
 } // SSLAlertParsingTest

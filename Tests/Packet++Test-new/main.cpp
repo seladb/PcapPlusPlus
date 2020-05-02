@@ -99,7 +99,8 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
-
+	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
+	
 	PTF_RUN_TEST(IPv4PacketCreation, "ipv4");
 	PTF_RUN_TEST(IPv4PacketParsing, "ipv4");
 	PTF_RUN_TEST(IPv4FragmentationTest, "ipv4");
@@ -124,6 +125,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(CopyLayerAndPacketTest, "packet;copy_layer");
 	PTF_RUN_TEST(PacketLayerLookupTest, "packet");
 	PTF_RUN_TEST(RawPacketTimeStampSetterTest, "packet");
+	PTF_RUN_TEST(ParsePartialPacketTest, "packet;partial_packet");
 
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerCreationTest, "http");
@@ -160,7 +162,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLMultipleRecordParsing4Test, "ssl");
 	PTF_RUN_TEST(SSLPartialCertificateParseTest, "ssl");
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
-	
+
 	PTF_RUN_TEST(SllPacketParsingTest, "sll");
 	PTF_RUN_TEST(SllPacketCreationTest, "sll");
 	PTF_RUN_TEST(NullLoopbackTest, "null_loopback");
@@ -172,8 +174,6 @@ int main(int argc, char* argv[])
 	// PTF_RUN_TEST(Igmpv3ParsingTest, "igmp");
 	// PTF_RUN_TEST(Igmpv3QueryCreateAndEditTest, "igmp");
 	// PTF_RUN_TEST(Igmpv3ReportCreateAndEditTest, "igmp");
-	// PTF_RUN_TEST(ParsePartialPacketTest, "partial_packet");
-	// PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
 	// PTF_RUN_TEST(SipRequestLayerParsingTest, "sip");
 	// PTF_RUN_TEST(SipRequestLayerCreationTest, "sip");
 	// PTF_RUN_TEST(SipRequestLayerEditTest, "sip");
