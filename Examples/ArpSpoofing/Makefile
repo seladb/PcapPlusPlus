@@ -13,7 +13,7 @@ OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
 Obj/%.o: %.cpp
 	@echo 'Building file: $<'
-	@$(CXX) $(PCAPPP_BUILD_FLAGS) $(PCAPPP_INCLUDES) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	@$(CXX) $(PCAPPP_BUILD_FLAGS) -c $(PCAPPP_INCLUDES)  -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 
 UNAME := $(shell uname)

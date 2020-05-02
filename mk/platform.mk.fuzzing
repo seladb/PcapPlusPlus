@@ -1,4 +1,4 @@
-MAC_OS_X := 1
+LINUX := 1
 
 BIN_EXT :=
 
@@ -7,12 +7,14 @@ LIB_PREFIX := lib
 LIB_EXT := .a
 
 ifeq ($(origin CXX),default)
-CXX := g++
+CXX := clang++
 endif
 
 ifeq ($(origin CC),default)
-CC := gcc
+CC := clang
 endif
+
+CXXFLAGS := -g -O0 -fsanitize=address,fuzzer-no-link
 
 AR := ar
 
@@ -25,3 +27,9 @@ MKDIR := mkdir
 INSTALL_SCRIPT := install.sh
 
 UNINSTALL_SCRIPT := uninstall.sh
+
+ifndef LIB_FUZZING_ENGINE
+LIB_FUZZING_ENGINE := -fsanitize=address,fuzzer
+endif
+
+COMPILE_FOR_FUZZING := 1
