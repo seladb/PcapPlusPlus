@@ -59,6 +59,9 @@
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\SllNullLoopbackTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\SSLTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\TcpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
