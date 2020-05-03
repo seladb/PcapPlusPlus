@@ -34,7 +34,7 @@ dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 
 PfRingTrafficFilter: start create-directories $(OBJS_FILENAMES)
-	@$(CXX) $(PCAPPP_BUILD_FLAGS) -c -DUSE_PF_RING $(PCAPPP_LIBS_DIR) -o "./Bin/PfRingTrafficFilter$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
+	@$(CXX) $(PCAPPP_BUILD_FLAGS) -DUSE_PF_RING $(PCAPPP_LIBS_DIR) -o "./Bin/PfRingTrafficFilter$(BIN_EXT)" $(OBJS_FILENAMES) $(PCAPPP_LIBS)
 	@$(PCAPPP_POST_BUILD)
 	@echo 'Finished successfully building: $(CUR_TARGET)'
 	@echo ' '
