@@ -82,6 +82,11 @@ PTF_TEST_CASE(GreParsingTest);
 PTF_TEST_CASE(GreCreationTest);
 PTF_TEST_CASE(GreEditTest);
 
+// Implemented in DhcpTests.cpp
+PTF_TEST_CASE(DhcpParsingTest);
+PTF_TEST_CASE(DhcpCreationTest);
+PTF_TEST_CASE(DhcpEditTest);
+
 // Implemented in SSLTests.cpp
 PTF_TEST_CASE(SSLClientHelloParsingTest);
 PTF_TEST_CASE(SSLAppDataParsingTest);

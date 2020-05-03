@@ -126,7 +126,7 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 	PTF_ASSERT_TRUE(ipLayer->isFirstFragment());
 	PTF_ASSERT_FALSE(ipLayer->isLastFragment());
 	PTF_ASSERT_EQUAL(ipLayer->getFragmentOffset(), 0, u16);
-	PTF_ASSERT((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0, "Frag1 mistakenly doesn't contain the 'more fragments' flag");
+	PTF_ASSERT_NOT_EQUAL((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS), 0, u8);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
   PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
 
@@ -137,7 +137,7 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 	PTF_ASSERT_FALSE(ipLayer->isFirstFragment());
 	PTF_ASSERT_FALSE(ipLayer->isLastFragment());
 	PTF_ASSERT_EQUAL(ipLayer->getFragmentOffset(), 1480, u16);
-	PTF_ASSERT((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS) != 0, "Frag2 mistakenly doesn't contain the 'more fragments' flag");
+	PTF_ASSERT_NOT_EQUAL((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS), 0, u8);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
   PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
 
@@ -306,7 +306,7 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 	PTF_ASSERT_FALSE(opt2.isNull());
 	PTF_ASSERT_TRUE(opt2 == opt);
 	opt = ipLayer->getNextOption(opt);
-	PTF_ASSERT_TRUE(opt.isNull() == true);
+	PTF_ASSERT_TRUE(opt.isNull());
 } // Ipv4OptionsParsingTest
 
 
@@ -341,33 +341,35 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 
 	pcpp::IPv4Layer* ipLayer = ipOpt1.getLayerOfType<pcpp::IPv4Layer>();
 	uint8_t commSecOptionData[] = { 0x00, 0x00, 0x00, 0x02, 0x02, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x05, 0x00, 0x06, 0x00, 0xef };
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_CommercialSecurity, commSecOptionData, 20)).isNull() == false, "Cannot add commercial security option to packet 1");
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 1");
-	PTF_ASSERT(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0), pcpp::IPV4OPT_CommercialSecurity).isNull() == false, "Cannot add 2nd end-of-opt-list option to packet 1");
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_CommercialSecurity, commSecOptionData, 20)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0), pcpp::IPV4OPT_CommercialSecurity).isNull());
 	ipOpt1.computeCalculateFields();
 
 
-	PTF_ASSERT(bufferLength11 == ipOpt1.getRawPacket()->getRawDataLen(), "ipOpt1 len (%d) is different than read packet len (%d)", ipOpt1.getRawPacket()->getRawDataLen(), bufferLength11);
-	PTF_ASSERT(memcmp(ipOpt1.getRawPacket()->getRawData(), buffer11, ipOpt1.getRawPacket()->getRawDataLen()) == 0, "ipOpt1: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipOpt1.getRawPacket()->getRawDataLen(), bufferLength11, int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt1.getRawPacket()->getRawData(), buffer11, ipOpt1.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt2.getLayerOfType<pcpp::IPv4Layer>();
 	pcpp::IPv4TimestampOptionValue tsOption;
 	tsOption.type = pcpp::IPv4TimestampOptionValue::TimestampOnly;
 	tsOption.timestamps.push_back(82524601);
 	for (int i = 0; i < 8; i++)
+	{
 		tsOption.timestamps.push_back(0);
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull() == false, "Cannot add timestamp option to packet 2");
+	}
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	ipOpt2.computeCalculateFields();
-	PTF_ASSERT(bufferLength22 == ipOpt2.getRawPacket()->getRawDataLen(), "ipOpt2 len (%d) is different than read packet len (%d)", ipOpt2.getRawPacket()->getRawDataLen(), bufferLength22);
-	PTF_ASSERT(memcmp(ipOpt2.getRawPacket()->getRawData(), buffer22, ipOpt2.getRawPacket()->getRawDataLen()) == 0, "ipOpt2: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipOpt2.getRawPacket()->getRawDataLen(), bufferLength22, int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt2.getRawPacket()->getRawData(), buffer22, ipOpt2.getRawPacket()->getRawDataLen());
 
 
 	ipLayer = ipOpt3.getLayerOfType<pcpp::IPv4Layer>();
 	uint16_t routerAlerVal = 0;
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull() == false, "Cannot add router alert option to packet 3");
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
 	ipOpt3.computeCalculateFields();
-	PTF_ASSERT(bufferLength33 == ipOpt3.getRawPacket()->getRawDataLen(), "ipOpt3 len (%d) is different than read packet len (%d)", ipOpt3.getRawPacket()->getRawDataLen(), bufferLength33);
-	PTF_ASSERT(memcmp(ipOpt3.getRawPacket()->getRawData(), buffer33, ipOpt3.getRawPacket()->getRawDataLen()) == 0, "ipOpt3: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipOpt3.getRawPacket()->getRawDataLen(), bufferLength33, int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt3.getRawPacket()->getRawData(), buffer33, ipOpt3.getRawPacket()->getRawDataLen());
 
 
 	ipLayer = ipOpt4.getLayerOfType<pcpp::IPv4Layer>();
@@ -377,17 +379,17 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	ipListValue.push_back(pcpp::IPv4Address(std::string("10.0.0.138")));
 	for (int i = 0; i < 6; i++)
 		ipListValue.push_back(pcpp::IPv4Address::Zero);
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RecordRoute, ipListValue)).isNull() == false, "Cannot add record route option to packet 4");
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0)).isNull() == false, "Cannot add end-of-opt-list option to packet 4");
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RecordRoute, ipListValue)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0)).isNull());
 	ipOpt4.computeCalculateFields();
-	PTF_ASSERT(bufferLength44 == ipOpt4.getRawPacket()->getRawDataLen(), "ipOpt4 len (%d) is different than read packet len (%d)", ipOpt4.getRawPacket()->getRawDataLen(), bufferLength44);
-	PTF_ASSERT(memcmp(ipOpt4.getRawPacket()->getRawData(), buffer44, ipOpt4.getRawPacket()->getRawDataLen()) == 0, "ipOpt4: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipOpt4.getRawPacket()->getRawDataLen(), bufferLength44, int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt4.getRawPacket()->getRawData(), buffer44, ipOpt4.getRawPacket()->getRawDataLen());
 
 
 	ipLayer = ipOpt5.getLayerOfType<pcpp::IPv4Layer>();
 	tsOption.clear();
 	pcpp::LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull() == true, "Managed to add an empty timestamp value");
+	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	tsOption.type = pcpp::IPv4TimestampOptionValue::TimestampAndIP;
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address(std::string("10.0.0.6")));
@@ -395,53 +397,53 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address(std::string("10.0.0.138")));
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address::Zero);
 	pcpp::LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull() == true, "Managed to set timestamp option value with non-equal number of timestamps and IPs");
+	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	tsOption.timestamps.push_back(70037668);
 	tsOption.timestamps.push_back(77233718);
 	tsOption.timestamps.push_back(77233718);
 	tsOption.timestamps.push_back(0);
 	pcpp::IPv4Option optData = ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption));
-	PTF_ASSERT(optData.isNull() == false, "Cannot add timestamp option to packet 5");
-	PTF_ASSERT(optData.getIPv4OptionType() == pcpp::IPV4OPT_Timestamp, "Packet 5: timestamp option doesn't have type IPV4OPT_Timestamp");
-	PTF_ASSERT(optData.getTotalSize() == 36, "Packet 5: timestamp option length isn't 36");
+	PTF_ASSERT_FALSE(optData.isNull());
+	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), pcpp::IPV4OPT_Timestamp, enum);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 36, size);
 	tsOption.clear();
 	tsOption = optData.getTimestampOptionValue();
-	PTF_ASSERT(tsOption.type == pcpp::IPv4TimestampOptionValue::TimestampAndIP, "Packet 5: timestamp data type isn't TimestampAndIP");
-	PTF_ASSERT(tsOption.timestamps.size() == 3, "Packet 5: number of timestamps isn't 3");
-	PTF_ASSERT(tsOption.timestamps.at(1) == htobe32(77233718), "Packet 5: timestamps[1] isn't 77233718");
-	PTF_ASSERT(tsOption.ipAddresses.size() == 3, "Packet 5: number of IP addresses isn't 3");
-	PTF_ASSERT(tsOption.ipAddresses.at(2) == pcpp::IPv4Address(std::string("10.0.0.138")), "Packet 5: IP[2] isn't 10.0.0.138");
+	PTF_ASSERT_EQUAL(tsOption.type, pcpp::IPv4TimestampOptionValue::TimestampAndIP, enum);
+	PTF_ASSERT_EQUAL(tsOption.timestamps.size(), 3, size);
+	PTF_ASSERT_EQUAL(tsOption.timestamps.at(1), htobe32(77233718), u32);
+	PTF_ASSERT_EQUAL(tsOption.ipAddresses.size(), 3, size);
+	PTF_ASSERT_EQUAL(tsOption.ipAddresses.at(2), pcpp::IPv4Address(std::string("10.0.0.138")), object);
 	ipOpt5.computeCalculateFields();
-	PTF_ASSERT(bufferLength55 == ipOpt5.getRawPacket()->getRawDataLen(), "ipOpt5 len (%d) is different than read packet len (%d)", ipOpt5.getRawPacket()->getRawDataLen(), bufferLength55);
-	PTF_ASSERT(memcmp(ipOpt5.getRawPacket()->getRawData(), buffer55, ipOpt5.getRawPacket()->getRawDataLen()) == 0, "ipOpt5: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipOpt5.getRawPacket()->getRawDataLen(), bufferLength55, int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt5.getRawPacket()->getRawData(), buffer55, ipOpt5.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt6.getLayerOfType<pcpp::IPv4Layer>();
 	ipListValue.clear();
 	ipListValue.push_back(pcpp::IPv4Address::Zero);
 	optData = ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_StrictSourceRoute, ipListValue));
-	PTF_ASSERT(optData.isNull() == false, "Cannot add strict source route option to packet 6");
-	PTF_ASSERT(optData.getIPv4OptionType() == pcpp::IPV4OPT_StrictSourceRoute, "Packet 6: strict source route option doesn't have type IPV4OPT_StrictSourceRoute");
-	PTF_ASSERT(optData.getTotalSize() == 7, "Packet 6: strict source route length isn't 7");
+	PTF_ASSERT_FALSE(optData.isNull());
+	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), pcpp::IPV4OPT_StrictSourceRoute, enum);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 7, size);
 	ipListValue = optData.getValueAsIpList();
-	PTF_ASSERT(ipListValue.size() == 0, "Packet 6: strict source route IP list value length isn't 0");
+	PTF_ASSERT_EQUAL(ipListValue.size(), 0, size);
 	optData = ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, NULL, 0));
-	PTF_ASSERT(optData.isNull() == false, "Cannot add NOP option to packet 6");
-	PTF_ASSERT(optData.getIPv4OptionType() == pcpp::IPV4OPT_NOP, "Packet 6: NOP option doesn't have type NOP");
-	PTF_ASSERT(optData.getTotalSize() == 1, "Packet 6: NOP option length isn't 1");
+	PTF_ASSERT_FALSE(optData.isNull());
+	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), pcpp::IPV4OPT_NOP, enum);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 1, size);
 	ipOpt6.computeCalculateFields();
-	PTF_ASSERT(bufferLength66 == ipOpt6.getRawPacket()->getRawDataLen(), "ipOpt6 len (%d) is different than read packet len (%d)", ipOpt6.getRawPacket()->getRawDataLen(), bufferLength66);
-	PTF_ASSERT(memcmp(ipOpt6.getRawPacket()->getRawData(), buffer66, ipOpt6.getRawPacket()->getRawDataLen()) == 0, "ipOpt6: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipOpt6.getRawPacket()->getRawDataLen(), bufferLength66, int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt6.getRawPacket()->getRawData(), buffer66, ipOpt6.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt7.getLayerOfType<pcpp::IPv4Layer>();
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, NULL, 0)).isNull() == false, "Cannot add NOP option to packet 7");
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, NULL, 0)).isNull());
 	ipListValue.clear();
 	ipListValue.push_back(pcpp::IPv4Address::Zero);
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_LooseSourceRoute, ipListValue)).isNull() == false, "Cannot add loose source route option to packet 7");
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_LooseSourceRoute, ipListValue)).isNull());
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(bufferLength77 == ipOpt7.getRawPacket()->getRawDataLen(), "ipOpt7 len (%d) is different than read packet len (%d)", ipOpt7.getRawPacket()->getRawDataLen(), bufferLength77);
-	PTF_ASSERT(memcmp(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen()) == 0, "ipOpt7: Raw packet data is different than expected");
-	PTF_ASSERT(ipLayer->getOptionCount() == 2, "Packet 7 option count after adding loose source route isn't 2, it's %d", (int)ipLayer->getOptionCount());
+	PTF_ASSERT_EQUAL(ipOpt7.getRawPacket()->getRawDataLen(), bufferLength77, int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, size);
 
 	tsOption.clear();
 	tsOption.type = pcpp::IPv4TimestampOptionValue::TimestampAndIP;
@@ -449,37 +451,37 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address::Zero);
 	tsOption.timestamps.push_back(70037668);
 	tsOption.timestamps.push_back(70037669);
-	PTF_ASSERT(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(tsOption), pcpp::IPV4OPT_NOP).isNull() == false, "Cannot add timestamp option to packet 7");
-	PTF_ASSERT(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull() == false, "Cannot add router alert option to packet 7");
-	PTF_ASSERT(ipLayer->getOptionCount() == 4, "Packet 7 option count after adding router alert option isn't 4");
+	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(tsOption), pcpp::IPV4OPT_NOP).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 4, size);
 	ipOpt7.computeCalculateFields();
 	tsOption.clear();
 	tsOption.type = pcpp::IPv4TimestampOptionValue::TimestampOnly;
 	tsOption.timestamps.push_back(70037670);
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull() == false, "Cannot add 2nd timestamp option to packet 7");
-	PTF_ASSERT(ipLayer->getOptionCount() == 5, "Packet 7 option count after adding 2nd timestamp option isn't 5");
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5, size);
 	pcpp::LoggerPP::getInstance().supressErrors();
-	PTF_ASSERT(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull() == true, "Managed to add an option to packet 7 although max option size exceeded");
+	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(ipLayer->getOptionCount() == 5, "Packet 7 option count after adding all options isn't 5");
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5, size);
 
-	PTF_ASSERT(ipLayer->removeOption(pcpp::IPV4OPT_Timestamp) == true, "Cannot remove timestamp option");
-	PTF_ASSERT(ipLayer->getOptionCount() == 4, "Packet 7 option count after removing 1st timestamp option isn't 4");
+	PTF_ASSERT_TRUE(ipLayer->removeOption(pcpp::IPV4OPT_Timestamp));
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 4, size);
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(ipLayer->removeOption(pcpp::IPV4OPT_RouterAlert) == true, "Cannot remove router alert option");
+	PTF_ASSERT_TRUE(ipLayer->removeOption(pcpp::IPV4OPT_RouterAlert));
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(ipLayer->removeOption(pcpp::IPV4OPT_Timestamp) == true, "Cannot remove 2nd timestamp option");
-	PTF_ASSERT(ipLayer->getOptionCount() == 2, "Packet 7 option count after removing 2nd timestamp option isn't 2");
+	PTF_ASSERT_TRUE(ipLayer->removeOption(pcpp::IPV4OPT_Timestamp));
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, size);
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(bufferLength77 == ipOpt7.getRawPacket()->getRawDataLen(), "ipOpt7 len (%d) is different than read packet len (%d)", ipOpt7.getRawPacket()->getRawDataLen(), bufferLength77);
-	PTF_ASSERT(memcmp(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen()) == 0, "ipOpt7: Raw packet data is different than expected");
+	PTF_ASSERT_EQUAL(ipOpt7.getRawPacket()->getRawDataLen(), bufferLength77, int);
+	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen());
 
-	PTF_ASSERT(ipLayer->removeAllOptions() == true, "Cannot remove all remaining options");
+	PTF_ASSERT_TRUE(ipLayer->removeAllOptions());
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT(ipOpt7.getRawPacketReadOnly()->getRawDataLen() == 42, "Packet 7 length after removing all options isn't 42");
+	PTF_ASSERT_EQUAL(ipOpt7.getRawPacketReadOnly()->getRawDataLen(), 42, int);
 	ipLayer = ipOpt7.getLayerOfType<pcpp::IPv4Layer>();
-	PTF_ASSERT(ipLayer->getOptionCount() == 0, "Packet 7 option count after removing all options isn't 0");
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 0, size);
 
 	delete [] buffer11;
 	delete [] buffer22;

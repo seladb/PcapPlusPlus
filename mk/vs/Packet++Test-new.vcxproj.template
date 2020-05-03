@@ -170,6 +170,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Tests\Packet++Test-new\Utils\TestUtils.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\BgpTests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\DhcpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\DnsTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\EthAndArpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\GreTests.cpp" />

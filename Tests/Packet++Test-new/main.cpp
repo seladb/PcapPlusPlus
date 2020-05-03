@@ -168,9 +168,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SllPacketCreationTest, "sll");
 	PTF_RUN_TEST(NullLoopbackTest, "null_loopback");
 
-	// PTF_RUN_TEST(DhcpParsingTest, "dhcp");
-	// PTF_RUN_TEST(DhcpCreationTest, "dhcp");
-	// PTF_RUN_TEST(DhcpEditTest, "dhcp");
+	PTF_RUN_TEST(DhcpParsingTest, "dhcp");
+	PTF_RUN_TEST(DhcpCreationTest, "dhcp");
+	PTF_RUN_TEST(DhcpEditTest, "dhcp");
 
 	// PTF_RUN_TEST(IgmpParsingTest, "igmp");
 	// PTF_RUN_TEST(IgmpCreateAndEditTest, "igmp");
