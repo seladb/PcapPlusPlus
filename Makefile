@@ -9,6 +9,7 @@ PACKETPP_HOME        := Packet++
 PCAPPP_HOME          := Pcap++
 PACKETPP_TEST        := Tests/Packet++Test
 PCAPPP_TEST          := Tests/Pcap++Test
+FUZZERS_HOME         := Tests/Fuzzers
 EXAMPLE_ARPSPOOF     := Examples/ArpSpoofing
 EXAMPLE_ARPING       := Examples/Arping
 EXAMPLE_DPDK1        := Examples/DpdkExample-FilterTraffic
@@ -70,8 +71,8 @@ endif
 	$(CP) $(EXAMPLE_PCAPSEARCH)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_ICMP_FT)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_TCP_REASM)/Bin/* ./Dist/examples
-	$(CP) $(EXAMPLE_IP_FRAG)/Bin/* ./Dist/examples	
-	$(CP) $(EXAMPLE_IP_DEFRAG)/Bin/* ./Dist/examples	
+	$(CP) $(EXAMPLE_IP_FRAG)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_IP_DEFRAG)/Bin/* ./Dist/examples
 ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_DPDK2)/Bin/* ./Dist/examples
@@ -100,6 +101,10 @@ libs:
 	@echo 'Finished successfully building PcapPlusPlus libs'
 	@echo ' '
 
+# PcapPlusPlus with fuzzers
+fuzzers: libs
+	@cd $(FUZZERS_HOME)              && $(MAKE)
+
 # Clean
 clean:
 	@cd $(COMMONPP_HOME)             && $(MAKE) clean
@@ -120,6 +125,7 @@ clean:
 	@cd $(EXAMPLE_TCP_REASM)         && $(MAKE) clean
 	@cd $(EXAMPLE_IP_FRAG)           && $(MAKE) clean
 	@cd $(EXAMPLE_IP_DEFRAG)         && $(MAKE) clean
+	@cd $(FUZZERS_HOME)              && $(MAKE) clean
 ifdef USE_DPDK
 	@cd $(EXAMPLE_DPDK1)             && $(MAKE) clean
 	@cd $(EXAMPLE_DPDK2)             && $(MAKE) clean

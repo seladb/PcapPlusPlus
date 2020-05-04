@@ -6,9 +6,13 @@ LIB_PREFIX := lib
 
 LIB_EXT := .a
 
+ifeq ($(origin CXX),default)
 CXX := clang++
+endif
 
+ifeq ($(origin CC),default)
 CC := clang
+endif
 
 AR := ar
 
