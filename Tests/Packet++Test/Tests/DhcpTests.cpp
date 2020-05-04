@@ -63,7 +63,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over DHCP options");
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 		PTF_ASSERT_FALSE(dhcpLayer->getOptionData(optTypeArr[i]).isNull());
 	}
 
@@ -109,7 +109,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over DHCP options");
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 		PTF_ASSERT_FALSE(opt.isNull());
 		PTF_ASSERT_EQUAL(opt.getType(), optTypeArr2[i], u8);
 		PTF_ASSERT_EQUAL(opt.getDataSize(), optLenArr2[i], size);
@@ -121,7 +121,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over DHCP options");
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 		PTF_ASSERT_FALSE(dhcpLayer->getOptionData(optTypeArr2[i]).isNull());
 	}
 

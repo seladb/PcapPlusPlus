@@ -344,7 +344,7 @@ public:
 			return false;
 		}
 
-		PTF_PRINT_VERBOSE("Worker thread on core %d is starting", m_CoreId);
+		//TODO: fix it   PTF_PRINT_VERBOSE("Worker thread on core %d is starting", m_CoreId);
 
 		m_PacketCount = 0;
 		MBufRawPacket* mBufArr[32] = {};
@@ -372,7 +372,7 @@ public:
 				delete mBufArr[i];
 		}
 
-		PTF_PRINT_VERBOSE("Worker thread on %d stopped", m_CoreId);
+		//TODO: fix it   PTF_PRINT_VERBOSE("Worker thread on %d stopped", m_CoreId);
 
 		m_RanAndStopped = true;
 		return true;
@@ -2872,7 +2872,7 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 }
 
 
-void TestPfRingDeviceMultiThread(int& ptfResult, CoreMask coreMask)
+void TestPfRingDeviceMultiThread(int& ptfResult, bool printVerbose, CoreMask coreMask)
 {
 #ifdef USE_PF_RING
 	PfRingDeviceList& devList = PfRingDeviceList::getInstance();
@@ -2995,7 +2995,7 @@ PTF_TEST_CASE(TestPfRingMultiThreadAllCores)
 		coreMask |= SystemCores::IdToSystemCore[i].Mask;
 	}
 
-	TestPfRingDeviceMultiThread(ptfResult, coreMask);
+	TestPfRingDeviceMultiThread(ptfResult, printVerbose, coreMask);
 
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
@@ -3015,7 +3015,7 @@ PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 		coreMask |= SystemCores::IdToSystemCore[i].Mask;
 	}
 
-	TestPfRingDeviceMultiThread(ptfResult, coreMask);
+	TestPfRingDeviceMultiThread(ptfResult, printVerbose, coreMask);
 
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
