@@ -47,6 +47,9 @@
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\IcmpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\IgmpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\IPv4Tests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
@@ -57,6 +60,9 @@
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\PPPoETests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\RadiusTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test-new\Tests\SipSdpTests.cpp">

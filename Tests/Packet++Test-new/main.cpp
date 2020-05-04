@@ -172,11 +172,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DhcpCreationTest, "dhcp");
 	PTF_RUN_TEST(DhcpEditTest, "dhcp");
 
-	// PTF_RUN_TEST(IgmpParsingTest, "igmp");
-	// PTF_RUN_TEST(IgmpCreateAndEditTest, "igmp");
-	// PTF_RUN_TEST(Igmpv3ParsingTest, "igmp");
-	// PTF_RUN_TEST(Igmpv3QueryCreateAndEditTest, "igmp");
-	// PTF_RUN_TEST(Igmpv3ReportCreateAndEditTest, "igmp");
+	PTF_RUN_TEST(IgmpParsingTest, "igmp");
+	PTF_RUN_TEST(IgmpCreateAndEditTest, "igmp");
+	PTF_RUN_TEST(Igmpv3ParsingTest, "igmp");
+	PTF_RUN_TEST(Igmpv3QueryCreateAndEditTest, "igmp");
+	PTF_RUN_TEST(Igmpv3ReportCreateAndEditTest, "igmp");
 	
 	PTF_RUN_TEST(SipRequestLayerParsingTest, "sip");
 	PTF_RUN_TEST(SipRequestLayerCreationTest, "sip");
@@ -188,9 +188,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SdpLayerCreationTest, "sdp");
 	PTF_RUN_TEST(SdpLayerEditTest, "sdp");
 
-	// PTF_RUN_TEST(RadiusLayerParsingTest, "radius");
-	// PTF_RUN_TEST(RadiusLayerCreationTest, "radius");
-	// PTF_RUN_TEST(RadiusLayerEditTest, "radius");
+	PTF_RUN_TEST(RadiusLayerParsingTest, "radius");
+	PTF_RUN_TEST(RadiusLayerCreationTest, "radius");
+	PTF_RUN_TEST(RadiusLayerEditTest, "radius");
 
 	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
 	PTF_RUN_TEST(GtpLayerCreationTest, "gtp");

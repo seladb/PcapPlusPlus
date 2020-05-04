@@ -98,6 +98,13 @@ PTF_TEST_CASE(SSLMultipleRecordParsing4Test);
 PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 
+// Implemented in IgmpTests.cpp
+PTF_TEST_CASE(IgmpParsingTest);
+PTF_TEST_CASE(IgmpCreateAndEditTest);
+PTF_TEST_CASE(Igmpv3ParsingTest);
+PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest);
+PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest);
+
 // Implemented in SipSdpTests.cpp
 PTF_TEST_CASE(SipRequestLayerParsingTest);
 PTF_TEST_CASE(SipRequestLayerCreationTest);
@@ -108,6 +115,11 @@ PTF_TEST_CASE(SipResponseLayerEditTest);
 PTF_TEST_CASE(SdpLayerParsingTest);
 PTF_TEST_CASE(SdpLayerCreationTest);
 PTF_TEST_CASE(SdpLayerEditTest);
+
+// Implemented in RadiusTests.cpp
+PTF_TEST_CASE(RadiusLayerParsingTest);
+PTF_TEST_CASE(RadiusLayerCreationTest);
+PTF_TEST_CASE(RadiusLayerEditTest);
 
 // Implemented in GtpTests.cpp
 PTF_TEST_CASE(GtpLayerParsingTest);

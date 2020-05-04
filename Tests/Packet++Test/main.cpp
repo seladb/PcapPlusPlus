@@ -5670,12 +5670,12 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	PTF_ASSERT(curGroup != NULL, "First record is null");
 	PTF_ASSERT(curGroup->recordType == 1, "First group type isn't 1");
 	PTF_ASSERT(curGroup->getMulticastAddress().toString() == "224.0.0.9", "Multicast address in first group isn't 224.0.0.9");
-	PTF_ASSERT(curGroup->getSourceAdressCount() == 1, "Num of source addresses in first group 1 isn't 1");
+	PTF_ASSERT(curGroup->getSourceAddressCount() == 1, "Num of source addresses in first group 1 isn't 1");
 	PTF_ASSERT(curGroup->getRecordLen() == 12, "First group len isn't 12");
-	PTF_ASSERT(curGroup->getSoruceAddressAtIndex(0).toString() == "192.168.20.222", "First address in first group isn't 192.168.20.222");
-	PTF_ASSERT(curGroup->getSoruceAddressAtIndex(-1).toString() == "0.0.0.0", "Address in index -1 in first group isn't 0.0.0.0");
-	PTF_ASSERT(curGroup->getSoruceAddressAtIndex(1).toString() == "0.0.0.0", "Address in index 1 in first group isn't 0.0.0.0");
-	PTF_ASSERT(curGroup->getSoruceAddressAtIndex(100).toString() == "0.0.0.0", "Address in index 100 in first group isn't 0.0.0.0");
+	PTF_ASSERT(curGroup->getSourceAddressAtIndex(0).toString() == "192.168.20.222", "First address in first group isn't 192.168.20.222");
+	PTF_ASSERT(curGroup->getSourceAddressAtIndex(-1).toString() == "0.0.0.0", "Address in index -1 in first group isn't 0.0.0.0");
+	PTF_ASSERT(curGroup->getSourceAddressAtIndex(1).toString() == "0.0.0.0", "Address in index 1 in first group isn't 0.0.0.0");
+	PTF_ASSERT(curGroup->getSourceAddressAtIndex(100).toString() == "0.0.0.0", "Address in index 100 in first group isn't 0.0.0.0");
 	curGroup = igmpv3ReportLayer->getNextGroupRecord(curGroup);
 	PTF_ASSERT(curGroup == NULL, "Second record is not null");
 	PTF_ASSERT(igmpv3ReportLayer->toString() == "IGMPv3 Layer, Membership Report message", "Report to string failed");
@@ -5787,7 +5787,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	srcAddrVec1.push_back(IPv4Address(std::string("192.168.20.222")));
 	igmpv3_group_record* groupRec = igmpV3ReportLayer.addGroupRecord(1, IPv4Address(std::string("224.0.0.9")), srcAddrVec1);
 	PTF_ASSERT(groupRec != NULL, "Group record is null for 1st group");
-	PTF_ASSERT(groupRec->getSoruceAddressAtIndex(0) == IPv4Address(std::string("192.168.20.222")), "Source addr in index 0 of 1st group isn't 192.168.20.222");
+	PTF_ASSERT(groupRec->getSourceAddressAtIndex(0) == IPv4Address(std::string("192.168.20.222")), "Source addr in index 0 of 1st group isn't 192.168.20.222");
 
 	std::vector<IPv4Address> srcAddrVec2;
 	srcAddrVec2.push_back(IPv4Address(std::string("1.2.3.4")));
@@ -5795,7 +5795,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	srcAddrVec2.push_back(IPv4Address(std::string("111.222.33.44")));
 	groupRec = igmpV3ReportLayer.addGroupRecord(2, IPv4Address(std::string("4.3.2.1")), srcAddrVec2);
 	PTF_ASSERT(groupRec != NULL, "Group record is null for 2nd group");
-	PTF_ASSERT(groupRec->getSourceAdressCount() == 3, "Source addr count of 2nd group isn't 3");
+	PTF_ASSERT(groupRec->getSourceAddressCount() == 3, "Source addr count of 2nd group isn't 3");
 
 	std::vector<IPv4Address> srcAddrVec3;
 	srcAddrVec3.push_back(IPv4Address(std::string("12.34.56.78")));

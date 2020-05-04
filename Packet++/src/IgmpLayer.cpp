@@ -562,14 +562,14 @@ IPv4Address igmpv3_group_record::getMulticastAddress() const
 	return IPv4Address(multicastAddress);
 }
 
-uint16_t igmpv3_group_record::getSourceAdressCount() const
+uint16_t igmpv3_group_record::getSourceAddressCount() const
 {
 	return be16toh(numOfSources);
 }
 
-IPv4Address igmpv3_group_record::getSoruceAddressAtIndex(int index) const
+IPv4Address igmpv3_group_record::getSourceAddressAtIndex(int index) const
 {
-	uint16_t numOfRecords = getSourceAdressCount();
+	uint16_t numOfRecords = getSourceAddressCount();
 	if (index < 0 || index >= numOfRecords)
 		return IPv4Address::Zero;
 
@@ -580,7 +580,7 @@ IPv4Address igmpv3_group_record::getSoruceAddressAtIndex(int index) const
 
 size_t igmpv3_group_record::getRecordLen() const
 {
-	uint16_t numOfRecords = getSourceAdressCount();
+	uint16_t numOfRecords = getSourceAddressCount();
 
 	int headerLen = numOfRecords * sizeof(uint32_t) + sizeof(igmpv3_group_record);
 	return (size_t)headerLen;

@@ -99,7 +99,7 @@ struct igmpv3_group_record
 	/**
 	 * @return The number of source addresses in this group record
 	 */
-	uint16_t getSourceAdressCount() const;
+	uint16_t getSourceAddressCount() const;
 
 	/**
 	 * Get the source address at a certain index
@@ -107,7 +107,7 @@ struct igmpv3_group_record
 	 * @return The source address in the requested index. If index is negative or higher than the number of source addresses in this
 	 * group record the value if IPv4Address#Zero is returned
 	 */
-	IPv4Address getSoruceAddressAtIndex(int index) const;
+	IPv4Address getSourceAddressAtIndex(int index) const;
 
 	/**
 	 * @return The total size in bytes of the group record
