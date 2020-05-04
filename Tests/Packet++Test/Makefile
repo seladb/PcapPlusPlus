@@ -46,7 +46,7 @@ CUR_TARGET := $(notdir $(shell pwd))
 all: dependents Packet++Test
 
 start:
-	@echo ==) Building target: $(CUR_TARGET)
+	@echo ==== Building target: $(CUR_TARGET) ====
 
 create-directories:
 	@$(MKDIR) -p Obj

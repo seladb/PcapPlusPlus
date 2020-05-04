@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include "../../3rdParty/MemPlumber/MemPlumber/memplumber.h"
 
+#ifdef PCAPPP_MINGW_ENV
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+#endif // PCAPPP_MINGW_ENV
+
 #define int_PTF_PRINT_FORMAT "%d"
 #define int_PTF_PRINT_TYPE(val) (int)(val)
 
@@ -16,17 +21,17 @@
 #define u32_PTF_PRINT_FORMAT "%u"
 #define u32_PTF_PRINT_TYPE(val) (uint32_t)(val)
 
-#ifndef PCAPPP_MINGW_ENV
+#ifdef PCAPPP_MINGW_ENV
 #define u64_PTF_PRINT_FORMAT "%" PRIu64
 #else
-#define u64_PTF_PRINT_FORMAT "%llu"
+#define u64_PTF_PRINT_FORMAT "%lu"
 #endif
 #define u64_PTF_PRINT_TYPE(val) (uint64_t)(val)
 
-#ifndef PCAPPP_MINGW_ENV
-#define size_PTF_PRINT_FORMAT "%zu"
-#else
+#ifdef PCAPPP_MINGW_ENV
 #define size_PTF_PRINT_FORMAT "%u"
+#else
+#define size_PTF_PRINT_FORMAT "%zu"
 #endif
 #define size_PTF_PRINT_TYPE(val) (size_t)(val)
 
