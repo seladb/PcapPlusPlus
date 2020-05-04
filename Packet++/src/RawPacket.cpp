@@ -136,7 +136,7 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 	// if insertData is called with atIndex == m_RawDataLen, then no data is being moved. The data of the raw packet is still extended by dataToInsertLen
 	memmove((uint8_t*)m_RawData + atIndex + dataToInsertLen, (uint8_t*)m_RawData + atIndex, m_RawDataLen - atIndex);
 
-	if (dataToInsert != nullptr)
+	if (dataToInsert != NULL)
 	{
 		// insert data
 		memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);
