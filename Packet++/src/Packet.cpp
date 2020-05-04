@@ -536,11 +536,11 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 
 	// insert layer data to raw packet
 	int indexToInsertData = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
-	// passing nullptr to insertData will move the data by numOfBytesToExtend
+	// passing NULL to insertData will move the data by numOfBytesToExtend
 	// no new data has to be created for this insertion which saves at least little time
 	// this move operation occurs on already allocated memory, which is backed by the reallocation if's provided above
 	// if offsetInLayer == layer->getHeaderLen() insertData will not move any data but only increase the packet size by numOfBytesToExtend
-	m_RawPacket->insertData(indexToInsertData, nullptr, numOfBytesToExtend);
+	m_RawPacket->insertData(indexToInsertData, NULL, numOfBytesToExtend);
 
 	// re-calculate all layers data ptr and data length
 	const uint8_t* dataPtr = m_RawPacket->getRawData();
