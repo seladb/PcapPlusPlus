@@ -5,21 +5,94 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Tests">
+      <UniqueIdentifier>{f3773b71-9329-4e29-995d-132ab4ff6ad9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TestUtils">
+      <UniqueIdentifier>{a90ac8d7-b194-47c2-a387-a16ca7665365}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MemPlumber">
+      <UniqueIdentifier>{27dd66a1-21a7-4535-8508-8d374a8d5ace}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Tests\Packet++Test\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\MemPlumber\MemPlumber\memplumber.cpp">
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\BgpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\DhcpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\DnsTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\EthAndArpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\GreTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\GtpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\HttpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\IcmpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\IgmpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\IPv4Tests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\IPv6Tests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\PacketTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\PPPoETests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\RadiusTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\SipSdpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\SllNullLoopbackTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\SSLTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\TcpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\VlanMplsTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Utils\TestUtils.cpp">
+      <Filter>Source Files\TestUtils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\3rdParty\MemPlumber\MemPlumber\memplumber.cpp">
+      <Filter>Source Files\MemPlumber</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Tests\Packet++Test\Utils\TestUtils.h">
+      <Filter>Source Files\TestUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tests\Packet++Test\TestDefinition.h">
       <Filter>Source Files</Filter>
-    </ClCompile>	
+    </ClInclude>
   </ItemGroup>
 </Project>

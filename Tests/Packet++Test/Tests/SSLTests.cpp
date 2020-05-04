@@ -1,0 +1,483 @@
+#include "../Utils/TestUtils.h"
+#include "EndianPortable.h"
+#include "Packet.h"
+#include "SSLLayer.h"
+#include "../TestDefinition.h"
+#include "SystemUtils.h"
+
+
+PTF_TEST_CASE(SSLClientHelloParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-ClientHello1.dat");
+
+	pcpp::Packet clientHelloPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(clientHelloPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLHandshakeLayer* handshakeLayer = clientHelloPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 1, size);
+	pcpp::SSLClientHelloMessage* clientHelloMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+	PTF_ASSERT_TRUE(handshakeLayer->getHandshakeMessageAt(0) == clientHelloMessage);
+	PTF_ASSERT_NOT_NULL(clientHelloMessage);
+	PTF_ASSERT_EQUAL(handshakeLayer->getRecordType(), pcpp::SSL_HANDSHAKE, enum);
+	PTF_ASSERT_EQUAL(handshakeLayer->getRecordVersion(), pcpp::TLS1_0, enum);
+	PTF_ASSERT_EQUAL(clientHelloMessage->getHandshakeType(), pcpp::SSL_CLIENT_HELLO, enum);
+	PTF_ASSERT_EQUAL(clientHelloMessage->getHandshakeVersion(), pcpp::TLS1_2, enum);
+	uint8_t* random = clientHelloMessage->getClientHelloHeader()->random;
+	PTF_ASSERT_EQUAL(random[0], 0x3e, hex);
+	PTF_ASSERT_EQUAL(random[8], 0x78, hex);
+	PTF_ASSERT_EQUAL(random[27], 0xe5, hex);
+	PTF_ASSERT_EQUAL(clientHelloMessage->getSessionIDLength(), 0, u8);
+	PTF_ASSERT_NULL(clientHelloMessage->getSessionID());
+	PTF_ASSERT_EQUAL(clientHelloMessage->getCipherSuiteCount(), 11, int);
+
+	uint16_t cipherSuiteIDs[11] = { 0xc02b, 0xc02f, 0xc00a, 0xc009, 0xc013, 0xc014, 0x0033, 0x0039, 0x002f, 0x0035, 0x000a };
+	std::string cipherSuiteNames[11] = {
+			"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+			"TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+			"TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+			"TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+			"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+			"TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+			"TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+			"TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+			"TLS_RSA_WITH_AES_128_CBC_SHA",
+			"TLS_RSA_WITH_AES_256_CBC_SHA",
+			"TLS_RSA_WITH_3DES_EDE_CBC_SHA"
+			};
+	pcpp::SSLKeyExchangeAlgorithm cipherSuiteKey[11] = {
+			pcpp::SSL_KEYX_ECDHE,
+			pcpp::SSL_KEYX_ECDHE,
+			pcpp::SSL_KEYX_ECDHE,
+			pcpp::SSL_KEYX_ECDHE,
+			pcpp::SSL_KEYX_ECDHE,
+			pcpp::SSL_KEYX_ECDHE,
+			pcpp::SSL_KEYX_DHE,
+			pcpp::SSL_KEYX_DHE,
+			pcpp::SSL_KEYX_RSA,
+			pcpp::SSL_KEYX_RSA,
+			pcpp::SSL_KEYX_RSA
+	};
+
+	pcpp::SSLAuthenticationAlgorithm cipherSuiteAuth[11] = {
+			pcpp::SSL_AUTH_ECDSA,
+			pcpp::SSL_AUTH_RSA,
+			pcpp::SSL_AUTH_ECDSA,
+			pcpp::SSL_AUTH_ECDSA,
+			pcpp::SSL_AUTH_RSA,
+			pcpp::SSL_AUTH_RSA,
+			pcpp::SSL_AUTH_RSA,
+			pcpp::SSL_AUTH_RSA,
+			pcpp::SSL_AUTH_RSA,
+			pcpp::SSL_AUTH_RSA,
+			pcpp::SSL_AUTH_RSA
+	};
+
+	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[11] = {
+			pcpp::SSL_SYM_AES_128_GCM,
+			pcpp::SSL_SYM_AES_128_GCM,
+			pcpp::SSL_SYM_AES_256_CBC,
+			pcpp::SSL_SYM_AES_128_CBC,
+			pcpp::SSL_SYM_AES_128_CBC,
+			pcpp::SSL_SYM_AES_256_CBC,
+			pcpp::SSL_SYM_AES_128_CBC,
+			pcpp::SSL_SYM_AES_256_CBC,
+			pcpp::SSL_SYM_AES_128_CBC,
+			pcpp::SSL_SYM_AES_256_CBC,
+			pcpp::SSL_SYM_3DES_EDE_CBC
+	};
+
+	pcpp::SSLHashingAlgorithm cipherSuiteHash[11] = {
+			pcpp::SSL_HASH_SHA256,
+			pcpp::SSL_HASH_SHA256,
+			pcpp::SSL_HASH_SHA,
+			pcpp::SSL_HASH_SHA,
+			pcpp::SSL_HASH_SHA,
+			pcpp::SSL_HASH_SHA,
+			pcpp::SSL_HASH_SHA,
+			pcpp::SSL_HASH_SHA,
+			pcpp::SSL_HASH_SHA,
+			pcpp::SSL_HASH_SHA,
+			pcpp::SSL_HASH_SHA
+	};
+
+	PTF_PRINT_VERBOSE("Iterating over cipher suites");
+	for (int i = 0; i < clientHelloMessage->getCipherSuiteCount(); i++)
+	{
+		PTF_PRINT_VERBOSE("Iteration %d", i);
+		pcpp::SSLCipherSuite* curCipherSuite = clientHelloMessage->getCipherSuite(i);
+		PTF_ASSERT_NOT_NULL(curCipherSuite);
+		PTF_ASSERT_EQUAL(curCipherSuite->asString(), cipherSuiteNames[i], string);
+		PTF_ASSERT_EQUAL(curCipherSuite->getID(), cipherSuiteIDs[i], u16);
+		PTF_ASSERT_EQUAL(curCipherSuite->getKeyExchangeAlg(), cipherSuiteKey[i], enum);
+		PTF_ASSERT_EQUAL(curCipherSuite->getAuthAlg(), cipherSuiteAuth[i], enum);
+		PTF_ASSERT_EQUAL(curCipherSuite->getSymKeyAlg(), cipherSuiteSym[i], enum);
+		PTF_ASSERT_EQUAL(curCipherSuite->getMACAlg(), cipherSuiteHash[i], enum);
+	}
+
+	PTF_ASSERT_EQUAL(clientHelloMessage->getCompressionMethodsValue(), 0, u8);
+	PTF_ASSERT_EQUAL(handshakeLayer->getHeaderLen(), 188, size);
+
+	int extCount = clientHelloMessage->getExtensionCount();
+	PTF_ASSERT_EQUAL(extCount, 9, int);
+	PTF_ASSERT_EQUAL(clientHelloMessage->getExtensionsLenth(), 116, u16);
+
+	pcpp::SSLExtension* ext = clientHelloMessage->getExtension(0);
+	PTF_ASSERT_EQUAL(ext->getType(), pcpp::SSL_EXT_SERVER_NAME, enum);
+	pcpp::SSLServerNameIndicationExtension* serverNameExt = clientHelloMessage->getExtensionOfType<pcpp::SSLServerNameIndicationExtension>();
+	PTF_ASSERT_NOT_NULL(serverNameExt);
+	PTF_ASSERT_EQUAL(serverNameExt->getHostName(), "www.google.com", string);
+
+	pcpp::SSLExtensionType extTypes[9] = { pcpp::SSL_EXT_SERVER_NAME, pcpp::SSL_EXT_RENEGOTIATION_INFO, pcpp::SSL_EXT_ELLIPTIC_CURVES, pcpp::SSL_EXT_EC_POINT_FORMATS,
+			pcpp::SSL_EXT_SESSIONTICKET_TLS, pcpp::SSL_EXT_Unknown, pcpp::SSL_EXT_APPLICATION_LAYER_PROTOCOL_NEGOTIATION, pcpp::SSL_EXT_STATUS_REQUEST,
+			pcpp::SSL_EXT_SIGNATURE_ALGORITHMS };
+
+	uint16_t extLength[9] = { 19, 1, 8, 2, 0, 0, 23, 5, 22 };
+
+	PTF_PRINT_VERBOSE("Iterating over extensions");
+	for (int i = 0; i < extCount; i++)
+	{
+		PTF_PRINT_VERBOSE("Iteration %d", i);
+		pcpp::SSLExtension* curExt = clientHelloMessage->getExtension(i);
+		PTF_ASSERT_EQUAL(curExt->getType(), extTypes[i], enum);
+		PTF_ASSERT_EQUAL(curExt->getLength(), extLength[i], u16);
+		PTF_ASSERT_TRUE(clientHelloMessage->getExtensionOfType(extTypes[i]) == curExt);
+	}
+} // SSLClientHelloParsingTest
+
+
+
+PTF_TEST_CASE(SSLAppDataParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleAppData.dat");
+
+	pcpp::Packet appDataPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(appDataPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLApplicationDataLayer* appDataLayer = appDataPacket.getLayerOfType<pcpp::SSLApplicationDataLayer>();
+	PTF_ASSERT_NOT_NULL(appDataLayer);
+
+	PTF_ASSERT_EQUAL(appDataLayer->getRecordVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(appDataLayer->getRecordType(), pcpp::SSL_APPLICATION_DATA, enum);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedDataLen(), 880, size);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[0], 0, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[16], 0xd9, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[77], 0x19, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[869], 0xbc, hex);
+
+	PTF_ASSERT_NOT_NULL(appDataLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(appDataLayer->getNextLayer()->getProtocol(), pcpp::SSL, u64);
+	appDataLayer = dynamic_cast<pcpp::SSLApplicationDataLayer*>(appDataLayer->getNextLayer());
+	PTF_ASSERT_NOT_NULL(appDataLayer);
+
+	PTF_ASSERT_EQUAL(appDataLayer->getRecordVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(appDataLayer->getRecordType(), pcpp::SSL_APPLICATION_DATA, enum);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedDataLen(), 41, size);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[0], 0, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[19], 0x7d, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[40], 0xec, hex);
+
+	PTF_ASSERT_NULL(appDataLayer->getNextLayer());
+} // SSLAppDataParsingTest
+
+
+
+PTF_TEST_CASE(SSLAlertParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-AlertClear.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SSL-AlertEnc.dat");
+
+	pcpp::Packet clearAlertPacket(&rawPacket1);
+	pcpp::Packet encAlertPacket(&rawPacket2);
+
+	PTF_ASSERT_TRUE(clearAlertPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLAlertLayer* clearAlertLayer = clearAlertPacket.getLayerOfType<pcpp::SSLAlertLayer>();
+	PTF_ASSERT_NOT_NULL(clearAlertLayer);
+	PTF_ASSERT_EQUAL(clearAlertLayer->getRecordVersion(), pcpp::TLS1_0, enum);
+	PTF_ASSERT_EQUAL(clearAlertLayer->getRecordType(), pcpp::SSL_ALERT, enum);
+	PTF_ASSERT_EQUAL(clearAlertLayer->getAlertLevel(), pcpp::SSL_ALERT_LEVEL_FATAL, enum);
+	PTF_ASSERT_EQUAL(clearAlertLayer->getAlertDescription(), pcpp::SSL_ALERT_PROTOCOL_VERSION, enum);
+	PTF_ASSERT_EQUAL(clearAlertLayer->getRecordLayer()->length, be16toh(2), u16);
+	PTF_ASSERT_NULL(clearAlertLayer->getNextLayer());
+
+	PTF_ASSERT_TRUE(encAlertPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLAlertLayer* encAlertLayer = encAlertPacket.getLayerOfType<pcpp::SSLAlertLayer>();
+	PTF_ASSERT_NOT_NULL(encAlertLayer);
+	PTF_ASSERT_EQUAL(encAlertLayer->getRecordVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(encAlertLayer->getRecordType(), pcpp::SSL_ALERT, enum);
+	PTF_ASSERT_EQUAL(encAlertLayer->getAlertLevel(), pcpp::SSL_ALERT_LEVEL_ENCRYPTED, enum);
+	PTF_ASSERT_EQUAL(encAlertLayer->getAlertDescription(), pcpp::SSL_ALERT_ENCRYPTED, enum);
+	PTF_ASSERT_EQUAL(encAlertLayer->getRecordLayer()->length, be16toh(26), u16);
+	PTF_ASSERT_EQUAL(encAlertLayer->getHeaderLen(), 31, size);
+} // SSLAlertParsingTest
+
+
+
+/**
+ * Testing: server-hello, change-cipher-spec, hello-request
+ */
+PTF_TEST_CASE(SSLMultipleRecordParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords1.dat");
+
+	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(multipleRecordsPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 1, size);
+	pcpp::SSLServerHelloMessage* serverHelloMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
+	PTF_ASSERT_NOT_NULL(serverHelloMessage);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getSessionIDLength(), 32, u8);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getSessionID()[0], 0xbf, hex);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getSessionID()[31], 0x44, hex);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getCipherSuite()->asString(), "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", string);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getCipherSuite()->getSymKeyAlg(), pcpp::SSL_SYM_AES_128_GCM, enum);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getExtensionsLenth(), 20, u16);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getExtensionCount(), 3, int);
+	uint16_t extensionsLength[3] = { 1, 5, 2 };
+	uint16_t totalExtensionsLength[3] = { 5, 9, 6 };
+	pcpp::SSLExtensionType extensionTypes[3] = { pcpp::SSL_EXT_RENEGOTIATION_INFO, pcpp::SSL_EXT_APPLICATION_LAYER_PROTOCOL_NEGOTIATION, pcpp::SSL_EXT_EC_POINT_FORMATS };
+	uint8_t extensionDataFirstByte[3] = { 0, 0, 1 };
+	PTF_PRINT_VERBOSE("iterating over SSL extensions");
+	for (int i = 0; i < 3; i++)
+	{
+		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		pcpp::SSLExtension* curExt = serverHelloMessage->getExtension(i);
+		PTF_ASSERT_EQUAL(curExt->getLength(), extensionsLength[i], u16);
+		PTF_ASSERT_EQUAL(curExt->getTotalLength(), totalExtensionsLength[i], u16);
+		PTF_ASSERT_EQUAL(curExt->getType(), extensionTypes[i], enum);
+		PTF_ASSERT_EQUAL(curExt->getData()[0], extensionDataFirstByte[i], u8);
+	}
+
+	pcpp::SSLChangeCipherSpecLayer* ccsLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLChangeCipherSpecLayer>();
+	PTF_ASSERT_NOT_NULL(ccsLayer);
+	PTF_ASSERT_EQUAL(ccsLayer->getRecordVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(ccsLayer->getRecordType(), pcpp::SSL_CHANGE_CIPHER_SPEC, enum);
+	PTF_ASSERT_EQUAL(ccsLayer->getHeaderLen(), 6, size);
+
+	handshakeLayer = multipleRecordsPacket.getNextLayerOfType<pcpp::SSLHandshakeLayer>(handshakeLayer);
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 3, size);
+	pcpp::SSLHelloRequestMessage* helloRequest = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLHelloRequestMessage>();
+	PTF_ASSERT_NOT_NULL(helloRequest);
+	PTF_ASSERT_EQUAL(helloRequest->getHandshakeType(), pcpp::SSL_HELLO_REQUEST, enum);
+	PTF_ASSERT_EQUAL(helloRequest->getMessageLength(), 4, size);
+	pcpp::SSLHelloRequestMessage* helloRequest2 = handshakeLayer->getNextHandshakeMessageOfType<pcpp::SSLHelloRequestMessage>(helloRequest);
+	PTF_ASSERT_NOT_NULL(helloRequest2);
+	PTF_ASSERT_TRUE(helloRequest2 != helloRequest);
+	PTF_ASSERT_EQUAL(helloRequest2->getHandshakeType(), pcpp::SSL_HELLO_REQUEST, enum);
+	PTF_ASSERT_EQUAL(helloRequest2->getMessageLength(), 4, size);
+	helloRequest2 = handshakeLayer->getNextHandshakeMessageOfType<pcpp::SSLHelloRequestMessage>(helloRequest2);
+	PTF_ASSERT_NULL(helloRequest2);
+	PTF_ASSERT_NOT_NULL(handshakeLayer->getHandshakeMessageAt(2));
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessageAt(2)->getHandshakeType(), pcpp::SSL_HANDSHAKE_UNKNOWN, enum);
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength(), 32, size);
+} // SSLMultipleRecordParsingTest
+
+
+
+/**
+ * Testing: client-key-exchange
+ */
+PTF_TEST_CASE(SSLMultipleRecordParsing2Test)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords2.dat");	
+
+	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(multipleRecordsPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 1, size);
+	pcpp::SSLClientKeyExchangeMessage* clientKeyExMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientKeyExchangeMessage>();
+	PTF_ASSERT_NOT_NULL(clientKeyExMsg);
+	PTF_ASSERT_EQUAL(clientKeyExMsg->getHandshakeType(), pcpp::SSL_CLIENT_KEY_EXCHANGE, enum);
+	PTF_ASSERT_EQUAL(clientKeyExMsg->getMessageLength(), 70, size);
+	PTF_ASSERT_EQUAL(clientKeyExMsg->getClientKeyExchangeParamsLength(), 66, size);
+	PTF_ASSERT_EQUAL(clientKeyExMsg->getClientKeyExchangeParams()[0], 0x41, hex);
+	PTF_ASSERT_EQUAL(clientKeyExMsg->getClientKeyExchangeParams()[10], 0xf2, hex);
+	PTF_ASSERT_EQUAL(clientKeyExMsg->getClientKeyExchangeParams()[65], 0xdc, hex);
+} // SSLMultipleRecordParsing2Test
+
+
+
+/**
+ * Testing - certificate, certificate-request
+ */
+PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords3.dat");
+
+	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(multipleRecordsPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 5, size);
+
+	pcpp::SSLCertificateMessage* certMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLCertificateMessage>();
+	PTF_ASSERT_NOT_NULL(certMsg);
+	PTF_ASSERT_EQUAL(certMsg->getHandshakeType(), pcpp::SSL_CERTIFICATE, enum);
+	PTF_ASSERT_EQUAL(certMsg->getMessageLength(), 4966, size);
+	PTF_ASSERT_EQUAL(certMsg->getNumOfCertificates(), 3, int);
+	PTF_ASSERT_NULL(certMsg->getCertificate(1000));
+
+	pcpp::SSLx509Certificate* cert = certMsg->getCertificate(0);
+	PTF_ASSERT_NOT_NULL(cert);
+	PTF_ASSERT_TRUE(cert->allDataExists());
+	PTF_ASSERT_EQUAL(cert->getDataLength(), 1509, size);
+	std::string certBuffer(cert->getData(), cert->getData()+cert->getDataLength());
+	std::size_t pos = certBuffer.find("LDAP Intermediate CA");
+	PTF_ASSERT_TRUE(pos != std::string::npos);
+	pos = certBuffer.find("Internal Development CA");
+	PTF_ASSERT_TRUE(pos == std::string::npos);
+	cert = certMsg->getCertificate(1);
+	PTF_ASSERT_NOT_NULL(cert);
+	PTF_ASSERT_TRUE(cert->allDataExists());
+	PTF_ASSERT_EQUAL(cert->getDataLength(), 1728, size);
+	certBuffer = std::string(cert->getData(), cert->getData()+cert->getDataLength());
+	pos = certBuffer.find("Internal Development CA");
+	PTF_ASSERT_TRUE(pos != std::string::npos);
+	cert = certMsg->getCertificate(2);
+	PTF_ASSERT_NOT_NULL(cert);
+	PTF_ASSERT_TRUE(cert->allDataExists());
+	PTF_ASSERT_EQUAL(cert->getDataLength(), 1713, size);
+	certBuffer = std::string(cert->getData(), cert->getData()+cert->getDataLength());
+	pos = certBuffer.find("Internal Development CA");
+	PTF_ASSERT_TRUE(pos != std::string::npos);
+
+	pcpp::SSLCertificateRequestMessage* certReqMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLCertificateRequestMessage>();
+	PTF_ASSERT_TRUE(certReqMsg->isMessageComplete());
+	PTF_ASSERT_EQUAL(certReqMsg->getHandshakeType(), pcpp::SSL_CERTIFICATE_REQUEST, enum);
+	PTF_ASSERT_EQUAL(certReqMsg->getCertificateTypes().size(), 2, size);
+	PTF_ASSERT_EQUAL(certReqMsg->getCertificateTypes().at(0), pcpp::SSL_CCT_RSA_SIGN, enum);
+	PTF_ASSERT_EQUAL(certReqMsg->getCertificateTypes().at(1), pcpp::SSL_CCT_DSS_SIGN, enum);
+	PTF_ASSERT_EQUAL(certReqMsg->getCertificateAuthorityLength(), 110, size);
+	PTF_ASSERT_EQUAL(certReqMsg->getCertificateAuthorityData()[0], 0x0, hex);
+	PTF_ASSERT_EQUAL(certReqMsg->getCertificateAuthorityData()[1], 0x6c, hex);
+	PTF_ASSERT_EQUAL(certReqMsg->getCertificateAuthorityData()[14], 0x2, hex);
+	PTF_ASSERT_EQUAL(certReqMsg->getCertificateAuthorityData()[47], 0x13, hex);
+} // SSLMultipleRecordParsing3Test
+
+
+
+/**
+ * Testing: server-key-exchange, server-hello-done
+ */
+PTF_TEST_CASE(SSLMultipleRecordParsing4Test)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords4.dat");
+
+	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(multipleRecordsPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 1, size);
+	pcpp::SSLServerKeyExchangeMessage* serverKeyExMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerKeyExchangeMessage>();
+	PTF_ASSERT_NOT_NULL(serverKeyExMsg);
+	PTF_ASSERT_EQUAL(serverKeyExMsg->getHandshakeType(), pcpp::SSL_SERVER_KEY_EXCHANGE, enum);
+	PTF_ASSERT_EQUAL(serverKeyExMsg->getMessageLength(), 333, size);
+	PTF_ASSERT_EQUAL(serverKeyExMsg->getServerKeyExchangeParamsLength(), 329, size);
+	PTF_ASSERT_EQUAL(serverKeyExMsg->getServerKeyExchangeParams()[0], 0x03, hex);
+	PTF_ASSERT_EQUAL(serverKeyExMsg->getServerKeyExchangeParams()[10], 0x7a, hex);
+	PTF_ASSERT_EQUAL(serverKeyExMsg->getServerKeyExchangeParams()[328], 0x33, hex);
+
+	handshakeLayer = multipleRecordsPacket.getNextLayerOfType<pcpp::SSLHandshakeLayer>(handshakeLayer);
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 1, size);
+	pcpp::SSLServerHelloDoneMessage* serverHelloDoneMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloDoneMessage>();
+	PTF_ASSERT_NOT_NULL(serverHelloDoneMsg);
+	PTF_ASSERT_EQUAL(serverHelloDoneMsg->getHandshakeType(), pcpp::SSL_SERVER_DONE, enum);
+	PTF_ASSERT_EQUAL(serverHelloDoneMsg->getMessageLength(), 4, size);
+	PTF_ASSERT_TRUE(serverHelloDoneMsg == handshakeLayer->getHandshakeMessageAt(0));
+} // SSLMultipleRecordParsing4Test
+
+
+
+PTF_TEST_CASE(SSLPartialCertificateParseTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-PartialCertificate1.dat");
+
+	pcpp::Packet partialCertPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(partialCertPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLHandshakeLayer* handshakeLayer = partialCertPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	handshakeLayer = partialCertPacket.getNextLayerOfType<pcpp::SSLHandshakeLayer>(handshakeLayer);
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	pcpp::SSLCertificateMessage* certMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLCertificateMessage>();
+	PTF_ASSERT_NOT_NULL(certMsg);
+	PTF_ASSERT_FALSE(certMsg->isMessageComplete());
+	PTF_ASSERT_EQUAL(certMsg->getNumOfCertificates(), 1, int);
+	pcpp::SSLx509Certificate* cert = certMsg->getCertificate(0);
+	PTF_ASSERT_FALSE(cert->allDataExists());
+	PTF_ASSERT_EQUAL(cert->getDataLength(), 1266, size);
+
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SSL-PartialCertificate2.dat");
+
+	pcpp::Packet partialCertPacket2(&rawPacket2);
+
+	PTF_ASSERT_TRUE(partialCertPacket2.isPacketOfType(pcpp::SSL));
+	handshakeLayer = partialCertPacket2.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	handshakeLayer = partialCertPacket2.getNextLayerOfType<pcpp::SSLHandshakeLayer>(handshakeLayer);
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	certMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLCertificateMessage>();
+	PTF_ASSERT_NOT_NULL(certMsg);
+	PTF_ASSERT_FALSE(certMsg->isMessageComplete());
+	PTF_ASSERT_EQUAL(certMsg->getNumOfCertificates(), 1, int);
+	cert = certMsg->getCertificate(0);
+	PTF_ASSERT_FALSE(cert->allDataExists());
+	PTF_ASSERT_EQUAL(cert->getDataLength(), 1268, size);
+} // SSLPartialCertificateParseTest
+
+
+
+PTF_TEST_CASE(SSLNewSessionTicketParseTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-NewSessionTicket.dat");
+
+	pcpp::Packet sslPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(sslPacket.isPacketOfType(pcpp::SSL));
+	pcpp::SSLHandshakeLayer* handshakeLayer = sslPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 1, size);
+	pcpp::SSLNewSessionTicketMessage* newSessionTicketMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLNewSessionTicketMessage>();
+	PTF_ASSERT_NOT_NULL(newSessionTicketMsg);
+	PTF_ASSERT_TRUE(newSessionTicketMsg->isMessageComplete());
+	PTF_ASSERT_EQUAL(newSessionTicketMsg->getHandshakeType(), pcpp::SSL_NEW_SESSION_TICKET, enum);
+	PTF_ASSERT_EQUAL(newSessionTicketMsg->getSessionTicketDataLength(), 214, size);
+	PTF_ASSERT_EQUAL(newSessionTicketMsg->getSessionTicketData()[0], 0, hex);
+	PTF_ASSERT_EQUAL(newSessionTicketMsg->getSessionTicketData()[16], 0xf9, hex);
+	PTF_ASSERT_EQUAL(newSessionTicketMsg->getSessionTicketData()[213], 0x75, hex);
+} // SSLNewSessionTicketParseTest
