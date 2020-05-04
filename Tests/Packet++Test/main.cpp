@@ -8301,13 +8301,35 @@ PTF_TEST_CASE(ResizeLayerTest)
 
 	// Starting Resize testing
 	PTF_ASSERT(packet.getRawPacket()->getRawDataLen() == 10, "Size of packet before resizing is not correct");
+	
+	//
+	// test shortening of packet and layer
+	//
+	uint8_t payload2[] = { 0x05, 0x04, 0x03, 0x02, 0x01 };
+	size_t payload2_size = 5;
+	payloadLayer.setPayload(payload2, payload2_size);
 
+	// check that resizing worked in terms of data length
+	PTF_ASSERT(packet.getRawPacket()->getRawDataLen() == payload2_size, "Size of packet after first resizing (shortening) is not correct");
 
+	// confirm that data has been correctly written to raw packet
+	const uint8_t* rawData = packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload2_size);
+	PTF_ASSERT(rawData[0] == 0x05 && rawData[1] == 0x04 && rawData[2] == 0x03 && rawData[3] == 0x02 && rawData[4] == 0x01, "Setting payload to new payload has failed.");
 
+	//
+	// test extension of packet and layer
+	//
+	uint8_t payload3[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF };
+	size_t payload3_size = 8;
+	payloadLayer.setPayload(payload3, payload3_size);
 
+	// check that resizing worked in terms of data length
+	PTF_ASSERT(packet.getRawPacket()->getRawDataLen() == payload3_size, "Size of packet after second resizing (extension) is not correct");
 
+	// confirm that data has been correctly written to raw packet
+	const uint8_t* rawData2 = packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload3_size);
+	PTF_ASSERT(rawData2[0] == 0xDE && rawData2[1] == 0xAD && rawData2[2] == 0xBE && rawData2[3] == 0xEF && rawData2[4] == 0xDE && rawData2[5] == 0xAD && rawData2[6] == 0xBE && rawData2[7] == 0xEF, "Setting payload to new payload has failed.");
 } // ResizeLayerTest
-
 
 static struct option PacketTestOptions[] =
 {

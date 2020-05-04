@@ -136,13 +136,6 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 	// if insertData is called with atIndex == m_RawDataLen, then no data is being moved. The data of the raw packet is still extended by dataToInsertLen
 	memmove((uint8_t*)m_RawData + atIndex + dataToInsertLen, (uint8_t*)m_RawData + atIndex, m_RawDataLen - atIndex);
 
-	/*int index = m_RawDataLen - 1;
-		while (index >= atIndex)
-		{
-			m_RawData[index + dataToInsertLen] = m_RawData[index];
-			index--;
-		}*/
-
 	if (dataToInsert != nullptr)
 	{
 		// insert data
@@ -184,19 +177,12 @@ bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 		return false;
 	}
 
-	// only move data if we are not pointing at the last byte in the last layer
-	// this is so that reseizing of the last layer can occur fast by just reducing the fictional length of the packet (m_RawDataLen) by the given amount
-	if(atIndex != m_RawDataLen)
+	// only move data if we are removing data somewhere in the layer, not at the end of the last layer
+	// this is so that resizing of the last layer can occur fast by just reducing the fictional length of the packet (m_RawDataLen) by the given amount
+	if((atIndex + (int)numOfBytesToRemove) != m_RawDataLen)
 		// memmove copies data as if there was an intermediate buffer inbetween - so it allows for copying processes on overlapping src/dest ptrs
 		memmove((uint8_t*)m_RawData + atIndex, (uint8_t*)m_RawData + atIndex + numOfBytesToRemove, m_RawDataLen - (atIndex + numOfBytesToRemove));
-
-	/*int index = atIndex;
-	while (index < (m_RawDataLen - (int)numOfBytesToRemove))
-	{
-		m_RawData[index] = m_RawData[index+numOfBytesToRemove];
-		index++;
-	}*/
-
+	
 	m_RawDataLen -= numOfBytesToRemove;
 	m_FrameLength = m_RawDataLen;
 	return true;
