@@ -14,7 +14,9 @@ ifeq ($(origin CC),default)
 CC := clang
 endif
 
+ifndef CXXFLAGS
 CXXFLAGS := -g -O0 -fsanitize=address,fuzzer-no-link
+endif
 
 AR := ar
 
@@ -32,4 +34,3 @@ ifndef LIB_FUZZING_ENGINE
 LIB_FUZZING_ENGINE := -fsanitize=address,fuzzer
 endif
 
-COMPILE_FOR_FUZZING := 1
