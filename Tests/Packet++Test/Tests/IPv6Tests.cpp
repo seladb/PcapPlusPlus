@@ -1,3 +1,4 @@
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "IpAddress.h"
@@ -7,7 +8,6 @@
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
 
 PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)

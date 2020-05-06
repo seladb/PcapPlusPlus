@@ -1,4 +1,4 @@
-
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "Logger.h"
@@ -8,7 +8,6 @@
 #include "TcpLayer.h"
 #include "HttpLayer.h"
 #include "PayloadLayer.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
 
 PTF_TEST_CASE(HttpRequestLayerParsingTest)

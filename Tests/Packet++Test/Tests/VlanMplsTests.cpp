@@ -1,3 +1,4 @@
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "Logger.h"
@@ -7,8 +8,8 @@
 #include "MplsLayer.h"
 #include "VxlanLayer.h"
 #include "UdpLayer.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
+
 
 PTF_TEST_CASE(VlanParseAndCreation)
 {

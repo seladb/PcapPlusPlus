@@ -1,3 +1,4 @@
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "Logger.h"
@@ -17,7 +18,6 @@
 #include "RadiusLayer.h"
 #include "PacketTrailerLayer.h"
 #include "PayloadLayer.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
 
 PTF_TEST_CASE(InsertDataToPacket)

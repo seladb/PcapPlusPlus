@@ -1,4 +1,4 @@
-
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "Packet.h"
@@ -6,7 +6,6 @@
 #include "IPv4Layer.h"
 #include "TcpLayer.h"
 #include "PayloadLayer.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
 
 PTF_TEST_CASE(TcpPacketNoOptionsParsing)

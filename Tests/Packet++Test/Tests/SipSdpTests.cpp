@@ -1,3 +1,4 @@
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "Logger.h"
@@ -8,7 +9,6 @@
 #include "SipLayer.h"
 #include "SdpLayer.h"
 #include "PayloadLayer.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
 
 

@@ -1,3 +1,4 @@
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include <sstream>
 #include "EndianPortable.h"
@@ -8,7 +9,6 @@
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
 
 PTF_TEST_CASE(IPv4PacketCreation)

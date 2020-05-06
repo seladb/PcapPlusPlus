@@ -1,3 +1,4 @@
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "Packet.h"
@@ -7,7 +8,6 @@
 #include "GtpLayer.h"
 #include "UdpLayer.h"
 #include "IcmpLayer.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
 
 

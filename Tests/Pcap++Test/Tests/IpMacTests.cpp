@@ -1,7 +1,8 @@
+#include "../TestDefinition.h"
 #include "EndianPortable.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
-#include "../TestDefinition.h"
+
 
 PTF_TEST_CASE(TestIPAddress)
 {

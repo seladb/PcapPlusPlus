@@ -1,8 +1,8 @@
+#include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "Packet.h"
 #include "SSLLayer.h"
-#include "../TestDefinition.h"
 #include "SystemUtils.h"
 
 
