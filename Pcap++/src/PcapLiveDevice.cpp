@@ -280,18 +280,26 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	}
 #endif
 
+	ret = pcap_activate(pcap);
+	if (ret != 0)
+	{
+		LOG_ERROR("%s", pcap_geterr(pcap));
+		pcap_close(pcap);
+		pcap = NULL;
+	}
+
 #ifdef HAS_SET_DIRECTION_ENABLED
 	pcap_direction_t directionToSet = directionTypeMap(config.direction);
 	ret = pcap_setdirection(pcap, directionToSet);
-	if (ret != 0)
+	if (ret == 0)
 	{
 		if (config.direction == PCPP_IN)
 		{
-		  LOG_DEBUG("Only incoming traffics will be captured");
+			LOG_DEBUG("Only incoming traffics will be captured");
 		}
-		else if (config.direction == PCPP_OUT) 
+		else if (config.direction == PCPP_OUT)
 		{
-		  LOG_DEBUG("Only outgoing traffics will be captured");
+			LOG_DEBUG("Only outgoing traffics will be captured");
 		}
 		else
 		{
@@ -303,13 +311,6 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		LOG_ERROR("Failed to set direction for capturing packets, error code: '%d', error message: '%s'", ret, pcap_geterr(pcap));
 	}
 #endif
-	ret = pcap_activate(pcap);
-	if (ret != 0)
-	{
-		LOG_ERROR("%s", pcap_geterr(pcap));
-		pcap_close(pcap);
-		pcap = NULL;
-	}
 
 	if (pcap)
 	{
