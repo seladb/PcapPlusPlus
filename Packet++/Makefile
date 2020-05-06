@@ -32,6 +32,10 @@ INCLUDES := -I"./src" \
 			-I"./header" \
 			-I"$(COMMONPP_HOME)/header" \
 			-I"$(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include"
+
+ifdef BUILD_WITH_STATIC_LIBPCAP
+INCLUDES += -I"$(STATIC_LIBPCAP_INCLUDE)"
+endif
 			
 ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \
@@ -43,7 +47,7 @@ endif
 			
 Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
-	@$(CXX) $(DEPS) $(INCLUDES) $(PCAPPP_BUILD_FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	@$(CXX) $(DEPS) $(INCLUDES) $(PCAPPP_BUILD_FLAGS) -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 

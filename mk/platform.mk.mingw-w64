@@ -8,9 +8,13 @@ LIB_PREFIX :=
 
 LIB_EXT := .lib
 
+ifeq ($(origin CXX),default)
 CXX := g++.exe
+endif
 
+ifeq ($(origin CC),default)
 CC := gcc.exe
+endif
 
 AR := ar.exe
 
