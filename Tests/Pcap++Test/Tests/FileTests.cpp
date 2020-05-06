@@ -506,38 +506,46 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 		timespec packetCompress_timestamp = rawPacketCompress.getPacketTimeStamp();
 		if (packet1_timestamp.tv_sec < packet2_timestamp.tv_sec)
 		{
-			PTF_ASSERT_LOWER_THAN((packet2_timestamp.tv_sec - packet1_timestamp.tv_sec), 2, u64);
+			uint64_t timeDiff = (uint64_t)(packet2_timestamp.tv_sec - packet1_timestamp.tv_sec);
+			PTF_ASSERT_LOWER_THAN(timeDiff, 2, u64);
 		}
 		else
 		{
-			PTF_ASSERT_LOWER_THAN((packet1_timestamp.tv_sec - packet2_timestamp.tv_sec), 2, u64);
+			uint64_t timeDiff = (uint64_t)(packet1_timestamp.tv_sec - packet2_timestamp.tv_sec);
+			PTF_ASSERT_LOWER_THAN(timeDiff, 2, u64);
 		}
 
 		if (packet1_timestamp.tv_nsec < packet2_timestamp.tv_nsec)
 		{
-			PTF_ASSERT_LOWER_THAN((packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec), 100000, u64);
+			uint64_t timeDiff = (uint64_t)(packet2_timestamp.tv_nsec - packet1_timestamp.tv_nsec);
+			PTF_ASSERT_LOWER_THAN(timeDiff, 100000, u64);
 		}
 		else
 		{
-			PTF_ASSERT_LOWER_THAN((packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec), 100000, u64);
+			uint64_t timeDiff = (uint64_t)(packet1_timestamp.tv_nsec - packet2_timestamp.tv_nsec);
+			PTF_ASSERT_LOWER_THAN(timeDiff, 100000, u64);
 		}
 
 		if (packet1_timestamp.tv_sec < packetCompress_timestamp.tv_sec)
 		{
-			PTF_ASSERT_LOWER_THAN((packetCompress_timestamp.tv_sec - packet1_timestamp.tv_sec),2, u64);
+			uint64_t timeDiff = (uint64_t)(packetCompress_timestamp.tv_sec - packet1_timestamp.tv_sec);
+			PTF_ASSERT_LOWER_THAN(timeDiff,2, u64);
 		}
 		else
 		{
-			PTF_ASSERT_LOWER_THAN((packet1_timestamp.tv_sec - packetCompress_timestamp.tv_sec), 2, u64);
+			uint64_t timeDiff = (uint64_t)(packet1_timestamp.tv_sec - packetCompress_timestamp.tv_sec);
+			PTF_ASSERT_LOWER_THAN(timeDiff, 2, u64);
 		}
 
 		if (packet1_timestamp.tv_nsec < packetCompress_timestamp.tv_nsec)
 		{
-			PTF_ASSERT_LOWER_THAN((packetCompress_timestamp.tv_nsec - packet1_timestamp.tv_nsec), 100000, u64);
+			uint64_t timeDiff = (uint64_t)(packetCompress_timestamp.tv_nsec - packet1_timestamp.tv_nsec);
+			PTF_ASSERT_LOWER_THAN(timeDiff, 100000, u64);
 		}
 		else
 		{
-			PTF_ASSERT_LOWER_THAN((packet1_timestamp.tv_nsec - packetCompress_timestamp.tv_nsec), 100000, u64);
+			uint64_t timeDiff = (uint64_t)(packet1_timestamp.tv_nsec - packetCompress_timestamp.tv_nsec);
+			PTF_ASSERT_LOWER_THAN(timeDiff, 100000, u64);
 		}
 		packet_count++;
 	}

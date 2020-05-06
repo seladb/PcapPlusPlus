@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
 	}
 
 #ifdef USE_DPDK
-	if (PcapTestGlobalArgs.dpdkPort == -1)
+	if (PcapTestGlobalArgs.dpdkPort == -1 && runWithNetworking)
 	{
 		printf("When testing with DPDK you must provide the DPDK NIC port to test\n\n");
 		printUsage();
@@ -180,12 +180,16 @@ int main(int argc, char* argv[])
 	printf("Git info: %s\n", pcpp::getGitInfo().c_str());
 	printf("Using ip: %s\n", PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	printf("Debug mode: %s\n", PcapTestGlobalArgs.debugMode ? "on" : "off");
+
 #ifdef USE_DPDK
-	printf("Using DPDK port: %d\n", PcapTestGlobalArgs.dpdkPort);
-	if (PcapTestGlobalArgs.kniIp == "")
-		printf("DPDK KNI tests: skipped\n");
-	else
-		printf("Using IP address for KNI: %s\n", PcapTestGlobalArgs.kniIp.c_str());
+	if (runWithNetworking)
+	{
+		printf("Using DPDK port: %d\n", PcapTestGlobalArgs.dpdkPort);
+		if (PcapTestGlobalArgs.kniIp == "")
+			printf("DPDK KNI tests: skipped\n");
+		else
+			printf("Using IP address for KNI: %s\n", PcapTestGlobalArgs.kniIp.c_str());
+	}
 #endif
 	printf("Starting tests...\n");
 

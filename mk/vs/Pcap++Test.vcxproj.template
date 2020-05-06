@@ -175,6 +175,8 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Tests\Pcap++Test\main.cpp" />
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\FileTests.cpp" />
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\IpMacTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\MemPlumber\MemPlumber\memplumber.cpp" />
@@ -192,6 +194,10 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
     <ProjectReference Include="Pcap++.vcxproj">
       <Project>{d4fdf54c-0ecc-4bd2-9eda-6622e832af16}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Tests\Pcap++Test\Common\PcapFileNamesDef.h" />
+    <ClInclude Include="..\..\Tests\Pcap++Test\TestDefinition.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
