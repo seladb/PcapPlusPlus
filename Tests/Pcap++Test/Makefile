@@ -22,6 +22,9 @@ SOURCES := $(call rwildcard,.,*.cpp)
 
 OBJS_FILENAMES := $(patsubst ./%,Obj/%,$(SOURCES:.cpp=.o))
 
+
+COMMON_DEBUG_LIB_DIR := -L../../Common++/Lib/Debug
+
 ENDIAN_PORTABLE_INCLUDE := $(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include
 
 PCPP_TEST_FRAMEWORK := ../PcppTestFramework
@@ -50,8 +53,6 @@ ifdef HAS_SET_DIRECTION_ENABLED
 DEPS += -DHAS_SET_DIRECTION_ENABLED
 endif
 
-COMMON_DEBUG_LIB_DIR := -L../../Common++/Lib/Debug
-
 Obj/%.o: %.cpp
 	@echo Building file: $<
 	@$(CXX) $(DEPS) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
@@ -73,7 +74,7 @@ create-directories:
 	@$(MKDIR) -p Bin
 
 dependents:
-	cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
+	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
 	
 Pcap++Test: start create-directories $(OBJS_FILENAMES)
 	@cd $(MEMPLUMBER_HOME) && $(MAKE) memplumber_sources
