@@ -9,22 +9,24 @@
 static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
-	{"show-skipped-tests", no_argument, 0, 'k' },
+	{"show-skipped-tests", no_argument, 0, 'w' },
 	{"mem-verbose", no_argument, 0, 'm' },
 	{"verbose", no_argument, 0, 'v' },
 	{"skip-mem-leak-check", no_argument, 0, 's' },
+	{"help", no_argument, 0, 'h' },
 	{0, 0, 0, 0}
 };
 
-void print_usage()
+void printUsage()
 {
-    printf("Usage: Packet++Test [-t tags] [-m] [-s] [-v]\n\n"
+    printf("Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
 			"Flags:\n"
 			"-t --tags                A list of semicolon separated tags for tests to run\n"
-			"-k --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
+			"-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
 			"-v --verbose             Run in verbose mode (emits more output in several tests)\n"
 			"-m --mem-verbose         Output information about each memory allocation and deallocation\n"
 			"-s --skip-mem-leak-check Skip memory leak check\n"
+			"-h --help                Display this help message and exit\n"
 		);
 }
 
@@ -38,7 +40,7 @@ int main(int argc, char* argv[])
 	bool memVerbose = false;
 	bool skipMemLeakCheck = false;
 
-	while((opt = getopt_long (argc, argv, "msvkt:", PacketTestOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "msvwht:", PacketTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -53,15 +55,18 @@ int main(int argc, char* argv[])
 			case 'm':
 				memVerbose = true;
 				break;
-			case 'k':
+			case 'w':
 				PTF_SHOW_SKIPPED_TESTS(true);
 				break;
 			case 'v':
 				PTF_SET_VERBOSE_MODE(true);
 				break;
+			case 'h':
+				printUsage();
+				exit(0);
 			default:
-				print_usage();
-				exit(1);
+				printUsage();
+				exit(-1);
 		}
 	}
 

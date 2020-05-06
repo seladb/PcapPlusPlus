@@ -92,6 +92,13 @@
         return; \
     }
 
+#define PTF_ASSERT_LOWER_THAN(actual, expected, type) \
+    if (actual >= expected) { \
+		printf("%-30s: FAILED (%s:%d). assert greater than failed: actual: " type##_PTF_PRINT_FORMAT " != expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
+		ptfResult = 0; \
+        return; \
+    }
+
 #define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) \
     if (memcmp(buf1, buf2, size) != 0) { \
 		printf("%-30s: FAILED (%s:%d). assert buffer compare failed: %s != %s\n", __FUNCTION__, __FILE__, __LINE__, #buf1, #buf2); \

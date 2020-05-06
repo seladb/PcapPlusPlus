@@ -16,8 +16,11 @@ endif
 
 include ../../3rdParty/MemPlumber/Makefile.defs
 
-SOURCES := $(wildcard *.cpp)
-OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
+rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+
+SOURCES := $(call rwildcard,.,*.cpp)
+
+OBJS_FILENAMES := $(patsubst ./%,Obj/%,$(SOURCES:.cpp=.o))
 
 ENDIAN_PORTABLE_INCLUDE := $(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include
 
@@ -50,7 +53,7 @@ endif
 COMMON_DEBUG_LIB_DIR := -L../../Common++/Lib/Debug
 
 Obj/%.o: %.cpp
-	@echo 'Building file: $<'
+	@echo Building file: $<
 	@$(CXX) $(DEPS) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) -O2 -g -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 
@@ -62,10 +65,11 @@ CUR_TARGET := $(notdir $(shell pwd))
 all: dependents Pcap++Test
 
 start:
-	@echo '==> Building target: $(CUR_TARGET)'
+	@echo ==== Building target: $(CUR_TARGET) ====
 
 create-directories:
 	@$(MKDIR) -p Obj
+	@$(MKDIR) -p Obj/Tests
 	@$(MKDIR) -p Bin
 
 dependents:
@@ -75,11 +79,11 @@ Pcap++Test: start create-directories $(OBJS_FILENAMES)
 	@cd $(MEMPLUMBER_HOME) && $(MAKE) memplumber_sources
 	@$(CXX) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(MEMPLUMBER_OBJS_FILENAMES) $(PCAPPP_LIBS)
 	@$(PCAPPP_POST_BUILD)
-	@echo 'Finished successfully building: $(CUR_TARGET)'
+	@echo Finished successfully building: $(CUR_TARGET)
 	@echo ' '
 
 clean:
 	@cd $(MEMPLUMBER_HOME) && $(MAKE) clean
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Bin/*
-	@echo 'Clean finished: $(CUR_TARGET)'
+	@echo Clean finished: $(CUR_TARGET)
