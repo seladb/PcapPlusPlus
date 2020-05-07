@@ -28,11 +28,23 @@ task:
     - cd ../Pcap++Test && Bin/Pcap++Test -n
 
 task:
-  name: Regression Tests Linux
+  name: Regression Tests Linux (Address Sanitizer)
   container:
     image: seladb/ubuntu1804:latest
   configure_script:
-    - ./configure-fuzzing.sh --default
+    - ./configure-fuzzing.sh --sanitizer address
+    - ldconfig
+  build_script:
+    - make fuzzers
+  test_script:
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+
+task:
+  name: Regression Tests Linux (Undefined Behavior Sanitizer)
+  container:
+    image: seladb/ubuntu1804:latest
+  configure_script:
+    - ./configure-fuzzing.sh --sanitizer undefined
     - ldconfig
   build_script:
     - make fuzzers
