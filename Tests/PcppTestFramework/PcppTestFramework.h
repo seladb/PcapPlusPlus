@@ -94,6 +94,13 @@
 		return; \
 	}
 
+#define PTF_ASSERT_GREATER_OR_EQUAL_THAN(actual, expected, type) \
+	if (actual < expected) { \
+		printf("%-30s: FAILED (%s:%d). assert greater or equal than failed: actual: " type##_PTF_PRINT_FORMAT " < expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
+		ptfResult = 0; \
+		return; \
+	}
+
 #define PTF_ASSERT_LOWER_THAN(actual, expected, type) \
 	if (actual >= expected) { \
 		printf("%-30s: FAILED (%s:%d). assert lower than failed: actual: " type##_PTF_PRINT_FORMAT " >= expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \

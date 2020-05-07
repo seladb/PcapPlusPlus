@@ -71,6 +71,7 @@ start:
 create-directories:
 	@$(MKDIR) -p Obj
 	@$(MKDIR) -p Obj/Tests
+	@$(MKDIR) -p Obj/Common
 	@$(MKDIR) -p Bin
 
 dependents:

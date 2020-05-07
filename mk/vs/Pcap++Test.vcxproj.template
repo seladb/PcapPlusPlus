@@ -175,8 +175,10 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Tests\Pcap++Test\main.cpp" />
+    <ClCompile Include="..\..\Tests\Pcap++Test\Common\TestUtils.cpp" />
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\FileTests.cpp" />
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\IpMacTests.cpp" />
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\LiveDeviceTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\MemPlumber\MemPlumber\memplumber.cpp" />
@@ -197,6 +199,8 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Tests\Pcap++Test\Common\PcapFileNamesDef.h" />
+    <ClInclude Include="..\..\Tests\Pcap++Test\Common\GlobalTestArgs.h" />
+    <ClInclude Include="..\..\Tests\Pcap++Test\Common\TestUtils.h" />
     <ClInclude Include="..\..\Tests\Pcap++Test\TestDefinition.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

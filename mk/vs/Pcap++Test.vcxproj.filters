@@ -26,10 +26,16 @@
     <ClCompile Include="..\..\3rdParty\MemPlumber\MemPlumber\memplumber.cpp">
       <Filter>Source Files\MemPlumber</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Pcap++Test\Common\TestUtils.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\FileTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\IpMacTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\LiveDeviceTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,6 +44,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Tests\Pcap++Test\Common\PcapFileNamesDef.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tests\Pcap++Test\Common\GlobalTestArgs.h">
+      <Filter>Source Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tests\Pcap++Test\Common\TestUtils.h">
       <Filter>Source Files\Common</Filter>
     </ClInclude>
   </ItemGroup>

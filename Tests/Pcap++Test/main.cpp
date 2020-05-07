@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "../PcppTestFramework/PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
+#include "Common/GlobalTestArgs.h"
 
 static struct option PcapTestOptions[] =
 {
@@ -24,18 +25,6 @@ static struct option PcapTestOptions[] =
 	{0, 0, 0, 0}
 };
 
-struct PcapTestArgs
-{
-	std::string ipToSendReceivePackets;
-	bool debugMode;
-	std::string remoteIp;
-	uint16_t remotePort;
-	int dpdkPort;
-	std::string kniIp;
-	char* errString;
-};
-
-static PcapTestArgs PcapTestGlobalArgs;
 
 void printUsage()
 {
@@ -59,6 +48,8 @@ void printUsage()
 				"-h --help                Display this help message and exit\n"
 	);
 }
+
+PcapTestArgs PcapTestGlobalArgs;
 
 int main(int argc, char* argv[])
 {
@@ -191,7 +182,6 @@ int main(int argc, char* argv[])
 			printf("Using IP address for KNI: %s\n", PcapTestGlobalArgs.kniIp.c_str());
 	}
 #endif
-	printf("Starting tests...\n");
 
 	char errString[1000];
 
@@ -210,15 +200,15 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapFileAppend, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapNgFileReadWrite, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapNgFileReadWriteAdv, "no_network;pcap;pcapng");
-	// PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
-	// PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");
-	// PTF_RUN_TEST(TestPcapLiveDevice, "live_device");
-	// PTF_RUN_TEST(TestPcapLiveDeviceNoNetworking, "no_network;live_device");
-	// PTF_RUN_TEST(TestPcapLiveDeviceStatsMode, "live_device");
-	// PTF_RUN_TEST(TestPcapLiveDeviceBlockingMode, "live_device");
-	// PTF_RUN_TEST(TestPcapLiveDeviceSpecialCfg, "live_device");
-	// PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
-	// PTF_RUN_TEST(TestPcapLiveDeviceByInvalidIp, "no_network;live_device");
+
+	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
+	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDevice, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceNoNetworking, "no_network;live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceStatsMode, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceBlockingMode, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceSpecialCfg, "live_device");
+	PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
 	// PTF_RUN_TEST(TestPcapFiltersLive, "filters");
 	// PTF_RUN_TEST(TestPcapFilters_General_BPFStr, "no_network;filters;skip_mem_leak_check");
 	// PTF_RUN_TEST(TestPcapFiltersOffline, "no_network;filters");
