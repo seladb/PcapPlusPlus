@@ -31,10 +31,10 @@ PCPP_TEST_FRAMEWORK := ../PcppTestFramework
 
 PCAPPP_INCLUDES += -I$(MEMPLUMBER_INCLUDES) -I$(ENDIAN_PORTABLE_INCLUDE) -I$(PCPP_TEST_FRAMEWORK)
 
-FLAGS := -Wno-deprecated-declarations
+FLAGS := -Wno-deprecated-declarations -fno-var-tracking-assignments
 
 Obj/%.o: %.cpp
-	@echo 'Building file: $<'
+	@echo Building file: $<
 	@$(CXX) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) $(FLAGS) -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 
