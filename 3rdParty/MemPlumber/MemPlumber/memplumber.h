@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include "memplumber-internals.h"
 
+#ifndef _NOEXCEPT
+#define _NOEXCEPT
+#endif
+
 // Prototypes
 void* operator new(std::size_t size, const char* file, int line);
 void* operator new[](std::size_t size, const char* file, int line);

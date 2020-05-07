@@ -17,6 +17,14 @@
 #define MEMPLUMBER_HASH(p) (((unsigned long)(p) >> 8) % MEMPLUMBER_HASHTABLE_SIZE)
 #endif
 
+#ifndef _THROW_BAD_ALLOC
+#define _THROW_BAD_ALLOC
+#endif
+
+#ifndef _NOEXCEPT
+#define _NOEXCEPT
+#endif
+
 class MemPlumberInternal {
     private:
     
@@ -378,19 +386,19 @@ void* operator new[](std::size_t size, const char* file, int line) {
     return operator new(size, file, line);
 }
 
-void* operator new[](size_t size) {
+void* operator new[](size_t size) _THROW_BAD_ALLOC {
 	return operator new(size, getCaller(), 0);
 }
 
-void* operator new(size_t size) {
+void* operator new(size_t size) _THROW_BAD_ALLOC {
 	return operator new(size, getCaller(), 0);
 }
 
-void* operator new(size_t size, const std::nothrow_t&) throw () {
+void* operator new(size_t size, const std::nothrow_t&) _NOEXCEPT {
 	return operator new(size, getCaller(), 0);
 }
 
-void* operator new[](size_t size, const std::nothrow_t&) throw () {
+void* operator new[](size_t size, const std::nothrow_t&) _NOEXCEPT {
 	return operator new[](size, getCaller(), 0);
 }
 
@@ -406,7 +414,7 @@ void operator delete(void* pointer, std::size_t size) {
     operator delete(pointer, __FILE__, __LINE__);
 }
 
-void operator delete[](void* pointer) {
+void operator delete[](void* pointer) _NOEXCEPT {
     operator delete(pointer, __FILE__, __LINE__);
 }
 
