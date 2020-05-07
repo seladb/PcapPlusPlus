@@ -24,7 +24,7 @@
 #ifdef PCAPPP_MINGW_ENV
 #define u64_PTF_PRINT_FORMAT "%I64u"
 #elif __APPLE__
-#define 64_PTF_PRINT_FORMAT "%llu"
+#define u64_PTF_PRINT_FORMAT "%llu"
 #else
 #define u64_PTF_PRINT_FORMAT "%lu"
 #endif
