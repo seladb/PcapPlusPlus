@@ -31,7 +31,7 @@ PCPP_TEST_FRAMEWORK := ../PcppTestFramework
 
 PCAPPP_INCLUDES += -I$(MEMPLUMBER_INCLUDES) -I$(ENDIAN_PORTABLE_INCLUDE) -I$(PCPP_TEST_FRAMEWORK)
 
-FLAGS := -Wno-deprecated-declarations -fno-var-tracking-assignments
+FLAGS := -Wno-deprecated-declarations
 
 Obj/%.o: %.cpp
 	@echo Building file: $<
