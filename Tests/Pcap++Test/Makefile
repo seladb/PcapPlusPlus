@@ -54,7 +54,7 @@ DEPS += -DHAS_SET_DIRECTION_ENABLED
 endif
 
 Obj/%.o: %.cpp
-	@echo 'Building file: $<'
+	@echo Building file: $<
 	@$(CXX) $(DEPS) $(PCAPPP_INCLUDES) $(PCAPPP_BUILD_FLAGS) -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 

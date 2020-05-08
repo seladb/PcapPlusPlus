@@ -23,3 +23,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode);
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode);
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg);
 PTF_TEST_CASE(TestWinPcapLiveDevice);
+
+// Implemented in FilterTests.cpp
+PTF_TEST_CASE(TestPcapFiltersLive);
+PTF_TEST_CASE(TestPcapFilters_General_BPFStr);
+PTF_TEST_CASE(TestPcapFiltersOffline);

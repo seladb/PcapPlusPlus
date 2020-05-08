@@ -32,6 +32,9 @@
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\FileTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\FilterTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\IpMacTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>

@@ -53,15 +53,15 @@
 #define PTF_TEST_CASE(TestName) void TestName(int& ptfResult, bool printVerbose)
 
 #define PTF_TEST_CASE_PASSED \
-    ptfResult = 1; \
-    return
+	ptfResult = 1; \
+	return
 
 #define PTF_ASSERT(exp, assertFailedFormat, ...) \
 	if (!(exp)) \
 	{ \
 		printf("%-30s: FAILED. assertion failed: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
 		ptfResult = 0; \
-        return; \
+		return; \
 	}
 
 #define PTF_ASSERT_AND_RUN_COMMAND(exp, command, assertFailedFormat, ...) \
@@ -70,7 +70,7 @@
 		printf("%-30s: FAILED. assertion failed: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
 		command; \
 		ptfResult = 0; \
-        return; \
+		return; \
 	}
 
 #define PTF_ASSERT_EQUAL(actual, expected, type) \
@@ -108,42 +108,50 @@
 		return; \
 	}
 
+#define PTF_ASSERT_LOWER_OR_EQUAL_THAN(actual, expected, type) \
+	if (actual > expected) { \
+		printf("%-30s: FAILED (%s:%d). assert lower or equal than failed: actual: " type##_PTF_PRINT_FORMAT " > expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
+		ptfResult = 0; \
+		return; \
+	}
+
+
 #define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) \
-    if (memcmp(buf1, buf2, size) != 0) { \
+	if (memcmp(buf1, buf2, size) != 0) { \
 		printf("%-30s: FAILED (%s:%d). assert buffer compare failed: %s != %s\n", __FUNCTION__, __FILE__, __LINE__, #buf1, #buf2); \
 		ptfResult = 0; \
-        return; \
-    }
+		return; \
+	}
 
 #define PTF_ASSERT_TRUE(exp) \
-    if (!(exp)) { \
+	if (!(exp)) { \
 		printf("%-30s: FAILED (%s:%d). assert true failed: %s\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
 		ptfResult = 0; \
-        return; \
-    }
+		return; \
+	}
 
 #define PTF_ASSERT_FALSE(exp) \
-    if (exp) { \
+	if (exp) { \
 		printf("%-30s: FAILED (%s:%d). assert false failed: %s\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
 		ptfResult = 0; \
-        return; \
-    }
+		return; \
+	}
 
 #define PTF_ASSERT_NOT_NULL(exp) \
-    if ((exp) == NULL) \
-    { \
+	if ((exp) == NULL) \
+	{ \
 		printf("%-30s: FAILED (%s:%d). assert not null failed: %s is NULL\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
 		ptfResult = 0; \
-        return; \
-    }
+		return; \
+	}
 
 #define PTF_ASSERT_NULL(exp) \
-    if ((exp) != NULL) \
-    { \
+	if ((exp) != NULL) \
+	{ \
 		printf("%-30s: FAILED (%s:%d). assert null failed: %s is NULL\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
 		ptfResult = 0; \
-        return; \
-    }
+		return; \
+	}
 
 #define PTF_TRY(exp, assertFailedFormat, ...) \
 	if (!(exp)) \
@@ -153,7 +161,7 @@
 
 #define PTF_PRINT_VERBOSE(format, ...) do { \
 		if(printVerbose) { \
-			printf(format "\n", ## __VA_ARGS__); \
+			printf("%-30s: [VERBOSE] " format "\n", __FUNCTION__, ## __VA_ARGS__); \
 		} \
 } while(0)
 

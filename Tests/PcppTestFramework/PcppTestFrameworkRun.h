@@ -70,14 +70,21 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
         TestName(TestName##_result, verboseMode); \
         if (runMemLeakCheck) \
         { \
-            size_t memLeakCount = 0; \
-            uint64_t memLeakSize = 0; \
-            MemPlumber::memLeakCheck(memLeakCount, memLeakSize, true); \
-            MemPlumber::stopAndFreeAllMemory(); \
-            if (memLeakCount > 0 || memLeakSize > 0) \
+            if (TestName##_result != 1) \
             { \
-                TestName##_result = 0; \
-                printf("%-30s: FAILED. Memory leak found! %d objects and %d[bytes] leaked\n", #TestName, (int)memLeakCount, (int)memLeakSize); \
+                MemPlumber::stopAndFreeAllMemory(); \
+            } \
+            else \
+            { \
+                size_t memLeakCount = 0; \
+                uint64_t memLeakSize = 0; \
+                MemPlumber::memLeakCheck(memLeakCount, memLeakSize, true); \
+                MemPlumber::stopAndFreeAllMemory(); \
+                if (memLeakCount > 0 || memLeakSize > 0) \
+                { \
+                    TestName##_result = 0; \
+                    printf("%-30s: FAILED. Memory leak found! %d objects and %d[bytes] leaked\n", #TestName, (int)memLeakCount, (int)memLeakSize); \
+                } \
             } \
         } \
         if (TestName##_result == 1) \

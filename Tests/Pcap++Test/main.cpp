@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include "PcapPlusPlusVersion.h"
+#include "PcapLiveDeviceList.h"
 #include "Logger.h"
 #include "../PcppTestFramework/PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
@@ -189,7 +190,7 @@ int main(int argc, char* argv[])
 
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
-	//PcapLiveDeviceList::getInstance();
+	pcpp::PcapLiveDeviceList::getInstance();
 
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
@@ -209,9 +210,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapLiveDeviceBlockingMode, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceSpecialCfg, "live_device");
 	PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
-	// PTF_RUN_TEST(TestPcapFiltersLive, "filters");
-	// PTF_RUN_TEST(TestPcapFilters_General_BPFStr, "no_network;filters;skip_mem_leak_check");
-	// PTF_RUN_TEST(TestPcapFiltersOffline, "no_network;filters");
+
+	PTF_RUN_TEST(TestPcapFiltersLive, "filters");
+	PTF_RUN_TEST(TestPcapFilters_General_BPFStr, "no_network;filters;skip_mem_leak_check");
+	PTF_RUN_TEST(TestPcapFiltersOffline, "no_network;filters");
 	// PTF_RUN_TEST(TestSendPacket, "send");
 	// PTF_RUN_TEST(TestSendPackets, "send");
 	// PTF_RUN_TEST(TestRemoteCapture, "remote_capture;winpcap");
