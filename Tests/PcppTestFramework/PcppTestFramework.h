@@ -21,7 +21,7 @@
 #define u32_PTF_PRINT_FORMAT "%u"
 #define u32_PTF_PRINT_TYPE(val) (uint32_t)(val)
 
-#ifdef PCAPPP_MINGW_ENV
+#if defined(PCAPPP_MINGW_ENV) || defined(_MSC_VER)
 #define u64_PTF_PRINT_FORMAT "%I64u"
 #elif __APPLE__
 #define u64_PTF_PRINT_FORMAT "%llu"

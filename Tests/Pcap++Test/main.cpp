@@ -1,8 +1,8 @@
 #include <stdio.h> 
 #include <stdlib.h>
+#include "PcapLiveDeviceList.h"
 #include <getopt.h>
 #include "PcapPlusPlusVersion.h"
-#include "PcapLiveDeviceList.h"
 #include "Logger.h"
 #include "../PcppTestFramework/PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
@@ -210,13 +210,13 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapLiveDeviceBlockingMode, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceSpecialCfg, "live_device");
 	PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
+	// PTF_RUN_TEST(TestSendPacket, "live_device;send");
+	// PTF_RUN_TEST(TestSendPackets, "live_device;send");
+	// PTF_RUN_TEST(TestRemoteCapture, "live_device;remote_capture;winpcap");
 
 	PTF_RUN_TEST(TestPcapFiltersLive, "filters");
 	PTF_RUN_TEST(TestPcapFilters_General_BPFStr, "no_network;filters;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapFiltersOffline, "no_network;filters");
-	// PTF_RUN_TEST(TestSendPacket, "send");
-	// PTF_RUN_TEST(TestSendPackets, "send");
-	// PTF_RUN_TEST(TestRemoteCapture, "remote_capture;winpcap");
 	// PTF_RUN_TEST(TestHttpRequestParsing, "no_network;http");
 	// PTF_RUN_TEST(TestHttpResponseParsing, "no_network;http");
 	// PTF_RUN_TEST(TestPrintPacketAndLayers, "no_network;print");
