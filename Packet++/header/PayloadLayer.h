@@ -76,6 +76,13 @@ namespace pcpp
 		 */
 		void computeCalculateFields() {}
 
+		/**
+		 * Sets the payload of the PayloadLayer to the given pointer. This will resize (extend/shorten) the underlying packet respectively if there is one.
+		 * @param[in] newPayload New payload that shall be set
+		 * @param[in] newPayloadLength New length of payload
+		 */
+		void setPayload(const uint8_t* newPayload, size_t newPayloadLength);
+
 		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
