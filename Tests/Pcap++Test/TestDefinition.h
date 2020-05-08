@@ -23,6 +23,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode);
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode);
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg);
 PTF_TEST_CASE(TestWinPcapLiveDevice);
+PTF_TEST_CASE(TestSendPacket);
+PTF_TEST_CASE(TestSendPackets);
+PTF_TEST_CASE(TestRemoteCapture);
 
 // Implemented in FilterTests.cpp
 PTF_TEST_CASE(TestPcapFiltersLive);

@@ -1,8 +1,12 @@
 #include "../TestDefinition.h"
 #include "Logger.h"
 #include "PcapLiveDeviceList.h"
+#include "PcapFileDevice.h"
+#include "PcapRemoteDevice.h"
+#include "PcapRemoteDeviceList.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
+#include "../Common/PcapFileNamesDef.h"
 #include "PlatformSpecificUtils.h"
 
 
@@ -72,6 +76,63 @@ static bool packetArrivesBlockingModeNoTimeoutPacketCount(pcpp::RawPacket* rawPa
 	(*packetCount)++;
 	return false;
 }
+
+#ifdef WIN32
+
+class RpcapdServerInitializer
+{
+private:
+	HANDLE m_ProcessHandle;
+
+public:
+
+	RpcapdServerInitializer(bool activateRemoteDevice, std::string ip, uint16_t port)
+	{
+		m_ProcessHandle = NULL;
+		if (!activateRemoteDevice)
+			return;
+
+		char portAsString[10];
+		sprintf(portAsString, "%d", port);
+		std::string cmd = "rpcapd\\rpcapd.exe";
+		std::string args = "rpcapd\\rpcapd.exe -b " + ip + " -p " + std::string(portAsString) + " -n";
+
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+
+		ZeroMemory( &si, sizeof(si) );
+		si.cb = sizeof(si);
+		ZeroMemory( &pi, sizeof(pi) );
+		if (!CreateProcess
+				(
+				TEXT(cmd.c_str()),
+				(char*)TEXT(args.c_str()),
+				NULL,NULL,FALSE,
+				CREATE_NEW_CONSOLE,
+				NULL,NULL,
+				&si,
+				&pi
+				)
+				)
+			{
+				m_ProcessHandle = NULL;
+			}
+
+		m_ProcessHandle = pi.hProcess;
+	}
+
+	~RpcapdServerInitializer()
+	{
+		if (m_ProcessHandle != NULL)
+		{
+			TerminateProcess(m_ProcessHandle, 0);
+		}
+	}
+
+	HANDLE getHandle() { return m_ProcessHandle; }
+};
+
+#endif // WIN32
 
 
 
@@ -425,3 +486,178 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 #endif
 
 } // TestWinPcapLiveDevice
+
+
+
+PTF_TEST_CASE(TestSendPacket)
+{
+	pcpp::PcapLiveDevice* liveDev = NULL;
+	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	PTF_ASSERT_NOT_NULL(liveDev);
+	PTF_ASSERT_TRUE(liveDev->open());
+
+	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
+	PTF_ASSERT_TRUE(fileReaderDev.open());
+
+	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0, u32);
+	uint32_t mtu = liveDev->getMtu();
+	int buffLen = mtu+1;
+	uint8_t* buff = new uint8_t[buffLen];
+	memset(buff, 0, buffLen);
+	pcpp::LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_FALSE(liveDev->sendPacket(buff, buffLen));
+	pcpp::LoggerPP::getInstance().enableErrors();
+
+	pcpp::RawPacket rawPacket;
+	int packetsSent = 0;
+	int packetsRead = 0;
+	while(fileReaderDev.getNextPacket(rawPacket))
+	{
+		packetsRead++;
+
+		//send packet as RawPacket
+		PTF_ASSERT_TRUE(liveDev->sendPacket(rawPacket));
+
+		//send packet as raw data
+		PTF_ASSERT_TRUE(liveDev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()));
+
+		//send packet as parsed EthPacekt
+		pcpp::Packet packet(&rawPacket);
+		PTF_ASSERT_TRUE(liveDev->sendPacket(&packet));
+
+		packetsSent++;
+	}
+
+	PTF_ASSERT_EQUAL(packetsRead, packetsSent, int);
+
+	liveDev->close();
+	fileReaderDev.close();
+
+	delete[] buff;
+} // TestSendPacket
+
+
+
+
+PTF_TEST_CASE(TestSendPackets)
+{
+	pcpp::PcapLiveDevice* liveDev = NULL;
+	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	PTF_ASSERT_NOT_NULL(liveDev);
+	PTF_ASSERT_TRUE(liveDev->open());
+
+	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
+	PTF_ASSERT_TRUE(fileReaderDev.open());
+
+	pcpp::RawPacket rawPacketArr[10000];
+	pcpp::PointerVector<pcpp::Packet> packetVec;
+	pcpp::Packet* packetArr[10000];
+	int packetsRead = 0;
+	while(fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
+	{
+		packetVec.pushBack(new pcpp::Packet(&rawPacketArr[packetsRead]));
+		packetsRead++;
+	}
+
+	//send packets as RawPacket array
+	int packetsSentAsRaw = liveDev->sendPackets(rawPacketArr, packetsRead);
+
+	//send packets as parsed EthPacekt array
+	std::copy(packetVec.begin(), packetVec.end(), packetArr);
+	int packetsSentAsParsed = liveDev->sendPackets(packetArr, packetsRead);
+
+	PTF_ASSERT_EQUAL(packetsSentAsRaw, packetsRead, int);
+	PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead, int);
+
+	liveDev->close();
+	fileReaderDev.close();
+} // TestSendPackets
+
+
+
+
+PTF_TEST_CASE(TestRemoteCapture)
+{
+#ifdef WIN32
+	bool useRemoteDevicesFromArgs = (PcapTestGlobalArgs.remoteIp != "") && (PcapTestGlobalArgs.remotePort > 0);
+	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);
+	uint16_t remoteDevicePort = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remotePort : 12321);
+
+	RpcapdServerInitializer rpcapdInitializer(!useRemoteDevicesFromArgs, remoteDeviceIP, remoteDevicePort);
+
+	PTF_ASSERT_NOT_NULL(rpcapdInitializer.getHandle());
+
+	pcpp::IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
+	pcpp::PcapRemoteDeviceList* remoteDevices = pcpp::PcapRemoteDeviceList::getRemoteDeviceList(&remoteDeviceIPAddr, remoteDevicePort);
+	PTF_ASSERT_NOT_NULL(remoteDevices);
+	for (pcpp::PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
+	{
+		PTF_ASSERT_NOT_NULL((*remoteDevIter)->getName());
+	}
+	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress()->toString(), remoteDeviceIP, string);
+	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort, u16);
+
+	pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(&remoteDeviceIPAddr);
+	PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
+	PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0, u32);
+	pcpp::LoggerPP::getInstance().supressErrors();
+	PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero, object);
+	pcpp::LoggerPP::getInstance().enableErrors();
+	PTF_ASSERT_TRUE(remoteDevice->open());
+	pcpp::RawPacketVector capturedPackets;
+	PTF_ASSERT_TRUE(remoteDevice->startCapture(capturedPackets));
+
+	if (!useRemoteDevicesFromArgs)
+		PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
+
+	int totalSleepTime = 0;
+	while (totalSleepTime < 10)
+	{
+		if (capturedPackets.size() > 2)
+		{
+			break;
+		}
+
+		PCAP_SLEEP(1);
+		totalSleepTime += 1;
+	}
+
+	remoteDevice->stopCapture();
+
+	PTF_PRINT_VERBOSE("Total sleep time: %d secs", totalSleepTime);
+
+	PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2, size);
+
+	//send single packet
+	PTF_ASSERT_TRUE(remoteDevice->sendPacket(*capturedPackets.front()));
+
+	//send multiple packets
+	pcpp::RawPacketVector packetsToSend;
+	std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
+
+	size_t capturedPacketsSize = capturedPackets.size();
+	while (iter != capturedPackets.end())
+	{
+		if ((*iter)->getRawDataLen() <= (int)remoteDevice->getMtu())
+		{
+			packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
+		}
+		else
+			++iter;
+	}
+	int packetsSent = remoteDevice->sendPackets(packetsToSend);
+	PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size(), int);
+
+	//check statistics
+	pcap_stat stats;
+	remoteDevice->getStatistics(stats);
+	PTF_ASSERT_EQUAL((uint32_t)stats.ps_recv, capturedPacketsSize, u32);
+
+	remoteDevice->close();
+
+	delete remoteDevices;
+#endif
+
+} // TestRemoteCapture
