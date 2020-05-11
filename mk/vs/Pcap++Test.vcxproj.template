@@ -180,6 +180,7 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\FilterTests.cpp" />
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\IpMacTests.cpp" />
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\LiveDeviceTests.cpp" />
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\PacketParsingTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\MemPlumber\MemPlumber\memplumber.cpp" />
