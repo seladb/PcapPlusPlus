@@ -194,6 +194,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
+	PTF_RUN_TEST(TestLRUList, "no_network");
 
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSllFileReadWrite, "no_network;pcap");
@@ -217,9 +218,12 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapFiltersLive, "filters");
 	PTF_RUN_TEST(TestPcapFilters_General_BPFStr, "no_network;filters;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapFiltersOffline, "no_network;filters");
-	// PTF_RUN_TEST(TestHttpRequestParsing, "no_network;http");
-	// PTF_RUN_TEST(TestHttpResponseParsing, "no_network;http");
-	// PTF_RUN_TEST(TestPrintPacketAndLayers, "no_network;print");
+
+	PTF_RUN_TEST(TestHttpRequestParsing, "no_network;http");
+	PTF_RUN_TEST(TestHttpResponseParsing, "no_network;http");
+	PTF_RUN_TEST(TestPrintPacketAndLayers, "no_network;print");
+	PTF_RUN_TEST(TestDnsParsing, "no_network;dns");
+
 	// PTF_RUN_TEST(TestPfRingDevice, "pf_ring");
 	// PTF_RUN_TEST(TestPfRingDeviceSingleChannel, "pf_ring");
 	// PTF_RUN_TEST(TestPfRingMultiThreadAllCores, "pf_ring");
@@ -227,7 +231,6 @@ int main(int argc, char* argv[])
 	// PTF_RUN_TEST(TestPfRingSendPacket, "pf_ring");
 	// PTF_RUN_TEST(TestPfRingSendPackets, "pf_ring");
 	// PTF_RUN_TEST(TestPfRingFilters, "pf_ring");
-	// PTF_RUN_TEST(TestDnsParsing, "no_network;dns");
 	// PTF_RUN_TEST(TestDpdkInitDevice, "dpdk;dpdk-init;skip_mem_leak_check");
 	// PTF_RUN_TEST(TestDpdkDevice, "dpdk");
 	// PTF_RUN_TEST(TestDpdkMultiThread, "dpdk");
@@ -256,7 +259,6 @@ int main(int argc, char* argv[])
 	// PTF_RUN_TEST(TestIPFragMapOverflow, "no_network;ip_frag");
 	// PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
 	// PTF_RUN_TEST(TestRawSockets, "raw_sockets");
-	// PTF_RUN_TEST(TestLRUList, "no_network");
 	// PTF_RUN_TEST(TestGeneralUtils, "no_network");
 
 	PTF_END_RUNNING_TESTS;

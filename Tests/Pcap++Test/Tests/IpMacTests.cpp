@@ -2,6 +2,7 @@
 #include "EndianPortable.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
+#include "LRUList.h"
 
 
 PTF_TEST_CASE(TestIPAddress)
@@ -122,3 +123,24 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_FALSE(macWrong2.isValid());
 	PTF_ASSERT_FALSE(macWrong3.isValid());
 } // TestMacAddress
+
+
+
+PTF_TEST_CASE(TestLRUList)
+{
+	pcpp::LRUList<uint32_t> lruList(2);
+
+	uint32_t deletedValue = 0;
+	PTF_ASSERT_EQUAL(lruList.put(1, &deletedValue), 0, int);
+	PTF_ASSERT_EQUAL(deletedValue, 0, int);
+
+	PTF_ASSERT_EQUAL(lruList.put(2, NULL), 0, int);
+
+	PTF_ASSERT_EQUAL(lruList.put(3, &deletedValue), 1, int);
+	PTF_ASSERT_EQUAL(deletedValue, 1, u32);
+
+	lruList.eraseElement(1);
+	lruList.eraseElement(2);
+	lruList.eraseElement(3);
+	PTF_ASSERT_EQUAL(lruList.getSize(), 0, size);
+} // TestLRUList

@@ -5,6 +5,7 @@
 // Implemented in IpMac.cpp
 PTF_TEST_CASE(TestIPAddress);
 PTF_TEST_CASE(TestMacAddress);
+PTF_TEST_CASE(TestLRUList);
 
 // Implemented in FileTests.cpp
 PTF_TEST_CASE(TestPcapFileReadWrite);
@@ -31,3 +32,9 @@ PTF_TEST_CASE(TestRemoteCapture);
 PTF_TEST_CASE(TestPcapFiltersLive);
 PTF_TEST_CASE(TestPcapFilters_General_BPFStr);
 PTF_TEST_CASE(TestPcapFiltersOffline);
+
+// Implemented in PacketParsingTests.cpp
+PTF_TEST_CASE(TestHttpRequestParsing);
+PTF_TEST_CASE(TestHttpResponseParsing);
+PTF_TEST_CASE(TestPrintPacketAndLayers);
+PTF_TEST_CASE(TestDnsParsing);
