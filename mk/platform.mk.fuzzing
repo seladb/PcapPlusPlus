@@ -15,7 +15,7 @@ CC := clang
 endif
 
 ifndef CXXFLAGS
-CXXFLAGS := -g -O0 -fsanitize=address,fuzzer-no-link
+CXXFLAGS := -g -O0 -fsanitize=fuzzer-no-link
 endif
 
 AR := ar
@@ -31,6 +31,6 @@ INSTALL_SCRIPT := install.sh
 UNINSTALL_SCRIPT := uninstall.sh
 
 ifndef LIB_FUZZING_ENGINE
-LIB_FUZZING_ENGINE := -fsanitize=address,fuzzer
+LIB_FUZZING_ENGINE := -fsanitize=fuzzer
 endif
 
