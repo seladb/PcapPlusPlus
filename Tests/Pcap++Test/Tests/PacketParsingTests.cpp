@@ -2,6 +2,7 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 #include <fstream>
+#include <stdlib.h>
 #include "Packet.h"
 #include "HttpLayer.h"
 #include "DnsLayer.h"

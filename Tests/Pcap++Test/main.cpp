@@ -239,25 +239,29 @@ int main(int argc, char* argv[])
 	// PTF_RUN_TEST(TestKniDeviceSendReceive, "dpdk;kni");
 	// PTF_RUN_TEST(TestDpdkMbufRawPacket, "dpdk");
 	// PTF_RUN_TEST(TestDpdkDeviceWorkerThreads, "dpdk");
+
 	// PTF_RUN_TEST(TestGetMacAddress, "mac");
-	// PTF_RUN_TEST(TestTcpReassemblySanity, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyRetran, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyMissingData, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyOutOfOrder, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyWithFIN_RST, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyMalformedPkts, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyMultipleConns, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyIPv6, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyIPv6MultConns, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyIPv6_OOO, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyCleanup, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestTcpReassemblyMaxSeq, "no_network;tcp_reassembly");
-	// PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");
-	// PTF_RUN_TEST(TestIPFragOutOfOrder, "no_network;ip_frag");
-	// PTF_RUN_TEST(TestIPFragPartialData, "no_network;ip_frag");
-	// PTF_RUN_TEST(TestIPFragMultipleFrags, "no_network;ip_frag");
-	// PTF_RUN_TEST(TestIPFragMapOverflow, "no_network;ip_frag");
-	// PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
+
+	PTF_RUN_TEST(TestTcpReassemblySanity, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyRetran, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyMissingData, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyOutOfOrder, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyWithFIN_RST, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyMalformedPkts, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyMultipleConns, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyIPv6, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyIPv6MultConns, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyIPv6_OOO, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyCleanup, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyMaxSeq, "no_network;tcp_reassembly");
+
+	PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");
+	PTF_RUN_TEST(TestIPFragOutOfOrder, "no_network;ip_frag");
+	PTF_RUN_TEST(TestIPFragPartialData, "no_network;ip_frag");
+	PTF_RUN_TEST(TestIPFragMultipleFrags, "no_network;ip_frag");
+	PTF_RUN_TEST(TestIPFragMapOverflow, "no_network;ip_frag");
+	PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
+
 	// PTF_RUN_TEST(TestRawSockets, "raw_sockets");
 	// PTF_RUN_TEST(TestGeneralUtils, "no_network");
 

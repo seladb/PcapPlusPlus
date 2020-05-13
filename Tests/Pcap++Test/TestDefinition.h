@@ -38,3 +38,25 @@ PTF_TEST_CASE(TestHttpRequestParsing);
 PTF_TEST_CASE(TestHttpResponseParsing);
 PTF_TEST_CASE(TestPrintPacketAndLayers);
 PTF_TEST_CASE(TestDnsParsing);
+
+// Implemented in TcpReassemblyTests.cpp
+PTF_TEST_CASE(TestTcpReassemblySanity);
+PTF_TEST_CASE(TestTcpReassemblyRetran);
+PTF_TEST_CASE(TestTcpReassemblyMissingData);
+PTF_TEST_CASE(TestTcpReassemblyOutOfOrder);
+PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST);
+PTF_TEST_CASE(TestTcpReassemblyMalformedPkts);
+PTF_TEST_CASE(TestTcpReassemblyMultipleConns);
+PTF_TEST_CASE(TestTcpReassemblyIPv6);
+PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns);
+PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO);
+PTF_TEST_CASE(TestTcpReassemblyCleanup);
+PTF_TEST_CASE(TestTcpReassemblyMaxSeq);
+
+// Implemented in IPFragmentationTests.cpp
+PTF_TEST_CASE(TestIPFragmentationSanity);
+PTF_TEST_CASE(TestIPFragOutOfOrder);
+PTF_TEST_CASE(TestIPFragPartialData);
+PTF_TEST_CASE(TestIPFragMultipleFrags);
+PTF_TEST_CASE(TestIPFragMapOverflow);
+PTF_TEST_CASE(TestIPFragRemove);

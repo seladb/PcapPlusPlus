@@ -35,6 +35,9 @@
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\FilterTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\IPFragmentationTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\IpMacTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
@@ -42,6 +45,9 @@
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\PacketParsingTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\TcpReassemblyTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>
