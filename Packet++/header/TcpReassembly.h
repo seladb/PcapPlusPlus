@@ -240,6 +240,20 @@ public:
 		TcpReassemblyConnectionClosedManually
 	};
 
+	enum ReassemblyStatus 
+	{
+		Success_TcpMessageHandled,
+		Success_OutOfOrderTcpMessageBuffered,
+		Success_FIN_RSTWithNoData,
+		Ignore_IcmpPacket,
+		Ignore_PacketWithNoData,
+		Ignore_PacketOfClosedFlow,
+		Ignore_Retransimission,
+		Error_NonIpPacket,
+		Error_NonTcpPacket,
+		Error_PacketDoesNotMatchFlow,
+	};
+
 	/**
 	 * The type for storing the connection information
 	 */
@@ -300,6 +314,9 @@ public:
 	 * @param[in] tcpRawData A reference to the raw packet to process
 	 */
 	void reassemblePacket(RawPacket* tcpRawData);
+
+	void reassemblePacket(RawPacket* tcpRawData, ReassemblyStatus &status);
+	void reassemblePacket(Packet& tcpData, ReassemblyStatus &status);
 
 	/**
 	 * Close a connection manually. If the connection doesn't exist or already closed an error log is printed. This method will cause the TcpReassembly#OnTcpConnectionEnd to be invoked with

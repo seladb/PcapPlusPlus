@@ -113,7 +113,7 @@ TcpReassembly::~TcpReassembly()
 	}
 }
 
-void TcpReassembly::reassemblePacket(Packet& tcpData)
+void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 {
 	// automatic cleanup
 	if (m_RemoveConnInfo == true)
@@ -132,13 +132,20 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpData.isPacketOfType(IPv6))
 		ipLayer = (Layer*)tcpData.getLayerOfType<IPv6Layer>();
 
-	if (ipLayer == NULL)
+	if (ipLayer == NULL) 
+	{
+		status = Error_NonIpPacket;
 		return;
+	}
+
 
 	// Ignore non-TCP packets
 	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true); // lookup in reverse order
 	if (tcpLayer == NULL)
+	{
+		status = Error_NonTcpPacket;
 		return;
+	}
 
 	// Ignore the packet if it's an ICMP packet that has a TCP layer
 	// Several ICMP messages (like "destination unreachable") have TCP data as part of the ICMP message.
@@ -146,6 +153,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	if (tcpData.isPacketOfType(ICMP))
 	{
 		LOG_DEBUG("Packet is of type ICMP so TCP data is probably  part of the ICMP message. Ignoring this packet");
+		status = Ignore_IcmpPacket;
 		return;
 	}
 
@@ -159,7 +167,10 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 
 	// ignore ACK packets or TCP packets with no payload (except for SYN, FIN or RST packets which we'll later need)
 	if (tcpPayloadSize == 0 && tcpLayer->getTcpHeader()->synFlag == 0 && !isFinOrRst)
+	{
+		status = Ignore_PacketWithNoData;
 		return;
+	}
 
 	TcpReassemblyData* tcpReassemblyData = NULL;
 
@@ -174,6 +185,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	if (iter != m_ConnectionList.end() && iter->second == NULL)
 	{
 		LOG_DEBUG("Ignoring packet of already closed flow [0x%X]", flowKey);
+		status = Ignore_PacketOfClosedFlow;
 		return;
 	}
 
@@ -289,6 +301,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		else
 		{
 			LOG_ERROR("Error occurred - packet doesn't match either side of the connection!!");
+			status = Error_PacketDoesNotMatchFlow;
 			return;
 		}
 	}
@@ -296,6 +309,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else
 	{
 		LOG_ERROR("Error occurred - connection has more than 2 sides!!");
+		status = Error_PacketDoesNotMatchFlow;
 		return;
 	}
 
@@ -303,6 +317,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
 	{
 		LOG_DEBUG("Got a packet after FIN or RST were already seen on this side (%d). Ignoring this packet", sideIndex);
+		status = Ignore_PacketOfClosedFlow;
 		return;
 	}
 
@@ -312,6 +327,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		LOG_DEBUG("Got FIN or RST packet without data on side %d", sideIndex);
 
 		handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+		status = Success_FIN_RSTWithNoData;
 		return;
 	}
 
@@ -352,11 +368,12 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, tcpReassemblyData->connData);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
+		status = Success_TcpMessageHandled;
 
 		// handle case where this packet is FIN or RST (although it's unlikely)
 		if (isFinOrRst)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-
+		
 		// return - nothing else to do here
 		return;
 	}
@@ -386,12 +403,16 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, tcpReassemblyData->connData);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
+			status = Success_TcpMessageHandled;
+		}
+		else {
+			status = Ignore_Retransimission;
 		}
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-
+			
 		// return - nothing else to do here
 		return;
 	}
@@ -406,7 +427,14 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
+			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+				status = Success_FIN_RSTWithNoData;
+			}
+			else
+			{
+				status = Ignore_PacketWithNoData;
+			}
 
 			return;
 		}
@@ -426,6 +454,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, tcpReassemblyData->connData);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
+		status = Success_TcpMessageHandled;
 
 		//while (checkOutOfOrderFragments(tcpReassemblyData, sideIndex)) {}
 
@@ -451,7 +480,14 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
+			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+				status = Success_FIN_RSTWithNoData;
+			}
+			else
+			{
+				status = Ignore_PacketWithNoData;
+			}
 
 			return;
 		}
@@ -465,6 +501,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
 		LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size %d to the out-of-order list of side %d", (int)tcpPayloadSize, sideIndex);
+		status = Success_OutOfOrderTcpMessageBuffered;
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
@@ -476,11 +513,26 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	}
 }
 
-void TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
+void TcpReassembly::reassemblePacket(Packet& tcpData)
+{
+	ReassemblyStatus status = Success_TcpMessageHandled;
+	reassemblePacket(tcpData, status);
+}
+
+void TcpReassembly::reassemblePacket(RawPacket* tcpRawData, ReassemblyStatus &status)
 {
 	Packet parsedPacket(tcpRawData, false);
-	reassemblePacket(parsedPacket);
+	reassemblePacket(parsedPacket, status);
 }
+
+void TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
+{
+	ReassemblyStatus status = Success_TcpMessageHandled;
+	Packet parsedPacket(tcpRawData, false);
+	reassemblePacket(parsedPacket, status);
+}
+
+
 
 std::string TcpReassembly::prepareMissingDataMessage(uint32_t missingDataLen)
 {
