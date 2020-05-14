@@ -35,7 +35,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_PRINT_VERBOSE("basic IPv4 reassembly test - iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
 		if (i == 0)
@@ -95,7 +95,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_PRINT_VERBOSE("basic IPv6 reassembly test - iterating over packet stream");
 	for (size_t i = 0; i < packet1Frags.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 		pcpp::Packet packet(packet1Frags.at(i));
 		result = ipReassembly.processPacket(&packet, status);
 		if (i == 0)
@@ -141,7 +141,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_PRINT_VERBOSE("non-fragment test - iterating over packet stream");
 	for (size_t i = 0; i < 20; i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
 
@@ -156,7 +156,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_PRINT_VERBOSE("non-IP test - iterating over packet stream");
 	for (size_t i = 20; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
 
@@ -193,7 +193,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("First use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -241,7 +241,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("Second use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -287,7 +287,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("Third use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -335,7 +335,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("Fourth use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -386,7 +386,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("Fifth use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);

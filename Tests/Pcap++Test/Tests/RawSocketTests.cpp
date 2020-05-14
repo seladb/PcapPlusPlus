@@ -126,19 +126,32 @@ PTF_TEST_CASE(TestRawSockets)
 
 	if (sendSupported)
 	{
-		// send single packet
 		pcpp::PcapFileReaderDevice readerDev(EXAMPLE2_PCAP_PATH);
 		PTF_ASSERT_TRUE(readerDev.open());
 		packetVec.clear();
+
+		// get 100 packets from file
 		readerDev.getNextPackets(packetVec, 100);
-		for (pcpp::RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
+		pcpp::RawPacketVector::VectorIterator iter = packetVec.begin();
+
+		// send 100 single packets
+		while (iter != packetVec.end())
 		{
+			// parse the packet first to make sure it can be sent, otherwise remove it from the list
+			pcpp::Packet parsedPacket(*iter);
+			if (!parsedPacket.isPacketOfType(protocol))
+			{
+				packetVec.erase(iter);
+				continue;
+			}
+
 			PTF_ASSERT_TRUE(rawSock.sendPacket(*iter));
 			PTF_ASSERT_TRUE(rawSock2.sendPacket(*iter));
+			iter++;
 		}
 
 		// send multiple packets
-		PTF_ASSERT_EQUAL(rawSock.sendPackets(packetVec), 100, int);
+		PTF_ASSERT_EQUAL(rawSock.sendPackets(packetVec), (int)packetVec.size(), int);
 	}
 	else
 	{

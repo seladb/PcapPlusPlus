@@ -2,6 +2,7 @@
 #include "../Common/TestUtils.h"
 #include "../Common/GlobalTestArgs.h"
 #include <sstream>
+#include <algorithm>
 #include "EndianPortable.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
