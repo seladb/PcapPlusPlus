@@ -2,6 +2,7 @@
 #include "../Common/TestUtils.h"
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 #include "EndianPortable.h"
 #include "TcpReassembly.h"
 #include "IPv4Layer.h"

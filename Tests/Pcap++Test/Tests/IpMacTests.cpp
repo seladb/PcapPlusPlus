@@ -1,9 +1,19 @@
 #include "../TestDefinition.h"
+#include "../Common/TestUtils.h"
+#include "../Common/GlobalTestArgs.h"
+#include <sstream>
 #include "EndianPortable.h"
+#include "Logger.h"
+#include "GeneralUtils.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include "LRUList.h"
+#include "NetworkUtils.h"
+#include "PcapLiveDeviceList.h"
+#include "SystemUtils.h"
 
+
+extern PcapTestArgs PcapTestGlobalArgs;
 
 PTF_TEST_CASE(TestIPAddress)
 {
@@ -144,3 +154,77 @@ PTF_TEST_CASE(TestLRUList)
 	lruList.eraseElement(3);
 	PTF_ASSERT_EQUAL(lruList.getSize(), 0, size);
 } // TestLRUList
+
+
+
+PTF_TEST_CASE(TestGeneralUtils)
+{
+	uint8_t resultArr[4];
+	const uint8_t expectedBytes[] = { 0xaa, 0xbb };
+	size_t result = pcpp::hexStringToByteArray("AABB", resultArr, sizeof(resultArr));
+	PTF_ASSERT_TRUE(result > 0);
+	PTF_ASSERT_TRUE(result <= sizeof(resultArr));
+	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes, result);
+
+	pcpp::LoggerPP::getInstance().supressErrors();
+	// odd length
+	result = pcpp::hexStringToByteArray("aab", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 0, size);
+	// wrong input
+	result = pcpp::hexStringToByteArray("zzvv", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 0, size);
+	PTF_ASSERT_TRUE(resultArr[0] == '\0');
+	pcpp::LoggerPP::getInstance().enableErrors();
+
+	// short buffer
+	const uint8_t expectedBytes2[] = { 0x01, 0x02, 0x03, 0x04 };
+	result = pcpp::hexStringToByteArray("0102030405", resultArr, sizeof(resultArr));
+	PTF_ASSERT_EQUAL(result, 4, size);
+	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes2, result);
+} // TestGeneralUtils
+
+
+
+PTF_TEST_CASE(TestGetMacAddress)
+{
+	pcpp::PcapLiveDevice* liveDev = NULL;
+	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	PTF_ASSERT_NOT_NULL(liveDev);
+	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
+
+	//fetch all IP addresses from arp table
+	std::string ipsInArpTableAsString;
+#ifdef WIN32
+	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | for /f \"tokens=1\" \%i in ('findstr dynamic') do @echo \%i");
+	ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
+#else
+	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
+#endif
+
+	PTF_ASSERT_NOT_EQUAL(ipsInArpTableAsString, "", string);
+
+	// iterate all IP addresses and arping each one until one of them answers
+	pcpp::MacAddress result = pcpp::MacAddress::Zero;
+	std::stringstream sstream(ipsInArpTableAsString);
+	std::string ip;
+	double time = -1;
+	while (std::getline(sstream, ip, '\n'))
+	{
+		pcpp::IPv4Address ipAddr(ip);
+		PTF_ASSERT_TRUE(ipAddr.isValid());
+		pcpp::LoggerPP::getInstance().supressErrors();
+		result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+		pcpp::LoggerPP::getInstance().enableErrors();
+		if (result != pcpp::MacAddress::Zero)
+		{
+			PTF_ASSERT_GREATER_OR_EQUAL_THAN(time, 0, u64);
+			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
+			PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero, object);
+			break;
+		}
+	}
+
+	PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero, object);
+} // TestGetMacAddress

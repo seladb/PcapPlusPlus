@@ -44,6 +44,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 
 	std::string filterAsString;
 	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
 	pcpp::RawPacketVector capturedPackets;
 
 	//-----------

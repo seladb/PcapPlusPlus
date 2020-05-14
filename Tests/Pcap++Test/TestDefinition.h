@@ -6,6 +6,8 @@
 PTF_TEST_CASE(TestIPAddress);
 PTF_TEST_CASE(TestMacAddress);
 PTF_TEST_CASE(TestLRUList);
+PTF_TEST_CASE(TestGeneralUtils);
+PTF_TEST_CASE(TestGetMacAddress);
 
 // Implemented in FileTests.cpp
 PTF_TEST_CASE(TestPcapFileReadWrite);
@@ -60,3 +62,6 @@ PTF_TEST_CASE(TestIPFragPartialData);
 PTF_TEST_CASE(TestIPFragMultipleFrags);
 PTF_TEST_CASE(TestIPFragMapOverflow);
 PTF_TEST_CASE(TestIPFragRemove);
+
+// Implemented in RawSocketTests.cpp
+PTF_TEST_CASE(TestRawSockets);

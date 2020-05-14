@@ -198,6 +198,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0, u32);
 	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
 	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
@@ -269,6 +270,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
 	int numOfTimeStatsWereInvoked = 0;
 	PTF_ASSERT_TRUE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
 	sendURLRequest("www.ebay.com");
@@ -309,6 +311,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
 
 	// sanity - test blocking mode returns with timeout
 	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, NULL, 5), -1, int);
@@ -401,6 +404,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	// open device in default mode
 	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
 
 	// sanity test - make sure packets are captured in default mode
 	int packetCount = 0;
@@ -457,6 +461,7 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	int defaultDataToCopy = winPcapLiveDevice->getMinAmountOfDataToCopyFromKernelToApplication();
 	PTF_ASSERT_EQUAL(defaultDataToCopy, 16000, int);
 	PTF_ASSERT_TRUE(winPcapLiveDevice->open());
+	DeviceTeardown devTeardown(winPcapLiveDevice);
 	PTF_ASSERT_TRUE(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(100000));
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
@@ -496,6 +501,7 @@ PTF_TEST_CASE(TestSendPacket)
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
 
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
@@ -547,6 +553,7 @@ PTF_TEST_CASE(TestSendPackets)
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
 
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
@@ -606,6 +613,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero, object);
 	pcpp::LoggerPP::getInstance().enableErrors();
 	PTF_ASSERT_TRUE(remoteDevice->open());
+	DeviceTeardown devTeardown(remoteDevice);
 	pcpp::RawPacketVector capturedPackets;
 	PTF_ASSERT_TRUE(remoteDevice->startCapture(capturedPackets));
 

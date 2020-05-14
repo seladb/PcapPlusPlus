@@ -44,7 +44,7 @@ bool readPcapIntoPacketVec(std::string pcapFileName, std::vector<pcpp::RawPacket
 
 int getFileLength(std::string filename)
 {
-	std::ifstream infile(filename, std::ifstream::binary);
+	std::ifstream infile(filename.c_str(), std::ifstream::binary);
 	if (!infile)
 		return -1;
 	infile.seekg(0, infile.end);
@@ -60,7 +60,7 @@ uint8_t* readFileIntoBuffer(std::string filename, int& bufferLength)
 	if (fileLength == -1)
 		return NULL;
 
-	std::ifstream infile(filename);
+	std::ifstream infile(filename.c_str());
 	if (!infile)
 		return NULL;
 

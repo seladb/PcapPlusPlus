@@ -182,6 +182,7 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\IpMacTests.cpp" />
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\LiveDeviceTests.cpp" />
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\PacketParsingTests.cpp" />
+    <ClCompile Include="..\..\Tests\Pcap++Test\Tests\RawSocketTests.cpp" />
     <ClCompile Include="..\..\Tests\Pcap++Test\Tests\TcpReassemblyTests.cpp" />
   </ItemGroup>
   <ItemGroup>

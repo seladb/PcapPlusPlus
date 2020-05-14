@@ -195,6 +195,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
 	PTF_RUN_TEST(TestLRUList, "no_network");
+	PTF_RUN_TEST(TestGeneralUtils, "no_network");
+	PTF_RUN_TEST(TestGetMacAddress, "mac");
 
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSllFileReadWrite, "no_network;pcap");
@@ -240,8 +242,6 @@ int main(int argc, char* argv[])
 	// PTF_RUN_TEST(TestDpdkMbufRawPacket, "dpdk");
 	// PTF_RUN_TEST(TestDpdkDeviceWorkerThreads, "dpdk");
 
-	// PTF_RUN_TEST(TestGetMacAddress, "mac");
-
 	PTF_RUN_TEST(TestTcpReassemblySanity, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyRetran, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyMissingData, "no_network;tcp_reassembly");
@@ -262,8 +262,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPFragMapOverflow, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
 
-	// PTF_RUN_TEST(TestRawSockets, "raw_sockets");
-	// PTF_RUN_TEST(TestGeneralUtils, "no_network");
+	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
 
 	PTF_END_RUNNING_TESTS;
 }

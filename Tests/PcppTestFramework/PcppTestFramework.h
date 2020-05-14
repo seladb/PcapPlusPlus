@@ -138,19 +138,22 @@
 	}
 
 #define PTF_ASSERT_NOT_NULL(exp) \
-	if ((exp) == NULL) \
-	{ \
+	if ((exp) == NULL) { \
 		printf("%-30s: FAILED (%s:%d). assert not null failed: %s is NULL\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
 		ptfResult = 0; \
 		return; \
 	}
 
 #define PTF_ASSERT_NULL(exp) \
-	if ((exp) != NULL) \
-	{ \
+	if ((exp) != NULL) { \
 		printf("%-30s: FAILED (%s:%d). assert null failed: %s is NULL\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
 		ptfResult = 0; \
 		return; \
+	}
+
+#define PTF_NON_CRITICAL_EQUAL(actual, expected, type) \
+	if (actual != expected) { \
+		printf("%s: NON-CRITICAL: (%s:%d). actual: " type##_PTF_PRINT_FORMAT " != expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
 	}
 
 #define PTF_TRY(exp, assertFailedFormat, ...) \
