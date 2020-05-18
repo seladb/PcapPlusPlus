@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include "../../3rdParty/MemPlumber/MemPlumber/memplumber.h"
+#include "PcppTestFrameworkCommon.h"
 
 static void __ptfSplitString(const std::string& input, std::vector<std::string>& result)
 {
@@ -51,7 +52,7 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 
 #define PTF_RUN_TEST(TestName, tags) \
     std::string TestName##_tags = std::string(#TestName) + ";" + tags; \
-    int TestName##_result = 1; \
+    int TestName##_result = PTF_RESULT_PASSED; \
     if (!__ptfCheckTags(TestName##_tags, userTagsToRun, true)) \
     { \
         if (showSkippedTests) \
@@ -67,10 +68,10 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
             bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", configTagsToRun, false); \
             MemPlumber::start(memAllocVerbose); \
         } \
-        TestName(TestName##_result, verboseMode); \
+        TestName(TestName##_result, verboseMode, showSkippedTests); \
         if (runMemLeakCheck) \
         { \
-            if (TestName##_result != 1) \
+            if (TestName##_result != PTF_RESULT_PASSED) \
             { \
                 MemPlumber::stopAndFreeAllMemory(); \
             } \
@@ -82,22 +83,18 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
                 MemPlumber::stopAndFreeAllMemory(); \
                 if (memLeakCount > 0 || memLeakSize > 0) \
                 { \
-                    TestName##_result = 0; \
+                    TestName##_result = PTF_RESULT_FAILED; \
                     printf("%-30s: FAILED. Memory leak found! %d objects and %d[bytes] leaked\n", #TestName, (int)memLeakCount, (int)memLeakSize); \
                 } \
             } \
         } \
-        if (TestName##_result == 1) \
+        if (TestName##_result == PTF_RESULT_PASSED) \
         { \
             printf("%-30s: PASSED\n", #TestName ""); \
         } \
     } \
-    allTestsPassed &= (TestName##_result != 0)
+    allTestsPassed &= (TestName##_result != PTF_RESULT_FAILED)
 
-#define PTF_SKIP_TEST(why) \
-    printf("%-30s: SKIPPED (%s)\n", __FUNCTION__, why); \
-    ptfResult = -1; \
-    return
 
 #define PTF_END_RUNNING_TESTS \
     if (allTestsPassed) \
@@ -114,8 +111,6 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 static bool verboseMode = false;
 
 #define PTF_SET_VERBOSE_MODE(flag) verboseMode = flag
-
-#define PTF_IS_VERBOSE_MODE verboseMode
 
 static bool showSkippedTests = false;
 

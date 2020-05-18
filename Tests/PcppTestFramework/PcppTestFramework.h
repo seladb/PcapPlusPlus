@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "../../3rdParty/MemPlumber/MemPlumber/memplumber.h"
+#include "PcppTestFrameworkCommon.h"
 
 #ifdef PCAPPP_MINGW_ENV
 #define __STDC_FORMAT_MACROS
@@ -50,10 +51,22 @@
 #define object_PTF_PRINT_TYPE(val) #val
 
 
-#define PTF_TEST_CASE(TestName) void TestName(int& ptfResult, bool printVerbose)
+#define PTF_TEST_CASE(TestName) void TestName(int& ptfResult, bool printVerbose, bool showSkipped)
+
+#define PTF_INTERNAL_RUN(TestName) \
+	TestName(ptfResult, printVerbose, showSkipped); \
+	if (ptfResult == PTF_RESULT_FAILED) { \
+		printf("%-30s: FAILED (%s:%d). Internal test '%s' failed\n", __FUNCTION__, __FILE__, __LINE__, #TestName); \
+		return; \
+	} \
+	else { \
+		ptfResult = PTF_RESULT_PASSED; \
+	}
+
+#define PTF_IS_VERBOSE_MODE printVerbose
 
 #define PTF_TEST_CASE_PASSED \
-	ptfResult = 1; \
+	ptfResult = PTF_RESULT_PASSED; \
 	return
 
 #define PTF_ASSERT(exp, assertFailedFormat, ...) \
@@ -76,42 +89,42 @@
 #define PTF_ASSERT_EQUAL(actual, expected, type) \
 	if (actual != expected) { \
 		printf("%-30s: FAILED (%s:%d). assert equal failed: actual: " type##_PTF_PRINT_FORMAT " != expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_NOT_EQUAL(actual, expected, type) \
 	if (actual == expected) { \
 		printf("%-30s: FAILED (%s:%d). assert not equal failed: actual: " type##_PTF_PRINT_FORMAT " == expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_GREATER_THAN(actual, expected, type) \
 	if (actual <= expected) { \
 		printf("%-30s: FAILED (%s:%d). assert greater than failed: actual: " type##_PTF_PRINT_FORMAT " <= expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_GREATER_OR_EQUAL_THAN(actual, expected, type) \
 	if (actual < expected) { \
 		printf("%-30s: FAILED (%s:%d). assert greater or equal than failed: actual: " type##_PTF_PRINT_FORMAT " < expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_LOWER_THAN(actual, expected, type) \
 	if (actual >= expected) { \
 		printf("%-30s: FAILED (%s:%d). assert lower than failed: actual: " type##_PTF_PRINT_FORMAT " >= expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_LOWER_OR_EQUAL_THAN(actual, expected, type) \
 	if (actual > expected) { \
 		printf("%-30s: FAILED (%s:%d). assert lower or equal than failed: actual: " type##_PTF_PRINT_FORMAT " > expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
@@ -119,35 +132,35 @@
 #define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) \
 	if (memcmp(buf1, buf2, size) != 0) { \
 		printf("%-30s: FAILED (%s:%d). assert buffer compare failed: %s != %s\n", __FUNCTION__, __FILE__, __LINE__, #buf1, #buf2); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_TRUE(exp) \
 	if (!(exp)) { \
 		printf("%-30s: FAILED (%s:%d). assert true failed: %s\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_FALSE(exp) \
 	if (exp) { \
 		printf("%-30s: FAILED (%s:%d). assert false failed: %s\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_NOT_NULL(exp) \
 	if ((exp) == NULL) { \
 		printf("%-30s: FAILED (%s:%d). assert not null failed: %s is NULL\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
 #define PTF_ASSERT_NULL(exp) \
 	if ((exp) != NULL) { \
 		printf("%-30s: FAILED (%s:%d). assert null failed: %s is NULL\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
-		ptfResult = 0; \
+		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}
 
@@ -167,5 +180,12 @@
 			printf("%-30s: [VERBOSE] " format "\n", __FUNCTION__, ## __VA_ARGS__); \
 		} \
 } while(0)
+
+#define PTF_SKIP_TEST(why) \
+	if (showSkipped) { \
+		printf("%-30s: SKIPPED (%s)\n", __FUNCTION__, why); \
+	} \
+	ptfResult = PTF_RESULT_SKIPPED; \
+	return
 
 #endif // PCPP_TEST_FRAMEWORK
