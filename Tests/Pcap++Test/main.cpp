@@ -1,12 +1,12 @@
 #include <stdio.h> 
 #include <stdlib.h>
-#include "PcapLiveDeviceList.h"
 #include <getopt.h>
 #include "PcapPlusPlusVersion.h"
 #include "Logger.h"
 #include "../PcppTestFramework/PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
 #include "Common/GlobalTestArgs.h"
+#include "Common/TestUtils.h"
 
 static struct option PcapTestOptions[] =
 {
@@ -29,7 +29,7 @@ static struct option PcapTestOptions[] =
 
 void printUsage()
 {
-	printf("Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d dpdk_port] [-k ip_addr] [-t tags] [-h]\n\n"
+	printf("Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d dpdk_port] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
 				"Flags:\n"
 				"-i --use-ip              IP to use for sending and receiving packets\n"
 				"-b --debug-mode          Set log level to DEBUG\n"
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 
 	int optionIndex = 0;
 	char opt = 0;
-	while((opt = getopt_long(argc, argv, "k:i:br:p:d:nvt:sm", PcapTestOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "k:i:br:p:d:nvt:smw", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -104,6 +104,9 @@ int main(int argc, char* argv[])
 				break;
 			case 'm':
 				memVerbose = true;
+				break;
+			case 'w':
+				PTF_SHOW_SKIPPED_TESTS(true);
 				break;
 			case 'h':
 				printUsage();
@@ -190,7 +193,7 @@ int main(int argc, char* argv[])
 
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
-	pcpp::PcapLiveDeviceList::getInstance();
+	testSetUp();
 
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
@@ -226,13 +229,14 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPrintPacketAndLayers, "no_network;print");
 	PTF_RUN_TEST(TestDnsParsing, "no_network;dns");
 
-	// PTF_RUN_TEST(TestPfRingDevice, "pf_ring");
-	// PTF_RUN_TEST(TestPfRingDeviceSingleChannel, "pf_ring");
-	// PTF_RUN_TEST(TestPfRingMultiThreadAllCores, "pf_ring");
-	// PTF_RUN_TEST(TestPfRingMultiThreadSomeCores, "pf_ring");
-	// PTF_RUN_TEST(TestPfRingSendPacket, "pf_ring");
-	// PTF_RUN_TEST(TestPfRingSendPackets, "pf_ring");
-	// PTF_RUN_TEST(TestPfRingFilters, "pf_ring");
+	PTF_RUN_TEST(TestPfRingDevice, "pf_ring");
+	PTF_RUN_TEST(TestPfRingDeviceSingleChannel, "pf_ring");
+	PTF_RUN_TEST(TestPfRingMultiThreadAllCores, "pf_ring");
+	PTF_RUN_TEST(TestPfRingMultiThreadSomeCores, "pf_ring");
+	PTF_RUN_TEST(TestPfRingSendPacket, "pf_ring");
+	PTF_RUN_TEST(TestPfRingSendPackets, "pf_ring");
+	PTF_RUN_TEST(TestPfRingFilters, "pf_ring");
+
 	// PTF_RUN_TEST(TestDpdkInitDevice, "dpdk;dpdk-init;skip_mem_leak_check");
 	// PTF_RUN_TEST(TestDpdkDevice, "dpdk");
 	// PTF_RUN_TEST(TestDpdkMultiThread, "dpdk");

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <fstream>
 #include "PcapFileDevice.h"
+#include "PcapLiveDeviceList.h"
+#include "PfRingDeviceList.h"
 
 bool sendURLRequest(std::string url)
 {
@@ -78,4 +80,14 @@ uint8_t* readFileIntoBuffer(std::string filename, int& bufferLength)
 	infile.close();
 	bufferLength -= 2;
 	return result;
+}
+
+
+void testSetUp()
+{
+	pcpp::PcapLiveDeviceList::getInstance();
+
+	#ifdef USE_PF_RING
+	pcpp::PfRingDeviceList::getInstance();
+	#endif
 }

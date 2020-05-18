@@ -63,5 +63,14 @@ PTF_TEST_CASE(TestIPFragMultipleFrags);
 PTF_TEST_CASE(TestIPFragMapOverflow);
 PTF_TEST_CASE(TestIPFragRemove);
 
+// Implemented in PfRingTests.cpp
+PTF_TEST_CASE(TestPfRingDevice);
+PTF_TEST_CASE(TestPfRingDeviceSingleChannel);
+PTF_TEST_CASE(TestPfRingMultiThreadAllCores);
+PTF_TEST_CASE(TestPfRingMultiThreadSomeCores);
+PTF_TEST_CASE(TestPfRingSendPacket);
+PTF_TEST_CASE(TestPfRingSendPackets);
+PTF_TEST_CASE(TestPfRingFilters);
+
 // Implemented in RawSocketTests.cpp
 PTF_TEST_CASE(TestRawSockets);
