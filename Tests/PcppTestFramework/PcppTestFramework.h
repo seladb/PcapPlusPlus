@@ -69,23 +69,6 @@
 	ptfResult = PTF_RESULT_PASSED; \
 	return
 
-#define PTF_ASSERT(exp, assertFailedFormat, ...) \
-	if (!(exp)) \
-	{ \
-		printf("%-30s: FAILED. assertion failed: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
-		ptfResult = 0; \
-		return; \
-	}
-
-#define PTF_ASSERT_AND_RUN_COMMAND(exp, command, assertFailedFormat, ...) \
-	if (!(exp)) \
-	{ \
-		printf("%-30s: FAILED. assertion failed: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
-		command; \
-		ptfResult = 0; \
-		return; \
-	}
-
 #define PTF_ASSERT_EQUAL(actual, expected, type) \
 	if (actual != expected) { \
 		printf("%-30s: FAILED (%s:%d). assert equal failed: actual: " type##_PTF_PRINT_FORMAT " != expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
@@ -172,12 +155,6 @@
 #define PTF_NON_CRITICAL_TRUE(exp) \
 	if (!exp) { \
 		printf("%s: NON-CRITICAL: (%s:%d). expression is not true: %s\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
-	}
-
-#define PTF_TRY(exp, assertFailedFormat, ...) \
-	if (!(exp)) \
-	{ \
-		printf("%s, NON-CRITICAL: " assertFailedFormat "\n", __FUNCTION__, ## __VA_ARGS__); \
 	}
 
 #define PTF_PRINT_VERBOSE(format, ...) do { \

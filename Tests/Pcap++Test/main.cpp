@@ -1,12 +1,12 @@
 #include <stdio.h> 
 #include <stdlib.h>
-#include <getopt.h>
 #include "PcapPlusPlusVersion.h"
 #include "Logger.h"
 #include "../PcppTestFramework/PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
 #include "Common/GlobalTestArgs.h"
 #include "Common/TestUtils.h"
+#include <getopt.h>
 
 static struct option PcapTestOptions[] =
 {
