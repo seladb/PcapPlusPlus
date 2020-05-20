@@ -81,6 +81,16 @@ namespace pcpp
 		 */
 		Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
 
+		/**
+		 * A constructor for creating a packet out of already allocated and pre-filled memory. Very useful if you need to provide a buffer to the user, which fills the buffer with
+		 * payload at a defined position and you then need to package this payload into a packet.
+		 * The constructor is going to assign the buffer as its internal storage - i.e. the packet will destroy the buffer on destruction of the packet object
+		 * The constructor is going to create a PayloadLayer pointing to the provided payload. This is the first and last layer of the packet upon creation.
+		 * @param[in] buffer A pointer to the pre-allocated buffer
+		 * @param[in] bufferLength Length of the pre-allocated buffer
+		 * @param[in] payload A pointer to the pre-filled payload in the buffer
+		 * @param[in] payloadLength Length of the pre-filled payload in the buffer
+		 */
 		Packet(uint8_t* buffer, size_t bufferLength, uint8_t* payload, size_t payloadLength);
 
 		/**
@@ -303,7 +313,14 @@ namespace pcpp
 		 */
 		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true) const;
 
-		bool addLayerBefore(Layer* layerToAddInFrontOf, Layer* layerToAdd, bool ownInPacket);
+		/**
+		 * Similar to addLayer(), but it adds the layer before a given layer instead of after.
+		 * @param[in] layerToAddInFrontOf Layer that the new layer shall be added in front of. If this is not the first layer of the packet, the other layers in front of this layer are moved so there is room for the new layer
+		 * @param[in] layerToAdd Layer that shall be added to the packet
+		 * @param[in] ownInPacket If true, Packet fully owns layerToAdd, including memory deletion upon destruct.  Default is false.
+		 * @return True if the layer has been added to the packet or false if not.
+		 */
+		bool addLayerBefore(Layer* layerToAddInFrontOf, Layer* layerToAdd, bool ownInPacket = false);
 
 	private:
 		void copyDataFrom(const Packet& other);

@@ -783,7 +783,6 @@ bool Packet::addLayerBefore(Layer* layerToAddInFrontOf, Layer* layerToAdd, bool 
 
 	uint8_t* insertPosition = layerToAddInFrontOf->m_Data - dataLengthToAdd;
 
-
 	// check if adding in front would be out of bounds
 	if (insertPosition < startOfBuffer)
 		return false;

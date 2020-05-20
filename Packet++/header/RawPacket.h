@@ -220,9 +220,21 @@ namespace pcpp
 	class RawPacket
 	{
 	protected:
+		/**
+		* Points to the start of the data in the buffer (i.e. the frame)
+		*/
 		uint8_t* m_RawData;
+		/**
+		* Points to the start of the buffer
+		*/
 		uint8_t* m_StartOfBuffer;
+		/**
+		* Denotes the length of the buffer
+		*/
 		int m_RawDataLen;
+		/**
+		* Denotes the length of the frame in the buffer
+		*/
 		int m_FrameLength;
 		timespec m_TimeStamp;
 		bool m_DeleteRawDataAtDestructor;
@@ -411,12 +423,36 @@ namespace pcpp
 		 */
 		virtual bool reallocateData(size_t newBufferLength);
 
+		/**
+		 * Relocates pointer pointing to the beginning of the frame inside of the buffer. Useful if the packet is constructed from pre-allocated pre-filled memory and 
+		 * addLayerBefore() is used.
+		 * @param[in] offsetFromStart Index where the frame starts in the buffer. Counted from start of the buffer
+		 * @return True if the pointer pointing to the start of the data was relocated successfully
+		 */
 		bool relocateStartOfPacket(size_t offsetFromStart);
 
+		/**
+		 * Get pointer to the internal buffer (this does not have to be the start of data - use getRawData() instead)
+		 * @return A read-only pointer to the buffer
+		 */
 		const uint8_t* getBuffer() const { return m_StartOfBuffer; }
 
+		/**
+		 * Writes data given to specified index, counted from the start of the buffer.
+		 * Does not check for out-of-bounds writes or if it overwrites already existing data.
+		 * @param[in] index Index to where the data shall be written. Counted from start of the buffer
+		 * @param[in] data Pointer to the data that should be written
+		 * @param[in] dataLen Length of the data that should be written
+		 */
 		void writeData(size_t index, const uint8_t* data, size_t dataLen);
 
+		/**
+		 * Moves data to another position in the buffer. Can be used to move overlapping sections.
+		 * Currently does not reallocate memory if the move operation would be out of bounds.
+		 * @param[in] indexFrom Index from where the data shall be moved. Counted from the start of the buffer
+		 * @param[in] length Length of the data that shall be moved.
+		 * @param[in] indexTo Index to where the data shall be moved. Counted from the start of the buffer
+		 */
 		void moveData(size_t indexFrom, size_t length, size_t indexTo);
 	};
 
