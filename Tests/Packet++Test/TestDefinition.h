@@ -45,6 +45,7 @@ PTF_TEST_CASE(PacketLayerLookupTest);
 PTF_TEST_CASE(RawPacketTimeStampSetterTest);
 PTF_TEST_CASE(ParsePartialPacketTest);
 PTF_TEST_CASE(PacketTrailerTest);
+PTF_TEST_CASE(ResizeLayerTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestLayerParsingTest);

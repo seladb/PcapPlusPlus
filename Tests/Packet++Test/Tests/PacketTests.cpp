@@ -861,3 +861,58 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PPPoEDiscoveryLayer>()->getDataLen(), 6, size);
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getDataLen(), 28, size);
 } // PacketTrailerTest
+
+
+
+
+PTF_TEST_CASE(ResizeLayerTest)
+{
+	// Creating a packet
+	pcpp::Packet packet(1500);
+		
+	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
+	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+	PTF_ASSERT_TRUE(packet.addLayer(&payloadLayer));
+
+	// Starting Resize testing
+	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 10, int); // Size of packet before resizing is not correct
+	
+	//
+	// test shortening of packet and layer
+	//
+	uint8_t payload2[] = { 0x05, 0x04, 0x03, 0x02, 0x01 };
+	size_t payload2_size = 5;
+	payloadLayer.setPayload(payload2, payload2_size);
+
+	// check that resizing worked in terms of data length
+	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), (int)payload2_size, int); // Size of packet after first resizing (shortening) is not correct
+
+	// confirm that data has been correctly written to raw packet
+	const uint8_t* rawData = packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload2_size);
+	PTF_ASSERT_EQUAL(rawData[0], 0x05, u8); // Setting payload to new payload has failed.
+	PTF_ASSERT_EQUAL(rawData[1], 0x04, u8);
+	PTF_ASSERT_EQUAL(rawData[2], 0x03, u8);
+	PTF_ASSERT_EQUAL(rawData[3], 0x02, u8);
+	PTF_ASSERT_EQUAL(rawData[4], 0x01, u8);
+
+	//
+	// test extension of packet and layer
+	//
+	uint8_t payload3[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF };
+	size_t payload3_size = 8;
+	payloadLayer.setPayload(payload3, payload3_size);
+
+	// check that resizing worked in terms of data length
+	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), (int)payload3_size, int); // Size of packet after second resizing (extension) is not correct
+
+	// confirm that data has been correctly written to raw packet
+	const uint8_t* rawData2 = packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload3_size);
+	PTF_ASSERT_EQUAL(rawData2[0], 0xDE, u8); // Setting payload to new payload has failed.
+	PTF_ASSERT_EQUAL(rawData2[1], 0xAD, u8);
+	PTF_ASSERT_EQUAL(rawData2[2], 0xBE, u8);
+	PTF_ASSERT_EQUAL(rawData2[3], 0xEF, u8);
+	PTF_ASSERT_EQUAL(rawData2[4], 0xDE, u8);
+	PTF_ASSERT_EQUAL(rawData2[5], 0xAD, u8);
+	PTF_ASSERT_EQUAL(rawData2[6], 0xBE, u8);
+	PTF_ASSERT_EQUAL(rawData2[7], 0xEF, u8);
+} // ResizeLayerTest
