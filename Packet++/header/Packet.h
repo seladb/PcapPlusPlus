@@ -81,6 +81,8 @@ namespace pcpp
 		 */
 		Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
 
+		Packet(uint8_t* buffer, size_t bufferLength, uint8_t* payload, size_t payloadLength);
+
 		/**
 		 * A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers that weren't allocated by this
 		 * class, for example layers that were added by addLayer() or insertLayer() ). In addition it frees the raw packet if it was allocated by
@@ -300,6 +302,8 @@ namespace pcpp
 		 * @param[in] timeAsLocalTime Print time as local time or GMT. Default (true value) is local time, for GMT set to false
 		 */
 		void toStringList(std::vector<std::string>& result, bool timeAsLocalTime = true) const;
+
+		bool addLayerBefore(Layer* layerToAddInFrontOf, Layer* layerToAdd, bool ownInPacket);
 
 	private:
 		void copyDataFrom(const Packet& other);

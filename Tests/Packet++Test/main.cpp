@@ -8341,6 +8341,63 @@ PTF_TEST_CASE(ResizeLayerTest)
 	PTF_ASSERT_EQUAL(rawData[7], 0xEF, u8);
 } // ResizeLayerTest
 
+PTF_TEST_CASE(AddPrefilledBufferAndAddLayer)
+{
+	// create data
+	uint8_t buffer[] = {	0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00,
+							0xDE, 0xAD, 0xBE, 0xEF
+	};
+	size_t bufferSize = 36;
+	size_t payloadLength = 4;
+	size_t offsetToPayload = bufferSize - payloadLength;
+
+	// fill packet with pre-allocated and pre-filled buffer
+	Packet packet(buffer, bufferSize, buffer + offsetToPayload, payloadLength);
+
+	// check if payload layer exists and contains the correct values
+	PayloadLayer* payloadLayer = (PayloadLayer*) packet.getLayerOfType<PayloadLayer>();
+	PTF_ASSERT_NOT_NULL(payloadLayer);
+
+	// check for correct length
+	PTF_ASSERT_EQUAL(payloadLayer->getHeaderLen(), 4, size);
+	// check that data is correct
+	PTF_ASSERT_EQUAL(payloadLayer->getPayload()[0], 0xDE, u8);
+	PTF_ASSERT_EQUAL(payloadLayer->getPayload()[1], 0xAD, u8);
+	PTF_ASSERT_EQUAL(payloadLayer->getPayload()[2], 0xBE, u8);
+	PTF_ASSERT_EQUAL(payloadLayer->getPayload()[3], 0xEF, u8);
+
+	// try adding a layer in front of payload layer
+	UdpLayer* udpLayer = new UdpLayer(5000, 5001);
+	PTF_ASSERT_TRUE(packet.addLayerBefore(payloadLayer, udpLayer, true));
+
+	// calculate fields so that all udp header fields are set
+	packet.computeCalculateFields();
+
+	// check all fields for validity in packet
+	const uint8_t* data = packet.getRawPacket()->getRawData();
+	uint16_t srcPort = be16toh(((uint16_t)data[1] << 8) | data[0]);
+	uint16_t dstPort = be16toh(((uint16_t)data[3] << 8) | data[2]);
+	uint16_t udpLengthField = be16toh(((uint16_t)data[5] << 8) | data[4]);
+
+	PTF_ASSERT_EQUAL(srcPort, 5000, int);
+	PTF_ASSERT_EQUAL(dstPort, 5001, int);
+	PTF_ASSERT_EQUAL(udpLengthField, (udpLayer->getHeaderLen() + payloadLength), int);
+
+	// skip checksum validation and check payload in raw packet again just to be sure
+	PTF_ASSERT_EQUAL(data[8],  0xDE, u8);
+	PTF_ASSERT_EQUAL(data[9],  0xAD, u8);
+	PTF_ASSERT_EQUAL(data[10], 0xBE, u8);
+	PTF_ASSERT_EQUAL(data[11], 0xEF, u8);
+	 
+} // AddPrefilledBufferAndAddLayer
+
 static struct option PacketTestOptions[] =
 {
 	{"tags",  required_argument, 0, 't'},
@@ -8511,6 +8568,7 @@ int main(int argc, char* argv[]) {
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
 	PTF_RUN_TEST(ResizeLayerTest, "resize");
+	PTF_RUN_TEST(AddPrefilledBufferAndAddLayer, "packet");
 
 	PTF_END_RUNNING_TESTS;
 }

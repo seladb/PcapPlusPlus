@@ -11,6 +11,7 @@ namespace pcpp
 void RawPacket::init(bool deleteRawDataAtDestructor)
 {
 	m_RawData = 0;
+	m_StartOfBuffer = 0;
 	m_RawDataLen = 0;
 	m_FrameLength = 0;
 	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
@@ -104,7 +105,7 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec tim
 		delete[] m_RawData;
 	}
 
-	m_RawData = (uint8_t*)pRawData;
+	m_StartOfBuffer = m_RawData = (uint8_t*)pRawData;
 	m_RawDataLen = rawDataLen;
 	m_TimeStamp = timestamp;
 	m_RawPacketSet = true;
@@ -125,7 +126,7 @@ void RawPacket::clear()
 
 void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 {
-	memcpy((uint8_t*)m_RawData + m_RawDataLen, dataToAppend, dataToAppendLen);
+	writeData(m_RawDataLen, dataToAppend, dataToAppendLen);
 	m_RawDataLen += dataToAppendLen;
 	m_FrameLength = m_RawDataLen;
 }
@@ -134,12 +135,13 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 {
 	// memmove copies data as if there was an intermediate buffer inbetween - so it allows for copying processes on overlapping src/dest ptrs
 	// if insertData is called with atIndex == m_RawDataLen, then no data is being moved. The data of the raw packet is still extended by dataToInsertLen
+	// TODO: use moveData here?
 	memmove((uint8_t*)m_RawData + atIndex + dataToInsertLen, (uint8_t*)m_RawData + atIndex, m_RawDataLen - atIndex);
 
 	if (dataToInsert != NULL)
 	{
 		// insert data
-		memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);
+		writeData(atIndex, dataToInsert, dataToInsertLen);
 	}
 	
 	m_RawDataLen += dataToInsertLen;
@@ -164,9 +166,52 @@ bool RawPacket::reallocateData(size_t newBufferLength)
 		delete [] m_RawData;
 
 	m_DeleteRawDataAtDestructor = true;
-	m_RawData = newBuffer;
+	m_StartOfBuffer = m_RawData = newBuffer;
 
 	return true;
+}
+
+bool RawPacket::relocateStartOfPacket(size_t offsetFromStart)
+{
+	if (offsetFromStart > m_RawDataLen)
+		return false;
+
+	if (offsetFromStart < 0)
+		return false;
+
+	m_RawData = m_StartOfBuffer + offsetFromStart;
+	m_FrameLength = m_RawDataLen - offsetFromStart;
+
+	return true;
+}
+
+void RawPacket::writeData(size_t index, const uint8_t* data, size_t dataLen)
+{
+	memcpy(m_StartOfBuffer + index, data, dataLen);
+}
+
+void RawPacket::moveData(size_t indexFrom, size_t length, size_t indexTo)
+{
+	uint8_t* insertPosition = m_StartOfBuffer + indexTo;
+
+	if (insertPosition < m_RawData)
+	{
+		// extend frame towards the start of the buffer
+		m_RawData = insertPosition;
+		m_FrameLength += m_RawData - insertPosition;
+	}
+	// if the move exceeds the back of the buffer
+	else if ((insertPosition + length) > (m_RawData + m_RawDataLen))
+	{
+		// need to realloc
+	}
+	else if ((insertPosition + length) > (m_RawData + m_FrameLength))
+	{
+		// set m_FrameLength to difference between start of frame (m_RawData) and new end of frame (insertPosition + length)
+		m_FrameLength = (insertPosition + length) - m_RawData;
+	}
+
+	memmove(insertPosition, m_StartOfBuffer + indexFrom, length);
 }
 
 bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)

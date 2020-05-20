@@ -125,6 +125,28 @@ Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
 	setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
 }
 
+Packet::Packet(uint8_t* buffer, size_t bufferLength, uint8_t* payload, size_t payloadLength)
+{
+	m_FreeRawPacket = true;
+	m_ProtocolTypes = UnknownProtocol;
+	m_MaxPacketLen = bufferLength;
+
+	// create internal RawPacket
+	timeval time;
+	gettimeofday(&time, NULL);
+	m_RawPacket = new RawPacket(buffer, bufferLength, time, true, LINKTYPE_ETHERNET);
+
+	// Create payload layer for specified payload
+	PayloadLayer* payloadLayer = new PayloadLayer(payload, payloadLength, NULL, this);
+
+	m_FirstLayer = m_LastLayer = payloadLayer;
+
+	// Set flag to indicate if new layer is allocated to packet.
+	payloadLayer->m_IsAllocatedInPacket = true;
+
+	m_RawPacket->relocateStartOfPacket(payload - buffer);
+}
+
 void Packet::destructPacketData()
 {
 	Layer* curLayer = m_FirstLayer;
@@ -752,6 +774,102 @@ void Packet::toStringList(std::vector<std::string>& result, bool timeAsLocalTime
 		result.push_back(curLayer->toString());
 		curLayer = curLayer->getNextLayer();
 	}
+}
+
+bool Packet::addLayerBefore(Layer* layerToAddInFrontOf, Layer* layerToAdd, bool ownInPacket)
+{
+	const uint8_t* startOfBuffer = m_RawPacket->getBuffer();
+	size_t dataLengthToAdd = layerToAdd->getHeaderLen();
+
+	uint8_t* insertPosition = layerToAddInFrontOf->m_Data - dataLengthToAdd;
+
+
+	// check if adding in front would be out of bounds
+	if (insertPosition < startOfBuffer)
+		return false;
+
+	size_t indexNewDataStart;
+
+	// be sure that we do not overwrite any layers that are already there
+	if (m_FirstLayer != layerToAddInFrontOf)
+	{
+		// move data that is in front to make space for new layer
+
+		// check if there would be enough room to relocate all layers before
+		if (startOfBuffer < (m_FirstLayer->m_Data - dataLengthToAdd))
+			// either return false or reallocate memory here
+			return false;
+
+		uint8_t* endOfPrevLayer = layerToAddInFrontOf->m_Data - 1; // points to end of layer before layerToAddInFrontOf
+
+		size_t indexDataStart = m_FirstLayer->m_Data - startOfBuffer;
+		indexNewDataStart = indexDataStart - dataLengthToAdd;
+		m_RawPacket->moveData(indexDataStart, endOfPrevLayer - m_FirstLayer->m_Data, indexNewDataStart);
+
+		layerToAddInFrontOf->getPrevLayer()->setNextLayer(layerToAdd);
+		layerToAdd->setPrevLayer(layerToAddInFrontOf->getPrevLayer());
+	}
+	else
+	{
+		// set layer that is going to be added to be the first layer
+		m_FirstLayer = layerToAdd;
+
+		indexNewDataStart = insertPosition - startOfBuffer;
+	}
+
+	int index = insertPosition - startOfBuffer;
+	m_RawPacket->writeData(index, layerToAdd->m_Data, layerToAdd->getHeaderLen());
+
+	// relocate m_RawData ptr to start of the packet (i.e. point to the start of the inserted data, or to start of moved data if there have been layers already in front)
+	m_RawPacket->relocateStartOfPacket(indexNewDataStart);
+
+	// delete old data
+	delete[] layerToAdd->m_Data;
+
+	if (ownInPacket)
+		layerToAdd->m_IsAllocatedInPacket = true;
+
+	// link newly created layer to next layer
+	layerToAdd->setNextLayer(layerToAddInFrontOf);
+	layerToAddInFrontOf->setPrevLayer(layerToAdd);
+
+	// go through all layers and update data ptrs
+	// first, get ptr and data length of the raw packet
+	const uint8_t* dataPtr = m_RawPacket->getRawData();
+	size_t dataLen = (size_t)m_RawPacket->getFrameLength();
+
+	// if a packet trailer exists, get its length
+	size_t packetTrailerLen = 0;
+	if (m_LastLayer != NULL && m_LastLayer->getProtocol() == PacketTrailer)
+		packetTrailerLen = m_LastLayer->getDataLen();
+
+	// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
+	Layer* curLayer = m_FirstLayer;
+	while (curLayer != NULL)
+	{
+		// set data ptr to layer
+		curLayer->m_Data = (uint8_t*)dataPtr;
+
+		// there is an assumption here that the packet trailer, if exists, corresponds to the L2 (data link) layers.
+		// so if there is a packet trailer and this layer is L2 (data link), set its data length to contain the whole data, including the
+		// packet trailer. If this layer is L3-7, exclude the packet trailer from its data length
+		if (curLayer->getOsiModelLayer() == OsiModelDataLinkLayer)
+			curLayer->m_DataLen = dataLen;
+		else
+			curLayer->m_DataLen = dataLen - packetTrailerLen;
+
+		// advance data ptr and data length
+		dataPtr += curLayer->getHeaderLen();
+		dataLen -= curLayer->getHeaderLen();
+
+		// move to next layer
+		curLayer = curLayer->getNextLayer();
+	}
+
+	// add layer protocol to protocol collection
+	m_ProtocolTypes |= layerToAdd->getProtocol();
+
+	return true;
 }
 
 } // namespace pcpp

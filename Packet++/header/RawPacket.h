@@ -221,6 +221,7 @@ namespace pcpp
 	{
 	protected:
 		uint8_t* m_RawData;
+		uint8_t* m_StartOfBuffer;
 		int m_RawDataLen;
 		int m_FrameLength;
 		timespec m_TimeStamp;
@@ -409,6 +410,14 @@ namespace pcpp
 		 * @return True if data was reallocated successfully, false otherwise
 		 */
 		virtual bool reallocateData(size_t newBufferLength);
+
+		bool relocateStartOfPacket(size_t offsetFromStart);
+
+		const uint8_t* getBuffer() const { return m_StartOfBuffer; }
+
+		void writeData(size_t index, const uint8_t* data, size_t dataLen);
+
+		void moveData(size_t indexFrom, size_t length, size_t indexTo);
 	};
 
 } // namespace pcpp
