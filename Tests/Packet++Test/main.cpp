@@ -8312,7 +8312,7 @@ PTF_TEST_CASE(ResizeLayerTest)
 	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), payload2_size, int); // Size of packet after first resizing (shortening) is not correct
 
 	// confirm that data has been correctly written to raw packet
-	const uint8_t* rawData = packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload2_size);
+	const uint8_t* rawData = packet.getRawPacket()->getRawData();
 	PTF_ASSERT_EQUAL(rawData[0], 0x05, u8); // Setting payload to new payload has failed.
 	PTF_ASSERT_EQUAL(rawData[1], 0x04, u8);
 	PTF_ASSERT_EQUAL(rawData[2], 0x03, u8);
@@ -8330,15 +8330,15 @@ PTF_TEST_CASE(ResizeLayerTest)
 	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), payload3_size, int); // Size of packet after second resizing (extension) is not correct
 
 	// confirm that data has been correctly written to raw packet
-	const uint8_t* rawData2 = packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload3_size);
-	PTF_ASSERT_EQUAL(rawData[0], 0xDE, u8); // Setting payload to new payload has failed.
-	PTF_ASSERT_EQUAL(rawData[1], 0xAD, u8);
-	PTF_ASSERT_EQUAL(rawData[2], 0xBE, u8);
-	PTF_ASSERT_EQUAL(rawData[3], 0xEF, u8);
-	PTF_ASSERT_EQUAL(rawData[4], 0xDE, u8);
-	PTF_ASSERT_EQUAL(rawData[5], 0xAD, u8);
-	PTF_ASSERT_EQUAL(rawData[6], 0xBE, u8);
-	PTF_ASSERT_EQUAL(rawData[7], 0xEF, u8);
+	const uint8_t* rawData2 = packet.getRawPacket()->getRawData();
+	PTF_ASSERT_EQUAL(rawData2[0], 0xDE, u8); // Setting payload to new payload has failed.
+	PTF_ASSERT_EQUAL(rawData2[1], 0xAD, u8);
+	PTF_ASSERT_EQUAL(rawData2[2], 0xBE, u8);
+	PTF_ASSERT_EQUAL(rawData2[3], 0xEF, u8);
+	PTF_ASSERT_EQUAL(rawData2[4], 0xDE, u8);
+	PTF_ASSERT_EQUAL(rawData2[5], 0xAD, u8);
+	PTF_ASSERT_EQUAL(rawData2[6], 0xBE, u8);
+	PTF_ASSERT_EQUAL(rawData2[7], 0xEF, u8);
 } // ResizeLayerTest
 
 PTF_TEST_CASE(AddPrefilledBufferAndAddLayer)
@@ -8346,7 +8346,7 @@ PTF_TEST_CASE(AddPrefilledBufferAndAddLayer)
 	size_t bufferSize = 36;
 
 	// create data - needs to be on heap so that RawPacket can destroy the data accordingly with delete[]
-	uint8_t* buffer = new uint8_t[bufferSize] {
+	uint8_t buffer_local[] = {
 				0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00,
@@ -8357,6 +8357,10 @@ PTF_TEST_CASE(AddPrefilledBufferAndAddLayer)
 				0x00, 0x00, 0x00, 0x00,
 				0xDE, 0xAD, 0xBE, 0xEF
 	};
+
+	// using memcpy since C++98 does not let you provide values to new-operator
+	uint8_t* buffer = new uint8_t[bufferSize];
+	memcpy(buffer, buffer_local, bufferSize);
 
 	size_t payloadLength = 4;
 	size_t offsetToPayload = bufferSize - payloadLength;

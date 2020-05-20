@@ -179,9 +179,6 @@ bool RawPacket::relocateStartOfPacket(size_t offsetFromStart)
 	if (offsetFromStart > m_RawDataLen)
 		return false;
 
-	if (offsetFromStart < 0)
-		return false;
-
 	m_RawData = m_StartOfBuffer + offsetFromStart;
 	m_FrameLength = m_RawDataLen - offsetFromStart;
 
