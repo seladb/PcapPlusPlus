@@ -13,9 +13,14 @@ SCRIPT=`basename ${BASH_SOURCE[0]}`
 function HELP {
    echo -e \\n"Help documentation for ${SCRIPT}."\\n
    echo ""
-   echo -e "Basic usage: $SCRIPT [-h] [--default] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir] [--libpcap-static-lib-dir]"\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--default] [--sanitizer=address|memory|undefined] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir] [--libpcap-static-lib-dir]"\\n
    echo "The following switches are recognized:"
    echo "--default                --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
+   echo ""
+   echo "--sanitizer              --Build fuzzer target with the specified Sanitizer. By default Address Sanitizer (ASan) will be used. Valid options: "
+   echo "                           * address: Address Sanitizer. More info: https://clang.llvm.org/docs/AddressSanitizer.html"
+   echo "                           * memory: Memory Sanitizer. More info: https://clang.llvm.org/docs/MemorySanitizer.html"
+   echo "                           * undefined: Undefined Behavior Sanitizer. More info: https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html"
    echo ""
    echo "--install-dir            --Installation directory. Default is /usr/local"
    echo ""
@@ -28,6 +33,7 @@ function HELP {
    echo -e "-h|--help                --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
    echo -e "      $SCRIPT --default"
+   echo -e "      $SCRIPT --sanitizer address"
    echo -e "      $SCRIPT --libpcap-include-dir /home/myuser/my-libpcap/include --libpcap-lib-dir /home/myuser/my-libpcap/lib"
    echo -e "      $SCRIPT --install-dir /home/myuser/my-install-dir"
    echo -e "      $SCRIPT --libpcap-static-lib-dir /home/myuser/my-static-libpcap"
@@ -40,6 +46,8 @@ LIBPCAP_INLCUDE_DIR=""
 LIBPCAP_LIB_DIR=""
 
 LIBPCAP_STATIC_LIB_DIR=""
+
+SANITIZER=""
 
 # default installation directory
 INSTALL_DIR=/usr/local
@@ -55,7 +63,7 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,help,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,libpcap-static-lib-dir: -- "$@"`
+   OPTS=`getopt -o h --long default,help,sanitizer:,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,libpcap-static-lib-dir: -- "$@"`
 
    # if user put an illegal switch - print HELP and exit
    if [ $? -ne 0 ]; then
@@ -70,6 +78,11 @@ else
        # default switch - do nothing basically
        --default)
          shift ;;
+
+       # non-default sanitizer
+       --sanitizer)
+         SANITIZER=$2
+         shift 2 ;;
 
        # non-default libpcap include dir
        --libpcap-include-dir)
@@ -135,6 +148,18 @@ if [ -n "$LIBPCAP_STATIC_LIB_DIR" ]; then
 else
    echo -e "PCAPPP_LIBS += -lpcap" >> $PCAPPLUSPLUS_MK
 fi
+
+# sanitizer options
+case "$SANITIZER" in
+	address|memory|undefined)
+		;;
+	*)
+		echo -e \\n"No Sanitizer was provided or --sanitizer option value was invalid. Using Address Sanitizer (address) as default.\n"
+		SANITIZER=address
+		;;
+esac
+echo -e "ifeq (\$(origin CXXFLAGS), file)\nCXXFLAGS += -fsanitize=$SANITIZER\nendif\n" >> $PLATFORM_MK
+echo -e "ifeq (\$(origin LIB_FUZZING_ENGINE), file)\nLIB_FUZZING_ENGINE += -fsanitize=$SANITIZER\nendif\n" >> $PLATFORM_MK
 
 # set current directory as PCAPPLUSPLUS_HOME in platform.mk
 echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
