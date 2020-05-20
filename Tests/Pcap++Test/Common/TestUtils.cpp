@@ -1,9 +1,13 @@
 #include "TestUtils.h"
 #include <stdlib.h>
 #include <fstream>
+#include "GlobalTestArgs.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "PfRingDeviceList.h"
+#include "DpdkDeviceList.h"
+
+extern PcapTestArgs PcapTestGlobalArgs;
 
 bool sendURLRequest(std::string url)
 {
@@ -89,5 +93,17 @@ void testSetUp()
 
 	#ifdef USE_PF_RING
 	pcpp::PfRingDeviceList::getInstance();
+	#endif
+
+	#ifdef USE_DPDK
+	if (PcapTestGlobalArgs.dpdkPort > -1)
+	{
+		pcpp::CoreMask coreMask = 0;
+		for (int i = 0; i < pcpp::getNumOfCores(); i++)
+		{
+			coreMask |= pcpp::SystemCores::IdToSystemCore[i].Mask;
+		}
+		pcpp::DpdkDeviceList::initDpdk(coreMask, 16383);
+	}
 	#endif
 }

@@ -237,14 +237,15 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPfRingSendPackets, "pf_ring");
 	PTF_RUN_TEST(TestPfRingFilters, "pf_ring");
 
-	// PTF_RUN_TEST(TestDpdkInitDevice, "dpdk;dpdk-init;skip_mem_leak_check");
-	// PTF_RUN_TEST(TestDpdkDevice, "dpdk");
-	// PTF_RUN_TEST(TestDpdkMultiThread, "dpdk");
-	// PTF_RUN_TEST(TestDpdkDeviceSendPackets, "dpdk");
-	// PTF_RUN_TEST(TestKniDevice, "dpdk;kni");
-	// PTF_RUN_TEST(TestKniDeviceSendReceive, "dpdk;kni");
-	// PTF_RUN_TEST(TestDpdkMbufRawPacket, "dpdk");
-	// PTF_RUN_TEST(TestDpdkDeviceWorkerThreads, "dpdk");
+	PTF_RUN_TEST(TestDpdkInitDevice, "dpdk;dpdk-init;skip_mem_leak_check");
+	PTF_RUN_TEST(TestDpdkDevice, "dpdk");
+	PTF_RUN_TEST(TestDpdkMultiThread, "dpdk");
+	PTF_RUN_TEST(TestDpdkDeviceSendPackets, "dpdk");
+	PTF_RUN_TEST(TestDpdkDeviceWorkerThreads, "dpdk");
+	PTF_RUN_TEST(TestDpdkMbufRawPacket, "dpdk");
+
+	PTF_RUN_TEST(TestKniDevice, "dpdk;kni;skip_mem_leak_check");
+	PTF_RUN_TEST(TestKniDeviceSendReceive, "dpdk;kni;skip_mem_leak_check");
 
 	PTF_RUN_TEST(TestTcpReassemblySanity, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyRetran, "no_network;tcp_reassembly");

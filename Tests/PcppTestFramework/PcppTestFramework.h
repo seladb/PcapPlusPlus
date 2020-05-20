@@ -169,6 +169,11 @@
 		printf("%s: NON-CRITICAL: (%s:%d). actual: " type##_PTF_PRINT_FORMAT " != expected: " type##_PTF_PRINT_FORMAT "\n", __FUNCTION__, __FILE__, __LINE__, type##_PTF_PRINT_TYPE(actual), type##_PTF_PRINT_TYPE(expected)); \
 	}
 
+#define PTF_NON_CRITICAL_TRUE(exp) \
+	if (!exp) { \
+		printf("%s: NON-CRITICAL: (%s:%d). expression is not true: %s\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
+	}
+
 #define PTF_TRY(exp, assertFailedFormat, ...) \
 	if (!(exp)) \
 	{ \

@@ -72,5 +72,17 @@ PTF_TEST_CASE(TestPfRingSendPacket);
 PTF_TEST_CASE(TestPfRingSendPackets);
 PTF_TEST_CASE(TestPfRingFilters);
 
+// Implemented in DpdkTests.cpp
+PTF_TEST_CASE(TestDpdkInitDevice);
+PTF_TEST_CASE(TestDpdkDevice);
+PTF_TEST_CASE(TestDpdkMultiThread);
+PTF_TEST_CASE(TestDpdkDeviceSendPackets);
+PTF_TEST_CASE(TestDpdkDeviceWorkerThreads);
+PTF_TEST_CASE(TestDpdkMbufRawPacket);
+
+// Implemented in KniTests.cpp
+PTF_TEST_CASE(TestKniDevice);
+PTF_TEST_CASE(TestKniDeviceSendReceive);
+
 // Implemented in RawSocketTests.cpp
 PTF_TEST_CASE(TestRawSockets);

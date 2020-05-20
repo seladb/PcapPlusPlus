@@ -5,6 +5,29 @@
 #include "../Common/PcapFileNamesDef.h"
 
 
+class FileReaderTeardown
+{
+private:
+	pcpp::IFileReaderDevice* m_Reader;
+
+public:
+	FileReaderTeardown(pcpp::IFileReaderDevice* reader)
+	{
+		m_Reader = reader;
+	}
+
+	~FileReaderTeardown()
+	{
+		if (m_Reader != NULL)
+		{
+			delete m_Reader;
+		}
+	}
+};
+
+
+
+
 PTF_TEST_CASE(TestPcapFileReadWrite)
 {
 	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_PCAP_PATH);
@@ -589,13 +612,13 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	// -------
 
 	pcpp::IFileReaderDevice* genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAP_PATH);
-	PTF_ASSERT_AND_RUN_COMMAND(dynamic_cast<pcpp::PcapFileReaderDevice*>(genericReader) != NULL, delete genericReader, "Reader isn't of type PcapFileReaderDevice");
-	PTF_ASSERT_AND_RUN_COMMAND(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader) == NULL, delete genericReader, "Reader is wrongly of type PcapNgFileReaderDevice");
-	delete genericReader;
+	FileReaderTeardown genericReaderTeardown1(genericReader);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(genericReader));
+	PTF_ASSERT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
 
 	genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_PATH);
-	PTF_ASSERT_AND_RUN_COMMAND(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader) != NULL, delete genericReader, "Reader isn't of type PcapNgFileReaderDevice");
-	delete genericReader;
+	FileReaderTeardown genericReaderTeardown2(genericReader);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
 
 	// -------
 
