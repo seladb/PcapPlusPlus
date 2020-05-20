@@ -42,13 +42,13 @@ RawPacket::~RawPacket()
 {
 	if (m_DeleteRawDataAtDestructor)
 	{
-		delete[] m_RawData;
+		delete[] m_StartOfBuffer;
 	}
 }
 
 RawPacket::RawPacket(const RawPacket& other)
 {
-	m_RawData = NULL;
+	m_StartOfBuffer = m_RawData = NULL;
 	copyDataFrom(other, true);
 }
 
@@ -56,8 +56,8 @@ RawPacket& RawPacket::operator=(const RawPacket& other)
 {
 	if (this != &other)
 	{
-		if (m_RawData != NULL)
-			delete [] m_RawData;
+		if (m_StartOfBuffer != NULL)
+			delete [] m_StartOfBuffer;
 
 		m_RawPacketSet = false;
 
@@ -78,11 +78,11 @@ void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 	if (allocateData)
 	{
 		m_DeleteRawDataAtDestructor = true;
-		m_RawData = new uint8_t[other.m_RawDataLen];
+		m_StartOfBuffer = m_RawData = new uint8_t[other.m_RawDataLen];
 		m_RawDataLen = other.m_RawDataLen;
 	}
 
-	memcpy(m_RawData, other.m_RawData, other.m_RawDataLen);
+	memcpy(m_StartOfBuffer, other.m_StartOfBuffer, other.m_RawDataLen);
 	m_LinkLayerType = other.m_LinkLayerType;
 	m_FrameLength = other.m_FrameLength;
 	m_RawPacketSet = true;
@@ -100,9 +100,9 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec tim
 	if(frameLength == -1)
 		frameLength = rawDataLen;
 	m_FrameLength = frameLength;
-	if (m_RawData != 0 && m_DeleteRawDataAtDestructor)
+	if (m_StartOfBuffer != 0 && m_DeleteRawDataAtDestructor)
 	{
-		delete[] m_RawData;
+		delete[] m_StartOfBuffer;
 	}
 
 	m_StartOfBuffer = m_RawData = (uint8_t*)pRawData;
@@ -115,10 +115,10 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec tim
 
 void RawPacket::clear()
 {
-	if (m_RawData != 0)
-		delete[] m_RawData;
+	if (m_StartOfBuffer != 0)
+		delete[] m_StartOfBuffer;
 
-	m_RawData = 0;
+	m_StartOfBuffer = m_RawData = 0;
 	m_RawDataLen = 0;
 	m_FrameLength = 0;
 	m_RawPacketSet = false;
@@ -161,11 +161,14 @@ bool RawPacket::reallocateData(size_t newBufferLength)
 
 	uint8_t* newBuffer = new uint8_t[newBufferLength];
 	memset(newBuffer, 0, newBufferLength);
-	memcpy(newBuffer, m_RawData, m_RawDataLen);
+	memcpy(newBuffer, m_StartOfBuffer, m_RawDataLen);
 	if (m_DeleteRawDataAtDestructor)
-		delete [] m_RawData;
+		delete [] m_StartOfBuffer;
 
 	m_DeleteRawDataAtDestructor = true;
+	// m_RawData points to start of data, which does not have to be at the start of the buffer (e.g. when the packet is created from pre-filled packet)
+	// set m_RawData to old offset but in new buffer
+	m_RawData = newBuffer + (m_RawData - m_StartOfBuffer);
 	m_StartOfBuffer = m_RawData = newBuffer;
 
 	return true;

@@ -826,6 +826,8 @@ bool Packet::addLayerBefore(Layer* layerToAddInFrontOf, Layer* layerToAdd, bool 
 	// delete old data
 	delete[] layerToAdd->m_Data;
 
+	layerToAdd->m_Packet = this;
+
 	if (ownInPacket)
 		layerToAdd->m_IsAllocatedInPacket = true;
 
