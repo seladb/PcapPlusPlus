@@ -134,7 +134,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 
 	if (ipLayer == NULL) 
 	{
-		status = Error_NonIpPacket;
+		status = NonIpPacket;
 		return;
 	}
 
@@ -143,7 +143,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true); // lookup in reverse order
 	if (tcpLayer == NULL)
 	{
-		status = Error_NonTcpPacket;
+		status = NonTcpPacket;
 		return;
 	}
 
@@ -153,7 +153,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 	if (tcpData.isPacketOfType(ICMP))
 	{
 		LOG_DEBUG("Packet is of type ICMP so TCP data is probably  part of the ICMP message. Ignoring this packet");
-		status = Ignore_IcmpPacket;
+		status = NonTcpPacket;
 		return;
 	}
 
@@ -327,7 +327,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 		LOG_DEBUG("Got FIN or RST packet without data on side %d", sideIndex);
 
 		handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-		status = Success_FIN_RSTWithNoData;
+		status = FIN_RSTWithNoData;
 		return;
 	}
 
@@ -368,7 +368,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, tcpReassemblyData->connData);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
-		status = Success_TcpMessageHandled;
+		status = TcpMessageHandled;
 
 		// handle case where this packet is FIN or RST (although it's unlikely)
 		if (isFinOrRst)
@@ -403,7 +403,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, tcpReassemblyData->connData);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
-			status = Success_TcpMessageHandled;
+			status = TcpMessageHandled;
 		}
 		else {
 			status = Ignore_Retransimission;
@@ -429,7 +429,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 			if (isFinOrRst)
 			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-				status = Success_FIN_RSTWithNoData;
+				status = FIN_RSTWithNoData;
 			}
 			else
 			{
@@ -454,7 +454,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, tcpReassemblyData->connData);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
-		status = Success_TcpMessageHandled;
+		status = TcpMessageHandled;
 
 		//while (checkOutOfOrderFragments(tcpReassemblyData, sideIndex)) {}
 
@@ -482,7 +482,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 			if (isFinOrRst)
 			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-				status = Success_FIN_RSTWithNoData;
+				status = FIN_RSTWithNoData;
 			}
 			else
 			{
@@ -501,7 +501,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
 		LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size %d to the out-of-order list of side %d", (int)tcpPayloadSize, sideIndex);
-		status = Success_OutOfOrderTcpMessageBuffered;
+		status = OutOfOrderTcpMessageBuffered;
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
@@ -513,26 +513,11 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 	}
 }
 
-void TcpReassembly::reassemblePacket(Packet& tcpData)
-{
-	ReassemblyStatus status = Success_TcpMessageHandled;
-	reassemblePacket(tcpData, status);
-}
-
 void TcpReassembly::reassemblePacket(RawPacket* tcpRawData, ReassemblyStatus &status)
 {
 	Packet parsedPacket(tcpRawData, false);
 	reassemblePacket(parsedPacket, status);
 }
-
-void TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
-{
-	ReassemblyStatus status = Success_TcpMessageHandled;
-	Packet parsedPacket(tcpRawData, false);
-	reassemblePacket(parsedPacket, status);
-}
-
-
 
 std::string TcpReassembly::prepareMissingDataMessage(uint32_t missingDataLen)
 {

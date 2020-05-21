@@ -4737,7 +4737,7 @@ RawPacket tcpReassemblyAddRetransmissions(RawPacket rawPacket, int beginning, in
 bool tcpReassemblyTest(std::vector<RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results, bool monitorOpenCloseConns, bool closeConnsManually)
 {
 	TcpReassembly* tcpReassembly = NULL;
-
+	
 	if (monitorOpenCloseConns)
 		tcpReassembly = new TcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
 	else
@@ -4746,7 +4746,8 @@ bool tcpReassemblyTest(std::vector<RawPacket>& packetStream, TcpReassemblyMultip
 	for (std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
 	{
 		Packet packet(&(*iter));
-		tcpReassembly->reassemblePacket(packet);
+		TcpReassembly::ReassemblyStatus status;
+		tcpReassembly->reassemblePacket(packet, status);
 	}
 
 	//for(TcpReassemblyMultipleConnStats::Stats::iterator iter = results.stats.begin(); iter != results.stats.end(); iter++)
@@ -5127,7 +5128,8 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	for (std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
 	{
 		Packet packet(&(*iter));
-		tcpReassembly.reassemblePacket(packet);
+		TcpReassembly::ReassemblyStatus status;
+		tcpReassembly.reassemblePacket(packet, status);
 	}
 
 	TcpReassemblyMultipleConnStats::Stats &stats = results.stats;
@@ -5196,9 +5198,9 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 
 
 	// now send FIN packets of conn 3 and verify they are igonred
-
-	tcpReassembly.reassemblePacket(&finPacket1);
-	tcpReassembly.reassemblePacket(&finPacket2);
+	TcpReassembly::ReassemblyStatus status;
+	tcpReassembly.reassemblePacket(&finPacket1, status);
+	tcpReassembly.reassemblePacket(&finPacket2, status);
 
 	PTF_ASSERT(iter->second.connectionsEnded == false, "Conn #3: Connection ended supposedly ended with FIN or RST after FIN packets sent although ended manually before");
 	PTF_ASSERT(iter->second.connectionsEndedManually == true, "Conn #3: Connections isn't ended after FIN packets sent even though ended manually before");
@@ -5408,7 +5410,8 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	for(std::vector<RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
 	{
 		Packet packet(&(*iter));
-		tcpReassembly.reassemblePacket(packet);
+		TcpReassembly::ReassemblyStatus status;
+		tcpReassembly.reassemblePacket(packet, status);
 	}
 
 	TcpReassembly::ConnectionInfoList managedConnections = tcpReassembly.getConnectionInformation(); // make a copy of list
@@ -5427,7 +5430,8 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 
 	PCAP_SLEEP(3);
 
-	tcpReassembly.reassemblePacket(&lastPacket); // automatic cleanup of 1 item
+	TcpReassembly::ReassemblyStatus status;
+	tcpReassembly.reassemblePacket(&lastPacket, status); // automatic cleanup of 1 item
 	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 2, size);
 
 	tcpReassembly.purgeClosedConnections(); // manually initiated cleanup of 1 item
