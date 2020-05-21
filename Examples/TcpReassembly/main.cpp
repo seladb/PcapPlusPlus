@@ -493,8 +493,7 @@ static void onPacketArrives(RawPacket* packet, PcapLiveDevice* dev, void* tcpRea
 {
 	// get a pointer to the TCP reassembly instance and feed the packet arrived to it
 	TcpReassembly* tcpReassembly = (TcpReassembly*)tcpReassemblyCookie;
-	TcpReassembly::ReassemblyStatus status;
-	tcpReassembly->reassemblePacket(packet, status);
+	tcpReassembly->reassemblePacket(packet);
 }
 
 
@@ -521,10 +520,9 @@ void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembl
 
 	// run in a loop that reads one packet from the file in each iteration and feeds it to the TCP reassembly instance
 	RawPacket rawPacket;
-	TcpReassembly::ReassemblyStatus status;
 	while (reader->getNextPacket(rawPacket))
 	{
-		tcpReassembly.reassemblePacket(&rawPacket, status);
+		tcpReassembly.reassemblePacket(&rawPacket);
 	}
 
 	// extract number of connections before closing all of them

@@ -113,7 +113,7 @@ TcpReassembly::~TcpReassembly()
 	}
 }
 
-void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
+TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 {
 	// automatic cleanup
 	if (m_RemoveConnInfo == true)
@@ -134,8 +134,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 
 	if (ipLayer == NULL) 
 	{
-		status = NonIpPacket;
-		return;
+		return NonIpPacket;
 	}
 
 
@@ -143,8 +142,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true); // lookup in reverse order
 	if (tcpLayer == NULL)
 	{
-		status = NonTcpPacket;
-		return;
+		return NonTcpPacket;
 	}
 
 	// Ignore the packet if it's an ICMP packet that has a TCP layer
@@ -153,9 +151,10 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 	if (tcpData.isPacketOfType(ICMP))
 	{
 		LOG_DEBUG("Packet is of type ICMP so TCP data is probably  part of the ICMP message. Ignoring this packet");
-		status = NonTcpPacket;
-		return;
+		return NonTcpPacket;
 	}
+
+	ReassemblyStatus status = TcpMessageHandled;
 
 	// set the TCP payload size
 	size_t tcpPayloadSize = tcpLayer->getLayerPayloadSize();
@@ -168,8 +167,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 	// ignore ACK packets or TCP packets with no payload (except for SYN, FIN or RST packets which we'll later need)
 	if (tcpPayloadSize == 0 && tcpLayer->getTcpHeader()->synFlag == 0 && !isFinOrRst)
 	{
-		status = Ignore_PacketWithNoData;
-		return;
+		return Ignore_PacketWithNoData;
 	}
 
 	TcpReassemblyData* tcpReassemblyData = NULL;
@@ -185,8 +183,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 	if (iter != m_ConnectionList.end() && iter->second == NULL)
 	{
 		LOG_DEBUG("Ignoring packet of already closed flow [0x%X]", flowKey);
-		status = Ignore_PacketOfClosedFlow;
-		return;
+		return Ignore_PacketOfClosedFlow;
 	}
 
 	// calculate packet's source and dest IP address
@@ -301,24 +298,21 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 		else
 		{
 			LOG_ERROR("Error occurred - packet doesn't match either side of the connection!!");
-			status = Error_PacketDoesNotMatchFlow;
-			return;
+			return Error_PacketDoesNotMatchFlow;
 		}
 	}
 	// there are more than 2 side - this case doesn't make sense and shouldn't happen, but handled anyway. Packet will be ignored
 	else
 	{
 		LOG_ERROR("Error occurred - connection has more than 2 sides!!");
-		status = Error_PacketDoesNotMatchFlow;
-		return;
+		return Error_PacketDoesNotMatchFlow;
 	}
 
 	// if this side already got FIN or RST packet before, ignore this packet as this side is considered closed
 	if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
 	{
 		LOG_DEBUG("Got a packet after FIN or RST were already seen on this side (%d). Ignoring this packet", sideIndex);
-		status = Ignore_PacketOfClosedFlow;
-		return;
+		return Ignore_PacketOfClosedFlow;
 	}
 
 	// handle FIN/RST packets that don't contain additional TCP data
@@ -327,8 +321,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 		LOG_DEBUG("Got FIN or RST packet without data on side %d", sideIndex);
 
 		handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-		status = FIN_RSTWithNoData;
-		return;
+		return FIN_RSTWithNoData;
 	}
 
 	// check if this packet contains data from a different side than the side seen before.
@@ -375,7 +368,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
 		
 		// return - nothing else to do here
-		return;
+		return status;
 	}
 
 	// if packet sequence is smaller than expected - this means that part or all of the TCP data is being re-transmitted
@@ -414,7 +407,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
 			
 		// return - nothing else to do here
-		return;
+		return status;
 	}
 
 	// if packet sequence is exactly as expected - this is the "good" case and the most common one
@@ -436,7 +429,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 				status = Ignore_PacketWithNoData;
 			}
 
-			return;
+			return status;
 		}
 
 		LOG_DEBUG("Found new data with expected sequence. Calling the callback");
@@ -466,7 +459,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
 
 		// return - nothing else to do here
-		return;
+		return status;
 	}
 
 	// this case means sequence size of the packet is higher than expected which means the packet is out-of-order or some packets were lost (missing data).
@@ -489,7 +482,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 				status = Ignore_PacketWithNoData;
 			}
 
-			return;
+			return status;
 		}
 
 		// create a new TcpFragment, copy the TCP data to it and add this packet to the the out-of-order packet list
@@ -507,16 +500,16 @@ void TcpReassembly::reassemblePacket(Packet& tcpData, ReassemblyStatus &status)
 		if (isFinOrRst)
 		{
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-			return;
 		}
 
+		return status;
 	}
 }
 
-void TcpReassembly::reassemblePacket(RawPacket* tcpRawData, ReassemblyStatus &status)
+TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
 {
 	Packet parsedPacket(tcpRawData, false);
-	reassemblePacket(parsedPacket, status);
+	return reassemblePacket(parsedPacket);
 }
 
 std::string TcpReassembly::prepareMissingDataMessage(uint32_t missingDataLen)

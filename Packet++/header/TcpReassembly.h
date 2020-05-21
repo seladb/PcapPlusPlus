@@ -350,17 +350,17 @@ public:
 	 * The most important method of this class which gets a packet from the user and processes it. If this packet opens a new connection, ends a connection or contains new data on an
 	 * existing connection, the relevant callback will be called (TcpReassembly#OnTcpMessageReady, TcpReassembly#OnTcpConnectionStart, TcpReassembly#OnTcpConnectionEnd)
 	 * @param[in] tcpData A reference to the packet to process
-	 * @param[in] status A mutable reference which returns the reassembly status
+	 * @return A enum of `TcpReassembly::ReassemblyStatus`, indicating status of TCP reassembly
 	 */
-	void reassemblePacket(Packet& tcpData, ReassemblyStatus &status);
+	ReassemblyStatus reassemblePacket(Packet& tcpData);
 
 	/**
 	 * The most important method of this class which gets a raw packet from the user and processes it. If this packet opens a new connection, ends a connection or contains new data on an
 	 * existing connection, the relevant callback will be invoked (TcpReassembly#OnTcpMessageReady, TcpReassembly#OnTcpConnectionStart, TcpReassembly#OnTcpConnectionEnd)
 	 * @param[in] tcpRawData A reference to the raw packet to process
-	 * @param[in] status A mutable reference which returns the reassembly status
+	 * @return A enum of `TcpReassembly::ReassemblyStatus`, indicating status of TCP reassembly
 	 */
-	void reassemblePacket(RawPacket* tcpRawData, ReassemblyStatus &status);
+	ReassemblyStatus reassemblePacket(RawPacket* tcpRawData);
 
 	/**
 	 * Close a connection manually. If the connection doesn't exist or already closed an error log is printed. This method will cause the TcpReassembly#OnTcpConnectionEnd to be invoked with
