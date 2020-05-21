@@ -609,6 +609,10 @@ bool packetArrivesBlockingModeNoTimeoutPacketCount(RawPacket* pRawPacket, PcapLi
 	return false;
 }
 
+bool packetArrivesBlockingModeWithSnaplen(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie) {
+	int snaplen = *(int*)userCookie;
+	return pRawPacket->getRawDataLen() > snaplen;
+}
 
 bool packetArrivesBlockingModeStartCapture(RawPacket* pRawPacket, PcapLiveDevice* dev, void* userCookie)
 {
@@ -1640,6 +1644,17 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	liveDev->close();
 #endif 
 
+	// create a non-default configuration with a snapshot length of 10 bytes
+	int snaplen = 20;
+	PcapLiveDevice::DeviceConfiguration devConfgWithSnaplen(PcapLiveDevice::Promiscuous, 0, 0, PcapLiveDevice::PCPP_INOUT, snaplen);
+
+	liveDev->open(devConfgWithSnaplen);
+
+	// start capturing in non-default configuration witch only captures incoming traffics
+	PTF_ASSERT(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeWithSnaplen, &snaplen, 7) == -1, 
+			"The packet size should is greater than the snapshot length");
+
+	liveDev->close();
 }
 
 

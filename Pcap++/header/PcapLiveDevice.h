@@ -195,21 +195,37 @@ namespace pcpp
 			PcapDirection direction;
 
 			/**
+			 * Set the snapshot length. Snapshot length is the amount of data for each frame that is actually captured. Note that taking
+			 * larger snapshots both increases the amount of time it takes to process packets and, effectively, decreases the amount of
+			 * packet buffering. This may cause packets to be lost. Note also that taking smaller snapshots will discard data from protocols
+			 * above the transport layer, which loses information that may be important.
+			 * You can read more here:
+			 * https://wiki.wireshark.org/SnapLen
+			*/
+			int snapshotLength;
+
+			/**
 			 * A c'tor for this struct
 			 * @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is promiscuous
 			 * @param[in] packetBufferTimeoutMs Buffer timeout in millisecond. Default value is 0 which means set timeout of
 			 * 1 or -1 (depends on the platform)
 			 * @param[in] packetBufferSize The packet buffer size. Default value is 0 which means use the default value
 			 * (varies between different OS's)
-			 * @param[in] direction Direction for capturing packtes. Default value is INOUT which means capture both incoming
+			 * @param[in] direction Direction for capturing packets. Default value is INOUT which means capture both incoming
 			 * and outgoing packets (not all platforms support this)
-			 */
-			DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT)
+			 * @param[in] snapshotLength Snapshot length for capturing packets. Default value is 0 which means use the default value.
+			 * A snapshot length of 262144 should be big enough for maximum-size Linux loopback packets (65549) and some USB packets
+			 * captured with USBPcap (> 131072, < 262144). A snapshot length of 65535 should be sufficient, on most if not all networks,
+			 * to capture all the data available from the packet.
+			*/
+			DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
+				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
 				this->packetBufferSize = packetBufferSize;
 				this->direction = direction;
+				this->snapshotLength = snapshotLength;
 			}
 		};
 
