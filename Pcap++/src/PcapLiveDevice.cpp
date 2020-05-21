@@ -241,7 +241,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		LOG_ERROR("%s", errbuf);
 		return pcap;
 	}
-	int ret = pcap_set_snaplen(pcap, DEFAULT_SNAPLEN);
+	int ret = pcap_set_snaplen(pcap, config.snapshotLength <= 0 ? DEFAULT_SNAPLEN : config.snapshotLength);
 	if (ret != 0)
 	{
 		LOG_ERROR("%s", pcap_geterr(pcap));
