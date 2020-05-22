@@ -113,7 +113,7 @@ TcpReassembly::~TcpReassembly()
 	}
 }
 
-void TcpReassembly::reassemblePacket(Packet& tcpData)
+TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 {
 	// automatic cleanup
 	if (m_RemoveConnInfo == true)
@@ -132,13 +132,18 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpData.isPacketOfType(IPv6))
 		ipLayer = (Layer*)tcpData.getLayerOfType<IPv6Layer>();
 
-	if (ipLayer == NULL)
-		return;
+	if (ipLayer == NULL) 
+	{
+		return NonIpPacket;
+	}
+
 
 	// Ignore non-TCP packets
 	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true); // lookup in reverse order
 	if (tcpLayer == NULL)
-		return;
+	{
+		return NonTcpPacket;
+	}
 
 	// Ignore the packet if it's an ICMP packet that has a TCP layer
 	// Several ICMP messages (like "destination unreachable") have TCP data as part of the ICMP message.
@@ -146,8 +151,10 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	if (tcpData.isPacketOfType(ICMP))
 	{
 		LOG_DEBUG("Packet is of type ICMP so TCP data is probably  part of the ICMP message. Ignoring this packet");
-		return;
+		return NonTcpPacket;
 	}
+
+	ReassemblyStatus status = TcpMessageHandled;
 
 	// set the TCP payload size
 	size_t tcpPayloadSize = tcpLayer->getLayerPayloadSize();
@@ -159,7 +166,9 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 
 	// ignore ACK packets or TCP packets with no payload (except for SYN, FIN or RST packets which we'll later need)
 	if (tcpPayloadSize == 0 && tcpLayer->getTcpHeader()->synFlag == 0 && !isFinOrRst)
-		return;
+	{
+		return Ignore_PacketWithNoData;
+	}
 
 	TcpReassemblyData* tcpReassemblyData = NULL;
 
@@ -174,7 +183,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 	if (iter != m_ConnectionList.end() && iter->second == NULL)
 	{
 		LOG_DEBUG("Ignoring packet of already closed flow [0x%X]", flowKey);
-		return;
+		return Ignore_PacketOfClosedFlow;
 	}
 
 	// calculate packet's source and dest IP address
@@ -289,21 +298,21 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		else
 		{
 			LOG_ERROR("Error occurred - packet doesn't match either side of the connection!!");
-			return;
+			return Error_PacketDoesNotMatchFlow;
 		}
 	}
 	// there are more than 2 side - this case doesn't make sense and shouldn't happen, but handled anyway. Packet will be ignored
 	else
 	{
 		LOG_ERROR("Error occurred - connection has more than 2 sides!!");
-		return;
+		return Error_PacketDoesNotMatchFlow;
 	}
 
 	// if this side already got FIN or RST packet before, ignore this packet as this side is considered closed
 	if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
 	{
 		LOG_DEBUG("Got a packet after FIN or RST were already seen on this side (%d). Ignoring this packet", sideIndex);
-		return;
+		return Ignore_PacketOfClosedFlow;
 	}
 
 	// handle FIN/RST packets that don't contain additional TCP data
@@ -312,7 +321,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		LOG_DEBUG("Got FIN or RST packet without data on side %d", sideIndex);
 
 		handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-		return;
+		return FIN_RSTWithNoData;
 	}
 
 	// check if this packet contains data from a different side than the side seen before.
@@ -352,13 +361,14 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, tcpReassemblyData->connData);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
+		status = TcpMessageHandled;
 
 		// handle case where this packet is FIN or RST (although it's unlikely)
 		if (isFinOrRst)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-
+		
 		// return - nothing else to do here
-		return;
+		return status;
 	}
 
 	// if packet sequence is smaller than expected - this means that part or all of the TCP data is being re-transmitted
@@ -386,14 +396,18 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, tcpReassemblyData->connData);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
+			status = TcpMessageHandled;
+		}
+		else {
+			status = Ignore_Retransimission;
 		}
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-
+			
 		// return - nothing else to do here
-		return;
+		return status;
 	}
 
 	// if packet sequence is exactly as expected - this is the "good" case and the most common one
@@ -406,9 +420,16 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
+			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+				status = FIN_RSTWithNoData;
+			}
+			else
+			{
+				status = Ignore_PacketWithNoData;
+			}
 
-			return;
+			return status;
 		}
 
 		LOG_DEBUG("Found new data with expected sequence. Calling the callback");
@@ -426,6 +447,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, tcpReassemblyData->connData);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
+		status = TcpMessageHandled;
 
 		//while (checkOutOfOrderFragments(tcpReassemblyData, sideIndex)) {}
 
@@ -437,7 +459,7 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
 
 		// return - nothing else to do here
-		return;
+		return status;
 	}
 
 	// this case means sequence size of the packet is higher than expected which means the packet is out-of-order or some packets were lost (missing data).
@@ -451,9 +473,16 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
+			{
 				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+				status = FIN_RSTWithNoData;
+			}
+			else
+			{
+				status = Ignore_PacketWithNoData;
+			}
 
-			return;
+			return status;
 		}
 
 		// create a new TcpFragment, copy the TCP data to it and add this packet to the the out-of-order packet list
@@ -465,21 +494,22 @@ void TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
 		LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size %d to the out-of-order list of side %d", (int)tcpPayloadSize, sideIndex);
+		status = OutOfOrderTcpMessageBuffered;
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
 		{
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-			return;
 		}
 
+		return status;
 	}
 }
 
-void TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
+TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(RawPacket* tcpRawData)
 {
 	Packet parsedPacket(tcpRawData, false);
-	reassemblePacket(parsedPacket);
+	return reassemblePacket(parsedPacket);
 }
 
 std::string TcpReassembly::prepareMissingDataMessage(uint32_t missingDataLen)
