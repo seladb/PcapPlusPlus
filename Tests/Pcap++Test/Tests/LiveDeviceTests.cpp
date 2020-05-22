@@ -77,6 +77,13 @@ static bool packetArrivesBlockingModeNoTimeoutPacketCount(pcpp::RawPacket* rawPa
 	return false;
 }
 
+static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie) 
+{
+	int snaplen = *(int*)userCookie;
+	printf("rawPacket->getRawDataLen() = %d\n", rawPacket->getRawDataLen());
+	return rawPacket->getRawDataLen() > snaplen;
+}
+
 #ifdef WIN32
 
 class RpcapdServerInitializer
@@ -443,7 +450,18 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0, int);
 	liveDev->close();
-#endif 
+#endif
+
+	// create a non-default configuration with a snapshot length of 10 bytes
+	int snaplen = 20;
+	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithSnaplen(pcpp::PcapLiveDevice::Promiscuous, 0, 0, pcpp::PcapLiveDevice::PCPP_INOUT, snaplen);
+
+	liveDev->open(devConfigWithSnaplen);
+
+	// start capturing in non-default configuration witch only captures incoming traffics
+	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeWithSnaplen, &snaplen, 7), -1, int);
+
+	liveDev->close();
 
 } // TestPcapLiveDeviceSpecialCfg
 
