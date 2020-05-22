@@ -46,6 +46,9 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 
 #define PTF_START_RUNNING_TESTS(userTags, configTags) \
 	bool allTestsPassed = true; \
+	int testsPassed = 0; \
+	int testsFailed = 0; \
+	int testsSkipped = 0; \
 	std::string userTagsToRun = userTags; \
 	std::string configTagsToRun = configTags; \
 	printf("Start running tests...\n\n")
@@ -59,6 +62,7 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 		{ \
 			printf("%-30s: SKIPPED (tags don't match)\n", #TestName ""); \
 		} \
+		TestName##_result = PTF_RESULT_SKIPPED; \
 	} \
 	else \
 	{ \
@@ -93,18 +97,23 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 			printf("%-30s: PASSED\n", #TestName ""); \
 		} \
 	} \
+	if (TestName##_result == PTF_RESULT_PASSED) testsPassed++; \
+	if (TestName##_result == PTF_RESULT_FAILED) testsFailed++; \
+	if (TestName##_result == PTF_RESULT_SKIPPED) testsSkipped++; \
 	allTestsPassed &= (TestName##_result != PTF_RESULT_FAILED)
 
 
 #define PTF_END_RUNNING_TESTS \
 	if (allTestsPassed) \
 	{ \
-		printf("ALL TESTS PASSED!!\n\n\n"); \
+		printf("\nALL TESTS PASSED!!\n"); \
+		printf("Test cases: %d, Passed: %d, Failed: %d, Skipped: %d\n", testsPassed + testsFailed, testsPassed, testsFailed, testsSkipped); \
 		return 0; \
 	} \
 	else \
 	{ \
-		printf("NOT ALL TESTS PASSED!!\n\n\n"); \
+		printf("\nNOT ALL TESTS PASSED!!\n"); \
+		printf("Test cases: %d, Passed: %d, Failed: %d, Skipped: %d\n", testsPassed + testsFailed, testsPassed, testsFailed, testsSkipped); \
 		return 1; \
 	}
 
