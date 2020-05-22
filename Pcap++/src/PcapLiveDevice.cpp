@@ -180,7 +180,6 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 		return;
 	}
 
-	printf("pkthdr->caplen = %d; pkthdr->len = %d\n", pkthdr->caplen, pkthdr->len);
 	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
 
 	if (pThis->m_cbOnPacketArrivesBlockingMode != NULL)
@@ -242,7 +241,6 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		LOG_ERROR("%s", errbuf);
 		return pcap;
 	}
-	printf("set snaplen: %d\n", config.snapshotLength <= 0 ? DEFAULT_SNAPLEN : config.snapshotLength);
 	int ret = pcap_set_snaplen(pcap, config.snapshotLength <= 0 ? DEFAULT_SNAPLEN : config.snapshotLength);
 	if (ret != 0)
 	{

@@ -592,10 +592,42 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	packetStream.erase(packetStream.begin() + 13);
 	packetStream.erase(packetStream.begin() + 14);
 
+	pcpp::TcpReassembly::ReassemblyStatus expectedStatuses[26] = { 
+		pcpp::TcpReassembly::TcpMessageHandled, 
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::TcpMessageHandled, 
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::FIN_RSTWithNoData,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::FIN_RSTWithNoData,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::FIN_RSTWithNoData,
+		pcpp::TcpReassembly::FIN_RSTWithNoData,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+		pcpp::TcpReassembly::Ignore_PacketWithNoData,
+	};
+
+	int statusIndex = 0;
+
 	for (std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
 	{
 		pcpp::Packet packet(&(*iter));
-		tcpReassembly.reassemblePacket(packet);
+		pcpp::TcpReassembly::ReassemblyStatus status = tcpReassembly.reassemblePacket(packet);
+		PTF_ASSERT_EQUAL(status, expectedStatuses[statusIndex++], enum);
 	}
 
 	TcpReassemblyMultipleConnStats::Stats &stats = results.stats;
@@ -665,8 +697,10 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 
 	// now send FIN packets of conn 3 and verify they are ignored
 
-	tcpReassembly.reassemblePacket(&finPacket1);
-	tcpReassembly.reassemblePacket(&finPacket2);
+	pcpp::TcpReassembly::ReassemblyStatus status = tcpReassembly.reassemblePacket(&finPacket1);
+	PTF_ASSERT_EQUAL(status, pcpp::TcpReassembly::Ignore_PacketOfClosedFlow, enum);
+	status = tcpReassembly.reassemblePacket(&finPacket2);
+	PTF_ASSERT_EQUAL(status, pcpp::TcpReassembly::Ignore_PacketOfClosedFlow, enum);
 
 	PTF_ASSERT_FALSE(iter->second.connectionsEnded);
 	PTF_ASSERT_TRUE(iter->second.connectionsEndedManually);

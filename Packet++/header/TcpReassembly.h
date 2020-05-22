@@ -240,6 +240,9 @@ public:
 		TcpReassemblyConnectionClosedManually
 	};
 
+	/**
+	 * An enum for providing reassembly status for each processed packet
+	 */
 	enum ReassemblyStatus 
 	{
 		/** 
