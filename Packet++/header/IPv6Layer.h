@@ -143,6 +143,14 @@ namespace pcpp
 		 */
 		bool isFragment() const;
 
+		/**
+		 * The static method makes validation of input data
+		 * @param[in] data The pointer to the beginning of byte stream of IP packet
+		 * @param[in] dataLen The length of byte stream
+		 * @return True if the data is valid and can represent the IPv6 packet
+		 */
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
 
 		// implement abstract methods
 
@@ -219,6 +227,13 @@ namespace pcpp
 		m_ExtensionsLen += newHeader->getExtensionLen();
 
 		return newHeader;
+	}
+
+		// implementation of inline methods
+
+	bool IPv6Layer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		return dataLen >= sizeof(ip6_hdr);
 	}
 
 } // namespace pcpp

@@ -599,7 +599,9 @@ void GtpV1Layer::parseNextLayer()
 	}
 	else if ((subProto & 0xf0) == 0x60)
 	{
-		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 	}
 	else
 	{

@@ -46,7 +46,9 @@ void EthLayer::parseNextLayer()
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_ETHERTYPE_IPV6:
-		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PCPP_ETHERTYPE_ARP:
 		m_NextLayer = new ArpLayer(payload, payloadLen, this, m_Packet);
