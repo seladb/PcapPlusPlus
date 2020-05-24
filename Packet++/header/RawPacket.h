@@ -327,6 +327,13 @@ namespace pcpp
 		LinkLayerType getLinkLayerType() const { return m_LinkLayerType; }
 
 		/**
+		 * This static method validates whether a link type integer value is valid
+		 * @param[in] linkTypeValue Link type integer value
+		 * @return True if the link type value is valid and can be casted into LinkLayerType enum, false otherwise
+		 */
+		static bool isLinkTypeValid(int linkTypeValue);
+
+		/**
 		 * Get raw data length in bytes
 		 * @return Raw data length in bytes
 		 */
