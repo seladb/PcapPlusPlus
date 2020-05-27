@@ -80,7 +80,7 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 		m_LastLayer->m_NextLayer = NULL;
 	}
 
-	if (parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
+	if (m_LastLayer != NULL && parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
 	{
 		// find if there is data left in the raw packet that doesn't belong to any layer. In that case it's probably a packet trailer.
 		// create a PacketTrailerLayer layer and add it at the end of the packet
@@ -679,6 +679,9 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 Layer* Packet::createFirstLayer(LinkLayerType linkType)
 {
 	size_t rawDataLen = (size_t)m_RawPacket->getRawDataLen();
+	if (rawDataLen == 0)
+		return NULL;
+
 	const uint8_t* rawData = m_RawPacket->getRawData();
 
 	if (linkType == LINKTYPE_ETHERNET)
