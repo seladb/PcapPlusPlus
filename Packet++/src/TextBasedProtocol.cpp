@@ -475,15 +475,25 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 		// So fieldValuePtr give us the position of the separator. Value offset is the first non-space byte forward
 		fieldValuePtr++;
 
+		// reached the end of the packet and value start offset wasn't found
+		if ((size_t)(fieldValuePtr - (char*)(m_TextBasedProtocolMessage->m_Data)) >= m_TextBasedProtocolMessage->getDataLen())
+		{
+			m_ValueOffsetInMessage = -1;
+			m_FieldValueSize = -1;
+			return;
+		}
+
 		if (spacesAllowedBetweenNameAndValue)
 		{
 			// advance fieldValuePtr 1 byte forward while didn't get to end of packet and fieldValuePtr points to a space char
 			while ((size_t)(fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data) <= m_TextBasedProtocolMessage->getDataLen() && (*fieldValuePtr) == ' ')
+			{
 				fieldValuePtr++;
+			}
 		}
 
 		// reached the end of the packet and value start offset wasn't found
-		if ((size_t)(fieldValuePtr - (char*)(m_TextBasedProtocolMessage->m_Data)) > m_TextBasedProtocolMessage->getDataLen())
+		if ((size_t)(fieldValuePtr - (char*)(m_TextBasedProtocolMessage->m_Data)) >= m_TextBasedProtocolMessage->getDataLen())
 		{
 			m_ValueOffsetInMessage = -1;
 			m_FieldValueSize = -1;

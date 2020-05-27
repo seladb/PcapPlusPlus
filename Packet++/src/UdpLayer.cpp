@@ -105,7 +105,8 @@ void UdpLayer::parseNextLayer()
 	{
 		if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) != SipRequestLayer::SipMethodUnknown)
 			m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
-		else if (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) != SipResponseLayer::SipStatusCodeUnknown)
+		else if (SipResponseFirstLine::parseStatusCode((char*)udpData, udpDataLen) != SipResponseLayer::SipStatusCodeUnknown
+						&& SipResponseFirstLine::parseVersion((char*)udpData, udpDataLen) != "")
 			m_NextLayer = new SipResponseLayer(udpData, udpDataLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
