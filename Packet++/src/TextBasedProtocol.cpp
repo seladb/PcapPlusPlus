@@ -11,6 +11,9 @@ namespace pcpp
 // this implementation of strnlen is required since mingw doesn't have strnlen
 size_t tbp_my_own_strnlen(const char* s, size_t n)
 {
+	if (s == NULL || n == 0)
+		return 0;
+
 	const char* p = s;
 	/* We don't check here for NULL pointers.  */
 	for (;*p != 0 && n > 0; p++, n--)
@@ -444,7 +447,7 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 	else
 		m_FieldSize = fieldEndPtr - fieldData + 1;
 
-	if ((*fieldData) == '\r' || (*fieldData) == '\n')
+	if (m_FieldSize == 0 || (*fieldData) == '\r' || (*fieldData) == '\n')
 	{
 		m_FieldNameSize = -1;
 		m_ValueOffsetInMessage = -1;
