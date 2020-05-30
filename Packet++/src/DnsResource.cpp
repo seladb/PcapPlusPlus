@@ -14,7 +14,8 @@ IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
 {
 	char decodedName[256];
 	m_NameLength = decodeName((const char*)getRawData(), decodedName);
-	m_DecodedName = decodedName;
+	if (m_NameLength > 0)
+		m_DecodedName = decodedName;
 }
 
 IDnsResource::IDnsResource(uint8_t* emptyRawData)
@@ -63,6 +64,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 			}
 
 			char tempResult[256];
+			memset(tempResult, 0, 256);
 			int i = 0;
 			decodeName((const char*)(m_DnsLayer->m_Data + offsetInLayer), tempResult, iteration+1);
 			while (tempResult[i] != 0 && decodedNameLength < 255)
