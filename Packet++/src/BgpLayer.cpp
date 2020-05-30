@@ -34,6 +34,10 @@ BgpLayer* BgpLayer::parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLaye
     return NULL;
   
   bgp_common_header* bgpHeader = (bgp_common_header*)data;
+
+  // illegal header data - length is too small
+  if (be16toh(bgpHeader->length) < static_cast<uint16_t>(sizeof(bgp_common_header)))
+    return NULL;
   
   switch (bgpHeader->messageType)
   {
@@ -74,7 +78,7 @@ std::string BgpLayer::getMessageTypeAsString() const
 void BgpLayer::parseNextLayer()
 {
 	size_t headerLen = getHeaderLen();
-	if (m_DataLen <= headerLen)
+	if (m_DataLen <= headerLen || headerLen == 0)
 		return;
 
 	uint8_t* payload = m_Data + headerLen;
