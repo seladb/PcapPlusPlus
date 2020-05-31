@@ -196,8 +196,11 @@ namespace pcpp
 		 * criteria to identify SSL/TLS packets
 		 * @param[in] data The data to check
 		 * @param[in] dataLen Length (in bytes) of the data
+		 * @param[in] ignorePorts SSL/TLS ports are only relevant for parsing the first SSL/TLS message, but are not relevant
+		 * for parsing subsequent messages. This parameter can be set to "true" to skip SSL/TLS ports check. This is an 
+		 * optional paramter and its default is "false"
 		 */
-		static bool IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen);
+		static bool IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen, bool ignorePorts = false);
 
 		/**
 		 * A static method that creates SSL/TLS layers by raw data. This method parses the raw data, finds if and which
@@ -534,7 +537,6 @@ namespace pcpp
 
 		switch (port)
 		{
-		case 0:   // default
 		case 261: // NSIIOPS
 		case 448: // DDM-SSL
 		case 465: // SMTPS

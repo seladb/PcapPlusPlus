@@ -1175,7 +1175,10 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	while ((curPos - extensionPos) < (int)extensionLength && (curPos - m_Data) < (int)messageLen)
+	size_t minSSLExtentionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
+	while ((curPos - extensionPos) < (int)extensionLength 
+		&& (curPos - m_Data) < (int)messageLen 
+		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtentionLen)
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
@@ -1317,7 +1320,10 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	while ((curPos - extensionPos) < (int)extensionLength && (curPos - m_Data) < (int)messageLen)
+	size_t minSSLExtentionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
+	while ((curPos - extensionPos) < (int)extensionLength 
+		&& (curPos - m_Data) < (int)messageLen 
+		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtentionLen)
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
@@ -1343,6 +1349,9 @@ SSLVersion SSLServerHelloMessage::getHandshakeVersion() const
 }
 uint8_t SSLServerHelloMessage::getSessionIDLength() const
 {
+	if (m_DataLen <= sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t))
+		return 0;
+
 	uint8_t val = *(m_Data + sizeof(ssl_tls_client_server_hello));
 	if ((size_t)val > m_DataLen - sizeof(ssl_tls_client_server_hello) - 1)
 		return (uint8_t)(m_DataLen - sizeof(ssl_tls_client_server_hello) - 1);
@@ -1596,8 +1605,8 @@ SSLCertificateRequestMessage::SSLCertificateRequestMessage(uint8_t* data, size_t
 
 	uint8_t certificateTypesCount = *(uint8_t*)(data + sizeof(ssl_tls_handshake_layer));
 
-	if (certificateTypesCount > messageLen)
-		certificateTypesCount = messageLen;
+	if (certificateTypesCount > messageLen - sizeof(ssl_tls_handshake_layer) - sizeof(uint8_t))
+		certificateTypesCount = messageLen - sizeof(ssl_tls_handshake_layer) - sizeof(uint8_t);
 
 	uint8_t* pos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
 	for (uint8_t i = 0; i < certificateTypesCount; i++)
@@ -1609,9 +1618,8 @@ SSLCertificateRequestMessage::SSLCertificateRequestMessage(uint8_t* data, size_t
 				certType > 64)
 			m_ClientCertificateTypes.push_back(SSL_CCT_UNKNOWN);
 		else
-			m_ClientCertificateTypes.push_back((SSLClientCertificateType)certType);
+			m_ClientCertificateTypes.push_back(static_cast<SSLClientCertificateType>(certType));
 	}
-
 }
 
 std::vector<SSLClientCertificateType>& SSLCertificateRequestMessage::getCertificateTypes()
