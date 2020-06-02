@@ -142,7 +142,7 @@
 
 #define PTF_ASSERT_NULL(exp) \
 	if ((exp) != NULL) { \
-		printf("%-30s: FAILED (%s:%d). assert null failed: %s is NULL\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
+		printf("%-30s: FAILED (%s:%d). assert null failed: %s is not NULL\n", __FUNCTION__, __FILE__, __LINE__, #exp); \
 		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}

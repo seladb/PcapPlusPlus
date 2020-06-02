@@ -208,6 +208,19 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 		string);
 	PTF_ASSERT_EQUAL(firstQuery->getSize(), 134, size);
 	PTF_ASSERT_NULL(dnsLayer->getNextQuery(firstQuery));
+
+
+	// a corner case of malformed packet where the total number of resources overflow uint16
+	// by less than 300. This fixes the bug: https://github.com/seladb/PcapPlusPlus/issues/441 
+	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/DnsTooManyResources.dat");
+	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::Packet dnsPacket6(&rawPacket6);
+	pcpp::LoggerPP::getInstance().enableErrors();
+	dnsLayer = dnsPacket6.getLayerOfType<pcpp::DnsLayer>();
+	PTF_ASSERT_NULL(dnsLayer->getFirstQuery());
+	PTF_ASSERT_NULL(dnsLayer->getFirstAnswer());
+	PTF_ASSERT_NULL(dnsLayer->getFirstAuthority());
+	PTF_ASSERT_NULL(dnsLayer->getFirstAdditionalRecord());
 } // DnsLayerParsingTest
 
 
