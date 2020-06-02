@@ -131,7 +131,7 @@ void DnsLayer::parseResources()
 	uint16_t numOfAuthority = be16toh(getDnsHeader()->numberOfAuthority);
 	uint16_t numOfAdditional = be16toh(getDnsHeader()->numberOfAdditional);
 
-	uint16_t numOfOtherResources = numOfQuestions + numOfAnswers + numOfAuthority + numOfAdditional;
+	uint32_t numOfOtherResources = numOfQuestions + numOfAnswers + numOfAuthority + numOfAdditional;
 
 	if (numOfOtherResources > 300)
 	{
@@ -140,7 +140,7 @@ void DnsLayer::parseResources()
 		return;
 	}
 
-	for (uint16_t i = 0; i < numOfOtherResources; i++)
+	for (uint32_t i = 0; i < numOfOtherResources; i++)
 	{
 		DnsResourceType resType;
 		if (numOfQuestions > 0)
