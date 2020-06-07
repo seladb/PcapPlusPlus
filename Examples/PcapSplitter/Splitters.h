@@ -1,15 +1,14 @@
 #pragma once
 
-#include <LRUList.h>
-#include <IpUtils.h>
-#include <RawPacket.h>
-#include <Packet.h>
-#include <IPv4Layer.h>
-#include <IPv6Layer.h>
-#include <TcpLayer.h>
-#include <UdpLayer.h>
-#include <DnsLayer.h>
-#include <PacketUtils.h>
+#include "LRUList.h"
+#include "RawPacket.h"
+#include "Packet.h"
+#include "IPv4Layer.h"
+#include "IPv6Layer.h"
+#include "TcpLayer.h"
+#include "UdpLayer.h"
+#include "DnsLayer.h"
+#include "PacketUtils.h"
 #include <map>
 #include <algorithm>
 #include <iomanip>

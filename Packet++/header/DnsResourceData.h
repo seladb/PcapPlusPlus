@@ -3,6 +3,7 @@
 
 #include "DnsResource.h"
 #include "IpAddress.h"
+#include <memory>
 #include <string>
 #include <stdint.h>
 
