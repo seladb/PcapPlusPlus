@@ -46,7 +46,7 @@ namespace pcpp
 		/**
 		 * A constructor that creates an instance of the class out of std::string value
 		 * If the string doesn't represent a valid IPv4 address, an instance will store an unspecified address
-		 * @param[in] addressAsString The std::string representation of the address
+		 * @param[in] addrAsString The std::string representation of the address
 		 */
 		IPv4Address(const std::string& addrAsString);
 
@@ -148,7 +148,7 @@ namespace pcpp
 		/**
 		 * A constructor that creates an instance of the class out of std::string value
 		 * If the string doesn't represent a valid IPv6 address, an instance will store an unspecified address
-		 * @param[in] addressAsString The std::string representation of the address
+		 * @param[in] addrAsString The std::string representation of the address
 		 */
 		IPv6Address(const std::string& addrAsString);
 
@@ -251,7 +251,7 @@ namespace pcpp
 		/**
 		 * A constructor that creates an instance of the class out of std::string value
 		 * If the string doesn't represent a valid IPv4 or IPv6 address, an instance will store an unspecified address
-		 * @param[in] addressAsString The std::string representation of the address
+		 * @param[in] addrAsString The std::string representation of the address
 		 */
 		IPAddress(const std::string& addrAsString);
 
