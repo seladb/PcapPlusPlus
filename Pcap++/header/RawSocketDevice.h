@@ -154,7 +154,7 @@ namespace pcpp
 
 		SocketFamily m_SockFamily;
 		void* m_Socket;
-		IPAddress* m_InterfaceIP;
+		IPAddress m_InterfaceIP;
 
 		RecvPacketResult getError(int& errorCode) const;
 

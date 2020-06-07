@@ -196,7 +196,7 @@ namespace pcpp
 		std::string m_IPv4Mask;
 		int m_Len;
 		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const;
-		void convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) const;
+		void convertToIPAddressWithLen(std::string& ipAddrmodified) const;
 	public:
 		/**
 		 * The basic constructor that creates the filter from an IPv4 address and direction (source or destination)

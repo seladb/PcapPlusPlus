@@ -74,17 +74,16 @@ RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_So
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 	WinSockInitializer::initialize();
-	m_InterfaceIP = interfaceIP.clone();
-	m_SockFamily = (m_InterfaceIP->getType() == IPAddress::IPv4AddressType ? IPv4 : IPv6);
+	m_InterfaceIP = interfaceIP;
+	m_SockFamily = (m_InterfaceIP.getType() == IPAddress::IPv4AddressType ? IPv4 : IPv6);
 
 #elif LINUX
 
-	m_InterfaceIP = interfaceIP.clone();
+	m_InterfaceIP = interfaceIP;
 	m_SockFamily = Ethernet;
 
 #else
 
-	m_InterfaceIP = NULL;
 	m_SockFamily = Ethernet;
 	
 #endif
@@ -94,9 +93,6 @@ RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_So
 RawSocketDevice::~RawSocketDevice()
 {
 	close();
-
-	if (m_InterfaceIP != NULL)
-		delete m_InterfaceIP;
 }
 
 RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking, int timeout)
@@ -368,7 +364,7 @@ bool RawSocketDevice::open()
 {
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
-	if (!m_InterfaceIP->isValid())
+	if (!m_InterfaceIP.isValid())
 	{
 		LOG_ERROR("IP address is not valid");
 		return false;
@@ -394,7 +390,7 @@ bool RawSocketDevice::open()
 	if (m_SockFamily == IPv4)
 	{
 		localAddrIPv4.sin_family = family;
-		int res = inet_pton(family, m_InterfaceIP->toString().c_str(), &localAddrIPv4.sin_addr.s_addr);
+		int res = inet_pton(family, m_InterfaceIP.toString().c_str(), &localAddrIPv4.sin_addr.s_addr);
 		if (res <= 0)
 		{
 			LOG_ERROR("inet_pton failed, probably IP address provided is in bad format");
@@ -408,7 +404,7 @@ bool RawSocketDevice::open()
 	else
 	{
 		localAddrIPv6.sin6_family = family;
-		int res = inet_pton(AF_INET6, m_InterfaceIP->toString().c_str(), &localAddrIPv6.sin6_addr.s6_addr);
+		int res = inet_pton(AF_INET6, m_InterfaceIP.toString().c_str(), &localAddrIPv6.sin6_addr.s6_addr);
 		if (res <= 0)
 		{
 			LOG_ERROR("inet_pton failed, probably IP address provided is in bad format");
@@ -446,7 +442,7 @@ bool RawSocketDevice::open()
 
 #elif LINUX
 
-	if (!m_InterfaceIP->isValid())
+	if (!m_InterfaceIP.isValid())
 	{
 		LOG_ERROR("IP address is not valid");
 		return false;
@@ -473,7 +469,7 @@ bool RawSocketDevice::open()
 				struct sockaddr_in* sockAddr = (struct sockaddr_in*)(curAddr->ifa_addr);
 				char addrAsCharArr[32];
 				inet_ntop(curAddr->ifa_addr->sa_family, (void *)&(sockAddr->sin_addr), addrAsCharArr, sizeof(addrAsCharArr));
-				if (!strcmp(m_InterfaceIP->toString().c_str(), addrAsCharArr))
+				if (!strcmp(m_InterfaceIP.toString().c_str(), addrAsCharArr))
 				{
 					ifaceName = curAddr->ifa_name;
 					ifaceIndex = if_nametoindex(curAddr->ifa_name);
@@ -484,7 +480,7 @@ bool RawSocketDevice::open()
 				struct sockaddr_in6* sockAddr = (struct sockaddr_in6*)(curAddr->ifa_addr);
 				char addrAsCharArr[40];
 				inet_ntop(curAddr->ifa_addr->sa_family, (void *)&(sockAddr->sin6_addr), addrAsCharArr, sizeof(addrAsCharArr));
-				if (!strcmp(m_InterfaceIP->toString().c_str(), addrAsCharArr))
+				if (!strcmp(m_InterfaceIP.toString().c_str(), addrAsCharArr))
 				{
 					ifaceName = curAddr->ifa_name;
 					ifaceIndex = if_nametoindex(curAddr->ifa_name);

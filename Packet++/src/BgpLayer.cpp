@@ -372,22 +372,26 @@ void BgpUpdateMessageLayer::parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLe
     size_t curByteCount = 1;
     if (wr.prefix == 32)
     {
-      wr.ipAddr = IPv4Address(dataPtr[1], dataPtr[2], dataPtr[3], dataPtr[4]);
+      uint8_t octets[4] = { dataPtr[1], dataPtr[2], dataPtr[3], dataPtr[4] };
+      wr.ipAddr = IPv4Address(octets);
       curByteCount += 4;
     }
     else if (wr.prefix == 24)
     {
-      wr.ipAddr = IPv4Address(dataPtr[1], dataPtr[2], dataPtr[3], 0);
+      uint8_t octets[4] = { dataPtr[1], dataPtr[2], dataPtr[3], 0 };
+      wr.ipAddr = IPv4Address(octets);
       curByteCount += 3;
     }
     else if (wr.prefix == 16)
     {
-      wr.ipAddr = IPv4Address(dataPtr[1], dataPtr[2], 0, 0);
+      uint8_t octets[4] = { dataPtr[1], dataPtr[2], 0, 0 };
+      wr.ipAddr = IPv4Address(octets);
       curByteCount += 2;
     }
     else if (wr.prefix == 8)
     {
-      wr.ipAddr = IPv4Address(dataPtr[1], 0, 0, 0);
+      uint8_t octets[4] = { dataPtr[1], 0, 0, 0 };
+      wr.ipAddr = IPv4Address(octets);
       curByteCount += 1;
     }
     else
@@ -416,32 +420,32 @@ size_t BgpUpdateMessageLayer::prefixAndIPDataToByteArray(const std::vector<prefi
     uint8_t curData[5];
     curData[0] = iter->prefix;
     size_t curDataSize = 1;
-    IPv4Address::ipv4_octets octets = iter->ipAddr.toOctets();
+    const uint8_t* octets = iter->ipAddr.toBytes();
     if (iter->prefix == 32)
     {
       curDataSize += 4;
-      curData[1] = octets.oct1;
-      curData[2] = octets.oct2;
-      curData[3] = octets.oct3;
-      curData[4] = octets.oct4;
+      curData[1] = octets[0];
+      curData[2] = octets[1];
+      curData[3] = octets[2];
+      curData[4] = octets[3];
     }
     else if (iter->prefix == 24)
     {
       curDataSize += 3;
-      curData[1] = octets.oct1;
-      curData[2] = octets.oct2;
-      curData[3] = octets.oct3;
+      curData[1] = octets[0];
+      curData[2] = octets[1];
+      curData[3] = octets[2];
     }
     else if (iter->prefix == 16)
     {
       curDataSize += 2;
-      curData[1] = octets.oct1;
-      curData[2] = octets.oct2;
+      curData[1] = octets[0];
+      curData[2] = octets[1];
     }
     else if (iter->prefix == 8)
     {
       curDataSize += 1;
-      curData[1] = octets.oct1;
+      curData[1] = octets[0];
     }
     else
     {

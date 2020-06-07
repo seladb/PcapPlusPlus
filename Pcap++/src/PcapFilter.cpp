@@ -153,7 +153,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();
 }
 
-void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) const
+void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 {
 	if (m_Len == 0)
 		return;
@@ -162,39 +162,19 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified, int& len) 
 
 	// The following code lines verify IP address is valid (IPv4 or IPv6)
 
-	IPAddress::Ptr_t ipAddr = IPAddress::fromString(ipAddrmodified);
-	if (ipAddr.get()->getType() == IPAddress::IPv4AddressType)
+	IPAddress ipAddr = IPAddress(ipAddrmodified);
+	if (!ipAddr.isValid())
 	{
-		IPv4Address* ip4Addr = (IPv4Address*)ipAddr.get();
-		uint32_t addrAsInt = ip4Addr->toInt();
+		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
+		return;
+	}
+
+	if (ipAddr.getType() == IPAddress::IPv4AddressType)
+	{
+		uint32_t addrAsInt = ipAddr.getIPv4().toInt();
 		uint32_t mask = ((uint32_t) - 1) >> ((sizeof(uint32_t) * 8) - m_Len);
 		addrAsInt &= mask;
 		ipAddrmodified = IPv4Address(addrAsInt).toString();
-	}
-	else if (ipAddr.get()->getType() == IPAddress::IPv6AddressType)
-	{
-		IPv6Address* ip6Addr = (IPv6Address*)ipAddr.get();
-		uint8_t* addrAsArr; size_t addrLen;
-		ip6Addr->copyTo(&addrAsArr, addrLen);
-		uint64_t addrLowerBytes = (long)addrAsArr;
-		uint64_t addrHigherBytes = (long)(addrAsArr + 8);
-		if (len > (int)(sizeof(uint64_t) * 8))
-		{
-			addrLowerBytes = 0;
-			addrHigherBytes &= (-1 << (len - sizeof(uint64_t)));
-		}
-		else
-		{
-			addrLowerBytes &= (-1 << len);
-		}
-
-		ipAddrmodified = IPv6Address(addrAsArr).toString();
-		delete [] addrAsArr;
-	}
-	else
-	{
-		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
-		len = 0;
 	}
 }
 
@@ -203,9 +183,8 @@ void IPFilter::parseToString(std::string& result)
 	std::string dir;
 	std::string ipAddr = m_Address;
 	std::string mask = m_IPv4Mask;
-	int len = m_Len;
 	convertToIPAddressWithMask(ipAddr, mask);
-	convertToIPAddressWithLen(ipAddr, len);
+	convertToIPAddressWithLen(ipAddr);
 	parseDirection(dir);
 	result = "ip and " + dir + " net " + ipAddr;
 	if (m_IPv4Mask != "")

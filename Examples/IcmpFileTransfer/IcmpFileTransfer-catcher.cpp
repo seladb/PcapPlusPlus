@@ -208,7 +208,7 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 {
 	// identify the interface to listen and send packets to
-	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(&catcherIP);
+	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);
 	if (dev == NULL)
 		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", catcherIP.toString().c_str());
 
@@ -433,7 +433,7 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP, size_t blockSize)
 {
 	// identify the interface to listen and send packets to
-	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(&catcherIP);
+	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);
 	if (dev == NULL)
 		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", catcherIP.toString().c_str());
 

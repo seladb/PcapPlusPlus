@@ -10,14 +10,14 @@
 namespace pcpp
 {
 
-PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAddress, uint16_t port)
+PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port)
 {
 	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, NULL);
 }
 
-PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
+PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
-	if (ipAddress == NULL || !ipAddress->isValid())
+	if (!ipAddress.isValid())
 	{
 		LOG_ERROR("IP address is NULL or not valid");
 		return NULL;
@@ -25,10 +25,10 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 
 	char portAsCharArr[6];
 	sprintf(portAsCharArr, "%d", port);
-	LOG_DEBUG("Searching remote devices on IP: %s and port: %d", ipAddress->toString().c_str(), port);
+	LOG_DEBUG("Searching remote devices on IP: %s and port: %d", ipAddress.toString().c_str(), port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
 	char errbuf[PCAP_ERRBUF_SIZE];
-	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress->toString().c_str(), portAsCharArr, NULL, errbuf) != 0)
+	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), portAsCharArr, NULL, errbuf) != 0)
 	{
 		LOG_ERROR("Error in creating the remote connection string. Error was: %s", errbuf);
 		return NULL;
@@ -71,35 +71,38 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(IPAddress* ipAdd
 	return resultList;
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const char* ipAddrAsString) const
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
 {
-	IPAddress::Ptr_t apAddr = IPAddress::fromString(ipAddrAsString);
-	if (!apAddr->isValid())
+	IPAddress ipAddr = IPAddress(ipAddrAsString);
+	if (!ipAddr.isValid())
 	{
-		LOG_ERROR("IP address illegal");
+		LOG_ERROR("IP address no valid");
 		return NULL;
 	}
 
-	PcapRemoteDevice* result = getRemoteDeviceByIP(apAddr.get());
+	PcapRemoteDevice* result = getRemoteDeviceByIP(ipAddr);
 	return result;
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPAddress* ipAddr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
 {
-	if (ipAddr->getType() == IPAddress::IPv4AddressType)
+	if (!ipAddr.isValid())
 	{
-		IPv4Address* ip4Addr = static_cast<IPv4Address*>(ipAddr);
-		return getRemoteDeviceByIP(*ip4Addr);
+		LOG_ERROR("IP address not valid");
+		return NULL;
+	}
+	if (ipAddr.getType() == IPAddress::IPv4AddressType)
+	{
+		return getRemoteDeviceByIP(ipAddr.getIPv4());
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		IPv6Address* ip6Addr = static_cast<IPv6Address*>(ipAddr);
-		return getRemoteDeviceByIP(*ip6Addr);
+		return getRemoteDeviceByIP(ipAddr.getIPv6());
 	}
 }
 
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
 {
 	LOG_DEBUG("Searching all remote devices in list...");
 	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
@@ -121,7 +124,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 				continue;
 			}
 
-			if (currAddr->s_addr == ip4Addr.toInAddr()->s_addr)
+			if (currAddr->s_addr == ip4Addr.toInt())
 			{
 				LOG_DEBUG("Found matched address!");
 				return (*devIter);
@@ -133,7 +136,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv4Address ip4Addr)
 
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
 {
 	LOG_DEBUG("Searching all remote devices in list...");
 	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
@@ -171,25 +174,15 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(IPv6Address ip6Addr)
 
 }
 
-void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress* ipAddress)
+void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress& ipAddress)
 {
-	if (ipAddress == NULL)
+	if (!ipAddress.isValid())
 	{
-		LOG_ERROR("Trying to set a NULL IP address to PcapRemoteDeviceList");
+		LOG_ERROR("Trying to set an invalid IP address to PcapRemoteDeviceList");
 		return;
 	}
 
-	if (m_RemoteMachineIpAddress != NULL)
-		delete m_RemoteMachineIpAddress;
-
-	if (ipAddress->getType() == IPAddress::IPv4AddressType)
-	{
-		m_RemoteMachineIpAddress = new IPv4Address(ipAddress->toString());
-	}
-	else //IPAddress::IPv6AddressType
-	{
-		m_RemoteMachineIpAddress = new IPv6Address(ipAddress->toString());
-	}
+	m_RemoteMachineIpAddress = ipAddress;
 }
 
 void PcapRemoteDeviceList::setRemoteMachinePort(uint16_t port)
@@ -216,11 +209,6 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 		RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin();
 		delete (*devIter);
 		m_RemoteDeviceList.erase(devIter);
-	}
-
-	if (m_RemoteMachineIpAddress != NULL)
-	{
-		delete m_RemoteMachineIpAddress;
 	}
 
 	if (m_RemoteAuthentication != NULL)

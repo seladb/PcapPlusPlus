@@ -78,9 +78,9 @@ namespace pcpp
 struct ConnectionData
 {
 	/** Source IP address */
-	IPAddress* srcIP;
+	IPAddress srcIP;
 	/** Destination IP address */
-	IPAddress* dstIP;
+	IPAddress dstIP;
 	/** Source TCP/UDP port */
 	uint16_t srcPort;
 	/** Destination TCP/UDP port */
@@ -95,12 +95,7 @@ struct ConnectionData
 	/**
 	 * A c'tor for this struct that basically zeros all members
 	 */
-	ConnectionData() : srcIP(NULL), dstIP(NULL), srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()  {}
-
-	/**
-	 * A d'tor for this strcut. Notice it frees the memory of srcIP and dstIP members
-	 */
-	~ConnectionData();
+	ConnectionData() : srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()  {}
 
 	/**
 	 * A copy constructor for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
@@ -111,18 +106,6 @@ struct ConnectionData
 	 * An assignment operator for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
 	 */
 	ConnectionData& operator=(const ConnectionData& other);
-
-	/**
-	 * Set source IP
-	 * @param[in] sourceIP A pointer to the source IP to set. Notice the IPAddress object will be cloned
-	 */
-	void setSrcIpAddress(const IPAddress* sourceIP) { srcIP = sourceIP->clone(); }
-
-	/**
-	 * Set destination IP
-	 * @param[in] destIP A pointer to the destination IP to set. Notice the IPAddress object will be cloned
-	 */
-	void setDstIpAddress(const IPAddress* destIP) { dstIP = destIP->clone(); }
 
 	/**
 	 * Set startTime of Connection
@@ -411,17 +394,13 @@ private:
 
 	struct TcpOneSideData
 	{
-		IPAddress* srcIP;
+		IPAddress srcIP;
 		uint16_t srcPort;
 		uint32_t sequence;
 		PointerVector<TcpFragment> tcpFragmentList;
 		bool gotFinOrRst;
 
-		void setSrcIP(IPAddress* sourrcIP);
-
-		TcpOneSideData() { srcIP = NULL; srcPort = 0; sequence = 0; gotFinOrRst = false; }
-
-		~TcpOneSideData() { if (srcIP != NULL) delete srcIP; }
+		TcpOneSideData() { srcPort = 0; sequence = 0; gotFinOrRst = false; }
 	};
 
 	struct TcpReassemblyData

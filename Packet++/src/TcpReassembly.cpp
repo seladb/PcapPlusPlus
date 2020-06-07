@@ -35,15 +35,6 @@ namespace
 namespace pcpp
 {
 
-ConnectionData::~ConnectionData()
-{
-	if (srcIP != NULL)
-		delete srcIP;
-
-	if (dstIP != NULL)
-		delete dstIP;
-}
-
 ConnectionData::ConnectionData(const ConnectionData& other)
 {
 	copyData(other);
@@ -51,12 +42,6 @@ ConnectionData::ConnectionData(const ConnectionData& other)
 
 ConnectionData& ConnectionData::operator=(const ConnectionData& other)
 {
-	if (srcIP != NULL)
-		delete srcIP;
-
-	if (dstIP != NULL)
-		delete dstIP;
-
 	copyData(other);
 
 	return *this;
@@ -64,30 +49,13 @@ ConnectionData& ConnectionData::operator=(const ConnectionData& other)
 
 void ConnectionData::copyData(const ConnectionData& other)
 {
-	if (other.srcIP != NULL)
-		srcIP = other.srcIP->clone();
-	else
-		srcIP = NULL;
-
-	if (other.dstIP != NULL)
-		dstIP = other.dstIP->clone();
-	else
-		dstIP = NULL;
-
 	flowKey = other.flowKey;
 	srcPort = other.srcPort;
 	dstPort = other.dstPort;
 	startTime = other.startTime;
 	endTime = other.endTime;
-}
-
-
-void TcpReassembly::TcpOneSideData::setSrcIP(IPAddress* sourrcIP)
-{
-	if (srcIP != NULL)
-		delete srcIP;
-
-	srcIP = sourrcIP->clone();
+	srcIP = other.srcIP;
+	dstIP = other.dstIP;
 }
 
 
@@ -187,33 +155,25 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	}
 
 	// calculate packet's source and dest IP address
-	IPAddress* srcIP = NULL;
-	IPAddress* dstIP = NULL;
-	IPv4Address srcIP4Addr = IPv4Address::Zero;
-	IPv6Address srcIP6Addr = IPv6Address::Zero;
-	IPv4Address dstIP4Addr = IPv4Address::Zero;
-	IPv6Address dstIP6Addr = IPv6Address::Zero;
+	IPAddress srcIP, dstIP;
+
 	if (ipLayer->getProtocol() == IPv4)
 	{
-		srcIP4Addr = ((IPv4Layer*)ipLayer)->getSrcIpAddress();
-		srcIP = &srcIP4Addr;
-		dstIP4Addr = ((IPv4Layer*)ipLayer)->getDstIpAddress();
-		dstIP = &dstIP4Addr;
+		srcIP = ((IPv4Layer*)ipLayer)->getSrcIpAddress();
+		dstIP = ((IPv4Layer*)ipLayer)->getDstIpAddress();
 	}
 	else if (ipLayer->getProtocol() == IPv6)
 	{
-		srcIP6Addr = ((IPv6Layer*)ipLayer)->getSrcIpAddress();
-		srcIP = &srcIP6Addr;
-		dstIP6Addr = ((IPv6Layer*)ipLayer)->getDstIpAddress();
-		dstIP = &dstIP6Addr;
+		srcIP = ((IPv6Layer*)ipLayer)->getSrcIpAddress();
+		dstIP = ((IPv6Layer*)ipLayer)->getDstIpAddress();
 	}
 
 	if (iter == m_ConnectionList.end())
 	{
 		// if it's a packet of a new connection, create a TcpReassemblyData object and add it to the active connection list
 		tcpReassemblyData = new TcpReassemblyData();
-		tcpReassemblyData->connData.setSrcIpAddress(srcIP);
-		tcpReassemblyData->connData.setDstIpAddress(dstIP);
+		tcpReassemblyData->connData.srcIP = srcIP;
+		tcpReassemblyData->connData.dstIP = dstIP;
 		tcpReassemblyData->connData.srcPort = be16toh(tcpLayer->getTcpHeader()->portSrc);
 		tcpReassemblyData->connData.dstPort = be16toh(tcpLayer->getTcpHeader()->portDst);
 		tcpReassemblyData->connData.flowKey = flowKey;
@@ -257,7 +217,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 
 		// open the first side of the connection, side index is 0
 		sideIndex = 0;
-		tcpReassemblyData->twoSides[sideIndex].setSrcIP(srcIP);
+		tcpReassemblyData->twoSides[sideIndex].srcIP = srcIP;
 		tcpReassemblyData->twoSides[sideIndex].srcPort = srcPort;
 		tcpReassemblyData->numOfSides++;
 		first = true;
@@ -266,7 +226,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 1)
 	{
 		// check if packet belongs to that side
-		if (tcpReassemblyData->twoSides[0].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcIP == srcIP && tcpReassemblyData->twoSides[0].srcPort == srcPort)
 		{
 			sideIndex = 0;
 		}
@@ -275,7 +235,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 			// this means packet belong to the second side which doesn't yet exist. Open a second side with side index 1
 			LOG_DEBUG("Setting second side of a connection");
 			sideIndex = 1;
-			tcpReassemblyData->twoSides[sideIndex].setSrcIP(srcIP);
+			tcpReassemblyData->twoSides[sideIndex].srcIP = srcIP;
 			tcpReassemblyData->twoSides[sideIndex].srcPort = srcPort;
 			tcpReassemblyData->numOfSides++;
 			first = true;
@@ -285,12 +245,12 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 2)
 	{
 		// check if packet matches side 0
-		if (tcpReassemblyData->twoSides[0].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcIP == srcIP && tcpReassemblyData->twoSides[0].srcPort == srcPort)
 		{
 			sideIndex = 0;
 		}
 		// check if packet matches side 1
-		else if (tcpReassemblyData->twoSides[1].srcIP->equals(srcIP) && tcpReassemblyData->twoSides[1].srcPort == srcPort)
+		else if (tcpReassemblyData->twoSides[1].srcIP == srcIP && tcpReassemblyData->twoSides[1].srcPort == srcPort)
 		{
 			sideIndex = 1;
 		}

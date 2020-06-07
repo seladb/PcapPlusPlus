@@ -80,12 +80,12 @@ namespace pcpp
 	{
 		friend class PcapRemoteDeviceList;
 	private:
-		IPAddress* m_RemoteMachineIpAddress;
+		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
 		PcapRemoteAuthentication* m_RemoteAuthentication;
 
 		// c'tor is private, as only PcapRemoteDeviceList should create instances of it, and it'll create only one for every remote interface
-		PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, IPAddress* remoteMachineIP, uint16_t remoteMachinePort);
+		PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort);
 
 		// private copy c'tor
 		PcapRemoteDevice( const PcapRemoteDevice& other );
@@ -103,7 +103,7 @@ namespace pcpp
 		/**
 		 * @return The IP address of the remote machine where packets are transmitted from the remote machine to the client machine
 		 */
-		IPAddress* getRemoteMachineIpAddress() const { return m_RemoteMachineIpAddress; }
+		IPAddress getRemoteMachineIpAddress() const { return m_RemoteMachineIpAddress; }
 
 		/**
 		 * @return The port of the remote machine where packets are transmitted from the remote machine to the client machine

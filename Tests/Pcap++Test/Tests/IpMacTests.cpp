@@ -18,16 +18,16 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 PTF_TEST_CASE(TestIPAddress)
 {
-	pcpp::IPAddress::Ptr_t ip4Addr = pcpp::IPAddress::fromString((char*)"10.0.0.4");
-	PTF_ASSERT_NOT_NULL(ip4Addr.get());
-	PTF_ASSERT_EQUAL(ip4Addr->getType(), pcpp::IPAddress::IPv4AddressType, enum);
-	PTF_ASSERT_EQUAL(ip4Addr->toString(), "10.0.0.4", string);
-	pcpp::IPv4Address* ip4AddrAfterCast = static_cast<pcpp::IPv4Address*>(ip4Addr.get());
-	PTF_ASSERT_EQUAL(ip4AddrAfterCast->toInt(), htobe32(0x0A000004), u32);
+	pcpp::IPAddress ip4Addr = pcpp::IPAddress("10.0.0.4");
+	PTF_ASSERT_TRUE(ip4Addr.isValid());
+	PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
+	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4", string);
+	pcpp::IPv4Address ip4AddrFromIpAddr = ip4Addr.getIPv4();
+	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr.toInt(), htobe32(0x0A000004), u32);
 	pcpp::IPv4Address secondIPv4Address(std::string("1.1.1.1"));
-	secondIPv4Address = *ip4AddrAfterCast;
+	secondIPv4Address = ip4AddrFromIpAddr;
 	PTF_ASSERT_TRUE(secondIPv4Address.isValid());
-	PTF_ASSERT_EQUAL((*ip4AddrAfterCast),secondIPv4Address, object);
+	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address, object);
 
 	pcpp::IPv4Address ipv4Addr("10.0.0.4"), subnet1("10.0.0.0"), subnet2("10.10.0.0"), mask("255.255.255.0");
 	PTF_ASSERT_TRUE(ipv4Addr.isValid());
@@ -43,31 +43,27 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_FALSE(anotherBadAddress.isValid());
 
 	std::string ip6AddrString("2607:f0d0:1002:51::4");
-	pcpp::IPAddress::Ptr_t ip6Addr = pcpp::IPAddress::fromString(ip6AddrString);
-	PTF_ASSERT_NOT_NULL(ip6Addr.get());
-	PTF_ASSERT_EQUAL(ip6Addr->getType(), pcpp::IPAddress::IPv6AddressType, enum);
-	PTF_ASSERT_EQUAL(ip6Addr->toString(), "2607:f0d0:1002:51::4", string);
-	pcpp::IPv6Address* ip6AddrAfterCast = static_cast<pcpp::IPv6Address*>(ip6Addr.get());
-	size_t length = 0;
-	uint8_t* addrAsByteArray;
-	ip6AddrAfterCast->copyTo(&addrAsByteArray, length);
-	PTF_ASSERT_EQUAL(length, 16, size);
+	pcpp::IPAddress ip6Addr = pcpp::IPAddress(ip6AddrString);
+	PTF_ASSERT_TRUE(ip6Addr.isValid());
+	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
+	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4", string);
+	pcpp::IPv6Address ip6AddrFromIpAddr = ip6Addr.getIPv6();
+	uint8_t addrAsByteArray[16];
+	ip6AddrFromIpAddr.copyTo(addrAsByteArray);
 	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00 , 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
 	for (int i = 0; i < 16; i++)
 	{
 		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i], u8);
 	}
 
-	delete [] addrAsByteArray;
-	ip6Addr = pcpp::IPAddress::fromString(std::string("2607:f0d0:1002:0051:0000:0000:0000:0004"));
-	PTF_ASSERT_NOT_NULL(ip6Addr.get());
-	PTF_ASSERT_EQUAL(ip6Addr->getType(), pcpp::IPAddress::IPv6AddressType, enum);
-	PTF_ASSERT_EQUAL(ip6Addr->toString(), "2607:f0d0:1002:0051:0000:0000:0000:0004", string);
+	ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
+	PTF_ASSERT_TRUE(ip6Addr.isValid());
+	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
+	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4", string);
 	pcpp::IPv6Address secondIPv6Address(std::string("2607:f0d0:1002:52::5"));
-	ip6AddrAfterCast = static_cast<pcpp::IPv6Address*>(ip6Addr.get());
-	secondIPv6Address = *ip6AddrAfterCast;
-	PTF_ASSERT_TRUE(ip6Addr->isValid());
-	PTF_ASSERT_EQUAL((*ip6AddrAfterCast), secondIPv6Address, object);
+	ip6AddrFromIpAddr = ip6Addr.getIPv6();
+	secondIPv6Address = ip6AddrFromIpAddr;
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr, secondIPv6Address, object);
 
 	char badIp6AddressStr[] = "lasdfklsdkfdls";
 	pcpp::IPv6Address badIp6Address(badIp6AddressStr);

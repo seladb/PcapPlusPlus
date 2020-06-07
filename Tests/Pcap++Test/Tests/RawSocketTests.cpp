@@ -10,13 +10,12 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 PTF_TEST_CASE(TestRawSockets)
 {
-	pcpp::IPAddress::Ptr_t ipAddr = pcpp::IPAddress::fromString(PcapTestGlobalArgs.ipToSendReceivePackets);
-	PTF_ASSERT_NOT_NULL(ipAddr.get());
-	PTF_ASSERT_TRUE(ipAddr.get()->isValid());
-	pcpp::RawSocketDevice rawSock(*(ipAddr.get()));
+	pcpp::IPAddress ipAddr = pcpp::IPAddress(PcapTestGlobalArgs.ipToSendReceivePackets);
+	PTF_ASSERT_TRUE(ipAddr.isValid());
+	pcpp::RawSocketDevice rawSock(ipAddr);
 
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-	pcpp::ProtocolType protocol = (ipAddr.get()->getType() == pcpp::IPAddress::IPv4AddressType ? pcpp::IPv4 : pcpp::IPv6);
+	pcpp::ProtocolType protocol = (ipAddr.getType() == pcpp::IPAddress::IPv4AddressType ? pcpp::IPv4 : pcpp::IPv6);
 	bool sendSupported = false;
 #elif LINUX
 	pcpp::ProtocolType protocol = pcpp::Ethernet;
@@ -108,7 +107,7 @@ PTF_TEST_CASE(TestRawSockets)
 	PTF_ASSERT_TRUE(rawSock.open());
 
 	// open another socket on the same interface
-	pcpp::RawSocketDevice rawSock2(*(ipAddr.get()));
+	pcpp::RawSocketDevice rawSock2(ipAddr);
 	PTF_ASSERT_TRUE(rawSock2.open());
 
 	// receive packet on 2 sockets
