@@ -85,8 +85,8 @@ struct ConnectionData
 	uint16_t srcPort;
 	/** Destination TCP/UDP port */
 	uint16_t dstPort;
-	/** A 4-byte hash key representing the connection */
-	uint32_t flowKey;
+	/** A 8-byte hash key representing the connection */
+	uint64_t flowKey;
 	/** Start TimeStamp of the connection */
 	timeval startTime;
 	/** End TimeStamp of the connection */
@@ -351,9 +351,9 @@ public:
 	/**
 	 * Close a connection manually. If the connection doesn't exist or already closed an error log is printed. This method will cause the TcpReassembly#OnTcpConnectionEnd to be invoked with
 	 * a reason of TcpReassembly#TcpReassemblyConnectionClosedManually
-	 * @param[in] flowKey A 4-byte hash key representing the connection. Can be taken from a ConnectionData instance
+	 * @param[in] flowKey A 8-byte hash key representing the connection. Can be taken from a ConnectionData instance
 	 */
-	void closeConnection(uint32_t flowKey);
+	void closeConnection(uint64_t flowKey);
 
 	/**
 	 * Close all open connections manually. This method will cause the TcpReassembly#OnTcpConnectionEnd to be invoked for each connection with a reason of
@@ -413,8 +413,8 @@ private:
 		TcpReassemblyData() { numOfSides = 0; prevSide = -1; }
 	};
 	
-	typedef std::map<uint32_t, TcpReassemblyData *> ConnectionList;
-	typedef std::map<time_t, std::list<uint32_t> > CleanupList;
+	typedef std::map<uint64_t, TcpReassemblyData *> ConnectionList;
+	typedef std::map<time_t, std::list<uint64_t> > CleanupList;
 
 	OnTcpMessageReady m_OnMessageReadyCallback;
 	OnTcpConnectionStart m_OnConnStart;
@@ -432,11 +432,11 @@ private:
 
 	std::string prepareMissingDataMessage(uint32_t missingDataLen);
 
-	void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int sideIndex, uint32_t flowKey);
+	void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int sideIndex, uint64_t flowKey);
 
-	void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
+	void closeConnectionInternal(uint64_t flowKey, ConnectionEndReason reason);
 
-	void insertIntoCleanupList(uint32_t flowKey);
+	void insertIntoCleanupList(uint64_t flowKey);
 };
 
 }

@@ -125,5 +125,22 @@ namespace pcpp
 	 */
 	uint32_t fnv_hash(uint8_t* buffer, size_t bufSize);
 
+        /**
+        * Computes Fowler-Noll-Vo (FNV-1) 64bit hash function on an array of byte buffers. The hash is calculated on each
+        * byte in each byte buffer, as if all byte buffers were one long byte buffer
+        * @param[in] vec An array of byte buffers (ScalarBuffer of type uint8_t)
+        * @param[in] vecSize The length of vec
+        * @return The 64bit hash value
+        */
+        uint64_t fnv_hash_64(ScalarBuffer<uint8_t> vec[], size_t vecSize);
+
+        /**
+         * Computes Fowler-Noll-Vo (FNV-1) 64bit hash function on a byte buffer
+         * @param[in] buffer The byte buffer
+         * @param[in] bufSize The size of the byte buffer
+         * @return The 64bit hash value
+         */
+        uint64_t fnv_hash_64(uint8_t* buffer, size_t bufSize);
+
 } // namespace pcpp
 #endif

@@ -106,6 +106,8 @@ uint16_t compute_checksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 
 static const uint32_t FNV_PRIME = 16777619u;
 static const uint32_t OFFSET_BASIS = 2166136261u;
+static const uint64_t FNV_64_PRIME = 0x100000001b3ull;
+static const uint64_t FNV_64_OFFSET_BASIS = 0xcbf29ce484222325ull;
 
 uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
 {
@@ -127,6 +129,28 @@ uint32_t fnv_hash(uint8_t* buffer, size_t bufSize)
 	scalarBuf.buffer = buffer;
 	scalarBuf.len = bufSize;
 	return fnv_hash(&scalarBuf, 1);
+}
+
+uint64_t fnv_hash_64(ScalarBuffer<uint8_t> vec[], size_t vecSize)
+{
+  uint64_t hash = FNV_64_OFFSET_BASIS;
+  for (size_t i = 0; i < vecSize; ++i)
+  {
+    for (size_t j = 0; j < vec[i].len; ++j)
+    {
+      hash *= FNV_64_PRIME;
+      hash ^= vec[i].buffer[j];
+    }
+  }
+  return hash;
+}
+
+uint64_t fnv_hash_64(uint8_t* buffer, size_t bufSize)
+{
+  ScalarBuffer<uint8_t> scalarBuf;
+  scalarBuf.buffer = buffer;
+  scalarBuf.len = bufSize;
+  return fnv_hash_64(&scalarBuf, 1);
 }
 
 } // namespace pcpp

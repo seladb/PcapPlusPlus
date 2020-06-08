@@ -20,6 +20,7 @@ namespace pcpp
 	 * @return The hash value calculated for this packet or 0 if the packet doesn't contain 5-tuple
 	 */
 	uint32_t hash5Tuple(Packet* packet);
+        uint64_t hash64_5Tuple(Packet* packet);
 
 	/**
 	 * A method that is given a packet and calculates a hash value by the packet's 2-tuple (IP src + IP dst). Supports
@@ -28,6 +29,7 @@ namespace pcpp
 	 * @return The hash value calculated for this packet or 0 if the packet isn't IPv4/6
 	 */
 	uint32_t hash2Tuple(Packet* packet);
+        uint64_t hash64_2Tuple(Packet* packet);
 
 } // namespace pcpp
 
