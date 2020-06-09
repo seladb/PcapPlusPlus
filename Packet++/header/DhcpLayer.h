@@ -416,8 +416,7 @@ namespace pcpp
 		 */
 		IPv4Address getValueAsIpAddr() const
 		{
-			uint32_t addrAsInt = getValueAs<uint32_t>();
-			return IPv4Address(addrAsInt);
+			return getValueAs<uint32_t>();
 		}
 
 		/**
@@ -627,46 +626,46 @@ namespace pcpp
 		/**
 		 * @return The client IPv4 address (as extracted from dhcp_header#clientIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getClientIpAddress() const;
+		IPv4Address getClientIpAddress() const { return getDhcpHeader()->clientIpAddress; }
 
 		/**
 		 * Set the client IPv4 address in dhcp_header#clientIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setClientIpAddress(const IPv4Address& addr);
+		void setClientIpAddress(const IPv4Address& addr) { getDhcpHeader()->clientIpAddress = addr.toInt(); }
 
 		/**
 		 * @return The server IPv4 address (as extracted from dhcp_header#serverIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getServerIpAddress() const;
+		IPv4Address getServerIpAddress() const { return getDhcpHeader()->serverIpAddress; }
 
 		/**
 		 * Set the server IPv4 address in dhcp_header#serverIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setServerIpAddress(const IPv4Address& addr);
+		void setServerIpAddress(const IPv4Address& addr) { getDhcpHeader()->serverIpAddress = addr.toInt(); }
 
 		/**
 		 * @return Your IPv4 address (as extracted from dhcp_header#yourIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getYourIpAddress() const;
+		IPv4Address getYourIpAddress() const { return getDhcpHeader()->yourIpAddress; }
 
 		/**
 		 * Set your IPv4 address in dhcp_header#yourIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setYourIpAddress(const IPv4Address& addr);
+		void setYourIpAddress(const IPv4Address& addr) { getDhcpHeader()->yourIpAddress = addr.toInt(); }
 
 		/**
 		 * @return Gateway IPv4 address (as extracted from dhcp_header#gatewayIpAddress converted to IPv4Address object)
 		 */
-		IPv4Address getGatewayIpAddress() const;
+		IPv4Address getGatewayIpAddress() const { return getDhcpHeader()->gatewayIpAddress; }
 
 		/**
 		 * Set the gateway IPv4 address in dhcp_header#gatewayIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setGatewayIpAddress(const IPv4Address& addr);
+		void setGatewayIpAddress(const IPv4Address& addr) { getDhcpHeader()->gatewayIpAddress = addr.toInt(); }
 
 		/**
 		 * @return The client MAC address as extracted from dhcp_header#clientHardwareAddress, assuming dhcp_header#hardwareType is 1 (Ethernet)
