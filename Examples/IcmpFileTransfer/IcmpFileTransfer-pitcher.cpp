@@ -557,9 +557,9 @@ int main(int argc, char* argv[])
 	AppName::init(argc, argv);
 
 	bool sender, receiver;
-	IPv4Address pitcherIP = IPv4Address::Zero;
-	IPv4Address catcherIP = IPv4Address::Zero;
-	std::string fileNameToSend = "";
+	IPv4Address pitcherIP;
+	IPv4Address catcherIP;
+	std::string fileNameToSend;
 	int packetsPerSec = 0;
 	size_t blockSize = 0;
 
