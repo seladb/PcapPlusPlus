@@ -327,12 +327,6 @@ public:
 	TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie = NULL, OnTcpConnectionStart onConnectionStartCallback = NULL, OnTcpConnectionEnd onConnectionEndCallback = NULL, const TcpReassemblyConfiguration &config = TcpReassemblyConfiguration());
 
 	/**
-	 * A d'tor for this class. Frees all internal structures. Notice that if the d'tor is called while connections are still open, all data is lost and TcpReassembly#OnTcpConnectionEnd won't
-	 * be called for those connections
-	 */
-	~TcpReassembly();
-
-	/**
 	 * The most important method of this class which gets a packet from the user and processes it. If this packet opens a new connection, ends a connection or contains new data on an
 	 * existing connection, the relevant callback will be called (TcpReassembly#OnTcpMessageReady, TcpReassembly#OnTcpConnectionStart, TcpReassembly#OnTcpConnectionEnd)
 	 * @param[in] tcpData A reference to the packet to process
@@ -405,15 +399,16 @@ private:
 
 	struct TcpReassemblyData
 	{
+		bool closed;
 		int numOfSides;
 		int prevSide;
 		TcpOneSideData twoSides[2];
 		ConnectionData connData;
 
-		TcpReassemblyData() { numOfSides = 0; prevSide = -1; }
+		TcpReassemblyData() : closed(false), numOfSides(0), prevSide(-1) {}
 	};
 	
-	typedef std::map<uint32_t, TcpReassemblyData *> ConnectionList;
+	typedef std::map<uint32_t, TcpReassemblyData> ConnectionList;
 	typedef std::map<time_t, std::list<uint32_t> > CleanupList;
 
 	OnTcpMessageReady m_OnMessageReadyCallback;
