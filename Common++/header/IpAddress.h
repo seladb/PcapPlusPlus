@@ -68,7 +68,8 @@ namespace pcpp
 		std::string toString() const;
 
 		/**
-		 * Determine whether the address is unspecified
+		 * Determine whether the address is valid (it's not an unspecified/zero)
+		 * @return True if an address is not unspecified/zero
 		 */
 		bool isValid() const { return toInt() != 0; }
 
