@@ -46,7 +46,7 @@ bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResou
 	return true;
 }
 
-IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen) : m_Data(IPv4Address::Zero)
+IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 {
 	if (dataLen != 4)
 	{
@@ -66,14 +66,12 @@ bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 		return false;
 	}
 
-	uint32_t addrAsInt = m_Data.toInt();
-	arrLength = sizeof(addrAsInt);
-	memcpy(arr, &addrAsInt, sizeof(addrAsInt));
-
+	arrLength = sizeof(uint32_t);
+	memcpy(arr, m_Data.toBytes(), sizeof(uint32_t));
 	return true;
 }
 
-IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen) : m_Data(IPv6Address::Zero)
+IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 {
 	if (dataLen != 16)
 	{
@@ -94,7 +92,6 @@ bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 
 	arrLength = 16;
 	m_Data.copyTo(arr);
-
 	return true;
 }
 

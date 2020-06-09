@@ -74,7 +74,7 @@ struct DnsSpoofingArgs
 	DnsSpoofStats stats;
 	bool shouldStop;
 
-	DnsSpoofingArgs() : dnsServer(IPv4Address::Zero), shouldStop(false) {}
+	DnsSpoofingArgs() : shouldStop(false) {}
 };
 
 
@@ -197,7 +197,7 @@ void doDnsSpoofing(PcapLiveDevice* dev, IPv4Address dnsServer, IPv4Address clien
 
 	// set a filter to capture only DNS requests and client IP if provided
 	PortFilter dnsPortFilter(53, DST);
-	if (clientIP == IPv4Address::Zero)
+	if (!clientIP.isValid())
 	{
 		if (!dev->setFilter(dnsPortFilter))
 			EXIT_WITH_ERROR("Cannot set DNS filter for device");
@@ -296,11 +296,11 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	char opt = 0;
 
-	std::string interfaceNameOrIP("");
+	std::string interfaceNameOrIP;
 
-	IPv4Address dnsServer = IPv4Address::Zero;
+	IPv4Address dnsServer;
 
-	IPv4Address clientIP = IPv4Address::Zero;
+	IPv4Address clientIP;
 	bool clientIpSet = false;
 
 	std::vector<std::string> hostList;
@@ -365,7 +365,7 @@ int main(int argc, char* argv[])
 	PcapLiveDevice* dev = NULL;
 
 	// check if interface argument is IP or name and extract the device
-	if (interfaceNameOrIP == "")
+	if (interfaceNameOrIP.empty())
 	{
 		EXIT_WITH_ERROR("Interface name or IP weren't provided. Please use the -i switch or -h for help");
 	}
