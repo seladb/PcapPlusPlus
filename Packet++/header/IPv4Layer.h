@@ -460,7 +460,7 @@ namespace pcpp
 		 * Get the source IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the source address
 		 */
-		IPv4Address getSrcIpAddress() const { return IPv4Address(getIPv4Header()->ipSrc); }
+		IPv4Address getSrcIpAddress() const { return getIPv4Header()->ipSrc; }
 
 		/**
 		 * Set the source IP address
@@ -472,7 +472,7 @@ namespace pcpp
 		 * Get the destination IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the destination address
 		 */
-		IPv4Address getDstIpAddress() const { return IPv4Address(getIPv4Header()->ipDst); }
+		IPv4Address getDstIpAddress() const { return getIPv4Header()->ipDst; }
 
 		/**
 		 * Set the dest IP address
