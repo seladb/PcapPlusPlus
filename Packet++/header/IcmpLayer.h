@@ -3,7 +3,6 @@
 
 #include "Layer.h"
 #include "IPv4Layer.h"
-#include "IpAddress.h"
 #ifdef _MSC_VER
 #include <Winsock2.h>
 #else
