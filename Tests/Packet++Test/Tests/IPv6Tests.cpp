@@ -25,8 +25,8 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_NOT_NULL(ipv6Layer);
 	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->nextHeader, 17, u8);
 	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->ipVersion, 6, u8);
-	pcpp::IPv6Address srcIP(std::string("fe80::4dc7:f593:1f7b:dc11"));
-	pcpp::IPv6Address dstIP(std::string("ff02::c"));
+	pcpp::IPv6Address srcIP("fe80::4dc7:f593:1f7b:dc11");
+	pcpp::IPv6Address dstIP("ff02::c");
 	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIpAddress(), srcIP, object);
 	PTF_ASSERT_EQUAL(ipv6Layer->getDstIpAddress(), dstIP, object);
 	pcpp::UdpLayer* pUdpLayer = NULL;
@@ -234,8 +234,8 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->routingType, 0, u8);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->segmentsLeft, 2, u8);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataLength(), 36, size);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address(std::string("2200::210:2:0:0:4")), object);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address(std::string("2200::240:2:0:0:4")), object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address("2200::210:2:0:0:4"), object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address("2200::240:2:0:0:4"), object);
 
 
 	// parsing of routing extension #2
@@ -246,7 +246,7 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->routingType, 0, u8);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->segmentsLeft, 1, u8);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataLength(), 20, size);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address(std::string("2200::210:2:0:0:4")), object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address("2200::210:2:0:0:4"), object);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address::Zero, object);
 
 
@@ -339,7 +339,7 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 
 	uint8_t* routingAdditionalData = new uint8_t[20];
 	memset(routingAdditionalData, 0, 20);
-	pcpp::IPv6Address ip6Addr(std::string("2200::210:2:0:0:4"));
+	pcpp::IPv6Address ip6Addr("2200::210:2:0:0:4");
 	ip6Addr.copyTo(routingAdditionalData + 4);
 	pcpp::IPv6RoutingHeader newRoutingHeader(0, 1, routingAdditionalData, 20);
 	newIPv6Layer3.addExtension<pcpp::IPv6RoutingHeader>(newRoutingHeader);

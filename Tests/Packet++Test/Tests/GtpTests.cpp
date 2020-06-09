@@ -130,7 +130,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv6, u64);
 	pcpp::IPv6Layer* ip6Layer = dynamic_cast<pcpp::IPv6Layer*>(gtpLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(ip6Layer->getSrcIpAddress(), pcpp::IPv6Address(std::string("2001:507:0:1:200:8600:0:2")), object);
+	PTF_ASSERT_EQUAL(ip6Layer->getSrcIpAddress(), pcpp::IPv6Address("2001:507:0:1:200:8600:0:2"), object);
 	PTF_ASSERT_NOT_NULL(ip6Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ip6Layer->getNextLayer()->getProtocol(), pcpp::UDP, u64);
 

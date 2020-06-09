@@ -382,7 +382,7 @@ PTF_TEST_CASE(GreEditTest)
 
 	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, 0, u16);
 
-	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address(std::string("2402:f000:1:8e01::5555")), pcpp::IPv6Address(std::string("2607:fcd0:100:2300::b108:2a6b")));
+	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("2402:f000:1:8e01::5555"), pcpp::IPv6Address("2607:fcd0:100:2300::b108:2a6b"));
 	PTF_ASSERT_TRUE(grev1Packet.addLayer(&ipv6Layer));
 	grev1Packet.computeCalculateFields();
 
