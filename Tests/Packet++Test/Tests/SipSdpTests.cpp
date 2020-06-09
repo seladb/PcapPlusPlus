@@ -483,7 +483,7 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 4)->getFieldValue(), "SendRecv", string);
 	PTF_ASSERT_NULL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 5));
 
-	PTF_ASSERT_EQUAL(sdpLayer->getOwnerIPv4Address(), pcpp::IPv4Address(std::string("200.57.7.196")), object);
+	PTF_ASSERT_EQUAL(sdpLayer->getOwnerIPv4Address(), pcpp::IPv4Address("200.57.7.196"), object);
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("audio"), 40376, u16);
 
 	PTF_ASSERT_TRUE(sdpPacket2.isPacketOfType(pcpp::SDP));
@@ -499,7 +499,7 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(sdpLayer->getFieldByName(PCPP_SDP_SESSION_NAME_FIELD));
 	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_SESSION_NAME_FIELD)->getFieldValue(), "Phone-Call", string);
 
-	PTF_ASSERT_EQUAL(sdpLayer->getOwnerIPv4Address(), pcpp::IPv4Address(std::string("10.33.6.100")), object);
+	PTF_ASSERT_EQUAL(sdpLayer->getOwnerIPv4Address(), pcpp::IPv4Address("10.33.6.100"), object);
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("audio"), 6010, u16);
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("image"), 6012, u16);
 } // SdpLayerParsingTest
@@ -530,7 +530,7 @@ PTF_TEST_CASE(SdpLayerCreationTest)
 	pcpp::SipResponseLayer sipLayer = *(sdpPacket.getLayerOfType<pcpp::SipResponseLayer>());
 	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&sipLayer));
 
-	pcpp::SdpLayer newSdpLayer("IPP", 782647527, 782647407, pcpp::IPv4Address(std::string("10.33.6.100")), "Phone-Call", 0, 0);
+	pcpp::SdpLayer newSdpLayer("IPP", 782647527, 782647407, pcpp::IPv4Address("10.33.6.100"), "Phone-Call", 0, 0);
 
 	std::vector<std::string> audioAttributes;
 	audioAttributes.push_back("rtpmap:8 PCMA/8000");
