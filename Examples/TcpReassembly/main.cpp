@@ -222,7 +222,7 @@ struct TcpReassemblyData
 	bool reopenFileStreams[2];
 
 	// a flag indicating on which side was the latest message on this connection
-	int curSide;
+	int8_t curSide;
 
 	// stats data: num of data packets on each side, bytes seen on each side and messages seen on each side
 	int numOfDataPackets[2];
@@ -338,7 +338,7 @@ void listInterfaces()
 /**
  * The callback being called by the TCP reassembly module whenever new data arrives on a certain connection
  */
-static void tcpReassemblyMsgReadyCallback(int sideIndex, const TcpStreamData& tcpData, void* userCookie)
+static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const TcpStreamData& tcpData, void* userCookie)
 {
 	// extract the connection manager from the user cookie
 	TcpReassemblyConnMgr* connMgr = (TcpReassemblyConnMgr*)userCookie;

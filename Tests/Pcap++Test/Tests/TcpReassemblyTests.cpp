@@ -20,7 +20,7 @@ struct TcpReassemblyStats
 {
 	std::string reassembledData;
 	int numOfDataPackets;
-	int curSide;
+	int8_t curSide;
 	int numOfMessagesFromSide[2];
 	bool connectionsStarted;
 	bool connectionsEnded;
@@ -73,7 +73,7 @@ static std::string readFileIntoString(std::string fileName)
 // tcpReassemblyMsgReadyCallback()
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-static void tcpReassemblyMsgReadyCallback(int sideIndex, const pcpp::TcpStreamData& tcpData, void* userCookie)
+static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamData& tcpData, void* userCookie)
 {
 	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
