@@ -104,7 +104,7 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&udpLayer));
 
 	pcpp::RadiusLayer radiusLayer(11, 5, "f050649184625d36f14c9075b7a48b83");
-	pcpp::RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(pcpp::RadiusAttributeBuilder(8, pcpp::IPv4Address(std::string("255.255.255.254"))));
+	pcpp::RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(pcpp::RadiusAttributeBuilder(8, pcpp::IPv4Address("255.255.255.254")));
 	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
 	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 8, u8);
 	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, size);

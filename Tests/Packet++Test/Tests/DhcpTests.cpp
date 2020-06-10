@@ -26,9 +26,9 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->hops, 1, u8);
 	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->transactionID, be32toh(0x7771cf85), u32);
 	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address(std::string("10.10.8.235")), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address(std::string("172.22.178.234")), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address(std::string("10.10.8.240")), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address("10.10.8.235"), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address("172.22.178.234"), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address("10.10.8.240"), object);
 	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:0e:86:11:c0:75")), object);
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 12, size);
@@ -67,8 +67,8 @@ PTF_TEST_CASE(DhcpParsingTest)
 		PTF_ASSERT_FALSE(dhcpLayer->getOptionData(optTypeArr[i]).isNull());
 	}
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_SUBNET_MASK).getValueAsIpAddr(), pcpp::IPv4Address(std::string("255.255.255.0")), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER).getValueAsIpAddr(), pcpp::IPv4Address(std::string("172.22.178.234")), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_SUBNET_MASK).getValueAsIpAddr(), pcpp::IPv4Address("255.255.255.0"), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER).getValueAsIpAddr(), pcpp::IPv4Address("172.22.178.234"), object);
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_LEASE_TIME).getValueAs<uint32_t>(), htobe32(43200), u32);
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_TFTP_SERVER_NAME).getValueAsString(), "172.22.178.234", string);
 
@@ -134,8 +134,8 @@ PTF_TEST_CASE(DhcpCreationTest)
 {
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:13:72:25:fa:cd"), pcpp::MacAddress("00:e0:b1:49:39:02"));
 
-	pcpp::IPv4Address srcIp(std::string("172.22.178.234"));
-	pcpp::IPv4Address dstIp(std::string("10.10.8.240"));
+	pcpp::IPv4Address srcIp("172.22.178.234");
+	pcpp::IPv4Address dstIp("10.10.8.240");
 	pcpp::IPv4Layer ipLayer(srcIp, dstIp);
 	ipLayer.getIPv4Header()->ipId = htobe16(20370);
 	ipLayer.getIPv4Header()->timeToLive = 128;
@@ -147,14 +147,14 @@ PTF_TEST_CASE(DhcpCreationTest)
 	dhcpLayer.getDhcpHeader()->hops = 1;
 	dhcpLayer.getDhcpHeader()->transactionID = htobe32(0x7771cf85);
 	dhcpLayer.getDhcpHeader()->secondsElapsed = htobe16(10);
-	pcpp::IPv4Address yourIP(std::string("10.10.8.235"));
-	pcpp::IPv4Address serverIP(std::string("172.22.178.234"));
-	pcpp::IPv4Address gatewayIP(std::string("10.10.8.240"));
+	pcpp::IPv4Address yourIP("10.10.8.235");
+	pcpp::IPv4Address serverIP("172.22.178.234");
+	pcpp::IPv4Address gatewayIP("10.10.8.240");
 	dhcpLayer.setYourIpAddress(yourIP);
 	dhcpLayer.setServerIpAddress(serverIP);
 	dhcpLayer.setGatewayIpAddress(gatewayIP);
 
-	pcpp::DhcpOption subnetMaskOpt = dhcpLayer.addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_SUBNET_MASK, pcpp::IPv4Address(std::string("255.255.255.0"))));
+	pcpp::DhcpOption subnetMaskOpt = dhcpLayer.addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_SUBNET_MASK, pcpp::IPv4Address("255.255.255.0")));
 	PTF_ASSERT_FALSE(subnetMaskOpt.isNull());
 
 	uint8_t sipServersData[] = { 0x01, 0xac, 0x16, 0xb2, 0xea };
@@ -175,7 +175,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 	pcpp::DhcpOption authOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_AUTHENTICATION, authOptData, 31), pcpp::DHCPOPT_DHCP_CLIENT_IDENTIFIER);
 	PTF_ASSERT_FALSE(authOpt.isNull());
 
-	pcpp::DhcpOption dhcpServerIdOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER, pcpp::IPv4Address(std::string("172.22.178.234"))), pcpp::DHCPOPT_SUBNET_MASK);
+	pcpp::DhcpOption dhcpServerIdOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER, pcpp::IPv4Address("172.22.178.234")), pcpp::DHCPOPT_SUBNET_MASK);
 	PTF_ASSERT_FALSE(dhcpServerIdOpt.isNull());
 
 	pcpp::Packet newPacket(6);
@@ -184,7 +184,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 	PTF_ASSERT_TRUE(newPacket.addLayer(&udpLayer));
 	PTF_ASSERT_TRUE(newPacket.addLayer(&dhcpLayer));
 
-	pcpp::DhcpOption routerOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_ROUTERS, pcpp::IPv4Address(std::string("10.10.8.254"))), pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER);
+	pcpp::DhcpOption routerOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_ROUTERS, pcpp::IPv4Address("10.10.8.254")), pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER);
 	PTF_ASSERT_FALSE(routerOpt.isNull());
 
 	pcpp::DhcpOption tftpServerOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_TFTP_SERVER_NAME, std::string("172.22.178.234")), pcpp::DHCPOPT_ROUTERS);
@@ -192,8 +192,8 @@ PTF_TEST_CASE(DhcpCreationTest)
 
 	pcpp::DhcpOption dnsOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_DOMAIN_NAME_SERVERS, NULL, 8), pcpp::DHCPOPT_ROUTERS);
 	PTF_ASSERT_FALSE(dnsOpt.isNull());
-	pcpp::IPv4Address dns1IP = pcpp::IPv4Address(std::string("143.209.4.1"));
-	pcpp::IPv4Address dns2IP = pcpp::IPv4Address(std::string("143.209.5.1"));
+	pcpp::IPv4Address dns1IP("143.209.4.1");
+	pcpp::IPv4Address dns2IP("143.209.5.1");
 	dnsOpt.setValueIpAddr(dns1IP);
 	dnsOpt.setValueIpAddr(dns2IP, 4);
 
@@ -232,12 +232,12 @@ PTF_TEST_CASE(DhcpEditTest)
 	PTF_ASSERT_TRUE(dhcpLayer->removeOption(pcpp::DHCPOPT_DHCP_MAX_MESSAGE_SIZE));
 
 	pcpp::DhcpOption opt = dhcpLayer->getOptionData(pcpp::DHCPOPT_SUBNET_MASK);
-	pcpp::IPv4Address newSubnet(std::string("255.255.255.0"));
+	pcpp::IPv4Address newSubnet("255.255.255.0");
 	opt.setValueIpAddr(newSubnet);
 
 	PTF_ASSERT_TRUE(dhcpLayer->setMesageType(pcpp::DHCP_ACK));
 
-	pcpp::IPv4Address newRouter(std::string("192.168.2.1"));
+	pcpp::IPv4Address newRouter("192.168.2.1");
 
 	opt = dhcpLayer->addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_ROUTERS, newRouter), pcpp::DHCPOPT_SUBNET_MASK);
 	PTF_ASSERT_FALSE(opt.isNull());

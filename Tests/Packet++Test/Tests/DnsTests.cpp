@@ -57,7 +57,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(firstAuthority->getName(), "Yaels-iPhone.local", string);
 	PTF_ASSERT_EQUAL(firstAuthority->getDataLength(), 4, size);
 	PTF_ASSERT_EQUAL(firstAuthority->getData()->toString(), "10.0.0.2", string);
-	PTF_ASSERT_EQUAL(firstAuthority->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress(), pcpp::IPv4Address(std::string("10.0.0.2")), object);
+	PTF_ASSERT_EQUAL(firstAuthority->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress(), pcpp::IPv4Address("10.0.0.2"), object);
 	PTF_ASSERT_EQUAL(firstAuthority->getSize(), 16, size);
 
 	pcpp::DnsResource* secondAuthority = dnsLayer->getNextAuthority(firstAuthority);
@@ -123,7 +123,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
 	int answerCount = 2;
-	pcpp::IPv4Address subnet(std::string("212.199.219.0"));
+	pcpp::IPv4Address subnet("212.199.219.0");
 	std::string subnetMask = "255.255.255.0";
 	while (curAnswer != NULL)
 	{

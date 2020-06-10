@@ -48,7 +48,7 @@ PTF_TEST_CASE(SllPacketCreationTest)
 	sllLayer.getSllHeader()->link_layer_addr[6] = 0xf6;
 	sllLayer.getSllHeader()->link_layer_addr[7] = 0x7f;
 
-	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address(std::string("130.217.250.13")), pcpp::IPv4Address(std::string("130.217.250.128")));
+	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address(std::string("130.217.250.13")), pcpp::IPv4Address("130.217.250.128"));
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayer.getIPv4Header()->ipId = htobe16(63242);
 	ipLayer.getIPv4Header()->timeToLive = 64;
@@ -111,12 +111,12 @@ PTF_TEST_CASE(NullLoopbackTest)
 	nextLayer = nullLoopbackLayer->getNextLayer();
 	PTF_ASSERT_NOT_NULL(nextLayer);
 	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, u64);
-	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIpAddress(), pcpp::IPv4Address(std::string("172.16.1.117")), object);
+	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIpAddress(), pcpp::IPv4Address("172.16.1.117"), object);
 	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET, u32);
 
 	pcpp::Packet newNullPacket(1);
 	pcpp::NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
-	pcpp::IPv4Layer newIp4Layer(pcpp::IPv4Address(std::string("172.16.1.117")), pcpp::IPv4Address(std::string("172.16.1.255")));
+	pcpp::IPv4Layer newIp4Layer(pcpp::IPv4Address("172.16.1.117"), pcpp::IPv4Address("172.16.1.255"));
 	newIp4Layer.getIPv4Header()->ipId = htobe16(49513);
 	newIp4Layer.getIPv4Header()->timeToLive = 64;
 
