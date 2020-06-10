@@ -68,7 +68,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_EQUAL(secondAuthority->getName(), "Yaels-iPhone.local", string);
 	PTF_ASSERT_EQUAL(secondAuthority->getDataLength(), 16, size);
 	PTF_ASSERT_EQUAL(secondAuthority->getData()->toString(), "fe80::5a1f:aaff:fe4f:3f9d", string);
-	PTF_ASSERT_EQUAL(secondAuthority->getData().castAs<pcpp::IPv6DnsResourceData>()->getIpAddress(), pcpp::IPv6Address(std::string("fe80::5a1f:aaff:fe4f:3f9d")), object);
+	PTF_ASSERT_EQUAL(secondAuthority->getData().castAs<pcpp::IPv6DnsResourceData>()->getIpAddress(), pcpp::IPv6Address("fe80::5a1f:aaff:fe4f:3f9d"), object);
 	PTF_ASSERT_EQUAL(secondAuthority->getSize(), 28, size);
 
 	pcpp::DnsResource* thirdAuthority = dnsLayer->getNextAuthority(secondAuthority);
