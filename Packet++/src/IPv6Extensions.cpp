@@ -228,9 +228,9 @@ IPv6Address IPv6RoutingHeader::getRoutingAdditionalDataAsIPv6Address(size_t offs
 
 	size_t routingAddDataLen = getRoutingAdditionalDataLength();
 	if (routingAddDataLen - offset >= 16)
-		return IPv6Address((uint8_t*)(getRoutingAdditionalData() + offset));
+		return IPv6Address(getRoutingAdditionalData() + offset);
 
-	return IPv6Address::Zero;
+	return IPv6Address();
 }
 
 

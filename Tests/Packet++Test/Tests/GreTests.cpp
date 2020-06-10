@@ -150,7 +150,7 @@ PTF_TEST_CASE(GreCreationTest)
 	// GREv1 packet creation
 
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:90:4b:1f:a4:f7"), pcpp::MacAddress("00:0d:ed:7b:48:f4"));
-	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address(std::string("192.168.2.65")), pcpp::IPv4Address(std::string("192.168.2.254")));
+	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("192.168.2.65"), pcpp::IPv4Address("192.168.2.254"));
 	ipLayer.getIPv4Header()->ipId = htobe16(1660);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 
@@ -181,10 +181,10 @@ PTF_TEST_CASE(GreCreationTest)
 	// GREv0 packet creation
 
 	pcpp::EthLayer ethLayer2(pcpp::MacAddress("00:01:01:00:00:01"), pcpp::MacAddress("00:01:01:00:00:02"));
-	pcpp::IPv4Layer ipLayer2(pcpp::IPv4Address(std::string("127.0.0.1")), pcpp::IPv4Address(std::string("127.0.0.1")));
+	pcpp::IPv4Layer ipLayer2(pcpp::IPv4Address("127.0.0.1"), pcpp::IPv4Address("127.0.0.1"));
 	ipLayer2.getIPv4Header()->ipId = htobe16(1);
 	ipLayer2.getIPv4Header()->timeToLive = 64;
-	pcpp::IPv4Layer ipLayer3(pcpp::IPv4Address(std::string("127.0.0.1")), pcpp::IPv4Address(std::string("127.0.0.1")));
+	pcpp::IPv4Layer ipLayer3(pcpp::IPv4Address("127.0.0.1"), pcpp::IPv4Address("127.0.0.1"));
 	ipLayer3.getIPv4Header()->ipId = htobe16(46845);
 	ipLayer3.getIPv4Header()->timeToLive = 64;
 
