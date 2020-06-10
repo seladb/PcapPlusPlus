@@ -32,8 +32,8 @@ PTF_TEST_CASE(InsertDataToPacket)
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ethLayer));
 
-	pcpp::IPv4Address ipSrc(std::string("1.1.1.1"));
-	pcpp::IPv4Address ipDst(std::string("20.20.20.20"));
+	pcpp::IPv4Address ipSrc("1.1.1.1");
+	pcpp::IPv4Address ipDst("20.20.20.20");
 	pcpp::IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = pcpp::PACKETPP_IPPROTO_TCP;
 	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ip4Layer));
@@ -198,8 +198,8 @@ PTF_TEST_CASE(RemoveLayerTest)
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	PTF_ASSERT_TRUE(testPacket.addLayer(&ethLayer));
 
-	pcpp::IPv4Address ipSrc(std::string("1.1.1.1"));
-	pcpp::IPv4Address ipDst(std::string("20.20.20.20"));
+	pcpp::IPv4Address ipSrc("1.1.1.1");
+	pcpp::IPv4Address ipDst("20.20.20.20");
 	pcpp::IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = pcpp::PACKETPP_IPPROTO_TCP;
 	PTF_ASSERT_TRUE(testPacket.addLayer(&ip4Layer));
@@ -804,7 +804,7 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// rebuild packet starting from trailer
 	pcpp::EthLayer newEthLayer(pcpp::MacAddress("30:46:9a:23:fb:fa"), pcpp::MacAddress("6c:f0:49:b2:de:6e"), PCPP_ETHERTYPE_IP);
 	PTF_ASSERT_TRUE(trailerIPv4Packet.insertLayer(NULL, &newEthLayer));
-	pcpp::IPv4Layer newIp4Layer(pcpp::IPv4Address(std::string("173.194.78.104")), pcpp::IPv4Address(std::string("10.0.0.1")));
+	pcpp::IPv4Layer newIp4Layer(pcpp::IPv4Address("173.194.78.104"), pcpp::IPv4Address("10.0.0.1"));
 	newIp4Layer.getIPv4Header()->ipId = htobe16(40382);
 	newIp4Layer.getIPv4Header()->timeToLive = 46;
 	trailerIPv4Packet.insertLayer(&newEthLayer, &newIp4Layer);

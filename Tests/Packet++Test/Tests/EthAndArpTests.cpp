@@ -92,7 +92,7 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->hardwareSize, 6, u8);
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->protocolSize, 4, u8);
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->opcode, htobe16(pcpp::ARP_REPLY), u16);
-	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), pcpp::IPv4Address(std::string("10.0.0.138")), object);
+	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), pcpp::IPv4Address("10.0.0.138"), object);
 	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), pcpp::MacAddress("6c:f0:49:b2:de:6e"), object);
 } // EthAndArpPacketParsing
 
@@ -103,7 +103,7 @@ PTF_TEST_CASE(ArpPacketCreation)
 	pcpp::MacAddress dstMac("ff:ff:ff:ff:ff:ff:");
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_ARP);
 
-	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, srcMac, srcMac, pcpp::IPv4Address(std::string("10.0.0.1")), pcpp::IPv4Address(std::string("10.0.0.138")));
+	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, srcMac, srcMac, pcpp::IPv4Address("10.0.0.1"), pcpp::IPv4Address("10.0.0.138"));
 
 	pcpp::Packet arpRequestPacket(1);
 	PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&ethLayer));
