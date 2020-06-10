@@ -18,18 +18,13 @@ icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int i
 		return NULL;
 
 	uint8_t* headerAsByteArr = (uint8_t*)header;
-	return (icmp_router_address_structure*)(headerAsByteArr + sizeof(icmp_router_advertisement_hdr) + index*sizeof(icmp_router_address_structure));
+	return (icmp_router_address_structure*)(headerAsByteArr + sizeof(icmp_router_advertisement_hdr) + index * sizeof(icmp_router_address_structure));
 }
 
 void icmp_router_address_structure::setRouterAddress(IPv4Address addr, uint32_t preference)
 {
 	routerAddress = addr.toInt();
 	preferenceLevel = htobe32(preference);
-}
-
-IPv4Address icmp_router_address_structure::getAddress()
-{
-	return IPv4Address(routerAddress);
 }
 
 IcmpLayer::IcmpLayer() : Layer()
@@ -47,11 +42,6 @@ IcmpMessageType IcmpLayer::getMessageType() const
 		return ICMP_UNSUPPORTED;
 
 	return (IcmpMessageType)type;
-}
-
-bool IcmpLayer::isMessageOfType(IcmpMessageType type) const
-{
-	return (getMessageType() == type);
 }
 
 bool IcmpLayer::cleanIcmpLayer()

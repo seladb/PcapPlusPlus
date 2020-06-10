@@ -158,8 +158,8 @@ PTF_TEST_CASE(TcpPacketCreation)
 	pcpp::MacAddress srcMac("30:46:9a:23:fb:fa");
 	pcpp::MacAddress dstMac("08:00:27:19:1c:78");
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
-	pcpp::IPv4Address dstIP(std::string("10.0.0.6"));
-	pcpp::IPv4Address srcIP(std::string("212.199.202.9"));
+	pcpp::IPv4Address dstIP("10.0.0.6");
+	pcpp::IPv4Address srcIP("212.199.202.9");
 	pcpp::IPv4Layer ipLayer(srcIP, dstIP);
 	ipLayer.getIPv4Header()->ipId = htobe16(20300);
 	ipLayer.getIPv4Header()->fragmentOffset = htobe16(0x4000);
@@ -212,8 +212,8 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	pcpp::MacAddress srcMac("08:00:27:19:1c:78");
 	pcpp::MacAddress dstMac("30:46:9a:23:fb:fa");
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
-	pcpp::IPv4Address dstIP(std::string("23.44.242.127"));
-	pcpp::IPv4Address srcIP(std::string("10.0.0.6"));
+	pcpp::IPv4Address dstIP("23.44.242.127");
+	pcpp::IPv4Address srcIP("10.0.0.6");
 	pcpp::IPv4Layer ipLayer(srcIP, dstIP);
 	ipLayer.getIPv4Header()->ipId = htobe16(1556);
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;

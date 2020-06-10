@@ -284,7 +284,7 @@ namespace pcpp
 		/**
 		 * @return The IPv4 address extracted from icmp_router_address_structure#routerAddress field
 		 */
-		IPv4Address getAddress();
+		IPv4Address getAddress() const { return routerAddress; }
 	};
 #pragma pack(pop)
 
@@ -421,7 +421,7 @@ namespace pcpp
 		 * @param[in] type Type to check
 		 * @return True if the layer if of the given type, false otherwise
 		 */
-		bool isMessageOfType(IcmpMessageType type) const;
+		bool isMessageOfType(IcmpMessageType type) const { return getMessageType() == type; }
 
 		/**
 		 * @return ICMP echo (ping) request data. If the layer isn't of type ICMP echo request NULL is returned

@@ -96,9 +96,9 @@ void readCommandLineArguments(int argc, char* argv[],
 		std::string& fileNameToSend,
 		int& packetsPerSec, size_t& blockSize)
 {
-	std::string interfaceNameOrIP = "";
-	std::string otherSideIPAsString = "";
-	fileNameToSend = "";
+	std::string interfaceNameOrIP;
+	std::string otherSideIPAsString;
+	fileNameToSend.clear();
 	packetsPerSec = -1;
 	bool packetsPerSecSet = false;
 	receiver = false;
@@ -154,7 +154,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	}
 
 	// extract my IP address by interface name or IP address string
-	if (interfaceNameOrIP == "")
+	if (interfaceNameOrIP.empty())
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide %s interface name or IP", thisSide.c_str());
 
 	IPv4Address interfaceIP(interfaceNameOrIP);
@@ -170,7 +170,7 @@ void readCommandLineArguments(int argc, char* argv[],
 		myIP = interfaceIP;
 
 	// validate pitcher/catcher IP address
-	if (otherSideIPAsString == "")
+	if (otherSideIPAsString.empty())
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide %s IP address", otherSide.c_str());
 
 	IPv4Address tempIP = IPv4Address(otherSideIPAsString);
@@ -269,7 +269,7 @@ std::string getFileNameFromPath(const std::string& filePath)
 	if (i != std::string::npos)
 	{
 		// extract filename from path
-		return filePath.substr(i+1, filePath.length() - i);
+		return filePath.substr(i + 1, filePath.length() - i);
 	}
 
 	return filePath;

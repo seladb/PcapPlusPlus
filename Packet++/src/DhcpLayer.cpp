@@ -11,7 +11,7 @@ namespace pcpp
 
 DhcpOption DhcpOptionBuilder::build() const
 {
-	size_t recSize = 2*sizeof(uint8_t) + m_RecValueLen;
+	size_t recSize = 2 * sizeof(uint8_t) + m_RecValueLen;
 
 	if ((m_RecType == DHCPOPT_END || m_RecType == DHCPOPT_PAD))
 	{
@@ -69,46 +69,6 @@ DhcpLayer::DhcpLayer(DhcpMessageType msgType, const MacAddress& clientMacAddr) :
 	msgTypeOptionPtr[2] = (uint8_t)msgType; // option data - message type
 
 	msgTypeOptionPtr[3] =  (uint8_t)DHCPOPT_END;
-}
-
-IPv4Address DhcpLayer::getClientIpAddress() const
-{
-	return IPv4Address(getDhcpHeader()->clientIpAddress);
-}
-
-void DhcpLayer::setClientIpAddress(const IPv4Address& addr)
-{
-	getDhcpHeader()->clientIpAddress = addr.toInt();
-}
-
-IPv4Address DhcpLayer::getServerIpAddress() const
-{
-	return IPv4Address(getDhcpHeader()->serverIpAddress);
-}
-
-void DhcpLayer::setServerIpAddress(const IPv4Address& addr)
-{
-	getDhcpHeader()->serverIpAddress = addr.toInt();
-}
-
-IPv4Address DhcpLayer::getYourIpAddress() const
-{
-	return IPv4Address(getDhcpHeader()->yourIpAddress);
-}
-
-void DhcpLayer::setYourIpAddress(const IPv4Address& addr)
-{
-	getDhcpHeader()->yourIpAddress = addr.toInt();
-}
-
-IPv4Address DhcpLayer::getGatewayIpAddress() const
-{
-	return IPv4Address(getDhcpHeader()->gatewayIpAddress);
-}
-
-void DhcpLayer::setGatewayIpAddress(const IPv4Address& addr)
-{
-	getDhcpHeader()->gatewayIpAddress = addr.toInt();
 }
 
 MacAddress DhcpLayer::getClientHardwareAddress() const
