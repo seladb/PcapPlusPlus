@@ -160,7 +160,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NOT_NULL(icmpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(icmpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	pcpp::IPv4Layer* ipLayer = (pcpp::IPv4Layer*)icmpLayer->getNextLayer();
-	PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), pcpp::IPv4Address(std::string("10.0.1.2")), object);
+	PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), pcpp::IPv4Address("10.0.1.2"), object);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::UDP, u64);
 
@@ -174,7 +174,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NOT_NULL(icmpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(icmpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	ipLayer = (pcpp::IPv4Layer*)icmpLayer->getNextLayer();
-	PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address(std::string("10.0.0.111")), object);
+	PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address("10.0.0.111"), object);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::ICMP, u64);
 
@@ -240,7 +240,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NULL(routerAdvData->getRouterAddress(100));
 	pcpp::icmp_router_address_structure* routerAddr = routerAdvData->getRouterAddress(0);
 	PTF_ASSERT_NOT_NULL(routerAddr);
-	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address(std::string("192.168.144.2")), object);
+	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("192.168.144.2"), object);
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0x80, u32);
 
 	icmpLayer = icmpRouterAdv2.getLayerOfType<pcpp::IcmpLayer>();
@@ -254,7 +254,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NULL(routerAdvData->getRouterAddress(20));
 	routerAddr = routerAdvData->getRouterAddress(0);
 	PTF_ASSERT_NOT_NULL(routerAddr);
-	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address(std::string("14.80.84.66")), object);
+	PTF_ASSERT_EQUAL(pcpp::IPv4Address(routerAddr->routerAddress), pcpp::IPv4Address("14.80.84.66"), object);
 	PTF_ASSERT_EQUAL(routerAddr->preferenceLevel, 0, u32);
 } // IcmpParsingTest
 
@@ -283,7 +283,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("11:22:33:44:55:66"), pcpp::MacAddress("66:55:44:33:22:11"));
 
-	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address(std::string("1.1.1.1")), pcpp::IPv4Address(std::string("2.2.2.2")));
+	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("1.1.1.1"), pcpp::IPv4Address("2.2.2.2"));
 
 	uint8_t data[48] = { 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a,
 			0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
@@ -324,7 +324,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&ethLayer3));
 	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&ipLayer3));
 	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&timeExceededLayer));
-	pcpp::IPv4Layer ipLayerForTimeExceeded(pcpp::IPv4Address(std::string("10.0.0.6")), pcpp::IPv4Address(std::string("8.8.8.8")));
+	pcpp::IPv4Layer ipLayerForTimeExceeded(pcpp::IPv4Address("10.0.0.6"), pcpp::IPv4Address("8.8.8.8"));
 	ipLayerForTimeExceeded.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayerForTimeExceeded.getIPv4Header()->timeToLive = 1;
 	ipLayerForTimeExceeded.getIPv4Header()->ipId = be16toh(2846);
@@ -346,7 +346,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(destUnreachablePacket.addLayer(&ethLayer4));
 	PTF_ASSERT_TRUE(destUnreachablePacket.addLayer(&ipLayer4));
 	PTF_ASSERT_TRUE(destUnreachablePacket.addLayer(&destUnreachableLayer));
-	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address(std::string("10.0.1.2")), pcpp::IPv4Address(std::string("172.16.0.2")));
+	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address("10.0.1.2"), pcpp::IPv4Address("172.16.0.2"));
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
 	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(230);
 	pcpp::UdpLayer udpLayerForDestUnreachable(49182, 33446);
@@ -380,8 +380,8 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_NOT_NULL(addressMaskRequestLayer.setAddressMaskRequestData(45068, 1536, pcpp::IPv4Address::Zero));
 	PTF_ASSERT_TRUE(addressMaskRequestPacket.addLayer(&addressMaskRequestLayer));
 	addressMaskRequestPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(addressMaskRequestPacket.getRawPacket()->getRawDataLen(), bufferLength14-14, int);
-	PTF_ASSERT_BUF_COMPARE(addressMaskRequestPacket.getRawPacket()->getRawData()+34, buffer14+34, bufferLength14-34-14);
+	PTF_ASSERT_EQUAL(addressMaskRequestPacket.getRawPacket()->getRawDataLen(), bufferLength14 - 14, int);
+	PTF_ASSERT_BUF_COMPARE(addressMaskRequestPacket.getRawPacket()->getRawData() + 34, buffer14 + 34, bufferLength14 - 34 - 14);
 
 	// Redirect creation
 	pcpp::EthLayer ethLayer7(ethLayer);
@@ -394,12 +394,12 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(redirectPacket.addLayer(&ethLayer7));
 	PTF_ASSERT_TRUE(redirectPacket.addLayer(&ipLayer7));
 	PTF_ASSERT_TRUE(redirectPacket.addLayer(&redirectLayer));
-	pcpp::IPv4Layer ipLayerForRedirect(pcpp::IPv4Address(std::string("10.2.10.2")), pcpp::IPv4Address(std::string("10.3.71.7")));
+	pcpp::IPv4Layer ipLayerForRedirect(pcpp::IPv4Address("10.2.10.2"), pcpp::IPv4Address("10.3.71.7"));
 	ipLayerForRedirect.getIPv4Header()->ipId = be16toh(14848);
 	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;
 	pcpp::IcmpLayer icmpLayerForRedirect;
 	icmpLayerForRedirect.setEchoRequestData(512, 12544, 0, NULL, 0);
-	PTF_ASSERT_NOT_NULL(redirectLayer.setRedirectData(1, pcpp::IPv4Address(std::string("10.2.99.98")), &ipLayerForRedirect, &icmpLayerForRedirect));
+	PTF_ASSERT_NOT_NULL(redirectLayer.setRedirectData(1, pcpp::IPv4Address("10.2.99.98"), &ipLayerForRedirect, &icmpLayerForRedirect));
 	redirectPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(redirectPacket.getRawPacket()->getRawDataLen(), bufferLength5+8, int);
 
@@ -412,11 +412,11 @@ PTF_TEST_CASE(IcmpCreationTest)
 	PTF_ASSERT_TRUE(routerAdvPacket.addLayer(&ipLayer8));
 	PTF_ASSERT_TRUE(routerAdvPacket.addLayer(&routerAdvLayer));
 	pcpp::icmp_router_address_structure addr1;
-	addr1.setRouterAddress(pcpp::IPv4Address(std::string("192.168.144.2")), (uint32_t)0x08000000);
+	addr1.setRouterAddress(pcpp::IPv4Address("192.168.144.2"), (uint32_t)0x08000000);
 	pcpp::icmp_router_address_structure addr2;
-	addr2.setRouterAddress(pcpp::IPv4Address(std::string("1.1.1.1")), (uint32_t)1000);
+	addr2.setRouterAddress(pcpp::IPv4Address("1.1.1.1"), (uint32_t)1000);
 	pcpp::icmp_router_address_structure addr3;
-	addr3.setRouterAddress(pcpp::IPv4Address(std::string("10.0.0.138")), (uint32_t)30000);
+	addr3.setRouterAddress(pcpp::IPv4Address("10.0.0.138"), (uint32_t)30000);
 	std::vector<pcpp::icmp_router_address_structure> routerAddresses;
 	routerAddresses.push_back(addr1);
 	routerAddresses.push_back(addr2);
@@ -510,7 +510,7 @@ PTF_TEST_CASE(IcmpEditTest)
 
 	// convert echo request to dest unreachable
 
-	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address(std::string("10.0.0.7")), pcpp::IPv4Address(std::string("10.0.0.111")));
+	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address("10.0.0.7"), pcpp::IPv4Address("10.0.0.111"));
 	ipLayerForDestUnreachable.getIPv4Header()->fragmentOffset = 0x0040;
 	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 64;
 	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(10203);
@@ -523,7 +523,7 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_NOT_NULL(icmpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(icmpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	pcpp::IPv4Layer* ipLayer = (pcpp::IPv4Layer*)icmpLayer->getNextLayer();
-	PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address(std::string("10.0.0.111")), object);
+	PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address("10.0.0.111"), object);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::ICMP, u64);
 	icmpLayer = (pcpp::IcmpLayer*)ipLayer->getNextLayer();
