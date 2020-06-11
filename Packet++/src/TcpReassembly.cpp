@@ -33,29 +33,6 @@ static timeval timespecToTimeval(const timespec& in)
 	return out;
 }
 
-ConnectionData::ConnectionData(const ConnectionData& other)
-{
-	copyData(other);
-}
-
-ConnectionData& ConnectionData::operator=(const ConnectionData& other)
-{
-	copyData(other);
-
-	return *this;
-}
-
-void ConnectionData::copyData(const ConnectionData& other)
-{
-	flowKey = other.flowKey;
-	srcPort = other.srcPort;
-	dstPort = other.dstPort;
-	startTime = other.startTime;
-	endTime = other.endTime;
-	srcIP = other.srcIP;
-	dstIP = other.dstIP;
-}
-
 
 TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie, OnTcpConnectionStart onConnectionStartCallback, OnTcpConnectionEnd onConnectionEndCallback, const TcpReassemblyConfiguration &config)
 {
@@ -215,7 +192,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 1)
 	{
 		// check if packet belongs to that side
-		if (tcpReassemblyData->twoSides[0].srcIP == srcIP && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcPort == srcPort && tcpReassemblyData->twoSides[0].srcIP == srcIP)
 		{
 			sideIndex = 0;
 		}
@@ -234,12 +211,12 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	else if (tcpReassemblyData->numOfSides == 2)
 	{
 		// check if packet matches side 0
-		if (tcpReassemblyData->twoSides[0].srcIP == srcIP && tcpReassemblyData->twoSides[0].srcPort == srcPort)
+		if (tcpReassemblyData->twoSides[0].srcPort == srcPort && tcpReassemblyData->twoSides[0].srcIP == srcIP)
 		{
 			sideIndex = 0;
 		}
 		// check if packet matches side 1
-		else if (tcpReassemblyData->twoSides[1].srcIP == srcIP && tcpReassemblyData->twoSides[1].srcPort == srcPort)
+		else if (tcpReassemblyData->twoSides[1].srcPort == srcPort && tcpReassemblyData->twoSides[1].srcIP == srcIP)
 		{
 			sideIndex = 1;
 		}
@@ -461,10 +438,10 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(RawPacket* tcpRa
 	return reassemblePacket(parsedPacket);
 }
 
-std::string TcpReassembly::prepareMissingDataMessage(uint32_t missingDataLen)
+static std::string prepareMissingDataMessage(uint32_t missingDataLen)
 {
 	std::stringstream missingDataTextStream;
-	missingDataTextStream << "[" << missingDataLen << " bytes missing]";
+	missingDataTextStream << '[' << missingDataLen << " bytes missing]";
 	return missingDataTextStream.str();
 }
 
@@ -763,7 +740,7 @@ uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
 
 		for (; !keysList.empty() && count < maxNumToClean; ++count)
 		{
-			const CleanupList::mapped_type::reference key = keysList.front();
+			CleanupList::mapped_type::const_reference key = keysList.front();
 			m_ConnectionInfo.erase(key);
 			m_ConnectionList.erase(key);
 			keysList.pop_front();

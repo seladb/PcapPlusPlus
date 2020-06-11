@@ -98,16 +98,6 @@ struct ConnectionData
 	ConnectionData() : srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()  {}
 
 	/**
-	 * A copy constructor for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
-	 */
-	ConnectionData(const ConnectionData& other);
-
-	/**
-	 * An assignment operator for this struct. Notice it clones ConnectionData#srcIP and ConnectionData#dstIP
-	 */
-	ConnectionData& operator=(const ConnectionData& other);
-
-	/**
 	 * Set startTime of Connection
 	 * @param[in] startTime integer value
 	 */
@@ -118,10 +108,6 @@ struct ConnectionData
 	 * @param[in] endTime integer value
 	 */
 	void setEndTime(const timeval &endTime) { this->endTime = endTime; }
-
-private:
-
-	void copyData(const ConnectionData& other);
 };
 
 
@@ -382,8 +368,8 @@ private:
 		size_t dataLength;
 		uint8_t* data;
 
-		TcpFragment() { sequence = 0; dataLength = 0; data = NULL; }
-		~TcpFragment() { if (data != NULL) delete [] data; }
+		TcpFragment() : sequence(0), dataLength(0), data(NULL) {}
+		~TcpFragment() { delete [] data; }
 	};
 
 	struct TcpOneSideData
@@ -394,7 +380,7 @@ private:
 		PointerVector<TcpFragment> tcpFragmentList;
 		bool gotFinOrRst;
 
-		TcpOneSideData() { srcPort = 0; sequence = 0; gotFinOrRst = false; }
+		TcpOneSideData() : srcPort(0), sequence(0), gotFinOrRst(false) {}
 	};
 
 	struct TcpReassemblyData
@@ -424,8 +410,6 @@ private:
 	time_t m_PurgeTimepoint;
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int sideIndex, bool cleanWholeFragList);
-
-	std::string prepareMissingDataMessage(uint32_t missingDataLen);
 
 	void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int sideIndex, uint32_t flowKey);
 
