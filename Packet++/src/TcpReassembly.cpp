@@ -52,7 +52,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	// automatic cleanup
 	if (m_RemoveConnInfo == true)
 	{
-		if(time(NULL) >= m_PurgeTimepoint)
+		if (time(NULL) >= m_PurgeTimepoint)
 		{
 			purgeClosedConnections();
 			m_PurgeTimepoint = time(NULL) + PURGE_FREQ_SECS;
@@ -730,11 +730,11 @@ uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
 {
 	uint32_t count = 0;
 
-	if(maxNumToClean == 0)
+	if (maxNumToClean == 0)
 		maxNumToClean = m_MaxNumToClean;
 
 	CleanupList::iterator iterTime = m_CleanupList.begin(), iterTimeEnd = m_CleanupList.upper_bound(time(NULL));
-	while(iterTime != iterTimeEnd && count < maxNumToClean)
+	while (iterTime != iterTimeEnd && count < maxNumToClean)
 	{
 		CleanupList::mapped_type& keysList = iterTime->second;
 
@@ -746,7 +746,7 @@ uint32_t TcpReassembly::purgeClosedConnections(uint32_t maxNumToClean)
 			keysList.pop_front();
 		}
 
-		if(keysList.empty())
+		if (keysList.empty())
 			m_CleanupList.erase(iterTime++);
 		else
 			++iterTime;
