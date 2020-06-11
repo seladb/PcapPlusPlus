@@ -361,7 +361,7 @@ PTF_TEST_CASE(TestTcpReassemblyMissingData)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 
 	// test flow without SYN packet
@@ -424,7 +424,7 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 
 	// test out-of-order + missing data
@@ -463,7 +463,7 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
-	std::string expectedReassemblyData = "";
+	std::string expectedReassemblyData;
 
 	// test fin packet in end of connection
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_http_stream_fin.pcap", packetStream, errMsg));
@@ -482,7 +482,7 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 	// test rst packet in end of connection
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_http_stream_rst.pcap", packetStream, errMsg));
@@ -500,7 +500,7 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 	//test fin packet in end of connection that has also data
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg));
@@ -518,7 +518,7 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-	expectedReassemblyData = "";
+	expectedReassemblyData.clear();
 
 	// test missing data before fin
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg));
@@ -548,7 +548,7 @@ PTF_TEST_CASE(TestTcpReassemblyMalformedPkts)
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
-	std::string expectedReassemblyData = "";
+	std::string expectedReassemblyData;
 
 	// test retransmission with new data but payload doesn't really contain all the new data
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg));
@@ -579,7 +579,7 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 {
 	TcpReassemblyMultipleConnStats results;
 	std::string errMsg;
-	std::string expectedReassemblyData = "";
+	std::string expectedReassemblyData;
 
 	pcpp::TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
 
@@ -728,8 +728,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6)
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
 	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isValid());
 	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isValid());
-	pcpp::IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
-	pcpp::IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
+	pcpp::IPv6Address expectedSrcIP("2001:618:400::5199:cc70");
+	pcpp::IPv6Address expectedDstIP("2001:618:1:8000::5");
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP, object);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP, expectedDstIP, object);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551796, u64);
@@ -747,7 +747,7 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 {
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
-	std::string expectedReassemblyData = "";
+	std::string expectedReassemblyData;
 
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/four_ipv6_http_streams.pcap", packetStream, errMsg));
 
@@ -759,9 +759,9 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 
 	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.begin();
 
-	pcpp::IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
-	pcpp::IPv6Address expectedDstIP1(std::string("2001:618:1:8000::5"));
-	pcpp::IPv6Address expectedDstIP2(std::string("2001:638:902:1:202:b3ff:feee:5dc2"));
+	pcpp::IPv6Address expectedSrcIP("2001:618:400::5199:cc70");
+	pcpp::IPv6Address expectedDstIP1("2001:618:1:8000::5");
+	pcpp::IPv6Address expectedDstIP2("2001:638:902:1:202:b3ff:feee:5dc2");
 
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 14, int);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 3, int);
@@ -872,8 +872,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
 	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isValid());
 	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isValid());
-	pcpp::IPv6Address expectedSrcIP(std::string("2001:618:400::5199:cc70"));
-	pcpp::IPv6Address expectedDstIP(std::string("2001:618:1:8000::5"));
+	pcpp::IPv6Address expectedSrcIP("2001:618:400::5199:cc70");
+	pcpp::IPv6Address expectedDstIP("2001:618:1:8000::5");
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP, object);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP, expectedDstIP, object);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551796, u64);
