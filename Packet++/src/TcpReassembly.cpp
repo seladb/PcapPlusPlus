@@ -5,7 +5,6 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PacketUtils.h"
-#include "IpAddress.h"
 #include "Logger.h"
 #include <sstream>
 #include <vector>
@@ -69,17 +68,38 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 	}
 
-	// get IP layer
-	Layer* ipLayer = NULL;
-	if (tcpData.isPacketOfType(IPv4))
-		ipLayer = (Layer*)tcpData.getLayerOfType<IPv4Layer>();
-	else if (tcpData.isPacketOfType(IPv6))
-		ipLayer = (Layer*)tcpData.getLayerOfType<IPv6Layer>();
 
-	if (ipLayer == NULL) 
+	// calculate packet's source and dest IP address
+	IPAddress srcIP, dstIP;
+
+	if (tcpData.isPacketOfType(IPv4))
 	{
-		return NonIpPacket;
+		const IPv4Layer* ipv4Layer = tcpData.getLayerOfType<IPv4Layer>();
+		if (ipv4Layer != NULL)
+		{
+			srcIP = ipv4Layer->getSrcIpAddress();
+			dstIP = ipv4Layer->getDstIpAddress();
+		}
+		else
+			return NonIpPacket;
 	}
+	else if (tcpData.isPacketOfType(IPv6))
+	{
+		const IPv6Layer* ipv6Layer = tcpData.getLayerOfType<IPv6Layer>();
+		if (ipv6Layer != NULL)
+		{
+			srcIP = ipv6Layer->getSrcIpAddress();
+			dstIP = ipv6Layer->getDstIpAddress();
+		}
+		else
+			return NonIpPacket;
+	}
+	else
+		return NonIpPacket;
+
+	// in real traffic the IP addresses cannot be an unspecified
+	if (!srcIP.isValid() || !dstIP.isValid())
+		return NonIpPacket;
 
 
 	// Ignore non-TCP packets
@@ -94,7 +114,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	// This is not real TCP data and packet can be ignored
 	if (tcpData.isPacketOfType(ICMP))
 	{
-		LOG_DEBUG("Packet is of type ICMP so TCP data is probably  part of the ICMP message. Ignoring this packet");
+		LOG_DEBUG("Packet is of type ICMP so TCP data is probably part of the ICMP message. Ignoring this packet");
 		return NonTcpPacket;
 	}
 
@@ -122,28 +142,6 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	// find the connection in the connection map
 	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
 
-	// if this packet belongs to a connection that was already closed (for example: data packet that comes after FIN), ignore it.
-	// the connection is already closed when the value of mapped type is NULL
-	if (iter != m_ConnectionList.end() && iter->second == NULL)
-	{
-		LOG_DEBUG("Ignoring packet of already closed flow [0x%X]", flowKey);
-		return Ignore_PacketOfClosedFlow;
-	}
-
-	// calculate packet's source and dest IP address
-	IPAddress srcIP, dstIP;
-
-	if (ipLayer->getProtocol() == IPv4)
-	{
-		srcIP = ((IPv4Layer*)ipLayer)->getSrcIpAddress();
-		dstIP = ((IPv4Layer*)ipLayer)->getDstIpAddress();
-	}
-	else if (ipLayer->getProtocol() == IPv6)
-	{
-		srcIP = ((IPv6Layer*)ipLayer)->getSrcIpAddress();
-		dstIP = ((IPv6Layer*)ipLayer)->getDstIpAddress();
-	}
-
 	if (iter == m_ConnectionList.end())
 	{
 		// if it's a packet of a new connection, create a TcpReassemblyData object and add it to the active connection list
@@ -165,6 +163,14 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	}
 	else // connection already exists
 	{
+		// if this packet belongs to a connection that was already closed (for example: data packet that comes after FIN), ignore it.
+		// the connection is already closed when the value of mapped type is NULL
+		if (iter->second == NULL)
+		{
+			LOG_DEBUG("Ignoring packet of already closed flow [0x%X]", flowKey);
+			return Ignore_PacketOfClosedFlow;
+		}
+
 		tcpReassemblyData = iter->second;
 		timeval currTime = timespec_to_timeval(tcpData.getRawPacket()->getPacketTimeStamp());
 		if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
