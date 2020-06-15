@@ -125,51 +125,50 @@ std::string DhcpLayer::toString() const
 	std::string msgType = "Unknown";
 	switch (getMesageType())
 	{
-	case DHCP_DISCOVER:
-	{
-		msgType = "Discover";
-		break;
+		case DHCP_DISCOVER:
+		{
+			msgType = "Discover";
+			break;
+		}
+		case DHCP_OFFER:
+		{
+			msgType = "Offer";
+			break;
+		}
+		case DHCP_REQUEST:
+		{
+			msgType = "Request";
+			break;
+		}
+		case DHCP_DECLINE:
+		{
+			msgType = "Decline";
+			break;
+		}
+		case DHCP_ACK:
+		{
+			msgType = "Acknowledge";
+			break;
+		}
+		case DHCP_NAK:
+		{
+			msgType = "Negative Acknowledge";
+			break;
+		}
+		case DHCP_RELEASE:
+		{
+			msgType = "Release";
+			break;
+		}
+		case DHCP_INFORM:
+		{
+			msgType = "Inform";
+			break;
+		}
+		default:
+			break;
+	
 	}
-	case DHCP_OFFER:
-	{
-		msgType = "Offer";
-		break;
-	}
-	case DHCP_REQUEST:
-	{
-		msgType = "Request";
-		break;
-	}
-	case DHCP_DECLINE:
-	{
-		msgType = "Decline";
-		break;
-	}
-	case DHCP_ACK:
-	{
-		msgType = "Acknowledge";
-		break;
-	}
-	case DHCP_NAK:
-	{
-		msgType = "Negative Acknowledge";
-		break;
-	}
-	case DHCP_RELEASE:
-	{
-		msgType = "Release";
-		break;
-	}
-	case DHCP_INFORM:
-	{
-		msgType = "Inform";
-		break;
-	}
-	default:
-		break;
-
-	}
-
 	return "DHCP layer (" + msgType + ")";
 }
 
@@ -301,10 +300,10 @@ bool DhcpLayer::removeAllOptions()
 {
 	int offset = sizeof(dhcp_header);
 
-	if (!shortenLayer(offset, getHeaderLen()-offset))
+	if (!shortenLayer(offset, getHeaderLen() - offset))
 		return false;
 
-	m_OptionReader.changeTLVRecordCount(0-getOptionsCount());
+	m_OptionReader.changeTLVRecordCount(0 - getOptionsCount());
 	return true;
 }
 
