@@ -66,7 +66,7 @@ bool IPcapDevice::verifyFilter(std::string filterAsString)
 	{
 		return false;
 	}
-
+	pcap_freecode(&prog);
 	return true;
 }
 
