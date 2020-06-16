@@ -699,9 +699,15 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 			{
 				return new EthDot3Layer((uint8_t*)rawData, rawDataLen, this);
 			}
+			else
+			{
+				return new EthLayer((uint8_t*)rawData, rawDataLen, this);
+			}	
 		}
-		
-		return new EthLayer((uint8_t*)rawData, rawDataLen, this);
+		else // rawDataLen is too small for Eth packet
+		{
+			return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
+		}
 	}
 	else if (linkType == LINKTYPE_LINUX_SLL)
 	{
@@ -709,7 +715,10 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	}
 	else if (linkType == LINKTYPE_NULL)
 	{
-		return new NullLoopbackLayer((uint8_t*)rawData, rawDataLen, this);
+		if (rawDataLen >= sizeof(uint32_t))
+			return new NullLoopbackLayer((uint8_t*)rawData, rawDataLen, this);
+		else // rawDataLen is too small fir Null/Loopback
+			return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
 	}
 	else if (linkType == LINKTYPE_RAW || linkType == LINKTYPE_DLT_RAW1 || linkType == LINKTYPE_DLT_RAW2)
 	{
@@ -733,7 +742,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	}
 
 	// unknown link type
-	return new EthLayer((uint8_t*)rawData, rawDataLen, this);
+	return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
 }
 
 std::string Packet::toString(bool timeAsLocalTime)

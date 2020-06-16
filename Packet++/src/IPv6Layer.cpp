@@ -83,7 +83,7 @@ void IPv6Layer::parseExtensions()
 
 	size_t offset = sizeof(ip6_hdr);
 
-	while (offset <= m_DataLen )
+	while (offset <= m_DataLen - 2*sizeof(uint8_t)) // 2*sizeof(uint8_t) is the min len for IPv6 extensions
 	{
 		IPv6Extension* newExt = NULL;
 
