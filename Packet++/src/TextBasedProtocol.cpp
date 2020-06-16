@@ -9,16 +9,14 @@ namespace pcpp
 {
 
 // this implementation of strnlen is required since mingw doesn't have strnlen
-size_t tbp_my_own_strnlen(const char* s, size_t n)
+size_t tbp_my_own_strnlen(const char* s, size_t maxlen)
 {
-	if (s == NULL || n == 0)
+	if (s == NULL || maxlen == 0)
 		return 0;
 
-	const char* p = s;
-	/* We don't check here for NULL pointers.  */
-	for (;*p != 0 && n > 0; p++, n--)
-		;
-	return (size_t) (p - s);
+	size_t i = 0;
+	for(; (i < maxlen) && s[i]; ++i);
+	return i;
 }
 
 
@@ -440,10 +438,9 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 		m_NameValueSeperator(nameValueSeperator), m_SpacesAllowedBetweenNameAndValue(spacesAllowedBetweenNameAndValue)
 {
 	char* fieldData = (char*)(m_TextBasedProtocolMessage->m_Data + m_NameOffsetInMessage);
-	//char* fieldEndPtr = strchr(fieldData, '\n');
-	char* fieldEndPtr = (char*)memchr(fieldData, '\n',m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
+	char* fieldEndPtr = (char*)memchr(fieldData, '\n', m_TextBasedProtocolMessage->m_DataLen - (size_t)m_NameOffsetInMessage);
 	if (fieldEndPtr == NULL)
-		m_FieldSize = tbp_my_own_strnlen(fieldData, m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
+		m_FieldSize = tbp_my_own_strnlen(fieldData, m_TextBasedProtocolMessage->m_DataLen - (size_t)m_NameOffsetInMessage);
 	else
 		m_FieldSize = fieldEndPtr - fieldData + 1;
 
@@ -459,8 +456,7 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 	else
 		m_IsEndOfHeaderField = false;
 
-//	char* fieldValuePtr = strchr(fieldData, ':');
-	char* fieldValuePtr = (char*)memchr(fieldData, nameValueSeperator, m_TextBasedProtocolMessage->m_DataLen-(size_t)m_NameOffsetInMessage);
+	char* fieldValuePtr = (char*)memchr(fieldData, nameValueSeperator, m_TextBasedProtocolMessage->m_DataLen - (size_t)m_NameOffsetInMessage);
 	// could not find the position of the separator, meaning field value position is unknown
 	if (fieldValuePtr == NULL)
 	{
