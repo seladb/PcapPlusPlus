@@ -74,8 +74,10 @@ bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* r
 {
 	static std::string curFilter = "";
 	static struct bpf_program prog;
-	if (curFilter != filterAsString)
+	static bool isProgCompiled = false;
+	if ( (curFilter != filterAsString) ||  !isProgCompiled )
 	{
+		isProgCompiled = true;
 		LOG_DEBUG("Compiling the filter '%s'", filterAsString.c_str());
 		pcap_freecode(&prog);
 		if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, &prog, filterAsString.c_str(), 1, 0) < 0)
