@@ -266,10 +266,11 @@ PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_static)
 	fileReaderDev.getNextPackets(rawPacketVec);
 	fileReaderDev.close();
 
-	//	Test empty BPFstring - the "ALL" filter
+	//	Test empty BPFstring (the "ALL" filter) in combination with a "-" (example wrong filter)
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		PTF_ASSERT_TRUE(pcpp::IPcapDevice::matchPacketWithFilter("", *iter));
+		PTF_ASSERT_FALSE(pcpp::IPcapDevice::matchPacketWithFilter("-", *iter));
 	}
 
 	rawPacketVec.clear();
