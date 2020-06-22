@@ -258,6 +258,27 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 
 
+PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_static)
+{
+	pcpp::RawPacketVector rawPacketVec;
+	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
+	PTF_ASSERT_TRUE(fileReaderDev.open());
+	fileReaderDev.getNextPackets(rawPacketVec);
+	fileReaderDev.close();
+
+	//	Test empty BPFstring (the "ALL" filter) in combination with a "-" (example wrong filter)
+	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		PTF_ASSERT_TRUE(pcpp::IPcapDevice::matchPacketWithFilter("", *iter));
+		PTF_ASSERT_FALSE(pcpp::IPcapDevice::matchPacketWithFilter("-", *iter));
+	}
+
+	rawPacketVec.clear();
+} // TestPcapFilters_matchPacketWithFilter_static
+
+
+
+
 PTF_TEST_CASE(TestPcapFiltersOffline)
 {
 	pcpp::RawPacketVector rawPacketVec;
