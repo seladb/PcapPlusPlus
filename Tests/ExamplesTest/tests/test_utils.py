@@ -23,11 +23,11 @@ class PcppExampleTest(FileTest):
 			if val:
 				command_to_run.append(val)
 		print('command_to_run', command_to_run)
-		self.last_completed_process = subprocess.run(command_to_run, shell=True, capture_output=True, text=True, timeout=timeout)
+		self.last_completed_process = subprocess.run(command_to_run, capture_output=True, text=True, timeout=timeout)
 		if self.last_completed_process.returncode != expected_return_code:
 			raise AssertionError(f'Return code {self.last_completed_process.returncode} is different than expected {expected_return_code}')
 
-	def assertStdoutContains(self, expected_content):
+	def assertStdoutContain(self, expected_content):
 		if not self.last_completed_process:
 			raise AssertionError('Command was not run')
 
@@ -37,7 +37,7 @@ class PcppExampleTest(FileTest):
 		if not expected_content in self.last_completed_process.stdout:
 			raise AssertionError('Expected content not found in stdout')
 
-	def assertStderrContains(self, expected_content):
+	def assertStderrContain(self, expected_content):
 		if not self.last_completed_process:
 			raise AssertionError('Command was not run')
 

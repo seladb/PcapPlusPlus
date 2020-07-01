@@ -9,13 +9,12 @@ class PcapPrinterTest(PcppExampleTest):
 			'-o': path.join(self.temp_dir_name, 'output.txt')
 		}
 		self.run_example(example_name='PcapPrinter', args=args)
-		self.assertFileContentEqual(expected=path.join('expected_output', 'pcapprinter_output.txt'), actual=path.join(self.temp_dir_name, 'output.txt'), shallow=True)
 		self.assertTextFileContain(file_path=path.join(self.temp_dir_name, 'output.txt'), expected_content='Finished. Printed 4709 packets')
 
 	def test_input_file_missing(self):
 		args = {}
 		self.run_example(example_name='PcapPrinter', args=args, expected_return_code=1)
-		self.assertStdoutContains('Error: Input file name was not given')
+		self.assertStdoutContain('Error: Input file name was not given')
 
 	def test_print_count_packets(self):
 		args = {
