@@ -81,7 +81,7 @@ namespace pcpp
 		/**
 		 * Overload of the less-than operator
 		 */
-		bool operator<(const IPv4Address& rhs) const { return toString().compare(rhs.toString()) < 0; }
+		bool operator<(const IPv4Address& rhs) const { return toInt() < rhs.toInt(); }
 
 		/**
 		 * Overload of the not-equal-to operator
@@ -182,7 +182,7 @@ namespace pcpp
 		/**
 		 * Overload of the less-than operator
 		 */
-		bool operator<(const IPv6Address& rhs) const { return toString().compare(rhs.toString()) < 0; }
+		bool operator<(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) < 0; }
 
 		/**
 		 * Overload of the not-equal-to operator
