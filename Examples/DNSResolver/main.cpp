@@ -45,8 +45,6 @@ void printUsage() {
 			"    -d dns_server: IPv4 address of DNS server to send the DNS request to. If not set the DNS request will be sent to the gateway\n"
 			"    -g gateway   : IPv4 address of the gateway to send the DNS request to. If not set the default gateway will be chosen\n"
 			"    -t timeout   : How long to wait for a reply (in seconds). Default timeout is 5 seconds\n", AppName::get().c_str());
-
-	exit(0);
 }
 
 
