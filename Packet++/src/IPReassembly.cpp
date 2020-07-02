@@ -436,7 +436,8 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		else
 		{
 			Packet tempPacket(fragData->data, IPv6);
-			tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset;
+			IPv6Layer* ipLayer = tempPacket.getLayerOfType<IPv6Layer>();
+			tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset + ipLayer->getHeaderLen();
 		}
 
 		// create a new Packet object with the reassembled data as its RawPacket
@@ -513,7 +514,8 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 			else
 			{
 				Packet tempPacket(partialRawPacket, IPv6);
-				tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset;
+				IPv6Layer* ipLayer = tempPacket.getLayerOfType<IPv6Layer>();
+				tempPacket.getLayerOfType<IPv6Layer>()->getIPv6Header()->payloadLength = fragData->currentOffset + + ipLayer->getHeaderLen();
 			}
 
 			// create a packet object wrapping the RawPacket we've just created
