@@ -1,0 +1,12 @@
+Summary:
+========
+Total packets read:                      11
+IPv4 packets read:                       11
+IPv6 packets read:                       0
+Total fragments matched:                 11
+IPv4 fragments matched:                  11
+IPv6 fragments matched:                  0
+Total packets reassembled:               1
+IPv4 packets reassembled:                1
+IPv6 packets reassembled:                0
+Total packets written to output file:    1
