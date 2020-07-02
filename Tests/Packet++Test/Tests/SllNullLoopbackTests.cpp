@@ -90,9 +90,12 @@ PTF_TEST_CASE(NullLoopbackTest)
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/NullLoopback1.dat", pcpp::LINKTYPE_NULL);
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(2, "PacketExamples/NullLoopback2.dat", pcpp::LINKTYPE_NULL);
+	READ_FILE_AND_CREATE_PACKET_LINKTYPE(3, "PacketExamples/NullLoopback3.dat", pcpp::LINKTYPE_NULL);
+
 
 	pcpp::Packet nullPacket1(&rawPacket1);
 	pcpp::Packet nullPacket2(&rawPacket2);
+	pcpp::Packet nullPacket3(&rawPacket3);
 
 	pcpp::NullLoopbackLayer* nullLoopbackLayer;
 	pcpp::Layer* nextLayer;
@@ -113,6 +116,14 @@ PTF_TEST_CASE(NullLoopbackTest)
 	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, u64);
 	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIpAddress(), pcpp::IPv4Address("172.16.1.117"), object);
 	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET, u32);
+
+	PTF_ASSERT_TRUE(nullPacket3.isPacketOfType(pcpp::NULL_LOOPBACK));
+	nullLoopbackLayer = nullPacket3.getLayerOfType<pcpp::NullLoopbackLayer>();
+	PTF_ASSERT_NOT_NULL(nullLoopbackLayer);
+	nextLayer = nullLoopbackLayer->getNextLayer();
+	PTF_ASSERT_NOT_NULL(nextLayer);
+	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, u64);
+	PTF_ASSERT_GREATER_THAN(nullLoopbackLayer->getFamily(), 1500, u32);
 
 	pcpp::Packet newNullPacket(1);
 	pcpp::NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
