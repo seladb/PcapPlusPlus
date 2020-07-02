@@ -3,7 +3,6 @@ import subprocess
 import tempfile
 
 DEFAULT_EXAMPLE_DIR = os.path.abspath('../../Dist/examples/')
-CLEANUP_TEMP_DIR = True
 
 def run_example(example_name, args, timeout=10, expected_return_code=0):
 	command_to_run = [os.path.join(DEFAULT_EXAMPLE_DIR, example_name)]
