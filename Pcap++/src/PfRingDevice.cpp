@@ -9,6 +9,7 @@
 #include "PlatformSpecificUtils.h"
 #include <errno.h>
 #include <pfring.h>
+#include <unistd.h>
 
 
 #define DEFAULT_PF_RING_SNAPLEN 1600
@@ -578,6 +579,9 @@ void* PfRingDevice::captureThreadMain(void* ptr)
 
 		struct pfring_pkthdr pktHdr;
 		int recvRes = pfring_recv(ring, &buffer, bufferLen, &pktHdr, 0);
+		if (recvRes == 0){
+			usleep(1); // if no packet  sleep 1 microsecond , no packet CPU 100% problem
+		}
 		if (recvRes > 0)
 		{
 			// if caplen < len it means we don't have the whole packet. Treat this case as packet drop
