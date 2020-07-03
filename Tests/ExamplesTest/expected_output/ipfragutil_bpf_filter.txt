@@ -1,0 +1,10 @@
+Summary:
+========
+Total packets read:                      1985
+IPv4 packets read:                       1985
+IPv6 packets read:                       0
+IP packets match BPF filter:             5
+IP packets smaller than fragment size:   0
+IPv4 packets fragmented:                 5
+IPv6 packets fragmented:                 0
+Total packets written to output file:    10

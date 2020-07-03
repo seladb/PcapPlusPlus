@@ -13,7 +13,7 @@ class TestIPDefragUtil(object):
 		}
 		completed_process = run_example(example_name='IPDefragUtil', args=args)
 		assert filecmp.cmp(path.join(tmpdir, 'output.pcap'), path.join('expected_output', 'http_req.pcap'), shallow=False)
-		with open(path.join('expected_output', 'ipdefragutil_sanity_summary.txt')) as f:
+		with open(path.join('expected_output', 'ipdefragutil_sanity.txt')) as f:
 			assert f.read() == completed_process.stdout
 
 	def test_multiple_frag_packets(self, tmpdir):
