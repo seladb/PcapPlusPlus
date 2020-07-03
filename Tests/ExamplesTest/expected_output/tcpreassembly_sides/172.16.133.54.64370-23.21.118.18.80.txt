@@ -1,0 +1,139 @@
+GET /s1.js?d=469 HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://www.salary.com/
+Connection: keep-alive
+
+GET /s2.html?d=469&t=Welcome%20to%20Salary.com%20-%20Salary.com&u=http%3A%2F%2Fwww.salary.com%2F HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://www.salary.com/
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7
+Connection: keep-alive
+
+GET /m.gif?anid=8406396664605744815 HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://tag.crsspxl.com/s2.html?d=469&t=Welcome%20to%20Salary.com%20-%20Salary.com&u=http%3A%2F%2Fwww.salary.com%2F
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1
+Connection: keep-alive
+
+GET /m.gif?mmid=a22a5125-2ff4-4100-aaa5-599e234d6f45 HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://tag.crsspxl.com/s2.html?d=469&t=Welcome%20to%20Salary.com%20-%20Salary.com&u=http%3A%2F%2Fwww.salary.com%2F
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1
+Connection: keep-alive
+
+GET /s1.js?d=469 HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/salarywizard/LayoutScripts/Swzl_Location.aspx?jobkeyword=Marketing%20Operations&locationkeyword=Boston&hdnarrowcode=
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s2.html?d=469&t=Your%20Location%20Selection%20Returned%20Multiple%20Results&u=http%3A%2F%2Fswz.salary.com%2Fsalarywizard%2FLayoutScripts%2FSwzl_Location.aspx%3Fjobkeyword%3DMarketing%2520Operations%26locationkeyword%3DBoston%26hdnarrowcode%3D HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/salarywizard/LayoutScripts/Swzl_Location.aspx?jobkeyword=Marketing%20Operations&locationkeyword=Boston&hdnarrowcode=
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s1.js?d=469 HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/salarywizard/LayoutScripts/Swzl_SelectJob.aspx?jobkeyword=Marketing%20Operations&location=Boston,%20MA&hdnarrowcode=
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s2.html?d=469&t=Salary.com%20Salary%20Wizard-%20Do%20you%20know%20what%20you%27re%20worth%3F&u=http%3A%2F%2Fswz.salary.com%2Fsalarywizard%2FLayoutScripts%2FSwzl_SelectJob.aspx%3Fjobkeyword%3DMarketing%2520Operations%26location%3DBoston%2C%2520MA%26hdnarrowcode%3D HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/salarywizard/LayoutScripts/Swzl_SelectJob.aspx?jobkeyword=Marketing%20Operations&location=Boston,%20MA&hdnarrowcode=
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s1.js?d=469 HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/salarywizard/Database-Marketing-Manager-Job-Description.aspx
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s2.html?d=469&t=Salary.com%20Salary%20Wizard-%20Do%20you%20know%20what%20you%27re%20worth%3F&u=http%3A%2F%2Fswz.salary.com%2Fsalarywizard%2FDatabase-Marketing-Manager-Job-Description.aspx HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/salarywizard/Database-Marketing-Manager-Job-Description.aspx
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s1.js?d=469 HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/SalaryWizard/LayoutScripts/Swzl_SelectJob.aspx?jobkeyword=Marketing%20Operations&location=Boston,%20MA
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s2.html?d=469&t=Salary.com%20Salary%20Wizard-%20Do%20you%20know%20what%20you%27re%20worth%3F&u=http%3A%2F%2Fswz.salary.com%2FSalaryWizard%2FLayoutScripts%2FSwzl_SelectJob.aspx%3Fjobkeyword%3DMarketing%2520Operations%26location%3DBoston%2C%2520MA HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/SalaryWizard/LayoutScripts/Swzl_SelectJob.aspx?jobkeyword=Marketing%20Operations&location=Boston,%20MA
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s1.js?d=469 HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/SalaryWizard/Sponsor.aspx
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+
+GET /s2.html?d=469&t=Salary.com%20Salary%20Wizard-%20Do%20you%20know%20what%20you%27re%20worth%3F&u=http%3A%2F%2Fswz.salary.com%2FSalaryWizard%2FSponsor.aspx HTTP/1.1
+Host: tag.crsspxl.com
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://swz.salary.com/SalaryWizard/Sponsor.aspx
+Cookie: uid=3515976817595231396; AWSELB=9913690D08DFC9CCE08CF79DE69908F135176B53EF715A4D27B9DA9B3B9D52DF05F24FF223D926CACE0DFE96AA6DBC4AE43DE00DC5DD2E354F5CE11177F201A0836B433FA7; JSESSIONID=CE63A8889956E71CFFD71D42B91C1C02; ibid=1; tnid=1; bgid=1; anid=1; dcid=1; mmid=1; xaid=1
+Connection: keep-alive
+

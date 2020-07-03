@@ -1,0 +1,10 @@
+Number of data packets in side 0:  14
+Number of data packets in side 1:  28
+Total number of data packets:      42
+
+Number of bytes in side 0:         9997
+Number of bytes in side 1:         29480
+Total number of bytes:             39477
+
+Number of messages in side 0:      14
+Number of messages in side 1:      14
