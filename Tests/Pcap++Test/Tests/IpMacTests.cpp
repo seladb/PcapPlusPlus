@@ -70,6 +70,14 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_FALSE(badIp6Address.isValid());
 	pcpp::IPv6Address anotherBadIp6Address = badIp6Address;
 	PTF_ASSERT_FALSE(anotherBadIp6Address.isValid());
+
+        pcpp::IPv6Address subnetIp6Addr01("2607:f0d0:1002:0051::");
+        PTF_ASSERT_TRUE(ip6Addr.matchSubnet(subnetIp6Addr01, 64));
+        PTF_ASSERT_TRUE(ip6Addr.matchSubnet(subnetIp6Addr01, 63));
+        pcpp::IPv6Address subnetIp6Addr02("2607:f0d0:1002:0051:1111::");
+        PTF_ASSERT_TRUE(ip6Addr.matchSubnet(subnetIp6Addr02, 64));
+        pcpp::IPv6Address subnetIp6Addr03("2607:f0d0:1002::");
+        PTF_ASSERT_FALSE(ip6Addr.matchSubnet(subnetIp6Addr03, 64));
 } // TestIPAddress
 
 
