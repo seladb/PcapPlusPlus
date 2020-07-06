@@ -89,9 +89,9 @@ void printUsage()
 			"----------------------\n"
 			"%s [-vh] -f input_file\n"
 			"\nOptions:\n\n"
-			"    -f           : The input pcap/pcapng file to analyze. Required argument for this mode\n"
+			"    -f             : The input pcap/pcapng file to analyze. Required argument for this mode\n"
 			"    -v             : Displays the current version and exists\n"
-			"    -h           : Displays this help message and exits\n\n"
+			"    -h             : Displays this help message and exits\n\n"
 			"Usage: Live traffic mode:\n"
 			"-------------------------\n"
 			"%s [-hvld] [-o output_file] [-r calc_period] [-p dst_port] -i interface\n"
@@ -104,7 +104,6 @@ void printUsage()
 			"    -h             : Displays this help message and exits\n"
 			"    -v             : Displays the current version and exists\n"
 			"    -l             : Print the list of interfaces and exists\n", AppName::get().c_str(), AppName::get().c_str());
-	exit(0);
 }
 
 
@@ -541,6 +540,7 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
+				exit(0);
 				break;
 			case 'v':
 				printAppVersion();

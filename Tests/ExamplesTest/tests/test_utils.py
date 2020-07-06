@@ -1,5 +1,6 @@
 import platform
 import os
+from itertools import filterfalse
 import subprocess
 import tempfile
 
@@ -24,5 +25,14 @@ def text_file_contains(file_path, expected_content):
 	with open(file_path) as f:
 		return expected_content in f.read()
 
+def compare_stdout_with_file(stdout, file_path, skip_line_predicate):
+	assert os.path.exists(file_path)
+	
+	with open(file_path, 'r') as f:
+		for line_f, line_stdout in zip(filterfalse(skip_line_predicate, f), filterfalse(skip_line_predicate, stdout.splitlines())):
+				assert line_f.rstrip('\n') == line_stdout
 
+class ExampleTest(object):
 
+	def run_example(self, args, timeout=10, expected_return_code=0, requires_root=False):
+		return run_example(example_name=self.__class__.__name__[4:], args=args, timeout=timeout, expected_return_code=expected_return_code, requires_root=requires_root)

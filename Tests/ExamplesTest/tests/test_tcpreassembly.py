@@ -1,9 +1,9 @@
 import os
 import filecmp
 import pytest
-from test_utils import run_example
+from test_utils import ExampleTest
 
-class TestTcpReassembly(object):
+class TestTcpReassembly(ExampleTest):
 	pytestmark = [pytest.mark.tcpreassembly, pytest.mark.no_network]
 
 	def test_sanity(self, tmpdir):
@@ -12,7 +12,7 @@ class TestTcpReassembly(object):
 			'-o': tmpdir,
 			'-m': ''
 		}
-		run_example(example_name='TcpReassembly', args=args)
+		self.run_example(args=args)
 		assert len(os.listdir(tmpdir)) == 2
 		expected_dir = os.path.join('expected_output', 'tcpreassembly_sanity')
 		match, mismatch, errors = filecmp.cmpfiles(tmpdir, expected_dir, os.listdir(expected_dir))
@@ -25,7 +25,7 @@ class TestTcpReassembly(object):
 			'-r': os.path.join('pcap_examples', 'http-packets.pcap'),
 			'-o': tmpdir
 		}
-		run_example(example_name='TcpReassembly', args=args)
+		self.run_example(args=args)
 		assert len(os.listdir(tmpdir)) == 12
 		expected_dir = os.path.join('expected_output', 'tcpreassembly_multiple_streams')
 		match, mismatch, errors = filecmp.cmpfiles(tmpdir, expected_dir, os.listdir(expected_dir))
@@ -39,7 +39,7 @@ class TestTcpReassembly(object):
 			'-o': tmpdir,
 			'-e': 'port 8868'
 		}
-		run_example(example_name='TcpReassembly', args=args)
+		self.run_example(args=args)
 		assert len(os.listdir(tmpdir)) == 1
 		expected_dir = os.path.join('expected_output', 'tcpreassembly_filter')
 		match, mismatch, errors = filecmp.cmpfiles(tmpdir, expected_dir, os.listdir(expected_dir))
@@ -53,7 +53,7 @@ class TestTcpReassembly(object):
 			'-o': tmpdir,
 			'-s': ''
 		}
-		run_example(example_name='TcpReassembly', args=args)
+		self.run_example(args=args)
 		assert len(os.listdir(tmpdir)) == 2
 		expected_dir = os.path.join('expected_output', 'tcpreassembly_sides')
 		match, mismatch, errors = filecmp.cmpfiles(tmpdir, expected_dir, os.listdir(expected_dir))

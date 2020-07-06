@@ -1,19 +1,19 @@
 import pytest
-from test_utils import run_example
+from test_utils import ExampleTest
 
 @pytest.mark.dnsresolver
-class TestDNSResolve(object):
+class TestDNSResolver(ExampleTest):
 
 	def test_sanity(self):
 		args = {
 			'-s': 'www.google.com',
 		}
-		completed_process = run_example(example_name='DNSResolver', args=args, requires_root=True)
+		completed_process = self.run_example(args=args, requires_root=True)
 		assert 'IP address of [www.google.com] is:' in completed_process.stdout
 
 	def test_hostname_not_provided(self):
 		args = {}
-		completed_process = run_example(example_name='DNSResolver', args=args, expected_return_code=1)
+		completed_process = self.run_example(args=args, expected_return_code=1)
 		assert 'Error: Hostname not provided' in completed_process.stdout
 
 	def test_hostname_not_exist(self):
@@ -21,7 +21,7 @@ class TestDNSResolve(object):
 			'-s': 'www.dlgkdflgkjdfkl.com',
 			'-t': '1'
 		}
-		completed_process = run_example(example_name='DNSResolver', args=args, requires_root=True)
+		completed_process = self.run_example(args=args, requires_root=True)
 		assert 'Could not resolve hostname' in completed_process.stdout
 
 	@pytest.mark.interface_needed
@@ -31,5 +31,5 @@ class TestDNSResolve(object):
 			'-s': 'www.google.com',
 			'-i': interface_to_use,
 		}
-		completed_process = run_example(example_name='DNSResolver', args=args, requires_root=True)
+		completed_process = self.run_example(args=args, requires_root=True)
 		assert 'IP address of [www.google.com] is:' in completed_process.stdout
