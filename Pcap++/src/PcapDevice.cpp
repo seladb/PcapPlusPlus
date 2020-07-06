@@ -74,7 +74,7 @@ bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* r
 {
 	static std::string curFilter = "";
 	static struct bpf_program prog;
-	if (curFilter != filterAsString)
+	if ( (curFilter != filterAsString) || (prog.bf_insns == NULL) )
 	{
 		LOG_DEBUG("Compiling the filter '%s'", filterAsString.c_str());
 		pcap_freecode(&prog);
@@ -82,7 +82,6 @@ bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* r
 		{
 			return false;
 		}
-
 		curFilter = filterAsString;
 	}
 

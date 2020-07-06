@@ -96,5 +96,27 @@ namespace pcpp
 		memcpy(*arr, m_Bytes, addrLen);
 	}
 
+	bool IPv6Address::matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const
+	{
+		if(prefixLength == 0 || prefixLength > 128)
+		{
+			LOG_ERROR("subnet prefixLength '%u' illegal", prefixLength);
+			return false;
+		}
+		uint8_t compareByteCount = prefixLength / 8;
+		uint8_t compareBitCount = prefixLength % 8;
+		bool result = false;
+		const uint8_t* subnetBytes = subnet.toBytes();
+		if(compareByteCount > 0) {
+			result = memcmp(subnetBytes, m_Bytes, compareByteCount) == 0;
+		}
+		if((result || prefixLength < 8) && compareBitCount > 0) {
+			uint8_t subSubnetByte = subnetBytes[compareByteCount] >> (8 - compareBitCount);
+			uint8_t subThisByte =  m_Bytes[compareByteCount]  >> (8 - compareBitCount);
+			result = subSubnetByte == subThisByte;
+		}
+		return result;
+	}
+
 
 } // namespace pcpp

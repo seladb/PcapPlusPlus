@@ -49,7 +49,7 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPv6Address ip6AddrFromIpAddr = ip6Addr.getIPv6();
 	uint8_t addrAsByteArray[16];
 	ip6AddrFromIpAddr.copyTo(addrAsByteArray);
-	uint8_t expectedByteArray[16] = {0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04};
+	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00 , 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
 	for (int i = 0; i < 16; i++)
 	{
 		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i], u8);
@@ -70,6 +70,21 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPv6Address anotherBadIp6Address = badIp6Address;
 	PTF_ASSERT_FALSE(anotherBadIp6Address.isValid());
 
+	pcpp::IPv6Address ip6Addr2("2607:f0d0:1002:0051:ffff:0000:0000:0004");
+	pcpp::IPv6Address subnetIp6Addr01("2607:f0d0:1002:0051::");
+	pcpp::IPv6Address subnetIp6Addr02("2607:f0d0:1002:0051:0011::");
+
+	PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr01, 0));
+	for(int i = 1; i <= 64; ++i) {
+		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(subnetIp6Addr01, i));
+		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(subnetIp6Addr02, i));
+	}
+
+	for(int i = 65; i <= 127; ++i) {
+		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr01, i));
+		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr02, i));
+	}
+
 	/* Test less-than comparison operator */
 	pcpp::IPv4Address IpV4_1("1.1.1.1");
 	pcpp::IPv4Address IpV4_2("1.1.1.1");
@@ -89,9 +104,9 @@ PTF_TEST_CASE(TestIPAddress)
 
 PTF_TEST_CASE(TestMacAddress)
 {
-	pcpp::MacAddress macAddr1(0x11, 0x2, 0x33, 0x4, 0x55, 0x6);
+	pcpp::MacAddress macAddr1(0x11,0x2,0x33,0x4,0x55,0x6);
 	PTF_ASSERT_TRUE(macAddr1.isValid());
-	pcpp::MacAddress macAddr2(0x11, 0x2, 0x33, 0x4, 0x55, 0x6);
+	pcpp::MacAddress macAddr2(0x11,0x2,0x33,0x4,0x55,0x6);
 	PTF_ASSERT_TRUE(macAddr2.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr2, object);
 
@@ -99,14 +114,14 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_TRUE(macAddr3.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr3, object);
 
-	uint8_t addrAsArr[6] = {0x11, 0x2, 0x33, 0x4, 0x55, 0x6};
+	uint8_t addrAsArr[6] = { 0x11, 0x2, 0x33, 0x4, 0x55, 0x6 };
 	pcpp::MacAddress macAddr4(addrAsArr);
 	PTF_ASSERT_TRUE(macAddr4.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr4, object);
 
 	PTF_ASSERT_EQUAL(macAddr1.toString(), std::string("11:02:33:04:55:06"), string);
 
-	uint8_t *arrToCopyTo = NULL;
+	uint8_t* arrToCopyTo = NULL;
 	macAddr3.copyTo(&arrToCopyTo);
 	PTF_ASSERT_EQUAL(arrToCopyTo[0], 0x11, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[1], 0x02, hex);
@@ -114,18 +129,18 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_EQUAL(arrToCopyTo[3], 0x04, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[4], 0x55, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[5], 0x06, hex);
-	delete[] arrToCopyTo;
+	delete [] arrToCopyTo;
 
 	uint8_t macBytes[6];
 	macAddr3.copyTo(macBytes);
 	PTF_ASSERT_BUF_COMPARE(macBytes, addrAsArr, 6);
 
-#if __cplusplus > 199711L || _MSC_VER >= 1800
-	pcpp::MacAddress macCpp11Valid{0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB};
-	pcpp::MacAddress macCpp11Wrong{0xBB, 0xBB, 0xBB, 0xBB, 0xBB};
+	#if __cplusplus > 199711L || _MSC_VER >= 1800
+	pcpp::MacAddress macCpp11Valid { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
+	pcpp::MacAddress macCpp11Wrong { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
 	PTF_ASSERT_TRUE(macCpp11Valid.isValid());
 	PTF_ASSERT_FALSE(macCpp11Wrong.isValid());
-#endif
+	#endif
 
 	pcpp::MacAddress mac6(macAddr1);
 	PTF_ASSERT_TRUE(mac6.isValid());
@@ -143,6 +158,8 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_FALSE(macWrong2.isValid());
 	PTF_ASSERT_FALSE(macWrong3.isValid());
 } // TestMacAddress
+
+
 
 PTF_TEST_CASE(TestLRUList)
 {
@@ -163,10 +180,12 @@ PTF_TEST_CASE(TestLRUList)
 	PTF_ASSERT_EQUAL(lruList.getSize(), 0, size);
 } // TestLRUList
 
+
+
 PTF_TEST_CASE(TestGeneralUtils)
 {
 	uint8_t resultArr[4];
-	const uint8_t expectedBytes[] = {0xaa, 0xbb};
+	const uint8_t expectedBytes[] = { 0xaa, 0xbb };
 	size_t result = pcpp::hexStringToByteArray("AABB", resultArr, sizeof(resultArr));
 	PTF_ASSERT_TRUE(result > 0);
 	PTF_ASSERT_TRUE(result <= sizeof(resultArr));
@@ -183,15 +202,17 @@ PTF_TEST_CASE(TestGeneralUtils)
 	pcpp::LoggerPP::getInstance().enableErrors();
 
 	// short buffer
-	const uint8_t expectedBytes2[] = {0x01, 0x02, 0x03, 0x04};
+	const uint8_t expectedBytes2[] = { 0x01, 0x02, 0x03, 0x04 };
 	result = pcpp::hexStringToByteArray("0102030405", resultArr, sizeof(resultArr));
 	PTF_ASSERT_EQUAL(result, 4, size);
 	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes2, result);
 } // TestGeneralUtils
 
+
+
 PTF_TEST_CASE(TestGetMacAddress)
 {
-	pcpp::PcapLiveDevice *liveDev = NULL;
+	pcpp::PcapLiveDevice* liveDev = NULL;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
@@ -202,7 +223,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 	std::string ipsInArpTableAsString;
 #ifdef WIN32
 	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | for /f \"tokens=1\" \%i in ('findstr dynamic') do @echo \%i");
-	ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end());
+	ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
 #else
 	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
 #endif

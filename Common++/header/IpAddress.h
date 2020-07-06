@@ -205,6 +205,15 @@ namespace pcpp
 		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
 
 		/**
+		  * Checks whether the address matches a subnet.
+		  * For example: if subnet is 2001:3CA1:010F:001A::, prefixLength is 64, and address is 2001:3CA1:010F:001A:121B:0000:0000:0010, then the method will return true
+		  * Another example: if subnet is 2001:3CA1:010F:001A::, prefixLength is 70 and address is 2001:3CA1:010F:001A:121B:0000:0000:0010 then the method will return false
+		  * @param[in] subnet The subnet to be verified
+		  * @param[in] prefixLength How many bits to use in the mask
+		  */
+		bool matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const;
+
+		/**
 		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
 		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
 		 * In order to check whether the address is zero the method isValid can be used
