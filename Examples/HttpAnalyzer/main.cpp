@@ -228,6 +228,10 @@ void printMethods(HttpRequestStats& reqStatscollector)
  */
 bool hostnameComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
 {
+	if (first.second == second.second)
+	{
+		return first.first > second.first;
+	}
 	return first.second > second.second;
 }
 

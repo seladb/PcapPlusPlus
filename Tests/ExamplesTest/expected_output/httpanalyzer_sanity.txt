@@ -56,10 +56,10 @@ Hostnames count
 ----------------------------------------------------
 | www.wix.com                              | 27    |
 | brumazz.wix.com                          | 26    |
-| adserver.yahoo.com                       | 1     |
-| geo.yahoo.com                            | 1     |
-| webhosting.yahoo.com                     | 1     |
 | www.bowlsbybruno.com                     | 1     |
+| webhosting.yahoo.com                     | 1     |
+| geo.yahoo.com                            | 1     |
+| adserver.yahoo.com                       | 1     |
 ----------------------------------------------------
 
 Status code count

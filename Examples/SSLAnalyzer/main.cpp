@@ -159,6 +159,10 @@ void sslPacketArrive(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
  */
 bool stringCountComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
 {
+	if (first.second == second.second)
+	{
+		return first.first > second.first;
+	}
 	return first.second > second.second;
 }
 
@@ -168,6 +172,10 @@ bool stringCountComparer(std::pair<std::string, int> first, std::pair<std::strin
  */
 bool uint16CountComparer(std::pair<uint16_t, int> first, std::pair<uint16_t, int> second)
 {
+	if (first.second == second.second)
+	{
+		return first.first > second.first;
+	}
 	return first.second > second.second;
 }
 

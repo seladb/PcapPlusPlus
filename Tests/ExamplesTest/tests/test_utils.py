@@ -25,6 +25,11 @@ def text_file_contains(file_path, expected_content):
 	with open(file_path) as f:
 		return expected_content in f.read()
 
+def compare_files_ignore_newline(filename1, filename2):
+	with open(filename1, 'r') as f1:
+		with open(filename2, 'r') as f2:
+			return all(line_f1 == line_f2 for line_f1, line_f2 in zip(f1, f2))
+
 def compare_stdout_with_file(stdout, file_path, skip_line_predicate):
 	assert os.path.exists(file_path)
 	

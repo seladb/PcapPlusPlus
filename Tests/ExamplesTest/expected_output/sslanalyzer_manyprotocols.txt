@@ -6,7 +6,7 @@ STATS SUMMARY
 General stats
 --------------------
 
-Sample time:                                            0.007 [Seconds]
+Sample time:                                            0.014 [Seconds]
 Number of SSL packets:                                    401 [Packets]
 Rate of SSL packets:                                    0.000 [Packets/sec]
 Number of SSL flows:                                       20 [Flows]
@@ -53,8 +53,8 @@ Cipher-suite count
 --------------------------------------------------------------
 | Cipher-suite                                       | Count |
 --------------------------------------------------------------
-| TLS_DHE_RSA_WITH_AES_128_CBC_SHA                   | 6     |
 | TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256            | 6     |
+| TLS_DHE_RSA_WITH_AES_128_CBC_SHA                   | 6     |
 | TLS_RSA_WITH_RC4_128_SHA                           | 4     |
 | TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256              | 3     |
 | TLS_RSA_WITH_AES_128_CBC_SHA                       | 1     |
@@ -68,13 +68,13 @@ Server-name count
 ----------------------------------------------------
 | img.cybersear.ch                         | 6     |
 | fbstatic-a.akamaihd.net                  | 3     |
-| apis.google.com                          | 2     |
 | www.gstatic.com                          | 2     |
-| id.google.co.il                          | 1     |
-| s-static.ak.facebook.com                 | 1     |
-| ssl.bbc.co.uk                            | 1     |
-| ssl.gstatic.com                          | 1     |
-| www.facebook.com                         | 1     |
-| www.google.co.il                         | 1     |
+| apis.google.com                          | 2     |
 | www.google.com                           | 1     |
+| www.google.co.il                         | 1     |
+| www.facebook.com                         | 1     |
+| ssl.gstatic.com                          | 1     |
+| ssl.bbc.co.uk                            | 1     |
+| s-static.ak.facebook.com                 | 1     |
+| id.google.co.il                          | 1     |
 ----------------------------------------------------

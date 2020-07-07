@@ -6,7 +6,7 @@ STATS SUMMARY
 General stats
 --------------------
 
-Sample time:                                      0.008 [Seconds]
+Sample time:                                      0.013 [Seconds]
 Number of HTTP packets:                            3252 [Packets]
 Rate of HTTP packets:                             0.000 [Packets/sec]
 Number of HTTP flows:                               106 [Flows]
@@ -61,30 +61,29 @@ Hostnames count
 | www.ynet.co.il                           | 9     |
 | sf.exposebox.com                         | 9     |
 | s2.googleusercontent.com                 | 8     |
-| node1.bbcimg.co.uk                       | 3     |
 | sa.bbc.co.uk                             | 3     |
-| ping.chartbeat.net                       | 2     |
+| node1.bbcimg.co.uk                       | 3     |
 | xnet.ynet.co.il                          | 2     |
-| clients1.google.com                      | 2     |
-| sa.bbc.com                               | 2     |
 | www.google.com                           | 2     |
-| static.chartbeat.com                     | 2     |
 | www.google.co.il                         | 2     |
-| stats.g.doubleclick.net                  | 2     |
-| px.dynamicyield.com                      | 2     |
+| www.calcalist.co.il                      | 2     |
 | www.bbc.co.uk                            | 2     |
+| stats.g.doubleclick.net                  | 2     |
+| static.chartbeat.com                     | 2     |
+| sa.bbc.com                               | 2     |
+| px.dynamicyield.com                      | 2     |
+| ping.chartbeat.net                       | 2     |
 | news.bbcimg.co.uk                        | 2     |
 | emp.bbci.co.uk                           | 2     |
-| www.calcalist.co.il                      | 2     |
-| www.google-analytics.com                 | 1     |
-| survey.112.2o7.net                       | 1     |
-| t1.visualrevenue.com                     | 1     |
-| s3-eu-west-1.amazonaws.com               | 1     |
-| www.bbc.com                              | 1     |
+| clients1.google.com                      | 2     |
 | www.googleadservices.com                 | 1     |
+| www.google-analytics.com                 | 1     |
+| www.bbc.com                              | 1     |
+| t1.visualrevenue.com                     | 1     |
+| survey.112.2o7.net                       | 1     |
 | static.bbc.co.uk                         | 1     |
 | st.dynamicyield.com                      | 1     |
-| a.visualrevenue.com                      | 1     |
+| s3-eu-west-1.amazonaws.com               | 1     |
 | r.bbci.co.uk                             | 1     |
 | p.visualrevenue.com                      | 1     |
 | open.live.bbc.co.uk                      | 1     |
@@ -97,6 +96,7 @@ Hostnames count
 | cdn.clicktale.net                        | 1     |
 | bbc.com                                  | 1     |
 | b.scorecardresearch.com                  | 1     |
+| a.visualrevenue.com                      | 1     |
 ----------------------------------------------------
 
 Status code count
