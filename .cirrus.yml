@@ -5,7 +5,9 @@ task:
       image_family: freebsd-11-3-snap
       image_family: freebsd-12-1-snap
   update_script: pkg update -f
-  install_script: pkg install -y libpcap bash gsed gmake
+  install_script: 
+    - pkg install -y libpcap bash gsed gmake py37-pip
+    - python -m pip install pytest
   configure_script:
     - ./configure-freebsd.sh --default
   build_script:
@@ -13,6 +15,7 @@ task:
   test_script:
     - cd Tests/Packet++Test && Bin/Packet++Test
     - cd ../Pcap++Test && sudo Bin/Pcap++Test -n
+    - cd ../ExamplesTest && python -m pytest -m no_network
 
 task:
   name: Test Zstd Linux

@@ -11,15 +11,19 @@ matrix:
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604
+        - PYTHON3_EXE=python3.8
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1804
+        - PYTHON3_EXE=python3.8
     - os: linux
       env:
         - DOCKER_IMAGE=centos7
+        - PYTHON3_EXE=python3.8
     - os: linux
       env:
         - DOCKER_IMAGE=fedora29
+        - PYTHON3_EXE=python3
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-dpdk1611
@@ -51,19 +55,28 @@ matrix:
     - os: osx
       compiler: clang
       osx_image: xcode9.4
+      env:
+        - PYTHON3_EXE=python3
     - os: osx
       compiler: clang
       osx_image: xcode10.1
+      env:
+        - PYTHON3_EXE=python3
     - os: osx
       compiler: clang
       osx_image: xcode10.3
+      env:
+        - PYTHON3_EXE=python3
     - os: osx
       compiler: clang
       osx_image: xcode11
+      env:
+        - PYTHON3_EXE=python3
     - os: osx
       compiler: clang
       osx_image: xcode11.2
-
+      env:
+        - PYTHON3_EXE=python3
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -76,18 +89,30 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --default"; fi
   - if [[ $DOCKER_IMAGE == *"dpdk"* ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --dpdk --dpdk-home /dpdk"; fi
   - if [[ ! -z $PF_RING ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING"; fi
-  
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$PYTHON3_EXE" != "" ]]; then
+       $PYTHON3_EXE -m pip install -U pip;
+       $PYTHON3_EXE -m pip install pytest;
+    fi
+
 script:
   - ERR_CODE=0
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
        make all || ERR_CODE=$?;
        cd Tests/Packet++Test && Bin/Packet++Test || ERR_CODE=$?;
        cd ../Pcap++Test && sudo Bin/Pcap++Test -n || ERR_CODE=$?;
+       if [[ "$PYTHON3_EXE" != "" ]]; then
+          cd ../ExamplesTest && $PYTHON3_EXE -m pytest -m no_network || ERR_CODE=$?;
+       fi;
        cd ../../ && sudo make install || ERR_CODE=$?;
     else
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make all" || ERR_CODE=$?;
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Packet++Test && Bin/Packet++Test" || ERR_CODE=$?;
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Pcap++Test && Bin/Pcap++Test -n -k 0" || ERR_CODE=$?;
+       if [[ "$PYTHON3_EXE" != "" ]]; then
+          docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/ExamplesTest && $PYTHON3_EXE -m pytest -m no_network" || ERR_CODE=$?;
+       fi;
        docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make install" || ERR_CODE=$?;
     fi
   - (exit $ERR_CODE)
