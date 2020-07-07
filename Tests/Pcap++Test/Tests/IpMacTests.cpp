@@ -13,6 +13,7 @@
 #include "PcapLiveDeviceList.h"
 #include "SystemUtils.h"
 
+
 extern PcapTestArgs PcapTestGlobalArgs;
 
 PTF_TEST_CASE(TestIPAddress)
@@ -100,6 +101,32 @@ PTF_TEST_CASE(TestIPAddress)
 
 	PTF_ASSERT_FALSE(ipv6Address < ipv6AddressLong);
 	PTF_ASSERT_TRUE(ipv6Address < ipv6Address2);
+
+	pcpp::IPAddress baseIpv4_1("1.1.1.1");
+	pcpp::IPAddress baseIpv4_2("1.1.1.2");
+	pcpp::IPAddress baseIPv6_1("2001:db8::2:1");
+	pcpp::IPAddress baseIPv6_2("2001:db8::2:2");
+
+	/* Compare IPv4 against IPv4 */
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIpv4_2);
+	PTF_ASSERT_FALSE(baseIpv4_2 < baseIpv4_1);
+
+	/* Compare IPv6 against IPv6 */
+	PTF_ASSERT_TRUE(baseIPv6_1 < baseIPv6_2);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIPv6_1);
+
+	/* Compare IPv6 against IPv4*/
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_1);
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_2);
+	PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_1);
+	PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_2);
+
+	/* Compare IPv4 against IPv6 */
+	PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_1);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_1);
+	PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_2);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_2);
+
 } // TestIPAddress
 
 PTF_TEST_CASE(TestMacAddress)
