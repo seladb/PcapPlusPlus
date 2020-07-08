@@ -79,6 +79,11 @@ namespace pcpp
 		bool operator==(const IPv4Address& rhs) const { return toInt() == rhs.toInt(); }
 
 		/**
+		 * Overload of the less-than operator
+		 */
+		bool operator<(const IPv4Address& rhs) const { return toInt() < rhs.toInt(); }
+
+		/**
 		 * Overload of the not-equal-to operator
 		 */
 		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
@@ -173,6 +178,11 @@ namespace pcpp
 		 * Overload of the equal-to operator
 		 */
 		bool operator==(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) == 0; }
+		
+		/**
+		 * Overload of the less-than operator
+		 */
+		bool operator<(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) < 0; }
 
 		/**
 		 * Overload of the not-equal-to operator
@@ -322,6 +332,11 @@ namespace pcpp
 		inline bool operator==(const IPAddress& rhs) const;
 
 		/**
+		 * Overload of the less-than operator
+		 */
+		inline bool operator<(const IPAddress& rhs) const;
+
+		/**
 		 * Overload of the not-equal-to operator
 		 */
 		bool operator!=(const IPAddress& rhs) const { return !(*this == rhs); }
@@ -340,7 +355,18 @@ namespace pcpp
 		if (isIPv4())
 			return rhs.isIPv4() ? (m_IPv4 == rhs.m_IPv4) : false;
 
-		return m_IPv6 == rhs.m_IPv6;
+		return rhs.isIPv6() ? m_IPv6 == rhs.m_IPv6 : false;
+	}
+
+	bool IPAddress::operator<(const IPAddress& rhs) const
+	{
+		if(isIPv4())
+		{
+			/* treat IPv4 as less than IPv6 
+			If current obj is IPv4 and other is IPv6 return true */
+			return rhs.isIPv4() ? (m_IPv4 < rhs.m_IPv4) : true;
+		}
+		return rhs.isIPv6() ? m_IPv6 < rhs.m_IPv6 : false;
 	}
 
 	IPAddress& IPAddress::operator=(const IPv4Address& addr)

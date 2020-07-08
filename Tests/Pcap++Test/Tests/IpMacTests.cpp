@@ -85,9 +85,49 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr01, i));
 		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr02, i));
 	}
+
+	/* Test less-than comparison operator */
+	pcpp::IPv4Address IpV4_1("1.1.1.1");
+	pcpp::IPv4Address IpV4_2("1.1.1.1");
+	pcpp::IPv4Address IpV4_3("1.1.1.2");
+
+	PTF_ASSERT_FALSE(IpV4_1 < IpV4_2);
+	PTF_ASSERT_TRUE(IpV4_1 < IpV4_3);
+	PTF_ASSERT_FALSE(IpV4_3 < IpV4_1);
+
+	pcpp::IPv6Address ipv6Address("2001:db8::2:1");
+	pcpp::IPv6Address ipv6AddressLong("2001:db8:0:0:0:0:2:1");
+	pcpp::IPv6Address ipv6Address2("2001:db8::2:2");
+
+	PTF_ASSERT_FALSE(ipv6Address < ipv6AddressLong);
+	PTF_ASSERT_TRUE(ipv6Address < ipv6Address2);
+
+	pcpp::IPAddress baseIpv4_1("1.1.1.1");
+	pcpp::IPAddress baseIpv4_2("1.1.1.2");
+	pcpp::IPAddress baseIPv6_1("2001:db8::2:1");
+	pcpp::IPAddress baseIPv6_2("2001:db8::2:2");
+
+	/* Compare IPv4 against IPv4 */
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIpv4_2);
+	PTF_ASSERT_FALSE(baseIpv4_2 < baseIpv4_1);
+
+	/* Compare IPv6 against IPv6 */
+	PTF_ASSERT_TRUE(baseIPv6_1 < baseIPv6_2);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIPv6_1);
+
+	/* Compare IPv6 against IPv4*/
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_1);
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_2);
+	PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_1);
+	PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_2);
+
+	/* Compare IPv4 against IPv6 */
+	PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_1);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_1);
+	PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_2);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_2);
+
 } // TestIPAddress
-
-
 
 PTF_TEST_CASE(TestMacAddress)
 {
