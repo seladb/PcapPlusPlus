@@ -485,7 +485,12 @@ namespace pcpp
 		bool open(bool appendMode);
 
 		/**
-		 * Flush and close the pacp-ng file
+		 * Flush packets to the pcap-ng file
+		 */
+		void flush();
+
+		/**
+		 * Flush and close the pcap-ng file
 		 */
 		void close();
 
