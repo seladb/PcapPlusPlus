@@ -832,7 +832,7 @@ void PcapNgFileWriterDevice::flush()
 		return;
 
 	light_pcapng_flush((light_pcapng_t*)m_LightPcapNg);
-	LOG_DEBUG("File writer flushed to file '%s'", m_Filename);
+	LOG_DEBUG("File writer flushed to file '%s'", m_FileName);
 }
 
 void PcapNgFileWriterDevice::close()
