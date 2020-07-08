@@ -59,8 +59,6 @@ void printUsage() {
 			"    -S ip_addr   : Set source IP address\n"
 			"    -T ip_addr   : Set target IP address\n"
 			"    -w timeout   : How long to wait for a reply (in seconds)\n", AppName::get().c_str());
-
-	exit(0);
 }
 
 
@@ -135,7 +133,7 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
-				break;
+				exit(0);
 			case 'v':
 				printAppVersion();
 				break;
