@@ -7,6 +7,7 @@
 #include "ProtocolType.h"
 #include <stdint.h>
 #include "ArpLayer.h"
+#include "RawPacket.h"
 
 //Forward Declaration - used in GeneralFilter
 struct bpf_program;
@@ -80,6 +81,7 @@ namespace pcpp
 	protected:
 		bpf_program* m_program;
 		std::string m_lastProgramString;
+		pcpp::LinkLayerType m_lastLinkLayerType;
 
 		/**
 		* Free the held program and any resources allocated for it.
@@ -100,7 +102,7 @@ namespace pcpp
 		*/
 		bool matchPacketWithFilter(RawPacket* rawPacket);
 
-		GeneralFilter() : m_program(NULL) {}
+		GeneralFilter() : m_program(NULL), m_lastProgramString(), m_lastLinkLayerType(pcpp::LINKTYPE_ETHERNET) {}
 
 		/**
 		 * Virtual destructor, frees the bpf program
