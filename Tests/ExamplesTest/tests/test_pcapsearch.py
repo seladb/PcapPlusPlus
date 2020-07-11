@@ -1,6 +1,7 @@
 from os import path
 import pytest
 import re
+import ntpath
 from test_utils import ExampleTest
 
 class TestPcapSearch(ExampleTest):
@@ -28,9 +29,19 @@ class TestPcapSearch(ExampleTest):
 			'-s': 'udp'
 		}
 		completed_process = self.run_example(args=args)
-		for num_of_packets, file_name in [(2690, 'ip-frag.pcap'), (2, 'ipv6-frag.pcap'), (35, 'ipv6.pcapng'), (269, 'many-protocols.pcap'), (1, 'tcp-reassembly.pcap')]:
-			regex_str = r".*\n{num_of_packets} packets found in.*{file_name}".format(num_of_packets=num_of_packets, file_name=file_name)
-			assert re.match(regex_str, completed_process.stdout, flags=re.DOTALL)
+		expected = set([(2690, 'ip-frag.pcap'), (35, 'ipv6.pcapng'), (269, 'many-protocols.pcap'), (1, 'tcp-reassembly.pcap')])
+		actual = set()
+		for line in completed_process.stdout.splitlines():
+			words = line.split(' ')
+			if words is not None:
+				try:
+					num_of_packets = int(words[0])
+					file_name = ntpath.basename(words[-1].replace('\'', ''))
+					actual.add((num_of_packets, file_name))
+				except:
+					pass
+
+		assert expected.issubset(actual)
 
 	def test_different_file_extensions(self):
 		args = {
