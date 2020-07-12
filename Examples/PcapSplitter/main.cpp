@@ -148,7 +148,6 @@ void printUsage()
 			"    -i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split\n"
 			"    -v              : Displays the current version and exists\n"
 			"    -h              : Displays this help message and exits\n", AppName::get().c_str());
-	exit(0);
 }
 
 
@@ -249,7 +248,7 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
-				break;
+				exit(0);
 			case 'v':
 				printAppVersion();
 				break;

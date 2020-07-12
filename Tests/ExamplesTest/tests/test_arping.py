@@ -15,7 +15,7 @@ class TestArping(ExampleTest):
 			'-w': '1',
 			'-c': '3'
 		}
-		completed_process = self.run_example(args=args)
+		completed_process = self.run_example(args=args, requires_root=True)
 		assert len(completed_process.stdout.splitlines()) == 3
 		for line in completed_process.stdout.splitlines():
 			assert 'Reply from ' + gateway_ip in line
@@ -28,7 +28,7 @@ class TestArping(ExampleTest):
 			'-w': '1',
 			'-c': '3'
 		}
-		completed_process = self.run_example(args=args)
+		completed_process = self.run_example(args=args, requires_root=True)
 		assert len(completed_process.stdout.splitlines()) == 3
 		for idx, line in enumerate(completed_process.stdout.splitlines()):
 			assert 'Arping  index={idx} : ARP request time out'.format(idx=idx+1) == line
