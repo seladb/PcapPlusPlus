@@ -93,7 +93,10 @@ before_script:
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$PYTHON3_EXE" != "" ]]; then
        $PYTHON3_EXE -m pip install -U pip;
-       $PYTHON3_EXE -m pip install pytest;
+       $PYTHON3_EXE -m pip install -r Tests/ExamplesTest/requirements.txt;;
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$PYTHON3_EXE" != "" ]]; then
+       docker exec -i $DOCKER_IMAGE bash -c "$PYTHON3_EXE -m pip install -r PcapPlusPlus/Tests/ExamplesTest/requirements.txt";
     fi
 
 script:

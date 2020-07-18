@@ -7,7 +7,7 @@ task:
   update_script: pkg update -f
   install_script: 
     - pkg install -y libpcap bash gsed gmake py37-pip
-    - python -m pip install pytest
+    - python -m pip install -r Tests/ExamplesTest/requirements.txt
   configure_script:
     - ./configure-freebsd.sh --default
   build_script:

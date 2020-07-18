@@ -7,7 +7,7 @@ import tempfile
 DEFAULT_EXAMPLE_DIR = os.path.abspath('../../Dist/examples/')
 
 def run_example(example_name, args, timeout=10, expected_return_code=0, requires_root=False):
-	command_to_run = (['sudo'] if requires_root is True and platform.system() == 'Linux' else []) + [os.path.join(DEFAULT_EXAMPLE_DIR, example_name)]
+	command_to_run = (['sudo'] if requires_root is True and (platform.system() == 'Linux' or platform.system() == 'Darwin') else []) + [os.path.join(DEFAULT_EXAMPLE_DIR, example_name)]
 	for flag, val in args.items():
 		if flag:
 			command_to_run.append(flag)
