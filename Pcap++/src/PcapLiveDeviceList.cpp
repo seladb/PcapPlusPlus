@@ -12,6 +12,9 @@
 #include <iphlpapi.h>
 #elif MAC_OS_X
 #include <systemconfiguration/scdynamicstore.h>
+#elif FREEBSD
+#include <arpa/nameser.h>
+#include <resolv.h>
 #endif
 
 
@@ -192,6 +195,22 @@ void PcapLiveDeviceList::setDnsServers()
 
 	CFRelease(dynRef);
 	CFRelease(dnsDict);
+
+#elif FREEBSD
+
+	res_init();
+
+	for (int i = 0; i < _res.nscount; i++)
+	{
+		sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
+		if (saddr == NULL)
+			continue;
+		in_addr* inaddr = sockaddr2in_addr(saddr);
+		if (inaddr == NULL)
+			continue;
+		m_DnsServers.push_back(IPv4Address(in_addr2int(*inaddr)));
+	}
+
 #endif
 }
 
