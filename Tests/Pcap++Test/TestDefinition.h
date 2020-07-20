@@ -35,7 +35,7 @@ PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_static);
 PTF_TEST_CASE(TestPcapFiltersLive);
 PTF_TEST_CASE(TestPcapFilters_General_BPFStr);
 PTF_TEST_CASE(TestPcapFiltersOffline);
-PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_DifferentInterfaces);
+PTF_TEST_CASE(TestPcapFilters_LinkLayer);
 
 // Implemented in PacketParsingTests.cpp
 PTF_TEST_CASE(TestHttpRequestParsing);

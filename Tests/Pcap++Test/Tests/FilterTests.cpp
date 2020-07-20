@@ -737,7 +737,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	rawPacketVec.clear();
 }
 
-PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_DifferentInterfaces)
+PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 {
 	// check if matchPacketWithFilter work properly for packets with different LinkLayerType
 
@@ -752,9 +752,9 @@ PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_DifferentInterfaces)
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
-		if(pcpp::IPv4Layer* l = packet.getLayerOfType<pcpp::IPv4Layer>())
+		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
-			pcpp::BPFStringFilter bpfStringFilter("host " + l->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
 				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_DLT_RAW1)
@@ -778,9 +778,9 @@ PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_DifferentInterfaces)
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
-		if(pcpp::IPv4Layer* l = packet.getLayerOfType<pcpp::IPv4Layer>())
+		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
-			pcpp::BPFStringFilter bpfStringFilter("host " + l->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
 				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_LINUX_SLL)
@@ -804,9 +804,9 @@ PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_DifferentInterfaces)
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
-		if(pcpp::IPv4Layer* l = packet.getLayerOfType<pcpp::IPv4Layer>())
+		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
-			pcpp::BPFStringFilter bpfStringFilter("host " + l->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
 				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_ETHERNET)
@@ -818,5 +818,5 @@ PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_DifferentInterfaces)
 	}
 	PTF_ASSERT_EQUAL(validCounter, 64, int);
 	rawPacketVec.clear();
-} // TestPcapFilters_matchPacketWithFilter_DifferentInterfaces
+} // TestPcapFilters_LinkLayer
 

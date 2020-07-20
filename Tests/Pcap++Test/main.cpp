@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapFiltersLive, "filters");
 	PTF_RUN_TEST(TestPcapFilters_General_BPFStr, "no_network;filters;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapFiltersOffline, "no_network;filters");
-	PTF_RUN_TEST(TestPcapFilters_matchPacketWithFilter_DifferentInterfaces, "no_network;filters;skip_mem_leak_check");
+	PTF_RUN_TEST(TestPcapFilters_LinkLayer, "no_network;filters;skip_mem_leak_check");
 
 	PTF_RUN_TEST(TestHttpRequestParsing, "no_network;http");
 	PTF_RUN_TEST(TestHttpResponseParsing, "no_network;http");
