@@ -12,7 +12,6 @@
 #include "../Common/TestUtils.h"
 #include "PlatformSpecificUtils.h"
 
-
 extern PcapTestArgs PcapTestGlobalArgs;
 
 
@@ -737,3 +736,87 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	}
 	rawPacketVec.clear();
 }
+
+PTF_TEST_CASE(TestPcapFilters_LinkLayer)
+{
+	// check if matchPacketWithFilter work properly for packets with different LinkLayerType
+
+// pcpp::LINKTYPE_DLT_RAW1 layer
+	pcpp::PcapFileReaderDevice fileReaderDev1(RAW_IP_PCAP_PATH);
+	PTF_ASSERT_TRUE(fileReaderDev1.open());
+	pcpp::RawPacketVector rawPacketVec;
+	fileReaderDev1.getNextPackets(rawPacketVec);
+	fileReaderDev1.close();
+
+	int validCounter = 0;
+	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		pcpp::Packet packet(*iter);
+		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
+		{
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+			{
+				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_DLT_RAW1)
+				{
+					++validCounter;
+				}
+			}
+		}
+	}
+	PTF_ASSERT_EQUAL(validCounter, 50, int);
+	rawPacketVec.clear();
+
+
+// pcpp::LINKTYPE_LINUX_SLL layer
+	pcpp::PcapFileReaderDevice fileReaderDev2(SLL_PCAP_PATH);
+	PTF_ASSERT_TRUE(fileReaderDev2.open());
+	fileReaderDev2.getNextPackets(rawPacketVec);
+	fileReaderDev2.close();
+
+	validCounter = 0;
+	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		pcpp::Packet packet(*iter);
+		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
+		{
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+			{
+				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_LINUX_SLL)
+				{
+					++validCounter;
+				}
+			}
+		}
+	}
+	PTF_ASSERT_EQUAL(validCounter, 510, int);
+	rawPacketVec.clear();
+
+
+// pcpp::LINKTYPE_ETHERNET layer
+	pcpp::PcapNgFileReaderDevice fileReaderDev3(EXAMPLE_PCAPNG_PATH);
+	PTF_ASSERT_TRUE(fileReaderDev3.open());
+	fileReaderDev3.getNextPackets(rawPacketVec);
+	fileReaderDev3.close();
+
+	validCounter = 0;
+	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+	{
+		pcpp::Packet packet(*iter);
+		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
+		{
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+			{
+				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_ETHERNET)
+				{
+					++validCounter;
+				}
+			}
+		}
+	}
+	PTF_ASSERT_EQUAL(validCounter, 64, int);
+	rawPacketVec.clear();
+} // TestPcapFilters_LinkLayer
+
