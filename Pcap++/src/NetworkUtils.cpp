@@ -188,7 +188,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	pthread_mutex_unlock(&mutex);
 
 	// check if timeout expired
-	if (res == ETIMEDOUT)
+	if (res == ETIMEDOUT || res == 110)
 	{
 		LOG_ERROR("ARP request time out");
 		return result;
@@ -455,7 +455,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	pthread_mutex_unlock(&mutex);
 
 	// check if timeout expired
-	if (res == ETIMEDOUT)
+	if (res == ETIMEDOUT || res == 110)
 	{
 		LOG_ERROR("DNS request time out");
 		return result;

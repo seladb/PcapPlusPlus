@@ -190,7 +190,7 @@ namespace pcpp
 #define LOG_ERROR(format, ...) do { \
 			if (!pcpp::LoggerPP::getInstance().isSupressErrors()) {\
 				if(pcpp::LoggerPP::getInstance().isErrorStringSet()) \
-					snprintf(pcpp::LoggerPP::getInstance().getErrorString(), pcpp::LoggerPP::getInstance().getErrorStringLength(), format "\n", ## __VA_ARGS__); \
+					snprintf(pcpp::LoggerPP::getInstance().getErrorString(), pcpp::LoggerPP::getInstance().getErrorStringLength(), format, ## __VA_ARGS__); \
 				else \
 					fprintf(stderr, format "\n", ## __VA_ARGS__); \
 			} \

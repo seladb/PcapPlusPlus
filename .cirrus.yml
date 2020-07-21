@@ -15,7 +15,8 @@ task:
   test_script:
     - cd Tests/Packet++Test && Bin/Packet++Test
     - cd ../Pcap++Test && sudo Bin/Pcap++Test -n
-    - cd ../ExamplesTest && python -m pytest -m no_network
+    - source ../../ci/find_ip_freebsd.sh
+    - cd ../ExamplesTest && python -m pytest --interface $NETWORK_IP
 
 task:
   name: Test Zstd Linux

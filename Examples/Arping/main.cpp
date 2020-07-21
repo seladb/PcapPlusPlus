@@ -213,13 +213,16 @@ int main(int argc, char* argv[])
 	LoggerPP::getInstance().setErrorString(errString, 1000);
 	while (i <= maxTries)
 	{
+		// reset error string
+		memset(errString, 0, 1000);
+
 		// use the getMacAddress utility to send an ARP request and resolve the MAC address
 		MacAddress result = NetworkUtils::getInstance().getMacAddress(targetIP, dev, arpResonseTimeMS, sourceMac, sourceIP, timeoutSec);
 
 		// failed fetching MAC address
 		if (result == MacAddress::Zero)
 		{
-			printf("Arping  index=%d : %s", i, errString);
+			printf("Arping  index=%d : %s\n", i, errString);
 		}
 		else // Succeeded fetching MAC address
 		{

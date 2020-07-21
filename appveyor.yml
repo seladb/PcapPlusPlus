@@ -82,4 +82,5 @@ test_script:
 - cd ..\Pcap++Test
 - Bin\Pcap++Test.exe -n
 - cd ..\ExamplesTest
-- "python -m pytest -m no_network"
+- ..\..\ci\find_ip.bat
+- "python -m pytest --interface %NetworkIP%"

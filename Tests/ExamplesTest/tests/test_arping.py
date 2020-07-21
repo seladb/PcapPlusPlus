@@ -8,27 +8,27 @@ class TestArping(ExampleTest):
 
 	@pytest.mark.interface_needed
 	@pytest.mark.gateway_ip_needed
-	def test_sanity(self, interface_ip_name, gateway_ip):
+	def test_sanity(self, interface_ip_name, gateway_ip, use_sudo):
 		args = {
 			'-i': interface_ip_name,
 			'-T': gateway_ip,
 			'-w': '1',
 			'-c': '3'
 		}
-		completed_process = self.run_example(args=args, requires_root=True)
+		completed_process = self.run_example(args=args, requires_root=use_sudo)
 		assert len(completed_process.stdout.splitlines()) == 3
 		for line in completed_process.stdout.splitlines():
 			assert 'Reply from ' + gateway_ip in line
 
 	@pytest.mark.interface_needed
-	def test_gateway_not_reachable(self, interface_ip_name):
+	def test_gateway_not_reachable(self, interface_ip_name, use_sudo):
 		args = {
 			'-i': interface_ip_name,
 			'-T': '8.8.8.8',
 			'-w': '1',
 			'-c': '3'
 		}
-		completed_process = self.run_example(args=args, requires_root=True)
+		completed_process = self.run_example(args=args, requires_root=use_sudo)
 		assert len(completed_process.stdout.splitlines()) == 3
 		for idx, line in enumerate(completed_process.stdout.splitlines()):
 			assert 'Arping  index={idx} : ARP request time out'.format(idx=idx+1) == line
