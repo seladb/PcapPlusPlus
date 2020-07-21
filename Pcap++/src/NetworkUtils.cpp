@@ -1,6 +1,7 @@
 #define LOG_MODULE NetworkUtils
 
 #include <stdlib.h>
+#include <errno.h>
 #include <pthread.h>
 #include "Logger.h"
 #include "Packet.h"
@@ -188,7 +189,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	pthread_mutex_unlock(&mutex);
 
 	// check if timeout expired
-	if (res == ETIMEDOUT || res == 110)
+	if (res == ETIMEDOUT)
 	{
 		LOG_ERROR("ARP request time out");
 		return result;
@@ -455,7 +456,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	pthread_mutex_unlock(&mutex);
 
 	// check if timeout expired
-	if (res == ETIMEDOUT || res == 110)
+	if (res == ETIMEDOUT)
 	{
 		LOG_ERROR("DNS request time out");
 		return result;
