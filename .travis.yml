@@ -81,7 +81,7 @@ matrix:
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
        docker pull seladb/$DOCKER_IMAGE:latest;
-       docker run -itd --name $DOCKER_IMAGE --net=host --env SKIP_DNS_TESTS=1 -v $(pwd):/PcapPlusPlus seladb/$DOCKER_IMAGE;
+       docker run -itd --name $DOCKER_IMAGE --net=host -v $(pwd):/PcapPlusPlus seladb/$DOCKER_IMAGE;
     fi
 
 before_script:
