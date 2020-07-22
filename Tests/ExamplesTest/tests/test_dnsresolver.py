@@ -1,11 +1,12 @@
-import os
+import subprocess
 import pytest
 from test_utils import ExampleTest
 
 @pytest.mark.dnsresolver
 class TestDNSResolver(ExampleTest):
 
-	@pytest.mark.skipif(os.environ.get("SKIP_DNS_TESTS") != None, reason="Skipping tests that require DNS")
+	# @pytest.mark.skipif(os.environ.get("SKIP_DNS_TESTS") != None, reason="Skipping tests that require DNS")
+	@pytest.mark.xfail(raises=subprocess.TimeoutExpired)
 	def test_sanity(self, use_sudo):
 		args = {
 			'-s': 'www.google.com',
@@ -28,8 +29,9 @@ class TestDNSResolver(ExampleTest):
 		completed_process = self.run_example(args=args, requires_root=use_sudo)
 		assert 'Could not resolve hostname' in completed_process.stdout
 
-	@pytest.mark.skipif(os.environ.get("SKIP_DNS_TESTS") != None, reason="Skipping tests that require DNS")
+	# @pytest.mark.skipif(os.environ.get("SKIP_DNS_TESTS") != None, reason="Skipping tests that require DNS")
 	@pytest.mark.interface_needed
+	@pytest.mark.xfail(raises=subprocess.TimeoutExpired)
 	def test_use_specific_interface(self, interface_ip_name, use_sudo):
 		assert interface_ip_name is not None
 		args = {

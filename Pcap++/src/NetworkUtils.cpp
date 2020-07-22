@@ -1,7 +1,6 @@
 #define LOG_MODULE NetworkUtils
 
 #include <stdlib.h>
-#include <errno.h>
 #include <pthread.h>
 #include "Logger.h"
 #include "Packet.h"
@@ -16,6 +15,7 @@
 #ifdef _MSC_VER
 #include "SystemUtils.h"
 #endif
+#include <errno.h>
 #ifndef ETIMEDOUT
 #define ETIMEDOUT  10060
 #endif
