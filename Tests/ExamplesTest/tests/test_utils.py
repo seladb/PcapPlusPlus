@@ -14,9 +14,10 @@ def run_example(example_name, args, timeout=10, expected_return_code=0, requires
 		if val:
 			command_to_run.append(val)
 	print('command_to_run', command_to_run)
-	last_completed_process = subprocess.run(command_to_run, capture_output=True, text=True, timeout=timeout)
-	assert last_completed_process.returncode == expected_return_code
-	return last_completed_process
+	completed_process = subprocess.run(command_to_run, capture_output=True, text=True, timeout=timeout)
+	print('stdout', completed_process.stdout)
+	assert completed_process.returncode == expected_return_code
+	return completed_process
 
 def text_file_contains(file_path, expected_content):
 	if not os.path.exists(file_path):
