@@ -162,7 +162,7 @@ class IgmpLayer : public Layer
 {
 protected:
 
-	IgmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType igmpVer) : Layer(data, dataLen, NULL, packet) { m_Protocol = igmpVer; }
+	IgmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType igmpVer) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = igmpVer; }
 
 	IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer);
 
