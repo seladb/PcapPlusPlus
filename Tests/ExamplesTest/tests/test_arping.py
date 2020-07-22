@@ -20,6 +20,7 @@ class TestArping(ExampleTest):
 		for line in completed_process.stdout.splitlines():
 			assert 'Reply from ' + gateway_ip in line
 
+	@pytest.mark.xfail
 	@pytest.mark.interface_needed
 	def test_gateway_not_reachable(self, interface_ip_name, use_sudo):
 		args = {
