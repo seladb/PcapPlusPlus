@@ -7,7 +7,8 @@ environment:
     secure: 8sWBrDudyutFv+4Eq6teJA==
   PYTHON: "C:\\Python38-x64"
   matrix:
-    - compiler: mingw32
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      compiler: mingw32
       pcap_lib: npcap
     - compiler: mingw-w64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
