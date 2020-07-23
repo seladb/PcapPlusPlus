@@ -61,6 +61,7 @@ install:
 - if "%use_zstd%"=="true" ci\install_zstd.bat %platform%
 - "python -m pip install --upgrade pip"
 - "python -m pip install -r C:\\projects\\PcapPlusPlus\\Tests\\ExamplesTest\\requirements.txt"
+- if "%compiler%"=="mingw32" python ci\patch_mingw.py
 
 before_build:
 - if "%pcap_lib%"=="npcap" (set PCAP_SDK_DIR=C:\Npcap-sdk) else (set PCAP_SDK_DIR=C:\WpdPack)
