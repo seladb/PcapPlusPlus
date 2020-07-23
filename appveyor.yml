@@ -9,8 +9,8 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       compiler: mingw32
-      pcap_lib: npcap
     - compiler: mingw-w64
+      pcap_lib: npcap
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       compiler: vs2017
       platform: x86
