@@ -1,0 +1,14 @@
+Summary:
+========
+Total packets read:                      3000
+IPv4 packets read:                       2996
+IPv6 packets read:                       0
+IPv4 packets match fragment ID list:     21
+IPv6 packets match fragment ID list:     0
+Total fragments matched:                 21
+IPv4 fragments matched:                  21
+IPv6 fragments matched:                  0
+Total packets reassembled:               2
+IPv4 packets reassembled:                2
+IPv6 packets reassembled:                0
+Total packets written to output file:    2

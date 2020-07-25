@@ -83,13 +83,13 @@ void printUsage()
 			"\nOptions:\n\n"
 			"    -d directory        : Input directory\n"
 			"    -n                  : Don't include sub-directories (default is include them)\n"
-			"    -s search_criteria  : Criteria to search in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'\n"
+			"    -s search_criteria  : Criteria to search in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)\n"
+			"                          i.e: 'ip net 1.1.1.1'\n"
 			"    -r file_name        : Write a detailed search report to a file\n"
 			"    -e extension_list   : Set file extensions to search. The default is searching '.pcap' and '.pcapng' files.\n"
-			"                          extnesions_list should be a comma-separated list of extensions, for example: pcap,net,dmp\n"
+			"                          extension_list should be a comma-separated list of extensions, for example: pcap,net,dmp\n"
 			"    -v                  : Displays the current version and exists\n"
 			"    -h                  : Displays this help message and exits\n", AppName::get().c_str());
-	exit(0);
 }
 
 
@@ -356,7 +356,7 @@ int main(int argc, char* argv[])
 			}
 			case 'h':
 				printUsage();
-				break;
+				exit(0);
 			case 'v':
 				printAppVersion();
 				break;

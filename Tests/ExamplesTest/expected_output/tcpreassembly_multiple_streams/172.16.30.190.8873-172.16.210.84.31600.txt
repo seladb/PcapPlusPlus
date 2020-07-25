@@ -1,0 +1,4496 @@
+GET /MONITOR/ims/common/bootstrap/jquery.mCustomScrollbar.css HTTP/1.1
+Host: 172.16.210.84:31600
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://172.16.210.84:31600/MONITOR/ims/app/monitor/state_monitor/jsp/state_monitor.jsp
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+Cookie: JSESSIONID=ST-150-cegxGboobdGRs0hbIW71-sgcc.isc.com
+
+HTTP/1.1 200 
+X-Application-Context: front-gateway:8001
+P3P: CP=CAO PSA OUR
+Accept-Ranges: bytes
+ETag: W/"53649-1568253542000"
+Last-Modified: Thu, 12 Sep 2019 01:59:02 GMT
+Date: Tue, 12 Nov 2019 08:37:06 GMT
+Content-Type: text/css
+Transfer-Encoding: chunked
+
+2000
+/*
+== malihu jquery custom scrollbar plugin ==
+Plugin URI: http://manos.malihu.gr/jquery-custom-content-scroller
+*/
+
+
+
+/*
+CONTENTS: 
+	1. BASIC STYLE - Plugin's basic/essential CSS properties (normally, should not be edited). 
+	2. VERTICAL SCROLLBAR - Positioning and dimensions of vertical scrollbar. 
+	3. HORIZONTAL SCROLLBAR - Positioning and dimensions of horizontal scrollbar.
+	4. VERTICAL AND HORIZONTAL SCROLLBARS - Positioning and dimensions of 2-axis scrollbars. 
+	5. TRANSITIONS - CSS3 transitions for hover events, auto-expanded and auto-hidden scrollbars. 
+	6. SCROLLBAR COLORS, OPACITY AND BACKGROUNDS 
+		6.1 THEMES - Scrollbar colors, opacity, dimensions, backgrounds etc. via ready-to-use themes.
+*/
+
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------------
+1. BASIC STYLE  
+------------------------------------------------------------------------------------------------------------------------
+*/
+
+	.mCustomScrollbar{ -ms-touch-action: none; touch-action: none; /* MSPointer events - direct all pointer events to js */ }
+	.mCustomScrollbar.mCS_no_scrollbar{ -ms-touch-action: auto; touch-action: auto; }
+	
+	.mCustomScrollBox{ /* contains plugin's markup */
+		position: relative;
+		overflow: hidden;
+		height: 100%;
+		max-width: 100%;
+		outline: none;
+		direction: ltr;
+	}
+
+	.mCSB_container{ /* contains the original content */
+		overflow: hidden;
+		width: auto;
+		height: auto;
+	}
+
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------------
+2. VERTICAL SCROLLBAR 
+y-axis
+------------------------------------------------------------------------------------------------------------------------
+*/
+
+	.mCSB_inside > .mCSB_container{ margin-right: 30px; }
+
+	.mCSB_container.mCS_no_scrollbar_y.mCS_y_hidden{ margin-right: 0; } /* non-visible scrollbar */
+	
+	.mCS-dir-rtl > .mCSB_inside > .mCSB_container{ /* RTL direction/left-side scrollbar */
+		margin-right: 0;
+		margin-left: 30px;
+	}
+	
+	.mCS-dir-rtl > .mCSB_inside > .mCSB_container.mCS_no_scrollbar_y.mCS_y_hidden{ margin-left: 0; } /* RTL direction/left-side scrollbar */
+
+	.mCSB_scrollTools{ /* contains scrollbar markup (draggable element, dragger rail, buttons etc.) */
+		position: absolute;
+		width: 16px;
+		height: auto;
+		left: auto;
+		top: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	.mCSB_outside + .mCSB_scrollTools{ right: -26px; } /* scrollbar position: outside */
+	
+	.mCS-dir-rtl > .mCSB_inside > .mCSB_scrollTools, 
+	.mCS-dir-rtl > .mCSB_outside + .mCSB_scrollTools{ /* RTL direction/left-side scrollbar */
+		right: auto;
+		left: 0;
+	}
+	
+	.mCS-dir-rtl > .mCSB_outside + .mCSB_scrollTools{ left: -26px; } /* RTL direction/left-side scrollbar (scrollbar position: outside) */
+
+	.mCSB_scrollTools .mCSB_draggerContainer{ /* contains the draggable element and dragger rail markup */
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0; 
+		height: auto;
+	}
+
+	.mCSB_scrollTools a + .mCSB_draggerContainer{ margin: 20px 0; }
+
+	.mCSB_scrollTools .mCSB_draggerRail{
+		width: 2px;
+		height: 100%;
+		margin: 0 auto;
+		-webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
+	}
+
+	.mCSB_scrollTools .mCSB_dragger{ /* the draggable element */
+		cursor: pointer;
+		width: 100%;
+		height: 30px; /* minimum dragger height */
+		z-index: 1;
+	}
+
+	.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ /* the dragger element */
+		position: relative;
+		width: 4px;
+		height: 100%;
+		margin: 0 auto;
+		-webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px;
+		text-align: center;
+	}
+	
+	.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar, 
+	.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar{ width: 12px; /* auto-expanded scrollbar */ }
+	
+	.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail{ width: 8px; /* auto-expanded scrollbar */ }
+
+	.mCSB_scrollTools .mCSB_buttonUp,
+	.mCSB_scrollTools .mCSB_buttonDown{
+		display: block;
+		position: absolute;
+		height: 20px;
+		width: 100%;
+		overflow: hidden;
+		margin: 0 auto;
+		cursor: pointer;
+	}
+
+	.mCSB_scrollTools .mCSB_buttonDown{ bottom: 0; }
+
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------------
+3. HORIZONTAL SCROLLBAR 
+x-axis
+------------------------------------------------------------------------------------------------------------------------
+*/
+
+	.mCSB_horizontal.mCSB_inside > .mCSB_container{
+		margin-right: 0;
+		margin-bottom: 30px;
+	}
+	
+	.mCSB_horizontal.mCSB_outside > .mCSB_container{ min-height: 100%; }
+
+	.mCSB_horizontal > .mCSB_container.mCS_no_scrollbar_x.mCS_x_hidden{ margin-bottom: 0; } /* non-visible scrollbar */
+
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal{
+		width: auto;
+		height: 16px;
+		top: auto;
+		right: 0;
+		bottom: 0;
+		left: 0;
+	}
+
+	.mCustomScrollBox + .mCSB_scrollTools.mCSB_scrollTools_horizontal,
+	.mCustomScrollBox + .mCSB_scrollTools + .mCSB_scrollTools.mCSB_scrollTools_horizontal{ bottom: -26px; } /* scrollbar position: outside */
+
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal a + .mCSB_draggerContainer{ margin: 0 20px; }
+
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_draggerRail{
+		width: 100%;
+		height: 2px;
+		margin: 7px 0;
+	}
+
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_dragger{
+		width: 30px; /* minimum dragger width */
+		height: 100%;
+		left: 0;
+	}
+
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		width: 100%;
+		height: 4px;
+		margin: 6px auto;
+	}
+	
+	.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar, 
+	.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar{
+		height: 12px; /* auto-expanded scrollbar */
+		margin: 2px auto;
+	}
+	
+	.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail{
+		height: 8px; /* auto-expanded scrollbar */
+		margin: 4px 0;
+	}
+
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_buttonLeft,
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_buttonRight{
+		display: block;
+		position: absolute;
+		width: 20px;
+		height: 100%;
+		overflow: hidden;
+		margin: 0 auto;
+		cursor: pointer;
+	}
+	
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_buttonLeft{ left: 0; }
+
+	.mCSB_scrollTools.mCSB_scrollTools_horizontal .mCSB_buttonRight{ right: 0; }
+
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------------
+4. VERTICAL AND HORIZONTAL SCROLLBARS 
+yx-axis 
+------------------------------------------------------------------------------------------------------------------------
+*/
+
+	.mCSB_container_wrapper{
+		position: absolute;
+		height: auto;
+		width: auto;
+		overflow: hidden;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		margin-right: 30px;
+		margin-bottom: 30px;
+	}
+	
+	.mCSB_container_wrapper > .mCSB_container{
+		padding-right: 30px;
+		padding-bottom: 30px;
+	}
+	
+	.mCSB_vertical_horizontal > .mCSB_scrollTools.mCSB_scrollTools_vertical{ bottom: 20px; }
+	
+	.mCSB_vertical_horizontal > .mCSB_scrollTools.mCSB_scrollTools_horizontal{ right: 20px; }
+	
+	/* non-visible horizontal scrollbar */
+	.mCSB_container_wrapper.mCS_no_scrollbar_x.mCS_x_hidden + .mCSB_scrollTools.mCSB_scrollTools_vertical{ bottom: 0; }
+	
+	/* non-visible vertical scrollbar/RTL direction/left-side scrollbar */
+	.mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden + .mCSB_scrollTools ~ .mCSB_scrollTools.mCSB_scrollTools_horizontal, 
+	.mCS-dir-rtl > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_scrollTools.mCSB_scrollTools_horizontal{ right: 0; }
+	
+	/* RTL direction/left-side scrollbar */
+	.mCS-dir-rt
+2000
+l > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_scrollTools.mCSB_scrollTools_horizontal{ left: 20px; }
+	
+	/* non-visible scrollbar/RTL direction/left-side scrollbar */
+	.mCS-dir-rtl > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden + .mCSB_scrollTools ~ .mCSB_scrollTools.mCSB_scrollTools_horizontal{ left: 0; }
+	
+	.mCS-dir-rtl > .mCSB_inside > .mCSB_container_wrapper{ /* RTL direction/left-side scrollbar */
+		margin-right: 0;
+		margin-left: 30px;
+	}
+	
+	.mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden > .mCSB_container{ 
+		padding-right: 0; 
+		-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+	}
+	
+	.mCSB_container_wrapper.mCS_no_scrollbar_x.mCS_x_hidden > .mCSB_container{ 
+		padding-bottom: 0; 
+		-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+	}
+	
+	.mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden{
+		margin-right: 0; /* non-visible scrollbar */
+		margin-left: 0;
+	}
+	
+	/* non-visible horizontal scrollbar */
+	.mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_container_wrapper.mCS_no_scrollbar_x.mCS_x_hidden{ margin-bottom: 0; }
+
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------------
+5. TRANSITIONS  
+------------------------------------------------------------------------------------------------------------------------
+*/
+
+	.mCSB_scrollTools, 
+	.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCSB_scrollTools .mCSB_buttonUp,
+	.mCSB_scrollTools .mCSB_buttonDown,
+	.mCSB_scrollTools .mCSB_buttonLeft,
+	.mCSB_scrollTools .mCSB_buttonRight{
+		-webkit-transition: opacity .2s ease-in-out, background-color .2s ease-in-out;
+		-moz-transition: opacity .2s ease-in-out, background-color .2s ease-in-out;
+		-o-transition: opacity .2s ease-in-out, background-color .2s ease-in-out;
+		transition: opacity .2s ease-in-out, background-color .2s ease-in-out;
+	}
+	
+	.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger_bar, /* auto-expanded scrollbar */
+	.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerRail, 
+	.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger_bar, 
+	.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerRail{
+		-webkit-transition: width .2s ease-out .2s, height .2s ease-out .2s, 
+					margin-left .2s ease-out .2s, margin-right .2s ease-out .2s, 
+					margin-top .2s ease-out .2s, margin-bottom .2s ease-out .2s,
+					opacity .2s ease-in-out, background-color .2s ease-in-out; 
+		-moz-transition: width .2s ease-out .2s, height .2s ease-out .2s, 
+					margin-left .2s ease-out .2s, margin-right .2s ease-out .2s, 
+					margin-top .2s ease-out .2s, margin-bottom .2s ease-out .2s,
+					opacity .2s ease-in-out, background-color .2s ease-in-out; 
+		-o-transition: width .2s ease-out .2s, height .2s ease-out .2s, 
+					margin-left .2s ease-out .2s, margin-right .2s ease-out .2s, 
+					margin-top .2s ease-out .2s, margin-bottom .2s ease-out .2s,
+					opacity .2s ease-in-out, background-color .2s ease-in-out; 
+		transition: width .2s ease-out .2s, height .2s ease-out .2s, 
+					margin-left .2s ease-out .2s, margin-right .2s ease-out .2s, 
+					margin-top .2s ease-out .2s, margin-bottom .2s ease-out .2s,
+					opacity .2s ease-in-out, background-color .2s ease-in-out; 
+	}
+
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------------
+6. SCROLLBAR COLORS, OPACITY AND BACKGROUNDS  
+------------------------------------------------------------------------------------------------------------------------
+*/
+
+	/* 
+	----------------------------------------
+	6.1 THEMES 
+	----------------------------------------
+	*/
+	
+	/* default theme ("light") */
+
+	.mCSB_scrollTools{ opacity: 0.75; filter: "alpha(opacity=75)"; -ms-filter: "alpha(opacity=75)"; }
+	
+	.mCS-autoHide > .mCustomScrollBox > .mCSB_scrollTools,
+	.mCS-autoHide > .mCustomScrollBox ~ .mCSB_scrollTools{ opacity: 0; filter: "alpha(opacity=0)"; -ms-filter: "alpha(opacity=0)"; }
+	
+	.mCustomScrollbar > .mCustomScrollBox > .mCSB_scrollTools.mCSB_scrollTools_onDrag,
+	.mCustomScrollbar > .mCustomScrollBox ~ .mCSB_scrollTools.mCSB_scrollTools_onDrag,
+	.mCustomScrollBox:hover > .mCSB_scrollTools,
+	.mCustomScrollBox:hover ~ .mCSB_scrollTools,
+	.mCS-autoHide:hover > .mCustomScrollBox > .mCSB_scrollTools,
+	.mCS-autoHide:hover > .mCustomScrollBox ~ .mCSB_scrollTools{ opacity: 1; filter: "alpha(opacity=100)"; -ms-filter: "alpha(opacity=100)"; }
+
+	.mCSB_scrollTools .mCSB_draggerRail{
+		background-color: #000; background-color: rgba(0,0,0,0.4);
+		filter: "alpha(opacity=40)"; -ms-filter: "alpha(opacity=40)"; 
+	}
+
+	.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		background-color: #fff; background-color: rgba(255,255,255,0.75);
+		filter: "alpha(opacity=75)"; -ms-filter: "alpha(opacity=75)"; 
+	}
+
+	.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{
+		background-color: #fff; background-color: rgba(255,255,255,0.85);
+		filter: "alpha(opacity=85)"; -ms-filter: "alpha(opacity=85)"; 
+	}
+	.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{
+		background-color: #fff; background-color: rgba(255,255,255,0.9);
+		filter: "alpha(opacity=90)"; -ms-filter: "alpha(opacity=90)"; 
+	}
+
+	.mCSB_scrollTools .mCSB_buttonUp,
+	.mCSB_scrollTools .mCSB_buttonDown,
+	.mCSB_scrollTools .mCSB_buttonLeft,
+	.mCSB_scrollTools .mCSB_buttonRight{
+		background-image: url(mCSB_buttons.png); /* css sprites */
+		background-repeat: no-repeat;
+		opacity: 0.4; filter: "alpha(opacity=40)"; -ms-filter: "alpha(opacity=40)"; 
+	}
+
+	.mCSB_scrollTools .mCSB_buttonUp{
+		background-position: 0 0;
+		/* 
+		sprites locations 
+		light: 0 0, -16px 0, -32px 0, -48px 0, 0 -72px, -16px -72px, -32px -72px
+		dark: -80px 0, -96px 0, -112px 0, -128px 0, -80px -72px, -96px -72px, -112px -72px
+		*/
+	}
+
+	.mCSB_scrollTools .mCSB_buttonDown{
+		background-position: 0 -20px;
+		/* 
+		sprites locations
+		light: 0 -20px, -16px -20px, -32px -20px, -48px -20px, 0 -92px, -16px -92px, -32px -92px
+		dark: -80px -20px, -96px -20px, -112px -20px, -128px -20px, -80px -92px, -96px -92px, -112 -92px
+		*/
+	}
+
+	.mCSB_scrollTools .mCSB_buttonLeft{
+		background-position: 0 -40px;
+		/* 
+		sprites locations 
+		light: 0 -40px, -20px -40px, -40px -40px, -60px -40px, 0 -112px, -20px -112px, -40px -112px
+		dark: -80px -40px, -100px -40px, -120px -40px, -140px -40px, -80px -112px, -100px -112px, -120px -112px
+		*/
+	}
+
+	.mCSB_scrollTools .mCSB_buttonRight{
+		background-position: 0 -56px;
+		/* 
+		sprites locations 
+		light: 0 -56px, -20px -56px, -40px -56px, -60px -56px, 0 -128px, -20px -128px, -40px -128px
+		dark: -80px -56px, -100px -56px, -120px -56px, -140px -56px, -80px -128px, -100px -128px, -120px -128px
+		*/
+	}
+
+	.mCSB_scrollTools .mCSB_buttonUp:hover,
+	.mCSB_scrollTools .mCSB_buttonDown:hover,
+	.mCSB_scrollTools .mCSB_buttonLeft:hover,
+	.mCSB_scrollTools .mCSB_buttonRight:hover{ opacity: 0.75; filter: "alpha(opacity=75)"; -ms-filter: "alpha(opacity=75)"; }
+
+	.mCSB_scrollTools .mCSB_buttonUp:active,
+	.mCSB_scrollTools .mCSB_buttonDown:active,
+	.mCSB_scrollTools .mCSB_buttonLeft:active,
+	.mCSB_scrollTools .mCSB_buttonRight:active{ opacity: 0.9; filter: "alpha(opacity=90)"; -ms-filter: "alpha(opacity=90)"; }
+	
+
+	/* theme: "dark" */
+
+	.mCS-dark.mCSB_scrollTools .mCSB_draggerRail{ background-color: #eff5f9; background-color: #eff5f9; }
+
+	.mCS-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.75); }
+
+	.mCS-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: rgba(0,0,0,0.85); }
+
+	.mCS-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: rgba(0,0,0,0.9); }
+
+	.mCS-dark.mCSB_scrollTools .mCSB_buttonUp{ background-position: -80px 0; }
+
+	.mCS-dark.mCSB_scrollTools .mCSB_buttonDown{ background-position: -8
+2000
+0px -20px; }
+
+	.mCS-dark.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -80px -40px; }
+
+	.mCS-dark.mCSB_scrollTools .mCSB_buttonRight{ background-position: -80px -56px; }
+	
+	/* ---------------------------------------- */
+	
+
+
+	/* theme: "light-2", "dark-2" */
+
+	.mCS-light-2.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-dark-2.mCSB_scrollTools .mCSB_draggerRail{
+		width: 4px;
+		background-color: #fff; background-color: rgba(255,255,255,0.1);
+		-webkit-border-radius: 1px; -moz-border-radius: 1px; border-radius: 1px;
+	}
+
+	.mCS-light-2.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-dark-2.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		width: 4px;
+		background-color: #fff; background-color: rgba(255,255,255,0.75);
+		-webkit-border-radius: 1px; -moz-border-radius: 1px; border-radius: 1px;
+	}
+
+	.mCS-light-2.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-dark-2.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-light-2.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-dark-2.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		width: 100%;
+		height: 4px;
+		margin: 6px auto;
+	}
+
+	.mCS-light-2.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #fff; background-color: rgba(255,255,255,0.85); }
+
+	.mCS-light-2.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-light-2.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #fff; background-color: rgba(255,255,255,0.9); }
+
+	.mCS-light-2.mCSB_scrollTools .mCSB_buttonUp{ background-position: -32px 0; }
+
+	.mCS-light-2.mCSB_scrollTools .mCSB_buttonDown{	background-position: -32px -20px; }
+
+	.mCS-light-2.mCSB_scrollTools .mCSB_buttonLeft{	background-position: -40px -40px; }
+
+	.mCS-light-2.mCSB_scrollTools .mCSB_buttonRight{ background-position: -40px -56px; }
+	
+	
+	/* theme: "dark-2" */
+
+	.mCS-dark-2.mCSB_scrollTools .mCSB_draggerRail{
+		background-color: #000; background-color: rgba(0,0,0,0.1);
+		-webkit-border-radius: 1px; -moz-border-radius: 1px; border-radius: 1px;
+	}
+
+	.mCS-dark-2.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		background-color: #000; background-color: rgba(0,0,0,0.75);
+		-webkit-border-radius: 1px; -moz-border-radius: 1px; border-radius: 1px;
+	}
+
+	.mCS-dark-2.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.85); }
+
+	.mCS-dark-2.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-dark-2.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.9); }
+
+	.mCS-dark-2.mCSB_scrollTools .mCSB_buttonUp{ background-position: -112px 0; }
+
+	.mCS-dark-2.mCSB_scrollTools .mCSB_buttonDown{ background-position: -112px -20px; }
+
+	.mCS-dark-2.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -120px -40px; }
+
+	.mCS-dark-2.mCSB_scrollTools .mCSB_buttonRight{	background-position: -120px -56px; }
+	
+	/* ---------------------------------------- */
+	
+
+
+	/* theme: "light-thick", "dark-thick" */
+
+	.mCS-light-thick.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_draggerRail{
+		width: 4px;
+		background-color: #fff; background-color: rgba(255,255,255,0.1);
+		-webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px;
+	}
+
+	.mCS-light-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		width: 6px;
+		background-color: #fff; background-color: rgba(255,255,255,0.75);
+		-webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px;
+	}
+
+	.mCS-light-thick.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-dark-thick.mCSB_scrollTools_horizontal .mCSB_draggerRail{
+		width: 100%;
+		height: 4px;
+		margin: 6px 0;
+	}
+
+	.mCS-light-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-dark-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		width: 100%;
+		height: 6px;
+		margin: 5px auto;
+	}
+
+	.mCS-light-thick.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #fff; background-color: rgba(255,255,255,0.85); }
+
+	.mCS-light-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-light-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #fff; background-color: rgba(255,255,255,0.9); }
+
+	.mCS-light-thick.mCSB_scrollTools .mCSB_buttonUp{ background-position: -16px 0; }
+
+	.mCS-light-thick.mCSB_scrollTools .mCSB_buttonDown{	background-position: -16px -20px; }
+
+	.mCS-light-thick.mCSB_scrollTools .mCSB_buttonLeft{	background-position: -20px -40px; }
+
+	.mCS-light-thick.mCSB_scrollTools .mCSB_buttonRight{ background-position: -20px -56px; }
+
+
+	/* theme: "dark-thick" */
+	
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_draggerRail{
+		background-color: #000; background-color: rgba(0,0,0,0.1);
+		-webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px;
+	}
+
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		background-color: #000; background-color: rgba(0,0,0,0.75);
+		-webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px;
+	}
+
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.85); }
+
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.9); }
+
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_buttonUp{ background-position: -96px 0; }
+
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_buttonDown{ background-position: -96px -20px; }
+
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -100px -40px; }
+
+	.mCS-dark-thick.mCSB_scrollTools .mCSB_buttonRight{	background-position: -100px -56px; }
+	
+	/* ---------------------------------------- */
+	
+
+
+	/* theme: "light-thin", "dark-thin" */
+	
+	.mCS-light-thin.mCSB_scrollTools .mCSB_draggerRail{ background-color: #fff; background-color: rgba(255,255,255,0.1); }
+
+	.mCS-light-thin.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ width: 2px; }
+
+	.mCS-light-thin.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-dark-thin.mCSB_scrollTools_horizontal .mCSB_draggerRail{ width: 100%; }
+
+	.mCS-light-thin.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-dark-thin.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		width: 100%;
+		height: 2px;
+		margin: 7px auto;
+	}
+
+
+	/* theme "dark-thin" */
+	
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_draggerRail{ background-color: #000; background-color: rgba(0,0,0,0.15); }
+
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.75); }
+	
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.85); }
+	
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.9); }
+	
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_buttonUp{	background-position: -80px 0; }
+
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_buttonDown{ background-position: -80px -20px; }
+
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -80px -40px; }
+
+	.mCS-dark-thin.mCSB_scrollTools .mCSB_buttonRight{ background-position: -80px -56px; }
+	
+	/* ---------------------------------------- */
+	
+	
+	
+	/* theme "rounded", "rounded-dark", "rounded-dots", "rounded-dots-dark" */
+	
+	.mCS-rounded.mCSB_scrollTools .mCSB_draggerRail{ background-color: #fff; background-color: rgba(255,255,255,0.15); }
+	
+	.mCS-rounded.mCSB_scrollTools .mCSB_dragger, 
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger, 
+	.mCS-rounded-dots.mCSB_scrollTools .mCSB_dragger, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger{ height: 14px; }
+	
+	.mCS-rounded.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mC
+2000
+S-rounded-dots.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		width: 14px;
+		margin: 0 1px;
+	}
+	
+	.mCS-rounded.mCSB_scrollTools_horizontal .mCSB_dragger, 
+	.mCS-rounded-dark.mCSB_scrollTools_horizontal .mCSB_dragger, 
+	.mCS-rounded-dots.mCSB_scrollTools_horizontal .mCSB_dragger, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools_horizontal .mCSB_dragger{ width: 14px; }
+	
+	.mCS-rounded.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-rounded-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-rounded-dots.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		height: 14px;
+		margin: 1px 0;
+	}
+	
+	.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar, 
+	.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar, 
+	.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar{
+		width: 16px; /* auto-expanded scrollbar */
+		height: 16px;
+		margin: -1px 0;
+	}
+	
+	.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail, 
+	.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail{ width: 4px; /* auto-expanded scrollbar */ }
+	
+	.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar, 
+	.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar, 
+	.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar{
+		height: 16px; /* auto-expanded scrollbar */
+		width: 16px;
+		margin: 0 -1px;
+	}
+	
+	.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail, 
+	.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail{
+		height: 4px; /* auto-expanded scrollbar */
+		margin: 6px 0;
+	}
+	
+	.mCS-rounded.mCSB_scrollTools .mCSB_buttonUp{ background-position: 0 -72px; }
+	
+	.mCS-rounded.mCSB_scrollTools .mCSB_buttonDown{ background-position: 0 -92px; }
+	
+	.mCS-rounded.mCSB_scrollTools .mCSB_buttonLeft{ background-position: 0 -112px; }
+	
+	.mCS-rounded.mCSB_scrollTools .mCSB_buttonRight{ background-position: 0 -128px; }
+	
+	
+	/* theme "rounded-dark", "rounded-dots-dark" */
+	
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.75); }
+	
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_draggerRail{ background-color: #000; background-color: rgba(0,0,0,0.15); }
+	
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.85); }
+	
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.9); }
+	
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_buttonUp{ background-position: -80px -72px; }
+	
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_buttonDown{ background-position: -80px -92px; }
+	
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -80px -112px; }
+	
+	.mCS-rounded-dark.mCSB_scrollTools .mCSB_buttonRight{ background-position: -80px -128px; }
+	
+	
+	/* theme "rounded-dots", "rounded-dots-dark" */
+	
+	.mCS-rounded-dots.mCSB_scrollTools_vertical .mCSB_draggerRail, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools_vertical .mCSB_draggerRail{ width: 4px; }
+	
+	.mCS-rounded-dots.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-rounded-dots.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools_horizontal .mCSB_draggerRail{
+		background-color: transparent;
+		background-position: center;
+	}
+	
+	.mCS-rounded-dots.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_draggerRail{
+		background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAANElEQVQYV2NkIAAYiVbw//9/Y6DiM1ANJoyMjGdBbLgJQAX/kU0DKgDLkaQAvxW4HEvQFwCRcxIJK1XznAAAAABJRU5ErkJggg==");
+		background-repeat: repeat-y;
+		opacity: 0.3;
+		filter: "alpha(opacity=30)"; -ms-filter: "alpha(opacity=30)"; 
+	}
+	
+	.mCS-rounded-dots.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-rounded-dots-dark.mCSB_scrollTools_horizontal .mCSB_draggerRail{
+		height: 4px;
+		margin: 6px 0;
+		background-repeat: repeat-x;
+	}
+	
+	.mCS-rounded-dots.mCSB_scrollTools .mCSB_buttonUp{ background-position: -16px -72px; }
+	
+	.mCS-rounded-dots.mCSB_scrollTools .mCSB_buttonDown{ background-position: -16px -92px; }
+	
+	.mCS-rounded-dots.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -20px -112px; }
+	
+	.mCS-rounded-dots.mCSB_scrollTools .mCSB_buttonRight{ background-position: -20px -128px; }
+	
+	
+	/* theme "rounded-dots-dark" */
+	
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_draggerRail{
+		background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAALElEQVQYV2NkIAAYSVFgDFR8BqrBBEifBbGRTfiPZhpYjiQFBK3A6l6CvgAAE9kGCd1mvgEAAAAASUVORK5CYII=");
+	}
+	
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_buttonUp{ background-position: -96px -72px; }
+	
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_buttonDown{ background-position: -96px -92px; }
+	
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -100px -112px; }
+	
+	.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_buttonRight{ background-position: -100px -128px; }
+	
+	/* ---------------------------------------- */
+	
+	
+	
+	/* theme "3d", "3d-dark", "3d-thick", "3d-thick-dark" */
+	
+	.mCS-3d.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		background-repeat: repeat-y;
+		background-image: -moz-linear-gradient(left, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+		background-image: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(255,255,255,0.5)), color-stop(100%,rgba(255,255,255,0)));
+		background-image: -webkit-linear-gradient(left, rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 100%);
+		background-image: -o-linear-gradient(left, rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 100%);
+		background-image: -ms-linear-gradient(left, rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 100%);
+		background-image: linear-gradient(to right, rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 
+2000
+100%);
+	}
+	
+	.mCS-3d.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-thick-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		background-repeat: repeat-x;
+		background-image: -moz-linear-gradient(top, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0.5)), color-stop(100%,rgba(255,255,255,0)));
+		background-image: -webkit-linear-gradient(top, rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 100%);
+		background-image: -o-linear-gradient(top, rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 100%);
+		background-image: -ms-linear-gradient(top, rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 100%);
+		background-image: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%,rgba(255,255,255,0) 100%);
+	}
+	
+	
+	/* theme "3d", "3d-dark" */
+	
+	.mCS-3d.mCSB_scrollTools_vertical .mCSB_dragger, 
+	.mCS-3d-dark.mCSB_scrollTools_vertical .mCSB_dragger{ height: 70px; }
+	
+	.mCS-3d.mCSB_scrollTools_horizontal .mCSB_dragger, 
+	.mCS-3d-dark.mCSB_scrollTools_horizontal .mCSB_dragger{ width: 70px; }
+	
+	.mCS-3d.mCSB_scrollTools, 
+	.mCS-3d-dark.mCSB_scrollTools{
+		opacity: 1;
+		filter: "alpha(opacity=30)"; -ms-filter: "alpha(opacity=30)"; 
+	}
+	
+	.mCS-3d.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-3d.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ -webkit-border-radius: 16px; -moz-border-radius: 16px; border-radius: 16px; }
+	
+	.mCS-3d.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_draggerRail{
+		width: 8px;
+		background-color: #000; background-color: rgba(0,0,0,0.2);
+		box-shadow: inset 1px 0 1px rgba(0,0,0,0.5), inset -1px 0 1px rgba(255,255,255,0.2);
+	}
+	
+	.mCS-3d.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 	 
+	.mCS-3d.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
+	.mCS-3d.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-3d.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar, 
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #555; }
+
+	.mCS-3d.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ width: 8px; }
+
+	.mCS-3d.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-3d-dark.mCSB_scrollTools_horizontal .mCSB_draggerRail{
+		width: 100%;
+		height: 8px;
+		margin: 4px 0;
+		box-shadow: inset 0 1px 1px rgba(0,0,0,0.5), inset 0 -1px 1px rgba(255,255,255,0.2);
+	}
+
+	.mCS-3d.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		width: 100%;
+		height: 8px;
+		margin: 4px auto;
+	}
+	
+	.mCS-3d.mCSB_scrollTools .mCSB_buttonUp{ background-position: -32px -72px; }
+	
+	.mCS-3d.mCSB_scrollTools .mCSB_buttonDown{ background-position: -32px -92px; }
+	
+	.mCS-3d.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -40px -112px; }
+	
+	.mCS-3d.mCSB_scrollTools .mCSB_buttonRight{ background-position: -40px -128px; }
+	
+	
+	/* theme "3d-dark" */
+	
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_draggerRail{
+		background-color: #000; background-color: rgba(0,0,0,0.1);
+		box-shadow: inset 1px 0 1px rgba(0,0,0,0.1);
+	}
+	
+	.mCS-3d-dark.mCSB_scrollTools_horizontal .mCSB_draggerRail{ box-shadow: inset 0 1px 1px rgba(0,0,0,0.1); }
+	
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_buttonUp{ background-position: -112px -72px; }
+
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_buttonDown{ background-position: -112px -92px; }
+
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -120px -112px; }
+
+	.mCS-3d-dark.mCSB_scrollTools .mCSB_buttonRight{	background-position: -120px -128px; }
+	
+	/* ---------------------------------------- */
+	
+	
+	
+	/* theme: "3d-thick", "3d-thick-dark" */
+	
+	.mCS-3d-thick.mCSB_scrollTools, 
+	.mCS-3d-thick-dark.mCSB_scrollTools{
+		opacity: 1;
+		filter: "alpha(opacity=30)"; -ms-filter: "alpha(opacity=30)"; 
+	}
+	
+	.mCS-3d-thick.mCSB_scrollTools, 
+	.mCS-3d-thick-dark.mCSB_scrollTools, 
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_draggerContainer, 
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_draggerContainer{ -webkit-border-radius: 7px; -moz-border-radius: 7px; border-radius: 7px; }
+	
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
+	
+	.mCSB_inside + .mCS-3d-thick.mCSB_scrollTools_vertical, 
+	.mCSB_inside + .mCS-3d-thick-dark.mCSB_scrollTools_vertical{ right: 1px; }
+	
+	.mCS-3d-thick.mCSB_scrollTools_vertical, 
+	.mCS-3d-thick-dark.mCSB_scrollTools_vertical{ box-shadow: inset 1px 0 1px rgba(0,0,0,0.1), inset 0 0 14px rgba(0,0,0,0.5); }
+	
+	.mCS-3d-thick.mCSB_scrollTools_horizontal, 
+	.mCS-3d-thick-dark.mCSB_scrollTools_horizontal{
+		bottom: 1px;
+		box-shadow: inset 0 1px 1px rgba(0,0,0,0.1), inset 0 0 14px rgba(0,0,0,0.5);
+	}
+	
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		box-shadow: inset 1px 0 0 rgba(255,255,255,0.4);
+		width: 12px;
+		margin: 2px;
+		position: absolute;
+		height: auto;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	
+	.mCS-3d-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-thick-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{ box-shadow: inset 0 1px 0 rgba(255,255,255,0.4); }
+	
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,  
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #555; }
+	
+	.mCS-3d-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-3d-thick-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		height: 12px;
+		width: auto;
+	}
+	
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_draggerContainer{
+		background-color: #000; background-color: rgba(0,0,0,0.05);
+		box-shadow: inset 1px 1px 16px rgba(0,0,0,0.1);
+	}
+	
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_draggerRail{ background-color: transparent; }
+	
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_buttonUp{ background-position: -32px -72px; }
+	
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_buttonDown{ background-position: -32px -92px; }
+
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -40px -112px; }
+
+	.mCS-3d-thick.mCSB_scrollTools .mCSB_buttonRight{	background-position: -40px -128px; }
+	
+	
+	/* theme: "3d-thick-dark" */
+	
+	.mCS-3d-thick-dark.mCSB_scrollTools{ box-shadow: inset 0 0 14px rgba(0,0,0,0.2); }
+	
+	.mCS-3d-thick-dark.mCSB_scrollTools_horizontal{ box-shadow: inset 0 1px 1px rgba(0,0,0,0.1), inset 0 0 14px rgba(0,0,0,0.2); }
+	
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ box-shadow: inset 1px 0 0 rgba(255,255,255,0.4), inset -1px 0 0 rgba(0,0,0,0.2); }
+	 
+	.mCS-3d-thick-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{ box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2); }
+	
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,  
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #777; }
+	
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_draggerContainer{
+		background-color: #fff; background-color: rgba(0,0,0,0.05);
+		box-shadow: inset 1px 1px 16px rgba(0,0,0,0.1);
+	}
+	
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_draggerRail{ background-co
+2000
+lor: transparent; }
+	
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_buttonUp{ background-position: -112px -72px; }
+	
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_buttonDown{ background-position: -112px -92px; }
+
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -120px -112px; }
+
+	.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_buttonRight{	background-position: -120px -128px; }
+	
+	/* ---------------------------------------- */
+	
+	
+	
+	/* theme: "minimal", "minimal-dark" */
+	
+	.mCSB_outside + .mCS-minimal.mCSB_scrollTools_vertical, 
+	.mCSB_outside + .mCS-minimal-dark.mCSB_scrollTools_vertical{
+		right: 0; 
+		margin: 12px 0; 
+	}
+	
+	.mCustomScrollBox.mCS-minimal + .mCSB_scrollTools.mCSB_scrollTools_horizontal, 
+	.mCustomScrollBox.mCS-minimal + .mCSB_scrollTools + .mCSB_scrollTools.mCSB_scrollTools_horizontal, 
+	.mCustomScrollBox.mCS-minimal-dark + .mCSB_scrollTools.mCSB_scrollTools_horizontal, 
+	.mCustomScrollBox.mCS-minimal-dark + .mCSB_scrollTools + .mCSB_scrollTools.mCSB_scrollTools_horizontal{
+		bottom: 0; 
+		margin: 0 12px; 
+	}
+	
+	/* RTL direction/left-side scrollbar */
+	.mCS-dir-rtl > .mCSB_outside + .mCS-minimal.mCSB_scrollTools_vertical, 
+	.mCS-dir-rtl > .mCSB_outside + .mCS-minimal-dark.mCSB_scrollTools_vertical{
+		left: 0; 
+		right: auto;
+	}
+	
+	.mCS-minimal.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-minimal-dark.mCSB_scrollTools .mCSB_draggerRail{ background-color: transparent; }
+	
+	.mCS-minimal.mCSB_scrollTools_vertical .mCSB_dragger, 
+	.mCS-minimal-dark.mCSB_scrollTools_vertical .mCSB_dragger{ height: 50px; }
+	
+	.mCS-minimal.mCSB_scrollTools_horizontal .mCSB_dragger, 
+	.mCS-minimal-dark.mCSB_scrollTools_horizontal .mCSB_dragger{ width: 50px; }
+	
+	.mCS-minimal.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		background-color: #fff; background-color: rgba(255,255,255,0.2);
+		filter: "alpha(opacity=20)"; -ms-filter: "alpha(opacity=20)"; 
+	}
+	
+	.mCS-minimal.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-minimal.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{
+		background-color: #fff; background-color: rgba(255,255,255,0.5);
+		filter: "alpha(opacity=50)"; -ms-filter: "alpha(opacity=50)"; 
+	}
+	
+	
+	/* theme: "minimal-dark" */
+	
+	.mCS-minimal-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+		background-color: #000; background-color: rgba(0,0,0,0.2);
+		filter: "alpha(opacity=20)"; -ms-filter: "alpha(opacity=20)"; 
+	}
+	
+	.mCS-minimal-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-minimal-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{
+		background-color: #000; background-color: rgba(0,0,0,0.5);
+		filter: "alpha(opacity=50)"; -ms-filter: "alpha(opacity=50)"; 
+	}
+	
+	/* ---------------------------------------- */
+	
+	
+	
+	/* theme "light-3", "dark-3" */
+	
+	.mCS-light-3.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-dark-3.mCSB_scrollTools .mCSB_draggerRail{
+		width: 6px;
+		background-color: #000; background-color: rgba(0,0,0,0.2);
+	}
+
+	.mCS-light-3.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-dark-3.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ width: 6px; }
+
+	.mCS-light-3.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-dark-3.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-light-3.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-dark-3.mCSB_scrollTools_horizontal .mCSB_draggerRail{
+		width: 100%;
+		height: 6px;
+		margin: 5px 0;
+	}
+	
+	.mCS-light-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCS-light-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail, 
+	.mCS-dark-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCS-dark-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail{
+		width: 12px;
+	}
+	
+	.mCS-light-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCS-light-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail, 
+	.mCS-dark-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail, 
+	.mCS-dark-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail{
+		height: 12px;
+		margin: 2px 0;
+	}
+	
+	.mCS-light-3.mCSB_scrollTools .mCSB_buttonUp{ background-position: -32px -72px; }
+	
+	.mCS-light-3.mCSB_scrollTools .mCSB_buttonDown{ background-position: -32px -92px; }
+	
+	.mCS-light-3.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -40px -112px; }
+	
+	.mCS-light-3.mCSB_scrollTools .mCSB_buttonRight{ background-position: -40px -128px; }
+	
+	
+	/* theme "dark-3" */
+	
+	.mCS-dark-3.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.75); }
+
+	.mCS-dark-3.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.85); }
+
+	.mCS-dark-3.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-dark-3.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.9); }
+	
+	.mCS-dark-3.mCSB_scrollTools .mCSB_draggerRail{ background-color: #000; background-color: rgba(0,0,0,0.1); }
+	
+	.mCS-dark-3.mCSB_scrollTools .mCSB_buttonUp{ background-position: -112px -72px; }
+
+	.mCS-dark-3.mCSB_scrollTools .mCSB_buttonDown{ background-position: -112px -92px; }
+
+	.mCS-dark-3.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -120px -112px; }
+
+	.mCS-dark-3.mCSB_scrollTools .mCSB_buttonRight{	background-position: -120px -128px; }
+	
+	/* ---------------------------------------- */
+	
+	
+	
+	/* theme "inset", "inset-dark", "inset-2", "inset-2-dark", "inset-3", "inset-3-dark" */
+	
+	.mCS-inset.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-inset-2.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-inset-3.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_draggerRail{
+		width: 12px;
+		background-color: #000; background-color: rgba(0,0,0,0.2);
+	}
+
+	.mCS-inset.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-2.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-3.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ 
+		width: 6px;
+		margin: 3px 5px;
+		position: absolute;
+		height: auto;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+
+	.mCS-inset.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-2.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-2-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-3.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-3-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar{
+		height: 6px;
+		margin: 5px 3px;
+		position: absolute;
+		width: auto;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	
+	.mCS-inset.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-inset-dark.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-inset-2.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-inset-2-dark.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-inset-3.mCSB_scrollTools_horizontal .mCSB_draggerRail, 
+	.mCS-inset-3-dark.mCSB_scrollTools_horizontal .mCSB_draggerRail{
+		width: 100%;
+		height: 12px;
+		margin: 2px 0;
+	}
+	
+	.mCS-inset.mCSB_scrollTools .mCSB_buttonUp, 
+	.mCS-inset-2.mCSB_scrollTools .mCSB_buttonUp, 
+	.mCS-inset-3.mCSB_scrollTools .mCSB_buttonUp{ background-position: -32px -72px; }
+	
+	.mCS-inset.mCSB_scrollTools .mCSB_buttonDown, 
+	.mCS-inset-2.mCSB_scrollTools .mC
+1191
+SB_buttonDown, 
+	.mCS-inset-3.mCSB_scrollTools .mCSB_buttonDown{ background-position: -32px -92px; }
+	
+	.mCS-inset.mCSB_scrollTools .mCSB_buttonLeft, 
+	.mCS-inset-2.mCSB_scrollTools .mCSB_buttonLeft, 
+	.mCS-inset-3.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -40px -112px; }
+	
+	.mCS-inset.mCSB_scrollTools .mCSB_buttonRight, 
+	.mCS-inset-2.mCSB_scrollTools .mCSB_buttonRight, 
+	.mCS-inset-3.mCSB_scrollTools .mCSB_buttonRight{ background-position: -40px -128px; }
+	
+	
+	/* theme "inset-dark", "inset-2-dark", "inset-3-dark" */
+	
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.75); }
+
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.85); }
+
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.9); }
+	
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_draggerRail{ background-color: #000; background-color: rgba(0,0,0,0.1); }
+	
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_buttonUp, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_buttonUp, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_buttonUp{ background-position: -112px -72px; }
+
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_buttonDown, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_buttonDown, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_buttonDown{ background-position: -112px -92px; }
+
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_buttonLeft, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_buttonLeft, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_buttonLeft{ background-position: -120px -112px; }
+
+	.mCS-inset-dark.mCSB_scrollTools .mCSB_buttonRight, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_buttonRight, 
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_buttonRight{	background-position: -120px -128px; }
+	
+	
+	/* theme "inset-2", "inset-2-dark" */
+	
+	.mCS-inset-2.mCSB_scrollTools .mCSB_draggerRail, 
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_draggerRail{
+		background-color: transparent;
+		border-width: 1px;
+		border-style: solid;
+		border-color: #fff;
+		border-color: rgba(255,255,255,0.2);
+		-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
+	}
+	
+	.mCS-inset-2-dark.mCSB_scrollTools .mCSB_draggerRail{ border-color: #000; border-color: rgba(0,0,0,0.2); }
+	
+	
+	/* theme "inset-3", "inset-3-dark" */
+	
+	.mCS-inset-3.mCSB_scrollTools .mCSB_draggerRail{ background-color: #fff; background-color: rgba(255,255,255,0.6); }
+	
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_draggerRail{ background-color: #000; background-color: rgba(0,0,0,0.6); }
+	
+	.mCS-inset-3.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.75); }
+	
+	.mCS-inset-3.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.85); }
+	
+	.mCS-inset-3.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-inset-3.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #000; background-color: rgba(0,0,0,0.9); }
+	
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{ background-color: #fff; background-color: rgba(255,255,255,0.75); }
+	
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: #fff; background-color: rgba(255,255,255,0.85); }
+	
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+	.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: #fff; background-color: rgba(255,255,255,0.9); }
+	
+	/* ---------------------------------------- */
+
+0
+
+GET /MONITOR/ims/app/monitor/state_monitor/css/style.css HTTP/1.1
+Host: 172.16.210.84:31600
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://172.16.210.84:31600/MONITOR/ims/app/monitor/state_monitor/jsp/state_monitor.jsp
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+Cookie: JSESSIONID=ST-150-cegxGboobdGRs0hbIW71-sgcc.isc.com
+
+HTTP/1.1 200 
+X-Application-Context: front-gateway:8001
+P3P: CP=CAO PSA OUR
+Accept-Ranges: bytes
+ETag: W/"7813-1568253438000"
+Last-Modified: Thu, 12 Sep 2019 01:57:18 GMT
+Date: Tue, 12 Nov 2019 08:37:06 GMT
+Content-Type: text/css
+Transfer-Encoding: chunked
+
+1e85
+html,body {
+	margin: 0;
+	padding: 0;
+	height:auto;
+	width: auto;
+}
+
+body {
+	color: #2e2e2e;
+	font: 12px Microsoft YaHei;
+}
+
+.fmp_main {
+	width: 100%;
+	height: 100%;
+	min-width: 1280px;
+	position: absolute;
+	text-align:left;
+}
+
+.fmp_main_top {
+	background-color: #41abff;
+	width: 100%;
+	height: 50px;
+	min-width: 1198px;
+}
+
+.fmp_main_top .log {
+	/* width: 188px; */
+	height:50px;
+	float:left;
+	background: url('../image/logo.png') no-repeat 21px 11px;
+	text-indent:30px;
+	font-size: 18px;
+	color: #fff;
+	/* box-shadow: 0px 1px 0px #000; */
+}
+.log span {
+	margin-top:12px;
+	display:inline-block;
+}
+
+.fmp_main_top .top_r {
+/* 	width: 450px; */
+	width: 316px;
+	float: right;
+}
+.top_r dl{
+	width:250px;
+	float:left;
+	height:36px;
+	padding-top:6px;
+}
+.top_r dt{
+	width:30px;
+	height:30px;
+	overflow:hidden;
+	float:left;
+	margin-top:3px;
+}
+.top_r dd{
+	width:220px;
+	float:left;
+	padding-left:10px;
+	color:#fff;
+	line-height:18px;
+}
+.top_r .top_ul{
+	width:64px;
+	height:30px;
+	float:right;
+	padding-top:9px;
+}
+.top_r .top_ul li{
+	
+	background:url('../image/line.png') no-repeat left top;
+	height:30px;
+	float:left;
+	text-align:center;
+	padding-top:7px;
+}
+.top_r .top_ul li ul li{
+	background:url('') no-repeat left top;
+	text-align:left;
+	
+	padding-top:0px;
+}
+.fmp_main_body {
+	width: 100%;
+	height: 627px;
+	position: absolute;
+}
+
+.main_body_left {
+	width: 72px;
+	height: 100%;
+	float: left;
+	position: relative;
+    z-index: 2;
+}
+
+.main_body_left .kePublic {
+	height: 100%;
+	text-align: left;
+}
+
+.main_body_right {
+	z-index: 1;
+	background-color: #F8F9FA;
+	min-width: 1198px;
+	height: 100%;
+	float: left;
+	position: absolute;
+	margin-left: 72px;
+	padding: 0 0 0 10px;
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+.body_right_head {
+	font-size: 12px;
+	color: #9a9a9a;
+	position: relative;
+	z-index:10;
+	width: 100%;
+	height:30px;
+	line-height:28px;
+	background:url('../image/ico1.png') no-repeat left 6px;
+	text-indent:18px;
+	border-bottom:1px solid #e6e6e6;
+	margin-bottom:10px;
+}
+
+.body_right_body {
+	width: 100%;
+	overflow-y: auto;
+}
+a:hover{
+	text-decoration:none;
+	}
+a:link{
+	text-decoration:none;
+	}
+a:focus{
+	outline:none;
+}
+
+input::-ms-clear { display: none; }
+#mCSB_1_container{
+	min-height: 105%;
+	padding-right: 0;
+}
+#NoRead_queryTable,#Read_queryTable{
+	padding: 0;
+	margin-top: 20px;
+	border-radius: 4px;
+}
+
+#SetProxy_queryTable{
+	padding: 0;
+	width: 98%;
+}
+.dropSty{
+	background-color:#364065;
+	min-width: 140px;
+}
+.dropSty > li > a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.42857143;
+    color: #fff;
+    white-space: nowrap;
+}
+.dropSty > li > a:hover, .dropSty > li > a:focus {
+    color: #fff;
+    text-decoration: none;
+    background-color: #35a7e1;
+    outline: 0;
+}
+.moreSty{
+	width: 113px;
+	text-align: left;
+    padding-left: 20px;
+} 
+.moreSty:hover{
+	background-color: #5ac7ff;
+}
+.clickSty:active{
+	background-color: #2b8ec1;
+}
+#processOpDialogqrcode #mCSB_1_container,#processOpDialogaddCiRel #mCSB_1_container,#viewTree #mCSB_1_container,#reportTypeList #mCSB_1_container,#deptUserMain_nomode #mCSB_1_container{
+	min-height: 100%;
+	padding-right: 0;
+}
+#timeTrigger ul{
+	min-width: 90%;
+}
+#processTabs td{
+	text-indent:0.5em;
+}
+.nav-tabs > li.active>a:focus,.nav-tabs > li.active>a{
+	background-color:#40B1FB;
+	color:#ffffff;
+}
+.nav-tabs > li >a:hover{
+	cursor:pointer;
+}
+.tab-box{
+	width:100%;
+	height:42px;
+	background-color:#ffffff;
+	margin-top:0px;
+	margin-bottom:5px;
+}
+#criteriaNav{
+	background-color:none;
+	border-color:none;
+	padding-bottom:10px;
+}
+.tab-content-newTable{
+	overflow:hidden;
+	/* background-color:#f8f9fa; */
+}
+.homepageshow{
+	border:1px solid #eeeeee;
+}
+.homepageshow .panel-heading{
+	background-color:#eeeeee;
+}
+.homepageshow_panel_line_div{
+	display:none;
+}
+.view-or-list{
+	overflow:hidden;
+}
+.table-draw{
+	border-color:#eeeeee;
+	border-right:0;
+}
+.table-draw td{
+	border-color:#eeeeee;
+	height:28px;
+}
+.table-draw td:first-child{
+	border-left:0;
+}
+.newTable-detail{
+	width:220px;
+	margin:0 auto;
+	height:42px;
+	margin:0 auto;
+	overflow:hidden;
+	line-height:36px;
+	margin-bottom:10px;
+}
+.newTable-detail li a{
+	float:left;
+	text-align:center;
+	width:100px;
+	font-size:14px;
+	border-bottom:4px solid #f9f9f9;
+}
+.newTable-detail li a.aActive{
+	float:left;
+	text-align:center;
+	width:100px;
+	border-bottom:2px solid #40B1FB;
+}
+.ul-tab{
+	font-family:Microsoft YaHei;
+	overflow:hidden;
+	border-bottom:1px solid #dfdfdf;
+	margin-bottom:0px;
+}
+.ul-tab>li{
+	margin-left:5px;
+	float:left;
+	font-size:13px;
+}
+.ul-tab>li>a{
+	color:#333333;
+	font-size:12px;
+	display:block;
+	position:relative;
+	padding:6px 15px;
+	border:1px solid #dfdfdf;
+	border-bottom-color:transparent;
+	margin-right:2px;
+	border-radius:8px 8px 0 0;
+}
+.newTable-detail>li>a{
+	cursor:pointer;
+	font-size:14px;
+	font-weight:bold;
+	color:#333333;
+}
+.page-container{
+	/* background-color:#F8F9FA; */
+	overflow:hidden;
+}
+.WARNING::before{
+	/* content:"\f06a"; */
+	content:"";
+	display:inline-block;
+	width:12px;
+	height:12px;
+	background:url("../image/CRITICAL.png") no-repeat center center;
+	background-size: cover;
+}
+.NORMAL::before{
+	content:"";
+	display:inline-block;
+	width:12px;
+	height:12px;
+	background:url("../image/NORMAL.png") no-repeat center center;
+	background-size: cover;
+}
+.UNKNOWN::before{
+	content:"";
+	display:inline-block;
+	width:12px;
+	height:12px;
+	background:url("../image/UNKNOWN.png") no-repeat center center;
+	background-size: cover;
+}
+.CRITICAL::before{
+	content:"";
+	display:inline-block;
+	width:12px;
+	height:12px;
+	background:url("../image/CRITICAL.png") no-repeat center center;
+	background-size: cover;
+}
+.ERROR::before{
+	content:"";
+	display:inline-block;
+	width:12px;
+	height:12px;
+	background:url("../image/ERROR.png") no-repeat center center;
+	background-size: cover;
+}
+
+.timeLable1{
+	padding-top:2px;
+	height:25px;
+	width:50px;
+	text-align:center;
+	border:1px solid #cccccc;
+	border-radius:15px 0px 0px 15px;
+	font-size: 14px;
+}
+.timeLable2{
+	padding-top:2px;
+	height:25px;
+	width:50px;
+	text-align:center;
+	border:1px solid #cccccc;
+	margin-left: -5px;
+	margin-right: -4px;
+	font-size: 14px;
+}
+.timeLable3{
+	font-size: 14px;
+	padding-top:2px;
+	height:25px;
+	width:50px;
+	text-align:center;
+	border:1px solid #cccccc;
+	border-radius:0px 15px 15px 0px;
+}
+.tableLineLabel1{
+	background:url("../image/lineDefault.png") no-repeat 7px 4px;
+	padding-top:2px;
+	padding-right:5px;
+	height:25px;
+	width:60px;
+	text-align:right;
+	border:1px solid #cccccc;
+	border-radius:15px 0px 0px 15px;
+	font-size: 14px;
+}
+.tableLineLabel2{
+	background:url("../image/tableDefault.png") no-repeat 5px 4px;
+	font-size: 14px;
+	padding-top:2px;
+	padding-left:5px;
+	padding-right:8px;
+	height:25px;
+	width:60px;
+	text-align:right;
+	border:1px solid #cccccc;
+	border-radius:0px 15px 15px 0px;
+}
+.tableLineLabel1:HOVER{
+	background:url("../image/lineHover.png") no-repeat 7px 4px;
+	color: #0077e5;
+}
+.tableLineLabel2:HOVER{
+	background:url("../image/tableHover.png") no-repeat 5px 4px;
+	color: #0077e5;
+}
+.timeDelete{
+	cursor:pointer;
+	width:20px;
+	height:20px;
+	display:block;
+	float:right;
+	margin-top:-26px;
+	background:url("../image/deleteDefault.png") no-repeat center center;
+}
+.timeDelete:HOVER{
+	background:url("../image/deleteHover.png") no-repeat center center;
+}
+.timeLableActive{
+	background-color: #e7e7e7;
+}
+.timeLableActive:HOVER{
+	background-color: #e7e7e7;
+}
+0
+
+GET /MONITOR/ims/common/jquery-jstree/css/style.css HTTP/1.1
+Host: 172.16.210.84:31600
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36
+Accept: text/css,*/*;q=0.1
+Referer: http://172.16.210.84:31600/MONITOR/ims/app/monitor/state_monitor/jsp/state_monitor.jsp
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+Cookie: JSESSIONID=ST-150-cegxGboobdGRs0hbIW71-sgcc.isc.com
+
+HTTP/1.1 200 
+X-Application-Context: front-gateway:8001
+P3P: CP=CAO PSA OUR
+Accept-Ranges: bytes
+ETag: W/"31610-1568253516000"
+Last-Modified: Thu, 12 Sep 2019 01:58:36 GMT
+Date: Tue, 12 Nov 2019 08:37:06 GMT
+Content-Type: text/css
+Transfer-Encoding: chunked
+
+2000
+/* jsTree default theme */
+.jstree-node,
+.jstree-children,
+.jstree-container-ul {
+  display: block;
+  margin: 0;
+  padding: 1px 0;
+  list-style-type: none;
+  list-style-image: none;
+}
+.jstree-node {
+  white-space: nowrap;
+}
+.jstree-anchor {
+  font-size:14px;
+  display: inline-block;
+  color: black;
+  white-space: nowrap;
+  padding: 0 4px 0 1px;
+  margin: 0;
+  vertical-align: top;
+}
+.jstree-anchor:focus {
+  outline: 0;
+}
+.jstree-anchor,
+.jstree-anchor:link,
+.jstree-anchor:visited,
+.jstree-anchor:hover,
+.jstree-anchor:active {
+  text-decoration: none;
+  color: inherit;
+}
+.jstree-icon {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  text-align: center;
+}
+.jstree-icon:empty {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  text-align: center;
+}
+.jstree-ocl {
+  cursor: pointer;
+}
+.jstree-leaf > .jstree-ocl {
+  cursor: default;
+}
+.jstree .jstree-open > .jstree-children {
+  display: block;
+}
+.jstree .jstree-closed > .jstree-children,
+.jstree .jstree-leaf > .jstree-children {
+  display: none;
+}
+.jstree-anchor > .jstree-themeicon {
+  margin-right: 2px;
+}
+.jstree-no-icons .jstree-themeicon,
+.jstree-anchor > .jstree-themeicon-hidden {
+  display: none;
+}
+.jstree-hidden {
+  display: none;
+}
+.jstree-rtl .jstree-anchor {
+  padding: 0 1px 0 4px;
+}
+.jstree-rtl .jstree-anchor > .jstree-themeicon {
+  margin-left: 2px;
+  margin-right: 0;
+}
+.jstree-rtl .jstree-node {
+  margin-left: 0;
+}
+.jstree-rtl .jstree-container-ul > .jstree-node {
+  margin-right: 0;
+}
+.jstree-wholerow-ul {
+  position: relative;
+  display: inline-block;
+  min-width: 100%;
+}
+.jstree-wholerow-ul .jstree-leaf > .jstree-ocl {
+  cursor: pointer;
+}
+.jstree-wholerow-ul .jstree-anchor,
+.jstree-wholerow-ul .jstree-icon {
+  position: relative;
+}
+.jstree-wholerow-ul .jstree-wholerow {
+  width: 100%;
+  cursor: pointer;
+  position: absolute;
+  left: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.vakata-context {
+  display: none;
+}
+.vakata-context,
+.vakata-context ul {
+  margin: 0;
+  padding: 2px;
+  position: absolute;
+  background: #f5f5f5;
+  border: 1px solid #979797;
+  box-shadow: 2px 2px 2px #999999;
+}
+.vakata-context ul {
+  list-style: none;
+  left: 100%;
+  margin-top: -2.7em;
+  margin-left: -4px;
+}
+.vakata-context .vakata-context-right ul {
+  left: auto;
+  right: 100%;
+  margin-left: auto;
+  margin-right: -4px;
+}
+.vakata-context li {
+  list-style: none;
+  display: inline;
+}
+.vakata-context li > a {
+  display: block;
+  padding: 0 2em 0 2em;
+  text-decoration: none;
+  width: auto;
+  color: black;
+  white-space: nowrap;
+  line-height: 2.4em;
+  text-shadow: 1px 1px 0 white;
+  border-radius: 1px;
+}
+.vakata-context li > a:hover {
+  position: relative;
+  background-color: #e8eff7;
+  box-shadow: 0 0 2px #0a6aa1;
+}
+.vakata-context li > a.vakata-context-parent {
+  background-image: url("data:image/gif;base64,R0lGODlhCwAHAIAAACgoKP///yH5BAEAAAEALAAAAAALAAcAAAIORI4JlrqN1oMSnmmZDQUAOw==");
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+.vakata-context li > a:focus {
+  outline: 0;
+}
+.vakata-context .vakata-context-hover > a {
+  position: relative;
+  background-color: #e8eff7;
+  box-shadow: 0 0 2px #0a6aa1;
+}
+.vakata-context .vakata-context-separator > a,
+.vakata-context .vakata-context-separator > a:hover {
+  background: white;
+  border: 0;
+  border-top: 1px solid #e2e3e3;
+  height: 1px;
+  min-height: 1px;
+  max-height: 1px;
+  padding: 0;
+  margin: 0 0 0 2.4em;
+  border-left: 1px solid #e0e0e0;
+  text-shadow: 0 0 0 transparent;
+  box-shadow: 0 0 0 transparent;
+  border-radius: 0;
+}
+.vakata-context .vakata-contextmenu-disabled a,
+.vakata-context .vakata-contextmenu-disabled a:hover {
+  color: silver;
+  background-color: transparent;
+  border: 0;
+  box-shadow: 0 0 0;
+}
+.vakata-context li > a > i {
+  text-decoration: none;
+  display: inline-block;
+  width: 2.4em;
+  height: 2.4em;
+  background: transparent;
+  margin: 0 0 0 -2em;
+  vertical-align: top;
+  text-align: center;
+  line-height: 2.4em;
+}
+.vakata-context li > a > i:empty {
+  width: 2.4em;
+  line-height: 2.4em;
+}
+.vakata-context li > a .vakata-contextmenu-sep {
+  display: inline-block;
+  width: 1px;
+  height: 2.4em;
+  background: white;
+  margin: 0 0.5em 0 0;
+  border-left: 1px solid #e2e3e3;
+}
+.vakata-context .vakata-contextmenu-shortcut {
+  font-size: 0.8em;
+  color: silver;
+  opacity: 0.5;
+  display: none;
+}
+.vakata-context-rtl ul {
+  left: auto;
+  right: 100%;
+  margin-left: auto;
+  margin-right: -4px;
+}
+.vakata-context-rtl li > a.vakata-context-parent {
+  background-image: url("data:image/gif;base64,R0lGODlhCwAHAIAAACgoKP///yH5BAEAAAEALAAAAAALAAcAAAINjI+AC7rWHIsPtmoxLAA7");
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+.vakata-context-rtl .vakata-context-separator > a {
+  margin: 0 2.4em 0 0;
+  border-left: 0;
+  border-right: 1px solid #e2e3e3;
+}
+.vakata-context-rtl .vakata-context-left ul {
+  right: auto;
+  left: 100%;
+  margin-left: -4px;
+  margin-right: auto;
+}
+.vakata-context-rtl li > a > i {
+  margin: 0 -2em 0 0;
+}
+.vakata-context-rtl li > a .vakata-contextmenu-sep {
+  margin: 0 0 0 0.5em;
+  border-left-color: white;
+  background: #e2e3e3;
+}
+#jstree-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: -5px 0 0 0;
+  padding: 0;
+  border-right: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid;
+  width: 0;
+  height: 0;
+  font-size: 0;
+  line-height: 0;
+}
+#jstree-dnd {
+  line-height: 16px;
+  margin: 0;
+  padding: 4px;
+}
+#jstree-dnd .jstree-icon,
+#jstree-dnd .jstree-copy {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0 2px 0 0;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+}
+#jstree-dnd .jstree-ok {
+  background: green;
+}
+#jstree-dnd .jstree-er {
+  background: red;
+}
+#jstree-dnd .jstree-copy {
+  margin: 0 2px 0 2px;
+}
+.jstree-default .jstree-node,
+.jstree-default .jstree-icon {
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+.jstree-default .jstree-anchor,
+.jstree-default .jstree-wholerow {
+  transition: background-color 0.15s, box-shadow 0.15s;
+}
+.jstree-default .jstree-hovered {
+  background: #eeeeee;
+  border-radius: 2px;
+  box-shadow: inset 0 0 1px #cccccc;
+}
+.jstree-default .jstree-clicked {
+  background: #dbeeff;
+  border-radius: 2px;
+  box-shadow: inset 0 0 1px #999999;
+}
+.jstree-default .jstree-no-icons .jstree-anchor > .jstree-themeicon {
+  display: none;
+}
+.jstree-default .jstree-disabled {
+  background: transparent;
+  color: #666666;
+}
+.jstree-default .jstree-disabled.jstree-hovered {
+  background: transparent;
+  box-shadow: none;
+}
+.jstree-default .jstree-disabled.jstree-clicked {
+  background: #efefef;
+}
+.jstree-default .jstree-disabled > .jstree-icon {
+  opacity: 0.8;
+  filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'jstree-grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#jstree-grayscale");
+  /* Firefox 10+ 
+  filter: gray;*/
+  /* IE6-9 
+  -webkit-filter: grayscale(100%);*/
+  /* Chrome 19+ & Safari 6+ */
+}
+.jstree-default .jstree-search {
+  font-style: italic;
+  color: #8b0000;
+  font-weight: bold;
+}
+.jstree-default .jstree-no-checkboxes .jstree-checkbox {
+  display: none !important;
+}
+.jstree-default.jstree-checkbox-no-clicked .jstree-clicked {
+  background: transparent;
+  box-shadow: none;
+}
+.jstree-default.jstree-checkbox-no-clicked .jstree-clicked.jstree-hovered {
+  background: #e7f4f9;
+}
+.jstree-default.jstree-checkbox-no-clicked > .jstree-wholerow-ul .jstree-wholerow-clicked {
+  background: transparent;
+}
+.jstree-default.jstree-checkbox-no-clicked > .jstree-wholerow-ul .jstree-wholerow-clicked.jstree-wholerow-hovered {
+  background: #e
+2000
+7f4f9;
+}
+.jstree-default > .jstree-striped {
+  min-width: 100%;
+  display: inline-block;
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAkCAMAAAB/qqA+AAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMNAMM9s3UAAAAXSURBVHjajcEBAQAAAIKg/H/aCQZ70AUBjAATb6YPDgAAAABJRU5ErkJggg==") left top repeat;
+}
+.jstree-default > .jstree-wholerow-ul .jstree-hovered,
+.jstree-default > .jstree-wholerow-ul .jstree-clicked {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+.jstree-default .jstree-wholerow {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.jstree-default .jstree-wholerow-hovered {
+  background: #e7f4f9;
+}
+.jstree-default .jstree-wholerow-clicked {
+  background: #beebff;
+  background: -webkit-linear-gradient(top, #beebff 0%, #a8e4ff 100%);
+  background: linear-gradient(to bottom, #beebff 0%, #a8e4ff 100%);
+}
+.jstree-default .jstree-node {
+  min-height: 24px;
+  line-height: 24px;
+  margin-left: 24px;
+  min-width: 24px;
+}
+.jstree-default .jstree-anchor {
+  line-height: 24px;
+  height: 24px;
+}
+.jstree-default .jstree-icon {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+}
+.jstree-default .jstree-icon:empty {
+  width: 20px;
+  height: 24px;
+  line-height: 24px;
+}
+.jstree-default.jstree-rtl .jstree-node {
+  margin-right: 24px;
+}
+.jstree-default .jstree-wholerow {
+  height: 24px;
+}
+.jstree-default .jstree-node,
+.jstree-default .jstree-icon {
+  background-image: url("32px.png");
+}
+.jstree-default .jstree-node {
+  background-position: -292px -4px;
+  background-repeat: repeat-y;
+}
+.jstree-default .jstree-last {
+  background: transparent;
+}
+.jstree-default .jstree-open > .jstree-ocl {
+  background-position: -132px -4px;
+}
+.jstree-default .jstree-closed > .jstree-ocl {
+  background-position: -100px -4px;
+}
+.jstree-default .jstree-leaf > .jstree-ocl {
+  background-position: -68px -4px;
+}
+.jstree-default .jstree-themeicon {
+  background-position: -255px -4px;
+}
+.jstree-default > .jstree-no-dots .jstree-node,
+.jstree-default > .jstree-no-dots .jstree-leaf > .jstree-ocl {
+  background: transparent;
+}
+.jstree-default > .jstree-no-dots .jstree-open > .jstree-ocl {
+  background-position: -36px -4px;
+}
+.jstree-default > .jstree-no-dots .jstree-closed > .jstree-ocl {
+  background-position: -4px -4px;
+}
+.jstree-default .jstree-disabled {
+  background: transparent;
+}
+.jstree-default .jstree-disabled.jstree-hovered {
+  background: transparent;
+}
+.jstree-default .jstree-disabled.jstree-clicked {
+  background: #efefef;
+}
+.jstree-default .jstree-checkbox {
+  background-position: -160px -4px;
+}
+.jstree-default .jstree-checkbox:hover {
+  background-position: -160px -36px;
+}
+.jstree-default.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox,
+.jstree-default .jstree-checked > .jstree-checkbox {
+  background-position: -224px -4px;
+}
+.jstree-default.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox:hover,
+.jstree-default .jstree-checked > .jstree-checkbox:hover {
+  background-position: -224px -36px;
+}
+.jstree-default .jstree-anchor > .jstree-undetermined {
+  background-position: -192px -4px;
+}
+.jstree-default .jstree-anchor > .jstree-undetermined:hover {
+  background-position: -192px -36px;
+}
+.jstree-default .jstree-checkbox-disabled {
+  opacity: 0.8;
+  filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'jstree-grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#jstree-grayscale");
+  /* Firefox 10+ */
+  filter: gray;
+  /* IE6-9 */
+  -webkit-filter: grayscale(100%);
+  /* Chrome 19+ & Safari 6+ */
+}
+.jstree-default > .jstree-striped {
+  background-size: auto 48px;
+}
+.jstree-default.jstree-rtl .jstree-node {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAACAQMAAAB49I5GAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMOBgAAGAAJMwQHdQAAAABJRU5ErkJggg==");
+  background-position: 100% 1px;
+  background-repeat: repeat-y;
+}
+.jstree-default.jstree-rtl .jstree-last {
+  background: transparent;
+}
+.jstree-default.jstree-rtl .jstree-open > .jstree-ocl {
+  background-position: -132px -36px;
+}
+.jstree-default.jstree-rtl .jstree-closed > .jstree-ocl {
+  background-position: -100px -36px;
+}
+.jstree-default.jstree-rtl .jstree-leaf > .jstree-ocl {
+  background-position: -68px -36px;
+}
+.jstree-default.jstree-rtl > .jstree-no-dots .jstree-node,
+.jstree-default.jstree-rtl > .jstree-no-dots .jstree-leaf > .jstree-ocl {
+  background: transparent;
+}
+.jstree-default.jstree-rtl > .jstree-no-dots .jstree-open > .jstree-ocl {
+  background-position: -36px -36px;
+}
+.jstree-default.jstree-rtl > .jstree-no-dots .jstree-closed > .jstree-ocl {
+  background-position: -4px -36px;
+}
+.jstree-default .jstree-themeicon-custom {
+  background-color: transparent;
+  background-image: none;
+  background-position: 0 0;
+}
+.jstree-default > .jstree-container-ul .jstree-loading > .jstree-ocl {
+  background: url("throbber.gif") center center no-repeat;
+}
+.jstree-default .jstree-file {
+  background: url("32px.png") -96px -68px no-repeat;
+}
+.jstree-default .jstree-folder {
+  background: url("32px.png") -260px -4px no-repeat;
+}
+.jstree-default > .jstree-container-ul > .jstree-node {
+  margin-left: 0;
+  margin-right: 0;
+}
+#jstree-dnd.jstree-default {
+  line-height: 24px;
+  padding: 0 4px;
+}
+#jstree-dnd.jstree-default .jstree-ok,
+#jstree-dnd.jstree-default .jstree-er {
+  background-image: url("32px.png");
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+#jstree-dnd.jstree-default i {
+  background: transparent;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+}
+#jstree-dnd.jstree-default .jstree-ok {
+  background-position: -4px -68px;
+}
+#jstree-dnd.jstree-default .jstree-er {
+  background-position: -36px -68px;
+}
+.jstree-default.jstree-rtl .jstree-node {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAACAQMAAAB49I5GAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMOBgAAGAAJMwQHdQAAAABJRU5ErkJggg==");
+}
+.jstree-default.jstree-rtl .jstree-last {
+  background: transparent;
+}
+.jstree-default-small .jstree-node {
+  min-height: 18px;
+  line-height: 18px;
+  margin-left: 18px;
+  min-width: 18px;
+}
+.jstree-default-small .jstree-anchor {
+  line-height: 18px;
+  height: 18px;
+}
+.jstree-default-small .jstree-icon {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+.jstree-default-small .jstree-icon:empty {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+.jstree-default-small.jstree-rtl .jstree-node {
+  margin-right: 18px;
+}
+.jstree-default-small .jstree-wholerow {
+  height: 18px;
+}
+.jstree-default-small .jstree-node,
+.jstree-default-small .jstree-icon {
+  background-image: url("32px.png");
+}
+.jstree-default-small .jstree-node {
+  background-position: -295px -7px;
+  background-repeat: repeat-y;
+}
+.jstree-default-small .jstree-last {
+  background: transparent;
+}
+.jstree-default-small .jstree-open > .jstree-ocl {
+  background-position: -135px -7px;
+}
+.jstree-default-small .jstree-closed > .jstree-ocl {
+  background-position: -103px -7px;
+}
+.jstree-default-small .jstree-leaf > .jstree-ocl {
+  background-position: -71px -7px;
+}
+.jstree-default-small .jstree-themeicon {
+  background-position: -263px -7px;
+}
+.jstree-default-small > .jstree-no-dots .jstree-node,
+.jstree-default-small > .jstree-no-dots .jstree-leaf > .jstree-ocl {
+  background: transparent;
+}
+.jstree-default-small > .jstree-no-dots .jstree-open > .jstree-ocl {
+  background-position: -39px -7px;
+}
+.jstree-default-small > .jstree-no-dots .jstree-closed > .jstree-ocl {
+  background-position: -7px -7px;
+}
+.jstree-default-small .jstree-disabled {
+  background: transparent;
+}
+.jstree-default-small .jstree-disabled.jstree-hovered {
+  background: transparent;
+}
+.jstree-default-small .jstree-disabled.jstree-clicked {
+  background: #efefef;
+}
+.jstree-default-small .jstree-checkbox {
+  backg
+2000
+round-position: -167px -7px;
+}
+.jstree-default-small .jstree-checkbox:hover {
+  background-position: -167px -39px;
+}
+.jstree-default-small.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox,
+.jstree-default-small .jstree-checked > .jstree-checkbox {
+  background-position: -231px -7px;
+}
+.jstree-default-small.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox:hover,
+.jstree-default-small .jstree-checked > .jstree-checkbox:hover {
+  background-position: -231px -39px;
+}
+.jstree-default-small .jstree-anchor > .jstree-undetermined {
+  background-position: -196px -7px;
+}
+.jstree-default-small .jstree-anchor > .jstree-undetermined:hover {
+  background-position: -196px -39px;
+}
+.jstree-default-small .jstree-checkbox-disabled {
+  opacity: 0.8;
+  filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'jstree-grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#jstree-grayscale");
+  /* Firefox 10+ */
+  filter: gray;
+  /* IE6-9 */
+  -webkit-filter: grayscale(100%);
+  /* Chrome 19+ & Safari 6+ */
+}
+.jstree-default-small > .jstree-striped {
+  background-size: auto 36px;
+}
+.jstree-default-small.jstree-rtl .jstree-node {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAACAQMAAAB49I5GAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMOBgAAGAAJMwQHdQAAAABJRU5ErkJggg==");
+  background-position: 100% 1px;
+  background-repeat: repeat-y;
+}
+.jstree-default-small.jstree-rtl .jstree-last {
+  background: transparent;
+}
+.jstree-default-small.jstree-rtl .jstree-open > .jstree-ocl {
+  background-position: -135px -39px;
+}
+.jstree-default-small.jstree-rtl .jstree-closed > .jstree-ocl {
+  background-position: -103px -39px;
+}
+.jstree-default-small.jstree-rtl .jstree-leaf > .jstree-ocl {
+  background-position: -71px -39px;
+}
+.jstree-default-small.jstree-rtl > .jstree-no-dots .jstree-node,
+.jstree-default-small.jstree-rtl > .jstree-no-dots .jstree-leaf > .jstree-ocl {
+  background: transparent;
+}
+.jstree-default-small.jstree-rtl > .jstree-no-dots .jstree-open > .jstree-ocl {
+  background-position: -39px -39px;
+}
+.jstree-default-small.jstree-rtl > .jstree-no-dots .jstree-closed > .jstree-ocl {
+  background-position: -7px -39px;
+}
+.jstree-default-small .jstree-themeicon-custom {
+  background-color: transparent;
+  background-image: none;
+  background-position: 0 0;
+}
+.jstree-default-small > .jstree-container-ul .jstree-loading > .jstree-ocl {
+  background: url("throbber.gif") center center no-repeat;
+}
+.jstree-default-small .jstree-file {
+  background: url("32px.png") -103px -71px no-repeat;
+}
+.jstree-default-small .jstree-folder {
+  background: url("32px.png") -263px -7px no-repeat;
+}
+.jstree-default-small > .jstree-container-ul > .jstree-node {
+  margin-left: 0;
+  margin-right: 0;
+}
+#jstree-dnd.jstree-default-small {
+  line-height: 18px;
+  padding: 0 4px;
+}
+#jstree-dnd.jstree-default-small .jstree-ok,
+#jstree-dnd.jstree-default-small .jstree-er {
+  background-image: url("32px.png");
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+#jstree-dnd.jstree-default-small i {
+  background: transparent;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+#jstree-dnd.jstree-default-small .jstree-ok {
+  background-position: -7px -71px;
+}
+#jstree-dnd.jstree-default-small .jstree-er {
+  background-position: -39px -71px;
+}
+.jstree-default-small.jstree-rtl .jstree-node {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAACAQMAAABv1h6PAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMHBgAAiABBI4gz9AAAAABJRU5ErkJggg==");
+}
+.jstree-default-small.jstree-rtl .jstree-last {
+  background: transparent;
+}
+.jstree-default-large .jstree-node {
+  min-height: 32px;
+  line-height: 32px;
+  margin-left: 32px;
+  min-width: 32px;
+}
+.jstree-default-large .jstree-anchor {
+  line-height: 32px;
+  height: 32px;
+}
+.jstree-default-large .jstree-icon {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+}
+.jstree-default-large .jstree-icon:empty {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+}
+.jstree-default-large.jstree-rtl .jstree-node {
+  margin-right: 32px;
+}
+.jstree-default-large .jstree-wholerow {
+  height: 32px;
+}
+.jstree-default-large .jstree-node,
+.jstree-default-large .jstree-icon {
+  background-image: url("32px.png");
+}
+.jstree-default-large .jstree-node {
+  background-position: -288px 0px;
+  background-repeat: repeat-y;
+}
+.jstree-default-large .jstree-last {
+  background: transparent;
+}
+.jstree-default-large .jstree-open > .jstree-ocl {
+  background-position: -128px 0px;
+}
+.jstree-default-large .jstree-closed > .jstree-ocl {
+  background-position: -96px 0px;
+}
+.jstree-default-large .jstree-leaf > .jstree-ocl {
+  background-position: -64px 0px;
+}
+.jstree-default-large .jstree-themeicon {
+  background-position: -256px 0px;
+}
+.jstree-default-large > .jstree-no-dots .jstree-node,
+.jstree-default-large > .jstree-no-dots .jstree-leaf > .jstree-ocl {
+  background: transparent;
+}
+.jstree-default-large > .jstree-no-dots .jstree-open > .jstree-ocl {
+  background-position: -32px 0px;
+}
+.jstree-default-large > .jstree-no-dots .jstree-closed > .jstree-ocl {
+  background-position: 0px 0px;
+}
+.jstree-default-large .jstree-disabled {
+  background: transparent;
+}
+.jstree-default-large .jstree-disabled.jstree-hovered {
+  background: transparent;
+}
+.jstree-default-large .jstree-disabled.jstree-clicked {
+  background: #efefef;
+}
+.jstree-default-large .jstree-checkbox {
+  background-position: -160px 0px;
+}
+.jstree-default-large .jstree-checkbox:hover {
+  background-position: -160px -32px;
+}
+.jstree-default-large.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox,
+.jstree-default-large .jstree-checked > .jstree-checkbox {
+  background-position: -224px 0px;
+}
+.jstree-default-large.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox:hover,
+.jstree-default-large .jstree-checked > .jstree-checkbox:hover {
+  background-position: -224px -32px;
+}
+.jstree-default-large .jstree-anchor > .jstree-undetermined {
+  background-position: -196px 0px;
+}
+.jstree-default-large .jstree-anchor > .jstree-undetermined:hover {
+  background-position: -196px -32px;*/
+}
+.jstree-default-large .jstree-checkbox-disabled {
+  opacity: 0.8;
+  filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'jstree-grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#jstree-grayscale");
+  /* Firefox 10+ */
+  filter: gray;
+  /* IE6-9 */
+  -webkit-filter: grayscale(100%);
+  /* Chrome 19+ & Safari 6+ */
+}
+.jstree-default-large > .jstree-striped {
+  background-size: auto 64px;
+}
+.jstree-default-large.jstree-rtl .jstree-node {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAACAQMAAAB49I5GAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjAAMOBgAAGAAJMwQHdQAAAABJRU5ErkJggg==");
+  background-position: 100% 1px;
+  background-repeat: repeat-y;
+}
+.jstree-default-large.jstree-rtl .jstree-last {
+  background: transparent;
+}
+.jstree-default-large.jstree-rtl .jstree-open > .jstree-ocl {
+  background-position: -128px -32px;
+}
+.jstree-default-large.jstree-rtl .jstree-closed > .jstree-ocl {
+  background-position: -96px -32px;
+}
+.jstree-default-large.jstree-rtl .jstree-leaf > .jstree-ocl {
+  background-position: -64px -32px;
+}
+.jstree-default-large.jstree-rtl > .jstree-no-dots .jstree-node,
+.jstree-default-large.jstree-rtl > .jstree-no-dots .jstree-leaf > .jstree-ocl {
+  background: transparent;
+}
+.jstree-default-large.jstree-rtl > .jstree-no-dots .jstree-open > .jstree-ocl {
+  background-position: -32px -32px;
+}
+.jstree-default-large.jstree-rtl > .jstree-no-dots .jstree-closed > .jstree-ocl {
+  background-position: 0px -32px;
+}
+.jstree-default-large .jstree-themeicon-custom {
+  background-color: transparent;
+  b
+1b7a
+ackground-image: none;
+  background-position: 0 0;
+}
+.jstree-default-large > .jstree-container-ul .jstree-loading > .jstree-ocl {
+  background: url("throbber.gif") center center no-repeat;
+}
+.jstree-default-large .jstree-file {
+  background: url("32px.png") -96px -64px no-repeat;
+}
+.jstree-default-large .jstree-folder {
+  background: url("32px.png") -256px 0px no-repeat;
+}
+.jstree-default-large > .jstree-container-ul > .jstree-node {
+  margin-left: 0;
+  margin-right: 0;
+}
+#jstree-dnd.jstree-default-large {
+  line-height: 32px;
+  padding: 0 4px;
+}
+#jstree-dnd.jstree-default-large .jstree-ok,
+#jstree-dnd.jstree-default-large .jstree-er {
+  background-image: url("32px.png");
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+#jstree-dnd.jstree-default-large i {
+  background: transparent;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+}
+#jstree-dnd.jstree-default-large .jstree-ok {
+  background-position: 0px -64px;
+}
+#jstree-dnd.jstree-default-large .jstree-er {
+  background-position: -32px -64px;
+}
+.jstree-default-large.jstree-rtl .jstree-node {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAACAQMAAAAD0EyKAAAABlBMVEUAAAAdHRvEkCwcAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjgIIGBgABCgCBvVLXcAAAAABJRU5ErkJggg==");
+}
+.jstree-default-large.jstree-rtl .jstree-last {
+  background: transparent;
+}
+@media (max-width: 768px) {
+  #jstree-dnd.jstree-dnd-responsive {
+    line-height: 40px;
+    font-weight: bold;
+    font-size: 1.1em;
+    text-shadow: 1px 1px white;
+  }
+  #jstree-dnd.jstree-dnd-responsive > i {
+    background: transparent;
+    width: 40px;
+    height: 40px;
+  }
+  #jstree-dnd.jstree-dnd-responsive > .jstree-ok {
+    background-image: url("40px.png");
+    background-position: 0 -200px;
+    background-size: 120px 240px;
+  }
+  #jstree-dnd.jstree-dnd-responsive > .jstree-er {
+    background-image: url("40px.png");
+    background-position: -40px -200px;
+    background-size: 120px 240px;
+  }
+  #jstree-marker.jstree-dnd-responsive {
+    border-left-width: 10px;
+    border-top-width: 10px;
+    border-bottom-width: 10px;
+    margin-top: -10px;
+  }
+}
+@media (max-width: 768px) {
+  .jstree-default-responsive {
+    /*
+	.jstree-open > .jstree-ocl,
+	.jstree-closed > .jstree-ocl { border-radius:20px; background-color:white; }
+	*/
+  }
+  .jstree-default-responsive .jstree-icon {
+    background-image: url("40px.png");
+  }
+  .jstree-default-responsive .jstree-node,
+  .jstree-default-responsive .jstree-leaf > .jstree-ocl {
+    background: transparent;
+  }
+  .jstree-default-responsive .jstree-node {
+    min-height: 40px;
+    line-height: 40px;
+    margin-left: 40px;
+    min-width: 40px;
+    white-space: nowrap;
+  }
+  .jstree-default-responsive .jstree-anchor {
+    line-height: 40px;
+    height: 40px;
+  }
+  .jstree-default-responsive .jstree-icon,
+  .jstree-default-responsive .jstree-icon:empty {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+  }
+  .jstree-default-responsive > .jstree-container-ul > .jstree-node {
+    margin-left: 0;
+  }
+  .jstree-default-responsive.jstree-rtl .jstree-node {
+    margin-left: 0;
+    margin-right: 40px;
+  }
+  .jstree-default-responsive.jstree-rtl .jstree-container-ul > .jstree-node {
+    margin-right: 0;
+  }
+  .jstree-default-responsive .jstree-ocl,
+  .jstree-default-responsive .jstree-themeicon,
+  .jstree-default-responsive .jstree-checkbox {
+    background-size: 120px 240px;
+  }
+  .jstree-default-responsive .jstree-leaf > .jstree-ocl {
+    background: transparent;
+  }
+  .jstree-default-responsive .jstree-open > .jstree-ocl {
+    background-position: 0 0px !important;
+  }
+  .jstree-default-responsive .jstree-closed > .jstree-ocl {
+    background-position: 0 -40px !important;
+  }
+  .jstree-default-responsive.jstree-rtl .jstree-closed > .jstree-ocl {
+    background-position: -40px 0px !important;
+  }
+  .jstree-default-responsive .jstree-themeicon {
+    background-position: -40px -40px;
+  }
+  .jstree-default-responsive .jstree-checkbox,
+  .jstree-default-responsive .jstree-checkbox:hover {
+    background-position: -40px -80px;
+  }
+  .jstree-default-responsive.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox,
+  .jstree-default-responsive.jstree-checkbox-selection .jstree-clicked > .jstree-checkbox:hover,
+  .jstree-default-responsive .jstree-checked > .jstree-checkbox,
+  .jstree-default-responsive .jstree-checked > .jstree-checkbox:hover {
+    background-position: 0 -80px;
+  }
+  .jstree-default-responsive .jstree-anchor > .jstree-undetermined,
+  .jstree-default-responsive .jstree-anchor > .jstree-undetermined:hover {
+    background-position: 0 -120px;
+  }
+  .jstree-default-responsive .jstree-anchor {
+    font-weight: bold;
+    font-size: 1.1em;
+    text-shadow: 1px 1px white;
+  }
+  .jstree-default-responsive > .jstree-striped {
+    background: transparent;
+  }
+  .jstree-default-responsive .jstree-wholerow {
+    border-top: 1px solid rgba(255, 255, 255, 0.7);
+    border-bottom: 1px solid rgba(64, 64, 64, 0.2);
+    background: #ebebeb;
+    height: 40px;
+  }
+  .jstree-default-responsive .jstree-wholerow-hovered {
+    background: #e7f4f9;
+  }
+  .jstree-default-responsive .jstree-wholerow-clicked {
+    background: #beebff;
+  }
+  .jstree-default-responsive .jstree-children .jstree-last > .jstree-wholerow {
+    box-shadow: inset 0 -6px 3px -5px #666666;
+  }
+  .jstree-default-responsive .jstree-children .jstree-open > .jstree-wholerow {
+    box-shadow: inset 0 6px 3px -5px #666666;
+    border-top: 0;
+  }
+  .jstree-default-responsive .jstree-children .jstree-open + .jstree-open {
+    box-shadow: none;
+  }
+  .jstree-default-responsive .jstree-node,
+  .jstree-default-responsive .jstree-icon,
+  .jstree-default-responsive .jstree-node > .jstree-ocl,
+  .jstree-default-responsive .jstree-themeicon,
+  .jstree-default-responsive .jstree-checkbox {
+    background-image: url("40px.png");
+    background-size: 120px 240px;
+  }
+  .jstree-default-responsive .jstree-node {
+    background-position: -80px 0;
+    background-repeat: repeat-y;
+  }
+  .jstree-default-responsive .jstree-last {
+    background: transparent;
+  }
+  .jstree-default-responsive .jstree-leaf > .jstree-ocl {
+    background-position: -40px -120px;
+  }
+  .jstree-default-responsive .jstree-last > .jstree-ocl {
+    background-position: -40px -160px;
+  }
+  .jstree-default-responsive .jstree-themeicon-custom {
+    background-color: transparent;
+    background-image: none;
+    background-position: 0 0;
+  }
+  .jstree-default-responsive .jstree-file {
+    background: url("40px.png") 0 -160px no-repeat;
+    background-size: 120px 240px;
+  }
+  .jstree-default-responsive .jstree-folder {
+    background: url("40px.png") -40px -40px no-repeat;
+    background-size: 120px 240px;
+  }
+  .jstree-default-responsive > .jstree-container-ul > .jstree-node {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+0
+
+GET /MONITOR/ims/common/jquery-jstree/js/jstree.js HTTP/1.1
+Host: 172.16.210.84:31600
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36
+Accept: */*
+Referer: http://172.16.210.84:31600/MONITOR/ims/app/monitor/state_monitor/jsp/state_monitor.jsp
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+Cookie: JSESSIONID=ST-150-cegxGboobdGRs0hbIW71-sgcc.isc.com
+
+[129696 bytes missing]
+			obj = obj && obj.id ? obj : this.get_node(obj);
+			par = par && par.id ? par : this.get_node(par);
+			var tmp = chk.match(/^move_node|copy_node|create_node$/i) ? par : obj,
+				chc = this.settings.core.check_callback;
+			if(chk === "move_node" || chk === "copy_node") {
+				if((!more || !more.is_multi) && (obj.id === par.id || $.inArray(obj.id, par.children) === pos || $.inArray(par.id, obj.children_d) !== -1)) {
+					this._data.core.last_error = { 'error' : 'check', 'plugin' : 'core', 'id' : 'core_01', 'reason' : 'Moving parent inside child', 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+					return false;
+				}
+			}
+			if(tmp && tmp.data) { tmp = tmp.data; }
+			if(tmp && tmp.functions && (tmp.functions[chk] === false || tmp.functions[chk] === true)) {
+				if(tmp.functions[chk] === false) {
+					this._data.core.last_error = { 'error' : 'check', 'plugin' : 'core', 'id' : 'core_02', 'reason' : 'Node data prevents function: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+				}
+				return tmp.functions[chk];
+			}
+			if(chc === false || ($.isFunction(chc) && chc.call(this, chk, obj, par, pos, more) === false) || (chc && chc[chk] === false)) {
+				this._data.core.last_error = { 'error' : 'check', 'plugin' : 'core', 'id' : 'core_03', 'reason' : 'User config for core.check_callback prevents function: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+				return false;
+			}
+			return true;
+		},
+		/**
+		 * get the last error
+		 * @name last_error()
+		 * @ret
+2000
+urn {Object}
+		 */
+		last_error : function () {
+			return this._data.core.last_error;
+		},
+		/**
+		 * move a node to a new parent
+		 * @name move_node(obj, par [, pos, callback, is_loaded])
+		 * @param  {mixed} obj the node to move, pass an array to move multiple nodes
+		 * @param  {mixed} par the new parent
+		 * @param  {mixed} pos the position to insert at (besides integer values, "first" and "last" are supported, as well as "before" and "after"), defaults to integer `0`
+		 * @param  {function} callback a function to call once the move is completed, receives 3 arguments - the node, the new parent and the position
+		 * @param  {Boolean} is_loaded internal parameter indicating if the parent node has been loaded
+		 * @param  {Boolean} skip_redraw internal parameter indicating if the tree should be redrawn
+		 * @param  {Boolean} instance internal parameter indicating if the node comes from another instance
+		 * @trigger move_node.jstree
+		 */
+		move_node : function (obj, par, pos, callback, is_loaded, skip_redraw, origin) {
+			var t1, t2, old_par, old_pos, new_par, old_ins, is_multi, dpc, tmp, i, j, k, l, p;
+
+			par = this.get_node(par);
+			pos = pos === undefined ? 0 : pos;
+			if(!par) { return false; }
+			if(!pos.toString().match(/^(before|after)$/) && !is_loaded && !this.is_loaded(par)) {
+				return this.load_node(par, function () { this.move_node(obj, par, pos, callback, true, false, origin); });
+			}
+
+			if($.isArray(obj)) {
+				if(obj.length === 1) {
+					obj = obj[0];
+				}
+				else {
+					//obj = obj.slice();
+					for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+						if((tmp = this.move_node(obj[t1], par, pos, callback, is_loaded, false, origin))) {
+							par = tmp;
+							pos = "after";
+						}
+					}
+					this.redraw();
+					return true;
+				}
+			}
+			obj = obj && obj.id ? obj : this.get_node(obj);
+
+			if(!obj || obj.id === $.jstree.root) { return false; }
+
+			old_par = (obj.parent || $.jstree.root).toString();
+			new_par = (!pos.toString().match(/^(before|after)$/) || par.id === $.jstree.root) ? par : this.get_node(par.parent);
+			old_ins = origin ? origin : (this._model.data[obj.id] ? this : $.jstree.reference(obj.id));
+			is_multi = !old_ins || !old_ins._id || (this._id !== old_ins._id);
+			old_pos = old_ins && old_ins._id && old_par && old_ins._model.data[old_par] && old_ins._model.data[old_par].children ? $.inArray(obj.id, old_ins._model.data[old_par].children) : -1;
+			if(old_ins && old_ins._id) {
+				obj = old_ins._model.data[obj.id];
+			}
+
+			if(is_multi) {
+				if((tmp = this.copy_node(obj, par, pos, callback, is_loaded, false, origin))) {
+					if(old_ins) { old_ins.delete_node(obj); }
+					return tmp;
+				}
+				return false;
+			}
+			//var m = this._model.data;
+			if(par.id === $.jstree.root) {
+				if(pos === "before") { pos = "first"; }
+				if(pos === "after") { pos = "last"; }
+			}
+			switch(pos) {
+				case "before":
+					pos = $.inArray(par.id, new_par.children);
+					break;
+				case "after" :
+					pos = $.inArray(par.id, new_par.children) + 1;
+					break;
+				case "inside":
+				case "first":
+					pos = 0;
+					break;
+				case "last":
+					pos = new_par.children.length;
+					break;
+				default:
+					if(!pos) { pos = 0; }
+					break;
+			}
+			if(pos > new_par.children.length) { pos = new_par.children.length; }
+			if(!this.check("move_node", obj, new_par, pos, { 'core' : true, 'origin' : origin, 'is_multi' : (old_ins && old_ins._id && old_ins._id !== this._id), 'is_foreign' : (!old_ins || !old_ins._id) })) {
+				this.settings.core.error.call(this, this._data.core.last_error);
+				return false;
+			}
+			if(obj.parent === new_par.id) {
+				dpc = new_par.children.concat();
+				tmp = $.inArray(obj.id, dpc);
+				if(tmp !== -1) {
+					dpc = $.vakata.array_remove(dpc, tmp);
+					if(pos > tmp) { pos--; }
+				}
+				tmp = [];
+				for(i = 0, j = dpc.length; i < j; i++) {
+					tmp[i >= pos ? i+1 : i] = dpc[i];
+				}
+				tmp[pos] = obj.id;
+				new_par.children = tmp;
+				this._node_changed(new_par.id);
+				this.redraw(new_par.id === $.jstree.root);
+			}
+			else {
+				// clean old parent and up
+				tmp = obj.children_d.concat();
+				tmp.push(obj.id);
+				for(i = 0, j = obj.parents.length; i < j; i++) {
+					dpc = [];
+					p = old_ins._model.data[obj.parents[i]].children_d;
+					for(k = 0, l = p.length; k < l; k++) {
+						if($.inArray(p[k], tmp) === -1) {
+							dpc.push(p[k]);
+						}
+					}
+					old_ins._model.data[obj.parents[i]].children_d = dpc;
+				}
+				old_ins._model.data[old_par].children = $.vakata.array_remove_item(old_ins._model.data[old_par].children, obj.id);
+
+				// insert into new parent and up
+				for(i = 0, j = new_par.parents.length; i < j; i++) {
+					this._model.data[new_par.parents[i]].children_d = this._model.data[new_par.parents[i]].children_d.concat(tmp);
+				}
+				dpc = [];
+				for(i = 0, j = new_par.children.length; i < j; i++) {
+					dpc[i >= pos ? i+1 : i] = new_par.children[i];
+				}
+				dpc[pos] = obj.id;
+				new_par.children = dpc;
+				new_par.children_d.push(obj.id);
+				new_par.children_d = new_par.children_d.concat(obj.children_d);
+
+				// update object
+				obj.parent = new_par.id;
+				tmp = new_par.parents.concat();
+				tmp.unshift(new_par.id);
+				p = obj.parents.length;
+				obj.parents = tmp;
+
+				// update object children
+				tmp = tmp.concat();
+				for(i = 0, j = obj.children_d.length; i < j; i++) {
+					this._model.data[obj.children_d[i]].parents = this._model.data[obj.children_d[i]].parents.slice(0,p*-1);
+					Array.prototype.push.apply(this._model.data[obj.children_d[i]].parents, tmp);
+				}
+
+				if(old_par === $.jstree.root || new_par.id === $.jstree.root) {
+					this._model.force_full_redraw = true;
+				}
+				if(!this._model.force_full_redraw) {
+					this._node_changed(old_par);
+					this._node_changed(new_par.id);
+				}
+				if(!skip_redraw) {
+					this.redraw();
+				}
+			}
+			if(callback) { callback.call(this, obj, new_par, pos); }
+			/**
+			 * triggered when a node is moved
+			 * @event
+			 * @name move_node.jstree
+			 * @param {Object} node
+			 * @param {String} parent the parent's ID
+			 * @param {Number} position the position of the node among the parent's children
+			 * @param {String} old_parent the old parent of the node
+			 * @param {Number} old_position the old position of the node
+			 * @param {Boolean} is_multi do the node and new parent belong to different instances
+			 * @param {jsTree} old_instance the instance the node came from
+			 * @param {jsTree} new_instance the instance of the new parent
+			 */
+			this.trigger('move_node', { "node" : obj, "parent" : new_par.id, "position" : pos, "old_parent" : old_par, "old_position" : old_pos, 'is_multi' : (old_ins && old_ins._id && old_ins._id !== this._id), 'is_foreign' : (!old_ins || !old_ins._id), 'old_instance' : old_ins, 'new_instance' : this });
+			return obj.id;
+		},
+		/**
+		 * copy a node to a new parent
+		 * @name copy_node(obj, par [, pos, callback, is_loaded])
+		 * @param  {mixed} obj the node to copy, pass an array to copy multiple nodes
+		 * @param  {mixed} par the new parent
+		 * @param  {mixed} pos the position to insert at (besides integer values, "first" and "last" are supported, as well as "before" and "after"), defaults to integer `0`
+		 * @param  {function} callback a function to call once the move is completed, receives 3 arguments - the node, the new parent and the position
+		 * @param  {Boolean} is_loaded internal parameter indicating if the parent node has been loaded
+		 * @param  {Boolean} skip_redraw internal parameter indicating if the tree should be redrawn
+		 * @param  {Boolean} instance internal parameter indicating if the node comes from another instance
+		 * @trigger model.jstree copy_node.jstree
+		 */
+		copy_node : function (obj, par, pos, callback, is_loaded, skip_redraw, origin) {
+			var t1, t2, dpc, tmp, i, j, node, old_par, new_par, old_ins, is_multi;
+
+			par = this.get_node(par);
+			pos = pos === undefined ? 0 : pos;
+			if(!par) { return false; }
+			if(!pos.toString().match(/^(before|after)$/) && !is_loade
+2000
+d && !this.is_loaded(par)) {
+				return this.load_node(par, function () { this.copy_node(obj, par, pos, callback, true, false, origin); });
+			}
+
+			if($.isArray(obj)) {
+				if(obj.length === 1) {
+					obj = obj[0];
+				}
+				else {
+					//obj = obj.slice();
+					for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+						if((tmp = this.copy_node(obj[t1], par, pos, callback, is_loaded, true, origin))) {
+							par = tmp;
+							pos = "after";
+						}
+					}
+					this.redraw();
+					return true;
+				}
+			}
+			obj = obj && obj.id ? obj : this.get_node(obj);
+			if(!obj || obj.id === $.jstree.root) { return false; }
+
+			old_par = (obj.parent || $.jstree.root).toString();
+			new_par = (!pos.toString().match(/^(before|after)$/) || par.id === $.jstree.root) ? par : this.get_node(par.parent);
+			old_ins = origin ? origin : (this._model.data[obj.id] ? this : $.jstree.reference(obj.id));
+			is_multi = !old_ins || !old_ins._id || (this._id !== old_ins._id);
+
+			if(old_ins && old_ins._id) {
+				obj = old_ins._model.data[obj.id];
+			}
+
+			if(par.id === $.jstree.root) {
+				if(pos === "before") { pos = "first"; }
+				if(pos === "after") { pos = "last"; }
+			}
+			switch(pos) {
+				case "before":
+					pos = $.inArray(par.id, new_par.children);
+					break;
+				case "after" :
+					pos = $.inArray(par.id, new_par.children) + 1;
+					break;
+				case "inside":
+				case "first":
+					pos = 0;
+					break;
+				case "last":
+					pos = new_par.children.length;
+					break;
+				default:
+					if(!pos) { pos = 0; }
+					break;
+			}
+			if(pos > new_par.children.length) { pos = new_par.children.length; }
+			if(!this.check("copy_node", obj, new_par, pos, { 'core' : true, 'origin' : origin, 'is_multi' : (old_ins && old_ins._id && old_ins._id !== this._id), 'is_foreign' : (!old_ins || !old_ins._id) })) {
+				this.settings.core.error.call(this, this._data.core.last_error);
+				return false;
+			}
+			node = old_ins ? old_ins.get_json(obj, { no_id : true, no_data : true, no_state : true }) : obj;
+			if(!node) { return false; }
+			if(node.id === true) { delete node.id; }
+			node = this._parse_model_from_json(node, new_par.id, new_par.parents.concat());
+			if(!node) { return false; }
+			tmp = this.get_node(node);
+			if(obj && obj.state && obj.state.loaded === false) { tmp.state.loaded = false; }
+			dpc = [];
+			dpc.push(node);
+			dpc = dpc.concat(tmp.children_d);
+			this.trigger('model', { "nodes" : dpc, "parent" : new_par.id });
+
+			// insert into new parent and up
+			for(i = 0, j = new_par.parents.length; i < j; i++) {
+				this._model.data[new_par.parents[i]].children_d = this._model.data[new_par.parents[i]].children_d.concat(dpc);
+			}
+			dpc = [];
+			for(i = 0, j = new_par.children.length; i < j; i++) {
+				dpc[i >= pos ? i+1 : i] = new_par.children[i];
+			}
+			dpc[pos] = tmp.id;
+			new_par.children = dpc;
+			new_par.children_d.push(tmp.id);
+			new_par.children_d = new_par.children_d.concat(tmp.children_d);
+
+			if(new_par.id === $.jstree.root) {
+				this._model.force_full_redraw = true;
+			}
+			if(!this._model.force_full_redraw) {
+				this._node_changed(new_par.id);
+			}
+			if(!skip_redraw) {
+				this.redraw(new_par.id === $.jstree.root);
+			}
+			if(callback) { callback.call(this, tmp, new_par, pos); }
+			/**
+			 * triggered when a node is copied
+			 * @event
+			 * @name copy_node.jstree
+			 * @param {Object} node the copied node
+			 * @param {Object} original the original node
+			 * @param {String} parent the parent's ID
+			 * @param {Number} position the position of the node among the parent's children
+			 * @param {String} old_parent the old parent of the node
+			 * @param {Number} old_position the position of the original node
+			 * @param {Boolean} is_multi do the node and new parent belong to different instances
+			 * @param {jsTree} old_instance the instance the node came from
+			 * @param {jsTree} new_instance the instance of the new parent
+			 */
+			this.trigger('copy_node', { "node" : tmp, "original" : obj, "parent" : new_par.id, "position" : pos, "old_parent" : old_par, "old_position" : old_ins && old_ins._id && old_par && old_ins._model.data[old_par] && old_ins._model.data[old_par].children ? $.inArray(obj.id, old_ins._model.data[old_par].children) : -1,'is_multi' : (old_ins && old_ins._id && old_ins._id !== this._id), 'is_foreign' : (!old_ins || !old_ins._id), 'old_instance' : old_ins, 'new_instance' : this });
+			return tmp.id;
+		},
+		/**
+		 * cut a node (a later call to `paste(obj)` would move the node)
+		 * @name cut(obj)
+		 * @param  {mixed} obj multiple objects can be passed using an array
+		 * @trigger cut.jstree
+		 */
+		cut : function (obj) {
+			if(!obj) { obj = this._data.core.selected.concat(); }
+			if(!$.isArray(obj)) { obj = [obj]; }
+			if(!obj.length) { return false; }
+			var tmp = [], o, t1, t2;
+			for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+				o = this.get_node(obj[t1]);
+				if(o && o.id && o.id !== $.jstree.root) { tmp.push(o); }
+			}
+			if(!tmp.length) { return false; }
+			ccp_node = tmp;
+			ccp_inst = this;
+			ccp_mode = 'move_node';
+			/**
+			 * triggered when nodes are added to the buffer for moving
+			 * @event
+			 * @name cut.jstree
+			 * @param {Array} node
+			 */
+			this.trigger('cut', { "node" : obj });
+		},
+		/**
+		 * copy a node (a later call to `paste(obj)` would copy the node)
+		 * @name copy(obj)
+		 * @param  {mixed} obj multiple objects can be passed using an array
+		 * @trigger copy.jstree
+		 */
+		copy : function (obj) {
+			if(!obj) { obj = this._data.core.selected.concat(); }
+			if(!$.isArray(obj)) { obj = [obj]; }
+			if(!obj.length) { return false; }
+			var tmp = [], o, t1, t2;
+			for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+				o = this.get_node(obj[t1]);
+				if(o && o.id && o.id !== $.jstree.root) { tmp.push(o); }
+			}
+			if(!tmp.length) { return false; }
+			ccp_node = tmp;
+			ccp_inst = this;
+			ccp_mode = 'copy_node';
+			/**
+			 * triggered when nodes are added to the buffer for copying
+			 * @event
+			 * @name copy.jstree
+			 * @param {Array} node
+			 */
+			this.trigger('copy', { "node" : obj });
+		},
+		/**
+		 * get the current buffer (any nodes that are waiting for a paste operation)
+		 * @name get_buffer()
+		 * @return {Object} an object consisting of `mode` ("copy_node" or "move_node"), `node` (an array of objects) and `inst` (the instance)
+		 */
+		get_buffer : function () {
+			return { 'mode' : ccp_mode, 'node' : ccp_node, 'inst' : ccp_inst };
+		},
+		/**
+		 * check if there is something in the buffer to paste
+		 * @name can_paste()
+		 * @return {Boolean}
+		 */
+		can_paste : function () {
+			return ccp_mode !== false && ccp_node !== false; // && ccp_inst._model.data[ccp_node];
+		},
+		/**
+		 * copy or move the previously cut or copied nodes to a new parent
+		 * @name paste(obj [, pos])
+		 * @param  {mixed} obj the new parent
+		 * @param  {mixed} pos the position to insert at (besides integer, "first" and "last" are supported), defaults to integer `0`
+		 * @trigger paste.jstree
+		 */
+		paste : function (obj, pos) {
+			obj = this.get_node(obj);
+			if(!obj || !ccp_mode || !ccp_mode.match(/^(copy_node|move_node)$/) || !ccp_node) { return false; }
+			if(this[ccp_mode](ccp_node, obj, pos, false, false, false, ccp_inst)) {
+				/**
+				 * triggered when paste is invoked
+				 * @event
+				 * @name paste.jstree
+				 * @param {String} parent the ID of the receiving node
+				 * @param {Array} node the nodes in the buffer
+				 * @param {String} mode the performed operation - "copy_node" or "move_node"
+				 */
+				this.trigger('paste', { "parent" : obj.id, "node" : ccp_node, "mode" : ccp_mode });
+			}
+			ccp_node = false;
+			ccp_mode = false;
+			ccp_inst = false;
+		},
+		/**
+		 * clear the buffer of previously copied or cut nodes
+		 * @name clear_buffer()
+		 * @trigger clear_buffer.jstree
+		 */
+		clear_buffer : function () {
+			ccp_node = false;
+			ccp_mode = false;
+			ccp_inst = false;
+			/**
+			 * triggered when the copy / cut buffer is cleared
+			 * @event
+			 * @name clear_buffer.jstree
+			 */
+			this.trigger('clear_buf
+2000
+fer');
+		},
+		/**
+		 * put a node in edit mode (input field to rename the node)
+		 * @name edit(obj [, default_text, callback])
+		 * @param  {mixed} obj
+		 * @param  {String} default_text the text to populate the input with (if omitted or set to a non-string value the node's text value is used)
+		 * @param  {Function} callback a function to be called once the text box is blurred, it is called in the instance's scope and receives the node, a status parameter (true if the rename is successful, false otherwise) and a boolean indicating if the user cancelled the edit. You can access the node's title using .text
+		 */
+		edit : function (obj, default_text, callback) {
+			var rtl, w, a, s, t, h1, h2, fn, tmp, cancel = false;
+			obj = this.get_node(obj);
+			if(!obj) { return false; }
+			if(this.settings.core.check_callback === false) {
+				this._data.core.last_error = { 'error' : 'check', 'plugin' : 'core', 'id' : 'core_07', 'reason' : 'Could not edit node because of check_callback' };
+				this.settings.core.error.call(this, this._data.core.last_error);
+				return false;
+			}
+			tmp = obj;
+			default_text = typeof default_text === 'string' ? default_text : obj.text;
+			this.set_text(obj, "");
+			obj = this._open_to(obj);
+			tmp.text = default_text;
+
+			rtl = this._data.core.rtl;
+			w  = this.element.width();
+			this._data.core.focused = tmp.id;
+			a  = obj.children('.jstree-anchor').focus();
+			s  = $('<span>');
+			/*!
+			oi = obj.children("i:visible"),
+			ai = a.children("i:visible"),
+			w1 = oi.width() * oi.length,
+			w2 = ai.width() * ai.length,
+			*/
+			t  = default_text;
+			h1 = $("<"+"div />", { css : { "position" : "absolute", "top" : "-200px", "left" : (rtl ? "0px" : "-1000px"), "visibility" : "hidden" } }).appendTo("body");
+			h2 = $("<"+"input />", {
+						"value" : t,
+						"class" : "jstree-rename-input",
+						// "size" : t.length,
+						"css" : {
+							"padding" : "0",
+							"border" : "1px solid silver",
+							"box-sizing" : "border-box",
+							"display" : "inline-block",
+							"height" : (this._data.core.li_height) + "px",
+							"lineHeight" : (this._data.core.li_height) + "px",
+							"width" : "150px" // will be set a bit further down
+						},
+						"blur" : $.proxy(function (e) {
+							e.stopImmediatePropagation();
+							e.preventDefault();
+							var i = s.children(".jstree-rename-input"),
+								v = i.val(),
+								f = this.settings.core.force_text,
+								nv;
+							if(v === "") { v = t; }
+							h1.remove();
+							s.replaceWith(a);
+							s.remove();
+							t = f ? t : $('<div></div>').append($.parseHTML(t)).html();
+							this.set_text(obj, t);
+							nv = !!this.rename_node(obj, f ? $('<div></div>').text(v).text() : $('<div></div>').append($.parseHTML(v)).html());
+							if(!nv) {
+								this.set_text(obj, t); // move this up? and fix #483
+							}
+							this._data.core.focused = tmp.id;
+							setTimeout($.proxy(function () {
+								var node = this.get_node(tmp.id, true);
+								if(node.length) {
+									this._data.core.focused = tmp.id;
+									node.children('.jstree-anchor').focus();
+								}
+							}, this), 0);
+							if(callback) {
+								callback.call(this, tmp, nv, cancel);
+							}
+						}, this),
+						"keydown" : function (e) {
+							var key = e.which;
+							if(key === 27) {
+								cancel = true;
+								this.value = t;
+							}
+							if(key === 27 || key === 13 || key === 37 || key === 38 || key === 39 || key === 40 || key === 32) {
+								e.stopImmediatePropagation();
+							}
+							if(key === 27 || key === 13) {
+								e.preventDefault();
+								this.blur();
+							}
+						},
+						"click" : function (e) { e.stopImmediatePropagation(); },
+						"mousedown" : function (e) { e.stopImmediatePropagation(); },
+						"keyup" : function (e) {
+							h2.width(Math.min(h1.text("pW" + this.value).width(),w));
+						},
+						"keypress" : function(e) {
+							if(e.which === 13) { return false; }
+						}
+					});
+				fn = {
+						fontFamily		: a.css('fontFamily')		|| '',
+						fontSize		: a.css('fontSize')			|| '',
+						fontWeight		: a.css('fontWeight')		|| '',
+						fontStyle		: a.css('fontStyle')		|| '',
+						fontStretch		: a.css('fontStretch')		|| '',
+						fontVariant		: a.css('fontVariant')		|| '',
+						letterSpacing	: a.css('letterSpacing')	|| '',
+						wordSpacing		: a.css('wordSpacing')		|| ''
+				};
+			s.attr('class', a.attr('class')).append(a.contents().clone()).append(h2);
+			a.replaceWith(s);
+			h1.css(fn);
+			h2.css(fn).width(Math.min(h1.text("pW" + h2[0].value).width(),w))[0].select();
+		},
+
+
+		/**
+		 * changes the theme
+		 * @name set_theme(theme_name [, theme_url])
+		 * @param {String} theme_name the name of the new theme to apply
+		 * @param {mixed} theme_url  the location of the CSS file for this theme. Omit or set to `false` if you manually included the file. Set to `true` to autoload from the `core.themes.dir` directory.
+		 * @trigger set_theme.jstree
+		 */
+		set_theme : function (theme_name, theme_url) {
+			if(!theme_name) { return false; }
+			if(theme_url === true) {
+				var dir = this.settings.core.themes.dir;
+				if(!dir) { dir = $.jstree.path + '/themes'; }
+				theme_url = dir + '/' + theme_name + '/style.css';
+			}
+			if(theme_url && $.inArray(theme_url, themes_loaded) === -1) {
+				$('head').append('<'+'link rel="stylesheet" href="' + theme_url + '" type="text/css" />');
+				themes_loaded.push(theme_url);
+			}
+			if(this._data.core.themes.name) {
+				this.element.removeClass('jstree-' + this._data.core.themes.name);
+			}
+			this._data.core.themes.name = theme_name;
+			this.element.addClass('jstree-' + theme_name);
+			this.element[this.settings.core.themes.responsive ? 'addClass' : 'removeClass' ]('jstree-' + theme_name + '-responsive');
+			/**
+			 * triggered when a theme is set
+			 * @event
+			 * @name set_theme.jstree
+			 * @param {String} theme the new theme
+			 */
+			this.trigger('set_theme', { 'theme' : theme_name });
+		},
+		/**
+		 * gets the name of the currently applied theme name
+		 * @name get_theme()
+		 * @return {String}
+		 */
+		get_theme : function () { return this._data.core.themes.name; },
+		/**
+		 * changes the theme variant (if the theme has variants)
+		 * @name set_theme_variant(variant_name)
+		 * @param {String|Boolean} variant_name the variant to apply (if `false` is used the current variant is removed)
+		 */
+		set_theme_variant : function (variant_name) {
+			if(this._data.core.themes.variant) {
+				this.element.removeClass('jstree-' + this._data.core.themes.name + '-' + this._data.core.themes.variant);
+			}
+			this._data.core.themes.variant = variant_name;
+			if(variant_name) {
+				this.element.addClass('jstree-' + this._data.core.themes.name + '-' + this._data.core.themes.variant);
+			}
+		},
+		/**
+		 * gets the name of the currently applied theme variant
+		 * @name get_theme()
+		 * @return {String}
+		 */
+		get_theme_variant : function () { return this._data.core.themes.variant; },
+		/**
+		 * shows a striped background on the container (if the theme supports it)
+		 * @name show_stripes()
+		 */
+		show_stripes : function () { this._data.core.themes.stripes = true; this.get_container_ul().addClass("jstree-striped"); },
+		/**
+		 * hides the striped background on the container
+		 * @name hide_stripes()
+		 */
+		hide_stripes : function () { this._data.core.themes.stripes = false; this.get_container_ul().removeClass("jstree-striped"); },
+		/**
+		 * toggles the striped background on the container
+		 * @name toggle_stripes()
+		 */
+		toggle_stripes : function () { if(this._data.core.themes.stripes) { this.hide_stripes(); } else { this.show_stripes(); } },
+		/**
+		 * shows the connecting dots (if the theme supports it)
+		 * @name show_dots()
+		 */
+		show_dots : function () { this._data.core.themes.dots = true; this.get_container_ul().removeClass("jstree-no-dots"); },
+		/**
+		 * hides the connecting dots
+		 * @name hide_dots()
+		 */
+		hide_dots : function () { this._data.core.themes.dots = false; this.get_container_ul().addClass("jstree-no-dots"); },
+		/**
+1421
+
+		 * toggles the connecting dots
+		 * @name toggle_dots()
+		 */
+		toggle_dots : function () { if(this._data.core.themes.dots) { this.hide_dots(); } else { this.show_dots(); } },
+		/**
+		 * show the node icons
+		 * @name show_icons()
+		 */
+		show_icons : function () { this._data.core.themes.icons = true; this.get_container_ul().removeClass("jstree-no-icons"); },
+		/**
+		 * hide the node icons
+		 * @name hide_icons()
+		 */
+		hide_icons : function () { this._data.core.themes.icons = false; this.get_container_ul().addClass("jstree-no-icons"); },
+		/**
+		 * toggle the node icons
+		 * @name toggle_icons()
+		 */
+		toggle_icons : function () { if(this._data.core.themes.icons) { this.hide_icons(); } else { this.show_icons(); } },
+		/**
+		 * set the node icon for a node
+		 * @name set_icon(obj, icon)
+		 * @param {mixed} obj
+		 * @param {String} icon the new icon - can be a path to an icon or a className, if using an image that is in the current directory use a `./` prefix, otherwise it will be detected as a class
+		 */
+		set_icon : function (obj, icon) {
+			var t1, t2, dom, old;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.set_icon(obj[t1], icon);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === $.jstree.root) { return false; }
+			old = obj.icon;
+			obj.icon = icon === true || icon === null || icon === undefined || icon === '' ? true : icon;
+			dom = this.get_node(obj, true).children(".jstree-anchor").children(".jstree-themeicon");
+			if(icon === false) {
+				this.hide_icon(obj);
+			}
+			else if(icon === true || icon === null || icon === undefined || icon === '') {
+				dom.removeClass('jstree-themeicon-custom ' + old).css("background","").removeAttr("rel");
+				if(old === false) { this.show_icon(obj); }
+			}
+			else if(icon.indexOf("/") === -1 && icon.indexOf(".") === -1) {
+				dom.removeClass(old).css("background","");
+				dom.addClass(icon + ' jstree-themeicon-custom').attr("rel",icon);
+				if(old === false) { this.show_icon(obj); }
+			}
+			else {
+				dom.removeClass(old).css("background","");
+				dom.addClass('jstree-themeicon-custom').css("background", "url('" + icon + "') center center no-repeat").attr("rel",icon);
+				if(old === false) { this.show_icon(obj); }
+			}
+			return true;
+		},
+		/**
+		 * get the node icon for a node
+		 * @name get_icon(obj)
+		 * @param {mixed} obj
+		 * @return {String}
+		 */
+		get_icon : function (obj) {
+			obj = this.get_node(obj);
+			return (!obj || obj.id === $.jstree.root) ? false : obj.icon;
+		},
+		/**
+		 * hide the icon on an individual node
+		 * @name hide_icon(obj)
+		 * @param {mixed} obj
+		 */
+		hide_icon : function (obj) {
+			var t1, t2;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.hide_icon(obj[t1]);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj === $.jstree.root) { return false; }
+			obj.icon = false;
+			this.get_node(obj, true).children(".jstree-anchor").children(".jstree-themeicon").addClass('jstree-themeicon-hidden');
+			return true;
+		},
+		/**
+		 * show the icon on an individual node
+		 * @name show_icon(obj)
+		 * @param {mixed} obj
+		 */
+		show_icon : function (obj) {
+			var t1, t2, dom;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.show_icon(obj[t1]);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj === $.jstree.root) { return false; }
+			dom = this.get_node(obj, true);
+			obj.icon = dom.length ? dom.children(".jstree-anchor").children(".jstree-themeicon").attr('rel') : true;
+			if(!obj.icon) { obj.icon = true; }
+			dom.children(".jstree-anchor").children(".jstree-themeicon").removeClass('jstree-themeicon-hidden');
+			return true;
+		}
+	};
+
+	// helpers
+	$.vakata = {};
+	// collect attributes
+	$.vakata.attributes = function(node, with_values) {
+		node = $(node)[0];
+		var attr = with_values ? {} : [];
+		if(node && node.attributes) {
+			$.each(node.attributes, function (i, v) {
+				if($.inArray(v.name.toLowerCase(),['style','contenteditable','hasfocus','tabindex']) !== -1) { return; }
+				if(v.value !== null && $.trim(v.value) !== '') {
+					if(with_values) { attr[v.name] = v.value; }
+					else { attr.push(v.name); }
+				}
+			});
+		}
+		return attr;
+	};
+	$.vakata.array_unique = function(array) {
+		var a = [], i, j, l, o = {};
+		for(i = 0, l = array.length; i < l; i++) {
+			if(o[array[i]] === undefined) {
+				a.push(array[i]);
+				o[array[i]] = true;
+			}
+		}
+		return a;
+	};
+	// remove item from array
+	$.vakata.array_remove = function(array, from, to) {
+		var rest = array.slice((to || from) + 1 || array.length);
+		array.length = from < 0 ? array.length + from : from;
+		array.push.apply(array, rest);
+		return array;
+	};
+	// remove item from array
+	$.vakata.array_remove_item = function(array, item) {
+		var tmp = $.inArray(item, array);
+		return tmp !== -1 ? $.vakata.array_remove(array, tmp) : array;
+	};
+}));
+
+0
+
+GET /MONITOR/ims/app/monitor/list_query/js/trend_map_plugin.js HTTP/1.1
+Host: 172.16.210.84:31600
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36
+Accept: */*
+Referer: http://172.16.210.84:31600/MONITOR/ims/app/monitor/state_monitor/jsp/state_monitor.jsp
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+Cookie: JSESSIONID=ST-150-cegxGboobdGRs0hbIW71-sgcc.isc.com
+
+HTTP/1.1 200 
+X-Application-Context: front-gateway:8001
+P3P: CP=CAO PSA OUR
+Accept-Ranges: bytes
+ETag: W/"3722-1571215181000"
+Last-Modified: Wed, 16 Oct 2019 08:39:41 GMT
+Date: Tue, 12 Nov 2019 08:37:06 GMT
+Content-Type: application/javascript
+Transfer-Encoding: chunked
+
+e8a
+;(function($){
+	'use strict';
+	var Trend = function(element,options){
+		this.$element = $(element);
+		var divHeight = (this.$element.parents('.homepageshow').height()*0.8+15);
+		if(divHeight>15){
+			this.height = divHeight+'px';
+		}else{
+			this.height = (this.$element.height()*0.8+15)+'px';
+		}
+		this.width = this.$element.width() + 'px';
+		this.data = options.data;
+		this.timecycle = options.timecycle;
+		this.init();
+	}
+	/**
+	 * 初始化
+	 */
+	Trend.prototype.init = function(){
+		var elementId = this.$element.attr("id");
+		var id = 'trend_map_'+this.$element.parents('.panelViewShow').index();
+		if(!isNull(elementId)){
+			id = 'trend_map_'+elementId;
+		}
+		var html = '<div class="homepageshow" style="border:0;width:100%;">'+
+						'<div class="panel-body" style="padding: 0px;padding-left:10px;width:'+this.width +'; height: '+this.height+';" id="'+id+'"></div>'+
+					'</div>';
+		this.$element.append($(html));
+		//生成线图
+		this.CreateLineChart(id,this.data);
+	}
+	
+	function isNull(data){//判断是否为空
+		if(data ==undefined || data==null || data=="NULL" || data=="null" || data=="" || data=="[]" || data=={} || data==[])
+			return true;
+		else
+		    return false;
+	}
+	/**
+	 * 生成线图
+	 */
+	Trend.prototype.CreateLineChart = function(id,data){
+		var $that = this;
+		if(data == undefined)
+			return;
+		var resultList = [];
+		var xdata = data.xdata.split(" ").join("\n").split(',');//横轴数据数组
+		var series = data.series;//系列数组
+		var legendData = data.legendData.split(',');//图例数组
+		var name = data.label==undefined?'数量（个）':data.label;
+		var yNumber = 4;
+		if($(window).height()<600){
+			yNumber = 2;
+		}
+		$.each(data.series,function(i,obj){
+			obj.data = obj.data.split(',');
+			obj['smooth'] = true;
+			obj['type'] = 'line';
+			obj['lineStyle'] = {"normal":{"width":2}};
+		});
+		var option = {
+			    tooltip : {
+			        trigger: 'axis'
+			    },
+			    color: ["#3464ec","#1ee055","#e0991e","#ff4a4a"],
+			    legend: {
+			        data:legendData
+			    },
+			    xAxis : [
+			        {
+			            type : 'category',
+			            boundaryGap : false,
+			            data : xdata,
+			            axisLabel:{
+					    	formatter:function(value, index){
+					    		if("last24hour"==$that.timecycle||"today"==$that.timecycle){
+						    		var str = value.toString();
+						    		str=str.replace(new RegExp(/-/gm) ,"/"); 
+						    		var oDate1 = new Date(str);
+					    			return oDate1.getHours()+":00:00";
+					    		}else{
+					    			return value;
+					    		}
+					    	}
+					    }
+			        }
+			    ],
+			    yAxis : [
+			        {
+			            type : 'value',
+			            name:name,
+                        splitNumber:yNumber
+			        }
+			    ],
+			    series :series
+		};
+		this.myCharts = echarts.init(document.getElementById(id));
+		this.myCharts.setOption(option, true);
+	}
+	/**
+	 * 刷新线图
+	 */
+	Trend.prototype.refresh = function(datas){
+		this.timecycle = datas[1];
+		var id = this.$element.find('.panel-body').attr('id');
+		this.CreateLineChart(id,datas[0]);
+	}
+	
+	$.fn.trend = function(option,args){
+		var value;
+		this.each(function(){	
+			var $this = $(this),
+				data = $this.data("drwaCircle.ciDrwaCircle"),
+				options = $.extend({}, $this.data(), typeof option == 'object' && option);
+				if (!data) $this.data('drwaCircle.ciDrwaCircle', (data = new Trend(this, options)))
+				if (typeof option == 'string') {
+	                value = data[option](args)
+	            }
+		});
+		return typeof value === 'undefined' ? this : value;
+	};
+	$.fn.trend.Constructor = Trend;
+})(jQuery);
+0
+
+GET /MONITOR/ims/app/monitor/list_query/js/kpiplugin.ports.js HTTP/1.1
+Host: 172.16.210.84:31600
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36
+Accept: */*
+Referer: http://172.16.210.84:31600/MONITOR/ims/app/monitor/state_monitor/jsp/state_monitor.jsp
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+Cookie: JSESSIONID=ST-150-cegxGboobdGRs0hbIW71-sgcc.isc.com
+
+HTTP/1.1 200 
+X-Application-Context: front-gateway:8001
+P3P: CP=CAO PSA OUR
+Accept-Ranges: bytes
+ETag: W/"5939-1568253418000"
+Last-Modified: Thu, 12 Sep 2019 01:56:58 GMT
+Date: Tue, 12 Nov 2019 08:37:06 GMT
+Content-Type: application/javascript
+Transfer-Encoding: chunked
+
+1733
+/**
+ * 端口对比图插件
+ */
+;
+(function ($) {
+    'use strict';
+    // 初始化端口对比图
+    var MonitorPortContrast = function (element, options) {
+        this.$element = element;
+        this.$options = options;
+        this.data = options.data;
+        this.height = this.data.length*65;
+        this.init();
+    };
+
+    // 定义端口对比图插件初始化方法
+    MonitorPortContrast.prototype.init = function () {
+        var $that = this,
+            dataList = $that.$options.data,
+            $Div = $($that.$element);
+        var portStr = $('<div  style="width: 100%;height:'+this.height+'px;"></div>');
+        $Div.append(portStr);
+        this.$Div = $Div;
+        this.creatPortView(this.$Div, dataList);
+    };
+    MonitorPortContrast.prototype.creatPortView = function ($Div, data) {
+        var inputData = [],
+            outData = [],
+            labelData = [];
+        for (var i = 0; i < data.length; i++) {
+            inputData.push('-'+data[i].input.value);
+            outData.push(data[i].output.value);
+            labelData.push(data[i].label);
+        };
+    	var unitType = data[0].unitType,
+    	inputName = data[0].input.name+'('+unitType+')',
+    	outputName = data[0].output.name+'('+unitType+')';
+    	
+        var dom = $($Div).find("div")[0];
+        var myChart = echarts.init(dom);
+        var option = null;
+        option = {
+        	color : ['#605ca8','#009999'],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+                },
+                 formatter : function(params){
+                	 var html = '';
+                	 if(params[0] != undefined)
+                		 html += params[0].name+'<br><span class="viewimgMsG viewimgMsGBefGreen">'+ 
+                     params[0].seriesName+'：'+Math.abs(params[0].value)+'</sapn>';
+                	 if(params[1] != undefined)
+                		 html += '</br><span class="viewimgMsG viewimgMsGBefGreen">'+ 
+                     params[1].seriesName+'：'+Math.abs(params[1].value)+'</sapn>';
+                     return html;
+                 }
+            },
+            legend: {
+                data: [inputName, outputName]
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [{
+                type: 'value',
+                show: false
+            }],
+            yAxis: [{
+                type: 'category',
+                axisTick: {
+                    show: false
+                },
+                axisLine : {
+                    show: true,
+                    lineStyle: {color: '#7EDEDE'}
+                },
+                axisLabel : {
+                    textStyle: {
+                        color:"#000",
+                        align: 'right'
+                    },
+                    margin:60,
+                    formatter: function(lab){
+                        if(lab.length>=25){
+                            lab = lab.length>25 ? lab.substr(0,26)+"..." : lab;
+                            return lab;
+                        }else{
+                        	return lab;
+                        };
+                    }
+                },
+                data: labelData
+            }],
+            series: [{
+                    name: inputName,
+                    type: 'bar',
+                    stack: '总量',
+                    barWidth : 30,//柱图宽度
+                    label: {
+                        normal: {
+                            show: true,
+                            formatter: function (data) {
+                                if (data.value < 0) {
+                                    return Math.abs(data.value);
+                                }
+                            },
+                            position : 'inside'
+                        }
+                    },
+                    data: inputData
+                },
+                {
+                    name: outputName,
+                    type: 'bar',
+                    stack: '总量',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'inside',
+                            formatter: function (data) {
+                                if (data.value < 0) {
+                                    return Math.abs(data.value);
+                                }
+                            }
+                        },
+                    },
+                    data: outData
+                }
+            ]
+        };
+        if (option && typeof option === "object") {
+            myChart.setOption(option, true);
+        }
+    }
+    // 定义端口对比图插件刷新方法
+    MonitorPortContrast.prototype.refresh = function (refreshData) {
+        this.creatPortView(this.$Div, refreshData)
+    };
+    // 定义html调用插件方法
+    $.fn.ports = function (option, args) {
+        var value;
+        this.each(function () {
+            var $this = $(this),
+                data = $this.data("portContrast"), //定义一个名叫“hardwareStatus”的数据
+                options = $.extend({}, $this.data(), typeof option == 'object' && option);
+            if (!data) {
+                $this.data("portContrast", (data = new MonitorPortContrast(this, options)));
+            };
+            if (typeof option == 'string') {
+                value = data[option](args);
+            };
+        });
+        return typeof value === 'undefined' ? this : value;
+    };
+    $.fn.ports.Constructor = MonitorPortContrast;
+})(jQuery);
+
+0
+
+GET /MONITOR/ims/common/layui/layui.js HTTP/1.1
+Host: 172.16.210.84:31600
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36
+Accept: */*
+Referer: http://172.16.210.84:31600/MONITOR/ims/app/monitor/state_monitor/jsp/state_monitor.jsp
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+Cookie: JSESSIONID=ST-150-cegxGboobdGRs0hbIW71-sgcc.isc.com
+
+HTTP/1.1 200 
+X-Application-Context: front-gateway:8001
+P3P: CP=CAO PSA OUR
+Accept-Ranges: bytes
+ETag: W/"18129-1568253558000"
+Last-Modified: Thu, 12 Sep 2019 01:59:18 GMT
+Date: Tue, 12 Nov 2019 08:37:06 GMT
+Content-Type: application/javascript
+Transfer-Encoding: chunked
+
+2000
+/*!
+
+ @Title: Layui
+ @Description：经典模块化前端框架
+ @Site: www.layui.com
+ @Author: 贤心
+ @License：MIT
+
+ */
+
+;!function(win) {
+
+    "use strict";
+
+    var Lay = function() {
+        this.v = '1.0.9_rls'; //版本号
+    };
+
+    Lay.fn = Lay.prototype;
+
+    var doc = document,
+        config = Lay.fn.cache = {},
+
+        // 获取本js所在目录
+        getPath = function() {
+            var js = doc.scripts,
+                jsPath = js[js.length - 1].src;
+            return jsPath.substring(0, jsPath.lastIndexOf('/') + 1);
+        }(),
+
+        // 异常提示
+        error = function(msg) {
+            win.console && console.error && console.error('Layui hint: ' + msg);
+        },
+
+        // 检测opera环境
+        isOpera = typeof opera !== 'undefined' && opera.toString() === '[object Opera]',
+
+        // 内置模块
+        modules = {
+            layer : 'modules/layer', //弹层
+            laydate : 'modules/laydate', //日期
+            laypage : 'modules/laypage', //分页
+            laytpl : 'modules/laytpl', //模板引擎
+            layim : 'modules/layim', //web通讯
+            layedit : 'modules/layedit', //富文本编辑器
+            form : 'modules/form', //表单集
+            upload : 'modules/upload', //上传
+            tree : 'modules/tree', //树结构
+            table : 'modules/table', //富表格
+            element : 'modules/element', //常用元素操作
+            util : 'modules/util', //工具块
+            flow : 'modules/flow', //流加载
+            carousel : 'modules/carousel', //轮播
+            code : 'modules/code', //代码修饰器
+            jquery : 'modules/jquery', //DOM库（第三方）  
+            mobile : 'modules/mobile', //移动大模块 | 若当前为开发目录，则为移动模块入口，否则为移动模块集合
+            'layui.all' : 'dest/layui.all' //PC模块合并版
+        };
+
+    config.modules = {}; //记录模块物理路径
+    config.status = {}; // 记录已注册的模块集。
+    config.timeout = 10; //符合规范的模块请求最长等待秒数
+    config.event = {}; //记录模块自定义事件
+
+    // 定义模块
+    Lay.fn.define = function(deps, callback) {
+        var that = this,
+            type = typeof deps === 'function',
+            mods = function() {
+                // 参数callback，可选，用于回调。
+                // 回调参数function，用于回调时，注册模块。
+                typeof callback === 'function' && callback(function(app, exports) {
+                    // 回调参数function的参数app，必要，代表模块名。
+                    // 回调参数function的参数exports，必要，代表模块的接口方法。
+                    layui[app] = exports;
+                    // config.status，记录已注册的模块集。
+                    config.status[app] = true;
+                });
+                return this;
+            };
+
+        // 参数deps，代表依赖的模块集，可选。
+        type && (
+            callback = deps,
+            deps = []
+        );
+
+        // 相当于layui['layui.all'] || layui['layui.mobile']
+        // 模块名layui.all，代表所有模块。
+        // 模块名layui.mobile，代表手机版的所有模块。
+        // 如果已经加载所有模块，则直接执行回调。
+        if (layui['layui.all'] || (!layui['layui.all'] && layui['layui.mobile'])) {
+            return mods.call(that);
+        }
+
+        // 方法layui.use，动态加载所依赖的模块集deps。
+        that.use(deps, mods);
+        return that;
+    };
+
+    // 动态加载模块集
+    Lay.fn.use = function(apps, callback, exports) {
+        var that = this,
+        // config.dir，内置文件的基目录，默认值为layui.js的所在目录，需以斜杠结束。
+            dir = config.dir = config.dir ? config.dir : getPath;
+        var head = doc.getElementsByTagName('head')[0];
+
+        // 参数apps，必要，可以是字符串或数组。
+        apps = typeof apps === 'string' ? [ apps ] : apps;
+
+        // 参数apps中存在jquery时，如果页面已加载jQuery1.7+库，则直接使用该库。
+        if (window.jQuery && jQuery.fn.on) {
+            that.each(apps, function(index, item) {
+                if (item === 'jquery') {
+                    apps.splice(index, 1);
+                }
+            });
+            layui.jquery = jQuery;
+        }
+
+        var item = apps[0],
+            timeout = 0;
+        // 参数exports，可选。
+        exports = exports || [];
+
+        // config.host，格式为“//.../”，默认值为config.dir中的主机，或当前页面的主机。
+        config.host = config.host || (dir.match(/\/\/([\s\S]+?)\//)/* 匹配“//.../” */ || [ '//' + location.host + '/' ])[0];
+
+        // apps.length === 0 || (layui['layui.all'] || layui['layui.mobile']) && modules[item]
+        // 参数apps，允许为空集。
+        // 如果需要加载的模块集为空集，则执行回调。
+        // 模块名layui.all，代表所有模块。
+        // 模块名layui.mobile，代表手机版的所有模块。
+        // modules，代表layui的内置模块集。
+        // 如果已经加载所有模块，并且当前模块是layui的内置模块，则当前模块不需要加载。
+        if (apps.length === 0
+            || (layui['layui.all'] && modules[item])
+            || (!layui['layui.all'] && layui['layui.mobile'] && modules[item])
+        ) {
+            return onCallback(), that;
+        }
+
+        // 用于监听文件加载完毕
+        function onScriptLoad(e, url) {
+            var readyRegExp = navigator.platform === 'PLaySTATION 3' ? /^complete$/ : /^(complete|loaded)$/
+            if (e.type === 'load' || (readyRegExp.test((e.currentTarget || e.srcElement).readyState))) {
+                config.modules[item] = url;
+                head.removeChild(node);
+                // 轮询查看当前模块是否已注册，每0.025秒轮询一次，共论询config.timeout秒。
+                // config.timeout，文件加载超时，默认值为10秒。
+                (function poll() {
+                    if (++timeout > config.timeout * 1000 / 4) {
+                        return error(item + ' is not a valid module');
+                    };
+                    config.status[item] ? onCallback() : setTimeout(poll, 4);
+                }());
+            }
+        }
+
+        var node = doc.createElement('script'),
+        // config.base，代表扩展模块的JS文件目录，默认值为空串，需要以斜杠结束。
+        // modules，代表layui的内置模块集。
+        // layui.modules[name]，代表模块name的相对路径(不包括后缀.js)，默认值为name。
+        //         如果当前模块是内置模块，则相对路径相对于config.dir + "lay/"。
+        //        如果当前模块是扩展模块，则相对路径相对于config.base。
+            url = (modules[item] ? (dir + 'lay/') : (config.base || '')) + (that.modules[item] || item) + '.js';
+        node.async = true;
+        node.charset = 'utf-8';
+        node.src = url + function() {
+            // config.version=true时，使用config.v作为版本号，否则自己作为版本号，默认值不启用版本号。
+            // config.v，代表版本号，默认值为当前时间。
+            // config.version=true，config.v不设置时，使流览器不会加载缓存文件，而是重新加载。
+            var version = config.version === true ? (config.v || (new Date()).getTime()) : (config.version || '');
+            return version ? ('?v=' + version) : '';
+        }();
+
+        // config.modules[name]，代表已加载，或正在加载中的模块name的相对路径(不包括后缀.js)。
+        if (!config.modules[item]) {
+            head.appendChild(node);
+            if (node.attachEvent && !(node.attachEvent.toString && node.attachEvent.toString().indexOf('[native code') < 0) && !isOpera) {
+    
+2000
+            node.attachEvent('onreadystatechange', function(e) {
+                    onScriptLoad(e, url);
+                });
+            } else {
+                node.addEventListener('load', function(e) {
+                    onScriptLoad(e, url);
+                }, false);
+            }
+        } else {
+            // 轮询查看是否加载完毕，每0.025秒轮询一次，共论询config.timeout秒。
+            // config.timeout，文件加载超时，默认值为10秒。
+            (function poll() {
+                if (++timeout > config.timeout * 1000 / 4) {
+                    return error(item + ' is not a valid module');
+                };
+                // config.status，记录已注册的模块集。
+                (typeof config.modules[item] === 'string' && config.status[item]) ? onCallback() : setTimeout(poll, 4);
+            }());
+        }
+        config.modules[item] = url;
+
+        //回调
+        function onCallback() {
+            // 参数exports，记录模块的接口。
+            exports.push(layui[item]);
+            // 加载下一个模块，如果没有下一个，则执行回调。
+            apps.length > 1 ? that.use(apps.slice(1), callback, exports) : (typeof callback === 'function' && callback.apply(layui, exports));
+        }
+
+        return that;
+
+    };
+
+    // 获取节点的style属性值
+    Lay.fn.getStyle = function(node, name) {
+        var style = node.currentStyle ? node.currentStyle : win.getComputedStyle(node, null);
+        return style[style.getPropertyValue ? 'getPropertyValue' : 'getAttribute'](name);
+    };
+
+    // 动态加载CSS
+    Lay.fn.link = function(href, fn, cssname) {
+        var that = this,
+            link = doc.createElement('link');
+        var head = doc.getElementsByTagName('head')[0];
+        
+        // 参数fn，可选。
+        if (typeof fn === 'string')
+            cssname = fn;
+        
+        // 参数cssname，用于标识CSS文件的ID，默认值为href。
+        var app = (cssname || href).replace(/\.|\//g, '');
+        var id = link.id = 'layuicss-' + app,
+            timeout = 0;
+
+        link.rel = 'stylesheet';
+        // config.debug=true时，使流览器不会加载缓存文件。
+        link.href = href + (config.debug ? '?v=' + new Date().getTime() : '');
+        link.media = 'all';
+
+        // 参数cssname，同一ID的CSS文件的只许加载一次。
+        if (!doc.getElementById(id)) {
+            head.appendChild(link);
+        }
+
+        // 参数fn，用于监听CSS加载完毕。
+        if (typeof fn !== 'function') return;
+        // 轮询查看是否加载完毕，每0.1秒轮询一次，共论询config.timeout秒。
+        (function poll() {
+            if (++timeout > config.timeout * 1000 / 100) {
+                return error(href + ' timeout');
+            };
+            parseInt(that.getStyle(doc.getElementById(id), 'width')) === 1989 ? function() {
+                fn();
+            }() : setTimeout(poll, 100);
+        }());
+    };
+
+    // css内部加载器
+    Lay.fn.addcss = function(firename, fn, cssname) {
+        // 全局配置dir，用于内置文件的基目录，默认值为layui.js所在的目录，需要以斜杠结束。
+        layui.link(config.dir + 'css/' + firename, fn, cssname);
+    };
+
+    // 图片预加载
+    Lay.fn.img = function(url, callback, error) {
+        var img = new Image();
+        img.src = url;
+        if (img.complete) {
+            return callback(img);
+        }
+        img.onload = function() {
+            img.onload = null;
+            callback(img);
+        };
+        img.onerror = function(e) {
+            img.onerror = null;
+            error(e);
+        };
+    };
+
+    // 全局配置
+    Lay.fn.config = function(options) {
+        options = options || {};
+        for (var key in options) {
+            config[key] = options[key];
+        }
+        return this;
+    };
+
+    // layui.modules[name]，代表模块name的相对路径(不包括后缀.js)，默认值为name。
+    Lay.fn.modules = function() {
+        var clone = {};
+        for (var o in modules) {
+            clone[o] = modules[o];
+        }
+        return clone;
+    }();
+
+    // 设置模块的相对路径(不含后缀.js)
+    Lay.fn.extend = function(options) {
+        var that = this;
+
+        options = options || {};
+        for (var o in options) {
+            // layui[name]，如果存在，则表示模块name已注册。
+            // layui.modules[name]，代表模块name的相对路径(不包括后缀.js)，默认值为name。
+            // 已注册或已设置相对路径的模块集，不允许再设置相对路径。显然，内置模块的相对路径不允许更改。
+            if (that[o] || that.modules[o]) {
+                error('\u6A21\u5757\u540D ' + o + ' \u5DF2\u88AB\u5360\u7528');
+            } else {
+                that.modules[o] = options[o];
+            }
+        }
+        return that;
+    };
+
+    // 路由
+    Lay.fn.router = function(hash) {
+        var hashs = (hash || location.hash).replace(/^#/, '').split('/') || [];
+        var item,
+            param = {
+                dir : []
+            };
+        for (var i = 0; i < hashs.length; i++) {
+            item = hashs[i].split('=');
+            /^\w+=/.test(hashs[i]) ? function() {
+                if (item[0] !== 'dir') {
+                    param[item[0]] = item[1];
+                }
+            }() : param.dir.push(hashs[i]);
+            item = null;
+        }
+        return param;
+    };
+
+    // 本地存储
+    Lay.fn.data = function(table, settings) {
+        table = table || 'layui';
+
+        if (!win.JSON || !win.JSON.parse) return;
+
+        //如果settings为null，则删除表
+        if (settings === null) {
+            return delete localStorage[table];
+        }
+
+        settings = typeof settings === 'object'
+            ? settings
+            : {
+                key : settings
+            };
+
+        try {
+            var data = JSON.parse(localStorage[table]);
+        } catch (e) {
+            var data = {};
+        }
+
+        if (settings.value)
+            data[settings.key] = settings.value;
+        if (settings.remove)
+            delete data[settings.key];
+        localStorage[table] = JSON.stringify(data);
+
+        return settings.key ? data[settings.key] : data;
+    };
+
+    // 设备信息
+    Lay.fn.device = function(key) {
+        var agent = navigator.userAgent.toLowerCase();
+
+        //获取版本号
+        var getVersion = function(label) {
+            var exp = new RegExp(label + '/([^\\s\\_\\-]+)');
+            label = (agent.match(exp) || [])[1];
+            return label || false;
+        };
+
+        var result = {
+            os : function() { //底层操作系统
+                if (/windows/.test(agent)) {
+                    return 'windows';
+                } else if (/linux/.test(agent)) {
+                    return 'linux';
+                } else if (/iphone|ipod|ipad|ios/.test(agent)) {
+                    return 'ios';
+                }
+            }(),
+            ie : function() { //ie版本
+                return (!!win.ActiveXObject || "ActiveXObject" in win) ? (
+                    (agent.match(/msie\s(\d+)/) || [])[1] || '11' //由于ie11并没有msie的标识
+                    ) : false;
+            }(),
+            weixin : getVersion('micromessenger') //是否微信
+        };
+
+        //任意的key
+        if (key && !result[key]) {
+            result[key] = getVersion(key);
+        }
+
+        //移动设备
+        result.android = /android/.test(agent);
+        result.ios = result.os === 'ios';
+
+        return result;
+    };
+
+    // 提示
+    Lay.fn.hint = function() {
+        return {
+            error : error
+        }
+    };
+
+    // 遍历
+    Lay.fn.each = function(obj, fn) {
+        var that = this,
+            key;
+        if (typeof fn !== 'function') return that;
+        obj = obj || [];
+        if (obj.constructor ==
+6d1
+= Object) {
+            for (key in obj) {
+                if (fn.call(obj[key], key, obj[key])) break;
+            }
+        } else {
+            for (key = 0; key < obj.length; key++) {
+                if (fn.call(obj[key], key, obj[key])) break;
+            }
+        }
+        return that;
+    };
+
+    // 阻止事件冒泡
+    Lay.fn.stope = function(e) {
+        e = e || win.event;
+        e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+    };
+
+    // 自定义模块事件
+    Lay.fn.onevent = function(modName, events, callback) {
+        if (typeof modName !== 'string'
+            || typeof callback !== 'function') return this;
+        config.event[modName + '.' + events] = [ callback ];
+
+        //不再对多次事件监听做支持
+        /*
+        config.event[modName + '.' + events] 
+          ? config.event[modName + '.' + events].push(callback) 
+        : config.event[modName + '.' + events] = [callback];
+        */
+
+        return this;
+    };
+
+    // 执行自定义模块事件
+    Lay.fn.event = function(modName, events, params) {
+        var that = this,
+            result = null,
+            filter = events.match(/\(.*\)$/) || []; //提取事件过滤器
+        var set = (events = modName + '.' + events).replace(filter, ''); //获取事件本体名
+        var callback = function(_, item) {
+            var res = item && item.call(that, params);
+            res === false && result === null && (result = false);
+        };
+        layui.each(config.event[set], callback);
+        filter[0] && layui.each(config.event[events], callback); //执行过滤器中的事件
+        return result;
+    };
+
+    win.layui = new Lay();
+
+}(window);
+0
+

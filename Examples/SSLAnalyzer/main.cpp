@@ -102,7 +102,6 @@ void printUsage()
 			"    -v             : Displays the current version and exists\n"
 			"    -h             : Displays this help message and exits\n"
 			"    -l             : Print the list of interfaces and exists\n", AppName::get().c_str(), AppName::get().c_str());
-	exit(0);
 }
 
 
@@ -160,6 +159,10 @@ void sslPacketArrive(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
  */
 bool stringCountComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
 {
+	if (first.second == second.second)
+	{
+		return first.first > second.first;
+	}
 	return first.second > second.second;
 }
 
@@ -169,6 +172,10 @@ bool stringCountComparer(std::pair<std::string, int> first, std::pair<std::strin
  */
 bool uint16CountComparer(std::pair<uint16_t, int> first, std::pair<uint16_t, int> second)
 {
+	if (first.second == second.second)
+	{
+		return first.first > second.first;
+	}
 	return first.second > second.second;
 }
 
@@ -514,6 +521,7 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
+				exit(0);
 				break;
 			case 'l':
 				listInterfaces();

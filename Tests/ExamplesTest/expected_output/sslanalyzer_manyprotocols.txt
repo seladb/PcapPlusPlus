@@ -1,0 +1,80 @@
+
+
+STATS SUMMARY
+=============
+
+General stats
+--------------------
+
+Sample time:                                            0.014 [Seconds]
+Number of SSL packets:                                    401 [Packets]
+Rate of SSL packets:                                    0.000 [Packets/sec]
+Number of SSL flows:                                       20 [Flows]
+Rate of SSL flows:                                      0.000 [Flows/sec]
+Total SSL data:                                        284021 [Bytes]
+Rate of SSL data:                                       0.000 [Bytes/sec]
+Average packets per flow:                              20.050 [Packets]
+Average data per flow:                              14201.050 [Bytes]
+Client-hello message:                                      20 [Messages]
+Server-hello message:                                      20 [Messages]
+Number of SSL flows with successful handshake:             18 [Flows]
+Number of SSL flows ended with alert:                       5 [Flows]
+
+SSL/TLS ports count
+--------------------
+
+-------------------------
+| SSL/TLS ports | Count |
+-------------------------
+| 443           | 20    |
+-------------------------
+
+SSL versions count
+--------------------
+
+----------------------------------------
+| SSL record version           | Count |
+----------------------------------------
+| 771                          | 20    |
+----------------------------------------
+
+Client-hello versions count
+--------------------
+
+----------------------------------------
+| Client-hello version         | Count |
+----------------------------------------
+| 769                          | 20    |
+----------------------------------------
+
+Cipher-suite count
+--------------------
+
+--------------------------------------------------------------
+| Cipher-suite                                       | Count |
+--------------------------------------------------------------
+| TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256            | 6     |
+| TLS_DHE_RSA_WITH_AES_128_CBC_SHA                   | 6     |
+| TLS_RSA_WITH_RC4_128_SHA                           | 4     |
+| TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256              | 3     |
+| TLS_RSA_WITH_AES_128_CBC_SHA                       | 1     |
+--------------------------------------------------------------
+
+Server-name count
+--------------------
+
+----------------------------------------------------
+| Hostname                                 | Count |
+----------------------------------------------------
+| img.cybersear.ch                         | 6     |
+| fbstatic-a.akamaihd.net                  | 3     |
+| www.gstatic.com                          | 2     |
+| apis.google.com                          | 2     |
+| www.google.com                           | 1     |
+| www.google.co.il                         | 1     |
+| www.facebook.com                         | 1     |
+| ssl.gstatic.com                          | 1     |
+| ssl.bbc.co.uk                            | 1     |
+| s-static.ak.facebook.com                 | 1     |
+| id.google.co.il                          | 1     |
+----------------------------------------------------

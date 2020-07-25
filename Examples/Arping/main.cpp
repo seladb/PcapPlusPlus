@@ -59,8 +59,6 @@ void printUsage() {
 			"    -S ip_addr   : Set source IP address\n"
 			"    -T ip_addr   : Set target IP address\n"
 			"    -w timeout   : How long to wait for a reply (in seconds)\n", AppName::get().c_str());
-
-	exit(0);
 }
 
 
@@ -135,7 +133,7 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
-				break;
+				exit(0);
 			case 'v':
 				printAppVersion();
 				break;
@@ -215,13 +213,16 @@ int main(int argc, char* argv[])
 	LoggerPP::getInstance().setErrorString(errString, 1000);
 	while (i <= maxTries)
 	{
+		// reset error string
+		memset(errString, 0, 1000);
+
 		// use the getMacAddress utility to send an ARP request and resolve the MAC address
 		MacAddress result = NetworkUtils::getInstance().getMacAddress(targetIP, dev, arpResonseTimeMS, sourceMac, sourceIP, timeoutSec);
 
 		// failed fetching MAC address
 		if (result == MacAddress::Zero)
 		{
-			printf("Arping  index=%d : %s", i, errString);
+			printf("Arping  index=%d : %s\n", i, errString);
 		}
 		else // Succeeded fetching MAC address
 		{

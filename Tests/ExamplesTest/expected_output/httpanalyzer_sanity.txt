@@ -1,0 +1,85 @@
+
+
+STATS SUMMARY
+=============
+
+General stats
+--------------------
+
+Sample time:                                      0.002 [Seconds]
+Number of HTTP packets:                             222 [Packets]
+Rate of HTTP packets:                             0.000 [Packets/sec]
+Number of HTTP flows:                                 9 [Flows]
+Rate of HTTP flows:                               0.000 [Flows/sec]
+Number of HTTP pipelining flows:                      0 [Flows]
+Number of HTTP transactions:                         57 [Transactions]
+Rate of HTTP transactions:                        0.000 [Transactions/sec]
+Total HTTP data:                                  66459 [Bytes]
+Rate of HTTP data:                                0.000 [Bytes/sec]
+Average packets per flow:                        24.667 [Packets]
+Average transactions per flow:                    6.333 [Transactions]
+Average data per flow:                         7384.333 [Bytes]
+
+HTTP request stats
+--------------------
+
+Number of HTTP requests:                             57 [Requests]
+Rate of HTTP requests:                            0.000 [Requests/sec]
+Total data in headers:                            22441 [Bytes]
+Average header size:                            393.702 [Bytes]
+
+HTTP response stats
+--------------------
+
+Number of HTTP responses:                            58 [Responses]
+Rate of HTTP responses:                           0.000 [Responses/sec]
+Total data in headers:                            35558 [Bytes]
+Average header size:                            613.069 [Bytes]
+Num of responses with content-length:                55 [Responses]
+Total body size (may be compressed):               7587 [Bytes]
+Average body size:                              137.945 [Bytes]
+
+HTTP request methods
+--------------------
+
+---------------------
+| Method    | Count |
+---------------------
+| GET       | 57    |
+---------------------
+
+Hostnames count
+--------------------
+
+----------------------------------------------------
+| Hostname                                 | Count |
+----------------------------------------------------
+| www.wix.com                              | 27    |
+| brumazz.wix.com                          | 26    |
+| www.bowlsbybruno.com                     | 1     |
+| webhosting.yahoo.com                     | 1     |
+| geo.yahoo.com                            | 1     |
+| adserver.yahoo.com                       | 1     |
+----------------------------------------------------
+
+Status code count
+--------------------
+
+----------------------------------------
+| Status Code                  | Count |
+----------------------------------------
+| 200 OK                       | 4     |
+| 301 Moved Permanently        | 53    |
+| 404 Not Found                | 1     |
+----------------------------------------
+
+Content-type count
+--------------------
+
+------------------------------------------
+| Content-type                   | Count |
+------------------------------------------
+| application/x-javascript       | 1     |
+| image/gif                      | 1     |
+| text/html                      | 56    |
+------------------------------------------

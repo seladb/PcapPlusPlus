@@ -59,7 +59,6 @@ void printUsage()
 			"    -s             : Print only file summary and exit\n"
 			"    -v             : Display the current version and exit\n"
 			"    -h             : Display this help message and exit\n", AppName::get().c_str());
-	exit(0);
 }
 
 /**
@@ -226,6 +225,7 @@ int main(int argc, char* argv[])
 				break;
 			case 'h':
 				printUsage();
+				exit(0);
 				break;
 			case 'v':
 				printAppVersion();

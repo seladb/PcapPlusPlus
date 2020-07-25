@@ -1,0 +1,140 @@
+
+
+STATS SUMMARY
+=============
+
+General stats
+--------------------
+
+Sample time:                                      0.013 [Seconds]
+Number of HTTP packets:                            3252 [Packets]
+Rate of HTTP packets:                             0.000 [Packets/sec]
+Number of HTTP flows:                               106 [Flows]
+Rate of HTTP flows:                               0.000 [Flows/sec]
+Number of HTTP pipelining flows:                      0 [Flows]
+Number of HTTP transactions:                        153 [Transactions]
+Rate of HTTP transactions:                        0.000 [Transactions/sec]
+Total HTTP data:                                1983629 [Bytes]
+Rate of HTTP data:                                0.000 [Bytes/sec]
+Average packets per flow:                        30.679 [Packets]
+Average transactions per flow:                    1.443 [Transactions]
+Average data per flow:                        18713.481 [Bytes]
+
+HTTP request stats
+--------------------
+
+Number of HTTP requests:                            153 [Requests]
+Rate of HTTP requests:                            0.000 [Requests/sec]
+Total data in headers:                            92730 [Bytes]
+Average header size:                            606.078 [Bytes]
+
+HTTP response stats
+--------------------
+
+Number of HTTP responses:                           162 [Responses]
+Rate of HTTP responses:                           0.000 [Responses/sec]
+Total data in headers:                            58714 [Bytes]
+Average header size:                            362.432 [Bytes]
+Num of responses with content-length:               131 [Responses]
+Total body size (may be compressed):            1759835 [Bytes]
+Average body size:                            13433.855 [Bytes]
+
+HTTP request methods
+--------------------
+
+---------------------
+| Method    | Count |
+---------------------
+| GET       | 150   |
+| POST      | 3     |
+---------------------
+
+Hostnames count
+--------------------
+
+----------------------------------------------------
+| Hostname                                 | Count |
+----------------------------------------------------
+| static.bbci.co.uk                        | 30    |
+| ichef.bbci.co.uk                         | 29    |
+| server.exposebox.com                     | 14    |
+| www.ynet.co.il                           | 9     |
+| sf.exposebox.com                         | 9     |
+| s2.googleusercontent.com                 | 8     |
+| sa.bbc.co.uk                             | 3     |
+| node1.bbcimg.co.uk                       | 3     |
+| xnet.ynet.co.il                          | 2     |
+| www.google.com                           | 2     |
+| www.google.co.il                         | 2     |
+| www.calcalist.co.il                      | 2     |
+| www.bbc.co.uk                            | 2     |
+| stats.g.doubleclick.net                  | 2     |
+| static.chartbeat.com                     | 2     |
+| sa.bbc.com                               | 2     |
+| px.dynamicyield.com                      | 2     |
+| ping.chartbeat.net                       | 2     |
+| news.bbcimg.co.uk                        | 2     |
+| emp.bbci.co.uk                           | 2     |
+| clients1.google.com                      | 2     |
+| www.googleadservices.com                 | 1     |
+| www.google-analytics.com                 | 1     |
+| www.bbc.com                              | 1     |
+| t1.visualrevenue.com                     | 1     |
+| survey.112.2o7.net                       | 1     |
+| static.bbc.co.uk                         | 1     |
+| st.dynamicyield.com                      | 1     |
+| s3-eu-west-1.amazonaws.com               | 1     |
+| r.bbci.co.uk                             | 1     |
+| p.visualrevenue.com                      | 1     |
+| open.live.bbc.co.uk                      | 1     |
+| ocsp.startssl.com                        | 1     |
+| googleads.g.doubleclick.net              | 1     |
+| go.ynet.co.il                            | 1     |
+| exposebox.blob.core.windows.net          | 1     |
+| edigitalsurvey.com                       | 1     |
+| dy.ynet.co.il                            | 1     |
+| cdn.clicktale.net                        | 1     |
+| bbc.com                                  | 1     |
+| b.scorecardresearch.com                  | 1     |
+| a.visualrevenue.com                      | 1     |
+----------------------------------------------------
+
+Status code count
+--------------------
+
+----------------------------------------
+| Status Code                  | Count |
+----------------------------------------
+| 200 OK                       | 134   |
+| 204 No Content               | 2     |
+| 301 Moved Permanently        | 3     |
+| 302 Found                    | 7     |
+| 304 Not Modified             | 5     |
+| 304 The condition specifi... | 8     |
+| 400 Bad request              | 2     |
+| 404 Not Found                | 1     |
+----------------------------------------
+
+Content-type count
+--------------------
+
+------------------------------------------
+| Content-type                   | Count |
+------------------------------------------
+| application/javascript         | 29    |
+| application/ocsp-response      | 3     |
+| application/x-font-woff        | 1     |
+| application/x-javascript       | 10    |
+| application/x-shockwave-flash  | 1     |
+| application/xml                | 2     |
+| image/gif                      | 15    |
+| image/jpeg                     | 30    |
+| image/jpg                      | 2     |
+| image/png                      | 14    |
+| image/x-icon                   | 2     |
+| text/css                       | 2     |
+| text/html                      | 23    |
+| text/javascript                | 6     |
+| text/plain                     | 1     |
+| text/xml                       | 2     |
+------------------------------------------

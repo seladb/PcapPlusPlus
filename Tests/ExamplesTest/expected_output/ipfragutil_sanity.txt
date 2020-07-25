@@ -1,0 +1,9 @@
+Summary:
+========
+Total packets read:                      1
+IPv4 packets read:                       1
+IPv6 packets read:                       0
+IP packets smaller than fragment size:   0
+IPv4 packets fragmented:                 1
+IPv6 packets fragmented:                 0
+Total packets written to output file:    12

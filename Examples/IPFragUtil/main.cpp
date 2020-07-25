@@ -74,7 +74,6 @@ void printUsage()
 			"    -a              : Copy all packets (those who were fragmented and those who weren't) to output file\n"
 			"    -v              : Displays the current version and exits\n"
 			"    -h              : Displays this help message and exits\n", AppName::get().c_str());
-	exit(0);
 }
 
 
