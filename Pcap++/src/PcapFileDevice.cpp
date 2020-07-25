@@ -826,6 +826,15 @@ bool PcapNgFileWriterDevice::open(bool appendMode)
 
 }
 
+void PcapNgFileWriterDevice::flush()
+{
+	if (!m_DeviceOpened || m_LightPcapNg == NULL)
+		return;
+
+	light_pcapng_flush((light_pcapng_t*)m_LightPcapNg);
+	LOG_DEBUG("File writer flushed to file '%s'", m_FileName);
+}
+
 void PcapNgFileWriterDevice::close()
 {
 	if (m_LightPcapNg == NULL)

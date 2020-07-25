@@ -79,6 +79,11 @@ namespace pcpp
 		bool operator==(const IPv4Address& rhs) const { return toInt() == rhs.toInt(); }
 
 		/**
+		 * Overload of the less-than operator
+		 */
+		bool operator<(const IPv4Address& rhs) const { return toInt() < rhs.toInt(); }
+
+		/**
 		 * Overload of the not-equal-to operator
 		 */
 		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
@@ -173,6 +178,11 @@ namespace pcpp
 		 * Overload of the equal-to operator
 		 */
 		bool operator==(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) == 0; }
+		
+		/**
+		 * Overload of the less-than operator
+		 */
+		bool operator<(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) < 0; }
 
 		/**
 		 * Overload of the not-equal-to operator
@@ -193,6 +203,15 @@ namespace pcpp
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
 		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
+
+		/**
+		  * Checks whether the address matches a subnet.
+		  * For example: if subnet is 2001:3CA1:010F:001A::, prefixLength is 64, and address is 2001:3CA1:010F:001A:121B:0000:0000:0010, then the method will return true
+		  * Another example: if subnet is 2001:3CA1:010F:001A::, prefixLength is 70 and address is 2001:3CA1:010F:001A:121B:0000:0000:0010 then the method will return false
+		  * @param[in] subnet The subnet to be verified
+		  * @param[in] prefixLength How many bits to use in the mask
+		  */
+		bool matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const;
 
 		/**
 		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
@@ -313,6 +332,11 @@ namespace pcpp
 		inline bool operator==(const IPAddress& rhs) const;
 
 		/**
+		 * Overload of the less-than operator
+		 */
+		inline bool operator<(const IPAddress& rhs) const;
+
+		/**
 		 * Overload of the not-equal-to operator
 		 */
 		bool operator!=(const IPAddress& rhs) const { return !(*this == rhs); }
@@ -331,7 +355,18 @@ namespace pcpp
 		if (isIPv4())
 			return rhs.isIPv4() ? (m_IPv4 == rhs.m_IPv4) : false;
 
-		return m_IPv6 == rhs.m_IPv6;
+		return rhs.isIPv6() ? m_IPv6 == rhs.m_IPv6 : false;
+	}
+
+	bool IPAddress::operator<(const IPAddress& rhs) const
+	{
+		if(isIPv4())
+		{
+			/* treat IPv4 as less than IPv6 
+			If current obj is IPv4 and other is IPv6 return true */
+			return rhs.isIPv4() ? (m_IPv4 < rhs.m_IPv4) : true;
+		}
+		return rhs.isIPv6() ? m_IPv6 < rhs.m_IPv6 : false;
 	}
 
 	IPAddress& IPAddress::operator=(const IPv4Address& addr)

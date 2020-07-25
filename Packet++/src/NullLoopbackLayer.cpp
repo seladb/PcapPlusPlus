@@ -1,4 +1,5 @@
 #include "NullLoopbackLayer.h"
+#include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
@@ -11,6 +12,7 @@ namespace pcpp
 #define BSWAP32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) \
                   | (((x) & 0x0000FF00) << 8) | ((x) << 24))
 
+#define IEEE_802_3_MAX_LEN 0x5dc
 
 NullLoopbackLayer::NullLoopbackLayer(uint32_t family)
 {
@@ -55,7 +57,29 @@ void NullLoopbackLayer::parseNextLayer()
 	uint8_t* payload = m_Data + sizeof(uint32_t);
 	size_t payloadLen = m_DataLen - sizeof(uint32_t);
 
-	switch (getFamily())
+	uint32_t family = getFamily();
+	if (family > IEEE_802_3_MAX_LEN)
+	{
+		uint16_t ethType = (uint16_t)family;
+		switch (ethType)
+		{
+		case PCPP_ETHERTYPE_IP:
+			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
+				? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
+				: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			return;
+		case PCPP_ETHERTYPE_IPV6:
+			m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
+				? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
+				: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+			return;
+		default:
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			return;
+		}
+	}
+
+	switch (family)
 	{
 	case PCPP_BSD_AF_INET:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)

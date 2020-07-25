@@ -90,6 +90,38 @@ namespace pcpp
 		LINKTYPE_DOCSIS = 143,
 		/** Linux-IrDA packets */
 		LINKTYPE_LINUX_IRDA = 144,
+		/** Reserved for private use */
+		LINKTYPE_USER0 = 147,
+		/** Reserved for private use */
+		LINKTYPE_USER1 = 148,
+		/** Reserved for private use */
+		LINKTYPE_USER2 = 149,
+		/** Reserved for private use */
+		LINKTYPE_USER3 = 150,
+		/** Reserved for private use */
+		LINKTYPE_USER4 = 151,
+		/** Reserved for private use */
+		LINKTYPE_USER5 = 152,
+		/** Reserved for private use */
+		LINKTYPE_USER6 = 153,
+		/** Reserved for private use */
+		LINKTYPE_USER7 = 154,
+		/** Reserved for private use */
+		LINKTYPE_USER8 = 155,
+		/** Reserved for private use */
+		LINKTYPE_USER9 = 156,
+		/** Reserved for private use */
+		LINKTYPE_USER10 = 157,
+		/** Reserved for private use */
+		LINKTYPE_USER11 = 158,
+		/** Reserved for private use */
+		LINKTYPE_USER12 = 159,
+		/** Reserved for private use */
+		LINKTYPE_USER13 = 160,
+		/** Reserved for private use */
+		LINKTYPE_USER14 = 161,
+		/** Reserved for private use */
+		LINKTYPE_USER15 = 162,
 		/** AVS monitor mode information followed by an 802.11 header */
 		LINKTYPE_IEEE802_11_AVS = 163,
 		/** BACnet MS/TP frames */

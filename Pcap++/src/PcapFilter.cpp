@@ -18,21 +18,21 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 {
 	std::string filterStr;
 	parseToString(filterStr);
-
-	if (m_program == NULL || m_lastProgramString != filterStr)
+	if (m_Program == NULL || m_LastProgramString != filterStr || m_LastLinkLayerType != rawPacket->getLinkLayerType())
 	{
 		freeProgram();
 
-		m_program = new bpf_program();
+		m_Program = new bpf_program();
 
 		LOG_DEBUG("Compiling the filter '%s'", filterStr.c_str());
-		if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, filterStr.c_str(), 1, 0) < 0)
+		if (pcap_compile_nopcap(9000, rawPacket->getLinkLayerType(), m_Program, filterStr.c_str(), 1, 0) < 0)
 		{
 			//Filter not valid so delete member
 			freeProgram();
 			return false;
 		}
-		m_lastProgramString = filterStr;
+		m_LastProgramString = filterStr;
+		m_LastLinkLayerType = rawPacket->getLinkLayerType();
 	}
 
 	struct pcap_pkthdr pktHdr;
@@ -41,17 +41,17 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 	timespec ts = rawPacket->getPacketTimeStamp();
 	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &ts);
 
-	return (pcap_offline_filter(m_program, &pktHdr, rawPacket->getRawData()) != 0);
+	return (pcap_offline_filter(m_Program, &pktHdr, rawPacket->getRawData()) != 0);
 }
 
 void GeneralFilter::freeProgram()
 {
-	if (m_program)
+	if (m_Program)
 	{
-		pcap_freecode(m_program);
-		delete m_program;
-		m_program = NULL;
-		m_lastProgramString.clear();
+		pcap_freecode(m_Program);
+		delete m_Program;
+		m_Program = NULL;
+		m_LastProgramString.clear();
 	}
 }
 
@@ -59,7 +59,7 @@ void GeneralFilter::freeProgram()
 void BPFStringFilter::parseToString(std::string& result)
 {
 	if (verifyFilter())
-		result = m_filterStr;
+		result = m_FilterStr;
 	else
 		result.clear();
 }
@@ -67,18 +67,18 @@ void BPFStringFilter::parseToString(std::string& result)
 bool BPFStringFilter::verifyFilter()
 {
 	//If filter has been built before it must be valid
-	if (m_program)
+	if (m_Program)
 		return true;
 
-	m_program = new bpf_program();
-	LOG_DEBUG("Compiling the filter '%s'", m_filterStr.c_str());
-	if (m_filterStr.empty() || pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, m_program, m_filterStr.c_str(), 1, 0) < 0)
+	m_Program = new bpf_program();
+	LOG_DEBUG("Compiling the filter '%s'", m_FilterStr.c_str());
+	if (m_FilterStr.empty() || pcap_compile_nopcap(9000, m_LastLinkLayerType, m_Program, m_FilterStr.c_str(), 1, 0) < 0)
 	{
 		//Filter not valid so delete member
 		freeProgram();
 		return false;
 	}
-	m_lastProgramString = m_filterStr;
+	m_LastProgramString = m_FilterStr;
 
 	return true;
 }
