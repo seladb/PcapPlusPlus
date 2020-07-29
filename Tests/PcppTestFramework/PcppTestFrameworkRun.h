@@ -107,13 +107,13 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 	if (allTestsPassed) \
 	{ \
 		printf("\nALL TESTS PASSED!!\n"); \
-		printf("Test cases: %d, Passed: %d, Failed: %d, Skipped: %d\n", testsPassed + testsFailed, testsPassed, testsFailed, testsSkipped); \
+		printf("Test cases: %d, Passed: %d, Failed: %d, Skipped: %d\n", testsPassed + testsFailed + testsSkipped, testsPassed, testsFailed, testsSkipped); \
 		return 0; \
 	} \
 	else \
 	{ \
 		printf("\nNOT ALL TESTS PASSED!!\n"); \
-		printf("Test cases: %d, Passed: %d, Failed: %d, Skipped: %d\n", testsPassed + testsFailed, testsPassed, testsFailed, testsSkipped); \
+		printf("Test cases: %d, Passed: %d, Failed: %d, Skipped: %d\n", testsPassed + testsFailed + testsSkipped, testsPassed, testsFailed, testsSkipped); \
 		return 1; \
 	}
 
