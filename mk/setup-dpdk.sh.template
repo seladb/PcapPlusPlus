@@ -26,6 +26,12 @@ export RTE_SDK=###RTE_SDK###
 TOOLS_DIR=""
 if [ -d $RTE_SDK/tools ]; then TOOLS_DIR=tools; else TOOLS_DIR=usertools; fi
 
+# Python is required to bind interface, make sure it's installed
+PYTHON=$(type -P python || type -P python3)
+if [ -z "$PYTHON" ]; then 
+	echo "Error: Python is not installed. Python is required to bind DPDK to interface";
+	exit 1
+fi
 
 # read and parse arguments
 
@@ -46,7 +52,7 @@ while getopts "h?skp:n:" opt; do
         ;;
     k)  INSERT_KNI=1
         ;;
-    s)  ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
+    s)  ${PYTHON} ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
         exit 0
         ;;
     esac
@@ -96,7 +102,7 @@ for NIC_TO_BIND in $NICS_TO_BIND ; do
 	if [ $? -eq 1 ] ; then
 		echo "2. $NIC_TO_BIND is already binded to DPDK or doesn't exist. Exiting"
 		echo
-		${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
+		${PYTHON} ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
 		exit 1
 	fi
 done
@@ -133,10 +139,10 @@ fi
 IFS=","
 for NIC_TO_BIND in $NICS_TO_BIND ; do
 	sudo ifconfig ${NIC_TO_BIND} down
-	sudo ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --bind=igb_uio ${NIC_TO_BIND}
+	sudo ${PYTHON} ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --bind=igb_uio ${NIC_TO_BIND}
 done
 echo "3. Bind network adapters - DONE!"
 
-${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
+${PYTHON} ${RTE_SDK}/${TOOLS_DIR}/dpdk-devbind.py --status
 
 echo "Setup DPDK completed"
