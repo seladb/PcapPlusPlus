@@ -481,3 +481,20 @@ PTF_TEST_CASE(SSLNewSessionTicketParseTest)
 	PTF_ASSERT_EQUAL(newSessionTicketMsg->getSessionTicketData()[16], 0xf9, hex);
 	PTF_ASSERT_EQUAL(newSessionTicketMsg->getSessionTicketData()[213], 0x75, hex);
 } // SSLNewSessionTicketParseTest
+
+
+PTF_TEST_CASE(SSLMalformedPacketParsing)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ssl-malformed1.dat");
+
+	pcpp::Packet badSSLPacket(&rawPacket1);
+
+	pcpp::SSLHandshakeLayer* handshakeLayer = badSSLPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	pcpp::SSLClientHelloMessage* clientHelloMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+	PTF_ASSERT_NOT_NULL(clientHelloMessage);
+	PTF_ASSERT_EQUAL(clientHelloMessage->getExtensionCount(), 1, int);
+} // SSLMalformedPacketParsing

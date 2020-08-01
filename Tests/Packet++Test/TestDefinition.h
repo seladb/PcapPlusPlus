@@ -98,6 +98,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test);
 PTF_TEST_CASE(SSLMultipleRecordParsing4Test);
 PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
+PTF_TEST_CASE(SSLMalformedPacketParsing);
 
 // Implemented in IgmpTests.cpp
 PTF_TEST_CASE(IgmpParsingTest);

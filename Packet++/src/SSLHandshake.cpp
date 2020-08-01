@@ -1191,6 +1191,15 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			newExt = new SSLExtension(curPos);
 		}
 
+		// Total length can be zero only if getLength() == 0xfffc which is way too large
+		// and means that this extension (and packet) are malformed
+		if (newExt->getTotalLength() == 0)
+		{
+			delete newExt;
+			break;
+		}
+			
+
 		m_ExtensionList.pushBack(newExt);
 		curPos += newExt->getTotalLength();
 	}

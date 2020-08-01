@@ -174,6 +174,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLMultipleRecordParsing4Test, "ssl");
 	PTF_RUN_TEST(SSLPartialCertificateParseTest, "ssl");
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
+	PTF_RUN_TEST(SSLMalformedPacketParsing, "ssl");
 
 	PTF_RUN_TEST(SllPacketParsingTest, "sll");
 	PTF_RUN_TEST(SllPacketCreationTest, "sll");
