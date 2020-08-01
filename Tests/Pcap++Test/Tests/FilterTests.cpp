@@ -257,7 +257,7 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 
 
-PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_static)
+PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 {
 	pcpp::RawPacketVector rawPacketVec;
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
@@ -273,7 +273,7 @@ PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_static)
 	}
 
 	rawPacketVec.clear();
-} // TestPcapFilters_matchPacketWithFilter_static
+} // TestPcapFilters_MatchStatic
 
 
 

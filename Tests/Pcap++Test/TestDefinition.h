@@ -31,7 +31,7 @@ PTF_TEST_CASE(TestSendPackets);
 PTF_TEST_CASE(TestRemoteCapture);
 
 // Implemented in FilterTests.cpp
-PTF_TEST_CASE(TestPcapFilters_matchPacketWithFilter_static);
+PTF_TEST_CASE(TestPcapFilters_MatchStatic);
 PTF_TEST_CASE(TestPcapFiltersLive);
 PTF_TEST_CASE(TestPcapFilters_General_BPFStr);
 PTF_TEST_CASE(TestPcapFiltersOffline);
