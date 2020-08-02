@@ -36,10 +36,10 @@ matrix:
         - DOCKER_IMAGE=ubuntu1604-dpdk1811
     - os: linux
       env:
-        - DOCKER_IMAGE=ubuntu1604-dpdk1902
+        - DOCKER_IMAGE=ubuntu1604-dpdk1908
     - os: linux
       env:
-        - DOCKER_IMAGE=ubuntu1604-dpdk1908
+        - DOCKER_IMAGE=ubuntu1804-dpdk1911
     - os: linux
       env:
         - DOCKER_IMAGE=ubuntu1604-pfring
