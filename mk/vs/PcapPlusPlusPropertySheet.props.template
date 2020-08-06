@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
     <PcapPlusPlusHome>PUT_PCAPPLUSPLUS_HOME_HERE</PcapPlusPlusHome>
-    <WinPcapHome>PUT_PCAP_SDK_HOME_HERE</WinPcapHome>
+    <PcapSdkHome>PUT_PCAP_SDK_HOME_HERE</PcapSdkHome>
     <PThreadWin32Home>PUT_PTHREAD_HOME_HERE</PThreadWin32Home>
     <ZStdHome>PUT_ZSTD_HOME_HERE</ZStdHome>
   </PropertyGroup>
@@ -10,8 +10,8 @@
     <BuildMacro Include="PcapPlusPlusHome">
       <Value>$(PcapPlusPlusHome)</Value>
     </BuildMacro>
-    <BuildMacro Include="WinPcapHome">
-      <Value>$(WinPcapHome)</Value>
+    <BuildMacro Include="PcapSdkHome">
+      <Value>$(PcapSdkHome)</Value>
     </BuildMacro>
     <BuildMacro Include="PThreadWin32Home">
       <Value>$(PThreadWin32Home)</Value>
@@ -35,13 +35,13 @@
   <!-- winpcap project variables -->
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(WinPcapHome)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapSdkHome)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WPCAP;HAVE_REMOTE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='Win32'">$(WinPcapHome)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='x64'">$(WinPcapHome)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Platform)'=='Win32'">$(PcapSdkHome)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="'$(Platform)'=='x64'">$(PcapSdkHome)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>wpcap.lib;Packet.lib;Ws2_32.lib;IPHLPAPI.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </Link>
