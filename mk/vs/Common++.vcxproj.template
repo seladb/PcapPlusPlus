@@ -138,6 +138,9 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <PreBuildEvent>
       <Command>"$(ProjectDir)\fetch-git-info.bat"</Command>
     </PreBuildEvent>
+    <Lib>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -182,6 +185,9 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
 xcopy "$(PcapPlusPlusHome)\Common++\Lib\Common++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" /F /R /Y /I</Command>
     </PostBuildEvent>
+    <Lib>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+    </Lib>
     <PreBuildEvent>
       <Command>"$(ProjectDir)\fetch-git-info.bat"</Command>
     </PreBuildEvent>

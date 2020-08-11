@@ -173,6 +173,9 @@ xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\$(Pl
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I</Command>
     </PostBuildEvent>
+    <Lib>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -215,6 +218,9 @@ xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.lib" "$(PcapPlusPlusHome)\Dist\$(Pl
 xcopy "$(PcapPlusPlusHome)\Pcap++\Lib\Pcap++.pdb" "$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration)\" /F /R /Y /I
 xcopy "$(PcapPlusPlusHome)\Pcap++\header\*" "$(PcapPlusPlusHome)\Dist\header\" /F /R /Y /I</Command>
     </PostBuildEvent>
+    <Lib>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+    </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
