@@ -23,8 +23,8 @@ namespace pcpp
 	inline std::string getPcapPlusPlusVersion() { return PCAPPLUSPLUS_VERSION; }
 
 	/**
-	 * @return PcapPlusPlus long version string which includes the version and info whether it's an official or non-official release. For example: "v19.12+ (non-official release)"
-	 * or "v19.12 (official release)"
+	 * @return PcapPlusPlus long version string which includes the version and info whether it's an official or non-official release. For example: "v20.08+ (non-official release)"
+	 * or "v20.08 (official release)"
 	 */
 	inline std::string getPcapPlusPlusVersionFull() { return PCAPPLUSPLUS_VERSION_FULL; }
 
