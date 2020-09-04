@@ -43,8 +43,10 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		return encodedNameLength;
 
 	if (iteration > 20)
+	{
 		return encodedNameLength;
-
+	}
+		
 	uint8_t wordLength = encodedName[0];
 
 	// A string to parse
@@ -53,7 +55,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		// A pointer to another place in the packet
 		if ((wordLength & 0xc0) == 0xc0)
 		{
-			if (curOffsetInLayer + 2 > m_DnsLayer->m_DataLen)
+			if (curOffsetInLayer + 2 > m_DnsLayer->m_DataLen || encodedNameLength > 255)
 				return encodedNameLength;
 
 			uint16_t offsetInLayer = (wordLength & 0x3f)*256 + (0xFF & encodedName[1]);
