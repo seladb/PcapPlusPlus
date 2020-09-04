@@ -368,7 +368,11 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::addTag(PPPoETagTypes tagType
 
 size_t PPPoEDiscoveryLayer::getHeaderLen() const
 {
-	return sizeof(pppoe_header) + be16toh(getPPPoEHeader()->payloadLength);
+	size_t payloadLen = sizeof(pppoe_header) + be16toh(getPPPoEHeader()->payloadLength);
+	if (payloadLen > m_DataLen)
+		return m_DataLen;
+
+	return payloadLen;
 }
 
 PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::castPtrToPPPoETag(uint8_t* ptr) const

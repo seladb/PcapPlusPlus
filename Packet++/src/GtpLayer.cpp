@@ -203,7 +203,7 @@ void GtpV1Layer::init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNu
 
 bool GtpV1Layer::isGTPv1(const uint8_t* data, size_t dataSize)
 {
-	if(data != NULL && dataSize > 1 && (data[0] & 0xE0) == 0x20)
+	if(data != NULL && dataSize >= sizeof(gtpv1_header) && (data[0] & 0xE0) == 0x20)
 	{
 		return true;
 	}

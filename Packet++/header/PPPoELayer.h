@@ -148,6 +148,14 @@ namespace pcpp
 		 */
 		void setPPPNextProtocol(uint16_t nextProtocol);
 
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of byte stream of a packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent a PPPoES packet
+		 */
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
 		// abstract methods implementation
 
 		/**
@@ -357,6 +365,14 @@ namespace pcpp
 		 */
 		bool removeAllTags();
 
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of byte stream of a packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent a PPPoED packet
+		 */
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
 		// abstract methods implementation
 
 		/**
@@ -381,6 +397,18 @@ namespace pcpp
 		std::string codeToString(PPPoECode code) const;
 	};
 
+
+	// implementation of inline methods
+
+	bool PPPoESessionLayer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		return dataLen >= sizeof(pppoe_header) + sizeof(uint16_t);
+	}
+
+	bool PPPoEDiscoveryLayer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		return dataLen >= sizeof(pppoe_header);
+	}
 
 	// Copied from Wireshark: ppptypes.h
 

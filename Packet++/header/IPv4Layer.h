@@ -596,10 +596,10 @@ namespace pcpp
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
 		/**
-		 * The static method makes validation of input data
-		 * @param[in] data The pointer to the beginning of byte stream of IP packet
-		 * @param[in] dataLen The length of byte stream
-		 * @return True if the data is valid and can represent the IPv4 packet
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of IP packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an IPv4 packet
 		 */
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
