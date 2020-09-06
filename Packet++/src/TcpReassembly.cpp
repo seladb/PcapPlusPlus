@@ -21,7 +21,6 @@
 #define SEQ_GT(a,b)  ((int32_t)((a)-(b)) > 0)
 #define SEQ_GEQ(a,b) ((int32_t)((a)-(b)) >= 0)
 
-
 namespace pcpp
 {
 
@@ -290,7 +289,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// send data to the callback
 		if (tcpPayloadSize != 0 && m_OnMessageReadyCallback != NULL)
 		{
-			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, tcpReassemblyData->connData);
+			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
 		status = TcpMessageHandled;
@@ -325,7 +324,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 			// send only the new data to the callback
 			if (m_OnMessageReadyCallback != NULL)
 			{
-				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, tcpReassemblyData->connData);
+				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, 0, tcpReassemblyData->connData);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
 			status = TcpMessageHandled;
@@ -376,7 +375,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// send the data to the callback
 		if (m_OnMessageReadyCallback != NULL)
 		{
-			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, tcpReassemblyData->connData);
+			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
 		status = TcpMessageHandled;
@@ -505,7 +504,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 						if (m_OnMessageReadyCallback != NULL)
 						{
-							TcpStreamData streamData(curTcpFrag->data, curTcpFrag->dataLength, tcpReassemblyData->connData);
+							TcpStreamData streamData(curTcpFrag->data, curTcpFrag->dataLength, 0, tcpReassemblyData->connData);
 							m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 						}
 					}
@@ -540,7 +539,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 						// send only the new data to the callback
 						if (m_OnMessageReadyCallback != NULL)
 						{
-							TcpStreamData streamData(curTcpFrag->data + newLength, curTcpFrag->dataLength - newLength, tcpReassemblyData->connData);
+							TcpStreamData streamData(curTcpFrag->data + newLength, curTcpFrag->dataLength - newLength, 0, tcpReassemblyData->connData);
 							m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 						}
 
@@ -623,7 +622,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 					dataWithMissingDataText.insert(dataWithMissingDataText.end(), curTcpFrag->data, curTcpFrag->data + curTcpFrag->dataLength);
 
 					//TcpStreamData streamData(curTcpFrag->data, curTcpFrag->dataLength, tcpReassemblyData->connData);
-					TcpStreamData streamData(&dataWithMissingDataText[0], dataWithMissingDataText.size(), tcpReassemblyData->connData);
+					TcpStreamData streamData(&dataWithMissingDataText[0], dataWithMissingDataText.size(), missingDataLen, tcpReassemblyData->connData);
 					m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 
 					LOG_DEBUG("Found missing data on side %d: %d byte are missing. Sending the closest fragment which is in size %d + missing text message which size is %d",
