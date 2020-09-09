@@ -78,7 +78,7 @@ namespace pcpp
 	const ProtocolType VLAN = 0x100;
 
 	/**
-	 * ICMP protocol (currently not supported by PcapPlusPlus)
+	 * ICMP protocol
 	 */
 	const ProtocolType ICMP = 0x200;
 
