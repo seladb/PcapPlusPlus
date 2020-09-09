@@ -153,6 +153,12 @@ public:
 	size_t getMissingByteCount() const { return m_MissingBytes; }
 
 	/**
+	 * Determine if bytes are missing. getMissingByteCount can be called to determine the number of missing bytes.
+	 * @return true if bytes are missing.
+	 */
+	bool isBytesMissing() const { return getMissingByteCount() > 0; }
+
+	/**
 	 * A getter for the connection data
 	 * @return The const reference to connection data
 	 */

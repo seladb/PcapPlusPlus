@@ -25,11 +25,12 @@ struct TcpReassemblyStats
 	bool connectionsStarted;
 	bool connectionsEnded;
 	bool connectionsEndedManually;
+	size_t totalMissingBytes;
 	pcpp::ConnectionData connData;
 
 	TcpReassemblyStats() { clear(); }
 
-	void clear() { reassembledData = ""; numOfDataPackets = 0; curSide = -1; numOfMessagesFromSide[0] = 0; numOfMessagesFromSide[1] = 0; connectionsStarted = false; connectionsEnded = false; connectionsEndedManually = false; }
+	void clear() { reassembledData = ""; numOfDataPackets = 0; curSide = -1; numOfMessagesFromSide[0] = 0; numOfMessagesFromSide[1] = 0; connectionsStarted = false; connectionsEnded = false; connectionsEndedManually = false; totalMissingBytes = 0;}
 };
 
 
@@ -69,6 +70,26 @@ static std::string readFileIntoString(std::string fileName)
 }
 
 
+// ~~~~~~~~~~~~~~~~~~~~
+// getPayloadLen()
+// ~~~~~~~~~~~~~~~~~~~~
+
+static size_t getPayloadLen(pcpp::RawPacket& rawPacket)
+{
+	pcpp::Packet packet(&rawPacket);
+
+	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+	if (tcpLayer == NULL)
+		throw;
+
+	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
+	if (ipLayer == NULL)
+		throw;
+
+	return be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
+}
+
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // tcpReassemblyMsgReadyCallback()
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,6 +105,7 @@ static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStrea
 		iter = stats.find(tcpData.getConnectionData().flowKey);
 	}
 
+	iter->second.totalMissingBytes += tcpData.getMissingByteCount();
 
 	if (sideIndex != iter->second.curSide)
 	{
@@ -325,25 +347,29 @@ PTF_TEST_CASE(TestTcpReassemblyRetran)
 } // TestTcpReassemblyRetran
 
 
-
 PTF_TEST_CASE(TestTcpReassemblyMissingData)
 {
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
 
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg));
+	size_t expectedLoss = 0;
 
 	// remove 20 bytes from the beginning
 	pcpp::RawPacket missPacket1 = tcpReassemblyAddRetransmissions(packetStream.at(3), 20, 0);
 	packetStream.insert(packetStream.begin() + 4, missPacket1);
 	packetStream.erase(packetStream.begin() + 3);
+	expectedLoss += 20;
 
 	// remove 30 bytes from the end
 	pcpp::RawPacket missPacket2 = tcpReassemblyAddRetransmissions(packetStream.at(20), 0, 1390);
 	packetStream.insert(packetStream.begin() + 21, missPacket2);
 	packetStream.erase(packetStream.begin() + 20);
+	expectedLoss += 30;
 
 	// remove whole packets
+	expectedLoss += getPayloadLen(*(packetStream.begin() + 28));
+	expectedLoss += getPayloadLen(*(packetStream.begin() + 30));
 	packetStream.erase(packetStream.begin() + 28);
 	packetStream.erase(packetStream.begin() + 30);
 
@@ -351,6 +377,7 @@ PTF_TEST_CASE(TestTcpReassemblyMissingData)
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, false, true);
 
 	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT_EQUAL(stats.begin()->second.totalMissingBytes, expectedLoss, int);
 	PTF_ASSERT_EQUAL(stats.size(), 1, size);
 	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 17, int);
 	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[0], 2, int);
