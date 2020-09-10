@@ -605,6 +605,8 @@ size_t IcmpLayer::getHeaderLen() const
 		return sizeof(icmp_param_problem);
 	case ICMP_ROUTER_ADV:
 		routerAdvSize = sizeof(icmp_router_advertisement_hdr) + (getRouterAdvertisementData()->header->advertisementCount*sizeof(icmp_router_address_structure));
+		if (routerAdvSize > m_DataLen)
+			return m_DataLen;
 		return routerAdvSize;
 	default:
 		return sizeof(icmphdr);

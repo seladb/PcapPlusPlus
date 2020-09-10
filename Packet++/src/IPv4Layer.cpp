@@ -271,7 +271,9 @@ void IPv4Layer::parseNextLayer()
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_ICMP:
-		m_NextLayer = new IcmpLayer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IcmpLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new IcmpLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_IPIP:
 		ipVersion = *payload >> 4;
