@@ -7,6 +7,7 @@
 #include "TcpLayer.h"
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
+#include "PacketUtils.h"
 
 PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 {
@@ -286,3 +287,49 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	PTF_ASSERT_TRUE(tcpSnackOption.isNotNull());
 	PTF_ASSERT_TRUE(tcpSnackOption.setValue(htobe32(1000)));
 } // TcpPacketCreation2
+
+
+PTF_TEST_CASE(TcpHash5Tuple)
+{
+	pcpp::MacAddress srcMac("30:46:9a:23:fb:fa");
+	pcpp::MacAddress dstMac("08:00:27:19:1c:78");
+	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+	pcpp::IPv4Address dstIP("10.0.0.6");
+	pcpp::IPv4Address srcIP("212.199.202.9");
+	pcpp::IPv4Layer ipLayer(srcIP, dstIP);
+	ipLayer.getIPv4Header()->ipId = htobe16(20300);
+	ipLayer.getIPv4Header()->fragmentOffset = htobe16(0x4000);
+	ipLayer.getIPv4Header()->timeToLive = 59;
+	pcpp::TcpLayer tcpLayer((uint16_t)80, (uint16_t)44160);
+	tcpLayer.getTcpHeader()->sequenceNumber = htobe32(0xb829cb98);
+	tcpLayer.getTcpHeader()->ackNumber = htobe32(0xe9771586);
+	tcpLayer.getTcpHeader()->ackFlag = 1;
+	tcpLayer.getTcpHeader()->pshFlag = 1;
+	tcpLayer.getTcpHeader()->windowSize = htobe16(20178);
+	tcpLayer.getTcpHeader()->portSrc = htobe16(60388);
+	tcpLayer.getTcpHeader()->portDst = htobe16(80);
+
+	//uint8_t payloadData[9] = { 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82 };
+//	pcpp::PayloadLayer payloadLayer(payloadData, 9, true);
+
+	pcpp::Packet tcpPacket(1);
+	tcpPacket.addLayer(&ethLayer);
+	tcpPacket.addLayer(&ipLayer);
+	tcpPacket.addLayer(&tcpLayer);
+//	tcpPacket.addLayer(&payloadLayer);
+
+//	uint32_t tsEchoReply = htobe32(196757);
+//	uint32_t tsValue = htobe32(3555735960UL);
+//	pcpp::TcpOption tsOption = tcpLayer.getTcpOption(pcpp::PCPP_TCPOPT_TIMESTAMP);
+	//PTF_ASSERT_TRUE(tsOption.isNotNull());
+//	tsOption.setValue<uint32_t>(tsValue);
+//	tsOption.setValue<uint32_t>(tsEchoReply, 4);
+
+//	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 3, size);
+
+	tcpPacket.computeCalculateFields();
+
+        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&tcpPacket), 1576639238, u32);
+        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&tcpPacket, true), 2243556734, u32);
+
+} // TcpHash5Tuple
