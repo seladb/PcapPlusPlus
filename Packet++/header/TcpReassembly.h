@@ -126,10 +126,11 @@ public:
 	 * A c'tor for this class that get data from outside and set the internal members
 	 * @param[in] tcpData A pointer to buffer containing the TCP data piece
 	 * @param[in] tcpDataLength The length of the buffer
+	 * @param[in] missingPacketBytes The number of missing bytes due to packet loss.
 	 * @param[in] connData TCP connection information for this TCP data
 	 */
-	TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, const ConnectionData& connData)
-		: m_Data(tcpData), m_DataLen(tcpDataLength), m_Connection(connData)
+	TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, size_t missingBytes, const ConnectionData& connData)
+		: m_Data(tcpData), m_DataLen(tcpDataLength), m_MissingBytes(missingBytes), m_Connection(connData)
 	{
 	}
 
@@ -146,6 +147,18 @@ public:
 	size_t getDataLength() const { return m_DataLen; }
 
 	/**
+	 * A getter for missing byte count due to packet loss.
+	 * @return Missing byte count
+	 */
+	size_t getMissingByteCount() const { return m_MissingBytes; }
+
+	/**
+	 * Determine if bytes are missing. getMissingByteCount can be called to determine the number of missing bytes.
+	 * @return true if bytes are missing.
+	 */
+	bool isBytesMissing() const { return getMissingByteCount() > 0; }
+
+	/**
 	 * A getter for the connection data
 	 * @return The const reference to connection data
 	 */
@@ -154,6 +167,7 @@ public:
 private:
 	const uint8_t* m_Data;
 	size_t m_DataLen;
+	size_t m_MissingBytes;
 	const ConnectionData& m_Connection;
 };
 
