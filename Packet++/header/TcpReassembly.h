@@ -126,7 +126,7 @@ public:
 	 * A c'tor for this class that get data from outside and set the internal members
 	 * @param[in] tcpData A pointer to buffer containing the TCP data piece
 	 * @param[in] tcpDataLength The length of the buffer
-	 * @param[in] missingPacketBytes The number of missing bytes due to packet loss.
+	 * @param[in] missingBytes The number of missing bytes due to packet loss.
 	 * @param[in] connData TCP connection information for this TCP data
 	 */
 	TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, size_t missingBytes, const ConnectionData& connData)
