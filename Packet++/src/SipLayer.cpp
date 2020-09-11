@@ -1258,13 +1258,12 @@ std::string SipResponseFirstLine::parseVersion(char* data, size_t dataLen)
 		return "";
 	}
 
-	char* nextSpace = strchr(data, ' ');
-	if (nextSpace - data > (int)dataLen)
+	char* nextSpace = (char*)memchr(data, ' ', dataLen);
+	if (nextSpace == NULL)
 		return "";
 
 	return std::string(data, nextSpace - data);
 }
-
 
 
 }
