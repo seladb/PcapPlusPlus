@@ -17,9 +17,10 @@ namespace pcpp
 	 * TCP and UDP. For packets which doesn't have 5-tuple (for example: packets which aren't IPv4/6 or aren't
 	 * TCP/UDP) the value of 0 will be returned
 	 * @param[in] packet The packet to calculate hash for
+	 * @param[in] directionunique Make hash value unique for each direction
 	 * @return The hash value calculated for this packet or 0 if the packet doesn't contain 5-tuple
 	 */
-	uint32_t hash5Tuple(Packet* packet);
+	uint32_t hash5Tuple(Packet* packet, bool const& directionunique = false);
 
 	/**
 	 * A method that is given a packet and calculates a hash value by the packet's 2-tuple (IP src + IP dst). Supports

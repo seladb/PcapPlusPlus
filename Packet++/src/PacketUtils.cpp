@@ -5,11 +5,12 @@
 #include "IPv6Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
+#include "IcmpLayer.h"
 
 namespace pcpp
 {
 
-uint32_t hash5Tuple(Packet* packet)
+uint32_t hash5Tuple(Packet* packet, bool const& directionunique)
 {
 	if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
 		return 0;
@@ -39,8 +40,11 @@ uint32_t hash5Tuple(Packet* packet)
 		portDst = udpLayer->getUdpHeader()->portDst;
 	}
 
-	if (portDst < portSrc)
-		srcPosition = 1;
+	if( ! directionunique)
+	{
+		if (portDst < portSrc)
+			srcPosition = 1;
+	}
 
 	vec[0 + srcPosition].buffer = (uint8_t*)&portSrc;
 	vec[0 + srcPosition].len = 2;
