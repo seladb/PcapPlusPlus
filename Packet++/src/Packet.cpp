@@ -740,6 +740,18 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 			return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
 		}
 	}
+	else if (linkType == LINKTYPE_IPV4)
+	{
+		return IPv4Layer::isDataValid(rawData, rawDataLen)
+			? static_cast<Layer*>(new IPv4Layer((uint8_t*)rawData, rawDataLen, NULL, this))
+			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this));
+	}
+	else if (linkType == LINKTYPE_IPV6)
+	{
+		return IPv6Layer::isDataValid(rawData, rawDataLen)
+			? static_cast<Layer*>(new IPv6Layer((uint8_t*)rawData, rawDataLen, NULL, this))
+			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this));
+	}
 
 	// unknown link type
 	return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
