@@ -161,6 +161,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	PTF_RUN_TEST(IcmpEditTest, "icmp");
+	PTF_RUN_TEST(IcmpHash5TupleTest, "icmp");
 	
 	PTF_RUN_TEST(GreParsingTest, "gre");
 	PTF_RUN_TEST(GreCreationTest, "gre");

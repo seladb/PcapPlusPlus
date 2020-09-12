@@ -8,6 +8,7 @@
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
+#include "PacketUtils.h"
 
 
 PTF_TEST_CASE(IcmpParsingTest)
@@ -538,3 +539,69 @@ PTF_TEST_CASE(IcmpEditTest)
 	delete [] buffer3;
 	delete [] buffer5;
 } // IcmpEditTest
+
+PTF_TEST_CASE(IcmpHash5TupleTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpEchoRequest.dat");
+	pcpp::Packet icmpEchoRequest(&rawPacket1);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpEchoRequest), 204696060, u32);
+
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IcmpEchoReply.dat");
+	pcpp::Packet icmpEchoReply(&rawPacket2);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpEchoReply), 259760444, u32);
+
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IcmpTimestampRequest.dat");
+	pcpp::Packet icmpTimestampReq(&rawPacket3);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpTimestampReq), 303256419, u32);
+
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IcmpTimestampReply.dat");
+	pcpp::Packet icmpTimestampReply(&rawPacket4);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpTimestampReply), 185524547, u32);
+
+	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/IcmpRedirect.dat");
+	pcpp::Packet icmpRedirect(&rawPacket5);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpRedirect), 3453006810, u32);
+
+	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IcmpRouterAdv1.dat");
+	pcpp::Packet icmpRouterAdv1(&rawPacket6);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpRouterAdv1), 0, u32);
+
+	READ_FILE_AND_CREATE_PACKET(7, "PacketExamples/IcmpRouterAdv2.dat");
+	pcpp::Packet icmpRouterAdv2(&rawPacket7);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpRouterAdv2), 0, u32);
+
+	READ_FILE_AND_CREATE_PACKET(8, "PacketExamples/IcmpRouterSol.dat");
+	pcpp::Packet icmpRouterSol(&rawPacket8);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpRouterSol), 0, u32);
+
+	READ_FILE_AND_CREATE_PACKET(9, "PacketExamples/IcmpTimeExceededUdp.dat");
+	pcpp::Packet icmpTimeExceededUdp(&rawPacket9);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpTimeExceededUdp), 3598697638, u32);
+
+	READ_FILE_AND_CREATE_PACKET(10, "PacketExamples/IcmpDestUnreachableUdp.dat");
+	pcpp::Packet icmpDestUnreachableUdp(&rawPacket10);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpDestUnreachableUdp), 2022737419, u32);
+
+	READ_FILE_AND_CREATE_PACKET(11, "PacketExamples/IcmpTimeExceededEcho.dat");
+	pcpp::Packet icmpTimeExceededEcho(&rawPacket11);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpTimeExceededEcho), 973034591, u32);
+
+	READ_FILE_AND_CREATE_PACKET(12, "PacketExamples/IcmpDestUnreachableEcho.dat");
+	pcpp::Packet icmpDestUnreachableEcho(&rawPacket12);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpDestUnreachableEcho), 2438071865, u32);
+
+	READ_FILE_AND_CREATE_PACKET(13, "PacketExamples/IcmpSourceQuench.dat");
+	pcpp::Packet icmpSourceQuench(&rawPacket13);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpSourceQuench), 0, u32);
+
+	READ_FILE_AND_CREATE_PACKET(14, "PacketExamples/IcmpAddrMaskReq.dat");
+	pcpp::Packet icmpAddrMaskReq(&rawPacket14);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpAddrMaskReq), 1432122393, u32);
+
+	READ_FILE_AND_CREATE_PACKET(15, "PacketExamples/IcmpAddrMaskRep.dat");
+	pcpp::Packet icmpAddrMaskRep(&rawPacket15);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&icmpAddrMaskRep), 2069030458, u32);
+}
