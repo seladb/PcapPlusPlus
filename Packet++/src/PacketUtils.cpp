@@ -5,6 +5,7 @@
 #include "IPv6Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
+#include "IcmpLayer.h"
 
 namespace pcpp
 {
@@ -14,10 +15,7 @@ uint32_t hash5Tuple(Packet* packet)
 	if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
 		return 0;
 
-	if (packet->isPacketOfType(ICMP))
-		return 0;
-
-	if (!(packet->isPacketOfType(TCP)) && (!packet->isPacketOfType(UDP)))
+	if (!(packet->isPacketOfType(TCP)) && (!packet->isPacketOfType(UDP)) && (!packet->isPacketOfType(ICMP)))
 		return 0;
 
 	ScalarBuffer<uint8_t> vec[5];
@@ -27,16 +25,97 @@ uint32_t hash5Tuple(Packet* packet)
 	int srcPosition = 0;
 
 	TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>(true); // lookup in reverse order
+	UdpLayer* udpLayer = packet->getLayerOfType<UdpLayer>(true);
 	if (tcpLayer != NULL)
 	{
 		portSrc = tcpLayer->getTcpHeader()->portSrc;
 		portDst = tcpLayer->getTcpHeader()->portDst;
 	}
-	else
+	else if(udpLayer != NULL)
 	{
-		UdpLayer* udpLayer = packet->getLayerOfType<UdpLayer>(true);
 		portSrc = udpLayer->getUdpHeader()->portSrc;
 		portDst = udpLayer->getUdpHeader()->portDst;
+	}
+	else
+	{
+		IcmpLayer* icmpLayer = packet->getLayerOfType<IcmpLayer>(true);
+		IcmpMessageType type = icmpLayer->getMessageType();
+		if(type == ICMP_INFO_REQUEST)
+		{
+			portSrc = ICMP_INFO_REQUEST + ICMP_INFO_REPLY;
+			icmp_info_request* infoRequest(icmpLayer->getInfoRequestData());
+			if(infoRequest)
+				portDst = infoRequest->id;
+			else
+				return 0;
+		}
+		else if(type == ICMP_INFO_REPLY)
+		{
+			portSrc = ICMP_INFO_REQUEST + ICMP_INFO_REPLY;
+			icmp_info_reply* infoReply(icmpLayer->getInfoReplyData());
+			if(infoReply)
+				portDst = infoReply->id;
+			else
+				return 0;
+		}
+		else if(type == ICMP_ECHO_REPLY)
+		{
+			portSrc = ICMP_ECHO_REPLY + ICMP_ECHO_REQUEST;
+			icmp_echo_reply* echoReply(icmpLayer->getEchoReplyData());
+			if(echoReply && echoReply->header)
+				portDst = echoReply->header->id;
+			else
+				return 0;
+		}
+		else if(type == ICMP_ECHO_REQUEST)
+		{
+			portSrc = ICMP_ECHO_REPLY + ICMP_ECHO_REQUEST;
+			icmp_echo_request* echoRequest(icmpLayer->getEchoRequestData());
+			if(echoRequest && echoRequest->header)
+				portDst = echoRequest->header->id;
+			else
+				return 0;
+		}
+		else if(type == ICMP_TIMESTAMP_REQUEST)
+		{
+			portSrc = ICMP_TIMESTAMP_REQUEST + ICMP_TIMESTAMP_REPLY;
+			icmp_timestamp_request* timestampRequest(icmpLayer->getTimestampRequestData());
+			if(timestampRequest)
+				portDst = timestampRequest->id;
+			else
+				return 0;
+		}
+		else if(type == ICMP_TIMESTAMP_REPLY)
+		{
+			portSrc = ICMP_TIMESTAMP_REQUEST + ICMP_TIMESTAMP_REPLY;
+			icmp_timestamp_reply* timestampReply(icmpLayer->getTimestampReplyData());
+			if(timestampReply)
+				portDst = timestampReply->id;
+			else
+				return 0;
+		}
+		else if(type == ICMP_ADDRESS_MASK_REQUEST)
+		{
+			portSrc = ICMP_ADDRESS_MASK_REQUEST + ICMP_ADDRESS_MASK_REPLY;
+			icmp_address_mask_request* addressMaskRequest(icmpLayer->getAddressMaskRequestData());
+			if(addressMaskRequest)
+				portDst = addressMaskRequest->id;
+			else
+				return 0;
+		}
+		else if(type == ICMP_ADDRESS_MASK_REPLY)
+		{
+			portSrc = ICMP_ADDRESS_MASK_REQUEST + ICMP_ADDRESS_MASK_REPLY;
+			icmp_address_mask_reply* addressMaskReply(icmpLayer->getAddressMaskReplyData());
+			if(addressMaskReply)
+				portDst = addressMaskReply->id;
+			else
+				return 0;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	if (portDst < portSrc)
