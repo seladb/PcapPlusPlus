@@ -73,7 +73,6 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest);
 PTF_TEST_CASE(IcmpParsingTest);
 PTF_TEST_CASE(IcmpCreationTest);
 PTF_TEST_CASE(IcmpEditTest);
-PTF_TEST_CASE(IcmpHash5TupleTest);
 
 // Implemented in SllNullLoopbackTests.cpp
 PTF_TEST_CASE(SllPacketParsingTest);
