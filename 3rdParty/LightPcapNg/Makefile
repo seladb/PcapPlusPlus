@@ -9,7 +9,7 @@ OBJS_FILENAMES := $(patsubst LightPcapNg/src/%.c,Obj/%.o,$(SOURCES))
 
 INCLUDES := -I"LightPcapNg/include"
 
-DEFS := -DUNIVERSAL
+DEFS := -DUNIVERSAL -fPIC
 
 -include zstd.mk
 			
