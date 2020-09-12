@@ -696,6 +696,10 @@ std::string SipResponseLayer::toString() const
 	static const int maxLengthToPrint = 120;
 	std::string result = "SIP response, ";
 	int size = m_FirstLine->getSize() - 2; // the -2 is to remove \r\n at the end of the first line
+	if (size <= 0) {
+		result += std::string("CORRUPT DATA");
+		return result;
+	}
 	if (size <= maxLengthToPrint)
 	{
 		char* firstLine = new char[size+1];
