@@ -291,32 +291,49 @@ PTF_TEST_CASE(TcpPacketCreation2)
 
 PTF_TEST_CASE(TcpHash5Tuple)
 {
-	pcpp::MacAddress srcMac("30:46:9a:23:fb:fa");
-	pcpp::MacAddress dstMac("08:00:27:19:1c:78");
-	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 	pcpp::IPv4Address dstIP("10.0.0.6");
 	pcpp::IPv4Address srcIP("212.199.202.9");
+
 	pcpp::IPv4Layer ipLayer(srcIP, dstIP);
 	ipLayer.getIPv4Header()->ipId = htobe16(20300);
 	ipLayer.getIPv4Header()->fragmentOffset = htobe16(0x4000);
 	ipLayer.getIPv4Header()->timeToLive = 59;
-	pcpp::TcpLayer tcpLayer((uint16_t)80, (uint16_t)44160);
+	pcpp::TcpLayer tcpLayer((uint16_t)60388, (uint16_t)80);
 	tcpLayer.getTcpHeader()->sequenceNumber = htobe32(0xb829cb98);
 	tcpLayer.getTcpHeader()->ackNumber = htobe32(0xe9771586);
 	tcpLayer.getTcpHeader()->ackFlag = 1;
 	tcpLayer.getTcpHeader()->pshFlag = 1;
 	tcpLayer.getTcpHeader()->windowSize = htobe16(20178);
-	tcpLayer.getTcpHeader()->portSrc = htobe16(60388);
-	tcpLayer.getTcpHeader()->portDst = htobe16(80);
+	pcpp::Packet srcDstPacket(1);
+	srcDstPacket.addLayer(&ipLayer);
+	srcDstPacket.addLayer(&tcpLayer);
+	srcDstPacket.computeCalculateFields();
 
-	pcpp::Packet tcpPacket(1);
-	tcpPacket.addLayer(&ethLayer);
-	tcpPacket.addLayer(&ipLayer);
-	tcpPacket.addLayer(&tcpLayer);
 
-	tcpPacket.computeCalculateFields();
+	pcpp::IPv4Layer ipLayer2(dstIP, srcIP);
+	ipLayer2.getIPv4Header()->ipId = htobe16(20300);
+	ipLayer2.getIPv4Header()->fragmentOffset = htobe16(0x4000);
+	ipLayer2.getIPv4Header()->timeToLive = 59;
+	pcpp::TcpLayer tcpLayer2((uint16_t)80, (uint16_t)60388);
+	tcpLayer2.getTcpHeader()->sequenceNumber = htobe32(0xb829cb98);
+	tcpLayer2.getTcpHeader()->ackNumber = htobe32(0xe9771586);
+	tcpLayer2.getTcpHeader()->ackFlag = 1;
+	tcpLayer2.getTcpHeader()->pshFlag = 1;
+	tcpLayer2.getTcpHeader()->windowSize = htobe16(20178);
+	pcpp::Packet dstSrcPacket(1);
+	dstSrcPacket.addLayer(&ipLayer2);
+	dstSrcPacket.addLayer(&tcpLayer2);
+	dstSrcPacket.computeCalculateFields();
 
-        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&tcpPacket), 1576639238, u32);
-        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&tcpPacket, true), 2243556734, u32);
+	// Test default behaviour where hash of SRC->DST == DST_>SRC
+        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket), u32);
+
+	// Test of direction-unique-hash where SRC->DST != DST_>SRC
+        PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), pcpp::hash5Tuple(&dstSrcPacket, true), u32);
+
+        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, false), 1576639238, u32);
+        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 2243556734, u32);
+        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 1576639238 , u32);
+        PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 1576639238 , u32);
 
 } // TcpHash5Tuple

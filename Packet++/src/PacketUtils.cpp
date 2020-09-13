@@ -10,7 +10,7 @@
 namespace pcpp
 {
 
-uint32_t hash5Tuple(Packet* packet, bool const& directionunique)
+uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 {
 	if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
 		return 0;
@@ -40,7 +40,7 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionunique)
 		portDst = udpLayer->getUdpHeader()->portDst;
 	}
 
-	if( ! directionunique)
+	if( ! directionUnique)
 	{
 		if (portDst < portSrc)
 			srcPosition = 1;
