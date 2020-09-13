@@ -702,3 +702,46 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6)
 
 } // TestPcapFileReadLinkTypeIPv6
 
+PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4)
+{
+	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_LINKTYPE_IPV4);
+	PTF_ASSERT_TRUE(readerDev.open());
+	PTF_ASSERT_TRUE(readerDev.isOpened());
+	PTF_ASSERT_EQUAL(readerDev.getFileSize(), 266, u64);
+	pcpp::RawPacket rawPacket;
+	int packetCount = 0;
+	int ethCount = 0;
+	int ipCount = 0;
+	int tcpCount = 0;
+	int udpCount = 0;
+	while (readerDev.getNextPacket(rawPacket))
+	{
+		packetCount++;
+		pcpp::Packet packet(&rawPacket);
+		if (packet.isPacketOfType(pcpp::Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(pcpp::IPv4))
+			ipCount++;
+		if (packet.isPacketOfType(pcpp::TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(pcpp::UDP))
+			udpCount++;
+	}
+
+
+	pcap_stat readerStatistics;
+
+	readerDev.getStatistics(readerStatistics);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_recv, 2, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_drop, 0, u32);
+
+	PTF_ASSERT_EQUAL(ethCount, 0, int);
+	PTF_ASSERT_EQUAL(ipCount, 2, int);
+	PTF_ASSERT_EQUAL(tcpCount, 0, int);
+	PTF_ASSERT_EQUAL(udpCount, 2, int);
+
+	readerDev.close();
+	PTF_ASSERT_FALSE(readerDev.isOpened());
+
+} // TestPcapFileReadLinkTypeIPv4
+
