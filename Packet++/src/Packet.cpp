@@ -57,14 +57,17 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 
 	m_LastLayer = m_FirstLayer;
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != NULL && (curLayer->getProtocol() & parseUntil) == 0 && curLayer->getOsiModelLayer() <= parseUntilLayer)
+	int counter = 0;
+	while (curLayer != NULL && (curLayer->getProtocol() & parseUntil) == 0 && curLayer->getOsiModelLayer() <= parseUntilLayer && counter < 64)
 	{
 		m_ProtocolTypes |= curLayer->getProtocol();
 		curLayer->parseNextLayer();
 		curLayer->m_IsAllocatedInPacket = true;
 		curLayer = curLayer->getNextLayer();
+		
 		if (curLayer != NULL)
 			m_LastLayer = curLayer;
+		counter++;
 	}
 
 	if (curLayer != NULL && (curLayer->getProtocol() & parseUntil) != 0)
