@@ -1213,6 +1213,9 @@ SSLVersion SSLClientHelloMessage::getHandshakeVersion() const
 
 uint8_t SSLClientHelloMessage::getSessionIDLength() const
 {
+	if (m_DataLen <= sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t))
+		return 0;
+
 	uint8_t val = *(m_Data + sizeof(ssl_tls_client_server_hello));
 	if ((size_t)val > m_DataLen - sizeof(ssl_tls_client_server_hello) - 1)
 		return (uint8_t)(m_DataLen - sizeof(ssl_tls_client_server_hello) - 1);
@@ -1606,16 +1609,18 @@ std::string SSLClientKeyExchangeMessage::toString() const
 SSLCertificateRequestMessage::SSLCertificateRequestMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
 		: SSLHandshakeMessage(data, dataLen, container)
 {
-	if (dataLen < sizeof(ssl_tls_handshake_layer) +
-			sizeof(uint8_t)) // certificate types count (1B)
+	size_t minMessageSize = sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t); // certificate types count (1B)
+	if (dataLen < minMessageSize)
 		return;
 
 	size_t messageLen = getMessageLength();
+	if (messageLen < minMessageSize)
+		return;
 
 	uint8_t certificateTypesCount = *(uint8_t*)(data + sizeof(ssl_tls_handshake_layer));
 
-	if (certificateTypesCount > messageLen - sizeof(ssl_tls_handshake_layer) - sizeof(uint8_t))
-		certificateTypesCount = messageLen - sizeof(ssl_tls_handshake_layer) - sizeof(uint8_t);
+	if (certificateTypesCount > messageLen - minMessageSize)
+		certificateTypesCount = messageLen - minMessageSize;
 
 	uint8_t* pos = data + sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t);
 	for (uint8_t i = 0; i < certificateTypesCount; i++)
