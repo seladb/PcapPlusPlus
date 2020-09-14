@@ -128,7 +128,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
 	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
-	PTF_RUN_TEST(TcpHash5Tuple, "tcp");
+
+	PTF_RUN_TEST(PacketUtilsTcpHash5Tuple, "tcp");
+	PTF_RUN_TEST(PacketUtilsUdpHash5Tuple, "udp");
 
 	PTF_RUN_TEST(InsertDataToPacket, "packet;insert");
 	PTF_RUN_TEST(InsertVlanToPacket, "packet;vlan;insert");

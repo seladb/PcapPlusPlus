@@ -35,7 +35,10 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2);
 PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
 PTF_TEST_CASE(TcpPacketCreation2);
-PTF_TEST_CASE(TcpHash5Tuple);
+
+// Implemented in PacketUtilsTests.cpp
+PTF_TEST_CASE(PacketUtilsTcpHash5Tuple);
+PTF_TEST_CASE(PacketUtilsUdpHash5Tuple);
 
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
