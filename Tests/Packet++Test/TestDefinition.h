@@ -37,8 +37,9 @@ PTF_TEST_CASE(TcpPacketCreation);
 PTF_TEST_CASE(TcpPacketCreation2);
 
 // Implemented in PacketUtilsTests.cpp
-PTF_TEST_CASE(PacketUtilsTcpHash5Tuple);
-PTF_TEST_CASE(PacketUtilsUdpHash5Tuple);
+PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
+PTF_TEST_CASE(PacketUtilsHash5TupleTcp);
+PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
 
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
