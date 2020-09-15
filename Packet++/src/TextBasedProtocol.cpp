@@ -482,7 +482,7 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 		if (spacesAllowedBetweenNameAndValue)
 		{
 			// advance fieldValuePtr 1 byte forward while didn't get to end of packet and fieldValuePtr points to a space char
-			while ((size_t)(fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data) <= m_TextBasedProtocolMessage->getDataLen() && (*fieldValuePtr) == ' ')
+			while ((size_t)(fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data) < m_TextBasedProtocolMessage->getDataLen() && (*fieldValuePtr) == ' ')
 			{
 				fieldValuePtr++;
 			}

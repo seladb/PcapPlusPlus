@@ -39,6 +39,16 @@ namespace pcpp
 	 * Illegal hex string means odd number of characters or a string that contains non-hex characters
 	 */
 	size_t hexStringToByteArray(const std::string& hexString, uint8_t* resultByteArr, size_t resultByteArrSize);
+
+	/**
+	 * This is a cross platform version of memmem (https://man7.org/linux/man-pages/man3/memmem.3.html) which is not supported
+	 * on all platforms.
+	 * @param[in] haystack A pointer to the buffer to be searched
+	 * @param[in] haystackLen Length of the haystack buffer
+	 * @param[in] needle A pointer to a buffer that will be searched for
+	 * @param[in] needleLen Length of the needle buffer
+	 */
+	char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char* needle, size_t needleLen);
 }
 
 #endif // PCAPPP_GENERAL_UTILS

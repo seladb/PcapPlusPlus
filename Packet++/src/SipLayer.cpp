@@ -4,6 +4,7 @@
 #include "SdpLayer.h"
 #include "PayloadLayer.h"
 #include "Logger.h"
+#include "GeneralUtils.h"
 #include <string.h>
 #include <algorithm>
 #include <stdlib.h>
@@ -287,7 +288,7 @@ SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(char* data, size_t d
 void SipRequestFirstLine::parseVersion()
 {
 	char* data = (char*)(m_SipRequest->m_Data + m_UriOffset);
-	char* verPos = strstr(data, " SIP/");
+	char* verPos = (char*)cross_platform_memmem(data, m_SipRequest->getDataLen() - m_UriOffset, " SIP/", 5);
 	if (verPos == NULL)
 	{
 		m_Version = "";
