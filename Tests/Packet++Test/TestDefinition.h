@@ -36,6 +36,11 @@ PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
 PTF_TEST_CASE(TcpPacketCreation2);
 
+// Implemented in PacketUtilsTests.cpp
+PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
+PTF_TEST_CASE(PacketUtilsHash5TupleTcp);
+PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
+
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
 PTF_TEST_CASE(InsertVlanToPacket);
