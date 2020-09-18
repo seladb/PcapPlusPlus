@@ -221,7 +221,7 @@ bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, si
 			delete m_Bpf;
 		}
 
-		m_Bpf = new bpf_program();
+		m_Bpf = new bpf_program;
 		if (pcap_compile_nopcap(9000, linkTypeAsInt, m_Bpf, m_CurFilter.c_str(), 1, 0) < 0)
 		{
 			m_BpfInitialized = false;
@@ -692,7 +692,7 @@ bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, si
 			delete m_Bpf;
 		}
 			
-		m_Bpf = new bpf_program();
+		m_Bpf = new bpf_program;
 		if (pcap_compile_nopcap(9000, linkTypeAsInt, m_Bpf, m_CurFilter.c_str(), 1, 0) < 0)
 		{
 			m_BpfInitialized = false;
