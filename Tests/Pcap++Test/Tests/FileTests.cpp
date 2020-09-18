@@ -65,16 +65,16 @@ PTF_TEST_CASE(TestPcapFileReadWrite)
 	}
 
 
-	pcap_stat readerStatistics;
-	pcap_stat writerStatistics;
+	pcpp::IPcapDevice::PcapStats readerStatistics;
+	pcpp::IPcapDevice::PcapStats writerStatistics;
 
 	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_recv, 4631, u32);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 4631, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0, u32);
 
 	writerDev.getStatistics(writerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_recv, 4631, u32);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 4631, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0, u32);
 
 	PTF_ASSERT_EQUAL(ethCount, 4631, int);
 	PTF_ASSERT_EQUAL(sllCount, 0, int);
@@ -134,16 +134,16 @@ PTF_TEST_CASE(TestPcapSllFileReadWrite)
 		PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
 	}
 
-	pcap_stat readerStatistics;
-	pcap_stat writerStatistics;
+	pcpp::IPcapDevice::PcapStats readerStatistics;
+	pcpp::IPcapDevice::PcapStats writerStatistics;
 
 	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_recv, 518, u32);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 518, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0, u32);
 
 	writerDev.getStatistics(writerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_recv, 518, u32);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 518, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0, u32);
 
 	PTF_ASSERT_EQUAL(ethCount, 0, int);
 	PTF_ASSERT_EQUAL(sllCount, 518, int);
@@ -196,21 +196,21 @@ PTF_TEST_CASE(TestPcapRawIPFileReadWrite)
 		writerNgDev.writePacket(rawPacket);
 	}
 
-	pcap_stat readerStatistics;
-	pcap_stat writerStatistics;
-	pcap_stat writerNgStatistics;
+	pcpp::IPcapDevice::PcapStats readerStatistics;
+	pcpp::IPcapDevice::PcapStats writerStatistics;
+	pcpp::IPcapDevice::PcapStats writerNgStatistics;
 
 	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_recv, 100, u32);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 100, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0, u32);
 
 	writerDev.getStatistics(writerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_recv, 100, u32);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 100, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0, u32);
 
 	writerNgDev.getStatistics(writerNgStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)writerNgStatistics.ps_recv, 100, u32);
-	PTF_ASSERT_EQUAL((uint32_t)writerNgStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerNgStatistics.packetsRecv, 100, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerNgStatistics.packetsDrop, 0, u32);
 
 	PTF_ASSERT_EQUAL(ethCount, 0, int);
 	PTF_ASSERT_EQUAL(ipv4Count, 50, int);
@@ -321,20 +321,20 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 		PTF_ASSERT_TRUE(writerCompressDev.writePacket(rawPacket));
 	}
 
-	pcap_stat readerStatistics;
-	pcap_stat writerStatistics;
+	pcpp::IPcapDevice::PcapStats readerStatistics;
+	pcpp::IPcapDevice::PcapStats writerStatistics;
 
 	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_recv, 64, u32);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 64, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0, u32);
 
 	writerDev.getStatistics(writerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_recv, 64, u32);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 64, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0, u32);
 
 	writerCompressDev.getStatistics(writerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_recv, 64, u32);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 64, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0, u32);
 
 	PTF_ASSERT_EQUAL(ethLinkLayerCount, 62, int);
 	PTF_ASSERT_EQUAL(nullLinkLayerCount, 2, int);
@@ -438,16 +438,16 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	PTF_ASSERT_EQUAL(httpCount, 1, int);
 	PTF_ASSERT_EQUAL(commentCount, 100, int);
 
-	pcap_stat readerStatistics;
-	pcap_stat writerStatistics;
+	pcpp::IPcapDevice::PcapStats readerStatistics;
+	pcpp::IPcapDevice::PcapStats writerStatistics;
 
 	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_recv, 159, u32);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 159, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0, u32);
 
 	writerDev.getStatistics(writerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_recv, 159, u32);
-	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 159, u32);
+	PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0, u32);
 
 	readerDev.close();
 	writerDev.close();
@@ -686,11 +686,11 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6)
 	}
 
 
-	pcap_stat readerStatistics;
+	pcpp::IPcapDevice::PcapStats readerStatistics;
 
 	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_recv, 1, u32);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 1, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0, u32);
 
 	PTF_ASSERT_EQUAL(ethCount, 0, int);
 	PTF_ASSERT_EQUAL(ipCount, 1, int);
@@ -729,11 +729,11 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4)
 	}
 
 
-	pcap_stat readerStatistics;
+	pcpp::IPcapDevice::PcapStats readerStatistics;
 
 	readerDev.getStatistics(readerStatistics);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_recv, 2, u32);
-	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.ps_drop, 0, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 2, u32);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0, u32);
 
 	PTF_ASSERT_EQUAL(ethCount, 0, int);
 	PTF_ASSERT_EQUAL(ipCount, 2, int);

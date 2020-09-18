@@ -17,7 +17,7 @@ static void packetArrives(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDev
 	(*(int*)userCookie)++;
 }
 
-static void statsUpdate(pcap_stat& stats, void* userCookie)
+static void statsUpdate(pcpp::IPcapDevice::PcapStats& stats, void* userCookie)
 {
 	(*(int*)userCookie)++;
 }
@@ -222,7 +222,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0, int);
 	PTF_ASSERT_GREATER_THAN(numOfTimeStatsWereInvoked, totalSleepTime*0.8, int);
-	pcap_stat statistics;
+	pcpp::IPcapDevice::PcapStats statistics;
 	liveDev->getStatistics(statistics);
 	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
 	//PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0, u32);
@@ -285,9 +285,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	{
 		PCAP_SLEEP(2);
 		totalSleepTime +=2;
-		pcap_stat statistics;
+		pcpp::IPcapDevice::PcapStats statistics;
 		liveDev->getStatistics(statistics);
-		if (statistics.ps_recv > 2)
+		if (statistics.packetsRecv > 2)
 			break;
 	}
 
@@ -295,9 +295,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-1, int);
-	pcap_stat statistics;
+	pcpp::IPcapDevice::PcapStats statistics;
 	liveDev->getStatistics(statistics);
-	PTF_ASSERT_GREATER_THAN((uint32_t)statistics.ps_recv, 2, u32);
+	PTF_ASSERT_GREATER_THAN((uint32_t)statistics.packetsRecv, 2, u32);
 	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
 	//PTF_ASSERT_EQUAL((uint32_t)statistics.ps_drop, 0, u32);
 	liveDev->close();
@@ -489,10 +489,10 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 		sendURLRequest("www.ebay.com");
 	}
 
-	pcap_stat statistics;
+	pcpp::IPcapDevice::PcapStats statistics;
 	winPcapLiveDevice->getStatistics(statistics);
-	PTF_ASSERT_GREATER_THAN(statistics.ps_recv, 20, int);
-	PTF_ASSERT_EQUAL((uint32_t)statistics.ps_drop, 0, int);
+	PTF_ASSERT_GREATER_THAN(statistics.packetsRecv, 20, int);
+	PTF_ASSERT_EQUAL((uint32_t)statistics.packetsDrop, 0, int);
 	winPcapLiveDevice->stopCapture();
 	PTF_ASSERT_TRUE(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(defaultDataToCopy));
 	winPcapLiveDevice->close();
@@ -678,9 +678,9 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size(), int);
 
 	//check statistics
-	pcap_stat stats;
+	pcpp::IPcapDevice::PcapStats stats;
 	remoteDevice->getStatistics(stats);
-	PTF_ASSERT_EQUAL((uint32_t)stats.ps_recv, capturedPacketsSize, u32);
+	PTF_ASSERT_EQUAL((uint32_t)stats.packetsRecv, capturedPacketsSize, u32);
 
 	remoteDevice->close();
 

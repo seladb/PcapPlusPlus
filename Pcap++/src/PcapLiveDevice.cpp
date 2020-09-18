@@ -6,6 +6,7 @@
 #ifndef  _MSC_VER
 #include <unistd.h>
 #endif // ! _MSC_VER
+#include "pcap.h"
 #include <pthread.h>
 #include "Logger.h"
 #include "PlatformSpecificUtils.h"
@@ -223,7 +224,7 @@ void* PcapLiveDevice::statsThreadMain(void* ptr)
 	LOG_DEBUG("Started stats thread for device '%s'", pThis->m_Name);
 	while (!pThis->m_StopThread)
 	{
-		pcap_stat stats;
+		PcapStats stats;
 		pThis->getStatistics(stats);
 		pThis->m_cbOnStatsUpdate(stats, pThis->m_cbOnStatsUpdateUserCookie);
 		PCAP_SLEEP(pThis->m_IntervalToUpdateStats);
@@ -556,12 +557,17 @@ bool PcapLiveDevice::captureActive()
 	return m_CaptureThreadStarted;
 }
 
-void PcapLiveDevice::getStatistics(pcap_stat& stats) const
+void PcapLiveDevice::getStatistics(PcapStats& stats) const
 {
-	if (pcap_stats(m_PcapDescriptor, &stats) < 0)
+	pcap_stat pcapStats;
+	if (pcap_stats(m_PcapDescriptor, &pcapStats) < 0)
 	{
 		LOG_ERROR("Error getting statistics from live device '%s'", m_Name);
 	}
+
+	stats.packetsRecv = pcapStats.ps_recv;
+	stats.packetsDrop = pcapStats.ps_drop;
+	stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 }
 
 bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket)

@@ -5,6 +5,7 @@
 #include "WinPcapLiveDevice.h"
 #include "Logger.h"
 #include "TimespecTimeval.h"
+#include "pcap.h"
 
 namespace pcpp
 {

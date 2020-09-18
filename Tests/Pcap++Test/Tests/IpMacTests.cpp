@@ -75,13 +75,17 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPv6Address subnetIp6Addr01("2607:f0d0:1002:0051::");
 	pcpp::IPv6Address subnetIp6Addr02("2607:f0d0:1002:0051:0011::");
 
+	pcpp::LoggerPP::getInstance().supressErrors();
 	PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr01, 0));
-	for(int i = 1; i <= 64; ++i) {
+	pcpp::LoggerPP::getInstance().enableErrors();
+	for(int i = 1; i <= 64; ++i)
+	{
 		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(subnetIp6Addr01, i));
 		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(subnetIp6Addr02, i));
 	}
 
-	for(int i = 65; i <= 127; ++i) {
+	for(int i = 65; i <= 127; ++i)
+	{
 		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr01, i));
 		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr02, i));
 	}

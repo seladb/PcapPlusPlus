@@ -137,7 +137,7 @@ namespace pcpp
 		 */
 		virtual bool open();
 
-		virtual void getStatistics(pcap_stat& stats) const;
+		virtual void getStatistics(IPcapDevice::PcapStats& stats) const;
 	};
 
 } // namespace pcpp

@@ -59,7 +59,7 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 }
 
 #ifdef PCPP_TESTS_DEBUG
-#include <pcap.h>
+#include "pcap.h"
 
 void savePacketToPcap(Packet& packet, std::string fileName)
 {

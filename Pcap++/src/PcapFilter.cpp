@@ -7,7 +7,7 @@
 #if defined(WINx64)
 #include <winsock2.h>
 #endif
-#include <pcap.h>
+#include "pcap.h"
 #include "RawPacket.h"
 #include "TimespecTimeval.h"
 

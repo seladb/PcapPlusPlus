@@ -4,6 +4,10 @@
 #include "PcapDevice.h"
 #include "RawPacket.h"
 
+// forward decleration for structs and typedefs defined in pcap.h
+struct pcap_dumper;
+typedef struct pcap_dumper pcap_dumper_t;
+
 /// @file
 
 /**
@@ -142,10 +146,10 @@ namespace pcpp
 		bool open();
 
 		/**
-		 * Get statistics of packets read so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
+		 * Get statistics of packets read so far. In the PcapStats struct, only the packetsRecv member is relevant. The rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		void getStatistics(pcap_stat& stats) const;
+		void getStatistics(PcapStats& stats) const;
 	};
 
 
@@ -157,7 +161,7 @@ namespace pcpp
 	{
 	private:
 		void* m_LightPcapNg;
-		struct bpf_program m_Bpf;
+		bpf_program* m_Bpf;
 		bool m_BpfInitialized;
 		int m_BpfLinkType;
 		std::string m_CurFilter;
@@ -241,10 +245,10 @@ namespace pcpp
 		bool open();
 
 		/**
-		 * Get statistics of packets read so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
+		 * Get statistics of packets read so far.
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		void getStatistics(pcap_stat& stats) const;
+		void getStatistics(PcapStats& stats) const;
 
 		/**
 		 * Set a filter for PcapNG reader device. Only packets that match the filter will be received
@@ -374,10 +378,10 @@ namespace pcpp
 		void flush();
 
 		/**
-		 * Get statistics of packets written so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
+		 * Get statistics of packets written so far.
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		virtual void getStatistics(pcap_stat& stats) const;
+		virtual void getStatistics(PcapStats& stats) const;
 	};
 
 
@@ -393,7 +397,7 @@ namespace pcpp
 	private:
 		void* m_LightPcapNg;
 		int m_CompressionLevel;
-		struct bpf_program m_Bpf;
+		bpf_program* m_Bpf;
 		bool m_BpfInitialized;
 		int m_BpfLinkType;
 		std::string m_CurFilter;
@@ -495,10 +499,10 @@ namespace pcpp
 		void close();
 
 		/**
-		 * Get statistics of packets written so far. In the pcap_stat struct, only ps_recv member is relevant. The rest of the members will contain 0
+		 * Get statistics of packets written so far.
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		void getStatistics(pcap_stat& stats) const;
+		void getStatistics(PcapStats& stats) const;
 
 		/**
 		 * Set a filter for PcapNG writer device. Only packets that match the filter will be persisted

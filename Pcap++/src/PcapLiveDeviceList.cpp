@@ -4,6 +4,7 @@
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
 #include "SystemUtils.h"
+#include "pcap.h"
 #include <string.h>
 #include <sstream>
 #include <algorithm>

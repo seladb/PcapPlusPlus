@@ -5,6 +5,7 @@
 #include "PcapRemoteDeviceList.h"
 #include "Logger.h"
 #include "IpUtils.h"
+#include "pcap.h"
 #include <ws2tcpip.h>
 
 namespace pcpp

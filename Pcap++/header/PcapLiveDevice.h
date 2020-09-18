@@ -8,6 +8,11 @@
 #include "IpAddress.h"
 #include "Packet.h"
 
+// forward declerations for structs and typedefs that are defined in pcap.h
+struct pcap_if;
+typedef pcap_if pcap_if_t;
+struct pcap_addr;
+typedef struct pcap_addr pcap_addr_t;
 
 /// @file
 
@@ -46,7 +51,7 @@ namespace pcpp
 	 * @param[in] stats A reference to the most updated stats
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 */
-	typedef void (*OnStatsUpdateCallback)(pcap_stat& stats, void* userCookie);
+	typedef void (*OnStatsUpdateCallback)(IPcapDevice::PcapStats& stats, void* userCookie);
 
 	// for internal use only
 	typedef void* (*ThreadStart)(void*);
@@ -264,6 +269,7 @@ namespace pcpp
 		 * @return The device's link layer type
 		 */
 		virtual LinkLayerType getLinkType() const { return m_LinkType; }
+
 		/**
 		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
 		 */
@@ -495,7 +501,7 @@ namespace pcpp
 
 		void close();
 
-		virtual void getStatistics(pcap_stat& stats) const;
+		virtual void getStatistics(IPcapDevice::PcapStats& stats) const;
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
