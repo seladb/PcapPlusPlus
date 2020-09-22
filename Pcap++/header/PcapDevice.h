@@ -18,7 +18,6 @@
 // forward decleration for the pcap descriptor defined in pcap.h
 struct pcap;
 typedef pcap pcap_t;
-struct bpf_program;
 struct pcap_pkthdr;
 
 /// @file

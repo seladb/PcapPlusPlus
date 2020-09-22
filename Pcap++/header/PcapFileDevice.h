@@ -161,16 +161,11 @@ namespace pcpp
 	{
 	private:
 		void* m_LightPcapNg;
-		bpf_program* m_Bpf;
-		bool m_BpfInitialized;
-		int m_BpfLinkType;
-		std::string m_CurFilter;
+		BpfFilterWrapper m_BpfWrapper;
 
 		// private copy c'tor
 		PcapNgFileReaderDevice(const PcapNgFileReaderDevice& other);
 		PcapNgFileReaderDevice& operator=(const PcapNgFileReaderDevice& other);
-
-		bool matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType);
 
 	public:
 		/**
@@ -397,16 +392,11 @@ namespace pcpp
 	private:
 		void* m_LightPcapNg;
 		int m_CompressionLevel;
-		bpf_program* m_Bpf;
-		bool m_BpfInitialized;
-		int m_BpfLinkType;
-		std::string m_CurFilter;
+		BpfFilterWrapper m_BpfWrapper;
 
 		// private copy c'tor
 		PcapNgFileWriterDevice(const PcapFileWriterDevice& other);
 		PcapNgFileWriterDevice& operator=(const PcapNgFileWriterDevice& other);
-
-		bool matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType);
 
 	public:
 

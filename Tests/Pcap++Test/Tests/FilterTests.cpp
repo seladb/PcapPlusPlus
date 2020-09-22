@@ -212,9 +212,9 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
 
-	//------------------
-	//Test GeneralFilter bpf_program + BPFStringFilter
-	//------------------
+	//------------------------------------
+	//Test GeneralFilter + BPFStringFilter
+	//------------------------------------
 
 	//Try to make an invalid filter
 	pcpp::BPFStringFilter badFilter("This is not a valid filter");
