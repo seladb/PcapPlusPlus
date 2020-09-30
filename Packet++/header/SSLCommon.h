@@ -25,7 +25,7 @@ namespace pcpp
 	{
 		/** Message (record) type (one of ::SSLRecordType) */
 		uint8_t recordType;
-		/** Message (record) version (one of ::SSLVersion) */
+		/** Message (record) version (one of SSLVersion::SSLVersionEnum) */
 		uint16_t recordVersion;
 		/** Message (record) length in bytes */
 		uint16_t length;
@@ -57,7 +57,7 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct ssl_tls_client_server_hello : ssl_tls_handshake_layer
 	{
-		/** SSL/TLS handshake version (one of ::SSLVersion) */
+		/** SSL/TLS handshake version (one of SSLVersion::SSLVersionEnum) */
 		uint16_t handshakeVersion;
 		/** 32-bytes random number */
 		uint8_t random[32];
