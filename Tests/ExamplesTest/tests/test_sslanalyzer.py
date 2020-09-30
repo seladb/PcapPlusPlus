@@ -9,7 +9,8 @@ class TestSSLAnalyzer(ExampleTest):
 	@pytest.mark.parametrize(
 		"pcap_file,expected_report_file",
 		[
-			pytest.param('many-protocols.pcap', 'sslanalyzer_manyprotocols.txt', id='many_protocols')
+			pytest.param('many-protocols.pcap', 'sslanalyzer_manyprotocols.txt', id='many_protocols'),
+			pytest.param('tls.pcap', 'sslanalyzer_tls.txt', id='tls')
 		]
 	)
 	def test_from_pcap(self, pcap_file, expected_report_file):

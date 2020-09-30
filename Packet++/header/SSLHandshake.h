@@ -185,6 +185,27 @@ public:
 
 
 /**
+ * @class SSLSupportedVersionsExtension
+ * Represents TLS Supported Versions extension. Inherits from SSLExtension and adds parsing of the list
+ * of supported versions mentioned in the extension data
+ */
+class SSLSupportedVersionsExtension : public SSLExtension
+{
+public:
+	/**
+	 * C'tor for this class
+	 * @param[in] data The raw data for the extension
+	 */
+	SSLSupportedVersionsExtension(uint8_t* data) : SSLExtension(data) {}
+
+	/**
+	 * @return The list of supported versions mentioned in the extension data
+	 */
+	std::vector<SSLVersion> getSupportedVersions() const;
+};
+
+
+/**
  * @class SSLx509Certificate
  * Represents a x509v3 certificate. the SSLCertificateMessage class returns an instance of this class as the certificate.
  * Currently this class doesn't do much as it doesn't parse the certificate. It only acts as container to the raw data
@@ -438,7 +459,11 @@ public:
 
 	/**
 	 * @return Handshake SSL/TLS version (notice it may be different than SSLLayer#getRecordVersion(). Each client-hello
-	 * or server-hello message has both record version and handshake version and they may differ from one another)
+	 * or server-hello message has both record version and handshake version and they may differ from one another).
+	 * 
+	 * <b>NOTE:</b> for TLS 1.3 the hanshake version written in ssl_tls_client_server_hello::handshakeVersion is still TLS 1.2,
+	 * so a special check is made here see if a SupportedVersions extension exists and if so extract the version from it.
+	 * This is the most straight-forward way to detect TLS 1.3.
 	 */
 	SSLVersion getHandshakeVersion() const;
 

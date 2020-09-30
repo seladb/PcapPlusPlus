@@ -10,7 +10,7 @@ This application analyzes SSL/TLS traffic and presents detailed and diverse info
 - Number of SSL flows with successful handshake and alert messages
 - Hostname histogram
 - Cipher suite histogram
-- Client hello version histogram
+- SSL/TLS version histogram
 - SSL/TLS ports histogram
 
 It can analyze live traffic or read packets from a pcap/pcap-ng file
@@ -21,67 +21,58 @@ The output stats looks as follows:
 	=============
 
 	General stats
-	--------------------
+	-------------
 
-	Sample time:                                            8.777 [Seconds]
-	Number of SSL packets:                                    109 [Packets]
-	Rate of SSL packets:                                    9.765 [Packets/sec]
-	Number of SSL flows:                                       21 [Flows]
-	Rate of SSL flows:                                      1.881 [Flows/sec]
-	Total SSL data:                                         60049 [Bytes]
-	Rate of SSL data:                                    5379.698 [Bytes/sec]
-	Average packets per flow:                               5.190 [Packets]
-	Average data per flow:                               2859.476 [Bytes]
-	Client-hello message:                                      12 [Messages]
-	Server-hello message:                                      12 [Messages]
-	Number of SSL flows with successful handshake:             17 [Flows]
-	Number of SSL flows ended with alert:                       5 [Flows]
+	Sample time:                                            5.018 [Seconds]
+	Number of SSL packets:                                    130 [Packets]
+	Rate of SSL packets:                                   14.409 [Packets/sec]
+	Number of SSL flows:                                       26 [Flows]
+	Rate of SSL flows:                                      2.882 [Flows/sec]
+	Total SSL data:                                        101799 [Bytes]
+	Rate of SSL data:                                   11282.986 [Bytes/sec]
+	Average packets per flow:                               5.000 [Packets]
+	Average data per flow:                               3915.346 [Bytes]
+	Client-hello message:                                       3 [Messages]
+	Server-hello message:                                       3 [Messages]
+	Number of SSL flows with successful handshake:             25 [Flows]
+	Number of SSL flows ended with alert:                       1 [Flows]
 
 	SSL/TLS ports count
-	--------------------
+	-------------------
 
+	-------------------------
 	| SSL/TLS ports | Count |
 	-------------------------
-	| 443           | 21    |
+	| 443           | 26    |
 	-------------------------
 
-	SSL versions count
-	--------------------
+	SSL/TLS versions count
+	----------------------
 
-	| SSL record version           | Count |
 	----------------------------------------
-	| TLSv1.2                      | 12    |
+	| SSL/TLS version              | Count |
 	----------------------------------------
-
-	Client-hello versions count
-	--------------------
-
-	| Client-hello version         | Count |
-	----------------------------------------
-	| TLSv1.0                      | 12    |
+	| TLS 1.2                      | 3     |
 	----------------------------------------
 
 	Cipher-suite count
-	--------------------
+	------------------
 
+	--------------------------------------------------------------
 	| Cipher-suite                                       | Count |
 	--------------------------------------------------------------
-	| TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256              | 12    |
+	| TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256              | 3     |
 	--------------------------------------------------------------
 
 	Server-name count
-	--------------------
+	-----------------
 
+	----------------------------------------------------
 	| Hostname                                 | Count |
 	----------------------------------------------------
-	| assets-cdn.github.com                    | 4     |
-	| camo.githubusercontent.com               | 2     |
-	| api.github.com                           | 1     |
-	| avatars0.githubusercontent.com           | 1     |
-	| collector.githubapp.com                  | 1     |
 	| github.com                               | 1     |
-	| live.github.com                          | 1     |
-	| www.google-analytics.com                 | 1     |
+	| avatars3.githubusercontent.com           | 1     |
+	| alive.github.com                         | 1     |
 	----------------------------------------------------
 
 Using the utility

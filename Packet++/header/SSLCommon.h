@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SSL_LAYER_COMMON
 #define PACKETPP_SSL_LAYER_COMMON
 
+#include <string>
 
 /**
  * @file
@@ -106,21 +107,106 @@ namespace pcpp
 		SSL_APPLICATION_DATA   = 23
 	};
 
+
 	/**
-	 * SSL/TLS versions. Only SSL3.0 and above are supported
+	 * @class SSLVersion
+	 * A wrapper class for SSL/TLS versions. The SSL/TLS version is typically represented by a 2-byte number,
+	 * for example TLS 1.2 is represented by 0x0303.
+	 * This class wraps the numeric value and provides methods to convert it into an enum, string, etc.
 	 */
-	enum SSLVersion
+	class SSLVersion
 	{
-		/** SSLv2.0 */
-		SSL2   = 0x0200,
-		/** SSLv3.0 */
-		SSL3   = 0x0300,
-		/** TLSv1.0 */
-		TLS1_0 = 0x0301,
-		/** TLSv1.1 */
-		TLS1_1 = 0x0302,
-		/** TLSv1.2 */
-		TLS1_2 = 0x0303
+	public:
+		/**
+		 * SSL/TLS versions enum
+		 */
+		enum SSLVersionEnum
+		{
+			/** SSL 2.0 */
+			SSL2   = 0x0200,
+			/** SSL 3.0 */
+			SSL3   = 0x0300,
+			/** TLS 1.0 */
+			TLS1_0 = 0x0301,
+			/** TLS 1.1 */
+			TLS1_1 = 0x0302,
+			/** TLS 1.2 */
+			TLS1_2 = 0x0303,
+			/** TLS 1.3 */
+			TLS1_3 = 0x0304,
+			/** TLS 1.3 (draft 14) */
+			TLS1_3_D14 = 0x7f0e,
+			/** TLS 1.3 (draft 15) */
+			TLS1_3_D15 = 0x7f0f,
+			/** TLS 1.3 (draft 16) */
+			TLS1_3_D16 = 0x7f10,
+			/** TLS 1.3 (draft 17) */
+			TLS1_3_D17 = 0x7f11,
+			/** TLS 1.3 (draft 18) */
+			TLS1_3_D18 = 0x7f12,
+			/** TLS 1.3 (draft 19) */
+			TLS1_3_D19 = 0x7f13,
+			/** TLS 1.3 (draft 20) */
+			TLS1_3_D20 = 0x7f14,
+			/** TLS 1.3 (draft 21) */
+			TLS1_3_D21 = 0x7f15,
+			/** TLS 1.3 (draft 22) */
+			TLS1_3_D22 = 0x7f16,
+			/** TLS 1.3 (draft 23) */
+			TLS1_3_D23 = 0x7f17,
+			/** TLS 1.3 (draft 24) */
+			TLS1_3_D24 = 0x7f18,
+			/** TLS 1.3 (draft 25) */
+			TLS1_3_D25 = 0x7f19,
+			/** TLS 1.3 (draft 26) */
+			TLS1_3_D26 = 0x7f1a,
+			/** TLS 1.3 (draft 27) */
+			TLS1_3_D27 = 0x7f1b,
+			/** TLS 1.3 (draft 28) */
+			TLS1_3_D28 = 0x7f1c,
+			/** TLS 1.3 (Facebook draft 23) */
+			TLS1_3_FBD23 = 0xfb17,
+			/** TLS 1.3 (Facebook draft 26) */
+			TLS1_3_FBD26 = 0xfb1a,
+			/** Unknown value */
+			Unknown = 0
+		};
+
+		/**
+		 * A c'tor for this class.
+		 * @param[in] sslVersionValue The numeric value representing this SSL/TLS version. For example:
+		 * for TLS 1.2 this would be 0x0303.
+		 */
+		SSLVersion(uint16_t sslVersionValue) { m_SSLVersionValue = sslVersionValue; }
+
+		/**
+		 * @return An enum value of type SSLVersion::SSLVersionEnum representing the SSL/TLS version.
+		 * If the numeric value is an invalid SSL/TLS version SSLVersion::Unknown will be returned.
+		 * @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the enum value SSLVersion::TLS1_3 for all TLS 1.3 drafts. If set to "true"
+		 * all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return SSLVersion::TLS1_3, otherwise the corresponding enum values will be
+		 * returned. The default value is "false".
+		 */
+		SSLVersionEnum asEnum(bool countTlsDraftsAs1_3 = false);
+
+		/**
+		 * @return The numeric value of the SSL/TLs version
+		 */
+		uint16_t asUInt() { return m_SSLVersionValue; }
+
+		/**
+		 * @return A string representation of the SSL/TLS version. For example: for TLS 1.2 the string "TLS 1.2" is returned.
+		 * If the numeric value is an invalid SSL/TLS version the string "Unknown" will be returned.
+		 * @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the string value "TLS 1.3" for all TLS 1.3 drafts. If set to "true"
+		 * all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return "TLS 1.3", otherwise the corresponding string values will be
+		 * returned. The default value is "false".
+		 */
+		std::string toString(bool countTlsDraftsAs1_3 = false);
+
+	private:
+		uint16_t m_SSLVersionValue;
+
+		// unimplemented empty c'tor
+		SSLVersion();
 	};
 
 	/**
@@ -129,29 +215,35 @@ namespace pcpp
 	enum SSLHandshakeType
 	{
 		/** Hello-request message type */
-		SSL_HELLO_REQUEST       = 0,
+		SSL_HELLO_REQUEST        = 0,
 		/** Client-hello message type */
-		SSL_CLIENT_HELLO        = 1,
+		SSL_CLIENT_HELLO         = 1,
 		/** Server-hello message type */
-		SSL_SERVER_HELLO        = 2,
+		SSL_SERVER_HELLO         = 2,
 		/** New-session-ticket message type */
-		SSL_NEW_SESSION_TICKET	= 4,
+		SSL_NEW_SESSION_TICKET   = 4,
+		/** End-of-early-data message type (TLS 1.3) */
+		SSL_END_OF_EARLY_DATE    = 5,
+		/** Encrypted-extensions message type (TLS 1.3) */
+		SSL_ENCRYPTED_EXTENSIONS = 8,
 		/** Certificate message type */
-		SSL_CERTIFICATE         = 11,
+		SSL_CERTIFICATE          = 11,
 		/** Server-key-exchange message type */
-		SSL_SERVER_KEY_EXCHANGE = 12,
+		SSL_SERVER_KEY_EXCHANGE  = 12,
 		/** Certificate-request message type */
-		SSL_CERTIFICATE_REQUEST = 13,
+		SSL_CERTIFICATE_REQUEST  = 13,
 		/** Server-hello-done message type */
-		SSL_SERVER_DONE         = 14,
+		SSL_SERVER_DONE          = 14,
 		/** Certificate-verify message type */
-		SSL_CERTIFICATE_VERIFY  = 15,
+		SSL_CERTIFICATE_VERIFY   = 15,
 		/** Client-key-exchange message type */
-		SSL_CLIENT_KEY_EXCHANGE = 16,
+		SSL_CLIENT_KEY_EXCHANGE  = 16,
 		/** Finish message type */
-		SSL_FINISHED            = 20,
+		SSL_FINISHED             = 20,
+		/** Key-update message type (TLS 1.3) */
+		SSL_KEY_UPDATE           = 24,
 		/** Unknown SSL handshake message */
-		SSL_HANDSHAKE_UNKNOWN   = 255
+		SSL_HANDSHAKE_UNKNOWN    = 255
 	};
 
 	/**
@@ -367,6 +459,10 @@ namespace pcpp
 		SSL_SYM_ARIA_256_GCM,
 		/** CHACHA20_POLY1305 */
 		SSL_SYM_CHACHA20_POLY1305,
+		/** AES_128_CCM */
+		SSL_SYM_AES_128_CCM,
+		/** AES_128_CCM_8 */
+		SSL_SYM_AES_128_CCM_8,
 		/** Unknown algorithm */
 		SSL_SYM_Unknown
 	};
@@ -455,6 +551,26 @@ namespace pcpp
 		SSL_EXT_TOKEN_BINDING = 24,
 		/** SessionTicket TLS extension */
 		SSL_EXT_SESSIONTICKET_TLS = 35,
+		/** Pre-shared key (PSK) extension (TLS 1.3) */
+		SSL_EXT_PRE_SHARED_KEY = 41,
+		/** Early data extension (TLS 1.3) */
+		SSL_EXT_EARLY_DATA = 42,
+		/** Supported versions extension (TLS 1.3) */
+		SSL_EXT_SUPPORTED_VERSIONS = 43,
+		/** Cookie extension (TLS 1.3) */
+		SSL_EXT_COOKIE = 44,
+		/** Pre-Shared Key Exchange Modes extension (TLS 1.3) */
+		SSL_EXT_PSK_KEY_EXCHANGE_MODES = 45,
+		/** Certificate authorities extension (TLS 1.3) */
+		SSL_EXT_CERTIFICATE_AUTHORITIES = 47,
+		/** Old filters extension (TLS 1.3) */
+		SSL_EXT_OLD_FILTERS = 48,
+		/** Post hanshake auth extension (TLS 1.3) */
+		SSL_EXT_POST_HANDSHAKE_AUTH = 49,
+		/** Signature algorithm cert extension (TLS 1.3) */
+		SSL_EXT_SIGNATURE_ALGORITHM_CERT = 50,
+		/** Key share extension (TLS 1.3) */
+		SSL_EXT_KEY_SHARE = 51,
 		/** Renegotiation Indication extension */
 		SSL_EXT_RENEGOTIATION_INFO = 65281,
 		/** Unknown extension */

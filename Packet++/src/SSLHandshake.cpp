@@ -339,6 +339,11 @@ static const SSLCipherSuite Cipher321 = SSLCipherSuite(0xCCAB, SSL_KEYX_PSK, SSL
 static const SSLCipherSuite Cipher322 = SSLCipherSuite(0xCCAC, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256");
 static const SSLCipherSuite Cipher323 = SSLCipherSuite(0xCCAD, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256");
 static const SSLCipherSuite Cipher324 = SSLCipherSuite(0xCCAE, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256");
+static const SSLCipherSuite Cipher325 = SSLCipherSuite(0x1301, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_AES_128_GCM_SHA256");
+static const SSLCipherSuite Cipher326 = SSLCipherSuite(0x1302, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_AES_256_GCM_SHA384");
+static const SSLCipherSuite Cipher327 = SSLCipherSuite(0x1303, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_CHACHA20_POLY1305_SHA256");
+static const SSLCipherSuite Cipher328 = SSLCipherSuite(0x1304, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_CCM, SSL_HASH_SHA256, "TLS_AES_128_CCM_SHA256");
+static const SSLCipherSuite Cipher329 = SSLCipherSuite(0x1305, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_CCM_8, SSL_HASH_SHA256, "TLS_AES_128_CCM_8_SHA256");
 
 
 static std::map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
@@ -669,7 +674,11 @@ static std::map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
 	result[0xCCAC] = (SSLCipherSuite*)&Cipher322;
 	result[0xCCAD] = (SSLCipherSuite*)&Cipher323;
 	result[0xCCAE] = (SSLCipherSuite*)&Cipher324;
-
+	result[0x1301] = (SSLCipherSuite*)&Cipher325;
+	result[0x1302] = (SSLCipherSuite*)&Cipher326;
+	result[0x1303] = (SSLCipherSuite*)&Cipher327;
+	result[0x1304] = (SSLCipherSuite*)&Cipher328;
+	result[0x1305] = (SSLCipherSuite*)&Cipher329;
 	return result;
 }
 
@@ -1001,6 +1010,11 @@ static std::map<std::string, SSLCipherSuite*> createCipherSuiteStringToObjectMap
 	result["TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256"] = (SSLCipherSuite*)&Cipher322;
 	result["TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256"] = (SSLCipherSuite*)&Cipher323;
 	result["TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256"] = (SSLCipherSuite*)&Cipher324;
+	result["TLS_AES_128_GCM_SHA256"] = (SSLCipherSuite*)&Cipher325;
+	result["TLS_AES_256_GCM_SHA384"] = (SSLCipherSuite*)&Cipher326;
+	result["TLS_CHACHA20_POLY1305_SHA256"] = (SSLCipherSuite*)&Cipher327;
+	result["TLS_AES_128_CCM_SHA256"] = (SSLCipherSuite*)&Cipher328;
+	result["TLS_AES_128_CCM_8_SHA256"] = (SSLCipherSuite*)&Cipher329;
 
 	return result;
 }
@@ -1082,6 +1096,36 @@ std::string SSLServerNameIndicationExtension::getHostName() const
 	std::string res = std::string(hostNameAsCharArr);
 	delete[] hostNameAsCharArr;
 	return res;
+}
+
+
+// -------------------------------------
+// SSLSupportedVersionsExtension methods
+// -------------------------------------
+
+std::vector<SSLVersion> SSLSupportedVersionsExtension::getSupportedVersions() const
+{
+	std::vector<SSLVersion> result;
+	uint16_t extensionLength = getLength();
+	if (extensionLength == 2) // server hello message
+	{
+		result.push_back(SSLVersion(be16toh(*(uint16_t*)getData())));
+	}
+	else // client-hello message
+	{
+		uint8_t listLength = *getData();
+		if (listLength != static_cast<uint8_t>(extensionLength - 1) || listLength % 2 != 0)
+			return result; // bad extension data
+
+		uint8_t* dataPtr = getData() + sizeof(uint8_t);
+		for (int i = 0; i < listLength / 2; i++)
+		{
+			result.push_back(SSLVersion(be16toh(*(uint16_t*)dataPtr)));
+			dataPtr += sizeof(uint16_t);
+		}
+	}
+
+	return result;
 }
 
 
@@ -1182,12 +1226,15 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
-		if (sslExtType == SSL_EXT_SERVER_NAME)
+		switch (sslExtType)
 		{
+		case SSL_EXT_SERVER_NAME:
 			newExt = new SSLServerNameIndicationExtension(curPos);
-		}
-		else
-		{
+			break;
+		case SSL_EXT_SUPPORTED_VERSIONS:
+			newExt = new SSLSupportedVersionsExtension(curPos);
+			break;
+		default:
 			newExt = new SSLExtension(curPos);
 		}
 
@@ -1208,7 +1255,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 SSLVersion SSLClientHelloMessage::getHandshakeVersion() const
 {
 	uint16_t handshakeVersion = be16toh(getClientHelloHeader()->handshakeVersion);
-	return (SSLVersion)handshakeVersion;
+	return SSLVersion(handshakeVersion);
 }
 
 uint8_t SSLClientHelloMessage::getSessionIDLength() const
@@ -1339,12 +1386,15 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
-		if (sslExtType == SSL_EXT_SERVER_NAME)
+		switch (sslExtType)
 		{
+		case SSL_EXT_SERVER_NAME:
 			newExt = new SSLServerNameIndicationExtension(curPos);
-		}
-		else
-		{
+			break;
+		case SSL_EXT_SUPPORTED_VERSIONS:
+			newExt = new SSLSupportedVersionsExtension(curPos);
+			break;
+		default:
 			newExt = new SSLExtension(curPos);
 		}
 
@@ -1355,8 +1405,16 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 
 SSLVersion SSLServerHelloMessage::getHandshakeVersion() const
 {
+	SSLSupportedVersionsExtension* supportedVersionsExt = getExtensionOfType<SSLSupportedVersionsExtension>();
+	if (supportedVersionsExt != NULL)
+	{
+		std::vector<SSLVersion> supportedVersions = supportedVersionsExt->getSupportedVersions();
+		if (supportedVersions.size() == 1)
+			return supportedVersions[0];
+	}
+
 	uint16_t handshakeVersion = be16toh(getServerHelloHeader()->handshakeVersion);
-	return (SSLVersion)handshakeVersion;
+	return SSLVersion(handshakeVersion);
 
 }
 uint8_t SSLServerHelloMessage::getSessionIDLength() const

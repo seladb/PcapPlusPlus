@@ -22,9 +22,9 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 	PTF_ASSERT_TRUE(handshakeLayer->getHandshakeMessageAt(0) == clientHelloMessage);
 	PTF_ASSERT_NOT_NULL(clientHelloMessage);
 	PTF_ASSERT_EQUAL(handshakeLayer->getRecordType(), pcpp::SSL_HANDSHAKE, enum);
-	PTF_ASSERT_EQUAL(handshakeLayer->getRecordVersion(), pcpp::TLS1_0, enum);
+	PTF_ASSERT_EQUAL(handshakeLayer->getRecordVersion().asEnum(), pcpp::SSLVersion::TLS1_0, enum);
 	PTF_ASSERT_EQUAL(clientHelloMessage->getHandshakeType(), pcpp::SSL_CLIENT_HELLO, enum);
-	PTF_ASSERT_EQUAL(clientHelloMessage->getHandshakeVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(clientHelloMessage->getHandshakeVersion().asEnum(), pcpp::SSLVersion::TLS1_2, enum);
 	uint8_t* random = clientHelloMessage->getClientHelloHeader()->random;
 	PTF_ASSERT_EQUAL(random[0], 0x3e, hex);
 	PTF_ASSERT_EQUAL(random[8], 0x78, hex);
@@ -161,25 +161,25 @@ PTF_TEST_CASE(SSLAppDataParsingTest)
 	pcpp::SSLApplicationDataLayer* appDataLayer = appDataPacket.getLayerOfType<pcpp::SSLApplicationDataLayer>();
 	PTF_ASSERT_NOT_NULL(appDataLayer);
 
-	PTF_ASSERT_EQUAL(appDataLayer->getRecordVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(appDataLayer->getRecordVersion().asEnum(), pcpp::SSLVersion::TLS1_2, enum);
 	PTF_ASSERT_EQUAL(appDataLayer->getRecordType(), pcpp::SSL_APPLICATION_DATA, enum);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedDataLen(), 880, size);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[0], 0, hex);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[16], 0xd9, hex);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[77], 0x19, hex);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[869], 0xbc, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedDataLen(), 880, size);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedData()[0], 0, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedData()[16], 0xd9, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedData()[77], 0x19, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedData()[869], 0xbc, hex);
 
 	PTF_ASSERT_NOT_NULL(appDataLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(appDataLayer->getNextLayer()->getProtocol(), pcpp::SSL, u64);
 	appDataLayer = dynamic_cast<pcpp::SSLApplicationDataLayer*>(appDataLayer->getNextLayer());
 	PTF_ASSERT_NOT_NULL(appDataLayer);
 
-	PTF_ASSERT_EQUAL(appDataLayer->getRecordVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(appDataLayer->getRecordVersion().asEnum(), pcpp::SSLVersion::TLS1_2, enum);
 	PTF_ASSERT_EQUAL(appDataLayer->getRecordType(), pcpp::SSL_APPLICATION_DATA, enum);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedDataLen(), 41, size);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[0], 0, hex);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[19], 0x7d, hex);
-	PTF_ASSERT_EQUAL(appDataLayer->getEncrpytedData()[40], 0xec, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedDataLen(), 41, size);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedData()[0], 0, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedData()[19], 0x7d, hex);
+	PTF_ASSERT_EQUAL(appDataLayer->getEncryptedData()[40], 0xec, hex);
 
 	PTF_ASSERT_NULL(appDataLayer->getNextLayer());
 } // SSLAppDataParsingTest
@@ -199,7 +199,7 @@ PTF_TEST_CASE(SSLAlertParsingTest)
 	PTF_ASSERT_TRUE(clearAlertPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLAlertLayer* clearAlertLayer = clearAlertPacket.getLayerOfType<pcpp::SSLAlertLayer>();
 	PTF_ASSERT_NOT_NULL(clearAlertLayer);
-	PTF_ASSERT_EQUAL(clearAlertLayer->getRecordVersion(), pcpp::TLS1_0, enum);
+	PTF_ASSERT_EQUAL(clearAlertLayer->getRecordVersion().asEnum(), pcpp::SSLVersion::TLS1_0, enum);
 	PTF_ASSERT_EQUAL(clearAlertLayer->getRecordType(), pcpp::SSL_ALERT, enum);
 	PTF_ASSERT_EQUAL(clearAlertLayer->getAlertLevel(), pcpp::SSL_ALERT_LEVEL_FATAL, enum);
 	PTF_ASSERT_EQUAL(clearAlertLayer->getAlertDescription(), pcpp::SSL_ALERT_PROTOCOL_VERSION, enum);
@@ -209,7 +209,7 @@ PTF_TEST_CASE(SSLAlertParsingTest)
 	PTF_ASSERT_TRUE(encAlertPacket.isPacketOfType(pcpp::SSL));
 	pcpp::SSLAlertLayer* encAlertLayer = encAlertPacket.getLayerOfType<pcpp::SSLAlertLayer>();
 	PTF_ASSERT_NOT_NULL(encAlertLayer);
-	PTF_ASSERT_EQUAL(encAlertLayer->getRecordVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(encAlertLayer->getRecordVersion().asEnum(), pcpp::SSLVersion::TLS1_2, enum);
 	PTF_ASSERT_EQUAL(encAlertLayer->getRecordType(), pcpp::SSL_ALERT, enum);
 	PTF_ASSERT_EQUAL(encAlertLayer->getAlertLevel(), pcpp::SSL_ALERT_LEVEL_ENCRYPTED, enum);
 	PTF_ASSERT_EQUAL(encAlertLayer->getAlertDescription(), pcpp::SSL_ALERT_ENCRYPTED, enum);
@@ -260,7 +260,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 
 	pcpp::SSLChangeCipherSpecLayer* ccsLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLChangeCipherSpecLayer>();
 	PTF_ASSERT_NOT_NULL(ccsLayer);
-	PTF_ASSERT_EQUAL(ccsLayer->getRecordVersion(), pcpp::TLS1_2, enum);
+	PTF_ASSERT_EQUAL(ccsLayer->getRecordVersion().asEnum(), pcpp::SSLVersion::TLS1_2, enum);
 	PTF_ASSERT_EQUAL(ccsLayer->getRecordType(), pcpp::SSL_CHANGE_CIPHER_SPEC, enum);
 	PTF_ASSERT_EQUAL(ccsLayer->getHeaderLen(), 6, size);
 
@@ -498,3 +498,115 @@ PTF_TEST_CASE(SSLMalformedPacketParsing)
 	PTF_ASSERT_NOT_NULL(clientHelloMessage);
 	PTF_ASSERT_EQUAL(clientHelloMessage->getExtensionCount(), 1, int);
 } // SSLMalformedPacketParsing
+
+
+PTF_TEST_CASE(TLS1_3ParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls1_3_client_hello1.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls1_3_client_hello2.dat");
+
+	pcpp::Packet tls13ClientHello1(&rawPacket1);
+	pcpp::Packet tls13ClientHello2(&rawPacket2);
+
+	uint16_t cipherSuiteIDs[3] = { 0x1302, 0x1303, 0x1301 };
+	std::string cipherSuiteNames[3] = 
+	{
+		"TLS_AES_256_GCM_SHA384",
+		"TLS_CHACHA20_POLY1305_SHA256",
+		"TLS_AES_128_GCM_SHA256"
+	};
+	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[3] = 
+	{
+		pcpp::SSL_SYM_AES_256_GCM,
+		pcpp::SSL_SYM_CHACHA20_POLY1305,
+		pcpp::SSL_SYM_AES_128_GCM
+	};
+
+	pcpp::SSLHashingAlgorithm cipherSuiteHash[3] = 
+	{
+		pcpp::SSL_HASH_SHA384,
+		pcpp::SSL_HASH_SHA256,
+		pcpp::SSL_HASH_SHA256
+	};
+
+	pcpp::SSLHandshakeLayer* handshakeLayer = tls13ClientHello1.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	pcpp::SSLClientHelloMessage* clientHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+	PTF_ASSERT_NOT_NULL(clientHelloMsg);
+	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuiteCount(), 4, int);
+	for (int i = 0; i < 3; i++)
+	{
+		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->asString(), cipherSuiteNames[i], string);
+		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->getID(), cipherSuiteIDs[i], u16);
+		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->getSymKeyAlg(), cipherSuiteSym[i], enum);
+		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->getMACAlg(), cipherSuiteHash[i], enum);
+		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->getKeyExchangeAlg(), pcpp::SSL_KEYX_NULL, enum);
+		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->getAuthAlg(), pcpp::SSL_AUTH_NULL, enum);
+	}
+
+	pcpp::SSLSupportedVersionsExtension* supportedVersionsExt = clientHelloMsg->getExtensionOfType<pcpp::SSLSupportedVersionsExtension>();
+	PTF_ASSERT_NOT_NULL(supportedVersionsExt);
+	std::vector<pcpp::SSLVersion> versionVec = supportedVersionsExt->getSupportedVersions();
+	PTF_ASSERT_EQUAL(versionVec.size(), 3, size);
+	PTF_ASSERT_EQUAL(versionVec[0].asEnum(), pcpp::SSLVersion::TLS1_3_D28, enum);
+	PTF_ASSERT_EQUAL(versionVec[1].asEnum(), pcpp::SSLVersion::TLS1_3_D27, enum);
+	PTF_ASSERT_EQUAL(versionVec[2].asEnum(), pcpp::SSLVersion::TLS1_3_D26, enum);
+	PTF_ASSERT_EQUAL(versionVec[0].asEnum(true), pcpp::SSLVersion::TLS1_3, enum);
+
+
+	handshakeLayer = tls13ClientHello2.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	clientHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+	PTF_ASSERT_NOT_NULL(clientHelloMsg);
+	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuiteCount(), 18, int);
+	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(0)->asString(), cipherSuiteNames[2], string);
+	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(1)->asString(), cipherSuiteNames[1], string);
+	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(2)->asString(), cipherSuiteNames[0], string);
+
+	supportedVersionsExt = clientHelloMsg->getExtensionOfType<pcpp::SSLSupportedVersionsExtension>();
+	PTF_ASSERT_NOT_NULL(supportedVersionsExt);
+	versionVec.clear();
+	versionVec = supportedVersionsExt->getSupportedVersions();
+	PTF_ASSERT_EQUAL(versionVec.size(), 2, size);
+	PTF_ASSERT_EQUAL(versionVec[0].asEnum(), pcpp::SSLVersion::TLS1_3, enum);
+	PTF_ASSERT_EQUAL(versionVec[1].asEnum(), pcpp::SSLVersion::TLS1_2, enum);
+
+
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/tls1_3_server_hello1.dat");
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/tls1_3_server_hello2.dat");
+
+	pcpp::Packet tls13ServerHello1(&rawPacket3);
+	pcpp::Packet tls13ServerHello2(&rawPacket4);
+
+	handshakeLayer = tls13ServerHello1.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	pcpp::SSLServerHelloMessage* serverHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
+	PTF_ASSERT_NOT_NULL(serverHelloMsg);
+	PTF_ASSERT_EQUAL(serverHelloMsg->getCipherSuite()->asString(), cipherSuiteNames[0], string);
+
+	supportedVersionsExt = serverHelloMsg->getExtensionOfType<pcpp::SSLSupportedVersionsExtension>();
+	PTF_ASSERT_NOT_NULL(supportedVersionsExt);
+	versionVec.clear();
+	versionVec = supportedVersionsExt->getSupportedVersions();
+	PTF_ASSERT_EQUAL(versionVec.size(), 1, size);
+	PTF_ASSERT_EQUAL(versionVec[0].asEnum(), pcpp::SSLVersion::TLS1_3_D28, enum);
+	PTF_ASSERT_EQUAL(serverHelloMsg->getHandshakeVersion().asEnum(true), pcpp::SSLVersion::TLS1_3, enum);
+
+
+	handshakeLayer = tls13ServerHello2.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	serverHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
+	PTF_ASSERT_NOT_NULL(serverHelloMsg);
+	PTF_ASSERT_EQUAL(serverHelloMsg->getCipherSuite()->asString(), cipherSuiteNames[2], string);
+
+	supportedVersionsExt = serverHelloMsg->getExtensionOfType<pcpp::SSLSupportedVersionsExtension>();
+	PTF_ASSERT_NOT_NULL(supportedVersionsExt);
+	versionVec.clear();
+	versionVec = supportedVersionsExt->getSupportedVersions();
+	PTF_ASSERT_EQUAL(versionVec.size(), 1, size);
+	PTF_ASSERT_EQUAL(versionVec[0].asEnum(), pcpp::SSLVersion::TLS1_3, enum);
+	PTF_ASSERT_EQUAL(serverHelloMsg->getHandshakeVersion().asEnum(true), pcpp::SSLVersion::TLS1_3, enum);
+} // TLS1_3ParsingTest

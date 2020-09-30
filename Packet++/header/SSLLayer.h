@@ -10,9 +10,9 @@
  * @file
  * This file as well as SSLCommon.h and SSLHandshake.h provide structures that represent SSL/TLS protocol.
  * Main features:
- * - SSLv3.0 and above are supported. I can add SSLv2.0 if a request for it will come
- * - All SSL/TLS message types are supported (at least all message types I know of)
- * - Above 300 cipher-suites are supported
+ * - All common SSL/TLS version are supported from SSL 3.0 to TLS 1.3
+ * - All SSL/TLS message types are supported (at least the message types that are not encrypted)
+ * - More than 300 cipher-suites are supported
  * - Only parsing capabilities exist, editing and creation of messages are not supported
  * - X509 certificate parsing is not supported
  *
@@ -26,9 +26,9 @@
  * - Alert record type
  * - Application data record type
  *
- * Each record type corresponds to a layer class, and these classes inherit from one base class which is SSLLayer.
- * The SSLLayer is an abstract class which cannot be instantiated. Only its 4 derived classes can be instantiated.
- * This means you'll never see a layer of type SSLLayer, you'll only see the type of the derived classes.
+ * Each record type corresponds to a layer class, and these classes inherit from one base class which is pcpp::SSLLayer.
+ * The pcpp::SSLLayer is an abstract class which cannot be instantiated. Only its 4 derived classes can be instantiated.
+ * This means you'll never see a layer of type pcpp::SSLLayer, you'll only see the type of the derived classes.
  * A basic class diagram looks like this:
   @verbatim
                                  +----------------------------+
@@ -92,7 +92,7 @@
  * - Finished
  * - New-session-ticket
  *
- * All handshake messages classes inherit from a base abstract class: SSLHandshakeMessage which cannot be instantiated.
+ * All handshake messages classes inherit from a base abstract class: pcpp::SSLHandshakeMessage which cannot be instantiated.
  * Also, all of them reside in SSLHandshake.h. Following is a simple diagram of these classes:
  *
  @verbatim
@@ -124,7 +124,7 @@
  @endverbatim
  *
  * In addition, for all handshake messages which aren't supported in PcapPlusPlus or for encrypted handshake messages
- * There is another class: SSLUnknownMessage
+ * There is another class: pcpp::SSLUnknownMessage
  *
  * <BR><BR>
  *
@@ -134,10 +134,10 @@
  * algorithms used to negotiate the security settings for a network connection using SSL/TLS.
  * There are many known cipher-suites. PcapPlusPlus support above 300 of them, according to this list:
  * http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml
- * There is a designated class in PcapPlusPlus called SSLCipherSuite which represents the cipher-suites and provides
+ * There is a designated class in PcapPlusPlus called pcpp::SSLCipherSuite which represents the cipher-suites and provides
  * access to their attributes. Then there is a static instance of this class for each one of the supported cipher-suites.
- * This means there are 300+ static instances of SSLCipherSuite representing the different cipher suites. The user can
- * access them through static methods in SSLCipherSuite or from client-hello and server-hello messages where they appear
+ * This means there are 300+ static instances of pcpp::SSLCipherSuite representing the different cipher suites. The user can
+ * access them through static methods in pcpp::SSLCipherSuite or from client-hello and server-hello messages where they appear
  *
  * <BR><BR>
  *
@@ -145,12 +145,12 @@
  *
  * SSL/TLS handshake messages, specifically client-hello and server-hello usually include extensions. There are various
  * types of extensions - some are more broadly used, some are less. In PcapPlusPlus there is a base class for all
- * extensions: SSLExtension. This class is instantiable and represents a generic extension, which means extension data
- * isn't parsed and given to the user as raw data. Currently there is only one extension that is fully parsed which is
- * server-name-indication. This extension has a class of his own named SSLServerNameIndicationExtension which inherits
- * from SSLExtension and does the parsing for this specific extension. All other extensions aren't parsed and are
- * represented by instance of SSLExtension. Access to extensions is done through the handshake messages classes,
- * specifically SSLClientHelloMessage and SSLServerHelloMessage
+ * extensions: pcpp::SSLExtension. This class is instantiable and represents a generic extension, which means extension data
+ * isn't parsed and given to the user as raw data. Currently there are only two extension that are fully parsed which are
+ * server-name-indication (pcpp::SSLServerNameIndicationExtension) and SupportedVersions (pcpp::SSLSupportedVersionsExtension).
+ * Both inherit from pcpp::SSLExtension and add additional parsing relevant for the specific extension. 
+ * All other extensions aren't parsed and are represented by instance of pcpp::SSLExtension.
+ * Access to extensions is done through the handshake messages classes, specifically pcpp::SSLClientHelloMessage and pcpp::SSLServerHelloMessage
  */
 
 
@@ -183,12 +183,17 @@ namespace pcpp
 		 * done using the source/dest port and matching of a legal record type in the raw data. The list of ports identified
 		 * as SSL/TLS is hard-coded and includes the following ports:
 		 * - Port 443 [HTTPS]
-		 * - Port 465 [LDAPS]
-		 * - Port 636 [FTPS]
+		 * - Port 261 [NSIIOPS]
+		 * - Port 448 [DDM-SSL]
+		 * - Port 563 [NNTPS]
+		 * - Port 614 [SSHELL]
+		 * - Port 465 [SMTPS]
+		 * - Port 636 [LDAPS]
 		 * - Port 989 [FTPS - data]
 		 * - Port 990 [FTPS - control]
 		 * - Port 992 [Telnet over TLS/SSL[
 		 * - Port 993 [IMAPS]
+		 * - Port 994 [IRCS]
 		 * - Port 995 [POP3S]
 		 * @param[in] srcPort The source port of the packet that contains the raw data. Source port (or dest port) are a
 		 * criteria to identify SSL/TLS packets
@@ -214,13 +219,6 @@ namespace pcpp
 		 * NULL is returned
 		 */
 		static SSLLayer* createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
-		/**
-		 * A static method that converts SSLVersion enum value to string
-		 * @param[in] ver The enum value
-		 * @return The string representation of the enum value
-		 */
-		static std::string sslVersionToString(SSLVersion ver);
 
 		/**
 		 * Get a pointer to the record header. Notice this points directly to the data, so every change will change the actual packet data
@@ -464,12 +462,12 @@ namespace pcpp
 		 * @return A pointer to the encrypted data. This data can be decrypted only if you have the symmetric key
 		 * that was agreed between the client and the server during SSL/TLS handshake process
 		 */
-		uint8_t* getEncrpytedData() const;
+		uint8_t* getEncryptedData() const;
 
 		/**
-		 * @return The length in bytes of the encrypted data returned in getEncrpytedData()
+		 * @return The length in bytes of the encrypted data returned in getEncryptedData()
 		 */
-		size_t getEncrpytedDataLen() const;
+		size_t getEncryptedDataLen() const;
 
 		// implement abstract methods
 
