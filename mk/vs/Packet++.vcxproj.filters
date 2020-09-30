@@ -230,6 +230,9 @@
     <ClCompile Include="..\..\Packet++\src\SllLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\SSLCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Packet++\src\SSLHandshake.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

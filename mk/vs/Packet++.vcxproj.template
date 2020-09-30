@@ -252,6 +252,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\SipLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SdpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SllLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\SSLCommon.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSLHandshake.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSLLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\TextBasedProtocol.cpp" />
