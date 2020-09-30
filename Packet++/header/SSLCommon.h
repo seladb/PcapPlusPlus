@@ -2,6 +2,7 @@
 #define PACKETPP_SSL_LAYER_COMMON
 
 #include <string>
+#include <stdint.h>
 
 /**
  * @file

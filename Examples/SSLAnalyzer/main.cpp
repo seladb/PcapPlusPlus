@@ -231,7 +231,7 @@ void printVersions(std::map<uint16_t, int>& versionMap, std::string headline)
 
 	// sort the version map so the most popular version will be first
 	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
-	std::vector<std::pair<std::uint16_t, int> > map2vec(versionMap.begin(), versionMap.end());
+	std::vector<std::pair<uint16_t, int> > map2vec(versionMap.begin(), versionMap.end());
 	std::sort(map2vec.begin(),map2vec.end(), &uint16CountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them

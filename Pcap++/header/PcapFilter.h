@@ -77,7 +77,6 @@ namespace pcpp
 	class BpfFilterWrapper
 	{
 	private:
-		const int SNAPLEN = 9000;
 		std::string m_FilterStr;
 		LinkLayerType m_LinkType;
 		bpf_program* m_Program;

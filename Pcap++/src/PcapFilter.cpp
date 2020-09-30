@@ -14,6 +14,8 @@
 namespace pcpp
 {
 
+static const int DEFAULT_SNAPLEN = 9000;
+
 bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 {
 	std::string filterStr;
@@ -47,7 +49,7 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 	if (filter != m_FilterStr || linkType != m_LinkType)
 	{
 		bpf_program* newProg = new bpf_program;
-		if (pcap_compile_nopcap(SNAPLEN, linkType, newProg, filter.c_str(), 1, 0) < 0)
+		if (pcap_compile_nopcap(DEFAULT_SNAPLEN, linkType, newProg, filter.c_str(), 1, 0) < 0)
 		{
 			delete newProg;
 			return false;
