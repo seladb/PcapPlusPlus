@@ -696,9 +696,9 @@ static uint32_t hashString(std::string str)
 	return h;
 }
 
-static std::map<std::uint32_t, SSLCipherSuite*> createCipherSuiteStringToObjectMap()
+static std::map<uint32_t, SSLCipherSuite*> createCipherSuiteStringToObjectMap()
 {
-	std::map<std::uint32_t, SSLCipherSuite*> result;
+	std::map<uint32_t, SSLCipherSuite*> result;
 
 	result[0x9F180F43] = (SSLCipherSuite*)&Cipher1;
 	result[0x97D9341F] = (SSLCipherSuite*)&Cipher2;
@@ -1035,7 +1035,7 @@ static std::map<std::uint32_t, SSLCipherSuite*> createCipherSuiteStringToObjectM
 
 static const std::map<uint16_t, SSLCipherSuite*> CipherSuiteIdToObjectMap = createCipherSuiteIdToObjectMap();
 
-static const std::map<std::uint32_t, SSLCipherSuite*> CipherSuiteStringToObjectMap = createCipherSuiteStringToObjectMap();
+static const std::map<uint32_t, SSLCipherSuite*> CipherSuiteStringToObjectMap = createCipherSuiteStringToObjectMap();
 
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 {
@@ -1049,7 +1049,7 @@ SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByName(std::string name)
 {
 	uint32_t nameHash = hashString(name);
-	std::map<std::uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
+	std::map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
 	if (pos == CipherSuiteStringToObjectMap.end())
 		return NULL;
 	else

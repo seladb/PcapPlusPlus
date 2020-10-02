@@ -36,7 +36,7 @@ INCLUDES := -I"./src" \
 ifdef BUILD_WITH_STATIC_LIBPCAP
 INCLUDES += -I"$(STATIC_LIBPCAP_INCLUDE)"
 endif
-			
+
 ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \
 			-I$(PCAP_SDK_HOME)/Include
@@ -44,7 +44,7 @@ endif
 ifdef LINUX
 INCLUDES += -I/usr/include/netinet
 endif
-			
+
 Obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	@$(CXX) $(DEPS) $(INCLUDES) $(PCAPPP_BUILD_FLAGS) -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
