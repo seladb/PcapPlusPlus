@@ -180,6 +180,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
 	PTF_RUN_TEST(SSLMalformedPacketParsing, "ssl");
 	PTF_RUN_TEST(TLS1_3ParsingTest, "ssl");
+	PTF_RUN_TEST(TLSCipherSuiteTest, "ssl");
 
 	PTF_RUN_TEST(SllPacketParsingTest, "sll");
 	PTF_RUN_TEST(SllPacketCreationTest, "sll");

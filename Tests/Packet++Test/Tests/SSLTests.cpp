@@ -4,6 +4,8 @@
 #include "Packet.h"
 #include "SSLLayer.h"
 #include "SystemUtils.h"
+#include <fstream>
+#include <sstream>
 
 
 PTF_TEST_CASE(SSLClientHelloParsingTest)
@@ -610,3 +612,27 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	PTF_ASSERT_EQUAL(versionVec[0].asEnum(), pcpp::SSLVersion::TLS1_3, enum);
 	PTF_ASSERT_EQUAL(serverHelloMsg->getHandshakeVersion().asEnum(true), pcpp::SSLVersion::TLS1_3, enum);
 } // TLS1_3ParsingTest
+
+
+PTF_TEST_CASE(TLSCipherSuiteTest)
+{
+	std::ifstream cipherNamesFile("PacketExamples/CipherSuiteNames.txt");
+	std::ifstream cipherIDsFile("PacketExamples/CipherSuiteIDs.txt");
+	std::string cipherSuiteName;
+	std::string cipherSuiteIDStr;
+	while (std::getline(cipherNamesFile, cipherSuiteName))
+	{
+		std::getline(cipherIDsFile, cipherSuiteIDStr);
+		std::stringstream iss;
+		iss << std::hex << cipherSuiteIDStr;
+		uint16_t cipherSuiteID;
+		iss >> cipherSuiteID;
+		pcpp::SSLCipherSuite* cipherSuiteByName = pcpp::SSLCipherSuite::getCipherSuiteByName(cipherSuiteName);
+		pcpp::SSLCipherSuite* cipherSuiteByID = pcpp::SSLCipherSuite::getCipherSuiteByID(cipherSuiteID);
+		PTF_ASSERT_NOT_NULL(cipherSuiteByName);
+		PTF_ASSERT_NOT_NULL(cipherSuiteByID);
+		PTF_ASSERT_EQUAL(cipherSuiteByName->asString(), cipherSuiteName, string);
+		PTF_ASSERT_EQUAL(cipherSuiteByID->getID(), cipherSuiteID, u16);
+		PTF_ASSERT_TRUE(cipherSuiteByName == cipherSuiteByID);
+	}
+} // TLSCipherSuiteTest
