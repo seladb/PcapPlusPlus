@@ -80,7 +80,7 @@ PCAPPP_BUILD_FLAGS += -msse -msse2 -msse3 -mssse3
 endif
 	
 Obj/%.o: src/%.cpp
-	@echo 'Building file: $<'
+	@echo Building file: $<
 	@$(CXX) $(DEPS) $(INCLUDES) $(PCAPPP_BUILD_FLAGS) -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
@@ -90,7 +90,7 @@ CUR_TARGET := $(notdir $(shell pwd))
 all: Pcap++.lib
 
 start:
-	@echo '==> Building target: $(CUR_TARGET)'
+	@echo ==== Building target: $(CUR_TARGET) ====
 
 create-directories:
 	@$(MKDIR) -p Obj
@@ -99,11 +99,11 @@ create-directories:
 Pcap++.lib: start create-directories $(OBJS_FILENAMES)
 	@cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) light_pcapng_sources
 	@$(AR) -r  "Lib/$(LIB_PREFIX)Pcap++$(LIB_EXT)" $(OBJS_FILENAMES) $(LIGHT_PCAPNG_OBJS_FILENAMES)
-	@echo 'Finished successfully building: $(CUR_TARGET)'
+	@echo Finished successfully building: $(CUR_TARGET)
 	@echo ' '
 
 clean:
 	@cd $(LIGHT_PCAPNG_PCPP_HOME) && $(MAKE) clean
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Lib/*
-	@echo 'Clean finished: $(CUR_TARGET)'
+	@echo Clean finished: $(CUR_TARGET)

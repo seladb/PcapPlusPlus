@@ -50,7 +50,7 @@ INCLUDES += -I$(MACOS_SDK_HOME)/usr/include/malloc
 endif
 			
 Obj/%.o: src/%.cpp
-	@echo 'Building file: $<'
+	@echo Building file: $<
 	@$(CXX) $(DEPS) $(INCLUDES) $(PCAPPP_BUILD_FLAGS) -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
@@ -60,7 +60,7 @@ CUR_TARGET := $(notdir $(shell pwd))
 all: start Common++.lib Common++.debug
 
 start:
-	@echo '==> Building target: $(CUR_TARGET)'
+	@echo ==== Building target: $(CUR_TARGET) ====
 
 create-directories:
 	@$(MKDIR) -p Obj
@@ -70,15 +70,15 @@ create-directories:
 
 Common++.lib: create-directories $(OBJS_FILENAMES)
 	@$(AR) -r "Lib/Release/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES)
-	@echo 'Finished successfully building: $@'
+	@echo Finished successfully building: $@
 	@echo ' '
 	
 Common++.debug: create-directories $(OBJS_FILENAMES_DEBUG)
 	@$(AR) -r "Lib/Debug/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES_DEBUG)
-	@echo 'Finished successfully building: $@'
+	@echo Finished successfully building: $@
 	@echo ' '
 
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Lib/*
-	@echo 'Clean finished: $(CUR_TARGET)'
+	@echo Clean finished: $(CUR_TARGET)

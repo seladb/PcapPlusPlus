@@ -12,7 +12,7 @@ SOURCES := $(wildcard *.cpp)
 OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
 Obj/%.o: %.cpp
-	@echo 'Building file: $<'
+	@echo Building file: $<
 	@$(CXX) $(PCAPPP_BUILD_FLAGS) -c $(PCAPPP_INCLUDES)  -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
 
 
@@ -24,7 +24,7 @@ CUR_TARGET := $(notdir $(shell pwd))
 all: dependents IcmpFileTransfer-pitcher IcmpFileTransfer-catcher
 
 start:
-	@echo '==> Building target: $(CUR_TARGET)'
+	@echo '==== Building target: $(CUR_TARGET) ===='
 
 create-directories:
 	@$(MKDIR) -p Obj
@@ -36,16 +36,16 @@ dependents:
 IcmpFileTransfer-pitcher: start create-directories $(OBJS_FILENAMES)
 	@$(CXX) $(PCAPPP_BUILD_FLAGS) $(PCAPPP_LIBS_DIR) -o "./Bin/IcmpFileTransfer-pitcher$(BIN_EXT)" Obj/Common.o Obj/IcmpFileTransfer-pitcher.o $(PCAPPP_LIBS)
 	@$(PCAPPP_POST_BUILD)
-	@echo 'Finished successfully building: $(CUR_TARGET)'
+	@echo Finished successfully building: $(CUR_TARGET)
 	@echo ' '
 
 IcmpFileTransfer-catcher: start create-directories $(OBJS_FILENAMES)
 	@$(CXX) $(PCAPPP_BUILD_FLAGS) $(PCAPPP_LIBS_DIR) -o "./Bin/IcmpFileTransfer-catcher$(BIN_EXT)" Obj/Common.o  Obj/IcmpFileTransfer-catcher.o $(PCAPPP_LIBS)
 	@$(PCAPPP_POST_BUILD)
-	@echo 'Finished successfully building: $(CUR_TARGET)'
+	@echo Finished successfully building: $(CUR_TARGET)
 	@echo ' '
 
 clean:
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Bin/*
-	@echo 'Clean finished: $(CUR_TARGET)'
+	@echo Clean finished: $(CUR_TARGET)
