@@ -2,7 +2,7 @@ task:
   name: Test FreeBSD
   freebsd_instance:
     matrix:
-      image_family: freebsd-11-3-snap
+      image_family: freebsd-11-4
       image_family: freebsd-12-1-snap
   update_script: pkg update -f
   install_script: 
