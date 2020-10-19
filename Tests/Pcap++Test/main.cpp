@@ -262,6 +262,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestTcpReassemblyIPv6MultConns, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyIPv6_OOO, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyCleanup, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyMaxOutOfOrderFrags, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyMaxSeq, "no_network;tcp_reassembly");
 
 	PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");
