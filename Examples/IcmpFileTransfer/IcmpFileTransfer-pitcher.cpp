@@ -22,7 +22,6 @@
 #include "PcapLiveDeviceList.h"
 #include "NetworkUtils.h"
 #include "Common.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 
 
@@ -267,7 +266,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 		sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_WAITING_FT_START, NULL, 0);
 		icmpId++;
 		// sleep for a few seconds between sending the message
-		PCAP_SLEEP(SEND_TIMEOUT_BEFORE_FT_START);
+		multiPlatformSleep(SEND_TIMEOUT_BEFORE_FT_START);
 	}
 
 	// stop capturing packets
@@ -323,7 +322,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP, int packetPerSec)
 			if (packetPerSec > 1)
 				usleep(sleepBetweenPackets);
 			else if (packetPerSec == 1)
-				PCAP_SLEEP(1);
+				multiPlatformSleep(1);
 
 			icmpId++;
 		}
@@ -508,7 +507,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 			if (packetPerSec > 1)
 				usleep(sleepBetweenPackets);
 			else if (packetPerSec == 1)
-				PCAP_SLEEP(1);
+				multiPlatformSleep(1);
 
 			bytesSentSoFar += blockSize;
 

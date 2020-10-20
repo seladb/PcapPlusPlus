@@ -9,7 +9,6 @@
 #include "PfRingDeviceList.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
-#include "PlatformSpecificUtils.h"
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
@@ -131,7 +130,7 @@ int incSleep(int maxSleepTime, const PfRingPacketData& packetData)
 	int totalSleepTime = 0;
 	while (totalSleepTime < maxSleepTime)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 		if (packetData.PacketCount > 0)
 			break;
@@ -145,7 +144,7 @@ int incSleepMultiThread(int maxSleepTime, PfRingPacketData packetData[], int tot
 	int totalSleepTime = 0;
 	while (totalSleepTime < maxSleepTime)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 
 		int coresWithPacketCountNotZero = 0;
@@ -170,7 +169,7 @@ int incSleepSetFilter(int maxSleepTime, const SetFilterInstruction& packetData)
 	int totalSleepTime = 0;
 	while (totalSleepTime < maxSleepTime)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 		if (packetData.PacketCount > 0)
 			break;

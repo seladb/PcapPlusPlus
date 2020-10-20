@@ -1,5 +1,4 @@
 #include "SystemUtils.h"
-#include "PlatformSpecificUtils.h"
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
@@ -13,6 +12,17 @@
 #include <mach/mach.h>
 #endif
 
+#ifdef WIN32
+#define POPEN _popen
+#else
+#define POPEN popen
+#endif
+
+#ifdef WIN32
+#define PCLOSE _pclose
+#else
+#define PCLOSE pclose
+#endif
 
 #ifdef _MSC_VER
 int gettimeofday(struct timeval * tp, struct timezone * tzp)
@@ -257,6 +267,16 @@ int clockGetTime(long& sec, long& nsec)
 
 #endif
 }
+
+void multiPlatformSleep(uint32_t seconds)
+{
+#ifdef WIN32
+	Sleep(seconds*1000);
+#else
+	sleep(seconds);
+#endif
+}
+
 
 
 std::string AppName::m_AppName;

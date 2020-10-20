@@ -4,12 +4,12 @@
 #include <fstream>
 #include <algorithm>
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 #include "TcpReassembly.h"
 #include "IPv4Layer.h"
 #include "TcpLayer.h"
 #include "PayloadLayer.h"
 #include "PcapFileDevice.h"
-#include "PlatformSpecificUtils.h"
 
 
 // ~~~~~~~~~~~~~~~~~~
@@ -949,7 +949,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0, int);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0, int);
 
-	PCAP_SLEEP(3);
+	pcpp::multiPlatformSleep(3);
 
 	tcpReassembly.reassemblePacket(&lastPacket); // automatic cleanup of 1 item
 	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 2, size);

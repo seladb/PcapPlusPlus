@@ -32,7 +32,6 @@
 #include "TcpReassembly.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 #include "LRUList.h"
@@ -566,7 +565,7 @@ void doTcpReassemblyOnLiveTraffic(PcapLiveDevice* dev, TcpReassembly& tcpReassem
 
 	// run in an endless loop until the user presses ctrl+c
 	while(!shouldStop)
-		PCAP_SLEEP(1);
+		multiPlatformSleep(1);
 
 	// stop capturing and close the live device
 	dev->stopCapture();

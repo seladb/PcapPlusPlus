@@ -1,5 +1,6 @@
 #include "../TestDefinition.h"
 #include "Logger.h"
+#include "SystemUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
 #include "PcapRemoteDevice.h"
@@ -7,7 +8,6 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
-#include "PlatformSpecificUtils.h"
 
 
 extern PcapTestArgs PcapTestGlobalArgs;
@@ -211,7 +211,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
-		PCAP_SLEEP(2);
+		pcpp::multiPlatformSleep(2);
 		totalSleepTime += 2;
 		if (packetCount > 0)
 			break;
@@ -283,7 +283,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 6)
 	{
-		PCAP_SLEEP(2);
+		pcpp::multiPlatformSleep(2);
 		totalSleepTime +=2;
 		pcpp::IPcapDevice::PcapStats statistics;
 		liveDev->getStatistics(statistics);
@@ -341,7 +341,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 5)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 		if (packetCount > 0)
 			break;
@@ -380,7 +380,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	totalSleepTime = 0;
 	while (totalSleepTime <= 5)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 		if (packetCount > 0)
 			break;
@@ -647,7 +647,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 			break;
 		}
 
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 	}
 

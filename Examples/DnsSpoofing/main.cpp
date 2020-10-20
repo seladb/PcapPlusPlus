@@ -26,7 +26,6 @@
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 
@@ -231,7 +230,7 @@ void doDnsSpoofing(PcapLiveDevice* dev, IPv4Address dnsServer, IPv4Address clien
 	while (!args.shouldStop)
 	{
 		printf("Spoofed %d DNS requests so far\n", args.stats.numOfSpoofedDnsRequests);
-		PCAP_SLEEP(5);
+		multiPlatformSleep(5);
 	}
 }
 

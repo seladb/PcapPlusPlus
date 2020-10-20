@@ -9,7 +9,6 @@
 #include "pcap.h"
 #include <pthread.h>
 #include "Logger.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 #include <string.h>
 #include <iostream>
@@ -227,7 +226,7 @@ void* PcapLiveDevice::statsThreadMain(void* ptr)
 		PcapStats stats;
 		pThis->getStatistics(stats);
 		pThis->m_cbOnStatsUpdate(stats, pThis->m_cbOnStatsUpdateUserCookie);
-		PCAP_SLEEP(pThis->m_IntervalToUpdateStats);
+		multiPlatformSleep(pThis->m_IntervalToUpdateStats);
 	}
 	LOG_DEBUG("Ended stats thread for device '%s'", pThis->m_Name);
 	return 0;
@@ -548,7 +547,7 @@ void PcapLiveDevice::stopCapture()
 		LOG_DEBUG("Stats thread stopped for device '%s'", m_Name);
 	}
 
-	PCAP_SLEEP(1);
+	multiPlatformSleep(1);
 	m_StopThread = false;
 }
 

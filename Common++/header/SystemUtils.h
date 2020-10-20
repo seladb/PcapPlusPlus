@@ -253,6 +253,13 @@ namespace pcpp
 	int clockGetTime(long& sec, long& nsec);
 
 	/**
+	 * A multi-platform version if the popular sleep method. This method just runs the correct sleep method, according to the platform
+	 * it is running on.
+	 * @param[in] seconds Number of seconds to sleep
+	 */
+	void multiPlatformSleep(uint32_t seconds);
+
+	/**
 	 * @class AppName
 	 * This class extracts the application name from the current running executable and stores it for usage of the application throughout its runtime.
 	 * This class should be initialized once in the beginning of the main() method using AppName#init() and from then on the app name could be retrieved using AppName#get()

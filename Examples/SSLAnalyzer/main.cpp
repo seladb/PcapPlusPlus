@@ -28,7 +28,6 @@
 #include "PcapFileDevice.h"
 #include "SSLStatsCollector.h"
 #include "TablePrinter.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 #include <getopt.h>
@@ -453,7 +452,7 @@ void analyzeSSLFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, 
 
 	while(!shouldStop)
 	{
-		PCAP_SLEEP(printRatePeriod);
+		multiPlatformSleep(printRatePeriod);
 
 		// calculate rates
 		if (printRatesPeriodicaly)

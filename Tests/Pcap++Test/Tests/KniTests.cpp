@@ -4,7 +4,6 @@
 #include "KniDeviceList.h"
 #include "PcapFileDevice.h"
 #include "RawSocketDevice.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 
 
@@ -181,7 +180,7 @@ PTF_TEST_CASE(TestKniDevice)
 
 	PTF_ASSERT_TRUE(device->open());
 	PTF_ASSERT_TRUE(device->startRequestHandlerThread(0, 150000000));
-	PCAP_SLEEP(2); // Wait for thread to start
+	pcpp::multiPlatformSleep(2); // Wait for thread to start
 	if (pcpp::KniDeviceList::isCallbackSupported(pcpp::KniDeviceList::CALLBACK_PROMISC))
 	{
 		bool modeSet = device->setPromiscuous(pcpp::KniDevice::PROMISC_ENABLE);
@@ -320,7 +319,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	PTF_ASSERT_TRUE(device->startRequestHandlerThread(0, 250000000));
 	KniDeviceTeardown devTeardown(device);
 
-	PCAP_SLEEP(1); // Wait for thread to start
+	pcpp::multiPlatformSleep(1); // Wait for thread to start
 
 	// KNI device management
 	PTF_ASSERT_TRUE(setKniDeviceIp(kniIp, KNI_DEVICE1));
@@ -346,7 +345,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		pcpp::LoggerPP::getInstance().supressErrors();
 		PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL));
 		pcpp::LoggerPP::getInstance().enableErrors();
-		PCAP_SLEEP(1); // Give some time to start capture thread
+		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
 		for (int i = 0; i < 10; ++i)
 		{
 			fileReaderDev.getNextPacket(rawPacket);
@@ -357,12 +356,12 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		rsdevice.sendPackets(rawPacketVec);
 		pcpp::LoggerPP::getInstance().enableErrors();
 		rawPacketVec.clear();
-		PCAP_SLEEP(1); // Give some time to receive packets
+		pcpp::multiPlatformSleep(1); // Give some time to receive packets
 		device->stopCapture();
 		PTF_PRINT_VERBOSE("KNI have captured %u packets in single burst on device " KNI_TEST_NAME, counter, KNI_DEVICE1);
 		counter = 0;
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter));
-		PCAP_SLEEP(1); // Give some time to start capture thread
+		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
 		pcpp::LoggerPP::getInstance().supressErrors();
 		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0, u16);
 		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0, u16);
@@ -378,7 +377,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		rsdevice.sendPackets(rawPacketVec);
 		pcpp::LoggerPP::getInstance().enableErrors();
 		rawPacketVec.clear();
-		PCAP_SLEEP(1); // Give some time to receive packets
+		pcpp::multiPlatformSleep(1); // Give some time to receive packets
 		device->stopCapture();
 		PTF_PRINT_VERBOSE("KNI have captured %u packets on device " KNI_TEST_NAME, counter, KNI_DEVICE1);
 		counter = 0;
