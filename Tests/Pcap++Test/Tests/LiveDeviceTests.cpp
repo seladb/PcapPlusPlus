@@ -1,7 +1,4 @@
 #include "../TestDefinition.h"
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <windows.h>
-#endif
 #include "Logger.h"
 #include "SystemUtils.h"
 #include "PcapLiveDeviceList.h"
@@ -11,7 +8,9 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
-
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#include <windows.h>
+#endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
@@ -661,10 +660,10 @@ PTF_TEST_CASE(TestRemoteCapture)
 
 	PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2, size);
 
-	//send single packet
+	// send single packet
 	PTF_ASSERT_TRUE(remoteDevice->sendPacket(*capturedPackets.front()));
 
-	//send multiple packets
+	// send multiple packets
 	pcpp::RawPacketVector packetsToSend;
 	std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
 
@@ -689,6 +688,9 @@ PTF_TEST_CASE(TestRemoteCapture)
 	remoteDevice->close();
 
 	delete remoteDevices;
+
+	// the device object is already deleted, cannot close it
+	devTeardown.cancelTeardown();
 #endif
 
 } // TestRemoteCapture
