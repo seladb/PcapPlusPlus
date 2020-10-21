@@ -3,8 +3,8 @@
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "NetworkUtils.h"
-#include <getopt.h>
 #include "SystemUtils.h"
+#include <getopt.h>
 
 #define EXIT_WITH_ERROR(reason, ...) do { \
 	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \

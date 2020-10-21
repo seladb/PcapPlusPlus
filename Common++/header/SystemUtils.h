@@ -4,11 +4,6 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <windows.h>
-#else
-#include <pthread.h>
-#endif
 
 /// @file
 
@@ -349,10 +344,9 @@ namespace pcpp
 		// private c'tor
 		ApplicationEventHandler();
 
-#ifdef WIN32
-		static BOOL WINAPI handlerRoutine(DWORD fdwCtrlType);
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+		static int handlerRoutine(unsigned long fdwCtrlType);
 #else
-		pthread_mutex_t m_HandlerRoutineMutex;
 		static void handlerRoutine(int signum);
 #endif
 	};

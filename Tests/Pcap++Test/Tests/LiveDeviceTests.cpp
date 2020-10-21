@@ -1,4 +1,7 @@
 #include "../TestDefinition.h"
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#include <windows.h>
+#endif
 #include "Logger.h"
 #include "SystemUtils.h"
 #include "PcapLiveDeviceList.h"
@@ -83,7 +86,7 @@ static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcp
 	return rawPacket->getRawDataLen() > snaplen;
 }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 class RpcapdServerInitializer
 {
@@ -138,7 +141,7 @@ public:
 	HANDLE getHandle() { return m_ProcessHandle; }
 };
 
-#endif // WIN32
+#endif // defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 
 
@@ -469,7 +472,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 PTF_TEST_CASE(TestWinPcapLiveDevice)
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
@@ -606,7 +609,8 @@ PTF_TEST_CASE(TestSendPackets)
 
 PTF_TEST_CASE(TestRemoteCapture)
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+
 	bool useRemoteDevicesFromArgs = (PcapTestGlobalArgs.remoteIp != "") && (PcapTestGlobalArgs.remotePort > 0);
 	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);
 	uint16_t remoteDevicePort = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remotePort : 12321);

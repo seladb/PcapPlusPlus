@@ -1,4 +1,9 @@
 #include "SystemUtils.h"
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#include <windows.h>
+#else
+#include <pthread.h>
+#endif
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
@@ -12,13 +17,13 @@
 #include <mach/mach.h>
 #endif
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #define POPEN _popen
 #else
 #define POPEN popen
 #endif
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #define PCLOSE _pclose
 #else
 #define PCLOSE pclose
@@ -120,7 +125,7 @@ const SystemCore SystemCores::IdToSystemCore[MAX_NUM_OF_CORES] =
 
 int getNumOfCores()
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo( &sysinfo );
 	return sysinfo.dwNumberOfProcessors;
@@ -270,7 +275,7 @@ int clockGetTime(long& sec, long& nsec)
 
 void multiPlatformSleep(uint32_t seconds)
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 	Sleep(seconds*1000);
 #else
 	sleep(seconds);
@@ -282,8 +287,8 @@ void multiPlatformSleep(uint32_t seconds)
 std::string AppName::m_AppName;
 
 
-#ifdef WIN32
-BOOL WINAPI ApplicationEventHandler::handlerRoutine(DWORD fdwCtrlType)
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+int ApplicationEventHandler::handlerRoutine(unsigned long fdwCtrlType)
 {
 	switch (fdwCtrlType)
 	{
@@ -302,6 +307,8 @@ BOOL WINAPI ApplicationEventHandler::handlerRoutine(DWORD fdwCtrlType)
 }
 #else
 
+static pthread_mutex_t UnixLinuxHandlerRoutineMutex;
+
 void ApplicationEventHandler::handlerRoutine(int signum)
 {
 	switch (signum)
@@ -311,14 +318,14 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 		// Most calls are unsafe in a signal handler, and this includes printf(). In particular,
 		// if the signal is caught while inside printf() it may be called twice at the same time which might not be a good idea
 		// The way to make sure the signal is called only once is using this lock and putting NULL in m_ApplicationInterruptedHandler
-		pthread_mutex_lock(&ApplicationEventHandler::getInstance().m_HandlerRoutineMutex);
+		pthread_mutex_lock(&UnixLinuxHandlerRoutineMutex);
 
 		if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
 			ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
 
 		ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler = NULL;
 
-		pthread_mutex_unlock(&ApplicationEventHandler::getInstance().m_HandlerRoutineMutex);
+		pthread_mutex_unlock(&UnixLinuxHandlerRoutineMutex);
 		return;
 	}
 	default:
@@ -333,8 +340,8 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 ApplicationEventHandler::ApplicationEventHandler() :
 		 m_ApplicationInterruptedHandler(NULL), m_ApplicationInterruptedCookie(NULL)
 {
-#ifndef WIN32
-	pthread_mutex_init(&m_HandlerRoutineMutex, 0);
+#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
+	pthread_mutex_init(&UnixLinuxHandlerRoutineMutex, 0);
 #endif
 }
 
@@ -343,7 +350,7 @@ void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback hand
 	m_ApplicationInterruptedHandler = handler;
 	m_ApplicationInterruptedCookie = cookie;
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE)handlerRoutine, TRUE);
 #else
 	struct sigaction action;

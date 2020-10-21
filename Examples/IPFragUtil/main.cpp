@@ -6,6 +6,8 @@
 #include <math.h>
 #if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
 #include <in.h>
+#else
+#include <WinSock2.h>
 #endif
 #include "PcapPlusPlusVersion.h"
 #include "Packet.h"

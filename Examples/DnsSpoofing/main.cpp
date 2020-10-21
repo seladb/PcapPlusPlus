@@ -14,6 +14,8 @@
 #if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
 #include <in.h>
 #include <errno.h>
+#else
+#include <WinSock2.h> //for using ntohl, ntohs, etc.
 #endif
 #include "IpAddress.h"
 #include "RawPacket.h"

@@ -2,6 +2,9 @@
 
 #include <map>
 #include <sstream>
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#include <WinSock2.h> //for using ntohl, ntohs, etc.
+#endif
 #include "HttpLayer.h"
 #include "TcpLayer.h"
 #include "IPv4Layer.h"
