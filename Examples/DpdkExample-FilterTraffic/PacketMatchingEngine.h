@@ -4,7 +4,7 @@
 #include "IPv4Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
-#include <in.h>
+#include "SystemUtils.h"
 
 /**
  * Responsible for matching packets by match criteria received from the user. Current match criteria are a combination of zero or more of the
@@ -63,13 +63,13 @@ public:
 			uint16_t srcPort, dstPort;
 			if (packet.isPacketOfType(pcpp::TCP))
 			{
-				srcPort = ntohs(packet.getLayerOfType<pcpp::TcpLayer>()->getTcpHeader()->portSrc);
-				dstPort = ntohs(packet.getLayerOfType<pcpp::TcpLayer>()->getTcpHeader()->portDst);
+				srcPort = pcpp::netToHost16(packet.getLayerOfType<pcpp::TcpLayer>()->getTcpHeader()->portSrc);
+				dstPort = pcpp::netToHost16(packet.getLayerOfType<pcpp::TcpLayer>()->getTcpHeader()->portDst);
 			}
 			else if (packet.isPacketOfType(pcpp::UDP))
 			{
-				srcPort = ntohs(packet.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->portSrc);
-				dstPort = ntohs(packet.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->portDst);
+				srcPort = pcpp::netToHost16(packet.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->portSrc);
+				dstPort = pcpp::netToHost16(packet.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->portDst);
 			}
 			else
 			{

@@ -12,11 +12,6 @@
 #ifndef _MSC_VER
 #include "unistd.h"
 #endif
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) 
-#include <in.h>
-#else
-#include <WinSock2.h> //for using ntohl, ntohs, etc.
-#endif
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"
@@ -181,10 +176,10 @@ static void getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// verify we're not missing any message by checking the ICMP ID of the reply and compare it to the expected ICMP ID. If one or more
 	// message were missed, set fileTransferError flag so the main thread could abort the catcher and exit the program
-	if (ntohs(icmpLayer->getEchoReplyData()->header->id) != icmpFileContentData->expectedIcmpId)
+	if (pcpp::netToHost16(icmpLayer->getEchoReplyData()->header->id) != icmpFileContentData->expectedIcmpId)
 	{
 		icmpFileContentData->fileTransferError = true;
-		printf("\n\nDidn't get expected ICMP message #%d, got #%d\n", icmpFileContentData->expectedIcmpId, ntohs(icmpLayer->getEchoReplyData()->header->id));
+		printf("\n\nDidn't get expected ICMP message #%d, got #%d\n", icmpFileContentData->expectedIcmpId, pcpp::netToHost16(icmpLayer->getEchoReplyData()->header->id));
 		return;
 	}
 
@@ -381,7 +376,7 @@ static bool waitForFileTransferStartAck(RawPacket* rawPacket, PcapLiveDevice* de
 		return false;
 
 	// verify the ICMP ID of the reply matched the ICMP ID the pitcher sent in the request
-	if (icmpLayer->getEchoReplyData()->header->id != htons(icmpData->icmpMsgId))
+	if (icmpLayer->getEchoReplyData()->header->id != pcpp::hostToNet16(icmpData->icmpMsgId))
 		return false;
 
 	// verify the source IP is the catcher's IP and the dest IP is the pitcher's IP

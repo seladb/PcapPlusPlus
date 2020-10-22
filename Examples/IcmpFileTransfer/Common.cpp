@@ -2,11 +2,6 @@
 #include <stdlib.h>
 #include <vector>
 #include <getopt.h>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
-#include <in.h>
-#else
-#include <WinSock2.h> //for using ntohl, ntohs, etc.
-#endif
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"
@@ -224,7 +219,7 @@ bool sendIcmpMessage(PcapLiveDevice* dev,
 	IPv4Layer ipLayer(srcIPAddr, dstIPAddr);
 	ipLayer.getIPv4Header()->timeToLive = 128;
 	// set and increment the IP ID
-	ipLayer.getIPv4Header()->ipId = htons(ipID++);
+	ipLayer.getIPv4Header()->ipId = pcpp::hostToNet16(ipID++);
 
 	// then ICMP
 	IcmpLayer icmpLayer;

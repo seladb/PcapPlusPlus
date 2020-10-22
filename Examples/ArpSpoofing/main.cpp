@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <fstream>
 #include <memory>
-#if defined(WIN32) || defined(WINx64)
-#include <winsock2.h>
-#endif
 #include <MacAddress.h>
 #include <IpAddress.h>
 #include <PcapPlusPlusVersion.h>

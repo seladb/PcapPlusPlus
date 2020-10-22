@@ -4,11 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <in.h>
-#else
-#include <WinSock2.h>
-#endif
 #include "PcapPlusPlusVersion.h"
 #include "Packet.h"
 #include "IPv4Layer.h"
@@ -97,7 +92,7 @@ void printAppVersion()
 void setIPv4FragmentParams(IPv4Layer* fragIpLayer, size_t fragOffset, bool lastFrag)
 {
 	// calculate the fragment offset field
-	uint16_t fragOffsetValue = htons((uint16_t)(fragOffset/8));
+	uint16_t fragOffsetValue = pcpp::hostToNet16((uint16_t)(fragOffset/8));
 
 	// set the fragment flags bits to zero
 	fragOffsetValue &= (uint16_t)0xff1f;
@@ -292,7 +287,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 			if (ipLayer != NULL)
 			{
 				// check if packet ID matches one of the IP IDs requested by the user
-				if (ipIDs.find(ntohs(ipLayer->getIPv4Header()->ipId)) != ipIDs.end())
+				if (ipIDs.find(pcpp::netToHost16(ipLayer->getIPv4Header()->ipId)) != ipIDs.end())
 				{
 					stats.ipv4PacketsMatchIpIDs++;
 				}

@@ -277,7 +277,7 @@ inline LinuxSocket setupLinuxSocket(const KniPongArgs& args)
 	std::memset(&egress, 0, sizeof(egress));
 	egress.sin_family = AF_INET;
 	egress.sin_addr.s_addr = inet_addr(args.kniIp.c_str());
-	egress.sin_port = htons(args.kniPort);
+	egress.sin_port = pcpp::hostToNet16(args.kniPort);
 	if (bind(sock, (struct sockaddr*)&egress, sizeof(egress)) == -1)
 	{
 		int old_errno = errno;
@@ -298,10 +298,10 @@ inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer)
 	// Copy ARP request
 	std::memcpy(&arpHdr, origArpHdr, sizeof(arpHdr));
 	// Fill fields
-	arpHdr.hardwareType = htons(0x0001); // ETHERNET
+	arpHdr.hardwareType = pcpp::hostToNet16(0x0001); // ETHERNET
 	arpHdr.hardwareSize = sizeof(((pcpp::arphdr*)0)->senderMacAddr); // sizeof(MAC)
 	arpHdr.protocolSize = sizeof(((pcpp::arphdr*)0)->senderIpAddr);  // sizeof(IPv4)
-	arpHdr.opcode = htons(pcpp::ARP_REPLY);
+	arpHdr.opcode = pcpp::hostToNet16(pcpp::ARP_REPLY);
 	std::memcpy(arpHdr.targetMacAddr, origArpHdr->senderMacAddr, sizeof(((pcpp::arphdr*)0)->senderMacAddr));
 	std::memcpy(&arpHdr.targetIpAddr, &origArpHdr->senderIpAddr, sizeof(((pcpp::arphdr*)0)->senderIpAddr));
 	std::memcpy(&arpHdr.senderIpAddr, &origArpHdr->targetIpAddr, sizeof(((pcpp::arphdr*)0)->senderIpAddr));
@@ -343,7 +343,7 @@ inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer)
 	pcpp::iphdr ipHdr;
 	pcpp::iphdr* origIpHdr = ipLayer->getIPv4Header();
 	std::memcpy(&ipHdr, origIpHdr, sizeof(ipHdr));
-	if (ntohs(ipHdr.fragmentOffset) & 0x1FFF) // Fragmanted packet
+	if (pcpp::netToHost16(ipHdr.fragmentOffset) & 0x1FFF) // Fragmanted packet
 		return false;
 	// Swap src and dst IPs
 	std::memcpy(&ipHdr.ipSrc, &origIpHdr->ipDst, sizeof(ipHdr.ipSrc));
@@ -414,7 +414,7 @@ void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args)
 	std::memset(&ingress, 0, sizeof(ingress));
 	ingress.sin_family = AF_INET;
 	ingress.sin_addr.s_addr = inet_addr(args.outIp.c_str());
-	ingress.sin_port = htons(args.kniPort);
+	ingress.sin_port = pcpp::hostToNet16(args.kniPort);
 	if (connect(sock, (struct sockaddr*)&ingress, sizeof(ingress)) == -1)
 	{
 		int old_errno = errno;

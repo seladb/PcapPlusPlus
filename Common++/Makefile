@@ -32,7 +32,8 @@ GIT_CUR_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 DEPS += -DGIT_COMMIT=\"$(GIT_CUR_COMMIT)\" -DGIT_BRANCH=\"$(GIT_CUR_BRANCH)\"
 
 INCLUDES := -I"./src" \
-			-I"./header"
+			-I"./header" \
+			-I"$(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include"
 
 ifdef BUILD_WITH_STATIC_LIBPCAP
 INCLUDES += -I"$(STATIC_LIBPCAP_INCLUDE)"

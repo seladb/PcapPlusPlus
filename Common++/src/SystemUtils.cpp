@@ -1,7 +1,6 @@
 #include "SystemUtils.h"
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <windows.h>
-#else
+#include "EndianPortable.h"
+#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
 #include <pthread.h>
 #endif
 #ifndef _MSC_VER
@@ -282,6 +281,25 @@ void multiPlatformSleep(uint32_t seconds)
 #endif
 }
 
+uint16_t hostToNet16(uint16_t host)
+{
+	return htole16(host);
+}
+
+uint16_t netToHost16(uint16_t net)
+{
+	return be16toh(net);
+}
+
+uint32_t hostToNet32(uint32_t host)
+{
+	return htole32(host);
+}
+
+uint32_t netToHost32(uint32_t net)
+{
+	return be32toh(net);
+}
 
 
 std::string AppName::m_AppName;

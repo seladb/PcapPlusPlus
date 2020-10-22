@@ -1,7 +1,5 @@
-#if !defined(WIN32) && !defined(WINx64)
-#include <in.h> // this is for using ntohs() and htons() on non-Windows OS's
-#endif
 #include "stdlib.h"
+#include "SystemUtils.h"
 #include "Packet.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
@@ -131,7 +129,7 @@ int main(int argc, char* argv[])
 	// print the source and dest MAC addresses and the Ether type
 	printf("\nSource MAC address: %s\n", ethernetLayer->getSourceMac().toString().c_str());
 	printf("Destination MAC address: %s\n", ethernetLayer->getDestMac().toString().c_str());
-	printf("Ether type = 0x%X\n", ntohs(ethernetLayer->getEthHeader()->etherType));
+	printf("Ether type = 0x%X\n", pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType));
 
 	// let's get the IPv4 layer
 	pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
@@ -144,7 +142,7 @@ int main(int argc, char* argv[])
 	// print source and dest IP addresses, IP ID and TTL
 	printf("\nSource IP address: %s\n", ipLayer->getSrcIpAddress().toString().c_str());
 	printf("Destination IP address: %s\n", ipLayer->getDstIpAddress().toString().c_str());
-	printf("IP ID: 0x%X\n", ntohs(ipLayer->getIPv4Header()->ipId));
+	printf("IP ID: 0x%X\n", pcpp::netToHost16(ipLayer->getIPv4Header()->ipId));
 	printf("TTL: %d\n", ipLayer->getIPv4Header()->timeToLive);
 
 	// let's get the TCP layer
@@ -156,9 +154,9 @@ int main(int argc, char* argv[])
 	}
 
 	// printf TCP source and dest ports, window size, and the TCP flags that are set in this layer
-	printf("\nSource TCP port: %d\n", (int)ntohs(tcpLayer->getTcpHeader()->portSrc));
-	printf("Destination TCP port: %d\n", (int)ntohs(tcpLayer->getTcpHeader()->portDst));
-	printf("Window size: %d\n", (int)ntohs(tcpLayer->getTcpHeader()->windowSize));
+	printf("\nSource TCP port: %d\n", (int)pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc));
+	printf("Destination TCP port: %d\n", (int)pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst));
+	printf("Window size: %d\n", (int)pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize));
 	printf("TCP flags: %s\n", printTcpFlags(tcpLayer).c_str());
 
 	// go over all TCP options in this layer and print its type

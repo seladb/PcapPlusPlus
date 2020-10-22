@@ -2,9 +2,6 @@
 
 #include <map>
 #include <sstream>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <WinSock2.h> //for using ntohl, ntohs, etc.
-#endif
 #include "TcpLayer.h"
 #include "IPv4Layer.h"
 #include "PayloadLayer.h"
@@ -258,8 +255,8 @@ private:
 			m_GeneralStats.numOfSSLFlows++;
 
 			// find the SSL/TLS port and add it to the port count
-			uint16_t srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
-			uint16_t dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
+			uint16_t srcPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc);
+			uint16_t dstPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst);
 			if (pcpp::SSLLayer::isSSLPort(srcPort))
 				m_GeneralStats.sslPortCount[srcPort]++;
 			else
