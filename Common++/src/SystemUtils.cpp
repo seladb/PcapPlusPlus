@@ -283,7 +283,7 @@ void multiPlatformSleep(uint32_t seconds)
 
 uint16_t hostToNet16(uint16_t host)
 {
-	return htole16(host);
+	return htobe16(host);
 }
 
 uint16_t netToHost16(uint16_t net)
@@ -293,7 +293,7 @@ uint16_t netToHost16(uint16_t net)
 
 uint32_t hostToNet32(uint32_t host)
 {
-	return htole32(host);
+	return htobe32(host);
 }
 
 uint32_t netToHost32(uint32_t net)
