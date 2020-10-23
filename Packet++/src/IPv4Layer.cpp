@@ -237,7 +237,7 @@ IPv4Layer& IPv4Layer::operator=(const IPv4Layer& other)
 void IPv4Layer::parseNextLayer()
 {
 	size_t hdrLen = getHeaderLen();
-	if (m_DataLen <= hdrLen)
+	if (m_DataLen <= hdrLen || hdrLen <= 0)
 		return;
 
 	iphdr* ipHdr = getIPv4Header();
