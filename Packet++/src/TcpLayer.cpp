@@ -9,7 +9,7 @@
 #include "SSLLayer.h"
 #include "SipLayer.h"
 #include "BgpLayer.h"
-#include "IpUtils.h"
+#include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
 #include <sstream>

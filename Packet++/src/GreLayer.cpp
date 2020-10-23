@@ -8,8 +8,8 @@
 #include "VlanLayer.h"
 #include "MplsLayer.h"
 #include "PayloadLayer.h"
+#include "PacketUtils.h"
 #include "Logger.h"
-#include "IpUtils.h"
 #include "EndianPortable.h"
 
 // ==============

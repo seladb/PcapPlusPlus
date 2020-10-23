@@ -16,119 +16,50 @@
 
 namespace pcpp
 {
-
-in_addr* sockaddr2in_addr(struct sockaddr* sa)
-{
-	if (sa == NULL)
-		return NULL;
-	if (sa->sa_family == AF_INET)
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-	LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
-	return NULL;
-}
-
-in6_addr* sockaddr2in6_addr(struct sockaddr* sa)
-{
-	if (sa->sa_family == AF_INET6)
-		return &(((struct sockaddr_in6*)sa)->sin6_addr);
-	LOG_DEBUG("sockaddr family is not AF_INET6. Returning NULL");
-	return NULL;
-}
-
-void sockaddr2string(struct sockaddr* sa, char* resultString)
-{
-	in_addr* ipv4Addr = sockaddr2in_addr(sa);
-	if (ipv4Addr != NULL)
+	namespace internal
 	{
-		LOG_DEBUG("IPv4 packet address");
-		inet_ntop(AF_INET, &(((sockaddr_in*)sa)->sin_addr), resultString, INET_ADDRSTRLEN);
-	}
-	else
-	{
-		LOG_DEBUG("Not IPv4 packet address. Assuming IPv6 packet");
-		inet_ntop(AF_INET6, &(((sockaddr_in6*)sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
-	}
-}
-
-uint32_t in_addr2int(in_addr inAddr)
-{
-#ifdef WIN32
-	return inAddr.S_un.S_addr;
-#else
-	return inAddr.s_addr;
-#endif
-}
-
-uint16_t compute_checksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
-{
-	uint32_t sum = 0;
-	for (size_t i = 0; i<vecSize; i++)
-	{
-		uint32_t local_sum = 0;
-		size_t buff_len = vec[i].len;
-		while (buff_len > 1) {
-			LOG_DEBUG("Value to add = 0x%4X", *(vec[i].buffer));
-			local_sum += *(vec[i].buffer);
-			++(vec[i].buffer);
-			buff_len -= 2;
-		}
-		LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
-
-		if (buff_len == 1)
+		in_addr* sockaddr2in_addr(struct sockaddr* sa)
 		{
-			uint8_t lastByte = *(vec[i].buffer);
-			LOG_DEBUG("1 byte left, adding value: 0x%4X", lastByte);
-			local_sum += lastByte;
-			LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
+			if (sa == NULL)
+				return NULL;
+			if (sa->sa_family == AF_INET)
+				return &(((struct sockaddr_in*)sa)->sin_addr);
+			LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
+			return NULL;
 		}
 
-		while (local_sum>>16) {
-			local_sum = (local_sum & 0xffff) + (local_sum >> 16);
-		}
-		local_sum = ntohs(local_sum);
-		LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
-		sum += local_sum;
-	}
-
-	while (sum>>16) {
-		sum = (sum & 0xffff) + (sum >> 16);
-	}
-
-	LOG_DEBUG("Sum before invert = %d, 0x%4X", sum, sum);
-
-	sum = ~sum;
-
-	LOG_DEBUG("Calculated checksum = %d, 0x%4X", sum, sum);
-
-	return ((uint16_t) sum);
-}
-
-
-static const uint32_t FNV_PRIME = 16777619u;
-static const uint32_t OFFSET_BASIS = 2166136261u;
-
-uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
-{
-	uint32_t hash = OFFSET_BASIS;
-	for (size_t i = 0; i < vecSize; ++i)
-	{
-		for (size_t j = 0; j < vec[i].len; ++j)
+		in6_addr* sockaddr2in6_addr(struct sockaddr* sa)
 		{
-			hash *= FNV_PRIME;
-			hash ^= vec[i].buffer[j];
+			if (sa->sa_family == AF_INET6)
+				return &(((struct sockaddr_in6*)sa)->sin6_addr);
+			LOG_DEBUG("sockaddr family is not AF_INET6. Returning NULL");
+			return NULL;
 		}
-	}
-	return hash;
-}
 
-uint32_t fnv_hash(uint8_t* buffer, size_t bufSize)
-{
-	ScalarBuffer<uint8_t> scalarBuf;
-	scalarBuf.buffer = buffer;
-	scalarBuf.len = bufSize;
-	return fnv_hash(&scalarBuf, 1);
-}
+		void sockaddr2string(struct sockaddr* sa, char* resultString)
+		{
+			in_addr* ipv4Addr = sockaddr2in_addr(sa);
+			if (ipv4Addr != NULL)
+			{
+				LOG_DEBUG("IPv4 packet address");
+				inet_ntop(AF_INET, &(((sockaddr_in*)sa)->sin_addr), resultString, INET_ADDRSTRLEN);
+			}
+			else
+			{
+				LOG_DEBUG("Not IPv4 packet address. Assuming IPv6 packet");
+				inet_ntop(AF_INET6, &(((sockaddr_in6*)sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
+			}
+		}
 
+		uint32_t in_addr2int(in_addr inAddr)
+		{
+		#ifdef WIN32
+			return inAddr.S_un.S_addr;
+		#else
+			return inAddr.s_addr;
+		#endif
+		}
+	} // namespace internal
 } // namespace pcpp
 
 #if defined(WIN32) && !defined(_MSC_VER)

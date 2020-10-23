@@ -1,11 +1,7 @@
 #pragma once
 
 #include "Splitters.h"
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
-// required for including "IpUtils.h". TODO: remove it when fixing IpUtils
-#include <in.h>
-#endif
-#include "IpUtils.h"
+#include "PacketUtils.h"
 #include "SystemUtils.h"
 
 

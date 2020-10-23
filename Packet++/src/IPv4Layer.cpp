@@ -8,9 +8,9 @@
 #include "IcmpLayer.h"
 #include "GreLayer.h"
 #include "IgmpLayer.h"
+#include "PacketUtils.h"
 #include <string.h>
 #include <sstream>
-#include "IpUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
 

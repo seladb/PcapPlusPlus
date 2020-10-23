@@ -1,14 +1,84 @@
 #include <string.h>
 #include "PacketUtils.h"
-#include "IpUtils.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
 #include "IcmpLayer.h"
+#include "Logger.h"
+#include "EndianPortable.h"
 
 namespace pcpp
 {
+
+uint16_t compute_checksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
+{
+	uint32_t sum = 0;
+	for (size_t i = 0; i<vecSize; i++)
+	{
+		uint32_t local_sum = 0;
+		size_t buff_len = vec[i].len;
+		while (buff_len > 1) {
+			LOG_DEBUG("Value to add = 0x%4X", *(vec[i].buffer));
+			local_sum += *(vec[i].buffer);
+			++(vec[i].buffer);
+			buff_len -= 2;
+		}
+		LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
+
+		if (buff_len == 1)
+		{
+			uint8_t lastByte = *(vec[i].buffer);
+			LOG_DEBUG("1 byte left, adding value: 0x%4X", lastByte);
+			local_sum += lastByte;
+			LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
+		}
+
+		while (local_sum>>16) {
+			local_sum = (local_sum & 0xffff) + (local_sum >> 16);
+		}
+		local_sum = be16toh(local_sum);
+		LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
+		sum += local_sum;
+	}
+
+	while (sum>>16) {
+		sum = (sum & 0xffff) + (sum >> 16);
+	}
+
+	LOG_DEBUG("Sum before invert = %d, 0x%4X", sum, sum);
+
+	sum = ~sum;
+
+	LOG_DEBUG("Calculated checksum = %d, 0x%4X", sum, sum);
+
+	return ((uint16_t) sum);
+}
+
+static const uint32_t FNV_PRIME = 16777619u;
+static const uint32_t OFFSET_BASIS = 2166136261u;
+
+uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
+{
+	uint32_t hash = OFFSET_BASIS;
+	for (size_t i = 0; i < vecSize; ++i)
+	{
+		for (size_t j = 0; j < vec[i].len; ++j)
+		{
+			hash *= FNV_PRIME;
+			hash ^= vec[i].buffer[j];
+		}
+	}
+	return hash;
+}
+
+uint32_t fnv_hash(uint8_t* buffer, size_t bufSize)
+{
+	ScalarBuffer<uint8_t> scalarBuf;
+	scalarBuf.buffer = buffer;
+	scalarBuf.len = bufSize;
+	return fnv_hash(&scalarBuf, 1);
+}
 
 uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 {

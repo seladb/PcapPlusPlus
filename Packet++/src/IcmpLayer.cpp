@@ -3,7 +3,7 @@
 #include "IcmpLayer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
-#include "IpUtils.h"
+#include "PacketUtils.h"
 #include "Logger.h"
 #include <sstream>
 #include <string.h>

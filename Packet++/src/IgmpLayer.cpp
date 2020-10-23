@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleIgmpLayer
 
 #include "IgmpLayer.h"
-#include "IpUtils.h"
+#include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
 #include "EndianPortable.h"

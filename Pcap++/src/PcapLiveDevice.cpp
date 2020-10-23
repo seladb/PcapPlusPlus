@@ -98,7 +98,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != NULL && pInterface->addresses->addr != NULL)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
-			sockaddr2string(pInterface->addresses->addr, addrAsString);
+			internal::sockaddr2string(pInterface->addresses->addr, addrAsString);
 			LOG_DEBUG("      %s", addrAsString);
 		}
 	}
@@ -903,11 +903,11 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
-			sockaddr2string(addrIter->addr, addrAsString);
+			internal::sockaddr2string(addrIter->addr, addrAsString);
 			LOG_DEBUG("Searching address %s", addrAsString);
 		}
 
-		in_addr* currAddr = sockaddr2in_addr(addrIter->addr);
+		in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
 		if (currAddr == NULL)
 		{
 			LOG_DEBUG("Address is NULL");

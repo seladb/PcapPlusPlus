@@ -2,7 +2,6 @@
 
 #include "EndianPortable.h"
 #include "UdpLayer.h"
-#include "IpUtils.h"
 #include "PayloadLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -12,6 +11,7 @@
 #include "SipLayer.h"
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
+#include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
 #include <sstream>
