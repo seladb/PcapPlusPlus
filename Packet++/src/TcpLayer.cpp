@@ -254,7 +254,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			pseudoHeader[5] = htobe16(0x00ff & PACKETPP_IPPROTO_TCP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
-			checksumRes = compute_checksum(vec, 2);
+			checksumRes = computeChecksum(vec, 2);
 			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
 
 
@@ -268,7 +268,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			pseudoHeader[17] = htobe16(0x00ff & PACKETPP_IPPROTO_TCP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
-			checksumRes = compute_checksum(vec, 2);
+			checksumRes = computeChecksum(vec, 2);
 			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
 		}
 	}

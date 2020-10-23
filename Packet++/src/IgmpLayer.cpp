@@ -93,7 +93,7 @@ uint16_t IgmpLayer::calculateChecksum()
 	ScalarBuffer<uint16_t> buffer;
 	buffer.buffer = (uint16_t*)getIgmpHeader();
 	buffer.len = getHeaderLen();
-	return compute_checksum(&buffer, 1);
+	return computeChecksum(&buffer, 1);
 }
 
 size_t IgmpLayer::getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const

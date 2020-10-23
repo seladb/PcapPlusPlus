@@ -11,7 +11,7 @@
 namespace pcpp
 {
 
-uint16_t compute_checksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
+uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 {
 	uint32_t sum = 0;
 	for (size_t i = 0; i<vecSize; i++)
@@ -58,7 +58,7 @@ uint16_t compute_checksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 static const uint32_t FNV_PRIME = 16777619u;
 static const uint32_t OFFSET_BASIS = 2166136261u;
 
-uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
+uint32_t fnvHash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
 {
 	uint32_t hash = OFFSET_BASIS;
 	for (size_t i = 0; i < vecSize; ++i)
@@ -72,12 +72,12 @@ uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
 	return hash;
 }
 
-uint32_t fnv_hash(uint8_t* buffer, size_t bufSize)
+uint32_t fnvHash(uint8_t* buffer, size_t bufSize)
 {
 	ScalarBuffer<uint8_t> scalarBuf;
 	scalarBuf.buffer = buffer;
 	scalarBuf.len = bufSize;
-	return fnv_hash(&scalarBuf, 1);
+	return fnvHash(&scalarBuf, 1);
 }
 
 uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
@@ -149,7 +149,7 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 		vec[4].len = 1;
 	}
 
-	return pcpp::fnv_hash(vec, 5);
+	return pcpp::fnvHash(vec, 5);
 }
 
 
@@ -186,7 +186,7 @@ uint32_t hash2Tuple(Packet* packet)
 		vec[1 - srcPosition].len = 16;
 	}
 
-	return pcpp::fnv_hash(vec, 2);
+	return pcpp::fnvHash(vec, 2);
 }
 
 }  // namespace pcpp

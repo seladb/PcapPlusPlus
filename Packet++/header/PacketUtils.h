@@ -34,7 +34,7 @@ namespace pcpp
 	 * @param[in] vecSize Number of ScalarBuffers in vector
 	 * @return The checksum result
 	 */
-	uint16_t compute_checksum(ScalarBuffer<uint16_t> vec[], size_t vecSize);
+	uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize);
 
 	/**
 	 * Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on an array of byte buffers. The hash is calculated on each
@@ -43,7 +43,7 @@ namespace pcpp
 	 * @param[in] vecSize The length of vec
 	 * @return The 32bit hash value
 	 */
-	uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize);
+	uint32_t fnvHash(ScalarBuffer<uint8_t> vec[], size_t vecSize);
 
 	/**
 	 * Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on a byte buffer
@@ -51,7 +51,7 @@ namespace pcpp
 	 * @param[in] bufSize The size of the byte buffer
 	 * @return The 32bit hash value
 	 */
-	uint32_t fnv_hash(uint8_t* buffer, size_t bufSize);
+	uint32_t fnvHash(uint8_t* buffer, size_t bufSize);
 
 	/**
 	 * A method that is given a packet and calculates a hash value by the packet's 5-tuple. Supports IPv4, IPv6,

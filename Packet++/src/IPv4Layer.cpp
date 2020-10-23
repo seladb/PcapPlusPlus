@@ -349,7 +349,7 @@ void IPv4Layer::computeCalculateFields()
 	}
 
 	ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength*4) } ;
-	ipHdr->headerChecksum = htobe16(compute_checksum(&scalar, 1));
+	ipHdr->headerChecksum = htobe16(computeChecksum(&scalar, 1));
 }
 
 bool IPv4Layer::isFragment() const
