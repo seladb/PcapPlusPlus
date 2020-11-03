@@ -41,6 +41,7 @@ TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* use
 	m_ClosedConnectionDelay = (config.closedConnectionDelay > 0) ? config.closedConnectionDelay : 5;
 	m_RemoveConnInfo = config.removeConnInfo;
 	m_MaxNumToClean = (config.removeConnInfo == true && config.maxNumToClean == 0) ? 30 : config.maxNumToClean;
+	m_MaxOutOfOrderFragments = config.maxOutOfOrderFragments;
 	m_PurgeTimepoint = time(NULL) + PURGE_FREQ_SECS;
 }
 
@@ -380,8 +381,6 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 		status = TcpMessageHandled;
 
-		//while (checkOutOfOrderFragments(tcpReassemblyData, sideIndex)) {}
-
 		// now that we've seen new data, go over the list of out-of-order packets and see if one or more of them fits now
 		checkOutOfOrderFragments(tcpReassemblyData, sideIndex, false);
 
@@ -426,6 +425,13 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 
 		LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size %d to the out-of-order list of side %d", (int)tcpPayloadSize, sideIndex);
 		status = OutOfOrderTcpMessageBuffered;
+
+		// check if we've stored too many out-of-order fragments; if so, consider missing packets lost and
+		// continue processing until the number of stored fragments is lower than the acceptable limit again
+		if (m_MaxOutOfOrderFragments > 0 && tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() > m_MaxOutOfOrderFragments)
+		{
+			checkOutOfOrderFragments(tcpReassemblyData, sideIndex, false);
+		}
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
@@ -565,9 +571,12 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 
 		// if got here it means we're left only with fragments that have higher sequence than current sequence. This means out-of-order packets or
-		// missing data. If we don't want to clear the frag list yet, assume it's out-of-order and return
-		if (!cleanWholeFragList)
+		// missing data. If we don't want to clear the frag list yet and the number of out of order fragments isn't above the configured limit,
+		// assume it's out-of-order and return
+		if (!cleanWholeFragList && (m_MaxOutOfOrderFragments == 0 || tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() <= m_MaxOutOfOrderFragments))
+		{
 			return;
+		}
 
 		LOG_DEBUG("Starting second  iteration of checkOutOfOrderFragments - handle missing data");
 

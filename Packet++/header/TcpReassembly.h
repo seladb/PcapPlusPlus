@@ -61,6 +61,7 @@
  * - pcpp#TcpReassemblyConfiguration#doNotRemoveConnInfo - if this member is set to false the automatic cleanup mode is applied
  * - pcpp#TcpReassemblyConfiguration#closedConnectionDelay - the value of delay expressed in seconds. The minimum value is 1
  * - pcpp#TcpReassemblyConfiguration#maxNumToClean - to avoid performance overhead when the cleanup is being performed, this parameter is used. It defines the maximum number of items to be removed per one call of pcpp#TcpReassembly#purgeClosedConnections
+ * - pcpp#TcpReassemblyConfiguration#maxOutOfOrderFragments - the maximum number of unmatched fragments to keep per flow before missed fragments are considered lost. A value of 0 means unlimited
  *
  */
 
@@ -191,14 +192,20 @@ struct TcpReassemblyConfiguration
 	 */
 	uint32_t maxNumToClean;
 
+	/** The maximum number of fragments with a non-matching sequence-number to store per connection flow before packets are assumed permanently missed.
+	    If the value is 0, TcpReassembly should keep out of order fragments indefinitely, or until a message from the paired side is seen.
+	 */
+	uint32_t maxOutOfOrderFragments;
+
 	/**
 	 * A c'tor for this struct
 	 * @param[in] removeConnInfo The flag indicating whether to remove the connection data after a connection is closed. The default is true
 	 * @param[in] closedConnectionDelay How long the closed connections will not be cleaned up. The value is expressed in seconds. If it's set to 0 the default value will be used. The default is 5.
 	 * @param[in] maxNumToClean The maximum number of items to be cleaned up per one call of purgeClosedConnections. If it's set to 0 the default value will be used. The default is 30.
+	 * @param[in] maxOutOfOrderFragments The maximum number of unmatched fragments to keep per flow before missed fragments are considered lost. The default is unlimited.
 	 */
-	TcpReassemblyConfiguration(bool removeConnInfo = true, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 30) :
-		removeConnInfo(removeConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean)
+	TcpReassemblyConfiguration(bool removeConnInfo = true, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 30, uint32_t maxOutOfOrderFragments = 0) :
+		removeConnInfo(removeConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean), maxOutOfOrderFragments(maxOutOfOrderFragments)
 	{
 	}
 };
@@ -421,6 +428,7 @@ private:
 	bool m_RemoveConnInfo;
 	uint32_t m_ClosedConnectionDelay;
 	uint32_t m_MaxNumToClean;
+	size_t m_MaxOutOfOrderFragments;
 	time_t m_PurgeTimepoint;
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, bool cleanWholeFragList);
