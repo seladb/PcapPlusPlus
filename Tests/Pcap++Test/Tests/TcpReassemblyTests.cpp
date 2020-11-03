@@ -974,7 +974,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 
 
 
-PTF_TEST_CASE(TestTcpReassemblyMaxOutOfOrderFrags)
+PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags)
 {
 	TcpReassemblyMultipleConnStats results1;
 	TcpReassemblyMultipleConnStats results2;
@@ -986,7 +986,7 @@ PTF_TEST_CASE(TestTcpReassemblyMaxOutOfOrderFrags)
 	pcpp::TcpReassembly tcpReassembly2(tcpReassemblyMsgReadyCallback, &results2, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config2);
 
 	std::vector<pcpp::RawPacket> packetStream;
-	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/unidirectional_tcp_stream_with_missing_packet.pcap", packetStream, errMsg));
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/unidirectional_tcp_stream_with_missing_packet.pcapng", packetStream, errMsg));
 
 	for(std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
 	{

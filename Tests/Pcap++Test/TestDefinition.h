@@ -57,7 +57,7 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6);
 PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns);
 PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO);
 PTF_TEST_CASE(TestTcpReassemblyCleanup);
-PTF_TEST_CASE(TestTcpReassemblyMaxOutOfOrderFrags);
+PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags);
 PTF_TEST_CASE(TestTcpReassemblyMaxSeq);
 
 // Implemented in IPFragmentationTests.cpp
