@@ -71,6 +71,9 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SipSdpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\SSHTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SllNullLoopbackTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
