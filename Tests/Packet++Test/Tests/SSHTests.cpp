@@ -2,6 +2,7 @@
 #include "../Utils/TestUtils.h"
 #include "Packet.h"
 #include "SSHLayer.h"
+#include "SystemUtils.h"
 
 PTF_TEST_CASE(SSHParsingTest)
 {
