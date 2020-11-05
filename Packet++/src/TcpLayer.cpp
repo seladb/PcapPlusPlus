@@ -9,6 +9,7 @@
 #include "SSLLayer.h"
 #include "SipLayer.h"
 #include "BgpLayer.h"
+#include "SSHLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
@@ -358,6 +359,8 @@ void TcpLayer::parseNextLayer()
 	}
 	else if (BgpLayer::isBgpPort(portSrc, portDst))
 		m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
+	else if (SSHLayer::isSSHPort(portSrc, portDst))
+		m_NextLayer = SSHLayer::createSSHMessage(payload, payloadLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }

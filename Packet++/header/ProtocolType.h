@@ -228,6 +228,11 @@ namespace pcpp
 	const ProtocolType BGP = 0x200000000;
 
 	/**
+	 * SSH version 2 protocol
+	 */
+	const ProtocolType SSH = 0x400000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer

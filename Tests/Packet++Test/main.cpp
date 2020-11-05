@@ -218,5 +218,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
 
+	PTF_RUN_TEST(SSHParsingTest, "ssh");
+	PTF_RUN_TEST(SSHMalformedParsingTest, "ssh");
+
 	PTF_END_RUNNING_TESTS;
 }
