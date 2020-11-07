@@ -31,15 +31,16 @@ bool SSLLayer::IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, s
 	if (recordLayer->recordType < 20 || recordLayer->recordType > 23)
 		return false;
 
-	uint16_t recordVersion = be16toh(recordLayer->recordVersion);
+	SSLVersion::SSLVersionEnum recordVersion = SSLVersion(be16toh(recordLayer->recordVersion)).asEnum(true);
 
-	if (recordVersion != SSL3 &&
-			recordVersion != TLS1_0 &&
-			recordVersion != TLS1_1 &&
-			recordVersion != TLS1_2)
+	if (recordVersion == SSLVersion::TLS1_3 ||
+		recordVersion == SSLVersion::TLS1_2 ||
+		recordVersion == SSLVersion::TLS1_1 ||
+		recordVersion == SSLVersion::TLS1_0 ||
+		recordVersion == SSLVersion::SSL3)
+		return true;
+	else
 		return false;
-
-	return true;
 }
 
 SSLLayer* SSLLayer::createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -72,29 +73,10 @@ SSLLayer* SSLLayer::createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevL
 	}
 }
 
-std::string SSLLayer::sslVersionToString(SSLVersion ver)
-{
-	switch (ver)
-	{
-	case SSL2:
-		return "SSLv2";
-	case SSL3:
-		return "SSLv3";
-	case TLS1_0:
-		return "TLSv1.0";
-	case TLS1_1:
-		return "TLSv1.1";
-	case TLS1_2:
-		return "TLSv1.2";
-	default:
-		return "SSL/TLS unknown";
-	}
-}
-
 SSLVersion SSLLayer::getRecordVersion() const
 {
 	uint16_t recordVersion = be16toh(getRecordLayer()->recordVersion);
-	return (SSLVersion)recordVersion;
+	return SSLVersion(recordVersion);
 }
 
 SSLRecordType SSLLayer::getRecordType() const
@@ -128,7 +110,7 @@ void SSLLayer::parseNextLayer()
 std::string SSLHandshakeLayer::toString() const
 {
 	std::stringstream result;
-	result << sslVersionToString(getRecordVersion()) << " Layer, Handshake:";
+	result << getRecordVersion().toString(true) << " Layer, Handshake:";
 	for(size_t i = 0; i < m_MessageList.size(); i++)
 	{
 		if (i == 0)
@@ -176,7 +158,7 @@ SSLHandshakeMessage* SSLHandshakeLayer::getHandshakeMessageAt(int index) const
 std::string SSLChangeCipherSpecLayer::toString() const
 {
 	std::stringstream result;
-	result << sslVersionToString(getRecordVersion()) << " Layer, Change Cipher Spec";
+	result << getRecordVersion().toString(true) << " Layer, Change Cipher Spec";
 	return result.str();
 }
 
@@ -238,7 +220,7 @@ SSLAlertDescription SSLAlertLayer::getAlertDescription()
 std::string SSLAlertLayer::toString() const
 {
 	std::stringstream result;
-	result << sslVersionToString(getRecordVersion()) << " Layer, ";
+	result << getRecordVersion().toString(true) << " Layer, ";
 	if (getAlertLevel() == SSL_ALERT_LEVEL_ENCRYPTED)
 		result << "Encrypted Alert";
 	else
@@ -251,7 +233,7 @@ std::string SSLAlertLayer::toString() const
 // SSLApplicationDataLayer methods
 // -------------------------------
 
-uint8_t* SSLApplicationDataLayer::getEncrpytedData() const
+uint8_t* SSLApplicationDataLayer::getEncryptedData() const
 {
 	if (getHeaderLen() <= sizeof(ssl_tls_record_layer))
 		return NULL;
@@ -259,7 +241,7 @@ uint8_t* SSLApplicationDataLayer::getEncrpytedData() const
 	return m_Data + sizeof(ssl_tls_record_layer);
 }
 
-size_t SSLApplicationDataLayer::getEncrpytedDataLen() const
+size_t SSLApplicationDataLayer::getEncryptedDataLen() const
 {
 	int result = (int)getHeaderLen() - (int)sizeof(ssl_tls_record_layer);
 	if (result < 0)
@@ -270,7 +252,7 @@ size_t SSLApplicationDataLayer::getEncrpytedDataLen() const
 
 std::string SSLApplicationDataLayer::toString() const
 {
-	return sslVersionToString(getRecordVersion()) + " Layer, Application Data";
+	return getRecordVersion().toString(true) + " Layer, Application Data";
 }
 
 } // namespace pcpp

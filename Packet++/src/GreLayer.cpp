@@ -8,8 +8,8 @@
 #include "VlanLayer.h"
 #include "MplsLayer.h"
 #include "PayloadLayer.h"
+#include "PacketUtils.h"
 #include "Logger.h"
-#include "IpUtils.h"
 #include "EndianPortable.h"
 
 // ==============
@@ -428,7 +428,7 @@ void GREv0Layer::computeCalculateFields()
 	ScalarBuffer<uint16_t> buffer;
 	buffer.buffer = (uint16_t*)m_Data;
 	buffer.len = m_DataLen;
-	size_t checksum = compute_checksum(&buffer, 1);
+	size_t checksum = computeChecksum(&buffer, 1);
 
 	setChecksum(checksum);
 }

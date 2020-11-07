@@ -11,11 +11,11 @@ CUR_TARGET := $(notdir $(shell pwd))
 
 
 all:
-	@echo '==> Building target: $(CUR_TARGET)'
+	@echo ==== Building target: $(CUR_TARGET) ====
 	@mkdir -p Bin
 	@$(CXX) $(PCAPPP_BUILD_FLAGS) $(LIB_FUZZING_ENGINE) $(PCAPPP_LIBS_DIR) $(PCAPPP_INCLUDES) -o Bin/FuzzTarget FuzzTarget.cpp $(PCAPPP_LIBS)
-	@echo 'Finished successfully building: $(CUR_TARGET)'
+	@echo Finished successfully building: $(CUR_TARGET)
 
 clean:
 	 @$(RM) -rf Bin
-	 @echo 'Clean finished: $(CUR_TARGET)'
+	 @echo Clean finished: $(CUR_TARGET)

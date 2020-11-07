@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleHttpLayer
 
 #include "Logger.h"
+#include "GeneralUtils.h"
 #include "HttpLayer.h"
 #include <string.h>
 #include <algorithm>
@@ -340,7 +341,7 @@ HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(char* data, size_
 void HttpRequestFirstLine::parseVersion()
 {
 	char* data = (char*)(m_HttpRequest->m_Data + m_UriOffset);
-	char* verPos = strstr(data, " HTTP/");
+	char* verPos = cross_platform_memmem(data, m_HttpRequest->getDataLen() - m_UriOffset, " HTTP/", 6);
 	if (verPos == NULL)
 	{
 		m_Version = HttpVersionUnknown;

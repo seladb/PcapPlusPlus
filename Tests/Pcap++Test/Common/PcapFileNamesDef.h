@@ -20,3 +20,5 @@
 #define EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH "PcapExamples/pcapng-example-write.pcapng.zstd"
 #define EXAMPLE_PCAP_GRE "PcapExamples/GrePackets.cap"
 #define EXAMPLE_PCAP_IGMP "PcapExamples/IgmpPackets.pcap"
+#define EXAMPLE_LINKTYPE_IPV6 "PcapExamples/linktype_ipv6.pcap"
+#define EXAMPLE_LINKTYPE_IPV4 "PcapExamples/linktype_ipv4.pcap"

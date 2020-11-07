@@ -12,7 +12,6 @@
 #include <utility>
 #include <map>
 #if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
-#include <in.h>
 #include <errno.h>
 #endif
 #include "IpAddress.h"
@@ -26,7 +25,6 @@
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 
@@ -99,7 +97,7 @@ void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 	DnsLayer* dnsLayer = dnsRequest.getLayerOfType<DnsLayer>();
 
 	// skip DNS requests with more than 1 request or with 0 requests
-	if (dnsLayer->getDnsHeader()->numberOfQuestions != htons(1) ||
+	if (dnsLayer->getDnsHeader()->numberOfQuestions != pcpp::hostToNet16(1) ||
 		dnsLayer->getFirstQuery() == NULL)
 		return;
 
@@ -231,7 +229,7 @@ void doDnsSpoofing(PcapLiveDevice* dev, IPv4Address dnsServer, IPv4Address clien
 	while (!args.shouldStop)
 	{
 		printf("Spoofed %d DNS requests so far\n", args.stats.numOfSpoofedDnsRequests);
-		PCAP_SLEEP(5);
+		multiPlatformSleep(5);
 	}
 }
 

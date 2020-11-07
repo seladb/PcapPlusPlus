@@ -1,7 +1,6 @@
 #include "stdlib.h"
 #include "PcapLiveDeviceList.h"
-#include "PlatformSpecificUtils.h"
-
+#include "SystemUtils.h"
 /**
  * A struct for collecting packet statistics
  */
@@ -155,7 +154,7 @@ int main(int argc, char* argv[])
 	dev->startCapture(onPacketArrives, &stats);
 
 	// sleep for 10 seconds in main thread, in the meantime packets are captured in the async thread
-	PCAP_SLEEP(10);
+	pcpp::multiPlatformSleep(10);
 
 	// stop capturing packets
 	dev->stopCapture();
@@ -180,7 +179,7 @@ int main(int argc, char* argv[])
 	dev->startCapture(packetVec);
 
 	// sleep for 10 seconds in main thread, in the meantime packets are captured in the async thread
-	PCAP_SLEEP(10);
+	pcpp::multiPlatformSleep(10);
 
 	// stop capturing packets
 	dev->stopCapture();
@@ -272,7 +271,7 @@ int main(int argc, char* argv[])
 	dev->startCapture(onPacketArrives, &stats);
 
 	// sleep for 10 seconds in main thread, in the meantime packets are captured in the async thread
-	PCAP_SLEEP(10);
+	pcpp::multiPlatformSleep(10);
 
 	// stop capturing packets
 	dev->stopCapture();

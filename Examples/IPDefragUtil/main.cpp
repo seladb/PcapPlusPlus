@@ -3,9 +3,6 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
-#include <in.h>
-#endif
 #include "PcapPlusPlusVersion.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -155,7 +152,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 			if (ipv4Layer != NULL)
 			{
 				// check if packet ID matches one of the IP IDs requested by the user
-				if (fragIDs.find((uint32_t)ntohs(ipv4Layer->getIPv4Header()->ipId)) != fragIDs.end())
+				if (fragIDs.find((uint32_t)pcpp::netToHost16(ipv4Layer->getIPv4Header()->ipId)) != fragIDs.end())
 				{
 					stats.ipv4PacketsMatchIpIDs++;
 				}
@@ -173,7 +170,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 				IPv6FragmentationHeader* fragHdr = ipv6Layer->getExtensionOfType<IPv6FragmentationHeader>();
 
 				// check if fragment ID matches one of the fragment IDs requested by the user
-				if (fragIDs.find(ntohl(fragHdr->getFragHeader()->id)) != fragIDs.end())
+				if (fragIDs.find(pcpp::netToHost32(fragHdr->getFragHeader()->id)) != fragIDs.end())
 				{
 					stats.ipv6PacketsMatchFragIDs++;
 				}

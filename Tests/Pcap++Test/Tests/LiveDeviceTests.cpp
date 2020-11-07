@@ -1,5 +1,6 @@
 #include "../TestDefinition.h"
 #include "Logger.h"
+#include "SystemUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
 #include "PcapRemoteDevice.h"
@@ -7,8 +8,9 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
-#include "PlatformSpecificUtils.h"
-
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#include <windows.h>
+#endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
@@ -17,7 +19,7 @@ static void packetArrives(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDev
 	(*(int*)userCookie)++;
 }
 
-static void statsUpdate(pcap_stat& stats, void* userCookie)
+static void statsUpdate(pcpp::IPcapDevice::PcapStats& stats, void* userCookie)
 {
 	(*(int*)userCookie)++;
 }
@@ -83,7 +85,7 @@ static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcp
 	return rawPacket->getRawDataLen() > snaplen;
 }
 
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 class RpcapdServerInitializer
 {
@@ -138,7 +140,7 @@ public:
 	HANDLE getHandle() { return m_ProcessHandle; }
 };
 
-#endif // WIN32
+#endif // defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 
 
@@ -211,7 +213,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
-		PCAP_SLEEP(2);
+		pcpp::multiPlatformSleep(2);
 		totalSleepTime += 2;
 		if (packetCount > 0)
 			break;
@@ -222,7 +224,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0, int);
 	PTF_ASSERT_GREATER_THAN(numOfTimeStatsWereInvoked, totalSleepTime*0.8, int);
-	pcap_stat statistics;
+	pcpp::IPcapDevice::PcapStats statistics;
 	liveDev->getStatistics(statistics);
 	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
 	//PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0, u32);
@@ -283,11 +285,11 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 6)
 	{
-		PCAP_SLEEP(2);
+		pcpp::multiPlatformSleep(2);
 		totalSleepTime +=2;
-		pcap_stat statistics;
+		pcpp::IPcapDevice::PcapStats statistics;
 		liveDev->getStatistics(statistics);
-		if (statistics.ps_recv > 2)
+		if (statistics.packetsRecv > 2)
 			break;
 	}
 
@@ -295,9 +297,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-1, int);
-	pcap_stat statistics;
+	pcpp::IPcapDevice::PcapStats statistics;
 	liveDev->getStatistics(statistics);
-	PTF_ASSERT_GREATER_THAN((uint32_t)statistics.ps_recv, 2, u32);
+	PTF_ASSERT_GREATER_THAN((uint32_t)statistics.packetsRecv, 2, u32);
 	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
 	//PTF_ASSERT_EQUAL((uint32_t)statistics.ps_drop, 0, u32);
 	liveDev->close();
@@ -341,7 +343,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 5)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 		if (packetCount > 0)
 			break;
@@ -380,7 +382,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	totalSleepTime = 0;
 	while (totalSleepTime <= 5)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 		if (packetCount > 0)
 			break;
@@ -469,7 +471,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 PTF_TEST_CASE(TestWinPcapLiveDevice)
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
@@ -489,10 +491,10 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 		sendURLRequest("www.ebay.com");
 	}
 
-	pcap_stat statistics;
+	pcpp::IPcapDevice::PcapStats statistics;
 	winPcapLiveDevice->getStatistics(statistics);
-	PTF_ASSERT_GREATER_THAN(statistics.ps_recv, 20, int);
-	PTF_ASSERT_EQUAL((uint32_t)statistics.ps_drop, 0, int);
+	PTF_ASSERT_GREATER_THAN(statistics.packetsRecv, 20, int);
+	PTF_ASSERT_EQUAL((uint32_t)statistics.packetsDrop, 0, int);
 	winPcapLiveDevice->stopCapture();
 	PTF_ASSERT_TRUE(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(defaultDataToCopy));
 	winPcapLiveDevice->close();
@@ -606,7 +608,8 @@ PTF_TEST_CASE(TestSendPackets)
 
 PTF_TEST_CASE(TestRemoteCapture)
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+
 	bool useRemoteDevicesFromArgs = (PcapTestGlobalArgs.remoteIp != "") && (PcapTestGlobalArgs.remotePort > 0);
 	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);
 	uint16_t remoteDevicePort = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remotePort : 12321);
@@ -647,7 +650,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 			break;
 		}
 
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 	}
 
@@ -657,10 +660,10 @@ PTF_TEST_CASE(TestRemoteCapture)
 
 	PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2, size);
 
-	//send single packet
+	// send single packet
 	PTF_ASSERT_TRUE(remoteDevice->sendPacket(*capturedPackets.front()));
 
-	//send multiple packets
+	// send multiple packets
 	pcpp::RawPacketVector packetsToSend;
 	std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
 
@@ -678,13 +681,16 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size(), int);
 
 	//check statistics
-	pcap_stat stats;
+	pcpp::IPcapDevice::PcapStats stats;
 	remoteDevice->getStatistics(stats);
-	PTF_ASSERT_EQUAL((uint32_t)stats.ps_recv, capturedPacketsSize, u32);
+	PTF_ASSERT_EQUAL((uint32_t)stats.packetsRecv, capturedPacketsSize, u32);
 
 	remoteDevice->close();
 
 	delete remoteDevices;
+
+	// the device object is already deleted, cannot close it
+	devTeardown.cancelTeardown();
 #endif
 
 } // TestRemoteCapture

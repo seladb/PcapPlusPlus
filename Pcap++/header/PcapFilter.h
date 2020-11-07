@@ -70,6 +70,63 @@ namespace pcpp
 		LESS_OR_EQUAL
 	} FilterOperator;
 
+	/**
+	 * @class BpfFilterWrapper
+	 * A wrapper class for BPF filtering. Enables setting a BPF filter and matching it against a packet
+	 */
+	class BpfFilterWrapper
+	{
+	private:
+		std::string m_FilterStr;
+		LinkLayerType m_LinkType;
+		bpf_program* m_Program;
+
+		void freeProgram();
+
+	public:
+
+		/**
+		 * A c'tor for this class
+		 */
+		BpfFilterWrapper();
+
+		/**
+		 * A d'tor for this class. Makes sure to clear the bpf_program object if was previously set.
+		 */
+		~BpfFilterWrapper();
+
+		/**
+		 * Set a filter. This method receives a filter in BPF syntax (https://biot.com/capstats/bpf.html) and an optional link type,
+		 * compiles them, and if compilation is successful it stores the filter.
+		 * @param[in] filter A filter in BPF syntax
+		 * @param[in] linkType An optional parameter to set the filter's link type. The default is LINKTYPE_ETHERNET
+		 * @return True if compilation is successful and filter is stored in side this object, false otherwise
+		 */
+		bool setFilter(const std::string& filter, LinkLayerType linkType = LINKTYPE_ETHERNET);
+
+		/**
+		 * Match a packet with the filter stored in this object. If the filter is empty the method returns "true".
+		 * If the link type of the raw packet is different than the one set in setFilter(), the filter will be 
+		 * re-compiled and stored in the object.
+		 * @param[in] rawPacket A pointer to a raw packet which the filter will be matched against
+		 * @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
+		 * could not be compiled
+		 */
+		bool matchPacketWithFilter(const RawPacket* rawPacket);
+
+		/**
+		 * Match a packet data with the filter stored in this object. If the filter is empty the method returns "true".
+		 * If the link type provided is different than the one set in setFilter(), the filter will be re-compiled
+		 * and stored in the object.
+		 * @param[in] packetData A byte stream containing the packet data
+		 * @param[in] packetDataLength The length in [bytes] of the byte stream
+		 * @param[in] packetTimestamp The packet timestamp
+		 * @param[in] linkType The packet link type
+		 * @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
+		 * could not be compiled
+		 */
+		bool matchPacketWithFilter(const uint8_t* packetData, uint32_t packetDataLength, timespec packetTimestamp, uint16_t linkType);
+	};
 
 	/**
 	 * @class GeneralFilter
@@ -79,14 +136,7 @@ namespace pcpp
 	class GeneralFilter
 	{
 	protected:
-		bpf_program* m_Program;
-		std::string m_LastProgramString;
-		pcpp::LinkLayerType m_LastLinkLayerType;
-
-		/**
-		* Free the held program and any resources allocated for it.
-		*/
-		void freeProgram();
+		BpfFilterWrapper m_BpfWrapper;
 
 	public:
 		/**
@@ -102,12 +152,12 @@ namespace pcpp
 		*/
 		bool matchPacketWithFilter(RawPacket* rawPacket);
 
-		GeneralFilter() : m_Program(NULL), m_LastProgramString(), m_LastLinkLayerType(pcpp::LINKTYPE_ETHERNET) {}
+		GeneralFilter() {}
 
 		/**
 		 * Virtual destructor, frees the bpf program
 		 */
-		virtual ~GeneralFilter() { freeProgram(); }
+		virtual ~GeneralFilter() {}
 	};
 
 	/**

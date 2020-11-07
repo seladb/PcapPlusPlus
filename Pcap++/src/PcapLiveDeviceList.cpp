@@ -4,6 +4,7 @@
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
 #include "SystemUtils.h"
+#include "pcap.h"
 #include <string.h>
 #include <sstream>
 #include <algorithm>
@@ -205,10 +206,10 @@ void PcapLiveDeviceList::setDnsServers()
 		sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
 		if (saddr == NULL)
 			continue;
-		in_addr* inaddr = sockaddr2in_addr(saddr);
+		in_addr* inaddr = internal::sockaddr2in_addr(saddr);
 		if (inaddr == NULL)
 			continue;
-		m_DnsServers.push_back(IPv4Address(in_addr2int(*inaddr)));
+		m_DnsServers.push_back(IPv4Address(internal::in_addr2int(*inaddr)));
 	}
 
 #endif
@@ -237,11 +238,11 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
-				sockaddr2string(addrIter->addr, addrAsString);
+				internal::sockaddr2string(addrIter->addr, addrAsString);
 				LOG_DEBUG("Searching address %s", addrAsString);
 			}
 
-			in_addr* currAddr = sockaddr2in_addr(addrIter->addr);
+			in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
 			if (currAddr == NULL)
 			{
 				LOG_DEBUG("Address is NULL");
@@ -270,11 +271,11 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
-				sockaddr2string(addrIter->addr, addrAsString);
+				internal::sockaddr2string(addrIter->addr, addrAsString);
 				LOG_DEBUG("Searching address %s", addrAsString);
 			}
 
-			in6_addr* currAddr = sockaddr2in6_addr(addrIter->addr);
+			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter->addr);
 			if (currAddr == NULL)
 			{
 				LOG_DEBUG("Address is NULL");

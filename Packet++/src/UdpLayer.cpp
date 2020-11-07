@@ -2,7 +2,6 @@
 
 #include "EndianPortable.h"
 #include "UdpLayer.h"
-#include "IpUtils.h"
 #include "PayloadLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -12,6 +11,7 @@
 #include "SipLayer.h"
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
+#include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
 #include <sstream>
@@ -58,7 +58,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 			pseudoHeader[5] = htobe16(0x00ff & PACKETPP_IPPROTO_UDP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
-			checksumRes = compute_checksum(vec, 2);
+			checksumRes = computeChecksum(vec, 2);
 			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
 		}
 		else if (m_PrevLayer->getProtocol() == IPv6)
@@ -70,7 +70,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 			pseudoHeader[17] = htobe16(0x00ff & PACKETPP_IPPROTO_UDP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
-			checksumRes = compute_checksum(vec, 2);
+			checksumRes = computeChecksum(vec, 2);
 			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
 		}
 	}

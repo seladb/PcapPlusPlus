@@ -2,7 +2,7 @@
 #include "PcapFilter.h"
 #include "Logger.h"
 #include "TimespecTimeval.h"
-#include <pcap.h>
+#include "pcap.h"
 
 namespace pcpp
 {

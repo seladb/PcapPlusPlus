@@ -6,6 +6,7 @@
 #include "light_pcapng_ext.h"
 #include "Logger.h"
 #include "TimespecTimeval.h"
+#include "pcap.h"
 #include <string.h>
 #include <fstream>
 
@@ -156,11 +157,11 @@ bool PcapFileReaderDevice::open()
 	return true;
 }
 
-void PcapFileReaderDevice::getStatistics(pcap_stat& stats) const
+void PcapFileReaderDevice::getStatistics(PcapStats& stats) const
 {
-	stats.ps_recv = m_NumOfPacketsRead;
-	stats.ps_drop = m_NumOfPacketsNotParsed;
-	stats.ps_ifdrop = 0;
+	stats.packetsRecv = m_NumOfPacketsRead;
+	stats.packetsDrop = m_NumOfPacketsNotParsed;
+	stats.packetsDropByInterface = 0;
 	LOG_DEBUG("Statistics received for reader device for filename '%s'", m_FileName);
 }
 
@@ -199,38 +200,6 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 PcapNgFileReaderDevice::PcapNgFileReaderDevice(const char* fileName) : IFileReaderDevice(fileName)
 {
 	m_LightPcapNg = NULL;
-	m_CurFilter = "";
-	m_BpfLinkType = -1;
-	m_BpfInitialized = false;
-}
-
-bool PcapNgFileReaderDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType)
-{
-	if (m_CurFilter == "")
-		return true;
-
-	int linkTypeAsInt = (int)linkType;
-
-	if (m_BpfLinkType != linkTypeAsInt)
-	{
-		LOG_DEBUG("Compiling the filter '%s' for link type %d", m_CurFilter.c_str(), linkTypeAsInt);
-		if (m_BpfInitialized)
-			pcap_freecode(&m_Bpf);
-		if (pcap_compile_nopcap(9000, linkTypeAsInt, &m_Bpf, m_CurFilter.c_str(), 1, 0) < 0)
-		{
-			m_BpfInitialized = false;
-			return false;
-		}
-
-		m_BpfLinkType = linkTypeAsInt;
-		m_BpfInitialized = true;
-	}
-
-	struct pcap_pkthdr pktHdr;
-	pktHdr.caplen = packetLen;
-	pktHdr.len = packetLen;
-	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
-	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 
 bool PcapNgFileReaderDevice::open()
@@ -276,8 +245,8 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& pa
 		LOG_DEBUG("Packet could not be read. Probably end-of-file");
 		return false;
 	}
-
-	while (!matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp, pktHeader.data_link))
+	
+	while (!m_BpfWrapper.matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp, pktHeader.data_link))
 	{
 		if (!light_get_next_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, &pktData))
 		{
@@ -307,26 +276,17 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	return getNextPacket(rawPacket, temp);
 }
 
-void PcapNgFileReaderDevice::getStatistics(pcap_stat& stats) const
+void PcapNgFileReaderDevice::getStatistics(PcapStats& stats) const
 {
-	stats.ps_recv = m_NumOfPacketsRead;
-	stats.ps_drop = m_NumOfPacketsNotParsed;
-	stats.ps_ifdrop = 0;
+	stats.packetsRecv = m_NumOfPacketsRead;
+	stats.packetsDrop = m_NumOfPacketsNotParsed;
+	stats.packetsDropByInterface = 0;
 	LOG_DEBUG("Statistics received for pcapng reader device for filename '%s'", m_FileName);
 }
 
 bool PcapNgFileReaderDevice::setFilter(std::string filterAsString)
 {
-	struct bpf_program prog;
-	if (pcap_compile_nopcap(9000, 1, &prog, filterAsString.c_str(), 1, 0) < 0)
-	{
-		return false;
-	}
-	pcap_freecode(&prog);
-
-	m_CurFilter = filterAsString;
-	m_BpfLinkType = -1;
-	return true;
+	return m_BpfWrapper.setFilter(filterAsString);
 }
 
 void PcapNgFileReaderDevice::close()
@@ -335,9 +295,8 @@ void PcapNgFileReaderDevice::close()
 		return;
 
 	light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
-	if (m_BpfInitialized)
-		pcap_freecode(&m_Bpf);
 	m_LightPcapNg = NULL;
+
 	m_DeviceOpened = false;
 	LOG_DEBUG("File reader closed for file '%s'", m_FileName);
 }
@@ -588,11 +547,11 @@ void PcapFileWriterDevice::close()
 	LOG_DEBUG("File writer closed for file '%s'", m_FileName);
 }
 
-void PcapFileWriterDevice::getStatistics(pcap_stat& stats) const
+void PcapFileWriterDevice::getStatistics(PcapStats& stats) const
 {
-	stats.ps_recv = m_NumOfPacketsWritten;
-	stats.ps_drop = m_NumOfPacketsNotWritten;
-	stats.ps_ifdrop = 0;
+	stats.packetsRecv = m_NumOfPacketsWritten;
+	stats.packetsDrop = m_NumOfPacketsNotWritten;
+	stats.packetsDropByInterface = 0;
 	LOG_DEBUG("Statistics received for writer device for filename '%s'", m_FileName);
 }
 
@@ -659,38 +618,6 @@ PcapNgFileWriterDevice::PcapNgFileWriterDevice(const char* fileName, int compres
 {
 	m_LightPcapNg = NULL;
 	m_CompressionLevel = compressionLevel;
-	m_CurFilter = "";
-	m_BpfLinkType = -1;
-	m_BpfInitialized = false;
-}
-
-bool PcapNgFileWriterDevice::matchPacketWithFilter(const uint8_t* packetData, size_t packetLen, timespec packetTimestamp, uint16_t linkType)
-{
-	if (m_CurFilter == "")
-		return true;
-
-	int linkTypeAsInt = (int)linkType;
-
-	if (m_BpfLinkType != linkTypeAsInt)
-	{
-		LOG_DEBUG("Compiling the filter '%s' for link type %d", m_CurFilter.c_str(), linkTypeAsInt);
-		if (m_BpfInitialized)
-			pcap_freecode(&m_Bpf);
-		if (pcap_compile_nopcap(9000, linkTypeAsInt, &m_Bpf, m_CurFilter.c_str(), 1, 0) < 0)
-		{
-			m_BpfInitialized = false;
-			return false;
-		}
-
-		m_BpfLinkType = linkTypeAsInt;
-		m_BpfInitialized = true;
-	}
-
-	struct pcap_pkthdr pktHdr;
-	pktHdr.caplen = packetLen;
-	pktHdr.len = packetLen;
-	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
-	return (pcap_offline_filter(&m_Bpf, &pktHdr, packetData) != 0);
 }
 
 bool PcapNgFileWriterDevice::open(const char* os, const char* hardware, const char* captureApp, const char* fileComment)
@@ -731,6 +658,11 @@ bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const char* co
 		return false;
 	}
 
+	if (!m_BpfWrapper.matchPacketWithFilter(&packet))
+	{
+		return false;
+	}
+
 	light_packet_header pktHeader;
 	pktHeader.captured_length = ((RawPacket&)packet).getRawDataLen();
 	pktHeader.original_length = ((RawPacket&)packet).getFrameLength();
@@ -749,10 +681,6 @@ bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const char* co
 	}
 
 	const uint8_t* pktData = ((RawPacket&)packet).getRawData();
-	if(!matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp, pktHeader.data_link))
-	{
-		return false;
-	}
 
 	light_write_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, pktData);
 	m_NumOfPacketsWritten++;
@@ -842,30 +770,22 @@ void PcapNgFileWriterDevice::close()
 
 	light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
 	m_LightPcapNg = NULL;
+
 	m_DeviceOpened = false;
 	LOG_DEBUG("File writer closed for file '%s'", m_FileName);
 }
 
-void PcapNgFileWriterDevice::getStatistics(pcap_stat& stats) const
+void PcapNgFileWriterDevice::getStatistics(PcapStats& stats) const
 {
-	stats.ps_recv = m_NumOfPacketsWritten;
-	stats.ps_drop = m_NumOfPacketsNotWritten;
-	stats.ps_ifdrop = 0;
+	stats.packetsRecv = m_NumOfPacketsWritten;
+	stats.packetsDrop = m_NumOfPacketsNotWritten;
+	stats.packetsDropByInterface = 0;
 	LOG_DEBUG("Statistics received for pcap-ng writer device for filename '%s'", m_FileName);
 }
 
 bool PcapNgFileWriterDevice::setFilter(std::string filterAsString)
 {
-	struct bpf_program prog;
-	if (pcap_compile_nopcap(9000, 1, &prog, filterAsString.c_str(), 1, 0) < 0)
-	{
-		return false;
-	}
-	pcap_freecode(&prog);
-
-	m_CurFilter = filterAsString;
-	m_BpfLinkType = -1;
-	return true;
+	return m_BpfWrapper.setFilter(filterAsString);
 }
 
 

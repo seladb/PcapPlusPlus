@@ -4,9 +4,9 @@ STATS SUMMARY
 =============
 
 General stats
---------------------
+-------------
 
-Sample time:                                            0.014 [Seconds]
+Sample time:                                            0.015 [Seconds]
 Number of SSL packets:                                    401 [Packets]
 Rate of SSL packets:                                    0.000 [Packets/sec]
 Number of SSL flows:                                       20 [Flows]
@@ -21,7 +21,7 @@ Number of SSL flows with successful handshake:             18 [Flows]
 Number of SSL flows ended with alert:                       5 [Flows]
 
 SSL/TLS ports count
---------------------
+-------------------
 
 -------------------------
 | SSL/TLS ports | Count |
@@ -29,26 +29,17 @@ SSL/TLS ports count
 | 443           | 20    |
 -------------------------
 
-SSL versions count
---------------------
+SSL/TLS versions count
+----------------------
 
 ----------------------------------------
-| SSL record version           | Count |
+| SSL/TLS version              | Count |
 ----------------------------------------
-| 771                          | 20    |
-----------------------------------------
-
-Client-hello versions count
---------------------
-
-----------------------------------------
-| Client-hello version         | Count |
-----------------------------------------
-| 769                          | 20    |
+| TLS 1.2                      | 20    |
 ----------------------------------------
 
 Cipher-suite count
---------------------
+------------------
 
 --------------------------------------------------------------
 | Cipher-suite                                       | Count |
@@ -61,7 +52,7 @@ Cipher-suite count
 --------------------------------------------------------------
 
 Server-name count
---------------------
+-----------------
 
 ----------------------------------------------------
 | Hostname                                 | Count |

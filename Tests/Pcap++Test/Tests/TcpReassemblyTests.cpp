@@ -4,12 +4,12 @@
 #include <fstream>
 #include <algorithm>
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 #include "TcpReassembly.h"
 #include "IPv4Layer.h"
 #include "TcpLayer.h"
 #include "PayloadLayer.h"
 #include "PcapFileDevice.h"
-#include "PlatformSpecificUtils.h"
 
 
 // ~~~~~~~~~~~~~~~~~~
@@ -949,7 +949,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0, int);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0, int);
 
-	PCAP_SLEEP(3);
+	pcpp::multiPlatformSleep(3);
 
 	tcpReassembly.reassemblePacket(&lastPacket); // automatic cleanup of 1 item
 	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 2, size);
@@ -970,6 +970,54 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), -1, int);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), -1, int);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), -1, int);
+} // TestTcpReassemblyCleanup
+
+
+
+PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags)
+{
+	TcpReassemblyMultipleConnStats results1;
+	TcpReassemblyMultipleConnStats results2;
+	std::string errMsg;
+
+	pcpp::TcpReassemblyConfiguration config1(true, 5, 30);
+	pcpp::TcpReassemblyConfiguration config2(true, 5, 30, 5); // the fourth argument is the max allowed out-of-order fragments, so we only allow 5
+	pcpp::TcpReassembly tcpReassembly1(tcpReassemblyMsgReadyCallback, &results1, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config1);
+	pcpp::TcpReassembly tcpReassembly2(tcpReassemblyMsgReadyCallback, &results2, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config2);
+
+	std::vector<pcpp::RawPacket> packetStream;
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/unidirectional_tcp_stream_with_missing_packet.pcap", packetStream, errMsg));
+
+	for(std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	{
+		pcpp::Packet packet(&(*iter));
+		tcpReassembly1.reassemblePacket(packet);
+		tcpReassembly2.reassemblePacket(packet);
+	}
+
+	pcpp::TcpReassembly::ConnectionInfoList managedConnections1 = tcpReassembly1.getConnectionInformation();
+	pcpp::TcpReassembly::ConnectionInfoList managedConnections2 = tcpReassembly2.getConnectionInformation(); // make a copy of list
+	PTF_ASSERT_EQUAL(managedConnections1.size(), 1, size);
+	PTF_ASSERT_EQUAL(managedConnections2.size(), 1, size);
+	PTF_ASSERT_EQUAL(results1.flowKeysList.size(), 1, size);
+	PTF_ASSERT_EQUAL(results2.flowKeysList.size(), 1, size);
+
+	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn1 = managedConnections1.find(results1.flowKeysList[0]);
+	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn2 = managedConnections2.find(results2.flowKeysList[0]);
+	PTF_ASSERT_NOT_EQUAL(iterConn1, managedConnections1.end(), object);
+	PTF_ASSERT_NOT_EQUAL(iterConn2, managedConnections2.end(), object);
+	PTF_ASSERT_EQUAL(tcpReassembly1.isConnectionOpen(iterConn1->second), 1, int);
+	PTF_ASSERT_EQUAL(tcpReassembly2.isConnectionOpen(iterConn2->second), 1, int);
+	PTF_ASSERT_EQUAL(results1.stats.begin()->second.numOfDataPackets, 1, int); // The second data packet is incomplete so we stopped at one
+	PTF_ASSERT_EQUAL(results2.stats.begin()->second.numOfDataPackets, 7, int); // We hit the fragment limit so skipped the missing fragment and continued to the end
+
+	// Close the connections, forcing cleanup
+	tcpReassembly1.closeAllConnections();
+	tcpReassembly2.closeAllConnections();
+
+	// Everything should be processed now
+	PTF_ASSERT_EQUAL(results1.stats.begin()->second.numOfDataPackets, 7, int);
+	PTF_ASSERT_EQUAL(results2.stats.begin()->second.numOfDataPackets, 7, int);
 } // TestTcpReassemblyCleanup
 
 

@@ -129,6 +129,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
 	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
 
+	PTF_RUN_TEST(PacketUtilsHash5TupleUdp, "udp");
+	PTF_RUN_TEST(PacketUtilsHash5TupleTcp, "tcp");
+	PTF_RUN_TEST(PacketUtilsHash5TupleIPv6, "ipv6");
+
 	PTF_RUN_TEST(InsertDataToPacket, "packet;insert");
 	PTF_RUN_TEST(InsertVlanToPacket, "packet;vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "packet;remove_layer");
@@ -175,6 +179,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSLPartialCertificateParseTest, "ssl");
 	PTF_RUN_TEST(SSLNewSessionTicketParseTest, "ssl");
 	PTF_RUN_TEST(SSLMalformedPacketParsing, "ssl");
+	PTF_RUN_TEST(TLS1_3ParsingTest, "ssl");
+	PTF_RUN_TEST(TLSCipherSuiteTest, "ssl");
 
 	PTF_RUN_TEST(SllPacketParsingTest, "sll");
 	PTF_RUN_TEST(SllPacketCreationTest, "sll");
@@ -211,6 +217,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
 	PTF_RUN_TEST(BgpLayerEditTest, "bgp");
+
+	PTF_RUN_TEST(SSHParsingTest, "ssh");
+	PTF_RUN_TEST(SSHMalformedParsingTest, "ssh");
 
 	PTF_END_RUNNING_TESTS;
 }

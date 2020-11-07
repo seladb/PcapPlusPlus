@@ -7,54 +7,98 @@
 #if defined(WINx64)
 #include <winsock2.h>
 #endif
-#include <pcap.h>
+#include "pcap.h"
 #include "RawPacket.h"
 #include "TimespecTimeval.h"
 
 namespace pcpp
 {
 
+static const int DEFAULT_SNAPLEN = 9000;
+
 bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 {
 	std::string filterStr;
 	parseToString(filterStr);
-	if (m_Program == NULL || m_LastProgramString != filterStr || m_LastLinkLayerType != rawPacket->getLinkLayerType())
-	{
-		freeProgram();
 
-		m_Program = new bpf_program();
+	if (!m_BpfWrapper.setFilter(filterStr))
+		return false;
 
-		LOG_DEBUG("Compiling the filter '%s'", filterStr.c_str());
-		if (pcap_compile_nopcap(9000, rawPacket->getLinkLayerType(), m_Program, filterStr.c_str(), 1, 0) < 0)
-		{
-			//Filter not valid so delete member
-			freeProgram();
-			return false;
-		}
-		m_LastProgramString = filterStr;
-		m_LastLinkLayerType = rawPacket->getLinkLayerType();
-	}
-
-	struct pcap_pkthdr pktHdr;
-	pktHdr.caplen = rawPacket->getRawDataLen();
-	pktHdr.len = rawPacket->getRawDataLen();
-	timespec ts = rawPacket->getPacketTimeStamp();
-	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &ts);
-
-	return (pcap_offline_filter(m_Program, &pktHdr, rawPacket->getRawData()) != 0);
+	return m_BpfWrapper.matchPacketWithFilter(rawPacket);
 }
 
-void GeneralFilter::freeProgram()
+BpfFilterWrapper::BpfFilterWrapper()
 {
-	if (m_Program)
+	m_Program = NULL;
+	m_LinkType = LINKTYPE_ETHERNET;
+}
+
+BpfFilterWrapper::~BpfFilterWrapper()
+{
+	freeProgram();
+}
+
+bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkType)
+{
+	if (filter.empty())
+	{
+		freeProgram();
+		return true;
+	}
+
+	if (filter != m_FilterStr || linkType != m_LinkType)
+	{
+		bpf_program* newProg = new bpf_program;
+		if (pcap_compile_nopcap(DEFAULT_SNAPLEN, linkType, newProg, filter.c_str(), 1, 0) < 0)
+		{
+			delete newProg;
+			return false;
+		}
+		else
+		{
+			freeProgram();
+			m_Program = newProg;
+			m_FilterStr = filter;
+			m_LinkType = linkType;
+		}
+	}
+
+	return true;
+}
+
+void BpfFilterWrapper::freeProgram()
+{
+	if (m_Program != NULL)
 	{
 		pcap_freecode(m_Program);
 		delete m_Program;
 		m_Program = NULL;
-		m_LastProgramString.clear();
+		m_FilterStr.clear();
 	}
 }
 
+bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket)
+{
+	return matchPacketWithFilter(rawPacket->getRawData(), rawPacket->getRawDataLen(), rawPacket->getPacketTimeStamp(), rawPacket->getLinkLayerType());
+}
+
+bool BpfFilterWrapper::matchPacketWithFilter(const uint8_t* packetData, uint32_t packetDataLength, timespec packetTimestamp, uint16_t linkType)
+{
+	if (m_FilterStr.empty())
+		return true;
+
+	if (!setFilter(std::string(m_FilterStr), static_cast<LinkLayerType>(linkType)))
+	{
+		return false;
+	}
+
+	struct pcap_pkthdr pktHdr;
+	pktHdr.caplen = packetDataLength;
+	pktHdr.len = packetDataLength;
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
+
+	return (pcap_offline_filter(m_Program, &pktHdr, packetData) != 0);
+}
 
 void BPFStringFilter::parseToString(std::string& result)
 {
@@ -66,21 +110,7 @@ void BPFStringFilter::parseToString(std::string& result)
 
 bool BPFStringFilter::verifyFilter()
 {
-	//If filter has been built before it must be valid
-	if (m_Program)
-		return true;
-
-	m_Program = new bpf_program();
-	LOG_DEBUG("Compiling the filter '%s'", m_FilterStr.c_str());
-	if (m_FilterStr.empty() || pcap_compile_nopcap(9000, m_LastLinkLayerType, m_Program, m_FilterStr.c_str(), 1, 0) < 0)
-	{
-		//Filter not valid so delete member
-		freeProgram();
-		return false;
-	}
-	m_LastProgramString = m_FilterStr;
-
-	return true;
+	return m_BpfWrapper.setFilter(m_FilterStr);
 }
 
 void IFilterWithDirection::parseDirection(std::string& directionAsString)

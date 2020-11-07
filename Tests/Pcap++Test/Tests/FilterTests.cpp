@@ -1,5 +1,6 @@
 #include "../TestDefinition.h"
 #include "EndianPortable.h"
+#include "SystemUtils.h"
 #include "EthLayer.h"
 #include "VlanLayer.h"
 #include "IPv4Layer.h"
@@ -10,7 +11,6 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/PcapFileNamesDef.h"
 #include "../Common/TestUtils.h"
-#include "PlatformSpecificUtils.h"
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
@@ -25,7 +25,7 @@ static int incSleep(const pcpp::RawPacketVector& capturedPackets, size_t expecte
 			return totalSleepTime;
 		}
 
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 	}
 
@@ -212,9 +212,9 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_VLAN);
 
-	//------------------
-	//Test GeneralFilter bpf_program + BPFStringFilter
-	//------------------
+	//------------------------------------
+	//Test GeneralFilter + BPFStringFilter
+	//------------------------------------
 
 	//Try to make an invalid filter
 	pcpp::BPFStringFilter badFilter("This is not a valid filter");

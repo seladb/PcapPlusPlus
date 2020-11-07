@@ -4,7 +4,7 @@
 
 #include "PcapRemoteDevice.h"
 #include "Logger.h"
-#include <pcap.h>
+#include "pcap.h"
 
 
 namespace pcpp
@@ -109,7 +109,7 @@ ThreadStart PcapRemoteDevice::getCaptureThreadStart()
 	return &remoteDeviceCaptureThreadMain;
 }
 
-void PcapRemoteDevice::getStatistics(pcap_stat& stats) const
+void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 {
 	int allocatedMemory;
 	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
@@ -118,9 +118,9 @@ void PcapRemoteDevice::getStatistics(pcap_stat& stats) const
 		LOG_ERROR("Error getting statistics from live device '%s': WinPcap did not allocate the entire struct", m_Name);
 		return;
 	}
-	stats.ps_recv = tempStats->ps_capt;
-	stats.ps_drop = tempStats->ps_drop + tempStats->ps_netdrop;
-	stats.ps_ifdrop = tempStats->ps_ifdrop;
+	stats.packetsRecv = tempStats->ps_capt;
+	stats.packetsDrop = tempStats->ps_drop + tempStats->ps_netdrop;
+	stats.packetsDropByInterface = tempStats->ps_ifdrop;
 }
 
 uint32_t PcapRemoteDevice::getMtu() const

@@ -3,7 +3,7 @@
 #include "IPReassembly.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
-#include "IpUtils.h"
+#include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
 #include "EndianPortable.h"
@@ -22,7 +22,7 @@ uint32_t IPReassemblyHashPacket(IPv4Layer* ipv4Layer)
 	vec[2].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipId;
 	vec[2].len = 2;
 
-	return pcpp::fnv_hash(vec, 3);
+	return pcpp::fnvHash(vec, 3);
 }
 
 uint32_t IPReassemblyHashBy3Tuple(const IPv4Address& ipSrc, const IPv4Address& ipDst, uint16_t ipID)
@@ -41,7 +41,7 @@ uint32_t IPReassemblyHashBy3Tuple(const IPv4Address& ipSrc, const IPv4Address& i
 	vec[2].buffer = (uint8_t*)&ipIdNetworkOrder;
 	vec[2].len = 2;
 
-	return pcpp::fnv_hash(vec, 3);
+	return pcpp::fnvHash(vec, 3);
 }
 
 class IPFragmentWrapper
@@ -111,7 +111,7 @@ public:
 		vec[2].buffer = (uint8_t*)&m_IPLayer->getIPv4Header()->ipId;
 		vec[2].len = 2;
 
-		return pcpp::fnv_hash(vec, 3);
+		return pcpp::fnvHash(vec, 3);
 	}
 
 	IPReassembly::PacketKey* createPacketKey()
@@ -197,7 +197,7 @@ public:
 		vec[2].buffer = (uint8_t*)&m_FragHeader->getFragHeader()->id;
 		vec[2].len = 4;
 
-		return pcpp::fnv_hash(vec, 3);
+		return pcpp::fnvHash(vec, 3);
 	}
 
 	IPReassembly::PacketKey* createPacketKey()
@@ -237,7 +237,7 @@ uint32_t IPReassembly::IPv4PacketKey::getHashValue() const
 	vec[2].buffer = (uint8_t*)&ipIdNetworkOrder;
 	vec[2].len = 2;
 
-	return pcpp::fnv_hash(vec, 3);
+	return pcpp::fnvHash(vec, 3);
 }
 
 uint32_t IPReassembly::IPv6PacketKey::getHashValue() const
@@ -257,7 +257,7 @@ uint32_t IPReassembly::IPv6PacketKey::getHashValue() const
 	vec[2].buffer = (uint8_t*)&fragIdNetworkOrder;
 	vec[2].len = 4;
 
-	return pcpp::fnv_hash(vec, 3);
+	return pcpp::fnvHash(vec, 3);
 }
 
 

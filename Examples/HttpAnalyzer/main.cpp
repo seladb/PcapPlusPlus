@@ -19,15 +19,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) //for using ntohl, ntohs, etc.
-#include <in.h>
-#endif
 #include "PcapLiveDeviceList.h"
 #include "PcapFilter.h"
 #include "PcapFileDevice.h"
 #include "HttpStatsCollector.h"
 #include "TablePrinter.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 #include <getopt.h>
@@ -469,7 +465,7 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
 
 	while(!shouldStop)
 	{
-		PCAP_SLEEP(printRatePeriod);
+		multiPlatformSleep(printRatePeriod);
 
 		// calculate rates
 		if (printRatesPeriodicaly)

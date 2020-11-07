@@ -68,4 +68,24 @@ size_t hexStringToByteArray(const std::string& hexString, uint8_t* resultByteArr
 	return hexString.length() / 2;
 }
 
+
+char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char* needle, size_t needleLen)
+{
+	char* ptr = (char*)haystack;
+	while (needleLen <= (haystackLen - (ptr - haystack)))
+	{
+		if (NULL != (ptr = (char*)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
+		{
+			if (0 == memcmp(ptr, needle, needleLen))
+				return ptr;
+			else
+				++ptr;
+		}
+		else
+			break;
+	}
+
+	return NULL;
+}
+
 }

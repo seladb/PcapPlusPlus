@@ -9,7 +9,8 @@
 #include "SSLLayer.h"
 #include "SipLayer.h"
 #include "BgpLayer.h"
-#include "IpUtils.h"
+#include "SSHLayer.h"
+#include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
 #include <sstream>
@@ -254,7 +255,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			pseudoHeader[5] = htobe16(0x00ff & PACKETPP_IPPROTO_TCP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
-			checksumRes = compute_checksum(vec, 2);
+			checksumRes = computeChecksum(vec, 2);
 			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
 
 
@@ -268,7 +269,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			pseudoHeader[17] = htobe16(0x00ff & PACKETPP_IPPROTO_TCP);
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
-			checksumRes = compute_checksum(vec, 2);
+			checksumRes = computeChecksum(vec, 2);
 			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
 		}
 	}
@@ -358,6 +359,8 @@ void TcpLayer::parseNextLayer()
 	}
 	else if (BgpLayer::isBgpPort(portSrc, portDst))
 		m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
+	else if (SSHLayer::isSSHPort(portSrc, portDst))
+		m_NextLayer = SSHLayer::createSSHMessage(payload, payloadLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }

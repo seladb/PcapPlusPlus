@@ -7,6 +7,7 @@
 #include "TcpLayer.h"
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
+#include "PacketUtils.h"
 
 PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 {

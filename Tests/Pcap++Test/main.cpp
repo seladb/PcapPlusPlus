@@ -207,6 +207,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapFileAppend, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapNgFileReadWrite, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapNgFileReadWriteAdv, "no_network;pcap;pcapng");
+	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv6, "no_network;pcap");
+	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv4, "no_network;pcap");
 
 	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");
@@ -260,6 +262,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestTcpReassemblyIPv6MultConns, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyIPv6_OOO, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyCleanup, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyMaxOOOFrags, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyMaxSeq, "no_network;tcp_reassembly");
 
 	PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");

@@ -2,14 +2,10 @@
 #include <stdlib.h>
 #include <fstream>
 #include <memory>
-#if defined(WIN32) || defined(WINx64)
-#include <winsock2.h>
-#endif
 #include <MacAddress.h>
 #include <IpAddress.h>
 #include <PcapPlusPlusVersion.h>
 #include <SystemUtils.h>
-#include <PlatformSpecificUtils.h>
 #include <PcapLiveDeviceList.h>
 #include <PcapLiveDevice.h>
 #include <EthLayer.h>
@@ -92,7 +88,7 @@ MacAddress getMacAddress(const IPv4Address& ipAddr, PcapLiveDevice* pDevice)
 	pDevice->sendPacket(&arpRequest);
 	RawPacketVector capturedPackets;
 	pDevice->startCapture(capturedPackets);
-	PCAP_SLEEP(2);
+	multiPlatformSleep(2);
 	pDevice->stopCapture();
 
 	if (capturedPackets.size() < 1)
@@ -166,7 +162,7 @@ bool doArpSpoofing(PcapLiveDevice* pDevice, const IPv4Address& gatewayAddr, cons
 		printf("Sent ARP reply: %s [gateway] is at MAC address %s [me]\n", gatewayAddr.toString().c_str(), deviceMacAddress.toString().c_str());
 		pDevice->sendPacket(&victimArpReply);
 		printf("Sent ARP reply: %s [victim] is at MAC address %s [me]\n\n", victimAddr.toString().c_str(), deviceMacAddress.toString().c_str());
-		PCAP_SLEEP(5);
+		multiPlatformSleep(5);
 	}
 
 	return true;

@@ -35,7 +35,7 @@ struct SSLGeneralStats
 	double sampleTime; // total stats collection time
 	int numOfHandshakeCompleteFlows; // number of flows which handshake was complete
 	int numOfFlowsWithAlerts; // number of flows that were terminated because of SSL/TLS alert
-	std::map<pcpp::SSLVersion, int> sslRecordVersionCount; // number of flows per SSL/TLS record version
+	std::map<uint16_t, int> sslVersionCount; // number of flows per SSL/TLS version
 	std::map<uint16_t, int> sslPortCount; // number of flows per TCP port
 
 	void clear()
@@ -54,7 +54,7 @@ struct SSLGeneralStats
 		sampleTime = 0;
 		numOfHandshakeCompleteFlows = 0;
 		numOfFlowsWithAlerts = 0;
-		sslRecordVersionCount.clear();
+		sslVersionCount.clear();
 		sslPortCount.clear();
 	}
 };
@@ -68,7 +68,6 @@ struct ClientHelloStats
 	int numOfMessages; // total number of client-hello messages
 	Rate messageRate; // rate of client-hello messages
 	std::map<std::string, int> serverNameCount; // a map for counting the server names seen in traffic
-	std::map<pcpp::SSLVersion, int> sslClientHelloVersionCount; // number of flows per SSL handshake version
 
 	virtual ~ClientHelloStats() {}
 
@@ -78,7 +77,6 @@ struct ClientHelloStats
 		messageRate.currentRate = 0;
 		messageRate.totalRate = 0;
 		serverNameCount.clear();
-		sslClientHelloVersionCount.clear();
 	}
 };
 
@@ -257,8 +255,8 @@ private:
 			m_GeneralStats.numOfSSLFlows++;
 
 			// find the SSL/TLS port and add it to the port count
-			uint16_t srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
-			uint16_t dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
+			uint16_t srcPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc);
+			uint16_t dstPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst);
 			if (pcpp::SSLLayer::isSSLPort(srcPort))
 				m_GeneralStats.sslPortCount[srcPort]++;
 			else
@@ -322,7 +320,6 @@ private:
 				// collect client-hello stats
 				if (clientHelloMessage != NULL)
 				{
-					m_ClientHelloStats.sslClientHelloVersionCount[sslLayer->getRecordVersion()]++;
 					collecClientHelloStats(clientHelloMessage);
 				}
 
@@ -332,7 +329,7 @@ private:
 				// collect server-hello stats
 				if (serverHelloMessage != NULL)
 				{
-					m_GeneralStats.sslRecordVersionCount[sslLayer->getRecordVersion()]++;
+					m_GeneralStats.sslVersionCount[serverHelloMessage->getHandshakeVersion().asUInt()]++;
 					collecServerHelloStats(serverHelloMessage);
 				}
 			}

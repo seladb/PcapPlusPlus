@@ -13,7 +13,6 @@
 #include "DnsLayer.h"
 #include "DpdkDeviceList.h"
 #include "PcapFileDevice.h"
-#include "PlatformSpecificUtils.h"
 
 
 extern PcapTestArgs PcapTestGlobalArgs;
@@ -42,7 +41,7 @@ int incSleep(int maxSleepTime, int minPacketCount, const DpdkPacketData& packetD
 	int totalSleepTime = 0;
 	while (totalSleepTime < maxSleepTime)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 		if (packetData.PacketCount > minPacketCount)
 			break;
@@ -56,7 +55,7 @@ int incSleepMultiThread(int maxSleepTime, DpdkPacketData packetData[], int total
 	int totalSleepTime = 0;
 	while (totalSleepTime < maxSleepTime)
 	{
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		totalSleepTime += 1;
 
 		int coresWithPacketCountNotZero = 0;
@@ -636,7 +635,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	while (numOfAttempts < 20)
 	{
 		dev->receivePackets(rawPacketVec, 0);
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		if (rawPacketVec.size() > 0)
 			break;
 		numOfAttempts++;
@@ -651,7 +650,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	while (numOfAttempts < 20)
 	{
 		mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, 0);
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		if (mBufRawPacketArrLen > 0)
 			break;
 		numOfAttempts++;
@@ -672,7 +671,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	while (numOfAttempts < 20)
 	{
 		packetArrLen = dev->receivePackets(packetArr, 32, 0);
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 		if (packetArrLen > 0)
 			break;
 		numOfAttempts++;
@@ -739,7 +738,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 		}
 
-		PCAP_SLEEP(1);
+		pcpp::multiPlatformSleep(1);
 
 		if (stats.aggregatedRxStats.packets > curPackets)
 			break;
@@ -846,7 +845,7 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 		for (int i = 0; i < dev->getNumOfOpenedRxQueues(); i++)
 		{
 			dev->receivePackets(rawPacketVec, 0);
-			PCAP_SLEEP(1);
+			pcpp::multiPlatformSleep(1);
 			for (pcpp::MBufRawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 			{
 				pcpp::Packet packet(*iter);

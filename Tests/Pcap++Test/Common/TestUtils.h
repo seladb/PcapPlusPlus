@@ -11,17 +11,23 @@ class DeviceTeardown
 private:
 
 	pcpp::IDevice* m_Device;
+	bool m_CancelTeardown;
 
 public:
 
-	DeviceTeardown(pcpp::IDevice* device) : m_Device(device) {}
+	DeviceTeardown(pcpp::IDevice* device) : m_Device(device), m_CancelTeardown(false) {}
 
 	~DeviceTeardown() 
 	{ 
-		if (m_Device != NULL && m_Device->isOpened())
+		if (!m_CancelTeardown && m_Device != NULL && m_Device->isOpened())
 		{
 			m_Device->close();
 		}
+	}
+
+	void cancelTeardown()
+	{
+		m_CancelTeardown = true;
 	}
 };
 

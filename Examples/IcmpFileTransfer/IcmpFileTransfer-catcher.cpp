@@ -9,9 +9,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV) 
-#include <in.h>
-#endif
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IcmpLayer.h"
@@ -103,7 +100,7 @@ static bool waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, 
 
 	// extract ethernet layer and ICMP ID to be able to respond to the pitcher
 	EthLayer* ethLayer = parsedPacket.getLayerOfType<EthLayer>();
-	uint16_t icmpId = ntohs(icmpLayer->getEchoRequestData()->header->id);
+	uint16_t icmpId = pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id);
 
 	// send the pitcher an ICMP response containing an ack message (of type ICMP_FT_ACK) so it knows the catcher has received
 	// the file name and it's ready to start getting the file data
@@ -167,16 +164,16 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// compare the ICMP ID of the request to the ICMP ID we expect to see. If it's smaller than expected it means catcher already
 	// saw this message so it can be ignored
-	if (ntohs(icmpLayer->getEchoRequestData()->header->id) < icmpData->expectedIcmpId)
+	if (pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id) < icmpData->expectedIcmpId)
 		return false;
 
 	// if ICMP ID is bigger than expected it probably means catcher missed one or more packets. Since a reliability mechanism isn't currently
 	// implemented in this program, the only thing left to do is to exit the program with an error
-	if (ntohs(icmpLayer->getEchoRequestData()->header->id) > icmpData->expectedIcmpId)
+	if (pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id) > icmpData->expectedIcmpId)
 	{
 		// close the file, remove it and exit the program with error
 		icmpData->file->close();
-		EXIT_WITH_ERROR_AND_RUN_COMMAND("Didn't get expected ICMP message #%d, got #%d", std::remove(icmpData->fileName.c_str()), icmpData->expectedIcmpId, ntohs(icmpLayer->getEchoRequestData()->header->id));
+		EXIT_WITH_ERROR_AND_RUN_COMMAND("Didn't get expected ICMP message #%d, got #%d", std::remove(icmpData->fileName.c_str()), icmpData->expectedIcmpId, pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id));
 	}
 
 	// increment expected ICMP ID
@@ -184,7 +181,6 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// write the data received from the pitcher to the local file
 	icmpData->file->write((char*)icmpLayer->getEchoRequestData()->data, icmpLayer->getEchoRequestData()->dataLength);
-	//printf("got part %d\n", ntohs(icmpLayer->getEchoRequestData()->header->id));
 
 	// add chunk size to the aggregated file size
 	icmpData->fileSize += icmpLayer->getEchoRequestData()->dataLength;
@@ -307,7 +303,7 @@ static bool startFileTransfer(RawPacket* rawPacket, PcapLiveDevice* dev, void* i
 
 	// extract ethernet layer and ICMP ID to be able to respond to the pitcher
 	EthLayer* ethLayer = parsedPacket.getLayerOfType<EthLayer>();
-	uint16_t icmpId = ntohs(icmpLayer->getEchoRequestData()->header->id);
+	uint16_t icmpId = pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id);
 
 	// send the ICMP response containing the file name back to the pitcher
 	if (!sendIcmpResponse(dev,
@@ -362,7 +358,7 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 
 	// extract ethernet layer and ICMP ID to be able to respond to the pitcher
 	EthLayer* ethLayer = parsedPacket.getLayerOfType<EthLayer>();
-	uint16_t icmpId = ntohs(icmpLayer->getEchoRequestData()->header->id);
+	uint16_t icmpId = pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id);
 
 	// if all file was already sent to the pitcher
 	if (!icmpFileContentData->readingFromFile)

@@ -266,10 +266,15 @@ if (( $COMPILE_WITH_PF_RING > 0 )) ; then
 fi
 
 
-# function to extract DPDK major + minor version from <DPDK_HOM>/pkg/dpdk.spec file
+# function to extract DPDK major + minor version from <DPDK_HOM>/pkg/dpdk.spec file (older DPDK versions)
+# or <DPDK_HOM>/VERSION file (newer DPDK versios)
 # return: DPDK version (major + minor only)
 function get_dpdk_version() {
-   echo $(grep "Version" $DPDK_HOME/pkg/dpdk.spec | cut -d' ' -f2 | cut -d'.' -f 1,2)
+   if [ -f $DPDK_HOME/pkg/dpdk.spec ]; then
+      echo $(grep "Version" $DPDK_HOME/pkg/dpdk.spec | cut -d' ' -f2 | cut -d'.' -f 1,2);
+   else
+      echo $(cat $DPDK_HOME/VERSION | cut -d'.' -f 1,2);
+   fi
 }
 
 # function to compare between 2 versions (each constructed of major + minor)
@@ -304,16 +309,13 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
    # set DPDK home to RTE_SDK variable in PcapPlusPlus.mk
    sed -i "2s|^|RTE_SDK := $DPDK_HOME\n\n|" $PCAPPLUSPLUS_MK
 
-   # set the setup-dpdk script:
+   # set the setup_dpdk.py:
 
-   # copy the initial version to PcapPlusPlus root dir
-   cp mk/setup-dpdk.sh.template setup-dpdk.sh
+   # copy to PcapPlusPlus root dir
+   cp mk/setup_dpdk.py .
 
-   # make it an executable
-   chmod +x setup-dpdk.sh
-
-   # replace the RTE_SDK placeholder with DPDK home
-   sed -i "s|###RTE_SDK###|$DPDK_HOME|g" setup-dpdk.sh
+   # create a settings file with RTE_SDK folder
+   echo -e "RTE_SDK=$DPDK_HOME\r" > setup_dpdk_settings.dat
 
 fi
 

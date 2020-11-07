@@ -396,7 +396,7 @@ Packet length: 252 [Bytes], Arrival time: 2015-01-03 13:04:55.433097000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:04:55.540239000
@@ -410,8 +410,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:55.544390000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:55.545127000
@@ -451,9 +451,9 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:04:55.562074000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 79 [Bytes], Arrival time: 2015-01-03 13:04:55.562799000
@@ -533,23 +533,23 @@ Packet length: 300 [Bytes], Arrival time: 2015-01-03 13:04:55.667539000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Handshake: New Session Ticket message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: New Session Ticket message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 111 [Bytes], Arrival time: 2015-01-03 13:04:55.668279000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:04:55.668280000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:55.668311000
@@ -570,14 +570,14 @@ Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:04:55.719656000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 863 [Bytes], Arrival time: 2015-01-03 13:04:55.719834000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:04:55.832789000
@@ -591,14 +591,14 @@ Packet length: 272 [Bytes], Arrival time: 2015-01-03 13:04:55.875939000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:04:55.877159000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:55.877191000
@@ -611,8 +611,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:55.877903000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:04:55.878669000
@@ -632,8 +632,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:55.879411000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:55.880270000
@@ -673,8 +673,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:55.882632000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:55.883437000
@@ -793,15 +793,15 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:04:56.110034000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:56.110765000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:56.110784000
@@ -821,8 +821,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:56.112751000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:56.112763000
@@ -862,7 +862,7 @@ Packet length: 117 [Bytes], Arrival time: 2015-01-03 13:04:56.117561000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:56.117588000
@@ -875,15 +875,15 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:04:56.122364000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:56.123105000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:56.123141000
@@ -903,8 +903,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:56.125326000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:56.125328000
@@ -931,7 +931,7 @@ Packet length: 177 [Bytes], Arrival time: 2015-01-03 13:04:56.126071000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:56.126104000
@@ -944,14 +944,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:04:56.128239000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:04:56.128976000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:56.129003000
@@ -964,8 +964,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:56.130450000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:04:56.131190000
@@ -979,8 +979,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:56.131191000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:56.131224000
@@ -1020,8 +1020,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:04:56.134148000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:04:56.134180000
@@ -1054,7 +1054,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:04:56.136240000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:04:56.279698000
@@ -5416,7 +5416,7 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:04:59.821690000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 31.13.93.3
 TCP Layer, [ACK], Src port: 55232, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 1164 [Bytes], Arrival time: 2015-01-03 13:04:59.823654000
@@ -5546,17 +5546,17 @@ Packet length: 236 [Bytes], Arrival time: 2015-01-03 13:04:59.930108000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 141 [Bytes], Arrival time: 2015-01-03 13:04:59.930386000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 31.13.93.3
 TCP Layer, [ACK], Src port: 55232, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 85 [Bytes], Arrival time: 2015-01-03 13:04:59.935542000
@@ -5603,14 +5603,14 @@ Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:04:59.976996000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 31.13.93.3
 TCP Layer, [ACK], Src port: 55232, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 768 [Bytes], Arrival time: 2015-01-03 13:04:59.977069000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 31.13.93.3
 TCP Layer, [ACK], Src port: 55232, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 85 [Bytes], Arrival time: 2015-01-03 13:04:59.977489000
@@ -5701,7 +5701,7 @@ Packet length: 127 [Bytes], Arrival time: 2015-01-03 13:05:00.033650000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:00.037326000
@@ -5832,7 +5832,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:00.086522000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:00.086540000
@@ -5883,7 +5883,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:00.163485000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 314 [Bytes], Arrival time: 2015-01-03 13:05:00.164218000
@@ -5903,7 +5903,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:00.164953000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1332 [Bytes], Arrival time: 2015-01-03 13:05:00.165684000
@@ -5923,14 +5923,14 @@ Packet length: 1340 [Bytes], Arrival time: 2015-01-03 13:05:00.166418000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:00.167150000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:00.167162000
@@ -5950,7 +5950,7 @@ Packet length: 101 [Bytes], Arrival time: 2015-01-03 13:05:00.167887000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:00.167887000
@@ -6285,7 +6285,7 @@ Packet length: 937 [Bytes], Arrival time: 2015-01-03 13:05:00.433570000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 31.13.93.3
 TCP Layer, [ACK], Src port: 55232, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 330 [Bytes], Arrival time: 2015-01-03 13:05:00.457129000
@@ -6317,7 +6317,7 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:00.501992000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 172.224.37.171
 TCP Layer, [ACK], Src port: 55241, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:00.504132000
@@ -6352,7 +6352,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:00.544256000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:00.561192000
@@ -6424,7 +6424,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:00.610135000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 202 [Bytes], Arrival time: 2015-01-03 13:05:00.610137000
@@ -6456,7 +6456,7 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:00.613064000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55242, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:00.622136000
@@ -6503,17 +6503,17 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:05:00.635135000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.50, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55242
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 101 [Bytes], Arrival time: 2015-01-03 13:05:00.635452000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55242, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:00.651166000
@@ -6539,9 +6539,9 @@ Packet length: 187 [Bytes], Arrival time: 2015-01-03 13:05:00.666463000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 172.224.37.171, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55241
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:00.711595000
@@ -6555,8 +6555,8 @@ Packet length: 101 [Bytes], Arrival time: 2015-01-03 13:05:00.723876000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 172.224.37.171
 TCP Layer, [ACK], Src port: 55241, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 87 [Bytes], Arrival time: 2015-01-03 13:05:00.742179000
@@ -6656,14 +6656,14 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:00.766756000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55243, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 1001 [Bytes], Arrival time: 2015-01-03 13:05:00.768027000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 31.13.93.3
 TCP Layer, [ACK], Src port: 55232, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 170 [Bytes], Arrival time: 2015-01-03 13:05:00.771685000
@@ -6814,17 +6814,17 @@ Packet length: 227 [Bytes], Arrival time: 2015-01-03 13:05:00.817449000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.50, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55243
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 137 [Bytes], Arrival time: 2015-01-03 13:05:00.817680000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55243, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 208 [Bytes], Arrival time: 2015-01-03 13:05:00.828257000
@@ -6862,21 +6862,21 @@ Packet length: 115 [Bytes], Arrival time: 2015-01-03 13:05:00.849361000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55243, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:00.849405000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55243, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 81 [Bytes], Arrival time: 2015-01-03 13:05:00.849769000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55243, Dst port: 443
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:00.849791000
@@ -6960,7 +6960,7 @@ Packet length: 107 [Bytes], Arrival time: 2015-01-03 13:05:00.901544000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.50, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55243
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:00.901575000
@@ -6980,7 +6980,7 @@ Packet length: 81 [Bytes], Arrival time: 2015-01-03 13:05:00.903013000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.50, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55243
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:00.903746000
@@ -7015,7 +7015,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:00.914335000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:00.918450000
@@ -7133,7 +7133,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:01.003150000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:01.003173000
@@ -7153,7 +7153,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:01.005151000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1332 [Bytes], Arrival time: 2015-01-03 13:05:01.005152000
@@ -7173,14 +7173,14 @@ Packet length: 303 [Bytes], Arrival time: 2015-01-03 13:05:01.007151000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:01.007152000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:01.007153000
@@ -7201,7 +7201,7 @@ Packet length: 101 [Bytes], Arrival time: 2015-01-03 13:05:01.007155000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 31.13.93.3, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55232
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:01.007185000
@@ -7501,7 +7501,7 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:01.320859000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55254, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:01.321730000
@@ -7536,38 +7536,38 @@ Packet length: 227 [Bytes], Arrival time: 2015-01-03 13:05:01.344165000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.50, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55254
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 137 [Bytes], Arrival time: 2015-01-03 13:05:01.344427000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55254, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 115 [Bytes], Arrival time: 2015-01-03 13:05:01.344741000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55254, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:01.344776000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55254, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 81 [Bytes], Arrival time: 2015-01-03 13:05:01.345010000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55254, Dst port: 443
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:01.345031000
@@ -7616,7 +7616,7 @@ Packet length: 107 [Bytes], Arrival time: 2015-01-03 13:05:01.381447000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.50, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55254
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:01.381474000
@@ -7635,7 +7635,7 @@ Packet length: 81 [Bytes], Arrival time: 2015-01-03 13:05:01.382916000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.50, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55254
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:01.382961000
@@ -8854,14 +8854,14 @@ Packet length: 858 [Bytes], Arrival time: 2015-01-03 13:05:04.213936000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:04.217759000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:04.325463000
@@ -8988,7 +8988,7 @@ Packet length: 859 [Bytes], Arrival time: 2015-01-03 13:05:04.469885000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:04.529250000
@@ -9082,21 +9082,21 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:04.633840000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 109 [Bytes], Arrival time: 2015-01-03 13:05:04.637345000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:04.638423000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:04.638439000
@@ -9109,15 +9109,15 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:04.638550000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:04.639888000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:04.640915000
@@ -9137,8 +9137,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:04.641649000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:04.642381000
@@ -9178,8 +9178,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:04.644863000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:04.645601000
@@ -9206,8 +9206,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:04.648104000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:04.648118000
@@ -9454,7 +9454,7 @@ Packet length: 862 [Bytes], Arrival time: 2015-01-03 13:05:05.574924000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:05.666234000
@@ -9467,7 +9467,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:05.671952000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 67 [Bytes], Arrival time: 2015-01-03 13:05:05.676210000
@@ -9514,14 +9514,14 @@ Packet length: 107 [Bytes], Arrival time: 2015-01-03 13:05:05.738978000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:05.740354000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:05.740375000
@@ -9534,8 +9534,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:05.741093000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:05.741985000
@@ -9555,8 +9555,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:05.742719000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:05.743451000
@@ -9596,8 +9596,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:05.745650000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:05.746382000
@@ -10421,7 +10421,7 @@ Packet length: 251 [Bytes], Arrival time: 2015-01-03 13:05:06.409633000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.244.114
 TCP Layer, [ACK], Src port: 55263, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:06.426986000
@@ -10491,7 +10491,7 @@ Packet length: 81 [Bytes], Arrival time: 2015-01-03 13:05:06.434741000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 172.224.37.171
 TCP Layer, [ACK], Src port: 55241, Dst port: 443
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:06.434761000
@@ -10504,7 +10504,7 @@ Packet length: 81 [Bytes], Arrival time: 2015-01-03 13:05:06.434885000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.202.50
 TCP Layer, [ACK], Src port: 55242, Dst port: 443
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:06.434905000
@@ -10579,7 +10579,7 @@ Packet length: 81 [Bytes], Arrival time: 2015-01-03 13:05:06.454370000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.202.50, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55242
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:06.454370000
@@ -10705,8 +10705,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:06.502857000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.114, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55263
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:06.503591000
@@ -10746,9 +10746,9 @@ Packet length: 396 [Bytes], Arrival time: 2015-01-03 13:05:06.506168000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.244.114
 TCP Layer, [ACK], Src port: 55263, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:06.519665000
@@ -10849,15 +10849,15 @@ Packet length: 129 [Bytes], Arrival time: 2015-01-03 13:05:06.602495000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.114, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55263
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 379 [Bytes], Arrival time: 2015-01-03 13:05:06.602698000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.244.114
 TCP Layer, [ACK], Src port: 55263, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:06.636426000
@@ -11031,7 +11031,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:06.703329000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.58.244.114, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55263
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:06.705379000
@@ -16836,7 +16836,7 @@ Packet length: 81 [Bytes], Arrival time: 2015-01-03 13:05:07.535273000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 172.224.37.171, Dst: 10.0.0.1
 TCP Layer, [FIN, ACK], Src port: 443, Dst port: 55241
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:07.535328000
@@ -24007,7 +24007,7 @@ Packet length: 861 [Bytes], Arrival time: 2015-01-03 13:05:12.065651000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:12.176580000
@@ -24021,14 +24021,14 @@ Packet length: 111 [Bytes], Arrival time: 2015-01-03 13:05:12.231047000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:12.232064000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:12.232108000
@@ -24041,8 +24041,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.233546000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:12.234283000
@@ -24062,8 +24062,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.235763000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.236501000
@@ -24103,8 +24103,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.240771000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.241507000
@@ -24144,8 +24144,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.246083000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.246824000
@@ -24212,7 +24212,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:12.421919000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:12.433553000
@@ -24285,7 +24285,7 @@ Packet length: 860 [Bytes], Arrival time: 2015-01-03 13:05:12.674523000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:12.786158000
@@ -24299,14 +24299,14 @@ Packet length: 108 [Bytes], Arrival time: 2015-01-03 13:05:12.832683000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:12.833703000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:12.833746000
@@ -24319,8 +24319,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.835180000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:12.835918000
@@ -24340,8 +24340,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.837432000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.838175000
@@ -24381,8 +24381,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.842167000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.843091000
@@ -24409,8 +24409,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.846047000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:12.846079000
@@ -24443,7 +24443,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:12.848852000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:12.849009000
@@ -24504,7 +24504,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:12.954961000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:13.059631000
@@ -24546,7 +24546,7 @@ Packet length: 861 [Bytes], Arrival time: 2015-01-03 13:05:13.260859000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 311 [Bytes], Arrival time: 2015-01-03 13:05:13.337857000
@@ -24568,14 +24568,14 @@ Packet length: 108 [Bytes], Arrival time: 2015-01-03 13:05:13.428424000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:13.429772000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:13.429815000
@@ -24588,8 +24588,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.430517000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:13.431522000
@@ -24609,8 +24609,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.432266000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.433004000
@@ -24650,8 +24650,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.435228000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.435969000
@@ -24721,8 +24721,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.440220000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.441391000
@@ -24802,7 +24802,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:13.461189000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:13.526963000
@@ -24893,7 +24893,7 @@ Packet length: 862 [Bytes], Arrival time: 2015-01-03 13:05:13.713300000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:13.766694000
@@ -24906,7 +24906,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:13.785892000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:13.824585000
@@ -24920,14 +24920,14 @@ Packet length: 106 [Bytes], Arrival time: 2015-01-03 13:05:13.883281000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:13.884505000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:13.884548000
@@ -24940,8 +24940,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.885982000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:13.886719000
@@ -24961,8 +24961,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.887462000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.888199000
@@ -25002,8 +25002,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.891433000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:13.892170000
@@ -25117,14 +25117,14 @@ Packet length: 861 [Bytes], Arrival time: 2015-01-03 13:05:14.037729000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:14.044026000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:14.150807000
@@ -25189,14 +25189,14 @@ Packet length: 865 [Bytes], Arrival time: 2015-01-03 13:05:14.613734000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:14.663116000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:14.673610000
@@ -25230,7 +25230,7 @@ Packet length: 868 [Bytes], Arrival time: 2015-01-03 13:05:14.864316000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:14.977709000
@@ -25244,14 +25244,14 @@ Packet length: 108 [Bytes], Arrival time: 2015-01-03 13:05:15.025957000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:15.027009000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:15.027033000
@@ -25264,8 +25264,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.028474000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:15.029206000
@@ -25285,8 +25285,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.030669000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.031403000
@@ -25326,8 +25326,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.034895000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:15.035627000
@@ -25347,8 +25347,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.037575000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.038307000
@@ -25375,7 +25375,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:15.041692000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.041711000
@@ -25409,7 +25409,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:15.044138000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.046710000
@@ -25514,7 +25514,7 @@ Packet length: 869 [Bytes], Arrival time: 2015-01-03 13:05:15.781704000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 13:05:15.867797000
@@ -25557,14 +25557,14 @@ Packet length: 108 [Bytes], Arrival time: 2015-01-03 13:05:15.952765000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:15.953495000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:15.953525000
@@ -25577,8 +25577,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.954236000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:15.955295000
@@ -25598,8 +25598,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.956039000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.956773000
@@ -25633,8 +25633,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.959592000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:15.959635000
@@ -25686,8 +25686,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.963749000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 499 [Bytes], Arrival time: 2015-01-03 13:05:15.963751000
@@ -25707,8 +25707,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.963963000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:15.963964000
@@ -25728,8 +25728,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.964700000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:15.965737000
@@ -25808,7 +25808,7 @@ Packet length: 254 [Bytes], Arrival time: 2015-01-03 13:05:16.135150000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.222809000
@@ -25828,8 +25828,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.244936000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.245677000
@@ -25856,9 +25856,9 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:05:16.261792000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 413 [Bytes], Arrival time: 2015-01-03 13:05:16.264718000
@@ -25879,15 +25879,15 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.265935000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.266524000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.266564000
@@ -25907,8 +25907,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.268741000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.268778000
@@ -25948,8 +25948,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.272282000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.272317000
@@ -25969,8 +25969,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.274671000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.274693000
@@ -25990,7 +25990,7 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.280111000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.280132000
@@ -26003,15 +26003,15 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.281576000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.282310000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.282326000
@@ -26031,7 +26031,7 @@ Packet length: 1291 [Bytes], Arrival time: 2015-01-03 13:05:16.283792000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:16.283793000
@@ -26058,15 +26058,15 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.288715000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.289572000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.289594000
@@ -26086,8 +26086,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.291210000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.291232000
@@ -26120,8 +26120,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.294874000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.78.104, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55194
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.295607000
@@ -26208,7 +26208,7 @@ Packet length: 115 [Bytes], Arrival time: 2015-01-03 13:05:16.304272000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.304696000
@@ -26322,23 +26322,23 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:16.315975000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.78.104
 TCP Layer, [ACK], Src port: 55194, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 300 [Bytes], Arrival time: 2015-01-03 13:05:16.368818000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Handshake: New Session Ticket message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: New Session Ticket message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 111 [Bytes], Arrival time: 2015-01-03 13:05:16.369554000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.369588000
@@ -26351,7 +26351,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:16.370347000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 837 [Bytes], Arrival time: 2015-01-03 13:05:16.382490000
@@ -26366,14 +26366,14 @@ Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:05:16.387540000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 784 [Bytes], Arrival time: 2015-01-03 13:05:16.387699000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:16.408118000
@@ -26452,14 +26452,14 @@ Packet length: 436 [Bytes], Arrival time: 2015-01-03 13:05:16.546940000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.547870000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.547910000
@@ -26472,14 +26472,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.549347000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.550086000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.550121000
@@ -26492,14 +26492,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.550831000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.550834000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.550870000
@@ -26512,14 +26512,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.552329000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.553066000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.553096000
@@ -26532,7 +26532,7 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.553810000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:16.553813000
@@ -26552,7 +26552,7 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.555291000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.555331000
@@ -26565,8 +26565,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.556041000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:16.556042000
@@ -26586,8 +26586,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.558773000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.560774000
@@ -26688,7 +26688,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:16.573244000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:16.573837000
@@ -26752,7 +26752,7 @@ Packet length: 253 [Bytes], Arrival time: 2015-01-03 13:05:16.732235000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.221
 TCP Layer, [ACK], Src port: 55305, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 331 [Bytes], Arrival time: 2015-01-03 13:05:16.737849000
@@ -26780,7 +26780,7 @@ Packet length: 811 [Bytes], Arrival time: 2015-01-03 13:05:16.751077000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 13:05:16.778812000
@@ -26820,8 +26820,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:16.836203000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.219.221, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55305
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 742 [Bytes], Arrival time: 2015-01-03 13:05:16.836935000
@@ -26861,23 +26861,23 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:05:16.847106000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.221
 TCP Layer, [ACK], Src port: 55305, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:05:16.847325000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.221
 TCP Layer, [ACK], Src port: 55305, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:16.847366000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.221
 TCP Layer, [ACK], Src port: 55305, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.847617000
@@ -26939,7 +26939,7 @@ Packet length: 198 [Bytes], Arrival time: 2015-01-03 13:05:16.867787000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.867821000
@@ -26952,14 +26952,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.869785000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.869786000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.869812000
@@ -26972,14 +26972,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.871786000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.871788000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.871813000
@@ -26992,21 +26992,21 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.872499000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.872500000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.872500000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.872526000
@@ -27019,14 +27019,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.873262000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.874084000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.874104000
@@ -27039,21 +27039,21 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.874821000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1043 [Bytes], Arrival time: 2015-01-03 13:05:16.876784000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:16.876786000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.876810000
@@ -27066,14 +27066,14 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:16.876930000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1038 [Bytes], Arrival time: 2015-01-03 13:05:16.880137000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:16.880784000
@@ -27117,14 +27117,14 @@ Packet length: 182 [Bytes], Arrival time: 2015-01-03 13:05:16.998210000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:16.999308000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:16.999331000
@@ -27137,21 +27137,21 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:17.000774000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:17.002789000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:17.002790000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:17.002821000
@@ -27164,22 +27164,22 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:17.004789000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:17.004791000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.004792000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:17.004819000
@@ -27199,8 +27199,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.006791000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:17.006821000
@@ -27227,7 +27227,7 @@ Packet length: 1385 [Bytes], Arrival time: 2015-01-03 13:05:17.008029000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:17.008056000
@@ -27247,8 +27247,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.009498000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:17.009499000
@@ -27268,15 +27268,15 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:17.009668000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.010290000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.011802000
@@ -27316,8 +27316,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.014004000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.014004000
@@ -27384,7 +27384,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:17.019247000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 331 [Bytes], Arrival time: 2015-01-03 13:05:17.034503000
@@ -27436,7 +27436,7 @@ Packet length: 253 [Bytes], Arrival time: 2015-01-03 13:05:17.050242000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.227
 TCP Layer, [ACK], Src port: 55306, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 13:05:17.050805000
@@ -27462,7 +27462,7 @@ Packet length: 253 [Bytes], Arrival time: 2015-01-03 13:05:17.056000000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.226
 TCP Layer, [ACK], Src port: 55307, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 352 [Bytes], Arrival time: 2015-01-03 13:05:17.060142000
@@ -27587,7 +27587,7 @@ Packet length: 1302 [Bytes], Arrival time: 2015-01-03 13:05:17.121856000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:17.125585000
@@ -27601,8 +27601,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.153816000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.219.227, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55306
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 742 [Bytes], Arrival time: 2015-01-03 13:05:17.154548000
@@ -27642,8 +27642,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:17.162430000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.219.226, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55307
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 742 [Bytes], Arrival time: 2015-01-03 13:05:17.163162000
@@ -27683,32 +27683,32 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:05:17.165420000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.227
 TCP Layer, [ACK], Src port: 55306, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, New Session Ticket message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, New Session Ticket message
 
 
 Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:05:17.165635000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.227
 TCP Layer, [ACK], Src port: 55306, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:17.165675000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.227
 TCP Layer, [ACK], Src port: 55306, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:05:17.175311000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.226
 TCP Layer, [ACK], Src port: 55307, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:17.175505000
@@ -27721,14 +27721,14 @@ Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:05:17.175765000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.226
 TCP Layer, [ACK], Src port: 55307, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:17.175803000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.226
 TCP Layer, [ACK], Src port: 55307, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:17.176023000
@@ -27829,21 +27829,21 @@ Packet length: 133 [Bytes], Arrival time: 2015-01-03 13:05:17.243487000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 91 [Bytes], Arrival time: 2015-01-03 13:05:17.244226000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:17.244228000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:17.244265000
@@ -27856,7 +27856,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:17.244516000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:17.252833000
@@ -28084,7 +28084,7 @@ Packet length: 907 [Bytes], Arrival time: 2015-01-03 13:05:18.498135000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:18.574956000
@@ -28097,14 +28097,14 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:18.604153000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 908 [Bytes], Arrival time: 2015-01-03 13:05:18.607582000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:18.611993000
@@ -28118,21 +28118,21 @@ Packet length: 190 [Bytes], Arrival time: 2015-01-03 13:05:18.649839000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 262 [Bytes], Arrival time: 2015-01-03 13:05:18.650573000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:18.650574000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:18.650602000
@@ -28145,7 +28145,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:18.650685000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:18.676023000
@@ -28158,14 +28158,14 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:18.708314000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 909 [Bytes], Arrival time: 2015-01-03 13:05:18.711812000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:18.721382000
@@ -28179,21 +28179,21 @@ Packet length: 108 [Bytes], Arrival time: 2015-01-03 13:05:18.751246000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 269 [Bytes], Arrival time: 2015-01-03 13:05:18.751986000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:18.751987000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:18.752028000
@@ -28206,7 +28206,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:18.752170000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 13:05:18.796901000
@@ -28227,7 +28227,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:18.812265000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:18.813733000
@@ -28254,7 +28254,7 @@ Packet length: 911 [Bytes], Arrival time: 2015-01-03 13:05:18.815761000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:18.815968000
@@ -28274,15 +28274,15 @@ Packet length: 108 [Bytes], Arrival time: 2015-01-03 13:05:18.842381000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 290 [Bytes], Arrival time: 2015-01-03 13:05:18.843152000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:18.843193000
@@ -28295,7 +28295,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:18.843346000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:18.883752000
@@ -28329,14 +28329,14 @@ Packet length: 109 [Bytes], Arrival time: 2015-01-03 13:05:18.943646000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 288 [Bytes], Arrival time: 2015-01-03 13:05:18.944376000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:18.944399000
@@ -28349,14 +28349,14 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:18.945112000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:18.945178000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:18.990870000
@@ -28370,7 +28370,7 @@ Packet length: 914 [Bytes], Arrival time: 2015-01-03 13:05:19.050184000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:19.051315000
@@ -28397,7 +28397,7 @@ Packet length: 107 [Bytes], Arrival time: 2015-01-03 13:05:19.071868000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.58.244.114
 TCP Layer, [ACK], Src port: 55263, Dst port: 443
-TLSv1.2 Layer, Encrypted Alert
+TLS 1.2 Layer, Encrypted Alert
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.071894000
@@ -28444,14 +28444,14 @@ Packet length: 109 [Bytes], Arrival time: 2015-01-03 13:05:19.174250000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 263 [Bytes], Arrival time: 2015-01-03 13:05:19.174981000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.175003000
@@ -28464,14 +28464,14 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:19.175717000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:19.175779000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:19.182341000
@@ -28484,7 +28484,7 @@ Packet length: 990 [Bytes], Arrival time: 2015-01-03 13:05:19.193374000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 13:05:19.296925000
@@ -28524,15 +28524,15 @@ Packet length: 315 [Bytes], Arrival time: 2015-01-03 13:05:19.371625000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.372631000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.372662000
@@ -28552,15 +28552,15 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.374902000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.374904000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.374950000
@@ -28586,8 +28586,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.378890000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:19.378892000
@@ -28607,8 +28607,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.380889000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.380893000
@@ -28635,8 +28635,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.381012000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:19.381013000
@@ -28656,15 +28656,15 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.381755000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.382847000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.382884000
@@ -28684,8 +28684,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.385887000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.385891000
@@ -28744,14 +28744,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.596390000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.597328000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.597353000
@@ -28764,14 +28764,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.598067000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.598862000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.598886000
@@ -28784,14 +28784,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.599602000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.600442000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.600466000
@@ -28804,15 +28804,15 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.601182000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.602009000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.602034000
@@ -28832,7 +28832,7 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.606230000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.606269000
@@ -28845,21 +28845,21 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.607708000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.608450000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.608453000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.608493000
@@ -28872,14 +28872,14 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.609928000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.610668000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.610703000
@@ -28892,14 +28892,14 @@ Packet length: 1261 [Bytes], Arrival time: 2015-01-03 13:05:19.611412000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.615277000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.615321000
@@ -28912,8 +28912,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.616773000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:19.617513000
@@ -28927,7 +28927,7 @@ Packet length: 1390 [Bytes], Arrival time: 2015-01-03 13:05:19.617516000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.617558000
@@ -28940,8 +28940,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.619895000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1366 [Bytes], Arrival time: 2015-01-03 13:05:19.621900000
@@ -28955,8 +28955,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.621901000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.621904000
@@ -28989,8 +28989,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:19.623755000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:19.623793000
@@ -29010,7 +29010,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:19.625182000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:19.676096000
@@ -29194,7 +29194,7 @@ Packet length: 253 [Bytes], Arrival time: 2015-01-03 13:05:20.479541000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.115.255
 TCP Layer, [ACK], Src port: 55308, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:20.486937000
@@ -29250,7 +29250,7 @@ Packet length: 253 [Bytes], Arrival time: 2015-01-03 13:05:20.640785000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.227
 TCP Layer, [ACK], Src port: 55309, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:20.658936000
@@ -29312,7 +29312,7 @@ Packet length: 253 [Bytes], Arrival time: 2015-01-03 13:05:20.687271000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.226
 TCP Layer, [ACK], Src port: 55310, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 352 [Bytes], Arrival time: 2015-01-03 13:05:20.692935000
@@ -29346,7 +29346,7 @@ Packet length: 991 [Bytes], Arrival time: 2015-01-03 13:05:20.716608000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:20.716938000
@@ -29360,8 +29360,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:20.718937000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.115.255, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55308
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:20.720937000
@@ -29388,31 +29388,31 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:05:20.727017000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.115.255
 TCP Layer, [ACK], Src port: 55308, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:05:20.727295000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.115.255
 TCP Layer, [ACK], Src port: 55308, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1085 [Bytes], Arrival time: 2015-01-03 13:05:20.727377000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.115.255
 TCP Layer, [ACK], Src port: 55308, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:20.747248000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.219.227, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55309
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 88 [Bytes], Arrival time: 2015-01-03 13:05:20.747978000
@@ -29459,23 +29459,23 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:05:20.759468000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.227
 TCP Layer, [ACK], Src port: 55309, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:05:20.759724000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.227
 TCP Layer, [ACK], Src port: 55309, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:20.759764000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.227
 TCP Layer, [ACK], Src port: 55309, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:20.760027000
@@ -29535,8 +29535,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:20.793773000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 212.199.219.226, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55310
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 742 [Bytes], Arrival time: 2015-01-03 13:05:20.794504000
@@ -29576,30 +29576,30 @@ Packet length: 180 [Bytes], Arrival time: 2015-01-03 13:05:20.805455000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.226
 TCP Layer, [ACK], Src port: 55310, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Client Key Exchange message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Client Key Exchange message
 
 
 Packet length: 119 [Bytes], Arrival time: 2015-01-03 13:05:20.805697000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.226
 TCP Layer, [ACK], Src port: 55310, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:20.805736000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 212.199.219.226
 TCP Layer, [ACK], Src port: 55310, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 988 [Bytes], Arrival time: 2015-01-03 13:05:20.806037000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:20.806298000
@@ -29643,7 +29643,7 @@ Packet length: 254 [Bytes], Arrival time: 2015-01-03 13:05:20.820721000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:20.821187000
@@ -29698,14 +29698,14 @@ Packet length: 160 [Bytes], Arrival time: 2015-01-03 13:05:20.835983000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 91 [Bytes], Arrival time: 2015-01-03 13:05:20.835984000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:20.836001000
@@ -29718,14 +29718,14 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:20.836718000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:20.836785000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:20.910984000
@@ -29738,21 +29738,21 @@ Packet length: 107 [Bytes], Arrival time: 2015-01-03 13:05:20.929969000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 91 [Bytes], Arrival time: 2015-01-03 13:05:20.930703000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:20.930704000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:20.930734000
@@ -29765,7 +29765,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:20.930879000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:20.932199000
@@ -29779,8 +29779,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:20.939370000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Handshake: Certificate message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Handshake: Certificate message
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:20.940101000
@@ -29807,9 +29807,9 @@ Packet length: 268 [Bytes], Arrival time: 2015-01-03 13:05:20.943997000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.2 Layer, Handshake: Client Key Exchange message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Client Key Exchange message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 77 [Bytes], Arrival time: 2015-01-03 13:05:20.945067000
@@ -29823,16 +29823,16 @@ Packet length: 300 [Bytes], Arrival time: 2015-01-03 13:05:20.963950000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.115.255, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55308
-TLSv1.2 Layer, Handshake: New Session Ticket message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
+TLS 1.2 Layer, Handshake: New Session Ticket message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Hello Request message, Hello Request message, Unknown message
 
 
 Packet length: 111 [Bytes], Arrival time: 2015-01-03 13:05:20.963951000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.115.255, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55308
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:20.964000000
@@ -29845,7 +29845,7 @@ Packet length: 99 [Bytes], Arrival time: 2015-01-03 13:05:20.965948000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.115.255, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55308
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 183 [Bytes], Arrival time: 2015-01-03 13:05:20.965949000
@@ -29926,7 +29926,7 @@ Packet length: 648 [Bytes], Arrival time: 2015-01-03 13:05:21.010384000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.115.255, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55308
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:21.010414000
@@ -29939,14 +29939,14 @@ Packet length: 91 [Bytes], Arrival time: 2015-01-03 13:05:21.011121000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.115.255, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55308
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:21.011122000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 173.194.115.255, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55308
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:21.011139000
@@ -29959,7 +29959,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:21.011272000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 173.194.115.255
 TCP Layer, [ACK], Src port: 55308, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 13:05:21.030967000
@@ -29980,9 +29980,9 @@ Packet length: 352 [Bytes], Arrival time: 2015-01-03 13:05:21.052691000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Handshake: New Session Ticket message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: New Session Ticket message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:21.116670000
@@ -30081,7 +30081,7 @@ Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.453417000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:21.503040000
@@ -30127,17 +30127,17 @@ Packet length: 522 [Bytes], Arrival time: 2015-01-03 13:05:21.570604000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.570946000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:21.571439000
@@ -30201,24 +30201,24 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:21.687629000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55313, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 522 [Bytes], Arrival time: 2015-01-03 13:05:21.687845000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.688254000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 76 [Bytes], Arrival time: 2015-01-03 13:05:21.688902000
@@ -30250,7 +30250,7 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:21.691612000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55314, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:21.692079000
@@ -30295,24 +30295,24 @@ Packet length: 215 [Bytes], Arrival time: 2015-01-03 13:05:21.802085000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55313
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 129 [Bytes], Arrival time: 2015-01-03 13:05:21.802528000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55313, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.802759000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55313, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:21.810258000
@@ -30331,24 +30331,24 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:21.810677000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55315, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 522 [Bytes], Arrival time: 2015-01-03 13:05:21.811002000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1099 [Bytes], Arrival time: 2015-01-03 13:05:21.811399000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:21.817228000
@@ -30362,24 +30362,24 @@ Packet length: 215 [Bytes], Arrival time: 2015-01-03 13:05:21.817962000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55314
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 129 [Bytes], Arrival time: 2015-01-03 13:05:21.818349000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55314, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.818557000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55314, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:21.818703000
@@ -30398,7 +30398,7 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:21.819038000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55316, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:21.820474000
@@ -30417,7 +30417,7 @@ Packet length: 571 [Bytes], Arrival time: 2015-01-03 13:05:21.820760000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55317, Dst port: 443
-TLSv1.0 Layer, Handshake: Client Hello message
+TLS 1.0 Layer, Handshake: Client Hello message
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:21.831886000
@@ -30444,17 +30444,17 @@ Packet length: 522 [Bytes], Arrival time: 2015-01-03 13:05:21.925111000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55313
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.925602000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55313, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:21.926587000
@@ -30468,41 +30468,41 @@ Packet length: 215 [Bytes], Arrival time: 2015-01-03 13:05:21.927324000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55315
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 129 [Bytes], Arrival time: 2015-01-03 13:05:21.927810000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55315, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.933015000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55315, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 522 [Bytes], Arrival time: 2015-01-03 13:05:21.937715000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1019 [Bytes], Arrival time: 2015-01-03 13:05:21.938180000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:21.950408000
@@ -30516,17 +30516,17 @@ Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:21.951220000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55314
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1019 [Bytes], Arrival time: 2015-01-03 13:05:21.951444000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55314, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:21.961244000
@@ -30540,24 +30540,24 @@ Packet length: 215 [Bytes], Arrival time: 2015-01-03 13:05:21.961976000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55317
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 129 [Bytes], Arrival time: 2015-01-03 13:05:21.962213000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55317, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.962340000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55317, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:21.966205000
@@ -30571,24 +30571,24 @@ Packet length: 215 [Bytes], Arrival time: 2015-01-03 13:05:21.966936000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55316
-TLSv1.2 Layer, Handshake: Server Hello message
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Handshake: Server Hello message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 129 [Bytes], Arrival time: 2015-01-03 13:05:21.967164000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55316, Dst port: 443
-TLSv1.2 Layer, Change Cipher Spec
-TLSv1.2 Layer, Handshake: Unknown message
+TLS 1.2 Layer, Change Cipher Spec
+TLS 1.2 Layer, Handshake: Unknown message
 
 
 Packet length: 1115 [Bytes], Arrival time: 2015-01-03 13:05:21.970330000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55316, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 55 [Bytes], Arrival time: 2015-01-03 13:05:22.002011000
@@ -30602,17 +30602,17 @@ Packet length: 522 [Bytes], Arrival time: 2015-01-03 13:05:22.042590000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55313
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1019 [Bytes], Arrival time: 2015-01-03 13:05:22.043135000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55313, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:22.054380000
@@ -30626,51 +30626,51 @@ Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.055935000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55315
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1019 [Bytes], Arrival time: 2015-01-03 13:05:22.056411000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55315, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.065106000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1035 [Bytes], Arrival time: 2015-01-03 13:05:22.065492000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.074943000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55314
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1003 [Bytes], Arrival time: 2015-01-03 13:05:22.075347000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55314, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:22.084410000
@@ -30684,17 +30684,17 @@ Packet length: 522 [Bytes], Arrival time: 2015-01-03 13:05:22.085475000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55317
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1003 [Bytes], Arrival time: 2015-01-03 13:05:22.085861000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55317, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 60 [Bytes], Arrival time: 2015-01-03 13:05:22.100679000
@@ -30708,17 +30708,17 @@ Packet length: 522 [Bytes], Arrival time: 2015-01-03 13:05:22.101414000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55316
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1003 [Bytes], Arrival time: 2015-01-03 13:05:22.101832000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55316, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 66 [Bytes], Arrival time: 2015-01-03 13:05:22.115238000
@@ -30731,96 +30731,96 @@ Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.159018000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55313
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 603 [Bytes], Arrival time: 2015-01-03 13:05:22.159539000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55313, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.171554000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55315
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 587 [Bytes], Arrival time: 2015-01-03 13:05:22.172007000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55315, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.182374000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 587 [Bytes], Arrival time: 2015-01-03 13:05:22.182849000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55311, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.193478000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55314
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 603 [Bytes], Arrival time: 2015-01-03 13:05:22.193855000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 176.9.42.179
 TCP Layer, [ACK], Src port: 55314, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.200743000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55317
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 538 [Bytes], Arrival time: 2015-01-03 13:05:22.219126000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55316
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:22.274313000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55313
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:22.275041000
@@ -30847,8 +30847,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:22.284116000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55315
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:22.284854000
@@ -30875,8 +30875,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:22.294731000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55311
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1408 [Bytes], Arrival time: 2015-01-03 13:05:22.295468000
@@ -30896,8 +30896,8 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:22.306131000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 176.9.42.179, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55314
-TLSv1.2 Layer, Application Data
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:22.306868000
@@ -30943,7 +30943,7 @@ Packet length: 1414 [Bytes], Arrival time: 2015-01-03 13:05:22.413888000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 116 [Bytes], Arrival time: 2015-01-03 13:05:22.413897000
@@ -31004,21 +31004,21 @@ Packet length: 134 [Bytes], Arrival time: 2015-01-03 13:05:22.543236000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 91 [Bytes], Arrival time: 2015-01-03 13:05:22.543976000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:22.543977000
 Ethernet II Layer, Src: 30:46:9a:23:fb:fa, Dst: 6c:f0:49:b2:de:6e
 IPv4 Layer, Src: 64.233.166.94, Dst: 10.0.0.1
 TCP Layer, [ACK], Src port: 443, Dst port: 55304
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 54 [Bytes], Arrival time: 2015-01-03 13:05:22.544015000
@@ -31031,7 +31031,7 @@ Packet length: 95 [Bytes], Arrival time: 2015-01-03 13:05:22.544261000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 30:46:9a:23:fb:fa
 IPv4 Layer, Src: 10.0.0.1, Dst: 64.233.166.94
 TCP Layer, [ACK], Src port: 55304, Dst port: 443
-TLSv1.2 Layer, Application Data
+TLS 1.2 Layer, Application Data
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:22.576118000

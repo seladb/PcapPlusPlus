@@ -7,7 +7,7 @@ include ../../mk/platform.mk
 include Makefile.defs
 
 %.o: %.cpp
-	@echo 'Building MemPlumber file: $<'
+	@echo Building MemPlumber file: $<
 	@$(CC) -Wall -O2 -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
@@ -15,14 +15,14 @@ CUR_TARGET := $(notdir $(shell pwd))
 .SILENT:
 
 all: start memplumber_sources
-	@echo 'Finished successfully building: $(CUR_TARGET)'
+	@echo Finished successfully building: $(CUR_TARGET)
 	@echo ' '
 
 start:
-	@echo '==> Building target: $(CUR_TARGET)'
+	@echo ==== Building target: $(CUR_TARGET) ====
 
 memplumber_sources: $(MEMPLUMBER_OBJS_FILENAMES)
 
 clean:
 	@$(RM) -rf $(MEMPLUMBER_HOME)/MemPlumber/*.o
-	@echo 'Clean finished: $(CUR_TARGET)'
+	@echo Clean finished: $(CUR_TARGET)

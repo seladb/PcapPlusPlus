@@ -3,7 +3,7 @@
 #include "IcmpLayer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
-#include "IpUtils.h"
+#include "PacketUtils.h"
 #include "Logger.h"
 #include <sstream>
 #include <string.h>
@@ -629,7 +629,7 @@ void IcmpLayer::computeCalculateFields()
 	ScalarBuffer<uint16_t> buffer;
 	buffer.buffer = (uint16_t*)getIcmpHeader();
 	buffer.len = icmpLen;
-	size_t checksum = compute_checksum(&buffer, 1);
+	size_t checksum = computeChecksum(&buffer, 1);
 
 	getIcmpHeader()->checksum = htobe16(checksum);
 }

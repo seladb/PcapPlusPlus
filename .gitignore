@@ -38,11 +38,13 @@ mk/PcapPlusPlus.mk
 mk/platform.mk
 mk/PcapPlusPlus.mk-e
 3rdParty/LightPcapNg/zstd.mk
-setup-dpdk.sh
 
 #auto generated files
 install.sh
 uninstall.sh
+setup-dpdk.sh
+setup_dpdk.py
+setup_dpdk_settings.dat
 
 #curl text
 Tests/Pcap++Test/cUrl/curl_output.txt

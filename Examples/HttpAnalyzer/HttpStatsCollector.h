@@ -151,7 +151,7 @@ public:
 
 		// verify packet is port 80
 		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
-		if (!(tcpLayer->getTcpHeader()->portDst == htons(m_DstPort) || tcpLayer->getTcpHeader()->portSrc == htons(m_DstPort) ))
+		if (!(tcpLayer->getTcpHeader()->portDst == pcpp::hostToNet16(m_DstPort) || tcpLayer->getTcpHeader()->portSrc == pcpp::hostToNet16(m_DstPort) ))
 			return;
 
 		// collect general HTTP traffic stats on this packet
@@ -326,7 +326,7 @@ private:
 		{
 			// if new packet seq number is smaller than previous seen seq number current it means this packet is
 			// a re-transmitted packet and should be ignored
-			if (m_FlowTable[flowKey].curSeqNumberRequests >= ntohl(tcpLayer->getTcpHeader()->sequenceNumber))
+			if (m_FlowTable[flowKey].curSeqNumberRequests >= pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
 				return;
 
 			// a new request - increase num of open transactions
@@ -344,13 +344,13 @@ private:
 			m_FlowTable[flowKey].lastSeenMessage = pcpp::HTTPRequest;
 
 			// set last seen sequence number
-			m_FlowTable[flowKey].curSeqNumberRequests = ntohl(tcpLayer->getTcpHeader()->sequenceNumber);
+			m_FlowTable[flowKey].curSeqNumberRequests = pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber);
 		}
 		else if (message->getProtocol() == pcpp::HTTPResponse)
 		{
 			// if new packet seq number is smaller than previous seen seq number current it means this packet is
 			// a re-transmitted packet and should be ignored
-			if (m_FlowTable[flowKey].curSeqNumberResponses >= ntohl(tcpLayer->getTcpHeader()->sequenceNumber))
+			if (m_FlowTable[flowKey].curSeqNumberResponses >= pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
 				return;
 
 			// a response - decrease num of open transactions
@@ -378,7 +378,7 @@ private:
 			}
 
 			// set last seen sequence number
-			m_FlowTable[flowKey].curSeqNumberResponses = ntohl(tcpLayer->getTcpHeader()->sequenceNumber);
+			m_FlowTable[flowKey].curSeqNumberResponses = pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber);
 		}
 	}
 

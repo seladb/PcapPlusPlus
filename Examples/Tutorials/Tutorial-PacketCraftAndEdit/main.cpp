@@ -1,7 +1,5 @@
-#if !defined(WIN32) && !defined(WINx64)
-#include <in.h> // this is for using ntohs() and htons() on non-Windows OS's
-#endif
 #include "stdlib.h"
+#include "SystemUtils.h"
 #include "Packet.h"
 #include "EthLayer.h"
 #include "VlanLayer.h"
@@ -59,14 +57,14 @@ int main(int argc, char* argv[])
 	// change source IP address
 	ipLayer->setSrcIpAddress(pcpp::IPv4Address(std::string("1.1.1.1")));
 	// change IP ID
-	ipLayer->getIPv4Header()->ipId = htons(4000);
+	ipLayer->getIPv4Header()->ipId = pcpp::hostToNet16(4000);
 	// change TTL value
 	ipLayer->getIPv4Header()->timeToLive = 12;
 
 	// let's get the TCP layer
 	pcpp::TcpLayer* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
 	// change source port
-	tcpLayer->getTcpHeader()->portSrc = htons(12345);
+	tcpLayer->getTcpHeader()->portSrc = pcpp::hostToNet16(12345);
 	// add URG flag
 	tcpLayer->getTcpHeader()->urgFlag = 1;
 	// add MSS TCP option
@@ -111,7 +109,7 @@ int main(int argc, char* argv[])
 
 	// create a new IPv4 layer
 	pcpp::IPv4Layer newIPLayer(pcpp::IPv4Address(std::string("192.168.1.1")), pcpp::IPv4Address(std::string("10.0.0.1")));
-	newIPLayer.getIPv4Header()->ipId = htons(2000);
+	newIPLayer.getIPv4Header()->ipId = pcpp::hostToNet16(2000);
 	newIPLayer.getIPv4Header()->timeToLive = 64;
 
 	// create a new UDP layer

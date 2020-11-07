@@ -6,9 +6,9 @@
 #ifndef  _MSC_VER
 #include <unistd.h>
 #endif // ! _MSC_VER
+#include "pcap.h"
 #include <pthread.h>
 #include "Logger.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 #include <string.h>
 #include <iostream>
@@ -98,7 +98,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != NULL && pInterface->addresses->addr != NULL)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
-			sockaddr2string(pInterface->addresses->addr, addrAsString);
+			internal::sockaddr2string(pInterface->addresses->addr, addrAsString);
 			LOG_DEBUG("      %s", addrAsString);
 		}
 	}
@@ -223,10 +223,10 @@ void* PcapLiveDevice::statsThreadMain(void* ptr)
 	LOG_DEBUG("Started stats thread for device '%s'", pThis->m_Name);
 	while (!pThis->m_StopThread)
 	{
-		pcap_stat stats;
+		PcapStats stats;
 		pThis->getStatistics(stats);
 		pThis->m_cbOnStatsUpdate(stats, pThis->m_cbOnStatsUpdateUserCookie);
-		PCAP_SLEEP(pThis->m_IntervalToUpdateStats);
+		multiPlatformSleep(pThis->m_IntervalToUpdateStats);
 	}
 	LOG_DEBUG("Ended stats thread for device '%s'", pThis->m_Name);
 	return 0;
@@ -547,7 +547,7 @@ void PcapLiveDevice::stopCapture()
 		LOG_DEBUG("Stats thread stopped for device '%s'", m_Name);
 	}
 
-	PCAP_SLEEP(1);
+	multiPlatformSleep(1);
 	m_StopThread = false;
 }
 
@@ -556,12 +556,17 @@ bool PcapLiveDevice::captureActive()
 	return m_CaptureThreadStarted;
 }
 
-void PcapLiveDevice::getStatistics(pcap_stat& stats) const
+void PcapLiveDevice::getStatistics(PcapStats& stats) const
 {
-	if (pcap_stats(m_PcapDescriptor, &stats) < 0)
+	pcap_stat pcapStats;
+	if (pcap_stats(m_PcapDescriptor, &pcapStats) < 0)
 	{
 		LOG_ERROR("Error getting statistics from live device '%s'", m_Name);
 	}
+
+	stats.packetsRecv = pcapStats.ps_recv;
+	stats.packetsDrop = pcapStats.ps_drop;
+	stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 }
 
 bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket)
@@ -898,11 +903,11 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
-			sockaddr2string(addrIter->addr, addrAsString);
+			internal::sockaddr2string(addrIter->addr, addrAsString);
 			LOG_DEBUG("Searching address %s", addrAsString);
 		}
 
-		in_addr* currAddr = sockaddr2in_addr(addrIter->addr);
+		in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
 		if (currAddr == NULL)
 		{
 			LOG_DEBUG("Address is NULL");

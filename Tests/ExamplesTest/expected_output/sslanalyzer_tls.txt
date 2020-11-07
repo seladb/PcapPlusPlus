@@ -1,0 +1,63 @@
+
+
+STATS SUMMARY
+=============
+
+General stats
+-------------
+
+Sample time:                                            0.000 [Seconds]
+Number of SSL packets:                                     17 [Packets]
+Rate of SSL packets:                                    0.000 [Packets/sec]
+Number of SSL flows:                                        3 [Flows]
+Rate of SSL flows:                                      0.000 [Flows/sec]
+Total SSL data:                                          5344 [Bytes]
+Rate of SSL data:                                       0.000 [Bytes/sec]
+Average packets per flow:                               5.667 [Packets]
+Average data per flow:                               1781.333 [Bytes]
+Client-hello message:                                       3 [Messages]
+Server-hello message:                                       3 [Messages]
+Number of SSL flows with successful handshake:              2 [Flows]
+Number of SSL flows ended with alert:                       1 [Flows]
+
+SSL/TLS ports count
+-------------------
+
+-------------------------
+| SSL/TLS ports | Count |
+-------------------------
+| 443           | 3     |
+-------------------------
+
+SSL/TLS versions count
+----------------------
+
+----------------------------------------
+| SSL/TLS version              | Count |
+----------------------------------------
+| TLS 1.3                      | 1     |
+| TLS 1.2                      | 1     |
+| TLS 1.0                      | 1     |
+----------------------------------------
+
+Cipher-suite count
+------------------
+
+--------------------------------------------------------------
+| Cipher-suite                                       | Count |
+--------------------------------------------------------------
+| TLS_RSA_WITH_RC4_128_SHA                           | 1     |
+| TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256            | 1     |
+| TLS_AES_128_GCM_SHA256                             | 1     |
+--------------------------------------------------------------
+
+Server-name count
+-----------------
+
+----------------------------------------------------
+| Hostname                                 | Count |
+----------------------------------------------------
+| www.gstatic.com                          | 1     |
+| ssl.gstatic.com                          | 1     |
+| bawmashbij                               | 1     |
+----------------------------------------------------

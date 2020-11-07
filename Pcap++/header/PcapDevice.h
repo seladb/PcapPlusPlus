@@ -4,7 +4,7 @@
 #include "Device.h"
 
 /**
- * Next define is ncessery in MinGw environment build context.
+ * Next define is necessary in MinGw environment build context.
  * The "-std" flag causes a lot of bugs and incompatibilities on older platforms one of them
  * is that "-DWIN32" flag is not properly passed from pcpp build system. 
  * But libpcap is strongly depends on definition of "WIN32" macro on Windows platform.
@@ -14,7 +14,11 @@
 #if defined(PCAPPP_MINGW_ENV) && !defined(WIN32)
 #	define WIN32
 #endif
-#include <pcap.h>
+
+// forward decleration for the pcap descriptor defined in pcap.h
+struct pcap;
+typedef pcap pcap_t;
+struct pcap_pkthdr;
 
 /// @file
 
@@ -41,16 +45,29 @@ namespace pcpp
 		IPcapDevice() : IDevice() { m_PcapDescriptor = NULL; }
 
 	public:
+
+		/**
+		 * @struct PcapStats
+		 * A container for pcap device statistics
+		 */
+		struct PcapStats
+		{
+			/** Number of packets received */
+			uint64_t packetsRecv;
+			/** Number of packets dropped */
+			uint64_t packetsDrop;
+			/** number of packets dropped by interface (not supported on all platforms) */
+			uint64_t packetsDropByInterface;
+		};
+
+
 		virtual ~IPcapDevice();
 
 		/**
-		 * Get statistics from device:
-		 * - pcap_stat#ps_recv: number of packets received
-		 * - pcap_stat#ps_drop: number of packets dropped
-		 * - pcap_stat#ps_ifdrop: number of packets dropped by interface
-		 * @param[out] stats The stats struct where stats are returned
+		 * Get statistics from the device
+		 * @param[out] stats An object containing the stats
 		 */
-		virtual void getStatistics(pcap_stat& stats) const = 0;
+		virtual void getStatistics(PcapStats& stats) const = 0;
 
 		/**
 		 * A static method for retreiving pcap lib (libpcap/WinPcap/etc.) version information. This method is actually

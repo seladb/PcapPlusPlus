@@ -11,7 +11,6 @@
 #include <arpa/inet.h>
 #endif
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <winsock2.h>
 #include <ws2tcpip.h>
 #endif
 #ifdef FREEBSD
@@ -54,76 +53,35 @@ int inet_pton(int af, const char* src, void* dst);
  */
 namespace pcpp
 {
-
-	/**
-	 * Extract IPv4 address from sockaddr
-	 * @param[in] sa - input sockaddr
-	 * @return Address in in_addr format
-	 */
-	in_addr* sockaddr2in_addr(struct sockaddr *sa);
-
-	/**
-	 * Extract IPv6 address from sockaddr
-	 * @param[in] sa - input sockaddr
-	 * @return Address in in6_addr format
-	 */
-	in6_addr* sockaddr2in6_addr(struct sockaddr *sa);
-
-	/**
-	 * Converts a sockaddr format address to its string representation
-	 * @param[in] sa Address in sockaddr format
-	 * @param[out]  resultString String representation of the address
-	 */
-	void sockaddr2string(struct sockaddr *sa, char* resultString);
-
-	/**
-	 * Convert a in_addr format address to 32bit representation
-	 * @param[in] inAddr Address in in_addr format
-	 * @return Address in 32bit format
-	 */
-	uint32_t in_addr2int(in_addr inAddr);
-
-	/**
-	 * A struct that represent a single buffer
-	 */
-	template<typename T>
-	struct ScalarBuffer
+	namespace internal
 	{
 		/**
-		 * The pointer to the buffer
+		 * Extract IPv4 address from sockaddr
+		 * @param[in] sa - input sockaddr
+		 * @return Address in in_addr format
 		 */
-		T* buffer;
+		in_addr* sockaddr2in_addr(struct sockaddr *sa);
 
 		/**
-		 * Buffer length
+		 * Extract IPv6 address from sockaddr
+		 * @param[in] sa - input sockaddr
+		 * @return Address in in6_addr format
 		 */
-		size_t len;
-	};
+		in6_addr* sockaddr2in6_addr(struct sockaddr *sa);
 
-	/**
-	 * Computes the checksum for a vector of buffers
-	 * @param[in] vec The vector of buffers
-	 * @param[in] vecSize Number of ScalarBuffers in vector
-	 * @return The checksum result
-	 */
-	uint16_t compute_checksum(ScalarBuffer<uint16_t> vec[], size_t vecSize);
+		/**
+		 * Converts a sockaddr format address to its string representation
+		 * @param[in] sa Address in sockaddr format
+		 * @param[out]  resultString String representation of the address
+		 */
+		void sockaddr2string(struct sockaddr *sa, char* resultString);
 
-	/**
-	 * Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on an array of byte buffers. The hash is calculated on each
-	 * byte in each byte buffer, as if all byte buffers were one long byte buffer
-	 * @param[in] vec An array of byte buffers (ScalarBuffer of type uint8_t)
-	 * @param[in] vecSize The length of vec
-	 * @return The 32bit hash value
-	 */
-	uint32_t fnv_hash(ScalarBuffer<uint8_t> vec[], size_t vecSize);
-
-	/**
-	 * Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on a byte buffer
-	 * @param[in] buffer The byte buffer
-	 * @param[in] bufSize The size of the byte buffer
-	 * @return The 32bit hash value
-	 */
-	uint32_t fnv_hash(uint8_t* buffer, size_t bufSize);
-
+		/**
+		 * Convert a in_addr format address to 32bit representation
+		 * @param[in] inAddr Address in in_addr format
+		 * @return Address in 32bit format
+		 */
+		uint32_t in_addr2int(in_addr inAddr);
+	} // namespace internal
 } // namespace pcpp
 #endif

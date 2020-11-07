@@ -7,8 +7,8 @@
 #include "TcpLayer.h"
 #include "GreLayer.h"
 #include "Packet.h"
+#include "PacketUtils.h"
 #include <string.h>
-#include "IpUtils.h"
 #include "EndianPortable.h"
 
 namespace pcpp

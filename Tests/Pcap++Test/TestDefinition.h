@@ -16,6 +16,8 @@ PTF_TEST_CASE(TestPcapRawIPFileReadWrite);
 PTF_TEST_CASE(TestPcapFileAppend);
 PTF_TEST_CASE(TestPcapNgFileReadWrite);
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv);
+PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6);
+PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4);
 
 // Implemented in LiveDeviceTests.cpp
 PTF_TEST_CASE(TestPcapLiveDeviceList);
@@ -55,6 +57,7 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6);
 PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns);
 PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO);
 PTF_TEST_CASE(TestTcpReassemblyCleanup);
+PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags);
 PTF_TEST_CASE(TestTcpReassemblyMaxSeq);
 
 // Implemented in IPFragmentationTests.cpp

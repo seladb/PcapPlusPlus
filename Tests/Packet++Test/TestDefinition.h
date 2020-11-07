@@ -36,6 +36,11 @@ PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
 PTF_TEST_CASE(TcpPacketCreation2);
 
+// Implemented in PacketUtilsTests.cpp
+PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
+PTF_TEST_CASE(PacketUtilsHash5TupleTcp);
+PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
+
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
 PTF_TEST_CASE(InsertVlanToPacket);
@@ -99,6 +104,8 @@ PTF_TEST_CASE(SSLMultipleRecordParsing4Test);
 PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
+PTF_TEST_CASE(TLS1_3ParsingTest);
+PTF_TEST_CASE(TLSCipherSuiteTest);
 
 // Implemented in IgmpTests.cpp
 PTF_TEST_CASE(IgmpParsingTest);
@@ -132,3 +139,7 @@ PTF_TEST_CASE(GtpLayerEditTest);
 PTF_TEST_CASE(BgpLayerParsingTest);
 PTF_TEST_CASE(BgpLayerCreationTest);
 PTF_TEST_CASE(BgpLayerEditTest);
+
+// Implemented in SSHTests.cpp
+PTF_TEST_CASE(SSHParsingTest);
+PTF_TEST_CASE(SSHMalformedParsingTest);

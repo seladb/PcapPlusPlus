@@ -4,11 +4,6 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <windows.h>
-#else
-#include <pthread.h>
-#endif
 
 /// @file
 
@@ -253,6 +248,41 @@ namespace pcpp
 	int clockGetTime(long& sec, long& nsec);
 
 	/**
+	 * A multi-platform version of the popular sleep method. This method simply runs the right sleep method, according to the platform
+	 * it is running on.
+	 * @param[in] seconds Number of seconds to sleep
+	 */
+	void multiPlatformSleep(uint32_t seconds);
+
+	/**
+	 * A multi-platform version of `htons` which convert host to network byte order
+	 * @param[in] host Value in host byte order
+	 * @return Value in network byte order
+	 */
+	uint16_t hostToNet16(uint16_t host);
+
+	/**
+	 * A multi-platform version of `ntohs` which convert network to host byte order
+	 * @param[in] net Value in network byte order
+	 * @return Value in host byte order
+	 */
+	uint16_t netToHost16(uint16_t net);
+
+	/**
+	 * A multi-platform version of `htonl` which convert host to network byte order
+	 * @param[in] host Value in host byte order
+	 * @return Value in network byte order
+	 */
+	uint32_t hostToNet32(uint32_t host);
+
+	/**
+	 * A multi-platform version of `ntohl` which convert network to host byte order
+	 * @param[in] net Value in network byte order
+	 * @return Value in host byte order
+	 */
+	uint32_t netToHost32(uint32_t net);
+
+	/**
 	 * @class AppName
 	 * This class extracts the application name from the current running executable and stores it for usage of the application throughout its runtime.
 	 * This class should be initialized once in the beginning of the main() method using AppName#init() and from then on the app name could be retrieved using AppName#get()
@@ -342,10 +372,9 @@ namespace pcpp
 		// private c'tor
 		ApplicationEventHandler();
 
-#ifdef WIN32
-		static BOOL WINAPI handlerRoutine(DWORD fdwCtrlType);
+#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+		static int handlerRoutine(unsigned long fdwCtrlType);
 #else
-		pthread_mutex_t m_HandlerRoutineMutex;
 		static void handlerRoutine(int signum);
 #endif
 	};

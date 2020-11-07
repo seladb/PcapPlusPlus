@@ -1,10 +1,8 @@
 #pragma once
 
 #include "Splitters.h"
-#if !defined(WIN32) && !defined(WINx64) //for using ntohl, ntohs, etc.
-#include <in.h>
-#endif
-#include "IpUtils.h"
+#include "PacketUtils.h"
+#include "SystemUtils.h"
 
 
 /**
@@ -54,8 +52,8 @@ public:
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 			if (tcpLayer != NULL)
 			{
-				uint16_t srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
-				uint16_t dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
+				uint16_t srcPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc);
+				uint16_t dstPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst);
 
 				if (tcpLayer->getTcpHeader()->synFlag)
 				{
@@ -87,8 +85,8 @@ public:
 			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
 			if (udpLayer != NULL)
 			{
-				uint16_t srcPort = ntohs(udpLayer->getUdpHeader()->portSrc);
-				uint16_t dstPort = ntohs(udpLayer->getUdpHeader()->portDst);
+				uint16_t srcPort = pcpp::netToHost16(udpLayer->getUdpHeader()->portSrc);
+				uint16_t dstPort = pcpp::netToHost16(udpLayer->getUdpHeader()->portDst);
 				m_FlowTable[hash] = getFileNumberForValue(getValue(packet, UDP, srcPort, dstPort), filesToClose);
 				return m_FlowTable[hash];
 			}
@@ -120,8 +118,8 @@ public:
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 			if (tcpLayer != NULL)
 			{
-				uint16_t srcPort = ntohs(tcpLayer->getTcpHeader()->portSrc);
-				uint16_t dstPort = ntohs(tcpLayer->getTcpHeader()->portDst);
+				uint16_t srcPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc);
+				uint16_t dstPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst);
 
 				if (tcpLayer->getTcpHeader()->synFlag)
 				{
@@ -150,8 +148,8 @@ public:
 			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
 			if (udpLayer != NULL)
 			{
-				uint16_t srcPort = ntohs(udpLayer->getUdpHeader()->portSrc);
-				uint16_t dstPort = ntohs(udpLayer->getUdpHeader()->portDst);
+				uint16_t srcPort = pcpp::netToHost16(udpLayer->getUdpHeader()->portSrc);
+				uint16_t dstPort = pcpp::netToHost16(udpLayer->getUdpHeader()->portDst);
 				return result + getValueString(packet, UDP, srcPort, dstPort);
 			}
 		}
@@ -197,7 +195,7 @@ protected:
 		if (packet.isPacketOfType(pcpp::IPv4))
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress().toInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toBytes(), 16);
+			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toBytes(), 16);
 		else
 			return 0;
 	}
@@ -210,7 +208,7 @@ protected:
 		if (packet.isPacketOfType(pcpp::IPv4))
 			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress().toInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnv_hash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toBytes(), 16);
+			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toBytes(), 16);
 		else
 			return 0;
 	}

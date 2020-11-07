@@ -249,9 +249,9 @@ PTF_TEST_CASE(TestPrintPacketAndLayers)
 		outputStream << packet.toString(false) << "\n\n";
 	}
 
-//	ofstream outputFile("output.txt");
-//	outputFile << outputStream.str();
-//	outputFile.close();
+	// std::ofstream outputFile("output.txt");
+	// outputFile << outputStream.str();
+	// outputFile.close();
 
 	std::ifstream referenceFile("PcapExamples/example2_summary.txt");
 	std::stringstream referenceBuffer;

@@ -20,15 +20,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <algorithm>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)  //for using ntohl, ntohs, etc.
-#include <in.h>
-#endif
 #include "PcapLiveDeviceList.h"
 #include "PcapFilter.h"
 #include "PcapFileDevice.h"
 #include "SSLStatsCollector.h"
 #include "TablePrinter.h"
-#include "PlatformSpecificUtils.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 #include <getopt.h>
@@ -51,9 +47,13 @@ using namespace pcpp;
 #define PRINT_STAT_LINE_DOUBLE(description, counter, measurement) \
 		PRINT_STAT_LINE(description, counter, measurement, ".3f")
 
-#define PRINT_STAT_HEADLINE(description) \
-		printf("\n" description "\n--------------------\n\n")
-
+void printStatHeadline(const std::string description)
+{
+	printf("\n%s\n", description.c_str());
+	for (size_t i = 0; i < description.size(); i++)
+		printf("-");
+	printf("\n\n");
+}
 
 #define DEFAULT_CALC_RATES_PERIOD_SEC 2
 
@@ -214,7 +214,7 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 /**
  * Print SSL record version map
  */
-void printVersions(std::map<SSLVersion, int>& versionMap, std::string headline)
+void printVersions(std::map<uint16_t, int>& versionMap, std::string headline)
 {
 	// create the table
 	std::vector<std::string> columnNames;
@@ -225,13 +225,18 @@ void printVersions(std::map<SSLVersion, int>& versionMap, std::string headline)
 	columnsWidths.push_back(5);
 	TablePrinter printer(columnNames, columnsWidths);
 
-	// go over the status code map and print each item
-	for(std::map<SSLVersion, int>::iterator iter = versionMap.begin();
-			iter != versionMap.end();
+	// sort the version map so the most popular version will be first
+	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+	std::vector<std::pair<uint16_t, int> > map2vec(versionMap.begin(), versionMap.end());
+	std::sort(map2vec.begin(),map2vec.end(), &uint16CountComparer);
+
+	// go over all items (names + count) in the sorted vector and print them
+	for(std::vector<std::pair<uint16_t, int> >::iterator iter = map2vec.begin();
+			iter != map2vec.end();
 			iter++)
 	{
 		std::stringstream values;
-		values << iter->first << "|" << iter->second;
+		values << SSLVersion(iter->first).toString() << "|" << iter->second;
 		printer.printRow(values.str(), '|');
 	}
 }
@@ -301,7 +306,7 @@ void printPorts(SSLGeneralStats& stats)
  */
 void printStatsSummary(SSLStatsCollector& collector)
 {
-	PRINT_STAT_HEADLINE("General stats");
+	printStatHeadline("General stats");
 	PRINT_STAT_LINE_DOUBLE("Sample time", collector.getGeneralStats().sampleTime, "Seconds");
 	PRINT_STAT_LINE_INT("Number of SSL packets", collector.getGeneralStats().numOfSSLPackets, "Packets");
 	PRINT_STAT_LINE_DOUBLE("Rate of SSL packets", collector.getGeneralStats().sslPacketRate.totalRate, "Packets/sec");
@@ -316,19 +321,16 @@ void printStatsSummary(SSLStatsCollector& collector)
 	PRINT_STAT_LINE_INT("Number of SSL flows with successful handshake", collector.getGeneralStats().numOfHandshakeCompleteFlows, "Flows");
 	PRINT_STAT_LINE_INT("Number of SSL flows ended with alert", collector.getGeneralStats().numOfFlowsWithAlerts, "Flows");
 
-	PRINT_STAT_HEADLINE("SSL/TLS ports count");
+	printStatHeadline("SSL/TLS ports count");
 	printPorts(collector.getGeneralStats());
 
-	PRINT_STAT_HEADLINE("SSL versions count");
-	printVersions(collector.getGeneralStats().sslRecordVersionCount, std::string("SSL record version"));
+	printStatHeadline("SSL/TLS versions count");
+	printVersions(collector.getGeneralStats().sslVersionCount, std::string("SSL/TLS version"));
 
-	PRINT_STAT_HEADLINE("Client-hello versions count");
-	printVersions(collector.getClientHelloStats().sslClientHelloVersionCount, std::string("Client-hello version"));
-
-	PRINT_STAT_HEADLINE("Cipher-suite count");
+	printStatHeadline("Cipher-suite count");
 	printCipherSuites(collector.getServerHelloStats());
 
-	PRINT_STAT_HEADLINE("Server-name count");
+	printStatHeadline("Server-name count");
 	printServerNames(collector.getClientHelloStats());
 
 }
@@ -339,7 +341,7 @@ void printStatsSummary(SSLStatsCollector& collector)
  */
 void printCurrentRates(SSLStatsCollector& collector)
 {
-	PRINT_STAT_HEADLINE("Current SSL rates");
+	printStatHeadline("Current SSL rates");
 	PRINT_STAT_LINE_DOUBLE("Rate of SSL packets", collector.getGeneralStats().sslPacketRate.currentRate, "Packets/sec");
 	PRINT_STAT_LINE_DOUBLE("Rate of SSL flows", collector.getGeneralStats().sslFlowRate.currentRate, "Flows/sec");
 	PRINT_STAT_LINE_DOUBLE("Rate of SSL data", collector.getGeneralStats().sslTrafficRate.currentRate, "Bytes/sec");
@@ -447,7 +449,7 @@ void analyzeSSLFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, 
 
 	while(!shouldStop)
 	{
-		PCAP_SLEEP(printRatePeriod);
+		multiPlatformSleep(printRatePeriod);
 
 		// calculate rates
 		if (printRatesPeriodicaly)
