@@ -308,7 +308,7 @@ void SipRequestFirstLine::parseVersion()
 	verPos++;
 
 	int endOfVerPos = 0;
-	while (((verPos+endOfVerPos)[0] != '\r') && ((verPos+endOfVerPos)[0] != '\n') && ((verPos + endOfVerPos) < (char *) (m_SipRequest->m_Data + m_SipRequest->m_DataLen)))
+	while (((verPos + endOfVerPos) < (char *) (m_SipRequest->m_Data + m_SipRequest->m_DataLen)) && ((verPos+endOfVerPos)[0] != '\r') && ((verPos+endOfVerPos)[0] != '\n'))
 		endOfVerPos++;
 
 	m_Version = std::string(verPos, endOfVerPos);

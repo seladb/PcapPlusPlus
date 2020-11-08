@@ -1413,9 +1413,13 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			newExt = new SSLExtension(curPos);
 		}
 
+		if (newExt->getTotalLength() == 0)
+		{
+			delete newExt;
+			break;
+		}
+			
 		m_ExtensionList.pushBack(newExt);
-		if (newExt->getTotalLength() <= 0)
-			return;
 		curPos += newExt->getTotalLength();
 	}
 }
