@@ -11,6 +11,8 @@ include ../../mk/PcapPlusPlus.mk
 SOURCES := $(wildcard *.cpp)
 OBJS_FILENAMES := $(patsubst %.cpp,Obj/%.o,$(SOURCES))
 
+PCAPPP_INCLUDES += -I"$(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include"
+
 Obj/%.o: %.cpp
 	@echo Building file: $<
 	@$(CXX) $(PCAPPP_BUILD_FLAGS) -c $(PCAPPP_INCLUDES)  -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
