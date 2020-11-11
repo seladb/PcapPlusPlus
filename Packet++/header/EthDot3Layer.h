@@ -45,6 +45,15 @@ namespace pcpp
 		EthDot3Layer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = EthernetDot3; }
 
 		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data (will be casted to ether_header)
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		EthDot3Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = EthernetDot3; }
+
+		/**
 		 * A constructor that creates a new IEEE 802.3 Ethernet header and allocates the data
 		 * @param[in] sourceMac The source MAC address
 		 * @param[in] destMac The destination MAC address
@@ -104,7 +113,38 @@ namespace pcpp
 		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
+
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an IEEE 802.3 Eth packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an IEEE 802.3 Eth packet
+		 */
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 	};
+
+	// implementation of inline methods
+
+	bool EthDot3Layer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		if (dataLen >= sizeof(ether_dot3_header))
+		{
+			/**
+			 * LSAPs: ... Such a length must, when considered as an
+			 * unsigned integer, be less than 0x5DC or it could be mistaken as
+			 * an Ethertype...
+			 *
+			 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
+			 * More: IEEE Std 802.3 Clause 3.2.6
+			 */
+			return be16toh(*(uint16_t*)(data + 12)) <= (uint16_t)0x05DC;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 }
 
 #endif // PACKETPP_ETH_DOT3_LAYER

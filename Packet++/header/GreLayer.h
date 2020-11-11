@@ -148,7 +148,8 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, VlanLayer, MplsLayer and PPP_PPTPLayer.
+		 * Currently identifies the following next layers:
+		 *   IPv4Layer, IPv6Layer, VlanLayer, MplsLayer, PPP_PPTPLayer, EthLayer, EthDot3Layer
 		 * Otherwise sets PayloadLayer
 		 */
 		void parseNextLayer();

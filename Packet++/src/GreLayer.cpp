@@ -2,6 +2,7 @@
 
 #include "GreLayer.h"
 #include "EthLayer.h"
+#include "EthDot3Layer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PPPoELayer.h"
@@ -218,6 +219,20 @@ void GreLayer::parseNextLayer()
 		break;
 	case PCPP_ETHERTYPE_PPP:
 		m_NextLayer = new PPP_PPTPLayer(payload, payloadLen, this, m_Packet);
+		break;
+	case PCPP_ETHERTYPE_ETHBRIDGE:
+		if (EthLayer::isDataValid(payload, payloadLen))
+		{
+			m_NextLayer = new EthLayer(payload, payloadLen, this, m_Packet);
+		}
+		else if (EthDot3Layer::isDataValid(payload, payloadLen))
+		{
+			m_NextLayer = new EthDot3Layer(payload, payloadLen, this, m_Packet);
+		}
+		else
+		{
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		}
 		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);

@@ -3,6 +3,7 @@
 #include "EndianPortable.h"
 #include "Logger.h"
 #include "EthLayer.h"
+#include "TcpLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PPPoELayer.h"
@@ -21,14 +22,17 @@ PTF_TEST_CASE(GreParsingTest)
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/GREv0_2.dat");
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/GREv1_1.dat");
 	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/GREv1_2.dat");
+	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/GREv0_4.dat");
 
 	pcpp::GREv0Layer* grev0Layer = NULL;
 	pcpp::GREv1Layer* grev1Layer = NULL;
+	pcpp::TcpLayer* tcpLayer = NULL;
 
 	pcpp::Packet grev0Packet1(&rawPacket1);
 	pcpp::Packet grev0Packet2(&rawPacket2);
 	pcpp::Packet grev1Packet1(&rawPacket3);
 	pcpp::Packet grev1Packet2(&rawPacket4);
+	pcpp::Packet grev0Packet4(&rawPacket5);
 
 	uint16_t value16 = 0;
 	uint32_t value32 = 0;
@@ -138,6 +142,21 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_NOT_NULL(pppLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(pppLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	grev1Layer = NULL;
+
+	// GREv0 packet 4 - Transparent Ethernet Bridging
+	PTF_ASSERT_TRUE(grev0Packet4.isPacketOfType(pcpp::GRE) && grev0Packet4.isPacketOfType(pcpp::GREv0));
+	grev0Layer = grev0Packet4.getLayerOfType<pcpp::GREv0Layer>();
+	PTF_ASSERT_NOT_NULL(grev0Layer);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 1, u8);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_ETHBRIDGE), u16);
+	PTF_ASSERT_TRUE(grev0Layer->getKey(value32));
+	PTF_ASSERT_EQUAL(value32, 0xFDE8, u32);
+	// to ensure it parsed through GRE to next layers, find tcp from bottom
+	tcpLayer = grev0Packet4.getLayerOfType<pcpp::TcpLayer>(true /* reverse */);
+	PTF_ASSERT_NOT_NULL(tcpLayer);
+	PTF_ASSERT_EQUAL(be16toh(tcpLayer->getTcpHeader()->portSrc), 1232, u16);
+	grev0Layer = NULL;
+	tcpLayer = NULL;
 } // GreParsingTest
 
 
