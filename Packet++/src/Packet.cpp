@@ -686,25 +686,15 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 
 	if (linkType == LINKTYPE_ETHERNET)
 	{
-		// In order to distinguish between Ethernet II and IEEE 802.3 Ethernet the common method is
-		// to check the length field. In IEEE 802.3 Ethernet the length value should be equal or 
-		// less than 0x5DC which corresponds to 1500 bytes. If the value is larger than 0x5DC
-		// it means the value is an Ether Type which belongs to Ethernet II.
-		// You can read more in this link:
-		// https://www.ibm.com/support/pages/ethernet-version-2-versus-ieee-8023-ethernet
-		if (rawDataLen >= sizeof(ether_header))
+		if (EthLayer::isDataValid(rawData, rawDataLen))
 		{
-			uint16_t ethTypeOrLength = be16toh(*(uint16_t*)(rawData + 12));
-			if (ethTypeOrLength <= (uint16_t)0x5dc && ethTypeOrLength != 0)
-			{
-				return new EthDot3Layer((uint8_t*)rawData, rawDataLen, this);
-			}
-			else
-			{
-				return new EthLayer((uint8_t*)rawData, rawDataLen, this);
-			}	
+			return new EthLayer((uint8_t*)rawData, rawDataLen, this);
 		}
-		else // rawDataLen is too small for Eth packet
+		else if (EthDot3Layer::isDataValid(rawData, rawDataLen))
+		{
+			return new EthDot3Layer((uint8_t*)rawData, rawDataLen, this);
+		}
+		else
 		{
 			return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
 		}

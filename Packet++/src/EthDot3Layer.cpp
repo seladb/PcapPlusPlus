@@ -36,4 +36,24 @@ std::string EthDot3Layer::toString() const
 	return "IEEE 802.3 Ethernet, Src: " + getSourceMac().toString() + ", Dst: " + getDestMac().toString();
 }
 
+bool EthDot3Layer::isDataValid(const uint8_t* data, size_t dataLen)
+{
+	if (dataLen >= sizeof(ether_dot3_header))
+	{
+		/**
+		 * LSAPs: ... Such a length must, when considered as an
+		 * unsigned integer, be less than 0x5DC or it could be mistaken as
+		 * an Ethertype...
+		 *
+		 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
+		 * More: IEEE Std 802.3 Clause 3.2.6
+		 */
+		return be16toh(*(uint16_t*)(data + 12)) <= (uint16_t)0x05DC;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 }
