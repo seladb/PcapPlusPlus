@@ -3,7 +3,6 @@
 
 #include "Layer.h"
 #include "MacAddress.h"
-#include "EndianPortable.h"
 
 /// @file
 
@@ -121,31 +120,9 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an IEEE 802.3 Eth packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		static bool isDataValid(const uint8_t* data, size_t dataLen);
 	};
 
-	// implementation of inline methods
-
-	bool EthDot3Layer::isDataValid(const uint8_t* data, size_t dataLen)
-	{
-		if (dataLen >= sizeof(ether_dot3_header))
-		{
-			/**
-			 * LSAPs: ... Such a length must, when considered as an
-			 * unsigned integer, be less than 0x5DC or it could be mistaken as
-			 * an Ethertype...
-			 *
-			 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
-			 * More: IEEE Std 802.3 Clause 3.2.6
-			 */
-			return be16toh(*(uint16_t*)(data + 12)) <= (uint16_t)0x05DC;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-}
+} // namespace pcpp
 
 #endif // PACKETPP_ETH_DOT3_LAYER

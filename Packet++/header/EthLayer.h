@@ -3,7 +3,6 @@
 
 #include "Layer.h"
 #include "MacAddress.h"
-#include "EndianPortable.h"
 
 /// @file
 
@@ -32,33 +31,33 @@ namespace pcpp
 	/* Ethernet protocol ID's */
 
 	/** IP */
-#define	PCPP_ETHERTYPE_IP			0x0800
+#define PCPP_ETHERTYPE_IP        0x0800
 	/** Address resolution */
-#define	PCPP_ETHERTYPE_ARP			0x0806
+#define PCPP_ETHERTYPE_ARP       0x0806
 	/** Transparent Ethernet Bridging */
-#define PCPP_ETHERTYPE_ETHBRIDGE	0x6558
+#define PCPP_ETHERTYPE_ETHBRIDGE 0x6558
 	/** Reverse ARP */
-#define	PCPP_ETHERTYPE_REVARP		0x8035
+#define PCPP_ETHERTYPE_REVARP    0x8035
 	/** AppleTalk protocol */
-#define PCPP_ETHERTYPE_AT			0x809B
+#define PCPP_ETHERTYPE_AT        0x809B
 	/** AppleTalk ARP */
-#define PCPP_ETHERTYPE_AARP			0x80F3
+#define PCPP_ETHERTYPE_AARP      0x80F3
 	/** IEEE 802.1Q VLAN tagging */
-#define	PCPP_ETHERTYPE_VLAN			0x8100
+#define PCPP_ETHERTYPE_VLAN      0x8100
 	/** IPX */
-#define PCPP_ETHERTYPE_IPX			0x8137
+#define PCPP_ETHERTYPE_IPX       0x8137
 	/** IP protocol version 6 */
-#define	PCPP_ETHERTYPE_IPV6			0x86dd
+#define PCPP_ETHERTYPE_IPV6      0x86dd
 	/** used to test interfaces */
-#define PCPP_ETHERTYPE_LOOPBACK		0x9000
+#define PCPP_ETHERTYPE_LOOPBACK  0x9000
 	/** PPPoE discovery */
-#define PCPP_ETHERTYPE_PPPOED		0x8863
+#define PCPP_ETHERTYPE_PPPOED    0x8863
 	/** PPPoE session */
-#define PCPP_ETHERTYPE_PPPOES		0x8864
+#define PCPP_ETHERTYPE_PPPOES    0x8864
 	/** MPLS */
-#define PCPP_ETHERTYPE_MPLS			0x8847
+#define PCPP_ETHERTYPE_MPLS      0x8847
 	/** Point-to-point protocol (PPP) */
-#define PCPP_ETHERTYPE_PPP			0x880B
+#define PCPP_ETHERTYPE_PPP       0x880B
 
 
 	/**
@@ -154,31 +153,8 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Ethernet II packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		static bool isDataValid(const uint8_t* data, size_t dataLen);
 	};
-
-	// implementation of inline methods
-
-	bool EthLayer::isDataValid(const uint8_t* data, size_t dataLen)
-	{
-		if (dataLen >= sizeof(ether_header))
-		{
-			/**
-			 * Ethertypes: These are 16-bit identifiers appearing as the initial
-			 * two octets after the MAC destination and source (or after a
-			 * tag) which, when considered as an unsigned integer, are equal
-			 * to or larger than 0x0600.
-			 *
-			 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
-			 * More: IEEE Std 802.3 Clause 3.2.6
-			 */
-			return be16toh(*(uint16_t*)(data + 12)) >= (uint16_t)0x0600;
-		}
-		else
-		{
-			return false;
-		}
-	}
 
 } // namespace pcpp
 
