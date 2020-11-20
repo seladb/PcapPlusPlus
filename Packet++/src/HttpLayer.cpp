@@ -188,7 +188,7 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 
 	if(m_VersionOffset < 0)
 	{
-	    m_IsComplete = false;
+		m_IsComplete = false;
 		m_FirstLineEndOffset = m_HttpRequest->getDataLen();
 		return;
 	}
