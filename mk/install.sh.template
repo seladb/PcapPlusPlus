@@ -13,8 +13,11 @@ mkdir -p $INSTALL_DIR/include/pcapplusplus
 cp header/* $INSTALL_DIR/include/pcapplusplus
 
 # copy examples
-mkdir -p $INSTALL_DIR/bin
-cp examples/* $INSTALL_DIR/bin
+if [ -d "examples/" ]
+then
+  mkdir -p $INSTALL_DIR/bin
+  cp examples/* $INSTALL_DIR/bin
+fi
 
 # create template makefile 
 cp mk/PcapPlusPlus.mk PcapPlusPlus.mk
@@ -35,7 +38,7 @@ printf 'Version: '>>PcapPlusPlus.pc
 grep '#define PCAPPLUSPLUS_VERSION ' header/PcapPlusPlusVersion.h | cut -d " " -f3 | tr -d "\"" | tr -d '\n'>>PcapPlusPlus.pc
 printf '\n'>>PcapPlusPlus.pc
 echo 'URL: https://pcapplusplus.github.io'>>PcapPlusPlus.pc
-printf 'Libs: '>>PcapPlusPlus.pc
+printf 'Libs: -L${libdir} '>>PcapPlusPlus.pc
 grep PCAPPP_LIBS PcapPlusPlus.mk | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
 printf '\nCFlags: '>>PcapPlusPlus.pc
 grep PCAPPP_INCLUDES PcapPlusPlus.mk | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
