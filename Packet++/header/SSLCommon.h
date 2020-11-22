@@ -520,8 +520,8 @@ namespace pcpp
 		SSL_EXT_SERVER_AUTHZ = 8,
 		/** Certificate Type extension */
 		SSL_EXT_CERT_TYPE = 9,
-		/** Supported Elliptic Curves extension */
-		SSL_EXT_ELLIPTIC_CURVES = 10,
+		/** Supported Groups extension (renamed from "elliptic curves") */
+		SSL_EXT_SUPPORTED_GROUPS = 10,
 		/** Elliptic Curves Point Format extension */
 		SSL_EXT_EC_POINT_FORMATS = 11,
 		/** Secure Remote Password extension */

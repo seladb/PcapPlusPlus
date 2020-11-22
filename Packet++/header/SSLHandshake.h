@@ -206,6 +206,48 @@ public:
 
 
 /**
+ * @class TLSSupportedGroupsExtension
+ * Represents TLS Supported Groups extension. Inherits from SSLExtension and adds parsing of the
+ * supported groups (Elliptic Curves) mentioned in the extension data
+ */
+class TLSSupportedGroupsExtension : public SSLExtension
+{
+	public:
+	/**
+	 * C'tor for this class
+	 * @param[in] data The raw data for the extension
+	 */
+	TLSSupportedGroupsExtension(uint8_t* data) : SSLExtension(data) {}
+
+	/**
+	 * @return A vector of the supported groups (also known as "Elliptic Curves")
+	 */
+	std::vector<uint16_t> getSupportedGroups() const;
+};
+
+
+/**
+ * @class TLSECPointFormatExtension
+ * Represents TLS EC (Elliptic Curves) Point Format extension. Inherits from SSLExtension and adds parsing of the
+ * EC point formats mentioned in the extension data
+ */
+class TLSECPointFormatExtension : public SSLExtension
+{
+	public:
+	/**
+	 * C'tor for this class
+	 * @param[in] data The raw data for the extension
+	 */
+	TLSECPointFormatExtension(uint8_t* data) : SSLExtension(data) {}
+
+	/**
+	 * @return A vector of the elliptic curves point formats
+	 */
+	std::vector<uint8_t> getECPointFormatList() const;
+};
+
+
+/**
  * @class SSLx509Certificate
  * Represents a x509v3 certificate. the SSLCertificateMessage class returns an instance of this class as the certificate.
  * Currently this class doesn't do much as it doesn't parse the certificate. It only acts as container to the raw data

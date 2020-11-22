@@ -132,7 +132,21 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 	PTF_ASSERT_NOT_NULL(serverNameExt);
 	PTF_ASSERT_EQUAL(serverNameExt->getHostName(), "www.google.com", string);
 
-	pcpp::SSLExtensionType extTypes[9] = { pcpp::SSL_EXT_SERVER_NAME, pcpp::SSL_EXT_RENEGOTIATION_INFO, pcpp::SSL_EXT_ELLIPTIC_CURVES, pcpp::SSL_EXT_EC_POINT_FORMATS,
+	pcpp::TLSECPointFormatExtension* ecPointFormatExt = clientHelloMessage->getExtensionOfType<pcpp::TLSECPointFormatExtension>();
+	PTF_ASSERT_NOT_NULL(ecPointFormatExt);
+	std::vector<uint8_t> ecPointFormatList = ecPointFormatExt->getECPointFormatList();
+	PTF_ASSERT_EQUAL(ecPointFormatList.size(), 1, size);
+	PTF_ASSERT_EQUAL(ecPointFormatList.at(0), 0, u8);
+
+	pcpp::TLSSupportedGroupsExtension* supportedGroupsExt = clientHelloMessage->getExtensionOfType<pcpp::TLSSupportedGroupsExtension>();
+	PTF_ASSERT_NOT_NULL(supportedGroupsExt);
+	std::vector<uint16_t> supportedGroups = supportedGroupsExt->getSupportedGroups();
+	PTF_ASSERT_EQUAL(supportedGroups.size(), 3, size);
+	PTF_ASSERT_EQUAL(supportedGroups.at(0), 23, u16);
+	PTF_ASSERT_EQUAL(supportedGroups.at(1), 24, u16);
+	PTF_ASSERT_EQUAL(supportedGroups.at(2), 25, u16);
+
+	pcpp::SSLExtensionType extTypes[9] = { pcpp::SSL_EXT_SERVER_NAME, pcpp::SSL_EXT_RENEGOTIATION_INFO, pcpp::SSL_EXT_SUPPORTED_GROUPS, pcpp::SSL_EXT_EC_POINT_FORMATS,
 			pcpp::SSL_EXT_SESSIONTICKET_TLS, pcpp::SSL_EXT_Unknown, pcpp::SSL_EXT_APPLICATION_LAYER_PROTOCOL_NEGOTIATION, pcpp::SSL_EXT_STATUS_REQUEST,
 			pcpp::SSL_EXT_SIGNATURE_ALGORITHMS };
 
@@ -259,6 +273,11 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 		PTF_ASSERT_EQUAL(curExt->getType(), extensionTypes[i], enum);
 		PTF_ASSERT_EQUAL(curExt->getData()[0], extensionDataFirstByte[i], u8);
 	}
+	pcpp::TLSECPointFormatExtension* ecPointFormatExt = serverHelloMessage->getExtensionOfType<pcpp::TLSECPointFormatExtension>();
+	PTF_ASSERT_NOT_NULL(ecPointFormatExt);
+	std::vector<uint8_t> ecPointFormatList = ecPointFormatExt->getECPointFormatList();
+	PTF_ASSERT_EQUAL(ecPointFormatList.size(), 1, size);
+	PTF_ASSERT_EQUAL(ecPointFormatList.at(0), 0, u8);
 
 	pcpp::SSLChangeCipherSpecLayer* ccsLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLChangeCipherSpecLayer>();
 	PTF_ASSERT_NOT_NULL(ccsLayer);
@@ -557,6 +576,24 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	PTF_ASSERT_EQUAL(versionVec[1].asEnum(), pcpp::SSLVersion::TLS1_3_D27, enum);
 	PTF_ASSERT_EQUAL(versionVec[2].asEnum(), pcpp::SSLVersion::TLS1_3_D26, enum);
 	PTF_ASSERT_EQUAL(versionVec[0].asEnum(true), pcpp::SSLVersion::TLS1_3, enum);
+
+	pcpp::TLSECPointFormatExtension* ecPointFormatExt = clientHelloMsg->getExtensionOfType<pcpp::TLSECPointFormatExtension>();
+	PTF_ASSERT_NOT_NULL(ecPointFormatExt);
+	std::vector<uint8_t> ecPointFormatList = ecPointFormatExt->getECPointFormatList();
+	PTF_ASSERT_EQUAL(ecPointFormatList.size(), 3, size);
+	PTF_ASSERT_EQUAL(ecPointFormatList.at(0), 0, u8);
+	PTF_ASSERT_EQUAL(ecPointFormatList.at(1), 1, u8);
+	PTF_ASSERT_EQUAL(ecPointFormatList.at(2), 2, u8);
+
+	pcpp::TLSSupportedGroupsExtension* supportedGroupsExt = clientHelloMsg->getExtensionOfType<pcpp::TLSSupportedGroupsExtension>();
+	PTF_ASSERT_NOT_NULL(supportedGroupsExt);
+	std::vector<uint16_t> supportedGroups = supportedGroupsExt->getSupportedGroups();
+	PTF_ASSERT_EQUAL(supportedGroups.size(), 5, size);
+	PTF_ASSERT_EQUAL(supportedGroups.at(0), 29, u16);
+	PTF_ASSERT_EQUAL(supportedGroups.at(1), 23, u16);
+	PTF_ASSERT_EQUAL(supportedGroups.at(2), 30, u16);
+	PTF_ASSERT_EQUAL(supportedGroups.at(3), 25, u16);
+	PTF_ASSERT_EQUAL(supportedGroups.at(4), 24, u16);
 
 
 	handshakeLayer = tls13ClientHello2.getLayerOfType<pcpp::SSLHandshakeLayer>();

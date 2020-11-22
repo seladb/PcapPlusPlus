@@ -1144,6 +1144,57 @@ std::vector<SSLVersion> SSLSupportedVersionsExtension::getSupportedVersions() co
 }
 
 
+// -----------------------------------
+// TLSSupportedGroupsExtension methods
+// -----------------------------------
+
+std::vector<uint16_t> TLSSupportedGroupsExtension::getSupportedGroups() const
+{
+	std::vector<uint16_t> result;
+
+	uint16_t extensionLength = getLength();
+	if (extensionLength < sizeof(uint16_t))
+		return result; //bad extension data
+
+	uint16_t listLength = be16toh(*(uint16_t*)getData());
+	if (listLength != (extensionLength - sizeof(uint16_t)) || listLength % 2 != 0)
+		return result; // bad extension data
+
+	uint8_t* dataPtr = getData() + sizeof(uint16_t);
+	for (int i = 0; i < listLength / 2; i++)
+	{
+		result.push_back(be16toh(*(uint16_t*)dataPtr));
+		dataPtr += sizeof(uint16_t);
+	}
+
+	return result;
+}
+
+
+// ---------------------------------
+// TLSECPointFormatExtension methods
+// ---------------------------------
+
+std::vector<uint8_t> TLSECPointFormatExtension::getECPointFormatList() const
+{
+	std::vector<uint8_t> result;
+
+	uint16_t extensionLength = getLength();
+	uint8_t listLength = *getData();
+	if (listLength != static_cast<uint8_t>(extensionLength - 1))
+		return result; // bad extension data
+
+	uint8_t* dataPtr = getData() + sizeof(uint8_t);
+	for (int i = 0; i < listLength; i++)
+	{
+		result.push_back(*dataPtr);
+		dataPtr += sizeof(uint8_t);
+	}
+
+	return result;
+}
+
+
 // ---------------------------
 // SSLHandshakeMessage methods
 // ---------------------------
@@ -1248,6 +1299,12 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			break;
 		case SSL_EXT_SUPPORTED_VERSIONS:
 			newExt = new SSLSupportedVersionsExtension(curPos);
+			break;
+		case SSL_EXT_SUPPORTED_GROUPS:
+			newExt = new TLSSupportedGroupsExtension(curPos);
+			break;
+		case SSL_EXT_EC_POINT_FORMATS:
+			newExt = new TLSECPointFormatExtension(curPos);
 			break;
 		default:
 			newExt = new SSLExtension(curPos);
@@ -1408,6 +1465,12 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			break;
 		case SSL_EXT_SUPPORTED_VERSIONS:
 			newExt = new SSLSupportedVersionsExtension(curPos);
+			break;
+		case SSL_EXT_SUPPORTED_GROUPS:
+			newExt = new TLSSupportedGroupsExtension(curPos);
+			break;
+		case SSL_EXT_EC_POINT_FORMATS:
+			newExt = new TLSECPointFormatExtension(curPos);
 			break;
 		default:
 			newExt = new SSLExtension(curPos);
