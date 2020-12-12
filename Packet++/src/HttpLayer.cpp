@@ -175,11 +175,22 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	{
 		m_UriOffset = -1;
 		LOG_DEBUG("Couldn't resolve HTTP request method");
+		m_IsComplete = false;
+		m_Version = HttpVersionUnknown;
+		m_VersionOffset = -1;
+		m_FirstLineEndOffset = m_HttpRequest->getDataLen();
+		return;
 	}
 	else
 		m_UriOffset = MethodEnumToString[m_Method].length() + 1;
 
 	parseVersion();
+	if(m_VersionOffset < 0)
+	{
+		m_IsComplete = false;
+		m_FirstLineEndOffset = m_HttpRequest->getDataLen();
+		return;
+	}
 
 	char* endOfFirstLine;
 	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n', m_HttpRequest->m_DataLen-(size_t)m_VersionOffset)) != NULL)
