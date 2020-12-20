@@ -267,6 +267,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\hash-library\md5.cpp" />
+    <ClCompile Include="..\..\3rdParty\hash-library\md5.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Common++.vcxproj">

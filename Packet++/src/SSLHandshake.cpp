@@ -1466,7 +1466,7 @@ SSLClientHelloMessage::ClientHelloTLSFingerprint SSLClientHelloMessage::generate
 	{
 		bool isValid = false;
 		uint16_t cipherSuiteID = getCipherSuiteID(i, isValid);
-		if (isValid and GreaseSet.find(cipherSuiteID) == GreaseSet.end())
+		if (isValid && GreaseSet.find(cipherSuiteID) == GreaseSet.end())
 			result.cipherSuites.push_back(cipherSuiteID);
 	}
 
