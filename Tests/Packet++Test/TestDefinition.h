@@ -106,6 +106,8 @@ PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
 PTF_TEST_CASE(TLS1_3ParsingTest);
 PTF_TEST_CASE(TLSCipherSuiteTest);
+PTF_TEST_CASE(ClientHelloTLSFingerprintTest);
+PTF_TEST_CASE(ServerHelloTLSFingerprintTest);
 
 // Implemented in IgmpTests.cpp
 PTF_TEST_CASE(IgmpParsingTest);

@@ -96,7 +96,7 @@ struct ConnectionData
 	/**
 	 * A c'tor for this struct that basically zeros all members
 	 */
-	ConnectionData() : srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()  {}
+	ConnectionData() : srcPort(0), dstPort(0), flowKey(0), startTime(), endTime() {}
 
 	/**
 	 * Set startTime of Connection

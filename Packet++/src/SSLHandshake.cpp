@@ -1,9 +1,11 @@
 #define LOG_MODULE PacketLogModuleSSLLayer
 
 #include "EndianPortable.h"
+#include "md5.h"
 #include <string.h>
 #include <sstream>
 #include <map>
+#include <set>
 #include "Logger.h"
 #include "SSLHandshake.h"
 
@@ -1033,9 +1035,17 @@ static std::map<uint32_t, SSLCipherSuite*> createCipherSuiteStringToObjectMap()
 	return result;
 }
 
+std::set<uint16_t> createGreaseSet()
+{
+	uint16_t greaseExtensions[] = {0x0a0a, 0x1a1a, 0x2a2a, 0x3a3a, 0x4a4a, 0x5a5a, 0x6a6a, 0x7a7a, 0x8a8a, 0x9a9a, 0xaaaa, 0xbaba, 0xcaca, 0xdada, 0xeaea, 0xfafa};
+	return std::set<uint16_t>(greaseExtensions, greaseExtensions + 16);
+}
+
 static const std::map<uint16_t, SSLCipherSuite*> CipherSuiteIdToObjectMap = createCipherSuiteIdToObjectMap();
 
 static const std::map<uint32_t, SSLCipherSuite*> CipherSuiteStringToObjectMap = createCipherSuiteStringToObjectMap();
+
+static const std::set<uint16_t> GreaseSet = createGreaseSet();
 
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 {
@@ -1362,15 +1372,29 @@ int SSLClientHelloMessage::getCipherSuiteCount() const
 
 SSLCipherSuite* SSLClientHelloMessage::getCipherSuite(int index) const
 {
+	bool isValid;
+	uint16_t id = getCipherSuiteID(index, isValid);
+	return (isValid ? SSLCipherSuite::getCipherSuiteByID(id) : NULL);
+}
+
+uint16_t SSLClientHelloMessage::getCipherSuiteID(int index, bool& isValid) const
+{
 	if (index < 0 || index >= getCipherSuiteCount())
-		return NULL;
+	{
+		isValid = false;
+		return 0;
+	}
 
 	size_t cipherSuiteStartOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t);
 	if (cipherSuiteStartOffset + sizeof(uint16_t) > m_DataLen)
-		return NULL;
+	{
+		isValid = false;
+		return 0;
+	}
 
+	isValid = true;
 	uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + cipherSuiteStartOffset);
-	return SSLCipherSuite::getCipherSuiteByID(be16toh(*(cipherSuiteStartPos+index)));
+	return be16toh(*(cipherSuiteStartPos+index));
 }
 
 uint8_t SSLClientHelloMessage::getCompressionMethodsValue() const
@@ -1429,9 +1453,113 @@ SSLExtension* SSLClientHelloMessage::getExtensionOfType(SSLExtensionType type) c
 	return NULL;
 }
 
+SSLClientHelloMessage::ClientHelloTLSFingerprint SSLClientHelloMessage::generateTLSFingerprint() const
+{
+	SSLClientHelloMessage::ClientHelloTLSFingerprint result;
+
+	// extract version
+	result.tlsVersion = getHandshakeVersion().asUInt();
+
+	// extract cipher suites
+	int cipherSuiteCount = getCipherSuiteCount();
+	for (int i = 0; i < cipherSuiteCount; i++)
+	{
+		bool isValid = false;
+		uint16_t cipherSuiteID = getCipherSuiteID(i, isValid);
+		if (isValid and GreaseSet.find(cipherSuiteID) == GreaseSet.end())
+			result.cipherSuites.push_back(cipherSuiteID);
+	}
+
+	// extract extensions
+	int extensionCount = getExtensionCount();
+	for (int i = 0; i < extensionCount; i++)
+	{
+		uint16_t extensionType = getExtension(i)->getTypeAsInt();
+		if (GreaseSet.find(extensionType) != GreaseSet.end())
+			continue;
+
+		result.extensions.push_back(extensionType);
+	}
+
+	// extract supported groups
+	TLSSupportedGroupsExtension* supportedGroupsExt = getExtensionOfType<TLSSupportedGroupsExtension>();
+	if (supportedGroupsExt != NULL)
+	{
+		std::vector<uint16_t> supportedGroups = supportedGroupsExt->getSupportedGroups();
+		for (std::vector<uint16_t>::const_iterator iter = supportedGroups.begin(); iter != supportedGroups.end(); iter++)
+			if (GreaseSet.find(*iter) == GreaseSet.end())
+				result.supportedGroups.push_back(*iter);
+	}
+
+	// extract EC point formats
+	TLSECPointFormatExtension* ecPointFormatExt = getExtensionOfType<TLSECPointFormatExtension>();
+	if (ecPointFormatExt != NULL)
+	{
+		result.ecPointFormats = ecPointFormatExt->getECPointFormatList();
+	}
+
+	return result;
+}
+
 std::string SSLClientHelloMessage::toString() const
 {
 	return "Client Hello message";
+}
+
+
+// ------------------------------------------------
+// SSLClientHelloMessage::ClientHelloTLSFingerprint
+// ------------------------------------------------
+
+std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toString()
+{
+	std::stringstream tlsFingerprint;
+
+	// add version
+	tlsFingerprint << tlsVersion << ",";
+
+	// add cipher suites
+	bool firstCipher = true;
+	for (std::vector<uint16_t>::const_iterator iter = cipherSuites.begin(); iter != cipherSuites.end(); iter++)
+	{
+		tlsFingerprint << (firstCipher ? "" : "-") << *iter;
+		firstCipher = false;
+	}
+	tlsFingerprint << ",";
+
+	// add extensions
+	bool firstExtension = true;
+	for (std::vector<uint16_t>::const_iterator iter = extensions.begin(); iter != extensions.end(); iter++)
+	{
+		tlsFingerprint << (firstExtension ? "" : "-") << *iter;
+		firstExtension = false;
+	}
+	tlsFingerprint << ",";
+
+	// add supported groups
+	bool firstGroup = true;
+	for (std::vector<uint16_t>::const_iterator iter = supportedGroups.begin(); iter != supportedGroups.end(); iter++)
+	{
+		tlsFingerprint << (firstGroup ? "" : "-") << (*iter);
+		firstGroup = false;
+	}
+	tlsFingerprint << ",";
+
+	// add EC point formats
+	bool firstPointFormat = true;
+	for (std::vector<uint8_t>::iterator iter = ecPointFormats.begin(); iter != ecPointFormats.end(); iter++)
+	{
+		tlsFingerprint << (firstPointFormat ? "" : "-") << (int)(*iter);
+		firstPointFormat = false;
+	}
+
+	return tlsFingerprint.str();
+}
+
+std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toMD5()
+{
+	MD5 md5;
+	return md5(toString());
 }
 
 
@@ -1523,12 +1651,23 @@ uint8_t* SSLServerHelloMessage::getSessionID() const
 
 SSLCipherSuite* SSLServerHelloMessage::getCipherSuite() const
 {
+	bool isValid;
+	uint16_t id = getCipherSuiteID(isValid);
+	return (isValid ? SSLCipherSuite::getCipherSuiteByID(id) : NULL);
+}
+
+uint16_t SSLServerHelloMessage::getCipherSuiteID(bool& isValid) const
+{
 	size_t cipherSuiteStartOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength();
 	if (cipherSuiteStartOffset + sizeof(uint16_t) > m_DataLen)
-		return NULL;
+	{
+		isValid = false;
+		return 0;
+	}
 
+	isValid = true;
 	uint16_t* cipherSuiteStartPos = (uint16_t*)(m_Data + cipherSuiteStartOffset);
-	return SSLCipherSuite::getCipherSuiteByID(be16toh(*(cipherSuiteStartPos)));
+	return be16toh(*(cipherSuiteStartPos));
 }
 
 uint8_t SSLServerHelloMessage::getCompressionMethodsValue() const
@@ -1590,9 +1729,61 @@ SSLExtension* SSLServerHelloMessage::getExtensionOfType(SSLExtensionType type) c
 	return NULL;
 }
 
+SSLServerHelloMessage::ServerHelloTLSFingerprint SSLServerHelloMessage::generateTLSFingerprint() const
+{
+	SSLServerHelloMessage::ServerHelloTLSFingerprint result;
+
+	// extract version
+	result.tlsVersion = getHandshakeVersion().asUInt();
+
+	// extract cipher suite
+	bool isValid;
+	uint16_t cipherSuite = getCipherSuiteID(isValid);
+	result.cipherSuite = (isValid ? cipherSuite : 0);
+
+	// extract extensions
+	int extensionCount = getExtensionCount();
+	for (int i = 0; i < extensionCount; i++)
+	{
+		uint16_t extensionType = getExtension(i)->getTypeAsInt();
+		result.extensions.push_back(extensionType);
+	}
+
+	return result;
+}
+
 std::string SSLServerHelloMessage::toString() const
 {
 	return "Server Hello message";
+}
+
+
+// ------------------------------------------------
+// SSLServerHelloMessage::ServerHelloTLSFingerprint
+// ------------------------------------------------
+
+std::string SSLServerHelloMessage::ServerHelloTLSFingerprint::toString()
+{
+	std::stringstream tlsFingerprint;
+
+	// add version and cipher suite
+	tlsFingerprint << tlsVersion << "," << cipherSuite << ",";
+
+	// add extensions
+	bool firstExtension = true;
+	for (std::vector<uint16_t>::const_iterator iter = extensions.begin(); iter != extensions.end(); iter++)
+	{
+		tlsFingerprint << (firstExtension ? "" : "-") << *iter;
+		firstExtension = false;
+	}
+
+	return tlsFingerprint.str();
+}
+
+std::string SSLServerHelloMessage::ServerHelloTLSFingerprint::toMD5()
+{
+	MD5 md5;
+	return md5(toString());
 }
 
 

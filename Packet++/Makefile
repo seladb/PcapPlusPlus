@@ -13,6 +13,10 @@ include ../mk/PcapPlusPlus.mk
 SOURCES := $(wildcard src/*.cpp)
 OBJS_FILENAMES := $(patsubst src/%.cpp,Obj/%.o,$(SOURCES))
 
+HASH_LIB_HOME := ../3rdParty/hash-library
+HASH_LIB_SOURCES := $(wildcard $(HASH_LIB_HOME)/*.cpp)
+HASH_LIB_OBJS_FILENAMES := $(patsubst $(HASH_LIB_HOME)/%.cpp,$(HASH_LIB_HOME)/Obj/%.o,$(HASH_LIB_SOURCES))
+
 COMMONPP_HOME := ../Common++
 
 ifdef WIN32
@@ -31,7 +35,8 @@ endif
 INCLUDES := -I"./src" \
 			-I"./header" \
 			-I"$(COMMONPP_HOME)/header" \
-			-I"$(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include"
+			-I"$(PCAPPLUSPLUS_HOME)/3rdParty/EndianPortable/include" \
+			-I"$(HASH_LIB_HOME)"
 
 ifdef BUILD_WITH_STATIC_LIBPCAP
 INCLUDES += -I"$(STATIC_LIBPCAP_INCLUDE)"
@@ -63,11 +68,13 @@ create-directories:
 	@$(MKDIR) -p Lib
 
 Packet++: start create-directories $(OBJS_FILENAMES)
-	@$(AR) -r  "Lib/$(LIB_PREFIX)Packet++$(LIB_EXT)" $(OBJS_FILENAMES)
+	@cd $(HASH_LIB_HOME) && $(MAKE) hash_library_sources
+	@$(AR) -r  "Lib/$(LIB_PREFIX)Packet++$(LIB_EXT)" $(OBJS_FILENAMES) $(HASH_LIB_OBJS_FILENAMES)
 	@echo Finished successfully building: $(CUR_TARGET)
 	@echo ' '
 
 clean:
+	@cd $(HASH_LIB_HOME) && $(MAKE) clean
 	@$(RM) -rf ./Obj/*
 	@$(RM) -rf ./Lib/*
 	@echo Clean finished: $(CUR_TARGET)

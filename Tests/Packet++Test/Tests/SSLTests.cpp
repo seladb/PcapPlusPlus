@@ -673,3 +673,69 @@ PTF_TEST_CASE(TLSCipherSuiteTest)
 		PTF_ASSERT_TRUE(cipherSuiteByName == cipherSuiteByID);
 	}
 } // TLSCipherSuiteTest
+
+
+PTF_TEST_CASE(ClientHelloTLSFingerprintTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls1_3_client_hello1.dat");
+	pcpp::Packet tls13ClientHello1(&rawPacket1);
+
+	pcpp::SSLHandshakeLayer* handshakeLayer = tls13ClientHello1.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	pcpp::SSLClientHelloMessage* clientHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+	PTF_ASSERT_NOT_NULL(clientHelloMsg);
+
+	pcpp::SSLClientHelloMessage::ClientHelloTLSFingerprint tlsFingerprint = clientHelloMsg->generateTLSFingerprint();
+	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,4866-4867-4865-255,0-11-10-35-22-23-13-43-45-51,29-23-30-25-24,0-1-2", string);
+	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "a66e498c488aa0523759691248cdfb01", string);
+
+
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls_grease.dat");
+	pcpp::Packet tlsGreaseClientHello(&rawPacket2);
+
+	handshakeLayer = tlsGreaseClientHello.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	clientHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+	PTF_ASSERT_NOT_NULL(clientHelloMsg);
+
+	tlsFingerprint = clientHelloMsg->generateTLSFingerprint();
+	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-21,29-23-24,0", string);
+	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "b32309a26951912be7dba376398abc3b", string);
+} // ClientHelloTLSFingerprintTest
+
+
+PTF_TEST_CASE(ServerHelloTLSFingerprintTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords1.dat");
+
+	pcpp::Packet multipleRecordsPacket(&rawPacket1);
+
+	pcpp::SSLHandshakeLayer* handshakeLayer = multipleRecordsPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	pcpp::SSLServerHelloMessage* serverHelloMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
+	PTF_ASSERT_NOT_NULL(serverHelloMessage);
+
+	pcpp::SSLServerHelloMessage::ServerHelloTLSFingerprint tlsFingerprint = serverHelloMessage->generateTLSFingerprint();
+	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,49195,65281-16-11", string);
+	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "554786d4c84f8a7953b7e453c6371067", string);
+
+
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls_server_hello.dat");
+
+	pcpp::Packet serverHelloPacket(&rawPacket2);
+
+	handshakeLayer = serverHelloPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	serverHelloMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
+	PTF_ASSERT_NOT_NULL(serverHelloMessage);
+
+	tlsFingerprint = serverHelloMessage->generateTLSFingerprint();
+	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,49195,23-65281-11-35-16", string);
+	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "eca9b8f0f3eae50309eaf901cb822d9b", string);
+} // ServerHelloTLSFingerprintTest
