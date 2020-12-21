@@ -98,6 +98,7 @@
       <SDLCheck>true</SDLCheck>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\hash-library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,6 +143,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <SDLCheck>true</SDLCheck>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\hash-library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
