@@ -317,7 +317,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::EthLayer ethLayer3(ethLayer);
 	pcpp::IPv4Layer ipLayer3(ipLayer);
 	pcpp::IcmpLayer timeExceededLayer;
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_NULL(timeExceededLayer.setTimeExceededData(1, NULL, NULL));
 	pcpp::LoggerPP::getInstance().enableErrors();
 	pcpp::Packet timeExceededPacket(10);
@@ -339,7 +339,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::EthLayer ethLayer4(ethLayer);
 	pcpp::IPv4Layer ipLayer4(ipLayer);
 	pcpp::IcmpLayer destUnreachableLayer;
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_NULL(destUnreachableLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, NULL, NULL));
 	pcpp::LoggerPP::getInstance().enableErrors();
 	pcpp::Packet destUnreachablePacket(10);
@@ -387,7 +387,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::EthLayer ethLayer7(ethLayer);
 	pcpp::IPv4Layer ipLayer7(ipLayer);
 	pcpp::IcmpLayer redirectLayer;
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_NULL(redirectLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, NULL, NULL));
 	pcpp::LoggerPP::getInstance().enableErrors();
 	pcpp::Packet redirectPacket(13);

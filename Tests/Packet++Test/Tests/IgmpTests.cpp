@@ -193,7 +193,7 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 
 	pcpp::IPv4Address srcAddr4("100.200.255.255");
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, -1));
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 4));
 	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(100);
@@ -217,7 +217,7 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.removeSourceAddressAtIndex(4));
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.removeSourceAddressAtIndex(4));
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.removeSourceAddressAtIndex(-1));
 	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(100);
@@ -287,7 +287,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	srcAddrVec4.push_back(pcpp::IPv4Address("13.24.57.68"));
 	srcAddrVec4.push_back(pcpp::IPv4Address("31.42.75.86"));
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, pcpp::IPv4Address("1.3.5.7"), srcAddrVec4, -1));
 	PTF_ASSERT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, pcpp::IPv4Address("1.3.5.7"), srcAddrVec4, 4));
 	PTF_ASSERT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, pcpp::IPv4Address("1.3.5.7"), srcAddrVec4, 100));
@@ -316,7 +316,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 
 	PTF_ASSERT_TRUE(igmpV3ReportLayer.removeGroupRecordAtIndex(4));
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(igmpV3ReportLayer.removeGroupRecordAtIndex(4));
 	PTF_ASSERT_FALSE(igmpV3ReportLayer.removeGroupRecordAtIndex(-1));
 	PTF_ASSERT_FALSE(igmpV3ReportLayer.removeGroupRecordAtIndex(100));

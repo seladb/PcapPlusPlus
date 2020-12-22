@@ -21,7 +21,7 @@ PTF_TEST_CASE(IPv4PacketCreation)
 	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ethLayer));
 
 	pcpp::Packet tmpPacket(50);
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(tmpPacket.addLayer(&ethLayer));
 	pcpp::LoggerPP::getInstance().enableErrors();
 
@@ -388,7 +388,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 
 	ipLayer = ipOpt5.getLayerOfType<pcpp::IPv4Layer>();
 	tsOption.clear();
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	tsOption.type = pcpp::IPv4TimestampOptionValue::TimestampAndIP;
@@ -396,7 +396,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address("10.0.0.138"));
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address("10.0.0.138"));
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address::Zero);
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	tsOption.timestamps.push_back(70037668);
@@ -460,7 +460,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	tsOption.timestamps.push_back(70037670);
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5, size);
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	ipOpt7.computeCalculateFields();

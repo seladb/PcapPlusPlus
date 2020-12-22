@@ -123,8 +123,8 @@ void printAppVersion()
  */
 void listPfRingDevices()
 {
-	// supress errors as there may be devices (like lo) that their MAC address can't be read, etc.
-	LoggerPP::getInstance().supressErrors();
+	// suppress errors as there may be devices (like lo) that their MAC address can't be read, etc.
+	LoggerPP::getInstance().suppressErrors();
 
 	const std::vector<PfRingDevice*>& devList = PfRingDeviceList::getInstance().getPfRingDevicesList();
 	for (std::vector<PfRingDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)

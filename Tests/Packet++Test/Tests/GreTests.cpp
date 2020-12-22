@@ -293,7 +293,7 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT_EQUAL(value16, 20186, u16);
 
 	PTF_ASSERT_TRUE(grev0Layer->unsetChecksum());
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(grev0Layer->unsetSequenceNumber());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	grev0Packet.computeCalculateFields();
@@ -306,7 +306,7 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT_TRUE(grev0Layer->getKey(value32));
 	PTF_ASSERT_EQUAL(value32, 2341, u32);
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(grev0Layer->unsetChecksum());
 	PTF_ASSERT_FALSE(grev0Layer->unsetSequenceNumber());
 	pcpp::LoggerPP::getInstance().enableErrors();
@@ -374,7 +374,7 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(123), u16);
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), u16);
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(grev0Layer->unsetSequenceNumber());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	PTF_ASSERT_TRUE(grev1Layer->unsetAcknowledgmentNum());

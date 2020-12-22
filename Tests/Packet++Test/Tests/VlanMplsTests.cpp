@@ -120,7 +120,7 @@ PTF_TEST_CASE(MplsLayerTest)
 	uint8_t expectedResult2[4] = { 0xdf, 0xf0, 0xfe, 0x14 };
 	PTF_ASSERT_BUF_COMPARE(mplsLayer2.getData(), expectedResult2 , 4);
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(mplsLayer->setMplsLabel(0xFFFFFF));
 	pcpp::LoggerPP::getInstance().enableErrors();
 } // MplsLayerTest

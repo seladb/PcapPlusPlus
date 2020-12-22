@@ -182,7 +182,7 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// e. Remove a layer that doesn't exist
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::HTTPRequest));
 	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::Ethernet, 1));
 	pcpp::LoggerPP::getInstance().enableErrors();
@@ -762,7 +762,7 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// add layer after trailer (result with an error)
 	uint8_t payload[4] = { 0x1, 0x2, 0x3, 0x4 };
 	pcpp::PayloadLayer newPayloadLayer(payload, 4, false);
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(&newPayloadLayer));
 	pcpp::LoggerPP::getInstance().enableErrors();
 

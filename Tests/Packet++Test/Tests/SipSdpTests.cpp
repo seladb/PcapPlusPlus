@@ -202,7 +202,7 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 	PTF_ASSERT_TRUE(sipReqLayer->getFirstLine()->setUri("sip:francisco@bestel.com:55060"));
 	PTF_ASSERT_TRUE(sipReqLayer->getFirstLine()->setUri("sip:echo@iptel.org"));
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(sipReqLayer->getFirstLine()->setUri(""));
 	pcpp::LoggerPP::getInstance().enableErrors();
 
@@ -422,7 +422,7 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip401Unauthorized, enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 26, int);
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::SipStatusCodeUnknown));
 	pcpp::LoggerPP::getInstance().enableErrors();
 

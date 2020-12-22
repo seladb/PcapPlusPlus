@@ -151,7 +151,7 @@ namespace pcpp
 		/**
 		 * Suppress all errors in all PcapPlusPlusModules
 		 */
-		void supressErrors() { m_SuppressErrors = true; }
+		void suppressErrors() { m_SuppressErrors = true; }
 
 		/**
 		 * Enable all errors in all PcapPlusPlusModules
@@ -162,7 +162,7 @@ namespace pcpp
 		 * Get an indication if errors are currently suppressed
 		 * @return True if errors are currently suppressed, false otherwise
 		 */
-		bool isSupressErrors() const { return m_SuppressErrors; }
+		bool isSuppressErrors() const { return m_SuppressErrors; }
 
 		/**
 		 * Get access to LoggerPP singleton
@@ -189,7 +189,7 @@ namespace pcpp
 	} while(0)
 
 #define LOG_ERROR(format, ...) do { \
-			if (!pcpp::LoggerPP::getInstance().isSupressErrors()) {\
+			if (!pcpp::LoggerPP::getInstance().isSuppressErrors()) {\
 				if(pcpp::LoggerPP::getInstance().isErrorStringSet()) \
 					snprintf(pcpp::LoggerPP::getInstance().getErrorString(), pcpp::LoggerPP::getInstance().getErrorStringLength(), format, ## __VA_ARGS__); \
 				else \

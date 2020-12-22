@@ -75,7 +75,7 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPv6Address subnetIp6Addr01("2607:f0d0:1002:0051::");
 	pcpp::IPv6Address subnetIp6Addr02("2607:f0d0:1002:0051:0011::");
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr01, 0));
 	pcpp::LoggerPP::getInstance().enableErrors();
 	for(int i = 1; i <= 64; ++i)
@@ -222,7 +222,7 @@ PTF_TEST_CASE(TestGeneralUtils)
 	PTF_ASSERT_TRUE(result <= sizeof(resultArr));
 	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes, result);
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	// odd length
 	result = pcpp::hexStringToByteArray("aab", resultArr, sizeof(resultArr));
 	PTF_ASSERT_EQUAL(result, 0, size);
@@ -270,7 +270,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 	{
 		pcpp::IPv4Address ipAddr(ip);
 		PTF_ASSERT_TRUE(ipAddr.isValid());
-		pcpp::LoggerPP::getInstance().supressErrors();
+		pcpp::LoggerPP::getInstance().suppressErrors();
 		result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
 		pcpp::LoggerPP::getInstance().enableErrors();
 		if (result != pcpp::MacAddress::Zero)

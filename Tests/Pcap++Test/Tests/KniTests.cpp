@@ -342,7 +342,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		PTF_ASSERT_TRUE(fileReaderDev.open());
 
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter));
-		pcpp::LoggerPP::getInstance().supressErrors();
+		pcpp::LoggerPP::getInstance().suppressErrors();
 		PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL));
 		pcpp::LoggerPP::getInstance().enableErrors();
 		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
@@ -352,7 +352,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::LoggerPP::getInstance().supressErrors();
+		pcpp::LoggerPP::getInstance().suppressErrors();
 		rsdevice.sendPackets(rawPacketVec);
 		pcpp::LoggerPP::getInstance().enableErrors();
 		rawPacketVec.clear();
@@ -362,7 +362,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		counter = 0;
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter));
 		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
-		pcpp::LoggerPP::getInstance().supressErrors();
+		pcpp::LoggerPP::getInstance().suppressErrors();
 		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0, u16);
 		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0, u16);
 		PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0, u16);
@@ -373,7 +373,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::LoggerPP::getInstance().supressErrors();
+		pcpp::LoggerPP::getInstance().suppressErrors();
 		rsdevice.sendPackets(rawPacketVec);
 		pcpp::LoggerPP::getInstance().enableErrors();
 		rawPacketVec.clear();
@@ -386,7 +386,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::LoggerPP::getInstance().supressErrors();
+		pcpp::LoggerPP::getInstance().suppressErrors();
 		rsdevice.sendPackets(rawPacketVec);
 		pcpp::LoggerPP::getInstance().enableErrors();
 		rawPacketVec.clear();
@@ -410,7 +410,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		}
 	}
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	fileReaderDev.close();
 	pcpp::LoggerPP::getInstance().enableErrors();
 	PTF_ASSERT_TRUE(fileReaderDev.open());

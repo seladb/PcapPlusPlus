@@ -184,7 +184,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 	pcpp::PPPoEDiscoveryLayer::PPPoETag* acNameTag = pppoedLayer.addTagAfter(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, 4, NULL, hostUniqTag);
 	acNameTag->setTagData<uint32_t>(htobe32(0x42524153));
 
-	pcpp::LoggerPP::getInstance().supressErrors();
+	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(pppoedLayer.removeTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_CREDITS));
 	pcpp::LoggerPP::getInstance().enableErrors();
 
