@@ -368,19 +368,9 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Interface name or IP weren't provided. Please use the -i switch or -h for help");
 	}
 
-	IPv4Address interfaceIP(interfaceNameOrIP);
-	if (interfaceIP.isValid())
-	{
-		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
-		if (dev == NULL)
-			EXIT_WITH_ERROR("Couldn't find interface by provided IP");
-	}
-	else
-	{
-		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
-		if (dev == NULL)
-			EXIT_WITH_ERROR("Couldn't find interface by provided name");
-	}
+	dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+	if (dev == NULL)
+		EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 	// verify DNS server IP is a valid IPv4 address
 	if (dnsServer == IPv4Address::Zero ||  !dnsServer.isValid())

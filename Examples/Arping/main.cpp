@@ -167,19 +167,9 @@ int main(int argc, char* argv[])
 	// Search interface by name or IP
 	if (!ifaceNameOrIP.empty())
 	{
-		IPv4Address interfaceIP(ifaceNameOrIP);
-		if (interfaceIP.isValid())
-		{
-			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
-			if (dev == NULL)
-				EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided IP");
-		}
-		else
-		{
-			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ifaceNameOrIP);
-			if (dev == NULL)
-				EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided name");
-		}
+		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(ifaceNameOrIP);
+		if (dev == NULL)
+			EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided IP address or name");
 	}
 	else
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("Interface name or IP empty");

@@ -92,6 +92,13 @@ namespace pcpp
 		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const;
 
 		/**
+		 * Get a pointer to the live device by its IP address or name
+		 * @param[in] ipOrName An IP address or name of the interface
+		 * @return A pointer to the live device if exists, NULL otherwise
+		 */
+		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const;
+
+		/**
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
 		 * couldn't be extracted from some reason
 		 */

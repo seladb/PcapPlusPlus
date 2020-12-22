@@ -323,7 +323,19 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 	}
 
 	return NULL;
+}
 
+PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const
+{
+	IPAddress interfaceIP(ipOrName);
+	if (interfaceIP.isValid())
+	{
+		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
+	}
+	else
+	{
+		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ipOrName);
+	}
 }
 
 void PcapLiveDeviceList::reset()

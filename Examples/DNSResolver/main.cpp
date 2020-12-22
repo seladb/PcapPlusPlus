@@ -167,19 +167,9 @@ int main(int argc, char* argv[])
 	// if interface name or IP was provided - find the device accordingly
 	if (interfaceNameOrIPProvided)
 	{
-		IPv4Address interfaceIP(interfaceNameOrIP);
-		if (interfaceIP.isValid())
-		{
-			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
-			if (dev == NULL)
-				EXIT_WITH_ERROR("Couldn't find interface by provided IP");
-		}
-		else
-		{
-			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
-			if (dev == NULL)
-				EXIT_WITH_ERROR("Couldn't find interface by provided name");
-		}
+		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		if (dev == NULL)
+			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 	}
 	// if interface name or IP was not provided - find a device that has a default gateway
 	else

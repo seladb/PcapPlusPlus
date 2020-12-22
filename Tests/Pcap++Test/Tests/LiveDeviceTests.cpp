@@ -192,6 +192,11 @@ PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 	PTF_ASSERT_NOT_NULL(liveDev2);
 	PTF_ASSERT_EQUAL(strcmp(liveDev->getName(), liveDev2->getName()), 0, int);
 
+	pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName);
+	PTF_ASSERT_TRUE(liveDev3 == liveDev2);
+	liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
+	PTF_ASSERT_TRUE(liveDev3 == liveDev);
+
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250");
 	PTF_ASSERT_NULL(liveDev);
 } // TestPcapLiveDeviceListSearch

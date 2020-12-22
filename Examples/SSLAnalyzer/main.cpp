@@ -546,20 +546,9 @@ int main(int argc, char* argv[])
 	else // analyze in live traffic mode
 	{
 		// extract pcap live device by interface name or IP address
-		PcapLiveDevice* dev = NULL;
-		IPv4Address interfaceIP(interfaceNameOrIP);
-		if (interfaceIP.isValid())
-		{
-			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
-			if (dev == NULL)
-				EXIT_WITH_ERROR("Couldn't find interface by provided IP");
-		}
-		else
-		{
-			dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
-			if (dev == NULL)
-				EXIT_WITH_ERROR("Couldn't find interface by provided name");
-		}
+		PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		if (dev == NULL)
+			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 		// start capturing and analyzing traffic
 		analyzeSSLFromLiveTraffic(dev, printRatesPeriodicaly, printRatePeriod, savePacketsToFileName);
