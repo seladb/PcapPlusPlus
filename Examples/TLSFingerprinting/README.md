@@ -16,7 +16,7 @@ The application's output includes the following information about each packet:
 Here is an example output file:
 
 | TLS Fingerprint (MD5) | TLS Fingerprint | TLS Fingerprint type |IP Source | TCP Source Port | IP Dest | TCP Dest Port |
-+-----------------------------------------------------------------------------------------------------------------------+
+| --------------------- | --------------- | -------------------- | -------- | --------------- | ------- | ------------- |
 | b246ccf5a502097ab57ba9bc5eed3a18 | 771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-156-157-47-53-10,0-10-11-13-16-23-43-51-65281,29-23-24,0 | ClientHello | 1647:647:8b02:1d2e:c5ab:3f10:aead:1843 | 57493 | 7607:f8bf:4f05:e0b::2231 | 443 |
 | 134c270d52dd3495d39878f76f646581 | 772,4865,51-43 | ServerHello | 192.168.0.2 | 443 | 192.168.0.1 | 57493 |
 
