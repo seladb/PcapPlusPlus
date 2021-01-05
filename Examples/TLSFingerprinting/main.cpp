@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cctype>
 #include "SystemUtils.h"
 #include "TablePrinter.h"
 #include "IPv4Layer.h"
