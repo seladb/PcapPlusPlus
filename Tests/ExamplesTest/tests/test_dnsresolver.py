@@ -1,6 +1,6 @@
 import subprocess
 import pytest
-from test_utils import ExampleTest
+from .test_utils import ExampleTest
 
 @pytest.mark.dnsresolver
 class TestDNSResolver(ExampleTest):

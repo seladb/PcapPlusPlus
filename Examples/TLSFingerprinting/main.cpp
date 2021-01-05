@@ -78,7 +78,7 @@ void printUsage()
 	std::cout << std::endl
 		<< "Usage:" << std::endl
 		<< "------" << std::endl
-		<< pcpp::AppName::get() << " [-hvlcms] [-r input_file] [-i interface] [-o output_file_name] [-s separator] [-t tls_fp_type] [-e bpf_filter]" << std::endl
+		<< pcpp::AppName::get() << " [-hvlcms] [-r input_file] [-i interface] [-o output_file_name] [-s separator] [-t tls_fp_type] [-f bpf_filter]" << std::endl
 		<< std::endl
 		<< "Options:" << std::endl
 		<< std::endl
@@ -99,7 +99,7 @@ void printUsage()
 		<< "                          ServerHello packets only ('sh') or both ('ch_sh'). The only valid values are" << std::endl
 		<< "                          'ch', 'sh', 'ch_sh'. If this argument is not specified the default value is" << std::endl
 		<< "                          ClientHello ('ch')" << std::endl
-		<< "    -e bpf_filter       : Apply a BPF filter to the capture file or live interface, meaning TLS fingerprint" << std::endl
+		<< "    -f bpf_filter       : Apply a BPF filter to the capture file or live interface, meaning TLS fingerprint" << std::endl
 		<< "                          will only be generated for the filtered packets" << std::endl
 		<< "    -l                  : Print the list of interfaces and exit" << std::endl
 		<< "    -v                  : Display the current version and exit" << std::endl

@@ -1,7 +1,7 @@
 from os import path
 from itertools import filterfalse
 import pytest
-from test_utils import ExampleTest, compare_stdout_with_file
+from .test_utils import ExampleTest, compare_stdout_with_file
 
 class TestHttpAnalyzer(ExampleTest):
 	pytestmark = [pytest.mark.httpanalyzer, pytest.mark.no_network]

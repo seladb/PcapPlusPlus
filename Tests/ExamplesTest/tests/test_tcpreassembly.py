@@ -1,7 +1,7 @@
 import os
 import filecmp
 import pytest
-from test_utils import ExampleTest, compare_files_ignore_newline
+from .test_utils import ExampleTest, compare_files_ignore_newline
 
 class TestTcpReassembly(ExampleTest):
 	pytestmark = [pytest.mark.tcpreassembly, pytest.mark.no_network]
