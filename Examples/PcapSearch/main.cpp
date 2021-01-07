@@ -50,7 +50,7 @@ static struct option PcapSearchOptions[] =
 	{"set-extensions", required_argument, 0, 'e'},
 	{"version", no_argument, 0, 'v'},
 	{"help", no_argument, 0, 'h'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
@@ -202,90 +202,89 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
  * Searches all pcap files in given directory (and sub-directories if directed by the user) and output how many packets in each file matches a given
  * search criteria. This method outputs how many directories were searched, how many files were searched and how many packets were matched
  */
-void searchtDirectories(std::string directory, bool includeSubDirectories, std::string searchCriteria, std::ofstream* detailedReportFile,
+void searchDirectories(std::string directory, bool includeSubDirectories, std::string searchCriteria, std::ofstream* detailedReportFile,
 		std::map<std::string, bool> extensionsToSearch,
 		int& totalDirSearched, int& totalFilesSearched, int& totalPacketsFound)
 {
-    // open the directory
-    DIR *dir = opendir(directory.c_str());
+	// open the directory
+	DIR *dir = opendir(directory.c_str());
 
-    // dir is null usually when user has no access permissions 
-    if (dir == NULL)
-        return;
+	// dir is null usually when user has no access permissions 
+	if (dir == NULL)
+		return;
 
-    struct dirent *entry = readdir(dir);
+	struct dirent *entry = readdir(dir);
 
-    std::vector<std::string> pcapList;
+	std::vector<std::string> pcapList;
 
-    // go over all files in this directory
-    while (entry != NULL)
-    {
-    	std::string name(entry->d_name);
+	// go over all files in this directory
+	while (entry != NULL)
+	{
+		std::string name(entry->d_name);
 
-    	// construct directory full path
-    	std::string dirPath = directory;
-    	std::string dirSep = DIR_SEPARATOR;
-    	if (0 != directory.compare(directory.length() - dirSep.length(), dirSep.length(), dirSep)) // directory doesn't contain separator in the end
-    	    dirPath += DIR_SEPARATOR;
-    	dirPath += name;
-    	
-	struct stat info;
+		// construct directory full path
+		std::string dirPath = directory;
+		std::string dirSep = DIR_SEPARATOR;
+		if (0 != directory.compare(directory.length() - dirSep.length(), dirSep.length(), dirSep)) // directory doesn't contain separator in the end
+			dirPath += DIR_SEPARATOR;
+		dirPath += name;
 
-    	// get file attributes
-    	if (stat(dirPath.c_str(), &info) != 0)
-    	{
-    		entry = readdir(dir);
-    		continue;
-    	}
+		struct stat info;
 
-    	// if the file is not a directory
-    	if (!(info.st_mode & S_IFDIR))
-    	{
-    		// check if the file extension matches the requested extensions to search. If it does, put the file name in a list of files
-    		// that should be searched (don't do the search just yet)
-    		if (extensionsToSearch.find(getExtension(name)) != extensionsToSearch.end())
-    			pcapList.push_back(dirPath);
-    		entry = readdir(dir);
-    		continue;
-    	}
+		// get file attributes
+		if (stat(dirPath.c_str(), &info) != 0)
+		{
+			entry = readdir(dir);
+			continue;
+		}
 
-    	// if the file is a '.' or '..' skip it
-    	if (name == "." || name == "..")
-    	{
-    		entry = readdir(dir);
-    		continue;
-    	}
+		// if the file is not a directory
+		if (!(info.st_mode & S_IFDIR))
+		{
+			// check if the file extension matches the requested extensions to search. If it does, put the file name in a list of files
+			// that should be searched (don't do the search just yet)
+			if (extensionsToSearch.find(getExtension(name)) != extensionsToSearch.end())
+				pcapList.push_back(dirPath);
+			entry = readdir(dir);
+			continue;
+		}
 
-    	// if we got to here it means the file is actually a directory. If required to search sub-directories, call this method recursively to search
-    	// inside this sub-directory
-        if (includeSubDirectories)
-        	searchtDirectories(dirPath, true, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched, totalFilesSearched, totalPacketsFound);
+		// if the file is a '.' or '..' skip it
+		if (name == "." || name == "..")
+		{
+			entry = readdir(dir);
+			continue;
+		}
 
-        // move to the next file
-        entry = readdir(dir);
-    }
+		// if we got to here it means the file is actually a directory. If required to search sub-directories, call this method recursively to search
+		// inside this sub-directory
+		if (includeSubDirectories)
+			searchDirectories(dirPath, true, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched, totalFilesSearched, totalPacketsFound);
 
-    // close dir
-    closedir(dir);
+		// move to the next file
+		entry = readdir(dir);
+	}
 
-    totalDirSearched++;
+	// close dir
+	closedir(dir);
 
-    // when we get to here we already covered all sub-directories and collected all the files in this directory that are required for search
-    // go over each such file and search its packets to find the search criteria
-    for (std::vector<std::string>::iterator iter = pcapList.begin(); iter != pcapList.end(); iter++)
-    {
-    	// do the actual search
-    	int packetsFound = searchPcap(*iter, searchCriteria, detailedReportFile);
+	totalDirSearched++;
 
-    	// add to total matched packets
-    	totalFilesSearched++;
-    	if (packetsFound > 0)
-    	{
-    		printf("%d packets found in '%s'\n", packetsFound, iter->c_str());
-    		totalPacketsFound += packetsFound;
-    	}
-    }
+	// when we get to here we already covered all sub-directories and collected all the files in this directory that are required for search
+	// go over each such file and search its packets to find the search criteria
+	for (std::vector<std::string>::iterator iter = pcapList.begin(); iter != pcapList.end(); iter++)
+	{
+		// do the actual search
+		int packetsFound = searchPcap(*iter, searchCriteria, detailedReportFile);
 
+		// add to total matched packets
+		totalFilesSearched++;
+		if (packetsFound > 0)
+		{
+			printf("%d packets found in '%s'\n", packetsFound, iter->c_str());
+			totalPacketsFound += packetsFound;
+		}
+	}
 }
 
 
@@ -412,7 +411,7 @@ int main(int argc, char* argv[])
 	int totalPacketsFound = 0;
 
 	// the main call - start searching!
-	searchtDirectories(inputDirectory, includeSubDirectories, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched, totalFilesSearched, totalPacketsFound);
+	searchDirectories(inputDirectory, includeSubDirectories, searchCriteria, detailedReportFile, extensionsToSearch, totalDirSearched, totalFilesSearched, totalPacketsFound);
 
 	// after search is done, close the report file and delete its instance
 	printf("\n\nDone! Searched %d files in %d directories, %d packets were matched to search criteria\n", totalFilesSearched, totalDirSearched, totalPacketsFound);
