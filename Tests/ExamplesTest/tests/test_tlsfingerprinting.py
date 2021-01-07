@@ -76,7 +76,7 @@ class TestTLSFingerprinting(ExampleTest):
 
 	def test_filter_packets(self, tmpdir):
 		args = self._get_default_args(tmpdir)
-		args['-f'] = 'net 2601:647:4b02:1d20:fd05:6f66:ecce:8bc7'
+		args['-f'] = 'net 185.0.0.0 mask 255.0.0.0'
 		completed_process = self.run_example(args=args)
 		assert compare_files_ignore_newline(os.path.join('expected_output', 'tls_fp_ch_filter.txt'), args['-o'])
 		compare_stdout_with_file(completed_process.stdout, os.path.join('expected_output', 'tls_fp_ch_filter_console.txt'), self._ignore_console_output_lines)
