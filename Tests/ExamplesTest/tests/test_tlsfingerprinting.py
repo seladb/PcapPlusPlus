@@ -1,7 +1,7 @@
 import os
 import filecmp
 import pytest
-from .test_utils import ExampleTest, compare_stdout_with_file
+from .test_utils import ExampleTest, compare_stdout_with_file, compare_files_ignore_newline
 
 class TestTLSFingerprinting(ExampleTest):
 	pytestmark = [pytest.mark.tlsfingerprintinting, pytest.mark.no_network]
@@ -30,7 +30,7 @@ class TestTLSFingerprinting(ExampleTest):
 		expected_console_output = f'tls_fp_{tls_type}_console.txt'
 		try:
 			completed_process = self.run_example(args=args)
-			assert filecmp.cmp(os.path.join('expected_output', expected_output_file_name), output_file_name)
+			assert compare_files_ignore_newline(os.path.join('expected_output', expected_output_file_name), output_file_name)
 			compare_stdout_with_file(completed_process.stdout, os.path.join('expected_output', expected_console_output), self._ignore_console_output_lines)
 		finally:
 			if os.path.exists(output_file_name):
@@ -39,7 +39,7 @@ class TestTLSFingerprinting(ExampleTest):
 	def test_define_output_file(self, tmpdir):
 		args = self._get_default_args(tmpdir)
 		completed_process = self.run_example(args=args)
-		assert filecmp.cmp(os.path.join('expected_output', 'tls_fp_ch.txt'), args['-o'])
+		assert compare_files_ignore_newline(os.path.join('expected_output', 'tls_fp_ch.txt'), args['-o'])
 		compare_stdout_with_file(completed_process.stdout, os.path.join('expected_output', 'tls_fp_ch_console.txt'), self._ignore_console_output_lines)
 
 	def test_no_input_file(self):
@@ -62,7 +62,7 @@ class TestTLSFingerprinting(ExampleTest):
 		args = self._get_default_args(tmpdir)
 		args['-s'] = '#'
 		completed_process = self.run_example(args=args)
-		assert filecmp.cmp(os.path.join('expected_output', 'tls_fp_ch_hash_separator.txt'), args['-o'])
+		assert compare_files_ignore_newline(os.path.join('expected_output', 'tls_fp_ch_hash_separator.txt'), args['-o'])
 		compare_stdout_with_file(completed_process.stdout, os.path.join('expected_output', 'tls_fp_ch_console.txt'), self._ignore_console_output_lines)
 
 	@pytest.mark.parametrize(
@@ -78,5 +78,5 @@ class TestTLSFingerprinting(ExampleTest):
 		args = self._get_default_args(tmpdir)
 		args['-f'] = 'net 2601:647:4b02:1d20:fd05:6f66:ecce:8bc7'
 		completed_process = self.run_example(args=args)
-		assert filecmp.cmp(os.path.join('expected_output', 'tls_fp_ch_filter.txt'), args['-o'])
+		assert compare_files_ignore_newline(os.path.join('expected_output', 'tls_fp_ch_filter.txt'), args['-o'])
 		compare_stdout_with_file(completed_process.stdout, os.path.join('expected_output', 'tls_fp_ch_filter_console.txt'), self._ignore_console_output_lines)
