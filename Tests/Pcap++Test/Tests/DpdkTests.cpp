@@ -632,12 +632,25 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// receive packets to packet vector
 	// --------------------------------
 	int numOfAttempts = 0;
+	int numOfRxQueues = dev->getTotalNumOfRxQueues();
+	int rxQueueId = 0;
+	bool isPacketRecvd = false;
 	while (numOfAttempts < 20)
 	{
-		dev->receivePackets(rawPacketVec, 0);
-		pcpp::multiPlatformSleep(1);
-		if (rawPacketVec.size() > 0)
+		while (rxQueueId < numOfRxQueues)
+		{
+			dev->receivePackets(rawPacketVec, rxQueueId);
+			pcpp::multiPlatformSleep(1);
+			if (rawPacketVec.size() > 0)
+			{
+				isPacketRecvd = true;
+				break;
+			}
+			++rxQueueId;
+		}
+		if (isPacketRecvd)
 			break;
+
 		numOfAttempts++;
 	}
 
@@ -647,11 +660,22 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// receive packets to mbuf array
 	// -----------------------------
 	numOfAttempts = 0;
+	isPacketRecvd = false;
+	rxQueueId = 0;
 	while (numOfAttempts < 20)
 	{
-		mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, 0);
-		pcpp::multiPlatformSleep(1);
-		if (mBufRawPacketArrLen > 0)
+		while (rxQueueId < numOfRxQueues)
+		{
+			mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, rxQueueId);
+			pcpp::multiPlatformSleep(1);
+			if (mBufRawPacketArrLen > 0)
+			{
+				isPacketRecvd = true;
+				break;
+			}
+			++rxQueueId;
+		}
+		if (isPacketRecvd)
 			break;
 		numOfAttempts++;
 	}
@@ -668,11 +692,22 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// receive packets to packet array
 	// -------------------------------
 	numOfAttempts = 0;
+	isPacketRecvd = false;
+	rxQueueId = 0;
 	while (numOfAttempts < 20)
 	{
-		packetArrLen = dev->receivePackets(packetArr, 32, 0);
-		pcpp::multiPlatformSleep(1);
-		if (packetArrLen > 0)
+		while (rxQueueId < numOfRxQueues)
+		{
+			packetArrLen = dev->receivePackets(packetArr, 32, rxQueueId);
+			pcpp::multiPlatformSleep(1);
+			if (packetArrLen > 0)
+			{
+				isPacketRecvd = true;
+				break;
+			}
+			++rxQueueId;
+		}
+		if (isPacketRecvd)
 			break;
 		numOfAttempts++;
 	}
@@ -688,7 +723,6 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 	// test worker threads
 	// -------------------
-	int numOfRxQueues = dev->getTotalNumOfRxQueues();
 	pthread_mutex_t queueMutexArr[numOfRxQueues];
 	for (int i = 0; i < numOfRxQueues; i++)
 		pthread_mutex_init(&queueMutexArr[i], NULL);
@@ -844,7 +878,7 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 		bool foundTcpOrUdpPacket = false;
 		for (int i = 0; i < dev->getNumOfOpenedRxQueues(); i++)
 		{
-			dev->receivePackets(rawPacketVec, 0);
+			dev->receivePackets(rawPacketVec, i);
 			pcpp::multiPlatformSleep(1);
 			for (pcpp::MBufRawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 			{
