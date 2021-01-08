@@ -638,20 +638,20 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	while (numOfAttempts < 20)
 	{
 		while (rxQueueId < numOfRxQueues)
-                {
-                        dev->receivePackets(rawPacketVec, rxQueueId);
-                        pcpp::multiPlatformSleep(1);
-                        if (rawPacketVec.size() > 0)
-                        {
-                                isPacketRecvd = true;
-                                break;
-                        }
-                        ++rxQueueId;
-                }
-                if (isPacketRecvd)
-                        break;
+		{
+			dev->receivePackets(rawPacketVec, rxQueueId);
+			pcpp::multiPlatformSleep(1);
+			if (rawPacketVec.size() > 0)
+			{
+				isPacketRecvd = true;
+				break;
+			}
+			++rxQueueId;
+		}
+		if (isPacketRecvd)
+			break;
 
-                numOfAttempts++;
+		numOfAttempts++;
 	}
 
 	PTF_ASSERT_LOWER_THAN(numOfAttempts, 20, int);
@@ -670,13 +670,13 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 			pcpp::multiPlatformSleep(1);
 			if (mBufRawPacketArrLen > 0)
 			{
-					isPacketRecvd = true;
-					break;
+				isPacketRecvd = true;
+				break;
 			}
 			++rxQueueId;
 		}
 		if (isPacketRecvd)
-				break;
+			break;
 		numOfAttempts++;
 	}
 
