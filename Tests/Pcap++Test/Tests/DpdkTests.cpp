@@ -665,19 +665,19 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	while (numOfAttempts < 20)
 	{
 		while (rxQueueId < numOfRxQueues)
-                {
-                        mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, rxQueueId);
-                        pcpp::multiPlatformSleep(1);
-                        if (mBufRawPacketArrLen > 0)
-                        {
-                                isPacketRecvd = true;
-                                break;
-                        }
-                        ++rxQueueId;
-                }
-                if (isPacketRecvd)
-                        break;
-                numOfAttempts++;
+		{
+			mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, rxQueueId);
+			pcpp::multiPlatformSleep(1);
+			if (mBufRawPacketArrLen > 0)
+			{
+					isPacketRecvd = true;
+					break;
+			}
+			++rxQueueId;
+		}
+		if (isPacketRecvd)
+				break;
+		numOfAttempts++;
 	}
 
 	PTF_ASSERT_LOWER_THAN(numOfAttempts, 20, int);
@@ -692,24 +692,24 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// receive packets to packet array
 	// -------------------------------
 	numOfAttempts = 0;
-	isPacketRecvd = 0;
+	isPacketRecvd = false;
 	rxQueueId = 0;
 	while (numOfAttempts < 20)
 	{
 		while (rxQueueId < numOfRxQueues)
-                {
-                        packetArrLen = dev->receivePackets(packetArr, 32, rxQueueId);
-                        pcpp::multiPlatformSleep(1);
-                        if (packetArrLen > 0)
-                        {
-                                isPacketRecvd = true;
-                                break;
-                        }
-                        ++rxQueueId;
-                }
-                if (isPacketRecvd)
-                        break;
-                numOfAttempts++;
+		{
+			packetArrLen = dev->receivePackets(packetArr, 32, rxQueueId);
+			pcpp::multiPlatformSleep(1);
+			if (packetArrLen > 0)
+			{
+				isPacketRecvd = true;
+				break;
+			}
+			++rxQueueId;
+		}
+		if (isPacketRecvd)
+			break;
+		numOfAttempts++;
 	}
 
 	PTF_ASSERT_LOWER_THAN(numOfAttempts, 20, int);
