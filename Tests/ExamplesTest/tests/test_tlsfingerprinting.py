@@ -4,7 +4,7 @@ import pytest
 from .test_utils import ExampleTest, compare_stdout_with_file, compare_files_ignore_newline
 
 class TestTLSFingerprinting(ExampleTest):
-	pytestmark = [pytest.mark.tlsfingerprintinting, pytest.mark.no_network]
+	pytestmark = [pytest.mark.tlsfingerprinting, pytest.mark.no_network]
 
 	def _get_default_args(self, tmpdir=None):
 		args = {
@@ -16,6 +16,24 @@ class TestTLSFingerprinting(ExampleTest):
 
 	def _ignore_console_output_lines(self, line):
 		return line.startswith('Start reading') or line.startswith('Output file was written to')
+
+	def _examine_output_file_lines(self, line1, line2, separator):
+		line1_elements = line1.split(separator)
+		line2_elements = line2.split(separator)
+		if len(line1_elements) != 7 or len(line2_elements) != 7:
+			return False
+
+		for index, (line1_element, line2_element) in enumerate(zip(line1_elements, line2_elements)):
+			# ignore comparing IPv6 addresses because their representation might be
+			# slightly different on different platforms
+			if index in [3 ,5] and ':' in line1_element and ':' in line2_element:
+				continue
+
+			if line1_element != line2_element:
+				return False
+
+		return True
+
 
 	@pytest.mark.parametrize(
 		'tls_type', ['ch', 'sh', 'ch_sh']
@@ -30,7 +48,7 @@ class TestTLSFingerprinting(ExampleTest):
 		expected_console_output = f'tls_fp_{tls_type}_console.txt'
 		try:
 			completed_process = self.run_example(args=args)
-			assert compare_files_ignore_newline(os.path.join('expected_output', expected_output_file_name), output_file_name)
+			assert compare_files_ignore_newline(os.path.join('expected_output', expected_output_file_name), output_file_name, examine_lines_predicate=lambda l1, l2: self._examine_output_file_lines(l1, l2, '\t'))
 			compare_stdout_with_file(completed_process.stdout, os.path.join('expected_output', expected_console_output), self._ignore_console_output_lines)
 		finally:
 			if os.path.exists(output_file_name):
@@ -39,7 +57,7 @@ class TestTLSFingerprinting(ExampleTest):
 	def test_define_output_file(self, tmpdir):
 		args = self._get_default_args(tmpdir)
 		completed_process = self.run_example(args=args)
-		assert compare_files_ignore_newline(os.path.join('expected_output', 'tls_fp_ch.txt'), args['-o'])
+		assert compare_files_ignore_newline(os.path.join('expected_output', 'tls_fp_ch.txt'), args['-o'], examine_lines_predicate=lambda l1, l2: self._examine_output_file_lines(l1, l2, '\t'))
 		compare_stdout_with_file(completed_process.stdout, os.path.join('expected_output', 'tls_fp_ch_console.txt'), self._ignore_console_output_lines)
 
 	def test_no_input_file(self):
@@ -59,10 +77,11 @@ class TestTLSFingerprinting(ExampleTest):
 		assert "ERROR: Possible options for TLS fingerprint types are 'ch' (Client Hello), 'sh' (Server Hello) or 'ch_sh' (Client Hello & Server Hello)" in completed_process.stdout
 
 	def test_separator(self, tmpdir):
+		separator = '#'
 		args = self._get_default_args(tmpdir)
-		args['-s'] = '#'
+		args['-s'] = separator
 		completed_process = self.run_example(args=args)
-		assert compare_files_ignore_newline(os.path.join('expected_output', 'tls_fp_ch_hash_separator.txt'), args['-o'])
+		assert compare_files_ignore_newline(os.path.join('expected_output', 'tls_fp_ch_hash_separator.txt'), args['-o'], examine_lines_predicate=lambda l1, l2: self._examine_output_file_lines(l1, l2, separator))
 		compare_stdout_with_file(completed_process.stdout, os.path.join('expected_output', 'tls_fp_ch_console.txt'), self._ignore_console_output_lines)
 
 	@pytest.mark.parametrize(

@@ -26,11 +26,11 @@ def text_file_contains(file_path, expected_content):
 	with open(file_path) as f:
 		return expected_content in f.read()
 
-def compare_files_ignore_newline(filename1, filename2):
+def compare_files_ignore_newline(filename1, filename2, examine_lines_predicate=lambda l1,l2: False):
 	with open(filename1, 'r') as f1:
 		with open(filename2, 'r') as f2:
 			for line_f1, line_f2 in zip(f1, f2):
-				if line_f1 != line_f2:
+				if line_f1 != line_f2 and not examine_lines_predicate(line_f1, line_f2):
 					raise AssertionError(f'lines are different:\n{filename1}:\n{line_f1}\n{filename2}:\n{line_f2}')
 	return True
 
