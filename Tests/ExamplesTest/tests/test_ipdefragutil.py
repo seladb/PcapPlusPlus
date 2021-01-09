@@ -1,6 +1,6 @@
 from os import path
 import pytest
-from test_utils import ExampleTest
+from .test_utils import ExampleTest
 import filecmp
 
 class TestIPDefragUtil(ExampleTest):

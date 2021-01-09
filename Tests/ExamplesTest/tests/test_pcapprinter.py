@@ -1,6 +1,6 @@
 from os import path
 import pytest
-from test_utils import text_file_contains, ExampleTest
+from .test_utils import text_file_contains, ExampleTest
 
 class TestPcapPrinter(ExampleTest):
 	pytestmark = [pytest.mark.pcapprinter, pytest.mark.no_network]

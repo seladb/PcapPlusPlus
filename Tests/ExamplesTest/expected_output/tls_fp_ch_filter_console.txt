@@ -1,0 +1,17 @@
+
+Summary:
+========
+Total packets read:                   190
+TLS ClientHello packets:              15
+Unique ClientHello TLS fingerprints:  3
+
+ClientHello TLS fingerprints:
+----------------------------------------------
+| TLS Fingerprint                  | Count   |
+----------------------------------------------
+| a75de44db3e351bbd8d38b64c41f444e | 8       |
+| 80471ac42a1b2f0650bedc57b2b37031 | 6       |
+| b32309a26951912be7dba376398abc3b | 1       |
+----------------------------------------------
+
+Output file was written to: 'tls2.txt'

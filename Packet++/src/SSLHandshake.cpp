@@ -1558,8 +1558,14 @@ std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toString()
 
 std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toMD5()
 {
+	return toStringAndMD5().second;
+}
+
+std::pair<std::string, std::string> SSLClientHelloMessage::ClientHelloTLSFingerprint::toStringAndMD5()
+{
+	std::string str = toString();
 	MD5 md5;
-	return md5(toString());
+	return std::pair<std::string, std::string>(str, md5(str));
 }
 
 
@@ -1782,8 +1788,14 @@ std::string SSLServerHelloMessage::ServerHelloTLSFingerprint::toString()
 
 std::string SSLServerHelloMessage::ServerHelloTLSFingerprint::toMD5()
 {
+	return toStringAndMD5().second;
+}
+
+std::pair<std::string, std::string> SSLServerHelloMessage::ServerHelloTLSFingerprint::toStringAndMD5()
+{
+	std::string str = toString();
 	MD5 md5;
-	return md5(toString());
+	return std::pair<std::string, std::string>(str, md5(str));
 }
 
 

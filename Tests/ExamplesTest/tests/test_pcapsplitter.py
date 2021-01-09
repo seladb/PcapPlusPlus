@@ -2,7 +2,7 @@ import pytest
 import os
 import ipaddress
 from scapy.all import rdpcap, IP, IPv6, TCP, UDP
-from test_utils import ExampleTest
+from .test_utils import ExampleTest
 
 class TestPcapSplitter(ExampleTest):
 

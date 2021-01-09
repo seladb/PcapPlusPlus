@@ -2,7 +2,7 @@ from os import path
 import pytest
 import re
 import ntpath
-from test_utils import ExampleTest
+from .test_utils import ExampleTest
 
 class TestPcapSearch(ExampleTest):
 	pytestmark = [pytest.mark.pcapsearch, pytest.mark.no_network]
@@ -12,7 +12,7 @@ class TestPcapSearch(ExampleTest):
 		[
 			pytest.param('tcp port 80', 3541, id='tcp_port_80'),
 			pytest.param('icmp', 92, id='icmp'),
-			pytest.param('ip6', 62, id='ipv6'),
+			pytest.param('ip6', 4502, id='ipv6'),
 		]
 	)
 	def test_filters(self, search_criteria, expected_packet_count):
