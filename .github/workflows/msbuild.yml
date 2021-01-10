@@ -13,7 +13,8 @@ jobs:
            platform: x64
            config: Release
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
@@ -22,10 +23,16 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: ci\install_winpcap.bat
 
-    - name: Build
+    - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+    - name: Build Examples
+      working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus-Examples.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+    - name: Build Tutorials
+      working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m mk\${{matrix.vs-version}}\Tutorials.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
 
     - name: Test Packet++
