@@ -1,0 +1,36 @@
+name: Visual Studio
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+       include:
+         - vs-version: vs2019
+           os: windows-2019
+           platform: x64
+           config: Release
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Install WinPcap
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ci\install_winpcap.bat
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+      run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus-Examples.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+      run: msbuild /m mk\${{matrix.vs-version}}\Tutorials.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\Packet++Test
+        Bin\Packet++Test.exe
