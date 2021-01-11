@@ -35,6 +35,20 @@ jobs:
     - name: Extract WinPcap SDK
       run: 7z x ${{ steps.download-winpcap-sdk.outputs.file-path }} -oc:\
 
+    - name: Download pthreads
+      uses: carlosperate/download-file-action@v1.0.3
+      id: download-pthreads
+      with: 
+        file-url: 'ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip'
+        file-name: 'pthreads-w32-2-9-1-release.zip'
+
+    - name: Extract pthreads
+      run: 7z x ${{ steps.download-pthreads.outputs.file-path }} -oC:\pthreads
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w C:\WpdPack -p C:\pthreads
+
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
