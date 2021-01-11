@@ -36,14 +36,10 @@ jobs:
       run: 7z x ${{ steps.download-winpcap-sdk.outputs.file-path }} -oc:\
 
     - name: Download pthreads
-      uses: carlosperate/download-file-action@v1.0.3
-      id: download-pthreads
-      with: 
-        file-url: 'https://github.com/seladb/PcapPlusPlus-Deploy/blob/master/Packages/pthreads-w32-2-9-1-release.zip'
-        file-name: 'pthreads-w32-2-9-1-release.zip'
-
-    - name: Extract pthreads
-      run: 7z x ${{ steps.download-pthreads.outputs.file-path }} -oC:\pthreads
+      run: |
+        git clone https://github.com/seladb/PcapPlusPlus-Deploy
+        cd PcapPlusPlus-Deploy\Packages
+        7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
