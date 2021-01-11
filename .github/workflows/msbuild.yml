@@ -12,6 +12,19 @@ jobs:
            os: windows-2019
            platform: x64
            config: Release
+         - vs-version: vs2019
+           os: windows-2019
+           platform: x86
+           config: Debug
+         - vs-version: vs2017
+           os: windows-2016
+           platform: x86
+           config: Release
+         - vs-version: vs2017
+           os: windows-2016
+           platform: x64
+           config: Debug
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
