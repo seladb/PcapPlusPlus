@@ -16,6 +16,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
 
@@ -62,3 +66,16 @@ jobs:
       run: |
         cd Tests\Packet++Test
         Bin\Packet++Test.exe
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\Pcap++Test
+        Bin\Pcap++Test.exe -n
+
+    - name: Test Examples
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\ExamplesTest
+        python -m pip install -r requirements.txt
+        python -m pytest
