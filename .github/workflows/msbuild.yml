@@ -39,7 +39,7 @@ jobs:
       uses: carlosperate/download-file-action@v1.0.3
       id: download-pthreads
       with: 
-        file-url: 'ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip'
+        file-url: 'https://github.com/seladb/PcapPlusPlus-Deploy/blob/master/Packages/pthreads-w32-2-9-1-release.zip'
         file-name: 'pthreads-w32-2-9-1-release.zip'
 
     - name: Extract pthreads
