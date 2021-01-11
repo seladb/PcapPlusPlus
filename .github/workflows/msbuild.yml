@@ -20,8 +20,21 @@ jobs:
       uses: microsoft/setup-msbuild@v1
 
     - name: Install WinPcap
+      run: |
+        git clone https://github.com/mfontanini/winpcap-installer.git
+        cd winpcap-installer
+        winpcap-boundary-meter-4.1.3.exe /S
+
+    - name: Download WinPcap SDK
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: ci\install_winpcap.bat
+      uses: carlosperate/download-file-action@v1.0.3
+        id: download-winpcap-sdk
+        with:
+          file-url: 'http://www.winpcap.org/install/bin/WpdPack_4_1_2.zip'
+          file-name: 'WpdPack_4_1_2.zip'
+
+    - name: Extract WinPcap SDK
+      run: 7z x ${{ steps.download-winpcap-sdk.outputs.file-path }} -oc:\
 
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
