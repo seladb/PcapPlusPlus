@@ -26,7 +26,6 @@ jobs:
         winpcap-boundary-meter-4.1.3.exe /S
 
     - name: Download WinPcap SDK
-      working-directory: ${{env.GITHUB_WORKSPACE}}
       uses: carlosperate/download-file-action@v1.0.3
       id: download-winpcap-sdk
       with:
