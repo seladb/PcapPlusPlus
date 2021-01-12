@@ -60,8 +60,7 @@ jobs:
     - name: Use Zstd
       run: |
         echo "$env:ChocolateyInstall"
-        dir C:\ProgramData\chocolatey
-        dir C:\ProgramData\chocolatey\Zstd
+        dir /s *zstd*
       if: matrix.use_zstd == true
 
     - name: Configure PcapPlusPlus
