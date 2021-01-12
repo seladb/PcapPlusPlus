@@ -56,6 +56,13 @@ jobs:
         cd PcapPlusPlus-Deploy\Packages
         7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
 
+    - name: Check PCAP_SDK_DIR
+      run: |
+        echo Step 1
+        echo {{ env.PCAP_SDK_DIR }}
+        echo Step 2
+        echo %PCAP_SDK_DIR%
+
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w {{ env.PCAP_SDK_DIR }} -p C:\pthreads
