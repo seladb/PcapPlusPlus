@@ -41,7 +41,7 @@ jobs:
         git clone https://github.com/mfontanini/winpcap-installer.git
         cd winpcap-installer
         ./winpcap-boundary-meter-4.1.3.exe /S
-      if: ${{ matrix.pcap_lib != npcap }}
+      if: ${{ matrix.pcap_lib != "npcap" }}
 
     - name: Download WinPcap SDK
       uses: carlosperate/download-file-action@v1.0.3
@@ -49,11 +49,11 @@ jobs:
       with:
         file-url: 'http://www.winpcap.org/install/bin/WpdPack_4_1_2.zip'
         file-name: 'WpdPack_4_1_2.zip'
-      if: ${{ matrix.pcap_lib != npcap }}
+      if: ${{ matrix.pcap_lib != "npcap" }}
 
     - name: Extract WinPcap SDK
       run: 7z x ${{ steps.download-winpcap-sdk.outputs.file-path }} -oc:\
-      if: ${{ matrix.pcap_lib != npcap }}
+      if: ${{ matrix.pcap_lib != "npcap" }}
 
     - name: Download pthreads
       run: |
