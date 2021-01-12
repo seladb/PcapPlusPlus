@@ -17,6 +17,7 @@ jobs:
            platform: x86
            config: Debug
            pcap_lib: npcap
+           use_zstd: true
         #  - vs-version: vs2017
         #    os: windows-2016
         #    platform: x86
@@ -56,12 +57,10 @@ jobs:
         cd PcapPlusPlus-Deploy\Packages
         7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
 
-    - name: Check PCAP_SDK_DIR
+    - name: Use Zstd
       run: |
-        echo "Step 1"
-        echo "${{ env.PCAP_SDK_DIR }}"
-        echo "Step 2"
-        echo "$env:PCAP_SDK_DIR"
+        echo "$env:ChocolateyInstall"
+      if: matrix.use_zdtd == 'true'
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
