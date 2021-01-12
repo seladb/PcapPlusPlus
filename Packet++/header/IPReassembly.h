@@ -98,7 +98,7 @@ namespace pcpp
 			PacketKey() {}
 
 			// private copy c'tor
-			PacketKey(const PacketKey& other);
+			PacketKey(const PacketKey& other) {}
 		};
 
 
