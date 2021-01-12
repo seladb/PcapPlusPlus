@@ -8,22 +8,24 @@ jobs:
     strategy:
       matrix:
        include:
-         - vs-version: vs2019
-           os: windows-2019
-           platform: x64
-           config: Release
+        #  - vs-version: vs2019
+        #    os: windows-2019
+        #    platform: x64
+        #    config: Release
          - vs-version: vs2019
            os: windows-2019
            platform: x86
            config: Debug
-         - vs-version: vs2017
-           os: windows-2016
-           platform: x86
-           config: Release
-         - vs-version: vs2017
-           os: windows-2016
-           platform: x64
-           config: Debug
+           pcap_lib: npcap
+        #  - vs-version: vs2017
+        #    os: windows-2016
+        #    platform: x86
+        #    config: Release
+        #    pcap_lib: npcap
+        #  - vs-version: vs2017
+        #    os: windows-2016
+        #    platform: x64
+        #    config: Debug
 
     steps:
     - name: Checkout code
@@ -54,6 +56,10 @@ jobs:
     - name: Extract WinPcap SDK
       run: 7z x ${{ steps.download-winpcap-sdk.outputs.file-path }} -oc:\
       if: matrix.pcap_lib != 'npcap'
+
+    - name: Install NPcap
+      run: ci\install_npcap.bat
+      if: matrix.pcap_lib == 'npcap'
 
     - name: Download pthreads
       run: |
