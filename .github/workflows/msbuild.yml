@@ -60,7 +60,7 @@ jobs:
     - name: Use Zstd
       run: |
         echo "$env:ChocolateyInstall"
-      if: matrix.use_zdtd == true
+      if: matrix.use_zstd == true
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
