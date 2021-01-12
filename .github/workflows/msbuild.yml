@@ -60,7 +60,7 @@ jobs:
     - name: Use Zstd
       run: |
         echo "$env:ChocolateyInstall"
-        dir C:\ProgramData\chocolatey\Zstandard
+        dir C:\ProgramData\chocolatey
         dir C:\ProgramData\chocolatey\Zstd
       if: matrix.use_zstd == true
 
