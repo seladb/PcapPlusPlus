@@ -57,15 +57,14 @@ jobs:
         cd PcapPlusPlus-Deploy\Packages
         7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
 
-    - name: Use Zstd
+    - name: Set Zstd
       run: |
-        echo "$env:ChocolateyInstall"
-        Get-ChildItem -Path C:\ -Filter *Zstd* -Recurse -ErrorAction SilentlyContinue -Force
+        echo "ZSTD_HOME_PARAM=-z C:\ProgramData\chocolatey\lib\zstandard\tools" >> $env:GITHUB_ENV
       if: matrix.use_zstd == true
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w ${{ env.PCAP_SDK_DIR }} -p C:\pthreads
+      run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w ${{ env.PCAP_SDK_DIR }} -p C:\pthreads ${{ env.ZSTD_HOME_PARAM }}
 
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
