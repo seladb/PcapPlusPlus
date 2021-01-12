@@ -59,7 +59,7 @@ jobs:
     - name: Check PCAP_SDK_DIR
       run: |
         echo "Step 1"
-        echo "{{ env.PCAP_SDK_DIR }}""
+        echo "{{ env.PCAP_SDK_DIR }}"
         echo "Step 2"
         echo "$PCAP_SDK_DIR"
 
