@@ -98,7 +98,7 @@ namespace pcpp
 			PacketKey() {}
 
 			// private copy c'tor
-			PacketKey(const PacketKey& other);
+			PacketKey(const PacketKey& other) {}
 		};
 
 
@@ -127,7 +127,7 @@ namespace pcpp
 			 * A copy c'tor for this class
 			 * @param[in] other The instance to copy from
 			 */
-			IPv4PacketKey(const IPv4PacketKey& other) : m_IpID(other.m_IpID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+			IPv4PacketKey(const IPv4PacketKey& other) : PacketKey(other), m_IpID(other.m_IpID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
 
 			/**
 			 * Assignment operator for this class
@@ -219,7 +219,7 @@ namespace pcpp
 			 * A copy c'tor for this class
 			 * @param[in] other The instance to copy from
 			 */
-			IPv6PacketKey(const IPv6PacketKey& other) : m_FragmentID(other.m_FragmentID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
+			IPv6PacketKey(const IPv6PacketKey& other) : PacketKey(other), m_FragmentID(other.m_FragmentID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP) { }
 
 			/**
 			 * Assignment operator for this class
