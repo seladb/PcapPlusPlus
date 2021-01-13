@@ -13,6 +13,7 @@ jobs:
       uses: msys2/setup-msys2@v2
       with:
         msystem: MINGW32
+        installs: mingw-w64-i686-gcc
 
     - name: Setup Python
       uses: actions/setup-python@v2
@@ -29,7 +30,7 @@ jobs:
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: ./configure-windows-mingw.bat mingw-w64 -m C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64 -w ${{ env.PCAP_SDK_DIR }} -s C:\msys64
+      run: ./configure-windows-mingw.bat mingw-w64 -m C:\msys64\mingw32 -w ${{ env.PCAP_SDK_DIR }} -s C:\msys64
 
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
