@@ -14,7 +14,7 @@ jobs:
       with:
         msystem: MINGW32
         # install: base-devel mingw-w64-i686-gcc mingw-w64-i686-make
-        install: base-devel
+        install: mingw-w64-i686-gcc
 
     # - name: Setup Python
     #   uses: actions/setup-python@v2
@@ -31,9 +31,7 @@ jobs:
 
     - name: List all dirs under msys\mingw32
       run: |
-        Get-ChildItem -Path  D:\a\_temp\msys\msys64\mingw32
         Get-ChildItem -Path  D:\a\_temp\msys\msys64\mingw32\bin
-        Get-ChildItem -Path  D:\a\_temp\msys\msys64\mingw32\include
 
     # - name: List all dirs under msys
     #   run: Get-ChildItem -Path  D:\a\_temp\msys\msys64\ -Recurse -Directory -Force -ErrorAction SilentlyContinue | Select-Object FullName
