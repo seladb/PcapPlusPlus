@@ -27,7 +27,7 @@ jobs:
         NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
       run: |
         ci\install_npcap.bat
-        echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
+        echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
 
     - name: List all dirs under msys\mingw32
       run: |
@@ -39,20 +39,20 @@ jobs:
     # - name: List all dirs under choco
     #   run: Get-ChildItem -Path C:\ProgramData\chocolatey\lib\mingw -Recurse -Directory -Force -ErrorAction SilentlyContinue | Select-Object FullName
 
-    # - name: Configure PcapPlusPlus
-    #   working-directory: ${{env.GITHUB_WORKSPACE}}
-    #   shell: msys2 {0}
-    #   run: ./configure-windows-mingw.bat mingw-w64 -m /mingw32 -w ${{ env.PCAP_SDK_DIR }} -s .
-
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: ./configure-windows-mingw.bat mingw-w64 -m D:\a\_temp\msys\msys64\mingw32 -w ${{ env.PCAP_SDK_DIR }} -s D:\a\_temp\msys\msys64
+      shell: msys2 {0}
+      run: ./configure-windows-mingw.bat mingw-w64 -m /mingw32 -w ${{ env.PCAP_SDK_DIR }} -s .
+
+    # - name: Configure PcapPlusPlus
+    #   working-directory: ${{env.GITHUB_WORKSPACE}}
+    #   run: ./configure-windows-mingw.bat mingw-w64 -m D:\a\_temp\msys\msys64\mingw32 -w ${{ env.PCAP_SDK_DIR }} -s D:\a\_temp\msys\msys64
 
 
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      # shell: msys2 {0}
-      run: D:\a\_temp\msys\msys64\mingw32\bin\mingw32-make all
+      shell: msys2 {0}
+      run: make all
 
     - name: Test Packet++
       working-directory: ${{env.GITHUB_WORKSPACE}}
