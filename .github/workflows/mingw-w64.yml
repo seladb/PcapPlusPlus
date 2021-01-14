@@ -52,7 +52,7 @@ jobs:
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
       shell: msys2 {0}
-      run: make all
+      run: mingw32-make all
 
     - name: Test Packet++
       working-directory: ${{env.GITHUB_WORKSPACE}}
