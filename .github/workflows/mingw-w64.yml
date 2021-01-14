@@ -39,10 +39,6 @@ jobs:
     # - name: List all dirs under choco
     #   run: Get-ChildItem -Path C:\ProgramData\chocolatey\lib\mingw -Recurse -Directory -Force -ErrorAction SilentlyContinue | Select-Object FullName
 
-    - name: Configure PcapPlusPlus
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: ./configure-windows-mingw.bat aaa
-
     # - name: Configure PcapPlusPlus
     #   working-directory: ${{env.GITHUB_WORKSPACE}}
     #   shell: msys2 {0}
