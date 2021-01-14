@@ -27,7 +27,7 @@ jobs:
         NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
       run: |
         ci\install_npcap.bat
-        echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
+        echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
 
     - name: List all dirs under msys\mingw32
       run: |
