@@ -29,11 +29,17 @@ jobs:
     #     ci\install_npcap.bat
     #     echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
 
-    - name: List all dirs under msys
-      run: Get-ChildItem -Path  D:\a\_temp\msys\msys64\ -Recurse -Directory -Force -ErrorAction SilentlyContinue | Select-Object FullName
+    - name: List all dirs under msys\mingw32
+      run: |
+        Get-ChildItem -Path  D:\a\_temp\msys\msys64\mingw32
+        Get-ChildItem -Path  D:\a\_temp\msys\msys64\mingw32\bin
+        Get-ChildItem -Path  D:\a\_temp\msys\msys64\mingw32\include
 
-    - name: List all dirs under choco
-      run: Get-ChildItem -Path C:\ProgramData\chocolatey\lib\mingw -Recurse -Directory -Force -ErrorAction SilentlyContinue | Select-Object FullName
+    # - name: List all dirs under msys
+    #   run: Get-ChildItem -Path  D:\a\_temp\msys\msys64\ -Recurse -Directory -Force -ErrorAction SilentlyContinue | Select-Object FullName
+
+    # - name: List all dirs under choco
+    #   run: Get-ChildItem -Path C:\ProgramData\chocolatey\lib\mingw -Recurse -Directory -Force -ErrorAction SilentlyContinue | Select-Object FullName
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
