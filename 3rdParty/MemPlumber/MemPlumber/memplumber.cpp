@@ -14,7 +14,7 @@
 #endif
 
 #ifndef MEMPLUMBER_HASH
-#define MEMPLUMBER_HASH(p) (((intptr_t)(p) >> 8) % MEMPLUMBER_HASHTABLE_SIZE)
+#define MEMPLUMBER_HASH(p) (((unsigned long)(p) >> 8) % MEMPLUMBER_HASHTABLE_SIZE)
 #endif
 
 #ifndef _THROW_BAD_ALLOC
