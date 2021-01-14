@@ -14,7 +14,7 @@ jobs:
       with:
         msystem: MINGW32
         # install: base-devel mingw-w64-i686-gcc mingw-w64-i686-make
-        install: mingw-w64-i686-gcc
+        install: mingw-w64-i686-gcc mingw-w64-i686-make
 
     # - name: Setup Python
     #   uses: actions/setup-python@v2
