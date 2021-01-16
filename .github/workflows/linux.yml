@@ -9,17 +9,20 @@ jobs:
       matrix:
        include:
          - image: ubuntu2004
-           python: python3.8
+           python: python3
          - image: ubuntu1804
            python: python3.8
          - image: ubuntu1604
-           python: python3
+           python: python3.8
          - image: centos7
            python: python3.8
          - image: fedora29
            python: python3
 
     steps:
+    - name: Check linux version
+      run: uname -a
+S
     - name: Checkout code
       uses: actions/checkout@v2
 
