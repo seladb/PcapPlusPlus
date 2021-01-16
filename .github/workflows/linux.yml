@@ -55,9 +55,10 @@ jobs:
         ${{ matrix.python }} -m pip install -r requirements.txt
         ${{ matrix.python }} -m pytest
 
-    - name: Build Tutorials
+    - name: Check installation and build Tutorials
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
+        make install
         cd Examples/Tutorials/Tutorial-HelloWorld
         make -f Makefile.non_windows all
         ./Tutorial-HelloWorld
