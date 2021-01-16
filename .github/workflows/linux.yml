@@ -16,3 +16,26 @@ jobs:
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: ./configure-linux.sh --default
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Packet++Test
+        Bin/Packet++Test.exe
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Pcap++Test
+        Bin/Pcap++Test.exe -n
+
+    - name: Test Examples
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/ExamplesTest
+        python -m pip install -r requirements.txt
+        python -m pytest
