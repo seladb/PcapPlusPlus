@@ -4,7 +4,21 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-20.04
-    container: seladb/ubuntu2004
+    container: seladb/${{ matrix.image }}
+    strategy:
+      matrix:
+       include:
+         - image: ubuntu2004
+           python: python3.8
+         - image: ubuntu1804
+           python: python3.8
+         - image: ubuntu1604
+           python: python3
+         - image: centos7
+           python: python3.8
+         - image: fedora29
+           python: python3
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -37,5 +51,12 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         cd Tests/ExamplesTest
-        python -m pip install -r requirements.txt
-        python -m pytest
+        ${{ matrix.python }} -m pip install -r requirements.txt
+        ${{ matrix.python }} -m pytest
+
+    - name: Build Tutorials
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Examples/Tutorials/Tutorial-HelloWorld
+        make -f Makefile.non_windows all
+        ./Tutorial-HelloWorld
