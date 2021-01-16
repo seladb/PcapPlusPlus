@@ -28,15 +28,15 @@ jobs:
     - name: Check linux version
       run: cat /etc/*-release
 
-    - name: Python SSL
-      run: ${{ matrix.python }} -m ssl
-
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.8.x'
+    - name: Setup Python
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/ExamplesTest
+        ${{ matrix.python }} -m pip install -U pip
+        ${{ matrix.python }} -m pip install -r requirements.txt
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -62,7 +62,6 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         cd Tests/ExamplesTest
-        ${{ matrix.python }} -m pip install -r requirements.txt
         ${{ matrix.python }} -m pytest
 
     - name: Build Tutorials
