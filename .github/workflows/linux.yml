@@ -3,6 +3,7 @@ on: [push]
 
 jobs:
   build:
+    runs-on: ubuntu-20.04
     container: seladb/ubuntu2004
     steps:
     - name: Checkout code
