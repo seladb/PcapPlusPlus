@@ -24,19 +24,8 @@ jobs:
         #    python: python3
         #    run-on: ubuntu-20.04
 
-    steps:
-    - name: Check linux version
-      run: cat /etc/*-release
-
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Setup Python
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: |
-        cd Tests/ExamplesTest
-        ${{ matrix.python }} -m pip install -U pip
-        ${{ matrix.python }} -m pip install -r requirements.txt
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -62,6 +51,8 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         cd Tests/ExamplesTest
+        ${{ matrix.python }} -m pip install -U pip
+        ${{ matrix.python }} -m pip install -r requirements.txt
         ${{ matrix.python }} -m pytest
 
     - name: Build Tutorials
