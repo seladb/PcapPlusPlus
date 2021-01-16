@@ -17,9 +17,9 @@ jobs:
          - image: ubuntu1604
            python: python3.8
            run-on: ubuntu-16.04
-         - image: centos7
-           python: python3.8
-           run-on: ubuntu-16.04
+        #  - image: centos7
+        #    python: python3.8
+        #    run-on: ubuntu-16.04
          - image: fedora29
            python: python3
            run-on: ubuntu-20.04
