@@ -8,25 +8,28 @@ jobs:
     strategy:
       matrix:
        include:
-         - image: ubuntu2004
-           python: python3
-           run-on: ubuntu-20.04
-         - image: ubuntu1804
-           python: python3.8
-           run-on: ubuntu-20.04
+        #  - image: ubuntu2004
+        #    python: python3
+        #    run-on: ubuntu-20.04
+        #  - image: ubuntu1804
+        #    python: python3.8
+        #    run-on: ubuntu-20.04
          - image: ubuntu1604
            python: python3.8
            run-on: ubuntu-16.04
         #  - image: centos7
         #    python: python3.8
         #    run-on: ubuntu-16.04
-         - image: fedora29
-           python: python3
-           run-on: ubuntu-20.04
+        #  - image: fedora29
+        #    python: python3
+        #    run-on: ubuntu-20.04
 
     steps:
     - name: Check linux version
       run: cat /etc/*-release
+
+    - name: Python SSL
+      run: ${{ matrix.python }} -m ssl
 
     - name: Checkout code
       uses: actions/checkout@v2
