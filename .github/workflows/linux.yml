@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Check linux version
-      run: lsb_release -a
+      run: cat /etc/*-release
 
     - name: Checkout code
       uses: actions/checkout@v2
