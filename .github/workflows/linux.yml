@@ -22,7 +22,7 @@ jobs:
     steps:
     - name: Check linux version
       run: uname -a
-S
+
     - name: Checkout code
       uses: actions/checkout@v2
 
