@@ -25,13 +25,13 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         cd Tests/Packet++Test
-        Bin/Packet++Test.exe
+        Bin/Packet++Test
 
     - name: Test Pcap++
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         cd Tests/Pcap++Test
-        Bin/Pcap++Test.exe -n
+        Bin/Pcap++Test -n
 
     - name: Test Examples
       working-directory: ${{env.GITHUB_WORKSPACE}}
