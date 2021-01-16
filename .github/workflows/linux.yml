@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Check linux version
-      run: uname -a
+      run: lsb_release -a
 
     - name: Checkout code
       uses: actions/checkout@v2
