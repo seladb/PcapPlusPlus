@@ -1,0 +1,35 @@
+name: DPDK
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    container: seladb/${{ matrix.image }}
+    strategy:
+      matrix:
+       include:
+         - image: [ubuntu1804-dpdk1911]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Packet++Test
+        Bin/Packet++Test
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Pcap++Test
+        Bin/Pcap++Test -n
