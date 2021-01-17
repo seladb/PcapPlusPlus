@@ -46,8 +46,7 @@ jobs:
 
     - name: Install NPcap
       env:
-        NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
-        NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
+        NPCAP_USERNAME: ${{ secrets.SuperSecret }}
       run: |
         ci\install_npcap.bat
         echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
