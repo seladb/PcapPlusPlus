@@ -7,8 +7,7 @@ jobs:
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
-       include:
-         - image: [ubuntu1804-dpdk1911]
+        image: [ubuntu1804-dpdk1911]
 
     steps:
     - name: Checkout code
