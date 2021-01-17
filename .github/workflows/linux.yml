@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ${{ matrix.run-on }}
+    runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
