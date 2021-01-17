@@ -1,125 +1,33 @@
 sudo: required
 language: cpp
-services:
-  - docker
 
 matrix:
   include:
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu1604
-        - PYTHON3_EXE=python3.8
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu1804
-        - PYTHON3_EXE=python3.8
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu2004
-        - PYTHON3_EXE=python3
-    - os: linux
-      env:
-        - DOCKER_IMAGE=centos7
-        - PYTHON3_EXE=python3.8
-    - os: linux
-      env:
-        - DOCKER_IMAGE=fedora29
-        - PYTHON3_EXE=python3
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu1604-dpdk1611
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu1604-dpdk1711
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu1604-dpdk1811
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu1604-dpdk1908
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu1804-dpdk1911
-    - os: linux
-      env:
-        - DOCKER_IMAGE=ubuntu1604-pfring
-        - PF_RING=True
-    - os: osx
-      compiler: clang
-      osx_image: xcode8
-    - os: osx
-      compiler: clang
-      osx_image: xcode9.2
     - os: osx
       compiler: clang
       osx_image: xcode10.1
-      env:
-        - PYTHON3_EXE=python3
-    - os: osx
-      compiler: clang
-      osx_image: xcode11
-      env:
-        - PYTHON3_EXE=python3
     - os: osx
       compiler: clang
       osx_image: xcode11.3
-      env:
-        - PYTHON3_EXE=python3
-    - os: osx
-      compiler: clang
-      osx_image: xcode12
-      env:
-        - PYTHON3_EXE=python3
-
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-       docker pull seladb/$DOCKER_IMAGE:latest;
-       docker run -itd --name $DOCKER_IMAGE --net=host -v $(pwd):/PcapPlusPlus seladb/$DOCKER_IMAGE;
-    fi
 
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./configure-mac_os_x.sh; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --default"; fi
-  - if [[ $DOCKER_IMAGE == *"dpdk"* ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --dpdk --dpdk-home /dpdk"; fi
-  - if [[ ! -z $PF_RING ]]; then docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING"; fi
+  - ./configure-mac_os_x.sh
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$PYTHON3_EXE" != "" ]]; then
-       $PYTHON3_EXE -m pip install -U pip;
-       $PYTHON3_EXE -m pip install -r Tests/ExamplesTest/requirements.txt;
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$PYTHON3_EXE" != "" ]]; then
-       docker exec -i $DOCKER_IMAGE bash -c "$PYTHON3_EXE -m pip install -r PcapPlusPlus/Tests/ExamplesTest/requirements.txt";
-    fi
+  - python3 -m pip install -U pip;
+  - python3 -m pip install -r Tests/ExamplesTest/requirements.txt;
 
 script:
   - ERR_CODE=0
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-       make all || ERR_CODE=$?;
-       cd Tests/Packet++Test && Bin/Packet++Test || ERR_CODE=$?;
-       cd ../Pcap++Test && sudo Bin/Pcap++Test -n || ERR_CODE=$?;
-       if [[ "$PYTHON3_EXE" != "" ]]; then
-          source ../../ci/find_ip_mac.sh;
-          cd ../ExamplesTest && $PYTHON3_EXE -m pytest --interface $NETWORK_IP --use-sudo || ERR_CODE=$?;
-       fi;
-       cd ../../ && sudo make install || ERR_CODE=$?;
-    else
-       docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make all" || ERR_CODE=$?;
-       docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Packet++Test && Bin/Packet++Test" || ERR_CODE=$?;
-       docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/Pcap++Test && Bin/Pcap++Test -n -k 0" || ERR_CODE=$?;
-       if [[ "$PYTHON3_EXE" != "" ]]; then
-          source ci/find_ip_linux.sh;
-          docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Tests/ExamplesTest && $PYTHON3_EXE -m pytest --interface $NETWORK_IP" || ERR_CODE=$?;
-       fi;
-       docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus && make install" || ERR_CODE=$?;
-    fi
+  - make all || ERR_CODE=$?;
+  - cd Tests/Packet++Test && Bin/Packet++Test || ERR_CODE=$?;
+  - cd ../Pcap++Test && sudo Bin/Pcap++Test -n || ERR_CODE=$?;
+  - source ../../ci/find_ip_mac.sh;
+  - cd ../ExamplesTest && python3 -m pytest --interface $NETWORK_IP --use-sudo || ERR_CODE=$?;
+  - cd ../../ && sudo make install || ERR_CODE=$?;
   - (exit $ERR_CODE)
 
 after_success:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-       cd Examples/Tutorials/Tutorial-HelloWorld/;
-       make -f Makefile.non_windows all;
-       ./Tutorial-HelloWorld;
-    else
-       docker exec -i $DOCKER_IMAGE bash -c "cd PcapPlusPlus/Examples/Tutorials/Tutorial-HelloWorld/ && make -f Makefile.non_windows all && ./Tutorial-HelloWorld";
-    fi
+  - cd Examples/Tutorials/Tutorial-HelloWorld/;
+  - make -f Makefile.non_windows all;
+  - ./Tutorial-HelloWorld;

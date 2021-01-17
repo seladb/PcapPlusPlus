@@ -1,0 +1,327 @@
+name: Build and test
+on: [push]
+
+jobs:
+  linux:
+    runs-on: ubuntu-20.04
+    container: seladb/${{ matrix.image }}
+    strategy:
+      matrix:
+       include:
+         - image: ubuntu2004
+           python: python3
+         - image: ubuntu1804
+           python: python3.8
+         - image: ubuntu1604
+           python: python3.8
+         - image: centos7
+           python: python3.8
+         - image: fedora29
+           python: python3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-linux.sh --default
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Packet++Test
+        Bin/Packet++Test
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Pcap++Test
+        Bin/Pcap++Test -n
+
+    - name: Test Examples
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/ExamplesTest
+        ${{ matrix.python }} -m pip install -U pip
+        ${{ matrix.python }} -m pip install -r requirements.txt
+        ${{ matrix.python }} -m pytest
+
+    - name: Check installation and build Tutorials
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        make install
+        cd Examples/Tutorials/Tutorial-HelloWorld
+        make -f Makefile.non_windows all
+        ./Tutorial-HelloWorld
+
+  dpdk:
+    runs-on: ubuntu-20.04
+    container: seladb/${{ matrix.image }}
+    strategy:
+      matrix:
+        image: [ubuntu1804-dpdk1911, ubuntu1604-dpdk1811, ubuntu1604-dpdk1711]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Packet++Test
+        Bin/Packet++Test
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Pcap++Test
+        Bin/Pcap++Test -n
+
+  pfring:
+    runs-on: ubuntu-20.04
+    container: seladb/ubuntu1604-pfring
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Packet++Test
+        Bin/Packet++Test
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Pcap++Test
+        Bin/Pcap++Test -n
+
+  macos:
+    runs-on: ${{ matrix.os-version }}
+    strategy:
+      matrix:
+        os-version: [macos-10.15, macos-11.0]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-mac_os_x.sh
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Packet++Test
+        Bin/Packet++Test
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Pcap++Test
+        Bin/Pcap++Test -n
+
+    - name: Test Examples
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/ExamplesTest
+        python -m pip install -U pip
+        python -m pip install -r requirements.txt
+        python -m pytest
+
+    - name: Check installation and build Tutorials
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        make install
+        cd Examples/Tutorials/Tutorial-HelloWorld
+        make -f Makefile.non_windows all
+        ./Tutorial-HelloWorld
+
+  mingw:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        install: mingw-w64-i686-gcc mingw-w64-i686-make
+
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
+    - name: Install NPcap
+      env:
+        NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
+        NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
+      run: |
+        ci\install_npcap.bat
+        echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      shell: msys2 {0}
+      run: ./configure-windows-mingw.bat mingw-w64 -m /mingw32 -w ${{ env.PCAP_SDK_DIR }} -s .
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      shell: msys2 {0}
+      run: mingw32-make all
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\Packet++Test
+        Bin\Packet++Test.exe
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\Pcap++Test
+        Bin\Pcap++Test.exe -n
+
+    - name: Test Examples
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\ExamplesTest
+        python -m pip install -r requirements.txt
+        python -m pytest
+
+  visual-studio:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+       include:
+         - vs-version: vs2019
+           os: windows-2019
+           platform: x64
+           config: Debug
+         - vs-version: vs2019
+           os: windows-2019
+           platform: x64
+           config: Release
+         - vs-version: vs2019
+           os: windows-2019
+           platform: x86
+           config: Debug
+         - vs-version: vs2019
+           os: windows-2019
+           platform: x86
+           config: Release
+           pcap_lib: npcap
+         - vs-version: vs2017
+           os: windows-2016
+           platform: x86
+           config: Release
+           pcap_lib: npcap
+         - vs-version: vs2017
+           os: windows-2016
+           platform: x64
+           config: Debug
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Install WinPcap
+      run: |
+        ci\install_winpcap.bat
+        echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
+      if: matrix.pcap_lib != 'npcap'
+
+    - name: Install NPcap
+      env:
+        NPCAP_USERNAME: ${{ secrets.SuperSecret }}
+      run: |
+        ci\install_npcap.bat
+        echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
+      if: matrix.pcap_lib == 'npcap'
+
+    - name: Download pthreads
+      run: |
+        git clone https://github.com/seladb/PcapPlusPlus-Deploy
+        cd PcapPlusPlus-Deploy\Packages
+        7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
+
+    - name: Set Zstd
+      run: |
+        echo "ZSTD_HOME_PARAM=-z C:\ProgramData\chocolatey\lib\zstandard\tools" >> $env:GITHUB_ENV
+      if: matrix.use_zstd == true
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w ${{ env.PCAP_SDK_DIR }} -p C:\pthreads ${{ env.ZSTD_HOME_PARAM }}
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+    - name: Build Examples
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus-Examples.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+    - name: Build Tutorials
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild /m mk\${{matrix.vs-version}}\Tutorials.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\Packet++Test
+        Bin\Packet++Test.exe
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\Pcap++Test
+        Bin\Pcap++Test.exe -n
+
+    - name: Test Examples
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests\ExamplesTest
+        python -m pip install -r requirements.txt
+        python -m pytest
