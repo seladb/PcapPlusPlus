@@ -23,6 +23,6 @@ if not "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
 	xcopy C:\Windows\SysWOW64\Npcap\*.dll C:\Windows\SysWOW64
 )
 
-curl --connect-timeout 5 --max-time 10 --retry 5 --retry-delay 0 --retry-max-time 120 \https://nmap.org/npcap/dist/npcap-sdk-1.04.zip --output npcap-sdk-1.04.zip
+curl --connect-timeout 5 --max-time 10 --retry 5 --retry-delay 0 --retry-max-time 120 https://nmap.org/npcap/dist/npcap-sdk-1.04.zip --output npcap-sdk-1.04.zip
 mkdir C:\Npcap-sdk
 7z x .\npcap-sdk-1.04.zip -oC:\Npcap-sdk
