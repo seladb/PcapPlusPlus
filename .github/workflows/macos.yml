@@ -3,10 +3,10 @@ on: [push]
 
 jobs:
   build:
-    runs-on: macos-10.15
+    runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
-        image: [macos-10.15]
+        os-version: [macos-10.15, macos-11.0]
 
     steps:
     - name: Checkout code
@@ -15,11 +15,6 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: '3.8.x'
-
-    - name: Check default GCC version
-      run: |
-        g++ --version
-        gcc --version
 
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -45,9 +40,9 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         cd Tests/ExamplesTest
-        ${{ matrix.python }} -m pip install -U pip
-        ${{ matrix.python }} -m pip install -r requirements.txt
-        ${{ matrix.python }} -m pytest
+        python -m pip install -U pip
+        python -m pip install -r requirements.txt
+        python -m pytest
 
     - name: Check installation and build Tutorials
       working-directory: ${{env.GITHUB_WORKSPACE}}
