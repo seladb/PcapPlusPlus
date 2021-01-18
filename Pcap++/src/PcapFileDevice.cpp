@@ -86,7 +86,7 @@ IFileReaderDevice* IFileReaderDevice::getReader(const std::string& fileName)
 
 uint64_t IFileReaderDevice::getFileSize() const
 {
-	std::ifstream fileStream(m_FileName, std::ifstream::ate | std::ifstream::binary);
+	std::ifstream fileStream(m_FileName.c_str(), std::ifstream::ate | std::ifstream::binary);
 	return fileStream.tellg();
 }
 
