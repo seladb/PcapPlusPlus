@@ -86,8 +86,8 @@ namespace pcpp
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
 		pcap_t* m_PcapSendDescriptor;
-		const char* m_Name;
-		const char* m_Description;
+		std::string m_Name;
+		std::string m_Description;
 		bool m_IsLoopback;
 		uint32_t m_DeviceMtu;
 		std::vector<pcap_addr_t> m_Addresses;
@@ -248,12 +248,12 @@ namespace pcpp
 		/**
 		 * @return The name of the device (e.g eth0), taken from pcap_if_t->name
 		 */
-		const char* getName() const { return m_Name; }
+		std::string getName() const { return m_Name; }
 
 		/**
 		 * @return A human-readable description of the device, taken from pcap_if_t->description. May be NULL in some interfaces
 		 */
-		const char* getDesc() const { return m_Description; }
+		std::string getDesc() const { return m_Description; }
 
 		/**
 		 * @return True if this interface is a loopback interface, false otherwise

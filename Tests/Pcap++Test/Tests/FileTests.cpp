@@ -163,7 +163,6 @@ PTF_TEST_CASE(TestPcapRawIPFileReadWrite)
 	pcpp::PcapFileWriterDevice tempWriter(RAW_IP_PCAP_WRITE_PATH, pcpp::LINKTYPE_RAW);
 	PTF_ASSERT_FALSE(tempWriter.open());
 	pcpp::LoggerPP::getInstance().enableErrors();
-
 	pcpp::PcapFileReaderDevice readerDev(RAW_IP_PCAP_PATH);
 	pcpp::PcapFileWriterDevice writerDev(RAW_IP_PCAP_WRITE_PATH, pcpp::LINKTYPE_DLT_RAW1);
 	pcpp::PcapNgFileWriterDevice writerNgDev(RAW_IP_PCAPNG_PATH);

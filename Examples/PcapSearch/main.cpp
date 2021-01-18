@@ -120,7 +120,7 @@ std::string getExtension(std::string fileName)
 int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstream* detailedReportFile)
 {
 	// create the pcap/pcap-ng reader
-	IFileReaderDevice* reader = IFileReaderDevice::getReader(pcapFilePath.c_str());
+	IFileReaderDevice* reader = IFileReaderDevice::getReader(pcapFilePath);
 
 	// if the reader fails to open
 	if (!reader->open())

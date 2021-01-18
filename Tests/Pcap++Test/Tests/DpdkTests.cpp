@@ -475,14 +475,14 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 					PTF_PRINT_VERBOSE("Same flow exists in core %d and core %d. Flow key = %X", firstCoreId, secondCoreId, iter->first);
 					std::ostringstream stream;
 					stream << "Core" << firstCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
-					pcpp::PcapFileWriterDevice writerDev(stream.str().c_str());
+					pcpp::PcapFileWriterDevice writerDev(stream.str());
 					writerDev.open();
 					writerDev.writePackets(iter->second.first);
 					writerDev.close();
 
 					std::ostringstream stream2;
 					stream2 << "Core" << secondCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
-					pcpp::PcapFileWriterDevice writerDev2(stream2.str().c_str());
+					pcpp::PcapFileWriterDevice writerDev2(stream2.str());
 					writerDev2.open();
 					writerDev2.writePackets(iter->second.second);
 					writerDev2.close();

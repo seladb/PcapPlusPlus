@@ -341,7 +341,7 @@ int main(int argc, char* argv[])
 	std::string outputPcapFileName = outputPcapDir + std::string(1, SEPARATOR) + getFileNameWithoutExtension(inputPcapFileName) + "-";
 
 	// open a pcap file for reading
-	IFileReaderDevice* reader = IFileReaderDevice::getReader(inputPcapFileName.c_str());
+	IFileReaderDevice* reader = IFileReaderDevice::getReader(inputPcapFileName);
 	bool isReaderPcapng = (dynamic_cast<PcapNgFileReaderDevice*>(reader) != NULL);
 
 	if (reader == NULL || !reader->open())
@@ -389,12 +389,12 @@ int main(int argc, char* argv[])
 			if (isReaderPcapng)
 			{
 				// if reader is pcapng, create a pcapng writer
-				outputFiles[fileNum] = new PcapNgFileWriterDevice(fileName.c_str());
+				outputFiles[fileNum] = new PcapNgFileWriterDevice(fileName);
 			}
 			else
 			{
 				// if reader is pcap, create a pcap writer
-				outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str(), rawPacket.getLinkLayerType());
+				outputFiles[fileNum] = new PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType());
 			}
 
 			// open the writer
@@ -415,12 +415,12 @@ int main(int argc, char* argv[])
 			if (isReaderPcapng)
 			{
 				// if reader is pcapng, create a pcapng writer
-				outputFiles[fileNum] = new PcapNgFileWriterDevice(fileName.c_str());
+				outputFiles[fileNum] = new PcapNgFileWriterDevice(fileName);
 			}
 			else
 			{
 				// if reader is pcap, create a pcap writer
-				outputFiles[fileNum] = new PcapFileWriterDevice(fileName.c_str(), rawPacket.getLinkLayerType());
+				outputFiles[fileNum] = new PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType());
 			}
 
 			// open the writer in __append__ mode

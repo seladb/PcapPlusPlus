@@ -154,7 +154,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	pcpp::IPv4Address defaultGateway = pcpp::IPv4Address::Zero;
 	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		PTF_ASSERT_NOT_NULL((*iter)->getName());
+		PTF_ASSERT_FALSE((*iter)->getName().empty());
 		if (defaultGateway == pcpp::IPv4Address::Zero)
 			defaultGateway = (*iter)->getDefaultGateway();
 	}
@@ -172,7 +172,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 
 	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		PTF_ASSERT_NOT_NULL((*iter)->getName());
+		PTF_ASSERT_FALSE((*iter)->getName().empty());
 	}
 
 	PTF_ASSERT_EQUAL(pcpp::PcapLiveDeviceList::getInstance().getDnsServers().size(), dnsServerCount, size);
@@ -190,7 +190,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 	pcpp::PcapLiveDevice* liveDev2 = NULL;
 	liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName);
 	PTF_ASSERT_NOT_NULL(liveDev2);
-	PTF_ASSERT_EQUAL(strcmp(liveDev->getName(), liveDev2->getName()), 0, int);
+	PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName(), string);
 
 	pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName);
 	PTF_ASSERT_TRUE(liveDev3 == liveDev2);
@@ -263,7 +263,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 	}
 
 	PTF_ASSERT_NOT_NULL(liveDev);
-	PTF_ASSERT_NOT_NULL(liveDev->getName());
+	PTF_ASSERT_FALSE(liveDev->getName().empty());
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0, u32);
 	PTF_ASSERT_NOT_EQUAL(liveDev->getMacAddress(), pcpp::MacAddress::Zero, object);
 
@@ -628,7 +628,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_NOT_NULL(remoteDevices);
 	for (pcpp::PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
 	{
-		PTF_ASSERT_NOT_NULL((*remoteDevIter)->getName());
+		PTF_ASSERT_FALSE((*remoteDevIter)->getName().empty());
 	}
 	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP, string);
 	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort, u16);
