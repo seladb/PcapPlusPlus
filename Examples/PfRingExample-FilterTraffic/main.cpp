@@ -416,7 +416,7 @@ int main(int argc, char* argv[])
 
 			std::stringstream packetFileName;
 			packetFileName << packetFilePath << "Thread" << coreId << ".pcap";
-			pcapWriters[coreId] = new PcapFileWriterDevice(packetFileName.str().c_str());
+			pcapWriters[coreId] = new PcapFileWriterDevice(packetFileName.str());
 			if (!pcapWriters[coreId]->open())
 			{
 				EXIT_WITH_ERROR("Couldn't open pcap writer device for core %d", coreId);

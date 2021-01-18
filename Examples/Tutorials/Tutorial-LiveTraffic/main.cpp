@@ -121,9 +121,9 @@ int main(int argc, char* argv[])
 	// before capturing packets let's print some info about this interface
 	printf("Interface info:\n");
 	// get interface name
-	printf("   Interface name:        %s\n", dev->getName());
+	printf("   Interface name:        %s\n", dev->getName().c_str());
 	// get interface description
-	printf("   Interface description: %s\n", dev->getDesc());
+	printf("   Interface description: %s\n", dev->getDesc().c_str());
 	// get interface MAC address
 	printf("   MAC address:           %s\n", dev->getMacAddress().toString().c_str());
 	// get default gateway for interface

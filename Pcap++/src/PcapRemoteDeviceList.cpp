@@ -108,7 +108,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 	LOG_DEBUG("Searching all remote devices in list...");
 	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
+		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
@@ -142,7 +142,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 	LOG_DEBUG("Searching all remote devices in list...");
 	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
+		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)

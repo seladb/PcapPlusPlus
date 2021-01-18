@@ -81,7 +81,7 @@ void listInterfaces()
 	printf("\nNetwork interfaces:\n");
 	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName(), (*iter)->getIPv4Address().toString().c_str());
+		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName().c_str(), (*iter)->getIPv4Address().toString().c_str());
 	}
 	exit(0);
 }

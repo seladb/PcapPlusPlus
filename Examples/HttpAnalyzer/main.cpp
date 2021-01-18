@@ -125,7 +125,7 @@ void listInterfaces()
 	printf("\nNetwork interfaces:\n");
 	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName(), (*iter)->getIPv4Address().toString().c_str());
+		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName().c_str(), (*iter)->getIPv4Address().toString().c_str());
 	}
 	exit(0);
 }
@@ -394,7 +394,7 @@ void onApplicationInterrupted(void* cookie)
 void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
 {
 	// open input file (pcap or pcapng file)
-	IFileReaderDevice* reader = IFileReaderDevice::getReader(pcapFileName.c_str());
+	IFileReaderDevice* reader = IFileReaderDevice::getReader(pcapFileName);
 
 	if (!reader->open())
 		EXIT_WITH_ERROR("Could not open input pcap file");
@@ -444,7 +444,7 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
 	PcapFileWriterDevice* pcapWriter = NULL;
 	if (savePacketsToFileName != "")
 	{
-		pcapWriter = new PcapFileWriterDevice(savePacketsToFileName.c_str());
+		pcapWriter = new PcapFileWriterDevice(savePacketsToFileName);
 		if (!pcapWriter->open())
 		{
 			EXIT_WITH_ERROR("Could not open pcap file for writing");

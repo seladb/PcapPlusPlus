@@ -31,7 +31,7 @@ bool readPcapIntoPacketVec(std::string pcapFileName, std::vector<pcpp::RawPacket
 	errMsg = "";
 	packetStream.clear();
 
-	pcpp::PcapFileReaderDevice reader(pcapFileName.c_str());
+	pcpp::PcapFileReaderDevice reader(pcapFileName);
 	if (!reader.open())
 	{
 		errMsg = "Cannot open pcap file";

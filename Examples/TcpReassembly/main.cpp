@@ -327,7 +327,7 @@ void listInterfaces()
 	printf("\nNetwork interfaces:\n");
 	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName(), (*iter)->getIPv4Address().toString().c_str());
+		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName().c_str(), (*iter)->getIPv4Address().toString().c_str());
 	}
 	exit(0);
 }
@@ -501,7 +501,7 @@ static void onPacketArrives(RawPacket* packet, PcapLiveDevice* dev, void* tcpRea
 void doTcpReassemblyOnPcapFile(std::string fileName, TcpReassembly& tcpReassembly, std::string bpfFilter = "")
 {
 	// open input file (pcap or pcapng file)
-	IFileReaderDevice* reader = IFileReaderDevice::getReader(fileName.c_str());
+	IFileReaderDevice* reader = IFileReaderDevice::getReader(fileName);
 
 	// try to open the file device
 	if (!reader->open())

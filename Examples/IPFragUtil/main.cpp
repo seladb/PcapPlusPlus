@@ -494,7 +494,7 @@ int main(int argc, char* argv[])
     }
 
     // create a reader device from input file
-    IFileReaderDevice* reader = IFileReaderDevice::getReader(inputFile.c_str());
+    IFileReaderDevice* reader = IFileReaderDevice::getReader(inputFile);
 
 	if (!reader->open())
 	{
@@ -507,11 +507,11 @@ int main(int argc, char* argv[])
 
 	if (dynamic_cast<PcapFileReaderDevice*>(reader) != NULL)
 	{
-		writer = new PcapFileWriterDevice(outputFile.c_str(), ((PcapFileReaderDevice*)reader)->getLinkLayerType());
+		writer = new PcapFileWriterDevice(outputFile, ((PcapFileReaderDevice*)reader)->getLinkLayerType());
 	}
 	else if (dynamic_cast<PcapNgFileReaderDevice*>(reader) != NULL)
 	{
-		writer = new PcapNgFileWriterDevice(outputFile.c_str());
+		writer = new PcapNgFileWriterDevice(outputFile);
 	}
 	else
 	{

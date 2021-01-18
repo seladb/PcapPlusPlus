@@ -19,14 +19,14 @@ bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, vo
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name);
+		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
 		return false;
 	}
 
 	//Put the interface in capture mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
 	{
-		LOG_ERROR("Error setting the capture mode for device '%s'", m_Name);
+		LOG_ERROR("Error setting the capture mode for device '%s'", m_Name.c_str());
 		return false;
 	}
 
@@ -37,14 +37,14 @@ bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStats
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name);
+		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
 		return false;
 	}
 
 	//Put the interface in statistics mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
 	{
-		LOG_ERROR("Error setting the statistics mode for device '%s'", m_Name);
+		LOG_ERROR("Error setting the statistics mode for device '%s'", m_Name.c_str());
 		return false;
 	}
 
@@ -55,7 +55,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name);
+		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
 		return 0;
 	}
 

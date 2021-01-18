@@ -73,7 +73,7 @@ void listInterfaces()
 		std::string defaultGateway = ((*iter)->getDefaultGateway().isValid() ? (*iter)->getDefaultGateway().toString() : "None");
 
 		printf("    -> Name: '%s'   IP address: %s   Default gateway: %s\n",
-				(*iter)->getName(),
+				(*iter)->getName().c_str(),
 				(*iter)->getIPv4Address().toString().c_str(),
 				defaultGateway.c_str());
 	}

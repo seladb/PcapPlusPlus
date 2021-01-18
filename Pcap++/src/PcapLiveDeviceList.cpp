@@ -232,7 +232,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
+		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
@@ -265,7 +265,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name);
+		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
@@ -317,8 +317,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
-		std::string devName((*devIter)->getName());
-		if (name == devName)
+		if (name == (*devIter)->getName())
 			return (*devIter);
 	}
 

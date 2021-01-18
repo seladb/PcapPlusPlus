@@ -34,7 +34,7 @@ bool PcapRemoteDevice::open()
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
-	LOG_DEBUG("Opening device '%s'", m_Name);
+	LOG_DEBUG("Opening device '%s'", m_Name.c_str());
 	pcap_rmtauth* pRmAuth = NULL;
 	pcap_rmtauth rmAuth;
 	if (m_RemoteAuthentication != NULL)
@@ -43,7 +43,7 @@ bool PcapRemoteDevice::open()
 		pRmAuth = &rmAuth;
 	}
 
-	m_PcapDescriptor = pcap_open(m_Name, PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
+	m_PcapDescriptor = pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
 	if (m_PcapDescriptor == NULL)
 	{
 		LOG_ERROR("Error opening device. Error was: %s", errbuf);
@@ -65,7 +65,7 @@ bool PcapRemoteDevice::open()
 		return false;
 	}
 
-	LOG_DEBUG("Device '%s' opened", m_Name);
+	LOG_DEBUG("Device '%s' opened", m_Name.c_str());
 
 	return true;
 }
@@ -79,7 +79,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 		return 0;
 	}
 
-	LOG_DEBUG("Started capture thread for device '%s'", pThis->m_Name);
+	LOG_DEBUG("Started capture thread for device '%s'", pThis->m_Name.c_str());
 
 	pcap_pkthdr* pkthdr;
 	const uint8_t* pktData;
@@ -100,7 +100,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 				onPacketArrivesNoCallback((uint8_t*)pThis, pkthdr, pktData);
 		}
 	}
-	LOG_DEBUG("Ended capture thread for device '%s'", pThis->m_Name);
+	LOG_DEBUG("Ended capture thread for device '%s'", pThis->m_Name.c_str());
 	return 0;
 }
 
@@ -115,7 +115,7 @@ void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
 	if (allocatedMemory < (int)sizeof(pcap_stat))
 	{
-		LOG_ERROR("Error getting statistics from live device '%s': WinPcap did not allocate the entire struct", m_Name);
+		LOG_ERROR("Error getting statistics from live device '%s': WinPcap did not allocate the entire struct", m_Name.c_str());
 		return;
 	}
 	stats.packetsRecv = tempStats->ps_capt;

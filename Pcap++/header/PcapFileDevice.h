@@ -24,9 +24,9 @@ namespace pcpp
 	class IFileDevice : public IPcapDevice
 	{
 	protected:
-		char* m_FileName;
+		std::string m_FileName;
 
-		IFileDevice(const char* fileName);
+		IFileDevice(const std::string& fileName);
 		virtual ~IFileDevice();
 
 	public:
@@ -61,7 +61,7 @@ namespace pcpp
 		 * isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		IFileReaderDevice(const char* fileName);
+		IFileReaderDevice(const std::string& fileName);
 
 	public:
 
@@ -92,7 +92,7 @@ namespace pcpp
 		 * @param[in] fileName The file name to open
 		 * @return An instance of the reader to read the file. Notice you should free this instance when done using it
 		 */
-		static IFileReaderDevice* getReader(const char* fileName);
+		static IFileReaderDevice* getReader(const std::string& fileName);
 	};
 
 
@@ -115,7 +115,7 @@ namespace pcpp
 		 * isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		PcapFileReaderDevice(const char* fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
+		PcapFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
 
 		/**
 		 * A destructor for this class
@@ -173,7 +173,7 @@ namespace pcpp
 		 * isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		PcapNgFileReaderDevice(const char* fileName);
+		PcapNgFileReaderDevice(const std::string& fileName);
 
 		/**
 		 * A destructor for this class
@@ -269,7 +269,7 @@ namespace pcpp
 		uint32_t m_NumOfPacketsWritten;
 		uint32_t m_NumOfPacketsNotWritten;
 
-		IFileWriterDevice(const char* fileName);
+		IFileWriterDevice(const std::string& fileName);
 
 	public:
 
@@ -314,7 +314,7 @@ namespace pcpp
 		 * @param[in] fileName The full path of the file
 		 * @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is Ethernet
 		 */
-		PcapFileWriterDevice(const char* fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET);
+		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET);
 
 		/**
 		 * A destructor for this class
@@ -406,7 +406,7 @@ namespace pcpp
 		 * @param[in] fileName The full path of the file
 		 * @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression or 10 for max compression. Default is 0 
 		 */
-		PcapNgFileWriterDevice(const char* fileName, int compressionLevel = 0);
+		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
 
 		/**
 		 * A destructor for this class
@@ -428,7 +428,7 @@ namespace pcpp
 		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file failed for some reason
 		 * (an error will be printed to log)
 		 */
-		bool open(const char* os, const char* hardware, const char* captureApp, const char* fileComment);
+		bool open(const std::string& os, const std::string& hardware, const std::string& captureApp, const std::string& fileComment);
 
 		/**
 		 * The pcap-ng format allows adding a user-defined comment for each stored packet. This method writes a RawPacket to the file and
@@ -438,7 +438,7 @@ namespace pcpp
 		 * @param[in] comment The comment to be written for the packet. If this string is empty or null it will be ignored
 		 * @return True if a packet was written successfully. False will be returned if the file isn't opened (an error will be printed to log)
 		 */
-		bool writePacket(RawPacket const& packet, const char* comment);
+		bool writePacket(RawPacket const& packet, const std::string& comment);
 
 		//overridden methods
 

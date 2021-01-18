@@ -84,7 +84,7 @@ void listInterfaces()
 	printf("\nNetwork interfaces:\n");
 	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName(), (*iter)->getIPv4Address().toString().c_str());
+		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName().c_str(), (*iter)->getIPv4Address().toString().c_str());
 	}
 	exit(0);
 }
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 
 	// open device in promiscuous mode
 	if (!dev->open())
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't open interface device '%s'", dev->getName());
+		EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't open interface device '%s'", dev->getName().c_str());
 
 	// verify source MAC is valud
 	if (!sourceMac.isValid())

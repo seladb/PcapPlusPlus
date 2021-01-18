@@ -258,7 +258,7 @@ int main(int argc, char* argv[])
 	}
 
 	// open a pcap/pcapng file for reading
-	IFileReaderDevice* reader = IFileReaderDevice::getReader(inputPcapFileName.c_str());
+	IFileReaderDevice* reader = IFileReaderDevice::getReader(inputPcapFileName);
 
 	if (!reader->open())
 	{
