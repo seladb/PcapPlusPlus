@@ -115,7 +115,7 @@ void pfRingPacketsArriveSetFilter(pcpp::RawPacket* packets, uint32_t numOfPacket
 				instruction->Instruction = 0;
 			}
 			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			if (!(ipv4Layer->getSrcIpAddress() == addr))
+			if (!(ipv4Layer->getSrcIPAddress() == addr))
 			{
 				instruction->Instruction = 0;
 			}

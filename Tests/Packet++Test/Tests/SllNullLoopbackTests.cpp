@@ -114,7 +114,7 @@ PTF_TEST_CASE(NullLoopbackTest)
 	nextLayer = nullLoopbackLayer->getNextLayer();
 	PTF_ASSERT_NOT_NULL(nextLayer);
 	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, u64);
-	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIpAddress(), pcpp::IPv4Address("172.16.1.117"), object);
+	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIPAddress(), pcpp::IPv4Address("172.16.1.117"), object);
 	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET, u32);
 
 	PTF_ASSERT_TRUE(nullPacket3.isPacketOfType(pcpp::NULL_LOOPBACK));

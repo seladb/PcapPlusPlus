@@ -45,8 +45,8 @@ PTF_TEST_CASE(IPv4PacketCreation)
 	PTF_ASSERT_EQUAL(ip4Packet.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 44, size);
 	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::IPv4Layer>());
 	pcpp::iphdr* ipHeader = ip4Layer.getIPv4Header();
-	PTF_ASSERT_EQUAL(ip4Layer.getSrcIpAddress(), ipSrc, object);
-	PTF_ASSERT_EQUAL(ip4Layer.getDstIpAddress(), ipDst, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst, object);
 	PTF_ASSERT_EQUAL(ipHeader->ipVersion, 4, u8);
 	PTF_ASSERT_EQUAL(ipHeader->internetHeaderLength, 5, u8);
 	PTF_ASSERT_EQUAL(ipHeader->totalLength, htobe16(30), u16);

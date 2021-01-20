@@ -327,14 +327,14 @@ namespace pcpp
 		if (!reverse)
 		{
 			if (dynamic_cast<TLayer*>(getFirstLayer()) != NULL)
-				return (TLayer*)getFirstLayer();
+				return dynamic_cast<TLayer*>(getFirstLayer());
 
 			return getNextLayerOfType<TLayer>(getFirstLayer());
 		}
 
 		// lookup in reverse order
 		if (dynamic_cast<TLayer*>(getLastLayer()) != NULL)
-			return (TLayer*)getLastLayer();
+			return dynamic_cast<TLayer*>(getLastLayer());
 
 		return getPrevLayerOfType<TLayer>(getLastLayer());
 	}
@@ -351,7 +351,7 @@ namespace pcpp
 			curLayer = curLayer->getNextLayer();
 		}
 
-		return (TLayer*)curLayer;
+		return dynamic_cast<TLayer*>(curLayer);
 	}
 
 	template<class TLayer>
@@ -366,7 +366,7 @@ namespace pcpp
 			curLayer = curLayer->getPrevLayer();
 		}
 
-		return static_cast<TLayer*>(curLayer);
+		return dynamic_cast<TLayer*>(curLayer);
 	}
 
 } // namespace pcpp

@@ -193,9 +193,9 @@ protected:
 	uint32_t getSrcIPValue(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
-			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress().toInt();
+			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIPv4Address().toInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toBytes(), 16);
+			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIPv6Address().toBytes(), 16);
 		else
 			return 0;
 	}
@@ -206,9 +206,9 @@ protected:
 	uint32_t getDstIPValue(pcpp::Packet& packet)
 	{
 		if (packet.isPacketOfType(pcpp::IPv4))
-			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress().toInt();
+			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address().toInt();
 		else if (packet.isPacketOfType(pcpp::IPv6))
-			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toBytes(), 16);
+			return pcpp::fnvHash((uint8_t*)packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIPv6Address().toBytes(), 16);
 		else
 			return 0;
 	}
@@ -218,12 +218,9 @@ protected:
 	 */
 	std::string getSrcIPString(pcpp::Packet& packet)
 	{
-		if (packet.isPacketOfType(pcpp::IPv4))
-			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress().toString();
-		else if (packet.isPacketOfType(pcpp::IPv6))
-			return packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().toString();
-		else
-			return "miscellaneous";
+		if (packet.isPacketOfType(pcpp::IP))
+			return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().toString();
+		return "miscellaneous";
 	}
 
 	/**
@@ -231,12 +228,9 @@ protected:
 	 */
 	std::string getDstIPString(pcpp::Packet& packet)
 	{
-		if (packet.isPacketOfType(pcpp::IPv4))
-			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress().toString();
-		else if (packet.isPacketOfType(pcpp::IPv6))
-			return packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().toString();
-		else
-			return "miscellaneous";
+		if (packet.isPacketOfType(pcpp::IP))
+			return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().toString();
+		return "miscellaneous";
 	}
 
 	/**
@@ -448,8 +442,8 @@ protected:
 			break;
 		}
 
-	    std::ostringstream sstream;
-	    sstream << res;
+		std::ostringstream sstream;
+		sstream << res;
 		return prefix + sstream.str();
 	}
 };

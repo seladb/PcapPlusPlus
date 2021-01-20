@@ -160,7 +160,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NOT_NULL(icmpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(icmpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	pcpp::IPv4Layer* ipLayer = (pcpp::IPv4Layer*)icmpLayer->getNextLayer();
-	PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), pcpp::IPv4Address("10.0.1.2"), object);
+	PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress(), pcpp::IPv4Address("10.0.1.2"), object);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::UDP, u64);
 
@@ -174,7 +174,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_NOT_NULL(icmpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(icmpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	ipLayer = (pcpp::IPv4Layer*)icmpLayer->getNextLayer();
-	PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address("10.0.0.111"), object);
+	PTF_ASSERT_EQUAL(ipLayer->getDstIPAddress(), pcpp::IPv4Address("10.0.0.111"), object);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::ICMP, u64);
 
@@ -221,7 +221,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	PTF_ASSERT_EQUAL(icmpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	ipLayer = (pcpp::IPv4Layer*)icmpLayer->getNextLayer();
 	PTF_ASSERT_NOT_NULL(ipLayer);
-	PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress().toString(), "10.2.10.2", string);
+	PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress().toString(), "10.2.10.2", string);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::ICMP, u64);
 	icmpLayer = (pcpp::IcmpLayer*)ipLayer->getNextLayer();
@@ -523,7 +523,7 @@ PTF_TEST_CASE(IcmpEditTest)
 	PTF_ASSERT_NOT_NULL(icmpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(icmpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	pcpp::IPv4Layer* ipLayer = (pcpp::IPv4Layer*)icmpLayer->getNextLayer();
-	PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address("10.0.0.111"), object);
+	PTF_ASSERT_EQUAL(ipLayer->getDstIPAddress(), pcpp::IPv4Address("10.0.0.111"), object);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::ICMP, u64);
 	icmpLayer = (pcpp::IcmpLayer*)ipLayer->getNextLayer();

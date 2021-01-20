@@ -292,7 +292,7 @@ void IPv6Layer::computeCalculateFields()
 
 std::string IPv6Layer::toString() const
 {
-	std::string result = "IPv6 Layer, Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
+	std::string result = "IPv6 Layer, Src: " + getSrcIPv6Address().toString() + ", Dst: " + getDstIPv6Address().toString();
 	if (m_ExtensionsLen > 0)
 	{
 		result += ", Options=[";

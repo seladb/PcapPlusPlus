@@ -4,6 +4,7 @@
 #include "Layer.h"
 #include "TLVData.h"
 #include "IpAddress.h"
+#include "IPLayer.h"
 #include <string.h>
 #include <vector>
 
@@ -402,7 +403,7 @@ namespace pcpp
 	 * @class IPv4Layer
 	 * Represents an IPv4 protocol layer
 	 */
-	class IPv4Layer : public Layer
+	class IPv4Layer : public Layer, public IPLayer
 	{
 	public:
 		/**
@@ -457,28 +458,42 @@ namespace pcpp
 		iphdr* getIPv4Header() const { return (iphdr*)m_Data; }
 
 		/**
+		 * Get the source IP address in the form of IPAddress. This method is very similar to getSrcIPv4Address(),
+		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
+		 * @return An IPAddress containing the source address
+		 */
+		IPAddress getSrcIPAddress() const { return getSrcIPv4Address(); }
+
+		/**
 		 * Get the source IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the source address
 		 */
-		IPv4Address getSrcIpAddress() const { return getIPv4Header()->ipSrc; }
+		IPv4Address getSrcIPv4Address() const { return getIPv4Header()->ipSrc; }
 
 		/**
 		 * Set the source IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setSrcIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toInt(); }
+		void setSrcIPv4Address(const IPv4Address& ipAddr) { getIPv4Header()->ipSrc = ipAddr.toInt(); }
+
+		/**
+		 * Get the destination IP address in the form of IPAddress. This method is very similar to getDstIPv4Address(),
+		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
+		 * @return An IPAddress containing the destination address
+		 */
+		IPAddress getDstIPAddress() const { return getDstIPv4Address(); }
 
 		/**
 		 * Get the destination IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the destination address
 		 */
-		IPv4Address getDstIpAddress() const { return getIPv4Header()->ipDst; }
+		IPv4Address getDstIPv4Address() const { return getIPv4Header()->ipDst; }
 
 		/**
 		 * Set the dest IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setDstIpAddress(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toInt(); }
+		void setDstIPv4Address(const IPv4Address& ipAddr) { getIPv4Header()->ipDst = ipAddr.toInt(); }
 
 		/**
 		 * @return True if this packet is a fragment (in sense of IP fragmentation), false otherwise

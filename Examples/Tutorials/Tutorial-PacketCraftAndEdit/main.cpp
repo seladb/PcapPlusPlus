@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 	// let's get the IPv4 layer
 	pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	// change source IP address
-	ipLayer->setSrcIpAddress(pcpp::IPv4Address(std::string("1.1.1.1")));
+	ipLayer->setSrcIPv4Address(pcpp::IPv4Address(std::string("1.1.1.1")));
 	// change IP ID
 	ipLayer->getIPv4Header()->ipId = pcpp::hostToNet16(4000);
 	// change TTL value

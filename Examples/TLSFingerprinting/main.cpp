@@ -17,8 +17,7 @@
 #include <cctype>
 #include "SystemUtils.h"
 #include "TablePrinter.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
+#include "IPLayer.h"
 #include "TcpLayer.h"
 #include "SSLLayer.h"
 #include "SSLHandshake.h"
@@ -153,24 +152,11 @@ static void onApplicationInterrupted(void* cookie)
 std::pair<pcpp::IPAddress, pcpp::IPAddress> getIPs(const pcpp::Packet& packet)
 {
 	pcpp::IPAddress srcIP, dstIP;
-
-	if (packet.isPacketOfType(pcpp::IPv4))
+	if (packet.isPacketOfType(pcpp::IP))
 	{
-		const pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		if (ipv4Layer != NULL)
-		{
-			srcIP = ipv4Layer->getSrcIpAddress();
-			dstIP = ipv4Layer->getDstIpAddress();
-		}
-	}
-	else if (packet.isPacketOfType(pcpp::IPv6))
-	{
-		const pcpp::IPv6Layer* ipv6Layer = packet.getLayerOfType<pcpp::IPv6Layer>();
-		if (ipv6Layer != NULL)
-		{
-			srcIP = ipv6Layer->getSrcIpAddress();
-			dstIP = ipv6Layer->getDstIpAddress();
-		}
+		const pcpp::IPLayer* ipLayer = packet.getLayerOfType<pcpp::IPLayer>();
+		srcIP = ipLayer->getSrcIPAddress();
+		dstIP = ipLayer->getDstIPAddress();
 	}
 	return std::pair<pcpp::IPAddress, pcpp::IPAddress>(srcIP, dstIP);
 }

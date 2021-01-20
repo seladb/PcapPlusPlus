@@ -108,7 +108,7 @@ static void waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, 
 
 	// verify the source IP is the catcher's IP and the dest IP is the pitcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpFTStart->catcherIPAddr || ip4Layer->getDstIpAddress() != icmpFTStart->pitcherIPAddr)
+	if (ip4Layer->getSrcIPv4Address() != icmpFTStart->catcherIPAddr || ip4Layer->getDstIPv4Address() != icmpFTStart->pitcherIPAddr)
 		return;
 
 	// extract the message type in the ICMP reply timestamp field and check if it's  ICMP_FT_START
@@ -153,7 +153,7 @@ static void getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// verify the source IP is the catcher's IP and the dest IP is the pitcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpFileContentData->catcherIPAddr || ip4Layer->getDstIpAddress() != icmpFileContentData->pitcherIPAddr)
+	if (ip4Layer->getSrcIPv4Address() != icmpFileContentData->catcherIPAddr || ip4Layer->getDstIPv4Address() != icmpFileContentData->pitcherIPAddr)
 		return;
 
 	// extract the message type from the ICMP reply timestamp field
@@ -381,7 +381,7 @@ static bool waitForFileTransferStartAck(RawPacket* rawPacket, PcapLiveDevice* de
 
 	// verify the source IP is the catcher's IP and the dest IP is the pitcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpData->catcherIPAddr || ip4Layer->getDstIpAddress() != icmpData->pitcherIPAddr)
+	if (ip4Layer->getSrcIPv4Address() != icmpData->catcherIPAddr || ip4Layer->getDstIPv4Address() != icmpData->pitcherIPAddr)
 		return false;
 
 	// verify the message type is ICMP_FT_ACK

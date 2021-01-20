@@ -52,8 +52,8 @@ PTF_TEST_CASE(InsertDataToPacket)
 	PTF_ASSERT_TRUE(ip4Packet.insertLayer(&ethLayer, &vlanLayer));
 	PTF_ASSERT_EQUAL(ethLayer.getDestMac(), dstMac, object);
 	PTF_ASSERT_EQUAL(ip4Layer.getIPv4Header()->internetHeaderLength, 5, u8);
-	PTF_ASSERT_EQUAL(ip4Layer.getDstIpAddress(), ipDst, object);
-	PTF_ASSERT_EQUAL(ip4Layer.getSrcIpAddress(), ipSrc, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc, object);
 	PTF_ASSERT_EQUAL(payloadLayer.getPayload()[3], 0x04, u8);
 
 
@@ -70,8 +70,8 @@ PTF_TEST_CASE(InsertDataToPacket)
 	PTF_ASSERT_TRUE(ip4Packet.getFirstLayer()->getNextLayer()->getNextLayer() == &vlanLayer);
 	PTF_ASSERT_EQUAL(ethLayer.getDestMac(), dstMac, object);
 	PTF_ASSERT_EQUAL(ip4Layer.getIPv4Header()->internetHeaderLength, 5, u8);
-	PTF_ASSERT_EQUAL(ip4Layer.getDstIpAddress(), ipDst, object);
-	PTF_ASSERT_EQUAL(ip4Layer.getSrcIpAddress(), ipSrc, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc, object);
 	PTF_ASSERT_EQUAL(payloadLayer.getPayload()[3], 0x04, u8);
 
 
@@ -532,14 +532,14 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 		// get the last IPv4 layer
 		pcpp::IPv4Layer* ipLayer = vxlanPacket.getLayerOfType<pcpp::IPv4Layer>(true);
 		PTF_ASSERT_NOT_NULL(ipLayer);
-		PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), pcpp::IPv4Address("192.168.203.3"), object);
-		PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address("192.168.203.5"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress(), pcpp::IPv4Address("192.168.203.3"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getDstIPAddress(), pcpp::IPv4Address("192.168.203.5"), object);
 
 		// get the first IPv4 layer
 		ipLayer = vxlanPacket.getPrevLayerOfType<pcpp::IPv4Layer>(ipLayer);
 		PTF_ASSERT_NOT_NULL(ipLayer);
-		PTF_ASSERT_EQUAL(ipLayer->getSrcIpAddress(), pcpp::IPv4Address("192.168.203.1"), object);
-		PTF_ASSERT_EQUAL(ipLayer->getDstIpAddress(), pcpp::IPv4Address("192.168.202.1"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress(), pcpp::IPv4Address("192.168.203.1"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getDstIPAddress(), pcpp::IPv4Address("192.168.202.1"), object);
 
 		// try to get one more IPv4 layer
 		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<pcpp::IPv4Layer>(ipLayer));

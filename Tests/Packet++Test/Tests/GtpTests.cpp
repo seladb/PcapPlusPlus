@@ -58,7 +58,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	pcpp::IPv4Layer* ip4Layer = dynamic_cast<pcpp::IPv4Layer*>(gtpLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(ip4Layer->getSrcIpAddress().toString(), "202.11.40.158", string);
+	PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress().toString(), "202.11.40.158", string);
 	PTF_ASSERT_NOT_NULL(ip4Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ip4Layer->getNextLayer()->getProtocol(), pcpp::ICMP, u64);
 
@@ -101,7 +101,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
 	ip4Layer = dynamic_cast<pcpp::IPv4Layer*>(gtpLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(ip4Layer->getDstIpAddress().toString(), "10.155.186.57", string);
+	PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress().toString(), "10.155.186.57", string);
 	PTF_ASSERT_NOT_NULL(ip4Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ip4Layer->getNextLayer()->getProtocol(), pcpp::TCP, u64);
 
@@ -130,7 +130,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv6, u64);
 	pcpp::IPv6Layer* ip6Layer = dynamic_cast<pcpp::IPv6Layer*>(gtpLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(ip6Layer->getSrcIpAddress(), pcpp::IPv6Address("2001:507:0:1:200:8600:0:2"), object);
+	PTF_ASSERT_EQUAL(ip6Layer->getSrcIPAddress(), pcpp::IPv6Address("2001:507:0:1:200:8600:0:2"), object);
 	PTF_ASSERT_NOT_NULL(ip6Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ip6Layer->getNextLayer()->getProtocol(), pcpp::UDP, u64);
 
