@@ -27,8 +27,8 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->ipVersion, 6, u8);
 	pcpp::IPv6Address srcIP("fe80::4dc7:f593:1f7b:dc11");
 	pcpp::IPv6Address dstIP("ff02::c");
-	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIpAddress(), srcIP, object);
-	PTF_ASSERT_EQUAL(ipv6Layer->getDstIpAddress(), dstIP, object);
+	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIPAddress(), srcIP, object);
+	PTF_ASSERT_EQUAL(ipv6Layer->getDstIPAddress(), dstIP, object);
 	pcpp::UdpLayer* pUdpLayer = NULL;
 	pUdpLayer = ip6UdpPacket.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(pUdpLayer);

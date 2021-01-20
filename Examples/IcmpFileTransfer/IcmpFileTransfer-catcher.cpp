@@ -85,7 +85,7 @@ static bool waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, 
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpFTStart->catcherIPAddr)
+	if (ip4Layer->getSrcIPv4Address() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIPv4Address() != icmpFTStart->catcherIPAddr)
 		return false;
 
 	// check the ICMP timestamp field which contains the type of message delivered between pitcher and catcher
@@ -144,7 +144,7 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpData->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpData->catcherIPAddr)
+	if (ip4Layer->getSrcIPv4Address() != icmpData->pitcherIPAddr || ip4Layer->getDstIPv4Address() != icmpData->catcherIPAddr)
 		return false;
 
 	// extract message type from the ICMP request. Message type is written in ICMP request timestamp field
@@ -292,7 +292,7 @@ static bool startFileTransfer(RawPacket* rawPacket, PcapLiveDevice* dev, void* i
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpFTStart->catcherIPAddr)
+	if (ip4Layer->getSrcIPv4Address() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIPv4Address() != icmpFTStart->catcherIPAddr)
 		return false;
 
 	// check the ICMP timestamp field which contains the type of message delivered between pitcher and catcher
@@ -342,7 +342,7 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
 	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
-	if (ip4Layer->getSrcIpAddress() != icmpFileContentData->pitcherIPAddr || ip4Layer->getDstIpAddress() != icmpFileContentData->catcherIPAddr)
+	if (ip4Layer->getSrcIPv4Address() != icmpFileContentData->pitcherIPAddr || ip4Layer->getDstIPv4Address() != icmpFileContentData->catcherIPAddr)
 		return false;
 
 	// check the ICMP timestamp field which contains the type of message delivered between pitcher and catcher

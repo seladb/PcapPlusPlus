@@ -116,7 +116,7 @@ public:
 
 	IPReassembly::PacketKey* createPacketKey()
 	{
-		return new IPReassembly::IPv4PacketKey(be16toh(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getSrcIpAddress(), m_IPLayer->getDstIpAddress());
+		return new IPReassembly::IPv4PacketKey(be16toh(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getSrcIPv4Address(), m_IPLayer->getDstIPv4Address());
 	}
 
 	uint8_t* getIPLayerPayload()
@@ -202,7 +202,7 @@ public:
 
 	IPReassembly::PacketKey* createPacketKey()
 	{
-		return new IPReassembly::IPv6PacketKey(be32toh(m_FragHeader->getFragHeader()->id), m_IPLayer->getSrcIpAddress(), m_IPLayer->getDstIpAddress());
+		return new IPReassembly::IPv6PacketKey(be32toh(m_FragHeader->getFragHeader()->id), m_IPLayer->getSrcIPv6Address(), m_IPLayer->getDstIPv6Address());
 	}
 
 	uint8_t* getIPLayerPayload()

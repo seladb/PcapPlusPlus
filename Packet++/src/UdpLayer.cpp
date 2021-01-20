@@ -47,8 +47,8 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 
 		if (m_PrevLayer->getProtocol() == IPv4)
 		{
-			uint32_t srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIpAddress().toInt();
-			uint32_t dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIpAddress().toInt();
+			uint32_t srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address().toInt();
+			uint32_t dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address().toInt();
 			uint16_t pseudoHeader[6];
 			pseudoHeader[0] = srcIP >> 16;
 			pseudoHeader[1] = srcIP & 0xFFFF;
@@ -64,8 +64,8 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 		else if (m_PrevLayer->getProtocol() == IPv6)
 		{
 			uint16_t pseudoHeader[18];
-			((IPv6Layer*)m_PrevLayer)->getSrcIpAddress().copyTo((uint8_t*)pseudoHeader);
-			((IPv6Layer*)m_PrevLayer)->getDstIpAddress().copyTo((uint8_t*)(pseudoHeader+8));
+			((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address().copyTo((uint8_t*)pseudoHeader);
+			((IPv6Layer*)m_PrevLayer)->getDstIPv6Address().copyTo((uint8_t*)(pseudoHeader+8));
 			pseudoHeader[16] = 0xffff & udpHdr->length;
 			pseudoHeader[17] = htobe16(0x00ff & PACKETPP_IPPROTO_UDP);
 			vec[1].buffer = pseudoHeader;

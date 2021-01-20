@@ -140,8 +140,8 @@ int main(int argc, char* argv[])
 	}
 
 	// print source and dest IP addresses, IP ID and TTL
-	printf("\nSource IP address: %s\n", ipLayer->getSrcIpAddress().toString().c_str());
-	printf("Destination IP address: %s\n", ipLayer->getDstIpAddress().toString().c_str());
+	printf("\nSource IP address: %s\n", ipLayer->getSrcIPAddress().toString().c_str());
+	printf("Destination IP address: %s\n", ipLayer->getDstIPAddress().toString().c_str());
 	printf("IP ID: 0x%X\n", pcpp::netToHost16(ipLayer->getIPv4Header()->ipId));
 	printf("TTL: %d\n", ipLayer->getIPv4Header()->timeToLive);
 

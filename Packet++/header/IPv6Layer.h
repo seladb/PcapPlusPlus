@@ -2,6 +2,7 @@
 #define PACKETPP_IPV6_LAYER
 
 #include "Layer.h"
+#include "IPLayer.h"
 #include "IPv6Extensions.h"
 #include "IpAddress.h"
 
@@ -51,7 +52,7 @@ namespace pcpp
 	 * @class IPv6Layer
 	 * Represents an IPv6 protocol layer
 	 */
-	class IPv6Layer : public Layer
+	class IPv6Layer : public Layer, public IPLayer
 	{
 	public:
 		/**
@@ -97,16 +98,30 @@ namespace pcpp
 		ip6_hdr* getIPv6Header() const { return (ip6_hdr*)m_Data; }
 
 		/**
+		 * Get the source IP address in the form of IPAddress. This method is very similar to getSrcIPv6Address(),
+		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
+		 * @return An IPAddress containing the source address
+		 */
+		IPAddress getSrcIPAddress() const { return getSrcIPv6Address(); }
+
+		/**
 		 * Get the source IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the source address
 		 */
-		IPv6Address getSrcIpAddress() const { return getIPv6Header()->ipSrc; }
+		IPv6Address getSrcIPv6Address() const { return getIPv6Header()->ipSrc; }
+
+		/**
+		 * Get the destination IP address in the form of IPAddress. This method is very similar to getDstIPv6Address(),
+		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
+		 * @return An IPAddress containing the destination address
+		 */
+		IPAddress getDstIPAddress() const { return getDstIPv6Address(); }
 
 		/**
 		 * Get the destination IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the destination address
 		 */
-		IPv6Address getDstIpAddress() const { return getIPv6Header()->ipDst; }
+		IPv6Address getDstIPv6Address() const { return getIPv6Header()->ipDst; }
 
 		/**
 		 * @return Number of IPv6 extensions in this layer

@@ -47,12 +47,12 @@ public:
 			}
 
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			if (m_MatchSrcIp && (ip4Layer->getSrcIpAddress() != m_SrcIpToMatch))
+			if (m_MatchSrcIp && (ip4Layer->getSrcIPv4Address() != m_SrcIpToMatch))
 			{
 				return false;
 			}
 
-			if (m_MatchDstIp && (ip4Layer->getDstIpAddress() != m_DstIpToMatch))
+			if (m_MatchDstIp && (ip4Layer->getDstIPv4Address() != m_DstIpToMatch))
 			{
 				return false;
 			}

@@ -2,8 +2,7 @@
 
 #include "TcpReassembly.h"
 #include "TcpLayer.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
+#include "IPLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <sstream>
@@ -62,27 +61,11 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	// calculate packet's source and dest IP address
 	IPAddress srcIP, dstIP;
 
-	if (tcpData.isPacketOfType(IPv4))
+	if (tcpData.isPacketOfType(IP))
 	{
-		const IPv4Layer* ipv4Layer = tcpData.getLayerOfType<IPv4Layer>();
-		if (ipv4Layer != NULL)
-		{
-			srcIP = ipv4Layer->getSrcIpAddress();
-			dstIP = ipv4Layer->getDstIpAddress();
-		}
-		else
-			return NonIpPacket;
-	}
-	else if (tcpData.isPacketOfType(IPv6))
-	{
-		const IPv6Layer* ipv6Layer = tcpData.getLayerOfType<IPv6Layer>();
-		if (ipv6Layer != NULL)
-		{
-			srcIP = ipv6Layer->getSrcIpAddress();
-			dstIP = ipv6Layer->getDstIpAddress();
-		}
-		else
-			return NonIpPacket;
+		const IPLayer* ipLayer = tcpData.getLayerOfType<IPLayer>();
+		srcIP = ipLayer->getSrcIPAddress();
+		dstIP = ipLayer->getDstIPAddress();
 	}
 	else
 		return NonIpPacket;

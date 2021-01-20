@@ -68,7 +68,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(ipv4Layer->getDstIpAddress(), ipToSearch, object);
+		PTF_ASSERT_EQUAL(ipv4Layer->getDstIPAddress(), ipToSearch, object);
 	}
 	capturedPackets.clear();
 
@@ -123,7 +123,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 		pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 		PTF_ASSERT_EQUAL(be16toh(tcpLayer->getTcpHeader()->portSrc), 80, u16);
-		PTF_ASSERT_EQUAL(ip4Layer->getDstIpAddress(), ipToSearch, object);
+		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch, object);
 	}
 	capturedPackets.clear();
 
@@ -157,14 +157,14 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 			if (ip4Layer != NULL)
 			{
-				srcIpMatch = ip4Layer->getSrcIpAddress() == ipToSearch;
+				srcIpMatch = ip4Layer->getSrcIPAddress() == ipToSearch;
 			}
 			PTF_ASSERT_TRUE(srcIpMatch || srcPortMatch);
 		}
 		else if (packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_EQUAL(ip4Layer->getSrcIpAddress(), ipToSearch, object);
+			PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch, object);
 		}
 		// else packet isn't of type IP or TCP
 	}
@@ -192,7 +192,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIpAddress(), ipToSearch, object);
+			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch, object);
 		}
 	}
 	capturedPackets.clear();
@@ -469,7 +469,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_TRUE(ipLayer->getSrcIpAddress().matchSubnet(pcpp::IPv4Address(std::string("212.199.202.9")), std::string("255.255.255.0")));
+		PTF_ASSERT_TRUE(ipLayer->getSrcIPv4Address().matchSubnet(pcpp::IPv4Address(std::string("212.199.202.9")), std::string("255.255.255.0")));
 	}
 
 	rawPacketVec.clear();
@@ -490,7 +490,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_TRUE(ipLayer->getSrcIpAddress().matchSubnet(pcpp::IPv4Address(std::string("212.199.202.9")), std::string("255.255.255.0")));
+		PTF_ASSERT_TRUE(ipLayer->getSrcIPv4Address().matchSubnet(pcpp::IPv4Address(std::string("212.199.202.9")), std::string("255.255.255.0")));
 	}
 	rawPacketVec.clear();
 
@@ -685,7 +685,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::UDP));
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(ipv4Layer->getSrcIpAddress(), pcpp::IPv4Address(std::string("10.0.0.6")), object);
+		PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "10.0.0.6", string);
 	}
 
 	rawPacketVec.clear();
@@ -730,7 +730,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::GRE));
 			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_TRUE(ipv4Layer->getSrcIpAddress() == pcpp::IPv4Address(std::string("20.0.0.1")) || ipv4Layer->getDstIpAddress() == pcpp::IPv4Address(std::string("20.0.0.1")));
+			PTF_ASSERT_TRUE(ipv4Layer->getSrcIPAddress().toString() == "20.0.0.1" || ipv4Layer->getDstIPAddress().toString() == "20.0.0.1");
 		}
 
 	}
@@ -754,7 +754,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 		pcpp::Packet packet(*iter);
 		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
-			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
 				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_DLT_RAW1)
@@ -780,7 +780,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 		pcpp::Packet packet(*iter);
 		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
-			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
 				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_LINUX_SLL)
@@ -806,7 +806,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 		pcpp::Packet packet(*iter);
 		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
-			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIpAddress().toString()); // checking against real filter, not the "" filter
+			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
 				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_ETHERNET)

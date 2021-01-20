@@ -394,7 +394,7 @@ std::string IPv4Layer::toString() const
 		fragmet = sstm.str();
 	}
 
-	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIpAddress().toString() + ", Dst: " + getDstIpAddress().toString();
+	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIPv4Address().toString() + ", Dst: " + getDstIPv4Address().toString();
 }
 
 IPv4Option IPv4Layer::getOption(IPv4OptionTypes option) const
