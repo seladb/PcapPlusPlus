@@ -63,13 +63,13 @@ public:
 			uint16_t srcPort, dstPort;
 			if (packet.isPacketOfType(pcpp::TCP))
 			{
-				srcPort = pcpp::netToHost16(packet.getLayerOfType<pcpp::TcpLayer>()->getTcpHeader()->portSrc);
-				dstPort = pcpp::netToHost16(packet.getLayerOfType<pcpp::TcpLayer>()->getTcpHeader()->portDst);
+				srcPort = packet.getLayerOfType<pcpp::TcpLayer>()->getSrcPort();
+				dstPort = packet.getLayerOfType<pcpp::TcpLayer>()->getDstPort();
 			}
 			else if (packet.isPacketOfType(pcpp::UDP))
 			{
-				srcPort = pcpp::netToHost16(packet.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->portSrc);
-				dstPort = pcpp::netToHost16(packet.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->portDst);
+				srcPort = packet.getLayerOfType<pcpp::UdpLayer>()->getSrcPort();
+				dstPort = packet.getLayerOfType<pcpp::UdpLayer>()->getDstPort();
 			}
 			else
 			{

@@ -52,8 +52,8 @@ public:
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 			if (tcpLayer != NULL)
 			{
-				uint16_t srcPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc);
-				uint16_t dstPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst);
+				uint16_t srcPort = tcpLayer->getSrcPort();
+				uint16_t dstPort = tcpLayer->getDstPort();
 
 				if (tcpLayer->getTcpHeader()->synFlag)
 				{
@@ -85,8 +85,8 @@ public:
 			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
 			if (udpLayer != NULL)
 			{
-				uint16_t srcPort = pcpp::netToHost16(udpLayer->getUdpHeader()->portSrc);
-				uint16_t dstPort = pcpp::netToHost16(udpLayer->getUdpHeader()->portDst);
+				uint16_t srcPort = udpLayer->getSrcPort();
+				uint16_t dstPort = udpLayer->getDstPort();
 				m_FlowTable[hash] = getFileNumberForValue(getValue(packet, UDP, srcPort, dstPort), filesToClose);
 				return m_FlowTable[hash];
 			}
@@ -118,8 +118,8 @@ public:
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 			if (tcpLayer != NULL)
 			{
-				uint16_t srcPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc);
-				uint16_t dstPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst);
+				uint16_t srcPort = tcpLayer->getSrcPort();
+				uint16_t dstPort = tcpLayer->getDstPort();
 
 				if (tcpLayer->getTcpHeader()->synFlag)
 				{
@@ -148,8 +148,8 @@ public:
 			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
 			if (udpLayer != NULL)
 			{
-				uint16_t srcPort = pcpp::netToHost16(udpLayer->getUdpHeader()->portSrc);
-				uint16_t dstPort = pcpp::netToHost16(udpLayer->getUdpHeader()->portDst);
+				uint16_t srcPort = udpLayer->getSrcPort();
+				uint16_t dstPort = udpLayer->getDstPort();
 				return result + getValueString(packet, UDP, srcPort, dstPort);
 			}
 		}

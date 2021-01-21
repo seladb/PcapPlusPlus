@@ -154,7 +154,7 @@ PTF_TEST_CASE(GreParsingTest)
 	// to ensure it parsed through GRE to next layers, find tcp from bottom
 	tcpLayer = grev0Packet4.getLayerOfType<pcpp::TcpLayer>(true /* reverse */);
 	PTF_ASSERT_NOT_NULL(tcpLayer);
-	PTF_ASSERT_EQUAL(be16toh(tcpLayer->getTcpHeader()->portSrc), 1232, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 1232, u16);
 	grev0Layer = NULL;
 	tcpLayer = NULL;
 } // GreParsingTest

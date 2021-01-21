@@ -93,7 +93,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::TCP));
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-		PTF_ASSERT_EQUAL(be16toh(tcpLayer->getTcpHeader()->portSrc), 80, u16);
+		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80, u16);
 	}
 	capturedPackets.clear();
 
@@ -122,7 +122,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 		pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(be16toh(tcpLayer->getTcpHeader()->portSrc), 80, u16);
+		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80, u16);
 		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch, object);
 	}
 	capturedPackets.clear();
@@ -152,7 +152,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-			bool srcPortMatch = be16toh(tcpLayer->getTcpHeader()->portSrc) == 80;
+			bool srcPortMatch = tcpLayer->getSrcPort() == 80;
 			bool srcIpMatch = false;
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 			if (ip4Layer != NULL)
@@ -515,13 +515,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		if (packet.isPacketOfType(pcpp::TCP))
 		{
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-			uint16_t portSrc = be16toh(tcpLayer->getTcpHeader()->portSrc);
+			uint16_t portSrc = tcpLayer->getSrcPort();
 			PTF_ASSERT_TRUE(portSrc >= 40000 && portSrc <=50000);
 		}
 		else if (packet.isPacketOfType(pcpp::UDP))
 		{
 			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
-			uint16_t portSrc = be16toh(udpLayer->getUdpHeader()->portSrc);
+			uint16_t portSrc = udpLayer->getSrcPort();
 			PTF_ASSERT_TRUE(portSrc >= 40000 && portSrc <=50000);
 		}
 	}

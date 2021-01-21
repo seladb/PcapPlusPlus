@@ -23,8 +23,8 @@ PTF_TEST_CASE(TcpPacketNoOptionsParsing)
 	pcpp::TcpLayer* tcpLayer = tcpPacketNoOptions.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portDst, htobe16(60388), u16);
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portSrc, htobe16(80), u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getDstPort(), 60388, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80, u16);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->sequenceNumber, htobe32(0xbeab364a), u32);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackNumber, htobe32(0xf9ffb58e), u32);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->dataOffset, 5, u16);
@@ -68,8 +68,8 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing)
 	pcpp::TcpLayer* tcpLayer = tcpPaketWithOptions.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portSrc, htobe16(44147), u16);
-	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->portDst, htobe16(80), u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 44147, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getDstPort(), 80, u16);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackFlag, 1, u16);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->pshFlag, 1, u16);
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->synFlag, 0, u16);

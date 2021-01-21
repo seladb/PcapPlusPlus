@@ -122,8 +122,8 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData = &pair.first->second;
 		tcpReassemblyData->connData.srcIP = srcIP;
 		tcpReassemblyData->connData.dstIP = dstIP;
-		tcpReassemblyData->connData.srcPort = be16toh(tcpLayer->getTcpHeader()->portSrc);
-		tcpReassemblyData->connData.dstPort = be16toh(tcpLayer->getTcpHeader()->portDst);
+		tcpReassemblyData->connData.srcPort = tcpLayer->getSrcPort();
+		tcpReassemblyData->connData.dstPort = tcpLayer->getDstPort();
 		tcpReassemblyData->connData.flowKey = flowKey;
 		timeval ts = timespecToTimeval(tcpData.getRawPacket()->getPacketTimeStamp());
 		tcpReassemblyData->connData.setStartTime(ts);

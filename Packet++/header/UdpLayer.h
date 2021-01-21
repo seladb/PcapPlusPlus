@@ -60,6 +60,16 @@ namespace pcpp
 		udphdr* getUdpHeader() const { return (udphdr*)m_Data; }
 
 		/**
+		 * @return UDP source port
+		 */
+		uint16_t getSrcPort() const;
+
+		/**
+		 * @return UDP destination port
+		 */
+		uint16_t getDstPort() const;
+
+		/**
 		 * Calculate the checksum from header and data and possibly write the result to @ref udphdr#headerChecksum
 		 * @param[in] writeResultToPacket If set to true then checksum result will be written to @ref udphdr#headerChecksum
 		 * @return The checksum result

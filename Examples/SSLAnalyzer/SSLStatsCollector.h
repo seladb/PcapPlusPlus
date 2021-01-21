@@ -255,8 +255,8 @@ private:
 			m_GeneralStats.numOfSSLFlows++;
 
 			// find the SSL/TLS port and add it to the port count
-			uint16_t srcPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc);
-			uint16_t dstPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst);
+			uint16_t srcPort = tcpLayer->getSrcPort();
+			uint16_t dstPort = tcpLayer->getDstPort();
 			if (pcpp::SSLLayer::isSSLPort(srcPort))
 				m_GeneralStats.sslPortCount[srcPort]++;
 			else
