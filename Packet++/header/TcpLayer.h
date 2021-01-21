@@ -367,6 +367,16 @@ namespace pcpp
 		tcphdr* getTcpHeader() const { return (tcphdr*)m_Data; }
 
 		/**
+		 * @return TCP source port
+		 */
+		uint16_t getSrcPort() const;
+
+		/**
+		 * @return TCP destination port
+		 */
+		uint16_t getDstPort() const;
+
+		/**
 		 * Get a TCP option by type
 		 * @param[in] option TCP option type to retrieve
 		 * @return An TcpOption object that contains the first option that matches this type, or logical NULL

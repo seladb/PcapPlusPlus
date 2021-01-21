@@ -72,6 +72,15 @@ TcpOption TcpOptionBuilder::build() const
 /// TcpLayer
 /// ~~~~~~~~
 
+uint16_t TcpLayer::getSrcPort() const
+{
+	return be16toh(getTcpHeader()->portSrc);
+}
+
+uint16_t TcpLayer::getDstPort() const
+{
+	return be16toh(getTcpHeader()->portDst);
+}
 
 TcpOption TcpLayer::getTcpOption(TcpOptionType option) const
 {
@@ -338,9 +347,8 @@ void TcpLayer::parseNextLayer()
 
 	uint8_t* payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;
-	tcphdr* tcpHder = getTcpHeader();
-	uint16_t portDst = be16toh(tcpHder->portDst);
-	uint16_t portSrc = be16toh(tcpHder->portSrc);
+	uint16_t portDst = getDstPort();
+	uint16_t portSrc = getSrcPort();
 
 	if (HttpMessage::isHttpPort(portDst) && HttpRequestFirstLine::parseMethod((char*)payload, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
 		m_NextLayer = new HttpRequestLayer(payload, payloadLen, this, m_Packet);
@@ -395,9 +403,9 @@ std::string TcpLayer::toString() const
 		result += "[ACK], ";
 
 	std::ostringstream srcPortStream;
-	srcPortStream << be16toh(hdr->portSrc);
+	srcPortStream << getSrcPort();
 	std::ostringstream dstPortStream;
-	dstPortStream << be16toh(hdr->portDst);
+	dstPortStream << getDstPort();
 	result += "Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
 
 	return result;

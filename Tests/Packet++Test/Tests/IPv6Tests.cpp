@@ -32,8 +32,8 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	pcpp::UdpLayer* pUdpLayer = NULL;
 	pUdpLayer = ip6UdpPacket.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(pUdpLayer);
-	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->portDst, htobe16(1900), u16);
-	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->portSrc, htobe16(63628), u16);
+	PTF_ASSERT_EQUAL(pUdpLayer->getDstPort(), 1900, u16);
+	PTF_ASSERT_EQUAL(pUdpLayer->getSrcPort(), 63628, u16);
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->length, htobe16(154), u16);
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->headerChecksum, htobe16(0x5fea), u16);
 

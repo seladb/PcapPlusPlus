@@ -171,8 +171,8 @@ std::pair<uint16_t, uint16_t> getTcpPorts(const pcpp::Packet& packet)
 	if (packet.isPacketOfType(pcpp::TCP))
 	{
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-		srcPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc);
-		dstPort = pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst);
+		srcPort = tcpLayer->getSrcPort();
+		dstPort = tcpLayer->getDstPort();
 	}
 
 	return std::pair<uint16_t, uint16_t>(srcPort, dstPort);

@@ -151,7 +151,7 @@ public:
 
 		// verify packet is port 80
 		pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
-		if (!(tcpLayer->getTcpHeader()->portDst == pcpp::hostToNet16(m_DstPort) || tcpLayer->getTcpHeader()->portSrc == pcpp::hostToNet16(m_DstPort) ))
+		if (!(tcpLayer->getDstPort() == m_DstPort || tcpLayer->getSrcPort() == m_DstPort))
 			return;
 
 		// collect general HTTP traffic stats on this packet

@@ -154,8 +154,8 @@ int main(int argc, char* argv[])
 	}
 
 	// printf TCP source and dest ports, window size, and the TCP flags that are set in this layer
-	printf("\nSource TCP port: %d\n", (int)pcpp::netToHost16(tcpLayer->getTcpHeader()->portSrc));
-	printf("Destination TCP port: %d\n", (int)pcpp::netToHost16(tcpLayer->getTcpHeader()->portDst));
+	printf("\nSource TCP port: %d\n", (int)tcpLayer->getSrcPort());
+	printf("Destination TCP port: %d\n", (int)tcpLayer->getDstPort());
 	printf("Window size: %d\n", (int)pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize));
 	printf("TCP flags: %s\n", printTcpFlags(tcpLayer).c_str());
 

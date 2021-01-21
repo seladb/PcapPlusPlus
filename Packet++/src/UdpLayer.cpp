@@ -31,6 +31,16 @@ UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst)
 	m_Protocol = UDP;
 }
 
+uint16_t UdpLayer::getSrcPort() const
+{
+	return be16toh(getUdpHeader()->portSrc);
+}
+
+uint16_t UdpLayer::getDstPort() const
+{
+	return be16toh(getUdpHeader()->portDst);
+}
+
 uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 {
 	udphdr* udpHdr = (udphdr*)m_Data;
@@ -88,9 +98,8 @@ void UdpLayer::parseNextLayer()
 	if (m_DataLen <= sizeof(udphdr))
 		return;
 
-	udphdr* udpHder = getUdpHeader();
-	uint16_t portDst = be16toh(udpHder->portDst);
-	uint16_t portSrc = be16toh(udpHder->portSrc);
+	uint16_t portDst = getDstPort();
+	uint16_t portSrc = getSrcPort();
 
 	uint8_t* udpData = m_Data + sizeof(udphdr);
 	size_t udpDataLen = m_DataLen - sizeof(udphdr);
@@ -129,9 +138,9 @@ void UdpLayer::computeCalculateFields()
 std::string UdpLayer::toString() const
 {
 	std::ostringstream srcPortStream;
-	srcPortStream << be16toh(getUdpHeader()->portSrc);
+	srcPortStream << getSrcPort();
 	std::ostringstream dstPortStream;
-	dstPortStream << be16toh(getUdpHeader()->portDst);
+	dstPortStream << getDstPort();
 
 	return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
 }
