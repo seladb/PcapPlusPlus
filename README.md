@@ -69,6 +69,7 @@ Follow the build instructions according to your platform in the [Build From Sour
 - __Multiplatform support__ - PcapPlusPlus is fully supported on Linux, MacOS, Windows and FreeBSD
 - __Packet reassembly__ - unique implementation of __TCP Reassembly__ which includes TCP retransmission, out-of-order TCP packets and missing TCP data, and __IP Fragmentation and Defragmentation__ to create and reassemble IPv4 and IPv6 fragments [[Learn more](https://pcapplusplus.github.io/docs/features#packet-reassembly)]
 - __Packet filtering__ that makes libpcap's BPF filters a lot more user-friendly [[Learn more](https://pcapplusplus.github.io/docs/features#packet-filtering)]
+- __TLS Fingerprinting__ - a C++ implementation of [JA3 and JA3S](https://github.com/salesforce/ja3) TLS fingerprinting [[Learn more](https://pcapplusplus.github.io/docs/features#tls-fingerprinting)]
 
 ## Getting Started
 
