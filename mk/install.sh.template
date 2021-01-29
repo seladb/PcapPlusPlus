@@ -40,8 +40,8 @@ printf '\n'>>PcapPlusPlus.pc
 echo 'URL: https://pcapplusplus.github.io'>>PcapPlusPlus.pc
 printf 'Libs: -L${libdir} '>>PcapPlusPlus.pc
 grep PCAPPP_LIBS PcapPlusPlus.mk | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
-printf '\nCFlags: '>>PcapPlusPlus.pc
-grep PCAPPP_INCLUDES PcapPlusPlus.mk | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
+printf '\nCFlags: -I${includedir}/pcapplusplus '>>PcapPlusPlus.pc
+grep PCAPPP_INCLUDES PcapPlusPlus.mk | sed -n '1!p' | cut -d " " -f3- | tr -d '\r' | tr '\n' ' '>>PcapPlusPlus.pc
 printf '\n'>>PcapPlusPlus.pc
 
 # copy template makefile
