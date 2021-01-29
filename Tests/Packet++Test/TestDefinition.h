@@ -145,3 +145,6 @@ PTF_TEST_CASE(BgpLayerEditTest);
 // Implemented in SSHTests.cpp
 PTF_TEST_CASE(SSHParsingTest);
 PTF_TEST_CASE(SSHMalformedParsingTest);
+
+// Implemented in IPSec.cpp
+PTF_TEST_CASE(IPSecParsingTest);
