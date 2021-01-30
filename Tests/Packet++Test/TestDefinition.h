@@ -59,6 +59,7 @@ PTF_TEST_CASE(HttpRequestLayerEditTest);
 PTF_TEST_CASE(HttpResponseLayerParsingTest);
 PTF_TEST_CASE(HttpResponseLayerCreationTest);
 PTF_TEST_CASE(HttpResponseLayerEditTest);
+PTF_TEST_CASE(HttpMalformedResponseTest);
 
 // Implemented in PPPoETests.cpp
 PTF_TEST_CASE(PPPoESessionLayerParsingTest);
