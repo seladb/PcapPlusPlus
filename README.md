@@ -157,17 +157,18 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 16. GTP (v1)
 17. ICMP
 18. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-19. SIP
-20. SDP
-21. Radius
-22. DNS
-23. DHCP
-24. BGP (v4)
-25. SSH - parsing only (no editing capabilities)
-26. HTTP headers (request & response)
-27. SSL/TLS - parsing only (no editing capabilities)
-28. Packet trailer (a.k.a footer or padding)
-29. Generic payload
+19. IPSec AH & ESP - parsing only (no editing capabilities)
+20. SIP
+21. SDP
+22. Radius
+23. DNS
+24. DHCP
+25. BGP (v4)
+26. SSH - parsing only (no editing capabilities)
+27. HTTP headers (request & response)
+28. SSL/TLS - parsing only (no editing capabilities)
+29. Packet trailer (a.k.a footer or padding)
+30. Generic payload
 
 ## DPDK And PF_RING Support
 

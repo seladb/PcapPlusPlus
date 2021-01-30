@@ -195,6 +195,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\IcmpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\IgmpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\IPReassembly.h" />
+    <ClInclude Include="..\..\Packet++\header\IPSecLayer.h" />
     <ClInclude Include="..\..\Packet++\header\IPv4Layer.h" />
     <ClInclude Include="..\..\Packet++\header\IPv6Extensions.h" />
     <ClInclude Include="..\..\Packet++\header\IPv6Layer.h" />
@@ -239,6 +240,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\IcmpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IgmpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IPReassembly.cpp" />
+    <ClCompile Include="..\..\Packet++\src\IPSecLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IPv4Layer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IPv6Extensions.cpp" />
     <ClCompile Include="..\..\Packet++\src\IPv6Layer.cpp" />

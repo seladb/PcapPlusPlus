@@ -8,6 +8,7 @@
 #include "IcmpLayer.h"
 #include "GreLayer.h"
 #include "IgmpLayer.h"
+#include "IPSecLayer.h"
 #include "PacketUtils.h"
 #include <string.h>
 #include <sstream>
@@ -308,6 +309,16 @@ void IPv4Layer::parseNextLayer()
 		}
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		break;
+	case PACKETPP_IPPROTO_AH:
+		m_NextLayer = AuthenticationHeaderLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new AuthenticationHeaderLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+		break;
+	case PACKETPP_IPPROTO_ESP:
+		m_NextLayer = ESPLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new ESPLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);

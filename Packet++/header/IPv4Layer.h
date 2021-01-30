@@ -588,7 +588,18 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		 * Currently identifies the following next layers: UdpLayer, TcpLayer. Otherwise sets PayloadLayer
+		 * Currently identifies the following next layers:
+		 * - UdpLayer
+		 * - TcpLayer
+		 * - IcmpLayer
+		 * - IPv4Layer (IP-in-IP)
+		 * - IPv6Layer (IP-in-IP)
+		 * - GreLayer
+		 * - IgmpLayer
+		 * - AuthenticationHeaderLayer (IPSec)
+		 * - ESPLayer (IPSec)
+		 * 
+		 * Otherwise sets PayloadLayer
 		 */
 		void parseNextLayer();
 

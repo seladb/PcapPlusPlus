@@ -233,6 +233,21 @@ namespace pcpp
 	const ProtocolType SSH = 0x400000000;
 
 	/**
+	 * IPSec Authentication Header (AH) protocol
+	 */
+	const ProtocolType AuthenticationHeader = 0x800000000;
+
+	/**
+	 * IPSec Encapsulating Security Payload (ESP) protocol
+	 */
+	const ProtocolType ESP = 0x1000000000;
+
+	/**
+	 * IPSec protocol (aggregation bitmask of AH and ESP protocols)
+	 */
+	const ProtocolType IPSec = 0x1800000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer
