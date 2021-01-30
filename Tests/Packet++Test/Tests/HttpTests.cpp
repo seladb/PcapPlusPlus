@@ -298,3 +298,28 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 	expectedHttpResponse = "HTTP/1.1 413 This is a test\r\nContent-Length: 345\r\n";
 	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
 } // HttpResponseLayerEditTest
+
+
+
+/// In this test the first HTTP header field is malformed - it only has header name but not an header value
+PTF_TEST_CASE(HttpMalformedResponseTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/HttpMalformedResponse.dat");
+
+	pcpp::Packet httpPacket(&rawPacket1);
+
+	pcpp::HttpResponseLayer* httpResp = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
+	PTF_ASSERT_EQUAL(httpResp->getFieldCount(), 6, int);
+	std::string fieldNames[] = {"x-amz-request-id2 CA4DB8F36423461F\r\n", "x-amz-id-2", PCPP_HTTP_CONTENT_TYPE_FIELD, PCPP_HTTP_TRANSFER_ENCODING_FIELD, "Date", PCPP_HTTP_SERVER_FIELD};
+	std::string fieldValues[] = {"", "xcjboWLTcibyztI2kdnRoUvPdimtSPdYQYsQ4pHAebH4miKlux4Am0SBZrvVxsHN", "application/xml", "chunked", "Thu, 21 Feb 2013 06:27:11 GMT", "AmazonS3"};
+	int index = 0;
+	for (pcpp::HeaderField* field = httpResp->getFirstField(); field != NULL && !field->isEndOfHeader(); field = httpResp->getNextField(field))
+	{
+		PTF_ASSERT_EQUAL(field->getFieldName(), fieldNames[index], string);
+		PTF_ASSERT_EQUAL(field->getFieldValue(), fieldValues[index], string);
+		index++;
+	}
+} // HttpMalformedResponseTest

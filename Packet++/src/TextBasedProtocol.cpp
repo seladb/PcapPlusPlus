@@ -458,7 +458,7 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 
 	char* fieldValuePtr = (char*)memchr(fieldData, nameValueSeperator, m_TextBasedProtocolMessage->m_DataLen - (size_t)m_NameOffsetInMessage);
 	// could not find the position of the separator, meaning field value position is unknown
-	if (fieldValuePtr == NULL)
+	if (fieldValuePtr == NULL || (fieldEndPtr != NULL && fieldValuePtr >= fieldEndPtr))
 	{
 		m_ValueOffsetInMessage = -1;
 		m_FieldValueSize = -1;
