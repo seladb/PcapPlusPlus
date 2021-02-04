@@ -8,6 +8,17 @@
 #include <string.h>
 #include <vector>
 
+#ifndef PCPP_DEPRECATED
+#if defined(__GNUC__) || defined(__clang__)
+#define PCPP_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define PCPP_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
+#define PCPP_DEPRECATED
+#endif
+#endif
+
 /// @file
 
 /**
@@ -465,6 +476,11 @@ namespace pcpp
 		IPAddress getSrcIPAddress() const { return getSrcIPv4Address(); }
 
 		/**
+		 * @deprecated Please use getSrcIPv4Address() or getSrcIPAddress() instead
+		 */
+		PCPP_DEPRECATED IPv4Address getSrcIpAddress() const { return getSrcIPv4Address(); }
+
+		/**
 		 * Get the source IP address in the form of IPv4Address
 		 * @return An IPv4Address containing the source address
 		 */
@@ -482,6 +498,11 @@ namespace pcpp
 		 * @return An IPAddress containing the destination address
 		 */
 		IPAddress getDstIPAddress() const { return getDstIPv4Address(); }
+
+		/**
+		 * @deprecated Please use getDstIPv4Address() or getDstIPAddress() instead
+		 */
+		PCPP_DEPRECATED IPv4Address getDstIpAddress() const { return getDstIPv4Address(); }
 
 		/**
 		 * Get the destination IP address in the form of IPv4Address
