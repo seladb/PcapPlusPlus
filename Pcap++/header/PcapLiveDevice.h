@@ -421,12 +421,27 @@ namespace pcpp
 		/**
 		 * Send a buffer containing packet raw data (including all layers) to the network
 		 * @param[in] packetData The buffer containing the packet raw data
+		 * @param[in] packetDataLength The length of the buffer (this is the entire packet, including link layer)
+		 * @param[in] packetPayloadLength The length of the payload for the data link layer. This includes all data apart from the header for the
+		 * data link layer.
+		 * @return True if the packet was sent successfully. False will be returned in the following cases (relevant log error is printed in any case):
+		 * - Device is not opened
+		 * - Packet data length is 0
+		 * - Packet payload length is larger than device MTU
+		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
+		 */
+		bool sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength);
+
+		/**
+		 * Send a buffer containing packet raw data (including all layers) to the network
+		 * @param[in] packetData The buffer containing the packet raw data
 		 * @param[in] packetDataLength The length of the buffer
 		 * @return True if packet was sent successfully. False will be returned in the following cases (relevant log error is printed in any case):
 		 * - Device is not opened
 		 * - Packet length is 0
-		 * - Packet length is larger than device MTU
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
+		 * This method cannot check the size of the packet against MTU, since the arguments do not include the payload size, after the data link layer
+		 * header.
 		 */
 		bool sendPacket(const uint8_t* packetData, int packetDataLength);
 

@@ -561,12 +561,25 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 
 bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket)
 {
+	// CHANGED
 	// Packet parsedPacket((RawPacket&)rawPacket, false, (ProtocolType)UnknownProtocol, OsiModelDataLinkLayer);
 	RawPacket *rPacket = (RawPacket *)&rawPacket;
 	Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
-	LOG_ERROR("PRINTING PACKET SIZE");
-	LOG_DEBUG("Sending packet with payload size %zu",  parsedPacket.getFirstLayer()->getLayerPayloadSize());
-	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
+	int payloadLength = (int)parsedPacket.getFirstLayer()->getLayerPayloadSize();
+	LOG_DEBUG("Sending packet with payload size %d",  payloadLength);
+
+	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen(), payloadLength);
+	// return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
+}
+
+bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
+{
+	if (packetPayloadLength > (int)m_DeviceMtu)
+	{
+		LOG_ERROR("Packet length [%d] is larger than device MTU [%d]\n", packetPayloadLength, (int)m_DeviceMtu);
+		return false;
+	}
+	return sendPacket(packetData, packetDataLength);
 }
 
 bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
@@ -583,11 +596,12 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 		return false;
 	}
 
-	if (packetDataLength > (int)m_DeviceMtu)
-	{
-		LOG_ERROR("Packet length [%d] is larger than device MTU [%d]\n", packetDataLength, (int)m_DeviceMtu);
-		return false;
-	}
+	// CHANGED - The data length includes the link layer header. MTU includes only TCP/UDP data size, not the link layer header.
+	// if (packetDataLength > (int)m_DeviceMtu)
+	// {
+	// 	LOG_ERROR("Packet length [%d] is larger than device MTU [%d]\n", packetDataLength, (int)m_DeviceMtu);
+	// 	return false;
+	// }
 
 	if (pcap_sendpacket(m_PcapSendDescriptor, packetData, packetDataLength) == -1)
 	{
