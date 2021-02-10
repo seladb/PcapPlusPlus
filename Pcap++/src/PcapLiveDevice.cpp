@@ -3,6 +3,7 @@
 #include "IpUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
+#include "Packet.h"
 #ifndef  _MSC_VER
 #include <unistd.h>
 #endif // ! _MSC_VER
@@ -560,6 +561,11 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 
 bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket)
 {
+	// Packet parsedPacket((RawPacket&)rawPacket, false, (ProtocolType)UnknownProtocol, OsiModelDataLinkLayer);
+	RawPacket *rPacket = (RawPacket *)&rawPacket;
+	Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
+	LOG_ERROR("PRINTING PACKET SIZE");
+	LOG_DEBUG("Sending packet with payload size %zu",  parsedPacket.getFirstLayer()->getLayerPayloadSize());
 	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
 }
 
