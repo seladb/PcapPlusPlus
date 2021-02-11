@@ -36,7 +36,7 @@ void L2FwdWorkerThread::stop()
 	m_Stop = true;
 }
 
-uint32_t L2FwdWorkerThread::getCoreId()
+uint32_t L2FwdWorkerThread::getCoreId() const
 {
 	return m_CoreId;
 }
