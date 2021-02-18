@@ -41,6 +41,8 @@ struct PacketStats
 			tcpPacketCount++;
 		if (packet.isPacketOfType(pcpp::UDP))
 			udpPacketCount++;
+		if (packet.isPacketOfType(pcpp::DNS))
+			dnsPacketCount++;
 		if (packet.isPacketOfType(pcpp::HTTP))
 			httpPacketCount++;
 		if (packet.isPacketOfType(pcpp::SSL))
