@@ -85,6 +85,9 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 		}
 	}
 
+	if (checksumRes == 0)
+		checksumRes = 0xffff;
+
 	if(writeResultToPacket)
 		udpHdr->headerChecksum = htobe16(checksumRes);
 	else
