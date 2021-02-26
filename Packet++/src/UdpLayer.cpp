@@ -111,7 +111,7 @@ void UdpLayer::parseNextLayer()
 		m_NextLayer = new DhcpLayer(udpData, udpDataLen, this, m_Packet);
 	else if (VxlanLayer::isVxlanPort(portDst))
 		m_NextLayer = new VxlanLayer(udpData, udpDataLen, this, m_Packet);
-	else if ((udpDataLen >= sizeof(dnshdr)) && (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
+	else if (DnsLayer::isDataValid(udpData, udpDataLen) && (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
 	else if(SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 	{
