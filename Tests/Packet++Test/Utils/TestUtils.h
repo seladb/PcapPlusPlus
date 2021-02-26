@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef PCPP_TESTS_DEBUG
+#include "Packet.h"
+#endif
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -26,7 +29,7 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 	pcpp::RawPacket rawPacket##num((const uint8_t*)buffer##num, bufferLength##num, time, true, linktype)
 
 #ifdef PCPP_TESTS_DEBUG
-void savePacketToPcap(Packet& packet, std::string fileName);
+void savePacketToPcap(pcpp::Packet& packet, std::string fileName);
 #endif
 
 }

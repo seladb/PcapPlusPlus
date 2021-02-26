@@ -91,8 +91,7 @@ namespace pcpp
 
 	/**
 	 * @class DnsLayer
-	 * Represents the DNS protocol layer.<BR>
-	 * CURRENTLY ONLY DNS PARSING IS AVAILABLE. CREATING AND EDITING DNS ATTRIBUTES WILL BE ADDED LATER
+	 * Represents the DNS protocol layer
 	 */
 	class DnsLayer : public Layer
 	{
@@ -133,7 +132,7 @@ namespace pcpp
 		 * other methods of this layer. Notice the return value points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref dnshdr
 		 */
-		dnshdr* getDnsHeader() const { return (dnshdr*)m_Data; }
+		dnshdr* getDnsHeader() const;
 
 		/**
 		 * Searches for a DNS query by its name field. Notice this method returns only a query which its name equals to the requested name. If
@@ -419,7 +418,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() {}
+		virtual void computeCalculateFields() {}
 
 		std::string toString() const;
 
@@ -431,12 +430,31 @@ namespace pcpp
 		 */
 		static inline bool isDnsPort(uint16_t port);
 
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of a DNS packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @param[in] dnsOverTcp Should be set to "true" if this is DNS is over TCP, otherwise set to "false"
+		 * (which is also the default value)
+		 * @return True if the data is valid and can represent a DNS packet
+		 */
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen, bool dnsOverTcp = false);
+
+	protected:
+		DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, size_t offsetAdjustment);
+		DnsLayer(size_t offsetAdjustment);
+
 	private:
 		IDnsResource* m_ResourceList;
 		DnsQuery*     m_FirstQuery;
 		DnsResource*  m_FirstAnswer;
 		DnsResource*  m_FirstAuthority;
 		DnsResource*  m_FirstAdditional;
+		uint16_t      m_OffsetAdjustment;
+
+		size_t getBasicHeaderSize();
+		void init(size_t offsetAdjustment, bool callParseResource);
+		void initNewLayer(size_t offsetAdjustment);
 
 		IDnsResource* getFirstResource(DnsResourceType resType) const;
 		void setFirstResource(DnsResourceType resType, IDnsResource* resource);
@@ -459,6 +477,62 @@ namespace pcpp
 	};
 
 
+
+	/**
+	 * @class DnsOverTcpLayer
+	 * Represents the DNS over TCP layer.
+	 * DNS over TCP is described here: https://tools.ietf.org/html/rfc7766 .
+	 * It is very similar to DNS over UDP, except for one field: TCP message length which is added in the beginning of the message
+	 * before the other DNS data properties. The rest of the data is similar.
+	 * 
+	 * Note: DNS over TCP can spread over more than one packet, but this implementation doesn't support this use-case and assumes
+	 * the whole message fits in a single packet.
+	 */
+	class DnsOverTcpLayer : public DnsLayer
+	{
+	public:
+
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		DnsOverTcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: DnsLayer(data, dataLen, prevLayer, packet, sizeof(uint16_t)) {}
+
+		/**
+		 * A constructor that creates an empty DNS layer: all members of dnshdr are set to 0 and layer will contain no records
+		 */
+		DnsOverTcpLayer() : DnsLayer(sizeof(uint16_t)) {}
+
+		/**
+		 * A copy constructor for this layer
+		 */
+		DnsOverTcpLayer(const DnsOverTcpLayer& other) : DnsLayer(other) {}
+
+		/**
+		 * @return The value of the TCP message length as described in https://tools.ietf.org/html/rfc7766#section-8
+		 */
+		uint16_t getTcpMessageLength();
+
+		/**
+		 * Set the TCP message length value as described in https://tools.ietf.org/html/rfc7766#section-8
+		 * @param[in] value The value to set
+		 */
+		void setTcpMessageLength(uint16_t value);
+
+
+		// overriden methods
+
+		/**
+		 * Calculate the TCP message length field
+		 */
+		void computeCalculateFields();
+	};
+
+
 	// implementation of inline methods
 
 	bool DnsLayer::isDnsPort(uint16_t port)
@@ -472,6 +546,12 @@ namespace pcpp
 		default:
 			return false;
 		}
+	}
+
+	bool DnsLayer::isDataValid(const uint8_t* data, size_t dataLen, bool dnsOverTcp)
+	{
+		size_t minSize = sizeof(dnshdr) + (dnsOverTcp ? sizeof(uint16_t) : 0);
+		return dataLen >= minSize;
 	}
 
 } // namespace pcpp

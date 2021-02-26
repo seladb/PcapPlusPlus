@@ -73,6 +73,8 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest);
 PTF_TEST_CASE(DnsLayerResourceCreationTest);
 PTF_TEST_CASE(DnsLayerEditTest);
 PTF_TEST_CASE(DnsLayerRemoveResourceTest);
+PTF_TEST_CASE(DnsOverTcpParsingTest);
+PTF_TEST_CASE(DnsOverTcpCreationTest);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);
