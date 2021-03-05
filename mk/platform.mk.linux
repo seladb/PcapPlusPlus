@@ -14,7 +14,9 @@ ifeq ($(origin CC),default)
 CC := gcc
 endif
 
+ifeq ($(origin AR),default)
 AR := ar
+endif
 
 RM := rm
 
