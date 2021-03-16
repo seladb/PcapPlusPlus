@@ -330,7 +330,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        target: [armeabi-v7a, arm64-v8a, x86, x86_64]
+        target: [armeabi-v7a]
 
     steps:
     - name: Checkout code
