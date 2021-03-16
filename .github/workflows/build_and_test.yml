@@ -350,9 +350,7 @@ jobs:
         LIBPCAP_PATH=$(pwd)/libpcap-android
         TARGET=${{ matrix.target }}
         NDK_TARGET=${{ fromJson('{ "armeabi-v7a": "armv7a-linux-androideabi" }')[matrix.target] }}
-        ./configure-android.sh --ndk-path $NDK_ROOT --target $NDK_TARGET --api $API_VERSION --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/$TARGET/$API
-        ls -la $LIBPCAP_PATH/$TARGET/$API
-        cat mk/PcapPlusPlus.mk
+        ./configure-android.sh --ndk-path $NDK_ROOT --target $NDK_TARGET --api $API_VERSION --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/$TARGET/$API_VERSION
   
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
