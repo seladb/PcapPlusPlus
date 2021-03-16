@@ -330,7 +330,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        target: [armeabi-v7a]
+        target: [armeabi-v7a, arm64-v8a, x86, x86_64]
 
     steps:
     - name: Checkout code
@@ -349,7 +349,7 @@ jobs:
         API_VERSION=29
         LIBPCAP_PATH=$(pwd)/libpcap-android
         TARGET=${{ matrix.target }}
-        NDK_TARGET=${{ fromJson('{ "armeabi-v7a": "armv7a-linux-androideabi" }')[matrix.target] }}
+        NDK_TARGET=${{ fromJson('{ "armeabi-v7a": "armv7a-linux-androideabi", "arm64-v8a": "aarch64-linux-android", "x86": "i686-linux-android", "x86_64": "x86_64-linux-android" }')[matrix.target] }}
         ./configure-android.sh --ndk-path $NDK_ROOT --target $NDK_TARGET --api $API_VERSION --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/$TARGET/$API_VERSION
   
     - name: Build PcapPlusPlus
