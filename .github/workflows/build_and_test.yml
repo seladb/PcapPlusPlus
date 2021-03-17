@@ -374,4 +374,10 @@ jobs:
         mkdir -p $PCAPPLUSPLUS_INCLUDE_PATH
         cp Dist/*.a $PCAPPLUSPLUS_LIBS_PATH/
         cp -R Dist/header/* $PCAPPLUSPLUS_INCLUDE_PATH/
-        ls -laR $TOYVPN_LIBS
+
+    - name: Build ToyVpn-PcapPlusPlus
+      working-directory: ./ToyVpn-PcapPlusPlus
+      run: |
+        sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+        chmod +x gradlew
+        ./gradlew assembleDebug
