@@ -5,6 +5,10 @@
 #include "PcapFileDevice.h"
 #include "PcapRemoteDevice.h"
 #include "PcapRemoteDeviceList.h"
+#include "EthLayer.h"
+#include "IPv4Layer.h"
+#include "UdpLayer.h"
+#include "PayloadLayer.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
@@ -607,6 +611,78 @@ PTF_TEST_CASE(TestSendPackets)
 	liveDev->close();
 	fileReaderDev.close();
 } // TestSendPackets
+
+
+
+
+PTF_TEST_CASE(TestMtuSize)
+{
+	pcpp::PcapLiveDevice* liveDev = NULL;
+	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	PTF_ASSERT_NOT_NULL(liveDev);
+	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTearDown(liveDev);
+
+	// Construct a packet within the MTU and assert that it should send
+	// Source and destination addresses are somewhat arbitrary. Only important thing is that the packet is valid
+	pcpp::EthLayer smallEthernetLayer(liveDev->getMacAddress(), pcpp::MacAddress("aa:bb:cc:dd:ee:ff"));
+	// pcpp::IPv4Layer smallIPLayer(ipToSearch, pcpp::IPv4Address(PcapTestGlobalArgs.remoteIp.c_str()));
+	pcpp::IPv4Layer smallIPLayer(ipToSearch, pcpp::IPv4Address("192.168.1.1"));
+	// Port 9 is the discard protocol
+	pcpp::UdpLayer smallUdpLayer(12345, 9);
+
+	pcpp::Packet smallPacket(liveDev->getMtu() + smallEthernetLayer.getDataLen());
+
+	smallPacket.addLayer(&smallEthernetLayer);
+	smallPacket.addLayer(&smallIPLayer);
+	smallPacket.addLayer(&smallUdpLayer);
+
+	// Pad the small packet with extra bytes to fill it exactly to the MTU
+	size_t smallDataLen = liveDev->getMtu() - (smallIPLayer.getDataLen());
+	uint8_t smallData[smallDataLen];
+	memset(smallData, 0xFF, smallDataLen);
+	pcpp::PayloadLayer smallPayload(smallData, smallDataLen, false);
+	smallPacket.addLayer(&smallPayload);
+
+	PTF_PRINT_VERBOSE("Ip layer: %lu", smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
+	PTF_PRINT_VERBOSE("Udp layer: %lu", smallUdpLayer.getDataLen());
+	PTF_PRINT_VERBOSE("Small data length: %lu", smallDataLen);
+
+	// Check the size of the small Packet
+	PTF_PRINT_VERBOSE("Mtu: %u", liveDev->getMtu());
+	PTF_PRINT_VERBOSE("Small packet: %d", smallPacket.getRawPacketReadOnly()->getRawDataLen());
+	PTF_ASSERT_TRUE(smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen() == (size_t)liveDev->getMtu());
+	// Try sending the packet
+	PTF_ASSERT_TRUE(liveDev->sendPacket(&smallPacket));
+	
+
+	// Construct a packet larger than the MTU and assert that it doesn't send
+	pcpp::EthLayer largeEthernetLayer(liveDev->getMacAddress(), pcpp::MacAddress("aa:bb:cc:dd:ee:ff"));
+	// pcpp::IPv4Layer largeIPLayer(ipToSearch, pcpp::IPv4Address(PcapTestGlobalArgs.remoteIp.c_str()));
+	pcpp::IPv4Layer largeIPLayer(ipToSearch, pcpp::IPv4Address("192.168.1.1"));
+	// Port 9 is the discard protocol
+	pcpp::UdpLayer largeUdpLayer(12345, 9);
+
+	pcpp::Packet largePacket(liveDev->getMtu() + smallEthernetLayer.getDataLen() + 1);
+
+	largePacket.addLayer(&largeEthernetLayer);
+	largePacket.addLayer(&largeIPLayer);
+	largePacket.addLayer(&largeUdpLayer);
+
+	// Pad the large packet with extra bytes to fill it to 1 byte more than the MTU
+	size_t largeDataLen = liveDev->getMtu() - largeIPLayer.getDataLen() + 1;
+	uint8_t largeData[largeDataLen];
+	memset(largeData, 0xFF, largeDataLen);
+	pcpp::PayloadLayer largePayload(largeData, largeDataLen, false);
+	largePacket.addLayer(&largePayload);
+	
+	// Check the size of the large Packet
+	PTF_PRINT_VERBOSE("Large paket: %lu", largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
+	PTF_ASSERT_TRUE(largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen() == (size_t)(liveDev->getMtu() + 1));
+	// Try sending the packet
+	PTF_ASSERT_FALSE(liveDev->sendPacket(&largePacket));
+} // TestMtuSize
 
 
 
