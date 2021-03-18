@@ -22,6 +22,10 @@ RM := rm
 
 CP := cp
 
+MV := mv
+
+TOUCH := touch
+
 MKDIR := mkdir
 
 INSTALL_SCRIPT := install.sh

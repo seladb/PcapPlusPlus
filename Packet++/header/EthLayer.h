@@ -58,6 +58,8 @@ namespace pcpp
 #define PCPP_ETHERTYPE_MPLS      0x8847
 	/** Point-to-point protocol (PPP) */
 #define PCPP_ETHERTYPE_PPP       0x880B
+    /** RDMA over Converged Ethernet (RoCEv1) */
+#define PCPP_ETHERTYPE_ROCEV1    0x8915
 
 
 	/**
