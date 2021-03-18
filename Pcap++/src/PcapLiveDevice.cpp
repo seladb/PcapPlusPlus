@@ -586,7 +586,9 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 	{
 		timeval time;
 		gettimeofday(&time, NULL);
-		return sendPacket(pcpp::RawPacket(packetData, packetDataLength, time, true, linkLayerType));
+		
+		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkLayerType);
+		return sendPacket(rawPacket);
 	}
 
 	if (!m_DeviceOpened)
