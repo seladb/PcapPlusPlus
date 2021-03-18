@@ -436,14 +436,19 @@ namespace pcpp
 		 * Send a buffer containing packet raw data (including all layers) to the network
 		 * @param[in] packetData The buffer containing the packet raw data
 		 * @param[in] packetDataLength The length of the buffer
+		 * @param[in] checkMtu Whether or not to check the size of the packet against the MTU of the device it is being sent over.
+		 * 					   This check can cause a performance penalty. Disable if you already know your packet is the correct size.
+		 * @param[in] linkLayerType The link layer type for the packet. This is used to partially parse the packet if checkMtu is true. If checkMtu is false,
+		 * 						this parameter is ignored.
 		 * @return True if packet was sent successfully. False will be returned in the following cases (relevant log error is printed in any case):
+		 * - checkMtu is enabled and Packet length exceeded Mtu
 		 * - Device is not opened
 		 * - Packet length is 0
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 * This method cannot check the size of the packet against MTU, since the arguments do not include the payload size, after the data link layer
 		 * header.
 		 */
-		bool sendPacket(const uint8_t* packetData, int packetDataLength);
+		bool sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu = false, pcpp::LinkLayerType linkLayerType = pcpp::LINKTYPE_ETHERNET);
 
 		/**
 		 * Send a parsed Packet to the network

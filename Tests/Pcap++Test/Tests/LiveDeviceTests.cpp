@@ -538,11 +538,11 @@ PTF_TEST_CASE(TestSendPacket)
 
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0, u32);
 	uint32_t mtu = liveDev->getMtu();
-	int buffLen = mtu+1;
+	int buffLen = mtu+1 + sizeof(pcpp::ether_header);
 	uint8_t* buff = new uint8_t[buffLen];
 	memset(buff, 0, buffLen);
 	pcpp::LoggerPP::getInstance().suppressErrors();
-	PTF_ASSERT_FALSE(liveDev->sendPacket(buff, buffLen));
+	PTF_ASSERT_FALSE(liveDev->sendPacket(buff, buffLen, true));
 	pcpp::LoggerPP::getInstance().enableErrors();
 
 	pcpp::RawPacket rawPacket;

@@ -561,29 +561,34 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 
 bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket)
 {
-	// CHANGED
-	// Packet parsedPacket((RawPacket&)rawPacket, false, (ProtocolType)UnknownProtocol, OsiModelDataLinkLayer);
 	RawPacket *rPacket = (RawPacket *)&rawPacket;
 	Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
 	int payloadLength = (int)parsedPacket.getFirstLayer()->getLayerPayloadSize();
-	LOG_DEBUG("Sending packet with payload size %d",  payloadLength);
 
 	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen(), payloadLength);
-	// return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
 }
 
 bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
 {
 	if (packetPayloadLength > (int)m_DeviceMtu)
 	{
-		LOG_ERROR("Packet length [%d] is larger than device MTU [%d]\n", packetPayloadLength, (int)m_DeviceMtu);
+		LOG_ERROR("Payload length [%d] is larger than device MTU [%d]\n", packetPayloadLength, (int)m_DeviceMtu);
 		return false;
 	}
-	return sendPacket(packetData, packetDataLength);
+	// checkMtu has already been performed at this stage. Pass false to prevent looping
+	return sendPacket(packetData, packetDataLength, false);
 }
 
-bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
+bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu, pcpp::LinkLayerType linkLayerType)
 {
+	// Perform Mtu check first since this method will be recursively called if checkMtu is true, and prevents repeated checks of other properties
+	if (checkMtu)
+	{
+		timeval time;
+		gettimeofday(&time, NULL);
+		return sendPacket(pcpp::RawPacket(packetData, packetDataLength, time, true, linkLayerType));
+	}
+
 	if (!m_DeviceOpened)
 	{
 		LOG_ERROR("Device '%s' not opened!", m_Name.c_str());
@@ -595,13 +600,6 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 		LOG_ERROR("Trying to send a packet with length 0");
 		return false;
 	}
-
-	// CHANGED - The data length includes the link layer header. MTU includes only TCP/UDP data size, not the link layer header.
-	// if (packetDataLength > (int)m_DeviceMtu)
-	// {
-	// 	LOG_ERROR("Packet length [%d] is larger than device MTU [%d]\n", packetDataLength, (int)m_DeviceMtu);
-	// 	return false;
-	// }
 
 	if (pcap_sendpacket(m_PcapSendDescriptor, packetData, packetDataLength) == -1)
 	{
