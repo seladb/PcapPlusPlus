@@ -133,15 +133,17 @@ cp -f mk/platform.mk.macosx $PLATFORM_MK
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
 
 # set SDK home if MacOS verion >= 10.14
+MACOS_SDK_HOME="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 MACOS_MINOR_VERSION=`(sw_vers -productVersion) | awk -F '.' '{print $2}'`
 if [[ $MACOS_MINOR_VERSION -ge 14 ]]; then
    echo -e "\n# setting SDK home for MacOS version >= 10.14" >> $PCAPPLUSPLUS_MK
-   echo -e "MACOS_SDK_HOME := /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\n" >> $PCAPPLUSPLUS_MK
+   echo -e "MACOS_SDK_HOME := $MACOS_SDK_HOME\n" >> $PCAPPLUSPLUS_MK
 fi
 
 PCAPPLUSPLUS_MK_MACOSX="PcapPlusPlus.mk.macosx"
 if [ -n "$BUILD_FOR_ARM64" ]; then
    PCAPPLUSPLUS_MK_MACOSX="PcapPlusPlus.mk.macosx.arm64"
+   echo -e "ADDITIONAL_LIGHTPCAPNG_BUILD_FLAGS := -arch arm64 -target arm64-apple-macos11 -isysroot $MACOS_SDK_HOME" > 3rdParty/LightPcapNg/additionalLightPcapNgBuildFlags.mk
 fi
 
 cat "mk/$PCAPPLUSPLUS_MK_MACOSX" >> $PCAPPLUSPLUS_MK

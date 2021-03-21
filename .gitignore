@@ -38,6 +38,7 @@ mk/PcapPlusPlus.mk
 mk/platform.mk
 mk/PcapPlusPlus.mk-e
 3rdParty/LightPcapNg/zstd.mk
+3rdParty/LightPcapNg/additionalLightPcapNgBuildFlags.mk
 
 #auto generated files
 install.sh
