@@ -13,7 +13,7 @@ DEFS := -DUNIVERSAL -fPIC
 
 Obj/%.o: %.cpp
 	@echo Building file: $<
-	@$(CC) $(INCLUDES) -Wall -O2 $(DEFS) -g -c -o "$@" "$<"
+	@$(CC) $(INCLUDES) -Wall -O2 $(DEFS) $(MACOS_APPLE_SILICON_ARM64_BUILD_FLAGS) -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 

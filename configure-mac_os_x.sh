@@ -143,7 +143,7 @@ fi
 PCAPPLUSPLUS_MK_MACOSX="PcapPlusPlus.mk.macosx"
 if [ -n "$BUILD_FOR_ARM64" ]; then
    PCAPPLUSPLUS_MK_MACOSX="PcapPlusPlus.mk.macosx.arm64"
-   echo -e "ADDITIONAL_LIGHTPCAPNG_BUILD_FLAGS := -arch arm64 -target arm64-apple-macos11 -isysroot $MACOS_SDK_HOME" > 3rdParty/LightPcapNg/additionalLightPcapNgBuildFlags.mk
+   echo -e "MACOS_APPLE_SILICON_ARM64_BUILD_FLAGS := -arch arm64 -target arm64-apple-macos11 -isysroot $MACOS_SDK_HOME" >> $PLATFORM_MK
 fi
 
 cat "mk/$PCAPPLUSPLUS_MK_MACOSX" >> $PCAPPLUSPLUS_MK

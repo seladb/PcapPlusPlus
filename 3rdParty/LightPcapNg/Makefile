@@ -12,11 +12,10 @@ INCLUDES := -I"LightPcapNg/include"
 DEFS := -DUNIVERSAL -fPIC
 
 -include zstd.mk
--include additionalLightPcapNgBuildFlags.mk
 
 Obj/%.o: LightPcapNg/src/%.c
 	@echo Building file: $<
-	@$(CC) $(INCLUDES) -Wall -O2 $(DEFS) $(ADDITIONAL_LIGHTPCAPNG_BUILD_FLAGS) -g -c -o "$@" "$<"
+	@$(CC) $(INCLUDES) -Wall -O2 $(DEFS) $(MACOS_APPLE_SILICON_ARM64_BUILD_FLAGS) -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 
