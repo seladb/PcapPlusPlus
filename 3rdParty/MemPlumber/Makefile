@@ -8,7 +8,7 @@ include Makefile.defs
 
 %.o: %.cpp
 	@echo Building MemPlumber file: $<
-	@$(CC) -Wall -O2 -g -c -o "$@" "$<"
+	@$(CC) -Wall -O2 $(MACOS_APPLE_SILICON_ARM64_BUILD_FLAGS) -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 
