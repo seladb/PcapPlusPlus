@@ -26,6 +26,8 @@ function HELP {
    echo "                           the lib file in the default lib paths"
    echo "--use-zstd               --Use Zstd for pcapng files compression/decompression. This parameter is optional"
    echo ""
+   echo "--arm64                  --build for Apple Silicon (arm64 architecture)"
+   echo ""
    echo -e "-h|--help                --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
    echo -e "      $SCRIPT"
@@ -100,7 +102,12 @@ case $key in
    # use Zstd
    --use-zstd)
      USE_ZSTD=1
-     shift ;;     
+     shift ;;
+
+   # build for Apple Silicon (arm64 architecture)
+   --arm64)
+     BUILD_FOR_ARM64=1
+     shift ;;
 
    # help switch - display help and exit
    -h|--help)
@@ -132,7 +139,12 @@ if [[ $MACOS_MINOR_VERSION -ge 14 ]]; then
    echo -e "MACOS_SDK_HOME := /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\n" >> $PCAPPLUSPLUS_MK
 fi
 
-cat mk/PcapPlusPlus.mk.macosx >> $PCAPPLUSPLUS_MK
+PCAPPLUSPLUS_MK_MACOSX="PcapPlusPlus.mk.macosx"
+if [ -n "$BUILD_FOR_ARM64" ]; then
+   PCAPPLUSPLUS_MK_MACOSX="PcapPlusPlus.mk.macosx.arm64"
+fi
+
+cat "mk/$PCAPPLUSPLUS_MK_MACOSX" >> $PCAPPLUSPLUS_MK
 
 echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
 
