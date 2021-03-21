@@ -16,17 +16,36 @@ function HELP {
     echo -e "Basic usage: $SCRIPT [-h] [--ndk-path] [--target] [--api] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
     echo "The following switches are recognized:"
     echo "--ndk-path             --The path of Android NDK, for example: '/opt/Android/Sdk/ndk/22.0.7026061'"
-    echo "--target               --Target architecture, must be one of these values:"
-    echo "                          - aarch64-linux-android"
-    echo "                          - armv7a-linux-androideabi"
-    echo "                          - i686-linux-android"
-    echo "                          - x86_64-linux-android"
-    echo "--api                  --Android API level. Must be between 21 and 30"
+    echo "--target               --Target architecture which must be one of these values:"
+    echo "                          - arm64-v8a"
+    echo "                          - armeabi-v7a"
+    echo "                          - x86"
+    echo "                          - x86_64"
+    echo "--api                  --Android API level. Must be between 21 and 30. If not provided, the default value is 29"
     echo "--libpcap-include-dir  --libpcap header files directory"
     echo "--libpcap-lib-dir      --libpcap pre compiled lib directory. Please make sure libpcap was compiled with the"
     echo "                         same architecture and API level"
     echo "--help|-h              --Displays this help message and exits. No further actions are performed"\\n
     echo ""
+}
+
+function TRANSLATE_TARGET {
+    if [ "$1" == "arm64-v8a" ]; then
+        echo "aarch64-linux-android"
+        return 0
+    fi
+    if [ "$1" == "armeabi-v7a" ]; then
+        echo "armv7a-linux-androideabi"
+        return 0
+    fi
+    if [ "$1" == "x86" ]; then
+        echo "i686-linux-android"
+        return 0
+    fi
+    if [ "$1" == "x86_64" ]; then
+        echo "x86_64-linux-android"
+        return 0
+    fi
 }
 
 
@@ -49,7 +68,7 @@ eval set -- "$OPTS"
 # Android-specific variables
 NDK_PATH=""
 TARGET=""
-API=21
+API=29
 
 # initializing libpcap include/lib dirs to an empty string 
 LIBPCAP_INLCUDE_DIR=""
@@ -69,14 +88,14 @@ while true ; do
 
     # Target
     --target)
-        TARGET=$2
-        case "$TARGET" in
-        aarch64-linux-android|armv7a-linux-androideabi|i686-linux-android|x86_64-linux-android)
+        case "$2" in
+        arm64-v8a|armeabi-v7a|x86|x86_64)
             ;;
         *)
-            echo -e \\n"Target must be one of:\n- aarch64-linux-android\n- armv7a-linux-androideabi\n- i686-linux-android\n- x86_64-linux-android\nExisting...\n"
+            echo -e \\n"Target must be one of:\n- arm64-v8a\n- armeabi-v7a\n- x86\n- x86_64\nExisting...\n"
             exit 1
         esac
+        TARGET=$(TRANSLATE_TARGET $2)
         shift 2 ;;
 
     # API version
