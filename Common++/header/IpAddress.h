@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <string>
-
+#include <algorithm>
 
 /// @file
 
@@ -126,12 +126,9 @@ namespace pcpp
 	{
 		uint32_t addr;
 		memcpy(&addr, m_Bytes, sizeof(m_Bytes));
+		std::reverse((uint8_t*)(&addr), (uint8_t*)(&addr) + sizeof(addr));
 		return addr;
 	}
-
-
-
-
 
 	/**
 	 * @class IPv6Address
