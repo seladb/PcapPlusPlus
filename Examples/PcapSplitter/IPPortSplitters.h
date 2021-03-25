@@ -234,6 +234,32 @@ protected:
 	}
 
 	/**
+	 * An auxiliary method to indicate whether an IPv4/IPv6 source address is multicast or not
+	 */
+	bool isSrcIPMulticast(pcpp::Packet& packet)
+	{
+		if (packet.isPacketOfType(pcpp::IPv4))
+			return packet.getLayerOfType<pcpp::IPv4Layer>()->getSrcIpAddress().isMulticast();
+		else if (packet.isPacketOfType(pcpp::IPv6))
+			return packet.getLayerOfType<pcpp::IPv6Layer>()->getSrcIpAddress().isMulticast();
+		else
+			return false;
+	}
+
+	/**
+	 * An auxiliary method to indicate whether an IPv4/IPv6 dest address is multicast or not
+	 */
+	bool isDstIPMulticast(pcpp::Packet& packet)
+	{
+		if (packet.isPacketOfType(pcpp::IPv4))
+			return packet.getLayerOfType<pcpp::IPv4Layer>()->getDstIpAddress().isMulticast();
+		else if (packet.isPacketOfType(pcpp::IPv6))
+			return packet.getLayerOfType<pcpp::IPv6Layer>()->getDstIpAddress().isMulticast();
+		else
+			return false;
+	}
+
+	/**
 	 * An auxiliary method for replacing '.' and ':' in IPv4/IPv6 addresses with '-'
 	 */
 	std::string hyphenIP(std::string ipVal)
@@ -391,8 +417,9 @@ protected:
  * flow and we have the SYN packet - the server port is the dest port of the SYN packet 2) if it's a TCP flow and we only
  * have the SYN/ACK packet - the server port is the source port of the SYN/ACK packet 3) if it's a partial TCP flow and
  * we don't have the SYN or SYN/ACK packets, the server port will be determined by the port: the lower port is considered
- * the server side 4) if it's a UDP flow - the server port will be determined by the port: the lower port is considered
- * the server side
+ * the server side 4) if it's a UDP multicast flow - if the sourceIP is a multicast address, the dest port is considered
+ * as a server port, otherwise if the destIP is a multicast address, the source port is considered as a server port 5) if
+ * it's a UDP flow - the server port will be determined by the port: the lower port is considered as server port
  */
 class ServerPortSplitter : public IPPortSplitter
 {
@@ -417,7 +444,11 @@ protected:
 			return dstPort;
 		case SYN_ACK:
 			return srcPort;
-		// other TCP packet or UDP packet
+		case UDP:
+			if(isSrcIPMulticast(packet)) return dstPort;
+			else if(isDstIPMulticast(packet)) return srcPort;
+			else return std::min<uint16_t>(srcPort, dstPort);
+		// other TCP packet
 		default:
 			return std::min<uint16_t>(srcPort, dstPort);
 		}
@@ -436,9 +467,87 @@ protected:
 		case SYN_ACK:
 			res = srcPort;
 			break;
-		// other TCP packet or UDP packet
+		case UDP:
+			if(isSrcIPMulticast(packet)) res = dstPort;
+			else if(isDstIPMulticast(packet)) res = srcPort;
+			else res = std::min<uint16_t>(srcPort, dstPort);
+			 break;
+		// other TCP packet
 		default:
 			res = std::min<uint16_t>(srcPort, dstPort);
+			break;
+		}
+
+		std::ostringstream sstream;
+		sstream << res;
+		return prefix + sstream.str();
+	}
+};
+
+/**
+ * Splits a pcap file by server client (most of the time is similar to protocol). This means that all flows with a certain
+ * client port will be written to the same file. The client port for each flow is determined as follows: 1) if it's a TCP
+ * flow and we have the SYN packet - the client port is the source port of the SYN packet 2) if it's a TCP flow and we only
+ * have the SYN/ACK packet - the client port is the dest port of the SYN/ACK packet 3) if it's a partial TCP flow and
+ * we don't have the SYN or SYN/ACK packets, the server port will be determined by the port: the higher port is considered
+ * the client side 4) if it's a UDP multicast flow - if the sourceIP is a multicast address, the source port is considered
+ * as a client port, otherwise if the destIP is a multicast address, the dest port is considered as a client port 5) if
+ * it's a UDP flow - the client port will be determined by the port: the higher port is considered as client port
+ */
+class ClientPortSplitter : public IPPortSplitter
+{
+public:
+
+	/**
+	 * C'tor for this class, does nothing but calling its ancestor
+	 */
+	ClientPortSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
+
+protected:
+
+	/**
+	 * Implementation of the abstract method of IPPortSplitter. This method returns the client port for a certain flow
+	 * by the logic written at the description of this class
+	 */
+	uint32_t getValue(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	{
+		switch (packetType)
+		{
+		case SYN:
+			return srcPort;
+		case SYN_ACK:
+			return dstPort;
+		case UDP:
+			if(isSrcIPMulticast(packet)) return srcPort;
+			else if(isDstIPMulticast(packet)) return dstPort;
+			else return std::max<uint16_t>(srcPort, dstPort);
+		// other TCP packet
+		default:
+			return std::max<uint16_t>(srcPort, dstPort);
+		}
+	}
+
+	std::string getValueString(pcpp::Packet& packet, PacketType packetType, uint16_t srcPort, uint16_t dstPort)
+	{
+		std::string prefix = "client-port-";
+
+		uint16_t res = 0;
+		switch (packetType)
+		{
+		case SYN:
+			res = srcPort;
+			break;
+		case SYN_ACK:
+			res = dstPort;
+			break;
+		case UDP:
+			if(isSrcIPMulticast(packet)) res = srcPort;
+			else if(isDstIPMulticast(packet)) res = dstPort;
+			else res = std::max<uint16_t>(srcPort, dstPort);
+			break;
+		// other TCP packet
+		default:
+			res = std::max<uint16_t>(srcPort, dstPort);
 			break;
 		}
 

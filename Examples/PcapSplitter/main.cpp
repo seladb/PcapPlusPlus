@@ -88,6 +88,7 @@ static struct option PcapSplitterOptions[] =
 #define SPLIT_BY_IP_CLIENT     "client-ip"
 #define SPLIT_BY_IP_SERVER     "server-ip"
 #define SPLIT_BY_SERVER_PORT   "server-port"
+#define SPLIT_BY_CLIENT_PORT   "client-port"
 #define SPLIT_BY_2_TUPLE       "ip-src-dst"
 #define SPLIT_BY_5_TUPLE       "connection"
 #define SPLIT_BY_BPF_FILTER    "bpf-filter"
@@ -119,6 +120,8 @@ void printUsage()
 			"                                       the same server IP will be in the same file\n"
 			"                      'server-port'  - split files by server port, meaning all connections with\n"
 			"                                       the same server port will be in the same file\n"
+			"                      'client-port'  - split files by client port, meaning all connections with\n"
+			"                                       the same client port will be in the same file\n"
 			"                      'ip-src-dst'   - split files by IP src and dst (2-tuple), meaning all connections\n"
 			"                                       with the same IPs will be in the same file\n"
 			"                      'connection'   - split files by connection (5-tuple), meaning all packets\n"
@@ -305,6 +308,11 @@ int main(int argc, char* argv[])
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
 		splitter = new ServerPortSplitter(paramAsInt);
+	}
+	else if (method == SPLIT_BY_CLIENT_PORT)
+	{
+		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
+		splitter = new ClientPortSplitter(paramAsInt);
 	}
 	else if (method == SPLIT_BY_2_TUPLE)
 	{
