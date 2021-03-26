@@ -5,6 +5,10 @@
 
 #include "Layer.h"
 
+/**
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
 	/**

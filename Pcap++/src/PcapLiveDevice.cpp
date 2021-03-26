@@ -524,6 +524,7 @@ void PcapLiveDevice::stopCapture()
 	m_StopThread = true;
 	if (m_CaptureThreadStarted)
 	{
+		pcap_breakloop(m_PcapDescriptor);
 		LOG_DEBUG("Stopping capture thread, waiting for it to join...");
 		pthread_join(m_CaptureThread->pthread, NULL);
 		m_CaptureThreadStarted = false;

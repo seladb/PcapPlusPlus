@@ -61,7 +61,7 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 #ifdef PCPP_TESTS_DEBUG
 #include "pcap.h"
 
-void savePacketToPcap(Packet& packet, std::string fileName)
+void savePacketToPcap(pcpp::Packet& packet, std::string fileName)
 {
    pcap_t* pcap;
    pcap = pcap_open_dead(1, 65565);

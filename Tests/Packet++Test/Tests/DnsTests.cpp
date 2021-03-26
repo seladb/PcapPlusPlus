@@ -629,3 +629,123 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	PTF_ASSERT_FALSE(dnsLayer4->removeAdditionalRecord("blabla", false));
 	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), sizeof(pcpp::dnshdr), size);
 } // DnsLayerRemoveResourceTest
+
+
+
+PTF_TEST_CASE(DnsOverTcpParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dns_over_tcp_query.dat");
+	pcpp::Packet dnsPacket(&rawPacket1);
+
+	pcpp::DnsLayer* dnsLayer = dnsPacket.getLayerOfType<pcpp::DnsLayer>();
+	pcpp::DnsOverTcpLayer* dnsOverTcpLayer = dnsPacket.getLayerOfType<pcpp::DnsOverTcpLayer>();
+	PTF_ASSERT_NOT_NULL(dnsLayer);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1, size);
+	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x6165, hex);
+	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 42, u16);
+
+	pcpp::DnsQuery* query = dnsLayer->getFirstQuery();
+	PTF_ASSERT_NOT_NULL(query);
+	PTF_ASSERT_EQUAL(query->getName(), "cole-tech.net", string);
+	PTF_ASSERT_EQUAL(query->getDnsType(), pcpp::DNS_TYPE_AAAA, enum);
+	PTF_ASSERT_EQUAL(query->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
+
+	pcpp::DnsResource* additionalRecord = dnsLayer->getFirstAdditionalRecord();
+	PTF_ASSERT_EQUAL(additionalRecord->getDnsType(), pcpp::DNS_TYPE_OPT, enum);
+	PTF_ASSERT_EQUAL(additionalRecord->getName(), "", string);
+
+
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/dns_over_tcp_response.dat");
+	pcpp::Packet dnsPacket2(&rawPacket2);
+
+	dnsLayer = dnsPacket2.getLayerOfType<pcpp::DnsLayer>();
+	dnsOverTcpLayer = dnsPacket2.getLayerOfType<pcpp::DnsOverTcpLayer>();
+	PTF_ASSERT_NOT_NULL(dnsLayer);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 8, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1, size);
+	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x6165, hex);
+	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 1133, u16);
+
+	std::string expectedNames[8] = {
+		"net",
+		"net",
+		"A1RT98BS5QGC9NFI51S9HCI47ULJG6JH.net",
+		"A1RT98BS5QGC9NFI51S9HCI47ULJG6JH.net",
+		"QT8SCE02D5ONC5NBTQUNBEIDMFJE7GL8.net",
+		"QT8SCE02D5ONC5NBTQUNBEIDMFJE7GL8.net",
+		"EEQ3CIFFULOPN4J3E5MKEGKVDJKIGVBP.net",
+		"EEQ3CIFFULOPN4J3E5MKEGKVDJKIGVBP.net"
+	};
+
+	pcpp::DnsType expectedTypes[8] = {
+		pcpp::DNS_TYPE_SOA,
+		pcpp::DNS_TYPE_RRSIG,
+		pcpp::DNS_TYPE_NSEC3,
+		pcpp::DNS_TYPE_RRSIG,
+		pcpp::DNS_TYPE_NSEC3,
+		pcpp::DNS_TYPE_RRSIG,
+		pcpp::DNS_TYPE_NSEC3,
+		pcpp::DNS_TYPE_RRSIG
+	};
+
+	int i = 0;
+	for (pcpp::DnsResource* authority = dnsLayer->getFirstAuthority(); authority != NULL; authority = dnsLayer->getNextAuthority(authority))
+	{
+		PTF_ASSERT_EQUAL(authority->getName(), expectedNames[i], string);
+		PTF_ASSERT_EQUAL(authority->getDnsType(), expectedTypes[i], enum);
+		i++;
+	}
+
+
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/dns_over_tcp_answer.dat");
+	pcpp::Packet dnsPacket3(&rawPacket3);
+
+	dnsLayer = dnsPacket3.getLayerOfType<pcpp::DnsLayer>();
+	dnsOverTcpLayer = dnsPacket3.getLayerOfType<pcpp::DnsOverTcpLayer>();
+	PTF_ASSERT_NOT_NULL(dnsLayer);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 1, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 0, size);
+	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x38, hex);
+	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 44, u16);
+
+	pcpp::DnsResource* answer = dnsLayer->getFirstAnswer();
+	PTF_ASSERT_EQUAL(answer->getName(), "github.com", string);
+	PTF_ASSERT_EQUAL(answer->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress().toString(), "192.30.255.113", string);
+} // DnsOverTcpParsingTest
+
+
+
+PTF_TEST_CASE(DnsOverTcpCreationTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dns_over_tcp_answer2.dat");
+	pcpp::Packet dnsPacket(&rawPacket1);
+
+	dnsPacket.removeLayer(pcpp::DNS);
+
+	pcpp::DnsOverTcpLayer newDnsLayer;
+	newDnsLayer.getDnsHeader()->transactionID = htobe16(0x38);
+	newDnsLayer.getDnsHeader()->queryOrResponse = 1;
+	newDnsLayer.getDnsHeader()->recursionDesired = 1;
+	newDnsLayer.getDnsHeader()->recursionAvailable = 1;
+	newDnsLayer.addQuery("github.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN);
+	pcpp::IPv4DnsResourceData ipv4Answer("192.30.255.113");
+	newDnsLayer.addAnswer("github.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 32, &ipv4Answer);
+	dnsPacket.addLayer(&newDnsLayer);
+	dnsPacket.computeCalculateFields();
+
+	PTF_ASSERT_EQUAL(bufferLength1, dnsPacket.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_BUF_COMPARE(dnsPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+} // DnsOverTcpCreationTest

@@ -58,7 +58,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 			if (curOffsetInLayer + 2 > m_DnsLayer->m_DataLen || encodedNameLength > 255)
 				return encodedNameLength;
 
-			uint16_t offsetInLayer = (wordLength & 0x3f)*256 + (0xFF & encodedName[1]);
+			uint16_t offsetInLayer = (wordLength & 0x3f)*256 + (0xFF & encodedName[1]) + m_DnsLayer->m_OffsetAdjustment;
 			if (offsetInLayer < sizeof(dnshdr) || offsetInLayer >= m_DnsLayer->m_DataLen)
 			{
 				LOG_ERROR("DNS parsing error: name pointer is illegal");

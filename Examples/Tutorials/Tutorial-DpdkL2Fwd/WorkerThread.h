@@ -27,5 +27,5 @@ public:
 	void stop();
 
 	// get worker thread core ID
-	uint32_t getCoreId();
+	uint32_t getCoreId() const;
 };

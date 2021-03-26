@@ -12,48 +12,35 @@
 namespace pcpp
 {
 
+// ~~~~~~~~
+// DnsLayer
+// ~~~~~~~~
+
 DnsLayer::DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	: Layer(data, dataLen, prevLayer, packet)
 {
-	m_Protocol = DNS;
-	m_ResourceList = NULL;
-
-	m_FirstQuery = NULL;
-	m_FirstAnswer = NULL;
-	m_FirstAuthority = NULL;
-	m_FirstAdditional = NULL;
-
-	parseResources();
+	init(0, true);
 }
 
 DnsLayer::DnsLayer()
 {
-	const size_t headerLen = sizeof(dnshdr);
-	m_DataLen = headerLen;
-	m_Data = new uint8_t[headerLen];
-	memset(m_Data, 0, headerLen);
-	m_Protocol = DNS;
-
-	m_ResourceList = NULL;
-
-	m_FirstQuery = NULL;
-	m_FirstAnswer = NULL;
-	m_FirstAuthority = NULL;
-	m_FirstAdditional = NULL;
+	initNewLayer(0);
 }
 
 DnsLayer::DnsLayer(const DnsLayer& other) : Layer(other)
 {
-	m_Protocol = DNS;
+	init(other.m_OffsetAdjustment, true);
+}
 
-	m_ResourceList = NULL;
+DnsLayer::DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, size_t offsetAdjustment)
+	: Layer(data, dataLen, prevLayer, packet)
+{
+	init(offsetAdjustment, true);
+}
 
-	m_FirstQuery = NULL;
-	m_FirstAnswer = NULL;
-	m_FirstAuthority = NULL;
-	m_FirstAdditional = NULL;
-
-	parseResources();
+DnsLayer::DnsLayer(size_t offsetAdjustment)
+{
+	initNewLayer(offsetAdjustment);
 }
 
 DnsLayer& DnsLayer::operator=(const DnsLayer& other)
@@ -68,14 +55,7 @@ DnsLayer& DnsLayer::operator=(const DnsLayer& other)
 		curResource = temp;
 	}
 
-	m_ResourceList = NULL;
-
-	m_FirstQuery = NULL;
-	m_FirstAnswer = NULL;
-	m_FirstAuthority = NULL;
-	m_FirstAdditional = NULL;
-
-	parseResources();
+	init(other.m_OffsetAdjustment, true);
 
 	return (*this);
 }
@@ -89,6 +69,44 @@ DnsLayer::~DnsLayer()
 		delete curResource;
 		curResource = nextResource;
 	}
+}
+
+void DnsLayer::init(size_t offsetAdjustment, bool callParseResource)
+{
+	m_OffsetAdjustment = offsetAdjustment;
+	m_Protocol = DNS;
+	m_ResourceList = NULL;
+
+	m_FirstQuery = NULL;
+	m_FirstAnswer = NULL;
+	m_FirstAuthority = NULL;
+	m_FirstAdditional = NULL;
+
+	if (callParseResource)
+		parseResources();
+}
+
+
+void DnsLayer::initNewLayer(size_t offsetAdjustment)
+{
+	m_OffsetAdjustment = offsetAdjustment;
+	const size_t headerLen = getBasicHeaderSize();
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
+	memset(m_Data, 0, headerLen);
+
+	init(m_OffsetAdjustment, false);
+}
+
+size_t DnsLayer::getBasicHeaderSize()
+{
+	return sizeof(dnshdr) + m_OffsetAdjustment;
+}
+
+dnshdr* DnsLayer::getDnsHeader() const
+{
+	uint8_t* ptr = m_Data + m_OffsetAdjustment;
+	return (dnshdr*)ptr;
 }
 
 bool DnsLayer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend, IDnsResource* resource)
@@ -123,7 +141,7 @@ bool DnsLayer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten, IDnsR
 
 void DnsLayer::parseResources()
 {
-	size_t offsetInPacket = sizeof(dnshdr);
+	size_t offsetInPacket = getBasicHeaderSize();
 	IDnsResource* curResource = m_ResourceList;
 
 	uint16_t numOfQuestions = be16toh(getDnsHeader()->numberOfQuestions);
@@ -478,7 +496,7 @@ DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& n
 		return NULL;
 	}
 
-	size_t newResourceOffsetInLayer = sizeof(dnshdr);
+	size_t newResourceOffsetInLayer = getBasicHeaderSize();
 	IDnsResource* curResource = m_ResourceList;
 	while (curResource != NULL && curResource->getType() <= resType)
 	{
@@ -554,7 +572,7 @@ DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass 
 
 
 	// find the offset in the layer to insert the new query
-	size_t newQueryOffsetInLayer = sizeof(dnshdr);
+	size_t newQueryOffsetInLayer = getBasicHeaderSize();
 	DnsQuery* curQuery = getFirstQuery();
 	while (curQuery != NULL)
 	{
@@ -835,6 +853,26 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 	delete resourceToRemove;
 
 	return true;
+}
+
+
+// ~~~~~~~~~~~~~~~
+// DnsOverTcpLayer
+// ~~~~~~~~~~~~~~~
+
+uint16_t DnsOverTcpLayer::getTcpMessageLength()
+{
+	return be16toh(*(uint16_t*)m_Data);
+}
+
+void DnsOverTcpLayer::setTcpMessageLength(uint16_t value)
+{
+	((uint16_t*)m_Data)[0] = htobe16(value);
+}
+
+void DnsOverTcpLayer::computeCalculateFields()
+{
+	setTcpMessageLength(m_DataLen - sizeof(uint16_t));
 }
 
 } // namespace pcpp

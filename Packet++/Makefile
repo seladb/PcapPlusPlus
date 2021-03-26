@@ -50,9 +50,14 @@ ifdef LINUX
 INCLUDES += -I/usr/include/netinet
 endif
 
-Obj/%.o: src/%.cpp
+Obj/%.o: src/%.cpp Obj/%.d
 	@echo Building file: $<
-	@$(CXX) $(DEPS) $(INCLUDES) $(PCAPPP_BUILD_FLAGS) -c -fmessage-length=0 -MMD -MP -MF"$(@:Obj/%.o=Obj/%.d)" -MT"$(@:Obj/%.o=Obj/%.d)" -o "$@" "$<"
+	@$(CXX) $(DEPS) $(INCLUDES) $(PCAPPP_BUILD_FLAGS) -c -fmessage-length=0 -MMD -MP -MF "$(@:Obj/%.o=Obj/%.d)" -MT "$@" -o "$@" "$<"
+
+DEPFILES := $(OBJS_FILENAMES:Obj/%.o=Obj/%.d)
+$(DEPFILES):
+include $(wildcard $(DEPFILES))
+
 
 CUR_TARGET := $(notdir $(shell pwd))
 
