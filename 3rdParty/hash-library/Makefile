@@ -11,16 +11,9 @@ INCLUDES := -I"../EndianPortable/include"
 
 DEFS := -DUNIVERSAL -fPIC
 
-ifdef ANDROID_TOOLCHAIN
-FLAGS := --gcc-toolchain=$(ANDROID_TOOLCHAIN) --sysroot=$(ANDROID_TOOLCHAIN)/sysroot
-endif
-ifdef ANDROID_TARGET
-FLAGS += --target=$(ANDROID_TARGET)
-endif
-
 Obj/%.o: %.cpp
 	@echo Building file: $<
-	@$(CXX) $(FLAGS) $(INCLUDES) -Wall -O2 $(DEFS) -g -c -o "$@" "$<"
+	@$(CXX) $(INCLUDES) -Wall -O2 $(GLOBAL_FLAGS) $(DEFS) -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 
