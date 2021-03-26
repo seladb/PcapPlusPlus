@@ -469,38 +469,41 @@ namespace pcpp
 		 * @param[in] rawPacketsArr The array of RawPacket objects to send. This method treats all packets as read-only, it doesn't change anything
 		 * in them
 		 * @param[in] arrLength The length of the array
+		 * @param[in] checkMtu Whether to check the size of the packet payload against MTU size. Incurs a parsing overhead.
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
-		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
+		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu = false);
 
 		/**
 		 * Send an array of pointers to Packet objects to the network
 		 * @param[in] packetsArr The array of pointers to Packet objects to send. This method treats all packets as read-only, it doesn't change
 		 * anything in them
 		 * @param[in] arrLength The length of the array
+		 * @param[in] checkMtu Whether to check the size of the packet payload against MTU size.
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
-		virtual int sendPackets(Packet** packetsArr, int arrLength);
+		virtual int sendPackets(Packet** packetsArr, int arrLength, bool checkMtu = true);
 
 		/**
 		 * Send a vector of pointers to RawPacket objects to the network
 		 * @param[in] rawPackets The array of pointers to RawPacket objects to send. This method treats all packets as read-only, it doesn't change
 		 * anything in them
+		 * @param[in] checkMtu Whether to check the size of the packet payload against MTU size. Incurs a parsing overhead.
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
 		 * - Packet length is larger than device MTU
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
-		virtual int sendPackets(const RawPacketVector& rawPackets);
+		virtual int sendPackets(const RawPacketVector& rawPackets, bool checkMtu = false);
 
 
 		// implement abstract methods

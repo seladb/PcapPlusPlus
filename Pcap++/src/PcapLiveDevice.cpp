@@ -621,12 +621,12 @@ bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
 	return sendPacket(*rawPacket, false);
 }
 
-int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
+int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 {
 	int packetsSent = 0;
 	for (int i = 0; i < arrLength; i++)
 	{
-		if (sendPacket(rawPacketsArr[i]))
+		if (sendPacket(rawPacketsArr[i], checkMtu))
 			packetsSent++;
 	}
 
@@ -634,12 +634,12 @@ int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	return packetsSent;
 }
 
-int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength)
+int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
 {
 	int packetsSent = 0;
 	for (int i = 0; i < arrLength; i++)
 	{
-		if (sendPacket(packetsArr[i]))
+		if (sendPacket(packetsArr[i], checkMtu))
 			packetsSent++;
 	}
 
@@ -647,12 +647,12 @@ int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength)
 	return packetsSent;
 }
 
-int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets)
+int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 {
 	int packetsSent = 0;
 	for (RawPacketVector::ConstVectorIterator iter = rawPackets.begin(); iter != rawPackets.end(); iter++)
 	{
-		if (sendPacket(**iter))
+		if (sendPacket(**iter, checkMtu))
 			packetsSent++;
 	}
 
