@@ -639,7 +639,7 @@ PTF_TEST_CASE(TestMtuSize)
 
 	// Pad the small packet with extra bytes to fill it exactly to the MTU
 	size_t smallDataLen = liveDev->getMtu() - (smallIPLayer.getDataLen());
-	uint8_t smallData[smallDataLen];
+	uint8_t* smallData = new uint8_t[smallDataLen];
 	memset(smallData, 0xFF, smallDataLen);
 	pcpp::PayloadLayer smallPayload(smallData, smallDataLen, false);
 	smallPacket.addLayer(&smallPayload);
@@ -651,6 +651,7 @@ PTF_TEST_CASE(TestMtuSize)
 	// Try sending the packet
 	PTF_ASSERT_TRUE(liveDev->sendPacket(&smallPacket));
 	
+	delete[] smallData;
 
 	// Construct a packet larger than the MTU and assert that it doesn't send
 	pcpp::EthLayer largeEthernetLayer(liveDev->getMacAddress(), pcpp::MacAddress("aa:bb:cc:dd:ee:ff"));
@@ -666,7 +667,7 @@ PTF_TEST_CASE(TestMtuSize)
 
 	// Pad the large packet with extra bytes to fill it to 1 byte more than the MTU
 	size_t largeDataLen = liveDev->getMtu() - largeIPLayer.getDataLen() + 1;
-	uint8_t largeData[largeDataLen];
+	uint8_t* largeData = new uint8_t[largeDataLen];
 	memset(largeData, 0xFF, largeDataLen);
 	pcpp::PayloadLayer largePayload(largeData, largeDataLen, false);
 	largePacket.addLayer(&largePayload);
@@ -678,6 +679,8 @@ PTF_TEST_CASE(TestMtuSize)
 	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(liveDev->sendPacket(&largePacket));
 	pcpp::LoggerPP::getInstance().enableErrors();
+
+	delete[] largeData;
 } // TestMtuSize
 
 
