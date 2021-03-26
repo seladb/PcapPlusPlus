@@ -20,7 +20,7 @@ bool IPcapDevice::setFilter(std::string filterAsString)
 		return false;
 	}
 
-	struct bpf_program prog;
+	struct bpf_program prog = {};
 	LOG_DEBUG("Compiling the filter '%s'", filterAsString.c_str());
 	if (pcap_compile(m_PcapDescriptor, &prog, filterAsString.c_str(), 1, 0) < 0)
 	{
