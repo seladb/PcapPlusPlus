@@ -559,38 +559,35 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 }
 
-bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket)
-{
-	RawPacket *rPacket = (RawPacket *)&rawPacket;
-	Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
-	int payloadLength = (int)parsedPacket.getFirstLayer()->getLayerPayloadSize();
-
-	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen(), payloadLength);
-}
-
-bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
+bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
 {
 	if (packetPayloadLength > (int)m_DeviceMtu)
 	{
 		LOG_ERROR("Payload length [%d] is larger than device MTU [%d]\n", packetPayloadLength, (int)m_DeviceMtu);
 		return false;
 	}
-	// checkMtu has already been performed at this stage. Pass false to prevent looping
-	return sendPacket(packetData, packetDataLength, false);
+	return true;
 }
 
-bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu, pcpp::LinkLayerType linkLayerType)
+bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 {
-	// Perform Mtu check first since this method will be recursively called if checkMtu is true, and prevents repeated checks of other properties
 	if (checkMtu)
 	{
-		timeval time;
-		gettimeofday(&time, NULL);
-		
-		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkLayerType);
-		return sendPacket(rawPacket);
+		RawPacket *rPacket = (RawPacket *)&rawPacket;
+		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
+		return sendPacket(&parsedPacket, true);
 	}
+	// Send packet without Mtu check
+	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
+}
 
+bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
+{
+	return doMtuCheck(packetPayloadLength) && sendPacket(packetData, packetDataLength);
+}
+
+bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
+{
 	if (!m_DeviceOpened)
 	{
 		LOG_ERROR("Device '%s' not opened!", m_Name.c_str());
@@ -613,10 +610,15 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 	return true;
 }
 
-bool PcapLiveDevice::sendPacket(Packet* packet)
+bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
 {
 	RawPacket* rawPacket = packet->getRawPacket();
-	return sendPacket(*rawPacket);
+	if (checkMtu)
+	{
+		int packetPayloadLength = (int)packet->getFirstLayer()->getLayerPayloadSize();
+		return doMtuCheck(packetPayloadLength) && sendPacket(*rawPacket, false);
+	}
+	return sendPacket(*rawPacket, false);
 }
 
 int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
