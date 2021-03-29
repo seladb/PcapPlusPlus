@@ -78,7 +78,7 @@ task:
     - make all
   check_for_arm64_slice_script:
     - cd Dist && ALL_EXECUTABLES_WITHOUT_SYMLINKS=($(find . -perm +111 -type f)) && for EXECUTABLE in ${ALL_EXECUTABLES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $EXECUTABLE"; CHECK_ARCH=$(lipo $EXECUTABLE -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $EXECUTABLE"; exit 1; else echo "Found arm64 slice in $EXECUTABLE"; fi; done
-    - cd Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
+    - cd ../Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
 
 task:
   name: Build Doxygen Documentation
