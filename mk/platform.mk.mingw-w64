@@ -22,4 +22,8 @@ RM := rm.exe
 
 CP := cp.exe
 
+MV := mv.exe
+
+TOUCH := touch.exe
+
 MKDIR := mkdir.exe

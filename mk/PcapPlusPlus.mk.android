@@ -1,0 +1,7 @@
+ANDROID_TOOLCHAIN=$(ANDROID_NDK_PATH)/toolchains/llvm/prebuilt/linux-x86_64
+
+#flags
+PCAPPP_BUILD_FLAGS += --target=$(ANDROID_TARGET) --gcc-toolchain=$(ANDROID_TOOLCHAIN) --sysroot=$(ANDROID_TOOLCHAIN)/sysroot
+
+# libs
+PCAPPP_LIBS += -lpcap
