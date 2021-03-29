@@ -71,7 +71,7 @@ task:
 task:
   name: Test Apple Silicon (arm64) MacOS
   osx_instance:
-    image: big-sur-xcode
+    image: catalina-xcode
   configure_script:
     - ./configure-mac_os_x.sh --arm64
   build_script:
