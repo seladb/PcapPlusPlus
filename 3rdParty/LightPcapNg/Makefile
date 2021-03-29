@@ -15,7 +15,7 @@ DEFS := -DUNIVERSAL -fPIC
 
 Obj/%.o: LightPcapNg/src/%.c
 	@echo Building file: $<
-	@$(CC) $(INCLUDES) -Wall -O2 $(DEFS) $(MACOS_APPLE_SILICON_ARM64_BUILD_FLAGS) -g -c -o "$@" "$<"
+	@$(CC) $(INCLUDES) -Wall -O2 $(GLOBAL_FLAGS) $(DEFS) -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 

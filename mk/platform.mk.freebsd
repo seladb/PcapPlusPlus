@@ -20,6 +20,10 @@ RM := rm
 
 CP := cp
 
+MV := mv
+
+TOUCH := touch
+
 MAKE := gmake
 
 MKDIR := mkdir

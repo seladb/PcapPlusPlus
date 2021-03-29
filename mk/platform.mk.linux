@@ -14,11 +14,17 @@ ifeq ($(origin CC),default)
 CC := gcc
 endif
 
+ifeq ($(origin AR),default)
 AR := ar
+endif
 
 RM := rm
 
 CP := cp
+
+MV := mv
+
+TOUCH := touch
 
 MKDIR := mkdir
 

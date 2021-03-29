@@ -442,6 +442,10 @@ bool RawSocketDevice::open()
 
 #elif LINUX
 
+#if defined(ANDROID_API_VERSION) && ANDROID_API_VERSION < 24
+	LOG_ERROR("Raw sockets aren't supported in Android API < 24");
+	return false;
+#else
 	if (!m_InterfaceIP.isValid())
 	{
 		LOG_ERROR("IP address is not valid");
@@ -517,6 +521,7 @@ bool RawSocketDevice::open()
 	m_DeviceOpened = true;
 
 	return true;
+#endif // ANDROID_API_VERSION
 
 #else
 
