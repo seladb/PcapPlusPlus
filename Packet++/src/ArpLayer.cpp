@@ -31,6 +31,7 @@ void ArpLayer::computeCalculateFields()
 	arpHeader->hardwareSize = 6;
 	arpHeader->protocolType = htobe16(PCPP_ETHERTYPE_IP); //assume IPv4 over ARP
 	arpHeader->protocolSize = 4; //assume IPv4 over ARP
+	printf("test\n");
 	if (arpHeader->opcode == htobe16(ARP_REQUEST))
 		MacAddress::Zero.copyTo(arpHeader->targetMacAddr);
 }
