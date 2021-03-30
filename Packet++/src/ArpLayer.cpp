@@ -27,6 +27,7 @@ ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacA
 void ArpLayer::computeCalculateFields()
 {
 	arphdr* arpHeader = getArpHeader();
+	printf("test\n");
 	arpHeader->hardwareType = htobe16(1); //Ethernet
 	arpHeader->hardwareSize = 6;
 	arpHeader->protocolType = htobe16(PCPP_ETHERTYPE_IP); //assume IPv4 over ARP
