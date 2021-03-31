@@ -418,6 +418,7 @@ namespace pcpp
 		 * @param[in] rawPacket A reference to the raw packet to send. This method treats the raw packet as read-only, it doesn't change anything
 		 * in it
 		 * @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. If enabled this comes with a small performance penalty.
+		 * Default value is false to avoid performance overhead. Set to true if you don't know whether packets fit the live device's MTU and you can afford the overhead.
 		 * @return True if packet was sent successfully. False will be returned in the following cases (relevant log error is printed in any case):
 		 * - Device is not opened
 		 * - Packet length is 0
@@ -427,7 +428,10 @@ namespace pcpp
 		bool sendPacket(RawPacket const& rawPacket, bool checkMtu = false);
 
 		/**
-		 * Send a buffer containing packet raw data (including all layers) to the network
+		 * Send a buffer containing packet raw data (including all layers) to the network. 
+		 * This particular version of the sendPacket method should only be used if you already have access to the size of the network layer of the packet,
+		 * since it allows you to check the payload size (see packetPayloadLength parameter) MTU of the live device without incurring a parsing overhead.
+		 * If the packetPayloadLength is unknown, please use a different implementation of the sendPacket method. 
 		 * @param[in] packetData The buffer containing the packet raw data
 		 * @param[in] packetDataLength The length of the buffer (this is the entire packet, including link layer)
 		 * @param[in] packetPayloadLength The length of the payload for the data link layer. This includes all data apart from the header for the
@@ -448,14 +452,15 @@ namespace pcpp
 		 * - Device is not opened
 		 * - Packet length is 0
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
-		 * This method will not check the Mtu of the packet
+		 * This method will not check the MTU of the packet
 		 */
 		bool sendPacket(const uint8_t* packetData, int packetDataLength);
 
 		/**
 		 * Send a parsed Packet to the network
 		 * @param[in] packet A pointer to the packet to send. This method treats the packet as read-only, it doesn't change anything in it
-		 * @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. If enabled this comes with a small performance penalty.
+		 * @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. Default value is true, since the packet
+		 * being passed in has already been parsed, so checking the MTU does not incur significant processing overhead.
 		 * @return True if packet was sent successfully. False will be returned in the following cases (relevant log error is printed in any case):
 		 * - Device is not opened
 		 * - Packet length is 0
@@ -470,6 +475,7 @@ namespace pcpp
 		 * in them
 		 * @param[in] arrLength The length of the array
 		 * @param[in] checkMtu Whether to check the size of the packet payload against MTU size. Incurs a parsing overhead.
+		 * Default value is false to avoid performance overhead. Set to true if you don't know whether packets fit the live device's MTU and you can afford the overhead.
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
@@ -483,7 +489,8 @@ namespace pcpp
 		 * @param[in] packetsArr The array of pointers to Packet objects to send. This method treats all packets as read-only, it doesn't change
 		 * anything in them
 		 * @param[in] arrLength The length of the array
-		 * @param[in] checkMtu Whether to check the size of the packet payload against MTU size.
+		 * @param[in] checkMtu Whether to check the size of the packet payload against MTU size. Default value is true, since the packets
+		 * being passed in has already been parsed, so checking the MTU does not incur significant processing overhead.
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
@@ -497,6 +504,7 @@ namespace pcpp
 		 * @param[in] rawPackets The array of pointers to RawPacket objects to send. This method treats all packets as read-only, it doesn't change
 		 * anything in them
 		 * @param[in] checkMtu Whether to check the size of the packet payload against MTU size. Incurs a parsing overhead.
+		 * Default value is false to avoid performance overhead. Set to true if you don't know whether packets fit the live device's MTU and you can afford the overhead.
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
