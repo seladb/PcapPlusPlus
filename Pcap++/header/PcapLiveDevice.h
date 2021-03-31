@@ -448,13 +448,17 @@ namespace pcpp
 		 * Send a buffer containing packet raw data (including all layers) to the network
 		 * @param[in] packetData The buffer containing the packet raw data
 		 * @param[in] packetDataLength The length of the buffer
+		 * @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. If enabled this comes with a small performance penalty.
+		 * Default value is false to avoid performance overhead. Set to true if you don't know whether packets fit the live device's MTU and you can afford the overhead.
+		 * @param[in] linkType Only used if checkMtu is true. Defines the layer type for parsing the first layer of the packet. Used for parsing the packet to 
+		 * perform the MTU check. Default value is pcpp::LINKTYPE_ETHERNET. Ensure this parameter matches the linktype of the packet if checkMtu is true.
 		 * @return True if packet was sent successfully. False will be returned in the following cases (relevant log error is printed in any case):
 		 * - Device is not opened
 		 * - Packet length is 0
+		 * - Packet length is larger than device MTU and checkMtu is true
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
-		 * This method will not check the MTU of the packet
 		 */
-		bool sendPacket(const uint8_t* packetData, int packetDataLength);
+		bool sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu = false, pcpp::LinkLayerType linkType = pcpp::LINKTYPE_ETHERNET);
 
 		/**
 		 * Send a parsed Packet to the network
@@ -464,7 +468,7 @@ namespace pcpp
 		 * @return True if packet was sent successfully. False will be returned in the following cases (relevant log error is printed in any case):
 		 * - Device is not opened
 		 * - Packet length is 0
-		 * - Packet length is larger than device MTU (and checkMtu is true)
+		 * - Packet length is larger than device MTU and checkMtu is true
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		bool sendPacket(Packet* packet, bool checkMtu = true);
@@ -479,7 +483,7 @@ namespace pcpp
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
-		 * - Packet length is larger than device MTU
+		 * - Packet length is larger than device MTU and checkMtu is true
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu = false);
@@ -494,7 +498,7 @@ namespace pcpp
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
-		 * - Packet length is larger than device MTU
+		 * - Packet length is larger than device MTU and checkMtu is true
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		virtual int sendPackets(Packet** packetsArr, int arrLength, bool checkMtu = true);
@@ -508,7 +512,7 @@ namespace pcpp
 		 * @return The number of packets sent successfully. Sending a packet can fail if:
 		 * - Device is not opened. In this case no packets will be sent, return value will be 0
 		 * - Packet length is 0
-		 * - Packet length is larger than device MTU
+		 * - Packet length is larger than device MTU and checkMtu is true
 		 * - Packet could not be sent due to some error in libpcap/WinPcap/Npcap
 		 */
 		virtual int sendPackets(const RawPacketVector& rawPackets, bool checkMtu = false);

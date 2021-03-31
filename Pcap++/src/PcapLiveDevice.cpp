@@ -587,8 +587,17 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 	return doMtuCheck(packetPayloadLength) && sendPacket(packetData, packetDataLength);
 }
 
-bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
+bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu, pcpp::LinkLayerType linkType)
 {
+	if (checkMtu)
+	{
+		timeval time;
+		gettimeofday(&time, NULL);
+		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
+		Packet parsedPacket = Packet(&rawPacket, OsiModelDataLinkLayer);
+		return sendPacket(&parsedPacket, true);
+	}
+
 	if (!m_DeviceOpened)
 	{
 		LOG_ERROR("Device '%s' not opened!", m_Name.c_str());
