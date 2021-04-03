@@ -140,13 +140,12 @@ if [[ $MACOS_MINOR_VERSION -ge 14 ]]; then
    echo -e "MACOS_SDK_HOME := $MACOS_SDK_HOME\n" >> $PCAPPLUSPLUS_MK
 fi
 
-PCAPPLUSPLUS_MK_MACOSX="PcapPlusPlus.mk.macosx"
+cat mk/PcapPlusPlus.mk.macosx >> $PCAPPLUSPLUS_MK
 if [ -n "$BUILD_FOR_ARM64" ]; then
-   PCAPPLUSPLUS_MK_MACOSX="PcapPlusPlus.mk.macosx.arm64"
-   echo -e "GLOBAL_FLAGS := -arch arm64 -target arm64-apple-macos11 -isysroot $MACOS_SDK_HOME" >> $PLATFORM_MK
+   cat mk/PcapPlusPlus.mk.macosx.arm64 >> $PCAPPLUSPLUS_MK
+   echo -e "MACOS_SDK_HOME := $MACOS_SDK_HOME\n" >> $PLATFORM_MK
+   cat mk/platform.mk.macosx.arm64 >> $PLATFORM_MK
 fi
-
-cat "mk/$PCAPPLUSPLUS_MK_MACOSX" >> $PCAPPLUSPLUS_MK
 
 echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
 
