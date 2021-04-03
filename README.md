@@ -134,7 +134,7 @@ If you see any missing data please [contact us](#provide-feedback).
 
 ## Multi Platform Support
 
-PcapPlusPlus is currently supported on __Windows__, __Linux__, __MacOS__, __Android__ and __FreeBSD__. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/install/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
+PcapPlusPlus is currently supported on __Windows__, __Linux__, __MacOS__, __Android__ and __FreeBSD__. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
 ## Supported Network Protocols
 
@@ -192,6 +192,7 @@ We'd be more than happy to get feedback, please feel free to reach out to us in 
 
 - Open a GitHub ticket
 - Post a message in PcapPlusPlus Google group: <https://groups.google.com/d/forum/pcapplusplus-support>
+- Ask a question on Stack Overflow: <https://stackoverflow.com/questions/tagged/pcapplusplus>
 - Send an email to: <pcapplusplus@gmail.com>
 - Follow us on Twitter: <https://twitter.com/seladb>
 
