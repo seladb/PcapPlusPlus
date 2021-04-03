@@ -594,7 +594,7 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 		timeval time;
 		gettimeofday(&time, NULL);
 		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
-		Packet parsedPacket = Packet(&rawPacket, OsiModelDataLinkLayer);
+		Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
 		return sendPacket(&parsedPacket, true);
 	}
 
@@ -625,7 +625,19 @@ bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
 	RawPacket* rawPacket = packet->getRawPacket();
 	if (checkMtu)
 	{
-		int packetPayloadLength = (int)packet->getFirstLayer()->getLayerPayloadSize();
+		int packetPayloadLength = 0;
+		switch (packet->getFirstLayer()->getOsiModelLayer())
+		{
+			case (pcpp::OsiModelDataLinkLayer):
+				packetPayloadLength = (int)packet->getFirstLayer()->getLayerPayloadSize();
+				break;
+			case (pcpp::OsiModelNetworkLayer):
+				packetPayloadLength = (int)packet->getFirstLayer()->getDataLen();
+				break;
+			default:
+				// if packet layer is not known, do not perform MTU check.
+				return sendPacket(*rawPacket, false);
+		}
 		return doMtuCheck(packetPayloadLength) && sendPacket(*rawPacket, false);
 	}
 	return sendPacket(*rawPacket, false);
