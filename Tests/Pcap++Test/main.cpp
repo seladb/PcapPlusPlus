@@ -220,6 +220,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
 	PTF_RUN_TEST(TestSendPacket, "live_device;send");
 	PTF_RUN_TEST(TestSendPackets, "live_device;send");
+	PTF_RUN_TEST(TestMtuSize, "live_device;mtu");
 	PTF_RUN_TEST(TestRemoteCapture, "live_device;remote_capture;winpcap");
 
 	PTF_RUN_TEST(TestPcapFilters_MatchStatic, "no_network;filters;skip_mem_leak_check");

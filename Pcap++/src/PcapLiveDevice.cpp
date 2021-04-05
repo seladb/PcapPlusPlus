@@ -3,6 +3,7 @@
 #include "IpUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
+#include "Packet.h"
 #ifndef  _MSC_VER
 #include <unistd.h>
 #endif // ! _MSC_VER
@@ -559,13 +560,44 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 }
 
-bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket)
+bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
 {
+	if (packetPayloadLength > (int)m_DeviceMtu)
+	{
+		LOG_ERROR("Payload length [%d] is larger than device MTU [%d]\n", packetPayloadLength, (int)m_DeviceMtu);
+		return false;
+	}
+	return true;
+}
+
+bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
+{
+	if (checkMtu)
+	{
+		RawPacket *rPacket = (RawPacket *)&rawPacket;
+		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
+		return sendPacket(&parsedPacket, true);
+	}
+	// Send packet without Mtu check
 	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
 }
 
-bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
+bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
 {
+	return doMtuCheck(packetPayloadLength) && sendPacket(packetData, packetDataLength);
+}
+
+bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, bool checkMtu, pcpp::LinkLayerType linkType)
+{
+	if (checkMtu)
+	{
+		timeval time;
+		gettimeofday(&time, NULL);
+		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
+		Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
+		return sendPacket(&parsedPacket, true);
+	}
+
 	if (!m_DeviceOpened)
 	{
 		LOG_ERROR("Device '%s' not opened!", m_Name.c_str());
@@ -575,12 +607,6 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 	if (packetDataLength == 0)
 	{
 		LOG_ERROR("Trying to send a packet with length 0");
-		return false;
-	}
-
-	if (packetDataLength > (int)m_DeviceMtu)
-	{
-		LOG_ERROR("Packet length [%d] is larger than device MTU [%d]\n", packetDataLength, (int)m_DeviceMtu);
 		return false;
 	}
 
@@ -594,18 +620,35 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength)
 	return true;
 }
 
-bool PcapLiveDevice::sendPacket(Packet* packet)
+bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
 {
 	RawPacket* rawPacket = packet->getRawPacket();
-	return sendPacket(*rawPacket);
+	if (checkMtu)
+	{
+		int packetPayloadLength = 0;
+		switch (packet->getFirstLayer()->getOsiModelLayer())
+		{
+			case (pcpp::OsiModelDataLinkLayer):
+				packetPayloadLength = (int)packet->getFirstLayer()->getLayerPayloadSize();
+				break;
+			case (pcpp::OsiModelNetworkLayer):
+				packetPayloadLength = (int)packet->getFirstLayer()->getDataLen();
+				break;
+			default:
+				// if packet layer is not known, do not perform MTU check.
+				return sendPacket(*rawPacket, false);
+		}
+		return doMtuCheck(packetPayloadLength) && sendPacket(*rawPacket, false);
+	}
+	return sendPacket(*rawPacket, false);
 }
 
-int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
+int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool checkMtu)
 {
 	int packetsSent = 0;
 	for (int i = 0; i < arrLength; i++)
 	{
-		if (sendPacket(rawPacketsArr[i]))
+		if (sendPacket(rawPacketsArr[i], checkMtu))
 			packetsSent++;
 	}
 
@@ -613,12 +656,12 @@ int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	return packetsSent;
 }
 
-int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength)
+int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMtu)
 {
 	int packetsSent = 0;
 	for (int i = 0; i < arrLength; i++)
 	{
-		if (sendPacket(packetsArr[i]))
+		if (sendPacket(packetsArr[i], checkMtu))
 			packetsSent++;
 	}
 
@@ -626,12 +669,12 @@ int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength)
 	return packetsSent;
 }
 
-int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets)
+int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu)
 {
 	int packetsSent = 0;
 	for (RawPacketVector::ConstVectorIterator iter = rawPackets.begin(); iter != rawPackets.end(); iter++)
 	{
-		if (sendPacket(**iter))
+		if (sendPacket(**iter, checkMtu))
 			packetsSent++;
 	}
 
