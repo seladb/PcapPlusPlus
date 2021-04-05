@@ -26,6 +26,8 @@ function HELP {
    echo "                           the lib file in the default lib paths"
    echo "--use-zstd               --Use Zstd for pcapng files compression/decompression. This parameter is optional"
    echo ""
+   echo "--arm64                  --build for Apple Silicon (arm64 architecture)"
+   echo ""
    echo -e "-h|--help                --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
    echo -e "      $SCRIPT"
@@ -100,7 +102,12 @@ case $key in
    # use Zstd
    --use-zstd)
      USE_ZSTD=1
-     shift ;;     
+     shift ;;
+
+   # build for Apple Silicon (arm64 architecture)
+   --arm64)
+     BUILD_FOR_ARM64=1
+     shift ;;
 
    # help switch - display help and exit
    -h|--help)
@@ -126,13 +133,19 @@ cp -f mk/platform.mk.macosx $PLATFORM_MK
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
 
 # set SDK home if MacOS verion >= 10.14
+MACOS_SDK_HOME="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 MACOS_MINOR_VERSION=`(sw_vers -productVersion) | awk -F '.' '{print $2}'`
 if [[ $MACOS_MINOR_VERSION -ge 14 ]]; then
    echo -e "\n# setting SDK home for MacOS version >= 10.14" >> $PCAPPLUSPLUS_MK
-   echo -e "MACOS_SDK_HOME := /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk\n" >> $PCAPPLUSPLUS_MK
+   echo -e "MACOS_SDK_HOME := $MACOS_SDK_HOME\n" >> $PCAPPLUSPLUS_MK
 fi
 
 cat mk/PcapPlusPlus.mk.macosx >> $PCAPPLUSPLUS_MK
+if [ -n "$BUILD_FOR_ARM64" ]; then
+   cat mk/PcapPlusPlus.mk.macosx.arm64 >> $PCAPPLUSPLUS_MK
+   echo -e "MACOS_SDK_HOME := $MACOS_SDK_HOME\n" >> $PLATFORM_MK
+   cat mk/platform.mk.macosx.arm64 >> $PLATFORM_MK
+fi
 
 echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
 
