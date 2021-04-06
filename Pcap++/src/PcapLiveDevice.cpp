@@ -727,6 +727,13 @@ void PcapLiveDevice::setDeviceMtu()
 		{
 			/* copy value from driver */
 			memcpy(&mtuValue, oidData->Data, oidData->Length);
+			// Sometimes the query gives a wrong number that includes the link header size
+			// A very common value is 1514 - if identify this value just reduce to 1500.
+			// TODO: think of a better way to always get the right value
+			if (mtuValue == 1514)
+			{
+				mtuValue = 1500;
+			}
 			m_DeviceMtu = mtuValue;
 		}
 		else
@@ -740,6 +747,7 @@ void PcapLiveDevice::setDeviceMtu()
 	{
 		LOG_ERROR("Error in retrieving MTU: PacketRequest failed");
 	}
+	printf("NAME is: %s\n", m_Name.c_str());
 
 #else
 	struct ifreq ifr;
