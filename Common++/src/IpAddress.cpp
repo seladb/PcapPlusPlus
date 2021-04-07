@@ -1,7 +1,6 @@
 #define LOG_MODULE CommonLogModuleIpUtils
 
 #include <errno.h>
-
 #include "Logger.h"
 #include "IpUtils.h"
 #include "IpAddress.h"
@@ -18,6 +17,9 @@ namespace pcpp
 	const IPv4Address IPv4Address::Zero;
 	const IPv6Address IPv6Address::Zero;
 
+	const IPv4Address IPv4Address::MulticastRangeLowerBound("224.0.0.0");
+	const IPv4Address IPv4Address::MulticastRangeUpperBound("239.255.255.255");
+	const IPv6Address IPv6Address::MulticastRangeLowerBound("ff00:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0");
 
 	std::string IPv4Address::toString() const
 	{
@@ -29,6 +31,10 @@ namespace pcpp
 		return std::string();
 	}
 
+	bool IPv4Address::isMulticast() const
+	{
+		return !operator<(MulticastRangeLowerBound) && (operator<(MulticastRangeUpperBound) || operator==(MulticastRangeUpperBound));
+	}
 
 	IPv4Address::IPv4Address(const std::string& addrAsString)
 	{
@@ -58,8 +64,6 @@ namespace pcpp
 		return thisAddrAfterMask == subnetAddrAfterMask;
 	}
 
-
-
 	std::string IPv6Address::toString() const
 	{
 		char addrBuffer[INET6_ADDRSTRLEN];
@@ -70,6 +74,10 @@ namespace pcpp
 		return std::string();
 	}
 
+	bool IPv6Address::isMulticast() const
+	{
+		return !operator<(MulticastRangeLowerBound);
+	}
 
 	IPv6Address::IPv6Address(const std::string& addrAsString)
 	{
