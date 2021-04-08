@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <string>
-
+#include <algorithm>
 
 /// @file
 
@@ -81,7 +81,16 @@ namespace pcpp
 		/**
 		 * Overload of the less-than operator
 		 */
-		bool operator<(const IPv4Address& rhs) const { return toInt() < rhs.toInt(); }
+		bool operator<(const IPv4Address& rhs) const
+		{
+			uint32_t intVal = toInt();
+			std::reverse((uint8_t*)(&intVal), (uint8_t*)(&intVal) + sizeof(intVal));
+
+			uint32_t rhsIntVal = rhs.toInt();
+			std::reverse((uint8_t*)(&rhsIntVal), (uint8_t*)(&rhsIntVal) + sizeof(rhsIntVal));
+
+			return intVal < rhsIntVal;
+		}
 
 		/**
 		 * Overload of the not-equal-to operator
@@ -128,10 +137,6 @@ namespace pcpp
 		memcpy(&addr, m_Bytes, sizeof(m_Bytes));
 		return addr;
 	}
-
-
-
-
 
 	/**
 	 * @class IPv6Address
