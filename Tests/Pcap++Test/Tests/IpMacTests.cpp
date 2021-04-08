@@ -92,12 +92,14 @@ PTF_TEST_CASE(TestIPAddress)
 
 	/* Test less-than comparison operator */
 	pcpp::IPv4Address IpV4_1("1.1.1.1");
-	pcpp::IPv4Address IpV4_2("1.1.1.1");
-	pcpp::IPv4Address IpV4_3("1.1.1.2");
+	pcpp::IPv4Address IpV4_2("212.0.0.1");
+	pcpp::IPv4Address IpV4_3("224.0.0.0");
+	pcpp::IPv4Address IpV4_4("224.0.0.0");
 
-	PTF_ASSERT_FALSE(IpV4_1 < IpV4_2);
+	PTF_ASSERT_TRUE(IpV4_1 < IpV4_2);
 	PTF_ASSERT_TRUE(IpV4_1 < IpV4_3);
-	PTF_ASSERT_FALSE(IpV4_3 < IpV4_1);
+	PTF_ASSERT_TRUE(IpV4_2 < IpV4_3);
+	PTF_ASSERT_FALSE(IpV4_3 < IpV4_4);
 
 	pcpp::IPv6Address ipv6Address("2001:db8::2:1");
 	pcpp::IPv6Address ipv6AddressLong("2001:db8:0:0:0:0:2:1");

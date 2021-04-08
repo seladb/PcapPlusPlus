@@ -15,7 +15,7 @@ DEFS := -DUNIVERSAL -fPIC
 
 Obj/%.o: LightPcapNg/src/%.c
 	@echo Building file: $<
-	@$(CC) $(INCLUDES) -Wall -O2 $(DEFS) -g -c -o "$@" "$<"
+	@$(CC) $(INCLUDES) -Wall -O2 $(GLOBAL_FLAGS) $(DEFS) -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 

@@ -1,5 +1,5 @@
 name: Build and test
-on: [push]
+on: [push, pull_request]
 
 jobs:
   linux:
@@ -167,6 +167,38 @@ jobs:
         cd Examples/Tutorials/Tutorial-HelloWorld
         make -f Makefile.non_windows all
         ./Tutorial-HelloWorld
+        
+  macos-apple-silicon-arm64:
+    runs-on: ${{ matrix.os-version }}
+    strategy:
+      matrix:
+        os-version: [macos-10.15]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8.x'
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-mac_os_x.sh --arm64
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Check for arm64 slice in executables
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Dist && ALL_EXECUTABLES_WITHOUT_SYMLINKS=($(find . -perm +111 -type f)) && for EXECUTABLE in ${ALL_EXECUTABLES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $EXECUTABLE"; CHECK_ARCH=$(lipo $EXECUTABLE -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $EXECUTABLE"; exit 1; else echo "Found arm64 slice in $EXECUTABLE"; fi; done
+
+    - name: Check for arm64 slice in libraries
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
 
   mingw:
     runs-on: windows-latest
@@ -325,3 +357,58 @@ jobs:
         cd Tests\ExamplesTest
         python -m pip install -r requirements.txt
         python -m pytest
+
+  android:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        target: [armeabi-v7a, arm64-v8a, x86, x86_64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Checkout lipbcap for Android
+      uses: actions/checkout@main
+      with:
+        repository: seladb/libpcap-android
+        path: ./libpcap-android
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
+        API_VERSION=29
+        LIBPCAP_PATH=$(pwd)/libpcap-android
+        TARGET=${{ matrix.target }}
+        ./configure-android.sh --ndk-path $NDK_ROOT --target $TARGET --api $API_VERSION --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/$TARGET/$API_VERSION
+  
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Checkout ToyVpn-PcapPlusPlus
+      uses: actions/checkout@master
+      with:
+        repository: seladb/ToyVpn-PcapPlusPlus
+        path: ./ToyVpn-PcapPlusPlus
+        submodules: true
+
+    - name: Copy PcapPlusPlus libs to ToyVpn-PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        TOYVPN_LIBS=./ToyVpn-PcapPlusPlus/app/libs
+        API_VERSION=29
+        PCAPPLUSPLUS_LIBS_PATH=$TOYVPN_LIBS/pcapplusplus/${{ matrix.target }}/$API_VERSION
+        PCAPPLUSPLUS_INCLUDE_PATH=$TOYVPN_LIBS/pcapplusplus/include
+        mkdir -p $PCAPPLUSPLUS_LIBS_PATH
+        mkdir -p $PCAPPLUSPLUS_INCLUDE_PATH
+        cp Dist/*.a $PCAPPLUSPLUS_LIBS_PATH/
+        cp -R Dist/header/* $PCAPPLUSPLUS_INCLUDE_PATH/
+
+    - name: Build ToyVpn-PcapPlusPlus
+      working-directory: ./ToyVpn-PcapPlusPlus
+      run: |
+        sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+        chmod +x gradlew
+        ./gradlew assembleDebug

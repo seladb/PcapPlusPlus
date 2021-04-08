@@ -1,0 +1,5 @@
+### MAC OS X ###
+
+# Apple Silicon (arm64) specific build flags
+CXXFLAGS += -arch arm64 -target arm64-apple-macos11 -isysroot $(MACOS_SDK_HOME)
+PCAPPP_BUILD_FLAGS += $(CXXFLAGS)

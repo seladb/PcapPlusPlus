@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #ifdef LINUX
-#include <in.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
 #ifdef MAC_OS_X
