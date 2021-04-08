@@ -285,8 +285,10 @@ protected:
  * file. The client IP for each flow is determined as follows: 1) if it's a TCP flow and we have the SYN packet - the
  * client IP is the source IP of the SYN packet 2) if it's a TCP flow and we only have the SYN/ACK packet - the
  * client IP is the dest IP of the SYN/ACK packet 3) if it's a partial TCP flow and don't have the SYN or SYN/ACK packets,
- * the client IP will be determined by the port: the higher port is considered the client side 4) if it's a UDP flow -
- * the client IP will be determined by the port: the higher port is considered the client side
+ * the client IP will be determined by the port: the higher port is considered the client side 4) if it's a UDP multicast
+ * flow - the client IP will be determined by the port: the port corresponding to the multicast address is the client side
+ * 5) If it's a non-multicast UDP flow - the client IP will be determined by the port: the higher port is considered the
+ * client side
  */
 class ClientIPSplitter : public IPPortSplitter
 {
@@ -311,7 +313,11 @@ protected:
 			return getSrcIPValue(packet);
 		case SYN_ACK:
 			return getDstIPValue(packet);
-		// other TCP packet or UDP packet
+		case UDP:
+			if(isSrcIPMulticast(packet)) return getSrcIPValue(packet);
+			else if(isDstIPMulticast(packet)) return getDstIPValue(packet);
+			else return srcPort >= dstPort ? getSrcIPValue(packet) : getDstIPValue(packet);
+		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
 				return getSrcIPValue(packet);
@@ -330,7 +336,11 @@ protected:
 			return prefix + hyphenIP(getSrcIPString(packet));
 		case SYN_ACK:
 			return prefix + hyphenIP(getDstIPString(packet));
-		// other TCP packet or UDP packet
+		case UDP:
+			if(isSrcIPMulticast(packet)) return prefix + hyphenIP(getSrcIPString(packet));
+			else if(isDstIPMulticast(packet)) return prefix + hyphenIP(getDstIPString(packet));
+			else return srcPort >= dstPort ? prefix + hyphenIP(getSrcIPString(packet)) : prefix + hyphenIP(getDstIPString(packet));
+		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
 				return prefix + hyphenIP(getSrcIPString(packet));
@@ -347,8 +357,10 @@ protected:
  * file. The server IP for each flow is determined as follows: 1) if it's a TCP flow and we have the SYN packet - the
  * server IP is the dest IP of the SYN packet 2) if it's a TCP flow and we only have the SYN/ACK packet - the
  * server IP is the source IP of the SYN/ACK packet 3) if it's a partial TCP flow and don't have the SYN or SYN/ACK packets,
- * the server IP will be determined by the port: the lower port is considered the server side 4) if it's a UDP flow -
- * the server IP will be determined by the port: the lower port is considered the server side
+ * the server IP will be determined by the port: the lower port is considered the server side 4) if it's a multicast UDP flow -
+ * the server IP will be determined by the port: the port corresponding to the non-multicast address is consdered as server side
+ * 5) if i's a non-multicast UDP flow - the server IP will be determined by the port: the lower port is considered the
+ * server side
  */
 class ServerIPSplitter : public IPPortSplitter
 {
@@ -373,7 +385,11 @@ protected:
 			return getDstIPValue(packet);
 		case SYN_ACK:
 			return getSrcIPValue(packet);
-		// other TCP packet or UDP packet
+		case UDP:
+			if(isSrcIPMulticast(packet)) return getDstIPValue(packet);
+			else if(isDstIPMulticast(packet)) return getSrcIPValue(packet);
+			else return srcPort >= dstPort ? getDstIPValue(packet) : getSrcIPValue(packet);
+		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
 				return getDstIPValue(packet);
@@ -392,7 +408,11 @@ protected:
 			return prefix + hyphenIP(getDstIPString(packet));
 		case SYN_ACK:
 			return prefix + hyphenIP(getSrcIPString(packet));
-		// other TCP packet or UDP packet
+		case UDP:
+			if(isSrcIPMulticast(packet)) return prefix + hyphenIP(getDstIPString(packet));
+			else if(isDstIPMulticast(packet)) return prefix + hyphenIP(getSrcIPString(packet));
+			else return srcPort >= dstPort ? prefix + hyphenIP(getDstIPString(packet)) : prefix + hyphenIP(getSrcIPString(packet));
+		// other TCP packet
 		default:
 			if (srcPort >= dstPort)
 				return prefix + hyphenIP(getDstIPString(packet));
