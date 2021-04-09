@@ -70,7 +70,7 @@ class TestPcapSplitter(ExampleTest):
 			'-m': 'server-ip'
 		}
 		self.run_example(args=args)
-		assert len(os.listdir(tmpdir)) == 61
+		assert len(os.listdir(tmpdir)) == 60
 		for filename in os.listdir(tmpdir):
 			packets = rdpcap(os.path.join(tmpdir, filename))
 			if os.path.splitext(filename)[0].endswith('miscellaneous'):

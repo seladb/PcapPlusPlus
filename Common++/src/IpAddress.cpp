@@ -19,7 +19,7 @@ namespace pcpp
 
 	const IPv4Address IPv4Address::MulticastRangeLowerBound("224.0.0.0");
 	const IPv4Address IPv4Address::MulticastRangeUpperBound("239.255.255.255");
-	const IPv6Address IPv6Address::MulticastRangeLowerBound("ff00:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0");
+	const IPv6Address IPv6Address::MulticastRangeLowerBound("ff00:0000:0000:0000:0000:0000:0000:0000");
 
 	std::string IPv4Address::toString() const
 	{
