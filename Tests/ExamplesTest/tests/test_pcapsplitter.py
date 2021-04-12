@@ -110,6 +110,25 @@ class TestPcapSplitter(ExampleTest):
 					assert (packet.haslayer(TCP) and (packet[TCP].sport == server_port or packet[TCP].dport == server_port)) or \
 							(packet.haslayer(UDP) and (packet[UDP].sport == server_port or packet[UDP].dport == server_port)) 
 
+	def test_split_by_client_port(self, tmpdir):
+		args = {
+			'-f': os.path.join('pcap_examples', 'many-protocols.pcap'),
+			'-o': tmpdir,
+			'-m': 'client-port'
+		}
+		self.run_example(args=args)
+		assert len(os.listdir(tmpdir)) == 254
+		for filename in os.listdir(tmpdir):
+			packets = rdpcap(os.path.join(tmpdir, filename))
+			if os.path.splitext(filename)[0].endswith('miscellaneous'):
+				for packet in packets:
+					assert not packet.haslayer(TCP) and not packet.haslayer(UDP)
+			else:
+				client_port = int(os.path.splitext(filename)[0][27:])
+				for packet in packets:
+					assert (packet.haslayer(TCP) and (packet[TCP].sport == client_port or packet[TCP].dport == client_port)) or \
+						(packet.haslayer(UDP) and (packet[UDP].sport == client_port or packet[UDP].dport == client_port))
+
 	def test_split_by_ip_src_dst(self, tmpdir):
 		args = {
 			'-f': os.path.join('pcap_examples', 'many-protocols.pcap'),
