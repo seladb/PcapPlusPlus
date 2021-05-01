@@ -78,7 +78,9 @@ IFileReaderDevice* IFileReaderDevice::getReader(const std::string& fileName)
 {
 	const char* fileExtension = strrchr(fileName.c_str(), '.');
 
-	if (fileExtension != NULL && strcmp(fileExtension, ".pcapng") == 0)
+	if (fileExtension != NULL
+		&& (strcmp(fileExtension, ".pcapng") == 0
+		|| strcmp(fileExtension, ".zstd") == 0))
 		return new PcapNgFileReaderDevice(fileName);
 
 	return new PcapFileReaderDevice(fileName);
