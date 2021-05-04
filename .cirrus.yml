@@ -6,7 +6,7 @@ task:
       image_family: freebsd-12-1-snap
   update_script: IGNORE_OSVERSION=yes pkg update -f
   install_script: 
-    - pkg install -y libpcap bash gsed gmake py37-pip
+    - pkg install -y libpcap bash gsed gmake py38-pip
     - python -m pip install -r Tests/ExamplesTest/requirements.txt
   configure_script:
     - ./configure-freebsd.sh --default
