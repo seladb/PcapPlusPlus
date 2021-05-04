@@ -747,7 +747,6 @@ void PcapLiveDevice::setDeviceMtu()
 	{
 		LOG_ERROR("Error in retrieving MTU: PacketRequest failed");
 	}
-	printf("NAME is: %s\n", m_Name.c_str());
 
 #else
 	struct ifreq ifr;
