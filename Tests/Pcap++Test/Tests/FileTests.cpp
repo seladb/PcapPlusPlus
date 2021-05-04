@@ -619,6 +619,13 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	FileReaderTeardown genericReaderTeardown2(genericReader);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
 
+	genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE_PCAPNG_ZSTD_WRITE_PATH);
+	FileReaderTeardown genericReaderTeardown3(genericReader);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
+	PTF_ASSERT_TRUE(genericReader->open());
+
+	genericReader->close();
+
 	// -------
 
 	pcpp::PcapNgFileReaderDevice readerDev5(EXAMPLE2_PCAPNG_PATH);
