@@ -321,8 +321,7 @@ jobs:
 
     - name: Set Zstd
       run: |
-        choco list zstandard --local-only --trace
-        echo "ZSTD_HOME_PARAM=-z C:\ProgramData\chocolatey\lib\zstandard\tools" >> $env:GITHUB_ENV
+        echo "ZSTD_HOME_PARAM=-z C:\tools\zstd" >> $env:GITHUB_ENV
       if: matrix.use_zstd == true
 
     - name: Configure PcapPlusPlus
