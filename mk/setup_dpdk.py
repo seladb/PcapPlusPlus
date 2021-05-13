@@ -1166,10 +1166,14 @@ def main():
     load_device_data()
     args = parse_args()
     init_logger(args)
-    settings = Settings.load(_SETTINGS_FILE)
+    settings_file_full_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        _SETTINGS_FILE,
+    )
+    settings = Settings.load(settings_file_full_path)
     try:
         args.func(args, settings)
-        settings.save(_SETTINGS_FILE)
+        settings.save(settings_file_full_path)
     except:  # pylint:disable=bare-except
         pass
 
