@@ -54,9 +54,6 @@ ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \
 			-I$(PCAP_SDK_HOME)/Include
 endif
-ifdef LINUX
-INCLUDES += -I/usr/include/netinet
-endif
 ifdef PF_RING_HOME
 INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
 endif
