@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include "PcapPlusPlusVersion.h"
-#include "../PcppTestFramework/PcppTestFrameworkRun.h"
+#include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
 
 

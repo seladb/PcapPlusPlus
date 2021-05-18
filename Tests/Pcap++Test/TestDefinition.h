@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../PcppTestFramework/PcppTestFramework.h"
+#include "PcppTestFramework.h"
 
 // Implemented in IpMac.cpp
 PTF_TEST_CASE(TestIPAddress);
