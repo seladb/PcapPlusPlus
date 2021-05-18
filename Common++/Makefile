@@ -43,9 +43,6 @@ ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \
 			-I$(PCAP_SDK_HOME)/Include
 endif
-ifdef LINUX
-INCLUDES += -I/usr/include/netinet
-endif
 ifdef MAC_OS_X
 INCLUDES += -I$(MACOS_SDK_HOME)/usr/include/malloc
 endif
