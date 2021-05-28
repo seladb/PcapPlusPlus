@@ -39,7 +39,7 @@ namespace pcpp
 		/**
 		 * An abstract destructor
 		 */
-		virtual ~IPLayer() = default;
+		virtual ~IPLayer();
 	};
 }
 
