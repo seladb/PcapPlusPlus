@@ -2,7 +2,7 @@
 #define PCPP_TEST_FRAMEWORK
 
 #include <stdio.h>
-#include "../../3rdParty/MemPlumber/MemPlumber/memplumber.h"
+#include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
 #ifdef PCAPPP_MINGW_ENV

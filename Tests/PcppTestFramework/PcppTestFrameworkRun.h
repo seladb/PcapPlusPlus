@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include "../../3rdParty/MemPlumber/MemPlumber/memplumber.h"
+#include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
 static void __ptfSplitString(const std::string& input, std::vector<std::string>& result)
