@@ -37,9 +37,9 @@ namespace pcpp
 		virtual IPAddress getDstIPAddress() const = 0;
 		
 		/**
-		 * An abstract destructor
+		 * An empty destructor
 		 */
-		virtual ~IPLayer();
+		virtual ~IPLayer() {}
 	};
 }
 
