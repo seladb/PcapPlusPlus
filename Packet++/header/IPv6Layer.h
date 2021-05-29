@@ -127,6 +127,19 @@ namespace pcpp
 		IPv6Address getSrcIPv6Address() const { return getIPv6Header()->ipSrc; }
 
 		/**
+		 * Set the source IP address
+		 * @param[in] ipAddr The IP address to set
+		 */
+		void setSrcIPv6Address(const IPv6Address& ipAddr) { ipAddr.copyTo(getIPv6Header()->ipSrc); }
+
+
+		/**
+		 * Set the dest IP address
+		 * @param[in] ipAddr The IP address to set
+		 */
+		void setDstIPv6Address(const IPv6Address& ipAddr) { ipAddr.copyTo(getIPv6Header()->ipDst); }
+
+		/**
 		 * Get the destination IP address in the form of IPAddress. This method is very similar to getDstIPv6Address(),
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the destination address

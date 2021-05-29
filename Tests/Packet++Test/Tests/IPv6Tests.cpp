@@ -61,6 +61,13 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_EQUAL(ip6UdpPacketNew.getRawPacket()->getRawDataLen(), bufferLength1, int);
 	PTF_ASSERT_BUF_COMPARE(ip6UdpPacketNew.getRawPacket()->getRawData(), buffer1, bufferLength1);
 
+	pcpp::IPv6Layer ipv6LayerEmpty;
+	ipv6LayerEmpty.setSrcIPv6Address(srcIP);
+	PTF_ASSERT_EQUAL(ipv6LayerEmpty.getSrcIPv6Address(), srcIP, object);
+
+	ipv6LayerEmpty.setDstIPv6Address(dstIP);
+	PTF_ASSERT_EQUAL(ipv6LayerEmpty.getDstIPv6Address(), dstIP, object);
+
 	delete[] payloadData;
 } // IPv6UdpPacketParseAndCreate
 
