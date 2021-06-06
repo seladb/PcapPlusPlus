@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <mutex>
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are 
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
@@ -45,6 +46,7 @@
 #endif
 
 static const int DEFAULT_SNAPLEN = 9000;
+std::mutex liveCaptureMutex;
 
 namespace pcpp
 {
@@ -148,6 +150,7 @@ void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pk
 
 void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
+	const std::lock_guard<std::mutex> lock(liveCaptureMutex);
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
 	if (pThis == NULL)
 	{
