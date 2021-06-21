@@ -414,7 +414,7 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 		timestamp += epb->timestamp_low;
 		double timestamp_res = pcapng->file_info->timestamp_resolution[epb->interface_id];
 		uint64_t packet_secs = timestamp * timestamp_res;
-		if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE && packet_secs != 0)
+		if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
 		{
 			packet_header->timestamp.tv_sec = packet_secs;
 			packet_header->timestamp.tv_nsec =
@@ -514,7 +514,7 @@ void light_write_packet(light_pcapng_t *pcapng, const light_packet_header *packe
 	if (sizeof(packet_header->timestamp.tv_sec) < sizeof(packet_secs))
 		packet_secs = 0x00000000FFFFFFFF & packet_secs;
 
-	if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE && packet_secs != 0)
+	if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
 		timestamp = packet_secs * (uint64_t)1000000000 + (uint64_t)packet_header->timestamp.tv_nsec;
 	else
 		timestamp = 0;
