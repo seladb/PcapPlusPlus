@@ -23,9 +23,9 @@ namespace pcpp
 		#pragma pack(push, 1)
 		struct mpls_header
 		{
-			uint16_t    hiLabel;
-			uint8_t		misc;
-			uint8_t		ttl;
+			uint16_t hiLabel;
+			uint8_t  misc;
+			uint8_t  ttl;
 		};
 		#pragma pack(pop)
 

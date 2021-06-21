@@ -36,7 +36,7 @@ void MplsLayer::setBottomOfStack(bool val)
 	if (!val)
 		getMplsHeader()->misc &= 0xFE;
 	else
-		getMplsHeader()->misc |= 0xFF;
+		getMplsHeader()->misc |= 0x1;
 }
 
 uint8_t MplsLayer::getExperimentalUseValue() const
@@ -138,7 +138,7 @@ void MplsLayer::computeCalculateFields()
 	Layer* nextLayer = getNextLayer();
 	if (nextLayer != NULL)
 	{
-		setBottomOfStack((nextLayer->getProtocol() == MPLS));
+		setBottomOfStack((nextLayer->getProtocol() != MPLS));
 	}
 }
 
