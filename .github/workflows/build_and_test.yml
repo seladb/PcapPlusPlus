@@ -399,7 +399,7 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         TOYVPN_LIBS=./ToyVpn-PcapPlusPlus/app/libs
-        API_VERSION=29
+        API_VERSION=30
         PCAPPLUSPLUS_LIBS_PATH=$TOYVPN_LIBS/pcapplusplus/${{ matrix.target }}/$API_VERSION
         PCAPPLUSPLUS_INCLUDE_PATH=$TOYVPN_LIBS/pcapplusplus/include
         mkdir -p $PCAPPLUSPLUS_LIBS_PATH
