@@ -284,7 +284,8 @@ void IPv6Layer::computeCalculateFields()
 		case ICMP:
 			nextHeader = PACKETPP_IPPROTO_ICMP;
 			break;
-		case GRE:
+		case GREv0:
+		case GREv1:
 			nextHeader = PACKETPP_IPPROTO_GRE;
 			break;
 		default:
