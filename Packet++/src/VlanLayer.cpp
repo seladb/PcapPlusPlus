@@ -98,6 +98,30 @@ void VlanLayer::parseNextLayer()
 	}
 }
 
+void VlanLayer::computeCalculateFields()
+{
+	if (m_NextLayer == NULL)
+		return;
+
+	switch (m_NextLayer->getProtocol())
+	{
+	case IPv4:
+		getVlanHeader()->etherType = htobe16(PCPP_ETHERTYPE_IP);
+		break;
+	case IPv6:
+		getVlanHeader()->etherType = htobe16(PCPP_ETHERTYPE_IPV6);
+		break;
+	case ARP:
+		getVlanHeader()->etherType = htobe16(PCPP_ETHERTYPE_ARP);
+		break;
+	case VLAN:
+		getVlanHeader()->etherType = htobe16(PCPP_ETHERTYPE_VLAN);
+		break;
+	default:
+		return;
+	}
+}
+
 std::string VlanLayer::toString() const
 {
 	std::ostringstream cfiStream;

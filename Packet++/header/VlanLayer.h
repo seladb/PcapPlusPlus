@@ -55,9 +55,9 @@ namespace pcpp
 		 * @param[in] vlanID VLAN ID
 		 * @param[in] cfi CFI value
 		 * @param[in] priority Priority value
-		 * @param[in] etherType Protocol EtherType of the next layer
+		 * @param[in] etherType Protocol EtherType of the next layer. It's an optional parameter, a value of 0 will be set if not provided
 		 */
-		VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t etherType);
+		VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t etherType = 0);
 
 		~VlanLayer() {}
 
@@ -122,9 +122,9 @@ namespace pcpp
 		size_t getHeaderLen() const { return sizeof(vlan_header); }
 
 		/**
-		 * Does nothing for this layer
+		 * Calculate the EtherType for known protocols: IPv4, IPv6, ARP, VLAN
 		 */
-		void computeCalculateFields() {}
+		void computeCalculateFields();
 
 		std::string toString() const;
 
