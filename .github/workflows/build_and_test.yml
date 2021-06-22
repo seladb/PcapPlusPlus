@@ -379,7 +379,7 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
-        API_VERSION=29
+        API_VERSION=30
         LIBPCAP_PATH=$(pwd)/libpcap-android
         TARGET=${{ matrix.target }}
         ./configure-android.sh --ndk-path $NDK_ROOT --target $TARGET --api $API_VERSION --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/$TARGET/$API_VERSION
@@ -399,7 +399,7 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         TOYVPN_LIBS=./ToyVpn-PcapPlusPlus/app/libs
-        API_VERSION=29
+        API_VERSION=30
         PCAPPLUSPLUS_LIBS_PATH=$TOYVPN_LIBS/pcapplusplus/${{ matrix.target }}/$API_VERSION
         PCAPPLUSPLUS_INCLUDE_PATH=$TOYVPN_LIBS/pcapplusplus/include
         mkdir -p $PCAPPLUSPLUS_LIBS_PATH
