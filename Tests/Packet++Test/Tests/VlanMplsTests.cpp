@@ -7,6 +7,7 @@
 #include "VlanLayer.h"
 #include "MplsLayer.h"
 #include "VxlanLayer.h"
+#include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 
@@ -123,6 +124,28 @@ PTF_TEST_CASE(MplsLayerTest)
 	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(mplsLayer->setMplsLabel(0xFFFFFF));
 	pcpp::LoggerPP::getInstance().enableErrors();
+
+	// create a new packet with MPLS
+	pcpp::EthLayer eth1(*mplsPacket2.getLayerOfType<pcpp::EthLayer>());
+	pcpp::MplsLayer mpls1(5000, 254, 0, true);
+	pcpp::MplsLayer mpls2(18, 254, 0, true);
+	pcpp::EthLayer eth2(*mplsPacket2.getLayerOfType<pcpp::EthLayer>());
+	pcpp::PayloadLayer payload("00000000");
+	pcpp::Packet newMplsPacket;
+	newMplsPacket.addLayer(&eth1);
+	newMplsPacket.addLayer(&mpls1);
+	newMplsPacket.addLayer(&mpls2);
+	newMplsPacket.addLayer(&payload);
+	newMplsPacket.addLayer(&eth2);
+	newMplsPacket.computeCalculateFields();
+	mplsLayer = newMplsPacket.getLayerOfType<pcpp::MplsLayer>();
+	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 5000, u32);
+	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0, u8);
+	PTF_ASSERT_FALSE(mplsLayer->isBottomOfStack());
+	mplsLayer = newMplsPacket.getNextLayerOfType<pcpp::MplsLayer>(mplsLayer);
+	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 18, u32);
+	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0, u8);
+	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
 } // MplsLayerTest
 
 
