@@ -54,6 +54,7 @@ void EthLayer::parseNextLayer()
 		m_NextLayer = new ArpLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PCPP_ETHERTYPE_VLAN:
+	case PCPP_ETHERTYPE_IEEE_802_1AD:
 		m_NextLayer = new VlanLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PCPP_ETHERTYPE_PPPOES:

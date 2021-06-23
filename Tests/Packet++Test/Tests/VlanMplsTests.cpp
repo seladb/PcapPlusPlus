@@ -67,6 +67,31 @@ PTF_TEST_CASE(VlanParseAndCreation)
 } // VlanParseAndCreation
 
 
+
+PTF_TEST_CASE(QinQ802_1adParse)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/QinQ_802.1_AD.dat");
+	pcpp::Packet qinq8021adPacket(&rawPacket1);
+
+	pcpp::VlanLayer* firstVlanLayerPtr = qinq8021adPacket.getLayerOfType<pcpp::VlanLayer>();
+	PTF_ASSERT_NOT_NULL(firstVlanLayerPtr);
+	pcpp::VlanLayer* secondVlanLayerPtr = qinq8021adPacket.getNextLayerOfType<pcpp::VlanLayer>(firstVlanLayerPtr);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getVlanID(), 30, u16);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getCFI(), 0, u8);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getPriority(), 0, u8);
+	PTF_ASSERT_NOT_NULL(secondVlanLayerPtr);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getVlanID(), 100, u16);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getCFI(), 0, u8);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getPriority(), 0, u8);
+	PTF_ASSERT_NOT_NULL(secondVlanLayerPtr->getNextLayer());
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
+} // QinQ802_1adParse
+
+
+
 PTF_TEST_CASE(MplsLayerTest)
 {
 	timeval time;

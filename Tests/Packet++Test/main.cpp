@@ -108,6 +108,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
 
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
+	PTF_RUN_TEST(QinQ802_1adParse, "vlan");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
 	PTF_RUN_TEST(VxlanParsingAndCreationTest, "vxlan");
 
