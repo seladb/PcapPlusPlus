@@ -10,14 +10,35 @@ jobs:
        include:
          - image: ubuntu2004
            python: python3
+           build: make all
+         - image: ubuntu2004
+           python: python3
+           build: cmake -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
          - image: ubuntu1804
            python: python3.8
+           build: make all
+         - image: ubuntu1804
+           python: python3.8
+           build: cmake -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
          - image: ubuntu1604
            python: python3.8
+           build: make all
+         - image: ubuntu1604
+           python: python3.8
+           build: cmake -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
          - image: centos7
            python: python3.8
+           build: make all
+        # CentOS 7 don't have recent CMake
+        # - image: centos7
+        #   python: python3.8
+        #   build: cmake -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
          - image: fedora29
            python: python3
+           build: make all
+         - image: fedora29
+           python: python3
+           build: cmake -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
 
     steps:
     - name: Checkout code
@@ -29,7 +50,7 @@ jobs:
 
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: make all
+      run: ${{ matrix.build }}
 
     - name: Test Packet++
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -64,7 +85,19 @@ jobs:
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
-        image: [ubuntu1804-dpdk1911, ubuntu1604-dpdk1811, ubuntu1604-dpdk1711]
+       include:
+         - image: ubuntu1804-dpdk1911
+           build: make all
+         - image: ubuntu1804-dpdk1911
+           build: cmake -DPCAPPP_USE_DPDK=ON -D DPDK_HOME="/dpdk/build" -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
+         - image: ubuntu1604-dpdk1811
+           build: make all
+         - image: ubuntu1604-dpdk1811
+           build: cmake -DPCAPPP_USE_DPDK=ON -D DPDK_HOME="/dpdk/build" -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
+         - image: ubuntu1604-dpdk1711
+           build: make all
+         - image: ubuntu1604-dpdk1711
+           build: cmake -DPCAPPP_USE_DPDK=ON -D DPDK_HOME="/dpdk/build" -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
 
     steps:
     - name: Checkout code
@@ -76,7 +109,7 @@ jobs:
 
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: make all
+      run: ${{ matrix.build }}
 
     - name: Test Packet++
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -93,6 +126,11 @@ jobs:
   pfring:
     runs-on: ubuntu-20.04
     container: seladb/ubuntu1604-pfring
+    strategy:
+      matrix:
+       include:
+         - build: make all
+         - build: cmake -DPCAPPP_USE_PF_RING=ON -D PF_RING_HOME="/PF_RING" -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON . && make all
 
     steps:
     - name: Checkout code
@@ -104,7 +142,7 @@ jobs:
 
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: make all
+      run: ${{ matrix.build }}
 
     - name: Test Packet++
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -167,7 +205,7 @@ jobs:
         cd Examples/Tutorials/Tutorial-HelloWorld
         make -f Makefile.non_windows all
         ./Tutorial-HelloWorld
-        
+
   macos-apple-silicon-arm64:
     runs-on: ${{ matrix.os-version }}
     strategy:
@@ -383,7 +421,7 @@ jobs:
         LIBPCAP_PATH=$(pwd)/libpcap-android
         TARGET=${{ matrix.target }}
         ./configure-android.sh --ndk-path $NDK_ROOT --target $TARGET --api $API_VERSION --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/$TARGET/$API_VERSION
-  
+
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: make all
