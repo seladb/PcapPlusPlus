@@ -116,7 +116,9 @@ void GreLayer::computeCalculateFieldsInner()
 		case PPP_PPTP:
 			header->protocol = htobe16(PCPP_ETHERTYPE_PPP);
 			break;
-
+		case Ethernet:
+			header->protocol = htobe16(PCPP_ETHERTYPE_ETHBRIDGE);
+			break;
 		default:
 			break;
 		}
