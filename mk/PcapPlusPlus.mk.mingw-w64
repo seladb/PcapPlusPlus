@@ -10,4 +10,4 @@ PCAPPP_LIBS_DIR += -L$(PCAP_SDK_HOME)/lib -L$(PCAP_SDK_HOME)/lib/x64 -L$(MINGW_H
 PCAPPP_LIBS += -lwpcap -lPacket -lpthread -lws2_32 -liphlpapi
 
 # flags
-PCAPPP_BUILD_FLAGS += -static -static-libgcc -static-libstdc++
+PCAPPP_BUILD_FLAGS += -std=gnu++11 -static -static-libgcc -static-libstdc++
