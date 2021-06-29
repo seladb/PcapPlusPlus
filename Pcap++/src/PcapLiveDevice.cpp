@@ -45,6 +45,7 @@
 #endif
 
 static const int DEFAULT_SNAPLEN = 9000;
+pthread_mutex_t lock;
 
 namespace pcpp
 {
@@ -148,6 +149,8 @@ void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pk
 
 void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
+	pthread_mutex_lock(&lock);
+
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
 	if (pThis == NULL)
 	{
@@ -159,6 +162,8 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_
 	memcpy(packetData, packet, pkthdr->caplen);
 	RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
 	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
+	
+	pthread_mutex_unlock(&lock);
 }
 
 void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
