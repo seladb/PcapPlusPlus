@@ -38,6 +38,8 @@ function HELP {
    echo "                           the lib file in the default lib paths"
    echo "--use-zstd               --Use Zstd for pcapng files compression/decompression. This parameter is optional"
    echo ""
+   echo "--musl                   --Musl base destination platform: i.e. Alpine. This parameter is optional"
+   echo ""
    echo -e "-h|--help                --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
    echo -e "      $SCRIPT --default"
@@ -123,7 +125,7 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,set-direction-enabled,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,use-zstd -- "$@"`
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,set-direction-enabled,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,use-zstd,musl -- "$@"`
 
    # if user put an illegal switch - print HELP and exit
    if [ $? -ne 0 ]; then
@@ -199,6 +201,11 @@ else
        # use Zstd
        --use-zstd)
          USE_ZSTD=1
+         shift ;;
+
+      # use Musl
+       --musl)
+         MUSL=1
          shift ;;
 
        # help switch - display help and exit
@@ -330,6 +337,10 @@ fi
 if [ -n "$USE_ZSTD" ]; then
    echo -e "DEFS += -DUSE_Z_STD" > 3rdParty/LightPcapNg/zstd.mk
    cat mk/PcapPlusPlus.mk.zstd >> $PCAPPLUSPLUS_MK
+fi
+
+if [ -n "$MUSL" ]; then
+   echo -e "DEFS += -DMUSL" > 3rdParty/MemPlumber/musl.mk
 fi
 
 # non-default libpcap include dir

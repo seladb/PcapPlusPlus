@@ -6,6 +6,8 @@ include ../../mk/platform.mk
 
 include Makefile.defs
 
+-include musl.mk
+
 %.o: %.cpp
 	@echo Building MemPlumber file: $<
 	@$(CC) $(GLOBAL_FLAGS) -Wall -O2 -g -c -o "$@" "$<"
