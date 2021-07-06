@@ -10,7 +10,7 @@ include Makefile.defs
 
 %.o: %.cpp
 	@echo Building MemPlumber file: $<
-	@$(CC) $(GLOBAL_FLAGS) -Wall -O2 -g -c -o "$@" "$<"
+	@$(CC) $(GLOBAL_FLAGS) $(DEFS) -Wall -O2 -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 
