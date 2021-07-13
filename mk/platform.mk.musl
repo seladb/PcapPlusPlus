@@ -1,0 +1,2 @@
+# musl specific build flags
+GLOBAL_FLAGS := -DMUSL
