@@ -340,7 +340,7 @@ if [ -n "$USE_ZSTD" ]; then
 fi
 
 if [ -n "$MUSL" ]; then
-   echo -e "DEFS += -DMUSL" > 3rdParty/MemPlumber/musl.mk
+   cat mk/platform.mk.musl >> $PCAPPLUSPLUS_MK
 fi
 
 # non-default libpcap include dir
