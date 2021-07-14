@@ -38,8 +38,6 @@ mk/PcapPlusPlus.mk
 mk/platform.mk
 mk/PcapPlusPlus.mk-e
 3rdParty/LightPcapNg/zstd.mk
-3rdParty/MemPlumber/musl.mk
-
 
 #auto generated files
 install.sh
