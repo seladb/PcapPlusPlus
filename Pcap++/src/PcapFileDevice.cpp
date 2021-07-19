@@ -132,7 +132,11 @@ bool PcapFileReaderDevice::open()
 	}
 
 	char errbuf[PCAP_ERRBUF_SIZE];
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_PcapDescriptor = pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf);
+#else
+    m_PcapDescriptor = pcap_open_offline(m_FileName.c_str(), errbuf);
+#endif
 	if (m_PcapDescriptor == NULL)
 	{
 		LOG_ERROR("Cannot open file reader device for filename '%s': %s", m_FileName.c_str(), errbuf);
@@ -183,7 +187,11 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 
 	uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 	memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
 	timespec ts = { pkthdr.ts.tv_sec, pkthdr.ts.tv_usec }; //because we opened with nano second precision 'tv_usec' is actually nanos
+#else
+    struct timeval ts = pkthdr.ts;
+#endif
 	if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType), pkthdr.len))
 	{
 		LOG_ERROR("Couldn't set data to raw packet");
