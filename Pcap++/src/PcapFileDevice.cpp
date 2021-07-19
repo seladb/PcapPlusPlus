@@ -135,7 +135,7 @@ bool PcapFileReaderDevice::open()
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_PcapDescriptor = pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf);
 #else
-    m_PcapDescriptor = pcap_open_offline(m_FileName.c_str(), errbuf);
+	m_PcapDescriptor = pcap_open_offline(m_FileName.c_str(), errbuf);
 #endif
 	if (m_PcapDescriptor == NULL)
 	{
@@ -190,7 +190,7 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 	timespec ts = { pkthdr.ts.tv_sec, pkthdr.ts.tv_usec }; //because we opened with nano second precision 'tv_usec' is actually nanos
 #else
-    struct timeval ts = pkthdr.ts;
+	struct timeval ts = pkthdr.ts;
 #endif
 	if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType), pkthdr.len))
 	{
