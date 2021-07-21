@@ -7,6 +7,8 @@ task:
   update_script: IGNORE_OSVERSION=yes pkg update -f
   install_script: 
     - pkg install -y libpcap bash gsed gmake py38-pip
+    - python -V
+    - python -m ensurepip
     - python -m pip install -r Tests/ExamplesTest/requirements.txt
   configure_script:
     - ./configure-freebsd.sh --default
