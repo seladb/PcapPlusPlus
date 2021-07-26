@@ -42,6 +42,7 @@ TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* use
 	m_MaxNumToClean = (config.removeConnInfo == true && config.maxNumToClean == 0) ? 30 : config.maxNumToClean;
 	m_MaxOutOfOrderFragments = config.maxOutOfOrderFragments;
 	m_PurgeTimepoint = time(NULL) + PURGE_FREQ_SECS;
+	m_EnableBaseBufferClearCondtion = config.enableBaseBufferClearCondtion;
 }
 
 
@@ -159,6 +160,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 	}
 
+	timeval timestampOfTheRecievedPacket = timespecToTimeval(tcpData.getRawPacket()->getPacketTimeStamp());
 	int8_t sideIndex = -1;
 	bool first = false;
 
@@ -249,8 +251,12 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	//
 	// I'm aware that there are edge cases where the situation I described above is not true, but at some point we must clean the out-of-order packet list to avoid memory leak.
 	// I decided to do what Wireshark does and clean this list when starting to see a message from the other side
-	if (!first && tcpPayloadSize > 0 && tcpReassemblyData->prevSide != -1 && tcpReassemblyData->prevSide != sideIndex &&
-			tcpReassemblyData->twoSides[tcpReassemblyData->prevSide].tcpFragmentList.size() > 0)
+
+	//Since there are instances where this buffer clear condition can lead to declaration of excessive missing packets. Hence user sjould have a config file paraameter 
+	// to disable this and purely rely on max buffer size condition. As none of them are perfect solutions this will givee a little more control over it. 
+
+	if (m_EnableBaseBufferClearCondtion && !first && tcpPayloadSize > 0 && tcpReassemblyData->prevSide != -1 && tcpReassemblyData->prevSide != sideIndex &&
+		tcpReassemblyData->twoSides[tcpReassemblyData->prevSide].tcpFragmentList.size() > 0)
 	{
 		LOG_DEBUG("Seeing a first data packet from a different side. Previous side was %d, current side is %d", tcpReassemblyData->prevSide, sideIndex);
 		checkOutOfOrderFragments(tcpReassemblyData, tcpReassemblyData->prevSide, true);
@@ -273,7 +279,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// send data to the callback
 		if (tcpPayloadSize != 0 && m_OnMessageReadyCallback != NULL)
 		{
-			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData);
+			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData, timestampOfTheRecievedPacket);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
 		status = TcpMessageHandled;
@@ -308,7 +314,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 			// send only the new data to the callback
 			if (m_OnMessageReadyCallback != NULL)
 			{
-				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, 0, tcpReassemblyData->connData);
+				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, 0, tcpReassemblyData->connData, timestampOfTheRecievedPacket);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
 			status = TcpMessageHandled;
@@ -359,7 +365,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// send the data to the callback
 		if (m_OnMessageReadyCallback != NULL)
 		{
-			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData);
+			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData,timestampOfTheRecievedPacket);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
 		status = TcpMessageHandled;
@@ -403,6 +409,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		newTcpFrag->data = new uint8_t[tcpPayloadSize];
 		newTcpFrag->dataLength = tcpPayloadSize;
 		newTcpFrag->sequence = sequence;
+		newTcpFrag->timestamp = timestampOfTheRecievedPacket;
 		memcpy(newTcpFrag->data, tcpLayer->getLayerPayload(), tcpPayloadSize);
 		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
@@ -493,7 +500,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 						if (m_OnMessageReadyCallback != NULL)
 						{
-							TcpStreamData streamData(curTcpFrag->data, curTcpFrag->dataLength, 0, tcpReassemblyData->connData);
+							TcpStreamData streamData(curTcpFrag->data, curTcpFrag->dataLength, 0, tcpReassemblyData->connData, curTcpFrag->timestamp);
 							m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 						}
 					}
@@ -528,7 +535,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 						// send only the new data to the callback
 						if (m_OnMessageReadyCallback != NULL)
 						{
-							TcpStreamData streamData(curTcpFrag->data + newLength, curTcpFrag->dataLength - newLength, 0, tcpReassemblyData->connData);
+							TcpStreamData streamData(curTcpFrag->data + newLength, curTcpFrag->dataLength - newLength, 0, tcpReassemblyData->connData, curTcpFrag->timestamp);
 							m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 						}
 
@@ -614,7 +621,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 					dataWithMissingDataText.insert(dataWithMissingDataText.end(), curTcpFrag->data, curTcpFrag->data + curTcpFrag->dataLength);
 
 					//TcpStreamData streamData(curTcpFrag->data, curTcpFrag->dataLength, tcpReassemblyData->connData);
-					TcpStreamData streamData(&dataWithMissingDataText[0], dataWithMissingDataText.size(), missingDataLen, tcpReassemblyData->connData);
+					TcpStreamData streamData(&dataWithMissingDataText[0], dataWithMissingDataText.size(), missingDataLen, tcpReassemblyData->connData, curTcpFrag->timestamp);
 					m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 
 					LOG_DEBUG("Found missing data on side %d: %d byte are missing. Sending the closest fragment which is in size %d + missing text message which size is %d",
