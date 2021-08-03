@@ -39,11 +39,18 @@ From [Homebrew](https://formulae.brew.sh/formula/pcapplusplus):
 brew install pcapplusplus
 ```
 
-From [Conan](https://bintray.com/bincrafters/public-conan/pcapplusplus%3Abincrafters):
+From [Vcpkg](https://github.com/microsoft/vcpkg/tree/master/ports/pcapplusplus):
 
-```shell
-conan remote add public-conan https://api.bintray.com/conan/bincrafters/public-conan
-conan install pcapplusplus/20.08@bincrafters/stable -r public-conan
+Windows:
+
+```text
+.\vcpkg install pcapplusplus
+```
+
+MacOS/Linux:
+
+```text
+vcpkg install pcapplusplus
 ```
 
 From GitHub release page:
