@@ -29,17 +29,21 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
 
 ## Download
 
-You can choose between downloading pre-compiled binaries and build PcapPlusPlus yourself. For more details please visit the [Download](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
+You can choose between downloading from GitHub release page, use a package manager or build PcapPlusPlus yourself. For more details please visit the [Download](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
 
-### Pre Compiled Binaries
+### GitHub Release Page
 
-From [Homebrew](https://formulae.brew.sh/formula/pcapplusplus):
+<https://github.com/seladb/PcapPlusPlus/releases/latest>
+
+### Homebrew
 
 ```shell
 brew install pcapplusplus
 ```
 
-From [Vcpkg](https://github.com/microsoft/vcpkg/tree/master/ports/pcapplusplus):
+Homebrew formulae: <https://formulae.brew.sh/formula/pcapplusplus>
+
+### Vcpkg
 
 Windows:
 
@@ -53,9 +57,15 @@ MacOS/Linux:
 vcpkg install pcapplusplus
 ```
 
-From GitHub release page:
+Vcpkg port: <https://github.com/microsoft/vcpkg/tree/master/ports/pcapplusplus>
 
-<https://github.com/seladb/PcapPlusPlus/releases/latest>
+### Conan
+
+```text
+conan install pcapplusplus/21.05@
+```
+
+The package in ConanCenter: <https://conan.io/center/pcapplusplus>
 
 ### Build It Yourself
 
