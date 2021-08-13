@@ -1101,7 +1101,12 @@ uint16_t SSLExtension::getTotalLength() const
 
 uint8_t* SSLExtension::getData() const
 {
-	return getExtensionStruct()->extensionData;
+	if (getLength() > 0)
+	{
+		return getExtensionStruct()->extensionData;
+	}
+
+	return NULL;
 }
 
 
@@ -1295,7 +1300,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	size_t minSSLExtentionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
+	size_t minSSLExtentionLen = 2*sizeof(uint16_t);
 	while ((curPos - extensionPos) < (int)extensionLength 
 		&& (curPos - m_Data) < (int)messageLen 
 		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtentionLen)
