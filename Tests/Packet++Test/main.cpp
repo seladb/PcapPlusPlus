@@ -174,6 +174,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(GreEditTest, "gre");
 
 	PTF_RUN_TEST(SSLClientHelloParsingTest, "ssl");
+	PTF_RUN_TEST(SSLExtensionWithZeroSizeTest, "ssl");
 	PTF_RUN_TEST(SSLAppDataParsingTest, "ssl");
 	PTF_RUN_TEST(SSLAlertParsingTest, "ssl");
 	PTF_RUN_TEST(SSLMultipleRecordParsingTest, "ssl");

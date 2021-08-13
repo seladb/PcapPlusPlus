@@ -165,6 +165,30 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 
 
 
+PTF_TEST_CASE(SSLExtensionWithZeroSizeTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls_zero_size_ext.dat");
+
+	pcpp::Packet clientHelloPacket(&rawPacket1);
+
+	pcpp::SSLHandshakeLayer* handshakeLayer = clientHelloPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
+	PTF_ASSERT_NOT_NULL(handshakeLayer);
+	pcpp::SSLClientHelloMessage* clientHelloMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+	PTF_ASSERT_NOT_NULL(clientHelloMessage);
+
+	PTF_ASSERT_EQUAL(clientHelloMessage->getExtensionCount(), 7, int);
+	pcpp::SSLExtension* zeroSizeExt = clientHelloMessage->getExtension(6);
+	PTF_ASSERT_NOT_NULL(zeroSizeExt);
+	PTF_ASSERT_EQUAL(zeroSizeExt->getType(), pcpp::SSL_EXT_SIGNED_CERTIFICATE_TIMESTAMP, enum);
+	PTF_ASSERT_EQUAL(zeroSizeExt->getLength(), 0, u16);
+	PTF_ASSERT_EQUAL(zeroSizeExt->getTotalLength(), 4, u16);
+	PTF_ASSERT_NULL(zeroSizeExt->getData());
+
+} // SSLExtensionWithZeroSizeTest
+
+
 PTF_TEST_CASE(SSLAppDataParsingTest)
 {
 	timeval time;

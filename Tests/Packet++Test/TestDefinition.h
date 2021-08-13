@@ -99,6 +99,7 @@ PTF_TEST_CASE(DhcpEditTest);
 
 // Implemented in SSLTests.cpp
 PTF_TEST_CASE(SSLClientHelloParsingTest);
+PTF_TEST_CASE(SSLExtensionWithZeroSizeTest);
 PTF_TEST_CASE(SSLAppDataParsingTest);
 PTF_TEST_CASE(SSLAlertParsingTest);
 PTF_TEST_CASE(SSLMultipleRecordParsingTest);
