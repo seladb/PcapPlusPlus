@@ -15,7 +15,7 @@ WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool c
 	m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
 }
 
-bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie)
+bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
@@ -30,7 +30,7 @@ bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, vo
 		return false;
 	}
 
-	return PcapLiveDevice::startCapture(onPacketArrives, onPacketArrivesUserCookie, intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUsrrCookie);
+	return PcapLiveDevice::startCapture(onPacketArrives, onPacketArrivesUserCookie, intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
 }
 
 bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)

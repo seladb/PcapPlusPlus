@@ -35,7 +35,7 @@ namespace pcpp
 	public:
 		virtual LiveDeviceType getDeviceType() const { return WinPcapDevice; }
 
-		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie);
+		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
 		bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
 		bool startCapture(RawPacketVector& capturedPacketsVector) { return PcapLiveDevice::startCapture(capturedPacketsVector); }
 
