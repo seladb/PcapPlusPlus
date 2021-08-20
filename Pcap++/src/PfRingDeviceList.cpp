@@ -36,19 +36,16 @@ PfRingDeviceList::PfRingDeviceList()
 	pcap_if_t* currInterface = interfaceList;
 	while (currInterface != NULL)
 	{
-		if ((currInterface->flags & 0x1) != PCAP_IF_LOOPBACK)
+		uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
+		pfring* ring = pfring_open(currInterface->name, 128, flags);
+		if (ring != NULL)
 		{
-			uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
-			pfring* ring = pfring_open(currInterface->name, 128, flags);
-			if (ring != NULL)
-			{
-				if (m_PfRingVersion == "")
-					calcPfRingVersion(ring);
-				pfring_close(ring);
-				PfRingDevice* newDev = new PfRingDevice(currInterface->name);
-				m_PfRingDeviceList.push_back(newDev);
-				LOG_DEBUG("Found interface: %s", currInterface->name);
-			}
+			if (m_PfRingVersion == "")
+				calcPfRingVersion(ring);
+			pfring_close(ring);
+			PfRingDevice* newDev = new PfRingDevice(currInterface->name);
+			m_PfRingDeviceList.push_back(newDev);
+			LOG_DEBUG("Found interface: %s", currInterface->name);
 		}
 
 		currInterface = currInterface->next;
