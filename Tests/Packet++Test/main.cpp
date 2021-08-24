@@ -135,6 +135,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(PacketUtilsHash5TupleIPv6, "ipv6");
 
 	PTF_RUN_TEST(InsertDataToPacket, "packet;insert");
+	PTF_RUN_TEST(CreatePacketFromBuffer, "packet");
 	PTF_RUN_TEST(InsertVlanToPacket, "packet;vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "packet;remove_layer");
 	PTF_RUN_TEST(CopyLayerAndPacketTest, "packet;copy_layer");
