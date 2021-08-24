@@ -18,6 +18,7 @@
 #include "RadiusLayer.h"
 #include "PacketTrailerLayer.h"
 #include "PayloadLayer.h"
+#include "GeneralUtils.h"
 #include "SystemUtils.h"
 
 PTF_TEST_CASE(InsertDataToPacket)
@@ -94,6 +95,55 @@ PTF_TEST_CASE(InsertDataToPacket)
 
 } // InsertDataToPacket
 
+
+PTF_TEST_CASE(CreatePacketFromBuffer)
+{
+	size_t bufferSize = 46;
+	uint8_t* buffer = new uint8_t[bufferSize];
+	memset(buffer, 0, bufferSize);
+
+	pcpp::Packet* newPacket = new pcpp::Packet(buffer, bufferSize);
+
+	// Create the packet layers
+
+	pcpp::MacAddress srcMac("aa:aa:aa:aa:aa:aa");
+	pcpp::MacAddress dstMac("bb:bb:bb:bb:bb:bb");
+	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+	PTF_ASSERT_TRUE(newPacket->addLayer(&ethLayer));
+
+	pcpp::IPv4Address ipSrc("1.1.1.1");
+	pcpp::IPv4Address ipDst("20.20.20.20");
+	pcpp::IPv4Layer ip4Layer(ipSrc, ipDst);
+	ip4Layer.getIPv4Header()->protocol = pcpp::PACKETPP_IPPROTO_TCP;
+	PTF_ASSERT_TRUE(newPacket->addLayer(&ip4Layer));
+
+	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
+	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+	PTF_ASSERT_TRUE(newPacket->addLayer(&payloadLayer));
+
+	pcpp::LoggerPP::getInstance().suppressErrors();
+
+	// Inserting a new layer should fail because the size of the new layer exceeds the buffer size
+	pcpp::TcpLayer tcpLayer(12345, 80);
+	PTF_ASSERT_FALSE(newPacket->insertLayer(&ip4Layer, &tcpLayer));
+
+	// Extending the IPv4 layer should fail because the size of the new option exceeds the buffer size
+	pcpp::IPv4Option newOption = ip4Layer.addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)100));
+	PTF_ASSERT_TRUE(newOption.isNull());
+
+	pcpp::LoggerPP::getInstance().enableErrors();
+
+	newPacket->computeCalculateFields();
+
+	// Delete the packet - the buffer should not be freed
+	delete newPacket;
+
+	std::string expectedHexString = "bbbbbbbbbbbbaaaaaaaaaaaa08004500001e00000000000690b101010101141414140102030405060708090a0000";
+	PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(buffer, bufferSize), expectedHexString, string);
+
+	delete [] buffer;
+
+} // CreatePacketFromBuffer
 
 
 PTF_TEST_CASE(InsertVlanToPacket)

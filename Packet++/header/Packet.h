@@ -33,15 +33,27 @@ namespace pcpp
 		uint64_t m_ProtocolTypes;
 		size_t m_MaxPacketLen;
 		bool m_FreeRawPacket;
+		bool m_CanReallocateData;
 
 	public:
 
 		/**
-		 * A constructor for creating a new packet. Very useful when creating packets.
+		 * A constructor for creating a new packet (with no layers).
 		 * When using this constructor an empty raw buffer is allocated (with the size of maxPacketLen) and a new RawPacket is created
 		 * @param[in] maxPacketLen The expected packet length in bytes
 		 */
 		Packet(size_t maxPacketLen = 1);
+
+		/**
+		 * A constructor for creating a new packet with a buffer that is pre-allocated by the user.
+		 * The packet is created empty (with no layers), which means the constructor doesn't parse the data in the buffer.
+		 * Instead, all of the raw data of this packet it written to this buffer: whenever a layer is added, it's data is written to this buffer.
+		 * The buffer isn't freed and it's content isn't erased when the packet object is deleted.
+		 * This constructor is useful when you already have a memory buffer and you want to create packet data in it.
+		 * @param[in] buffer A pointer to a pre-allocated memory buffer
+		 * @param[in] bufferSize The size of the buffer
+		 */
+		Packet(uint8_t* buffer, size_t bufferSize);
 
 		/**
 		 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.

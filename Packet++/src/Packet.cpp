@@ -29,13 +29,29 @@ Packet::Packet(size_t maxPacketLen) :
 	m_LastLayer(NULL),
 	m_ProtocolTypes(UnknownProtocol),
 	m_MaxPacketLen(maxPacketLen),
-	m_FreeRawPacket(true)
+	m_FreeRawPacket(true),
+	m_CanReallocateData(true)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
 	uint8_t* data = new uint8_t[maxPacketLen];
 	memset(data, 0, maxPacketLen);
 	m_RawPacket = new RawPacket(data, 0, time, true, LINKTYPE_ETHERNET);
+}
+
+Packet::Packet(uint8_t* buffer, size_t bufferSize) :
+	m_RawPacket(NULL),
+	m_FirstLayer(NULL),
+	m_LastLayer(NULL),
+	m_ProtocolTypes(UnknownProtocol),
+	m_MaxPacketLen(bufferSize),
+	m_FreeRawPacket(true),
+	m_CanReallocateData(false)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+	memset(buffer, 0, bufferSize);
+	m_RawPacket = new RawPacket(buffer, 0, time, false, LINKTYPE_ETHERNET);
 }
 
 void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
@@ -48,6 +64,7 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 	m_MaxPacketLen = rawPacket->getRawDataLen();
 	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
+	m_CanReallocateData = true;
 	if (m_RawPacket == NULL)
 		return;
 
@@ -220,6 +237,11 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 	size_t newLayerHeaderLen = newLayer->getHeaderLen();
 	if (m_RawPacket->getRawDataLen() + newLayerHeaderLen > m_MaxPacketLen)
 	{
+		if (!m_CanReallocateData)
+		{
+			LOG_ERROR("With the new layer the packet will exceed the size of the pre-allocated buffer: %d bytes", (int)m_MaxPacketLen);
+			return false;
+		}
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
 		if (m_RawPacket->getRawDataLen() + newLayerHeaderLen > m_MaxPacketLen*2)
 			reallocateRawData(m_RawPacket->getRawDataLen() + newLayerHeaderLen + m_MaxPacketLen);
@@ -527,6 +549,11 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 
 	if (m_RawPacket->getRawDataLen() + numOfBytesToExtend > m_MaxPacketLen)
 	{
+		if (!m_CanReallocateData)
+		{
+			LOG_ERROR("With the layer extended size the packet will exceed the size of the pre-allocated buffer: %d bytes", (int)m_MaxPacketLen);
+			return false;
+		}
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
 		if (m_RawPacket->getRawDataLen() + numOfBytesToExtend > m_MaxPacketLen*2)
 			reallocateRawData(m_RawPacket->getRawDataLen() + numOfBytesToExtend + m_MaxPacketLen);
