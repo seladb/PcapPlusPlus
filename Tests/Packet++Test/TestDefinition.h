@@ -44,6 +44,7 @@ PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
 
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
+PTF_TEST_CASE(CreatePacketFromBuffer);
 PTF_TEST_CASE(InsertVlanToPacket);
 PTF_TEST_CASE(RemoveLayerTest);
 PTF_TEST_CASE(CopyLayerAndPacketTest);
