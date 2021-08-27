@@ -157,7 +157,7 @@ PTF_TEST_CASE(TestKniDevice)
 
 	{
 		pcpp::KniDevice::KniLinkState linkState = device->getLinkState(pcpp::KniDevice::INFO_RENEW);
-		PTF_ASSERT_EQUAL(linkState == pcpp::KniDevice::LINK_DOWN || linkState, pcpp::KniDevice::LINK_UP, ptr);
+		PTF_ASSERT_TRUE(linkState == pcpp::KniDevice::LINK_DOWN || linkState == pcpp::KniDevice::LINK_UP);
 		if (linkState == pcpp::KniDevice::LINK_DOWN)
 			isLinkUp = false;
 	}
