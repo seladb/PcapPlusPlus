@@ -41,73 +41,73 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_TRUE(grev0Packet1.isPacketOfType(pcpp::GRE) && grev0Packet1.isPacketOfType(pcpp::GREv0));
 	grev0Layer = grev0Packet1.getLayerOfType<pcpp::GREv0Layer>();
 	PTF_ASSERT_NOT_NULL(grev0Layer);
-	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 8, size);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->routingBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->ackSequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->recursionControl, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->flags, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_IP), u16);
+	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 8, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 1, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->routingBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->ackSequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->recursionControl, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->flags, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_IP), num);
 	PTF_ASSERT_TRUE(grev0Layer->getChecksum(value16));
-	PTF_ASSERT_EQUAL(value16, 30719, u16);
+	PTF_ASSERT_EQUAL(value16, 30719, num);
 	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT_FALSE(grev0Layer->getOffset(value16));
-	PTF_ASSERT_EQUAL(value16, 40000, u16);
+	PTF_ASSERT_EQUAL(value16, 40000, num);
 	PTF_ASSERT_FALSE(grev0Layer->getKey(value32));
-	PTF_ASSERT_EQUAL(value32, 40000, u16);
+	PTF_ASSERT_EQUAL(value32, 40000, num);
 	PTF_ASSERT_FALSE(grev0Layer->getSequenceNumber(value32));
-	PTF_ASSERT_EQUAL(value32, 40000, u32);
+	PTF_ASSERT_EQUAL(value32, 40000, num);
 	PTF_ASSERT_NOT_NULL(grev0Layer->getNextLayer());
-	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
+	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 	grev0Layer = NULL;
 
 	// GREv0 packet 2
 	PTF_ASSERT_TRUE(grev0Packet2.isPacketOfType(pcpp::GRE) && grev0Packet2.isPacketOfType(pcpp::GREv0));
 	grev0Layer = grev0Packet2.getLayerOfType<pcpp::GREv0Layer>();
 	PTF_ASSERT_NOT_NULL(grev0Layer);
-	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 4, size);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->recursionControl, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_IP), u16);
+	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 4, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->recursionControl, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_IP), num);
 	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT_FALSE(grev0Layer->getChecksum(value16));
-	PTF_ASSERT_EQUAL(value16, 40000, u16);
+	PTF_ASSERT_EQUAL(value16, 40000, num);
 	PTF_ASSERT_FALSE(grev0Layer->getKey(value32));
-	PTF_ASSERT_EQUAL(value32, 40000, u32);
+	PTF_ASSERT_EQUAL(value32, 40000, num);
 	PTF_ASSERT_NOT_NULL(grev0Layer->getNextLayer());
-	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
+	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 	grev0Layer = grev0Packet2.getNextLayerOfType<pcpp::GREv0Layer>(grev0Layer);
 	PTF_ASSERT_NOT_NULL(grev0Layer);
-	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 4, size);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->recursionControl, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_IP), u16);
+	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 4, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->recursionControl, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_IP), num);
 	PTF_ASSERT_NOT_NULL(grev0Layer->getNextLayer());
-	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
+	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 	grev0Layer = NULL;
 
 	// GREv1 packet 1
 	PTF_ASSERT_TRUE(grev1Packet1.isPacketOfType(pcpp::GRE) && grev1Packet1.isPacketOfType(pcpp::GREv1));
 	grev1Layer = grev1Packet1.getLayerOfType<pcpp::GREv1Layer>();
 	PTF_ASSERT_NOT_NULL(grev1Layer);
-	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 12, size);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->checksumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->sequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->keyBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(6), u16);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, 0, u16);
+	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 12, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->checksumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->sequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->keyBit, 1, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 1, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(6), num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, 0, num);
 	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT_FALSE(grev1Layer->getSequenceNumber(value32));
-	PTF_ASSERT_EQUAL(value32, 40000, u16);
+	PTF_ASSERT_EQUAL(value32, 40000, num);
 	PTF_ASSERT_TRUE(grev1Layer->getAcknowledgmentNum(value32));
-	PTF_ASSERT_EQUAL(value32, 26, u32);
+	PTF_ASSERT_EQUAL(value32, 26, num);
 	PTF_ASSERT_NULL(grev1Layer->getNextLayer());
 	grev1Layer = NULL;
 
@@ -116,45 +116,45 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_TRUE(grev1Packet2.isPacketOfType(pcpp::PPP_PPTP));
 	grev1Layer = grev1Packet2.getLayerOfType<pcpp::GREv1Layer>();
 	PTF_ASSERT_NOT_NULL(grev1Layer);
-	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 12, size);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->checksumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->routingBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->sequenceNumBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->keyBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(17), u16);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), u16);
+	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 12, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->checksumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->routingBit, 0, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->sequenceNumBit, 1, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->keyBit, 1, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(17), num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), num);
 	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT_FALSE(grev1Layer->getAcknowledgmentNum(value32));
-	PTF_ASSERT_EQUAL(value32, 40000, u32);
+	PTF_ASSERT_EQUAL(value32, 40000, num);
 	PTF_ASSERT_TRUE(grev1Layer->getSequenceNumber(value32));
-	PTF_ASSERT_EQUAL(value32, 539320, u32);
+	PTF_ASSERT_EQUAL(value32, 539320, num);
 	PTF_ASSERT_NOT_NULL(grev1Layer->getNextLayer());
-	PTF_ASSERT_EQUAL(grev1Layer->getNextLayer()->getProtocol(), pcpp::PPP_PPTP, u64);
+	PTF_ASSERT_EQUAL(grev1Layer->getNextLayer()->getProtocol(), pcpp::PPP_PPTP, enum);
 	pcpp::PPP_PPTPLayer* pppLayer = grev1Packet2.getLayerOfType<pcpp::PPP_PPTPLayer>();
 	PTF_ASSERT_NOT_NULL(pppLayer);
-	PTF_ASSERT_EQUAL(pppLayer->getHeaderLen(), 4, size);
-	PTF_ASSERT_TRUE(pppLayer == grev1Layer->getNextLayer());
-	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->address, 0xff, u8);
-	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->control, 3, u8);
-	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, htobe16(PCPP_PPP_IP), u16);
+	PTF_ASSERT_EQUAL(pppLayer->getHeaderLen(), 4, num);
+	PTF_ASSERT_EQUAL(pppLayer, grev1Layer->getNextLayer(), ptr);
+	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->address, 0xff, num);
+	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->control, 3, num);
+	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, htobe16(PCPP_PPP_IP), num);
 	PTF_ASSERT_NOT_NULL(pppLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(pppLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
+	PTF_ASSERT_EQUAL(pppLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 	grev1Layer = NULL;
 
 	// GREv0 packet 4 - Transparent Ethernet Bridging
 	PTF_ASSERT_TRUE(grev0Packet4.isPacketOfType(pcpp::GRE) && grev0Packet4.isPacketOfType(pcpp::GREv0));
 	grev0Layer = grev0Packet4.getLayerOfType<pcpp::GREv0Layer>();
 	PTF_ASSERT_NOT_NULL(grev0Layer);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_ETHBRIDGE), u16);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 1, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_ETHBRIDGE), num);
 	PTF_ASSERT_TRUE(grev0Layer->getKey(value32));
-	PTF_ASSERT_EQUAL(value32, 0xFDE8, u32);
+	PTF_ASSERT_EQUAL(value32, 0xFDE8, num);
 	// to ensure it parsed through GRE to next layers, find tcp from bottom
 	tcpLayer = grev0Packet4.getLayerOfType<pcpp::TcpLayer>(true /* reverse */);
 	PTF_ASSERT_NOT_NULL(tcpLayer);
-	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 1232, u16);
+	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 1232, num);
 	grev0Layer = NULL;
 	tcpLayer = NULL;
 } // GreParsingTest
@@ -193,7 +193,7 @@ PTF_TEST_CASE(GreCreationTest)
 
 	grev1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev1Packet.getRawPacket()->getRawDataLen(), bufferLength1, int);
+	PTF_ASSERT_EQUAL(grev1Packet.getRawPacket()->getRawDataLen(), bufferLength1, num);
 	PTF_ASSERT_BUF_COMPARE(grev1Packet.getRawPacket()->getRawData(), buffer1, bufferLength1);
 
 
@@ -221,7 +221,7 @@ PTF_TEST_CASE(GreCreationTest)
 	grev0Packet.computeCalculateFields();
 
 
-	PTF_ASSERT_EQUAL(grev0Packet.getRawPacket()->getRawDataLen(), bufferLength2, int);
+	PTF_ASSERT_EQUAL(grev0Packet.getRawPacket()->getRawDataLen(), bufferLength2, num);
 	PTF_ASSERT_BUF_COMPARE(grev0Packet.getRawPacket()->getRawData(), buffer2, bufferLength2);
 
 	delete [] buffer1;
@@ -253,44 +253,44 @@ PTF_TEST_CASE(GreEditTest)
 	uint32_t value32 = 0;
 	grev0Layer = grev0Packet.getLayerOfType<pcpp::GREv0Layer>();
 	PTF_ASSERT_NOT_NULL(grev0Layer);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->strictSourceRouteBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->routingBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 16, size);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 1, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 1, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 1, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->strictSourceRouteBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->routingBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 16, num);
 	PTF_ASSERT_TRUE(grev0Layer->getChecksum(value16));
-	PTF_ASSERT_EQUAL(value16, 14856, u16);
+	PTF_ASSERT_EQUAL(value16, 14856, num);
 	PTF_ASSERT_TRUE(grev0Layer->getSequenceNumber(value32));
-	PTF_ASSERT_EQUAL(value32, 1234, u32);
+	PTF_ASSERT_EQUAL(value32, 1234, num);
 	PTF_ASSERT_TRUE(grev0Layer->getKey(value32));
-	PTF_ASSERT_EQUAL(value32, 2341, u32);
+	PTF_ASSERT_EQUAL(value32, 2341, num);
 	PTF_ASSERT_FALSE(grev0Layer->getOffset(value16));
 	grev0Layer->getGreHeader()->routingBit = 1;
 	PTF_ASSERT_TRUE(grev0Layer->getOffset(value16));
-	PTF_ASSERT_EQUAL(value16, 0, u16);
+	PTF_ASSERT_EQUAL(value16, 0, num);
 	grev0Layer->getGreHeader()->routingBit = 0;
 
 	PTF_ASSERT_TRUE(grev0Layer->setSequenceNumber(5678));
 	grev0Packet.computeCalculateFields();
 
 	PTF_ASSERT_TRUE(grev0Layer->getSequenceNumber(value32));
-	PTF_ASSERT_EQUAL(value32, 5678, u32);
+	PTF_ASSERT_EQUAL(value32, 5678, num);
 	PTF_ASSERT_TRUE(grev0Layer->getChecksum(value16));
-	PTF_ASSERT_EQUAL(value16, 10412, u16);
+	PTF_ASSERT_EQUAL(value16, 10412, num);
 	PTF_ASSERT_TRUE(grev0Layer->getKey(value32));
-	PTF_ASSERT_EQUAL(value32, 2341, u32);
+	PTF_ASSERT_EQUAL(value32, 2341, num);
 
 	PTF_ASSERT_TRUE(grev0Layer->unsetSequenceNumber());
 	grev0Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 12, size);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 12, num);
 	PTF_ASSERT_FALSE(grev0Layer->getSequenceNumber(value32));
 	PTF_ASSERT_TRUE(grev0Layer->getKey(value32));
-	PTF_ASSERT_EQUAL(value32, 2341, u32);
+	PTF_ASSERT_EQUAL(value32, 2341, num);
 	PTF_ASSERT_TRUE(grev0Layer->getChecksum(value16));
-	PTF_ASSERT_EQUAL(value16, 20186, u16);
+	PTF_ASSERT_EQUAL(value16, 20186, num);
 
 	PTF_ASSERT_TRUE(grev0Layer->unsetChecksum());
 	pcpp::LoggerPP::getInstance().suppressErrors();
@@ -298,13 +298,13 @@ PTF_TEST_CASE(GreEditTest)
 	pcpp::LoggerPP::getInstance().enableErrors();
 	grev0Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 0, u8);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 0, num);
 	PTF_ASSERT_TRUE(!grev0Layer->getChecksum(value16));
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 8, size);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 8, num);
 	PTF_ASSERT_FALSE(grev0Layer->getSequenceNumber(value32));
 	PTF_ASSERT_TRUE(grev0Layer->getKey(value32));
-	PTF_ASSERT_EQUAL(value32, 2341, u32);
+	PTF_ASSERT_EQUAL(value32, 2341, num);
 
 	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(grev0Layer->unsetChecksum());
@@ -313,22 +313,22 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT_TRUE(grev0Layer->unsetKey());
 	grev0Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 0, u8);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 0, num);
 	PTF_ASSERT_FALSE(grev0Layer->getKey(value32));
-	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 4, size);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 0, u8);
+	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 4, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 0, num);
 	PTF_ASSERT_FALSE(grev0Layer->getChecksum(value16));
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, u8);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, num);
 
 	PTF_ASSERT_TRUE(grev0Layer->setChecksum(0));
 	grev0Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 8, size);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, u8);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->checksumBit, 1, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getHeaderLen(), 8, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->keyBit, 0, num);
+	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->sequenceNumBit, 0, num);
 	PTF_ASSERT_TRUE(grev0Layer->getChecksum(value16));
-	PTF_ASSERT_EQUAL(value16, 30719, u16);
+	PTF_ASSERT_EQUAL(value16, 30719, num);
 
 
 	// GREv1 packet edit
@@ -343,36 +343,36 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT_TRUE(grev1Layer->setAcknowledgmentNum(56789));
 	grev1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 16, size);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 1, u8);
+	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 16, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 1, num);
 	PTF_ASSERT_TRUE(grev1Layer->getAcknowledgmentNum(value32));
-	PTF_ASSERT_EQUAL(value32, 56789, u32);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->keyBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->checksumBit, 0, u8);
+	PTF_ASSERT_EQUAL(value32, 56789, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->keyBit, 1, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->checksumBit, 0, num);
 	PTF_ASSERT_TRUE(grev1Layer->getSequenceNumber(value32));
-	PTF_ASSERT_EQUAL(value32, 539320, u32);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(17), u16);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), u16);
+	PTF_ASSERT_EQUAL(value32, 539320, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(17), num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), num);
 
 	PTF_ASSERT_TRUE(grev1Layer->setSequenceNumber(12345));
 	grev1Layer->getGreHeader()->callID = htobe16(123);
 	grev1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 16, size);
+	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 16, num);
 	PTF_ASSERT_TRUE(grev1Layer->getSequenceNumber(value32));
-	PTF_ASSERT_EQUAL(value32, 12345, u32);
+	PTF_ASSERT_EQUAL(value32, 12345, num);
 	PTF_ASSERT_TRUE(grev1Layer->getAcknowledgmentNum(value32));
-	PTF_ASSERT_EQUAL(value32, 56789, u32);
+	PTF_ASSERT_EQUAL(value32, 56789, num);
 
 	PTF_ASSERT_TRUE(grev1Layer->unsetSequenceNumber());
 	grev1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 12, size);
+	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 12, num);
 	PTF_ASSERT_FALSE(grev1Layer->getSequenceNumber(value32));
 	PTF_ASSERT_TRUE(grev1Layer->getAcknowledgmentNum(value32));
-	PTF_ASSERT_EQUAL(value32, 56789, u32);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(123), u16);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), u16);
+	PTF_ASSERT_EQUAL(value32, 56789, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(123), num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), num);
 
 	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(grev0Layer->unsetSequenceNumber());
@@ -380,17 +380,17 @@ PTF_TEST_CASE(GreEditTest)
 	PTF_ASSERT_TRUE(grev1Layer->unsetAcknowledgmentNum());
 	grev1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 8, size);
+	PTF_ASSERT_EQUAL(grev1Layer->getHeaderLen(), 8, num);
 	PTF_ASSERT_FALSE(grev1Layer->getAcknowledgmentNum(value32));
 	PTF_ASSERT_FALSE(grev1Layer->getSequenceNumber(value32));
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->sequenceNumBit, 0, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->keyBit, 1, u8);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(123), u16);
-	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), u16);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->sequenceNumBit, 0, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->keyBit, 1, num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(123), num);
+	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178), num);
 
 	PTF_ASSERT_NOT_NULL(grev1Layer->getNextLayer());
-	PTF_ASSERT_EQUAL(grev1Layer->getNextLayer()->getProtocol(), pcpp::PPP_PPTP, u64);
+	PTF_ASSERT_EQUAL(grev1Layer->getNextLayer()->getProtocol(), pcpp::PPP_PPTP, enum);
 	pcpp::PPP_PPTPLayer* pppLayer = dynamic_cast<pcpp::PPP_PPTPLayer*>(grev1Layer->getNextLayer());
 	PTF_ASSERT_NOT_NULL(pppLayer);
 	pppLayer->getPPP_PPTPHeader()->control = 255;
@@ -399,13 +399,13 @@ PTF_TEST_CASE(GreEditTest)
 
 	grev1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, 0, u16);
+	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, 0, num);
 
 	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("2402:f000:1:8e01::5555"), pcpp::IPv6Address("2607:fcd0:100:2300::b108:2a6b"));
 	PTF_ASSERT_TRUE(grev1Packet.addLayer(&ipv6Layer));
 	grev1Packet.computeCalculateFields();
 
 	PTF_ASSERT_NOT_NULL(pppLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(pppLayer->getNextLayer()->getProtocol(), pcpp::IPv6, u64);
-	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, htobe16(PCPP_PPP_IPV6), u16);
+	PTF_ASSERT_EQUAL(pppLayer->getNextLayer()->getProtocol(), pcpp::IPv6, enum);
+	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, htobe16(PCPP_PPP_IPV6), num);
 } // GreEditTest

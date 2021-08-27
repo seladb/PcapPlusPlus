@@ -101,43 +101,43 @@ PTF_TEST_CASE(TestHttpRequestParsing)
 
 	readerDev.close();
 
-	PTF_ASSERT_EQUAL(packetCount, 385, int);
+	PTF_ASSERT_EQUAL(packetCount, 385, num);
 
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ")
-	PTF_ASSERT_EQUAL(httpPackets, 385, int);
+	PTF_ASSERT_EQUAL(httpPackets, 385, num);
 
 
-	PTF_ASSERT_EQUAL(otherMethodReqs, 0, int);
+	PTF_ASSERT_EQUAL(otherMethodReqs, 0, num);
 
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET ")
-	PTF_ASSERT_EQUAL(getReqs, 217, int);
+	PTF_ASSERT_EQUAL(getReqs, 217, num);
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "POST ")
-	PTF_ASSERT_EQUAL(postReqs, 156, int);
+	PTF_ASSERT_EQUAL(postReqs, 156, num);
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "OPTIONS ")
-	PTF_ASSERT_EQUAL(optionsReqs, 7, int);
+	PTF_ASSERT_EQUAL(optionsReqs, 7, num);
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "HEAD ")
-	PTF_ASSERT_EQUAL(headReqs, 5, int);
+	PTF_ASSERT_EQUAL(headReqs, 5, num);
 
 
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST ") && (tcp matches "home.*HTTP/1.1")
-	PTF_ASSERT_EQUAL(homeReqs, 13, int);
+	PTF_ASSERT_EQUAL(homeReqs, 13, num);
 	// Wireshark filter: http.request.full_uri contains .swf
-	PTF_ASSERT_EQUAL(swfReqs, 4, int);
+	PTF_ASSERT_EQUAL(swfReqs, 4, num);
 
 	// Wireshark filter: tcp contains "Host: www.google.com"
-	PTF_ASSERT_EQUAL(googleReqs, 12, int);
+	PTF_ASSERT_EQUAL(googleReqs, 12, num);
 	// Wireshark filter: tcp contains "Host: www.yad2.co.il"
-	PTF_ASSERT_EQUAL(yad2Reqs, 15, int);
+	PTF_ASSERT_EQUAL(yad2Reqs, 15, num);
 	// Wireshark filter: tcp contains "Host: www.winwin.co.il"
-	PTF_ASSERT_EQUAL(winwinReqs, 20, int);
+	PTF_ASSERT_EQUAL(winwinReqs, 20, num);
 
 
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Firefox/33.0")
-	PTF_ASSERT_EQUAL(ffReqs, 233, int);
+	PTF_ASSERT_EQUAL(ffReqs, 233, num);
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Chrome/38.0")
-	PTF_ASSERT_EQUAL(chromeReqs, 82, int);
+	PTF_ASSERT_EQUAL(chromeReqs, 82, num);
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Trident/7.0")
-	PTF_ASSERT_EQUAL(ieReqs, 55, int);
+	PTF_ASSERT_EQUAL(ieReqs, 55, num);
 } // TestHttpRequestParsing
 
 
@@ -205,32 +205,32 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 
 	}
 
-	PTF_ASSERT_EQUAL(packetCount, 682, int);
+	PTF_ASSERT_EQUAL(packetCount, 682, num);
 
 	// *** wireshark has a bug there and displays 1 less packet as http response. Missing packet IP ID is 10419 ***
 	// ************************************************************************************************************
 
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080)
-	PTF_ASSERT_EQUAL(httpResponsePackets, 682, int);
+	PTF_ASSERT_EQUAL(httpResponsePackets, 682, num);
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 200
-	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http200OK], 592, int);
+	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http200OK], 592, num);
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 302
-	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http302], 15, int);
+	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http302], 15, num);
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 304
-	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http304NotModified], 26, int);
+	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http304NotModified], 26, num);
 
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type == "text/html"
-	PTF_ASSERT_EQUAL(textHtmlCount, 38, int);
+	PTF_ASSERT_EQUAL(textHtmlCount, 38, num);
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type contains "image/"
-	PTF_ASSERT_EQUAL(imageCount, 369, int);
+	PTF_ASSERT_EQUAL(imageCount, 369, num);
 
 	// wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && (tcp contains "Transfer-Encoding:  chunked" || tcp contains "Transfer-Encoding: chunked" || tcp contains "transfer-encoding: chunked")
-	PTF_ASSERT_EQUAL(chunkedCount, 45, int);
+	PTF_ASSERT_EQUAL(chunkedCount, 45, num);
 	// wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && tcp contains "Content-Encoding: gzip"
-	PTF_ASSERT_EQUAL(gzipCount, 148, int);
+	PTF_ASSERT_EQUAL(gzipCount, 148, num);
 
 	// wireshark filter: http.content_length > 100000
-	PTF_ASSERT_EQUAL(bigResponses, 14, int);
+	PTF_ASSERT_EQUAL(bigResponses, 14, num);
 
 } // TestHttpResponseParsing
 
@@ -414,48 +414,48 @@ PTF_TEST_CASE(TestDnsParsing)
 		}
 	}
 
-	PTF_ASSERT_EQUAL(dnsPackets, 464, int);
+	PTF_ASSERT_EQUAL(dnsPackets, 464, num);
 
 	// wireshark filter: dns.count.queries > 0
-	PTF_ASSERT_EQUAL(packetsContainingDnsQuery, 450, int);
+	PTF_ASSERT_EQUAL(packetsContainingDnsQuery, 450, num);
 	// wireshark filter: dns.count.answers > 0
-	PTF_ASSERT_EQUAL(packetsContainingDnsAnswer, 224, int);
+	PTF_ASSERT_EQUAL(packetsContainingDnsAnswer, 224, num);
 	// wireshark filter: dns.count.auth_rr > 0
-	PTF_ASSERT_EQUAL(packetsContainingDnsAuthority, 11, int);
+	PTF_ASSERT_EQUAL(packetsContainingDnsAuthority, 11, num);
 	// wireshark filter: dns.count.add_rr > 0
-	PTF_ASSERT_EQUAL(packetsContainingDnsAdditional, 23, int);
+	PTF_ASSERT_EQUAL(packetsContainingDnsAdditional, 23, num);
 
 	// wireshark filter: dns.qry.name == www.google.com
-	PTF_ASSERT_EQUAL(queriesWithNameGoogle, 14, int);
+	PTF_ASSERT_EQUAL(queriesWithNameGoogle, 14, num);
 	// wireshark filter: dns.qry.name == aus3.mozilla.org
-	PTF_ASSERT_EQUAL(queriesWithNameMozillaOrg, 2, int);
+	PTF_ASSERT_EQUAL(queriesWithNameMozillaOrg, 2, num);
 	// wireshark filter: dns.qry.type == 1
-	PTF_ASSERT_EQUAL(queriesWithTypeA, 436, int);
+	PTF_ASSERT_EQUAL(queriesWithTypeA, 436, num);
 	// wireshark filter: dns.qry.type > 0 and not (dns.qry.type == 1)
-	PTF_ASSERT_EQUAL(queriesWithTypeNotA, 14, int);
+	PTF_ASSERT_EQUAL(queriesWithTypeNotA, 14, num);
 	// wireshark filter: dns.qry.class == 1
-	PTF_ASSERT_EQUAL(queriesWithClassIN, 450, int);
+	PTF_ASSERT_EQUAL(queriesWithClassIN, 450, num);
 
 	// wireshark filter: dns.count.answers > 0 and dns.resp.type == 12
-	PTF_ASSERT_EQUAL(answersWithTypePTR, 14, int);
+	PTF_ASSERT_EQUAL(answersWithTypePTR, 14, num);
 	// wireshark filter: dns.count.answers > 0 and dns.resp.type == 5
-	PTF_ASSERT_EQUAL(answersWithTypeCNAME, 90, int);
+	PTF_ASSERT_EQUAL(answersWithTypeCNAME, 90, num);
 	// wireshark filter: dns.count.answers > 0 and dns.resp.name == www.google-analytics.com
-	PTF_ASSERT_EQUAL(answersWithNameGoogleAnalytics, 7, int);
+	PTF_ASSERT_EQUAL(answersWithNameGoogleAnalytics, 7, num);
 	// wireshark filter: dns.count.answers > 0 and dns.aaaa == fe80::5a1f:aaff:fe4f:3f9d
-	PTF_ASSERT_EQUAL(answersWithDataCertainIPv6, 12, int);
+	PTF_ASSERT_EQUAL(answersWithDataCertainIPv6, 12, num);
 	// wireshark filter: dns.count.answers > 0 and dns.resp.ttl < 30
-	PTF_ASSERT_EQUAL(answersWithTtlLessThan30, 17, int);
+	PTF_ASSERT_EQUAL(answersWithTtlLessThan30, 17, num);
 
 	// wireshark filter: dns.count.auth_rr > 0 and dns.resp.name == Yaels-iPhone.local
-	PTF_ASSERT_EQUAL(authoritiesWithNameYaelPhone, 9, int);
+	PTF_ASSERT_EQUAL(authoritiesWithNameYaelPhone, 9, num);
 	// wireshark filter: dns.count.auth_rr > 0 and dns.a == 10.0.0.2
-	PTF_ASSERT_EQUAL(authoritiesWithData10_0_0_2, 9, int);
+	PTF_ASSERT_EQUAL(authoritiesWithData10_0_0_2, 9, num);
 
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.name == "<Root>"
-	PTF_ASSERT_EQUAL(additionalWithEmptyName, 23, int);
+	PTF_ASSERT_EQUAL(additionalWithEmptyName, 23, num);
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.name == D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa
-	PTF_ASSERT_EQUAL(additionalWithLongUglyName, 12, int);
+	PTF_ASSERT_EQUAL(additionalWithLongUglyName, 12, num);
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.type == 47
-	PTF_ASSERT_EQUAL(additionalWithTypeNSEC, 14, int);
+	PTF_ASSERT_EQUAL(additionalWithTypeNSEC, 14, num);
 } // TestDnsParsing

@@ -25,9 +25,9 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_TRUE(sshKexInitPacket.isPacketOfType(pcpp::SSH));
 	pcpp::SSHKeyExchangeInitMessage* sshKexInitLayer = sshKexInitPacket.getLayerOfType<pcpp::SSHKeyExchangeInitMessage>();
 	PTF_ASSERT_NOT_NULL(sshKexInitLayer);
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getHeaderLen(), 904, size);
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getPaddingLength(), 4, size);
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getSSHHandshakeMessageLength(), 894, size);
+	PTF_ASSERT_EQUAL(sshKexInitLayer->getHeaderLen(), 904, num);
+	PTF_ASSERT_EQUAL(sshKexInitLayer->getPaddingLength(), 4, num);
+	PTF_ASSERT_EQUAL(sshKexInitLayer->getSSHHandshakeMessageLength(), 894, num);
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getMessageType(), pcpp::SSHHandshakeMessage::SSH_MSG_KEX_INIT, enum);
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getMessageTypeStr(), "Key Exchange Init", string);
 	PTF_ASSERT_EQUAL(sshKexInitLayer->toString(), "SSH Layer, Handshake Message: Key Exchange Init", string);
@@ -51,9 +51,9 @@ PTF_TEST_CASE(SSHParsingTest)
 	// SSH DH Group Exchange Reply
 	pcpp::SSHHandshakeMessage* sshHandshakeMessage = sshNewKeysKexDHPacket.getLayerOfType<pcpp::SSHHandshakeMessage>();
 	PTF_ASSERT_NOT_NULL(sshHandshakeMessage);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getHeaderLen(), 704, size);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getPaddingLength(), 7, size);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getSSHHandshakeMessageLength(), 691, size);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getHeaderLen(), 704, num);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getPaddingLength(), 7, num);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getSSHHandshakeMessageLength(), 691, num);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->getMessageType(), pcpp::SSHHandshakeMessage::SSH_MSG_KEX_DH_GEX_REPLY, enum);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->getMessageTypeStr(), "Diffie-Hellman Group Exchange Reply", string);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->toString(), "SSH Layer, Handshake Message: Diffie-Hellman Group Exchange Reply", string);
@@ -61,9 +61,9 @@ PTF_TEST_CASE(SSHParsingTest)
 	// SSH New Keys
 	sshHandshakeMessage = sshNewKeysKexDHPacket.getNextLayerOfType<pcpp::SSHHandshakeMessage>(sshHandshakeMessage);
 	PTF_ASSERT_NOT_NULL(sshHandshakeMessage);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getHeaderLen(), 16, size);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getPaddingLength(), 10, size);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getSSHHandshakeMessageLength(), 0, size);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getHeaderLen(), 16, num);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getPaddingLength(), 10, num);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getSSHHandshakeMessageLength(), 0, num);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->getMessageType(), pcpp::SSHHandshakeMessage::SSH_MSG_NEW_KEYS, enum);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->getMessageTypeStr(), "New Keys", string);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->toString(), "SSH Layer, Handshake Message: New Keys", string);
@@ -75,9 +75,9 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_TRUE(sshDHGexInit.isPacketOfType(pcpp::SSH));
 	sshHandshakeMessage = sshDHGexInit.getLayerOfType<pcpp::SSHHandshakeMessage>();
 	PTF_ASSERT_NOT_NULL(sshHandshakeMessage);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getHeaderLen(), 144, size);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getPaddingLength(), 5, size);
-	PTF_ASSERT_EQUAL(sshHandshakeMessage->getSSHHandshakeMessageLength(), 133, size);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getHeaderLen(), 144, num);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getPaddingLength(), 5, num);
+	PTF_ASSERT_EQUAL(sshHandshakeMessage->getSSHHandshakeMessageLength(), 133, num);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->getMessageType(), pcpp::SSHHandshakeMessage::SSH_MSG_KEX_DH_GEX_INIT, enum);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->getMessageTypeStr(), "Diffie-Hellman Group Exchange Init", string);
 	PTF_ASSERT_EQUAL(sshHandshakeMessage->toString(), "SSH Layer, Handshake Message: Diffie-Hellman Group Exchange Init", string);
@@ -89,7 +89,7 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_TRUE(sshEncryptedPacket.isPacketOfType(pcpp::SSH));
 	pcpp::SSHEncryptedMessage* sshEncryptedMsgLayer = sshEncryptedPacket.getLayerOfType<pcpp::SSHEncryptedMessage>();
 	PTF_ASSERT_NOT_NULL(sshEncryptedMsgLayer);
-	PTF_ASSERT_EQUAL(sshEncryptedMsgLayer->getHeaderLen(), 368, size);
+	PTF_ASSERT_EQUAL(sshEncryptedMsgLayer->getHeaderLen(), 368, num);
 	PTF_ASSERT_EQUAL(sshEncryptedMsgLayer->toString(), "SSH Layer, Encrypted Message", string);
 }
 
@@ -133,9 +133,9 @@ PTF_TEST_CASE(SSHMalformedParsingTest)
 	PTF_ASSERT_TRUE(sshKexInitMalformedPacket.isPacketOfType(pcpp::SSH));
 	pcpp::SSHKeyExchangeInitMessage* sshKexInitLayer = sshKexInitMalformedPacket.getLayerOfType<pcpp::SSHKeyExchangeInitMessage>();
 	PTF_ASSERT_NOT_NULL(sshKexInitLayer);
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getHeaderLen(), 904, size);
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getPaddingLength(), 4, size);
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getSSHHandshakeMessageLength(), 894, size);
+	PTF_ASSERT_EQUAL(sshKexInitLayer->getHeaderLen(), 904, num);
+	PTF_ASSERT_EQUAL(sshKexInitLayer->getPaddingLength(), 4, num);
+	PTF_ASSERT_EQUAL(sshKexInitLayer->getSSHHandshakeMessageLength(), 894, num);
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getMessageType(), pcpp::SSHHandshakeMessage::SSH_MSG_KEX_INIT, enum);
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getCookieAsHexStream(), "0e7b9a0807ea71e0945dd1fdbfa41929", string);
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getKeyExchangeAlgorithms(), "diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1", string);

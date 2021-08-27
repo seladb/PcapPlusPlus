@@ -140,8 +140,8 @@ PTF_TEST_CASE(TestKniDevice)
 	PTF_ASSERT_NOT_NULL(device);
 	PTF_ASSERT_TRUE(device->isInitialized());
 	KniDeviceTeardown devTeardown(device);
-	PTF_ASSERT_TRUE(device == kniDeviceList.getDeviceByPort(KNI_TEST_PORT_ID0));
-	PTF_ASSERT_TRUE(device == kniDeviceList.getDeviceByName(std::string(buff)));
+	PTF_ASSERT_EQUAL(device, kniDeviceList.getDeviceByPort(KNI_TEST_PORT_ID0), ptr);
+	PTF_ASSERT_EQUAL(device, kniDeviceList.getDeviceByName(std::string(buff)), ptr);
 
 	{
 		std::string devName = device->getName();
@@ -150,14 +150,14 @@ PTF_TEST_CASE(TestKniDevice)
 	}
 	{
 		uint16_t port = device->getPort();
-		PTF_ASSERT_EQUAL(port, (uint16_t)KNI_TEST_PORT_ID0, u16);
+		PTF_ASSERT_EQUAL(port, (uint16_t)KNI_TEST_PORT_ID0, num);
 	}
 
 	PTF_ASSERT_EQUAL(device->getLinkState(), pcpp::KniDevice::LINK_NOT_SUPPORTED, enum);
 
 	{
 		pcpp::KniDevice::KniLinkState linkState = device->getLinkState(pcpp::KniDevice::INFO_RENEW);
-		PTF_ASSERT_TRUE(linkState == pcpp::KniDevice::LINK_DOWN || linkState == pcpp::KniDevice::LINK_UP);
+		PTF_ASSERT_EQUAL(linkState == pcpp::KniDevice::LINK_DOWN || linkState, pcpp::KniDevice::LINK_UP, ptr);
 		if (linkState == pcpp::KniDevice::LINK_DOWN)
 			isLinkUp = false;
 	}
@@ -169,9 +169,9 @@ PTF_TEST_CASE(TestKniDevice)
 	}
 	{
 		uint16_t mtu = device->getMtu();
-		PTF_ASSERT_EQUAL(mtu, KNI_TEST_MTU, u16);
+		PTF_ASSERT_EQUAL(mtu, KNI_TEST_MTU, num);
 		mtu = device->getMtu(pcpp::KniDevice::INFO_RENEW);
-		PTF_ASSERT_EQUAL(mtu, KNI_TEST_MTU, u16);
+		PTF_ASSERT_EQUAL(mtu, KNI_TEST_MTU, num);
 	}
 	{
 		pcpp::KniDevice::KniPromiscuousMode pm = device->getPromiscuous();
@@ -205,7 +205,7 @@ PTF_TEST_CASE(TestKniDevice)
 		if (mtuSet)
 		{
 			uint16_t mtu = device->getMtu(pcpp::KniDevice::INFO_RENEW);
-			PTF_NON_CRITICAL_EQUAL(mtu, KNI_NEW_MTU, u16);
+			PTF_NON_CRITICAL_EQUAL(mtu, KNI_NEW_MTU, num);
 		}
 	}
 	if (pcpp::KniDeviceList::isCallbackSupported(pcpp::KniDeviceList::CALLBACK_MAC))
@@ -363,9 +363,9 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter));
 		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
 		pcpp::LoggerPP::getInstance().suppressErrors();
-		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0, u16);
-		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0, u16);
-		PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0, u16);
+		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0, num);
+		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0, num);
+		PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0, num);
 		pcpp::LoggerPP::getInstance().enableErrors();
 		for (int i = 0; i < 10; ++i)
 		{
@@ -438,7 +438,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 
 		//send packets as parsed EthPacekt array
 		uint16_t packetsSentAsParsed = device->sendPackets(packetArr, packetsRead);
-		PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead, u16);
+		PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead, num);
 
 		// Check raw device for packets to come
 		{
@@ -446,12 +446,12 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			packetsReceived += rsdevice.receivePackets(receiveRawPacketVec, 3, unused);
 			receiveRawPacketVec.clear();
 		}
-		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0, int);
+		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0, num);
 		packetsReceived = 0;
 
 		//send packets are RawPacketVector
 		uint16_t packetsSentAsRawVector = device->sendPackets(sendRawPacketVec);
-		PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead, u16);
+		PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead, num);
 
 		// Check raw device for packets to come
 		{
@@ -459,7 +459,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			packetsReceived += rsdevice.receivePackets(receiveRawPacketVec, 3, unused);
 			receiveRawPacketVec.clear();
 		}
-		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0, int);
+		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0, num);
 		packetsReceived = 0;
 
 		//? Note (echo-Mike): this will not be checked by raw socket because there is

@@ -38,15 +38,15 @@ PTF_TEST_CASE(PacketUtilsHash5TupleUdp)
 	dstSrcPacket.computeCalculateFields();
 
 	// Test default behaviour where hash of SRC->DST == DST->SRC
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket), u32);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket), num);
 
 	// Test of direction-unique-hash where SRC->DST != DST->SRC
-	PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), pcpp::hash5Tuple(&dstSrcPacket, true), u32);
+	PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), pcpp::hash5Tuple(&dstSrcPacket, true), num);
 
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, false), 683027169, u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 926590153, u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 683027169, u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 683027169, u32);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, false), 683027169, num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 926590153, num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 683027169, num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 683027169, num);
 
 } // PacketUtilsHash5TupleUdp
 
@@ -87,15 +87,15 @@ PTF_TEST_CASE(PacketUtilsHash5TupleTcp)
 	dstSrcPacket.computeCalculateFields();
 
 	// Test default behaviour where hash of SRC->DST == DST->SRC
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket), u32);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket), num);
 
 	// Test of direction-unique-hash where SRC->DST != DST->SRC
-	PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), pcpp::hash5Tuple(&dstSrcPacket, true), u32);
+	PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), pcpp::hash5Tuple(&dstSrcPacket, true), num);
 
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, false), 1576639238, u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 2243556734, u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 1576639238 , u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 1576639238 , u32);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, false), 1576639238, num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 2243556734, num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 1576639238 , num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 1576639238 , num);
 
 } // PacketUtilsHash5TupleTcp
 
@@ -123,14 +123,14 @@ PTF_TEST_CASE(PacketUtilsHash5TupleIPv6)
 	dstSrcPacket.computeCalculateFields();
 
 	// Test default behaviour where hash of SRC->DST == DST->SRC
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket), u32);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket), num);
 
 	// Test of direction-unique-hash where SRC->DST != DST->SRC
-	PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), pcpp::hash5Tuple(&dstSrcPacket, true), u32);
+	PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), pcpp::hash5Tuple(&dstSrcPacket, true), num);
 
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, false), 4288746927, u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 2229527039, u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 4288746927, u32);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 4288746927, u32);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, false), 4288746927, num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 2229527039, num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 4288746927, num);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 4288746927, num);
 
 } // PacketUtilsHash5TupleIPv6

@@ -190,7 +190,7 @@ PTF_TEST_CASE(TestPfRingDevice)
 #ifdef USE_PF_RING
 
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	PTF_ASSERT_GREATER_THAN(devList.getPfRingDevicesList().size(), 0, size);
+	PTF_ASSERT_GREATER_THAN(devList.getPfRingDevicesList().size(), 0, num);
 	PTF_ASSERT_NOT_EQUAL(devList.getPfRingVersion(), "", string);
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
@@ -199,28 +199,28 @@ PTF_TEST_CASE(TestPfRingDevice)
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_TRUE(dev->getMacAddress().isValid());
 	PTF_ASSERT_NOT_EQUAL(dev->getMacAddress(), pcpp::MacAddress::Zero, object);
-	PTF_ASSERT_GREATER_THAN(dev->getInterfaceIndex(), 0, int);
-	PTF_ASSERT_GREATER_THAN(dev->getTotalNumOfRxChannels(), 0, u8);
-	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0, u8);
+	PTF_ASSERT_GREATER_THAN(dev->getInterfaceIndex(), 0, num);
+	PTF_ASSERT_GREATER_THAN(dev->getTotalNumOfRxChannels(), 0, num);
+	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0, num);
 	PTF_ASSERT_TRUE(dev->open());
 	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_FALSE(dev->open());
 	pcpp::LoggerPP::getInstance().enableErrors();
-	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 1, u8);
+	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 1, num);
 
 	PfRingPacketData packetData;
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArrive, &packetData));
 	int totalSleepTime = incSleep(10, packetData);
 	dev->stopCapture();
 	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
-	PTF_ASSERT_GREATER_THAN(packetData.PacketCount, 0, int);
-	PTF_ASSERT_NOT_EQUAL(packetData.ThreadId, -1, u8);
+	PTF_ASSERT_GREATER_THAN(packetData.PacketCount, 0, num);
+	PTF_ASSERT_NOT_EQUAL(packetData.ThreadId, -1, num);
 
 	pcpp::PfRingDevice::PfRingStats stats;
 	stats.recv = 0;
 	stats.drop = 0;
 	dev->getStatistics(stats);
-	PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetData.PacketCount, u64);
+	PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetData.PacketCount, num);
 	dev->close();
 
 	PTF_PRINT_VERBOSE("Thread ID: %d", packetData.ThreadId);
@@ -260,11 +260,11 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 	int totalSleepTime = incSleep(10, packetData);
 	dev->stopCapture();
 	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
-	PTF_ASSERT_GREATER_THAN(packetData.PacketCount, 0, int);
-	PTF_ASSERT_NOT_EQUAL(packetData.ThreadId, -1, u8);
+	PTF_ASSERT_GREATER_THAN(packetData.PacketCount, 0, num);
+	PTF_ASSERT_NOT_EQUAL(packetData.ThreadId, -1, num);
 	pcpp::PfRingDevice::PfRingStats stats;
 	dev->getStatistics(stats);
-	PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetData.PacketCount, u64);
+	PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetData.PacketCount, num);
 	PTF_PRINT_VERBOSE("Thread ID: %d", packetData.ThreadId);
 	PTF_PRINT_VERBOSE("Total packets captured: %d", packetData.PacketCount);
 	PTF_PRINT_VERBOSE("Eth packets: %d", packetData.EthCount);
@@ -275,7 +275,7 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 	PTF_PRINT_VERBOSE("Packets dropped: %d", (int)stats.drop);
 
 	dev->close();
-	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0, u8);
+	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0, num);
 
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
@@ -298,7 +298,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	PTF_ASSERT_TRUE(dev->openMultiRxChannels(numOfChannels*2.5, pcpp::PfRingDevice::PerFlow));
 	DeviceTeardown devTeardown(dev);
 	dev->close();
-	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0, u8);
+	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0, num);
 	int totalnumOfCores = pcpp::getNumOfCores();
 	int numOfCoresInUse = 0;
 	pcpp::CoreMask tempCoreMask = TestPfRingMultiThreadCoreMask;
@@ -353,12 +353,12 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 			}
 		}
 
-		PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetDataMultiThread[i].PacketCount, u64);
+		PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetDataMultiThread[i].PacketCount, num);
 	}
 
 	dev->getStatistics(stats);
-	PTF_ASSERT_EQUAL(aggrStats.recv, stats.recv, u64);
-	PTF_ASSERT_EQUAL(aggrStats.drop, stats.drop, u64);
+	PTF_ASSERT_EQUAL(aggrStats.recv, stats.recv, num);
+	PTF_ASSERT_EQUAL(aggrStats.drop, stats.drop, num);
 
 	for (int firstCoreId = 0; firstCoreId < totalnumOfCores; firstCoreId++)
 	{
@@ -366,7 +366,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 		{
 			std::map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector> > res;
 			intersectMaps<uint32_t, pcpp::RawPacketVector, pcpp::RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
-			PTF_ASSERT_EQUAL(res.size(), 0, size);
+			PTF_ASSERT_EQUAL(res.size(), 0, num);
 		}
 
 		packetDataMultiThread[firstCoreId].FlowKeys.clear();
@@ -450,7 +450,7 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
 
-	PTF_ASSERT_GREATER_THAN(dev->getMtu(), 0, int);
+	PTF_ASSERT_GREATER_THAN(dev->getMtu(), 0, num);
 	uint16_t mtu = dev->getMtu();
 	int buffLen = mtu+1;
 	uint8_t buff[buffLen];
@@ -477,7 +477,7 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 		packetsSent++;
 	}
 
-	PTF_ASSERT_EQUAL(packetsRead, packetsSent, int);
+	PTF_ASSERT_EQUAL(packetsRead, packetsSent, num);
 
 	dev->close();
 
@@ -534,8 +534,8 @@ PTF_TEST_CASE(TestPfRingSendPackets)
 	std::copy(packetVec.begin(), packetVec.end(), packetArr);
 	int packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead);
 
-	PTF_ASSERT_EQUAL(packetsSentAsRaw, packetsRead, int);
-	PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead, int);
+	PTF_ASSERT_EQUAL(packetsSentAsRaw, packetsRead, num);
+	PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead, num);
 
 	dev->close();
 	fileReaderDev.close();
@@ -574,7 +574,7 @@ PTF_TEST_CASE(TestPfRingFilters)
 	int totalSleepTime = incSleepSetFilter(10, instruction);
 	dev->stopCapture();
 	PTF_PRINT_VERBOSE("Total sleep time TCP filter: %d", totalSleepTime);
-	PTF_ASSERT_EQUAL(instruction.Instruction, 1, int);
+	PTF_ASSERT_EQUAL(instruction.Instruction, 1, num);
 
 	instruction.Instruction = 2;
 	instruction.Data = PcapTestGlobalArgs.ipToSendReceivePackets;
@@ -585,7 +585,7 @@ PTF_TEST_CASE(TestPfRingFilters)
 	totalSleepTime = incSleepSetFilter(10, instruction);
 	dev->stopCapture();
 	PTF_PRINT_VERBOSE("Total sleep time IP filter: %d", totalSleepTime);
-	PTF_ASSERT_EQUAL(instruction.Instruction, 2, int);
+	PTF_ASSERT_EQUAL(instruction.Instruction, 2, num);
 
 	// remove filter and test again
 	instruction.Instruction = 1;

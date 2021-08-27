@@ -19,12 +19,12 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 
 	pcpp::RadiusLayer* radiusLayer = radiusPacket.getLayerOfType<pcpp::RadiusLayer>();
 	PTF_ASSERT_NOT_NULL(radiusLayer);
-	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->code, 1, u8);
-	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->id, 5, u8);
+	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->code, 1, num);
+	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->id, 5, num);
 	PTF_ASSERT_EQUAL(radiusLayer->getAuthenticatorValue(), "ecfe3d2fe4473ec6299095ee46aedf77", string);
-	PTF_ASSERT_EQUAL(radiusLayer->getHeaderLen(), 139, size);
+	PTF_ASSERT_EQUAL(radiusLayer->getHeaderLen(), 139, num);
 	PTF_ASSERT_EQUAL(pcpp::RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code), "Access-Request", string);
-	PTF_ASSERT_EQUAL(radiusLayer->getAttributeCount(), 10, size);
+	PTF_ASSERT_EQUAL(radiusLayer->getAttributeCount(), 10, num);
 	uint8_t attrTypes[10] = { 4, 5, 61, 1, 30, 31, 6, 12, 79, 80 };
 	size_t attrTotalSize[10] = { 6, 6, 6, 14, 19, 19, 6, 6, 19, 18 };
 	size_t attrDataSize[10] = { 4, 4, 4, 12, 17, 17, 4, 4, 17, 16 };
@@ -33,18 +33,18 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	for (int i=0; i<10; i++)
 	{
 		PTF_PRINT_VERBOSE("Iteration %d", i);
-		PTF_ASSERT_EQUAL(radiusAttr.getType(), attrTypes[i], u8);
-		PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), attrTotalSize[i], size);
-		PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), attrDataSize[i], size);
+		PTF_ASSERT_EQUAL(radiusAttr.getType(), attrTypes[i], num);
+		PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), attrTotalSize[i], num);
+		PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), attrDataSize[i], num);
 		radiusAttr = radiusLayer->getNextAttribute(radiusAttr);
 	}
 
 	radiusAttr = radiusLayer->getAttribute(6);
 	PTF_ASSERT_FALSE(radiusAttr.isNull());
-	PTF_ASSERT_EQUAL(radiusAttr.getType(), 6, u8);
-	PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), 4, size);
-	PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), 6, size);
-	PTF_ASSERT_EQUAL(htobe32(radiusAttr.getValueAs<int>()), 2, u32);
+	PTF_ASSERT_EQUAL(radiusAttr.getType(), 6, num);
+	PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), 4, num);
+	PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), 6, num);
+	PTF_ASSERT_EQUAL(htobe32(radiusAttr.getValueAs<int>()), 2, num);
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(2, "PacketExamples/radius_3.dat", pcpp::LINKTYPE_NULL);
 	pcpp::Packet radiusPacket2(&rawPacket2);
@@ -52,12 +52,12 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	radiusLayer = radiusPacket2.getLayerOfType<pcpp::RadiusLayer>();
 
 	PTF_ASSERT_NOT_NULL(radiusLayer);
-	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->code, 3, u8);
-	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->id, 104, u8);
+	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->code, 3, num);
+	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->id, 104, num);
 	PTF_ASSERT_EQUAL(radiusLayer->getAuthenticatorValue(), "71624da25c0b5897f70539e019a81eae", string);
-	PTF_ASSERT_EQUAL(radiusLayer->getHeaderLen(), 44, size);
+	PTF_ASSERT_EQUAL(radiusLayer->getHeaderLen(), 44, num);
 	PTF_ASSERT_EQUAL(pcpp::RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code), "Access-Reject", string);
-	PTF_ASSERT_EQUAL(radiusLayer->getAttributeCount(), 2, size);
+	PTF_ASSERT_EQUAL(radiusLayer->getAttributeCount(), 2, num);
 	uint8_t attrTypes2[2] = { 79, 80 };
 	size_t attrTotalSize2[2] = { 6, 18 };
 	size_t attrDataSize2[2] = { 4, 16 };
@@ -66,9 +66,9 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	for (int i=0; i<2; i++)
 	{
 		PTF_PRINT_VERBOSE("Iteration %d", i);
-		PTF_ASSERT_EQUAL(radiusAttr.getType(), attrTypes2[i], u8);
-		PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), attrTotalSize2[i], size);
-		PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), attrDataSize2[i], size);
+		PTF_ASSERT_EQUAL(radiusAttr.getType(), attrTypes2[i], num);
+		PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), attrTotalSize2[i], num);
+		PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), attrDataSize2[i], num);
 		radiusAttr = radiusLayer->getNextAttribute(radiusAttr);
 	}
 
@@ -106,26 +106,26 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 	pcpp::RadiusLayer radiusLayer(11, 5, "f050649184625d36f14c9075b7a48b83");
 	pcpp::RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(pcpp::RadiusAttributeBuilder(8, pcpp::IPv4Address("255.255.255.254")));
 	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
-	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 8, u8);
-	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, size);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 8, num);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, num);
 
 	radiusNewAttr = radiusLayer.addAttribute(pcpp::RadiusAttributeBuilder(12, (uint32_t)576));
 	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
-	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 12, u8);
-	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, size);
-	PTF_ASSERT_EQUAL(radiusNewAttr.getValueAs<uint32_t>(), htobe32(576), u32);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 12, num);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, num);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getValueAs<uint32_t>(), htobe32(576), num);
 
 	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&radiusLayer));
 
 	radiusNewAttr = radiusLayer.addAttribute(pcpp::RadiusAttributeBuilder(18, std::string("Hello, %u")));
 	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
-	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 18, u8);
-	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 9, size);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 18, num);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 9, num);
 
 	radiusNewAttr = radiusLayer.addAttributeAfter(pcpp::RadiusAttributeBuilder(6, (uint32_t)2), 12);
 	PTF_ASSERT_FALSE(radiusNewAttr.isNull());
-	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 6, u8);
-	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, size);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getType(), 6, num);
+	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4, num);
 
 	uint8_t attrValue1[] = { 0xc6, 0xd1, 0x95, 0x03, 0x2f, 0xdc, 0x30, 0x24, 0x0f, 0x73, 0x13, 0xb2, 0x31, 0xef, 0x1d, 0x77 };
 	uint8_t attrValue1Len = 16;
@@ -146,7 +146,7 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 
 	pcpp::RadiusLayer* origRadiusLayer = radiusPacket.getLayerOfType<pcpp::RadiusLayer>();
 	pcpp::RadiusLayer* newRadiusLayer = newRadiusPacket.getLayerOfType<pcpp::RadiusLayer>();
-	PTF_ASSERT_EQUAL(origRadiusLayer->getDataLen(), newRadiusLayer->getDataLen(), size);
+	PTF_ASSERT_EQUAL(origRadiusLayer->getDataLen(), newRadiusLayer->getDataLen(), num);
 	PTF_ASSERT_BUF_COMPARE(origRadiusLayer->getData(), newRadiusLayer->getData(), origRadiusLayer->getDataLen());
 } // RadiusLayerCreationTest
 
@@ -193,7 +193,7 @@ PTF_TEST_CASE(RadiusLayerEditTest)
 	radiusPacket11.computeCalculateFields();
 
 	pcpp::RadiusLayer* msg2OrigRadiusLayer = radiusPacket2.getLayerOfType<pcpp::RadiusLayer>();
-	PTF_ASSERT_EQUAL(msg2OrigRadiusLayer->getDataLen(), radiusLayer->getDataLen(), size);
+	PTF_ASSERT_EQUAL(msg2OrigRadiusLayer->getDataLen(), radiusLayer->getDataLen(), num);
 	PTF_ASSERT_BUF_COMPARE(msg2OrigRadiusLayer->getData(), radiusLayer->getData(), msg2OrigRadiusLayer->getDataLen());
 
 
@@ -201,8 +201,8 @@ PTF_TEST_CASE(RadiusLayerEditTest)
 
 	PTF_ASSERT_TRUE(msg2OrigRadiusLayer->removeAllAttributes());
 	radiusPacket2.computeCalculateFields();
-	PTF_ASSERT_EQUAL(msg2OrigRadiusLayer->getAttributeCount(), 0, size);
-	PTF_ASSERT_EQUAL(msg2OrigRadiusLayer->getHeaderLen(), sizeof(pcpp::radius_header), size);
+	PTF_ASSERT_EQUAL(msg2OrigRadiusLayer->getAttributeCount(), 0, num);
+	PTF_ASSERT_EQUAL(msg2OrigRadiusLayer->getHeaderLen(), sizeof(pcpp::radius_header), num);
 	PTF_ASSERT_TRUE(msg2OrigRadiusLayer->getFirstAttribute().isNull());
 	PTF_ASSERT_TRUE(msg2OrigRadiusLayer->getAttribute(6).isNull());
 	PTF_ASSERT_TRUE(msg2OrigRadiusLayer->getAttribute(80).isNull());
