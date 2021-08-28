@@ -228,7 +228,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 			break;
 	}
 
-	PTF_PRINT_VERBOSE("Total sleep time: %d secs", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 	
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0, num);
@@ -302,7 +302,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 			break;
 	}
 
-	PTF_PRINT_VERBOSE("Total sleep time: %d secs", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 	
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-1, num);
@@ -360,7 +360,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 
 	liveDev->stopCapture();
 
-	PTF_PRINT_VERBOSE("Total sleep time: %d secs", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0, num);
 
@@ -397,7 +397,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 			break;
 	}
 
-	PTF_PRINT_VERBOSE("Total sleep time: %d secs", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0, num);
@@ -645,8 +645,8 @@ PTF_TEST_CASE(TestMtuSize)
 	smallPacket.addLayer(&smallPayload);
 
 	// Check the size of the small Packet
-	PTF_PRINT_VERBOSE("Mtu: %u", liveDev->getMtu());
-	PTF_PRINT_VERBOSE("Small packet: %lu", smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
+	PTF_PRINT_VERBOSE("Mtu: " << liveDev->getMtu());
+	PTF_PRINT_VERBOSE("Small packet: " << smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
 	PTF_ASSERT_EQUAL(smallPacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)liveDev->getMtu(), ptr);
 	// Try sending the packet
 	PTF_ASSERT_TRUE(liveDev->sendPacket(&smallPacket));
@@ -677,7 +677,7 @@ PTF_TEST_CASE(TestMtuSize)
 	largePacket.addLayer(&largePayload);
 	
 	// Check the size of the large Packet
-	PTF_PRINT_VERBOSE("Large paket: %lu", largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
+	PTF_PRINT_VERBOSE("Large packet: " << largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
 	PTF_ASSERT_EQUAL(largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)(liveDev->getMtu() + 1), ptr);
 	// Try sending the packet
 	pcpp::LoggerPP::getInstance().suppressErrors();
@@ -745,7 +745,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 
 	remoteDevice->stopCapture();
 
-	PTF_PRINT_VERBOSE("Total sleep time: %d secs", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 
 	PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2, num);
 

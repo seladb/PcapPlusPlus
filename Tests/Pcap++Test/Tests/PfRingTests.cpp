@@ -212,7 +212,7 @@ PTF_TEST_CASE(TestPfRingDevice)
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArrive, &packetData));
 	int totalSleepTime = incSleep(10, packetData);
 	dev->stopCapture();
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	PTF_ASSERT_GREATER_THAN(packetData.PacketCount, 0, num);
 	PTF_ASSERT_NOT_EQUAL(packetData.ThreadId, -1, num);
 
@@ -223,15 +223,15 @@ PTF_TEST_CASE(TestPfRingDevice)
 	PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetData.PacketCount, num);
 	dev->close();
 
-	PTF_PRINT_VERBOSE("Thread ID: %d", packetData.ThreadId);
-	PTF_PRINT_VERBOSE("Total packets captured: %d", packetData.PacketCount);
-	PTF_PRINT_VERBOSE("Eth packets: %d", packetData.EthCount);
-	PTF_PRINT_VERBOSE("IP packets: %d", packetData.IpCount);
-	PTF_PRINT_VERBOSE("TCP packets: %d", packetData.TcpCount);
-	PTF_PRINT_VERBOSE("UDP packets: %d", packetData.UdpCount);
+	PTF_PRINT_VERBOSE("Thread ID: " << packetData.ThreadId);
+	PTF_PRINT_VERBOSE("Total packets captured: " << packetData.PacketCount);
+	PTF_PRINT_VERBOSE("Eth packets: " << packetData.EthCount);
+	PTF_PRINT_VERBOSE("IP packets: " << packetData.IpCount);
+	PTF_PRINT_VERBOSE("TCP packets: " << packetData.TcpCount);
+	PTF_PRINT_VERBOSE("UDP packets: " << packetData.UdpCount);
 	PTF_PRINT_VERBOSE("Device statistics:");
-	PTF_PRINT_VERBOSE("Packets captured: %d", (int)stats.recv);
-	PTF_PRINT_VERBOSE("Packets dropped: %d", (int)stats.drop);
+	PTF_PRINT_VERBOSE("Packets captured: " << stats.recv);
+	PTF_PRINT_VERBOSE("Packets dropped: " << stats.drop);
 
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
@@ -259,20 +259,20 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArrive, &packetData));
 	int totalSleepTime = incSleep(10, packetData);
 	dev->stopCapture();
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	PTF_ASSERT_GREATER_THAN(packetData.PacketCount, 0, num);
 	PTF_ASSERT_NOT_EQUAL(packetData.ThreadId, -1, num);
 	pcpp::PfRingDevice::PfRingStats stats;
 	dev->getStatistics(stats);
 	PTF_ASSERT_EQUAL(stats.recv, (uint64_t)packetData.PacketCount, num);
-	PTF_PRINT_VERBOSE("Thread ID: %d", packetData.ThreadId);
-	PTF_PRINT_VERBOSE("Total packets captured: %d", packetData.PacketCount);
-	PTF_PRINT_VERBOSE("Eth packets: %d", packetData.EthCount);
-	PTF_PRINT_VERBOSE("IP packets: %d", packetData.IpCount);
-	PTF_PRINT_VERBOSE("TCP packets: %d", packetData.TcpCount);
-	PTF_PRINT_VERBOSE("UDP packets: %d", packetData.UdpCount);
-	PTF_PRINT_VERBOSE("Packets captured: %d", (int)stats.recv);
-	PTF_PRINT_VERBOSE("Packets dropped: %d", (int)stats.drop);
+	PTF_PRINT_VERBOSE("Thread ID: " << packetData.ThreadId);
+	PTF_PRINT_VERBOSE("Total packets captured: " << packetData.PacketCount);
+	PTF_PRINT_VERBOSE("Eth packets: " << packetData.EthCount);
+	PTF_PRINT_VERBOSE("IP packets: " << packetData.IpCount);
+	PTF_PRINT_VERBOSE("TCP packets: " << packetData.TcpCount);
+	PTF_PRINT_VERBOSE("UDP packets: " << packetData.UdpCount);
+	PTF_PRINT_VERBOSE("Packets captured: " << stats.recv);
+	PTF_PRINT_VERBOSE("Packets dropped: " << stats.drop);
 
 	dev->close();
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0, num);
@@ -319,7 +319,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	PTF_ASSERT_TRUE(dev->startCaptureMultiThread(pfRingPacketsArriveMultiThread, packetDataMultiThread, TestPfRingMultiThreadCoreMask));
 	int totalSleepTime = incSleepMultiThread(15, packetDataMultiThread, totalnumOfCores, numOfCoresInUse, TestPfRingMultiThreadCoreMask);
 	dev->stopCapture();
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	pcpp::PfRingDevice::PfRingStats aggrStats;
 	aggrStats.recv = 0;
 	aggrStats.drop = 0;
@@ -336,20 +336,20 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 
 		if (PTF_IS_VERBOSE_MODE)
 		{
-			PTF_PRINT_VERBOSE("____Thread ID: %d____", packetDataMultiThread[i].ThreadId);
-			PTF_PRINT_VERBOSE("Total packets captured: %d", packetDataMultiThread[i].PacketCount);
-			PTF_PRINT_VERBOSE("Eth packets: %d", packetDataMultiThread[i].EthCount);
-			PTF_PRINT_VERBOSE("IP packets: %d", packetDataMultiThread[i].IpCount);
-			PTF_PRINT_VERBOSE("TCP packets: %d", packetDataMultiThread[i].TcpCount);
-			PTF_PRINT_VERBOSE("UDP packets: %d", packetDataMultiThread[i].UdpCount);
-			PTF_PRINT_VERBOSE("Packets captured: %d", (int)stats.recv);
-			PTF_PRINT_VERBOSE("Packets dropped: %d", (int)stats.drop);
-			PTF_PRINT_VERBOSE("Total flows: %d", (int)packetDataMultiThread[i].FlowKeys.size());
+			PTF_PRINT_VERBOSE("____Thread ID: " << packetDataMultiThread[i].ThreadId << "____");
+			PTF_PRINT_VERBOSE("Total packets captured: " << packetDataMultiThread[i].PacketCount);
+			PTF_PRINT_VERBOSE("Eth packets: " << packetDataMultiThread[i].EthCount);
+			PTF_PRINT_VERBOSE("IP packets: " << packetDataMultiThread[i].IpCount);
+			PTF_PRINT_VERBOSE("TCP packets: " << packetDataMultiThread[i].TcpCount);
+			PTF_PRINT_VERBOSE("UDP packets: " << packetDataMultiThread[i].UdpCount);
+			PTF_PRINT_VERBOSE("Packets captured: " << stats.recv);
+			PTF_PRINT_VERBOSE("Packets dropped: " << stats.drop);
+			PTF_PRINT_VERBOSE("Total flows: " << packetDataMultiThread[i].FlowKeys.size());
 			for(std::map<uint32_t, pcpp::RawPacketVector>::iterator iter = packetDataMultiThread[i].FlowKeys.begin(); 
 				iter != packetDataMultiThread[i].FlowKeys.end(); 
 				iter++) 
 			{
-				PTF_PRINT_VERBOSE("Key=%X; Value=%d", iter->first, (int)iter->second.size());
+				PTF_PRINT_VERBOSE("Key=" << iter->first << "; Value=" << iter->second.size());
 			}
 		}
 
@@ -395,7 +395,7 @@ PTF_TEST_CASE(TestPfRingMultiThreadAllCores)
 		coreMask |= pcpp::SystemCores::IdToSystemCore[i].Mask;
 	}
 
-	PTF_PRINT_VERBOSE("Participating cores: %s", cores.str().c_str());
+	PTF_PRINT_VERBOSE("Participating cores: " << cores.str());
 
 	TestPfRingMultiThreadCoreMask = coreMask;
 	PTF_INTERNAL_RUN(TestPfRingDeviceMultiThread);
@@ -423,7 +423,7 @@ PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 		coreMask |= pcpp::SystemCores::IdToSystemCore[i].Mask;
 	}
 
-	PTF_PRINT_VERBOSE("Participating cores: %s", cores.str().c_str());
+	PTF_PRINT_VERBOSE("Participating cores: " << cores.str());
 
 	TestPfRingMultiThreadCoreMask = coreMask;
 	PTF_INTERNAL_RUN(TestPfRingDeviceMultiThread);
@@ -573,7 +573,7 @@ PTF_TEST_CASE(TestPfRingFilters)
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArriveSetFilter, &instruction));
 	int totalSleepTime = incSleepSetFilter(10, instruction);
 	dev->stopCapture();
-	PTF_PRINT_VERBOSE("Total sleep time TCP filter: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time TCP filter: " << totalSleepTime);
 	PTF_ASSERT_EQUAL(instruction.Instruction, 1, num);
 
 	instruction.Instruction = 2;
@@ -584,7 +584,7 @@ PTF_TEST_CASE(TestPfRingFilters)
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArriveSetFilter, &instruction));
 	totalSleepTime = incSleepSetFilter(10, instruction);
 	dev->stopCapture();
-	PTF_PRINT_VERBOSE("Total sleep time IP filter: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time IP filter: " << totalSleepTime);
 	PTF_ASSERT_EQUAL(instruction.Instruction, 2, num);
 
 	// remove filter and test again
