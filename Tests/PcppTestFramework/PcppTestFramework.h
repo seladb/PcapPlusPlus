@@ -40,7 +40,7 @@
 		if (actual != expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-			<< "Assert equal failed: " \
+			<< "Assert EQUAL failed: " \
 			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
 			<< " != " \
 			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
@@ -56,7 +56,7 @@
 		if (actual == expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-			<< "Assert not equal failed: " \
+			<< "Assert NOT EQUAL failed: " \
 			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
 			<< " == " \
 			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
@@ -71,7 +71,7 @@
 		if (actual <= expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-			<< "Assert greater than failed: " \
+			<< "Assert GREATER THAN failed: " \
 			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
 			<< " <= " \
 			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
@@ -86,7 +86,7 @@
 		if (actual < expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-			<< "Assert greater than failed: " \
+			<< "Assert GREATER OR EQUAL THAN failed: " \
 			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
 			<< " < " \
 			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
@@ -101,7 +101,7 @@
 		if (actual >= expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-			<< "Assert greater than failed: " \
+			<< "Assert LOWER THAN failed: " \
 			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
 			<< " >= " \
 			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
@@ -116,7 +116,7 @@
 		if (actual > expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-			<< "Assert greater than failed: " \
+			<< "Assert LOWER OR EQUAL THAN failed: " \
 			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
 			<< " > " \
 			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
@@ -129,7 +129,7 @@
 #define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) \
 	if (memcmp(buf1, buf2, size) != 0) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
-		<< "Assert buffer comare failed: " \
+		<< "Assert BUFFER COMPARE failed: " \
 		<< #buf1 << " != " << #buf2 \
 		<< std::endl; \
 		ptfResult = PTF_RESULT_FAILED; \
@@ -140,7 +140,7 @@
 	if (!(exp)) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 		<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-		<< "Assert true failed: " << #exp \
+		<< "Assert TRUE failed: " << #exp \
 		<< std::endl; \
 		ptfResult = PTF_RESULT_FAILED; \
 		return; \
@@ -150,7 +150,7 @@
 	if (exp) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 		<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-		<< "Assert false failed: " << #exp \
+		<< "Assert FALSE failed: " << #exp \
 		<< std::endl; \
 		ptfResult = PTF_RESULT_FAILED; \
 		return; \
@@ -160,7 +160,7 @@
 	if ((exp) == NULL) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 		<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-		<< "Assert not null failed: " \
+		<< "Assert NOT NULL failed: " \
 		<< #exp << " is NULL" \
 		<< std::endl; \
 		ptfResult = PTF_RESULT_FAILED; \
@@ -171,7 +171,7 @@
 	if ((exp) != NULL) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 		<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
-		<< "Assert null failed: " \
+		<< "Assert NULL failed: " \
 		<< #exp << " is not NULL" \
 		<< std::endl; \
 		ptfResult = PTF_RESULT_FAILED; \
@@ -182,7 +182,7 @@
 	if (actual != expected) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 		<< "NON-CRITICAL (" << __FILE__ << ":" << __LINE__ << "). " \
-		<< "Assert greater than failed: " \
+		<< "Assert EQUAL failed: " \
 		<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
 		<< " != " \
 		<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
@@ -194,7 +194,7 @@
 	if (!exp) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 		<< "NON-CRITICAL (" << __FILE__ << ":" << __LINE__ << "). " \
-		<< "Expression is not true: " << #exp \
+		<< "Expression is not TRUE: " << #exp \
 		<< std::endl; \
 	}
 
