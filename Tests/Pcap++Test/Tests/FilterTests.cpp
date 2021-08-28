@@ -58,7 +58,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
 	//let the capture work for couple of seconds
 	int totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, num);
 
@@ -85,7 +85,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
 	//let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, num);
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
@@ -112,7 +112,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.walla.co.il"));
 	//let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, num);
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
@@ -143,7 +143,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.youtube.com"));
 	//let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, num);
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
@@ -183,7 +183,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.ebay.com"));
 	//let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, num);
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)

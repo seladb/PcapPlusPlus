@@ -32,7 +32,7 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over RADIUS attributes");
 	for (int i=0; i<10; i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration %d", i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		PTF_ASSERT_EQUAL(radiusAttr.getType(), attrTypes[i], num);
 		PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), attrTotalSize[i], num);
 		PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), attrDataSize[i], num);
@@ -65,7 +65,7 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over RADIUS attributes");
 	for (int i=0; i<2; i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration %d", i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		PTF_ASSERT_EQUAL(radiusAttr.getType(), attrTypes2[i], num);
 		PTF_ASSERT_EQUAL(radiusAttr.getTotalSize(), attrTotalSize2[i], num);
 		PTF_ASSERT_EQUAL(radiusAttr.getDataSize(), attrDataSize2[i], num);

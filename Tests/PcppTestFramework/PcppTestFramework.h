@@ -1,7 +1,6 @@
 #ifndef PCPP_TEST_FRAMEWORK
 #define PCPP_TEST_FRAMEWORK
 
-#include <stdio.h>
 #include <iomanip>
 #include <iostream>
 #include "memplumber.h"
@@ -199,11 +198,13 @@
 		<< std::endl; \
 	}
 
-#define PTF_PRINT_VERBOSE(format, ...) do { \
-		if(printVerbose) { \
-			printf("%-30s: [VERBOSE] " format "\n", __FUNCTION__, ## __VA_ARGS__); \
-		} \
-} while(0)
+#define PTF_PRINT_VERBOSE(data) \
+	if(printVerbose) { \
+		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
+		<< "[VERBOSE] " \
+		<< data \
+		<< std::endl; \
+	} \
 
 #define PTF_SKIP_TEST(why) \
 	{ \

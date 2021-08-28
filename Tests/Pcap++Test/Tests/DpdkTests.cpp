@@ -314,28 +314,28 @@ PTF_TEST_CASE(TestDpdkDevice)
 	int totalSleepTime = incSleep(10, 0, packetData);
 	dev->stopCapture();
 
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 
-	PTF_PRINT_VERBOSE("Thread ID: %d", packetData.ThreadId);
-	PTF_PRINT_VERBOSE("Total packets captured: %d", packetData.PacketCount);
-	PTF_PRINT_VERBOSE("Eth packets: %d", packetData.EthCount);
-	PTF_PRINT_VERBOSE("ARP packets: %d", packetData.ArpCount);
-	PTF_PRINT_VERBOSE("IPv4 packets: %d", packetData.Ip4Count);
-	PTF_PRINT_VERBOSE("IPv6 packets: %d", packetData.Ip6Count);
-	PTF_PRINT_VERBOSE("TCP packets: %d", packetData.TcpCount);
-	PTF_PRINT_VERBOSE("UDP packets: %d", packetData.UdpCount);
-	PTF_PRINT_VERBOSE("HTTP packets: %d", packetData.HttpCount);
+	PTF_PRINT_VERBOSE("Thread ID: " << packetData.ThreadId);
+	PTF_PRINT_VERBOSE("Total packets captured: " << packetData.PacketCount);
+	PTF_PRINT_VERBOSE("Eth packets: " << packetData.EthCount);
+	PTF_PRINT_VERBOSE("ARP packets: " << packetData.ArpCount);
+	PTF_PRINT_VERBOSE("IPv4 packets: " << packetData.Ip4Count);
+	PTF_PRINT_VERBOSE("IPv6 packets: " << packetData.Ip6Count);
+	PTF_PRINT_VERBOSE("TCP packets: " << packetData.TcpCount);
+	PTF_PRINT_VERBOSE("UDP packets: " << packetData.UdpCount);
+	PTF_PRINT_VERBOSE("HTTP packets: " << packetData.HttpCount);
 
 	pcpp::DpdkDevice::DpdkDeviceStats stats;
 	dev->getStatistics(stats);
-	PTF_PRINT_VERBOSE("Packets captured according to stats: %lu", stats.aggregatedRxStats.packets);
-	PTF_PRINT_VERBOSE("Bytes captured according to stats: %lu", stats.aggregatedRxStats.bytes);
-	PTF_PRINT_VERBOSE("Packets dropped according to stats: %lu", stats.rxPacketsDropeedByHW);
-	PTF_PRINT_VERBOSE("Erroneous packets according to stats: %lu", stats.rxErroneousPackets);
+	PTF_PRINT_VERBOSE("Packets captured according to stats: " << stats.aggregatedRxStats.packets);
+	PTF_PRINT_VERBOSE("Bytes captured according to stats: " << stats.aggregatedRxStats.bytes);
+	PTF_PRINT_VERBOSE("Packets dropped according to stats: " << stats.rxPacketsDropeedByHW);
+	PTF_PRINT_VERBOSE("Erroneous packets according to stats: " << stats.rxErroneousPackets);
 	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 	{
-		PTF_PRINT_VERBOSE("Packets captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].packets);
-		PTF_PRINT_VERBOSE("Bytes captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].bytes);
+		PTF_PRINT_VERBOSE("Packets captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].packets);
+		PTF_PRINT_VERBOSE("Bytes captured on RX queue #" i << " according to stats: " << stats.rxStats[i].bytes);
 	}
 	PTF_ASSERT_GREATER_THAN(packetData.PacketCount, 0, num);
 	PTF_ASSERT_NOT_EQUAL(packetData.ThreadId, -1, num);
@@ -419,7 +419,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	PTF_ASSERT_TRUE(dev->startCaptureMultiThreads(dpdkPacketsArriveMultiThread, packetDataMultiThread, coreMask));
 	int totalSleepTime = incSleepMultiThread(20, packetDataMultiThread, pcpp::getNumOfCores(), numOfCoresInUse, coreMask);
 	dev->stopCapture();
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	uint64_t packetCount = 0;
 
 	for (int i = 0; i < pcpp::getNumOfCores(); i++)
@@ -427,14 +427,14 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 		if ((pcpp::SystemCores::IdToSystemCore[i].Mask & coreMask) == 0)
 			continue;
 
-		PTF_PRINT_VERBOSE("Thread ID: %d", packetDataMultiThread[i].ThreadId);
-		PTF_PRINT_VERBOSE("Total packets captured: %d", packetDataMultiThread[i].PacketCount);
-		PTF_PRINT_VERBOSE("Eth packets: %d", packetDataMultiThread[i].EthCount);
-		PTF_PRINT_VERBOSE("ARP packets: %d", packetDataMultiThread[i].ArpCount);
-		PTF_PRINT_VERBOSE("IPv4 packets: %d", packetDataMultiThread[i].Ip4Count);
-		PTF_PRINT_VERBOSE("IPv6 packets: %d", packetDataMultiThread[i].Ip6Count);
-		PTF_PRINT_VERBOSE("TCP packets: %d", packetDataMultiThread[i].TcpCount);
-		PTF_PRINT_VERBOSE("UDP packets: %d", packetDataMultiThread[i].UdpCount);
+		PTF_PRINT_VERBOSE("Thread ID: " << packetDataMultiThread[i].ThreadId);
+		PTF_PRINT_VERBOSE("Total packets captured: " << packetDataMultiThread[i].PacketCount);
+		PTF_PRINT_VERBOSE("Eth packets: " << packetDataMultiThread[i].EthCount);
+		PTF_PRINT_VERBOSE("ARP packets: " << packetDataMultiThread[i].ArpCount);
+		PTF_PRINT_VERBOSE("IPv4 packets: " << packetDataMultiThread[i].Ip4Count);
+		PTF_PRINT_VERBOSE("IPv6 packets: " << packetDataMultiThread[i].Ip6Count);
+		PTF_PRINT_VERBOSE("TCP packets: " << packetDataMultiThread[i].TcpCount);
+		PTF_PRINT_VERBOSE("UDP packets: " << packetDataMultiThread[i].UdpCount);
 		packetCount += packetDataMultiThread[i].PacketCount;
 	}
 
@@ -442,14 +442,14 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 	pcpp::DpdkDevice::DpdkDeviceStats stats;
 	dev->getStatistics(stats);
-	PTF_PRINT_VERBOSE("Packets captured according to stats: %lu", stats.aggregatedRxStats.packets);
-	PTF_PRINT_VERBOSE("Bytes captured according to stats: %lu", stats.aggregatedRxStats.bytes);
-	PTF_PRINT_VERBOSE("Packets dropped according to stats: %lu", stats.rxPacketsDropeedByHW);
-	PTF_PRINT_VERBOSE("Erroneous packets according to stats: %lu", stats.rxErroneousPackets);
+	PTF_PRINT_VERBOSE("Packets captured according to stats: " << stats.aggregatedRxStats.packets);
+	PTF_PRINT_VERBOSE("Bytes captured according to stats: " << stats.aggregatedRxStats.bytes);
+	PTF_PRINT_VERBOSE("Packets dropped according to stats: " << stats.rxPacketsDropeedByHW);
+	PTF_PRINT_VERBOSE("Erroneous packets according to stats: " << stats.rxErroneousPackets);
 	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 	{
-		PTF_PRINT_VERBOSE("Packets captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].packets);
-		PTF_PRINT_VERBOSE("Bytes captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].bytes);
+		PTF_PRINT_VERBOSE("Packets captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].packets);
+		PTF_PRINT_VERBOSE("Bytes captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].bytes);
 
 	}
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(stats.aggregatedRxStats.packets, packetCount, num);
@@ -472,7 +472,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 			{
 				for (std::map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
 				{
-					PTF_PRINT_VERBOSE("Same flow exists in core %d and core %d. Flow key = %X", firstCoreId, secondCoreId, iter->first);
+					PTF_PRINT_VERBOSE("Same flow exists in core " << firstCoreId << " and core " << secondCoreId << ". Flow key = " << iter->first);
 					std::ostringstream stream;
 					stream << "Core" << firstCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
 					pcpp::PcapFileWriterDevice writerDev(stream.str());
@@ -493,13 +493,13 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 				}
 			}
 		}
-		PTF_PRINT_VERBOSE("____Core %d____", firstCoreId);
-		PTF_PRINT_VERBOSE("Total flows: %d", (int)packetDataMultiThread[firstCoreId].FlowKeys.size());
+		PTF_PRINT_VERBOSE("____Core " <<  firstCoreId << "____");
+		PTF_PRINT_VERBOSE("Total flows: " << packetDataMultiThread[firstCoreId].FlowKeys.size());
 
 		if (PTF_IS_VERBOSE_MODE)
 		{
 			for(std::map<uint32_t, pcpp::RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
-				PTF_PRINT_VERBOSE("Key=%X; Value=%d", (int)iter->first, (int)iter->second.size());
+				PTF_PRINT_VERBOSE("Key=" << iter->first << "; Value=" << iter->second.size());
 				iter->second.clear();
 			}
 		}
@@ -655,7 +655,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	}
 
 	PTF_ASSERT_LOWER_THAN(numOfAttempts, 20, num);
-	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using RawPacketVector", (int)rawPacketVec.size(), numOfAttempts);
+	PTF_PRINT_VERBOSE("Captured " << rawPacketVec.size() << " packets in " << numOfAttempts << " attempts using RawPacketVector");
 
 	// receive packets to mbuf array
 	// -----------------------------
@@ -681,7 +681,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	}
 
 	PTF_ASSERT_LOWER_THAN(numOfAttempts, 20, num);
-	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using mBuf raw packet arr", (int)mBufRawPacketArrLen, numOfAttempts);
+	PTF_PRINT_VERBOSE("Captured " << mBufRawPacketArrLen << " packets in " << numOfAttempts << " attempts using mBuf raw packet arr");
 
 	for (int i = 0; i < 32; i++)
 	{
@@ -713,7 +713,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	}
 
 	PTF_ASSERT_LOWER_THAN(numOfAttempts, 20, num);
-	PTF_PRINT_VERBOSE("Captured %d packets in %d attempts using packet arr", (int)packetArrLen, numOfAttempts);
+	PTF_PRINT_VERBOSE("Captured " << packetArrLen << " packets in " << numOfAttempts << " attempts using packet arr");
 
 	for (int i = 0; i < 32; i++)
 	{
@@ -736,12 +736,12 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 			continue;
 		DpdkTestWorkerThread* newWorkerThread = new DpdkTestWorkerThread();
 		int queueId = core.Id % numOfRxQueues;
-		PTF_PRINT_VERBOSE("Assigning queue #%d to core %d", queueId, core.Id);
+		PTF_PRINT_VERBOSE("Assigning queue #" << queueId << " to core " << core.Id);
 		newWorkerThread->init(dev, queueId, &queueMutexArr[queueId]);
 		workerThreadVec.push_back((pcpp::DpdkWorkerThread*)newWorkerThread);
 		workerThreadCoreMask |= core.Mask;
 	}
-	PTF_PRINT_VERBOSE("Initiating %d worker threads", (int)workerThreadVec.size());
+	PTF_PRINT_VERBOSE("Initiating " << workerThreadVec.size() << " worker threads");
 
 	pcpp::LoggerPP::getInstance().suppressErrors();
 	// negative test - start worker thread with core mask 0
@@ -759,16 +759,16 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	{
 		pcpp::DpdkDevice::DpdkDeviceStats stats;
 		dev->getStatistics(stats);
-		PTF_PRINT_VERBOSE("Packets captured   : %lu", stats.aggregatedRxStats.packets);
-		PTF_PRINT_VERBOSE("Bytes captured     : %lu", stats.aggregatedRxStats.bytes);
-		PTF_PRINT_VERBOSE("Bits per second    : %lu", stats.aggregatedRxStats.bytesPerSec*8);
-		PTF_PRINT_VERBOSE("Packets per second : %lu", stats.aggregatedRxStats.packetsPerSec);
-		PTF_PRINT_VERBOSE("Packets dropped    : %lu", stats.rxPacketsDropeedByHW);
-		PTF_PRINT_VERBOSE("Erroneous packets  : %lu", stats.rxErroneousPackets);
+		PTF_PRINT_VERBOSE("Packets captured   : " << stats.aggregatedRxStats.packets);
+		PTF_PRINT_VERBOSE("Bytes captured     : " << stats.aggregatedRxStats.bytes);
+		PTF_PRINT_VERBOSE("Bits per second    : " << stats.aggregatedRxStats.bytesPerSec*8);
+		PTF_PRINT_VERBOSE("Packets per second : " << stats.aggregatedRxStats.packetsPerSec);
+		PTF_PRINT_VERBOSE("Packets dropped    : " << stats.rxPacketsDropeedByHW);
+		PTF_PRINT_VERBOSE("Erroneous packets  : " << stats.rxErroneousPackets);
 		for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 		{
-			PTF_PRINT_VERBOSE("Packets captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].packets);
-			PTF_PRINT_VERBOSE("Bytes captured on RX queue #%d according to stats: %lu", i, stats.rxStats[i].bytes);
+			PTF_PRINT_VERBOSE("Packets captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].packets);
+			PTF_PRINT_VERBOSE("Bytes captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].bytes);
 
 		}
 
@@ -792,7 +792,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		DpdkTestWorkerThread* thread = (DpdkTestWorkerThread*)(*iter);
 		PTF_ASSERT_TRUE(thread->threadRanAndStopped());
 		packetCount += thread->getPacketCount();
-		PTF_PRINT_VERBOSE("Worker thread on core %d captured %d packets", thread->getCoreId(), thread->getPacketCount());
+		PTF_PRINT_VERBOSE("Worker thread on core " << thread->getCoreId() << " captured " << thread->getPacketCount() << " packets");
 		delete thread;
 	}
 
@@ -800,7 +800,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		pthread_mutex_destroy(&queueMutexArr[i]);
 
 
-	PTF_PRINT_VERBOSE("Total packet count for all worker threads: %d", packetCount);
+	PTF_PRINT_VERBOSE("Total packet count for all worker threads: " << packetCount);
 
 	PTF_ASSERT_GREATER_THAN(packetCount, 0, num);
 
@@ -898,7 +898,7 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 	}
 
 	PTF_ASSERT_LOWER_THAN(numOfAttempts, 30, num);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", numOfAttempts);
+	PTF_PRINT_VERBOSE("Total sleep time: " << numOfAttempts);
 
 	pcpp::PcapFileWriterDevice writer(DPDK_PCAP_WRITE_PATH);
 	PTF_ASSERT_TRUE(writer.open());

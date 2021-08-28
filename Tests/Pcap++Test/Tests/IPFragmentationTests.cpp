@@ -35,7 +35,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_PRINT_VERBOSE("basic IPv4 reassembly test - iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
 		if (i == 0)
@@ -95,7 +95,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_PRINT_VERBOSE("basic IPv6 reassembly test - iterating over packet stream");
 	for (size_t i = 0; i < packet1Frags.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		pcpp::Packet packet(packet1Frags.at(i));
 		result = ipReassembly.processPacket(&packet, status);
 		if (i == 0)
@@ -141,7 +141,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_PRINT_VERBOSE("non-fragment test - iterating over packet stream");
 	for (size_t i = 0; i < 20; i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
 
@@ -156,7 +156,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_PRINT_VERBOSE("non-IP test - iterating over packet stream");
 	for (size_t i = 20; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
 
@@ -193,7 +193,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("First use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -241,7 +241,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("Second use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -287,7 +287,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("Third use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -335,7 +335,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("Fourth use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -386,7 +386,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	PTF_PRINT_VERBOSE("Fifth use-case: iterating over packet stream");
 	for (size_t i = 0; i < packetStream.size(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 
 		pcpp::Packet packet(&packetStream.at(i));
 		result = ipReassembly.processPacket(&packet, status);
@@ -640,7 +640,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_PRINT_VERBOSE("read 2nd - 5th frag in each packet");
 	for (int i = 1; i < 5; i++)
 	{
-		PTF_PRINT_VERBOSE("Frag#%d", i+1);
+		PTF_PRINT_VERBOSE("Frag#" << i+1);
 
 		ip4Packet1 = ipReassembly.processPacket(ip4Packet1Frags.at(i), status);
 		PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FRAGMENT, enum);
@@ -723,7 +723,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_PRINT_VERBOSE("read 6th - 9th frag in IPv4 packets 4,6,8 and IPv6 packet 2");
 	for (int i = 5; i < 9; i++)
 	{
-		PTF_PRINT_VERBOSE("Frag#%d", i+1);
+		PTF_PRINT_VERBOSE("Frag#" << i+1);
 
 		ip4Packet4 = ipReassembly.processPacket(ip4Packet4Frags.at(i), status);
 		PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FRAGMENT, enum);
@@ -745,7 +745,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_PRINT_VERBOSE("read 6th - 8th frag in IPv6 packet 3");
 	for (int i = 5; i < 8; i++)
 	{
-		PTF_PRINT_VERBOSE("Frag#%d", i+1);
+		PTF_PRINT_VERBOSE("Frag#" << i+1);
 		ip6Packet3 = ipReassembly.processPacket(ip6Packet3Frags.at(i), status);
 		PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FRAGMENT, enum);
 		PTF_ASSERT_NULL(ip6Packet3);
@@ -802,7 +802,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_PRINT_VERBOSE("read 10th - 12th frag in IPv6 packet 2");
 	for (int i = 9; i < 12; i++)
 	{
-		PTF_PRINT_VERBOSE("Frag#%d", i+1);
+		PTF_PRINT_VERBOSE("Frag#" << i+1);
 		ip6Packet2 = ipReassembly.processPacket(ip6Packet2Frags.at(i), status);
 		PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FRAGMENT, enum);
 		PTF_ASSERT_NULL(ip6Packet2);

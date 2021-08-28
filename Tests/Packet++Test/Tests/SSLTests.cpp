@@ -108,7 +108,7 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over cipher suites");
 	for (int i = 0; i < clientHelloMessage->getCipherSuiteCount(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration %d", i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		pcpp::SSLCipherSuite* curCipherSuite = clientHelloMessage->getCipherSuite(i);
 		PTF_ASSERT_NOT_NULL(curCipherSuite);
 		PTF_ASSERT_EQUAL(curCipherSuite->asString(), cipherSuiteNames[i], string);
@@ -155,7 +155,7 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over extensions");
 	for (int i = 0; i < extCount; i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration %d", i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		pcpp::SSLExtension* curExt = clientHelloMessage->getExtension(i);
 		PTF_ASSERT_EQUAL(curExt->getType(), extTypes[i], enum);
 		PTF_ASSERT_EQUAL(curExt->getLength(), extLength[i], num);
@@ -290,7 +290,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 	PTF_PRINT_VERBOSE("iterating over SSL extensions");
 	for (int i = 0; i < 3; i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		pcpp::SSLExtension* curExt = serverHelloMessage->getExtension(i);
 		PTF_ASSERT_EQUAL(curExt->getLength(), extensionsLength[i], num);
 		PTF_ASSERT_EQUAL(curExt->getTotalLength(), totalExtensionsLength[i], num);
