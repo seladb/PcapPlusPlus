@@ -182,7 +182,7 @@ public:
 	{
 		if (!m_Initialized)
 		{
-			printf("Error: Thread %d was not initialized\n", coreId);
+			std::cout << "Error: Thread " << coreId << " was not initialized" << std::endl;
 			return false;
 		}
 
@@ -190,7 +190,7 @@ public:
 
 		if (m_DpdkDevice == NULL)
 		{
-			printf("Error: DpdkDevice is NULL");
+			std::cout << "Error: DpdkDevice is NULL";
 			return false;
 		}
 
@@ -207,7 +207,7 @@ public:
 			uint16_t packetsSent = m_DpdkDevice->sendPackets(mBufArr, packetReceived, m_QueueId);
 			if (packetsSent != packetReceived)
 			{
-				printf("Error: Couldn't send all received packets on thread %d", m_CoreId);
+				std::cout << "Error: Couldn't send all received packets on thread " << m_CoreId;
 				pthread_mutex_unlock(m_QueueLock);
 				return false;
 			}

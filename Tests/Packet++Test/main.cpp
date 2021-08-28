@@ -19,15 +19,14 @@ static struct option PacketTestOptions[] =
 
 void printUsage()
 {
-    printf("Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
-			"Flags:\n"
-			"-t --tags                A list of semicolon separated tags for tests to run\n"
-			"-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
-			"-v --verbose             Run in verbose mode (emits more output in several tests)\n"
-			"-m --mem-verbose         Output information about each memory allocation and deallocation\n"
-			"-s --skip-mem-leak-check Skip memory leak check\n"
-			"-h --help                Display this help message and exit\n"
-		);
+    std::cout << "Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
+			<< "Flags:\n"
+			<< "-t --tags                A list of semicolon separated tags for tests to run\n"
+			<< "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
+			<< "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
+			<< "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
+			<< "-s --skip-mem-leak-check Skip memory leak check\n"
+			<< "-h --help                Display this help message and exit\n";
 }
 
 
@@ -70,14 +69,14 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	printf("PcapPlusPlus version: %s\n", pcpp::getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", pcpp::getBuildDateTime().c_str());
-	printf("Built from: %s\n", pcpp::getGitInfo().c_str());
+	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+	<< "Built: " << pcpp::getBuildDateTime() << std::endl
+	<< "Built from: " << pcpp::getGitInfo() << std::endl;
 
 	#ifdef NDEBUG
 	skipMemLeakCheck = true;
-	printf("Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:\n");
-	printf("     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958\n");
+	std::cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:" << std::endl
+	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 	#endif
 	
 	if (skipMemLeakCheck)
@@ -86,7 +85,7 @@ int main(int argc, char* argv[])
 			configTags += ";";
 
 		configTags += "skip_mem_leak_check";
-		printf("Skipping memory leak check for all test cases\n");
+		std::cout << "Skipping memory leak check for all test cases" << std::endl;
 	}
 
 	if (memVerbose)
@@ -95,7 +94,7 @@ int main(int argc, char* argv[])
 			configTags += ";";
 
 		configTags += "mem_leak_check_verbose";
-		printf("Turning on verbose information on memory allocations\n");
+		std::cout << "Turning on verbose information on memory allocations" << std::endl;
 	}
 
 	PTF_START_RUNNING_TESTS(userTags, configTags);

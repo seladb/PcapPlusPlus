@@ -29,25 +29,24 @@ static struct option PcapTestOptions[] =
 
 void printUsage()
 {
-	printf("Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d dpdk_port] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
-				"Flags:\n"
-				"-i --use-ip              IP to use for sending and receiving packets\n"
-				"-b --debug-mode          Set log level to DEBUG\n"
-				"-r --remote-ip	          IP of remote machine running rpcapd to test remote capture\n"
-				"-p --remote-port         Port of remote machine running rpcapd to test remote capture\n"
-				"-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
-				"-n --no-networking       Do not run tests that requires networking\n"
-				"-v --verbose             Run in verbose mode (emits more output in several tests)\n"
-				"-m --mem-verbose         Output information about each memory allocation and deallocation\n"			
-				"-s --skip-mem-leak-check Skip memory leak check\n"
-				"-k --kni-ip              IP address for KNI device tests to use must not be the same\n"
-				"                         as any of existing network interfaces in your system.\n"
-				"                         If this parameter is omitted KNI tests will be skipped. Must be an IPv4.\n"
-				"                         For Linux systems only\n"
-				"-t --tags                A list of semicolon separated tags for tests to run\n"
-				"-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
-				"-h --help                Display this help message and exit\n"
-	);
+	std::cout << "Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d dpdk_port] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
+		<< "Flags:\n"
+		<< "-i --use-ip              IP to use for sending and receiving packets\n"
+		<< "-b --debug-mode          Set log level to DEBUG\n"
+		<< "-r --remote-ip	          IP of remote machine running rpcapd to test remote capture\n"
+		<< "-p --remote-port         Port of remote machine running rpcapd to test remote capture\n"
+		<< "-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
+		<< "-n --no-networking       Do not run tests that requires networking\n"
+		<< "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
+		<< "-m --mem-verbose         Output information about each memory allocation and deallocation\n"			
+		<< "-s --skip-mem-leak-check Skip memory leak check\n"
+		<< "-k --kni-ip              IP address for KNI device tests to use must not be the same\n"
+		<< "                         as any of existing network interfaces in your system.\n"
+		<< "                         If this parameter is omitted KNI tests will be skipped. Must be an IPv4.\n"
+		<< "                         For Linux systems only\n"
+		<< "-t --tags                A list of semicolon separated tags for tests to run\n"
+		<< "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
+		<< "-h --help                Display this help message and exit\n";
 }
 
 PcapTestArgs PcapTestGlobalArgs;
@@ -123,19 +122,19 @@ int main(int argc, char* argv[])
 			userTags += ";";
 
 		userTags += "no_network";
-		printf("Running only tests that don't require network connection\n");
+		std:: cout << "Running only tests that don't require network connection" << std::endl;
 	}
 	else if (PcapTestGlobalArgs.ipToSendReceivePackets == "")
 	{
-		printf("Please provide an IP address to send and receive packets (-i argument)\n\n");
+		std::cerr << "Please provide an IP address to send and receive packets (-i argument)\n\n";
 		printUsage();
 		exit(-1);
 	}
 	
 	#ifdef NDEBUG
 	skipMemLeakCheck = true;
-	printf("Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:\n");
-	printf("     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958\n");
+	std:: cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:" << std::endl
+	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 	#endif
 
 	if (skipMemLeakCheck)
@@ -144,7 +143,7 @@ int main(int argc, char* argv[])
 			configTags += ";";
 
 		configTags += "skip_mem_leak_check";
-		printf("Skipping memory leak check for all test cases\n");
+		std:: cout << "Skipping memory leak check for all test cases" << std::endl;
 	}
 
 	if (memVerbose)
@@ -153,13 +152,13 @@ int main(int argc, char* argv[])
 			configTags += ";";
 
 		configTags += "mem_leak_check_verbose";
-		printf("Turning on verbose information on memory allocations\n");
+		std:: cout << "Turning on verbose information on memory allocations" << std::endl;
 	}
 
 #ifdef USE_DPDK
 	if (PcapTestGlobalArgs.dpdkPort == -1 && runWithNetworking)
 	{
-		printf("When testing with DPDK you must provide the DPDK NIC port to test\n\n");
+		std::cerr << "When testing with DPDK you must provide the DPDK NIC port to test\n\n";
 		printUsage();
 		exit(-1);
 	}
@@ -170,20 +169,20 @@ int main(int argc, char* argv[])
 		pcpp::LoggerPP::getInstance().setAllModlesToLogLevel(pcpp::LoggerPP::Debug);
 	}
 
-	printf("PcapPlusPlus version: %s\n", pcpp::getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", pcpp::getBuildDateTime().c_str());
-	printf("Git info: %s\n", pcpp::getGitInfo().c_str());
-	printf("Using ip: %s\n", PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	printf("Debug mode: %s\n", PcapTestGlobalArgs.debugMode ? "on" : "off");
+	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+	<< "Built: " << pcpp::getBuildDateTime() << std::endl
+	<< "Git info: " << pcpp::getGitInfo() << std::endl
+	<< "Using ip: " << PcapTestGlobalArgs.ipToSendReceivePackets << std::endl
+	<< "Debug mode: " << (PcapTestGlobalArgs.debugMode ? "on" : "off") << std::endl;
 
 #ifdef USE_DPDK
 	if (runWithNetworking)
 	{
-		printf("Using DPDK port: %d\n", PcapTestGlobalArgs.dpdkPort);
+		std::cout << "Using DPDK port: " << PcapTestGlobalArgs.dpdkPort << std::endl;
 		if (PcapTestGlobalArgs.kniIp == "")
-			printf("DPDK KNI tests: skipped\n");
+			std::cout << "DPDK KNI tests: skipped" << std::endl;
 		else
-			printf("Using IP address for KNI: %s\n", PcapTestGlobalArgs.kniIp.c_str());
+			std::cout << "Using IP address for KNI: " << PcapTestGlobalArgs.kniIp << std::endl;
 	}
 #endif
 
