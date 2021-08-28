@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string.h>
+#include <string>
 #include <fstream>
 
 namespace pcpp_tests
