@@ -349,7 +349,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 				iter != packetDataMultiThread[i].FlowKeys.end(); 
 				iter++) 
 			{
-				PTF_PRINT_VERBOSE("Key=" << iter->first << "; Value=" << iter->second.size());
+				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter->first << "; Value=" << std::dec << iter->second.size());
 			}
 		}
 

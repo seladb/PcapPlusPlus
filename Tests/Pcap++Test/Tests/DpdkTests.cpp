@@ -335,7 +335,7 @@ PTF_TEST_CASE(TestDpdkDevice)
 	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 	{
 		PTF_PRINT_VERBOSE("Packets captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].packets);
-		PTF_PRINT_VERBOSE("Bytes captured on RX queue #" i << " according to stats: " << stats.rxStats[i].bytes);
+		PTF_PRINT_VERBOSE("Bytes captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].bytes);
 	}
 	PTF_ASSERT_GREATER_THAN(packetData.PacketCount, 0, num);
 	PTF_ASSERT_NOT_EQUAL(packetData.ThreadId, -1, num);
@@ -499,7 +499,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 		if (PTF_IS_VERBOSE_MODE)
 		{
 			for(std::map<uint32_t, pcpp::RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
-				PTF_PRINT_VERBOSE("Key=" << iter->first << "; Value=" << iter->second.size());
+				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter->first << "; Value=" << std::dec << iter->second.size());
 				iter->second.clear();
 			}
 		}

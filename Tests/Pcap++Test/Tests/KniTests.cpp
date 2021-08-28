@@ -358,7 +358,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		rawPacketVec.clear();
 		pcpp::multiPlatformSleep(1); // Give some time to receive packets
 		device->stopCapture();
-		PTF_PRINT_VERBOSE("KNI have captured %u packets in single burst on device " KNI_TEST_NAME, counter, KNI_DEVICE1);
+		PTF_PRINT_VERBOSE("KNI have captured " << counter << " packets in single burst on device " << KNI_DEVICE1);
 		counter = 0;
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter));
 		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
@@ -379,7 +379,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		rawPacketVec.clear();
 		pcpp::multiPlatformSleep(1); // Give some time to receive packets
 		device->stopCapture();
-		PTF_PRINT_VERBOSE("KNI have captured %u packets on device " KNI_TEST_NAME, counter, KNI_DEVICE1);
+		PTF_PRINT_VERBOSE("KNI have captured " << counter << " packets on device " << KNI_DEVICE1);
 		counter = 0;
 		while (fileReaderDev.getNextPacket(rawPacket))
 		{
@@ -405,7 +405,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			} break;
 			case 1:
 			{
-				PTF_PRINT_VERBOSE("KNI have captured %u packets (blocking mode) on device " KNI_TEST_NAME, counter, KNI_DEVICE1);
+				PTF_PRINT_VERBOSE("KNI have captured " << counter << " packets (blocking mode) on device " << KNI_DEVICE1);
 			} break;
 		}
 	}
