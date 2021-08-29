@@ -12,6 +12,7 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
+#include <sstream>
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
 #include <windows.h>
 #endif
@@ -104,10 +105,9 @@ public:
 		if (!activateRemoteDevice)
 			return;
 
-		char portAsString[10];
-		sprintf(portAsString, "%d", port);
 		std::string cmd = "rpcapd\\rpcapd.exe";
-		std::string args = "rpcapd\\rpcapd.exe -b " + ip + " -p " + std::string(portAsString) + " -n";
+		std::ostringstream args;
+		args << "rpcapd\\rpcapd.exe -b " << ip << " -p " << port << " -n";
 
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -118,7 +118,7 @@ public:
 		if (!CreateProcess
 				(
 				TEXT(cmd.c_str()),
-				(char*)TEXT(args.c_str()),
+				(char*)TEXT(args.str().c_str()),
 				NULL,NULL,FALSE,
 				CREATE_NEW_CONSOLE,
 				NULL,NULL,
