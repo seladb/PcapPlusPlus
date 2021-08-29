@@ -55,12 +55,12 @@ PTF_TEST_CASE(TestRawSockets)
 		rawSock.receivePackets(packetVec, 2, failedRecv);
 		if (packetVec.size() > 0)
 		{
-			PTF_PRINT_VERBOSE("Total wait time: %d", 2*i);
+			PTF_PRINT_VERBOSE("Total wait time: " << 2*i);
 			break;
 		}
 	}
 	
-	PTF_ASSERT_GREATER_THAN(packetVec.size(), 0, size);
+	PTF_ASSERT_GREATER_THAN(packetVec.size(), 0);
 	for (pcpp::RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
 	{
 		pcpp::Packet parsedPacket(*iter);
@@ -75,7 +75,7 @@ PTF_TEST_CASE(TestRawSockets)
 		res = rawSock.receivePacket(rawPacket, true, 1);
 		if (res == pcpp::RawSocketDevice::RecvTimeout)
 		{
-			PTF_PRINT_VERBOSE("Total time until got RecvTimeout: %d", i);
+			PTF_PRINT_VERBOSE("Total time until got RecvTimeout: " << i);
 			break;
 		}
 			
@@ -90,7 +90,7 @@ PTF_TEST_CASE(TestRawSockets)
 		res = rawSock.receivePacket(rawPacket, false, -1);
 		if (res == pcpp::RawSocketDevice::RecvWouldBlock)
 		{
-			PTF_PRINT_VERBOSE("Total iterations until got RecvWouldBlock: %d", i);
+			PTF_PRINT_VERBOSE("Total iterations until got RecvWouldBlock: " << i);
 			break;
 		}
 	}
@@ -150,7 +150,7 @@ PTF_TEST_CASE(TestRawSockets)
 		}
 
 		// send multiple packets
-		PTF_ASSERT_EQUAL(rawSock.sendPackets(packetVec), (int)packetVec.size(), int);
+		PTF_ASSERT_EQUAL(rawSock.sendPackets(packetVec), (int)packetVec.size());
 	}
 	else
 	{
