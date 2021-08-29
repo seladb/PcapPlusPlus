@@ -27,7 +27,7 @@ PTF_TEST_CASE(IPv4PacketCreation)
 
 	pcpp::RawPacket* rawPacket = ip4Packet.getRawPacket();
 	PTF_ASSERT_NOT_NULL(rawPacket);
-	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 14, num);
+	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 14);
 
 
 	pcpp::IPv4Address ipSrc("1.1.1.1");
@@ -42,16 +42,16 @@ PTF_TEST_CASE(IPv4PacketCreation)
 
 	ip4Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(ip4Packet.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 44, num);
+	PTF_ASSERT_EQUAL(ip4Packet.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 44);
 	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::IPv4Layer>());
 	pcpp::iphdr* ipHeader = ip4Layer.getIPv4Header();
 	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc, object);
 	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst, object);
-	PTF_ASSERT_EQUAL(ipHeader->ipVersion, 4, num);
-	PTF_ASSERT_EQUAL(ipHeader->internetHeaderLength, 5, num);
-	PTF_ASSERT_EQUAL(ipHeader->totalLength, htobe16(30), num);
-	PTF_ASSERT_EQUAL(ipHeader->protocol, (uint8_t)pcpp::PACKETPP_IPPROTO_TCP, num);
-	PTF_ASSERT_EQUAL(ipHeader->headerChecksum, htobe16(0x90b1), num);
+	PTF_ASSERT_EQUAL(ipHeader->ipVersion, 4);
+	PTF_ASSERT_EQUAL(ipHeader->internetHeaderLength, 5);
+	PTF_ASSERT_EQUAL(ipHeader->totalLength, htobe16(30));
+	PTF_ASSERT_EQUAL(ipHeader->protocol, (uint8_t)pcpp::PACKETPP_IPPROTO_TCP);
+	PTF_ASSERT_EQUAL(ipHeader->headerChecksum, htobe16(0x90b1));
 } // Ipv4PacketCreation
 
 
@@ -70,18 +70,18 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::IPv4Layer>());
 
 	pcpp::EthLayer* ethLayer = ip4Packet.getLayerOfType<pcpp::EthLayer>();
-	PTF_ASSERT_EQUAL(be16toh(ethLayer->getEthHeader()->etherType), PCPP_ETHERTYPE_IP, num);
+	PTF_ASSERT_EQUAL(be16toh(ethLayer->getEthHeader()->etherType), PCPP_ETHERTYPE_IP);
 
 	pcpp::IPv4Layer* ipv4Layer = ip4Packet.getLayerOfType<pcpp::IPv4Layer>();
 	pcpp::IPv4Address ip4addr1("10.0.0.4");
 	pcpp::IPv4Address ip4addr2("1.1.1.1");
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->protocol, 1, num);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipVersion, 4, num);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toInt(), num);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ip4addr2.toInt(), num);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->protocol, 1);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipVersion, 4);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipSrc, ip4addr1.toInt());
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->ipDst, ip4addr2.toInt());
 	PTF_ASSERT_TRUE(ipv4Layer->getFirstOption().isNull());
 	PTF_ASSERT_TRUE(ipv4Layer->getOption(pcpp::IPV4OPT_CommercialSecurity).isNull());
-	PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 0, num);
+	PTF_ASSERT_EQUAL(ipv4Layer->getOptionCount(), 0);
 
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4-TSO.dat");
@@ -90,9 +90,9 @@ PTF_TEST_CASE(IPv4PacketParsing)
 
 	ipv4Layer = ip4TSO.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipv4Layer);
-	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 20, num);
-	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->totalLength, 0, num);
-	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 60, num);
+	PTF_ASSERT_EQUAL(ipv4Layer->getHeaderLen(), 20);
+	PTF_ASSERT_EQUAL(ipv4Layer->getIPv4Header()->totalLength, 0);
+	PTF_ASSERT_EQUAL(ipv4Layer->getDataLen(), 60);
 	PTF_ASSERT_NOT_NULL(ipv4Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipv4Layer->getNextLayer()->getProtocol(), pcpp::ICMP, enum);
 
@@ -125,8 +125,8 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 	PTF_ASSERT_TRUE(ipLayer->isFragment());
 	PTF_ASSERT_TRUE(ipLayer->isFirstFragment());
 	PTF_ASSERT_FALSE(ipLayer->isLastFragment());
-	PTF_ASSERT_EQUAL(ipLayer->getFragmentOffset(), 0, num);
-	PTF_ASSERT_NOT_EQUAL((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS), 0, num);
+	PTF_ASSERT_EQUAL(ipLayer->getFragmentOffset(), 0);
+	PTF_ASSERT_NOT_EQUAL((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS), 0);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
 
@@ -136,8 +136,8 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 	PTF_ASSERT_TRUE(ipLayer->isFragment());
 	PTF_ASSERT_FALSE(ipLayer->isFirstFragment());
 	PTF_ASSERT_FALSE(ipLayer->isLastFragment());
-	PTF_ASSERT_EQUAL(ipLayer->getFragmentOffset(), 1480, num);
-	PTF_ASSERT_NOT_EQUAL((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS), 0, num);
+	PTF_ASSERT_EQUAL(ipLayer->getFragmentOffset(), 1480);
+	PTF_ASSERT_NOT_EQUAL((ipLayer->getFragmentFlags() & PCPP_IP_MORE_FRAGMENTS), 0);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
 
@@ -146,8 +146,8 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 	PTF_ASSERT_TRUE(ipLayer->isFragment());
 	PTF_ASSERT_FALSE(ipLayer->isFirstFragment());
 	PTF_ASSERT_TRUE(ipLayer->isLastFragment());
-	PTF_ASSERT_EQUAL(ipLayer->getFragmentOffset(), 2960, num);
-	PTF_ASSERT_EQUAL(ipLayer->getFragmentFlags(), 0, num);
+	PTF_ASSERT_EQUAL(ipLayer->getFragmentOffset(), 2960);
+	PTF_ASSERT_EQUAL(ipLayer->getFragmentFlags(), 0);
 	PTF_ASSERT_NOT_NULL(ipLayer->getNextLayer())
 	PTF_ASSERT_EQUAL(ipLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
 } // Ipv4FragmentationTest
@@ -177,15 +177,15 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 
 	pcpp::IPv4Layer* ipLayer = ipOpt1.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
-	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 44, num);
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 3, num);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 44);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 3);
 	pcpp::IPv4Option opt = ipLayer->getFirstOption();
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_CommercialSecurity, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 20, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 22, num);
-	PTF_ASSERT_EQUAL(opt.getValueAs<uint32_t>(), htobe32(2), num);
-	PTF_ASSERT_EQUAL(opt.getValueAs<uint8_t>(4), 2, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 20);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 22);
+	PTF_ASSERT_EQUAL(opt.getValueAs<uint32_t>(), htobe32(2));
+	PTF_ASSERT_EQUAL(opt.getValueAs<uint8_t>(4), 2);
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_EndOfOptionsList, enum);
@@ -201,45 +201,45 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 
 	ipLayer = ipOpt2.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
-	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 60, num);
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1, num);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 60);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1);
 	opt = ipLayer->getFirstOption();
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_Timestamp, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 38, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 40, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 38);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 40);
 	pcpp::IPv4TimestampOptionValue tsValue = opt.getTimestampOptionValue();
 	PTF_ASSERT_EQUAL(tsValue.type, pcpp::IPv4TimestampOptionValue::TimestampOnly, enum);
-	PTF_ASSERT_EQUAL(tsValue.timestamps.size(), 1, num);
-	PTF_ASSERT_EQUAL(tsValue.ipAddresses.size(), 0, num);
-	PTF_ASSERT_EQUAL(tsValue.timestamps.at(0), htobe32(82524601), num);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.size(), 1);
+	PTF_ASSERT_EQUAL(tsValue.ipAddresses.size(), 0);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.at(0), htobe32(82524601));
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT_TRUE(opt.isNull());
 
 	ipLayer = ipOpt3.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
-	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 24, num);
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1, num);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 24);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1);
 	opt = ipLayer->getFirstOption();
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_RouterAlert, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 2, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 4, num);
-	PTF_ASSERT_EQUAL(opt.getValueAs<uint16_t>(), 0, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 2);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 4);
+	PTF_ASSERT_EQUAL(opt.getValueAs<uint16_t>(), 0);
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT_TRUE(opt.isNull());
 
 	ipLayer = ipOpt4.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
-	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 60, num);
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, num);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 60);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2);
 	opt = ipLayer->getFirstOption();
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_RecordRoute, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 37, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 39, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 37);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 39);
 	std::vector<pcpp::IPv4Address> ipAddrs = opt.getValueAsIpList();
-	PTF_ASSERT_EQUAL(ipAddrs.size(), 3, num);
+	PTF_ASSERT_EQUAL(ipAddrs.size(), 3);
 	PTF_ASSERT_EQUAL(ipAddrs.at(0), pcpp::IPv4Address("1.2.3.4"), object);
 	PTF_ASSERT_EQUAL(ipAddrs.at(1), pcpp::IPv4Address("10.0.0.138"), object);
 	PTF_ASSERT_EQUAL(ipAddrs.at(2), pcpp::IPv4Address("10.0.0.138"), object);
@@ -249,19 +249,19 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 
 	ipLayer = ipOpt5.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
-	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 56, num);
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1, num);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 56);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 1);
 	opt = ipLayer->getFirstOption();
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_Timestamp, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 34, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 36, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 34);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 36);
 	tsValue = opt.getTimestampOptionValue();
 	PTF_ASSERT_EQUAL(tsValue.type, pcpp::IPv4TimestampOptionValue::TimestampAndIP, enum);
-	PTF_ASSERT_EQUAL(tsValue.timestamps.size(), 3, num);
-	PTF_ASSERT_EQUAL(tsValue.ipAddresses.size(), 3, num);
-	PTF_ASSERT_EQUAL(tsValue.timestamps.at(0), htobe32(70037668), num);
-	PTF_ASSERT_EQUAL(tsValue.timestamps.at(2), htobe32(77233718), num);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.size(), 3);
+	PTF_ASSERT_EQUAL(tsValue.ipAddresses.size(), 3);
+	PTF_ASSERT_EQUAL(tsValue.timestamps.at(0), htobe32(70037668));
+	PTF_ASSERT_EQUAL(tsValue.timestamps.at(2), htobe32(77233718));
 	PTF_ASSERT_EQUAL(tsValue.ipAddresses.at(0), pcpp::IPv4Address("10.0.0.6"), object);
 	PTF_ASSERT_EQUAL(tsValue.ipAddresses.at(1), pcpp::IPv4Address("10.0.0.138"), object);
 	opt = ipLayer->getNextOption(opt);
@@ -269,39 +269,39 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 
 	ipLayer = ipOpt6.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
-	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 28, num);
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, num);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 28);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2);
 	opt = ipLayer->getFirstOption();
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_NOP, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 0, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 1, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 0);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 1);
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_StrictSourceRoute, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 5, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 7, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 5);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 7);
 	ipAddrs = opt.getValueAsIpList();
-	PTF_ASSERT_EQUAL(ipAddrs.size(), 0, num);
+	PTF_ASSERT_EQUAL(ipAddrs.size(), 0);
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT_TRUE(opt.isNull());
 
 	ipLayer = ipOpt7.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NOT_NULL(ipLayer);
-	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 28, num);
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, num);
+	PTF_ASSERT_EQUAL(ipLayer->getHeaderLen(), 28);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2);
 	opt = ipLayer->getFirstOption();
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_NOP, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 0, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 1, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 0);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 1);
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT_FALSE(opt.isNull());
 	PTF_ASSERT_EQUAL(opt.getIPv4OptionType(), pcpp::IPV4OPT_LooseSourceRoute, enum);
-	PTF_ASSERT_EQUAL(opt.getDataSize(), 5, num);
-	PTF_ASSERT_EQUAL(opt.getTotalSize(), 7, num);
+	PTF_ASSERT_EQUAL(opt.getDataSize(), 5);
+	PTF_ASSERT_EQUAL(opt.getTotalSize(), 7);
 	ipAddrs = opt.getValueAsIpList();
-	PTF_ASSERT_EQUAL(ipAddrs.size(), 0, num);
+	PTF_ASSERT_EQUAL(ipAddrs.size(), 0);
 	opt2 = ipLayer->getOption(pcpp::IPV4OPT_LooseSourceRoute);
 	PTF_ASSERT_FALSE(opt2.isNull());
 	PTF_ASSERT_TRUE(opt2 == opt);
@@ -347,7 +347,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	ipOpt1.computeCalculateFields();
 
 
-	PTF_ASSERT_EQUAL(ipOpt1.getRawPacket()->getRawDataLen(), bufferLength11, num);
+	PTF_ASSERT_EQUAL(ipOpt1.getRawPacket()->getRawDataLen(), bufferLength11);
 	PTF_ASSERT_BUF_COMPARE(ipOpt1.getRawPacket()->getRawData(), buffer11, ipOpt1.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt2.getLayerOfType<pcpp::IPv4Layer>();
@@ -360,7 +360,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	}
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	ipOpt2.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipOpt2.getRawPacket()->getRawDataLen(), bufferLength22, num);
+	PTF_ASSERT_EQUAL(ipOpt2.getRawPacket()->getRawDataLen(), bufferLength22);
 	PTF_ASSERT_BUF_COMPARE(ipOpt2.getRawPacket()->getRawData(), buffer22, ipOpt2.getRawPacket()->getRawDataLen());
 
 
@@ -368,7 +368,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	uint16_t routerAlerVal = 0;
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
 	ipOpt3.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipOpt3.getRawPacket()->getRawDataLen(), bufferLength33, num);
+	PTF_ASSERT_EQUAL(ipOpt3.getRawPacket()->getRawDataLen(), bufferLength33);
 	PTF_ASSERT_BUF_COMPARE(ipOpt3.getRawPacket()->getRawData(), buffer33, ipOpt3.getRawPacket()->getRawDataLen());
 
 
@@ -382,7 +382,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RecordRoute, ipListValue)).isNull());
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0)).isNull());
 	ipOpt4.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipOpt4.getRawPacket()->getRawDataLen(), bufferLength44, num);
+	PTF_ASSERT_EQUAL(ipOpt4.getRawPacket()->getRawDataLen(), bufferLength44);
 	PTF_ASSERT_BUF_COMPARE(ipOpt4.getRawPacket()->getRawData(), buffer44, ipOpt4.getRawPacket()->getRawDataLen());
 
 
@@ -406,16 +406,16 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	pcpp::IPv4Option optData = ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption));
 	PTF_ASSERT_FALSE(optData.isNull());
 	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), pcpp::IPV4OPT_Timestamp, enum);
-	PTF_ASSERT_EQUAL(optData.getTotalSize(), 36, num);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 36);
 	tsOption.clear();
 	tsOption = optData.getTimestampOptionValue();
 	PTF_ASSERT_EQUAL(tsOption.type, pcpp::IPv4TimestampOptionValue::TimestampAndIP, enum);
-	PTF_ASSERT_EQUAL(tsOption.timestamps.size(), 3, num);
-	PTF_ASSERT_EQUAL(tsOption.timestamps.at(1), htobe32(77233718), num);
-	PTF_ASSERT_EQUAL(tsOption.ipAddresses.size(), 3, num);
+	PTF_ASSERT_EQUAL(tsOption.timestamps.size(), 3);
+	PTF_ASSERT_EQUAL(tsOption.timestamps.at(1), htobe32(77233718));
+	PTF_ASSERT_EQUAL(tsOption.ipAddresses.size(), 3);
 	PTF_ASSERT_EQUAL(tsOption.ipAddresses.at(2), pcpp::IPv4Address("10.0.0.138"), object);
 	ipOpt5.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipOpt5.getRawPacket()->getRawDataLen(), bufferLength55, num);
+	PTF_ASSERT_EQUAL(ipOpt5.getRawPacket()->getRawDataLen(), bufferLength55);
 	PTF_ASSERT_BUF_COMPARE(ipOpt5.getRawPacket()->getRawData(), buffer55, ipOpt5.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt6.getLayerOfType<pcpp::IPv4Layer>();
@@ -424,15 +424,15 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	optData = ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_StrictSourceRoute, ipListValue));
 	PTF_ASSERT_FALSE(optData.isNull());
 	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), pcpp::IPV4OPT_StrictSourceRoute, enum);
-	PTF_ASSERT_EQUAL(optData.getTotalSize(), 7, num);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 7);
 	ipListValue = optData.getValueAsIpList();
-	PTF_ASSERT_EQUAL(ipListValue.size(), 0, num);
+	PTF_ASSERT_EQUAL(ipListValue.size(), 0);
 	optData = ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, NULL, 0));
 	PTF_ASSERT_FALSE(optData.isNull());
 	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), pcpp::IPV4OPT_NOP, enum);
-	PTF_ASSERT_EQUAL(optData.getTotalSize(), 1, num);
+	PTF_ASSERT_EQUAL(optData.getTotalSize(), 1);
 	ipOpt6.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipOpt6.getRawPacket()->getRawDataLen(), bufferLength66, num);
+	PTF_ASSERT_EQUAL(ipOpt6.getRawPacket()->getRawDataLen(), bufferLength66);
 	PTF_ASSERT_BUF_COMPARE(ipOpt6.getRawPacket()->getRawData(), buffer66, ipOpt6.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt7.getLayerOfType<pcpp::IPv4Layer>();
@@ -441,9 +441,9 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	ipListValue.push_back(pcpp::IPv4Address::Zero);
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_LooseSourceRoute, ipListValue)).isNull());
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipOpt7.getRawPacket()->getRawDataLen(), bufferLength77, num);
+	PTF_ASSERT_EQUAL(ipOpt7.getRawPacket()->getRawDataLen(), bufferLength77);
 	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, num);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2);
 
 	tsOption.clear();
 	tsOption.type = pcpp::IPv4TimestampOptionValue::TimestampAndIP;
@@ -453,35 +453,35 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	tsOption.timestamps.push_back(70037669);
 	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(tsOption), pcpp::IPV4OPT_NOP).isNull());
 	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 4, num);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 4);
 	ipOpt7.computeCalculateFields();
 	tsOption.clear();
 	tsOption.type = pcpp::IPv4TimestampOptionValue::TimestampOnly;
 	tsOption.timestamps.push_back(70037670);
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5, num);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5);
 	pcpp::LoggerPP::getInstance().suppressErrors();
 	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
 	pcpp::LoggerPP::getInstance().enableErrors();
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5, num);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5);
 
 	PTF_ASSERT_TRUE(ipLayer->removeOption(pcpp::IPV4OPT_Timestamp));
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 4, num);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 4);
 	ipOpt7.computeCalculateFields();
 	PTF_ASSERT_TRUE(ipLayer->removeOption(pcpp::IPV4OPT_RouterAlert));
 	ipOpt7.computeCalculateFields();
 	PTF_ASSERT_TRUE(ipLayer->removeOption(pcpp::IPV4OPT_Timestamp));
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2, num);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 2);
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipOpt7.getRawPacket()->getRawDataLen(), bufferLength77, num);
+	PTF_ASSERT_EQUAL(ipOpt7.getRawPacket()->getRawDataLen(), bufferLength77);
 	PTF_ASSERT_BUF_COMPARE(ipOpt7.getRawPacket()->getRawData(), buffer77, ipOpt7.getRawPacket()->getRawDataLen());
 
 	PTF_ASSERT_TRUE(ipLayer->removeAllOptions());
 	ipOpt7.computeCalculateFields();
-	PTF_ASSERT_EQUAL(ipOpt7.getRawPacketReadOnly()->getRawDataLen(), 42, num);
+	PTF_ASSERT_EQUAL(ipOpt7.getRawPacketReadOnly()->getRawDataLen(), 42);
 	ipLayer = ipOpt7.getLayerOfType<pcpp::IPv4Layer>();
-	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 0, num);
+	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 0);
 
 	delete [] buffer11;
 	delete [] buffer22;

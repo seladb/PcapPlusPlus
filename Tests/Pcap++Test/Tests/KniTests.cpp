@@ -150,7 +150,7 @@ PTF_TEST_CASE(TestKniDevice)
 	}
 	{
 		uint16_t port = device->getPort();
-		PTF_ASSERT_EQUAL(port, (uint16_t)KNI_TEST_PORT_ID0, num);
+		PTF_ASSERT_EQUAL(port, (uint16_t)KNI_TEST_PORT_ID0);
 	}
 
 	PTF_ASSERT_EQUAL(device->getLinkState(), pcpp::KniDevice::LINK_NOT_SUPPORTED, enum);
@@ -169,9 +169,9 @@ PTF_TEST_CASE(TestKniDevice)
 	}
 	{
 		uint16_t mtu = device->getMtu();
-		PTF_ASSERT_EQUAL(mtu, KNI_TEST_MTU, num);
+		PTF_ASSERT_EQUAL(mtu, KNI_TEST_MTU);
 		mtu = device->getMtu(pcpp::KniDevice::INFO_RENEW);
-		PTF_ASSERT_EQUAL(mtu, KNI_TEST_MTU, num);
+		PTF_ASSERT_EQUAL(mtu, KNI_TEST_MTU);
 	}
 	{
 		pcpp::KniDevice::KniPromiscuousMode pm = device->getPromiscuous();
@@ -205,7 +205,7 @@ PTF_TEST_CASE(TestKniDevice)
 		if (mtuSet)
 		{
 			uint16_t mtu = device->getMtu(pcpp::KniDevice::INFO_RENEW);
-			PTF_NON_CRITICAL_EQUAL(mtu, KNI_NEW_MTU, num);
+			PTF_NON_CRITICAL_EQUAL(mtu, KNI_NEW_MTU);
 		}
 	}
 	if (pcpp::KniDeviceList::isCallbackSupported(pcpp::KniDeviceList::CALLBACK_MAC))
@@ -363,9 +363,9 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter));
 		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
 		pcpp::LoggerPP::getInstance().suppressErrors();
-		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0, num);
-		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0, num);
-		PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0, num);
+		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0);
+		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0);
+		PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0);
 		pcpp::LoggerPP::getInstance().enableErrors();
 		for (int i = 0; i < 10; ++i)
 		{
@@ -438,7 +438,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 
 		//send packets as parsed EthPacekt array
 		uint16_t packetsSentAsParsed = device->sendPackets(packetArr, packetsRead);
-		PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead, num);
+		PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead);
 
 		// Check raw device for packets to come
 		{
@@ -446,12 +446,12 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			packetsReceived += rsdevice.receivePackets(receiveRawPacketVec, 3, unused);
 			receiveRawPacketVec.clear();
 		}
-		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0, num);
+		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0);
 		packetsReceived = 0;
 
 		//send packets are RawPacketVector
 		uint16_t packetsSentAsRawVector = device->sendPackets(sendRawPacketVec);
-		PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead, num);
+		PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead);
 
 		// Check raw device for packets to come
 		{
@@ -459,7 +459,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			packetsReceived += rsdevice.receivePackets(receiveRawPacketVec, 3, unused);
 			receiveRawPacketVec.clear();
 		}
-		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0, num);
+		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0);
 		packetsReceived = 0;
 
 		//? Note (echo-Mike): this will not be checked by raw socket because there is

@@ -27,8 +27,8 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	pcpp::IPReassembly ipReassembly;
 	pcpp::IPReassembly::ReassemblyStatus status;
 
-	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE, num);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0);
 
 	pcpp::Packet* result = NULL;
 
@@ -41,19 +41,19 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		if (i == 0)
 		{
 			PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FIRST_FRAGMENT, enum);
-			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, num);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1);
 		}
 		else if (i < (packetStream.size() - 1))
 		{
 			PTF_ASSERT_NULL(result);
 			PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FRAGMENT, enum);
-			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, num);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1);
 		}
 		else
 		{
 			PTF_ASSERT_NOT_NULL(result);
 			PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::REASSEMBLED, enum);
-			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, num);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0);
 		}
 	}
 
@@ -68,10 +68,10 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	pcpp::HttpRequestLayer* httpReq = result->getLayerOfType<pcpp::HttpRequestLayer>();
 	PTF_ASSERT_NOT_NULL(httpReq);
 	PTF_ASSERT_EQUAL(httpReq->getUrl(), "js.bizographics.com/convert_data.js?partner_id=29", string);
-	PTF_ASSERT_EQUAL(httpReq->getFieldCount(), 10, num);
+	PTF_ASSERT_EQUAL(httpReq->getFieldCount(), 10);
 
 	PTF_ASSERT_NOT_NULL(result);
-	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen(), num);
+	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
@@ -86,7 +86,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 
 	pcpp::RawPacketVector packet1Frags;
 
-	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1Frags, 7), 7, num);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1Frags, 7), 7);
 
 	reader.close();
 
@@ -101,19 +101,19 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 		if (i == 0)
 		{
 			PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FIRST_FRAGMENT, enum);
-			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, num);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1);
 		}
 		else if (i < (packet1Frags.size() - 1))
 		{
 			PTF_ASSERT_NULL(result);
 			PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FRAGMENT, enum);
-			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, num);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1);
 		}
 		else
 		{
 			PTF_ASSERT_NOT_NULL(result);
 			PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::REASSEMBLED, enum);
-			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, num);
+			PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0);
 		}
 	}
 
@@ -125,7 +125,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	buffer = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", bufferLength);
 
 	PTF_ASSERT_NOT_NULL(buffer);
-	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen(), num);
+	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
@@ -218,7 +218,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	}
 
 	PTF_ASSERT_NOT_NULL(result);
-	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength, num);
+	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
@@ -267,7 +267,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	}
 
 	PTF_ASSERT_NOT_NULL(result);
-	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength, num);
+	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
@@ -313,7 +313,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	}
 
 	PTF_ASSERT_NOT_NULL(result);
-	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength, num);
+	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
@@ -361,7 +361,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	}
 
 	PTF_ASSERT_NOT_NULL(result);
-	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength, num);
+	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
@@ -403,7 +403,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	}
 
 	PTF_ASSERT_NOT_NULL(result);
-	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength, num);
+	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete result;
@@ -421,7 +421,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 
 	pcpp::RawPacketVector packet1Frags;
 
-	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1Frags, 7), 7, num);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1Frags, 7), 7);
 
 	reader.close();
 
@@ -454,7 +454,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 	// small fix for payload length which is wrong in the original packet
 	result->getLayerOfType<pcpp::IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(737);
 
-	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), buffer2Length, num);
+	PTF_ASSERT_EQUAL(result->getRawPacket()->getRawDataLen(), buffer2Length);
 	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer2, buffer2Length);
 
 	delete result;
@@ -491,7 +491,7 @@ PTF_TEST_CASE(TestIPFragPartialData)
 	pcpp::Packet* partialPacket = ipReassembly.getCurrentPacket(ip4Key);
 
 	PTF_ASSERT_NOT_NULL(partialPacket);
-	PTF_ASSERT_EQUAL(partialPacket->getRawPacket()->getRawDataLen(), bufferLength, num);
+	PTF_ASSERT_EQUAL(partialPacket->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT_BUF_COMPARE(partialPacket->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	delete partialPacket;
@@ -509,7 +509,7 @@ PTF_TEST_CASE(TestIPFragPartialData)
 
 	pcpp::RawPacketVector packet1PartialFrags;
 
-	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1PartialFrags, 5), 5, num);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(packet1PartialFrags, 5), 5);
 
 	reader.close();
 
@@ -521,7 +521,7 @@ PTF_TEST_CASE(TestIPFragPartialData)
 
 	pcpp::IPReassembly::IPv6PacketKey ip6Key(0x2c5323, pcpp::IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")), pcpp::IPv6Address(std::string("ff02::fb")));
 	partialPacket = ipReassembly.getCurrentPacket(ip6Key);
-	PTF_ASSERT_EQUAL(partialPacket->getRawPacket()->getRawDataLen(), bufferLength, num);
+	PTF_ASSERT_EQUAL(partialPacket->getRawPacket()->getRawDataLen(), bufferLength);
 	PTF_ASSERT_BUF_COMPARE(partialPacket->getRawPacket()->getRawData(), buffer, bufferLength);
 
 	PTF_ASSERT_NOT_NULL(partialPacket);
@@ -556,23 +556,23 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	pcpp::RawPacketVector ip6Packet4Frags;
 
 
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet1Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet2Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet3Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 10), 10, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet5Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 10), 10, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet7Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 8), 8, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet9Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 2), 2, num);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet1Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet2Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet3Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 10), 10);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet5Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 10), 10);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet7Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 8), 8);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet9Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 2), 2);
 
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet1Frags, 7), 7, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet2Frags, 13), 13, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet3Frags, 9), 9, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet4Frags, 7), 7, num);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet1Frags, 7), 7);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet2Frags, 13), 13);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet3Frags, 9), 9);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet4Frags, 7), 7);
 
 	reader.close();
 	reader2.close();
@@ -632,7 +632,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FIRST_FRAGMENT, enum);
 	PTF_ASSERT_NULL(ip6Packet4);
 
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 10, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 10);
 
 
 	// read 2nd - 5th frag in each packet
@@ -674,7 +674,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 		PTF_ASSERT_NULL(ip6Packet4);
 	}
 
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 10, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 10);
 
 
 	// read 6th frag in IPv4 packets 1,2,3
@@ -689,7 +689,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::REASSEMBLED, enum);
 	PTF_ASSERT_NOT_NULL(ip4Packet3);
 
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 7, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 7);
 
 
 	// read IPv4 packet5
@@ -715,7 +715,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::REASSEMBLED, enum);
 	PTF_ASSERT_NOT_NULL(ip6Packet4);
 
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 5, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 5);
 
 
 	// read 6th - 9th frag in IPv4 packets 4,6,8 and IPv6 packet 2
@@ -778,7 +778,7 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::REASSEMBLED, enum);
 	PTF_ASSERT_NOT_NULL(ip4Packet8);
 
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 1);
 
 
 	// read IPv4 packet 9
@@ -812,36 +812,36 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::REASSEMBLED, enum);
 	PTF_ASSERT_NOT_NULL(ip6Packet2);
 
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 2, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 2);
 
 
 	int buffer1Length = 0;
 	uint8_t* buffer1 = readFileIntoBuffer("PcapExamples/ip4_fragments_packet1.txt", buffer1Length);
-	PTF_ASSERT_EQUAL(ip4Packet1->getRawPacket()->getRawDataLen(), buffer1Length, num);
+	PTF_ASSERT_EQUAL(ip4Packet1->getRawPacket()->getRawDataLen(), buffer1Length);
 	PTF_ASSERT_BUF_COMPARE(ip4Packet1->getRawPacket()->getRawData(), buffer1, buffer1Length);
 
 	int buffer4Length = 0;
 	uint8_t* buffer4 = readFileIntoBuffer("PcapExamples/ip4_fragments_packet4.txt", buffer4Length);
-	PTF_ASSERT_EQUAL(ip4Packet4->getRawPacket()->getRawDataLen(), buffer4Length, num);
+	PTF_ASSERT_EQUAL(ip4Packet4->getRawPacket()->getRawDataLen(), buffer4Length);
 	PTF_ASSERT_BUF_COMPARE(ip4Packet4->getRawPacket()->getRawData(), buffer4, buffer4Length);
 
 	int buffer6Length = 0;
 	uint8_t* buffer6 = readFileIntoBuffer("PcapExamples/ip4_fragments_packet6.txt", buffer6Length);
-	PTF_ASSERT_EQUAL(ip4Packet6->getRawPacket()->getRawDataLen(), buffer6Length, num);
+	PTF_ASSERT_EQUAL(ip4Packet6->getRawPacket()->getRawDataLen(), buffer6Length);
 	PTF_ASSERT_BUF_COMPARE(ip4Packet6->getRawPacket()->getRawData(), buffer6, buffer6Length);
 
 	int buffer61Length = 0;
 	uint8_t* buffer61 = readFileIntoBuffer("PcapExamples/ip6_fragments_packet1.txt", buffer61Length);
 	// small fix for payload length which is wrong in the original packet
 	ip6Packet1->getLayerOfType<pcpp::IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(737);
-	PTF_ASSERT_EQUAL(ip6Packet1->getRawPacket()->getRawDataLen(), buffer61Length, num);
+	PTF_ASSERT_EQUAL(ip6Packet1->getRawPacket()->getRawDataLen(), buffer61Length);
 	PTF_ASSERT_BUF_COMPARE(ip6Packet1->getRawPacket()->getRawData(), buffer61, buffer61Length);
 
 	int buffer62Length = 0;
 	uint8_t* buffer62 = readFileIntoBuffer("PcapExamples/ip6_fragments_packet2.txt", buffer62Length);
 	// small fix for payload length which is wrong in the original packet
 	ip6Packet2->getLayerOfType<pcpp::IPv6Layer>()->getIPv6Header()->payloadLength = htobe16(1448);
-	PTF_ASSERT_EQUAL(ip6Packet2->getRawPacket()->getRawDataLen(), buffer62Length, num);
+	PTF_ASSERT_EQUAL(ip6Packet2->getRawPacket()->getRawDataLen(), buffer62Length);
 	PTF_ASSERT_BUF_COMPARE(ip6Packet2->getRawPacket()->getRawData(), buffer62, buffer62Length);
 
 
@@ -891,31 +891,31 @@ PTF_TEST_CASE(TestIPFragMapOverflow)
 	pcpp::RawPacketVector ip6Packet3Frags;
 	pcpp::RawPacketVector ip6Packet4Frags;
 
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet1Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet2Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet3Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 10), 10, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet5Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 10), 10, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet7Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 8), 8, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet9Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 2), 2, num);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet1Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet2Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet3Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 10), 10);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet5Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 10), 10);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet7Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 8), 8);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet9Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 2), 2);
 
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet1Frags, 7), 7, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet2Frags, 13), 13, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet3Frags, 9), 9, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet4Frags, 7), 7, num);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet1Frags, 7), 7);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet2Frags, 13), 13);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet3Frags, 9), 9);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet4Frags, 7), 7);
 
 
 	pcpp::PointerVector<pcpp::IPReassembly::PacketKey> packetsRemovedFromIPReassemblyEngine;
 
 	pcpp::IPReassembly ipReassembly(ipReassemblyOnFragmentsClean, &packetsRemovedFromIPReassemblyEngine, 3);
 
-	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), 3, num);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), 3);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 0);
 
 
 	pcpp::IPReassembly::ReassemblyStatus status;
@@ -933,10 +933,10 @@ PTF_TEST_CASE(TestIPFragMapOverflow)
 	ipReassembly.processPacket(ip4Packet6Frags.at(0), status);
 	ipReassembly.processPacket(ip4Packet8Frags.at(0), status);
 
-	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), 3, num);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 3, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getMaxCapacity(), 3);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 3);
 
-	PTF_ASSERT_EQUAL(packetsRemovedFromIPReassemblyEngine.size(), 5, num);
+	PTF_ASSERT_EQUAL(packetsRemovedFromIPReassemblyEngine.size(), 5);
 
 	pcpp::IPReassembly::IPv4PacketKey* ip4Key = NULL;
 	pcpp::IPReassembly::IPv6PacketKey* ip6Key = NULL;
@@ -944,35 +944,35 @@ PTF_TEST_CASE(TestIPFragMapOverflow)
 	// 1st packet removed should be ip6Packet1Frags
 	ip6Key = dynamic_cast<pcpp::IPReassembly::IPv6PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(0));
 	PTF_ASSERT_NOT_NULL(ip6Key);
-	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x2c5323, num);
+	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x2c5323);
 	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")), object);
 	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::IPv6Address(std::string("ff02::fb")), object);
 
 	// 2nd packet removed should be ip4Packet2Frags
 	ip4Key = dynamic_cast<pcpp::IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(1));
 	PTF_ASSERT_NOT_NULL(ip4Key);
-	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea1, num);
+	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea1);
 	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")), object);
 	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")), object);
 
 	// 3rd packet removed should be ip4Packet3Frags
 	ip4Key = dynamic_cast<pcpp::IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(2));
 	PTF_ASSERT_NOT_NULL(ip4Key);
-	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea2, num);
+	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea2);
 	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")), object);
 	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")), object);
 
 	// 4th packet removed should be ip6Packet2Frags
 	ip6Key = dynamic_cast<pcpp::IPReassembly::IPv6PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(3));
 	PTF_ASSERT_NOT_NULL(ip6Key);
-	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x98d687d1, num);
+	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x98d687d1);
 	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")), object);
 	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::IPv6Address(std::string("ff02::fb")), object);
 
 	// 5th packet removed should be ip4Packet4Frags
 	ip4Key = dynamic_cast<pcpp::IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(4));
 	PTF_ASSERT_NOT_NULL(ip4Key);
-	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea3, num);
+	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea3);
 	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")), object);
 	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")), object);
 } // TestIPFragMapOverflow
@@ -1002,23 +1002,23 @@ PTF_TEST_CASE(TestIPFragRemove)
 	pcpp::RawPacketVector ip6Packet3Frags;
 	pcpp::RawPacketVector ip6Packet4Frags;
 
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet1Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet2Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet3Frags, 6), 6, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 10), 10, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet5Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 10), 10, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet7Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 8), 8, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet9Vec, 1), 1, num);
-	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 2), 2, num);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet1Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet2Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet3Frags, 6), 6);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 10), 10);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet5Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet4Frags, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 10), 10);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet7Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet6Frags, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 8), 8);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet9Vec, 1), 1);
+	PTF_ASSERT_EQUAL(reader.getNextPackets(ip4Packet8Frags, 2), 2);
 
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet1Frags, 7), 7, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet2Frags, 13), 13, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet3Frags, 9), 9, num);
-	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet4Frags, 7), 7, num);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet1Frags, 7), 7);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet2Frags, 13), 13);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet3Frags, 9), 9);
+	PTF_ASSERT_EQUAL(reader2.getNextPackets(ip6Packet4Frags, 7), 7);
 
 	pcpp::IPReassembly ipReassembly;
 
@@ -1039,7 +1039,7 @@ PTF_TEST_CASE(TestIPFragRemove)
 	ipReassembly.processPacket(ip4Packet8Frags.at(0), status);
 	ipReassembly.processPacket(ip6Packet4Frags.at(0), status);
 
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 10, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 10);
 
 	pcpp::IPReassembly::IPv4PacketKey ip4Key;
 	ip4Key.setSrcIP(pcpp::IPv4Address(std::string("10.118.213.212")));
@@ -1047,20 +1047,20 @@ PTF_TEST_CASE(TestIPFragRemove)
 
 	ip4Key.setIpID(0x1ea0);
 	ipReassembly.removePacket(ip4Key);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 9, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 9);
 
 	ip4Key.setIpID(0x1ea5);
 	ipReassembly.removePacket(ip4Key);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 8, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 8);
 
 	// IPv4 key doesn't exist
 	ip4Key.setIpID(0x1ea9);
 	ipReassembly.removePacket(ip4Key);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 8, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 8);
 
 	ip4Key.setIpID(0x1ea4);
 	ipReassembly.removePacket(ip4Key);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 7, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 7);
 
 	pcpp::IPReassembly::IPv6PacketKey ip6Key;
 	ip6Key.setSrcIP(pcpp::IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")));
@@ -1068,17 +1068,17 @@ PTF_TEST_CASE(TestIPFragRemove)
 
 	ip6Key.setFragmentID(0x98d687d1);
 	ipReassembly.removePacket(ip6Key);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6);
 
 	// IPv6 key doesn't exist
 	ip6Key.setFragmentID(0xaaaaaaaa);
 	ipReassembly.removePacket(ip6Key);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6);
 
 	ip6Key.setFragmentID(0x2c5323);
 	ipReassembly.removePacket(ip6Key);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 5, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 5);
 
 	ipReassembly.processPacket(ip4Packet8Frags.at(0), status);
-	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6, num);
+	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6);
 } // TestIPFragRemove

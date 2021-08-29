@@ -31,11 +31,11 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
 
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->code, pcpp::PPPoELayer::PPPOE_CODE_SESSION, enum);
-	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->version, 1, num);
-	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->type, 1, num);
-	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->sessionId, htobe16(0x0011), num);
-	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->payloadLength, htobe16(20), num);
-	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPNextProtocol(), PCPP_PPP_LCP, num);
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->version, 1);
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->type, 1);
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->sessionId, htobe16(0x0011));
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->payloadLength, htobe16(20));
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPNextProtocol(), PCPP_PPP_LCP);
 
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->toString(), std::string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"), string);
 } // PPPoESessionLayerParsingTest
@@ -70,7 +70,7 @@ PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 
 	pppoesPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength1, pppoesPacket.getRawPacket()->getRawDataLen(), num);
+	PTF_ASSERT_EQUAL(bufferLength1, pppoesPacket.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(pppoesPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
 } // PPPoESessionLayerCreationTest
 
@@ -95,40 +95,40 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(pppoeDiscoveryLayer->getPrevLayer());
 	PTF_ASSERT_NULL(pppoeDiscoveryLayer->getNextLayer());
 
-	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->code, (uint8_t)pcpp::PPPoELayer::PPPOE_CODE_PADS, num);
-	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->version, 1, num);
-	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->type, 1, num);
-	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->sessionId, htobe16(0x0011), num);
-	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->payloadLength, htobe16(40), num);
+	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->code, (uint8_t)pcpp::PPPoELayer::PPPOE_CODE_PADS);
+	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->version, 1);
+	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->type, 1);
+	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->sessionId, htobe16(0x0011));
+	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->payloadLength, htobe16(40));
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag* firstTag = pppoeDiscoveryLayer->getFirstTag();
 	PTF_ASSERT_NOT_NULL(firstTag);
 	PTF_ASSERT_EQUAL(firstTag->getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME, enum);
-	PTF_ASSERT_EQUAL(firstTag->tagDataLength, 0, num);
+	PTF_ASSERT_EQUAL(firstTag->tagDataLength, 0);
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag* secondTag = pppoeDiscoveryLayer->getNextTag(firstTag);
 	PTF_ASSERT_NOT_NULL(secondTag);
 	PTF_ASSERT_EQUAL(secondTag->getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, enum);
-	PTF_ASSERT_EQUAL(secondTag->tagDataLength, htobe16(4), num);
-	PTF_ASSERT_EQUAL(be32toh(secondTag->getTagDataAs<uint32_t>()), 0x64138518, num);
+	PTF_ASSERT_EQUAL(secondTag->tagDataLength, htobe16(4));
+	PTF_ASSERT_EQUAL(be32toh(secondTag->getTagDataAs<uint32_t>()), 0x64138518);
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag* thirdTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME);
 	PTF_ASSERT_NOT_NULL(thirdTag);
 	PTF_ASSERT_EQUAL(thirdTag, pppoeDiscoveryLayer->getNextTag(secondTag), ptr);
 	PTF_ASSERT_EQUAL(thirdTag->getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, enum);
-	PTF_ASSERT_EQUAL(thirdTag->tagDataLength, htobe16(4), num);
-	PTF_ASSERT_EQUAL(be32toh(thirdTag->getTagDataAs<uint32_t>()), 0x42524153, num);
+	PTF_ASSERT_EQUAL(thirdTag->tagDataLength, htobe16(4));
+	PTF_ASSERT_EQUAL(be32toh(thirdTag->getTagDataAs<uint32_t>()), 0x42524153);
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag* fourthTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE);
 	PTF_ASSERT_NOT_NULL(fourthTag);
 	PTF_ASSERT_EQUAL(fourthTag, pppoeDiscoveryLayer->getNextTag(thirdTag), ptr);
 	PTF_ASSERT_EQUAL(fourthTag->getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, enum);
-	PTF_ASSERT_EQUAL(fourthTag->tagDataLength, htobe16(16), num);
-	PTF_ASSERT_EQUAL(fourthTag->getTagDataAs<uint64_t>(), 0xf284240687050f3dULL, num);
-	PTF_ASSERT_EQUAL(fourthTag->getTagDataAs<uint64_t>(8), 0x5bbd77fdddb932dfULL, num);
+	PTF_ASSERT_EQUAL(fourthTag->tagDataLength, htobe16(16));
+	PTF_ASSERT_EQUAL(fourthTag->getTagDataAs<uint64_t>(), 0xf284240687050f3dULL);
+	PTF_ASSERT_EQUAL(fourthTag->getTagDataAs<uint64_t>(8), 0x5bbd77fdddb932dfULL);
 	PTF_ASSERT_NULL(pppoeDiscoveryLayer->getNextTag(fourthTag));
 
-	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getTagCount(), 4, num);
+	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getTagCount(), 4);
 
 	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->toString(), std::string("PPP-over-Ethernet Discovery (PADS)"), string);
 } // PPPoEDiscoveryLayerParsingTest
@@ -160,7 +160,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 
 	pppoedPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength1, num);
+	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
 
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/PPPoEDiscovery2.dat");
@@ -193,7 +193,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 
 	pppoedPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength2, num);
+	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength2);
 	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
 
 	delete [] buffer2;
@@ -201,6 +201,6 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 	PTF_ASSERT_TRUE(pppoedLayer.removeAllTags());
 	pppoedPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(pppoedLayer.getHeaderLen(), sizeof(pcpp::pppoe_header), num);
-	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, 0, num);
+	PTF_ASSERT_EQUAL(pppoedLayer.getHeaderLen(), sizeof(pcpp::pppoe_header));
+	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, 0);
 } // PPPoEDiscoveryLayerCreateTest

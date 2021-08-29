@@ -23,7 +23,7 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
 	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4", string);
 	pcpp::IPv4Address ip4AddrFromIpAddr = ip4Addr.getIPv4();
-	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr.toInt(), htobe32(0x0A000004), num);
+	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr.toInt(), htobe32(0x0A000004));
 	pcpp::IPv4Address secondIPv4Address(std::string("1.1.1.1"));
 	secondIPv4Address = ip4AddrFromIpAddr;
 	PTF_ASSERT_TRUE(secondIPv4Address.isValid());
@@ -53,7 +53,7 @@ PTF_TEST_CASE(TestIPAddress)
 	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00 , 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
 	for (int i = 0; i < 16; i++)
 	{
-		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i], num);
+		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
 	}
 
 	ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
@@ -199,18 +199,18 @@ PTF_TEST_CASE(TestLRUList)
 	pcpp::LRUList<uint32_t> lruList(2);
 
 	uint32_t deletedValue = 0;
-	PTF_ASSERT_EQUAL(lruList.put(1, &deletedValue), 0, num);
-	PTF_ASSERT_EQUAL(deletedValue, 0, num);
+	PTF_ASSERT_EQUAL(lruList.put(1, &deletedValue), 0);
+	PTF_ASSERT_EQUAL(deletedValue, 0);
 
-	PTF_ASSERT_EQUAL(lruList.put(2, NULL), 0, num);
+	PTF_ASSERT_EQUAL(lruList.put(2, NULL), 0);
 
-	PTF_ASSERT_EQUAL(lruList.put(3, &deletedValue), 1, num);
-	PTF_ASSERT_EQUAL(deletedValue, 1, num);
+	PTF_ASSERT_EQUAL(lruList.put(3, &deletedValue), 1);
+	PTF_ASSERT_EQUAL(deletedValue, 1);
 
 	lruList.eraseElement(1);
 	lruList.eraseElement(2);
 	lruList.eraseElement(3);
-	PTF_ASSERT_EQUAL(lruList.getSize(), 0, num);
+	PTF_ASSERT_EQUAL(lruList.getSize(), 0);
 } // TestLRUList
 
 
@@ -227,17 +227,17 @@ PTF_TEST_CASE(TestGeneralUtils)
 	pcpp::LoggerPP::getInstance().suppressErrors();
 	// odd length
 	result = pcpp::hexStringToByteArray("aab", resultArr, sizeof(resultArr));
-	PTF_ASSERT_EQUAL(result, 0, num);
+	PTF_ASSERT_EQUAL(result, 0);
 	// wrong input
 	result = pcpp::hexStringToByteArray("zzvv", resultArr, sizeof(resultArr));
-	PTF_ASSERT_EQUAL(result, 0, num);
+	PTF_ASSERT_EQUAL(result, 0);
 	PTF_ASSERT_EQUAL(resultArr[0], '\0', ptr);
 	pcpp::LoggerPP::getInstance().enableErrors();
 
 	// short buffer
 	const uint8_t expectedBytes2[] = { 0x01, 0x02, 0x03, 0x04 };
 	result = pcpp::hexStringToByteArray("0102030405", resultArr, sizeof(resultArr));
-	PTF_ASSERT_EQUAL(result, 4, num);
+	PTF_ASSERT_EQUAL(result, 4);
 	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes2, result);
 } // TestGeneralUtils
 
@@ -277,7 +277,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 		pcpp::LoggerPP::getInstance().enableErrors();
 		if (result != pcpp::MacAddress::Zero)
 		{
-			PTF_ASSERT_GREATER_OR_EQUAL_THAN(time, 0, num);
+			PTF_ASSERT_GREATER_OR_EQUAL_THAN(time, 0);
 			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
 			PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero, object);
 			break;

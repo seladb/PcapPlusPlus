@@ -60,7 +60,7 @@ PTF_TEST_CASE(TestRawSockets)
 		}
 	}
 	
-	PTF_ASSERT_GREATER_THAN(packetVec.size(), 0, num);
+	PTF_ASSERT_GREATER_THAN(packetVec.size(), 0);
 	for (pcpp::RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
 	{
 		pcpp::Packet parsedPacket(*iter);
@@ -150,7 +150,7 @@ PTF_TEST_CASE(TestRawSockets)
 		}
 
 		// send multiple packets
-		PTF_ASSERT_EQUAL(rawSock.sendPackets(packetVec), (int)packetVec.size(), num);
+		PTF_ASSERT_EQUAL(rawSock.sendPackets(packetVec), (int)packetVec.size());
 	}
 	else
 	{

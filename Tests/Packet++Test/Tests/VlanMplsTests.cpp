@@ -21,9 +21,9 @@ PTF_TEST_CASE(VlanParseAndCreation)
 			for(int cfi = 0; cfi < 2 * 2; cfi++) //true or false
 			{
 				pcpp::VlanLayer testVlanLayer(vid, cfi, prio, PCPP_ETHERTYPE_VLAN);
-				PTF_ASSERT_EQUAL(testVlanLayer.getVlanID(), (vid & 0xFFF), num);
-				PTF_ASSERT_EQUAL(testVlanLayer.getPriority(), (prio & 7), num);
-				PTF_ASSERT_EQUAL(testVlanLayer.getCFI(), (cfi != 0), num);
+				PTF_ASSERT_EQUAL(testVlanLayer.getVlanID(), (vid & 0xFFF));
+				PTF_ASSERT_EQUAL(testVlanLayer.getPriority(), (prio & 7));
+				PTF_ASSERT_EQUAL(testVlanLayer.getCFI(), (cfi != 0));
 			}
 		}
 	}
@@ -38,13 +38,13 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	pcpp::VlanLayer* firstVlanLayerPtr = arpWithVlan.getLayerOfType<pcpp::VlanLayer>();
 	PTF_ASSERT_NOT_NULL(firstVlanLayerPtr);
 	pcpp::VlanLayer* secondVlanLayerPtr = arpWithVlan.getNextLayerOfType<pcpp::VlanLayer>(firstVlanLayerPtr);
-	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getVlanID(), 666, num);
-	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getCFI(), 1, num);
-	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getPriority(), 5, num);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getVlanID(), 666);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getCFI(), 1);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getPriority(), 5);
 	PTF_ASSERT_NOT_NULL(secondVlanLayerPtr);
-	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getVlanID(), 200, num);
-	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getCFI(), 0, num);
-	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getPriority(), 2, num);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getVlanID(), 200);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getCFI(), 0);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getPriority(), 2);
 
 	pcpp::Packet arpWithVlanNew(1);
 	pcpp::MacAddress macSrc("ca:03:0d:b4:00:1c");
@@ -62,7 +62,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 
 	arpWithVlanNew.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(arpWithVlanNew.getRawPacket()->getRawDataLen(), bufferLength1, num);
+	PTF_ASSERT_EQUAL(arpWithVlanNew.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(arpWithVlanNew.getRawPacket()->getRawData(), buffer1, bufferLength1);
 } // VlanParseAndCreation
 
@@ -79,13 +79,13 @@ PTF_TEST_CASE(QinQ802_1adParse)
 	pcpp::VlanLayer* firstVlanLayerPtr = qinq8021adPacket.getLayerOfType<pcpp::VlanLayer>();
 	PTF_ASSERT_NOT_NULL(firstVlanLayerPtr);
 	pcpp::VlanLayer* secondVlanLayerPtr = qinq8021adPacket.getNextLayerOfType<pcpp::VlanLayer>(firstVlanLayerPtr);
-	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getVlanID(), 30, num);
-	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getCFI(), 0, num);
-	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getPriority(), 0, num);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getVlanID(), 30);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getCFI(), 0);
+	PTF_ASSERT_EQUAL(firstVlanLayerPtr->getPriority(), 0);
 	PTF_ASSERT_NOT_NULL(secondVlanLayerPtr);
-	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getVlanID(), 100, num);
-	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getCFI(), 0, num);
-	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getPriority(), 0, num);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getVlanID(), 100);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getCFI(), 0);
+	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getPriority(), 0);
 	PTF_ASSERT_NOT_NULL(secondVlanLayerPtr->getNextLayer());
 	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 } // QinQ802_1adParse
@@ -106,10 +106,10 @@ PTF_TEST_CASE(MplsLayerTest)
 	pcpp::MplsLayer* mplsLayer = mplsPacket1.getLayerOfType<pcpp::MplsLayer>();
 	PTF_ASSERT_NOT_NULL(mplsLayer);
 
-	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 126, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 126);
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
-	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0, num);
-	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 16000, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
+	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 16000);
 
 	PTF_ASSERT_NOT_NULL(mplsLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(mplsLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
@@ -117,18 +117,18 @@ PTF_TEST_CASE(MplsLayerTest)
 	mplsLayer = mplsPacket2.getLayerOfType<pcpp::MplsLayer>();
 	PTF_ASSERT_NOT_NULL(mplsLayer);
 
-	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 254, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 254);
 	PTF_ASSERT_FALSE(mplsLayer->isBottomOfStack());
-	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0, num);
-	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 18, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
+	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 18);
 
 	mplsLayer = mplsPacket2.getNextLayerOfType<pcpp::MplsLayer>(mplsLayer);
 	PTF_ASSERT_NOT_NULL(mplsLayer);
 
-	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 255, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 255);
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
-	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0, num);
-	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 16, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
+	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 16);
 
 	PTF_ASSERT_NOT_NULL(mplsLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(mplsLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
@@ -139,9 +139,9 @@ PTF_TEST_CASE(MplsLayerTest)
 	PTF_ASSERT_TRUE(mplsLayer->setMplsLabel(100000));
 	uint8_t expectedResult[4] = { 0x18, 0x6A, 0x0d, 0x6f };
 	PTF_ASSERT_BUF_COMPARE(mplsLayer->getData(), expectedResult , 4);
-	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 111, num);
-	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 100000, num);
-	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 6, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 111);
+	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 100000);
+	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 6);
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
 
 	pcpp::MplsLayer mplsLayer2(0xdff0f, 20, 7, false);
@@ -166,12 +166,12 @@ PTF_TEST_CASE(MplsLayerTest)
 	newMplsPacket.addLayer(&eth2);
 	newMplsPacket.computeCalculateFields();
 	mplsLayer = newMplsPacket.getLayerOfType<pcpp::MplsLayer>();
-	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 5000, num);
-	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 5000);
+	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
 	PTF_ASSERT_FALSE(mplsLayer->isBottomOfStack());
 	mplsLayer = newMplsPacket.getNextLayerOfType<pcpp::MplsLayer>(mplsLayer);
-	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 18, num);
-	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0, num);
+	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 18);
+	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
 } // MplsLayerTest
 
@@ -190,12 +190,12 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	// test vxlan parsing
 	pcpp::VxlanLayer* vxlanLayer = vxlanPacket.getLayerOfType<pcpp::VxlanLayer>();
 	PTF_ASSERT_NOT_NULL(vxlanLayer);
-	PTF_ASSERT_EQUAL(vxlanLayer->getVNI(), 3000001, num);
-	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->groupPolicyID, htobe16(100), num);
-	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->dontLearnFlag, 1, num);
-	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->gbpFlag, 1, num);
-	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->vniPresentFlag, 1, num);
-	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->policyAppliedFlag, 1, num);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVNI(), 3000001);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->groupPolicyID, htobe16(100));
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->dontLearnFlag, 1);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->gbpFlag, 1);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->vniPresentFlag, 1);
+	PTF_ASSERT_EQUAL(vxlanLayer->getVxlanHeader()->policyAppliedFlag, 1);
 	PTF_ASSERT_NOT_NULL(vxlanLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(vxlanLayer->getNextLayer()->getProtocol(), pcpp::Ethernet, enum);
 
@@ -208,7 +208,7 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	vxlanPacket.computeCalculateFields();
 
 	// verify edited fields
-	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength2, num);
+	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength2);
 	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer2, vxlanPacket.getRawPacket()->getRawDataLen());
 
 	// remove vxlan layer
@@ -220,7 +220,7 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	PTF_ASSERT_TRUE(vxlanPacket.insertLayer(vxlanPacket.getLayerOfType<pcpp::UdpLayer>(), &newVxlanLayer));
 
 	// verify new vxlan layer
-	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength1, num);
+	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer1, vxlanPacket.getRawPacket()->getRawDataLen());
 
 	delete [] buffer2;

@@ -6,9 +6,9 @@
 #include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
+#define _PTF_PRINT_TYPE(val) val
 #define object_PTF_PRINT_TYPE(val) "'" << val.toString() << "'"
 #define object_no_str_PTF_PRINT_TYPE(val) "'" << #val << "'"
-#define num_PTF_PRINT_TYPE(val) val
 #define string_PTF_PRINT_TYPE(val) "'" << val << "'"
 #define hex_PTF_PRINT_TYPE(val) "0x" << std::hex << val
 #define enum_PTF_PRINT_TYPE(val) #val << "[" << val << "]"
@@ -35,15 +35,15 @@
 	ptfResult = PTF_RESULT_PASSED; \
 	return
 
-#define PTF_ASSERT_EQUAL(actual, expected, type) \
+#define PTF_ASSERT_EQUAL(actual, expected, ...) \
 	{ \
 		if (actual != expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
 			<< "Assert EQUAL failed: " \
-			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
+			<< "actual: " << __VA_ARGS__##_PTF_PRINT_TYPE(actual) \
 			<< " != " \
-			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
+			<< "expected: " << __VA_ARGS__##_PTF_PRINT_TYPE(expected) \
 			<< std::endl; \
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
@@ -51,75 +51,75 @@
 	}
 
 
-#define PTF_ASSERT_NOT_EQUAL(actual, expected, type) \
+#define PTF_ASSERT_NOT_EQUAL(actual, expected, ...) \
 	{ \
 		if (actual == expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
 			<< "Assert NOT EQUAL failed: " \
-			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
+			<< "actual: " << __VA_ARGS__##_PTF_PRINT_TYPE(actual) \
 			<< " == " \
-			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
+			<< "expected: " << __VA_ARGS__##_PTF_PRINT_TYPE(expected) \
 			<< std::endl; \
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
 		} \
 	}
 
-#define PTF_ASSERT_GREATER_THAN(actual, expected, type) \
+#define PTF_ASSERT_GREATER_THAN(actual, expected, ...) \
 	{ \
 		if (actual <= expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
 			<< "Assert GREATER THAN failed: " \
-			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
+			<< "actual: " << __VA_ARGS__##_PTF_PRINT_TYPE(actual) \
 			<< " <= " \
-			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
+			<< "expected: " << __VA_ARGS__##_PTF_PRINT_TYPE(expected) \
 			<< std::endl; \
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
 		} \
 	}
 
-#define PTF_ASSERT_GREATER_OR_EQUAL_THAN(actual, expected, type) \
+#define PTF_ASSERT_GREATER_OR_EQUAL_THAN(actual, expected, ...) \
 	{ \
 		if (actual < expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
 			<< "Assert GREATER OR EQUAL THAN failed: " \
-			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
+			<< "actual: " << __VA_ARGS__##_PTF_PRINT_TYPE(actual) \
 			<< " < " \
-			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
+			<< "expected: " << __VA_ARGS__##_PTF_PRINT_TYPE(expected) \
 			<< std::endl; \
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
 		} \
 	}
 
-#define PTF_ASSERT_LOWER_THAN(actual, expected, type) \
+#define PTF_ASSERT_LOWER_THAN(actual, expected, ...) \
 	{ \
 		if (actual >= expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
 			<< "Assert LOWER THAN failed: " \
-			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
+			<< "actual: " << __VA_ARGS__##_PTF_PRINT_TYPE(actual) \
 			<< " >= " \
-			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
+			<< "expected: " << __VA_ARGS__##_PTF_PRINT_TYPE(expected) \
 			<< std::endl; \
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
 		} \
 	}
 
-#define PTF_ASSERT_LOWER_OR_EQUAL_THAN(actual, expected, type) \
+#define PTF_ASSERT_LOWER_OR_EQUAL_THAN(actual, expected, ...) \
 	{ \
 		if (actual > expected) { \
 			std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 			<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
 			<< "Assert LOWER OR EQUAL THAN failed: " \
-			<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
+			<< "actual: " << __VA_ARGS__##_PTF_PRINT_TYPE(actual) \
 			<< " > " \
-			<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
+			<< "expected: " << __VA_ARGS__##_PTF_PRINT_TYPE(expected) \
 			<< std::endl; \
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
@@ -178,14 +178,14 @@
 		return; \
 	}
 
-#define PTF_NON_CRITICAL_EQUAL(actual, expected, type) \
+#define PTF_NON_CRITICAL_EQUAL(actual, expected, ...) \
 	if (actual != expected) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
 		<< "NON-CRITICAL (" << __FILE__ << ":" << __LINE__ << "). " \
 		<< "Assert EQUAL failed: " \
-		<< "actual: " << type##_PTF_PRINT_TYPE(actual) \
+		<< "actual: " << __VA_ARGS__##_PTF_PRINT_TYPE(actual) \
 		<< " != " \
-		<< "expected: " << type##_PTF_PRINT_TYPE(expected) \
+		<< "expected: " << __VA_ARGS__##_PTF_PRINT_TYPE(expected) \
 		<< std::endl; \
 	}
 

@@ -59,7 +59,7 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 	pcpp::HeaderField* cookie = requestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD);
 	PTF_ASSERT_NOT_NULL(cookie);
 
-	PTF_ASSERT_EQUAL(requestLayer->getFieldCount(), 8, num);
+	PTF_ASSERT_EQUAL(requestLayer->getFieldCount(), 8);
 	PTF_ASSERT_FALSE(requestLayer->isHeaderComplete());
 } // HttpRequestLayerParsingTest
 
@@ -121,7 +121,7 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 
 	httpPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength1, httpPacket.getRawPacket()->getRawDataLen(), num);
+	PTF_ASSERT_EQUAL(bufferLength1, httpPacket.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(), bufferLength1);
 
 } // HttpRequestLayerCreationTest
@@ -157,7 +157,7 @@ PTF_TEST_CASE(HttpRequestLayerEditTest)
 
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/TwoHttpRequests2.dat");
 
-	PTF_ASSERT_EQUAL(bufferLength2, httpRequest.getRawPacket()->getRawDataLen(), num);
+	PTF_ASSERT_EQUAL(bufferLength2, httpRequest.getRawPacket()->getRawDataLen());
 
 	httpRequest.computeCalculateFields();
 
@@ -191,7 +191,7 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 	pcpp::HeaderField* contentLengthField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	PTF_ASSERT_NOT_NULL(contentLengthField);
 	int contentLength = atoi(contentLengthField->getFieldValue().c_str());
-	PTF_ASSERT_EQUAL(contentLength, 1616, num);
+	PTF_ASSERT_EQUAL(contentLength, 1616);
 
 	pcpp::HeaderField* contentTypeField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 	PTF_ASSERT_NOT_NULL(contentTypeField);
@@ -257,7 +257,7 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 
 	httpPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(httpResponse.getHeaderLen(), 382, num);
+	PTF_ASSERT_EQUAL(httpResponse.getHeaderLen(), 382);
 
 	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(), ethLayer.getHeaderLen()+ip4Layer.getHeaderLen()+tcpLayer.getHeaderLen()+httpResponse.getHeaderLen());
 
@@ -282,7 +282,7 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 	responseLayer->getFirstLine()->setVersion(pcpp::OneDotOne);
 	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseLayer::Http505HTTPVersionNotSupported));
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseLayer::Http505HTTPVersionNotSupported, enum);
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 505, num);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 505);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported", string);
 
 	PTF_ASSERT_NOT_NULL(responseLayer->setContentLength(345));
@@ -292,7 +292,7 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
 
 	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseLayer::Http413RequestEntityTooLarge, "This is a test"));
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 413, num);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 413);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "This is a test", string);
 
 	expectedHttpResponse = "HTTP/1.1 413 This is a test\r\nContent-Length: 345\r\n";
@@ -312,7 +312,7 @@ PTF_TEST_CASE(HttpMalformedResponseTest)
 	pcpp::Packet httpPacket(&rawPacket1);
 
 	pcpp::HttpResponseLayer* httpResp = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
-	PTF_ASSERT_EQUAL(httpResp->getFieldCount(), 6, num);
+	PTF_ASSERT_EQUAL(httpResp->getFieldCount(), 6);
 	std::string fieldNames[] = {"x-amz-request-id2 CA4DB8F36423461F\r\n", "x-amz-id-2", PCPP_HTTP_CONTENT_TYPE_FIELD, PCPP_HTTP_TRANSFER_ENCODING_FIELD, "Date", PCPP_HTTP_SERVER_FIELD};
 	std::string fieldValues[] = {"", "xcjboWLTcibyztI2kdnRoUvPdimtSPdYQYsQ4pHAebH4miKlux4Am0SBZrvVxsHN", "application/xml", "chunked", "Thu, 21 Feb 2013 06:27:11 GMT", "AmazonS3"};
 	int index = 0;
