@@ -109,8 +109,6 @@ namespace pcpp
 		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
 
-		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
-		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 		// copy c'tor is not public
 		PcapLiveDevice( const PcapLiveDevice& other );
 		PcapLiveDevice& operator=(const PcapLiveDevice& other);
@@ -234,6 +232,11 @@ namespace pcpp
 			}
 		};
 
+		/**
+		 * Create new PcapLiveDevice. Typically handled by PcapLiveDeviceList but may be manually created for special use cases such
+		 * as capturing from the same interface more than once on platforms that support it
+		 */
+		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 
 		/**
 		 * A destructor for this class
