@@ -25,8 +25,11 @@ init:
 
 install:
 - if "%pcap_lib%"=="npcap" (ci\install_npcap.bat) else (ci\install_winpcap.bat)
-- if "%compiler%"=="mingw32" set PATH=%PATH%;C:\MinGW\bin&& appveyor DownloadFile http://ftp.ntua.gr/mirror/mingw/MinGW/Base/pthreads-w32/pthreads-w32-2.10-pre-20160821-1/pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz && 7z e pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz -oC:\pthreads && 7z x C:\pthreads\pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar -oC:\pthreads && xcopy /Y C:\pthreads\include\* C:\MinGW\include && xcopy /Y C:\pthreads\lib\* C:\MinGW\lib
-- if "%compiler:~0,4%"=="vs20" powershell -command "Invoke-WebRequest ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip -OutFile pthreads-w32-2-9-1-release.zip" && 7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
+- git clone https://github.com/seladb/PcapPlusPlus-Deploy
+- cd PcapPlusPlus-Deploy\Packages
+- if "%compiler%"=="mingw32" set PATH=%PATH%;C:\MinGW\bin&& 7z e pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz -oC:\pthreads && 7z x C:\pthreads\pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar -oC:\pthreads && xcopy /Y C:\pthreads\include\* C:\MinGW\include && xcopy /Y C:\pthreads\lib\* C:\MinGW\lib
+- if "%compiler:~0,4%"=="vs20" 7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
+- cd ..\..\
 - "python -m pip install --upgrade pip"
 - "python -m pip install -r C:\\projects\\PcapPlusPlus\\Tests\\ExamplesTest\\requirements.txt"
 - if "%compiler%"=="mingw32" python ci\patch_mingw.py
