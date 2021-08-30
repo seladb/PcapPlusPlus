@@ -9,6 +9,7 @@
 #include <initializer_list>
 #include <algorithm>
 #include <iterator>
+#include <ostream>
 #endif
 
 /// @file

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <string>
 #include <algorithm>
+#include <ostream>
 
 /// @file
 
