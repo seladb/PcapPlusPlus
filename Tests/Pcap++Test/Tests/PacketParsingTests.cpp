@@ -271,7 +271,7 @@ PTF_TEST_CASE(TestPrintPacketAndLayers)
 		index += 1;
 	}
 
-	PTF_ASSERT_EQUAL(referenceBufferAsString, outputStream.str(), string);
+	PTF_ASSERT_EQUAL(referenceBufferAsString, outputStream.str());
 } // TestPrintPacketAndLayers
 
 

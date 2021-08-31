@@ -6,10 +6,8 @@
 #include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
-#define _PTF_PRINT_TYPE(val) val
-#define object_PTF_PRINT_TYPE(val) "'" << val.toString() << "'"
+#define _PTF_PRINT_TYPE(val) "[" << val << "]"
 #define object_no_str_PTF_PRINT_TYPE(val) "'" << #val << "'"
-#define string_PTF_PRINT_TYPE(val) "'" << val << "'"
 #define hex_PTF_PRINT_TYPE(val) "0x" << std::hex << val
 #define enum_PTF_PRINT_TYPE(val) #val << "[" << val << "]"
 #define ptr_PTF_PRINT_TYPE(val) #val << "[" << val << "]"

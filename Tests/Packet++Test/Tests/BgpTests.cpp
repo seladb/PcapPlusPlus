@@ -63,7 +63,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(be16toh(bgpOpenLayer->getOpenMsgHeader()->myAutonomousSystem), 1);
 	PTF_ASSERT_EQUAL(be16toh(bgpOpenLayer->getOpenMsgHeader()->holdTime), 180);
 	PTF_ASSERT_EQUAL(bgpOpenLayer->getOpenMsgHeader()->optionalParameterLength, 28);
-	PTF_ASSERT_EQUAL(bgpOpenLayer->getBgpId(), pcpp::IPv4Address("1.1.1.1"), object);
+	PTF_ASSERT_EQUAL(bgpOpenLayer->getBgpId(), pcpp::IPv4Address("1.1.1.1"));
 	PTF_ASSERT_EQUAL(bgpOpenLayer->getOptionalParametersLength(), 28);
 	std::vector<pcpp::BgpOpenMessageLayer::optional_parameter> optionalParams;
 	bgpOpenLayer->getOptionalParameters(optionalParams);
@@ -99,7 +99,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(bgpNotificationLayer->getNotificationDataLen(), 125);
 
 	std::string notificationDataAsHexString = "7c4e54542077696c6c20706572666f726d206d61696e74656e616e6365206f6e207468697320726f757465722e205468697320697320747261636b656420696e205449434b45542d312d32343832343239342e20436f6e74616374206e6f63406e74742e6e657420666f72206d6f726520696e666f726d6174696f6e2e";
-	PTF_ASSERT_EQUAL(bgpNotificationLayer->getNotificationDataAsHexString(), notificationDataAsHexString, string);
+	PTF_ASSERT_EQUAL(bgpNotificationLayer->getNotificationDataAsHexString(), notificationDataAsHexString);
 
 	pcpp::Packet bgpNotificationNoDataPacket(&rawPacket4);
 
@@ -108,7 +108,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(bgpNotificationLayer);
 	PTF_ASSERT_EQUAL(bgpNotificationLayer->getNotificationDataLen(), 0);
 	PTF_ASSERT_NULL(bgpNotificationLayer->getNotificationData());
-	PTF_ASSERT_EQUAL(bgpNotificationLayer->getNotificationDataAsHexString(), "", string);
+	PTF_ASSERT_EQUAL(bgpNotificationLayer->getNotificationDataAsHexString(), "");
 
 
 
@@ -142,16 +142,16 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(withdrawnRoutes.size(), 4);
 	pcpp::BgpUpdateMessageLayer::prefix_and_ip wr = withdrawnRoutes[0];
 	PTF_ASSERT_EQUAL(wr.prefix, 24);
-	PTF_ASSERT_EQUAL(wr.ipAddr, pcpp::IPv4Address("40.1.1.0"), object);
+	PTF_ASSERT_EQUAL(wr.ipAddr, pcpp::IPv4Address("40.1.1.0"));
 	wr = withdrawnRoutes[1];
 	PTF_ASSERT_EQUAL(wr.prefix, 24);
-	PTF_ASSERT_EQUAL(wr.ipAddr, pcpp::IPv4Address("40.40.40.0"), object);
+	PTF_ASSERT_EQUAL(wr.ipAddr, pcpp::IPv4Address("40.40.40.0"));
 	wr = withdrawnRoutes[2];
 	PTF_ASSERT_EQUAL(wr.prefix, 16);
-	PTF_ASSERT_EQUAL(wr.ipAddr, pcpp::IPv4Address("103.103.0.0"), object);
+	PTF_ASSERT_EQUAL(wr.ipAddr, pcpp::IPv4Address("103.103.0.0"));
 	wr = withdrawnRoutes[3];
 	PTF_ASSERT_EQUAL(wr.prefix, 24);
-	PTF_ASSERT_EQUAL(wr.ipAddr, pcpp::IPv4Address("103.103.40.0"), object);
+	PTF_ASSERT_EQUAL(wr.ipAddr, pcpp::IPv4Address("103.103.40.0"));
 	PTF_ASSERT_EQUAL(bgpUpdateLayer->getPathAttributesLength(), 0);
 	std::vector<pcpp::BgpUpdateMessageLayer::path_attribute> pathAttributes;
 	bgpUpdateLayer->getPathAttributes(pathAttributes);
@@ -200,7 +200,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(nlriVec.size(), 1);
 	pcpp::BgpUpdateMessageLayer::prefix_and_ip nlri = nlriVec[0];
 	PTF_ASSERT_EQUAL(nlri.prefix, 24);
-	PTF_ASSERT_EQUAL(nlri.ipAddr, pcpp::IPv4Address("104.104.40.0"), object);	
+	PTF_ASSERT_EQUAL(nlri.ipAddr, pcpp::IPv4Address("104.104.40.0"));	
 	size_t pathAttrSize[3] = {28, 24, 0};
 	for (int i = 0; i < 3; i++)
 	{

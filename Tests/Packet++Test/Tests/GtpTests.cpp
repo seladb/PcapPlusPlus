@@ -50,15 +50,15 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_FALSE(gtpLayer->getNextExtensionHeaderType(nextHeaderType));
 
 	PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), pcpp::GtpV1_GPDU, enum);
-	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "G-PDU", string);
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "G-PDU");
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 12);
-	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 1", string);
+	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 1");
 
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 	pcpp::IPv4Layer* ip4Layer = dynamic_cast<pcpp::IPv4Layer*>(gtpLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress().toString(), "202.11.40.158", string);
+	PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress().toString(), "202.11.40.158");
 	PTF_ASSERT_NOT_NULL(ip4Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ip4Layer->getNextLayer()->getProtocol(), pcpp::ICMP, enum);
 
@@ -77,7 +77,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1);
 
 	PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), pcpp::GtpV1_GPDU, enum);
-	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "G-PDU", string);
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "G-PDU");
 
 	PTF_ASSERT_TRUE(gtpLayer->getSequenceNumber(seqNum));
 	PTF_ASSERT_EQUAL(seqNum, 5);
@@ -96,12 +96,12 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_TRUE(gtpExt.getNextExtension().isNull());
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 16);
-	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 1050199", string);
+	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 1050199");
 
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 	ip4Layer = dynamic_cast<pcpp::IPv4Layer*>(gtpLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress().toString(), "10.155.186.57", string);
+	PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress().toString(), "10.155.186.57");
 	PTF_ASSERT_NOT_NULL(ip4Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ip4Layer->getNextLayer()->getProtocol(), pcpp::TCP, enum);
 
@@ -121,7 +121,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1);
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 8);
-	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 2327461905", string);
+	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-U message, TEID: 2327461905");
 
 	PTF_ASSERT_FALSE(gtpLayer->getSequenceNumber(seqNum));
 	PTF_ASSERT_FALSE(gtpLayer->getNpduNumber(npduNum));
@@ -130,7 +130,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::IPv6, enum);
 	pcpp::IPv6Layer* ip6Layer = dynamic_cast<pcpp::IPv6Layer*>(gtpLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(ip6Layer->getSrcIPAddress(), pcpp::IPv6Address("2001:507:0:1:200:8600:0:2"), object);
+	PTF_ASSERT_EQUAL(ip6Layer->getSrcIPAddress(), pcpp::IPv6Address("2001:507:0:1:200:8600:0:2"));
 	PTF_ASSERT_NOT_NULL(ip6Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(ip6Layer->getNextLayer()->getProtocol(), pcpp::UDP, enum);
 
@@ -151,7 +151,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_EQUAL(gtpLayer->getHeader()->protocolType, 1);
 
 	PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), pcpp::GtpV1_SGSNContextResponse, enum);
-	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "SGSN Context Response", string);
+	PTF_ASSERT_EQUAL(gtpLayer->getMessageTypeAsString(), "SGSN Context Response");
 
 	PTF_ASSERT_TRUE(gtpLayer->getSequenceNumber(seqNum));
 	PTF_ASSERT_EQUAL(seqNum, 34062);
@@ -163,7 +163,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_NULL(gtpLayer->getNextLayer());
 
 	PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 52);
-	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-C message: SGSN Context Response, TEID: 167660384", string);
+	PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTP v1 Layer, GTP-C message: SGSN Context Response, TEID: 167660384");
 
 	PTF_ASSERT_TRUE(gtpLayer->isGTPCMessage());
 	PTF_ASSERT_FALSE(gtpLayer->isGTPUMessage());

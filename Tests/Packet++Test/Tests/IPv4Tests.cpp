@@ -45,8 +45,8 @@ PTF_TEST_CASE(IPv4PacketCreation)
 	PTF_ASSERT_EQUAL(ip4Packet.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 44);
 	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::IPv4Layer>());
 	pcpp::iphdr* ipHeader = ip4Layer.getIPv4Header();
-	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc, object);
-	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc);
+	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst);
 	PTF_ASSERT_EQUAL(ipHeader->ipVersion, 4);
 	PTF_ASSERT_EQUAL(ipHeader->internetHeaderLength, 5);
 	PTF_ASSERT_EQUAL(ipHeader->totalLength, htobe16(30));
@@ -240,9 +240,9 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 	PTF_ASSERT_EQUAL(opt.getTotalSize(), 39);
 	std::vector<pcpp::IPv4Address> ipAddrs = opt.getValueAsIpList();
 	PTF_ASSERT_EQUAL(ipAddrs.size(), 3);
-	PTF_ASSERT_EQUAL(ipAddrs.at(0), pcpp::IPv4Address("1.2.3.4"), object);
-	PTF_ASSERT_EQUAL(ipAddrs.at(1), pcpp::IPv4Address("10.0.0.138"), object);
-	PTF_ASSERT_EQUAL(ipAddrs.at(2), pcpp::IPv4Address("10.0.0.138"), object);
+	PTF_ASSERT_EQUAL(ipAddrs.at(0), pcpp::IPv4Address("1.2.3.4"));
+	PTF_ASSERT_EQUAL(ipAddrs.at(1), pcpp::IPv4Address("10.0.0.138"));
+	PTF_ASSERT_EQUAL(ipAddrs.at(2), pcpp::IPv4Address("10.0.0.138"));
 	pcpp::IPv4Option opt2 = ipLayer->getOption(pcpp::IPV4OPT_RecordRoute);
 	PTF_ASSERT_FALSE(opt2.isNull());
 	PTF_ASSERT_TRUE(opt2 == opt);
@@ -262,8 +262,8 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 	PTF_ASSERT_EQUAL(tsValue.ipAddresses.size(), 3);
 	PTF_ASSERT_EQUAL(tsValue.timestamps.at(0), htobe32(70037668));
 	PTF_ASSERT_EQUAL(tsValue.timestamps.at(2), htobe32(77233718));
-	PTF_ASSERT_EQUAL(tsValue.ipAddresses.at(0), pcpp::IPv4Address("10.0.0.6"), object);
-	PTF_ASSERT_EQUAL(tsValue.ipAddresses.at(1), pcpp::IPv4Address("10.0.0.138"), object);
+	PTF_ASSERT_EQUAL(tsValue.ipAddresses.at(0), pcpp::IPv4Address("10.0.0.6"));
+	PTF_ASSERT_EQUAL(tsValue.ipAddresses.at(1), pcpp::IPv4Address("10.0.0.138"));
 	opt = ipLayer->getNextOption(opt);
 	PTF_ASSERT_TRUE(opt.isNull());
 
@@ -413,7 +413,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_EQUAL(tsOption.timestamps.size(), 3);
 	PTF_ASSERT_EQUAL(tsOption.timestamps.at(1), htobe32(77233718));
 	PTF_ASSERT_EQUAL(tsOption.ipAddresses.size(), 3);
-	PTF_ASSERT_EQUAL(tsOption.ipAddresses.at(2), pcpp::IPv4Address("10.0.0.138"), object);
+	PTF_ASSERT_EQUAL(tsOption.ipAddresses.at(2), pcpp::IPv4Address("10.0.0.138"));
 	ipOpt5.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt5.getRawPacket()->getRawDataLen(), bufferLength55);
 	PTF_ASSERT_BUF_COMPARE(ipOpt5.getRawPacket()->getRawData(), buffer55, ipOpt5.getRawPacket()->getRawDataLen());

@@ -35,7 +35,7 @@ PTF_TEST_CASE(SllPacketParsingTest)
 	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->link_layer_addr_len, htobe16(6));
 	pcpp::MacAddress macAddrFromPacket(sllLayer->getSllHeader()->link_layer_addr);
 	pcpp::MacAddress macAddrRef("00:12:44:1e:74:00");
-	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket, object);
+	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
 	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->protocol_type, htobe16(PCPP_ETHERTYPE_IPV6));
 } // SllPacketParsingTest
 
@@ -114,7 +114,7 @@ PTF_TEST_CASE(NullLoopbackTest)
 	nextLayer = nullLoopbackLayer->getNextLayer();
 	PTF_ASSERT_NOT_NULL(nextLayer);
 	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, enum);
-	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIPAddress(), pcpp::IPv4Address("172.16.1.117"), object);
+	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIPAddress(), pcpp::IPv4Address("172.16.1.117"));
 	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET);
 
 	PTF_ASSERT_TRUE(nullPacket3.isPacketOfType(pcpp::NULL_LOOPBACK));

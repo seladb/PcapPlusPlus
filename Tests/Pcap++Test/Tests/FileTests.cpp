@@ -36,8 +36,8 @@ PTF_TEST_CASE(TestPcapFileReadWrite)
 	PTF_ASSERT_TRUE(readerDev.isOpened());
 	PTF_ASSERT_TRUE(writerDev.open());
 	PTF_ASSERT_TRUE(writerDev.isOpened());
-	PTF_ASSERT_EQUAL(readerDev.getFileName(), EXAMPLE_PCAP_PATH, string);
-	PTF_ASSERT_EQUAL(writerDev.getFileName(), EXAMPLE_PCAP_WRITE_PATH, string);
+	PTF_ASSERT_EQUAL(readerDev.getFileName(), EXAMPLE_PCAP_PATH);
+	PTF_ASSERT_EQUAL(writerDev.getFileName(), EXAMPLE_PCAP_WRITE_PATH);
 	PTF_ASSERT_EQUAL(readerDev.getFileSize(), 3812643);
 	pcpp::RawPacket rawPacket;
 	int packetCount = 0;
@@ -274,14 +274,14 @@ PTF_TEST_CASE(TestPcapNgFileReadWrite)
 	PTF_ASSERT_TRUE(readerDev.open());
 	PTF_ASSERT_TRUE(writerDev.open());
 	PTF_ASSERT_TRUE(writerCompressDev.open());
-	PTF_ASSERT_EQUAL(readerDev.getFileName(), EXAMPLE_PCAPNG_PATH, string);
-	PTF_ASSERT_EQUAL(writerDev.getFileName(), EXAMPLE_PCAPNG_WRITE_PATH, string);
-	PTF_ASSERT_EQUAL(writerCompressDev.getFileName(), EXAMPLE_PCAPNG_ZSTD_WRITE_PATH, string);
+	PTF_ASSERT_EQUAL(readerDev.getFileName(), EXAMPLE_PCAPNG_PATH);
+	PTF_ASSERT_EQUAL(writerDev.getFileName(), EXAMPLE_PCAPNG_WRITE_PATH);
+	PTF_ASSERT_EQUAL(writerCompressDev.getFileName(), EXAMPLE_PCAPNG_ZSTD_WRITE_PATH);
 	PTF_ASSERT_EQUAL(readerDev.getFileSize(), 20704);
-	PTF_ASSERT_EQUAL(readerDev.getOS(), "Mac OS X 10.10.4, build 14E46 (Darwin 14.4.0)", string);
-	PTF_ASSERT_EQUAL(readerDev.getCaptureApplication(), "Dumpcap 1.12.6 (v1.12.6-0-gee1fce6 from master-1.12)", string);
-	PTF_ASSERT_EQUAL(readerDev.getCaptureFileComment(), "", string);
-	PTF_ASSERT_EQUAL(readerDev.getHardware(), "", string);
+	PTF_ASSERT_EQUAL(readerDev.getOS(), "Mac OS X 10.10.4, build 14E46 (Darwin 14.4.0)");
+	PTF_ASSERT_EQUAL(readerDev.getCaptureApplication(), "Dumpcap 1.12.6 (v1.12.6-0-gee1fce6 from master-1.12)");
+	PTF_ASSERT_EQUAL(readerDev.getCaptureFileComment(), "");
+	PTF_ASSERT_EQUAL(readerDev.getHardware(), "");
 	pcpp::RawPacket rawPacket;
 	int packetCount = 0;
 	int ethLinkLayerCount = 0;
@@ -359,15 +359,15 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	// negative tests
 	readerDev.close();
 	pcpp::LoggerPP::getInstance().suppressErrors();
-	PTF_ASSERT_EQUAL(readerDev.getOS(), "", string);
+	PTF_ASSERT_EQUAL(readerDev.getOS(), "");
 	pcpp::LoggerPP::getInstance().enableErrors();
 	// --------------
 
 	PTF_ASSERT_TRUE(readerDev.open());
-	PTF_ASSERT_EQUAL(readerDev.getOS(), "Linux 3.18.1-1-ARCH", string);
-	PTF_ASSERT_EQUAL(readerDev.getCaptureApplication(), "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)", string);
-	PTF_ASSERT_EQUAL(readerDev.getCaptureFileComment(), "CLIENT_RANDOM E39B5BF4903C68684E8512FB2F60213E9EE843A0810B4982B607914D8092D482 95A5D39B02693BC1FB39254B179E9293007F6D37C66172B1EE4EF0D5E25CE1DABE878B6143DC3B266883E51A75E99DF9                                                   ", string);
-	PTF_ASSERT_EQUAL(readerDev.getHardware(), "", string);
+	PTF_ASSERT_EQUAL(readerDev.getOS(), "Linux 3.18.1-1-ARCH");
+	PTF_ASSERT_EQUAL(readerDev.getCaptureApplication(), "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)");
+	PTF_ASSERT_EQUAL(readerDev.getCaptureFileComment(), "CLIENT_RANDOM E39B5BF4903C68684E8512FB2F60213E9EE843A0810B4982B607914D8092D482 95A5D39B02693BC1FB39254B179E9293007F6D37C66172B1EE4EF0D5E25CE1DABE878B6143DC3B266883E51A75E99DF9                                                   ");
+	PTF_ASSERT_EQUAL(readerDev.getHardware(), "");
 
  	pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE2_PCAPNG_WRITE_PATH);
 	pcpp::PcapNgFileWriterDevice writerCompressDev(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH, 5);
@@ -462,15 +462,15 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	PTF_ASSERT_TRUE(readerDev2.open());
 	PTF_ASSERT_TRUE(readerDev3.open());
 
-	PTF_ASSERT_EQUAL(readerDevCompress.getOS(), "Linux 3.18.1-1-ARCH\0", string);
-	PTF_ASSERT_EQUAL(readerDevCompress.getCaptureApplication(), "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)", string);
-	PTF_ASSERT_EQUAL(readerDevCompress.getCaptureFileComment(), "This is a comment in a pcap-ng file", string);
-	PTF_ASSERT_EQUAL(readerDevCompress.getHardware(), "My Hardware", string);
+	PTF_ASSERT_EQUAL(readerDevCompress.getOS(), "Linux 3.18.1-1-ARCH\0");
+	PTF_ASSERT_EQUAL(readerDevCompress.getCaptureApplication(), "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)");
+	PTF_ASSERT_EQUAL(readerDevCompress.getCaptureFileComment(), "This is a comment in a pcap-ng file");
+	PTF_ASSERT_EQUAL(readerDevCompress.getHardware(), "My Hardware");
 
-	PTF_ASSERT_EQUAL(readerDev2.getOS(), "Linux 3.18.1-1-ARCH\0", string);
-	PTF_ASSERT_EQUAL(readerDev2.getCaptureApplication(), "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)", string);
-	PTF_ASSERT_EQUAL(readerDev2.getCaptureFileComment(), "This is a comment in a pcap-ng file", string);
-	PTF_ASSERT_EQUAL(readerDev2.getHardware(), "My Hardware", string);
+	PTF_ASSERT_EQUAL(readerDev2.getOS(), "Linux 3.18.1-1-ARCH\0");
+	PTF_ASSERT_EQUAL(readerDev2.getCaptureApplication(), "Dumpcap (Wireshark) 1.99.1 (Git Rev Unknown from unknown)");
+	PTF_ASSERT_EQUAL(readerDev2.getCaptureFileComment(), "This is a comment in a pcap-ng file");
+	PTF_ASSERT_EQUAL(readerDev2.getHardware(), "My Hardware");
 
 	packetCount = 0;
 	ethCount = 0;

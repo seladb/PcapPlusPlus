@@ -21,9 +21,9 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(radiusLayer);
 	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->code, 1);
 	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->id, 5);
-	PTF_ASSERT_EQUAL(radiusLayer->getAuthenticatorValue(), "ecfe3d2fe4473ec6299095ee46aedf77", string);
+	PTF_ASSERT_EQUAL(radiusLayer->getAuthenticatorValue(), "ecfe3d2fe4473ec6299095ee46aedf77");
 	PTF_ASSERT_EQUAL(radiusLayer->getHeaderLen(), 139);
-	PTF_ASSERT_EQUAL(pcpp::RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code), "Access-Request", string);
+	PTF_ASSERT_EQUAL(pcpp::RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code), "Access-Request");
 	PTF_ASSERT_EQUAL(radiusLayer->getAttributeCount(), 10);
 	uint8_t attrTypes[10] = { 4, 5, 61, 1, 30, 31, 6, 12, 79, 80 };
 	size_t attrTotalSize[10] = { 6, 6, 6, 14, 19, 19, 6, 6, 19, 18 };
@@ -54,9 +54,9 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(radiusLayer);
 	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->code, 3);
 	PTF_ASSERT_EQUAL(radiusLayer->getRadiusHeader()->id, 104);
-	PTF_ASSERT_EQUAL(radiusLayer->getAuthenticatorValue(), "71624da25c0b5897f70539e019a81eae", string);
+	PTF_ASSERT_EQUAL(radiusLayer->getAuthenticatorValue(), "71624da25c0b5897f70539e019a81eae");
 	PTF_ASSERT_EQUAL(radiusLayer->getHeaderLen(), 44);
-	PTF_ASSERT_EQUAL(pcpp::RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code), "Access-Reject", string);
+	PTF_ASSERT_EQUAL(pcpp::RadiusLayer::getRadiusMessageString(radiusLayer->getRadiusHeader()->code), "Access-Reject");
 	PTF_ASSERT_EQUAL(radiusLayer->getAttributeCount(), 2);
 	uint8_t attrTypes2[2] = { 79, 80 };
 	size_t attrTotalSize2[2] = { 6, 18 };

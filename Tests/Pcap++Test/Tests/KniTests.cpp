@@ -146,7 +146,7 @@ PTF_TEST_CASE(TestKniDevice)
 	{
 		std::string devName = device->getName();
 		std::string buffAsString = buff;
-		PTF_ASSERT_EQUAL(devName, buffAsString, string);
+		PTF_ASSERT_EQUAL(devName, buffAsString);
 	}
 	{
 		uint16_t port = device->getPort();
@@ -163,9 +163,9 @@ PTF_TEST_CASE(TestKniDevice)
 	}
 	{
 		pcpp::MacAddress mac = device->getMacAddress();
-		PTF_ASSERT_EQUAL(mac, devConfig.mac, object);
+		PTF_ASSERT_EQUAL(mac, devConfig.mac);
 		mac = device->getMacAddress(pcpp::KniDevice::INFO_RENEW);
-		PTF_ASSERT_EQUAL(mac, devConfig.mac, object);
+		PTF_ASSERT_EQUAL(mac, devConfig.mac);
 	}
 	{
 		uint16_t mtu = device->getMtu();
@@ -216,7 +216,7 @@ PTF_TEST_CASE(TestKniDevice)
 		if (macSet)
 		{
 			pcpp::MacAddress mac = device->getMacAddress(pcpp::KniDevice::INFO_RENEW);
-			PTF_NON_CRITICAL_EQUAL(mac, kniNewMac, object);
+			PTF_NON_CRITICAL_EQUAL(mac, kniNewMac);
 		}
 	}
 	if (pcpp::KniDeviceList::isCallbackSupported(pcpp::KniDeviceList::CALLBACK_LINK))

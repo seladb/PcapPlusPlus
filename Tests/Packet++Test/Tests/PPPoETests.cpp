@@ -37,7 +37,7 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPoEHeader()->payloadLength, htobe16(20));
 	PTF_ASSERT_EQUAL(pppoeSessionLayer->getPPPNextProtocol(), PCPP_PPP_LCP);
 
-	PTF_ASSERT_EQUAL(pppoeSessionLayer->toString(), std::string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"), string);
+	PTF_ASSERT_EQUAL(pppoeSessionLayer->toString(), std::string("PPP-over-Ethernet Session (followed by 'Link Control Protocol')"));
 } // PPPoESessionLayerParsingTest
 
 
@@ -130,7 +130,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getTagCount(), 4);
 
-	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->toString(), std::string("PPP-over-Ethernet Discovery (PADS)"), string);
+	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->toString(), std::string("PPP-over-Ethernet Discovery (PADS)"));
 } // PPPoEDiscoveryLayerParsingTest
 
 

@@ -28,13 +28,13 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(requestLayer->getFirstLine()->getMethod(), pcpp::HttpRequestLayer::HttpGET, enum);
 	PTF_ASSERT_EQUAL(requestLayer->getFirstLine()->getVersion(), pcpp::OneDotOne, enum);
-	PTF_ASSERT_EQUAL(requestLayer->getFirstLine()->getUri(), "/home/0,7340,L-8,00.html", string);
+	PTF_ASSERT_EQUAL(requestLayer->getFirstLine()->getUri(), "/home/0,7340,L-8,00.html");
 
 	pcpp::HeaderField* userAgent = requestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
 	PTF_ASSERT_NOT_NULL(userAgent);
 	PTF_ASSERT_TRUE(userAgent->getFieldValue().find("Safari/537.36") != std::string::npos);
 
-	PTF_ASSERT_EQUAL(requestLayer->getUrl(), "www.ynet.co.il/home/0,7340,L-8,00.html", string);
+	PTF_ASSERT_EQUAL(requestLayer->getUrl(), "www.ynet.co.il/home/0,7340,L-8,00.html");
 
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/PartialHttpRequest.dat");
@@ -46,7 +46,7 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(requestLayer->getFirstLine()->getMethod(), pcpp::HttpRequestLayer::HttpGET, enum);
 	PTF_ASSERT_EQUAL(requestLayer->getFirstLine()->getVersion(), pcpp::OneDotOne, enum);
-	PTF_ASSERT_EQUAL(requestLayer->getUrl(), "auth.wi-fi.ru/spa/vendor.bundle.5d388fb8db38cec4d554.js", string);
+	PTF_ASSERT_EQUAL(requestLayer->getUrl(), "auth.wi-fi.ru/spa/vendor.bundle.5d388fb8db38cec4d554.js");
 
 	userAgent = requestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD);
 	PTF_ASSERT_NOT_NULL(userAgent);
@@ -54,7 +54,7 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	pcpp::HeaderField* acceptLang = requestLayer->getFieldByName(PCPP_HTTP_ACCEPT_LANGUAGE_FIELD);
 	PTF_ASSERT_NOT_NULL(acceptLang);
-	PTF_ASSERT_EQUAL(acceptLang->getFieldValue(), "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7", string);
+	PTF_ASSERT_EQUAL(acceptLang->getFieldValue(), "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7");
 
 	pcpp::HeaderField* cookie = requestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD);
 	PTF_ASSERT_NOT_NULL(cookie);
@@ -195,7 +195,7 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 
 	pcpp::HeaderField* contentTypeField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 	PTF_ASSERT_NOT_NULL(contentTypeField);
-	PTF_ASSERT_EQUAL(contentTypeField->getFieldValue(), "application/x-javascript", string);
+	PTF_ASSERT_EQUAL(contentTypeField->getFieldValue(), "application/x-javascript");
 } // HttpResponseLayerParsingTest
 
 
@@ -283,7 +283,7 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseLayer::Http505HTTPVersionNotSupported));
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseLayer::Http505HTTPVersionNotSupported, enum);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 505);
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported", string);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported");
 
 	PTF_ASSERT_NOT_NULL(responseLayer->setContentLength(345));
 
@@ -293,7 +293,7 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 
 	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseLayer::Http413RequestEntityTooLarge, "This is a test"));
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 413);
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "This is a test", string);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "This is a test");
 
 	expectedHttpResponse = "HTTP/1.1 413 This is a test\r\nContent-Length: 345\r\n";
 	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
@@ -318,8 +318,8 @@ PTF_TEST_CASE(HttpMalformedResponseTest)
 	int index = 0;
 	for (pcpp::HeaderField* field = httpResp->getFirstField(); field != NULL && !field->isEndOfHeader(); field = httpResp->getNextField(field))
 	{
-		PTF_ASSERT_EQUAL(field->getFieldName(), fieldNames[index], string);
-		PTF_ASSERT_EQUAL(field->getFieldValue(), fieldValues[index], string);
+		PTF_ASSERT_EQUAL(field->getFieldName(), fieldNames[index]);
+		PTF_ASSERT_EQUAL(field->getFieldValue(), fieldValues[index]);
 		index++;
 	}
 } // HttpMalformedResponseTest

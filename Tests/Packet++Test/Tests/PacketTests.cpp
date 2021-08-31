@@ -51,10 +51,10 @@ PTF_TEST_CASE(InsertDataToPacket)
 	pcpp::VlanLayer vlanLayer(100, 0, 0, PCPP_ETHERTYPE_IP);
 
 	PTF_ASSERT_TRUE(ip4Packet.insertLayer(&ethLayer, &vlanLayer));
-	PTF_ASSERT_EQUAL(ethLayer.getDestMac(), dstMac, object);
+	PTF_ASSERT_EQUAL(ethLayer.getDestMac(), dstMac);
 	PTF_ASSERT_EQUAL(ip4Layer.getIPv4Header()->internetHeaderLength, 5);
-	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst, object);
-	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst);
+	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc);
 	PTF_ASSERT_EQUAL(payloadLayer.getPayload()[3], 0x04);
 
 
@@ -69,10 +69,10 @@ PTF_TEST_CASE(InsertDataToPacket)
 	PTF_ASSERT_EQUAL(ip4Packet.getFirstLayer(), &ethLayer2, ptr);
 	PTF_ASSERT_EQUAL(ip4Packet.getFirstLayer()->getNextLayer(), &ethLayer, ptr);
 	PTF_ASSERT_EQUAL(ip4Packet.getFirstLayer()->getNextLayer()->getNextLayer(), &vlanLayer, ptr);
-	PTF_ASSERT_EQUAL(ethLayer.getDestMac(), dstMac, object);
+	PTF_ASSERT_EQUAL(ethLayer.getDestMac(), dstMac);
 	PTF_ASSERT_EQUAL(ip4Layer.getIPv4Header()->internetHeaderLength, 5);
-	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst, object);
-	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc, object);
+	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst);
+	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc);
 	PTF_ASSERT_EQUAL(payloadLayer.getPayload()[3], 0x04);
 
 
@@ -91,7 +91,7 @@ PTF_TEST_CASE(InsertDataToPacket)
 	PTF_ASSERT_TRUE(testPacket.insertLayer(NULL, &ethLayer3));
 	PTF_ASSERT_EQUAL(testPacket.getFirstLayer(), &ethLayer3, ptr);
 	PTF_ASSERT_NULL(testPacket.getFirstLayer()->getNextLayer());
-	PTF_ASSERT_EQUAL(ethLayer3.getDestMac(), dstMac2, object);
+	PTF_ASSERT_EQUAL(ethLayer3.getDestMac(), dstMac2);
 
 } // InsertDataToPacket
 
@@ -139,7 +139,7 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 	delete newPacket;
 
 	std::string expectedHexString = "bbbbbbbbbbbbaaaaaaaaaaaa08004500001e00000000000690b101010101141414140102030405060708090a0000";
-	PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(buffer, bufferSize), expectedHexString, string);
+	PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(buffer, bufferSize), expectedHexString);
 
 	delete [] buffer;
 
@@ -412,8 +412,8 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	while (curFieldInSample != NULL && curFieldInCopy != NULL)
 	{
 		PTF_ASSERT_TRUE(curFieldInCopy != curFieldInSample);
-		PTF_ASSERT_EQUAL(curFieldInSample->getFieldName(), curFieldInCopy->getFieldName(), string);
-		PTF_ASSERT_EQUAL(curFieldInSample->getFieldValue(), curFieldInCopy->getFieldValue(), string);
+		PTF_ASSERT_EQUAL(curFieldInSample->getFieldName(), curFieldInCopy->getFieldName());
+		PTF_ASSERT_EQUAL(curFieldInSample->getFieldValue(), curFieldInCopy->getFieldValue());
 		PTF_ASSERT_EQUAL(curFieldInSample->getFieldSize(), curFieldInCopy->getFieldSize());
 
 		curFieldInSample = sampleHttpLayer->getNextField(curFieldInSample);
@@ -525,13 +525,13 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_NOT_NULL(origDnsLayer);
 	pcpp::DnsLayer copyDnsLayer(*origDnsLayer);
 	PTF_ASSERT_EQUAL(copyDnsLayer.getQueryCount(), origDnsLayer->getQueryCount());
-	PTF_ASSERT_EQUAL(copyDnsLayer.getFirstQuery()->getName(), origDnsLayer->getFirstQuery()->getName(), string);
+	PTF_ASSERT_EQUAL(copyDnsLayer.getFirstQuery()->getName(), origDnsLayer->getFirstQuery()->getName());
 	PTF_ASSERT_EQUAL(copyDnsLayer.getFirstQuery()->getDnsType(), origDnsLayer->getFirstQuery()->getDnsType(), enum);
 
 	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthorityCount(), origDnsLayer->getAuthorityCount());
-	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), origDnsLayer->getAuthority("Yaels-iPhone.local", true)->getData()->toString(), string);
+	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), origDnsLayer->getAuthority("Yaels-iPhone.local", true)->getData()->toString());
 
-	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(), origDnsLayer->getAdditionalRecord("", true)->getData()->toString(), string);
+	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(), origDnsLayer->getAdditionalRecord("", true)->getData()->toString());
 
 	copyDnsLayer.addQuery("bla", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_ANY);
 	pcpp::IPv4DnsResourceData ipv4DnsData(std::string("1.1.1.1"));
@@ -540,15 +540,15 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	copyDnsLayer = *origDnsLayer;
 
 	PTF_ASSERT_EQUAL(copyDnsLayer.getQueryCount(), origDnsLayer->getQueryCount());
-	PTF_ASSERT_EQUAL(copyDnsLayer.getFirstQuery()->getName(), origDnsLayer->getFirstQuery()->getName(), string);
+	PTF_ASSERT_EQUAL(copyDnsLayer.getFirstQuery()->getName(), origDnsLayer->getFirstQuery()->getName());
 	PTF_ASSERT_EQUAL(copyDnsLayer.getFirstQuery()->getDnsType(), origDnsLayer->getFirstQuery()->getDnsType(), enum);
 
 	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthorityCount(), origDnsLayer->getAuthorityCount());
-	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthority(".local", false)->getData()->toString(), origDnsLayer->getAuthority("iPhone.local", false)->getData()->toString(), string);
+	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthority(".local", false)->getData()->toString(), origDnsLayer->getAuthority("iPhone.local", false)->getData()->toString());
 
 	PTF_ASSERT_EQUAL(copyDnsLayer.getAnswerCount(), origDnsLayer->getAnswerCount());
 
-	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(), origDnsLayer->getAdditionalRecord("", true)->getData()->toString(), string);
+	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(), origDnsLayer->getAdditionalRecord("", true)->getData()->toString());
 
 } // CopyLayerAndPacketTest
 
@@ -582,14 +582,14 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 		// get the last IPv4 layer
 		pcpp::IPv4Layer* ipLayer = vxlanPacket.getLayerOfType<pcpp::IPv4Layer>(true);
 		PTF_ASSERT_NOT_NULL(ipLayer);
-		PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress(), pcpp::IPv4Address("192.168.203.3"), object);
-		PTF_ASSERT_EQUAL(ipLayer->getDstIPAddress(), pcpp::IPv4Address("192.168.203.5"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress(), pcpp::IPv4Address("192.168.203.3"));
+		PTF_ASSERT_EQUAL(ipLayer->getDstIPAddress(), pcpp::IPv4Address("192.168.203.5"));
 
 		// get the first IPv4 layer
 		ipLayer = vxlanPacket.getPrevLayerOfType<pcpp::IPv4Layer>(ipLayer);
 		PTF_ASSERT_NOT_NULL(ipLayer);
-		PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress(), pcpp::IPv4Address("192.168.203.1"), object);
-		PTF_ASSERT_EQUAL(ipLayer->getDstIPAddress(), pcpp::IPv4Address("192.168.202.1"), object);
+		PTF_ASSERT_EQUAL(ipLayer->getSrcIPAddress(), pcpp::IPv4Address("192.168.203.1"));
+		PTF_ASSERT_EQUAL(ipLayer->getDstIPAddress(), pcpp::IPv4Address("192.168.202.1"));
 
 		// try to get one more IPv4 layer
 		PTF_ASSERT_NULL(vxlanPacket.getPrevLayerOfType<pcpp::IPv4Layer>(ipLayer));
@@ -761,10 +761,10 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerLen(), 4);
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerLen(), 28);
 
-	PTF_ASSERT_EQUAL(trailerArpPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "742066726f6d2062726964676500203d3d20", string);
-	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "0101080a0000", string);
-	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "cdfcf105", string);
-	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "00000000000000000000000000000000000000000000000000000000", string);
+	PTF_ASSERT_EQUAL(trailerArpPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "742066726f6d2062726964676500203d3d20");
+	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "0101080a0000");
+	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "cdfcf105");
+	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "00000000000000000000000000000000000000000000000000000000");
 
 	PTF_ASSERT_EQUAL(trailerArpPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerData()[3], 0x72, hex);
 	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerData()[2], 0x8, hex);
