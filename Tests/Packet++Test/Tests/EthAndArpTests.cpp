@@ -25,8 +25,8 @@ PTF_TEST_CASE(EthPacketCreation)
 	PTF_ASSERT_TRUE(ethPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_NOT_NULL(ethPacket.getLayerOfType<pcpp::EthLayer>());
 	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>(), &ethLayer, ptr);
-	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getDestMac(), dstMac, object);
-	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getSourceMac(), srcMac, object);
+	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getDestMac(), dstMac);
+	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getSourceMac(), srcMac);
 	PTF_ASSERT_EQUAL(ethPacket.getLayerOfType<pcpp::EthLayer>()->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_IP));
 
 	pcpp::RawPacket* rawPacket = ethPacket.getRawPacket();
@@ -53,8 +53,8 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 	PTF_ASSERT_TRUE(ethPacket->isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_NOT_NULL(ethPacket->getLayerOfType<pcpp::EthLayer>());
 	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>(), ethLayer, ptr);
-	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getDestMac(), dstMac, object);
-	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getSourceMac(), srcMac, object);
+	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getDestMac(), dstMac);
+	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getSourceMac(), srcMac);
 	PTF_ASSERT_EQUAL(ethPacket->getLayerOfType<pcpp::EthLayer>()->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_IP));
 
 	pcpp::RawPacket* rawPacket = ethPacket->getRawPacket();
@@ -81,8 +81,8 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	pcpp::MacAddress expectedSrcMac(0x30, 0x46, 0x9a, 0x23, 0xfb, 0xfa);
 	pcpp::MacAddress expectedDstMac(0x6c, 0xf0, 0x49, 0xb2, 0xde, 0x6e);
 	pcpp::EthLayer* ethLayer = ethPacket.getLayerOfType<pcpp::EthLayer>();
-	PTF_ASSERT_EQUAL(ethLayer->getDestMac(), expectedDstMac, object);
-	PTF_ASSERT_EQUAL(ethLayer->getSourceMac(), expectedSrcMac, object);
+	PTF_ASSERT_EQUAL(ethLayer->getDestMac(), expectedDstMac);
+	PTF_ASSERT_EQUAL(ethLayer->getSourceMac(), expectedSrcMac);
 	PTF_ASSERT_EQUAL(ethLayer->getEthHeader()->etherType, be16toh(PCPP_ETHERTYPE_ARP), hex);
 
 	PTF_ASSERT_EQUAL(ethLayer->getNextLayer()->getProtocol(), pcpp::ARP, enum);
@@ -92,8 +92,8 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->hardwareSize, 6);
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->protocolSize, 4);
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->opcode, htobe16(pcpp::ARP_REPLY));
-	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), pcpp::IPv4Address("10.0.0.138"), object);
-	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), pcpp::MacAddress("6c:f0:49:b2:de:6e"), object);
+	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), pcpp::IPv4Address("10.0.0.138"));
+	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), pcpp::MacAddress("6c:f0:49:b2:de:6e"));
 } // EthAndArpPacketParsing
 
 
@@ -139,8 +139,8 @@ PTF_TEST_CASE(EthDot3LayerParsingTest)
 	pcpp::EthDot3Layer* ethDot3Layer = ethDot3Packet.getLayerOfType<pcpp::EthDot3Layer>();
 	PTF_ASSERT_NOT_NULL(ethDot3Layer);
 	PTF_ASSERT_EQUAL(ethDot3Layer->getHeaderLen(), 14);
-	PTF_ASSERT_EQUAL(ethDot3Layer->getSourceMac(), pcpp::MacAddress("00:13:f7:11:5e:db"), object);
-	PTF_ASSERT_EQUAL(ethDot3Layer->getDestMac(), pcpp::MacAddress("01:80:c2:00:00:00"), object);
+	PTF_ASSERT_EQUAL(ethDot3Layer->getSourceMac(), pcpp::MacAddress("00:13:f7:11:5e:db"));
+	PTF_ASSERT_EQUAL(ethDot3Layer->getDestMac(), pcpp::MacAddress("01:80:c2:00:00:00"));
 	PTF_ASSERT_EQUAL(be16toh(ethDot3Layer->getEthHeader()->length), 38);
 
 	PTF_ASSERT_NOT_NULL(ethDot3Layer->getNextLayer());

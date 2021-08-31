@@ -111,7 +111,7 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 		PTF_PRINT_VERBOSE("Iteration #" << i);
 		pcpp::SSLCipherSuite* curCipherSuite = clientHelloMessage->getCipherSuite(i);
 		PTF_ASSERT_NOT_NULL(curCipherSuite);
-		PTF_ASSERT_EQUAL(curCipherSuite->asString(), cipherSuiteNames[i], string);
+		PTF_ASSERT_EQUAL(curCipherSuite->asString(), cipherSuiteNames[i]);
 		PTF_ASSERT_EQUAL(curCipherSuite->getID(), cipherSuiteIDs[i]);
 		PTF_ASSERT_EQUAL(curCipherSuite->getKeyExchangeAlg(), cipherSuiteKey[i], enum);
 		PTF_ASSERT_EQUAL(curCipherSuite->getAuthAlg(), cipherSuiteAuth[i], enum);
@@ -130,7 +130,7 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 	PTF_ASSERT_EQUAL(ext->getType(), pcpp::SSL_EXT_SERVER_NAME, enum);
 	pcpp::SSLServerNameIndicationExtension* serverNameExt = clientHelloMessage->getExtensionOfType<pcpp::SSLServerNameIndicationExtension>();
 	PTF_ASSERT_NOT_NULL(serverNameExt);
-	PTF_ASSERT_EQUAL(serverNameExt->getHostName(), "www.google.com", string);
+	PTF_ASSERT_EQUAL(serverNameExt->getHostName(), "www.google.com");
 
 	pcpp::TLSECPointFormatExtension* ecPointFormatExt = clientHelloMessage->getExtensionOfType<pcpp::TLSECPointFormatExtension>();
 	PTF_ASSERT_NOT_NULL(ecPointFormatExt);
@@ -279,7 +279,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 	PTF_ASSERT_EQUAL(serverHelloMessage->getSessionIDLength(), 32);
 	PTF_ASSERT_EQUAL(serverHelloMessage->getSessionID()[0], 0xbf, hex);
 	PTF_ASSERT_EQUAL(serverHelloMessage->getSessionID()[31], 0x44, hex);
-	PTF_ASSERT_EQUAL(serverHelloMessage->getCipherSuite()->asString(), "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", string);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getCipherSuite()->asString(), "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
 	PTF_ASSERT_EQUAL(serverHelloMessage->getCipherSuite()->getSymKeyAlg(), pcpp::SSL_SYM_AES_128_GCM, enum);
 	PTF_ASSERT_EQUAL(serverHelloMessage->getExtensionsLenth(), 20);
 	PTF_ASSERT_EQUAL(serverHelloMessage->getExtensionCount(), 3);
@@ -584,7 +584,7 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuiteCount(), 4);
 	for (int i = 0; i < 3; i++)
 	{
-		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->asString(), cipherSuiteNames[i], string);
+		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->asString(), cipherSuiteNames[i]);
 		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->getID(), cipherSuiteIDs[i]);
 		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->getSymKeyAlg(), cipherSuiteSym[i], enum);
 		PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(i)->getMACAlg(), cipherSuiteHash[i], enum);
@@ -625,9 +625,9 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	clientHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
 	PTF_ASSERT_NOT_NULL(clientHelloMsg);
 	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuiteCount(), 18);
-	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(0)->asString(), cipherSuiteNames[2], string);
-	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(1)->asString(), cipherSuiteNames[1], string);
-	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(2)->asString(), cipherSuiteNames[0], string);
+	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(0)->asString(), cipherSuiteNames[2]);
+	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(1)->asString(), cipherSuiteNames[1]);
+	PTF_ASSERT_EQUAL(clientHelloMsg->getCipherSuite(2)->asString(), cipherSuiteNames[0]);
 
 	supportedVersionsExt = clientHelloMsg->getExtensionOfType<pcpp::SSLSupportedVersionsExtension>();
 	PTF_ASSERT_NOT_NULL(supportedVersionsExt);
@@ -648,7 +648,7 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
 	pcpp::SSLServerHelloMessage* serverHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
 	PTF_ASSERT_NOT_NULL(serverHelloMsg);
-	PTF_ASSERT_EQUAL(serverHelloMsg->getCipherSuite()->asString(), cipherSuiteNames[0], string);
+	PTF_ASSERT_EQUAL(serverHelloMsg->getCipherSuite()->asString(), cipherSuiteNames[0]);
 
 	supportedVersionsExt = serverHelloMsg->getExtensionOfType<pcpp::SSLSupportedVersionsExtension>();
 	PTF_ASSERT_NOT_NULL(supportedVersionsExt);
@@ -663,7 +663,7 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
 	serverHelloMsg = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
 	PTF_ASSERT_NOT_NULL(serverHelloMsg);
-	PTF_ASSERT_EQUAL(serverHelloMsg->getCipherSuite()->asString(), cipherSuiteNames[2], string);
+	PTF_ASSERT_EQUAL(serverHelloMsg->getCipherSuite()->asString(), cipherSuiteNames[2]);
 
 	supportedVersionsExt = serverHelloMsg->getExtensionOfType<pcpp::SSLSupportedVersionsExtension>();
 	PTF_ASSERT_NOT_NULL(supportedVersionsExt);
@@ -692,7 +692,7 @@ PTF_TEST_CASE(TLSCipherSuiteTest)
 		pcpp::SSLCipherSuite* cipherSuiteByID = pcpp::SSLCipherSuite::getCipherSuiteByID(cipherSuiteID);
 		PTF_ASSERT_NOT_NULL(cipherSuiteByName);
 		PTF_ASSERT_NOT_NULL(cipherSuiteByID);
-		PTF_ASSERT_EQUAL(cipherSuiteByName->asString(), cipherSuiteName, string);
+		PTF_ASSERT_EQUAL(cipherSuiteByName->asString(), cipherSuiteName);
 		PTF_ASSERT_EQUAL(cipherSuiteByID->getID(), cipherSuiteID);
 		PTF_ASSERT_EQUAL(cipherSuiteByName, cipherSuiteByID, ptr);
 	}
@@ -713,8 +713,8 @@ PTF_TEST_CASE(ClientHelloTLSFingerprintTest)
 	PTF_ASSERT_NOT_NULL(clientHelloMsg);
 
 	pcpp::SSLClientHelloMessage::ClientHelloTLSFingerprint tlsFingerprint = clientHelloMsg->generateTLSFingerprint();
-	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,4866-4867-4865-255,0-11-10-35-22-23-13-43-45-51,29-23-30-25-24,0-1-2", string);
-	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "a66e498c488aa0523759691248cdfb01", string);
+	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,4866-4867-4865-255,0-11-10-35-22-23-13-43-45-51,29-23-30-25-24,0-1-2");
+	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "a66e498c488aa0523759691248cdfb01");
 
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls_grease.dat");
@@ -726,8 +726,8 @@ PTF_TEST_CASE(ClientHelloTLSFingerprintTest)
 	PTF_ASSERT_NOT_NULL(clientHelloMsg);
 
 	tlsFingerprint = clientHelloMsg->generateTLSFingerprint();
-	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-21,29-23-24,0", string);
-	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "b32309a26951912be7dba376398abc3b", string);
+	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-21,29-23-24,0");
+	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "b32309a26951912be7dba376398abc3b");
 } // ClientHelloTLSFingerprintTest
 
 
@@ -746,8 +746,8 @@ PTF_TEST_CASE(ServerHelloTLSFingerprintTest)
 	PTF_ASSERT_NOT_NULL(serverHelloMessage);
 
 	pcpp::SSLServerHelloMessage::ServerHelloTLSFingerprint tlsFingerprint = serverHelloMessage->generateTLSFingerprint();
-	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,49195,65281-16-11", string);
-	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "554786d4c84f8a7953b7e453c6371067", string);
+	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,49195,65281-16-11");
+	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "554786d4c84f8a7953b7e453c6371067");
 
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls_server_hello.dat");
@@ -760,6 +760,6 @@ PTF_TEST_CASE(ServerHelloTLSFingerprintTest)
 	PTF_ASSERT_NOT_NULL(serverHelloMessage);
 
 	tlsFingerprint = serverHelloMessage->generateTLSFingerprint();
-	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,49195,23-65281-11-35-16", string);
-	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "eca9b8f0f3eae50309eaf901cb822d9b", string);
+	PTF_ASSERT_EQUAL(tlsFingerprint.toString(), "771,49195,23-65281-11-35-16");
+	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "eca9b8f0f3eae50309eaf901cb822d9b");
 } // ServerHelloTLSFingerprintTest

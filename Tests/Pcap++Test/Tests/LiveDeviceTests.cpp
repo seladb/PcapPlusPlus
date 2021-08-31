@@ -163,7 +163,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 			defaultGateway = (*iter)->getDefaultGateway();
 	}
 
-	PTF_ASSERT_NOT_EQUAL(defaultGateway, pcpp::IPv4Address::Zero, object);
+	PTF_ASSERT_NOT_EQUAL(defaultGateway, pcpp::IPv4Address::Zero);
 
 	std::vector<pcpp::IPv4Address> dnsServers = pcpp::PcapLiveDeviceList::getInstance().getDnsServers();
 	size_t dnsServerCount = dnsServers.size();
@@ -194,7 +194,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 	pcpp::PcapLiveDevice* liveDev2 = NULL;
 	liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName);
 	PTF_ASSERT_NOT_NULL(liveDev2);
-	PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName(), string);
+	PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName());
 
 	pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName);
 	PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
@@ -250,7 +250,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 
 PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 {
-	PTF_ASSERT_NOT_EQUAL(pcpp::IPcapDevice::getPcapLibVersionInfo(), "", string);
+	PTF_ASSERT_NOT_EQUAL(pcpp::IPcapDevice::getPcapLibVersionInfo(), "");
 
 	pcpp::PcapLiveDevice* liveDev = NULL;
 
@@ -269,7 +269,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_FALSE(liveDev->getName().empty());
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
-	PTF_ASSERT_NOT_EQUAL(liveDev->getMacAddress(), pcpp::MacAddress::Zero, object);
+	PTF_ASSERT_NOT_EQUAL(liveDev->getMacAddress(), pcpp::MacAddress::Zero);
 
 	// a negative test - check invalid IP address
 	liveDev = NULL;
@@ -714,14 +714,14 @@ PTF_TEST_CASE(TestRemoteCapture)
 	{
 		PTF_ASSERT_FALSE((*remoteDevIter)->getName().empty());
 	}
-	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP, string);
+	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP);
 	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);
 
 	pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(remoteDeviceIPAddr);
 	PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
 	PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
 	pcpp::LoggerPP::getInstance().suppressErrors();
-	PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero, object);
+	PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero);
 	pcpp::LoggerPP::getInstance().enableErrors();
 	PTF_ASSERT_TRUE(remoteDevice->open());
 	DeviceTeardown devTeardown(remoteDevice);

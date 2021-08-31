@@ -25,11 +25,11 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->secondsElapsed, be16toh(10));
 	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->hops, 1);
 	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->transactionID, be32toh(0x7771cf85));
-	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address("10.10.8.235"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address("172.22.178.234"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address("10.10.8.240"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:0e:86:11:c0:75")), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address("10.10.8.235"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address("172.22.178.234"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address("10.10.8.240"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:0e:86:11:c0:75")));
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 12);
 	pcpp::DhcpOption opt = dhcpLayer->getFirstOptionData();
@@ -67,10 +67,10 @@ PTF_TEST_CASE(DhcpParsingTest)
 		PTF_ASSERT_FALSE(dhcpLayer->getOptionData(optTypeArr[i]).isNull());
 	}
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_SUBNET_MASK).getValueAsIpAddr(), pcpp::IPv4Address("255.255.255.0"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER).getValueAsIpAddr(), pcpp::IPv4Address("172.22.178.234"), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_SUBNET_MASK).getValueAsIpAddr(), pcpp::IPv4Address("255.255.255.0"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER).getValueAsIpAddr(), pcpp::IPv4Address("172.22.178.234"));
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_LEASE_TIME).getValueAs<uint32_t>(), htobe32(43200));
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_TFTP_SERVER_NAME).getValueAsString(), "172.22.178.234", string);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_TFTP_SERVER_NAME).getValueAsString(), "172.22.178.234");
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_OFFER, enum);
 
@@ -84,11 +84,11 @@ PTF_TEST_CASE(DhcpParsingTest)
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getOpCode(), pcpp::DHCP_BOOTREQUEST, enum);
 	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->hops, 0);
-	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:00:6c:82:dc:4e")), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:00:6c:82:dc:4e")));
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 9);
 	opt = dhcpLayer->getFirstOptionData();
