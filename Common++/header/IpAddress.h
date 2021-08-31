@@ -5,6 +5,7 @@
 #include <string.h>
 #include <string>
 #include <algorithm>
+#include <ostream>
 
 /// @file
 
@@ -419,5 +420,23 @@ namespace pcpp
 	}
 
 } // namespace pcpp
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
+{
+	os << ipv4Address.toString();
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Address& ipv6Address)
+{
+	os << ipv6Address.toString();
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPAddress& ipAddress)
+{
+	os << ipAddress.toString();
+	return os;
+}
 
 #endif /* PCAPPP_IPADDRESS */

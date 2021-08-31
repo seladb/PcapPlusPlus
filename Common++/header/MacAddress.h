@@ -9,6 +9,7 @@
 #include <initializer_list>
 #include <algorithm>
 #include <iterator>
+#include <ostream>
 #endif
 
 /// @file
@@ -176,5 +177,11 @@ namespace pcpp
 	}
 
 } // namespace pcpp
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
+{
+	os << macAddress.toString();
+	return os;
+}
 
 #endif /* PCAPPP_MACADDRESS */

@@ -22,7 +22,17 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_TRUE(ip4Addr.isValid());
 	PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
 	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4", string);
+	{
+		std::ostringstream oss;
+		oss << ip4Addr;
+		PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4", string);
+	}
 	pcpp::IPv4Address ip4AddrFromIpAddr = ip4Addr.getIPv4();
+	{
+		std::ostringstream oss;
+		oss << ip4AddrFromIpAddr;
+		PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4", string);
+	}
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr.toInt(), htobe32(0x0A000004));
 	pcpp::IPv4Address secondIPv4Address(std::string("1.1.1.1"));
 	secondIPv4Address = ip4AddrFromIpAddr;
@@ -47,7 +57,17 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_TRUE(ip6Addr.isValid());
 	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
 	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4", string);
+	{
+		std::ostringstream oss;
+		oss << ip6Addr;
+		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4", string);
+	}
 	pcpp::IPv6Address ip6AddrFromIpAddr = ip6Addr.getIPv6();
+	{
+		std::ostringstream oss;
+		oss << ip6AddrFromIpAddr;
+		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4", string);
+	}
 	uint8_t addrAsByteArray[16];
 	ip6AddrFromIpAddr.copyTo(addrAsByteArray);
 	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00 , 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
@@ -90,7 +110,7 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr02, i));
 	}
 
-	/* Test less-than comparison operator */
+	// Test less-than comparison operator
 	pcpp::IPv4Address IpV4_1("1.1.1.1");
 	pcpp::IPv4Address IpV4_2("212.0.0.1");
 	pcpp::IPv4Address IpV4_3("224.0.0.0");
@@ -113,27 +133,27 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPAddress baseIPv6_1("2001:db8::2:1");
 	pcpp::IPAddress baseIPv6_2("2001:db8::2:2");
 
-	/* Compare IPv4 against IPv4 */
+	// Compare IPv4 against IPv4
 	PTF_ASSERT_TRUE(baseIpv4_1 < baseIpv4_2);
 	PTF_ASSERT_FALSE(baseIpv4_2 < baseIpv4_1);
 
-	/* Compare IPv6 against IPv6 */
+	// Compare IPv6 against IPv6
 	PTF_ASSERT_TRUE(baseIPv6_1 < baseIPv6_2);
 	PTF_ASSERT_FALSE(baseIPv6_2 < baseIPv6_1);
 
-	/* Compare IPv6 against IPv4*/
+	// Compare IPv6 against IPv4
 	PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_1);
 	PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_2);
 	PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_1);
 	PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_2);
 
-	/* Compare IPv4 against IPv6 */
+	// Compare IPv4 against IPv6
 	PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_1);
 	PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_1);
 	PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_2);
 	PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_2);
-
 } // TestIPAddress
+
 
 PTF_TEST_CASE(TestMacAddress)
 {
@@ -152,7 +172,10 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_TRUE(macAddr4.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr4, object);
 
-	PTF_ASSERT_EQUAL(macAddr1.toString(), std::string("11:02:33:04:55:06"), string);
+	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06", string);
+	std::ostringstream oss;
+	oss << macAddr1;
+	PTF_ASSERT_EQUAL(oss.str(), "11:02:33:04:55:06", string);
 
 	uint8_t* arrToCopyTo = NULL;
 	macAddr3.copyTo(&arrToCopyTo);
@@ -193,7 +216,6 @@ PTF_TEST_CASE(TestMacAddress)
 } // TestMacAddress
 
 
-
 PTF_TEST_CASE(TestLRUList)
 {
 	pcpp::LRUList<uint32_t> lruList(2);
@@ -212,7 +234,6 @@ PTF_TEST_CASE(TestLRUList)
 	lruList.eraseElement(3);
 	PTF_ASSERT_EQUAL(lruList.getSize(), 0);
 } // TestLRUList
-
 
 
 PTF_TEST_CASE(TestGeneralUtils)
@@ -240,7 +261,6 @@ PTF_TEST_CASE(TestGeneralUtils)
 	PTF_ASSERT_EQUAL(result, 4);
 	PTF_ASSERT_BUF_COMPARE(resultArr, expectedBytes2, result);
 } // TestGeneralUtils
-
 
 
 PTF_TEST_CASE(TestGetMacAddress)
