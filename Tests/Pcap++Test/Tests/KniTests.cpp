@@ -216,7 +216,7 @@ PTF_TEST_CASE(TestKniDevice)
 		if (macSet)
 		{
 			pcpp::MacAddress mac = device->getMacAddress(pcpp::KniDevice::INFO_RENEW);
-			PTF_NON_CRITICAL_EQUAL(mac, kniNewMac, object);
+			PTF_NON_CRITICAL_EQUAL(mac, kniNewMac);
 		}
 	}
 	if (pcpp::KniDeviceList::isCallbackSupported(pcpp::KniDeviceList::CALLBACK_LINK))
