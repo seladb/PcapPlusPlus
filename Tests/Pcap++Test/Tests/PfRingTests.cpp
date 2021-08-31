@@ -191,14 +191,14 @@ PTF_TEST_CASE(TestPfRingDevice)
 
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	PTF_ASSERT_GREATER_THAN(devList.getPfRingDevicesList().size(), 0);
-	PTF_ASSERT_NOT_EQUAL(devList.getPfRingVersion(), "", string);
+	PTF_ASSERT_NOT_EQUAL(devList.getPfRingVersion(), "");
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_TRUE(dev->getMacAddress().isValid());
-	PTF_ASSERT_NOT_EQUAL(dev->getMacAddress(), pcpp::MacAddress::Zero, object);
+	PTF_ASSERT_NOT_EQUAL(dev->getMacAddress(), pcpp::MacAddress::Zero);
 	PTF_ASSERT_GREATER_THAN(dev->getInterfaceIndex(), 0);
 	PTF_ASSERT_GREATER_THAN(dev->getTotalNumOfRxChannels(), 0);
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0);

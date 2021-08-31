@@ -21,23 +21,23 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPAddress ip4Addr = pcpp::IPAddress("10.0.0.4");
 	PTF_ASSERT_TRUE(ip4Addr.isValid());
 	PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
-	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4", string);
+	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4");
 	{
 		std::ostringstream oss;
 		oss << ip4Addr;
-		PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4", string);
+		PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4");
 	}
 	pcpp::IPv4Address ip4AddrFromIpAddr = ip4Addr.getIPv4();
 	{
 		std::ostringstream oss;
 		oss << ip4AddrFromIpAddr;
-		PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4", string);
+		PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4");
 	}
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr.toInt(), htobe32(0x0A000004));
 	pcpp::IPv4Address secondIPv4Address(std::string("1.1.1.1"));
 	secondIPv4Address = ip4AddrFromIpAddr;
 	PTF_ASSERT_TRUE(secondIPv4Address.isValid());
-	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address, object);
+	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
 
 	pcpp::IPv4Address ipv4Addr("10.0.0.4"), subnet1("10.0.0.0"), subnet2("10.10.0.0"), mask("255.255.255.0");
 	PTF_ASSERT_TRUE(ipv4Addr.isValid());
@@ -56,17 +56,17 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPAddress ip6Addr = pcpp::IPAddress(ip6AddrString);
 	PTF_ASSERT_TRUE(ip6Addr.isValid());
 	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
-	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4", string);
+	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
 	{
 		std::ostringstream oss;
 		oss << ip6Addr;
-		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4", string);
+		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4");
 	}
 	pcpp::IPv6Address ip6AddrFromIpAddr = ip6Addr.getIPv6();
 	{
 		std::ostringstream oss;
 		oss << ip6AddrFromIpAddr;
-		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4", string);
+		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4");
 	}
 	uint8_t addrAsByteArray[16];
 	ip6AddrFromIpAddr.copyTo(addrAsByteArray);
@@ -79,11 +79,11 @@ PTF_TEST_CASE(TestIPAddress)
 	ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
 	PTF_ASSERT_TRUE(ip6Addr.isValid());
 	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
-	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4", string);
+	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
 	pcpp::IPv6Address secondIPv6Address(std::string("2607:f0d0:1002:52::5"));
 	ip6AddrFromIpAddr = ip6Addr.getIPv6();
 	secondIPv6Address = ip6AddrFromIpAddr;
-	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr, secondIPv6Address, object);
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr, secondIPv6Address);
 
 	char badIp6AddressStr[] = "lasdfklsdkfdls";
 	pcpp::IPv6Address badIp6Address(badIp6AddressStr);
@@ -161,21 +161,21 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_TRUE(macAddr1.isValid());
 	pcpp::MacAddress macAddr2(0x11,0x2,0x33,0x4,0x55,0x6);
 	PTF_ASSERT_TRUE(macAddr2.isValid());
-	PTF_ASSERT_EQUAL(macAddr1, macAddr2, object);
+	PTF_ASSERT_EQUAL(macAddr1, macAddr2);
 
 	pcpp::MacAddress macAddr3(std::string("11:02:33:04:55:06"));
 	PTF_ASSERT_TRUE(macAddr3.isValid());
-	PTF_ASSERT_EQUAL(macAddr1, macAddr3, object);
+	PTF_ASSERT_EQUAL(macAddr1, macAddr3);
 
 	uint8_t addrAsArr[6] = { 0x11, 0x2, 0x33, 0x4, 0x55, 0x6 };
 	pcpp::MacAddress macAddr4(addrAsArr);
 	PTF_ASSERT_TRUE(macAddr4.isValid());
-	PTF_ASSERT_EQUAL(macAddr1, macAddr4, object);
+	PTF_ASSERT_EQUAL(macAddr1, macAddr4);
 
-	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06", string);
+	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06");
 	std::ostringstream oss;
 	oss << macAddr1;
-	PTF_ASSERT_EQUAL(oss.str(), "11:02:33:04:55:06", string);
+	PTF_ASSERT_EQUAL(oss.str(), "11:02:33:04:55:06");
 
 	uint8_t* arrToCopyTo = NULL;
 	macAddr3.copyTo(&arrToCopyTo);
@@ -200,10 +200,10 @@ PTF_TEST_CASE(TestMacAddress)
 
 	pcpp::MacAddress mac6(macAddr1);
 	PTF_ASSERT_TRUE(mac6.isValid());
-	PTF_ASSERT_EQUAL(mac6, macAddr1, object);
+	PTF_ASSERT_EQUAL(mac6, macAddr1);
 	mac6 = macAddr2;
 	PTF_ASSERT_TRUE(mac6.isValid());
-	PTF_ASSERT_EQUAL(mac6, macAddr2, object);
+	PTF_ASSERT_EQUAL(mac6, macAddr2);
 
 	pcpp::MacAddress macWithZero("aa:aa:00:aa:00:aa");
 	pcpp::MacAddress macWrong1("aa:aa:aa:aa:aa:aa:bb:bb:bb:bb");
@@ -281,7 +281,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
 #endif
 
-	PTF_ASSERT_NOT_EQUAL(ipsInArpTableAsString, "", string);
+	PTF_ASSERT_NOT_EQUAL(ipsInArpTableAsString, "");
 
 	// iterate all IP addresses and arping each one until one of them answers
 	pcpp::MacAddress result = pcpp::MacAddress::Zero;
@@ -299,10 +299,10 @@ PTF_TEST_CASE(TestGetMacAddress)
 		{
 			PTF_ASSERT_GREATER_OR_EQUAL_THAN(time, 0);
 			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
-			PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero, object);
+			PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
 			break;
 		}
 	}
 
-	PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero, object);
+	PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
 } // TestGetMacAddress

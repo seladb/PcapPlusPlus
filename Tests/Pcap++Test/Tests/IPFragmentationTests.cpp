@@ -67,7 +67,7 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 	PTF_ASSERT_TRUE(result->isPacketOfType(pcpp::HTTPRequest));
 	pcpp::HttpRequestLayer* httpReq = result->getLayerOfType<pcpp::HttpRequestLayer>();
 	PTF_ASSERT_NOT_NULL(httpReq);
-	PTF_ASSERT_EQUAL(httpReq->getUrl(), "js.bizographics.com/convert_data.js?partner_id=29", string);
+	PTF_ASSERT_EQUAL(httpReq->getUrl(), "js.bizographics.com/convert_data.js?partner_id=29");
 	PTF_ASSERT_EQUAL(httpReq->getFieldCount(), 10);
 
 	PTF_ASSERT_NOT_NULL(result);
@@ -945,36 +945,36 @@ PTF_TEST_CASE(TestIPFragMapOverflow)
 	ip6Key = dynamic_cast<pcpp::IPReassembly::IPv6PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(0));
 	PTF_ASSERT_NOT_NULL(ip6Key);
 	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x2c5323);
-	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")), object);
-	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::IPv6Address(std::string("ff02::fb")), object);
+	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")));
+	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::IPv6Address(std::string("ff02::fb")));
 
 	// 2nd packet removed should be ip4Packet2Frags
 	ip4Key = dynamic_cast<pcpp::IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(1));
 	PTF_ASSERT_NOT_NULL(ip4Key);
 	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea1);
-	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")), object);
-	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")), object);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")));
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")));
 
 	// 3rd packet removed should be ip4Packet3Frags
 	ip4Key = dynamic_cast<pcpp::IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(2));
 	PTF_ASSERT_NOT_NULL(ip4Key);
 	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea2);
-	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")), object);
-	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")), object);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")));
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")));
 
 	// 4th packet removed should be ip6Packet2Frags
 	ip6Key = dynamic_cast<pcpp::IPReassembly::IPv6PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(3));
 	PTF_ASSERT_NOT_NULL(ip6Key);
 	PTF_ASSERT_EQUAL(ip6Key->getFragmentID(), 0x98d687d1);
-	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")), object);
-	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::IPv6Address(std::string("ff02::fb")), object);
+	PTF_ASSERT_EQUAL(ip6Key->getSrcIP(), pcpp::IPv6Address(std::string("fe80::21f:f3ff:fecd:f617")));
+	PTF_ASSERT_EQUAL(ip6Key->getDstIP(), pcpp::IPv6Address(std::string("ff02::fb")));
 
 	// 5th packet removed should be ip4Packet4Frags
 	ip4Key = dynamic_cast<pcpp::IPReassembly::IPv4PacketKey*>(packetsRemovedFromIPReassemblyEngine.at(4));
 	PTF_ASSERT_NOT_NULL(ip4Key);
 	PTF_ASSERT_EQUAL(ip4Key->getIpID(), 0x1ea3);
-	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")), object);
-	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")), object);
+	PTF_ASSERT_EQUAL(ip4Key->getSrcIP(), pcpp::IPv4Address(std::string("10.118.213.212")));
+	PTF_ASSERT_EQUAL(ip4Key->getDstIP(), pcpp::IPv4Address(std::string("10.118.213.211")));
 } // TestIPFragMapOverflow
 
 

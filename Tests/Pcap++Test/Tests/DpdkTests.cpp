@@ -266,7 +266,7 @@ PTF_TEST_CASE(TestDpdkDevice)
 	PTF_ASSERT_NOT_NULL(dev);
 
 	PTF_ASSERT_TRUE(dev->getMacAddress().isValid());
-	PTF_ASSERT_NOT_EQUAL(dev->getMacAddress(), pcpp::MacAddress::Zero, object);
+	PTF_ASSERT_NOT_EQUAL(dev->getMacAddress(), pcpp::MacAddress::Zero);
 	PTF_ASSERT_GREATER_THAN(dev->getTotalNumOfRxQueues(), 0);
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxQueues(), 0);
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedTxQueues(), 0);

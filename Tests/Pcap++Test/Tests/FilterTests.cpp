@@ -68,7 +68,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(ipv4Layer->getDstIPAddress(), ipToSearch, object);
+		PTF_ASSERT_EQUAL(ipv4Layer->getDstIPAddress(), ipToSearch);
 	}
 	capturedPackets.clear();
 
@@ -123,7 +123,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 		pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
 		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80);
-		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch, object);
+		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch);
 	}
 	capturedPackets.clear();
 
@@ -164,7 +164,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		else if (packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch, object);
+			PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch);
 		}
 		// else packet isn't of type IP or TCP
 	}
@@ -192,7 +192,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		if (packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch, object);
+			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch);
 		}
 	}
 	capturedPackets.clear();
@@ -245,7 +245,7 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 			++validCounter;
 			pcpp::Packet packet(*iter);
 			pcpp::EthLayer* ethLayer = packet.getLayerOfType<pcpp::EthLayer>();
-			PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddr, object);
+			PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddr);
 		}
 	}
 
@@ -329,7 +329,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	{
 		pcpp::Packet packet(*iter);
 		pcpp::EthLayer* ethLayer = packet.getLayerOfType<pcpp::EthLayer>();
-		PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddrToFilter, object);
+		PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddrToFilter);
 	}
 
 	rawPacketVec.clear();
@@ -685,7 +685,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::UDP));
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "10.0.0.6", string);
+		PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "10.0.0.6");
 	}
 
 	rawPacketVec.clear();

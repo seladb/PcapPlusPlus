@@ -27,8 +27,8 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->ipVersion, 6);
 	pcpp::IPv6Address srcIP("fe80::4dc7:f593:1f7b:dc11");
 	pcpp::IPv6Address dstIP("ff02::c");
-	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIPAddress(), srcIP, object);
-	PTF_ASSERT_EQUAL(ipv6Layer->getDstIPAddress(), dstIP, object);
+	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIPAddress(), srcIP);
+	PTF_ASSERT_EQUAL(ipv6Layer->getDstIPAddress(), dstIP);
 	pcpp::UdpLayer* pUdpLayer = NULL;
 	pUdpLayer = ip6UdpPacket.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(pUdpLayer);
@@ -63,10 +63,10 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 
 	pcpp::IPv6Layer ipv6LayerEmpty;
 	ipv6LayerEmpty.setSrcIPv6Address(srcIP);
-	PTF_ASSERT_EQUAL(ipv6LayerEmpty.getSrcIPv6Address(), srcIP, object);
+	PTF_ASSERT_EQUAL(ipv6LayerEmpty.getSrcIPv6Address(), srcIP);
 
 	ipv6LayerEmpty.setDstIPv6Address(dstIP);
-	PTF_ASSERT_EQUAL(ipv6LayerEmpty.getDstIPv6Address(), dstIP, object);
+	PTF_ASSERT_EQUAL(ipv6LayerEmpty.getDstIPv6Address(), dstIP);
 
 	delete[] payloadData;
 } // IPv6UdpPacketParseAndCreate
@@ -241,8 +241,8 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->routingType, 0);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->segmentsLeft, 2);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataLength(), 36);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address("2200::210:2:0:0:4"), object);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address("2200::240:2:0:0:4"), object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address("2200::210:2:0:0:4"));
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address("2200::240:2:0:0:4"));
 
 
 	// parsing of routing extension #2
@@ -253,8 +253,8 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->routingType, 0);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingHeader()->segmentsLeft, 1);
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataLength(), 20);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address("2200::210:2:0:0:4"), object);
-	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address::Zero, object);
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address("2200::210:2:0:0:4"));
+	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address::Zero);
 
 
 	// parsing of authentication header extension
