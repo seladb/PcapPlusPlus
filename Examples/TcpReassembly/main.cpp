@@ -286,7 +286,7 @@ typedef std::map<uint32_t, TcpReassemblyData>::iterator TcpReassemblyConnMgrIter
  */
 void printUsage()
 {
-		std::cout << std::endl
+	std::cout << std::endl
 		<< "Usage:" << std::endl
 		<< "------" << std::endl
 		<< pcpp::AppName::get() << " [-hvlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]" << std::endl

@@ -20,14 +20,14 @@ class TestIPFragUtil(ExampleTest):
 	def test_missing_input_file(self):
 		args = {}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Input file name was not given' in completed_process.stdout
+		assert 'ERROR: Input file name was not given' in completed_process.stdout
 
 	def test_missing_output_file(self):
 		args = {
 			'': path.join('pcap_examples', 'http_req.pcap'),
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Output file name was not given' in completed_process.stdout
+		assert 'ERROR: Output file name was not given' in completed_process.stdout
 
 	def test_missing_frag_size(self, tmpdir):
 		args = {
@@ -35,7 +35,7 @@ class TestIPFragUtil(ExampleTest):
 			'-o': path.join(tmpdir, 'output.pcap'),
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert "Error: Need to choose fragment size using the '-s' flag" in completed_process.stdout
+		assert "ERROR: Need to choose fragment size using the '-s' flag" in completed_process.stdout
 
 	def test_wrong_frag_size(self, tmpdir):
 		args = {
@@ -44,7 +44,7 @@ class TestIPFragUtil(ExampleTest):
 			'-s': '52'
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Fragment size must divide by 8' in completed_process.stdout
+		assert 'ERROR: Fragment size must divide by 8' in completed_process.stdout
 
 	def test_ip_ids(self, tmpdir):
 		args = {
