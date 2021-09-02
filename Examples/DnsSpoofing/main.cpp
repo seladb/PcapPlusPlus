@@ -7,6 +7,7 @@
  */
 
 #include <vector>
+#include <iostream>
 #include <algorithm>
 #include <sstream>
 #include <utility>
@@ -27,15 +28,15 @@
 #include "PcapLiveDeviceList.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
-
 #include <getopt.h>
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("DnsSpoofing terminated in error: " reason "\n", ## __VA_ARGS__); \
+
+#define EXIT_WITH_ERROR(reason) do { \
+	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
-using namespace pcpp;
 
 static struct option DnsSpoofingOptions[] =
 {
@@ -67,7 +68,7 @@ struct DnsSpoofStats
  */
 struct DnsSpoofingArgs
 {
-	IPv4Address dnsServer;
+	pcpp::IPv4Address dnsServer;
 	std::vector<std::string> dnsHostsToSpoof;
 	DnsSpoofStats stats;
 	bool shouldStop;
@@ -77,24 +78,81 @@ struct DnsSpoofingArgs
 
 
 /**
+ * Print application usage
+ */
+void printUsage()
+{
+	std::cout << std::endl
+		<< "Usage:" << std::endl
+		<< "------" << std::endl
+		<< pcpp::AppName::get() << " [-hvl] [-o host1,host2,...,host_n] [-c ip_address] -i interface -d ip_address" << std::endl
+		<< std::endl
+		<< "Options:" << std::endl
+		<< std::endl
+		<< "    -h                          : Displays this help message and exits" << std::endl
+		<< "    -v                          : Displays the current version and exists" << std::endl
+		<< "    -l                          : Print the list of available interfaces" << std::endl
+		<< "    -i interface                : The interface name or interface IP address to use." << std::endl
+		<< "                                  Use the -l switch to see all interfaces" << std::endl
+		<< "    -d ip_address               : The IPv4 address of the spoofed DNS server" << std::endl
+		<< "                                  (all responses will be sent with this IP address)" << std::endl
+		<< "    -c ip_address               : Spoof only DNS requests coming from a specific IPv4 address" << std::endl
+		<< "    -o host1,host2,...,host_n   : A comma-separated list of hosts to spoof. If list is not given," << std::endl
+		<< "                                  all hosts will be spoofed. If an host contains '*' all sub-domains" << std::endl
+		<< "                                  will be spoofed, for example: if '*.google.com' is given" << std::endl
+		<< "                                  then 'mail.google.com', 'tools.google.com', etc. will be spoofed" << std::endl
+		<< std::endl;
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	std::cout
+		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+		<< "Built: " << pcpp::getBuildDateTime() << std::endl
+		<< "Built from: " << pcpp::getGitInfo() << std::endl;
+	exit(0);
+}
+
+
+/**
+ * Go over all interfaces and output their names
+ */
+void listInterfaces()
+{
+	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+
+	std::cout << std::endl << "Network interfaces:" << std::endl;
+	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	{
+		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
+	}
+	exit(0);
+}
+
+
+/**
  * The method that is called each time a DNS request is received. This methods turns the DNS request into a DNS response with the
  * spoofed information and sends it back to the network
  */
-void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
+void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
 	DnsSpoofingArgs* args = (DnsSpoofingArgs*)cookie;
 
 	// create a parsed packet from the raw packet
-	Packet dnsRequest(packet);
+	pcpp::Packet dnsRequest(packet);
 
-	if (!dnsRequest.isPacketOfType(DNS) || !dnsRequest.isPacketOfType(IPv4) || !dnsRequest.isPacketOfType(UDP) || !dnsRequest.isPacketOfType(Ethernet))
+	if (!dnsRequest.isPacketOfType(pcpp::DNS) || !dnsRequest.isPacketOfType(pcpp::IPv4) || !dnsRequest.isPacketOfType(pcpp::UDP) || !dnsRequest.isPacketOfType(pcpp::Ethernet))
 		return;
 
 	// extract all packet layers
-	EthLayer* ethLayer = dnsRequest.getLayerOfType<EthLayer>();
-	IPv4Layer* ip4Layer = dnsRequest.getLayerOfType<IPv4Layer>();
-	UdpLayer* udpLayer = dnsRequest.getLayerOfType<UdpLayer>();
-	DnsLayer* dnsLayer = dnsRequest.getLayerOfType<DnsLayer>();
+	pcpp::EthLayer* ethLayer = dnsRequest.getLayerOfType<pcpp::EthLayer>();
+	pcpp::IPv4Layer* ip4Layer = dnsRequest.getLayerOfType<pcpp::IPv4Layer>();
+	pcpp::UdpLayer* udpLayer = dnsRequest.getLayerOfType<pcpp::UdpLayer>();
+	pcpp::DnsLayer* dnsLayer = dnsRequest.getLayerOfType<pcpp::DnsLayer>();
 
 	// skip DNS requests with more than 1 request or with 0 requests
 	if (dnsLayer->getDnsHeader()->numberOfQuestions != pcpp::hostToNet16(1) ||
@@ -102,8 +160,8 @@ void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 		return;
 
 	// skip DNS requests which are not of class IN and type A (IPv4)
-	DnsQuery* dnsQuery = dnsLayer->getFirstQuery();
-	if (dnsQuery->getDnsType() != DNS_TYPE_A || dnsQuery->getDnsClass() != DNS_CLASS_IN)
+	pcpp::DnsQuery* dnsQuery = dnsLayer->getFirstQuery();
+	if (dnsQuery->getDnsType() != pcpp::DNS_TYPE_A || dnsQuery->getDnsClass() != pcpp::DNS_CLASS_IN)
 		return;
 
 	// empty dnsHostsToSpoof means spoofing all hosts
@@ -129,12 +187,12 @@ void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 	// create a response out of the request packet
 
 	// reverse src and dst MAC addresses
-	MacAddress srcMac = ethLayer->getSourceMac();
+	pcpp::MacAddress srcMac = ethLayer->getSourceMac();
 	ethLayer->setSourceMac(ethLayer->getDestMac());
 	ethLayer->setDestMac(srcMac);
 
 	// reverse src and dst IP addresses
-	IPv4Address srcIP = ip4Layer->getSrcIPv4Address();
+	pcpp::IPv4Address srcIP = ip4Layer->getSrcIPv4Address();
 	ip4Layer->setSrcIPv4Address(ip4Layer->getDstIPv4Address());
 	ip4Layer->setDstIPv4Address(srcIP);
 
@@ -147,8 +205,8 @@ void handleDnsRequest(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
 
 	// add DNS response
 	dnsLayer->getDnsHeader()->queryOrResponse = 1;
-	IPv4DnsResourceData dnsServer(args->dnsServer);
-	if (!dnsLayer->addAnswer(dnsQuery->getName(), DNS_TYPE_A, DNS_CLASS_IN, 1, &dnsServer))
+	pcpp::IPv4DnsResourceData dnsServer(args->dnsServer);
+	if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 1, &dnsServer))
 		return;
 
 	dnsRequest.computeCalculateFields();
@@ -170,15 +228,17 @@ void onApplicationInterrupted(void* cookie)
 	DnsSpoofingArgs* args = (DnsSpoofingArgs*)cookie;
 	if (args->stats.spoofedHosts.size() == 0)
 	{
-		printf("\nApplication closing. No hosts were spoofed\n");
+		std::cout << std::endl << "Application closing. No hosts were spoofed" << std::endl;
 	}
 	else
 	{
-		printf("\nApplication closing\nSummary of spoofed hosts:\n"
-				 "-------------------------\n");
+		std::cout << std::endl 
+			<< "Application closing" << std::endl
+			<< "Summary of spoofed hosts:" << std::endl
+			<< "-------------------------" << std::endl;
 
 		for (std::map<std::string, int>::iterator iter = args->stats.spoofedHosts.begin(); iter != args->stats.spoofedHosts.end(); iter++)
-			printf("Host [%s]: spoofed %d times\n", iter->first.c_str(), iter->second);
+			std::cout << "Host [" << iter->first << "]: spoofed " << iter->second << " times" << std::endl;
 	}
 	args->shouldStop = true;
 }
@@ -187,14 +247,14 @@ void onApplicationInterrupted(void* cookie)
 /**
  * Activate DNS spoofing: prepare the device and start capturing DNS requests
  */
-void doDnsSpoofing(PcapLiveDevice* dev, IPv4Address dnsServer, IPv4Address clientIP, std::vector<std::string> dnsHostsToSpoof)
+void doDnsSpoofing(pcpp::PcapLiveDevice* dev, pcpp::IPv4Address dnsServer, pcpp::IPv4Address clientIP, std::vector<std::string> dnsHostsToSpoof)
 {
 	// open device
 	if (!dev->open())
 		EXIT_WITH_ERROR("Cannot open capture device");
 
 	// set a filter to capture only DNS requests and client IP if provided
-	PortFilter dnsPortFilter(53, DST);
+	pcpp::PortFilter dnsPortFilter(53, pcpp::DST);
 	if (!clientIP.isValid())
 	{
 		if (!dev->setFilter(dnsPortFilter))
@@ -202,11 +262,11 @@ void doDnsSpoofing(PcapLiveDevice* dev, IPv4Address dnsServer, IPv4Address clien
 	}
 	else
 	{
-		IPFilter clientIpFilter(clientIP.toString(), SRC);
-		std::vector<GeneralFilter*> filterForAnd;
+		pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
+		std::vector<pcpp::GeneralFilter*> filterForAnd;
 		filterForAnd.push_back(&dnsPortFilter);
 		filterForAnd.push_back(&clientIpFilter);
-		AndFilter andFilter(filterForAnd);
+		pcpp::AndFilter andFilter(filterForAnd);
 
 		if (!dev->setFilter(andFilter))
 			EXIT_WITH_ERROR("Cannot set DNS and client IP filter for device");
@@ -223,64 +283,14 @@ void doDnsSpoofing(PcapLiveDevice* dev, IPv4Address dnsServer, IPv4Address clien
 
 
 	// register the on app close event to print summary stats on app termination
-	ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &args);
+	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &args);
 
 	// run an endless loop until ctrl+c is pressed
 	while (!args.shouldStop)
 	{
-		printf("Spoofed %d DNS requests so far\n", args.stats.numOfSpoofedDnsRequests);
-		multiPlatformSleep(5);
+		std::cout << "Spoofed " << args.stats.numOfSpoofedDnsRequests << " DNS requests so far" << std::endl;
+		pcpp::multiPlatformSleep(5);
 	}
-}
-
-
-
-/**
- * go over all interfaces and output their names
- */
-void listInterfaces()
-{
-	const std::vector<PcapLiveDevice*>& devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
-
-	printf("\nNetwork interfaces:\n");
-	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
-	{
-		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName().c_str(), (*iter)->getIPv4Address().toString().c_str());
-	}
-	exit(0);
-}
-
-
-/**
- * Print application usage
- */
-void printUsage()
-{
-	printf("\nUsage:\n"
-			"------\n"
-			"%s [-hvl] [-o host1,host2,...,host_n] [-c ip_address] -i interface -d ip_address\n"
-			"\nOptions:\n\n"
-			"    -h                          : Displays this help message and exits\n"
-			"    -v                          : Displays the current version and exists\n"
-			"    -l                          : Print the list of available interfaces\n"
-			"    -i interface                : The interface name or interface IP address to use. Use the -l switch to see all interfaces\n"
-			"    -d ip_address               : The IPv4 address of the spoofed DNS server (all responses will be sent with this IP address)\n"
-			"    -c ip_address               : Spoof only DNS requests coming from a specific IPv4 address\n"
-			"    -o host1,host2,...,host_n   : A comma-separated list of hosts to spoof. If list is not given, all hosts will be spoofed.\n"
-			"                                  If an host contains '*' all sub-domains will be spoofed, for example: if '*.google.com' is given\n"
-			"                                  then 'mail.google.com', 'tools.google.com', etc. will be spoofed\n\n", AppName::get().c_str());
-}
-
-
-/**
- * Print application version
- */
-void printAppVersion()
-{
-	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", getBuildDateTime().c_str());
-	printf("Built from: %s\n", getGitInfo().c_str());
-	exit(0);
 }
 
 
@@ -289,16 +299,16 @@ void printAppVersion()
  */
 int main(int argc, char* argv[])
 {
-	AppName::init(argc, argv);
+	pcpp::AppName::init(argc, argv);
 
 	int optionIndex = 0;
 	char opt = 0;
 
 	std::string interfaceNameOrIP;
 
-	IPv4Address dnsServer;
+	pcpp::IPv4Address dnsServer;
 
-	IPv4Address clientIP;
+	pcpp::IPv4Address clientIP;
 	bool clientIpSet = false;
 
 	std::vector<std::string> hostList;
@@ -333,12 +343,12 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServer = IPv4Address(static_cast<char const *>(optarg));
+				dnsServer = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				break;
 			}
 			case 'c':
 			{
-				clientIP = IPv4Address(static_cast<char const *>(optarg));
+				clientIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				clientIpSet = true;
 				break;
 			}
@@ -360,7 +370,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	PcapLiveDevice* dev = NULL;
+	pcpp::PcapLiveDevice* dev = NULL;
 
 	// check if interface argument is IP or name and extract the device
 	if (interfaceNameOrIP.empty())
@@ -368,18 +378,17 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Interface name or IP weren't provided. Please use the -i switch or -h for help");
 	}
 
-	dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+	dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
 	if (dev == NULL)
 		EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 	// verify DNS server IP is a valid IPv4 address
-	if (dnsServer == IPv4Address::Zero ||  !dnsServer.isValid())
+	if (dnsServer == pcpp::IPv4Address::Zero ||  !dnsServer.isValid())
 		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or not a valid IPv4 address");
 
 	// verify client IP is valid if set
 	if (clientIpSet && !clientIP.isValid())
 		EXIT_WITH_ERROR("Client IP to spoof is invalid");
-
 
 	doDnsSpoofing(dev, dnsServer, clientIP, hostList);
 }
