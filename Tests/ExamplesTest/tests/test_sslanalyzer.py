@@ -26,4 +26,4 @@ class TestSSLAnalyzer(ExampleTest):
 	def test_no_arg_provided(self):
 		args = {}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Neither interface nor input pcap file were provided' in completed_process.stdout
+		assert 'ERROR: Neither interface nor input pcap file were provided' in completed_process.stdout

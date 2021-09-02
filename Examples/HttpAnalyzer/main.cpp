@@ -45,6 +45,7 @@
 			<< std::right << std::setw(15) << std::fixed << std::showpoint << std::setprecision(3) << counter \
 			<< " [" << measurement << "]" << std::endl;
 
+
 #define DEFAULT_CALC_RATES_PERIOD_SEC 2
 
 
@@ -444,7 +445,7 @@ void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
 /**
  * activate HTTP analysis from live traffic
  */
-void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodicaly, int printRatePeriod, std::string savePacketsToFileName, uint16_t dstPort)
+void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodically, int printRatePeriod, std::string savePacketsToFileName, uint16_t dstPort)
 {
 	// open the device
 	if (!dev->open())
@@ -482,7 +483,7 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 		pcpp::multiPlatformSleep(printRatePeriod);
 
 		// calculate rates
-		if (printRatesPeriodicaly)
+		if (printRatesPeriodically)
 		{
 			collector.calcRates();
 			printCurrentRates(collector);
@@ -519,7 +520,7 @@ int main(int argc, char* argv[])
 
 	std::string interfaceNameOrIP = "";
 	std::string port = "80";
-	bool printRatesPeriodicaly = true;
+	bool printRatesPeriodically = true;
 	int printRatePeriod = DEFAULT_CALC_RATES_PERIOD_SEC;
 	std::string savePacketsToFileName = "";
 
@@ -551,7 +552,7 @@ int main(int argc, char* argv[])
 				printRatePeriod = atoi(optarg);
 				break;
 			case 'd':
-				printRatesPeriodicaly = false;
+				printRatesPeriodically = false;
 				break;
 			case 'h':
 				printUsage();
@@ -598,6 +599,6 @@ int main(int argc, char* argv[])
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 		// start capturing and analyzing traffic
-		analyzeHttpFromLiveTraffic(dev, printRatesPeriodicaly, printRatePeriod, savePacketsToFileName, nPort);
+		analyzeHttpFromLiveTraffic(dev, printRatesPeriodically, printRatePeriod, savePacketsToFileName, nPort);
 	}
 }
