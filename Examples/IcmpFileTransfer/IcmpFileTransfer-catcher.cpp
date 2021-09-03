@@ -18,15 +18,14 @@
 #include "Common.h"
 #include "SystemUtils.h"
 
-using namespace pcpp;
 
 /**
  * A struct used for starting a file transfer, mainly sending or getting the file name
  */
 struct IcmpFileTransferStart
 {
-	IPv4Address pitcherIPAddr;
-	IPv4Address catcherIPAddr;
+	pcpp::IPv4Address pitcherIPAddr;
+	pcpp::IPv4Address catcherIPAddr;
 	std::string fileName;
 	uint16_t icmpId;
 };
@@ -36,8 +35,8 @@ struct IcmpFileTransferStart
  */
 struct IcmpFileContentDataRecv
 {
-	IPv4Address pitcherIPAddr;
-	IPv4Address catcherIPAddr;
+	pcpp::IPv4Address pitcherIPAddr;
+	pcpp::IPv4Address catcherIPAddr;
 	std::ofstream* file;
 	std::string fileName;
 	uint16_t expectedIcmpId;
@@ -50,8 +49,8 @@ struct IcmpFileContentDataRecv
  */
 struct IcmpFileContentDataSend
 {
-	IPv4Address pitcherIPAddr;
-	IPv4Address catcherIPAddr;
+	pcpp::IPv4Address pitcherIPAddr;
+	pcpp::IPv4Address catcherIPAddr;
 	std::ifstream* file;
 	bool readingFromFile;
 	uint32_t MBSent;
@@ -64,13 +63,13 @@ struct IcmpFileContentDataSend
  * A callback used in the receiveFile() method and responsible to wait for the pitcher to send an ICMP request containing the file name
  * to be received
  */
-static bool waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoidData)
+static bool waitForFileTransferStart(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* icmpVoidData)
 {
 	// first, parse the packet
-	Packet parsedPacket(rawPacket);
+	pcpp::Packet parsedPacket(rawPacket);
 
 	// verify it's ICMP and IPv4 (IPv6 and ICMPv6 are not supported)
-	if (!parsedPacket.isPacketOfType(ICMP) || !parsedPacket.isPacketOfType(IPv4))
+	if (!parsedPacket.isPacketOfType(pcpp::ICMP) || !parsedPacket.isPacketOfType(pcpp::IPv4))
 		return false;
 
 	if (icmpVoidData == NULL)
@@ -79,12 +78,12 @@ static bool waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, 
 	IcmpFileTransferStart* icmpFTStart = (IcmpFileTransferStart*)icmpVoidData;
 
 	// extract the ICMP layer, verify it's an ICMP request
-	IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<IcmpLayer>();
+	pcpp::IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
 	if (icmpLayer->getEchoRequestData() == NULL)
 		return false;
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
-	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
+	pcpp::IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	if (ip4Layer->getSrcIPv4Address() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIPv4Address() != icmpFTStart->catcherIPAddr)
 		return false;
 
@@ -99,7 +98,7 @@ static bool waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, 
 	icmpFTStart->fileName = std::string((char*)icmpLayer->getEchoRequestData()->data);
 
 	// extract ethernet layer and ICMP ID to be able to respond to the pitcher
-	EthLayer* ethLayer = parsedPacket.getLayerOfType<EthLayer>();
+	pcpp::EthLayer* ethLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
 	uint16_t icmpId = pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id);
 
 	// send the pitcher an ICMP response containing an ack message (of type ICMP_FT_ACK) so it knows the catcher has received
@@ -123,13 +122,13 @@ static bool waitForFileTransferStart(RawPacket* rawPacket, PcapLiveDevice* dev, 
  * A callback used in the receiveFile() method and responsible to receive file data chunks arriving from the pitcher and write them to the
  * local file
  */
-static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoidData)
+static bool getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* icmpVoidData)
 {
 	// first, parse the packet
-	Packet parsedPacket(rawPacket);
+	pcpp::Packet parsedPacket(rawPacket);
 
 	// verify it's ICMP and IPv4 (IPv6 and ICMPv6 are not supported)
-	if (!parsedPacket.isPacketOfType(ICMP) || !parsedPacket.isPacketOfType(IPv4))
+	if (!parsedPacket.isPacketOfType(pcpp::ICMP) || !parsedPacket.isPacketOfType(pcpp::IPv4))
 		return false;
 
 	if (icmpVoidData == NULL)
@@ -138,12 +137,12 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 	IcmpFileContentDataRecv* icmpData = (IcmpFileContentDataRecv*)icmpVoidData;
 
 	// extract the ICMP layer, verify it's an ICMP request
-	IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<IcmpLayer>();
+	pcpp::IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
 	if (icmpLayer->getEchoRequestData() == NULL)
 		return false;
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
-	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
+	pcpp::IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	if (ip4Layer->getSrcIPv4Address() != icmpData->pitcherIPAddr || ip4Layer->getDstIPv4Address() != icmpData->catcherIPAddr)
 		return false;
 
@@ -155,7 +154,7 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 	{
 		// close the file and stop receiveFile() from blocking
 		icmpData->file->close();
-		printf(".");
+		std::cout << ".";
 		return true;
 	}
 	// if message type is not ICMP_FT_END not ICMP_FT_DATA - do nothing, it's probably an ICMP request not relevant for this file transfer
@@ -173,7 +172,7 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 	{
 		// close the file, remove it and exit the program with error
 		icmpData->file->close();
-		EXIT_WITH_ERROR_AND_RUN_COMMAND("Didn't get expected ICMP message #%d, got #%d", std::remove(icmpData->fileName.c_str()), icmpData->expectedIcmpId, pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id));
+		EXIT_WITH_ERROR_AND_RUN_COMMAND("Didn't get expected ICMP message #" << icmpData->expectedIcmpId << ", got #" << pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id), std::remove(icmpData->fileName.c_str()));
 	}
 
 	// increment expected ICMP ID
@@ -190,7 +189,7 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 	if (icmpData->MBReceived > ONE_MBYTE)
 	{
 		icmpData->MBReceived -= ONE_MBYTE;
-		printf(".");
+		std::cout << ".";
 	}
 
 	// return and wait for the next data packet
@@ -201,23 +200,23 @@ static bool getFileContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmp
 /**
  * Receive a file from the pitcher
  */
-void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
+void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP)
 {
 	// identify the interface to listen and send packets to
-	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);
+	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);
 	if (dev == NULL)
-		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", catcherIP.toString().c_str());
+		EXIT_WITH_ERROR("Cannot find network interface with IP '" << catcherIP << "'");
 
 	// try to open the interface (device)
 	if (!dev->open())
 		EXIT_WITH_ERROR("Cannot open network interface");
 
 	// set an ICMP protocol filter so it'll capture only ICMP packets
-	ProtoFilter protocolFilter(ICMP);
+	pcpp::ProtoFilter protocolFilter(pcpp::ICMP);
 	if (!dev->setFilter(protocolFilter))
 		EXIT_WITH_ERROR("Can't set ICMP filter on device");
 
-	printf("Waiting for pitcher to send a file...\n");
+	std::cout << "Waiting for pitcher to send a file..." << std::endl;
 
 	IcmpFileTransferStart icmpFTStart = {
 			pitcherIP,
@@ -236,7 +235,7 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 
 	if (file.is_open())
 	{
-		printf("Getting file from pitcher: '%s' ", icmpFTStart.fileName.c_str());
+		std::cout << "Getting file from pitcher: '" <<  icmpFTStart.fileName << "' ";
 
 		IcmpFileContentDataRecv icmpFileContentData = {
 				pitcherIP,
@@ -256,7 +255,10 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
 			EXIT_WITH_ERROR_AND_RUN_COMMAND("Cannot start capturing packets", std::remove(icmpFTStart.fileName.c_str()));
 		}
 
-		printf("\n\nFinished getting file '%s' [received %d bytes]\n", icmpFTStart.fileName.c_str(), icmpFileContentData.fileSize);
+		std::cout << std::endl << std::endl
+		 << "Finished getting file '" << icmpFTStart.fileName << "' "
+		 << "[received " << icmpFileContentData.fileSize << " bytes]"
+		 << std::endl;
 	}
 	else
 		EXIT_WITH_ERROR("Cannot create file");
@@ -271,13 +273,13 @@ void receiveFile(IPv4Address pitcherIP, IPv4Address catcherIP)
  * A callback used in the sendFile() method and responsible to wait for the pitcher to send a keep-alive ICMP request. When such message
  * arrives this callback takes care of sending an ICMP response to the pitcher which is data contains the file name to send
  */
-static bool startFileTransfer(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoidData)
+static bool startFileTransfer(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* icmpVoidData)
 {
 	// first, parse the packet
-	Packet parsedPacket(rawPacket);
+	pcpp::Packet parsedPacket(rawPacket);
 
 	// verify it's ICMP and IPv4 (IPv6 and ICMPv6 are not supported)
-	if (!parsedPacket.isPacketOfType(ICMP) || !parsedPacket.isPacketOfType(IPv4))
+	if (!parsedPacket.isPacketOfType(pcpp::ICMP) || !parsedPacket.isPacketOfType(pcpp::IPv4))
 		return false;
 
 	if (icmpVoidData == NULL)
@@ -286,12 +288,12 @@ static bool startFileTransfer(RawPacket* rawPacket, PcapLiveDevice* dev, void* i
 	IcmpFileTransferStart* icmpFTStart = (IcmpFileTransferStart*)icmpVoidData;
 
 	// extract the ICMP layer, verify it's an ICMP request
-	IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<IcmpLayer>();
+	pcpp::IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
 	if (icmpLayer->getEchoRequestData() == NULL)
 		return false;
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
-	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
+	pcpp::IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	if (ip4Layer->getSrcIPv4Address() != icmpFTStart->pitcherIPAddr || ip4Layer->getDstIPv4Address() != icmpFTStart->catcherIPAddr)
 		return false;
 
@@ -302,7 +304,7 @@ static bool startFileTransfer(RawPacket* rawPacket, PcapLiveDevice* dev, void* i
 		return false;
 
 	// extract ethernet layer and ICMP ID to be able to respond to the pitcher
-	EthLayer* ethLayer = parsedPacket.getLayerOfType<EthLayer>();
+	pcpp::EthLayer* ethLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
 	uint16_t icmpId = pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id);
 
 	// send the ICMP response containing the file name back to the pitcher
@@ -321,13 +323,13 @@ static bool startFileTransfer(RawPacket* rawPacket, PcapLiveDevice* dev, void* i
  * A callback used in the sendFile() method and responsible to wait for ICMP requests coming from the pitcher and send file data chunks as
  * a reply in the ICMP response data
  */
-static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoidData)
+static bool sendContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* icmpVoidData)
 {
 	// first, parse the packet
-	Packet parsedPacket(rawPacket);
+	pcpp::Packet parsedPacket(rawPacket);
 
 	// verify it's ICMP and IPv4 (IPv6 and ICMPv6 are not supported)
-	if (!parsedPacket.isPacketOfType(ICMP) || !parsedPacket.isPacketOfType(IPv4))
+	if (!parsedPacket.isPacketOfType(pcpp::ICMP) || !parsedPacket.isPacketOfType(pcpp::IPv4))
 		return false;
 
 	if (icmpVoidData == NULL)
@@ -336,12 +338,12 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 	IcmpFileContentDataSend* icmpFileContentData = (IcmpFileContentDataSend*)icmpVoidData;
 
 	// extract the ICMP layer, verify it's an ICMP request
-	IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<IcmpLayer>();
+	pcpp::IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
 	if (icmpLayer->getEchoRequestData() == NULL)
 		return false;
 
 	// verify the source IP is the pitcher's IP and the dest IP is the catcher's IP
-	IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
+	pcpp::IPv4Layer* ip4Layer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	if (ip4Layer->getSrcIPv4Address() != icmpFileContentData->pitcherIPAddr || ip4Layer->getDstIPv4Address() != icmpFileContentData->catcherIPAddr)
 		return false;
 
@@ -357,7 +359,7 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 		return false;
 
 	// extract ethernet layer and ICMP ID to be able to respond to the pitcher
-	EthLayer* ethLayer = parsedPacket.getLayerOfType<EthLayer>();
+	pcpp::EthLayer* ethLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
 	uint16_t icmpId = pcpp::netToHost16(icmpLayer->getEchoRequestData()->header->id);
 
 	// if all file was already sent to the pitcher
@@ -391,7 +393,7 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 		if (icmpFileContentData->MBSent > ONE_MBYTE)
 		{
 			icmpFileContentData->MBSent -= ONE_MBYTE;
-			printf(".");
+			std::cout << ".";
 		}
 	}
 	// if read only partial block, it means it's the last block
@@ -408,7 +410,7 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 		// set an indication that all file was delivered to the pitcher
 		icmpFileContentData->readingFromFile = false;
 
-		printf(".");
+		std::cout << ".";
 	}
 	// if couldn't read anything, it means the previous block was the last block of the file
 	else
@@ -426,19 +428,19 @@ static bool sendContent(RawPacket* rawPacket, PcapLiveDevice* dev, void* icmpVoi
 /**
  * Send a file to the pitcher
  */
-void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP, size_t blockSize)
+void sendFile(std::string filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, size_t blockSize)
 {
 	// identify the interface to listen and send packets to
-	PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);
+	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);
 	if (dev == NULL)
-		EXIT_WITH_ERROR("Cannot find network interface with IP '%s'", catcherIP.toString().c_str());
+		EXIT_WITH_ERROR("Cannot find network interface with IP '" << catcherIP << "'");
 
 	// try to open the interface (device)
 	if (!dev->open())
 		EXIT_WITH_ERROR("Cannot open network interface");
 
 	// set an ICMP protocol filter so it'll capture only ICMP packets
-	ProtoFilter protocolFilter(ICMP);
+	pcpp::ProtoFilter protocolFilter(pcpp::ICMP);
 	if (!dev->setFilter(protocolFilter))
 		EXIT_WITH_ERROR("Can't set ICMP filter on device");
 
@@ -457,7 +459,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		// remove the path and keep just the file name. This is the name that will be delivered to the pitcher
 		std::string fileName = getFileNameFromPath(filePath);
 
-		printf("Waiting for pitcher to send a keep-alive signal...\n");
+		std::cout << "Waiting for pitcher to send a keep-alive signal..." << std::endl;
 
 		IcmpFileTransferStart icmpFTStart = {
 				pitcherIP,
@@ -473,7 +475,7 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		if (!res)
 			EXIT_WITH_ERROR("Cannot start capturing packets");
 
-		printf("Sending file '%s' ", fileName.c_str());
+		std::cout << "Sending file '" << fileName << "' ";
 
 
 		IcmpFileContentDataSend icmpFileContentData = {
@@ -501,10 +503,13 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
 		if (!res)
 			EXIT_WITH_ERROR("Cannot start capturing packets");
 
-		printf("\n\nFinished sending '%s' [sent %d bytes]\n", fileName.c_str(), fileSize);
+		std::cout << std::endl << std::endl
+			<< "Finished sending '" << fileName << "' "
+			<< "[sent " << fileSize << " bytes]"
+			<< std::endl;
 	}
 	else // if file couldn't be opened
-		EXIT_WITH_ERROR("Cannot open file '%s'", filePath.c_str());
+		EXIT_WITH_ERROR("Cannot open file '" << filePath << "'");
 
 	// close the device
 	dev->close();
@@ -515,16 +520,16 @@ void sendFile(std::string filePath, IPv4Address pitcherIP, IPv4Address catcherIP
  */
 int main(int argc, char* argv[])
 {
-	AppName::init(argc, argv);
+	pcpp::AppName::init(argc, argv);
 
 	bool sender, receiver;
-	IPv4Address pitcherIP;
-	IPv4Address catcherIP;
+	pcpp::IPv4Address pitcherIP;
+	pcpp::IPv4Address catcherIP;
 	std::string fileNameToSend;
 	int packetsPerSec = 0;
 	size_t blockSize = 0;
 
-	// disable stdout buffering so all printf command will be printed immediately
+	// disable stdout buffering so all std::cout command will be printed immediately
 	setbuf(stdout, NULL);
 
 	// read and parse command line arguments. This method also takes care of arguments correctness. If they're not correct, it'll exit the program

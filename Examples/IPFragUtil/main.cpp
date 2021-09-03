@@ -20,6 +20,7 @@
 	exit(1); \
 	} while(0)
 
+
 static struct option FragUtilOptions[] =
 {
 	{"output-file", required_argument, 0, 'o'},
