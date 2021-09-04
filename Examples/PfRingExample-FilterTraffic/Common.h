@@ -12,20 +12,19 @@
 #include <sstream>
 #include <stdlib.h>
 
-using namespace std;
 
 /**
  * Macros for exiting the application with error
  */
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("Application terminated in error: " reason "\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
-#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
 	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while (0)
 
