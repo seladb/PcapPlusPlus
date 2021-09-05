@@ -13,23 +13,22 @@
 #include <sstream>
 #include <stdlib.h>
 
-using namespace std;
-using namespace pcpp;
 
 /**
  * Macros for exiting the application with error
  */
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("Application terminated in error: " reason "\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
-#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+
+#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
 	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
-	} while (0)
+	} while(0)
 
 
 /**
@@ -40,9 +39,9 @@ using namespace pcpp;
 struct AppWorkerConfig
 {
 	uint32_t CoreId;
-	DpdkDevice* RxDevice;
+	pcpp::DpdkDevice* RxDevice;
 	uint16_t RxQueues;
-	DpdkDevice* TxDevice;
+	pcpp::DpdkDevice* TxDevice;
 
 	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), RxDevice(NULL), RxQueues(1), TxDevice(NULL)
 	{

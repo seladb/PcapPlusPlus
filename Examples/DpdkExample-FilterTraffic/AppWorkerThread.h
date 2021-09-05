@@ -21,7 +21,7 @@ private:
 	uint32_t m_CoreId;
 	PacketStats m_Stats;
 	PacketMatchingEngine& m_PacketMatchingEngine;
-	map<uint32_t, bool> m_FlowTable;
+	std::map<uint32_t, bool> m_FlowTable;
 
 public:
 	AppWorkerThread(AppWorkerConfig& workerConfig, PacketMatchingEngine& matchingEngine) :
@@ -76,7 +76,7 @@ public:
 			for (InputDataConfig::iterator iter = m_WorkerConfig.InDataCfg.begin(); iter != m_WorkerConfig.InDataCfg.end(); iter++)
 			{
 				// for each DPDK device go over all RX queues configured for this worker/core
-				for (vector<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
+				for (std::vector<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
 				{
 					pcpp::DpdkDevice* dev = iter->first;
 
@@ -95,7 +95,7 @@ public:
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
 						uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
-						map<uint32_t, bool>::const_iterator iter = m_FlowTable.find(hash);
+						std::map<uint32_t, bool>::const_iterator iter = m_FlowTable.find(hash);
 
 						// if packet belongs to an already existing flow
 						if (iter != m_FlowTable.end() && iter->second)

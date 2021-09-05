@@ -38,7 +38,7 @@ class TestArping(ExampleTest):
 	def test_missing_interface(self):
 		args = {}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: You must provide at least interface name or interface IP (-i switch)' in completed_process.stdout
+		assert 'ERROR: You must provide at least interface name or interface IP (-i switch)' in completed_process.stdout
 
 	@pytest.mark.interface_needed
 	def test_missing_gateway(self, interface_ip_name):
@@ -46,4 +46,4 @@ class TestArping(ExampleTest):
 			'-i': interface_ip_name
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: You must provide target IP (-T switch)' in completed_process.stdout
+		assert 'ERROR: You must provide target IP (-T switch)' in completed_process.stdout

@@ -61,8 +61,6 @@
 #include <PcapPlusPlusVersion.h>
 
 
-using namespace pcpp;
-
 static struct option PcapSplitterOptions[] =
 {
 	{"input-file",  required_argument, 0, 'f'},
@@ -76,9 +74,9 @@ static struct option PcapSplitterOptions[] =
 };
 
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
 	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
@@ -94,63 +92,69 @@ static struct option PcapSplitterOptions[] =
 #define SPLIT_BY_BPF_FILTER    "bpf-filter"
 #define SPLIT_BY_ROUND_ROBIN   "round-robin"
 
+
 #if defined(WIN32) || defined(WINx64)
 #define SEPARATOR '\\'
 #else
 #define SEPARATOR '/'
 #endif
 
+
 /**
  * Print application usage
  */
 void printUsage()
 {
-	printf("\nUsage:\n"
-			"-------\n"
-			"%s [-h] [-v] [-i filter] -f pcap_file -o output_dir -m split_method [-p split_param]\n"
-			"\nOptions:\n\n"
-			"    -f pcap_file    : Input pcap file name\n"
-			"    -o output_dir   : The directory where the output files shall be written\n"
-			"    -m split_method : The method to split with. Can take one of the following params:\n"
-			"                      'file-size'    - split files by size in bytes\n"
-			"                      'packet-count' - split files by packet count\n"
-			"                      'client-ip'    - split files by client IP, meaning all connections with\n"
-			"                                       the same client IP will be in the same file\n"
-			"                      'server-ip'    - split files by server IP, meaning all connections with\n"
-			"                                       the same server IP will be in the same file\n"
-			"                      'server-port'  - split files by server port, meaning all connections with\n"
-			"                                       the same server port will be in the same file\n"
-			"                      'client-port'  - split files by client port, meaning all connections with\n"
-			"                                       the same client port will be in the same file\n"
-			"                      'ip-src-dst'   - split files by IP src and dst (2-tuple), meaning all connections\n"
-			"                                       with the same IPs will be in the same file\n"
-			"                      'connection'   - split files by connection (5-tuple), meaning all packets\n"
-			"                                       of a connection will be in the same file\n"
-			"                      'bpf-filter'   - split file into two files: one that contains all packets\n"
-			"                                       matching the given BPF filter (file #0) and one that contains\n"
-			"                                       the rest of the packets (file #1)\n"
-			"                      'round-robin'  - split the file in a round-robin manner - each packet to a\n"
-			"                                       different file\n"
-			"    -p split-param  : The relevant parameter for the split method:\n"
-			"                      'method = file-size'    => split-param is the max size per file (in bytes).\n"
-			"                                                 split-param is required for this method\n"
-			"                      'method = packet-count' => split-param is the number of packet per file.\n"
-			"                                                 split-param is required for this method\n"
-			"                      'method = client-ip'    => split-param is max number of files to open.\n"
-			"                                                 If not provided the default is unlimited number of files\n"
-			"                      'method = server-ip'    => split-param is max number of files to open.\n"
-			"                                                 If not provided the default is unlimited number of files\n"
-			"                      'method = server-port'  => split-param is max number of files to open.\n"
-			"                                                 If not provided the default is unlimited number of files\n"
-			"                      'method = ip-src-dst'   => split-param is max number of files to open.\n"
-			"                                                 If not provided the default is unlimited number of files\n"
-			"                      'method = connection'   => split-param is max number of files to open.\n"
-			"                                                 If not provided the default is unlimited number of files\n"
-			"                      'method = bpf-filter'   => split-param is the BPF filter to match upon\n"
-			"                      'method = round-robin'  => split-param is number of files to round-robin packets between\n"
-			"    -i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split\n"
-			"    -v              : Displays the current version and exists\n"
-			"    -h              : Displays this help message and exits\n", AppName::get().c_str());
+	std::cout << std::endl
+		<< "Usage:" << std::endl
+		<< "------" << std::endl
+		<< pcpp::AppName::get() << " [-h] [-v] [-i filter] -f pcap_file -o output_dir -m split_method [-p split_param]" << std::endl
+		<< std::endl
+		<< "Options:" << std::endl
+		<< std::endl
+		<< "    -f pcap_file    : Input pcap file name" << std::endl
+		<< "    -o output_dir   : The directory where the output files shall be written" << std::endl
+		<< "    -m split_method : The method to split with. Can take one of the following params:" << std::endl
+		<< "                      'file-size'    - split files by size in bytes" << std::endl
+		<< "                      'packet-count' - split files by packet count" << std::endl
+		<< "                      'client-ip'    - split files by client IP, meaning all connections with" << std::endl
+		<< "                                       the same client IP will be in the same file" << std::endl
+		<< "                      'server-ip'    - split files by server IP, meaning all connections with" << std::endl
+		<< "                                       the same server IP will be in the same file" << std::endl
+		<< "                      'server-port'  - split files by server port, meaning all connections with" << std::endl
+		<< "                                       the same server port will be in the same file" << std::endl
+		<< "                      'client-port'  - split files by client port, meaning all connections with" << std::endl
+		<< "                                       the same client port will be in the same file" << std::endl
+		<< "                      'ip-src-dst'   - split files by IP src and dst (2-tuple), meaning all connections" << std::endl
+		<< "                                       with the same IPs will be in the same file" << std::endl
+		<< "                      'connection'   - split files by connection (5-tuple), meaning all packets" << std::endl
+		<< "                                       of a connection will be in the same file" << std::endl
+		<< "                      'bpf-filter'   - split file into two files: one that contains all packets" << std::endl
+		<< "                                       matching the given BPF filter (file #0) and one that contains" << std::endl
+		<< "                                       the rest of the packets (file #1)" << std::endl
+		<< "                      'round-robin'  - split the file in a round-robin manner - each packet to a" << std::endl
+		<< "                                       different file" << std::endl
+		<< "    -p split-param  : The relevant parameter for the split method:" << std::endl
+		<< "                      'method = file-size'    => split-param is the max size per file (in bytes)." << std::endl
+		<< "                                                 split-param is required for this method" << std::endl
+		<< "                      'method = packet-count' => split-param is the number of packet per file." << std::endl
+		<< "                                                 split-param is required for this method" << std::endl
+		<< "                      'method = client-ip'    => split-param is max number of files to open." << std::endl
+		<< "                                                 If not provided the default is unlimited number of files" << std::endl
+		<< "                      'method = server-ip'    => split-param is max number of files to open." << std::endl
+		<< "                                                 If not provided the default is unlimited number of files" << std::endl
+		<< "                      'method = server-port'  => split-param is max number of files to open." << std::endl
+		<< "                                                 If not provided the default is unlimited number of files" << std::endl
+		<< "                      'method = ip-src-dst'   => split-param is max number of files to open." << std::endl
+		<< "                                                 If not provided the default is unlimited number of files" << std::endl
+		<< "                      'method = connection'   => split-param is max number of files to open." << std::endl
+		<< "                                                 If not provided the default is unlimited number of files" << std::endl
+		<< "                      'method = bpf-filter'   => split-param is the BPF filter to match upon" << std::endl
+		<< "                      'method = round-robin'  => split-param is number of files to round-robin packets between" << std::endl
+		<< "    -i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split" << std::endl
+		<< "    -v              : Displays the current version and exists" << std::endl
+		<< "    -h              : Displays this help message and exits" << std::endl
+		<< std::endl;
 }
 
 
@@ -159,9 +163,10 @@ void printUsage()
  */
 void printAppVersion()
 {
-	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", getBuildDateTime().c_str());
-	printf("Built from: %s\n", getGitInfo().c_str());
+	std::cout
+		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+		<< "Built: " << pcpp::getBuildDateTime() << std::endl
+		<< "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -205,12 +210,13 @@ std::string getFileNameWithoutExtension(const std::string& path)
 	return("");
 }
 
+
 /**
  * main method of this utility
  */
 int main(int argc, char* argv[])
 {
-	AppName::init(argc, argv);
+	pcpp::AppName::init(argc, argv);
 
 	std::string inputPcapFileName = "";
 	std::string outputPcapDir = "";
@@ -334,7 +340,7 @@ int main(int argc, char* argv[])
 		splitter = new RoundRobinSplitter(paramAsInt);
 	}
 	else
-		EXIT_WITH_ERROR("Unknown method '%s'", method.c_str());
+		EXIT_WITH_ERROR("Unknown method '" << method << "'");
 
 
 	// verify splitter param is legal, otherwise return an error
@@ -342,45 +348,45 @@ int main(int argc, char* argv[])
 	if (!splitter->isSplitterParamLegal(errorStr))
 	{
 		delete splitter;
-		EXIT_WITH_ERROR("%s", errorStr.c_str());
+		EXIT_WITH_ERROR(errorStr);
 	}
 
 	// prepare the output file format: /requested-path/original-file-name-[4-digit-number-starting-at-0000].pcap
 	std::string outputPcapFileName = outputPcapDir + std::string(1, SEPARATOR) + getFileNameWithoutExtension(inputPcapFileName) + "-";
 
 	// open a pcap file for reading
-	IFileReaderDevice* reader = IFileReaderDevice::getReader(inputPcapFileName);
-	bool isReaderPcapng = (dynamic_cast<PcapNgFileReaderDevice*>(reader) != NULL);
+	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputPcapFileName);
+	bool isReaderPcapng = (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != NULL);
 
 	if (reader == NULL || !reader->open())
 	{
-		EXIT_WITH_ERROR("Error opening input pcap file\n");
+		EXIT_WITH_ERROR("Error opening input pcap file");
 	}
 
 	// set a filter if provided
 	if (filter != "")
 	{
 		if (!reader->setFilter(filter))
-			EXIT_WITH_ERROR("Couldn't set filter '%s'", filter.c_str());
+			EXIT_WITH_ERROR("Couldn't set filter '" << filter << "'");
 	}
 
-	printf("Started...\n");
+	std::cout << "Started..." << std::endl;
 
 	// determine output file extension
 	std::string outputFileExtenison = (isReaderPcapng ? ".pcapng" : ".pcap");
 
 	int packetCountSoFar = 0;
 	int numOfFiles = 0;
-	RawPacket rawPacket;
+	pcpp::RawPacket rawPacket;
 
 	// prepare a map of file number to IFileWriterDevice
-	std::map<int, IFileWriterDevice*> outputFiles;
+	std::map<int, pcpp::IFileWriterDevice*> outputFiles;
 
 	// read all packets from input file, for each packet do:
 	while (reader->getNextPacket(rawPacket))
 	{
 		// parse the raw packet into a parsed packet
-		Packet parsedPacket(&rawPacket);
+		pcpp::Packet parsedPacket(&rawPacket);
 
 		std::vector<int> filesToClose;
 
@@ -397,12 +403,12 @@ int main(int argc, char* argv[])
 			if (isReaderPcapng)
 			{
 				// if reader is pcapng, create a pcapng writer
-				outputFiles[fileNum] = new PcapNgFileWriterDevice(fileName);
+				outputFiles[fileNum] = new pcpp::PcapNgFileWriterDevice(fileName);
 			}
 			else
 			{
 				// if reader is pcap, create a pcap writer
-				outputFiles[fileNum] = new PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType());
+				outputFiles[fileNum] = new pcpp::PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType());
 			}
 
 			// open the writer
@@ -423,12 +429,12 @@ int main(int argc, char* argv[])
 			if (isReaderPcapng)
 			{
 				// if reader is pcapng, create a pcapng writer
-				outputFiles[fileNum] = new PcapNgFileWriterDevice(fileName);
+				outputFiles[fileNum] = new pcpp::PcapNgFileWriterDevice(fileName);
 			}
 			else
 			{
 				// if reader is pcap, create a pcap writer
-				outputFiles[fileNum] = new PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType());
+				outputFiles[fileNum] = new pcpp::PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType());
 			}
 
 			// open the writer in __append__ mode
@@ -467,7 +473,7 @@ int main(int argc, char* argv[])
 	delete splitter;
 
 	// close the writer files which are still open
-	for(std::map<int, IFileWriterDevice*>::iterator it = outputFiles.begin(); it != outputFiles.end(); ++it)
+	for(std::map<int, pcpp::IFileWriterDevice*>::iterator it = outputFiles.begin(); it != outputFiles.end(); ++it)
 	{
 		if (it->second != NULL)
 		{

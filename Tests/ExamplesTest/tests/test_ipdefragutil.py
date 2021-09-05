@@ -61,4 +61,4 @@ class TestIPDefragUtil(ExampleTest):
 	def test_input_file_missing(self):
 		args = {}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Input file name was not given' in completed_process.stdout
+		assert 'ERROR: Input file name was not given' in completed_process.stdout

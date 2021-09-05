@@ -57,7 +57,7 @@ class TestPcapSearch(ExampleTest):
 	def test_no_args(self):
 		args = {}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Input directory was not given' in completed_process.stdout
+		assert 'ERROR: Input directory was not given' in completed_process.stdout
 
 	def test_invalid_dir(self):
 		args = {
@@ -65,7 +65,7 @@ class TestPcapSearch(ExampleTest):
 			'-s': 'udp'
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Cannot find or open input directory' in completed_process.stdout
+		assert 'ERROR: Cannot find or open input directory' in completed_process.stdout
 
 	def test_invalid_filter(self):
 		args = {
@@ -73,5 +73,5 @@ class TestPcapSearch(ExampleTest):
 			'-s': 'invalid_filter'
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Search criteria isn\'t valid' in completed_process.stdout
+		assert 'ERROR: Search criteria isn\'t valid' in completed_process.stdout
 

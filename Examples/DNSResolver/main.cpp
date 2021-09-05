@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <iostream>
 #include "PcapPlusPlusVersion.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
@@ -6,13 +7,13 @@
 #include "SystemUtils.h"
 #include <getopt.h>
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+
+#define EXIT_WITH_ERROR(reason) do { \
 	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
-using namespace pcpp;
 
 static struct option DNSResolverOptions[] =
 {
@@ -31,20 +32,25 @@ static struct option DNSResolverOptions[] =
 /**
  * Print application usage
  */
-void printUsage() {
-	printf("\nUsage:\n"
-			"------\n"
-			"%s [-hvl] [-t timeout] [-d dns_server] [-g gateway] [-i interface] -s hostname\n"
-			"\nOptions:\n\n"
-			"    -h           : Displays this help message and exits\n"
-			"    -v           : Displays the current version and exists\n"
-			"    -l           : Print the list of interfaces and exists\n"
-			"    -s hostname  : Hostname to resolve\n"
-			"    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address. If not set\n"
-			"                   one of the interfaces that has a default gateway will be used\n"
-			"    -d dns_server: IPv4 address of DNS server to send the DNS request to. If not set the DNS request will be sent to the gateway\n"
-			"    -g gateway   : IPv4 address of the gateway to send the DNS request to. If not set the default gateway will be chosen\n"
-			"    -t timeout   : How long to wait for a reply (in seconds). Default timeout is 5 seconds\n", AppName::get().c_str());
+void printUsage() 
+{
+	std::cout << std::endl
+		<< "Usage:" << std::endl
+		<< "------" << std::endl
+		<< pcpp::AppName::get() << " [-hvl] [-t timeout] [-d dns_server] [-g gateway] [-i interface] -s hostname" << std::endl
+		<< std::endl
+		<< "Options:" << std::endl
+		<< std::endl
+		<< "    -h           : Displays this help message and exits" << std::endl
+		<< "    -v           : Displays the current version and exists" << std::endl
+		<< "    -l           : Print the list of interfaces and exists" << std::endl
+		<< "    -s hostname  : Hostname to resolve" << std::endl
+		<< "    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address. If not set" << std::endl
+		<< "                   one of the interfaces that has a default gateway will be used" << std::endl
+		<< "    -d dns_server: IPv4 address of DNS server to send the DNS request to. If not set the DNS request will be sent to the gateway" << std::endl
+		<< "    -g gateway   : IPv4 address of the gateway to send the DNS request to. If not set the default gateway will be chosen" << std::endl
+		<< "    -t timeout   : How long to wait for a reply (in seconds). Default timeout is 5 seconds" << std::endl
+		<< std::endl;
 }
 
 
@@ -53,9 +59,10 @@ void printUsage() {
  */
 void printAppVersion()
 {
-	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", getBuildDateTime().c_str());
-	printf("Built from: %s\n", getGitInfo().c_str());
+	std::cout
+		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+		<< "Built: " << pcpp::getBuildDateTime() << std::endl
+		<< "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -65,17 +72,12 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	const std::vector<PcapLiveDevice*>& devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	printf("\nNetwork interfaces:\n");
-	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	std::cout << std::endl << "Network interfaces:" << std::endl;
+	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		std::string defaultGateway = ((*iter)->getDefaultGateway().isValid() ? (*iter)->getDefaultGateway().toString() : "None");
-
-		printf("    -> Name: '%s'   IP address: %s   Default gateway: %s\n",
-				(*iter)->getName().c_str(),
-				(*iter)->getIPv4Address().toString().c_str(),
-				defaultGateway.c_str());
+		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
@@ -86,14 +88,14 @@ void listInterfaces()
  */
 int main(int argc, char* argv[])
 {
-	AppName::init(argc, argv);
+	pcpp::AppName::init(argc, argv);
 
 	std::string hostname;
 	bool hostnameProvided = false;
 	std::string interfaceNameOrIP;
 	bool interfaceNameOrIPProvided = false;
-	IPv4Address dnsServerIP;
-	IPv4Address gatewayIP;
+	pcpp::IPv4Address dnsServerIP;
+	pcpp::IPv4Address gatewayIP;
 	int timeoutSec = -1;
 
 	int optionIndex = 0;
@@ -130,12 +132,12 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServerIP = IPv4Address(static_cast<char const *>(optarg));
+				dnsServerIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				break;
 			}
 			case 'g':
 			{
-				gatewayIP = IPv4Address(static_cast<char const *>(optarg));
+				gatewayIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				break;
 			}
 			case 's':
@@ -162,21 +164,21 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Hostname not provided");
 
 	// find the interface to send the DNS request from
-	PcapLiveDevice* dev = NULL;
+	pcpp::PcapLiveDevice* dev = NULL;
 
 	// if interface name or IP was provided - find the device accordingly
 	if (interfaceNameOrIPProvided)
 	{
-		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == NULL)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 	}
 	// if interface name or IP was not provided - find a device that has a default gateway
 	else
 	{
-		const std::vector<PcapLiveDevice*>& devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+		const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-		for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+		for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 		{
 			if ((*iter)->getDefaultGateway().isValid())
 			{
@@ -189,17 +191,17 @@ int main(int argc, char* argv[])
 			EXIT_WITH_ERROR("Couldn't find an interface with a default gateway");
 	}
 
-	printf("Using interface '%s'\n", dev->getIPv4Address().toString().c_str());
+	std::cout << "Using interface '" << dev->getIPv4Address() << "'" << std::endl;
 
 	// find the IPv4 address for provided hostname
 	double responseTime = 0;
 	uint32_t dnsTTL = 0;
-	IPv4Address resultIP = NetworkUtils::getInstance().getIPv4Address(hostname, dev, responseTime, dnsTTL, timeoutSec, dnsServerIP, gatewayIP);
+	pcpp::IPv4Address resultIP = pcpp::NetworkUtils::getInstance().getIPv4Address(hostname, dev, responseTime, dnsTTL, timeoutSec, dnsServerIP, gatewayIP);
 
 	// print resolved IPv4 address if found
 	if (!resultIP.isValid())
-		printf("\nCould not resolve hostname [%s]\n", hostname.c_str());
+		std::cout << std::endl << "Could not resolve hostname [" << hostname << "]" << std::endl;
 	else
-		printf("\nIP address of [%s] is: %s  DNS-TTL=%d  time=%dms\n", hostname.c_str(), resultIP.toString().c_str(), dnsTTL, (int)responseTime);
+		std::cout << std::endl << "IP address of [" << hostname << "] is: " << resultIP << "  DNS-TTL=" << dnsTTL << "  time=" << (int)responseTime << "ms" << std::endl;
 
 }

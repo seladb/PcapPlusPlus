@@ -4,7 +4,7 @@ STATS SUMMARY
 =============
 
 General stats
---------------------
+-------------
 
 Sample time:                                      0.002 [Seconds]
 Number of HTTP packets:                             222 [Packets]
@@ -21,7 +21,7 @@ Average transactions per flow:                    6.333 [Transactions]
 Average data per flow:                         7384.333 [Bytes]
 
 HTTP request stats
---------------------
+------------------
 
 Number of HTTP requests:                             57 [Requests]
 Rate of HTTP requests:                            0.000 [Requests/sec]
@@ -29,7 +29,7 @@ Total data in headers:                            22441 [Bytes]
 Average header size:                            393.702 [Bytes]
 
 HTTP response stats
---------------------
+-------------------
 
 Number of HTTP responses:                            58 [Responses]
 Rate of HTTP responses:                           0.000 [Responses/sec]
@@ -49,7 +49,7 @@ HTTP request methods
 ---------------------
 
 Hostnames count
---------------------
+---------------
 
 ----------------------------------------------------
 | Hostname                                 | Count |
@@ -63,7 +63,7 @@ Hostnames count
 ----------------------------------------------------
 
 Status code count
---------------------
+-----------------
 
 ----------------------------------------
 | Status Code                  | Count |
@@ -74,7 +74,7 @@ Status code count
 ----------------------------------------
 
 Content-type count
---------------------
+------------------
 
 ------------------------------------------
 | Content-type                   | Count |

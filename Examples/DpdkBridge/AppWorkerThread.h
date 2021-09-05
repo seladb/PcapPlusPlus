@@ -7,14 +7,13 @@
 #include "DpdkDeviceList.h"
 #include "PcapFileDevice.h"
 
-using namespace pcpp;
 
 /**
  * The worker thread class which does all the work. It's initialized with pointers to the RX and TX devices, then it runs in
  * an endless loop which reads packets from the RX device and sends them to the TX device.
  * The endless loop is interrupted only when the thread is asked to stop (calling its stop() method)
  */
-class AppWorkerThread : public DpdkWorkerThread
+class AppWorkerThread : public pcpp::DpdkWorkerThread
 {
 private:
 	AppWorkerConfig& m_WorkerConfig;
@@ -38,8 +37,8 @@ public:
 	{
 		m_CoreId = coreId;
 		m_Stop = false;
-		DpdkDevice* rxDevice = m_WorkerConfig.RxDevice;
-		DpdkDevice* txDevice = m_WorkerConfig.TxDevice;
+		pcpp::DpdkDevice* rxDevice = m_WorkerConfig.RxDevice;
+		pcpp::DpdkDevice* txDevice = m_WorkerConfig.TxDevice;
 
 		// if no DPDK devices were assigned to this worker/core don't enter the main loop and exit
 		if (!rxDevice || !txDevice)
@@ -48,7 +47,7 @@ public:
 		}
 
 		#define MAX_RECEIVE_BURST 64
-		MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
+		pcpp::MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
 
 		// main loop, runs until be told to stop
 		while (!m_Stop)

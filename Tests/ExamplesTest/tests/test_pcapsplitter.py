@@ -235,14 +235,14 @@ class TestPcapSplitter(ExampleTest):
 	def test_input_file_not_given(self):
 		args = {}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Input file name was not given' in completed_process.stdout
+		assert 'ERROR: Input file name was not given' in completed_process.stdout
 
 	def test_output_dir_not_given(self):
 		args = {
 			'-f': os.path.join('pcap_examples', 'many-protocols.pcap')
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Output directory name was not given' in completed_process.stdout
+		assert 'ERROR: Output directory name was not given' in completed_process.stdout
 
 	def test_split_method_not_given(self, tmpdir):
 		args = {
@@ -250,7 +250,7 @@ class TestPcapSplitter(ExampleTest):
 			'-o': tmpdir
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Split method was not given' in completed_process.stdout
+		assert 'ERROR: Split method was not given' in completed_process.stdout
 
 	def test_output_dir_not_exist(self):
 		args = {
@@ -258,7 +258,7 @@ class TestPcapSplitter(ExampleTest):
 			'-o': 'blablablalba12345'
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Output directory doesn\'t exist' in completed_process.stdout
+		assert 'ERROR: Output directory doesn\'t exist' in completed_process.stdout
 
 	def test_input_file_not_exist(self, tmpdir):
 		args = {
@@ -267,7 +267,7 @@ class TestPcapSplitter(ExampleTest):
 			'-m': 'ip-src-dst'
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Error opening input pcap file' in completed_process.stdout
+		assert 'ERROR: Error opening input pcap file' in completed_process.stdout
 
 	def test_split_method_not_exist(self, tmpdir):
 		args = {
@@ -276,4 +276,4 @@ class TestPcapSplitter(ExampleTest):
 			'-m': 'blabla'
 		}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Unknown method \'blabla\'' in completed_process.stdout
+		assert 'ERROR: Unknown method \'blabla\'' in completed_process.stdout
