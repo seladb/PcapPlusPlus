@@ -79,21 +79,6 @@ void printUsage()
 		<< "                                                 To see all available DPDK ports use the -l switch" << std::endl
 		<< "    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK device. Default value is 1" << std::endl
 		<< std::endl;
-
-
-	printf("\nUsage:\n"
-			"------\n"
-			"%s [-hlv] [-c CORE_MASK] [-m POOL_SIZE] [-q QUEUE_QTY] -d PORT_1,PORT_2\n"
-			"\nOptions:\n\n"
-			"    -h|--help                                  : Displays this help message and exits\n"
-			"    -l|--list                                  : Print the list of DPDK ports and exits\n"
-			"    -v|--version                               : Displays the current version and exits\n"
-			"    -c|--core-mask CORE_MASK                   : Core mask of cores to use. For example: use 7 (binary 0111) to use cores 0,1,2.\n"
-			"                                                 Default is using all cores except management core\n"
-			"    -m|--mbuf-pool-size POOL_SIZE              : DPDK mBuf pool size to initialize DPDK with. Default value is 4095\n\n"
-			"    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of two DPDK port numbers to be bridged.\n"
-			"                                                 To see all available DPDK ports use the -l switch\n"
-			"    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK device. Default value is 1\n", pcpp::AppName::get().c_str());
 }
 
 
