@@ -2,7 +2,7 @@
  * DNS spoofing example application
  * ================================
  * This application does simple DNS spoofing. It's provided with interface name or IP and starts capturing DNS requests on that
- * interface. Each DNS request that matches is edited and turned into a DNS response with a user-provided IPv4 as the resolved IP.
+ * interface. Each DNS request that matches is edited and turned into a DNS response with a user-provided IP address as the resolved IP.
  * Then it's sent back on the network on the same interface
  */
 
@@ -21,11 +21,13 @@
 #include "Packet.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
+#include "IPv6Layer.h"
 #include "UdpLayer.h"
 #include "DnsLayer.h"
 #include "PcapFilter.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
+#include "TablePrinter.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 #include <getopt.h>
@@ -68,7 +70,7 @@ struct DnsSpoofStats
  */
 struct DnsSpoofingArgs
 {
-	pcpp::IPv4Address dnsServer;
+	pcpp::IPAddress dnsServer;
 	std::vector<std::string> dnsHostsToSpoof;
 	DnsSpoofStats stats;
 	bool shouldStop;
@@ -94,9 +96,9 @@ void printUsage()
 		<< "    -l                          : Print the list of available interfaces" << std::endl
 		<< "    -i interface                : The interface name or interface IP address to use." << std::endl
 		<< "                                  Use the -l switch to see all interfaces" << std::endl
-		<< "    -d ip_address               : The IPv4 address of the spoofed DNS server" << std::endl
+		<< "    -d ip_address               : The IP address of the spoofed DNS server. Supports both IPv4 and IPv6" << std::endl
 		<< "                                  (all responses will be sent with this IP address)" << std::endl
-		<< "    -c ip_address               : Spoof only DNS requests coming from a specific IPv4 address" << std::endl
+		<< "    -c ip_address               : Spoof only DNS requests coming from a specific IP address" << std::endl
 		<< "    -o host1,host2,...,host_n   : A comma-separated list of hosts to spoof. If list is not given," << std::endl
 		<< "                                  all hosts will be spoofed. If an host contains '*' all sub-domains" << std::endl
 		<< "                                  will be spoofed, for example: if '*.google.com' is given" << std::endl
@@ -145,23 +147,23 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	// create a parsed packet from the raw packet
 	pcpp::Packet dnsRequest(packet);
 
-	if (!dnsRequest.isPacketOfType(pcpp::DNS) || !dnsRequest.isPacketOfType(pcpp::IPv4) || !dnsRequest.isPacketOfType(pcpp::UDP) || !dnsRequest.isPacketOfType(pcpp::Ethernet))
+	if (!dnsRequest.isPacketOfType(pcpp::DNS) || !dnsRequest.isPacketOfType(pcpp::IP) || !dnsRequest.isPacketOfType(pcpp::UDP) || !dnsRequest.isPacketOfType(pcpp::Ethernet))
 		return;
 
 	// extract all packet layers
 	pcpp::EthLayer* ethLayer = dnsRequest.getLayerOfType<pcpp::EthLayer>();
-	pcpp::IPv4Layer* ip4Layer = dnsRequest.getLayerOfType<pcpp::IPv4Layer>();
+	pcpp::IPLayer* ipLayer = dnsRequest.getLayerOfType<pcpp::IPLayer>();
 	pcpp::UdpLayer* udpLayer = dnsRequest.getLayerOfType<pcpp::UdpLayer>();
 	pcpp::DnsLayer* dnsLayer = dnsRequest.getLayerOfType<pcpp::DnsLayer>();
 
 	// skip DNS requests with more than 1 request or with 0 requests
-	if (dnsLayer->getDnsHeader()->numberOfQuestions != pcpp::hostToNet16(1) ||
-		dnsLayer->getFirstQuery() == NULL)
+	if (dnsLayer->getDnsHeader()->numberOfQuestions != pcpp::hostToNet16(1) || dnsLayer->getFirstQuery() == NULL)
 		return;
 
-	// skip DNS requests which are not of class IN and type A (IPv4)
+	// skip DNS requests which are not of class IN and type A (IPv4) or AAAA (IPv6)
+	pcpp::DnsType dnsType = (args->dnsServer.isIPv4()? pcpp::DNS_TYPE_A : pcpp::DNS_TYPE_AAAA);
 	pcpp::DnsQuery* dnsQuery = dnsLayer->getFirstQuery();
-	if (dnsQuery->getDnsType() != pcpp::DNS_TYPE_A || dnsQuery->getDnsClass() != pcpp::DNS_CLASS_IN)
+	if (dnsQuery->getDnsType() != dnsType || dnsQuery->getDnsClass() != pcpp::DNS_CLASS_IN)
 		return;
 
 	// empty dnsHostsToSpoof means spoofing all hosts
@@ -192,11 +194,20 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	ethLayer->setDestMac(srcMac);
 
 	// reverse src and dst IP addresses
-	pcpp::IPv4Address srcIP = ip4Layer->getSrcIPv4Address();
-	ip4Layer->setSrcIPv4Address(ip4Layer->getDstIPv4Address());
-	ip4Layer->setDstIPv4Address(srcIP);
-
-	ip4Layer->getIPv4Header()->ipId = 0;
+	pcpp::IPAddress srcIP = ipLayer->getSrcIPAddress();
+	pcpp::IPv4Layer* ip4Layer = dynamic_cast<pcpp::IPv4Layer*>(ipLayer);
+	pcpp::IPv6Layer* ip6Layer = dynamic_cast<pcpp::IPv6Layer*>(ipLayer);
+	if (ip4Layer != NULL)
+	{
+		ip4Layer->setSrcIPv4Address(ip4Layer->getDstIPv4Address());
+		ip4Layer->setDstIPv4Address(srcIP.getIPv4());
+		ip4Layer->getIPv4Header()->ipId = 0;
+	}
+	else
+	{
+		ip6Layer->setSrcIPv6Address(ip6Layer->getDstIPv6Address());
+		ip6Layer->setDstIPv6Address(srcIP.getIPv6());
+	}
 
 	// reverse src and dst UDP ports
 	uint16_t srcPort = udpLayer->getUdpHeader()->portSrc;
@@ -205,9 +216,19 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 
 	// add DNS response
 	dnsLayer->getDnsHeader()->queryOrResponse = 1;
-	pcpp::IPv4DnsResourceData dnsServer(args->dnsServer);
-	if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 1, &dnsServer))
-		return;
+	if (args->dnsServer.isIPv4())
+	{
+		pcpp::IPv4DnsResourceData dnsServer(args->dnsServer.getIPv4());
+		if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 1, &dnsServer))
+			return;
+	}
+	else
+	{
+		pcpp::IPv6DnsResourceData dnsServer(args->dnsServer.getIPv6());
+		if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_AAAA, pcpp::DNS_CLASS_IN, 1, &dnsServer))
+			return;
+	}
+	
 
 	dnsRequest.computeCalculateFields();
 
@@ -221,6 +242,19 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 
 
 /**
+ * An auxiliary method for sorting the string count map. Used in printServerNames() and in printCipherSuites()
+ */
+bool stringCountComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
+{
+	if (first.second == second.second)
+	{
+		return first.first > second.first;
+	}
+	return first.second > second.second;
+}
+
+
+/**
  * A callback for application interrupted event (ctrl+c): print DNS spoofing summary
  */
 void onApplicationInterrupted(void* cookie)
@@ -228,18 +262,43 @@ void onApplicationInterrupted(void* cookie)
 	DnsSpoofingArgs* args = (DnsSpoofingArgs*)cookie;
 	if (args->stats.spoofedHosts.size() == 0)
 	{
-		std::cout << std::endl << "Application closing. No hosts were spoofed" << std::endl;
+		std::cout << std::endl << "Application closing. No hosts were spoofed." << std::endl;
 	}
 	else
 	{
 		std::cout << std::endl 
-			<< "Application closing" << std::endl
 			<< "Summary of spoofed hosts:" << std::endl
-			<< "-------------------------" << std::endl;
+			<< "-------------------------" << std::endl
+			<< std::endl
+			<< "Total spoofed:          " << args->stats.numOfSpoofedDnsRequests << std::endl
+			<< "Number of host spoofed: " << args->stats.spoofedHosts.size() << std::endl
+			<< std::endl;
 
-		for (std::map<std::string, int>::iterator iter = args->stats.spoofedHosts.begin(); iter != args->stats.spoofedHosts.end(); iter++)
-			std::cout << "Host [" << iter->first << "]: spoofed " << iter->second << " times" << std::endl;
+		// create a table
+		std::vector<std::string> columnNames;
+		columnNames.push_back("Host");
+		columnNames.push_back("# of times spoofed");
+		std::vector<int> columnsWidths;
+		columnsWidths.push_back(40);
+		columnsWidths.push_back(18);
+		pcpp::TablePrinter printer(columnNames, columnsWidths);
+	
+		// sort the spoofed hosts map so the most spoofed hosts will be first
+		// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+		std::vector<std::pair<std::string, int> > map2vec(args->stats.spoofedHosts.begin(), args->stats.spoofedHosts.end());
+		std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
+
+		// go over all items (hosts + count) in the sorted vector and print them
+		for(std::vector<std::pair<std::string, int> >::iterator iter = map2vec.begin();
+				iter != map2vec.end();
+				iter++)
+		{
+			std::stringstream values;
+			values << iter->first << "|" << iter->second;
+			printer.printRow(values.str(), '|');
+		}
 	}
+
 	args->shouldStop = true;
 }
 
@@ -247,7 +306,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * Activate DNS spoofing: prepare the device and start capturing DNS requests
  */
-void doDnsSpoofing(pcpp::PcapLiveDevice* dev, pcpp::IPv4Address dnsServer, pcpp::IPv4Address clientIP, std::vector<std::string> dnsHostsToSpoof)
+void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, const pcpp::IPAddress& clientIP, std::vector<std::string> dnsHostsToSpoof)
 {
 	// open device
 	if (!dev->open())
@@ -306,9 +365,9 @@ int main(int argc, char* argv[])
 
 	std::string interfaceNameOrIP;
 
-	pcpp::IPv4Address dnsServer;
+	pcpp::IPAddress dnsServer;
 
-	pcpp::IPv4Address clientIP;
+	pcpp::IPAddress clientIP;
 	bool clientIpSet = false;
 
 	std::vector<std::string> hostList;
@@ -343,12 +402,12 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServer = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				dnsServer = pcpp::IPAddress(static_cast<char const *>(optarg));
 				break;
 			}
 			case 'c':
 			{
-				clientIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				clientIP = pcpp::IPAddress(static_cast<char const *>(optarg));
 				clientIpSet = true;
 				break;
 			}
