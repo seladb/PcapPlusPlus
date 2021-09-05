@@ -40,9 +40,9 @@ static struct option TLSFingerprintingOptions[] =
 	{0, 0, 0, 0}
 };
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printUsage();\
-	printf("\nERROR: " reason "\n\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
+	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
@@ -399,7 +399,7 @@ void doTlsFingerprintingOnPcapFile(const std::string& inputPcapFileName, std::st
 	std::ofstream outputFile(outputFileName.c_str());
 	if (!outputFile)
 	{
-		EXIT_WITH_ERROR("Cannot open output file '%s'", outputFileName.c_str());
+		EXIT_WITH_ERROR("Cannot open output file '" << outputFileName << "'");
 	}
 
 	// write the column headers to the output file
@@ -481,7 +481,7 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 	std::ofstream outputFile(outputFileName.c_str());
 	if (!outputFile)
 	{
-		EXIT_WITH_ERROR("Cannot open output file '%s'", outputFileName.c_str());
+		EXIT_WITH_ERROR("Cannot open output file '" << outputFileName << "'");
 	}
 
 	// write the column headers to the output file

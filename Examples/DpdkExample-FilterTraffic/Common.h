@@ -13,24 +13,24 @@
 #include <sstream>
 #include <stdlib.h>
 
-using namespace std;
 
 /**
  * Macros for exiting the application with error
  */
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("Application terminated in error: " reason "\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
-#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
-	printUsage(); \
-	exit(1); \
-	} while (0)
 
-typedef map<pcpp::DpdkDevice*, vector<int> > InputDataConfig;
+#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
+	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
+	exit(1); \
+	} while(0)
+
+typedef std::map<pcpp::DpdkDevice*, std::vector<int> > InputDataConfig;
 
 
 /**
@@ -44,7 +44,7 @@ struct AppWorkerConfig
 	InputDataConfig InDataCfg;
 	pcpp::DpdkDevice* SendPacketsTo;
 	bool WriteMatchedPacketsToFile;
-	string PathToWritePackets;
+	std::string PathToWritePackets;
 
 	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), SendPacketsTo(NULL), WriteMatchedPacketsToFile(false), PathToWritePackets("")
 	{

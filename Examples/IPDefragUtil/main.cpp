@@ -11,13 +11,13 @@
 #include "SystemUtils.h"
 #include "getopt.h"
 
-using namespace pcpp;
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
 	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
+
 
 static struct option DefragUtilOptions[] =
 {
@@ -57,19 +57,23 @@ struct DefragStats
  */
 void printUsage()
 {
-	printf("\nUsage:\n"
-			"-------\n"
-			"%s input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]\n"
-			"\nOptions:\n\n"
-			"    input_file      : Input pcap/pcapng file\n"
-			"    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type\n"
-			"    -d frag_ids     : De-fragment only fragments that match this comma-separated list of IP IDs (for IPv4) or\n"
-			"                      fragment IDs (for IPv6) in decimal format\n"
-			"    -f bpf_filter   : De-fragment only fragments that match bpf_filter. Filter should be provided in Berkeley Packet Filter (BPF)\n"
-			"                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'\n"
-			"    -a              : Copy all packets (those who were de-fragmented and those who weren't) to output file\n"
-			"    -v              : Displays the current version and exits\n"
-			"    -h              : Displays this help message and exits\n", AppName::get().c_str());
+	std::cout << std::endl
+		<< "Usage:" << std::endl
+		<< "------" << std::endl
+		<< pcpp::AppName::get() << " input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]" << std::endl
+		<< std::endl
+		<< "Options:" << std::endl
+		<< std::endl
+		<< "    input_file      : Input pcap/pcapng file" << std::endl
+		<< "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type" << std::endl
+		<< "    -d frag_ids     : De-fragment only fragments that match this comma-separated list of IP IDs (for IPv4) or" << std::endl
+		<< "                      fragment IDs (for IPv6) in decimal format" << std::endl
+		<< "    -f bpf_filter   : De-fragment only fragments that match bpf_filter. Filter should be provided in Berkeley Packet Filter (BPF)" << std::endl
+		<< "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
+		<< "    -a              : Copy all packets (those who were de-fragmented and those who weren't) to output file" << std::endl
+		<< "    -v              : Displays the current version and exits" << std::endl
+		<< "    -h              : Displays this help message and exits" << std::endl
+		<< std::endl;
 }
 
 
@@ -78,9 +82,10 @@ void printUsage()
  */
 void printAppVersion()
 {
-	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", getBuildDateTime().c_str());
-	printf("Built from: %s\n", getGitInfo().c_str());
+	std::cout
+		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+		<< "Built: " << pcpp::getBuildDateTime() << std::endl
+		<< "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -89,19 +94,19 @@ void printAppVersion()
  * This method reads packets from the input file, decided which fragments pass the filters set by the user, de-fragment the fragments
  * who pass them, and writes the result packets to the output file
  */
-void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
+void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* writer,
 		bool filterByBpf, std::string bpfFilter,
 		bool filterByIpID, std::map<uint32_t, bool> fragIDs,
 		bool copyAllPacketsToOutputFile,
 		DefragStats& stats)
 {
-	RawPacket rawPacket;
-	BPFStringFilter filter(bpfFilter);
+	pcpp::RawPacket rawPacket;
+	pcpp::BPFStringFilter filter(bpfFilter);
 
 	// create an instance of IPReassembly
-	IPReassembly ipReassembly;
+	pcpp::IPReassembly ipReassembly;
 
-	IPReassembly::ReassemblyStatus status;
+	pcpp::IPReassembly::ReassemblyStatus status;
 
 	// read all packet from input file
 	while (reader->getNextPacket(rawPacket))
@@ -114,7 +119,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 		if (filterByBpf)
 		{
 			// check if packet matches the BPF filter supplied by the user
-			if (IPcapDevice::matchPacketWithFilter(filter, &rawPacket))
+			if (pcpp::IPcapDevice::matchPacketWithFilter(filter, &rawPacket))
 			{
 				stats.ipPacketsMatchBpfFilter++;
 			}
@@ -128,13 +133,13 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 		bool isIPv6Packet = false;
 
 		// check if packet is of type IPv4 or IPv6
-		Packet parsedPacket(&rawPacket);
-		if (parsedPacket.isPacketOfType(IPv4))
+		pcpp::Packet parsedPacket(&rawPacket);
+		if (parsedPacket.isPacketOfType(pcpp::IPv4))
 		{
 			stats.ipv4Packets++;
 			isIPv4Packet = true;
 		}
-		else if (parsedPacket.isPacketOfType(IPv6))
+		else if (parsedPacket.isPacketOfType(pcpp::IPv6))
 		{
 			stats.ipv6Packets++;
 			isIPv6Packet = true;
@@ -148,7 +153,7 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 		if (filterByIpID)
 		{
 			// get the IPv4 layer
-			IPv4Layer* ipv4Layer = parsedPacket.getLayerOfType<IPv4Layer>();
+			pcpp::IPv4Layer* ipv4Layer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 			if (ipv4Layer != NULL)
 			{
 				// check if packet ID matches one of the IP IDs requested by the user
@@ -163,11 +168,11 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 			}
 
 			// get the IPv6 layer
-			IPv6Layer* ipv6Layer = parsedPacket.getLayerOfType<IPv6Layer>();
+			pcpp::IPv6Layer* ipv6Layer = parsedPacket.getLayerOfType<pcpp::IPv6Layer>();
 			if (ipv6Layer != NULL && ipv6Layer->isFragment())
 			{
 				// if this packet is a fragment, get the fragmentation header
-				IPv6FragmentationHeader* fragHdr = ipv6Layer->getExtensionOfType<IPv6FragmentationHeader>();
+				pcpp::IPv6FragmentationHeader* fragHdr = ipv6Layer->getExtensionOfType<pcpp::IPv6FragmentationHeader>();
 
 				// check if fragment ID matches one of the fragment IDs requested by the user
 				if (fragIDs.find(pcpp::netToHost32(fragHdr->getFragHeader()->id)) != fragIDs.end())
@@ -185,20 +190,20 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 		if (defragPacket)
 		{
 			// process the packet in the IP reassembly mechanism
-			Packet* result = ipReassembly.processPacket(&parsedPacket, status);
+			pcpp::Packet* result = ipReassembly.processPacket(&parsedPacket, status);
 
 			// write fragment/packet to file if:
 			// - packet is fully reassembled (status of REASSEMBLED)
 			// - packet isn't a fragment or isn't an IP packet and the user asked to write all packets to output
-			if (status == IPReassembly::REASSEMBLED ||
-					((status == IPReassembly::NON_IP_PACKET || status == IPReassembly::NON_FRAGMENT) && copyAllPacketsToOutputFile))
+			if (status == pcpp::IPReassembly::REASSEMBLED ||
+					((status == pcpp::IPReassembly::NON_IP_PACKET || status == pcpp::IPReassembly::NON_FRAGMENT) && copyAllPacketsToOutputFile))
 			{
 				writer->writePacket(*result->getRawPacket());
 				stats.totalPacketsWritten++;
 			}
 
 			// update statistics if packet is fully reassembled (status of REASSEMBLED) and
-			if (status == IPReassembly::REASSEMBLED)
+			if (status == pcpp::IPReassembly::REASSEMBLED)
 			{
 				if (isIPv4Packet)
 					stats.ipv4PacketsDefragmented++;
@@ -210,11 +215,11 @@ void processPackets(IFileReaderDevice* reader, IFileWriterDevice* writer,
 			}
 
 			// update statistics if packet isn't fully reassembled
-			if (status == IPReassembly::FIRST_FRAGMENT ||
-					status == IPReassembly::FRAGMENT ||
-					status == IPReassembly::OUT_OF_ORDER_FRAGMENT ||
-					status == IPReassembly::MALFORMED_FRAGMENT ||
-					status == IPReassembly::REASSEMBLED)
+			if (status == pcpp::IPReassembly::FIRST_FRAGMENT ||
+					status == pcpp::IPReassembly::FRAGMENT ||
+					status == pcpp::IPReassembly::OUT_OF_ORDER_FRAGMENT ||
+					status == pcpp::IPReassembly::MALFORMED_FRAGMENT ||
+					status == pcpp::IPReassembly::REASSEMBLED)
 			{
 				if (isIPv4Packet)
 					stats.ipv4FragmentsMatched++;
@@ -268,7 +273,7 @@ void printStats(const DefragStats& stats, bool filterByIpID, bool filterByBpf)
  */
 int main(int argc, char* argv[])
 {
-	AppName::init(argc, argv);
+	pcpp::AppName::init(argc, argv);
 
 	int optionIndex = 0;
 	char opt = 0;
@@ -323,7 +328,7 @@ int main(int argc, char* argv[])
 			{
 				filterByBpfFilter = true;
 				bpfFilter = optarg;
-				BPFStringFilter filter(bpfFilter);
+				pcpp::BPFStringFilter filter(bpfFilter);
 				if (!filter.verifyFilter())
 					EXIT_WITH_ERROR("Illegal BPF filter");
 				break;
@@ -355,7 +360,7 @@ int main(int argc, char* argv[])
     {
     	paramIndex++;
     	if (paramIndex > expectedParams)
-    		EXIT_WITH_ERROR("Unexpected parameter: %s", argv[i]);
+    		EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
 
     	switch (paramIndex)
     	{
@@ -366,7 +371,7 @@ int main(int argc, char* argv[])
 			}
 
 			default:
-				EXIT_WITH_ERROR("Unexpected parameter: %s", argv[i]);
+				EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
     	}
     }
 
@@ -381,24 +386,24 @@ int main(int argc, char* argv[])
     }
 
     // create a reader device from input file
-    IFileReaderDevice* reader = IFileReaderDevice::getReader(inputFile);
+    pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputFile);
 
 	if (!reader->open())
 	{
-		EXIT_WITH_ERROR("Error opening input file\n");
+		EXIT_WITH_ERROR("Error opening input file");
 	}
 
 
 	// create a writer device for output file in the same file type as input file
-	IFileWriterDevice* writer = NULL;
+	pcpp::IFileWriterDevice* writer = NULL;
 
-	if (dynamic_cast<PcapFileReaderDevice*>(reader) != NULL)
+	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != NULL)
 	{
-		writer = new PcapFileWriterDevice(outputFile, ((PcapFileReaderDevice*)reader)->getLinkLayerType());
+		writer = new pcpp::PcapFileWriterDevice(outputFile, ((pcpp::PcapFileReaderDevice*)reader)->getLinkLayerType());
 	}
-	else if (dynamic_cast<PcapNgFileReaderDevice*>(reader) != NULL)
+	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != NULL)
 	{
-		writer = new PcapNgFileWriterDevice(outputFile);
+		writer = new pcpp::PcapNgFileWriterDevice(outputFile);
 	}
 	else
 	{
@@ -407,7 +412,7 @@ int main(int argc, char* argv[])
 
 	if (!writer->open())
 	{
-		EXIT_WITH_ERROR("Error opening output file\n");
+		EXIT_WITH_ERROR("Error opening output file");
 	}
 
 	// run the de-fragmentation process

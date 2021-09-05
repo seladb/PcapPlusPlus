@@ -92,7 +92,6 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		for (int i = 0; i < arrLength; i++)
 		{
 			dataSize += rawPacketsArr[i].getRawDataLen();
-			//printf("dataSize = %d\n", dataSize);
 			if (dataSize > res)
 			{
 				return packetsSent;

@@ -18,7 +18,7 @@ class TestDNSResolver(ExampleTest):
 	def test_hostname_not_provided(self):
 		args = {}
 		completed_process = self.run_example(args=args, expected_return_code=1)
-		assert 'Error: Hostname not provided' in completed_process.stdout
+		assert 'ERROR: Hostname not provided' in completed_process.stdout
 
 	def test_hostname_not_exist(self, use_sudo):
 		args = {
