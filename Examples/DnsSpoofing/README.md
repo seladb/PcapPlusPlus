@@ -14,11 +14,12 @@ Using the utility
 		-h|--help                              : Displays this help message and exits
 		-l|--list                              : Print the list of available interfaces
 		-i|--interface            INTERFACE    : The interface name or interface IP address to use. Use the -l switch to see all interfaces
-		-d|--spoof-dns-server     IP_ADDRESS   : The IPv4 address of the spoofed DNS server (all responses will be sent with this IP address)
-		-c|--client-ip            IP_ADDRESS   : Spoof only DNS requests coming from a specific IPv4 address
+		-d|--spoof-dns-server     IP_ADDRESS   : The IP address of the spoofed DNS server. Supports both IPv4 and IPv6
+		                                         (all responses will be sent with this IP address)
+		-c|--client-ip            IP_ADDRESS   : Spoof only DNS requests coming from a specific IP address
 		-o|--host-list  HOST1,HOST2,...,HOST_N : A comma-separated list of hosts to spoof. If list is not given, all hosts will be spoofed.
-												 If an host contains '*' all sub-domains will be spoofed, for example: if '*.google.com' is given
-												 then 'mail.google.com', 'tools.google.com', etc. will be spoofed
+		                                         If an host contains '*' all sub-domains will be spoofed, for example: if '*.google.com' is given
+		                                         then 'mail.google.com', 'tools.google.com', etc. will be spoofed
 
 Limitations
 -----------
