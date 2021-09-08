@@ -121,7 +121,7 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 	pcpp::PayloadLayer payloadLayer(payload, 10, true);
 	PTF_ASSERT_TRUE(newPacket->addLayer(&payloadLayer));
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 
 	// Inserting a new layer should fail because the size of the new layer exceeds the buffer size
 	pcpp::TcpLayer tcpLayer(12345, 80);
@@ -131,7 +131,7 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 	pcpp::IPv4Option newOption = ip4Layer.addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)100));
 	PTF_ASSERT_TRUE(newOption.isNull());
 
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 
 	newPacket->computeCalculateFields();
 
@@ -232,10 +232,10 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// e. Remove a layer that doesn't exist
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::HTTPRequest));
 	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::Ethernet, 1));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 
 
 	// create packet and remove layers
@@ -812,9 +812,9 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// add layer after trailer (result with an error)
 	uint8_t payload[4] = { 0x1, 0x2, 0x3, 0x4 };
 	pcpp::PayloadLayer newPayloadLayer(payload, 4, false);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(&newPayloadLayer));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 
 	// remove layer before trailer
 	PTF_ASSERT_TRUE(trailerIPv4Packet.removeLayer(pcpp::TCP));

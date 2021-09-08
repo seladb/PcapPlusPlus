@@ -21,9 +21,9 @@ PTF_TEST_CASE(IPv4PacketCreation)
 	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ethLayer));
 
 	pcpp::Packet tmpPacket(50);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(tmpPacket.addLayer(&ethLayer));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 
 	pcpp::RawPacket* rawPacket = ip4Packet.getRawPacket();
 	PTF_ASSERT_NOT_NULL(rawPacket);
@@ -388,17 +388,17 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 
 	ipLayer = ipOpt5.getLayerOfType<pcpp::IPv4Layer>();
 	tsOption.clear();
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 	tsOption.type = pcpp::IPv4TimestampOptionValue::TimestampAndIP;
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address("10.0.0.6"));
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address("10.0.0.138"));
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address("10.0.0.138"));
 	tsOption.ipAddresses.push_back(pcpp::IPv4Address::Zero);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 	tsOption.timestamps.push_back(70037668);
 	tsOption.timestamps.push_back(77233718);
 	tsOption.timestamps.push_back(77233718);
@@ -460,9 +460,9 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	tsOption.timestamps.push_back(70037670);
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(tsOption)).isNull());
 	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_TRUE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RouterAlert, (uint16_t)routerAlerVal)).isNull());
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 	ipOpt7.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipLayer->getOptionCount(), 5);
 

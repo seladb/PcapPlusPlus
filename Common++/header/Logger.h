@@ -2,6 +2,8 @@
 #define PCAPPP_LOGGER
 
 #include <stdio.h>
+#include <iostream>
+#include <iomanip>
 #include <stdint.h>
 
 #ifndef LOG_MODULE
@@ -85,14 +87,20 @@ namespace pcpp
 	class LoggerPP
 	{
 	public:
+
 		/**
-		 * An enum representing the log level. Currently 2 log level are supported: Normal and Debug. Normal is the default log level
+		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the default log level
 		 */
 		enum LogLevel
 		{
-			Normal, ///< Normal log level
+			Error, ///< Error log level
+			Info, ///< Info log level
 			Debug ///< Debug log level
 		};
+
+		typedef void (*LogPrinter)(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
+
+		static std::string logLevelAsString(LogLevel logLevel);
 
 		/**
 		 * Set the log level for a certain PcapPlusPlus module
@@ -102,7 +110,7 @@ namespace pcpp
 		void setLogLevel(LogModule module, LogLevel level) { m_LogModulesArray[module] = level; }
 
 		/**
-		 * Set all PcapPlusPlus modules to a certain log leve
+		 * Set all PcapPlusPlus modules to a certain log level
 		 * @param[in] level The log level to set all modules to
 		 */
 		void setAllModlesToLogLevel(LogLevel level) { for (int i=1; i<NumOfLogModules; i++) m_LogModulesArray[i] = level; }
@@ -123,47 +131,27 @@ namespace pcpp
 		 */
 		const LogLevel* getLogModulesArr() const { return m_LogModulesArray; }
 
-		/**
-		 * Check whether error string was already set
-		 * @return true if error string was already set, false otherwise
-		 */
-		bool isErrorStringSet() const { return m_ErrorString != NULL; }
+		void setLogPrinter(LogPrinter printer) { m_LogPrinter = printer; }
+
+		std::string getLastError() { return m_LastError; }
 
 		/**
-		 * Get the pointer to the error string set by the user. If no such pointer was provided by the user, NULL will be returned
-		 * @return A pointer to the string
+		 * Suppress logs in all PcapPlusPlus modules
 		 */
-		char* getErrorString() const { return m_ErrorString; }
+		void suppressLogs() { m_LogsEnabled = false; }
 
 		/**
-		 * Set the error string to a string pointer provided by the user. By default all errors are printed to stderr.
-		 * Using this method will cause PcapPlusPlus to output errors to the user string instead
-		 * @param[in] errString A string pointer provided by the user which all error messages will be print to from now on
-		 * @param[in] len The length of errString array. If
+		 * Enable logs in all PcapPlusPlus modules
 		 */
-		void setErrorString(char* errString, int len) { m_ErrorString = errString; m_ErrorStringLen = len; }
+		void enableLogs() { m_LogsEnabled = true; }
 
 		/**
-		 * Get the user-defined error string length. If no such pointer was provided by the user, 0 will be returned
-		 * @return The user-defined error string length
-		 **/
-		int getErrorStringLength() const { return m_ErrorStringLen; }
-
-		/**
-		 * Suppress all errors in all PcapPlusPlusModules
+		 * Get an indication if logs are currently suppressed
+		 * @return True if logs are currently suppressed, false otherwise
 		 */
-		void suppressErrors() { m_SuppressErrors = true; }
+		bool logsEnabled() const { return m_LogsEnabled; }
 
-		/**
-		 * Enable all errors in all PcapPlusPlusModules
-		 */
-		void enableErrors() { m_SuppressErrors = false; }
-
-		/**
-		 * Get an indication if errors are currently suppressed
-		 * @return True if errors are currently suppressed, false otherwise
-		 */
-		bool isSuppressErrors() const { return m_SuppressErrors; }
+		inline void printLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 
 		/**
 		 * Get access to LoggerPP singleton
@@ -176,29 +164,50 @@ namespace pcpp
 			return instance;
 		}
 	private:
-		char* m_ErrorString;
-		int m_ErrorStringLen;
-		bool m_SuppressErrors;
+		bool m_LogsEnabled;
 		LoggerPP::LogLevel m_LogModulesArray[NumOfLogModules];
+		LogPrinter m_LogPrinter;
+		std::string m_LastError;
+
 		LoggerPP();
+
+		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 
 #define LOG_DEBUG(format, ...) do { \
-			if(pcpp::LoggerPP::getInstance().isDebugEnabled(LOG_MODULE)) { \
-				printf("[%-35s: %-25s: line:%-4d] " format "\n", __FILE__, __FUNCTION__, __LINE__, ## __VA_ARGS__); \
+			if (pcpp::LoggerPP::getInstance().logsEnabled()) { \
+				if(pcpp::LoggerPP::getInstance().isDebugEnabled(LOG_MODULE)) { \
+					/* printf("[%-35s: %-25s: line:%-4d] " format "\n", __FILE__, __FUNCTION__, __LINE__, ## __VA_ARGS__);*/ \
+					char tempLogMessage[200]; \
+					snprintf(tempLogMessage, 200, format, ## __VA_ARGS__); \
+					std::ostringstream logStream; \
+					logStream << tempLogMessage; \
+					pcpp::LoggerPP::getInstance().printLogMessage(pcpp::LoggerPP::Debug, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
+				} \
 			} \
 	} while(0)
 
 #define LOG_ERROR(format, ...) do { \
-			if (!pcpp::LoggerPP::getInstance().isSuppressErrors()) {\
-				if(pcpp::LoggerPP::getInstance().isErrorStringSet()) \
-					snprintf(pcpp::LoggerPP::getInstance().getErrorString(), pcpp::LoggerPP::getInstance().getErrorStringLength(), format, ## __VA_ARGS__); \
-				else \
-					fprintf(stderr, format "\n", ## __VA_ARGS__); \
+			if (pcpp::LoggerPP::getInstance().logsEnabled()) {\
+				/*fprintf(stderr, format "\n", ## __VA_ARGS__);*/ \
+				char tempLogMessage[200]; \
+				snprintf(tempLogMessage, 200, format, ## __VA_ARGS__); \
+				std::ostringstream logStream; \
+				logStream << tempLogMessage; \
+				pcpp::LoggerPP::getInstance().printLogMessage(pcpp::LoggerPP::Error, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
 			} \
 		} while (0)
 
 #define IS_DEBUG pcpp::LoggerPP::getInstance().isDebugEnabled(LOG_MODULE)
+
+void LoggerPP::printLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line)
+{
+	if (logLevel == LoggerPP::Error)
+	{
+		m_LastError = logMessage;
+	}
+	m_LogPrinter(logLevel, logMessage, file, method, line);
+}
 
 } // namespace pcpp
 

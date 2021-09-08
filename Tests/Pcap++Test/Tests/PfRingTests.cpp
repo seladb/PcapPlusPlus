@@ -203,9 +203,9 @@ PTF_TEST_CASE(TestPfRingDevice)
 	PTF_ASSERT_GREATER_THAN(dev->getTotalNumOfRxChannels(), 0);
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0);
 	PTF_ASSERT_TRUE(dev->open());
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(dev->open());
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 1);
 
 	PfRingPacketData packetData;
@@ -252,9 +252,9 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 	PTF_ASSERT_NOT_NULL(dev);
 
 	PfRingPacketData packetData;
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(dev->openSingleRxChannel(dev->getTotalNumOfRxChannels()+1));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 	PTF_ASSERT_TRUE(dev->openSingleRxChannel(dev->getTotalNumOfRxChannels()-1));
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArrive, &packetData));
 	int totalSleepTime = incSleep(10, packetData);
@@ -560,9 +560,9 @@ PTF_TEST_CASE(TestPfRingFilters)
 	PTF_ASSERT_FALSE(dev->isFilterCurrentlySet());
 	PTF_ASSERT_TRUE(dev->clearFilter());
 	pcpp::ProtoFilter protocolFilter(pcpp::TCP);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(dev->setFilter(protocolFilter));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(dev->open());
 	DeviceTeardown devTeardown(dev);

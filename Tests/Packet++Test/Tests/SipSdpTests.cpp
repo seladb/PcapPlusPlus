@@ -202,9 +202,9 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 	PTF_ASSERT_TRUE(sipReqLayer->getFirstLine()->setUri("sip:francisco@bestel.com:55060"));
 	PTF_ASSERT_TRUE(sipReqLayer->getFirstLine()->setUri("sip:echo@iptel.org"));
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(sipReqLayer->getFirstLine()->setUri(""));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)->setFieldValue("SIP/2.0/UDP 178.45.73.241:5060;branch=z9hG4bKb26f2c0b-146f-e011-809a-0019cb53db77;rport"));
 	PTF_ASSERT_TRUE(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD)->setFieldValue("70"));
@@ -422,9 +422,9 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip401Unauthorized, enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 26);
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::SipStatusCodeUnknown));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_VIA_FIELD, 1));
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_CONTACT_FIELD));

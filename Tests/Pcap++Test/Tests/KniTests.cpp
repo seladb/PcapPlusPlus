@@ -342,9 +342,9 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		PTF_ASSERT_TRUE(fileReaderDev.open());
 
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter));
-		pcpp::LoggerPP::getInstance().suppressErrors();
+		pcpp::LoggerPP::getInstance().suppressLogs();
 		PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL));
-		pcpp::LoggerPP::getInstance().enableErrors();
+		pcpp::LoggerPP::getInstance().enableLogs();
 		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
 		for (int i = 0; i < 10; ++i)
 		{
@@ -352,9 +352,9 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::LoggerPP::getInstance().suppressErrors();
+		pcpp::LoggerPP::getInstance().suppressLogs();
 		rsdevice.sendPackets(rawPacketVec);
-		pcpp::LoggerPP::getInstance().enableErrors();
+		pcpp::LoggerPP::getInstance().enableLogs();
 		rawPacketVec.clear();
 		pcpp::multiPlatformSleep(1); // Give some time to receive packets
 		device->stopCapture();
@@ -362,20 +362,20 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		counter = 0;
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter));
 		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
-		pcpp::LoggerPP::getInstance().suppressErrors();
+		pcpp::LoggerPP::getInstance().suppressLogs();
 		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0);
 		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0);
 		PTF_ASSERT_EQUAL(device->receivePackets(packetArr, packetArrLen), 0);
-		pcpp::LoggerPP::getInstance().enableErrors();
+		pcpp::LoggerPP::getInstance().enableLogs();
 		for (int i = 0; i < 10; ++i)
 		{
 			fileReaderDev.getNextPacket(rawPacket);
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::LoggerPP::getInstance().suppressErrors();
+		pcpp::LoggerPP::getInstance().suppressLogs();
 		rsdevice.sendPackets(rawPacketVec);
-		pcpp::LoggerPP::getInstance().enableErrors();
+		pcpp::LoggerPP::getInstance().enableLogs();
 		rawPacketVec.clear();
 		pcpp::multiPlatformSleep(1); // Give some time to receive packets
 		device->stopCapture();
@@ -386,9 +386,9 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			pcpp::RawPacket* newRawPacket = new pcpp::RawPacket(rawPacket);
 			rawPacketVec.pushBack(newRawPacket);
 		}
-		pcpp::LoggerPP::getInstance().suppressErrors();
+		pcpp::LoggerPP::getInstance().suppressLogs();
 		rsdevice.sendPackets(rawPacketVec);
-		pcpp::LoggerPP::getInstance().enableErrors();
+		pcpp::LoggerPP::getInstance().enableLogs();
 		rawPacketVec.clear();
 		//? Note(echo-Mike): Some amount of packets are always queued inside kernel
 		//? so blocking mode has a slight chance to obtain this packets
@@ -410,9 +410,9 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		}
 	}
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::LoggerPP::getInstance().suppressLogs();
 	fileReaderDev.close();
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::LoggerPP::getInstance().enableLogs();
 	PTF_ASSERT_TRUE(fileReaderDev.open());
 
 	{ // Send test part
