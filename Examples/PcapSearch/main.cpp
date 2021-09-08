@@ -129,7 +129,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 			// PcapPlusPlus logger saves the last internal error. Write this error to the report file
 			(*detailedReportFile) << "File '" << pcapFilePath << "':" << std::endl;
 			(*detailedReportFile) << "    ";
-			(*detailedReportFile) << pcpp::LoggerPP::getInstance().getLastError() << std::endl;
+			(*detailedReportFile) << pcpp::Logger::getInstance().getLastError() << std::endl;
 		}
 
 		// free the reader memory and return

@@ -245,10 +245,10 @@ PTF_TEST_CASE(TestDpdkInitDevice)
 	pcpp::DpdkDeviceList& devList = pcpp::DpdkDeviceList::getInstance();
 	PTF_ASSERT_GREATER_THAN(devList.getDpdkDeviceList().size(), 0);
 
-	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), pcpp::LoggerPP::Normal, enum);
-	devList.setDpdkLogLevel(pcpp::LoggerPP::Debug);
-	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), pcpp::LoggerPP::Debug, enum);
-	devList.setDpdkLogLevel(pcpp::LoggerPP::Normal);
+	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), pcpp::Logger::Normal, enum);
+	devList.setDpdkLogLevel(pcpp::Logger::Debug);
+	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), pcpp::Logger::Debug, enum);
+	devList.setDpdkLogLevel(pcpp::Logger::Normal);
 #else
 	PTF_SKIP_TEST("DPDK not configured");
 #endif
@@ -299,9 +299,9 @@ PTF_TEST_CASE(TestDpdkDevice)
 
 	PTF_ASSERT_TRUE(dev->open());
 	DeviceTeardown devTeardown(dev);
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(dev->open());
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxQueues(), 1);
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedTxQueues(), 1);
 	pcpp::DpdkDevice::LinkStatus linkStatus;
@@ -377,19 +377,19 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 	if (dev->getTotalNumOfRxQueues() > 1)
 	{
-		pcpp::LoggerPP::getInstance().suppressLogs();
+		pcpp::Logger::getInstance().suppressLogs();
 		PTF_ASSERT_FALSE(dev->openMultiQueues(numOfRxQueuesToOpen+1, 1));
-		pcpp::LoggerPP::getInstance().enableLogs();
+		pcpp::Logger::getInstance().enableLogs();
 	}
 
 	PTF_ASSERT_TRUE(dev->openMultiQueues(numOfRxQueuesToOpen, 1));
 
 	if (numOfRxQueuesToOpen > 1)
 	{
-		pcpp::LoggerPP::getInstance().suppressLogs();
+		pcpp::Logger::getInstance().suppressLogs();
 		DpdkPacketData dummyPacketData;
 		PTF_ASSERT_FALSE(dev->startCaptureSingleThread(dpdkPacketsArrive, &dummyPacketData));
-		pcpp::LoggerPP::getInstance().enableLogs();
+		pcpp::Logger::getInstance().enableLogs();
 	}
 
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxQueues(), (uint16_t)numOfRxQueuesToOpen);
@@ -526,9 +526,9 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 	PTF_ASSERT_NOT_NULL(dev);
 	DeviceTeardown devTeardown(dev);
 
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(dev->openMultiQueues(1, 255));
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 
 	pcpp::DpdkDevice::DpdkDeviceConfiguration customConfig(128, 1024);
 	PTF_ASSERT_TRUE(dev->openMultiQueues(1, dev->getTotalNumOfTxQueues(), customConfig));
@@ -571,9 +571,9 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 		PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead);
 	}
 
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_EQUAL(dev->sendPackets(rawPacketVec, dev->getTotalNumOfTxQueues()+1), 0);
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(dev->sendPacket(*(rawPacketVec.at(packetsRead/3)), 0));
 	PTF_ASSERT_TRUE(dev->sendPacket(*(packetArr[packetsRead/2]), 0));
@@ -606,7 +606,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 	// negative tests
 	// --------------
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_EQUAL(dev->receivePackets(rawPacketVec, 0), 0);
 	PTF_ASSERT_EQUAL(dev->receivePackets(packetArr, packetArrLen, 0), 0);
 	PTF_ASSERT_EQUAL(dev->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen, 0), 0);
@@ -623,7 +623,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	PTF_ASSERT_EQUAL(dev->receivePackets(rawPacketVec, 0), 0);
 	PTF_ASSERT_EQUAL(dev->receivePackets(packetArr, packetArrLen, 0), 0);
 	PTF_ASSERT_EQUAL(dev->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen, 0), 0);
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 	dev->stopCapture();
 	dev->close();
 	
@@ -743,10 +743,10 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	}
 	PTF_PRINT_VERBOSE("Initiating " << workerThreadVec.size() << " worker threads");
 
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	// negative test - start worker thread with core mask 0
 	PTF_ASSERT_FALSE(pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(0, workerThreadVec));
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(workerThreadCoreMask, workerThreadVec));
 	PTF_PRINT_VERBOSE("Worker threads started");

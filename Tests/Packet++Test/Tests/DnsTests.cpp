@@ -212,9 +212,9 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	// a corner case of malformed packet where the total number of resources overflow uint16
 	// by less than 300. This fixes the bug: https://github.com/seladb/PcapPlusPlus/issues/441 
 	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/DnsTooManyResources.dat");
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	pcpp::Packet dnsPacket6(&rawPacket6);
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 	dnsLayer = dnsPacket6.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NULL(dnsLayer->getFirstQuery());
 	PTF_ASSERT_NULL(dnsLayer->getFirstAnswer());
@@ -351,10 +351,10 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	pcpp::DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
 	PTF_ASSERT_NOT_NULL(thirdAnswer);
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	ipv4DnsData = pcpp::IPv4DnsResourceData(std::string("256.249.90.238"));
 	PTF_ASSERT_FALSE(thirdAnswer->setData(&ipv4DnsData));
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 	ipv4DnsData = pcpp::IPv4DnsResourceData(std::string("151.249.90.238"));
 	PTF_ASSERT_TRUE(thirdAnswer->setData(&ipv4DnsData));
 
@@ -401,15 +401,15 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT_EQUAL(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), "10.0.0.2");
 
 	authority = dnsLayer6.addAuthority(authority);
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	pcpp::IPv6DnsResourceData ipv6DnsData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
 	PTF_ASSERT_FALSE(authority->setData(&ipv6DnsData));
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 	authority->setDnsType(pcpp::DNS_TYPE_AAAA);
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	ipv6DnsData = pcpp::IPv6DnsResourceData(std::string("fe80::5a1f:aaff$fe4f:3f9d"));
 	PTF_ASSERT_FALSE(authority->setData(&ipv6DnsData));
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 	ipv6DnsData = pcpp::IPv6DnsResourceData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
 	PTF_ASSERT_TRUE(authority->setData(&ipv6DnsData));
 
@@ -424,12 +424,12 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	pcpp::GenericDnsResourceData genericData("0004000800df581faa4f3f9d");
 	pcpp::DnsResource* additional = dnsLayer6.addAdditionalRecord("", pcpp::DNS_TYPE_OPT, 0xa005, 0x1194, &genericData);
 	PTF_ASSERT_NOT_NULL(additional);
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	genericData = pcpp::GenericDnsResourceData("a0123");
 	PTF_ASSERT_FALSE(additional->setData(&genericData));
 	genericData = pcpp::GenericDnsResourceData("a01j34");
 	PTF_ASSERT_FALSE(additional->setData(&genericData));
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 
 	dnsEdit6Packet.computeCalculateFields();
 

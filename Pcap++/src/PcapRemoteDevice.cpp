@@ -60,7 +60,7 @@ bool PcapRemoteDevice::open()
 	//for some reason if a filter is not set than WinPcap throws an exception. So Here is a generic filter that catches all traffic
 	if (!setFilter("ether proto (\\ip or \\ip6 or \\arp or \\rarp or \\decnet or \\sca or \\lat or \\mopdl or \\moprc or \\iso or \\stp or \\ipx or \\netbeui or 0x80F3)")) //0x80F3 == AARP
 	{
-		LOG_ERROR("Error setting the filter. Error was: %s", LoggerPP::getInstance().getLastError());
+		LOG_ERROR("Error setting the filter. Error was: %s", Logger::getInstance().getLastError());
 		m_DeviceOpened = false;
 		return false;
 	}

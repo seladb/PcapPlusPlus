@@ -85,7 +85,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	{
 		m_Addresses.insert(m_Addresses.end(), *(pInterface->addresses));
 		pInterface->addresses = pInterface->addresses->next;
-		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != NULL && pInterface->addresses->addr != NULL)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != NULL && pInterface->addresses->addr != NULL)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
 			internal::sockaddr2string(pInterface->addresses->addr, addrAsString);
@@ -938,7 +938,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 {
 	for(std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
 	{
-		if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
 			internal::sockaddr2string(addrIter->addr, addrAsString);

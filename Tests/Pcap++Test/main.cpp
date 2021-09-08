@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
 
 	if (PcapTestGlobalArgs.debugMode)
 	{
-		pcpp::LoggerPP::getInstance().setAllModlesToLogLevel(pcpp::LoggerPP::Debug);
+		pcpp::Logger::getInstance().setAllModlesToLogLevel(pcpp::Logger::Debug);
 	}
 
 	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl

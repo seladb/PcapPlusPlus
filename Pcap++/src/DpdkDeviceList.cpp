@@ -139,7 +139,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	m_IsDpdkInitialized = true;
 
 	m_MBufPoolSizePerDevice = mBufPoolSizePerDevice;
-	DpdkDeviceList::getInstance().setDpdkLogLevel(LoggerPP::Normal);
+	DpdkDeviceList::getInstance().setDpdkLogLevel(Logger::Normal);
 	return DpdkDeviceList::getInstance().initDpdkDevices(m_MBufPoolSizePerDevice);
 }
 
@@ -254,31 +254,31 @@ SystemCore DpdkDeviceList::getDpdkMasterCore() const
 	return SystemCores::IdToSystemCore[rte_get_master_lcore()];
 }
 
-void DpdkDeviceList::setDpdkLogLevel(LoggerPP::LogLevel logLevel)
+void DpdkDeviceList::setDpdkLogLevel(Logger::LogLevel logLevel)
 {
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
-	if (logLevel == LoggerPP::Normal)
+	if (logLevel == Logger::Normal)
 		rte_log_set_global_level(RTE_LOG_NOTICE);
-	else // logLevel == LoggerPP::Debug
+	else // logLevel == Logger::Debug
 		rte_log_set_global_level(RTE_LOG_DEBUG);
 #else
-	if (logLevel == LoggerPP::Normal)
+	if (logLevel == Logger::Normal)
 		rte_set_log_level(RTE_LOG_NOTICE);
-	else // logLevel == LoggerPP::Debug
+	else // logLevel == Logger::Debug
 		rte_set_log_level(RTE_LOG_DEBUG);
 #endif
 }
 
-LoggerPP::LogLevel DpdkDeviceList::getDpdkLogLevel() const
+Logger::LogLevel DpdkDeviceList::getDpdkLogLevel() const
 {
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 	if (rte_log_get_global_level() <= RTE_LOG_NOTICE)
 #else
 	if (rte_get_log_level() <= RTE_LOG_NOTICE)
 #endif
-		return LoggerPP::Normal;
+		return Logger::Normal;
 	else
-		return LoggerPP::Debug;
+		return Logger::Debug;
 }
 
 bool DpdkDeviceList::writeDpdkLogToFile(FILE* logFile)

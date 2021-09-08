@@ -111,7 +111,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
-			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
 				internal::sockaddr2string(addrIter->addr, addrAsString);
@@ -145,7 +145,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
-			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
 				internal::sockaddr2string(addrIter->addr, addrAsString);

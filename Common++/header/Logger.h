@@ -71,7 +71,7 @@ namespace pcpp
 	};
 
 	/**
-	 * @class LoggerPP
+	 * @class Logger
 	 * The PcapPlusPlus log manager class.
 	 * PcapPlusPlus uses this logger to output both error and debug logs.
 	 *
@@ -84,7 +84,7 @@ namespace pcpp
 	 *
 	 * PcapPlusPlus logger is a singleton which can be reached from anywhere in the code *
 	 */
-	class LoggerPP
+	class Logger
 	{
 	public:
 
@@ -154,55 +154,55 @@ namespace pcpp
 		inline void printLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 
 		/**
-		 * Get access to LoggerPP singleton
+		 * Get access to Logger singleton
 		 * @todo: make this singleton thread-safe/
-		 * @return a pointer to the LoggerPP singleton
+		 * @return a pointer to the Logger singleton
 		**/
-		static LoggerPP& getInstance()
+		static Logger& getInstance()
 		{
-			static LoggerPP instance;
+			static Logger instance;
 			return instance;
 		}
 	private:
 		bool m_LogsEnabled;
-		LoggerPP::LogLevel m_LogModulesArray[NumOfLogModules];
+		Logger::LogLevel m_LogModulesArray[NumOfLogModules];
 		LogPrinter m_LogPrinter;
 		std::string m_LastError;
 
-		LoggerPP();
+		Logger();
 
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 
 #define LOG_DEBUG(format, ...) do { \
-			if (pcpp::LoggerPP::getInstance().logsEnabled()) { \
-				if(pcpp::LoggerPP::getInstance().isDebugEnabled(LOG_MODULE)) { \
+			if (pcpp::Logger::getInstance().logsEnabled()) { \
+				if(pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) { \
 					/* printf("[%-35s: %-25s: line:%-4d] " format "\n", __FILE__, __FUNCTION__, __LINE__, ## __VA_ARGS__);*/ \
 					char tempLogMessage[200]; \
 					snprintf(tempLogMessage, 200, format, ## __VA_ARGS__); \
 					std::ostringstream logStream; \
 					logStream << tempLogMessage; \
-					pcpp::LoggerPP::getInstance().printLogMessage(pcpp::LoggerPP::Debug, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
+					pcpp::Logger::getInstance().printLogMessage(pcpp::Logger::Debug, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
 				} \
 			} \
 	} while(0)
 
 #define LOG_ERROR(format, ...) do { \
-			if (pcpp::LoggerPP::getInstance().logsEnabled()) {\
+			if (pcpp::Logger::getInstance().logsEnabled()) {\
 				/*fprintf(stderr, format "\n", ## __VA_ARGS__);*/ \
 				char tempLogMessage[200]; \
 				snprintf(tempLogMessage, 200, format, ## __VA_ARGS__); \
 				std::ostringstream logStream; \
 				logStream << tempLogMessage; \
-				pcpp::LoggerPP::getInstance().printLogMessage(pcpp::LoggerPP::Error, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
+				pcpp::Logger::getInstance().printLogMessage(pcpp::Logger::Error, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
 			} \
 		} while (0)
 
-#define IS_DEBUG pcpp::LoggerPP::getInstance().isDebugEnabled(LOG_MODULE)
+#define IS_DEBUG pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)
 
-void LoggerPP::printLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line)
+void Logger::printLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line)
 {
-	if (logLevel == LoggerPP::Error)
+	if (logLevel == Logger::Error)
 	{
 		m_LastError = logMessage;
 	}

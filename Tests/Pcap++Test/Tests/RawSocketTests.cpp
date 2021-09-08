@@ -24,12 +24,12 @@ PTF_TEST_CASE(TestRawSockets)
 	pcpp::ProtocolType protocol = pcpp::Ethernet;
 	bool sendSupported = false;
 	{
-		pcpp::LoggerPP::getInstance().suppressLogs();
+		pcpp::Logger::getInstance().suppressLogs();
 		pcpp::RawPacket rawPacket;
 		PTF_ASSERT_FALSE(rawSock.open());
 		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 10), pcpp::RawSocketDevice::RecvError, enum);
 		PTF_ASSERT_FALSE(rawSock.sendPacket(&rawPacket));
-		pcpp::LoggerPP::getInstance().enableLogs();
+		pcpp::Logger::getInstance().enableLogs();
 	}
 
 	PTF_TEST_CASE_PASSED;
@@ -99,10 +99,10 @@ PTF_TEST_CASE(TestRawSockets)
 	// close and reopen sockets, verify can't send and receive while closed
 	rawSock.close();
 	pcpp::RawPacket tempPacket;
-	pcpp::LoggerPP::getInstance().suppressLogs();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_EQUAL(rawSock.receivePacket(tempPacket, true, 2), pcpp::RawSocketDevice::RecvError, enum);
 	PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
-	pcpp::LoggerPP::getInstance().enableLogs();
+	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(rawSock.open());
 
@@ -155,9 +155,9 @@ PTF_TEST_CASE(TestRawSockets)
 	else
 	{
 		// test send on unsupported platforms
-		pcpp::LoggerPP::getInstance().suppressLogs();
+		pcpp::Logger::getInstance().suppressLogs();
 		PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
 		PTF_ASSERT_FALSE(rawSock.sendPackets(packetVec));
-		pcpp::LoggerPP::getInstance().enableLogs();
+		pcpp::Logger::getInstance().enableLogs();
 	}
 } // TestRawSockets

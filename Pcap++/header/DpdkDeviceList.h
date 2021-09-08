@@ -152,15 +152,15 @@ namespace pcpp
 
 		/**
 		 * Change the log level of all modules of DPDK
-		 * @param[in] logLevel The log level to set. LoggerPP#Normal is RTE_LOG_NOTICE and LoggerPP#Debug is RTE_LOG_DEBUG
+		 * @param[in] logLevel The log level to set. Logger#Normal is RTE_LOG_NOTICE and Logger#Debug is RTE_LOG_DEBUG
 		 */
-		void setDpdkLogLevel(LoggerPP::LogLevel logLevel);
+		void setDpdkLogLevel(Logger::LogLevel logLevel);
 
 		/**
-		 * @return The current DPDK log level. RTE_LOG_NOTICE and lower are considered as LoggerPP#Normal. RTE_LOG_INFO or RTE_LOG_DEBUG
-		 * are considered as LoggerPP#Debug
+		 * @return The current DPDK log level. RTE_LOG_NOTICE and lower are considered as Logger#Normal. RTE_LOG_INFO or RTE_LOG_DEBUG
+		 * are considered as Logger#Debug
 		 */
-		LoggerPP::LogLevel getDpdkLogLevel() const;
+		Logger::LogLevel getDpdkLogLevel() const;
 
 		/**
 		 * Order DPDK to write all its logs to a file

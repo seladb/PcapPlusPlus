@@ -709,7 +709,7 @@ void PfRingDevice::setPfRingDeviceAttributes()
 	else
 		m_DeviceMTU = mtu + sizeof(ether_header) + sizeof(vlan_header);
 
-	if (LoggerPP::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
+	if (Logger::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
 	{
 		std::string hwEnabled = (m_HwClockEnabled ? "enabled" : "disabled");
 		LOG_DEBUG("Capturing from %s [%s][ifIndex: %d][MTU: %d], HW clock %s", m_DeviceName, m_MacAddress.toString().c_str(), m_InterfaceIndex, m_DeviceMTU, hwEnabled.c_str());
