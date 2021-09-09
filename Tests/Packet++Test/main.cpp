@@ -4,6 +4,7 @@
 #include "PcapPlusPlusVersion.h"
 #include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
+#include "Logger.h"
 
 
 static struct option PacketTestOptions[] =
@@ -72,10 +73,14 @@ int main(int argc, char* argv[])
 	<< "Built: " << pcpp::getBuildDateTime() << std::endl
 	<< "Built from: " << pcpp::getGitInfo() << std::endl;
 
-	#if defined(NDEBUG) || defined(_DEBUG)
+	#ifdef NDEBUG
 	skipMemLeakCheck = true;
 	std::cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:" << std::endl
 	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
+	#endif
+	#ifdef _DEBUG
+	// in MSVC Debug the logger singelton looks like a memory leak. Invoke it before starting the memory check
+	pcpp::Logger::getInstance();
 	#endif
 	
 	if (skipMemLeakCheck)
