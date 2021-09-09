@@ -175,17 +175,12 @@ namespace pcpp
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 
-#define LOG_DEBUG(format, ...) do { \
-			if (pcpp::Logger::getInstance().logsEnabled()) { \
-				if(pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) { \
-					/* printf("[%-35s: %-25s: line:%-4d] " format "\n", __FILE__, __FUNCTION__, __LINE__, ## __VA_ARGS__);*/ \
-					char tempLogMessage[200]; \
-					snprintf(tempLogMessage, 200, format, ## __VA_ARGS__); \
-					std::ostringstream logStream; \
-					logStream << tempLogMessage; \
-					pcpp::Logger::getInstance().printLogMessage(pcpp::Logger::Debug, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
-				} \
-			} \
+#define LOG_DEBUG(message) do { \
+		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) { \
+			std::ostringstream logStream; \
+			logStream << message; \
+			pcpp::Logger::getInstance().printLogMessage(pcpp::Logger::Debug, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
+		} \
 	} while(0)
 
 #define LOG_ERROR(format, ...) do { \

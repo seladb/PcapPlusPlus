@@ -56,7 +56,7 @@ void IFileDevice::close()
 	if (m_PcapDescriptor != NULL)
 	{
 		pcap_close(m_PcapDescriptor);
-		LOG_DEBUG("Successfully closed file reader device for filename '%s'", m_FileName.c_str());
+		LOG_DEBUG("Successfully closed file reader device for filename '" << m_FileName << "'");
 		m_PcapDescriptor = NULL;
 	}
 
@@ -156,7 +156,7 @@ bool PcapFileReaderDevice::open()
 
 	m_PcapLinkLayerType = static_cast<LinkLayerType>(linkLayer);
 
-	LOG_DEBUG("Successfully opened file reader device for filename '%s'", m_FileName.c_str());
+	LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
 	m_DeviceOpened = true;
 	return true;
 }
@@ -166,7 +166,7 @@ void PcapFileReaderDevice::getStatistics(PcapStats& stats) const
 	stats.packetsRecv = m_NumOfPacketsRead;
 	stats.packetsDrop = m_NumOfPacketsNotParsed;
 	stats.packetsDropByInterface = 0;
-	LOG_DEBUG("Statistics received for reader device for filename '%s'", m_FileName.c_str());
+	LOG_DEBUG("Statistics received for reader device for filename '" << m_FileName << "'");
 }
 
 bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
@@ -230,7 +230,7 @@ bool PcapNgFileReaderDevice::open()
 		return false;
 	}
 
-	LOG_DEBUG("Successfully opened pcapng reader device for filename '%s'", m_FileName.c_str());
+	LOG_DEBUG("Successfully opened pcapng reader device for filename '" << m_FileName << "'");
 	m_DeviceOpened = true;
 	return true;
 }
@@ -290,7 +290,7 @@ void PcapNgFileReaderDevice::getStatistics(PcapStats& stats) const
 	stats.packetsRecv = m_NumOfPacketsRead;
 	stats.packetsDrop = m_NumOfPacketsNotParsed;
 	stats.packetsDropByInterface = 0;
-	LOG_DEBUG("Statistics received for pcapng reader device for filename '%s'", m_FileName.c_str());
+	LOG_DEBUG("Statistics received for pcapng reader device for filename '" << m_FileName << "'");
 }
 
 bool PcapNgFileReaderDevice::setFilter(std::string filterAsString)
@@ -307,7 +307,7 @@ void PcapNgFileReaderDevice::close()
 	m_LightPcapNg = NULL;
 
 	m_DeviceOpened = false;
-	LOG_DEBUG("File reader closed for file '%s'", m_FileName.c_str());
+	LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
 }
 
 
@@ -455,7 +455,7 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 		fwrite(&pktHdrTemp, sizeof(pktHdrTemp), 1, m_File);
 		fwrite(((RawPacket&)packet).getRawData(), pktHdrTemp.caplen, 1, m_File);
 	}
-	LOG_DEBUG("Packet written successfully to '%s'", m_FileName.c_str());
+	LOG_DEBUG("Packet written successfully to '" << m_FileName << "'");
 	m_NumOfPacketsWritten++;
 	return true;
 }
@@ -511,7 +511,7 @@ bool PcapFileWriterDevice::open()
 	}
 
 	m_DeviceOpened = true;
-	LOG_DEBUG("File writer device for file '%s' opened successfully", m_FileName.c_str());
+	LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully");
 	return true;
 }
 
@@ -553,7 +553,7 @@ void PcapFileWriterDevice::close()
 
 	m_PcapDumpHandler = NULL;
 	m_File = NULL;
-	LOG_DEBUG("File writer closed for file '%s'", m_FileName.c_str());
+	LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
 }
 
 void PcapFileWriterDevice::getStatistics(PcapStats& stats) const
@@ -561,7 +561,7 @@ void PcapFileWriterDevice::getStatistics(PcapStats& stats) const
 	stats.packetsRecv = m_NumOfPacketsWritten;
 	stats.packetsDrop = m_NumOfPacketsNotWritten;
 	stats.packetsDropByInterface = 0;
-	LOG_DEBUG("Statistics received for writer device for filename '%s'", m_FileName.c_str());
+	LOG_DEBUG("Statistics received for writer device for filename '" << m_FileName << "'");
 }
 
 bool PcapFileWriterDevice::open(bool appendMode)
@@ -614,7 +614,7 @@ bool PcapFileWriterDevice::open(bool appendMode)
 	m_PcapDumpHandler = ((pcap_dumper_t *)m_File);
 
 	m_DeviceOpened = true;
-	LOG_DEBUG("File writer device for file '%s' opened successfully in append mode", m_FileName.c_str());
+	LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully in append mode");
 	return true;
 }
 
@@ -654,7 +654,7 @@ bool PcapNgFileWriterDevice::open(const std::string& os, const std::string& hard
 	}
 
 	m_DeviceOpened = true;
-	LOG_DEBUG("pcap-ng writer device for file '%s' opened successfully", m_FileName.c_str());
+	LOG_DEBUG("pcap-ng writer device for file '" << m_FileName << "' opened successfully");
 	return true;
 }
 
@@ -737,7 +737,7 @@ bool PcapNgFileWriterDevice::open()
 	}
 
 	m_DeviceOpened = true;
-	LOG_DEBUG("pcap-ng writer device for file '%s' opened successfully", m_FileName.c_str());
+	LOG_DEBUG("pcap-ng writer device for file '" << m_FileName << "' opened successfully");
 	return true;
 }
 
@@ -758,7 +758,7 @@ bool PcapNgFileWriterDevice::open(bool appendMode)
 	}
 
 	m_DeviceOpened = true;
-	LOG_DEBUG("pcap-ng writer device for file '%s' opened successfully", m_FileName.c_str());
+	LOG_DEBUG("pcap-ng writer device for file '" << m_FileName << "' opened successfully");
 	return true;
 
 }
@@ -769,7 +769,7 @@ void PcapNgFileWriterDevice::flush()
 		return;
 
 	light_pcapng_flush((light_pcapng_t*)m_LightPcapNg);
-	LOG_DEBUG("File writer flushed to file '%s'", m_FileName.c_str());
+	LOG_DEBUG("File writer flushed to file '" << m_FileName << "'");
 }
 
 void PcapNgFileWriterDevice::close()
@@ -781,7 +781,7 @@ void PcapNgFileWriterDevice::close()
 	m_LightPcapNg = NULL;
 
 	m_DeviceOpened = false;
-	LOG_DEBUG("File writer closed for file '%s'", m_FileName.c_str());
+	LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
 }
 
 void PcapNgFileWriterDevice::getStatistics(PcapStats& stats) const
@@ -789,7 +789,7 @@ void PcapNgFileWriterDevice::getStatistics(PcapStats& stats) const
 	stats.packetsRecv = m_NumOfPacketsWritten;
 	stats.packetsDrop = m_NumOfPacketsNotWritten;
 	stats.packetsDropByInterface = 0;
-	LOG_DEBUG("Statistics received for pcap-ng writer device for filename '%s'", m_FileName.c_str());
+	LOG_DEBUG("Statistics received for pcap-ng writer device for filename '" << m_FileName << "'");
 }
 
 bool PcapNgFileWriterDevice::setFilter(std::string filterAsString)

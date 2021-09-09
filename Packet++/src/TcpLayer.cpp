@@ -248,7 +248,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 	{
 		tcpHdr->headerChecksum = 0;
 		ScalarBuffer<uint16_t> vec[2];
-		LOG_DEBUG("data len =  %d", (int)m_DataLen);
+		LOG_DEBUG("data len = " << m_DataLen);
 		vec[0].buffer = (uint16_t*)m_Data;
 		vec[0].len = m_DataLen;
 
@@ -266,7 +266,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
 			checksumRes = computeChecksum(vec, 2);
-			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
+			LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
 
 
 		}
@@ -280,7 +280,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
 			checksumRes = computeChecksum(vec, 2);
-			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
+			LOG_DEBUG("calculated checksum = 0xX" << std::uppercase << std::hex << checksumRes);
 		}
 	}
 

@@ -342,7 +342,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 
 		if (::sendto(fd, (*iter)->getRawData(), (*iter)->getRawDataLen(), 0, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 		{
-			LOG_DEBUG("Failed to send packet. Error was: '%s'", strerror(errno));
+			LOG_DEBUG("Failed to send packet. Error was: '" << strerror(errno) << "'");
 			continue;
 		}
 

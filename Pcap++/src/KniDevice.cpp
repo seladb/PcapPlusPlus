@@ -97,7 +97,7 @@ KniDevice::KniThread::~KniThread()
 		if (err != 0)
 		{
 			const char* errs = std::strerror(err);
-			LOG_DEBUG("KNI failed to join pthread. pthread_join returned an error: %s", errs);
+			LOG_DEBUG("KNI failed to join pthread. pthread_join returned an error: " << errs);
 		}
 	}
 }
@@ -141,7 +141,7 @@ inline KniDevice::KniLinkState setKniDeviceLinkState(
 		oldState = (KniDevice::KniLinkState)rte_kni_update_link(kni, state);
 		if (oldState == KniDevice::LINK_ERROR)
 		{	//? NOTE(echo-Mike): Not LOG_ERROR because will generate a lot of junk messages on some DPDK versions
-			LOG_DEBUG("DPDK KNI Failed to update links state for device \"%s\"", deviceName);
+			LOG_DEBUG("DPDK KNI Failed to update links state for device '" << deviceName << "'");
 		}
 	#else
 		// To avoid compiler warnings
@@ -173,7 +173,7 @@ inline struct rte_mempool* createMempool(size_t mempoolSize, int unique, const c
 	}
 	else
 	{
-		LOG_DEBUG("Successfully initialized packets pool of size [%lu] for KNI device [%s]", (unsigned long)mempoolSize, deviceName);
+		LOG_DEBUG("Successfully initialized packets pool of size [" << mempoolSize << "] for KNI device [" << deviceName << "]");
 	}
 	return result;
 }
@@ -282,7 +282,7 @@ KniDevice::KniLinkState KniDevice::getLinkState(KniInfoState state)
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain interface link state from Linux");
-		LOG_DEBUG("Last known link state for device \"%s\" is returned", m_DeviceInfo.name.c_str());
+		LOG_DEBUG("Last known link state for device '" << m_DeviceInfo.name << "' is returned");
 		return m_DeviceInfo.link;
 	}
 	return m_DeviceInfo.link = KniLinkState(req.ifr_flags & IFF_UP);
@@ -298,7 +298,7 @@ MacAddress KniDevice::getMacAddress(KniInfoState state)
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFHWADDR, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain MAC address from Linux");
-		LOG_DEBUG("Last known MAC address for device \"%s\" is returned", m_DeviceInfo.name.c_str());
+		LOG_DEBUG("Last known MAC address for device '" << m_DeviceInfo.name << "' is returned");
 		return m_DeviceInfo.mac;
 	}
 	return m_DeviceInfo.mac = MacAddress((uint8_t*)req.ifr_hwaddr.sa_data);
@@ -313,7 +313,7 @@ uint16_t KniDevice::getMtu(KniInfoState state)
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFMTU, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain interface MTU from Linux");
-		LOG_DEBUG("Last known MTU for device \"%s\" is returned", m_DeviceInfo.name.c_str());
+		LOG_DEBUG("Last known MTU for device '" << m_DeviceInfo.name << "' is returned");
 		return m_DeviceInfo.mtu;
 	}
 	return m_DeviceInfo.mtu = req.ifr_mtu;
@@ -328,7 +328,7 @@ KniDevice::KniPromiscuousMode KniDevice::getPromiscuous(KniInfoState state)
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
 	{
 		LOG_ERROR("DPDK KNI failed to obtain interface Promiscuous mode from Linux");
-		LOG_DEBUG("Last known Promiscuous mode for device \"%s\" is returned", m_DeviceInfo.name.c_str());
+		LOG_DEBUG("Last known Promiscuous mode for device '" << m_DeviceInfo.name << "' is returned");
 		return m_DeviceInfo.promisc;
 	}
 	return m_DeviceInfo.promisc = (req.ifr_flags & IFF_PROMISC) ? KniDevice::PROMISC_ENABLE : KniDevice::PROMISC_DISABLE;
@@ -474,7 +474,7 @@ void KniDevice::stopRequestHandlerThread()
 {
 	if (m_Requests.thread == NULL)
 	{
-		LOG_DEBUG("Attempt to stop not running KNI request thread for device \"%s\"", m_DeviceInfo.name.c_str());
+		LOG_DEBUG("Attempt to stop not running KNI request thread for device '" << m_DeviceInfo.name << "'");
 		return;
 	}
 	m_Requests.cleanup();
@@ -547,8 +547,6 @@ uint16_t KniDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPa
 	struct rte_mbuf** mBufArray = CPP_VLA(struct rte_mbuf*, rawPacketArrLength);
 	uint16_t packetsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
 
-	//LOG_DEBUG("KNI Captured %d packets", rawPacketArrLength);
-
 	if (unlikely(packetsReceived <= 0))
 	{
 		return 0;
@@ -589,8 +587,6 @@ uint16_t KniDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLengt
 
 	struct rte_mbuf** mBufArray = CPP_VLA(struct rte_mbuf*, packetsArrLength);
 	uint16_t packetsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
-
-	//LOG_DEBUG("KNI Captured %d packets", packetsArrLength);
 
 	if (unlikely(packetsReceived <= 0))
 	{
@@ -831,7 +827,7 @@ void* KniDevice::KniCapturing::runCapture(void* devicePointer)
 	struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
 	struct rte_kni* kni = device->m_Device;
 
-	LOG_DEBUG("Starting KNI capture thread for device \"%s\"", device->m_DeviceInfo.name.c_str());
+	LOG_DEBUG("Starting KNI capture thread for device '" << device->m_DeviceInfo.name << "'");
 
 	for(;;)
 	{
@@ -893,7 +889,7 @@ bool KniDevice::startCapture(
 	m_Capturing.thread = new KniThread(KniThread::JOINABLE, KniCapturing::runCapture, (void*)this);
 	if (m_Capturing.thread->m_CleanupState == KniThread::INVALID)
 	{
-		LOG_DEBUG("KNI failed to start capturing thread on device \"%s\"",  m_DeviceInfo.name.c_str());
+		LOG_DEBUG("KNI failed to start capturing thread on device '" << m_DeviceInfo.name << "'");
 		delete m_Capturing.thread;
 		return false;
 	}
@@ -905,7 +901,7 @@ void KniDevice::stopCapture()
 {
 	if (m_Capturing.thread == NULL)
 	{
-		LOG_DEBUG("Attempt to stop not running KNI capturing thread for device \"%s\"", m_DeviceInfo.name.c_str());
+		LOG_DEBUG("Attempt to stop not running KNI capturing thread for device '" << m_DeviceInfo.name << "'");
 		return;
 	}
 	m_Capturing.cleanup();

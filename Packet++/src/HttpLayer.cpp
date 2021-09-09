@@ -204,10 +204,14 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 		m_IsComplete = false;
 	}
 
-	LOG_DEBUG("Method='%s'; HTTP version='%s'; URI='%s'",
-			m_Method == HttpRequestLayer::HttpMethodUnknown? "Unknown" : MethodEnumToString[m_Method].c_str(),
-			VersionEnumToString[m_Version].c_str(),
-			getUri().c_str());
+	if (Logger::getInstance().isDebugEnabled(PacketLogModuleHttpLayer))
+	{
+		std::string method = m_Method == HttpRequestLayer::HttpMethodUnknown? "Unknown" : MethodEnumToString[m_Method];
+		LOG_DEBUG(
+			"Method='" << method << "'; "
+			<< "HTTP version='" << VersionEnumToString[m_Version] << "'; "
+			<< "URI='" << getUri() << "'");
+	}
 }
 
 HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, std::string uri)
@@ -1255,10 +1259,12 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 		m_IsComplete = false;
 	}
 
-	LOG_DEBUG("Version='%s'; Status code=%d '%s'",
-			m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version].c_str(),
-			m_StatusCode == HttpResponseLayer::HttpStatusCodeUnknown ? 0 : StatusCodeEnumToInt[m_StatusCode],
-			getStatusCodeString().c_str());
+	if (Logger::getInstance().isDebugEnabled(PacketLogModuleHttpLayer))
+	{
+		std::string version = (m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version]);
+		int statusCode = (m_StatusCode == HttpResponseLayer::HttpStatusCodeUnknown ? 0 : StatusCodeEnumToInt[m_StatusCode]);
+		LOG_DEBUG("Version='" << version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
+	}
 }
 
 

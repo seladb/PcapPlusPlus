@@ -27,11 +27,7 @@ openLinuxNicInformationSocket()
 	if (soc < 0)
 	{
 		const char* error = std::strerror(errno);
-		LOG_DEBUG(
-			"Can't open Linux information socket."
-			"Errno string: %s",
-			error
-		);
+		LOG_DEBUG("Can't open Linux information socket. Errno string: "<< error);
 		return soc = INVALID_SOCKET_VALUE;
 	}
 	return soc;

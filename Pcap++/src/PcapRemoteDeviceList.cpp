@@ -26,7 +26,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 
 	char portAsCharArr[6];
 	sprintf(portAsCharArr, "%d", port);
-	LOG_DEBUG("Searching remote devices on IP: %s and port: %d", ipAddress.toString().c_str(), port);
+	LOG_DEBUG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
 	char errbuf[PCAP_ERRBUF_SIZE];
 	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), portAsCharArr, NULL, errbuf) != 0)
@@ -35,13 +35,13 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 		return NULL;
 	}
 
-	LOG_DEBUG("Remote capture string: %s", remoteCaptureString);
+	LOG_DEBUG("Remote capture string: " << remoteCaptureString);
 
 	pcap_rmtauth* pRmAuth = NULL;
 	pcap_rmtauth rmAuth;
 	if (remoteAuth != NULL)
 	{
-		LOG_DEBUG("Authentication requested. Username: %s, Password: %s", remoteAuth->userName.c_str(), remoteAuth->password.c_str());
+		LOG_DEBUG("Authentication requested. Username: " << remoteAuth->userName << ", Password: " << remoteAuth->password);
 		rmAuth = remoteAuth->getPcapRmAuth();
 		pRmAuth = &rmAuth;
 	}
@@ -108,14 +108,14 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 	LOG_DEBUG("Searching all remote devices in list...");
 	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
+		LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
 				internal::sockaddr2string(addrIter->addr, addrAsString);
-				LOG_DEBUG("Searching address %s", addrAsString);
+				LOG_DEBUG("Searching address " << addrAsString);
 			}
 
 			in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
@@ -142,14 +142,14 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 	LOG_DEBUG("Searching all remote devices in list...");
 	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
+		LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
 				internal::sockaddr2string(addrIter->addr, addrAsString);
-				LOG_DEBUG("Searching address %s", addrAsString);
+				LOG_DEBUG("Searching address " << addrAsString);
 			}
 
 			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter->addr);

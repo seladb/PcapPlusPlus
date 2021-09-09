@@ -79,7 +79,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	m_Name = pInterface->name;
 	if (pInterface->description != NULL)
 		m_Description = pInterface->description;
-	LOG_DEBUG("Added live device: name=%s; desc=%s", m_Name.c_str(), m_Description.c_str());
+	LOG_DEBUG("Added live device: name=" << m_Name << "; desc=" << m_Description);
 	LOG_DEBUG("   Addresses:");
 	while (pInterface->addresses != NULL)
 	{
@@ -89,20 +89,20 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
 			internal::sockaddr2string(pInterface->addresses->addr, addrAsString);
-			LOG_DEBUG("      %s", addrAsString);
+			LOG_DEBUG("      " << addrAsString);
 		}
 	}
 
 	if (calculateMTU)
 	{
 		setDeviceMtu();
-		LOG_DEBUG("   MTU: %d", (int)m_DeviceMtu);
+		LOG_DEBUG("   MTU: " << m_DeviceMtu);
 	}
 
 	if (calculateDefaultGateway)
 	{
 		setDefaultGateway();
-		LOG_DEBUG("   Default Gateway: %s", m_DefaultGateway.toString().c_str());
+		LOG_DEBUG("   Default Gateway: " << m_DefaultGateway);
 	}
 
 	//init all other members
@@ -127,7 +127,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	{
 		setDeviceMacAddress();
 		if (m_MacAddress.isValid())
-			LOG_DEBUG("   MAC addr: %s", m_MacAddress.toString().c_str());
+			LOG_DEBUG("   MAC addr: " << m_MacAddress);
 	}
 }
 
@@ -186,7 +186,7 @@ void* PcapLiveDevice::captureThreadMain(void* ptr)
 		return 0;
 	}
 
-	LOG_DEBUG("Started capture thread for device '%s'", pThis->m_Name.c_str());
+	LOG_DEBUG("Started capture thread for device '" << pThis->m_Name << "'");
 	if (pThis->m_CaptureCallbackMode)
 	{
 		while (!pThis->m_StopThread)
@@ -197,7 +197,7 @@ void* PcapLiveDevice::captureThreadMain(void* ptr)
 		while (!pThis->m_StopThread)
 			pcap_dispatch(pThis->m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)pThis);
 	}
-	LOG_DEBUG("Ended capture thread for device '%s'", pThis->m_Name.c_str());
+	LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
 	return 0;
 }
 
@@ -210,7 +210,7 @@ void* PcapLiveDevice::statsThreadMain(void* ptr)
 		return 0;
 	}
 
-	LOG_DEBUG("Started stats thread for device '%s'", pThis->m_Name.c_str());
+	LOG_DEBUG("Started stats thread for device '" << pThis->m_Name << "'");
 	while (!pThis->m_StopThread)
 	{
 		PcapStats stats;
@@ -218,7 +218,7 @@ void* PcapLiveDevice::statsThreadMain(void* ptr)
 		pThis->m_cbOnStatsUpdate(stats, pThis->m_cbOnStatsUpdateUserCookie);
 		multiPlatformSleep(pThis->m_IntervalToUpdateStats);
 	}
-	LOG_DEBUG("Ended stats thread for device '%s'", pThis->m_Name.c_str());
+	LOG_DEBUG("Ended stats thread for device '" << pThis->m_Name << "'");
 	return 0;
 }
 
@@ -308,11 +308,11 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		const char* dlt_name = pcap_datalink_val_to_name(dlt);
 		if (dlt_name)
 		{
-			LOG_DEBUG("link-type %u: %s (%s)\n", dlt, dlt_name, pcap_datalink_val_to_description(dlt));
+			LOG_DEBUG("link-type " << dlt << ": " << dlt_name << " (" << pcap_datalink_val_to_description(dlt) << ")");
 		}
 		else
 		{
-			LOG_DEBUG("link-type %u\n", dlt);
+			LOG_DEBUG("link-type " << dlt);
 		}
 
 		m_LinkType = static_cast<LinkLayerType>(dlt);
@@ -324,7 +324,7 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 {
 	if (m_DeviceOpened)
 	{
-		LOG_DEBUG("Device '%s' already opened", m_Name.c_str());
+		LOG_DEBUG("Device '" << m_Name << "' already opened");
 		return true;
 	}
 
@@ -336,7 +336,7 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 		return false;
 	}
 
-	LOG_DEBUG("Device '%s' opened", m_Name.c_str());
+	LOG_DEBUG("Device '" << m_Name << "' opened");
 
 	m_DeviceOpened = true;
 
@@ -353,7 +353,7 @@ void PcapLiveDevice::close()
 {
 	if (m_PcapDescriptor == NULL && m_PcapSendDescriptor == NULL)
 	{
-		LOG_DEBUG("Device '%s' already closed", m_Name.c_str());
+		LOG_DEBUG("Device '" << m_Name << "' already closed");
 		return;
 	}
 
@@ -367,7 +367,7 @@ void PcapLiveDevice::close()
 	}
 
 	m_DeviceOpened = false;
-	LOG_DEBUG("Device '%s' closed", m_Name.c_str());
+	LOG_DEBUG("Device '" << m_Name << "' closed");
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
@@ -406,7 +406,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 		return false;
 	}
 	m_CaptureThreadStarted = true;
-	LOG_DEBUG("Successfully created capture thread for device '%s'. Thread id: %s", m_Name.c_str(), printThreadId(m_CaptureThread).c_str());
+	LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << printThreadId(m_CaptureThread));
 
 	if (onStatsUpdate != NULL && intervalInSecondsToUpdateStats > 0)
 	{
@@ -419,7 +419,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 			return false;
 		}
 		m_StatsThreadStarted = true;
-		LOG_DEBUG("Successfully created stats thread for device '%s'. Thread id: %s", m_Name.c_str(), printThreadId(m_StatsThread).c_str());
+		LOG_DEBUG("Successfully created stats thread for device '" << m_Name << "'. Thread id: " << printThreadId(m_StatsThread));
 	}
 
 	return true;
@@ -450,7 +450,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 		return false;
 	}
 	m_CaptureThreadStarted = true;
-	LOG_DEBUG("Successfully created capture thread for device '%s'. Thread id: %s", m_Name.c_str(), printThreadId(m_CaptureThread).c_str());
+	LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << printThreadId(m_CaptureThread));
 
 	return true;
 }
@@ -529,13 +529,13 @@ void PcapLiveDevice::stopCapture()
 		pthread_join(m_CaptureThread->pthread, NULL);
 		m_CaptureThreadStarted = false;
 	}
-	LOG_DEBUG("Capture thread stopped for device '%s'", m_Name.c_str());
+	LOG_DEBUG("Capture thread stopped for device '" << m_Name << "'");
 	if (m_StatsThreadStarted)
 	{
 		LOG_DEBUG("Stopping stats thread, waiting for it to join...");
 		pthread_join(m_StatsThread->pthread, NULL);
 		m_StatsThreadStarted = false;
-		LOG_DEBUG("Stats thread stopped for device '%s'", m_Name.c_str());
+		LOG_DEBUG("Stats thread stopped for device '" << m_Name << "'");
 	}
 
 	multiPlatformSleep(1);
@@ -616,7 +616,7 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 		return false;
 	}
 
-	LOG_DEBUG("Packet sent successfully. Packet length: %d", packetDataLength);
+	LOG_DEBUG("Packet sent successfully. Packet length: " << packetDataLength);
 	return true;
 }
 
@@ -652,7 +652,7 @@ int PcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength, bool ch
 			packetsSent++;
 	}
 
-	LOG_DEBUG("%d packets sent successfully. %d packets not sent", packetsSent, arrLength-packetsSent);
+	LOG_DEBUG(packetsSent << " packets sent successfully. " << arrLength-packetsSent << " packets not sent");
 	return packetsSent;
 }
 
@@ -665,7 +665,7 @@ int PcapLiveDevice::sendPackets(Packet** packetsArr, int arrLength, bool checkMt
 			packetsSent++;
 	}
 
-	LOG_DEBUG("%d packets sent successfully. %d packets not sent", packetsSent, arrLength-packetsSent);
+	LOG_DEBUG(packetsSent << " packets sent successfully. " << arrLength-packetsSent << " packets not sent");
 	return packetsSent;
 }
 
@@ -678,7 +678,7 @@ int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu
 			packetsSent++;
 	}
 
-	LOG_DEBUG("%d packets sent successfully. %d packets not sent", packetsSent, (int)rawPackets.size()-packetsSent);
+	LOG_DEBUG(packetsSent << " packets sent successfully. " << (rawPackets.size()-packetsSent) << " packets not sent");
 	return packetsSent;
 }
 
@@ -791,12 +791,12 @@ void PcapLiveDevice::setDeviceMacAddress()
 			/* copy value from driver */
 			m_MacAddress = MacAddress(oidData->Data[0], oidData->Data[1], oidData->Data[2], oidData->Data[3], oidData->Data[4], oidData->Data[5]);
 #pragma GCC diagnostic pop
-			LOG_DEBUG("   MAC address: %s", m_MacAddress.toString().c_str());
+			LOG_DEBUG("   MAC address: " << m_MacAddress);
 		}
 		else
 		{
 			/* the driver returned a value that is longer than expected (and longer than the given buffer) */
-			LOG_DEBUG("Error in retrieving MAC address: Size of Oid larger than 6, OidLen:%lu", oidData->Length);
+			LOG_DEBUG("Error in retrieving MAC address: Size of Oid larger than 6, OidLen: " << oidData->Length);
 			return;
 		}
 	}
@@ -942,7 +942,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
 			internal::sockaddr2string(addrIter->addr, addrAsString);
-			LOG_DEBUG("Searching address %s", addrAsString);
+			LOG_DEBUG("Searching address " << addrAsString);
 		}
 
 		in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);

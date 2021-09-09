@@ -34,7 +34,7 @@ bool PcapRemoteDevice::open()
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
-	LOG_DEBUG("Opening device '%s'", m_Name.c_str());
+	LOG_DEBUG("Opening device '" << m_Name << "'");
 	pcap_rmtauth* pRmAuth = NULL;
 	pcap_rmtauth rmAuth;
 	if (m_RemoteAuthentication != NULL)
@@ -65,7 +65,7 @@ bool PcapRemoteDevice::open()
 		return false;
 	}
 
-	LOG_DEBUG("Device '%s' opened", m_Name.c_str());
+	LOG_DEBUG("Device '" << m_Name << "' opened");
 
 	return true;
 }
@@ -79,7 +79,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 		return 0;
 	}
 
-	LOG_DEBUG("Started capture thread for device '%s'", pThis->m_Name.c_str());
+	LOG_DEBUG("Started capture thread for device '" << pThis->m_Name << "'");
 
 	pcap_pkthdr* pkthdr;
 	const uint8_t* pktData;
@@ -100,7 +100,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 				onPacketArrivesNoCallback((uint8_t*)pThis, pkthdr, pktData);
 		}
 	}
-	LOG_DEBUG("Ended capture thread for device '%s'", pThis->m_Name.c_str());
+	LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
 	return 0;
 }
 

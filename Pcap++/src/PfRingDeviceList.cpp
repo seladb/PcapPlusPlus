@@ -45,7 +45,7 @@ PfRingDeviceList::PfRingDeviceList()
 			pfring_close(ring);
 			PfRingDevice* newDev = new PfRingDevice(currInterface->name);
 			m_PfRingDeviceList.push_back(newDev);
-			LOG_DEBUG("Found interface: %s", currInterface->name);
+			LOG_DEBUG("Found interface: " << currInterface->name);
 		}
 
 		currInterface = currInterface->next;
@@ -72,7 +72,7 @@ PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string devName)
 			return (*devIter);
 	}
 
-	LOG_DEBUG("Found no PF_RING devices with name '%s'", devName.c_str());
+	LOG_DEBUG("Found no PF_RING devices with name '" << devName << "'");
 	return NULL;
 }
 
@@ -92,7 +92,7 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
 	  (version & 0x0000FF00) >> 8,
 	  version & 0x000000FF);
 
-	LOG_DEBUG("PF_RING version is: %s", versionAsString);
+	LOG_DEBUG("PF_RING version is: " << versionAsString);
 	m_PfRingVersion = std::string(versionAsString);
 }
 

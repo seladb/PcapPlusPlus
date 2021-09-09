@@ -396,7 +396,7 @@ void BgpUpdateMessageLayer::parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLe
     }
     else
     {
-      LOG_DEBUG("Illegal prefix value %d", (int)wr.prefix);
+      LOG_DEBUG("Illegal prefix value " << (int)wr.prefix);
       break; // illegal value
     }
 

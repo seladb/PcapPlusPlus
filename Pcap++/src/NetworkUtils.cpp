@@ -269,7 +269,7 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 		// if response doesn't contain hostname or cname - return
 		if (dnsAnswer == NULL)
 		{
-			LOG_DEBUG("DNS answer doesn't contain hostname '%s'", hostToFind.c_str());
+			LOG_DEBUG("DNS answer doesn't contain hostname '" << hostToFind << "'");
 			return;
 		}
 
@@ -277,13 +277,13 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 		// if answer contains IPv4 resolving - break the loop and return the IP address
 		if (dnsType == DNS_TYPE_A)
 		{
-			LOG_DEBUG("Found IPv4 resolving for hostname '%s'", hostToFind.c_str());
+			LOG_DEBUG("Found IPv4 resolving for hostname '" << hostToFind << "'");
 			break;
 		}
 		// if answer contains a cname - continue to search this cname in the packet - hopefully find the IP resolving
 		else if (dnsType == DNS_TYPE_CNAME)
 		{
-			LOG_DEBUG("Got a DNS response for hostname '%s' with CNAME '%s'", hostToFind.c_str(), dnsAnswer->getData()->toString().c_str());
+			LOG_DEBUG("Got a DNS response for hostname '" << hostToFind << "' with CNAME '" << dnsAnswer->getData()->toString() << "'");
 			hostToFind = dnsAnswer->getData()->toString();
 		}
 		// if answer is of type other than A or CNAME (for example AAAA - IPv6) - type is not supported - return

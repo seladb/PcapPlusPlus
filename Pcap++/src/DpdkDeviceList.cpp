@@ -116,7 +116,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 
 	for (i = 0; i < initDpdkArgc; i++)
 	{
-		LOG_DEBUG("DPDK initialization params: %s", initDpdkArgv[i]);
+		LOG_DEBUG("DPDK initialization params: " << initDpdkArgv[i]);
 	}
 
 	optind = 1;
@@ -166,18 +166,13 @@ bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice)
 		return false;
 	}
 
-	LOG_DEBUG("Found %d DPDK ports. Constructing DpdkDevice for each one", numOfPorts);
+	LOG_DEBUG("Found " << numOfPorts << " DPDK ports. Constructing DpdkDevice for each one");
 
 	// Initialize a DpdkDevice per port
 	for (int i = 0; i < numOfPorts; i++)
 	{
 		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice);
-		LOG_DEBUG("DpdkDevice #%d: Name='%s', PCI-slot='%s', PMD='%s', MAC Addr='%s'",
-				i,
-				newDevice->getDeviceName().c_str(),
-				newDevice->getPciAddress().c_str(),
-				newDevice->getPMDName().c_str(),
-				newDevice->getMacAddress().toString().c_str());
+		LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='" << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName() << "', MAC Addr='" << newDevice->getMacAddress() << "'");
 		m_DpdkDeviceList.push_back(newDevice);
 	}
 
@@ -228,7 +223,7 @@ bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 	char* endPtr;
 	long totalHugePages = strtol(execResult.c_str(), &endPtr, 10);
 
-	LOG_DEBUG("Total number of huge-pages is %lu", totalHugePages);
+	LOG_DEBUG("Total number of huge-pages is " << totalHugePages);
 
 	if (totalHugePages <= 0)
 	{
@@ -357,7 +352,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 			{
 				(*iter)->stop();
 				rte_eal_wait_lcore((*iter)->getCoreId());
-				LOG_DEBUG("Thread on core [%d] stopped", (*iter)->getCoreId());
+				LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 			}
 			LOG_ERROR("Cannot create worker thread #%d. Error was: [%s]", core.Id, strerror(err));
 			return false;
@@ -383,7 +378,7 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 	{
 		(*iter)->stop();
 		rte_eal_wait_lcore((*iter)->getCoreId());
-		LOG_DEBUG("Thread on core [%d] stopped", (*iter)->getCoreId());
+		LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 	}
 
 	m_WorkerThreads.clear();

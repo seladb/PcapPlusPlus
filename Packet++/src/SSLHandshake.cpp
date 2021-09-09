@@ -1849,7 +1849,7 @@ SSLCertificateMessage::SSLCertificateMessage(uint8_t* data, size_t dataLen, SSLH
 			certificateFull = false;
 		}
 
-		LOG_DEBUG("Parsing certificate: pos=%d; len=%d\n", (int)(curPos-data), (int)certificateLength);
+		LOG_DEBUG("Parsing certificate: pos=" << (int)(curPos-data) << "; len=" << certificateLength);
 		SSLx509Certificate* newCert = new SSLx509Certificate(curPos, certificateLength, certificateFull);
 		m_CertificateList.pushBack(newCert);
 
@@ -1871,7 +1871,7 @@ SSLx509Certificate* SSLCertificateMessage::getCertificate(int index) const
 {
 	if (index < 0 || index > (int)m_CertificateList.size())
 	{
-		LOG_DEBUG("certificate index out of range: asked for index %d, total size is %d", index, (int)m_CertificateList.size());
+		LOG_DEBUG("certificate index out of range: asked for index " << index << ", total size is " << m_CertificateList.size());
 		return NULL;
 	}
 
