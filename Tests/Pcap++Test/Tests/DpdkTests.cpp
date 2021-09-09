@@ -245,10 +245,10 @@ PTF_TEST_CASE(TestDpdkInitDevice)
 	pcpp::DpdkDeviceList& devList = pcpp::DpdkDeviceList::getInstance();
 	PTF_ASSERT_GREATER_THAN(devList.getDpdkDeviceList().size(), 0);
 
-	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), pcpp::Logger::Normal, enum);
+	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), pcpp::Logger::Info, enum);
 	devList.setDpdkLogLevel(pcpp::Logger::Debug);
 	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), pcpp::Logger::Debug, enum);
-	devList.setDpdkLogLevel(pcpp::Logger::Normal);
+	devList.setDpdkLogLevel(pcpp::Logger::Info);
 #else
 	PTF_SKIP_TEST("DPDK not configured");
 #endif
