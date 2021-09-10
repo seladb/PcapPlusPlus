@@ -228,25 +228,25 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	pcap_t* pcap = pcap_create(m_Name.c_str(), errbuf);
 	if (!pcap)
 	{
-		LOG_ERROR("%s", errbuf);
+		LOG_ERROR(errbuf);
 		return pcap;
 	}
 	int ret = pcap_set_snaplen(pcap, config.snapshotLength <= 0 ? DEFAULT_SNAPLEN : config.snapshotLength);
 	if (ret != 0)
 	{
-		LOG_ERROR("%s", pcap_geterr(pcap));
+		LOG_ERROR(pcap_geterr(pcap));
 	}
 	ret = pcap_set_promisc(pcap, config.mode);
 	if (ret != 0)
 	{
-		LOG_ERROR("%s", pcap_geterr(pcap));
+		LOG_ERROR(pcap_geterr(pcap));
 	}
 
 	int timeout = (config.packetBufferTimeoutMs <= 0 ? LIBPCAP_OPEN_LIVE_TIMEOUT : config.packetBufferTimeoutMs);
 	ret = pcap_set_timeout(pcap, timeout);
 	if (ret != 0)
 	{
-		LOG_ERROR("%s", pcap_geterr(pcap));
+		LOG_ERROR(pcap_geterr(pcap));
 	}
 
 	if (config.packetBufferSize >= 100)
@@ -254,7 +254,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 		ret = pcap_set_buffer_size(pcap, config.packetBufferSize);
 		if (ret != 0)
 		{
-			LOG_ERROR("%s", pcap_geterr(pcap));
+			LOG_ERROR(pcap_geterr(pcap));
 		}
 	}
 
@@ -266,14 +266,14 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	}
 	else
 	{
-		LOG_ERROR("Failed to activate immediate mode, error code: '%d', error message: '%s'", ret, pcap_geterr(pcap));
+		LOG_ERROR("Failed to activate immediate mode, error code: '" << ret << "', error message: '" << pcap_geterr(pcap) << "'");
 	}
 #endif
 
 	ret = pcap_activate(pcap);
 	if (ret != 0)
 	{
-		LOG_ERROR("%s", pcap_geterr(pcap));
+		LOG_ERROR(pcap_geterr(pcap));
 		pcap_close(pcap);
 		pcap = NULL;
 	}
@@ -298,7 +298,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	}
 	else
 	{
-		LOG_ERROR("Failed to set direction for capturing packets, error code: '%d', error message: '%s'", ret, pcap_geterr(pcap));
+		LOG_ERROR("Failed to set direction for capturing packets, error code: '" << ret << "', error message: '" << pcap_geterr(pcap) << "'");
 	}
 #endif
 
@@ -384,13 +384,13 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
 	}
 
 	if (m_CaptureThreadStarted)
 	{
-		LOG_ERROR("Device '%s' already capturing traffic", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return false;
 	}
 
@@ -402,7 +402,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	int err = pthread_create(&(m_CaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
 	if (err != 0)
 	{
-		LOG_ERROR("Cannot create LiveCapture thread for device '%s': [%s]", m_Name.c_str(), strerror(err));
+		LOG_ERROR("Cannot create LiveCapture thread for device '" << m_Name << "': [" << strerror(err) << "]");
 		return false;
 	}
 	m_CaptureThreadStarted = true;
@@ -415,7 +415,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 		int err = pthread_create(&(m_StatsThread->pthread), NULL, &statsThreadMain, (void*)this);
 		if (err != 0)
 		{
-			LOG_ERROR("Cannot create LiveCapture Statistics thread for device '%s': [%s]", m_Name.c_str(), strerror(err));
+			LOG_ERROR("Cannot create LiveCapture Statistics thread for device '" << m_Name << "': [" << strerror(err) << "]");
 			return false;
 		}
 		m_StatsThreadStarted = true;
@@ -429,13 +429,13 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
 	}
 
 	if (m_CaptureThreadStarted)
 	{
-		LOG_ERROR("Device '%s' already capturing traffic", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return false;
 	}
 
@@ -446,7 +446,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 	int err = pthread_create(&(m_CaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
 	if (err != 0)
 	{
-		LOG_ERROR("Cannot create LiveCapture thread for device '%s': [%s]", m_Name.c_str(), strerror(err));
+		LOG_ERROR("Cannot create LiveCapture thread for device '" << m_Name << "': [" << strerror(err) << "]");
 		return false;
 	}
 	m_CaptureThreadStarted = true;
@@ -460,13 +460,13 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' not opened");
 		return 0;
 	}
 
 	if (m_CaptureThreadStarted)
 	{
-		LOG_ERROR("Device '%s' already capturing traffic", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return 0;
 	}
 
@@ -552,7 +552,7 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	pcap_stat pcapStats;
 	if (pcap_stats(m_PcapDescriptor, &pcapStats) < 0)
 	{
-		LOG_ERROR("Error getting statistics from live device '%s'", m_Name.c_str());
+		LOG_ERROR("Error getting statistics from live device '" << m_Name << "'");
 	}
 
 	stats.packetsRecv = pcapStats.ps_recv;
@@ -564,7 +564,7 @@ bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
 {
 	if (packetPayloadLength > (int)m_DeviceMtu)
 	{
-		LOG_ERROR("Payload length [%d] is larger than device MTU [%d]\n", packetPayloadLength, (int)m_DeviceMtu);
+		LOG_ERROR("Payload length [" << packetPayloadLength << "] is larger than device MTU [" << m_DeviceMtu << "]");
 		return false;
 	}
 	return true;
@@ -600,7 +600,7 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 
 	if (!m_DeviceOpened)
 	{
-		LOG_ERROR("Device '%s' not opened!", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' not opened!");
 		return false;
 	}
 
@@ -612,7 +612,7 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 
 	if (pcap_sendpacket(m_PcapSendDescriptor, packetData, packetDataLength) == -1)
 	{
-		LOG_ERROR("Error sending packet: %s\n", pcap_geterr(m_PcapSendDescriptor));
+		LOG_ERROR("Error sending packet: " << pcap_geterr(m_PcapSendDescriptor));
 		return false;
 	}
 
@@ -739,7 +739,7 @@ void PcapLiveDevice::setDeviceMtu()
 		else
 		{
 			/* the driver returned a value that is longer than expected (and longer than the given buffer) */
-			LOG_ERROR("Error in retrieving MTU: Size of Oid larger than uint32_t, OidLen:%lu", oidData->Length);
+			LOG_ERROR("Error in retrieving MTU: Size of Oid larger than uint32_t, OidLen: " << oidData->Length);
 			return;
 		}
 	}

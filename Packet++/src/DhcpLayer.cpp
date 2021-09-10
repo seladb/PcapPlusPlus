@@ -17,7 +17,7 @@ DhcpOption DhcpOptionBuilder::build() const
 	{
 		if (m_RecValueLen != 0)
 		{
-			LOG_ERROR("Can't set DHCP END option or DHCP PAD option with size different than 0, tried to set size %d", m_RecValueLen);
+			LOG_ERROR("Can't set DHCP END option or DHCP PAD option with size different than 0, tried to set size " << (int)m_RecValueLen);
 			return DhcpOption(NULL);
 		}
 
@@ -225,7 +225,7 @@ DhcpOption DhcpLayer::addOptionAt(const DhcpOptionBuilder& optionBuilder, int of
 
 	if (newOpt.isNull())
 	{
-		LOG_ERROR("Cannot build new option of type %d", (int)newOpt.getType());
+		LOG_ERROR("Cannot build new option of type " << (int)newOpt.getType());
 		return DhcpOption(NULL);
 	}
 
@@ -233,7 +233,7 @@ DhcpOption DhcpLayer::addOptionAt(const DhcpOptionBuilder& optionBuilder, int of
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend DhcpLayer in [%d] bytes", (int)newOpt.getTotalSize());
+		LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
 		return DhcpOption(NULL);
 	}
 

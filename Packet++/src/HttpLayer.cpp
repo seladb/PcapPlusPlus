@@ -19,7 +19,7 @@ HeaderField* HttpMessage::addField(const std::string& fieldName, const std::stri
 {
 	if (getFieldByName(fieldName) != NULL)
 	{
-		LOG_ERROR("Field '%s' already exists!", fieldName.c_str());
+		LOG_ERROR("Field '" << fieldName << "' already exists!");
 		return NULL;
 	}
 
@@ -30,7 +30,7 @@ HeaderField* HttpMessage::addField(const HeaderField& newField)
 {
 	if (getFieldByName(newField.getFieldName()) != NULL)
 	{
-		LOG_ERROR("Field '%s' already exists!",newField.getFieldName().c_str());
+		LOG_ERROR("Field '" << newField.getFieldName() << "' already exists!");
 		return NULL;
 	}
 
@@ -41,7 +41,7 @@ HeaderField* HttpMessage::insertField(HeaderField* prevField, const std::string&
 {
 	if (getFieldByName(fieldName) != NULL)
 	{
-		LOG_ERROR("Field '%s' already exists!", fieldName.c_str());
+		LOG_ERROR("Field '" << fieldName << "' already exists!");
 		return NULL;
 	}
 
@@ -52,7 +52,7 @@ HeaderField* HttpMessage::insertField(HeaderField* prevField, const HeaderField&
 {
 	if (getFieldByName(newField.getFieldName()) != NULL)
 	{
-		LOG_ERROR("Field '%s' already exists!",newField.getFieldName().c_str());
+		LOG_ERROR("Field '" << newField.getFieldName() << "' already exists!");
 		return NULL;
 	}
 

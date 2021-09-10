@@ -88,7 +88,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	bool isPoolSizePowerOfTwoMinusOne = !(mBufPoolSizePerDevice == 0) && !((mBufPoolSizePerDevice+1) & (mBufPoolSizePerDevice));
 	if (!isPoolSizePowerOfTwoMinusOne)
 	{
-		LOG_ERROR("mBuf pool size must be a power of two minus one: n = (2^q - 1). It's currently: %d", mBufPoolSizePerDevice);
+		LOG_ERROR("mBuf pool size must be a power of two minus one: n = (2^q - 1). It's currently: " << mBufPoolSizePerDevice);
 		return false;
 	}
 
@@ -305,7 +305,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 		{
 			if (!rte_lcore_is_enabled(coreNum))
 			{
-				LOG_ERROR("Trying to use core #%d which isn't initialized by DPDK", coreNum);
+				LOG_ERROR("Trying to use core #" << coreNum << " which isn't initialized by DPDK");
 				return false;
 			}
 
@@ -354,7 +354,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 				rte_eal_wait_lcore((*iter)->getCoreId());
 				LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 			}
-			LOG_ERROR("Cannot create worker thread #%d. Error was: [%s]", core.Id, strerror(err));
+			LOG_ERROR("Cannot create worker thread #" << core.Id << ". Error was: [" << strerror(err) << "]");
 			return false;
 		}
 		m_WorkerThreads.push_back(*iter);

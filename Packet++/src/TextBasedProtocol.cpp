@@ -273,7 +273,7 @@ bool TextBasedProtocolMessage::removeField(std::string fieldName, int index)
 		return removeField(fieldToRemove);
 	else
 	{
-		LOG_ERROR("Cannot find field '%s'", fieldName.c_str());
+		LOG_ERROR("Cannot find field '" << fieldName << "'");
 		return false;
 	}
 }

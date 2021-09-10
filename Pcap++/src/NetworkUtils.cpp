@@ -347,7 +347,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 
 	if (gatewayMacAddress == MacAddress::Zero)
 	{
-		LOG_ERROR("Coulnd't resolve gateway MAC address");
+		LOG_ERROR("Couldn't resolve gateway MAC address");
 		return result;
 	}
 
@@ -401,7 +401,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	PortFilter dnsResponseFilter(53, SRC);
 	if (!device->setFilter(dnsResponseFilter))
 	{
-		LOG_ERROR("Couldn't set DNS respnse filter");
+		LOG_ERROR("Couldn't set DNS response filter");
 		return result;
 	}
 

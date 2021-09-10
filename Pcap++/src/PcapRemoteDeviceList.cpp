@@ -31,7 +31,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 	char errbuf[PCAP_ERRBUF_SIZE];
 	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), portAsCharArr, NULL, errbuf) != 0)
 	{
-		LOG_ERROR("Error in creating the remote connection string. Error was: %s", errbuf);
+		LOG_ERROR("Error in creating the remote connection string. Error was: " << errbuf);
 		return NULL;
 	}
 
@@ -50,7 +50,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 	char errorBuf[PCAP_ERRBUF_SIZE];
 	if (pcap_findalldevs_ex(remoteCaptureString, pRmAuth, &interfaceList, errorBuf) < 0)
 	{
-		LOG_ERROR("Error retrieving device on remote machine. Error string is: %s", errorBuf);
+		LOG_ERROR("Error retrieving device on remote machine. Error string is: " << errorBuf);
 		return NULL;
 	}
 

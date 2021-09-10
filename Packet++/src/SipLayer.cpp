@@ -819,7 +819,7 @@ void SipResponseFirstLine::setVersion(std::string newVersion)
 
 	if (newVersion.length() != m_Version.length())
 	{
-		LOG_ERROR("Expected version length is %d characters in the format of SIP/x.y", (int)m_Version.length());
+		LOG_ERROR("Expected version length is " << m_Version.length() << " characters in the format of SIP/x.y");
 		return;
 	}
 

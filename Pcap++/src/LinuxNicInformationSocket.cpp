@@ -73,8 +73,8 @@ bool LinuxNicInformationSocket::makeRequest(
 		const char* error = std::strerror(errno);
 		LOG_ERROR(
 			"Request to Linux NIC incformation socket failed. "
-			"ioctl(2) failed with error string: %s",
-			error
+			"ioctl(2) failed with error string: "
+			<< error
 		);
 		return false;
 	}

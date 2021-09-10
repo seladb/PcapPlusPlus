@@ -47,7 +47,7 @@ TcpOption TcpOptionBuilder::build() const
 	{
 		if (m_RecValueLen != 0)
 		{
-			LOG_ERROR("TCP NOP and TCP EOL options are 1-byte long and don't have option value. Tried to set option value of size %d", m_RecValueLen);
+			LOG_ERROR("TCP NOP and TCP EOL options are 1-byte long and don't have option value. Tried to set option value of size " << m_RecValueLen);
 			return TcpOption(NULL);
 		}
 
@@ -125,7 +125,7 @@ TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, Tcp
 		TcpOption prevOpt = getTcpOption(prevOptionType);
 		if (prevOpt.isNull())
 		{
-			LOG_ERROR("Previous option of type %d not found, cannot add a new TCP option", (int)prevOptionType);
+			LOG_ERROR("Previous option of type " << (int)prevOptionType << " not found, cannot add a new TCP option");
 			return TcpOption(NULL);
 		}
 
@@ -201,7 +201,7 @@ TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int of
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend TcpLayer in [%d] bytes", (int)sizeToExtend);
+		LOG_ERROR("Could not extend TcpLayer in [" << sizeToExtend << "] bytes");
 		newOption.purgeRecordData();
 		return TcpOption(NULL);
 	}

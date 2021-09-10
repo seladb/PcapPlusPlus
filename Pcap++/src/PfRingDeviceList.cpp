@@ -30,7 +30,7 @@ PfRingDeviceList::PfRingDeviceList()
 	int err = pcap_findalldevs(&interfaceList, errbuf);
 	if (err < 0)
 	{
-		LOG_ERROR("Error searching for PF_RING devices: %s", errbuf);
+		LOG_ERROR("Error searching for PF_RING devices: " << errbuf);
 	}
 
 	pcap_if_t* currInterface = interfaceList;

@@ -46,7 +46,7 @@ bool PcapRemoteDevice::open()
 	m_PcapDescriptor = pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
 	if (m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Error opening device. Error was: %s", errbuf);
+		LOG_ERROR("Error opening device. Error was: " << errbuf);
 		m_DeviceOpened = false;
 		return false;
 	}
@@ -60,7 +60,7 @@ bool PcapRemoteDevice::open()
 	//for some reason if a filter is not set than WinPcap throws an exception. So Here is a generic filter that catches all traffic
 	if (!setFilter("ether proto (\\ip or \\ip6 or \\arp or \\rarp or \\decnet or \\sca or \\lat or \\mopdl or \\moprc or \\iso or \\stp or \\ipx or \\netbeui or 0x80F3)")) //0x80F3 == AARP
 	{
-		LOG_ERROR("Error setting the filter. Error was: %s", Logger::getInstance().getLastError());
+		LOG_ERROR("Error setting the filter. Error was: " << Logger::getInstance().getLastError());
 		m_DeviceOpened = false;
 		return false;
 	}
@@ -115,7 +115,7 @@ void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
 	if (allocatedMemory < (int)sizeof(pcap_stat))
 	{
-		LOG_ERROR("Error getting statistics from live device '%s': WinPcap did not allocate the entire struct", m_Name.c_str());
+		LOG_ERROR("Error getting statistics from live device '" << m_Name << "': WinPcap did not allocate the entire struct");
 		return;
 	}
 	stats.packetsRecv = tempStats->ps_capt;

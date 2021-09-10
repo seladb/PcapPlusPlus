@@ -644,7 +644,7 @@ void TcpReassembly::closeConnectionInternal(uint32_t flowKey, ConnectionEndReaso
 	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
 	if (iter == m_ConnectionList.end())
 	{
-		LOG_ERROR("Cannot close flow with key 0x%X: cannot find flow", flowKey);
+		LOG_ERROR("Cannot close flow with key 0x" << std::uppercase << std::hex << flowKey << ": cannot find flow");
 		return;
 	}
 

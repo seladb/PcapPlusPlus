@@ -42,7 +42,7 @@ void PcapLiveDeviceList::init()
 	int err = pcap_findalldevs(&interfaceList, errbuf);
 	if (err < 0)
 	{
-		LOG_ERROR("Error searching for devices: %s", errbuf);
+		LOG_ERROR("Error searching for devices: " << errbuf);
 	}
 
 	LOG_DEBUG("Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
@@ -85,7 +85,7 @@ void PcapLiveDeviceList::setDnsServers()
 	}
 
 	if ((dwRetVal = GetNetworkParams( fixedInfo, &ulOutBufLen )) != 0)
-		LOG_ERROR("Call to GetNetworkParams failed. Return Value: %08lx\n", dwRetVal);
+		LOG_ERROR("Call to GetNetworkParams failed. Return Value: " << std::hex << dwRetVal);
 	else
 	{
 		m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));

@@ -195,7 +195,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 	IPAddress ipAddr = IPAddress(ipAddrmodified);
 	if (!ipAddr.isValid())
 	{
-		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
+		LOG_ERROR("Invalid IP address '" << ipAddrmodified << "', setting len to zero");
 		return;
 	}
 

@@ -86,7 +86,7 @@ bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, struct rte_mem
 	// mbuf is allocated with length of 0, need to adjust it to the size of other
 	if (rte_pktmbuf_append(m_MBuf, rawPacket->getRawDataLen()) == NULL)
 	{
-		LOG_ERROR("Couldn't append %d bytes to mbuf", rawPacket->getRawDataLen());
+		LOG_ERROR("Couldn't append " << rawPacket->getRawDataLen() << " bytes to mbuf");
 		return false;
 	}
 
@@ -127,7 +127,7 @@ MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 	// mbuf is allocated with length of 0, need to adjust it to the size of other
 	if (rte_pktmbuf_append(newMbuf, other.m_RawDataLen) == NULL)
 	{
-		LOG_ERROR("Couldn't append %d bytes to mbuf", other.m_RawDataLen);
+		LOG_ERROR("Couldn't append " << other.m_RawDataLen << " bytes to mbuf");
 		return;
 	}
 
@@ -151,7 +151,7 @@ MBufRawPacket& MBufRawPacket::operator=(const MBufRawPacket& other)
 	{
 		if (rte_pktmbuf_append(m_MBuf, other.m_RawDataLen - m_RawDataLen) == NULL)
 		{
-			LOG_ERROR("Couldn't append %d bytes to mbuf", other.m_RawDataLen - m_RawDataLen);
+			LOG_ERROR("Couldn't append " << (other.m_RawDataLen - m_RawDataLen) << " bytes to mbuf");
 			return *this;
 		}
 	}
@@ -159,7 +159,7 @@ MBufRawPacket& MBufRawPacket::operator=(const MBufRawPacket& other)
 	{
 		if (rte_pktmbuf_adj(m_MBuf, m_RawDataLen - other.m_RawDataLen) == NULL)
 		{
-			LOG_ERROR("Couldn't remove %d bytes to mbuf", m_RawDataLen - other.m_RawDataLen);
+			LOG_ERROR("Couldn't remove " << m_RawDataLen - other.m_RawDataLen << " bytes to mbuf");
 			return *this;
 		}
 	}
@@ -175,7 +175,7 @@ bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec
 {
 	if (rawDataLen > MBUF_DATA_SIZE)
 	{
-		LOG_ERROR("Cannot set raw data which length is larger than mBuf max size. mBuf max length: %d; requested length: %d", MBUF_DATA_SIZE, rawDataLen);
+		LOG_ERROR("Cannot set raw data which length is larger than mBuf max size. mBuf max length: " << MBUF_DATA_SIZE << "; requested length: " << rawDataLen);
 		return false;
 	}
 
@@ -193,7 +193,7 @@ bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec
 	{
 		if (rte_pktmbuf_append(m_MBuf, rawDataLen - m_RawDataLen) == NULL)
 		{
-			LOG_ERROR("Couldn't append %d bytes to mbuf", rawDataLen - m_RawDataLen);
+			LOG_ERROR("Couldn't append " << (rawDataLen - m_RawDataLen) << " bytes to mbuf");
 			return false;
 		}
 	}
@@ -201,7 +201,7 @@ bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec
 	{
 		if (rte_pktmbuf_adj(m_MBuf, m_RawDataLen - rawDataLen) == NULL)
 		{
-			LOG_ERROR("Couldn't remove %d bytes to mbuf", m_RawDataLen - rawDataLen);
+			LOG_ERROR("Couldn't remove " << (m_RawDataLen - rawDataLen) << " bytes to mbuf");
 			return false;
 		}
 	}
@@ -243,7 +243,7 @@ void MBufRawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendL
 	char* startOfNewlyAppendedData = rte_pktmbuf_append(m_MBuf, dataToAppendLen);
 	if (startOfNewlyAppendedData == NULL)
 	{
-		LOG_ERROR("Couldn't append %d bytes to RawPacket - not enough room in mBuf", (int)dataToAppendLen);
+		LOG_ERROR("Couldn't append " << dataToAppendLen << " bytes to RawPacket - not enough room in mBuf");
 		return; //TODO: need to return false here or something
 	}
 
@@ -263,7 +263,7 @@ void MBufRawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t 
 	char* startOfNewlyAppendedData = rte_pktmbuf_append(m_MBuf, dataToInsertLen);
 	if (startOfNewlyAppendedData == NULL)
 	{
-		LOG_ERROR("Couldn't append %d bytes to RawPacket - not enough room in mBuf", (int)dataToInsertLen);
+		LOG_ERROR("Couldn't append " << dataToInsertLen << " bytes to RawPacket - not enough room in mBuf");
 		return; //TODO: need to return false here or something
 	}
 
@@ -298,13 +298,13 @@ bool MBufRawPacket::reallocateData(size_t newBufferLength)
 {
 	if ((int)newBufferLength < m_RawDataLen)
 	{
-		LOG_ERROR("Cannot reallocate mBuf raw packet to a smaller size. Current data length: %d; requested length: %d", m_RawDataLen, (int)newBufferLength);
+		LOG_ERROR("Cannot reallocate mBuf raw packet to a smaller size. Current data length: " << m_RawDataLen << "; requested length: " << newBufferLength);
 		return false;
 	}
 
 	if (newBufferLength > MBUF_DATA_SIZE)
 	{
-		LOG_ERROR("Cannot reallocate mBuf raw packet to a size larger than mBuf data. mBuf max length: %d; requested length: %d", MBUF_DATA_SIZE, (int)newBufferLength);
+		LOG_ERROR("Cannot reallocate mBuf raw packet to a size larger than mBuf data. mBuf max length: " << MBUF_DATA_SIZE << "; requested length: " << newBufferLength);
 		return false;
 	}
 

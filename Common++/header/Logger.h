@@ -183,13 +183,10 @@ namespace pcpp
 		} \
 	} while(0)
 
-#define LOG_ERROR(format, ...) do { \
+#define LOG_ERROR(message) do { \
 			if (pcpp::Logger::getInstance().logsEnabled()) {\
-				/*fprintf(stderr, format "\n", ## __VA_ARGS__);*/ \
-				char tempLogMessage[200]; \
-				snprintf(tempLogMessage, 200, format, ## __VA_ARGS__); \
 				std::ostringstream logStream; \
-				logStream << tempLogMessage; \
+				logStream << message; \
 				pcpp::Logger::getInstance().printLogMessage(pcpp::Logger::Error, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
 			} \
 		} while (0)
