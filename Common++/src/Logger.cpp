@@ -6,6 +6,7 @@ namespace pcpp
 
 Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&defaultLogPrinter)
 {
+	m_LastError.reserve(200);
 	for (int i = 0; i<NumOfLogModules; i++)
 		m_LogModulesArray[i] = Info;
 }

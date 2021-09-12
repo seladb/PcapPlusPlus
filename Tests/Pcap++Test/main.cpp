@@ -136,11 +136,9 @@ int main(int argc, char* argv[])
 	std:: cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:" << std::endl
 	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 	#endif
-	#ifdef _DEBUG
-	// in MSVC Debug the logger singelton looks like a memory leak. Invoke it before starting the memory check
-	pcpp::Logger::getInstance();
-	#endif
 
+	// The logger singelton looks like a memory leak. Invoke it before starting the memory check
+	pcpp::Logger::getInstance();
 
 	if (skipMemLeakCheck)
 	{
@@ -204,6 +202,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestLRUList, "no_network");
 	PTF_RUN_TEST(TestGeneralUtils, "no_network");
 	PTF_RUN_TEST(TestGetMacAddress, "mac");
+
+	PTF_RUN_TEST(TestLogger, "no_network;logger");
 
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSllFileReadWrite, "no_network;pcap");

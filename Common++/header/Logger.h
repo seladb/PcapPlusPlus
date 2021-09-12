@@ -157,7 +157,7 @@ namespace pcpp
 		/**
 		 * Set the log printer back to the default printer
 		 */
-		void clearLogPrinter() { m_LogPrinter = &defaultLogPrinter; }
+		void resetLogPrinter() { m_LogPrinter = &defaultLogPrinter; }
 
 		/**
 		 * @return Get the last error message
