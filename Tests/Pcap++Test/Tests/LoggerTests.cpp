@@ -56,7 +56,7 @@ PTF_TEST_CASE(TestLogger)
 	LoggerCleaner loggerCleaner;
 
 	// verify all modules are on info log level
-	for (int module = 1; module < pcpp::LogModule::NumOfLogModules; module++)
+	for (int module = 1; module < pcpp::NumOfLogModules; module++)
 	{
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLogLevel((pcpp::LogModule)module), pcpp::Logger::Info, enum);
 		PTF_ASSERT_FALSE(pcpp::Logger::getInstance().isDebugEnabled((pcpp::LogModule)module));
@@ -72,9 +72,9 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogMessageSeen, "error log");
 
 	// change one module log level
-	pcpp::Logger::getInstance().setLogLevel(pcpp::LogModule::PacketLogModuleArpLayer, pcpp::Logger::Debug);
-	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLogLevel(pcpp::LogModule::PacketLogModuleArpLayer), pcpp::Logger::Debug, enum);
-	PTF_ASSERT_TRUE(pcpp::Logger::getInstance().isDebugEnabled(pcpp::LogModule::PacketLogModuleArpLayer));
+	pcpp::Logger::getInstance().setLogLevel(pcpp::PacketLogModuleArpLayer, pcpp::Logger::Debug);
+	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLogLevel(pcpp::PacketLogModuleArpLayer), pcpp::Logger::Debug, enum);
+	PTF_ASSERT_TRUE(pcpp::Logger::getInstance().isDebugEnabled(pcpp::PacketLogModuleArpLayer));
 
 	// invoke debug and error logs - expect to see both
 	pcpp::invokeDebugLog();
@@ -89,7 +89,7 @@ PTF_TEST_CASE(TestLogger)
 
 	// change all modules log level
 	pcpp::Logger::getInstance().setAllModlesToLogLevel(pcpp::Logger::Debug);
-	for (int module = 1; module < pcpp::LogModule::NumOfLogModules; module++)
+	for (int module = 1; module < pcpp::NumOfLogModules; module++)
 	{
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLogLevel((pcpp::LogModule)module), pcpp::Logger::Debug, enum);
 		PTF_ASSERT_TRUE(pcpp::Logger::getInstance().isDebugEnabled((pcpp::LogModule)module));
@@ -140,7 +140,7 @@ PTF_TEST_CASE(TestLogger)
 	std::cout.setstate(std::ios_base::failbit);
 
 	// set debug log for a module, don't expect to see it in the custom log printer
-	pcpp::Logger::getInstance().setLogLevel(pcpp::LogModule::PacketLogModuleArpLayer, pcpp::Logger::Debug);
+	pcpp::Logger::getInstance().setLogLevel(pcpp::PacketLogModuleArpLayer, pcpp::Logger::Debug);
 	pcpp::invokeDebugLog();
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, 999);
