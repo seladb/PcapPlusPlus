@@ -46,7 +46,7 @@ public:
 		int res = WSAStartup(MAKEWORD(2,2), &wsaData);
 		if (res != 0)
 		{
-			LOG_ERROR("WSAStartup failed with error code: %d", res);
+			LOG_ERROR("WSAStartup failed with error code: " << res);
 			m_IsInitialized = false;
 		}
 
@@ -128,7 +128,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 		RecvPacketResult error = getError(errorCode);
 
 		if (error == RecvError)
-			LOG_ERROR("Error reading from recvfrom. Error code is %d", errorCode);
+			LOG_ERROR("Error reading from recvfrom. Error code is " << errorCode);
 
 		return error;
 	}
@@ -189,7 +189,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 		RecvPacketResult error = getError(errorCode);
 
 		if (error == RecvError)
-			LOG_ERROR("Error reading from recvfrom. Error code is %d", errorCode);
+			LOG_ERROR("Error reading from recvfrom. Error code is " << errorCode);
 
 		return error;
 	}
@@ -287,7 +287,7 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 
 	if (::sendto(fd, ((RawPacket*)rawPacket)->getRawData(), ((RawPacket*)rawPacket)->getRawDataLen(), 0, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 	{
-		LOG_ERROR("Failed to send packet. Error was: '%s'", strerror(errno));
+		LOG_ERROR("Failed to send packet. Error was: '" << strerror(errno) << "'");
 		return false;
 	}
 
@@ -342,7 +342,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 
 		if (::sendto(fd, (*iter)->getRawData(), (*iter)->getRawDataLen(), 0, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 		{
-			LOG_DEBUG("Failed to send packet. Error was: '%s'", strerror(errno));
+			LOG_DEBUG("Failed to send packet. Error was: '" << strerror(errno) << "'");
 			continue;
 		}
 
@@ -378,7 +378,7 @@ bool RawSocketDevice::open()
 		std::string additionalMessage = "";
 		if (error == WSAEACCES)
 			additionalMessage = ", you may not be running with administrative privileges which is required for opening raw sockets on Windows";
-		LOG_ERROR("Failed to create raw socket. Error code was %d%s", error, additionalMessage.c_str());
+		LOG_ERROR("Failed to create raw socket. Error code was " << error << " " << additionalMessage);
 		return false;
 	}
 
@@ -419,7 +419,7 @@ bool RawSocketDevice::open()
 
 	if (bind(fd, (struct sockaddr *)localAddr, localAddrSize) == SOCKET_ERROR)
 	{
-		LOG_ERROR("Failed to bind to interface. Error code was '%d'", WSAGetLastError());
+		LOG_ERROR("Failed to bind to interface. Error code was '" << WSAGetLastError() << "'");
 		closesocket(fd);
 		return false;
 	}
@@ -428,7 +428,7 @@ bool RawSocketDevice::open()
 	DWORD dwBytesRet;
 	if (WSAIoctl(fd, SIO_RCVALL, &n, sizeof(n), NULL, 0, &dwBytesRet, NULL, NULL) == SOCKET_ERROR)
 	{
-		LOG_ERROR("Call to WSAIotcl(%ul) failed with error code %d", SIO_RCVALL, WSAGetLastError());
+		LOG_ERROR("Call to WSAIotcl(" << std::hex << SIO_RCVALL << ") failed with error code " << WSAGetLastError());
 		closesocket(fd);
 		return false;
 	}
@@ -455,7 +455,7 @@ bool RawSocketDevice::open()
 	int fd = socket(AF_PACKET, SOCK_RAW, htobe16(ETH_P_ALL));
 	if (fd < 0)
 	{
-		LOG_ERROR("Failed to create raw socket. Error code was %d", errno);
+		LOG_ERROR("Failed to create raw socket. Error code was " << errno);
 		return false;
 	}
 
@@ -508,7 +508,7 @@ bool RawSocketDevice::open()
 	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
 	if (setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) == -1)
 	{
-		LOG_ERROR("Cannot bind raw socket to interface '%s'", ifaceName.c_str());
+		LOG_ERROR("Cannot bind raw socket to interface '" << ifaceName << "'");
 		::close(fd);
 		return false;		
 	}

@@ -9,6 +9,9 @@ PTF_TEST_CASE(TestLRUList);
 PTF_TEST_CASE(TestGeneralUtils);
 PTF_TEST_CASE(TestGetMacAddress);
 
+// Implemented in LoggerTests.cpp
+PTF_TEST_CASE(TestLogger);
+
 // Implemented in FileTests.cpp
 PTF_TEST_CASE(TestPcapFileReadWrite);
 PTF_TEST_CASE(TestPcapSllFileReadWrite);

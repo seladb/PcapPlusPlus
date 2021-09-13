@@ -88,7 +88,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	bool isPoolSizePowerOfTwoMinusOne = !(mBufPoolSizePerDevice == 0) && !((mBufPoolSizePerDevice+1) & (mBufPoolSizePerDevice));
 	if (!isPoolSizePowerOfTwoMinusOne)
 	{
-		LOG_ERROR("mBuf pool size must be a power of two minus one: n = (2^q - 1). It's currently: %d", mBufPoolSizePerDevice);
+		LOG_ERROR("mBuf pool size must be a power of two minus one: n = (2^q - 1). It's currently: " << mBufPoolSizePerDevice);
 		return false;
 	}
 
@@ -116,7 +116,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 
 	for (i = 0; i < initDpdkArgc; i++)
 	{
-		LOG_DEBUG("DPDK initialization params: %s", initDpdkArgv[i]);
+		LOG_DEBUG("DPDK initialization params: " << initDpdkArgv[i]);
 	}
 
 	optind = 1;
@@ -139,7 +139,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	m_IsDpdkInitialized = true;
 
 	m_MBufPoolSizePerDevice = mBufPoolSizePerDevice;
-	DpdkDeviceList::getInstance().setDpdkLogLevel(LoggerPP::Normal);
+	DpdkDeviceList::getInstance().setDpdkLogLevel(Logger::Info);
 	return DpdkDeviceList::getInstance().initDpdkDevices(m_MBufPoolSizePerDevice);
 }
 
@@ -166,18 +166,13 @@ bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice)
 		return false;
 	}
 
-	LOG_DEBUG("Found %d DPDK ports. Constructing DpdkDevice for each one", numOfPorts);
+	LOG_DEBUG("Found " << numOfPorts << " DPDK ports. Constructing DpdkDevice for each one");
 
 	// Initialize a DpdkDevice per port
 	for (int i = 0; i < numOfPorts; i++)
 	{
 		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice);
-		LOG_DEBUG("DpdkDevice #%d: Name='%s', PCI-slot='%s', PMD='%s', MAC Addr='%s'",
-				i,
-				newDevice->getDeviceName().c_str(),
-				newDevice->getPciAddress().c_str(),
-				newDevice->getPMDName().c_str(),
-				newDevice->getMacAddress().toString().c_str());
+		LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='" << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName() << "', MAC Addr='" << newDevice->getMacAddress() << "'");
 		m_DpdkDeviceList.push_back(newDevice);
 	}
 
@@ -228,7 +223,7 @@ bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 	char* endPtr;
 	long totalHugePages = strtol(execResult.c_str(), &endPtr, 10);
 
-	LOG_DEBUG("Total number of huge-pages is %lu", totalHugePages);
+	LOG_DEBUG("Total number of huge-pages is " << totalHugePages);
 
 	if (totalHugePages <= 0)
 	{
@@ -254,31 +249,31 @@ SystemCore DpdkDeviceList::getDpdkMasterCore() const
 	return SystemCores::IdToSystemCore[rte_get_master_lcore()];
 }
 
-void DpdkDeviceList::setDpdkLogLevel(LoggerPP::LogLevel logLevel)
+void DpdkDeviceList::setDpdkLogLevel(Logger::LogLevel logLevel)
 {
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
-	if (logLevel == LoggerPP::Normal)
+	if (logLevel == Logger::Info)
 		rte_log_set_global_level(RTE_LOG_NOTICE);
-	else // logLevel == LoggerPP::Debug
+	else // logLevel == Logger::Debug
 		rte_log_set_global_level(RTE_LOG_DEBUG);
 #else
-	if (logLevel == LoggerPP::Normal)
+	if (logLevel == Logger::Info)
 		rte_set_log_level(RTE_LOG_NOTICE);
-	else // logLevel == LoggerPP::Debug
+	else // logLevel == Logger::Debug
 		rte_set_log_level(RTE_LOG_DEBUG);
 #endif
 }
 
-LoggerPP::LogLevel DpdkDeviceList::getDpdkLogLevel() const
+Logger::LogLevel DpdkDeviceList::getDpdkLogLevel() const
 {
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 	if (rte_log_get_global_level() <= RTE_LOG_NOTICE)
 #else
 	if (rte_get_log_level() <= RTE_LOG_NOTICE)
 #endif
-		return LoggerPP::Normal;
+		return Logger::Info;
 	else
-		return LoggerPP::Debug;
+		return Logger::Debug;
 }
 
 bool DpdkDeviceList::writeDpdkLogToFile(FILE* logFile)
@@ -310,7 +305,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 		{
 			if (!rte_lcore_is_enabled(coreNum))
 			{
-				LOG_ERROR("Trying to use core #%d which isn't initialized by DPDK", coreNum);
+				LOG_ERROR("Trying to use core #" << coreNum << " which isn't initialized by DPDK");
 				return false;
 			}
 
@@ -357,9 +352,9 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 			{
 				(*iter)->stop();
 				rte_eal_wait_lcore((*iter)->getCoreId());
-				LOG_DEBUG("Thread on core [%d] stopped", (*iter)->getCoreId());
+				LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 			}
-			LOG_ERROR("Cannot create worker thread #%d. Error was: [%s]", core.Id, strerror(err));
+			LOG_ERROR("Cannot create worker thread #" << core.Id << ". Error was: [" << strerror(err) << "]");
 			return false;
 		}
 		m_WorkerThreads.push_back(*iter);
@@ -383,7 +378,7 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 	{
 		(*iter)->stop();
 		rte_eal_wait_lcore((*iter)->getCoreId());
-		LOG_DEBUG("Thread on core [%d] stopped", (*iter)->getCoreId());
+		LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 	}
 
 	m_WorkerThreads.clear();

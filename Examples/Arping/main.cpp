@@ -203,22 +203,19 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Source IPv4 address wasn't supplied and couldn't be retrieved from interface");
 
 	// let's go
-	double arpResonseTimeMS = 0;
+	double arpResponseTimeMS = 0;
 	int i = 1;
-	char errString[1000];
-	pcpp::LoggerPP::getInstance().setErrorString(errString, 1000);
+
 	while (i <= maxTries)
 	{
-		// reset error string
-		memset(errString, 0, 1000);
-
 		// use the getMacAddress utility to send an ARP request and resolve the MAC address
-		pcpp::MacAddress result = pcpp::NetworkUtils::getInstance().getMacAddress(targetIP, dev, arpResonseTimeMS, sourceMac, sourceIP, timeoutSec);
+		pcpp::MacAddress result = pcpp::NetworkUtils::getInstance().getMacAddress(targetIP, dev, arpResponseTimeMS, sourceMac, sourceIP, timeoutSec);
 
 		// failed fetching MAC address
 		if (result == pcpp::MacAddress::Zero)
 		{
-			std::cout << "Arping  index=" << i << " : " << errString << std::endl;
+			// PcapPlusPlus logger saves the last internal error message 
+			std::cout << "Arping  index=" << i << " : " << pcpp::Logger::getInstance().getLastError() << std::endl;
 		}
 		else // Succeeded fetching MAC address
 		{
@@ -227,7 +224,7 @@ int main(int argc, char* argv[])
 			std::cout
 				<< "Reply from " << targetIP << " "
 				<< "[" << result << "]  "
-				<< std::fixed << arpResonseTimeMS << "ms  "
+				<< std::fixed << arpResponseTimeMS << "ms  "
 				<< "index=" << i
 				<< std::endl;
 		}

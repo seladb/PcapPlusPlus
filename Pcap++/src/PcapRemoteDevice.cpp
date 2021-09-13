@@ -34,7 +34,7 @@ bool PcapRemoteDevice::open()
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
-	LOG_DEBUG("Opening device '%s'", m_Name.c_str());
+	LOG_DEBUG("Opening device '" << m_Name << "'");
 	pcap_rmtauth* pRmAuth = NULL;
 	pcap_rmtauth rmAuth;
 	if (m_RemoteAuthentication != NULL)
@@ -46,7 +46,7 @@ bool PcapRemoteDevice::open()
 	m_PcapDescriptor = pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
 	if (m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Error opening device. Error was: %s", errbuf);
+		LOG_ERROR("Error opening device. Error was: " << errbuf);
 		m_DeviceOpened = false;
 		return false;
 	}
@@ -60,12 +60,12 @@ bool PcapRemoteDevice::open()
 	//for some reason if a filter is not set than WinPcap throws an exception. So Here is a generic filter that catches all traffic
 	if (!setFilter("ether proto (\\ip or \\ip6 or \\arp or \\rarp or \\decnet or \\sca or \\lat or \\mopdl or \\moprc or \\iso or \\stp or \\ipx or \\netbeui or 0x80F3)")) //0x80F3 == AARP
 	{
-		LOG_ERROR("Error setting the filter. Error was: %s", LoggerPP::getInstance().getErrorString());
+		LOG_ERROR("Error setting the filter. Error was: " << Logger::getInstance().getLastError());
 		m_DeviceOpened = false;
 		return false;
 	}
 
-	LOG_DEBUG("Device '%s' opened", m_Name.c_str());
+	LOG_DEBUG("Device '" << m_Name << "' opened");
 
 	return true;
 }
@@ -79,7 +79,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 		return 0;
 	}
 
-	LOG_DEBUG("Started capture thread for device '%s'", pThis->m_Name.c_str());
+	LOG_DEBUG("Started capture thread for device '" << pThis->m_Name << "'");
 
 	pcap_pkthdr* pkthdr;
 	const uint8_t* pktData;
@@ -100,7 +100,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 				onPacketArrivesNoCallback((uint8_t*)pThis, pkthdr, pktData);
 		}
 	}
-	LOG_DEBUG("Ended capture thread for device '%s'", pThis->m_Name.c_str());
+	LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
 	return 0;
 }
 
@@ -115,7 +115,7 @@ void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
 	if (allocatedMemory < (int)sizeof(pcap_stat))
 	{
-		LOG_ERROR("Error getting statistics from live device '%s': WinPcap did not allocate the entire struct", m_Name.c_str());
+		LOG_ERROR("Error getting statistics from live device '" << m_Name << "': WinPcap did not allocate the entire struct");
 		return;
 	}
 	stats.packetsRecv = tempStats->ps_capt;

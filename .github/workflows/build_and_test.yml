@@ -16,6 +16,7 @@ jobs:
            python: python3.8
          - image: centos7
            python: python3.8
+           test-flags: -s
          - image: fedora29
            python: python3
 
@@ -35,13 +36,13 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         cd Tests/Packet++Test
-        Bin/Packet++Test
+        Bin/Packet++Test ${{ matrix.test-flags }}
 
     - name: Test Pcap++
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         cd Tests/Pcap++Test
-        Bin/Pcap++Test -n
+        Bin/Pcap++Test -n ${{ matrix.test-flags }}
 
     - name: Test Examples
       working-directory: ${{env.GITHUB_WORKSPACE}}

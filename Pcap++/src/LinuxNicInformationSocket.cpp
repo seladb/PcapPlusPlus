@@ -27,11 +27,7 @@ openLinuxNicInformationSocket()
 	if (soc < 0)
 	{
 		const char* error = std::strerror(errno);
-		LOG_DEBUG(
-			"Can't open Linux information socket."
-			"Errno string: %s",
-			error
-		);
+		LOG_DEBUG("Can't open Linux information socket. Errno string: "<< error);
 		return soc = INVALID_SOCKET_VALUE;
 	}
 	return soc;
@@ -77,8 +73,8 @@ bool LinuxNicInformationSocket::makeRequest(
 		const char* error = std::strerror(errno);
 		LOG_ERROR(
 			"Request to Linux NIC incformation socket failed. "
-			"ioctl(2) failed with error string: %s",
-			error
+			"ioctl(2) failed with error string: "
+			<< error
 		);
 		return false;
 	}

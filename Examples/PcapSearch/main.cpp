@@ -66,11 +66,6 @@ static struct option PcapSearchOptions[] =
 #endif
 
 
-#define ERROR_STRING_LEN 500
-
-char errorString[ERROR_STRING_LEN];
-
-
 /**
  * Print application usage
  */
@@ -119,7 +114,7 @@ std::string getExtension(std::string fileName)
 
 
 /**
- * Searches all packet in a given pcap file for a certain search criteria. Returns how many packets matched the seatch criteria
+ * Searches all packet in a given pcap file for a certain search criteria. Returns how many packets matched the search criteria
  */
 int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstream* detailedReportFile)
 {
@@ -131,12 +126,10 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 	{
 		if (detailedReportFile != NULL)
 		{
-			// PcapPlusPlus writes the error to the error string variable we set it to write to
-			// write this error to the report file
+			// PcapPlusPlus logger saves the last internal error. Write this error to the report file
 			(*detailedReportFile) << "File '" << pcapFilePath << "':" << std::endl;
 			(*detailedReportFile) << "    ";
-			std::string errorStr = errorString;
-			(*detailedReportFile) << errorStr << std::endl;
+			(*detailedReportFile) << pcpp::Logger::getInstance().getLastError() << std::endl;
 		}
 
 		// free the reader memory and return
@@ -402,10 +395,6 @@ int main(int argc, char* argv[])
 		{
 			EXIT_WITH_ERROR("Couldn't open detailed report file '" << detailedReportFileName << "' for writing");
 		}
-
-		// in cases where the user requests a detailed report, all errors will be written to the report also. That's why we need to save the error messages
-		// to a variable and write them to the report file later
-		pcpp::LoggerPP::getInstance().setErrorString(errorString, ERROR_STRING_LEN);
 	}
 
 

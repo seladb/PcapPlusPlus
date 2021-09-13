@@ -49,7 +49,7 @@ bool MplsLayer::setExperimentalUseValue(uint8_t val)
 	// exp value is only 3 bits
 	if (val > 7)
 	{
-		LOG_ERROR("Set ExperimentalUse value got an illegal value: %d. Value must be lower than 8", val);
+		LOG_ERROR("Set ExperimentalUse value got an illegal value: " << (int)val << ". Value must be lower than 8");
 		return false;
 	}
 
@@ -75,7 +75,7 @@ bool MplsLayer::setMplsLabel(uint32_t label)
 {
 	if (label > 0xFFFFF)
 	{
-		LOG_ERROR("MPLS label mustn't exceed 20 bits which is the value %d. Got a parameter with the value %d", 0xFFFFF, label);
+		LOG_ERROR("MPLS label mustn't exceed 20 bits which is the value 0xffff. Got a parameter with the value 0x" << std::hex << label);
 		return false;
 	}
 
