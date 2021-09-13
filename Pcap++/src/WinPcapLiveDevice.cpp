@@ -19,14 +19,14 @@ bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, vo
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
 	}
 
 	//Put the interface in capture mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
 	{
-		LOG_ERROR("Error setting the capture mode for device '%s'", m_Name.c_str());
+		LOG_ERROR("Error setting the capture mode for device '" << m_Name << "'");
 		return false;
 	}
 
@@ -37,14 +37,14 @@ bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStats
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
 	}
 
 	//Put the interface in statistics mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
 	{
-		LOG_ERROR("Error setting the statistics mode for device '%s'", m_Name.c_str());
+		LOG_ERROR("Error setting the statistics mode for device '" << m_Name << "'");
 		return false;
 	}
 
@@ -55,7 +55,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '%s' not opened", m_Name.c_str());
+		LOG_ERROR("Device '" << m_Name << "' not opened");
 		return 0;
 	}
 
@@ -65,7 +65,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		dataSize += rawPacketsArr[i].getRawDataLen();
 
 	pcap_send_queue* sendQueue = pcap_sendqueue_alloc(dataSize + arrLength*sizeof(pcap_pkthdr));
-	LOG_DEBUG("Allocated send queue of size %d", dataSize + arrLength*sizeof(pcap_pkthdr));
+	LOG_DEBUG("Allocated send queue of size " << (dataSize + arrLength*sizeof(pcap_pkthdr)));
 	struct pcap_pkthdr* packetHeader = new struct pcap_pkthdr[arrLength];
 	for (int i = 0; i < arrLength; i++)
 	{
@@ -75,18 +75,18 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		TIMESPEC_TO_TIMEVAL(&packetHeader[i].ts, &packet_time);
 		if (pcap_sendqueue_queue(sendQueue, &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
 		{
-			LOG_ERROR("pcap_send_queue is too small for all packets. Sending only %d packets", i);
+			LOG_ERROR("pcap_send_queue is too small for all packets. Sending only " << i << " packets");
 			break;
 		}
 		packetsSent++;
 	}
 	
-	LOG_DEBUG("%d packets were queued successfully", packetsSent);
+	LOG_DEBUG(packetsSent << " packets were queued successfully");
 
 	int res;
 	if ((res = pcap_sendqueue_transmit(m_PcapDescriptor, sendQueue, 0)) < (int)(sendQueue->len))
 	{
-		LOG_ERROR("An error occurred sending the packets: %s. Only %d bytes were sent\n", pcap_geterr(m_PcapDescriptor), res);
+		LOG_ERROR("An error occurred sending the packets: " << pcap_geterr(m_PcapDescriptor) << ". Only " << res << " bytes were sent");
 		packetsSent = 0;
 		dataSize = 0;
 		for (int i = 0; i < arrLength; i++)

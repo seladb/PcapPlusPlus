@@ -18,7 +18,7 @@
 namespace pcpp
 {
 
-#define IPV4OPT_DUMMMY 0xff
+#define IPV4OPT_DUMMY 0xff
 #define IPV4_MAX_OPT_SIZE 40
 
 
@@ -137,7 +137,7 @@ IPv4Option IPv4OptionBuilder::build() const
 	{
 		if (m_RecValueLen != 0)
 		{
-			LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size %d", (int)m_RecValueLen);
+			LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size " << (int)m_RecValueLen);
 			return IPv4Option(NULL);
 		}
 
@@ -444,7 +444,7 @@ void IPv4Layer::adjustOptionsTrailer(size_t totalOptSize)
 	m_NumOfTrailingBytes = newNumberOfTrailingBytes;
 
 	for (int i = 0; i < m_NumOfTrailingBytes; i++)
-		m_Data[ipHdrSize + totalOptSize + i] = IPV4OPT_DUMMMY;
+		m_Data[ipHdrSize + totalOptSize + i] = IPV4OPT_DUMMY;
 
 	m_TempHeaderExtension = 0;
 	getIPv4Header()->internetHeaderLength = ((ipHdrSize + totalOptSize + m_NumOfTrailingBytes)/4 & 0x0f);
@@ -462,14 +462,14 @@ IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int of
 
 	if (totalOptSize > IPV4_MAX_OPT_SIZE)
 	{
-		LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is %d", IPV4_MAX_OPT_SIZE);
+		LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is " << IPV4_MAX_OPT_SIZE);
 		newOption.purgeRecordData();
 		return IPv4Option(NULL);
 	}
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend IPv4Layer in [%d] bytes", (int)sizeToExtend);
+		LOG_ERROR("Could not extend IPv4Layer in [" << sizeToExtend << "] bytes");
 		newOption.purgeRecordData();
 		return IPv4Option(NULL);
 	}

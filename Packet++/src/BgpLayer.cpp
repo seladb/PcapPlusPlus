@@ -166,7 +166,7 @@ size_t BgpOpenMessageLayer::optionalParamsToByteArray(const std::vector<optional
   {
     if (iter->length > 32)
     {
-      LOG_ERROR("Illegal optional parameter length %d, must be 32 bytes or less", (int)iter->length);
+      LOG_ERROR("Illegal optional parameter length " << (int)iter->length << ", must be 32 bytes or less");
       break; // illegal value
     }
 
@@ -232,7 +232,7 @@ void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>&
 
     if (op.length > optionalParamsLen - byteCount)
     {
-      LOG_ERROR("Optional parameter length is out of bounds: %d", (int)op.length);
+      LOG_ERROR("Optional parameter length is out of bounds: " << (int)op.length);
       break;
     }
 
@@ -396,7 +396,7 @@ void BgpUpdateMessageLayer::parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLe
     }
     else
     {
-      LOG_DEBUG("Illegal prefix value %d", (int)wr.prefix);
+      LOG_DEBUG("Illegal prefix value " << (int)wr.prefix);
       break; // illegal value
     }
 
@@ -449,7 +449,7 @@ size_t BgpUpdateMessageLayer::prefixAndIPDataToByteArray(const std::vector<prefi
     }
     else
     {
-      LOG_ERROR("Illegal prefix value %d", (int)iter->prefix);
+      LOG_ERROR("Illegal prefix value " << (int)iter->prefix);
       break; // illegal value
     }
 
@@ -480,7 +480,7 @@ size_t BgpUpdateMessageLayer::pathAttributesToByteArray(const std::vector<path_a
   {
     if (iter->length > 32)
     {
-      LOG_ERROR("Illegal path attribute length %d", (int)iter->length);
+      LOG_ERROR("Illegal path attribute length " << (int)iter->length);
       break; // illegal value
     }
 

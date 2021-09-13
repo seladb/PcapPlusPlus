@@ -289,7 +289,7 @@ icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddre
 {
 	if (code > 3)
 	{
-		LOG_ERROR("Unknown code %d for ICMP redirect data", (int)code);
+		LOG_ERROR("Unknown code " << (int)code << " for ICMP redirect data");
 		return NULL;
 	}
 
@@ -325,7 +325,7 @@ icmp_router_advertisement* IcmpLayer::setRouterAdvertisementData(uint8_t code, u
 {
 	if (code != 0 && code != 16)
 	{
-		LOG_ERROR("Unknown code %d for ICMP router advertisement data (only codes 0 and 16 are legal)", (int)code);
+		LOG_ERROR("Unknown code " << (int)code << " for ICMP router advertisement data (only codes 0 and 16 are legal)");
 		return NULL;
 	}
 
@@ -387,7 +387,7 @@ icmp_time_exceeded* IcmpLayer::setTimeExceededData(uint8_t code, IPv4Layer* ipHe
 {
 	if (code > 1)
 	{
-		LOG_ERROR("Unknown code %d for ICMP time exceeded data", (int)code);
+		LOG_ERROR("Unknown code " << (int)code << " for ICMP time exceeded data");
 		return NULL;
 	}
 
@@ -421,7 +421,7 @@ icmp_param_problem* IcmpLayer::setParamProblemData(uint8_t code, uint8_t errorOc
 {
 	if (code > 2)
 	{
-		LOG_ERROR("Unknown code %d for ICMP parameter problem data", (int)code);
+		LOG_ERROR("Unknown code " << (int)code << " for ICMP parameter problem data");
 		return NULL;
 	}
 

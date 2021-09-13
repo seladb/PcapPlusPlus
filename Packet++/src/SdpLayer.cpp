@@ -124,7 +124,7 @@ bool SdpLayer::addMediaDescription(std::string mediaType, uint16_t mediaPort, st
 	{
 		if (addField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, *iter) == NULL)
 		{
-			LOG_ERROR("Faild to add media attribute '%s'", iter->c_str());
+			LOG_ERROR("Failed to add media attribute '" << *iter << "'");
 			return false;
 		}
 	}

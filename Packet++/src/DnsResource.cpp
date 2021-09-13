@@ -164,7 +164,7 @@ void IDnsResource::encodeName(const std::string& decodedName, char* result, size
     		// verify it's indeed a number and that is in the range of [0-255]
     		if (stream.fail() || pointerInPacket < 0 || pointerInPacket > 0xff)
     		{
-    			LOG_ERROR("Error encoding the string '%s'", decodedName.c_str());
+    			LOG_ERROR("Error encoding the string '" << decodedName << "'");
     			return;
     		}
 

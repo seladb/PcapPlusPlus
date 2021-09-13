@@ -189,7 +189,7 @@ void Packet::copyDataFrom(const Packet& other)
 
 void Packet::reallocateRawData(size_t newSize)
 {
-	LOG_DEBUG("Allocating packet to new size: %d", (int)newSize);
+	LOG_DEBUG("Allocating packet to new size: " << newSize);
 
 	// allocate a new array with size newSize
 	m_MaxPacketLen = newSize;
@@ -197,7 +197,7 @@ void Packet::reallocateRawData(size_t newSize)
 	// set the new array to RawPacket
 	if (!m_RawPacket->reallocateData(m_MaxPacketLen))
 	{
-		LOG_ERROR("Couldn't reallocate data of raw packet to %d bytes", (int)m_MaxPacketLen);
+		LOG_ERROR("Couldn't reallocate data of raw packet to " << m_MaxPacketLen << " bytes");
 		return;
 	}
 
@@ -207,7 +207,7 @@ void Packet::reallocateRawData(size_t newSize)
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != NULL)
 	{
-		LOG_DEBUG("Setting new data pointer to layer '%s'", typeid(curLayer).name());
+		LOG_DEBUG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
 		curLayer->m_Data = (uint8_t*)dataPtr;
 		dataPtr += curLayer->getHeaderLen();
 		curLayer = curLayer->getNextLayer();
@@ -239,7 +239,7 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 	{
 		if (!m_CanReallocateData)
 		{
-			LOG_ERROR("With the new layer the packet will exceed the size of the pre-allocated buffer: %d bytes", (int)m_MaxPacketLen);
+			LOG_ERROR("With the new layer the packet will exceed the size of the pre-allocated buffer: " << m_MaxPacketLen << " bytes");
 			return false;
 		}
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
@@ -551,7 +551,7 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 	{
 		if (!m_CanReallocateData)
 		{
-			LOG_ERROR("With the layer extended size the packet will exceed the size of the pre-allocated buffer: %d bytes", (int)m_MaxPacketLen);
+			LOG_ERROR("With the layer extended size the packet will exceed the size of the pre-allocated buffer: " << m_MaxPacketLen << " bytes");
 			return false;
 		}
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length

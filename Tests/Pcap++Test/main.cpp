@@ -137,6 +137,9 @@ int main(int argc, char* argv[])
 	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 	#endif
 
+	// The logger singelton looks like a memory leak. Invoke it before starting the memory check
+	pcpp::Logger::getInstance();
+
 	if (skipMemLeakCheck)
 	{
 		if (configTags != "")
@@ -166,7 +169,7 @@ int main(int argc, char* argv[])
 
 	if (PcapTestGlobalArgs.debugMode)
 	{
-		pcpp::LoggerPP::getInstance().setAllModlesToLogLevel(pcpp::LoggerPP::Debug);
+		pcpp::Logger::getInstance().setAllModlesToLogLevel(pcpp::Logger::Debug);
 	}
 
 	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
@@ -199,6 +202,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestLRUList, "no_network");
 	PTF_RUN_TEST(TestGeneralUtils, "no_network");
 	PTF_RUN_TEST(TestGetMacAddress, "mac");
+
+	PTF_RUN_TEST(TestLogger, "no_network;logger");
 
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSllFileReadWrite, "no_network;pcap");

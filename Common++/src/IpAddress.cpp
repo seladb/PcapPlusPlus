@@ -48,7 +48,7 @@ namespace pcpp
 		IPv4Address maskAsIpAddr(subnetMask);
 		if (!maskAsIpAddr.isValid())
 		{
-			LOG_ERROR("Subnet mask '%s' is in illegal format", subnetMask.c_str());
+			LOG_ERROR("Subnet mask '" << subnetMask << "' is in illegal format");
 			return false;
 		}
 
@@ -108,7 +108,7 @@ namespace pcpp
 	{
 		if(prefixLength == 0 || prefixLength > 128)
 		{
-			LOG_ERROR("subnet prefixLength '%u' illegal", prefixLength);
+			LOG_ERROR("subnet prefixLength '" << (int)prefixLength << "' illegal");
 			return false;
 		}
 		uint8_t compareByteCount = prefixLength / 8;

@@ -157,7 +157,7 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 		msgBase->messageCode != 21 &&
 		(msgBase->messageCode < 30 || msgBase->messageCode > 49))
 		{
-			LOG_DEBUG("Unknown message type %d. It's probably not an SSH hanshake message", (int)msgBase->messageCode);
+			LOG_DEBUG("Unknown message type " << (int)msgBase->messageCode << ". It's probably not an SSH hanshake message");
 			return NULL;
 		}
 
@@ -196,7 +196,7 @@ void SSHKeyExchangeInitMessage::parseMessageAndInitOffsets()
 		if (offset + sizeof(uint32_t) + fieldLength > m_DataLen)
 			return;
 
-		LOG_DEBUG("Field offset [%d] = %d, length = %d\n", i, (int)offset, (int)fieldLength);
+		LOG_DEBUG("Field offset [" << i << "] = " << offset << ", length = " << fieldLength);
 		m_FieldOffsets[i] = offset;
 		offset += sizeof(uint32_t) + fieldLength;
 	}

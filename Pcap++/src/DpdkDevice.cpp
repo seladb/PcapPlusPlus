@@ -111,11 +111,11 @@ bool DpdkDevice::setMtu(uint16_t newMtu)
 	int res = rte_eth_dev_set_mtu(m_Id, newMtu);
 	if (res != 0)
 	{
-		LOG_ERROR("Couldn't set device MTU. DPDK error: %d", res);
+		LOG_ERROR("Couldn't set device MTU. DPDK error: " << res);
 		return false;
 	}
 
-	LOG_DEBUG("Managed to set MTU from %d to %d", m_DeviceMtu, newMtu);
+	LOG_DEBUG("Managed to set MTU from " << m_DeviceMtu << " to " << newMtu);
 	m_DeviceMtu = newMtu;
 	return true;
 }
@@ -154,7 +154,7 @@ bool DpdkDevice::openMultiQueues(uint16_t numOfRxQueuesToOpen, uint16_t numOfTxQ
 
 	if (!startDevice())
 	{
-		LOG_ERROR("failed to start device %d\n", m_Id);
+		LOG_ERROR("failed to start device " << m_Id);
 		m_DeviceOpened = false;
 		return false;
 	}
@@ -173,7 +173,7 @@ void DpdkDevice::close()
 {
 	if (!m_DeviceOpened)
 	{
-		LOG_DEBUG("Trying to close device [%s] but device is already closed", m_DeviceName);
+		LOG_DEBUG("Trying to close device [" << m_DeviceName << "] but device is already closed");
 		return;
 	}
 	stopCapture();
@@ -181,7 +181,7 @@ void DpdkDevice::close()
 	m_NumOfRxQueuesOpened = 0;
 	m_NumOfTxQueuesOpened = 0;
 	rte_eth_dev_stop(m_Id);
-	LOG_DEBUG("Called rte_eth_dev_stop for device [%s]", m_DeviceName);
+	LOG_DEBUG("Called rte_eth_dev_stop for device [" << m_DeviceName << "]");
 
 	if (m_TxBuffers != NULL)
 	{
@@ -203,26 +203,26 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 {
 	if (numOfRxQueues > getTotalNumOfRxQueues())
 	{
-		LOG_ERROR("Could not open more than %d RX queues", getTotalNumOfRxQueues());
+		LOG_ERROR("Could not open more than " << getTotalNumOfRxQueues() << " RX queues");
 		return false;
 	}
 
 	if (numOfTxQueues > getTotalNumOfTxQueues())
 	{
-		LOG_ERROR("Could not open more than %d TX queues", getTotalNumOfTxQueues());
+		LOG_ERROR("Could not open more than " << getTotalNumOfTxQueues() << " TX queues");
 		return false;
 	}
 
 	// if PMD doesn't support RSS, set RSS HF to 0
 	if (getSupportedRssHashFunctions() == 0 && m_Config.rssHashFunction != 0)
 	{
-		LOG_DEBUG("PMD '%s' doesn't support RSS, setting RSS hash functions to 0", m_PMDName.c_str());
+		LOG_DEBUG("PMD '" << m_PMDName << "' doesn't support RSS, setting RSS hash functions to 0");
 		m_Config.rssHashFunction = 0;
 	}
 
 	if (!isDeviceSupportRssHashFunction(m_Config.rssHashFunction))
 	{
-		LOG_ERROR("PMD '%s' doesn't support the request RSS hash functions 0x%X", m_PMDName.c_str(), (uint32_t)m_Config.rssHashFunction);
+		LOG_ERROR("PMD '" << m_PMDName << "' doesn't support the request RSS hash functions 0x" << std::hex << m_Config.rssHashFunction);
 		return false;
 	}
 
@@ -230,7 +230,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	bool isRxQueuePowerOfTwo = !(numOfRxQueues == 0) && !(numOfRxQueues & (numOfRxQueues - 1));
 	if (!isRxQueuePowerOfTwo)
 	{
-		LOG_ERROR("Num of RX queues must be power of 2 (because of DPDK limitation). Attempted to open device with %d RX queues", numOfRxQueues);
+		LOG_ERROR("Num of RX queues must be power of 2 (because of DPDK limitation). Attempted to open device with " << numOfRxQueues << " RX queues");
 		return false;
 	}
 
@@ -252,11 +252,11 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	int res = rte_eth_dev_configure((uint8_t) m_Id, numOfRxQueues, numOfTxQueues, &portConf);
 	if (res < 0)
 	{
-		LOG_ERROR("Failed to configure device [%s]. error is: '%s' [Error code: %d]\n", m_DeviceName, rte_strerror(res), res);
+		LOG_ERROR("Failed to configure device [" << m_DeviceName << "]. error is: '" << rte_strerror(res) << "' [Error code: " << res << "]");
 		return false;
 	}
 
-	LOG_DEBUG("Successfully called rte_eth_dev_configure for device [%s] with %d RX queues and %d TX queues", m_DeviceName, numOfRxQueues, numOfTxQueues);
+	LOG_DEBUG("Successfully called rte_eth_dev_configure for device [" << m_DeviceName << "] with " << numOfRxQueues << " RX queues and " << numOfTxQueues << " TX queues");
 
 	return true;
 }
@@ -267,13 +267,13 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 	rte_eth_dev_info_get(m_Id, &devInfo);
 	if (numOfRxQueuesToInit > devInfo.max_rx_queues)
 	{
-		LOG_ERROR("Num of RX queues requested for open [%d] is larger than RX queues available in NIC [%d]", numOfRxQueuesToInit, devInfo.max_rx_queues);
+		LOG_ERROR("Num of RX queues requested for open [" << numOfRxQueuesToInit << "] is larger than RX queues available in NIC [" << devInfo.max_rx_queues << "]");
 		return false;
 	}
 
 	if (numOfTxQueuesToInit > devInfo.max_tx_queues)
 	{
-		LOG_ERROR("Num of TX queues requested for open [%d] is larger than TX queues available in NIC [%d]", numOfTxQueuesToInit, devInfo.max_tx_queues);
+		LOG_ERROR("Num of TX queues requested for open [" << numOfTxQueuesToInit << "] is larger than TX queues available in NIC [" << devInfo.max_tx_queues << "]");
 		return false;
 	}
 
@@ -285,12 +285,12 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 
 		if (ret < 0)
 		{
-			LOG_ERROR("Failed to init RX queue for device [%s]. Error was: '%s' [Error code: %d]", m_DeviceName, rte_strerror(ret), ret);
+			LOG_ERROR("Failed to init RX queue for device [" << m_DeviceName << "]. Error was: '" << rte_strerror(ret) << "' [Error code: " << ret << "]");
 			return false;
 		}
 	}
 
-	LOG_DEBUG("Successfully initialized %d RX queues for device [%s]", numOfRxQueuesToInit, m_DeviceName);
+	LOG_DEBUG("Successfully initialized " << numOfRxQueuesToInit << " RX queues for device [" << m_DeviceName << "]");
 
 	for (uint8_t i = 0; i < numOfTxQueuesToInit; i++)
 	{
@@ -299,7 +299,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 					0, NULL);
 		if (ret < 0)
 		{
-			LOG_ERROR("Failed to init TX queue #%d for port %d. Error was: '%s' [Error code: %d]", i, m_Id, rte_strerror(ret), ret);
+			LOG_ERROR("Failed to init TX queue #" << i << " for port " << m_Id << ". Error was: '" << rte_strerror(ret) << "' [Error code: " << ret << "]");
 			return false;
 		}
 	}
@@ -320,7 +320,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 
 		if (m_TxBuffers[i] == NULL)
 		{
-			LOG_ERROR("Failed to allocate TX buffer for port %d TX queue %d", m_Id, (int)i);
+			LOG_ERROR("Failed to allocate TX buffer for port " << m_Id << " TX queue " << (int)i);
 			return false;
 		}
 
@@ -328,7 +328,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 
 		if (res != 0)
 		{
-			LOG_ERROR("Failed to init TX buffer for port %d TX queue %d", m_Id, (int)i);
+			LOG_ERROR("Failed to init TX buffer for port " << m_Id << " TX queue " << (int)i);
 			return false;
 		}
 	}
@@ -337,7 +337,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 
 	memset(m_TxBufferLastDrainTsc, 0, sizeof(uint64_t)*numOfTxQueuesToInit);
 
-	LOG_DEBUG("Successfully initialized %d TX queues for device [%s]", numOfTxQueuesToInit, m_DeviceName);
+	LOG_DEBUG("Successfully initialized " << numOfTxQueuesToInit << " TX queues for device [" << m_DeviceName << "]");
 
 	return true;
 }
@@ -351,12 +351,11 @@ bool DpdkDevice::initMemPool(struct rte_mempool*& memPool, const char* mempoolNa
 	memPool = rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
 	if (memPool == NULL)
 	{
-		LOG_ERROR("Failed to create packets memory pool for port %d, pool name: %s. Error was: '%s' [Error code: %d]",
-			m_Id, mempoolName, rte_strerror(rte_errno), rte_errno);
+		LOG_ERROR("Failed to create packets memory pool for port " << m_Id << ", pool name: " << mempoolName << ". Error was: '" << rte_strerror(rte_errno) << "' [Error code: " << rte_errno << "]");
 	}
 	else
 	{
-		LOG_DEBUG("Successfully initialized packets pool of size [%d] for device [%s]", mBufPoolSize, m_DeviceName);
+		LOG_DEBUG("Successfully initialized packets pool of size [" << mBufPoolSize << "] for device [" << m_DeviceName << "]");
 		ret = true;
 	}
 	return ret;
@@ -367,21 +366,21 @@ bool DpdkDevice::startDevice()
 	int ret = rte_eth_dev_start((uint8_t) m_Id);
 	if (ret < 0)
 	{
-		LOG_ERROR("Failed to start device %d. Error is %d", m_Id, ret);
+		LOG_ERROR("Failed to start device " << m_Id << ". Error is " << ret);
 		return false;
 	}
 
 	LinkStatus status;
 	getLinkStatus(status);
-	LOG_DEBUG("Device [%s] : Link %s; Speed: %d Mbps; %s",
-			m_DeviceName,
-			(status.linkUp ? "up" : "down"),
-			status.linkSpeedMbps,
-			(status.linkDuplex == LinkStatus::FULL_DUPLEX ? "full-duplex" : "half-duplex"));
-
+	if (Logger::getInstance().isDebugEnabled(PcapLogModuleDpdkDevice))
+	{
+		std::string linkStatus = (status.linkUp ? "up" : "down");
+		std::string linkDuplex = (status.linkDuplex == LinkStatus::FULL_DUPLEX ? "full-duplex" : "half-duplex");
+		LOG_DEBUG("Device [" << m_DeviceName << "] : Link " << linkStatus << "; Speed: " << status.linkSpeedMbps << " Mbps; " << linkDuplex);
+	}
 
 	rte_eth_promiscuous_enable((uint8_t) m_Id);
-	LOG_DEBUG("Started device [%s]", m_DeviceName);
+	LOG_DEBUG("Started device [" << m_DeviceName << "]");
 
 	return true;
 }
@@ -460,8 +459,8 @@ void DpdkDevice::setDeviceInfo()
 	m_PciAddress = std::string(portInfo.device->name);
 #endif 
 
-	LOG_DEBUG("Device [%s] has %d RX queues", m_DeviceName, portInfo.max_rx_queues);
-	LOG_DEBUG("Device [%s] has %d TX queues", m_DeviceName, portInfo.max_tx_queues);
+	LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_rx_queues << " RX queues");
+	LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_tx_queues << " TX queues");
 
 	m_TotalAvailableRxQueues = portInfo.max_rx_queues;
 	m_TotalAvailableTxQueues = portInfo.max_tx_queues;
@@ -508,14 +507,14 @@ bool DpdkDevice::initCoreConfigurationByCoreMask(CoreMask coreMask)
 		{
 			if (i == DpdkDeviceList::getInstance().getDpdkMasterCore().Id)
 			{
-				LOG_ERROR("Core %d is the master core, you can't use it for capturing threads", i);
+				LOG_ERROR("Core " << i << " is the master core, you can't use it for capturing threads");
 				clearCoreConfiguration();
 				return false;
 			}
 
 			if (!rte_lcore_is_enabled(i))
 			{
-				LOG_ERROR("Trying to use core #%d which isn't initialized by DPDK", i);
+				LOG_ERROR("Trying to use core #" << i << " which isn't initialized by DPDK");
 				clearCoreConfiguration();
 				return false;
 			}
@@ -528,7 +527,7 @@ bool DpdkDevice::initCoreConfigurationByCoreMask(CoreMask coreMask)
 
 	if (coreMask != 0) // this mean coreMask contains a core that doesn't exist
 	{
-		LOG_ERROR("Trying to use a core [%d] that doesn't exist while machine has %d cores", i, numOfCores);
+		LOG_ERROR("Trying to use a core [" << i << "] that doesn't exist while machine has " << numOfCores << " cores");
 		clearCoreConfiguration();
 		return false;
 	}
@@ -551,7 +550,7 @@ bool DpdkDevice::startCaptureSingleThread(OnDpdkPacketsArriveCallback onPacketsA
 		return false;
 	}
 
-	LOG_DEBUG("Trying to start capturing on a single thread for device [%s]", m_DeviceName);
+	LOG_DEBUG("Trying to start capturing on a single thread for device [" << m_DeviceName << "]");
 
 	clearCoreConfiguration();
 
@@ -568,16 +567,16 @@ bool DpdkDevice::startCaptureSingleThread(OnDpdkPacketsArriveCallback onPacketsA
 		m_CoreConfiguration[coreId].IsCoreInUse = true;
 		m_CoreConfiguration[coreId].RxQueueId = 0;
 
-		LOG_DEBUG("Trying to start capturing on core %d", coreId);
+		LOG_DEBUG("Trying to start capturing on core " << coreId);
 		int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
 		if (err != 0)
 		{
-			LOG_ERROR("Cannot create capture thread for device '%s'", m_DeviceName);
+			LOG_ERROR("Cannot create capture thread for device '" << m_DeviceName << "'");
 				m_CoreConfiguration[coreId].IsCoreInUse = false;
 			return false;
 		}
 
-		LOG_DEBUG("Capturing started for device [%s]", m_DeviceName);
+		LOG_DEBUG("Capturing started for device [" << m_DeviceName << "]");
 		return true;
 	}
 
@@ -598,7 +597,7 @@ bool DpdkDevice::startCaptureMultiThreads(OnDpdkPacketsArriveCallback onPacketsA
 
 	if (m_NumOfRxQueuesOpened != getCoresInUseCount())
 	{
-		LOG_ERROR("Cannot use a different number of queues and cores. Opened %d queues but set %d cores in core mask", m_NumOfRxQueuesOpened, getCoresInUseCount());
+		LOG_ERROR("Cannot use a different number of queues and cores. Opened " << m_NumOfRxQueuesOpened << " queues but set " << getCoresInUseCount() << " cores in core mask");
 		clearCoreConfiguration();
 		return false;
 	}
@@ -615,7 +614,7 @@ bool DpdkDevice::startCaptureMultiThreads(OnDpdkPacketsArriveCallback onPacketsA
 		int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
 		if (err != 0)
 		{
-			LOG_ERROR("Cannot create capture thread #%d for device '%s': [%s]", coreId, m_DeviceName, strerror(err));
+			LOG_ERROR("Cannot create capture thread #" << coreId << " for device '" << m_DeviceName << "': [" << strerror(err) << "]");
 			m_CoreConfiguration[coreId].clear();
 			return false;
 		}
@@ -629,14 +628,14 @@ bool DpdkDevice::startCaptureMultiThreads(OnDpdkPacketsArriveCallback onPacketsA
 
 void DpdkDevice::stopCapture()
 {
-	LOG_DEBUG("Trying to stop capturing on device [%s]", m_DeviceName);
+	LOG_DEBUG("Trying to stop capturing on device [" << m_DeviceName << "]");
 	m_StopThread = true;
 	for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 	{
 		if (!m_CoreConfiguration[coreId].IsCoreInUse)
 			continue;
 		rte_eal_wait_lcore(coreId);
-		LOG_DEBUG("Thread on core [%d] stopped", coreId);
+		LOG_DEBUG("Thread on core [" << coreId << "] stopped");
 	}
 
 	LOG_DEBUG("All capturing threads stopped");
@@ -654,7 +653,7 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 	}
 
 	uint32_t coreId = pThis->getCurrentCoreId();
-	LOG_DEBUG("Starting capture thread %d", coreId);
+	LOG_DEBUG("Starting capture thread " << coreId);
 
 	int queueId = pThis->m_CoreConfiguration[coreId].RxQueueId;
 
@@ -680,7 +679,7 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 		}
 	}
 
-	LOG_DEBUG("Exiting capture thread %d", coreId);
+	LOG_DEBUG("Exiting capture thread " << coreId);
 
 	return 0;
 }
@@ -764,13 +763,13 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t
 
 	if (!m_StopThread)
 	{
-		LOG_ERROR("DpdkDevice capture mode is currently running. Cannot recieve packets in parallel");
+		LOG_ERROR("DpdkDevice capture mode is currently running. Cannot receive packets in parallel");
 		return 0;
 	}
 
 	if (rxQueueId >= m_TotalAvailableRxQueues)
 	{
-		LOG_ERROR("RX queue ID #%d not available for this device", rxQueueId);
+		LOG_ERROR("RX queue ID #" << rxQueueId << " not available for this device");
 		return 0;
 	}
 
@@ -815,7 +814,7 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawP
 
 	if (unlikely(rxQueueId >= m_TotalAvailableRxQueues))
 	{
-		LOG_ERROR("RX queue ID #%d not available for this device", rxQueueId);
+		LOG_ERROR("RX queue ID #" << rxQueueId << " not available for this device");
 		return 0;
 	}
 
@@ -827,7 +826,6 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawP
 
 	struct rte_mbuf* mBufArray[rawPacketArrLength];
 	uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, rawPacketArrLength);
-	//LOG_DEBUG("Captured %d packets", rawPacketArrLength);
 
 	if (unlikely(packetsReceived <= 0))
 	{
@@ -859,19 +857,18 @@ uint16_t DpdkDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLeng
 
 	if (unlikely(!m_StopThread))
 	{
-		LOG_ERROR("DpdkDevice capture mode is currently running. Cannot recieve packets in parallel");
+		LOG_ERROR("DpdkDevice capture mode is currently running. Cannot receive packets in parallel");
 		return 0;
 	}
 
 	if (unlikely(rxQueueId >= m_TotalAvailableRxQueues))
 	{
-		LOG_ERROR("RX queue ID #%d not available for this device", rxQueueId);
+		LOG_ERROR("RX queue ID #" << rxQueueId << " not available for this device");
 		return 0;
 	}
 
 	struct rte_mbuf* mBufArray[packetsArrLength];
 	uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, packetsArrLength);
-	//LOG_DEBUG("Captured %d packets", packetsArrLength);
 
 	if (unlikely(packetsReceived <= 0))
 	{
@@ -943,13 +940,13 @@ uint16_t DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, P
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("Device '%s' not opened!", m_DeviceName);
+		LOG_ERROR("Device '" << m_DeviceName << "' not opened!");
 		return 0;
 	}
 
 	if (unlikely(txQueueId >= m_NumOfTxQueuesOpened))
 	{
-		LOG_ERROR("TX queue %d isn't opened in device", txQueueId);
+		LOG_ERROR("TX queue " << txQueueId << " isn't opened in device");
 		return 0;
 	}
 

@@ -329,7 +329,7 @@ PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::addTagAt(PPPoETagTypes tagTy
 	size_t tagTotalLength = 2*sizeof(uint16_t) + tagLength;
 	if (!extendLayer(offset, tagTotalLength))
 	{
-		LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [%d] bytes", (int)tagTotalLength);
+		LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [" << tagTotalLength << "] bytes");
 		return NULL;
 	}
 

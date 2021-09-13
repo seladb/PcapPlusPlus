@@ -2,6 +2,9 @@
 #define PCAPPP_LOGGER
 
 #include <stdio.h>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <stdint.h>
 
 #ifndef LOG_MODULE
@@ -69,30 +72,61 @@ namespace pcpp
 	};
 
 	/**
-	 * @class LoggerPP
-	 * The PcapPlusPlus log manager class.
+	 * @class Logger
+	 * PcapPlusPlus logger manager.
 	 * PcapPlusPlus uses this logger to output both error and debug logs.
+	 * There are currently 3 log levels: Logger#Error, Logger#Info and Logger#Debug.
 	 *
-	 * Debug logs: PcapPlusPlus is divided into modules (described in LogModule enum). The user can set each module or all modules to output or suppress debug messages. The default is suppressing debug messages.
-	 * Changing debug log level for modules can be done dynamically while application is running.
-	 *
-	 * Error logs: errors are printed by default to stderr. The user can change this behavior in several manners:
-	 * 1. Suppress errors - no errors will be printed (for all modules)
-	 * 2. Print error logs to a string provided by the user instead of stderr
-	 *
-	 * PcapPlusPlus logger is a singleton which can be reached from anywhere in the code *
+	 * PcapPlusPlus is divided into modules (described in #LogModule enum). The user can set the log level got each module or to all modules at once.
+	 * The default is Logger#Info which outputs only error messages. Changing log level for modules can be done dynamically while the application is running.
+	 * 
+	 * The logger also exposes a method to retrieve the last error log message.
+	 * 
+	 * Logs are printed to console by default in a certain format. The user can set a different print function to change the format or to print to
+	 * other media (such as files, etc.).
+	 * 
+	 * PcapPlusPlus logger is a singleton which can be reached from anywhere in the code.
+	 * 
+	 * Note: Logger#Info level logs are currently only used in DPDK devices to set DPDK log level to RTE_LOG_NOTICE.
 	 */
-	class LoggerPP
+	class Logger
 	{
 	public:
+
 		/**
-		 * An enum representing the log level. Currently 2 log level are supported: Normal and Debug. Normal is the default log level
+		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the default log level
 		 */
 		enum LogLevel
 		{
-			Normal, ///< Normal log level
+			Error, ///< Error log level
+			Info, ///< Info log level
 			Debug ///< Debug log level
 		};
+
+		/**
+		 * @typedef LogPrinter
+		 * Log printer callback. Used for printing the logs in a custom way.
+		 * @param[in] logLevel The log level for this log message
+		 * @param[in] logMessage The log message
+		 * @param[in] file The source file in PcapPlusPlus code the log message is coming from
+		 * @param[in] method The method in PcapPlusPlus code the log message is coming from
+		 * @param[in] line The line in PcapPlusPlus code the log message is coming from
+		 */
+		typedef void (*LogPrinter)(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
+
+		/**
+		 * A static method for converting the log level enum to a string.
+		 * @param[in] logLevel A log level enum
+		 * @return The log level as a string
+		 */
+		static std::string logLevelAsString(LogLevel logLevel);
+
+		/**
+		 * Get the log level for a certain module
+		 * @param[in] module PcapPlusPlus module
+		 * @return The log level set for this module
+		 */
+		LogLevel getLogLevel(LogModule module) { return m_LogModulesArray[module]; }
 
 		/**
 		 * Set the log level for a certain PcapPlusPlus module
@@ -102,12 +136,6 @@ namespace pcpp
 		void setLogLevel(LogModule module, LogLevel level) { m_LogModulesArray[module] = level; }
 
 		/**
-		 * Set all PcapPlusPlus modules to a certain log leve
-		 * @param[in] level The log level to set all modules to
-		 */
-		void setAllModlesToLogLevel(LogLevel level) { for (int i=1; i<NumOfLogModules; i++) m_LogModulesArray[i] = level; }
-
-		/**
 		 * Check whether a certain module is set to debug log level
 		 * @param[in] module PcapPlusPlus module
 		 * @return True if this module log level is "debug". False otherwise
@@ -115,90 +143,95 @@ namespace pcpp
 		bool isDebugEnabled(LogModule module) const { return m_LogModulesArray[module] == Debug; }
 
 		/**
-		 * Get an array that contains log level information for all modules. User can access this array with a certain PcapPlusPlus module
-		 * and get the log level this module is currently in. For example:
-		 * LogLevel* myLogLevelArr = getLogModulesArr();
-		 * if (myLogLevelArr[PacketLogModuleUdpLayer] == LogLevel::Debug) ....
-		 * @return A pointer to the LogLevel array
+		 * Set all PcapPlusPlus modules to a certain log level
+		 * @param[in] level The log level to set all modules to
 		 */
-		const LogLevel* getLogModulesArr() const { return m_LogModulesArray; }
+		void setAllModlesToLogLevel(LogLevel level) { for (int i=1; i<NumOfLogModules; i++) m_LogModulesArray[i] = level; }
 
 		/**
-		 * Check whether error string was already set
-		 * @return true if error string was already set, false otherwise
+		 * Set a custom log printer.
+		 * @param[in] printer A log printer function that will be called for every log message
 		 */
-		bool isErrorStringSet() const { return m_ErrorString != NULL; }
+		void setLogPrinter(LogPrinter printer) { m_LogPrinter = printer; }
 
 		/**
-		 * Get the pointer to the error string set by the user. If no such pointer was provided by the user, NULL will be returned
-		 * @return A pointer to the string
+		 * Set the log printer back to the default printer
 		 */
-		char* getErrorString() const { return m_ErrorString; }
+		void resetLogPrinter() { m_LogPrinter = &defaultLogPrinter; }
 
 		/**
-		 * Set the error string to a string pointer provided by the user. By default all errors are printed to stderr.
-		 * Using this method will cause PcapPlusPlus to output errors to the user string instead
-		 * @param[in] errString A string pointer provided by the user which all error messages will be print to from now on
-		 * @param[in] len The length of errString array. If
+		 * @return Get the last error message
 		 */
-		void setErrorString(char* errString, int len) { m_ErrorString = errString; m_ErrorStringLen = len; }
+		std::string getLastError() { return m_LastError; }
 
 		/**
-		 * Get the user-defined error string length. If no such pointer was provided by the user, 0 will be returned
-		 * @return The user-defined error string length
-		 **/
-		int getErrorStringLength() const { return m_ErrorStringLen; }
-
-		/**
-		 * Suppress all errors in all PcapPlusPlusModules
+		 * Suppress logs in all PcapPlusPlus modules
 		 */
-		void suppressErrors() { m_SuppressErrors = true; }
+		void suppressLogs() { m_LogsEnabled = false; }
 
 		/**
-		 * Enable all errors in all PcapPlusPlusModules
+		 * Enable logs in all PcapPlusPlus modules
 		 */
-		void enableErrors() { m_SuppressErrors = false; }
+		void enableLogs() { m_LogsEnabled = true; }
 
 		/**
-		 * Get an indication if errors are currently suppressed
-		 * @return True if errors are currently suppressed, false otherwise
+		 * Get an indication if logs are currently enabled.
+		 * @return True if logs are currently enabled, false otherwise
 		 */
-		bool isSuppressErrors() const { return m_SuppressErrors; }
+		bool logsEnabled() const { return m_LogsEnabled; }
 
 		/**
-		 * Get access to LoggerPP singleton
+		 * An internal method to print log messages. Shouldn't be used externally.
+		 */
+		inline void internalPrintLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
+
+		/**
+		 * Get access to Logger singleton
 		 * @todo: make this singleton thread-safe/
-		 * @return a pointer to the LoggerPP singleton
+		 * @return a pointer to the Logger singleton
 		**/
-		static LoggerPP& getInstance()
+		static Logger& getInstance()
 		{
-			static LoggerPP instance;
+			static Logger instance;
 			return instance;
 		}
 	private:
-		char* m_ErrorString;
-		int m_ErrorStringLen;
-		bool m_SuppressErrors;
-		LoggerPP::LogLevel m_LogModulesArray[NumOfLogModules];
-		LoggerPP();
+		bool m_LogsEnabled;
+		Logger::LogLevel m_LogModulesArray[NumOfLogModules];
+		LogPrinter m_LogPrinter;
+		std::string m_LastError;
+
+		// private c'tor - this class is a singleton
+		Logger();
+
+		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 
-#define LOG_DEBUG(format, ...) do { \
-			if(pcpp::LoggerPP::getInstance().isDebugEnabled(LOG_MODULE)) { \
-				printf("[%-35s: %-25s: line:%-4d] " format "\n", __FILE__, __FUNCTION__, __LINE__, ## __VA_ARGS__); \
-			} \
+#define LOG_DEBUG(message) do { \
+		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) { \
+			std::ostringstream logStream; \
+			logStream << message; \
+			pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Debug, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
+		} \
 	} while(0)
 
-#define LOG_ERROR(format, ...) do { \
-			if (!pcpp::LoggerPP::getInstance().isSuppressErrors()) {\
-				if(pcpp::LoggerPP::getInstance().isErrorStringSet()) \
-					snprintf(pcpp::LoggerPP::getInstance().getErrorString(), pcpp::LoggerPP::getInstance().getErrorStringLength(), format, ## __VA_ARGS__); \
-				else \
-					fprintf(stderr, format "\n", ## __VA_ARGS__); \
-			} \
-		} while (0)
+#define LOG_ERROR(message) do { \
+		std::ostringstream logStream; \
+		logStream << message; \
+		pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Error, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
+	} while (0)
 
-#define IS_DEBUG pcpp::LoggerPP::getInstance().isDebugEnabled(LOG_MODULE)
+void Logger::internalPrintLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line)
+{
+	if (logLevel == Logger::Error)
+	{
+		m_LastError = logMessage;
+	}
+	if (m_LogsEnabled)
+	{
+		m_LogPrinter(logLevel, logMessage, file, method, line);
+	}
+}
 
 } // namespace pcpp
 

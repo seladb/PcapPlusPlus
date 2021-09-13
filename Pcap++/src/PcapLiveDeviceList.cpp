@@ -42,10 +42,10 @@ void PcapLiveDeviceList::init()
 	int err = pcap_findalldevs(&interfaceList, errbuf);
 	if (err < 0)
 	{
-		LOG_ERROR("Error searching for devices: %s", errbuf);
+		LOG_ERROR("Error searching for devices: " << errbuf);
 	}
 
-	LOG_DEBUG("Pcap lib version info: %s", IPcapDevice::getPcapLibVersionInfo().c_str());
+	LOG_DEBUG("Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
 
 	pcap_if_t* currInterface = interfaceList;
 	while (currInterface != NULL)
@@ -85,18 +85,18 @@ void PcapLiveDeviceList::setDnsServers()
 	}
 
 	if ((dwRetVal = GetNetworkParams( fixedInfo, &ulOutBufLen )) != 0)
-		LOG_ERROR("Call to GetNetworkParams failed. Return Value: %08lx\n", dwRetVal);
+		LOG_ERROR("Call to GetNetworkParams failed. Return Value: " << std::hex << dwRetVal);
 	else
 	{
 		m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
 		int i = 1;
-		LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, fixedInfo->DnsServerList.IpAddress.String );
+		LOG_DEBUG("Default DNS server IP #" << i++ << ": " << fixedInfo->DnsServerList.IpAddress.String);
 
 		pIPAddr = fixedInfo->DnsServerList.Next;
 		while ( pIPAddr )
 		{
 			m_DnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
-			LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, pIPAddr->IpAddress.String);
+			LOG_DEBUG("Default DNS server IP #" << i++ << ": " << pIPAddr->IpAddress.String);
 			pIPAddr = pIPAddr -> Next;
 		}
 	}
@@ -116,7 +116,7 @@ void PcapLiveDeviceList::setDnsServers()
 	command = "nmcli -v | awk -F' ' '{print $NF}' | awk -F'.' '{print $1}'";
 	std::string nmcliMajorVer = executeShellCommand(command);
 	nmcliMajorVer.erase(std::remove(nmcliMajorVer.begin(), nmcliMajorVer.end(), '\n'), nmcliMajorVer.end());
-	LOG_DEBUG("Found nmcli. nmcli major version is: '%s'", nmcliMajorVer.c_str());
+	LOG_DEBUG("Found nmcli. nmcli major version is: '" << nmcliMajorVer << "'");
 
 	// build nmcli command according to its major version
 	if (nmcliMajorVer == "0")
@@ -148,7 +148,7 @@ void PcapLiveDeviceList::setDnsServers()
 		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
 		{
 			m_DnsServers.push_back(dnsIPAddr);
-			LOG_DEBUG("Default DNS server IP #%d: %s\n", i++, dnsIPAddr.toString().c_str());
+			LOG_DEBUG("Default DNS server IP #" << i++ << ": " << dnsIPAddr);
 		}
 	}
 #elif MAC_OS_X
@@ -191,7 +191,7 @@ void PcapLiveDeviceList::setDnsServers()
 		char* serverAddressCString = (char*)buf;
 		CFStringGetCString(serverAddress, serverAddressCString, 20, kCFStringEncodingUTF8);
 		m_DnsServers.push_back(IPv4Address(serverAddressCString));
-		LOG_DEBUG("Default DNS server IP #%d: %s\n", (int)(i+1), serverAddressCString);
+		LOG_DEBUG("Default DNS server IP #" << (int)(i+1) << ": " << serverAddressCString);
 	}
 
 	CFRelease(dynRef);
@@ -232,14 +232,14 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
+		LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
-			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
 				internal::sockaddr2string(addrIter->addr, addrAsString);
-				LOG_DEBUG("Searching address %s", addrAsString);
+				LOG_DEBUG("Searching address " << addrAsString);
 			}
 
 			in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
@@ -265,14 +265,14 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 	LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '%s'. Searching all addresses...", (*devIter)->m_Name.c_str());
+		LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
-			if (LoggerPP::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
 				internal::sockaddr2string(addrIter->addr, addrAsString);
-				LOG_DEBUG("Searching address %s", addrAsString);
+				LOG_DEBUG("Searching address " << addrAsString);
 			}
 
 			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter->addr);

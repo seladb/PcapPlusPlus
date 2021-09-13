@@ -50,19 +50,19 @@ bool PfRingDevice::open()
 
 	m_NumOfOpenedRxChannels = 0;
 
-	LOG_DEBUG("Trying to open device [%s]", m_DeviceName);
+	LOG_DEBUG("Trying to open device [" << m_DeviceName << "]");
 	int res = openSingleRxChannel(m_DeviceName, &m_PfRingDescriptors[0]);
 	if (res == 0)
 	{
-		LOG_DEBUG("Succeeded opening device [%s]", m_DeviceName);
+		LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
 		m_NumOfOpenedRxChannels = 1;
 		m_DeviceOpened = true;
 		return true;
 	}
 	else if (res == 1)
-		LOG_ERROR("Couldn't open a ring on device [%s]", m_DeviceName);
+		LOG_ERROR("Couldn't open a ring on device [" << m_DeviceName << "]");
 	else if (res == 2)
-		LOG_ERROR("Unable to enable ring for device [%s]", m_DeviceName);
+		LOG_ERROR("Unable to enable ring for device [" << m_DeviceName << "]");
 
 	return false;
 }
@@ -89,12 +89,12 @@ int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring** ring)
 	{
 		return 1;
 	}
-	LOG_DEBUG("pfring_open Succeeded for device [%s]", deviceName);
+	LOG_DEBUG("pfring_open Succeeded for device [" << m_DeviceName << "]");
 
 	if (getIsHwClockEnable())
 	{
 		setPfRingDeviceClock(*ring);
-		LOG_DEBUG("H/W clock set for device [%s]", deviceName);
+		LOG_DEBUG("H/W clock set for device [" << m_DeviceName << "]");
 	}
 
 	if (pfring_enable_rss_rehash(*ring) < 0 || pfring_enable_ring(*ring) < 0)
@@ -103,7 +103,7 @@ int PfRingDevice::openSingleRxChannel(const char* deviceName, pfring** ring)
 		return 2;
 	}
 
-	LOG_DEBUG("pfring enabled for device [%s]", deviceName);
+	LOG_DEBUG("pfring enabled for device [" << m_DeviceName << "]");
 
 	return 0;
 }
@@ -142,7 +142,7 @@ bool PfRingDevice::openMultiRxChannels(const uint8_t* channelIds, int numOfChann
 		uint8_t channelId = channelIds[i];
 		if (channelId >= totalChannels)
 		{
-			LOG_ERROR("Trying to open the device with a RX channel that doesn't exist. Total RX channels are [%d], tried to open channel [%d]", totalChannels, channelId);
+			LOG_ERROR("Trying to open the device with a RX channel that doesn't exist. Total RX channels are [" << (int)totalChannels << "], tried to open channel [" << (int)channelId << "]");
 			return false;
 		}
 	}
@@ -154,18 +154,18 @@ bool PfRingDevice::openMultiRxChannels(const uint8_t* channelIds, int numOfChann
 		uint8_t channelId = channelIds[i];
 		char ringName[32];
 		snprintf(ringName, sizeof(ringName), "%s@%d", m_DeviceName, channelId);
-		LOG_DEBUG("Trying to open device [%s] on channel [%d]. Channel name [%s]", m_DeviceName, channelId, ringName);
+		LOG_DEBUG("Trying to open device [" << m_DeviceName << "] on channel [" << channelId << "]. Channel name [" << ringName << "]");
 		int res = openSingleRxChannel(ringName, &m_PfRingDescriptors[i]);
 		if (res == 0)
 		{
-			LOG_DEBUG("Succeeded opening device [%s] on channel [%d]. Channel name [%s]", m_DeviceName, channelId, ringName);
+			LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "] on channel [" << channelId << "]. Channel name [" << ringName << "]");
 			m_NumOfOpenedRxChannels++;
 			continue;
 		}
 		else if (res == 1)
-			LOG_ERROR("Couldn't open a ring on channel [%d] for device [%s]", channelId, m_DeviceName);
+			LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "] for device [" << m_DeviceName << "]");
 		else if (res == 2)
-			LOG_ERROR("Unable to enable ring on channel [%d] for device [%s]", channelId, m_DeviceName);
+			LOG_ERROR("Unable to enable ring on channel [" << (int)channelId << "] for device [" << m_DeviceName << "]");
 
 		break;
 	}
@@ -201,14 +201,14 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 
 	if (numOfRxChannelsToOpen > MAX_NUM_RX_CHANNELS)
 	{
-		LOG_ERROR("Cannot open more than [%d] channels", MAX_NUM_RX_CHANNELS);
+		LOG_ERROR("Cannot open more than [" << MAX_NUM_RX_CHANNELS << "] channels");
 		return false;
 	}
 
 	uint32_t flags = PF_RING_PROMISC | PF_RING_REENTRANT | PF_RING_HW_TIMESTAMP | PF_RING_DNA_SYMMETRIC_RSS;
 
 	uint8_t numOfRxChannelsOnNIC = getTotalNumOfRxChannels();
-	LOG_DEBUG("NIC has %d RX channels", numOfRxChannelsOnNIC);
+	LOG_DEBUG("NIC has " << (int)numOfRxChannelsOnNIC << " RX channels");
 
 	uint8_t numOfRingsPerRxChannel = numOfRxChannelsToOpen / numOfRxChannelsOnNIC;
 	uint8_t remainderRings = numOfRxChannelsToOpen % numOfRxChannelsOnNIC;
@@ -231,14 +231,14 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 			m_PfRingDescriptors[ringsOpen] = pfring_open(ringName, DEFAULT_PF_RING_SNAPLEN, flags);
 			if (m_PfRingDescriptors[ringsOpen] == NULL)
 			{
-				LOG_ERROR("Couldn't open a ring on channel [%d]", channelId);
+				LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "]");
 				break;
 			}
 
 			// setting a cluster for all rings in the same channel to enable hashing between them
 			if (pfring_set_cluster(m_PfRingDescriptors[ringsOpen], channelId+1, clusterType) < 0)
 			{
-				LOG_ERROR("Couldn't set ring [%d] in channel [%d] to the cluster [%d]", ringId, channelId, channelId+1);
+				LOG_ERROR("Couldn't set ring [" << (int)ringId << "] in channel [" << (int)channelId << "] to the cluster [" << (int)(channelId+1) << "]");
 				break;
 			}
 
@@ -251,23 +251,23 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 			m_PfRingDescriptors[ringsOpen] = pfring_open(ringName, DEFAULT_PF_RING_SNAPLEN, flags);
 			if (m_PfRingDescriptors[ringsOpen] == NULL)
 			{
-				LOG_ERROR("Couldn't open a ring on channel [%d]", channelId);
+				LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "]");
 				break;
 			}
 
 			// setting a cluster for all rings in the same channel to enable hashing between them
 			if (pfring_set_cluster(m_PfRingDescriptors[ringsOpen], channelId+1, clusterType) < 0)
 			{
-				LOG_ERROR("Couldn't set ring [%d] in channel [%d] to the cluster [%d]", numOfRingsPerRxChannel+1, channelId, channelId+1);
+				LOG_ERROR("Couldn't set ring [" << (int)(numOfRingsPerRxChannel+1) << "] in channel [" << (int)channelId << "] to the cluster [" << (int)(channelId+1) << "]");
 				break;
 			}
 
 			ringsOpen++;
 			remainderRings--;
-			LOG_DEBUG("Opened %d rings on channel [%d]", numOfRingsPerRxChannel+1, channelId);
+			LOG_DEBUG("Opened " << (int)(numOfRingsPerRxChannel+1) << " rings on channel [" << (int)channelId << "]");
 		}
 		else
-			LOG_DEBUG("Opened %d rings on channel [%d]", numOfRingsPerRxChannel, channelId);
+			LOG_DEBUG("Opened " << (int)numOfRingsPerRxChannel << " rings on channel [" << (int)channelId << "]");
 	}
 
 	if (ringsOpen < numOfRxChannelsToOpen)
@@ -282,7 +282,7 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 		for (int i = 0; i < ringsOpen; i++)
 		{
 			if (setPfRingDeviceClock(m_PfRingDescriptors[i]))
-				LOG_DEBUG("H/W clock set for device [%s]", m_DeviceName);
+				LOG_DEBUG("H/W clock set for device [" << m_DeviceName << "]");
 		}
 	}
 
@@ -291,7 +291,7 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 	{
 		if (pfring_enable_rss_rehash(m_PfRingDescriptors[i]) < 0 || pfring_enable_ring(m_PfRingDescriptors[i]) < 0)
 		{
-			LOG_ERROR("Unable to enable ring [%d] for device [%s]", i, m_DeviceName);
+			LOG_ERROR("Unable to enable ring [" << i << "] for device [" << m_DeviceName << "]");
 			// close all pfring's that were enabled until now
 			for (int j = 0; j <ringsOpen; j++)
 				pfring_close(m_PfRingDescriptors[j]);
@@ -345,14 +345,14 @@ bool PfRingDevice::setFilter(std::string filterAsString)
 			if (res == PF_RING_ERROR_NOT_SUPPORTED)
 				LOG_ERROR("BPF filtering isn't supported on current PF_RING version. Please re-compile PF_RING with the --enable-bpf flag");
 			else
-				LOG_ERROR("Couldn't set filter '%s'", filterAsString.c_str());
+				LOG_ERROR("Couldn't set filter '" << filterAsString << "'");
 			return false;
 		}
 	}
 
 	m_IsFilterCurrentlySet = true;
 
-	LOG_DEBUG("Successfully set filter '%s'", filterAsString.c_str());
+	LOG_DEBUG("Successfully set filter '" << filterAsString << "'");
 	return true;
 }
 
@@ -393,7 +393,7 @@ void PfRingDevice::close()
 	clearCoreConfiguration();
 	m_NumOfOpenedRxChannels = 0;
 	m_IsFilterCurrentlySet = false;
-	LOG_DEBUG("Device [%s] closed", m_DeviceName);
+	LOG_DEBUG("Device [" << m_DeviceName << "] closed");
 }
 
 bool PfRingDevice::initCoreConfigurationByCoreMask(CoreMask coreMask)
@@ -414,7 +414,7 @@ bool PfRingDevice::initCoreConfigurationByCoreMask(CoreMask coreMask)
 
 	if (coreMask != 0) // this mean coreMask contains a core that doesn't exist
 	{
-		LOG_ERROR("Trying to use a core [%d] that doesn't exist while machine has %d cores", i, numOfCores);
+		LOG_ERROR("Trying to use a core [" << i << "] that doesn't exist while machine has " << numOfCores << " cores");
 		clearCoreConfiguration();
 		return false;
 	}
@@ -435,7 +435,7 @@ bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacke
 
 	if (m_NumOfOpenedRxChannels != getCoresInUseCount())
 	{
-		LOG_ERROR("Cannot use a different number of channels and cores. Opened %d channels but set %d cores in core mask", m_NumOfOpenedRxChannels, getCoresInUseCount());
+		LOG_ERROR("Cannot use a different number of channels and cores. Opened " << m_NumOfOpenedRxChannels << " channels but set " << getCoresInUseCount() << " cores in core mask");
 		clearCoreConfiguration();
 		return false;
 	}
@@ -457,7 +457,7 @@ bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacke
 		int err = pthread_create(&(m_CoreConfiguration[coreId].RxThread), NULL, captureThreadMain, (void*)this);
 		if (err != 0)
 		{
-			LOG_ERROR("Cannot create capture thread #%d for device '%s': [%s]", coreId, m_DeviceName, strerror(err));
+			LOG_ERROR("Cannot create capture thread #" << coreId << " for device '" << m_DeviceName << "': [" << strerror(err) << "]");
 			m_CoreConfiguration[coreId].clear();
 			return false;
 		}
@@ -468,7 +468,7 @@ bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacke
 		CPU_SET(coreId, &cpuset);
 		if((err = pthread_setaffinity_np(m_CoreConfiguration[coreId].RxThread, sizeof(cpu_set_t), &cpuset)) != 0)
 		{
-			LOG_ERROR("Error while binding thread to core %d: errno=%i", coreId, err);
+			LOG_ERROR("Error while binding thread to core " << coreId << ": errno=" << err);
 			clearCoreConfiguration();
 			return false;
 		}
@@ -492,7 +492,7 @@ bool PfRingDevice::startCaptureSingleThread(OnPfRingPacketsArriveCallback onPack
 		return false;
 	}
 
-	LOG_DEBUG("Trying to start capturing on a single thread for device [%s]", m_DeviceName);
+	LOG_DEBUG("Trying to start capturing on a single thread for device [" << m_DeviceName << "]");
 
 	clearCoreConfiguration();
 
@@ -507,7 +507,7 @@ bool PfRingDevice::startCaptureSingleThread(OnPfRingPacketsArriveCallback onPack
 	int err = pthread_create(&newThread, NULL, captureThreadMain, (void*)this);
 	if (err != 0)
 	{
-		LOG_ERROR("Cannot create capture thread for device '%s': [%s]", m_DeviceName, strerror(err));
+		LOG_ERROR("Cannot create capture thread for device '" << m_DeviceName << "': [" << strerror(err) << "]");
 		return false;
 	}
 
@@ -525,20 +525,20 @@ bool PfRingDevice::startCaptureSingleThread(OnPfRingPacketsArriveCallback onPack
 		}
 	}
 
-	LOG_DEBUG("Capturing started for device [%s]", m_DeviceName);
+	LOG_DEBUG("Capturing started for device [" << m_DeviceName << "]");
 	return true;
 }
 
 void PfRingDevice::stopCapture()
 {
-	LOG_DEBUG("Trying to stop capturing on device [%s]", m_DeviceName);
+	LOG_DEBUG("Trying to stop capturing on device [" << m_DeviceName << "]");
 	m_StopThread = true;
 	for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 	{
 		if (!m_CoreConfiguration[coreId].IsInUse)
 			continue;
 		pthread_join(m_CoreConfiguration[coreId].RxThread, NULL);
-		LOG_DEBUG("Thread on core [%d] stopped", coreId);
+		LOG_DEBUG("Thread on core [" << coreId << "] stopped");
 	}
 
 	LOG_DEBUG("All capturing threads stopped");
@@ -550,13 +550,13 @@ void* PfRingDevice::captureThreadMain(void* ptr)
 	int coreId = device->getCurrentCoreId().Id;
 	pfring* ring = NULL;
 
-	LOG_DEBUG("Starting capture thread %d", coreId);
+	LOG_DEBUG("Starting capture thread " << coreId);
 
 	ring = device->m_CoreConfiguration[coreId].Channel;
 
 	if (ring == NULL)
 	{
-		LOG_ERROR("Couldn't find ring for core %d. Exiting capture thread", coreId);
+		LOG_ERROR("Couldn't find ring for core " << coreId << ". Exiting capture thread");
 		return (void*)NULL;
 	}
 
@@ -592,11 +592,11 @@ void* PfRingDevice::captureThreadMain(void* ptr)
 		}
 		else if (recvRes < 0)
 		{
-			LOG_ERROR("pfring_recv returned an error: [Err=%d]", recvRes);
+			LOG_ERROR("pfring_recv returned an error: [Err=" << recvRes << "]");
 		}
 	}
 
-	LOG_DEBUG("Exiting capture thread %d", coreId);
+	LOG_DEBUG("Exiting capture thread " << coreId);
 	return (void*)NULL;
 }
 
@@ -612,7 +612,7 @@ void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats) cons
 		pfring_stat tempStats;
 		if (pfring_stats(ring, &tempStats) < 0)
 		{
-			LOG_ERROR("Can't retrieve statistics for core [%d], pfring_stats failed", coreId);
+			LOG_ERROR("Can't retrieve statistics for core [" << (int)coreId << "], pfring_stats failed");
 			return;
 		}
 		stats.drop = (uint64_t)tempStats.drop;
@@ -620,7 +620,7 @@ void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats) cons
 	}
 	else
 	{
-		LOG_ERROR("Core [%d] is not in use, can't retrieve statistics", coreId);
+		LOG_ERROR("Core [" << (int)coreId << "] is not in use, can't retrieve statistics");
 	}
 }
 
@@ -691,7 +691,7 @@ void PfRingDevice::setPfRingDeviceAttributes()
 
 	uint8_t macAddress[6];
 	if (pfring_get_bound_device_address(ring, macAddress) < 0)
-		LOG_ERROR("Unable to read the device MAC address for interface '%s'", m_DeviceName);
+		LOG_ERROR("Unable to read the device MAC address for interface '" << m_DeviceName << "'");
 	else
 		m_MacAddress = MacAddress(macAddress);
 
@@ -705,14 +705,14 @@ void PfRingDevice::setPfRingDeviceAttributes()
 	// set interface MTU
 	int mtu = pfring_get_mtu_size(ring);
 	if (mtu < 0)
-		LOG_ERROR("Could not get MTU. pfring_get_mtu_size returned an error: %d", mtu);
+		LOG_ERROR("Could not get MTU. pfring_get_mtu_size returned an error: " << mtu);
 	else
 		m_DeviceMTU = mtu + sizeof(ether_header) + sizeof(vlan_header);
 
-	if (LoggerPP::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
+	if (Logger::getInstance().isDebugEnabled(PcapLogModulePfRingDevice))
 	{
 		std::string hwEnabled = (m_HwClockEnabled ? "enabled" : "disabled");
-		LOG_DEBUG("Capturing from %s [%s][ifIndex: %d][MTU: %d], HW clock %s", m_DeviceName, m_MacAddress.toString().c_str(), m_InterfaceIndex, m_DeviceMTU, hwEnabled.c_str());
+		LOG_DEBUG("Capturing from " << m_DeviceName << " [" << m_MacAddress << "][ifIndex: " << m_InterfaceIndex << "][MTU: " << m_DeviceMTU << "], HW clock " << hwEnabled);
 	}
 
 
@@ -750,7 +750,7 @@ bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, boo
 		if (res == -1 && errno == ENOBUFS)
 		{
 			tries++;
-			LOG_DEBUG("Try #%d: Got ENOBUFS (write buffer full) error while sending packet. Sleeping 20 usec and trying again", tries);
+			LOG_DEBUG("Try #" << tries << ": Got ENOBUFS (write buffer full) error while sending packet. Sleeping 20 usec and trying again");
 			usleep(2000);
 		}
 		else
@@ -759,7 +759,7 @@ bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, boo
 
 	if (tries >= MAX_TRIES)
 	{
-		LOG_ERROR("Tried to send data %d times but write buffer is full", MAX_TRIES);
+		LOG_ERROR("Tried to send data " << MAX_TRIES << " times but write buffer is full");
 		return false;
 	}
 
@@ -767,13 +767,13 @@ bool PfRingDevice::sendData(const uint8_t* packetData, int packetDataLength, boo
 	{
 		// res == -1 means it's an error coming from "sendto" which is the Linux API PF_RING is using to send packets
 		if (res == -1)
-			LOG_ERROR("Error sending packet: Linux errno: %s [%d]", strerror(errno), errno);
+			LOG_ERROR("Error sending packet: Linux errno: " << strerror(errno) << " [" << errno << "]");
 		else
-			LOG_ERROR("Error sending packet: pfring_send returned an error: %d , errno: %s [%d]", res, strerror(errno), errno);
+			LOG_ERROR("Error sending packet: pfring_send returned an error: " << res << " , errno: " << strerror(errno)<< " [" << errno << "]");
 		return false;
 	} else if (res != packetDataLength)
 	{
-		LOG_ERROR("Couldn't send all bytes, only %d bytes out of %d bytes were sent", res, packetDataLength);
+		LOG_ERROR("Couldn't send all bytes, only " << res << " bytes out of " << packetDataLength << " bytes were sent");
 		return false;
 	}
 
@@ -812,7 +812,7 @@ int PfRingDevice::sendPackets(const RawPacket* rawPacketsArr, int arrLength)
 	// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
 	pfring_flush_tx_packets(m_PfRingDescriptors[0]);
 
-	LOG_DEBUG("%d out of %d raw packets were sent successfully", packetsSent, arrLength);
+	LOG_DEBUG(packetsSent << " out of " << arrLength << " raw packets were sent successfully");
 
 	return packetsSent;
 }
@@ -831,7 +831,7 @@ int PfRingDevice::sendPackets(const Packet** packetsArr, int arrLength)
 	// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
 	pfring_flush_tx_packets(m_PfRingDescriptors[0]);
 
-	LOG_DEBUG("%d out of %d packets were sent successfully", packetsSent, arrLength);
+	LOG_DEBUG(packetsSent << " out of " << arrLength << " packets were sent successfully");
 
 	return packetsSent;
 }
@@ -850,7 +850,7 @@ int PfRingDevice::sendPackets(const RawPacketVector& rawPackets)
 	// The following method isn't supported in PF_RING aware drivers, probably only in DNA and ZC
 	pfring_flush_tx_packets(m_PfRingDescriptors[0]);
 
-	LOG_DEBUG("%d out of %d raw packets were sent successfully", packetsSent, (int)rawPackets.size());
+	LOG_DEBUG(packetsSent << " out of " << rawPackets.size() << " raw packets were sent successfully");
 
 	return packetsSent;
 }
