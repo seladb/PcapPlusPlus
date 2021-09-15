@@ -30,11 +30,12 @@
 #include <KniDevice.h>
 #include <KniDeviceList.h>
 
-#define EXIT_WITH_ERROR(reasonFmt, ...) \
-	do { \
-		std::fprintf(stderr, "ERROR: " reasonFmt "\n", ## __VA_ARGS__ ); \
-		std::exit(-1); \
-	} while (false)
+
+#define EXIT_WITH_ERROR(reason) do { \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
+	exit(1); \
+	} while(0)
+
 
 #define IO_BUFF_SIZE (1 << 14)
 #define WANT_POLLIN (-2)
@@ -42,8 +43,10 @@
 #define DEFAULT_KNI_NAME "pcppkni0"
 #define DEFAULT_PORT 62604
 
+
 namespace
 {
+
 struct KniPongArgs
 {
 	std::string kniIp;
@@ -52,13 +55,16 @@ struct KniPongArgs
 	uint16_t kniPort;
 };
 
+
 typedef int linuxFd;
+
 
 struct LinuxSocket
 {
 	inline operator int() const { return m_Socket; }
 	linuxFd m_Socket;
 };
+
 
 struct PacketStats
 {
@@ -69,36 +75,43 @@ struct PacketStats
 	unsigned long arpPacketsOutFail;
 };
 
+
 static bool doContinue = true;
 
-inline void printVersion()
+
+/**
+ * Print application version
+ */
+void printAppVersion()
 {
-	std::printf(
-		"%s %s\n"
-		"Built: %s\n"
-		"Built from: %s\n",
-		pcpp::AppName::get().c_str(), pcpp::getPcapPlusPlusVersionFull().c_str(),
-		pcpp::getBuildDateTime().c_str(),
-		pcpp::getGitInfo().c_str()
-	);
+	std::cout
+		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+		<< "Built: " << pcpp::getBuildDateTime() << std::endl
+		<< "Built from: " << pcpp::getGitInfo() << std::endl;
+	exit(0);
 }
 
+
+/**
+ * Print application usage
+ */
 inline void printUsage()
 {
-	std::printf(
-		"\nUsage:\n\n"
-		"    %s -s <src_ipv4> -d <dst_ipv4> [-n <kni_device_name>] [-p <port>] [-v] [-h]\n\n"
-		"Options:\n"
-		"    -s --src <src_ipv4>           : IP to assign to created KNI device\n"
-		"    -d --dst <dst_ipv4>           : Virtual IP to communicate with. Must be in /24 subnet with <src_ipv4>\n"
-		"    -n --name <kni_device_name>   : Name for KNI device. Default: \"" DEFAULT_KNI_NAME "\"\n"
-		"    -p --port <port>              : Port for communication. Default: %d\n"
-		"    -v --version                  : Displays the current version and exits\n"
-		"    -h --help                     : Displays this help message and exits\n\n",
-		pcpp::AppName::get().c_str(),
-		DEFAULT_PORT
-	);
+	std::cout << std::endl
+		<< "Usage:" << std::endl
+		<< "------" << std::endl
+		<< pcpp::AppName::get() << " [-hv] [-n KNI_DEVICE_NAME] [-p PORT] -s SRC_IPV4 -d DST_IPV4" << std::endl
+		<< std::endl
+		<< "Options:" << std::endl
+		<< "    -s --src SRC_IPV4           : IPv4 address to assign to the created KNI device" << std::endl
+		<< "    -d --dst DST_IPV4           : Virtual IPv4 address to communicate with. Must be in /24 subnet with SRC_IPV4" << std::endl
+		<< "    -n --name KNI_DEVICE_NAME   : Name for KNI device. Default: \"" << DEFAULT_KNI_NAME << "\"" << std::endl
+		<< "    -p --port PORT              : Port for communication. Default: " << DEFAULT_PORT << std::endl
+		<< "    -v --version                : Displays the current version and exits" << std::endl
+		<< "    -h --help                   : Displays this help message and exits" << std::endl
+		<< std::endl;
 }
+
 
 inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 {
@@ -135,17 +148,17 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 				args.kniPort = std::strtoul(optarg, NULL, 10) & 0xFFFF;
 				break;
 			case 'v':
-				printVersion();
-				/* fall-through */
+				printAppVersion();
+				break;
 			case 'h':
 			{
 				printUsage();
-				std::exit(1);
+				std::exit(0);
 			} break;
 			default:
 			{
 				printUsage();
-				EXIT_WITH_ERROR("Unknown option flag <%#0x>", opt);
+				exit(1);
 			} break;
 		}
 	}
@@ -171,14 +184,15 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	if (!outIp.matchSubnet(kniIp, pcpp::IPv4Address("255.255.255.0")))
 	{
 		EXIT_WITH_ERROR(
-			"Provided Virtual IP <%s> is not in same required subnet <255.255.255.0> as KNI IP <%s>",
-			outIp.toString().c_str(),
-			kniIp.toString().c_str()
+			"Provided Virtual IP '" << outIp << "' is not in same required subnet '255.255.255.0' as KNI IP '" << kniIp << "'"
 		);
 	}
 }
 
-// Simple dummy callbacks that always yields success for Linux Kernel
+
+/**
+ * Simple dummy callbacks that always yields success for Linux Kernel
+ */
 struct KniDummyCallbacks
 {
 	static int changeMtuNew(uint16_t, unsigned int) { return 0; }
@@ -204,21 +218,30 @@ struct KniDummyCallbacks
 pcpp::KniDevice::KniIoctlCallbacks KniDummyCallbacks::cbNew;
 pcpp::KniDevice::KniOldIoctlCallbacks KniDummyCallbacks::cbOld;
 
-// Setup IP of net device by calling the ip unix utility
+
+/**
+ * Setup IP of net device by calling the ip unix utility
+ */
 inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName)
 {
-	char buff[256];
-	snprintf(buff, sizeof(buff), "ip a add %s/24 dev %s", ip.toString().c_str(), kniName.c_str());
-	(void)pcpp::executeShellCommand(buff);
-	snprintf(buff, sizeof(buff), "ip a | grep %s", ip.toString().c_str());
-	std::string result = pcpp::executeShellCommand(buff);
+	std::ostringstream command;
+	command << "ip a add " << ip << "/24 dev " << kniName;
+	pcpp::executeShellCommand(command.str());
+	command.clear();
+	command.str("");
+	command << "ip a | grep " << ip;
+	std::string result = pcpp::executeShellCommand(command.str());
 	return result != "" && result != "ERROR";
 }
 
-// KNI device setup routine
+
+/**
+ * KNI device setup routine
+ */
 inline pcpp::KniDevice* setupKniDevice(const KniPongArgs& args)
 {
-	{	// Setup DPDK
+	{
+		// Setup DPDK
 		pcpp::CoreMask cm = 0x3;
 		bool dpdkInitSuccess = pcpp::DpdkDeviceList::initDpdk(cm, 1023);
 		if (!dpdkInitSuccess)
@@ -261,7 +284,10 @@ inline pcpp::KniDevice* setupKniDevice(const KniPongArgs& args)
 	return device;
 }
 
-// Open UDP socket for communication with KNI device
+
+/**
+ * Open UDP socket for communication with KNI device
+ */
 inline LinuxSocket setupLinuxSocket(const KniPongArgs& args)
 {	// Open socket
 	enum { INVALID_FD = -1 };
@@ -270,7 +296,7 @@ inline LinuxSocket setupLinuxSocket(const KniPongArgs& args)
 	if ((sock.m_Socket = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_FD)
 	{
 		int old_errno = errno;
-		EXIT_WITH_ERROR("Could not open socket\nErrno: %s", std::strerror(old_errno));
+		EXIT_WITH_ERROR("Could not open socket" << std::endl << "Errno: " << std::strerror(old_errno));
 	}
 	// Bind socket to KNI device IP
 	struct sockaddr_in egress;
@@ -282,13 +308,16 @@ inline LinuxSocket setupLinuxSocket(const KniPongArgs& args)
 	{
 		int old_errno = errno;
 		close(sock);
-		EXIT_WITH_ERROR("Could not bind socket\nErrno: %s", std::strerror(old_errno));
+		EXIT_WITH_ERROR("Could not bind socket" << std::endl << "Errno: " << std::strerror(old_errno));
 	}
 
 	return sock;
 }
 
-// Handle all ARP requests on KNI interface: map all IPs to same MAC
+
+/**
+ * Handle all ARP requests on KNI interface: map all IPs to same MAC
+ */
 inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer)
 {
 	pcpp::MacAddress rndMac("00:42:43:74:11:54");
@@ -321,8 +350,11 @@ inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer)
 	std::memcpy(origEthHdr, &ethHdr, sizeof(ethHdr));
 }
 
-// Handle all UDP packets as a packet carying a "ping" string to "pong" to with same string
-// Handle only packets that are of type: Eth / Ip / Udp / Payload
+
+/**
+ * Handle all UDP packets as a packet carying a "ping" string to "pong" to with same string.
+ * Handle only packets that are of type: Eth / Ip / Udp / Payload.
+ */
 inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer)
 {
 	pcpp::EthLayer* ethernetLayer = NULL;
@@ -368,7 +400,10 @@ inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer)
 	return true;
 }
 
-// Process burst of packets
+
+/**
+ * Process burst of packets
+ */
 bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets, pcpp::KniDevice* kni, void* cookie)
 {
 	PacketStats* packetStats = (PacketStats*)cookie;
@@ -407,7 +442,10 @@ bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets, pcpp::Kn
 	return true;
 }
 
-// Connect UDP socket to other IP:port pair derived from our
+
+/**
+ * Connect UDP socket to other IP:port pair derived from our args
+ */
 void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args)
 {
 	struct sockaddr_in ingress;
@@ -419,11 +457,14 @@ void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args)
 	{
 		int old_errno = errno;
 		close(sock);
-		EXIT_WITH_ERROR("Could not connect socket\nErrno: %s", std::strerror(old_errno));
+		EXIT_WITH_ERROR("Could not connect socket" << std::endl << "Errno: " << std::strerror(old_errno));
 	}
 }
 
-// Reworked fillbuf from netcat. See description in pingPongProcess
+
+/**
+ * Reworked fillbuf from netcat. See description in pingPongProcess
+ */
 ssize_t fillbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
 {
 	size_t num = IO_BUFF_SIZE - buffPos;
@@ -438,7 +479,10 @@ ssize_t fillbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
 	return n;
 }
 
-// Reworked drainbuf from netcat. See description in pingPongProcess
+
+/**
+ * Reworked drainbuf from netcat. See description in pingPongProcess
+ */
 ssize_t drainbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
 {
 	ssize_t n;
@@ -457,15 +501,21 @@ ssize_t drainbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
 	return n;
 }
 
-// Reworked readwrite from netcat. See description in pingPongProcess
+
+/**
+ * Reworked readwrite from netcat.
+ * 
+ * Note (echo-Mike): This function and fillbuf/drainbuf
+ * are analogous to code of NETCAT utility (OpenBSD version)
+ * Authors of original codebase:
+ *  - Eric Jackson <ericj@monkey.org>
+ *  - Bob Beck
+ *  - *Hobbit* <hobbit@avian.org>
+ *  See: http://man7.org/linux/man-pages/man1/ncat.1.html
+ */
 void pingPongProcess(const LinuxSocket& sock)
-{	//? Note (echo-Mike): This function and fillbuf/drainbuf
-	//? are analogous to code of NETCAT utility (OpenBSD version)
-	// Authors of original codebase:
-	//  - Eric Jackson <ericj@monkey.org>
-	//  - Bob Beck
-	//  - *Hobbit* <hobbit@avian.org>
-	//? See: http://man7.org/linux/man-pages/man1/ncat.1.html
+{
+
 	struct pollfd pfd[4];
 	const int POLL_STDIN = 0, POLL_NETOUT = 1, POLL_NETIN = 2, POLL_STDOUT = 3;
 	const int DEFAULT_POLL_TIMEOUT = 3000;//milisec
@@ -514,14 +564,13 @@ void pingPongProcess(const LinuxSocket& sock)
 			if (old_errno != EINTR)
 			{
 				close(sock);
-				EXIT_WITH_ERROR("poll returned an error\nErrno: %s", std::strerror(old_errno));
+				EXIT_WITH_ERROR("poll returned an error" << std::endl << "Errno: " << std::strerror(old_errno));
 			}
 			continue;
 		}
 
 		if (num_fds == 0)
-		{	// Note (echo-Mike): uncomment if debug needed
-			// std::printf("poll: timeout\n");
+		{
 			continue;
 		}
 
@@ -650,11 +699,16 @@ void pingPongProcess(const LinuxSocket& sock)
 
 } // namespace
 
+
 extern "C" void signal_handler(int)
 {
 	doContinue = false;
 }
 
+
+/**
+ * main method of the application
+ */
 int main(int argc, char* argv[])
 {
 	PacketStats packetStats;
@@ -672,25 +726,20 @@ int main(int argc, char* argv[])
 	}
 	connectUDPSocket(sock, args);
 	std::signal(SIGINT, signal_handler);
-	std::printf("Ready for input:\n");
+	std::cout << "Ready for input:" << std::endl;
 	pingPongProcess(sock);
 	//! Close socket before device
 	close(sock);
 	device->stopCapture();
 	device->close();
 	device->stopRequestHandlerThread();
-	std::printf(
-		"\nPacket statistics from KNI thread:\n"
-		"    Total packets met: %lu\n"
-		"    UDP packets met: %lu\n"
-		"    Failed PONG packets: %lu\n"
-		"    ARP packets met: %lu\n"
-		"    Failed ARP replay packets: %lu\n",
-		packetStats.totalPackets,
-		packetStats.udpPacketsIn,
-		packetStats.udpPacketsOutFail,
-		packetStats.arpPacketsIn,
-		packetStats.arpPacketsOutFail
-	);
+	std::cout << std::endl << std::endl
+		<< "Packet statistics from KNI thread:" << std::endl
+		<< "  Total packets met:         " << packetStats.totalPackets << std::endl
+		<< "  UDP packets met:           " << packetStats.udpPacketsIn << std::endl
+		<< "  Failed PONG packets:       " << packetStats.udpPacketsOutFail << std::endl
+		<< "  ARP packets met:           " << packetStats.arpPacketsIn << std::endl
+		<< "  Failed ARP replay packets: " << packetStats.arpPacketsOutFail << std::endl
+		<< std::endl;
 	return 0;
 }
