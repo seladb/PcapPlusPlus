@@ -684,17 +684,12 @@ int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu
 
 std::string PcapLiveDevice::printThreadId(PcapThread* id)
 {
-	size_t i;
-	std::string result("");
 	pthread_t pthread = id->pthread;
-	for (i = sizeof(pthread); i; --i)
-	{
-		char currByte[3];
-		snprintf(currByte, 3, "%02x", *(((unsigned char*) &pthread) + i - 1));
-		result += currByte;
-	}
-
-	return result;
+	uint64_t threadId = 0;
+	memcpy(&threadId, &pthread, std::min(sizeof(threadId), sizeof(pthread)));
+	std::ostringstream result;
+	result << std::hex << threadId;
+	return result.str();
 }
 
 void PcapLiveDevice::setDeviceMtu()
