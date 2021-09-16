@@ -47,7 +47,7 @@ namespace pcpp
 
 		pfring** m_PfRingDescriptors;
 		uint8_t m_NumOfOpenedRxChannels;
-		char m_DeviceName[30];
+		std::string m_DeviceName;
 		int m_InterfaceIndex;
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
@@ -138,7 +138,7 @@ namespace pcpp
 		 * Gets the interface name (e.g eth0, eth1, etc.)
 		 * @return The interface name
 		 */
-		std::string getDeviceName() const { return std::string(m_DeviceName); }
+		std::string getDeviceName() const { return m_DeviceName; }
 
 
 		/**
