@@ -6,6 +6,8 @@
 #include "Packet.h"
 #ifndef  _MSC_VER
 #include <unistd.h>
+#define max(a,b) std::max(a,b)
+#define min(a,b) std::min(a,b)
 #endif // ! _MSC_VER
 #include "pcap.h"
 #include <pthread.h>
@@ -686,7 +688,7 @@ std::string PcapLiveDevice::printThreadId(PcapThread* id)
 {
 	pthread_t pthread = id->pthread;
 	uint64_t threadId = 0;
-	memcpy(&threadId, &pthread, std::min(sizeof(threadId), sizeof(pthread)));
+	memcpy(&threadId, &pthread, min(sizeof(threadId), sizeof(pthread)));
 	std::ostringstream result;
 	result << std::hex << threadId;
 	return result.str();
