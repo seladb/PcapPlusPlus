@@ -21,7 +21,7 @@ bool keepRunning = true;
 void onApplicationInterrupted(void* cookie)
 {
 	keepRunning = false;
-	printf("\nShutting down...\n");
+	std::cout << std::endl << "Shutting down..." << std::endl;
 }
 
 
@@ -71,27 +71,27 @@ int main(int argc, char* argv[])
 	pcpp::DpdkDevice* device1 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_1);
 	if (device1 == NULL)
 	{
-		printf("Cannot find device1 with port '%d'\n", DEVICE_ID_1);
-        return 1;
+		std::cerr << "Cannot find device1 with port '" << DEVICE_ID_1 << "'" << std::endl;
+		return 1;
 	}
 
 	pcpp::DpdkDevice* device2 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_2);
 	if (device2 == NULL)
 	{
-		printf("Cannot find device2 with port '%d'\n", DEVICE_ID_2);
-        return 1;
+		std::cerr << "Cannot find device2 with port '" << DEVICE_ID_2 << "'" << std::endl;
+		return 1;
 	}
 
 	// Open DPDK devices
 	if (!device1->openMultiQueues(1, 1))
 	{
-		printf("Couldn't open device1 #%d, PMD '%s'\n", device1->getDeviceId(), device1->getPMDName().c_str());
-        return 1;
+		std::cerr << "Couldn't open device1 #" << device1->getDeviceId() << ", PMD '" << device1->getPMDName() << "'" << std::endl;
+		return 1;
 	}
 
 	if (!device2->openMultiQueues(1, 1))
 	{
-		printf("Couldn't open device2 #%d, PMD '%s'\n", device2->getDeviceId(), device2->getPMDName().c_str());
+		std::cerr << "Couldn't open device2 #" << device2->getDeviceId() << ", PMD '" << device2->getPMDName() << "'" << std::endl;
 		return 1;
 	}
 
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 	// Start capture in async mode
 	if (!pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(workersCoreMask, workers))
 	{
-		printf("Couldn't start worker threads");
+		std::cerr << "Couldn't start worker threads" << std::endl;
 		return 1;
 	}
 
@@ -127,19 +127,23 @@ int main(int argc, char* argv[])
 		if (counter % COLLECT_STATS_EVERY_SEC == 0)
 		{
 			// Clear screen and move to top left
-			const char clr[] = { 27, '[', '2', 'J', '\0' };
-        	const char topLeft[] = { 27, '[', '1', ';', '1', 'H','\0' };
-	        printf("%s%s", clr, topLeft);
+			std::cout << "\033[2J\033[1;1H";
 
-			printf("\n\nStats #%d\n", statsCounter++);
-			printf("==========\n\n");
+			std::cout 
+				<< "Stats #" << statsCounter++ << std::endl
+				<< "==========" << std::endl
+				<< std::endl;
 
 			// Print stats of traffic going from Device1 to Device2
-			printf("\nDevice1->Device2 stats:\n\n");
+			std::cout << std::endl
+				<< "Device1->Device2 stats:" << std::endl
+				<< std::endl;
 			printStats(device1, device2);
 
 			// Print stats of traffic going from Device2 to Device1
-			printf("\nDevice2->Device1 stats:\n\n");
+			std::cout << std::endl
+				<< "Device2->Device1 stats:" << std::endl
+				<< std::endl;
 			printStats(device2, device1);
 		}
 		counter++;

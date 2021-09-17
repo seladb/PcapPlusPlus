@@ -1,3 +1,4 @@
+#include <iostream>
 #include "stdlib.h"
 #include "SystemUtils.h"
 #include "Packet.h"
@@ -83,22 +84,22 @@ int main(int argc, char* argv[])
 	// verify that a reader interface was indeed created
 	if (reader == NULL)
 	{
-		printf("Cannot determine reader for file type\n");
-		exit(1);
+		std::cerr << "Cannot determine reader for file type" << std::endl;
+		return 1;
 	}
 
 	// open the reader for reading
 	if (!reader->open())
 	{
-		printf("Cannot open input.pcap for reading\n");
-		exit(1);
+		std::cerr << "Cannot open input.pcap for reading" << std::endl;
+		return 1;
 	}
 
 	// read the first (and only) packet from the file
 	pcpp::RawPacket rawPacket;
 	if (!reader->getNextPacket(rawPacket))
 	{
-		printf("Couldn't read the first packet in the file\n");
+		std::cerr << "Couldn't read the first packet in the file" << std::endl;
 		return 1;
 	}
 
@@ -111,77 +112,84 @@ int main(int argc, char* argv[])
 	// first let's go over the layers one by one and find out its type, its total length, its header length and its payload length
 	for (pcpp::Layer* curLayer = parsedPacket.getFirstLayer(); curLayer != NULL; curLayer = curLayer->getNextLayer())
 	{
-		printf("Layer type: %s; Total data: %d [bytes]; Layer data: %d [bytes]; Layer payload: %d [bytes]\n",
-				getProtocolTypeAsString(curLayer->getProtocol()).c_str(), // get layer type
-				(int)curLayer->getDataLen(),                              // get total length of the layer
-				(int)curLayer->getHeaderLen(),                            // get the header length of the layer
-				(int)curLayer->getLayerPayloadSize());                    // get the payload length of the layer (equals total length minus header length)
+		std::cout
+			<< "Layer type: " << getProtocolTypeAsString(curLayer->getProtocol()) << "; " // get layer type
+			<< "Total data: " << curLayer->getDataLen() << " [bytes]; " // get total length of the layer
+			<< "Layer data: " << curLayer->getHeaderLen() << " [bytes]; " // get the header length of the layer
+			<< "Layer payload: " << curLayer->getLayerPayloadSize() << " [bytes]" // get the payload length of the layer (equals total length minus header length)
+			<< std::endl;
 	}
 
 	// now let's get the Ethernet layer
 	pcpp::EthLayer* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
 	if (ethernetLayer == NULL)
 	{
-		printf("Something went wrong, couldn't find Ethernet layer\n");
-		exit(1);
+		std::cerr << "Something went wrong, couldn't find Ethernet layer" << std::endl;
+		return 1;
 	}
 
 	// print the source and dest MAC addresses and the Ether type
-	printf("\nSource MAC address: %s\n", ethernetLayer->getSourceMac().toString().c_str());
-	printf("Destination MAC address: %s\n", ethernetLayer->getDestMac().toString().c_str());
-	printf("Ether type = 0x%X\n", pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType));
+	std::cout << std::endl
+		<< "Source MAC address: " << ethernetLayer->getSourceMac() << std::endl
+		<< "Destination MAC address: " << ethernetLayer->getDestMac() << std::endl
+		<< "Ether type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType) << std::endl;
 
 	// let's get the IPv4 layer
 	pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	if (ipLayer == NULL)
 	{
-		printf("Something went wrong, couldn't find IPv4 layer\n");
-		exit(1);
+		std::cerr << "Something went wrong, couldn't find IPv4 layer" << std::endl;
+		return 1;
 	}
 
 	// print source and dest IP addresses, IP ID and TTL
-	printf("\nSource IP address: %s\n", ipLayer->getSrcIPAddress().toString().c_str());
-	printf("Destination IP address: %s\n", ipLayer->getDstIPAddress().toString().c_str());
-	printf("IP ID: 0x%X\n", pcpp::netToHost16(ipLayer->getIPv4Header()->ipId));
-	printf("TTL: %d\n", ipLayer->getIPv4Header()->timeToLive);
+	std::cout << std::endl
+		<< "Source IP address: " << ipLayer->getSrcIPAddress() << std::endl
+		<< "Destination IP address: " << ipLayer->getDstIPAddress() << std::endl
+		<< "IP ID: 0x" << std::hex << pcpp::netToHost16(ipLayer->getIPv4Header()->ipId) << std::endl
+		<< "TTL: " << std::dec << (int)ipLayer->getIPv4Header()->timeToLive << std::endl;
 
 	// let's get the TCP layer
 	pcpp::TcpLayer* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
 	if (tcpLayer == NULL)
 	{
-		printf("Something went wrong, couldn't find TCP layer\n");
-		exit(1);
+		std::cerr << "Something went wrong, couldn't find TCP layer" << std::endl;
+		return 1;
 	}
 
-	// printf TCP source and dest ports, window size, and the TCP flags that are set in this layer
-	printf("\nSource TCP port: %d\n", (int)tcpLayer->getSrcPort());
-	printf("Destination TCP port: %d\n", (int)tcpLayer->getDstPort());
-	printf("Window size: %d\n", (int)pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize));
-	printf("TCP flags: %s\n", printTcpFlags(tcpLayer).c_str());
+	// print TCP source and dest ports, window size, and the TCP flags that are set in this layer
+	std::cout << std::endl
+		<< "Source TCP port: " << tcpLayer->getSrcPort() << std::endl
+		<< "Destination TCP port: " << tcpLayer->getDstPort() << std::endl
+		<< "Window size: " << pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize) << std::endl
+		<< "TCP flags: " << printTcpFlags(tcpLayer) << std::endl;
 
-	// go over all TCP options in this layer and print its type
-	printf("TCP options: ");
+	std::cout << "TCP options: ";
 	for (pcpp::TcpOption tcpOption = tcpLayer->getFirstTcpOption(); tcpOption.isNotNull(); tcpOption = tcpLayer->getNextTcpOption(tcpOption))
-		printf("%s ", printTcpOptionType(tcpOption.getTcpOptionType()).c_str());
-	printf("\n");
+	{
+		std::cout << printTcpOptionType(tcpOption.getTcpOptionType()) << " ";
+	}
+	std::cout << std::endl;
 
 	// let's get the HTTP request layer
 	pcpp::HttpRequestLayer* httpRequestLayer = parsedPacket.getLayerOfType<pcpp::HttpRequestLayer>();
 	if (httpRequestLayer == NULL)
 	{
-		printf("Something went wrong, couldn't find HTTP request layer\n");
-		exit(1);
+		std::cerr << "Something went wrong, couldn't find HTTP request layer" << std::endl;
+		return 1;
 	}
 
 	// print HTTP method and URI. Both appear in the first line of the HTTP request
-	printf("\nHTTP method: %s\n", printHttpMethod(httpRequestLayer->getFirstLine()->getMethod()).c_str());
-	printf("HTTP URI: %s\n", httpRequestLayer->getFirstLine()->getUri().c_str());
+	std::cout << std::endl
+		<< "HTTP method: " << printHttpMethod(httpRequestLayer->getFirstLine()->getMethod()) << std::endl
+		<< "HTTP URI: " << httpRequestLayer->getFirstLine()->getUri() << std::endl;
 
 	// print values of the following HTTP field: Host, User-Agent and Cookie
-	printf("HTTP host: %s\n", httpRequestLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue().c_str());
-	printf("HTTP user-agent: %s\n", httpRequestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD)->getFieldValue().c_str());
-	printf("HTTP cookie: %s\n", httpRequestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD)->getFieldValue().c_str());
+	std::cout
+		<< "HTTP host: " << httpRequestLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue() << std::endl
+		<< "HTTP user-agent: " << httpRequestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD)->getFieldValue() << std::endl
+		<< "HTTP cookie: " << httpRequestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD)->getFieldValue() << std::endl;
 
 	// print the full URL of this request
-	printf("HTTP full URL: %s\n", httpRequestLayer->getUrl().c_str());
+	std::cout << "HTTP full URL: " << httpRequestLayer->getUrl() << std::endl;
 }
