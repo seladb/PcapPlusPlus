@@ -13,7 +13,7 @@ extern PcapTestArgs PcapTestGlobalArgs;
 #ifdef USE_DPDK
 #ifdef LINUX
 
-#define KNI_TEST_NAME "tkni%d"
+#define KNI_TEST_NAME "tkni"
 
 struct KniRequestsCallbacksMock
 {
@@ -69,11 +69,12 @@ enum
 
 static bool setKniDeviceIp(const pcpp::IPAddress& ip, int kniDeviceId)
 {
-	char buff[256];
-	snprintf(buff, sizeof(buff), "ip a add %s/30 dev " KNI_TEST_NAME, ip.toString().c_str(), kniDeviceId);
-	(void)pcpp::executeShellCommand(buff);
-	snprintf(buff, sizeof(buff), "ip a | grep %s", ip.toString().c_str());
-	std::string result = pcpp::executeShellCommand(buff);
+	std::ostringstream command;
+	command << "ip a add " << ip << "/24 dev " << KNI_TEST_NAME << kniDeviceId;
+	pcpp::executeShellCommand(command.str());
+	command.str("");
+	command << "ip a | grep " << ip;
+	std::string result = pcpp::executeShellCommand(command.str());
 	return result != "" && result != "ERROR";
 }
 
@@ -115,12 +116,13 @@ PTF_TEST_CASE(TestKniDevice)
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	uint16_t KNI_TEST_MTU = 1540;
 	uint16_t KNI_NEW_MTU = 1500;
-	char buff[256];
 	bool isLinkUp = true;
 	pcpp::KniDevice* device = NULL;
 	pcpp::KniDevice::KniDeviceConfiguration devConfig;
-	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI_DEVICE0);
-	devConfig.name = buff;
+	std::ostringstream deviceNameStream;
+	deviceNameStream << KNI_TEST_NAME << KNI_DEVICE0;
+	std::string deviceName = deviceNameStream.str();
+	devConfig.name = deviceName;
 	KniRequestsCallbacksMock::setCallbacks();
 	if (pcpp::KniDeviceList::callbackVersion() == pcpp::KniDeviceList::CALLBACKS_NEW)
 	{
@@ -141,12 +143,11 @@ PTF_TEST_CASE(TestKniDevice)
 	PTF_ASSERT_TRUE(device->isInitialized());
 	KniDeviceTeardown devTeardown(device);
 	PTF_ASSERT_EQUAL(device, kniDeviceList.getDeviceByPort(KNI_TEST_PORT_ID0), ptr);
-	PTF_ASSERT_EQUAL(device, kniDeviceList.getDeviceByName(std::string(buff)), ptr);
+	PTF_ASSERT_EQUAL(device, kniDeviceList.getDeviceByName(deviceName), ptr);
 
 	{
 		std::string devName = device->getName();
-		std::string buffAsString = buff;
-		PTF_ASSERT_EQUAL(devName, buffAsString);
+		PTF_ASSERT_EQUAL(devName, deviceName);
 	}
 	{
 		uint16_t port = device->getPort();
@@ -287,7 +288,6 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	enum { KNI_MTU = 1500, BLOCK_TIMEOUT = 3 };
-	char buff[256];
 	pcpp::KniDevice* device = NULL;
 	unsigned int counter = 0;
 	pcpp::KniDevice::KniDeviceConfiguration devConfig;
@@ -295,8 +295,9 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	PTF_ASSERT_TRUE(kniIp.isValid());
 
 	// KNI device setup
-	snprintf(buff, sizeof(buff), KNI_TEST_NAME, KNI_DEVICE1);
-	devConfig.name = buff;
+	std::ostringstream deviceName;
+	deviceName << KNI_TEST_NAME << KNI_DEVICE1;
+	devConfig.name = deviceName.str();
 	KniRequestsCallbacksMock::setCallbacks();
 	if (pcpp::KniDeviceList::callbackVersion() == pcpp::KniDeviceList::CALLBACKS_NEW)
 	{

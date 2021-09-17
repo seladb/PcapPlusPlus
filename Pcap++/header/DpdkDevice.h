@@ -364,7 +364,7 @@ namespace pcpp
 		/**
 		 * @return The device name which is in the format of 'DPDK_[PORT-ID]'
 		 */
-		std::string getDeviceName() const { return std::string(m_DeviceName); }
+		std::string getDeviceName() const { return m_DeviceName; }
 
 		/**
 		 * @return The MAC address of the device (DPDK port)
@@ -770,7 +770,7 @@ namespace pcpp
 		uint64_t convertRssHfToDpdkRssHf(uint64_t rssHF) const;
 		uint64_t convertDpdkRssHfToRssHf(uint64_t dpdkRssHF) const;
 
-		char m_DeviceName[30];
+		std::string m_DeviceName;
 		DpdkPMDType m_PMDType;
 		std::string m_PMDName;
 		std::string m_PciAddress;
