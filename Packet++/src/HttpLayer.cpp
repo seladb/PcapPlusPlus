@@ -719,17 +719,17 @@ HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
 
 HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::string prevFieldName)
 {
-	char contentLengthAsString[20];
-	snprintf (contentLengthAsString, sizeof(contentLengthAsString), "%d",contentLength);
+	std::ostringstream contentLengthAsString;
+	contentLengthAsString << contentLength;
 	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
 	if (contentLengthField == NULL)
 	{
 		HeaderField* prevField = getFieldByName(prevFieldName);
-		contentLengthField = insertField(prevField, PCPP_HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString);
+		contentLengthField = insertField(prevField, PCPP_HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString.str());
 	}
 	else
-		contentLengthField->setFieldValue(std::string(contentLengthAsString));
+		contentLengthField->setFieldValue(contentLengthAsString.str());
 
 	return contentLengthField;
 }
@@ -843,11 +843,9 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseLayer::HttpResponseStatusC
 	memcpy(m_HttpResponse->m_Data+statusStringOffset, statusCodeString.c_str(), statusCodeString.length());
 
 	// change status code
-	char statusCodeAsString[4];
-	// convert code to string
-	snprintf (statusCodeAsString, sizeof(statusCodeAsString), "%d",StatusCodeEnumToInt[newStatusCode]);
-
-	memcpy(m_HttpResponse->m_Data+9, statusCodeAsString, 3);
+	std::ostringstream statusCodeAsString;
+	statusCodeAsString << StatusCodeEnumToInt[newStatusCode];
+	memcpy(m_HttpResponse->m_Data+9, statusCodeAsString.str().c_str(), 3);
 
 	m_StatusCode = newStatusCode;
 
@@ -1287,11 +1285,11 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  H
 	m_StatusCode = statusCode;
 	m_Version = version;
 
-	char statusCodeAsString[4];
-	snprintf (statusCodeAsString, sizeof(statusCodeAsString), "%d",StatusCodeEnumToInt[m_StatusCode]);
+	std::ostringstream statusCodeAsString;
+	statusCodeAsString << StatusCodeEnumToInt[m_StatusCode];
 	if (statusCodeString == "")
 		statusCodeString = StatusCodeEnumToString[m_StatusCode];
-	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + std::string(statusCodeAsString) + " " +  statusCodeString +  "\r\n";
+	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + statusCodeAsString.str() + " " +  statusCodeString +  "\r\n";
 
 	m_FirstLineEndOffset = firstLine.length();
 

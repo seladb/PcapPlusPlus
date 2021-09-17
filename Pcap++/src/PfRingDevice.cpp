@@ -20,7 +20,7 @@ PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Ze
 {
 	m_NumOfOpenedRxChannels = 0;
 	m_DeviceOpened = false;
-	strcpy(m_DeviceName, deviceName);
+	m_DeviceName =  std::string(deviceName);
 	m_InterfaceIndex = -1;
 	m_StopThread = true;
 	m_OnPacketsArriveCallback = NULL;
@@ -51,7 +51,7 @@ bool PfRingDevice::open()
 	m_NumOfOpenedRxChannels = 0;
 
 	LOG_DEBUG("Trying to open device [" << m_DeviceName << "]");
-	int res = openSingleRxChannel(m_DeviceName, &m_PfRingDescriptors[0]);
+	int res = openSingleRxChannel(m_DeviceName.c_str(), &m_PfRingDescriptors[0]);
 	if (res == 0)
 	{
 		LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
@@ -152,10 +152,11 @@ bool PfRingDevice::openMultiRxChannels(const uint8_t* channelIds, int numOfChann
 	for (int i = 0; i < numOfChannelIds; i++)
 	{
 		uint8_t channelId = channelIds[i];
-		char ringName[32];
-		snprintf(ringName, sizeof(ringName), "%s@%d", m_DeviceName, channelId);
+		std::ostringstream ringNameStream;
+		ringNameStream << m_DeviceName << "@" << (int)channelId;
+		std::string ringName = ringNameStream.str();
 		LOG_DEBUG("Trying to open device [" << m_DeviceName << "] on channel [" << channelId << "]. Channel name [" << ringName << "]");
-		int res = openSingleRxChannel(ringName, &m_PfRingDescriptors[i]);
+		int res = openSingleRxChannel(ringName.c_str(), &m_PfRingDescriptors[i]);
 		if (res == 0)
 		{
 			LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "] on channel [" << channelId << "]. Channel name [" << ringName << "]");
@@ -222,13 +223,13 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 		if (numOfRingsPerRxChannel == 0 && remainderRings == 0)
 			break;
 
-		char ringName[32];
-		snprintf(ringName, sizeof(ringName), "%s@%d", m_DeviceName, channelId);
+		std::ostringstream ringName;
+		ringName << m_DeviceName << "@" << (int)channelId;
 
 		// open numOfRingsPerRxChannel rings per RX channel
 		for (uint8_t ringId = 0; ringId < numOfRingsPerRxChannel; ringId++)
 		{
-			m_PfRingDescriptors[ringsOpen] = pfring_open(ringName, DEFAULT_PF_RING_SNAPLEN, flags);
+			m_PfRingDescriptors[ringsOpen] = pfring_open(ringName.str().c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
 			if (m_PfRingDescriptors[ringsOpen] == NULL)
 			{
 				LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "]");
@@ -248,7 +249,7 @@ bool PfRingDevice::openMultiRxChannels(uint8_t numOfRxChannelsToOpen, ChannelDis
 		// open one more ring if remainder > 0
 		if (remainderRings > 0)
 		{
-			m_PfRingDescriptors[ringsOpen] = pfring_open(ringName, DEFAULT_PF_RING_SNAPLEN, flags);
+			m_PfRingDescriptors[ringsOpen] = pfring_open(ringName.str().c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
 			if (m_PfRingDescriptors[ringsOpen] == NULL)
 			{
 				LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "]");
@@ -315,7 +316,7 @@ uint8_t PfRingDevice::getTotalNumOfRxChannels() const
 	else
 	{
 		uint32_t flags = PF_RING_PROMISC | PF_RING_REENTRANT | PF_RING_HW_TIMESTAMP | PF_RING_DNA_SYMMETRIC_RSS;
-		pfring* ring = pfring_open(m_DeviceName, DEFAULT_PF_RING_SNAPLEN, flags);
+		pfring* ring = pfring_open(m_DeviceName.c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
 		uint8_t res = pfring_get_num_rx_channels(ring);
 		pfring_close(ring);
 		return res;
@@ -677,7 +678,7 @@ void PfRingDevice::setPfRingDeviceAttributes()
 	else
 	{
 		uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
-		ring = pfring_open(m_DeviceName, DEFAULT_PF_RING_SNAPLEN, flags);
+		ring = pfring_open(m_DeviceName.c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
 		closeRing = true;
 	}
 

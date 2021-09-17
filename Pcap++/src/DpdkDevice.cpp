@@ -55,7 +55,9 @@ uint8_t DpdkDevice::m_RSSKey[40] = {
 DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize)
 	: m_Id(port), m_MacAddress(MacAddress::Zero)
 {
-	snprintf((char*)m_DeviceName, 30, "DPDK_%d", m_Id);
+	std::ostringstream deviceNameStream;
+	deviceNameStream << "DPDK_" << m_Id;
+	m_DeviceName = deviceNameStream.str();
 
 #if (RTE_VER_YEAR > 19) || (RTE_VER_YEAR == 19 && RTE_VER_MONTH >= 8)
 	struct rte_ether_addr etherAddr;

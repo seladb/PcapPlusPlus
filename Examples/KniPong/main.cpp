@@ -227,7 +227,6 @@ inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName)
 	std::ostringstream command;
 	command << "ip a add " << ip << "/24 dev " << kniName;
 	pcpp::executeShellCommand(command.str());
-	command.clear();
 	command.str("");
 	command << "ip a | grep " << ip;
 	std::string result = pcpp::executeShellCommand(command.str());
