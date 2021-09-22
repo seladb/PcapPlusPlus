@@ -234,9 +234,24 @@ bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 	execResult = executeShellCommand("lsmod | grep -s igb_uio");
 	if (execResult == "")
 	{
-		LOG_ERROR("igb_uio driver isn't loaded, DPDK cannot be initialized. Please run <PcapPlusPlus_Root>/setup_dpdk.sh");
-		return false;
-
+		execResult = executeShellCommand("modinfo -d uio_pci_generic");
+		if (execResult.find("ERROR") != std::string::npos)
+		{
+			execResult = executeShellCommand("modinfo -d vfio-pci");
+			if (execResult.find("ERROR") != std::string::npos)
+			{
+				LOG_ERROR("None of igb_uio, uio_pci_generic, vfio-pci kernel modules are loaded so DPDK cannot be initialized. Please run <PcapPlusPlus_Root>/setup_dpdk.sh");
+				return false;
+			}
+			else
+			{
+				LOG_DEBUG("vfio-pci module is loaded");
+			}
+		}
+		else
+		{
+			LOG_DEBUG("uio_pci_generic module is loaded");
+		}
 	}
 	else
 		LOG_DEBUG("igb_uio driver is loaded");

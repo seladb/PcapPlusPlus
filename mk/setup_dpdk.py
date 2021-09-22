@@ -478,7 +478,7 @@ def bind_one(dev_id, driver, quiet, force):
 
         saved_driver = dev["Driver_str"]
         unbind_one(dev_id, quiet, force)
-        dev["Driver_str"] = ""  # clear driver string
+        dev.pop("Driver_str")  # pop driver string
 
     # For kernels >= 3.15 driver_override can be used to specify the driver
     # for a device rather than relying on the driver to provide a positive
@@ -486,48 +486,47 @@ def bind_one(dev_id, driver, quiet, force):
     # the vendor and device ID, adding them to the driver new_id,
     # will erroneously bind other devices too which has the additional burden
     # of unbinding those devices
-    if driver in _DPDK_DRIVERS:
-        filename = "/sys/bus/pci/devices/%s/driver_override" % dev_id
-        if os.path.exists(filename):
-            try:
-                file_d = open(filename, "w")
-            except:  # pylint:disable=bare-except
-                handle_error(
-                    "Error: bind failed for %s - Cannot open %s" % (dev_id, filename)
-                )
-                return None
-            try:
-                file_d.write("%s" % driver)
-                logger.debug("bind_one: write '%s' to '%s'", driver, filename)
-                file_d.close()
-            except:  # pylint:disable=bare-except
-                handle_error(
-                    "Error: bind failed for %s - Cannot write driver %s to "
-                    "PCI ID " % (dev_id, driver)
-                )
-                return None
-        # For kernels < 3.15 use new_id to add PCI id's to the driver
-        else:
-            filename = "/sys/bus/pci/drivers/%s/new_id" % driver
-            try:
-                file_d = open(filename, "w")
-            except:  # pylint:disable=bare-except
-                handle_error(
-                    "Error: bind failed for %s - Cannot open %s" % (dev_id, filename)
-                )
-                return None
-            try:
-                # Convert Device and Vendor Id to int to write to new_id
-                file_d.write(
-                    "%04x %04x" % (int(dev["Vendor"], 16), int(dev["Device"], 16))
-                )
-                file_d.close()
-            except:  # pylint:disable=bare-except
-                handle_error(
-                    "Error: bind failed for %s - Cannot write new PCI ID to "
-                    "driver %s" % (dev_id, driver)
-                )
-                return None
+    filename = "/sys/bus/pci/devices/%s/driver_override" % dev_id
+    if os.path.exists(filename):
+        try:
+            file_d = open(filename, "w")
+        except:  # pylint:disable=bare-except
+            handle_error(
+                "Error: bind failed for %s - Cannot open %s" % (dev_id, filename)
+            )
+            return None
+        try:
+            file_d.write("%s" % driver)
+            logger.debug("bind_one: write '%s' to '%s'", driver, filename)
+            file_d.close()
+        except:  # pylint:disable=bare-except
+            handle_error(
+                "Error: bind failed for %s - Cannot write driver %s to "
+                "PCI ID " % (dev_id, driver)
+            )
+            return None
+    # For kernels < 3.15 use new_id to add PCI id's to the driver
+    else:
+        filename = "/sys/bus/pci/drivers/%s/new_id" % driver
+        try:
+            file_d = open(filename, "w")
+        except:  # pylint:disable=bare-except
+            handle_error(
+                "Error: bind failed for %s - Cannot open %s" % (dev_id, filename)
+            )
+            return None
+        try:
+            # Convert Device and Vendor Id to int to write to new_id
+            file_d.write(
+                "%04x %04x" % (int(dev["Vendor"], 16), int(dev["Device"], 16))
+            )
+            file_d.close()
+        except:  # pylint:disable=bare-except
+            handle_error(
+                "Error: bind failed for %s - Cannot write new PCI ID to "
+                "driver %s" % (dev_id, driver)
+            )
+            return None
 
     # do the bind by writing to /sys
     filename = "/sys/bus/pci/drivers/%s/bind" % driver
@@ -746,20 +745,20 @@ def is_module_loaded(module):
     return False
 
 
-def insert_dpdk_module(module, settings):
+def load_dpdk_module(module, settings):
     if is_module_loaded(module):
         logger.info("module '%s' already loaded", module)
         return
 
-    if module == "uio_pci_generic":
-        output = check_output(["modprobe", "uio_pci_generic"], stderr=subprocess.STDOUT)
+    if module in ["uio_pci_generic", "vfio-pci"]:
+        output = check_output(["modprobe", module], stderr=subprocess.STDOUT)
         if output:
             raise RuntimeError(
-                "Something went wrong with adding 'uio_pci_generic' kernel module: %s"
-                % output.decode("utf-8")
+                "Something went wrong with adding '%s' kernel module: %s"
+                % (module, output.decode("utf-8"))
             )
         settings.dpdk_module = module
-        logger.info("loaded kernel module 'uio_pci_generic'")
+        logger.info("loaded kernel module '%s'", module)
     elif module == "igb_uio":
         if not hasattr(settings, "rte_sdk") or not settings.rte_sdk:
             raise RuntimeError("Cannot find RTE_SDK value in '%s'" % _SETTINGS_FILE)
@@ -860,7 +859,7 @@ def remove_kni_module(settings):
     settings.kni_module = None
 
 
-def get_insterface_command(interface, up_or_down):
+def get_interface_command(interface, up_or_down):
     if _IP_TOOLS == "ip":
         return ["ip", "link", "set", "dev", interface, up_or_down]
     return ["ifconfig", interface, up_or_down]
@@ -869,7 +868,7 @@ def get_insterface_command(interface, up_or_down):
 def set_interfaces_down(interfaces, settings):
     for interface in interfaces:
         output = check_output(
-            get_insterface_command(interface, "down"), stderr=subprocess.STDOUT
+            get_interface_command(interface, "down"), stderr=subprocess.STDOUT
         )
         if output:
             if (  # pylint:disable=using-constant-test
@@ -890,7 +889,7 @@ def set_interfaces_down(interfaces, settings):
 def set_interfaces_up(interfaces, settings):
     for interface in interfaces:
         output = check_output(
-            get_insterface_command(interface, "up"), stderr=subprocess.STDOUT
+            get_interface_command(interface, "up"), stderr=subprocess.STDOUT
         )
         if output:
             if "No such device" in output.decode("utf-8"):
@@ -999,7 +998,7 @@ def handle_setup(args, settings):
     interface_infos = []
     try:
         setup_huge_pages(args.huge_pages)
-        insert_dpdk_module(args.dpdk_module, settings)
+        load_dpdk_module(args.dpdk_module, settings)
         if args.load_kni:
             insert_kni_module(args, settings)
         set_interfaces_down(args.interface, settings)
@@ -1054,7 +1053,7 @@ def parse_args():
     parser_setup.add_argument(
         "-m",
         "--dpdk-module",
-        choices=["igb_uio", "uio_pci_generic"],
+        choices=["igb_uio", "uio_pci_generic", "vfio-pci"],
         default="igb_uio",
         help="the DPDK module to install. If not specified the default is 'igb_uio'",
     )
