@@ -17,7 +17,7 @@ jobs:
          - image: centos7
            python: python3.8
            test-flags: -s
-         - image: fedora29
+         - image: fedora34
            python: python3
 
     steps:
@@ -65,7 +65,7 @@ jobs:
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
-        image: [ubuntu1804-dpdk1911, ubuntu1604-dpdk1811, ubuntu1604-dpdk1711]
+        image: [ubuntu2004-dpdk1911, ubuntu1604-dpdk1811, ubuntu1604-dpdk1711]
 
     steps:
     - name: Checkout code
@@ -93,7 +93,7 @@ jobs:
 
   pfring:
     runs-on: ubuntu-20.04
-    container: seladb/ubuntu1604-pfring
+    container: seladb/ubuntu2004-pfring
 
     steps:
     - name: Checkout code
