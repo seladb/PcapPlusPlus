@@ -796,16 +796,16 @@ def remove_dpdk_module(module, settings):
         settings.dpdk_module = None
         return
 
-    if module == "uio_pci_generic":
+    if module in ["uio_pci_generic", "vfio-pci"]:
         output = check_output(
-            ["modprobe", "-r", "uio_pci_generic"], stderr=subprocess.STDOUT
+            ["modprobe", "-r", module], stderr=subprocess.STDOUT
         )
         if output:
             raise RuntimeError(
-                "Something went wrong with removing 'uio_pci_generic' kernel module: %s"
-                % output.decode("utf-8")
+                "Something went wrong with removing '%s' kernel module: %s"
+                % (module, output.decode("utf-8"))
             )
-        logger.info("removed 'uio_pci_generic' kernel module")
+        logger.info("removed kernel module '%s'", module)
     elif module == "igb_uio":
         output = check_output(["rmmod", "igb_uio"], stderr=subprocess.STDOUT)
         if output:
