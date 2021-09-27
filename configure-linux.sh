@@ -298,11 +298,13 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
    # add DPDK definitions to PcapPlusPlus.mk
    cat mk/PcapPlusPlus.mk.dpdk >> $PCAPPLUSPLUS_MK
 
-   # if DPDK ver >= 17.11 concat additional definitions to PcapPlusPlus.mk
-   # CUR_DPDK_VERSION=$(get_dpdk_version)
-   # if [ "$(compare_versions $CUR_DPDK_VERSION 17.11)" -eq "1" ] ; then
-   #    cat mk/PcapPlusPlus.mk.dpdk_new >> $PCAPPLUSPLUS_MK
-   # fi
+   # if DPDK ver < 20.11 concat additional definitions to PcapPlusPlus.mk
+   CUR_DPDK_VERSION=$(get_dpdk_version)
+   echo TTTTT $CUR_DPDK_VERSION
+   if [ "$(compare_versions $CUR_DPDK_VERSION 20.11)" -eq "0" ] ; then
+      echo "TTTTT inside if"
+      cat mk/PcapPlusPlus.mk.dpdk_legacy >> $PCAPPLUSPLUS_MK
+   fi
 
    # set USE_DPDK variable in platform.mk
    echo -e "\n\nUSE_DPDK := 1" >> $PLATFORM_MK
