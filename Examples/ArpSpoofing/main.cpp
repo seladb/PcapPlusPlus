@@ -29,7 +29,7 @@ static struct option L3FwdOptions[] =
 	{"gateway", required_argument, 0, 'g'},
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 

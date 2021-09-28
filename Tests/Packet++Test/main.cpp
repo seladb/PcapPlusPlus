@@ -20,7 +20,7 @@ static struct option PacketTestOptions[] =
 
 void printUsage()
 {
-    std::cout << "Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
+	std::cout << "Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
 			<< "Flags:\n"
 			<< "-t --tags                A list of semicolon separated tags for tests to run\n"
 			<< "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"

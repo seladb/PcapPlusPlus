@@ -49,7 +49,7 @@ static struct option DnsSpoofingOptions[] =
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
 	{"list", no_argument, 0, 'l'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 

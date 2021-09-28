@@ -450,9 +450,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 #ifdef HAS_SET_DIRECTION_ENABLED
 	// create a non-default configuration with only cpturing incoming packets and open the device again
 	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithDirection(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000, pcpp::PcapLiveDevice::PCPP_IN);
-    	
+
 	liveDev->open(devConfigWithDirection);
-		
+
 	packetCount = 0;
 
 	// start capturing in non-default configuration witch only captures incoming traffics

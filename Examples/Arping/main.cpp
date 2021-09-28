@@ -39,7 +39,7 @@ static struct option ArpingOptions[] =
 	{"version", no_argument, 0, 'v'},
 	{"list", optional_argument, 0, 'l'},
 	{"timeout", optional_argument, 0, 'w'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 

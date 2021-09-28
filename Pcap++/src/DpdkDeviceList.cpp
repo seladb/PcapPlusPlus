@@ -105,14 +105,15 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	std::string dpdkParamsArray[initDpdkArgc];
 	initDpdkArgv = new char*[initDpdkArgc];
 	uint32_t i = 0;
-    while (dpdkParamsStream.good() && i < initDpdkArgc){
-    	dpdkParamsStream >> dpdkParamsArray[i];
-    	initDpdkArgv[i] = new char[maxArgLen];
-    	strcpy(initDpdkArgv[i], dpdkParamsArray[i].c_str());
-        i++;
-    }
+	while (dpdkParamsStream.good() && i < initDpdkArgc)
+	{
+		dpdkParamsStream >> dpdkParamsArray[i];
+		initDpdkArgv[i] = new char[maxArgLen];
+		strcpy(initDpdkArgv[i], dpdkParamsArray[i].c_str());
+		i++;
+	}
 
-    char* lastParam = initDpdkArgv[i-1];
+	char* lastParam = initDpdkArgv[i-1];
 
 	for (i = 0; i < initDpdkArgc; i++)
 	{

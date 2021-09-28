@@ -78,29 +78,29 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 
 void savePacketToPcap(pcpp::Packet& packet, std::string fileName)
 {
-   pcap_t* pcap;
-   pcap = pcap_open_dead(1, 65565);
+	pcap_t* pcap;
+	pcap = pcap_open_dead(1, 65565);
 
-   pcap_dumper_t* d;
-   /* open output file */
-   d = pcap_dump_open(pcap, fileName.c_str());
-   if (d == NULL)
-   {
-       pcap_perror(pcap, "pcap_dump_fopen");
-       return;
-   }
+	pcap_dumper_t* d;
+	/* open output file */
+	d = pcap_dump_open(pcap, fileName.c_str());
+	if (d == NULL)
+	{
+		pcap_perror(pcap, "pcap_dump_fopen");
+		return;
+	}
 
-   /* prepare for writing */
-   struct pcap_pkthdr hdr;
-   hdr.ts.tv_sec = 0;  /* sec */
-   hdr.ts.tv_usec = 0; /* ms */
-   hdr.caplen = hdr.len = packet.getRawPacket()->getRawDataLen();
-   /* write single IP packet */
-   pcap_dump((u_char*)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
+	/* prepare for writing */
+	struct pcap_pkthdr hdr;
+	hdr.ts.tv_sec = 0;  /* sec */
+	hdr.ts.tv_usec = 0; /* ms */
+	hdr.caplen = hdr.len = packet.getRawPacket()->getRawDataLen();
+	/* write single IP packet */
+	pcap_dump((u_char*)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
 
-   /* finish up */
-   pcap_dump_close(d);
-   return;
+	/* finish up */
+	pcap_dump_close(d);
+	return;
 }
 #endif
 

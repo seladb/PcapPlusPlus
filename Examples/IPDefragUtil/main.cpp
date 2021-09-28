@@ -27,7 +27,7 @@ static struct option DefragUtilOptions[] =
 	{"copy-all-packets", no_argument, 0, 'a'},
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 /**
@@ -356,14 +356,14 @@ int main(int argc, char* argv[])
 	int expectedParams = 1;
 	int paramIndex = -1;
 
-    for (int i = optind; i < argc; i++)
-    {
-    	paramIndex++;
-    	if (paramIndex > expectedParams)
-    		EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
+	for (int i = optind; i < argc; i++)
+	{
+		paramIndex++;
+		if (paramIndex > expectedParams)
+			EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
 
-    	switch (paramIndex)
-    	{
+		switch (paramIndex)
+		{
 			case 0:
 			{
 				inputFile = argv[i];
@@ -372,21 +372,21 @@ int main(int argc, char* argv[])
 
 			default:
 				EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
-    	}
-    }
+		}
+	}
 
-    if (inputFile == "")
-    {
-    	EXIT_WITH_ERROR("Input file name was not given");
-    }
+	if (inputFile == "")
+	{
+		EXIT_WITH_ERROR("Input file name was not given");
+	}
 
-    if (outputFile == "")
-    {
-    	EXIT_WITH_ERROR("Output file name was not given");
-    }
+	if (outputFile == "")
+	{
+		EXIT_WITH_ERROR("Output file name was not given");
+	}
 
-    // create a reader device from input file
-    pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputFile);
+	// create a reader device from input file
+	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputFile);
 
 	if (!reader->open())
 	{
