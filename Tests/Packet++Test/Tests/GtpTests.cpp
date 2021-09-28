@@ -215,7 +215,7 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 	PTF_ASSERT_EQUAL(newExt1.getContentLength(), 2*sizeof(uint8_t));
 	uint16_t* content = (uint16_t*)newExt1.getContent();
 	PTF_ASSERT_EQUAL(be16toh(content[0]), 2308);
-	PTF_ASSERT_TRUE(newExt1.getNextExtension().isNull()); 
+	PTF_ASSERT_TRUE(newExt1.getNextExtension().isNull());
 
 	newGtpPacket.computeCalculateFields();
 

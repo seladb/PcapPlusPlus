@@ -404,7 +404,7 @@ namespace pcpp
 		 * A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice that after calling this
 		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file
-		 * @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression or 10 for max compression. Default is 0 
+		 * @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression or 10 for max compression. Default is 0
 		 */
 		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
 

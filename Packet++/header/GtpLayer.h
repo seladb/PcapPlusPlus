@@ -258,7 +258,7 @@ namespace pcpp
 			GtpExtension(const GtpExtension& other);
 
 			/**
-			 * An assignment operator for this class 
+			 * An assignment operator for this class
 			 */
 			GtpExtension& operator=(const GtpExtension& other);
 

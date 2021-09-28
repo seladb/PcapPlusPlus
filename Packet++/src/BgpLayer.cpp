@@ -150,7 +150,7 @@ BgpOpenMessageLayer::BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t h
     memcpy(m_Data + sizeof(bgp_open_message), optionalParamsData, optionalParamsDataLen);
   }
   
-  m_Protocol = BGP;  
+  m_Protocol = BGP;
 }
 
 size_t BgpOpenMessageLayer::optionalParamsToByteArray(const std::vector<optional_parameter>& optionalParams, uint8_t* resultByteArr, size_t maxByteArrSize)

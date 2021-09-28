@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
 		// failed fetching MAC address
 		if (result == pcpp::MacAddress::Zero)
 		{
-			// PcapPlusPlus logger saves the last internal error message 
+			// PcapPlusPlus logger saves the last internal error message
 			std::cout << "Arping  index=" << i << " : " << pcpp::Logger::getInstance().getLastError() << std::endl;
 		}
 		else // Succeeded fetching MAC address

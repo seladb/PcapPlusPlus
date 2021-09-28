@@ -1,4 +1,4 @@
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include "PcapPlusPlusVersion.h"
@@ -31,7 +31,7 @@ void printUsage()
 }
 
 
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
 	int optionIndex = 0;
 	char opt = 0;

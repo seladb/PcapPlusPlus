@@ -298,12 +298,12 @@ namespace pcpp
 		struct LinkStatus
 		{
 			/** Enum for describing link duplex */
-			enum LinkDuplex 
+			enum LinkDuplex
 			{
 				/** Full duplex */
-				FULL_DUPLEX, 
+				FULL_DUPLEX,
 				/** Half duplex */
-				HALF_DUPLEX 
+				HALF_DUPLEX
 			};
 
 			/** True if link is up, false if it's down */

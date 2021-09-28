@@ -33,7 +33,7 @@ namespace pcpp
 		IPv4Address() { memset(m_Bytes, 0, sizeof(m_Bytes)); }
 
 		/**
-		 * A constructor that creates an instance of the class out of 4-byte integer value. 
+		 * A constructor that creates an instance of the class out of 4-byte integer value.
 		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
 		IPv4Address(uint32_t addrAsInt) { memcpy(m_Bytes, &addrAsInt, sizeof(m_Bytes)); }
@@ -398,8 +398,8 @@ namespace pcpp
 	{
 		if(isIPv4())
 		{
-			/* treat IPv4 as less than IPv6 
-			If current obj is IPv4 and other is IPv6 return true */
+			// treat IPv4 as less than IPv6
+			// If current obj is IPv4 and other is IPv6 return true
 			return rhs.isIPv4() ? (m_IPv4 < rhs.m_IPv4) : true;
 		}
 		return rhs.isIPv6() ? m_IPv6 < rhs.m_IPv6 : false;

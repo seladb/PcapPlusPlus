@@ -266,7 +266,7 @@ void onApplicationInterrupted(void* cookie)
 	}
 	else
 	{
-		std::cout << std::endl 
+		std::cout << std::endl
 			<< "Summary of spoofed hosts:" << std::endl
 			<< "-------------------------" << std::endl
 			<< std::endl

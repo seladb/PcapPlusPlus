@@ -96,7 +96,7 @@ namespace pcpp
 	/**
 	 * DHCP option types.
 	 */
-	enum DhcpOptionTypes 
+	enum DhcpOptionTypes
 	{
 		/** Unknown option type */
 		DHCPOPT_UNKNOWN = -1,

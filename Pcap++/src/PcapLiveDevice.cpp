@@ -16,7 +16,7 @@
 #include <fstream>
 #include <sstream>
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-// The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are 
+// The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
 // This define statement eliminates these errors
 #ifndef BPF_MAJOR_VERSION
@@ -361,7 +361,7 @@ void PcapLiveDevice::close()
 	pcap_close(m_PcapDescriptor);
 	LOG_DEBUG("Receive pcap descriptor closed");
 	if (!sameDescriptor)
-	{ 
+	{
 		pcap_close(m_PcapSendDescriptor);
 		LOG_DEBUG("Send pcap descriptor closed");
 	}

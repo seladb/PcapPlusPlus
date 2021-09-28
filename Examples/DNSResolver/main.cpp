@@ -32,7 +32,7 @@ static struct option DNSResolverOptions[] =
 /**
  * Print application usage
  */
-void printUsage() 
+void printUsage()
 {
 	std::cout << std::endl
 		<< "Usage:" << std::endl

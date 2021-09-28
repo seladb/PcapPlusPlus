@@ -84,7 +84,7 @@ static bool packetArrivesBlockingModeNoTimeoutPacketCount(pcpp::RawPacket* rawPa
 	return false;
 }
 
-static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie) 
+static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
 	int snaplen = *(int*)userCookie;
 	return rawPacket->getRawDataLen() > snaplen;

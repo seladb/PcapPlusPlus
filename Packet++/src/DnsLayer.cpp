@@ -269,8 +269,8 @@ DnsQuery* DnsLayer::getFirstQuery() const
 
 DnsQuery* DnsLayer::getNextQuery(DnsQuery* query) const
 {
-	if (query == NULL 
-		|| query->getNextResource() == NULL 
+	if (query == NULL
+		|| query->getNextResource() == NULL
 		|| query->getType() != DnsQueryType
 		|| query->getNextResource()->getType() != DnsQueryType)
 		return NULL;

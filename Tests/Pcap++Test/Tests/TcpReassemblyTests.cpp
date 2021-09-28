@@ -619,10 +619,10 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	packetStream.erase(packetStream.begin() + 13);
 	packetStream.erase(packetStream.begin() + 14);
 
-	pcpp::TcpReassembly::ReassemblyStatus expectedStatuses[26] = { 
-		pcpp::TcpReassembly::TcpMessageHandled, 
+	pcpp::TcpReassembly::ReassemblyStatus expectedStatuses[26] = {
 		pcpp::TcpReassembly::TcpMessageHandled,
-		pcpp::TcpReassembly::TcpMessageHandled, 
+		pcpp::TcpReassembly::TcpMessageHandled,
+		pcpp::TcpReassembly::TcpMessageHandled,
 		pcpp::TcpReassembly::TcpMessageHandled,
 		pcpp::TcpReassembly::Ignore_PacketWithNoData,
 		pcpp::TcpReassembly::TcpMessageHandled,

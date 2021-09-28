@@ -389,7 +389,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 	// go over the GTP header extensions
 	while (!lastExt.getNextExtension().isNull())
 	{
-		// add ext total length to offset  
+		// add ext total length to offset
 		offsetForNewExtension += lastExt.getTotalLength();
 		lastExt = lastExt.getNextExtension();
 	}
@@ -397,7 +397,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 	// lastExt != null means layer contains 1 or more extensions
 	if (!lastExt.isNull())
 	{
-		// add ext total length to offset  
+		// add ext total length to offset
 		offsetForNewExtension += lastExt.getTotalLength();
 	}
 

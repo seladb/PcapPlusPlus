@@ -304,7 +304,7 @@ inet_pton6(const char* src, uint8_t* dst)
 					return (0);
 				colonp = tp;
 				continue;
-			} 
+			}
 			else if (*src == '\0')
 			{
 				return (0);

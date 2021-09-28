@@ -203,7 +203,7 @@ public:
    * @param[in] optionalParams A vector of optional parameters. This parameter is optional and if not provided no parameters will be 
    * set on the message
    */
-  BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId, 
+  BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
     const std::vector<optional_parameter>& optionalParams = std::vector<optional_parameter>());
 
   /**
@@ -423,7 +423,7 @@ public:
    * @param[out] nlri A reference to a vector the NLRI data will be written to
    */
   void getNetworkLayerReachabilityInfo(std::vector<prefix_and_ip>& nlri);
-  
+
   /**
    * Set NLRI data in this message. This method will override any existing NLRI data in the message.
    * If the input is an empty vector all NLRI data will be removed. This method autmatically sets the
@@ -431,7 +431,7 @@ public:
    * @param[in] nlri New NLRI data to set in the message
    * @return True if all NLRI data was set successfully or false otherwise. In case of an error an appropriate message
    * will be printed to log
-   */  
+   */
   bool setNetworkLayerReachabilityInfo(const std::vector<prefix_and_ip>& nlri);
 
   /**
