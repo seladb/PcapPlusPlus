@@ -31,7 +31,8 @@ namespace pcpp
 	 * Represents IPv6 protocol header
 	 */
 #pragma pack(push, 1)
-	struct ip6_hdr {
+	struct ip6_hdr
+	{
 		#if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** Traffic class */
 		uint8_t trafficClass:4,

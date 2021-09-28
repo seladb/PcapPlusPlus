@@ -459,7 +459,7 @@ void DpdkDevice::setDeviceInfo()
 	m_PciAddress = std::string(pciName);
 #else // 18.05 forward
 	m_PciAddress = std::string(portInfo.device->name);
-#endif 
+#endif
 
 	LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_rx_queues << " RX queues");
 	LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_tx_queues << " TX queues");

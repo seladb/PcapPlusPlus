@@ -18,7 +18,8 @@ namespace pcpp
 	 * Represents an Ethernet II header
 	 */
 #pragma pack(push, 1)
-	struct ether_header {
+	struct ether_header
+	{
 		/** Destination MAC */
 		uint8_t dstMac[6];
 		/** Source MAC */

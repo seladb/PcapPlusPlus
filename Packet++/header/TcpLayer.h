@@ -19,7 +19,8 @@ namespace pcpp
 	 * Represents an TCP protocol header
 	 */
 #pragma pack(push,1)
-	struct tcphdr {
+	struct tcphdr
+	{
 		/** Source TCP port */
 		uint16_t portSrc;
 		/** Destination TCP port */
@@ -84,7 +85,8 @@ namespace pcpp
 	/**
 	 * TCP options types
 	 */
-	enum TcpOptionType {
+	enum TcpOptionType
+	{
 		/** Padding */
 		PCPP_TCPOPT_NOP =       1,
 		/** End of options */

@@ -167,7 +167,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	{
 		LOG_ERROR("Cannot get socket flags");
 		return RecvError;
-	} 
+	}
 	flags = (blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK));
 	if (fcntl(fd, F_SETFL, flags) != 0)
 	{
@@ -464,9 +464,9 @@ bool RawSocketDevice::open()
 	getifaddrs(&addrs);
 	std::string ifaceName = "";
 	int ifaceIndex = -1;
-	for (struct ifaddrs* curAddr = addrs; curAddr != NULL; curAddr = curAddr->ifa_next) 
+	for (struct ifaddrs* curAddr = addrs; curAddr != NULL; curAddr = curAddr->ifa_next)
 	{
-		if (curAddr->ifa_addr && (curAddr->ifa_flags & IFF_UP)) 
+		if (curAddr->ifa_addr && (curAddr->ifa_flags & IFF_UP))
 		{
 			if  (curAddr->ifa_addr->sa_family == AF_INET)
 			{

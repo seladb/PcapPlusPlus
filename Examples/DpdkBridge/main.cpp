@@ -10,7 +10,7 @@
  * The application uses the concept of worker threads. It creates 2 worker threads running in an endless loop (as long as the app is running):
  * one for receiving packets on NIC#1 and sending them to NIC#2, and another for receiving packets on NIC#2 and sending them to NIC#1.
  *
- * __Important__: 
+ * __Important__:
  * - This application runs only on Linux (DPDK is not supported on Windows and Mac OS X)
  * - This application (like all applications using DPDK) should be run as 'sudo'
  * - In order to test this application you need an envorinment where the bridge is connected directly (back-to-back) to the two machines the
@@ -141,7 +141,7 @@ void onApplicationInterrupted(void* cookie)
 {
 	DpdkBridgeArgs* args = (DpdkBridgeArgs*)cookie;
 
-	std::cout 
+	std::cout
 		<< std::endl << std::endl
 		<< "Application stopped"
 		<< std::endl;
@@ -374,7 +374,7 @@ int main(int argc, char* argv[])
 			std::cout << "\033[2J\033[1;1H";
 
 			// Print devices traffic stats
-			std::cout 
+			std::cout
 				<< "Stats #" << statsCounter++ << std::endl
 				<< "==========" << std::endl;
 			printStats(dpdkDevicesToUse.at(0));

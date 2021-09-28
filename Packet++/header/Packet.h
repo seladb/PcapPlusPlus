@@ -196,7 +196,7 @@ namespace pcpp
 		 * Remove the first layer in the packet. The layer will be deleted if it was allocated during packet creation, or detached
 		 * if was allocated outside of the packet. Please refer to removeLayer() to get more info
 		 * @return True if layer removed successfully, or false if removing the layer failed or if there are no layers in the 
-		 * packet. In any case of failure an appropriate error log message will be printed 
+		 * packet. In any case of failure an appropriate error log message will be printed
 		 */
 		bool removeFirstLayer();
 
@@ -204,7 +204,7 @@ namespace pcpp
 		 * Remove the last layer in the packet. The layer will be deleted if it was allocated during packet creation, or detached
 		 * if was allocated outside of the packet. Please refer to removeLayer() to get more info
 		 * @return True if layer removed successfully, or false if removing the layer failed or if there are no layers in the 
-		 * packet. In any case of failure an appropriate error log message will be printed 
+		 * packet. In any case of failure an appropriate error log message will be printed
 		 */
 		bool removeLastLayer();
 

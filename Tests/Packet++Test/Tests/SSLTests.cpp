@@ -557,20 +557,20 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 	pcpp::Packet tls13ClientHello2(&rawPacket2);
 
 	uint16_t cipherSuiteIDs[3] = { 0x1302, 0x1303, 0x1301 };
-	std::string cipherSuiteNames[3] = 
+	std::string cipherSuiteNames[3] =
 	{
 		"TLS_AES_256_GCM_SHA384",
 		"TLS_CHACHA20_POLY1305_SHA256",
 		"TLS_AES_128_GCM_SHA256"
 	};
-	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[3] = 
+	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[3] =
 	{
 		pcpp::SSL_SYM_AES_256_GCM,
 		pcpp::SSL_SYM_CHACHA20_POLY1305,
 		pcpp::SSL_SYM_AES_128_GCM
 	};
 
-	pcpp::SSLHashingAlgorithm cipherSuiteHash[3] = 
+	pcpp::SSLHashingAlgorithm cipherSuiteHash[3] =
 	{
 		pcpp::SSL_HASH_SHA384,
 		pcpp::SSL_HASH_SHA256,

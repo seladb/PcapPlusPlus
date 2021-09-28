@@ -79,7 +79,7 @@ void printUsage()
 		<< "    -h|--help                                  : Displays this help message and exits" << std::endl
 		<< "    -v|--version                               : Displays the current version and exits" << std::endl
 		<< "    -l|--list                                  : Print the list of DPDK ports and exists" << std::endl
-		<< "    -d|--dpdk-ports PORT_1,PORT_3,...,PORT_N   : A comma-separated list of DPDK port numbers to receive" << std::endl 
+		<< "    -d|--dpdk-ports PORT_1,PORT_3,...,PORT_N   : A comma-separated list of DPDK port numbers to receive" << std::endl
 		<< "                                                 packets from. To see all available DPDK ports use the -l switch" << std::endl
 		<< "    -s|--send-matched-packets PORT             : DPDK port to send matched packets to" << std::endl
 		<< "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH. Packets" << std::endl

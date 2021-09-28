@@ -25,14 +25,14 @@ static struct option DNSResolverOptions[] =
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
 	{"list", no_argument, 0, 'l'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
 /**
  * Print application usage
  */
-void printUsage() 
+void printUsage()
 {
 	std::cout << std::endl
 		<< "Usage:" << std::endl

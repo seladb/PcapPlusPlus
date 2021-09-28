@@ -498,7 +498,8 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 		if (PTF_IS_VERBOSE_MODE)
 		{
-			for(std::map<uint32_t, pcpp::RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++) {
+			for(std::map<uint32_t, pcpp::RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++)
+			{
 				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter->first << "; Value=" << std::dec << iter->second.size());
 				iter->second.clear();
 			}
