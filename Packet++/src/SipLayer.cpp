@@ -166,10 +166,12 @@ try		// throw(SipRequestFirstLineException)
 
 	m_IsComplete = true;
 }
-catch(const SipRequestFirstLineException&) {
+catch(const SipRequestFirstLineException&)
+{
 	throw;
 }
-catch(...) {
+catch(...)
+{
 	std::terminate();
 }
 SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(char* data, size_t dataLen)
@@ -464,7 +466,8 @@ std::string SipRequestLayer::toString() const
 	static const int maxLengthToPrint = 120;
 	std::string result = "SIP request, ";
 	int size = m_FirstLine->getSize() - 2; // the -2 is to remove \r\n at the end of the first line
-	if (size <= 0) {
+	if (size <= 0)
+	{
 		result += std::string("CORRUPT DATA");
 		return result;
 	}
@@ -699,7 +702,8 @@ std::string SipResponseLayer::toString() const
 	static const int maxLengthToPrint = 120;
 	std::string result = "SIP response, ";
 	int size = m_FirstLine->getSize() - 2; // the -2 is to remove \r\n at the end of the first line
-	if (size <= 0) {
+	if (size <= 0)
+	{
 		result += std::string("CORRUPT DATA");
 		return result;
 	}

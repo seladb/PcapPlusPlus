@@ -408,7 +408,7 @@ int main(int argc, char* argv[])
 
 	// after search is done, close the report file and delete its instance
 	std::cout << std::endl << std::endl
-		<< "Done! Searched " 
+		<< "Done! Searched "
 		<< totalFilesSearched << " files in "
 		<< totalDirSearched << " directories, "
 		<< totalPacketsFound << " packets were matched to search criteria"

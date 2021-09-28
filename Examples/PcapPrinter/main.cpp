@@ -117,7 +117,7 @@ std::string printFileSummary(pcpp::IFileReaderDevice* reader)
 		stream << "   Link layer type: " << linkLayerToString(linkLayer) << std::endl;
 	}
 	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != NULL)
-	{ 
+	{
 		pcpp::PcapNgFileReaderDevice* pcapNgReader = dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader);
 		if (pcapNgReader->getOS() != "")
 			stream << "   OS: " << pcapNgReader->getOS() << std::endl;

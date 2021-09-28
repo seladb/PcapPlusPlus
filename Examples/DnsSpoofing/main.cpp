@@ -49,7 +49,7 @@ static struct option DnsSpoofingOptions[] =
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
 	{"list", no_argument, 0, 'l'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
@@ -266,7 +266,7 @@ void onApplicationInterrupted(void* cookie)
 	}
 	else
 	{
-		std::cout << std::endl 
+		std::cout << std::endl
 			<< "Summary of spoofed hosts:" << std::endl
 			<< "-------------------------" << std::endl
 			<< std::endl

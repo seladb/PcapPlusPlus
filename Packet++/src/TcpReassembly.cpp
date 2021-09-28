@@ -148,7 +148,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 
 		if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
 		{
-			tcpReassemblyData->connData.setEndTime(currTime); 
+			tcpReassemblyData->connData.setEndTime(currTime);
 		}
 		else if (currTime.tv_sec == tcpReassemblyData->connData.endTime.tv_sec)
 		{
@@ -313,7 +313,8 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 			}
 			status = TcpMessageHandled;
 		}
-		else {
+		else
+		{
 			status = Ignore_Retransimission;
 		}
 
@@ -626,7 +627,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 			LOG_DEBUG("Calling checkOutOfOrderFragments again from the start");
 
-			// call the method again from the start to do the whole search again (both iterations). 
+			// call the method again from the start to do the whole search again (both iterations).
 			// the stop condition is when the list is empty (so closestSequenceFragIndex == -1)
 			foundSomething = true;
 		}

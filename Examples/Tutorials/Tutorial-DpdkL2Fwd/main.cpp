@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 			// Clear screen and move to top left
 			std::cout << "\033[2J\033[1;1H";
 
-			std::cout 
+			std::cout
 				<< "Stats #" << statsCounter++ << std::endl
 				<< "==========" << std::endl
 				<< std::endl;

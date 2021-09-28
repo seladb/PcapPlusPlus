@@ -76,7 +76,7 @@ char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char
 	{
 		if (NULL != (ptr = (char*)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
 		{
-			// check if there is room to do a memcmp 
+			// check if there is room to do a memcmp
 			if(needleLen > (haystackLen - (ptr - haystack)))
 			{
 				return NULL;

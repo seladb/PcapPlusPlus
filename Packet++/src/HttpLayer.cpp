@@ -115,7 +115,8 @@ std::string HttpRequestLayer::toString() const
 	static const int maxLengthToPrint = 120;
 	std::string result = "HTTP request, ";
 	int size = m_FirstLine->getSize() - 2; // the -2 is to remove \r\n at the end of the first line
-	if (size <= 0) {
+	if (size <= 0)
+	{
 		result += std::string("CORRUPT DATA");
 		return result;
 	}
@@ -246,10 +247,12 @@ try		// throw(HttpRequestFirstLineException)
 
 	m_IsComplete = true;
 }
-catch(const HttpRequestFirstLineException&) {
+catch(const HttpRequestFirstLineException&)
+{
 	throw;
 }
-catch(...) {
+catch(...)
+{
 	std::terminate();
 }
 

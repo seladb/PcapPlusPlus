@@ -30,7 +30,7 @@ static struct option IcmpFTOptions[] =
 	{"list-interfaces", no_argument, 0, 'l'},
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 

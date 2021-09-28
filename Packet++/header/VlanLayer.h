@@ -18,7 +18,8 @@ namespace pcpp
 	 * Represents a VLAN header
 	 */
 #pragma pack(push, 1)
-	struct vlan_header {
+	struct vlan_header
+	{
 		/**
 		   @verbatim
 		   0                 1

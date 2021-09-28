@@ -150,41 +150,41 @@ void IDnsResource::encodeName(const std::string& decodedName, char* result, size
 {
 	resultLen = 0;
 	std::stringstream strstream(decodedName);
-    std::string word;
-    while (getline(strstream, word, '.'))
-    {
-    	// pointer to a different hostname in the packet
-    	if (word[0] == '#')
-    	{
-    		// convert the number from string to int
-    		std::stringstream stream(word.substr(1));
-    		int pointerInPacket = 0;
-    		stream >> pointerInPacket;
+	std::string word;
+	while (getline(strstream, word, '.'))
+	{
+		// pointer to a different hostname in the packet
+		if (word[0] == '#')
+		{
+			// convert the number from string to int
+			std::stringstream stream(word.substr(1));
+			int pointerInPacket = 0;
+			stream >> pointerInPacket;
 
-    		// verify it's indeed a number and that is in the range of [0-255]
-    		if (stream.fail() || pointerInPacket < 0 || pointerInPacket > 0xff)
-    		{
-    			LOG_ERROR("Error encoding the string '" << decodedName << "'");
-    			return;
-    		}
+			// verify it's indeed a number and that is in the range of [0-255]
+			if (stream.fail() || pointerInPacket < 0 || pointerInPacket > 0xff)
+			{
+				LOG_ERROR("Error encoding the string '" << decodedName << "'");
+				return;
+			}
 
-    		// set the pointer to the encoded string result
-    		result[0] = (uint8_t)0xc0;
-    		result[1] = (uint8_t)pointerInPacket;
-    		result += 2;
-    		resultLen += 2;
-    		return; // pointer always comes last
-    	}
+			// set the pointer to the encoded string result
+			result[0] = (uint8_t)0xc0;
+			result[1] = (uint8_t)pointerInPacket;
+			result += 2;
+			resultLen += 2;
+			return; // pointer always comes last
+		}
 
-    	result[0] = word.length();
-    	result++;
-    	memcpy(result, word.c_str(), word.length());
-    	result += word.length();
-    	resultLen += word.length() + 1;
-    }
+		result[0] = word.length();
+		result++;
+		memcpy(result, word.c_str(), word.length());
+		result += word.length();
+		resultLen += word.length() + 1;
+	}
 
-    result[0] = 0;
-    resultLen++;
+	result[0] = 0;
+	resultLen++;
 }
 
 

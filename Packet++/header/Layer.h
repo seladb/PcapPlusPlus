@@ -67,7 +67,8 @@ namespace pcpp
 	  @endverbatim
 	 *
 	*/
-	class Layer : public IDataContainer {
+	class Layer : public IDataContainer
+	{
 		friend class Packet;
 	public:
 		/**

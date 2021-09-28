@@ -382,8 +382,8 @@ namespace pcpp
 
 		/**
 		 * @return Indicates whether a guessed key exchange packet follows. If a
-         * guessed packet will be sent, the return value is true. If no guessed
-         * packet will be sent or if this value is missing, the return value is false.
+		 * guessed packet will be sent, the return value is true. If no guessed
+		 * packet will be sent or if this value is missing, the return value is false.
 		 */
 		bool isFirstKexPacketFollows();
 

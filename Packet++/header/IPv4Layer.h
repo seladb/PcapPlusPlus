@@ -33,7 +33,8 @@ namespace pcpp
 	 * Represents an IPv4 protocol header
 	 */
 #pragma pack(push, 1)
-	struct iphdr {
+	struct iphdr
+	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** IP header length, has the value of 5 for IPv4 */
 		uint8_t internetHeaderLength:4,

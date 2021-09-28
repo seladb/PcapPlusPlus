@@ -39,14 +39,15 @@ static struct option ArpingOptions[] =
 	{"version", no_argument, 0, 'v'},
 	{"list", optional_argument, 0, 'l'},
 	{"timeout", optional_argument, 0, 'w'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
 	std::cout << std::endl
 		<< "Usage:" << std::endl
 		<< "------" << std::endl
@@ -214,7 +215,7 @@ int main(int argc, char* argv[])
 		// failed fetching MAC address
 		if (result == pcpp::MacAddress::Zero)
 		{
-			// PcapPlusPlus logger saves the last internal error message 
+			// PcapPlusPlus logger saves the last internal error message
 			std::cout << "Arping  index=" << i << " : " << pcpp::Logger::getInstance().getLastError() << std::endl;
 		}
 		else // Succeeded fetching MAC address

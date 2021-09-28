@@ -715,7 +715,7 @@ namespace pcpp
 		uint8_t type = data[0];
 
 		// ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, ICMP_ROUTER_SOL, ICMP_INFO_REQUEST, ICMP_INFO_REPLY
-		if (type == 8 || type == 0 || type == 10 || type == 15 || type == 16) 
+		if (type == 8 || type == 0 || type == 10 || type == 15 || type == 16)
 			return true;
 
 		// ICMP_TIMESTAMP_REQUEST, ICMP_TIMESTAMP_REPLY

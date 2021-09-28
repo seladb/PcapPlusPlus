@@ -66,7 +66,7 @@ namespace pcpp
 	 *    - it contains the initDpdk() static method which initializes the DPDK infrastructure. It should be called once in every application at
 	 *      its startup process 
 	 *    - it contains the list of DpdkDevice instances and enables access to them
-	 *    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads() 
+	 *    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
 	 */
 	class DpdkDeviceList
 	{

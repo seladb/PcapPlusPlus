@@ -16,7 +16,7 @@
 #include <fstream>
 #include <sstream>
 #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-// The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are 
+// The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
 // This define statement eliminates these errors
 #ifndef BPF_MAJOR_VERSION
@@ -361,7 +361,7 @@ void PcapLiveDevice::close()
 	pcap_close(m_PcapDescriptor);
 	LOG_DEBUG("Receive pcap descriptor closed");
 	if (!sameDescriptor)
-	{ 
+	{
 		pcap_close(m_PcapSendDescriptor);
 		LOG_DEBUG("Send pcap descriptor closed");
 	}
@@ -830,14 +830,16 @@ void PcapLiveDevice::setDeviceMacAddress()
 		return;
 	}
 
-	if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0) {
+	if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0)
+	{
 		LOG_DEBUG("Error in retrieving MAC address: sysctl 1 error");
 		return;
 	}
 
 	uint8_t buf[len];
 
-	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
+	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0)
+	{
 		LOG_DEBUG("Error in retrieving MAC address: sysctl 2 error");
 		return;
 	}

@@ -270,9 +270,8 @@ namespace pcpp
 				TLVRecordBuilder(optType, optValue) { }
 
 			/**
-			 * A copy c'tor that creates an instance of this class out of another instance and copies all the data from it 
+			 * A copy c'tor that creates an instance of this class out of another instance and copies all the data from it
 			 * @param[in] other The instance to copy data from
-			 * 
 			 */
 			IPv6TLVOptionBuilder(const IPv6TLVOptionBuilder& other) :
 				TLVRecordBuilder(other) {}

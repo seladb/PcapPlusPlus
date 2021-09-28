@@ -50,7 +50,7 @@ static struct option TLSFingerprintingOptions[] =
 #define TLS_FP_SH_ONLY    "sh"
 #define TLS_FP_CH_AND_SH  "ch_sh"
 
-bool isNotAlphanumeric(char c) 
+bool isNotAlphanumeric(char c)
 {
 	return std::isalnum(c) == 0;
 }
@@ -295,7 +295,7 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 
 	// write a table of the 10 most common TLS fingerprints
 
-	// if user requested to extract ClientHello TLS fingerprints and there is data to show 
+	// if user requested to extract ClientHello TLS fingerprints and there is data to show
 	if (chFP && stats.chFingerprints.size() > 0)
 	{
 		if (stats.chFingerprints.size() > 10)
@@ -307,7 +307,7 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 		std::cout << std::endl;
 	}
 		
-	// if user requested to extract ServerHello TLS fingerprints and there is data to show 
+	// if user requested to extract ServerHello TLS fingerprints and there is data to show
 	if (shFP && stats.shFingerprints.size() > 0)
 	{
 		if (stats.shFingerprints.size() > 10)
@@ -470,8 +470,8 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 		// take the device name and remove all chars which are not alphanumeric
 		outputFileName = std::string(dev->getName());
 		outputFileName.erase(remove_if(
-			outputFileName.begin(), 
-			outputFileName.end(), 
+			outputFileName.begin(),
+			outputFileName.end(),
 			isNotAlphanumeric), outputFileName.end());
 		
 		outputFileName += ".txt";

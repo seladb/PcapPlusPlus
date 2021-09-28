@@ -19,7 +19,8 @@ namespace pcpp
 	 * Represents an PPPoE protocol header
 	 */
 #pragma pack(push, 1)
-	struct pppoe_header {
+	struct pppoe_header
+	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** PPPoE version */
 		uint8_t version:4,

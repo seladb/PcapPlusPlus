@@ -263,7 +263,7 @@ PTF_TEST_CASE(TestPrintPacketAndLayers)
 	// files can be later compared
 	std::string referenceBufferAsString = referenceBuffer.str();
 	size_t index = 0;
-	while (true) 
+	while (true)
 	{
 		index = referenceBufferAsString.find("\r\n", index);
 		if (index == std::string::npos) break;
