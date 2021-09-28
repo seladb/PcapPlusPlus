@@ -19,7 +19,8 @@ namespace pcpp
 	 * Represents an ARP protocol header
 	 */
 #pragma pack(push, 1)
-	struct arphdr {
+	struct arphdr
+	{
 		/** Hardware type (HTYPE) */
 		uint16_t hardwareType;
 		/** Protocol type (PTYPE). The permitted PTYPE values share a numbering space with those for EtherType */

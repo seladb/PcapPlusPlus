@@ -82,7 +82,8 @@ inet_ntop4(const uint8_t* src, char* dst, size_t size)
 	int nprinted;
 	nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
 		/* Note: nprinted *excludes* the trailing '\0' character */
-	if ((size_t)nprinted >= size) {
+	if ((size_t)nprinted >= size)
+	{
 		return (NULL);
 	}
 	strncpy(dst, tmp, size);
@@ -122,21 +123,27 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	best.len = 0;
 	cur.base = -1;
 	cur.len = 0;
-	for (i = 0; i < (NS_IN6ADDRSZ / NS_INT16SZ); i++) {
-		if (words[i] == 0) {
+	for (i = 0; i < (NS_IN6ADDRSZ / NS_INT16SZ); i++)
+	{
+		if (words[i] == 0)
+		{
 			if (cur.base == -1)
 				cur.base = i, cur.len = 1;
 			else
 				cur.len++;
-		} else {
-			if (cur.base != -1) {
+		}
+		else
+		{
+			if (cur.base != -1)
+			{
 				if (best.base == -1 || cur.len > best.len)
 					best = cur;
 				cur.base = -1;
 			}
 		}
 	}
-	if (cur.base != -1) {
+	if (cur.base != -1)
+	{
 		if (best.base == -1 || cur.len > best.len)
 			best = cur;
 	}
@@ -147,10 +154,11 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	 * Format the result.
 	 */
 	tp = tmp;
-	for (i = 0; i < (NS_IN6ADDRSZ / NS_INT16SZ); i++) {
+	for (i = 0; i < (NS_IN6ADDRSZ / NS_INT16SZ); i++)
+	{
 		/* Are we inside the best run of 0x00's? */
-		if (best.base != -1 && i >= best.base &&
-			i < (best.base + best.len)) {
+		if (best.base != -1 && i >= best.base && i < (best.base + best.len))
+		{
 			if (i == best.base)
 				*tp++ = ':';
 			continue;
@@ -159,8 +167,8 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 		if (i != 0)
 			*tp++ = ':';
 		/* Is this address an encapsulated IPv4? */
-		if (i == 6 && best.base == 0 &&
-			(best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
+		if (i == 6 && best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
+		{
 			if (!inet_ntop4(src+12, tp, sizeof tmp - (tp - tmp)))
 				return (NULL);
 			tp += strlen(tp);
@@ -177,7 +185,8 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	/*
 	 * Check for overflow, copy, and we're done.
 	 */
-	if ((size_t)(tp - tmp) > size) {
+	if ((size_t)(tp - tmp) > size)
+	{
 		return (NULL);
 	}
 	strncpy(dst, tmp, size);
@@ -205,21 +214,26 @@ inet_pton4(const char* src, uint8_t* dst)
 	saw_digit = 0;
 	octets = 0;
 	*(tp = tmp) = 0;
-	while ((ch = *src++) != '\0') {
+	while ((ch = *src++) != '\0')
+	{
 		const char *pch;
 
-		if ((pch = strchr(digits, ch)) != NULL) {
+		if ((pch = strchr(digits, ch)) != NULL)
+		{
 			size_t newSize = *tp * 10 + (pch - digits);
 
 			if (newSize > 255)
 				return (0);
 			*tp = (u_char) newSize;
-			if (! saw_digit) {
+			if (! saw_digit)
+			{
 				if (++octets > 4)
 					return (0);
 				saw_digit = 1;
 			}
-		} else if (ch == '.' && saw_digit) {
+		}
+		else if (ch == '.' && saw_digit)
+		{
 			if (octets == 4)
 				return (0);
 			*++tp = 0;
@@ -266,12 +280,14 @@ inet_pton6(const char* src, uint8_t* dst)
 	curtok = src;
 	saw_xdigit = 0;
 	val = 0;
-	while ((ch = *src++) != '\0') {
+	while ((ch = *src++) != '\0')
+	{
 		const char* pch;
 
 		if ((pch = strchr((xdigits = xdigits_l), ch)) == NULL)
 			pch = strchr((xdigits = xdigits_u), ch);
-		if (pch != NULL) {
+		if (pch != NULL)
+		{
 			val <<= 4;
 			val |= (pch - xdigits);
 			if (val > 0xffff)
@@ -279,14 +295,18 @@ inet_pton6(const char* src, uint8_t* dst)
 			saw_xdigit = 1;
 			continue;
 		}
-		if (ch == ':') {
+		if (ch == ':')
+		{
 			curtok = src;
-			if (!saw_xdigit) {
+			if (!saw_xdigit)
+			{
 				if (colonp)
 					return (0);
 				colonp = tp;
 				continue;
-			} else if (*src == '\0') {
+			} 
+			else if (*src == '\0')
+			{
 				return (0);
 			}
 			if (tp + NS_INT16SZ > endp)
@@ -297,21 +317,23 @@ inet_pton6(const char* src, uint8_t* dst)
 			val = 0;
 			continue;
 		}
-		if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) &&
-			inet_pton4(curtok, tp) > 0) {
+		if (ch == '.' && ((tp + NS_INADDRSZ) <= endp) && inet_pton4(curtok, tp) > 0)
+		{
 			tp += NS_INADDRSZ;
 			saw_xdigit = 0;
 			break;	/* '\0' was seen by inet_pton4(). */
 		}
 		return (0);
 	}
-	if (saw_xdigit) {
+	if (saw_xdigit)
+	{
 		if (tp + NS_INT16SZ > endp)
 			return (0);
 		*tp++ = (u_char) (val >> 8) & 0xff;
 		*tp++ = (u_char) val & 0xff;
 	}
-	if (colonp != NULL) {
+	if (colonp != NULL)
+	{
 		/*
 		 * Since some memmove()'s erroneously fail to handle
 		 * overlapping regions, we'll do the shift by hand.
@@ -321,7 +343,8 @@ inet_pton6(const char* src, uint8_t* dst)
 
 		if (tp == endp)
 			return (0);
-		for (i = 1; i <= n; i++) {
+		for (i = 1; i <= n; i++)
+		{
 			endp[- i] = colonp[n - i];
 			colonp[n - i] = 0;
 		}
@@ -336,7 +359,8 @@ inet_pton6(const char* src, uint8_t* dst)
 
 const char* inet_ntop(int af, const void* src, char* dst, size_t size)
 {
-	switch (af) {
+	switch (af)
+	{
 	case AF_INET:
 		return (inet_ntop4((const uint8_t*)src, dst, size));
 	case AF_INET6:
@@ -349,7 +373,8 @@ const char* inet_ntop(int af, const void* src, char* dst, size_t size)
 
 int inet_pton(int af, const char* src, void* dst)
 {
-	switch (af) {
+	switch (af)
+	{
 #ifdef AF_INET
 	case AF_INET:
 		return (inet_pton4(src, (uint8_t*)dst));

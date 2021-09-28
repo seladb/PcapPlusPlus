@@ -313,7 +313,8 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 			}
 			status = TcpMessageHandled;
 		}
-		else {
+		else
+		{
 			status = Ignore_Retransimission;
 		}
 

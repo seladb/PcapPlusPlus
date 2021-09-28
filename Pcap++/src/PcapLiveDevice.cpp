@@ -830,14 +830,16 @@ void PcapLiveDevice::setDeviceMacAddress()
 		return;
 	}
 
-	if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0) {
+	if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0)
+	{
 		LOG_DEBUG("Error in retrieving MAC address: sysctl 1 error");
 		return;
 	}
 
 	uint8_t buf[len];
 
-	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
+	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0)
+	{
 		LOG_DEBUG("Error in retrieving MAC address: sysctl 2 error");
 		return;
 	}

@@ -74,7 +74,8 @@ namespace pcpp
 	/**
 	 * An enum describing all PMD (poll mode driver) types supported by DPDK. For more info about these PMDs please visit the DPDK web-site
 	 */
-	enum DpdkPMDType {
+	enum DpdkPMDType
+	{
 		/** Unknown PMD type */
 		PMD_UNKNOWN,
 		/** Link Bonding for 1GbE and 10GbE ports to allow the aggregation of multiple (slave) NICs into a single logical interface*/

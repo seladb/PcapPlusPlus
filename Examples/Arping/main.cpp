@@ -46,7 +46,8 @@ static struct option ArpingOptions[] =
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
 	std::cout << std::endl
 		<< "Usage:" << std::endl
 		<< "------" << std::endl

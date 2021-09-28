@@ -21,7 +21,8 @@ namespace pcpp
 	 * Represents a DHCP protocol header
 	 */
 	#pragma pack(push, 1)
-	struct dhcp_header {
+	struct dhcp_header
+	{
 		/** BootP opcode */
 		uint8_t opCode;
 		/** Hardware type, set to 1 (Ethernet) by default */
@@ -70,7 +71,8 @@ namespace pcpp
 	/**
 	 * DHCP message types
 	 */
-	enum DhcpMessageType {
+	enum DhcpMessageType
+	{
 		/** Unknown message type */
 		DHCP_UNKNOWN_MSG_TYPE = 0,
 		/** Discover message type */
@@ -94,7 +96,8 @@ namespace pcpp
 	/**
 	 * DHCP option types.
 	 */
-	enum DhcpOptionTypes {
+	enum DhcpOptionTypes 
+	{
 		/** Unknown option type */
 		DHCPOPT_UNKNOWN = -1,
 		/** Pad */

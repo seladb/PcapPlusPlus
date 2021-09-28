@@ -17,7 +17,8 @@ namespace pcpp
 	 * Represents an UDP protocol header
 	 */
 #pragma pack(push,1)
-	struct udphdr {
+	struct udphdr
+	{
 		/** Source port */
 		uint16_t portSrc;
 		/** Destination port */

@@ -5,18 +5,21 @@
 
 // This function is created as PcapPlusPlus doesn't seem to offer a way of
 // parsing Pcap files directly from memory
-int dumpDataToPcapFile(const uint8_t *data, size_t size) {
+int dumpDataToPcapFile(const uint8_t *data, size_t size)
+{
 	FILE *fd;
 	int written = 0;
 
 	fd = fopen("/tmp/fuzz_sample.pcap", "wb");
-	if (fd == NULL) {
+	if (fd == NULL)
+	{
 		std::cerr << "Error opening pcap file for writing\n";
 		return -1;
 	}
 
 	written = fwrite(data, 1, size, fd);
-	if (written != size) {
+	if (written != size)
+	{
 		std::cerr << "Error writing pcap file\n";
 		fclose(fd);
 		return -1;
@@ -27,9 +30,11 @@ int dumpDataToPcapFile(const uint8_t *data, size_t size) {
 	return 0;
 }
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
+{
 
-	if (dumpDataToPcapFile(Data, Size) < 0) {
+	if (dumpDataToPcapFile(Data, Size) < 0)
+	{
 		return 1;
 	}
 

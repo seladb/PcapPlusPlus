@@ -29,27 +29,33 @@ VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t
 	vlanHeader->etherType = htobe16(etherType);
 }
 
-uint16_t VlanLayer::getVlanID() const {
+uint16_t VlanLayer::getVlanID() const
+{
 	return htobe16(getVlanHeader()->vlan) & 0xFFF;
 }
 
-uint8_t VlanLayer::getCFI() const {
+uint8_t VlanLayer::getCFI() const
+{
 	return ((htobe16(getVlanHeader()->vlan) >> 12) & 1);
 }
 
-uint8_t VlanLayer::getPriority() const {
+uint8_t VlanLayer::getPriority() const
+{
 	return (htobe16(getVlanHeader()->vlan) >> 13) & 7;
 }
 
-void VlanLayer::setVlanID(uint16_t id) {
+void VlanLayer::setVlanID(uint16_t id)
+{
 	getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~0xFFF)) | (id & 0xFFF));
 }
 
-void VlanLayer::setCFI(bool cfi) {
+void VlanLayer::setCFI(bool cfi)
+{
 	getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(1 << 12))) | ((cfi & 1) << 12));
 }
 
-void VlanLayer::setPriority(uint8_t priority) {
+void VlanLayer::setPriority(uint8_t priority)
+{
 	getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(7 << 13))) | ((priority & 7) << 13));
 }
 

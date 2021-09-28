@@ -122,7 +122,8 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	optind = 1;
 	// init the EAL
 	int ret = rte_eal_init(initDpdkArgc, (char**)initDpdkArgv);
-	if (ret < 0) {
+	if (ret < 0)
+	{
 		LOG_ERROR("failed to init the DPDK EAL");
 		return false;
 	}
