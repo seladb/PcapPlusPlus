@@ -220,7 +220,7 @@ namespace pcpp
 	 * A wrapper class for IPv4 options. This class does not create or modify IPv4 option records, but rather
 	 * serves as a wrapper and provides useful methods for retrieving data from them
 	 */
-	class IPv4Option : public TLVRecord
+	class IPv4Option : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
 

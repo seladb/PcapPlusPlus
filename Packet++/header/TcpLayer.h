@@ -195,7 +195,7 @@ namespace pcpp
 	 * A wrapper class for TCP options. This class does not create or modify TCP option records, but rather
 	 * serves as a wrapper and provides useful methods for retrieving data from them
 	 */
-	class TcpOption : public TLVRecord
+	class TcpOption : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
 

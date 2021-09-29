@@ -194,7 +194,7 @@ namespace pcpp
 		 * extensions. This class does not create or modify IPv6 option records, but rather serves as a wrapper and
 		 * provides useful methods for retrieving data from them
 		 */
-		class IPv6Option : public TLVRecord
+		class IPv6Option : public TLVRecord<uint8_t, uint8_t>
 		{
 		public:
 

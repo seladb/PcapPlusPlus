@@ -12,8 +12,9 @@ namespace pcpp
 DhcpOption DhcpOptionBuilder::build() const
 {
 	size_t recSize = 2 * sizeof(uint8_t) + m_RecValueLen;
+	uint8_t recType = static_cast<uint8_t>(m_RecType);
 
-	if ((m_RecType == DHCPOPT_END || m_RecType == DHCPOPT_PAD))
+	if ((recType == DHCPOPT_END || recType == DHCPOPT_PAD))
 	{
 		if (m_RecValueLen != 0)
 		{
@@ -26,10 +27,10 @@ DhcpOption DhcpOptionBuilder::build() const
 
 	uint8_t* recordBuffer = new uint8_t[recSize];
 	memset(recordBuffer, 0, recSize);
-	recordBuffer[0] = m_RecType;
+	recordBuffer[0] = recType;
 	if (recSize > 1)
 	{
-		recordBuffer[1] = m_RecValueLen;
+		recordBuffer[1] = static_cast<uint8_t>(m_RecValueLen);
 		if (m_RecValue != NULL)
 			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
 		else
