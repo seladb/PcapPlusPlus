@@ -398,7 +398,7 @@ namespace pcpp
 	 * A wrapper class for DHCP options. This class does not create or modify DHCP option records, but rather
 	 * serves as a wrapper and provides useful methods for setting and retrieving data to/from them
 	 */
-	class DhcpOption : public TLVRecord
+	class DhcpOption : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
 

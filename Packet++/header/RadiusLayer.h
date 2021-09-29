@@ -37,7 +37,7 @@ namespace pcpp
 	 * A wrapper class for RADIUS attributes. This class does not create or modify RADIUS attribute records, but rather
 	 * serves as a wrapper and provides useful methods for retrieving data from them
 	 */
-	class RadiusAttribute : public TLVRecord
+	class RadiusAttribute : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
 

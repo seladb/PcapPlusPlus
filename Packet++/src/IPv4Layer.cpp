@@ -133,7 +133,8 @@ IPv4Option IPv4OptionBuilder::build() const
 
 	size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
-	if ((m_RecType == (uint8_t)IPV4OPT_NOP || m_RecType == (uint8_t)IPV4OPT_EndOfOptionsList))
+	uint8_t recType = static_cast<uint8_t>(m_RecType);
+	if ((recType == (uint8_t)IPV4OPT_NOP || recType == (uint8_t)IPV4OPT_EndOfOptionsList))
 	{
 		if (m_RecValueLen != 0)
 		{
@@ -146,10 +147,10 @@ IPv4Option IPv4OptionBuilder::build() const
 
 	uint8_t* recordBuffer = new uint8_t[optionSize];
 	memset(recordBuffer, 0, optionSize);
-	recordBuffer[0] = m_RecType;
+	recordBuffer[0] = recType;
 	if (optionSize > 1)
 	{
-		recordBuffer[1] = (uint8_t)optionSize;
+		recordBuffer[1] = static_cast<uint8_t>(optionSize);
 		if (optionSize > 2 && m_RecValue != NULL)
 			memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
 	}

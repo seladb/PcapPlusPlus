@@ -101,32 +101,32 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->sessionId, htobe16(0x0011));
 	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getPPPoEHeader()->payloadLength, htobe16(40));
 
-	pcpp::PPPoEDiscoveryLayer::PPPoETag* firstTag = pppoeDiscoveryLayer->getFirstTag();
-	PTF_ASSERT_NOT_NULL(firstTag);
-	PTF_ASSERT_EQUAL(firstTag->getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME, enum);
-	PTF_ASSERT_EQUAL(firstTag->tagDataLength, 0);
+	pcpp::PPPoEDiscoveryLayer::PPPoETag firstTag = pppoeDiscoveryLayer->getFirstTag();
+	PTF_ASSERT_FALSE(firstTag.isNull());
+	PTF_ASSERT_EQUAL(firstTag.getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME, enum);
+	PTF_ASSERT_EQUAL(firstTag.getDataSize(), 0);
 
-	pcpp::PPPoEDiscoveryLayer::PPPoETag* secondTag = pppoeDiscoveryLayer->getNextTag(firstTag);
-	PTF_ASSERT_NOT_NULL(secondTag);
-	PTF_ASSERT_EQUAL(secondTag->getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, enum);
-	PTF_ASSERT_EQUAL(secondTag->tagDataLength, htobe16(4));
-	PTF_ASSERT_EQUAL(be32toh(secondTag->getTagDataAs<uint32_t>()), 0x64138518);
+	pcpp::PPPoEDiscoveryLayer::PPPoETag secondTag = pppoeDiscoveryLayer->getNextTag(firstTag);
+	PTF_ASSERT_FALSE(secondTag.isNull());
+	PTF_ASSERT_EQUAL(secondTag.getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, enum);
+	PTF_ASSERT_EQUAL(secondTag.getDataSize(), 4);
+	PTF_ASSERT_EQUAL(be32toh(secondTag.getValueAs<uint32_t>()), 0x64138518);
 
-	pcpp::PPPoEDiscoveryLayer::PPPoETag* thirdTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME);
-	PTF_ASSERT_NOT_NULL(thirdTag);
-	PTF_ASSERT_EQUAL(thirdTag, pppoeDiscoveryLayer->getNextTag(secondTag), ptr);
-	PTF_ASSERT_EQUAL(thirdTag->getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, enum);
-	PTF_ASSERT_EQUAL(thirdTag->tagDataLength, htobe16(4));
-	PTF_ASSERT_EQUAL(be32toh(thirdTag->getTagDataAs<uint32_t>()), 0x42524153);
+	pcpp::PPPoEDiscoveryLayer::PPPoETag thirdTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME);
+	PTF_ASSERT_FALSE(thirdTag.isNull());
+	PTF_ASSERT_EQUAL(thirdTag, pppoeDiscoveryLayer->getNextTag(secondTag), object_no_str);
+	PTF_ASSERT_EQUAL(thirdTag.getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, enum);
+	PTF_ASSERT_EQUAL(thirdTag.getDataSize(), 4);
+	PTF_ASSERT_EQUAL(thirdTag.getValueAsString(), "BRAS");
 
-	pcpp::PPPoEDiscoveryLayer::PPPoETag* fourthTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE);
-	PTF_ASSERT_NOT_NULL(fourthTag);
-	PTF_ASSERT_EQUAL(fourthTag, pppoeDiscoveryLayer->getNextTag(thirdTag), ptr);
-	PTF_ASSERT_EQUAL(fourthTag->getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, enum);
-	PTF_ASSERT_EQUAL(fourthTag->tagDataLength, htobe16(16));
-	PTF_ASSERT_EQUAL(fourthTag->getTagDataAs<uint64_t>(), 0xf284240687050f3dULL);
-	PTF_ASSERT_EQUAL(fourthTag->getTagDataAs<uint64_t>(8), 0x5bbd77fdddb932dfULL);
-	PTF_ASSERT_NULL(pppoeDiscoveryLayer->getNextTag(fourthTag));
+	pcpp::PPPoEDiscoveryLayer::PPPoETag fourthTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE);
+	PTF_ASSERT_FALSE(fourthTag.isNull());
+	PTF_ASSERT_EQUAL(fourthTag, pppoeDiscoveryLayer->getNextTag(thirdTag), object_no_str);
+	PTF_ASSERT_EQUAL(fourthTag.getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, enum);
+	PTF_ASSERT_EQUAL(fourthTag.getDataSize(), 16);
+	PTF_ASSERT_EQUAL(fourthTag.getValueAs<uint64_t>(), 0xf284240687050f3dULL);
+	PTF_ASSERT_EQUAL(fourthTag.getValueAs<uint64_t>(8), 0x5bbd77fdddb932dfULL);
+	PTF_ASSERT_TRUE(pppoeDiscoveryLayer->getNextTag(fourthTag).isNull());
 
 	PTF_ASSERT_EQUAL(pppoeDiscoveryLayer->getTagCount(), 4);
 
@@ -153,15 +153,20 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 
 	PTF_ASSERT_TRUE(pppoedPacket.addLayer(&pppoedLayer));
 
-	pcpp::PPPoEDiscoveryLayer::PPPoETag* svcNamePtr = pppoedLayer.addTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME, 0, NULL);
+	pcpp::PPPoEDiscoveryLayer::PPPoETag svcNameTag = pppoedLayer.addTag(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME));
+	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 1);
+	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, htobe16(4));
 
-	uint32_t hostUniqData = htobe32(0x64138518);
-	pppoedLayer.addTagAfter(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, sizeof(uint32_t), (uint8_t*)(&hostUniqData), svcNamePtr);
+	uint32_t hostUniqData = 0x64138518;
+	pppoedLayer.addTagAfter(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, hostUniqData), svcNameTag.getType());
+	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 2);
+	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, htobe16(12));
 
 	pppoedPacket.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(pppoedPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(pppoedPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+
 
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/PPPoEDiscovery2.dat");
 
@@ -173,23 +178,32 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 	pppoedLayer.getPPPoEHeader()->code = pcpp::PPPoELayer::PPPOE_CODE_PADS;
 	pppoedLayer.getPPPoEHeader()->sessionId = htobe16(0x11);
 
-	pcpp::PPPoEDiscoveryLayer::PPPoETag* acCookieTag = pppoedLayer.addTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, 16, NULL);
-	acCookieTag->setTagData<uint64_t>(0xf284240687050f3dULL);
-	acCookieTag->setTagData<uint64_t>(0x5bbd77fdddb932dfULL, 8);
 
-	pppoedLayer.addTagAfter(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HURL, sizeof(uint32_t), (uint8_t*)(&hostUniqData), acCookieTag);
+	uint8_t acCookieValue[16] = {0x3d, 0x0f, 0x05, 0x87, 0x06, 0x24, 0x84, 0xf2, 0xdf, 0x32, 0xb9, 0xdd, 0xfd, 0x77, 0xbd, 0x5b};
+	pcpp::PPPoEDiscoveryLayer::PPPoETag acCookieTag = pppoedLayer.addTag(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, acCookieValue, 16));
+	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 3);
+	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, htobe16(32));
 
-	pcpp::PPPoEDiscoveryLayer::PPPoETag* hostUniqTag = pppoedLayer.getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ);
-	PTF_ASSERT_NOT_NULL(hostUniqTag);
-	pcpp::PPPoEDiscoveryLayer::PPPoETag* acNameTag = pppoedLayer.addTagAfter(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, 4, NULL, hostUniqTag);
-	acNameTag->setTagData<uint32_t>(htobe32(0x42524153));
+	pppoedLayer.addTagAfter(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HURL, hostUniqData), acCookieTag.getType());
+	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 4);
+	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, htobe16(40));
+
+
+	pcpp::PPPoEDiscoveryLayer::PPPoETag hostUniqTag = pppoedLayer.getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ);
+	PTF_ASSERT_FALSE(hostUniqTag.isNull());
+	pppoedLayer.addTagAfter(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, 0x42524153), hostUniqTag.getType());
+	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 5);
+	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, htobe16(48));
 
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(pppoedLayer.removeTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_CREDITS));
 	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(pppoedLayer.removeTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HURL));
-	PTF_ASSERT_NULL(pppoedLayer.getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HURL));
+	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 4);
+	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, htobe16(40));
+
+	PTF_ASSERT_TRUE(pppoedLayer.getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HURL).isNull());
 
 	pppoedPacket.computeCalculateFields();
 

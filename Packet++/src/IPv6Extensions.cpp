@@ -100,7 +100,8 @@ uint16_t IPv6FragmentationHeader::getFragmentOffset() const
 IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::IPv6TLVOptionBuilder::build() const
 {
 	size_t optionTotalSize = sizeof(uint8_t);
-	if (m_RecType != IPv6TLVOptionHeader::IPv6Option::Pad0OptionType)
+	uint8_t recType = static_cast<uint8_t>(m_RecType);
+	if (recType != IPv6TLVOptionHeader::IPv6Option::Pad0OptionType)
 		optionTotalSize += sizeof(uint8_t) + m_RecValueLen;
 
 	uint8_t* recordBuffer = new uint8_t[optionTotalSize];
@@ -108,8 +109,8 @@ IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::IPv6TLVOptionBuilder::build
 
 	if (m_RecType != IPv6TLVOptionHeader::IPv6Option::Pad0OptionType)
 	{
-		recordBuffer[0] = m_RecType;
-		recordBuffer[1] = m_RecValueLen;
+		recordBuffer[0] = recType;
+		recordBuffer[1] = static_cast<uint8_t>(m_RecValueLen);
 		if (m_RecValueLen > 0)
 			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
 	}

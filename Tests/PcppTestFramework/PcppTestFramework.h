@@ -127,6 +127,7 @@
 #define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) \
 	if (memcmp(buf1, buf2, size) != 0) { \
 		std::cout << std::left << std::setw(30) << __FUNCTION__ << ": " \
+		<< "FAILED (" << __FILE__ << ":" << __LINE__ << "). " \
 		<< "Assert BUFFER COMPARE failed: " \
 		<< #buf1 << " != " << #buf2 \
 		<< std::endl; \

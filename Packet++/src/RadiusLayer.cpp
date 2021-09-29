@@ -12,11 +12,11 @@ namespace pcpp
 
 RadiusAttribute RadiusAttributeBuilder::build() const
 {
-	uint8_t recSize = m_RecValueLen+2;
+	size_t recSize = m_RecValueLen+2;
 	uint8_t* recordBuffer = new uint8_t[recSize];
 	memset(recordBuffer, 0, recSize);
-	recordBuffer[0] = m_RecType;
-	recordBuffer[1] = recSize;
+	recordBuffer[0] = static_cast<uint8_t>(m_RecType);
+	recordBuffer[1] = static_cast<uint8_t>(recSize);
 	if (m_RecValueLen > 0)
 		memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
 
