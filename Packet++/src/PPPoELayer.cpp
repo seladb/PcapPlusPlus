@@ -296,9 +296,9 @@ PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getFirstTag() const
 	return m_TagReader.getFirstTLVRecord(getTagBasePtr(), m_DataLen - sizeof(pppoe_header));
 }
 
-PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getNextTag(PPPoEDiscoveryLayer::PPPoETag& tag) const
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getNextTag(const PPPoEDiscoveryLayer::PPPoETag& tag) const
 {
-	return m_TagReader.getNextTLVRecord(tag, getTagBasePtr(), m_DataLen - sizeof(pppoe_header));
+	return m_TagReader.getNextTLVRecord(const_cast<PPPoEDiscoveryLayer::PPPoETag&>(tag), getTagBasePtr(), m_DataLen - sizeof(pppoe_header));
 }
 
 int PPPoEDiscoveryLayer::getTagCount() const
