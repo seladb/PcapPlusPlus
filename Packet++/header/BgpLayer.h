@@ -77,6 +77,7 @@ public:
 	 * A static method that checks whether a source or dest port match those associated with the BGP protocol
 	 * @param[in] portSrc Source port number to check
 	 * @param[in] portDst Dest port number to check
+	 * @return True if the source or dest port match those associated with the BGP protocol
 	 */
 	static bool isBgpPort(uint16_t portSrc, uint16_t portDst) { return portSrc == 179 || portDst == 179; }
 

@@ -82,11 +82,15 @@ namespace pcpp
 
 		/**
 		 * Overload of the equal-to operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the addresses are equal, false otherwise
 		 */
 		bool operator==(const IPv4Address& rhs) const { return toInt() == rhs.toInt(); }
 
 		/**
 		 * Overload of the less-than operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the address value is lower than the other address value, false otherwise
 		 */
 		bool operator<(const IPv4Address& rhs) const
 		{
@@ -101,6 +105,8 @@ namespace pcpp
 
 		/**
 		 * Overload of the not-equal-to operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the addresses are not equal, false otherwise
 		 */
 		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
 
@@ -203,16 +209,22 @@ namespace pcpp
 
 		/**
 		 * Overload of the equal-to operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the addresses are equal, false otherwise
 		 */
 		bool operator==(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) == 0; }
 		
 		/**
 		 * Overload of the less-than operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the address value is lower than the other address value, false otherwise
 		 */
 		bool operator<(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) < 0; }
 
 		/**
 		 * Overload of the not-equal-to operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the addresses are not equal, false otherwise
 		 */
 		bool operator!=(const IPv6Address &rhs) const { return !(*this == rhs); }
 
@@ -308,12 +320,14 @@ namespace pcpp
 		/**
 		 * Overload of an assignment operator.
 		 * @param[in] addr A const reference to instance of IPv4Address
+		 * @return A reference to the assignee
 		 */
 		inline IPAddress& operator=(const IPv4Address& addr);
 
 		/**
 		 * Overload of an assignment operator.
 		 * @param[in] addr A const reference to instance of IPv6Address
+		 * @return A reference to the assignee
 		 */
 		inline IPAddress& operator=(const IPv6Address& addr);
 
@@ -330,17 +344,17 @@ namespace pcpp
 		std::string toString() const { return (getType() == IPv4AddressType) ? m_IPv4.toString() : m_IPv6.toString();	}
 
 		/**
-		 * Determine whether the address is unspecified
+		 * @return Determine whether the address is unspecified
 		 */
 		bool isValid() const { return (getType() == IPv4AddressType) ? m_IPv4.isValid() : m_IPv6.isValid(); }
 
 		/**
-		 * Determine whether the object contains an IP version 4 address
+		 * @return Determine whether the object contains an IP version 4 address
 		 */
 		bool isIPv4() const { return getType() == IPv4AddressType; }
 
 		/**
-		 * Determine whether the object contains an IP version 6 address
+		 * @return Determine whether the object contains an IP version 6 address
 		 */
 		bool isIPv6() const { return getType() == IPv6AddressType; }
 
@@ -364,16 +378,22 @@ namespace pcpp
 
 		/**
 		 * Overload of the equal-to operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the addresses are equal, false otherwise
 		 */
 		inline bool operator==(const IPAddress& rhs) const;
 
 		/**
 		 * Overload of the less-than operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the address value is lower than the other address value, false otherwise
 		 */
 		inline bool operator<(const IPAddress& rhs) const;
 
 		/**
 		 * Overload of the not-equal-to operator
+		 * @param[in] rhs The object to compare with
+		 * @return True if the addresses are not equal, false otherwise
 		 */
 		bool operator!=(const IPAddress& rhs) const { return !(*this == rhs); }
 
