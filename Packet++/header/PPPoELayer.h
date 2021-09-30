@@ -232,8 +232,15 @@ namespace pcpp
 		class PPPoETag : public TLVRecord<uint16_t, uint16_t>
 		{
 		public:
-			PPPoETag(uint8_t* attrRawData) : TLVRecord(attrRawData) { }
+			/**
+			 * A c'tor that gets a pointer to the tag raw data (byte array)
+			 * @param[in] tagRawData A pointer to the tag raw data
+			 */
+			PPPoETag(uint8_t* tagRawData) : TLVRecord(tagRawData) { }
 
+			/**
+			 * A d'tor for this class, currently does nothing
+			 */
 			virtual ~PPPoETag() { }
 
 			/**
@@ -241,6 +248,10 @@ namespace pcpp
 			 */
 			PPPoEDiscoveryLayer::PPPoETagTypes getType() const;
 
+			/**
+			 * Retrieve the tag data as string. Relevant only if the tag value is indeed a string
+			 * @return The tag data as string
+			 */
 			std::string getValueAsString() const
 			{
 				size_t dataSize = getDataSize();
@@ -257,19 +268,47 @@ namespace pcpp
 			size_t getDataSize() const;
 		};
 
+
+		/**
+		 * @class PPPoETagBuilder
+		 * A class for building PPPoE Tags. This builder receives the tag parameters in its c'tor,
+		 * builds the PPPoE Tag raw buffer and provides a build() method to get a PPPoETag object out of it
+		 */
 		class PPPoETagBuilder : public TLVRecordBuilder
 		{
 		public:
 
+			/**
+			 * A c'tor for building a PPPoE Tag which has no value (tag len is zero). The PPPoETag object can later
+			 * be retrieved by calling build()
+			 * @param[in] tagType Tag type
+			 */
 			PPPoETagBuilder(PPPoETagTypes tagType) :
 				TLVRecordBuilder(static_cast<uint16_t>(tagType), NULL, 0) { }
 
+			/**
+			 * A c'tor for building a PPPoE Tag which has a 4-byte value. The PPPoETag object can later
+			 * be retrieved by calling build()
+			 * @param[in] tagType Tag type
+			 * @param[in] tagValue The tag's 4-byte value
+			 */
 			PPPoETagBuilder(PPPoETagTypes tagType, uint32_t tagValue) :
 				TLVRecordBuilder(static_cast<uint16_t>(tagType), tagValue) { }
 
+			/**
+			 * A c'tor for building a PPPoE Tag which has some arbitrary value. The PPPoETag object can later
+			 * be retrieved by calling build()
+			 * @param[in] tagType Tag type
+			 * @param[in] tagValue A byte array that contains the tag data
+			 * @param[in] tagValueLen The length of the value byte array
+			 */
 			PPPoETagBuilder(PPPoETagTypes tagType, uint8_t* tagValue, uint8_t tagValueLen) :
 				TLVRecordBuilder(static_cast<uint16_t>(tagType), tagValue, tagValueLen) { }
 
+			/**
+			 * Build the PPPoETag object out of the parameters defined in the c'tor
+			 * @return The PPPoETag object
+			 */
 			PPPoETag build() const;
 		};
 
@@ -292,7 +331,7 @@ namespace pcpp
 		PPPoEDiscoveryLayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code, uint16_t sessionId) : PPPoELayer(version, type, code, sessionId) { m_Protocol = PPPoEDiscovery; }
 
 		/**
-		 * Get a PPPoE tag by tag type.
+		 * Get a PPPoE Tag by tag type.
 		 * @param[in] tagType The type of the tag to search
 		 * @return A PPPoETag object that contains the first tag that matches this type, or logical NULL
 		 * (PPPoETag#isNull() == true) if no such tag found
@@ -306,13 +345,13 @@ namespace pcpp
 		PPPoETag getFirstTag() const;
 
 		/**
-		 * Get the tag which come next to "tag" parameter. If "tag" is NULL or then NULL will be returned. If "tag" is the last tag NULL will be
-		 * returned. Notice the return value is a pointer to the real data casted to PPPoETag type (as opposed to a copy of the tag data).
-		 * So changes in the return value will affect the packet data
-		 * @param[in] tag The tag to start search
-		 * @return The next tag or NULL if "tag" is NULL or "tag" is the last tag
+		 * Get the tag that comes right after the "tag" parameter. If the given tag is the last one, the returned value 
+		 * will contain a logical NULL (PPPoETag#isNull() == true)
+		 * @param[in] tag A given tag
+		 * @return A PPPoETag object containing the tag that comes next, or logical NULL if the given
+		 * tag: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
 		 */
-		PPPoETag getNextTag(PPPoETag& tag) const;
+		PPPoETag getNextTag(const PPPoETag& tag) const;
 
 		/**
 		 * @return The number of tags in this layer
@@ -320,23 +359,19 @@ namespace pcpp
 		int getTagCount() const;
 
 		/**
-		 * Add a new tag at the end of the layer (after the last tag)
-		 * @param[in] tagType The type of the added tag
-		 * @param[in] tagLength The length of the tag data
-		 * @param[in] tagData A pointer to the tag data. This data will be copied to added tag data. Notice the length of tagData must be tagLength
-		 * @return A pointer to the new added tag. Notice this is a pointer to the real data casted to PPPoETag type (as opposed to a copy of
-		 * the tag data). So changes in this return value will affect the packet data
+		 * Add a new PPPoE Tag at the end of the layer
+		 * @param[in] tagBuilder A PPPoETagBuilder object that contains the requested tag data to add
+		 * @return A PPPoETag object containing the newly added PPPoE Tag data or logical NULL
+		 * (PPPoETag#isNull() == true) if addition failed
 		 */
 		PPPoETag addTag(const PPPoETagBuilder& tagBuilder);
 
 		/**
-		 * Add a new tag after an existing tag
-		 * @param[in] tagType The type of the added tag
-		 * @param[in] tagLength The length of the tag data
-		 * @param[in] tagData A pointer to the tag data. This data will be copied to added tag data. Notice the length of tagData must be tagLength
-		 * @param[in] prevTag The tag which the new added tag will come after
-		 * @return A pointer to the new added tag. Notice this is a pointer to the real data casted to PPPoETag type (as opposed to a copy of
-		 * the tag data). So changes in this return value will affect the packet data
+		 * Add a new PPPoE Tag after an existing one
+		 * @param[in] tagBuilder A PPPoETagBuilder object that contains the requested tag data to add
+		 * @param[in] prevTagType The PPPoE Tag which the newly added tag will come after
+		 * @return A PPPoETag object containing the newly added PPPoE Tag data or logical NULL
+		 * (PPPoETag#isNull() == true) if addition failed
 		 */
 		PPPoETag addTagAfter(const PPPoETagBuilder& tagBuilder, PPPoETagTypes prevTagType);
 
