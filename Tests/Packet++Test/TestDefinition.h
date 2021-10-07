@@ -152,5 +152,8 @@ PTF_TEST_CASE(BgpLayerEditTest);
 PTF_TEST_CASE(SSHParsingTest);
 PTF_TEST_CASE(SSHMalformedParsingTest);
 
-// Implemented in IPSec.cpp
+// Implemented in IPSecTests.cpp
 PTF_TEST_CASE(IPSecParsingTest);
+
+// Implemented in DhcpV6Tests.cpp
+PTF_TEST_CASE(DhcpV6ParsingTest);

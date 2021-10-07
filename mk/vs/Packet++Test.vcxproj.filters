@@ -29,6 +29,9 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\DhcpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\DhcpV6Tests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\DnsTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>

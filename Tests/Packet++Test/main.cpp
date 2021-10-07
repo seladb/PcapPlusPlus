@@ -233,5 +233,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(IPSecParsingTest, "ipsec");
 
+	PTF_RUN_TEST(DhcpV6ParsingTest, "dhcp;dhcpv6");
+
 	PTF_END_RUNNING_TESTS;
 }

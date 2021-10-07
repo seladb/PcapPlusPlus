@@ -1,6 +1,9 @@
 #ifndef PACKETPP_DHCPV6_LAYER
 #define PACKETPP_DHCPV6_LAYER
 
+#include "Layer.h"
+#include "TLVData.h"
+
 /// @file
 
 /**
@@ -55,133 +58,250 @@ namespace pcpp
 	enum DhcpV6OptionType
 	{
 		/** Unknown option type */
-		DVCPV6_OPT_UNKNOWN                  = 0,
+		DHCPV6_OPT_UNKNOWN                  = 0,
 		/** Client Identifier (DUID of client) */
-		DVCPV6_OPT_CLIENTID                 = 1,
+		DHCPV6_OPT_CLIENTID                 = 1,
 		/** Server Identifier (DUID of server) */
-		DVCPV6_OPT_SERVERID                 = 2,
+		DHCPV6_OPT_SERVERID                 = 2,
 		/** Identity Association for Non-temporary addresses */
-		DVCPV6_OPT_IA_NA                    = 3,
+		DHCPV6_OPT_IA_NA                    = 3,
 		/** Identity Association for Temporary addresses */
-		DVCPV6_OPT_IA_TA                    = 4,
+		DHCPV6_OPT_IA_TA                    = 4,
 		/** IA Address option */
-		DVCPV6_OPT_IAADDR                   = 5,
+		DHCPV6_OPT_IAADDR                   = 5,
 		/** Option Request Option */
-		DVCPV6_OPT_ORO                      = 6,
+		DHCPV6_OPT_ORO                      = 6,
 		/** Preference setting */
-		DVCPV6_OPT_PREFERENCE               = 7,
+		DHCPV6_OPT_PREFERENCE               = 7,
 		/** The amount of time since the client began the current DHCP transaction */
-		DVCPV6_OPT_ELAPSED_TIME             = 8,
+		DHCPV6_OPT_ELAPSED_TIME             = 8,
 		/** The DHCP message being relayed by a relay agent */
-		DVCPV6_OPT_RELAY_MSG                = 9,
+		DHCPV6_OPT_RELAY_MSG                = 9,
 		/** Authentication  information */
-		DVCPV6_OPT_AUTH                     = 11,
+		DHCPV6_OPT_AUTH                     = 11,
 		/** Server unicast */
-		DVCPV6_OPT_UNICAST                  = 12,
+		DHCPV6_OPT_UNICAST                  = 12,
 		/** Status code */
-		DVCPV6_OPT_STATUS_CODE              = 13,
+		DHCPV6_OPT_STATUS_CODE              = 13,
 		/** Rapid commit */
-		DVCPV6_OPT_RAPID_COMMIT             = 14,
+		DHCPV6_OPT_RAPID_COMMIT             = 14,
 		/** User class */
-		DVCPV6_OPT_USER_CLASS               = 15,
+		DHCPV6_OPT_USER_CLASS               = 15,
 		/** Vendor class */
-		DVCPV6_OPT_VENDOR_CLASS             = 16,
+		DHCPV6_OPT_VENDOR_CLASS             = 16,
 		/** Vendor specific information */
-		DVCPV6_OPT_VENDOR_OPTS              = 17,
+		DHCPV6_OPT_VENDOR_OPTS              = 17,
 		/** Interface ID */
-		DVCPV6_OPT_INTERFACE_ID             = 18,
+		DHCPV6_OPT_INTERFACE_ID             = 18,
 		/** Reconfigure Message */
-		DVCPV6_OPT_RECONF_MSG               = 19,
+		DHCPV6_OPT_RECONF_MSG               = 19,
 		/** Reconfigure Accept */
-		DVCPV6_OPT_RECONF_ACCEPT            = 20,
+		DHCPV6_OPT_RECONF_ACCEPT            = 20,
 		/** SIP Servers Domain Name */
-		DVCPV6_OPT_SIP_SERVERS_D            = 21,
+		DHCPV6_OPT_SIP_SERVERS_D            = 21,
 		/** SIP Servers IPv6 Address List */
-		DVCPV6_OPT_SIP_SERVERS_A            = 22,
+		DHCPV6_OPT_SIP_SERVERS_A            = 22,
 		/** DNS Recursive Name Server */
-		DVCPV6_OPT_DNS_SERVERS              = 23,
+		DHCPV6_OPT_DNS_SERVERS              = 23,
 		/** Domain Search List */
-		DVCPV6_OPT_DOMAIN_LIST              = 24,
+		DHCPV6_OPT_DOMAIN_LIST              = 24,
 		/** Identity Association for Prefix Delegation */
-		DVCPV6_OPT_IA_PD                    = 25,
+		DHCPV6_OPT_IA_PD                    = 25,
 		/** IA_PD Prefix */
-		DVCPV6_OPT_IAPREFIX                 = 26,
+		DHCPV6_OPT_IAPREFIX                 = 26,
 		/** Network Information Service (NIS) Servers */
-		DVCPV6_OPT_NIS_SERVERS              = 27,
+		DHCPV6_OPT_NIS_SERVERS              = 27,
 		/** Network Information Service v2 (NIS+) Servers */
-		DVCPV6_OPT_NISP_SERVERS             = 28,
+		DHCPV6_OPT_NISP_SERVERS             = 28,
 		/** Network Information Service (NIS) domain name */
-		DVCPV6_OPT_NIS_DOMAIN_NAME          = 29,
+		DHCPV6_OPT_NIS_DOMAIN_NAME          = 29,
 		/** Network Information Service v2 (NIS+) domain name */
-		DVCPV6_OPT_NISP_DOMAIN_NAME         = 30,
+		DHCPV6_OPT_NISP_DOMAIN_NAME         = 30,
 		/** Simple Network Time Protocol (SNTP) servers */
-		DVCPV6_OPT_SNTP_SERVERS             = 31,
+		DHCPV6_OPT_SNTP_SERVERS             = 31,
 		/** Information Refresh */
-		DVCPV6_OPT_INFORMATION_REFRESH_TIME = 32,
+		DHCPV6_OPT_INFORMATION_REFRESH_TIME = 32,
 		/** Broadcast and Multicast Service (BCMCS) Domain Name List */
-		DVCPV6_OPT_BCMCS_SERVER_D           = 33,
+		DHCPV6_OPT_BCMCS_SERVER_D           = 33,
 		/** Broadcast and Multicast Service (BCMCS) IPv6 Address List */
-		DVCPV6_OPT_BCMCS_SERVER_A           = 34,
+		DHCPV6_OPT_BCMCS_SERVER_A           = 34,
 		/** Geographical location in civic (e.g., postal) format */
-		DVCPV6_OPT_GEOCONF_CIVIC            = 36,
+		DHCPV6_OPT_GEOCONF_CIVIC            = 36,
 		/** Relay Agent Remote ID */
-		DVCPV6_OPT_REMOTE_ID                = 37,
+		DHCPV6_OPT_REMOTE_ID                = 37,
 		/** Relay Agent Subscriber ID */
-		DVCPV6_OPT_SUBSCRIBER_ID            = 38,
+		DHCPV6_OPT_SUBSCRIBER_ID            = 38,
 		/** FQDN */
-		DVCPV6_OPT_CLIENT_FQDN              = 39,
+		DHCPV6_OPT_CLIENT_FQDN              = 39,
 		/** One or more IPv6 addresses associated with PANA (Protocol for carrying Authentication for Network Access) Authentication Agents */
-		DVCPV6_OPT_PANA_AGENT               = 40,
+		DHCPV6_OPT_PANA_AGENT               = 40,
 		/** Time zone to be used by the client in IEEE 1003.1 format */
-		DVCPV6_OPT_NEW_POSIX_TIMEZONE       = 41,
+		DHCPV6_OPT_NEW_POSIX_TIMEZONE       = 41,
 		/** Time zone (TZ) database entry referred to by entry name */
-		DVCPV6_OPT_NEW_TZDB_TIMEZONE        = 42,
+		DHCPV6_OPT_NEW_TZDB_TIMEZONE        = 42,
 		/** Relay Agent Echo Request */
-		DVCPV6_OPT_ERO                      = 43,
+		DHCPV6_OPT_ERO                      = 43,
 		/** Query option */
-		DVCPV6_OPT_LQ_QUERY                 = 44,
+		DHCPV6_OPT_LQ_QUERY                 = 44,
 		/** Client Data */
-		DVCPV6_OPT_CLIENT_DATA              = 45,
+		DHCPV6_OPT_CLIENT_DATA              = 45,
 		/** Client Last Transaction Time */
-		DVCPV6_OPT_CLT_TIME                 = 46,
+		DHCPV6_OPT_CLT_TIME                 = 46,
 		/** Relay data */
-		DVCPV6_OPT_LQ_RELAY_DATA            = 47,
+		DHCPV6_OPT_LQ_RELAY_DATA            = 47,
 		/** Client link */
-		DVCPV6_OPT_LQ_CLIENT_LINK           = 48,
+		DHCPV6_OPT_LQ_CLIENT_LINK           = 48,
 		/** Mobile IPv6 Home Network Information */
-		DVCPV6_OPT_MIP6_HNINF               = 49,
+		DHCPV6_OPT_MIP6_HNINF               = 49,
 		/** Mobile IPv6 Relay Agent */
-		DVCPV6_OPT_MIP6_RELAY               = 50,
+		DHCPV6_OPT_MIP6_RELAY               = 50,
 		/** Location to Service Translation (LoST) server domain name */
-		DVCPV6_OPT_V6_LOST                  = 51,
+		DHCPV6_OPT_V6_LOST                  = 51,
 		/** Access Points (CAPWAP) Access Controller IPv6 addresses */
-		DVCPV6_OPT_CAPWAP_AC_V6             = 52,
+		DHCPV6_OPT_CAPWAP_AC_V6             = 52,
 		/** DHCPv6 Bulk LeaseQuery */
-		DVCPV6_OPT_RELAY_ID                 = 53,
+		DHCPV6_OPT_RELAY_ID                 = 53,
 		/** List of IPv6 addresses for servers providing particular types of IEEE 802.21 Mobility Service (MoS) */
-		DVCPV6_OPT_IPH6_ADDRESS_MOS         = 54,
+		DHCPV6_OPT_IPH6_ADDRESS_MOS         = 54,
 		/** List of FQDNs for servers providing particular types of IEEE 802.21 Mobility Service (MoS) */
-		DVCPV6_OPT_IPV6_FQDN_MOS            = 55,
+		DHCPV6_OPT_IPV6_FQDN_MOS            = 55,
 		/** Network Time Protocol (NTP) or Simple NTP (SNTP) Server Location */
-		DVCPV6_OPT_NTP_SERVER               = 56,
+		DHCPV6_OPT_NTP_SERVER               = 56,
 		/** Boot File Uniform Resource Locator (URL) */
-		DVCPV6_OPT_BOOTFILE_URL             = 59,
+		DHCPV6_OPT_BOOTFILE_URL             = 59,
 		/** Boot File Parameters */
-		DVCPV6_OPT_BOOTFILE_PARAM           = 60,
+		DHCPV6_OPT_BOOTFILE_PARAM           = 60,
 		/** Client System Architecture Type */
-		DVCPV6_OPT_CLIENT_ARCH_TYPE         = 61,
+		DHCPV6_OPT_CLIENT_ARCH_TYPE         = 61,
 		/** Client Network Interface Identifier */
-		DVCPV6_OPT_NII                      = 62,
+		DHCPV6_OPT_NII                      = 62,
 		/** ERP Local Domain Name */
-		DVCPV6_OPT_ERP_LOCAL_DOMAIN_NAME    = 65,
+		DHCPV6_OPT_ERP_LOCAL_DOMAIN_NAME    = 65,
 		/** Relay supplied options */
-		DVCPV6_OPT_RELAY_SUPPLIED_OPTIONS   = 66,
+		DHCPV6_OPT_RELAY_SUPPLIED_OPTIONS   = 66,
 		/** Virtual Subnet Selection */
-		DVCPV6_OPT_VSS                      = 68,
+		DHCPV6_OPT_VSS                      = 68,
 		/** Client link layer */
-		DVCPV6_OPT_CLIENT_LINKLAYER_ADDR    = 79,
+		DHCPV6_OPT_CLIENT_LINKLAYER_ADDR    = 79,
 		/** Manufacturer Usage Description */
-		DVCPV6_OPT_MUD_URL                  = 112
+		DHCPV6_OPT_MUD_URL                  = 112
 	};
+
+	/**
+	 * @class DhcpV6Option
+	 * A wrapper class for DHCPv6 options. This class does not create or modify DHCP option records, but rather
+	 * serves as a wrapper and provides useful methods for setting and retrieving data to/from them
+	 */
+	class DhcpV6Option : public TLVRecord<uint16_t, uint16_t>
+	{
+	public:
+		/**
+		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
+		 * @param[in] optionRawData A pointer to the option raw data
+		 */
+		DhcpV6Option(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
+
+		/**
+		 * A d'tor for this class, currently does nothing
+		 */
+		virtual ~DhcpV6Option() { }
+
+		/**
+		 * @return The option type converted to DhcpV6OptionType enum
+		 */
+		DhcpV6OptionType getType() const;
+
+		std::string getValueAsHexString() const;
+
+		// implement abstract methods
+
+		size_t getTotalSize() const;
+		size_t getDataSize() const;
+	};
+
+	/**
+	 * @struct dhcpv6_header
+	 * Represents a DHCPv6 protocol header
+	 */
+	struct dhcpv6_header
+	{
+		uint8_t messageType;
+		uint8_t transactionId1;
+		uint8_t transactionId2;
+		uint8_t transactionId3;
+	};
+
+	/**
+	 * @class DhcpV6Layer
+	 * Represents a DHCPv6 (Dynamic Host Configuration Protocol version 6) protocol layer
+	 */
+	class DhcpV6Layer : public Layer
+	{
+	public:
+
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		DhcpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		DhcpV6MessageType getMessageType() const;
+		std::string getMessageTypeAsString() const;
+
+		uint32_t getTransactionID() const;
+
+		DhcpV6Option getFirstOptionData() const;
+		DhcpV6Option getNextOptionData(DhcpV6Option dhcpv6Option) const;
+		DhcpV6Option getOptionData(DhcpV6OptionType option) const;
+		size_t getOptionCount() const;
+
+		static inline bool isDhcpV6Port(uint16_t port);
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		// implement abstract methods
+
+		/**
+		 * Does nothing for this layer (DhcpV6Layer is always last)
+		 */
+		void parseNextLayer() {}
+
+		/**
+		 * @return The size of @ref dhcpv6_header + size of options
+		 */
+		size_t getHeaderLen() const { return m_DataLen; }
+
+		/**
+		 * Does nothing for this layer
+		 */
+		void computeCalculateFields() {}
+
+		std::string toString() const;
+
+		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+
+	private:
+		uint8_t* getOptionsBasePtr() const { return m_Data + sizeof(dhcpv6_header); }
+		dhcpv6_header* getDhcpHeader() const { return (dhcpv6_header*)m_Data; }
+
+		TLVRecordReader<DhcpV6Option> m_OptionReader;
+	};
+
+
+	// implementation of inline methods
+
+	bool DhcpV6Layer::isDhcpV6Port(uint16_t port)
+	{
+		return (port == 546) || (port == 547);
+
+	}
+
+	bool DhcpV6Layer::isDataValid(const uint8_t* data, size_t dataLen)
+	{
+		return dataLen >= sizeof(dhcpv6_header);
+	}
+
 }
 # endif // PACKETPP_DHCPV6_LAYER
