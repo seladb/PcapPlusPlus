@@ -48,9 +48,8 @@ TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const std::string& recValue
 
 	if (valueIsHexString)
 	{
-		size_t byteArraySize = recValue.length() / 2;
-		uint8_t recValueByteArr[byteArraySize];
-		byteArraySize = hexStringToByteArray(recValue, recValueByteArr, byteArraySize);
+		uint8_t recValueByteArr[512];
+		size_t byteArraySize = hexStringToByteArray(recValue, recValueByteArr, 512);
 		if (byteArraySize > 0)
 		{
 			init(recType, recValueByteArr, byteArraySize);
