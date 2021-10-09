@@ -220,6 +220,40 @@ namespace pcpp
 	};
 
 	/**
+	 * @class DhcpV6OptionBuilder
+	 * A class for building DHCPv6 options. This builder receives the option parameters in its c'tor,
+	 * builds the DHCPv6 option raw buffer and provides a build() method to get a DhcpOption object out of it
+	 */
+	class DhcpV6OptionBuilder : public TLVRecordBuilder
+	{
+	public:
+		/**
+		 * A c'tor for building DHCPv6 options from a string representing the hex stream of the value. 
+		 * The DhcpV6Option object can later be retrieved by calling build()
+		 * @param[in] optionType DHCPv6 option type
+		 * @param[in] optionValueAsHexStream The value as a hex stream string
+		 */
+		DhcpV6OptionBuilder(DhcpV6OptionType optionType, const std::string& optionValueAsHexStream) :
+			TLVRecordBuilder(static_cast<uint16_t>(optionType), optionValueAsHexStream, true) { }
+
+		/**
+		 * A c'tor for building DHCPv6 options which their value is a byte array. The DhcpV6Option object can be later
+		 * retrieved by calling build()
+		 * @param[in] optionType DHCPv6 option type
+		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any way.
+		 * @param[in] optionValueLen Option value length in bytes
+		 */
+		DhcpV6OptionBuilder(DhcpV6OptionType optionType, const uint8_t* optionValue, uint8_t optionValueLen) :
+			TLVRecordBuilder(static_cast<uint16_t>(optionType), optionValue, optionValueLen) {}
+
+		/**
+		 * Build the DhcpV6Option object out of the parameters defined in the c'tor
+		 * @return The DhcpV6Option object
+		 */
+		DhcpV6Option build() const;
+	};
+
+	/**
 	 * @struct dhcpv6_header
 	 * Represents a DHCPv6 protocol header
 	 */
@@ -247,16 +281,26 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		DhcpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId);
 
 		DhcpV6MessageType getMessageType() const;
 		std::string getMessageTypeAsString() const;
+		void setMessageType(DhcpV6MessageType messageType);
 
 		uint32_t getTransactionID() const;
+		void setTransactionID(uint32_t transactionId) const;
 
 		DhcpV6Option getFirstOptionData() const;
 		DhcpV6Option getNextOptionData(DhcpV6Option dhcpv6Option) const;
 		DhcpV6Option getOptionData(DhcpV6OptionType option) const;
 		size_t getOptionCount() const;
+
+		DhcpV6Option addOption(const DhcpV6OptionBuilder& optionBuilder);
+		DhcpV6Option addOptionAfter(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType);
+		DhcpV6Option addOptionBefore(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType);
+		bool removeOption(DhcpV6OptionType optionType);
+		bool removeAllOptions();
+
 
 		static inline bool isDhcpV6Port(uint16_t port);
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
@@ -285,6 +329,7 @@ namespace pcpp
 	private:
 		uint8_t* getOptionsBasePtr() const { return m_Data + sizeof(dhcpv6_header); }
 		dhcpv6_header* getDhcpHeader() const { return (dhcpv6_header*)m_Data; }
+		DhcpV6Option addOptionAt(const DhcpV6OptionBuilder& optionBuilder, int offset);
 
 		TLVRecordReader<DhcpV6Option> m_OptionReader;
 	};

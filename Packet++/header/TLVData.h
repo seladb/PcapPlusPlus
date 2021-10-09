@@ -376,7 +376,7 @@ namespace pcpp
 
 		TLVRecordBuilder(uint32_t recType, const IPv4Address& recValue);
 
-		TLVRecordBuilder(uint32_t recType, const std::string& recValue);
+		TLVRecordBuilder(uint32_t recType, const std::string& recValue, bool valueIsHexString = false);
 
 		TLVRecordBuilder(const TLVRecordBuilder& other);
 

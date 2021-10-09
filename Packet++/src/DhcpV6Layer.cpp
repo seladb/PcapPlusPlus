@@ -1,4 +1,7 @@
+#define LOG_MODULE PacketLogModuleDhcpV6Layer
+
 #include "DhcpV6Layer.h"
+#include "Logger.h"
 #include "GeneralUtils.h"
 
 namespace pcpp
@@ -34,9 +37,36 @@ size_t DhcpV6Option::getDataSize() const
 	return static_cast<size_t>(be16toh(m_Data->recordLen));
 }
 
+DhcpV6Option DhcpV6OptionBuilder::build() const
+{
+	if (m_RecType == 0)
+		return DhcpV6Option(NULL);
+	size_t optionSize = 2 * sizeof(uint16_t) + m_RecValueLen;
+	uint8_t* recordBuffer = new uint8_t[optionSize];
+	uint16_t optionTypeVal = htobe16(static_cast<uint16_t>(m_RecType));
+	uint16_t optionLength = htobe16(static_cast<uint16_t>(m_RecValueLen));
+	memcpy(recordBuffer, &optionTypeVal, sizeof(uint16_t));
+	memcpy(recordBuffer + sizeof(uint16_t), &optionLength, sizeof(uint16_t));
+	if (optionSize > 0 && m_RecValue != NULL)
+		memcpy(recordBuffer + 2*sizeof(uint16_t), m_RecValue, m_RecValueLen);
+
+	return DhcpV6Option(recordBuffer);
+}
+
 DhcpV6Layer::DhcpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 {
 	m_Protocol = DHCPv6;
+}
+
+DhcpV6Layer::DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId)
+{
+	m_DataLen = sizeof(dhcpv6_header);
+	m_Data = new uint8_t[m_DataLen];
+	memset(m_Data, 0, m_DataLen);
+	m_Protocol = DHCPv6;
+
+	setMessageType(messageType);
+	setTransactionID(transactionId);
 }
 
 DhcpV6MessageType DhcpV6Layer::getMessageType() const
@@ -86,11 +116,24 @@ std::string DhcpV6Layer::getMessageTypeAsString() const
 	}
 }
 
+void DhcpV6Layer::setMessageType(DhcpV6MessageType messageType)
+{
+	getDhcpHeader()->messageType = static_cast<uint8_t>(messageType);
+}
+
 uint32_t DhcpV6Layer::getTransactionID() const
 {
 	dhcpv6_header* hdr = getDhcpHeader();
 	uint32_t result = hdr->transactionId1 << 16 | hdr->transactionId2 << 8 | hdr->transactionId3;
 	return result;
+}
+
+void DhcpV6Layer::setTransactionID(uint32_t transactionId) const
+{
+	dhcpv6_header* hdr = getDhcpHeader();
+	hdr->transactionId1 = (transactionId >> 16) & 0xff;
+	hdr->transactionId2 = (transactionId >> 8) & 0xff;
+	hdr->transactionId3 = transactionId & 0xff;
 }
 
 DhcpV6Option DhcpV6Layer::getFirstOptionData() const
@@ -111,6 +154,100 @@ DhcpV6Option DhcpV6Layer::getOptionData(DhcpV6OptionType option) const
 size_t DhcpV6Layer::getOptionCount() const
 {
 	return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(), getHeaderLen() - sizeof(dhcpv6_header));
+}
+
+DhcpV6Option DhcpV6Layer::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, int offset)
+{
+	DhcpV6Option newOpt = optionBuilder.build();
+	if (newOpt.isNull())
+	{
+		LOG_ERROR("Cannot build new option");
+		return DhcpV6Option(NULL);
+	}
+
+	size_t sizeToExtend = newOpt.getTotalSize();
+
+	if (!extendLayer(offset, sizeToExtend))
+	{
+		LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
+		return DhcpV6Option(NULL);
+	}
+
+	memcpy(m_Data + offset, newOpt.getRecordBasePtr(), newOpt.getTotalSize());
+
+	uint8_t* newOptPtr = m_Data + offset;
+
+	m_OptionReader.changeTLVRecordCount(1);
+
+	newOpt.purgeRecordData();
+
+	return DhcpV6Option(newOptPtr);
+}
+
+DhcpV6Option DhcpV6Layer::addOption(const DhcpV6OptionBuilder& optionBuilder)
+{
+	return addOptionAt(optionBuilder, getHeaderLen());
+}
+
+DhcpV6Option DhcpV6Layer::addOptionAfter(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType)
+{
+	int offset = 0;
+
+	DhcpV6Option prevOpt = getOptionData(optionType);
+
+	if (prevOpt.isNull())
+	{
+		LOG_ERROR("Option type " << optionType << " doesn't exist in layer");
+		return DhcpV6Option(NULL);
+	}
+	offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
+	return addOptionAt(optionBuilder, offset);
+}
+
+DhcpV6Option DhcpV6Layer::addOptionBefore(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType)
+{
+	int offset = 0;
+
+	DhcpV6Option nextOpt = getOptionData(optionType);
+
+	if (nextOpt.isNull())
+	{
+		LOG_ERROR("Option type " << optionType << " doesn't exist in layer");
+		return DhcpV6Option(NULL);
+	}
+
+	offset = nextOpt.getRecordBasePtr() - m_Data;
+	return addOptionAt(optionBuilder, offset);	
+}
+
+bool DhcpV6Layer::removeOption(DhcpV6OptionType optionType)
+{
+	DhcpV6Option optToRemove = getOptionData(optionType);
+	if (optToRemove.isNull())
+	{
+		return false;
+	}
+
+	int offset = optToRemove.getRecordBasePtr() - m_Data;
+
+	if (!shortenLayer(offset, optToRemove.getTotalSize()))
+	{
+		return false;
+	}
+
+	m_OptionReader.changeTLVRecordCount(-1);
+	return true;
+}
+
+bool DhcpV6Layer::removeAllOptions()
+{
+	int offset = sizeof(dhcpv6_header);
+
+	if (!shortenLayer(offset, getHeaderLen()-offset))
+		return false;
+
+	m_OptionReader.changeTLVRecordCount(0-getOptionCount());
+	return true;
 }
 
 std::string DhcpV6Layer::toString() const
