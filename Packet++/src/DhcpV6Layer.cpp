@@ -3,6 +3,8 @@
 #include "DhcpV6Layer.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
+#include "EndianPortable.h"
+
 
 namespace pcpp
 {
