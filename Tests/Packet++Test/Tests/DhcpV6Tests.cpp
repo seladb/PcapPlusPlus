@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "Packet.h"
 #include "DhcpV6Layer.h"
+#include "SystemUtils.h"
 
 
 PTF_TEST_CASE(DhcpV6ParsingTest)
