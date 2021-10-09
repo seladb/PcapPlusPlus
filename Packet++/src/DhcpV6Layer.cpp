@@ -19,7 +19,7 @@ DhcpV6OptionType DhcpV6Option::getType() const
 		return static_cast<DhcpV6OptionType>(optionType);
 	}
 
-	return DhcpV6OptionType::DHCPV6_OPT_UNKNOWN;
+	return DHCPV6_OPT_UNKNOWN;
 }
 
 std::string DhcpV6Option::getValueAsHexString() const
