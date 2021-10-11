@@ -248,6 +248,11 @@ namespace pcpp
 	const ProtocolType IPSec = 0x1800000000;
 
 	/**
+	 * Dynamic Host Configuration Protocol version 6 (DHCPv6) protocol
+	 */
+	const ProtocolType DHCPv6 = 0x2000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer

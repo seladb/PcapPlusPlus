@@ -1,4 +1,5 @@
 #include "TLVData.h"
+#include "GeneralUtils.h"
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -39,10 +40,26 @@ TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const IPv4Address& recValue
 	init(recType, (uint8_t*)&recIntValue, sizeof(uint32_t));
 }
 
-TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const std::string& recValue)
+TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const std::string& recValue, bool valueIsHexString)
 {
-	uint8_t* recValueByteArr = (uint8_t*)recValue.c_str();
-	init(recType, recValueByteArr, recValue.length());
+	m_RecType = 0;
+	m_RecValueLen = 0;
+	m_RecValue = NULL;
+
+	if (valueIsHexString)
+	{
+		uint8_t recValueByteArr[512];
+		size_t byteArraySize = hexStringToByteArray(recValue, recValueByteArr, 512);
+		if (byteArraySize > 0)
+		{
+			init(recType, recValueByteArr, byteArraySize);
+		}
+	}
+	else
+	{
+		uint8_t* recValueByteArr = (uint8_t*)recValue.c_str();
+		init(recType, recValueByteArr, recValue.length());
+	}
 }
 
 void TLVRecordBuilder::copyData(const TLVRecordBuilder& other)
