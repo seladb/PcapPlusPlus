@@ -7,7 +7,7 @@
 #include "IPv6Layer.h"
 #include "UdpLayer.h"
 #include "PPPoELayer.h"
-#include "PayloadLayer.h"
+#include "DhcpV6Layer.h"
 #include "SystemUtils.h"
 
 
@@ -65,8 +65,8 @@ PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 	pcpp::UdpLayer udpLayer(*samplePacket.getLayerOfType<pcpp::UdpLayer>());
 	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&udpLayer));
 
-	pcpp::PayloadLayer payloadLayer(*samplePacket.getLayerOfType<pcpp::PayloadLayer>());
-	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&payloadLayer));
+	pcpp::DhcpV6Layer dhcpv6Layer(*samplePacket.getLayerOfType<pcpp::DhcpV6Layer>());
+	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&dhcpv6Layer));
 
 	pppoesPacket.computeCalculateFields();
 

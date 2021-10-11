@@ -7,6 +7,7 @@
 #include "IPv6Layer.h"
 #include "DnsLayer.h"
 #include "DhcpLayer.h"
+#include "DhcpV6Layer.h"
 #include "VxlanLayer.h"
 #include "SipLayer.h"
 #include "RadiusLayer.h"
@@ -127,6 +128,8 @@ void UdpLayer::parseNextLayer()
 		m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, m_Packet);
 	else if ((GtpV1Layer::isGTPv1Port(portDst) || GtpV1Layer::isGTPv1Port(portSrc)) && GtpV1Layer::isGTPv1(udpData, udpDataLen))
 		m_NextLayer = new GtpV1Layer(udpData, udpDataLen, this, m_Packet);
+	else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) && (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
+		m_NextLayer = new DhcpV6Layer(udpData, udpDataLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 }

@@ -49,6 +49,7 @@ namespace pcpp
 		PacketLogModuleSSLLayer, ///< SSLLayer module (Packet++)
 		PacketLogModuleSllLayer, ///< SllLayer module (Packet++)
 		PacketLogModuleDhcpLayer, ///< DhcpLayer module (Packet++)
+		PacketLogModuleDhcpV6Layer, ///< DhcpV6Layer module (Packet++)
 		PacketLogModuleIgmpLayer, ///< IgmpLayer module (Packet++)
 		PacketLogModuleSipLayer, ///< SipLayer module (Packet++)
 		PacketLogModuleSdpLayer, ///< SdpLayer module (Packet++)

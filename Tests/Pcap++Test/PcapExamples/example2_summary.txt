@@ -31533,7 +31533,7 @@ Packet length: 149 [Bytes], Arrival time: 2015-01-03 13:05:28.545894000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:01:00:02
 IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::1:2
 UDP Layer, Src port: 546, Dst port: 547
-Payload Layer, Data length: 87 [Bytes]
+DHCPv6 Layer, Solicit message
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:28.580340000
@@ -31572,7 +31572,7 @@ Packet length: 149 [Bytes], Arrival time: 2015-01-03 13:05:29.545371000
 Ethernet II Layer, Src: 6c:f0:49:b2:de:6e, Dst: 33:33:00:01:00:02
 IPv6 Layer, Src: fe80::4dc7:f593:1f7b:dc11, Dst: ff02::1:2
 UDP Layer, Src port: 546, Dst port: 547
-Payload Layer, Data length: 87 [Bytes]
+DHCPv6 Layer, Solicit message
 
 
 Packet length: 74 [Bytes], Arrival time: 2015-01-03 13:05:29.580389000
