@@ -89,13 +89,15 @@ namespace pcpp
 
 		/**
 		 * Overload of the comparison operator
-		 * @return true if 2 addresses are equal. False otherwise
+		 * @param[in] other The object to compare with
+		 * @return True if addresses are equal, false otherwise
 		 */
 		bool operator==(const MacAddress& other) const { return memcmp(m_Address, other.m_Address, sizeof(m_Address)) == 0; }
 
 		/**
 		 * Overload of the not-equal operator
-		 * @return true if 2 addresses are not equal. False otherwise
+		 * @param[in] other The object to compare with
+		 * @return True if addresses are not equal, false otherwise
 		 */
 		bool operator!=(const MacAddress& other) const { return !operator==(other); }
 

@@ -564,6 +564,7 @@ namespace pcpp
 		/**
 		 * Assignment operator that copies all data from another instance of DhcpOptionBuilder
 		 * @param[in] other The instance to assign from
+		 * @return A reference to the assignee
 		 */
 		DhcpOptionBuilder& operator=(const DhcpOptionBuilder& other)
 		{
