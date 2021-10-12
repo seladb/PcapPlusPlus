@@ -254,11 +254,14 @@ namespace pcpp
 
 			/**
 			 * A copy c'tor for this class
+			 * @param[in] other The GTP extension to copy from
 			 */
 			GtpExtension(const GtpExtension& other);
 
 			/**
 			 * An assignment operator for this class
+			 * @param[in] other The extension to assign from
+			 * @return A reference to the assignee
 			 */
 			GtpExtension& operator=(const GtpExtension& other);
 
@@ -424,6 +427,7 @@ namespace pcpp
 		/**
 		 * A static method that checks whether the port is considered as GTPv1
 		 * @param[in] port The port number to be checked
+		 * @return True if the port matches those associated with the BGP protocol
 		 */
 		static bool isGTPv1Port(uint16_t port) { return port == 2152 /* GTP-U */ || port == 2123 /* GTP-C */; }
 

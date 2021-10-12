@@ -76,6 +76,7 @@ namespace pcpp
 		/**
 		 * A static method that checks whether the port is considered as HTTP
 		 * @param[in] port The port number to be checked
+		 * @return True if the port matches those associated with the HTTP protocol
 		 */
 		static bool isHttpPort(uint16_t port) { return port == 80 || port == 8080; }
 
@@ -181,6 +182,7 @@ namespace pcpp
 		 * An assignment operator overload for this layer. This method inherits base assignment operator HttpMessage#operator=() and add the functionality
 		 * of copying the first line as well
 		 * @param[in] other The instance to copy from
+		 * @return A reference to the assignee
 		 */
 		HttpRequestLayer& operator=(const HttpRequestLayer& other);
 
@@ -432,6 +434,7 @@ namespace pcpp
 		 * An assignment operator overload for this layer. This method inherits base assignment operator HttpMessage#operator=() and adds the functionality
 		 * of copying the first line as well
 		 * @param[in] other The instance to copy from
+		 * @return A reference to the assignee
 		 */
 		HttpResponseLayer& operator=(const HttpResponseLayer& other);
 
@@ -623,6 +626,7 @@ namespace pcpp
 		 * @param[in] newStatusCode The new status code to set
 		 * @param[in] statusCodeString An optional parameter: set a non-default status code message (e.g "Bla Bla" instead of "Not Found"). If
 		 * this parameter isn't supplied or supplied as empty string (""), the default message for the status code will be set
+		 * @return True if setting the status code was completed successfully, false otherwise
 		 */
 		bool setStatusCode(HttpResponseLayer::HttpResponseStatusCode newStatusCode, std::string statusCodeString = "");
 

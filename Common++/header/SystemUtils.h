@@ -297,6 +297,7 @@ namespace pcpp
 		 * Static init method which should be called once at the beginning of the main method.
 		 * @param[in] argc The argc param from main()
 		 * @param[in] argv The argv param from main()
+		 * @return No return value
 		 */
 		static void init(int argc, char* argv[])
 		{

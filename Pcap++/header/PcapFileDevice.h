@@ -41,6 +41,7 @@ namespace pcpp
 
 		/**
 		 * Close the file
+		 * @return No return value
 		 */
 		virtual void close();
 	};

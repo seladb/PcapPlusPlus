@@ -604,12 +604,14 @@ namespace pcpp
 
 		/**
 		 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
+		 * @param[in] filter Not used in this method
 		 * @return Always false with a "Filters aren't supported in DPDK device" error message
 		 */
 		bool setFilter(GeneralFilter& filter);
 
 		/**
 		 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
+		 * @param[in] filterAsString Not used in this method
 		 * @return Always false with a "Filters aren't supported in DPDK device" error message
 		 */
 		bool setFilter(std::string filterAsString);

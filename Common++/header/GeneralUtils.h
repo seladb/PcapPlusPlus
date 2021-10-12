@@ -47,6 +47,7 @@ namespace pcpp
 	 * @param[in] haystackLen Length of the haystack buffer
 	 * @param[in] needle A pointer to a buffer that will be searched for
 	 * @param[in] needleLen Length of the needle buffer
+	 * @return A pointer to the beginning of the substring, or NULL if the substring is not found
 	 */
 	char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char* needle, size_t needleLen);
 }
