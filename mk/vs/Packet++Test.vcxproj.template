@@ -171,6 +171,7 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Utils\TestUtils.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\BgpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\DhcpTests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\DhcpV6Tests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\DnsTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\EthAndArpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\GreTests.cpp" />
