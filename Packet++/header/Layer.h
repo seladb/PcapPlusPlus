@@ -127,6 +127,11 @@ namespace pcpp
 		 */
 		void copyData(uint8_t* toArr) const;
 
+		friend std::ostream& operator<<(std::ostream& os, const Layer &layer)
+		{
+			os << layer.toString();
+			return os;
+		}
 
 		// implement abstract methods
 

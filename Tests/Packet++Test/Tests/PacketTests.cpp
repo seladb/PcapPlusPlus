@@ -165,7 +165,6 @@ PTF_TEST_CASE(InsertVlanToPacket)
 } // InsertVlanToPacket
 
 
-
 PTF_TEST_CASE(RemoveLayerTest)
 {
 	// parse packet and remove layers
@@ -638,7 +637,6 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 } // RawPacketTimeStampSetterTest
 
 
-
 PTF_TEST_CASE(ParsePartialPacketTest)
 {
 	timeval time;
@@ -731,7 +729,6 @@ PTF_TEST_CASE(ParsePartialPacketTest)
 	curLayer = curLayer->getNextLayer();
 	PTF_ASSERT_NULL(curLayer);
 } // ParsePartialPacketTest
-
 
 
 PTF_TEST_CASE(PacketTrailerTest)
@@ -912,8 +909,6 @@ PTF_TEST_CASE(PacketTrailerTest)
 } // PacketTrailerTest
 
 
-
-
 PTF_TEST_CASE(ResizeLayerTest)
 {
 	// Creating a packet
@@ -965,3 +960,54 @@ PTF_TEST_CASE(ResizeLayerTest)
 	PTF_ASSERT_EQUAL(rawData2[6], 0xBE);
 	PTF_ASSERT_EQUAL(rawData2[7], 0xEF);
 } // ResizeLayerTest
+
+
+PTF_TEST_CASE(PrintPacketAndLayers)
+{
+	timeval time;
+	time.tv_sec = 1634026009;
+	time.tv_usec =0;
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/MplsPackets1.dat");
+	pcpp::Packet packet(&rawPacket1);
+
+	std::string expectedPacketHeaderString = "Packet length: 361 [Bytes], Arrival time: 2021-10-12 01:06:49.000000000";
+	std::vector<std::string> expectedLayerStrings;
+	expectedLayerStrings.push_back("Ethernet II Layer, Src: 50:81:89:f9:d5:7b, Dst: 28:c2:ce:ba:97:e8");
+	expectedLayerStrings.push_back("VLAN Layer, Priority: 0, Vlan ID: 215, CFI: 0");
+	expectedLayerStrings.push_back("VLAN Layer, Priority: 0, Vlan ID: 11, CFI: 0");
+	expectedLayerStrings.push_back("MPLS Layer, Label: 16000, Exp: 0, TTL: 126, Bottom of stack: true");
+	expectedLayerStrings.push_back("IPv4 Layer, Src: 2.3.4.6, Dst: 12.13.14.15");
+	expectedLayerStrings.push_back("TCP Layer, [ACK], Src port: 20636, Dst port: 80");
+	expectedLayerStrings.push_back("HTTP request, GET /i/?tid=199&hash=8ktxrl&subid=0 HTTP/1.1");
+
+	// test print layers
+	std::vector<std::string>::iterator iter = expectedLayerStrings.begin();
+	for (pcpp::Layer* layer = packet.getFirstLayer(); layer != NULL; layer = layer->getNextLayer())
+	{
+		PTF_ASSERT_EQUAL(layer->toString(), *iter);
+		std::ostringstream layerStream;
+		layerStream << *layer;
+		PTF_ASSERT_EQUAL(layerStream.str(), *iter);
+		iter++;
+	}
+	PTF_ASSERT_TRUE(iter == expectedLayerStrings.end());
+
+	// test print packet
+	std::ostringstream expectedStream;
+	expectedStream << expectedPacketHeaderString << std::endl;
+	for (std::vector<std::string>::iterator iter = expectedLayerStrings.begin(); iter != expectedLayerStrings.end(); iter++)
+	{
+		expectedStream << *iter << std::endl;
+	}
+	
+	std::ostringstream packetStream;
+	packetStream << packet;
+	PTF_ASSERT_EQUAL(packetStream.str(), expectedStream.str());
+	PTF_ASSERT_EQUAL(packet.toString(), expectedStream.str());
+
+	expectedLayerStrings.insert(expectedLayerStrings.begin(), expectedPacketHeaderString);
+	std::vector<std::string> packetAsStringList;
+	packet.toStringList(packetAsStringList);
+	PTF_ASSERT_TRUE(packetAsStringList == expectedLayerStrings);
+} // PrintPacketAndLayer
