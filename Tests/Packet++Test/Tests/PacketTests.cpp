@@ -966,12 +966,31 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 {
 	timeval time;
 	time.tv_sec = 1634026009;
-	time.tv_usec =0;
+	time.tv_usec = 0;
+
+	// convert the timestamp to a printable format
+	time_t nowtime = time.tv_sec;
+	struct tm *nowtm = NULL;
+#if __cplusplus > 199711L && !defined(WIN32)
+  // localtime_r is a thread-safe versions of localtime,
+	// but they're defined only in newer compilers (>= C++0x).
+	// on Windows localtime is already thread-safe so there is not need
+	// to use localtime_r
+	struct tm nowtm_r;
+	nowtm = localtime_r(&nowtime, &nowtm_r);
+#else
+	// on Window compilers localtime is already thread safe.
+	// in old compilers (< C++0x) localtime_r was not defined so we have to fall back to localtime
+	nowtm = localtime(&nowtime); // lgtm [cpp/potentially-dangerous-function]
+#endif
+
+	char tmbuf[64];
+	strftime(tmbuf, sizeof(tmbuf), "%Y-%m-%d %H:%M:%S", nowtm);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/MplsPackets1.dat");
 	pcpp::Packet packet(&rawPacket1);
 
-	std::string expectedPacketHeaderString = "Packet length: 361 [Bytes], Arrival time: 2021-10-12 01:06:49.000000000";
+	std::string expectedPacketHeaderString = "Packet length: 361 [Bytes], Arrival time: " + std::string(tmbuf) + ".000000000";
 	std::vector<std::string> expectedLayerStrings;
 	expectedLayerStrings.push_back("Ethernet II Layer, Src: 50:81:89:f9:d5:7b, Dst: 28:c2:ce:ba:97:e8");
 	expectedLayerStrings.push_back("VLAN Layer, Priority: 0, Vlan ID: 215, CFI: 0");
