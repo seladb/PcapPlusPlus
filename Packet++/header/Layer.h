@@ -127,7 +127,6 @@ namespace pcpp
 		 */
 		void copyData(uint8_t* toArr) const;
 
-
 		// implement abstract methods
 
 		uint8_t* getDataPtr(size_t offset = 0) const { return (uint8_t*)(m_Data + offset); }
@@ -188,5 +187,11 @@ namespace pcpp
 	};
 
 } // namespace pcpp
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer &layer)
+{
+	os << layer.toString();
+	return os;
+}
 
 #endif /* PACKETPP_LAYER */

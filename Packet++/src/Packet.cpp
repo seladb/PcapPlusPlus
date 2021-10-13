@@ -774,7 +774,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
 }
 
-std::string Packet::toString(bool timeAsLocalTime)
+std::string Packet::toString(bool timeAsLocalTime) const
 {
 	std::vector<std::string> stringList;
 	std::string result;

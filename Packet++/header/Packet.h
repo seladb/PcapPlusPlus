@@ -304,7 +304,7 @@ namespace pcpp
 		 * @param[in] timeAsLocalTime Print time as local time or GMT. Default (true value) is local time, for GMT set to false
 		 * @return A string containing most relevant data from all layers (looks like the packet description in Wireshark)
 		 */
-		std::string toString(bool timeAsLocalTime = true);
+		std::string toString(bool timeAsLocalTime = true) const;
 
 		/**
 		 * Similar to toString(), but instead of one string it outputs a list of strings, one string for every layer
@@ -382,5 +382,11 @@ namespace pcpp
 	}
 
 } // namespace pcpp
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::Packet& packet)
+{
+	os << packet.toString();
+	return os;
+}
 
 #endif /* PACKETPP_PACKET */
