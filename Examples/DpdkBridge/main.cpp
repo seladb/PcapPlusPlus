@@ -203,12 +203,12 @@ int main(int argc, char* argv[])
 	pcpp::CoreMask coreMaskToUse = (pcpp::getCoreMaskForAllMachineCores() & 7);
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
 	uint32_t mBufPoolSize = DEFAULT_MBUF_POOL_SIZE;
 	uint16_t queueQuantity = DEFAULT_QUEUE_QUANTITY;
 
-	while((opt = getopt_long (argc, argv, "d:c:m:q:hvl", DpdkBridgeOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "d:c:m:q:hvl", DpdkBridgeOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{

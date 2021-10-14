@@ -183,8 +183,8 @@ int main(int argc, char* argv[])
 
 	std::string iface = "", victim = "", gateway = "";
 	int optionIndex = 0;
-	char opt = 0;
-	while((opt = getopt_long (argc, argv, "i:c:g:hv", L3FwdOptions, &optionIndex)) != -1)
+	int opt = 0;
+	while((opt = getopt_long(argc, argv, "i:c:g:hv", L3FwdOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
