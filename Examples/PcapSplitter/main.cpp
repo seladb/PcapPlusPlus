@@ -231,9 +231,9 @@ int main(int argc, char* argv[])
 	bool paramWasSet = false;
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "f:o:m:p:i:vh", PcapSplitterOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "f:o:m:p:i:vh", PcapSplitterOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{

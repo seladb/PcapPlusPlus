@@ -261,9 +261,9 @@ int main(int argc, char* argv[])
 	pcpp::ProtocolType	protocolToMatch = pcpp::UnknownProtocol;
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "n:s:t:f:i:I:p:P:r:hvl", PfFilterTrafficOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "n:s:t:f:i:I:p:P:r:hvl", PfFilterTrafficOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{

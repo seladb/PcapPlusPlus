@@ -539,9 +539,9 @@ int main(int argc, char* argv[])
 	std::string tlsFingerprintType = TLS_FP_CH_ONLY;
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:r:o:t:f:s:vhl", TLSFingerprintingOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "i:r:o:t:f:s:vhl", TLSFingerprintingOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
