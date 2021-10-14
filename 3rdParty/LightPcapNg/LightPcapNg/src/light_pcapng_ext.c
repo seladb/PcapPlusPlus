@@ -293,8 +293,10 @@ light_pcapng_t *light_pcapng_open_append(const char* file_path)
 
 	light_pcapng_t *pcapng = light_pcapng_open_read(file_path, LIGHT_TRUE);
 	DCHECK_NULLP(pcapng, return NULL);	
+	light_close(pcapng->file);
 
 	pcapng->file = light_open(file_path, LIGHT_OAPPEND);
+	DCHECK_NULLP(pcapng->file, return NULL);
 
 	light_pcapng_release(pcapng->pcapng);
 	pcapng->pcapng = NULL;
