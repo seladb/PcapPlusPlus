@@ -117,7 +117,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	bool blockSizeSet = false;
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
 	while((opt = getopt_long(argc, argv, "i:d:s:rp:b:hvl", IcmpFTOptions, &optionIndex)) != -1)
 	{

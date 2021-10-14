@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 	bool skipMemLeakCheck = false;
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 	while((opt = getopt_long(argc, argv, "k:i:br:p:d:nvt:smw", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)

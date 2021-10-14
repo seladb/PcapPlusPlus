@@ -128,7 +128,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	// Default port:
 	args.kniPort = DEFAULT_PORT;
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 	while ((opt = getopt_long(argc, argv, "s:d:n:p:hv", KniPongOptions, &optionIndex)) != -1)
 	{
 		switch (opt)

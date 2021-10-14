@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
 	pcpp::AppName::init(argc, argv);
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
 	std::string interfaceNameOrIP;
 
@@ -372,7 +372,7 @@ int main(int argc, char* argv[])
 
 	std::vector<std::string> hostList;
 
-	while((opt = getopt_long (argc, argv, "i:d:c:o:hvl", DnsSpoofingOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "i:d:c:o:hvl", DnsSpoofingOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{

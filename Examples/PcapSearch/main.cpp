@@ -308,9 +308,9 @@ int main(int argc, char* argv[])
 	extensionsToSearch["pcapng"] = true;
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "d:s:r:e:hvn", PcapSearchOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "d:s:r:e:hvn", PcapSearchOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{

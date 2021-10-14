@@ -113,9 +113,9 @@ int main(int argc, char* argv[])
 	bool ifaceNameOrIpProvided = false;
 	int timeoutSec = pcpp::NetworkUtils::DefaultTimeout;
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:s:S:T:c:hvlw:", ArpingOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "i:s:S:T:c:hvlw:", ArpingOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{

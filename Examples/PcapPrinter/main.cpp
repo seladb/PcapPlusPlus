@@ -209,9 +209,9 @@ int main(int argc, char* argv[])
 	int packetCount = -1;
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "o:c:i:svh", PcapPrinterOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "o:c:i:svh", PcapPrinterOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
