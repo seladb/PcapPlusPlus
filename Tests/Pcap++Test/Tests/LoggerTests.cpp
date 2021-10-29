@@ -1,6 +1,9 @@
 #define LOG_MODULE PacketLogModuleArpLayer
 #include "../TestDefinition.h"
 #include "Logger.h"
+#include <string>
+#include <algorithm>
+#include <cctype>
 
 
 namespace pcpp
@@ -71,6 +74,35 @@ std::string* LogPrinter::lastMethodSeen = NULL;
 int LogPrinter::lastLineSeen = 99999;
 
 
+#if defined(WIN32) || defined(WINx64)
+#define SEPARATOR '\\'
+#else
+#define SEPARATOR '/'
+#endif
+
+
+std::string getLFileName(const std::string& path)
+{
+	// find the last "\\" or "/" (depends on the os) - where path ends and filename starts
+	size_t i = path.rfind(SEPARATOR, path.length());
+	if (i != std::string::npos)
+	{
+		// extract filename from path
+		return path.substr(i+1, path.length() - i);
+	}
+	// filename without a path
+	return path;
+}
+
+
+std::string getLowerCaseFileName(const std::string& path)
+{
+	std::string result = getLFileName(path);
+	std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+	return result;
+}
+
+
 class LoggerCleaner
 {
 	public:
@@ -107,9 +139,9 @@ PTF_TEST_CASE(TestLogger)
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastFilenameSeen, "Tests/LoggerTests.cpp");
+	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeErrorLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 15);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
 
 	// change one module log level
 	pcpp::Logger::getInstance().setLogLevel(pcpp::PacketLogModuleArpLayer, pcpp::Logger::Debug);
@@ -120,16 +152,16 @@ PTF_TEST_CASE(TestLogger)
 	pcpp::invokeDebugLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Debug);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastFilenameSeen, "Tests/LoggerTests.cpp");
+	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeDebugLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 10);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 13);
 
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastFilenameSeen, "Tests/LoggerTests.cpp");
+	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeErrorLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 15);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
 
 	// verify the last error message
 	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log1");
@@ -146,9 +178,9 @@ PTF_TEST_CASE(TestLogger)
 	pcpp::invokeDebugLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Debug);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastFilenameSeen, "Tests/LoggerTests.cpp");
+	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeDebugLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 10);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 13);
 
 	// suppress logs
 	PTF_ASSERT_TRUE(pcpp::Logger::getInstance().logsEnabled())
@@ -176,10 +208,10 @@ PTF_TEST_CASE(TestLogger)
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastFilenameSeen, "Tests/LoggerTests.cpp");
+	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeErrorLog");
 	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log1");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 15);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
 
 	// reset LogPrinter
 	LogPrinter::clean();
