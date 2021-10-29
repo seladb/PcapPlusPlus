@@ -189,10 +189,6 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-	char errString[1000];
-
-	PcapTestGlobalArgs.errString = errString;
-
 	PTF_START_RUNNING_TESTS(userTags, configTags);
 
 	testSetUp();
