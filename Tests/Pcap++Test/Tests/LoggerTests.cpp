@@ -83,15 +83,20 @@ int LogPrinter::lastLineSeen = 99999;
 
 std::string getLFileName(const std::string& path)
 {
-	// find the last "\\" or "/" (depends on the os) - where path ends and filename starts
-	size_t i = path.rfind(SEPARATOR, path.length());
+	std::string result = path;
+	// check the "/" separator
+	size_t i = result.rfind('/', result.length());
 	if (i != std::string::npos)
 	{
-		// extract filename from path
-		return path.substr(i+1, path.length() - i);
+		result = result.substr(i+1, result.length() - i);
 	}
-	// filename without a path
-	return path;
+	// check the "\\" separator
+	i = result.rfind('\\', result.length());
+	if (i != std::string::npos)
+	{
+		result = result.substr(i+1, result.length() - i);
+	}
+	return result;
 }
 
 
@@ -99,6 +104,18 @@ std::string getLowerCaseFileName(const std::string& path)
 {
 	std::string result = getLFileName(path);
 	std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+	return result;
+}
+
+
+std::string getMethodWithoutNamespace(const std::string& method)
+{
+	std::string result = method;
+	size_t i = result.rfind(':', result.length());
+	if (i != std::string::npos)
+	{
+		result = result.substr(i+1, result.length() - i);
+	}
 	return result;
 }
 
@@ -140,7 +157,7 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeErrorLog");
+	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
 	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
 
 	// change one module log level
@@ -153,14 +170,14 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Debug);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeDebugLog");
+	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeDebugLog");
 	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 13);
 
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeErrorLog");
+	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
 	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
 
 	// verify the last error message
@@ -179,7 +196,7 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Debug);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeDebugLog");
+	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeDebugLog");
 	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 13);
 
 	// suppress logs
@@ -209,7 +226,7 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
-	PTF_ASSERT_EQUAL(*LogPrinter::lastMethodSeen, "invokeErrorLog");
+	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
 	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log1");
 	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
 
