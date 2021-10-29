@@ -36,4 +36,30 @@ void Logger::defaultLogPrinter(LogLevel logLevel, const std::string& logMessage,
 		<< logMessage << std::endl;
 }
 
+Logger& Logger::internalLog()
+{
+	if (m_LogStream != NULL)
+	{
+		delete m_LogStream;
+		m_LogStream = NULL;
+	}
+	m_LogStream = new std::ostringstream();
+	return *this;
+}
+
+void Logger::internalPrintLogMessage(Logger::LogLevel logLevel, const char* file, const char* method, int line)
+{
+	std::string logMessage = m_LogStream->str();
+	delete m_LogStream;
+	m_LogStream = NULL;
+	if (logLevel == Logger::Error)
+	{
+		m_LastError = logMessage;
+	}
+	if (m_LogsEnabled)
+	{
+		m_LogPrinter(logLevel, logMessage, file, method, line);
+	}
+}
+
 } // namespace pcpp

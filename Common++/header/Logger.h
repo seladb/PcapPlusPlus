@@ -181,10 +181,19 @@ namespace pcpp
 		 */
 		bool logsEnabled() const { return m_LogsEnabled; }
 
+		template<class T>
+		Logger& operator<<(const T& msg)
+		{
+			(*m_LogStream) << msg;
+			return *this;
+		}
+
+		Logger& internalLog();
+
 		/**
 		 * An internal method to print log messages. Shouldn't be used externally.
 		 */
-		inline void internalPrintLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
+		void internalPrintLogMessage(Logger::LogLevel logLevel, const char* file, const char* method, int line);
 
 		/**
 		 * Get access to Logger singleton
@@ -201,6 +210,7 @@ namespace pcpp
 		Logger::LogLevel m_LogModulesArray[NumOfLogModules];
 		LogPrinter m_LogPrinter;
 		std::string m_LastError;
+		std::ostringstream* m_LogStream;
 
 		// private c'tor - this class is a singleton
 		Logger();
@@ -208,31 +218,20 @@ namespace pcpp
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 
-#define LOG_DEBUG(message) do { \
-		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) { \
-			std::ostringstream logStream; \
-			logStream << message; \
-			pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Debug, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
+#define LOG_DEBUG(message) do \
+	{ \
+		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) \
+		{ \
+			pcpp::Logger::getInstance().internalLog() << message; \
+			pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Debug, __FILE__, __FUNCTION__, __LINE__); \
 		} \
 	} while(0)
 
-#define LOG_ERROR(message) do { \
-		std::ostringstream logStream; \
-		logStream << message; \
-		pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Error, logStream.str(), __FILE__, __FUNCTION__, __LINE__); \
+#define LOG_ERROR(message) do \
+	{ \
+		pcpp::Logger::getInstance().internalLog() << message; \
+		pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Error, __FILE__, __FUNCTION__, __LINE__); \
 	} while (0)
-
-void Logger::internalPrintLogMessage(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line)
-{
-	if (logLevel == Logger::Error)
-	{
-		m_LastError = logMessage;
-	}
-	if (m_LogsEnabled)
-	{
-		m_LogPrinter(logLevel, logMessage, file, method, line);
-	}
-}
 
 } // namespace pcpp
 
