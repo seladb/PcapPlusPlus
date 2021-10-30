@@ -94,6 +94,7 @@ jobs:
         Bin/Pcap++Test -n
 
     - uses: actions/upload-artifact@master
+      if: ${{ failure() }}
       with:
         name: crashes
         path: /cores
