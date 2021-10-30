@@ -93,11 +93,18 @@ jobs:
         cd Tests/Pcap++Test
         Bin/Pcap++Test -n
 
+    - name: Search coredumps
+      if: ${{ failure() }}
+      run: |
+        if [ -d /tmp ]; then ll /tmp; fi
+        if [ -d /tmp/core ]; then ll /tmp/core; fi
+        find / -name core*
+
     - uses: actions/upload-artifact@master
       if: ${{ failure() }}
       with:
         name: crashes
-        path: /cores
+        path: /tmp/core*
 
   # pfring:
   #   runs-on: ubuntu-20.04
