@@ -82,14 +82,16 @@ jobs:
     - name: Test Packet++
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        ulimit -c unlimited 
+        ulimit -c unlimited
+        echo '/tmp/core.%t.%e.%p' | tee /proc/sys/kernel/core_pattern
         cd Tests/Packet++Test
         Bin/Packet++Test
 
     - name: Test Pcap++
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        ulimit -c unlimited 
+        ulimit -c unlimited
+        echo '/tmp/core.%t.%e.%p' | tee /proc/sys/kernel/core_pattern
         cd Tests/Pcap++Test
         Bin/Pcap++Test -n
 
