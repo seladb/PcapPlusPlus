@@ -84,16 +84,16 @@ jobs:
       run: |
         ulimit -c unlimited 
         cd Tests/Packet++Test
-        sudo Bin/Packet++Test
-        sudo chmod -R +rwx /cores/*
+        Bin/Packet++Test
+        chmod -R +rwx /cores/*
 
     - name: Test Pcap++
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         ulimit -c unlimited 
         cd Tests/Pcap++Test
-        sudo Bin/Pcap++Test -n
-        sudo chmod -R +rwx /cores/*
+        Bin/Pcap++Test -n
+        chmod -R +rwx /cores/*
 
     - uses: actions/upload-artifact@master
       with:
