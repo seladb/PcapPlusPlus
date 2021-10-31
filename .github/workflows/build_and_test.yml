@@ -94,7 +94,7 @@ jobs:
         sysctl -w kernel.core_pattern="/tmp/core.%t.%e.%p"
         cd Tests/Packet++Test
         find / -name Packet++Test*
-        Bin/Packet++Test
+        if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
 
     - name: Test Pcap++
       working-directory: ${{env.GITHUB_WORKSPACE}}
