@@ -81,6 +81,12 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: make all
 
+    - name: Check BMI
+      run: grep bmi /proc/cpuinfo
+
+    - name: Check AVX
+      run: grep avx /proc/cpuinfo
+
     - name: Test Packet++
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
