@@ -104,9 +104,9 @@ jobs:
       with:
         name: crashes
         path: |
-          - /tmp/core*
-          - /__w/PcapPlusPlus/PcapPlusPlus/Tests/Pcap++Test/Bin/Pcap++Test
-          - /__w/PcapPlusPlus/PcapPlusPlus/Tests/Packet++Test/Bin/Packet++Test
+          /tmp/core*
+          /__w/PcapPlusPlus/PcapPlusPlus/Tests/Pcap++Test/Bin/Pcap++Test
+          /__w/PcapPlusPlus/PcapPlusPlus/Tests/Packet++Test/Bin/Packet++Test
 
   # pfring:
   #   runs-on: ubuntu-20.04
