@@ -103,7 +103,7 @@ jobs:
         sysctl -w kernel.core_pattern="/tmp/core.%t.%e.%p"
         cd Tests/Pcap++Test
         find / -name Pcap++Test*
-        Bin/Pcap++Test -n
+        if [[ $(grep avx512 /proc/cpuinfo) ]]; then Bin/Pcap++Test -n; else echo AVX-512 NOT FOUND fi
 
     - uses: actions/upload-artifact@master
       if: ${{ failure() }}
