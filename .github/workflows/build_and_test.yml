@@ -87,6 +87,7 @@ jobs:
         ulimit -c unlimited
         sysctl -w kernel.core_pattern="/tmp/core.%t.%e.%p"
         cd Tests/Packet++Test
+        find / -name Packet++Test*
         Bin/Packet++Test
 
     - name: Test Pcap++
@@ -95,20 +96,15 @@ jobs:
         ulimit -c unlimited
         sysctl -w kernel.core_pattern="/tmp/core.%t.%e.%p"
         cd Tests/Pcap++Test
+        find / -name Pcap++Test*
         Bin/Pcap++Test -n
-
-    - name: Search coredumps
-      if: ${{ failure() }}
-      run: |
-        if [ -d /tmp ]; then ls -la /tmp; fi
-        if [ -d /tmp/core ]; then ls -la /tmp/core; fi
-        find / -name core*
 
     - uses: actions/upload-artifact@master
       if: ${{ failure() }}
       with:
         name: crashes
-        path: /tmp/core*
+        path: |
+          - /tmp/core*
 
   # pfring:
   #   runs-on: ubuntu-20.04
