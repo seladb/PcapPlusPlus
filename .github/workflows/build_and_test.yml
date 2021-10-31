@@ -63,6 +63,7 @@ jobs:
   dpdk:
     runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
+      options: --privileged
     strategy:
       matrix:
         image: [ubuntu2004-dpdk2011, ubuntu2004-dpdk1911]
