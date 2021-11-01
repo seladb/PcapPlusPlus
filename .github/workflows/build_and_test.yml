@@ -60,12 +60,9 @@ jobs:
         make -f Makefile.non_windows all
         ./Tutorial-HelloWorld
 
-  dpdk:
+  dpdk-legacy:
     runs-on: ubuntu-20.04
-    container: seladb/${{ matrix.image }}
-    strategy:
-      matrix:
-        image: [ubuntu2004-dpdk2011, ubuntu2004-dpdk1911, ubuntu1604-dpdk1811]
+    container: seladb/ubuntu1604-dpdk1811
 
     steps:
     - name: Checkout code
@@ -90,6 +87,40 @@ jobs:
       run: |
         cd Tests/Pcap++Test
         Bin/Pcap++Test -n
+
+  dpdk:
+    runs-on: ubuntu-20.04
+    container: seladb/${{ matrix.image }}
+    strategy:
+      matrix:
+        image: [ubuntu2004-dpdk2011, ubuntu2004-dpdk1911]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
+
+    - name: Build PcapPlusPlus
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: make all
+
+    - name: Check AVX
+      run: grep avx /proc/cpuinfo
+
+    - name: Test Packet++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Packet++Test
+        if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
+
+    - name: Test Pcap++
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        cd Tests/Pcap++Test
+        if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
   pfring:
     runs-on: ubuntu-20.04
