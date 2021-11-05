@@ -207,6 +207,8 @@ int main(int argc, char* argv[])
 	double arpResponseTimeMS = 0;
 	int i = 1;
 
+	pcpp::Logger::getInstance().suppressLogs();
+	
 	while (i <= maxTries)
 	{
 		// use the getMacAddress utility to send an ARP request and resolve the MAC address
