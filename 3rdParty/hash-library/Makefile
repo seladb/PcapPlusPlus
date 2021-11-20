@@ -13,7 +13,7 @@ DEFS := -DUNIVERSAL -fPIC
 
 Obj/%.o: %.cpp
 	@echo Building file: $<
-	@$(CXX) $(INCLUDES) -Wall -O2 $(GLOBAL_FLAGS) $(DEFS) -g -c -o "$@" "$<"
+	@$(CXX) $(INCLUDES) -Wall -O2 $(GLOBAL_FLAGS) $(DEFS) $(CXXFLAGS) -g -c -o "$@" "$<"
 
 CUR_TARGET := $(notdir $(shell pwd))
 
