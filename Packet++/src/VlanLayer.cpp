@@ -31,17 +31,17 @@ VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t
 
 uint16_t VlanLayer::getVlanID() const
 {
-	return htobe16(getVlanHeader()->vlan) & 0xFFF;
+	return be16toh(getVlanHeader()->vlan) & 0xFFF;
 }
 
 uint8_t VlanLayer::getCFI() const
 {
-	return ((htobe16(getVlanHeader()->vlan) >> 12) & 1);
+	return ((be16toh(getVlanHeader()->vlan) >> 12) & 1);
 }
 
 uint8_t VlanLayer::getPriority() const
 {
-	return (htobe16(getVlanHeader()->vlan) >> 13) & 7;
+	return (be16toh(getVlanHeader()->vlan) >> 13) & 7;
 }
 
 void VlanLayer::setVlanID(uint16_t id)
