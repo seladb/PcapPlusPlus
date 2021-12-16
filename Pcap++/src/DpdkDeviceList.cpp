@@ -107,7 +107,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	dpdkParamsStream << "0x" << std::hex << std::setw(2) << std::setfill('0') << coreMask << " ";
 	dpdkParamsStream << "--master-lcore ";
 	dpdkParamsStream << (int)masterCore;
-	if(pmdDriverPath.length() <= 1)
+	if(pmdDriverPath.length() >= 1)
 	{
 		dpdkParamsStream << " -d ";
 		dpdkParamsStream << pmdDriverPath;
