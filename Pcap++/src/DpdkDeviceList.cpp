@@ -107,7 +107,8 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 		i++;
 	}
 
-	initDpdkArgc += i;
+	// Should be equal to the number of static params
+	initDpdkArgc += 7;
 	std::string dpdkParamsArray[initDpdkArgc];
 	initDpdkArgvBuffer = new char*[initDpdkArgc];
 	i = 0;
