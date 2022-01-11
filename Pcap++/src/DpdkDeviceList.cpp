@@ -64,7 +64,6 @@ DpdkDeviceList::~DpdkDeviceList()
 
 bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv)
 {
-	uint32_t maxArgLen = 0;
 	char **initDpdkArgvBuffer;
 
 	if (m_IsDpdkInitialized)
