@@ -104,11 +104,11 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	uint32_t i = 0;
 	while (i < initDpdkArgc && initDpdkArgv[i] != nullptr)
 	{
-		dpdkParamsStream << initDpdkArgv[i] << " ";;
+		dpdkParamsStream << initDpdkArgv[i] << " ";
 		i++;
 	}
 
-	initDpdkArgc += 7;
+	initDpdkArgc += i;
 	std::string dpdkParamsArray[initDpdkArgc];
 	initDpdkArgvBuffer = new char*[initDpdkArgc];
 	i = 0;
