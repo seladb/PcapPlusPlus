@@ -62,11 +62,10 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, std::string pmdDriverPath)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, int initDpdkArgc, char **initDpdkArgv)
 {
-	uint32_t initDpdkArgc = 7;
-	uint32_t maxArgLen = 20;
-	char** initDpdkArgv;
+	uint32_t maxArgLen = 0;
+	char **initDpdkArgvBuffer;
 
 	if (m_IsDpdkInitialized)
 	{
@@ -81,12 +80,6 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 
 	if (!verifyHugePagesAndDpdkDriver())
 	{
-		return false;
-	}
-
-	if(pmdDriverPath.length() > PATH_MAX)
-	{
-		LOG_ERROR("PMD driver path too long");
 		return false;
 	}
 
@@ -106,37 +99,37 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	dpdkParamsStream << "-c ";
 	dpdkParamsStream << "0x" << std::hex << std::setw(2) << std::setfill('0') << coreMask << " ";
 	dpdkParamsStream << "--master-lcore ";
-	dpdkParamsStream << (int)masterCore;
-	if(pmdDriverPath.length() >= 1)
-	{
-		dpdkParamsStream << " -d ";
-		dpdkParamsStream << pmdDriverPath;
-		initDpdkArgc +=2;
-		if(pmdDriverPath.length() > maxArgLen)
-			maxArgLen = pmdDriverPath.length();
-	}
+	dpdkParamsStream << (int)masterCore << " ";
 
-	std::string dpdkParamsArray[initDpdkArgc];
-	initDpdkArgv = new char*[initDpdkArgc];
 	uint32_t i = 0;
-	while (dpdkParamsStream.good() && i < initDpdkArgc)
+	while (i < initDpdkArgc && initDpdkArgv[i] != nullptr)
 	{
-		dpdkParamsStream >> dpdkParamsArray[i];
-		initDpdkArgv[i] = new char[maxArgLen];
-		strcpy(initDpdkArgv[i], dpdkParamsArray[i].c_str());
+		dpdkParamsStream << initDpdkArgv[i] << " ";;
 		i++;
 	}
 
-	char* lastParam = initDpdkArgv[i-1];
+	initDpdkArgc += 7;
+	std::string dpdkParamsArray[initDpdkArgc];
+	initDpdkArgvBuffer = new char*[initDpdkArgc];
+	i = 0;
+	while (dpdkParamsStream.good() && i < initDpdkArgc)
+	{
+		dpdkParamsStream >> dpdkParamsArray[i];
+		initDpdkArgvBuffer[i] = new char[dpdkParamsArray[i].length()];
+		strcpy(initDpdkArgvBuffer[i], dpdkParamsArray[i].c_str());
+		i++;
+	}
+
+	char* lastParam = initDpdkArgvBuffer[i-1];
 
 	for (i = 0; i < initDpdkArgc; i++)
 	{
-		LOG_DEBUG("DPDK initialization params: " << initDpdkArgv[i]);
+		LOG_DEBUG("DPDK initialization params: " << initDpdkArgvBuffer[i]);
 	}
 
 	optind = 1;
 	// init the EAL
-	int ret = rte_eal_init(initDpdkArgc, (char**)initDpdkArgv);
+	int ret = rte_eal_init(initDpdkArgc, (char**)initDpdkArgvBuffer);
 	if (ret < 0)
 	{
 		LOG_ERROR("failed to init the DPDK EAL");
@@ -145,11 +138,11 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 
 	for (i = 0; i < initDpdkArgc-1; i++)
 	{
-		delete [] initDpdkArgv[i];
+		delete [] initDpdkArgvBuffer[i];
 	}
 	delete [] lastParam;
 
-	delete [] initDpdkArgv;
+	delete [] initDpdkArgvBuffer;
 
 	m_CoreMask = coreMask;
 	m_IsDpdkInitialized = true;
