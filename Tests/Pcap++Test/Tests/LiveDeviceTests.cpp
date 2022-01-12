@@ -154,7 +154,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 {
 	std::vector<pcpp::PcapLiveDevice*> devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 	PTF_ASSERT_FALSE(devList.empty());
-	std::cout << "Get list" << std::endl;
 
 	pcpp::IPv4Address defaultGateway = pcpp::IPv4Address::Zero;
 	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
@@ -162,14 +161,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 		PTF_ASSERT_FALSE((*iter)->getName().empty());
 		if (defaultGateway == pcpp::IPv4Address::Zero)
 			defaultGateway = (*iter)->getDefaultGateway();
-		std::cout << "Gateway" << std::endl;
-		
 	}
 
-	std::cout << "Gateway End" << std::endl;
 	PTF_ASSERT_NOT_EQUAL(defaultGateway, pcpp::IPv4Address::Zero);
-	std::cout << "Gateway Pass" << std::endl;
-
 
 	std::vector<pcpp::IPv4Address> dnsServers = pcpp::PcapLiveDeviceList::getInstance().getDnsServers();
 	size_t dnsServerCount = dnsServers.size();
@@ -180,20 +174,14 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	std::cout << "Reset" << std::endl;
 
 	devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
-	std::cout << "After Reset" << std::endl;
 	PTF_ASSERT_FALSE(devList.empty());
-	std::cout << "Reset Check" << std::endl;
 
 	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		std::cout << "Check Name" << std::endl;
 		PTF_ASSERT_FALSE((*iter)->getName().empty());
 	}
-		
-	std::cout << "Check Name End" << std::endl;
-	PTF_ASSERT_EQUAL(pcpp::PcapLiveDeviceList::getInstance().getDnsServers().size(), dnsServerCount);
-	std::cout << "DNS End" << std::endl;
 
+	PTF_ASSERT_EQUAL(pcpp::PcapLiveDeviceList::getInstance().getDnsServers().size(), dnsServerCount);
 } // TestPcapLiveDeviceList
 
 
