@@ -1042,7 +1042,8 @@ PcapLiveDevice::~PcapLiveDevice()
 	delete m_CaptureThread;
 	delete m_StatsThread;
 
-	pcap_freealldevs(ifaceInfo);
+	if(ifaceInfo)
+		pcap_freealldevs(ifaceInfo);
 }
 
 } // namespace pcpp
