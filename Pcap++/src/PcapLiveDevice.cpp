@@ -71,7 +71,6 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
 		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
 {
-	ifaceInfo = NULL;
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
 

@@ -12,6 +12,7 @@ namespace pcpp
 
 WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : PcapLiveDevice(iface, calculateMTU, calculateMacAddress, calculateDefaultGateway)
 {
+	ifaceInfo = NULL;
 	m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
 }
 
