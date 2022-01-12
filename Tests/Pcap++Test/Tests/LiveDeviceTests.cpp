@@ -167,11 +167,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 
 	std::vector<pcpp::IPv4Address> dnsServers = pcpp::PcapLiveDeviceList::getInstance().getDnsServers();
 	size_t dnsServerCount = dnsServers.size();
-	std::cout << "DNS Pass" << std::endl;
 
 	// reset the device list and make sure devices are back and there is no memory leak
 	pcpp::PcapLiveDeviceList::getInstance().reset();
-	std::cout << "Reset" << std::endl;
 
 	devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 	PTF_ASSERT_FALSE(devList.empty());
