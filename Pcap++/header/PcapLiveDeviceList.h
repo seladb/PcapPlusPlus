@@ -34,8 +34,6 @@ namespace pcpp
 		// private copy c'tor
 		PcapLiveDeviceList( const PcapLiveDeviceList& other );
 		PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other);
-		// private d'tor
-		~PcapLiveDeviceList();
 
 		void init();
 
@@ -105,9 +103,18 @@ namespace pcpp
 		const std::vector<IPv4Address>& getDnsServers() const { return m_DnsServers; }
 
 		/**
+		 * Copies the current live devicelist
+		 * @return PcapLiveDeviceList* 
+		 */
+		PcapLiveDeviceList* clone();
+
+		/**
 		 * Reset the live device list and DNS server list, meaning clear and refetch them
 		 */
 		void reset();
+
+		// d'tor
+		~PcapLiveDeviceList();
 	};
 
 } // namespace pcpp

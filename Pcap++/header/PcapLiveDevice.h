@@ -108,6 +108,7 @@ namespace pcpp
 		RawPacketVector* m_CapturedPackets;
 		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
+		pcap_if_t *ifaceInfo;
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
@@ -538,6 +539,12 @@ namespace pcpp
 		bool open(const DeviceConfiguration& config);
 
 		void close();
+
+		/**
+		 * Clones the current device class
+		 * @return Pointer to the copied class 
+		 */
+		PcapLiveDevice* clone();
 
 		virtual void getStatistics(IPcapDevice::PcapStats& stats) const;
 
