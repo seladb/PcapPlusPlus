@@ -341,6 +341,7 @@ fi
 
 if [ -n "$MUSL" ]; then
    cat mk/platform.mk.musl >> $PCAPPLUSPLUS_MK
+   cat mk/platform.mk.musl >> $PLATFORM_MK
 fi
 
 # non-default libpcap include dir
