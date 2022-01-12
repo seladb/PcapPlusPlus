@@ -120,12 +120,14 @@ namespace pcpp
 		 * The size of the mbuf pool size dictates how many packets can be handled by the application at the same time. For example: if
 		 * pool size is 1023 it means that no more than 1023 packets can be handled or stored in application memory at every point in time
 		 * @param[in] masterCore The core DPDK will use as master to control all worker thread. The default, unless set otherwise, is 0
+		 * @param[in] initDpdkArgc Number of optional arguments
+		 * @param[in] initDpdkArgv Optional arguments
 		 * @return True if initialization succeeded or false if huge-pages or DPDK kernel driver are not loaded, if mBufPoolSizePerDevice
 		 * isn't power of 2 minus 1, if DPDK infra initialization failed or if DpdkDevice initialization failed. Anyway, if this method
 		 * returned false it's impossible to use DPDK with PcapPlusPlus. You can get some more details about mbufs and pools in 
 		 * DpdkDevice.h file description or in DPDK web site
 		 */
-		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0);
+		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL);
 
 		/**
 		 * Get a DpdkDevice by port ID

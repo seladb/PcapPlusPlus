@@ -62,12 +62,10 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-const uint32_t initDpdkArgc = 7;
-const uint32_t maxArgLen = 20;
-char** initDpdkArgv;
-
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv)
 {
+	char **initDpdkArgvBuffer;
+
 	if (m_IsDpdkInitialized)
 	{
 		if (coreMask == m_CoreMask)
@@ -100,29 +98,38 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	dpdkParamsStream << "-c ";
 	dpdkParamsStream << "0x" << std::hex << std::setw(2) << std::setfill('0') << coreMask << " ";
 	dpdkParamsStream << "--master-lcore ";
-	dpdkParamsStream << (int)masterCore;
+	dpdkParamsStream << (int)masterCore << " ";
 
-	std::string dpdkParamsArray[initDpdkArgc];
-	initDpdkArgv = new char*[initDpdkArgc];
 	uint32_t i = 0;
-	while (dpdkParamsStream.good() && i < initDpdkArgc)
+	while (i < initDpdkArgc && initDpdkArgv[i] != NULL)
 	{
-		dpdkParamsStream >> dpdkParamsArray[i];
-		initDpdkArgv[i] = new char[maxArgLen];
-		strcpy(initDpdkArgv[i], dpdkParamsArray[i].c_str());
+		dpdkParamsStream << initDpdkArgv[i] << " ";
 		i++;
 	}
 
-	char* lastParam = initDpdkArgv[i-1];
+	// Should be equal to the number of static params
+	initDpdkArgc += 7;
+	std::string dpdkParamsArray[initDpdkArgc];
+	initDpdkArgvBuffer = new char*[initDpdkArgc];
+	i = 0;
+	while (dpdkParamsStream.good() && i < initDpdkArgc)
+	{
+		dpdkParamsStream >> dpdkParamsArray[i];
+		initDpdkArgvBuffer[i] = new char[dpdkParamsArray[i].length()];
+		strcpy(initDpdkArgvBuffer[i], dpdkParamsArray[i].c_str());
+		i++;
+	}
+
+	char* lastParam = initDpdkArgvBuffer[i-1];
 
 	for (i = 0; i < initDpdkArgc; i++)
 	{
-		LOG_DEBUG("DPDK initialization params: " << initDpdkArgv[i]);
+		LOG_DEBUG("DPDK initialization params: " << initDpdkArgvBuffer[i]);
 	}
 
 	optind = 1;
 	// init the EAL
-	int ret = rte_eal_init(initDpdkArgc, (char**)initDpdkArgv);
+	int ret = rte_eal_init(initDpdkArgc, (char**)initDpdkArgvBuffer);
 	if (ret < 0)
 	{
 		LOG_ERROR("failed to init the DPDK EAL");
@@ -131,11 +138,11 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 
 	for (i = 0; i < initDpdkArgc-1; i++)
 	{
-		delete [] initDpdkArgv[i];
+		delete [] initDpdkArgvBuffer[i];
 	}
 	delete [] lastParam;
 
-	delete [] initDpdkArgv;
+	delete [] initDpdkArgvBuffer;
 
 	m_CoreMask = coreMask;
 	m_IsDpdkInitialized = true;
