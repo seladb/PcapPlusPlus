@@ -213,6 +213,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDevice, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceClone, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceNoNetworking, "no_network;live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceStatsMode, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceBlockingMode, "live_device");

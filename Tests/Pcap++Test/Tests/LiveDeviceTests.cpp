@@ -179,6 +179,20 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 		PTF_ASSERT_FALSE((*iter)->getName().empty());
 	}
 
+	pcpp::PcapLiveDeviceList *clonedDevList = pcpp::PcapLiveDeviceList::getInstance().clone();
+	PTF_ASSERT_NOT_NULL(clonedDevList);
+
+	std::vector<pcpp::PcapLiveDevice*> clonedDevListVector = clonedDevList->getPcapLiveDevicesList();
+	PTF_ASSERT_EQUAL(clonedDevListVector.size(), devList.size());	
+
+	std::vector<pcpp::PcapLiveDevice*>::iterator iterCloned = clonedDevListVector.begin();
+	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++, iterCloned++)
+	{
+		PTF_ASSERT_EQUAL((*iter)->getName().length(), (*iterCloned)->getName().length());
+		PTF_ASSERT_BUF_COMPARE((*iter)->getName().c_str(), (*iterCloned)->getName().c_str(), (*iter)->getName().length());
+	}
+	delete clonedDevList;
+
 	PTF_ASSERT_EQUAL(pcpp::PcapLiveDeviceList::getInstance().getDnsServers().size(), dnsServerCount);
 } // TestPcapLiveDeviceList
 
@@ -246,6 +260,48 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	pcpp::Logger::getInstance().enableLogs();
 } // TestPcapLiveDevice
 
+
+
+PTF_TEST_CASE(TestPcapLiveDeviceClone)
+{
+	pcpp::PcapLiveDevice* liveDev = NULL;
+	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch)->clone();
+	PTF_ASSERT_NOT_NULL(liveDev);
+	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
+	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
+	int packetCount = 0;
+	int numOfTimeStatsWereInvoked = 0;
+	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	int totalSleepTime = 0;
+	while (totalSleepTime <= 20)
+	{
+		pcpp::multiPlatformSleep(2);
+		totalSleepTime += 2;
+		if (packetCount > 0)
+			break;
+	}
+
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+	
+	liveDev->stopCapture();
+	PTF_ASSERT_GREATER_THAN(packetCount, 0);
+	PTF_ASSERT_GREATER_THAN(numOfTimeStatsWereInvoked, totalSleepTime*0.8);
+	pcpp::IPcapDevice::PcapStats statistics;
+	liveDev->getStatistics(statistics);
+	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
+	//PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
+	liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	// a negative test
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	pcpp::Logger::getInstance().enableLogs();
+
+	delete liveDev;
+} // TestPcapLiveDevice
 
 
 PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)

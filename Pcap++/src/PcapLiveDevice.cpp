@@ -105,66 +105,6 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 		LOG_DEBUG("   Default Gateway: " << m_DefaultGateway);
 	}
 
-	//copy interface info
-	ifaceInfo = new pcap_if_t;
-	if(pInterface->name)
-	{
-		ifaceInfo->name = new char[strlen(pInterface->name) + 1];
-		strcpy(ifaceInfo->name, pInterface->name);
-	}
-	else
-		ifaceInfo->name = NULL;
-	if(pInterface->description)
-	{
-		ifaceInfo->description = new char[strlen(pInterface->description) + 1];
-		strcpy(ifaceInfo->description, pInterface->description);
-	}
-	else
-		ifaceInfo->description = NULL;
-
-	if(pInterface->addresses)
-	{
-		ifaceInfo->addresses = new pcap_addr;
-		ifaceInfo->addresses->next = NULL;
-
-		if(pInterface->addresses->addr)
-		{
-			ifaceInfo->addresses->addr = new sockaddr;
-			memcpy(ifaceInfo->addresses->addr, pInterface->addresses->addr, sizeof(sockaddr));
-		}
-		else
-			ifaceInfo->addresses->addr = NULL;
-
-		if(pInterface->addresses->netmask)
-		{
-			ifaceInfo->addresses->netmask = new sockaddr;
-			memcpy(ifaceInfo->addresses->netmask, pInterface->addresses->netmask, sizeof(sockaddr));
-		}
-		else
-			ifaceInfo->addresses->netmask = NULL;
-
-		if(pInterface->addresses->broadaddr)
-		{
-			ifaceInfo->addresses->broadaddr = new sockaddr;
-			memcpy(ifaceInfo->addresses->broadaddr, pInterface->addresses->broadaddr, sizeof(sockaddr));
-		}
-		else
-			ifaceInfo->addresses->broadaddr = NULL;
-
-		if(pInterface->addresses->dstaddr)
-		{
-			ifaceInfo->addresses->dstaddr = new sockaddr;
-			memcpy(ifaceInfo->addresses->dstaddr, pInterface->addresses->dstaddr, sizeof(sockaddr));
-		}
-		else
-			ifaceInfo->addresses->dstaddr = NULL;
-	}
-	else
-		ifaceInfo->addresses = NULL;
-
-	ifaceInfo->next = NULL;
-	ifaceInfo->flags = pInterface->flags;
-
 	//init all other members
 	m_CaptureThreadStarted = false;
 	m_StatsThreadStarted = false;
@@ -432,7 +372,31 @@ void PcapLiveDevice::close()
 
 PcapLiveDevice* PcapLiveDevice::clone()
 {
-	return new PcapLiveDevice(ifaceInfo, true, true, true);
+	PcapLiveDevice *retval = NULL;
+
+	pcap_if_t *interfaceList;
+	char errbuf[PCAP_ERRBUF_SIZE];
+	int err = pcap_findalldevs(&interfaceList, errbuf);
+	if (err < 0)
+	{
+		LOG_ERROR("Error searching for devices: " << errbuf);
+	}
+
+	pcap_if_t* currInterface = interfaceList;
+	while (currInterface != NULL)
+	{
+		if(!strcmp(currInterface->name, getName().c_str()))
+			break;
+		currInterface = currInterface->next;
+	}
+
+	if(currInterface)
+		retval = new PcapLiveDevice(currInterface, true, true, true);
+	else
+		LOG_ERROR("Can't find interface " << getName().c_str());
+
+	pcap_freealldevs(interfaceList);
+	return retval;
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
@@ -1041,9 +1005,6 @@ PcapLiveDevice::~PcapLiveDevice()
 {
 	delete m_CaptureThread;
 	delete m_StatsThread;
-
-	if(ifaceInfo)
-		pcap_freealldevs(ifaceInfo);
 }
 
 } // namespace pcpp
