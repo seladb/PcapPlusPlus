@@ -1,0 +1,132 @@
+add_library(
+  Packet++
+  src/ArpLayer.cpp
+  src/BgpLayer.cpp
+  src/DhcpLayer.cpp
+  src/DhcpV6Layer.cpp
+  src/DnsLayer.cpp
+  src/DnsResource.cpp
+  src/DnsResourceData.cpp
+  src/EthDot3Layer.cpp
+  src/EthLayer.cpp
+  src/FtpLayer.cpp
+  src/GreLayer.cpp
+  src/GtpLayer.cpp
+  src/HttpLayer.cpp
+  src/IcmpLayer.cpp
+  src/IcmpV6Layer.cpp
+  src/IgmpLayer.cpp
+  src/IPReassembly.cpp
+  src/IPSecLayer.cpp
+  src/IPv4Layer.cpp
+  src/IPv6Extensions.cpp
+  src/IPv6Layer.cpp
+  src/Layer.cpp
+  src/MplsLayer.cpp
+  src/NdpLayer.cpp
+  src/NullLoopbackLayer.cpp
+  src/NtpLayer.cpp
+  src/Packet.cpp
+  src/PacketTrailerLayer.cpp
+  src/PacketUtils.cpp
+  src/PayloadLayer.cpp
+  src/PPPoELayer.cpp
+  src/RadiusLayer.cpp
+  src/RawPacket.cpp
+  src/SdpLayer.cpp
+  src/SingleCommandTextProtocol.cpp
+  src/SipLayer.cpp
+  src/SllLayer.cpp
+  src/SSHLayer.cpp
+  src/SSLCommon.cpp
+  src/SSLHandshake.cpp
+  src/SSLLayer.cpp
+  src/TcpLayer.cpp
+  src/TcpReassembly.cpp
+  src/TelnetLayer.cpp
+  src/TextBasedProtocol.cpp
+  src/TLVData.cpp
+  src/UdpLayer.cpp
+  src/VlanLayer.cpp
+  src/VxlanLayer.cpp
+  # Force hash-library pcapng to be link fully static
+  $<TARGET_OBJECTS:hash-library>)
+
+set(public_headers
+    header/ArpLayer.h
+    header/BgpLayer.h
+    header/DhcpLayer.h
+    header/DhcpV6Layer.h
+    header/DnsLayerEnums.h
+    header/DnsLayer.h
+    header/DnsResourceData.h
+    header/DnsResource.h
+    header/EthDot3Layer.h
+    header/EthLayer.h
+    header/FtpLayer.h
+    header/GreLayer.h
+    header/GtpLayer.h
+    header/HttpLayer.h
+    header/IcmpLayer.h
+    header/IcmpV6Layer.h
+    header/IgmpLayer.h
+    header/IPLayer.h
+    header/IPReassembly.h
+    header/IPSecLayer.h
+    header/IPv4Layer.h
+    header/IPv6Extensions.h
+    header/IPv6Layer.h
+    header/Layer.h
+    header/MplsLayer.h
+    header/NullLoopbackLayer.h
+    header/NdpLayer.h
+    header/NtpLayer.h
+    header/Packet.h
+    header/PacketTrailerLayer.h
+    header/PacketUtils.h
+    header/PayloadLayer.h
+    header/PPPoELayer.h
+    header/ProtocolType.h
+    header/RadiusLayer.h
+    header/RawPacket.h
+    header/SdpLayer.h
+    header/SingleCommandTextProtocol.h
+    header/SipLayer.h
+    header/SllLayer.h
+    header/SSHLayer.h
+    header/SSLCommon.h
+    header/SSLHandshake.h
+    header/SSLLayer.h
+    header/TcpLayer.h
+    header/TcpReassembly.h
+    header/TelnetLayer.h
+    header/TextBasedProtocol.h
+    header/TLVData.h
+    header/UdpLayer.h
+    header/VlanLayer.h
+    header/VxlanLayer.h)
+
+# Don't use set_target_properties CMake limit to 50 elements
+set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+target_include_directories(
+  Packet++
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
+         $<INSTALL_INTERFACE:include/pcapplusplus>
+  # Don't link with hash-library nor EndianPortable as they won't be exported
+  PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
+  PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)
+
+target_link_libraries(Packet++ PUBLIC Common++)
+
+if(PCAPPP_INSTALL)
+  install(
+    TARGETS Packet++
+    EXPORT PcapPlusPlusTargets
+    ARCHIVE DESTINATION ${PCAPP_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${PCAPP_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${PCAPP_INSTALL_INCLUDEDIR})
+endif()
+
+set_property(TARGET Packet++ PROPERTY OUTPUT_NAME "packet++")
+set_property(TARGET Packet++ PROPERTY VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
