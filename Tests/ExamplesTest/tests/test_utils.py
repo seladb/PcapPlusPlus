@@ -4,7 +4,7 @@ from itertools import filterfalse
 import subprocess
 import tempfile
 
-DEFAULT_EXAMPLE_DIR = os.path.abspath("../../Dist/examples/")
+DEFAULT_EXAMPLE_DIR = os.path.abspath("../../Dist/examples_bin/")
 
 
 def run_example(

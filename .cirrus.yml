@@ -1,3 +1,6 @@
+env:
+  BUILD_DIR: Dist
+
 task:
   name: Test FreeBSD
   freebsd_instance:
@@ -5,11 +8,11 @@ task:
       image_family: freebsd-12-3
       image_family: freebsd-13-0
   install_script:
-    - pkg install -y libpcap bash gsed gmake tcpreplay
+    - pkg install -y libpcap bash gsed gmake tcpreplay cmake
   configure_script:
-    - ./configure-freebsd.sh --default
+    - cmake -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON -S . -B $BUILD_DIR
   build_script:
-    - gmake all
+    - cmake --build $BUILD_DIR
   test_pcapplusplus_script:
     - ifconfig vtnet0 promisc
     - python -m ensurepip
@@ -22,59 +25,6 @@ task:
     - python -m pytest --interface vtnet0 --use-sudo
 
 task:
-  name: Test Zstd Linux
-  container:
-    image: seladb/ubuntu2004-zstd:latest
-  configure_script:
-    - ./configure-linux.sh --use-zstd
-    - ldconfig
-  build_script:
-    - make all
-  test_pcapplusplus_script:
-    - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface eth0
-
-task:
-  name: Test Zstd MacOS
-  osx_instance:
-    image: monterey-xcode
-  configure_script:
-    - brew install zstd
-    - ./configure-mac_os_x.sh --use-zstd
-  build_script:
-    - make all
-  install_tcpreplay_script:
-    - brew install tcpreplay
-  test_pcapplusplus_script:
-    - python3 -m ensurepip
-    - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
-
-task:
-  name: Regression Tests Linux (Address Sanitizer)
-  container:
-    image: seladb/ubuntu1804:latest
-  configure_script:
-    - ./configure-fuzzing.sh --sanitizer address
-    - ldconfig
-  build_script:
-    - make fuzzers
-  test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
-
-task:
-  name: Regression Tests Linux (Undefined Behavior Sanitizer)
-  container:
-    image: seladb/ubuntu1804:latest
-  configure_script:
-    - ./configure-fuzzing.sh --sanitizer undefined
-    - ldconfig
-  build_script:
-    - make fuzzers
-  test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
-
-task:
   name: Build Doxygen Documentation
   container:
     image: seladb/ubuntu1804:latest
@@ -84,9 +34,9 @@ task:
   get_code_script:
     - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
   configure_script:
-    - ./configure-linux.sh --default
+    - cmake -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON -S . -B $BUILD_DIR
   build_script:
-    - make libs
+    - cmake --build $BUILD_DIR
   build_documentation_script:
     - cd pcapplusplus.github.io/static/api-docs/next/doxygen
     - doxygen Doxyfile-ci

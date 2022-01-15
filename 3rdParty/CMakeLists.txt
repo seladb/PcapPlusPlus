@@ -1,0 +1,6 @@
+add_subdirectory(dirent-for-Visual-Studio)
+add_subdirectory(EndianPortable)
+add_subdirectory(Getopt-for-Visual-Studio)
+add_subdirectory(LightPcapNg)
+add_subdirectory(hash-library)
+add_subdirectory(MemPlumber/MemPlumber)

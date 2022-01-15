@@ -1,6 +1,7 @@
 version: 1.0.{build}
 
 environment:
+  BUILD_DIR: Dist
   NPCAP_USERNAME:
     secure: iVuVl18E7ZfsuRjz0YKJKQ==
   NPCAP_PASSWORD:
