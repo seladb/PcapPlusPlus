@@ -301,7 +301,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	pcpp::Logger::getInstance().enableLogs();
 
 	delete liveDev;
-} // TestPcapLiveDevice
+} // TestPcapLiveDeviceClone
 
 
 PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
