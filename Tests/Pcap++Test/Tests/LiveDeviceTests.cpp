@@ -264,6 +264,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 
 PTF_TEST_CASE(TestPcapLiveDeviceClone)
 {
+	// Test of clone device should be same with original
 	pcpp::PcapLiveDevice* liveDev = NULL;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch)->clone();
