@@ -757,7 +757,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
-				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_DLT_RAW1)
+				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_DLT_RAW1)
 				{
 					++validCounter;
 				}
@@ -783,7 +783,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
-				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_LINUX_SLL)
+				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_LINUX_SLL)
 				{
 					++validCounter;
 				}
@@ -809,7 +809,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
-				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_ETHERNET)
+				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_ETHERNET)
 				{
 					++validCounter;
 				}
