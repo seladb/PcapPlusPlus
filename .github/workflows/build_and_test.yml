@@ -199,7 +199,7 @@ jobs:
         cd Examples/Tutorials/Tutorial-HelloWorld
         make -f Makefile.non_windows all
         ./Tutorial-HelloWorld
-        
+
   macos-apple-silicon-arm64:
     runs-on: ${{ matrix.os-version }}
     strategy:
@@ -353,7 +353,8 @@ jobs:
 
     - name: Set Zstd
       run: |
-        echo "ZSTD_HOME_PARAM=-z C:\tools\zstd" >> $env:GITHUB_ENV
+        ci\install_zstd.bat
+        echo "ZSTD_HOME_PARAM=-z C:\zstd" >> $env:GITHUB_ENV
       if: matrix.use_zstd == true
 
     - name: Configure PcapPlusPlus
@@ -415,7 +416,7 @@ jobs:
         LIBPCAP_PATH=$(pwd)/libpcap-android
         TARGET=${{ matrix.target }}
         ./configure-android.sh --ndk-path $NDK_ROOT --target $TARGET --api $API_VERSION --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/$TARGET/$API_VERSION
-  
+
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: make all

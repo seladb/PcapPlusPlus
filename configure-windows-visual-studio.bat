@@ -210,7 +210,7 @@ goto GETOPT_START
     set ZSTD_HOME=%~2
     set USE_ZSTD=USE_Z_STD;
     set "ZSTD_INCLUDE_PATH=$(ZStdHome)\include;"
-    set ZSTD_LIB_NAME=libzstd.dll.a;
+    set ZSTD_LIB_NAME=libzstd.lib;
     :: notify GETOPT this switch has a parameter
     set HAS_PARAM=1
     :: exit ok
