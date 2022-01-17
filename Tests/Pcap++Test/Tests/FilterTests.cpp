@@ -816,7 +816,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 			}
 		}
 	}
-	PTF_ASSERT_EQUAL(validCounter, 64);
+	PTF_ASSERT_EQUAL(validCounter, 62);
 	rawPacketVec.clear();
 } // TestPcapFilters_LinkLayer
 
