@@ -370,6 +370,36 @@ void PcapLiveDevice::close()
 	LOG_DEBUG("Device '" << m_Name << "' closed");
 }
 
+PcapLiveDevice* PcapLiveDevice::clone()
+{
+	PcapLiveDevice *retval = NULL;
+
+	pcap_if_t *interfaceList;
+	char errbuf[PCAP_ERRBUF_SIZE];
+	int err = pcap_findalldevs(&interfaceList, errbuf);
+	if (err < 0)
+	{
+		LOG_ERROR("Error searching for devices: " << errbuf);
+		return NULL;
+	}
+
+	pcap_if_t* currInterface = interfaceList;
+	while (currInterface != NULL)
+	{
+		if(!strcmp(currInterface->name, getName().c_str()))
+			break;
+		currInterface = currInterface->next;
+	}
+
+	if(currInterface)
+		retval = new PcapLiveDevice(currInterface, true, true, true);
+	else
+		LOG_ERROR("Can't find interface " << getName().c_str());
+
+	pcap_freealldevs(interfaceList);
+	return retval;
+}
+
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
 {
 	return startCapture(onPacketArrives, onPacketArrivesUserCookie, 0, NULL, NULL);

@@ -539,6 +539,12 @@ namespace pcpp
 
 		void close();
 
+		/**
+		 * Clones the current device class
+		 * @return Pointer to the copied class 
+		 */
+		PcapLiveDevice* clone();
+
 		virtual void getStatistics(IPcapDevice::PcapStats& stats) const;
 
 	protected:

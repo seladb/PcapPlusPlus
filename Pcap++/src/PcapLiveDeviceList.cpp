@@ -337,6 +337,11 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::strin
 	}
 }
 
+PcapLiveDeviceList* PcapLiveDeviceList::clone()
+{
+	return new PcapLiveDeviceList;
+}
+
 void PcapLiveDeviceList::reset()
 {
 	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)

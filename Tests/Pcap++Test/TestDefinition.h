@@ -26,6 +26,7 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4);
 PTF_TEST_CASE(TestPcapLiveDeviceList);
 PTF_TEST_CASE(TestPcapLiveDeviceListSearch);
 PTF_TEST_CASE(TestPcapLiveDevice);
+PTF_TEST_CASE(TestPcapLiveDeviceClone);
 PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking);
 PTF_TEST_CASE(TestPcapLiveDeviceStatsMode);
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode);
