@@ -380,6 +380,7 @@ PcapLiveDevice* PcapLiveDevice::clone()
 	if (err < 0)
 	{
 		LOG_ERROR("Error searching for devices: " << errbuf);
+		return NULL;
 	}
 
 	pcap_if_t* currInterface = interfaceList;

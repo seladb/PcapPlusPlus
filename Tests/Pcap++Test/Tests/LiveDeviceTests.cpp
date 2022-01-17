@@ -188,8 +188,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	std::vector<pcpp::PcapLiveDevice*>::iterator iterCloned = clonedDevListVector.begin();
 	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++, iterCloned++)
 	{
-		PTF_ASSERT_EQUAL((*iter)->getName().length(), (*iterCloned)->getName().length());
-		PTF_ASSERT_BUF_COMPARE((*iter)->getName().c_str(), (*iterCloned)->getName().c_str(), (*iter)->getName().length());
+		PTF_ASSERT_EQUAL((*iter)->getName(), (*iterCloned)->getName());
 	}
 	delete clonedDevList;
 

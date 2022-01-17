@@ -103,8 +103,8 @@ namespace pcpp
 		const std::vector<IPv4Address>& getDnsServers() const { return m_DnsServers; }
 
 		/**
-		 * Copies the current live devicelist
-		 * @return PcapLiveDeviceList* 
+		 * Copies the current live device list
+		 * @return A pointer to the cloned device list
 		 */
 		PcapLiveDeviceList* clone();
 
