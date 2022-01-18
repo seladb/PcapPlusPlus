@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
 		std::cout << "Usage: " << *argv << " <input-file> <dns|packet> <repetitions>\n";
 		return 1;
 	}
-	std::chrono::high_resolution_clock myClock;
 	std::string input_type(argv[2]);
 	int total_runs = std::stoi(argv[3]);
 	size_t total_packets = 0;
