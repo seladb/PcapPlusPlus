@@ -292,6 +292,15 @@ jobs:
     strategy:
       matrix:
        include:
+         - vs-version: vs2022
+           os: windows-2022
+           platform: x64
+           config: Debug
+         - vs-version: vs2022
+           os: windows-2022
+           platform: x64
+           config: Release
+           use_zstd: true
          - vs-version: vs2019
            os: windows-2019
            platform: x64

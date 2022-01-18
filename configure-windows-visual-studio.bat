@@ -87,6 +87,12 @@ if "%VS_VERSION%"=="vs2019" (
     set PlatformToolset=v142
 )
 
+:: set VS2022 params
+if "%VS_VERSION%"=="vs2022" (
+    set ToolsVersion=Current
+    set PlatformToolset=v143
+)
+
 :: go over all vcxproj template files and set the project params according to the requested VS version
 :: create vcxproj files and copy them to the VS project directory
 setlocal enabledelayedexpansion
@@ -222,7 +228,7 @@ goto GETOPT_START
     :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
     if "%~2"=="" goto GETOPT_REQUIRED_PARAM %1
     :: verify the VS version provided is one of the supported versions
-    if "%2" NEQ "vs2015" if "%2" NEQ "vs2017" if "%2" NEQ "vs2019" call :GETOPT_ERROR "Visual Studio version must be one of: vs2015, vs2017, vs2019" & exit /B 3
+    if "%2" NEQ "vs2015" if "%2" NEQ "vs2017" if "%2" NEQ "vs2019" if "%2" NEQ "vs2022" call :GETOPT_ERROR "Visual Studio version must be one of: vs2015, vs2017, vs2019, vs2022" & exit /B 3
     :: if all went well, set the VS_VERSION variable
     set VS_VERSION=%2
     :: notify GETOPT this switch has a parameter
@@ -261,8 +267,8 @@ echo Choose Visual Studio version.
 echo.
 :while0
 :: ask the user to type VS version
-set /p VS_VERSION=     Currently supported options are: vs2015, vs2017 or vs2019: %=%
-if "%VS_VERSION%" NEQ "vs2015" if "%VS_VERSION%" NEQ "vs2017" if "%VS_VERSION%" NEQ "vs2019" (echo Please choose one of "vs2015", "vs2017", "vs2019" && goto while0)
+set /p VS_VERSION=     Currently supported options are: vs2015, vs2017, vs2019 or vs2022: %=%
+if "%VS_VERSION%" NEQ "vs2015" if "%VS_VERSION%" NEQ "vs2017" if "%VS_VERSION%" NEQ "vs2019" if "%VS_VERSION%" NEQ "vs2022" (echo Please choose one of "vs2015", "vs2017", "vs2019", "vs2022" && goto while0)
 
 echo.
 echo.
@@ -309,7 +315,7 @@ echo.
 echo Basic usage: %~nx0 [-h] -v VS_VERSION -p PTHREADS_WIN32_DIR -w PCAP_SDK_DIR
 echo.
 echo The following switches are recognized:
-echo -v^|--vs-version      --Set Visual Studio version to configure. Must be one of: vs2015, vs2017, vs2019
+echo -v^|--vs-version      --Set Visual Studio version to configure. Must be one of: vs2015, vs2017, vs2019, vs2022
 echo -p^|--pthreads-home   --Set pthreads-win32 home directory
 echo -w^|--pcap-sdk        --Set WinPcap/Npcap SDK directory
 echo -z^|--zstd-sdk        --Set ZStd SDK directory
