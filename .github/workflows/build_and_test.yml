@@ -14,7 +14,7 @@ jobs:
            python: python3.8
          - image: ubuntu1604
            python: python3.8
-         - image: centos7
+         - image: centos8
            python: python3.8
            test-flags: -s
          - image: fedora34
