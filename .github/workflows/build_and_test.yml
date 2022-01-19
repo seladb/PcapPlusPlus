@@ -382,6 +382,15 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m mk\${{matrix.vs-version}}\Tutorials.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
 
+    - name: Archive build
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-output
+        path: |
+          Tests/**/*.exe
+          Tests/**/*.dll
+          mk/vs2022/*
+
     - name: Test Packet++
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
