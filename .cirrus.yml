@@ -138,5 +138,5 @@ task:
       git config user.email "${GITHUB_EMAIL}"
       git add .
       git commit -m "Update API documentation for commit ${CIRRUS_CHANGE_IN_REPO}"
-      git push --quiet "https://${GITHUB_TOKEN}@github.com/PcapPlusPlus/pcapplusplus.github.io" master
+      git push --quiet "https://${GITHUB_TOKEN}@github.com/PcapPlusPlus/pcapplusplus.github.io" docusaurus
     fi
