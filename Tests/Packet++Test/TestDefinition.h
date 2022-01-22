@@ -160,3 +160,8 @@ PTF_TEST_CASE(IPSecParsingTest);
 PTF_TEST_CASE(DhcpV6ParsingTest);
 PTF_TEST_CASE(DhcpV6CreationTest);
 PTF_TEST_CASE(DhcpV6EditTest);
+
+// Implemented in NtpTests.cpp
+PTF_TEST_CASE(NtpMethodsTests);
+PTF_TEST_CASE(NtpParsingV3Tests);
+PTF_TEST_CASE(NtpParsingV4Tests);
