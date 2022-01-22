@@ -3,6 +3,7 @@ on: [push, pull_request]
 
 jobs:
   linux:
+    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
     strategy:
@@ -61,6 +62,7 @@ jobs:
         ./Tutorial-HelloWorld
 
   dpdk-legacy:
+    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
     container: seladb/ubuntu1604-dpdk1811
 
@@ -123,6 +125,7 @@ jobs:
         if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
   pfring:
+    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2004-pfring
 
@@ -151,6 +154,7 @@ jobs:
         Bin/Pcap++Test -n
 
   macos:
+    if: ${{ false }}  # disable for now
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
@@ -201,6 +205,7 @@ jobs:
         ./Tutorial-HelloWorld
 
   macos-apple-silicon-arm64:
+    if: ${{ false }}  # disable for now
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
@@ -233,6 +238,7 @@ jobs:
         cd Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
 
   mingw:
+    if: ${{ false }}  # disable for now
     runs-on: windows-latest
 
     steps:
@@ -411,6 +417,7 @@ jobs:
         python -m pytest
 
   android:
+    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
     strategy:
       matrix:
