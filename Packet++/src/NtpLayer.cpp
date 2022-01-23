@@ -467,16 +467,16 @@ namespace pcpp
         fractionPart = modf(timestamp, &integerPart);
 
         timeStruct = integerPart;
-#if __cplusplus > 199711L && !defined(WIN32)
+#if defined(WIN32) || defined(WINx64)
+        if (timeStruct < 0)
+            timeStruct = 0;
+        timer = gmtime(&timeStruct);
+#else
         struct tm timer_r;
         timer = gmtime_r(&timeStruct, &timer_r);
 
         if (timer != NULL)
             timer = &timer_r;
-#else
-        if (timeStruct < 0)
-            timeStruct = 0;
-        timer = gmtime(&timeStruct);
 #endif
         if(timer == NULL)
         {
