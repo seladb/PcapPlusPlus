@@ -5,6 +5,27 @@
 
 namespace pcpp
 {
+    static char HexDigitList[] = "0123456789abcdef";
+
+    std::string NtpLayer::convertToHex(uint8_t *dgst, int len) const
+    {
+        std::string retval;
+
+        retval.append(1, '0');
+        retval.append(1, 'x');
+
+        for (int n = 1; n <= len / 4; n++)
+        {
+            uint32_t x = netToHost32(((uint32_t *)dgst)[n - 1]);
+            for (int nd = 8; nd > 0; nd--)
+            {
+                char c = HexDigitList[(x >> (nd - 1) * 4) & 0xF];
+                retval.append(1, c);
+            }
+        }
+
+        return retval;
+    }
 
     NTPLeapIndicator NtpLayer::getLeapIndicator() const
     {
@@ -58,7 +79,7 @@ namespace pcpp
 
     uint32_t NtpLayer::getRootDispersion() const
     {
-        return ((ntp_header*)m_Data)->rootDispersion;
+        return ((ntp_header *)m_Data)->rootDispersion;
     }
 
     double NtpLayer::getRootDispersionInSecs() const
@@ -230,14 +251,54 @@ namespace pcpp
 
     uint32_t NtpLayer::getKeyID() const
     {
+        switch (getVersion())
+        {
+        case 3:
+        {
+            if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v3_auth)))
+                return 0;
+
+            ntp_v3_auth *header = (ntp_v3_auth *)(m_Data + sizeof(ntp_header));
+            return header->keyID;
+        }
+        case 4:
+        {
+            if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v4_auth)))
+                return 0;
+
+            ntp_v4_auth *header = (ntp_v4_auth *)(m_Data + m_DataLen - sizeof(ntp_v4_auth));
+            return header->keyID;
+        }
+        default:
+        {
+            return 0;
+        }
+        }
     }
 
-    int NtpLayer::getDigest(uint64_t &h, uint64_t &l)
+    std::string NtpLayer::getDigest() const
     {
-    }
+        switch (getVersion())
+        {
+        case 3:
+        {
+            if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v3_auth)))
+                return std::string();
 
-    bool NtpLayer::checkDigest()
-    {
+            ntp_v3_auth *header = (ntp_v3_auth *)(m_Data + sizeof(ntp_header));
+            return convertToHex(header->dgst, 8);
+        }
+        case 4:
+        {
+            if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v4_auth)))
+                return std::string();
+
+            ntp_v4_auth *header = (ntp_v4_auth *)(m_Data + m_DataLen - sizeof(ntp_v4_auth));
+            return convertToHex(header->dgst, 16);
+        }
+        default:
+            return std::string();
+        }
     }
 
     double NtpLayer::convertFromShortFormat(const uint32_t val)
@@ -333,16 +394,8 @@ namespace pcpp
         std::stringstream ss;
 
         ss << "NTP Layer, ";
-        ss << "Version: " << (int)getVersion() << " Mode: " << (int)getMode() << ", ";
-        ss << "Leap Indicator: " << (int)getLeapIndicator() << ", ";
-        ss << "Stratum: " << (int)getStratum() << ", ";
-        ss << "Poll Interval: " << getPollIntervalInSecs() << ", Precision: " << getPrecisionInSecs() << ", ";
-        ss << "Root Delay: " << getRootDelayInSecs() << ", Root Dispersion: " << getRootDispersionInSecs() << ", ";
-        ss << "Reference Identifier: " << getReferenceIdentifierString() << ", ";
-        ss << "Reference Timestamp: " << convertToIsoFormat(getReferenceTimestampInSecs()) << ", ";
-        ss << "Originate Timestamp: " << convertToIsoFormat(getOriginateTimestampInSecs()) << ", ";
-        ss << "Receive Timestamp: " << convertToIsoFormat(getReceiveTimestampInSecs()) << ", ";
-        ss << "Transmit Timestamp: " << convertToIsoFormat(getTransmitTimestampInSecs());
+        ss << "Version: " << (int)getVersion() << ", Mode: " << (int)getMode() << ", ";
+        ss << "Leap Indicator: " << (int)getLeapIndicator() << ", Stratum: " << (int)getStratum();
 
         return ss.str();
     }

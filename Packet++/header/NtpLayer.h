@@ -53,7 +53,7 @@ namespace pcpp
         struct ntp_v3_auth
         {
             uint32_t keyID;
-            uint64_t dgst;
+            uint8_t dgst[8]; // 64 bit DES based
         };
     #pragma pack(pop)
 
@@ -61,7 +61,7 @@ namespace pcpp
         struct ntp_v4_auth
         {
             uint32_t keyID;
-            uint64_t dgst[2];
+            uint8_t dgst[16]; // MD5 hash
         };
     #pragma pack(pop)
 
@@ -125,7 +125,7 @@ namespace pcpp
     {
     private:
 
-        bool calculateDigest(int version, uint64_t &h, uint64_t &l);
+        std::string convertToHex(uint8_t *dgst, int len) const;
 
     public:
 
@@ -259,22 +259,16 @@ namespace pcpp
 
         /**
          * Get the value of key identifier
+         * @return Returns the key identifier if exists, returns 0 on unsupported NTP version or key identifier not found
          */
         uint32_t getKeyID() const;
 
         /**
          * Get the value of digest. 
-         * @param[out] h Upper 64 bit of the digest value. If the version is 3, h value is set to zero
-         * @param[out] l Lower 64 bit of the digest value
-         * @return int Returns the NTP version (Currently only v3 and v4 is supported)
+         * @param[out] digest 
+         * @return Digest value as hexadecimal string, empty string on unsupported version
          */
-        int getDigest(uint64_t &h, uint64_t &l);
-        
-        /**
-         * Verifies the digest value (if exists).
-         * @return True If the digest value verified or there is no digest value detected at the packet
-         */
-        bool checkDigest();
+        std::string getDigest() const;
 
         /**
          * Convert NTP short format to seconds from the Unix Epoch
