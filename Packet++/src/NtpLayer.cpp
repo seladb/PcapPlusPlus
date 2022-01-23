@@ -195,7 +195,7 @@ namespace pcpp
 
     double NtpLayer::getReferenceTimestampInSecs() const
     {
-        return convertFromTimestampFormat(getReferenceTimestamp()) - EPOCH_OFFSET;
+        return convertFromTimestampFormat(getReferenceTimestamp());
     }
 
     uint64_t NtpLayer::getOriginateTimestamp() const
@@ -205,7 +205,7 @@ namespace pcpp
 
     double NtpLayer::getOriginateTimestampInSecs() const
     {
-        return convertFromTimestampFormat(getOriginateTimestamp()) - EPOCH_OFFSET;
+        return convertFromTimestampFormat(getOriginateTimestamp());
     }
 
     uint64_t NtpLayer::getReceiveTimestamp() const
@@ -215,7 +215,7 @@ namespace pcpp
 
     double NtpLayer::getReceiveTimestampInSecs() const
     {
-        return convertFromTimestampFormat(getReceiveTimestamp()) - EPOCH_OFFSET;
+        return convertFromTimestampFormat(getReceiveTimestamp());
     }
 
     uint64_t NtpLayer::getTransmitTimestamp() const
@@ -225,7 +225,7 @@ namespace pcpp
 
     double NtpLayer::getTransmitTimestampInSecs() const
     {
-        return convertFromTimestampFormat(getTransmitTimestamp()) - EPOCH_OFFSET;
+        return convertFromTimestampFormat(getTransmitTimestamp());
     }
 
     uint32_t NtpLayer::getKeyID() const
@@ -257,7 +257,8 @@ namespace pcpp
         integerPart = netToHost32(val & 0xFFFFFFFF);
         fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
 
-        return integerPart + fractionPart;
+        // Offset change should be done here because of overflow
+        return integerPart + fractionPart - EPOCH_OFFSET;
     }
 
     uint32_t NtpLayer::convertToShortFormat(const double val)
@@ -287,7 +288,7 @@ namespace pcpp
         fractionPart = modf(val, &integerPart);
 
         // Cast values to 32bit
-        integerPartInt = hostToNet32(integerPart);
+        integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
         fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
 
         retval = retval | uint64_t(integerPartInt);
@@ -317,7 +318,7 @@ namespace pcpp
 
     std::string NtpLayer::convertToIsoFormat(const uint64_t timestampInNTPformat)
     {
-        return convertToIsoFormat(convertFromTimestampFormat(timestampInNTPformat) - EPOCH_OFFSET);
+        return convertToIsoFormat(convertFromTimestampFormat(timestampInNTPformat));
     }
 
     bool NtpLayer::isDataValid(const uint8_t *data, size_t dataSize)

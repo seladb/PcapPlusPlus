@@ -10,23 +10,25 @@
 
 PTF_TEST_CASE(NtpMethodsTests)
 {
+
+    double val = rand() + rand() / RAND_MAX;
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromTimestampFormat(pcpp::NtpLayer::convertToTimestampFormat(val)), val);
+    while (val > UINT16_MAX)
+        val -= UINT16_MAX;
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromShortFormat(pcpp::NtpLayer::convertToShortFormat(val)), val);
+
     // First check the epoch is correct
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(0.0), "1970-01-01T00:00:00.000000000Z");
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(uint64_t(0)), "1900-01-01T00:00:00.000000000Z");
 
-    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(1642879410.0), "2022-01-22T07:23:30.000000000Z");
-
-    /*
-    pcpp::NtpLayer::convertFromShortFormat();
-    pcpp::NtpLayer::convertFromTimestampFormat;
-    pcpp::NtpLayer::convertToShortFormat;
-    pcpp::NtpLayer::convertToTimestampFormat;
-    */
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(1642879410.0), "2022-01-22T19:23:30.000000000Z");
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(pcpp::NtpLayer::convertToTimestampFormat(1642879410.0)), "2022-01-22T19:23:30.000000000Z");
 
 } // NtpMethodsTests
 
 PTF_TEST_CASE(NtpParsingV3Tests)
 {
+
     timeval time;
     gettimeofday(&time, NULL);
 
@@ -42,19 +44,20 @@ PTF_TEST_CASE(NtpParsingV3Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 4);
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), -6);
-    // NTPv3 pcap is a bit useless, too many zeros
+    // NTPv3 pcap is a bit useless, too many zeros but these fields same with v4
     PTF_ASSERT_EQUAL(ntpLayer->getRootDelay(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getRootDispersion(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getOriginateTimestamp(), 0);
-    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), uint64_t(-2787922709886009344));
-    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), uint64_t(-2787922709886009344));
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), be64toh(0xd94f4f1100000000));
+    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), be64toh(0xd94f4f1100000000));
 
 } // NtpParsingV3Tests
 
 PTF_TEST_CASE(NtpParsingV4Tests)
 {
+    
     timeval time;
     gettimeofday(&time, NULL);
 
@@ -63,22 +66,20 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     pcpp::Packet ntpPacket(&rawPacket1);
     pcpp::NtpLayer *ntpLayer = ntpPacket.getLayerOfType<pcpp::NtpLayer>();
 
-    std::cout << ntpPacket << std::endl;
-
     PTF_ASSERT_NOT_NULL(ntpLayer);
     PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 4);
     PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NTPLeapIndicator::NoWarning);
     PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::NTPMode::Client);
     PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 2);
     PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 7);
-    PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), -100);
-    // PTF_ASSERT_EQUAL(ntpLayer->getRootDelay(), uint32_t(1104));
-    // PTF_ASSERT_EQUAL(ntpLayer->getRootDispersion(), uint32_t(939));
-    // PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), uint32_t(2210137055));
-    // PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "131.188.3.223");
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), uint64_t(-2787919745529825184));
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginateTimestamp(), uint64_t(-2791009845670350896));
-    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), uint64_t(-2791009845645088392));
-    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), uint64_t(-2787919535147654412));
+    PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xeb));
+    PTF_ASSERT_EQUAL(ntpLayer->getRootDelay(), be32toh(0x450));
+    PTF_ASSERT_EQUAL(ntpLayer->getRootDispersion(), be32toh(0x3ab));
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), be32toh(0x83bc03df));
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "131.188.3.223");
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), be64toh(0xd94f51c33165b860));
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginateTimestamp(), be64toh(0xd944575530336fd0));
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), be64toh(0xd944575531b4e978));
+    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), be64toh(0xd94f51f42d26e2f4));
 
 } // NtpParsingV4Tests
