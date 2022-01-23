@@ -12,6 +12,7 @@
 #include "SystemUtils.h"
 
 #include <math.h>
+#include <stdlib.h>
 #include <string.h>
 
 /// @file

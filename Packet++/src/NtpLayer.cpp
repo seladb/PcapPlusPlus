@@ -104,13 +104,13 @@ namespace pcpp
             {
                 switch (getReferenceIdentifier())
                 {
-                case NTPClockSource::DCN:
+                case DCN:
                     return std::string("DCN routing protocol");
-                case NTPClockSource::NIST:
+                case NIST:
                     return std::string("NIST public modem");
-                case NTPClockSource::TSP:
+                case TSP:
                     return std::string("TSP time protocol");
-                case NTPClockSource::DTS:
+                case DTS:
                     return std::string("Digital Time Service");
                 default:
                     return std::string("Unknown");
@@ -131,15 +131,15 @@ namespace pcpp
             {
                 switch (getReferenceIdentifier())
                 {
-                case NTPClockSource::ATOM:
+                case ATOM:
                     return std::string("Atomic clock");
-                case NTPClockSource::VLF:
+                case VLF:
                     return std::string("VLF radio");
-                case NTPClockSource::LORC:
+                case LORC:
                     return std::string("LORAN-C radionavigation");
-                case NTPClockSource::GOES:
+                case GOES:
                     return std::string("GOES UHF environment satellite");
-                case NTPClockSource::GPS:
+                case GPS:
                     return std::string("GPS UHF satellite positioning");
                 default:
                     return std::string("Unknown");
@@ -149,43 +149,43 @@ namespace pcpp
             {
                 switch (getReferenceIdentifier())
                 {
-                case NTPClockSource::GOES:
+                case GOES:
                     return std::string("Geosynchronous Orbit Environment Satellite");
-                case NTPClockSource::GPS:
+                case GPS:
                     return std::string("Global Position System");
-                case NTPClockSource::GAL:
+                case GAL:
                     return std::string("Galileo Positioning System");
-                case NTPClockSource::PPS:
+                case PPS:
                     return std::string("Generic pulse-per-second");
-                case NTPClockSource::IRIG:
+                case IRIG:
                     return std::string("Inter-Range Instrumentation Group");
-                case NTPClockSource::WWVB:
+                case WWVB:
                     return std::string("LF Radio WWVB Ft. Collins, CO 60 kHz");
-                case NTPClockSource::DCF:
+                case DCF:
                     return std::string("LF Radio DCF77 Mainflingen, DE 77.5 kHz");
-                case NTPClockSource::HBG:
+                case HBG:
                     return std::string("LF Radio HBG Prangins, HB 75 kHz");
-                case NTPClockSource::MSF:
+                case MSF:
                     return std::string("LF Radio MSF Anthorn, UK 60 kHz");
-                case NTPClockSource::JJY:
+                case JJY:
                     return std::string("LF Radio JJY Fukushima, JP 40 kHz, Saga, JP 60 kHz");
-                case NTPClockSource::LORC:
+                case LORC:
                     return std::string("MF Radio LORAN C station, 100 kHz");
-                case NTPClockSource::TDF:
+                case TDF:
                     return std::string("MF Radio Allouis, FR 162 kHz");
-                case NTPClockSource::CHU:
+                case CHU:
                     return std::string("HF Radio CHU Ottawa, Ontario");
-                case NTPClockSource::WWV:
+                case WWV:
                     return std::string("HF Radio WWV Ft. Collins, CO");
-                case NTPClockSource::WWVH:
+                case WWVH:
                     return std::string("HF Radio WWVH Kauai, HI");
-                case NTPClockSource::NIST:
+                case NIST:
                     return std::string("NIST telephone modem");
-                case NTPClockSource::ACTS:
+                case ACTS:
                     return std::string("NIST telephone modem");
-                case NTPClockSource::USNO:
+                case USNO:
                     return std::string("USNO telephone modem");
-                case NTPClockSource::PTB:
+                case PTB:
                     return std::string("European telephone modem");
                 default:
                     return std::string("Unknown");
