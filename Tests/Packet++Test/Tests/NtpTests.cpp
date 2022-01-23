@@ -15,13 +15,17 @@ PTF_TEST_CASE(NtpMethodsTests)
     double val = 12345.125;
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromTimestampFormat(pcpp::NtpLayer::convertToTimestampFormat(val)), val);
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromShortFormat(pcpp::NtpLayer::convertToShortFormat(val)), val);
+    std::cout << "Format change end" << std::endl;
 
     // First check the epoch is correct
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(0.0), "1970-01-01T00:00:00.000000000Z");
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(uint64_t(0)), "1900-01-01T00:00:00.000000000Z");
+    std::cout << "ISO 1 end" << std::endl;
+
 
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(1642879410.0), "2022-01-22T19:23:30.000000000Z");
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(pcpp::NtpLayer::convertToTimestampFormat(1642879410.0)), "2022-01-22T19:23:30.000000000Z");
+    std::cout << "ISO 2 end" << std::endl;
 
 } // NtpMethodsTests
 

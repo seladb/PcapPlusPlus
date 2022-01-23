@@ -467,10 +467,10 @@ namespace pcpp
         fractionPart = modf(timestamp, &integerPart);
 
         timeStruct = integerPart;
-        #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-        gmtime_s(&timer, &timeStruct);
-        #else
+        #if __cplusplus > 199711L && !defined(WIN32)
         gmtime_r(&timeStruct, &timer);
+        #else
+        timer = gmtime(&timeStruct);
         #endif
         strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", &timer);
 
