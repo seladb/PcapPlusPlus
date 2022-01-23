@@ -39,8 +39,8 @@ PTF_TEST_CASE(NtpParsingV3Tests)
 
     PTF_ASSERT_NOT_NULL(ntpLayer);
     PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 3);
-    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NTPLeapIndicator::NoWarning);
-    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::NTPMode::Server);
+    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NoWarning);
+    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Server);
     PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 4);
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(-6));
