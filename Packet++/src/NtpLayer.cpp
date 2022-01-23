@@ -471,8 +471,12 @@ namespace pcpp
         fractionPart = modf(timestamp, &integerPart);
 
         timeStruct = integerPart;
+        #if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+        gmtime_s(&timer, &timeStruct);
+        #else
         gmtime_r(&timeStruct, &timer);
-        strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%FT%T", &timer);
+        #endif
+        strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", &timer);
 
         snprintf(bufferFraction, sizeof(bufferFraction), "%.09fZ", abs(fractionPart));
         strncat(buffer, &bufferFraction[1], sizeof(bufferFraction));
