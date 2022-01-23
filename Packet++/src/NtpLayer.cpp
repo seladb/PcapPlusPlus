@@ -474,8 +474,8 @@ namespace pcpp
         if (timer != NULL)
             timer = &timer_r;
 #else
-        if (timestamp < 0)
-            timestamp = 0;
+        if (timeStruct < 0)
+            timeStruct = 0;
         timer = gmtime(&timeStruct);
 #endif
         if(timer == NULL)
