@@ -474,8 +474,15 @@ namespace pcpp
         if (timer != NULL)
             timer = &timer_r;
 #else
+        if (timestamp < 0)
+            timestamp = 0;
         timer = gmtime(&timeStruct);
 #endif
+        if(timer == NULL)
+        {
+            LOG_ERROR("Can't convert time");
+            return std::string();
+        }
         strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", timer);
 
         snprintf(bufferFraction, sizeof(bufferFraction), "%.09fZ", abs(fractionPart));
