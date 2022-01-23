@@ -232,8 +232,15 @@ jobs:
       run: |
         cd Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
 
-  mingw:
+  mingw-w64:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+         - env: i686
+           sys: mingw32
+         - env: x86_64
+           sys: mingw64
 
     steps:
     - name: Checkout code
@@ -242,8 +249,8 @@ jobs:
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW32
-        install: mingw-w64-i686-gcc mingw-w64-i686-make
+        msystem: ${{matrix.sys}}
+        install: mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
 
     - name: Setup Python
       uses: actions/setup-python@v2
@@ -261,7 +268,7 @@ jobs:
     - name: Configure PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}
       shell: msys2 {0}
-      run: ./configure-windows-mingw.bat mingw-w64 -m /mingw32 -w ${{ env.PCAP_SDK_DIR }} -s .
+      run: ./configure-windows-mingw.bat mingw-w64 -m  /${{ matrix.sys }} -w ${{ env.PCAP_SDK_DIR }} -s .
 
     - name: Build PcapPlusPlus
       working-directory: ${{env.GITHUB_WORKSPACE}}

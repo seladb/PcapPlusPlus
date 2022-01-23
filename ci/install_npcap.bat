@@ -5,6 +5,7 @@ if defined NPCAP_PASSWORD set /A NPCAP_OEM_CREDENTIALS_DEFINED=NPCAP_OEM_CREDENT
 if "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
 	set NPCAP_FILE=npcap-0.9988-oem.exe
 ) else (
+	:: Silent mode is disabled for newer non-oem version
 	set NPCAP_FILE=npcap-0.96.exe
 )
 
@@ -23,6 +24,6 @@ if not "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
 	xcopy C:\Windows\SysWOW64\Npcap\*.dll C:\Windows\SysWOW64
 )
 
-curl -L --connect-timeout 5 --max-time 10 --retry 5 --retry-delay 0 --retry-max-time 120 https://npcap.com/dist/npcap-sdk-1.04.zip --output npcap-sdk-1.04.zip
+curl -L --connect-timeout 5 --max-time 10 --retry 5 --retry-delay 0 --retry-max-time 120 https://npcap.com/dist/npcap-sdk-1.12.zip --output npcap-sdk.zip
 mkdir C:\Npcap-sdk
-7z x .\npcap-sdk-1.04.zip -oC:\Npcap-sdk
+7z x .\npcap-sdk.zip -oC:\Npcap-sdk

@@ -62,7 +62,8 @@ namespace pcpp
 	} // namespace internal
 } // namespace pcpp
 
-#if defined(WIN32) && !defined(_MSC_VER)
+// Only MinGW32 doesn't have these functions (not MinGW-w64 nor Visual C++)
+#if defined(WIN32) && !defined(_MSC_VER) && !defined(__MINGW64_MAJOR_VERSION)
 /* const char *
  * inet_ntop4(src, dst, size)
  *	format an IPv4 address
