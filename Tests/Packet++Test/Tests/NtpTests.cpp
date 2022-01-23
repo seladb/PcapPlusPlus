@@ -107,3 +107,44 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getDigest(), "0xac017b69915ce5a7a9fb73ac8bd1603b");
 
 } // NtpParsingV4Tests
+
+PTF_TEST_CASE(NtpCraftingTests)
+{
+
+    pcpp::NtpLayer *ntpLayer = new pcpp::NtpLayer();
+
+    PTF_ASSERT_NOT_NULL(ntpLayer);
+
+    // Set the values
+    ntpLayer->setVersion(4);
+    ntpLayer->setLeapIndicator(pcpp::Last61Secs);
+    ntpLayer->setMode(pcpp::Broadcast);
+    ntpLayer->setStratum(1);
+    ntpLayer->setPollInterval(3);
+    ntpLayer->setPrecision(-5);
+    ntpLayer->setRootDelayInSecs(3.25);
+    ntpLayer->setRootDispersionInSecs(0.125);
+    ntpLayer->setReferenceIdentifier(pcpp::GPS);
+    ntpLayer->setReferenceTimestampInSecs(5);
+    ntpLayer->setOriginateTimestampInSecs(5);
+    ntpLayer->setReceiveTimestampInSecs(5);
+    ntpLayer->setTransmitTimestampInSecs(5);
+
+    PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 4);
+    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::Last61Secs);
+    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Broadcast);
+    PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 1);
+    PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 3);
+    PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(-5));
+    PTF_ASSERT_EQUAL(ntpLayer->getRootDelayInSecs(), 3.25);
+    PTF_ASSERT_EQUAL(ntpLayer->getRootDispersionInSecs(), 0.125);
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), pcpp::GPS);
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "Global Position System");
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampInSecs(), 5);
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginateTimestampInSecs(), 5);
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampInSecs(), 5);
+    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampInSecs(), 5);
+
+    delete ntpLayer;
+
+} // NtpCraftingTests

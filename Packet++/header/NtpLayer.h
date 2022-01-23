@@ -140,9 +140,19 @@ namespace pcpp
         NtpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = NTP; }
 
         /**
+         * Empty c'tor
+         */
+        NtpLayer();
+
+        /**
          * Get the leap indicator 
          */
         NTPLeapIndicator getLeapIndicator() const;
+
+        /**
+         * Set the leap indicator
+         */
+        void setLeapIndicator(NTPLeapIndicator val);
 
         /**
          * Get the version of NTP 
@@ -150,39 +160,72 @@ namespace pcpp
         uint8_t getVersion() const;
 
         /**
+         * Set the version of NTP
+         */
+        void setVersion(uint8_t val);
+
+        /**
          * Get the mode value
          */
         NTPMode getMode() const;
 
         /**
-         * Get the value of stratum.
+         * Set the mode
+         */
+        void setMode(NTPMode val);
+
+        /**
+         * Get the value of stratum
          */
         uint8_t getStratum() const;
 
         /**
-         * Get the value of poll interval in log2 seconds. 
+         * Set the value of stratum
+         */
+        void setStratum(uint8_t val);
+
+        /**
+         * Get the value of poll interval in log2 seconds 
          */
         int8_t getPollInterval() const;
 
         /**
-         * Get the value of poll interval in seconds.
+         * Set the value of poll interval
+         * @param[in] val Poll interval in log2 seconds
+         */
+        void setPollInterval(int8_t val);
+
+        /**
+         * Get the value of poll interval in seconds
          */
         double getPollIntervalInSecs() const;
 
         /**
-         * Get the value of precision in log2 seconds.
+         * Get the value of precision in log2 seconds
          */
         int8_t getPrecision() const;
 
         /**
-         * Get the value of precision in seconds.
+         * Set the value of precision
+         * @param[in] val Precision in log2 seconds
+         */
+        void setPrecision(int8_t val);
+
+        /**
+         * Get the value of precision in seconds
          */
         double getPrecisionInSecs() const;
 
         /**
-         * Get the value of root delay in NTP short format.
+         * Get the value of root delay in NTP short format
          */
         uint32_t getRootDelay() const;
+
+        /**
+         * Set the value of root delay
+         * @param[in] val Root delay in NTP short format
+         */
+        void setRootDelay(uint32_t val);
 
         /**
          * Get the value of root delay in seconds
@@ -190,9 +233,21 @@ namespace pcpp
         double getRootDelayInSecs() const;
 
         /**
+         * Set the value of root delay
+         * @param[in] val Root delay in seconds
+         */
+        void setRootDelayInSecs(double val);
+
+        /**
          * Get the value of root dispersion in NTP short format
          */
         uint32_t getRootDispersion() const;
+
+        /**
+         * Set the value of root delay
+         * @param[in] val Root dispersion in NTP short format 
+         */
+        void setRootDispersion(uint32_t val);
 
         /**
          * Get the value of root dispersion in seconds
@@ -200,9 +255,21 @@ namespace pcpp
         double getRootDispersionInSecs() const;
 
         /**
+         * Set the value of root dispersion
+         * @param[in] val Root dispersion in seconds
+         */
+        void setRootDispersionInSecs(double val);
+
+        /**
          * Get the value of reference identifier
          */
         uint32_t getReferenceIdentifier() const;
+
+        /**
+         * Set the value of reference identifier
+         * @param[in] val Value of the reference identifier, either NTPClockSource, IPv4 address or MD5 hash of first four octets of IPv6
+         */
+        void setReferenceIdentifier(uint32_t val);
 
         /**
          * Get the value of reference identifier as a string
@@ -217,10 +284,22 @@ namespace pcpp
         uint64_t getReferenceTimestamp() const;
 
         /**
+         * Set the value of reference timestamp
+         * @param[in] val Timestamp in NTP timestamp format
+         */
+        void setReferenceTimestamp(uint64_t val);
+
+        /**
          * Get the value of reference timestamp
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
         double getReferenceTimestampInSecs() const;
+
+        /**
+         * Set the value of reference timestamp
+         * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
+         */
+        void setReferenceTimestampInSecs(double val);
 
         /**
          * Get the value of originate timestamp
@@ -229,10 +308,22 @@ namespace pcpp
         uint64_t getOriginateTimestamp() const;
 
         /**
+         * Set the value of originate timestamp
+         * @param[in] val Value in NTP timestamp format
+         */
+        void setOriginateTimestamp(uint64_t val);
+
+        /**
          * Get the value of originate timestamp
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
         double getOriginateTimestampInSecs() const;
+
+        /**
+         * Set the value of originate timestamp
+         * @param val Value in seconds from Unix Epoch (1 Jan 1970)
+         */
+        void setOriginateTimestampInSecs(double val);
 
         /**
          * Get the value of receive timestamp
@@ -241,10 +332,22 @@ namespace pcpp
         uint64_t getReceiveTimestamp() const;
 
         /**
+         * Set the value of receive timestamp
+         * @param[in] val Value in NTP timestamp format
+         */
+        void setReceiveTimestamp(uint64_t val);
+
+        /**
          * Get the value of receive timestamp
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
         double getReceiveTimestampInSecs() const;
+
+        /**
+         * Set the value of receive timestamp
+         * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
+         */
+        void setReceiveTimestampInSecs(double val);
 
         /**
          * Get the value of transmit timestamp
@@ -253,10 +356,22 @@ namespace pcpp
         uint64_t getTransmitTimestamp() const;
 
         /**
+         * Set the value of transmit timestamp
+         * @param[in] val Value in NTP timestamp format
+         */
+        void setTransmitTimestamp(uint64_t val);
+
+        /**
          * Get the value of transmit timestamp
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
         double getTransmitTimestampInSecs() const;
+
+        /**
+         * Set the value of transmit timestamp
+         * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970) 
+         */
+        void setTransmitTimestampInSecs(double val);
 
         /**
          * Get the value of key identifier

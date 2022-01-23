@@ -241,6 +241,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NtpMethodsTests, "ntp");
 	PTF_RUN_TEST(NtpParsingV3Tests, "ntp");
 	PTF_RUN_TEST(NtpParsingV4Tests, "ntp");
+	PTF_RUN_TEST(NtpCraftingTests, "ntp");
 
 	PTF_END_RUNNING_TESTS;
 }
