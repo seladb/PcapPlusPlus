@@ -70,8 +70,8 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 
     PTF_ASSERT_NOT_NULL(ntpLayer);
     PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 4);
-    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NTPLeapIndicator::NoWarning);
-    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::NTPMode::Client);
+    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NoWarning);
+    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Client);
     PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 2);
     PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 7);
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xeb));
@@ -90,8 +90,8 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 
     PTF_ASSERT_NOT_NULL(ntpLayer);
     PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 4);
-    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NTPLeapIndicator::NoWarning);
-    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::NTPMode::Client);
+    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NoWarning);
+    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Client);
     PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 2);
     PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 6);
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xe8));
