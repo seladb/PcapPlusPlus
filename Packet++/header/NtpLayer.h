@@ -18,11 +18,11 @@
 /// @file
 
 /// 2^16 as a double
-#define NTP_FRIC        65536. 
+#define NTP_FRIC 65536.
 /// 2^32 as a double
-#define NTP_FRAC        4294967296.
+#define NTP_FRAC 4294967296.
 /// Epoch offset between Unix time and NTP
-#define EPOCH_OFFSET    2208988800ULL
+#define EPOCH_OFFSET 2208988800ULL
 
 /**
  * \namespace pcpp
@@ -32,38 +32,38 @@ namespace pcpp
 {
 
     #pragma pack(push,1)
-        struct ntp_header
-        {
-            uint8_t mode:3,
-            version:3,
-            leapIndicator:2;
-            uint8_t stratum;
-            int8_t pollInterval,
-            precision;
-            uint32_t rootDelay,
-            rootDispersion,
-            referenceIdentifier;
-            uint64_t referenceTimestamp,
-            originateTimestamp,
-            receiveTimestamp,
-            transmitTimestamp;
-        };
+    struct ntp_header
+    {
+        uint8_t mode:3,
+        version:3,
+        leapIndicator:2;
+        uint8_t stratum;
+        int8_t pollInterval,
+        precision;
+        uint32_t rootDelay,
+        rootDispersion,
+        referenceIdentifier;
+        uint64_t referenceTimestamp,
+        originateTimestamp,
+        receiveTimestamp,
+        transmitTimestamp;
+    };
     #pragma pack(pop)
 
     #pragma pack(push,1)
-        struct ntp_v3_auth
-        {
-            uint32_t keyID;
-            uint8_t dgst[8]; // 64 bit DES based
-        };
+    struct ntp_v3_auth
+    {
+        uint32_t keyID;
+        uint8_t dgst[8]; // 64 bit DES based
+    };
     #pragma pack(pop)
 
     #pragma pack(push,1)
-        struct ntp_v4_auth
-        {
-            uint32_t keyID;
-            uint8_t dgst[16]; // MD5 hash
-        };
+    struct ntp_v4_auth
+    {
+        uint32_t keyID;
+        uint8_t dgst[16]; // MD5 hash
+    };
     #pragma pack(pop)
 
     enum NTPLeapIndicator
@@ -125,11 +125,9 @@ namespace pcpp
     class NtpLayer : public Layer
     {
     private:
-
         std::string convertToHex(uint8_t *dgst, int len) const;
 
     public:
-
         /**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data (will be casted to @ref ntphdr)
@@ -137,7 +135,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-        NtpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = NTP; }
+        NtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = NTP; }
 
         /**
          * Empty c'tor
@@ -438,26 +436,25 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data is identified as NTP message
 		 */
-        static bool isDataValid(const uint8_t* data, size_t dataSize);
+        static bool isDataValid(const uint8_t *data, size_t dataSize);
 
         /**
 		 * A static method that checks whether the port is considered as NTP
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isNTPPort(uint16_t port) { return port == 123; }
+        static bool isNTPPort(uint16_t port) { return port == 123; }
 
         // overridden methods
 
-		void parseNextLayer() {}
+        void parseNextLayer() {}
 
-		size_t getHeaderLen() const { return m_DataLen; }
+        size_t getHeaderLen() const { return m_DataLen; }
 
-		void computeCalculateFields() {}
+        void computeCalculateFields() {}
 
         OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
         std::string toString() const;
-
     };
 
 } // namespace pcpp

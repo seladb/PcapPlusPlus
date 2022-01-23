@@ -57,7 +57,7 @@ PTF_TEST_CASE(NtpParsingV3Tests)
 
 PTF_TEST_CASE(NtpParsingV4Tests)
 {
-    
+
     timeval time;
     gettimeofday(&time, NULL);
 
@@ -117,7 +117,7 @@ PTF_TEST_CASE(NtpCraftingTests)
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
 
-    pcpp::Packet ntpPacket(&rawPacket1);    
+    pcpp::Packet ntpPacket(&rawPacket1);
     pcpp::Packet craftedPacket;
 
     pcpp::EthLayer ethLayer(*ntpPacket.getLayerOfType<pcpp::EthLayer>());
@@ -149,6 +149,6 @@ PTF_TEST_CASE(NtpCraftingTests)
     craftedPacket.addLayer(&ntpLayer);
 
     PTF_ASSERT_EQUAL(bufferLength1, craftedPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(buffer1, craftedPacket.getRawPacket()->getRawData(), bufferLength1);
+    PTF_ASSERT_BUF_COMPARE(buffer1, craftedPacket.getRawPacket()->getRawData(), bufferLength1);
 
 } // NtpCraftingTests

@@ -42,7 +42,7 @@ namespace pcpp
 
     void NtpLayer::setLeapIndicator(NTPLeapIndicator val)
     {
-        ((ntp_header*)m_Data)->leapIndicator = val;
+        ((ntp_header *)m_Data)->leapIndicator = val;
     }
 
     uint8_t NtpLayer::getVersion() const
@@ -52,7 +52,7 @@ namespace pcpp
 
     void NtpLayer::setVersion(uint8_t val)
     {
-        ((ntp_header*)m_Data)->version = val;
+        ((ntp_header *)m_Data)->version = val;
     }
 
     NTPMode NtpLayer::getMode() const
@@ -62,7 +62,7 @@ namespace pcpp
 
     void NtpLayer::setMode(NTPMode val)
     {
-        ((ntp_header*)m_Data)->mode = val;
+        ((ntp_header *)m_Data)->mode = val;
     }
 
     uint8_t NtpLayer::getStratum() const
@@ -72,7 +72,7 @@ namespace pcpp
 
     void NtpLayer::setStratum(uint8_t val)
     {
-        ((ntp_header*)m_Data)->stratum = val;
+        ((ntp_header *)m_Data)->stratum = val;
     }
 
     int8_t NtpLayer::getPollInterval() const
@@ -82,7 +82,7 @@ namespace pcpp
 
     void NtpLayer::setPollInterval(int8_t val)
     {
-        ((ntp_header*)m_Data)->pollInterval = val;
+        ((ntp_header *)m_Data)->pollInterval = val;
     }
 
     double NtpLayer::getPollIntervalInSecs() const
@@ -97,7 +97,7 @@ namespace pcpp
 
     void NtpLayer::setPrecision(int8_t val)
     {
-        ((ntp_header*)m_Data)->precision = val;
+        ((ntp_header *)m_Data)->precision = val;
     }
 
     double NtpLayer::getPrecisionInSecs() const
@@ -112,7 +112,7 @@ namespace pcpp
 
     void NtpLayer::setRootDelay(uint32_t val)
     {
-        ((ntp_header*)m_Data)->rootDelay = val;
+        ((ntp_header *)m_Data)->rootDelay = val;
     }
 
     double NtpLayer::getRootDelayInSecs() const
@@ -122,7 +122,7 @@ namespace pcpp
 
     void NtpLayer::setRootDelayInSecs(double val)
     {
-        ((ntp_header*)m_Data)->rootDelay = convertToShortFormat(val);
+        ((ntp_header *)m_Data)->rootDelay = convertToShortFormat(val);
     }
 
     uint32_t NtpLayer::getRootDispersion() const
@@ -132,7 +132,7 @@ namespace pcpp
 
     void NtpLayer::setRootDispersion(uint32_t val)
     {
-        ((ntp_header*)m_Data)->rootDispersion = val;
+        ((ntp_header *)m_Data)->rootDispersion = val;
     }
 
     double NtpLayer::getRootDispersionInSecs() const
@@ -142,7 +142,7 @@ namespace pcpp
 
     void NtpLayer::setRootDispersionInSecs(double val)
     {
-        ((ntp_header*)m_Data)->rootDispersion = convertToShortFormat(val);
+        ((ntp_header *)m_Data)->rootDispersion = convertToShortFormat(val);
     }
 
     uint32_t NtpLayer::getReferenceIdentifier() const
@@ -152,7 +152,7 @@ namespace pcpp
 
     void NtpLayer::setReferenceIdentifier(uint32_t val)
     {
-        ((ntp_header*)m_Data)->referenceIdentifier = val;
+        ((ntp_header *)m_Data)->referenceIdentifier = val;
     }
 
     std::string NtpLayer::getReferenceIdentifierString() const
@@ -279,7 +279,7 @@ namespace pcpp
 
     void NtpLayer::setReferenceTimestamp(uint64_t val)
     {
-        ((ntp_header*)m_Data)->referenceTimestamp = val;
+        ((ntp_header *)m_Data)->referenceTimestamp = val;
     }
 
     double NtpLayer::getReferenceTimestampInSecs() const
@@ -289,7 +289,7 @@ namespace pcpp
 
     void NtpLayer::setReferenceTimestampInSecs(double val)
     {
-        ((ntp_header*)m_Data)->referenceTimestamp = convertToTimestampFormat(val);
+        ((ntp_header *)m_Data)->referenceTimestamp = convertToTimestampFormat(val);
     }
 
     uint64_t NtpLayer::getOriginateTimestamp() const
@@ -299,7 +299,7 @@ namespace pcpp
 
     void NtpLayer::setOriginateTimestamp(uint64_t val)
     {
-        ((ntp_header*)m_Data)->originateTimestamp = val;
+        ((ntp_header *)m_Data)->originateTimestamp = val;
     }
 
     double NtpLayer::getOriginateTimestampInSecs() const
@@ -309,7 +309,7 @@ namespace pcpp
 
     void NtpLayer::setOriginateTimestampInSecs(double val)
     {
-        ((ntp_header*)m_Data)->originateTimestamp = convertToTimestampFormat(val);
+        ((ntp_header *)m_Data)->originateTimestamp = convertToTimestampFormat(val);
     }
 
     uint64_t NtpLayer::getReceiveTimestamp() const
@@ -319,7 +319,7 @@ namespace pcpp
 
     void NtpLayer::setReceiveTimestamp(uint64_t val)
     {
-        ((ntp_header*)m_Data)->receiveTimestamp = val;
+        ((ntp_header *)m_Data)->receiveTimestamp = val;
     }
 
     double NtpLayer::getReceiveTimestampInSecs() const
@@ -329,7 +329,7 @@ namespace pcpp
 
     void NtpLayer::setReceiveTimestampInSecs(double val)
     {
-        ((ntp_header*)m_Data)->receiveTimestamp = convertToTimestampFormat(val);
+        ((ntp_header *)m_Data)->receiveTimestamp = convertToTimestampFormat(val);
     }
 
     uint64_t NtpLayer::getTransmitTimestamp() const
@@ -339,7 +339,7 @@ namespace pcpp
 
     void NtpLayer::setTransmitTimestamp(uint64_t val)
     {
-        ((ntp_header*)m_Data)->transmitTimestamp = val;
+        ((ntp_header *)m_Data)->transmitTimestamp = val;
     }
 
     double NtpLayer::getTransmitTimestampInSecs() const
@@ -349,7 +349,7 @@ namespace pcpp
 
     void NtpLayer::setTransmitTimestampInSecs(double val)
     {
-        ((ntp_header*)m_Data)->transmitTimestamp = convertToTimestampFormat(val);
+        ((ntp_header *)m_Data)->transmitTimestamp = convertToTimestampFormat(val);
     }
 
     uint32_t NtpLayer::getKeyID() const
