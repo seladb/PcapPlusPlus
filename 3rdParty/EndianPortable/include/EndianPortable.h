@@ -67,6 +67,10 @@
 #elif defined(WIN32) || defined(WINx64)
 #include <winsock2.h>
  #if(BYTE_ORDER == LITTLE_ENDIAN)
+ #if defined(PCAPPP_MINGW_ENV)
+  #define htonll(x) ((1==htonl(1)) ? (x) : (((uint64_t)htonl((x) & 0xFFFFFFFFUL)) << 32) | htonl((uint32_t)((x) >> 32)))
+  #define ntohll(x) ((1==ntohl(1)) ? (x) : (((uint64_t)ntohl((x) & 0xFFFFFFFFUL)) << 32) | ntohl((uint32_t)((x) >> 32)))
+ #endif
   #define htobe16(x) htons(x)
   #define htole16(x) (x)
   #define be16toh(x) ntohs(x)
