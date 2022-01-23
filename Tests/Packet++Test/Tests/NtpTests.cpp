@@ -11,10 +11,8 @@
 PTF_TEST_CASE(NtpMethodsTests)
 {
 
-    double val = rand() + rand() / RAND_MAX;
+    double val = 12345.125;
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromTimestampFormat(pcpp::NtpLayer::convertToTimestampFormat(val)), val);
-    while (val > UINT16_MAX)
-        val -= UINT16_MAX;
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromShortFormat(pcpp::NtpLayer::convertToShortFormat(val)), val);
 
     // First check the epoch is correct
