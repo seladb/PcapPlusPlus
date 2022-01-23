@@ -461,18 +461,22 @@ namespace pcpp
     {
         char buffer[50], bufferFraction[15];
         double integerPart, fractionPart;
-        struct tm timer;
+        struct tm *timer;
         time_t timeStruct;
 
         fractionPart = modf(timestamp, &integerPart);
 
         timeStruct = integerPart;
-        #if __cplusplus > 199711L && !defined(WIN32)
-        gmtime_r(&timeStruct, &timer);
-        #else
+#if __cplusplus > 199711L && !defined(WIN32)
+        struct tm timer_r;
+        timer = gmtime_r(&timeStruct, &timer_r);
+
+        if (timer != NULL)
+            timer = &timer_r;
+#else
         timer = gmtime(&timeStruct);
-        #endif
-        strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", &timer);
+#endif
+        strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", timer);
 
         snprintf(bufferFraction, sizeof(bufferFraction), "%.09fZ", abs(fractionPart));
         strncat(buffer, &bufferFraction[1], sizeof(bufferFraction));
