@@ -62,7 +62,6 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     gettimeofday(&time, NULL);
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
-    READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv4Ipv6_withAuth.dat");
 
     // Test Ipv4
     pcpp::Packet ntpPacket(&rawPacket1);
@@ -85,6 +84,8 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), be64toh(0xd94f51f42d26e2f4));
 
     // Test Ipv6
+    READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv4Ipv6_withAuth.dat");
+
     ntpPacket = pcpp::Packet(&rawPacket2);
     ntpLayer = ntpPacket.getLayerOfType<pcpp::NtpLayer>();
 
@@ -111,40 +112,43 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 PTF_TEST_CASE(NtpCraftingTests)
 {
 
-    pcpp::NtpLayer *ntpLayer = new pcpp::NtpLayer();
+    timeval time;
+    gettimeofday(&time, NULL);
 
-    PTF_ASSERT_NOT_NULL(ntpLayer);
+    READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
+
+    pcpp::Packet ntpPacket(&rawPacket1);    
+    pcpp::Packet craftedPacket;
+
+    pcpp::EthLayer ethLayer(*ntpPacket.getLayerOfType<pcpp::EthLayer>());
+    PTF_ASSERT_TRUE(craftedPacket.addLayer(&ethLayer));
+
+    pcpp::IPv4Layer ipv4Layer(*ntpPacket.getLayerOfType<pcpp::IPv4Layer>());
+    PTF_ASSERT_TRUE(craftedPacket.addLayer(&ipv4Layer));
+
+    pcpp::UdpLayer udpLayer(*ntpPacket.getLayerOfType<pcpp::UdpLayer>());
+    PTF_ASSERT_TRUE(craftedPacket.addLayer(&udpLayer));
+
+    pcpp::NtpLayer ntpLayer;
 
     // Set the values
-    ntpLayer->setVersion(4);
-    ntpLayer->setLeapIndicator(pcpp::Last61Secs);
-    ntpLayer->setMode(pcpp::Broadcast);
-    ntpLayer->setStratum(1);
-    ntpLayer->setPollInterval(3);
-    ntpLayer->setPrecision(-5);
-    ntpLayer->setRootDelayInSecs(3.25);
-    ntpLayer->setRootDispersionInSecs(0.125);
-    ntpLayer->setReferenceIdentifier(pcpp::GPS);
-    ntpLayer->setReferenceTimestampInSecs(5);
-    ntpLayer->setOriginateTimestampInSecs(5);
-    ntpLayer->setReceiveTimestampInSecs(5);
-    ntpLayer->setTransmitTimestampInSecs(5);
+    ntpLayer.setVersion(4);
+    ntpLayer.setLeapIndicator(pcpp::NoWarning);
+    ntpLayer.setMode(pcpp::Client);
+    ntpLayer.setStratum(2);
+    ntpLayer.setPollInterval(7);
+    ntpLayer.setPrecision(int8_t(0xeb));
+    ntpLayer.setRootDelay(be32toh(0x450));
+    ntpLayer.setRootDispersion(be32toh(0x3ab));
+    ntpLayer.setReferenceIdentifier(be32toh(0x83bc03df));
+    ntpLayer.setReferenceTimestamp(be64toh(0xd94f51c33165b860));
+    ntpLayer.setOriginateTimestamp(be64toh(0xd944575530336fd0));
+    ntpLayer.setReceiveTimestamp(be64toh(0xd944575531b4e978));
+    ntpLayer.setTransmitTimestamp(be64toh(0xd94f51f42d26e2f4));
 
-    PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 4);
-    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::Last61Secs);
-    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Broadcast);
-    PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 1);
-    PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 3);
-    PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(-5));
-    PTF_ASSERT_EQUAL(ntpLayer->getRootDelayInSecs(), 3.25);
-    PTF_ASSERT_EQUAL(ntpLayer->getRootDispersionInSecs(), 0.125);
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), pcpp::GPS);
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "Global Position System");
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampInSecs(), 5);
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginateTimestampInSecs(), 5);
-    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampInSecs(), 5);
-    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampInSecs(), 5);
+    craftedPacket.addLayer(&ntpLayer);
 
-    delete ntpLayer;
+    PTF_ASSERT_EQUAL(bufferLength1, craftedPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(buffer1, craftedPacket.getRawPacket()->getRawData(), bufferLength1);
 
 } // NtpCraftingTests
