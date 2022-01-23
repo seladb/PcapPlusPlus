@@ -11,6 +11,7 @@
 PTF_TEST_CASE(NtpMethodsTests)
 {
 
+    std::cout << "NTP Test started" << std::endl;
     double val = 12345.125;
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromTimestampFormat(pcpp::NtpLayer::convertToTimestampFormat(val)), val);
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromShortFormat(pcpp::NtpLayer::convertToShortFormat(val)), val);
