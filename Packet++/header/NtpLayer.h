@@ -1,14 +1,8 @@
 #ifndef PACKETPP_NTP_LAYER
 #define PACKETPP_NTP_LAYER
 
+#include "IPv4Layer.h"
 #include "Layer.h"
-
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-#include <ws2tcpip.h>
-#else
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#endif
 
 #include "SystemUtils.h"
 
@@ -31,7 +25,6 @@
  */
 namespace pcpp
 {
-
     #pragma pack(push,1)
     struct ntp_header
     {

@@ -259,13 +259,9 @@ namespace pcpp
         else if (stratum > 1)
         {
             // FIXME: Support IPv6 cases for NTPv4, it equals to MD5 hash of first four octets of IPv6 address
-            char buffer[INET_ADDRSTRLEN] = {'\0'};
-            struct in_addr addr;
-            addr.s_addr = getReferenceIdentifier();
 
-            inet_ntop(AF_INET, &addr, buffer, INET_ADDRSTRLEN);
-
-            return std::string(buffer);
+            pcpp::IPv4Address addr(getReferenceIdentifier());
+            return std::string(addr.toString());
         }
 
         LOG_ERROR("Unknown Stratum type");
