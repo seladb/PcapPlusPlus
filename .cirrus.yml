@@ -3,7 +3,8 @@ task:
   freebsd_instance:
     matrix:
       image_family: freebsd-11-4
-      image_family: freebsd-12-2
+      image_family: freebsd-12-3
+      image_family: freebsd-13-0
   update_script: IGNORE_OSVERSION=yes pkg update -f
   install_script: 
     - pkg install -y libpcap bash gsed gmake
