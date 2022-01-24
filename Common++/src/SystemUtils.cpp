@@ -1,6 +1,6 @@
 #include "SystemUtils.h"
 #include "EndianPortable.h"
-#if !defined(WIN32) && !defined(WINx64)
+#if !defined(_WIN32)
 #include <pthread.h>
 #endif
 #ifndef _MSC_VER
@@ -16,13 +16,13 @@
 #include <mach/mach.h>
 #endif
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 #define POPEN _popen
 #else
 #define POPEN popen
 #endif
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 #define PCLOSE _pclose
 #else
 #define PCLOSE pclose
@@ -124,7 +124,7 @@ const SystemCore SystemCores::IdToSystemCore[MAX_NUM_OF_CORES] =
 
 int getNumOfCores()
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo( &sysinfo );
 	return sysinfo.dwNumberOfProcessors;
@@ -216,7 +216,7 @@ int clockGetTime(long& sec, long& nsec)
 	sec = 0;
 	nsec = 0;
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 
 #define CLOCK_GETTIME_BILLION (1E9)
 
@@ -275,7 +275,7 @@ int clockGetTime(long& sec, long& nsec)
 
 void multiPlatformSleep(uint32_t seconds)
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 	Sleep(seconds*1000);
 #else
 	sleep(seconds);
@@ -305,7 +305,7 @@ uint32_t netToHost32(uint32_t net)
 
 std::string AppName::m_AppName;
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 int ApplicationEventHandler::handlerRoutine(unsigned long fdwCtrlType)
 {
 	switch (fdwCtrlType)
@@ -358,7 +358,7 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 ApplicationEventHandler::ApplicationEventHandler() :
 		 m_ApplicationInterruptedHandler(NULL), m_ApplicationInterruptedCookie(NULL)
 {
-#if !defined(WIN32) && !defined(WINx64)
+#if !defined(_WIN32)
 	pthread_mutex_init(&UnixLinuxHandlerRoutineMutex, 0);
 #endif
 }
@@ -368,7 +368,7 @@ void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback hand
 	m_ApplicationInterruptedHandler = handler;
 	m_ApplicationInterruptedCookie = cookie;
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE)handlerRoutine, TRUE);
 #else
 	struct sigaction action;

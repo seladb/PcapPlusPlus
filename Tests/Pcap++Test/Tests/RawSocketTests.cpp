@@ -14,7 +14,7 @@ PTF_TEST_CASE(TestRawSockets)
 	PTF_ASSERT_TRUE(ipAddr.isValid());
 	pcpp::RawSocketDevice rawSock(ipAddr);
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 	pcpp::ProtocolType protocol = (ipAddr.getType() == pcpp::IPAddress::IPv4AddressType ? pcpp::IPv4 : pcpp::IPv6);
 	bool sendSupported = false;
 #elif LINUX

@@ -1,4 +1,4 @@
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
@@ -220,4 +220,4 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 
 } // namespace pcpp
 
-#endif // WIN32 || WINx64
+#endif // _WIN32

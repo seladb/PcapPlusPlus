@@ -11,7 +11,7 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 bool sendURLRequest(std::string url)
 {
-#if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
+#if defined(_WIN32)
 	std::string cmd = "cUrl\\curl_win32.exe -s -o cUrl\\curl_output.txt";
 #elif LINUX
 	std::string cmd = "cUrl/curl.linux32 -s -o cUrl/curl_output.txt";
