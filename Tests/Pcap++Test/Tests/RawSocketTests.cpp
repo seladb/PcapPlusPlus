@@ -14,7 +14,7 @@ PTF_TEST_CASE(TestRawSockets)
 	PTF_ASSERT_TRUE(ipAddr.isValid());
 	pcpp::RawSocketDevice rawSock(ipAddr);
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 	pcpp::ProtocolType protocol = (ipAddr.getType() == pcpp::IPAddress::IPv4AddressType ? pcpp::IPv4 : pcpp::IPv6);
 	bool sendSupported = false;
 #elif LINUX
@@ -59,7 +59,7 @@ PTF_TEST_CASE(TestRawSockets)
 			break;
 		}
 	}
-	
+
 	PTF_ASSERT_GREATER_THAN(packetVec.size(), 0);
 	for (pcpp::RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
 	{
@@ -78,7 +78,6 @@ PTF_TEST_CASE(TestRawSockets)
 			PTF_PRINT_VERBOSE("Total time until got RecvTimeout: " << i);
 			break;
 		}
-			
 	}
 	PTF_NON_CRITICAL_EQUAL(res, pcpp::RawSocketDevice::RecvTimeout, enum);
 

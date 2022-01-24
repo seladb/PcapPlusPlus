@@ -21,7 +21,7 @@ namespace pcpp
 
 #define RAW_SOCKET_BUFFER_LEN 65536
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 #ifndef SIO_RCVALL
 /* SIO_RCVALL defined on w2k and later. Not defined in Mingw32 */
@@ -56,11 +56,11 @@ public:
 
 bool WinSockInitializer::m_IsInitialized = false;
 
-#endif // defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#endif // defined(WIN32) || defined(WINx64)
 
 struct SocketContainer
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 	SOCKET fd;
 #elif LINUX
 	int fd;
@@ -71,7 +71,7 @@ struct SocketContainer
 
 RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_Socket(NULL)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 	WinSockInitializer::initialize();
 	m_InterfaceIP = interfaceIP;
@@ -85,7 +85,7 @@ RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_So
 #else
 
 	m_SockFamily = Ethernet;
-	
+
 #endif
 }
 
@@ -97,7 +97,7 @@ RawSocketDevice::~RawSocketDevice()
 
 RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking, int timeout)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 	if (!isOpened())
 	{
@@ -252,7 +252,7 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int
 
 bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 	LOG_ERROR("Sending packets with raw socket are not supported on Windows");
 	return 0;
@@ -303,7 +303,7 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 
 int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 	LOG_ERROR("Sending packets with raw socket are not supported on Windows");
 	return false;
@@ -362,7 +362,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 
 bool RawSocketDevice::open()
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 	if (!m_InterfaceIP.isValid())
 	{
@@ -510,7 +510,7 @@ bool RawSocketDevice::open()
 	{
 		LOG_ERROR("Cannot bind raw socket to interface '" << ifaceName << "'");
 		::close(fd);
-		return false;		
+		return false;
 	}
 
 	m_Socket = new SocketContainer(); // lgtm [cpp/resource-not-released-in-destructor]
@@ -536,7 +536,7 @@ void RawSocketDevice::close()
 	if (m_Socket != NULL && isOpened())
 	{
 		SocketContainer* sockContainer = (SocketContainer*)m_Socket;
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 		closesocket(sockContainer->fd);
 #elif LINUX
 		::close(sockContainer->fd);
@@ -549,7 +549,7 @@ void RawSocketDevice::close()
 
 RawSocketDevice::RecvPacketResult RawSocketDevice::getError(int& errorCode) const
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 	errorCode = WSAGetLastError();
 	if (errorCode == WSAEWOULDBLOCK)
 		return RecvWouldBlock;

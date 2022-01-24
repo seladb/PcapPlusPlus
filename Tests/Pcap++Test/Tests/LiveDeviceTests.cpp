@@ -13,7 +13,7 @@
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 #include <windows.h>
 #endif
 
@@ -90,7 +90,7 @@ static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcp
 	return rawPacket->getRawDataLen() > snaplen;
 }
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 class RpcapdServerInitializer
 {
@@ -144,11 +144,7 @@ public:
 	HANDLE getHandle() { return m_ProcessHandle; }
 };
 
-#endif // defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
-
-
-
-
+#endif // defined(WIN32) || defined(WINx64)
 
 PTF_TEST_CASE(TestPcapLiveDeviceList)
 {
@@ -183,7 +179,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	PTF_ASSERT_NOT_NULL(clonedDevList);
 
 	std::vector<pcpp::PcapLiveDevice*> clonedDevListVector = clonedDevList->getPcapLiveDevicesList();
-	PTF_ASSERT_EQUAL(clonedDevListVector.size(), devList.size());	
+	PTF_ASSERT_EQUAL(clonedDevListVector.size(), devList.size());
 
 	std::vector<pcpp::PcapLiveDevice*>::iterator iterCloned = clonedDevListVector.begin();
 	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++, iterCloned++)
@@ -242,7 +238,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	}
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
-	
+
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 	PTF_ASSERT_GREATER_THAN(numOfTimeStatsWereInvoked, totalSleepTime*0.8);
@@ -284,7 +280,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	}
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
-	
+
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 	PTF_ASSERT_GREATER_THAN(numOfTimeStatsWereInvoked, totalSleepTime*0.8);
@@ -359,7 +355,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	}
 
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
-	
+
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-1);
 	pcpp::IPcapDevice::PcapStats statistics;
@@ -536,7 +532,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 PTF_TEST_CASE(TestWinPcapLiveDevice)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
@@ -710,7 +706,7 @@ PTF_TEST_CASE(TestMtuSize)
 	pcpp::RawPacket &rawSmallPacketRef = *rawSmallPacketPtr;
 	PTF_ASSERT_TRUE(liveDev->sendPacket(rawSmallPacketRef, true));
 	PTF_ASSERT_TRUE(liveDev->sendPacket(rawSmallPacketPtr->getRawData(), rawSmallPacketPtr->getRawDataLen(), true, pcpp::LINKTYPE_ETHERNET));
-	
+
 	delete[] smallData;
 
 	// Construct a packet larger than the MTU and assert that it doesn't send
@@ -731,7 +727,7 @@ PTF_TEST_CASE(TestMtuSize)
 	memset(largeData, 0xFF, largeDataLen);
 	pcpp::PayloadLayer largePayload(largeData, largeDataLen, false);
 	largePacket.addLayer(&largePayload);
-	
+
 	// Check the size of the large Packet
 	PTF_PRINT_VERBOSE("Large packet: " << largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen());
 	PTF_ASSERT_EQUAL(largePacket.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), (size_t)(liveDev->getMtu() + 1), ptr);
@@ -753,7 +749,7 @@ PTF_TEST_CASE(TestMtuSize)
 
 PTF_TEST_CASE(TestRemoteCapture)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 	bool useRemoteDevicesFromArgs = (PcapTestGlobalArgs.remoteIp != "") && (PcapTestGlobalArgs.remotePort > 0);
 	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);
