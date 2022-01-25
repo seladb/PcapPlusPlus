@@ -53,7 +53,7 @@ namespace pcpp
 
 		uint32_t in_addr2int(in_addr inAddr)
 		{
-		#ifdef WIN32
+		#ifdef _WIN32
 			return inAddr.S_un.S_addr;
 		#else
 			return inAddr.s_addr;
