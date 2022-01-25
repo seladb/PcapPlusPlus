@@ -50,9 +50,9 @@ void PcapLiveDeviceList::init()
 	pcap_if_t* currInterface = interfaceList;
 	while (currInterface != NULL)
 	{
-#ifdef WIN32
+#if defined(_WIN32)
 		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true, true, true);
-#else //LINUX, MAC_OSX
+#else //__linux__, MAC_OSX
 		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true, true, true);
 #endif
 		currInterface = currInterface->next;
@@ -102,7 +102,7 @@ void PcapLiveDeviceList::setDnsServers()
 	}
 
 	delete[] buf2;
-#elif LINUX
+#elif defined(__linux__)
 	// verify that nmcli exist
 	std::string command = "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";
 	std::string nmcliExists = executeShellCommand(command);

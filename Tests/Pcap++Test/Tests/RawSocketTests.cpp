@@ -17,7 +17,7 @@ PTF_TEST_CASE(TestRawSockets)
 #if defined(_WIN32)
 	pcpp::ProtocolType protocol = (ipAddr.getType() == pcpp::IPAddress::IPv4AddressType ? pcpp::IPv4 : pcpp::IPv6);
 	bool sendSupported = false;
-#elif LINUX
+#elif defined(__linux__)
 	pcpp::ProtocolType protocol = pcpp::Ethernet;
 	bool sendSupported = true;
 #else

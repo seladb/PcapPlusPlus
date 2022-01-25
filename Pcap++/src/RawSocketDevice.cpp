@@ -1,6 +1,6 @@
 #include "RawSocketDevice.h"
 #include "EndianPortable.h"
-#ifdef LINUX
+#ifdef __linux__
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
@@ -62,7 +62,7 @@ struct SocketContainer
 {
 #if defined(_WIN32)
 	SOCKET fd;
-#elif LINUX
+#elif defined(__linux__)
 	int fd;
 	int interfaceIndex;
 	std::string interfaceName;
@@ -77,7 +77,7 @@ RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_So
 	m_InterfaceIP = interfaceIP;
 	m_SockFamily = (m_InterfaceIP.getType() == IPAddress::IPv4AddressType ? IPv4 : IPv6);
 
-#elif LINUX
+#elif defined(__linux__)
 
 	m_InterfaceIP = interfaceIP;
 	m_SockFamily = Ethernet;
@@ -145,7 +145,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	delete [] buffer;
 	return RecvError;
 
-#elif LINUX
+#elif defined(__linux__)
 
 	if (!isOpened())
 	{
@@ -257,7 +257,7 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 	LOG_ERROR("Sending packets with raw socket are not supported on Windows");
 	return 0;
 
-#elif LINUX
+#elif defined(__linux__)
 
 	if (!isOpened())
 	{
@@ -308,7 +308,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 	LOG_ERROR("Sending packets with raw socket are not supported on Windows");
 	return false;
 
-#elif LINUX
+#elif defined(__linux__)
 
 	if (!isOpened())
 	{
@@ -440,7 +440,7 @@ bool RawSocketDevice::open()
 
 	return true;
 
-#elif LINUX
+#elif defined(__linux__)
 
 #if defined(ANDROID_API_VERSION) && ANDROID_API_VERSION < 24
 	LOG_ERROR("Raw sockets aren't supported in Android API < 24");
@@ -538,7 +538,7 @@ void RawSocketDevice::close()
 		SocketContainer* sockContainer = (SocketContainer*)m_Socket;
 #if defined(_WIN32)
 		closesocket(sockContainer->fd);
-#elif LINUX
+#elif defined(__linux__)
 		::close(sockContainer->fd);
 #endif
 		delete sockContainer;
@@ -557,7 +557,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::getError(int& errorCode) cons
 		return RecvTimeout;
 
 	return RecvError;
-#elif LINUX
+#elif defined(__linux__)
 	if ((errorCode == EAGAIN) || (errorCode == EWOULDBLOCK))
 		return RecvWouldBlock;
 

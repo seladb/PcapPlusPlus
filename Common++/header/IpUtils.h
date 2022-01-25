@@ -2,7 +2,7 @@
 #define PCAPPP_IP_UTILS
 
 #include <stdint.h>
-#ifdef LINUX
+#ifdef __linux__
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif

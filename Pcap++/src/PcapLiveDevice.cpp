@@ -830,7 +830,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	{
 		LOG_DEBUG("Error in retrieving MAC address: PacketRequest failed");
 	}
-#elif LINUX
+#elif defined(__linux__)
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
@@ -914,7 +914,7 @@ void PcapLiveDevice::setDefaultGateway()
 
 	delete[] buffer;
 	delete[] buffer2;
-#elif LINUX
+#elif defined(__linux__)
 	std::ifstream routeFile("/proc/net/route");
 	std::string line;
 	while (std::getline(routeFile, line))
