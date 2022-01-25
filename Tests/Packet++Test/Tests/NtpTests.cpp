@@ -16,7 +16,7 @@ PTF_TEST_CASE(NtpMethodsTests)
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromShortFormat(pcpp::NtpLayer::convertToShortFormat(val)), val);
 
     // First check the epoch is correct
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(0.0), std::string("1970-01-01T00:00:00.000000000Z"));
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(uint64_t(0)), std::string("1970-01-01T00:00:00.000000000Z"));
 #else
@@ -45,6 +45,7 @@ PTF_TEST_CASE(NtpParsingV3Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 3);
     PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NoWarning);
     PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Server);
+    PTF_ASSERT_EQUAL(ntpLayer->getModeString(), "Server");
     PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 4);
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(-6));
@@ -53,9 +54,10 @@ PTF_TEST_CASE(NtpParsingV3Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getRootDispersion(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), 0);
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginateTimestamp(), 0);
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestamp(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), be64toh(0xd94f4f1100000000));
     PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), be64toh(0xd94f4f1100000000));
+    PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v3, Mode: Server");
 
 } // NtpParsingV3Tests
 
@@ -75,6 +77,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 4);
     PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NoWarning);
     PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Client);
+    PTF_ASSERT_EQUAL(ntpLayer->getModeString(), "Client");
     PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 2);
     PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 7);
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xeb));
@@ -83,9 +86,10 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), be32toh(0x83bc03df));
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "131.188.3.223");
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), be64toh(0xd94f51c33165b860));
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginateTimestamp(), be64toh(0xd944575530336fd0));
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestamp(), be64toh(0xd944575530336fd0));
     PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), be64toh(0xd944575531b4e978));
     PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), be64toh(0xd94f51f42d26e2f4));
+    PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v4, Mode: Client");
 
     // Test Ipv6
     READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv4Ipv6_withAuth.dat");
@@ -97,6 +101,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 4);
     PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NoWarning);
     PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Client);
+    PTF_ASSERT_EQUAL(ntpLayer->getModeString(), "Client");
     PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 2);
     PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 6);
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xe8));
@@ -105,11 +110,12 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), be32toh(0xb6a580db));
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "182.165.128.219");
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), be64toh(0xdcd2a7d77a05d46a));
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginateTimestamp(), 0);
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestamp(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), be64toh(0xdcd2aa817b9f9bdc));
     PTF_ASSERT_EQUAL(ntpLayer->getKeyID(), be32toh(1));
-    PTF_ASSERT_EQUAL(ntpLayer->getDigest(), "0xac017b69915ce5a7a9fb73ac8bd1603b");
+    PTF_ASSERT_EQUAL(ntpLayer->getDigest(), "ac017b69915ce5a7a9fb73ac8bd1603b");
+    PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v4, Mode: Client");
 
 } // NtpParsingV4Tests
 
@@ -146,7 +152,7 @@ PTF_TEST_CASE(NtpCraftingTests)
     ntpLayer.setRootDispersion(be32toh(0x3ab));
     ntpLayer.setReferenceIdentifier(be32toh(0x83bc03df));
     ntpLayer.setReferenceTimestamp(be64toh(0xd94f51c33165b860));
-    ntpLayer.setOriginateTimestamp(be64toh(0xd944575530336fd0));
+    ntpLayer.setOriginTimestamp(be64toh(0xd944575530336fd0));
     ntpLayer.setReceiveTimestamp(be64toh(0xd944575531b4e978));
     ntpLayer.setTransmitTimestamp(be64toh(0xd94f51f42d26e2f4));
 

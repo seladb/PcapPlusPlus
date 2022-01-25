@@ -4,6 +4,7 @@
 #include "IPv4Layer.h"
 #include "Layer.h"
 
+#include "GeneralUtils.h"
 #include "SystemUtils.h"
 
 #include <math.h>
@@ -25,12 +26,72 @@
  */
 namespace pcpp
 {
-    #pragma pack(push,1)
+    /**
+     * @brief The NTP packet header consists of an integral number of 32-bit (4 octet) words in network byte order. 
+     * The packet format consists of three components: the header itself, one or more optional extension fields, 
+     * and an optional message authentication code (MAC). The NTP header is:
+     * 
+     * @verbatim 
+     *   0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |LI | VN  |Mode |    Stratum     |     Poll      |  Precision   |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                         Root Delay                            |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                         Root Dispersion                       |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                          Reference ID                         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      +                     Reference Timestamp (64)                  +
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      +                      Origin Timestamp (64)                    +
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      +                      Receive Timestamp (64)                   +
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      +                      Transmit Timestamp (64)                  +
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      .                                                               .
+      .                Extension Field 1 (variable, only v4)          .
+      .                                                               .
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      .                                                               .
+      .                Extension Field 1 (variable, only v4)          .
+      .                                                               .
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                          Key Identifier                       |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      |                   dgst (128 for v4, 64 for v3)                |
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * @endverbatim
+     * 
+     */
+#pragma pack(push, 1)
     struct ntp_header
     {
+#if (BYTE_ORDER == LITTLE_ENDIAN)
         uint8_t mode:3,
         version:3,
         leapIndicator:2;
+#else
+        uint8_t leapIndicator:2,
+        version:3,
+        mode:3;
+#endif
         uint8_t stratum;
         int8_t pollInterval,
         precision;
@@ -38,36 +99,64 @@ namespace pcpp
         rootDispersion,
         referenceIdentifier;
         uint64_t referenceTimestamp,
-        originateTimestamp,
+        originTimestamp,
         receiveTimestamp,
         transmitTimestamp;
     };
-    #pragma pack(pop)
+#pragma pack(pop)
 
-    #pragma pack(push,1)
+    /**
+     * Authentication part (optional) for NTPv3 with following fields,
+     * 
+     * KeyID: An integer identifying the cryptographic key used to generate 
+     * the message-authentication code
+     * Digest: This is an integer identifying the cryptographic key used to
+     * generate the message-authentication code. 
+     * 
+     * For more information RFC-1305 Appendix C
+     */
+#pragma pack(push,1)
     struct ntp_v3_auth
     {
         uint32_t keyID;
         uint8_t dgst[8]; // 64 bit DES based
     };
-    #pragma pack(pop)
+#pragma pack(pop)
 
-    #pragma pack(push,1)
+    /**
+     * Authentication part (optional) for NTPv4 with following fields,
+     * 
+     * KeyID: 32-bit unsigned integer used by the client and server to designate 
+     * a secret 128-bit MD5 key.
+     * Digest: 128-bit MD5 hash computed over the key followed by the NTP packet 
+     * header and extensions fields (but not the Key Identifier or Message Digest
+     * fields)
+     */
+#pragma pack(push,1)
     struct ntp_v4_auth
     {
         uint32_t keyID;
-        uint8_t dgst[16]; // MD5 hash
+        uint8_t dgst[16]; // MD5 hash (SHA1 not supported for now)
     };
-    #pragma pack(pop)
+#pragma pack(pop)
 
+    /**
+    * Warning of an impending leap second to be inserted or deleted in the last minute of the current month
+    */
     enum NTPLeapIndicator
     {
         NoWarning = 0,
+        /// Last minute of the day has 61 seconds
         Last61Secs,
+        /// Last minute of the day has 59 seconds
         Last59Secs,
+        /// Unknown (clock unsynchronized)
         Unknown
     };
 
+    /**
+     * Representing the NTP association modes
+     */
     enum NTPMode
     {
         Reserved = 0,
@@ -80,34 +169,64 @@ namespace pcpp
         PrivateUse
     };
 
+    /**
+     * 32-bit code identifying the particular server or reference clock. 
+     * The interpretation depends on the value in the stratum field.
+     */
     enum NTPClockSource
     {
-        // v4
+        // NTPv4
+
+        /// Geosynchronous Orbit Environment Satellite
         GOES = ('G' << 24) | ('O' << 16) | ('E' << 8) | 'S',
+        /// Global Position System
         GPS = ('G' << 24) | ('P' << 16) | ('S' << 8),
+        /// Galileo Positioning System
         GAL = ('G' << 24) | ('A' << 16) | ('L' << 8),
+        /// Generic pulse-per-second
         PPS = ('P' << 24) | ('P' << 16) | ('S' << 8),
+        /// Inter-Range Instrumentation Group
         IRIG = ('I' << 24) | ('R' << 16) | ('I' << 8) | 'G',
+        /// LF Radio WWVB Ft. Collins, CO 60 kHz
         WWVB = ('W' << 24) | ('W' << 16) | ('V' << 8) | 'B',
+        /// LF Radio DCF77 Mainflingen, DE 77.5 kHz
         DCF = ('D' << 24) | ('C' << 16) | ('F' << 8),
+        /// LF Radio HBG Prangins, HB 75 kHz
         HBG = ('H' << 24) | ('B' << 16) | ('G' << 8),
+        /// LF Radio MSF Anthorn, UK 60 kHz
         MSF = ('M' << 24) | ('S' << 16) | ('F' << 8),
+        /// LF Radio JJY Fukushima, JP 40 kHz, Saga, JP 60 kHz
         JJY = ('J' << 24) | ('J' << 16) | ('Y' << 8),
+        /// MF Radio LORAN C station, 100 kHz
         LORC = ('L' << 24) | ('O' << 16) | ('R' << 8) | 'C',
+        /// MF Radio Allouis, FR 162 kHz
         TDF = ('T' << 24) | ('D' << 16) | ('F' << 8),
+        /// HF Radio CHU Ottawa, Ontario
         CHU = ('C' << 24) | ('H' << 16) | ('U' << 8),
+        /// HF Radio WWV Ft. Collins, CO
         WWV = ('W' << 24) | ('W' << 16) | ('V' << 8),
+        /// HF Radio WWVH Kauai, HI
         WWVH = ('W' << 24) | ('W' << 16) | ('V' << 8) | 'H',
+        /// NIST telephone modem
         NIST = ('N' << 24) | ('I' << 16) | ('S' << 8) | 'T',
+        /// NIST telephone modem
         ACTS = ('A' << 24) | ('C' << 16) | ('T' << 8) | 'S',
+        /// USNO telephone modem
         USNO = ('U' << 24) | ('S' << 16) | ('N' << 8) | 'O',
+        /// European telephone modem
         PTB = ('P' << 24) | ('T' << 16) | ('B' << 8),
 
-        // v3
+        // NTPv3
+
+        /// DCN routing protocol
         DCN = ('D' << 24) | ('C' << 16) | ('N' << 8),
+        /// TSP time protocol
         TSP = ('T' << 24) | ('S' << 16) | ('P' << 8),
+        /// Digital Time Service
         DTS = ('D' << 24) | ('T' << 16) | ('S' << 8),
+        /// Atomic clock (calibrated)
         ATOM = ('A' << 24) | ('T' << 16) | ('O' << 8) | 'M',
+        /// VLF radio (OMEGA, etc.)
         VLF = ('V' << 24) | ('L' << 16) | ('F' << 8),
 
     };
@@ -119,7 +238,7 @@ namespace pcpp
     class NtpLayer : public Layer
     {
     private:
-        std::string convertToHex(uint8_t *dgst, int len) const;
+        ntp_header* getNtpHeader() const { return (ntp_header*)m_Data; }
 
     public:
         /**
@@ -160,6 +279,11 @@ namespace pcpp
          * Get the mode value
          */
         NTPMode getMode() const;
+
+        /**
+         * Get the mode as string
+         */
+        std::string getModeString() const;
 
         /**
          * Set the mode
@@ -294,28 +418,28 @@ namespace pcpp
         void setReferenceTimestampInSecs(double val);
 
         /**
-         * Get the value of originate timestamp
+         * Get the value of origin timestamp
          * @return Value in NTP timestamp format 
          */
-        uint64_t getOriginateTimestamp() const;
+        uint64_t getOriginTimestamp() const;
 
         /**
-         * Set the value of originate timestamp
+         * Set the value of origin timestamp
          * @param[in] val Value in NTP timestamp format
          */
-        void setOriginateTimestamp(uint64_t val);
+        void setOriginTimestamp(uint64_t val);
 
         /**
-         * Get the value of originate timestamp
+         * Get the value of origin timestamp
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
-        double getOriginateTimestampInSecs() const;
+        double getOriginTimestampInSecs() const;
 
         /**
-         * Set the value of originate timestamp
+         * Set the value of origin timestamp
          * @param val Value in seconds from Unix Epoch (1 Jan 1970)
          */
-        void setOriginateTimestampInSecs(double val);
+        void setOriginTimestampInSecs(double val);
 
         /**
          * Get the value of receive timestamp

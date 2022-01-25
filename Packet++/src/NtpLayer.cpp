@@ -5,28 +5,6 @@
 
 namespace pcpp
 {
-    static char HexDigitList[] = "0123456789abcdef";
-
-    std::string NtpLayer::convertToHex(uint8_t *dgst, int len) const
-    {
-        std::string retval;
-
-        retval.append(1, '0');
-        retval.append(1, 'x');
-
-        for (int n = 1; n <= len / 4; n++)
-        {
-            uint32_t x = netToHost32(((uint32_t *)dgst)[n - 1]);
-            for (int nd = 8; nd > 0; nd--)
-            {
-                char c = HexDigitList[(x >> (nd - 1) * 4) & 0xF];
-                retval.append(1, c);
-            }
-        }
-
-        return retval;
-    }
-
     NtpLayer::NtpLayer()
     {
         m_DataLen = sizeof(ntp_header);
@@ -37,52 +15,82 @@ namespace pcpp
 
     NTPLeapIndicator NtpLayer::getLeapIndicator() const
     {
-        return static_cast<NTPLeapIndicator>(((ntp_header *)m_Data)->leapIndicator);
+        if(getNtpHeader()->leapIndicator < 4) // Since leap indicator field is 2bit
+            return static_cast<NTPLeapIndicator>(getNtpHeader()->leapIndicator);
+        return Unknown;
     }
 
     void NtpLayer::setLeapIndicator(NTPLeapIndicator val)
     {
-        ((ntp_header *)m_Data)->leapIndicator = val;
+        getNtpHeader()->leapIndicator = val;
     }
 
     uint8_t NtpLayer::getVersion() const
     {
-        return ((ntp_header *)m_Data)->version;
+        return getNtpHeader()->version;
     }
 
     void NtpLayer::setVersion(uint8_t val)
     {
-        ((ntp_header *)m_Data)->version = val;
+        getNtpHeader()->version = val;
     }
 
     NTPMode NtpLayer::getMode() const
     {
-        return static_cast<NTPMode>(((ntp_header *)m_Data)->mode);
+        if(getNtpHeader()->mode < 8) // Since mode field 3bit
+            return static_cast<NTPMode>(getNtpHeader()->mode);
+        return Reserved;
+    }
+
+    std::string NtpLayer::getModeString() const
+    {
+        switch (getMode())
+        {
+            case Reserved:
+                return "Reserved";
+            case SymActive:
+                return "Symmetrically Active";
+            case SymPassive:
+                return "Symmetrically Passive";
+            case Client:
+                return "Client";
+            case Server:
+                return "Server";
+            case Broadcast:
+                return "Broadcast";
+            case Control:
+                return "Control";
+            case PrivateUse:
+                return "Private Use";
+            default:
+                LOG_ERROR("Unknown NTP Mode");
+                return "";
+        }
     }
 
     void NtpLayer::setMode(NTPMode val)
     {
-        ((ntp_header *)m_Data)->mode = val;
+        getNtpHeader()->mode = val;
     }
 
     uint8_t NtpLayer::getStratum() const
     {
-        return ((ntp_header *)m_Data)->stratum;
+        return getNtpHeader()->stratum;
     }
 
     void NtpLayer::setStratum(uint8_t val)
     {
-        ((ntp_header *)m_Data)->stratum = val;
+        getNtpHeader()->stratum = val;
     }
 
     int8_t NtpLayer::getPollInterval() const
     {
-        return ((ntp_header *)m_Data)->pollInterval;
+        return getNtpHeader()->pollInterval;
     }
 
     void NtpLayer::setPollInterval(int8_t val)
     {
-        ((ntp_header *)m_Data)->pollInterval = val;
+        getNtpHeader()->pollInterval = val;
     }
 
     double NtpLayer::getPollIntervalInSecs() const
@@ -92,12 +100,12 @@ namespace pcpp
 
     int8_t NtpLayer::getPrecision() const
     {
-        return ((ntp_header *)m_Data)->precision;
+        return getNtpHeader()->precision;
     }
 
     void NtpLayer::setPrecision(int8_t val)
     {
-        ((ntp_header *)m_Data)->precision = val;
+        getNtpHeader()->precision = val;
     }
 
     double NtpLayer::getPrecisionInSecs() const
@@ -107,12 +115,12 @@ namespace pcpp
 
     uint32_t NtpLayer::getRootDelay() const
     {
-        return ((ntp_header *)m_Data)->rootDelay;
+        return getNtpHeader()->rootDelay;
     }
 
     void NtpLayer::setRootDelay(uint32_t val)
     {
-        ((ntp_header *)m_Data)->rootDelay = val;
+        getNtpHeader()->rootDelay = val;
     }
 
     double NtpLayer::getRootDelayInSecs() const
@@ -122,17 +130,17 @@ namespace pcpp
 
     void NtpLayer::setRootDelayInSecs(double val)
     {
-        ((ntp_header *)m_Data)->rootDelay = convertToShortFormat(val);
+        getNtpHeader()->rootDelay = convertToShortFormat(val);
     }
 
     uint32_t NtpLayer::getRootDispersion() const
     {
-        return ((ntp_header *)m_Data)->rootDispersion;
+        return getNtpHeader()->rootDispersion;
     }
 
     void NtpLayer::setRootDispersion(uint32_t val)
     {
-        ((ntp_header *)m_Data)->rootDispersion = val;
+        getNtpHeader()->rootDispersion = val;
     }
 
     double NtpLayer::getRootDispersionInSecs() const
@@ -142,17 +150,17 @@ namespace pcpp
 
     void NtpLayer::setRootDispersionInSecs(double val)
     {
-        ((ntp_header *)m_Data)->rootDispersion = convertToShortFormat(val);
+        getNtpHeader()->rootDispersion = convertToShortFormat(val);
     }
 
     uint32_t NtpLayer::getReferenceIdentifier() const
     {
-        return ((ntp_header *)m_Data)->referenceIdentifier;
+        return getNtpHeader()->referenceIdentifier;
     }
 
     void NtpLayer::setReferenceIdentifier(uint32_t val)
     {
-        ((ntp_header *)m_Data)->referenceIdentifier = val;
+        getNtpHeader()->referenceIdentifier = val;
     }
 
     std::string NtpLayer::getReferenceIdentifierString() const
@@ -168,22 +176,22 @@ namespace pcpp
                 switch (getReferenceIdentifier())
                 {
                 case DCN:
-                    return std::string("DCN routing protocol");
+                    return "DCN routing protocol";
                 case NIST:
-                    return std::string("NIST public modem");
+                    return "NIST public modem";
                 case TSP:
-                    return std::string("TSP time protocol");
+                    return "TSP time protocol";
                 case DTS:
-                    return std::string("Digital Time Service");
+                    return "Digital Time Service";
                 default:
-                    return std::string("Unknown");
+                    return "Unknown";
                 }
             }
             case 4:
                 // FIXME: It should return 4-character Kiss Code
-                return std::string("Unspecified");
+                return "Unspecified";
             default:
-                return std::string("Unsupported NTP version");
+                return "Unsupported NTP version";
             }
         }
         else if (stratum == 1)
@@ -195,17 +203,17 @@ namespace pcpp
                 switch (getReferenceIdentifier())
                 {
                 case ATOM:
-                    return std::string("Atomic clock");
+                    return "Atomic clock";
                 case VLF:
-                    return std::string("VLF radio");
+                    return "VLF radio";
                 case LORC:
-                    return std::string("LORAN-C radionavigation");
+                    return "LORAN-C radionavigation";
                 case GOES:
-                    return std::string("GOES UHF environment satellite");
+                    return "GOES UHF environment satellite";
                 case GPS:
-                    return std::string("GPS UHF satellite positioning");
+                    return "GPS UHF satellite positioning";
                 default:
-                    return std::string("Unknown");
+                    return "Unknown";
                 }
             }
             case 4:
@@ -213,45 +221,45 @@ namespace pcpp
                 switch (getReferenceIdentifier())
                 {
                 case GOES:
-                    return std::string("Geosynchronous Orbit Environment Satellite");
+                    return "Geosynchronous Orbit Environment Satellite";
                 case GPS:
-                    return std::string("Global Position System");
+                    return "Global Position System";
                 case GAL:
-                    return std::string("Galileo Positioning System");
+                    return "Galileo Positioning System";
                 case PPS:
-                    return std::string("Generic pulse-per-second");
+                    return "Generic pulse-per-second";
                 case IRIG:
-                    return std::string("Inter-Range Instrumentation Group");
+                    return "Inter-Range Instrumentation Group";
                 case WWVB:
-                    return std::string("LF Radio WWVB Ft. Collins, CO 60 kHz");
+                    return "LF Radio WWVB Ft. Collins, CO 60 kHz";
                 case DCF:
-                    return std::string("LF Radio DCF77 Mainflingen, DE 77.5 kHz");
+                    return "LF Radio DCF77 Mainflingen, DE 77.5 kHz";
                 case HBG:
-                    return std::string("LF Radio HBG Prangins, HB 75 kHz");
+                    return "LF Radio HBG Prangins, HB 75 kHz";
                 case MSF:
-                    return std::string("LF Radio MSF Anthorn, UK 60 kHz");
+                    return "LF Radio MSF Anthorn, UK 60 kHz";
                 case JJY:
-                    return std::string("LF Radio JJY Fukushima, JP 40 kHz, Saga, JP 60 kHz");
+                    return "LF Radio JJY Fukushima, JP 40 kHz, Saga, JP 60 kHz";
                 case LORC:
-                    return std::string("MF Radio LORAN C station, 100 kHz");
+                    return "MF Radio LORAN C station, 100 kHz";
                 case TDF:
-                    return std::string("MF Radio Allouis, FR 162 kHz");
+                    return "MF Radio Allouis, FR 162 kHz";
                 case CHU:
-                    return std::string("HF Radio CHU Ottawa, Ontario");
+                    return "HF Radio CHU Ottawa, Ontario";
                 case WWV:
-                    return std::string("HF Radio WWV Ft. Collins, CO");
+                    return "HF Radio WWV Ft. Collins, CO";
                 case WWVH:
-                    return std::string("HF Radio WWVH Kauai, HI");
+                    return "HF Radio WWVH Kauai, HI";
                 case NIST:
-                    return std::string("NIST telephone modem");
+                    return "NIST telephone modem";
                 case ACTS:
-                    return std::string("NIST telephone modem");
+                    return "NIST telephone modem";
                 case USNO:
-                    return std::string("USNO telephone modem");
+                    return "USNO telephone modem";
                 case PTB:
-                    return std::string("European telephone modem");
+                    return "European telephone modem";
                 default:
-                    return std::string("Unknown");
+                    return "Unknown";
                 }
             }
             }
@@ -261,7 +269,7 @@ namespace pcpp
             // FIXME: Support IPv6 cases for NTPv4, it equals to MD5 hash of first four octets of IPv6 address
 
             pcpp::IPv4Address addr(getReferenceIdentifier());
-            return std::string(addr.toString());
+            return addr.toString();
         }
 
         LOG_ERROR("Unknown Stratum type");
@@ -270,12 +278,12 @@ namespace pcpp
 
     uint64_t NtpLayer::getReferenceTimestamp() const
     {
-        return ((ntp_header *)m_Data)->referenceTimestamp;
+        return getNtpHeader()->referenceTimestamp;
     }
 
     void NtpLayer::setReferenceTimestamp(uint64_t val)
     {
-        ((ntp_header *)m_Data)->referenceTimestamp = val;
+        getNtpHeader()->referenceTimestamp = val;
     }
 
     double NtpLayer::getReferenceTimestampInSecs() const
@@ -285,37 +293,37 @@ namespace pcpp
 
     void NtpLayer::setReferenceTimestampInSecs(double val)
     {
-        ((ntp_header *)m_Data)->referenceTimestamp = convertToTimestampFormat(val);
+        getNtpHeader()->referenceTimestamp = convertToTimestampFormat(val);
     }
 
-    uint64_t NtpLayer::getOriginateTimestamp() const
+    uint64_t NtpLayer::getOriginTimestamp() const
     {
-        return ((ntp_header *)m_Data)->originateTimestamp;
+        return getNtpHeader()->originTimestamp;
     }
 
-    void NtpLayer::setOriginateTimestamp(uint64_t val)
+    void NtpLayer::setOriginTimestamp(uint64_t val)
     {
-        ((ntp_header *)m_Data)->originateTimestamp = val;
+        getNtpHeader()->originTimestamp = val;
     }
 
-    double NtpLayer::getOriginateTimestampInSecs() const
+    double NtpLayer::getOriginTimestampInSecs() const
     {
-        return convertFromTimestampFormat(getOriginateTimestamp());
+        return convertFromTimestampFormat(getOriginTimestamp());
     }
 
-    void NtpLayer::setOriginateTimestampInSecs(double val)
+    void NtpLayer::setOriginTimestampInSecs(double val)
     {
-        ((ntp_header *)m_Data)->originateTimestamp = convertToTimestampFormat(val);
+        getNtpHeader()->originTimestamp = convertToTimestampFormat(val);
     }
 
     uint64_t NtpLayer::getReceiveTimestamp() const
     {
-        return ((ntp_header *)m_Data)->receiveTimestamp;
+        return getNtpHeader()->receiveTimestamp;
     }
 
     void NtpLayer::setReceiveTimestamp(uint64_t val)
     {
-        ((ntp_header *)m_Data)->receiveTimestamp = val;
+        getNtpHeader()->receiveTimestamp = val;
     }
 
     double NtpLayer::getReceiveTimestampInSecs() const
@@ -325,17 +333,17 @@ namespace pcpp
 
     void NtpLayer::setReceiveTimestampInSecs(double val)
     {
-        ((ntp_header *)m_Data)->receiveTimestamp = convertToTimestampFormat(val);
+        getNtpHeader()->receiveTimestamp = convertToTimestampFormat(val);
     }
 
     uint64_t NtpLayer::getTransmitTimestamp() const
     {
-        return ((ntp_header *)m_Data)->transmitTimestamp;
+        return getNtpHeader()->transmitTimestamp;
     }
 
     void NtpLayer::setTransmitTimestamp(uint64_t val)
     {
-        ((ntp_header *)m_Data)->transmitTimestamp = val;
+        getNtpHeader()->transmitTimestamp = val;
     }
 
     double NtpLayer::getTransmitTimestampInSecs() const
@@ -345,7 +353,7 @@ namespace pcpp
 
     void NtpLayer::setTransmitTimestampInSecs(double val)
     {
-        ((ntp_header *)m_Data)->transmitTimestamp = convertToTimestampFormat(val);
+        getNtpHeader()->transmitTimestamp = convertToTimestampFormat(val);
     }
 
     uint32_t NtpLayer::getKeyID() const
@@ -370,6 +378,7 @@ namespace pcpp
         }
         default:
         {
+            LOG_ERROR("NTP version not supported");
             return 0;
         }
         }
@@ -385,17 +394,18 @@ namespace pcpp
                 return std::string();
 
             ntp_v3_auth *header = (ntp_v3_auth *)(m_Data + sizeof(ntp_header));
-            return convertToHex(header->dgst, 8);
+            return byteArrayToHexString(header->dgst, 8);
         }
         case 4:
         {
             if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v4_auth)))
                 return std::string();
-
+                
             ntp_v4_auth *header = (ntp_v4_auth *)(m_Data + m_DataLen - sizeof(ntp_v4_auth));
-            return convertToHex(header->dgst, 16);
+            return byteArrayToHexString(header->dgst, 16);
         }
         default:
+            LOG_ERROR("NTP version not supported");
             return std::string();
         }
     }
@@ -467,7 +477,7 @@ namespace pcpp
         fractionPart = modf(timestamp, &integerPart);
 
         timeStruct = integerPart;
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
         if (timeStruct < 0)
             timeStruct = 0;
         timer = gmtime(&timeStruct);
@@ -498,18 +508,14 @@ namespace pcpp
 
     bool NtpLayer::isDataValid(const uint8_t *data, size_t dataSize)
     {
-        if (data && dataSize >= sizeof(ntp_header))
-            return true;
-        return false;
+        return data && dataSize >= sizeof(ntp_header);
     }
 
     std::string NtpLayer::toString() const
     {
         std::stringstream ss;
 
-        ss << "NTP Layer, ";
-        ss << "Version: " << (int)getVersion() << ", Mode: " << (int)getMode() << ", ";
-        ss << "Leap Indicator: " << (int)getLeapIndicator() << ", Stratum: " << (int)getStratum();
+        ss << "NTP Layer v" << (int)getVersion() << ", Mode: " << getModeString();;
 
         return ss.str();
     }
