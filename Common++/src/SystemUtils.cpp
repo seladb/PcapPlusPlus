@@ -11,7 +11,7 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/stat.h>
-#ifdef MAC_OS_X
+#if defined(__APPLE__)
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif
@@ -245,7 +245,7 @@ int clockGetTime(long& sec, long& nsec)
 
 	return 0;
 
-#elif MAC_OS_X
+#elif defined(__APPLE__)
 
 	clock_serv_t cclock;
 	mach_timespec_t mts;

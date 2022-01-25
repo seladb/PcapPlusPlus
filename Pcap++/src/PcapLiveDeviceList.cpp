@@ -11,7 +11,7 @@
 #if defined(_WIN32)
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
-#elif MAC_OS_X
+#elif defined(__APPLE__)
 #include <systemconfiguration/scdynamicstore.h>
 #elif FREEBSD
 #include <arpa/nameser.h>
@@ -52,7 +52,7 @@ void PcapLiveDeviceList::init()
 	{
 #if defined(_WIN32)
 		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true, true, true);
-#else //__linux__, MAC_OSX
+#else //__linux__, __APPLE__, FREEBSD
 		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true, true, true);
 #endif
 		currInterface = currInterface->next;
@@ -151,7 +151,7 @@ void PcapLiveDeviceList::setDnsServers()
 			LOG_DEBUG("Default DNS server IP #" << i++ << ": " << dnsIPAddr);
 		}
 	}
-#elif MAC_OS_X
+#elif defined(__APPLE__)
 
 	SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("iked"), NULL, NULL);
 	if (dynRef == NULL)

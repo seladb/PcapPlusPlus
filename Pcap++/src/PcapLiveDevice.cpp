@@ -31,14 +31,14 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #endif // if defined(_WIN32)
-#if defined(MAC_OS_X) || defined(FREEBSD)
+#if defined(__APPLE__) || defined(FREEBSD)
 #include <net/if_dl.h>
 #include <sys/sysctl.h>
 #endif
 
 // On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
 // On Linux and Windows this is not the case so we keep the -1 value
-#if defined(MAC_OS_X) || defined(FREEBSD)
+#if defined(__APPLE__) || defined(FREEBSD)
 #define LIBPCAP_OPEN_LIVE_TIMEOUT 1
 #else
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
@@ -844,7 +844,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	}
 
 	m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
-#elif MAC_OS_X || FREEBSD
+#elif defined(__APPLE__) || defined(FREEBSD)
 	int	mib[6];
 	size_t len;
 
@@ -939,7 +939,7 @@ void PcapLiveDevice::setDefaultGateway()
 		interfaceGatewayStream >> interfaceGatewayIPInt;
 		m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
 	}
-#elif MAC_OS_X || FREEBSD
+#elif defined(__APPLE__) || defined(FREEBSD)
 	std::string command = "netstat -nr | grep default | grep " + m_Name;
 	std::string ifaceInfo = executeShellCommand(command);
 	if (ifaceInfo == "")
