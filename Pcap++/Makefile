@@ -33,9 +33,6 @@ endif
 ifdef ANDROID_API_VERSION
 DEPS += -D ANDROID_API_VERSION=$(ANDROID_API_VERSION)
 endif
-ifdef MAC_OS_X
-DEPS := -DMAC_OS_X
-endif
 ifdef FREEBSD
 DEPS := -DFREEBSD
 endif

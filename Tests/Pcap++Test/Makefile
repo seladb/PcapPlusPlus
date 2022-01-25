@@ -43,9 +43,6 @@ endif
 ifdef USE_DPDK
 DEPS += -DUSE_DPDK
 endif
-ifdef MAC_OS_X
-DEPS := -DMAC_OS_X
-endif
 ifdef HAS_SET_DIRECTION_ENABLED
 DEPS += -DHAS_SET_DIRECTION_ENABLED
 endif
