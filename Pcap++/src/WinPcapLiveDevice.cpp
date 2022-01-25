@@ -1,4 +1,4 @@
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(WIN32) || defined(WINx64)
 
 #define LOG_MODULE PcapLogModuleWinPcapLiveDevice
 
@@ -80,7 +80,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		}
 		packetsSent++;
 	}
-	
+
 	LOG_DEBUG(packetsSent << " packets were queued successfully");
 
 	int res;
@@ -128,4 +128,4 @@ bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size
 
 } // namespace pcpp
 
-#endif // WIN32 || WINx64 || PCAPPP_MINGW_ENV
+#endif // WIN32 || WINx64
