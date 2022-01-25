@@ -442,7 +442,7 @@ bool RawSocketDevice::open()
 
 #elif defined(__linux__)
 
-#if defined(ANDROID_API_VERSION) && ANDROID_API_VERSION < 24
+#if defined(__ANDROID_API__) && __ANDROID_API__ < 24
 	LOG_ERROR("Raw sockets aren't supported in Android API < 24");
 	return false;
 #else
@@ -521,7 +521,7 @@ bool RawSocketDevice::open()
 	m_DeviceOpened = true;
 
 	return true;
-#endif // ANDROID_API_VERSION
+#endif // __ANDROID_API__
 
 #else
 

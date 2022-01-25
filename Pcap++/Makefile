@@ -30,9 +30,6 @@ endif
 ifdef USE_DPDK
 DEPS += -DUSE_DPDK
 endif
-ifdef ANDROID_API_VERSION
-DEPS += -D ANDROID_API_VERSION=$(ANDROID_API_VERSION)
-endif
 
 INCLUDES := -I"./src" \
 			-I"./header" \
