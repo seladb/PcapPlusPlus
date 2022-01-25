@@ -9,7 +9,8 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include <string.h>
+// #include <sstream>
+
 
 /// @file
 
@@ -128,17 +129,24 @@ namespace pcpp
      * 
      * KeyID: 32-bit unsigned integer used by the client and server to designate 
      * a secret 128-bit MD5 key.
-     * Digest: 128-bit MD5 hash computed over the key followed by the NTP packet 
+     * Digest: 128-bit MD5 hash or 160-bit SHA1 hash computed over the key followed by the NTP packet 
      * header and extensions fields (but not the Key Identifier or Message Digest
      * fields)
      */
 #pragma pack(push,1)
-    struct ntp_v4_auth
+    struct ntp_v4_auth_md5
     {
         uint32_t keyID;
-        uint8_t dgst[16]; // MD5 hash (SHA1 not supported for now)
+        uint8_t dgst[16]; // MD5 hash
     };
 #pragma pack(pop)
+
+#pragma pack(push,1)
+    struct ntp_v4_auth_sha1
+    {
+        uint32_t keyID;
+        uint8_t dgst[20]; // SHA1 hash
+    };
 
     /**
     * Warning of an impending leap second to be inserted or deleted in the last minute of the current month
@@ -178,56 +186,72 @@ namespace pcpp
         // NTPv4
 
         /// Geosynchronous Orbit Environment Satellite
-        GOES = ('G' << 24) | ('O' << 16) | ('E' << 8) | 'S',
+        GOES = ('G') | ('O' << 8) | ('E' << 16) | ('S' << 24),
         /// Global Position System
-        GPS = ('G' << 24) | ('P' << 16) | ('S' << 8),
+        GPS = ('G') | ('P' << 8) | ('S' << 16),
         /// Galileo Positioning System
-        GAL = ('G' << 24) | ('A' << 16) | ('L' << 8),
+        GAL = ('G') | ('A' << 8) | ('L' << 16),
         /// Generic pulse-per-second
-        PPS = ('P' << 24) | ('P' << 16) | ('S' << 8),
+        PPS = ('P') | ('P' << 8) | ('S' << 16),
         /// Inter-Range Instrumentation Group
-        IRIG = ('I' << 24) | ('R' << 16) | ('I' << 8) | 'G',
+        IRIG = ('I') | ('R' << 8) | ('I' << 16) | ('G' << 24),
         /// LF Radio WWVB Ft. Collins, CO 60 kHz
-        WWVB = ('W' << 24) | ('W' << 16) | ('V' << 8) | 'B',
+        WWVB = ('W') | ('W' << 8) | ('V' << 16) | ('B' << 24),
         /// LF Radio DCF77 Mainflingen, DE 77.5 kHz
-        DCF = ('D' << 24) | ('C' << 16) | ('F' << 8),
+        DCF = ('D') | ('C' << 8) | ('F' << 16),
         /// LF Radio HBG Prangins, HB 75 kHz
-        HBG = ('H' << 24) | ('B' << 16) | ('G' << 8),
+        HBG = ('H') | ('B' << 8) | ('G' << 16),
         /// LF Radio MSF Anthorn, UK 60 kHz
-        MSF = ('M' << 24) | ('S' << 16) | ('F' << 8),
+        MSF = ('M') | ('S' << 8) | ('F' << 16),
         /// LF Radio JJY Fukushima, JP 40 kHz, Saga, JP 60 kHz
-        JJY = ('J' << 24) | ('J' << 16) | ('Y' << 8),
+        JJY = ('J') | ('J' << 8) | ('Y' << 16),
         /// MF Radio LORAN C station, 100 kHz
-        LORC = ('L' << 24) | ('O' << 16) | ('R' << 8) | 'C',
+        LORC = ('L') | ('O' << 8) | ('R' << 16) | ('C' << 24),
         /// MF Radio Allouis, FR 162 kHz
-        TDF = ('T' << 24) | ('D' << 16) | ('F' << 8),
+        TDF = ('T') | ('D' << 8) | ('F' << 16),
         /// HF Radio CHU Ottawa, Ontario
-        CHU = ('C' << 24) | ('H' << 16) | ('U' << 8),
+        CHU = ('C') | ('H' << 8) | ('U' << 16),
         /// HF Radio WWV Ft. Collins, CO
-        WWV = ('W' << 24) | ('W' << 16) | ('V' << 8),
+        WWV = ('W') | ('W' << 8) | ('V' << 16),
         /// HF Radio WWVH Kauai, HI
-        WWVH = ('W' << 24) | ('W' << 16) | ('V' << 8) | 'H',
+        WWVH = ('W') | ('W' << 8) | ('V' << 16) | ('H' << 24),
         /// NIST telephone modem
-        NIST = ('N' << 24) | ('I' << 16) | ('S' << 8) | 'T',
+        NIST = ('N') | ('I' << 8) | ('S' << 16) | ('T' << 24),
         /// NIST telephone modem
-        ACTS = ('A' << 24) | ('C' << 16) | ('T' << 8) | 'S',
+        ACTS = ('A') | ('C' << 8) | ('T' << 16) | ('S' << 24),
         /// USNO telephone modem
-        USNO = ('U' << 24) | ('S' << 16) | ('N' << 8) | 'O',
+        USNO = ('U') | ('S' << 8) | ('N' << 16) | ('O' << 24),
         /// European telephone modem
-        PTB = ('P' << 24) | ('T' << 16) | ('B' << 8),
+        PTB = ('P') | ('T' << 8) | ('B' << 16),
+        /// Meinberg DCF77 with amplitud modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+        DCFa = ('D') | ('C' << 8) | ('F' << 16) | ('a' << 24),
+        /// Meinberg DCF77 with phase modulation)/pseudo random phase modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+        DCFp = ('D') | ('C' << 8) | ('F' << 16) | ('p' << 24),
+        /// Meinberg GPS (with shared memory access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+        GPSs = ('G') | ('P' << 8) | ('S' << 16) | ('s' << 24),
+        /// Meinberg GPS (with interrupt based access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+        GPSi = ('G') | ('P' << 8) | ('S' << 16) | ('i' << 24),
+        /// Meinberg GPS/GLONASS (with shared memory access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+        GLNs = ('G') | ('L' << 8) | ('N' << 16) | ('s' << 24),
+        /// Meinberg GPS/GLONASS (with interrupt based access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+        GLNi = ('G') | ('L' << 8) | ('N' << 16) | ('i' << 24),
+        /// Meinberg Undisciplined local clock (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+        LCL = ('L') | ('C' << 8) | ('L' << 16),
+        /// Meinberg Undisciplined local clock (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+        LOCL = ('L') | ('O' << 8) | ('C' << 16) | ('L' << 24),
 
         // NTPv3
 
         /// DCN routing protocol
-        DCN = ('D' << 24) | ('C' << 16) | ('N' << 8),
+        DCN = ('D') | ('C' << 8) | ('N' << 16),
         /// TSP time protocol
-        TSP = ('T' << 24) | ('S' << 16) | ('P' << 8),
+        TSP = ('T') | ('S' << 8) | ('P' << 16),
         /// Digital Time Service
-        DTS = ('D' << 24) | ('T' << 16) | ('S' << 8),
+        DTS = ('D') | ('T' << 8) | ('S' << 16),
         /// Atomic clock (calibrated)
-        ATOM = ('A' << 24) | ('T' << 16) | ('O' << 8) | 'M',
+        ATOM = ('A') | ('T' << 8) | ('O' << 16) | ('M' << 24),
         /// VLF radio (OMEGA, etc.)
-        VLF = ('V' << 24) | ('L' << 16) | ('F' << 8),
+        VLF = ('V') | ('L' << 8) | ('F' << 16)
 
     };
 

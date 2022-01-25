@@ -64,7 +64,7 @@ namespace pcpp
                 return "Private Use";
             default:
                 LOG_ERROR("Unknown NTP Mode");
-                return "";
+                return std::string();
         }
     }
 
@@ -258,6 +258,22 @@ namespace pcpp
                     return "USNO telephone modem";
                 case PTB:
                     return "European telephone modem";
+                case DCFa:
+                    return "Meinberg DCF77 with amplitud modulation";
+                case DCFp:
+                    return "Meinberg DCF77 with phase modulation)/pseudo random phase modulation";
+                case GPSs:
+                    return "Meinberg GPS (with shared memory access)";
+                case GPSi:
+                    return "Meinberg GPS (with interrupt based access)";
+                case GLNs:
+                    return "Meinberg GPS/GLONASS (with shared memory access)";
+                case GLNi:
+                    return "Meinberg GPS/GLONASS (with interrupt based access)";
+                case LCL:
+                    return "Meinberg Undisciplined local clock";
+                case LOCL:
+                    return "Meinberg Undisciplined local clock";
                 default:
                     return "Unknown";
                 }
@@ -370,11 +386,21 @@ namespace pcpp
         }
         case 4:
         {
-            if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v4_auth)))
-                return 0;
+            // FIXME: Add support for extension fields
+            if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_md5)))
+            {
+                ntp_v4_auth_md5 *header = (ntp_v4_auth_md5 *)(m_Data + m_DataLen - sizeof(ntp_v4_auth_md5));
+                return header->keyID;
+            }
+            if(m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_sha1)))
+            {
+                ntp_v4_auth_sha1 *header = (ntp_v4_auth_sha1 *)(m_Data + m_DataLen - sizeof(ntp_v4_auth_sha1));
+                return header->keyID;
+            }
 
-            ntp_v4_auth *header = (ntp_v4_auth *)(m_Data + m_DataLen - sizeof(ntp_v4_auth));
-            return header->keyID;
+            LOG_ERROR("NTP authentication parsing with extension fields are not supported");
+            return 0;
+            
         }
         default:
         {
@@ -398,11 +424,19 @@ namespace pcpp
         }
         case 4:
         {
-            if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v4_auth)))
-                return std::string();
-                
-            ntp_v4_auth *header = (ntp_v4_auth *)(m_Data + m_DataLen - sizeof(ntp_v4_auth));
-            return byteArrayToHexString(header->dgst, 16);
+            if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_md5)))
+            {
+                ntp_v4_auth_md5 *header = (ntp_v4_auth_md5 *)(m_Data + m_DataLen - sizeof(ntp_v4_auth_md5));
+                return byteArrayToHexString(header->dgst, 16);
+            }
+            if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_sha1)))
+            {
+                ntp_v4_auth_sha1 *header = (ntp_v4_auth_sha1 *)(m_Data + m_DataLen - sizeof(ntp_v4_auth_sha1));
+                return byteArrayToHexString(header->dgst, 20);
+            }
+
+            LOG_ERROR("NTP authentication parsing with extension fields are not supported");
+            return std::string();
         }
         default:
             LOG_ERROR("NTP version not supported");
@@ -513,10 +547,11 @@ namespace pcpp
 
     std::string NtpLayer::toString() const
     {
-        std::stringstream ss;
+        return std::string();
+        //std::stringstream ss;
 
-        ss << "NTP Layer v" << (int)getVersion() << ", Mode: " << getModeString();;
+        //ss << "NTP Layer v" << (int)getVersion() << ", Mode: " << getModeString();
 
-        return ss.str();
+        //return ss.str();
     }
 }

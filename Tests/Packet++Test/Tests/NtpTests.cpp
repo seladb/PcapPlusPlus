@@ -24,7 +24,6 @@ PTF_TEST_CASE(NtpMethodsTests)
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(uint64_t(0)), std::string("1900-01-01T00:00:00.000000000Z"));
 #endif
 
-
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(1642879410.0), "2022-01-22T19:23:30.000000000Z");
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(pcpp::NtpLayer::convertToTimestampFormat(1642879410.0)), "2022-01-22T19:23:30.000000000Z");
 
@@ -114,8 +113,33 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), be64toh(0xdcd2aa817b9f9bdc));
     PTF_ASSERT_EQUAL(ntpLayer->getKeyID(), be32toh(1));
-    PTF_ASSERT_EQUAL(ntpLayer->getDigest(), "ac017b69915ce5a7a9fb73ac8bd1603b");
+    PTF_ASSERT_EQUAL(ntpLayer->getDigest(), "ac017b69915ce5a7a9fb73ac8bd1603b"); // MD5
     PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v4, Mode: Client");
+
+    READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ntpv4Ipv6_withAuth2.dat");
+
+    ntpPacket = pcpp::Packet(&rawPacket3);
+    ntpLayer = ntpPacket.getLayerOfType<pcpp::NtpLayer>();
+
+    PTF_ASSERT_NOT_NULL(ntpLayer);
+    PTF_ASSERT_EQUAL(ntpLayer->getVersion(), 4);
+    PTF_ASSERT_EQUAL(ntpLayer->getLeapIndicator(), pcpp::NoWarning);
+    PTF_ASSERT_EQUAL(ntpLayer->getMode(), pcpp::Server);
+    PTF_ASSERT_EQUAL(ntpLayer->getModeString(), "Server");
+    PTF_ASSERT_EQUAL(ntpLayer->getStratum(), 1);
+    PTF_ASSERT_EQUAL(ntpLayer->getPollInterval(), 10);
+    PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xee));
+    PTF_ASSERT_EQUAL(ntpLayer->getRootDelay(), 0);
+    PTF_ASSERT_EQUAL(ntpLayer->getRootDispersion(), be32toh(0xfb));
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), be32toh(0x44434661));
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "Meinberg DCF77 with amplitud modulation");
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), be64toh(0xdcd2aabfe3771e96));
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestamp(), be64toh(0xdcd2aae48e835d2a));
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), be64toh(0xdcd2aae48e9f4d3c));
+    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestamp(), be64toh(0xdcd2aae48ece4367));
+    PTF_ASSERT_EQUAL(ntpLayer->getKeyID(), be32toh(0xb));
+    PTF_ASSERT_EQUAL(ntpLayer->getDigest(), "ece2d5b07e9fc63279aa2322b76038e53cd0ecc6"); // SHA1
+    PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v4, Mode: Server");
 
 } // NtpParsingV4Tests
 
