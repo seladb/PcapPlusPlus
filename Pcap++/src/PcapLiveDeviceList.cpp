@@ -13,7 +13,7 @@
 #include <iphlpapi.h>
 #elif defined(__APPLE__)
 #include <systemconfiguration/scdynamicstore.h>
-#elif FREEBSD
+#elif defined(__FreeBSD__)
 #include <arpa/nameser.h>
 #include <resolv.h>
 #endif
@@ -52,7 +52,7 @@ void PcapLiveDeviceList::init()
 	{
 #if defined(_WIN32)
 		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true, true, true);
-#else //__linux__, __APPLE__, FREEBSD
+#else //__linux__, __APPLE__, __FreeBSD__
 		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true, true, true);
 #endif
 		currInterface = currInterface->next;
@@ -197,7 +197,7 @@ void PcapLiveDeviceList::setDnsServers()
 	CFRelease(dynRef);
 	CFRelease(dnsDict);
 
-#elif FREEBSD
+#elif defined(__FreeBSD__)
 
 	res_init();
 

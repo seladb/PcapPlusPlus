@@ -15,7 +15,7 @@ bool sendURLRequest(std::string url)
 	std::string cmd = "cUrl\\curl_win32.exe -s -o cUrl\\curl_output.txt";
 #elif defined(__linux__)
 	std::string cmd = "cUrl/curl.linux32 -s -o cUrl/curl_output.txt";
-#elif defined(__APPLE__) || defined(FREEBSD)
+#elif defined(__APPLE__) || defined(__FreeBSD__)
 	std::string cmd = "curl -s -o cUrl/curl_output.txt";
 #endif
 

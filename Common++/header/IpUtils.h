@@ -13,7 +13,7 @@
 #if defined(_WIN32)
 #include <ws2tcpip.h>
 #endif
-#ifdef FREEBSD
+#if defined(__FreeBSD__)
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
