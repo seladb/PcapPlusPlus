@@ -17,9 +17,6 @@ OBJS_FILENAMES := $(filter-out Obj/debug_new.o,$(OBJS_FILENAMES_DEBUG))
 ifdef WIN32
 DEPS := -DWPCAP -DHAVE_REMOTE
 endif
-ifdef FREEBSD
-DEPS := -DFREEBSD
-endif
 
 GIT_CUR_COMMIT := $(shell git rev-parse --verify HEAD)
 GIT_CUR_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
