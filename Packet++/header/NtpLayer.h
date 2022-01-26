@@ -1,6 +1,7 @@
 #ifndef PACKETPP_NTP_LAYER
 #define PACKETPP_NTP_LAYER
 
+#include "Logger.h"
 #include "IPv4Layer.h"
 #include "Layer.h"
 
@@ -9,7 +10,6 @@
 
 #include <math.h>
 #include <stdlib.h>
-// #include <sstream>
 
 
 /// @file

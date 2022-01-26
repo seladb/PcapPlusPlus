@@ -547,11 +547,10 @@ namespace pcpp
 
     std::string NtpLayer::toString() const
     {
-        return std::string();
-        //std::stringstream ss;
+        std::stringstream ss;
 
-        //ss << "NTP Layer v" << (int)getVersion() << ", Mode: " << getModeString();
+        ss << "NTP Layer v" << (int)getVersion() << ", Mode: " << getModeString();
 
-        //return ss.str();
+        return ss.str();
     }
 }
