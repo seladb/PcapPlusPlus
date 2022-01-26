@@ -85,23 +85,39 @@ namespace pcpp
     struct ntp_header
     {
 #if (BYTE_ORDER == LITTLE_ENDIAN)
+        /// 3-bit integer representing the mode
         uint8_t mode:3,
+        /// 3-bit integer representing the NTP version number
         version:3,
+        /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
         leapIndicator:2;
 #else
+        /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
         uint8_t leapIndicator:2,
+        /// 3-bit integer representing the NTP version number
         version:3,
+        /// 3-bit integer representing the mode
         mode:3;
 #endif
+        /// 8-bit integer representing the stratum
         uint8_t stratum;
+        /// Total round-trip delay to the reference clock, in NTP short format.
         int8_t pollInterval,
+        /// 8-bit signed integer representing the precision of the system clock, in log2 seconds.
         precision;
+        /// Total round-trip delay to the reference clock, in NTP short format.
         uint32_t rootDelay,
+        /// Total dispersion to the reference clock, in NTP short format.
         rootDispersion,
+        /// 32-bit code identifying the particular server or reference clock.  The interpretation depends on the value in the stratum field.
         referenceIdentifier;
+        /// Time when the system clock was last set or corrected, in NTP timestamp format.
         uint64_t referenceTimestamp,
+        /// Time at the client when the request departed for the server, in NTP timestamp format.
         originTimestamp,
+        /// Time at the client when the request departed for the server, in NTP timestamp format.
         receiveTimestamp,
+        /// Time at the server when the response left for the client, in NTP timestamp format.
         transmitTimestamp;
     };
 #pragma pack(pop)
@@ -119,7 +135,9 @@ namespace pcpp
 #pragma pack(push,1)
     struct ntp_v3_auth
     {
+        /// An integer identifying the cryptographic key used to generate the message-authentication code
         uint32_t keyID;
+        /// This is an integer identifying the cryptographic key used to generate the message-authentication code.
         uint8_t dgst[8]; // 64 bit DES based
     };
 #pragma pack(pop)
@@ -136,16 +154,20 @@ namespace pcpp
 #pragma pack(push,1)
     struct ntp_v4_auth_md5
     {
+        /// 32-bit unsigned integer used by the client and server to designate a secret 128-bit MD5 key.
         uint32_t keyID;
-        uint8_t dgst[16]; // MD5 hash
+        /// 128-bit MD5 hash
+        uint8_t dgst[16];
     };
 #pragma pack(pop)
 
 #pragma pack(push,1)
     struct ntp_v4_auth_sha1
     {
+        /// 32-bit unsigned integer used by the client and server to designate a secret 160-bit SHA1 key.
         uint32_t keyID;
-        uint8_t dgst[20]; // SHA1 hash
+        /// 160-bit SHA1 hash
+        uint8_t dgst[20];
     };
 
     /**
