@@ -11,7 +11,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-
 /// @file
 
 /// 2^16 as a double
@@ -132,7 +131,7 @@ namespace pcpp
      * 
      * For more information RFC-1305 Appendix C
      */
-#pragma pack(push,1)
+#pragma pack(push, 1)
     struct ntp_v3_auth
     {
         /// An integer identifying the cryptographic key used to generate the message-authentication code
@@ -151,7 +150,7 @@ namespace pcpp
      * header and extensions fields (but not the Key Identifier or Message Digest
      * fields)
      */
-#pragma pack(push,1)
+#pragma pack(push, 1)
     struct ntp_v4_auth_md5
     {
         /// 32-bit unsigned integer used by the client and server to designate a secret 128-bit MD5 key.
@@ -161,7 +160,7 @@ namespace pcpp
     };
 #pragma pack(pop)
 
-#pragma pack(push,1)
+#pragma pack(push, 1)
     struct ntp_v4_auth_sha1
     {
         /// 32-bit unsigned integer used by the client and server to designate a secret 160-bit SHA1 key.
@@ -284,7 +283,7 @@ namespace pcpp
     class NtpLayer : public Layer
     {
     private:
-        ntp_header* getNtpHeader() const { return (ntp_header*)m_Data; }
+        ntp_header *getNtpHeader() const { return (ntp_header *)m_Data; }
 
     public:
         /**
@@ -464,6 +463,12 @@ namespace pcpp
         void setReferenceTimestampInSecs(double val);
 
         /**
+         * Get the reference timestamp value as readable string
+         * @return std::string Reference timestamp in ISO8601 format
+         */
+        std::string getReferenceTimestampAsString();
+
+        /**
          * Get the value of origin timestamp
          * @return Value in NTP timestamp format 
          */
@@ -486,6 +491,12 @@ namespace pcpp
          * @param val Value in seconds from Unix Epoch (1 Jan 1970)
          */
         void setOriginTimestampInSecs(double val);
+
+        /**
+         * Get the origin timestamp value as readable string
+         * @return std::string Origin timestamp in ISO8601 format
+         */
+        std::string getOriginTimestampAsString();
 
         /**
          * Get the value of receive timestamp
@@ -512,6 +523,12 @@ namespace pcpp
         void setReceiveTimestampInSecs(double val);
 
         /**
+         * Get the receive timestamp value as readable string
+         * @return std::string Receive timestamp in ISO8601 format
+         */
+        std::string getReceiveTimestampAsString();
+
+        /**
          * Get the value of transmit timestamp
          * @return Value in NTP timestamp format 
          */
@@ -534,6 +551,12 @@ namespace pcpp
          * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970) 
          */
         void setTransmitTimestampInSecs(double val);
+
+        /**
+         * Get the transmit timestamp value as readable string
+         * @return std::string Transmit timestamp in ISO8601 format
+         */
+        std::string getTransmitTimestampAsString();
 
         /**
          * Get the value of key identifier

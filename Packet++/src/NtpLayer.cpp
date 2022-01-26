@@ -312,6 +312,11 @@ namespace pcpp
         getNtpHeader()->referenceTimestamp = convertToTimestampFormat(val);
     }
 
+    std::string NtpLayer::getReferenceTimestampAsString()
+    {
+        return convertToIsoFormat(getReferenceTimestamp());
+    }
+
     uint64_t NtpLayer::getOriginTimestamp() const
     {
         return getNtpHeader()->originTimestamp;
@@ -330,6 +335,11 @@ namespace pcpp
     void NtpLayer::setOriginTimestampInSecs(double val)
     {
         getNtpHeader()->originTimestamp = convertToTimestampFormat(val);
+    }
+
+    std::string NtpLayer::getOriginTimestampAsString()
+    {
+        return convertToIsoFormat(getOriginTimestamp());
     }
 
     uint64_t NtpLayer::getReceiveTimestamp() const
@@ -352,6 +362,11 @@ namespace pcpp
         getNtpHeader()->receiveTimestamp = convertToTimestampFormat(val);
     }
 
+    std::string NtpLayer::getReceiveTimestampAsString()
+    {
+        return convertToIsoFormat(getReceiveTimestamp());
+    }
+
     uint64_t NtpLayer::getTransmitTimestamp() const
     {
         return getNtpHeader()->transmitTimestamp;
@@ -370,6 +385,11 @@ namespace pcpp
     void NtpLayer::setTransmitTimestampInSecs(double val)
     {
         getNtpHeader()->transmitTimestamp = convertToTimestampFormat(val);
+    }
+
+    std::string NtpLayer::getTransmitTimestampAsString()
+    {
+        return convertToIsoFormat(getTransmitTimestamp());
     }
 
     uint32_t NtpLayer::getKeyID() const
@@ -461,6 +481,7 @@ namespace pcpp
         integerPart = netToHost32(val & 0xFFFFFFFF);
         fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
 
+        // FIXME: Return integer and fraction parts as struct to increase precision
         // Offset change should be done here because of overflow
         return integerPart + fractionPart - EPOCH_OFFSET;
     }
@@ -529,7 +550,7 @@ namespace pcpp
         }
         strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", timer);
 
-        snprintf(bufferFraction, sizeof(bufferFraction), "%.09fZ", abs(fractionPart));
+        snprintf(bufferFraction, sizeof(bufferFraction), "%.06lfZ", fabs(fractionPart));
         strncat(buffer, &bufferFraction[1], sizeof(bufferFraction));
 
         return std::string(buffer);
