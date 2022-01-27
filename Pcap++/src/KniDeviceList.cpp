@@ -1,4 +1,4 @@
-#if defined(USE_DPDK) && defined(LINUX)
+#if defined(USE_DPDK) && defined(__linux__)
 
 #define LOG_MODULE PcapLogModuleKniDevice
 
@@ -180,4 +180,4 @@ bool KniDeviceList::isCallbackSupported(const KniCallbackType cbType)
 	return false;
 }
 } // namespace pcpp
-#endif /* defined(USE_DPDK) && defined(LINUX) */
+#endif /* defined(USE_DPDK) && defined(__linux__) */

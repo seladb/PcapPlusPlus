@@ -8,12 +8,12 @@
 #include <string.h>
 #include <sstream>
 #include <algorithm>
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
-#elif MAC_OS_X
+#elif defined(__APPLE__)
 #include <systemconfiguration/scdynamicstore.h>
-#elif FREEBSD
+#elif defined(__FreeBSD__)
 #include <arpa/nameser.h>
 #include <resolv.h>
 #endif
@@ -50,9 +50,9 @@ void PcapLiveDeviceList::init()
 	pcap_if_t* currInterface = interfaceList;
 	while (currInterface != NULL)
 	{
-#ifdef WIN32
+#if defined(_WIN32)
 		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true, true, true);
-#else //LINUX, MAC_OSX
+#else //__linux__, __APPLE__, __FreeBSD__
 		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true, true, true);
 #endif
 		currInterface = currInterface->next;
@@ -67,7 +67,7 @@ void PcapLiveDeviceList::init()
 
 void PcapLiveDeviceList::setDnsServers()
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 	FIXED_INFO * fixedInfo;
 	ULONG    ulOutBufLen;
 	DWORD    dwRetVal;
@@ -102,7 +102,7 @@ void PcapLiveDeviceList::setDnsServers()
 	}
 
 	delete[] buf2;
-#elif LINUX
+#elif defined(__linux__)
 	// verify that nmcli exist
 	std::string command = "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";
 	std::string nmcliExists = executeShellCommand(command);
@@ -151,7 +151,7 @@ void PcapLiveDeviceList::setDnsServers()
 			LOG_DEBUG("Default DNS server IP #" << i++ << ": " << dnsIPAddr);
 		}
 	}
-#elif MAC_OS_X
+#elif defined(__APPLE__)
 
 	SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("iked"), NULL, NULL);
 	if (dynRef == NULL)
@@ -197,7 +197,7 @@ void PcapLiveDeviceList::setDnsServers()
 	CFRelease(dynRef);
 	CFRelease(dnsDict);
 
-#elif FREEBSD
+#elif defined(__FreeBSD__)
 
 	res_init();
 

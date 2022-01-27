@@ -45,7 +45,7 @@
 	} while(0)
 
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 #define SEPARATOR '\\'
 #else
 #define SEPARATOR '/'

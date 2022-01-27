@@ -94,7 +94,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;MSVC;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\hash-library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -116,7 +116,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\hash-library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -139,7 +139,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WINx64;MSVC;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\hash-library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -161,7 +161,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WINx64;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Packet++\header;$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\hash-library;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>

@@ -1,4 +1,4 @@
-#ifdef LINUX
+#ifdef __linux__
 
 #define LOG_MODULE UndefinedLogModule
 
@@ -81,4 +81,4 @@ bool LinuxNicInformationSocket::makeRequest(
 	return true;
 }
 } // namespace pcpp
-#endif /* LINUX */
+#endif /* __linux__ */

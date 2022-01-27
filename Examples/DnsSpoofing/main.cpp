@@ -12,7 +12,7 @@
 #include <sstream>
 #include <utility>
 #include <map>
-#if !defined(WIN32) && !defined(WINx64)
+#if !defined(_WIN32)
 #include <errno.h>
 #endif
 #include "IpAddress.h"

@@ -1,5 +1,3 @@
-LINUX := 1
-
 BIN_EXT :=
 
 LIB_PREFIX := lib
@@ -24,4 +22,4 @@ INSTALL_SCRIPT := install.sh
 
 UNINSTALL_SCRIPT := uninstall.sh
 
-GLOBAL_FLAGS := --target=$(ANDROID_TARGET) --gcc-toolchain=$(ANDROID_TOOLCHAIN) --sysroot=$(ANDROID_TOOLCHAIN)/sysroot -DANDROID
+GLOBAL_FLAGS := --target=$(ANDROID_TARGET) --gcc-toolchain=$(ANDROID_TOOLCHAIN) --sysroot=$(ANDROID_TOOLCHAIN)/sysroot

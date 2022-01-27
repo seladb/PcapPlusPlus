@@ -93,7 +93,7 @@ static struct option PcapSplitterOptions[] =
 #define SPLIT_BY_ROUND_ROBIN   "round-robin"
 
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 #define SEPARATOR '\\'
 #else
 #define SEPARATOR '/'

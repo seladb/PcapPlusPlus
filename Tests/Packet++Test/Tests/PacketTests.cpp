@@ -971,7 +971,7 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 	// convert the timestamp to a printable format
 	time_t nowtime = time.tv_sec;
 	struct tm *nowtm = NULL;
-#if __cplusplus > 199711L && !defined(WIN32)
+#if __cplusplus > 199711L && !defined(_WIN32)
   // localtime_r is a thread-safe versions of localtime,
 	// but they're defined only in newer compilers (>= C++0x).
 	// on Windows localtime is already thread-safe so there is not need

@@ -1,7 +1,7 @@
 #ifndef PCAPPP_PCAP_REMOTE_DEVICE
 #define PCAPPP_PCAP_REMOTE_DEVICE
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 
 #include <vector>
 #include "PcapLiveDevice.h"
@@ -142,6 +142,6 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif // WIN32 || WINx64
+#endif // _WIN32
 
 #endif /* PCAPPP_PCAP_REMOTE_DEVICE */

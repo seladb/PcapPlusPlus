@@ -274,7 +274,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 
 	//fetch all IP addresses from arp table
 	std::string ipsInArpTableAsString;
-#ifdef WIN32
+#ifdef _WIN32
 	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | for /f \"tokens=1\" \%i in ('findstr dynamic') do @echo \%i");
 	ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
 #else

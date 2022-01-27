@@ -64,7 +64,7 @@
 
 #elif defined __CYGWIN__
  #include <endian.h>
-#elif defined(WIN32) || defined(WINx64)
+#elif defined(_WIN32)
 #include <winsock2.h>
  #if(BYTE_ORDER == LITTLE_ENDIAN)
   #define htobe16(x) htons(x)
