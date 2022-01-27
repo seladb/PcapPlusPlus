@@ -669,7 +669,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	timespec timestamp = m_RawPacket->getPacketTimeStamp();
 	time_t nowtime = timestamp.tv_sec;
 	struct tm *nowtm = NULL;
-#if __cplusplus > 199711L && !defined(WIN32)
+#if __cplusplus > 199711L && !defined(_WIN32)
   // localtime_r and gmtime_r are thread-safe versions of localtime and gmtime,
 	// but they're defined only in newer compilers (>= C++0x).
 	// on Windows localtime and gmtime are already thread-safe so there is not need

@@ -373,7 +373,7 @@ namespace pcpp
 		// private c'tor
 		ApplicationEventHandler();
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 		static int handlerRoutine(unsigned long fdwCtrlType);
 #else
 		static void handlerRoutine(int signum);

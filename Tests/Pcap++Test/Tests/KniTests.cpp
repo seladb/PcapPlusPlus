@@ -11,7 +11,7 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 
 #ifdef USE_DPDK
-#ifdef LINUX
+#ifdef __linux__
 
 #define KNI_TEST_NAME "tkni"
 
@@ -106,7 +106,7 @@ class KniDeviceTeardown
 
 PTF_TEST_CASE(TestKniDevice)
 {
-#if defined(USE_DPDK) && defined(LINUX)
+#if defined(USE_DPDK) && defined(__linux__)
 
 	if (PcapTestGlobalArgs.kniIp == "")
 	{
@@ -279,7 +279,7 @@ PTF_TEST_CASE(TestKniDevice)
 
 PTF_TEST_CASE(TestKniDeviceSendReceive)
 {
-#if defined(USE_DPDK) && defined(LINUX)
+#if defined(USE_DPDK) && defined(__linux__)
 
 	if (PcapTestGlobalArgs.kniIp == "")
 	{

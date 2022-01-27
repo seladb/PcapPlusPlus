@@ -6,7 +6,7 @@
 #include "IpAddress.h"
 
 // for AF_INET, AF_INET6
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
+#if !defined(_WIN32)
 #include <sys/socket.h>
 #endif
 

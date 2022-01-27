@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include "IPv4Layer.h"
 #include <sstream>
-#if defined(WINx64)
+#if defined(_WIN32)
 #include <winsock2.h>
 #endif
 #include "pcap.h"

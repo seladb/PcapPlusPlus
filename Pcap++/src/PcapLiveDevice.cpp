@@ -15,7 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
 // This define statement eliminates these errors
@@ -30,15 +30,15 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
-#endif // if defined(WIN32) || defined(WINx64)
-#if defined(MAC_OS_X) || defined(FREEBSD)
+#endif // if defined(_WIN32)
+#if defined(__APPLE__) || defined(__FreeBSD__)
 #include <net/if_dl.h>
 #include <sys/sysctl.h>
 #endif
 
 // On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
 // On Linux and Windows this is not the case so we keep the -1 value
-#if defined(MAC_OS_X) || defined(FREEBSD)
+#if defined(__APPLE__) || defined(__FreeBSD__)
 #define LIBPCAP_OPEN_LIVE_TIMEOUT 1
 #else
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
@@ -725,7 +725,7 @@ std::string PcapLiveDevice::printThreadId(PcapThread* id)
 
 void PcapLiveDevice::setDeviceMtu()
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 
 	if (m_IsLoopback)
 	{
@@ -794,7 +794,7 @@ void PcapLiveDevice::setDeviceMtu()
 
 void PcapLiveDevice::setDeviceMacAddress()
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 
 	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name.c_str());
 	if (adapter == NULL)
@@ -830,7 +830,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	{
 		LOG_DEBUG("Error in retrieving MAC address: PacketRequest failed");
 	}
-#elif LINUX
+#elif defined(__linux__)
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
@@ -844,7 +844,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	}
 
 	m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
-#elif MAC_OS_X || FREEBSD
+#elif defined(__APPLE__) || defined(__FreeBSD__)
 	int	mib[6];
 	size_t len;
 
@@ -883,7 +883,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 
 void PcapLiveDevice::setDefaultGateway()
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
 	uint8_t* buffer = new uint8_t[outBufLen];
 	PIP_ADAPTER_INFO adapterInfo = (IP_ADAPTER_INFO*)buffer;
@@ -914,7 +914,7 @@ void PcapLiveDevice::setDefaultGateway()
 
 	delete[] buffer;
 	delete[] buffer2;
-#elif LINUX
+#elif defined(__linux__)
 	std::ifstream routeFile("/proc/net/route");
 	std::string line;
 	while (std::getline(routeFile, line))
@@ -939,7 +939,7 @@ void PcapLiveDevice::setDefaultGateway()
 		interfaceGatewayStream >> interfaceGatewayIPInt;
 		m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
 	}
-#elif MAC_OS_X || FREEBSD
+#elif defined(__APPLE__) || defined(__FreeBSD__)
 	std::string command = "netstat -nr | grep default | grep " + m_Name;
 	std::string ifaceInfo = executeShellCommand(command);
 	if (ifaceInfo == "")
