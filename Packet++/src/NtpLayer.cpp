@@ -15,7 +15,7 @@ namespace pcpp
 
     NTPLeapIndicator NtpLayer::getLeapIndicator() const
     {
-        if(getNtpHeader()->leapIndicator < 4) // Since leap indicator field is 2bit
+        if (getNtpHeader()->leapIndicator < 4) // Since leap indicator field is 2bit
             return static_cast<NTPLeapIndicator>(getNtpHeader()->leapIndicator);
         return Unknown;
     }
@@ -37,7 +37,7 @@ namespace pcpp
 
     NTPMode NtpLayer::getMode() const
     {
-        if(getNtpHeader()->mode < 8) // Since mode field 3bit
+        if (getNtpHeader()->mode < 8) // Since mode field 3bit
             return static_cast<NTPMode>(getNtpHeader()->mode);
         return Reserved;
     }
@@ -46,25 +46,25 @@ namespace pcpp
     {
         switch (getMode())
         {
-            case Reserved:
-                return "Reserved";
-            case SymActive:
-                return "Symmetrically Active";
-            case SymPassive:
-                return "Symmetrically Passive";
-            case Client:
-                return "Client";
-            case Server:
-                return "Server";
-            case Broadcast:
-                return "Broadcast";
-            case Control:
-                return "Control";
-            case PrivateUse:
-                return "Private Use";
-            default:
-                LOG_ERROR("Unknown NTP Mode");
-                return std::string();
+        case Reserved:
+            return "Reserved";
+        case SymActive:
+            return "Symmetrically Active";
+        case SymPassive:
+            return "Symmetrically Passive";
+        case Client:
+            return "Client";
+        case Server:
+            return "Server";
+        case Broadcast:
+            return "Broadcast";
+        case Control:
+            return "Control";
+        case PrivateUse:
+            return "Private Use";
+        default:
+            LOG_ERROR("Unknown NTP Mode");
+            return std::string();
         }
     }
 
@@ -412,7 +412,7 @@ namespace pcpp
                 ntp_v4_auth_md5 *header = (ntp_v4_auth_md5 *)(m_Data + m_DataLen - sizeof(ntp_v4_auth_md5));
                 return header->keyID;
             }
-            if(m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_sha1)))
+            if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_sha1)))
             {
                 ntp_v4_auth_sha1 *header = (ntp_v4_auth_sha1 *)(m_Data + m_DataLen - sizeof(ntp_v4_auth_sha1));
                 return header->keyID;
@@ -420,7 +420,6 @@ namespace pcpp
 
             LOG_ERROR("NTP authentication parsing with extension fields are not supported");
             return 0;
-            
         }
         default:
         {
@@ -543,14 +542,14 @@ namespace pcpp
         if (timer != NULL)
             timer = &timer_r;
 #endif
-        if(timer == NULL)
+        if (timer == NULL)
         {
             LOG_ERROR("Can't convert time");
             return std::string();
         }
         strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", timer);
 
-        snprintf(bufferFraction, sizeof(bufferFraction), "%.06lfZ", fabs(fractionPart));
+        snprintf(bufferFraction, sizeof(bufferFraction), "%.04lfZ", fabs(fractionPart));
         strncat(buffer, &bufferFraction[1], sizeof(bufferFraction));
 
         return std::string(buffer);

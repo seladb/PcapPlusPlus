@@ -20,15 +20,15 @@ PTF_TEST_CASE(NtpMethodsTests)
 
     // First check the epoch is correct
 #if defined(_WIN32)
-    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(0.0), std::string("1970-01-01T00:00:00.000000Z"));
-    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(uint64_t(0)), std::string("1970-01-01T00:00:00.000000Z"));
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(0.0), std::string("1970-01-01T00:00:00.0000Z"));
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(uint64_t(0)), std::string("1970-01-01T00:00:00.0000Z"));
 #else
-    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(0.0), std::string("1970-01-01T00:00:00.000000Z"));
-    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(uint64_t(0)), std::string("1900-01-01T00:00:00.000000Z"));
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(0.0), std::string("1970-01-01T00:00:00.0000Z"));
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(uint64_t(0)), std::string("1900-01-01T00:00:00.0000Z"));
 #endif
 
-    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(1642879410.0), "2022-01-22T19:23:30.000000Z");
-    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(pcpp::NtpLayer::convertToTimestampFormat(1642879410.0)), "2022-01-22T19:23:30.000000Z");
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(1642879410.0), "2022-01-22T19:23:30.0000Z");
+    PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertToIsoFormat(pcpp::NtpLayer::convertToTimestampFormat(1642879410.0)), "2022-01-22T19:23:30.0000Z");
 
 } // NtpMethodsTests
 
@@ -70,15 +70,15 @@ PTF_TEST_CASE(NtpParsingV3Tests)
     PTF_ASSERT_TRUE(fabs(ntpLayer->getTransmitTimestampInSecs() - 1436864657.0) < EPSILON);
 
 #if defined(_WIN32)
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "1970-01-01T00:00:00.000000Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "1970-01-01T00:00:00.000000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "1970-01-01T00:00:00.0000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "1970-01-01T00:00:00.0000Z");
 #else
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "1900-01-01T00:00:00.000000Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "1900-01-01T00:00:00.000000Z"); 
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "1900-01-01T00:00:00.0000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "1900-01-01T00:00:00.0000Z"); 
 #endif
 
-    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "2015-07-14T09:04:17.000000Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2015-07-14T09:04:17.000000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "2015-07-14T09:04:17.0000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2015-07-14T09:04:17.0000Z");
 
 } // NtpParsingV3Tests
 
@@ -120,10 +120,10 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_TRUE(fabs(ntpLayer->getReceiveTimestampInSecs() - 1436145877.194166747) < EPSILON);
     PTF_ASSERT_TRUE(fabs(ntpLayer->getTransmitTimestampInSecs() - 1436865396.176374611) < EPSILON);
 
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "2015-07-14T09:15:47.192958Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "2015-07-06T01:24:37.188285Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "2015-07-06T01:24:37.194167Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2015-07-14T09:16:36.176374Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "2015-07-14T09:15:47.1930Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "2015-07-06T01:24:37.1883Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "2015-07-06T01:24:37.1942Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2015-07-14T09:16:36.1764Z");
 
     // Test Ipv6
     READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv4Ipv6_withAuth.dat");
@@ -159,15 +159,15 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_TRUE(fabs(ntpLayer->getReceiveTimestampInSecs() - -double(EPOCH_OFFSET)) < EPSILON);
     PTF_ASSERT_TRUE(fabs(ntpLayer->getTransmitTimestampInSecs() - 1495804929.482904187) < EPSILON);
 
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "2017-05-26T13:10:47.476652Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "2017-05-26T13:10:47.4767Z");
     #if defined(_WIN32)
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "1970-01-01T00:00:00.000000Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "1970-01-01T00:00:00.000000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "1970-01-01T00:00:00.0000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "1970-01-01T00:00:00.0000Z");
     #else
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "1900-01-01T00:00:00.000000Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "1900-01-01T00:00:00.000000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "1900-01-01T00:00:00.0000Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "1900-01-01T00:00:00.0000Z");
     #endif
-    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2017-05-26T13:22:09.482904Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2017-05-26T13:22:09.4829Z");
 
 
     READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ntpv4Ipv6_withAuth2.dat");
@@ -203,10 +203,10 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_TRUE(fabs(ntpLayer->getReceiveTimestampInSecs() - 1495805028.55711825) < EPSILON);
     PTF_ASSERT_TRUE(fabs(ntpLayer->getTransmitTimestampInSecs() - 1495805028.557834828) < EPSILON);
 
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "2017-05-26T13:23:11.888536Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "2017-05-26T13:23:48.556692Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "2017-05-26T13:23:48.557118Z");
-    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2017-05-26T13:23:48.557835Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestampAsString(), "2017-05-26T13:23:11.8885Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "2017-05-26T13:23:48.5567Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "2017-05-26T13:23:48.5571Z");
+    PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2017-05-26T13:23:48.5578Z");
 
 } // NtpParsingV4Tests
 
