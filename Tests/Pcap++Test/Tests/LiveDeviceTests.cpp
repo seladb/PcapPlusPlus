@@ -266,7 +266,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
-	DeviceTeardown devTeardown(liveDev);
+	DeviceTeardown devTeardown(liveDev, true);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
 	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
@@ -296,8 +296,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
 	pcpp::Logger::getInstance().enableLogs();
 
-	delete liveDev;
 } // TestPcapLiveDeviceClone
+
 
 
 PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
