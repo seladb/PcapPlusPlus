@@ -3,7 +3,7 @@ if defined NPCAP_USERNAME set /A NPCAP_OEM_CREDENTIALS_DEFINED=NPCAP_OEM_CREDENT
 if defined NPCAP_PASSWORD set /A NPCAP_OEM_CREDENTIALS_DEFINED=NPCAP_OEM_CREDENTIALS_DEFINED+1
 
 if "%NPCAP_OEM_CREDENTIALS_DEFINED%"=="2" (
-	set NPCAP_FILE=npcap-0.9988-oem.exe
+	set NPCAP_FILE=npcap-1.60-oem.exe
 ) else (
 	:: Silent mode is disabled for newer non-oem version
 	set NPCAP_FILE=npcap-0.96.exe
