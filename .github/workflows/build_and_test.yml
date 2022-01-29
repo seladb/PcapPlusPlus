@@ -51,10 +51,14 @@ jobs:
           ${{ matrix.python }} -m pip install -r requirements.txt
           ${{ matrix.python }} -m pytest
 
-      - name: Check installation and build Tutorials
+      - name: Check installation
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
           make install
+
+      - name: Build Tutorials
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
           cd Examples/Tutorials/Tutorial-HelloWorld
           make -f Makefile.non_windows all
           ./Tutorial-HelloWorld
@@ -191,10 +195,14 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pytest
 
-      - name: Check installation and build Tutorials
+      - name: Check installation
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
           make install
+
+      - name: Build Tutorials
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
           cd Examples/Tutorials/Tutorial-HelloWorld
           make -f Makefile.non_windows all
           ./Tutorial-HelloWorld
