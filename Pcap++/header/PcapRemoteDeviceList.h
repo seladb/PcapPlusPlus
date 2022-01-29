@@ -1,8 +1,6 @@
 #ifndef PCAPP_PCAP_REMOTE_DEVICE_LIST
 #define PCAPP_PCAP_REMOTE_DEVICE_LIST
 
-#if defined(_WIN32)
-
 #include "IpAddress.h"
 #include "PcapRemoteDevice.h"
 
@@ -146,7 +144,5 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif // _WIN32
 
 #endif /* PCAPP_PCAP_REMOTE_DEVICE_LIST */

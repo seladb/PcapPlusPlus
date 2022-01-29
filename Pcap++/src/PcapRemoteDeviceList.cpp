@@ -1,5 +1,3 @@
-#if defined(_WIN32)
-
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
 #include "PcapRemoteDeviceList.h"
@@ -219,5 +217,3 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 }
 
 } // namespace pcpp
-
-#endif // _WIN32

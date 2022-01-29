@@ -1,5 +1,3 @@
-#if defined(_WIN32)
-
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
 #include "PcapRemoteDevice.h"
@@ -136,5 +134,3 @@ MacAddress PcapRemoteDevice::getMacAddress() const
 }
 
 } // namespace pcpp
-
-#endif // _WIN32

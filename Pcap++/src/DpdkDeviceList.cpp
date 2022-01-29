@@ -1,5 +1,3 @@
-#ifdef USE_DPDK
-
 #define LOG_MODULE PcapLogModuleDpdkDevice
 
 #define __STDC_LIMIT_MACROS
@@ -418,5 +416,3 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 }
 
 } // namespace pcpp
-
-#endif /* USE_DPDK */

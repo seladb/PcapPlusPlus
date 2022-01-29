@@ -1,5 +1,3 @@
-#ifdef USE_PF_RING
-
 #define LOG_MODULE PcapLogModulePfRingDevice
 
 #include "PfRingDevice.h"
@@ -881,5 +879,3 @@ void PfRingDevice::CoreConfiguration::clear()
 }
 
 } // namespace pcpp
-
-#endif /* USE_PF_RING */

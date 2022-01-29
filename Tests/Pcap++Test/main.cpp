@@ -242,6 +242,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPrintPacketAndLayers, "no_network;print");
 	PTF_RUN_TEST(TestDnsParsing, "no_network;dns");
 
+#ifdef USE_PF_RING
 	PTF_RUN_TEST(TestPfRingDevice, "pf_ring");
 	PTF_RUN_TEST(TestPfRingDeviceSingleChannel, "pf_ring");
 	PTF_RUN_TEST(TestPfRingMultiThreadAllCores, "pf_ring");
@@ -249,7 +250,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPfRingSendPacket, "pf_ring");
 	PTF_RUN_TEST(TestPfRingSendPackets, "pf_ring");
 	PTF_RUN_TEST(TestPfRingFilters, "pf_ring");
+#endif
 
+#ifdef USE_DPDK
 	PTF_RUN_TEST(TestDpdkInitDevice, "dpdk;dpdk-init;skip_mem_leak_check");
 	PTF_RUN_TEST(TestDpdkDevice, "dpdk");
 	PTF_RUN_TEST(TestDpdkMultiThread, "dpdk");
@@ -259,6 +262,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TestKniDevice, "dpdk;kni;skip_mem_leak_check");
 	PTF_RUN_TEST(TestKniDeviceSendReceive, "dpdk;kni;skip_mem_leak_check");
+#endif
 
 	PTF_RUN_TEST(TestTcpReassemblySanity, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyRetran, "no_network;tcp_reassembly");

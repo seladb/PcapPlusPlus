@@ -11,9 +11,6 @@
 extern PcapTestArgs PcapTestGlobalArgs;
 #endif
 
-#ifdef USE_DPDK
-#ifdef __linux__
-
 #define KNI_TEST_NAME "tkni"
 
 struct KniRequestsCallbacksMock
@@ -101,14 +98,9 @@ class KniDeviceTeardown
 		}
 };
 
-#endif // LINUX
-#endif // USE_DPDK
-
 
 PTF_TEST_CASE(TestKniDevice)
 {
-#if defined(USE_DPDK) && defined(__linux__)
-
 	if (PcapTestGlobalArgs.kniIp == "")
 	{
 		PTF_SKIP_TEST("KNI IP not provided");
@@ -268,11 +260,6 @@ PTF_TEST_CASE(TestKniDevice)
 	device->stopRequestHandlerThread();
 	device->close();
 	// Device will be destroyed later
-
-
-#else
-	PTF_SKIP_TEST("DPDK not configured");
-#endif
 } // TestKniDevice
 
 
@@ -280,8 +267,6 @@ PTF_TEST_CASE(TestKniDevice)
 
 PTF_TEST_CASE(TestKniDeviceSendReceive)
 {
-#if defined(USE_DPDK) && defined(__linux__)
-
 	if (PcapTestGlobalArgs.kniIp == "")
 	{
 		PTF_SKIP_TEST("KNI IP not provided");
@@ -475,9 +460,5 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	device->stopRequestHandlerThread();
 	device->close();
 	fileReaderDev.close();
-
-#else
-	PTF_SKIP_TEST("DPDK not configured");
-#endif
 
 } // TestKniDeviceSendReceive

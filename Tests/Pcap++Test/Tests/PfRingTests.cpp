@@ -15,8 +15,6 @@
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
-#ifdef USE_PF_RING
-
 struct PfRingPacketData
 {
 	uint8_t ThreadId;
@@ -183,15 +181,9 @@ int incSleepSetFilter(int maxSleepTime, const SetFilterInstruction& packetData)
 
 static pcpp::CoreMask TestPfRingMultiThreadCoreMask;
 
-#endif
-
-
-
 
 PTF_TEST_CASE(TestPfRingDevice)
 {
-#ifdef USE_PF_RING
-
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	PTF_ASSERT_GREATER_THAN(devList.getPfRingDevicesList().size(), 0);
 	PTF_ASSERT_NOT_EQUAL(devList.getPfRingVersion(), "");
@@ -235,10 +227,6 @@ PTF_TEST_CASE(TestPfRingDevice)
 	PTF_PRINT_VERBOSE("Device statistics:");
 	PTF_PRINT_VERBOSE("Packets captured: " << stats.recv);
 	PTF_PRINT_VERBOSE("Packets dropped: " << stats.drop);
-
-#else
-	PTF_SKIP_TEST("PF_RING not configured");
-#endif
 } // TestPfRingDevice
 
 
@@ -246,8 +234,6 @@ PTF_TEST_CASE(TestPfRingDevice)
 
 PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 {
-#ifdef USE_PF_RING
-
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
@@ -279,10 +265,6 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 
 	dev->close();
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0);
-
-#else
-	PTF_SKIP_TEST("PF_RING not configured");
-#endif
 } // TestPfRingDeviceSingleChannel
 
 
@@ -290,7 +272,6 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 
 PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 {
-#ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
@@ -376,10 +357,6 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 
 		dev->close();
 	}
-
-#else
-	PTF_SKIP_TEST("PF_RING not configured");
-#endif
 } // TestPfRingDeviceMultiThread (internal test case)
 
 
@@ -388,7 +365,6 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 
 PTF_TEST_CASE(TestPfRingMultiThreadAllCores)
 {
-#ifdef USE_PF_RING
 	int numOfCores = pcpp::getNumOfCores();
 	pcpp::CoreMask coreMask = 0;
 	std::ostringstream cores;
@@ -402,10 +378,6 @@ PTF_TEST_CASE(TestPfRingMultiThreadAllCores)
 
 	TestPfRingMultiThreadCoreMask = coreMask;
 	PTF_INTERNAL_RUN(TestPfRingDeviceMultiThread);
-
-#else
-	PTF_SKIP_TEST("PF_RING not configured");
-#endif
 } // TestPfRingMultiThreadAllCores
 
 
@@ -413,7 +385,6 @@ PTF_TEST_CASE(TestPfRingMultiThreadAllCores)
 
 PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 {
-#ifdef USE_PF_RING
 	int numOfCores = pcpp::getNumOfCores();
 	pcpp::CoreMask coreMask = 0;
 	std::ostringstream cores;
@@ -430,10 +401,6 @@ PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 
 	TestPfRingMultiThreadCoreMask = coreMask;
 	PTF_INTERNAL_RUN(TestPfRingDeviceMultiThread);
-
-#else
-	PTF_SKIP_TEST("PF_RING not configured");
-#endif
 } // TestPfRingMultiThreadSomeCores
 
 
@@ -441,7 +408,6 @@ PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 
 PTF_TEST_CASE(TestPfRingSendPacket)
 {
-#ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
@@ -497,10 +463,6 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 	dev->close();
 
 	fileReaderDev.close();
-
-#else
-	PTF_SKIP_TEST("PF_RING not configured");
-#endif
 } // TestPfRingSendPacket
 
 
@@ -508,7 +470,6 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 
 PTF_TEST_CASE(TestPfRingSendPackets)
 {
-#ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
@@ -542,10 +503,6 @@ PTF_TEST_CASE(TestPfRingSendPackets)
 
 	dev->close();
 	fileReaderDev.close();
-
-#else
-	PTF_SKIP_TEST("PF_RING not configured");
-#endif
 } // TestPfRingSendPackets
 
 
@@ -553,7 +510,6 @@ PTF_TEST_CASE(TestPfRingSendPackets)
 
 PTF_TEST_CASE(TestPfRingFilters)
 {
-#ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
@@ -598,7 +554,4 @@ PTF_TEST_CASE(TestPfRingFilters)
 	PTF_ASSERT_TRUE(dev->clearFilter());
 	PTF_ASSERT_FALSE(dev->isFilterCurrentlySet());
 
-#else
-	PTF_SKIP_TEST("PF_RING not configured");
-#endif
 }

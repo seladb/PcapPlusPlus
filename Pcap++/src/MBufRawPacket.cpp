@@ -1,5 +1,3 @@
-#ifdef USE_DPDK
-
 #define LOG_MODULE PcapLogModuleMBufRawPacket
 
 #define __STDC_LIMIT_MACROS
@@ -329,4 +327,3 @@ void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp)
 }
 
 } // namespace pcpp
-#endif  /* USE_DPDK */

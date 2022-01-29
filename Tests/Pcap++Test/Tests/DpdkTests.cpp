@@ -20,7 +20,6 @@
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
-#ifdef USE_DPDK
 struct DpdkPacketData
 {
 	uint8_t ThreadId;
@@ -234,15 +233,12 @@ public:
 	bool threadRanAndStopped() { return m_RanAndStopped; }
 };
 
-#endif // USE_DPDK
-
 
 
 
 
 PTF_TEST_CASE(TestDpdkInitDevice)
 {
-#ifdef USE_DPDK
 	pcpp::DpdkDeviceList& devList = pcpp::DpdkDeviceList::getInstance();
 	PTF_ASSERT_GREATER_THAN(devList.getDpdkDeviceList().size(), 0);
 
@@ -250,9 +246,6 @@ PTF_TEST_CASE(TestDpdkInitDevice)
 	devList.setDpdkLogLevel(pcpp::Logger::Debug);
 	PTF_ASSERT_EQUAL(devList.getDpdkLogLevel(), pcpp::Logger::Debug, enum);
 	devList.setDpdkLogLevel(pcpp::Logger::Info);
-#else
-	PTF_SKIP_TEST("DPDK not configured");
-#endif
 } // TestDpdkInitDevice
 
 
@@ -260,7 +253,6 @@ PTF_TEST_CASE(TestDpdkInitDevice)
 
 PTF_TEST_CASE(TestDpdkDevice)
 {
-#ifdef USE_DPDK
 	PTF_ASSERT_GREATER_THAN(pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList().size(), 0);
 
 	pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(PcapTestGlobalArgs.dpdkPort);
@@ -359,10 +351,6 @@ PTF_TEST_CASE(TestDpdkDevice)
 	PTF_ASSERT_LOWER_OR_EQUAL_THAN(statsVsPacketCount, 20);
 
 	dev->close();
-
-#else
-	PTF_SKIP_TEST("DPDK not configured");
-#endif
 } // TestDpdkDevice
 
 
@@ -370,7 +358,6 @@ PTF_TEST_CASE(TestDpdkDevice)
 
 PTF_TEST_CASE(TestDpdkMultiThread)
 {
-#ifdef USE_DPDK
 	PTF_ASSERT_GREATER_THAN(pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList().size(), 0);
 
 	pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(PcapTestGlobalArgs.dpdkPort);
@@ -524,10 +511,6 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	}
 
 	dev->close();
-
-#else
-	PTF_SKIP_TEST("DPDK not configured");
-#endif
 } // TestDpdkMultiThread
 
 
@@ -535,7 +518,6 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 {
-#ifdef USE_DPDK
 	PTF_ASSERT_GREATER_THAN(pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList().size(), 0);
 
 	pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(PcapTestGlobalArgs.dpdkPort);
@@ -598,10 +580,6 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 
 	dev->close();
 	fileReaderDev.close();
-
-#else
-	PTF_SKIP_TEST("DPDK not configured");
-#endif
 } // TestDpdkDeviceSendPackets
 
 
@@ -609,7 +587,6 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 
 PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 {
-#ifdef USE_DPDK
 	PTF_ASSERT_GREATER_THAN(pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList().size(), 0);
 
 	pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(PcapTestGlobalArgs.dpdkPort);
@@ -818,10 +795,6 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 
 	dev->close();
-
-#else
-	PTF_SKIP_TEST("DPDK not configured");
-#endif
 } // TestDpdkDeviceWorkerThreads
 
 
@@ -829,7 +802,6 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 PTF_TEST_CASE(TestDpdkMbufRawPacket)
 {
-#ifdef USE_DPDK
 	PTF_ASSERT_GREATER_THAN(pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList().size(), 0);
 
 	pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(PcapTestGlobalArgs.dpdkPort);
@@ -1012,8 +984,4 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 	}
 
 	dev->close();
-
-#else
-	PTF_SKIP_TEST("DPDK not configured");
-#endif
 } // TestDpdkMbufRawPacket
