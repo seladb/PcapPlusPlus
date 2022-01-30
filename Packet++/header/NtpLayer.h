@@ -8,17 +8,7 @@
 #include "GeneralUtils.h"
 #include "SystemUtils.h"
 
-#include <math.h>
-#include <stdlib.h>
-
 /// @file
-
-/// 2^16 as a double
-#define NTP_FRIC 65536.
-/// 2^32 as a double
-#define NTP_FRAC 4294967296.
-/// Epoch offset between Unix time and NTP
-#define EPOCH_OFFSET 2208988800ULL
 
 /**
  * \namespace pcpp
@@ -27,8 +17,11 @@
 namespace pcpp
 {
     /**
-     * @brief The NTP packet header consists of an integral number of 32-bit (4 octet) words in network byte order. 
-     * The packet format consists of three components: the header itself, one or more optional extension fields, 
+	 * @class NtpLayer
+	 * Represents a NTP (Network Time Protocol) layer
+     * 
+     * @brief The NTP packet consists of an integral number of 32-bit (4 octet) words in network byte order. 
+     * The packet format consists of three components: the header itself, one or more optional extension fields (for v4), 
      * and an optional message authentication code (MAC). Currently the extension fields are not supported. The NTP header is:
      * 
      * @verbatim 
@@ -79,216 +72,193 @@ namespace pcpp
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      * @endverbatim
      * 
-     */
-#pragma pack(push, 1)
-    struct ntp_header
-    {
-#if (BYTE_ORDER == LITTLE_ENDIAN)
-        /// 3-bit integer representing the mode
-        uint8_t mode:3,
-        /// 3-bit integer representing the NTP version number
-        version:3,
-        /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
-        leapIndicator:2;
-#else
-        /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
-        uint8_t leapIndicator:2,
-        /// 3-bit integer representing the NTP version number
-        version:3,
-        /// 3-bit integer representing the mode
-        mode:3;
-#endif
-        /// 8-bit integer representing the stratum
-        uint8_t stratum;
-        /// Total round-trip delay to the reference clock, in NTP short format.
-        int8_t pollInterval,
-        /// 8-bit signed integer representing the precision of the system clock, in log2 seconds.
-        precision;
-        /// Total round-trip delay to the reference clock, in NTP short format.
-        uint32_t rootDelay,
-        /// Total dispersion to the reference clock, in NTP short format.
-        rootDispersion,
-        /// 32-bit code identifying the particular server or reference clock.  The interpretation depends on the value in the stratum field.
-        referenceIdentifier;
-        /// Time when the system clock was last set or corrected, in NTP timestamp format.
-        uint64_t referenceTimestamp,
-        /// Time at the client when the request departed for the server, in NTP timestamp format.
-        originTimestamp,
-        /// Time at the client when the request departed for the server, in NTP timestamp format.
-        receiveTimestamp,
-        /// Time at the server when the response left for the client, in NTP timestamp format.
-        transmitTimestamp;
-    };
-#pragma pack(pop)
-
-    /**
-     * Authentication part (optional) for NTPv3 with following fields,
-     * 
-     * KeyID: An integer identifying the cryptographic key used to generate 
-     * the message-authentication code
-     * Digest: This is an integer identifying the cryptographic key used to
-     * generate the message-authentication code. 
-     * 
-     * For more information RFC-1305 Appendix C
-     */
-#pragma pack(push, 1)
-    struct ntp_v3_auth
-    {
-        /// An integer identifying the cryptographic key used to generate the message-authentication code
-        uint32_t keyID;
-        /// This is an integer identifying the cryptographic key used to generate the message-authentication code.
-        uint8_t dgst[8]; // 64 bit DES based
-    };
-#pragma pack(pop)
-
-    /**
-     * Authentication part (optional) for NTPv4 with following fields,
-     * 
-     * KeyID: 32-bit unsigned integer used by the client and server to designate 
-     * a secret 128-bit MD5 key.
-     * Digest: 128-bit MD5 hash or 160-bit SHA1 hash computed over the key followed by the NTP packet 
-     * header and extensions fields (but not the Key Identifier or Message Digest
-     * fields)
-     */
-#pragma pack(push, 1)
-    struct ntp_v4_auth_md5
-    {
-        /// 32-bit unsigned integer used by the client and server to designate a secret 128-bit MD5 key.
-        uint32_t keyID;
-        /// 128-bit MD5 hash
-        uint8_t dgst[16];
-    };
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-    struct ntp_v4_auth_sha1
-    {
-        /// 32-bit unsigned integer used by the client and server to designate a secret 160-bit SHA1 key.
-        uint32_t keyID;
-        /// 160-bit SHA1 hash
-        uint8_t dgst[20];
-    };
-
-    /**
-    * Warning of an impending leap second to be inserted or deleted in the last minute of the current month
-    */
-    enum NTPLeapIndicator
-    {
-        NoWarning = 0,
-        /// Last minute of the day has 61 seconds
-        Last61Secs,
-        /// Last minute of the day has 59 seconds
-        Last59Secs,
-        /// Unknown (clock unsynchronized)
-        Unknown
-    };
-
-    /**
-     * Representing the NTP association modes
-     */
-    enum NTPMode
-    {
-        Reserved = 0,
-        SymActive,
-        SymPassive,
-        Client,
-        Server,
-        Broadcast,
-        Control,
-        PrivateUse
-    };
-
-    /**
-     * 32-bit code identifying the particular server or reference clock. 
-     * The interpretation depends on the value in the stratum field.
-     */
-    enum NTPClockSource
-    {
-        // NTPv4
-
-        /// Geosynchronous Orbit Environment Satellite
-        GOES = ('G') | ('O' << 8) | ('E' << 16) | ('S' << 24),
-        /// Global Position System
-        GPS = ('G') | ('P' << 8) | ('S' << 16),
-        /// Galileo Positioning System
-        GAL = ('G') | ('A' << 8) | ('L' << 16),
-        /// Generic pulse-per-second
-        PPS = ('P') | ('P' << 8) | ('S' << 16),
-        /// Inter-Range Instrumentation Group
-        IRIG = ('I') | ('R' << 8) | ('I' << 16) | ('G' << 24),
-        /// LF Radio WWVB Ft. Collins, CO 60 kHz
-        WWVB = ('W') | ('W' << 8) | ('V' << 16) | ('B' << 24),
-        /// LF Radio DCF77 Mainflingen, DE 77.5 kHz
-        DCF = ('D') | ('C' << 8) | ('F' << 16),
-        /// LF Radio HBG Prangins, HB 75 kHz
-        HBG = ('H') | ('B' << 8) | ('G' << 16),
-        /// LF Radio MSF Anthorn, UK 60 kHz
-        MSF = ('M') | ('S' << 8) | ('F' << 16),
-        /// LF Radio JJY Fukushima, JP 40 kHz, Saga, JP 60 kHz
-        JJY = ('J') | ('J' << 8) | ('Y' << 16),
-        /// MF Radio LORAN C station, 100 kHz
-        LORC = ('L') | ('O' << 8) | ('R' << 16) | ('C' << 24),
-        /// MF Radio Allouis, FR 162 kHz
-        TDF = ('T') | ('D' << 8) | ('F' << 16),
-        /// HF Radio CHU Ottawa, Ontario
-        CHU = ('C') | ('H' << 8) | ('U' << 16),
-        /// HF Radio WWV Ft. Collins, CO
-        WWV = ('W') | ('W' << 8) | ('V' << 16),
-        /// HF Radio WWVH Kauai, HI
-        WWVH = ('W') | ('W' << 8) | ('V' << 16) | ('H' << 24),
-        /// NIST telephone modem
-        NIST = ('N') | ('I' << 8) | ('S' << 16) | ('T' << 24),
-        /// NIST telephone modem
-        ACTS = ('A') | ('C' << 8) | ('T' << 16) | ('S' << 24),
-        /// USNO telephone modem
-        USNO = ('U') | ('S' << 8) | ('N' << 16) | ('O' << 24),
-        /// European telephone modem
-        PTB = ('P') | ('T' << 8) | ('B' << 16),
-        /// Meinberg DCF77 with amplitud modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
-        DCFa = ('D') | ('C' << 8) | ('F' << 16) | ('a' << 24),
-        /// Meinberg DCF77 with phase modulation)/pseudo random phase modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
-        DCFp = ('D') | ('C' << 8) | ('F' << 16) | ('p' << 24),
-        /// Meinberg GPS (with shared memory access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
-        GPSs = ('G') | ('P' << 8) | ('S' << 16) | ('s' << 24),
-        /// Meinberg GPS (with interrupt based access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
-        GPSi = ('G') | ('P' << 8) | ('S' << 16) | ('i' << 24),
-        /// Meinberg GPS/GLONASS (with shared memory access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
-        GLNs = ('G') | ('L' << 8) | ('N' << 16) | ('s' << 24),
-        /// Meinberg GPS/GLONASS (with interrupt based access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
-        GLNi = ('G') | ('L' << 8) | ('N' << 16) | ('i' << 24),
-        /// Meinberg Undisciplined local clock (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
-        LCL = ('L') | ('C' << 8) | ('L' << 16),
-        /// Meinberg Undisciplined local clock (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
-        LOCL = ('L') | ('O' << 8) | ('C' << 16) | ('L' << 24),
-
-        // NTPv3
-
-        /// DCN routing protocol
-        DCN = ('D') | ('C' << 8) | ('N' << 16),
-        /// TSP time protocol
-        TSP = ('T') | ('S' << 8) | ('P' << 16),
-        /// Digital Time Service
-        DTS = ('D') | ('T' << 8) | ('S' << 16),
-        /// Atomic clock (calibrated)
-        ATOM = ('A') | ('T' << 8) | ('O' << 16) | ('M' << 24),
-        /// VLF radio (OMEGA, etc.)
-        VLF = ('V') | ('L' << 8) | ('F' << 16)
-
-    };
-
-    /**
-	 * @class NtpLayer
-	 * Represents a NTP (Network Time Protocol) layer
 	 */
     class NtpLayer : public Layer
     {
     private:
+#pragma pack(push, 1)
+        struct ntp_header
+        {
+#if (BYTE_ORDER == LITTLE_ENDIAN)
+            /// 3-bit integer representing the mode
+            uint8_t mode : 3,
+                /// 3-bit integer representing the NTP version number
+                version : 3,
+                /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
+                leapIndicator : 2;
+#else
+            /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
+            uint8_t leapIndicator : 2,
+                /// 3-bit integer representing the NTP version number
+                version : 3,
+                /// 3-bit integer representing the mode
+                mode : 3;
+#endif
+            /// 8-bit integer representing the stratum
+            uint8_t stratum;
+            /// Total round-trip delay to the reference clock, in NTP short format.
+            int8_t pollInterval,
+                /// 8-bit signed integer representing the precision of the system clock, in log2 seconds.
+                precision;
+            /// Total round-trip delay to the reference clock, in NTP short format.
+            uint32_t rootDelay,
+                /// Total dispersion to the reference clock, in NTP short format.
+                rootDispersion,
+                /// 32-bit code identifying the particular server or reference clock.  The interpretation depends on the value in the stratum field.
+                referenceIdentifier;
+            /// Time when the system clock was last set or corrected, in NTP timestamp format.
+            uint64_t referenceTimestamp,
+                /// Time at the client when the request departed for the server, in NTP timestamp format.
+                originTimestamp,
+                /// Time at the client when the request departed for the server, in NTP timestamp format.
+                receiveTimestamp,
+                /// Time at the server when the response left for the client, in NTP timestamp format.
+                transmitTimestamp;
+        };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+        struct ntp_v3_auth
+        {
+            /// An integer identifying the cryptographic key used to generate the message-authentication code
+            uint32_t keyID;
+            /// This is an integer identifying the cryptographic key used to generate the message-authentication code.
+            uint8_t dgst[8]; // 64 bit DES based
+        };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+        struct ntp_v4_auth_md5
+        {
+            /// 32-bit unsigned integer used by the client and server to designate a secret 128-bit MD5 key.
+            uint32_t keyID;
+            /// 128-bit MD5 hash
+            uint8_t dgst[16];
+        };
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+        struct ntp_v4_auth_sha1
+        {
+            /// 32-bit unsigned integer used by the client and server to designate a secret 160-bit SHA1 key.
+            uint32_t keyID;
+            /// 160-bit SHA1 hash
+            uint8_t dgst[20];
+        };
+
         ntp_header *getNtpHeader() const { return (ntp_header *)m_Data; }
 
     public:
         /**
+        * Warning of an impending leap second to be inserted or deleted in the last minute of the current month
+        */
+        enum NTPLeapIndicator
+        {
+            NoWarning = 0,
+            /// Last minute of the day has 61 seconds
+            Last61Secs,
+            /// Last minute of the day has 59 seconds
+            Last59Secs,
+            /// Unknown (clock unsynchronized)
+            Unknown
+        };
+
+        /**
+         * Representing the NTP association modes
+         */
+        enum NTPMode
+        {
+            Reserved = 0,
+            SymActive,
+            SymPassive,
+            Client,
+            Server,
+            Broadcast,
+            Control,
+            PrivateUse
+        };
+
+        /**
+         * 32-bit code identifying the particular server or reference clock. 
+         * The interpretation depends on the value in the stratum field.
+         */
+        enum NTPClockSource
+        {
+            // NTPv4
+
+            /// Geosynchronous Orbit Environment Satellite
+            GOES = ('G') | ('O' << 8) | ('E' << 16) | ('S' << 24),
+            /// Global Position System
+            GPS = ('G') | ('P' << 8) | ('S' << 16),
+            /// Galileo Positioning System
+            GAL = ('G') | ('A' << 8) | ('L' << 16),
+            /// Generic pulse-per-second
+            PPS = ('P') | ('P' << 8) | ('S' << 16),
+            /// Inter-Range Instrumentation Group
+            IRIG = ('I') | ('R' << 8) | ('I' << 16) | ('G' << 24),
+            /// LF Radio WWVB Ft. Collins, CO 60 kHz
+            WWVB = ('W') | ('W' << 8) | ('V' << 16) | ('B' << 24),
+            /// LF Radio DCF77 Mainflingen, DE 77.5 kHz
+            DCF = ('D') | ('C' << 8) | ('F' << 16),
+            /// LF Radio HBG Prangins, HB 75 kHz
+            HBG = ('H') | ('B' << 8) | ('G' << 16),
+            /// LF Radio MSF Anthorn, UK 60 kHz
+            MSF = ('M') | ('S' << 8) | ('F' << 16),
+            /// LF Radio JJY Fukushima, JP 40 kHz, Saga, JP 60 kHz
+            JJY = ('J') | ('J' << 8) | ('Y' << 16),
+            /// MF Radio LORAN C station, 100 kHz
+            LORC = ('L') | ('O' << 8) | ('R' << 16) | ('C' << 24),
+            /// MF Radio Allouis, FR 162 kHz
+            TDF = ('T') | ('D' << 8) | ('F' << 16),
+            /// HF Radio CHU Ottawa, Ontario
+            CHU = ('C') | ('H' << 8) | ('U' << 16),
+            /// HF Radio WWV Ft. Collins, CO
+            WWV = ('W') | ('W' << 8) | ('V' << 16),
+            /// HF Radio WWVH Kauai, HI
+            WWVH = ('W') | ('W' << 8) | ('V' << 16) | ('H' << 24),
+            /// NIST telephone modem
+            NIST = ('N') | ('I' << 8) | ('S' << 16) | ('T' << 24),
+            /// NIST telephone modem
+            ACTS = ('A') | ('C' << 8) | ('T' << 16) | ('S' << 24),
+            /// USNO telephone modem
+            USNO = ('U') | ('S' << 8) | ('N' << 16) | ('O' << 24),
+            /// European telephone modem
+            PTB = ('P') | ('T' << 8) | ('B' << 16),
+            /// Meinberg DCF77 with amplitud modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            DCFa = ('D') | ('C' << 8) | ('F' << 16) | ('a' << 24),
+            /// Meinberg DCF77 with phase modulation)/pseudo random phase modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            DCFp = ('D') | ('C' << 8) | ('F' << 16) | ('p' << 24),
+            /// Meinberg GPS (with shared memory access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            GPSs = ('G') | ('P' << 8) | ('S' << 16) | ('s' << 24),
+            /// Meinberg GPS (with interrupt based access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            GPSi = ('G') | ('P' << 8) | ('S' << 16) | ('i' << 24),
+            /// Meinberg GPS/GLONASS (with shared memory access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            GLNs = ('G') | ('L' << 8) | ('N' << 16) | ('s' << 24),
+            /// Meinberg GPS/GLONASS (with interrupt based access) (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            GLNi = ('G') | ('L' << 8) | ('N' << 16) | ('i' << 24),
+            /// Meinberg Undisciplined local clock (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            LCL = ('L') | ('C' << 8) | ('L' << 16),
+            /// Meinberg Undisciplined local clock (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            LOCL = ('L') | ('O' << 8) | ('C' << 16) | ('L' << 24),
+
+            // NTPv3
+
+            /// DCN routing protocol
+            DCN = ('D') | ('C' << 8) | ('N' << 16),
+            /// TSP time protocol
+            TSP = ('T') | ('S' << 8) | ('P' << 16),
+            /// Digital Time Service
+            DTS = ('D') | ('T' << 8) | ('S' << 16),
+            /// Atomic clock (calibrated)
+            ATOM = ('A') | ('T' << 8) | ('O' << 16) | ('M' << 24),
+            /// VLF radio (OMEGA, etc.)
+            VLF = ('V') | ('L' << 8) | ('F' << 16)
+
+        };
+
+        /**
 		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be casted to @ref ntphdr)
+		 * @param[in] data A pointer to the raw data (will be casted to @ref ntp_header)
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -301,7 +271,7 @@ namespace pcpp
         NtpLayer();
 
         /**
-         * Get the leap indicator 
+         * @return The leap indicator 
          */
         NTPLeapIndicator getLeapIndicator() const;
 
@@ -311,7 +281,7 @@ namespace pcpp
         void setLeapIndicator(NTPLeapIndicator val);
 
         /**
-         * Get the version of NTP 
+         * @return The version of NTP 
          */
         uint8_t getVersion() const;
 
@@ -321,12 +291,12 @@ namespace pcpp
         void setVersion(uint8_t val);
 
         /**
-         * Get the mode value
+         * @return The mode value
          */
         NTPMode getMode() const;
 
         /**
-         * Get the mode as string
+         * @return The mode as string
          */
         std::string getModeString() const;
 
@@ -336,7 +306,7 @@ namespace pcpp
         void setMode(NTPMode val);
 
         /**
-         * Get the value of stratum
+         * @return The value of stratum
          */
         uint8_t getStratum() const;
 
@@ -346,7 +316,7 @@ namespace pcpp
         void setStratum(uint8_t val);
 
         /**
-         * Get the value of poll interval in log2 seconds 
+         * @return The value of poll interval in log2 seconds 
          */
         int8_t getPollInterval() const;
 
@@ -357,12 +327,12 @@ namespace pcpp
         void setPollInterval(int8_t val);
 
         /**
-         * Get the value of poll interval in seconds
+         * @return The value of poll interval in seconds
          */
         double getPollIntervalInSecs() const;
 
         /**
-         * Get the value of precision in log2 seconds
+         * @return The value of precision in log2 seconds
          */
         int8_t getPrecision() const;
 
@@ -373,12 +343,12 @@ namespace pcpp
         void setPrecision(int8_t val);
 
         /**
-         * Get the value of precision in seconds
+         * @return The value of precision in seconds
          */
         double getPrecisionInSecs() const;
 
         /**
-         * Get the value of root delay in NTP short format
+         * @return The value of root delay in NTP short format
          */
         uint32_t getRootDelay() const;
 
@@ -389,7 +359,7 @@ namespace pcpp
         void setRootDelay(uint32_t val);
 
         /**
-         * Get the value of root delay in seconds
+         * @return The value of root delay in seconds
          */
         double getRootDelayInSecs() const;
 
@@ -400,7 +370,7 @@ namespace pcpp
         void setRootDelayInSecs(double val);
 
         /**
-         * Get the value of root dispersion in NTP short format
+         * @return The value of root dispersion in NTP short format
          */
         uint32_t getRootDispersion() const;
 
@@ -411,7 +381,7 @@ namespace pcpp
         void setRootDispersion(uint32_t val);
 
         /**
-         * Get the value of root dispersion in seconds
+         * @return The value of root dispersion in seconds
          */
         double getRootDispersionInSecs() const;
 
@@ -422,7 +392,7 @@ namespace pcpp
         void setRootDispersionInSecs(double val);
 
         /**
-         * Get the value of reference identifier
+         * @return The value of reference identifier
          */
         uint32_t getReferenceIdentifier() const;
 
@@ -433,14 +403,13 @@ namespace pcpp
         void setReferenceIdentifier(uint32_t val);
 
         /**
-         * Get the value of reference identifier as a string
-         * @return std::string String representation of NTP clock source if stratum is 1, IPv4 address or MD5 hash of first four octets of IPv6
+         * @return The value of reference identifier as a string. String representation of NTP clock source if stratum is 1, 
+         * IPv4 address or MD5 hash of first four octets of IPv6
          */
         std::string getReferenceIdentifierString() const;
 
         /**
-         * Get the value of reference timestamp
-         * @return Value in NTP timestamp format 
+         * @return The value of reference timestamp in NTP timestamp format
          */
         uint64_t getReferenceTimestamp() const;
 
@@ -451,8 +420,7 @@ namespace pcpp
         void setReferenceTimestamp(uint64_t val);
 
         /**
-         * Get the value of reference timestamp
-         * @return Value in seconds from Unix Epoch (1 Jan 1970)
+         * @return The value of reference timestamp in seconds from Unix Epoch (1 Jan 1970)
          */
         double getReferenceTimestampInSecs() const;
 
@@ -463,14 +431,12 @@ namespace pcpp
         void setReferenceTimestampInSecs(double val);
 
         /**
-         * Get the reference timestamp value as readable string
-         * @return std::string Reference timestamp in ISO8601 format
+         * @return The reference timestamp value as readable string in ISO8601 format
          */
         std::string getReferenceTimestampAsString();
 
         /**
-         * Get the value of origin timestamp
-         * @return Value in NTP timestamp format 
+         * @return The value of origin timestamp in NTP timestamp format 
          */
         uint64_t getOriginTimestamp() const;
 
@@ -481,26 +447,23 @@ namespace pcpp
         void setOriginTimestamp(uint64_t val);
 
         /**
-         * Get the value of origin timestamp
-         * @return Value in seconds from Unix Epoch (1 Jan 1970)
+         * @return The value of origin timestamp in seconds from Unix Epoch (1 Jan 1970)
          */
         double getOriginTimestampInSecs() const;
 
         /**
          * Set the value of origin timestamp
-         * @param val Value in seconds from Unix Epoch (1 Jan 1970)
+         * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
          */
         void setOriginTimestampInSecs(double val);
 
         /**
-         * Get the origin timestamp value as readable string
-         * @return std::string Origin timestamp in ISO8601 format
+         * @return the origin timestamp value as readable string in ISO8601 format
          */
         std::string getOriginTimestampAsString();
 
         /**
-         * Get the value of receive timestamp
-         * @return Value in NTP timestamp format 
+         * @return The value of receive timestamp in NTP timestamp format 
          */
         uint64_t getReceiveTimestamp() const;
 
@@ -511,8 +474,7 @@ namespace pcpp
         void setReceiveTimestamp(uint64_t val);
 
         /**
-         * Get the value of receive timestamp
-         * @return Value in seconds from Unix Epoch (1 Jan 1970)
+         * @return The value of receive timestampin seconds from Unix Epoch (1 Jan 1970)
          */
         double getReceiveTimestampInSecs() const;
 
@@ -523,14 +485,12 @@ namespace pcpp
         void setReceiveTimestampInSecs(double val);
 
         /**
-         * Get the receive timestamp value as readable string
-         * @return std::string Receive timestamp in ISO8601 format
+         * @return The receive timestamp value as readable string in ISO8601 format
          */
         std::string getReceiveTimestampAsString();
 
         /**
-         * Get the value of transmit timestamp
-         * @return Value in NTP timestamp format 
+         * @return The value of transmit timestamp in NTP timestamp format 
          */
         uint64_t getTransmitTimestamp() const;
 
@@ -541,8 +501,7 @@ namespace pcpp
         void setTransmitTimestamp(uint64_t val);
 
         /**
-         * Get the value of transmit timestamp
-         * @return Value in seconds from Unix Epoch (1 Jan 1970)
+         * @return The value of transmit timestamp in seconds from Unix Epoch (1 Jan 1970)
          */
         double getTransmitTimestampInSecs() const;
 
@@ -553,21 +512,17 @@ namespace pcpp
         void setTransmitTimestampInSecs(double val);
 
         /**
-         * Get the transmit timestamp value as readable string
-         * @return std::string Transmit timestamp in ISO8601 format
+         * @return The transmit timestamp value as readable string in ISO8601 format
          */
         std::string getTransmitTimestampAsString();
 
         /**
-         * Get the value of key identifier
          * @return Returns the key identifier if exists, returns 0 on unsupported NTP version or key identifier not found
          */
         uint32_t getKeyID() const;
 
         /**
-         * Get the value of digest. 
-         * @param[out] digest 
-         * @return Digest value as hexadecimal string, empty string on unsupported version
+         * @return Get the digest value as hexadecimal string, empty string on unsupported version
          */
         std::string getDigest() const;
 
@@ -633,14 +588,25 @@ namespace pcpp
 
         // overridden methods
 
+        /// Parses the next layer. NTP is the always last so does nothing for this layer
         void parseNextLayer() {}
 
+        /**
+         * @return Get the size of the layer (Including the extension and authentication fields if exists)
+         */
         size_t getHeaderLen() const { return m_DataLen; }
 
+        /// Does nothing for this layer
         void computeCalculateFields() {}
 
+        /**
+         * @return The OSI layer level of NTP (Application Layer). 
+         */
         OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
+        /**
+         * @return Returns the protocol info as readable string
+         */
         std::string toString() const;
     };
 

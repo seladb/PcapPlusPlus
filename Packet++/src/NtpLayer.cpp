@@ -3,6 +3,16 @@
 #include "NtpLayer.h"
 #include "Logger.h"
 
+#include <math.h>
+#include <stdlib.h>
+
+/// 2^16 as a double
+#define NTP_FRIC 65536.
+/// 2^32 as a double
+#define NTP_FRAC 4294967296.
+/// Epoch offset between Unix time and NTP
+#define EPOCH_OFFSET 2208988800ULL
+
 namespace pcpp
 {
     NtpLayer::NtpLayer()
@@ -13,10 +23,11 @@ namespace pcpp
         m_Protocol = NTP;
     }
 
-    NTPLeapIndicator NtpLayer::getLeapIndicator() const
+    NtpLayer::NTPLeapIndicator NtpLayer::getLeapIndicator() const
     {
         if (getNtpHeader()->leapIndicator < 4) // Since leap indicator field is 2bit
             return static_cast<NTPLeapIndicator>(getNtpHeader()->leapIndicator);
+        LOG_ERROR("Unknown NTP Leap Indicator");
         return Unknown;
     }
 
@@ -35,10 +46,11 @@ namespace pcpp
         getNtpHeader()->version = val;
     }
 
-    NTPMode NtpLayer::getMode() const
+    NtpLayer::NTPMode NtpLayer::getMode() const
     {
         if (getNtpHeader()->mode < 8) // Since mode field 3bit
             return static_cast<NTPMode>(getNtpHeader()->mode);
+        LOG_ERROR("Unknown NTP Mode");
         return Reserved;
     }
 
