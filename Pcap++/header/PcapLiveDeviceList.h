@@ -3,7 +3,6 @@
 
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
-#include "WinPcapLiveDevice.h"
 #include <vector>
 
 
