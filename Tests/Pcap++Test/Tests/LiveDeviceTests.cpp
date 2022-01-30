@@ -3,8 +3,6 @@
 #include "SystemUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
-#include "PcapRemoteDevice.h"
-#include "PcapRemoteDeviceList.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
@@ -14,6 +12,9 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 #if defined(_WIN32)
+#include "PcapRemoteDevice.h"
+#include "PcapRemoteDeviceList.h"
+#include "WinPcapLiveDevice.h"
 #include <windows.h>
 #endif
 
