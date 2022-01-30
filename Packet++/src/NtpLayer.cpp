@@ -23,15 +23,15 @@ namespace pcpp
         m_Protocol = NTP;
     }
 
-    NtpLayer::NTPLeapIndicator NtpLayer::getLeapIndicator() const
+    NtpLayer::LeapIndicator NtpLayer::getLeapIndicator() const
     {
         if (getNtpHeader()->leapIndicator < 4) // Since leap indicator field is 2bit
-            return static_cast<NTPLeapIndicator>(getNtpHeader()->leapIndicator);
+            return static_cast<LeapIndicator>(getNtpHeader()->leapIndicator);
         LOG_ERROR("Unknown NTP Leap Indicator");
         return Unknown;
     }
 
-    void NtpLayer::setLeapIndicator(NTPLeapIndicator val)
+    void NtpLayer::setLeapIndicator(LeapIndicator val)
     {
         getNtpHeader()->leapIndicator = val;
     }
@@ -46,10 +46,10 @@ namespace pcpp
         getNtpHeader()->version = val;
     }
 
-    NtpLayer::NTPMode NtpLayer::getMode() const
+    NtpLayer::Mode NtpLayer::getMode() const
     {
         if (getNtpHeader()->mode < 8) // Since mode field 3bit
-            return static_cast<NTPMode>(getNtpHeader()->mode);
+            return static_cast<Mode>(getNtpHeader()->mode);
         LOG_ERROR("Unknown NTP Mode");
         return Reserved;
     }
@@ -80,7 +80,7 @@ namespace pcpp
         }
     }
 
-    void NtpLayer::setMode(NTPMode val)
+    void NtpLayer::setMode(Mode val)
     {
         getNtpHeader()->mode = val;
     }

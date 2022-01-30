@@ -152,7 +152,7 @@ namespace pcpp
         /**
         * Warning of an impending leap second to be inserted or deleted in the last minute of the current month
         */
-        enum NTPLeapIndicator
+        enum LeapIndicator
         {
             NoWarning = 0,
             /// Last minute of the day has 61 seconds
@@ -166,7 +166,7 @@ namespace pcpp
         /**
          * Representing the NTP association modes
          */
-        enum NTPMode
+        enum Mode
         {
             Reserved = 0,
             SymActive,
@@ -182,7 +182,7 @@ namespace pcpp
          * 32-bit code identifying the particular server or reference clock. 
          * The interpretation depends on the value in the stratum field.
          */
-        enum NTPClockSource
+        enum ClockSource
         {
             // NTPv4
 
@@ -273,12 +273,12 @@ namespace pcpp
         /**
          * @return The leap indicator 
          */
-        NTPLeapIndicator getLeapIndicator() const;
+        LeapIndicator getLeapIndicator() const;
 
         /**
          * Set the leap indicator
          */
-        void setLeapIndicator(NTPLeapIndicator val);
+        void setLeapIndicator(LeapIndicator val);
 
         /**
          * @return The version of NTP 
@@ -293,7 +293,7 @@ namespace pcpp
         /**
          * @return The mode value
          */
-        NTPMode getMode() const;
+        Mode getMode() const;
 
         /**
          * @return The mode as string
@@ -303,7 +303,7 @@ namespace pcpp
         /**
          * Set the mode
          */
-        void setMode(NTPMode val);
+        void setMode(Mode val);
 
         /**
          * @return The value of stratum
