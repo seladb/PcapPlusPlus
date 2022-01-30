@@ -81,39 +81,39 @@ namespace pcpp
         {
 #if (BYTE_ORDER == LITTLE_ENDIAN)
             /// 3-bit integer representing the mode
-            uint8_t mode : 3,
-                /// 3-bit integer representing the NTP version number
-                version : 3,
-                /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
-                leapIndicator : 2;
+            uint8_t mode:3,
+            /// 3-bit integer representing the NTP version number
+            version:3,
+            /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
+            leapIndicator:2;
 #else
             /// LI Leap Indicator (leap): 2-bit integer warning of an impending leap second to be inserted or deleted in the last minute of the current month
-            uint8_t leapIndicator : 2,
-                /// 3-bit integer representing the NTP version number
-                version : 3,
-                /// 3-bit integer representing the mode
-                mode : 3;
+            uint8_t leapIndicator:2,
+            /// 3-bit integer representing the NTP version number
+            version:3,
+            /// 3-bit integer representing the mode
+            mode:3;
 #endif
             /// 8-bit integer representing the stratum
             uint8_t stratum;
             /// Total round-trip delay to the reference clock, in NTP short format.
             int8_t pollInterval,
-                /// 8-bit signed integer representing the precision of the system clock, in log2 seconds.
-                precision;
+            /// 8-bit signed integer representing the precision of the system clock, in log2 seconds.
+            precision;
             /// Total round-trip delay to the reference clock, in NTP short format.
             uint32_t rootDelay,
-                /// Total dispersion to the reference clock, in NTP short format.
-                rootDispersion,
-                /// 32-bit code identifying the particular server or reference clock.  The interpretation depends on the value in the stratum field.
-                referenceIdentifier;
+            /// Total dispersion to the reference clock, in NTP short format.
+            rootDispersion,
+            /// 32-bit code identifying the particular server or reference clock.  The interpretation depends on the value in the stratum field.
+            referenceIdentifier;
             /// Time when the system clock was last set or corrected, in NTP timestamp format.
             uint64_t referenceTimestamp,
-                /// Time at the client when the request departed for the server, in NTP timestamp format.
-                originTimestamp,
-                /// Time at the client when the request departed for the server, in NTP timestamp format.
-                receiveTimestamp,
-                /// Time at the server when the response left for the client, in NTP timestamp format.
-                transmitTimestamp;
+            /// Time at the client when the request departed for the server, in NTP timestamp format.
+            originTimestamp,
+            /// Time at the client when the request departed for the server, in NTP timestamp format.
+            receiveTimestamp,
+            /// Time at the server when the response left for the client, in NTP timestamp format.
+            transmitTimestamp;
         };
 #pragma pack(pop)
 
