@@ -323,12 +323,10 @@ jobs:
             os: windows-2019
             platform: x86
             config: Release
-            pcap_lib: npcap
           - vs-version: vs2017
             os: windows-2016
             platform: x86
             config: Release
-            pcap_lib: npcap
           - vs-version: vs2017
             os: windows-2016
             platform: x64
@@ -345,12 +343,6 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1
 
-      - name: Install WinPcap
-        run: |
-          ci\install_winpcap.bat
-          echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib != 'npcap'
-
       - name: Install NPcap
         env:
           NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
@@ -358,7 +350,6 @@ jobs:
         run: |
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'npcap'
 
       - name: Download pthreads
         run: |

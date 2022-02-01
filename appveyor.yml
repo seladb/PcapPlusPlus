@@ -24,7 +24,7 @@ init:
 - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
 
 install:
-- if "%pcap_lib%"=="npcap" (ci\install_npcap.bat) else (ci\install_winpcap.bat)
+- ci\install_npcap.bat
 - git clone https://github.com/seladb/PcapPlusPlus-Deploy
 - cd PcapPlusPlus-Deploy\Packages
 - if "%compiler%"=="mingw32" set PATH=%PATH%;C:\MinGW\bin&& 7z e pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz -oC:\pthreads && 7z x C:\pthreads\pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar -oC:\pthreads && xcopy /Y C:\pthreads\include\* C:\MinGW\include && xcopy /Y C:\pthreads\lib\* C:\MinGW\lib
@@ -35,7 +35,7 @@ install:
 - if "%compiler%"=="mingw32" python ci\patch_mingw.py
 
 before_build:
-- if "%pcap_lib%"=="npcap" (set PCAP_SDK_DIR=C:\Npcap-sdk) else (set PCAP_SDK_DIR=C:\WpdPack)
+- set PCAP_SDK_DIR=C:\Npcap-sdk
 - cd C:\projects\PcapPlusPlus
 - if "%compiler%"=="mingw32" configure-windows-mingw.bat mingw32 -m C:\MinGW -w %PCAP_SDK_DIR%
 - if "%compiler:~0,4%"=="vs20" configure-windows-visual-studio.bat -v %compiler% -w %PCAP_SDK_DIR% -p C:\pthreads %ZSTD_HOME_PARAM%
