@@ -35,7 +35,7 @@ static inline bool checkKniDriver()
 		LOG_ERROR("rte_kni driver isn't loaded, DPDK KNI module cannot be initialized");
 		return false;
 	}
-	LOG_DEBUG("rte_kni driver is loaded");
+	LOG_DBG("rte_kni driver is loaded");
 	return true;
 }
 
@@ -89,7 +89,7 @@ KniDevice* KniDeviceList::createDevice(
 	if (kniDevice != NULL)
 	{
 		LOG_ERROR("Attempt to create DPDK KNI device with same name: '" << config.name << "'");
-		LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
+		LOG_DBG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
 		return NULL;
 	}
 	if (config.portId != UINT16_MAX)
@@ -98,7 +98,7 @@ KniDevice* KniDeviceList::createDevice(
 		if (kniDevice != NULL)
 		{
 			LOG_ERROR("Attempt to create DPDK KNI device with same port ID: " << config.portId);
-			LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
+			LOG_DBG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
 			return NULL;
 		}
 	}

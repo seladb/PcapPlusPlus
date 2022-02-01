@@ -175,7 +175,7 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	if (m_Method == HttpRequestLayer::HttpMethodUnknown)
 	{
 		m_UriOffset = -1;
-		LOG_DEBUG("Couldn't resolve HTTP request method");
+		LOG_DBG("Couldn't resolve HTTP request method");
 		m_IsComplete = false;
 		m_Version = HttpVersionUnknown;
 		m_VersionOffset = -1;
@@ -208,7 +208,7 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	if (Logger::getInstance().isDebugEnabled(PacketLogModuleHttpLayer))
 	{
 		std::string method = m_Method == HttpRequestLayer::HttpMethodUnknown? "Unknown" : MethodEnumToString[m_Method];
-		LOG_DEBUG(
+		LOG_DBG(
 			"Method='" << method << "'; "
 			<< "HTTP version='" << VersionEnumToString[m_Version] << "'; "
 			<< "URI='" << getUri() << "'");
@@ -1264,7 +1264,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 	{
 		std::string version = (m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version]);
 		int statusCode = (m_StatusCode == HttpResponseLayer::HttpStatusCodeUnknown ? 0 : StatusCodeEnumToInt[m_StatusCode]);
-		LOG_DEBUG("Version='" << version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
+		LOG_DBG("Version='" << version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
 	}
 }
 
@@ -1307,13 +1307,13 @@ HttpVersion HttpResponseFirstLine::parseVersion(char* data, size_t dataLen)
 {
 	if (dataLen < 8) // "HTTP/x.y"
 	{
-		LOG_DEBUG("HTTP response length < 8, cannot identify version");
+		LOG_DBG("HTTP response length < 8, cannot identify version");
 		return HttpVersionUnknown;
 	}
 
 	if (data[0] != 'H' || data[1] != 'T' || data[2] != 'T' || data[3] != 'P' || data[4] != '/')
 	{
-		LOG_DEBUG("HTTP response does not begin with 'HTTP/'");
+		LOG_DBG("HTTP response does not begin with 'HTTP/'");
 		return HttpVersionUnknown;
 	}
 

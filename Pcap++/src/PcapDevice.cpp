@@ -13,7 +13,7 @@ IPcapDevice::~IPcapDevice()
 
 bool IPcapDevice::setFilter(std::string filterAsString)
 {
-	LOG_DEBUG("Filter to be set: '" << filterAsString << "'");
+	LOG_DBG("Filter to be set: '" << filterAsString << "'");
 	if (!m_DeviceOpened)
 	{
 		LOG_ERROR("Device not Opened!! cannot set filter");
@@ -21,7 +21,7 @@ bool IPcapDevice::setFilter(std::string filterAsString)
 	}
 
 	struct bpf_program prog;
-	LOG_DEBUG("Compiling the filter '" << filterAsString << "'");
+	LOG_DBG("Compiling the filter '" << filterAsString << "'");
 	if (pcap_compile(m_PcapDescriptor, &prog, filterAsString.c_str(), 1, 0) < 0)
 	{
 		/*
@@ -32,7 +32,7 @@ bool IPcapDevice::setFilter(std::string filterAsString)
 		return false;
 	}
 
-	LOG_DEBUG("Setting the compiled filter");
+	LOG_DBG("Setting the compiled filter");
 	if (pcap_setfilter(m_PcapDescriptor, &prog) < 0)
 	{
 		/*
@@ -45,7 +45,7 @@ bool IPcapDevice::setFilter(std::string filterAsString)
 		return false;
 	}
 
-	LOG_DEBUG("Filter set successfully");
+	LOG_DBG("Filter set successfully");
 
 	pcap_freecode(&prog);
 
@@ -60,7 +60,7 @@ bool IPcapDevice::clearFilter()
 bool IPcapDevice::verifyFilter(std::string filterAsString)
 {
 	struct bpf_program prog;
-	LOG_DEBUG("Compiling the filter '" << filterAsString << "'");
+	LOG_DBG("Compiling the filter '" << filterAsString << "'");
 	if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, &prog, filterAsString.c_str(), 1, 0) < 0)
 	{
 		return false;
@@ -75,7 +75,7 @@ bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* r
 	static struct bpf_program prog;
 	if ( (curFilter != filterAsString) || (prog.bf_insns == NULL) )
 	{
-		LOG_DEBUG("Compiling the filter '" << filterAsString << "'");
+		LOG_DBG("Compiling the filter '" << filterAsString << "'");
 		pcap_freecode(&prog);
 		if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, &prog, filterAsString.c_str(), 1, 0) < 0)
 		{

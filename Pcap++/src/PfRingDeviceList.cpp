@@ -22,11 +22,11 @@ PfRingDeviceList::PfRingDeviceList()
 		return;
 	}
 
-	LOG_DEBUG("PF_RING kernel module is loaded");
+	LOG_DBG("PF_RING kernel module is loaded");
 
 	pcap_if_t* interfaceList;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	LOG_DEBUG("PfRingDeviceList init: searching all interfaces on machine");
+	LOG_DBG("PfRingDeviceList init: searching all interfaces on machine");
 	int err = pcap_findalldevs(&interfaceList, errbuf);
 	if (err < 0)
 	{
@@ -45,13 +45,13 @@ PfRingDeviceList::PfRingDeviceList()
 			pfring_close(ring);
 			PfRingDevice* newDev = new PfRingDevice(currInterface->name);
 			m_PfRingDeviceList.push_back(newDev);
-			LOG_DEBUG("Found interface: " << currInterface->name);
+			LOG_DBG("Found interface: " << currInterface->name);
 		}
 
 		currInterface = currInterface->next;
 	}
 
-	LOG_DEBUG("PfRingDeviceList init end");
+	LOG_DBG("PfRingDeviceList init end");
 	pcap_freealldevs(interfaceList);
 }
 
@@ -65,14 +65,14 @@ PfRingDeviceList::~PfRingDeviceList()
 
 PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string devName) const
 {
-	LOG_DEBUG("Searching all live devices...");
+	LOG_DBG("Searching all live devices...");
 	for(std::vector<PfRingDevice*>::const_iterator devIter = m_PfRingDeviceList.begin(); devIter != m_PfRingDeviceList.end(); devIter++)
 	{
 		if ((*devIter)->getDeviceName() == devName)
 			return (*devIter);
 	}
 
-	LOG_DEBUG("Found no PF_RING devices with name '" << devName << "'");
+	LOG_DBG("Found no PF_RING devices with name '" << devName << "'");
 	return NULL;
 }
 
@@ -92,7 +92,7 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
 	  (version & 0x0000FF00) >> 8,
 	  version & 0x000000FF);
 
-	LOG_DEBUG("PF_RING version is: " << versionAsString);
+	LOG_DBG("PF_RING version is: " << versionAsString);
 	m_PfRingVersion = std::string(versionAsString);
 }
 

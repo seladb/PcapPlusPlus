@@ -124,7 +124,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 
 	for (i = 0; i < initDpdkArgc; i++)
 	{
-		LOG_DEBUG("DPDK initialization params: " << initDpdkArgvBuffer[i]);
+		LOG_DBG("DPDK initialization params: " << initDpdkArgvBuffer[i]);
 	}
 
 	optind = 1;
@@ -175,13 +175,13 @@ bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice)
 		return false;
 	}
 
-	LOG_DEBUG("Found " << numOfPorts << " DPDK ports. Constructing DpdkDevice for each one");
+	LOG_DBG("Found " << numOfPorts << " DPDK ports. Constructing DpdkDevice for each one");
 
 	// Initialize a DpdkDevice per port
 	for (int i = 0; i < numOfPorts; i++)
 	{
 		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice);
-		LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='" << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName() << "', MAC Addr='" << newDevice->getMacAddress() << "'");
+		LOG_DBG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='" << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName() << "', MAC Addr='" << newDevice->getMacAddress() << "'");
 		m_DpdkDeviceList.push_back(newDevice);
 	}
 
@@ -232,7 +232,7 @@ bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 	char* endPtr;
 	long totalHugePages = strtol(execResult.c_str(), &endPtr, 10);
 
-	LOG_DEBUG("Total number of huge-pages is " << totalHugePages);
+	LOG_DBG("Total number of huge-pages is " << totalHugePages);
 
 	if (totalHugePages <= 0)
 	{
@@ -254,16 +254,16 @@ bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 			}
 			else
 			{
-				LOG_DEBUG("vfio-pci module is loaded");
+				LOG_DBG("vfio-pci module is loaded");
 			}
 		}
 		else
 		{
-			LOG_DEBUG("uio_pci_generic module is loaded");
+			LOG_DBG("uio_pci_generic module is loaded");
 		}
 	}
 	else
-		LOG_DEBUG("igb_uio driver is loaded");
+		LOG_DBG("igb_uio driver is loaded");
 
 	return true;
 }
@@ -376,7 +376,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 			{
 				(*iter)->stop();
 				rte_eal_wait_lcore((*iter)->getCoreId());
-				LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
+				LOG_DBG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 			}
 			LOG_ERROR("Cannot create worker thread #" << core.Id << ". Error was: [" << strerror(err) << "]");
 			return false;
@@ -402,13 +402,13 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 	{
 		(*iter)->stop();
 		rte_eal_wait_lcore((*iter)->getCoreId());
-		LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
+		LOG_DBG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 	}
 
 	m_WorkerThreads.clear();
 	std::vector<DpdkWorkerThread*>(m_WorkerThreads).swap(m_WorkerThreads);
 
-	LOG_DEBUG("All worker threads stopped");
+	LOG_DBG("All worker threads stopped");
 }
 
 } // namespace pcpp

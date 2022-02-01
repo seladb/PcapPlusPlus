@@ -108,7 +108,7 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 	if (m_Method == SipRequestLayer::SipMethodUnknown)
 	{
 		m_UriOffset = -1;
-		LOG_DEBUG("Couldn't resolve SIP request method");
+		LOG_DBG("Couldn't resolve SIP request method");
 	}
 	else
 		m_UriOffset = SipMethodEnumToString[m_Method].length() + 1;
@@ -130,7 +130,7 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 	if (Logger::getInstance().isDebugEnabled(PacketLogModuleSipLayer))
 	{
 		std::string method = (m_Method == SipRequestLayer::SipMethodUnknown? "Unknown" : SipMethodEnumToString[m_Method]);
-		LOG_DEBUG("Method='" << method << "'; SIP version='" << m_Version << "'; URI='" << getUri() << "'");
+		LOG_DBG("Method='" << method << "'; SIP version='" << m_Version << "'; URI='" << getUri() << "'");
 	}
 }
 
@@ -1220,7 +1220,7 @@ SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse) : m_Si
 	if (Logger::getInstance().isDebugEnabled(PacketLogModuleSipLayer))
 	{
 		int statusCode = (m_StatusCode == SipResponseLayer::SipStatusCodeUnknown ? 0 : StatusCodeEnumToInt[m_StatusCode]);
-		LOG_DEBUG("Version='" << m_Version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
+		LOG_DBG("Version='" << m_Version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
 	}
 }
 
@@ -1263,13 +1263,13 @@ std::string SipResponseFirstLine::parseVersion(char* data, size_t dataLen)
 {
 	if (dataLen < 7) // "SIP/x.y"
 	{
-		LOG_DEBUG("SIP response length < 7, cannot identify version");
+		LOG_DBG("SIP response length < 7, cannot identify version");
 		return "";
 	}
 
 	if (data[0] != 'S' || data[1] != 'I' || data[2] != 'P' || data[3] != '/')
 	{
-		LOG_DEBUG("SIP response does not begin with 'SIP/'");
+		LOG_DBG("SIP response does not begin with 'SIP/'");
 		return "";
 	}
 

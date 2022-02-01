@@ -22,7 +22,7 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
 	: PcapLiveDevice(iface, false, false, false)
 {
-	LOG_DEBUG("MTU calculation isn't supported for remote devices. Setting MTU to 1514");
+	LOG_DBG("MTU calculation isn't supported for remote devices. Setting MTU to 1514");
 	m_DeviceMtu = 1514;
 	m_RemoteMachineIpAddress = remoteMachineIP;
 	m_RemoteMachinePort = remoteMachinePort;
@@ -34,7 +34,7 @@ bool PcapRemoteDevice::open()
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
-	LOG_DEBUG("Opening device '" << m_Name << "'");
+	LOG_DBG("Opening device '" << m_Name << "'");
 	pcap_rmtauth* pRmAuth = NULL;
 	pcap_rmtauth rmAuth;
 	if (m_RemoteAuthentication != NULL)
@@ -65,7 +65,7 @@ bool PcapRemoteDevice::open()
 		return false;
 	}
 
-	LOG_DEBUG("Device '" << m_Name << "' opened");
+	LOG_DBG("Device '" << m_Name << "' opened");
 
 	return true;
 }
@@ -79,7 +79,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 		return 0;
 	}
 
-	LOG_DEBUG("Started capture thread for device '" << pThis->m_Name << "'");
+	LOG_DBG("Started capture thread for device '" << pThis->m_Name << "'");
 
 	pcap_pkthdr* pkthdr;
 	const uint8_t* pktData;
@@ -100,7 +100,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 				onPacketArrivesNoCallback((uint8_t*)pThis, pkthdr, pktData);
 		}
 	}
-	LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
+	LOG_DBG("Ended capture thread for device '" << pThis->m_Name << "'");
 	return 0;
 }
 
@@ -125,7 +125,7 @@ void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 
 uint32_t PcapRemoteDevice::getMtu() const
 {
-	LOG_DEBUG("MTU isn't supported for remote devices");
+	LOG_DBG("MTU isn't supported for remote devices");
 	return 0;
 }
 
