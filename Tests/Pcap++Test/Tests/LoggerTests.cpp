@@ -10,7 +10,7 @@ namespace pcpp
 {
 	void invokeDebugLog()
 	{
-		LOG_DEBUG("debug log");
+		LOG_DBG("debug log");
 	}
 
 	void invokeErrorLog()
