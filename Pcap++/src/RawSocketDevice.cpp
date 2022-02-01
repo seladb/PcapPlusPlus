@@ -332,7 +332,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 		Packet packet(*iter, OsiModelDataLinkLayer);
 		if (!packet.isPacketOfType(pcpp::Ethernet))
 		{
-			LOG_DEBUG("Can't send non-Ethernet packets");
+			LOG_DBG("Can't send non-Ethernet packets");
 			continue;
 		}
 
@@ -342,7 +342,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 
 		if (::sendto(fd, (*iter)->getRawData(), (*iter)->getRawDataLen(), 0, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 		{
-			LOG_DEBUG("Failed to send packet. Error was: '" << strerror(errno) << "'");
+			LOG_DBG("Failed to send packet. Error was: '" << strerror(errno) << "'");
 			continue;
 		}
 

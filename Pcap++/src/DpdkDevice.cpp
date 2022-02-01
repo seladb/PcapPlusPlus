@@ -117,7 +117,7 @@ bool DpdkDevice::setMtu(uint16_t newMtu)
 		return false;
 	}
 
-	LOG_DEBUG("Managed to set MTU from " << m_DeviceMtu << " to " << newMtu);
+	LOG_DBG("Managed to set MTU from " << m_DeviceMtu << " to " << newMtu);
 	m_DeviceMtu = newMtu;
 	return true;
 }
@@ -175,7 +175,7 @@ void DpdkDevice::close()
 {
 	if (!m_DeviceOpened)
 	{
-		LOG_DEBUG("Trying to close device [" << m_DeviceName << "] but device is already closed");
+		LOG_DBG("Trying to close device [" << m_DeviceName << "] but device is already closed");
 		return;
 	}
 	stopCapture();
@@ -183,7 +183,7 @@ void DpdkDevice::close()
 	m_NumOfRxQueuesOpened = 0;
 	m_NumOfTxQueuesOpened = 0;
 	rte_eth_dev_stop(m_Id);
-	LOG_DEBUG("Called rte_eth_dev_stop for device [" << m_DeviceName << "]");
+	LOG_DBG("Called rte_eth_dev_stop for device [" << m_DeviceName << "]");
 
 	if (m_TxBuffers != NULL)
 	{
@@ -218,7 +218,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	// if PMD doesn't support RSS, set RSS HF to 0
 	if (getSupportedRssHashFunctions() == 0 && m_Config.rssHashFunction != 0)
 	{
-		LOG_DEBUG("PMD '" << m_PMDName << "' doesn't support RSS, setting RSS hash functions to 0");
+		LOG_DBG("PMD '" << m_PMDName << "' doesn't support RSS, setting RSS hash functions to 0");
 		m_Config.rssHashFunction = 0;
 	}
 
@@ -258,7 +258,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 		return false;
 	}
 
-	LOG_DEBUG("Successfully called rte_eth_dev_configure for device [" << m_DeviceName << "] with " << numOfRxQueues << " RX queues and " << numOfTxQueues << " TX queues");
+	LOG_DBG("Successfully called rte_eth_dev_configure for device [" << m_DeviceName << "] with " << numOfRxQueues << " RX queues and " << numOfTxQueues << " TX queues");
 
 	return true;
 }
@@ -292,7 +292,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 		}
 	}
 
-	LOG_DEBUG("Successfully initialized " << numOfRxQueuesToInit << " RX queues for device [" << m_DeviceName << "]");
+	LOG_DBG("Successfully initialized " << numOfRxQueuesToInit << " RX queues for device [" << m_DeviceName << "]");
 
 	for (uint8_t i = 0; i < numOfTxQueuesToInit; i++)
 	{
@@ -339,7 +339,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 
 	memset(m_TxBufferLastDrainTsc, 0, sizeof(uint64_t)*numOfTxQueuesToInit);
 
-	LOG_DEBUG("Successfully initialized " << numOfTxQueuesToInit << " TX queues for device [" << m_DeviceName << "]");
+	LOG_DBG("Successfully initialized " << numOfTxQueuesToInit << " TX queues for device [" << m_DeviceName << "]");
 
 	return true;
 }
@@ -357,7 +357,7 @@ bool DpdkDevice::initMemPool(struct rte_mempool*& memPool, const char* mempoolNa
 	}
 	else
 	{
-		LOG_DEBUG("Successfully initialized packets pool of size [" << mBufPoolSize << "] for device [" << m_DeviceName << "]");
+		LOG_DBG("Successfully initialized packets pool of size [" << mBufPoolSize << "] for device [" << m_DeviceName << "]");
 		ret = true;
 	}
 	return ret;
@@ -378,11 +378,11 @@ bool DpdkDevice::startDevice()
 	{
 		std::string linkStatus = (status.linkUp ? "up" : "down");
 		std::string linkDuplex = (status.linkDuplex == LinkStatus::FULL_DUPLEX ? "full-duplex" : "half-duplex");
-		LOG_DEBUG("Device [" << m_DeviceName << "] : Link " << linkStatus << "; Speed: " << status.linkSpeedMbps << " Mbps; " << linkDuplex);
+		LOG_DBG("Device [" << m_DeviceName << "] : Link " << linkStatus << "; Speed: " << status.linkSpeedMbps << " Mbps; " << linkDuplex);
 	}
 
 	rte_eth_promiscuous_enable((uint8_t) m_Id);
-	LOG_DEBUG("Started device [" << m_DeviceName << "]");
+	LOG_DBG("Started device [" << m_DeviceName << "]");
 
 	return true;
 }
@@ -461,8 +461,8 @@ void DpdkDevice::setDeviceInfo()
 	m_PciAddress = std::string(portInfo.device->name);
 #endif
 
-	LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_rx_queues << " RX queues");
-	LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_tx_queues << " TX queues");
+	LOG_DBG("Device [" << m_DeviceName << "] has " << portInfo.max_rx_queues << " RX queues");
+	LOG_DBG("Device [" << m_DeviceName << "] has " << portInfo.max_tx_queues << " TX queues");
 
 	m_TotalAvailableRxQueues = portInfo.max_rx_queues;
 	m_TotalAvailableTxQueues = portInfo.max_tx_queues;
@@ -552,7 +552,7 @@ bool DpdkDevice::startCaptureSingleThread(OnDpdkPacketsArriveCallback onPacketsA
 		return false;
 	}
 
-	LOG_DEBUG("Trying to start capturing on a single thread for device [" << m_DeviceName << "]");
+	LOG_DBG("Trying to start capturing on a single thread for device [" << m_DeviceName << "]");
 
 	clearCoreConfiguration();
 
@@ -569,7 +569,7 @@ bool DpdkDevice::startCaptureSingleThread(OnDpdkPacketsArriveCallback onPacketsA
 		m_CoreConfiguration[coreId].IsCoreInUse = true;
 		m_CoreConfiguration[coreId].RxQueueId = 0;
 
-		LOG_DEBUG("Trying to start capturing on core " << coreId);
+		LOG_DBG("Trying to start capturing on core " << coreId);
 		int err = rte_eal_remote_launch(dpdkCaptureThreadMain, (void*)this, coreId);
 		if (err != 0)
 		{
@@ -578,7 +578,7 @@ bool DpdkDevice::startCaptureSingleThread(OnDpdkPacketsArriveCallback onPacketsA
 			return false;
 		}
 
-		LOG_DEBUG("Capturing started for device [" << m_DeviceName << "]");
+		LOG_DBG("Capturing started for device [" << m_DeviceName << "]");
 		return true;
 	}
 
@@ -630,17 +630,17 @@ bool DpdkDevice::startCaptureMultiThreads(OnDpdkPacketsArriveCallback onPacketsA
 
 void DpdkDevice::stopCapture()
 {
-	LOG_DEBUG("Trying to stop capturing on device [" << m_DeviceName << "]");
+	LOG_DBG("Trying to stop capturing on device [" << m_DeviceName << "]");
 	m_StopThread = true;
 	for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 	{
 		if (!m_CoreConfiguration[coreId].IsCoreInUse)
 			continue;
 		rte_eal_wait_lcore(coreId);
-		LOG_DEBUG("Thread on core [" << coreId << "] stopped");
+		LOG_DBG("Thread on core [" << coreId << "] stopped");
 	}
 
-	LOG_DEBUG("All capturing threads stopped");
+	LOG_DBG("All capturing threads stopped");
 }
 
 int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
@@ -655,7 +655,7 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 	}
 
 	uint32_t coreId = pThis->getCurrentCoreId();
-	LOG_DEBUG("Starting capture thread " << coreId);
+	LOG_DBG("Starting capture thread " << coreId);
 
 	int queueId = pThis->m_CoreConfiguration[coreId].RxQueueId;
 
@@ -681,7 +681,7 @@ int DpdkDevice::dpdkCaptureThreadMain(void *ptr)
 		}
 	}
 
-	LOG_DEBUG("Exiting capture thread " << coreId);
+	LOG_DBG("Exiting capture thread " << coreId);
 
 	return 0;
 }
@@ -779,7 +779,7 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t
 	uint32_t numOfPktsReceived  = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, MAX_BURST_SIZE);
 
 	//the following line trashes the log with many messages. Uncomment only if necessary
-	//LOG_DEBUG("Captured %d packets", numOfPktsReceived);
+	//LOG_DBG("Captured %d packets", numOfPktsReceived);
 
 	if (unlikely(numOfPktsReceived <= 0))
 	{
@@ -981,7 +981,7 @@ uint16_t DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, P
 
 				if (unlikely((packetsSent - lastSleep) >= packetTxThreshold))
 				{
-					LOG_DEBUG("Since NIC couldn't send all packet in this iteration, waiting for 0.2 second for H/W descriptors to get free");
+					LOG_DBG("Since NIC couldn't send all packet in this iteration, waiting for 0.2 second for H/W descriptors to get free");
 					usleep(200000);
 					lastSleep = packetsSent;
 				}

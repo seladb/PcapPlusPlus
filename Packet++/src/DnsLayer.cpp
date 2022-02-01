@@ -629,7 +629,7 @@ bool DnsLayer::removeQuery(const std::string& queryNameToRemove, bool exactMatch
 	DnsQuery* queryToRemove = getQuery(queryNameToRemove, exactMatch);
 	if (queryToRemove == NULL)
 	{
-		LOG_DEBUG("Query not found");
+		LOG_DBG("Query not found");
 		return false;
 	}
 
@@ -673,7 +673,7 @@ bool DnsLayer::removeAnswer(const std::string& answerNameToRemove, bool exactMat
 	DnsResource* answerToRemove = getAnswer(answerNameToRemove, exactMatch);
 	if (answerToRemove == NULL)
 	{
-		LOG_DEBUG("Answer record not found");
+		LOG_DBG("Answer record not found");
 		return false;
 	}
 
@@ -718,7 +718,7 @@ bool DnsLayer::removeAuthority(const std::string& authorityNameToRemove, bool ex
 	DnsResource* authorityToRemove = getAuthority(authorityNameToRemove, exactMatch);
 	if (authorityToRemove == NULL)
 	{
-		LOG_DEBUG("Authority not found");
+		LOG_DBG("Authority not found");
 		return false;
 	}
 
@@ -774,7 +774,7 @@ bool DnsLayer::removeAdditionalRecord(const std::string& additionalRecordNameToR
 	DnsResource* additionalRecordToRemove = getAdditionalRecord(additionalRecordNameToRemove, exactMatch);
 	if (additionalRecordToRemove == NULL)
 	{
-		LOG_DEBUG("Additional record not found");
+		LOG_DBG("Additional record not found");
 		return false;
 	}
 
@@ -797,7 +797,7 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 {
 	if (resourceToRemove == NULL)
 	{
-		LOG_DEBUG("resourceToRemove cannot be NULL");
+		LOG_DBG("resourceToRemove cannot be NULL");
 		return false;
 	}
 
@@ -818,7 +818,7 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 
 	if (prevResource == NULL)
 	{
-		LOG_DEBUG("Resource not found");
+		LOG_DBG("Resource not found");
 		return false;
 	}
 

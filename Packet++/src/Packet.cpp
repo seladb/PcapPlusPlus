@@ -189,7 +189,7 @@ void Packet::copyDataFrom(const Packet& other)
 
 void Packet::reallocateRawData(size_t newSize)
 {
-	LOG_DEBUG("Allocating packet to new size: " << newSize);
+	LOG_DBG("Allocating packet to new size: " << newSize);
 
 	// allocate a new array with size newSize
 	m_MaxPacketLen = newSize;
@@ -207,7 +207,7 @@ void Packet::reallocateRawData(size_t newSize)
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != NULL)
 	{
-		LOG_DEBUG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
+		LOG_DBG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
 		curLayer->m_Data = (uint8_t*)dataPtr;
 		dataPtr += curLayer->getHeaderLen();
 		curLayer = curLayer->getNextLayer();

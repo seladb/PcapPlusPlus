@@ -218,7 +218,7 @@ namespace pcpp
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 
-#define LOG_DEBUG(message) do \
+#define LOG_DBG(message) do \
 	{ \
 		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) \
 		{ \

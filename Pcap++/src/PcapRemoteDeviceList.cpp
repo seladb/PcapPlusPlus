@@ -24,7 +24,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 		return NULL;
 	}
 
-	LOG_DEBUG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
+	LOG_DBG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
 	char errbuf[PCAP_ERRBUF_SIZE];
 	std::ostringstream portAsString;
@@ -35,13 +35,13 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 		return NULL;
 	}
 
-	LOG_DEBUG("Remote capture string: " << remoteCaptureString);
+	LOG_DBG("Remote capture string: " << remoteCaptureString);
 
 	pcap_rmtauth* pRmAuth = NULL;
 	pcap_rmtauth rmAuth;
 	if (remoteAuth != NULL)
 	{
-		LOG_DEBUG("Authentication requested. Username: " << remoteAuth->userName << ", Password: " << remoteAuth->password);
+		LOG_DBG("Authentication requested. Username: " << remoteAuth->userName << ", Password: " << remoteAuth->password);
 		rmAuth = remoteAuth->getPcapRmAuth();
 		pRmAuth = &rmAuth;
 	}
@@ -105,29 +105,29 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipA
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
 {
-	LOG_DEBUG("Searching all remote devices in list...");
+	LOG_DBG("Searching all remote devices in list...");
 	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
+		LOG_DBG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
 				internal::sockaddr2string(addrIter->addr, addrAsString);
-				LOG_DEBUG("Searching address " << addrAsString);
+				LOG_DBG("Searching address " << addrAsString);
 			}
 
 			in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
 			if (currAddr == NULL)
 			{
-				LOG_DEBUG("Address is NULL");
+				LOG_DBG("Address is NULL");
 				continue;
 			}
 
 			if (currAddr->s_addr == ip4Addr.toInt())
 			{
-				LOG_DEBUG("Found matched address!");
+				LOG_DBG("Found matched address!");
 				return (*devIter);
 			}
 		}
@@ -139,23 +139,23 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
 {
-	LOG_DEBUG("Searching all remote devices in list...");
+	LOG_DBG("Searching all remote devices in list...");
 	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
 	{
-		LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
+		LOG_DBG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter->addr != NULL)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
 				internal::sockaddr2string(addrIter->addr, addrAsString);
-				LOG_DEBUG("Searching address " << addrAsString);
+				LOG_DBG("Searching address " << addrAsString);
 			}
 
 			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter->addr);
 			if (currAddr == NULL)
 			{
-				LOG_DEBUG("Address is NULL");
+				LOG_DBG("Address is NULL");
 				continue;
 			}
 
@@ -163,7 +163,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 			ip6Addr.copyTo(&addrAsArr, addrLen);
 			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
 			{
-				LOG_DEBUG("Found matched address!");
+				LOG_DBG("Found matched address!");
 				delete [] addrAsArr;
 				return (*devIter);
 			}

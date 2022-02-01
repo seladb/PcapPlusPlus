@@ -78,7 +78,7 @@ MacAddress DhcpLayer::getClientHardwareAddress() const
 	if (hdr != NULL && hdr->hardwareType == 1 && hdr->hardwareAddressLength == 6)
 		return MacAddress(hdr->clientHardwareAddress);
 
-	LOG_DEBUG("Hardware type isn't Ethernet or hardware addr len != 6, returning MacAddress:Zero");
+	LOG_DBG("Hardware type isn't Ethernet or hardware addr len != 6, returning MacAddress:Zero");
 
 	return MacAddress::Zero;
 }

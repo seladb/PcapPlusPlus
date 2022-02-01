@@ -249,7 +249,7 @@ void MBufRawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendL
 
 	RawPacket::appendData(dataToAppend, dataToAppendLen);
 
-	LOG_DEBUG("Appended " << dataToAppendLen << " bytes to MBufRawPacket");
+	LOG_DBG("Appended " << dataToAppendLen << " bytes to MBufRawPacket");
 }
 
 void MBufRawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
@@ -269,7 +269,7 @@ void MBufRawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t 
 
 	RawPacket::insertData(atIndex, dataToInsert, dataToInsertLen);
 
-	LOG_DEBUG("Inserted " << dataToInsertLen << " bytes to MBufRawPacket");
+	LOG_DBG("Inserted " << dataToInsertLen << " bytes to MBufRawPacket");
 }
 
 bool MBufRawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
@@ -289,7 +289,7 @@ bool MBufRawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 		return false;
 	}
 
-	LOG_DEBUG("Trimmed " << numOfBytesToRemove << " bytes from MBufRawPacket");
+	LOG_DBG("Trimmed " << numOfBytesToRemove << " bytes from MBufRawPacket");
 
 	return true;
 }
