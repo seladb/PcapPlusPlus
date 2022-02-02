@@ -16,7 +16,7 @@ TablePrinter::TablePrinter(std::vector<std::string> columnNames, std::vector<int
 {
 	if (m_ColumnWidths.size() != m_ColumnNames.size())
 	{
-		LOG_ERROR("Cannot create table: number of column names provided is different than number of column widths provided");
+		PCPP_LOG_ERROR("Cannot create table: number of column names provided is different than number of column widths provided");
 		m_TableClosed = true;
 	}
 }
@@ -31,13 +31,13 @@ bool TablePrinter::printRow(std::vector<std::string> values)
 	// if table is already closed return false
 	if (m_TableClosed)
 	{
-		LOG_ERROR("Table is closed");
+		PCPP_LOG_ERROR("Table is closed");
 		return false;
 	}
 
 	if (values.size() != m_ColumnWidths.size())
 	{
-		LOG_ERROR("Number of values in input doesn't equal to number of columns");
+		PCPP_LOG_ERROR("Number of values in input doesn't equal to number of columns");
 		return false;
 	}
 
@@ -83,7 +83,7 @@ void TablePrinter::printSeparator()
 	// if table is already closed return
 	if (m_TableClosed)
 	{
-		LOG_ERROR("Table is closed");
+		PCPP_LOG_ERROR("Table is closed");
 		return;
 	}
 
@@ -121,7 +121,7 @@ void TablePrinter::printHeadline()
 	// if table is already closed return
 	if (m_TableClosed)
 	{
-		LOG_ERROR("Table is closed");
+		PCPP_LOG_ERROR("Table is closed");
 		return;
 	}
 

@@ -14,7 +14,7 @@ size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsR
 {
 	if (dnsResource == NULL)
 	{
-		LOG_ERROR("Cannot decode name, DNS resource object is NULL");
+		PCPP_LOG_ERROR("Cannot decode name, DNS resource object is NULL");
 		return 0;
 	}
 
@@ -25,7 +25,7 @@ void IDnsResourceData::encodeName(const std::string& decodedName, char* result, 
 {
 	if (dnsResource == NULL)
 	{
-		LOG_ERROR("Cannot encode name, DNS resource object is NULL");
+		PCPP_LOG_ERROR("Cannot encode name, DNS resource object is NULL");
 		return;
 	}
 
@@ -50,7 +50,7 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 {
 	if (dataLen != 4)
 	{
-		LOG_ERROR("DNS type is A but resource length is not 4 - malformed data");
+		PCPP_LOG_ERROR("DNS type is A but resource length is not 4 - malformed data");
 		return;
 	}
 
@@ -62,7 +62,7 @@ bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 {
 	if (!m_Data.isValid())
 	{
-		LOG_ERROR("Cannot convert IPv4 address to byte array because address is not valid");
+		PCPP_LOG_ERROR("Cannot convert IPv4 address to byte array because address is not valid");
 		return false;
 	}
 
@@ -75,7 +75,7 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 {
 	if (dataLen != 16)
 	{
-		LOG_ERROR("DNS type is AAAA but resource length is not 16 - malformed data");
+		PCPP_LOG_ERROR("DNS type is AAAA but resource length is not 16 - malformed data");
 		return;
 	}
 
@@ -86,7 +86,7 @@ bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 {
 	if (!m_Data.isValid())
 	{
-		LOG_ERROR("Cannot convert IPv6 address to byte array because address is not valid");
+		PCPP_LOG_ERROR("Cannot convert IPv6 address to byte array because address is not valid");
 		return false;
 	}
 
@@ -207,7 +207,7 @@ bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsReso
 {
 	if (m_DataLen == 0 || m_Data == NULL)
 	{
-		LOG_ERROR("Input data is null or illegal");
+		PCPP_LOG_ERROR("Input data is null or illegal");
 		return false;
 	}
 

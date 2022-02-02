@@ -50,7 +50,7 @@ bool Layer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
 {
 	if (m_Data == NULL)
 	{
-		LOG_ERROR("Layer's data is NULL");
+		PCPP_LOG_ERROR("Layer's data is NULL");
 		return false;
 	}
 
@@ -58,7 +58,7 @@ bool Layer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
 	{
 		if ((size_t)offsetInLayer > m_DataLen)
 		{
-			LOG_ERROR("Requested offset is larger than data length");
+			PCPP_LOG_ERROR("Requested offset is larger than data length");
 			return false;
 		}
 
@@ -78,7 +78,7 @@ bool Layer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
 {
 	if (m_Data == NULL)
 	{
-		LOG_ERROR("Layer's data is NULL");
+		PCPP_LOG_ERROR("Layer's data is NULL");
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool Layer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
 	{
 		if ((size_t)offsetInLayer >= m_DataLen)
 		{
-			LOG_ERROR("Requested offset is larger than data length");
+			PCPP_LOG_ERROR("Requested offset is larger than data length");
 			return false;
 		}
 

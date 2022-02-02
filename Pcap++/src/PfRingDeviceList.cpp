@@ -18,19 +18,19 @@ PfRingDeviceList::PfRingDeviceList()
 	char buf[16];
 	if (fread (buf, 1, sizeof (buf), fd) <= 0) // if there is some result the module must be loaded
 	{
-		LOG_ERROR("PF_RING kernel module isn't loaded. Please run: 'sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko'");
+		PCPP_LOG_ERROR("PF_RING kernel module isn't loaded. Please run: 'sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko'");
 		return;
 	}
 
-	LOG_DEBUG("PF_RING kernel module is loaded");
+	PCPP_LOG_DEBUG("PF_RING kernel module is loaded");
 
 	pcap_if_t* interfaceList;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	LOG_DEBUG("PfRingDeviceList init: searching all interfaces on machine");
+	PCPP_LOG_DEBUG("PfRingDeviceList init: searching all interfaces on machine");
 	int err = pcap_findalldevs(&interfaceList, errbuf);
 	if (err < 0)
 	{
-		LOG_ERROR("Error searching for PF_RING devices: " << errbuf);
+		PCPP_LOG_ERROR("Error searching for PF_RING devices: " << errbuf);
 	}
 
 	pcap_if_t* currInterface = interfaceList;
@@ -45,13 +45,13 @@ PfRingDeviceList::PfRingDeviceList()
 			pfring_close(ring);
 			PfRingDevice* newDev = new PfRingDevice(currInterface->name);
 			m_PfRingDeviceList.push_back(newDev);
-			LOG_DEBUG("Found interface: " << currInterface->name);
+			PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
 		}
 
 		currInterface = currInterface->next;
 	}
 
-	LOG_DEBUG("PfRingDeviceList init end");
+	PCPP_LOG_DEBUG("PfRingDeviceList init end");
 	pcap_freealldevs(interfaceList);
 }
 
@@ -65,14 +65,14 @@ PfRingDeviceList::~PfRingDeviceList()
 
 PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string devName) const
 {
-	LOG_DEBUG("Searching all live devices...");
+	PCPP_LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PfRingDevice*>::const_iterator devIter = m_PfRingDeviceList.begin(); devIter != m_PfRingDeviceList.end(); devIter++)
 	{
 		if ((*devIter)->getDeviceName() == devName)
 			return (*devIter);
 	}
 
-	LOG_DEBUG("Found no PF_RING devices with name '" << devName << "'");
+	PCPP_LOG_DEBUG("Found no PF_RING devices with name '" << devName << "'");
 	return NULL;
 }
 
@@ -82,7 +82,7 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
 	uint32_t version;
 	if (pfring_version(ringPtr, &version) < 0)
 	{
-		LOG_ERROR("Couldn't retrieve PF_RING version, pfring_version returned an error");
+		PCPP_LOG_ERROR("Couldn't retrieve PF_RING version, pfring_version returned an error");
 		return;
 	}
 
@@ -92,7 +92,7 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
 	  (version & 0x0000FF00) >> 8,
 	  version & 0x000000FF);
 
-	LOG_DEBUG("PF_RING version is: " << versionAsString);
+	PCPP_LOG_DEBUG("PF_RING version is: " << versionAsString);
 	m_PfRingVersion = std::string(versionAsString);
 }
 

@@ -279,7 +279,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// packet is not an IP packet
 	if (!fragment->isPacketOfType(IPv4) && !fragment->isPacketOfType(IPv6))
 	{
-		LOG_DEBUG("Got a non-IP packet, returning packet to user");
+		PCPP_LOG_DEBUG("Got a non-IP packet, returning packet to user");
 		status = NON_IP_PACKET;
 		return fragment;
 	}
@@ -299,7 +299,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// packet is not a fragment
 	if (!(fragWrapper->isFragment()))
 	{
-		LOG_DEBUG("Got a non fragment packet with FragID=0x" << std::hex << fragWrapper->getFragmentId() << ", returning packet to user");
+		PCPP_LOG_DEBUG("Got a non fragment packet with FragID=0x" << std::hex << fragWrapper->getFragmentId() << ", returning packet to user");
 		status = NON_FRAGMENT;
 		return fragment;
 	}
@@ -315,7 +315,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// this is the first fragment seen for this packet
 	if (iter == m_FragmentMap.end())
 	{
-		LOG_DEBUG("Got new packet with FragID=0x" << std::hex << fragWrapper->getFragmentId() << ", allocating place in map");
+		PCPP_LOG_DEBUG("Got new packet with FragID=0x" << std::hex << fragWrapper->getFragmentId() << ", allocating place in map");
 
 		// create the IPFragmentData object
 		fragData = new IPFragmentData(fragWrapper->createPacketKey(), fragWrapper->getFragmentId());
@@ -339,7 +339,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	{
 		if (fragData->data == NULL) // first fragment
 		{
-			LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got first fragment, allocating RawPacket");
+			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got first fragment, allocating RawPacket");
 
 			// create the reassembled packet and copy the fragment data to it
 			fragData->data = new RawPacket(*(fragment->getRawPacket()));
@@ -351,7 +351,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		}
 		else // duplicated first fragment
 		{
-			LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got duplicated first fragment");
+			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got duplicated first fragment");
 			status = FRAGMENT;
 			return NULL;
 		}
@@ -359,7 +359,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 
 	else // not first fragment
 	{
-		LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got fragment");
+		PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got fragment");
 
 		uint16_t fragOffset = fragWrapper->getFragmentOffset();
 
@@ -369,12 +369,12 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			// malformed fragment which is not the first fragment but its offset is 0
 			if (fragData->data == NULL)
 			{
-				LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Fragment is malformed");
+				PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Fragment is malformed");
 				status = MALFORMED_FRAGMENT;
 				return NULL;
 			}
 
-			LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Found next matching fragment with offset " << fragOffset << ", adding fragment data to reassembled packet");
+			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Found next matching fragment with offset " << fragOffset << ", adding fragment data to reassembled packet");
 
 			size_t payloadSize = fragWrapper->getIPLayerPayloadSize();
 			// copy fragment data to reassembled packet
@@ -394,7 +394,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		// if current fragment offset is larger than expected - this means this fragment is out-of-order
 		else if (fragOffset > fragData->currentOffset)
 		{
-			LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got out-of-ordered fragment with offset " << fragOffset << " (expected: " << fragData->currentOffset << "). Adding it to out-of-order list");
+			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got out-of-ordered fragment with offset " << fragOffset << " (expected: " << fragData->currentOffset << "). Adding it to out-of-order list");
 
 			// create a new IPFragment and copy the fragment data and params to it
 			size_t payloadSize = fragWrapper->getIPLayerPayloadSize();
@@ -413,7 +413,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		}
 		else
 		{
-			LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got a fragment with an offset that was already seen: " << fragOffset << " (current offset is: " << fragData->currentOffset << "), probably duplicated fragment");
+			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got a fragment with an offset that was already seen: " << fragOffset << " (current offset is: " << fragData->currentOffset << "), probably duplicated fragment");
 		}
 
 	}
@@ -421,7 +421,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// if seen the last fragment
 	if (gotLastFragment)
 	{
-		LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Reassembly process completed, allocating a packet and returning it");
+		PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Reassembly process completed, allocating a packet and returning it");
 		fragData->deleteData = false;
 
 		// fix IP length field
@@ -458,7 +458,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			ipLayer->computeCalculateFields();
 		}
 
-		LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Deleting fragment data from map");
+		PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Deleting fragment data from map");
 
 		// delete the IPFragmentData object and remove it from the map
 		delete fragData;
@@ -577,7 +577,7 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 		if (m_OnFragmentsCleanCallback != NULL)
 			key = dataRemoved->packetKey->clone();
 
-		LOG_DEBUG("Reached maximum packet capacity, removing data for FragID=0x" << std::hex << dataRemoved->fragmentID);
+		PCPP_LOG_DEBUG("Reached maximum packet capacity, removing data for FragID=0x" << std::hex << dataRemoved->fragmentID);
 		delete dataRemoved;
 		m_FragmentMap.erase(iter);
 
@@ -596,7 +596,7 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 
 bool IPReassembly::matchOutOfOrderFragments(IPFragmentData* fragData)
 {
-	LOG_DEBUG("[FragID=0x" << std::hex << fragData->fragmentID << "] Searching out-of-order fragment list for the next fragment");
+	PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragData->fragmentID << "] Searching out-of-order fragment list for the next fragment");
 
 	// a flag indicating whether the last fragment of the packet was found
 	bool foundLastSegment = false;
@@ -618,13 +618,13 @@ bool IPReassembly::matchOutOfOrderFragments(IPFragmentData* fragData)
 			if (fragData->currentOffset == frag->fragmentOffset)
 			{
 				// add it to the reassembled packet
-				LOG_DEBUG("[FragID=0x" << std::hex << fragData->fragmentID << "] Found the next matching fragment in out-of-order list with offset " << frag->fragmentOffset << ", adding its data to reassembled packet");
+				PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragData->fragmentID << "] Found the next matching fragment in out-of-order list with offset " << frag->fragmentOffset << ", adding its data to reassembled packet");
 				fragData->data->reallocateData(fragData->data->getRawDataLen() + frag->fragmentDataLen);
 				fragData->data->appendData(frag->fragmentData, frag->fragmentDataLen);
 				fragData->currentOffset += frag->fragmentDataLen;
 				if (frag->lastFragment) // if this is the last fragment of the packet
 				{
-					LOG_DEBUG("[FragID=0x" << std::hex << fragData->fragmentID << "] Found last fragment inside out-of-order list");
+					PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragData->fragmentID << "] Found last fragment inside out-of-order list");
 					foundLastSegment = true;
 				}
 
@@ -642,7 +642,7 @@ bool IPReassembly::matchOutOfOrderFragments(IPFragmentData* fragData)
 		if (!foundOutOfOrderFrag)
 		{
 			// break the loop - need to wait for the missing fragment in next incoming packets
-			LOG_DEBUG("[FragID=0x" << std::hex << fragData->fragmentID << "] Didn't find the next fragment in out-of-order list");
+			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragData->fragmentID << "] Didn't find the next fragment in out-of-order list");
 			break;
 		}
 	}

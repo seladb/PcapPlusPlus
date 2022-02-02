@@ -61,21 +61,21 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 
 	if (timestampValue.type == IPv4TimestampOptionValue::Unknown)
 	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::Unknown");
+		PCPP_LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::Unknown");
 		m_BuilderParamsValid = false;
 		return;
 	}
 
 	if (timestampValue.type == IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs)
 	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs - this type is not supported");
+		PCPP_LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs - this type is not supported");
 		m_BuilderParamsValid = false;
 		return;
 	}
 
 	if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP && timestampValue.timestamps.size() != timestampValue.ipAddresses.size())
 	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampAndIP because number of timestamps and IP addresses is not equal");
+		PCPP_LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampAndIP because number of timestamps and IP addresses is not equal");
 		m_BuilderParamsValid = false;
 		return;
 	}
@@ -138,7 +138,7 @@ IPv4Option IPv4OptionBuilder::build() const
 	{
 		if (m_RecValueLen != 0)
 		{
-			LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size " << (int)m_RecValueLen);
+			PCPP_LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size " << (int)m_RecValueLen);
 			return IPv4Option(NULL);
 		}
 
@@ -463,14 +463,14 @@ IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int of
 
 	if (totalOptSize > IPV4_MAX_OPT_SIZE)
 	{
-		LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is " << IPV4_MAX_OPT_SIZE);
+		PCPP_LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is " << IPV4_MAX_OPT_SIZE);
 		newOption.purgeRecordData();
 		return IPv4Option(NULL);
 	}
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend IPv4Layer in [" << sizeToExtend << "] bytes");
+		PCPP_LOG_ERROR("Could not extend IPv4Layer in [" << sizeToExtend << "] bytes");
 		newOption.purgeRecordData();
 		return IPv4Option(NULL);
 	}
@@ -541,7 +541,7 @@ bool IPv4Layer::removeOption(IPv4OptionTypes option)
 	size_t sizeToShorten = opt.getTotalSize();
 	if (!shortenLayer(offset, sizeToShorten))
 	{
-		LOG_ERROR("Failed to remove IPv4 option: cannot shorten layer");
+		PCPP_LOG_ERROR("Failed to remove IPv4 option: cannot shorten layer");
 		return false;
 	}
 
