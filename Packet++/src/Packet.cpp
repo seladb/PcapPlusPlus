@@ -189,7 +189,7 @@ void Packet::copyDataFrom(const Packet& other)
 
 void Packet::reallocateRawData(size_t newSize)
 {
-	LOG_DBG("Allocating packet to new size: " << newSize);
+	PCPP_LOG_DEBUG("Allocating packet to new size: " << newSize);
 
 	// allocate a new array with size newSize
 	m_MaxPacketLen = newSize;
@@ -197,7 +197,7 @@ void Packet::reallocateRawData(size_t newSize)
 	// set the new array to RawPacket
 	if (!m_RawPacket->reallocateData(m_MaxPacketLen))
 	{
-		LOG_ERROR("Couldn't reallocate data of raw packet to " << m_MaxPacketLen << " bytes");
+		PCPP_LOG_ERROR("Couldn't reallocate data of raw packet to " << m_MaxPacketLen << " bytes");
 		return;
 	}
 
@@ -207,7 +207,7 @@ void Packet::reallocateRawData(size_t newSize)
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != NULL)
 	{
-		LOG_DBG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
+		PCPP_LOG_DEBUG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
 		curLayer->m_Data = (uint8_t*)dataPtr;
 		dataPtr += curLayer->getHeaderLen();
 		curLayer = curLayer->getNextLayer();
@@ -218,19 +218,19 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 {
 	if (newLayer == NULL)
 	{
-		LOG_ERROR("Layer to add is NULL");
+		PCPP_LOG_ERROR("Layer to add is NULL");
 		return false;
 	}
 
 	if (newLayer->isAllocatedToPacket())
 	{
-		LOG_ERROR("Layer is already allocated to another packet. Cannot use layer in more than one packet");
+		PCPP_LOG_ERROR("Layer is already allocated to another packet. Cannot use layer in more than one packet");
 		return false;
 	}
 
 	if (prevLayer != NULL && prevLayer->getProtocol() == PacketTrailer)
 	{
-		LOG_ERROR("Cannot insert layer after packet trailer");
+		PCPP_LOG_ERROR("Cannot insert layer after packet trailer");
 		return false;
 	}
 
@@ -239,7 +239,7 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 	{
 		if (!m_CanReallocateData)
 		{
-			LOG_ERROR("With the new layer the packet will exceed the size of the pre-allocated buffer: " << m_MaxPacketLen << " bytes");
+			PCPP_LOG_ERROR("With the new layer the packet will exceed the size of the pre-allocated buffer: " << m_MaxPacketLen << " bytes");
 			return false;
 		}
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
@@ -334,7 +334,7 @@ bool Packet::removeLayer(ProtocolType layerType, int index)
 	}
 	else
 	{
-		LOG_ERROR("Layer of the requested type was not found in packet");
+		PCPP_LOG_ERROR("Layer of the requested type was not found in packet");
 		return false;
 	}
 }
@@ -344,7 +344,7 @@ bool Packet::removeFirstLayer()
 	Layer* firstLayer = getFirstLayer();
 	if (firstLayer == NULL)
 	{
-		LOG_ERROR("Packet has no layers");
+		PCPP_LOG_ERROR("Packet has no layers");
 		return false;
 	}
 
@@ -356,7 +356,7 @@ bool Packet::removeLastLayer()
 	Layer* lastLayer = getLastLayer();
 	if (lastLayer == NULL)
 	{
-		LOG_ERROR("Packet has no layers");
+		PCPP_LOG_ERROR("Packet has no layers");
 		return false;
 	}
 	
@@ -390,7 +390,7 @@ Layer* Packet::detachLayer(ProtocolType layerType, int index)
 	}
 	else
 	{
-		LOG_ERROR("Layer of the requested type was not found in packet");
+		PCPP_LOG_ERROR("Layer of the requested type was not found in packet");
 		return NULL;
 	}
 }
@@ -399,14 +399,14 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 {
 	if (layer == NULL)
 	{
-		LOG_ERROR("Layer is NULL");
+		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
 	}
 
 	// verify layer is allocated to a packet
 	if (!layer->isAllocatedToPacket())
 	{
-		LOG_ERROR("Layer isn't allocated to any packet");
+		PCPP_LOG_ERROR("Layer isn't allocated to any packet");
 		return false;
 	}
 
@@ -416,7 +416,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 		curLayer = curLayer->m_PrevLayer;
 	if (curLayer != m_FirstLayer)
 	{
-		LOG_ERROR("Layer isn't allocated to this packet");
+		PCPP_LOG_ERROR("Layer isn't allocated to this packet");
 		return false;
 	}
 
@@ -431,7 +431,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	int indexOfDataToRemove = layer->m_Data - m_RawPacket->getRawData();
 	if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToRemove))
 	{
-		LOG_ERROR("Couldn't remove data from packet");
+		PCPP_LOG_ERROR("Couldn't remove data from packet");
 		delete [] layerOldData;
 		return false;
 	}
@@ -536,14 +536,14 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 {
 	if (layer == NULL)
 	{
-		LOG_ERROR("Layer is NULL");
+		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
 	}
 
 	// verify layer is allocated to this packet
 	if (!(layer->m_Packet == this))
 	{
-		LOG_ERROR("Layer isn't allocated to this packet");
+		PCPP_LOG_ERROR("Layer isn't allocated to this packet");
 		return false;
 	}
 
@@ -551,7 +551,7 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 	{
 		if (!m_CanReallocateData)
 		{
-			LOG_ERROR("With the layer extended size the packet will exceed the size of the pre-allocated buffer: " << m_MaxPacketLen << " bytes");
+			PCPP_LOG_ERROR("With the layer extended size the packet will exceed the size of the pre-allocated buffer: " << m_MaxPacketLen << " bytes");
 			return false;
 		}
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
@@ -601,14 +601,14 @@ bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToSh
 {
 	if (layer == NULL)
 	{
-		LOG_ERROR("Layer is NULL");
+		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
 	}
 
 	// verify layer is allocated to this packet
 	if (!(layer->m_Packet == this))
 	{
-		LOG_ERROR("Layer isn't allocated to this packet");
+		PCPP_LOG_ERROR("Layer isn't allocated to this packet");
 		return false;
 	}
 
@@ -616,7 +616,7 @@ bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToSh
 	int indexOfDataToRemove = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
 	if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToShorten))
 	{
-		LOG_ERROR("Couldn't remove data from packet");
+		PCPP_LOG_ERROR("Couldn't remove data from packet");
 		return false;
 	}
 

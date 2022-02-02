@@ -20,19 +20,19 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 		size_t buffLen = vec[i].len;
 		while (buffLen > 1)
 		{
-			LOG_DBG("Value to add = 0x" << std::uppercase << std::hex << *(vec[i].buffer));
+			PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex << *(vec[i].buffer));
 			localSum += *(vec[i].buffer);
 			++(vec[i].buffer);
 			buffLen -= 2;
 		}
-		LOG_DBG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
+		PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 
 		if (buffLen == 1)
 		{
 			uint8_t lastByte = *(vec[i].buffer);
-			LOG_DBG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
+			PCPP_LOG_DEBUG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
 			localSum += lastByte;
-			LOG_DBG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
+			PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		}
 
 		while (localSum>>16)
@@ -40,7 +40,7 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 			localSum = (localSum & 0xffff) + (localSum >> 16);
 		}
 		localSum = be16toh(localSum);
-		LOG_DBG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
+		PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		sum += localSum;
 	}
 
@@ -49,11 +49,11 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 		sum = (sum & 0xffff) + (sum >> 16);
 	}
 
-	LOG_DBG("Sum before invert = " << sum << ", 0x" << std::uppercase << std::hex << sum);
+	PCPP_LOG_DEBUG("Sum before invert = " << sum << ", 0x" << std::uppercase << std::hex << sum);
 
 	sum = ~sum;
 
-	LOG_DBG("Calculated checksum = " << sum << ", 0x" << std::uppercase << std::hex << sum);
+	PCPP_LOG_DEBUG("Calculated checksum = " << sum << ", 0x" << std::uppercase << std::hex << sum);
 
 	return ((uint16_t) sum);
 }

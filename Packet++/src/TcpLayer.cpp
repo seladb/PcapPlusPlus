@@ -48,7 +48,7 @@ TcpOption TcpOptionBuilder::build() const
 	{
 		if (m_RecValueLen != 0)
 		{
-			LOG_ERROR("TCP NOP and TCP EOL options are 1-byte long and don't have option value. Tried to set option value of size " << m_RecValueLen);
+			PCPP_LOG_ERROR("TCP NOP and TCP EOL options are 1-byte long and don't have option value. Tried to set option value of size " << m_RecValueLen);
 			return TcpOption(NULL);
 		}
 
@@ -126,7 +126,7 @@ TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, Tcp
 		TcpOption prevOpt = getTcpOption(prevOptionType);
 		if (prevOpt.isNull())
 		{
-			LOG_ERROR("Previous option of type " << (int)prevOptionType << " not found, cannot add a new TCP option");
+			PCPP_LOG_ERROR("Previous option of type " << (int)prevOptionType << " not found, cannot add a new TCP option");
 			return TcpOption(NULL);
 		}
 
@@ -202,7 +202,7 @@ TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int of
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend TcpLayer in [" << sizeToExtend << "] bytes");
+		PCPP_LOG_ERROR("Could not extend TcpLayer in [" << sizeToExtend << "] bytes");
 		newOption.purgeRecordData();
 		return TcpOption(NULL);
 	}
@@ -249,7 +249,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 	{
 		tcpHdr->headerChecksum = 0;
 		ScalarBuffer<uint16_t> vec[2];
-		LOG_DBG("data len = " << m_DataLen);
+		PCPP_LOG_DEBUG("data len = " << m_DataLen);
 		vec[0].buffer = (uint16_t*)m_Data;
 		vec[0].len = m_DataLen;
 
@@ -267,7 +267,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
 			checksumRes = computeChecksum(vec, 2);
-			LOG_DBG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
+			PCPP_LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
 
 
 		}
@@ -281,7 +281,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
 			checksumRes = computeChecksum(vec, 2);
-			LOG_DBG("calculated checksum = 0xX" << std::uppercase << std::hex << checksumRes);
+			PCPP_LOG_DEBUG("calculated checksum = 0xX" << std::uppercase << std::hex << checksumRes);
 		}
 	}
 

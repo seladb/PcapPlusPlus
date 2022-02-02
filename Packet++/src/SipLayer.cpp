@@ -108,7 +108,7 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 	if (m_Method == SipRequestLayer::SipMethodUnknown)
 	{
 		m_UriOffset = -1;
-		LOG_DBG("Couldn't resolve SIP request method");
+		PCPP_LOG_DEBUG("Couldn't resolve SIP request method");
 	}
 	else
 		m_UriOffset = SipMethodEnumToString[m_Method].length() + 1;
@@ -130,7 +130,7 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 	if (Logger::getInstance().isDebugEnabled(PacketLogModuleSipLayer))
 	{
 		std::string method = (m_Method == SipRequestLayer::SipMethodUnknown? "Unknown" : SipMethodEnumToString[m_Method]);
-		LOG_DBG("Method='" << method << "'; SIP version='" << m_Version << "'; URI='" << getUri() << "'");
+		PCPP_LOG_DEBUG("Method='" << method << "'; SIP version='" << m_Version << "'; URI='" << getUri() << "'");
 	}
 }
 
@@ -324,7 +324,7 @@ bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
 {
 	if (newMethod == SipRequestLayer::SipMethodUnknown)
 	{
-		LOG_ERROR("Requested method is SipMethodUnknown");
+		PCPP_LOG_ERROR("Requested method is SipMethodUnknown");
 		return false;
 	}
 
@@ -334,7 +334,7 @@ bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
 	{
 		if (!m_SipRequest->extendLayer(0, lengthDifference))
 		{
-			LOG_ERROR("Cannot change layer size");
+			PCPP_LOG_ERROR("Cannot change layer size");
 			return false;
 		}
 	}
@@ -342,7 +342,7 @@ bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
 	{
 		if (!m_SipRequest->shortenLayer(0, 0-lengthDifference))
 		{
-			LOG_ERROR("Cannot change layer size");
+			PCPP_LOG_ERROR("Cannot change layer size");
 			return false;
 
 		}
@@ -380,7 +380,7 @@ bool SipRequestFirstLine::setUri(std::string newUri)
 {
 	if (newUri == "")
 	{
-		LOG_ERROR("URI cannot be empty");
+		PCPP_LOG_ERROR("URI cannot be empty");
 		return false;
 	}
 
@@ -391,7 +391,7 @@ bool SipRequestFirstLine::setUri(std::string newUri)
 	{
 		if (!m_SipRequest->extendLayer(m_UriOffset, lengthDifference))
 		{
-			LOG_ERROR("Cannot change layer size");
+			PCPP_LOG_ERROR("Cannot change layer size");
 			return false;
 		}
 	}
@@ -399,7 +399,7 @@ bool SipRequestFirstLine::setUri(std::string newUri)
 	{
 		if (!m_SipRequest->shortenLayer(m_UriOffset, 0-lengthDifference))
 		{
-			LOG_ERROR("Cannot change layer size");
+			PCPP_LOG_ERROR("Cannot change layer size");
 			return false;
 		}
 	}
@@ -764,7 +764,7 @@ bool SipResponseFirstLine::setStatusCode(SipResponseLayer::SipResponseStatusCode
 {
 	if (newStatusCode == SipResponseLayer::SipStatusCodeUnknown)
 	{
-		LOG_ERROR("Requested status code is SipStatusCodeUnknown");
+		PCPP_LOG_ERROR("Requested status code is SipStatusCodeUnknown");
 		return false;
 	}
 
@@ -779,7 +779,7 @@ bool SipResponseFirstLine::setStatusCode(SipResponseLayer::SipResponseStatusCode
 	{
 		if (!m_SipResponse->extendLayer(statusStringOffset, lengthDifference))
 		{
-			LOG_ERROR("Cannot change layer size");
+			PCPP_LOG_ERROR("Cannot change layer size");
 			return false;
 		}
 	}
@@ -787,7 +787,7 @@ bool SipResponseFirstLine::setStatusCode(SipResponseLayer::SipResponseStatusCode
 	{
 		if (!m_SipResponse->shortenLayer(statusStringOffset, 0-lengthDifference))
 		{
-			LOG_ERROR("Cannot change layer size");
+			PCPP_LOG_ERROR("Cannot change layer size");
 			return false;
 
 		}
@@ -821,7 +821,7 @@ void SipResponseFirstLine::setVersion(std::string newVersion)
 
 	if (newVersion.length() != m_Version.length())
 	{
-		LOG_ERROR("Expected version length is " << m_Version.length() << " characters in the format of SIP/x.y");
+		PCPP_LOG_ERROR("Expected version length is " << m_Version.length() << " characters in the format of SIP/x.y");
 		return;
 	}
 
@@ -1220,7 +1220,7 @@ SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse) : m_Si
 	if (Logger::getInstance().isDebugEnabled(PacketLogModuleSipLayer))
 	{
 		int statusCode = (m_StatusCode == SipResponseLayer::SipStatusCodeUnknown ? 0 : StatusCodeEnumToInt[m_StatusCode]);
-		LOG_DBG("Version='" << m_Version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
+		PCPP_LOG_DEBUG("Version='" << m_Version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
 	}
 }
 
@@ -1263,13 +1263,13 @@ std::string SipResponseFirstLine::parseVersion(char* data, size_t dataLen)
 {
 	if (dataLen < 7) // "SIP/x.y"
 	{
-		LOG_DBG("SIP response length < 7, cannot identify version");
+		PCPP_LOG_DEBUG("SIP response length < 7, cannot identify version");
 		return "";
 	}
 
 	if (data[0] != 'S' || data[1] != 'I' || data[2] != 'P' || data[3] != '/')
 	{
-		LOG_DBG("SIP response does not begin with 'SIP/'");
+		PCPP_LOG_DEBUG("SIP response does not begin with 'SIP/'");
 		return "";
 	}
 

@@ -89,8 +89,8 @@ void TextBasedProtocolMessage::parseFields()
 	bool spacesAllowedBetweenNameAndValue = spacesAllowedBetweenHeaderFieldNameAndValue();
 
 	HeaderField* firstField = new HeaderField(this, m_FieldsOffset, nameValueSeperator, spacesAllowedBetweenNameAndValue);
-	LOG_DBG("Added new field: name='" << firstField->getFieldName() << "'; offset in packet=" << firstField->m_NameOffsetInMessage << "; length=" << firstField->getFieldSize());
-	LOG_DBG("     Field value = " << firstField->getFieldValue());
+	PCPP_LOG_DEBUG("Added new field: name='" << firstField->getFieldName() << "'; offset in packet=" << firstField->m_NameOffsetInMessage << "; length=" << firstField->getFieldSize());
+	PCPP_LOG_DEBUG("     Field value = " << firstField->getFieldValue());
 
 	if (m_FieldList == NULL)
 		m_FieldList = firstField;
@@ -113,8 +113,8 @@ void TextBasedProtocolMessage::parseFields()
 		HeaderField* newField = new HeaderField(this, curOffset, nameValueSeperator, spacesAllowedBetweenNameAndValue);
 		if(newField->getFieldSize() > 0)
 		{
-			LOG_DBG("Added new field: name='" << newField->getFieldName() << "'; offset in packet=" << newField->m_NameOffsetInMessage << "; length=" << newField->getFieldSize());
-			LOG_DBG("     Field value = " << newField->getFieldValue());
+			PCPP_LOG_DEBUG("Added new field: name='" << newField->getFieldName() << "'; offset in packet=" << newField->m_NameOffsetInMessage << "; length=" << newField->getFieldSize());
+			PCPP_LOG_DEBUG("     Field value = " << newField->getFieldValue());
 			curField->setNextField(newField);
 			curField = newField;
 			fieldName = newField->getFieldName();
@@ -188,13 +188,13 @@ HeaderField* TextBasedProtocolMessage::insertField(HeaderField* prevField, const
 {
 	if (newField.m_TextBasedProtocolMessage != NULL)
 	{
-		LOG_ERROR("This field is already associated with another message");
+		PCPP_LOG_ERROR("This field is already associated with another message");
 		return NULL;
 	}
 
 	if (prevField != NULL && prevField->getFieldName() == PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
 	{
-		LOG_ERROR("Cannot add a field after end of header");
+		PCPP_LOG_ERROR("Cannot add a field after end of header");
 		return NULL;
 	}
 
@@ -207,7 +207,7 @@ HeaderField* TextBasedProtocolMessage::insertField(HeaderField* prevField, const
 	// extend layer to make room for the new field. Field will be added just before the last field
 	if (!extendLayer(newFieldOffset, newFieldToAdd->getFieldSize()))
 	{
-		LOG_ERROR("Cannot extend layer to insert the header");
+		PCPP_LOG_ERROR("Cannot extend layer to insert the header");
 		delete newFieldToAdd;
 		return NULL;
 	}
@@ -273,7 +273,7 @@ bool TextBasedProtocolMessage::removeField(std::string fieldName, int index)
 		return removeField(fieldToRemove);
 	else
 	{
-		LOG_ERROR("Cannot find field '" << fieldName << "'");
+		PCPP_LOG_ERROR("Cannot find field '" << fieldName << "'");
 		return false;
 	}
 }
@@ -285,7 +285,7 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 
 	if (fieldToRemove->m_TextBasedProtocolMessage != this)
 	{
-		LOG_ERROR("Field isn't associated with this message");
+		PCPP_LOG_ERROR("Field isn't associated with this message");
 		return false;
 	}
 
@@ -294,7 +294,7 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
 	// shorten layer and delete this field
 	if (!shortenLayer(fieldToRemove->m_NameOffsetInMessage, fieldToRemove->getFieldSize()))
 	{
-		LOG_ERROR("Cannot shorten layer");
+		PCPP_LOG_ERROR("Cannot shorten layer");
 		return false;
 	}
 
@@ -639,7 +639,7 @@ bool HeaderField::setFieldValue(std::string newValue)
 	{
 		if (!m_TextBasedProtocolMessage->extendLayer(m_ValueOffsetInMessage, lengthDifference))
 		{
-			LOG_ERROR("Could not extend layer");
+			PCPP_LOG_ERROR("Could not extend layer");
 			return false;
 		}
 	}
@@ -648,7 +648,7 @@ bool HeaderField::setFieldValue(std::string newValue)
 	{
 		if (!m_TextBasedProtocolMessage->shortenLayer(m_ValueOffsetInMessage, 0 - lengthDifference))
 		{
-			LOG_ERROR("Could not shorten layer");
+			PCPP_LOG_ERROR("Could not shorten layer");
 			return false;
 		}
 	}
@@ -670,13 +670,13 @@ void HeaderField::attachToTextBasedProtocolMessage(TextBasedProtocolMessage* mes
 {
 	if (m_TextBasedProtocolMessage != NULL && m_TextBasedProtocolMessage != message)
 	{
-		LOG_ERROR("Header field already associated with another message");
+		PCPP_LOG_ERROR("Header field already associated with another message");
 		return;
 	}
 
 	if (m_NewFieldData == NULL)
 	{
-		LOG_ERROR("Header field doesn't have new field data");
+		PCPP_LOG_ERROR("Header field doesn't have new field data");
 		return;
 	}
 
