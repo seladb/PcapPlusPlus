@@ -8,6 +8,7 @@
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
+#include "TcpLayer.h"
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
@@ -309,8 +310,6 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 	PTF_ASSERT_TRUE(opt.isNull());
 } // Ipv4OptionsParsingTest
 
-
-
 PTF_TEST_CASE(IPv4OptionsEditTest)
 {
 	timeval time;
@@ -492,26 +491,65 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	delete [] buffer77;
 } // Ipv4OptionsEditTest
 
+PTF_TEST_CASE(IPv4Checksum) {
+    pcpp::Logger::getInstance().setLogLevel(pcpp::PacketLogModuleIPv4Layer, pcpp::Logger::Debug);
 
+    timeval time;
+    gettimeofday(&time, NULL);
 
-PTF_TEST_CASE(IPv4UdpChecksum)
-{
-	for (int i = 1; i<6; i++)
-	{
-		std::stringstream strStream;
-		strStream << "PacketExamples/UdpPacket4Checksum" << i << ".dat";
-		std::string fileName = strStream.str();
+    READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4-Checksum-Correct.dat");
+    READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4-Checksum-Bad.dat");
 
-		timeval time;
-		gettimeofday(&time, NULL);
+    pcpp::Packet ipv4Packet1(&rawPacket1, pcpp::IPv4);
+    pcpp::Packet ipv4Packet2(&rawPacket2, pcpp::IPv4);
+    pcpp::IPv4Layer *ipv4Layer1 = ipv4Packet1.getLayerOfType<pcpp::IPv4Layer>();
+    pcpp::IPv4Layer *ipv4Layer2 = ipv4Packet2.getLayerOfType<pcpp::IPv4Layer>();
+    PTF_ASSERT_NOT_NULL(ipv4Layer1);
+    PTF_ASSERT_NOT_NULL(ipv4Layer2);
 
-		READ_FILE_AND_CREATE_PACKET(1, fileName.c_str());
+    PTF_ASSERT_EQUAL(ipv4Layer1->isChecksumCorrect(), true);
+    PTF_ASSERT_EQUAL(ipv4Layer2->isChecksumCorrect(), false);
+} //IPv4OptionsEditTest
 
-		pcpp::Packet udpPacket(&rawPacket1);
-		pcpp::UdpLayer* udpLayer = udpPacket.getLayerOfType<pcpp::UdpLayer>();
-		PTF_ASSERT_NOT_NULL(udpLayer);
-		uint16_t packetChecksum = udpLayer->getUdpHeader()->headerChecksum;
-		udpLayer->computeCalculateFields();
-		PTF_ASSERT_EQUAL(udpLayer->getUdpHeader()->headerChecksum, packetChecksum, hex);
-	}
-} // Ipv4UdpChecksum
+PTF_TEST_CASE(IPv4UdpChecksum) {
+    for (int i = 1; i < 6; i++) {
+        std::stringstream strStream;
+        strStream << "PacketExamples/UdpPacket4Checksum" << i << ".dat";
+        std::string fileName = strStream.str();
+
+        timeval time;
+        gettimeofday(&time, NULL);
+
+        READ_FILE_AND_CREATE_PACKET(1, fileName.c_str());
+
+        pcpp::Packet udpPacket(&rawPacket1);
+        pcpp::UdpLayer *udpLayer = udpPacket.getLayerOfType<pcpp::UdpLayer>();
+        PTF_ASSERT_NOT_NULL(udpLayer);
+        uint16_t packetChecksum = udpLayer->getUdpHeader()->headerChecksum;
+        udpLayer->computeCalculateFields();
+        PTF_ASSERT_EQUAL(udpLayer->getUdpHeader()->headerChecksum, packetChecksum, hex);
+        PTF_ASSERT_TRUE(udpLayer->isChecksumCorrect());
+    }
+} //IPv4UdpChecksum
+
+PTF_TEST_CASE(IPv4TcpChecksum) {
+    pcpp::Logger::getInstance().setLogLevel(pcpp::PacketLogModuleIPv4Layer, pcpp::Logger::Debug);
+
+    timeval time;
+    gettimeofday(&time, NULL);
+
+    READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TCP-IPv4-Checksum-Correct.dat");
+    READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/TCP-IPv4-Checksum-Bad.dat");
+
+    pcpp::Packet tcpPacket1(&rawPacket1, pcpp::TCP);
+    pcpp::Packet tcpPacket2(&rawPacket2, pcpp::TCP);
+    pcpp::TcpLayer *tcpLayer1 = tcpPacket1.getLayerOfType<pcpp::TcpLayer>();
+    pcpp::TcpLayer *tcpLayer2 = tcpPacket2.getLayerOfType<pcpp::TcpLayer>();
+    PTF_ASSERT_NOT_NULL(tcpLayer1);
+    PTF_ASSERT_NOT_NULL(tcpLayer2);
+
+    uint16_t packetChecksum1 = tcpLayer1->getTcpHeader()->headerChecksum;
+    PTF_ASSERT_EQUAL(tcpLayer1->getTcpHeader()->headerChecksum, packetChecksum1, hex);
+    PTF_ASSERT_EQUAL(tcpLayer1->isChecksumCorrect(), true);
+    PTF_ASSERT_EQUAL(tcpLayer2->isChecksumCorrect(), false);
+} // IPv4TcpChecksum

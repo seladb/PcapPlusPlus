@@ -385,6 +385,16 @@ void TcpLayer::computeCalculateFields()
 	calculateChecksum(true);
 }
 
+bool TcpLayer::isChecksumCorrect()
+{
+    const tcphdr* tcpHdr = getTcpHeader();
+    if (tcpHdr == NULL) {
+        return false;
+    }
+
+    return (calculateChecksum(false) == be16toh(tcpHdr->headerChecksum));
+}
+
 std::string TcpLayer::toString() const
 {
 	tcphdr* hdr = getTcpHeader();

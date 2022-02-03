@@ -264,8 +264,9 @@ void IPv4Layer::parseNextLayer()
 	switch (ipHdr->protocol)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		if (payloadLen >= sizeof(udphdr))
-			m_NextLayer = new UdpLayer(payload, payloadLen, this, m_Packet);
+        m_NextLayer = UdpLayer::isDataValid(payload, payloadLen)
+                      ? static_cast<Layer*>(new UdpLayer(payload, payloadLen, this, m_Packet))
+                      : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_TCP:
 		m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)
@@ -362,6 +363,18 @@ void IPv4Layer::computeCalculateFields()
 
 	ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength*4) } ;
 	ipHdr->headerChecksum = htobe16(computeChecksum(&scalar, 1));
+}
+
+bool IPv4Layer::isChecksumCorrect()
+{
+    const iphdr* ipHdr = getIPv4Header();
+    if (ipHdr == NULL) {
+        return false;
+    }
+
+    ScalarBuffer<uint16_t> scalar = { (uint16_t*)ipHdr, (size_t)(ipHdr->internetHeaderLength * 4) };
+
+    return (computeChecksum(&scalar, 1) == 0);
 }
 
 bool IPv4Layer::isFragment() const
