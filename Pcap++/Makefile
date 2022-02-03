@@ -47,8 +47,11 @@ INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
 endif
 ifdef USE_DPDK
 PKGCONF = pkg-config
+TMPI = $(shell $(PKGCONF) --cflags-only-I libdpdk 2>/dev/null)
 INCLUDES += -I"$(RTE_SDK)/build/include"
-INCLUDES += $(shell $(PKGCONF) --cflags libdpdk)
+ifneq ($(TMPI),)
+INCLUDES += $(TMPI)
+endif
 endif
 ifdef LIBPCAP_INLCUDE_DIR
 INCLUDES += -I"$(LIBPCAP_INLCUDE_DIR)"

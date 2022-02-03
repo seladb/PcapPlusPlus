@@ -283,9 +283,9 @@ function get_dpdk_version() {
    elif [ -f $DPDK_HOME/VERSION ]; then
       echo $(cat $DPDK_HOME/VERSION | cut -d'.' -f 1,2);
    elif [ -f $DPDK_HOME/rte_build_config.h ]; then
-      YEAR=$(grep RTE_VER_YEAR $DPDK_HOME/rte_build_config.h|cut -d ' ' -f3);
-      MONTH=$(grep RTE_VER_MONTH $DPDK_HOME/rte_build_config.h|cut -d ' ' -f3);
-      MINOR=$(grep RTE_VER_MINOR $DPDK_HOME/rte_build_config.h|cut -d ' ' -f3);
+      YEAR=$(grep RTE_VER_YEAR $DPDK_HOME/build/rte_build_config.h|cut -d ' ' -f3);
+      MONTH=$(grep RTE_VER_MONTH $DPDK_HOME/build/rte_build_config.h|cut -d ' ' -f3);
+      MINOR=$(grep RTE_VER_MINOR $DPDK_HOME/build/rte_build_config.h|cut -d ' ' -f3);
       echo $YEAR.$MONTH.$MINOR;
    else
       echo "ERROR";
@@ -308,6 +308,7 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
 
    # if DPDK ver < 20.11 concat additional definitions to PcapPlusPlus.mk
    CUR_DPDK_VERSION=$(get_dpdk_version)
+   echo $CUR_DPDK_VERSION
    if [ "$(compare_versions $CUR_DPDK_VERSION 20.11)" -eq "0" ] ; then
       cat mk/PcapPlusPlus.mk.dpdk_legacy >> $PCAPPLUSPLUS_MK
    fi

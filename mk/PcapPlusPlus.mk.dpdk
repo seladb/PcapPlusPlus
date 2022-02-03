@@ -3,7 +3,8 @@
 PKGCONF = pkg-config
 
 # includes
-TMPI = $(shell $(PKGCONF) --cflags libdpdk)
+TMPI = $(shell $(PKGCONF) --cflags-only-I libdpdk 2>/dev/null)
+TMPFLAG = $(shell $(PKGCONF) --cflags-only-other libdpdk 2>/dev/null)
 
 ifeq ($(TMPI),)
 PCAPPP_INCLUDES += -I$(RTE_SDK)/build/include
@@ -16,9 +17,12 @@ PCAPPP_LIBS_DIR += -L$(RTE_SDK)/build/lib -L/lib64
 
 #flags
 PCAPPP_BUILD_FLAGS += -msse -msse2 -msse3 -Wall
+ifneq ($(TMPFLAG),)
+PCAPPP_BUILD_FLAGS += $(TMPFLAG)
+endif
 
 # libs
-TMPL = $(shell $(PKGCONF) --libs libdpdk)
+TMPL = $(shell $(PKGCONF) --libs libdpdk 2>/dev/null)
 ifeq ($(TMPL),)
 PCAPPP_LIBS += -Wl,--whole-archive -lrte_net -lrte_kni -lrte_ethdev -lrte_eal -lrte_mbuf -lrte_mempool -lrte_ring -lrte_kvargs -lrte_hash -lrte_cmdline -lrt -lm -ldl -lpthread -lrte_pci -lrte_bus_pci -lrte_bus_vdev -lrte_mempool_ring -lnuma -Wl,--no-whole-archive
 else
