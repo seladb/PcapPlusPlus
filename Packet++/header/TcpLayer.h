@@ -474,6 +474,12 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
+        /**
+		 * A method that validates the TCP layer checksum
+		 * @return True if the checksum is correct
+		 */
+        bool isChecksumCorrect();
+
 		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }

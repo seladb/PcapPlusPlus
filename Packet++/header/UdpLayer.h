@@ -65,10 +65,22 @@ namespace pcpp
 		 */
 		uint16_t getSrcPort() const;
 
+        /**
+		 * Set the source port
+		 * @param[in] portSrc The port to set
+		 */
+        void setSrcPort(uint16_t portSrc);
+
 		/**
 		 * @return UDP destination port
 		 */
 		uint16_t getDstPort() const;
+
+        /**
+		 * Set the destination port
+		 * @param[in] portDst The port to set
+		 */
+        void setDstPort(uint16_t portDst);
 
 		/**
 		 * Calculate the checksum from header and data and possibly write the result to @ref udphdr#headerChecksum
@@ -76,6 +88,21 @@ namespace pcpp
 		 * @return The checksum result
 		 */
 		uint16_t calculateChecksum(bool writeResultToPacket);
+
+        /**
+		 * The static method makes validation of input data
+		 * @param[in] data The pointer to the beginning of byte stream of UDP packet
+		 * @param[in] dataLen The length of byte stream
+		 * @return True if the data is valid and can represent a UDP packet
+		 */
+        static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+        /**
+		 * A method that validates the UDP layer checksum
+         * @param[in] verifyIPv6ZeroChecksum If set to true then check @ref udphdr#headerChecksum can not be zero for IPv6.
+		 * @return True if the checksum is correct
+		 */
+        bool isChecksumCorrect(bool verifyIPv6ZeroChecksum = true);
 
 		// implement abstract methods
 

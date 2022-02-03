@@ -268,8 +268,6 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].len = 12;
 			checksumRes = computeChecksum(vec, 2);
 			LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
-
-
 		}
 		else if (m_PrevLayer->getProtocol() == IPv6)
 		{
@@ -383,6 +381,16 @@ void TcpLayer::computeCalculateFields()
 
 	tcpHdr->dataOffset = getHeaderLen() >> 2;
 	calculateChecksum(true);
+}
+
+bool TcpLayer::isChecksumCorrect()
+{
+    const tcphdr* tcpHdr = getTcpHeader();
+    if (tcpHdr == nullptr) {
+        return false;
+    }
+
+    return (calculateChecksum(false) == be16toh(tcpHdr->headerChecksum));
 }
 
 std::string TcpLayer::toString() const
