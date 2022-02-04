@@ -96,7 +96,7 @@ namespace pcpp
 #endif
             /// 8-bit integer representing the stratum
             uint8_t stratum;
-            /// Total round-trip delay to the reference clock, in NTP short format.
+            /// Total round-trip delay to the reference clock, in log2 seconds.
             int8_t pollInterval,
             /// 8-bit signed integer representing the precision of the system clock, in log2 seconds.
             precision;

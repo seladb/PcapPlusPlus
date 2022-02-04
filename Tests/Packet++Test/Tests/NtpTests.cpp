@@ -262,4 +262,40 @@ PTF_TEST_CASE(NtpCraftingTests)
     PTF_ASSERT_EQUAL(bufferLength1, craftedPacket.getRawPacket()->getRawDataLen());
     PTF_ASSERT_BUF_COMPARE(buffer1, craftedPacket.getRawPacket()->getRawData(), bufferLength1);
 
+    READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv3crafting.dat");
+
+    pcpp::Packet ntpPacket2(&rawPacket2);
+    pcpp::Packet craftedPacket2;
+
+    pcpp::EthLayer ethLayer2(*ntpPacket2.getLayerOfType<pcpp::EthLayer>());
+    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ethLayer2));
+
+    pcpp::IPv4Layer ipv4Layer2(*ntpPacket2.getLayerOfType<pcpp::IPv4Layer>());
+    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ipv4Layer2));
+
+    pcpp::UdpLayer udpLayer2(*ntpPacket2.getLayerOfType<pcpp::UdpLayer>());
+    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&udpLayer2));
+
+    pcpp::NtpLayer ntpLayer2;
+
+    // Set the values
+    ntpLayer2.setVersion(3);
+    ntpLayer2.setLeapIndicator(pcpp::NtpLayer::NoWarning);
+    ntpLayer2.setMode(pcpp::NtpLayer::Server);
+    ntpLayer2.setStratum(2);
+    ntpLayer2.setPollInterval(10);
+    ntpLayer2.setPrecision(int8_t(0xfa));
+    ntpLayer2.setRootDelayInSecs(0.031250);
+    ntpLayer2.setRootDispersionInSecs(0.125);
+    ntpLayer2.setReferenceIdentifier(be32toh(0xc02bf412));
+    ntpLayer2.setReferenceTimestampInSecs(1121509470.0);
+    ntpLayer2.setOriginTimestampInSecs(1121509866.0);
+    ntpLayer2.setReceiveTimestampInSecs(1121509865.0);
+    ntpLayer2.setTransmitTimestampInSecs(1121509865.0);
+
+    craftedPacket2.addLayer(&ntpLayer2);
+
+    PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
+    PTF_ASSERT_BUF_COMPARE(buffer2, craftedPacket2.getRawPacket()->getRawData(), bufferLength2);
+
 } // NtpCraftingTests
