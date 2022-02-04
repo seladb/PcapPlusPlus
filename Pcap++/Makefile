@@ -48,9 +48,10 @@ endif
 ifdef USE_DPDK
 PKGCONF = pkg-config
 TMPI = $(shell $(PKGCONF) --cflags-only-I libdpdk 2>/dev/null)
-INCLUDES += -I"$(RTE_SDK)/build/include"
 ifneq ($(TMPI),)
 INCLUDES += $(TMPI)
+else
+INCLUDES += -I"$(RTE_SDK)/build/include"
 endif
 endif
 ifdef LIBPCAP_INLCUDE_DIR
