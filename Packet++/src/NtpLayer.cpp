@@ -27,7 +27,7 @@ namespace pcpp
     {
         if (getNtpHeader()->leapIndicator < 4) // Since leap indicator field is 2bit
             return static_cast<LeapIndicator>(getNtpHeader()->leapIndicator);
-        LOG_ERROR("Unknown NTP Leap Indicator");
+        PCPP_LOG_ERROR("Unknown NTP Leap Indicator");
         return Unknown;
     }
 
@@ -50,7 +50,7 @@ namespace pcpp
     {
         if (getNtpHeader()->mode < 8) // Since mode field 3bit
             return static_cast<Mode>(getNtpHeader()->mode);
-        LOG_ERROR("Unknown NTP Mode");
+        PCPP_LOG_ERROR("Unknown NTP Mode");
         return Reserved;
     }
 
@@ -75,7 +75,7 @@ namespace pcpp
         case PrivateUse:
             return "Private Use";
         default:
-            LOG_ERROR("Unknown NTP Mode");
+            PCPP_LOG_ERROR("Unknown NTP Mode");
             return std::string();
         }
     }
@@ -300,7 +300,7 @@ namespace pcpp
             return addr.toString();
         }
 
-        LOG_ERROR("Unknown Stratum type");
+        PCPP_LOG_ERROR("Unknown Stratum type");
         return std::string();
     }
 
@@ -430,12 +430,12 @@ namespace pcpp
                 return header->keyID;
             }
 
-            LOG_ERROR("NTP authentication parsing with extension fields are not supported");
+            PCPP_LOG_ERROR("NTP authentication parsing with extension fields are not supported");
             return 0;
         }
         default:
         {
-            LOG_ERROR("NTP version not supported");
+            PCPP_LOG_ERROR("NTP version not supported");
             return 0;
         }
         }
@@ -466,11 +466,11 @@ namespace pcpp
                 return byteArrayToHexString(header->dgst, 20);
             }
 
-            LOG_ERROR("NTP authentication parsing with extension fields are not supported");
+            PCPP_LOG_ERROR("NTP authentication parsing with extension fields are not supported");
             return std::string();
         }
         default:
-            LOG_ERROR("NTP version not supported");
+            PCPP_LOG_ERROR("NTP version not supported");
             return std::string();
         }
     }
@@ -556,7 +556,7 @@ namespace pcpp
 #endif
         if (timer == NULL)
         {
-            LOG_ERROR("Can't convert time");
+            PCPP_LOG_ERROR("Can't convert time");
             return std::string();
         }
         strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", timer);
