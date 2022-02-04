@@ -25,7 +25,7 @@ namespace pcpp
      * and an optional message authentication code (MAC). Currently the extension fields are not supported. The NTP header is:
      * 
      * @verbatim 
-     *   0                   1                   2                   3
+       0                   1                   2                   3
        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       |LI | VN  |Mode |    Stratum     |     Poll      |  Precision   |
@@ -70,7 +70,7 @@ namespace pcpp
       |                   dgst (128 for v4, 64 for v3)                |
       |                                                               |
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * @endverbatim
+     @endverbatim
      * 
 	 */
     class NtpLayer : public Layer
@@ -154,6 +154,7 @@ namespace pcpp
         */
         enum LeapIndicator
         {
+            /// Normal, no leap second
             NoWarning = 0,
             /// Last minute of the day has 61 seconds
             Last61Secs,
@@ -168,13 +169,21 @@ namespace pcpp
          */
         enum Mode
         {
+            /// Reserved variable
             Reserved = 0,
+            /// Symmetrically active
             SymActive,
+            /// Symmetrically passive
             SymPassive,
+            /// Client mode
             Client,
+            /// Server mode
             Server,
+            /// Broadcasting mode
             Broadcast,
+            /// NTP control messages
             Control,
+            /// Reserved for private use
             PrivateUse
         };
 
