@@ -1,4 +1,4 @@
-#ifdef LINUX
+#ifdef __linux__
 
 #define LOG_MODULE UndefinedLogModule
 
@@ -27,7 +27,7 @@ openLinuxNicInformationSocket()
 	if (soc < 0)
 	{
 		const char* error = std::strerror(errno);
-		LOG_DEBUG("Can't open Linux information socket. Errno string: "<< error);
+		PCPP_LOG_DEBUG("Can't open Linux information socket. Errno string: "<< error);
 		return soc = INVALID_SOCKET_VALUE;
 	}
 	return soc;
@@ -41,7 +41,7 @@ LinuxNicInformationSocket::~LinuxNicInformationSocket()
 {
 	if (m_Socket == INVALID_SOCKET_VALUE)
 	{
-		LOG_DEBUG("Closing not opened Linux NIC information socket");
+		PCPP_LOG_DEBUG("Closing not opened Linux NIC information socket");
 	}
 	else
 	{
@@ -60,7 +60,7 @@ bool LinuxNicInformationSocket::makeRequest(
 		m_Socket = openLinuxNicInformationSocket();
 		if (m_Socket == INVALID_SOCKET_VALUE)
 		{
-			LOG_ERROR(
+			PCPP_LOG_ERROR(
 				"Request to Linux NIC incformation socket failed. "
 				"Can't open socket"
 			);
@@ -71,7 +71,7 @@ bool LinuxNicInformationSocket::makeRequest(
 	if (ioctl(m_Socket, ioctlType, request))
 	{
 		const char* error = std::strerror(errno);
-		LOG_ERROR(
+		PCPP_LOG_ERROR(
 			"Request to Linux NIC incformation socket failed. "
 			"ioctl(2) failed with error string: "
 			<< error
@@ -81,4 +81,4 @@ bool LinuxNicInformationSocket::makeRequest(
 	return true;
 }
 } // namespace pcpp
-#endif /* LINUX */
+#endif /* __linux__ */

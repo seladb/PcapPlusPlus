@@ -10,17 +10,17 @@ namespace pcpp
 {
 	void invokeDebugLog()
 	{
-		LOG_DEBUG("debug log");
+		PCPP_LOG_DEBUG("debug log");
 	}
 
 	void invokeErrorLog()
 	{
-		LOG_ERROR("error log" << 1);
+		PCPP_LOG_ERROR("error log" << 1);
 	}
 
 	void invokeErrorLog2()
 	{
-		LOG_ERROR("error log" << 2);
+		PCPP_LOG_ERROR("error log" << 2);
 	}
 }
 
@@ -74,7 +74,7 @@ std::string* LogPrinter::lastMethodSeen = NULL;
 int LogPrinter::lastLineSeen = 99999;
 
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 #define SEPARATOR '\\'
 #else
 #define SEPARATOR '/'

@@ -3,8 +3,6 @@
 #include "SystemUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "PcapFileDevice.h"
-#include "PcapRemoteDevice.h"
-#include "PcapRemoteDeviceList.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
@@ -13,7 +11,10 @@
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
+#include "PcapRemoteDevice.h"
+#include "PcapRemoteDeviceList.h"
+#include "WinPcapLiveDevice.h"
 #include <windows.h>
 #endif
 
@@ -90,7 +91,7 @@ static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcp
 	return rawPacket->getRawDataLen() > snaplen;
 }
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 
 class RpcapdServerInitializer
 {
@@ -144,7 +145,7 @@ public:
 	HANDLE getHandle() { return m_ProcessHandle; }
 };
 
-#endif // defined(WIN32) || defined(WINx64)
+#endif // defined(_WIN32)
 
 PTF_TEST_CASE(TestPcapLiveDeviceList)
 {
@@ -266,7 +267,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
-	DeviceTeardown devTeardown(liveDev);
+	DeviceTeardown devTeardown(liveDev, true);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
 	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
@@ -296,8 +297,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
 	pcpp::Logger::getInstance().enableLogs();
 
-	delete liveDev;
 } // TestPcapLiveDeviceClone
+
 
 
 PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
@@ -532,7 +533,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 PTF_TEST_CASE(TestWinPcapLiveDevice)
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
@@ -749,7 +750,7 @@ PTF_TEST_CASE(TestMtuSize)
 
 PTF_TEST_CASE(TestRemoteCapture)
 {
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 
 	bool useRemoteDevicesFromArgs = (PcapTestGlobalArgs.remoteIp != "") && (PcapTestGlobalArgs.remotePort > 0);
 	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);

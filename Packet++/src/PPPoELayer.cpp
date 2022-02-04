@@ -74,7 +74,7 @@ uint16_t PPPoESessionLayer::getPPPNextProtocol() const
 {
 	if (m_DataLen < getHeaderLen())
 	{
-		LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
+		PCPP_LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
 		return 0;
 	}
 
@@ -86,7 +86,7 @@ void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol)
 {
 	if (m_DataLen < getHeaderLen())
 	{
-		LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
+		PCPP_LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
 		return;
 	}
 
@@ -313,7 +313,7 @@ PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::addTagAt(const PPPoETagBuilde
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [" << sizeToExtend << "] bytes");
+		PCPP_LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [" << sizeToExtend << "] bytes");
 		return PPPoETag(NULL);
 	}
 
@@ -367,7 +367,7 @@ bool PPPoEDiscoveryLayer::removeTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType)
 	PPPoEDiscoveryLayer::PPPoETag tagToRemove = getTag(tagType);
 	if (tagToRemove.isNull())
 	{
-		LOG_ERROR("Couldn't find tag");
+		PCPP_LOG_ERROR("Couldn't find tag");
 		return false;
 	}
 

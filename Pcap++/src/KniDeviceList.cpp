@@ -1,4 +1,4 @@
-#if defined(USE_DPDK) && defined(LINUX)
+#if defined(USE_DPDK) && defined(__linux__)
 
 #define LOG_MODULE PcapLogModuleKniDevice
 
@@ -32,10 +32,10 @@ static inline bool checkKniDriver()
 	std::string execResult = executeShellCommand("lsmod | grep -s rte_kni");
 	if (execResult == "")
 	{
-		LOG_ERROR("rte_kni driver isn't loaded, DPDK KNI module cannot be initialized");
+		PCPP_LOG_ERROR("rte_kni driver isn't loaded, DPDK KNI module cannot be initialized");
 		return false;
 	}
-	LOG_DEBUG("rte_kni driver is loaded");
+	PCPP_LOG_DEBUG("rte_kni driver is loaded");
 	return true;
 }
 
@@ -57,7 +57,7 @@ KniDeviceList::KniDeviceList() :
 	#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 		if (rte_kni_init(MAX_KNI_DEVICES) < 0)
 		{
-			LOG_ERROR("Failed to initialize DPDK KNI module");
+			PCPP_LOG_ERROR("Failed to initialize DPDK KNI module");
 			m_Initialized = false;
 		}
 	#else
@@ -88,8 +88,8 @@ KniDevice* KniDeviceList::createDevice(
 	KniDevice* kniDevice = getDeviceByName(std::string(config.name));
 	if (kniDevice != NULL)
 	{
-		LOG_ERROR("Attempt to create DPDK KNI device with same name: '" << config.name << "'");
-		LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
+		PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same name: '" << config.name << "'");
+		PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
 		return NULL;
 	}
 	if (config.portId != UINT16_MAX)
@@ -97,8 +97,8 @@ KniDevice* KniDeviceList::createDevice(
 		kniDevice = getDeviceByPort(config.portId);
 		if (kniDevice != NULL)
 		{
-			LOG_ERROR("Attempt to create DPDK KNI device with same port ID: " << config.portId);
-			LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
+			PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same port ID: " << config.portId);
+			PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
 			return NULL;
 		}
 	}
@@ -180,4 +180,4 @@ bool KniDeviceList::isCallbackSupported(const KniCallbackType cbType)
 	return false;
 }
 } // namespace pcpp
-#endif /* defined(USE_DPDK) && defined(LINUX) */
+#endif /* defined(USE_DPDK) && defined(__linux__) */

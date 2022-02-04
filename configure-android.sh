@@ -173,9 +173,6 @@ cat mk/PcapPlusPlus.mk.android >> $PCAPPLUSPLUS_MK
 echo -e "\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
 
 # set target variable in PcapPlusPlus.mk
-sed -i "1s|^|ANDROID_API_VERSION := $API\n\n|" $PCAPPLUSPLUS_MK
-
-# set target variable in PcapPlusPlus.mk
 sed -i "1s|^|ANDROID_TARGET := $TARGET$API\n\n|" $PCAPPLUSPLUS_MK
 
 # set NDK path variable in PcapPlusPlus.mk

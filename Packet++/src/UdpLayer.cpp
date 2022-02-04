@@ -53,7 +53,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 	{
 		udpHdr->headerChecksum = 0;
 		ScalarBuffer<uint16_t> vec[2];
-		LOG_DEBUG("data len =  " << m_DataLen);
+		PCPP_LOG_DEBUG("data len =  " << m_DataLen);
 		vec[0].buffer = (uint16_t*)m_Data;
 		vec[0].len = m_DataLen;
 
@@ -71,7 +71,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
 			checksumRes = computeChecksum(vec, 2);
-			LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
+			PCPP_LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
 		}
 		else if (m_PrevLayer->getProtocol() == IPv6)
 		{
@@ -83,7 +83,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
 			checksumRes = computeChecksum(vec, 2);
-			LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
+			PCPP_LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
 		}
 	}
 
