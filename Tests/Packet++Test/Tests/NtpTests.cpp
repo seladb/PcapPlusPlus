@@ -65,6 +65,7 @@ PTF_TEST_CASE(NtpParsingV3Tests)
     PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v3, Mode: Server");
 
     // Since they are double it may or may not equal
+    PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getPollIntervalInSecs() - 16), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getPrecisionInSecs() - 0.015625), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getRootDelayInSecs() - 0), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getRootDispersionInSecs() - 0), EPSILON);
@@ -117,6 +118,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v4, Mode: Client");
 
     // Since they are double it may or may not equal
+    PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getPollIntervalInSecs() - 128), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getPrecisionInSecs() - 0.0000004), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getRootDelayInSecs() - 0.0168457), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getRootDispersionInSecs() - 0.014328), EPSILON);
@@ -157,6 +159,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v4, Mode: Client");
 
     // Since they are double it may or may not equal
+    PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getPollIntervalInSecs() - 64), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getPrecisionInSecs() - 0.000000059), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getRootDelayInSecs() - 0.002213), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getRootDispersionInSecs() - 0.02623), EPSILON);
@@ -201,6 +204,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->toString(), "NTP Layer v4, Mode: Server");
 
     // Since they are double it may or may not equal
+    PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getPollIntervalInSecs() - 1024), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getPrecisionInSecs() - 0.0000038), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getRootDelayInSecs() - 0.0), EPSILON);
     PTF_ASSERT_LOWER_THAN(fabs(ntpLayer->getRootDispersionInSecs() - 0.00383), EPSILON);
