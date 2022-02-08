@@ -7,7 +7,6 @@
 #include "IPv4Layer.h"
 #include "UdpLayer.h"
 #include "NtpLayer.h"
-#include "SystemUtils.h"
 
 #include <math.h>
 
@@ -193,8 +192,8 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xee));
     PTF_ASSERT_EQUAL(ntpLayer->getRootDelay(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getRootDispersion(), be32toh(0xfb));
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), be32toh(0x44434661));
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "Meinberg DCF77 with amplitud modulation");
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), pcpp::NtpLayer::DCFa);
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "Meinberg DCF77 with amplitude modulation");
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), be64toh(0xdcd2aabfe3771e96));
     PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestamp(), be64toh(0xdcd2aae48e835d2a));
     PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestamp(), be64toh(0xdcd2aae48e9f4d3c));
@@ -251,7 +250,7 @@ PTF_TEST_CASE(NtpCraftingTests)
     ntpLayer.setPrecision(int8_t(0xeb));
     ntpLayer.setRootDelay(be32toh(0x450));
     ntpLayer.setRootDispersion(be32toh(0x3ab));
-    ntpLayer.setReferenceIdentifier(be32toh(0x83bc03df));
+    ntpLayer.setReferenceIdentifier(pcpp::IPv4Address("131.188.3.223"));
     ntpLayer.setReferenceTimestamp(be64toh(0xd94f51c33165b860));
     ntpLayer.setOriginTimestamp(be64toh(0xd944575530336fd0));
     ntpLayer.setReceiveTimestamp(be64toh(0xd944575531b4e978));
@@ -282,12 +281,12 @@ PTF_TEST_CASE(NtpCraftingTests)
     ntpLayer2.setVersion(3);
     ntpLayer2.setLeapIndicator(pcpp::NtpLayer::NoWarning);
     ntpLayer2.setMode(pcpp::NtpLayer::Server);
-    ntpLayer2.setStratum(2);
+    ntpLayer2.setStratum(1);
     ntpLayer2.setPollInterval(10);
     ntpLayer2.setPrecision(int8_t(0xfa));
     ntpLayer2.setRootDelayInSecs(0.031250);
     ntpLayer2.setRootDispersionInSecs(0.125);
-    ntpLayer2.setReferenceIdentifier(be32toh(0xc02bf412));
+    ntpLayer2.setReferenceIdentifier(pcpp::NtpLayer::DCFa);
     ntpLayer2.setReferenceTimestampInSecs(1121509470.0);
     ntpLayer2.setOriginTimestampInSecs(1121509866.0);
     ntpLayer2.setReceiveTimestampInSecs(1121509865.0);

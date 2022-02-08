@@ -2,11 +2,8 @@
 #define PACKETPP_NTP_LAYER
 
 #include "Logger.h"
-#include "IPv4Layer.h"
 #include "Layer.h"
-
-#include "GeneralUtils.h"
-#include "SystemUtils.h"
+#include "IpAddress.h"
 
 /// @file
 
@@ -233,7 +230,7 @@ namespace pcpp
             USNO = ('U') | ('S' << 8) | ('N' << 16) | ('O' << 24),
             /// European telephone modem
             PTB = ('P') | ('T' << 8) | ('B' << 16),
-            /// Meinberg DCF77 with amplitud modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
+            /// Meinberg DCF77 with amplitude modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
             DCFa = ('D') | ('C' << 8) | ('F' << 16) | ('a' << 24),
             /// Meinberg DCF77 with phase modulation)/pseudo random phase modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
             DCFp = ('D') | ('C' << 8) | ('F' << 16) | ('p' << 24),
@@ -267,7 +264,7 @@ namespace pcpp
 
         /**
 		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be casted to @ref ntp_header)
+		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -407,9 +404,15 @@ namespace pcpp
 
         /**
          * Set the value of reference identifier
-         * @param[in] val Value of the reference identifier, either NTPClockSource, IPv4 address or MD5 hash of first four octets of IPv6
+         * @param[in] val Value of the reference identifier as IPv4 address
          */
-        void setReferenceIdentifier(uint32_t val);
+        void setReferenceIdentifier(IPv4Address val);
+
+        /**
+         * Set the value of reference identifier
+         * @param[in] val Value of the reference identifier as ClockSource
+         */
+        void setReferenceIdentifier(ClockSource val);
 
         /**
          * @return The value of reference identifier as a string. String representation of NTP clock source if stratum is 1, 

@@ -1,7 +1,9 @@
 #define LOG_MODULE PacketLogModuleNtpLayer
 
-#include "NtpLayer.h"
 #include "Logger.h"
+#include "NtpLayer.h"
+#include "SystemUtils.h"
+#include "GeneralUtils.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -170,7 +172,12 @@ namespace pcpp
         return getNtpHeader()->referenceIdentifier;
     }
 
-    void NtpLayer::setReferenceIdentifier(uint32_t val)
+    void NtpLayer::setReferenceIdentifier(IPv4Address val)
+    {
+        getNtpHeader()->referenceIdentifier = val.toInt();
+    }
+
+    void NtpLayer::setReferenceIdentifier(ClockSource val)
     {
         getNtpHeader()->referenceIdentifier = val;
     }
@@ -271,7 +278,7 @@ namespace pcpp
                 case PTB:
                     return "European telephone modem";
                 case DCFa:
-                    return "Meinberg DCF77 with amplitud modulation";
+                    return "Meinberg DCF77 with amplitude modulation";
                 case DCFp:
                     return "Meinberg DCF77 with phase modulation)/pseudo random phase modulation";
                 case GPSs:
