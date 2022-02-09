@@ -253,6 +253,11 @@ namespace pcpp
 	const ProtocolType DHCPv6 = 0x2000000000;
 
 	/**
+	 * Network Time (NTP) Protocol
+	 */
+	const ProtocolType NTP = 0x4000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer
