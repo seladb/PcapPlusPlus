@@ -308,7 +308,6 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
 
    # if DPDK ver < 20.11 concat additional definitions to PcapPlusPlus.mk
    CUR_DPDK_VERSION=$(get_dpdk_version)
-   echo $CUR_DPDK_VERSION
    if [ "$(compare_versions $CUR_DPDK_VERSION 20.11)" -eq "0" ] ; then
       cat mk/PcapPlusPlus.mk.dpdk_legacy >> $PCAPPLUSPLUS_MK
    fi

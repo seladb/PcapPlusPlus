@@ -3,8 +3,7 @@
 PKGCONF = pkg-config
 
 # includes
-TMPI = $(shell $(PKGCONF) --cflags-only-I libdpdk 2>/dev/null)
-TMPFLAG = $(shell $(PKGCONF) --cflags-only-other libdpdk 2>/dev/null)
+TMPI = $(shell $(PKGCONF) --cflags libdpdk 2>/dev/null)
 
 ifeq ($(TMPI),)
 PCAPPP_INCLUDES += -I$(RTE_SDK)/build/include
@@ -22,9 +21,6 @@ endif
 
 #flags
 PCAPPP_BUILD_FLAGS += -msse -msse2 -msse3 -Wall
-ifneq ($(TMPFLAG),)
-PCAPPP_BUILD_FLAGS += $(TMPFLAG)
-endif
 
 # libs
 TMPL = $(shell $(PKGCONF) --libs-only-l libdpdk 2>/dev/null)
