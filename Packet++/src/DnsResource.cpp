@@ -61,7 +61,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 			uint16_t offsetInLayer = (wordLength & 0x3f)*256 + (0xFF & encodedName[1]) + m_DnsLayer->m_OffsetAdjustment;
 			if (offsetInLayer < sizeof(dnshdr) || offsetInLayer >= m_DnsLayer->m_DataLen)
 			{
-				LOG_ERROR("DNS parsing error: name pointer is illegal");
+				PCPP_LOG_ERROR("DNS parsing error: name pointer is illegal");
 				return 0;
 			}
 
@@ -164,7 +164,7 @@ void IDnsResource::encodeName(const std::string& decodedName, char* result, size
 			// verify it's indeed a number and that is in the range of [0-255]
 			if (stream.fail() || pointerInPacket < 0 || pointerInPacket > 0xff)
 			{
-				LOG_ERROR("Error encoding the string '" << decodedName << "'");
+				PCPP_LOG_ERROR("Error encoding the string '" << decodedName << "'");
 				return;
 			}
 
@@ -223,7 +223,7 @@ bool IDnsResource::setName(const std::string& newName)
 		{
 			if (!m_DnsLayer->extendLayer(m_OffsetInLayer, encodedNameLen-m_NameLength, this))
 			{
-				LOG_ERROR("Couldn't set name for DNS query, unable to extend layer");
+				PCPP_LOG_ERROR("Couldn't set name for DNS query, unable to extend layer");
 				return false;
 			}
 		}
@@ -231,7 +231,7 @@ bool IDnsResource::setName(const std::string& newName)
 		{
 			if (!m_DnsLayer->shortenLayer(m_OffsetInLayer, m_NameLength-encodedNameLen, this))
 			{
-				LOG_ERROR("Couldn't set name for DNS query, unable to shorten layer");
+				PCPP_LOG_ERROR("Couldn't set name for DNS query, unable to shorten layer");
 				return false;
 			}
 		}
@@ -329,7 +329,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 
 	if (data == NULL)
 	{
-		LOG_ERROR("Given data is NULL");
+		PCPP_LOG_ERROR("Given data is NULL");
 		return false;
 	}
 
@@ -339,7 +339,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 	{
 		if (!data->isTypeOf<IPv4DnsResourceData>())
 		{
-			LOG_ERROR("DNS record is of type A but given data isn't of type IPv4DnsResourceData");
+			PCPP_LOG_ERROR("DNS record is of type A but given data isn't of type IPv4DnsResourceData");
 			return false;
 		}
 		break;
@@ -349,7 +349,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 	{
 		if (!data->isTypeOf<IPv6DnsResourceData>())
 		{
-			LOG_ERROR("DNS record is of type AAAA but given data isn't of type IPv6DnsResourceData");
+			PCPP_LOG_ERROR("DNS record is of type AAAA but given data isn't of type IPv6DnsResourceData");
 			return false;
 		}
 		break;
@@ -362,7 +362,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 	{
 		if (!data->isTypeOf<StringDnsResourceData>())
 		{
-			LOG_ERROR("DNS record is of type NS, CNAME, DNAM or PTR but given data isn't of type StringDnsResourceData");
+			PCPP_LOG_ERROR("DNS record is of type NS, CNAME, DNAM or PTR but given data isn't of type StringDnsResourceData");
 			return false;
 		}
 		break;
@@ -372,7 +372,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 	{
 		if (!data->isTypeOf<MxDnsResourceData>())
 		{
-			LOG_ERROR("DNS record is of type MX but given data isn't of type MxDnsResourceData");
+			PCPP_LOG_ERROR("DNS record is of type MX but given data isn't of type MxDnsResourceData");
 			return false;
 		}
 		break;
@@ -388,7 +388,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 	// convert the IDnsResourceData to byte array
 	if (!data->toByteArr(dataAsByteArr, dataLength, this))
 	{
-		LOG_ERROR("Cannot convert DNS resource data to byte array, data is probably invalid");
+		PCPP_LOG_ERROR("Cannot convert DNS resource data to byte array, data is probably invalid");
 		return false;
 	}
 
@@ -402,7 +402,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 		{
 			if (!m_DnsLayer->extendLayer(m_OffsetInLayer + dataOffset, dataLength-curLength, this))
 			{
-				LOG_ERROR("Couldn't set data for DNS query, unable to extend layer");
+				PCPP_LOG_ERROR("Couldn't set data for DNS query, unable to extend layer");
 				return false;
 			}
 		}
@@ -410,7 +410,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 		{
 			if (!m_DnsLayer->shortenLayer(m_OffsetInLayer + dataOffset, curLength-dataLength, this))
 			{
-				LOG_ERROR("Couldn't set data for DNS query, unable to shorten layer");
+				PCPP_LOG_ERROR("Couldn't set data for DNS query, unable to shorten layer");
 				return false;
 			}
 		}

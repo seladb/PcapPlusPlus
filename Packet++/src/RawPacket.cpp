@@ -153,7 +153,7 @@ bool RawPacket::reallocateData(size_t newBufferLength)
 
 	if ((int)newBufferLength < m_RawDataLen)
 	{
-		LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: " << m_RawDataLen << "; requested length: " << newBufferLength);
+		PCPP_LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: " << m_RawDataLen << "; requested length: " << newBufferLength);
 		return false;
 	}
 
@@ -173,7 +173,7 @@ bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 {
 	if ((atIndex + (int)numOfBytesToRemove) > m_RawDataLen)
 	{
-		LOG_ERROR("Remove section is out of raw packet bound");
+		PCPP_LOG_ERROR("Remove section is out of raw packet bound");
 		return false;
 	}
 

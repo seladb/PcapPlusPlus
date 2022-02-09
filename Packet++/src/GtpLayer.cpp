@@ -240,7 +240,7 @@ bool GtpV1Layer::setSequenceNumber(const uint16_t seqNumber)
 	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
-		LOG_ERROR("Set sequence failed: GTP header is NULL");
+		PCPP_LOG_ERROR("Set sequence failed: GTP header is NULL");
 		return false;
 	}
 
@@ -249,7 +249,7 @@ bool GtpV1Layer::setSequenceNumber(const uint16_t seqNumber)
 	{
 		if (!extendLayer(sizeof(gtpv1_header), sizeof(gtpv1_header_extra)))
 		{
-			LOG_ERROR("Set sequence failed: cannot extend layer");
+			PCPP_LOG_ERROR("Set sequence failed: cannot extend layer");
 			return false;
 		}
 		header = getHeader();
@@ -259,7 +259,7 @@ bool GtpV1Layer::setSequenceNumber(const uint16_t seqNumber)
 	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (headerExtra == NULL)
 	{
-		LOG_ERROR("Set sequence failed: extra header is NULL");
+		PCPP_LOG_ERROR("Set sequence failed: extra header is NULL");
 		return false;
 	}
 
@@ -292,7 +292,7 @@ bool GtpV1Layer::setNpduNumber(const uint8_t npduNum)
 	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
-		LOG_ERROR("Set N-PDU failed: GTP header is NULL");
+		PCPP_LOG_ERROR("Set N-PDU failed: GTP header is NULL");
 		return false;
 	}
 
@@ -301,7 +301,7 @@ bool GtpV1Layer::setNpduNumber(const uint8_t npduNum)
 	{
 		if (!extendLayer(sizeof(gtpv1_header), sizeof(gtpv1_header_extra)))
 		{
-			LOG_ERROR("Set N-PDU failed: cannot extend layer");
+			PCPP_LOG_ERROR("Set N-PDU failed: cannot extend layer");
 			return false;
 		}
 		header = getHeader();
@@ -311,7 +311,7 @@ bool GtpV1Layer::setNpduNumber(const uint8_t npduNum)
 	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (headerExtra == NULL)
 	{
-		LOG_ERROR("Set N-PDU failed: extra header is NULL");
+		PCPP_LOG_ERROR("Set N-PDU failed: extra header is NULL");
 		return false;
 	}
 
@@ -356,7 +356,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 	gtpv1_header* header = getHeader();
 	if (header == NULL)
 	{
-		LOG_ERROR("Add extension failed: GTP header is NULL");
+		PCPP_LOG_ERROR("Add extension failed: GTP header is NULL");
 		return GtpExtension();
 	}
 
@@ -367,7 +367,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 	{
 		if (!extendLayer(offsetForNewExtension, sizeof(gtpv1_header_extra)))
 		{
-			LOG_ERROR("Add extension failed: cannot extend layer");
+			PCPP_LOG_ERROR("Add extension failed: cannot extend layer");
 			return GtpExtension();
 		}
 		header = getHeader();
@@ -377,7 +377,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 	gtpv1_header_extra* headerExtra = getHeaderExtra();
 	if (headerExtra == NULL)
 	{
-		LOG_ERROR("Add extension failed: extra header is NULL");
+		PCPP_LOG_ERROR("Add extension failed: extra header is NULL");
 		return GtpExtension();
 	}
 
@@ -404,7 +404,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_
 	// allocate extension space in layer (assuming extension length can only be 4 bytes)
 	if (!extendLayer(offsetForNewExtension, 4*sizeof(uint8_t)))
 	{
-		LOG_ERROR("Add extension failed: cannot extend layer");
+		PCPP_LOG_ERROR("Add extension failed: cannot extend layer");
 		return GtpExtension();
 	}
 

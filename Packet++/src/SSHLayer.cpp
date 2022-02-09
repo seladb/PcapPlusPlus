@@ -134,7 +134,7 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 {
 	if (dataLen < sizeof(SSHHandshakeMessage::ssh_message_base))
 	{
-		LOG_DEBUG("Data length is smaller than the minimum size of an SSH handshake message. It's probably not an SSH hanshake message");
+		PCPP_LOG_DEBUG("Data length is smaller than the minimum size of an SSH handshake message. It's probably not an SSH hanshake message");
 		return NULL;
 	}
 
@@ -143,13 +143,13 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 	uint32_t msgLength = be32toh(msgBase->packetLength);
 	if (msgLength + sizeof(uint32_t) > dataLen)
 	{
-		LOG_DEBUG("Message size is larger than layer size. It's probably not an SSH hanshake message");
+		PCPP_LOG_DEBUG("Message size is larger than layer size. It's probably not an SSH hanshake message");
 		return NULL;
 	}
 
 	if (msgBase->paddingLength > msgLength)
 	{
-		LOG_DEBUG("Message padding is larger than message size. It's probably not an SSH hanshake message");
+		PCPP_LOG_DEBUG("Message padding is larger than message size. It's probably not an SSH hanshake message");
 		return NULL;
 	}
 
@@ -157,7 +157,7 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 		msgBase->messageCode != 21 &&
 		(msgBase->messageCode < 30 || msgBase->messageCode > 49))
 		{
-			LOG_DEBUG("Unknown message type " << (int)msgBase->messageCode << ". It's probably not an SSH hanshake message");
+			PCPP_LOG_DEBUG("Unknown message type " << (int)msgBase->messageCode << ". It's probably not an SSH hanshake message");
 			return NULL;
 		}
 
@@ -196,7 +196,7 @@ void SSHKeyExchangeInitMessage::parseMessageAndInitOffsets()
 		if (offset + sizeof(uint32_t) + fieldLength > m_DataLen)
 			return;
 
-		LOG_DEBUG("Field offset [" << i << "] = " << offset << ", length = " << fieldLength);
+		PCPP_LOG_DEBUG("Field offset [" << i << "] = " << offset << ", length = " << fieldLength);
 		m_FieldOffsets[i] = offset;
 		offset += sizeof(uint32_t) + fieldLength;
 	}

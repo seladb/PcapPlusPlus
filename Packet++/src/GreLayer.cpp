@@ -155,7 +155,7 @@ bool GreLayer::setSequenceNumber(uint32_t seqNumber)
 	if (needToExtendLayer && !extendLayer(offset, sizeof(uint32_t)))
 	{
 		header->sequenceNumBit = 0;
-		LOG_ERROR("Couldn't extend layer to set sequence number");
+		PCPP_LOG_ERROR("Couldn't extend layer to set sequence number");
 		return false;
 	}
 
@@ -173,7 +173,7 @@ bool GreLayer::unsetSequenceNumber()
 
 	if (header->sequenceNumBit == 0)
 	{
-		LOG_ERROR("Couldn't unset sequence number as it's already unset");
+		PCPP_LOG_ERROR("Couldn't unset sequence number as it's already unset");
 		return false;
 	}
 
@@ -182,7 +182,7 @@ bool GreLayer::unsetSequenceNumber()
 	int offset = offsetPtr - m_Data;
 	if (!shortenLayer(offset, sizeof(uint32_t)))
 	{
-		LOG_ERROR("Couldn't shorted layer to unset sequence number");
+		PCPP_LOG_ERROR("Couldn't shorted layer to unset sequence number");
 		return false;
 	}
 
@@ -302,7 +302,7 @@ bool GREv0Layer::setChecksum(uint16_t checksum)
 	// extend layer in 4 bytes to keep 4-byte alignment
 	if (needToExtendLayer && !extendLayer(offset, sizeof(uint32_t)))
 	{
-		LOG_ERROR("Couldn't extend layer to set checksum");
+		PCPP_LOG_ERROR("Couldn't extend layer to set checksum");
 		return false;
 	}
 
@@ -328,7 +328,7 @@ bool GREv0Layer::unsetChecksum()
 
 	if (header->checksumBit == 0)
 	{
-		LOG_ERROR("Couldn't unset checksum as it's already unset");
+		PCPP_LOG_ERROR("Couldn't unset checksum as it's already unset");
 		return false;
 	}
 
@@ -339,7 +339,7 @@ bool GREv0Layer::unsetChecksum()
 	int offset = offsetPtr - m_Data;
 	if (needToShortenLayer && !shortenLayer(offset, sizeof(uint32_t)))
 	{
-		LOG_ERROR("Couldn't extend layer to unset checksum");
+		PCPP_LOG_ERROR("Couldn't extend layer to unset checksum");
 		return false;
 	}
 
@@ -396,7 +396,7 @@ bool GREv0Layer::setKey(uint32_t key)
 	if (needToExtendLayer && !extendLayer(offset, sizeof(uint32_t)))
 	{
 		header->keyBit = 0;
-		LOG_ERROR("Couldn't extend layer to set key");
+		PCPP_LOG_ERROR("Couldn't extend layer to set key");
 		return false;
 	}
 
@@ -414,7 +414,7 @@ bool GREv0Layer::unsetKey()
 
 	if (header->keyBit == 0)
 	{
-		LOG_ERROR("Couldn't unset key as it's already unset");
+		PCPP_LOG_ERROR("Couldn't unset key as it's already unset");
 		return false;
 	}
 
@@ -423,7 +423,7 @@ bool GREv0Layer::unsetKey()
 	int offset = offsetPtr - m_Data;
 	if (!shortenLayer(offset, sizeof(uint32_t)))
 	{
-		LOG_ERROR("Couldn't shorted layer to unset key");
+		PCPP_LOG_ERROR("Couldn't shorted layer to unset key");
 		return false;
 	}
 
@@ -500,7 +500,7 @@ bool GREv1Layer::setAcknowledgmentNum(uint32_t ackNum)
 	int offset = offsetPtr - m_Data;
 	if (needToExtendLayer && !extendLayer(offset, sizeof(uint32_t)))
 	{
-		LOG_ERROR("Couldn't extend layer to set ack number");
+		PCPP_LOG_ERROR("Couldn't extend layer to set ack number");
 		return false;
 	}
 
@@ -517,7 +517,7 @@ bool GREv1Layer::unsetAcknowledgmentNum()
 
 	if (header->ackSequenceNumBit == 0)
 	{
-		LOG_ERROR("Couldn't unset ack number as it's already unset");
+		PCPP_LOG_ERROR("Couldn't unset ack number as it's already unset");
 		return false;
 	}
 
@@ -526,7 +526,7 @@ bool GREv1Layer::unsetAcknowledgmentNum()
 	int offset = offsetPtr - m_Data;
 	if (!shortenLayer(offset, sizeof(uint32_t)))
 	{
-		LOG_ERROR("Couldn't shorted layer to unset ack number");
+		PCPP_LOG_ERROR("Couldn't shorted layer to unset ack number");
 		return false;
 	}
 
