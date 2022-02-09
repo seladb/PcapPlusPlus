@@ -1,4 +1,4 @@
-set ZSTD_VERSION=1.5.0
+set ZSTD_VERSION=1.5.2
 set ZSTD_NAME=zstd-v%ZSTD_VERSION%
 set ZSTD_PLATFORM=win64
 if "%1"=="x86" set ZSTD_PLATFORM=win32

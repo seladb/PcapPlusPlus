@@ -22,7 +22,7 @@ task:
 task:
   name: Test Zstd Linux
   container:
-    image: seladb/ubuntu1804-zstd:latest
+    image: seladb/ubuntu2004-zstd:latest
   configure_script:
     - ./configure-linux.sh --use-zstd
     - ldconfig
