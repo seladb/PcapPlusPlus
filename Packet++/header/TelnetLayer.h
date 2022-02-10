@@ -1,11 +1,7 @@
 #ifndef PACKETPP_TELNET_LAYER
 #define PACKETPP_TELNET_LAYER
 
-#include "Logger.h"
 #include "Layer.h"
-
-#include "GeneralUtils.h"
-#include "SystemUtils.h"
 
 /// @file
 
@@ -15,36 +11,60 @@
  */
 namespace pcpp
 {
+
     /**
      * Class for representing the Telnet Layer
      */
     class TelnetLayer : public Layer
     {
     private:
+
 #pragma pack(push, 1)
         struct telnet_header
         {
-            /// "Interpret as Command" escape character
-            uint8_t interpretaion,
-            /// Command
+            // "Interpret as Command" escape character (FF)
+            uint8_t interpretation,
+            // Command
             command,
-            /// Option of the command
-            subcommand;
+            // Option of the command
+            subcommand,
+            // Data (Variable length)
+            data[];
         };
 #pragma pack(pop)
 
+        struct telnet_field_data
+        {
+            // Header
+            struct telnet_header *hdr;
+            // Size of the header including data payload
+            uint16_t hdrSize;
+            // Offset of the current header
+            uint16_t currentOffset;
+        };
+
         bool isData;
-        telnet_header *getTelnetHeader() const { return (telnet_header *)m_Data; }
+        std::vector<telnet_field_data> telnetData;
 
     public:
-    
         /**
          * Telnet Command Indicator
          */
         enum TelnetCommands
         {
+            /// Internal error indicator for PcapPlusPlus
+            TelnetCommandInternalError = -1,
+
+            /// End of file
+            EndOfFile = 236,
+            /// Suspend current process
+            Suspend,
+            /// Abort Process
+            Abort,
+            /// End of Record
+            EndOfRecord,
             /// Marks the end of a Telnet option subnegotiation, used with the SB code to specify more specific option parameters.
-            SubnegotiationEnd = 240,
+            SubnegotiationEnd,
             /// Null command; does nothing.
             NoOperation,
             /// Used to mark the end of a sequence of data that the recipient should scan for urgent Telnet commands.
@@ -82,6 +102,9 @@ namespace pcpp
          */
         enum TelnetOptions
         {
+            /// Internal error indicator for PcapPlusPlus
+            TelnetOptionInternalError = -1,
+
             /// Binary Transmission RFC856 https://www.iana.org/go/rfc856
             TransmitBinary = 0,
             /// Echo RFC857 https://www.iana.org/go/rfc857
@@ -195,7 +218,22 @@ namespace pcpp
 
         };
 
+        /// Return the number of detected Telnet Commands
+        uint16_t getNumberOfCommands() {return telnetData.size();}
 
+        /**
+         * Get the command of the given index
+         * @param[in] index Index to requested value
+         * @return Command of the given index, TelnetCommandInternalError if the requested index is larger than number of commands
+         */
+        TelnetCommands getCommand(uint16_t index);
+
+        /**
+         * Get the command option of the given index
+         * @param[in] index Index to requested value
+         * @return Option of the given index, TelnetOptionInternalError if the requested index is larger than number of commands
+         */
+        TelnetOptions getOption(uint16_t index);
 
         /**
          * Convert the Telnet Command to readable string
@@ -227,8 +265,10 @@ namespace pcpp
          */
         size_t getHeaderLen() const { return m_DataLen; }
 
-        /// Does nothing for this layer
-        void computeCalculateFields() {}
+        /**
+         * Parse Telnet fields of the packet
+         */
+        void computeCalculateFields();
 
         /**
          * @return The OSI layer level of Telnet (Application Layer).
