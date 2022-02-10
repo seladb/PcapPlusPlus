@@ -16,12 +16,12 @@ namespace pcpp
     /**
 	 * @class NtpLayer
 	 * Represents a NTP (Network Time Protocol) layer
-     * 
-     * @brief The NTP packet consists of an integral number of 32-bit (4 octet) words in network byte order. 
-     * The packet format consists of three components: the header itself, one or more optional extension fields (for v4), 
+     *
+     * @brief The NTP packet consists of an integral number of 32-bit (4 octet) words in network byte order.
+     * The packet format consists of three components: the header itself, one or more optional extension fields (for v4),
      * and an optional message authentication code (MAC). Currently the extension fields are not supported. The NTP header is:
-     * 
-     * @verbatim 
+     *
+     * @verbatim
        0                   1                   2                   3
        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -68,7 +68,7 @@ namespace pcpp
       |                                                               |
       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      @endverbatim
-     * 
+     *
 	 */
     class NtpLayer : public Layer
     {
@@ -185,7 +185,7 @@ namespace pcpp
         };
 
         /**
-         * 32-bit code identifying the particular server or reference clock. 
+         * 32-bit code identifying the particular server or reference clock.
          * The interpretation depends on the value in the stratum field.
          */
         enum ClockSource
@@ -277,7 +277,7 @@ namespace pcpp
         NtpLayer();
 
         /**
-         * @return The leap indicator 
+         * @return The leap indicator
          */
         LeapIndicator getLeapIndicator() const;
 
@@ -287,7 +287,7 @@ namespace pcpp
         void setLeapIndicator(LeapIndicator val);
 
         /**
-         * @return The version of NTP 
+         * @return The version of NTP
          */
         uint8_t getVersion() const;
 
@@ -322,7 +322,7 @@ namespace pcpp
         void setStratum(uint8_t val);
 
         /**
-         * @return The value of poll interval in log2 seconds 
+         * @return The value of poll interval in log2 seconds
          */
         int8_t getPollInterval() const;
 
@@ -382,7 +382,7 @@ namespace pcpp
 
         /**
          * Set the value of root delay
-         * @param[in] val Root dispersion in NTP short format 
+         * @param[in] val Root dispersion in NTP short format
          */
         void setRootDispersion(uint32_t val);
 
@@ -415,7 +415,7 @@ namespace pcpp
         void setReferenceIdentifier(ClockSource val);
 
         /**
-         * @return The value of reference identifier as a string. String representation of NTP clock source if stratum is 1, 
+         * @return The value of reference identifier as a string. String representation of NTP clock source if stratum is 1,
          * IPv4 address or MD5 hash of first four octets of IPv6
          */
         std::string getReferenceIdentifierString() const;
@@ -448,7 +448,7 @@ namespace pcpp
         std::string getReferenceTimestampAsString();
 
         /**
-         * @return The value of origin timestamp in NTP timestamp format 
+         * @return The value of origin timestamp in NTP timestamp format
          */
         uint64_t getOriginTimestamp() const;
 
@@ -475,7 +475,7 @@ namespace pcpp
         std::string getOriginTimestampAsString();
 
         /**
-         * @return The value of receive timestamp in NTP timestamp format 
+         * @return The value of receive timestamp in NTP timestamp format
          */
         uint64_t getReceiveTimestamp() const;
 
@@ -502,7 +502,7 @@ namespace pcpp
         std::string getReceiveTimestampAsString();
 
         /**
-         * @return The value of transmit timestamp in NTP timestamp format 
+         * @return The value of transmit timestamp in NTP timestamp format
          */
         uint64_t getTransmitTimestamp() const;
 
@@ -519,7 +519,7 @@ namespace pcpp
 
         /**
          * Set the value of transmit timestamp
-         * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970) 
+         * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
          */
         void setTransmitTimestampInSecs(double val);
 
@@ -540,7 +540,7 @@ namespace pcpp
 
         /**
          * Convert NTP short format to seconds from the Unix Epoch
-         * 
+         *
          * @param[in] val Value in NTP short format
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
@@ -548,7 +548,7 @@ namespace pcpp
 
         /**
          * Convert NTP timestamp format to seconds from the Unix Epoch
-         * 
+         *
          * @param[in] val Value in NTP timestamp format
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
@@ -556,7 +556,7 @@ namespace pcpp
 
         /**
          * Convert seconds from the Unix Epoch to NTP short format
-         * 
+         *
          * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
          * @return Value in NTP short format
          */
@@ -564,7 +564,7 @@ namespace pcpp
 
         /**
          * Convert seconds from the Unix Epoch to NTP timestamp format
-         * 
+         *
          * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
          * @return Value in NTP timestamp format
          */
@@ -612,7 +612,7 @@ namespace pcpp
         void computeCalculateFields() {}
 
         /**
-         * @return The OSI layer level of NTP (Application Layer). 
+         * @return The OSI layer level of NTP (Application Layer).
          */
         OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
