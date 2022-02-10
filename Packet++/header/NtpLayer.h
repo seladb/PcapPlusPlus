@@ -142,6 +142,7 @@ namespace pcpp
             /// 160-bit SHA1 hash
             uint8_t dgst[20];
         };
+#pragma pack(pop)
 
         ntp_header *getNtpHeader() const { return (ntp_header *)m_Data; }
 
