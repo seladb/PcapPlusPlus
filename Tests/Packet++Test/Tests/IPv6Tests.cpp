@@ -1,11 +1,13 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
+#include "Logger.h"
 #include "IpAddress.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "UdpLayer.h"
+#include "TcpLayer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
 #include "SystemUtils.h"
@@ -70,8 +72,6 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 
 	delete[] payloadData;
 } // IPv6UdpPacketParseAndCreate
-
-
 
 PTF_TEST_CASE(IPv6FragmentationTest)
 {
@@ -408,3 +408,45 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(ipv6MultipleOptions.getRawPacket()->getRawDataLen(), newPacket5.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(ipv6MultipleOptions.getRawPacket()->getRawData(), newPacket5.getRawPacket()->getRawData(), ipv6MultipleOptions.getRawPacket()->getRawDataLen());
 } // IPv6ExtensionsTest
+
+PTF_TEST_CASE(IPv6UdpChecksum)
+{
+    pcpp::Logger::getInstance().setLogLevel(pcpp::PacketLogModuleIPv4Layer, pcpp::Logger::Debug);
+
+    timeval time;
+    gettimeofday(&time, NULL);
+
+    READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/UDP-IPv6-Checksum-Correct.dat");
+    READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/UDP-IPv6-Checksum-Bad.dat");
+
+    pcpp::Packet udpPacket1(&rawPacket1, pcpp::UDP);
+    pcpp::Packet udpPacket2(&rawPacket2, pcpp::UDP);
+    pcpp::UdpLayer* udpLayer1 = udpPacket1.getLayerOfType<pcpp::UdpLayer>();
+    pcpp::UdpLayer* udpLayer2 = udpPacket2.getLayerOfType<pcpp::UdpLayer>();
+    PTF_ASSERT_NOT_NULL(udpLayer1);
+    PTF_ASSERT_NOT_NULL(udpLayer2);
+
+    PTF_ASSERT_EQUAL(udpLayer1->isChecksumCorrect(), true);
+    PTF_ASSERT_EQUAL(udpLayer2->isChecksumCorrect(), false);
+} // Ipv6UdpChecksum
+
+PTF_TEST_CASE(IPv6TcpChecksum)
+{
+    pcpp::Logger::getInstance().setLogLevel(pcpp::PacketLogModuleIPv4Layer, pcpp::Logger::Debug);
+
+    timeval time;
+    gettimeofday(&time, NULL);
+
+    READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TCP-IPv6-Checksum-Correct.dat");
+    READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/TCP-IPv6-Checksum-Bad.dat");
+
+    pcpp::Packet tcpPacket1(&rawPacket1, pcpp::TCP);
+    pcpp::Packet tcpPacket2(&rawPacket2, pcpp::TCP);
+    pcpp::TcpLayer* tcpLayer1 = tcpPacket1.getLayerOfType<pcpp::TcpLayer>();
+    pcpp::TcpLayer* tcpLayer2 = tcpPacket2.getLayerOfType<pcpp::TcpLayer>();
+    PTF_ASSERT_NOT_NULL(tcpLayer1);
+    PTF_ASSERT_NOT_NULL(tcpLayer2);
+
+    PTF_ASSERT_EQUAL(tcpLayer1->isChecksumCorrect(), true);
+    PTF_ASSERT_EQUAL(tcpLayer2->isChecksumCorrect(), false);
+} // IPv6TcpChecksum

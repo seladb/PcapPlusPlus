@@ -2,6 +2,7 @@
 #define PACKETPP_PACKET_UTILS
 
 #include "Packet.h"
+#include "IpAddress.h"
 
 /// @file
 
@@ -35,6 +36,20 @@ namespace pcpp
 	 * @return The checksum result
 	 */
 	uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize);
+
+    /**
+	 * Computes the checksum for Pseudo header
+     * @param[in] dataPtr Data pointer
+	 * @param[in] dataLen Data length
+     * @param[in] ipAddrType IP address type(IPv4/IPv6) type @ref IPAddress::AddressType
+     * @param[in] ipProtocolType Current IP protocol type @ref IPProtocolTypes
+     * @param[in] srcIPAddress Source IP Address
+     * @param[in] dstIPAddress Destination IP Address
+	 * @return The checksum result
+	 */
+    uint16_t computePseudoHdrChecksum(uint8_t *dataPtr, size_t dataLen,
+                                      IPAddress::AddressType ipAddrType, uint8_t ipProtocolType,
+                                      IPAddress srcIPAddress, IPAddress dstIPAddress);
 
 	/**
 	 * Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on an array of byte buffers. The hash is calculated on each

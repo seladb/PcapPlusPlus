@@ -4,6 +4,7 @@
 #include "Layer.h"
 #include "TLVData.h"
 #include "IpAddress.h"
+#include "PacketUtils.h"
 #include "IPLayer.h"
 #include <string.h>
 #include <vector>
@@ -27,7 +28,6 @@
  */
 namespace pcpp
 {
-
 	/**
 	 * @struct iphdr
 	 * Represents an IPv4 protocol header
@@ -116,7 +116,6 @@ namespace pcpp
 		/** Maximum value */
 		PACKETPP_IPPROTO_MAX
 	};
-
 
 	/**
 	 * An enum for supported IPv4 option types
@@ -651,6 +650,12 @@ namespace pcpp
 		 */
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
+        /**
+		 * A method that validates the IPv4 layer checksum
+		 * @return True if the checksum is correct
+		 */
+        bool isChecksumCorrect();
+
 	private:
 		int m_NumOfTrailingBytes;
 		int m_TempHeaderExtension;
@@ -664,9 +669,7 @@ namespace pcpp
 		void initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen);
 	};
 
-
 	// implementation of inline methods
-
 	bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		const iphdr* hdr = reinterpret_cast<const iphdr*>(data);

@@ -8,7 +8,6 @@
 #include "GreLayer.h"
 #include "IPSecLayer.h"
 #include "Packet.h"
-#include "PacketUtils.h"
 #include <string.h>
 #include "EndianPortable.h"
 
@@ -219,7 +218,9 @@ void IPv6Layer::parseNextLayer()
 	switch (nextHdr)
 	{
 	case PACKETPP_IPPROTO_UDP:
-		m_NextLayer = new UdpLayer(payload, payloadLen, this, m_Packet);
+        m_NextLayer = UdpLayer::isDataValid(payload, payloadLen)
+                      ? static_cast<Layer*>(new UdpLayer(payload, payloadLen, this, m_Packet))
+                      : static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_TCP:
 		m_NextLayer = TcpLayer::isDataValid(payload, payloadLen)
