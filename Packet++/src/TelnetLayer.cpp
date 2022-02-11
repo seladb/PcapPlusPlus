@@ -10,19 +10,41 @@
 
 namespace pcpp
 {
-
-    TelnetLayer::TelnetCommands TelnetLayer::getCommand(uint16_t index)
+    std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters = true)
     {
-        if(index < telnetData.size())
+        // If not data return immediately
+        if (!isData)
+            return "";
+
+        if (removeEscapeCharacters)
+        {
+            std::stringstream ss;
+            for (size_t idx = 0; idx < m_DataLen; idx++)
+                if (isalnum(m_Data[idx]))
+                    ss << m_Data[idx];
+            return ss.str();
+        }
+        return std::string((char *)m_Data, m_DataLen);
+    }
+
+    TelnetLayer::TelnetCommands TelnetLayer::getCommand(size_t index)
+    {
+        if (!isParsed)
+            computeCalculateFields();
+
+        if (index < telnetData.size())
             return static_cast<TelnetCommands>(telnetData[index].hdr->command);
 
         PCPP_LOG_ERROR("Requested index does not exist");
         return TelnetCommandInternalError;
     }
 
-    TelnetLayer::TelnetOptions TelnetLayer::getOption(uint16_t index)
+    TelnetLayer::TelnetOptions TelnetLayer::getOption(size_t index)
     {
-        if(index < telnetData.size())
+        if (!isParsed)
+            computeCalculateFields();
+
+        if (index < telnetData.size())
             return static_cast<TelnetOptions>(telnetData[index].hdr->subcommand);
 
         PCPP_LOG_ERROR("Requested index does not exist");
@@ -197,12 +219,14 @@ namespace pcpp
 
     void TelnetLayer::computeCalculateFields()
     {
+        isParsed = true;
+
         // Since only contains data return immediately
         if (isData)
             return;
 
         uint8_t *pos = NULL;
-        uint16_t currentOffset = 0;
+        size_t currentOffset = 0;
         do
         {
             pos = (uint8_t *)memchr(m_Data + currentOffset, InterpretAsCommand, m_DataLen - currentOffset);

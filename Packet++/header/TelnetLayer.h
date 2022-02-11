@@ -44,6 +44,7 @@ namespace pcpp
         };
 
         bool isData;
+        bool isParsed;
         std::vector<telnet_field_data> telnetData;
 
     public:
@@ -218,6 +219,13 @@ namespace pcpp
 
         };
 
+        /**
+         * Get the Telnet data as readable string
+         * @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
+         * @return Full payload as readable string, empty if Telnet packet contains control commands/options.
+         */
+        std::string getDataAsString(bool removeEscapeCharacters = true);
+
         /// Return the number of detected Telnet Commands
         uint16_t getNumberOfCommands() {return telnetData.size();}
 
@@ -226,14 +234,14 @@ namespace pcpp
          * @param[in] index Index to requested value
          * @return Command of the given index, TelnetCommandInternalError if the requested index is larger than number of commands
          */
-        TelnetCommands getCommand(uint16_t index);
+        TelnetCommands getCommand(size_t index);
 
         /**
          * Get the command option of the given index
          * @param[in] index Index to requested value
          * @return Option of the given index, TelnetOptionInternalError if the requested index is larger than number of commands
          */
-        TelnetOptions getOption(uint16_t index);
+        TelnetOptions getOption(size_t index);
 
         /**
          * Convert the Telnet Command to readable string
