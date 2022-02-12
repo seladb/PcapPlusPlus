@@ -274,6 +274,14 @@ namespace pcpp
         std::string getTelnetOptionAsString(size_t index);
 
         /**
+         * Get the data of the given index
+         * @param[in] index Index to requested value
+         * @param[out] length Length of the returned data, unchanged if there is no data or on error
+         * @return Pointer to requested data, NULL on error or there is no data
+         */
+        const uint8_t* getOptionData(size_t index, size_t &length);
+
+        /**
          * Convert the Telnet Command to readable string
          * @param[in] val Value of the command
          * @return The Telnet Command as readable string

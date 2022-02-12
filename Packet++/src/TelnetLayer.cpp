@@ -63,6 +63,26 @@ namespace pcpp
         return getTelnetOptionAsString(getOption(index));
     }
 
+    const uint8_t *TelnetLayer::getOptionData(size_t index, size_t &length)
+    {
+        if (isData)
+            return NULL;
+        if (index < telnetCommandData.size())
+        {
+            if(telnetCommandData[index].hdrSize > 3)
+            {
+                length = telnetCommandData[index].hdrSize - 3;
+                return telnetCommandData[index].hdr->data;
+            }
+
+            PCPP_LOG_DEBUG("No data at requested index");
+            return NULL;
+        }
+
+        PCPP_LOG_ERROR("Requested option index does not exist");
+        return NULL;
+    }
+
     std::string TelnetLayer::getTelnetCommandAsString(TelnetCommands val)
     {
         switch (val)

@@ -3,9 +3,11 @@
 #include "Logger.h"
 #include "Packet.h"
 #include "TelnetLayer.h"
-#include "SystemUtils.h"
+#include "GeneralUtils.h"
 
-PTF_TEST_CASE(TelnetControlParsingTests)
+#include <string.h>
+
+PTF_TEST_CASE(TelnetCommandParsingTests)
 {
 
     timeval time;
@@ -88,6 +90,18 @@ PTF_TEST_CASE(TelnetControlParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer2->getTelnetOptionAsString(0), "Binary Transmission");
     PTF_ASSERT_EQUAL(telnetLayer2->getTelnetOptionAsString(1), "Binary Transmission");
     PTF_ASSERT_EQUAL(telnetLayer2->getTelnetOptionAsString(2), "No option for this command");
+
+    uint8_t valPtr[] = {0x11, 0x00, 0x06, 0x40, 0x00, 0xf1, 0xc2, 0x00, 0x05, 0x01, 0xff, 0xff, 0x02};
+
+    size_t len = 0;
+    const uint8_t *ptr1 = telnetLayer2->getOptionData(1, len);
+    PTF_ASSERT_NOT_NULL(ptr1);
+    PTF_ASSERT_EQUAL(len, 13);
+    PTF_ASSERT_BUF_COMPARE(ptr1, valPtr, 13);
+
+    const uint8_t *ptr2 = telnetLayer2->getOptionData(0, len);
+    PTF_ASSERT_NULL(ptr2);
+    PTF_ASSERT_EQUAL(len, 13); // It should be not changed during the function call so equal 13
 
     PTF_ASSERT_EQUAL(telnetLayer2->toString(), "Telnet Control");
 }
