@@ -12,10 +12,6 @@ repos:
     rev: 21.12b0
     hooks:
     -   id: black
--   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v12.0.1
-    hooks:
-    -   id: clang-format
 ci:
     autofix_commit_msg: |
         [pre-commit.ci] auto fixes from pre-commit.com hooks
