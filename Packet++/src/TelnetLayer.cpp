@@ -46,7 +46,7 @@ namespace pcpp
     {
         if (index < telnetCommandData.size() && telnetCommandData[index].hdr->command != SubnegotiationEnd)
             return static_cast<TelnetOptions>(telnetCommandData[index].hdr->subcommand);
-        else if (index && telnetCommandData[index].hdr->command == SubnegotiationEnd)
+        else if (index < telnetCommandData.size() && telnetCommandData[index].hdr->command == SubnegotiationEnd)
             return TelnetOptionNoOption;
 
         PCPP_LOG_ERROR("Requested option index does not exist");
@@ -235,7 +235,7 @@ namespace pcpp
             pos = (uint8_t *)memchr(m_Data + currentOffset + 1, InterpretAsCommand, m_DataLen - currentOffset);
 
             telnet_field_data buff;
-            buff.hdr = (telnet_header *)m_Data + currentOffset;
+            buff.hdr = (telnet_header *)(m_Data + currentOffset);
             buff.currentOffset = currentOffset;
 
             if (pos)
@@ -244,7 +244,6 @@ namespace pcpp
                 buff.hdrSize = m_DataLen - currentOffset;
 
             currentOffset += buff.hdrSize;
-            std::cout << buff.hdrSize << " " << currentOffset << " " << (int)buff.hdr->command << std::endl;
             telnetCommandData.push_back(buff);
 
         } while (currentOffset < m_DataLen && pos);

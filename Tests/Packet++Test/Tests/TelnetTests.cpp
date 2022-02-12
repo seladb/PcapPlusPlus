@@ -35,7 +35,9 @@ PTF_TEST_CASE(TelnetControlParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(7), pcpp::TelnetLayer::SubnegotiationEnd);
     
     // This index not exist should return error
+	pcpp::Logger::getInstance().suppressLogs();
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(8), pcpp::TelnetLayer::TelnetCommandInternalError);
+	pcpp::Logger::getInstance().enableLogs();
 
     PTF_ASSERT_EQUAL(telnetLayer->getOption(0), pcpp::TelnetLayer::SuppressGoAhead);
     PTF_ASSERT_EQUAL(telnetLayer->getOption(1), pcpp::TelnetLayer::TerminalType);
@@ -47,8 +49,11 @@ PTF_TEST_CASE(TelnetControlParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer->getOption(7), pcpp::TelnetLayer::TelnetOptionNoOption);
 
     // This index not exist should return error
+	pcpp::Logger::getInstance().suppressLogs();
     PTF_ASSERT_EQUAL(telnetLayer->getOption(8), pcpp::TelnetLayer::TelnetOptionInternalError);
+	pcpp::Logger::getInstance().enableLogs();
    
+    PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Control");
 }
 
 PTF_TEST_CASE(TelnetDataParsingTests)
@@ -68,10 +73,11 @@ PTF_TEST_CASE(TelnetDataParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer->getNumberOfCommands(), 0);
 
     // This index not exist should return error
+	pcpp::Logger::getInstance().suppressLogs();
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(0), pcpp::TelnetLayer::TelnetCommandInternalError);
     // This index not exist should return error
     PTF_ASSERT_EQUAL(telnetLayer->getOption(0), pcpp::TelnetLayer::TelnetOptionInternalError);
+	pcpp::Logger::getInstance().enableLogs();
 
-    
-
+    PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Data");
 }
