@@ -1,11 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "Logger.h"
-#include "EndianPortable.h"
 #include "Packet.h"
-#include "EthLayer.h"
-#include "IPv4Layer.h"
-#include "TcpLayer.h"
 #include "TelnetLayer.h"
 #include "SystemUtils.h"
 
@@ -42,12 +38,12 @@ PTF_TEST_CASE(TelnetControlParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(5), "Do Perform");
     PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(6), "Subnegotiation");
     PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(7), "Subnegotiation End");
-    
+
     // This index not exist should return error
-	pcpp::Logger::getInstance().suppressLogs();
+    pcpp::Logger::getInstance().suppressLogs();
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(8), pcpp::TelnetLayer::TelnetCommandInternalError);
     PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(8), "Internal Error");
-	pcpp::Logger::getInstance().enableLogs();
+    pcpp::Logger::getInstance().enableLogs();
 
     PTF_ASSERT_EQUAL(telnetLayer->getOption(0), pcpp::TelnetLayer::SuppressGoAhead);
     PTF_ASSERT_EQUAL(telnetLayer->getOption(1), pcpp::TelnetLayer::TerminalType);
@@ -59,11 +55,11 @@ PTF_TEST_CASE(TelnetControlParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer->getOption(7), pcpp::TelnetLayer::TelnetOptionNoOption);
 
     // This index not exist should return error
-	pcpp::Logger::getInstance().suppressLogs();
+    pcpp::Logger::getInstance().suppressLogs();
     PTF_ASSERT_EQUAL(telnetLayer->getOption(8), pcpp::TelnetLayer::TelnetOptionInternalError);
     PTF_ASSERT_EQUAL(telnetLayer->getTelnetOptionAsString(8), "Internal Error");
-	pcpp::Logger::getInstance().enableLogs();
-   
+    pcpp::Logger::getInstance().enableLogs();
+
     PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Control");
 
     // Telnet TN3270 sample (not supported but should not raise an error)
@@ -94,7 +90,6 @@ PTF_TEST_CASE(TelnetControlParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer2->getTelnetOptionAsString(2), "No option for this command");
 
     PTF_ASSERT_EQUAL(telnetLayer2->toString(), "Telnet Control");
-
 }
 
 PTF_TEST_CASE(TelnetDataParsingTests)
@@ -113,14 +108,14 @@ PTF_TEST_CASE(TelnetDataParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer->getDataAsString(), "OpenBSD/i386 (oof) (ttyp2)");
     PTF_ASSERT_EQUAL(telnetLayer->getNumberOfCommands(), 0);
 
-	pcpp::Logger::getInstance().suppressLogs();
+    pcpp::Logger::getInstance().suppressLogs();
     // This index not exist should return error
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(0), pcpp::TelnetLayer::TelnetCommandInternalError);
     PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(0), "Internal Error");
     // This index not exist should return error
     PTF_ASSERT_EQUAL(telnetLayer->getOption(0), pcpp::TelnetLayer::TelnetOptionInternalError);
     PTF_ASSERT_EQUAL(telnetLayer->getTelnetOptionAsString(0), "Internal Error");
-	pcpp::Logger::getInstance().enableLogs();
+    pcpp::Logger::getInstance().enableLogs();
 
     PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Data");
 }
