@@ -253,11 +253,25 @@ namespace pcpp
         TelnetCommands getCommand(size_t index);
 
         /**
+         * Convert the Telnet Command to readable string
+         * @param[in] index Index to requested value
+         * @return The Telnet Command as readable string
+         */
+        std::string getTelnetCommandAsString(size_t index);
+
+        /**
          * Get the command option of the given index
          * @param[in] index Index to requested value
          * @return Option of the given index, TelnetOptionInternalError if the requested index is larger than number of commands
          */
         TelnetOptions getOption(size_t index);
+
+        /**
+         * Convert the Telnet option to readable string
+         * @param[in] index Index to requested value
+         * @return The Telnet Option as readable string
+         */
+        std::string getTelnetOptionAsString(size_t index);
 
         /**
          * Convert the Telnet Command to readable string

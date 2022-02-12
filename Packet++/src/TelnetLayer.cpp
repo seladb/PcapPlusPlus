@@ -42,21 +42,33 @@ namespace pcpp
         return TelnetCommandInternalError;
     }
 
+    std::string TelnetLayer::getTelnetCommandAsString(size_t index)
+    {
+        return getTelnetCommandAsString(getCommand(index));
+    }
+
     TelnetLayer::TelnetOptions TelnetLayer::getOption(size_t index)
     {
-        if (index < telnetCommandData.size() && telnetCommandData[index].hdr->command != SubnegotiationEnd)
+        if (index < telnetCommandData.size() && telnetCommandData[index].hdrSize > 2)
             return static_cast<TelnetOptions>(telnetCommandData[index].hdr->subcommand);
-        else if (index < telnetCommandData.size() && telnetCommandData[index].hdr->command == SubnegotiationEnd)
+        else if (index < telnetCommandData.size() && telnetCommandData[index].hdrSize < 3)
             return TelnetOptionNoOption;
 
         PCPP_LOG_ERROR("Requested option index does not exist");
         return TelnetOptionInternalError;
     }
 
+    std::string TelnetLayer::getTelnetOptionAsString(size_t index)
+    {
+        return getTelnetOptionAsString(getOption(index));
+    }
+
     std::string TelnetLayer::getTelnetCommandAsString(TelnetCommands val)
     {
         switch (val)
         {
+        case TelnetCommandInternalError:
+            return "Internal Error";
         case EndOfFile:
             return "End of File";
         case Suspend:
@@ -106,6 +118,10 @@ namespace pcpp
     {
         switch (val)
         {
+        case TelnetOptionNoOption:
+            return "No option for this command";
+        case TelnetOptionInternalError:
+            return "Internal Error";
         case TransmitBinary:
             return "Binary Transmission";
         case Echo:
@@ -232,20 +248,29 @@ namespace pcpp
         size_t currentOffset = 0;
         do
         {
-            pos = (uint8_t *)memchr(m_Data + currentOffset + 1, InterpretAsCommand, m_DataLen - currentOffset);
-
             telnet_field_data buff;
             buff.hdr = (telnet_header *)(m_Data + currentOffset);
             buff.currentOffset = currentOffset;
+            buff.hdrSize = 0;
 
-            if (pos)
-                buff.hdrSize = pos - (m_Data + currentOffset);
-            else
-                buff.hdrSize = m_DataLen - currentOffset;
+            uint16_t addition = 0;
+            do
+            {
+                // If it is second turn position should be adjusted to after second FF
+                if (addition)
+                    addition += 2;
 
-            currentOffset += buff.hdrSize;
+                pos = (uint8_t *)memchr(m_Data + currentOffset + 1, InterpretAsCommand, m_DataLen - currentOffset);
+                if (pos)
+                    addition += pos - (m_Data + currentOffset);
+                else
+                    addition += m_DataLen - currentOffset;
+                currentOffset = buff.currentOffset + addition;
+                // "FF FF" means data continue
+            } while (pos && (pos[1] == InterpretAsCommand) && (currentOffset < m_DataLen));
+
+            buff.hdrSize = addition;
             telnetCommandData.push_back(buff);
-
         } while (currentOffset < m_DataLen && pos);
     }
 

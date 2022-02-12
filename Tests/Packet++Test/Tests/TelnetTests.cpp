@@ -33,10 +33,20 @@ PTF_TEST_CASE(TelnetControlParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(5), pcpp::TelnetLayer::DoPerform);
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(6), pcpp::TelnetLayer::Subnegotiation);
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(7), pcpp::TelnetLayer::SubnegotiationEnd);
+
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(0), "Will Perform");
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(1), "Do Perform");
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(2), "Do Perform");
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(3), "Do Perform");
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(4), "Do Perform");
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(5), "Do Perform");
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(6), "Subnegotiation");
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(7), "Subnegotiation End");
     
     // This index not exist should return error
 	pcpp::Logger::getInstance().suppressLogs();
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(8), pcpp::TelnetLayer::TelnetCommandInternalError);
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(8), "Internal Error");
 	pcpp::Logger::getInstance().enableLogs();
 
     PTF_ASSERT_EQUAL(telnetLayer->getOption(0), pcpp::TelnetLayer::SuppressGoAhead);
@@ -51,9 +61,40 @@ PTF_TEST_CASE(TelnetControlParsingTests)
     // This index not exist should return error
 	pcpp::Logger::getInstance().suppressLogs();
     PTF_ASSERT_EQUAL(telnetLayer->getOption(8), pcpp::TelnetLayer::TelnetOptionInternalError);
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetOptionAsString(8), "Internal Error");
 	pcpp::Logger::getInstance().enableLogs();
    
     PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Control");
+
+    // Telnet TN3270 sample (not supported but should not raise an error)
+    READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/telnetTN3270.dat");
+
+    pcpp::Packet telnetPacket2(&rawPacket2);
+    pcpp::TelnetLayer *telnetLayer2 = telnetPacket2.getLayerOfType<pcpp::TelnetLayer>();
+
+    PTF_ASSERT_NOT_NULL(telnetLayer2);
+
+    PTF_ASSERT_EQUAL(telnetLayer2->getDataAsString(), "");
+    PTF_ASSERT_EQUAL(telnetLayer2->getNumberOfCommands(), 3);
+
+    PTF_ASSERT_EQUAL(telnetLayer2->getCommand(0), pcpp::TelnetLayer::DoPerform);
+    PTF_ASSERT_EQUAL(telnetLayer2->getCommand(1), pcpp::TelnetLayer::WillPerform);
+    PTF_ASSERT_EQUAL(telnetLayer2->getCommand(2), pcpp::TelnetLayer::EndOfRecordCommand);
+
+    PTF_ASSERT_EQUAL(telnetLayer2->getTelnetCommandAsString(0), "Do Perform");
+    PTF_ASSERT_EQUAL(telnetLayer2->getTelnetCommandAsString(1), "Will Perform");
+    PTF_ASSERT_EQUAL(telnetLayer2->getTelnetCommandAsString(2), "End of Record");
+
+    PTF_ASSERT_EQUAL(telnetLayer2->getOption(0), pcpp::TelnetLayer::TransmitBinary);
+    PTF_ASSERT_EQUAL(telnetLayer2->getOption(1), pcpp::TelnetLayer::TransmitBinary);
+    PTF_ASSERT_EQUAL(telnetLayer2->getOption(2), pcpp::TelnetLayer::TelnetOptionNoOption);
+
+    PTF_ASSERT_EQUAL(telnetLayer2->getTelnetOptionAsString(0), "Binary Transmission");
+    PTF_ASSERT_EQUAL(telnetLayer2->getTelnetOptionAsString(1), "Binary Transmission");
+    PTF_ASSERT_EQUAL(telnetLayer2->getTelnetOptionAsString(2), "No option for this command");
+
+    PTF_ASSERT_EQUAL(telnetLayer2->toString(), "Telnet Control");
+
 }
 
 PTF_TEST_CASE(TelnetDataParsingTests)
@@ -72,11 +113,13 @@ PTF_TEST_CASE(TelnetDataParsingTests)
     PTF_ASSERT_EQUAL(telnetLayer->getDataAsString(), "OpenBSD/i386 (oof) (ttyp2)");
     PTF_ASSERT_EQUAL(telnetLayer->getNumberOfCommands(), 0);
 
-    // This index not exist should return error
 	pcpp::Logger::getInstance().suppressLogs();
+    // This index not exist should return error
     PTF_ASSERT_EQUAL(telnetLayer->getCommand(0), pcpp::TelnetLayer::TelnetCommandInternalError);
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(0), "Internal Error");
     // This index not exist should return error
     PTF_ASSERT_EQUAL(telnetLayer->getOption(0), pcpp::TelnetLayer::TelnetOptionInternalError);
+    PTF_ASSERT_EQUAL(telnetLayer->getTelnetOptionAsString(0), "Internal Error");
 	pcpp::Logger::getInstance().enableLogs();
 
     PTF_ASSERT_EQUAL(telnetLayer->toString(), "Telnet Data");
