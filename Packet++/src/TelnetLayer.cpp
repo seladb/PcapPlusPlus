@@ -10,7 +10,8 @@
 
 namespace pcpp
 {
-    std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters = true)
+
+    std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters)
     {
         // If not data return immediately
         if (!isData)
@@ -27,13 +28,20 @@ namespace pcpp
         return std::string((char *)m_Data, m_DataLen);
     }
 
+    uint16_t TelnetLayer::getNumberOfCommands()
+    {
+        if (!isParsed)
+            computeCalculateFields();
+        return telnetCommandData.size();
+    }
+
     TelnetLayer::TelnetCommands TelnetLayer::getCommand(size_t index)
     {
         if (!isParsed)
             computeCalculateFields();
 
-        if (index < telnetData.size())
-            return static_cast<TelnetCommands>(telnetData[index].hdr->command);
+        if (index < telnetCommandData.size())
+            return static_cast<TelnetCommands>(telnetCommandData[index].hdr->command);
 
         PCPP_LOG_ERROR("Requested index does not exist");
         return TelnetCommandInternalError;
@@ -44,8 +52,8 @@ namespace pcpp
         if (!isParsed)
             computeCalculateFields();
 
-        if (index < telnetData.size())
-            return static_cast<TelnetOptions>(telnetData[index].hdr->subcommand);
+        if (index < telnetCommandData.size())
+            return static_cast<TelnetOptions>(telnetCommandData[index].hdr->subcommand);
 
         PCPP_LOG_ERROR("Requested index does not exist");
         return TelnetOptionInternalError;
@@ -61,7 +69,7 @@ namespace pcpp
             return "Suspend current process";
         case Abort:
             return "Abort Process";
-        case EndOfRecord:
+        case EndOfRecordCommand:
             return "End of Record";
         case SubnegotiationEnd:
             return "Subnegotiation End";
@@ -154,7 +162,7 @@ namespace pcpp
             return "Send Location";
         case TerminalType:
             return "Terminal Type";
-        case EndOfRecord:
+        case EndOfRecordOption:
             return "End Of Record";
         case TACACSUserIdentification:
             return "TACACS User Identification";
@@ -222,8 +230,11 @@ namespace pcpp
         isParsed = true;
 
         // Since only contains data return immediately
-        if (isData)
+        if (isData || (m_Data[0] != 255) || (m_Data[0] == 255 && m_Data[1] == 255))
+        {
+            isData = true;
             return;
+        }
 
         uint8_t *pos = NULL;
         size_t currentOffset = 0;
@@ -237,7 +248,7 @@ namespace pcpp
             pos ? buff.hdrSize = pos - (m_Data + currentOffset) : buff.hdrSize = m_DataLen - currentOffset;
 
             currentOffset += buff.hdrSize;
-            telnetData.push_back(buff);
+            telnetCommandData.push_back(buff);
 
         } while (currentOffset < m_DataLen && pos);
     }

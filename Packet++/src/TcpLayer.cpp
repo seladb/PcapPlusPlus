@@ -374,7 +374,7 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = SSHLayer::createSSHMessage(payload, payloadLen, this, m_Packet);
 	else if (DnsLayer::isDataValid(payload, payloadLen, true) && (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		m_NextLayer = new DnsOverTcpLayer(payload, payloadLen, this, m_Packet);
-	else if (TelnetLayer::isTelnetPort(portDst) || TelnetLayer::isTelnetPort(portSrc))
+	else if ((TelnetLayer::isTelnetPort(portDst) || TelnetLayer::isTelnetPort(portSrc)) && TelnetLayer::isDataValid(payload, payloadLen))
 		m_NextLayer = new TelnetLayer(payload, payloadLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);

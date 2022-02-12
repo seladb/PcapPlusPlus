@@ -166,3 +166,7 @@ PTF_TEST_CASE(NtpMethodsTests);
 PTF_TEST_CASE(NtpParsingV3Tests);
 PTF_TEST_CASE(NtpParsingV4Tests);
 PTF_TEST_CASE(NtpCraftingTests);
+
+// Implemented in TelnetTests.cpp
+PTF_TEST_CASE(TelnetControlParsingTests);
+PTF_TEST_CASE(TelnetDataParsingTests);

@@ -3,6 +3,8 @@
 
 #include "Layer.h"
 
+#include <vector>
+
 /// @file
 
 /**
@@ -18,18 +20,17 @@ namespace pcpp
     class TelnetLayer : public Layer
     {
     private:
-
 #pragma pack(push, 1)
         struct telnet_header
         {
             // "Interpret as Command" escape character (FF)
             uint8_t interpretation,
-            // Command
-            command,
-            // Option of the command
-            subcommand,
-            // Data (Variable length)
-            data[];
+                // Command
+                command,
+                // Option of the command
+                subcommand,
+                // Data (Variable length)
+                data[];
         };
 #pragma pack(pop)
 
@@ -45,7 +46,7 @@ namespace pcpp
 
         bool isData;
         bool isParsed;
-        std::vector<telnet_field_data> telnetData;
+        std::vector<telnet_field_data> telnetCommandData;
 
     public:
         /**
@@ -63,7 +64,7 @@ namespace pcpp
             /// Abort Process
             Abort,
             /// End of Record
-            EndOfRecord,
+            EndOfRecordCommand,
             /// Marks the end of a Telnet option subnegotiation, used with the SB code to specify more specific option parameters.
             SubnegotiationEnd,
             /// Null command; does nothing.
@@ -157,7 +158,7 @@ namespace pcpp
             /// Terminal Type RFC1091 https://www.iana.org/go/rfc1091
             TerminalType,
             /// End of record RFC885 https://www.iana.org/go/rfc885
-            EndOfRecord,
+            EndOfRecordOption,
             /// TUID, TACACS User Identification RFC927 https://www.iana.org/go/rfc927
             TACACSUserIdentification,
             /// OUTMRK, Output Marking RFC933 https://www.iana.org/go/rfc933
@@ -220,6 +221,20 @@ namespace pcpp
         };
 
         /**
+         * A constructor that creates the layer from an existing packet raw data
+         * @param[in] data A pointer to the raw data
+         * @param[in] dataLen Size of the data in bytes
+         * @param[in] prevLayer A pointer to the previous layer
+         * @param[in] packet A pointer to the Packet instance where layer will be stored in
+         */
+        TelnetLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet)
+        {
+            isParsed = false;
+            isData = false;
+            m_Protocol = Telnet;
+        };
+
+        /**
          * Get the Telnet data as readable string
          * @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
          * @return Full payload as readable string, empty if Telnet packet contains control commands/options.
@@ -227,7 +242,7 @@ namespace pcpp
         std::string getDataAsString(bool removeEscapeCharacters = true);
 
         /// Return the number of detected Telnet Commands
-        uint16_t getNumberOfCommands() {return telnetData.size();}
+        uint16_t getNumberOfCommands();
 
         /**
          * Get the command of the given index
@@ -262,6 +277,14 @@ namespace pcpp
          * @param[in] port The port number to be checked
          */
         static bool isTelnetPort(uint16_t port) { return port == 23; }
+
+        /**
+         * A static method that takes a byte array and detects whether it is a Telnet message
+         * @param[in] data A byte array
+         * @param[in] dataSize The byte array size (in bytes)
+         * @return True if the data is identified as Telnet message
+         */
+        static bool isDataValid(const uint8_t *data, size_t dataSize) { return data && dataSize; }
 
         // overridden methods
 

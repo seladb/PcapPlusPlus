@@ -61,6 +61,7 @@ namespace pcpp
 		PacketLogModuleIPReassembly, ///< IPReassembly module (Packet++)
 		PacketLogModuleIPSecLayer, ///< IPSecLayers module (Packet++)
 		PacketLogModuleNtpLayer, ///< NtpLayer module (Packet++)
+		PacketLogModuleTelnetLayer, ///< TelnetLayer module (Packet++)
 		PcapLogModuleWinPcapLiveDevice, ///< WinPcapLiveDevice module (Pcap++)
 		PcapLogModuleRemoteDevice, ///< WinPcapRemoteDevice module (Pcap++)
 		PcapLogModuleLiveDevice, ///< PcapLiveDevice module (Pcap++)
