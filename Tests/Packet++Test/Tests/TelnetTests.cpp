@@ -4,6 +4,7 @@
 #include "Packet.h"
 #include "TelnetLayer.h"
 #include "GeneralUtils.h"
+#include "SystemUtils.h"
 
 #include <string.h>
 
