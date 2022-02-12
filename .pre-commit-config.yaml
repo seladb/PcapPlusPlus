@@ -8,11 +8,19 @@ repos:
     -   id: end-of-file-fixer
     -   id: mixed-line-ending
         args: ['--fix=lf']
+-   repo: https://github.com/psf/black
+    rev: 21.12b0
+    hooks:
+    -   id: black
+-   repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v13.0.0
+    hooks:
+    -   id: clang-format
 ci:
     autofix_commit_msg: |
         [pre-commit.ci] auto fixes from pre-commit.com hooks
     autofix_prs: true
-    autoupdate_branch: 'dev'
+    autoupdate_branch: 'master'
     autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
     autoupdate_schedule: weekly
     skip: []
