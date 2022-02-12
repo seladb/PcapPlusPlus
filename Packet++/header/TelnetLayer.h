@@ -45,7 +45,6 @@ namespace pcpp
         };
 
         bool isData;
-        bool isParsed;
         std::vector<telnet_field_data> telnetCommandData;
 
     public:
@@ -104,8 +103,10 @@ namespace pcpp
          */
         enum TelnetOptions
         {
+            /// Internal return for no option detected
+            TelnetOptionNoOption = -2,
             /// Internal error indicator for PcapPlusPlus
-            TelnetOptionInternalError = -1,
+            TelnetOptionInternalError,
 
             /// Binary Transmission RFC856 https://www.iana.org/go/rfc856
             TransmitBinary = 0,
@@ -229,9 +230,9 @@ namespace pcpp
          */
         TelnetLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet)
         {
-            isParsed = false;
             isData = false;
             m_Protocol = Telnet;
+            computeCalculateFields();
         };
 
         /**

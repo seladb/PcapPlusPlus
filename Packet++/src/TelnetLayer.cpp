@@ -21,7 +21,7 @@ namespace pcpp
         {
             std::stringstream ss;
             for (size_t idx = 0; idx < m_DataLen; idx++)
-                if (isalnum(m_Data[idx]))
+                if (m_Data[idx] < 127 && m_Data[idx] > 31) // From SPACE to ~
                     ss << m_Data[idx];
             return ss.str();
         }
@@ -30,32 +30,26 @@ namespace pcpp
 
     uint16_t TelnetLayer::getNumberOfCommands()
     {
-        if (!isParsed)
-            computeCalculateFields();
         return telnetCommandData.size();
     }
 
     TelnetLayer::TelnetCommands TelnetLayer::getCommand(size_t index)
     {
-        if (!isParsed)
-            computeCalculateFields();
-
         if (index < telnetCommandData.size())
             return static_cast<TelnetCommands>(telnetCommandData[index].hdr->command);
 
-        PCPP_LOG_ERROR("Requested index does not exist");
+        PCPP_LOG_ERROR("Requested command index does not exist");
         return TelnetCommandInternalError;
     }
 
     TelnetLayer::TelnetOptions TelnetLayer::getOption(size_t index)
     {
-        if (!isParsed)
-            computeCalculateFields();
-
-        if (index < telnetCommandData.size())
+        if (index < telnetCommandData.size() && telnetCommandData[index].hdr->command != SubnegotiationEnd)
             return static_cast<TelnetOptions>(telnetCommandData[index].hdr->subcommand);
+        else if (index && telnetCommandData[index].hdr->command == SubnegotiationEnd)
+            return TelnetOptionNoOption;
 
-        PCPP_LOG_ERROR("Requested index does not exist");
+        PCPP_LOG_ERROR("Requested option index does not exist");
         return TelnetOptionInternalError;
     }
 
@@ -227,10 +221,8 @@ namespace pcpp
 
     void TelnetLayer::computeCalculateFields()
     {
-        isParsed = true;
-
         // Since only contains data return immediately
-        if (isData || (m_Data[0] != 255) || (m_Data[0] == 255 && m_Data[1] == 255))
+        if ((m_Data[0] != 255) || (m_Data[0] == 255 && m_Data[1] == 255))
         {
             isData = true;
             return;
@@ -240,14 +232,19 @@ namespace pcpp
         size_t currentOffset = 0;
         do
         {
-            pos = (uint8_t *)memchr(m_Data + currentOffset, InterpretAsCommand, m_DataLen - currentOffset);
+            pos = (uint8_t *)memchr(m_Data + currentOffset + 1, InterpretAsCommand, m_DataLen - currentOffset);
 
             telnet_field_data buff;
             buff.hdr = (telnet_header *)m_Data + currentOffset;
             buff.currentOffset = currentOffset;
-            pos ? buff.hdrSize = pos - (m_Data + currentOffset) : buff.hdrSize = m_DataLen - currentOffset;
+
+            if (pos)
+                buff.hdrSize = pos - (m_Data + currentOffset);
+            else
+                buff.hdrSize = m_DataLen - currentOffset;
 
             currentOffset += buff.hdrSize;
+            std::cout << buff.hdrSize << " " << currentOffset << " " << (int)buff.hdr->command << std::endl;
             telnetCommandData.push_back(buff);
 
         } while (currentOffset < m_DataLen && pos);
