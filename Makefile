@@ -13,6 +13,7 @@ FUZZERS_HOME         := Tests/Fuzzers
 EXAMPLE_ARPSPOOF     := Examples/ArpSpoofing
 EXAMPLE_ARPING       := Examples/Arping
 EXAMPLE_DPDK1        := Examples/DpdkExample-FilterTraffic
+EXAMPLE_SOMEIPTRACE  := Examples/SomeIpTrace
 EXAMPLE_DNSSPOOF     := Examples/DnsSpoofing
 EXAMPLE_DNSRESOLVER  := Examples/DNSResolver
 EXAMPLE_HTTPANALYZE  := Examples/HttpAnalyzer
@@ -40,6 +41,7 @@ all: libs
 	@cd $(PCAPPP_TEST)               && $(MAKE) Pcap++Test
 	@cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) ArpSpoofing
 	@cd $(EXAMPLE_ARPING)            && $(MAKE) Arping
+	@cd $(EXAMPLE_SOMEIPTRACE)		 && $(MAKE) SomeIpTrace
 	@cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) DnsSpoofing
 	@cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) DNSResolver
 	@cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) HttpAnalyzer
@@ -64,6 +66,7 @@ endif
 	$(CP) $(EXAMPLE_ARPSPOOF)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_ARPING)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_DNSSPOOF)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_SOMEIPTRACE)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_DNSRESOLVER)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_HTTPANALYZE)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_PCAP_PRINT)/Bin/* ./Dist/examples
@@ -118,6 +121,7 @@ clean:
 	@cd $(EXAMPLE_ARPSPOOF)          && $(MAKE) clean
 	@cd $(EXAMPLE_ARPING)            && $(MAKE) clean
 	@cd $(EXAMPLE_DNSSPOOF)          && $(MAKE) clean
+	@cd $(EXAMPLE_SOMEIPTRACE)       && $(MAKE) clean
 	@cd $(EXAMPLE_DNSRESOLVER)       && $(MAKE) clean
 	@cd $(EXAMPLE_HTTPANALYZE)       && $(MAKE) clean
 	@cd $(EXAMPLE_PCAP_PRINT)        && $(MAKE) clean

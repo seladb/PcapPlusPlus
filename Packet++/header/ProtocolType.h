@@ -258,6 +258,17 @@ namespace pcpp
 	const ProtocolType NTP = 0x4000000000;
 
 	/**
+	 * Scalable service-Oriented MiddlewarE over IP (SOME/IP)
+	 */ 
+	const ProtocolType SomeIp = 0x8000000000;
+
+	/**
+	 * Scalable service-Oriented MiddlewarE over IP (SOME/IP)
+	 * Service Discovery message
+	 */ 
+	const ProtocolType SomeIpSd = 0x10000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer
