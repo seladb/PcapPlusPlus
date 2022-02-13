@@ -1,5 +1,9 @@
 #include "SomeIpLayer.h"
 
+#include "SomeIpSdLayer.h"
+
+#include "PayloadLayer.h"
+
 #include <sstream>
 
 namespace pcpp {
@@ -9,12 +13,22 @@ SomeIpLayer::SomeIpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet
 
 }
 
-SomeIpLayer::~SomeIpLayer() {
+SomeIpLayer::~SomeIpLayer() {}
 
-}
+void SomeIpLayer::parseNextLayer() 
+{	
+    if (m_DataLen <= sizeof(someip_header))
+		return;
 
-void SomeIpLayer::parseNextLayer() {
+    someip_header * smhdr = getSomeIpHeader();
 
+	uint8_t* someIpData = m_Data + sizeof(someip_header);
+	size_t someIpDataLen = m_DataLen - sizeof(someip_header);
+
+	if(SomeIpServiceDiscoveryLayer::isDataValid(someIpData, someIpDataLen) && smhdr->service_id == 65535)
+		m_NextLayer = new SomeIpServiceDiscoveryLayer(someIpData, someIpDataLen, this, m_Packet);
+	else
+		m_NextLayer = new PayloadLayer(someIpData, someIpDataLen, this, m_Packet);
 }
 
 size_t SomeIpLayer::getHeaderLen() const {
@@ -36,11 +50,11 @@ std::string SomeIpLayer::toString() const {
 
     someip_header *header = getSomeIpHeader();
 
-    someIpUdp << "service_id: " << header->service_id << " "
-            << "client_id: " << header->client_id << " "
-            << "message_length: " << header->message_length << " "
-            << "method_id: " << header->method_id << " "
-            << "interface_version: " << (int) header->interface_version << std::endl;
+    someIpUdp << "service_id: "          << header->service_id               << " "
+              << "client_id: "           << header->client_id                << " "
+              << "message_length: "      << header->message_length           << " "
+              << "method_id: "           << header->method_id                << " "
+              << "interface_version: "   << (int) header->interface_version  << std::endl;
 
     return someIpUdp.str();
 }
@@ -55,4 +69,3 @@ OsiModelLayer SomeIpLayer::getOsiModelLayer() const {
 }
 
 } // namespace pcpp
-

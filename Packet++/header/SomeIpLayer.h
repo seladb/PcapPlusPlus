@@ -108,12 +108,12 @@ public:
     /**
      * Looking up for the SOME/IP SD and returning @ref SomeIPServiceDiscoveryLayer
      */
-    void parseNextLayer() override;
+    virtual void parseNextLayer() override;
 
     /**
      * @return Size of @ref someip_header
      */
-    size_t getHeaderLen() const override;
+    virtual size_t getHeaderLen() const override;
 
     /**
      * Get a pointer to the SOME/IP header
@@ -124,7 +124,7 @@ public:
     /**
      * Does nothing for this layer
      */
-    void computeCalculateFields() override;
+    virtual void computeCalculateFields() override;
 
     /**
      * A static method that takes a byte array and detects whether it is a SOME/IP message
