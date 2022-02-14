@@ -322,7 +322,9 @@ void IPv4Layer::parseNextLayer()
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_IPV6:
-		m_NextLayer = new IPv6Layer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
