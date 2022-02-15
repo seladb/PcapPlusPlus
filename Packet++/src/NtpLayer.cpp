@@ -207,7 +207,7 @@ namespace pcpp
                 }
             }
             case 4:
-                // FIXME: It should return 4-character Kiss Code
+                // TODO: It should return 4-character Kiss Code
                 return "Unspecified";
             default:
                 return "Unsupported NTP version";
@@ -299,9 +299,9 @@ namespace pcpp
             }
             }
         }
-        else if (stratum > 1)
+        else
         {
-            // FIXME: Support IPv6 cases for NTPv4, it equals to MD5 hash of first four octets of IPv6 address
+            // TODO: Support IPv6 cases for NTPv4, it equals to MD5 hash of first four octets of IPv6 address
 
             pcpp::IPv4Address addr(getReferenceIdentifier());
             return addr.toString();
@@ -425,7 +425,7 @@ namespace pcpp
         }
         case 4:
         {
-            // FIXME: Add support for extension fields
+            // TODO: Add support for extension fields
             if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_md5)))
             {
                 ntp_v4_auth_md5 *header = (ntp_v4_auth_md5 *)(m_Data + m_DataLen - sizeof(ntp_v4_auth_md5));
@@ -499,7 +499,7 @@ namespace pcpp
         integerPart = netToHost32(val & 0xFFFFFFFF);
         fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
 
-        // FIXME: Return integer and fraction parts as struct to increase precision
+        // TODO: Return integer and fraction parts as struct to increase precision
         // Offset change should be done here because of overflow
         return integerPart + fractionPart - EPOCH_OFFSET;
     }
