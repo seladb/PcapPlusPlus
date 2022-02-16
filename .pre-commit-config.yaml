@@ -1,7 +1,7 @@
 exclude: '.*\.(pcap|pcapng|dat|txt)'
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0  # Use the ref you want to point at
+    rev: v4.1.0
     hooks:
     -   id: trailing-whitespace
     -   id: check-case-conflict
@@ -9,11 +9,10 @@ repos:
     -   id: mixed-line-ending
         args: ['--fix=lf']
 -   repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.1.0
     hooks:
     -   id: black
 -   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v13.0.0'  # Use the sha / tag you want to point at
+    rev: 'v13.0.0'
     hooks:
     -   id: clang-format
-        args: [--style=Microsoft]

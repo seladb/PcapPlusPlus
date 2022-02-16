@@ -2,6 +2,13 @@ name: Build and test
 on: [push, pull_request]
 
 jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - uses: pre-commit/action@v2.0.3
+
   linux:
     runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
