@@ -1,4 +1,5 @@
 exclude: '.*\.(pcap|pcapng|dat|txt)'
+fail_fast: false
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
@@ -12,7 +13,7 @@ repos:
     rev: 22.1.0
     hooks:
     -   id: black
--   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v13.0.0'
+-   repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
     hooks:
     -   id: clang-format
