@@ -66,8 +66,9 @@ find_package(PCAP)
 if(NOT PCAP_FOUND)
   if(TARGET_PLATFORM_WINDOWS)
     message("Specify NPCAP Library with -DPCAP_ROOT=<NPCAP_SDK_PATH>")
+  else()
+    message(FATAL_ERROR "PCAP library not found!")
   endif()
-  message(FATAL_ERROR "PCAP library not found!")
 endif()
 
 # Enable the option if it's available
@@ -156,7 +157,7 @@ add_subdirectory(Common++)
 
 if(PCAPPP_BUILD_TESTS)
   include(CTest)
-  enable_testing()
+
   add_subdirectory(Tests)
 endif()
 

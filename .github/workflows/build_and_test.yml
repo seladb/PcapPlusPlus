@@ -373,17 +373,10 @@ jobs:
         with:
           fetch-depth: "0"
 
-      - name: Checkout lipbcap for Android
-        uses: actions/checkout@main
-        with:
-          repository: seladb/libpcap-android
-          path: ./libpcap-android
-
       - name: Configure PcapPlusPlus
         run: |
-          NDK_ROOT=$(ls -dr ${ANDROID_SDK_ROOT}/ndk/*/ | head -1)
-          LIBPCAP_PATH=$(pwd)/libpcap-android
-          cmake -DCMAKE_TOOLCHAIN_FILE="${NDK_ROOT}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B $BUILD_DIR
+          NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
+          cmake -DCMAKE_TOOLCHAIN_FILE="${NDK_ROOT}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
