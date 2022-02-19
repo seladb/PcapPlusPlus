@@ -87,13 +87,15 @@ namespace pcpp
 
     TelnetLayer::TelnetOptions TelnetLayer::getOption(size_t index)
     {
-        if (index < telnetCommandData.size() && telnetCommandData[index].hdrSize > 2)
-            return static_cast<TelnetOptions>(telnetCommandData[index].hdr->subcommand);
-        else if (index < telnetCommandData.size() && telnetCommandData[index].hdrSize < 3)
+        if (index >= telnetCommandData.size())
+        {
+            PCPP_LOG_ERROR("Requested option index does not exist");
+            return TelnetOptionInternalError;
+        }
+        else if (telnetCommandData[index].hdr->command < Subnegotiation || telnetCommandData[index].hdrSize < 3)
             return TelnetOptionNoOption;
-
-        PCPP_LOG_ERROR("Requested option index does not exist");
-        return TelnetOptionInternalError;
+        else
+            return static_cast<TelnetOptions>(telnetCommandData[index].hdr->subcommand);
     }
 
     std::string TelnetLayer::getTelnetOptionAsString(size_t index)
@@ -107,7 +109,14 @@ namespace pcpp
             return NULL;
         if (index < telnetCommandData.size())
         {
-            if (telnetCommandData[index].hdrSize > 3)
+            // This means there is no subcommand data pointer should be adjusted
+            if(telnetCommandData[index].hdr->command < Subnegotiation)
+            {
+                length = telnetCommandData[index].hdrSize - 2;
+                return &(telnetCommandData[index].hdr->subcommand);
+
+            }
+            else if (telnetCommandData[index].hdrSize > 3)
             {
                 length = telnetCommandData[index].hdrSize - 3;
                 return telnetCommandData[index].hdr->data;
