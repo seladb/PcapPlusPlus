@@ -135,7 +135,6 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
     PTF_ASSERT_BUF_COMPARE(ptr3, valPtr2, len);
 
     PTF_ASSERT_EQUAL(telnetLayer3->toString(), "Telnet Control");
-
 }
 
 PTF_TEST_CASE(TelnetDataParsingTests)

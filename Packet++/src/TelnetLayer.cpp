@@ -110,11 +110,10 @@ namespace pcpp
         if (index < telnetCommandData.size())
         {
             // This means there is no subcommand data pointer should be adjusted
-            if(telnetCommandData[index].hdr->command < Subnegotiation)
+            if (telnetCommandData[index].hdr->command < Subnegotiation)
             {
                 length = telnetCommandData[index].hdrSize - 2;
                 return &(telnetCommandData[index].hdr->subcommand);
-
             }
             else if (telnetCommandData[index].hdrSize > 3)
             {
