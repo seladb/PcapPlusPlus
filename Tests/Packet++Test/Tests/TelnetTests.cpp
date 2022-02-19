@@ -106,8 +106,8 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 
     PTF_ASSERT_EQUAL(telnetLayer2->toString(), "Telnet Control");
 
-    // Test Command+Data Case
-    READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/telnetCommandwithData.dat");
+    // Test Command Data Case
+    READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/telnetCommandWithData.dat");
 
     pcpp::Packet telnetPacket3(&rawPacket3);
     pcpp::TelnetLayer *telnetLayer3 = telnetPacket3.getLayerOfType<pcpp::TelnetLayer>();
