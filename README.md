@@ -188,7 +188,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 28. HTTP headers (request & response)
 29. SSL/TLS - parsing only (no editing capabilities)
 30. NTP (v3, v4)
-31. Telnet (no editing capabilities)
+31. Telnet - parsing only (no editing capabilities)
 32. Packet trailer (a.k.a footer or padding)
 33. Generic payload
 

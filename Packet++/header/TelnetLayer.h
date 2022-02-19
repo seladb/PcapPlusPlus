@@ -47,6 +47,11 @@ namespace pcpp
         bool isData;
         std::vector<telnet_field_data> telnetCommandData;
 
+        /**
+         * Parse Telnet fields of the packet
+         */
+        void parseTelnetFields();
+
     public:
         /**
          * Telnet Command Indicator
@@ -232,7 +237,7 @@ namespace pcpp
         {
             isData = false;
             m_Protocol = Telnet;
-            computeCalculateFields();
+            parseTelnetFields();
         };
 
         /**
@@ -279,7 +284,7 @@ namespace pcpp
          * @param[out] length Length of the returned data, unchanged if there is no data or on error
          * @return Pointer to requested data, NULL on error or there is no data
          */
-        const uint8_t* getOptionData(size_t index, size_t &length);
+        const uint8_t *getOptionData(size_t index, size_t &length);
 
         /**
          * Convert the Telnet Command to readable string
@@ -319,9 +324,7 @@ namespace pcpp
          */
         size_t getHeaderLen() const { return m_DataLen; }
 
-        /**
-         * Parse Telnet fields of the packet
-         */
+        /// Does nothing for this layer
         void computeCalculateFields();
 
         /**

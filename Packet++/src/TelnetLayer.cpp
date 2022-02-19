@@ -11,6 +11,45 @@
 namespace pcpp
 {
 
+    void TelnetLayer::parseTelnetFields()
+    {
+        // Since only contains data return immediately
+        if ((m_Data[0] != 255) || (m_Data[0] == 255 && m_Data[1] == 255))
+        {
+            isData = true;
+            return;
+        }
+
+        uint8_t *pos = NULL;
+        size_t currentOffset = 0;
+        do
+        {
+            telnet_field_data buff;
+            buff.hdr = (telnet_header *)(m_Data + currentOffset);
+            buff.currentOffset = currentOffset;
+            buff.hdrSize = 0;
+
+            uint16_t addition = 0;
+            do
+            {
+                // If it is second turn position should be adjusted to after second FF
+                if (addition)
+                    addition += 2;
+
+                pos = (uint8_t *)memchr(m_Data + currentOffset + 1, InterpretAsCommand, m_DataLen - currentOffset);
+                if (pos)
+                    addition += pos - (m_Data + currentOffset);
+                else
+                    addition += m_DataLen - currentOffset;
+                currentOffset = buff.currentOffset + addition;
+                // "FF FF" means data continue
+            } while (pos && (pos[1] == InterpretAsCommand) && (currentOffset < m_DataLen));
+            std::cout << buff.currentOffset << " / " << m_DataLen << " size: " << addition << std::endl;
+            buff.hdrSize = addition;
+            telnetCommandData.push_back(buff);
+        } while (currentOffset < m_DataLen && pos);
+    }
+
     std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters)
     {
         // If not data return immediately
@@ -69,7 +108,7 @@ namespace pcpp
             return NULL;
         if (index < telnetCommandData.size())
         {
-            if(telnetCommandData[index].hdrSize > 3)
+            if (telnetCommandData[index].hdrSize > 3)
             {
                 length = telnetCommandData[index].hdrSize - 3;
                 return telnetCommandData[index].hdr->data;
@@ -257,41 +296,6 @@ namespace pcpp
 
     void TelnetLayer::computeCalculateFields()
     {
-        // Since only contains data return immediately
-        if ((m_Data[0] != 255) || (m_Data[0] == 255 && m_Data[1] == 255))
-        {
-            isData = true;
-            return;
-        }
-
-        uint8_t *pos = NULL;
-        size_t currentOffset = 0;
-        do
-        {
-            telnet_field_data buff;
-            buff.hdr = (telnet_header *)(m_Data + currentOffset);
-            buff.currentOffset = currentOffset;
-            buff.hdrSize = 0;
-
-            uint16_t addition = 0;
-            do
-            {
-                // If it is second turn position should be adjusted to after second FF
-                if (addition)
-                    addition += 2;
-
-                pos = (uint8_t *)memchr(m_Data + currentOffset + 1, InterpretAsCommand, m_DataLen - currentOffset);
-                if (pos)
-                    addition += pos - (m_Data + currentOffset);
-                else
-                    addition += m_DataLen - currentOffset;
-                currentOffset = buff.currentOffset + addition;
-                // "FF FF" means data continue
-            } while (pos && (pos[1] == InterpretAsCommand) && (currentOffset < m_DataLen));
-
-            buff.hdrSize = addition;
-            telnetCommandData.push_back(buff);
-        } while (currentOffset < m_DataLen && pos);
     }
 
     std::string TelnetLayer::toString() const
