@@ -16,18 +16,25 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   set(MAIN_PROJECT ON)
 endif()
 
+# Include git module required for version
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+include(VersionFromGit)
+
+# Get the git version
+version_from_git(LOG ON TIMESTAMP "%Y%m%d%H%M%S")
+
 project(
   PcapPlusPlus
   DESCRIPTION
     "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets."
-)
+  VERSION ${VERSION})
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+# Include the other modules
+include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(DetectOS)
 include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
 
 # Build options
 option(PCAPPP_BUILD_EXAMPLES "Build Examples")
@@ -108,6 +115,10 @@ if(PCAPPP_USE_DPDK)
   endif()
 endif()
 
+# Git Commit and Branch
+add_compile_definitions(GIT_COMMIT="${GIT_HASH}")
+add_compile_definitions(GIT_BRANCH="${GIT_BRANCH}")
+
 if(PCAPPP_USE_PF_RING)
   add_definitions(-DUSE_PF_RING)
   set(PF_RING_HOME
@@ -154,8 +165,14 @@ if(PCAPPP_BUILD_EXAMPLES)
 endif()
 
 if(PCAPPP_INSTALL)
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "seladb")
+  set(CPACK_PACKAGE_FILE_NAME PcapPlusPlus-v${SEMVER})
+
+  include(CPack)
+
   # Generate PKG-Config
-  configure_file("PcapPlusPlus.pc.in" "PcapPlusPlus.pc" @ONLY)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc @ONLY)
   install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
           DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
@@ -170,14 +187,14 @@ if(PCAPPP_INSTALL)
     NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/PcapPlusPlusConfig.cmake.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/PcapPlusPlus)
 
   write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
-    VERSION 1.2.3
-    COMPATIBILITY SameMajorVersion)
+    VERSION ${VERSION}
+    COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake
   install(

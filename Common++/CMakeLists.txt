@@ -45,3 +45,4 @@ if(PCAPPP_INSTALL)
 endif()
 
 set_property(TARGET CommonPP PROPERTY OUTPUT_NAME "common++")
+set_property(TARGET CommonPP PROPERTY VERSION ${VERSION_MAJOR}.${VERSION_MINOR})

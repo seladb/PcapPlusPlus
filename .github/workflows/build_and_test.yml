@@ -45,6 +45,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -90,6 +92,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON -S . -B $BUILD_DIR
@@ -121,6 +125,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -153,6 +159,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
 
       - uses: actions/setup-python@v2
         with:
@@ -222,12 +230,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{matrix.sys}}
-          install: mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make mingw-w64-${{matrix.env}}-cmake
+          install: >-
+            git
+            mingw-w64-${{matrix.env}}-cmake
+            mingw-w64-${{matrix.env}}-gcc
+            mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -282,6 +296,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
 
       - uses: actions/setup-python@v2
         with:
@@ -354,6 +370,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
 
       - name: Checkout lipbcap for Android
         uses: actions/checkout@main
