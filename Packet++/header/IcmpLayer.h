@@ -25,7 +25,7 @@ namespace pcpp
 	 * Represents ICMP basic protocol header (common for all ICMP message types)
 	 */
 #pragma pack(push, 1)
-	typedef struct
+	typedef struct _icmphdr
 	{
 		/** message type */
 		uint8_t	 type;
@@ -127,7 +127,7 @@ namespace pcpp
 	 * ICMP echo (ping) request/reply message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_echo_hdr : icmphdr
 	{
 		/** the echo (ping) request identifier */
 		uint16_t id;
@@ -143,7 +143,7 @@ namespace pcpp
 	 * @struct icmp_echo_request
 	 * ICMP echo (ping) request/reply message structure
 	 */
-	typedef struct
+	typedef struct icmp_echo_request_t
 	{
 		/** a pointer to the header data */
 		icmp_echo_hdr* header;
@@ -166,7 +166,7 @@ namespace pcpp
 	 * ICMP timestamp request message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_timestamp_request : icmphdr
 	{
 		/** the timestamp request identifier */
 		uint16_t id;
@@ -194,7 +194,7 @@ namespace pcpp
 	 * ICMP destination unreachable message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_destination_unreachable : icmphdr
 	{
 		/** unused 2 bytes */
 		uint16_t unused;
@@ -209,7 +209,7 @@ namespace pcpp
 	 * ICMP time-to-live exceeded message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_time_exceeded : icmphdr
 	{
 		/** unused 4 bytes */
 		uint32_t unused;
@@ -229,7 +229,7 @@ namespace pcpp
 	 * ICMP parameter problem message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_param_problem : icmphdr
 	{
 		/** in the case of an invalid IP header (Code 0), this field indicates the byte offset of the error in the header */
 		uint8_t  pointer;
@@ -252,7 +252,7 @@ namespace pcpp
 	 * ICMP redirect message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_redirect : icmphdr
 	{
 		/** an IPv4 address of the gateway to which the redirection should be sent */
 		uint32_t gatewayAddress;
@@ -294,7 +294,7 @@ namespace pcpp
 	 * ICMP router advertisement message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_router_advertisement_hdr : icmphdr
 	{
 		/** the number of router advertisements in this message. Each advertisement contains one router address/preference level pair */
 		uint8_t  advertisementCount;
@@ -331,7 +331,7 @@ namespace pcpp
 	 * ICMP address mask request message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_address_mask_request : icmphdr
 	{
 		/** the address mask request identifier */
 		uint16_t id;
@@ -355,7 +355,7 @@ namespace pcpp
 	 * ICMP information request message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct : icmphdr
+	typedef struct _icmp_info_request : icmphdr
 	{
 		/** the information request identifier */
 		uint16_t id;
@@ -741,7 +741,7 @@ namespace pcpp
 		// ICMP_PARAM_PROBLEM
 		if (type == 12)
 			return dataLen >= sizeof(icmp_param_problem);
-		
+
 		// ICMP_ROUTER_ADV
 		if (type == 9)
 			return dataLen >= sizeof(icmp_router_advertisement_hdr);
