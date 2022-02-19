@@ -44,7 +44,6 @@ namespace pcpp
                 currentOffset = buff.currentOffset + addition;
                 // "FF FF" means data continue
             } while (pos && (pos[1] == InterpretAsCommand) && (currentOffset < m_DataLen));
-            std::cout << buff.currentOffset << " / " << m_DataLen << " size: " << addition << std::endl;
             buff.hdrSize = addition;
             telnetCommandData.push_back(buff);
         } while (currentOffset < m_DataLen && pos);
