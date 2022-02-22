@@ -169,7 +169,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	// create the timeout
 	timespec timeout = {
 			now.tv_sec + arpTimeout,
-			now.tv_usec
+			static_cast<long>(now.tv_usec * 1000)
 	};
 
 	// start capturing. The capture is done on another thread, hence "arpPacketRecieved" is running on that thread
@@ -436,7 +436,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	// create the timeout
 	timespec timeout = {
 			now.tv_sec + dnsTimeout,
-			now.tv_usec
+			static_cast<long>(now.tv_usec * 1000)
 	};
 
 	// start capturing. The capture is done on another thread, hence "dnsResponseRecieved" is running on that thread
