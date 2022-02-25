@@ -7,6 +7,7 @@
 #include "Packet.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
+#include "IPv6Layer.h"
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
@@ -103,6 +104,14 @@ PTF_TEST_CASE(IPv4PacketParsing)
 
 	ipv4Layer = bogusPkt.getLayerOfType<pcpp::IPv4Layer>();
 	PTF_ASSERT_NULL(ipv4Layer);
+
+
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IPv4-encapsulated-IPv6.dat");
+	pcpp::Packet encapsulatedPkt(&rawPacket4, pcpp::IPv6);
+
+	pcpp::IPv6Layer *ipv6Layer = encapsulatedPkt.getLayerOfType<pcpp::IPv6Layer>();
+	PTF_ASSERT_NOT_NULL(ipv6Layer);
+
 } // Ipv4PacketParsing
 
 

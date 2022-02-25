@@ -275,7 +275,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	{
 		PCPP_LOG_ERROR(pcap_geterr(pcap));
 		pcap_close(pcap);
-		pcap = NULL;
+		return NULL;
 	}
 
 #ifdef HAS_SET_DIRECTION_ENABLED
