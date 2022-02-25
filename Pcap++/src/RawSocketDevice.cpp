@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
-#include <linux/if_ether.h>
+#include <netinet/if_ether.h>
 #include <netpacket/packet.h>
 #include <ifaddrs.h>
 #include <net/if.h>

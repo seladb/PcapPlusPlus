@@ -640,7 +640,7 @@ void PfRingDevice::getStatistics(PfRingStats& stats) const
 		if (!m_CoreConfiguration[coreId].IsInUse)
 			continue;
 
-		PfRingStats tempStat;
+		PfRingStats tempStat = {};
 		getThreadStatistics(SystemCores::IdToSystemCore[coreId], tempStat);
 		stats.drop += tempStat.drop;
 		stats.recv += tempStat.recv;
