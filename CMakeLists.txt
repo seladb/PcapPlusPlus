@@ -35,6 +35,9 @@ include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(DetectOS)
 include(GNUInstallDirs)
+set(PCAPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/pcapplusplus)
+set(PCAPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
+set(PCAPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
 
 # Build options
 option(PCAPPP_BUILD_EXAMPLES "Build Examples")
@@ -140,24 +143,11 @@ if(TARGET_COMPILER_CLANG OR TARGET_COMPILER_GCC)
 endif()
 
 add_subdirectory(3rdParty)
-
-if(PCAPPP_INSTALL)
-  install(
-    TARGETS light_pcapng
-    EXPORT PcapPlusPlusTargets
-    LIBRARY
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
-endif()
-
 add_subdirectory(Packet++)
 add_subdirectory(Pcap++)
 add_subdirectory(Common++)
 
 if(PCAPPP_BUILD_TESTS)
-  include(CTest)
-
   add_subdirectory(Tests)
 endif()
 
@@ -184,13 +174,13 @@ if(PCAPPP_INSTALL)
 
   install(
     EXPORT PcapPlusPlusTargets
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/PcapPlusPlus
+    DESTINATION ${PCAPP_INSTALL_CMAKEDIR}
     NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/PcapPlusPlus)
+    INSTALL_DESTINATION ${PCAPP_INSTALL_CMAKEDIR})
 
   write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
@@ -205,5 +195,5 @@ if(PCAPPP_INSTALL)
       ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake
       ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake
     COMPONENT dev
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/PcapPlusPlus)
+    DESTINATION ${PCAPP_INSTALL_CMAKEDIR})
 endif()

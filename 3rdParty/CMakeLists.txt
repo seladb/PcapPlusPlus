@@ -1,3 +1,5 @@
+include(FetchContent)
+
 add_subdirectory(dirent-for-Visual-Studio)
 add_subdirectory(EndianPortable)
 add_subdirectory(Getopt-for-Visual-Studio)
