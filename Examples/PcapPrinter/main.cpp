@@ -157,7 +157,7 @@ int printPcapPackets(pcpp::PcapFileReaderDevice* reader, std::ostream* out, int 
 		packetCountSoFar++;
 	}
 	
-	// return the nubmer of packets that were printed
+	// return the number of packets that were printed
 	return packetCountSoFar;
 }
 

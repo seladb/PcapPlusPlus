@@ -24,7 +24,7 @@ function HELP {
    echo "--pf-ring-home           --Sets PF_RING home directory. Use only when --pf-ring is set"
    echo ""
    echo "--dpdk                   --Setup PcapPlusPlus with DPDK. In this case you must also set --dpdk-home"
-   echo "--dpdk-home              --Sets DPDK home directoy. Use only when --dpdk is set"
+   echo "--dpdk-home              --Sets DPDK home directory. Use only when --dpdk is set"
    echo ""
    echo "--use-immediate-mode     --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
    echo ""
@@ -274,7 +274,7 @@ fi
 
 
 # function to extract DPDK major + minor version from <DPDK_HOM>/pkg/dpdk.spec file (older DPDK versions)
-# or from <DPDK_HOM>/VERSION file (newer DPDK versios)
+# or from <DPDK_HOM>/VERSION file (newer DPDK versions)
 # or from the rte_build_config.h
 # return: DPDK version (major + minor only)
 function get_dpdk_version() {
@@ -318,7 +318,7 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
    # set DPDK home to RTE_SDK variable in platform.mk
    echo -e "\n\nRTE_SDK := "$DPDK_HOME >> $PLATFORM_MK
 
-   # set USE_DPDK varaible in PcapPlusPlus.mk
+   # set USE_DPDK variable in PcapPlusPlus.mk
    sed -i "2s|^|USE_DPDK := 1\n\n|" $PCAPPLUSPLUS_MK
 
    # set DPDK home to RTE_SDK variable in PcapPlusPlus.mk

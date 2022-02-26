@@ -11,13 +11,13 @@
 /**
  * @file
  * @brief This file and KniDeviceList.h provide PcapPlusPlus C++ wrapper
- * for DPDK KNI (Kernel Network Interace) library (librte_kni).
+ * for DPDK KNI (Kernel Network Interface) library (librte_kni).
  * The main propose of the rte_kni library is to provide a way to forward
  * packets received by DPDK application to Linux kernel (a.e. to processes that
  * have opened some kind of a net socket) for further processing and to obtain
  * packets from Linux kernel. The KNI device is the bridge that accomplish the
  * translation between DPDK packets (mbuf) and Linux kernel/socket packets
- * (skbuf). Currently KNI devices report speeds upto 10 GBit/s.<BR>
+ * (skbuf). Currently KNI devices report speeds up to 10 GBit/s.<BR>
  * KNI device is a virtual network interface so it can be created and destroyed
  * programmatically at will. As a real network interface KNI deivice must
  * be managed appropriately like other interfaces. To start operate it MUST be
@@ -69,7 +69,7 @@
  *    requests automatically. Or user running the application don't have
  *    suitable access rights (must have CAP_NET_ADMIN).
  *
- * Usefull links:
+ * Useful links:
  *  - <a href="https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html">KNI interface concept DPDK documentation</a>
  *  - <a href="https://doc.dpdk.org/guides/nics/kni.html">KNI PMD</a>
  *  - <a href="https://doc.dpdk.org/guides/sample_app_ug/kernel_nic_interface.html">KNI DPDK sample application</a>
@@ -395,7 +395,7 @@ namespace pcpp
 		 * When one of events which is needed application attention occurres it must be handled by calling this
 		 * function (or by running RequestHandlerThread for this device).
 		 * Until the request is handled the Linux kernel thread that manages this KNI is blocked.
-		 * If it is not hanled by application in 3 seconds the request is reported to kernel as failed one.
+		 * If it is not handled by application in 3 seconds the request is reported to kernel as failed one.
 		 * Current known requests are:
 		 *  - change link state: ip l set [interface] up/down
 		 *  - change mtu: ip l set dev [interface] mtu [mtu_count]
@@ -410,7 +410,7 @@ namespace pcpp
 		 * @brief Starts new thread (using pthread) to asynchronously handle KNI device requests.
 		 * See description of handleRequests() about requests.
 		 * New thread is detached using pthread_detach.
-		 * This thread can be stoped explicitly by calling stopRequestHandlerThread() or
+		 * This thread can be stopped explicitly by calling stopRequestHandlerThread() or
 		 * implicitly on KNI device destruction.
 		 * Linux <a href="http://man7.org/linux/man-pages/man2/nanosleep.2.html">nanosleep()</a> function is used for sleeping.
 		 * @note Callbacks provided for this KNI device will be called asynchronously in new thread
@@ -424,7 +424,7 @@ namespace pcpp
 		 * See description of handleRequests() about requests.
 		 * @warning There may be a rare error when request thread handles requests on already
 		 * destroyed device. It occurres only because request thread is detached one but it is really really rare.
-		 * In case of this error occuring (must be SIGSEGV) change type of created thread in startRequestHandlerThread
+		 * In case of this error occurring (must be SIGSEGV) change type of created thread in startRequestHandlerThread
 		 * function from DETACHED to JOINABLE.
 		 */
 		void stopRequestHandlerThread();

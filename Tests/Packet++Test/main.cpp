@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 	#endif
 
-	// The logger singelton looks like a memory leak. Invoke it before starting the memory check
+	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
 	pcpp::Logger::getInstance();
 	
 	if (skipMemLeakCheck)
