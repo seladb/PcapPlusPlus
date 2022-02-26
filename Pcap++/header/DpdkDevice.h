@@ -349,7 +349,7 @@ namespace pcpp
 			/** TX statistics, aggregated for all TX queues */
 			RxTxStats aggregatedTxStats;
 			/** Total number of RX packets dropped by H/W because there are no available buffers (i.e RX queues are full) */
-			uint64_t rxPacketsDropeedByHW;
+			uint64_t rxPacketsDroppedByHW;
 			/** Total number of erroneous packets */
 			uint64_t rxErroneousPackets;
 			/** Total number of RX mbuf allocation failuers */
