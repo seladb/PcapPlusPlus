@@ -33,8 +33,8 @@
  * Changes of each of this settings generates an event/request that must be
  * handled by an application that have created the KNI device in 3 second
  * period or it will be rejected and Linux kernel will not apply the change.
- * The way that this requests MUST be handeled is defined by DPDK and so for
- * each type of request the application tht creates the KNI device must provide
+ * The way that this requests MUST be handled is defined by DPDK and so for
+ * each type of request the application that creates the KNI device must provide
  * the callback function to call. This callbacks are set in time of KNI device
  * creation via KniIoctlCallbacks or KniOldIoctlCallbacks structures (the
  * structure used is dependent on DPDK version).<BR>
@@ -114,7 +114,7 @@ namespace pcpp
 	 *    calls to synchronous API (send/receive methods) or asynchronously by
 	 *    running capturing thread using KniDevice#startCapture;
 	 *  - KNI device will be destroyed or implicitly on application exit. User must assure
-	 *    that NO OTHER linux application is using KNI device when and after it is beeing
+	 *    that NO OTHER linux application is using KNI device when and after it is being
 	 *    destroyed otherwise Linux kernel may crush dramatically.
 	 */
 	class KniDevice : public IDevice
@@ -403,7 +403,7 @@ namespace pcpp
 		 *  - change promiscuous mode: ip l set [interface] promisc on/off
 		 * @warning Functions setLinkState, setMacAddress, setMtu and setPromiscuous will generate this requests.
 		 * @note Callbacks provided for this KNI device will be called synchronously in calling thread during execution of this function
-		 * @return true if no error happend during request handling false otherwise
+		 * @return true if no error happened during request handling false otherwise
 		 */
 		bool handleRequests();
 		/**
