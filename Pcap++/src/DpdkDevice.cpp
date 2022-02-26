@@ -701,7 +701,7 @@ void DpdkDevice::getStatistics(DpdkDeviceStats& stats) const
 	stats.timestamp = timestamp;
 	stats.rxErroneousPackets = rteStats.ierrors;
 	stats.rxMbufAlocFailed = rteStats.rx_nombuf;
-	stats.rxPacketsDropeedByHW = rteStats.imissed;
+	stats.rxPacketsDroppedByHW = rteStats.imissed;
 	stats.aggregatedRxStats.packets = rteStats.ipackets;
 	stats.aggregatedRxStats.bytes = rteStats.ibytes;
 	stats.aggregatedRxStats.packetsPerSec = (stats.aggregatedRxStats.packets - m_PrevStats.aggregatedRxStats.packets) / secsElapsed;
