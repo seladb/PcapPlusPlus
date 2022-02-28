@@ -81,7 +81,7 @@ task:
   configure_script:
     - ./configure-linux.sh --default
   build_script: 
-    - make all
+    - make libs
   build_documentation_script:
     - cd pcapplusplus.github.io/api-docs/doxygen
     - doxygen Doxyfile-ci
