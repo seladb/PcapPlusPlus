@@ -5,7 +5,7 @@ This application demonstrates how to create a bridge between two network devices
 It listens to two DPDK ports (a.k.a DPDK devices), and forwards all the traffic received on one port to the other, acting like a L2 bridge. 
 
 The application is very similar to [DPDK's L2 forwarding example](https://doc.dpdk.org/guides/sample_app_ug/l2_forward_real_virtual.html) 
-and demonstrates how to achieve the same functionally with PcapPlusPlus using less and easier to understand C++ code.
+and demonstrates how to achieve the same functionality with PcapPlusPlus using less and easier to understand C++ code.
 
 The application uses the concept of worker threads. It creates 2 worker threads running in an endless loop (as long as the app is running): 
 one for receiving packets on NIC#1 and sending them to NIC#2, and another for receiving packets on NIC#2 and sending them to NIC#1.
