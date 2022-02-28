@@ -26,6 +26,9 @@ jobs:
             test-flags: -s
           - image: fedora34
             python: python3
+          - image: alpine315
+            python: python3
+            configure: --musl
 
     steps:
       - name: Checkout code
@@ -33,7 +36,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: ./configure-linux.sh --default
+        run: ./configure-linux.sh --default ${{ matrix.configure }}
 
       - name: Build PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
