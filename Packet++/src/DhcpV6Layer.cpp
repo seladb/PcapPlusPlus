@@ -163,7 +163,7 @@ DhcpV6Option DhcpV6Layer::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, 
 	DhcpV6Option newOpt = optionBuilder.build();
 	if (newOpt.isNull())
 	{
-		LOG_ERROR("Cannot build new option");
+		PCPP_LOG_ERROR("Cannot build new option");
 		return DhcpV6Option(NULL);
 	}
 
@@ -171,7 +171,7 @@ DhcpV6Option DhcpV6Layer::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, 
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
+		PCPP_LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
 		return DhcpV6Option(NULL);
 	}
 
@@ -199,7 +199,7 @@ DhcpV6Option DhcpV6Layer::addOptionAfter(const DhcpV6OptionBuilder& optionBuilde
 
 	if (prevOpt.isNull())
 	{
-		LOG_ERROR("Option type " << optionType << " doesn't exist in layer");
+		PCPP_LOG_ERROR("Option type " << optionType << " doesn't exist in layer");
 		return DhcpV6Option(NULL);
 	}
 	offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
@@ -214,7 +214,7 @@ DhcpV6Option DhcpV6Layer::addOptionBefore(const DhcpV6OptionBuilder& optionBuild
 
 	if (nextOpt.isNull())
 	{
-		LOG_ERROR("Option type " << optionType << " doesn't exist in layer");
+		PCPP_LOG_ERROR("Option type " << optionType << " doesn't exist in layer");
 		return DhcpV6Option(NULL);
 	}
 
