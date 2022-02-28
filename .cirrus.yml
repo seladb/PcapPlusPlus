@@ -78,22 +78,9 @@ task:
     - GITHUB_TOKEN: ENCRYPTED[ab88249da2005c70f25f5910b08e907139f73bc0efb31a19b33f832e9e3bffe3cfc8e81932f21d7734c7aceca2a77188]
   get_code_script:
     - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
-    - if [[ $CIRRUS_BRANCH = pull/* ]]; then
-        echo "Cloning for a PR";
-        echo $CIRRUS_BASE_BRANCH;
-        echo $CIRRUS_REPO_CLONE_URL;
-        git clone -b $CIRRUS_BASE_BRANCH $CIRRUS_REPO_CLONE_URL;
-      else
-        echo "Cloning for the main repo";
-        echo $CIRRUS_BRANCH;
-        echo $CIRRUS_REPO_CLONE_URL;
-        git clone -b $CIRRUS_BRANCH $CIRRUS_REPO_CLONE_URL;
-      fi
   configure_script:
-    - cd PcapPlusPlus
     - ./configure-linux.sh --default
   build_script: 
-    - cd PcapPlusPlus
     - make all
   build_documentation_script:
     - cd pcapplusplus.github.io/api-docs/doxygen
@@ -108,5 +95,5 @@ task:
       git config user.email "${GITHUB_EMAIL}"
       git add .
       git commit -m "Update API documentation for commit ${CIRRUS_CHANGE_IN_REPO}"
-      git push --quiet "https://${GITHUB_TOKEN}@github.com/PcapPlusPlus/pcapplusplus.github.io" master      
+      git push --quiet "https://${GITHUB_TOKEN}@github.com/PcapPlusPlus/pcapplusplus.github.io" master
     fi
