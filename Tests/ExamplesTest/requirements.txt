@@ -1,6 +1,5 @@
 attrs==21.4.0
 iniconfig==1.1.1
-packaging==21.3
 py==1.11.0
 pyparsing==3.0.7
 pytest==6.2.5
