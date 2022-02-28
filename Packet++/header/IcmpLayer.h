@@ -143,7 +143,7 @@ namespace pcpp
 	 * @struct icmp_echo_request
 	 * ICMP echo (ping) request/reply message structure
 	 */
-	typedef struct icmp_echo_request_t
+	typedef struct icmp_echo_request
 	{
 		/** a pointer to the header data */
 		icmp_echo_hdr* header;
