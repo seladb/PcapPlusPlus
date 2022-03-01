@@ -29,6 +29,13 @@ EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint1
 	m_Protocol = Ethernet;
 }
 
+void EthLayer::createResponse()
+{
+  pcpp::MacAddress etmp = getSourceMac();
+  setSourceMac(getDestMac());
+  setDestMac(etmp);
+}
+
 void EthLayer::parseNextLayer()
 {
 	if (m_DataLen <= sizeof(ether_header))
