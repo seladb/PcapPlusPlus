@@ -218,7 +218,7 @@ namespace pcpp
 
 
 	/**
-	 * Covert a core mask into a vector of its appropriate system cores
+	 * Convert a core mask into a vector of its appropriate system cores
 	 * @param[in] coreMask The input core mask
 	 * @param[out] resultVec The vector that will contain the system cores
 	 */

@@ -34,7 +34,7 @@ struct bpf_program;
 */
 namespace pcpp
 {
-	//Forward Declartation - used in GeneralFilter
+	//Forward Declaration - used in GeneralFilter
 	class RawPacket;
 
 	/**
@@ -784,18 +784,18 @@ namespace pcpp
 		/**
 		 * A constructor that get the UDP length and operator and creates the filter. For example: "filter all UDP packets with length
 		 * greater or equal to 500"
-		 * @param[in] legnth The length value that will be used in the filter
+		 * @param[in] length The length value that will be used in the filter
 		 * @param[in] op The operator to use (e.g "equal", "greater than", etc.)
 		 */
-		UdpLengthFilter(uint16_t legnth, FilterOperator op) : IFilterWithOperator(op), m_Length(legnth) {}
+		UdpLengthFilter(uint16_t length, FilterOperator op) : IFilterWithOperator(op), m_Length(length) {}
 
 		void parseToString(std::string& result);
 
 		/**
-		 * Set legnth value
-		 * @param[in] legnth The legnth value that will be used in the filter
+		 * Set length value
+		 * @param[in] length The length value that will be used in the filter
 		 */
-		void setLength(uint16_t legnth) { m_Length = legnth; }
+		void setLength(uint16_t length) { m_Length = length; }
 	};
 
 } // namespace pcpp

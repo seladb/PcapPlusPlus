@@ -394,7 +394,7 @@ namespace pcpp
 		GtpExtension getNextExtension() const;
 
 		/**
-		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in legnth and its content is 2 bytes in length. 
+		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in length and its content is 2 bytes in length. 
 		 * If you need a different content size please reach out to me. This method takes care of extending the layer to make room for
 		 * the new extension and also sets the relevant flags and fields
 		 * @param[in] extensionType The type of the new extension

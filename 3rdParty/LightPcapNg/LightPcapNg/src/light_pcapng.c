@@ -41,7 +41,7 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
    else {
       struct _light_option *opt = calloc(1, sizeof(struct _light_option));
       uint16_t actual_length;
-      uint16_t allignment = sizeof(uint32_t);
+      uint16_t alignment = sizeof(uint32_t);
 
       uint16_t *local_memory = (uint16_t*)*memory;
       uint16_t remaining_size;
@@ -49,14 +49,14 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
       opt->custom_option_code = *local_memory++;
       opt->option_length = *local_memory++;
 
-      actual_length = (opt->option_length % allignment) == 0 ?
+      actual_length = (opt->option_length % alignment) == 0 ?
             opt->option_length :
-            (opt->option_length / allignment + 1) * allignment;
+            (opt->option_length / alignment + 1) * alignment;
 
       if (actual_length > 0) {
          opt->data = calloc(1, actual_length);
          memcpy(opt->data, local_memory, actual_length);
-         local_memory += (sizeof(**memory) / sizeof(*local_memory)) * (actual_length / allignment);
+         local_memory += (sizeof(**memory) / sizeof(*local_memory)) * (actual_length / alignment);
       }
 
       *memory = (uint32_t*)local_memory;
@@ -351,7 +351,7 @@ void light_read_record(light_file fd, light_pcapng *record)
       return;
    }
 
-   //This funciton needs a pointer to the "start" of the block which we don't actually have, but the block body always just has 8 bytes before it
+   //This function needs a pointer to the "start" of the block which we don't actually have, but the block body always just has 8 bytes before it
    //So we just cheat by decrementing the data pointer back 8 bytes;
    parse_by_block_type(current, local_data, local_data - 2);
 

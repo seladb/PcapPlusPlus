@@ -175,7 +175,7 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	pcpp::Packet ipv6MultipleOptions(&rawPacket6);
 
 
-	// parsing of Destionation extension
+	// parsing of Destination extension
 	pcpp::IPv6Layer* ipv6Layer = ipv6Dest.getLayerOfType<pcpp::IPv6Layer>();
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionCount(), 1);
 	pcpp::IPv6HopByHopHeader* hopByHopExt = ipv6Layer->getExtensionOfType<pcpp::IPv6HopByHopHeader>();

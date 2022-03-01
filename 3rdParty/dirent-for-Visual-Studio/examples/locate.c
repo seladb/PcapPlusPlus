@@ -71,7 +71,7 @@ main(
             /* Find files matching pattern */
             count = db_locate (buffer);
 
-            /* Output warnign if string is not found */
+            /* Output warning if string is not found */
             if (count == 0) {
                 wprintf (L"%s not found\n", buffer);
             }

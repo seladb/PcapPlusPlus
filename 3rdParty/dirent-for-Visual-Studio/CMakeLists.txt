@@ -8,7 +8,7 @@ if (WIN32)
     include_directories (${CMAKE_SOURCE_DIR}/include)
     install (FILES include/dirent.h DESTINATION include)
 else()
-    cmake_policy(SET CMP0037 OLD) # Supress warnings about fake install
+    cmake_policy(SET CMP0037 OLD) # Suppress warnings about fake install
     add_custom_target(install) # Fake install target
 endif()
 

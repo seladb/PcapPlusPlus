@@ -610,7 +610,7 @@ public:
 	 * @return Handshake SSL/TLS version (notice it may be different than SSLLayer#getRecordVersion(). Each client-hello
 	 * or server-hello message has both record version and handshake version and they may differ from one another).
 	 * 
-	 * <b>NOTE:</b> for TLS 1.3 the hanshake version written in ssl_tls_client_server_hello::handshakeVersion is still TLS 1.2,
+	 * <b>NOTE:</b> for TLS 1.3 the handshake version written in ssl_tls_client_server_hello::handshakeVersion is still TLS 1.2,
 	 * so a special check is made here see if a SupportedVersions extension exists and if so extract the version from it.
 	 * This is the most straight-forward way to detect TLS 1.3.
 	 */
@@ -693,7 +693,7 @@ public:
 	TExtension* getExtensionOfType() const;
 
 	/**
-	 * ServerHello TLS fingerprinting is a way to fingerprint TLS Server Hello messages. In conjuction with
+	 * ServerHello TLS fingerprinting is a way to fingerprint TLS Server Hello messages. In conjunction with
 	 * ClientHello TLS fingerprinting it can assist in identifying specific client-server communication (for
 	 * example: a malware connecting to its backend server).
 	 * ServerHello TLS fingerprinting was introduced in Salesforce's JA3S open source project: 

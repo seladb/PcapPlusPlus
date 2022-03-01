@@ -8,7 +8,7 @@ http://www.unixist.com/security/data-transfer-over-icmp/index.html
 When is it needed?
 ------------------
 Mostly in cases you don't have a standard file-transfer access between machines. Sometimes it's because of security reasons, sometimes for other reasons. But in many of these cases ICMP (ping requests/replies) is enabled and not blocked.
-So it's possible to use ICMP echo (ping) messages to create a file transfer capability between thses machines. Of course this method doesn't have the speed and reliability of standard file-transfer protocols (such as SMB),
+So it's possible to use ICMP echo (ping) messages to create a file transfer capability between these machines. Of course this method doesn't have the speed and reliability of standard file-transfer protocols (such as SMB),
 but it can provide a basic file transfer capability in places you have no other choice.
 
 How does it work?

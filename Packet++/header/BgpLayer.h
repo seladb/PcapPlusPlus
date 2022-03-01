@@ -22,7 +22,7 @@ namespace pcpp
 
 /**
  * @class BgpLayer
- * Represents Border Gateway Protocol (BGP) v4 protocol layer. This is an abstract class that cannot be instanciated,
+ * Represents Border Gateway Protocol (BGP) v4 protocol layer. This is an abstract class that cannot be instantiated,
  * and contains functionality which is common to all BGP message types.
  */
 class BgpLayer : public Layer
@@ -120,7 +120,7 @@ public:
 
 protected:
 
-	// protected c'tors, this class cannot be instanciated by users
+	// protected c'tors, this class cannot be instantiated by users
 	BgpLayer() {}
 	BgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = BGP; }
 
@@ -225,20 +225,20 @@ public:
 	void setBgpId(const IPv4Address& newBgpId);
 
 	/**
-	 * Get a vector of the optional paramters in the message
+	 * Get a vector of the optional parameters in the message
 	 * @param[out] optionalParameters The vector where the optional parameters will be written to. This method doesn't remove any
 	 * existing data on this vector before pushing data to it 
 	 */
 	void getOptionalParameters(std::vector<optional_parameter>& optionalParameters);
 
 	/**
-	 * @return The length in [bytes] of the optional paramters data in the message
+	 * @return The length in [bytes] of the optional parameters data in the message
 	 */
 	size_t getOptionalParametersLength();
 
 	/**
 	 * Set optional parameters in the message. This method will override all existing optional parameters currently in the message. 
-	 * If the input is an empty vector all optional parameters will be cleared. This method autmatically sets the 
+	 * If the input is an empty vector all optional parameters will be cleared. This method automatically sets the 
 	 * bgp_common_header#length and the bgp_open_message#optionalParameterLength fields on the message
 	 * @param[in] optionalParameters A vector of new optional parameters to set in the message
 	 * @return True if all optional parameters were set successfully or false otherwise. In case of an error an appropriate message
@@ -369,7 +369,7 @@ public:
 
 	/**
 	 * Set Withdrawn Routes in this message. This method will override any existing Withdrawn Routes in the message. 
-	 * If the input is an empty vector all Withdrawn Routes will be removed. This method autmatically sets the 
+	 * If the input is an empty vector all Withdrawn Routes will be removed. This method automatically sets the 
 	 * bgp_common_header#length and the Withdrawn Routes length fields in the message
 	 * @param[in] withdrawnRoutes New Withdrawn Routes to set in the message
 	 * @return True if all Withdrawn Routes were set successfully or false otherwise. In case of an error an appropriate message
@@ -398,7 +398,7 @@ public:
 
 	/**
 	 * Set Path Attributes in this message. This method will override any existing Path Attributes in the message. 
-	 * If the input is an empty vector all Path Attributes will be removed. This method autmatically sets the 
+	 * If the input is an empty vector all Path Attributes will be removed. This method automatically sets the 
 	 * bgp_common_header#length and the Path Attributes length fields in the message
 	 * @param[in] pathAttributes New Path Attributes to set in the message
 	 * @return True if all Path Attributes were set successfully or false otherwise. In case of an error an appropriate message
@@ -427,7 +427,7 @@ public:
 
 	/**
 	 * Set NLRI data in this message. This method will override any existing NLRI data in the message.
-	 * If the input is an empty vector all NLRI data will be removed. This method autmatically sets the
+	 * If the input is an empty vector all NLRI data will be removed. This method automatically sets the
 	 * bgp_common_header#length field in the message
 	 * @param[in] nlri New NLRI data to set in the message
 	 * @return True if all NLRI data was set successfully or false otherwise. In case of an error an appropriate message

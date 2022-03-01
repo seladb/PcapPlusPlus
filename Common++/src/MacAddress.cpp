@@ -31,7 +31,7 @@ void MacAddress::init(const char* addr)
 			++addr; // ignore the ":" char
 		m_Address[i] = static_cast<uint8_t>(strtol(byte, NULL, 16));
 
-		// The strtol function returns zero value in two cases: when an error occures or the string '00' is converted.
+		// The strtol function returns zero value in two cases: when an error occurs or the string '00' is converted.
 		// This code verifies that it's the second case.
 		if(m_Address[i] == 0 && (byte[0] != '0' || byte[1] != '0'))
 		{

@@ -48,7 +48,7 @@ if "%PCAP_SDK_HOME:~-1%"=="/" set PCAP_SDK_HOME=%PCAP_SDK_HOME:~,-1%
 if exist %PLATFORM_MK% (del %PLATFORM_MK%)
 if exist %PCAPPLUSPLUS_MK% (del %PCAPPLUSPLUS_MK%)
 
-:: set directories varaibles in platform.mk
+:: set directories variables in platform.mk
 set CUR_DIR=%cd:\=/%
 echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PLATFORM_MK%
 echo. >> %PLATFORM_MK%
@@ -63,7 +63,7 @@ echo. >> %PLATFORM_MK%
 type mk\platform.mk.%MINGW_TYPE% >> %PLATFORM_MK%
 
 
-:: set directories varaibles in PcapPlusPlus.mk
+:: set directories variables in PcapPlusPlus.mk
 echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PCAPPLUSPLUS_MK%
 echo. >> %PCAPPLUSPLUS_MK%
 echo MINGW_HOME := %MINGW_HOME%>> %PCAPPLUSPLUS_MK%
@@ -88,7 +88,7 @@ exit /B 0
 
 :: -------------------------------------------------------------------
 :: an implementation of getopt for Windows and specifically for PcapPlusPlus
-:: this "function" takes as paramters all command-line arguments given by the user who runs the script
+:: this "function" takes as parameters all command-line arguments given by the user who runs the script
 :: then it parses the command-line arguments and calls switch cases per argument
 :: it returns with the following exit codes:
 ::   - exit code 0 if arguments were parsed ok
@@ -100,7 +100,7 @@ exit /B 0
 if "%1"=="" call :GETOPT_ERROR "No parameters provided" & exit /B 1
 
 :GETOPT_START
-:: the HAS_PARAM varaible states whether the switch has a parameter, for example '-a 111' means switch '-a' has the parameter '111'
+:: the HAS_PARAM variable states whether the switch has a parameter, for example '-a 111' means switch '-a' has the parameter '111'
 :: initially this variable is set to 0
 set HAS_PARAM=0
 
@@ -114,7 +114,7 @@ if ERRORLEVEL 3 exit /B 3
 :: ERRORLEVEL 2 means the current switch doesn't have a required parameter. Return this error code to the caller
 if ERRORLEVEL 2 exit /B 2
 :: ERRORLEVEL 1 means the switch is unknown (no case was found for it). Return this error code to the caller
-if ERRORLEVEL 1 call :GETOPT_ERROR "Unkown parameter %1" & exit /B 1
+if ERRORLEVEL 1 call :GETOPT_ERROR "Unknown parameter %1" & exit /B 1
 
 :: shift-left the command-line arguments, meaning put %2 in %1, %3 in %2, %4 in %3 and so on. This way %1 always holds the next switch to parse and handle
 shift /1

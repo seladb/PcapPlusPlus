@@ -30,7 +30,7 @@ namespace pcpp
 		 * All threads running on this device are stopped (request and/or capturing).
 		 * The device can no longer be found by it's name or id.
 		 * @warning NOT MT SAFE
-		 * @warning This method is forbiden as the result of discussion about packet memory pool
+		 * @warning This method is forbidden as the result of discussion about packet memory pool
 		 * lifetime made <a href="https://github.com/seladb/PcapPlusPlus/pull/196#discussion_r286649704">here</a>.
 		 * If You feel safe to use it please do, but no guarantee is provided.
 		 * @param[in] kniDevice KNI device to be destroyed explicitly

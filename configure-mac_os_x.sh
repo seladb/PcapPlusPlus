@@ -132,7 +132,7 @@ PCAPPLUSPLUS_MK="mk/PcapPlusPlus.mk"
 cp -f mk/platform.mk.macosx $PLATFORM_MK
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
 
-# set SDK home if MacOS verion >= 10.14
+# set SDK home if MacOS version >= 10.14
 MACOS_SDK_HOME="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 MACOS_MINOR_VERSION=`(sw_vers -productVersion) | awk -F '.' '{print $2}'`
 if [[ $MACOS_MINOR_VERSION -ge 14 ]]; then

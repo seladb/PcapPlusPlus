@@ -46,7 +46,7 @@ int main(int argc, const char **args) {
 			size_t i;
 			light_pcapng_historgram(pcapng, key_master, &histogram, &length, &uncounted);
 
-			printf("Histogram for %s: %zu classes, %zu items rejected. See <key, value> bellow:\n", file, length, uncounted);
+			printf("Histogram for %s: %zu classes, %zu items rejected. See <key, value> below:\n", file, length, uncounted);
 			for (i = 0; i < length; ++i) {
 				printf("<0x%8X, %12u>\n", histogram[i].key, histogram[i].val);
 			}

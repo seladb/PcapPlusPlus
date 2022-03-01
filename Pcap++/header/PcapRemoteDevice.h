@@ -131,7 +131,7 @@ namespace pcpp
 		 * and provided). If this methods succeeds it means the connection to the remote daemon succeeded and the device is ready for use.
 		 * As in PcapLiveDevice, packet capturing won't start yet. For packet capturing the user should call startCapture(). This implies
 		 * that calling this method is a must before calling startCapture() (otherwise startCapture() will fail with a "device not open" error).
-		 * The remote deamon is asked to capture packets in promiscuous mode
+		 * The remote daemon is asked to capture packets in promiscuous mode
 		 * @return True if the device was opened successfully, false otherwise. When opening the device fails an error will be printed to log
 		 * as well, including the WinPcap/Npcap error if exists
 		 */

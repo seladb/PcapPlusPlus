@@ -972,7 +972,7 @@ def do_restore(dpdk_module, interfaces, interface_infos, settings, kni_module=No
         if kni_module:
             remove_kni_module(settings)
     except PermissionError:
-        logger.error("insufficient privileges. Please run this utlity as 'sudo'")
+        logger.error("insufficient privileges. Please run this utility as 'sudo'")
         raise
     except Exception as exc:
         logger.error("error restoring system: %s", exc)
@@ -1001,7 +1001,7 @@ def handle_setup(args, settings):
         bind_interfaces(args.dpdk_module, args.interface, interface_infos, settings)
         logger.info("SETUP COMPLETE")
     except PermissionError:
-        logger.error("insufficient privileges. Please run this utlity as 'sudo'")
+        logger.error("insufficient privileges. Please run this utility as 'sudo'")
         raise
     except Exception as exc:
         logger.error(exc)
