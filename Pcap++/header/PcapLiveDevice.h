@@ -8,7 +8,7 @@
 #include "IpAddress.h"
 #include "Packet.h"
 
-// forward declerations for structs and typedefs that are defined in pcap.h
+// forward declarations for structs and typedefs that are defined in pcap.h
 struct pcap_if;
 typedef pcap_if pcap_if_t;
 struct pcap_addr;

@@ -469,7 +469,7 @@ namespace pcpp
 	};
 
 	/**
-	 * SSL/TLS hashing algortihms
+	 * SSL/TLS hashing algorithms
 	 */
 	enum SSLHashingAlgorithm
 	{
@@ -566,7 +566,7 @@ namespace pcpp
 		SSL_EXT_CERTIFICATE_AUTHORITIES = 47,
 		/** Old filters extension (TLS 1.3) */
 		SSL_EXT_OLD_FILTERS = 48,
-		/** Post hanshake auth extension (TLS 1.3) */
+		/** Post handshake auth extension (TLS 1.3) */
 		SSL_EXT_POST_HANDSHAKE_AUTH = 49,
 		/** Signature algorithm cert extension (TLS 1.3) */
 		SSL_EXT_SIGNATURE_ALGORITHM_CERT = 50,

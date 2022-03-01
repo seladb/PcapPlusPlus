@@ -869,7 +869,7 @@ bool BgpNotificationMessageLayer::setNotificationData(const std::string& newNoti
 
 	if (newNotificationDataLen == 0)
 	{
-		PCPP_LOG_ERROR("newNotificationDataAsHexString is not a valid hex sting");
+		PCPP_LOG_ERROR("newNotificationDataAsHexString is not a valid hex string");
 		return false;
 	}
 

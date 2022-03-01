@@ -51,12 +51,12 @@ Reassemble only fragments with source IP of 10.0.0.1. Only the reassembled packe
 
 	IPDefragUtil mypcap.pcap -o output.pcap -f "ip src 10.0.0.1"
 	
-Reassemble only fragments with source IP of 10.0.0.1. All packets in mypcap.pcapng will be writen to output file: both those matching the 
+Reassemble only fragments with source IP of 10.0.0.1. All packets in mypcap.pcapng will be written to output file: both those matching the 
 filter (and reassembled) and those who don't:  
 
 	IPDefragUtil mypcap.pcapng -o output.pcapng f "src ip 10.0.0.1" -a
 
-Reassemble only fragments with source IP of 10.0.0.1 and IP ID of 123. All packets in mypcap.pcapng will be writen to output file: both those
+Reassemble only fragments with source IP of 10.0.0.1 and IP ID of 123. All packets in mypcap.pcapng will be written to output file: both those
 matching the filter (and fragmented) and those who don't:  
 
 	IPDefragUtil mypcap.pcapng -o output.pcapng -f "src ip 10.0.0.1" -d 123 -a

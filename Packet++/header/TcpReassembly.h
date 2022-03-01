@@ -241,7 +241,7 @@ public:
 		 * 1. An in-order TCP packet, meaning `packet_sequence == sequence_expected`. 
 		 *    Note if there's any buffered out-of-order packet waiting for this packet, their associated callbacks are called in this `reassemblePacket` call.
 		 * 2. An out-of-order TCP packet which satisfy `packet_sequence < sequence_expected && packet_sequence + packet_payload_length > sequence_expected`. 
-		 *    Note only the new data (the `[sequence_expected, packet_sequence + packet_payload_length]` part ) is processed by `OnMessageReadyCallback` callback funtion.
+		 *    Note only the new data (the `[sequence_expected, packet_sequence + packet_payload_length]` part ) is processed by `OnMessageReadyCallback` callback function.
 		 */
 		TcpMessageHandled,
 		/**
