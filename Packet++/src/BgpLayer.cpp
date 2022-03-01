@@ -166,7 +166,7 @@ size_t BgpOpenMessageLayer::optionalParamsToByteArray(const std::vector<optional
 	{
 		if (iter->length > 32)
 		{
-			LOG_ERROR("Illegal optional parameter length " << (int)iter->length << ", must be 32 bytes or less");
+			PCPP_LOG_ERROR("Illegal optional parameter length " << (int)iter->length << ", must be 32 bytes or less");
 			break; // illegal value
 		}
 
@@ -232,7 +232,7 @@ void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>&
 
 		if (op.length > optionalParamsLen - byteCount)
 		{
-			LOG_ERROR("Optional parameter length is out of bounds: " << (int)op.length);
+			PCPP_LOG_ERROR("Optional parameter length is out of bounds: " << (int)op.length);
 			break;
 		}
 
@@ -270,7 +270,7 @@ bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_param
 		bool res = extendLayer(sizeof(bgp_open_message), newOptionalParamsDataLen - curOptionalParamsDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
+			PCPP_LOG_ERROR("Couldn't extend BGP open layer to include the additional optional parameters");
 			return res;
 		}
 	}
@@ -279,7 +279,7 @@ bool BgpOpenMessageLayer::setOptionalParameters(const std::vector<optional_param
 		bool res = shortenLayer(sizeof(bgp_open_message), curOptionalParamsDataLen - newOptionalParamsDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
+			PCPP_LOG_ERROR("Couldn't shorten BGP open layer to set the right size of the optional parameters data");
 			return res;
 		}
 	}
@@ -396,7 +396,7 @@ void BgpUpdateMessageLayer::parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLe
 		}
 		else
 		{
-			LOG_DEBUG("Illegal prefix value " << (int)wr.prefix);
+			PCPP_LOG_DEBUG("Illegal prefix value " << (int)wr.prefix);
 			break; // illegal value
 		}
 
@@ -449,7 +449,7 @@ size_t BgpUpdateMessageLayer::prefixAndIPDataToByteArray(const std::vector<prefi
 		}
 		else
 		{
-			LOG_ERROR("Illegal prefix value " << (int)iter->prefix);
+			PCPP_LOG_ERROR("Illegal prefix value " << (int)iter->prefix);
 			break; // illegal value
 		}
 
@@ -480,7 +480,7 @@ size_t BgpUpdateMessageLayer::pathAttributesToByteArray(const std::vector<path_a
 	{
 		if (iter->length > 32)
 		{
-			LOG_ERROR("Illegal path attribute length " << (int)iter->length);
+			PCPP_LOG_ERROR("Illegal path attribute length " << (int)iter->length);
 			break; // illegal value
 		}
 
@@ -566,7 +566,7 @@ bool BgpUpdateMessageLayer::setWithdrawnRoutes(const std::vector<prefix_and_ip>&
 		bool res = extendLayer(sizeof(bgp_common_header) + sizeof(uint16_t), newWithdrawnRoutesDataLen - curWithdrawnRoutesDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't extend BGP update layer to include the additional withdrawn routes");
+			PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional withdrawn routes");
 			return res;
 		}
 	}
@@ -575,7 +575,7 @@ bool BgpUpdateMessageLayer::setWithdrawnRoutes(const std::vector<prefix_and_ip>&
 		bool res = shortenLayer(sizeof(bgp_common_header) + sizeof(uint16_t), curWithdrawnRoutesDataLen - newWithdrawnRoutesDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the withdrawn routes data");
+			PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the withdrawn routes data");
 			return res;
 		}
 	}
@@ -639,7 +639,7 @@ bool BgpUpdateMessageLayer::setPathAttributes(const std::vector<path_attribute>&
 		bool res = extendLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen, newPathAttributesDataLen - curPathAttributesDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't extend BGP update layer to include the additional path attributes");
+			PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional path attributes");
 			return res;
 		}
 	}
@@ -648,7 +648,7 @@ bool BgpUpdateMessageLayer::setPathAttributes(const std::vector<path_attribute>&
 		bool res = shortenLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen, curPathAttributesDataLen - newPathAttributesDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the path attributes data");
+			PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the path attributes data");
 			return res;
 		}
 	}
@@ -716,7 +716,7 @@ bool BgpUpdateMessageLayer::setNetworkLayerReachabilityInfo(const std::vector<pr
 		bool res = extendLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen + curPathAttributesDataLen, newNlriDataLen - curNlriDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
+			PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
 			return res;
 		}
 	}
@@ -725,7 +725,7 @@ bool BgpUpdateMessageLayer::setNetworkLayerReachabilityInfo(const std::vector<pr
 		bool res = shortenLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen + curPathAttributesDataLen, curNlriDataLen - newNlriDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the NLRI data");
+			PCPP_LOG_ERROR("Couldn't shorten BGP update layer to set the right size of the NLRI data");
 			return res;
 		}
 	}
@@ -833,7 +833,7 @@ bool BgpNotificationMessageLayer::setNotificationData(const uint8_t* newNotifica
 		bool res = extendLayer(sizeof(bgp_notification_message), newNotificationDataLen - curNotificationDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't extend BGP notification layer to include the additional notification data");
+			PCPP_LOG_ERROR("Couldn't extend BGP notification layer to include the additional notification data");
 			return res;
 		}
 	}
@@ -842,7 +842,7 @@ bool BgpNotificationMessageLayer::setNotificationData(const uint8_t* newNotifica
 		bool res = shortenLayer(sizeof(bgp_notification_message), curNotificationDataLen - newNotificationDataLen);
 		if (!res)
 		{
-			LOG_ERROR("Couldn't shorten BGP notification layer to set the right size of the notification data");
+			PCPP_LOG_ERROR("Couldn't shorten BGP notification layer to set the right size of the notification data");
 			return res;
 		}
 	}
@@ -869,7 +869,7 @@ bool BgpNotificationMessageLayer::setNotificationData(const std::string& newNoti
 
 	if (newNotificationDataLen == 0)
 	{
-		LOG_ERROR("newNotificationDataAsHexString is not a valid hex sting");
+		PCPP_LOG_ERROR("newNotificationDataAsHexString is not a valid hex string");
 		return false;
 	}
 

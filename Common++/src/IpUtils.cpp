@@ -24,7 +24,7 @@ namespace pcpp
 				return NULL;
 			if (sa->sa_family == AF_INET)
 				return &(((struct sockaddr_in*)sa)->sin_addr);
-			LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
+			PCPP_LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
 			return NULL;
 		}
 
@@ -32,7 +32,7 @@ namespace pcpp
 		{
 			if (sa->sa_family == AF_INET6)
 				return &(((struct sockaddr_in6*)sa)->sin6_addr);
-			LOG_DEBUG("sockaddr family is not AF_INET6. Returning NULL");
+			PCPP_LOG_DEBUG("sockaddr family is not AF_INET6. Returning NULL");
 			return NULL;
 		}
 
@@ -41,19 +41,19 @@ namespace pcpp
 			in_addr* ipv4Addr = sockaddr2in_addr(sa);
 			if (ipv4Addr != NULL)
 			{
-				LOG_DEBUG("IPv4 packet address");
+				PCPP_LOG_DEBUG("IPv4 packet address");
 				inet_ntop(AF_INET, &(((sockaddr_in*)sa)->sin_addr), resultString, INET_ADDRSTRLEN);
 			}
 			else
 			{
-				LOG_DEBUG("Not IPv4 packet address. Assuming IPv6 packet");
+				PCPP_LOG_DEBUG("Not IPv4 packet address. Assuming IPv6 packet");
 				inet_ntop(AF_INET6, &(((sockaddr_in6*)sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
 			}
 		}
 
 		uint32_t in_addr2int(in_addr inAddr)
 		{
-		#ifdef WIN32
+		#ifdef _WIN32
 			return inAddr.S_un.S_addr;
 		#else
 			return inAddr.s_addr;
@@ -62,14 +62,15 @@ namespace pcpp
 	} // namespace internal
 } // namespace pcpp
 
-#if defined(WIN32) && !defined(_MSC_VER)
+// Only MinGW32 doesn't have these functions (not MinGW-w64 nor Visual C++)
+#if defined(_WIN32) && !defined(_MSC_VER) && !defined(__MINGW64_MAJOR_VERSION)
 /* const char *
  * inet_ntop4(src, dst, size)
  *	format an IPv4 address
  * return:
  *	`dst' (as a const)
  * notes:
- *	(1) uses no statics
+ *	(1) uses no statistics
  *	(2) takes a u_char* not an in_addr as input
  * author:
  *	Paul Vixie, 1996.

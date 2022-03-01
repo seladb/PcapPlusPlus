@@ -31,7 +31,7 @@ bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 {
 	if (addrLength == 0 || addrLength > 8)
 	{
-		LOG_ERROR("Address length is out of bounds, it must be between 1 and 8");
+		PCPP_LOG_ERROR("Address length is out of bounds, it must be between 1 and 8");
 		return false;
 	}
 
@@ -46,7 +46,7 @@ bool SllLayer::setMacAddressAsLinkLayer(MacAddress macAddr)
 {
 	if (!macAddr.isValid())
 	{
-		LOG_ERROR("MAC address is not valid");
+		PCPP_LOG_ERROR("MAC address is not valid");
 		return false;
 	}
 

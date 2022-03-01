@@ -12,7 +12,7 @@
 #include <sstream>
 #include <utility>
 #include <map>
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
+#if !defined(_WIN32)
 #include <errno.h>
 #endif
 #include "IpAddress.h"
@@ -228,7 +228,6 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 		if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_AAAA, pcpp::DNS_CLASS_IN, 1, &dnsServer))
 			return;
 	}
-	
 
 	dnsRequest.computeCalculateFields();
 
@@ -282,7 +281,7 @@ void onApplicationInterrupted(void* cookie)
 		columnsWidths.push_back(40);
 		columnsWidths.push_back(18);
 		pcpp::TablePrinter printer(columnNames, columnsWidths);
-	
+
 		// sort the spoofed hosts map so the most spoofed hosts will be first
 		// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
 		std::vector<std::pair<std::string, int> > map2vec(args->stats.spoofedHosts.begin(), args->stats.spoofedHosts.end());

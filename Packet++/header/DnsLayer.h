@@ -530,7 +530,7 @@ namespace pcpp
 		void setTcpMessageLength(uint16_t value);
 
 
-		// overriden methods
+		// overridden methods
 
 		/**
 		 * Calculate the TCP message length field

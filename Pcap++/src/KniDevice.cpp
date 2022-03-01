@@ -1,4 +1,4 @@
-#if defined(USE_DPDK) && defined(LINUX)
+#if defined(USE_DPDK) && defined(__linux__)
 
 #define LOG_MODULE PcapLogModuleKniDevice
 
@@ -71,7 +71,7 @@ KniDevice::KniThread::KniThread(KniThreadCleanupState s, threadMain tm, void* da
 	int err = pthread_create(&m_Descriptor, NULL, tm, data);
 	if (err != 0)
 	{
-		LOG_ERROR("KNI can't start pthread. pthread_create returned an error: " << std::strerror(err));
+		PCPP_LOG_ERROR("KNI can't start pthread. pthread_create returned an error: " << std::strerror(err));
 		m_CleanupState = INVALID;
 		return;
 	}
@@ -80,7 +80,7 @@ KniDevice::KniThread::KniThread(KniThreadCleanupState s, threadMain tm, void* da
 		err = pthread_detach(m_Descriptor);
 		if (err != 0)
 		{
-			LOG_ERROR("KNI can't detach pthread. pthread_detach returned an error: " << std::strerror(err));
+			PCPP_LOG_ERROR("KNI can't detach pthread. pthread_detach returned an error: " << std::strerror(err));
 			m_CleanupState = INVALID;
 			return;
 		}
@@ -95,7 +95,7 @@ KniDevice::KniThread::~KniThread()
 		if (err != 0)
 		{
 			const char* errs = std::strerror(err);
-			LOG_DEBUG("KNI failed to join pthread. pthread_join returned an error: " << errs);
+			PCPP_LOG_DEBUG("KNI failed to join pthread. pthread_join returned an error: " << errs);
 		}
 	}
 }
@@ -118,7 +118,7 @@ inline bool destroyKniDevice(struct rte_kni* kni, const char* deviceName)
 {
 	if (rte_kni_release(kni) < 0)
 	{
-		LOG_ERROR("Failed to destroy DPDK KNI device " << deviceName);
+		PCPP_LOG_ERROR("Failed to destroy DPDK KNI device " << deviceName);
 		return true;
 	}
 	return false;
@@ -139,7 +139,7 @@ inline KniDevice::KniLinkState setKniDeviceLinkState(
 		oldState = (KniDevice::KniLinkState)rte_kni_update_link(kni, state);
 		if (oldState == KniDevice::LINK_ERROR)
 		{	//? NOTE(echo-Mike): Not LOG_ERROR because will generate a lot of junk messages on some DPDK versions
-			LOG_DEBUG("DPDK KNI Failed to update links state for device '" << deviceName << "'");
+			PCPP_LOG_DEBUG("DPDK KNI Failed to update links state for device '" << deviceName << "'");
 		}
 	#else
 		// To avoid compiler warnings
@@ -167,11 +167,11 @@ inline struct rte_mempool* createMempool(size_t mempoolSize, int unique, const c
 	);
 	if (result == NULL)
 	{
-		LOG_ERROR("Failed to create packets memory pool for KNI device '" << deviceName << "', pool name: " << mempoolName);
+		PCPP_LOG_ERROR("Failed to create packets memory pool for KNI device '" << deviceName << "', pool name: " << mempoolName);
 	}
 	else
 	{
-		LOG_DEBUG("Successfully initialized packets pool of size [" << mempoolSize << "] for KNI device [" << deviceName << "]");
+		PCPP_LOG_DEBUG("Successfully initialized packets pool of size [" << mempoolSize << "] for KNI device [" << deviceName << "]");
 	}
 	return result;
 }
@@ -226,7 +226,7 @@ KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int
 	m_Device = rte_kni_alloc(m_MBufMempool, &kniConf, &kniOps);
 	if (m_Device == NULL)
 	{
-		LOG_ERROR("DPDK have failed to create KNI device " << conf.name);
+		PCPP_LOG_ERROR("DPDK have failed to create KNI device " << conf.name);
 	}
 }
 
@@ -251,7 +251,7 @@ bool KniDevice::KniDeviceInfo::init(const KniDeviceConfiguration& conf)
 	mtu = conf.mtu;
 	if (conf.name.empty())
 	{
-		LOG_ERROR(
+		PCPP_LOG_ERROR(
 			"Failed to create KNI device. "
 			"Empty name provided"
 		);
@@ -259,7 +259,7 @@ bool KniDevice::KniDeviceInfo::init(const KniDeviceConfiguration& conf)
 	}
 	if (conf.name.size() >= IFNAMSIZ)
 	{
-		LOG_ERROR(
+		PCPP_LOG_ERROR(
 			"Failed to create KNI device. "
 			"Provided name has length more than possible to handle <" << IFNAMSIZ-1 << ">"
 		);
@@ -278,8 +278,8 @@ KniDevice::KniLinkState KniDevice::getLinkState(KniInfoState state)
 	std::memset(&req, 0, sizeof(req));
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
 	{
-		LOG_ERROR("DPDK KNI failed to obtain interface link state from Linux");
-		LOG_DEBUG("Last known link state for device '" << m_DeviceInfo.name << "' is returned");
+		PCPP_LOG_ERROR("DPDK KNI failed to obtain interface link state from Linux");
+		PCPP_LOG_DEBUG("Last known link state for device '" << m_DeviceInfo.name << "' is returned");
 		return m_DeviceInfo.link;
 	}
 	return m_DeviceInfo.link = KniLinkState(req.ifr_flags & IFF_UP);
@@ -294,8 +294,8 @@ MacAddress KniDevice::getMacAddress(KniInfoState state)
 	req.ifr_hwaddr.sa_family = ARPHRD_ETHER;
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFHWADDR, &req))
 	{
-		LOG_ERROR("DPDK KNI failed to obtain MAC address from Linux");
-		LOG_DEBUG("Last known MAC address for device '" << m_DeviceInfo.name << "' is returned");
+		PCPP_LOG_ERROR("DPDK KNI failed to obtain MAC address from Linux");
+		PCPP_LOG_DEBUG("Last known MAC address for device '" << m_DeviceInfo.name << "' is returned");
 		return m_DeviceInfo.mac;
 	}
 	return m_DeviceInfo.mac = MacAddress((uint8_t*)req.ifr_hwaddr.sa_data);
@@ -309,8 +309,8 @@ uint16_t KniDevice::getMtu(KniInfoState state)
 	std::memset(&req, 0, sizeof(req));
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFMTU, &req))
 	{
-		LOG_ERROR("DPDK KNI failed to obtain interface MTU from Linux");
-		LOG_DEBUG("Last known MTU for device '" << m_DeviceInfo.name << "' is returned");
+		PCPP_LOG_ERROR("DPDK KNI failed to obtain interface MTU from Linux");
+		PCPP_LOG_DEBUG("Last known MTU for device '" << m_DeviceInfo.name << "' is returned");
 		return m_DeviceInfo.mtu;
 	}
 	return m_DeviceInfo.mtu = req.ifr_mtu;
@@ -324,8 +324,8 @@ KniDevice::KniPromiscuousMode KniDevice::getPromiscuous(KniInfoState state)
 	std::memset(&req, 0, sizeof(req));
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
 	{
-		LOG_ERROR("DPDK KNI failed to obtain interface Promiscuous mode from Linux");
-		LOG_DEBUG("Last known Promiscuous mode for device '" << m_DeviceInfo.name << "' is returned");
+		PCPP_LOG_ERROR("DPDK KNI failed to obtain interface Promiscuous mode from Linux");
+		PCPP_LOG_DEBUG("Last known Promiscuous mode for device '" << m_DeviceInfo.name << "' is returned");
 		return m_DeviceInfo.promisc;
 	}
 	return m_DeviceInfo.promisc = (req.ifr_flags & IFF_PROMISC) ? KniDevice::PROMISC_ENABLE : KniDevice::PROMISC_DISABLE;
@@ -339,7 +339,7 @@ bool KniDevice::setLinkState(KniLinkState state)
 	std::memset(&req, 0, sizeof(req));
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
 	{
-		LOG_ERROR("DPDK KNI failed to obtain interface flags from Linux");
+		PCPP_LOG_ERROR("DPDK KNI failed to obtain interface flags from Linux");
 		return false;
 	}
 	if ((state == KniDevice::LINK_DOWN && req.ifr_flags & IFF_UP) ||
@@ -348,7 +348,7 @@ bool KniDevice::setLinkState(KniLinkState state)
 		req.ifr_flags ^= IFF_UP;
 		if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCSIFFLAGS, &req))
 		{
-			LOG_ERROR("DPDK KNI failed to set '" << m_DeviceInfo.name << "' link mode");
+			PCPP_LOG_ERROR("DPDK KNI failed to set '" << m_DeviceInfo.name << "' link mode");
 			return false;
 		}
 	}
@@ -366,7 +366,7 @@ bool KniDevice::setMacAddress(MacAddress mac)
 	mac.copyTo((uint8_t*)req.ifr_hwaddr.sa_data);
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCSIFHWADDR, &req))
 	{
-		LOG_ERROR("DPDK KNI failed to set MAC address");
+		PCPP_LOG_ERROR("DPDK KNI failed to set MAC address");
 		return false;
 	}
 	m_DeviceInfo.mac = mac;
@@ -380,7 +380,7 @@ bool KniDevice::setMtu(uint16_t mtu)
 	req.ifr_mtu = mtu;
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCSIFMTU, &req))
 	{
-		LOG_ERROR("DPDK KNI failed to set interface MTU");
+		PCPP_LOG_ERROR("DPDK KNI failed to set interface MTU");
 		return false;
 	}
 	m_DeviceInfo.mtu = mtu;
@@ -395,7 +395,7 @@ bool KniDevice::setPromiscuous(KniPromiscuousMode mode)
 	std::memset(&req, 0, sizeof(req));
 	if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCGIFFLAGS, &req))
 	{
-		LOG_ERROR("DPDK KNI failed to obtain interface flags from Linux");
+		PCPP_LOG_ERROR("DPDK KNI failed to obtain interface flags from Linux");
 		return false;
 	}
 	if ((mode == KniDevice::PROMISC_DISABLE && req.ifr_flags & IFF_PROMISC) ||
@@ -404,7 +404,7 @@ bool KniDevice::setPromiscuous(KniPromiscuousMode mode)
 		req.ifr_flags ^= IFF_PROMISC;
 		if (!m_DeviceInfo.soc.makeRequest(m_DeviceInfo.name.c_str(), SIOCSIFFLAGS, &req))
 		{
-			LOG_ERROR("DPDK KNI failed to set '" << m_DeviceInfo.name << "' link mode");
+			PCPP_LOG_ERROR("DPDK KNI failed to set '" << m_DeviceInfo.name << "' link mode");
 			return false;
 		}
 	}
@@ -453,7 +453,7 @@ bool KniDevice::startRequestHandlerThread(long sleepSeconds, long sleepNanoSecon
 {
 	if (m_Requests.thread != NULL)
 	{
-		LOG_ERROR("KNI request thread is already started for device '" << m_DeviceInfo.name << "'");
+		PCPP_LOG_ERROR("KNI request thread is already started for device '" << m_DeviceInfo.name << "'");
 		return false;
 	}
 	m_Requests.sleepS = sleepSeconds;
@@ -471,7 +471,7 @@ void KniDevice::stopRequestHandlerThread()
 {
 	if (m_Requests.thread == NULL)
 	{
-		LOG_DEBUG("Attempt to stop not running KNI request thread for device '" << m_DeviceInfo.name << "'");
+		PCPP_LOG_DEBUG("Attempt to stop not running KNI request thread for device '" << m_DeviceInfo.name << "'");
 		return;
 	}
 	m_Requests.cleanup();
@@ -481,12 +481,12 @@ uint16_t KniDevice::receivePackets(MBufRawPacketVector& rawPacketsArr)
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 	if (unlikely(m_Capturing.isRunning()))
 	{
-		LOG_ERROR(
+		PCPP_LOG_ERROR(
 			"KNI device '" << m_DeviceInfo.name << "' capture mode is currently running. "
 			"Cannot receive packets in parallel"
 		);
@@ -497,7 +497,7 @@ uint16_t KniDevice::receivePackets(MBufRawPacketVector& rawPacketsArr)
 	uint32_t numOfPktsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
 
 	//the following line trashes the log with many messages. Uncomment only if necessary
-	//LOG_DEBUG("KNI Captured %d packets", numOfPktsReceived);
+	//PCPP_LOG_DEBUG("KNI Captured %d packets", numOfPktsReceived);
 
 	if (unlikely(numOfPktsReceived <= 0))
 	{
@@ -522,20 +522,20 @@ uint16_t KniDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPa
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 	if (unlikely(m_Capturing.isRunning()))
 	{
-		LOG_ERROR(
+		PCPP_LOG_ERROR(
 			"KNI device '" << m_DeviceInfo.name << "' capture mode is currently running. "
-			"Cannot recieve packets in parallel"
+			"Cannot receive packets in parallel"
 		);
 		return 0;
 	}
 	if (unlikely(rawPacketsArr == NULL))
 	{
-		LOG_ERROR("KNI Provided address of array to store packets is NULL");
+		PCPP_LOG_ERROR("KNI Provided address of array to store packets is NULL");
 		return 0;
 	}
 
@@ -566,12 +566,12 @@ uint16_t KniDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLengt
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 	if (unlikely(m_Capturing.isRunning()))
 	{
-		LOG_ERROR(
+		PCPP_LOG_ERROR(
 			"KNI device '" << m_DeviceInfo.name << "' capture mode is currently running. "
 			"Cannot receive packets in parallel"
 		);
@@ -608,7 +608,7 @@ uint16_t KniDevice::sendPackets(MBufRawPacket** rawPacketsArr, uint16_t arrLengt
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 
@@ -631,7 +631,7 @@ uint16_t KniDevice::sendPackets(Packet** packetsArr, uint16_t arrLength)
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 
@@ -680,7 +680,7 @@ uint16_t KniDevice::sendPackets(MBufRawPacketVector& rawPacketsVec)
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 
@@ -708,7 +708,7 @@ uint16_t KniDevice::sendPackets(RawPacketVector& rawPacketsVec)
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 
@@ -757,7 +757,7 @@ bool KniDevice::sendPacket(RawPacket& rawPacket)
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 
@@ -795,7 +795,7 @@ bool KniDevice::sendPacket(MBufRawPacket& rawPacket)
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened");
 		return 0;
 	}
 
@@ -821,7 +821,7 @@ void* KniDevice::KniCapturing::runCapture(void* devicePointer)
 	struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
 	struct rte_kni* kni = device->m_Device;
 
-	LOG_DEBUG("Starting KNI capture thread for device '" << device->m_DeviceInfo.name << "'");
+	PCPP_LOG_DEBUG("Starting KNI capture thread for device '" << device->m_DeviceInfo.name << "'");
 
 	for(;;)
 	{
@@ -868,12 +868,12 @@ bool KniDevice::startCapture(
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened. Can't start capture");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened. Can't start capture");
 		return false;
 	}
 	if (unlikely(m_Capturing.thread != NULL))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is already capturing");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is already capturing");
 		return false;
 	}
 
@@ -883,7 +883,7 @@ bool KniDevice::startCapture(
 	m_Capturing.thread = new KniThread(KniThread::JOINABLE, KniCapturing::runCapture, (void*)this);
 	if (m_Capturing.thread->m_CleanupState == KniThread::INVALID)
 	{
-		LOG_DEBUG("KNI failed to start capturing thread on device '" << m_DeviceInfo.name << "'");
+		PCPP_LOG_DEBUG("KNI failed to start capturing thread on device '" << m_DeviceInfo.name << "'");
 		delete m_Capturing.thread;
 		return false;
 	}
@@ -895,7 +895,7 @@ void KniDevice::stopCapture()
 {
 	if (m_Capturing.thread == NULL)
 	{
-		LOG_DEBUG("Attempt to stop not running KNI capturing thread for device '" << m_DeviceInfo.name << "'");
+		PCPP_LOG_DEBUG("Attempt to stop not running KNI capturing thread for device '" << m_DeviceInfo.name << "'");
 		return;
 	}
 	m_Capturing.cleanup();
@@ -909,19 +909,19 @@ int KniDevice::startCaptureBlockingMode(
 {
 	if (unlikely(!m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened. Can't start capture");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened. Can't start capture");
 		return 0;
 	}
 	if (unlikely(m_Capturing.thread != NULL))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is already capturing");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is already capturing");
 		return 0;
 	}
 	m_Capturing.callback = onPacketArrives;
 	m_Capturing.userCookie = onPacketArrivesUserCookie;
 	if (unlikely(m_Capturing.callback == NULL))
 	{
-		LOG_ERROR("Attempt to start KNI device '" << m_DeviceInfo.name << "' capturing in blocking mode without callback");
+		PCPP_LOG_ERROR("Attempt to start KNI device '" << m_DeviceInfo.name << "' capturing in blocking mode without callback");
 		return 0;
 	}
 
@@ -982,7 +982,7 @@ bool KniDevice::open()
 {
 	if (unlikely(m_DeviceOpened))
 	{
-		LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is already opened");
+		PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is already opened");
 		return false;
 	}
 	(void) updateLinkState(LINK_UP);
@@ -1010,4 +1010,4 @@ void KniDevice::close()
 	m_DeviceOpened = false;
 }
 } // namespace pcpp
-#endif /* defined(USE_DPDK) && defined(LINUX) */
+#endif /* defined(USE_DPDK) && defined(__linux__) */

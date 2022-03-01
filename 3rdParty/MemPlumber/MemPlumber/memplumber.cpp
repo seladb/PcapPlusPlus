@@ -351,7 +351,7 @@ class MemPlumberInternal {
 };
 
 
-#if defined _MSC_VER || defined _WIN32 || defined ANDROID || defined MUSL
+#if defined _MSC_VER || defined _WIN32 || defined __ANDROID__ || defined MUSL
 // TODO: backtrace() is not supported on Windows and Android.
 // On Windows we can use dbghelp but it's not supported on MinGW. Need to figure out a way to solve it on all platforms
 const char* getCaller() {

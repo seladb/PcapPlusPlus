@@ -11,7 +11,7 @@
 #include "PcapPlusPlusVersion.h"
 
 
-#if defined(WIN32) || defined(WINx64)
+#if defined(_WIN32)
 #define SEPARATOR '\\'
 #else
 #define SEPARATOR '/'
@@ -206,7 +206,7 @@ void readCommandLineArguments(int argc, char* argv[],
 
 	// validate packets per sec
 	if (packetsPerSecSet && packetsPerSec < 1)
-		EXIT_WITH_ERROR_PRINT_USAGE("message_per_sec must be a positive value greate or equal to 1");
+		EXIT_WITH_ERROR_PRINT_USAGE("message_per_sec must be a positive value greater or equal to 1");
 }
 
 bool sendIcmpMessage(pcpp::PcapLiveDevice* dev,

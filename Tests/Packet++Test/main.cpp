@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 	#endif
 
-	// The logger singelton looks like a memory leak. Invoke it before starting the memory check
+	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
 	pcpp::Logger::getInstance();
 	
 	if (skipMemLeakCheck)
@@ -237,6 +237,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DhcpV6ParsingTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6CreationTest, "dhcp;dhcpv6");
 	PTF_RUN_TEST(DhcpV6EditTest, "dhcp;dhcpv6");
+
+	PTF_RUN_TEST(NtpMethodsTests, "ntp");
+	PTF_RUN_TEST(NtpParsingV3Tests, "ntp");
+	PTF_RUN_TEST(NtpParsingV4Tests, "ntp");
+	PTF_RUN_TEST(NtpCraftingTests, "ntp");
 
 	PTF_END_RUNNING_TESTS;
 }

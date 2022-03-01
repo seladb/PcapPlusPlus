@@ -62,7 +62,7 @@ RadiusAttribute RadiusLayer::addAttrAt(const RadiusAttributeBuilder& attrBuilder
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend RadiusLayer in [" << newAttr.getTotalSize() << "] bytes");
+		PCPP_LOG_ERROR("Could not extend RadiusLayer in [" << newAttr.getTotalSize() << "] bytes");
 		return RadiusAttribute(NULL);
 	}
 

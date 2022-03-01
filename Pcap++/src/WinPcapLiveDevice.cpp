@@ -1,4 +1,4 @@
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
 #define LOG_MODULE PcapLogModuleWinPcapLiveDevice
 
@@ -19,14 +19,14 @@ bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, vo
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
 	}
 
 	//Put the interface in capture mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
 	{
-		LOG_ERROR("Error setting the capture mode for device '" << m_Name << "'");
+		PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_Name << "'");
 		return false;
 	}
 
@@ -37,14 +37,14 @@ bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStats
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
 	}
 
 	//Put the interface in statistics mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
 	{
-		LOG_ERROR("Error setting the statistics mode for device '" << m_Name << "'");
+		PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_Name << "'");
 		return false;
 	}
 
@@ -55,7 +55,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return 0;
 	}
 
@@ -65,7 +65,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		dataSize += rawPacketsArr[i].getRawDataLen();
 
 	pcap_send_queue* sendQueue = pcap_sendqueue_alloc(dataSize + arrLength*sizeof(pcap_pkthdr));
-	LOG_DEBUG("Allocated send queue of size " << (dataSize + arrLength*sizeof(pcap_pkthdr)));
+	PCPP_LOG_DEBUG("Allocated send queue of size " << (dataSize + arrLength*sizeof(pcap_pkthdr)));
 	struct pcap_pkthdr* packetHeader = new struct pcap_pkthdr[arrLength];
 	for (int i = 0; i < arrLength; i++)
 	{
@@ -75,18 +75,18 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		TIMESPEC_TO_TIMEVAL(&packetHeader[i].ts, &packet_time);
 		if (pcap_sendqueue_queue(sendQueue, &packetHeader[i], rawPacketsArr[i].getRawData()) == -1)
 		{
-			LOG_ERROR("pcap_send_queue is too small for all packets. Sending only " << i << " packets");
+			PCPP_LOG_ERROR("pcap_send_queue is too small for all packets. Sending only " << i << " packets");
 			break;
 		}
 		packetsSent++;
 	}
-	
-	LOG_DEBUG(packetsSent << " packets were queued successfully");
+
+	PCPP_LOG_DEBUG(packetsSent << " packets were queued successfully");
 
 	int res;
 	if ((res = pcap_sendqueue_transmit(m_PcapDescriptor, sendQueue, 0)) < (int)(sendQueue->len))
 	{
-		LOG_ERROR("An error occurred sending the packets: " << pcap_geterr(m_PcapDescriptor) << ". Only " << res << " bytes were sent");
+		PCPP_LOG_ERROR("An error occurred sending the packets: " << pcap_geterr(m_PcapDescriptor) << ". Only " << res << " bytes were sent");
 		packetsSent = 0;
 		dataSize = 0;
 		for (int i = 0; i < arrLength; i++)
@@ -100,10 +100,10 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 		}
 		return packetsSent;
 	}
-	LOG_DEBUG("Packets were sent successfully");
+	PCPP_LOG_DEBUG("Packets were sent successfully");
 
 	pcap_sendqueue_destroy(sendQueue);
-	LOG_DEBUG("Send queue destroyed");
+	PCPP_LOG_DEBUG("Send queue destroyed");
 
 	delete[] packetHeader;
 	return packetsSent;
@@ -113,13 +113,13 @@ bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size
 {
 	if (!m_DeviceOpened)
 	{
-		LOG_ERROR("Device not opened");
+		PCPP_LOG_ERROR("Device not opened");
 		return false;
 	}
 
 	if (pcap_setmintocopy(m_PcapDescriptor, size) != 0)
 	{
-		LOG_ERROR("pcap_setmintocopy failed");
+		PCPP_LOG_ERROR("pcap_setmintocopy failed");
 		return false;
 	}
 	m_MinAmountOfDataToCopyFromKernelToApplication = size;
@@ -128,4 +128,4 @@ bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size
 
 } // namespace pcpp
 
-#endif // WIN32 || WINx64 || PCAPPP_MINGW_ENV
+#endif // _WIN32

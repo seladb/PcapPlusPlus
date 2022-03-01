@@ -80,7 +80,7 @@ namespace pcpp
 		 */
 		static bool isHttpPort(uint16_t port) { return port == 80 || port == 8080; }
 
-		// overriden methods
+		// overridden methods
 
 		virtual HeaderField* addField(const std::string& fieldName, const std::string& fieldValue);
 		virtual HeaderField* addField(const HeaderField& newField);

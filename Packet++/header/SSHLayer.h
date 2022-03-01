@@ -18,7 +18,7 @@
  * PcapPlusPlus uses some heuristics to determine the type of the SSH message (which will be covered later). 
  * If it doesn't find a match to one of the other SSH messages, it assumes it is an encrypted SSH message.
  * 
- * Following is an overview of the SSH protocol classes currently supported in PcapPlusPlus. They cover the differnet messages of the SSH protocol:
+ * Following is an overview of the SSH protocol classes currently supported in PcapPlusPlus. They cover the different messages of the SSH protocol:
  * 
   @verbatim
 
@@ -50,7 +50,7 @@
   *    - The next byte contains the message type, check if the value is a valid message type as described in:
   *      <https://tools.ietf.org/html/rfc4253#section-12>
   * 
-  *    If all of these condition are met, this message is either pcpp#SSHKeyExchangeInitMessage (if messsage type is
+  *    If all of these condition are met, this message is either pcpp#SSHKeyExchangeInitMessage (if message type is
   *    pcpp#SSHHandshakeMessage#SSH_MSG_KEX_INIT) or pcpp#SSHHandshakeMessage (for all other message types)
   * 3. If non of these conditions are met, it is assumed this is an encrypted message (pcpp#SSHEncryptedMessage)
  */
@@ -64,7 +64,7 @@ namespace pcpp
 
 	/**
 	 * @class SSHLayer
-	 * This is the base class for the SSH layer. It is an abstract class that cannot be instanciated.
+	 * This is the base class for the SSH layer. It is an abstract class that cannot be instantiated.
 	 * It holds some common functionality, but its most important method is createSSHMessage()
 	 * which takes raw data and creates an SSH message according to the heuristics described
 	 * in the SSHLayer.h file description
@@ -110,7 +110,7 @@ namespace pcpp
 		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 	protected:
-		// protected c'tor, this class cannot be instanciated
+		// protected c'tor, this class cannot be instantiated
 		SSHLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = SSH; }
 
 	private:
@@ -122,7 +122,7 @@ namespace pcpp
 
 	/**
 	 * @class SSHIdentificationMessage
-	 * A class that represnets SSH identification message as described in RFC 4253: <https://tools.ietf.org/html/rfc4253#section-4.2>
+	 * A class that represents SSH identification message as described in RFC 4253: <https://tools.ietf.org/html/rfc4253#section-4.2>
 	 * 
 	 * The message content is typically a string that contains the protocol version, software version and a few more details.
 	 * This string can be retrieved using the getIdentificationMessage() method
@@ -160,7 +160,7 @@ namespace pcpp
 		// this layer supports only parsing
 		SSHIdentificationMessage();
 
-		// private c'tor, this class cannot be instanciated
+		// private c'tor, this class cannot be instantiated
 		SSHIdentificationMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : SSHLayer(data, dataLen, prevLayer, packet) {}
 
 	};
@@ -264,7 +264,7 @@ namespace pcpp
 	protected:
 
 		/**
-		 * An internal struct representing the SSH hanshake message header
+		 * An internal struct representing the SSH handshake message header
 		 */
 		#pragma pack(push, 1)
 		struct ssh_message_base
@@ -278,7 +278,7 @@ namespace pcpp
 		// this layer supports only parsing
 		SSHHandshakeMessage();
 
-		// private c'tor, this class cannot be instanciated
+		// private c'tor, this class cannot be instantiated
 		SSHHandshakeMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : SSHLayer(data, dataLen, prevLayer, packet) {}
 
 		ssh_message_base* getMsgBaseHeader() const { return (ssh_message_base*)m_Data; }

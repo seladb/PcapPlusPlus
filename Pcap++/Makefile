@@ -24,23 +24,11 @@ LIGHT_PCAPNG_OBJS_FILENAMES := $(patsubst $(LIGHT_PCAPNG_HOME)/src/%.c,$(LIGHT_P
 ifdef WIN32
 DEPS := -DWPCAP -DHAVE_REMOTE -DHAVE_STRUCT_TIMESPEC
 endif
-ifdef LINUX
-DEPS := -DLINUX
-endif
 ifdef PF_RING_HOME
 DEPS += -DUSE_PF_RING
 endif
 ifdef USE_DPDK
 DEPS += -DUSE_DPDK
-endif
-ifdef ANDROID_API_VERSION
-DEPS += -D ANDROID_API_VERSION=$(ANDROID_API_VERSION)
-endif
-ifdef MAC_OS_X
-DEPS := -DMAC_OS_X
-endif
-ifdef FREEBSD
-DEPS := -DFREEBSD
 endif
 
 INCLUDES := -I"./src" \
@@ -58,7 +46,13 @@ ifdef PF_RING_HOME
 INCLUDES += -I$(PF_RING_HOME)/userland/lib -I$(PF_RING_HOME)/kernel
 endif
 ifdef USE_DPDK
+PKGCONF = pkg-config
+TMPI = $(shell $(PKGCONF) --cflags-only-I libdpdk 2>/dev/null)
+ifneq ($(TMPI),)
+INCLUDES += $(TMPI)
+else
 INCLUDES += -I"$(RTE_SDK)/build/include"
+endif
 endif
 ifdef LIBPCAP_INLCUDE_DIR
 INCLUDES += -I"$(LIBPCAP_INLCUDE_DIR)"

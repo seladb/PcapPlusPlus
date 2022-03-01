@@ -218,7 +218,7 @@ namespace pcpp
 
 
 	/**
-	 * Covert a core mask into a vector of its appropriate system cores
+	 * Convert a core mask into a vector of its appropriate system cores
 	 * @param[in] coreMask The input core mask
 	 * @param[out] resultVec The vector that will contain the system cores
 	 */
@@ -373,7 +373,7 @@ namespace pcpp
 		// private c'tor
 		ApplicationEventHandler();
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 		static int handlerRoutine(unsigned long fdwCtrlType);
 #else
 		static void handlerRoutine(int signum);

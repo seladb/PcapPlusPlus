@@ -2,8 +2,8 @@ task:
   name: Test FreeBSD
   freebsd_instance:
     matrix:
-      image_family: freebsd-11-4
-      image_family: freebsd-12-2
+      image_family: freebsd-12-3
+      image_family: freebsd-13-0
   update_script: IGNORE_OSVERSION=yes pkg update -f
   install_script: 
     - pkg install -y libpcap bash gsed gmake
@@ -22,7 +22,7 @@ task:
 task:
   name: Test Zstd Linux
   container:
-    image: seladb/ubuntu1804-zstd:latest
+    image: seladb/ubuntu2004-zstd:latest
   configure_script:
     - ./configure-linux.sh --use-zstd
     - ldconfig
@@ -78,17 +78,10 @@ task:
     - GITHUB_TOKEN: ENCRYPTED[ab88249da2005c70f25f5910b08e907139f73bc0efb31a19b33f832e9e3bffe3cfc8e81932f21d7734c7aceca2a77188]
   get_code_script:
     - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
-    - if [[ $CIRRUS_BRANCH = pull/* ]]; then
-        git clone -b $CIRRUS_BASE_BRANCH $CIRRUS_REPO_CLONE_URL;
-      else
-        git clone -b $CIRRUS_BRANCH $CIRRUS_REPO_CLONE_URL;
-      fi
   configure_script:
-    - cd PcapPlusPlus
     - ./configure-linux.sh --default
   build_script: 
-    - cd PcapPlusPlus
-    - make all
+    - make libs
   build_documentation_script:
     - cd pcapplusplus.github.io/api-docs/doxygen
     - doxygen Doxyfile-ci

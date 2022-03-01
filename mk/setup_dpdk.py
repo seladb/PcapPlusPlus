@@ -517,9 +517,7 @@ def bind_one(dev_id, driver, quiet, force):
             return None
         try:
             # Convert Device and Vendor Id to int to write to new_id
-            file_d.write(
-                "%04x %04x" % (int(dev["Vendor"], 16), int(dev["Device"], 16))
-            )
+            file_d.write("%04x %04x" % (int(dev["Vendor"], 16), int(dev["Device"], 16)))
             file_d.close()
         except:  # pylint:disable=bare-except
             handle_error(
@@ -797,9 +795,7 @@ def remove_dpdk_module(module, settings):
         return
 
     if module in ["uio_pci_generic", "vfio-pci"]:
-        output = check_output(
-            ["modprobe", "-r", module], stderr=subprocess.STDOUT
-        )
+        output = check_output(["modprobe", "-r", module], stderr=subprocess.STDOUT)
         if output:
             raise RuntimeError(
                 "Something went wrong with removing '%s' kernel module: %s"
@@ -976,7 +972,7 @@ def do_restore(dpdk_module, interfaces, interface_infos, settings, kni_module=No
         if kni_module:
             remove_kni_module(settings)
     except PermissionError:
-        logger.error("insufficient privileges. Please run this utlity as 'sudo'")
+        logger.error("insufficient privileges. Please run this utility as 'sudo'")
         raise
     except Exception as exc:
         logger.error("error restoring system: %s", exc)
@@ -1005,7 +1001,7 @@ def handle_setup(args, settings):
         bind_interfaces(args.dpdk_module, args.interface, interface_infos, settings)
         logger.info("SETUP COMPLETE")
     except PermissionError:
-        logger.error("insufficient privileges. Please run this utlity as 'sudo'")
+        logger.error("insufficient privileges. Please run this utility as 'sudo'")
         raise
     except Exception as exc:
         logger.error(exc)

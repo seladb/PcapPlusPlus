@@ -1,5 +1,3 @@
-FREEBSD := 1
-
 BIN_EXT :=
 
 LIB_PREFIX := lib
