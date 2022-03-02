@@ -83,14 +83,14 @@ task:
   build_script: 
     - make libs
   build_documentation_script:
-    - cd pcapplusplus.github.io/api-docs/doxygen
+    - cd pcapplusplus.github.io/static/api-docs/next/doxygen
     - doxygen Doxyfile-ci
   upload_documentation_script: |
     if [ "$CIRRUS_BRANCH" == "master" -a "$CIRRUS_REPO_OWNER" == "seladb" ]; then
-      find pcapplusplus.github.io/api-docs/ -maxdepth 1 -type f -exec rm {} \;
-      rm -rf pcapplusplus.github.io/api-docs/search/
-      mv pcapplusplus.github.io/api-docs/html/* pcapplusplus.github.io/api-docs/
-      cd pcapplusplus.github.io/api-docs/
+      find pcapplusplus.github.io/static/api-docs/next/ -maxdepth 1 -type f -exec rm {} \;
+      rm -rf pcapplusplus.github.io/static/api-docs/next/search/
+      mv pcapplusplus.github.io/static/api-docs/next/html/* pcapplusplus.github.io/static/api-docs/next/
+      cd pcapplusplus.github.io/static/api-docs/next/
       git config user.name "seladb"
       git config user.email "${GITHUB_EMAIL}"
       git add .
