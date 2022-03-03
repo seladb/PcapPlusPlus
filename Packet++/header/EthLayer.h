@@ -129,11 +129,6 @@ namespace pcpp
 		 */
 		inline void setDestMac(const MacAddress& destMac) { destMac.copyTo(getEthHeader()->dstMac); }
 
-		/**
-		 * Transform the packet to a response, suitable for sending back 
-		 */
-		void createResponse();
-
 		// implement abstract methods
 
 		/**

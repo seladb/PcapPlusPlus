@@ -24,16 +24,6 @@ ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacA
 	arpHeader->senderIpAddr = senderIpAddr.toInt();
 }
 
-void ArpLayer::createResponse(const MacAddress& senderMacAddr)
-{
-  getArpHeader()->opcode = htobe16(2);
-  getSenderMacAddress().copyTo(getArpHeader()->targetMacAddr);
-  senderMacAddr.copyTo(getArpHeader()->senderMacAddr);
-  pcpp::IPv4Address tmp = getSenderIpAddr();
-  getArpHeader()->senderIpAddr = getTargetIpAddr().toInt();
-  getArpHeader()->targetIpAddr = tmp.toInt();
-}
-
 void ArpLayer::computeCalculateFields()
 {
 	arphdr* arpHeader = getArpHeader();

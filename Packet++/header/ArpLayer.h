@@ -109,12 +109,6 @@ namespace pcpp
 		 */
 		inline IPv4Address getTargetIpAddr() const { return getArpHeader()->targetIpAddr; }
 
-		/**
-		 * Transform the packet to a response, suitable for sending back 
-		 * @param[in] senderMacAddr The sender MAC address (will be put in arphdr#senderMacAddr)
-		 */
-		void createResponse(const MacAddress& senderMacAddr);
-
 		// implement abstract methods
 
 		/**
