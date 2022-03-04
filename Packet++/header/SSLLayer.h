@@ -191,7 +191,7 @@ namespace pcpp
 		 * - Port 636 [LDAPS]
 		 * - Port 989 [FTPS - data]
 		 * - Port 990 [FTPS - control]
-		 * - Port 992 [Telnet over TLS/SSL[
+		 * - Port 992 [Telnet over TLS/SSL]
 		 * - Port 993 [IMAPS]
 		 * - Port 994 [IRCS]
 		 * - Port 995 [POP3S]
