@@ -345,13 +345,13 @@ namespace pcpp
 		std::string getEncryptionAlgorithmsServerToClient() { return getFieldValue(3); }
 
 		/**
-		 * @return A comman-separated list of acceptable MAC algorithms from the client to the server.
+		 * @return A comma-separated list of acceptable MAC algorithms from the client to the server.
 		 * Can be empty if the value is missing or the message is malformed
 		 */
 		std::string getMacAlgorithmsClientToServer() { return getFieldValue(4); }
 
 		/**
-		 * @return A comman-separated list of acceptable MAC algorithms from the server to the client.
+		 * @return A comma-separated list of acceptable MAC algorithms from the server to the client.
 		 * Can be empty if the value is missing or the message is malformed
 		 */
 		std::string getMacAlgorithmsServerToClient() { return getFieldValue(5); }

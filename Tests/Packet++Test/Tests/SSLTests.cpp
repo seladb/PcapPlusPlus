@@ -77,7 +77,7 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 			pcpp::SSL_AUTH_RSA
 	};
 
-	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[11] = {
+	pcpp::SSLSymmetricEncryptionAlgorithm cipherSuiteSym[11] = {
 			pcpp::SSL_SYM_AES_128_GCM,
 			pcpp::SSL_SYM_AES_128_GCM,
 			pcpp::SSL_SYM_AES_256_CBC,
@@ -124,7 +124,7 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 
 	int extCount = clientHelloMessage->getExtensionCount();
 	PTF_ASSERT_EQUAL(extCount, 9);
-	PTF_ASSERT_EQUAL(clientHelloMessage->getExtensionsLenth(), 116);
+	PTF_ASSERT_EQUAL(clientHelloMessage->getExtensionsLength(), 116);
 
 	pcpp::SSLExtension* ext = clientHelloMessage->getExtension(0);
 	PTF_ASSERT_EQUAL(ext->getType(), pcpp::SSL_EXT_SERVER_NAME, enum);
@@ -281,7 +281,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 	PTF_ASSERT_EQUAL(serverHelloMessage->getSessionID()[31], 0x44, hex);
 	PTF_ASSERT_EQUAL(serverHelloMessage->getCipherSuite()->asString(), "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
 	PTF_ASSERT_EQUAL(serverHelloMessage->getCipherSuite()->getSymKeyAlg(), pcpp::SSL_SYM_AES_128_GCM, enum);
-	PTF_ASSERT_EQUAL(serverHelloMessage->getExtensionsLenth(), 20);
+	PTF_ASSERT_EQUAL(serverHelloMessage->getExtensionsLength(), 20);
 	PTF_ASSERT_EQUAL(serverHelloMessage->getExtensionCount(), 3);
 	uint16_t extensionsLength[3] = { 1, 5, 2 };
 	uint16_t totalExtensionsLength[3] = { 5, 9, 6 };
@@ -563,7 +563,7 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 		"TLS_CHACHA20_POLY1305_SHA256",
 		"TLS_AES_128_GCM_SHA256"
 	};
-	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[3] =
+	pcpp::SSLSymmetricEncryptionAlgorithm cipherSuiteSym[3] =
 	{
 		pcpp::SSL_SYM_AES_256_GCM,
 		pcpp::SSL_SYM_CHACHA20_POLY1305,

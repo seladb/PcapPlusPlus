@@ -688,7 +688,7 @@ namespace pcpp
 		 * @return DHCP message type as extracted from ::DHCPOPT_DHCP_MESSAGE_TYPE option. If this option doesn't exist the value of
 		 * ::DHCP_UNKNOWN_MSG_TYPE is returned
 		 */
-		DhcpMessageType getMesageType() const;
+		DhcpMessageType getMessageType() const;
 
 		/**
 		 * Set DHCP message type. This method searches for existing ::DHCPOPT_DHCP_MESSAGE_TYPE option. If found, it sets the requested
@@ -698,7 +698,7 @@ namespace pcpp
 		 * @return True if message type was set successfully or false if msgType is ::DHCP_UNKNOWN_MSG_TYPE or if failed to add
 		 * ::DHCPOPT_DHCP_MESSAGE_TYPE option
 		 */
-		bool setMesageType(DhcpMessageType msgType);
+		bool setMessageType(DhcpMessageType msgType);
 
 		/**
 		 * @return The first DHCP option in the packet. If there are no DHCP options the returned value will contain

@@ -113,7 +113,7 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_USER_AGENT_FIELD)->getFieldValue(), "FreeSWITCH-mod_sofia/1.6.12-20-b91a0a6~64bit");
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD));
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD)->getFieldValue(), "Q.850;cause=16;text=\"NORMAL_CLEARING\"");
-	PTF_ASSERT_EQUAL(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldName(), "Content-Lengt");
+	PTF_ASSERT_EQUAL(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldName(), "Content-Length");
 	PTF_ASSERT_EQUAL(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldValue(), "");
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldCount(), 11);
 

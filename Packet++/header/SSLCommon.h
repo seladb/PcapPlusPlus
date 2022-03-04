@@ -388,7 +388,7 @@ namespace pcpp
 	/**
 	 * SSL/TLS symmetric encryption algorithms
 	 */
-	enum SSLSymetricEncryptionAlgorithm
+	enum SSLSymmetricEncryptionAlgorithm
 	{
 		/** NULL value */
 		SSL_SYM_NULL,

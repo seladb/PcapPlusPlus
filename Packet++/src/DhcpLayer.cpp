@@ -97,7 +97,7 @@ void DhcpLayer::computeCalculateFields()
 
 	hdr->magicNumber = DHCP_MAGIC_NUMBER;
 
-	DhcpMessageType msgType = getMesageType();
+	DhcpMessageType msgType = getMessageType();
 	switch(msgType)
 	{
 	case DHCP_DISCOVER:
@@ -124,7 +124,7 @@ void DhcpLayer::computeCalculateFields()
 std::string DhcpLayer::toString() const
 {
 	std::string msgType = "Unknown";
-	switch (getMesageType())
+	switch (getMessageType())
 	{
 	case DHCP_DISCOVER:
 	{
@@ -174,7 +174,7 @@ std::string DhcpLayer::toString() const
 	return "DHCP layer (" + msgType + ")";
 }
 
-DhcpMessageType DhcpLayer::getMesageType() const
+DhcpMessageType DhcpLayer::getMessageType() const
 {
 	DhcpOption opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
 	if (opt.isNull())
@@ -183,7 +183,7 @@ DhcpMessageType DhcpLayer::getMesageType() const
 	return (DhcpMessageType)opt.getValueAs<uint8_t>();
 }
 
-bool DhcpLayer::setMesageType(DhcpMessageType msgType)
+bool DhcpLayer::setMessageType(DhcpMessageType msgType)
 {
 	if (msgType == DHCP_UNKNOWN_MSG_TYPE)
 		return false;

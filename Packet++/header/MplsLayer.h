@@ -44,10 +44,10 @@ namespace pcpp
 		 * A constructor that allocates a new MPLS header
 		 * @param[in] mplsLabel MPLS label
 		 * @param[in] ttl Time-to-leave value
-		 * @param[in] expermentalUseValue Experimental use value
+		 * @param[in] experimentalUseValue Experimental use value
 		 * @param[in] bottomOfStack Bottom-of-stack value which indicate whether the next layer will also be a MPLS label or not
 		 */
-		MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t expermentalUseValue, bool bottomOfStack);
+		MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t experimentalUseValue, bool bottomOfStack);
 
 		virtual ~MplsLayer() {}
 

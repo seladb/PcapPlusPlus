@@ -552,7 +552,7 @@ namespace pcpp
 #define PCPP_PPP_MPLS_MULTI		0x0283
 	/** IEEE p1284.4 standard - data packets */
 #define PCPP_PPP_P12844			0x0285
-	/** ETSI TETRA Network Procotol Type 1 */
+	/** ETSI TETRA Network Protocol Type 1 */
 #define PCPP_PPP_TETRA			0x0287
 	/** Multichannel Flow Treatment Protocol */
 #define PCPP_PPP_MFTP			0x0289
