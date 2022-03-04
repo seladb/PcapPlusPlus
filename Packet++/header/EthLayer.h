@@ -103,31 +103,31 @@ namespace pcpp
 		 * Get a pointer to the Ethernet header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the ether_header
 		 */
-		ether_header* getEthHeader() const { return (ether_header*)m_Data; }
+		inline ether_header* getEthHeader() const { return (ether_header*)m_Data; }
 
 		/**
 		 * Get the source MAC address
 		 * @return The source MAC address
 		 */
-		MacAddress getSourceMac() const { return MacAddress(getEthHeader()->srcMac); }
+		inline MacAddress getSourceMac() const { return MacAddress(getEthHeader()->srcMac); }
 
 		/**
 		 * Set source MAC address
 		 * @param sourceMac Source MAC to set
 		 */
-		void setSourceMac(const MacAddress& sourceMac) { sourceMac.copyTo(getEthHeader()->srcMac); }
+		inline void setSourceMac(const MacAddress& sourceMac) { sourceMac.copyTo(getEthHeader()->srcMac); }
 
 		/**
 		 * Get the destination MAC address
 		 * @return The destination MAC address
 		 */
-		MacAddress getDestMac() const { return MacAddress(getEthHeader()->dstMac); }
+		inline MacAddress getDestMac() const { return MacAddress(getEthHeader()->dstMac); }
 
 		/**
 		 * Set destination MAC address
 		 * @param destMac Destination MAC to set
 		 */
-		void setDestMac(const MacAddress& destMac) { destMac.copyTo(getEthHeader()->dstMac); }
+		inline void setDestMac(const MacAddress& destMac) { destMac.copyTo(getEthHeader()->dstMac); }
 
 		// implement abstract methods
 
