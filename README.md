@@ -1,4 +1,4 @@
-![PcapPlusPlus Logo](https://pcapplusplus.github.io/resources/logo_color.png)
+![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)
 
 [![GitHub Actions](https://github.com/seladb/PcapPlusPlus/workflows/Build%20and%20test/badge.svg)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
 [![Build Status](https://api.cirrus-ci.com/github/seladb/PcapPlusPlus.svg)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
