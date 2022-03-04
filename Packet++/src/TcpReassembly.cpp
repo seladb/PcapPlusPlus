@@ -281,7 +281,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// handle case where this packet is FIN or RST (although it's unlikely)
 		if (isFinOrRst)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-		
+
 		// return - nothing else to do here
 		return status;
 	}
@@ -321,7 +321,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
 			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
-			
+
 		// return - nothing else to do here
 		return status;
 	}

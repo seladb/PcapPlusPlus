@@ -4,7 +4,7 @@ export PATH := $(MINGW_HOME)/bin;$(MSYS_HOME)/bin:$(PATH)
 
 BIN_EXT := .exe
 
-LIB_PREFIX := 
+LIB_PREFIX :=
 
 LIB_EXT := .lib
 

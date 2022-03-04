@@ -328,7 +328,7 @@ namespace pcpp
 		 * @param[in] rawDataLen The new raw data length in bytes
 		 * @param[in] timestamp The timestamp packet was received by the NIC (in usec precision)
 		 * @param[in] layerType The link layer type for this raw data
-		 * @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the actual packet length. This parameter represents the packet 
+		 * @param[in] frameLength When reading from pcap files, sometimes the captured length is different from the actual packet length. This parameter represents the packet
 		 * length. This parameter is optional, if not set or set to -1 it is assumed both lengths are equal
 		 * @return True if raw data was set successfully, false otherwise
 		 */

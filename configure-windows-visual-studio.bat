@@ -3,7 +3,7 @@ setlocal
 
 echo.
 echo ***********************************************
-echo PcapPlusPlus Visual Studio configuration script 
+echo PcapPlusPlus Visual Studio configuration script
 echo ***********************************************
 echo.
 
@@ -17,10 +17,10 @@ set ZSTD_LIB_NAME=
 set USE_ZSTD=
 
 :: check the number of arguments: If got at least one argument continue to command-line mode, else continue to wizard mode
-if "%1" NEQ "" ( 
-    call :GETOPT %1 %2 %3 %4 %5 %6 %7 %8 %9 
-) else ( 
-    call :READ_PARAMS_FROM_USER 
+if "%1" NEQ "" (
+    call :GETOPT %1 %2 %3 %4 %5 %6 %7 %8 %9
+) else (
+    call :READ_PARAMS_FROM_USER
 )
 
 :: if one of the modes returned with an error, exit script
@@ -70,19 +70,19 @@ set ToolsVersion=14.0
 set PlatformToolset=v140
 
 :: set VS2015 params
-if "%VS_VERSION%"=="vs2015" ( 
+if "%VS_VERSION%"=="vs2015" (
     set ToolsVersion=14.0
     set PlatformToolset=v140
 )
 
 :: set VS2017 params
-if "%VS_VERSION%"=="vs2017" ( 
+if "%VS_VERSION%"=="vs2017" (
     set ToolsVersion=15.0
     set PlatformToolset=v141
 )
 
 :: set VS2019 params
-if "%VS_VERSION%"=="vs2019" ( 
+if "%VS_VERSION%"=="vs2019" (
     set ToolsVersion=Current
     set PlatformToolset=v142
 )
@@ -166,7 +166,7 @@ goto GETOPT_START
 :: handling help switches (-h or --help)
 :CASE--help
 :CASE-h
-    :: call the HELP "function" 
+    :: call the HELP "function"
     call :HELP
     :: exit with error code 3, meaning ask the caller to exit the script
     exit /B 3
@@ -282,7 +282,7 @@ echo.
 echo.
 
 :: get pthreads-win32 location from user and verify it exists
-echo pthreads-win32 is required for compiling PcapPlusPlus. 
+echo pthreads-win32 is required for compiling PcapPlusPlus.
 echo If you didn't download it already, please download it from here: ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip
 echo.
 :while2

@@ -197,7 +197,7 @@ public:
 		static GlobalConfig instance;
 		return instance;
 	}
-	
+
 	/**
 	 * d'tor
 	 */

@@ -1,24 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?> 
+<?xml version="1.0" encoding="utf-8"?>
 <Project InitialTargets="ValidateDependencies" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Target Name="ValidateDependencies">  
-      <Error 
+    <Target Name="ValidateDependencies">
+      <Error
         Condition="'$(PCAPPLUSPLUS_CONFIG_OVERRIDE)'==''"
         Text=
 "
-Please close visual studio and run configure-windows-visual-studio.bat 
-BEFORE OPENING THIS SOLUTION.  It generates variables for dependencies 
-which are required for building. Alternatively, if you're using a package manager 
-to provide these dependencies, you must set the following two variables manually: 
+Please close visual studio and run configure-windows-visual-studio.bat
+BEFORE OPENING THIS SOLUTION.  It generates variables for dependencies
+which are required for building. Alternatively, if you're using a package manager
+to provide these dependencies, you must set the following two variables manually:
 
   set PCAPPLUSPLUS_CONFIG_OVERRIDE=True
   set PCAPPLUSPLUSHOME=path_to_pcapplusplus_repo_root
 
-You can set these as environment variables (shown above), 
+You can set these as environment variables (shown above),
 or pass them as properties to the MSBuild CLI (shown below):
 
-  /p:PCAPPLUSPLUS_CONFIG_OVERRIDE=True 
+  /p:PCAPPLUSPLUS_CONFIG_OVERRIDE=True
   /p:PCAPPLUSPLUSHOME=path_to_pcapplusplus_repo_root
-" 
+"
       />
     </Target>
 </Project>

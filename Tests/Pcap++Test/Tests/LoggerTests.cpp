@@ -58,7 +58,7 @@ class LogPrinter
 				delete LogPrinter::lastFilenameSeen;
 				LogPrinter::lastFilenameSeen = NULL;
 			}
-			
+
 			if (LogPrinter::lastMethodSeen != NULL)
 			{
 				delete LogPrinter::lastMethodSeen;
@@ -235,7 +235,7 @@ PTF_TEST_CASE(TestLogger)
 
 	// reset the log printer
 	pcpp::Logger::getInstance().resetLogPrinter();
-	
+
 	// disable std::cout for a bit
 	std::cout.setstate(std::ios_base::failbit);
 

@@ -200,7 +200,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 	PTF_ASSERT_EQUAL(nlriVec.size(), 1);
 	pcpp::BgpUpdateMessageLayer::prefix_and_ip nlri = nlriVec[0];
 	PTF_ASSERT_EQUAL(nlri.prefix, 24);
-	PTF_ASSERT_EQUAL(nlri.ipAddr, pcpp::IPv4Address("104.104.40.0"));	
+	PTF_ASSERT_EQUAL(nlri.ipAddr, pcpp::IPv4Address("104.104.40.0"));
 	size_t pathAttrSize[3] = {28, 24, 0};
 	for (int i = 0; i < 3; i++)
 	{
@@ -467,8 +467,8 @@ PTF_TEST_CASE(BgpLayerEditTest)
 	bgpNotificationPacket2.computeCalculateFields();
 	PTF_ASSERT_EQUAL(bgpNotificationMessage1->getDataLen(), bgpNotificationMessage2->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(bgpNotificationMessage1->getData(), bgpNotificationMessage2->getData(), bgpNotificationMessage2->getDataLen());
-	
-	
+
+
 
 	// edit BGP OPEN message
 
@@ -555,5 +555,5 @@ PTF_TEST_CASE(BgpLayerEditTest)
 	PTF_ASSERT_TRUE(bgpUpdateMessage1Packet1->clearPathAttributes());
 	PTF_ASSERT_EQUAL(bgpUpdateMessage1Packet1->getHeaderLen(), bgpUpdateMessage4Packet2->getHeaderLen());
 	PTF_ASSERT_BUF_COMPARE(bgpUpdateMessage1Packet1->getData(), bgpUpdateMessage4Packet2->getData(), bgpUpdateMessage4Packet2->getHeaderLen());
-	
+
 } // BgpLayerEditTest

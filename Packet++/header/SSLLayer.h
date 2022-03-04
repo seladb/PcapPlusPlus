@@ -148,7 +148,7 @@
  * extensions: pcpp::SSLExtension. This class is instantiable and represents a generic extension, which means extension data
  * isn't parsed and given to the user as raw data. Currently there are only two extension that are fully parsed which are
  * server-name-indication (pcpp::SSLServerNameIndicationExtension) and SupportedVersions (pcpp::SSLSupportedVersionsExtension).
- * Both inherit from pcpp::SSLExtension and add additional parsing relevant for the specific extension. 
+ * Both inherit from pcpp::SSLExtension and add additional parsing relevant for the specific extension.
  * All other extensions aren't parsed and are represented by instance of pcpp::SSLExtension.
  * Access to extensions is done through the handshake messages classes, specifically pcpp::SSLClientHelloMessage and pcpp::SSLServerHelloMessage
  */
@@ -202,7 +202,7 @@ namespace pcpp
 		 * @param[in] data The data to check
 		 * @param[in] dataLen Length (in bytes) of the data
 		 * @param[in] ignorePorts SSL/TLS ports are only relevant for parsing the first SSL/TLS message, but are not relevant
-		 * for parsing subsequent messages. This parameter can be set to "true" to skip SSL/TLS ports check. This is an 
+		 * for parsing subsequent messages. This parameter can be set to "true" to skip SSL/TLS ports check. This is an
 		 * optional parameter and its default is "false"
 		 */
 		static bool IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen, bool ignorePorts = false);
