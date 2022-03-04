@@ -83,32 +83,31 @@ namespace pcpp
 		 * Get a pointer to the ARP header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the @ref arphdr
 		 */
-		arphdr* getArpHeader() const { return (arphdr*)m_Data; }
+		inline arphdr* getArpHeader() const { return (arphdr*)m_Data; }
 
 		/**
 		 * Get the sender hardware address (SHA) in the form of MacAddress
 		 * @return A MacAddress containing the sender hardware address (SHA)
 		 */
-		MacAddress getSenderMacAddress() const { return MacAddress(getArpHeader()->senderMacAddr); }
+		inline MacAddress getSenderMacAddress() const { return MacAddress(getArpHeader()->senderMacAddr); }
 
 		/**
 		 * Get the target hardware address (THA) in the form of MacAddress
 		 * @return A MacAddress containing the target hardware address (THA)
 		 */
-		MacAddress getTargetMacAddress() const { return MacAddress(getArpHeader()->targetMacAddr); }
+		inline MacAddress getTargetMacAddress() const { return MacAddress(getArpHeader()->targetMacAddr); }
 
 		/**
 		 * Get the sender protocol address (SPA) in the form of IPv4Address
 		 * @return An IPv4Address containing the sender protocol address (SPA)
 		 */
-		IPv4Address getSenderIpAddr() const { return getArpHeader()->senderIpAddr; }
+		inline IPv4Address getSenderIpAddr() const { return getArpHeader()->senderIpAddr; }
 
 		/**
 		 * Get the target protocol address (TPA) in the form of IPv4Address
 		 * @return An IPv4Address containing the target protocol address (TPA)
 		 */
-		IPv4Address getTargetIpAddr() const { return getArpHeader()->targetIpAddr; }
-
+		inline IPv4Address getTargetIpAddr() const { return getArpHeader()->targetIpAddr; }
 
 		// implement abstract methods
 
