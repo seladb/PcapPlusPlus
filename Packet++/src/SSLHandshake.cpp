@@ -687,10 +687,10 @@ static std::map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
 #define A 54059 /* a prime */
 #define B 76963 /* another prime */
 #define C 86969 /* yet another prime */
-#define FIRSTH 37 /* also prime */
+#define FIRST_HASH 37 /* also prime */
 static uint32_t hashString(std::string str)
 {
-	unsigned h = FIRSTH;
+	unsigned h = FIRST_HASH;
 	for(std::string::size_type i = 0; i < str.size(); ++i)
 	{
 		h = (h * A) ^ (str[i] * B);
