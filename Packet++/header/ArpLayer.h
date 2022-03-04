@@ -127,7 +127,7 @@ namespace pcpp
 		 * - @ref arphdr#hardwareSize = 6
 		 * - @ref arphdr#protocolType = ETHERTYPE_IP (assume IPv4 over ARP)
 		 * - @ref arphdr#protocolSize = 4 (assume IPv4 over ARP)
-		 * - if it's an ARP requst: @ref arphdr#targetMacAddr = MacAddress("00:00:00:00:00:00")
+		 * - if it's an ARP request: @ref arphdr#targetMacAddr = MacAddress("00:00:00:00:00:00")
 		 */
 		void computeCalculateFields();
 

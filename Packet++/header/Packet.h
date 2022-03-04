@@ -220,7 +220,7 @@ namespace pcpp
 		bool removeAllLayersAfter(Layer* layer);
 
 		/**
-		 * Detach a layer from the packet. Detaching means the layer instance will not be deleted, but rather seperated from the
+		 * Detach a layer from the packet. Detaching means the layer instance will not be deleted, but rather separated from the
 		 * packet - e.g it will be removed from the layer chain of the packet and its data will be copied from the packet buffer
 		 * into an internal layer buffer. After a layer is detached, it can be added into another packet (but it's impossible to 
 		 * attach a layer to multiple packets in the same time). After layer is detached, it's the user's responsibility to 
@@ -234,7 +234,7 @@ namespace pcpp
 		Layer* detachLayer(ProtocolType layerType, int index = 0);
 
 		/**
-		 * Detach a layer from the packet. Detaching means the layer instance will not be deleted, but rather seperated from the
+		 * Detach a layer from the packet. Detaching means the layer instance will not be deleted, but rather separated from the
 		 * packet - e.g it will be removed from the layer chain of the packet and its data will be copied from the packet buffer
 		 * into an internal layer buffer. After a layer is detached, it can be added into another packet (but it's impossible to 
 		 * attach a layer to multiple packets at the same time). After layer is detached, it's the user's responsibility to 
@@ -257,7 +257,7 @@ namespace pcpp
 
 		/**
 		 * A templated method to get a layer of a certain type (protocol). If no layer of such type is found, NULL is returned
-		 * @param[in] reverseOrder The optional paramter that indicates that the lookup should run in reverse order, the default value is false
+		 * @param[in] reverseOrder The optional parameter that indicates that the lookup should run in reverse order, the default value is false
 		 * @return A pointer to the layer of the requested type, NULL if not found
 		 */
 		template<class TLayer>

@@ -203,7 +203,7 @@ namespace pcpp
 		 * @param[in] dataLen Length (in bytes) of the data
 		 * @param[in] ignorePorts SSL/TLS ports are only relevant for parsing the first SSL/TLS message, but are not relevant
 		 * for parsing subsequent messages. This parameter can be set to "true" to skip SSL/TLS ports check. This is an 
-		 * optional paramter and its default is "false"
+		 * optional parameter and its default is "false"
 		 */
 		static bool IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen, bool ignorePorts = false);
 
@@ -439,7 +439,7 @@ namespace pcpp
 
 	/**
 	 * @class SSLApplicationDataLayer
-	 * Represents SSL/TLS application data layer. This message contains the encrypted data transfered from client to
+	 * Represents SSL/TLS application data layer. This message contains the encrypted data transferred from client to
 	 * server and vice-versa after the SSL/TLS handshake was completed successfully
 	 */
 	class SSLApplicationDataLayer : public SSLLayer

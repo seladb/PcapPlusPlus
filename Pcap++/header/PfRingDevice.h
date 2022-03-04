@@ -222,20 +222,20 @@ namespace pcpp
 		/**
 		 * Get the statistics of a specific thread/core (=RX channel)
 		 * @param[in] core The requested core
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
 		 */
 		void getThreadStatistics(SystemCore core, PfRingStats& stats) const;
 
 		/**
 		 * Get the statistics of the current thread/core (=RX channel)
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
 		 */
 		void getCurrentThreadStatistics(PfRingStats& stats) const;
 
 		/**
 		 * Get the statistics for the entire device. If more than 1 RX channel is opened, this method aggregates the stats
 		 * of all channels
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
 		 */
 		void getStatistics(PfRingStats& stats) const;
 

@@ -4,7 +4,7 @@
 #include "PcapDevice.h"
 #include "RawPacket.h"
 
-// forward decleration for structs and typedefs defined in pcap.h
+// forward declaration for structs and typedefs defined in pcap.h
 struct pcap_dumper;
 typedef struct pcap_dumper pcap_dumper_t;
 

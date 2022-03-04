@@ -148,7 +148,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
 
-	// init the conditonal mutex
+	// init the conditional mutex
 	pthread_mutex_init(&mutex, 0);
 	pthread_cond_init(&cond, 0);
 
@@ -413,7 +413,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
 
-	// init the conditonal mutex
+	// init the conditional mutex
 	pthread_mutex_init(&mutex, 0);
 	pthread_cond_init(&cond, 0);
 

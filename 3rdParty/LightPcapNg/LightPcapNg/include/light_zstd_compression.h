@@ -35,7 +35,7 @@
 #define COMPRESSION_BUFFER_IN_MAX_SIZE 1700
 
 //This is the z-std compression type I would call it z-std type and realias 
-//2x but complier won't let me do that across bounds it seems
+//2x but compiler won't let me do that across bounds it seems
 //So I gave it a generic "light" name....
 struct zstd_compression_t
 {

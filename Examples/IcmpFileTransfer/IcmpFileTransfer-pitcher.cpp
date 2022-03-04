@@ -311,7 +311,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 			EXIT_WITH_ERROR_AND_RUN_COMMAND("Cannot start capturing packets", std::remove(icmpFTStart.fileName.c_str()));
 		}
 
-		// keep sending ICMP requests with ICMP_FT_WAITING_DATA message in the timestamp field until all file was received or until an error occured
+		// keep sending ICMP requests with ICMP_FT_WAITING_DATA message in the timestamp field until all file was received or until an error occurred
 		while (!icmpFileContentData.fileTransferCompleted && !icmpFileContentData.fileTransferError)
 		{
 			sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_WAITING_DATA, NULL, 0);

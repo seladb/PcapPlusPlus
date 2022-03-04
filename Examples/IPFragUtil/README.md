@@ -17,12 +17,12 @@ Using the utility
 If no filter is specified, the default is that all packets will be fragmented. Exceptions are non-IP packets and IP packets which their 
 payload is smaller than requested fragment size.
 The user can set two types of filters. Both types can be set together or each one separately:
-- Berkeley Packet Filter (BPF) filter - all packets that match this filter will be fragmeneted ('-f' flag)
+- Berkeley Packet Filter (BPF) filter - all packets that match this filter will be fragmented ('-f' flag)
 - For IPv4 packets only: a comma-separated list of IP IDs in decimal format. Packets matching one of these IP IDs will be fragmented ('-d' flag)
 
 **Output:**  
 Output file type will be identical to input file type. So for pcap file the output will be a pcap file, and same for pcapng.
-The default is that only fragmeneted packets are written to output file, but the user may choose to copy also the packets 
+The default is that only fragmented packets are written to output file, but the user may choose to copy also the packets 
 that weren't fragmented to the output file (using '-a' flag).
 In addition to the output file the utility outputs to console basic statistics about the process:  
 
@@ -51,12 +51,12 @@ Fragment only packets with source address of 10.0.0.1 to 8B fragments. Only pack
 
 	IPFragUtil mypcap.pcap -o output.pcap -s 8 -f "ip src 10.0.0.1"
 	
-Fragment only packets with source address of 10.0.0.1 to 8B fragments. All packets in mypcap.pcapng will be writen to output file: both those
+Fragment only packets with source address of 10.0.0.1 to 8B fragments. All packets in mypcap.pcapng will be written to output file: both those
 matching the filter (and fragmented) and those who don't:  
 
 	IPFragUtil mypcap.pcapng -o output.pcapng -s 8 -f "src ip 10.0.0.1" -a
 
-Fragment only IPv4 packets with source address of 10.0.0.1 and IP ID of 123 to 16B fragments. All packets in mypcap.pcapng will be writen to output file: both those
+Fragment only IPv4 packets with source address of 10.0.0.1 and IP ID of 123 to 16B fragments. All packets in mypcap.pcapng will be written to output file: both those
 matching the filter (and fragmented) and those who don't:  
 
 	IPFragUtil mypcap.pcapng -o output.pcapng -s 16 -f "src ip 10.0.0.1" -d 123 -a
