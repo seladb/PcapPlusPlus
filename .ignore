@@ -1,0 +1,12 @@
+*.dat
+**/Makefile
+codespell-ignore-list.txt
+ci
+Dist
+mk
+Tests/Fuzzers/RegressionTests/regression_samples
+Tests/ExamplesTest/expected_output
+Tests/ExamplesTest/pcap_examples
+Tests/Packet++Test/PacketExamples
+Tests/Pcap++Test/PcapExamples
+Tests/Packet++Test/Tests/SipSdpTests.cpp
