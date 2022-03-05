@@ -374,7 +374,7 @@ inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer)
 	pcpp::iphdr ipHdr;
 	pcpp::iphdr* origIpHdr = ipLayer->getIPv4Header();
 	std::memcpy(&ipHdr, origIpHdr, sizeof(ipHdr));
-	if (pcpp::netToHost16(ipHdr.fragmentOffset) & 0x1FFF) // Fragment packet
+	if (pcpp::netToHost16(ipHdr.fragmentOffset) & 0x1FFF) // Fragmented packet
 		return false;
 	// Swap src and dst IPs
 	std::memcpy(&ipHdr.ipSrc, &origIpHdr->ipDst, sizeof(ipHdr.ipSrc));
