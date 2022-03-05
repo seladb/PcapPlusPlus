@@ -426,7 +426,7 @@ bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets, pcpp::Kn
 		}
 
 		if ((udpLayer = packet.getLayerOfType<pcpp::UdpLayer>()) != NULL)
-		{	
+		{
 			++packetStats->udpPacketsIn;
 			//! Warning (echo-Mike): DO NOT normalize next logic statement it relays on short circuiting
 			if (!processUdp(packet, udpLayer) || !kni->sendPacket(packet))
@@ -503,7 +503,7 @@ ssize_t drainbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
 
 /**
  * Reworked readwrite from netcat.
- * 
+ *
  * Note (echo-Mike): This function and fillbuf/drainbuf
  * are analogous to code of NETCAT utility (OpenBSD version)
  * Authors of original codebase:

@@ -228,7 +228,7 @@ uint8_t* SSHKeyExchangeInitMessage::getCookie()
 
 	return m_Data + sizeof(ssh_message_base);
 }
-		
+
 std::string SSHKeyExchangeInitMessage::getCookieAsHexStream()
 {
 	uint8_t* cookie = getCookie();

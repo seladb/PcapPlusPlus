@@ -1,11 +1,11 @@
 KNI Pong
 ========
 
-This application emulates working of Unix NETCAT utility that run with `-u` key.  
-Basically it is a ping/pong client/server channel using user provided input from `stdin`.  
-User provided input is sent to KNI device in UDP packets. Application reads this packets and sends them back to Linux kernel with same string so the string will be shown on terminal twice.  
-It shows how to work with KNI devices in isolation from DPDK ports.  
-KniPong will stop if `SIGINT` is received (Ctrl+C).  
+This application emulates working of Unix NETCAT utility that run with `-u` key.
+Basically it is a ping/pong client/server channel using user provided input from `stdin`.
+User provided input is sent to KNI device in UDP packets. Application reads this packets and sends them back to Linux kernel with same string so the string will be shown on terminal twice.
+It shows how to work with KNI devices in isolation from DPDK ports.
+KniPong will stop if `SIGINT` is received (Ctrl+C).
 
 Using the utility
 -----------------
@@ -33,7 +33,7 @@ Next line will:
 * start to forward what You type to `stdin` to created UDP socket
 * if something is received from socket it will be dumped to `stdout`
 
-The thread that handles packets from KNI device will response to any ARP request with same MAC and for any UDP packet with same packet.  
+The thread that handles packets from KNI device will response to any ARP request with same MAC and for any UDP packet with same packet.
 So that netstat utility (`netstat | grep 192.168.0.100`) will show something like :
 > udp 0 0 192.168.0.100:44300 192.168.0.150:44300 ESTABLISHED
 

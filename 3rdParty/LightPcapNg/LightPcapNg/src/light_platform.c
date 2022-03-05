@@ -116,7 +116,7 @@ light_file light_open_compression(const char *file_name, const __read_mode_t mod
 		case LIGHT_OWRITE:
 			fd->file = fopen(file_name, "wb");
 			break;
-			//TODO Not so sure about allowing appends... I think you can get away with this in Zstd 
+			//TODO Not so sure about allowing appends... I think you can get away with this in Zstd
 			//but i dont know about other compression algorithms!
 		/*case LIGHT_OAPPEND:
 			fd->file = fopen(file_name, "ab");

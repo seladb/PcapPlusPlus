@@ -31,13 +31,13 @@ class MemPlumber {
 
         // disable copy c'tor
         MemPlumber(const MemPlumber& other);
-        
+
     public:
 
         /**
          * Start collecting information about memory allocations. Note that before calling this method no information is collected.
          * @param[in] verbose A flag indicating whether to dump information on each memory allocation and deallocation. The default value is false
-         * @param[in] fileDumperName If the "verbose" flag is set to true, it is possible to dump the verbose information to a file. 
+         * @param[in] fileDumperName If the "verbose" flag is set to true, it is possible to dump the verbose information to a file.
          * If this parameter is set to an empty string (which is also the default value), the verbose information will be dumped to stdout
          * @param[in] append If the "verbose" flag is set to true and "fileDumperName" is a non-empty string and if this file already exists on disk,
          * this parameter indicates whether to append the verbose information to the existing file or start writing from scratch
@@ -65,7 +65,7 @@ class MemPlumber {
          * @param[out] memLeakCount The number of memory allocations that were not yet freed
          * @param[out] memLeakSize The total amount of memory that was allocated but not yet freed
          * @param[in] verbose A flag indicating whether to dump information on all memory allocations that were not yet freed. The default value is false
-         * @param[in] fileDumperName If the "verbose" flag is set to true, it is possible to dump the verbose information to a file. 
+         * @param[in] fileDumperName If the "verbose" flag is set to true, it is possible to dump the verbose information to a file.
          * If this parameter is set to an empty string (which is also the default value), the verbose information will be dumped to stdout
          * @param[in] append If the "verbose" flag is set to true and "fileDumperName" is a non-empty string and if this file already exists on disk,
          * this parameter indicates whether to append the verbose information to the existing file or start writing from scratch
@@ -75,12 +75,12 @@ class MemPlumber {
         }
 
         /**
-         * Present information about memory allocations of static variables. This information is available only if the library was compiled with the 
+         * Present information about memory allocations of static variables. This information is available only if the library was compiled with the
          * -DCOLLECT_STATIC_VAR_DATA flag and if the main method of the application was renamed and replaced by calling MEMPLUMBER_MAIN(<renamed_original_main_method>);
          * @param[out] memCount The number of static memory allocations
          * @param[out] memSize The total amount of memory that was allocated in static variables
          * @param[in] verbose A flag indicating whether to dump information on all static memory allocations. The default value is false
-         * @param[in] fileDumperName If the "verbose" flag is set to true, it is possible to dump the verbose information to a file. 
+         * @param[in] fileDumperName If the "verbose" flag is set to true, it is possible to dump the verbose information to a file.
          * If this parameter is set to an empty string (which is also the default value), the verbose information will be dumped to stdout
          * @param[in] append If the "verbose" flag is set to true and "fileDumperName" is a non-empty string and if this file already exists on disk,
          * this parameter indicates whether to append the verbose information to the existing file or start writing from scratch

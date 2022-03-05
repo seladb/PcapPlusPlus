@@ -167,7 +167,7 @@ public:
 			return false;
 		}
 
-		
+
 		pcpp::BPFStringFilter filter(m_BpfFilter);
 		bool filterValid = filter.verifyFilter();
 		if (!filterValid)

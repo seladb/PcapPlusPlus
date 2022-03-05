@@ -345,7 +345,7 @@ namespace pcpp
 		PPPoETag getFirstTag() const;
 
 		/**
-		 * Get the tag that comes right after the "tag" parameter. If the given tag is the last one, the returned value 
+		 * Get the tag that comes right after the "tag" parameter. If the given tag is the last one, the returned value
 		 * will contain a logical NULL (PPPoETag#isNull() == true)
 		 * @param[in] tag A given tag
 		 * @return A PPPoETag object containing the tag that comes next, or logical NULL if the given

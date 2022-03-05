@@ -206,7 +206,7 @@ void searchDirectories(std::string directory, bool includeSubDirectories, std::s
 	// open the directory
 	DIR *dir = opendir(directory.c_str());
 
-	// dir is null usually when user has no access permissions 
+	// dir is null usually when user has no access permissions
 	if (dir == NULL)
 		return;
 

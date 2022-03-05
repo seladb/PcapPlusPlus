@@ -338,7 +338,7 @@ if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
    echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
 
-if (( $HAS_SET_DIRECTION_ENABLED > 0 )) ; then 
+if (( $HAS_SET_DIRECTION_ENABLED > 0 )) ; then
    echo -e "HAS_SET_DIRECTION_ENABLED := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
 

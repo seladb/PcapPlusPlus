@@ -34,7 +34,7 @@
 //so allocate 1700 bytes as the max input size we expect in a single shot
 #define COMPRESSION_BUFFER_IN_MAX_SIZE 1700
 
-//This is the z-std compression type I would call it z-std type and realias 
+//This is the z-std compression type I would call it z-std type and realias
 //2x but compiler won't let me do that across bounds it seems
 //So I gave it a generic "light" name....
 struct zstd_compression_t
