@@ -6,8 +6,8 @@ ignore-vcs = true
 ignore-global = true
 ignore-parent = true
 extend-exclude = [  "*.toml",
-                    "*.dat", 
-                    "**/Makefile", 
+                    "*.dat",
+                    "*Makefile*", 
                     "codespell-ignore-list.txt",
                     "ci",
                     "Dist",
