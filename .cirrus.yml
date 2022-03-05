@@ -5,7 +5,7 @@ task:
       image_family: freebsd-12-3
       image_family: freebsd-13-0
   update_script: IGNORE_OSVERSION=yes pkg update -f
-  install_script: 
+  install_script:
     - pkg install -y libpcap bash gsed gmake
     - python -m ensurepip
     - python -m pip install -r Tests/ExamplesTest/requirements.txt
@@ -80,7 +80,7 @@ task:
     - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
   configure_script:
     - ./configure-linux.sh --default
-  build_script: 
+  build_script:
     - make libs
   build_documentation_script:
     - cd pcapplusplus.github.io/static/api-docs/next/doxygen

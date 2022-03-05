@@ -1,13 +1,13 @@
 DNS Spoofing
 ============
 
-This application does simple DNS spoofing. It's provided with interface name or IP address and starts capturing DNS requests on that interface. 
+This application does simple DNS spoofing. It's provided with interface name or IP address and starts capturing DNS requests on that interface.
 Each DNS request that matches is edited and turned into a DNS response with a user-provided IPv4 address as the resolved IP address.
 Then it's sent back on the network on the same interface
 
 Using the utility
 -----------------
-	Basic usage: 
+	Basic usage:
 		DnsSpoofing [-hl] [-o HOST1,HOST2,...,HOST_N] [-c IP_ADDRESS] -i INTERFACE -d IP_ADDRESS
 
 	Options:

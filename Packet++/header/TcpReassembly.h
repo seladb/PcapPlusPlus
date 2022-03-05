@@ -238,55 +238,55 @@ public:
 		/**
 		 * The processed packet contains valid TCP payload, and its payload is processed by `OnMessageReadyCallback` callback function.
 		 * The packet may be:
-		 * 1. An in-order TCP packet, meaning `packet_sequence == sequence_expected`. 
+		 * 1. An in-order TCP packet, meaning `packet_sequence == sequence_expected`.
 		 *    Note if there's any buffered out-of-order packet waiting for this packet, their associated callbacks are called in this `reassemblePacket` call.
-		 * 2. An out-of-order TCP packet which satisfy `packet_sequence < sequence_expected && packet_sequence + packet_payload_length > sequence_expected`. 
+		 * 2. An out-of-order TCP packet which satisfy `packet_sequence < sequence_expected && packet_sequence + packet_payload_length > sequence_expected`.
 		 *    Note only the new data (the `[sequence_expected, packet_sequence + packet_payload_length]` part ) is processed by `OnMessageReadyCallback` callback function.
 		 */
 		TcpMessageHandled,
 		/**
-		 * The processed packet is an out-of-order TCP packet, meaning `packet_sequence > sequence_expected`. It's buffered so no `OnMessageReadyCallback` callback function is called. 
+		 * The processed packet is an out-of-order TCP packet, meaning `packet_sequence > sequence_expected`. It's buffered so no `OnMessageReadyCallback` callback function is called.
 		 * The callback function for this packet maybe called LATER, under different circumstances:
 		 * 1. When an in-order packet which is right before this packet arrives(case 1 and case 2 described in `TcpMessageHandled` section above).
-		 * 2. When a FIN or RST packet arrives, which will clear the buffered out-of-order packets of this side. 
+		 * 2. When a FIN or RST packet arrives, which will clear the buffered out-of-order packets of this side.
 		 *    If this packet contains "new data", meaning `(packet_sequence <= sequence_expected) && (packet_sequence + packet_payload_length > sequence_expected)`, the new data is processed by `OnMessageReadyCallback` callback.
 		 */
 		OutOfOrderTcpMessageBuffered,
 		/**
-		 * The processed packet is a FIN or RST packet with no payload. 
-		 * Buffered out-of-order packets will be cleared. 
+		 * The processed packet is a FIN or RST packet with no payload.
+		 * Buffered out-of-order packets will be cleared.
 		 * If they contain "new data", the new data is processed by `OnMessageReadyCallback` callback.
 		 */
 		FIN_RSTWithNoData,
 		/**
-		 * The processed packet is not a SYN/SYNACK/FIN/RST packet and has no payload. 
+		 * The processed packet is not a SYN/SYNACK/FIN/RST packet and has no payload.
 		 * Normally it's just a bare ACK packet.
-		 * It's ignored and no callback function is called.  
+		 * It's ignored and no callback function is called.
 		 */
 		Ignore_PacketWithNoData,
 		/**
-		 * The processed packet comes from a closed flow(an in-order FIN or RST is seen). 
-		 * It's ignored and no callback function is called. 
+		 * The processed packet comes from a closed flow(an in-order FIN or RST is seen).
+		 * It's ignored and no callback function is called.
 		 */
 		Ignore_PacketOfClosedFlow,
 		/**
 		 * The processed packet is a restransmission packet with no new data, meaning the `packet_sequence + packet_payload_length < sequence_expected`.
-		 * It's ignored and no callback function is called. 
+		 * It's ignored and no callback function is called.
 		 */
 		Ignore_Retransimission,
 		/**
-		 * The processed packet is not an IP packet. 
-		 * It's ignored and no callback function is called. 
+		 * The processed packet is not an IP packet.
+		 * It's ignored and no callback function is called.
 		 */
 		NonIpPacket,
 		/**
-		 * The processed packet is not a TCP packet. 
-		 * It's ignored and no callback function is called. 
+		 * The processed packet is not a TCP packet.
+		 * It's ignored and no callback function is called.
 		 */
 		NonTcpPacket,
 		/**
-		 * The processed packet does not belong to any known TCP connection. 
-		 * It's ignored and no callback function is called. 
+		 * The processed packet does not belong to any known TCP connection.
+		 * It's ignored and no callback function is called.
 		 * Normally this will be happen.
 		 */
 		Error_PacketDoesNotMatchFlow,
@@ -414,7 +414,7 @@ private:
 
 		TcpReassemblyData() : closed(false), numOfSides(0), prevSide(-1) {}
 	};
-	
+
 	typedef std::map<uint32_t, TcpReassemblyData> ConnectionList;
 	typedef std::map<time_t, std::list<uint32_t> > CleanupList;
 

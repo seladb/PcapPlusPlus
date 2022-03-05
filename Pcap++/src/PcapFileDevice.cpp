@@ -254,7 +254,7 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& pa
 		PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
 		return false;
 	}
-	
+
 	while (!m_BpfWrapper.matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp, pktHeader.data_link))
 	{
 		if (!light_get_next_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, &pktData))

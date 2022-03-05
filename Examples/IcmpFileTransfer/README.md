@@ -40,9 +40,9 @@ This utility in PcapPlusPlus has 2 parts:
 - Catcher - which receives ICMP echo (ping) requests from the pitcher and sends back ICMP echo (ping) replies
 
 In most implementations I came across on the Internet a pitcher-like utility was always used for sending the file and a catcher-like utility was always used for receiving the file.
-This implementation is unique in that both pitcher and catcher can be configured to send files or receive files. So you can either send a file from the pitcher to the catcher 
+This implementation is unique in that both pitcher and catcher can be configured to send files or receive files. So you can either send a file from the pitcher to the catcher
 or vice versa (send a file from the catcher to the pitcher).
-when can this feature be useful? for cases where one of the machines can only reply to ICMP requests but not initiate ICMP requests to the other side. 
+when can this feature be useful? for cases where one of the machines can only reply to ICMP requests but not initiate ICMP requests to the other side.
 For example: if one of the machines is in a closed network where you can only access it from outside but you cannot access the outside from within that network.
 In this case you can put the pitcher in the outside network and configure it to receive files, and put the catcher in the closed network and configure it to send files.
 Here you have a way to copy files from the closed network to the outside world.
@@ -74,8 +74,8 @@ The situation here is a little bit more complicated as the catcher cannot instan
 
 Using the utility
 -----------------
-    Pitcher:  
-        Basic usage:  
+    Pitcher:
+        Basic usage:
             IcmpFileTransfer-pitcher [-h] [-l] -i pitcher_interface -d catcher_ip -s file_path -r [-p messages_per_sec] [-b block_size]
         Options:
             -i pitcher_interface : The pitcher interface to use. Can be interface name (e.g eth0) or interface IPv4 address
@@ -88,9 +88,9 @@ Using the utility
             -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). The default is 1400 bytes. Relevant only in send file mode (when -s is set)
             -l                   : Print the list of interfaces and exit the program
             -h                   : Display help screen and exit the program
-				
+
     Catcher:
-        Basic usage: 
+        Basic usage:
             IcmpFileTransfer-catcher [-h] [-l] -i catcher_interface -d pitcher_ip -s file_path -r [-b block_size]
         Options:
             -i catcher_interface : The catcher interface to use. Can be interface name (e.g eth0) or interface IPv4 address

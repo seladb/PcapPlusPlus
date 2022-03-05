@@ -38,7 +38,7 @@ void printUsage()
 		<< "-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
 		<< "-n --no-networking       Do not run tests that requires networking\n"
 		<< "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
-		<< "-m --mem-verbose         Output information about each memory allocation and deallocation\n"			
+		<< "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
 		<< "-s --skip-mem-leak-check Skip memory leak check\n"
 		<< "-k --kni-ip              IP address for KNI device tests to use must not be the same\n"
 		<< "                         as any of existing network interfaces in your system.\n"
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 		printUsage();
 		exit(-1);
 	}
-	
+
 	#ifdef NDEBUG
 	skipMemLeakCheck = true;
 	std:: cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:" << std::endl

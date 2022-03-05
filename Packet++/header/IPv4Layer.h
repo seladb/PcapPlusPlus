@@ -366,7 +366,7 @@ namespace pcpp
 		bool m_BuilderParamsValid;
 
 	public:
-		
+
 		/**
 		 * A c'tor for building IPv4 options which their value is a byte array. The IPv4Option object can be later
 		 * retrieved by calling build()
@@ -389,7 +389,7 @@ namespace pcpp
 			TLVRecordBuilder((uint8_t)optionType, optionValue) { m_BuilderParamsValid = true; }
 
 		/**
-		 * A c'tor for building IPv4 options which their value is a list of IPv4 addresses, for example: 
+		 * A c'tor for building IPv4 options which their value is a list of IPv4 addresses, for example:
 		 * ::IPV4OPT_RecordRoute, ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_LooseSourceRoute. The IPv4Option object can be later retrieved
 		 * by calling build()
 		 * @param[in] optionType IPv4 option type
@@ -620,7 +620,7 @@ namespace pcpp
 		 * - IgmpLayer
 		 * - AuthenticationHeaderLayer (IPSec)
 		 * - ESPLayer (IPSec)
-		 * 
+		 *
 		 * Otherwise sets PayloadLayer
 		 */
 		void parseNextLayer();

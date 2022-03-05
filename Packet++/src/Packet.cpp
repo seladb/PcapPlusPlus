@@ -359,7 +359,7 @@ bool Packet::removeLastLayer()
 		PCPP_LOG_ERROR("Packet has no layers");
 		return false;
 	}
-	
+
 	return removeLayer(lastLayer, true);
 }
 
@@ -699,7 +699,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	}
 	else
 		snprintf(buf, sizeof(buf), "0000-00-00 00:00:00.000000000");
-	
+
 	return "Packet length: " + dataLenStream.str() + " [Bytes], Arrival time: " + std::string(buf);
 }
 
