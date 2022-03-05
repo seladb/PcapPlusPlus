@@ -39,7 +39,7 @@ function HELP {
 HAS_PCAP_IMMEDIATE_MODE=0
 HAS_SET_DIRECTION_ENABLED=0
 
-# initializing libpcap include/lib dirs to an empty string 
+# initializing libpcap include/lib dirs to an empty string
 LIBPCAP_INCLUDE_DIR=""
 LIBPCAP_LIB_DIR=""
 
