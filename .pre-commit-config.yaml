@@ -20,9 +20,9 @@ repos:
   - repo: https://github.com/codespell-project/codespell
     rev: v2.1.0
     hooks:
-    -   id: codespell
--   repo: https://github.com/crate-ci/typos
+      - id: codespell
+  - repo: https://github.com/crate-ci/typos
     rev: v1.4.1
     hooks:
-    -   id: typos
+      - id: typos
         args: ['--config=typos-config.toml']
