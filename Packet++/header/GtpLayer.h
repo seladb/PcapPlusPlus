@@ -60,7 +60,7 @@ namespace pcpp
 #pragma pack(pop)
 
 	/**
-	 * An enum representing the possible GTP v1 message types. 
+	 * An enum representing the possible GTP v1 message types.
 	 * All of the message types except for #GtpV1_GPDU are considered GTP-C messages. #GtpV1_GPDU is considered a GTP-U message
 	 */
 	enum GtpV1MessageType
@@ -244,7 +244,7 @@ namespace pcpp
 			void setNextHeaderType(uint8_t nextHeaderType);
 
 			static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
-			
+
 		public:
 
 			/**
@@ -295,13 +295,13 @@ namespace pcpp
 			uint8_t* getContent() const;
 
 			/**
-			 * @return The extension type of the next header. If there are no more header extensions or if this object is empty 
+			 * @return The extension type of the next header. If there are no more header extensions or if this object is empty
 			 * a value of zero is returned
 			 */
 			uint8_t getNextExtensionHeaderType() const;
 
 			/**
-			 * @return An instance of this class representing the next extension header, if exists in the message. If there are 
+			 * @return An instance of this class representing the next extension header, if exists in the message. If there are
 			 * no more header extensions or if this object is empty an empty instance of GtpExtension is returned, meaning
 			 * one that GtpExtension#isNull() returns "true"
 			 */
@@ -394,7 +394,7 @@ namespace pcpp
 		GtpExtension getNextExtension() const;
 
 		/**
-		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in length and its content is 2 bytes in length. 
+		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in length and its content is 2 bytes in length.
 		 * If you need a different content size please reach out to me. This method takes care of extending the layer to make room for
 		 * the new extension and also sets the relevant flags and fields
 		 * @param[in] extensionType The type of the new extension
@@ -440,9 +440,9 @@ namespace pcpp
 		void parseNextLayer();
 
 		/**
-		 * @return The size of the GTP header. For GTP-C packets the size is determined by the value of 
+		 * @return The size of the GTP header. For GTP-C packets the size is determined by the value of
 		 * gtpv1_header#messageLength and for GTP-U the size only includes the GTP header itself (meaning
-		 * the size of gtpv1_header plus the size of the optional fields such as sequence number, N-PDU 
+		 * the size of gtpv1_header plus the size of the optional fields such as sequence number, N-PDU
 		 * or extensions if exist)
 		 */
 		size_t getHeaderLen() const;

@@ -1,28 +1,28 @@
 IPDefragUtil
 ============
 
-A utility for reassembling IP fragments back into full packets. Both IPv4 and IPv6 reassmbly is supported. 
+A utility for reassembling IP fragments back into full packets. Both IPv4 and IPv6 reassmbly is supported.
 The utility works on pcap and pcapng files and it allows the user to choose which packets will be reassembled, either by choosing
 specific IP IDs (for IPv4) and/or choosing specific fragment IDs (for IPv6) and/or set a Berkeley Packet Filter (BPF) filter.
 
 
 Using the utility
 -----------------
-**The must-have inputs for this utility are:**  
+**The must-have inputs for this utility are:**
 - Input file (pcap or pcapng format)
 - Output file, where fragments will be written to ('-o' flag)
 
-**Filtering packets:**  
+**Filtering packets:**
 If no filter is specified, the default is that all fragment packets will be reassembled.
 The user can set two types of filters. Both types can be set together or each one separately:
 - Berkeley Packet Filter (BPF) filter - all fragments that match this filter will be reassembled ('-f' flag)
 - A comma-separated list of IP IDs (for IPv4) and/or fragment IDs (for IPv6) in decimal format. Fragments matching one of these IDs will be reassembled ('-d' flag)
 
-**Output:**  
+**Output:**
 Output file type will be identical to input file type. So for pcap file the output will be a pcap file, and same for pcapng.
-The default is that only reassembled packets are written to output file, but the user may choose to copy also the packets 
+The default is that only reassembled packets are written to output file, but the user may choose to copy also the packets
 that weren't reassembled to the output file (using '-a' flag).
-In addition to the output file the utility outputs to console basic statistics about the process:  
+In addition to the output file the utility outputs to console basic statistics about the process:
 
 	Summary:
 	========
@@ -38,42 +38,42 @@ In addition to the output file the utility outputs to console basic statistics a
 	Total packets written to output file:    6
 
 
-**Usage examples:**  
-Reassemble all fragments in mypcap.pcap:  
+**Usage examples:**
+Reassemble all fragments in mypcap.pcap:
 
 	IPDefragUtil mypcap.pcap -o output.pcap
-	
-Reassemble only fragments with IP ID / fragment ID of 12345, 12346 and 12347. Only these packets will be written to output file:  
+
+Reassemble only fragments with IP ID / fragment ID of 12345, 12346 and 12347. Only these packets will be written to output file:
 
 	IPDefragUtil mypcap.pcap -o output.pcap -d 12345,12346,12347
 
-Reassemble only fragments with source IP of 10.0.0.1. Only the reassembled packets will be written to output file:  
+Reassemble only fragments with source IP of 10.0.0.1. Only the reassembled packets will be written to output file:
 
 	IPDefragUtil mypcap.pcap -o output.pcap -f "ip src 10.0.0.1"
-	
-Reassemble only fragments with source IP of 10.0.0.1. All packets in mypcap.pcapng will be written to output file: both those matching the 
-filter (and reassembled) and those who don't:  
+
+Reassemble only fragments with source IP of 10.0.0.1. All packets in mypcap.pcapng will be written to output file: both those matching the
+filter (and reassembled) and those who don't:
 
 	IPDefragUtil mypcap.pcapng -o output.pcapng f "src ip 10.0.0.1" -a
 
 Reassemble only fragments with source IP of 10.0.0.1 and IP ID of 123. All packets in mypcap.pcapng will be written to output file: both those
-matching the filter (and fragmented) and those who don't:  
+matching the filter (and fragmented) and those who don't:
 
 	IPDefragUtil mypcap.pcapng -o output.pcapng -f "src ip 10.0.0.1" -d 123 -a
 
-Reassemble an IPv4 packet with IP ID 1234 and an IPv6 packet with fragment ID 5678:  
+Reassemble an IPv4 packet with IP ID 1234 and an IPv6 packet with fragment ID 5678:
 
 	IPDefragUtil mypcap.pcap -o output.pcap -d 1234,5678
 
-Reassemble only IPv6 fragments with dest address of 2001:4f8:3:d::61:  
+Reassemble only IPv6 fragments with dest address of 2001:4f8:3:d::61:
 
 	IPDefragUtil mypcap.pcap -o output.pcapng -f "ip6 dst 2001:4f8:3:d::61"
 
 
-**Usage:**  
+**Usage:**
 
 	Basic usage:
-	
+
 		IPDefragUtil input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]
 
 	Options:

@@ -1332,7 +1332,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			delete newExt;
 			break;
 		}
-			
+
 
 		m_ExtensionList.pushBack(newExt);
 		curPos += newExt->getTotalLength();
@@ -1620,7 +1620,7 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			delete newExt;
 			break;
 		}
-			
+
 		m_ExtensionList.pushBack(newExt);
 		curPos += newExt->getTotalLength();
 	}

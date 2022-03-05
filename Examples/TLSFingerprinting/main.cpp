@@ -1,10 +1,10 @@
 /**
  * TLS Fingerprinting application
  * ==============================
- * 
+ *
  * This application demonstrates how to extract and use TLS fingerprinting data using PcapPlusPlus.
  * Please read the README.md file for more information.
- * 
+ *
  * You can also run `TLSFingerprinting -h` for modes of operation and parameters.
  */
 
@@ -290,7 +290,7 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 		stream << "TLS ServerHello packets:              " << stats.numOfSHPackets << std::endl;
 		stream << "Unique ServerHello TLS fingerprints:  " << stats.shFingerprints.size() << std::endl;
 	}
-		
+
 	std::cout << stream.str() << std::endl;
 
 	// write a table of the 10 most common TLS fingerprints
@@ -306,7 +306,7 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 		printCommonTLSFingerprints(stats.chFingerprints, 10);
 		std::cout << std::endl;
 	}
-		
+
 	// if user requested to extract ServerHello TLS fingerprints and there is data to show
 	if (shFP && stats.shFingerprints.size() > 0)
 	{
@@ -473,7 +473,7 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 			outputFileName.begin(),
 			outputFileName.end(),
 			isNotAlphanumeric), outputFileName.end());
-		
+
 		outputFileName += ".txt";
 	}
 

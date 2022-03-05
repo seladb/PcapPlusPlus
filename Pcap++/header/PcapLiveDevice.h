@@ -428,10 +428,10 @@ namespace pcpp
 		bool sendPacket(RawPacket const& rawPacket, bool checkMtu = false);
 
 		/**
-		 * Send a buffer containing packet raw data (including all layers) to the network. 
+		 * Send a buffer containing packet raw data (including all layers) to the network.
 		 * This particular version of the sendPacket method should only be used if you already have access to the size of the network layer of the packet,
 		 * since it allows you to check the payload size (see packetPayloadLength parameter) MTU of the live device without incurring a parsing overhead.
-		 * If the packetPayloadLength is unknown, please use a different implementation of the sendPacket method. 
+		 * If the packetPayloadLength is unknown, please use a different implementation of the sendPacket method.
 		 * @param[in] packetData The buffer containing the packet raw data
 		 * @param[in] packetDataLength The length of the buffer (this is the entire packet, including link layer)
 		 * @param[in] packetPayloadLength The length of the payload for the data link layer. This includes all data apart from the header for the
@@ -450,7 +450,7 @@ namespace pcpp
 		 * @param[in] packetDataLength The length of the buffer
 		 * @param[in] checkMtu Whether the length of the packet's payload should be checked against the MTU. If enabled this comes with a small performance penalty.
 		 * Default value is false to avoid performance overhead. Set to true if you don't know whether packets fit the live device's MTU and you can afford the overhead.
-		 * @param[in] linkType Only used if checkMtu is true. Defines the layer type for parsing the first layer of the packet. Used for parsing the packet to 
+		 * @param[in] linkType Only used if checkMtu is true. Defines the layer type for parsing the first layer of the packet. Used for parsing the packet to
 		 * perform the MTU check. Default value is pcpp::LINKTYPE_ETHERNET. Ensure this parameter matches the linktype of the packet if checkMtu is true.
 		 * @return True if packet was sent successfully. False will be returned in the following cases (relevant log error is printed in any case):
 		 * - Device is not opened
@@ -541,7 +541,7 @@ namespace pcpp
 
 		/**
 		 * Clones the current device class
-		 * @return Pointer to the copied class 
+		 * @return Pointer to the copied class
 		 */
 		PcapLiveDevice* clone();
 

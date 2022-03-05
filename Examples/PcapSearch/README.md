@@ -1,14 +1,14 @@
 Pcap Search
 ===========
 
-This application searches all pcap and pcapng files in a given directory and all its sub-directories (unless stated otherwise) and outputs how many and which packets in those files match a certain pattern given by the user. 
-The pattern is given in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html). 
+This application searches all pcap and pcapng files in a given directory and all its sub-directories (unless stated otherwise) and outputs how many and which packets in those files match a certain pattern given by the user.
+The pattern is given in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html).
 
 For example: if running the application with the following parameters:
 
 	PcapSearch.exe -d C:\ -s "ip net 1.1.1.1" -r C:\report.txt
 
-The application will search all '.pcap' or 'pcapng' files in all directories under C drive and try to match packets that matches IP 1.1.1.1. The result will be printed to stdout and a more detailed report will be printed 
+The application will search all '.pcap' or 'pcapng' files in all directories under C drive and try to match packets that matches IP 1.1.1.1. The result will be printed to stdout and a more detailed report will be printed
 to c:\report.txt
 
 Output example:

@@ -8,7 +8,7 @@
 /**
  * @file
  * This file contains classes for parsing, creating and editing Border Gateway Protocol (BGP) version 4 packets.
- * It contains an abstract class named BgpLayer which has common functionality and 5 inherited classes that 
+ * It contains an abstract class named BgpLayer which has common functionality and 5 inherited classes that
  * represent the different BGP message types: OPEN, UPDATE, NOTIFICATION, KEEPALIVE and ROUTE-REFRESH.
  * Each of these classes contains unique functionality for parsing. creating and editing of these message.
  */
@@ -88,7 +88,7 @@ public:
 	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored
 	 * @return A newly allocated BGP layer of one of the following types (according to the message type):
-	 * BgpOpenMessageLayer, BgpUpdateMessageLayer, BgpNotificationMessageLayer, BgpKeepaliveMessageLayer, 
+	 * BgpOpenMessageLayer, BgpUpdateMessageLayer, BgpNotificationMessageLayer, BgpKeepaliveMessageLayer,
 	 * BgpRouteRefreshMessageLayer
 	 */
 	static BgpLayer* parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
@@ -181,7 +181,7 @@ public:
 		/**
 		 * A c'tor that initializes the values of the struct
 		 * @param[in] typeVal Parameter type value
-		 * @param[in] valueAsHexString Parameter data as hex string. The length field will be set accordingly. 
+		 * @param[in] valueAsHexString Parameter data as hex string. The length field will be set accordingly.
 		 * If this parameter is not a valid hex string the data will remain zeroed and length will be also zero
 		 */
 		optional_parameter(uint8_t typeVal, std::string valueAsHexString);
@@ -201,7 +201,7 @@ public:
 	 * @param[in] myAutonomousSystem The Autonomous System number of the sender
 	 * @param[in] holdTime The number of seconds the sender proposes for the value of the Hold Timer
 	 * @param[in] bgpId The BGP Identifier of the sender
-	 * @param[in] optionalParams A vector of optional parameters. This parameter is optional and if not provided no parameters will be 
+	 * @param[in] optionalParams A vector of optional parameters. This parameter is optional and if not provided no parameters will be
 	 * set on the message
 	 */
 	BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t holdTime, const IPv4Address& bgpId,
@@ -227,7 +227,7 @@ public:
 	/**
 	 * Get a vector of the optional parameters in the message
 	 * @param[out] optionalParameters The vector where the optional parameters will be written to. This method doesn't remove any
-	 * existing data on this vector before pushing data to it 
+	 * existing data on this vector before pushing data to it
 	 */
 	void getOptionalParameters(std::vector<optional_parameter>& optionalParameters);
 
@@ -237,8 +237,8 @@ public:
 	size_t getOptionalParametersLength();
 
 	/**
-	 * Set optional parameters in the message. This method will override all existing optional parameters currently in the message. 
-	 * If the input is an empty vector all optional parameters will be cleared. This method automatically sets the 
+	 * Set optional parameters in the message. This method will override all existing optional parameters currently in the message.
+	 * If the input is an empty vector all optional parameters will be cleared. This method automatically sets the
 	 * bgp_common_header#length and the bgp_open_message#optionalParameterLength fields on the message
 	 * @param[in] optionalParameters A vector of new optional parameters to set in the message
 	 * @return True if all optional parameters were set successfully or false otherwise. In case of an error an appropriate message
@@ -276,7 +276,7 @@ public:
 
 	/**
 	 * @struct prefix_and_ip
-	 * A structure that contains IPv4 address and IP address mask (prefix) information. 
+	 * A structure that contains IPv4 address and IP address mask (prefix) information.
 	 * It's used to represent BGP Withdrawn Routes and Network Layer Reachability Information (NLRI)
 	 */
 	struct prefix_and_ip
@@ -324,7 +324,7 @@ public:
 		 * A c'tor that initializes the values of the struct
 		 * @param[in] flagsVal Path attribute flags value
 		 * @param[in] typeVal Path attribute type value
-		 * @param[in] dataAsHexString Path attribute data as hex string. The path_attribute#length field will be set accordingly. 
+		 * @param[in] dataAsHexString Path attribute data as hex string. The path_attribute#length field will be set accordingly.
 		 * If this parameter is not a valid hex string the data will remain zeroed and length will be also set to zero
 		 */
 		path_attribute(uint8_t flagsVal, uint8_t typeVal, std::string dataAsHexString);
@@ -368,8 +368,8 @@ public:
 	void getWithdrawnRoutes(std::vector<prefix_and_ip>& withdrawnRoutes);
 
 	/**
-	 * Set Withdrawn Routes in this message. This method will override any existing Withdrawn Routes in the message. 
-	 * If the input is an empty vector all Withdrawn Routes will be removed. This method automatically sets the 
+	 * Set Withdrawn Routes in this message. This method will override any existing Withdrawn Routes in the message.
+	 * If the input is an empty vector all Withdrawn Routes will be removed. This method automatically sets the
 	 * bgp_common_header#length and the Withdrawn Routes length fields in the message
 	 * @param[in] withdrawnRoutes New Withdrawn Routes to set in the message
 	 * @return True if all Withdrawn Routes were set successfully or false otherwise. In case of an error an appropriate message
@@ -397,8 +397,8 @@ public:
 	void getPathAttributes(std::vector<path_attribute>& pathAttributes);
 
 	/**
-	 * Set Path Attributes in this message. This method will override any existing Path Attributes in the message. 
-	 * If the input is an empty vector all Path Attributes will be removed. This method automatically sets the 
+	 * Set Path Attributes in this message. This method will override any existing Path Attributes in the message.
+	 * If the input is an empty vector all Path Attributes will be removed. This method automatically sets the
 	 * bgp_common_header#length and the Path Attributes length fields in the message
 	 * @param[in] pathAttributes New Path Attributes to set in the message
 	 * @return True if all Path Attributes were set successfully or false otherwise. In case of an error an appropriate message
@@ -554,7 +554,7 @@ public:
 	 * If newNotificationDataAsHexString is an empty string then notification data will be set to none.
 	 * @param[in] newNotificationDataAsHexString A hex string representing the new notification data. If the string is not a valid hex string
 	 * no data will be changed and an error will be returned
-	 * @return True if notification data was set successfully or false if any error occurred or if the string is not a valid hex string. 
+	 * @return True if notification data was set successfully or false if any error occurred or if the string is not a valid hex string.
 	 * In case of an error an appropriate error message will be printed to log
 	 */
 	bool setNotificationData(const std::string& newNotificationDataAsHexString);

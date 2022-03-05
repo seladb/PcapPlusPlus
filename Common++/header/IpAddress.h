@@ -213,7 +213,7 @@ namespace pcpp
 		 * @return True if the addresses are equal, false otherwise
 		 */
 		bool operator==(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) == 0; }
-		
+
 		/**
 		 * Overload of the less-than operator
 		 * @param[in] rhs The object to compare with

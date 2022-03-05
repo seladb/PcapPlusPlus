@@ -70,7 +70,7 @@ NDK_PATH=""
 TARGET=""
 API=29
 
-# initializing libpcap include/lib dirs to an empty string 
+# initializing libpcap include/lib dirs to an empty string
 LIBPCAP_INLCUDE_DIR=""
 LIBPCAP_LIB_DIR=""
 

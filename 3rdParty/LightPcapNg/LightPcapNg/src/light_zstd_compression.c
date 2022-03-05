@@ -115,7 +115,7 @@ int is_zstd_compressed_file(const char* file_path)
 		return 1;
 	}
 	else
-		return 0; 
+		return 0;
 }
 
 size_t read_zstd_compressed(light_file fd, void *buf, size_t count)

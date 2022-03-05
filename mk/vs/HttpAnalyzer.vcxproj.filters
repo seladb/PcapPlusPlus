@@ -18,7 +18,7 @@
     <ClCompile Include="..\..\Examples\HttpAnalyzer\HttpStatsCollector.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Examples\HttpAnalyzer\main.cpp">
       <Filter>Source Files</Filter>

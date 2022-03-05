@@ -63,7 +63,7 @@ void VlanLayer::parseNextLayer()
 {
 	if (m_DataLen <= sizeof(vlan_header))
 		return;
-	
+
 	uint8_t* payload = m_Data + sizeof(vlan_header);
 	size_t payloadLen = m_DataLen - sizeof(vlan_header);
 

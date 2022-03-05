@@ -109,7 +109,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_TRUE(gtpLayer->isGTPUMessage());
 
 
-	
+
 	// GTP-U IPv6 packet
 	gtpLayer = gtpPacket4.getLayerOfType<pcpp::GtpV1Layer>();
 	PTF_ASSERT_NOT_NULL(gtpLayer);

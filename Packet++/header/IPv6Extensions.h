@@ -240,7 +240,7 @@ namespace pcpp
 		class IPv6TLVOptionBuilder : public TLVRecordBuilder
 		{
 		public:
-		
+
 			/**
 			 * A c'tor for building IPv6 TLV options which their value is a byte array. The IPv6Option object can later
 			 * be retrieved by calling build()
@@ -310,9 +310,9 @@ namespace pcpp
 		 * Returns a pointer to the option that comes after the option given as the parameter
 		 * @param[in] option A pointer to an option instance
 		 * @return An IPv6Option object that wraps the option data. In the following cases logical NULL (IPv6Option#isNull() == true)
-		 * is returned: 
+		 * is returned:
 		 * (1) input parameter is out-of-bounds for this extension or
-		 * (2) the next option doesn't exist or 
+		 * (2) the next option doesn't exist or
 		 * (3) the input option is NULL
 		 */
 		IPv6Option getNextOption(IPv6Option& option) const;

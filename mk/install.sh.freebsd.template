@@ -16,9 +16,9 @@ cp header/* $INSTALL_DIR/include/pcapplusplus
 mkdir -p $INSTALL_DIR/bin
 cp examples/* $INSTALL_DIR/bin
 
-# create template makefile 
+# create template makefile
 cp mk/PcapPlusPlus.mk PcapPlusPlus.mk
-gsed -i.bak '/PCAPPLUSPLUS_HOME :=/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak 
+gsed -i.bak '/PCAPPLUSPLUS_HOME :=/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
 gsed -i.bak '/# libs dir/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
 gsed -i.bak "s|PCAPPP_LIBS_DIR :=.*|PCAPPP_LIBS_DIR := -L$INSTALL_DIR/lib|g" PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
 gsed -i.bak "s|PCAPPP_INCLUDES :=.*|PCAPPP_INCLUDES := -I$INSTALL_DIR/include/pcapplusplus|g" PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak

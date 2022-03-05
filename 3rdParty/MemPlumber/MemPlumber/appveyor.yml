@@ -15,7 +15,7 @@ environment:
       config: Debug
     - compiler: vs2015
       platform: x64
-      config: Release    
+      config: Release
 
 install:
 # Rename sh.exe as sh.exe in PATH interferes with MinGW

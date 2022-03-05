@@ -219,7 +219,7 @@ DhcpV6Option DhcpV6Layer::addOptionBefore(const DhcpV6OptionBuilder& optionBuild
 	}
 
 	offset = nextOpt.getRecordBasePtr() - m_Data;
-	return addOptionAt(optionBuilder, offset);	
+	return addOptionAt(optionBuilder, offset);
 }
 
 bool DhcpV6Layer::removeOption(DhcpV6OptionType optionType)

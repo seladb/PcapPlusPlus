@@ -19,9 +19,9 @@ then
   cp examples/* $INSTALL_DIR/bin
 fi
 
-# create template makefile 
+# create template makefile
 cp mk/PcapPlusPlus.mk PcapPlusPlus.mk
-sed -i.bak '/PCAPPLUSPLUS_HOME :=/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak 
+sed -i.bak '/PCAPPLUSPLUS_HOME :=/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
 sed -i.bak '/# libs dir/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
 sed -i.bak '/PCAPPP_LIBS_DIR :=/d' PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak
 sed -i.bak "s|PCAPPP_INCLUDES :=.*|PCAPPP_INCLUDES := -I$INSTALL_DIR/include/pcapplusplus|g" PcapPlusPlus.mk && rm PcapPlusPlus.mk.bak

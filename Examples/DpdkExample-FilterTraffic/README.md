@@ -1,23 +1,23 @@
 Filter Traffic DPDK example application
 =======================================
 
-This application demonstrates PcapPlusPlus DPDK APIs. 
+This application demonstrates PcapPlusPlus DPDK APIs.
 
-It listens to one or more DPDK ports (a.k.a DPDK devices), captures all traffic and matches packets by user-defined matching criteria such as source/dest IP, source/dest TCP/UDP port and more. 
-Matched packets can be send to another DPDK port and/or be saved to a pcap file. 
+It listens to one or more DPDK ports (a.k.a DPDK devices), captures all traffic and matches packets by user-defined matching criteria such as source/dest IP, source/dest TCP/UDP port and more.
+Matched packets can be send to another DPDK port and/or be saved to a pcap file.
 
 In addition the application collects statistics on received and matched packets (such as number of packets per protocol, number of matched flows and number of matched packets).
 Matching is done per flow, meaning the first packet received on a flow is matched against the matching criteria and if it's matched then all packets of the same flow will be matched too.
 
 
-The application uses the concept of worker threads. Number of cores can be set by the user or set to default (default is all machine cores minus one management core). 
+The application uses the concept of worker threads. Number of cores can be set by the user or set to default (default is all machine cores minus one management core).
 Each core is assigned with one worker thread. The application divides the DPDK ports and RX queues equally between worker threads.
-For example: if there are 2 DPDK ports to listen to, each one with 6 RX queues and there are 3 worker threads, then worker #1 will get RX queues 1-4 of port 1, worker #2 will get RX queues 5-6 of port 1 
+For example: if there are 2 DPDK ports to listen to, each one with 6 RX queues and there are 3 worker threads, then worker #1 will get RX queues 1-4 of port 1, worker #2 will get RX queues 5-6 of port 1
 and RX queues 1-2 of port 2, and worker #3 will get RX queues 3-6 of port 2.
 
 Each worker thread does exactly the same work: receiving packets, collecting packet statistics, matching flows and sending/saving matched packets.
 
-Important: 
+Important:
 ----------
 - This application runs only on Linux (DPDK is not supported on Windows and Mac OS X)
 - This application (like all applications using DPDK) should be run as 'sudo'
@@ -25,7 +25,7 @@ Important:
 
 Using the utility
 -----------------
-	Basic usage: 
+	Basic usage:
 		FilterTraffic [-hl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL] [-c CORE_MASK] [-m POOL_SIZE] -d PORT_1,PORT_3,...,PORT_N
 
 	Options:

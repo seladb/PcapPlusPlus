@@ -184,7 +184,7 @@ light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read
 	light_pcapng_t *pcapng = calloc(1, sizeof(struct _light_pcapng_t));
 	pcapng->file = light_open(file_path, LIGHT_OREAD);
 	DCHECK_ASSERT_EXP(pcapng->file != NULL, "could not open file", return NULL);
-	
+
 	//The first thing inside an NG capture is the section header block
 	//When the file is opened we need to go ahead and read that out
 	light_read_record(pcapng->file,&pcapng->pcapng);
@@ -216,7 +216,7 @@ light_pcapng_t *light_pcapng_open_read(const char* file_path, light_boolean read
 
 	light_pcapng_release(pcapng->pcapng);
 	pcapng->pcapng = NULL;
-	
+
 	return pcapng;
 }
 
@@ -292,7 +292,7 @@ light_pcapng_t *light_pcapng_open_append(const char* file_path)
 	DCHECK_NULLP(file_path, return NULL);
 
 	light_pcapng_t *pcapng = light_pcapng_open_read(file_path, LIGHT_TRUE);
-	DCHECK_NULLP(pcapng, return NULL);	
+	DCHECK_NULLP(pcapng, return NULL);
 	light_close(pcapng->file);
 
 	pcapng->file = light_open(file_path, LIGHT_OAPPEND);

@@ -115,9 +115,9 @@ TEST_CASE(AllocateAllAndThenRelease) {
 
     #if !defined _MSC_VER || !defined _DEBUG
     CHECK_MEM_LEAK(NUM_OF_OBJECTS*23, NUM_OF_OBJECTS*(
-        sizeOfSimpleStruct + 
-        sizeOfSimpleClass + 
-        sizeOfInheritedClass + 
+        sizeOfSimpleStruct +
+        sizeOfSimpleClass +
+        sizeOfInheritedClass +
         sizeOfClassWithMemAllocations +
         sizeOfLibClass +
         sizeOfComplexClass));
@@ -167,9 +167,9 @@ TEST_CASE(AllocateSomeAndReleaseSome) {
 
     #if !defined _MSC_VER || !defined _DEBUG
     CHECK_MEM_LEAK(NUM_OF_OBJECTS*23, NUM_OF_OBJECTS*(
-        sizeOfSimpleStruct + 
-        sizeOfSimpleClass + 
-        sizeOfInheritedClass + 
+        sizeOfSimpleStruct +
+        sizeOfSimpleClass +
+        sizeOfInheritedClass +
         sizeOfClassWithMemAllocations +
         sizeOfLibClass +
         sizeOfComplexClass));
@@ -213,9 +213,9 @@ TEST_CASE(AllocateSomeAndReleaseSome) {
 
     #if !defined _MSC_VER || !defined _DEBUG
     CHECK_MEM_LEAK(NUM_OF_OBJECTS*23, NUM_OF_OBJECTS*(
-        sizeOfSimpleStruct + 
-        sizeOfSimpleClass + 
-        sizeOfInheritedClass + 
+        sizeOfSimpleStruct +
+        sizeOfSimpleClass +
+        sizeOfInheritedClass +
         sizeOfClassWithMemAllocations +
         sizeOfLibClass +
         sizeOfComplexClass));
@@ -245,7 +245,7 @@ TEST_CASE(AllocateSomeAndReleaseSome) {
 int MAIN(int argc, char* argv[]) {
 
     START_RUNNING_TESTS;
-    
+
     RUN_TEST(AllocateAllAndThenRelease);
     RUN_TEST(AllocateSomeAndReleaseSome);
 

@@ -194,7 +194,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/dns_stack_overflow.dat");
-	
+
 	pcpp::Packet dnsPacket5(&rawPacket5);
 
 	dnsLayer = dnsPacket5.getLayerOfType<pcpp::DnsLayer>();

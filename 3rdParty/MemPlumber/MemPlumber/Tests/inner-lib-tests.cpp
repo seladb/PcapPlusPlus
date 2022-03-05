@@ -30,7 +30,7 @@ TEST_CASE(MultiLibTest) {
 int MAIN(int argc, char* argv[]) {
 
     START_RUNNING_TESTS;
-    
+
     #if !defined _MSC_VER || !defined _DEBUG
     RUN_TEST(MultiLibTest);
     #else

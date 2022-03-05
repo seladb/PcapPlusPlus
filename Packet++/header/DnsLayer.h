@@ -489,7 +489,7 @@ namespace pcpp
 	 * DNS over TCP is described here: https://tools.ietf.org/html/rfc7766 .
 	 * It is very similar to DNS over UDP, except for one field: TCP message length which is added in the beginning of the message
 	 * before the other DNS data properties. The rest of the data is similar.
-	 * 
+	 *
 	 * Note: DNS over TCP can spread over more than one packet, but this implementation doesn't support this use-case and assumes
 	 * the whole message fits in a single packet.
 	 */

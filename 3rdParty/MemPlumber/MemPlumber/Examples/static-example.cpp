@@ -5,21 +5,21 @@
 /**
  * This example shows how to enable MemPlumber to collect information about allocation of static variables. It demonstrates the following flow:
  * - Allocate some static variables (1 static variable and 2 static members of a class)
- * - Run a static mem test in verbose mode. This will output all places in the code where static memory was allocated. It will also summarize 
+ * - Run a static mem test in verbose mode. This will output all places in the code where static memory was allocated. It will also summarize
  *   the total number of static objects as well as the amount of memory in those objects
  * - When enabling static memory collection you should rename your `main` method and instead add the `MEMPLUMBER_MAIN` macro and give it your
  *   alternative (renamed) main method
- * 
+ *
  * In order for this example to work please compile the MemPlumber library with the -DCOLLECT_STATIC_VAR_DATA=ON flag
- * 
+ *
  * The output should look something like this:
- * 
+ *
  * Static object allocated at 0x007F6E90 (size 4[bytes]) allocated in: C:\MemPlumber\Examples\static-example.cpp:27
  * Static object allocated at 0x007F6F10 (size 4[bytes]) allocated in: C:\MemPlumber\Examples\static-example.cpp:45
  * Static object allocated at 0x007F7028 (size 16[bytes]) allocated in: C:\MemPlumber\Examples\static-example.cpp:46
  * Number of static objects: 3
  * Total amount of memory allocated in static objects: 24[bytes]
- * 
+ *
  */
 
 
@@ -48,7 +48,7 @@ MyClass2* ClassWithStaticMembers::m_StaticMember2 = new MyClass2();
 // in order to collect static memory allocation we need to rename our `main` method and add the `MEMPLUMBER_MAIN` with the alternative main
 // method as a parameter
 int app_main(int argc, char* argv[]) {
-    
+
     // initiate a static memory check in verbose mode
     size_t staticMemCount;
     uint64_t staticMemSize;

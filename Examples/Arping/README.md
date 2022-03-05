@@ -1,7 +1,7 @@
 Arping
 ======
 
-This application resolves a target MAC address using its IPv4 address, by sending an ARP request and 
+This application resolves a target MAC address using its IPv4 address, by sending an ARP request and
 analyzing the ARP response.
 
 It's an implementation of the arping utility (https://en.wikipedia.org/wiki/Arping) but with less options.
@@ -20,7 +20,7 @@ Using the utility
 		-s mac_addr  : Set source MAC address
 		-S ip_addr   : Set source IP address
 		-T ip_addr   : Set target IP address
-		-w timeout   : How long to wait for a reply (in seconds)		
+		-w timeout   : How long to wait for a reply (in seconds)
 
 Limitations
 -----------

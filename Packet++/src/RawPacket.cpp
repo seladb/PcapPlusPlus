@@ -62,7 +62,7 @@ RawPacket& RawPacket::operator=(const RawPacket& other)
 
 		copyDataFrom(other, true);
 	}
-	
+
 	return *this;
 }
 
@@ -141,7 +141,7 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 		// insert data
 		memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);
 	}
-	
+
 	m_RawDataLen += dataToInsertLen;
 	m_FrameLength = m_RawDataLen;
 }
@@ -182,7 +182,7 @@ bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 	if((atIndex + (int)numOfBytesToRemove) != m_RawDataLen)
 		// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on overlapping src/dest ptrs
 		memmove((uint8_t*)m_RawData + atIndex, (uint8_t*)m_RawData + atIndex + numOfBytesToRemove, m_RawDataLen - (atIndex + numOfBytesToRemove));
-	
+
 	m_RawDataLen -= numOfBytesToRemove;
 	m_FrameLength = m_RawDataLen;
 	return true;

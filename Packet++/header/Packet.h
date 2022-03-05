@@ -178,11 +178,11 @@ namespace pcpp
 
 		/**
 		 * Remove an existing layer from the packet. The layer to removed is identified by its type (protocol). If the
-		 * packet has multiple layers of the same type in the packet the user may specify the index of the layer to remove 
-		 * (the default index is 0 - remove the first layer of this type). If the layer was allocated during packet creation 
+		 * packet has multiple layers of the same type in the packet the user may specify the index of the layer to remove
+		 * (the default index is 0 - remove the first layer of this type). If the layer was allocated during packet creation
 		 * it will be deleted and any pointer to it will get invalid. However if the layer was allocated by the user and
-		 * manually added to the packet it will simply get detached from the packet, meaning the pointer to it will stay 
-		 * valid and its data (that was removed from the packet) will be copied back to the layer. In that case it's 
+		 * manually added to the packet it will simply get detached from the packet, meaning the pointer to it will stay
+		 * valid and its data (that was removed from the packet) will be copied back to the layer. In that case it's
 		 * the user's responsibility to delete the layer instance
 		 * @param[in] layerType The layer type (protocol) to remove
 		 * @param[in] index If there are multiple layers of the same type, indicate which instance to remove. The default
@@ -195,7 +195,7 @@ namespace pcpp
 		/**
 		 * Remove the first layer in the packet. The layer will be deleted if it was allocated during packet creation, or detached
 		 * if was allocated outside of the packet. Please refer to removeLayer() to get more info
-		 * @return True if layer removed successfully, or false if removing the layer failed or if there are no layers in the 
+		 * @return True if layer removed successfully, or false if removing the layer failed or if there are no layers in the
 		 * packet. In any case of failure an appropriate error log message will be printed
 		 */
 		bool removeFirstLayer();
@@ -203,7 +203,7 @@ namespace pcpp
 		/**
 		 * Remove the last layer in the packet. The layer will be deleted if it was allocated during packet creation, or detached
 		 * if was allocated outside of the packet. Please refer to removeLayer() to get more info
-		 * @return True if layer removed successfully, or false if removing the layer failed or if there are no layers in the 
+		 * @return True if layer removed successfully, or false if removing the layer failed or if there are no layers in the
 		 * packet. In any case of failure an appropriate error log message will be printed
 		 */
 		bool removeLastLayer();
@@ -211,7 +211,7 @@ namespace pcpp
 		/**
 		 * Remove all layers that come after a certain layer. All layers removed will be deleted if they were allocated during
 		 * packet creation or detached if were allocated outside of the packet, please refer to removeLayer() to get more info
-		 * @param[in] layer A pointer to the layer to begin removing from. Please note this layer will not be removed, only the 
+		 * @param[in] layer A pointer to the layer to begin removing from. Please note this layer will not be removed, only the
 		 * layers that come after it will be removed. Also, if removal of one layer failed, the method will return immediately and
 		 * the following layers won't be deleted
 		 * @return True if all layers were removed successfully, or false if failed to remove at least one layer. In any case of
@@ -222,13 +222,13 @@ namespace pcpp
 		/**
 		 * Detach a layer from the packet. Detaching means the layer instance will not be deleted, but rather separated from the
 		 * packet - e.g it will be removed from the layer chain of the packet and its data will be copied from the packet buffer
-		 * into an internal layer buffer. After a layer is detached, it can be added into another packet (but it's impossible to 
-		 * attach a layer to multiple packets in the same time). After layer is detached, it's the user's responsibility to 
+		 * into an internal layer buffer. After a layer is detached, it can be added into another packet (but it's impossible to
+		 * attach a layer to multiple packets in the same time). After layer is detached, it's the user's responsibility to
 		 * delete it when it's not needed anymore
 		 * @param[in] layerType The layer type (protocol) to detach from the packet
 		 * @param[in] index If there are multiple layers of the same type, indicate which instance to detach. The default
 		 * value is 0, meaning detach the first layer of this type
-		 * @return A pointer to the detached layer or NULL if detaching process failed. In any case of failure an 
+		 * @return A pointer to the detached layer or NULL if detaching process failed. In any case of failure an
 		 * appropriate error log message will be printed
 		 */
 		Layer* detachLayer(ProtocolType layerType, int index = 0);
@@ -236,11 +236,11 @@ namespace pcpp
 		/**
 		 * Detach a layer from the packet. Detaching means the layer instance will not be deleted, but rather separated from the
 		 * packet - e.g it will be removed from the layer chain of the packet and its data will be copied from the packet buffer
-		 * into an internal layer buffer. After a layer is detached, it can be added into another packet (but it's impossible to 
-		 * attach a layer to multiple packets at the same time). After layer is detached, it's the user's responsibility to 
+		 * into an internal layer buffer. After a layer is detached, it can be added into another packet (but it's impossible to
+		 * attach a layer to multiple packets at the same time). After layer is detached, it's the user's responsibility to
 		 * delete it when it's not needed anymore
 		 * @param[in] layer A pointer to the layer to detach
-		 * @return True if the layer was detached successfully, or false if something went wrong. In any case of failure an 
+		 * @return True if the layer was detached successfully, or false if something went wrong. In any case of failure an
 		 * appropriate error log message will be printed
 		 */
 		bool detachLayer(Layer* layer) { return removeLayer(layer, false); }

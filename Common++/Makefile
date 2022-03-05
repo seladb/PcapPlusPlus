@@ -29,7 +29,7 @@ INCLUDES := -I"./src" \
 ifdef BUILD_WITH_STATIC_LIBPCAP
 INCLUDES += -I"$(STATIC_LIBPCAP_INCLUDE)"
 endif
-			
+
 ifdef WIN32
 INCLUDES += -I$(MINGW_HOME)/include/ddk \
 			-I$(PCAP_SDK_HOME)/Include
@@ -37,7 +37,7 @@ endif
 ifdef MAC_OS_X
 INCLUDES += -I$(MACOS_SDK_HOME)/usr/include/malloc
 endif
-			
+
 Obj/%.o: src/%.cpp Obj/%.d
 	@echo Building file: $<
 	@$(CXX) $(DEPS) $(INCLUDES) $(PCAPPP_BUILD_FLAGS) -c -fmessage-length=0 -MMD -MP -MF "$(@:Obj/%.o=Obj/%.d)" -MT "$@" -o "$@" "$<"
@@ -65,7 +65,7 @@ Common++.lib: create-directories $(OBJS_FILENAMES)
 	@$(AR) -r "Lib/Release/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES)
 	@echo Finished successfully building: $@
 	@echo ' '
-	
+
 Common++.debug: create-directories $(OBJS_FILENAMES_DEBUG)
 	@$(AR) -r "Lib/Debug/$(LIB_PREFIX)Common++$(LIB_EXT)" $(OBJS_FILENAMES_DEBUG)
 	@echo Finished successfully building: $@

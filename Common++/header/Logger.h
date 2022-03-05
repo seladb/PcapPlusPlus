@@ -81,14 +81,14 @@ namespace pcpp
 	 *
 	 * PcapPlusPlus is divided into modules (described in #LogModule enum). The user can set the log level got each module or to all modules at once.
 	 * The default is Logger#Info which outputs only error messages. Changing log level for modules can be done dynamically while the application is running.
-	 * 
+	 *
 	 * The logger also exposes a method to retrieve the last error log message.
-	 * 
+	 *
 	 * Logs are printed to console by default in a certain format. The user can set a different print function to change the format or to print to
 	 * other media (such as files, etc.).
-	 * 
+	 *
 	 * PcapPlusPlus logger is a singleton which can be reached from anywhere in the code.
-	 * 
+	 *
 	 * Note: Logger#Info level logs are currently only used in DPDK devices to set DPDK log level to RTE_LOG_NOTICE.
 	 */
 	class Logger

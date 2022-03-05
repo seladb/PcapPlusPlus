@@ -6,28 +6,28 @@
 /**
  * @file
  * This file introduces classes and structures that represent the SSH (Secure Shell) protocol.
- * 
+ *
  * An overview of this protocol can be found here: https://en.wikipedia.org/wiki/Ssh_(Secure_Shell)
- * 
+ *
  * For more details please refer to RFC 4253: https://tools.ietf.org/html/rfc4253
- * 
+ *
  * These current implementation supports parsing of SSH packets when possible (meaning when they are not encrypted).
  * Creation and editing of SSH packets is currently __not supported__.
- * 
+ *
  * SSH typically uses TCP port 22 so PcapPlusPlus assumes all traffic on this port is SSH traffic.
- * PcapPlusPlus uses some heuristics to determine the type of the SSH message (which will be covered later). 
+ * PcapPlusPlus uses some heuristics to determine the type of the SSH message (which will be covered later).
  * If it doesn't find a match to one of the other SSH messages, it assumes it is an encrypted SSH message.
- * 
+ *
  * Following is an overview of the SSH protocol classes currently supported in PcapPlusPlus. They cover the different messages of the SSH protocol:
- * 
+ *
   @verbatim
 
                                  +----------------------------+      SSH version identification
-                             +---|  SSHIdentificationMessage  | ===> as described here: 
+                             +---|  SSHIdentificationMessage  | ===> as described here:
                              |   +----------------------------+      https://tools.ietf.org/html/rfc4253#section-4.2
                              |
   +------------+             |   +----------------------------+      SSH handshake message
-  |  SSHLayer  |-------------+---|  SSHHandshakeMessage       | ===> which is typically one of the messages described here: 
+  |  SSHLayer  |-------------+---|  SSHHandshakeMessage       | ===> which is typically one of the messages described here:
   | (abstract) |             |   +----------------------------+      https://tools.ietf.org/html/rfc4253#section-12
   +------------+             |                 |
                              |                 |     +----------------------------+      SSH Key Exchange message
@@ -44,12 +44,12 @@
   * 1. If the data starts with the characters "SSH-" and ends with "\n" (or "\r\n") it's assumed the message is of type
   *    pcpp#SSHIdentificationMessage
   * 2. Try to determine if this is a non-encrypted SSH handshake message:
-  *    - Look at the first 4 bytes of the data which may contain the packet length and see if the value is smaller of equal 
+  *    - Look at the first 4 bytes of the data which may contain the packet length and see if the value is smaller of equal
   *      than the entire layer length
   *    - The next byte contains the padding length, check if it's smaller or equal than the packet length
   *    - The next byte contains the message type, check if the value is a valid message type as described in:
   *      <https://tools.ietf.org/html/rfc4253#section-12>
-  * 
+  *
   *    If all of these condition are met, this message is either pcpp#SSHKeyExchangeInitMessage (if message type is
   *    pcpp#SSHHandshakeMessage#SSH_MSG_KEX_INIT) or pcpp#SSHHandshakeMessage (for all other message types)
   * 3. If non of these conditions are met, it is assumed this is an encrypted message (pcpp#SSHEncryptedMessage)
@@ -73,7 +73,7 @@ namespace pcpp
 	{
 	public:
 		/**
-		 * A static method that takes raw packet data and uses the heuristics described in the 
+		 * A static method that takes raw packet data and uses the heuristics described in the
 		 * SSHLayer.h file description to create an SSH layer instance. This method assumes the data is
 		 * indeed SSH data and not some other arbitrary data
 		 * @param[in] data A pointer to the raw data
@@ -123,7 +123,7 @@ namespace pcpp
 	/**
 	 * @class SSHIdentificationMessage
 	 * A class that represents SSH identification message as described in RFC 4253: <https://tools.ietf.org/html/rfc4253#section-4.2>
-	 * 
+	 *
 	 * The message content is typically a string that contains the protocol version, software version and a few more details.
 	 * This string can be retrieved using the getIdentificationMessage() method
 	 */
@@ -170,7 +170,7 @@ namespace pcpp
 	 * @class SSHHandshakeMessage
 	 * A class representing all of the non-encrypted SSH handshake messages.
 	 * An handshake message typically has the following structure:
-	 * 
+	 *
 		@verbatim
 		0         1         2         3         4         5         6
 		+---------+---------+---------+---------+---------+---------+-----------     ---------+
@@ -178,11 +178,11 @@ namespace pcpp
 		|                                       | Length  |  Type   |  Content  ....          |
 		+---------------------------------------+---------+---------+-----------     ---------+
 		@endverbatim
-	 * 
+	 *
 	 * The first 4 bytes hold the packet length, followed by 1 byte that holds the padding length (which comes at the end of the message),
 	 * then 1 byte that holds the message type (which can be of type SSHHandshakeMessage#SSHHandshakeMessageType) and then the message content.
 	 * At the end of the content there is typically padding.
-	 * 
+	 *
 	 * This class provides access to all of these values. The message content itself is not parse with the exception of SSHKeyExchangeInitMessage
 	 * which inherits from this class and provides parsing of the Key Exchange Init message.
 	 */
@@ -229,7 +229,7 @@ namespace pcpp
 
 		/**
 		 * @return The message content length in [bytes] which is calculated by the overall packet length
-		 * minus the message header (which includes packet length, padding length and message type) and 
+		 * minus the message header (which includes packet length, padding length and message type) and
 		 * minus the padding bytes
 		 */
 		size_t getSSHHandshakeMessageLength() const;
@@ -240,7 +240,7 @@ namespace pcpp
 		size_t getPaddingLength() const;
 
 		/**
-		 * A static method that takes raw packet data and uses some heuristics described in the 
+		 * A static method that takes raw packet data and uses some heuristics described in the
 		 * SSHLayer.h file description to parse it as SSH handshake message instance
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
@@ -401,8 +401,8 @@ namespace pcpp
 	 * @class SSHEncryptedMessage
 	 * A class representing an SSH encrypted message. In such messages there is very little information to extract from the packet,
 	 * hence this class doesn't expose any methods or getters, other than the ones inherited from parent classes.
-	 * 
-	 * It is assumed that any SSH message which does not fit to any of the other SSH message types, according to the heuristics described in 
+	 *
+	 * It is assumed that any SSH message which does not fit to any of the other SSH message types, according to the heuristics described in
 	 * the SSHLayer.h file description, is considered as an encrypted message.
 	 */
 	class SSHEncryptedMessage : public SSHLayer
@@ -414,7 +414,7 @@ namespace pcpp
 		 * when parsing SSH messagess in SSHLayer#createSSHMessage()
 		 */
 		SSHEncryptedMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : SSHLayer(data, dataLen, prevLayer, packet) {}
-		
+
 		// implement abstract methods
 
 		/**

@@ -196,7 +196,7 @@ void DpdkDevice::close()
 		delete [] m_TxBufferLastDrainTsc;
 		m_TxBufferLastDrainTsc = NULL;
 	}
-	
+
 	m_DeviceOpened = false;
 }
 

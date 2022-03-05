@@ -478,5 +478,5 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 #else
 	PTF_SKIP_TEST("DPDK not configured");
 #endif
-	
+
 } // TestKniDeviceSendReceive

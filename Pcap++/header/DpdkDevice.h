@@ -45,7 +45,7 @@
  *    - In addition PcapPlusPlus provides a shell script to initialize DPDK prerequisites: setup-dpdk.sh. This is an easy-to-use script
  *      that sets up huge-pages, loads DPDK kernel module and sets up the NICs that will be used by DPDK. This script must run before an
  *      application that uses DPDK runs. If you forgot to run it the application will fail with an appropriate error that will remind
- * 
+ *
  * DPDK initialization using PcapPlusPlus:
  *    - Before application runs: run the setup-dpdk.sh script
  *    - On application startup call DpdkDeviceList#initDpdk() static method to initialize DPDK infrastructure and DpdkDevice instances
@@ -140,11 +140,11 @@ namespace pcpp
 	 * DPDK port (DpdkDevice) with a single or multiple RX and TX queues. When receiving packets the user can decide from which RX queue
 	 * to read from, and when transmitting packets the user can decide to which TX queue to send them to. RX/TX queues are configured
 	 * when opening the DpdkDevice (see openMultiQueues())<BR>
-	 * 
+	 *
 	 * __Capturing packets__: there are two ways to capture packets using DpdkDevice:
 	 *    - using worker threads (see DpdkDeviceList#startDpdkWorkerThreads() ). When using this method the worker should use the
 	 *      DpdkDevice#receivePackets() methods to get packets from the DpdkDevice
-	 *    - by setting a callback which is invoked each time a burst of packets arrives. For more details see 
+	 *    - by setting a callback which is invoked each time a burst of packets arrives. For more details see
 	 *      DpdkDevice#startCaptureSingleThread()
 	 *
 	 * __Sending packets:__ DpdkDevice has various methods for sending packets. They enable sending raw packets, parsed packets, etc.
@@ -157,7 +157,7 @@ namespace pcpp
 	 * packets<BR>
 	 *
 	 * __Known limitations:__
-	 *    - BPF filters are currently not supported by this device (as opposed to other PcapPlusPlus device types. This means that the 
+	 *    - BPF filters are currently not supported by this device (as opposed to other PcapPlusPlus device types. This means that the
 	 *      device cannot filter packets before they get to the user
 	 *    - It's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still not
 	 *      supported by DpdkDevice
@@ -218,7 +218,7 @@ namespace pcpp
 
 		/**
 		 * @struct DpdkDeviceConfiguration
-		 * A struct that contains user configurable parameters for opening a DpdkDevice. All of these parameters have default values so 
+		 * A struct that contains user configurable parameters for opening a DpdkDevice. All of these parameters have default values so
 		 * the user doesn't have to use these parameters or understand exactly what is their effect
 		 */
 		struct DpdkDeviceConfiguration

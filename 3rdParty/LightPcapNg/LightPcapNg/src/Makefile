@@ -31,6 +31,6 @@ liblight_pcapng.so: $(OBJECTS)
 
 liblight_pcapng.a: $(OBJECTS)
 	$(AR) rc $@ $^
-	
+
 clean:
 	rm -rf $(TESTE) $(OBJECTS) $(PRECOMPILED) liblight_pcapng.a liblight_pcapng.so

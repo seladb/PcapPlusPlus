@@ -163,11 +163,11 @@ def usage():
     return """
     This tool helps setting up DPDK on your machine. It's based on the `dpdk-devbind`
     tool that is shipped with DPDK: <https://doc.dpdk.org/guides/tools/devbind.html>
-    but extends its capabilities. It takes care of everything that is needed to run 
+    but extends its capabilities. It takes care of everything that is needed to run
     a DPDK application:
     - Allocate hugepages used by DPDK for packet buffer allocation
     - Insert DPDK kernel modules
-    - [Optional] Install the DPDK KNI module 
+    - [Optional] Install the DPDK KNI module
       (https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html)
     - Bind devices from their "standard" drivers to DPDK-controlled drivers
 
@@ -185,10 +185,10 @@ def usage():
     Setup DPDK on your machine. This option expects as input several parameters such
     as the amount of hugepages to allocate, a list of (one or more) network interfaces
     to allocate for DPDK, the DPDK driver to use and more.
-    After setup is complete the previous configuration is saved in the file 
+    After setup is complete the previous configuration is saved in the file
     `{settings_file}` which can later be used to restore the settings by the
     "restore" command.
-    
+
     status
     ------
 

@@ -913,14 +913,14 @@ PTF_TEST_CASE(ResizeLayerTest)
 {
 	// Creating a packet
 	pcpp::Packet packet(1500);
-		
+
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
 	pcpp::PayloadLayer payloadLayer(payload, 10, true);
 	PTF_ASSERT_TRUE(packet.addLayer(&payloadLayer));
 
 	// Starting Resize testing
 	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 10); // Size of packet before resizing is not correct
-	
+
 	//
 	// test shortening of packet and layer
 	//
@@ -1019,7 +1019,7 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 	{
 		expectedStream << *iter << std::endl;
 	}
-	
+
 	std::ostringstream packetStream;
 	packetStream << packet;
 	PTF_ASSERT_EQUAL(packetStream.str(), expectedStream.str());

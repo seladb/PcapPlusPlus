@@ -109,7 +109,7 @@ std::string printFileSummary(pcpp::IFileReaderDevice* reader)
 	stream << "~~~~~~~~~~~~~" << std::endl;
 	stream << "   File name: " << reader->getFileName() << std::endl;
 	stream << "   File size: " << reader->getFileSize() << " bytes" << std::endl;
-	
+
 	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != NULL)
 	{
 		pcpp::PcapFileReaderDevice* pcapReader = dynamic_cast<pcpp::PcapFileReaderDevice*>(reader);
@@ -156,7 +156,7 @@ int printPcapPackets(pcpp::PcapFileReaderDevice* reader, std::ostream* out, int 
 
 		packetCountSoFar++;
 	}
-	
+
 	// return the number of packets that were printed
 	return packetCountSoFar;
 }
@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 			delete reader;
 			EXIT_WITH_ERROR("Couldn't set filter '" << filter << "'");
 		}
-			
+
 	}
 
 	// print file summary
@@ -309,7 +309,7 @@ int main(int argc, char* argv[])
 		pcpp::PcapNgFileReaderDevice* pcapNgReader = dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader);
 		printedPacketCount = printPcapNgPackets(pcapNgReader, out, packetCount);
 	}
-	
+
 	(*out) << "Finished. Printed " << printedPacketCount << " packets" << std::endl;
 
 	// close the file

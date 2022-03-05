@@ -338,7 +338,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing2Test)
 	timeval time;
 	gettimeofday(&time, NULL);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords2.dat");	
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords2.dat");
 
 	pcpp::Packet multipleRecordsPacket(&rawPacket1);
 

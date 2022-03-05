@@ -106,7 +106,7 @@ namespace pcpp
 
 		/**
 		 * Match a packet with the filter stored in this object. If the filter is empty the method returns "true".
-		 * If the link type of the raw packet is different than the one set in setFilter(), the filter will be 
+		 * If the link type of the raw packet is different than the one set in setFilter(), the filter will be
 		 * re-compiled and stored in the object.
 		 * @param[in] rawPacket A pointer to a raw packet which the filter will be matched against
 		 * @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
@@ -594,7 +594,7 @@ namespace pcpp
 	/**
 	 * @class ProtoFilter
 	 * A class for filtering traffic by protocol. Notice not all protocols are supported, only the following are supported:
-	 * ::TCP, ::UDP, ::ICMP, ::VLAN, ::IPv4, ::IPv6, ::ARP, ::Ethernet, ::GRE (distinguish between ::GREv0 and ::GREv1 is not supported), 
+	 * ::TCP, ::UDP, ::ICMP, ::VLAN, ::IPv4, ::IPv6, ::ARP, ::Ethernet, ::GRE (distinguish between ::GREv0 and ::GREv1 is not supported),
 	 * ::IGMP (distinguish between ::IGMPv1, ::IGMPv2 and ::IGMPv3 is not supported). <BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */

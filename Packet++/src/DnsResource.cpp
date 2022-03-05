@@ -46,7 +46,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 	{
 		return encodedNameLength;
 	}
-		
+
 	uint8_t wordLength = encodedName[0];
 
 	// A string to parse
@@ -96,11 +96,11 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 				{
 					encodedNameLength++;
 				}
-					
+
 				resultPtr[0] = 0;
 				return encodedNameLength;
 			}
-				
+
 
 			memcpy(resultPtr, encodedName+1, wordLength);
 			resultPtr += wordLength;
@@ -123,8 +123,8 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 				{
 					encodedNameLength++;
 				}
-				
-				resultPtr[0] = 0;	
+
+				resultPtr[0] = 0;
 				return encodedNameLength;
 			}
 
