@@ -282,6 +282,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 #endif
 
 	PTF_ASSERT_NOT_EQUAL(ipsInArpTableAsString, "");
+	printf("ipsInArpTableAsString:\n%s\n", ipsInArpTableAsString.c_str());
 
 	// iterate all IP addresses and arping each one until one of them answers
 	pcpp::MacAddress result = pcpp::MacAddress::Zero;
@@ -290,10 +291,22 @@ PTF_TEST_CASE(TestGetMacAddress)
 	double time = -1;
 	while (std::getline(sstream, ip, '\n'))
 	{
+		printf("ip = %s\n", ip.c_str());
 		pcpp::IPv4Address ipAddr(ip);
 		PTF_ASSERT_TRUE(ipAddr.isValid());
 		pcpp::Logger::getInstance().suppressLogs();
 		result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+		printf("result1 = %s\n", result.toString().c_str());
+		if (result == pcpp::MacAddress::Zero)
+		{
+			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+			printf("result2 = %s\n", result.toString().c_str());
+		}
+		if (result == pcpp::MacAddress::Zero)
+		{
+			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+			printf("result3 = %s\n", result.toString().c_str());
+		}
 		pcpp::Logger::getInstance().enableLogs();
 		if (result != pcpp::MacAddress::Zero)
 		{
