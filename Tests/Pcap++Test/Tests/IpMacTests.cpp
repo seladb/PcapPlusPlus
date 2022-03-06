@@ -282,7 +282,6 @@ PTF_TEST_CASE(TestGetMacAddress)
 #endif
 
 	PTF_ASSERT_NOT_EQUAL(ipsInArpTableAsString, "");
-	printf("ipsInArpTableAsString:\n%s\n", ipsInArpTableAsString.c_str());
 
 	// iterate all IP addresses and arping each one until one of them answers
 	pcpp::MacAddress result = pcpp::MacAddress::Zero;
