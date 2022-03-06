@@ -291,22 +291,17 @@ PTF_TEST_CASE(TestGetMacAddress)
 	double time = -1;
 	while (std::getline(sstream, ip, '\n'))
 	{
-		printf("ip = %s\n", ip.c_str());
 		pcpp::IPv4Address ipAddr(ip);
 		PTF_ASSERT_TRUE(ipAddr.isValid());
 		pcpp::Logger::getInstance().suppressLogs();
-		result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
-		printf("result1 = %s\n", result.toString().c_str());
-		if (result == pcpp::MacAddress::Zero)
+
+		for (int i = 0; i < 3; i++)
 		{
 			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
-			printf("result2 = %s\n", result.toString().c_str());
+			if (result != pcpp::MacAddress::Zero)
+				break;
 		}
-		if (result == pcpp::MacAddress::Zero)
-		{
-			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
-			printf("result3 = %s\n", result.toString().c_str());
-		}
+
 		pcpp::Logger::getInstance().enableLogs();
 		if (result != pcpp::MacAddress::Zero)
 		{
