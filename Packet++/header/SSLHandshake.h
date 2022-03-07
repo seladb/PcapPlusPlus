@@ -675,6 +675,11 @@ public:
 	int getExtensionCount() const;
 
 	/**
+	 * @deprecated Deprecated due to typo. Please use getExtensionLength()
+	 */
+	PCPP_DEPRECATED uint16_t getExtensionsLenth() const { return getExtensionsLength(); };
+
+	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
 	 */
 	uint16_t getExtensionsLength() const;
