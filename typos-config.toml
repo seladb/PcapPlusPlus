@@ -16,6 +16,10 @@ tha = "tha"
 gost = "gost"
 ba = "ba"
 lengt = "lengt"
+mesage = "mesage"
+handhake = "handhake"
+symetric = "symetric"
+lenth = "lenth"
 
 [type.make]
 extend-glob = []

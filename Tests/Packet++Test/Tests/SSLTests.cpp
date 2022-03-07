@@ -77,7 +77,7 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 			pcpp::SSL_AUTH_RSA
 	};
 
-	pcpp::SSLSymmetricEncryptionAlgorithm cipherSuiteSym[11] = {
+	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[11] = {
 			pcpp::SSL_SYM_AES_128_GCM,
 			pcpp::SSL_SYM_AES_128_GCM,
 			pcpp::SSL_SYM_AES_256_CBC,
@@ -563,7 +563,7 @@ PTF_TEST_CASE(TLS1_3ParsingTest)
 		"TLS_CHACHA20_POLY1305_SHA256",
 		"TLS_AES_128_GCM_SHA256"
 	};
-	pcpp::SSLSymmetricEncryptionAlgorithm cipherSuiteSym[3] =
+	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[3] =
 	{
 		pcpp::SSL_SYM_AES_256_GCM,
 		pcpp::SSL_SYM_CHACHA20_POLY1305,

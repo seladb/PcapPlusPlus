@@ -5,6 +5,17 @@
 #include "SSLCommon.h"
 #include "PointerVector.h"
 
+#ifndef PCPP_DEPRECATED
+#if defined(__GNUC__) || defined(__clang__)
+#define PCPP_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define PCPP_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
+#define PCPP_DEPRECATED
+#endif
+#endif
+
 /**
  * @file
  * See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
@@ -41,7 +52,7 @@ public:
 	 */
 	SSLCipherSuite(uint16_t id, SSLKeyExchangeAlgorithm keyExAlg,
 			SSLAuthenticationAlgorithm authAlg,
-			SSLSymmetricEncryptionAlgorithm symKeyAlg,
+			SSLSymetricEncryptionAlgorithm symKeyAlg,
 			SSLHashingAlgorithm MACAlg,
 			const char* name)
 	: m_Id(id), m_KeyExAlg(keyExAlg), m_AuthAlg(authAlg), m_SymKeyAlg(symKeyAlg), m_MACAlg(MACAlg), m_Name(name) {}
@@ -69,7 +80,7 @@ public:
 	/**
 	 * @return Symmetric key algorithm used in this cipher-suite
 	 */
-	SSLSymmetricEncryptionAlgorithm getSymKeyAlg() const { return m_SymKeyAlg; }
+	SSLSymetricEncryptionAlgorithm getSymKeyAlg() const { return m_SymKeyAlg; }
 
 	/**
 	 * @return MAC algorithm used in this cipher-suite
@@ -94,7 +105,7 @@ private:
 	uint16_t m_Id;
 	SSLKeyExchangeAlgorithm m_KeyExAlg;
 	SSLAuthenticationAlgorithm m_AuthAlg;
-	SSLSymmetricEncryptionAlgorithm m_SymKeyAlg;
+	SSLSymetricEncryptionAlgorithm m_SymKeyAlg;
 	SSLHashingAlgorithm m_MACAlg;
 	std::string m_Name;
 };
@@ -311,6 +322,11 @@ public:
 	virtual ~SSLHandshakeMessage() {}
 
 	/**
+	 * @deprecated Deprecated due to typo. Please use createHandshakeMessage()
+	 */
+	PCPP_DEPRECATED static SSLHandshakeMessage* createHandhakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container) { return createHandshakeMessage(data, dataLen, container);}
+
+	/**
 	 * A factory method for creating instances of handshake messages from raw data
 	 * @param[in] data The raw data containing 1 handshake message
 	 * @param[in] dataLen Raw data length in bytes
@@ -481,6 +497,11 @@ public:
 	 * @return The number of extensions in this message
 	 */
 	int getExtensionCount() const;
+
+	/**
+	 * @deprecated Deprecated due to typo. Please use getExtensionsLength()
+	 */
+	PCPP_DEPRECATED uint16_t getExtensionsLenth() const { return getExtensionsLength(); };
 
 	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
