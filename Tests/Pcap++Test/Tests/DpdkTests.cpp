@@ -367,7 +367,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	if (dev->getTotalNumOfRxQueues() < numOfRxQueuesToOpen)
 		numOfRxQueuesToOpen = dev->getTotalNumOfRxQueues();
 
-	// verfiy num of RX queues is power of 2 due to DPDK limitation
+	// verify num of RX queues is power of 2 due to DPDK limitation
 	bool isRxQueuePowerOfTwo = !(numOfRxQueuesToOpen == 0) && !(numOfRxQueuesToOpen & (numOfRxQueuesToOpen - 1));
 	while (!isRxQueuePowerOfTwo)
 	{

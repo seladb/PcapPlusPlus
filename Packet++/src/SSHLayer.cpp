@@ -22,9 +22,9 @@ SSHLayer* SSHLayer::createSSHMessage(uint8_t* data, size_t dataLen, Layer* prevL
 	if (sshIdnetMsg != NULL)
 		return sshIdnetMsg;
 
-	SSHHandshakeMessage* sshHanshakeMessage = SSHHandshakeMessage::tryParse(data, dataLen, prevLayer, packet);
-	if (sshHanshakeMessage != NULL)
-		return sshHanshakeMessage;
+	SSHHandshakeMessage* sshHandshakeMessage = SSHHandshakeMessage::tryParse(data, dataLen, prevLayer, packet);
+	if (sshHandshakeMessage != NULL)
+		return sshHandshakeMessage;
 
 	return new SSHEncryptedMessage(data, dataLen, prevLayer, packet);
 }

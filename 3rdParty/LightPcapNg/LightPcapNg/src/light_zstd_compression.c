@@ -37,7 +37,7 @@ void(*free_decompression_context_ptr)(_decompression_t*) = &free_zstd_decompress
 int(*is_compressed_file)(const char*) = &is_zstd_compressed_file;
 size_t(*read_compressed)(struct light_file_t *, void *, size_t) = &read_zstd_compressed;
 size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = &write_zstd_compressed;
-int(*close_compressed)(struct light_file_t *) = &close_zstd_compresssed;
+int(*close_compressed)(struct light_file_t *) = &close_zstd_compressed;
 
 #if !defined(_MSC_VER) || !defined(max)
 #define max(a,b) \
@@ -215,7 +215,7 @@ size_t write_zstd_compressed(light_file fd, const void *buf, size_t count)
 	return count;
 }
 
-int close_zstd_compresssed(light_file fd)
+int close_zstd_compressed(light_file fd)
 {
 	//Wrap up the compression here
 	if (fd->compression_context)
