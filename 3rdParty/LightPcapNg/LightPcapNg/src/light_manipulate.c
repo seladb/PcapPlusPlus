@@ -227,31 +227,31 @@ typedef struct _flow_information {
 
 static void __extract_ipv4_address(const uint8_t *payload, flow_address_t *address)
 {
-	const uint8_t *address_offest = payload + 12;
+	const uint8_t *address_offset = payload + 12;
 	int i;
 
 	for (i = 0; i < 4; ++i) {
-		address->source.ipv4.bytes[i] = address_offest[i];
+		address->source.ipv4.bytes[i] = address_offset[i];
 	}
 
-	address_offest += 4;
+	address_offset += 4;
 	for (i = 0; i < 4; ++i) {
-		address->destination.ipv4.bytes[i] = address_offest[i];
+		address->destination.ipv4.bytes[i] = address_offset[i];
 	}
 }
 
 static void __extract_ipv6_address(const uint8_t *payload, flow_address_t *address)
 {
-	const uint8_t *address_offest = payload + 8;
+	const uint8_t *address_offset = payload + 8;
 	int i;
 
 	for (i = 0; i < 16; i += 2) {
-		address->source.ipv6.words[i / 2] = LIGHT_NTOHS(*(uint16_t*)(&address_offest[i]));
+		address->source.ipv6.words[i / 2] = LIGHT_NTOHS(*(uint16_t*)(&address_offset[i]));
 	}
 
-	address_offest += 16;
+	address_offset += 16;
 	for (i = 0; i < 16; i += 2) {
-		address->destination.ipv6.words[i / 2] = LIGHT_NTOHS(*(uint16_t*)(&address_offest[i]));
+		address->destination.ipv6.words[i / 2] = LIGHT_NTOHS(*(uint16_t*)(&address_offset[i]));
 	}
 }
 

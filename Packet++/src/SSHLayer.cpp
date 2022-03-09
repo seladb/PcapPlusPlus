@@ -22,9 +22,9 @@ SSHLayer* SSHLayer::createSSHMessage(uint8_t* data, size_t dataLen, Layer* prevL
 	if (sshIdnetMsg != NULL)
 		return sshIdnetMsg;
 
-	SSHHandshakeMessage* sshHanshakeMessage = SSHHandshakeMessage::tryParse(data, dataLen, prevLayer, packet);
-	if (sshHanshakeMessage != NULL)
-		return sshHanshakeMessage;
+	SSHHandshakeMessage* sshHandshakeMessage = SSHHandshakeMessage::tryParse(data, dataLen, prevLayer, packet);
+	if (sshHandshakeMessage != NULL)
+		return sshHandshakeMessage;
 
 	return new SSHEncryptedMessage(data, dataLen, prevLayer, packet);
 }
@@ -134,7 +134,7 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 {
 	if (dataLen < sizeof(SSHHandshakeMessage::ssh_message_base))
 	{
-		PCPP_LOG_DEBUG("Data length is smaller than the minimum size of an SSH handshake message. It's probably not an SSH hanshake message");
+		PCPP_LOG_DEBUG("Data length is smaller than the minimum size of an SSH handshake message. It's probably not an SSH handshake message");
 		return NULL;
 	}
 
@@ -143,13 +143,13 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 	uint32_t msgLength = be32toh(msgBase->packetLength);
 	if (msgLength + sizeof(uint32_t) > dataLen)
 	{
-		PCPP_LOG_DEBUG("Message size is larger than layer size. It's probably not an SSH hanshake message");
+		PCPP_LOG_DEBUG("Message size is larger than layer size. It's probably not an SSH handshake message");
 		return NULL;
 	}
 
 	if (msgBase->paddingLength > msgLength)
 	{
-		PCPP_LOG_DEBUG("Message padding is larger than message size. It's probably not an SSH hanshake message");
+		PCPP_LOG_DEBUG("Message padding is larger than message size. It's probably not an SSH handshake message");
 		return NULL;
 	}
 
@@ -157,7 +157,7 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 		msgBase->messageCode != 21 &&
 		(msgBase->messageCode < 30 || msgBase->messageCode > 49))
 		{
-			PCPP_LOG_DEBUG("Unknown message type " << (int)msgBase->messageCode << ". It's probably not an SSH hanshake message");
+			PCPP_LOG_DEBUG("Unknown message type " << (int)msgBase->messageCode << ". It's probably not an SSH handshake message");
 			return NULL;
 		}
 
@@ -228,7 +228,7 @@ uint8_t* SSHKeyExchangeInitMessage::getCookie()
 
 	return m_Data + sizeof(ssh_message_base);
 }
-		
+
 std::string SSHKeyExchangeInitMessage::getCookieAsHexStream()
 {
 	uint8_t* cookie = getCookie();

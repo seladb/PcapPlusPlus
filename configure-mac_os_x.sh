@@ -42,8 +42,8 @@ function HELP {
 HAS_PCAP_IMMEDIATE_MODE=0
 HAS_SET_DIRECTION_ENABLED=0
 
-# initializing libpcap include/lib dirs to an empty string 
-LIBPCAP_INLCUDE_DIR=""
+# initializing libpcap include/lib dirs to an empty string
+LIBPCAP_INCLUDE_DIR=""
 LIBPCAP_LIB_DIR=""
 
 # default installation directory
@@ -79,7 +79,7 @@ case $key in
 
    # non-default libpcap include dir
    --libpcap-include-dir)
-     LIBPCAP_INLCUDE_DIR=$2
+     LIBPCAP_INCLUDE_DIR=$2
      shift
      shift ;;
 
@@ -132,7 +132,7 @@ PCAPPLUSPLUS_MK="mk/PcapPlusPlus.mk"
 cp -f mk/platform.mk.macosx $PLATFORM_MK
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
 
-# set SDK home if MacOS verion >= 10.14
+# set SDK home if MacOS version >= 10.14
 MACOS_SDK_HOME="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 MACOS_MINOR_VERSION=`(sw_vers -productVersion) | awk -F '.' '{print $2}'`
 if [[ $MACOS_MINOR_VERSION -ge 14 ]]; then
@@ -155,15 +155,15 @@ if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
    echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
 
-if (( $HAS_SET_DIRECTION_ENABLED > 0 )) ; then 
+if (( $HAS_SET_DIRECTION_ENABLED > 0 )) ; then
    echo -e "HAS_SET_DIRECTION_ENABLED := 1\n\n" >> $PCAPPLUSPLUS_MK
-fi 
+fi
 
 # non-default libpcap include dir
-if [ -n "$LIBPCAP_INLCUDE_DIR" ]; then
+if [ -n "$LIBPCAP_INCLUDE_DIR" ]; then
    echo -e "# non-default libpcap include dir" >> $PCAPPLUSPLUS_MK
-   echo -e "LIBPCAP_INLCUDE_DIR := $LIBPCAP_INLCUDE_DIR" >> $PCAPPLUSPLUS_MK
-   echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INLCUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
+   echo -e "LIBPCAP_INCLUDE_DIR := $LIBPCAP_INCLUDE_DIR" >> $PCAPPLUSPLUS_MK
+   echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INCLUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
 fi
 
 # non-default libpcap lib dir

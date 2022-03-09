@@ -687,10 +687,10 @@ static std::map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
 #define A 54059 /* a prime */
 #define B 76963 /* another prime */
 #define C 86969 /* yet another prime */
-#define FIRSTH 37 /* also prime */
+#define FIRST_HASH 37 /* also prime */
 static uint32_t hashString(std::string str)
 {
-	unsigned h = FIRSTH;
+	unsigned h = FIRST_HASH;
 	for(std::string::size_type i = 0; i < str.size(); ++i)
 	{
 		h = (h * A) ^ (str[i] * B);
@@ -1221,7 +1221,7 @@ SSLHandshakeMessage::SSLHandshakeMessage(uint8_t* data, size_t dataLen, SSLHands
 	m_Container = container;
 }
 
-SSLHandshakeMessage* SSLHandshakeMessage::createHandhakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
+SSLHandshakeMessage* SSLHandshakeMessage::createHandshakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
 {
 	if (dataLen < sizeof(ssl_tls_handshake_layer))
 		return NULL;
@@ -1296,14 +1296,14 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 		return;
 
 	uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
-	uint16_t extensionLength = getExtensionsLenth();
+	uint16_t extensionLength = getExtensionsLength();
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	size_t minSSLExtentionLen = 2*sizeof(uint16_t);
+	size_t minSSLExtensionLen = 2*sizeof(uint16_t);
 	while ((curPos - extensionPos) < (int)extensionLength
 		&& (curPos - m_Data) < (int)messageLen
-		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtentionLen)
+		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtensionLen)
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
@@ -1332,7 +1332,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			delete newExt;
 			break;
 		}
-			
+
 
 		m_ExtensionList.pushBack(newExt);
 		curPos += newExt->getTotalLength();
@@ -1417,7 +1417,7 @@ int SSLClientHelloMessage::getExtensionCount() const
 	return m_ExtensionList.size();
 }
 
-uint16_t SSLClientHelloMessage::getExtensionsLenth() const
+uint16_t SSLClientHelloMessage::getExtensionsLength() const
 {
 	size_t extensionLengthOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + 2*sizeof(uint8_t);
 	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
@@ -1586,14 +1586,14 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 		return;
 
 	uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
-	uint16_t extensionLength = getExtensionsLenth();
+	uint16_t extensionLength = getExtensionsLength();
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	size_t minSSLExtentionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
+	size_t minSSLExtensionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
 	while ((curPos - extensionPos) < (int)extensionLength
 		&& (curPos - m_Data) < (int)messageLen
-		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtentionLen)
+		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtensionLen)
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
@@ -1620,7 +1620,7 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			delete newExt;
 			break;
 		}
-			
+
 		m_ExtensionList.pushBack(newExt);
 		curPos += newExt->getTotalLength();
 	}
@@ -1696,7 +1696,7 @@ int SSLServerHelloMessage::getExtensionCount() const
 	return m_ExtensionList.size();
 }
 
-uint16_t SSLServerHelloMessage::getExtensionsLenth() const
+uint16_t SSLServerHelloMessage::getExtensionsLength() const
 {
 	size_t extensionLengthOffset  = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint8_t);
 	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)

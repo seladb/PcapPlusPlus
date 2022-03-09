@@ -163,11 +163,11 @@ def usage():
     return """
     This tool helps setting up DPDK on your machine. It's based on the `dpdk-devbind`
     tool that is shipped with DPDK: <https://doc.dpdk.org/guides/tools/devbind.html>
-    but extends its capabilities. It takes care of everything that is needed to run 
+    but extends its capabilities. It takes care of everything that is needed to run
     a DPDK application:
     - Allocate hugepages used by DPDK for packet buffer allocation
     - Insert DPDK kernel modules
-    - [Optional] Install the DPDK KNI module 
+    - [Optional] Install the DPDK KNI module
       (https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html)
     - Bind devices from their "standard" drivers to DPDK-controlled drivers
 
@@ -185,10 +185,10 @@ def usage():
     Setup DPDK on your machine. This option expects as input several parameters such
     as the amount of hugepages to allocate, a list of (one or more) network interfaces
     to allocate for DPDK, the DPDK driver to use and more.
-    After setup is complete the previous configuration is saved in the file 
+    After setup is complete the previous configuration is saved in the file
     `{settings_file}` which can later be used to restore the settings by the
     "restore" command.
-    
+
     status
     ------
 
@@ -517,9 +517,7 @@ def bind_one(dev_id, driver, quiet, force):
             return None
         try:
             # Convert Device and Vendor Id to int to write to new_id
-            file_d.write(
-                "%04x %04x" % (int(dev["Vendor"], 16), int(dev["Device"], 16))
-            )
+            file_d.write("%04x %04x" % (int(dev["Vendor"], 16), int(dev["Device"], 16)))
             file_d.close()
         except:  # pylint:disable=bare-except
             handle_error(
@@ -797,9 +795,7 @@ def remove_dpdk_module(module, settings):
         return
 
     if module in ["uio_pci_generic", "vfio-pci"]:
-        output = check_output(
-            ["modprobe", "-r", module], stderr=subprocess.STDOUT
-        )
+        output = check_output(["modprobe", "-r", module], stderr=subprocess.STDOUT)
         if output:
             raise RuntimeError(
                 "Something went wrong with removing '%s' kernel module: %s"
@@ -976,7 +972,7 @@ def do_restore(dpdk_module, interfaces, interface_infos, settings, kni_module=No
         if kni_module:
             remove_kni_module(settings)
     except PermissionError:
-        logger.error("insufficient privileges. Please run this utlity as 'sudo'")
+        logger.error("insufficient privileges. Please run this utility as 'sudo'")
         raise
     except Exception as exc:
         logger.error("error restoring system: %s", exc)
@@ -1005,7 +1001,7 @@ def handle_setup(args, settings):
         bind_interfaces(args.dpdk_module, args.interface, interface_infos, settings)
         logger.info("SETUP COMPLETE")
     except PermissionError:
-        logger.error("insufficient privileges. Please run this utlity as 'sudo'")
+        logger.error("insufficient privileges. Please run this utility as 'sudo'")
         raise
     except Exception as exc:
         logger.error(exc)

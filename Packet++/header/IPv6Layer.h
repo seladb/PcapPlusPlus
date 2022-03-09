@@ -94,7 +94,7 @@ namespace pcpp
 		IPv6Layer(const IPv6Layer& other);
 
 		/**
-		 * A destrcutor for this layer
+		 * A destructor for this layer
 		 */
 		~IPv6Layer();
 
@@ -213,7 +213,7 @@ namespace pcpp
 		 * - GreLayer
 		 * - AuthenticationHeaderLayer (IPSec)
 		 * - ESPLayer (IPSec)
-		 * 
+		 *
 		 * Otherwise sets PayloadLayer
 		 */
 		void parseNextLayer();

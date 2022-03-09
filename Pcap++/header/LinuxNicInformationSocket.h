@@ -15,7 +15,7 @@ namespace pcpp
 	 * requests about NICs or making some changes in NICs setup.
 	 * All possible requests are described in
 	 * <a href="http://man7.org/linux/man-pages/man7/netdevice.7.html">netdevice(7)</a>.
-	 * The instance of this class handels underlying socket during its lifetime
+	 * The instance of this class handles underlying socket during its lifetime
 	 * and takes an appropriate actions to close socket on destruction.
 	 * The user must call LinuxNicInformationSocket#makeRequest method with
 	 * known ioctl type and properly filled ifreq structure for this ioctl type.

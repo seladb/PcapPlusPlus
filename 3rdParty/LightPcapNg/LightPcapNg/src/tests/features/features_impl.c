@@ -22,7 +22,7 @@ static uint64_t my_pow(uint32_t base, uint32_t exponent)
 	return result;
 }
 
-feature_type_t _f_data_transfered(const light_pcapng pcapng)
+feature_type_t _f_data_transferred(const light_pcapng pcapng)
 {
 	feature_type_t bytes = 0;
 	uint32_t block_type;

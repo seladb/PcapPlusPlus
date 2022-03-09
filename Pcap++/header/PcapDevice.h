@@ -3,7 +3,7 @@
 
 #include "Device.h"
 
-// forward decleration for the pcap descriptor defined in pcap.h
+// forward declaration for the pcap descriptor defined in pcap.h
 struct pcap;
 typedef pcap pcap_t;
 struct pcap_pkthdr;
@@ -59,7 +59,7 @@ namespace pcpp
 		virtual void getStatistics(PcapStats& stats) const = 0;
 
 		/**
-		 * A static method for retreiving pcap lib (libpcap/WinPcap/etc.) version information. This method is actually
+		 * A static method for retrieving pcap lib (libpcap/WinPcap/etc.) version information. This method is actually
 		 * a wrapper for [pcap_lib_version()](https://www.tcpdump.org/manpages/pcap_lib_version.3pcap.html)
 		 * @return A string containing the pcap lib version information
 		 */

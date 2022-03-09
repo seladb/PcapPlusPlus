@@ -330,7 +330,7 @@ PTF_TEST_CASE(TestDpdkDevice)
 	dev->getStatistics(stats);
 	PTF_PRINT_VERBOSE("Packets captured according to stats: " << stats.aggregatedRxStats.packets);
 	PTF_PRINT_VERBOSE("Bytes captured according to stats: " << stats.aggregatedRxStats.bytes);
-	PTF_PRINT_VERBOSE("Packets dropped according to stats: " << stats.rxPacketsDropeedByHW);
+	PTF_PRINT_VERBOSE("Packets dropped according to stats: " << stats.rxPacketsDroppedByHW);
 	PTF_PRINT_VERBOSE("Erroneous packets according to stats: " << stats.rxErroneousPackets);
 	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 	{
@@ -367,7 +367,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	if (dev->getTotalNumOfRxQueues() < numOfRxQueuesToOpen)
 		numOfRxQueuesToOpen = dev->getTotalNumOfRxQueues();
 
-	// verfiy num of RX queues is power of 2 due to DPDK limitation
+	// verify num of RX queues is power of 2 due to DPDK limitation
 	bool isRxQueuePowerOfTwo = !(numOfRxQueuesToOpen == 0) && !(numOfRxQueuesToOpen & (numOfRxQueuesToOpen - 1));
 	while (!isRxQueuePowerOfTwo)
 	{
@@ -444,7 +444,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 	dev->getStatistics(stats);
 	PTF_PRINT_VERBOSE("Packets captured according to stats: " << stats.aggregatedRxStats.packets);
 	PTF_PRINT_VERBOSE("Bytes captured according to stats: " << stats.aggregatedRxStats.bytes);
-	PTF_PRINT_VERBOSE("Packets dropped according to stats: " << stats.rxPacketsDropeedByHW);
+	PTF_PRINT_VERBOSE("Packets dropped according to stats: " << stats.rxPacketsDroppedByHW);
 	PTF_PRINT_VERBOSE("Erroneous packets according to stats: " << stats.rxErroneousPackets);
 	for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 	{
@@ -453,7 +453,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 	}
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(stats.aggregatedRxStats.packets, packetCount);
-	PTF_ASSERT_EQUAL(stats.rxPacketsDropeedByHW, 0);
+	PTF_ASSERT_EQUAL(stats.rxPacketsDroppedByHW, 0);
 
 	for (int firstCoreId = 0; firstCoreId < pcpp::getNumOfCores(); firstCoreId++)
 	{
@@ -627,7 +627,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	pcpp::Logger::getInstance().enableLogs();
 	dev->stopCapture();
 	dev->close();
-	
+
 	PTF_ASSERT_TRUE(dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues()));
 
 	// receive packets to packet vector
@@ -764,7 +764,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		PTF_PRINT_VERBOSE("Bytes captured     : " << stats.aggregatedRxStats.bytes);
 		PTF_PRINT_VERBOSE("Bits per second    : " << stats.aggregatedRxStats.bytesPerSec*8);
 		PTF_PRINT_VERBOSE("Packets per second : " << stats.aggregatedRxStats.packetsPerSec);
-		PTF_PRINT_VERBOSE("Packets dropped    : " << stats.rxPacketsDropeedByHW);
+		PTF_PRINT_VERBOSE("Packets dropped    : " << stats.rxPacketsDroppedByHW);
 		PTF_PRINT_VERBOSE("Erroneous packets  : " << stats.rxErroneousPackets);
 		for (int i = 0; i < DPDK_MAX_RX_QUEUES; i++)
 		{
@@ -950,7 +950,7 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 	int initialRawPacketLen = rawPacketToManipulate->getRawDataLen();
 	pcpp::Packet packetToManipulate(rawPacketToManipulate);
 	pcpp::IPv4Layer* ipLayer = packetToManipulate.getLayerOfType<pcpp::IPv4Layer>();
-	
+
 	// remove all layers above IP
 	PTF_ASSERT_TRUE(packetToManipulate.removeAllLayersAfter(ipLayer));
 

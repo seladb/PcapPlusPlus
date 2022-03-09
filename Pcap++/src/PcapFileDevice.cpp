@@ -188,7 +188,7 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 	memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-	timespec ts = { pkthdr.ts.tv_sec, pkthdr.ts.tv_usec }; //because we opened with nano second precision 'tv_usec' is actually nanos
+	timespec ts = { pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec) }; //because we opened with nano second precision 'tv_usec' is actually nanos
 #else
 	struct timeval ts = pkthdr.ts;
 #endif
@@ -254,7 +254,7 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& pa
 		PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
 		return false;
 	}
-	
+
 	while (!m_BpfWrapper.matchPacketWithFilter(pktData, pktHeader.captured_length, pktHeader.timestamp, pktHeader.data_link))
 	{
 		if (!light_get_next_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, &pktData))

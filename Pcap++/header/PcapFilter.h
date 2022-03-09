@@ -34,7 +34,7 @@ struct bpf_program;
 */
 namespace pcpp
 {
-	//Forward Declartation - used in GeneralFilter
+	//Forward Declaration - used in GeneralFilter
 	class RawPacket;
 
 	/**
@@ -106,7 +106,7 @@ namespace pcpp
 
 		/**
 		 * Match a packet with the filter stored in this object. If the filter is empty the method returns "true".
-		 * If the link type of the raw packet is different than the one set in setFilter(), the filter will be 
+		 * If the link type of the raw packet is different than the one set in setFilter(), the filter will be
 		 * re-compiled and stored in the object.
 		 * @param[in] rawPacket A pointer to a raw packet which the filter will be matched against
 		 * @return True if the filter matches (or if it's empty). False if the packet doesn't match or if the filter
@@ -594,7 +594,7 @@ namespace pcpp
 	/**
 	 * @class ProtoFilter
 	 * A class for filtering traffic by protocol. Notice not all protocols are supported, only the following are supported:
-	 * ::TCP, ::UDP, ::ICMP, ::VLAN, ::IPv4, ::IPv6, ::ARP, ::Ethernet, ::GRE (distinguish between ::GREv0 and ::GREv1 is not supported), 
+	 * ::TCP, ::UDP, ::ICMP, ::VLAN, ::IPv4, ::IPv6, ::ARP, ::Ethernet, ::GRE (distinguish between ::GREv0 and ::GREv1 is not supported),
 	 * ::IGMP (distinguish between ::IGMPv1, ::IGMPv2 and ::IGMPv3 is not supported). <BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
@@ -784,18 +784,18 @@ namespace pcpp
 		/**
 		 * A constructor that get the UDP length and operator and creates the filter. For example: "filter all UDP packets with length
 		 * greater or equal to 500"
-		 * @param[in] legnth The length value that will be used in the filter
+		 * @param[in] length The length value that will be used in the filter
 		 * @param[in] op The operator to use (e.g "equal", "greater than", etc.)
 		 */
-		UdpLengthFilter(uint16_t legnth, FilterOperator op) : IFilterWithOperator(op), m_Length(legnth) {}
+		UdpLengthFilter(uint16_t length, FilterOperator op) : IFilterWithOperator(op), m_Length(length) {}
 
 		void parseToString(std::string& result);
 
 		/**
-		 * Set legnth value
-		 * @param[in] legnth The legnth value that will be used in the filter
+		 * Set length value
+		 * @param[in] length The length value that will be used in the filter
 		 */
-		void setLength(uint16_t legnth) { m_Length = legnth; }
+		void setLength(uint16_t length) { m_Length = length; }
 	};
 
 } // namespace pcpp

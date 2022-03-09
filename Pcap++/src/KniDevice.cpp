@@ -529,7 +529,7 @@ uint16_t KniDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPa
 	{
 		PCPP_LOG_ERROR(
 			"KNI device '" << m_DeviceInfo.name << "' capture mode is currently running. "
-			"Cannot recieve packets in parallel"
+			"Cannot receive packets in parallel"
 		);
 		return 0;
 	}

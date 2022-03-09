@@ -4,10 +4,10 @@ Pcap Splitter
 A utility for splitting a pcap/pcapng file into smaller pcap files by a user-defined criteria:
 - File-size - splits the pcap file to smaller pcap files, each file with a certain size defined by the user
 - Packet-count - splits the pcap file to smaller pcap files, each with number of packets defined by the user
-- Client-IP - splits the pcap file to smaller pcap files so each file contains all TCP/UDP connections initiated by a certain client-ip, for example: file#1 will contain connections initiated by 1.1.1.1, file#2 will contain 
-  connections initiated by 1.2.3.4, and so on. The user can limit the number of output files, in this case multiple client-ips will be written to the same file. If the user doesn't set such limit - each file will contain 
+- Client-IP - splits the pcap file to smaller pcap files so each file contains all TCP/UDP connections initiated by a certain client-ip, for example: file#1 will contain connections initiated by 1.1.1.1, file#2 will contain
+  connections initiated by 1.2.3.4, and so on. The user can limit the number of output files, in this case multiple client-ips will be written to the same file. If the user doesn't set such limit - each file will contain
   one client-ip
-- Server-IP - splits the pcap file to smaller pcap files so each file contains all TCP/UDP connections to a certain server-ip, for example: file#1 will contain connections to 8.8.8.8, file#2 will contain connections 
+- Server-IP - splits the pcap file to smaller pcap files so each file contains all TCP/UDP connections to a certain server-ip, for example: file#1 will contain connections to 8.8.8.8, file#2 will contain connections
   to 10.12.13.14, and so on. The user can limit the number of output files, in this case multiple server-ips will be written to the same file. If the user doesn't set such limit - each file will contain one server-ip
 - Server-port - splits the pcap file to smaller pcap files so each file contains all TCP/UDP connections to a certain server port, for example: file#1 will contain all port 80 connections (HTTP), file#2 will contain
   all port 25 (SMTP) connections, and so on. The user can limit the number of output files, in this case connections to multiple server ports will be written to the same file. If the user doesn't set such limit - each file will
@@ -18,7 +18,7 @@ A utility for splitting a pcap/pcapng file into smaller pcap files by a user-def
   be written to the same file. If the user doesn't set such limit - each file will contain one connection
 - BPF filter - splits the pcap file into two files: one that contains all packets matching the input BPF filter and the other one with the rest of the packets
 - Round-robin - each packet read from the input file is written to a different output file in a round-robing manner
- 
+
 Remarks
 -------
 - Options 3-7 supports both IPv4 and IPV6
@@ -54,7 +54,7 @@ Using the utility
 										   the rest of the packets (file #1)
 						  'round-robin'  - split the file in a round-robin manner - each packet to a
 										   different file
-						  
+
 		-p split-param  : The relevant parameter for the split method:
 						  'method = file-size'    => split-param is the max size per file (in bytes).
 													 split-param is required for this method

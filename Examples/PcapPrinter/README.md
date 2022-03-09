@@ -10,7 +10,7 @@ Using the utility
 -----------------
 	Basic usage:
 		PcapPrinter pcap_file [-h] [-o output_file] [-c packet_count] [-i filter] [-s]
-	
+
 	Options:
 		pcap_file      : Input pcap/pcapng file name
 		-o output_file : Save output to text file (default output is stdout)

@@ -307,7 +307,7 @@ namespace pcpp
 				{
 					return curRec;
 				}
-				
+
 				curRec = getNextTLVRecord(curRec, tlvDataBasePtr, tlvDataLen);
 			}
 
@@ -389,7 +389,7 @@ namespace pcpp
 		uint8_t* m_RecValue;
 		size_t m_RecValueLen;
 		uint32_t m_RecType;
-	
+
 	private:
 
 		void copyData(const TLVRecordBuilder& other);

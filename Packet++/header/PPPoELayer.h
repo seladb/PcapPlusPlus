@@ -345,7 +345,7 @@ namespace pcpp
 		PPPoETag getFirstTag() const;
 
 		/**
-		 * Get the tag that comes right after the "tag" parameter. If the given tag is the last one, the returned value 
+		 * Get the tag that comes right after the "tag" parameter. If the given tag is the last one, the returned value
 		 * will contain a logical NULL (PPPoETag#isNull() == true)
 		 * @param[in] tag A given tag
 		 * @return A PPPoETag object containing the tag that comes next, or logical NULL if the given
@@ -552,7 +552,7 @@ namespace pcpp
 #define PCPP_PPP_MPLS_MULTI		0x0283
 	/** IEEE p1284.4 standard - data packets */
 #define PCPP_PPP_P12844			0x0285
-	/** ETSI TETRA Network Procotol Type 1 */
+	/** ETSI TETRA Network Protocol Type 1 */
 #define PCPP_PPP_TETRA			0x0287
 	/** Multichannel Flow Treatment Protocol */
 #define PCPP_PPP_MFTP			0x0289

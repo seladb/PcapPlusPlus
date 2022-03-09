@@ -34,8 +34,8 @@
 //so allocate 1700 bytes as the max input size we expect in a single shot
 #define COMPRESSION_BUFFER_IN_MAX_SIZE 1700
 
-//This is the z-std compression type I would call it z-std type and realias 
-//2x but complier won't let me do that across bounds it seems
+//This is the z-std compression type I would call it z-std type and realias
+//2x but compiler won't let me do that across bounds it seems
 //So I gave it a generic "light" name....
 struct zstd_compression_t
 {
@@ -77,7 +77,7 @@ size_t read_zstd_compressed(struct light_file_t *fd, void *buf, size_t count);
 
 size_t write_zstd_compressed(struct light_file_t *fd, const void *buf, size_t count);
 
-int close_zstd_compresssed(struct light_file_t *fd);
+int close_zstd_compressed(struct light_file_t *fd);
 
 #endif //USE_Z_STD
 #endif /* INCLUDE_LIGHT_ZSTD_COMPRESSION_H_ */

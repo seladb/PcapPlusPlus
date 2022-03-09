@@ -29,7 +29,7 @@ namespace pcpp
 const int NetworkUtils::DefaultTimeout = 5;
 
 
-struct ArpingRecievedData
+struct ArpingReceivedData
 {
 	pthread_mutex_t* mutex;
 	pthread_cond_t* cond;
@@ -40,13 +40,13 @@ struct ArpingRecievedData
 };
 
 
-static void arpPacketRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void* userCookie)
+static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice* device, void* userCookie)
 {
 	// extract timestamp of packet
-	clock_t recieveTime = clock();
+	clock_t receiveTime = clock();
 
 	// get the data from the main thread
-	ArpingRecievedData* data = (ArpingRecievedData*)userCookie;
+	ArpingReceivedData* data = (ArpingReceivedData*)userCookie;
 
 	// parse the response packet
 	Packet packet(rawPacket);
@@ -70,7 +70,7 @@ static void arpPacketRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void
 		return;
 
 	// measure response time
-	double diffticks = recieveTime-data->start;
+	double diffticks = receiveTime-data->start;
 	double diffms = (diffticks*1000)/CLOCKS_PER_SEC;
 
 	data->arpResponseTime = diffms;
@@ -148,13 +148,13 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
 
-	// init the conditonal mutex
+	// init the conditional mutex
 	pthread_mutex_init(&mutex, 0);
 	pthread_cond_init(&cond, 0);
 
 	// this is the token that passes between the 2 threads. It contains pointers to the conditional mutex, the target IP for identifying
 	// the ARP response, the iteration index and a timestamp to calculate the response time
-	ArpingRecievedData data = {
+	ArpingReceivedData data = {
 			&mutex,
 			&cond,
 			ipAddr,
@@ -169,11 +169,11 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	// create the timeout
 	timespec timeout = {
 			now.tv_sec + arpTimeout,
-			now.tv_usec
+			static_cast<long>(now.tv_usec * 1000)
 	};
 
-	// start capturing. The capture is done on another thread, hence "arpPacketRecieved" is running on that thread
-	device->startCapture(arpPacketRecieved, &data);
+	// start capturing. The capture is done on another thread, hence "arpPacketReceived" is running on that thread
+	device->startCapture(arpPacketReceived, &data);
 
 	// send the ARP request
 	device->sendPacket(&arpRequest);
@@ -211,7 +211,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 
 
 
-struct DNSRecievedData
+struct DNSReceivedData
 {
 	pthread_mutex_t* mutex;
 	pthread_cond_t* cond;
@@ -223,13 +223,13 @@ struct DNSRecievedData
 	double dnsResponseTime;
 };
 
-static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, void* userCookie)
+static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice* device, void* userCookie)
 {
 	// extract timestamp of packet
-	clock_t recieveTime = clock();
+	clock_t receiveTime = clock();
 
 	// get data from the main thread
-	DNSRecievedData* data = (DNSRecievedData*)userCookie;
+	DNSReceivedData* data = (DNSReceivedData*)userCookie;
 
 	// parse the response packet
 	Packet packet(rawPacket);
@@ -296,7 +296,7 @@ static void dnsResponseRecieved(RawPacket* rawPacket, PcapLiveDevice* device, vo
 	// if we got here it means an IPv4 resolving was found
 
 	// measure response time
-	clock_t diffticks = recieveTime-data->start;
+	clock_t diffticks = receiveTime-data->start;
 	double diffms = (diffticks*1000.0)/CLOCKS_PER_SEC;
 
 	data->dnsResponseTime = diffms;
@@ -413,12 +413,12 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
 
-	// init the conditonal mutex
+	// init the conditional mutex
 	pthread_mutex_init(&mutex, 0);
 	pthread_cond_init(&cond, 0);
 
 	// this is the token that passes between the 2 threads
-	DNSRecievedData data = {
+	DNSReceivedData data = {
 			&mutex,
 			&cond,
 			hostname,
@@ -436,11 +436,11 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	// create the timeout
 	timespec timeout = {
 			now.tv_sec + dnsTimeout,
-			now.tv_usec
+			static_cast<long>(now.tv_usec * 1000)
 	};
 
-	// start capturing. The capture is done on another thread, hence "dnsResponseRecieved" is running on that thread
-	device->startCapture(dnsResponseRecieved, &data);
+	// start capturing. The capture is done on another thread, hence "dnsResponseReceived" is running on that thread
+	device->startCapture(dnsResponseReceived, &data);
 
 	// send the DNS request
 	device->sendPacket(&dnsRequest);

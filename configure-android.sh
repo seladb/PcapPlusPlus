@@ -70,8 +70,8 @@ NDK_PATH=""
 TARGET=""
 API=29
 
-# initializing libpcap include/lib dirs to an empty string 
-LIBPCAP_INLCUDE_DIR=""
+# initializing libpcap include/lib dirs to an empty string
+LIBPCAP_INCLUDE_DIR=""
 LIBPCAP_LIB_DIR=""
 
 # go over all switches
@@ -111,7 +111,7 @@ while true ; do
 
     # libpcap include dir
     --libpcap-include-dir)
-        LIBPCAP_INLCUDE_DIR=$2
+        LIBPCAP_INCLUDE_DIR=$2
         shift 2 ;;
 
     # libpcap binaries dir
@@ -147,7 +147,7 @@ if [ -z "$TARGET" ]; then
     exit 1
 fi
 
-if [ -z "$LIBPCAP_INLCUDE_DIR" ]; then
+if [ -z "$LIBPCAP_INCLUDE_DIR" ]; then
     echo "Please specify the location of libpcap header files with '--libpcap-include-dir'. Exiting..."
     exit 1
 fi
@@ -188,8 +188,8 @@ sed -i "1s|^|ANDROID_TARGET := $TARGET$API\n\n|" $PLATFORM_MK
 sed -i "1s|^|ANDROID_NDK_PATH := $NDK_PATH\n\n|" $PLATFORM_MK
 
 # set libpcap include dir
-echo -e "LIBPCAP_INLCUDE_DIR := $LIBPCAP_INLCUDE_DIR" >> $PCAPPLUSPLUS_MK
-echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INLCUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
+echo -e "LIBPCAP_INCLUDE_DIR := $LIBPCAP_INCLUDE_DIR" >> $PCAPPLUSPLUS_MK
+echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INCLUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
 
 # set libpcap lib dir
 echo -e "LIBPCAP_LIB_DIR := $LIBPCAP_LIB_DIR" >> $PCAPPLUSPLUS_MK

@@ -27,7 +27,7 @@
 
 class MemPlumberInternal {
     private:
-    
+
     struct new_ptr_list_t {
         new_ptr_list_t* next;
         char file[MEMPLUMBER_FILENAME_LEN];
@@ -93,7 +93,7 @@ class MemPlumberInternal {
             }
         }
     }
-    
+
     bool isVerbose() {
         return m_Verbose && m_Dumper != NULL;
     }
@@ -125,7 +125,7 @@ class MemPlumberInternal {
         // if cannot allocate, return NULL
         if (pointerMetaDataRecord == NULL)
             return pointerMetaDataRecord;
-        
+
         // calculate the actual pointer to provide to the user
         void* actualPointer = (char*)pointerMetaDataRecord + sizeof(new_ptr_list_t);
 
@@ -134,7 +134,7 @@ class MemPlumberInternal {
 
         new_ptr_list_t** hashtable = (m_ProgramStarted == 0 ? m_StaticPointerListHashtable : m_PointerListHashtable);
 
-        // chain this metadata to the linked list of the specific bucket 
+        // chain this metadata to the linked list of the specific bucket
         pointerMetaDataRecord->next = hashtable[hashIndex];
 
         // fill in the metadata
@@ -191,10 +191,10 @@ class MemPlumberInternal {
                 }
 
                 if (isVerbose()) {
-                    fprintf(m_Dumper, "Free: 0x%p (size %d[bytes]) allocated in: %s:%d\n", 
+                    fprintf(m_Dumper, "Free: 0x%p (size %d[bytes]) allocated in: %s:%d\n",
                         pointer,
                         (int)metaDataBucketLinkedListElement->size,
-                        metaDataBucketLinkedListElement->file, 
+                        metaDataBucketLinkedListElement->file,
                         metaDataBucketLinkedListElement->line);
                 }
 
@@ -205,7 +205,7 @@ class MemPlumberInternal {
             }
         }
 
-        // if got to here it means memory was allocated before monitoring started. Simply free the memory and return 
+        // if got to here it means memory was allocated before monitoring started. Simply free the memory and return
         if (isVerbose()) {
             fprintf(m_Dumper, "Pointer 0x%p wasn't found\n", pointer);
         }
@@ -258,9 +258,9 @@ class MemPlumberInternal {
 
                 if (verbose) {
                     fprintf(dumper, "Found leaked object at 0x%p (size %d[bytes]) allocated in: %s:%d\n",
-                        (char*) metaDataBucketLinkedListElement + sizeof(new_ptr_list_t), 
+                        (char*) metaDataBucketLinkedListElement + sizeof(new_ptr_list_t),
                         (int) metaDataBucketLinkedListElement->size,
-                        metaDataBucketLinkedListElement->file, 
+                        metaDataBucketLinkedListElement->file,
                         metaDataBucketLinkedListElement->line);
                 }
 
@@ -294,9 +294,9 @@ class MemPlumberInternal {
 
                 if (verbose) {
                     fprintf(dumper, "Static object allocated at 0x%p (size %d[bytes]) allocated in: %s:%d\n",
-                        (char*) metaDataBucketLinkedListElement + sizeof(new_ptr_list_t), 
+                        (char*) metaDataBucketLinkedListElement + sizeof(new_ptr_list_t),
                         (int) metaDataBucketLinkedListElement->size,
-                        metaDataBucketLinkedListElement->file, 
+                        metaDataBucketLinkedListElement->file,
                         metaDataBucketLinkedListElement->line);
                 }
 
@@ -327,7 +327,7 @@ class MemPlumberInternal {
                 void* actualPointerInRecord = (char*)metaDataBucketLinkedListElement + sizeof(new_ptr_list_t);
 
                 if (isVerbose()) {
-                    fprintf(m_Dumper, "FreeAllMem: freeing 0x%p (size %d[bytes]) allocated in %s:%d\n", 
+                    fprintf(m_Dumper, "FreeAllMem: freeing 0x%p (size %d[bytes]) allocated in %s:%d\n",
                         actualPointerInRecord,
                         (int)metaDataBucketLinkedListElement->size,
                         metaDataBucketLinkedListElement->file,
@@ -340,11 +340,11 @@ class MemPlumberInternal {
                 // go to the next item on the list
                 metaDataBucketLinkedListElement = next;
             }
-            
+
             // done freeing all elements in the linked list, set the hashtable bucket to null
             m_PointerListHashtable[index] = NULL;
         }
-        
+
         closeFile(m_Dumper);
         m_Dumper = NULL;
     }

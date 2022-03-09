@@ -2,6 +2,13 @@ name: Build and test
 on: [push, pull_request]
 
 jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - uses: pre-commit/action@v2.0.3
+
   linux:
     runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
@@ -14,10 +21,14 @@ jobs:
             python: python3.8
           - image: ubuntu1604
             python: python3.8
-          - image: centos8
+          - image: centos7
             python: python3.8
+            test-flags: -s
           - image: fedora34
             python: python3
+          - image: alpine315
+            python: python3
+            configure: --musl
 
     steps:
       - name: Checkout code
@@ -25,7 +36,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: ./configure-linux.sh --default
+        run: ./configure-linux.sh --default ${{ matrix.configure }}
 
       - name: Build PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}

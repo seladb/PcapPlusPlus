@@ -196,7 +196,7 @@ void DpdkDevice::close()
 		delete [] m_TxBufferLastDrainTsc;
 		m_TxBufferLastDrainTsc = NULL;
 	}
-	
+
 	m_DeviceOpened = false;
 }
 
@@ -701,7 +701,7 @@ void DpdkDevice::getStatistics(DpdkDeviceStats& stats) const
 	stats.timestamp = timestamp;
 	stats.rxErroneousPackets = rteStats.ierrors;
 	stats.rxMbufAlocFailed = rteStats.rx_nombuf;
-	stats.rxPacketsDropeedByHW = rteStats.imissed;
+	stats.rxPacketsDroppedByHW = rteStats.imissed;
 	stats.aggregatedRxStats.packets = rteStats.ipackets;
 	stats.aggregatedRxStats.bytes = rteStats.ibytes;
 	stats.aggregatedRxStats.packetsPerSec = (stats.aggregatedRxStats.packets - m_PrevStats.aggregatedRxStats.packets) / secsElapsed;
@@ -959,8 +959,8 @@ uint16_t DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, P
 	uint16_t packetsSent = 0;
 	int lastSleep = 0;
 
-	#define PACKET_TRANSMITION_THRESHOLD 0.8
-	int packetTxThreshold = m_Config.transmitDescriptorsNumber*PACKET_TRANSMITION_THRESHOLD;
+	#define PACKET_TRANSMISSION_THRESHOLD 0.8
+	int packetTxThreshold = m_Config.transmitDescriptorsNumber*PACKET_TRANSMISSION_THRESHOLD;
 
 	while (packetIndex < arrLength)
 	{

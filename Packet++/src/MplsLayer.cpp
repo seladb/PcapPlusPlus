@@ -12,7 +12,7 @@
 namespace pcpp
 {
 
-MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t expermentalUseValue, bool bottomOfStack)
+MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t experimentalUseValue, bool bottomOfStack)
 {
 	const size_t headerLen = sizeof(mpls_header);
 	m_DataLen = headerLen;
@@ -22,7 +22,7 @@ MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t expermentalUseValu
 
 	setMplsLabel(mplsLabel);
 	setTTL(ttl);
-	setExperimentalUseValue(expermentalUseValue);
+	setExperimentalUseValue(experimentalUseValue);
 	setBottomOfStack(bottomOfStack);
 }
 
