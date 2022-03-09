@@ -959,8 +959,8 @@ uint16_t DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, P
 	uint16_t packetsSent = 0;
 	int lastSleep = 0;
 
-	#define PACKET_TRANSMITION_THRESHOLD 0.8
-	int packetTxThreshold = m_Config.transmitDescriptorsNumber*PACKET_TRANSMITION_THRESHOLD;
+	#define PACKET_TRANSMISSION_THRESHOLD 0.8
+	int packetTxThreshold = m_Config.transmitDescriptorsNumber*PACKET_TRANSMISSION_THRESHOLD;
 
 	while (packetIndex < arrLength)
 	{

@@ -132,7 +132,7 @@ SSLHandshakeLayer::SSLHandshakeLayer(uint8_t* data, size_t dataLen, Layer* prevL
 	size_t curPosIndex = 0;
 	while (true)
 	{
-		SSLHandshakeMessage* message = SSLHandshakeMessage::createHandhakeMessage(curPos, recordDataLen-curPosIndex, this);
+		SSLHandshakeMessage* message = SSLHandshakeMessage::createHandshakeMessage(curPos, recordDataLen-curPosIndex, this);
 		if (message == NULL)
 			break;
 

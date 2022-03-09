@@ -77,7 +77,7 @@ size_t read_zstd_compressed(struct light_file_t *fd, void *buf, size_t count);
 
 size_t write_zstd_compressed(struct light_file_t *fd, const void *buf, size_t count);
 
-int close_zstd_compresssed(struct light_file_t *fd);
+int close_zstd_compressed(struct light_file_t *fd);
 
 #endif //USE_Z_STD
 #endif /* INCLUDE_LIGHT_ZSTD_COMPRESSION_H_ */

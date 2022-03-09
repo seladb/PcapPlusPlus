@@ -1,0 +1,30 @@
+[files]
+extend-exclude = [  "*.toml",
+                    "*.dat",
+                    "codespell-ignore-list.txt",
+                    "ci/",
+                    "Dist/",
+                    "mk/",
+                 ]
+
+[default.extend-identifiers]
+SSLSymetricEncryptionAlgorithm = "SSLSymetricEncryptionAlgorithm"
+# These identifiers below are coming from deprecated functions can be removed at future releases
+getMesageType = "getMesageType"
+setMesageType = "setMesageType"
+getExtensionsLenth = "getExtensionsLenth"
+createHandhakeMessage = "createHandhakeMessage"
+
+[default.extend-words]
+ue = "ue"
+loca = "loca"
+inout = "inout"
+ede = "ede"
+tha = "tha"
+gost = "gost"
+ba = "ba"
+lengt = "lengt"
+
+[type.make]
+extend-glob = []
+check-file = false

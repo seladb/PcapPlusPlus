@@ -568,7 +568,7 @@ PTF_TEST_CASE(TestPfRingFilters)
 	DeviceTeardown devTeardown(dev);
 	PTF_ASSERT_TRUE(dev->setFilter(protocolFilter));
 
-	// verfiy TCP filter
+	// verify TCP filter
 	SetFilterInstruction instruction = { 1, "", 0 }; // instruction #1: verify all packets are of type TCP
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArriveSetFilter, &instruction));
 	int totalSleepTime = incSleepSetFilter(10, instruction);

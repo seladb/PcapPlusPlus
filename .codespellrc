@@ -1,4 +1,4 @@
 [codespell]
-skip = *.dat,./ci,./Dist,./mk,./Tests/ExamplesTest/expected_output,./Tests/ExamplesTest/pcap_examples,./Tests/Packet++Test/PacketExamples,./Tests/Pcap++Test/PcapExamples
+skip = *.dat,typos-config.toml,.git,./ci,./Dist,./mk,./Tests/ExamplesTest/expected_output,./Tests/ExamplesTest/pcap_examples,./Tests/Packet++Test/PacketExamples,./Tests/Pcap++Test/PcapExamples
 ignore-words = codespell-ignore-list.txt
 count =

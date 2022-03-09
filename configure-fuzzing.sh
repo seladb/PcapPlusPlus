@@ -42,7 +42,7 @@ function HELP {
 }
 
 # initializing libpcap include/lib dirs to an empty string
-LIBPCAP_INLCUDE_DIR=""
+LIBPCAP_INCLUDE_DIR=""
 LIBPCAP_LIB_DIR=""
 
 LIBPCAP_STATIC_LIB_DIR=""
@@ -86,7 +86,7 @@ else
 
        # non-default libpcap include dir
        --libpcap-include-dir)
-         LIBPCAP_INLCUDE_DIR=$2
+         LIBPCAP_INCLUDE_DIR=$2
          shift 2 ;;
 
        # non-default libpcap lib dir
@@ -168,10 +168,10 @@ echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
 sed -i "1s|^|PCAPPLUSPLUS_HOME := $PWD\n\n|" $PCAPPLUSPLUS_MK
 
 # non-default libpcap include dir
-if [ -n "$LIBPCAP_INLCUDE_DIR" ]; then
+if [ -n "$LIBPCAP_INCLUDE_DIR" ]; then
    echo -e "# non-default libpcap include dir" >> $PCAPPLUSPLUS_MK
-   echo -e "LIBPCAP_INLCUDE_DIR := $LIBPCAP_INLCUDE_DIR" >> $PCAPPLUSPLUS_MK
-   echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INLCUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
+   echo -e "LIBPCAP_INCLUDE_DIR := $LIBPCAP_INCLUDE_DIR" >> $PCAPPLUSPLUS_MK
+   echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INCLUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
 fi
 
 # non-default libpcap lib dir

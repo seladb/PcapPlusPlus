@@ -92,12 +92,12 @@ if "%VS_VERSION%"=="vs2019" (
 setlocal enabledelayedexpansion
 set PROJ_LIST_LOCAL=
 for %%P in (mk\vs\*.vcxproj.template) do (
-    set "TEMPALTE_PROJ_PATH=%%P"
+    set "TEMPLATE_PROJ_PATH=%%P"
     set "TEMPLATE_PROJ_FILENAME=%%~nxP"
     set "PROJ_NAME=!TEMPLATE_PROJ_FILENAME:.template=!"
     set PROJ_LIST_LOCAL=!PROJ_LIST_LOCAL!, !PROJ_NAME!
 
-    (for /F "tokens=* delims=" %%A in ('type "!TEMPALTE_PROJ_PATH!"') do (
+    (for /F "tokens=* delims=" %%A in ('type "!TEMPLATE_PROJ_PATH!"') do (
         set "LINE=%%A"
         set "LINE=!LINE:PUT_TOOLS_VERSION_HERE=%ToolsVersion%!"
         set "LINE=!LINE:PUT_WIN_TARGET_PLATFORM_HERE=%WindowsTargetPlatformVersion%!"

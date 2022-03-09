@@ -396,22 +396,22 @@ uint16_t IPv4Layer::getFragmentOffset() const
 
 std::string IPv4Layer::toString() const
 {
-	std::string fragmet = "";
+	std::string fragment = "";
 	if (isFragment())
 	{
 		if (isFirstFragment())
-			fragmet = "First fragment";
+			fragment = "First fragment";
 		else if (isLastFragment())
-			fragmet = "Last fragment";
+			fragment = "Last fragment";
 		else
-			fragmet = "Fragment";
+			fragment = "Fragment";
 
 		std::stringstream sstm;
-		sstm << fragmet << " [offset= " << getFragmentOffset() << "], ";
-		fragmet = sstm.str();
+		sstm << fragment << " [offset= " << getFragmentOffset() << "], ";
+		fragment = sstm.str();
 	}
 
-	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIPv4Address().toString() + ", Dst: " + getDstIPv4Address().toString();
+	return "IPv4 Layer, " + fragment + "Src: " + getSrcIPv4Address().toString() + ", Dst: " + getDstIPv4Address().toString();
 }
 
 IPv4Option IPv4Layer::getOption(IPv4OptionTypes option) const

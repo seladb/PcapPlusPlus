@@ -109,14 +109,14 @@ struct HttpResponseStats : HttpMessageStats
 	std::map<std::string, int> statusCodeCount; // a map for counting the different status codes seen in traffic
 	std::map<std::string, int> contentTypeCount; // a map for counting the content-types seen in traffic
 	int numOfMessagesWithContentLength; // total number of responses containing the "content-length" field
-	int totalConentLengthSize; // total body size extracted by responses containing "content-length" field
+	int totalContentLengthSize; // total body size extracted by responses containing "content-length" field
 	double averageContentLengthSize; // average body size
 
 	void clear()
 	{
 		HttpMessageStats::clear();
 		numOfMessagesWithContentLength = 0;
-		totalConentLengthSize = 0;
+		totalContentLengthSize = 0;
 		averageContentLengthSize = 0;
 		statusCodeCount.clear();
 		contentTypeCount.clear();
@@ -417,9 +417,9 @@ private:
 		if (contentLengthField != NULL)
 		{
 			m_ResponseStats.numOfMessagesWithContentLength++;
-			m_ResponseStats.totalConentLengthSize += atoi(contentLengthField->getFieldValue().c_str());
+			m_ResponseStats.totalContentLengthSize += atoi(contentLengthField->getFieldValue().c_str());
 			if (m_ResponseStats.numOfMessagesWithContentLength != 0)
-				m_ResponseStats.averageContentLengthSize = (double)m_ResponseStats.totalConentLengthSize / (double)m_ResponseStats.numOfMessagesWithContentLength;
+				m_ResponseStats.averageContentLengthSize = (double)m_ResponseStats.totalContentLengthSize / (double)m_ResponseStats.numOfMessagesWithContentLength;
 		}
 
 		// extract content-type and add to content-type map

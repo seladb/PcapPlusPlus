@@ -361,7 +361,7 @@ void printStatsSummary(HttpStatsCollector& collector)
 	PRINT_STAT_LINE("Total data in headers", collector.getResponseStats().totalMessageHeaderSize, "Bytes");
 	PRINT_STAT_LINE("Average header size", collector.getResponseStats().averageMessageHeaderSize, "Bytes");
 	PRINT_STAT_LINE("Num of responses with content-length", collector.getResponseStats().numOfMessagesWithContentLength, "Responses");
-	PRINT_STAT_LINE("Total body size (may be compressed)", collector.getResponseStats().totalConentLengthSize, "Bytes");
+	PRINT_STAT_LINE("Total body size (may be compressed)", collector.getResponseStats().totalContentLengthSize, "Bytes");
 	PRINT_STAT_LINE("Average body size", collector.getResponseStats().averageContentLengthSize, "Bytes");
 
 	printStatsHeadline("HTTP request methods");

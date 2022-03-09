@@ -61,11 +61,11 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing)
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions.dat");
 
-	pcpp::Packet tcpPaketWithOptions(&rawPacket1);
-	PTF_ASSERT_TRUE(tcpPaketWithOptions.isPacketOfType(pcpp::IPv4));
-	PTF_ASSERT_TRUE(tcpPaketWithOptions.isPacketOfType(pcpp::TCP));
+	pcpp::Packet tcpPacketWithOptions(&rawPacket1);
+	PTF_ASSERT_TRUE(tcpPacketWithOptions.isPacketOfType(pcpp::IPv4));
+	PTF_ASSERT_TRUE(tcpPacketWithOptions.isPacketOfType(pcpp::TCP));
 
-	pcpp::TcpLayer* tcpLayer = tcpPaketWithOptions.getLayerOfType<pcpp::TcpLayer>();
+	pcpp::TcpLayer* tcpLayer = tcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 
 	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 44147);
@@ -96,30 +96,30 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2)
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions3.dat");
 
-	pcpp::Packet tcpPaketWithOptions(&rawPacket1);
+	pcpp::Packet tcpPacketWithOptions(&rawPacket1);
 
-	pcpp::TcpLayer* tcpLayer = tcpPaketWithOptions.getLayerOfType<pcpp::TcpLayer>();
+	pcpp::TcpLayer* tcpLayer = tcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 
 	PTF_ASSERT_EQUAL(tcpLayer->getTcpOptionCount(), 5);
 	pcpp::TcpOption mssOption = tcpLayer->getTcpOption(pcpp::TCPOPT_MSS);
-	pcpp::TcpOption sackParmOption = tcpLayer->getTcpOption(pcpp::TCPOPT_SACK_PERM);
+	pcpp::TcpOption sackPermOption = tcpLayer->getTcpOption(pcpp::TCPOPT_SACK_PERM);
 	pcpp::TcpOption windowScaleOption = tcpLayer->getTcpOption(pcpp::PCPP_TCPOPT_WINDOW);
 	PTF_ASSERT_TRUE(mssOption.isNotNull());
-	PTF_ASSERT_TRUE(sackParmOption.isNotNull());
+	PTF_ASSERT_TRUE(sackPermOption.isNotNull());
 	PTF_ASSERT_TRUE(windowScaleOption.isNotNull());
 
 	PTF_ASSERT_EQUAL(mssOption.getTcpOptionType(), pcpp::TCPOPT_MSS, enum);
-	PTF_ASSERT_EQUAL(sackParmOption.getTcpOptionType(), pcpp::TCPOPT_SACK_PERM, enum);
+	PTF_ASSERT_EQUAL(sackPermOption.getTcpOptionType(), pcpp::TCPOPT_SACK_PERM, enum);
 	PTF_ASSERT_EQUAL(windowScaleOption.getTcpOptionType(), pcpp::PCPP_TCPOPT_WINDOW, enum);
 
 	PTF_ASSERT_EQUAL(mssOption.getTotalSize(), 4);
-	PTF_ASSERT_EQUAL(sackParmOption.getTotalSize(), 2);
+	PTF_ASSERT_EQUAL(sackPermOption.getTotalSize(), 2);
 	PTF_ASSERT_EQUAL(windowScaleOption.getTotalSize(), 3);
 
 	PTF_ASSERT_EQUAL(mssOption.getValueAs<uint16_t>(), htobe16(1460));
 	PTF_ASSERT_EQUAL(windowScaleOption.getValueAs<uint8_t>(), 4);
-	PTF_ASSERT_EQUAL(sackParmOption.getValueAs<uint32_t>(), 0);
+	PTF_ASSERT_EQUAL(sackPermOption.getValueAs<uint32_t>(), 0);
 	PTF_ASSERT_EQUAL(mssOption.getValueAs<uint32_t>(), 0);
 	PTF_ASSERT_EQUAL(mssOption.getValueAs<uint16_t>(1), 0);
 

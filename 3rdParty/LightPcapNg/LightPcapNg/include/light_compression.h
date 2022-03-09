@@ -63,7 +63,7 @@ size_t light_read_compressed(struct light_file_t *fd, void *buf, size_t count);
 size_t light_write_compressed(struct light_file_t *fd, const void *buf, size_t count);
 
 //Called when the file being read/written is to be closed - this is called first!
-int light_close_compresssed(struct light_file_t *fd);
+int light_close_compressed(struct light_file_t *fd);
 
 #ifdef __cplusplus
 }
