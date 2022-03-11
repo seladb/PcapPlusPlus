@@ -1,0 +1,31 @@
+BIN_EXT :=
+
+LIB_PREFIX := lib
+
+LIB_EXT := .a
+
+ifeq ($(origin CXX),default)
+CXX := /usr/bin/aarch64-linux-gnu-g++
+endif
+
+ifeq ($(origin CC),default)
+CC := /usr/bin/aarch64-linux-gnu-gcc
+endif
+
+ifeq ($(origin AR),default)
+AR := /usr/bin/aarch64-linux-gnu-ar
+endif
+
+RM := rm
+
+CP := cp
+
+MV := mv
+
+TOUCH := touch
+
+MKDIR := mkdir
+
+INSTALL_SCRIPT := install.sh
+
+UNINSTALL_SCRIPT := uninstall.sh

@@ -16,7 +16,7 @@ function HELP {
    echo "  1) Without any switches. In this case the script will guide you through using wizards"
    echo "  2) With switches, as described below"
    echo ""
-   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--set-direction-enabled] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir] [--use-zstd]"\\n
+   echo -e "Basic usage: $SCRIPT [-h] [--pf-ring] [--pf-ring-home] [--dpdk] [--dpdk-home] [--use-immediate-mode] [--set-direction-enabled] [--install-dir] [--libpcap-include-dir] [--libpcap-lib-dir] [--use-zstd] [--aarch64]"\\n
    echo "The following switches are recognized:"
    echo "--default                --Setup PcapPlusPlus for Linux without PF_RING or DPDK. In this case you must not set --pf-ring or --dpdk"
    echo ""
@@ -39,6 +39,8 @@ function HELP {
    echo "--use-zstd               --Use Zstd for pcapng files compression/decompression. This parameter is optional"
    echo ""
    echo "--musl                   --Musl base destination platform: i.e. Alpine. This parameter is optional"
+   echo ""
+   echo "--aarch64                --build for linux arm64 architecture"
    echo ""
    echo -e "-h|--help                --Displays this help message and exits. No further actions are performed"\\n
    echo -e "Examples:"
@@ -125,7 +127,7 @@ if [ $NUMARGS -eq 0 ]; then
 else
 
    # these are all the possible switches
-   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,set-direction-enabled,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,use-zstd,musl -- "$@"`
+   OPTS=`getopt -o h --long default,pf-ring,pf-ring-home:,dpdk,dpdk-home:,help,use-immediate-mode,set-direction-enabled,install-dir:,libpcap-include-dir:,libpcap-lib-dir:,use-zstd,musl,aarch64 -- "$@"`
 
    # if user put an illegal switch - print HELP and exit
    if [ $? -ne 0 ]; then
@@ -208,6 +210,11 @@ else
          MUSL=1
          shift ;;
 
+      # build for Linux aarch64
+      --aarch64)
+         BUILD_FOR_ARM64=1
+         shift ;;
+
        # help switch - display help and exit
        -h|--help)
          HELP
@@ -252,6 +259,10 @@ cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
 
 # add the Linux definitions to PcapPlusPlus.mk
 cat mk/PcapPlusPlus.mk.linux >> $PCAPPLUSPLUS_MK
+if [ -n "$BUILD_FOR_ARM64" ]; then
+   cat mk/PcapPlusPlus.mk.linux.aarch64 >> $PCAPPLUSPLUS_MK
+   cat mk/platform.mk.linux.aarch64 >> $PLATFORM_MK
+fi
 
 # set current directory as PCAPPLUSPLUS_HOME in platform.mk
 echo -e "\n\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
