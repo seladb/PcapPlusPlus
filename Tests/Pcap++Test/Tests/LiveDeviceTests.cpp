@@ -753,7 +753,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 #if defined(_WIN32)
 
 	bool useRemoteDevicesFromArgs = (PcapTestGlobalArgs.remoteIp != "") && (PcapTestGlobalArgs.remotePort > 0);
-	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);
+	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : "127.0.0.1");
 	uint16_t remoteDevicePort = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remotePort : 12321);
 
 	RpcapdServerInitializer rpcapdInitializer(!useRemoteDevicesFromArgs, remoteDeviceIP, remoteDevicePort);
@@ -770,7 +770,10 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP);
 	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);
 
-	pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(remoteDeviceIPAddr);
+	std::string externalIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);
+	pcpp::IPv4Address externalIPAddr(externalIP);
+	pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(externalIPAddr);
+	PTF_ASSERT_NOT_NULL(remoteDevice);
 	PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
 	PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
 	pcpp::Logger::getInstance().suppressLogs();
@@ -833,6 +836,8 @@ PTF_TEST_CASE(TestRemoteCapture)
 
 	// the device object is already deleted, cannot close it
 	devTeardown.cancelTeardown();
+#else
+	PTF_SKIP_TEST("Not Windows");
 #endif
 
 } // TestRemoteCapture
