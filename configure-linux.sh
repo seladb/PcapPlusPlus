@@ -251,17 +251,17 @@ fi
 PLATFORM_MK="mk/platform.mk"
 PCAPPLUSPLUS_MK="mk/PcapPlusPlus.mk"
 
-# copy the basic Linux platform.mk
-cp -f mk/platform.mk.linux $PLATFORM_MK
-
 # copy the common (all platforms) PcapPlusPlus.mk
 cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
 
 # add the Linux definitions to PcapPlusPlus.mk
-cat mk/PcapPlusPlus.mk.linux >> $PCAPPLUSPLUS_MK
 if [ -n "$BUILD_FOR_ARM64" ]; then
+   cp -f mk/platform.mk.linux.aarch64 $PLATFORM_MK
    cat mk/PcapPlusPlus.mk.linux.aarch64 >> $PCAPPLUSPLUS_MK
-   cat mk/platform.mk.linux.aarch64 >> $PLATFORM_MK
+else
+   # copy the basic Linux platform.mk
+   cp -f mk/platform.mk.linux $PLATFORM_MK
+   cat mk/PcapPlusPlus.mk.linux >> $PCAPPLUSPLUS_MK
 fi
 
 # set current directory as PCAPPLUSPLUS_HOME in platform.mk
