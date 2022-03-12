@@ -756,9 +756,9 @@ PTF_TEST_CASE(TestRemoteCapture)
 	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : "127.0.0.1");
 	uint16_t remoteDevicePort = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remotePort : 12321);
 
-	RpcapdServerInitializer rpcapdInitializer(!useRemoteDevicesFromArgs, remoteDeviceIP, remoteDevicePort);
+	// RpcapdServerInitializer rpcapdInitializer(!useRemoteDevicesFromArgs, remoteDeviceIP, remoteDevicePort);
 
-	PTF_ASSERT_NOT_NULL(rpcapdInitializer.getHandle());
+	// PTF_ASSERT_NOT_NULL(rpcapdInitializer.getHandle());
 
 	pcpp::IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
 	pcpp::PcapRemoteDeviceList* remoteDevices = pcpp::PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
