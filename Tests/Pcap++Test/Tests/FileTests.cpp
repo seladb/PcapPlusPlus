@@ -751,3 +751,40 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4)
 
 } // TestPcapFileReadLinkTypeIPv4
 
+PTF_TEST_CASE(TestSolarisSnoopFileRead)
+{
+	pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+	PTF_ASSERT_TRUE(readerDev.open());
+	pcpp::RawPacket rawPacket;
+	int packetCount = 0;
+	int ethCount = 0;
+	int ipCount = 0;
+	int tcpCount = 0;
+	int udpCount = 0;
+	while (readerDev.getNextPacket(rawPacket))
+	{
+		packetCount++;
+		pcpp::Packet packet(&rawPacket);
+		if (packet.isPacketOfType(pcpp::Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(pcpp::IPv4))
+			ipCount++;
+		if (packet.isPacketOfType(pcpp::TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(pcpp::UDP))
+			udpCount++;
+	}
+
+	pcpp::IPcapDevice::PcapStats readerStatistics;
+
+	readerDev.getStatistics(readerStatistics);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 250);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+
+	PTF_ASSERT_EQUAL(ethCount, 142);
+	PTF_ASSERT_EQUAL(ipCount, 71);
+	PTF_ASSERT_EQUAL(tcpCount, 15);
+	PTF_ASSERT_EQUAL(udpCount, 55);
+
+	readerDev.close();
+} // TestSolarisSnoopFileRead
