@@ -752,92 +752,92 @@ PTF_TEST_CASE(TestRemoteCapture)
 {
 #if defined(_WIN32)
 
-	// bool useRemoteDevicesFromArgs = (PcapTestGlobalArgs.remoteIp != "") && (PcapTestGlobalArgs.remotePort > 0);
-	// std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : "127.0.0.1");
-	// uint16_t remoteDevicePort = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remotePort : 12321);
+	bool useRemoteDevicesFromArgs = (PcapTestGlobalArgs.remoteIp != "") && (PcapTestGlobalArgs.remotePort > 0);
+	std::string remoteDeviceIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : "127.0.0.1");
+	uint16_t remoteDevicePort = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remotePort : 12321);
 
-	// // RpcapdServerInitializer rpcapdInitializer(!useRemoteDevicesFromArgs, remoteDeviceIP, remoteDevicePort);
+	RpcapdServerInitializer rpcapdInitializer(!useRemoteDevicesFromArgs, remoteDeviceIP, remoteDevicePort);
 
-	// // PTF_ASSERT_NOT_NULL(rpcapdInitializer.getHandle());
+	PTF_ASSERT_NOT_NULL(rpcapdInitializer.getHandle());
 
-	// pcpp::IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
-	// pcpp::PcapRemoteDeviceList* remoteDevices = pcpp::PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
-	// PTF_ASSERT_NOT_NULL(remoteDevices);
-	// for (pcpp::PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
-	// {
-	// 	PTF_ASSERT_FALSE((*remoteDevIter)->getName().empty());
-	// }
-	// PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP);
-	// PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);
+	pcpp::IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
+	pcpp::PcapRemoteDeviceList* remoteDevices = pcpp::PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
+	PTF_ASSERT_NOT_NULL(remoteDevices);
+	for (pcpp::PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
+	{
+		PTF_ASSERT_FALSE((*remoteDevIter)->getName().empty());
+	}
+	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP);
+	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);
 
-	// std::string externalIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);
-	// pcpp::IPv4Address externalIPAddr(externalIP);
-	// pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(externalIPAddr);
-	// PTF_ASSERT_NOT_NULL(remoteDevice);
-	// PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
-	// PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
-	// pcpp::Logger::getInstance().suppressLogs();
-	// PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero);
-	// pcpp::Logger::getInstance().enableLogs();
-	// PTF_ASSERT_TRUE(remoteDevice->open());
-	// DeviceTeardown devTeardown(remoteDevice);
-	// pcpp::RawPacketVector capturedPackets;
-	// PTF_ASSERT_TRUE(remoteDevice->startCapture(capturedPackets));
+	std::string externalIP = (useRemoteDevicesFromArgs ? PcapTestGlobalArgs.remoteIp : PcapTestGlobalArgs.ipToSendReceivePackets);
+	pcpp::IPv4Address externalIPAddr(externalIP);
+	pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(externalIPAddr);
+	PTF_ASSERT_NOT_NULL(remoteDevice);
+	PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
+	PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero);
+	pcpp::Logger::getInstance().enableLogs();
+	PTF_ASSERT_TRUE(remoteDevice->open());
+	DeviceTeardown devTeardown(remoteDevice);
+	pcpp::RawPacketVector capturedPackets;
+	PTF_ASSERT_TRUE(remoteDevice->startCapture(capturedPackets));
 
-	// if (!useRemoteDevicesFromArgs)
-	// 	PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
+	if (!useRemoteDevicesFromArgs)
+		PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
 
-	// int totalSleepTime = 0;
-	// while (totalSleepTime < 10)
-	// {
-	// 	if (capturedPackets.size() > 2)
-	// 	{
-	// 		break;
-	// 	}
+	int totalSleepTime = 0;
+	while (totalSleepTime < 10)
+	{
+		if (capturedPackets.size() > 2)
+		{
+			break;
+		}
 
-	// 	pcpp::multiPlatformSleep(1);
-	// 	totalSleepTime += 1;
-	// }
+		pcpp::multiPlatformSleep(1);
+		totalSleepTime += 1;
+	}
 
-	// remoteDevice->stopCapture();
+	remoteDevice->stopCapture();
 
-	// PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 
-	// PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2);
+	PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2);
 
-	// // send single packet
-	// PTF_ASSERT_TRUE(remoteDevice->sendPacket(*capturedPackets.front()));
+	// send single packet
+	PTF_ASSERT_TRUE(remoteDevice->sendPacket(*capturedPackets.front()));
 
-	// // send multiple packets
-	// pcpp::RawPacketVector packetsToSend;
-	// std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
+	// send multiple packets
+	pcpp::RawPacketVector packetsToSend;
+	std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
 
-	// size_t capturedPacketsSize = capturedPackets.size();
-	// while (iter != capturedPackets.end())
-	// {
-	// 	if ((*iter)->getRawDataLen() <= (int)remoteDevice->getMtu())
-	// 	{
-	// 		packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
-	// 	}
-	// 	else
-	// 		++iter;
-	// }
-	// int packetsSent = remoteDevice->sendPackets(packetsToSend);
-	// PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size());
+	size_t capturedPacketsSize = capturedPackets.size();
+	while (iter != capturedPackets.end())
+	{
+		if ((*iter)->getRawDataLen() <= (int)remoteDevice->getMtu())
+		{
+			packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
+		}
+		else
+			++iter;
+	}
+	int packetsSent = remoteDevice->sendPackets(packetsToSend);
+	PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size());
 
-	// //check statistics
-	// pcpp::IPcapDevice::PcapStats stats;
-	// remoteDevice->getStatistics(stats);
-	// PTF_ASSERT_EQUAL((uint32_t)stats.packetsRecv, capturedPacketsSize);
+	//check statistics
+	pcpp::IPcapDevice::PcapStats stats;
+	remoteDevice->getStatistics(stats);
+	PTF_ASSERT_EQUAL((uint32_t)stats.packetsRecv, capturedPacketsSize);
 
-	// remoteDevice->close();
+	remoteDevice->close();
 
-	// delete remoteDevices;
+	delete remoteDevices;
 
-	// // the device object is already deleted, cannot close it
-	// devTeardown.cancelTeardown();
+	// the device object is already deleted, cannot close it
+	devTeardown.cancelTeardown();
 #else
-	PTF_SKIP_TEST("Not Windows");
+	PTF_SKIP_TEST("This test can only run in Windows environment");
 #endif
 
 } // TestRemoteCapture
