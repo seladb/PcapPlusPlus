@@ -170,7 +170,7 @@ namespace pcpp
 		    uint32_t        version_number;
 		    uint32_t        datalink_type;
 		} snoop_file_header_t;
-		
+
 		/*
 		 * Packet record header.
 		 */
@@ -183,7 +183,7 @@ namespace pcpp
 		    uint32_t        time_usec;           /* microsecond timestamp */
 		} snoop_packet_header_t;
 		#pragma pack()
-	
+
 		LinkLayerType m_PcapLinkLayerType;
 		std::ifstream m_snoopFile;
 
