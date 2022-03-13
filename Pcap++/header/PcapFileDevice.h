@@ -185,7 +185,7 @@ namespace pcpp
 		#pragma pack()
 	
 		LinkLayerType m_PcapLinkLayerType;
-		std::fstream m_snoopFile;
+		std::ifstream m_snoopFile;
 
 		// private copy c'tor
 		SnoopFileReaderDevice(const PcapFileReaderDevice& other);

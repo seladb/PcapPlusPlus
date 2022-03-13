@@ -132,7 +132,7 @@ bool SnoopFileReaderDevice::open()
 	m_NumOfPacketsRead = 0;
 	m_NumOfPacketsNotParsed = 0;
 
-	m_snoopFile.open(m_FileName, std::fstream::in | std::fstream::binary);
+	m_snoopFile.open(m_FileName, std::ifstream::binary);
 	snoop_file_header_t snoop_file_header;
 	m_snoopFile.read((char*)&snoop_file_header, sizeof(snoop_file_header_t));
 
