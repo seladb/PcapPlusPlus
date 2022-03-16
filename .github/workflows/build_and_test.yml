@@ -335,15 +335,6 @@ jobs:
             platform: x86
             config: Release
             pcap_lib: npcap
-          - vs-version: vs2017
-            os: windows-2016
-            platform: x86
-            config: Release
-            pcap_lib: npcap
-          - vs-version: vs2017
-            os: windows-2016
-            platform: x64
-            config: Debug
 
     steps:
       - name: Checkout code
