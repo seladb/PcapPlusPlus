@@ -4,8 +4,6 @@ LIB_PREFIX := lib
 
 LIB_EXT := .a
 
-ANDROID_TOOLCHAIN=$(ANDROID_NDK_PATH)/toolchains/llvm/prebuilt/linux-x86_64
-
 CXX := $(ANDROID_TOOLCHAIN)/bin/clang++
 
 CC := $(ANDROID_TOOLCHAIN)/bin/clang
