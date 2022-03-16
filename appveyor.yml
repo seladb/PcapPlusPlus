@@ -9,15 +9,15 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       compiler: mingw32
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      compiler: vs2017
+      platform: x64
+      config: Debug
+      pcap_lib: npcap
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       compiler: vs2015
       platform: x86
       config: Debug
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      compiler: vs2015
-      platform: x64
-      config: Release
-      pcap_lib: npcap
 
 
 init:
