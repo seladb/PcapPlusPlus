@@ -133,8 +133,21 @@ bool SnoopFileReaderDevice::open()
 	m_NumOfPacketsNotParsed = 0;
 
 	m_snoopFile.open(m_FileName.c_str(), std::ifstream::binary);
+	if (!m_snoopFile.is_open())
+	{
+		PCPP_LOG_ERROR("Cannot open snoop reader device for filename '" << m_FileName << "'");
+		m_snoopFile.close();
+		return false;
+	}
+
 	snoop_file_header_t snoop_file_header;
 	m_snoopFile.read((char*)&snoop_file_header, sizeof(snoop_file_header_t));
+	if (!m_snoopFile)
+	{
+		PCPP_LOG_ERROR("Cannot read snoop file header for '" << m_FileName << "'");
+		m_snoopFile.close();
+		return false;
+	}
 
 	if(be64toh(snoop_file_header.identification_pattern) != 0x736e6f6f70000000 && be32toh(snoop_file_header.version_number) == 2)
 		return false;
