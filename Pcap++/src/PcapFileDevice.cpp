@@ -225,6 +225,13 @@ bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	return true;
 }
 
+void SnoopFileReaderDevice::close()
+{
+	m_snoopFile.close();
+	m_DeviceOpened = false;
+	PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // PcapFileReaderDevice members

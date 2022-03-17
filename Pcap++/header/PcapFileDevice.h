@@ -232,6 +232,11 @@ namespace pcpp
 		 * @param[out] stats The stats struct where stats are returned
 		 */
 		void getStatistics(PcapStats& stats) const;
+
+		/**
+		 * Close the snoop file
+		 */
+		void close();
 	};
 
 
