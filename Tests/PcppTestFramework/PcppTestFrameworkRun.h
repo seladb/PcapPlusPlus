@@ -46,19 +46,20 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 	return false;
 }
 
-#define PTF_START_RUNNING_TESTS(userTags, configTags) \
+#define PTF_START_RUNNING_TESTS(userIncludeTags, userExcludeTags, configTags) \
 	bool allTestsPassed = true; \
 	int testsPassed = 0; \
 	int testsFailed = 0; \
 	int testsSkipped = 0; \
-	std::string userTagsToRun = userTags; \
+	std::string ptfUserIncludeTags = userIncludeTags; \
+	std::string ptfUserExcludeTags = userExcludeTags; \
 	std::string configTagsToRun = configTags; \
 	std::cout << "Start running tests..." << std::endl << std::endl
 
 #define PTF_RUN_TEST(TestName, tags) \
 	std::string TestName##_tags = std::string(#TestName) + ";" + tags; \
 	int TestName##_result = PTF_RESULT_PASSED; \
-	if (!__ptfCheckTags(TestName##_tags, userTagsToRun, true)) \
+	if (!__ptfCheckTags(TestName##_tags, ptfUserIncludeTags, true) || __ptfCheckTags(TestName##_tags, ptfUserExcludeTags, false)) \
 	{ \
 		if (showSkippedTests) \
 		{ \
