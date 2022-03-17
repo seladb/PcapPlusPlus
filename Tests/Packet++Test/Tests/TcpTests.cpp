@@ -287,3 +287,20 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	PTF_ASSERT_TRUE(tcpSnackOption.isNotNull());
 	PTF_ASSERT_TRUE(tcpSnackOption.setValue(htobe32(1000)));
 } // TcpPacketCreation2
+
+PTF_TEST_CASE(TcpChecksumInvalidRead)
+{
+	uint8_t *m = new uint8_t[3];
+	m[0] = 0x01;
+	m[1] = 0x12;
+	m[2] = 0xF3;
+
+	pcpp::ScalarBuffer<uint16_t> vec[1];
+	vec[0].buffer = (uint16_t*)m;
+	vec[0].len = 3;
+
+	uint16_t c = pcpp::computeChecksum(vec, 1);
+	PTF_ASSERT_EQUAL(c, 0xbedU);
+
+	delete [] m;
+} // TcpChecksumInvalidRead

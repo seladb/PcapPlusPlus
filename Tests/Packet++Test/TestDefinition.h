@@ -36,6 +36,7 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2);
 PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
 PTF_TEST_CASE(TcpPacketCreation2);
+PTF_TEST_CASE(TcpChecksumInvalidRead);
 
 // Implemented in PacketUtilsTests.cpp
 PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
