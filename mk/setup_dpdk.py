@@ -772,10 +772,15 @@ def load_dpdk_module(module, settings):
             stderr=subprocess.STDOUT,
         )
         if output:
-            raise RuntimeError(
-                "Something went wrong with adding 'igb_uio' kernel module: %s"
-                % output.decode("utf-8")
+            output = check_output(
+                ["modprobe", "igb_uio"],
+                stderr=subprocess.STDOUT,
             )
+            if output:
+                raise RuntimeError(
+                    "Something went wrong with adding 'igb_uio' kernel module: %s"
+                    % output.decode("utf-8")
+                )
         settings.dpdk_module = module
         logger.info("loaded DPDK kernel module 'igb_uio'")
     else:

@@ -72,7 +72,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_LEASE_TIME).getValueAs<uint32_t>(), htobe32(43200));
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_TFTP_SERVER_NAME).getValueAsString(), "172.22.178.234");
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_OFFER, enum);
+	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_OFFER, enum);
 
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Dhcp2.dat");
@@ -125,7 +125,7 @@ PTF_TEST_CASE(DhcpParsingTest)
 		PTF_ASSERT_FALSE(dhcpLayer->getOptionData(optTypeArr2[i]).isNull());
 	}
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_DISCOVER, enum);
+	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_DISCOVER, enum);
 } // DhcpParsingTest
 
 
@@ -235,7 +235,7 @@ PTF_TEST_CASE(DhcpEditTest)
 	pcpp::IPv4Address newSubnet("255.255.255.0");
 	opt.setValueIpAddr(newSubnet);
 
-	PTF_ASSERT_TRUE(dhcpLayer->setMesageType(pcpp::DHCP_ACK));
+	PTF_ASSERT_TRUE(dhcpLayer->setMessageType(pcpp::DHCP_ACK));
 
 	pcpp::IPv4Address newRouter("192.168.2.1");
 
@@ -260,19 +260,19 @@ PTF_TEST_CASE(DhcpEditTest)
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(pcpp::dhcp_header));
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_UNKNOWN_MSG_TYPE, enum);
+	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_UNKNOWN_MSG_TYPE, enum);
 
 	PTF_ASSERT_FALSE(dhcpLayer->addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_END, NULL, 0)).isNull());
 
-	PTF_ASSERT_FALSE(dhcpLayer->setMesageType(pcpp::DHCP_UNKNOWN_MSG_TYPE));
+	PTF_ASSERT_FALSE(dhcpLayer->setMessageType(pcpp::DHCP_UNKNOWN_MSG_TYPE));
 
-	PTF_ASSERT_TRUE(dhcpLayer->setMesageType(pcpp::DHCP_DISCOVER));
+	PTF_ASSERT_TRUE(dhcpLayer->setMessageType(pcpp::DHCP_DISCOVER));
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 2);
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(pcpp::dhcp_header)+4);
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_DISCOVER, enum);
+	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_DISCOVER, enum);
 
 	dhcpPacket.computeCalculateFields();
 } // DhcpEditTest

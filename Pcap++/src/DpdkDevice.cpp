@@ -959,8 +959,8 @@ uint16_t DpdkDevice::sendPacketsInner(uint16_t txQueueId, void* packetStorage, P
 	uint16_t packetsSent = 0;
 	int lastSleep = 0;
 
-	#define PACKET_TRANSMITION_THRESHOLD 0.8
-	int packetTxThreshold = m_Config.transmitDescriptorsNumber*PACKET_TRANSMITION_THRESHOLD;
+	#define PACKET_TRANSMISSION_THRESHOLD 0.8
+	int packetTxThreshold = m_Config.transmitDescriptorsNumber*PACKET_TRANSMISSION_THRESHOLD;
 
 	while (packetIndex < arrLength)
 	{
@@ -1178,7 +1178,7 @@ uint64_t DpdkDevice::convertRssHfToDpdkRssHf(uint64_t rssHF) const
 		dpdkRssHF |= ETH_RSS_IPV4;
 
 	if ((rssHF & RSS_FRAG_IPV4) != 0)
-		dpdkRssHF |= ETH_RSS_IPV4;
+		dpdkRssHF |= ETH_RSS_FRAG_IPV4;
 
 	if ((rssHF & RSS_NONFRAG_IPV4_TCP) != 0)
 		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_TCP;
@@ -1245,7 +1245,7 @@ uint64_t DpdkDevice::convertDpdkRssHfToRssHf(uint64_t dpdkRssHF) const
 		rssHF |= RSS_IPV4;
 
 	if ((dpdkRssHF & ETH_RSS_FRAG_IPV4) != 0)
-		rssHF |= RSS_IPV4;
+		rssHF |= RSS_FRAG_IPV4;
 
 	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_TCP) != 0)
 		rssHF |= RSS_NONFRAG_IPV4_TCP;

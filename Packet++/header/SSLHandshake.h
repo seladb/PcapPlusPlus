@@ -5,6 +5,17 @@
 #include "SSLCommon.h"
 #include "PointerVector.h"
 
+#ifndef PCPP_DEPRECATED
+#if defined(__GNUC__) || defined(__clang__)
+#define PCPP_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define PCPP_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
+#define PCPP_DEPRECATED
+#endif
+#endif
+
 /**
  * @file
  * See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
@@ -311,13 +322,18 @@ public:
 	virtual ~SSLHandshakeMessage() {}
 
 	/**
+	 * @deprecated Deprecated due to typo. Please use createHandshakeMessage()
+	 */
+	PCPP_DEPRECATED static SSLHandshakeMessage* createHandhakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container) { return createHandshakeMessage(data, dataLen, container);}
+
+	/**
 	 * A factory method for creating instances of handshake messages from raw data
 	 * @param[in] data The raw data containing 1 handshake message
 	 * @param[in] dataLen Raw data length in bytes
 	 * @param[in] container A pointer to the SSLHandshakeLayer instance which will contain the created message.
 	 * This parameter is required because the handshake message includes a pointer to its container
 	 */
-	static SSLHandshakeMessage* createHandhakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
+	static SSLHandshakeMessage* createHandshakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
 
 	/**
 	 * @return The handshake message type
@@ -414,7 +430,7 @@ public:
 	};
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and shouldn't be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and shouldn't be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -483,9 +499,14 @@ public:
 	int getExtensionCount() const;
 
 	/**
+	 * @deprecated Deprecated due to typo. Please use getExtensionsLength()
+	 */
+	PCPP_DEPRECATED uint16_t getExtensionsLenth() const { return getExtensionsLength(); };
+
+	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
 	 */
-	uint16_t getExtensionsLenth() const;
+	uint16_t getExtensionsLength() const;
 
 	/**
 	 * Get a pointer to an extension by index. The extensions are numbered according to their order of appearance
@@ -590,7 +611,7 @@ public:
 	};
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and shouldn't be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and shouldn't be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -654,9 +675,14 @@ public:
 	int getExtensionCount() const;
 
 	/**
+	 * @deprecated Deprecated due to typo. Please use getExtensionLength()
+	 */
+	PCPP_DEPRECATED uint16_t getExtensionsLenth() const { return getExtensionsLength(); };
+
+	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
 	 */
-	uint16_t getExtensionsLenth() const;
+	uint16_t getExtensionsLength() const;
 
 	/**
 	 * Get a pointer to an extension by index. The extensions are numbered according to their order of appearance
@@ -727,7 +753,7 @@ class SSLCertificateMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -773,7 +799,7 @@ class SSLHelloRequestMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -800,7 +826,7 @@ class SSLServerKeyExchangeMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -842,7 +868,7 @@ class SSLClientKeyExchangeMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -883,7 +909,7 @@ class SSLCertificateRequestMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -932,7 +958,7 @@ class SSLServerHelloDoneMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -959,7 +985,7 @@ class SSLCertificateVerifyMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -1001,7 +1027,7 @@ class SSLFinishedMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -1042,7 +1068,7 @@ class SSLNewSessionTicketMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -1084,7 +1110,7 @@ class SSLUnknownMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
