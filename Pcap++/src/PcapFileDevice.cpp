@@ -164,8 +164,15 @@ bool SnoopFileReaderDevice::open()
 		LINKTYPE_NULL,		/* IBM Channel-to-Channel */
 		LINKTYPE_FDDI		/* FDDI */
 	};
+	uint32_t datalink_type = be32toh(snoop_file_header.datalink_type);
+	if (datalink_type > 9)
+	{
+		PCPP_LOG_ERROR("Cannot read data link type for '" << m_FileName << "'");
+		m_snoopFile.close();
+		return false;
+	}
 
-	m_PcapLinkLayerType = snoop_encap[be32toh(snoop_file_header.datalink_type)];
+	m_PcapLinkLayerType = snoop_encap[datalink_type];
 
 	PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
 	m_DeviceOpened = true;
