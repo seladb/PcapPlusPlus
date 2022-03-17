@@ -9,7 +9,8 @@
 
 static struct option PacketTestOptions[] =
 {
-	{"tags",  required_argument, 0, 't'},
+	{"include-tags",  required_argument, 0, 't'},
+	{"exclude-tags",  required_argument, 0, 'x'},
 	{"show-skipped-tests", no_argument, 0, 'w' },
 	{"mem-verbose", no_argument, 0, 'm' },
 	{"verbose", no_argument, 0, 'v' },
@@ -22,7 +23,8 @@ void printUsage()
 {
 	std::cout << "Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
 			<< "Flags:\n"
-			<< "-t --tags                A list of semicolon separated tags for tests to run\n"
+			<< "-t --include-tags        A list of semicolon separated tags for tests to run\n"
+			<< "-x --exclude-tags        A list of semicolon separated tags for tests to exclude\n"
 			<< "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
 			<< "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
 			<< "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
@@ -35,18 +37,21 @@ int main(int argc, char* argv[])
 {
 	int optionIndex = 0;
 	int opt = 0;
-	std::string userTags = "", configTags = "";
+	std::string userTagsInclude = "", userTagsExclude = "", configTags = "";
 	bool memVerbose = false;
 	bool skipMemLeakCheck = false;
 
-	while((opt = getopt_long(argc, argv, "msvwht:", PacketTestOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "msvwht:x:", PacketTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
 			case 0:
 				break;
 			case 't':
-				userTags = optarg;
+				userTagsInclude = optarg;
+				break;
+			case 'x':
+				userTagsExclude = optarg;
 				break;
 			case 's':
 				skipMemLeakCheck = true;
@@ -100,7 +105,7 @@ int main(int argc, char* argv[])
 		std::cout << "Turning on verbose information on memory allocations" << std::endl;
 	}
 
-	PTF_START_RUNNING_TESTS(userTags, configTags);
+	PTF_START_RUNNING_TESTS(userTagsInclude, userTagsExclude, configTags);
 
 	PTF_RUN_TEST(EthPacketCreation, "eth2;eth");
 	PTF_RUN_TEST(EthPacketPointerCreation, "eth2;eth");
@@ -131,6 +136,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
 	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
+	PTF_RUN_TEST(TcpChecksumInvalidRead, "tcp");
 
 	PTF_RUN_TEST(PacketUtilsHash5TupleUdp, "udp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleTcp, "tcp");

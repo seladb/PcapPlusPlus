@@ -335,15 +335,6 @@ jobs:
             platform: x86
             config: Release
             pcap_lib: npcap
-          - vs-version: vs2017
-            os: windows-2016
-            platform: x86
-            config: Release
-            pcap_lib: npcap
-          - vs-version: vs2017
-            os: windows-2016
-            platform: x64
-            config: Debug
 
     steps:
       - name: Checkout code
@@ -419,11 +410,13 @@ jobs:
           python -m pytest
 
   android:
-    runs-on: ubuntu-20.04
     strategy:
       matrix:
+        run-on-os: [ubuntu-20.04, macos-10.15]
         target: [armeabi-v7a, arm64-v8a, x86, x86_64]
         api-version: [30]
+
+    runs-on: ${{ matrix.run-on-os }}
 
     steps:
       - name: Checkout code

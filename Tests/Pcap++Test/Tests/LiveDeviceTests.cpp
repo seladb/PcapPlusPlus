@@ -556,7 +556,8 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	pcpp::IPcapDevice::PcapStats statistics;
 	winPcapLiveDevice->getStatistics(statistics);
 	PTF_ASSERT_GREATER_THAN(statistics.packetsRecv, 20);
-	PTF_ASSERT_EQUAL((uint32_t)statistics.packetsDrop, 0);
+	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
+	//PTF_ASSERT_EQUAL((uint32_t)statistics.packetsDrop, 0);
 	winPcapLiveDevice->stopCapture();
 	PTF_ASSERT_TRUE(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(defaultDataToCopy));
 	winPcapLiveDevice->close();
@@ -833,6 +834,8 @@ PTF_TEST_CASE(TestRemoteCapture)
 
 	// the device object is already deleted, cannot close it
 	devTeardown.cancelTeardown();
+#else
+	PTF_SKIP_TEST("This test can only run in Windows environment");
 #endif
 
 } // TestRemoteCapture
