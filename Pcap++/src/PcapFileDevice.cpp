@@ -195,31 +195,31 @@ bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 		PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
 		return false;
 	}
-        snoop_packet_header_t snoop_packet_header;
-        m_snoopFile.read((char*)&snoop_packet_header, sizeof(snoop_packet_header_t));
-        if(!m_snoopFile) {
-            return false;
-        }
-        size_t packetSize = be32toh(snoop_packet_header.included_length);
-        if(packetSize > 15000) {
-            return false;
-        }
-	char* pMyPacketData = new char[packetSize];
-        m_snoopFile.read(pMyPacketData, packetSize);
-        if(!m_snoopFile) {
-            return false;
-        }
+	snoop_packet_header_t snoop_packet_header;
+	m_snoopFile.read((char*)&snoop_packet_header, sizeof(snoop_packet_header_t));
+	if(!m_snoopFile) {
+		return false;
+	}
+	size_t packetSize = be32toh(snoop_packet_header.included_length);
+	if(packetSize > 15000) {
+		return false;
+	}
+	char* packetData = new char[packetSize];
+	m_snoopFile.read(packetData, packetSize);
+	if(!m_snoopFile) {
+		return false;
+	}
 	timespec ts = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)), static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
-	if (!rawPacket.setRawData((const uint8_t*)pMyPacketData, packetSize, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType)))
+	if (!rawPacket.setRawData((const uint8_t*)packetData, packetSize, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType)))
 	{
 		PCPP_LOG_ERROR("Couldn't set data to raw packet");
 		return false;
 	}
 	size_t pad = be32toh(snoop_packet_header.packet_record_length) - (sizeof(snoop_packet_header_t) + be32toh(snoop_packet_header.included_length));
-        m_snoopFile.ignore(pad);
-        if(!m_snoopFile) {
-            return false;
-        }
+	m_snoopFile.ignore(pad);
+	if(!m_snoopFile) {
+		return false;
+	}
 
 	m_NumOfPacketsRead++;
 	return true;
