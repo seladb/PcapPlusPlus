@@ -83,7 +83,7 @@ std::string linkLayerToString(pcpp::LinkLayerType linkLayer)
 	if (linkLayer == pcpp::LINKTYPE_ETHERNET)
 		return "Ethernet";
 	if (linkLayer == pcpp::LINKTYPE_IEEE802_5)
-		return "LINKTYPE_IEEE802_5";
+		return "IEEE 802.5 Token Ring";
 	else if (linkLayer == pcpp::LINKTYPE_LINUX_SLL)
 		return "Linux cooked capture";
 	else if (linkLayer == pcpp::LINKTYPE_NULL)
