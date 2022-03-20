@@ -11,5 +11,3 @@ PCAPPP_LIBS += -lwpcap -lPacket -lpthread -lws2_32 -liphlpapi
 
 # flags
 PCAPPP_BUILD_FLAGS += -static -static-libgcc -static-libstdc++
-
-

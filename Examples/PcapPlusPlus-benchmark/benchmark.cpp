@@ -109,4 +109,3 @@ int main(int argc, char *argv[])
 	auto total_time_in_ms = duration_cast<milliseconds>(total_time).count();
 	std::cout << (total_packets / total_runs) << " " << (total_time_in_ms / durations.size()) << std::endl;
 }
-

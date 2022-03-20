@@ -63,4 +63,3 @@ uint16_t light_get_option_length(const light_option option)
 {
 	return option->option_length;
 }
-

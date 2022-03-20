@@ -8,5 +8,3 @@ PCAPPP_LIBS_DIR += -L$(PF_RING_HOME)/userland/lib
 
 # libs
 PCAPPP_LIBS += -l:libpfring.a -lnuma -lrt -ldl
-
-
