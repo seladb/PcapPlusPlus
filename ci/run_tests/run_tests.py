@@ -2,7 +2,7 @@ import subprocess
 import argparse
 import netifaces as ni
 
-PCAP_FILE = "PcapPlusPlus/Tests/Pcap++Test/PcapExamples/example2.pcap"
+PCAP_FILE = "Tests/Pcap++Test/PcapExamples/example2.pcap"
 
 
 def main():
@@ -43,11 +43,11 @@ def main():
     tcpreplay_proc = subprocess.Popen(["tcpreplay", "-i", args.interface, "--mbps=10", "-l", "0", PCAP_FILE], cwd=args.tcpreplay_dir)
 
     use_sudo = ["sudo"] if args.use_sudo else []
-    completed_process = subprocess.run(use_sudo + ["Bin/Packet++Test"] + args.test_args.split(), cwd="PcapPlusPlus/Tests/Packet++Test")
+    completed_process = subprocess.run(use_sudo + ["Bin/Packet++Test"] + args.test_args.split(), cwd="Tests/Packet++Test")
     if completed_process.returncode != 0:
       exit(completed_process.returncode)
 
-    completed_process = subprocess.run(use_sudo + ["Bin/Pcap++Test", "-i", ip_address] + args.test_args.split(), cwd="PcapPlusPlus/Tests/Pcap++Test")
+    completed_process = subprocess.run(use_sudo + ["Bin/Pcap++Test", "-i", ip_address] + args.test_args.split(), cwd="Tests/Pcap++Test")
     if completed_process.returncode != 0:
       exit(completed_process.returncode)
 
