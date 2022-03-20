@@ -79,5 +79,3 @@ void light_free_block(light_pcapng pcapng)
 	free(pcapng->block_body);
 	free(pcapng);
 }
-
-

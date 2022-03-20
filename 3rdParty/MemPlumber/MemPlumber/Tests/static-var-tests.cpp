@@ -114,4 +114,3 @@ int main(int argc, char* argv[]) {
     END_RUNNING_TESTS;
 }
 #endif //COLLECT_STATIC_VAR_DATA
-
