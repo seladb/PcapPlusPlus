@@ -9,70 +9,78 @@ jobs:
   #   - uses: actions/setup-python@v2
   #   - uses: pre-commit/action@v2.0.3
 
-  # linux:
-  #   runs-on: ubuntu-20.04
-  #   container: seladb/${{ matrix.image }}
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - image: ubuntu2004
-  #           python: python3
-  #         - image: ubuntu1804
-  #           python: python3.8
-  #         - image: ubuntu1604
-  #           python: python3.8
-  #         - image: centos7
-  #           python: python3.8
-  #           test-flags: -s
-  #         - image: fedora34
-  #           python: python3
-  #         - image: alpine315
-  #           python: python3
-  #           configure: --musl
+  linux:
+    runs-on: ubuntu-20.04
+    container: seladb/${{ matrix.image }}
+    strategy:
+      matrix:
+        include:
+          - image: ubuntu2004
+            python: python3
+            interface: eth0
+          # - image: ubuntu1804
+          #   python: python3.8
+          # - image: ubuntu1604
+          #   python: python3.8
+          # - image: centos7
+          #   python: python3.8
+          #   test-flags: -s
+          # - image: fedora34
+          #   python: python3
+          # - image: alpine315
+          #   python: python3
+          #   configure: --musl
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - name: Configure PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: ./configure-linux.sh --default ${{ matrix.configure }}
+      - name: Configure PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: ./configure-linux.sh --default ${{ matrix.configure }}
 
-  #     - name: Build PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: make all
+      - name: Build PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: make all
 
-  #     - name: Test Packet++
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests/Packet++Test
-  #         Bin/Packet++Test ${{ matrix.test-flags }}
+      - name: Test PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          ${{ matrix.python }} -m pip install -U pip
+          ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
+          ${{ matrix.python }} ci/run_tests/run_tests.py --interface ${{ matrix.interface }}
 
-  #     - name: Test Pcap++
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests/Pcap++Test
-  #         Bin/Pcap++Test -n ${{ matrix.test-flags }}
+      # - name: Test Packet++
+      #   working-directory: ${{env.GITHUB_WORKSPACE}}
+      #   run: |
+      #     cd Tests/Packet++Test
+      #     Bin/Packet++Test ${{ matrix.test-flags }}
 
-  #     - name: Test Examples
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests/ExamplesTest
-  #         ${{ matrix.python }} -m pip install -U pip
-  #         ${{ matrix.python }} -m pip install -r requirements.txt
-  #         ${{ matrix.python }} -m pytest
+      # - name: Test Pcap++
+      #   working-directory: ${{env.GITHUB_WORKSPACE}}
+      #   run: |
+      #     cd Tests/Pcap++Test
+      #     Bin/Pcap++Test -n ${{ matrix.test-flags }}
 
-  #     - name: Check installation
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         make install
+      - name: Test Examples
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Tests/ExamplesTest
+          ${{ matrix.python }} -m pip install -U pip
+          ${{ matrix.python }} -m pip install -r requirements.txt
+          ${{ matrix.python }} -m pytest
 
-  #     - name: Build Tutorials
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Examples/Tutorials/Tutorial-HelloWorld
-  #         make -f Makefile.non_windows all
-  #         ./Tutorial-HelloWorld
+      - name: Check installation
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          make install
+
+      - name: Build Tutorials
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Examples/Tutorials/Tutorial-HelloWorld
+          make -f Makefile.non_windows all
+          ./Tutorial-HelloWorld
 
   # dpdk-legacy:
   #   runs-on: ubuntu-20.04
