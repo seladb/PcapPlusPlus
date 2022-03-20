@@ -1,56 +1,56 @@
-version: 1.0.{build}
+# version: 1.0.{build}
 
-environment:
-  NPCAP_USERNAME:
-    secure: iVuVl18E7ZfsuRjz0YKJKQ==
-  NPCAP_PASSWORD:
-    secure: 8sWBrDudyutFv+4Eq6teJA==
-  PYTHON: "C:\\Python38-x64"
-  matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      compiler: mingw32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      compiler: vs2017
-      platform: x64
-      config: Debug
-      pcap_lib: npcap
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      compiler: vs2015
-      platform: x86
-      config: Debug
+# environment:
+#   NPCAP_USERNAME:
+#     secure: iVuVl18E7ZfsuRjz0YKJKQ==
+#   NPCAP_PASSWORD:
+#     secure: 8sWBrDudyutFv+4Eq6teJA==
+#   PYTHON: "C:\\Python38-x64"
+#   matrix:
+#     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+#       compiler: mingw32
+#     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#       compiler: vs2017
+#       platform: x64
+#       config: Debug
+#       pcap_lib: npcap
+#     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+#       compiler: vs2015
+#       platform: x86
+#       config: Debug
 
 
-init:
-- set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+# init:
+# - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
 
-install:
-- if "%pcap_lib%"=="npcap" (ci\install_npcap.bat) else (ci\install_winpcap.bat)
-- git clone https://github.com/seladb/PcapPlusPlus-Deploy
-- cd PcapPlusPlus-Deploy\Packages
-- if "%compiler%"=="mingw32" set PATH=%PATH%;C:\MinGW\bin&& 7z e pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz -oC:\pthreads && 7z x C:\pthreads\pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar -oC:\pthreads && xcopy /Y C:\pthreads\include\* C:\MinGW\include && xcopy /Y C:\pthreads\lib\* C:\MinGW\lib
-- if "%compiler:~0,4%"=="vs20" 7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
-- cd ..\..\
-- "python -m pip install --upgrade pip"
-- "python -m pip install -r C:\\projects\\PcapPlusPlus\\Tests\\ExamplesTest\\requirements.txt"
-- if "%compiler%"=="mingw32" python ci\patch_mingw.py
+# install:
+# - if "%pcap_lib%"=="npcap" (ci\install_npcap.bat) else (ci\install_winpcap.bat)
+# - git clone https://github.com/seladb/PcapPlusPlus-Deploy
+# - cd PcapPlusPlus-Deploy\Packages
+# - if "%compiler%"=="mingw32" set PATH=%PATH%;C:\MinGW\bin&& 7z e pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz -oC:\pthreads && 7z x C:\pthreads\pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar -oC:\pthreads && xcopy /Y C:\pthreads\include\* C:\MinGW\include && xcopy /Y C:\pthreads\lib\* C:\MinGW\lib
+# - if "%compiler:~0,4%"=="vs20" 7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
+# - cd ..\..\
+# - "python -m pip install --upgrade pip"
+# - "python -m pip install -r C:\\projects\\PcapPlusPlus\\Tests\\ExamplesTest\\requirements.txt"
+# - if "%compiler%"=="mingw32" python ci\patch_mingw.py
 
-before_build:
-- if "%pcap_lib%"=="npcap" (set PCAP_SDK_DIR=C:\Npcap-sdk) else (set PCAP_SDK_DIR=C:\WpdPack)
-- cd C:\projects\PcapPlusPlus
-- if "%compiler%"=="mingw32" configure-windows-mingw.bat mingw32 -m C:\MinGW -w %PCAP_SDK_DIR%
-- if "%compiler:~0,4%"=="vs20" configure-windows-visual-studio.bat -v %compiler% -w %PCAP_SDK_DIR% -p C:\pthreads %ZSTD_HOME_PARAM%
+# before_build:
+# - if "%pcap_lib%"=="npcap" (set PCAP_SDK_DIR=C:\Npcap-sdk) else (set PCAP_SDK_DIR=C:\WpdPack)
+# - cd C:\projects\PcapPlusPlus
+# - if "%compiler%"=="mingw32" configure-windows-mingw.bat mingw32 -m C:\MinGW -w %PCAP_SDK_DIR%
+# - if "%compiler:~0,4%"=="vs20" configure-windows-visual-studio.bat -v %compiler% -w %PCAP_SDK_DIR% -p C:\pthreads %ZSTD_HOME_PARAM%
 
-build_script:
-- if "%compiler%"=="mingw32" mingw32-make all
-- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\PcapPlusPlus.sln /p:Configuration=%config% /p:Platform=%platform%"
-- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\PcapPlusPlus-Examples.sln /p:Configuration=%config% /p:Platform=%platform%"
-- if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\Tutorials.sln /p:Configuration=%config% /p:Platform=%platform%"
+# build_script:
+# - if "%compiler%"=="mingw32" mingw32-make all
+# - if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\PcapPlusPlus.sln /p:Configuration=%config% /p:Platform=%platform%"
+# - if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\PcapPlusPlus-Examples.sln /p:Configuration=%config% /p:Platform=%platform%"
+# - if "%compiler:~0,4%"=="vs20" powershell -command "msbuild mk\%compiler%\Tutorials.sln /p:Configuration=%config% /p:Platform=%platform%"
 
-test_script:
-- cd C:\projects\PcapPlusPlus\Tests\Packet++Test
-- Bin\Packet++Test.exe
-- cd ..\Pcap++Test
-- Bin\Pcap++Test.exe -n
-- cd ..\ExamplesTest
-- ..\..\ci\find_ip.bat
-- "python -m pytest --interface %NetworkIP%"
+# test_script:
+# - cd C:\projects\PcapPlusPlus\Tests\Packet++Test
+# - Bin\Packet++Test.exe
+# - cd ..\Pcap++Test
+# - Bin\Pcap++Test.exe -n
+# - cd ..\ExamplesTest
+# - ..\..\ci\find_ip.bat
+# - "python -m pytest --interface %NetworkIP%"
