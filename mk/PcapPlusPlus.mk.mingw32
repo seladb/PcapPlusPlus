@@ -11,5 +11,3 @@ PCAPPP_LIBS += -lwpcap -lPacket -Wl,-Bstatic -lpthread -Wl,-Bdynamic -lws2_32 -l
 
 # flags
 PCAPPP_BUILD_FLAGS += -static-libgcc -static-libstdc++
-
-

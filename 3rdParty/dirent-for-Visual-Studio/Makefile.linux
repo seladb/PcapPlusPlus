@@ -66,4 +66,3 @@ dirent-$(VERSION).zip: $(DIST_FILES)
 	done
 	( cd dirent-$(VERSION) && zip -r ../dirent-$(VERSION).zip . )
 	rm -fr dirent-$(VERSION)
-

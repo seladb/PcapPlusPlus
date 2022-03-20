@@ -140,5 +140,3 @@ find_directory(
 
     return ok;
 }
-
-

@@ -5,4 +5,3 @@ PCAPPP_INCLUDES += -I$(MACOS_SDK_HOME)/usr/include/netinet
 
 # libs
 PCAPPP_LIBS += -lpcap -lpthread -framework SystemConfiguration -framework CoreFoundation
-

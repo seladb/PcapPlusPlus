@@ -194,4 +194,3 @@ protected:
 		return m_ValueToFileTable[value];
 	}
 };
-

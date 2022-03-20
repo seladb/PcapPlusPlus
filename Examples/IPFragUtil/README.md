@@ -82,4 +82,3 @@ Fragment only IPv6 packets with dest address of 2001:4f8:3:d::61 to 16B fragment
 		-a              : Copy all packets (those who were fragmented and those who weren't) to output file
 		-v              : Displays the current version and exits
 		-h              : Displays this help message and exits
-
