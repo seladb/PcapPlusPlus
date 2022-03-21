@@ -189,7 +189,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -r ci/run_tests/requirements.txt
-          python ci/run_tests/run_tests.py --interface en0
+          python ci/run_tests/run_tests.py --interface en0 --use-sudo
 
       # - name: Test Packet++
       #   working-directory: ${{env.GITHUB_WORKSPACE}}
