@@ -1,8 +1,9 @@
+import os
 import subprocess
 import argparse
 import netifaces as ni
 
-PCAP_FILE_PATH = "Tests/Pcap++Test/PcapExamples/example.pcap"
+PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 
 
 def main():
@@ -40,14 +41,16 @@ def main():
 
         use_sudo = ["sudo"] if args.use_sudo else []
         completed_process = subprocess.run(
-            use_sudo + ["Bin/Packet++Test"] + args.test_args.split(),
+            use_sudo + [os.path.join("Bin", "Packet++Test")] + args.test_args.split(),
             cwd="Tests/Packet++Test",
         )
         if completed_process.returncode != 0:
             exit(completed_process.returncode)
 
         completed_process = subprocess.run(
-            use_sudo + ["Bin/Pcap++Test", "-i", ip_address] + args.test_args.split(),
+            use_sudo
+            + [os.path.join("Bin", "Pcap++Test"), "-i", ip_address]
+            + args.test_args.split(),
             cwd="Tests/Pcap++Test",
         )
         if completed_process.returncode != 0:

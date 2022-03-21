@@ -4,7 +4,7 @@ import subprocess
 import netifaces as ni
 
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
-PCAP_FILE_PATH = "Tests\\Pcap++Test\\PcapExamples\\example.pcap"
+PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 
 
 def find_interface():
@@ -63,7 +63,7 @@ def main():
 
         completed_process = subprocess.run(
             os.path.join("Bin", "Packet++Test"),
-            cwd=os.path.join("PcapPlusPlus", "Tests", "Packet++Test"),
+            cwd=os.path.join("Tests", "Packet++Test"),
             shell=True,
         )
         if completed_process.returncode != 0:
@@ -78,7 +78,7 @@ def main():
                 "-x",
                 ";".join(skip_tests),
             ],
-            cwd=os.path.join("PcapPlusPlus", "Tests", "Pcap++Test"),
+            cwd=os.path.join("Tests", "Pcap++Test"),
             shell=True,
         )
         if completed_process.returncode != 0:
