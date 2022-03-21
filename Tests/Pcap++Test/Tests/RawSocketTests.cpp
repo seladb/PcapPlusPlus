@@ -44,9 +44,9 @@ PTF_TEST_CASE(TestRawSockets)
 		pcpp::RawPacket rawPacket;
 		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 10), pcpp::RawSocketDevice::RecvSuccess, enum);
 		pcpp::Packet parsedPacket(&rawPacket);
-		if (!parsedPacket.isPacketOfType(protocol))
+		if (!(parsedPacket.isPacketOfType(protocol)))
 		{
-			printf("PACKET:\n%s\n", parsedPacket.toString().c_str());
+			std::cout << "PACKET: " << std::endl << parsedPacket.toString() << std::endl;
 		}
 		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 	}
