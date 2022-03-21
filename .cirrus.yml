@@ -44,6 +44,8 @@ task:
     - ./configure-mac_os_x.sh --use-zstd
   build_script:
     - make all
+  install_tcpreplay_script:
+    - brew install tcpreplay
   test_pcapplusplus_script:
     - python3 -m ensurepip
     - python3 -m pip install -r ci/run_tests/requirements.txt
