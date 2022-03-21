@@ -187,9 +187,9 @@ jobs:
       - name: Test PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          ${{ matrix.python }} -m pip install -U pip
-          ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
-          ${{ matrix.python }} ci/run_tests/run_tests.py --interface en0
+          python -m pip install -U pip
+          python -m pip install -r ci/run_tests/requirements.txt
+          python ci/run_tests/run_tests.py --interface en0
 
       # - name: Test Packet++
       #   working-directory: ${{env.GITHUB_WORKSPACE}}
