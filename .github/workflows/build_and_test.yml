@@ -296,6 +296,97 @@ jobs:
           python -m pip install -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py
 
+      - name: Test Examples
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Tests\ExamplesTest
+          python -m pip install -r requirements.txt
+          python -m pytest
+
+  visual-studio:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        include:
+          - vs-version: vs2019
+            platform: x64
+            config: Debug
+          - vs-version: vs2019
+            platform: x64
+            config: Release
+            use_zstd: true
+          - vs-version: vs2019
+            platform: x86
+            config: Debug
+          - vs-version: vs2019
+            platform: x86
+            config: Release
+            pcap_lib: npcap
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8.x"
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Install WinPcap
+        run: |
+          ci\install_winpcap.bat
+          echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
+        if: matrix.pcap_lib != 'npcap'
+
+      - name: Install NPcap
+        env:
+          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
+          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
+        run: |
+          ci\install_npcap.bat
+          echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
+        if: matrix.pcap_lib == 'npcap'
+
+      - name: Download pthreads
+        run: |
+          git clone https://github.com/seladb/PcapPlusPlus-Deploy
+          cd PcapPlusPlus-Deploy\Packages
+          7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
+
+      - name: Set Zstd
+        run: |
+          ci\install_zstd.bat
+          echo "ZSTD_HOME_PARAM=-z C:\zstd" >> $env:GITHUB_ENV
+        if: matrix.use_zstd == true
+
+      - name: Configure PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w ${{ env.PCAP_SDK_DIR }} -p C:\pthreads ${{ env.ZSTD_HOME_PARAM }}
+
+      - name: Build PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+      - name: Build Examples
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus-Examples.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+      - name: Build Tutorials
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: msbuild /m mk\${{matrix.vs-version}}\Tutorials.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+
+      - name: Install tcpreplay
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: ci\install_tcpreplay.bat
+
+      - name: Test PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          python -m pip install -r ci\run_tests\requirements.txt
+          python ci\run_tests\run_tests_windows.py
+
       # - name: Test Packet++
       #   working-directory: ${{env.GITHUB_WORKSPACE}}
       #   run: |
@@ -314,103 +405,6 @@ jobs:
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
           python -m pytest
-
-  # visual-studio:
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - vs-version: vs2019
-  #           os: windows-2019
-  #           platform: x64
-  #           config: Debug
-  #         - vs-version: vs2019
-  #           os: windows-2019
-  #           platform: x64
-  #           config: Release
-  #           use_zstd: true
-  #         - vs-version: vs2019
-  #           os: windows-2019
-  #           platform: x86
-  #           config: Debug
-  #         - vs-version: vs2019
-  #           os: windows-2019
-  #           platform: x86
-  #           config: Release
-  #           pcap_lib: npcap
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
-
-  #     - uses: actions/setup-python@v2
-  #       with:
-  #         python-version: "3.8.x"
-
-  #     - name: Add MSBuild to PATH
-  #       uses: microsoft/setup-msbuild@v1
-
-  #     - name: Install WinPcap
-  #       run: |
-  #         ci\install_winpcap.bat
-  #         echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
-  #       if: matrix.pcap_lib != 'npcap'
-
-  #     - name: Install NPcap
-  #       env:
-  #         NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
-  #         NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
-  #       run: |
-  #         ci\install_npcap.bat
-  #         echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
-  #       if: matrix.pcap_lib == 'npcap'
-
-  #     - name: Download pthreads
-  #       run: |
-  #         git clone https://github.com/seladb/PcapPlusPlus-Deploy
-  #         cd PcapPlusPlus-Deploy\Packages
-  #         7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
-
-  #     - name: Set Zstd
-  #       run: |
-  #         ci\install_zstd.bat
-  #         echo "ZSTD_HOME_PARAM=-z C:\zstd" >> $env:GITHUB_ENV
-  #       if: matrix.use_zstd == true
-
-  #     - name: Configure PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w ${{ env.PCAP_SDK_DIR }} -p C:\pthreads ${{ env.ZSTD_HOME_PARAM }}
-
-  #     - name: Build PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
-
-  #     - name: Build Examples
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus-Examples.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
-
-  #     - name: Build Tutorials
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: msbuild /m mk\${{matrix.vs-version}}\Tutorials.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
-
-  #     - name: Test Packet++
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests\Packet++Test
-  #         Bin\Packet++Test.exe
-
-  #     - name: Test Pcap++
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests\Pcap++Test
-  #         Bin\Pcap++Test.exe -n
-
-  #     - name: Test Examples
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests\ExamplesTest
-  #         python -m pip install -r requirements.txt
-  #         python -m pytest
 
   # android:
   #   strategy:
