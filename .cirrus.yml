@@ -1,23 +1,25 @@
-# task:
-#   name: Test FreeBSD
-#   freebsd_instance:
-#     matrix:
-#       image_family: freebsd-12-3
-#       image_family: freebsd-13-0
-#   update_script: IGNORE_OSVERSION=yes pkg update -f
-#   install_script:
-#     - pkg install -y libpcap bash gsed gmake
-#     - python -m ensurepip
-#     - python -m pip install -r Tests/ExamplesTest/requirements.txt
-#   configure_script:
-#     - ./configure-freebsd.sh --default
-#   build_script:
-#     - gmake all
-#   test_script:
-#     - cd Tests/Packet++Test && Bin/Packet++Test
-#     - cd ../Pcap++Test && sudo Bin/Pcap++Test -n
-#     - source ../../ci/find_ip_freebsd.sh
-#     - cd ../ExamplesTest && python -m pytest --interface $NETWORK_IP
+task:
+  name: Test FreeBSD
+  freebsd_instance:
+    matrix:
+      image_family: freebsd-12-3
+      image_family: freebsd-13-0
+  install_script:
+    - pkg install -y libpcap bash gsed gmake tcpreplay
+  configure_script:
+    - ./configure-freebsd.sh --default
+  build_script:
+    - gmake all
+  test_pcapplusplus_script:
+    - ifconfig vtnet0 promisc
+    - python -m ensurepip
+    - python -m pip install -r ci/run_tests/requirements.txt
+    - python ci/run_tests/run_tests.py --interface vtnet0
+  test_examples_script:
+    - python -m ensurepip
+    - python -m pip install -r Tests/ExamplesTest/requirements.txt
+    - source ../../ci/find_ip_freebsd.sh
+    - cd ../ExamplesTest && python -m pytest --interface $NETWORK_IP
 
 # task:
 #   name: Test Zstd Linux
