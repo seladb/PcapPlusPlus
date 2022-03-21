@@ -17,23 +17,17 @@ jobs:
         include:
           - image: ubuntu2004
             python: python3
-            interface: eth0
           - image: ubuntu1804
             python: python3.8
-            interface: eth0
           - image: ubuntu1604
             python: python3.8
-            interface: eth0
           - image: centos7
             python: python3.8
-            interface: eth0
             test-flags: --test-args="-s"
           - image: fedora34
             python: python3
-            interface: eth0
           - image: alpine315
             python: python3
-            interface: eth0
             configure: --musl
 
     steps:
@@ -53,7 +47,7 @@ jobs:
         run: |
           ${{ matrix.python }} -m pip install -U pip
           ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
-          ${{ matrix.python }} ci/run_tests/run_tests.py --interface ${{ matrix.interface }} ${{ matrix.test-flags }}
+          ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
         working-directory: ${{env.GITHUB_WORKSPACE}}

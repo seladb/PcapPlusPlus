@@ -2,7 +2,7 @@ import subprocess
 import argparse
 import netifaces as ni
 
-PCAP_FILE = "Tests/Pcap++Test/PcapExamples/example2.pcap"
+PCAP_FILE = "Tests/Pcap++Test/PcapExamples/example.pcap"
 
 
 def main():
