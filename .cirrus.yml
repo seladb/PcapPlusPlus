@@ -32,7 +32,6 @@ task:
   build_script:
     - make all
   test_pcapplusplus_script:
-    - python3 -m ensurepip
     - python3 -m pip install -r ci/run_tests/requirements.txt
     - python3 ci/run_tests/run_tests.py --interface eth0
 

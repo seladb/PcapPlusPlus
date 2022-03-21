@@ -85,12 +85,16 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: make all
 
-      - name: Test PcapPlusPlus
+      - name: Test Packet++
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          python3 -m pip install -U pip
-          python3 -m pip install -r ci/run_tests/requirements.txt
-          python3 ci/run_tests/run_tests.py --interface eth0
+          cd Tests/Packet++Test
+          Bin/Packet++Test
+      - name: Test Pcap++
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Tests/Pcap++Test
+          Bin/Pcap++Test -n
 
   dpdk:
     runs-on: ubuntu-20.04
@@ -114,16 +118,16 @@ jobs:
       - name: Check AVX
         run: grep avx /proc/cpuinfo
 
-      - name: Test PcapPlusPlus
+      - name: Test Packet++
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then
-            python3 -m pip install -U pip
-            python3 -m pip install -r ci/run_tests/requirements.txt
-            python3 ci/run_tests/run_tests.py --interface eth0
-          else
-            echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN TESTS
-          fi
+          cd Tests/Packet++Test
+          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
+      - name: Test Pcap++
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Tests/Pcap++Test
+          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
   pfring:
     runs-on: ubuntu-20.04
@@ -141,12 +145,16 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: make all
 
-      - name: Test PcapPlusPlus
+      - name: Test Packet++
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          python3 -m pip install -U pip
-          python3 -m pip install -r ci/run_tests/requirements.txt
-          python3 ci/run_tests/run_tests.py --interface eth0
+          cd Tests/Packet++Test
+          Bin/Packet++Test
+      - name: Test Pcap++
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Tests/Pcap++Test
+          Bin/Pcap++Test -n
 
   macos:
     runs-on: ${{ matrix.os-version }}
