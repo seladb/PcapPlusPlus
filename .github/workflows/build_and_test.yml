@@ -1,5 +1,5 @@
 name: Build and test
-on: [push, pull_request]
+on: [push]
 
 jobs:
   pre-commit:
@@ -69,28 +69,28 @@ jobs:
           make -f Makefile.non_windows all
           ./Tutorial-HelloWorld
 
-  # dpdk-legacy:
-  #   runs-on: ubuntu-20.04
-  #   container: seladb/ubuntu1604-dpdk1811
+  dpdk-legacy:
+    runs-on: ubuntu-20.04
+    container: seladb/ubuntu2004-dpdk1811
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - name: Configure PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
+      - name: Configure PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
 
-  #     - name: Build PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: make all
+      - name: Build PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: make all
 
-  #     - name: Test PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         python3 -m pip install -U pip
-  #         python3 -m pip install -r ci/run_tests/requirements.txt
-  #         python3 ci/run_tests/run_tests.py --interface eth0
+      - name: Test PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          python3 -m pip install -U pip
+          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 ci/run_tests/run_tests.py --interface eth0
 
   dpdk:
     runs-on: ubuntu-20.04
@@ -125,40 +125,28 @@ jobs:
             echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN TESTS
           fi
 
-      # - name: Test Packet++
-      #   working-directory: ${{env.GITHUB_WORKSPACE}}
-      #   run: |
-      #     cd Tests/Packet++Test
-      #     if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
+  pfring:
+    runs-on: ubuntu-20.04
+    container: seladb/ubuntu2004-pfring
 
-      # - name: Test Pcap++
-      #   working-directory: ${{env.GITHUB_WORKSPACE}}
-      #   run: |
-      #     cd Tests/Pcap++Test
-      #     if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  # pfring:
-  #   runs-on: ubuntu-20.04
-  #   container: seladb/ubuntu2004-pfring
+      - name: Configure PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+      - name: Build PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: make all
 
-  #     - name: Configure PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING
-
-  #     - name: Build PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: make all
-
-  #     - name: Test PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         python3 -m pip install -U pip
-  #         python3 -m pip install -r ci/run_tests/requirements.txt
-  #         python3 ci/run_tests/run_tests.py --interface eth0
+      - name: Test PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          python3 -m pip install -U pip
+          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 ci/run_tests/run_tests.py --interface eth0
 
   macos:
     runs-on: ${{ matrix.os-version }}

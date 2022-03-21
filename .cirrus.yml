@@ -29,10 +29,12 @@ task:
   configure_script:
     - ./configure-linux.sh --use-zstd
     - ldconfig
-  # build_script:
-  #   - make all
-  test_script:
-    - ifconfig
+  build_script:
+    - make all
+  test_pcapplusplus_script:
+    - python3 -m ensurepip
+    - python3 -m pip install -r ci/run_tests/requirements.txt
+    - python3 ci/run_tests/run_tests.py --interface eth0
 
 task:
   name: Test Zstd MacOS
