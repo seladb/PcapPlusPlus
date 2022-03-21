@@ -35,6 +35,20 @@ task:
 #     - cd Tests/Packet++Test && Bin/Packet++Test
 #     - cd ../Pcap++Test && Bin/Pcap++Test -n
 
+task:
+  name: Test Zstd MacOS
+  osx_instance:
+    image: monterey-xcode
+  configure_script:
+    - brew install zstd
+    - ./configure-mac_os_x.sh --use-zstd
+  # build_script:
+  #   - make all
+  test_script:
+    python -V
+    # - cd Tests/Packet++Test && Bin/Packet++Test
+    # - cd ../Pcap++Test && Bin/Pcap++Test -n
+
 # task:
 #   name: Regression Tests Linux (Address Sanitizer)
 #   container:
@@ -58,19 +72,6 @@ task:
 #     - make fuzzers
 #   test_script:
 #     - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
-
-# task:
-#   name: Test Zstd MacOS
-#   osx_instance:
-#     image: catalina-xcode
-#   configure_script:
-#     - brew install zstd
-#     - ./configure-mac_os_x.sh --use-zstd
-#   build_script:
-#     - make all
-#   test_script:
-#     - cd Tests/Packet++Test && Bin/Packet++Test
-#     - cd ../Pcap++Test && Bin/Pcap++Test -n
 
 # task:
 #   name: Build Doxygen Documentation
