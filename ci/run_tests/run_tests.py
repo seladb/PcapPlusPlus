@@ -2,7 +2,7 @@ import subprocess
 import argparse
 import netifaces as ni
 
-PCAP_FILE = "Tests/Pcap++Test/PcapExamples/example.pcap"
+PCAP_FILE_PATH = "Tests/Pcap++Test/PcapExamples/example.pcap"
 
 
 def main():
@@ -34,7 +34,7 @@ def main():
 
     try:
         tcpreplay_proc = subprocess.Popen(
-            ["tcpreplay", "-i", args.interface, "--mbps=10", "-l", "0", PCAP_FILE],
+            ["tcpreplay", "-i", args.interface, "--mbps=10", "-l", "0", PCAP_FILE_PATH],
             cwd=args.tcpreplay_dir,
         )
 

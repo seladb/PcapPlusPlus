@@ -243,67 +243,77 @@ jobs:
   #       run: |
   #         cd Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
 
-  # mingw-w64:
-  #   runs-on: windows-latest
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - env: i686
-  #           sys: mingw32
-  #         - env: x86_64
-  #           sys: mingw64
+  mingw-w64:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - env: i686
+            sys: mingw32
+          - env: x86_64
+            sys: mingw64
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - name: Setup MSYS2
-  #       uses: msys2/setup-msys2@v2
-  #       with:
-  #         msystem: ${{matrix.sys}}
-  #         install: mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          install: mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
 
-  #     - name: Setup Python
-  #       uses: actions/setup-python@v2
-  #       with:
-  #         python-version: "3.8.x"
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8.x"
 
-  #     - name: Install NPcap
-  #       env:
-  #         NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
-  #         NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
-  #       run: |
-  #         ci\install_npcap.bat
-  #         echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
+      - name: Install NPcap
+        env:
+          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
+          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
+        run: |
+          ci\install_npcap.bat
+          echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
 
-  #     - name: Configure PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       shell: msys2 {0}
-  #       run: ./configure-windows-mingw.bat mingw-w64 -m  /${{ matrix.sys }} -w ${{ env.PCAP_SDK_DIR }} -s .
+      - name: Configure PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: ./configure-windows-mingw.bat mingw-w64 -m  /${{ matrix.sys }} -w ${{ env.PCAP_SDK_DIR }} -s .
 
-  #     - name: Build PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       shell: msys2 {0}
-  #       run: mingw32-make all
+      - name: Build PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        shell: msys2 {0}
+        run: mingw32-make all
 
-  #     - name: Test Packet++
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests\Packet++Test
-  #         Bin\Packet++Test.exe
+      - name: Install tcpreplay
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: ci\install_tcpreplay.bat
 
-  #     - name: Test Pcap++
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests\Pcap++Test
-  #         Bin\Pcap++Test.exe -n
+      - name: Test PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          python -m pip install -r ci\run_tests\requirements.txt
+          python ci\run_tests\run_tests_windows.py
 
-  #     - name: Test Examples
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests\ExamplesTest
-  #         python -m pip install -r requirements.txt
-  #         python -m pytest
+      # - name: Test Packet++
+      #   working-directory: ${{env.GITHUB_WORKSPACE}}
+      #   run: |
+      #     cd Tests\Packet++Test
+      #     Bin\Packet++Test.exe
+
+      # - name: Test Pcap++
+      #   working-directory: ${{env.GITHUB_WORKSPACE}}
+      #   run: |
+      #     cd Tests\Pcap++Test
+      #     Bin\Pcap++Test.exe -n
+
+      - name: Test Examples
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Tests\ExamplesTest
+          python -m pip install -r requirements.txt
+          python -m pytest
 
   # visual-studio:
   #   runs-on: ${{ matrix.os }}
