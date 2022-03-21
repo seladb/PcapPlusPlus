@@ -159,59 +159,69 @@ jobs:
   #         cd Tests/Pcap++Test
   #         Bin/Pcap++Test -n
 
-  # macos:
-  #   runs-on: ${{ matrix.os-version }}
-  #   strategy:
-  #     matrix:
-  #       os-version: [macos-10.15]
+  macos:
+    runs-on: ${{ matrix.os-version }}
+    strategy:
+      matrix:
+        os-version: [macos-10.15, macos-11]
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - uses: actions/setup-python@v2
-  #       with:
-  #         python-version: "3.8.x"
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8.x"
 
-  #     - name: Configure PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: ./configure-mac_os_x.sh
+      - name: Configure PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: ./configure-mac_os_x.sh
 
-  #     - name: Build PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: make all
+      - name: Build PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: make all
 
-  #     - name: Test Packet++
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests/Packet++Test
-  #         Bin/Packet++Test
+      - name: Install Tcpreplay
+        run: brew install tcpreplay
 
-  #     - name: Test Pcap++
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests/Pcap++Test
-  #         Bin/Pcap++Test -n
+      - name: Test PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          ${{ matrix.python }} -m pip install -U pip
+          ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
+          ${{ matrix.python }} ci/run_tests/run_tests.py --interface en0
 
-  #     - name: Test Examples
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Tests/ExamplesTest
-  #         python -m pip install -U pip
-  #         python -m pip install -r requirements.txt
-  #         python -m pytest
+      # - name: Test Packet++
+      #   working-directory: ${{env.GITHUB_WORKSPACE}}
+      #   run: |
+      #     cd Tests/Packet++Test
+      #     Bin/Packet++Test
 
-  #     - name: Check installation
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         make install
+      # - name: Test Pcap++
+      #   working-directory: ${{env.GITHUB_WORKSPACE}}
+      #   run: |
+      #     cd Tests/Pcap++Test
+      #     Bin/Pcap++Test -n
 
-  #     - name: Build Tutorials
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Examples/Tutorials/Tutorial-HelloWorld
-  #         make -f Makefile.non_windows all
-  #         ./Tutorial-HelloWorld
+      - name: Test Examples
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Tests/ExamplesTest
+          python -m pip install -U pip
+          python -m pip install -r requirements.txt
+          python -m pytest
+
+      - name: Check installation
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          make install
+
+      - name: Build Tutorials
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Examples/Tutorials/Tutorial-HelloWorld
+          make -f Makefile.non_windows all
+          ./Tutorial-HelloWorld
 
   # macos-apple-silicon-arm64:
   #   runs-on: ${{ matrix.os-version }}
