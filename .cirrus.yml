@@ -42,13 +42,12 @@ task:
   configure_script:
     - brew install zstd
     - ./configure-mac_os_x.sh --use-zstd
-  # build_script:
-  #   - make all
-  test_script:
-    - python3 -V
-    - ifconfig
-    # - cd Tests/Packet++Test && Bin/Packet++Test
-    # - cd ../Pcap++Test && Bin/Pcap++Test -n
+  build_script:
+    - make all
+  test_pcapplusplus_script:
+    - python3 -m ensurepip
+    - python3 -m pip install -r ci/run_tests/requirements.txt
+    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo
 
 # task:
 #   name: Regression Tests Linux (Address Sanitizer)
