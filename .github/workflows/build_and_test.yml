@@ -18,10 +18,12 @@ jobs:
           - image: ubuntu2004
             python: python3
             interface: eth0
-          # - image: ubuntu1804
-          #   python: python3.8
-          # - image: ubuntu1604
-          #   python: python3.8
+          - image: ubuntu1804
+            python: python3.8
+            interface: eth0
+          - image: ubuntu1604
+            python: python3.8
+            interface: eth0
           # - image: centos7
           #   python: python3.8
           #   test-flags: -s
@@ -49,18 +51,6 @@ jobs:
           ${{ matrix.python }} -m pip install -U pip
           ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
           ${{ matrix.python }} ci/run_tests/run_tests.py --interface ${{ matrix.interface }}
-
-      # - name: Test Packet++
-      #   working-directory: ${{env.GITHUB_WORKSPACE}}
-      #   run: |
-      #     cd Tests/Packet++Test
-      #     Bin/Packet++Test ${{ matrix.test-flags }}
-
-      # - name: Test Pcap++
-      #   working-directory: ${{env.GITHUB_WORKSPACE}}
-      #   run: |
-      #     cd Tests/Pcap++Test
-      #     Bin/Pcap++Test -n ${{ matrix.test-flags }}
 
       - name: Test Examples
         working-directory: ${{env.GITHUB_WORKSPACE}}
