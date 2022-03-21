@@ -69,28 +69,28 @@ jobs:
           make -f Makefile.non_windows all
           ./Tutorial-HelloWorld
 
-  dpdk-legacy:
-    runs-on: ubuntu-20.04
-    container: seladb/ubuntu1604-dpdk1811
+  # dpdk-legacy:
+  #   runs-on: ubuntu-20.04
+  #   container: seladb/ubuntu1604-dpdk1811
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Configure PcapPlusPlus
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
+  #     - name: Configure PcapPlusPlus
+  #       working-directory: ${{env.GITHUB_WORKSPACE}}
+  #       run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
 
-      - name: Build PcapPlusPlus
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: make all
+  #     - name: Build PcapPlusPlus
+  #       working-directory: ${{env.GITHUB_WORKSPACE}}
+  #       run: make all
 
-      - name: Test PcapPlusPlus
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          python3 -m pip install -U pip
-          python3 -m pip install -r ci/run_tests/requirements.txt
-          python3 ci/run_tests/run_tests.py --interface eth0
+  #     - name: Test PcapPlusPlus
+  #       working-directory: ${{env.GITHUB_WORKSPACE}}
+  #       run: |
+  #         python3 -m pip install -U pip
+  #         python3 -m pip install -r ci/run_tests/requirements.txt
+  #         python3 ci/run_tests/run_tests.py --interface eth0
 
   dpdk:
     runs-on: ubuntu-20.04
@@ -117,7 +117,7 @@ jobs:
       - name: Test PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ];
+          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then
             python3 -m pip install -U pip
             python3 -m pip install -r ci/run_tests/requirements.txt
             python3 ci/run_tests/run_tests.py --interface eth0
@@ -137,28 +137,28 @@ jobs:
       #     cd Tests/Pcap++Test
       #     if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
-  pfring:
-    runs-on: ubuntu-20.04
-    container: seladb/ubuntu2004-pfring
+  # pfring:
+  #   runs-on: ubuntu-20.04
+  #   container: seladb/ubuntu2004-pfring
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Configure PcapPlusPlus
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING
+  #     - name: Configure PcapPlusPlus
+  #       working-directory: ${{env.GITHUB_WORKSPACE}}
+  #       run: ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING
 
-      - name: Build PcapPlusPlus
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: make all
+  #     - name: Build PcapPlusPlus
+  #       working-directory: ${{env.GITHUB_WORKSPACE}}
+  #       run: make all
 
-      - name: Test PcapPlusPlus
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          python3 -m pip install -U pip
-          python3 -m pip install -r ci/run_tests/requirements.txt
-          python3 ci/run_tests/run_tests.py --interface eth0
+  #     - name: Test PcapPlusPlus
+  #       working-directory: ${{env.GITHUB_WORKSPACE}}
+  #       run: |
+  #         python3 -m pip install -U pip
+  #         python3 -m pip install -r ci/run_tests/requirements.txt
+  #         python3 ci/run_tests/run_tests.py --interface eth0
 
   macos:
     runs-on: ${{ matrix.os-version }}
@@ -212,37 +212,37 @@ jobs:
           make -f Makefile.non_windows all
           ./Tutorial-HelloWorld
 
-  # macos-apple-silicon-arm64:
-  #   runs-on: ${{ matrix.os-version }}
-  #   strategy:
-  #     matrix:
-  #       os-version: [macos-10.15]
+  macos-apple-silicon-arm64:
+    runs-on: ${{ matrix.os-version }}
+    strategy:
+      matrix:
+        os-version: [macos-10.15]
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - uses: actions/setup-python@v2
-  #       with:
-  #         python-version: "3.8.x"
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8.x"
 
-  #     - name: Configure PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: ./configure-mac_os_x.sh --arm64
+      - name: Configure PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: ./configure-mac_os_x.sh --arm64
 
-  #     - name: Build PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: make all
+      - name: Build PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: make all
 
-  #     - name: Check for arm64 slice in executables
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Dist && ALL_EXECUTABLES_WITHOUT_SYMLINKS=($(find . -perm +111 -type f)) && for EXECUTABLE in ${ALL_EXECUTABLES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $EXECUTABLE"; CHECK_ARCH=$(lipo $EXECUTABLE -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $EXECUTABLE"; exit 1; else echo "Found arm64 slice in $EXECUTABLE"; fi; done
+      - name: Check for arm64 slice in executables
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Dist && ALL_EXECUTABLES_WITHOUT_SYMLINKS=($(find . -perm +111 -type f)) && for EXECUTABLE in ${ALL_EXECUTABLES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $EXECUTABLE"; CHECK_ARCH=$(lipo $EXECUTABLE -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $EXECUTABLE"; exit 1; else echo "Found arm64 slice in $EXECUTABLE"; fi; done
 
-  #     - name: Check for arm64 slice in libraries
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         cd Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
+      - name: Check for arm64 slice in libraries
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          cd Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
 
   mingw-w64:
     runs-on: windows-latest
@@ -395,57 +395,67 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pytest
 
-  # android:
-  #   strategy:
-  #     matrix:
-  #       run-on-os: [ubuntu-20.04, macos-10.15]
-  #       target: [armeabi-v7a, arm64-v8a, x86, x86_64]
-  #       api-version: [30]
+  android:
+    strategy:
+      matrix:
+        include:
+          - run-on-os: ubuntu-20.04
+            target: armeabi-v7a
+            api-version: 30
+          - run-on-os: ubuntu-20.04
+            target: x86
+            api-version: 30
+          - run-on-os: macos-11
+            target: arm64-v8a
+            api-version: 30
+          - run-on-os: macos-11
+            target: x86_64
+            api-version: 30
 
-  #   runs-on: ${{ matrix.run-on-os }}
+    runs-on: ${{ matrix.run-on-os }}
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - name: Checkout lipbcap for Android
-  #       uses: actions/checkout@main
-  #       with:
-  #         repository: seladb/libpcap-android
-  #         path: ./libpcap-android
+      - name: Checkout lipbcap for Android
+        uses: actions/checkout@main
+        with:
+          repository: seladb/libpcap-android
+          path: ./libpcap-android
 
-  #     - name: Configure PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
-  #         LIBPCAP_PATH=$(pwd)/libpcap-android
-  #         ./configure-android.sh --ndk-path $NDK_ROOT --target ${{ matrix.target }} --api ${{ matrix.api-version }} --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/${{ matrix.target }}/${{ matrix.api-version }}
+      - name: Configure PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
+          LIBPCAP_PATH=$(pwd)/libpcap-android
+          ./configure-android.sh --ndk-path $NDK_ROOT --target ${{ matrix.target }} --api ${{ matrix.api-version }} --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/${{ matrix.target }}/${{ matrix.api-version }}
 
-  #     - name: Build PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: make all
+      - name: Build PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: make all
 
-  #     - name: Checkout ToyVpn-PcapPlusPlus
-  #       uses: actions/checkout@master
-  #       with:
-  #         repository: seladb/ToyVpn-PcapPlusPlus
-  #         path: ./ToyVpn-PcapPlusPlus
-  #         submodules: true
+      - name: Checkout ToyVpn-PcapPlusPlus
+        uses: actions/checkout@master
+        with:
+          repository: seladb/ToyVpn-PcapPlusPlus
+          path: ./ToyVpn-PcapPlusPlus
+          submodules: true
 
-  #     - name: Copy PcapPlusPlus libs to ToyVpn-PcapPlusPlus
-  #       working-directory: ${{env.GITHUB_WORKSPACE}}
-  #       run: |
-  #         TOYVPN_LIBS=./ToyVpn-PcapPlusPlus/app/libs
-  #         PCAPPLUSPLUS_LIBS_PATH=$TOYVPN_LIBS/pcapplusplus/${{ matrix.target }}/${{ matrix.api-version }}
-  #         PCAPPLUSPLUS_INCLUDE_PATH=$TOYVPN_LIBS/pcapplusplus/include
-  #         mkdir -p $PCAPPLUSPLUS_LIBS_PATH
-  #         mkdir -p $PCAPPLUSPLUS_INCLUDE_PATH
-  #         cp Dist/*.a $PCAPPLUSPLUS_LIBS_PATH/
-  #         cp -R Dist/header/* $PCAPPLUSPLUS_INCLUDE_PATH/
+      - name: Copy PcapPlusPlus libs to ToyVpn-PcapPlusPlus
+        working-directory: ${{env.GITHUB_WORKSPACE}}
+        run: |
+          TOYVPN_LIBS=./ToyVpn-PcapPlusPlus/app/libs
+          PCAPPLUSPLUS_LIBS_PATH=$TOYVPN_LIBS/pcapplusplus/${{ matrix.target }}/${{ matrix.api-version }}
+          PCAPPLUSPLUS_INCLUDE_PATH=$TOYVPN_LIBS/pcapplusplus/include
+          mkdir -p $PCAPPLUSPLUS_LIBS_PATH
+          mkdir -p $PCAPPLUSPLUS_INCLUDE_PATH
+          cp Dist/*.a $PCAPPLUSPLUS_LIBS_PATH/
+          cp -R Dist/header/* $PCAPPLUSPLUS_INCLUDE_PATH/
 
-  #     - name: Build ToyVpn-PcapPlusPlus
-  #       working-directory: ./ToyVpn-PcapPlusPlus
-  #       run: |
-  #         sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
-  #         chmod +x gradlew
-  #         ./gradlew assembleDebug
+      - name: Build ToyVpn-PcapPlusPlus
+        working-directory: ./ToyVpn-PcapPlusPlus
+        run: |
+          sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+          chmod +x gradlew
+          ./gradlew assembleDebug
