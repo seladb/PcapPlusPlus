@@ -45,7 +45,7 @@ task:
   # build_script:
   #   - make all
   test_script:
-    python -V
+    python3 -V
     # - cd Tests/Packet++Test && Bin/Packet++Test
     # - cd ../Pcap++Test && Bin/Pcap++Test -n
 
