@@ -90,6 +90,7 @@ jobs:
         run: |
           cd Tests/Packet++Test
           Bin/Packet++Test
+
       - name: Test Pcap++
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
@@ -123,6 +124,7 @@ jobs:
         run: |
           cd Tests/Packet++Test
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
+
       - name: Test Pcap++
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
@@ -150,6 +152,7 @@ jobs:
         run: |
           cd Tests/Packet++Test
           Bin/Packet++Test
+
       - name: Test Pcap++
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
