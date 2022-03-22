@@ -56,7 +56,7 @@ for:
     - cmd: cd PcapPlusPlus-Deploy\Packages
     - cmd: set PATH=%PATH%;C:\MinGW\bin&& 7z e pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz -oC:\pthreads && 7z x C:\pthreads\pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar -oC:\pthreads && xcopy /Y C:\pthreads\include\* C:\MinGW\include && xcopy /Y C:\pthreads\lib\* C:\MinGW\lib
     - cmd: cd ..\..\
-    - cmd: python patch_mingw.py
+    - cmd: python ci\patch_mingw.py
 
   before_build:
     - cmd: configure-windows-mingw.bat mingw32 -m C:\MinGW -w C:\WpdPack
