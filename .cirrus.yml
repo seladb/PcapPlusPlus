@@ -1,105 +1,105 @@
-task:
-  name: Test FreeBSD
-  freebsd_instance:
-    matrix:
-      image_family: freebsd-12-3
-      image_family: freebsd-13-0
-  install_script:
-    - pkg install -y libpcap bash gsed gmake tcpreplay
-  configure_script:
-    - ./configure-freebsd.sh --default
-  build_script:
-    - gmake all
-  test_pcapplusplus_script:
-    - ifconfig vtnet0 promisc
-    - python -m ensurepip
-    - python -m pip install -r ci/run_tests/requirements.txt
-    - python ci/run_tests/run_tests.py --interface vtnet0
-  test_examples_script:
-    - cd Tests/ExamplesTest
-    - python -m ensurepip
-    - python -m pip install -r requirements.txt
-    - source ../../ci/find_ip_freebsd.sh
-    - python -m pytest --interface $NETWORK_IP
+# task:
+#   name: Test FreeBSD
+#   freebsd_instance:
+#     matrix:
+#       image_family: freebsd-12-3
+#       image_family: freebsd-13-0
+#   install_script:
+#     - pkg install -y libpcap bash gsed gmake tcpreplay
+#   configure_script:
+#     - ./configure-freebsd.sh --default
+#   build_script:
+#     - gmake all
+#   test_pcapplusplus_script:
+#     - ifconfig vtnet0 promisc
+#     - python -m ensurepip
+#     - python -m pip install -r ci/run_tests/requirements.txt
+#     - python ci/run_tests/run_tests.py --interface vtnet0
+#   test_examples_script:
+#     - cd Tests/ExamplesTest
+#     - python -m ensurepip
+#     - python -m pip install -r requirements.txt
+#     - source ../../ci/find_ip_freebsd.sh
+#     - python -m pytest --interface $NETWORK_IP
 
-task:
-  name: Test Zstd Linux
-  container:
-    image: seladb/ubuntu2004-zstd:latest
-  configure_script:
-    - ./configure-linux.sh --use-zstd
-    - ldconfig
-  build_script:
-    - make all
-  test_pcapplusplus_script:
-    - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface eth0
+# task:
+#   name: Test Zstd Linux
+#   container:
+#     image: seladb/ubuntu2004-zstd:latest
+#   configure_script:
+#     - ./configure-linux.sh --use-zstd
+#     - ldconfig
+#   build_script:
+#     - make all
+#   test_pcapplusplus_script:
+#     - python3 -m pip install -r ci/run_tests/requirements.txt
+#     - python3 ci/run_tests/run_tests.py --interface eth0
 
-task:
-  name: Test Zstd MacOS
-  osx_instance:
-    image: monterey-xcode
-  configure_script:
-    - brew install zstd
-    - ./configure-mac_os_x.sh --use-zstd
-  build_script:
-    - make all
-  install_tcpreplay_script:
-    - brew install tcpreplay
-  test_pcapplusplus_script:
-    - python3 -m ensurepip
-    - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo
+# task:
+#   name: Test Zstd MacOS
+#   osx_instance:
+#     image: monterey-xcode
+#   configure_script:
+#     - brew install zstd
+#     - ./configure-mac_os_x.sh --use-zstd
+#   build_script:
+#     - make all
+#   install_tcpreplay_script:
+#     - brew install tcpreplay
+#   test_pcapplusplus_script:
+#     - python3 -m ensurepip
+#     - python3 -m pip install -r ci/run_tests/requirements.txt
+#     - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo
 
-task:
-  name: Regression Tests Linux (Address Sanitizer)
-  container:
-    image: seladb/ubuntu1804:latest
-  configure_script:
-    - ./configure-fuzzing.sh --sanitizer address
-    - ldconfig
-  build_script:
-    - make fuzzers
-  test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+# task:
+#   name: Regression Tests Linux (Address Sanitizer)
+#   container:
+#     image: seladb/ubuntu1804:latest
+#   configure_script:
+#     - ./configure-fuzzing.sh --sanitizer address
+#     - ldconfig
+#   build_script:
+#     - make fuzzers
+#   test_script:
+#     - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
 
-task:
-  name: Regression Tests Linux (Undefined Behavior Sanitizer)
-  container:
-    image: seladb/ubuntu1804:latest
-  configure_script:
-    - ./configure-fuzzing.sh --sanitizer undefined
-    - ldconfig
-  build_script:
-    - make fuzzers
-  test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+# task:
+#   name: Regression Tests Linux (Undefined Behavior Sanitizer)
+#   container:
+#     image: seladb/ubuntu1804:latest
+#   configure_script:
+#     - ./configure-fuzzing.sh --sanitizer undefined
+#     - ldconfig
+#   build_script:
+#     - make fuzzers
+#   test_script:
+#     - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
 
-task:
-  name: Build Doxygen Documentation
-  container:
-    image: seladb/ubuntu1804:latest
-  env:
-    - GITHUB_EMAIL: ENCRYPTED[ae4956ec74c9f329f7787cdfe3a6b5842870659275d0a9b513a0f6e64cd9c71cd2eb64219a9dc695f446fbd93c48fb04]
-    - GITHUB_TOKEN: ENCRYPTED[ab88249da2005c70f25f5910b08e907139f73bc0efb31a19b33f832e9e3bffe3cfc8e81932f21d7734c7aceca2a77188]
-  get_code_script:
-    - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
-  configure_script:
-    - ./configure-linux.sh --default
-  build_script:
-    - make libs
-  build_documentation_script:
-    - cd pcapplusplus.github.io/static/api-docs/next/doxygen
-    - doxygen Doxyfile-ci
-  upload_documentation_script: |
-    if [ "$CIRRUS_BRANCH" == "master" -a "$CIRRUS_REPO_OWNER" == "seladb" ]; then
-      find pcapplusplus.github.io/static/api-docs/next/ -maxdepth 1 -type f -exec rm {} \;
-      rm -rf pcapplusplus.github.io/static/api-docs/next/search/
-      mv pcapplusplus.github.io/static/api-docs/next/html/* pcapplusplus.github.io/static/api-docs/next/
-      cd pcapplusplus.github.io/static/api-docs/next/
-      git config user.name "seladb"
-      git config user.email "${GITHUB_EMAIL}"
-      git add .
-      git commit -m "Update API documentation for commit ${CIRRUS_CHANGE_IN_REPO}"
-      git push --quiet "https://${GITHUB_TOKEN}@github.com/PcapPlusPlus/pcapplusplus.github.io" master
-    fi
+# task:
+#   name: Build Doxygen Documentation
+#   container:
+#     image: seladb/ubuntu1804:latest
+#   env:
+#     - GITHUB_EMAIL: ENCRYPTED[ae4956ec74c9f329f7787cdfe3a6b5842870659275d0a9b513a0f6e64cd9c71cd2eb64219a9dc695f446fbd93c48fb04]
+#     - GITHUB_TOKEN: ENCRYPTED[ab88249da2005c70f25f5910b08e907139f73bc0efb31a19b33f832e9e3bffe3cfc8e81932f21d7734c7aceca2a77188]
+#   get_code_script:
+#     - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
+#   configure_script:
+#     - ./configure-linux.sh --default
+#   build_script:
+#     - make libs
+#   build_documentation_script:
+#     - cd pcapplusplus.github.io/static/api-docs/next/doxygen
+#     - doxygen Doxyfile-ci
+#   upload_documentation_script: |
+#     if [ "$CIRRUS_BRANCH" == "master" -a "$CIRRUS_REPO_OWNER" == "seladb" ]; then
+#       find pcapplusplus.github.io/static/api-docs/next/ -maxdepth 1 -type f -exec rm {} \;
+#       rm -rf pcapplusplus.github.io/static/api-docs/next/search/
+#       mv pcapplusplus.github.io/static/api-docs/next/html/* pcapplusplus.github.io/static/api-docs/next/
+#       cd pcapplusplus.github.io/static/api-docs/next/
+#       git config user.name "seladb"
+#       git config user.email "${GITHUB_EMAIL}"
+#       git add .
+#       git commit -m "Update API documentation for commit ${CIRRUS_CHANGE_IN_REPO}"
+#       git push --quiet "https://${GITHUB_TOKEN}@github.com/PcapPlusPlus/pcapplusplus.github.io" master
+#     fi

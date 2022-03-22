@@ -1,4 +1,33 @@
-# version: 1.0.{build}
+version: 1.0.{build}
+
+environment:
+  PYTHON: "C:\\Python38-x64"
+  matrix:
+    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    #   compiler: mingw32
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      compiler: vs2015
+      platform: x86
+      config: Debug
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      compiler: vs2017
+      platform: x86
+      config: Debug
+
+init:
+  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+
+install:
+  - cmd: ci\install_npcap.bat
+  - cmd: python -m pip install --upgrade pip
+  - cmd: python -m pip install -r requirements.txt
+  - cmd: git clone https://github.com/seladb/PcapPlusPlus-Deploy
+  - cmd: cd PcapPlusPlus-Deploy\Packages
+  - cmd: 7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
+  - cmd: cd ..\..\
+
+before_build:
+  - cmd: configure-windows-visual-studio.bat -v %compiler% -w C:\Npcap-sdk -p C:\pthreads
 
 # environment:
 #   NPCAP_USERNAME:
