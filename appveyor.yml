@@ -29,11 +29,9 @@ before_build:
   - cmd: configure-windows-visual-studio.bat -v %compiler% -w C:\Npcap-sdk -p C:\pthreads
 
 build_script:
-  - cmd: cd PcapPlusPlus
   - ps: msbuild mk\$env:compiler\PcapPlusPlus.sln /p:Configuration=$env:config /p:Platform=$env:platform
   - ps: msbuild mk\$env:compiler\PcapPlusPlus-Examples.sln /p:Configuration=$env:config /p:Platform=$env:platform
   - ps: msbuild mk\$env:compiler\Tutorials.sln /p:Configuration=$env:config /p:Platform=$env:platform
-  - cmd: cd ..
 
 test_script:
   - cmd: python -m pip install -r ci\run_tests\requirements.txt
