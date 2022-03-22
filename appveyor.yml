@@ -1,10 +1,14 @@
 version: 1.0.{build}
 
 environment:
+  NPCAP_USERNAME:
+    secure: iVuVl18E7ZfsuRjz0YKJKQ==
+  NPCAP_PASSWORD:
+    secure: 8sWBrDudyutFv+4Eq6teJA==
   PYTHON: "C:\\Python38-x64"
   matrix:
-    # - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    #   compiler: mingw32
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      compiler: mingw32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       compiler: vs2015
       platform: x86
@@ -38,6 +42,40 @@ test_script:
   - cmd: cd Tests\ExamplesTest
   - cmd: python -m pip install -r requirements.txt
   - cmd: python -m pytest --interface %NetworkIP%
+
+for:
+  -
+  matrix:
+    only:
+      - compiler: mingw32
+
+  install:
+    - cmd: ci\install_winpcap.bat
+    - cmd: python -m pip install --upgrade pip
+    - cmd: git clone https://github.com/seladb/PcapPlusPlus-Deploy
+    - cmd: cd PcapPlusPlus-Deploy\Packages
+    - cmd: set PATH=%PATH%;C:\MinGW\bin&& 7z e pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar.xz -oC:\pthreads && 7z x C:\pthreads\pthreads-GC-w32-2.10-mingw32-pre-20160821-1-dev.tar -oC:\pthreads && xcopy /Y C:\pthreads\include\* C:\MinGW\include && xcopy /Y C:\pthreads\lib\* C:\MinGW\lib
+    - cmd: cd ..\..\
+    - cmd: python patch_mingw.py
+
+  before_build:
+    - cmd: configure-windows-mingw.bat mingw32 -m C:\MinGW -w C:\WpdPack
+
+  build_script:
+    - cmd: mingw32-make all
+
+  test_script:
+    - cmd: python run_windows.py -s TestRawSockets
+
+  test_script:
+    - cmd: python -m pip install -r ci\run_tests\requirements.txt
+    - cmd: python ci\run_tests\run_tests_windows.py -s TestRawSockets
+    - cmd: ci\find_ip.bat
+    - cmd: cd Tests\ExamplesTest
+    - cmd: python -m pip install -r requirements.txt
+    - cmd: python -m pytest --interface %NetworkIP%
+
+
 
 # environment:
 #   NPCAP_USERNAME:
