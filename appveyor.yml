@@ -44,7 +44,7 @@ test_script:
   - cmd: python -m pytest --interface %NetworkIP%
 
 for:
-  -
+-
   matrix:
     only:
       - compiler: mingw32
