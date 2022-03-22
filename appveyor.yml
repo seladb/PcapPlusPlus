@@ -20,7 +20,6 @@ init:
 install:
   - cmd: ci\install_npcap.bat
   - cmd: python -m pip install --upgrade pip
-  - cmd: python -m pip install -r requirements.txt
   - cmd: git clone https://github.com/seladb/PcapPlusPlus-Deploy
   - cmd: cd PcapPlusPlus-Deploy\Packages
   - cmd: 7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
