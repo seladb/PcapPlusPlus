@@ -34,6 +34,10 @@ build_script:
 test_script:
   - cmd: python -m pip install -r ci\run_tests\requirements.txt
   - cmd: python ci\run_tests\run_tests_windows.py -s TestRawSockets
+  - cmd: ci\find_ip.bat
+  - cmd: cd Tests\ExamplesTest
+  - cmd: python -m pip install -r requirements.txt
+  - cmd: python -m pytest --interface %NetworkIP%
 
 # environment:
 #   NPCAP_USERNAME:
