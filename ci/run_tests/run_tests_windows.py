@@ -57,7 +57,7 @@ def main():
 
     try:
         tcpreplay_cmd = (
-            f'tcpreplay.exe -i "{tcpreplay_interface}" --mbps=10 -l 0 {PCAP_FILE_PATH}'
+            f'tcpreplay.exe -i "{tcpreplay_interface}" --stats=0 --mbps=10 -l 0 {PCAP_FILE_PATH}'
         )
         tcpreplay_proc = subprocess.Popen(tcpreplay_cmd, shell=True, cwd=TCPREPLAY_PATH)
 
