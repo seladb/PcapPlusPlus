@@ -58,9 +58,7 @@ def main():
     print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
 
     try:
-        tcpreplay_cmd = (
-            f'tcpreplay.exe -i "{tcpreplay_interface}" --stats=0 --mbps=10 -l 0 {PCAP_FILE_PATH}'
-        )
+        tcpreplay_cmd = f'tcpreplay.exe -i "{tcpreplay_interface}" --stats=0 --mbps=10 -l 0 {PCAP_FILE_PATH}'
         tcpreplay_proc = subprocess.Popen(tcpreplay_cmd, shell=True, cwd=TCPREPLAY_PATH)
 
         completed_process = subprocess.run(
