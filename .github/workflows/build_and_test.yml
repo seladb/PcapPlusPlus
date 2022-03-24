@@ -55,7 +55,7 @@ jobs:
           cd Tests/ExamplesTest
           ${{ matrix.python }} -m pip install -U pip
           ${{ matrix.python }} -m pip install -r requirements.txt
-          ${{ matrix.python }} -m pytest
+          ${{ matrix.python }} -m pytest --interface eth0
 
       - name: Check installation
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -197,7 +197,7 @@ jobs:
           cd Tests/ExamplesTest
           python -m pip install -U pip
           python -m pip install -r requirements.txt
-          python -m pytest
+          python -m pytest --interface en0 --use-sudo
 
       - name: Check installation
         working-directory: ${{env.GITHUB_WORKSPACE}}
