@@ -1086,16 +1086,16 @@ PTF_TEST_CASE(TestTcpReassemblyDBOOOBufferCC) // TestTcpReassemblyDisableBaseOut
 
 	TcpReassemblyMultipleConnStats::Stats &stats1 = results1.stats;
 	TcpReassemblyMultipleConnStats::Stats &stats2 = results2.stats;
-	PTF_ASSERT_EQUAL(stats1.size(), 1, size);
-	PTF_ASSERT_EQUAL(stats2.size(), 1, size);
-	PTF_ASSERT_EQUAL(stats1.begin()->second.numOfDataPackets, 18, int);
-	PTF_ASSERT_EQUAL(stats2.begin()->second.numOfDataPackets, 19, int);
+	PTF_ASSERT_EQUAL(stats1.size(), 1);
+	PTF_ASSERT_EQUAL(stats2.size(), 1);
+	PTF_ASSERT_EQUAL(stats1.begin()->second.numOfDataPackets, 18);
+	PTF_ASSERT_EQUAL(stats2.begin()->second.numOfDataPackets, 19);
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
 } // TestTcpReassemblyDBOOOBufferCC
 
-PTF_TEST_CASE(TestTcpReassemblyTstamps) // TestTcpReassemblyTimeStamos
+PTF_TEST_CASE(TestTcpReassemblyTstamps) // TestTcpReassemblyTimeStamps
 {
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
@@ -1106,15 +1106,16 @@ PTF_TEST_CASE(TestTcpReassemblyTstamps) // TestTcpReassemblyTimeStamos
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
 
 	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
-	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets,7, int);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets,7);
 	std::ifstream expectedOutput("PcapExamples/timestamp_output.txt");
-	for(timeval t:tcpReassemblyResults.timestamps){
+	for(long unsigned int i = 0;i<tcpReassemblyResults.timestamps.size();i++){
+		timeval t = tcpReassemblyResults.timestamps[i];
 		std::string expected;
 		expectedOutput>>expected;
 		int expUsec = std::stoll(expected)%1000000;
 		int expSec = std::stoll(expected)/1000000;
-		PTF_ASSERT_EQUAL(t.tv_usec,expUsec,int);
-		PTF_ASSERT_EQUAL(t.tv_sec, expSec, int);
+		PTF_ASSERT_EQUAL(t.tv_usec,expUsec);
+		PTF_ASSERT_EQUAL(t.tv_sec, expSec);
 	}
 	expectedOutput.close();
 	packetStream.clear();
