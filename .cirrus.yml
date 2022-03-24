@@ -19,8 +19,7 @@ task:
     - cd Tests/ExamplesTest
     - python -m ensurepip
     - python -m pip install -r requirements.txt
-    - source ../../ci/find_ip_freebsd.sh
-    - python -m pytest --interface $NETWORK_IP
+    - python -m pytest --interface vtnet0 --use-sudo
 
 task:
   name: Test Zstd Linux
