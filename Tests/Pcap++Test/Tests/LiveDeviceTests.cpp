@@ -242,7 +242,8 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
-	PTF_ASSERT_GREATER_THAN(numOfTimeStatsWereInvoked, totalSleepTime*0.8);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-2);
+
 	pcpp::IPcapDevice::PcapStats statistics;
 	liveDev->getStatistics(statistics);
 	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
