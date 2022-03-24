@@ -19,8 +19,7 @@ task:
     - cd Tests/ExamplesTest
     - python -m ensurepip
     - python -m pip install -r requirements.txt
-    - source ../../ci/find_ip_freebsd.sh
-    - python -m pytest --interface $NETWORK_IP
+    - python -m pytest --interface vtnet0 --use-sudo
 
 task:
   name: Test Zstd Linux
@@ -49,7 +48,7 @@ task:
   test_pcapplusplus_script:
     - python3 -m ensurepip
     - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo
+    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
 
 task:
   name: Regression Tests Linux (Address Sanitizer)
