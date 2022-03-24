@@ -20,7 +20,8 @@ static struct option PcapTestOptions[] =
 	{"mem-verbose", no_argument, 0, 'm' },
 	{"kni-ip", no_argument, 0, 'k' },
 	{"skip-mem-leak-check", no_argument, 0, 's' },
-	{"tags",  required_argument, 0, 't'},
+	{"include-tags",  required_argument, 0, 't'},
+	{"exclude-tags",  required_argument, 0, 'x'},
 	{"show-skipped-tests", no_argument, 0, 'w' },
 	{"help", no_argument, 0, 'h'},
 	{0, 0, 0, 0}
@@ -29,25 +30,25 @@ static struct option PcapTestOptions[] =
 
 void printUsage()
 {
-	printf("Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d dpdk_port] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
-				"Flags:\n"
-				"-i --use-ip              IP to use for sending and receiving packets\n"
-				"-b --debug-mode          Set log level to DEBUG\n"
-				"-r --remote-ip	          IP of remote machine running rpcapd to test remote capture\n"
-				"-p --remote-port         Port of remote machine running rpcapd to test remote capture\n"
-				"-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
-				"-n --no-networking       Do not run tests that requires networking\n"
-				"-v --verbose             Run in verbose mode (emits more output in several tests)\n"
-				"-m --mem-verbose         Output information about each memory allocation and deallocation\n"			
-				"-s --skip-mem-leak-check Skip memory leak check\n"
-				"-k --kni-ip              IP address for KNI device tests to use must not be the same\n"
-				"                         as any of existing network interfaces in your system.\n"
-				"                         If this parameter is omitted KNI tests will be skipped. Must be an IPv4.\n"
-				"                         For Linux systems only\n"
-				"-t --tags                A list of semicolon separated tags for tests to run\n"
-				"-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
-				"-h --help                Display this help message and exit\n"
-	);
+	std::cout << "Usage: Pcap++Test -i ip_to_use | [-n] [-b] [-s] [-m] [-r remote_ip_addr] [-p remote_port] [-d dpdk_port] [-k ip_addr] [-t tags] [-w] [-h]\n\n"
+		<< "Flags:\n"
+		<< "-i --use-ip              IP to use for sending and receiving packets\n"
+		<< "-b --debug-mode          Set log level to DEBUG\n"
+		<< "-r --remote-ip	          IP of remote machine running rpcapd to test remote capture\n"
+		<< "-p --remote-port         Port of remote machine running rpcapd to test remote capture\n"
+		<< "-d --dpdk-port           The DPDK NIC port to test. Required if compiling with DPDK\n"
+		<< "-n --no-networking       Do not run tests that requires networking\n"
+		<< "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
+		<< "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
+		<< "-s --skip-mem-leak-check Skip memory leak check\n"
+		<< "-k --kni-ip              IP address for KNI device tests to use must not be the same\n"
+		<< "                         as any of existing network interfaces in your system.\n"
+		<< "                         If this parameter is omitted KNI tests will be skipped. Must be an IPv4.\n"
+		<< "                         For Linux systems only\n"
+		<< "-t --include-tags        A list of semicolon separated tags for tests to run\n"
+		<< "-x --exclude-tags        A list of semicolon separated tags for tests to exclude\n"
+		<< "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
+		<< "-h --help                Display this help message and exit\n";
 }
 
 PcapTestArgs PcapTestGlobalArgs;
@@ -59,14 +60,14 @@ int main(int argc, char* argv[])
 	PcapTestGlobalArgs.dpdkPort = -1;
 	PcapTestGlobalArgs.kniIp = "";
 
-	std::string userTags = "", configTags = "";
+	std::string userTagsInclude = "", userTagsExclude = "", configTags = "";
 	bool runWithNetworking = true;
 	bool memVerbose = false;
 	bool skipMemLeakCheck = false;
 
 	int optionIndex = 0;
-	char opt = 0;
-	while((opt = getopt_long(argc, argv, "k:i:br:p:d:nvt:smw", PcapTestOptions, &optionIndex)) != -1)
+	int opt = 0;
+	while((opt = getopt_long(argc, argv, "k:i:br:p:d:nvt:x:smw", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -97,7 +98,10 @@ int main(int argc, char* argv[])
 				PTF_SET_VERBOSE_MODE(true);
 				break;
 			case 't':
-				userTags = optarg;
+				userTagsInclude = optarg;
+				break;
+			case 'x':
+				userTagsExclude = optarg;
 				break;
 			case 's':
 				skipMemLeakCheck = true;
@@ -119,24 +123,27 @@ int main(int argc, char* argv[])
 
 	if (!runWithNetworking)
 	{
-		if (userTags != "")
-			userTags += ";";
+		if (userTagsInclude != "")
+			userTagsInclude += ";";
 
-		userTags += "no_network";
-		printf("Running only tests that don't require network connection\n");
+		userTagsInclude += "no_network";
+		std:: cout << "Running only tests that don't require network connection" << std::endl;
 	}
 	else if (PcapTestGlobalArgs.ipToSendReceivePackets == "")
 	{
-		printf("Please provide an IP address to send and receive packets (-i argument)\n\n");
+		std::cerr << "Please provide an IP address to send and receive packets (-i argument)\n\n";
 		printUsage();
 		exit(-1);
 	}
-	
+
 	#ifdef NDEBUG
 	skipMemLeakCheck = true;
-	printf("Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:\n");
-	printf("     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958\n");
+	std:: cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:" << std::endl
+	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 	#endif
+
+	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
+	pcpp::Logger::getInstance();
 
 	if (skipMemLeakCheck)
 	{
@@ -144,7 +151,7 @@ int main(int argc, char* argv[])
 			configTags += ";";
 
 		configTags += "skip_mem_leak_check";
-		printf("Skipping memory leak check for all test cases\n");
+		std:: cout << "Skipping memory leak check for all test cases" << std::endl;
 	}
 
 	if (memVerbose)
@@ -153,13 +160,13 @@ int main(int argc, char* argv[])
 			configTags += ";";
 
 		configTags += "mem_leak_check_verbose";
-		printf("Turning on verbose information on memory allocations\n");
+		std:: cout << "Turning on verbose information on memory allocations" << std::endl;
 	}
 
 #ifdef USE_DPDK
 	if (PcapTestGlobalArgs.dpdkPort == -1 && runWithNetworking)
 	{
-		printf("When testing with DPDK you must provide the DPDK NIC port to test\n\n");
+		std::cerr << "When testing with DPDK you must provide the DPDK NIC port to test\n\n";
 		printUsage();
 		exit(-1);
 	}
@@ -167,31 +174,27 @@ int main(int argc, char* argv[])
 
 	if (PcapTestGlobalArgs.debugMode)
 	{
-		pcpp::LoggerPP::getInstance().setAllModlesToLogLevel(pcpp::LoggerPP::Debug);
+		pcpp::Logger::getInstance().setAllModlesToLogLevel(pcpp::Logger::Debug);
 	}
 
-	printf("PcapPlusPlus version: %s\n", pcpp::getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", pcpp::getBuildDateTime().c_str());
-	printf("Git info: %s\n", pcpp::getGitInfo().c_str());
-	printf("Using ip: %s\n", PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	printf("Debug mode: %s\n", PcapTestGlobalArgs.debugMode ? "on" : "off");
+	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+	<< "Built: " << pcpp::getBuildDateTime() << std::endl
+	<< "Git info: " << pcpp::getGitInfo() << std::endl
+	<< "Using ip: " << PcapTestGlobalArgs.ipToSendReceivePackets << std::endl
+	<< "Debug mode: " << (PcapTestGlobalArgs.debugMode ? "on" : "off") << std::endl;
 
 #ifdef USE_DPDK
 	if (runWithNetworking)
 	{
-		printf("Using DPDK port: %d\n", PcapTestGlobalArgs.dpdkPort);
+		std::cout << "Using DPDK port: " << PcapTestGlobalArgs.dpdkPort << std::endl;
 		if (PcapTestGlobalArgs.kniIp == "")
-			printf("DPDK KNI tests: skipped\n");
+			std::cout << "DPDK KNI tests: skipped" << std::endl;
 		else
-			printf("Using IP address for KNI: %s\n", PcapTestGlobalArgs.kniIp.c_str());
+			std::cout << "Using IP address for KNI: " << PcapTestGlobalArgs.kniIp << std::endl;
 	}
 #endif
 
-	char errString[1000];
-
-	PcapTestGlobalArgs.errString = errString;
-
-	PTF_START_RUNNING_TESTS(userTags, configTags);
+	PTF_START_RUNNING_TESTS(userTagsInclude, userTagsExclude, configTags);
 
 	testSetUp();
 
@@ -201,6 +204,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestGeneralUtils, "no_network");
 	PTF_RUN_TEST(TestGetMacAddress, "mac");
 
+	PTF_RUN_TEST(TestLogger, "no_network;logger");
+
 	PTF_RUN_TEST(TestPcapFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapSllFileReadWrite, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapRawIPFileReadWrite, "no_network;pcap");
@@ -209,10 +214,12 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapNgFileReadWriteAdv, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv6, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv4, "no_network;pcap");
+	PTF_RUN_TEST(TestSolarisSnoopFileRead, "no_network;pcap;snoop");
 
 	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDevice, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceClone, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceNoNetworking, "no_network;live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceStatsMode, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceBlockingMode, "live_device");

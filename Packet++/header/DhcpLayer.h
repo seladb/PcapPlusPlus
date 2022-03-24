@@ -7,6 +7,17 @@
 #include "MacAddress.h"
 #include <string.h>
 
+#ifndef PCPP_DEPRECATED
+#if defined(__GNUC__) || defined(__clang__)
+#define PCPP_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define PCPP_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
+#define PCPP_DEPRECATED
+#endif
+#endif
+
 /// @file
 
 /**
@@ -21,7 +32,8 @@ namespace pcpp
 	 * Represents a DHCP protocol header
 	 */
 	#pragma pack(push, 1)
-	struct dhcp_header {
+	struct dhcp_header
+	{
 		/** BootP opcode */
 		uint8_t opCode;
 		/** Hardware type, set to 1 (Ethernet) by default */
@@ -70,7 +82,8 @@ namespace pcpp
 	/**
 	 * DHCP message types
 	 */
-	enum DhcpMessageType {
+	enum DhcpMessageType
+	{
 		/** Unknown message type */
 		DHCP_UNKNOWN_MSG_TYPE = 0,
 		/** Discover message type */
@@ -94,7 +107,8 @@ namespace pcpp
 	/**
 	 * DHCP option types.
 	 */
-	enum DhcpOptionTypes {
+	enum DhcpOptionTypes
+	{
 		/** Unknown option type */
 		DHCPOPT_UNKNOWN = -1,
 		/** Pad */
@@ -395,7 +409,7 @@ namespace pcpp
 	 * A wrapper class for DHCP options. This class does not create or modify DHCP option records, but rather
 	 * serves as a wrapper and provides useful methods for setting and retrieving data to/from them
 	 */
-	class DhcpOption : public TLVRecord
+	class DhcpOption : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
 
@@ -561,6 +575,7 @@ namespace pcpp
 		/**
 		 * Assignment operator that copies all data from another instance of DhcpOptionBuilder
 		 * @param[in] other The instance to assign from
+		 * @return A reference to the assignee
 		 */
 		DhcpOptionBuilder& operator=(const DhcpOptionBuilder& other)
 		{
@@ -681,10 +696,20 @@ namespace pcpp
 		void setClientHardwareAddress(const MacAddress& addr);
 
 		/**
+		 * @deprecated Deprecated due to typo. Please use getMessageType()
+		 */
+		PCPP_DEPRECATED DhcpMessageType getMesageType() const { return getMessageType(); };
+
+		/**
 		 * @return DHCP message type as extracted from ::DHCPOPT_DHCP_MESSAGE_TYPE option. If this option doesn't exist the value of
 		 * ::DHCP_UNKNOWN_MSG_TYPE is returned
 		 */
-		DhcpMessageType getMesageType() const;
+		DhcpMessageType getMessageType() const;
+
+		/**
+		 * @deprecated Deprecated due to typo. Please use setMessageType()
+		 */
+		bool setMesageType(DhcpMessageType msgType) { return setMessageType(msgType); };
 
 		/**
 		 * Set DHCP message type. This method searches for existing ::DHCPOPT_DHCP_MESSAGE_TYPE option. If found, it sets the requested
@@ -694,7 +719,7 @@ namespace pcpp
 		 * @return True if message type was set successfully or false if msgType is ::DHCP_UNKNOWN_MSG_TYPE or if failed to add
 		 * ::DHCPOPT_DHCP_MESSAGE_TYPE option
 		 */
-		bool setMesageType(DhcpMessageType msgType);
+		bool setMessageType(DhcpMessageType msgType);
 
 		/**
 		 * @return The first DHCP option in the packet. If there are no DHCP options the returned value will contain

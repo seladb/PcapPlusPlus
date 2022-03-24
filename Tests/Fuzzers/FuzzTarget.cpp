@@ -1,22 +1,26 @@
+#include <iostream>
 #include <IPv4Layer.h>
 #include <Packet.h>
 #include <PcapFileDevice.h>
 
 // This function is created as PcapPlusPlus doesn't seem to offer a way of
 // parsing Pcap files directly from memory
-int dumpDataToPcapFile(const uint8_t *data, size_t size) {
+int dumpDataToPcapFile(const uint8_t *data, size_t size)
+{
 	FILE *fd;
 	int written = 0;
 
 	fd = fopen("/tmp/fuzz_sample.pcap", "wb");
-	if (fd == NULL) {
-		printf("Error opening pcap file for writing\n");
+	if (fd == NULL)
+	{
+		std::cerr << "Error opening pcap file for writing\n";
 		return -1;
 	}
 
 	written = fwrite(data, 1, size, fd);
-	if (written != size) {
-		printf("Error writing pcap file\n");
+	if (written != size)
+	{
+		std::cerr << "Error writing pcap file\n";
 		fclose(fd);
 		return -1;
 	}
@@ -26,9 +30,11 @@ int dumpDataToPcapFile(const uint8_t *data, size_t size) {
 	return 0;
 }
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
+{
 
-	if (dumpDataToPcapFile(Data, Size) < 0) {
+	if (dumpDataToPcapFile(Data, Size) < 0)
+	{
 		return 1;
 	}
 
@@ -36,7 +42,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 	pcpp::PcapFileReaderDevice reader("/tmp/fuzz_sample.pcap");
 	if (!reader.open())
 	{
-		printf("Error opening the pcap file\n");
+		std::cerr << "Error opening the pcap file\n";
 		return 1;
 	}
 
@@ -44,7 +50,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 	pcpp::RawPacket rawPacket;
 	if (!reader.getNextPacket(rawPacket))
 	{
-		printf("Couldn't read the first packet in the file\n");
+		std::cerr << "Couldn't read the first packet in the file\n";
 		return 1;
 	}
 
@@ -59,7 +65,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 		pcpp::IPv4Address destIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address();
 
 		// print source and dest IPs
-		printf("Source IP is '%s'; Dest IP is '%s'\n", srcIP.toString().c_str(), destIP.toString().c_str());
+		std::cout << "Source IP is '" << srcIP.toString() << "'; Dest IP is '" << destIP.toString() << "'" << std::endl;
 	}
 
 	// close the file

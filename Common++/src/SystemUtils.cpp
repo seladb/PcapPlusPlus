@@ -1,6 +1,6 @@
 #include "SystemUtils.h"
 #include "EndianPortable.h"
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
+#if !defined(_WIN32)
 #include <pthread.h>
 #endif
 #ifndef _MSC_VER
@@ -11,18 +11,18 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/stat.h>
-#ifdef MAC_OS_X
+#if defined(__APPLE__)
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 #define POPEN _popen
 #else
 #define POPEN popen
 #endif
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 #define PCLOSE _pclose
 #else
 #define PCLOSE pclose
@@ -124,7 +124,7 @@ const SystemCore SystemCores::IdToSystemCore[MAX_NUM_OF_CORES] =
 
 int getNumOfCores()
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo( &sysinfo );
 	return sysinfo.dwNumberOfProcessors;
@@ -188,7 +188,8 @@ std::string executeShellCommand(const std::string command)
 	if (!pipe) return "ERROR";
 	char buffer[128];
 	std::string result = "";
-	while(!feof(pipe)) {
+	while(!feof(pipe))
+	{
 		if(fgets(buffer, 128, pipe) != NULL)
 			result += buffer;
 	}
@@ -215,9 +216,9 @@ int clockGetTime(long& sec, long& nsec)
 	sec = 0;
 	nsec = 0;
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
-	#define CLOCK_GETTIME_BILLION (1E9)
+#define CLOCK_GETTIME_BILLION (1E9)
 
 	static BOOL clock_gettime_first_time = 1;
 	static LARGE_INTEGER clock_gettime_counts_per_sec;
@@ -244,7 +245,7 @@ int clockGetTime(long& sec, long& nsec)
 
 	return 0;
 
-#elif MAC_OS_X
+#elif defined(__APPLE__)
 
 	clock_serv_t cclock;
 	mach_timespec_t mts;
@@ -274,7 +275,7 @@ int clockGetTime(long& sec, long& nsec)
 
 void multiPlatformSleep(uint32_t seconds)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 	Sleep(seconds*1000);
 #else
 	sleep(seconds);
@@ -304,8 +305,7 @@ uint32_t netToHost32(uint32_t net)
 
 std::string AppName::m_AppName;
 
-
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 int ApplicationEventHandler::handlerRoutine(unsigned long fdwCtrlType)
 {
 	switch (fdwCtrlType)
@@ -358,7 +358,7 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 ApplicationEventHandler::ApplicationEventHandler() :
 		 m_ApplicationInterruptedHandler(NULL), m_ApplicationInterruptedCookie(NULL)
 {
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
+#if !defined(_WIN32)
 	pthread_mutex_init(&UnixLinuxHandlerRoutineMutex, 0);
 #endif
 }
@@ -368,7 +368,7 @@ void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback hand
 	m_ApplicationInterruptedHandler = handler;
 	m_ApplicationInterruptedCookie = cookie;
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 	SetConsoleCtrlHandler((PHANDLER_ROUTINE)handlerRoutine, TRUE);
 #else
 	struct sigaction action;

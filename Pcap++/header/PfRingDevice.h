@@ -47,7 +47,7 @@ namespace pcpp
 
 		pfring** m_PfRingDescriptors;
 		uint8_t m_NumOfOpenedRxChannels;
-		char m_DeviceName[30];
+		std::string m_DeviceName;
 		int m_InterfaceIndex;
 		MacAddress m_MacAddress;
 		int m_DeviceMTU;
@@ -138,7 +138,7 @@ namespace pcpp
 		 * Gets the interface name (e.g eth0, eth1, etc.)
 		 * @return The interface name
 		 */
-		std::string getDeviceName() const { return std::string(m_DeviceName); }
+		std::string getDeviceName() const { return m_DeviceName; }
 
 
 		/**
@@ -222,20 +222,20 @@ namespace pcpp
 		/**
 		 * Get the statistics of a specific thread/core (=RX channel)
 		 * @param[in] core The requested core
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
 		 */
 		void getThreadStatistics(SystemCore core, PfRingStats& stats) const;
 
 		/**
 		 * Get the statistics of the current thread/core (=RX channel)
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
 		 */
 		void getCurrentThreadStatistics(PfRingStats& stats) const;
 
 		/**
 		 * Get the statistics for the entire device. If more than 1 RX channel is opened, this method aggregates the stats
 		 * of all channels
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overriden
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
 		 */
 		void getStatistics(PfRingStats& stats) const;
 

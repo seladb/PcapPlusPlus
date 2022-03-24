@@ -33,7 +33,8 @@ namespace pcpp
 	 * Represents an IPv4 protocol header
 	 */
 #pragma pack(push, 1)
-	struct iphdr {
+	struct iphdr
+	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** IP header length, has the value of 5 for IPv4 */
 		uint8_t internetHeaderLength:4,
@@ -219,7 +220,7 @@ namespace pcpp
 	 * A wrapper class for IPv4 options. This class does not create or modify IPv4 option records, but rather
 	 * serves as a wrapper and provides useful methods for retrieving data from them
 	 */
-	class IPv4Option : public TLVRecord
+	class IPv4Option : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
 
@@ -365,7 +366,7 @@ namespace pcpp
 		bool m_BuilderParamsValid;
 
 	public:
-		
+
 		/**
 		 * A c'tor for building IPv4 options which their value is a byte array. The IPv4Option object can be later
 		 * retrieved by calling build()
@@ -388,7 +389,7 @@ namespace pcpp
 			TLVRecordBuilder((uint8_t)optionType, optionValue) { m_BuilderParamsValid = true; }
 
 		/**
-		 * A c'tor for building IPv4 options which their value is a list of IPv4 addresses, for example: 
+		 * A c'tor for building IPv4 options which their value is a list of IPv4 addresses, for example:
 		 * ::IPV4OPT_RecordRoute, ::IPV4OPT_StrictSourceRoute, ::IPV4OPT_LooseSourceRoute. The IPv4Option object can be later retrieved
 		 * by calling build()
 		 * @param[in] optionType IPv4 option type
@@ -619,7 +620,7 @@ namespace pcpp
 		 * - IgmpLayer
 		 * - AuthenticationHeaderLayer (IPSec)
 		 * - ESPLayer (IPSec)
-		 * 
+		 *
 		 * Otherwise sets PayloadLayer
 		 */
 		void parseNextLayer();

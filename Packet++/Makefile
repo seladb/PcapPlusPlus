@@ -22,15 +22,6 @@ COMMONPP_HOME := ../Common++
 ifdef WIN32
 DEPS := -DWPCAP -DHAVE_REMOTE
 endif
-ifdef LINUX
-DEPS := -DLINUX
-endif
-ifdef MAC_OS_X
-DEPS := -DMAC_OS_X
-endif
-ifdef FREEBSD
-DEPS := -DFREEBSD
-endif
 
 INCLUDES := -I"./src" \
 			-I"./header" \

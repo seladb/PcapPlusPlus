@@ -14,22 +14,22 @@ PTF_TEST_CASE(TestRawSockets)
 	PTF_ASSERT_TRUE(ipAddr.isValid());
 	pcpp::RawSocketDevice rawSock(ipAddr);
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 	pcpp::ProtocolType protocol = (ipAddr.getType() == pcpp::IPAddress::IPv4AddressType ? pcpp::IPv4 : pcpp::IPv6);
 	bool sendSupported = false;
-#elif LINUX
+#elif defined(__linux__)
 	pcpp::ProtocolType protocol = pcpp::Ethernet;
 	bool sendSupported = true;
 #else
 	pcpp::ProtocolType protocol = pcpp::Ethernet;
 	bool sendSupported = false;
 	{
-		pcpp::LoggerPP::getInstance().suppressErrors();
+		pcpp::Logger::getInstance().suppressLogs();
 		pcpp::RawPacket rawPacket;
 		PTF_ASSERT_FALSE(rawSock.open());
 		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 10), pcpp::RawSocketDevice::RecvError, enum);
 		PTF_ASSERT_FALSE(rawSock.sendPacket(&rawPacket));
-		pcpp::LoggerPP::getInstance().enableErrors();
+		pcpp::Logger::getInstance().enableLogs();
 	}
 
 	PTF_TEST_CASE_PASSED;
@@ -55,12 +55,12 @@ PTF_TEST_CASE(TestRawSockets)
 		rawSock.receivePackets(packetVec, 2, failedRecv);
 		if (packetVec.size() > 0)
 		{
-			PTF_PRINT_VERBOSE("Total wait time: %d", 2*i);
+			PTF_PRINT_VERBOSE("Total wait time: " << 2*i);
 			break;
 		}
 	}
-	
-	PTF_ASSERT_GREATER_THAN(packetVec.size(), 0, size);
+
+	PTF_ASSERT_GREATER_THAN(packetVec.size(), 0);
 	for (pcpp::RawPacketVector::VectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
 	{
 		pcpp::Packet parsedPacket(*iter);
@@ -75,10 +75,9 @@ PTF_TEST_CASE(TestRawSockets)
 		res = rawSock.receivePacket(rawPacket, true, 1);
 		if (res == pcpp::RawSocketDevice::RecvTimeout)
 		{
-			PTF_PRINT_VERBOSE("Total time until got RecvTimeout: %d", i);
+			PTF_PRINT_VERBOSE("Total time until got RecvTimeout: " << i);
 			break;
 		}
-			
 	}
 	PTF_NON_CRITICAL_EQUAL(res, pcpp::RawSocketDevice::RecvTimeout, enum);
 
@@ -90,7 +89,7 @@ PTF_TEST_CASE(TestRawSockets)
 		res = rawSock.receivePacket(rawPacket, false, -1);
 		if (res == pcpp::RawSocketDevice::RecvWouldBlock)
 		{
-			PTF_PRINT_VERBOSE("Total iterations until got RecvWouldBlock: %d", i);
+			PTF_PRINT_VERBOSE("Total iterations until got RecvWouldBlock: " << i);
 			break;
 		}
 	}
@@ -99,10 +98,10 @@ PTF_TEST_CASE(TestRawSockets)
 	// close and reopen sockets, verify can't send and receive while closed
 	rawSock.close();
 	pcpp::RawPacket tempPacket;
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_EQUAL(rawSock.receivePacket(tempPacket, true, 2), pcpp::RawSocketDevice::RecvError, enum);
 	PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(rawSock.open());
 
@@ -150,14 +149,14 @@ PTF_TEST_CASE(TestRawSockets)
 		}
 
 		// send multiple packets
-		PTF_ASSERT_EQUAL(rawSock.sendPackets(packetVec), (int)packetVec.size(), int);
+		PTF_ASSERT_EQUAL(rawSock.sendPackets(packetVec), (int)packetVec.size());
 	}
 	else
 	{
 		// test send on unsupported platforms
-		pcpp::LoggerPP::getInstance().suppressErrors();
+		pcpp::Logger::getInstance().suppressLogs();
 		PTF_ASSERT_FALSE(rawSock.sendPacket(packetVec.at(0)));
 		PTF_ASSERT_FALSE(rawSock.sendPackets(packetVec));
-		pcpp::LoggerPP::getInstance().enableErrors();
+		pcpp::Logger::getInstance().enableLogs();
 	}
 } // TestRawSockets

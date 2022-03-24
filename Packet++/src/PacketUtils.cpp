@@ -16,41 +16,45 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 	uint32_t sum = 0;
 	for (size_t i = 0; i<vecSize; i++)
 	{
-		uint32_t local_sum = 0;
-		size_t buff_len = vec[i].len;
-		while (buff_len > 1) {
-			LOG_DEBUG("Value to add = 0x%4X", *(vec[i].buffer));
-			local_sum += *(vec[i].buffer);
-			++(vec[i].buffer);
-			buff_len -= 2;
-		}
-		LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
-
-		if (buff_len == 1)
+		uint32_t localSum = 0;
+		size_t buffLen = vec[i].len;
+		while (buffLen > 1)
 		{
-			uint8_t lastByte = *(vec[i].buffer);
-			LOG_DEBUG("1 byte left, adding value: 0x%4X", lastByte);
-			local_sum += lastByte;
-			LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
+			PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex << *(vec[i].buffer));
+			localSum += *(vec[i].buffer);
+			++(vec[i].buffer);
+			buffLen -= 2;
+		}
+		PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
+
+		if (buffLen == 1)
+		{
+			uint16_t lastByte = 0;
+			*((uint8_t*)(&lastByte)) = *((uint8_t*)(vec[i].buffer));
+			PCPP_LOG_DEBUG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
+			localSum += lastByte;
+			PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		}
 
-		while (local_sum>>16) {
-			local_sum = (local_sum & 0xffff) + (local_sum >> 16);
+		while (localSum>>16)
+		{
+			localSum = (localSum & 0xffff) + (localSum >> 16);
 		}
-		local_sum = be16toh(local_sum);
-		LOG_DEBUG("Local sum = %d, 0x%4X", local_sum, local_sum);
-		sum += local_sum;
+		localSum = be16toh(localSum);
+		PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
+		sum += localSum;
 	}
 
-	while (sum>>16) {
+	while (sum>>16)
+	{
 		sum = (sum & 0xffff) + (sum >> 16);
 	}
 
-	LOG_DEBUG("Sum before invert = %d, 0x%4X", sum, sum);
+	PCPP_LOG_DEBUG("Sum before invert = " << sum << ", 0x" << std::uppercase << std::hex << sum);
 
 	sum = ~sum;
 
-	LOG_DEBUG("Calculated checksum = %d, 0x%4X", sum, sum);
+	PCPP_LOG_DEBUG("Calculated checksum = " << sum << ", 0x" << std::uppercase << std::hex << sum);
 
 	return ((uint16_t) sum);
 }

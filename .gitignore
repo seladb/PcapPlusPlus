@@ -30,7 +30,7 @@
 **/BinCatcher
 **/BinPitcher
 
-#Distribtion folder
+#Distribution folder
 Dist/
 
 #auto-generated make files
@@ -77,3 +77,7 @@ mk/vs2019/**
 #Tutorial outputs
 Examples/Tutorials/**/Makefile
 Examples/Tutorials/**/*.exe
+
+#venv
+.venv/**
+venv/**

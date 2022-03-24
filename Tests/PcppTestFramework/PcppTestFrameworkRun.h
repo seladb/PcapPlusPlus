@@ -2,6 +2,8 @@
 #define PCPP_TEST_FRAMEWORK_RUN
 
 #include <vector>
+#include <iomanip>
+#include <iostream>
 #include <string>
 #include <sstream>
 #include "memplumber.h"
@@ -44,23 +46,24 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 	return false;
 }
 
-#define PTF_START_RUNNING_TESTS(userTags, configTags) \
+#define PTF_START_RUNNING_TESTS(userIncludeTags, userExcludeTags, configTags) \
 	bool allTestsPassed = true; \
 	int testsPassed = 0; \
 	int testsFailed = 0; \
 	int testsSkipped = 0; \
-	std::string userTagsToRun = userTags; \
+	std::string ptfUserIncludeTags = userIncludeTags; \
+	std::string ptfUserExcludeTags = userExcludeTags; \
 	std::string configTagsToRun = configTags; \
-	printf("Start running tests...\n\n")
+	std::cout << "Start running tests..." << std::endl << std::endl
 
 #define PTF_RUN_TEST(TestName, tags) \
 	std::string TestName##_tags = std::string(#TestName) + ";" + tags; \
 	int TestName##_result = PTF_RESULT_PASSED; \
-	if (!__ptfCheckTags(TestName##_tags, userTagsToRun, true)) \
+	if (!__ptfCheckTags(TestName##_tags, ptfUserIncludeTags, true) || __ptfCheckTags(TestName##_tags, ptfUserExcludeTags, false)) \
 	{ \
 		if (showSkippedTests) \
 		{ \
-			printf("%-30s: SKIPPED (tags don't match)\n", #TestName ""); \
+			std::cout << std::left << std::setw(30) << #TestName << ": SKIPPED (tags don't match)" << std::endl; \
 		} \
 		TestName##_result = PTF_RESULT_SKIPPED; \
 	} \
@@ -88,13 +91,15 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 				if (memLeakCount > 0 || memLeakSize > 0) \
 				{ \
 					TestName##_result = PTF_RESULT_FAILED; \
-					printf("%-30s: FAILED. Memory leak found! %d objects and %d[bytes] leaked\n", #TestName, (int)memLeakCount, (int)memLeakSize); \
+					std::cout << std::left << std::setw(30) << #TestName << ": FAILED. Memory leak found! " \
+					<< memLeakCount << " objects and " \
+					<< memLeakSize << "[bytes] leaked" << std::endl; \
 				} \
 			} \
 		} \
 		if (TestName##_result == PTF_RESULT_PASSED) \
 		{ \
-			printf("%-30s: PASSED\n", #TestName ""); \
+			std::cout << std::left << std::setw(30) << #TestName << ": PASSED" << std::endl; \
 		} \
 	} \
 	if (TestName##_result == PTF_RESULT_PASSED) testsPassed++; \
@@ -104,18 +109,13 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 
 
 #define PTF_END_RUNNING_TESTS \
-	if (allTestsPassed) \
-	{ \
-		printf("\nALL TESTS PASSED!!\n"); \
-		printf("Test cases: %d, Passed: %d, Failed: %d, Skipped: %d\n", testsPassed + testsFailed + testsSkipped, testsPassed, testsFailed, testsSkipped); \
-		return 0; \
-	} \
-	else \
-	{ \
-		printf("\nNOT ALL TESTS PASSED!!\n"); \
-		printf("Test cases: %d, Passed: %d, Failed: %d, Skipped: %d\n", testsPassed + testsFailed + testsSkipped, testsPassed, testsFailed, testsSkipped); \
-		return 1; \
-	}
+	std::string message = (allTestsPassed ? "ALL TESTS PASSED!!" : "NOT ALL TESTS PASSED!!"); \
+	std::cout << std::endl << message << std::endl \
+	<< "Test cases: " << testsPassed + testsFailed + testsSkipped << ", " \
+	<< "Passed: " << testsPassed << ", " \
+	<< "Failed: " << testsFailed << ", " \
+	<< "Skipped: " << testsSkipped << std::endl; \
+	return (allTestsPassed ? 0 : 1);
 
 static bool verboseMode = false;
 

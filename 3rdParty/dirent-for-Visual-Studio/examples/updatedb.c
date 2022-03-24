@@ -52,7 +52,7 @@ static FILE *db = NULL;
 
 int
 main(
-    int argc, char *argv[]) 
+    int argc, char *argv[])
 {
 #ifdef WIN32
     int i;
@@ -159,7 +159,7 @@ update_directory(
 
             case DT_DIR:
                 /* Scan sub-directory recursively */
-                if (wcscmp (ent->d_name, L".") != 0  
+                if (wcscmp (ent->d_name, L".") != 0
                         &&  wcscmp (ent->d_name, L"..") != 0) {
                     update_directory (buffer);
                 }
@@ -176,7 +176,7 @@ update_directory(
         ok = 1;
 
     } else {
-    
+
         /* Cannot open directory */
         ok = 0;
 
@@ -231,4 +231,3 @@ db_close(
         db = NULL;
     }
 }
-

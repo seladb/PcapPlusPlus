@@ -24,7 +24,7 @@ function HELP {
    echo "--pf-ring-home           --Sets PF_RING home directory. Use only when --pf-ring is set"
    echo ""
    echo "--dpdk                   --Setup PcapPlusPlus with DPDK. In this case you must also set --dpdk-home"
-   echo "--dpdk-home              --Sets DPDK home directoy. Use only when --dpdk is set"
+   echo "--dpdk-home              --Sets DPDK home directory. Use only when --dpdk is set"
    echo ""
    echo "--use-immediate-mode     --Use libpcap immediate mode which enables getting packets as fast as possible (supported on libpcap>=1.5)"
    echo ""
@@ -63,8 +63,8 @@ DPDK_HOME=""
 HAS_PCAP_IMMEDIATE_MODE=0
 HAS_SET_DIRECTION_ENABLED=0
 
-# initializing libpcap include/lib dirs to an empty string 
-LIBPCAP_INLCUDE_DIR=""
+# initializing libpcap include/lib dirs to an empty string
+LIBPCAP_INCLUDE_DIR=""
 LIBPCAP_LIB_DIR=""
 
 # default installation directory
@@ -181,7 +181,7 @@ else
 
        # non-default libpcap include dir
        --libpcap-include-dir)
-         LIBPCAP_INLCUDE_DIR=$2
+         LIBPCAP_INCLUDE_DIR=$2
          shift 2 ;;
 
        # non-default libpcap lib dir
@@ -274,13 +274,21 @@ fi
 
 
 # function to extract DPDK major + minor version from <DPDK_HOM>/pkg/dpdk.spec file (older DPDK versions)
-# or <DPDK_HOM>/VERSION file (newer DPDK versios)
+# or from <DPDK_HOM>/VERSION file (newer DPDK versions)
+# or from the rte_build_config.h
 # return: DPDK version (major + minor only)
 function get_dpdk_version() {
    if [ -f $DPDK_HOME/pkg/dpdk.spec ]; then
       echo $(grep "Version" $DPDK_HOME/pkg/dpdk.spec | cut -d' ' -f2 | cut -d'.' -f 1,2);
-   else
+   elif [ -f $DPDK_HOME/VERSION ]; then
       echo $(cat $DPDK_HOME/VERSION | cut -d'.' -f 1,2);
+   elif [ -f $DPDK_HOME/rte_build_config.h ]; then
+      YEAR=$(grep RTE_VER_YEAR $DPDK_HOME/build/rte_build_config.h|cut -d ' ' -f3);
+      MONTH=$(grep RTE_VER_MONTH $DPDK_HOME/build/rte_build_config.h|cut -d ' ' -f3);
+      MINOR=$(grep RTE_VER_MINOR $DPDK_HOME/build/rte_build_config.h|cut -d ' ' -f3);
+      echo $YEAR.$MONTH.$MINOR;
+   else
+      echo "ERROR";
    fi
 }
 
@@ -298,10 +306,10 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
    # add DPDK definitions to PcapPlusPlus.mk
    cat mk/PcapPlusPlus.mk.dpdk >> $PCAPPLUSPLUS_MK
 
-   # if DPDK ver >= 17.11 concat additional definitions to PcapPlusPlus.mk
+   # if DPDK ver < 20.11 concat additional definitions to PcapPlusPlus.mk
    CUR_DPDK_VERSION=$(get_dpdk_version)
-   if [ "$(compare_versions $CUR_DPDK_VERSION 17.11)" -eq "1" ] ; then
-      cat mk/PcapPlusPlus.mk.dpdk_new >> $PCAPPLUSPLUS_MK
+   if [ "$(compare_versions $CUR_DPDK_VERSION 20.11)" -eq "0" ] ; then
+      cat mk/PcapPlusPlus.mk.dpdk_legacy >> $PCAPPLUSPLUS_MK
    fi
 
    # set USE_DPDK variable in platform.mk
@@ -310,7 +318,7 @@ if (( $COMPILE_WITH_DPDK > 0 )) ; then
    # set DPDK home to RTE_SDK variable in platform.mk
    echo -e "\n\nRTE_SDK := "$DPDK_HOME >> $PLATFORM_MK
 
-   # set USE_DPDK varaible in PcapPlusPlus.mk
+   # set USE_DPDK variable in PcapPlusPlus.mk
    sed -i "2s|^|USE_DPDK := 1\n\n|" $PCAPPLUSPLUS_MK
 
    # set DPDK home to RTE_SDK variable in PcapPlusPlus.mk
@@ -330,7 +338,7 @@ if (( $HAS_PCAP_IMMEDIATE_MODE > 0 )) ; then
    echo -e "HAS_PCAP_IMMEDIATE_MODE := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
 
-if (( $HAS_SET_DIRECTION_ENABLED > 0 )) ; then 
+if (( $HAS_SET_DIRECTION_ENABLED > 0 )) ; then
    echo -e "HAS_SET_DIRECTION_ENABLED := 1\n\n" >> $PCAPPLUSPLUS_MK
 fi
 
@@ -341,13 +349,14 @@ fi
 
 if [ -n "$MUSL" ]; then
    cat mk/platform.mk.musl >> $PCAPPLUSPLUS_MK
+   cat mk/platform.mk.musl >> $PLATFORM_MK
 fi
 
 # non-default libpcap include dir
-if [ -n "$LIBPCAP_INLCUDE_DIR" ]; then
+if [ -n "$LIBPCAP_INCLUDE_DIR" ]; then
    echo -e "# non-default libpcap include dir" >> $PCAPPLUSPLUS_MK
-   echo -e "LIBPCAP_INLCUDE_DIR := $LIBPCAP_INLCUDE_DIR" >> $PCAPPLUSPLUS_MK
-   echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INLCUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
+   echo -e "LIBPCAP_INCLUDE_DIR := $LIBPCAP_INCLUDE_DIR" >> $PCAPPLUSPLUS_MK
+   echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INCLUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
 fi
 
 # non-default libpcap lib dir

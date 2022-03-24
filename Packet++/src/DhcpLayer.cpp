@@ -12,12 +12,13 @@ namespace pcpp
 DhcpOption DhcpOptionBuilder::build() const
 {
 	size_t recSize = 2 * sizeof(uint8_t) + m_RecValueLen;
+	uint8_t recType = static_cast<uint8_t>(m_RecType);
 
-	if ((m_RecType == DHCPOPT_END || m_RecType == DHCPOPT_PAD))
+	if ((recType == DHCPOPT_END || recType == DHCPOPT_PAD))
 	{
 		if (m_RecValueLen != 0)
 		{
-			LOG_ERROR("Can't set DHCP END option or DHCP PAD option with size different than 0, tried to set size %d", m_RecValueLen);
+			PCPP_LOG_ERROR("Can't set DHCP END option or DHCP PAD option with size different than 0, tried to set size " << (int)m_RecValueLen);
 			return DhcpOption(NULL);
 		}
 
@@ -26,10 +27,10 @@ DhcpOption DhcpOptionBuilder::build() const
 
 	uint8_t* recordBuffer = new uint8_t[recSize];
 	memset(recordBuffer, 0, recSize);
-	recordBuffer[0] = m_RecType;
+	recordBuffer[0] = recType;
 	if (recSize > 1)
 	{
-		recordBuffer[1] = m_RecValueLen;
+		recordBuffer[1] = static_cast<uint8_t>(m_RecValueLen);
 		if (m_RecValue != NULL)
 			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
 		else
@@ -77,7 +78,7 @@ MacAddress DhcpLayer::getClientHardwareAddress() const
 	if (hdr != NULL && hdr->hardwareType == 1 && hdr->hardwareAddressLength == 6)
 		return MacAddress(hdr->clientHardwareAddress);
 
-	LOG_DEBUG("Hardware type isn't Ethernet or hardware addr len != 6, returning MacAddress:Zero");
+	PCPP_LOG_DEBUG("Hardware type isn't Ethernet or hardware addr len != 6, returning MacAddress:Zero");
 
 	return MacAddress::Zero;
 }
@@ -96,7 +97,7 @@ void DhcpLayer::computeCalculateFields()
 
 	hdr->magicNumber = DHCP_MAGIC_NUMBER;
 
-	DhcpMessageType msgType = getMesageType();
+	DhcpMessageType msgType = getMessageType();
 	switch(msgType)
 	{
 	case DHCP_DISCOVER:
@@ -123,7 +124,7 @@ void DhcpLayer::computeCalculateFields()
 std::string DhcpLayer::toString() const
 {
 	std::string msgType = "Unknown";
-	switch (getMesageType())
+	switch (getMessageType())
 	{
 	case DHCP_DISCOVER:
 	{
@@ -173,7 +174,7 @@ std::string DhcpLayer::toString() const
 	return "DHCP layer (" + msgType + ")";
 }
 
-DhcpMessageType DhcpLayer::getMesageType() const
+DhcpMessageType DhcpLayer::getMessageType() const
 {
 	DhcpOption opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
 	if (opt.isNull())
@@ -182,7 +183,7 @@ DhcpMessageType DhcpLayer::getMesageType() const
 	return (DhcpMessageType)opt.getValueAs<uint8_t>();
 }
 
-bool DhcpLayer::setMesageType(DhcpMessageType msgType)
+bool DhcpLayer::setMessageType(DhcpMessageType msgType)
 {
 	if (msgType == DHCP_UNKNOWN_MSG_TYPE)
 		return false;
@@ -225,7 +226,7 @@ DhcpOption DhcpLayer::addOptionAt(const DhcpOptionBuilder& optionBuilder, int of
 
 	if (newOpt.isNull())
 	{
-		LOG_ERROR("Cannot build new option of type %d", (int)newOpt.getType());
+		PCPP_LOG_ERROR("Cannot build new option of type " << (int)newOpt.getType());
 		return DhcpOption(NULL);
 	}
 
@@ -233,7 +234,7 @@ DhcpOption DhcpLayer::addOptionAt(const DhcpOptionBuilder& optionBuilder, int of
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend DhcpLayer in [%d] bytes", (int)newOpt.getTotalSize());
+		PCPP_LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
 		return DhcpOption(NULL);
 	}
 

@@ -1,10 +1,10 @@
 /**
  * TLS Fingerprinting application
  * ==============================
- * 
+ *
  * This application demonstrates how to extract and use TLS fingerprinting data using PcapPlusPlus.
  * Please read the README.md file for more information.
- * 
+ *
  * You can also run `TLSFingerprinting -h` for modes of operation and parameters.
  */
 
@@ -40,9 +40,9 @@ static struct option TLSFingerprintingOptions[] =
 	{0, 0, 0, 0}
 };
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printUsage();\
-	printf("\nERROR: " reason "\n\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
+	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
@@ -50,7 +50,7 @@ static struct option TLSFingerprintingOptions[] =
 #define TLS_FP_SH_ONLY    "sh"
 #define TLS_FP_CH_AND_SH  "ch_sh"
 
-bool isNotAlphanumeric(char c) 
+bool isNotAlphanumeric(char c)
 {
 	return std::isalnum(c) == 0;
 }
@@ -290,12 +290,12 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 		stream << "TLS ServerHello packets:              " << stats.numOfSHPackets << std::endl;
 		stream << "Unique ServerHello TLS fingerprints:  " << stats.shFingerprints.size() << std::endl;
 	}
-		
+
 	std::cout << stream.str() << std::endl;
 
 	// write a table of the 10 most common TLS fingerprints
 
-	// if user requested to extract ClientHello TLS fingerprints and there is data to show 
+	// if user requested to extract ClientHello TLS fingerprints and there is data to show
 	if (chFP && stats.chFingerprints.size() > 0)
 	{
 		if (stats.chFingerprints.size() > 10)
@@ -306,8 +306,8 @@ void printStats(const TLSFingerprintingStats& stats, bool chFP, bool shFP)
 		printCommonTLSFingerprints(stats.chFingerprints, 10);
 		std::cout << std::endl;
 	}
-		
-	// if user requested to extract ServerHello TLS fingerprints and there is data to show 
+
+	// if user requested to extract ServerHello TLS fingerprints and there is data to show
 	if (shFP && stats.shFingerprints.size() > 0)
 	{
 		if (stats.shFingerprints.size() > 10)
@@ -399,7 +399,7 @@ void doTlsFingerprintingOnPcapFile(const std::string& inputPcapFileName, std::st
 	std::ofstream outputFile(outputFileName.c_str());
 	if (!outputFile)
 	{
-		EXIT_WITH_ERROR("Cannot open output file '%s'", outputFileName.c_str());
+		EXIT_WITH_ERROR("Cannot open output file '" << outputFileName << "'");
 	}
 
 	// write the column headers to the output file
@@ -470,10 +470,10 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 		// take the device name and remove all chars which are not alphanumeric
 		outputFileName = std::string(dev->getName());
 		outputFileName.erase(remove_if(
-			outputFileName.begin(), 
-			outputFileName.end(), 
+			outputFileName.begin(),
+			outputFileName.end(),
 			isNotAlphanumeric), outputFileName.end());
-		
+
 		outputFileName += ".txt";
 	}
 
@@ -481,7 +481,7 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 	std::ofstream outputFile(outputFileName.c_str());
 	if (!outputFile)
 	{
-		EXIT_WITH_ERROR("Cannot open output file '%s'", outputFileName.c_str());
+		EXIT_WITH_ERROR("Cannot open output file '" << outputFileName << "'");
 	}
 
 	// write the column headers to the output file
@@ -539,9 +539,9 @@ int main(int argc, char* argv[])
 	std::string tlsFingerprintType = TLS_FP_CH_ONLY;
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:r:o:t:f:s:vhl", TLSFingerprintingOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "i:r:o:t:f:s:vhl", TLSFingerprintingOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{

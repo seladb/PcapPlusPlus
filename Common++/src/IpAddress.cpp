@@ -6,7 +6,7 @@
 #include "IpAddress.h"
 
 // for AF_INET, AF_INET6
-#if !defined(WIN32) && !defined(WINx64) && !defined(PCAPPP_MINGW_ENV)
+#if !defined(_WIN32)
 #include <sys/socket.h>
 #endif
 
@@ -48,7 +48,7 @@ namespace pcpp
 		IPv4Address maskAsIpAddr(subnetMask);
 		if (!maskAsIpAddr.isValid())
 		{
-			LOG_ERROR("Subnet mask '%s' is in illegal format", subnetMask.c_str());
+			PCPP_LOG_ERROR("Subnet mask '" << subnetMask << "' is in illegal format");
 			return false;
 		}
 
@@ -108,17 +108,19 @@ namespace pcpp
 	{
 		if(prefixLength == 0 || prefixLength > 128)
 		{
-			LOG_ERROR("subnet prefixLength '%u' illegal", prefixLength);
+			PCPP_LOG_ERROR("subnet prefixLength '" << (int)prefixLength << "' illegal");
 			return false;
 		}
 		uint8_t compareByteCount = prefixLength / 8;
 		uint8_t compareBitCount = prefixLength % 8;
 		bool result = false;
 		const uint8_t* subnetBytes = subnet.toBytes();
-		if(compareByteCount > 0) {
+		if(compareByteCount > 0)
+		{
 			result = memcmp(subnetBytes, m_Bytes, compareByteCount) == 0;
 		}
-		if((result || prefixLength < 8) && compareBitCount > 0) {
+		if((result || prefixLength < 8) && compareBitCount > 0)
+		{
 			uint8_t subSubnetByte = subnetBytes[compareByteCount] >> (8 - compareBitCount);
 			uint8_t subThisByte =  m_Bytes[compareByteCount]  >> (8 - compareBitCount);
 			result = subSubnetByte == subThisByte;

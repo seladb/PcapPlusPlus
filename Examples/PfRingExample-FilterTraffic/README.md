@@ -1,12 +1,12 @@
 Filter Traffic PF_RING example application
 ==========================================
 
-This application demonstrates PcapPlusPlus PF_RING APIs. 
-It listens to a PF_RING interface, captures all traffic and matches packets by user-defined matching criteria such as source/dest IP, source/dest TCP/UDP port and more. 
+This application demonstrates PcapPlusPlus PF_RING APIs.
+It listens to a PF_RING interface, captures all traffic and matches packets by user-defined matching criteria such as source/dest IP, source/dest TCP/UDP port and more.
 Matched packets can be send to another PF_RING interface and/or be save to a pcap file. In addition the application collects statistics on received and matched packets.
 In addition the application collect statistics on received and matched packets: number of packets per protocol, number of matched flows and number of matched packets.
 
-The application uses PfRingDevice's multi-threaded capturing. Number of capture threads can be set by the user (to the maximum of machine's core number minus 1) or set to default 
+The application uses PfRingDevice's multi-threaded capturing. Number of capture threads can be set by the user (to the maximum of machine's core number minus 1) or set to default
 (default is all machine cores minus one management core the application runs on). Each core is assigned with one capture thread.
 PfRingDevice tries to assign one RX channel for each capturing thread (to improve performance), but if NIC doesn't enough RX channels to provide one for each thread, it will assign several thread with the same RX channel
 For example: if NIC supports 4 RX channels but the user asks for 6 capturing threads than 4 cores will share 2 RX channels and the 2 remaining cores will use RX channels of their own.
@@ -23,7 +23,7 @@ Important:
 
 Using the utility
 -----------------
-	Basic usage: 
+	Basic usage:
 		PfRingFilterTraffic [-hl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL] [-c NUM_OF_THREADS] -n INTERFACE_NAME
 
 	Options:

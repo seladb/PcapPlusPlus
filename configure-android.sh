@@ -1,202 +1,217 @@
 #!/bin/bash
 
-echo ""
-echo "******************************************"
-echo "PcapPlusPlus Android configuration script "
-echo "******************************************"
-echo ""
+set -e
 
-# set Script Name variable
-SCRIPT=`basename ${BASH_SOURCE[0]}`
+SCRIPT_FILEPATH=$0
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
-# help function
-function HELP {
-    echo -e \\n"Help documentation for ${SCRIPT}."\\n
-    echo ""
-    echo -e "Basic usage: $SCRIPT [-h] [--ndk-path] [--target] [--api] [--libpcap-include-dir] [--libpcap-lib-dir]"\\n
-    echo "The following switches are recognized:"
-    echo "--ndk-path             --The path of Android NDK, for example: '/opt/Android/Sdk/ndk/22.0.7026061'"
-    echo "--target               --Target architecture which must be one of these values:"
-    echo "                          - arm64-v8a"
-    echo "                          - armeabi-v7a"
-    echo "                          - x86"
-    echo "                          - x86_64"
-    echo "--api                  --Android API level. Must be between 21 and 30. If not provided, the default value is 29"
-    echo "--libpcap-include-dir  --libpcap header files directory"
-    echo "--libpcap-lib-dir      --libpcap pre compiled lib directory. Please make sure libpcap was compiled with the"
-    echo "                         same architecture and API level"
-    echo "--help|-h              --Displays this help message and exits. No further actions are performed"\\n
-    echo ""
+COLOR_RED='\033[0;31m'          # Red
+COLOR_GREEN='\033[0;32m'        # Green
+COLOR_PURPLE='\033[0;35m'       # Purple
+COLOR_OFF='\033[0m'             # Reset
+
+exit_with_error() {
+    printf '%b\n' "${COLOR_RED}$*${COLOR_OFF}" >&2
+    exit 1
 }
 
-function TRANSLATE_TARGET {
-    if [ "$1" == "arm64-v8a" ]; then
-        echo "aarch64-linux-android"
-        return 0
-    fi
-    if [ "$1" == "armeabi-v7a" ]; then
-        echo "armv7a-linux-androideabi"
-        return 0
-    fi
-    if [ "$1" == "x86" ]; then
-        echo "i686-linux-android"
-        return 0
-    fi
-    if [ "$1" == "x86_64" ]; then
-        echo "x86_64-linux-android"
-        return 0
-    fi
+is_integer () {
+    case "${1#[+-]}" in
+        (*[!0123456789]*) return 1 ;;
+        ('')              return 1 ;;
+        (*)               return 0 ;;
+    esac
 }
 
+#########################################################################################
 
-if [ $# -eq 0 ]; then
-    HELP
-    exit 1
-fi
+help() {
+    printf '%b\n' "
+${COLOR_PURPLE}Usage:${COLOR_OFF}
 
-# these are all the possible switches
-OPTS=`getopt -o h --long ndk-path:,target:,api:,libpcap-lib-dir:,libpcap-include-dir: -- "$@"`
+${COLOR_GREEN}$SCRIPT_FILEPATH${COLOR_OFF}
+${COLOR_GREEN}$SCRIPT_FILEPATH -h${COLOR_OFF}
+${COLOR_GREEN}$SCRIPT_FILEPATH --help${COLOR_OFF}
+    show help of this script.
 
-# if user put an illegal switch - print HELP and exit
-if [ $? -ne 0 ]; then
-    HELP
-    exit 1
-fi
+${COLOR_GREEN}$SCRIPT_FILEPATH <OPTION>...${COLOR_OFF}
+    ${COLOR_GREEN}--ndk-path <ANDROID-NDK-ROOT>${COLOR_OFF}
+        specify the root path of Android NDK, for example: '/opt/Android/Sdk/ndk/23.1.7779620'
 
-eval set -- "$OPTS"
+    ${COLOR_GREEN}--target <ANDROID-ABI>${COLOR_OFF}
+        specify the android abi, value must be one of 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'.
 
-# Android-specific variables
-NDK_PATH=""
-TARGET=""
-API=29
+    ${COLOR_GREEN}--api <ANDROID-API-LEVEL>${COLOR_OFF}
+        specify the android api level. value must be between 21 and 30. If not provided, the default value is 29.
 
-# initializing libpcap include/lib dirs to an empty string 
-LIBPCAP_INLCUDE_DIR=""
-LIBPCAP_LIB_DIR=""
+    ${COLOR_GREEN}--libpcap-include-dir <DIR>${COLOR_OFF}
+        specify the libpcap header files directory
 
-# go over all switches
-while true ; do
+    ${COLOR_GREEN}--libpcap-lib-dir <DIR>${COLOR_OFF}
+        specify the libpcap pre compiled lib directory. Please make sure libpcap was compiled with the same architecture and API level
+
+${COLOR_PURPLE}Examples:${COLOR_OFF}
+
+${COLOR_GREEN}./configure-android.sh${COLOR_OFF}
+
+${COLOR_GREEN}./configure-android.sh -h${COLOR_OFF}
+
+${COLOR_GREEN}./configure-android.sh --help${COLOR_OFF}
+
+${COLOR_GREEN}./configure-android.sh --ndk-path /opt/Android/sdk/ndk/23.1.7779620 --target armeabi-v7a --api 21 --libpcap-include-dir ~/libpcap/armeabi-v7a/include --libpcap-lib-dir ~/libpcap/armeabi-v7a/lib${COLOR_OFF}
+"
+}
+
+#########################################################################################
+
+printf '%b\n' "${COLOR_PURPLE}
+******************************************
+PcapPlusPlus Android configuration script
+******************************************
+${COLOR_OFF}"
+
+case $1 in
+    ''|-h|--help) help; exit
+esac
+
+unset ANDROID_NDK_ROOT
+unset ANDROID_API_LEVEL
+
+unset TARGET_TRIPLE
+
+unset LIBPCAP_INCLUDE_DIR
+unset LIBPCAP_LIBRARY_DIR
+
+while [ -n "$1" ]
+do
     case "$1" in
-    # NDK path
-    --ndk-path)
-        NDK_PATH=$2
-        if [ ! -d "$NDK_PATH" ]; then
-            echo "NDK directory '$NDK_PATH' not found. Exiting..."
-            exit 1
-        fi
-        shift 2 ;;
-
-    # Target
-    --target)
-        case "$2" in
-        arm64-v8a|armeabi-v7a|x86|x86_64)
+        --ndk-path)
+            if [ -d "$2" ] ; then
+                ANDROID_NDK_ROOT=$2
+                shift 2
+            else
+                exit_with_error "--ndk-path PATH, PATH is not specified."
+            fi
             ;;
-        *)
-            echo -e \\n"Target must be one of:\n- arm64-v8a\n- armeabi-v7a\n- x86\n- x86_64\nExisting...\n"
-            exit 1
-        esac
-        TARGET=$(TRANSLATE_TARGET $2)
-        shift 2 ;;
-
-    # API version
-    --api)
-        API=$2
-        if [[ "$API" -ge 21 && "$API" -le 30 ]]; then
-            API=$2
-        else
-            echo -e \\n"API version must be between 21 and 30. Existing...\n"
-            exit 1
-        fi
-        shift 2 ;;
-
-    # libpcap include dir
-    --libpcap-include-dir)
-        LIBPCAP_INLCUDE_DIR=$2
-        shift 2 ;;
-
-    # libpcap binaries dir
-    --libpcap-lib-dir)
-        LIBPCAP_LIB_DIR=$2
-        shift 2 ;;
-
-    # help switch - display help and exit
-    -h|--help)
-        HELP
-        exit 0
-        ;;
-
-    # empty switch - just go on
-    --)
-        shift ; break ;;
-
-    # illegal switch
-    *)
-        echo -e \\n"Option -$OPTARG not allowed."
-        HELP
-        exit 1
+        --target)
+            case $2 in
+                armeabi-v7a) TARGET_TRIPLE='armv7a-linux-androideabi' ;;
+                arm64-v8a)   TARGET_TRIPLE='aarch64-linux-android'    ;;
+                x86)         TARGET_TRIPLE='i686-linux-android'       ;;
+                x86_64)      TARGET_TRIPLE='x86_64-linux-android'     ;;
+                *) exit_with_error "--target TARGET, TARGET must be one of 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'"
+            esac
+            shift 2
+            ;;
+        --api)
+            is_integer "$2" || exit_with_error "--api API, API must be a integer."
+            if [ "$2" -ge 21 ] && [ "$2" -le 30 ] ; then
+                ANDROID_API_LEVEL=$2
+                shift 2
+            else
+                exit_with_error "--api API, API must be between 21 and 30."
+            fi
+            ;;
+        --libpcap-include-dir)
+            LIBPCAP_INCLUDE_DIR=$2
+            shift 2
+            ;;
+        --libpcap-lib-dir)
+            LIBPCAP_LIBRARY_DIR=$2
+            shift 2
+            ;;
+        *)  exit_with_error "Unrecognized option: $1"
     esac
 done
 
-if [ -z "$NDK_PATH" ]; then
-    echo "Please specify the NDK path using with '--ndk-path'. Exiting..."
-    exit 1
+if [ -z "$ANDROID_NDK_ROOT" ] ; then
+    exit_with_error "Please specify the Android NDK root path via --ndk-path PATH"
 fi
 
-if [ -z "$TARGET" ]; then
-    echo "Please specify the target using wity '--target'. Exiting..."
-    exit 1
+if [ -z "$ANDROID_API_LEVEL" ] ; then
+    ANDROID_API_LEVEL=29
 fi
 
-if [ -z "$LIBPCAP_INLCUDE_DIR" ]; then
-    echo "Please specify the location of libpcap header files with '--libpcap-include-dir'. Exiting..."
-    exit 1
+if [ -z "$TARGET_TRIPLE" ] ; then
+    exit_with_error "Please specify the target via --target TARGET"
 fi
 
-if [ -z "$LIBPCAP_LIB_DIR" ]; then
-    echo "Please specify the location of libpcap binary that matches the reqruied arch with '--libpcap-lib-dir'. Exiting..."
-    exit 1
+if [ -z "$LIBPCAP_INCLUDE_DIR" ]; then
+    exit_with_error "Please specify the directory of libpcap header files via --libpcap-include-dir DIR"
 fi
 
-PLATFORM_MK="mk/platform.mk"
-PCAPPLUSPLUS_MK="mk/PcapPlusPlus.mk"
+if [ -z "$LIBPCAP_LIBRARY_DIR" ]; then
+    exit_with_error "Please specify the directory of libpcap binary that matches the specified target via --libpcap-lib-dir DIR"
+fi
 
-# copy the basic Android platform.mk
-cp -f mk/platform.mk.android $PLATFORM_MK
+#########################################################################################
 
-# copy the common (all platforms) PcapPlusPlus.mk
-cp -f mk/PcapPlusPlus.mk.common $PCAPPLUSPLUS_MK
+unset BUILD_MACHINE_OS_TYPE
+unset BUILD_MACHINE_OS_ARCH
 
-# add the Android definitions to PcapPlusPlus.mk
-cat mk/PcapPlusPlus.mk.android >> $PCAPPLUSPLUS_MK
+BUILD_MACHINE_OS_TYPE=$(uname | tr A-Z a-z)
+BUILD_MACHINE_OS_ARCH=$(uname -m)
 
-# set current directory as PCAPPLUSPLUS_HOME in platform.mk
-echo -e "\nPCAPPLUSPLUS_HOME := "$PWD >> $PLATFORM_MK
+ANDROID_TOOLCHAIN=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$BUILD_MACHINE_OS_TYPE-$BUILD_MACHINE_OS_ARCH
 
-# set target variable in PcapPlusPlus.mk
-sed -i "1s|^|ANDROID_API_VERSION := $API\n\n|" $PCAPPLUSPLUS_MK
+#########################################################################################
 
-# set target variable in PcapPlusPlus.mk
-sed -i "1s|^|ANDROID_TARGET := $TARGET$API\n\n|" $PCAPPLUSPLUS_MK
+cat <<EOF
+Build machine OS type: $BUILD_MACHINE_OS_TYPE
+Build machine OS arch: $BUILD_MACHINE_OS_ARCH
 
-# set NDK path variable in PcapPlusPlus.mk
-sed -i "1s|^|ANDROID_NDK_PATH := $NDK_PATH\n\n|" $PCAPPLUSPLUS_MK
+Android NDK root:  $ANDROID_NDK_ROOT
+Anrdoid API level: $ANDROID_API_LEVEL
+Android toolchain path: $ANDROID_TOOLCHAIN
 
-# set current direcrtory as PCAPPLUSPLUS_HOME in PcapPlusPlus.mk
-sed -i "1s|^|PCAPPLUSPLUS_HOME := $PWD\n\n|" $PCAPPLUSPLUS_MK
+Target triple: $TARGET_TRIPLE
 
-# set target variable in platform.mk
-sed -i "1s|^|ANDROID_TARGET := $TARGET$API\n\n|" $PLATFORM_MK
+libpcap include dir: $LIBPCAP_INCLUDE_DIR
+libpcap library dir: $LIBPCAP_LIBRARY_DIR
+EOF
 
-# set NDK path variable in platform.mk
-sed -i "1s|^|ANDROID_NDK_PATH := $NDK_PATH\n\n|" $PLATFORM_MK
+#########################################################################################
 
-# set libpcap include dir
-echo -e "LIBPCAP_INLCUDE_DIR := $LIBPCAP_INLCUDE_DIR" >> $PCAPPLUSPLUS_MK
-echo -e "PCAPPP_INCLUDES += -I\$(LIBPCAP_INLCUDE_DIR)\n" >> $PCAPPLUSPLUS_MK
+unset TEMP_DIR
+unset TEMP_CONFIG_FILE
 
-# set libpcap lib dir
-echo -e "LIBPCAP_LIB_DIR := $LIBPCAP_LIB_DIR" >> $PCAPPLUSPLUS_MK
-echo -e "PCAPPP_LIBS_DIR += -L\$(LIBPCAP_LIB_DIR)\n" >> $PCAPPLUSPLUS_MK
+TEMP_DIR=$(mktemp -d)
+TEMP_CONFIG_FILE="$TEMP_DIR/config.mk"
 
-# finished setup script
-echo "PcapPlusPlus configuration is complete. Files created (or modified): $PLATFORM_MK, $PCAPPLUSPLUS_MK"
+cat > "$TEMP_CONFIG_FILE" <<EOF
+PCAPPLUSPLUS_HOME   := $SCRIPT_DIR
+ANDROID_TARGET      := $TARGET_TRIPLE$ANDROID_API_LEVEL
+ANDROID_TOOLCHAIN   := $ANDROID_TOOLCHAIN
+EOF
+
+#########################################################################################
+
+PCAPPLUSPLUS_MK="$SCRIPT_DIR/mk/PcapPlusPlus.mk"
+
+cp -f "$TEMP_CONFIG_FILE"                       "$PCAPPLUSPLUS_MK"
+cat "$SCRIPT_DIR/mk/PcapPlusPlus.mk.common"  >> "$PCAPPLUSPLUS_MK"
+cat "$SCRIPT_DIR/mk/PcapPlusPlus.mk.android" >> "$PCAPPLUSPLUS_MK"
+
+cat >> "$PCAPPLUSPLUS_MK" <<EOF
+LIBPCAP_INCLUDE_DIR := $LIBPCAP_INCLUDE_DIR
+PCAPPP_INCLUDES += -I\$(LIBPCAP_INCLUDE_DIR)
+LIBPCAP_LIB_DIR := $LIBPCAP_LIBRARY_DIR
+PCAPPP_LIBS_DIR += -L\$(LIBPCAP_LIB_DIR)
+EOF
+
+#########################################################################################
+
+PLATFORM_MK="$SCRIPT_DIR/mk/platform.mk"
+
+cp -f "$TEMP_CONFIG_FILE"                    "$PLATFORM_MK"
+cat "$SCRIPT_DIR/mk/platform.mk.android"  >> "$PLATFORM_MK"
+
+#########################################################################################
+
+printf '%b\n' "
+${COLOR_GREEN}PcapPlusPlus Android configuration is complete.${COLOR_OFF}
+
+configurations is written to :
+    - $PLATFORM_MK
+    - $PCAPPLUSPLUS_MK
+"

@@ -18,7 +18,7 @@
 namespace pcpp
 {
 
-#define IPV4OPT_DUMMMY 0xff
+#define IPV4OPT_DUMMY 0xff
 #define IPV4_MAX_OPT_SIZE 40
 
 
@@ -61,21 +61,21 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 
 	if (timestampValue.type == IPv4TimestampOptionValue::Unknown)
 	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::Unknown");
+		PCPP_LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::Unknown");
 		m_BuilderParamsValid = false;
 		return;
 	}
 
 	if (timestampValue.type == IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs)
 	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs - this type is not supported");
+		PCPP_LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampsForPrespecifiedIPs - this type is not supported");
 		m_BuilderParamsValid = false;
 		return;
 	}
 
 	if (timestampValue.type == IPv4TimestampOptionValue::TimestampAndIP && timestampValue.timestamps.size() != timestampValue.ipAddresses.size())
 	{
-		LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampAndIP because number of timestamps and IP addresses is not equal");
+		PCPP_LOG_ERROR("Cannot build timestamp option of type IPv4TimestampOptionValue::TimestampAndIP because number of timestamps and IP addresses is not equal");
 		m_BuilderParamsValid = false;
 		return;
 	}
@@ -133,11 +133,12 @@ IPv4Option IPv4OptionBuilder::build() const
 
 	size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
-	if ((m_RecType == (uint8_t)IPV4OPT_NOP || m_RecType == (uint8_t)IPV4OPT_EndOfOptionsList))
+	uint8_t recType = static_cast<uint8_t>(m_RecType);
+	if ((recType == (uint8_t)IPV4OPT_NOP || recType == (uint8_t)IPV4OPT_EndOfOptionsList))
 	{
 		if (m_RecValueLen != 0)
 		{
-			LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size %d", (int)m_RecValueLen);
+			PCPP_LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size " << (int)m_RecValueLen);
 			return IPv4Option(NULL);
 		}
 
@@ -146,10 +147,10 @@ IPv4Option IPv4OptionBuilder::build() const
 
 	uint8_t* recordBuffer = new uint8_t[optionSize];
 	memset(recordBuffer, 0, optionSize);
-	recordBuffer[0] = m_RecType;
+	recordBuffer[0] = recType;
 	if (optionSize > 1)
 	{
-		recordBuffer[1] = (uint8_t)optionSize;
+		recordBuffer[1] = static_cast<uint8_t>(optionSize);
 		if (optionSize > 2 && m_RecValue != NULL)
 			memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
 	}
@@ -320,6 +321,11 @@ void IPv4Layer::parseNextLayer()
 			? static_cast<Layer*>(new ESPLayer(payload, payloadLen, this, m_Packet))
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
+	case PACKETPP_IPPROTO_IPV6:
+		m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
@@ -390,22 +396,22 @@ uint16_t IPv4Layer::getFragmentOffset() const
 
 std::string IPv4Layer::toString() const
 {
-	std::string fragmet = "";
+	std::string fragment = "";
 	if (isFragment())
 	{
 		if (isFirstFragment())
-			fragmet = "First fragment";
+			fragment = "First fragment";
 		else if (isLastFragment())
-			fragmet = "Last fragment";
+			fragment = "Last fragment";
 		else
-			fragmet = "Fragment";
+			fragment = "Fragment";
 
 		std::stringstream sstm;
-		sstm << fragmet << " [offset= " << getFragmentOffset() << "], ";
-		fragmet = sstm.str();
+		sstm << fragment << " [offset= " << getFragmentOffset() << "], ";
+		fragment = sstm.str();
 	}
 
-	return "IPv4 Layer, " + fragmet + "Src: " + getSrcIPv4Address().toString() + ", Dst: " + getDstIPv4Address().toString();
+	return "IPv4 Layer, " + fragment + "Src: " + getSrcIPv4Address().toString() + ", Dst: " + getDstIPv4Address().toString();
 }
 
 IPv4Option IPv4Layer::getOption(IPv4OptionTypes option) const
@@ -444,7 +450,7 @@ void IPv4Layer::adjustOptionsTrailer(size_t totalOptSize)
 	m_NumOfTrailingBytes = newNumberOfTrailingBytes;
 
 	for (int i = 0; i < m_NumOfTrailingBytes; i++)
-		m_Data[ipHdrSize + totalOptSize + i] = IPV4OPT_DUMMMY;
+		m_Data[ipHdrSize + totalOptSize + i] = IPV4OPT_DUMMY;
 
 	m_TempHeaderExtension = 0;
 	getIPv4Header()->internetHeaderLength = ((ipHdrSize + totalOptSize + m_NumOfTrailingBytes)/4 & 0x0f);
@@ -462,14 +468,14 @@ IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int of
 
 	if (totalOptSize > IPV4_MAX_OPT_SIZE)
 	{
-		LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is %d", IPV4_MAX_OPT_SIZE);
+		PCPP_LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is " << IPV4_MAX_OPT_SIZE);
 		newOption.purgeRecordData();
 		return IPv4Option(NULL);
 	}
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend IPv4Layer in [%d] bytes", (int)sizeToExtend);
+		PCPP_LOG_ERROR("Could not extend IPv4Layer in [" << sizeToExtend << "] bytes");
 		newOption.purgeRecordData();
 		return IPv4Option(NULL);
 	}
@@ -540,7 +546,7 @@ bool IPv4Layer::removeOption(IPv4OptionTypes option)
 	size_t sizeToShorten = opt.getTotalSize();
 	if (!shortenLayer(offset, sizeToShorten))
 	{
-		LOG_ERROR("Failed to remove IPv4 option: cannot shorten layer");
+		PCPP_LOG_ERROR("Failed to remove IPv4 option: cannot shorten layer");
 		return false;
 	}
 

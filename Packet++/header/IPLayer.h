@@ -35,7 +35,7 @@ namespace pcpp
 		 * @return An IPAddress object containing the destination address
 		 */
 		virtual IPAddress getDstIPAddress() const = 0;
-		
+
 		/**
 		 * An empty destructor
 		 */

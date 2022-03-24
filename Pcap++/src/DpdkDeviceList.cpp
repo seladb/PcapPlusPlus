@@ -62,19 +62,17 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-const uint32_t initDpdkArgc = 7;
-const uint32_t maxArgLen = 20;
-char** initDpdkArgv;
-
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv)
 {
+	char **initDpdkArgvBuffer;
+
 	if (m_IsDpdkInitialized)
 	{
 		if (coreMask == m_CoreMask)
 			return true;
 		else
 		{
-			LOG_ERROR("Trying to re-initialize DPDK with a different core mask");
+			PCPP_LOG_ERROR("Trying to re-initialize DPDK with a different core mask");
 			return false;
 		}
 	}
@@ -88,7 +86,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	bool isPoolSizePowerOfTwoMinusOne = !(mBufPoolSizePerDevice == 0) && !((mBufPoolSizePerDevice+1) & (mBufPoolSizePerDevice));
 	if (!isPoolSizePowerOfTwoMinusOne)
 	{
-		LOG_ERROR("mBuf pool size must be a power of two minus one: n = (2^q - 1). It's currently: %d", mBufPoolSizePerDevice);
+		PCPP_LOG_ERROR("mBuf pool size must be a power of two minus one: n = (2^q - 1). It's currently: " << mBufPoolSizePerDevice);
 		return false;
 	}
 
@@ -100,46 +98,57 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	dpdkParamsStream << "-c ";
 	dpdkParamsStream << "0x" << std::hex << std::setw(2) << std::setfill('0') << coreMask << " ";
 	dpdkParamsStream << "--master-lcore ";
-	dpdkParamsStream << (int)masterCore;
+	dpdkParamsStream << (int)masterCore << " ";
 
-	std::string dpdkParamsArray[initDpdkArgc];
-	initDpdkArgv = new char*[initDpdkArgc];
 	uint32_t i = 0;
-    while (dpdkParamsStream.good() && i < initDpdkArgc){
-    	dpdkParamsStream >> dpdkParamsArray[i];
-    	initDpdkArgv[i] = new char[maxArgLen];
-    	strcpy(initDpdkArgv[i], dpdkParamsArray[i].c_str());
-        i++;
-    }
+	while (i < initDpdkArgc && initDpdkArgv[i] != NULL)
+	{
+		dpdkParamsStream << initDpdkArgv[i] << " ";
+		i++;
+	}
 
-    char* lastParam = initDpdkArgv[i-1];
+	// Should be equal to the number of static params
+	initDpdkArgc += 7;
+	std::string dpdkParamsArray[initDpdkArgc];
+	initDpdkArgvBuffer = new char*[initDpdkArgc];
+	i = 0;
+	while (dpdkParamsStream.good() && i < initDpdkArgc)
+	{
+		dpdkParamsStream >> dpdkParamsArray[i];
+		initDpdkArgvBuffer[i] = new char[dpdkParamsArray[i].length()];
+		strcpy(initDpdkArgvBuffer[i], dpdkParamsArray[i].c_str());
+		i++;
+	}
+
+	char* lastParam = initDpdkArgvBuffer[i-1];
 
 	for (i = 0; i < initDpdkArgc; i++)
 	{
-		LOG_DEBUG("DPDK initialization params: %s", initDpdkArgv[i]);
+		PCPP_LOG_DEBUG("DPDK initialization params: " << initDpdkArgvBuffer[i]);
 	}
 
 	optind = 1;
 	// init the EAL
-	int ret = rte_eal_init(initDpdkArgc, (char**)initDpdkArgv);
-	if (ret < 0) {
-		LOG_ERROR("failed to init the DPDK EAL");
+	int ret = rte_eal_init(initDpdkArgc, (char**)initDpdkArgvBuffer);
+	if (ret < 0)
+	{
+		PCPP_LOG_ERROR("failed to init the DPDK EAL");
 		return false;
 	}
 
 	for (i = 0; i < initDpdkArgc-1; i++)
 	{
-		delete [] initDpdkArgv[i];
+		delete [] initDpdkArgvBuffer[i];
 	}
 	delete [] lastParam;
 
-	delete [] initDpdkArgv;
+	delete [] initDpdkArgvBuffer;
 
 	m_CoreMask = coreMask;
 	m_IsDpdkInitialized = true;
 
 	m_MBufPoolSizePerDevice = mBufPoolSizePerDevice;
-	DpdkDeviceList::getInstance().setDpdkLogLevel(LoggerPP::Normal);
+	DpdkDeviceList::getInstance().setDpdkLogLevel(Logger::Info);
 	return DpdkDeviceList::getInstance().initDpdkDevices(m_MBufPoolSizePerDevice);
 }
 
@@ -147,7 +156,7 @@ bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice)
 {
 	if (!m_IsDpdkInitialized)
 	{
-		LOG_ERROR("DPDK is not initialized!! Please call DpdkDeviceList::initDpdk(coreMask, mBufPoolSizePerDevice) before start using DPDK devices");
+		PCPP_LOG_ERROR("DPDK is not initialized!! Please call DpdkDeviceList::initDpdk(coreMask, mBufPoolSizePerDevice) before start using DPDK devices");
 		return false;
 	}
 
@@ -162,22 +171,17 @@ bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice)
 
 	if (numOfPorts <= 0)
 	{
-		LOG_ERROR("Zero DPDK ports are initialized. Something went wrong while initializing DPDK");
+		PCPP_LOG_ERROR("Zero DPDK ports are initialized. Something went wrong while initializing DPDK");
 		return false;
 	}
 
-	LOG_DEBUG("Found %d DPDK ports. Constructing DpdkDevice for each one", numOfPorts);
+	PCPP_LOG_DEBUG("Found " << numOfPorts << " DPDK ports. Constructing DpdkDevice for each one");
 
 	// Initialize a DpdkDevice per port
 	for (int i = 0; i < numOfPorts; i++)
 	{
 		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice);
-		LOG_DEBUG("DpdkDevice #%d: Name='%s', PCI-slot='%s', PMD='%s', MAC Addr='%s'",
-				i,
-				newDevice->getDeviceName().c_str(),
-				newDevice->getPciAddress().c_str(),
-				newDevice->getPMDName().c_str(),
-				newDevice->getMacAddress().toString().c_str());
+		PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='" << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName() << "', MAC Addr='" << newDevice->getMacAddress() << "'");
 		m_DpdkDeviceList.push_back(newDevice);
 	}
 
@@ -189,7 +193,7 @@ DpdkDevice* DpdkDeviceList::getDeviceByPort(int portId) const
 {
 	if (!isInitialized())
 	{
-		LOG_ERROR("DpdkDeviceList not initialized");
+		PCPP_LOG_ERROR("DpdkDeviceList not initialized");
 		return NULL;
 	}
 
@@ -205,7 +209,7 @@ DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const std::string& pciAddr) co
 {
 	if (!isInitialized())
 	{
-		LOG_ERROR("DpdkDeviceList not initialized");
+		PCPP_LOG_ERROR("DpdkDeviceList not initialized");
 		return NULL;
 	}
 
@@ -228,23 +232,38 @@ bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 	char* endPtr;
 	long totalHugePages = strtol(execResult.c_str(), &endPtr, 10);
 
-	LOG_DEBUG("Total number of huge-pages is %lu", totalHugePages);
+	PCPP_LOG_DEBUG("Total number of huge-pages is " << totalHugePages);
 
 	if (totalHugePages <= 0)
 	{
-		LOG_ERROR("Huge pages aren't set, DPDK cannot be initialized. Please run <PcapPlusPlus_Root>/setup_dpdk.sh");
+		PCPP_LOG_ERROR("Huge pages aren't set, DPDK cannot be initialized. Please run <PcapPlusPlus_Root>/setup_dpdk.sh");
 		return false;
 	}
 
 	execResult = executeShellCommand("lsmod | grep -s igb_uio");
 	if (execResult == "")
 	{
-		LOG_ERROR("igb_uio driver isn't loaded, DPDK cannot be initialized. Please run <PcapPlusPlus_Root>/setup_dpdk.sh");
-		return false;
-
+		execResult = executeShellCommand("modinfo -d uio_pci_generic");
+		if (execResult.find("ERROR") != std::string::npos)
+		{
+			execResult = executeShellCommand("modinfo -d vfio-pci");
+			if (execResult.find("ERROR") != std::string::npos)
+			{
+				PCPP_LOG_ERROR("None of igb_uio, uio_pci_generic, vfio-pci kernel modules are loaded so DPDK cannot be initialized. Please run <PcapPlusPlus_Root>/setup_dpdk.sh");
+				return false;
+			}
+			else
+			{
+				PCPP_LOG_DEBUG("vfio-pci module is loaded");
+			}
+		}
+		else
+		{
+			PCPP_LOG_DEBUG("uio_pci_generic module is loaded");
+		}
 	}
 	else
-		LOG_DEBUG("igb_uio driver is loaded");
+		PCPP_LOG_DEBUG("igb_uio driver is loaded");
 
 	return true;
 }
@@ -254,31 +273,31 @@ SystemCore DpdkDeviceList::getDpdkMasterCore() const
 	return SystemCores::IdToSystemCore[rte_get_master_lcore()];
 }
 
-void DpdkDeviceList::setDpdkLogLevel(LoggerPP::LogLevel logLevel)
+void DpdkDeviceList::setDpdkLogLevel(Logger::LogLevel logLevel)
 {
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
-	if (logLevel == LoggerPP::Normal)
+	if (logLevel == Logger::Info)
 		rte_log_set_global_level(RTE_LOG_NOTICE);
-	else // logLevel == LoggerPP::Debug
+	else // logLevel == Logger::Debug
 		rte_log_set_global_level(RTE_LOG_DEBUG);
 #else
-	if (logLevel == LoggerPP::Normal)
+	if (logLevel == Logger::Info)
 		rte_set_log_level(RTE_LOG_NOTICE);
-	else // logLevel == LoggerPP::Debug
+	else // logLevel == Logger::Debug
 		rte_set_log_level(RTE_LOG_DEBUG);
 #endif
 }
 
-LoggerPP::LogLevel DpdkDeviceList::getDpdkLogLevel() const
+Logger::LogLevel DpdkDeviceList::getDpdkLogLevel() const
 {
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 	if (rte_log_get_global_level() <= RTE_LOG_NOTICE)
 #else
 	if (rte_get_log_level() <= RTE_LOG_NOTICE)
 #endif
-		return LoggerPP::Normal;
+		return Logger::Info;
 	else
-		return LoggerPP::Debug;
+		return Logger::Debug;
 }
 
 bool DpdkDeviceList::writeDpdkLogToFile(FILE* logFile)
@@ -297,7 +316,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 {
 	if (!isInitialized())
 	{
-		LOG_ERROR("DpdkDeviceList not initialized");
+		PCPP_LOG_ERROR("DpdkDeviceList not initialized");
 		return false;
 	}
 
@@ -310,7 +329,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 		{
 			if (!rte_lcore_is_enabled(coreNum))
 			{
-				LOG_ERROR("Trying to use core #%d which isn't initialized by DPDK", coreNum);
+				PCPP_LOG_ERROR("Trying to use core #" << coreNum << " which isn't initialized by DPDK");
 				return false;
 			}
 
@@ -322,19 +341,19 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 
 	if (numOfCoresInMask == 0)
 	{
-		LOG_ERROR("Number of cores in mask is 0");
+		PCPP_LOG_ERROR("Number of cores in mask is 0");
 		return false;
 	}
 
 	if (numOfCoresInMask != workerThreadsVec.size())
 	{
-		LOG_ERROR("Number of cores in core mask different from workerThreadsVec size");
+		PCPP_LOG_ERROR("Number of cores in core mask different from workerThreadsVec size");
 		return false;
 	}
 
 	if (coreMask & getDpdkMasterCore().Mask)
 	{
-		LOG_ERROR("Cannot run worker thread on DPDK master core");
+		PCPP_LOG_ERROR("Cannot run worker thread on DPDK master core");
 		return false;
 	}
 
@@ -357,9 +376,9 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 			{
 				(*iter)->stop();
 				rte_eal_wait_lcore((*iter)->getCoreId());
-				LOG_DEBUG("Thread on core [%d] stopped", (*iter)->getCoreId());
+				PCPP_LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 			}
-			LOG_ERROR("Cannot create worker thread #%d. Error was: [%s]", core.Id, strerror(err));
+			PCPP_LOG_ERROR("Cannot create worker thread #" << core.Id << ". Error was: [" << strerror(err) << "]");
 			return false;
 		}
 		m_WorkerThreads.push_back(*iter);
@@ -375,7 +394,7 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 {
 	if (m_WorkerThreads.empty())
 	{
-		LOG_ERROR("No worker threads were set");
+		PCPP_LOG_ERROR("No worker threads were set");
 		return;
 	}
 
@@ -383,13 +402,13 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 	{
 		(*iter)->stop();
 		rte_eal_wait_lcore((*iter)->getCoreId());
-		LOG_DEBUG("Thread on core [%d] stopped", (*iter)->getCoreId());
+		PCPP_LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
 	}
 
 	m_WorkerThreads.clear();
 	std::vector<DpdkWorkerThread*>(m_WorkerThreads).swap(m_WorkerThreads);
 
-	LOG_DEBUG("All worker threads stopped");
+	PCPP_LOG_DEBUG("All worker threads stopped");
 }
 
 } // namespace pcpp

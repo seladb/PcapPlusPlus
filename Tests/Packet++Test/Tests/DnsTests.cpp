@@ -24,72 +24,72 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	pcpp::DnsLayer* dnsLayer = dnsPacket.getLayerOfType<pcpp::DnsLayer>();
 
 	PTF_ASSERT_NOT_NULL(dnsLayer);
-	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 2, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 2, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1, size);
-	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0, u16);
-	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->queryOrResponse, 0, u16);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 2);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 2);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1);
+	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->queryOrResponse, 0);
 
 	pcpp::DnsQuery* firstQuery = dnsLayer->getFirstQuery();
 	PTF_ASSERT_NOT_NULL(firstQuery);
-	PTF_ASSERT_EQUAL(firstQuery->getName(), "Yaels-iPhone.local", string);
+	PTF_ASSERT_EQUAL(firstQuery->getName(), "Yaels-iPhone.local");
 	PTF_ASSERT_EQUAL(firstQuery->getDnsType(), pcpp::DNS_TYPE_ALL, enum);
 	PTF_ASSERT_EQUAL(firstQuery->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
 
 	pcpp::DnsQuery* secondQuery = dnsLayer->getNextQuery(firstQuery);
 	PTF_ASSERT_NOT_NULL(secondQuery);
-	PTF_ASSERT_EQUAL(secondQuery->getName(), "Yaels-iPhone.local", string);
+	PTF_ASSERT_EQUAL(secondQuery->getName(), "Yaels-iPhone.local");
 	PTF_ASSERT_EQUAL(secondQuery->getDnsType(), pcpp::DNS_TYPE_ALL, enum);
 	PTF_ASSERT_EQUAL(secondQuery->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
 	PTF_ASSERT_NULL(dnsLayer->getNextQuery(secondQuery));
 
 	pcpp::DnsQuery* queryByName = dnsLayer->getQuery(std::string("Yaels-iPhone.local"), true);
 	PTF_ASSERT_NOT_NULL(queryByName);
-	PTF_ASSERT_TRUE(queryByName == firstQuery);
+	PTF_ASSERT_EQUAL(queryByName, firstQuery, ptr);
 	PTF_ASSERT_NULL(dnsLayer->getQuery(std::string("www.seladb.com"), true));
 
 	pcpp::DnsResource* firstAuthority = dnsLayer->getFirstAuthority();
 	PTF_ASSERT_NOT_NULL(firstAuthority);
 	PTF_ASSERT_EQUAL(firstAuthority->getDnsType(), pcpp::DNS_TYPE_A, enum);
 	PTF_ASSERT_EQUAL(firstAuthority->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
-	PTF_ASSERT_EQUAL(firstAuthority->getTTL(), 120, u32);
-	PTF_ASSERT_EQUAL(firstAuthority->getName(), "Yaels-iPhone.local", string);
-	PTF_ASSERT_EQUAL(firstAuthority->getDataLength(), 4, size);
-	PTF_ASSERT_EQUAL(firstAuthority->getData()->toString(), "10.0.0.2", string);
-	PTF_ASSERT_EQUAL(firstAuthority->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress(), pcpp::IPv4Address("10.0.0.2"), object);
-	PTF_ASSERT_EQUAL(firstAuthority->getSize(), 16, size);
+	PTF_ASSERT_EQUAL(firstAuthority->getTTL(), 120);
+	PTF_ASSERT_EQUAL(firstAuthority->getName(), "Yaels-iPhone.local");
+	PTF_ASSERT_EQUAL(firstAuthority->getDataLength(), 4);
+	PTF_ASSERT_EQUAL(firstAuthority->getData()->toString(), "10.0.0.2");
+	PTF_ASSERT_EQUAL(firstAuthority->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress(), pcpp::IPv4Address("10.0.0.2"));
+	PTF_ASSERT_EQUAL(firstAuthority->getSize(), 16);
 
 	pcpp::DnsResource* secondAuthority = dnsLayer->getNextAuthority(firstAuthority);
 	PTF_ASSERT_NOT_NULL(secondAuthority);
 	PTF_ASSERT_EQUAL(secondAuthority->getDnsType(), pcpp::DNS_TYPE_AAAA, enum);
 	PTF_ASSERT_EQUAL(secondAuthority->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
-	PTF_ASSERT_EQUAL(secondAuthority->getTTL(), 120, u32);
-	PTF_ASSERT_EQUAL(secondAuthority->getName(), "Yaels-iPhone.local", string);
-	PTF_ASSERT_EQUAL(secondAuthority->getDataLength(), 16, size);
-	PTF_ASSERT_EQUAL(secondAuthority->getData()->toString(), "fe80::5a1f:aaff:fe4f:3f9d", string);
-	PTF_ASSERT_EQUAL(secondAuthority->getData().castAs<pcpp::IPv6DnsResourceData>()->getIpAddress(), pcpp::IPv6Address("fe80::5a1f:aaff:fe4f:3f9d"), object);
-	PTF_ASSERT_EQUAL(secondAuthority->getSize(), 28, size);
+	PTF_ASSERT_EQUAL(secondAuthority->getTTL(), 120);
+	PTF_ASSERT_EQUAL(secondAuthority->getName(), "Yaels-iPhone.local");
+	PTF_ASSERT_EQUAL(secondAuthority->getDataLength(), 16);
+	PTF_ASSERT_EQUAL(secondAuthority->getData()->toString(), "fe80::5a1f:aaff:fe4f:3f9d");
+	PTF_ASSERT_EQUAL(secondAuthority->getData().castAs<pcpp::IPv6DnsResourceData>()->getIpAddress(), pcpp::IPv6Address("fe80::5a1f:aaff:fe4f:3f9d"));
+	PTF_ASSERT_EQUAL(secondAuthority->getSize(), 28);
 
 	pcpp::DnsResource* thirdAuthority = dnsLayer->getNextAuthority(secondAuthority);
 	PTF_ASSERT_NULL(thirdAuthority);
 
-	PTF_ASSERT_TRUE(dnsLayer->getAuthority("Yaels-iPhon", false) == firstAuthority);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthority("Yaels-iPhon", false), firstAuthority, ptr);
 	PTF_ASSERT_NULL(dnsLayer->getAuthority("www.google.com", false));
 
 	pcpp::DnsResource* additionalRecord = dnsLayer->getFirstAdditionalRecord();
 	PTF_ASSERT_NOT_NULL(additionalRecord);
 	PTF_ASSERT_EQUAL(additionalRecord->getDnsType(), pcpp::DNS_TYPE_OPT, enum);
-	PTF_ASSERT_EQUAL(additionalRecord->getDnsClass(), 0x05a0, u16);
-	PTF_ASSERT_EQUAL(additionalRecord->getTTL(), 0x1194, u32);
-	PTF_ASSERT_EQUAL(additionalRecord->getName(), "", string);
-	PTF_ASSERT_EQUAL(additionalRecord->getDataLength(), 12, size);
-	PTF_ASSERT_EQUAL(additionalRecord->getData()->toString(), "0004000800df581faa4f3f9d", string);
-	PTF_ASSERT_EQUAL(additionalRecord->getSize(), 23, size);
+	PTF_ASSERT_EQUAL(additionalRecord->getDnsClass(), 0x05a0);
+	PTF_ASSERT_EQUAL(additionalRecord->getTTL(), 0x1194);
+	PTF_ASSERT_EQUAL(additionalRecord->getName(), "");
+	PTF_ASSERT_EQUAL(additionalRecord->getDataLength(), 12);
+	PTF_ASSERT_EQUAL(additionalRecord->getData()->toString(), "0004000800df581faa4f3f9d");
+	PTF_ASSERT_EQUAL(additionalRecord->getSize(), 23);
 	PTF_ASSERT_NULL(dnsLayer->getNextAdditionalRecord(additionalRecord));
-	PTF_ASSERT_TRUE(dnsLayer->getAdditionalRecord("", true) == additionalRecord);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecord("", true), additionalRecord, ptr);
 
-	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", string);
+	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1");
 
 
 
@@ -99,27 +99,27 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 
 	dnsLayer = dnsPacket2.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
-	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x2d6d, u16);
-	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->queryOrResponse, 1, u16);
-	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->recursionAvailable, 1, u16);
-	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->recursionDesired, 1, u16);
-	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->opcode, 0, u16);
-	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->authoritativeAnswer, 0, u16);
-	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->checkingDisabled, 0, u16);
+	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x2d6d);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->queryOrResponse, 1);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->recursionAvailable, 1);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->recursionDesired, 1);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->opcode, 0);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->authoritativeAnswer, 0);
+	PTF_ASSERT_EQUAL(dnsLayer->getDnsHeader()->checkingDisabled, 0);
 	firstQuery = dnsLayer->getFirstQuery();
 	PTF_ASSERT_NOT_NULL(firstQuery);
-	PTF_ASSERT_EQUAL(firstQuery->getName(), "www.google-analytics.com", string);
+	PTF_ASSERT_EQUAL(firstQuery->getName(), "www.google-analytics.com");
 	PTF_ASSERT_EQUAL(firstQuery->getDnsType(), pcpp::DNS_TYPE_A, enum);
 
 	pcpp::DnsResource* curAnswer = dnsLayer->getFirstAnswer();
 	PTF_ASSERT_NOT_NULL(curAnswer);
 	PTF_ASSERT_EQUAL(curAnswer->getDnsType(), pcpp::DNS_TYPE_CNAME, enum);
 	PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
-	PTF_ASSERT_EQUAL(curAnswer->getTTL(), 57008, u32);
-	PTF_ASSERT_EQUAL(curAnswer->getName(), "www.google-analytics.com", string);
-	PTF_ASSERT_EQUAL(curAnswer->getDataLength(), 32, size);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "www-google-analytics.l.google.com", string);
-	PTF_ASSERT_EQUAL(curAnswer->getSize(), 44, size);
+	PTF_ASSERT_EQUAL(curAnswer->getTTL(), 57008);
+	PTF_ASSERT_EQUAL(curAnswer->getName(), "www.google-analytics.com");
+	PTF_ASSERT_EQUAL(curAnswer->getDataLength(), 32);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "www-google-analytics.l.google.com");
+	PTF_ASSERT_EQUAL(curAnswer->getSize(), 44);
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
 	int answerCount = 2;
@@ -129,21 +129,21 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	{
 		PTF_ASSERT_EQUAL(curAnswer->getDnsType(), pcpp::DNS_TYPE_A, enum);
 		PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
-		PTF_ASSERT_EQUAL(curAnswer->getTTL(), 117, u32);
-		PTF_ASSERT_EQUAL(curAnswer->getName(), "www-google-analytics.L.google.com", string);
-		PTF_ASSERT_EQUAL(curAnswer->getDataLength(), 4, size);
+		PTF_ASSERT_EQUAL(curAnswer->getTTL(), 117);
+		PTF_ASSERT_EQUAL(curAnswer->getName(), "www-google-analytics.L.google.com");
+		PTF_ASSERT_EQUAL(curAnswer->getDataLength(), 4);
 		PTF_ASSERT_TRUE(curAnswer->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress().matchSubnet(subnet, subnetMask));
 
 		curAnswer = dnsLayer->getNextAnswer(curAnswer);
 		answerCount++;
 	}
 
-	PTF_ASSERT_EQUAL(answerCount, 18, int);
+	PTF_ASSERT_EQUAL(answerCount, 18);
 
-	PTF_ASSERT_TRUE(dnsLayer->getAnswer("www.google-analytics.com", false) == dnsLayer->getFirstAnswer());
-	PTF_ASSERT_TRUE(dnsLayer->getAnswer("www-google-analytics.L.google.com", true) == dnsLayer->getNextAnswer(dnsLayer->getFirstAnswer()));
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswer("www.google-analytics.com", false), dnsLayer->getFirstAnswer(), ptr);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswer("www-google-analytics.L.google.com", true), dnsLayer->getNextAnswer(dnsLayer->getFirstAnswer()), ptr);
 
-	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0", string);
+	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query response, ID: 11629; queries: 1, answers: 17, authorities: 0, additional record: 0");
 
 
 
@@ -157,7 +157,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(queryByName);
 	PTF_ASSERT_EQUAL(queryByName->getDnsClass(), pcpp::DNS_CLASS_IN_QU, enum);
 
-	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1", string);
+	PTF_ASSERT_EQUAL(dnsLayer->toString(), "DNS query, ID: 0; queries: 2, answers: 0, authorities: 2, additional record: 1");
 
 
 
@@ -171,51 +171,50 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(curAnswer);
 	PTF_ASSERT_EQUAL(curAnswer->getDnsType(), pcpp::DNS_TYPE_MX, enum);
 	PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta5.am0.yahoodns.net", string);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().preference, 1, u16);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().mailExchange, "mta5.am0.yahoodns.net", string);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta5.am0.yahoodns.net");
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().preference, 1);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().mailExchange, "mta5.am0.yahoodns.net");
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
 	PTF_ASSERT_NOT_NULL(curAnswer);
 	PTF_ASSERT_EQUAL(curAnswer->getDnsType(), pcpp::DNS_TYPE_MX, enum);
 	PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta7.am0.yahoodns.net", string);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().preference, 1, u16);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().mailExchange, "mta7.am0.yahoodns.net", string);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta7.am0.yahoodns.net");
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().preference, 1);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().mailExchange, "mta7.am0.yahoodns.net");
 
 	curAnswer = dnsLayer->getNextAnswer(curAnswer);
 	PTF_ASSERT_NOT_NULL(curAnswer);
 	PTF_ASSERT_EQUAL(curAnswer->getDnsType(), pcpp::DNS_TYPE_MX, enum);
 	PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta6.am0.yahoodns.net", string);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().preference, 1, u16);
-	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().mailExchange, "mta6.am0.yahoodns.net", string);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->toString(), "pref: 1; mx: mta6.am0.yahoodns.net");
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().preference, 1);
+	PTF_ASSERT_EQUAL(curAnswer->getData()->castAs<pcpp::MxDnsResourceData>()->getMxData().mailExchange, "mta6.am0.yahoodns.net");
 
 
 
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/dns_stack_overflow.dat");
-	
+
 	pcpp::Packet dnsPacket5(&rawPacket5);
 
 	dnsLayer = dnsPacket5.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
 
-	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1);
 	firstQuery = dnsLayer->getFirstQuery();
 	PTF_ASSERT_NOT_NULL(firstQuery);
-	PTF_ASSERT_EQUAL(firstQuery->getName(), 
-		"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.", 
-		string);
-	PTF_ASSERT_EQUAL(firstQuery->getSize(), 134, size);
+	PTF_ASSERT_EQUAL(firstQuery->getName(),
+		"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.");
+	PTF_ASSERT_EQUAL(firstQuery->getSize(), 134);
 	PTF_ASSERT_NULL(dnsLayer->getNextQuery(firstQuery));
 
 
 	// a corner case of malformed packet where the total number of resources overflow uint16
-	// by less than 300. This fixes the bug: https://github.com/seladb/PcapPlusPlus/issues/441 
+	// by less than 300. This fixes the bug: https://github.com/seladb/PcapPlusPlus/issues/441
 	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/DnsTooManyResources.dat");
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	pcpp::Packet dnsPacket6(&rawPacket6);
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 	dnsLayer = dnsPacket6.getLayerOfType<pcpp::DnsLayer>();
 	PTF_ASSERT_NULL(dnsLayer->getFirstQuery());
 	PTF_ASSERT_NULL(dnsLayer->getFirstAnswer());
@@ -250,14 +249,14 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 	dns2Layer.getDnsHeader()->transactionID = htobe16(0xb179);
 	pcpp::DnsQuery* newQuery = dns2Layer.addQuery("mail-attachment.googleusercontent.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN);
 	PTF_ASSERT_NOT_NULL(newQuery);
-	PTF_ASSERT_EQUAL(dns2Layer.getQueryCount(), 1, size);
-	PTF_ASSERT_EQUAL(newQuery->getName(), "mail-attachment.googleusercontent.com", string);
+	PTF_ASSERT_EQUAL(dns2Layer.getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(newQuery->getName(), "mail-attachment.googleusercontent.com");
 
 	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&dns2Layer));
 
 	dnsEdit2Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength2, dnsEdit2Packet.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_EQUAL(bufferLength2, dnsEdit2Packet.getRawPacket()->getRawDataLen());
 
 	PTF_ASSERT_BUF_COMPARE(dnsEdit2Packet.getRawPacket()->getRawData(), buffer2, bufferLength2);
 
@@ -283,20 +282,20 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 
 	newQuery = dns1Layer.addQuery("_apple-mobdev._tcp.local", pcpp::DNS_TYPE_PTR, pcpp::DNS_CLASS_IN);
 	PTF_ASSERT_NOT_NULL(newQuery);
-	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 1, size);
+	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 1);
 
 	newQuery = dns1Layer.addQuery(newQuery);
 	PTF_ASSERT_NOT_NULL(newQuery);
-	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 2, size);
+	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 2);
 
 	PTF_ASSERT_TRUE(newQuery->setName("_sleep-proxy._udp.local"));
 
 	PTF_ASSERT_NULL(dns1Layer.addQuery(NULL));
-	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 2, size);
+	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 2);
 
 	dnsEdit1Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(dnsEdit1Packet.getRawPacket()->getRawDataLen(), bufferLength1, int);
+	PTF_ASSERT_EQUAL(dnsEdit1Packet.getRawPacket()->getRawDataLen(), bufferLength1);
 
 	PTF_ASSERT_BUF_COMPARE(dnsEdit1Packet.getRawPacket()->getRawData(), buffer1, bufferLength1);
 } // DnsLayerQueryCreationTest
@@ -332,39 +331,39 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	pcpp::StringDnsResourceData stringDnsData("assets.pinterest.com.cdngc.net");
 	pcpp::DnsResource* firstAnswer = dns4Layer.addAnswer("assets.pinterest.com", pcpp::DNS_TYPE_CNAME, pcpp::DNS_CLASS_IN, 228, &stringDnsData);
 	PTF_ASSERT_NOT_NULL(firstAnswer);
-	PTF_ASSERT_TRUE(dns4Layer.getFirstAnswer() == firstAnswer);
-	PTF_ASSERT_EQUAL(firstAnswer->getData()->toString(), "assets.pinterest.com.cdngc.net", string);
+	PTF_ASSERT_EQUAL(dns4Layer.getFirstAnswer(), firstAnswer, ptr);
+	PTF_ASSERT_EQUAL(firstAnswer->getData()->toString(), "assets.pinterest.com.cdngc.net");
 
 	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&dns4Layer));
 
-	PTF_ASSERT_TRUE(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getFirstAnswer() == firstAnswer);
+	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getFirstAnswer(), firstAnswer, ptr);
 
 	pcpp::IPv4DnsResourceData ipv4DnsData(std::string("151.249.90.217"));
 	pcpp::DnsResource* secondAnswer = dns4Layer.addAnswer("assets.pinterest.com.cdngc.net", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 3, &ipv4DnsData);
 	PTF_ASSERT_NOT_NULL(secondAnswer);
-	PTF_ASSERT_EQUAL(secondAnswer->getData()->castAs<pcpp::IPv4DnsResourceData>()->getIpAddress(), ipv4DnsData.getIpAddress(), object);
+	PTF_ASSERT_EQUAL(secondAnswer->getData()->castAs<pcpp::IPv4DnsResourceData>()->getIpAddress(), ipv4DnsData.getIpAddress());
 
 	pcpp::DnsQuery* query = dns4Layer.addQuery("assets.pinterest.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN);
 	PTF_ASSERT_NOT_NULL(query);
 
-	PTF_ASSERT_TRUE(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getFirstAnswer() == firstAnswer);
-	PTF_ASSERT_TRUE(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getNextAnswer(firstAnswer) == secondAnswer);
+	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getFirstAnswer(), firstAnswer, ptr);
+	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getNextAnswer(firstAnswer), secondAnswer, ptr);
 
 	pcpp::DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
 	PTF_ASSERT_NOT_NULL(thirdAnswer);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	ipv4DnsData = pcpp::IPv4DnsResourceData(std::string("256.249.90.238"));
 	PTF_ASSERT_FALSE(thirdAnswer->setData(&ipv4DnsData));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 	ipv4DnsData = pcpp::IPv4DnsResourceData(std::string("151.249.90.238"));
 	PTF_ASSERT_TRUE(thirdAnswer->setData(&ipv4DnsData));
 
-	PTF_ASSERT_EQUAL(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", true)->getData()->toString(), "151.249.90.217", string);
-	PTF_ASSERT_EQUAL(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", false))->getData()->toString(), "151.249.90.238", string);
+	PTF_ASSERT_EQUAL(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", true)->getData()->toString(), "151.249.90.217");
+	PTF_ASSERT_EQUAL(dns4Layer.getNextAnswer(dns4Layer.getAnswer("assets.pinterest.com.cdngc.net", false))->getData()->toString(), "151.249.90.238");
 
 	dnsEdit4Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(dnsEdit4Packet.getRawPacket()->getRawDataLen(), bufferLength4, int);
+	PTF_ASSERT_EQUAL(dnsEdit4Packet.getRawPacket()->getRawDataLen(), bufferLength4);
 
 	PTF_ASSERT_BUF_COMPARE(dnsEdit4Packet.getRawPacket()->getRawData(), buffer4, bufferLength4);
 
@@ -399,42 +398,42 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&dnsLayer6));
 
-	PTF_ASSERT_EQUAL(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), "10.0.0.2", string);
+	PTF_ASSERT_EQUAL(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), "10.0.0.2");
 
 	authority = dnsLayer6.addAuthority(authority);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	pcpp::IPv6DnsResourceData ipv6DnsData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
 	PTF_ASSERT_FALSE(authority->setData(&ipv6DnsData));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 	authority->setDnsType(pcpp::DNS_TYPE_AAAA);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	ipv6DnsData = pcpp::IPv6DnsResourceData(std::string("fe80::5a1f:aaff$fe4f:3f9d"));
 	PTF_ASSERT_FALSE(authority->setData(&ipv6DnsData));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 	ipv6DnsData = pcpp::IPv6DnsResourceData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
 	PTF_ASSERT_TRUE(authority->setData(&ipv6DnsData));
 
 	query = dnsLayer6.addQuery(query);
 	query->setDnsClass(pcpp::DNS_CLASS_ANY);
 
-	PTF_ASSERT_EQUAL(dnsLayer6.getQueryCount(), 2, size);
-	PTF_ASSERT_EQUAL(dnsLayer6.getAuthorityCount(), 2, size);
-	PTF_ASSERT_EQUAL(dnsLayer6.getAnswerCount(), 0, size);
-	PTF_ASSERT_EQUAL(dnsLayer6.getAdditionalRecordCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer6.getQueryCount(), 2);
+	PTF_ASSERT_EQUAL(dnsLayer6.getAuthorityCount(), 2);
+	PTF_ASSERT_EQUAL(dnsLayer6.getAnswerCount(), 0);
+	PTF_ASSERT_EQUAL(dnsLayer6.getAdditionalRecordCount(), 0);
 
 	pcpp::GenericDnsResourceData genericData("0004000800df581faa4f3f9d");
 	pcpp::DnsResource* additional = dnsLayer6.addAdditionalRecord("", pcpp::DNS_TYPE_OPT, 0xa005, 0x1194, &genericData);
 	PTF_ASSERT_NOT_NULL(additional);
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	genericData = pcpp::GenericDnsResourceData("a0123");
 	PTF_ASSERT_FALSE(additional->setData(&genericData));
 	genericData = pcpp::GenericDnsResourceData("a01j34");
 	PTF_ASSERT_FALSE(additional->setData(&genericData));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 
 	dnsEdit6Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(dnsEdit6Packet.getRawPacket()->getRawDataLen(), bufferLength6, int);
+	PTF_ASSERT_EQUAL(dnsEdit6Packet.getRawPacket()->getRawDataLen(), bufferLength6);
 
 	PTF_ASSERT_BUF_COMPARE(dnsEdit6Packet.getRawPacket()->getRawData(), buffer6, bufferLength6);
 
@@ -486,7 +485,7 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	dnsEdit7Packet.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(dnsEdit7Packet.getRawPacket()->getRawDataLen(), bufferLength7, int);
+	PTF_ASSERT_EQUAL(dnsEdit7Packet.getRawPacket()->getRawDataLen(), bufferLength7);
 
 	PTF_ASSERT_BUF_COMPARE(dnsEdit7Packet.getRawPacket()->getRawData(), buffer7, bufferLength7);
 } // DnsLayerResourceCreationTest
@@ -513,7 +512,7 @@ PTF_TEST_CASE(DnsLayerEditTest)
 
 	PTF_ASSERT_TRUE(dnsLayer3->getFirstQuery()->setName("www.mora.fr"));
 	dnsLayer3->getDnsHeader()->transactionID = htobe16(35240);
-	PTF_ASSERT_EQUAL(dnsLayer3->getHeaderLen(), dnsLayer5->getHeaderLen(), size);
+	PTF_ASSERT_EQUAL(dnsLayer3->getHeaderLen(), dnsLayer5->getHeaderLen());
 	PTF_ASSERT_BUF_COMPARE(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen());
 
 	dnsEdit3 = pcpp::Packet(&raw3PacketCopy);
@@ -522,7 +521,7 @@ PTF_TEST_CASE(DnsLayerEditTest)
 
 	dnsLayer5->getDnsHeader()->transactionID = htobe16(14627);
 	PTF_ASSERT_TRUE(dnsLayer5->getFirstQuery()->setName("assets.pinterest.com"));
-	PTF_ASSERT_EQUAL(dnsLayer3->getHeaderLen(), dnsLayer5->getHeaderLen(), size);
+	PTF_ASSERT_EQUAL(dnsLayer3->getHeaderLen(), dnsLayer5->getHeaderLen());
 	PTF_ASSERT_BUF_COMPARE(dnsLayer3->getData(), dnsLayer5->getData(), dnsLayer3->getHeaderLen());
 } // DnsLayerEditTest
 
@@ -549,13 +548,13 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	PTF_ASSERT_NOT_NULL(secondQuery);
 	PTF_ASSERT_TRUE(dnsLayer6->removeQuery(firstQuery));
 
-	PTF_ASSERT_TRUE(dnsLayer6->getFirstQuery() == secondQuery);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstQuery(), secondQuery, ptr);
 	PTF_ASSERT_EQUAL(dnsLayer6->getFirstQuery()->getDnsType(), pcpp::DNS_TYPE_ALL, enum);
-	PTF_ASSERT_EQUAL(dnsLayer6->getQueryCount(), 1, size);
-	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAuthority()->getData()->toString(), "10.0.0.2", string);
+	PTF_ASSERT_EQUAL(dnsLayer6->getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAuthority()->getData()->toString(), "10.0.0.2");
 	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAdditionalRecord()->getDnsType(), pcpp::DNS_TYPE_OPT, enum);
 
-	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen()-firstQuerySize, size);
+	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen()-firstQuerySize);
 
 	PTF_ASSERT_BUF_COMPARE(dnsLayer6->getData() + sizeof(pcpp::dnshdr), origDnsLayer6.getData() + sizeof(pcpp::dnshdr)+firstQuerySize , dnsLayer6->getHeaderLen() - sizeof(pcpp::dnshdr));
 
@@ -565,13 +564,13 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	size_t secondAuthoritySize = secondAuthority->getSize();
 
 	PTF_ASSERT_TRUE(dnsLayer6->removeAuthority(secondAuthority));
-	PTF_ASSERT_EQUAL(dnsLayer6->getAuthorityCount(), 1, size);
-	PTF_ASSERT_TRUE(dnsLayer6->getFirstAuthority() == firstAuthority);
+	PTF_ASSERT_EQUAL(dnsLayer6->getAuthorityCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAuthority(), firstAuthority, ptr);
 	PTF_ASSERT_NULL(dnsLayer6->getNextAuthority(firstAuthority));
-	PTF_ASSERT_EQUAL(firstAuthority->getTTL(), 120, u32);
+	PTF_ASSERT_EQUAL(firstAuthority->getTTL(), 120);
 	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAdditionalRecord()->getDnsType(), pcpp::DNS_TYPE_OPT, enum);
-	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAdditionalRecord()->getDataLength(), 12, size);
-	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize, size);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAdditionalRecord()->getDataLength(), 12);
+	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize);
 
 	PTF_ASSERT_FALSE(dnsLayer6->removeQuery("BlaBla", true));
 	PTF_ASSERT_FALSE(dnsLayer6->removeAuthority(secondAuthority));
@@ -579,10 +578,10 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 
 	size_t additionalRecordSize = dnsLayer6->getFirstAdditionalRecord()->getSize();
 	PTF_ASSERT_TRUE(dnsLayer6->removeAdditionalRecord(dnsLayer6->getFirstAdditionalRecord()));
-	PTF_ASSERT_EQUAL(dnsLayer6->getAdditionalRecordCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer6->getAdditionalRecordCount(), 0);
 	PTF_ASSERT_NULL(dnsLayer6->getFirstAdditionalRecord());
-	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAuthority()->getData()->toString(), "10.0.0.2", string);
-	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize-additionalRecordSize, size);
+	PTF_ASSERT_EQUAL(dnsLayer6->getFirstAuthority()->getData()->toString(), "10.0.0.2");
+	PTF_ASSERT_EQUAL(dnsLayer6->getHeaderLen(), origDnsLayer6.getHeaderLen()-firstQuerySize-secondAuthoritySize-additionalRecordSize);
 
 
 
@@ -598,13 +597,13 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 
 	firstQuerySize = dnsLayer4->getFirstQuery()->getSize();
 	PTF_ASSERT_TRUE(dnsLayer4->removeQuery("pinter", false));
-	PTF_ASSERT_EQUAL(dnsLayer4->getQueryCount(), 0, size);
-	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen()-firstQuerySize, size);
+	PTF_ASSERT_EQUAL(dnsLayer4->getQueryCount(), 0);
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen()-firstQuerySize);
 
 	pcpp::DnsResource* firstAnswer = dnsLayer4->getFirstAnswer();
 	PTF_ASSERT_NOT_NULL(firstAnswer);
 	size_t firstAnswerSize = firstAnswer->getSize();
-	PTF_ASSERT_EQUAL(dnsLayer4->getFirstAnswer()->getData()->toString(), "assets.pinterest.com.cdngc.net", string);
+	PTF_ASSERT_EQUAL(dnsLayer4->getFirstAnswer()->getData()->toString(), "assets.pinterest.com.cdngc.net");
 
 	pcpp::DnsResource* secondAnswer = dnsLayer4->getNextAnswer(firstAnswer);
 	PTF_ASSERT_NOT_NULL(secondAnswer);
@@ -614,20 +613,20 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 	PTF_ASSERT_NOT_NULL(thirdAnswer);
 
 	PTF_ASSERT_TRUE(dnsLayer4->removeAnswer("assets.pinterest.com.cdngc.net", true));
-	PTF_ASSERT_EQUAL(dnsLayer4->getAnswerCount(), 2, size);
-	PTF_ASSERT_TRUE(dnsLayer4->getFirstAnswer() == firstAnswer);
-	PTF_ASSERT_TRUE(dnsLayer4->getNextAnswer(dnsLayer4->getFirstAnswer()) == thirdAnswer);
-	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize, size);
+	PTF_ASSERT_EQUAL(dnsLayer4->getAnswerCount(), 2);
+	PTF_ASSERT_EQUAL(dnsLayer4->getFirstAnswer(), firstAnswer, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer4->getNextAnswer(dnsLayer4->getFirstAnswer()), thirdAnswer, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize);
 
 	PTF_ASSERT_TRUE(dnsLayer4->removeAnswer(firstAnswer));
-	PTF_ASSERT_EQUAL(dnsLayer4->getAnswerCount(), 1, size);
-	PTF_ASSERT_TRUE(dnsLayer4->getFirstAnswer() == thirdAnswer);
-	PTF_ASSERT_EQUAL(dnsLayer4->getFirstAnswer()->getData()->toString(), "151.249.90.238", string);
-	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize-firstAnswerSize, size);
+	PTF_ASSERT_EQUAL(dnsLayer4->getAnswerCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer4->getFirstAnswer(), thirdAnswer, ptr);
+	PTF_ASSERT_EQUAL(dnsLayer4->getFirstAnswer()->getData()->toString(), "151.249.90.238");
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), origDnsLayer4.getHeaderLen()-firstQuerySize-secondAnswerSize-firstAnswerSize);
 
 	PTF_ASSERT_TRUE(dnsLayer4->removeAnswer(thirdAnswer));
 	PTF_ASSERT_FALSE(dnsLayer4->removeAdditionalRecord("blabla", false));
-	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), sizeof(pcpp::dnshdr), size);
+	PTF_ASSERT_EQUAL(dnsLayer4->getHeaderLen(), sizeof(pcpp::dnshdr));
 } // DnsLayerRemoveResourceTest
 
 
@@ -643,22 +642,22 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 	pcpp::DnsLayer* dnsLayer = dnsPacket.getLayerOfType<pcpp::DnsLayer>();
 	pcpp::DnsOverTcpLayer* dnsOverTcpLayer = dnsPacket.getLayerOfType<pcpp::DnsOverTcpLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
-	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 0, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 0);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1);
 	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x6165, hex);
-	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 42, u16);
+	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 42);
 
 	pcpp::DnsQuery* query = dnsLayer->getFirstQuery();
 	PTF_ASSERT_NOT_NULL(query);
-	PTF_ASSERT_EQUAL(query->getName(), "cole-tech.net", string);
+	PTF_ASSERT_EQUAL(query->getName(), "cole-tech.net");
 	PTF_ASSERT_EQUAL(query->getDnsType(), pcpp::DNS_TYPE_AAAA, enum);
 	PTF_ASSERT_EQUAL(query->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
 
 	pcpp::DnsResource* additionalRecord = dnsLayer->getFirstAdditionalRecord();
 	PTF_ASSERT_EQUAL(additionalRecord->getDnsType(), pcpp::DNS_TYPE_OPT, enum);
-	PTF_ASSERT_EQUAL(additionalRecord->getName(), "", string);
+	PTF_ASSERT_EQUAL(additionalRecord->getName(), "");
 
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/dns_over_tcp_response.dat");
@@ -667,12 +666,12 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 	dnsLayer = dnsPacket2.getLayerOfType<pcpp::DnsLayer>();
 	dnsOverTcpLayer = dnsPacket2.getLayerOfType<pcpp::DnsOverTcpLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
-	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 8, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 0);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 8);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 1);
 	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x6165, hex);
-	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 1133, u16);
+	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 1133);
 
 	std::string expectedNames[8] = {
 		"net",
@@ -699,7 +698,7 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 	int i = 0;
 	for (pcpp::DnsResource* authority = dnsLayer->getFirstAuthority(); authority != NULL; authority = dnsLayer->getNextAuthority(authority))
 	{
-		PTF_ASSERT_EQUAL(authority->getName(), expectedNames[i], string);
+		PTF_ASSERT_EQUAL(authority->getName(), expectedNames[i]);
 		PTF_ASSERT_EQUAL(authority->getDnsType(), expectedTypes[i], enum);
 		i++;
 	}
@@ -711,16 +710,16 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 	dnsLayer = dnsPacket3.getLayerOfType<pcpp::DnsLayer>();
 	dnsOverTcpLayer = dnsPacket3.getLayerOfType<pcpp::DnsOverTcpLayer>();
 	PTF_ASSERT_NOT_NULL(dnsLayer);
-	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 1, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 0, size);
-	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 0, size);
+	PTF_ASSERT_EQUAL(dnsLayer->getQueryCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer->getAnswerCount(), 1);
+	PTF_ASSERT_EQUAL(dnsLayer->getAuthorityCount(), 0);
+	PTF_ASSERT_EQUAL(dnsLayer->getAdditionalRecordCount(), 0);
 	PTF_ASSERT_EQUAL(be16toh(dnsLayer->getDnsHeader()->transactionID), 0x38, hex);
-	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 44, u16);
+	PTF_ASSERT_EQUAL(dnsOverTcpLayer->getTcpMessageLength(), 44);
 
 	pcpp::DnsResource* answer = dnsLayer->getFirstAnswer();
-	PTF_ASSERT_EQUAL(answer->getName(), "github.com", string);
-	PTF_ASSERT_EQUAL(answer->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress().toString(), "192.30.255.113", string);
+	PTF_ASSERT_EQUAL(answer->getName(), "github.com");
+	PTF_ASSERT_EQUAL(answer->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress().toString(), "192.30.255.113");
 } // DnsOverTcpParsingTest
 
 
@@ -746,6 +745,6 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 	dnsPacket.addLayer(&newDnsLayer);
 	dnsPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(bufferLength1, dnsPacket.getRawPacket()->getRawDataLen(), int);
+	PTF_ASSERT_EQUAL(bufferLength1, dnsPacket.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(dnsPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
 } // DnsOverTcpCreationTest

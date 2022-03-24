@@ -6,6 +6,7 @@
  */
 
 #include <stdlib.h>
+#include <iostream>
 #include <MacAddress.h>
 #include <IpAddress.h>
 #include <Logger.h>
@@ -17,15 +18,15 @@
 #include <SystemUtils.h>
 
 
-#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
 	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
-	} while (0)
+	} while(0)
+
 
 #define DEFAULT_MAX_TRIES	1000000
 
-using namespace pcpp;
 
 static struct option ArpingOptions[] =
 {
@@ -38,27 +39,32 @@ static struct option ArpingOptions[] =
 	{"version", no_argument, 0, 'v'},
 	{"list", optional_argument, 0, 'l'},
 	{"timeout", optional_argument, 0, 'w'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
 /**
  * Print application usage
  */
-void printUsage() {
-	printf("\nUsage:\n"
-			"------\n"
-			"%s [-hvl] [-c count] [-w timeout] [-s mac_sddr] [-S ip_addr] -i interface -T ip_addr\n"
-			"\nOptions:\n\n"
-			"    -h           : Displays this help message and exits\n"
-			"    -v           : Displays the current version and exists\n"
-			"    -l           : Print the list of interfaces and exists\n"
-			"    -c count     : Send 'count' requests\n"
-			"    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address\n"
-			"    -s mac_addr  : Set source MAC address\n"
-			"    -S ip_addr   : Set source IP address\n"
-			"    -T ip_addr   : Set target IP address\n"
-			"    -w timeout   : How long to wait for a reply (in seconds)\n", AppName::get().c_str());
+void printUsage()
+{
+	std::cout << std::endl
+		<< "Usage:" << std::endl
+		<< "------" << std::endl
+		<< pcpp::AppName::get() << " [-hvl] [-c count] [-w timeout] [-s mac_addr] [-S ip_addr] -i interface -T ip_addr" << std::endl
+		<< std::endl
+		<< "Options:" << std::endl
+		<< std::endl
+		<< "    -h           : Displays this help message and exits" << std::endl
+		<< "    -v           : Displays the current version and exists" << std::endl
+		<< "    -l           : Print the list of interfaces and exists" << std::endl
+		<< "    -c count     : Send 'count' requests" << std::endl
+		<< "    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address" << std::endl
+		<< "    -s mac_addr  : Set source MAC address" << std::endl
+		<< "    -S ip_addr   : Set source IP address" << std::endl
+		<< "    -T ip_addr   : Set target IP address" << std::endl
+		<< "    -w timeout   : How long to wait for a reply (in seconds)" << std::endl
+		<< std::endl;
 }
 
 
@@ -67,9 +73,10 @@ void printUsage() {
  */
 void printAppVersion()
 {
-	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", getBuildDateTime().c_str());
-	printf("Built from: %s\n", getGitInfo().c_str());
+	std::cout
+		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+		<< "Built: " << pcpp::getBuildDateTime() << std::endl
+		<< "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -79,12 +86,12 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	const std::vector<PcapLiveDevice*>& devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	printf("\nNetwork interfaces:\n");
-	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	std::cout << std::endl << "Network interfaces:" << std::endl;
+	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName().c_str(), (*iter)->getIPv4Address().toString().c_str());
+		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
@@ -95,20 +102,20 @@ void listInterfaces()
  */
 int main(int argc, char* argv[])
 {
-	AppName::init(argc, argv);
+	pcpp::AppName::init(argc, argv);
 
 	int maxTries = DEFAULT_MAX_TRIES;
-	MacAddress sourceMac;
-	IPv4Address sourceIP;
-	IPv4Address targetIP;
+	pcpp::MacAddress sourceMac;
+	pcpp::IPv4Address sourceIP;
+	pcpp::IPv4Address targetIP;
 	bool targetIpProvided = false;
 	std::string ifaceNameOrIP;
 	bool ifaceNameOrIpProvided = false;
-	int timeoutSec = NetworkUtils::DefaultTimeout;
+	int timeoutSec = pcpp::NetworkUtils::DefaultTimeout;
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:s:S:T:c:hvlw:", ArpingOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "i:s:S:T:c:hvlw:", ArpingOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -119,13 +126,13 @@ int main(int argc, char* argv[])
 				ifaceNameOrIpProvided = true;
 				break;
 			case 's':
-				sourceMac = MacAddress(optarg);
+				sourceMac = pcpp::MacAddress(optarg);
 				break;
 			case 'S':
-				sourceIP = IPv4Address(static_cast<char const *>(optarg));
+				sourceIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				break;
 			case 'T':
-				targetIP = IPv4Address(static_cast<char const *>(optarg));
+				targetIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				targetIpProvided = true;
 				break;
 			case 'c':
@@ -151,77 +158,79 @@ int main(int argc, char* argv[])
 
 	// verify that interface name or IP were provided
 	if (!ifaceNameOrIpProvided)
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("You must provide at least interface name or interface IP (-i switch)");
+		EXIT_WITH_ERROR("You must provide at least interface name or interface IP (-i switch)");
 
 	// verify target IP was provided
 	if (!targetIpProvided)
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("You must provide target IP (-T switch)");
+		EXIT_WITH_ERROR("You must provide target IP (-T switch)");
 
 	// verify target IP is value
 	if (!targetIP.isValid())
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Target IP is not valid");
+		EXIT_WITH_ERROR("Target IP is not valid");
 
 
-	PcapLiveDevice* dev = NULL;
+	pcpp::PcapLiveDevice* dev = NULL;
 
 	// Search interface by name or IP
 	if (!ifaceNameOrIP.empty())
 	{
-		dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(ifaceNameOrIP);
+		dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(ifaceNameOrIP);
 		if (dev == NULL)
-			EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't find interface by provided IP address or name");
+			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 	}
 	else
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Interface name or IP empty");
+		EXIT_WITH_ERROR("Interface name or IP empty");
 
 	// open device in promiscuous mode
 	if (!dev->open())
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Couldn't open interface device '%s'", dev->getName().c_str());
+		EXIT_WITH_ERROR("Couldn't open interface device '" << dev->getName() << "'");
 
 	// verify source MAC is valud
 	if (!sourceMac.isValid())
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Source MAC address is invalid");
+		EXIT_WITH_ERROR("Source MAC address is invalid");
 
 	// if source MAC not provided - use the interface MAC address
-	if (sourceMac == MacAddress::Zero)
+	if (sourceMac == pcpp::MacAddress::Zero)
 		sourceMac = dev->getMacAddress();
 
 	// if source MAC is still invalid, it means it couldn't be extracted from interface
-	if (!sourceMac.isValid() || sourceMac == MacAddress::Zero)
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("MAC address couldn't be extracted from interface");
+	if (!sourceMac.isValid() || sourceMac == pcpp::MacAddress::Zero)
+		EXIT_WITH_ERROR("MAC address couldn't be extracted from interface");
 
-	if (!sourceIP.isValid() || sourceIP == IPv4Address::Zero)
+	if (!sourceIP.isValid() || sourceIP == pcpp::IPv4Address::Zero)
 		sourceIP = dev->getIPv4Address();
 
-	if (!sourceIP.isValid() || sourceIP == IPv4Address::Zero)
-		EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IPv4 address wasn't supplied and couldn't be retrieved from interface");
+	if (!sourceIP.isValid() || sourceIP == pcpp::IPv4Address::Zero)
+		EXIT_WITH_ERROR("Source IPv4 address wasn't supplied and couldn't be retrieved from interface");
 
 	// let's go
-	double arpResonseTimeMS = 0;
+	double arpResponseTimeMS = 0;
 	int i = 1;
-	char errString[1000];
-	LoggerPP::getInstance().setErrorString(errString, 1000);
+
+	// suppressing errors to avoid cluttering stdout
+	pcpp::Logger::getInstance().suppressLogs();
+
 	while (i <= maxTries)
 	{
-		// reset error string
-		memset(errString, 0, 1000);
-
 		// use the getMacAddress utility to send an ARP request and resolve the MAC address
-		MacAddress result = NetworkUtils::getInstance().getMacAddress(targetIP, dev, arpResonseTimeMS, sourceMac, sourceIP, timeoutSec);
+		pcpp::MacAddress result = pcpp::NetworkUtils::getInstance().getMacAddress(targetIP, dev, arpResponseTimeMS, sourceMac, sourceIP, timeoutSec);
 
 		// failed fetching MAC address
-		if (result == MacAddress::Zero)
+		if (result == pcpp::MacAddress::Zero)
 		{
-			printf("Arping  index=%d : %s\n", i, errString);
+			// PcapPlusPlus logger saves the last internal error message
+			std::cout << "Arping  index=" << i << " : " << pcpp::Logger::getInstance().getLastError() << std::endl;
 		}
 		else // Succeeded fetching MAC address
 		{
 			// output ARP ping data
-			printf("Reply from %s [%s]  %.3fms  index=%d\n",
-					targetIP.toString().c_str(),
-					result.toString().c_str(),
-					arpResonseTimeMS,
-					i);
+			std::cout.precision(3);
+			std::cout
+				<< "Reply from " << targetIP << " "
+				<< "[" << result << "]  "
+				<< std::fixed << arpResponseTimeMS << "ms  "
+				<< "index=" << i
+				<< std::endl;
 		}
 
 		i++;

@@ -12,7 +12,7 @@
 namespace pcpp
 {
 
-MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t expermentalUseValue, bool bottomOfStack)
+MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t experimentalUseValue, bool bottomOfStack)
 {
 	const size_t headerLen = sizeof(mpls_header);
 	m_DataLen = headerLen;
@@ -22,7 +22,7 @@ MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t expermentalUseValu
 
 	setMplsLabel(mplsLabel);
 	setTTL(ttl);
-	setExperimentalUseValue(expermentalUseValue);
+	setExperimentalUseValue(experimentalUseValue);
 	setBottomOfStack(bottomOfStack);
 }
 
@@ -49,7 +49,7 @@ bool MplsLayer::setExperimentalUseValue(uint8_t val)
 	// exp value is only 3 bits
 	if (val > 7)
 	{
-		LOG_ERROR("Set ExperimentalUse value got an illegal value: %d. Value must be lower than 8", val);
+		PCPP_LOG_ERROR("Set ExperimentalUse value got an illegal value: " << (int)val << ". Value must be lower than 8");
 		return false;
 	}
 
@@ -75,7 +75,7 @@ bool MplsLayer::setMplsLabel(uint32_t label)
 {
 	if (label > 0xFFFFF)
 	{
-		LOG_ERROR("MPLS label mustn't exceed 20 bits which is the value %d. Got a parameter with the value %d", 0xFFFFF, label);
+		PCPP_LOG_ERROR("MPLS label mustn't exceed 20 bits which is the value 0xffff. Got a parameter with the value 0x" << std::hex << label);
 		return false;
 	}
 

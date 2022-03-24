@@ -49,7 +49,7 @@ int countLinesInFile(const char* fileName) {
 
     while (std::getline(file, line))
         ++numberOfLines;
-    
+
     return numberOfLines;
 }
 
@@ -96,7 +96,7 @@ TEST_CASE(StaticVarsDumpToFile) {
 int tests_main(int argc, char* argv[]) {
 
     START_RUNNING_TESTS;
-    
+
     RUN_TEST(StaticVarTest);
     RUN_TEST(StaticVarsDumpToFile);
 
@@ -107,11 +107,10 @@ MEMPLUMBER_MAIN(tests_main);
 #else
 int main(int argc, char* argv[]) {
     START_RUNNING_TESTS;
-    
+
     SKIP_TEST(StaticVarTest, "Library is not compiled with -DCOLLECT_STATIC_VAR_DATA flag");
     SKIP_TEST(StaticVarsDumpToFile, "Library is not compiled with -DCOLLECT_STATIC_VAR_DATA flag");
 
     END_RUNNING_TESTS;
 }
 #endif //COLLECT_STATIC_VAR_DATA
-

@@ -19,7 +19,8 @@ namespace pcpp
 	 * Represents an TCP protocol header
 	 */
 #pragma pack(push,1)
-	struct tcphdr {
+	struct tcphdr
+	{
 		/** Source TCP port */
 		uint16_t portSrc;
 		/** Destination TCP port */
@@ -84,7 +85,8 @@ namespace pcpp
 	/**
 	 * TCP options types
 	 */
-	enum TcpOptionType {
+	enum TcpOptionType
+	{
 		/** Padding */
 		PCPP_TCPOPT_NOP =       1,
 		/** End of options */
@@ -193,7 +195,7 @@ namespace pcpp
 	 * A wrapper class for TCP options. This class does not create or modify TCP option records, but rather
 	 * serves as a wrapper and provides useful methods for retrieving data from them
 	 */
-	class TcpOption : public TLVRecord
+	class TcpOption : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
 

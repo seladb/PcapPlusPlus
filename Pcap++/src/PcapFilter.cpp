@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include "IPv4Layer.h"
 #include <sstream>
-#if defined(WINx64)
+#if defined(_WIN32)
 #include <winsock2.h>
 #endif
 #include "pcap.h"
@@ -163,7 +163,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	IPv4Address ipAddr(m_Address);
 	if (!ipAddr.isValid())
 	{
-		LOG_ERROR("IP filter with mask must be used with IPv4 valid address. Setting the mask to an empty value");
+		PCPP_LOG_ERROR("IP filter with mask must be used with IPv4 valid address. Setting the mask to an empty value");
 		mask.clear();
 		return;
 	}
@@ -171,7 +171,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	IPv4Address maskAsAddr(m_IPv4Mask);
 	if (!maskAsAddr.isValid())
 	{
-		LOG_ERROR("Invalid IPv4 mask. Setting the mask to an empty");
+		PCPP_LOG_ERROR("Invalid IPv4 mask. Setting the mask to an empty");
 		mask.clear();
 		return;
 	}
@@ -195,7 +195,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 	IPAddress ipAddr = IPAddress(ipAddrmodified);
 	if (!ipAddr.isValid())
 	{
-		LOG_ERROR("Invalid IP address '%s', setting len to zero", ipAddrmodified.c_str());
+		PCPP_LOG_ERROR("Invalid IP address '" << ipAddrmodified << "', setting len to zero");
 		return;
 	}
 

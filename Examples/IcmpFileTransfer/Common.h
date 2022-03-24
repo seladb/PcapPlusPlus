@@ -16,14 +16,14 @@
 
 #define ONE_MBYTE 1048576
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+#define EXIT_WITH_ERROR(reason) do { \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
-#define EXIT_WITH_ERROR_AND_RUN_COMMAND(reason, command, ...) do { \
+#define EXIT_WITH_ERROR_AND_RUN_COMMAND(reason, command) do { \
 	command; \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 

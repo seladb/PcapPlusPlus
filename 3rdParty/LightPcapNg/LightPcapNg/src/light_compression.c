@@ -95,7 +95,7 @@ size_t light_write_compressed(light_file fd, const void *buf, size_t count)
 	return 0;
 }
 
-int light_close_compresssed(light_file fd)
+int light_close_compressed(light_file fd)
 {
 	int result = 0;
 	if (close_compressed != NULL)

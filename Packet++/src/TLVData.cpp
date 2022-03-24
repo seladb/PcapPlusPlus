@@ -1,4 +1,5 @@
 #include "TLVData.h"
+#include "GeneralUtils.h"
 #include "EndianPortable.h"
 
 namespace pcpp
@@ -11,38 +12,54 @@ TLVRecordBuilder::TLVRecordBuilder()
 	m_RecValue = NULL;
 }
 
-TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, const uint8_t* recValue, uint8_t recValueLen)
+TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const uint8_t* recValue, uint8_t recValueLen)
 {
 	init(recType, recValue, recValueLen);
 }
 
-TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, uint8_t recValue)
+TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, uint8_t recValue)
 {
 	init(recType, &recValue, sizeof(uint8_t));
 }
 
-TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, uint16_t recValue)
+TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, uint16_t recValue)
 {
 	recValue = htobe16(recValue);
 	init(recType, (uint8_t*)&recValue, sizeof(uint16_t));
 }
 
-TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, uint32_t recValue)
+TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, uint32_t recValue)
 {
 	recValue = htobe32(recValue);
 	init(recType, (uint8_t*)&recValue, sizeof(uint32_t));
 }
 
-TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, const IPv4Address& recValue)
+TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const IPv4Address& recValue)
 {
 	uint32_t recIntValue = recValue.toInt();
 	init(recType, (uint8_t*)&recIntValue, sizeof(uint32_t));
 }
 
-TLVRecordBuilder::TLVRecordBuilder(uint8_t recType, const std::string& recValue)
+TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const std::string& recValue, bool valueIsHexString)
 {
-	uint8_t* recValueByteArr = (uint8_t*)recValue.c_str();
-	init(recType, recValueByteArr, recValue.length());
+	m_RecType = 0;
+	m_RecValueLen = 0;
+	m_RecValue = NULL;
+
+	if (valueIsHexString)
+	{
+		uint8_t recValueByteArr[512];
+		size_t byteArraySize = hexStringToByteArray(recValue, recValueByteArr, 512);
+		if (byteArraySize > 0)
+		{
+			init(recType, recValueByteArr, byteArraySize);
+		}
+	}
+	else
+	{
+		uint8_t* recValueByteArr = (uint8_t*)recValue.c_str();
+		init(recType, recValueByteArr, recValue.length());
+	}
 }
 
 void TLVRecordBuilder::copyData(const TLVRecordBuilder& other)
@@ -80,7 +97,7 @@ TLVRecordBuilder::~TLVRecordBuilder()
 	if (m_RecValue != NULL) delete [] m_RecValue;
 }
 
-void TLVRecordBuilder::init(uint8_t recType, const uint8_t* recValue, uint8_t recValueLen)
+void TLVRecordBuilder::init(uint32_t recType, const uint8_t* recValue, size_t recValueLen)
 {
 	m_RecType = recType;
 	m_RecValueLen = recValueLen;

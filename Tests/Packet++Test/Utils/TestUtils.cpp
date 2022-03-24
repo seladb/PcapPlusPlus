@@ -1,5 +1,8 @@
 #include "TestUtils.h"
+#include <iostream>
+#include <iomanip>
 #include <string.h>
+#include <string>
 #include <fstream>
 
 namespace pcpp_tests
@@ -44,18 +47,30 @@ uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength)
 
 void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uint8_t* buffer2, size_t buffer2Len)
 {
-	printf("\n\n\n");
+	std::cout << "First buffer (" << std::dec << buffer1Len << " bytes):\n\n";
 	for(int i = 0; i<(int)buffer1Len; i++)
-		printf(" 0x%2X  ", buffer1[i]);
-	printf("\n\n\n");
+	{
+		std::cout << " 0x" << std::setfill('0') << std::setw(2) << std::hex << (int)buffer1[i] << " ";
+		if ((i+1) % 16 == 0)
+		{
+			std::cout << std::endl;
+		}
+	}
+	std::cout << "\n\n"
+	<< "Second buffer (" << std::dec << buffer2Len << " bytes):\n\n";
+
+	int differenceCount = 0;
 	for(int i = 0; i<(int)buffer2Len; i++)
 	{
-		if (buffer2[i] != buffer1[i])
-			printf("*0x%2X* ", buffer2[i]);
-		else
-			printf(" 0x%2X  ", buffer2[i]);
+		std::string starOrSpace = (buffer2[i] != buffer1[i] ? "*" : " ");
+		differenceCount += (buffer2[i] != buffer1[i] ? 1 : 0);
+		std::cout << starOrSpace << "0x" << std::setfill('0') << std::setw(2) << std::hex << (int)buffer2[i] << " ";
+		if ((i+1) % 16 == 0)
+		{
+			std::cout << std::endl;
+		}
 	}
-	printf("\n\n\n");
+	std::cout << "\n\n" << std::dec << differenceCount << " bytes differ\n\n";
 }
 
 #ifdef PCPP_TESTS_DEBUG
@@ -63,29 +78,29 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 
 void savePacketToPcap(pcpp::Packet& packet, std::string fileName)
 {
-   pcap_t* pcap;
-   pcap = pcap_open_dead(1, 65565);
+	pcap_t* pcap;
+	pcap = pcap_open_dead(1, 65565);
 
-   pcap_dumper_t* d;
-   /* open output file */
-   d = pcap_dump_open(pcap, fileName.c_str());
-   if (d == NULL)
-   {
-       pcap_perror(pcap, "pcap_dump_fopen");
-       return;
-   }
+	pcap_dumper_t* d;
+	/* open output file */
+	d = pcap_dump_open(pcap, fileName.c_str());
+	if (d == NULL)
+	{
+		pcap_perror(pcap, "pcap_dump_fopen");
+		return;
+	}
 
-   /* prepare for writing */
-   struct pcap_pkthdr hdr;
-   hdr.ts.tv_sec = 0;  /* sec */
-   hdr.ts.tv_usec = 0; /* ms */
-   hdr.caplen = hdr.len = packet.getRawPacket()->getRawDataLen();
-   /* write single IP packet */
-   pcap_dump((u_char*)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
+	/* prepare for writing */
+	struct pcap_pkthdr hdr;
+	hdr.ts.tv_sec = 0;  /* sec */
+	hdr.ts.tv_usec = 0; /* ms */
+	hdr.caplen = hdr.len = packet.getRawPacket()->getRawDataLen();
+	/* write single IP packet */
+	pcap_dump((u_char*)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
 
-   /* finish up */
-   pcap_dump_close(d);
-   return;
+	/* finish up */
+	pcap_dump_close(d);
+	return;
 }
 #endif
 

@@ -115,7 +115,7 @@ bool SdpLayer::addMediaDescription(std::string mediaType, uint16_t mediaPort, st
 	std::string mediaFieldValue = mediaType + " " + portStream.str() + " " + mediaProtocol + " " + mediaFormat;
 	if (addField(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldValue) == NULL)
 	{
-		LOG_ERROR("Failed to add media description field");
+		PCPP_LOG_ERROR("Failed to add media description field");
 		return false;
 	}
 
@@ -124,7 +124,7 @@ bool SdpLayer::addMediaDescription(std::string mediaType, uint16_t mediaPort, st
 	{
 		if (addField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, *iter) == NULL)
 		{
-			LOG_ERROR("Faild to add media attribute '%s'", iter->c_str());
+			PCPP_LOG_ERROR("Failed to add media attribute '" << *iter << "'");
 			return false;
 		}
 	}

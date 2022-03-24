@@ -1,10 +1,10 @@
 #include "RawSocketDevice.h"
 #include "EndianPortable.h"
-#ifdef LINUX
+#ifdef __linux__
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
-#include <linux/if_ether.h>
+#include <netinet/if_ether.h>
 #include <netpacket/packet.h>
 #include <ifaddrs.h>
 #include <net/if.h>
@@ -21,7 +21,7 @@ namespace pcpp
 
 #define RAW_SOCKET_BUFFER_LEN 65536
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
 #ifndef SIO_RCVALL
 /* SIO_RCVALL defined on w2k and later. Not defined in Mingw32 */
@@ -46,7 +46,7 @@ public:
 		int res = WSAStartup(MAKEWORD(2,2), &wsaData);
 		if (res != 0)
 		{
-			LOG_ERROR("WSAStartup failed with error code: %d", res);
+			PCPP_LOG_ERROR("WSAStartup failed with error code: " << res);
 			m_IsInitialized = false;
 		}
 
@@ -56,13 +56,13 @@ public:
 
 bool WinSockInitializer::m_IsInitialized = false;
 
-#endif // defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#endif // defined(_WIN32)
 
 struct SocketContainer
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 	SOCKET fd;
-#elif LINUX
+#elif defined(__linux__)
 	int fd;
 	int interfaceIndex;
 	std::string interfaceName;
@@ -71,13 +71,13 @@ struct SocketContainer
 
 RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_Socket(NULL)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
 	WinSockInitializer::initialize();
 	m_InterfaceIP = interfaceIP;
 	m_SockFamily = (m_InterfaceIP.getType() == IPAddress::IPv4AddressType ? IPv4 : IPv6);
 
-#elif LINUX
+#elif defined(__linux__)
 
 	m_InterfaceIP = interfaceIP;
 	m_SockFamily = Ethernet;
@@ -85,7 +85,7 @@ RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_So
 #else
 
 	m_SockFamily = Ethernet;
-	
+
 #endif
 }
 
@@ -97,11 +97,11 @@ RawSocketDevice::~RawSocketDevice()
 
 RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking, int timeout)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
 	if (!isOpened())
 	{
-		LOG_ERROR("Device is not open");
+		PCPP_LOG_ERROR("Device is not open");
 		return RecvError;
 	}
 
@@ -128,7 +128,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 		RecvPacketResult error = getError(errorCode);
 
 		if (error == RecvError)
-			LOG_ERROR("Error reading from recvfrom. Error code is %d", errorCode);
+			PCPP_LOG_ERROR("Error reading from recvfrom. Error code is " << errorCode);
 
 		return error;
 	}
@@ -141,15 +141,15 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 		return RecvSuccess;
 	}
 
-	LOG_ERROR("Buffer length is zero");
+	PCPP_LOG_ERROR("Buffer length is zero");
 	delete [] buffer;
 	return RecvError;
 
-#elif LINUX
+#elif defined(__linux__)
 
 	if (!isOpened())
 	{
-		LOG_ERROR("Device is not open");
+		PCPP_LOG_ERROR("Device is not open");
 		return RecvError;
 	}
 
@@ -165,13 +165,13 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == -1)
 	{
-		LOG_ERROR("Cannot get socket flags");
+		PCPP_LOG_ERROR("Cannot get socket flags");
 		return RecvError;
-	} 
+	}
 	flags = (blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK));
 	if (fcntl(fd, F_SETFL, flags) != 0)
 	{
-		LOG_ERROR("Cannot set socket non-blocking flag");
+		PCPP_LOG_ERROR("Cannot set socket non-blocking flag");
 		return RecvError;
 	}
 
@@ -189,7 +189,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 		RecvPacketResult error = getError(errorCode);
 
 		if (error == RecvError)
-			LOG_ERROR("Error reading from recvfrom. Error code is %d", errorCode);
+			PCPP_LOG_ERROR("Error reading from recvfrom. Error code is " << errorCode);
 
 		return error;
 	}
@@ -202,13 +202,13 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 		return RecvSuccess;
 	}
 
-	LOG_ERROR("Buffer length is zero");
+	PCPP_LOG_ERROR("Buffer length is zero");
 	delete [] buffer;
 	return RecvError;
 
 #else
 
-	LOG_ERROR("Raw socket are not supported on this platform");
+	PCPP_LOG_ERROR("Raw socket are not supported on this platform");
 	return RecvError;
 
 #endif
@@ -218,7 +218,7 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int
 {
 	if (!isOpened())
 	{
-		LOG_ERROR("Device is not open");
+		PCPP_LOG_ERROR("Device is not open");
 		return 0;
 	}
 
@@ -252,23 +252,23 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int
 
 bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
-	LOG_ERROR("Sending packets with raw socket are not supported on Windows");
+	PCPP_LOG_ERROR("Sending packets with raw socket are not supported on Windows");
 	return 0;
 
-#elif LINUX
+#elif defined(__linux__)
 
 	if (!isOpened())
 	{
-		LOG_ERROR("Device is not open");
+		PCPP_LOG_ERROR("Device is not open");
 		return false;
 	}
 
 	Packet packet((RawPacket*)rawPacket, OsiModelDataLinkLayer);
 	if (!packet.isPacketOfType(pcpp::Ethernet))
 	{
-		LOG_ERROR("Can't send non-Ethernet packets");
+		PCPP_LOG_ERROR("Can't send non-Ethernet packets");
 		return false;
 	}
 
@@ -287,7 +287,7 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 
 	if (::sendto(fd, ((RawPacket*)rawPacket)->getRawData(), ((RawPacket*)rawPacket)->getRawDataLen(), 0, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 	{
-		LOG_ERROR("Failed to send packet. Error was: '%s'", strerror(errno));
+		PCPP_LOG_ERROR("Failed to send packet. Error was: '" << strerror(errno) << "'");
 		return false;
 	}
 
@@ -295,7 +295,7 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 
 #else
 
-	LOG_ERROR("Raw socket are not supported on this platform");
+	PCPP_LOG_ERROR("Raw socket are not supported on this platform");
 	return 0;
 
 #endif
@@ -303,16 +303,16 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
 
 int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
-	LOG_ERROR("Sending packets with raw socket are not supported on Windows");
+	PCPP_LOG_ERROR("Sending packets with raw socket are not supported on Windows");
 	return false;
 
-#elif LINUX
+#elif defined(__linux__)
 
 	if (!isOpened())
 	{
-		LOG_ERROR("Device is not open");
+		PCPP_LOG_ERROR("Device is not open");
 		return 0;
 	}
 
@@ -332,7 +332,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 		Packet packet(*iter, OsiModelDataLinkLayer);
 		if (!packet.isPacketOfType(pcpp::Ethernet))
 		{
-			LOG_DEBUG("Can't send non-Ethernet packets");
+			PCPP_LOG_DEBUG("Can't send non-Ethernet packets");
 			continue;
 		}
 
@@ -342,7 +342,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 
 		if (::sendto(fd, (*iter)->getRawData(), (*iter)->getRawDataLen(), 0, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 		{
-			LOG_DEBUG("Failed to send packet. Error was: '%s'", strerror(errno));
+			PCPP_LOG_DEBUG("Failed to send packet. Error was: '" << strerror(errno) << "'");
 			continue;
 		}
 
@@ -353,7 +353,7 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 
 #else
 
-	LOG_ERROR("Raw socket are not supported on this platform");
+	PCPP_LOG_ERROR("Raw socket are not supported on this platform");
 	return false;
 
 #endif
@@ -362,11 +362,11 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
 
 bool RawSocketDevice::open()
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
 	if (!m_InterfaceIP.isValid())
 	{
-		LOG_ERROR("IP address is not valid");
+		PCPP_LOG_ERROR("IP address is not valid");
 		return false;
 	}
 
@@ -378,7 +378,7 @@ bool RawSocketDevice::open()
 		std::string additionalMessage = "";
 		if (error == WSAEACCES)
 			additionalMessage = ", you may not be running with administrative privileges which is required for opening raw sockets on Windows";
-		LOG_ERROR("Failed to create raw socket. Error code was %d%s", error, additionalMessage.c_str());
+		PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << error << " " << additionalMessage);
 		return false;
 	}
 
@@ -393,7 +393,7 @@ bool RawSocketDevice::open()
 		int res = inet_pton(family, m_InterfaceIP.toString().c_str(), &localAddrIPv4.sin_addr.s_addr);
 		if (res <= 0)
 		{
-			LOG_ERROR("inet_pton failed, probably IP address provided is in bad format");
+			PCPP_LOG_ERROR("inet_pton failed, probably IP address provided is in bad format");
 			closesocket(fd);
 			return false;
 		}
@@ -407,7 +407,7 @@ bool RawSocketDevice::open()
 		int res = inet_pton(AF_INET6, m_InterfaceIP.toString().c_str(), &localAddrIPv6.sin6_addr.s6_addr);
 		if (res <= 0)
 		{
-			LOG_ERROR("inet_pton failed, probably IP address provided is in bad format");
+			PCPP_LOG_ERROR("inet_pton failed, probably IP address provided is in bad format");
 			closesocket(fd);
 			return false;
 		}
@@ -419,7 +419,7 @@ bool RawSocketDevice::open()
 
 	if (bind(fd, (struct sockaddr *)localAddr, localAddrSize) == SOCKET_ERROR)
 	{
-		LOG_ERROR("Failed to bind to interface. Error code was '%d'", WSAGetLastError());
+		PCPP_LOG_ERROR("Failed to bind to interface. Error code was '" << WSAGetLastError() << "'");
 		closesocket(fd);
 		return false;
 	}
@@ -428,7 +428,7 @@ bool RawSocketDevice::open()
 	DWORD dwBytesRet;
 	if (WSAIoctl(fd, SIO_RCVALL, &n, sizeof(n), NULL, 0, &dwBytesRet, NULL, NULL) == SOCKET_ERROR)
 	{
-		LOG_ERROR("Call to WSAIotcl(%ul) failed with error code %d", SIO_RCVALL, WSAGetLastError());
+		PCPP_LOG_ERROR("Call to WSAIotcl(" << std::hex << SIO_RCVALL << ") failed with error code " << WSAGetLastError());
 		closesocket(fd);
 		return false;
 	}
@@ -440,22 +440,22 @@ bool RawSocketDevice::open()
 
 	return true;
 
-#elif LINUX
+#elif defined(__linux__)
 
-#if defined(ANDROID_API_VERSION) && ANDROID_API_VERSION < 24
-	LOG_ERROR("Raw sockets aren't supported in Android API < 24");
+#if defined(__ANDROID_API__) && __ANDROID_API__ < 24
+	PCPP_LOG_ERROR("Raw sockets aren't supported in Android API < 24");
 	return false;
 #else
 	if (!m_InterfaceIP.isValid())
 	{
-		LOG_ERROR("IP address is not valid");
+		PCPP_LOG_ERROR("IP address is not valid");
 		return false;
 	}
 
 	int fd = socket(AF_PACKET, SOCK_RAW, htobe16(ETH_P_ALL));
 	if (fd < 0)
 	{
-		LOG_ERROR("Failed to create raw socket. Error code was %d", errno);
+		PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << errno);
 		return false;
 	}
 
@@ -464,9 +464,9 @@ bool RawSocketDevice::open()
 	getifaddrs(&addrs);
 	std::string ifaceName = "";
 	int ifaceIndex = -1;
-	for (struct ifaddrs* curAddr = addrs; curAddr != NULL; curAddr = curAddr->ifa_next) 
+	for (struct ifaddrs* curAddr = addrs; curAddr != NULL; curAddr = curAddr->ifa_next)
 	{
-		if (curAddr->ifa_addr && (curAddr->ifa_flags & IFF_UP)) 
+		if (curAddr->ifa_addr && (curAddr->ifa_flags & IFF_UP))
 		{
 			if  (curAddr->ifa_addr->sa_family == AF_INET)
 			{
@@ -497,7 +497,7 @@ bool RawSocketDevice::open()
 
 	if (ifaceName == "" || ifaceIndex < 0)
 	{
-		LOG_ERROR("Cannot detect interface name or index from IP address");
+		PCPP_LOG_ERROR("Cannot detect interface name or index from IP address");
 		::close(fd);
 		return false;
 	}
@@ -508,9 +508,9 @@ bool RawSocketDevice::open()
 	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
 	if (setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) == -1)
 	{
-		LOG_ERROR("Cannot bind raw socket to interface '%s'", ifaceName.c_str());
+		PCPP_LOG_ERROR("Cannot bind raw socket to interface '" << ifaceName << "'");
 		::close(fd);
-		return false;		
+		return false;
 	}
 
 	m_Socket = new SocketContainer(); // lgtm [cpp/resource-not-released-in-destructor]
@@ -521,11 +521,11 @@ bool RawSocketDevice::open()
 	m_DeviceOpened = true;
 
 	return true;
-#endif // ANDROID_API_VERSION
+#endif // __ANDROID_API__
 
 #else
 
-	LOG_ERROR("Raw socket are not supported on this platform");
+	PCPP_LOG_ERROR("Raw socket are not supported on this platform");
 	return false;
 
 #endif
@@ -536,9 +536,9 @@ void RawSocketDevice::close()
 	if (m_Socket != NULL && isOpened())
 	{
 		SocketContainer* sockContainer = (SocketContainer*)m_Socket;
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 		closesocket(sockContainer->fd);
-#elif LINUX
+#elif defined(__linux__)
 		::close(sockContainer->fd);
 #endif
 		delete sockContainer;
@@ -549,7 +549,7 @@ void RawSocketDevice::close()
 
 RawSocketDevice::RecvPacketResult RawSocketDevice::getError(int& errorCode) const
 {
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 	errorCode = WSAGetLastError();
 	if (errorCode == WSAEWOULDBLOCK)
 		return RecvWouldBlock;
@@ -557,7 +557,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::getError(int& errorCode) cons
 		return RecvTimeout;
 
 	return RecvError;
-#elif LINUX
+#elif defined(__linux__)
 	if ((errorCode == EAGAIN) || (errorCode == EWOULDBLOCK))
 		return RecvWouldBlock;
 

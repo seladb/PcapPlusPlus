@@ -100,20 +100,20 @@ bool IcmpLayer::setIpAndL4Layers(IPv4Layer* ipLayer, Layer* l4Layer)
 {
 	if (m_Packet == NULL)
 	{
-		LOG_ERROR("Cannot set ICMP data that involves IP and L4 layers on a layer not attached to a packet. "
+		PCPP_LOG_ERROR("Cannot set ICMP data that involves IP and L4 layers on a layer not attached to a packet. "
 				"Please add the ICMP layer to a packet and try again");
 		return false;
 	}
 
 	if (ipLayer != NULL && !m_Packet->addLayer(ipLayer))
 	{
-		LOG_ERROR("Couldn't add IP layer to ICMP packet");
+		PCPP_LOG_ERROR("Couldn't add IP layer to ICMP packet");
 		return false;
 	}
 
 	if (l4Layer != NULL && !m_Packet->addLayer(l4Layer))
 	{
-		LOG_ERROR("Couldn't add L4 layer to ICMP packet");
+		PCPP_LOG_ERROR("Couldn't add L4 layer to ICMP packet");
 		return false;
 	}
 
@@ -289,7 +289,7 @@ icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddre
 {
 	if (code > 3)
 	{
-		LOG_ERROR("Unknown code %d for ICMP redirect data", (int)code);
+		PCPP_LOG_ERROR("Unknown code " << (int)code << " for ICMP redirect data");
 		return NULL;
 	}
 
@@ -325,7 +325,7 @@ icmp_router_advertisement* IcmpLayer::setRouterAdvertisementData(uint8_t code, u
 {
 	if (code != 0 && code != 16)
 	{
-		LOG_ERROR("Unknown code %d for ICMP router advertisement data (only codes 0 and 16 are legal)", (int)code);
+		PCPP_LOG_ERROR("Unknown code " << (int)code << " for ICMP router advertisement data (only codes 0 and 16 are legal)");
 		return NULL;
 	}
 
@@ -387,7 +387,7 @@ icmp_time_exceeded* IcmpLayer::setTimeExceededData(uint8_t code, IPv4Layer* ipHe
 {
 	if (code > 1)
 	{
-		LOG_ERROR("Unknown code %d for ICMP time exceeded data", (int)code);
+		PCPP_LOG_ERROR("Unknown code " << (int)code << " for ICMP time exceeded data");
 		return NULL;
 	}
 
@@ -421,7 +421,7 @@ icmp_param_problem* IcmpLayer::setParamProblemData(uint8_t code, uint8_t errorOc
 {
 	if (code > 2)
 	{
-		LOG_ERROR("Unknown code %d for ICMP parameter problem data", (int)code);
+		PCPP_LOG_ERROR("Unknown code " << (int)code << " for ICMP parameter problem data");
 		return NULL;
 	}
 

@@ -1,7 +1,7 @@
 #ifndef PCAPPP_PCAP_REMOTE_DEVICE
 #define PCAPPP_PCAP_REMOTE_DEVICE
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
 #include <vector>
 #include "PcapLiveDevice.h"
@@ -131,7 +131,7 @@ namespace pcpp
 		 * and provided). If this methods succeeds it means the connection to the remote daemon succeeded and the device is ready for use.
 		 * As in PcapLiveDevice, packet capturing won't start yet. For packet capturing the user should call startCapture(). This implies
 		 * that calling this method is a must before calling startCapture() (otherwise startCapture() will fail with a "device not open" error).
-		 * The remote deamon is asked to capture packets in promiscuous mode
+		 * The remote daemon is asked to capture packets in promiscuous mode
 		 * @return True if the device was opened successfully, false otherwise. When opening the device fails an error will be printed to log
 		 * as well, including the WinPcap/Npcap error if exists
 		 */
@@ -142,6 +142,6 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif // WIN32 || WINx64
+#endif // _WIN32
 
 #endif /* PCAPPP_PCAP_REMOTE_DEVICE */

@@ -27,8 +27,8 @@ PTF_TEST_CASE(IgmpParsingTest)
 	PTF_ASSERT_NOT_NULL(igmpv1Layer);
 
 	PTF_ASSERT_EQUAL(igmpv1Layer->getType(), pcpp::IgmpType_MembershipQuery, enum);
-	PTF_ASSERT_EQUAL(igmpv1Layer->getGroupAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(igmpv1Layer->toString(), "IGMPv1 Layer, Membership Query message", string);
+	PTF_ASSERT_EQUAL(igmpv1Layer->getGroupAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(igmpv1Layer->toString(), "IGMPv1 Layer, Membership Query message");
 
 	PTF_ASSERT_TRUE(igmpv2Packet.isPacketOfType(pcpp::IGMPv2));
 	PTF_ASSERT_TRUE(igmpv2Packet.isPacketOfType(pcpp::IGMP));
@@ -37,8 +37,8 @@ PTF_TEST_CASE(IgmpParsingTest)
 	PTF_ASSERT_NOT_NULL(igmpv2Layer);
 
 	PTF_ASSERT_EQUAL(igmpv2Layer->getType(), pcpp::IgmpType_MembershipReportV2, enum);
-	PTF_ASSERT_EQUAL(igmpv2Layer->getGroupAddress(), pcpp::IPv4Address("239.255.255.250"), object);
-	PTF_ASSERT_EQUAL(igmpv2Layer->toString(), "IGMPv2 Layer, Membership Report message", string);
+	PTF_ASSERT_EQUAL(igmpv2Layer->getGroupAddress(), pcpp::IPv4Address("239.255.255.250"));
+	PTF_ASSERT_EQUAL(igmpv2Layer->toString(), "IGMPv2 Layer, Membership Report message");
 } // IgmpParsingTest
 
 
@@ -84,10 +84,10 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/IGMPv1_1.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/IGMPv2_1.dat");
 
-	PTF_ASSERT_EQUAL(igmpv1Packet.getRawPacket()->getRawDataLen(), bufferLength1-14, int);
+	PTF_ASSERT_EQUAL(igmpv1Packet.getRawPacket()->getRawDataLen(), bufferLength1-14);
 	PTF_ASSERT_BUF_COMPARE(igmpv1Packet.getRawPacket()->getRawData(), buffer1, igmpv1Packet.getRawPacket()->getRawDataLen());
 
-	PTF_ASSERT_EQUAL(igmpv2Packet.getRawPacket()->getRawDataLen(), bufferLength2-14, int);
+	PTF_ASSERT_EQUAL(igmpv2Packet.getRawPacket()->getRawDataLen(), bufferLength2-14);
 	PTF_ASSERT_BUF_COMPARE(igmpv2Packet.getRawPacket()->getRawData(), buffer2, igmpv2Packet.getRawPacket()->getRawDataLen());
 
 	pcpp::IgmpV1Layer* igmpLayer = igmpv1Packet.getLayerOfType<pcpp::IgmpV1Layer>();
@@ -119,24 +119,24 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	PTF_ASSERT_FALSE(igmpv3QueryPacket.isPacketOfType(pcpp::IGMPv2));
 	pcpp::IgmpV3QueryLayer* igmpv3QueryLayer = igmpv3QueryPacket.getLayerOfType<pcpp::IgmpV3QueryLayer>();
 	PTF_ASSERT_NOT_NULL(igmpv3QueryLayer);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getGroupAddress().toString(), "224.0.0.9", string);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getIgmpV3QueryHeader()->s_qrv, 0x0f, u8);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressCount(), 1, u16);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getHeaderLen(), 16, size);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(0).toString(), "192.168.20.222", string);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(1).toString(), "0.0.0.0", string);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(100).toString(), "0.0.0.0", string);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString(), "0.0.0.0", string);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->toString(), "IGMPv3 Layer, Membership Query message", string);
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getGroupAddress().toString(), "224.0.0.9");
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getIgmpV3QueryHeader()->s_qrv, 0x0f);
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressCount(), 1);
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getHeaderLen(), 16);
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(0).toString(), "192.168.20.222");
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(1).toString(), "0.0.0.0");
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(100).toString(), "0.0.0.0");
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString(), "0.0.0.0");
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->toString(), "IGMPv3 Layer, Membership Query message");
 
 	igmpv3QueryLayer->getIgmpV3QueryHeader()->numOfSources = htobe16(100);
 
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressCount(), 100, u16);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getHeaderLen(), 16, size);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(0).toString(), "192.168.20.222", string);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(1).toString(), "0.0.0.0", string);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(50).toString(), "0.0.0.0", string);
-	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString(), "0.0.0.0", string);
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressCount(), 100);
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getHeaderLen(), 16);
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(0).toString(), "192.168.20.222");
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(1).toString(), "0.0.0.0");
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(50).toString(), "0.0.0.0");
+	PTF_ASSERT_EQUAL(igmpv3QueryLayer->getSourceAddressAtIndex(-1).toString(), "0.0.0.0");
 
 
 	PTF_ASSERT_TRUE(igmpv3ReportPacket.isPacketOfType(pcpp::IGMPv3));
@@ -144,21 +144,21 @@ PTF_TEST_CASE(Igmpv3ParsingTest)
 	PTF_ASSERT_FALSE(igmpv3ReportPacket.isPacketOfType(pcpp::IGMPv1));
 	pcpp::IgmpV3ReportLayer* igmpv3ReportLayer = igmpv3ReportPacket.getLayerOfType<pcpp::IgmpV3ReportLayer>();
 	PTF_ASSERT_NOT_NULL(igmpv3ReportLayer);
-	PTF_ASSERT_EQUAL(igmpv3ReportLayer->getGroupRecordCount(), 1, u16);
-	PTF_ASSERT_EQUAL(igmpv3ReportLayer->getHeaderLen(), 20, size);
+	PTF_ASSERT_EQUAL(igmpv3ReportLayer->getGroupRecordCount(), 1);
+	PTF_ASSERT_EQUAL(igmpv3ReportLayer->getHeaderLen(), 20);
 	pcpp::igmpv3_group_record* curGroup = igmpv3ReportLayer->getFirstGroupRecord();
 	PTF_ASSERT_NOT_NULL(curGroup);
-	PTF_ASSERT_EQUAL(curGroup->recordType, 1, u8);
-	PTF_ASSERT_EQUAL(curGroup->getMulticastAddress().toString(), "224.0.0.9", string);
-	PTF_ASSERT_EQUAL(curGroup->getSourceAddressCount(), 1, u16);
-	PTF_ASSERT_EQUAL(curGroup->getRecordLen(), 12, size);
-	PTF_ASSERT_EQUAL(curGroup->getSourceAddressAtIndex(0).toString(), "192.168.20.222", string);
-	PTF_ASSERT_EQUAL(curGroup->getSourceAddressAtIndex(-1).toString(), "0.0.0.0", string);
-	PTF_ASSERT_EQUAL(curGroup->getSourceAddressAtIndex(1).toString(), "0.0.0.0", string);
-	PTF_ASSERT_EQUAL(curGroup->getSourceAddressAtIndex(100).toString(), "0.0.0.0", string);
+	PTF_ASSERT_EQUAL(curGroup->recordType, 1);
+	PTF_ASSERT_EQUAL(curGroup->getMulticastAddress().toString(), "224.0.0.9");
+	PTF_ASSERT_EQUAL(curGroup->getSourceAddressCount(), 1);
+	PTF_ASSERT_EQUAL(curGroup->getRecordLen(), 12);
+	PTF_ASSERT_EQUAL(curGroup->getSourceAddressAtIndex(0).toString(), "192.168.20.222");
+	PTF_ASSERT_EQUAL(curGroup->getSourceAddressAtIndex(-1).toString(), "0.0.0.0");
+	PTF_ASSERT_EQUAL(curGroup->getSourceAddressAtIndex(1).toString(), "0.0.0.0");
+	PTF_ASSERT_EQUAL(curGroup->getSourceAddressAtIndex(100).toString(), "0.0.0.0");
 	curGroup = igmpv3ReportLayer->getNextGroupRecord(curGroup);
 	PTF_ASSERT_NULL(curGroup);
-	PTF_ASSERT_EQUAL(igmpv3ReportLayer->toString(), "IGMPv3 Layer, Membership Report message", string);
+	PTF_ASSERT_EQUAL(igmpv3ReportLayer->toString(), "IGMPv3 Layer, Membership Report message");
 } // Igmpv3ParsingTest
 
 
@@ -193,13 +193,13 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 
 	pcpp::IPv4Address srcAddr4("100.200.255.255");
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, -1));
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 4));
 	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(100);
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 4));
 	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(3);
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.addSourceAddressAtIndex(srcAddr4, 2));
 
@@ -210,20 +210,20 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/igmpv3_query2.dat");
 
-	PTF_ASSERT_EQUAL(igmpv3QueryPacket.getRawPacket()->getRawDataLen(), bufferLength1, int);
+	PTF_ASSERT_EQUAL(igmpv3QueryPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(igmpv3QueryPacket.getRawPacket()->getRawData(), buffer1, igmpv3QueryPacket.getRawPacket()->getRawDataLen());
 
 	delete[] buffer1;
 
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.removeSourceAddressAtIndex(4));
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.removeSourceAddressAtIndex(4));
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.removeSourceAddressAtIndex(-1));
 	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(100);
 	PTF_ASSERT_FALSE(igmpV3QueryLayer.removeSourceAddressAtIndex(4));
 	igmpV3QueryLayer.getIgmpV3QueryHeader()->numOfSources = htobe16(4);
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.removeSourceAddressAtIndex(0));
 	PTF_ASSERT_TRUE(igmpV3QueryLayer.removeSourceAddressAtIndex(1));
@@ -237,7 +237,7 @@ PTF_TEST_CASE(Igmpv3QueryCreateAndEditTest)
 
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/igmpv3_query.dat");
 
-	PTF_ASSERT_EQUAL(igmpv3QueryPacket.getRawPacket()->getRawDataLen(), bufferLength2, int);
+	PTF_ASSERT_EQUAL(igmpv3QueryPacket.getRawPacket()->getRawDataLen(), bufferLength2);
 	PTF_ASSERT_BUF_COMPARE(igmpv3QueryPacket.getRawPacket()->getRawData(), buffer2, igmpv3QueryPacket.getRawPacket()->getRawDataLen());
 
 	delete[] buffer2;
@@ -264,7 +264,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	srcAddrVec1.push_back(pcpp::IPv4Address("192.168.20.222"));
 	pcpp::igmpv3_group_record* groupRec = igmpV3ReportLayer.addGroupRecord(1, pcpp::IPv4Address("224.0.0.9"), srcAddrVec1);
 	PTF_ASSERT_NOT_NULL(groupRec);
-	PTF_ASSERT_EQUAL(groupRec->getSourceAddressAtIndex(0), pcpp::IPv4Address("192.168.20.222"), object);
+	PTF_ASSERT_EQUAL(groupRec->getSourceAddressAtIndex(0), pcpp::IPv4Address("192.168.20.222"));
 
 	std::vector<pcpp::IPv4Address> srcAddrVec2;
 	srcAddrVec2.push_back(pcpp::IPv4Address("1.2.3.4"));
@@ -272,7 +272,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	srcAddrVec2.push_back(pcpp::IPv4Address("111.222.33.44"));
 	groupRec = igmpV3ReportLayer.addGroupRecord(2, pcpp::IPv4Address("4.3.2.1"), srcAddrVec2);
 	PTF_ASSERT_NOT_NULL(groupRec);
-	PTF_ASSERT_EQUAL(groupRec->getSourceAddressCount(), 3, u16);
+	PTF_ASSERT_EQUAL(groupRec->getSourceAddressCount(), 3);
 
 	std::vector<pcpp::IPv4Address> srcAddrVec3;
 	srcAddrVec3.push_back(pcpp::IPv4Address("12.34.56.78"));
@@ -281,17 +281,17 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 	srcAddrVec3.push_back(pcpp::IPv4Address("255.255.255.255"));
 	groupRec = igmpV3ReportLayer.addGroupRecordAtIndex(3, pcpp::IPv4Address("1.1.1.1"), srcAddrVec3, 0);
 	PTF_ASSERT_NOT_NULL(groupRec);
-	PTF_ASSERT_EQUAL(groupRec->getRecordLen(), 24, size);
+	PTF_ASSERT_EQUAL(groupRec->getRecordLen(), 24);
 
 	std::vector<pcpp::IPv4Address> srcAddrVec4;
 	srcAddrVec4.push_back(pcpp::IPv4Address("13.24.57.68"));
 	srcAddrVec4.push_back(pcpp::IPv4Address("31.42.75.86"));
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, pcpp::IPv4Address("1.3.5.7"), srcAddrVec4, -1));
 	PTF_ASSERT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, pcpp::IPv4Address("1.3.5.7"), srcAddrVec4, 4));
 	PTF_ASSERT_NULL(igmpV3ReportLayer.addGroupRecordAtIndex(4, pcpp::IPv4Address("1.3.5.7"), srcAddrVec4, 100));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 
 	groupRec = igmpV3ReportLayer.addGroupRecordAtIndex(4, pcpp::IPv4Address("1.3.5.7"), srcAddrVec4, 1);
 	PTF_ASSERT_NOT_NULL(groupRec);
@@ -308,7 +308,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/igmpv3_report2.dat");
 
-	PTF_ASSERT_EQUAL(igmpv3ReportPacket.getRawPacket()->getRawDataLen(), bufferLength1, int);
+	PTF_ASSERT_EQUAL(igmpv3ReportPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(igmpv3ReportPacket.getRawPacket()->getRawData(), buffer1, igmpv3ReportPacket.getRawPacket()->getRawDataLen());
 
 	delete[] buffer1;
@@ -316,11 +316,11 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 
 	PTF_ASSERT_TRUE(igmpV3ReportLayer.removeGroupRecordAtIndex(4));
 
-	pcpp::LoggerPP::getInstance().suppressErrors();
+	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(igmpV3ReportLayer.removeGroupRecordAtIndex(4));
 	PTF_ASSERT_FALSE(igmpV3ReportLayer.removeGroupRecordAtIndex(-1));
 	PTF_ASSERT_FALSE(igmpV3ReportLayer.removeGroupRecordAtIndex(100));
-	pcpp::LoggerPP::getInstance().enableErrors();
+	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(igmpV3ReportLayer.removeGroupRecordAtIndex(0));
 	PTF_ASSERT_TRUE(igmpV3ReportLayer.removeGroupRecordAtIndex(2));
@@ -328,7 +328,7 @@ PTF_TEST_CASE(Igmpv3ReportCreateAndEditTest)
 
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/igmpv3_report.dat");
 
-	PTF_ASSERT_EQUAL(igmpv3ReportPacket.getRawPacket()->getRawDataLen(), bufferLength2, int);
+	PTF_ASSERT_EQUAL(igmpv3ReportPacket.getRawPacket()->getRawDataLen(), bufferLength2);
 
 	igmpv3ReportPacket.computeCalculateFields();
 	ipLayer.getIPv4Header()->headerChecksum = 0x4fb6;

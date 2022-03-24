@@ -1,5 +1,3 @@
-LINUX := 1
-
 BIN_EXT :=
 
 LIB_PREFIX := lib
@@ -37,4 +35,3 @@ UNINSTALL_SCRIPT := uninstall.sh
 ifndef LIB_FUZZING_ENGINE
 LIB_FUZZING_ENGINE := -fsanitize=fuzzer
 endif
-

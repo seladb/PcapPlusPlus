@@ -20,45 +20,45 @@ namespace pcpp
 static const SSLCipherSuite Cipher1 = SSLCipherSuite(0x0000, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_NULL, SSL_HASH_NULL, "TLS_NULL_WITH_NULL_NULL");
 static const SSLCipherSuite Cipher2 = SSLCipherSuite(0x0001, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_MD5, "TLS_RSA_WITH_NULL_MD5");
 static const SSLCipherSuite Cipher3 = SSLCipherSuite(0x0002, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_RSA_WITH_NULL_SHA");
-static const SSLCipherSuite Cipher4 = SSLCipherSuite(0x0003, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_RSA_EXPORT_WITH_RC4_40_MD5");
-static const SSLCipherSuite Cipher5 = SSLCipherSuite(0x0004, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_RSA_WITH_RC4_128_MD5");
-static const SSLCipherSuite Cipher6 = SSLCipherSuite(0x0005, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_RSA_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher7 = SSLCipherSuite(0x0006, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC2_CBC_40, SSL_HASH_MD5, "TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
+static const SSLCipherSuite Cipher4 = SSLCipherSuite(0x0003, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_RSA_EXPORT_WITH_RC4_40_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher5 = SSLCipherSuite(0x0004, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_RSA_WITH_RC4_128_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher6 = SSLCipherSuite(0x0005, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_RSA_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher7 = SSLCipherSuite(0x0006, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC2_CBC_40, SSL_HASH_MD5, "TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher8 = SSLCipherSuite(0x0007, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_IDEA_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_IDEA_CBC_SHA");
 static const SSLCipherSuite Cipher9 = SSLCipherSuite(0x0008, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_RSA_EXPORT_WITH_DES40_CBC_SHA");
-static const SSLCipherSuite Cipher10 = SSLCipherSuite(0x0009, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_DES_CBC_SHA");
-static const SSLCipherSuite Cipher11 = SSLCipherSuite(0x000A, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher10 = SSLCipherSuite(0x0009, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_DES_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher11 = SSLCipherSuite(0x000A, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher12 = SSLCipherSuite(0x000B, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
-static const SSLCipherSuite Cipher13 = SSLCipherSuite(0x000C, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_DES_CBC_SHA");
-static const SSLCipherSuite Cipher14 = SSLCipherSuite(0x000D, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher13 = SSLCipherSuite(0x000C, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_DES_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher14 = SSLCipherSuite(0x000D, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher15 = SSLCipherSuite(0x000E, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
-static const SSLCipherSuite Cipher16 = SSLCipherSuite(0x000F, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_DES_CBC_SHA");
-static const SSLCipherSuite Cipher17 = SSLCipherSuite(0x0010, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher16 = SSLCipherSuite(0x000F, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_DES_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher17 = SSLCipherSuite(0x0010, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher18 = SSLCipherSuite(0x0011, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
-static const SSLCipherSuite Cipher19 = SSLCipherSuite(0x0012, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_DES_CBC_SHA");
-static const SSLCipherSuite Cipher20 = SSLCipherSuite(0x0013, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher19 = SSLCipherSuite(0x0012, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_DES_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher20 = SSLCipherSuite(0x0013, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher21 = SSLCipherSuite(0x0014, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
-static const SSLCipherSuite Cipher22 = SSLCipherSuite(0x0015, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_DES_CBC_SHA");
-static const SSLCipherSuite Cipher23 = SSLCipherSuite(0x0016, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
-static const SSLCipherSuite Cipher24 = SSLCipherSuite(0x0017, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5");
-static const SSLCipherSuite Cipher25 = SSLCipherSuite(0x0018, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_DH_anon_WITH_RC4_128_MD5");
+static const SSLCipherSuite Cipher22 = SSLCipherSuite(0x0015, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_DES_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher23 = SSLCipherSuite(0x0016, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher24 = SSLCipherSuite(0x0017, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher25 = SSLCipherSuite(0x0018, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_DH_anon_WITH_RC4_128_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher26 = SSLCipherSuite(0x0019, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
-static const SSLCipherSuite Cipher27 = SSLCipherSuite(0x001A, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_DES_CBC_SHA");
-static const SSLCipherSuite Cipher28 = SSLCipherSuite(0x001B, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA");
-static const SSLCipherSuite Cipher29 = SSLCipherSuite(0x001E, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_KRB5_WITH_DES_CBC_SHA");
-static const SSLCipherSuite Cipher30 = SSLCipherSuite(0x001F, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_KRB5_WITH_3DES_EDE_CBC_SHA");
-static const SSLCipherSuite Cipher31 = SSLCipherSuite(0x0020, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_KRB5_WITH_RC4_128_SHA");
+static const SSLCipherSuite Cipher27 = SSLCipherSuite(0x001A, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_DES_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher28 = SSLCipherSuite(0x001B, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher29 = SSLCipherSuite(0x001E, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_KRB5_WITH_DES_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher30 = SSLCipherSuite(0x001F, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_KRB5_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher31 = SSLCipherSuite(0x0020, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_KRB5_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher32 = SSLCipherSuite(0x0021, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_IDEA_CBC, SSL_HASH_SHA, "TLS_KRB5_WITH_IDEA_CBC_SHA");
-static const SSLCipherSuite Cipher33 = SSLCipherSuite(0x0022, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC, SSL_HASH_MD5, "TLS_KRB5_WITH_DES_CBC_MD5");
-static const SSLCipherSuite Cipher34 = SSLCipherSuite(0x0023, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_3DES_EDE_CBC, SSL_HASH_MD5, "TLS_KRB5_WITH_3DES_EDE_CBC_MD5");
-static const SSLCipherSuite Cipher35 = SSLCipherSuite(0x0024, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_KRB5_WITH_RC4_128_MD5");
+static const SSLCipherSuite Cipher33 = SSLCipherSuite(0x0022, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC, SSL_HASH_MD5, "TLS_KRB5_WITH_DES_CBC_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher34 = SSLCipherSuite(0x0023, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_3DES_EDE_CBC, SSL_HASH_MD5, "TLS_KRB5_WITH_3DES_EDE_CBC_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher35 = SSLCipherSuite(0x0024, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_KRB5_WITH_RC4_128_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher36 = SSLCipherSuite(0x0025, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_IDEA_CBC, SSL_HASH_MD5, "TLS_KRB5_WITH_IDEA_CBC_MD5");
-static const SSLCipherSuite Cipher37 = SSLCipherSuite(0x0026, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA");
-static const SSLCipherSuite Cipher38 = SSLCipherSuite(0x0027, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC2_CBC_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA");
-static const SSLCipherSuite Cipher39 = SSLCipherSuite(0x0028, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_RC4_40_SHA");
-static const SSLCipherSuite Cipher40 = SSLCipherSuite(0x0029, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5");
-static const SSLCipherSuite Cipher41 = SSLCipherSuite(0x002A, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC2_CBC_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
-static const SSLCipherSuite Cipher42 = SSLCipherSuite(0x002B, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_RC4_40_MD5");
+static const SSLCipherSuite Cipher37 = SSLCipherSuite(0x0026, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher38 = SSLCipherSuite(0x0027, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC2_CBC_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher39 = SSLCipherSuite(0x0028, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_RC4_40_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher40 = SSLCipherSuite(0x0029, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher41 = SSLCipherSuite(0x002A, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC2_CBC_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher42 = SSLCipherSuite(0x002B, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_RC4_40_MD5"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher43 = SSLCipherSuite(0x002C, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_PSK_WITH_NULL_SHA");
 static const SSLCipherSuite Cipher44 = SSLCipherSuite(0x002D, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_NULL_SHA");
 static const SSLCipherSuite Cipher45 = SSLCipherSuite(0x002E, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_NULL_SHA");
@@ -99,16 +99,16 @@ static const SSLCipherSuite Cipher79 = SSLCipherSuite(0x0086, SSL_KEYX_DH, SSL_A
 static const SSLCipherSuite Cipher80 = SSLCipherSuite(0x0087, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA");
 static const SSLCipherSuite Cipher81 = SSLCipherSuite(0x0088, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA");
 static const SSLCipherSuite Cipher82 = SSLCipherSuite(0x0089, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA");
-static const SSLCipherSuite Cipher83 = SSLCipherSuite(0x008A, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_PSK_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher84 = SSLCipherSuite(0x008B, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_PSK_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher83 = SSLCipherSuite(0x008A, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_PSK_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher84 = SSLCipherSuite(0x008B, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_PSK_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher85 = SSLCipherSuite(0x008C, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_PSK_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher86 = SSLCipherSuite(0x008D, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_PSK_WITH_AES_256_CBC_SHA");
-static const SSLCipherSuite Cipher87 = SSLCipherSuite(0x008E, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher88 = SSLCipherSuite(0x008F, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher87 = SSLCipherSuite(0x008E, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher88 = SSLCipherSuite(0x008F, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher89 = SSLCipherSuite(0x0090, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher90 = SSLCipherSuite(0x0091, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_AES_256_CBC_SHA");
-static const SSLCipherSuite Cipher91 = SSLCipherSuite(0x0092, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher92 = SSLCipherSuite(0x0093, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher91 = SSLCipherSuite(0x0092, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher92 = SSLCipherSuite(0x0093, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher93 = SSLCipherSuite(0x0094, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher94 = SSLCipherSuite(0x0095, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA");
 static const SSLCipherSuite Cipher95 = SSLCipherSuite(0x0096, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_SEED_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_SEED_CBC_SHA");
@@ -160,33 +160,33 @@ static const SSLCipherSuite Cipher140 = SSLCipherSuite(0x00C3, SSL_KEYX_DHE, SSL
 static const SSLCipherSuite Cipher141 = SSLCipherSuite(0x00C4, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256");
 static const SSLCipherSuite Cipher142 = SSLCipherSuite(0x00C5, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA256, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256");
 static const SSLCipherSuite Cipher143 = SSLCipherSuite(0xC001, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_NULL_SHA");
-static const SSLCipherSuite Cipher144 = SSLCipherSuite(0xC002, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher145 = SSLCipherSuite(0xC003, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher144 = SSLCipherSuite(0xC002, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher145 = SSLCipherSuite(0xC003, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher146 = SSLCipherSuite(0xC004, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher147 = SSLCipherSuite(0xC005, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
 static const SSLCipherSuite Cipher148 = SSLCipherSuite(0xC006, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
-static const SSLCipherSuite Cipher149 = SSLCipherSuite(0xC007, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher150 = SSLCipherSuite(0xC008, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher149 = SSLCipherSuite(0xC007, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher150 = SSLCipherSuite(0xC008, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher151 = SSLCipherSuite(0xC009, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher152 = SSLCipherSuite(0xC00A, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
 static const SSLCipherSuite Cipher153 = SSLCipherSuite(0xC00B, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_NULL_SHA");
-static const SSLCipherSuite Cipher154 = SSLCipherSuite(0xC00C, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher155 = SSLCipherSuite(0xC00D, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher154 = SSLCipherSuite(0xC00C, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher155 = SSLCipherSuite(0xC00D, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher156 = SSLCipherSuite(0xC00E, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher157 = SSLCipherSuite(0xC00F, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
 static const SSLCipherSuite Cipher158 = SSLCipherSuite(0xC010, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_NULL_SHA");
-static const SSLCipherSuite Cipher159 = SSLCipherSuite(0xC011, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher160 = SSLCipherSuite(0xC012, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher159 = SSLCipherSuite(0xC011, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher160 = SSLCipherSuite(0xC012, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher161 = SSLCipherSuite(0xC013, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher162 = SSLCipherSuite(0xC014, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
 static const SSLCipherSuite Cipher163 = SSLCipherSuite(0xC015, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_NULL_SHA");
-static const SSLCipherSuite Cipher164 = SSLCipherSuite(0xC016, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher165 = SSLCipherSuite(0xC017, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher164 = SSLCipherSuite(0xC016, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher165 = SSLCipherSuite(0xC017, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher166 = SSLCipherSuite(0xC018, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher167 = SSLCipherSuite(0xC019, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
-static const SSLCipherSuite Cipher168 = SSLCipherSuite(0xC01A, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA");
-static const SSLCipherSuite Cipher169 = SSLCipherSuite(0xC01B, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA");
-static const SSLCipherSuite Cipher170 = SSLCipherSuite(0xC01C, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher168 = SSLCipherSuite(0xC01A, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher169 = SSLCipherSuite(0xC01B, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher170 = SSLCipherSuite(0xC01C, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher171 = SSLCipherSuite(0xC01D, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher172 = SSLCipherSuite(0xC01E, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher173 = SSLCipherSuite(0xC01F, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA");
@@ -209,8 +209,8 @@ static const SSLCipherSuite Cipher189 = SSLCipherSuite(0xC02F, SSL_KEYX_ECDHE, S
 static const SSLCipherSuite Cipher190 = SSLCipherSuite(0xC030, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384");
 static const SSLCipherSuite Cipher191 = SSLCipherSuite(0xC031, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256");
 static const SSLCipherSuite Cipher192 = SSLCipherSuite(0xC032, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384");
-static const SSLCipherSuite Cipher193 = SSLCipherSuite(0xC033, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_RC4_128_SHA");
-static const SSLCipherSuite Cipher194 = SSLCipherSuite(0xC034, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA");
+static const SSLCipherSuite Cipher193 = SSLCipherSuite(0xC033, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_RC4_128_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
+static const SSLCipherSuite Cipher194 = SSLCipherSuite(0xC034, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA"); // lgtm [cpp/weak-cryptographic-algorithm]
 static const SSLCipherSuite Cipher195 = SSLCipherSuite(0xC035, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA");
 static const SSLCipherSuite Cipher196 = SSLCipherSuite(0xC036, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA");
 static const SSLCipherSuite Cipher197 = SSLCipherSuite(0xC037, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256");
@@ -687,10 +687,10 @@ static std::map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
 #define A 54059 /* a prime */
 #define B 76963 /* another prime */
 #define C 86969 /* yet another prime */
-#define FIRSTH 37 /* also prime */
+#define FIRST_HASH 37 /* also prime */
 static uint32_t hashString(std::string str)
 {
-	unsigned h = FIRSTH;
+	unsigned h = FIRST_HASH;
 	for(std::string::size_type i = 0; i < str.size(); ++i)
 	{
 		h = (h * A) ^ (str[i] * B);
@@ -1101,7 +1101,12 @@ uint16_t SSLExtension::getTotalLength() const
 
 uint8_t* SSLExtension::getData() const
 {
-	return getExtensionStruct()->extensionData;
+	if (getLength() > 0)
+	{
+		return getExtensionStruct()->extensionData;
+	}
+
+	return NULL;
 }
 
 
@@ -1216,7 +1221,7 @@ SSLHandshakeMessage::SSLHandshakeMessage(uint8_t* data, size_t dataLen, SSLHands
 	m_Container = container;
 }
 
-SSLHandshakeMessage* SSLHandshakeMessage::createHandhakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
+SSLHandshakeMessage* SSLHandshakeMessage::createHandshakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
 {
 	if (dataLen < sizeof(ssl_tls_handshake_layer))
 		return NULL;
@@ -1291,14 +1296,14 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 		return;
 
 	uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
-	uint16_t extensionLength = getExtensionsLenth();
+	uint16_t extensionLength = getExtensionsLength();
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	size_t minSSLExtentionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
-	while ((curPos - extensionPos) < (int)extensionLength 
-		&& (curPos - m_Data) < (int)messageLen 
-		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtentionLen)
+	size_t minSSLExtensionLen = 2*sizeof(uint16_t);
+	while ((curPos - extensionPos) < (int)extensionLength
+		&& (curPos - m_Data) < (int)messageLen
+		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtensionLen)
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
@@ -1327,7 +1332,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			delete newExt;
 			break;
 		}
-			
+
 
 		m_ExtensionList.pushBack(newExt);
 		curPos += newExt->getTotalLength();
@@ -1412,7 +1417,7 @@ int SSLClientHelloMessage::getExtensionCount() const
 	return m_ExtensionList.size();
 }
 
-uint16_t SSLClientHelloMessage::getExtensionsLenth() const
+uint16_t SSLClientHelloMessage::getExtensionsLength() const
 {
 	size_t extensionLengthOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint16_t)*getCipherSuiteCount() + 2*sizeof(uint8_t);
 	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
@@ -1581,14 +1586,14 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 		return;
 
 	uint8_t* extensionLengthPos = m_Data + extensionLengthOffset;
-	uint16_t extensionLength = getExtensionsLenth();
+	uint16_t extensionLength = getExtensionsLength();
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	size_t minSSLExtentionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
-	while ((curPos - extensionPos) < (int)extensionLength 
-		&& (curPos - m_Data) < (int)messageLen 
-		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtentionLen)
+	size_t minSSLExtensionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
+	while ((curPos - extensionPos) < (int)extensionLength
+		&& (curPos - m_Data) < (int)messageLen
+		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtensionLen)
 	{
 		SSLExtension* newExt = NULL;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
@@ -1615,7 +1620,7 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			delete newExt;
 			break;
 		}
-			
+
 		m_ExtensionList.pushBack(newExt);
 		curPos += newExt->getTotalLength();
 	}
@@ -1691,7 +1696,7 @@ int SSLServerHelloMessage::getExtensionCount() const
 	return m_ExtensionList.size();
 }
 
-uint16_t SSLServerHelloMessage::getExtensionsLenth() const
+uint16_t SSLServerHelloMessage::getExtensionsLength() const
 {
 	size_t extensionLengthOffset  = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t) + sizeof(uint8_t);
 	if (extensionLengthOffset + sizeof(uint16_t) > m_DataLen)
@@ -1844,7 +1849,7 @@ SSLCertificateMessage::SSLCertificateMessage(uint8_t* data, size_t dataLen, SSLH
 			certificateFull = false;
 		}
 
-		LOG_DEBUG("Parsing certificate: pos=%d; len=%d\n", (int)(curPos-data), (int)certificateLength);
+		PCPP_LOG_DEBUG("Parsing certificate: pos=" << (int)(curPos-data) << "; len=" << certificateLength);
 		SSLx509Certificate* newCert = new SSLx509Certificate(curPos, certificateLength, certificateFull);
 		m_CertificateList.pushBack(newCert);
 
@@ -1866,7 +1871,7 @@ SSLx509Certificate* SSLCertificateMessage::getCertificate(int index) const
 {
 	if (index < 0 || index > (int)m_CertificateList.size())
 	{
-		LOG_DEBUG("certificate index out of range: asked for index %d, total size is %d", index, (int)m_CertificateList.size());
+		PCPP_LOG_DEBUG("certificate index out of range: asked for index " << index << ", total size is " << m_CertificateList.size());
 		return NULL;
 	}
 

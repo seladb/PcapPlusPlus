@@ -43,7 +43,7 @@ size_t hexStringToByteArray(const std::string& hexString, uint8_t* resultByteArr
 {
 	if (hexString.size() % 2 != 0)
 	{
-		LOG_ERROR("Input string is in odd size");
+		PCPP_LOG_ERROR("Input string is in odd size");
 		return 0;
 	}
 
@@ -57,7 +57,7 @@ size_t hexStringToByteArray(const std::string& hexString, uint8_t* resultByteArr
 		int secondChar = char2int(hexString[i + 1]);
 		if (firstChar < 0 || secondChar < 0)
 		{
-			LOG_ERROR("Input string has an illegal character");
+			PCPP_LOG_ERROR("Input string has an illegal character");
 			resultByteArr[0] = '\0';
 			return 0;
 		}
@@ -76,7 +76,7 @@ char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char
 	{
 		if (NULL != (ptr = (char*)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
 		{
-			// check if there is room to do a memcmp 
+			// check if there is room to do a memcmp
 			if(needleLen > (haystackLen - (ptr - haystack)))
 			{
 				return NULL;

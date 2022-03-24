@@ -62,7 +62,7 @@ RawPacket& RawPacket::operator=(const RawPacket& other)
 
 		copyDataFrom(other, true);
 	}
-	
+
 	return *this;
 }
 
@@ -132,7 +132,7 @@ void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 
 void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t dataToInsertLen)
 {
-	// memmove copies data as if there was an intermediate buffer inbetween - so it allows for copying processes on overlapping src/dest ptrs
+	// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on overlapping src/dest ptrs
 	// if insertData is called with atIndex == m_RawDataLen, then no data is being moved. The data of the raw packet is still extended by dataToInsertLen
 	memmove((uint8_t*)m_RawData + atIndex + dataToInsertLen, (uint8_t*)m_RawData + atIndex, m_RawDataLen - atIndex);
 
@@ -141,7 +141,7 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 		// insert data
 		memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);
 	}
-	
+
 	m_RawDataLen += dataToInsertLen;
 	m_FrameLength = m_RawDataLen;
 }
@@ -153,7 +153,7 @@ bool RawPacket::reallocateData(size_t newBufferLength)
 
 	if ((int)newBufferLength < m_RawDataLen)
 	{
-		LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: %d; requested length: %d", m_RawDataLen, (int)newBufferLength);
+		PCPP_LOG_ERROR("Cannot reallocate raw packet to a smaller size. Current data length: " << m_RawDataLen << "; requested length: " << newBufferLength);
 		return false;
 	}
 
@@ -173,16 +173,16 @@ bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
 {
 	if ((atIndex + (int)numOfBytesToRemove) > m_RawDataLen)
 	{
-		LOG_ERROR("Remove section is out of raw packet bound");
+		PCPP_LOG_ERROR("Remove section is out of raw packet bound");
 		return false;
 	}
 
 	// only move data if we are removing data somewhere in the layer, not at the end of the last layer
 	// this is so that resizing of the last layer can occur fast by just reducing the fictional length of the packet (m_RawDataLen) by the given amount
 	if((atIndex + (int)numOfBytesToRemove) != m_RawDataLen)
-		// memmove copies data as if there was an intermediate buffer inbetween - so it allows for copying processes on overlapping src/dest ptrs
+		// memmove copies data as if there was an intermediate buffer in between - so it allows for copying processes on overlapping src/dest ptrs
 		memmove((uint8_t*)m_RawData + atIndex, (uint8_t*)m_RawData + atIndex + numOfBytesToRemove, m_RawDataLen - (atIndex + numOfBytesToRemove));
-	
+
 	m_RawDataLen -= numOfBytesToRemove;
 	m_FrameLength = m_RawDataLen;
 	return true;

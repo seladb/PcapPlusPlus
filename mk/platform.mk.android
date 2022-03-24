@@ -1,12 +1,8 @@
-LINUX := 1
-
 BIN_EXT :=
 
 LIB_PREFIX := lib
 
 LIB_EXT := .a
-
-ANDROID_TOOLCHAIN=$(ANDROID_NDK_PATH)/toolchains/llvm/prebuilt/linux-x86_64
 
 CXX := $(ANDROID_TOOLCHAIN)/bin/clang++
 
@@ -24,4 +20,4 @@ INSTALL_SCRIPT := install.sh
 
 UNINSTALL_SCRIPT := uninstall.sh
 
-GLOBAL_FLAGS := --target=$(ANDROID_TARGET) --gcc-toolchain=$(ANDROID_TOOLCHAIN) --sysroot=$(ANDROID_TOOLCHAIN)/sysroot -DANDROID
+GLOBAL_FLAGS := --target=$(ANDROID_TARGET) --gcc-toolchain=$(ANDROID_TOOLCHAIN) --sysroot=$(ANDROID_TOOLCHAIN)/sysroot

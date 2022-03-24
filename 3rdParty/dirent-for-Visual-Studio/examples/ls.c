@@ -1,4 +1,4 @@
-/* 
+/*
  * An example demonstrating basic directory listing.
  *
  * Compile this file with Visual Studio 2008 project vs2008.sln and run the
@@ -36,7 +36,7 @@ static void list_directory (const char *dirname);
 
 int
 main(
-    int argc, char *argv[]) 
+    int argc, char *argv[])
 {
     int i;
 
@@ -63,7 +63,7 @@ list_directory(
 {
     DIR *dir;
     struct dirent *ent;
-                
+
     /* Open directory stream */
     dir = opendir (dirname);
     if (dir != NULL) {
@@ -96,4 +96,3 @@ list_directory(
         exit (EXIT_FAILURE);
     }
 }
-

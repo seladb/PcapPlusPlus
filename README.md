@@ -1,8 +1,8 @@
-![PcapPlusPlus Logo](https://pcapplusplus.github.io/resources/logo_color.png)
+![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)
 
 [![GitHub Actions](https://github.com/seladb/PcapPlusPlus/workflows/Build%20and%20test/badge.svg)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
 [![Build Status](https://api.cirrus-ci.com/github/seladb/PcapPlusPlus.svg)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
-[![Build Status](https://travis-ci.com/seladb/PcapPlusPlus.svg?branch=master)](https://travis-ci.com/seladb/PcapPlusPlus)
+[![Build Status](https://app.travis-ci.com/seladb/PcapPlusPlus.svg?branch=master)](https://app.travis-ci.com/seladb/PcapPlusPlus)
 [![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc/branch/master?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/seladb/PcapPlusPlus.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/seladb/PcapPlusPlus/context:cpp)
 <a href="https://twitter.com/intent/follow?screen_name=seladb">
@@ -29,26 +29,43 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
 
 ## Download
 
-You can choose between downloading pre-compiled binaries and build PcapPlusPlus yourself. For more details please visit the [Download](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
+You can choose between downloading from GitHub release page, use a package manager or build PcapPlusPlus yourself. For more details please visit the [Download](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
 
-### Pre Compiled Binaries
+### GitHub Release Page
 
-From [Homebrew](https://formulae.brew.sh/formula/pcapplusplus):
+<https://github.com/seladb/PcapPlusPlus/releases/latest>
+
+### Homebrew
 
 ```shell
 brew install pcapplusplus
 ```
 
-From [Conan](https://bintray.com/bincrafters/public-conan/pcapplusplus%3Abincrafters):
+Homebrew formulae: <https://formulae.brew.sh/formula/pcapplusplus>
 
-```shell
-conan remote add public-conan https://api.bintray.com/conan/bincrafters/public-conan
-conan install pcapplusplus/20.08@bincrafters/stable -r public-conan
+### Vcpkg
+
+Windows:
+
+```text
+.\vcpkg install pcapplusplus
 ```
 
-From GitHub release page:
+MacOS/Linux:
 
-<https://github.com/seladb/PcapPlusPlus/releases/latest>
+```text
+vcpkg install pcapplusplus
+```
+
+Vcpkg port: <https://github.com/microsoft/vcpkg/tree/master/ports/pcapplusplus>
+
+### Conan
+
+```text
+conan install pcapplusplus/21.11@
+```
+
+The package in ConanCenter: <https://conan.io/center/pcapplusplus>
 
 ### Build It Yourself
 
@@ -76,6 +93,7 @@ Follow the build instructions according to your platform in the [Build From Sour
 Writing applications with PcapPlusPlus is very easy and intuitive. Here is a simple application that shows how to read a packet from a PCAP file and parse it:
 
 ```cpp
+#include <iostream>
 #include "IPv4Layer.h"
 #include "Packet.h"
 #include "PcapFileDevice.h"
@@ -86,7 +104,7 @@ int main(int argc, char* argv[])
     pcpp::PcapFileReaderDevice reader("1_packet.pcap");
     if (!reader.open())
     {
-        printf("Error opening the pcap file\n");
+        std::cerr << "Error opening the pcap file" << std::endl;
         return 1;
     }
 
@@ -94,7 +112,7 @@ int main(int argc, char* argv[])
     pcpp::RawPacket rawPacket;
     if (!reader.getNextPacket(rawPacket))
     {
-        printf("Couldn't read the first packet in the file\n");
+        std::cerr << "Couldn't read the first packet in the file" << std::endl;
         return 1;
     }
 
@@ -109,7 +127,7 @@ int main(int argc, char* argv[])
         pcpp::IPv4Address destIP = parsedPacket.getLayerOfType<pcpp::IPv4Layer>()->getDstIPv4Address();
 
         // print source and dest IPs
-        printf("Source IP is '%s'; Dest IP is '%s'\n", srcIP.toString().c_str(), destIP.toString().c_str());
+        std::cout << "Source IP is '" << srcIP << "'; Dest IP is '" << destIP << "'" << std::endl;
     }
 
     // close the file
@@ -164,12 +182,14 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 22. Radius
 23. DNS
 24. DHCP
-25. BGP (v4)
-26. SSH - parsing only (no editing capabilities)
-27. HTTP headers (request & response)
-28. SSL/TLS - parsing only (no editing capabilities)
-29. Packet trailer (a.k.a footer or padding)
-30. Generic payload
+25. DHCPv6
+26. BGP (v4)
+27. SSH - parsing only (no editing capabilities)
+28. HTTP headers (request & response)
+29. SSL/TLS - parsing only (no editing capabilities)
+30. NTP (v3, v4)
+31. Packet trailer (a.k.a footer or padding)
+32. Generic payload
 
 ## DPDK And PF_RING Support
 

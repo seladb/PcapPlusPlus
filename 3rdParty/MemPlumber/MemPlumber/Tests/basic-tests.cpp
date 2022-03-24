@@ -37,7 +37,7 @@ int countLinesInFile(const char* fileName) {
     while (std::getline(file, line)) {
         ++numberOfLines;
     }
-    
+
     return numberOfLines;
 }
 
@@ -185,9 +185,9 @@ TEST_CASE(DumpToFileAppend) {
 int MAIN(int argc, char* argv[]) {
 
     START_RUNNING_TESTS;
-    
+
     RUN_TEST(BasicTest);
-    
+
     #if !defined _MSC_VER || !defined _DEBUG
     RUN_TEST(MultipleAllocations);
     RUN_TEST(ArrayAllocation);
@@ -205,8 +205,3 @@ int MAIN(int argc, char* argv[]) {
 #ifdef COLLECT_STATIC_VAR_DATA
 MEMPLUMBER_MAIN(tests_main);
 #endif
-
-
-
-
-

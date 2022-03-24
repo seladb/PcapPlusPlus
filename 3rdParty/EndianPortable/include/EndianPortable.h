@@ -64,7 +64,7 @@
 
 #elif defined __CYGWIN__
  #include <endian.h>
-#elif defined(WIN32) || defined(WINx64)
+#elif defined(_WIN32)
 #include <winsock2.h>
  #if(BYTE_ORDER == LITTLE_ENDIAN)
   #define htobe16(x) htons(x)
@@ -207,4 +207,11 @@
 #define htole32(x) le32toh(x)
 #endif
 
-#endif /* _ENDIANPORTABLE_H_ */ 
+#ifndef htonll
+#define htonll(x) ((1==htonl(1)) ? (x) : (((uint64_t)htonl((x) & 0xFFFFFFFFUL)) << 32) | htonl((uint32_t)((x) >> 32)))
+#endif // htonll
+#ifndef ntohll
+#define ntohll(x) ((1==ntohl(1)) ? (x) : (((uint64_t)ntohl((x) & 0xFFFFFFFFUL)) << 32) | ntohl((uint32_t)((x) >> 32)))
+#endif // ntohll
+
+#endif /* _ENDIANPORTABLE_H_ */

@@ -22,30 +22,30 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_ASSERT_NOT_NULL(dhcpLayer);
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getOpCode(), pcpp::DHCP_BOOTREPLY, enum);
-	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->secondsElapsed, be16toh(10), u16);
-	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->hops, 1, u8);
-	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->transactionID, be32toh(0x7771cf85), u32);
-	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address("10.10.8.235"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address("172.22.178.234"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address("10.10.8.240"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:0e:86:11:c0:75")), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->secondsElapsed, be16toh(10));
+	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->hops, 1);
+	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->transactionID, be32toh(0x7771cf85));
+	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address("10.10.8.235"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address("172.22.178.234"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address("10.10.8.240"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:0e:86:11:c0:75")));
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 12, size);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 12);
 	pcpp::DhcpOption opt = dhcpLayer->getFirstOptionData();
 	pcpp::DhcpOptionTypes optTypeArr[] = {
-			pcpp::DHCPOPT_DHCP_MESSAGE_TYPE,
-			pcpp::DHCPOPT_SUBNET_MASK,
-			pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER,
-			pcpp::DHCPOPT_DHCP_LEASE_TIME,
-			pcpp::DHCPOPT_ROUTERS,
-			pcpp::DHCPOPT_DOMAIN_NAME_SERVERS,
-			pcpp::DHCPOPT_TFTP_SERVER_NAME,
-			pcpp::DHCPOPT_SIP_SERVERS,
-			pcpp::DHCPOPT_DHCP_CLIENT_IDENTIFIER,
-			pcpp::DHCPOPT_AUTHENTICATION,
-			pcpp::DHCPOPT_DHCP_AGENT_OPTIONS,
-			pcpp::DHCPOPT_END
+		pcpp::DHCPOPT_DHCP_MESSAGE_TYPE,
+		pcpp::DHCPOPT_SUBNET_MASK,
+		pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER,
+		pcpp::DHCPOPT_DHCP_LEASE_TIME,
+		pcpp::DHCPOPT_ROUTERS,
+		pcpp::DHCPOPT_DOMAIN_NAME_SERVERS,
+		pcpp::DHCPOPT_TFTP_SERVER_NAME,
+		pcpp::DHCPOPT_SIP_SERVERS,
+		pcpp::DHCPOPT_DHCP_CLIENT_IDENTIFIER,
+		pcpp::DHCPOPT_AUTHENTICATION,
+		pcpp::DHCPOPT_DHCP_AGENT_OPTIONS,
+		pcpp::DHCPOPT_END
 	};
 
 	size_t optLenArr[] = { 1, 4, 4, 4, 4, 8, 14, 5, 16, 31, 22, 0 };
@@ -53,8 +53,8 @@ PTF_TEST_CASE(DhcpParsingTest)
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
 		PTF_ASSERT_FALSE(opt.isNull());
-		PTF_ASSERT_EQUAL(opt.getType(), optTypeArr[i], u8);
-		PTF_ASSERT_EQUAL(opt.getDataSize(), optLenArr[i], size);
+		PTF_ASSERT_EQUAL(opt.getType(), optTypeArr[i]);
+		PTF_ASSERT_EQUAL(opt.getDataSize(), optLenArr[i]);
 		opt = dhcpLayer->getNextOptionData(opt);
 	}
 
@@ -63,16 +63,16 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over DHCP options");
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		PTF_ASSERT_FALSE(dhcpLayer->getOptionData(optTypeArr[i]).isNull());
 	}
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_SUBNET_MASK).getValueAsIpAddr(), pcpp::IPv4Address("255.255.255.0"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER).getValueAsIpAddr(), pcpp::IPv4Address("172.22.178.234"), object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_LEASE_TIME).getValueAs<uint32_t>(), htobe32(43200), u32);
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_TFTP_SERVER_NAME).getValueAsString(), "172.22.178.234", string);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_SUBNET_MASK).getValueAsIpAddr(), pcpp::IPv4Address("255.255.255.0"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_SERVER_IDENTIFIER).getValueAsIpAddr(), pcpp::IPv4Address("172.22.178.234"));
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_DHCP_LEASE_TIME).getValueAs<uint32_t>(), htobe32(43200));
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionData(pcpp::DHCPOPT_TFTP_SERVER_NAME).getValueAsString(), "172.22.178.234");
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_OFFER, enum);
+	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_OFFER, enum);
 
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Dhcp2.dat");
@@ -83,14 +83,14 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_ASSERT_NOT_NULL(dhcpLayer);
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getOpCode(), pcpp::DHCP_BOOTREQUEST, enum);
-	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->hops, 0, u8);
-	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address::Zero, object);
-	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:00:6c:82:dc:4e")), object);
+	PTF_ASSERT_EQUAL(dhcpLayer->getDhcpHeader()->hops, 0);
+	PTF_ASSERT_EQUAL(dhcpLayer->getClientIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getYourIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getServerIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getGatewayIpAddress(), pcpp::IPv4Address::Zero);
+	PTF_ASSERT_EQUAL(dhcpLayer->getClientHardwareAddress(), pcpp::MacAddress(std::string("00:00:6c:82:dc:4e")));
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 9, size);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 9);
 	opt = dhcpLayer->getFirstOptionData();
 	pcpp::DhcpOptionTypes optTypeArr2[] = {
 			pcpp::DHCPOPT_DHCP_MESSAGE_TYPE,
@@ -109,10 +109,10 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over DHCP options");
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		PTF_ASSERT_FALSE(opt.isNull());
-		PTF_ASSERT_EQUAL(opt.getType(), optTypeArr2[i], u8);
-		PTF_ASSERT_EQUAL(opt.getDataSize(), optLenArr2[i], size);
+		PTF_ASSERT_EQUAL(opt.getType(), optTypeArr2[i]);
+		PTF_ASSERT_EQUAL(opt.getDataSize(), optLenArr2[i]);
 		opt = dhcpLayer->getNextOptionData(opt);
 	}
 
@@ -121,11 +121,11 @@ PTF_TEST_CASE(DhcpParsingTest)
 	PTF_PRINT_VERBOSE("Iterating over DHCP options");
 	for (size_t i = 0; i < dhcpLayer->getOptionsCount(); i++)
 	{
-		PTF_PRINT_VERBOSE("Iteration #%d", (int)i);
+		PTF_PRINT_VERBOSE("Iteration #" << i);
 		PTF_ASSERT_FALSE(dhcpLayer->getOptionData(optTypeArr2[i]).isNull());
 	}
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_DISCOVER, enum);
+	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_DISCOVER, enum);
 } // DhcpParsingTest
 
 
@@ -204,7 +204,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/Dhcp1.dat");
 
-	PTF_ASSERT_EQUAL(newPacket.getRawPacket()->getRawDataLen(), bufferLength1, int);
+	PTF_ASSERT_EQUAL(newPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(newPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
 
 	delete [] buffer1;
@@ -235,7 +235,7 @@ PTF_TEST_CASE(DhcpEditTest)
 	pcpp::IPv4Address newSubnet("255.255.255.0");
 	opt.setValueIpAddr(newSubnet);
 
-	PTF_ASSERT_TRUE(dhcpLayer->setMesageType(pcpp::DHCP_ACK));
+	PTF_ASSERT_TRUE(dhcpLayer->setMessageType(pcpp::DHCP_ACK));
 
 	pcpp::IPv4Address newRouter("192.168.2.1");
 
@@ -249,30 +249,30 @@ PTF_TEST_CASE(DhcpEditTest)
 
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/Dhcp3.dat");
 
-	PTF_ASSERT_EQUAL(dhcpPacket.getRawPacket()->getRawDataLen(), bufferLength2, int);
+	PTF_ASSERT_EQUAL(dhcpPacket.getRawPacket()->getRawDataLen(), bufferLength2);
 	PTF_ASSERT_BUF_COMPARE(dhcpPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
 
 	delete [] buffer2;
 
 	PTF_ASSERT_TRUE(dhcpLayer->removeAllOptions());
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 0, size);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 0);
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(pcpp::dhcp_header), size);
+	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(pcpp::dhcp_header));
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_UNKNOWN_MSG_TYPE, enum);
+	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_UNKNOWN_MSG_TYPE, enum);
 
 	PTF_ASSERT_FALSE(dhcpLayer->addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_END, NULL, 0)).isNull());
 
-	PTF_ASSERT_FALSE(dhcpLayer->setMesageType(pcpp::DHCP_UNKNOWN_MSG_TYPE));
+	PTF_ASSERT_FALSE(dhcpLayer->setMessageType(pcpp::DHCP_UNKNOWN_MSG_TYPE));
 
-	PTF_ASSERT_TRUE(dhcpLayer->setMesageType(pcpp::DHCP_DISCOVER));
+	PTF_ASSERT_TRUE(dhcpLayer->setMessageType(pcpp::DHCP_DISCOVER));
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 2, size);
+	PTF_ASSERT_EQUAL(dhcpLayer->getOptionsCount(), 2);
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(pcpp::dhcp_header)+4, size);
+	PTF_ASSERT_EQUAL(dhcpLayer->getDataLen(), sizeof(pcpp::dhcp_header)+4);
 
-	PTF_ASSERT_EQUAL(dhcpLayer->getMesageType(), pcpp::DHCP_DISCOVER, enum);
+	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_DISCOVER, enum);
 
 	dhcpPacket.computeCalculateFields();
 } // DhcpEditTest

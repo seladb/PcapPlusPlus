@@ -46,6 +46,7 @@ namespace pcpp
 		/**
 		 * An abstract method that must be implemented by child class. It's the indication for the worker to stop running. After
 		 * this method is called the caller expects the worker to stop running as fast as possible
+		 * @return No return value
 		 */
 		virtual void stop() = 0;
 
@@ -64,9 +65,9 @@ namespace pcpp
 	 * A singleton class that encapsulates DPDK initialization and holds the list of DpdkDevice instances. As it's a singleton, it has only
 	 * one active instance doesn't have a public c'tor. This class has several main uses:
 	 *    - it contains the initDpdk() static method which initializes the DPDK infrastructure. It should be called once in every application at
-	 *      its startup process 
+	 *      its startup process
 	 *    - it contains the list of DpdkDevice instances and enables access to them
-	 *    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads() 
+	 *    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
 	 */
 	class DpdkDeviceList
 	{
@@ -110,7 +111,7 @@ namespace pcpp
 		 *      has to be run before application is started)
 		 *    - initializes the DPDK infrastructure
 		 *    - creates DpdkDevice instances for all ports available for DPDK
-		 * 
+		 *
 		 * @param[in] coreMask The cores to initialize DPDK with. After initialization, DPDK will only be able to use these cores
 		 * for its work. The core mask should have a bit set for every core to use. For example: if the user want to use cores 1,2
 		 * the core mask should be 6 (binary: 110)
@@ -119,12 +120,14 @@ namespace pcpp
 		 * The size of the mbuf pool size dictates how many packets can be handled by the application at the same time. For example: if
 		 * pool size is 1023 it means that no more than 1023 packets can be handled or stored in application memory at every point in time
 		 * @param[in] masterCore The core DPDK will use as master to control all worker thread. The default, unless set otherwise, is 0
+		 * @param[in] initDpdkArgc Number of optional arguments
+		 * @param[in] initDpdkArgv Optional arguments
 		 * @return True if initialization succeeded or false if huge-pages or DPDK kernel driver are not loaded, if mBufPoolSizePerDevice
 		 * isn't power of 2 minus 1, if DPDK infra initialization failed or if DpdkDevice initialization failed. Anyway, if this method
-		 * returned false it's impossible to use DPDK with PcapPlusPlus. You can get some more details about mbufs and pools in 
+		 * returned false it's impossible to use DPDK with PcapPlusPlus. You can get some more details about mbufs and pools in
 		 * DpdkDevice.h file description or in DPDK web site
 		 */
-		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0);
+		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL);
 
 		/**
 		 * Get a DpdkDevice by port ID
@@ -152,15 +155,15 @@ namespace pcpp
 
 		/**
 		 * Change the log level of all modules of DPDK
-		 * @param[in] logLevel The log level to set. LoggerPP#Normal is RTE_LOG_NOTICE and LoggerPP#Debug is RTE_LOG_DEBUG
+		 * @param[in] logLevel The log level to set. Logger#Info is RTE_LOG_NOTICE and Logger#Debug is RTE_LOG_DEBUG
 		 */
-		void setDpdkLogLevel(LoggerPP::LogLevel logLevel);
+		void setDpdkLogLevel(Logger::LogLevel logLevel);
 
 		/**
-		 * @return The current DPDK log level. RTE_LOG_NOTICE and lower are considered as LoggerPP#Normal. RTE_LOG_INFO or RTE_LOG_DEBUG
-		 * are considered as LoggerPP#Debug
+		 * @return The current DPDK log level. RTE_LOG_NOTICE and lower are considered as Logger#Info. RTE_LOG_INFO or RTE_LOG_DEBUG
+		 * are considered as Logger#Debug
 		 */
-		LoggerPP::LogLevel getDpdkLogLevel() const;
+		Logger::LogLevel getDpdkLogLevel() const;
 
 		/**
 		 * Order DPDK to write all its logs to a file
@@ -173,18 +176,18 @@ namespace pcpp
 		 * There are two ways to capture packets using DpdkDevice: one of them is using worker threads and the other way is setting
 		 * a callback which is invoked each time a burst of packets is captured (see DpdkDevice#startCaptureSingleThread() ). This
 		 * method implements the first way. See a detailed description of workers in DpdkWorkerThread class description. This method
-		 * gets a vector of workers (classes that implement the DpdkWorkerThread interface) and a core mask and starts a worker thread 
-		 * on each core (meaning - call the worker's DpdkWorkerThread#run() method). Workers usually run in an endless loop and will 
+		 * gets a vector of workers (classes that implement the DpdkWorkerThread interface) and a core mask and starts a worker thread
+		 * on each core (meaning - call the worker's DpdkWorkerThread#run() method). Workers usually run in an endless loop and will
 		 * be ordered to stop by calling stopDpdkWorkerThreads().<BR>
 		 * Note that number of cores in the core mask must be equal to the number of workers. In addition it's impossible to run a
 		 * worker thread on DPDK master core, so the core mask shouldn't include the master core (you can find the master core by
 		 * calling getDpdkMasterCore() ).
 		 * @param[in] coreMask The bitmask of cores to run worker threads on. This list shouldn't include DPDK master core
-		 * @param[in] workerThreadsVec A vector of worker instances to run (classes who implement the DpdkWorkerThread interface). 
-		 * Number of workers in this vector must be equal to the number of cores in the core mask. Notice that the instances of 
+		 * @param[in] workerThreadsVec A vector of worker instances to run (classes who implement the DpdkWorkerThread interface).
+		 * Number of workers in this vector must be equal to the number of cores in the core mask. Notice that the instances of
 		 * DpdkWorkerThread shouldn't be freed until calling stopDpdkWorkerThreads() as these instances are running
 		 * @return True if all worker threads started successfully or false if: DPDK isn't initialized (initDpdk() wasn't called or
-		 * returned false), number of cores differs from number of workers, core mask includes DPDK master core or if one of the 
+		 * returned false), number of cores differs from number of workers, core mask includes DPDK master core or if one of the
 		 * worker threads couldn't be run
 		 */
 		bool startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkWorkerThread*>& workerThreadsVec);

@@ -282,20 +282,20 @@ bool IgmpV3QueryLayer::addSourceAddressAtIndex(const IPv4Address& addr, int inde
 
 	if (index < 0 || index > (int)sourceAddrCount)
 	{
-		LOG_ERROR("Cannot add source address at index %d, index is out of bounds", index);
+		PCPP_LOG_ERROR("Cannot add source address at index " << index << ", index is out of bounds");
 		return false;
 	}
 
 	size_t offset = sizeof(igmpv3_query_header) + index * sizeof(uint32_t);
 	if (offset > getHeaderLen())
 	{
-		LOG_ERROR("Cannot add source address at index %d, index is out of packet bounds", index);
+		PCPP_LOG_ERROR("Cannot add source address at index " << index << ", index is out of packet bounds");
 		return false;
 	}
 
 	if (!extendLayer(offset, sizeof(uint32_t)))
 	{
-		LOG_ERROR("Cannot add source address at index %d, didn't manage to extend layer", index);
+		PCPP_LOG_ERROR("Cannot add source address at index " << index << ", didn't manage to extend layer");
 		return false;
 	}
 
@@ -312,20 +312,20 @@ bool IgmpV3QueryLayer::removeSourceAddressAtIndex(int index)
 
 	if (index < 0 || index > (int)sourceAddrCount-1)
 	{
-		LOG_ERROR("Cannot remove source address at index %d, index is out of bounds", index);
+		PCPP_LOG_ERROR("Cannot remove source address at index " << index << ", index is out of bounds");
 		return false;
 	}
 
 	size_t offset = sizeof(igmpv3_query_header) + index * sizeof(uint32_t);
 	if (offset >= getHeaderLen())
 	{
-		LOG_ERROR("Cannot remove source address at index %d, index is out of packet bounds", index);
+		PCPP_LOG_ERROR("Cannot remove source address at index " << index << ", index is out of packet bounds");
 		return false;
 	}
 
 	if (!shortenLayer(offset, sizeof(uint32_t)))
 	{
-		LOG_ERROR("Cannot remove source address at index %d, didn't manage to shorten layer", index);
+		PCPP_LOG_ERROR("Cannot remove source address at index " << index << ", didn't manage to shorten layer");
 		return false;
 	}
 
@@ -341,7 +341,7 @@ bool IgmpV3QueryLayer::removeAllSourceAddresses()
 
 	if (!shortenLayer(offset, numOfBytesToShorted))
 	{
-		LOG_ERROR("Cannot remove all source addresses, didn't manage to shorten layer");
+		PCPP_LOG_ERROR("Cannot remove all source addresses, didn't manage to shorten layer");
 		return false;
 	}
 
@@ -399,7 +399,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 {
 	if (offset > (int)getHeaderLen())
 	{
-		LOG_ERROR("Cannot add group record, offset is out of layer bounds");
+		PCPP_LOG_ERROR("Cannot add group record, offset is out of layer bounds");
 		return NULL;
 	}
 
@@ -407,7 +407,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 
 	if (!extendLayer(offset, groupRecordSize))
 	{
-		LOG_ERROR("Cannot add group record, cannot extend layer");
+		PCPP_LOG_ERROR("Cannot add group record, cannot extend layer");
 		return NULL;
 	}
 
@@ -446,7 +446,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAtIndex(uint8_t recordType
 
 	if (index < 0 || index > groupCnt)
 	{
-		LOG_ERROR("Cannot add group record, index %d out of bounds", index);
+		PCPP_LOG_ERROR("Cannot add group record, index " << index << " out of bounds");
 		return NULL;
 	}
 
@@ -457,7 +457,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAtIndex(uint8_t recordType
 	{
 		if (curRecord == NULL)
 		{
-			LOG_ERROR("Cannot add group record, cannot find group record at index %d", i);
+			PCPP_LOG_ERROR("Cannot add group record, cannot find group record at index " << i);
 			return NULL;
 		}
 
@@ -474,7 +474,7 @@ bool IgmpV3ReportLayer::removeGroupRecordAtIndex(int index)
 
 	if (index < 0 || index >= groupCnt)
 	{
-		LOG_ERROR("Cannot remove group record, index %d is out of bounds", index);
+		PCPP_LOG_ERROR("Cannot remove group record, index " << index << " is out of bounds");
 		return false;
 	}
 
@@ -485,7 +485,7 @@ bool IgmpV3ReportLayer::removeGroupRecordAtIndex(int index)
 	{
 		if (curRecord == NULL)
 		{
-			LOG_ERROR("Cannot remove group record at index %d, cannot find group record at index %d", index, i);
+			PCPP_LOG_ERROR("Cannot remove group record at index " << index << ", cannot find group record at index " << i);
 			return false;
 		}
 
@@ -495,7 +495,7 @@ bool IgmpV3ReportLayer::removeGroupRecordAtIndex(int index)
 
 	if (!shortenLayer((int)offset, curRecord->getRecordLen()))
 	{
-		LOG_ERROR("Cannot remove group record at index %d, cannot shorted layer", index);
+		PCPP_LOG_ERROR("Cannot remove group record at index " << index << ", cannot shorted layer");
 		return false;
 	}
 
@@ -510,7 +510,7 @@ bool IgmpV3ReportLayer::removeAllGroupRecords()
 
 	if (!shortenLayer(offset, getHeaderLen()-offset))
 	{
-		LOG_ERROR("Cannot remove all group records, cannot shorted layer");
+		PCPP_LOG_ERROR("Cannot remove all group records, cannot shorted layer");
 		return false;
 	}
 

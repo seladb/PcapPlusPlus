@@ -36,7 +36,7 @@ static int find_directory (const char *dirname);
 
 int
 main(
-    int argc, char *argv[]) 
+    int argc, char *argv[])
 {
     int i;
     int ok;
@@ -116,7 +116,7 @@ find_directory(
 
             case DT_DIR:
                 /* Scan sub-directory recursively */
-                if (strcmp (ent->d_name, ".") != 0  
+                if (strcmp (ent->d_name, ".") != 0
                         &&  strcmp (ent->d_name, "..") != 0) {
                     find_directory (buffer);
                 }
@@ -140,5 +140,3 @@ find_directory(
 
     return ok;
 }
-
-

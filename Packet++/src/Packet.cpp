@@ -29,13 +29,29 @@ Packet::Packet(size_t maxPacketLen) :
 	m_LastLayer(NULL),
 	m_ProtocolTypes(UnknownProtocol),
 	m_MaxPacketLen(maxPacketLen),
-	m_FreeRawPacket(true)
+	m_FreeRawPacket(true),
+	m_CanReallocateData(true)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
 	uint8_t* data = new uint8_t[maxPacketLen];
 	memset(data, 0, maxPacketLen);
 	m_RawPacket = new RawPacket(data, 0, time, true, LINKTYPE_ETHERNET);
+}
+
+Packet::Packet(uint8_t* buffer, size_t bufferSize) :
+	m_RawPacket(NULL),
+	m_FirstLayer(NULL),
+	m_LastLayer(NULL),
+	m_ProtocolTypes(UnknownProtocol),
+	m_MaxPacketLen(bufferSize),
+	m_FreeRawPacket(true),
+	m_CanReallocateData(false)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+	memset(buffer, 0, bufferSize);
+	m_RawPacket = new RawPacket(buffer, 0, time, false, LINKTYPE_ETHERNET);
 }
 
 void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
@@ -48,6 +64,7 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 	m_MaxPacketLen = rawPacket->getRawDataLen();
 	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
+	m_CanReallocateData = true;
 	if (m_RawPacket == NULL)
 		return;
 
@@ -172,7 +189,7 @@ void Packet::copyDataFrom(const Packet& other)
 
 void Packet::reallocateRawData(size_t newSize)
 {
-	LOG_DEBUG("Allocating packet to new size: %d", (int)newSize);
+	PCPP_LOG_DEBUG("Allocating packet to new size: " << newSize);
 
 	// allocate a new array with size newSize
 	m_MaxPacketLen = newSize;
@@ -180,7 +197,7 @@ void Packet::reallocateRawData(size_t newSize)
 	// set the new array to RawPacket
 	if (!m_RawPacket->reallocateData(m_MaxPacketLen))
 	{
-		LOG_ERROR("Couldn't reallocate data of raw packet to %d bytes", (int)m_MaxPacketLen);
+		PCPP_LOG_ERROR("Couldn't reallocate data of raw packet to " << m_MaxPacketLen << " bytes");
 		return;
 	}
 
@@ -190,7 +207,7 @@ void Packet::reallocateRawData(size_t newSize)
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != NULL)
 	{
-		LOG_DEBUG("Setting new data pointer to layer '%s'", typeid(curLayer).name());
+		PCPP_LOG_DEBUG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
 		curLayer->m_Data = (uint8_t*)dataPtr;
 		dataPtr += curLayer->getHeaderLen();
 		curLayer = curLayer->getNextLayer();
@@ -201,25 +218,30 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 {
 	if (newLayer == NULL)
 	{
-		LOG_ERROR("Layer to add is NULL");
+		PCPP_LOG_ERROR("Layer to add is NULL");
 		return false;
 	}
 
 	if (newLayer->isAllocatedToPacket())
 	{
-		LOG_ERROR("Layer is already allocated to another packet. Cannot use layer in more than one packet");
+		PCPP_LOG_ERROR("Layer is already allocated to another packet. Cannot use layer in more than one packet");
 		return false;
 	}
 
 	if (prevLayer != NULL && prevLayer->getProtocol() == PacketTrailer)
 	{
-		LOG_ERROR("Cannot insert layer after packet trailer");
+		PCPP_LOG_ERROR("Cannot insert layer after packet trailer");
 		return false;
 	}
 
 	size_t newLayerHeaderLen = newLayer->getHeaderLen();
 	if (m_RawPacket->getRawDataLen() + newLayerHeaderLen > m_MaxPacketLen)
 	{
+		if (!m_CanReallocateData)
+		{
+			PCPP_LOG_ERROR("With the new layer the packet will exceed the size of the pre-allocated buffer: " << m_MaxPacketLen << " bytes");
+			return false;
+		}
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
 		if (m_RawPacket->getRawDataLen() + newLayerHeaderLen > m_MaxPacketLen*2)
 			reallocateRawData(m_RawPacket->getRawDataLen() + newLayerHeaderLen + m_MaxPacketLen);
@@ -312,7 +334,7 @@ bool Packet::removeLayer(ProtocolType layerType, int index)
 	}
 	else
 	{
-		LOG_ERROR("Layer of the requested type was not found in packet");
+		PCPP_LOG_ERROR("Layer of the requested type was not found in packet");
 		return false;
 	}
 }
@@ -322,7 +344,7 @@ bool Packet::removeFirstLayer()
 	Layer* firstLayer = getFirstLayer();
 	if (firstLayer == NULL)
 	{
-		LOG_ERROR("Packet has no layers");
+		PCPP_LOG_ERROR("Packet has no layers");
 		return false;
 	}
 
@@ -334,10 +356,10 @@ bool Packet::removeLastLayer()
 	Layer* lastLayer = getLastLayer();
 	if (lastLayer == NULL)
 	{
-		LOG_ERROR("Packet has no layers");
+		PCPP_LOG_ERROR("Packet has no layers");
 		return false;
 	}
-	
+
 	return removeLayer(lastLayer, true);
 }
 
@@ -368,7 +390,7 @@ Layer* Packet::detachLayer(ProtocolType layerType, int index)
 	}
 	else
 	{
-		LOG_ERROR("Layer of the requested type was not found in packet");
+		PCPP_LOG_ERROR("Layer of the requested type was not found in packet");
 		return NULL;
 	}
 }
@@ -377,14 +399,14 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 {
 	if (layer == NULL)
 	{
-		LOG_ERROR("Layer is NULL");
+		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
 	}
 
 	// verify layer is allocated to a packet
 	if (!layer->isAllocatedToPacket())
 	{
-		LOG_ERROR("Layer isn't allocated to any packet");
+		PCPP_LOG_ERROR("Layer isn't allocated to any packet");
 		return false;
 	}
 
@@ -394,7 +416,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 		curLayer = curLayer->m_PrevLayer;
 	if (curLayer != m_FirstLayer)
 	{
-		LOG_ERROR("Layer isn't allocated to this packet");
+		PCPP_LOG_ERROR("Layer isn't allocated to this packet");
 		return false;
 	}
 
@@ -409,7 +431,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	int indexOfDataToRemove = layer->m_Data - m_RawPacket->getRawData();
 	if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToRemove))
 	{
-		LOG_ERROR("Couldn't remove data from packet");
+		PCPP_LOG_ERROR("Couldn't remove data from packet");
 		delete [] layerOldData;
 		return false;
 	}
@@ -514,19 +536,24 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 {
 	if (layer == NULL)
 	{
-		LOG_ERROR("Layer is NULL");
+		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
 	}
 
 	// verify layer is allocated to this packet
 	if (!(layer->m_Packet == this))
 	{
-		LOG_ERROR("Layer isn't allocated to this packet");
+		PCPP_LOG_ERROR("Layer isn't allocated to this packet");
 		return false;
 	}
 
 	if (m_RawPacket->getRawDataLen() + numOfBytesToExtend > m_MaxPacketLen)
 	{
+		if (!m_CanReallocateData)
+		{
+			PCPP_LOG_ERROR("With the layer extended size the packet will exceed the size of the pre-allocated buffer: " << m_MaxPacketLen << " bytes");
+			return false;
+		}
 		// reallocate to maximum value of: twice the max size of the packet or max size + new required length
 		if (m_RawPacket->getRawDataLen() + numOfBytesToExtend > m_MaxPacketLen*2)
 			reallocateRawData(m_RawPacket->getRawDataLen() + numOfBytesToExtend + m_MaxPacketLen);
@@ -574,14 +601,14 @@ bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToSh
 {
 	if (layer == NULL)
 	{
-		LOG_ERROR("Layer is NULL");
+		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
 	}
 
 	// verify layer is allocated to this packet
 	if (!(layer->m_Packet == this))
 	{
-		LOG_ERROR("Layer isn't allocated to this packet");
+		PCPP_LOG_ERROR("Layer isn't allocated to this packet");
 		return false;
 	}
 
@@ -589,7 +616,7 @@ bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToSh
 	int indexOfDataToRemove = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
 	if (!m_RawPacket->removeData(indexOfDataToRemove, numOfBytesToShorten))
 	{
-		LOG_ERROR("Couldn't remove data from packet");
+		PCPP_LOG_ERROR("Couldn't remove data from packet");
 		return false;
 	}
 
@@ -642,7 +669,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	timespec timestamp = m_RawPacket->getPacketTimeStamp();
 	time_t nowtime = timestamp.tv_sec;
 	struct tm *nowtm = NULL;
-#if __cplusplus > 199711L && !defined(WIN32)
+#if __cplusplus > 199711L && !defined(_WIN32)
   // localtime_r and gmtime_r are thread-safe versions of localtime and gmtime,
 	// but they're defined only in newer compilers (>= C++0x).
 	// on Windows localtime and gmtime are already thread-safe so there is not need
@@ -672,7 +699,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	}
 	else
 		snprintf(buf, sizeof(buf), "0000-00-00 00:00:00.000000000");
-	
+
 	return "Packet length: " + dataLenStream.str() + " [Bytes], Arrival time: " + std::string(buf);
 }
 
@@ -747,7 +774,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
 }
 
-std::string Packet::toString(bool timeAsLocalTime)
+std::string Packet::toString(bool timeAsLocalTime) const
 {
 	std::vector<std::string> stringList;
 	std::string result;

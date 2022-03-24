@@ -5,6 +5,17 @@
 #include "SSLCommon.h"
 #include "PointerVector.h"
 
+#ifndef PCPP_DEPRECATED
+#if defined(__GNUC__) || defined(__clang__)
+#define PCPP_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define PCPP_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
+#define PCPP_DEPRECATED
+#endif
+#endif
+
 /**
  * @file
  * See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
@@ -311,13 +322,18 @@ public:
 	virtual ~SSLHandshakeMessage() {}
 
 	/**
+	 * @deprecated Deprecated due to typo. Please use createHandshakeMessage()
+	 */
+	PCPP_DEPRECATED static SSLHandshakeMessage* createHandhakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container) { return createHandshakeMessage(data, dataLen, container);}
+
+	/**
 	 * A factory method for creating instances of handshake messages from raw data
 	 * @param[in] data The raw data containing 1 handshake message
 	 * @param[in] dataLen Raw data length in bytes
 	 * @param[in] container A pointer to the SSLHandshakeLayer instance which will contain the created message.
 	 * This parameter is required because the handshake message includes a pointer to its container
 	 */
-	static SSLHandshakeMessage* createHandhakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
+	static SSLHandshakeMessage* createHandshakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
 
 	/**
 	 * @return The handshake message type
@@ -392,9 +408,9 @@ public:
 		/**
 		 * @return A string representing the TLS fingerprint, for example:
 		 * <b>771,4866-4867-4865-255,0-11-10-35-22-23-13-43-45-51,29-23-30-25-24,0-1-2</b>
-		 * 
+		 *
 		 * This string has the following format: <b>TLSVersion,CipherSuiteIDs,ExtensionIDs,SupportedGroups,ECPointFormats</b>
-		 * 
+		 *
 		 * The extension IDs, supported groups and EC point formats are each separated by a "-".
 		 * If the message doesn't include the "supported groups" or "EC point formats" extensions, they will be replaced
 		 * by an empty string for example: <b>771,4866-4867-4865-255,0-11-10-35-22-23-13-43-45-51,,</b>
@@ -414,7 +430,7 @@ public:
 	};
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and shouldn't be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and shouldn't be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -465,7 +481,7 @@ public:
 	 * Get the cipher-suite ID by index. This method just parses the ID from the clinet-hello message and returns it.
 	 * To get more information on the cipher-suite you can use the getCipherSuite() method
 	 * @param[in] index The index of the cipher-suite to return
-	 * @param[out] isValid Set to "true" if parsing succeeded and the return value is valid or "false" if: 
+	 * @param[out] isValid Set to "true" if parsing succeeded and the return value is valid or "false" if:
 	 * (1) the index is out-of-bounds (less than 0 or larger than total amount of cipher suites) or (2) the parsing failed.
 	 * If the value is "false" the return value can be ignored
 	 * @return The cipher-suite ID if "isValid" is set to "true". If "isValid" is set to "false" the return value can be ignored
@@ -483,9 +499,14 @@ public:
 	int getExtensionCount() const;
 
 	/**
+	 * @deprecated Deprecated due to typo. Please use getExtensionsLength()
+	 */
+	PCPP_DEPRECATED uint16_t getExtensionsLenth() const { return getExtensionsLength(); };
+
+	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
 	 */
-	uint16_t getExtensionsLenth() const;
+	uint16_t getExtensionsLength() const;
 
 	/**
 	 * Get a pointer to an extension by index. The extensions are numbered according to their order of appearance
@@ -522,12 +543,12 @@ public:
 	TExtension* getExtensionOfType() const;
 
 	/**
-	 * TLS fingerprinting is a way to identify client applications using the details in the TLS Client Hello packet. 
+	 * TLS fingerprinting is a way to identify client applications using the details in the TLS Client Hello packet.
 	 * It was initially introduced by Lee Brotherston in his 2015 research: <https://blog.squarelemon.com/tls-fingerprinting/>
 	 * This implementation of TLS fingerprint is a C++ version of Salesforce's JA3 open source project (originally written in
 	 * Python and Zeek):
 	 * <https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967>
-	 * @return A SSLClientHelloMessage#ClientHelloTLSFingerprint struct that contains all the elements needed for 
+	 * @return A SSLClientHelloMessage#ClientHelloTLSFingerprint struct that contains all the elements needed for
 	 * creating a TLS fingerprint out of this Client Hello message. This struct has also methods to extract the TLS fingerprint
 	 * itself in a string or MD5 formats
 	 */
@@ -570,9 +591,9 @@ public:
 
 		/**
 		 * @return A string representing the TLS fingerprint, for example: <b>771,49195,65281-16-11</b>
-		 * 
+		 *
 		 * This string has the following format: <b>TLSVersion,Cipher,Extensions</b>
-		 * 
+		 *
 		 * The extension ID are separated with a "-"
 		 */
 		std::string toString();
@@ -590,7 +611,7 @@ public:
 	};
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and shouldn't be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and shouldn't be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -609,8 +630,8 @@ public:
 	/**
 	 * @return Handshake SSL/TLS version (notice it may be different than SSLLayer#getRecordVersion(). Each client-hello
 	 * or server-hello message has both record version and handshake version and they may differ from one another).
-	 * 
-	 * <b>NOTE:</b> for TLS 1.3 the hanshake version written in ssl_tls_client_server_hello::handshakeVersion is still TLS 1.2,
+	 *
+	 * <b>NOTE:</b> for TLS 1.3 the handshake version written in ssl_tls_client_server_hello::handshakeVersion is still TLS 1.2,
 	 * so a special check is made here see if a SupportedVersions extension exists and if so extract the version from it.
 	 * This is the most straight-forward way to detect TLS 1.3.
 	 */
@@ -629,7 +650,7 @@ public:
 	/**
 	 * @return A pointer to the cipher suite encapsulated in this message (server-hello message contains one
 	 * cipher-suite, the one that will be used to for encryption between client and server). May return NULL
-	 * if the parsing of the message failed or the cipher-suite ID is unknown. If you still want to get the 
+	 * if the parsing of the message failed or the cipher-suite ID is unknown. If you still want to get the
 	 * cipher-suite ID you can use the getCipherSuiteID() method
 	 */
 	SSLCipherSuite* getCipherSuite() const;
@@ -637,7 +658,7 @@ public:
 	/**
 	 * Get the cipher-suite ID. This method just parses the ID from the server-hello message and returns it.
 	 * To get more information on the cipher-suite you can use the getCipherSuite() method
-	 * @param[out] isValid Set to "true" if parsing succeeded and the return value is valid or "false" otherwise. 
+	 * @param[out] isValid Set to "true" if parsing succeeded and the return value is valid or "false" otherwise.
 	 * If the value is "false" the return value can be ignored
 	 * @return The cipher-suite ID if "isValid" is set to "true". If "isValid" is set to "false" the return value can be ignored
 	 */
@@ -654,9 +675,14 @@ public:
 	int getExtensionCount() const;
 
 	/**
+	 * @deprecated Deprecated due to typo. Please use getExtensionLength()
+	 */
+	PCPP_DEPRECATED uint16_t getExtensionsLenth() const { return getExtensionsLength(); };
+
+	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
 	 */
-	uint16_t getExtensionsLenth() const;
+	uint16_t getExtensionsLength() const;
 
 	/**
 	 * Get a pointer to an extension by index. The extensions are numbered according to their order of appearance
@@ -693,13 +719,13 @@ public:
 	TExtension* getExtensionOfType() const;
 
 	/**
-	 * ServerHello TLS fingerprinting is a way to fingerprint TLS Server Hello messages. In conjuction with
+	 * ServerHello TLS fingerprinting is a way to fingerprint TLS Server Hello messages. In conjunction with
 	 * ClientHello TLS fingerprinting it can assist in identifying specific client-server communication (for
 	 * example: a malware connecting to its backend server).
-	 * ServerHello TLS fingerprinting was introduced in Salesforce's JA3S open source project: 
+	 * ServerHello TLS fingerprinting was introduced in Salesforce's JA3S open source project:
 	 * <https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967>
 	 * This implementation is a C++ version of Salesforce's JAS3 (originally written in Python and Zeek)
-	 * @return A SSLServerHelloMessage#ServerHelloTLSFingerprint struct that contains all the elements needed for 
+	 * @return A SSLServerHelloMessage#ServerHelloTLSFingerprint struct that contains all the elements needed for
 	 * creating a TLS fingerprint out of this Server Hello message. This struct has also methods to extract the TLS fingerprint
 	 * itself in a string or MD5 formats
 	 */
@@ -727,7 +753,7 @@ class SSLCertificateMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -773,7 +799,7 @@ class SSLHelloRequestMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -800,7 +826,7 @@ class SSLServerKeyExchangeMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -842,7 +868,7 @@ class SSLClientKeyExchangeMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -883,7 +909,7 @@ class SSLCertificateRequestMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -932,7 +958,7 @@ class SSLServerHelloDoneMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -959,7 +985,7 @@ class SSLCertificateVerifyMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -1001,7 +1027,7 @@ class SSLFinishedMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -1042,7 +1068,7 @@ class SSLNewSessionTicketMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes
@@ -1084,7 +1110,7 @@ class SSLUnknownMessage : public SSLHandshakeMessage
 public:
 
 	/**
-	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandhakeMessage() and should be used
+	 * C'tor for this class. Currently only in use in SSLHandshakeMessage::createHandshakeMessage() and should be used
 	 * by a user
 	 * @param[in] data The message as raw data
 	 * @param[in] dataLen Message raw data length in bytes

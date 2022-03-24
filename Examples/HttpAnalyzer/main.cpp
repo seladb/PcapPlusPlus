@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <iomanip>
 #include <algorithm>
 #include "PcapLiveDeviceList.h"
 #include "PcapFilter.h"
@@ -30,29 +31,23 @@
 #include <iostream>
 #include <sstream>
 
-#define EXIT_WITH_ERROR(reason, ...) do { \
-	printf("\nError: " reason "\n\n", ## __VA_ARGS__); \
+
+#define EXIT_WITH_ERROR(reason) do { \
 	printUsage(); \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
 
 
-#define PRINT_STAT_LINE(description, counter, measurement, type) \
-		printf("%-40s %14" type " [%s]\n", description ":", counter,  measurement)
-
-#define PRINT_STAT_LINE_INT(description, counter, measurement) \
-		PRINT_STAT_LINE(description, counter, measurement, "d")
-
-#define PRINT_STAT_LINE_DOUBLE(description, counter, measurement) \
-		PRINT_STAT_LINE(description, counter, measurement, ".3f")
-
-#define PRINT_STAT_HEADLINE(description) \
-		printf("\n" description "\n--------------------\n\n")
+#define PRINT_STAT_LINE(description, counter, measurement) \
+		std::cout \
+			<< std::left << std::setw(40) << (std::string(description) + ":") \
+			<< std::right << std::setw(15) << std::fixed << std::showpoint << std::setprecision(3) << counter \
+			<< " [" << measurement << "]" << std::endl;
 
 
 #define DEFAULT_CALC_RATES_PERIOD_SEC 2
 
-using namespace pcpp;
 
 static struct option HttpAnalyzerOptions[] =
 {
@@ -65,14 +60,14 @@ static struct option HttpAnalyzerOptions[] =
 	{"list-interfaces", no_argument, 0, 'l'},
 	{"help", no_argument, 0, 'h'},
 	{"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
 struct HttpPacketArrivedData
 {
 	HttpStatsCollector* statsCollector;
-	PcapFileWriterDevice* pcapWriter;
+	pcpp::PcapFileWriterDevice* pcapWriter;
 };
 
 
@@ -81,25 +76,32 @@ struct HttpPacketArrivedData
  */
 void printUsage()
 {
-	printf("\nUsage: PCAP file mode:\n"
-			"----------------------\n"
-			"%s [-vh] -f input_file\n"
-			"\nOptions:\n\n"
-			"    -f             : The input pcap/pcapng file to analyze. Required argument for this mode\n"
-			"    -v             : Displays the current version and exists\n"
-			"    -h             : Displays this help message and exits\n\n"
-			"Usage: Live traffic mode:\n"
-			"-------------------------\n"
-			"%s [-hvld] [-o output_file] [-r calc_period] [-p dst_port] -i interface\n"
-			"\nOptions:\n\n"
-			"    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address\n"
-			"    -p dst_port    : Use the specified port (optional parameter, the default is 80)\n"
-			"    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause performance degradation\n"
-			"    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds\n"
-			"    -d             : Disable periodic rates calculation\n"
-			"    -h             : Displays this help message and exits\n"
-			"    -v             : Displays the current version and exists\n"
-			"    -l             : Print the list of interfaces and exists\n", AppName::get().c_str(), AppName::get().c_str());
+	std::cout << std::endl
+		<< "Usage: PCAP file mode:" << std::endl
+		<< "----------------------" << std::endl
+		<< pcpp::AppName::get() << " [-vh] -f input_file" << std::endl
+		<< std::endl
+		<< "Options:" << std::endl
+		<< std::endl
+		<< "    -f             : The input pcap/pcapng file to analyze. Required argument for this mode" << std::endl
+		<< "    -v             : Displays the current version and exists" << std::endl
+		<< "    -h             : Displays this help message and exits" << std::endl
+		<< std::endl
+		<< "Usage: Live traffic mode:" << std::endl
+		<< "-------------------------" << std::endl
+		<< pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] [-p dst_port] -i interface" << std::endl
+		<< std::endl
+		<< "Options:" << std::endl
+		<< std::endl
+		<< "    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address" << std::endl
+		<< "    -p dst_port    : Use the specified port (optional parameter, the default is 80)" << std::endl
+		<< "    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause performance degradation" << std::endl
+		<< "    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds" << std::endl
+		<< "    -d             : Disable periodic rates calculation" << std::endl
+		<< "    -h             : Displays this help message and exits" << std::endl
+		<< "    -v             : Displays the current version and exists" << std::endl
+		<< "    -l             : Print the list of interfaces and exists" << std::endl
+		<< std::endl;
 }
 
 
@@ -108,9 +110,10 @@ void printUsage()
  */
 void printAppVersion()
 {
-	printf("%s %s\n", AppName::get().c_str(), getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", getBuildDateTime().c_str());
-	printf("Built from: %s\n", getGitInfo().c_str());
+	std::cout
+		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+		<< "Built: " << pcpp::getBuildDateTime() << std::endl
+		<< "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -120,24 +123,36 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	const std::vector<PcapLiveDevice*>& devList = PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-	printf("\nNetwork interfaces:\n");
-	for (std::vector<PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	std::cout << std::endl << "Network interfaces:" << std::endl;
+	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
 	{
-		printf("    -> Name: '%s'   IP address: %s\n", (*iter)->getName().c_str(), (*iter)->getIPv4Address().toString().c_str());
+		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
+}
+
+
+void printStatsHeadline(std::string description)
+{
+	std::string underline;
+	for (size_t i = 0; i < description.length(); i++)
+	{
+		underline += "-";
+	}
+
+	std::cout << std::endl << description << std::endl << underline << std::endl << std::endl;
 }
 
 
 /**
  * packet capture callback - called whenever a packet arrives
  */
-void httpPacketArrive(RawPacket* packet, PcapLiveDevice* dev, void* cookie)
+void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
 	// parse the packet
-	Packet parsedPacket(packet);
+	pcpp::Packet parsedPacket(packet);
 
 	HttpPacketArrivedData* data  = (HttpPacketArrivedData*)cookie;
 
@@ -163,11 +178,11 @@ void printMethods(HttpRequestStats& reqStatscollector)
 	std::vector<int> columnsWidths;
 	columnsWidths.push_back(9);
 	columnsWidths.push_back(5);
-	TablePrinter printer(columnNames, columnsWidths);
+	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 
 	// go over the method count table and print each method and count
-	for(std::map<HttpRequestLayer::HttpMethod, int>::iterator iter = reqStatscollector.methodCount.begin();
+	for(std::map<pcpp::HttpRequestLayer::HttpMethod, int>::iterator iter = reqStatscollector.methodCount.begin();
 			iter != reqStatscollector.methodCount.end();
 			iter++)
 	{
@@ -175,40 +190,40 @@ void printMethods(HttpRequestStats& reqStatscollector)
 
 		switch (iter->first)
 		{
-		case HttpRequestLayer::HttpGET:
-			values << "GET" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpGET];
+		case pcpp::HttpRequestLayer::HttpGET:
+			values << "GET" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpGET];
 			printer.printRow(values.str(), '|');
 			break;
-		case HttpRequestLayer::HttpPOST:
-			values << "POST" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpPOST];
+		case pcpp::HttpRequestLayer::HttpPOST:
+			values << "POST" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpPOST];
 			printer.printRow(values.str(), '|');
 			break;
-		case HttpRequestLayer::HttpCONNECT:
-			values << "CONNECT" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpCONNECT];
+		case pcpp::HttpRequestLayer::HttpCONNECT:
+			values << "CONNECT" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpCONNECT];
 			printer.printRow(values.str(), '|');
 			break;
-		case HttpRequestLayer::HttpDELETE:
-			values << "DELETE" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpDELETE];
+		case pcpp::HttpRequestLayer::HttpDELETE:
+			values << "DELETE" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpDELETE];
 			printer.printRow(values.str(), '|');
 			break;
-		case HttpRequestLayer::HttpHEAD:
-			values << "HEAD" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpHEAD];
+		case pcpp::HttpRequestLayer::HttpHEAD:
+			values << "HEAD" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpHEAD];
 			printer.printRow(values.str(), '|');
 			break;
-		case HttpRequestLayer::HttpOPTIONS:
-			values << "OPTIONS" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpOPTIONS];
+		case pcpp::HttpRequestLayer::HttpOPTIONS:
+			values << "OPTIONS" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpOPTIONS];
 			printer.printRow(values.str(), '|');
 			break;
-		case HttpRequestLayer::HttpPATCH:
-			values << "PATCH" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpPATCH];
+		case pcpp::HttpRequestLayer::HttpPATCH:
+			values << "PATCH" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpPATCH];
 			printer.printRow(values.str(), '|');
 			break;
-		case HttpRequestLayer::HttpPUT:
-			values << "PUT" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpPUT];
+		case pcpp::HttpRequestLayer::HttpPUT:
+			values << "PUT" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpPUT];
 			printer.printRow(values.str(), '|');
 			break;
-		case HttpRequestLayer::HttpTRACE:
-			values << "TRACE" << "|" << reqStatscollector.methodCount[HttpRequestLayer::HttpTRACE];
+		case pcpp::HttpRequestLayer::HttpTRACE:
+			values << "TRACE" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpTRACE];
 			printer.printRow(values.str(), '|');
 			break;
 		default:
@@ -243,7 +258,7 @@ void printHostnames(HttpRequestStats& reqStatscollector)
 	std::vector<int> columnsWidths;
 	columnsWidths.push_back(40);
 	columnsWidths.push_back(5);
-	TablePrinter printer(columnNames, columnsWidths);
+	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the hostname count map so the most popular hostnames will be first
 	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
@@ -274,7 +289,7 @@ void printStatusCodes(HttpResponseStats& resStatscollector)
 	std::vector<int> columnsWidths;
 	columnsWidths.push_back(28);
 	columnsWidths.push_back(5);
-	TablePrinter printer(columnNames, columnsWidths);
+	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// go over the status code map and print each item
 	for(std::map<std::string, int>::iterator iter = resStatscollector.statusCodeCount.begin();
@@ -300,7 +315,7 @@ void printContentTypes(HttpResponseStats& resStatscollector)
 	std::vector<int> columnsWidths;
 	columnsWidths.push_back(30);
 	columnsWidths.push_back(5);
-	TablePrinter printer(columnNames, columnsWidths);
+	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// go over the status code map and print each item
 	for(std::map<std::string, int>::iterator iter = resStatscollector.contentTypeCount.begin();
@@ -319,46 +334,46 @@ void printContentTypes(HttpResponseStats& resStatscollector)
  */
 void printStatsSummary(HttpStatsCollector& collector)
 {
-	PRINT_STAT_HEADLINE("General stats");
-	PRINT_STAT_LINE_DOUBLE("Sample time", collector.getGeneralStats().sampleTime, "Seconds");
-	PRINT_STAT_LINE_INT("Number of HTTP packets", collector.getGeneralStats().numOfHttpPackets, "Packets");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP packets", collector.getGeneralStats().httpPacketRate.totalRate, "Packets/sec");
-	PRINT_STAT_LINE_INT("Number of HTTP flows", collector.getGeneralStats().numOfHttpFlows, "Flows");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP flows", collector.getGeneralStats().httpFlowRate.totalRate, "Flows/sec");
-	PRINT_STAT_LINE_INT("Number of HTTP pipelining flows", collector.getGeneralStats().numOfHttpPipeliningFlows, "Flows");
-	PRINT_STAT_LINE_INT("Number of HTTP transactions", collector.getGeneralStats().numOfHttpTransactions, "Transactions");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP transactions", collector.getGeneralStats().httpTransactionsRate.totalRate, "Transactions/sec");
-	PRINT_STAT_LINE_INT("Total HTTP data", collector.getGeneralStats().amountOfHttpTraffic, "Bytes");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP data", collector.getGeneralStats().httpTrafficRate.totalRate, "Bytes/sec");
-	PRINT_STAT_LINE_DOUBLE("Average packets per flow", collector.getGeneralStats().averageNumOfPacketsPerFlow, "Packets");
-	PRINT_STAT_LINE_DOUBLE("Average transactions per flow", collector.getGeneralStats().averageNumOfHttpTransactionsPerFlow, "Transactions");
-	PRINT_STAT_LINE_DOUBLE("Average data per flow", collector.getGeneralStats().averageAmountOfDataPerFlow, "Bytes");
+	printStatsHeadline("General stats");
+	PRINT_STAT_LINE("Sample time", collector.getGeneralStats().sampleTime, "Seconds");
+	PRINT_STAT_LINE("Number of HTTP packets", collector.getGeneralStats().numOfHttpPackets, "Packets");
+	PRINT_STAT_LINE("Rate of HTTP packets", collector.getGeneralStats().httpPacketRate.totalRate, "Packets/sec");
+	PRINT_STAT_LINE("Number of HTTP flows", collector.getGeneralStats().numOfHttpFlows, "Flows");
+	PRINT_STAT_LINE("Rate of HTTP flows", collector.getGeneralStats().httpFlowRate.totalRate, "Flows/sec");
+	PRINT_STAT_LINE("Number of HTTP pipelining flows", collector.getGeneralStats().numOfHttpPipeliningFlows, "Flows");
+	PRINT_STAT_LINE("Number of HTTP transactions", collector.getGeneralStats().numOfHttpTransactions, "Transactions");
+	PRINT_STAT_LINE("Rate of HTTP transactions", collector.getGeneralStats().httpTransactionsRate.totalRate, "Transactions/sec");
+	PRINT_STAT_LINE("Total HTTP data", collector.getGeneralStats().amountOfHttpTraffic, "Bytes");
+	PRINT_STAT_LINE("Rate of HTTP data", collector.getGeneralStats().httpTrafficRate.totalRate, "Bytes/sec");
+	PRINT_STAT_LINE("Average packets per flow", collector.getGeneralStats().averageNumOfPacketsPerFlow, "Packets");
+	PRINT_STAT_LINE("Average transactions per flow", collector.getGeneralStats().averageNumOfHttpTransactionsPerFlow, "Transactions");
+	PRINT_STAT_LINE("Average data per flow", collector.getGeneralStats().averageAmountOfDataPerFlow, "Bytes");
 
-	PRINT_STAT_HEADLINE("HTTP request stats");
-	PRINT_STAT_LINE_INT("Number of HTTP requests", collector.getRequestStats().numOfMessages, "Requests");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP requests", collector.getRequestStats().messageRate.totalRate, "Requests/sec");
-	PRINT_STAT_LINE_INT("Total data in headers", collector.getRequestStats().totalMessageHeaderSize, "Bytes");
-	PRINT_STAT_LINE_DOUBLE("Average header size", collector.getRequestStats().averageMessageHeaderSize, "Bytes");
+	printStatsHeadline("HTTP request stats");
+	PRINT_STAT_LINE("Number of HTTP requests", collector.getRequestStats().numOfMessages, "Requests");
+	PRINT_STAT_LINE("Rate of HTTP requests", collector.getRequestStats().messageRate.totalRate, "Requests/sec");
+	PRINT_STAT_LINE("Total data in headers", collector.getRequestStats().totalMessageHeaderSize, "Bytes");
+	PRINT_STAT_LINE("Average header size", collector.getRequestStats().averageMessageHeaderSize, "Bytes");
 
-	PRINT_STAT_HEADLINE("HTTP response stats");
-	PRINT_STAT_LINE_INT("Number of HTTP responses", collector.getResponseStats().numOfMessages, "Responses");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP responses", collector.getResponseStats().messageRate.totalRate, "Responses/sec");
-	PRINT_STAT_LINE_INT("Total data in headers", collector.getResponseStats().totalMessageHeaderSize, "Bytes");
-	PRINT_STAT_LINE_DOUBLE("Average header size", collector.getResponseStats().averageMessageHeaderSize, "Bytes");
-	PRINT_STAT_LINE_INT("Num of responses with content-length", collector.getResponseStats().numOfMessagesWithContentLength, "Responses");
-	PRINT_STAT_LINE_INT("Total body size (may be compressed)", collector.getResponseStats().totalConentLengthSize, "Bytes");
-	PRINT_STAT_LINE_DOUBLE("Average body size", collector.getResponseStats().averageContentLengthSize, "Bytes");
+	printStatsHeadline("HTTP response stats");
+	PRINT_STAT_LINE("Number of HTTP responses", collector.getResponseStats().numOfMessages, "Responses");
+	PRINT_STAT_LINE("Rate of HTTP responses", collector.getResponseStats().messageRate.totalRate, "Responses/sec");
+	PRINT_STAT_LINE("Total data in headers", collector.getResponseStats().totalMessageHeaderSize, "Bytes");
+	PRINT_STAT_LINE("Average header size", collector.getResponseStats().averageMessageHeaderSize, "Bytes");
+	PRINT_STAT_LINE("Num of responses with content-length", collector.getResponseStats().numOfMessagesWithContentLength, "Responses");
+	PRINT_STAT_LINE("Total body size (may be compressed)", collector.getResponseStats().totalContentLengthSize, "Bytes");
+	PRINT_STAT_LINE("Average body size", collector.getResponseStats().averageContentLengthSize, "Bytes");
 
-	PRINT_STAT_HEADLINE("HTTP request methods");
+	printStatsHeadline("HTTP request methods");
 	printMethods(collector.getRequestStats());
 
-	PRINT_STAT_HEADLINE("Hostnames count");
+	printStatsHeadline("Hostnames count");
 	printHostnames(collector.getRequestStats());
 
-	PRINT_STAT_HEADLINE("Status code count");
+	printStatsHeadline("Status code count");
 	printStatusCodes(collector.getResponseStats());
 
-	PRINT_STAT_HEADLINE("Content-type count");
+	printStatsHeadline("Content-type count");
 	printContentTypes(collector.getResponseStats());
 }
 
@@ -368,13 +383,13 @@ void printStatsSummary(HttpStatsCollector& collector)
  */
 void printCurrentRates(HttpStatsCollector& collector)
 {
-	PRINT_STAT_HEADLINE("Current HTTP rates");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP packets", collector.getGeneralStats().httpPacketRate.currentRate, "Packets/sec");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP flows", collector.getGeneralStats().httpFlowRate.currentRate, "Flows/sec");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP transactions", collector.getGeneralStats().httpTransactionsRate.currentRate, "Transactions/sec");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP data", collector.getGeneralStats().httpTrafficRate.currentRate, "Bytes/sec");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP requests", collector.getRequestStats().messageRate.currentRate, "Requests/sec");
-	PRINT_STAT_LINE_DOUBLE("Rate of HTTP responses", collector.getResponseStats().messageRate.currentRate, "Responses/sec");
+	printStatsHeadline("Current HTTP rates");
+	PRINT_STAT_LINE("Rate of HTTP packets", collector.getGeneralStats().httpPacketRate.currentRate, "Packets/sec");
+	PRINT_STAT_LINE("Rate of HTTP flows", collector.getGeneralStats().httpFlowRate.currentRate, "Flows/sec");
+	PRINT_STAT_LINE("Rate of HTTP transactions", collector.getGeneralStats().httpTransactionsRate.currentRate, "Transactions/sec");
+	PRINT_STAT_LINE("Rate of HTTP data", collector.getGeneralStats().httpTrafficRate.currentRate, "Bytes/sec");
+	PRINT_STAT_LINE("Rate of HTTP requests", collector.getRequestStats().messageRate.currentRate, "Requests/sec");
+	PRINT_STAT_LINE("Rate of HTTP responses", collector.getResponseStats().messageRate.currentRate, "Responses/sec");
 }
 
 
@@ -394,29 +409,29 @@ void onApplicationInterrupted(void* cookie)
 void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
 {
 	// open input file (pcap or pcapng file)
-	IFileReaderDevice* reader = IFileReaderDevice::getReader(pcapFileName);
+	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(pcapFileName);
 
 	if (!reader->open())
 		EXIT_WITH_ERROR("Could not open input pcap file");
 
 	// set a port  filter on the reader device to process only HTTP packets
-	PortFilter httpPortFilter(dstPort, SRC_OR_DST);
+	pcpp::PortFilter httpPortFilter(dstPort, pcpp::SRC_OR_DST);
 	if (!reader->setFilter(httpPortFilter))
 		EXIT_WITH_ERROR("Could not set up filter on file");
 
 	// read the input file packet by packet and give it to the HttpStatsCollector for collecting stats
 	HttpStatsCollector collector(dstPort);
-	RawPacket rawPacket;
+	pcpp::RawPacket rawPacket;
 	while(reader->getNextPacket(rawPacket))
 	{
-		Packet parsedPacket(&rawPacket);
+		pcpp::Packet parsedPacket(&rawPacket);
 		collector.collectStats(&parsedPacket);
 	}
 
 	// print stats summary
-	printf("\n\n");
-	printf("STATS SUMMARY\n");
-	printf("=============\n");
+	std::cout << std::endl << std::endl
+		<< "STATS SUMMARY" << std::endl
+		<< "=============" << std::endl;
 	printStatsSummary(collector);
 
 	// close input file
@@ -430,21 +445,21 @@ void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
 /**
  * activate HTTP analysis from live traffic
  */
-void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly, int printRatePeriod, std::string savePacketsToFileName, uint16_t dstPort)
+void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodically, int printRatePeriod, std::string savePacketsToFileName, uint16_t dstPort)
 {
 	// open the device
 	if (!dev->open())
 		EXIT_WITH_ERROR("Could not open the device");
 
-	PortFilter httpPortFilter(dstPort, SRC_OR_DST);
+	pcpp::PortFilter httpPortFilter(dstPort, pcpp::SRC_OR_DST);
 	if (!dev->setFilter(httpPortFilter))
 		EXIT_WITH_ERROR("Could not set up filter on device");
 
 	// if needed to save the captured packets to file - open a writer device
-	PcapFileWriterDevice* pcapWriter = NULL;
+	pcpp::PcapFileWriterDevice* pcapWriter = NULL;
 	if (savePacketsToFileName != "")
 	{
-		pcapWriter = new PcapFileWriterDevice(savePacketsToFileName);
+		pcapWriter = new pcpp::PcapFileWriterDevice(savePacketsToFileName);
 		if (!pcapWriter->open())
 		{
 			EXIT_WITH_ERROR("Could not open pcap file for writing");
@@ -461,14 +476,14 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
 
 	// register the on app close event to print summary stats on app termination
 	bool shouldStop = false;
-	ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &shouldStop);
+	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &shouldStop);
 
 	while(!shouldStop)
 	{
-		multiPlatformSleep(printRatePeriod);
+		pcpp::multiPlatformSleep(printRatePeriod);
 
 		// calculate rates
-		if (printRatesPeriodicaly)
+		if (printRatesPeriodically)
 		{
 			collector.calcRates();
 			printCurrentRates(collector);
@@ -483,8 +498,9 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
 	collector.calcRates();
 
 	// print stats summary
-	printf("\n\nSTATS SUMMARY\n");
-	printf("=============\n");
+		std::cout << std::endl << std::endl
+		<< "STATS SUMMARY" << std::endl
+		<< "=============" << std::endl;
 	printStatsSummary(collector);
 
 	// close and free the writer device
@@ -500,11 +516,11 @@ void analyzeHttpFromLiveTraffic(PcapLiveDevice* dev, bool printRatesPeriodicaly,
  */
 int main(int argc, char* argv[])
 {
-	AppName::init(argc, argv);
+	pcpp::AppName::init(argc, argv);
 
 	std::string interfaceNameOrIP = "";
 	std::string port = "80";
-	bool printRatesPeriodicaly = true;
+	bool printRatesPeriodically = true;
 	int printRatePeriod = DEFAULT_CALC_RATES_PERIOD_SEC;
 	std::string savePacketsToFileName = "";
 
@@ -512,9 +528,9 @@ int main(int argc, char* argv[])
 
 
 	int optionIndex = 0;
-	char opt = 0;
+	int opt = 0;
 
-	while((opt = getopt_long (argc, argv, "i:p:f:o:r:hvld", HttpAnalyzerOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "i:p:f:o:r:hvld", HttpAnalyzerOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -536,7 +552,7 @@ int main(int argc, char* argv[])
 				printRatePeriod = atoi(optarg);
 				break;
 			case 'd':
-				printRatesPeriodicaly = false;
+				printRatesPeriodically = false;
 				break;
 			case 'h':
 				printUsage();
@@ -578,11 +594,11 @@ int main(int argc, char* argv[])
 	}
 	else // analyze in live traffic mode
 	{
-		PcapLiveDevice* dev = PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == NULL)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 		// start capturing and analyzing traffic
-		analyzeHttpFromLiveTraffic(dev, printRatesPeriodicaly, printRatePeriod, savePacketsToFileName, nPort);
+		analyzeHttpFromLiveTraffic(dev, printRatesPeriodically, printRatePeriod, savePacketsToFileName, nPort);
 	}
 }

@@ -29,33 +29,33 @@ PTF_TEST_CASE(IPSecParsingTest)
 
 	pcpp::AuthenticationHeaderLayer* ahLayer = ipsec1Packet.getLayerOfType<pcpp::AuthenticationHeaderLayer>();
 	PTF_ASSERT_NOT_NULL(ahLayer);
-	PTF_ASSERT_EQUAL(ahLayer->getSPI(), 0x8179b705, u32);
-	PTF_ASSERT_EQUAL(ahLayer->getSequenceNumber(), 3, u32);
-	PTF_ASSERT_EQUAL(ahLayer->getICVLength(), 12, size);
-	PTF_ASSERT_EQUAL(ahLayer->getICVHexStream(), "62325d2ea14e86ab902b70fb", string);
-	PTF_ASSERT_EQUAL(ahLayer->getHeaderLen(), 24, size);
-	PTF_ASSERT_EQUAL(ahLayer->toString(), "Authentication Header Layer", string);
-	PTF_ASSERT_EQUAL(ahLayer->getNextLayer()->getProtocol(), pcpp::ESP, u64);
+	PTF_ASSERT_EQUAL(ahLayer->getSPI(), 0x8179b705);
+	PTF_ASSERT_EQUAL(ahLayer->getSequenceNumber(), 3);
+	PTF_ASSERT_EQUAL(ahLayer->getICVLength(), 12);
+	PTF_ASSERT_EQUAL(ahLayer->getICVHexStream(), "62325d2ea14e86ab902b70fb");
+	PTF_ASSERT_EQUAL(ahLayer->getHeaderLen(), 24);
+	PTF_ASSERT_EQUAL(ahLayer->toString(), "Authentication Header Layer");
+	PTF_ASSERT_EQUAL(ahLayer->getNextLayer()->getProtocol(), pcpp::ESP, enum);
 
 	pcpp::ESPLayer* espLayer = ipsec1Packet.getLayerOfType<pcpp::ESPLayer>();
 	PTF_ASSERT_NOT_NULL(espLayer);
-	PTF_ASSERT_EQUAL(espLayer->getSPI(), 0x48dac2e4, u32);
-	PTF_ASSERT_EQUAL(espLayer->getSequenceNumber(), 3, u32);
-	PTF_ASSERT_EQUAL(espLayer->getHeaderLen(), 8, size);
-	PTF_ASSERT_EQUAL(espLayer->toString(), "ESP Layer, SPI: 0x48dac2e4", string);
-	PTF_ASSERT_EQUAL(espLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, u64);
+	PTF_ASSERT_EQUAL(espLayer->getSPI(), 0x48dac2e4);
+	PTF_ASSERT_EQUAL(espLayer->getSequenceNumber(), 3);
+	PTF_ASSERT_EQUAL(espLayer->getHeaderLen(), 8);
+	PTF_ASSERT_EQUAL(espLayer->toString(), "ESP Layer, SPI: 0x48dac2e4");
+	PTF_ASSERT_EQUAL(espLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
 
 	ahLayer = ipsec2Packet.getLayerOfType<pcpp::AuthenticationHeaderLayer>();
 	PTF_ASSERT_NOT_NULL(ahLayer);
-	PTF_ASSERT_EQUAL(ahLayer->getSPI(), 0x646adc80, u32);
-	PTF_ASSERT_EQUAL(ahLayer->getSequenceNumber(), 8, u32);
-	PTF_ASSERT_EQUAL(ahLayer->getICVLength(), 12, size);
-	PTF_ASSERT_EQUAL(ahLayer->getICVHexStream(), "03d9ebccbbc8d14cccb87ade", string);
-	PTF_ASSERT_EQUAL(ahLayer->getHeaderLen(), 24, size);
-	PTF_ASSERT_EQUAL(ahLayer->getNextLayer()->getProtocol(), pcpp::IPv4, u64);
+	PTF_ASSERT_EQUAL(ahLayer->getSPI(), 0x646adc80);
+	PTF_ASSERT_EQUAL(ahLayer->getSequenceNumber(), 8);
+	PTF_ASSERT_EQUAL(ahLayer->getICVLength(), 12);
+	PTF_ASSERT_EQUAL(ahLayer->getICVHexStream(), "03d9ebccbbc8d14cccb87ade");
+	PTF_ASSERT_EQUAL(ahLayer->getHeaderLen(), 24);
+	PTF_ASSERT_EQUAL(ahLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 
 	espLayer = ipsec3Packet.getLayerOfType<pcpp::ESPLayer>();
 	PTF_ASSERT_NOT_NULL(espLayer);
-	PTF_ASSERT_EQUAL(espLayer->getSPI(), 0x49507636, u32);
-	PTF_ASSERT_EQUAL(espLayer->getSequenceNumber(), 541414224, u32);
+	PTF_ASSERT_EQUAL(espLayer->getSPI(), 0x49507636);
+	PTF_ASSERT_EQUAL(espLayer->getSequenceNumber(), 541414224);
 } // IPSecParsingTest

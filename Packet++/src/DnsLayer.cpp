@@ -153,7 +153,7 @@ void DnsLayer::parseResources()
 
 	if (numOfOtherResources > 300)
 	{
-		LOG_ERROR("DNS layer contains more than 300 resources, probably a bad packet. "
+		PCPP_LOG_ERROR("DNS layer contains more than 300 resources, probably a bad packet. "
 				"Skipping parsing DNS resources");
 		return;
 	}
@@ -269,8 +269,8 @@ DnsQuery* DnsLayer::getFirstQuery() const
 
 DnsQuery* DnsLayer::getNextQuery(DnsQuery* query) const
 {
-	if (query == NULL 
-		|| query->getNextResource() == NULL 
+	if (query == NULL
+		|| query->getNextResource() == NULL
 		|| query->getType() != DnsQueryType
 		|| query->getNextResource()->getType() != DnsQueryType)
 		return NULL;
@@ -492,7 +492,7 @@ DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& n
 	if (!newResource->setData(data))
 	{
 		delete newResource;
-		LOG_ERROR("Couldn't set new resource data");
+		PCPP_LOG_ERROR("Couldn't set new resource data");
 		return NULL;
 	}
 
@@ -522,7 +522,7 @@ DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& n
 	// extend layer to make room for the new resource
 	if (!extendLayer(newResourceOffsetInLayer, newResource->getSize(), newResource))
 	{
-		LOG_ERROR("Couldn't extend DNS layer, addResource failed");
+		PCPP_LOG_ERROR("Couldn't extend DNS layer, addResource failed");
 		delete newResource;
 		return NULL;
 	}
@@ -593,7 +593,7 @@ DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass 
 	// extend layer to make room for the new query
 	if (!extendLayer(newQueryOffsetInLayer, newQuery->getSize(), newQuery))
 	{
-		LOG_ERROR("Couldn't extend DNS layer, addQuery failed");
+		PCPP_LOG_ERROR("Couldn't extend DNS layer, addQuery failed");
 		delete newQuery;
 		return NULL;
 	}
@@ -629,7 +629,7 @@ bool DnsLayer::removeQuery(const std::string& queryNameToRemove, bool exactMatch
 	DnsQuery* queryToRemove = getQuery(queryNameToRemove, exactMatch);
 	if (queryToRemove == NULL)
 	{
-		LOG_DEBUG("Query not found");
+		PCPP_LOG_DEBUG("Query not found");
 		return false;
 	}
 
@@ -673,7 +673,7 @@ bool DnsLayer::removeAnswer(const std::string& answerNameToRemove, bool exactMat
 	DnsResource* answerToRemove = getAnswer(answerNameToRemove, exactMatch);
 	if (answerToRemove == NULL)
 	{
-		LOG_DEBUG("Answer record not found");
+		PCPP_LOG_DEBUG("Answer record not found");
 		return false;
 	}
 
@@ -718,7 +718,7 @@ bool DnsLayer::removeAuthority(const std::string& authorityNameToRemove, bool ex
 	DnsResource* authorityToRemove = getAuthority(authorityNameToRemove, exactMatch);
 	if (authorityToRemove == NULL)
 	{
-		LOG_DEBUG("Authority not found");
+		PCPP_LOG_DEBUG("Authority not found");
 		return false;
 	}
 
@@ -774,7 +774,7 @@ bool DnsLayer::removeAdditionalRecord(const std::string& additionalRecordNameToR
 	DnsResource* additionalRecordToRemove = getAdditionalRecord(additionalRecordNameToRemove, exactMatch);
 	if (additionalRecordToRemove == NULL)
 	{
-		LOG_DEBUG("Additional record not found");
+		PCPP_LOG_DEBUG("Additional record not found");
 		return false;
 	}
 
@@ -797,7 +797,7 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 {
 	if (resourceToRemove == NULL)
 	{
-		LOG_DEBUG("resourceToRemove cannot be NULL");
+		PCPP_LOG_DEBUG("resourceToRemove cannot be NULL");
 		return false;
 	}
 
@@ -818,14 +818,14 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 
 	if (prevResource == NULL)
 	{
-		LOG_DEBUG("Resource not found");
+		PCPP_LOG_DEBUG("Resource not found");
 		return false;
 	}
 
 	// shorten the layer and fix offset in layer for all next DNS resources in the packet
 	if (!shortenLayer(resourceToRemove->m_OffsetInLayer, resourceToRemove->getSize(), resourceToRemove))
 	{
-		LOG_ERROR("Couldn't shorten the DNS layer, resource cannot be removed");
+		PCPP_LOG_ERROR("Couldn't shorten the DNS layer, resource cannot be removed");
 		return false;
 	}
 

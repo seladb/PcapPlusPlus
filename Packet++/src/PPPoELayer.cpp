@@ -74,7 +74,7 @@ uint16_t PPPoESessionLayer::getPPPNextProtocol() const
 {
 	if (m_DataLen < getHeaderLen())
 	{
-		LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
+		PCPP_LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
 		return 0;
 	}
 
@@ -86,7 +86,7 @@ void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol)
 {
 	if (m_DataLen < getHeaderLen())
 	{
-		LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
+		PCPP_LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
 		return;
 	}
 
@@ -259,111 +259,98 @@ std::string PPPoESessionLayer::toString() const
 
 PPPoEDiscoveryLayer::PPPoETagTypes PPPoEDiscoveryLayer::PPPoETag::getType() const
 {
-	return (PPPoEDiscoveryLayer::PPPoETagTypes)be16toh(tagType);
+	return (PPPoEDiscoveryLayer::PPPoETagTypes)be16toh(m_Data->recordType);
 }
 
-size_t PPPoEDiscoveryLayer::PPPoETag::getTagTotalSize() const
+size_t PPPoEDiscoveryLayer::PPPoETag::getTotalSize() const
 {
-	return 2*sizeof(uint16_t) + be16toh(tagDataLength);
+	return 2*sizeof(uint16_t) + be16toh(m_Data->recordLen);
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const
+size_t PPPoEDiscoveryLayer::PPPoETag::getDataSize() const
 {
-	// check if there are tags at all
-	if (m_DataLen <= sizeof(pppoe_header))
-		return NULL;
-
-	uint8_t* curTagPtr = m_Data + sizeof(pppoe_header);
-	while ((curTagPtr - m_Data) < (int)m_DataLen)
-	{
-		PPPoEDiscoveryLayer::PPPoETag* curTag = castPtrToPPPoETag(curTagPtr);
-		if (curTag->tagType == htobe16(tagType))
-			return curTag;
-
-		curTagPtr += curTag->getTagTotalSize();
-	}
-
-	return NULL;
+	return be16toh(m_Data->recordLen);
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getFirstTag() const
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::PPPoETagBuilder::build() const
 {
-	// check if there are tags at all
-	if (m_DataLen <= sizeof(pppoe_header))
-		return NULL;
+	size_t tagSize = 2*sizeof(uint16_t) + m_RecValueLen;
+	uint8_t* recordBuffer = new uint8_t[tagSize];
+	uint16_t tagTypeVal = htobe16(static_cast<uint16_t>(m_RecType));
+	uint16_t tagLength = htobe16(static_cast<uint16_t>(m_RecValueLen));
+	memcpy(recordBuffer, &tagTypeVal, sizeof(uint16_t));
+	memcpy(recordBuffer + sizeof(uint16_t), &tagLength, sizeof(uint16_t));
+	if (tagLength > 0 && m_RecValue != NULL)
+		memcpy(recordBuffer + 2*sizeof(uint16_t), m_RecValue, m_RecValueLen);
 
-	uint8_t* curTagPtr = m_Data + sizeof(pppoe_header);
-	return castPtrToPPPoETag(curTagPtr);
+	return PPPoEDiscoveryLayer::PPPoETag(recordBuffer);
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::getNextTag(PPPoEDiscoveryLayer::PPPoETag* tag) const
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const
 {
-	if (tag == NULL)
-		return NULL;
+	return m_TagReader.getTLVRecord(static_cast<uint32_t>(tagType), getTagBasePtr(), m_DataLen - sizeof(pppoe_header));
+}
 
-	// prev tag was the last tag
-	if ((uint8_t*)tag + tag->getTagTotalSize() - m_Data >= (int)m_DataLen)
-		return NULL;
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getFirstTag() const
+{
+	return m_TagReader.getFirstTLVRecord(getTagBasePtr(), m_DataLen - sizeof(pppoe_header));
+}
 
-	return castPtrToPPPoETag((uint8_t*)tag + tag->getTagTotalSize());
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getNextTag(const PPPoEDiscoveryLayer::PPPoETag& tag) const
+{
+	return m_TagReader.getNextTLVRecord(const_cast<PPPoEDiscoveryLayer::PPPoETag&>(tag), getTagBasePtr(), m_DataLen - sizeof(pppoe_header));
 }
 
 int PPPoEDiscoveryLayer::getTagCount() const
 {
-	if (m_TagCount != -1)
-		return m_TagCount;
-
-	m_TagCount = 0;
-	PPPoEDiscoveryLayer::PPPoETag* curTag = getFirstTag();
-	while (curTag != NULL)
-	{
-		m_TagCount++;
-		curTag = getNextTag(curTag);
-	}
-
-	return m_TagCount;
+	return m_TagReader.getTLVRecordCount(getTagBasePtr(), m_DataLen - sizeof(pppoe_header));
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::addTagAt(PPPoETagTypes tagType, uint16_t tagLength, const uint8_t* tagData, int offset)
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::addTagAt(const PPPoETagBuilder& tagBuilder, int offset)
 {
-	size_t tagTotalLength = 2*sizeof(uint16_t) + tagLength;
-	if (!extendLayer(offset, tagTotalLength))
+	PPPoETag newTag = tagBuilder.build();
+	size_t sizeToExtend = newTag.getTotalSize();
+
+	if (!extendLayer(offset, sizeToExtend))
 	{
-		LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [%d] bytes", (int)tagTotalLength);
-		return NULL;
+		PCPP_LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [" << sizeToExtend << "] bytes");
+		return PPPoETag(NULL);
 	}
 
-	uint16_t tagTypeVal = htobe16((uint16_t)tagType);
-	tagLength = htobe16(tagLength);
-	memcpy(m_Data + offset, &tagTypeVal, sizeof(uint16_t));
-	memcpy(m_Data + offset + sizeof(uint16_t), &tagLength, sizeof(uint16_t));
-	if (tagLength > 0 && tagData != NULL)
-		memcpy(m_Data + offset + 2*sizeof(uint16_t), tagData, be16toh(tagLength));
+	memcpy(m_Data + offset, newTag.getRecordBasePtr(), newTag.getTotalSize());
 
 	uint8_t* newTagPtr = m_Data + offset;
 
-	getPPPoEHeader()->payloadLength += htobe16(tagTotalLength);
-	m_TagCount++;
+	m_TagReader.changeTLVRecordCount(1);
 
-	return castPtrToPPPoETag(newTagPtr);
+	newTag.purgeRecordData();
+
+	getPPPoEHeader()->payloadLength += htobe16(sizeToExtend);
+
+	return PPPoETag(newTagPtr);
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::addTagAfter(PPPoETagTypes tagType, uint16_t tagLength, const uint8_t* tagData, PPPoEDiscoveryLayer::PPPoETag* prevTag)
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::addTagAfter(const PPPoETagBuilder& tagBuilder, PPPoETagTypes prevTagType)
 {
-	if (prevTag == NULL)
+	int offset = 0;
+
+	PPPoETag prevTag = getTag(prevTagType);
+
+	if (prevTag.isNull())
 	{
-		LOG_ERROR("prevTag is NULL");
-		return NULL;
+		offset = getHeaderLen();
+	}
+	else
+	{
+		offset = prevTag.getRecordBasePtr() + prevTag.getTotalSize() - m_Data;
 	}
 
-	int offset = (uint8_t*)prevTag + prevTag->getTagTotalSize() - m_Data;
-
-	return addTagAt(tagType, tagLength, tagData, offset);
+	return addTagAt(tagBuilder, offset);
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::addTag(PPPoETagTypes tagType, uint16_t tagLength, const uint8_t* tagData)
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::addTag(const PPPoETagBuilder& tagBuilder)
 {
-	return addTagAt(tagType, tagLength, tagData, getHeaderLen());
+	return addTagAt(tagBuilder, getHeaderLen());
 }
 
 size_t PPPoEDiscoveryLayer::getHeaderLen() const
@@ -375,29 +362,41 @@ size_t PPPoEDiscoveryLayer::getHeaderLen() const
 	return payloadLen;
 }
 
-PPPoEDiscoveryLayer::PPPoETag* PPPoEDiscoveryLayer::castPtrToPPPoETag(uint8_t* ptr) const
-{
-	return (PPPoEDiscoveryLayer::PPPoETag*)ptr;
-}
-
 bool PPPoEDiscoveryLayer::removeTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType)
 {
-	PPPoEDiscoveryLayer::PPPoETag* tag = getTag(tagType);
-	if (tag == NULL)
+	PPPoEDiscoveryLayer::PPPoETag tagToRemove = getTag(tagType);
+	if (tagToRemove.isNull())
 	{
-		LOG_ERROR("Couldn't find tag");
+		PCPP_LOG_ERROR("Couldn't find tag");
 		return false;
 	}
 
-	int offset = (uint8_t*)tag - m_Data;
+	int offset = tagToRemove.getRecordBasePtr() - m_Data;
 
-	return shortenLayer(offset, tag->getTagTotalSize());
+	uint16_t tagTotalSize = tagToRemove.getTotalSize();
+
+	if (!shortenLayer(offset, tagTotalSize))
+	{
+		return false;
+	}
+
+	m_TagReader.changeTLVRecordCount(-1);
+
+	getPPPoEHeader()->payloadLength -= htobe16(tagTotalSize);
+	return true;
 }
 
 bool PPPoEDiscoveryLayer::removeAllTags()
 {
+	size_t tagCount = getTagCount();
 	int offset = sizeof(pppoe_header);
-	return shortenLayer(offset, m_DataLen-offset);
+	if (!shortenLayer(offset, m_DataLen-offset))
+	{
+		return false;
+	}
+	m_TagReader.changeTLVRecordCount(0-tagCount);
+	getPPPoEHeader()->payloadLength = 0;
+	return true;
 }
 
 std::string PPPoEDiscoveryLayer::codeToString(PPPoECode code) const

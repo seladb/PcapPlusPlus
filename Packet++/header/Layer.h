@@ -67,7 +67,8 @@ namespace pcpp
 	  @endverbatim
 	 *
 	*/
-	class Layer : public IDataContainer {
+	class Layer : public IDataContainer
+	{
 		friend class Packet;
 	public:
 		/**
@@ -125,7 +126,6 @@ namespace pcpp
 		 * @param[out] toArr The destination byte array
 		 */
 		void copyData(uint8_t* toArr) const;
-
 
 		// implement abstract methods
 
@@ -187,5 +187,11 @@ namespace pcpp
 	};
 
 } // namespace pcpp
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer &layer)
+{
+	os << layer.toString();
+	return os;
+}
 
 #endif /* PACKETPP_LAYER */

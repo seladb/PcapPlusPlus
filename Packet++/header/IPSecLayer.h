@@ -143,7 +143,7 @@ namespace pcpp
 		ESPLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = ESP; }
 
 		ipsec_esp* getESPHeader() const { return (ipsec_esp*)m_Data; }
-	
+
 		/**
 		 * @return The Security Parameters Index (SPI) field value
 		 */
@@ -199,7 +199,7 @@ namespace pcpp
 		size_t payloadLen = 4 * (data[1] + 2);
 		if (payloadLen < sizeof(ipsec_authentication_header) || payloadLen > dataLen)
 			return false;
-		
+
 		return true;
 	}
 

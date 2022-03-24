@@ -1,7 +1,7 @@
 #ifndef PCAPP_WINPCAP_LIVE_DEVICE
 #define PCAPP_WINPCAP_LIVE_DEVICE
 
-#if defined(WIN32) || defined(WINx64) || defined(PCAPPP_MINGW_ENV)
+#if defined(_WIN32)
 
 /// @file
 
@@ -35,7 +35,7 @@ namespace pcpp
 	public:
 		virtual LiveDeviceType getDeviceType() const { return WinPcapDevice; }
 
-		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUsrrCookie);
+		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
 		bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
 		bool startCapture(RawPacketVector& capturedPacketsVector) { return PcapLiveDevice::startCapture(capturedPacketsVector); }
 
@@ -59,6 +59,6 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif // WIN32 || WINx64 || PCAPPP_MINGW_ENV
+#endif // _WIN32
 
 #endif /* PCAPP_WINPCAP_LIVE_DEVICE */

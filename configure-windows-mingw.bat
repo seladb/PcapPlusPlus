@@ -3,7 +3,7 @@ setlocal
 
 echo.
 echo ******************************************
-echo PcapPlusPlus Windows configuration script 
+echo PcapPlusPlus Windows configuration script
 echo ******************************************
 echo.
 
@@ -16,10 +16,10 @@ set MINGW_HOME=
 set PCAP_SDK_HOME=
 
 :: check the number of arguments: If got at least one argument continue to command-line mode, else continue to wizard mode
-if "%1" NEQ "" ( 
-	call :GETOPT %1 %2 %3 %4 %5 %6 %7 %8 %9 
-) else ( 
-	call :READ_PARAMS_FROM_USER 
+if "%1" NEQ "" (
+	call :GETOPT %1 %2 %3 %4 %5 %6 %7 %8 %9
+) else (
+	call :READ_PARAMS_FROM_USER
 )
 :: if one of the modes returned with an error, exit script
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
@@ -48,7 +48,7 @@ if "%PCAP_SDK_HOME:~-1%"=="/" set PCAP_SDK_HOME=%PCAP_SDK_HOME:~,-1%
 if exist %PLATFORM_MK% (del %PLATFORM_MK%)
 if exist %PCAPPLUSPLUS_MK% (del %PCAPPLUSPLUS_MK%)
 
-:: set directories varaibles in platform.mk
+:: set directories variables in platform.mk
 set CUR_DIR=%cd:\=/%
 echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PLATFORM_MK%
 echo. >> %PLATFORM_MK%
@@ -63,7 +63,7 @@ echo. >> %PLATFORM_MK%
 type mk\platform.mk.%MINGW_TYPE% >> %PLATFORM_MK%
 
 
-:: set directories varaibles in PcapPlusPlus.mk
+:: set directories variables in PcapPlusPlus.mk
 echo PCAPPLUSPLUS_HOME := %CUR_DIR%>> %PCAPPLUSPLUS_MK%
 echo. >> %PCAPPLUSPLUS_MK%
 echo MINGW_HOME := %MINGW_HOME%>> %PCAPPLUSPLUS_MK%
@@ -88,7 +88,7 @@ exit /B 0
 
 :: -------------------------------------------------------------------
 :: an implementation of getopt for Windows and specifically for PcapPlusPlus
-:: this "function" takes as paramters all command-line arguments given by the user who runs the script
+:: this "function" takes as parameters all command-line arguments given by the user who runs the script
 :: then it parses the command-line arguments and calls switch cases per argument
 :: it returns with the following exit codes:
 ::   - exit code 0 if arguments were parsed ok
@@ -100,7 +100,7 @@ exit /B 0
 if "%1"=="" call :GETOPT_ERROR "No parameters provided" & exit /B 1
 
 :GETOPT_START
-:: the HAS_PARAM varaible states whether the switch has a parameter, for example '-a 111' means switch '-a' has the parameter '111'
+:: the HAS_PARAM variable states whether the switch has a parameter, for example '-a 111' means switch '-a' has the parameter '111'
 :: initially this variable is set to 0
 set HAS_PARAM=0
 
@@ -114,7 +114,7 @@ if ERRORLEVEL 3 exit /B 3
 :: ERRORLEVEL 2 means the current switch doesn't have a required parameter. Return this error code to the caller
 if ERRORLEVEL 2 exit /B 2
 :: ERRORLEVEL 1 means the switch is unknown (no case was found for it). Return this error code to the caller
-if ERRORLEVEL 1 call :GETOPT_ERROR "Unkown parameter %1" & exit /B 1
+if ERRORLEVEL 1 call :GETOPT_ERROR "Unknown parameter %1" & exit /B 1
 
 :: shift-left the command-line arguments, meaning put %2 in %1, %3 in %2, %4 in %3 and so on. This way %1 always holds the next switch to parse and handle
 shift /1
@@ -127,7 +127,7 @@ goto GETOPT_START
 	set MINGW_TYPE=%1
 	:: exit ok
 	exit /B 0
-	
+
 :CASEmingw-w64
 	set MINGW_TYPE=%1
 	:: exit ok
@@ -136,7 +136,7 @@ goto GETOPT_START
 :: handling help switches (-h or --help)
 :CASE--help
 :CASE-h
-	:: call the HELP "function" 
+	:: call the HELP "function"
 	call :HELP
 	:: exit with error code 3, meaning ask the caller to exit the script
 	exit /B 3
@@ -210,7 +210,7 @@ goto GETOPT_START
 :: a "function" that implements the wizard mode which reads MinGW home and WinPcap/Npcap SDK by displaying a wizard for the user
 :READ_PARAMS_FROM_USER
 
-echo MinGW32 or MinGW-w64 are required for compiling PcapPlusPlus. Please specify 
+echo MinGW32 or MinGW-w64 are required for compiling PcapPlusPlus. Please specify
 echo the type you want to use (can be either "mingw32" or "mingw-w64")
 echo.
 :while0
@@ -238,7 +238,7 @@ echo.
 if "%MINGW_TYPE%"=="mingw32" goto msys-not-required
 
 :: get MSYS2 location from user and verify it exists
-echo MSYS2 is required for compiling PcapPlusPlus. 
+echo MSYS2 is required for compiling PcapPlusPlus.
 echo If MSYS2 are not installed, please download and install it from: https://www.msys2.org/
 echo.
 :while3

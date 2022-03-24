@@ -7,10 +7,12 @@
 #include "IPv6Layer.h"
 #include "DnsLayer.h"
 #include "DhcpLayer.h"
+#include "DhcpV6Layer.h"
 #include "VxlanLayer.h"
 #include "SipLayer.h"
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
+#include "NtpLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
@@ -51,7 +53,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 	{
 		udpHdr->headerChecksum = 0;
 		ScalarBuffer<uint16_t> vec[2];
-		LOG_DEBUG("data len =  %d", (int)m_DataLen);
+		PCPP_LOG_DEBUG("data len =  " << m_DataLen);
 		vec[0].buffer = (uint16_t*)m_Data;
 		vec[0].len = m_DataLen;
 
@@ -69,7 +71,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 12;
 			checksumRes = computeChecksum(vec, 2);
-			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
+			PCPP_LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
 		}
 		else if (m_PrevLayer->getProtocol() == IPv6)
 		{
@@ -81,7 +83,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 			vec[1].buffer = pseudoHeader;
 			vec[1].len = 36;
 			checksumRes = computeChecksum(vec, 2);
-			LOG_DEBUG("calculated checksum = 0x%4X", checksumRes);
+			PCPP_LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
 		}
 	}
 
@@ -127,6 +129,10 @@ void UdpLayer::parseNextLayer()
 		m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, m_Packet);
 	else if ((GtpV1Layer::isGTPv1Port(portDst) || GtpV1Layer::isGTPv1Port(portSrc)) && GtpV1Layer::isGTPv1(udpData, udpDataLen))
 		m_NextLayer = new GtpV1Layer(udpData, udpDataLen, this, m_Packet);
+	else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) && (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
+		m_NextLayer = new DhcpV6Layer(udpData, udpDataLen, this, m_Packet);
+	else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) && NtpLayer::isDataValid(udpData, udpDataLen))
+		m_NextLayer = new NtpLayer(udpData, udpDataLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 }

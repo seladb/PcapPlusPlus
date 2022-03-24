@@ -3,8 +3,9 @@
 
 #include "PcapDevice.h"
 #include "RawPacket.h"
+#include <fstream>
 
-// forward decleration for structs and typedefs defined in pcap.h
+// forward declaration for structs and typedefs defined in pcap.h
 struct pcap_dumper;
 typedef struct pcap_dumper pcap_dumper_t;
 
@@ -41,6 +42,7 @@ namespace pcpp
 
 		/**
 		 * Close the file
+		 * @return No return value
 		 */
 		virtual void close();
 	};
@@ -150,6 +152,91 @@ namespace pcpp
 		 * @param[out] stats The stats struct where stats are returned
 		 */
 		void getStatistics(PcapStats& stats) const;
+	};
+
+	/**
+	 * @class SnoopFileReaderDevice
+	 * A class for opening a snoop file in read-only mode. This class enable to open the file and read all packets, packet-by-packet
+	 */
+	class SnoopFileReaderDevice : public IFileReaderDevice
+	{
+	private:
+		#pragma pack(0)
+		/*
+		 * File format header.
+		 */
+		typedef struct {
+		    uint64_t        identification_pattern;
+		    uint32_t        version_number;
+		    uint32_t        datalink_type;
+		} snoop_file_header_t;
+
+		/*
+		 * Packet record header.
+		 */
+		typedef struct {
+		    uint32_t        original_length;     /* original packet length */
+		    uint32_t        included_length;     /* saved packet length */
+		    uint32_t        packet_record_length;/* total record length */
+		    uint32_t        ndrops_cumulative;   /* cumulative drops */
+		    uint32_t        time_sec;            /* timestamp */
+		    uint32_t        time_usec;           /* microsecond timestamp */
+		} snoop_packet_header_t;
+		#pragma pack()
+
+		LinkLayerType m_PcapLinkLayerType;
+		std::ifstream m_snoopFile;
+
+		// private copy c'tor
+		SnoopFileReaderDevice(const PcapFileReaderDevice& other);
+		SnoopFileReaderDevice& operator=(const PcapFileReaderDevice& other);
+
+	public:
+		/**
+		 * A constructor for this class that gets the snoop full path file name to open. Notice that after calling this constructor the file
+		 * isn't opened yet, so reading packets will fail. For opening the file call open()
+		 * @param[in] fileName The full path of the file to read
+		 */
+		SnoopFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
+
+		/**
+		 * A destructor for this class
+		 */
+		virtual ~SnoopFileReaderDevice();
+
+		/**
+		* @return The link layer type of this file
+		*/
+		LinkLayerType getLinkLayerType() const { return m_PcapLinkLayerType; }
+
+
+		//overridden methods
+
+		/**
+		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
+		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
+		 * or if reached end-of-file
+		 */
+		bool getNextPacket(RawPacket& rawPacket);
+
+		/**
+		 * Open the file name which path was specified in the constructor in a read-only mode
+		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed for some reason (for example:
+		 * file path does not exist)
+		 */
+		bool open();
+
+		/**
+		 * Get statistics of packets read so far. In the PcapStats struct, only the packetsRecv member is relevant. The rest of the members will contain 0
+		 * @param[out] stats The stats struct where stats are returned
+		 */
+		void getStatistics(PcapStats& stats) const;
+
+		/**
+		 * Close the snoop file
+		 */
+		void close();
 	};
 
 
@@ -404,7 +491,7 @@ namespace pcpp
 		 * A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice that after calling this
 		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file
-		 * @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression or 10 for max compression. Default is 0 
+		 * @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression or 10 for max compression. Default is 0
 		 */
 		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
 

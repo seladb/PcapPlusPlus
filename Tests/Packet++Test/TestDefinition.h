@@ -36,6 +36,7 @@ PTF_TEST_CASE(TcpPacketWithOptionsParsing2);
 PTF_TEST_CASE(TcpMalformedPacketParsing);
 PTF_TEST_CASE(TcpPacketCreation);
 PTF_TEST_CASE(TcpPacketCreation2);
+PTF_TEST_CASE(TcpChecksumInvalidRead);
 
 // Implemented in PacketUtilsTests.cpp
 PTF_TEST_CASE(PacketUtilsHash5TupleUdp);
@@ -44,6 +45,7 @@ PTF_TEST_CASE(PacketUtilsHash5TupleIPv6);
 
 // Implemented in PacketTests.cpp
 PTF_TEST_CASE(InsertDataToPacket);
+PTF_TEST_CASE(CreatePacketFromBuffer);
 PTF_TEST_CASE(InsertVlanToPacket);
 PTF_TEST_CASE(RemoveLayerTest);
 PTF_TEST_CASE(CopyLayerAndPacketTest);
@@ -52,6 +54,7 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest);
 PTF_TEST_CASE(ParsePartialPacketTest);
 PTF_TEST_CASE(PacketTrailerTest);
 PTF_TEST_CASE(ResizeLayerTest);
+PTF_TEST_CASE(PrintPacketAndLayers);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestLayerParsingTest);
@@ -99,6 +102,7 @@ PTF_TEST_CASE(DhcpEditTest);
 
 // Implemented in SSLTests.cpp
 PTF_TEST_CASE(SSLClientHelloParsingTest);
+PTF_TEST_CASE(SSLExtensionWithZeroSizeTest);
 PTF_TEST_CASE(SSLAppDataParsingTest);
 PTF_TEST_CASE(SSLAlertParsingTest);
 PTF_TEST_CASE(SSLMultipleRecordParsingTest);
@@ -150,5 +154,16 @@ PTF_TEST_CASE(BgpLayerEditTest);
 PTF_TEST_CASE(SSHParsingTest);
 PTF_TEST_CASE(SSHMalformedParsingTest);
 
-// Implemented in IPSec.cpp
+// Implemented in IPSecTests.cpp
 PTF_TEST_CASE(IPSecParsingTest);
+
+// Implemented in DhcpV6Tests.cpp
+PTF_TEST_CASE(DhcpV6ParsingTest);
+PTF_TEST_CASE(DhcpV6CreationTest);
+PTF_TEST_CASE(DhcpV6EditTest);
+
+// Implemented in NtpTests.cpp
+PTF_TEST_CASE(NtpMethodsTests);
+PTF_TEST_CASE(NtpParsingV3Tests);
+PTF_TEST_CASE(NtpParsingV4Tests);
+PTF_TEST_CASE(NtpCraftingTests);

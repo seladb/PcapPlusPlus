@@ -117,11 +117,14 @@ namespace pcpp
 
 		/**
 		 * A copy constructor for this layer
+		 * @param[in] other The DNS layer to copy from
 		 */
 		DnsLayer(const DnsLayer& other);
 
 		/**
 		 * An assignment operator for this layer
+		 * @param[in] other The DNS layer to assign
+		 * @return A reference to the assignee
 		 */
 		DnsLayer& operator=(const DnsLayer& other);
 
@@ -172,7 +175,7 @@ namespace pcpp
 
 		/**
 		 * Add a new DNS query similar to an already existing DNS query. All query fields will be copied from the existing query
-		 * param[in] copyQuery The record to create the new record from. copyQuery won't be changed in any way
+		 * @param[in] copyQuery The record to create the new record from. copyQuery won't be changed in any way
 		 * @return A pointer to the newly created DNS query or NULL if query could not be created (an appropriate error log message will be
 		 * printed in this case)
 		 */
@@ -235,7 +238,7 @@ namespace pcpp
 
 		/**
 		 * Add a new DNS answer similar to an already existing DNS answer. All answer fields will be copied from the existing answer
-		 * param[in] copyAnswer The record to create the new record from. copyAnswer won't be changed in any way
+		 * @param[in] copyAnswer The record to create the new record from. copyAnswer won't be changed in any way
 		 * @return A pointer to the newly created DNS answer or NULL if query could not be created (an appropriate error log message will be
 		 * printed in this case)
 		 */
@@ -299,7 +302,7 @@ namespace pcpp
 
 		/**
 		 * Add a new DNS authority similar to an already existing DNS authority. All authority fields will be copied from the existing authority
-		 * param[in] copyAuthority The record to create the new record from. copyAuthority won't be changed in any way
+		 * @param[in] copyAuthority The record to create the new record from. copyAuthority won't be changed in any way
 		 * @return A pointer to the newly created DNS authority or NULL if query could not be created (an appropriate error log message will be
 		 * printed in this case)
 		 */
@@ -381,7 +384,7 @@ namespace pcpp
 		/**
 		 * Add a new DNS additional record similar to an already existing DNS additional record. All additional record fields will be copied from the
 		 * existing additional record
-		 * param[in] copyAdditionalRecord The record to create the new record from. copyAdditionalRecord won't be changed in any way
+		 * @param[in] copyAdditionalRecord The record to create the new record from. copyAdditionalRecord won't be changed in any way
 		 * @return A pointer to the newly created DNS additional record or NULL if query could not be created (an appropriate error log message will
 		 * be printed in this case)
 		 */
@@ -410,13 +413,14 @@ namespace pcpp
 		void parseNextLayer() {}
 
 		/**
-		 * Return the size of the DNS data in the packet including he DNS header and size of all queries, answers, authorities and additional
+		 * @return The size of the DNS data in the packet including he DNS header and size of all queries, answers, authorities and additional
 		 * records
 		 */
 		size_t getHeaderLen() const { return m_DataLen; } //No layer above DNS
 
 		/**
 		 * Does nothing for this layer
+		 * @return No return value
 		 */
 		virtual void computeCalculateFields() {}
 
@@ -427,6 +431,7 @@ namespace pcpp
 		/**
 		 * A static method that checks whether the port is considered as DNS
 		 * @param[in] port The port number to be checked
+		 * @return True if the port is associated with the DNS protocol
 		 */
 		static inline bool isDnsPort(uint16_t port);
 
@@ -484,7 +489,7 @@ namespace pcpp
 	 * DNS over TCP is described here: https://tools.ietf.org/html/rfc7766 .
 	 * It is very similar to DNS over UDP, except for one field: TCP message length which is added in the beginning of the message
 	 * before the other DNS data properties. The rest of the data is similar.
-	 * 
+	 *
 	 * Note: DNS over TCP can spread over more than one packet, but this implementation doesn't support this use-case and assumes
 	 * the whole message fits in a single packet.
 	 */
@@ -509,6 +514,7 @@ namespace pcpp
 
 		/**
 		 * A copy constructor for this layer
+		 * @param[in] other The DNS over TCP layer to copy from
 		 */
 		DnsOverTcpLayer(const DnsOverTcpLayer& other) : DnsLayer(other) {}
 
@@ -524,7 +530,7 @@ namespace pcpp
 		void setTcpMessageLength(uint16_t value);
 
 
-		// overriden methods
+		// overridden methods
 
 		/**
 		 * Calculate the TCP message length field

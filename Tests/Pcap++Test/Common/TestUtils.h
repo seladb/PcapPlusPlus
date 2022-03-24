@@ -12,16 +12,21 @@ private:
 
 	pcpp::IDevice* m_Device;
 	bool m_CancelTeardown;
+	bool m_DeleteDevice;
 
 public:
 
-	DeviceTeardown(pcpp::IDevice* device) : m_Device(device), m_CancelTeardown(false) {}
+	DeviceTeardown(pcpp::IDevice* device, bool deleteDevice = false) : m_Device(device), m_CancelTeardown(false), m_DeleteDevice(deleteDevice) {}
 
-	~DeviceTeardown() 
-	{ 
+	~DeviceTeardown()
+	{
 		if (!m_CancelTeardown && m_Device != NULL && m_Device->isOpened())
 		{
 			m_Device->close();
+		}
+		if (m_DeleteDevice)
+		{
+			delete m_Device;
 		}
 	}
 
@@ -41,8 +46,8 @@ uint8_t* readFileIntoBuffer(std::string filename, int& bufferLength);
 
 template<typename KeyType, typename LeftValue, typename RightValue>
 void intersectMaps(
-	const std::map<KeyType, LeftValue> & left, 
-	const std::map<KeyType, RightValue> & right, 
+	const std::map<KeyType, LeftValue> & left,
+	const std::map<KeyType, RightValue> & right,
 	std::map<KeyType, std::pair<LeftValue, RightValue> >& result)
 {
 	typename std::map<KeyType, LeftValue>::const_iterator il = left.begin();

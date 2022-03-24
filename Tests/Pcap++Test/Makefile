@@ -34,20 +34,11 @@ PCAPPP_INCLUDES += -I$(MEMPLUMBER_INCLUDES) -I$(ENDIAN_PORTABLE_INCLUDE) -I$(PCP
 ifdef WIN32
 DEPS := -DHAVE_STRUCT_TIMESPEC
 endif
-ifdef LINUX
-DEPS := -DLINUX
-endif
-ifdef FREEBSD
-DEPS := -DFREEBSD
-endif
 ifdef PF_RING_HOME
 DEPS += -DUSE_PF_RING
 endif
 ifdef USE_DPDK
 DEPS += -DUSE_DPDK
-endif
-ifdef MAC_OS_X
-DEPS := -DMAC_OS_X
 endif
 ifdef HAS_SET_DIRECTION_ENABLED
 DEPS += -DHAS_SET_DIRECTION_ENABLED
@@ -76,7 +67,7 @@ create-directories:
 
 dependents:
 	@cd $(PCAPPLUSPLUS_HOME) && $(MAKE) libs
-	
+
 Pcap++Test: start create-directories $(OBJS_FILENAMES)
 	@cd $(MEMPLUMBER_HOME) && $(MAKE) memplumber_sources
 	@$(CXX) $(COMMON_DEBUG_LIB_DIR) $(PCAPPP_LIBS_DIR) $(PCAPPP_BUILD_FLAGS) -o "./Bin/Pcap++Test$(BIN_EXT)" $(OBJS_FILENAMES) $(MEMPLUMBER_OBJS_FILENAMES) $(PCAPPP_LIBS)

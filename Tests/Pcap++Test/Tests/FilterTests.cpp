@@ -58,9 +58,9 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.google.com"));
 	//let the capture work for couple of seconds
 	int totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, size);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
 
 
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
@@ -68,7 +68,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(ipv4Layer->getDstIPAddress(), ipToSearch, object);
+		PTF_ASSERT_EQUAL(ipv4Layer->getDstIPAddress(), ipToSearch);
 	}
 	capturedPackets.clear();
 
@@ -85,15 +85,15 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
 	//let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, size);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::TCP));
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80, u16);
+		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80);
 	}
 	capturedPackets.clear();
 
@@ -112,9 +112,9 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.walla.co.il"));
 	//let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, size);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -122,8 +122,8 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 		pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80, u16);
-		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch, object);
+		PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 80);
+		PTF_ASSERT_EQUAL(ip4Layer->getDstIPAddress(), ipToSearch);
 	}
 	capturedPackets.clear();
 
@@ -143,9 +143,9 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.youtube.com"));
 	//let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, size);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -164,7 +164,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 		else if (packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch, object);
+			PTF_ASSERT_EQUAL(ip4Layer->getSrcIPAddress(), ipToSearch);
 		}
 		// else packet isn't of type IP or TCP
 	}
@@ -183,16 +183,16 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 	PTF_ASSERT_TRUE(sendURLRequest("www.ebay.com"));
 	//let the capture work for couple of seconds
 	totalSleepTime = incSleep(capturedPackets, 2, 7);
-	PTF_PRINT_VERBOSE("Total sleep time: %d", totalSleepTime);
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2, size);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(capturedPackets.size(), 2);
 	for (pcpp::RawPacketVector::VectorIterator iter = capturedPackets.begin(); iter != capturedPackets.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		if (packet.isPacketOfType(pcpp::IPv4))
 		{
 			pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch, object);
+			PTF_ASSERT_NOT_EQUAL(ipv4Layer->getSrcIPAddress(), ipToSearch);
 		}
 	}
 	capturedPackets.clear();
@@ -245,11 +245,11 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 			++validCounter;
 			pcpp::Packet packet(*iter);
 			pcpp::EthLayer* ethLayer = packet.getLayerOfType<pcpp::EthLayer>();
-			PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddr, object);
+			PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddr);
 		}
 	}
 
-	PTF_ASSERT_EQUAL(validCounter, 5, int);
+	PTF_ASSERT_EQUAL(validCounter, 5);
 
 	rawPacketVec.clear();
 } // TestPcapFilters_General_BPFStr
@@ -300,13 +300,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev.getNextPackets(rawPacketVec);
 	fileReaderDev.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 12, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 12);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::VLAN));
 		pcpp::VlanLayer* vlanLayer = packet.getLayerOfType<pcpp::VlanLayer>();
-		PTF_ASSERT_EQUAL(vlanLayer->getVlanID(), 118, u16);
+		PTF_ASSERT_EQUAL(vlanLayer->getVlanID(), 118);
 	}
 
 	rawPacketVec.clear();
@@ -324,12 +324,12 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev.getNextPackets(rawPacketVec);
 	fileReaderDev.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 5, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 5);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		pcpp::EthLayer* ethLayer = packet.getLayerOfType<pcpp::EthLayer>();
-		PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddrToFilter, object);
+		PTF_ASSERT_EQUAL(ethLayer->getDestMac(), macAddrToFilter);
 	}
 
 	rawPacketVec.clear();
@@ -346,7 +346,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev.getNextPackets(rawPacketVec);
 	fileReaderDev.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 24, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 24);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -368,13 +368,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 1423, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 1423);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_GREATER_THAN(be16toh(ipv4Layer->getIPv4Header()->ipId), ipID, u16);
+		PTF_ASSERT_GREATER_THAN(be16toh(ipv4Layer->getIPv4Header()->ipId), ipID);
 	}
 
 	rawPacketVec.clear();
@@ -392,13 +392,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 2066, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 2066);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_LOWER_OR_EQUAL_THAN(be16toh(ipv4Layer->getIPv4Header()->totalLength), totalLength, u16);
+		PTF_ASSERT_LOWER_OR_EQUAL_THAN(be16toh(ipv4Layer->getIPv4Header()->totalLength), totalLength);
 	}
 
 	rawPacketVec.clear();
@@ -416,13 +416,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 4249, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 4249);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::TCP));
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-		PTF_ASSERT_NOT_EQUAL(be16toh(tcpLayer->getTcpHeader()->windowSize), windowSize, u16);
+		PTF_ASSERT_NOT_EQUAL(be16toh(tcpLayer->getTcpHeader()->windowSize), windowSize);
 	}
 
 	rawPacketVec.clear();
@@ -440,13 +440,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 4, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 4);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::UDP));
 		pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
-		PTF_ASSERT_EQUAL(be16toh(udpLayer->getUdpHeader()->length), udpLength, u16);
+		PTF_ASSERT_EQUAL(be16toh(udpLayer->getUdpHeader()->length), udpLength);
 	}
 
 	rawPacketVec.clear();
@@ -463,7 +463,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 2536, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 2536);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -484,7 +484,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 2536, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 2536);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -506,7 +506,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 1464, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 1464);
 
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
@@ -540,14 +540,14 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 65, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 65);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::TCP));
 		pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-		PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->synFlag, 1 ,u16);
-		PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackFlag, 1, u16);
+		PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->synFlag, 1);
+		PTF_ASSERT_EQUAL(tcpLayer->getTcpHeader()->ackFlag, 1);
 	}
 	rawPacketVec.clear();
 
@@ -559,7 +559,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 4489, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 4489);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -584,7 +584,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev3.getNextPackets(rawPacketVec);
 	fileReaderDev3.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 2, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 2);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -601,7 +601,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev3.getNextPackets(rawPacketVec);
 	fileReaderDev3.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 9, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 9);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -618,7 +618,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev3.getNextPackets(rawPacketVec);
 	fileReaderDev3.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 17, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 17);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -635,7 +635,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev4.getNextPackets(rawPacketVec);
 	fileReaderDev4.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 38, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 38);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -652,7 +652,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev4.getNextPackets(rawPacketVec);
 	fileReaderDev4.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 6, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 6);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -678,14 +678,14 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev2.getNextPackets(rawPacketVec);
 	fileReaderDev2.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 69, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 69);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::UDP));
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipv4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "10.0.0.6", string);
+		PTF_ASSERT_EQUAL(ipv4Layer->getSrcIPAddress().toString(), "10.0.0.6");
 	}
 
 	rawPacketVec.clear();
@@ -717,7 +717,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	fileReaderDev3.getNextPackets(rawPacketVec);
 	fileReaderDev3.close();
 
-	PTF_ASSERT_EQUAL(rawPacketVec.size(), 19, size);
+	PTF_ASSERT_EQUAL(rawPacketVec.size(), 19);
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
 		pcpp::Packet packet(*iter);
@@ -757,14 +757,14 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
-				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_DLT_RAW1)
+				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_DLT_RAW1)
 				{
 					++validCounter;
 				}
 			}
 		}
 	}
-	PTF_ASSERT_EQUAL(validCounter, 50, int);
+	PTF_ASSERT_EQUAL(validCounter, 50);
 	rawPacketVec.clear();
 
 
@@ -783,14 +783,14 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
-				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_LINUX_SLL)
+				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_LINUX_SLL)
 				{
 					++validCounter;
 				}
 			}
 		}
 	}
-	PTF_ASSERT_EQUAL(validCounter, 510, int);
+	PTF_ASSERT_EQUAL(validCounter, 510);
 	rawPacketVec.clear();
 
 
@@ -809,14 +809,13 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
 			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
 			{
-				if((*iter)->getLinkLayerType(), pcpp::LINKTYPE_ETHERNET)
+				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_ETHERNET)
 				{
 					++validCounter;
 				}
 			}
 		}
 	}
-	PTF_ASSERT_EQUAL(validCounter, 64, int);
+	PTF_ASSERT_EQUAL(validCounter, 62);
 	rawPacketVec.clear();
 } // TestPcapFilters_LinkLayer
-

@@ -1,14 +1,16 @@
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include "PcapPlusPlusVersion.h"
 #include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
+#include "Logger.h"
 
 
 static struct option PacketTestOptions[] =
 {
-	{"tags",  required_argument, 0, 't'},
+	{"include-tags",  required_argument, 0, 't'},
+	{"exclude-tags",  required_argument, 0, 'x'},
 	{"show-skipped-tests", no_argument, 0, 'w' },
 	{"mem-verbose", no_argument, 0, 'm' },
 	{"verbose", no_argument, 0, 'v' },
@@ -19,35 +21,37 @@ static struct option PacketTestOptions[] =
 
 void printUsage()
 {
-    printf("Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
-			"Flags:\n"
-			"-t --tags                A list of semicolon separated tags for tests to run\n"
-			"-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
-			"-v --verbose             Run in verbose mode (emits more output in several tests)\n"
-			"-m --mem-verbose         Output information about each memory allocation and deallocation\n"
-			"-s --skip-mem-leak-check Skip memory leak check\n"
-			"-h --help                Display this help message and exit\n"
-		);
+	std::cout << "Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
+			<< "Flags:\n"
+			<< "-t --include-tags        A list of semicolon separated tags for tests to run\n"
+			<< "-x --exclude-tags        A list of semicolon separated tags for tests to exclude\n"
+			<< "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
+			<< "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
+			<< "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
+			<< "-s --skip-mem-leak-check Skip memory leak check\n"
+			<< "-h --help                Display this help message and exit\n";
 }
 
 
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
-
 	int optionIndex = 0;
-	char opt = 0;
-	std::string userTags = "", configTags = "";
+	int opt = 0;
+	std::string userTagsInclude = "", userTagsExclude = "", configTags = "";
 	bool memVerbose = false;
 	bool skipMemLeakCheck = false;
 
-	while((opt = getopt_long(argc, argv, "msvwht:", PacketTestOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "msvwht:x:", PacketTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
 			case 0:
 				break;
 			case 't':
-				userTags = optarg;
+				userTagsInclude = optarg;
+				break;
+			case 'x':
+				userTagsExclude = optarg;
 				break;
 			case 's':
 				skipMemLeakCheck = true;
@@ -70,23 +74,26 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	printf("PcapPlusPlus version: %s\n", pcpp::getPcapPlusPlusVersionFull().c_str());
-	printf("Built: %s\n", pcpp::getBuildDateTime().c_str());
-	printf("Built from: %s\n", pcpp::getGitInfo().c_str());
+	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+	<< "Built: " << pcpp::getBuildDateTime() << std::endl
+	<< "Built from: " << pcpp::getGitInfo() << std::endl;
 
 	#ifdef NDEBUG
 	skipMemLeakCheck = true;
-	printf("Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:\n");
-	printf("     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958\n");
+	std::cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:" << std::endl
+	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 	#endif
-	
+
+	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
+	pcpp::Logger::getInstance();
+
 	if (skipMemLeakCheck)
 	{
 		if (configTags != "")
 			configTags += ";";
 
 		configTags += "skip_mem_leak_check";
-		printf("Skipping memory leak check for all test cases\n");
+		std::cout << "Skipping memory leak check for all test cases" << std::endl;
 	}
 
 	if (memVerbose)
@@ -95,10 +102,10 @@ int main(int argc, char* argv[])
 			configTags += ";";
 
 		configTags += "mem_leak_check_verbose";
-		printf("Turning on verbose information on memory allocations\n");
+		std::cout << "Turning on verbose information on memory allocations" << std::endl;
 	}
 
-	PTF_START_RUNNING_TESTS(userTags, configTags);
+	PTF_START_RUNNING_TESTS(userTagsInclude, userTagsExclude, configTags);
 
 	PTF_RUN_TEST(EthPacketCreation, "eth2;eth");
 	PTF_RUN_TEST(EthPacketPointerCreation, "eth2;eth");
@@ -129,12 +136,14 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TcpPacketCreation, "tcp");
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
 	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
+	PTF_RUN_TEST(TcpChecksumInvalidRead, "tcp");
 
 	PTF_RUN_TEST(PacketUtilsHash5TupleUdp, "udp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleTcp, "tcp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleIPv6, "ipv6");
 
 	PTF_RUN_TEST(InsertDataToPacket, "packet;insert");
+	PTF_RUN_TEST(CreatePacketFromBuffer, "packet");
 	PTF_RUN_TEST(InsertVlanToPacket, "packet;vlan;insert");
 	PTF_RUN_TEST(RemoveLayerTest, "packet;remove_layer");
 	PTF_RUN_TEST(CopyLayerAndPacketTest, "packet;copy_layer");
@@ -143,6 +152,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ParsePartialPacketTest, "packet;partial_packet");
 	PTF_RUN_TEST(PacketTrailerTest, "packet;packet_trailer");
 	PTF_RUN_TEST(ResizeLayerTest, "packet;resize");
+	PTF_RUN_TEST(PrintPacketAndLayers, "packet;print");
 
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerCreationTest, "http");
@@ -168,12 +178,13 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
 	PTF_RUN_TEST(IcmpEditTest, "icmp");
-	
+
 	PTF_RUN_TEST(GreParsingTest, "gre");
 	PTF_RUN_TEST(GreCreationTest, "gre");
 	PTF_RUN_TEST(GreEditTest, "gre");
 
 	PTF_RUN_TEST(SSLClientHelloParsingTest, "ssl");
+	PTF_RUN_TEST(SSLExtensionWithZeroSizeTest, "ssl");
 	PTF_RUN_TEST(SSLAppDataParsingTest, "ssl");
 	PTF_RUN_TEST(SSLAlertParsingTest, "ssl");
 	PTF_RUN_TEST(SSLMultipleRecordParsingTest, "ssl");
@@ -201,7 +212,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(Igmpv3ParsingTest, "igmp");
 	PTF_RUN_TEST(Igmpv3QueryCreateAndEditTest, "igmp");
 	PTF_RUN_TEST(Igmpv3ReportCreateAndEditTest, "igmp");
-	
+
 	PTF_RUN_TEST(SipRequestLayerParsingTest, "sip");
 	PTF_RUN_TEST(SipRequestLayerCreationTest, "sip");
 	PTF_RUN_TEST(SipRequestLayerEditTest, "sip");
@@ -228,6 +239,15 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SSHMalformedParsingTest, "ssh");
 
 	PTF_RUN_TEST(IPSecParsingTest, "ipsec");
+
+	PTF_RUN_TEST(DhcpV6ParsingTest, "dhcp;dhcpv6");
+	PTF_RUN_TEST(DhcpV6CreationTest, "dhcp;dhcpv6");
+	PTF_RUN_TEST(DhcpV6EditTest, "dhcp;dhcpv6");
+
+	PTF_RUN_TEST(NtpMethodsTests, "ntp");
+	PTF_RUN_TEST(NtpParsingV3Tests, "ntp");
+	PTF_RUN_TEST(NtpParsingV4Tests, "ntp");
+	PTF_RUN_TEST(NtpCraftingTests, "ntp");
 
 	PTF_END_RUNNING_TESTS;
 }

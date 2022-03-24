@@ -46,6 +46,7 @@ public:
 	 * Assignment operator for this class. This method copies the data from the other instance and will not share any resources with it.
 	 * Also, if the instance already contains data it will be deleted or zeroed
 	 * @param[in] other The instance to assign from
+	 * @return A reference to the assignee
 	 */
 	HeaderField& operator=(const HeaderField& other);
 
@@ -68,6 +69,7 @@ public:
 	/**
 	 * A setter for field value
 	 * @param[in] newValue The new value to set to the field. Old value will be deleted
+	 * @return True if setting the value was completed successfully, false otherwise
 	 */
 	bool setFieldValue(std::string newValue);
 
@@ -78,8 +80,8 @@ public:
 	bool isEndOfHeader() const { return m_IsEndOfHeaderField; }
 
 private:
-	HeaderField(std::string name, std::string value, char nameValueSeperator, bool spacesAllowedBetweenNameAndValue);
-	HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int offsetInMessage, char nameValueSeperator, bool spacesAllowedBetweenNameAndValue);
+	HeaderField(std::string name, std::string value, char nameValueSeparator, bool spacesAllowedBetweenNameAndValue);
+	HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int offsetInMessage, char nameValueSeparator, bool spacesAllowedBetweenNameAndValue);
 
 	char* getData() const;
 	void setNextField(HeaderField* nextField);
@@ -96,7 +98,7 @@ private:
 	size_t m_FieldSize;
 	HeaderField* m_NextField;
 	bool m_IsEndOfHeaderField;
-	char m_NameValueSeperator;
+	char m_NameValueSeparator;
 	bool m_SpacesAllowedBetweenNameAndValue;
 };
 

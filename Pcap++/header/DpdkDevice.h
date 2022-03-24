@@ -45,7 +45,7 @@
  *    - In addition PcapPlusPlus provides a shell script to initialize DPDK prerequisites: setup-dpdk.sh. This is an easy-to-use script
  *      that sets up huge-pages, loads DPDK kernel module and sets up the NICs that will be used by DPDK. This script must run before an
  *      application that uses DPDK runs. If you forgot to run it the application will fail with an appropriate error that will remind
- * 
+ *
  * DPDK initialization using PcapPlusPlus:
  *    - Before application runs: run the setup-dpdk.sh script
  *    - On application startup call DpdkDeviceList#initDpdk() static method to initialize DPDK infrastructure and DpdkDevice instances
@@ -74,7 +74,8 @@ namespace pcpp
 	/**
 	 * An enum describing all PMD (poll mode driver) types supported by DPDK. For more info about these PMDs please visit the DPDK web-site
 	 */
-	enum DpdkPMDType {
+	enum DpdkPMDType
+	{
 		/** Unknown PMD type */
 		PMD_UNKNOWN,
 		/** Link Bonding for 1GbE and 10GbE ports to allow the aggregation of multiple (slave) NICs into a single logical interface*/
@@ -139,11 +140,11 @@ namespace pcpp
 	 * DPDK port (DpdkDevice) with a single or multiple RX and TX queues. When receiving packets the user can decide from which RX queue
 	 * to read from, and when transmitting packets the user can decide to which TX queue to send them to. RX/TX queues are configured
 	 * when opening the DpdkDevice (see openMultiQueues())<BR>
-	 * 
+	 *
 	 * __Capturing packets__: there are two ways to capture packets using DpdkDevice:
 	 *    - using worker threads (see DpdkDeviceList#startDpdkWorkerThreads() ). When using this method the worker should use the
 	 *      DpdkDevice#receivePackets() methods to get packets from the DpdkDevice
-	 *    - by setting a callback which is invoked each time a burst of packets arrives. For more details see 
+	 *    - by setting a callback which is invoked each time a burst of packets arrives. For more details see
 	 *      DpdkDevice#startCaptureSingleThread()
 	 *
 	 * __Sending packets:__ DpdkDevice has various methods for sending packets. They enable sending raw packets, parsed packets, etc.
@@ -156,7 +157,7 @@ namespace pcpp
 	 * packets<BR>
 	 *
 	 * __Known limitations:__
-	 *    - BPF filters are currently not supported by this device (as opposed to other PcapPlusPlus device types. This means that the 
+	 *    - BPF filters are currently not supported by this device (as opposed to other PcapPlusPlus device types. This means that the
 	 *      device cannot filter packets before they get to the user
 	 *    - It's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still not
 	 *      supported by DpdkDevice
@@ -217,7 +218,7 @@ namespace pcpp
 
 		/**
 		 * @struct DpdkDeviceConfiguration
-		 * A struct that contains user configurable parameters for opening a DpdkDevice. All of these parameters have default values so 
+		 * A struct that contains user configurable parameters for opening a DpdkDevice. All of these parameters have default values so
 		 * the user doesn't have to use these parameters or understand exactly what is their effect
 		 */
 		struct DpdkDeviceConfiguration
@@ -297,12 +298,12 @@ namespace pcpp
 		struct LinkStatus
 		{
 			/** Enum for describing link duplex */
-			enum LinkDuplex 
+			enum LinkDuplex
 			{
 				/** Full duplex */
-				FULL_DUPLEX, 
+				FULL_DUPLEX,
 				/** Half duplex */
-				HALF_DUPLEX 
+				HALF_DUPLEX
 			};
 
 			/** True if link is up, false if it's down */
@@ -348,7 +349,7 @@ namespace pcpp
 			/** TX statistics, aggregated for all TX queues */
 			RxTxStats aggregatedTxStats;
 			/** Total number of RX packets dropped by H/W because there are no available buffers (i.e RX queues are full) */
-			uint64_t rxPacketsDropeedByHW;
+			uint64_t rxPacketsDroppedByHW;
 			/** Total number of erroneous packets */
 			uint64_t rxErroneousPackets;
 			/** Total number of RX mbuf allocation failuers */
@@ -364,7 +365,7 @@ namespace pcpp
 		/**
 		 * @return The device name which is in the format of 'DPDK_[PORT-ID]'
 		 */
-		std::string getDeviceName() const { return std::string(m_DeviceName); }
+		std::string getDeviceName() const { return m_DeviceName; }
 
 		/**
 		 * @return The MAC address of the device (DPDK port)
@@ -603,12 +604,14 @@ namespace pcpp
 
 		/**
 		 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
+		 * @param[in] filter Not used in this method
 		 * @return Always false with a "Filters aren't supported in DPDK device" error message
 		 */
 		bool setFilter(GeneralFilter& filter);
 
 		/**
 		 * Overridden method from IPcapDevice. __BPF filters are currently not implemented for DpdkDevice__
+		 * @param[in] filterAsString Not used in this method
 		 * @return Always false with a "Filters aren't supported in DPDK device" error message
 		 */
 		bool setFilter(std::string filterAsString);
@@ -770,7 +773,7 @@ namespace pcpp
 		uint64_t convertRssHfToDpdkRssHf(uint64_t rssHF) const;
 		uint64_t convertDpdkRssHfToRssHf(uint64_t dpdkRssHF) const;
 
-		char m_DeviceName[30];
+		std::string m_DeviceName;
 		DpdkPMDType m_PMDType;
 		std::string m_PMDName;
 		std::string m_PciAddress;

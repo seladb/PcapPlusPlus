@@ -20,6 +20,7 @@ namespace pcpp
 	 * that should be implemented in derived classes. These methods are for record length value calculation (the 'L' in TLV)
 	 * which is implemented differently in different protocols
 	 */
+	template<typename TRecType, typename TRecLen>
 	class TLVRecord
 	{
 	protected:
@@ -28,9 +29,9 @@ namespace pcpp
 		struct TLVRawData
 		{
 			/** Record type */
-			uint8_t recordType;
+			TRecType recordType;
 			/** Record length in bytes */
-			uint8_t recordLen;
+			TRecLen recordLen;
 			/** Record value (variable size) */
 			uint8_t recordValue[];
 		};
@@ -87,7 +88,7 @@ namespace pcpp
 		}
 
 		/**
-		 * Overload of the equality  operator. Two record are equal if both of them point to the same data, or if they point
+		 * Overload of the equality operator. Two record are equal if both of them point to the same data, or if they point
 		 * to different data but their total size is equal and the raw data they both contain is similar.
 		 * @param[in] rhs The object to compare to
 		 * @return True if both objects are equal, false otherwise
@@ -106,11 +107,20 @@ namespace pcpp
 			return (memcmp(m_Data, rhs.m_Data, getTotalSize()) == 0);
 		}
 
+		/**
+		 * Overload of the not equal operator.
+		 * @param[in] rhs The object to compare to
+		 * @return True if objects are not equal, false otherwise
+		 */
+		bool operator!=(const TLVRecord& rhs) const
+		{
+			return !operator==(rhs);
+		}
 
 		/**
 		 * @return The type field of the record (the 'T' in __Type__-Length-Value)
 		 */
-		uint8_t getType() const { return m_Data->recordType; }
+		TRecType getType() const { return m_Data->recordType; }
 
 		/**
 		 * @return A pointer to the value of the record as byte array (the 'V' in Type-Length- __Value__)
@@ -288,13 +298,15 @@ namespace pcpp
 		 * @return An instance of type TLVRecordType that contains the result record. If record was not found a logical
 		 * NULL instance of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
 		 */
-		TLVRecordType getTLVRecord(uint8_t recordType, uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
+		TLVRecordType getTLVRecord(uint32_t recordType, uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
 			TLVRecordType curRec = getFirstTLVRecord(tlvDataBasePtr, tlvDataLen);
 			while (!curRec.isNull())
 			{
 				if (curRec.getType() == recordType)
+				{
 					return curRec;
+				}
 
 				curRec = getNextTLVRecord(curRec, tlvDataBasePtr, tlvDataLen);
 			}
@@ -354,17 +366,17 @@ namespace pcpp
 
 		TLVRecordBuilder();
 
-		TLVRecordBuilder(uint8_t recType, const uint8_t* recValue, uint8_t recValueLen);
+		TLVRecordBuilder(uint32_t recType, const uint8_t* recValue, uint8_t recValueLen);
 
-		TLVRecordBuilder(uint8_t recType, uint8_t recValue);
+		TLVRecordBuilder(uint32_t recType, uint8_t recValue);
 
-		TLVRecordBuilder(uint8_t recType, uint16_t recValue);
+		TLVRecordBuilder(uint32_t recType, uint16_t recValue);
 
-		TLVRecordBuilder(uint8_t recType, uint32_t recValue);
+		TLVRecordBuilder(uint32_t recType, uint32_t recValue);
 
-		TLVRecordBuilder(uint8_t recType, const IPv4Address& recValue);
+		TLVRecordBuilder(uint32_t recType, const IPv4Address& recValue);
 
-		TLVRecordBuilder(uint8_t recType, const std::string& recValue);
+		TLVRecordBuilder(uint32_t recType, const std::string& recValue, bool valueIsHexString = false);
 
 		TLVRecordBuilder(const TLVRecordBuilder& other);
 
@@ -372,12 +384,12 @@ namespace pcpp
 
 		virtual ~TLVRecordBuilder();
 
-		void init(uint8_t recType, const uint8_t* recValue, uint8_t recValueLen);
+		void init(uint32_t recType, const uint8_t* recValue, size_t recValueLen);
 
 		uint8_t* m_RecValue;
-		uint8_t m_RecValueLen;
-		uint8_t m_RecType;
-	
+		size_t m_RecValueLen;
+		uint32_t m_RecType;
+
 	private:
 
 		void copyData(const TLVRecordBuilder& other);

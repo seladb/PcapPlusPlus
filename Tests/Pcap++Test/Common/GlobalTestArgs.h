@@ -8,5 +8,4 @@ struct PcapTestArgs
 	uint16_t remotePort;
 	int dpdkPort;
 	std::string kniIp;
-	char* errString;
 };

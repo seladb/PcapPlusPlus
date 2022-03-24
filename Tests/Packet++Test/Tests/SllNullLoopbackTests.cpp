@@ -23,20 +23,20 @@ PTF_TEST_CASE(SllPacketParsingTest)
 	pcpp::Packet sllPacket(&rawPacket1);
 
 	PTF_ASSERT_TRUE(sllPacket.isPacketOfType(pcpp::SLL));
-	PTF_ASSERT_EQUAL(sllPacket.getFirstLayer()->getProtocol(), pcpp::SLL, u64);
+	PTF_ASSERT_EQUAL(sllPacket.getFirstLayer()->getProtocol(), pcpp::SLL, enum);
 	pcpp::SllLayer* sllLayer = sllPacket.getLayerOfType<pcpp::SllLayer>();
 	PTF_ASSERT_NOT_NULL(sllLayer->getNextLayer());
-	PTF_ASSERT_EQUAL(sllLayer->getNextLayer()->getProtocol(), pcpp::IPv6, u64);
+	PTF_ASSERT_EQUAL(sllLayer->getNextLayer()->getProtocol(), pcpp::IPv6, enum);
 	PTF_ASSERT_TRUE(sllPacket.isPacketOfType(pcpp::HTTP));
 	PTF_ASSERT_NOT_NULL(sllLayer);
-	PTF_ASSERT_TRUE(sllLayer == sllPacket.getFirstLayer());
-	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->packet_type, 0, u16);
-	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->ARPHRD_type, htobe16(1), u16);
-	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->link_layer_addr_len, htobe16(6), u16);
+	PTF_ASSERT_EQUAL(sllLayer, sllPacket.getFirstLayer(), ptr);
+	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->packet_type, 0);
+	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->ARPHRD_type, htobe16(1));
+	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->link_layer_addr_len, htobe16(6));
 	pcpp::MacAddress macAddrFromPacket(sllLayer->getSllHeader()->link_layer_addr);
 	pcpp::MacAddress macAddrRef("00:12:44:1e:74:00");
-	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket, object);
-	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->protocol_type, htobe16(PCPP_ETHERTYPE_IPV6), u16);
+	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
+	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->protocol_type, htobe16(PCPP_ETHERTYPE_IPV6));
 } // SllPacketParsingTest
 
 
@@ -75,7 +75,7 @@ PTF_TEST_CASE(SllPacketCreationTest)
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/SllPacket2.dat");
 
-	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), bufferLength1, int);
+	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
 
 	delete [] buffer1;
@@ -105,25 +105,25 @@ PTF_TEST_CASE(NullLoopbackTest)
 	PTF_ASSERT_NOT_NULL(nullLoopbackLayer);
 	nextLayer = nullLoopbackLayer->getNextLayer();
 	PTF_ASSERT_NOT_NULL(nextLayer);
-	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv6, u64);
-	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET6_DARWIN, u32);
+	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv6, enum);
+	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET6_DARWIN);
 
 	PTF_ASSERT_TRUE(nullPacket2.isPacketOfType(pcpp::NULL_LOOPBACK));
 	nullLoopbackLayer = nullPacket2.getLayerOfType<pcpp::NullLoopbackLayer>();
 	PTF_ASSERT_NOT_NULL(nullLoopbackLayer);
 	nextLayer = nullLoopbackLayer->getNextLayer();
 	PTF_ASSERT_NOT_NULL(nextLayer);
-	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, u64);
-	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIPAddress(), pcpp::IPv4Address("172.16.1.117"), object);
-	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET, u32);
+	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, enum);
+	PTF_ASSERT_EQUAL(((pcpp::IPv4Layer*)nextLayer)->getSrcIPAddress(), pcpp::IPv4Address("172.16.1.117"));
+	PTF_ASSERT_EQUAL(nullLoopbackLayer->getFamily(), PCPP_BSD_AF_INET);
 
 	PTF_ASSERT_TRUE(nullPacket3.isPacketOfType(pcpp::NULL_LOOPBACK));
 	nullLoopbackLayer = nullPacket3.getLayerOfType<pcpp::NullLoopbackLayer>();
 	PTF_ASSERT_NOT_NULL(nullLoopbackLayer);
 	nextLayer = nullLoopbackLayer->getNextLayer();
 	PTF_ASSERT_NOT_NULL(nextLayer);
-	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, u64);
-	PTF_ASSERT_GREATER_THAN(nullLoopbackLayer->getFamily(), 1500, u32);
+	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, enum);
+	PTF_ASSERT_GREATER_THAN(nullLoopbackLayer->getFamily(), 1500);
 
 	pcpp::Packet newNullPacket(1);
 	pcpp::NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
@@ -143,6 +143,6 @@ PTF_TEST_CASE(NullLoopbackTest)
 
 	newNullPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(newNullPacket.getRawPacket()->getRawDataLen(), bufferLength2, int);
+	PTF_ASSERT_EQUAL(newNullPacket.getRawPacket()->getRawDataLen(), bufferLength2);
 	PTF_ASSERT_BUF_COMPARE(newNullPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
 } // NullLoopbackTest

@@ -37,7 +37,7 @@ void(*free_decompression_context_ptr)(_decompression_t*) = &free_zstd_decompress
 int(*is_compressed_file)(const char*) = &is_zstd_compressed_file;
 size_t(*read_compressed)(struct light_file_t *, void *, size_t) = &read_zstd_compressed;
 size_t(*write_compressed)(struct light_file_t *, const void *, size_t) = &write_zstd_compressed;
-int(*close_compressed)(struct light_file_t *) = &close_zstd_compresssed;
+int(*close_compressed)(struct light_file_t *) = &close_zstd_compressed;
 
 #if !defined(_MSC_VER) || !defined(max)
 #define max(a,b) \
@@ -81,7 +81,7 @@ _decompression_t * get_zstd_decompression_context()
 	context->dctx = ZSTD_createDCtx();
 	//Enough to handle a whole packet
 	context->buffer_in_max_size = ZSTD_DStreamInSize();;
-	//ZSTD_DStreamOutSize() is big enough to hold atleast 1 full frame, but we can go bigger
+	//ZSTD_DStreamOutSize() is big enough to hold at least 1 full frame, but we can go bigger
 	context->buffer_out_max_size = max(ZSTD_DStreamOutSize(), COMPRESSION_BUFFER_IN_MAX_SIZE);
 	context->buffer_in = malloc(context->buffer_in_max_size);
 	context->buffer_out = malloc(context->buffer_out_max_size);
@@ -115,13 +115,13 @@ int is_zstd_compressed_file(const char* file_path)
 		return 1;
 	}
 	else
-		return 0; 
+		return 0;
 }
 
 size_t read_zstd_compressed(light_file fd, void *buf, size_t count)
 {
 	//Decompression is a little more complex
-	//Need to manage reading bytes from orignal file
+	//Need to manage reading bytes from original file
 	//Decompressing those into a buffer
 	//Then reading the selected number of bytes from the buffer
 	//Once whole buffer is consumed we need to read and decompress next chunk from file
@@ -215,7 +215,7 @@ size_t write_zstd_compressed(light_file fd, const void *buf, size_t count)
 	return count;
 }
 
-int close_zstd_compresssed(light_file fd)
+int close_zstd_compressed(light_file fd)
 {
 	//Wrap up the compression here
 	if (fd->compression_context)
