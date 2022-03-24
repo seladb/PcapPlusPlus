@@ -205,8 +205,3 @@ int MAIN(int argc, char* argv[]) {
 #ifdef COLLECT_STATIC_VAR_DATA
 MEMPLUMBER_MAIN(tests_main);
 #endif
-
-
-
-
-

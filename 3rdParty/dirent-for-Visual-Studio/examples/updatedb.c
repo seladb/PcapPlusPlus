@@ -231,4 +231,3 @@ db_close(
         db = NULL;
     }
 }
-

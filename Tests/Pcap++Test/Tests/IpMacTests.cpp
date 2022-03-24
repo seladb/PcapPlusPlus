@@ -293,7 +293,14 @@ PTF_TEST_CASE(TestGetMacAddress)
 		pcpp::IPv4Address ipAddr(ip);
 		PTF_ASSERT_TRUE(ipAddr.isValid());
 		pcpp::Logger::getInstance().suppressLogs();
-		result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+
+		for (int i = 0; i < 3; i++)
+		{
+			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+			if (result != pcpp::MacAddress::Zero)
+				break;
+		}
+
 		pcpp::Logger::getInstance().enableLogs();
 		if (result != pcpp::MacAddress::Zero)
 		{

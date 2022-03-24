@@ -20,7 +20,8 @@ static struct option PcapTestOptions[] =
 	{"mem-verbose", no_argument, 0, 'm' },
 	{"kni-ip", no_argument, 0, 'k' },
 	{"skip-mem-leak-check", no_argument, 0, 's' },
-	{"tags",  required_argument, 0, 't'},
+	{"include-tags",  required_argument, 0, 't'},
+	{"exclude-tags",  required_argument, 0, 'x'},
 	{"show-skipped-tests", no_argument, 0, 'w' },
 	{"help", no_argument, 0, 'h'},
 	{0, 0, 0, 0}
@@ -44,7 +45,8 @@ void printUsage()
 		<< "                         as any of existing network interfaces in your system.\n"
 		<< "                         If this parameter is omitted KNI tests will be skipped. Must be an IPv4.\n"
 		<< "                         For Linux systems only\n"
-		<< "-t --tags                A list of semicolon separated tags for tests to run\n"
+		<< "-t --include-tags        A list of semicolon separated tags for tests to run\n"
+		<< "-x --exclude-tags        A list of semicolon separated tags for tests to exclude\n"
 		<< "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
 		<< "-h --help                Display this help message and exit\n";
 }
@@ -58,14 +60,14 @@ int main(int argc, char* argv[])
 	PcapTestGlobalArgs.dpdkPort = -1;
 	PcapTestGlobalArgs.kniIp = "";
 
-	std::string userTags = "", configTags = "";
+	std::string userTagsInclude = "", userTagsExclude = "", configTags = "";
 	bool runWithNetworking = true;
 	bool memVerbose = false;
 	bool skipMemLeakCheck = false;
 
 	int optionIndex = 0;
 	int opt = 0;
-	while((opt = getopt_long(argc, argv, "k:i:br:p:d:nvt:smw", PcapTestOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "k:i:br:p:d:nvt:x:smw", PcapTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -96,7 +98,10 @@ int main(int argc, char* argv[])
 				PTF_SET_VERBOSE_MODE(true);
 				break;
 			case 't':
-				userTags = optarg;
+				userTagsInclude = optarg;
+				break;
+			case 'x':
+				userTagsExclude = optarg;
 				break;
 			case 's':
 				skipMemLeakCheck = true;
@@ -118,10 +123,10 @@ int main(int argc, char* argv[])
 
 	if (!runWithNetworking)
 	{
-		if (userTags != "")
-			userTags += ";";
+		if (userTagsInclude != "")
+			userTagsInclude += ";";
 
-		userTags += "no_network";
+		userTagsInclude += "no_network";
 		std:: cout << "Running only tests that don't require network connection" << std::endl;
 	}
 	else if (PcapTestGlobalArgs.ipToSendReceivePackets == "")
@@ -189,7 +194,7 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-	PTF_START_RUNNING_TESTS(userTags, configTags);
+	PTF_START_RUNNING_TESTS(userTagsInclude, userTagsExclude, configTags);
 
 	testSetUp();
 
@@ -209,6 +214,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapNgFileReadWriteAdv, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv6, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv4, "no_network;pcap");
+	PTF_RUN_TEST(TestSolarisSnoopFileRead, "no_network;pcap;snoop");
 
 	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");

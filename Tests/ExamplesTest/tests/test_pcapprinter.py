@@ -45,3 +45,14 @@ class TestPcapPrinter(ExampleTest):
             file_path=path.join(tmpdir, "output.txt"),
             expected_content="Finished. Printed 4666 packets",
         )
+
+    def test_snoop(self, tmpdir):
+        args = {
+            "": path.join("pcap_examples", "solaris.snoop"),
+            "-o": path.join(tmpdir, "output.txt"),
+        }
+        self.run_example(args=args)
+        assert text_file_contains(
+            path.join(tmpdir, "output.txt"),
+            expected_content="Finished. Printed 250 packets",
+        )

@@ -25,4 +25,3 @@ std::string PacketTrailerLayer::toString() const
 }
 
 }
-

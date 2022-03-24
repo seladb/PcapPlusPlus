@@ -82,6 +82,8 @@ std::string linkLayerToString(pcpp::LinkLayerType linkLayer)
 
 	if (linkLayer == pcpp::LINKTYPE_ETHERNET)
 		return "Ethernet";
+	if (linkLayer == pcpp::LINKTYPE_IEEE802_5)
+		return "IEEE 802.5 Token Ring";
 	else if (linkLayer == pcpp::LINKTYPE_LINUX_SLL)
 		return "Linux cooked capture";
 	else if (linkLayer == pcpp::LINKTYPE_NULL)
@@ -116,6 +118,12 @@ std::string printFileSummary(pcpp::IFileReaderDevice* reader)
 		pcpp::LinkLayerType linkLayer = pcapReader->getLinkLayerType();
 		stream << "   Link layer type: " << linkLayerToString(linkLayer) << std::endl;
 	}
+	else if (dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader) != NULL)
+	{
+		pcpp::SnoopFileReaderDevice* snoopReader = dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader);
+		pcpp::LinkLayerType linkLayer = snoopReader->getLinkLayerType();
+		stream << "   Link layer type: " << linkLayerToString(linkLayer) << std::endl;
+	}
 	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != NULL)
 	{
 		pcpp::PcapNgFileReaderDevice* pcapNgReader = dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader);
@@ -139,9 +147,9 @@ std::string printFileSummary(pcpp::IFileReaderDevice* reader)
 
 
 /**
-* print all requested packets in a pcap file
+* print all requested packets in a pcap/snoop file
 */
-int printPcapPackets(pcpp::PcapFileReaderDevice* reader, std::ostream* out, int packetCount)
+int printPcapPackets(pcpp::IFileReaderDevice* reader, std::ostream* out, int packetCount)
 {
 	// read packets from the file until end-of-file or until reached user requested packet count
 	int packetCountSoFar = 0;
@@ -301,6 +309,12 @@ int main(int argc, char* argv[])
 		// print all requested packets in the pcap file
 		pcpp::PcapFileReaderDevice* pcapReader = dynamic_cast<pcpp::PcapFileReaderDevice*>(reader);
 		printedPacketCount = printPcapPackets(pcapReader, out, packetCount);
+	}
+	else if (dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader) != NULL)
+	{
+		// print all requested packets in the pcap file
+		pcpp::SnoopFileReaderDevice* snoopReader = dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader);
+		printedPacketCount = printPcapPackets(snoopReader, out, packetCount);
 	}
 	// if the file is a pcap-ng file
 	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != NULL)

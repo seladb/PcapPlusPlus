@@ -1,5 +1,5 @@
 name: Build and test
-on: [push, pull_request]
+on: [push]
 
 jobs:
   pre-commit:
@@ -23,7 +23,7 @@ jobs:
             python: python3.8
           - image: centos7
             python: python3.8
-            test-flags: -s
+            test-flags: --test-args="-s"
           - image: fedora34
             python: python3
           - image: alpine315
@@ -42,17 +42,12 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: make all
 
-      - name: Test Packet++
+      - name: Test PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          cd Tests/Packet++Test
-          Bin/Packet++Test ${{ matrix.test-flags }}
-
-      - name: Test Pcap++
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          cd Tests/Pcap++Test
-          Bin/Pcap++Test -n ${{ matrix.test-flags }}
+          ${{ matrix.python }} -m pip install -U pip
+          ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
+          ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -60,7 +55,7 @@ jobs:
           cd Tests/ExamplesTest
           ${{ matrix.python }} -m pip install -U pip
           ${{ matrix.python }} -m pip install -r requirements.txt
-          ${{ matrix.python }} -m pytest
+          ${{ matrix.python }} -m pytest --interface eth0
 
       - name: Check installation
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -76,7 +71,7 @@ jobs:
 
   dpdk-legacy:
     runs-on: ubuntu-20.04
-    container: seladb/ubuntu1604-dpdk1811
+    container: seladb/ubuntu2004-dpdk1811
 
     steps:
       - name: Checkout code
@@ -168,7 +163,7 @@ jobs:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
-        os-version: [macos-10.15]
+        os-version: [macos-10.15, macos-11]
 
     steps:
       - name: Checkout code
@@ -186,17 +181,15 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: make all
 
-      - name: Test Packet++
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          cd Tests/Packet++Test
-          Bin/Packet++Test
+      - name: Install Tcpreplay
+        run: brew install tcpreplay
 
-      - name: Test Pcap++
+      - name: Test PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          cd Tests/Pcap++Test
-          Bin/Pcap++Test -n
+          python -m pip install -U pip
+          python -m pip install -r ci/run_tests/requirements.txt
+          python ci/run_tests/run_tests.py --interface en0 --use-sudo
 
       - name: Test Examples
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -204,7 +197,7 @@ jobs:
           cd Tests/ExamplesTest
           python -m pip install -U pip
           python -m pip install -r requirements.txt
-          python -m pytest
+          python -m pytest --interface en0 --use-sudo
 
       - name: Check installation
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -293,17 +286,15 @@ jobs:
         shell: msys2 {0}
         run: mingw32-make all
 
-      - name: Test Packet++
+      - name: Install tcpreplay
         working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          cd Tests\Packet++Test
-          Bin\Packet++Test.exe
+        run: ci\install_tcpreplay.bat
 
-      - name: Test Pcap++
+      - name: Test PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          cd Tests\Pcap++Test
-          Bin\Pcap++Test.exe -n
+          python -m pip install -r ci\run_tests\requirements.txt
+          python ci\run_tests\run_tests_windows.py
 
       - name: Test Examples
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -313,37 +304,24 @@ jobs:
           python -m pytest
 
   visual-studio:
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-2019
     strategy:
       matrix:
         include:
           - vs-version: vs2019
-            os: windows-2019
             platform: x64
             config: Debug
           - vs-version: vs2019
-            os: windows-2019
             platform: x64
             config: Release
             use_zstd: true
           - vs-version: vs2019
-            os: windows-2019
             platform: x86
             config: Debug
           - vs-version: vs2019
-            os: windows-2019
             platform: x86
             config: Release
             pcap_lib: npcap
-          - vs-version: vs2017
-            os: windows-2016
-            platform: x86
-            config: Release
-            pcap_lib: npcap
-          - vs-version: vs2017
-            os: windows-2016
-            platform: x64
-            config: Debug
 
     steps:
       - name: Checkout code
@@ -399,17 +377,15 @@ jobs:
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: msbuild /m mk\${{matrix.vs-version}}\Tutorials.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
 
-      - name: Test Packet++
+      - name: Install tcpreplay
         working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          cd Tests\Packet++Test
-          Bin\Packet++Test.exe
+        run: ci\install_tcpreplay.bat
 
-      - name: Test Pcap++
+      - name: Test PcapPlusPlus
         working-directory: ${{env.GITHUB_WORKSPACE}}
         run: |
-          cd Tests\Pcap++Test
-          Bin\Pcap++Test.exe -n
+          python -m pip install -r ci\run_tests\requirements.txt
+          python ci\run_tests\run_tests_windows.py
 
       - name: Test Examples
         working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -419,11 +395,23 @@ jobs:
           python -m pytest
 
   android:
-    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        target: [armeabi-v7a, arm64-v8a, x86, x86_64]
-        api-version: [30]
+        include:
+          - run-on-os: ubuntu-20.04
+            target: armeabi-v7a
+            api-version: 30
+          - run-on-os: ubuntu-20.04
+            target: x86
+            api-version: 30
+          - run-on-os: macos-11
+            target: arm64-v8a
+            api-version: 30
+          - run-on-os: macos-11
+            target: x86_64
+            api-version: 30
+
+    runs-on: ${{ matrix.run-on-os }}
 
     steps:
       - name: Checkout code

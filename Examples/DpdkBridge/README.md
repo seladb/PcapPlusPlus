@@ -33,4 +33,3 @@ Using the utility
 	    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of DPDK port numbers to be bridged.
 	                                                 To see all available DPDK ports use the -l switch
 	    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK device. Default value is 1
-

@@ -751,3 +751,50 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4)
 
 } // TestPcapFileReadLinkTypeIPv4
 
+PTF_TEST_CASE(TestSolarisSnoopFileRead)
+{
+	pcpp::SnoopFileReaderDevice readerDev(EXAMPLE_SOLARIS_SNOOP);
+	PTF_ASSERT_TRUE(readerDev.open());
+	pcpp::RawPacket rawPacket;
+	int packetCount = 0;
+	int ethCount = 0;
+	int ethDot3Count = 0;
+	int ipCount = 0;
+	int tcpCount = 0;
+	int udpCount = 0;
+	std::vector<timespec> timeStamps;
+	while (readerDev.getNextPacket(rawPacket))
+	{
+		packetCount++;
+		pcpp::Packet packet(&rawPacket);
+		if (packet.isPacketOfType(pcpp::Ethernet))
+			ethCount++;
+		if (packet.isPacketOfType(pcpp::EthernetDot3))
+			ethDot3Count++;
+		if (packet.isPacketOfType(pcpp::IPv4))
+			ipCount++;
+		if (packet.isPacketOfType(pcpp::TCP))
+			tcpCount++;
+		if (packet.isPacketOfType(pcpp::UDP))
+			udpCount++;
+		timeStamps.push_back(rawPacket.getPacketTimeStamp());
+	}
+
+	pcpp::IPcapDevice::PcapStats readerStatistics;
+
+	readerDev.getStatistics(readerStatistics);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 250);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+
+	PTF_ASSERT_EQUAL(ethCount, 142);
+	PTF_ASSERT_EQUAL(ethDot3Count, 108);
+	PTF_ASSERT_EQUAL(ipCount, 71);
+	PTF_ASSERT_EQUAL(tcpCount, 15);
+	PTF_ASSERT_EQUAL(udpCount, 55);
+	PTF_ASSERT_EQUAL(timeStamps[0].tv_sec, 911274719);
+	PTF_ASSERT_EQUAL(timeStamps[0].tv_nsec, 885516000);
+	PTF_ASSERT_EQUAL(timeStamps[249].tv_sec, 911274726);
+	PTF_ASSERT_EQUAL(timeStamps[249].tv_nsec, 499893000);
+
+	readerDev.close();
+} // TestSolarisSnoopFileRead
