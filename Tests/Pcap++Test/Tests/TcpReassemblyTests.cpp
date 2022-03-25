@@ -1057,14 +1057,14 @@ PTF_TEST_CASE(TestTcpReassemblyMaxSeq)
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
 } //TestTcpReassemblyMaxSeq
 
-PTF_TEST_CASE(TestTcpReassemblyDBOOOBufferCC) // TestTcpReassemblyDisableBaseOutOfOrderBufferClearCondition
+PTF_TEST_CASE(TestTcpReassemblyDisableOOOCleanup) // TestTcpReassemblyDisableBaseOutOfOrderBufferCleanupCondition
 {
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
 	TcpReassemblyMultipleConnStats results1;
 	TcpReassemblyMultipleConnStats results2;
-	pcpp::TcpReassemblyConfiguration config1(true, 5, 30,20,true);
-	pcpp::TcpReassemblyConfiguration config2(true, 5, 30,20,false);
+	pcpp::TcpReassemblyConfiguration config1(true, 5, 30, 20, true);
+	pcpp::TcpReassemblyConfiguration config2(true, 5, 30, 20, false);
 	pcpp::TcpReassembly tcpReassembly1(tcpReassemblyMsgReadyCallback, &results1, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config1);
 	pcpp::TcpReassembly tcpReassembly2(tcpReassemblyMsgReadyCallback, &results2, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config2);
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg));
@@ -1093,9 +1093,9 @@ PTF_TEST_CASE(TestTcpReassemblyDBOOOBufferCC) // TestTcpReassemblyDisableBaseOut
 
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-} // TestTcpReassemblyDBOOOBufferCC
+} // TestTcpReassemblyDisableOOOCleanup
 
-PTF_TEST_CASE(TestTcpReassemblyTstamps) // TestTcpReassemblyTimeStamps
+PTF_TEST_CASE(TestTcpReassemblyTimeStamps)
 {
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
@@ -1112,12 +1112,13 @@ PTF_TEST_CASE(TestTcpReassemblyTstamps) // TestTcpReassemblyTimeStamps
 		timeval t = tcpReassemblyResults.timestamps[i];
 		std::string expected;
 		expectedOutput>>expected;
-		int expUsec = std::stoll(expected)%1000000;
-		int expSec = std::stoll(expected)/1000000;
+		//TODO: Change to atoll to stoll after switching to C++11
+		int expUsec = atoll(expected.c_str())%1000000;
+		int expSec = atoll(expected.c_str())/1000000;
 		PTF_ASSERT_EQUAL(t.tv_usec,expUsec);
 		PTF_ASSERT_EQUAL(t.tv_sec, expSec);
 	}
 	expectedOutput.close();
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-} // TestTcpReassemblyTstamps
+} // TestTcpReassemblyTimeStamps

@@ -272,8 +272,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestTcpReassemblyCleanup, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyMaxOOOFrags, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyMaxSeq, "no_network;tcp_reassembly");
-	PTF_RUN_TEST(TestTcpReassemblyDBOOOBufferCC, "no_network;tcp_reassembly");
-	PTF_RUN_TEST(TestTcpReassemblyTstamps, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyDisableOOOCleanup, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyTimeStamps, "no_network;tcp_reassembly");
 
 	PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragOutOfOrder, "no_network;ip_frag");
