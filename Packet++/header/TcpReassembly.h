@@ -220,11 +220,6 @@ struct TcpReassemblyConfiguration
 	TcpReassemblyConfiguration(bool removeConnInfo = true, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 30, uint32_t maxOutOfOrderFragments = 0, 
 		bool enableBaseBufferClearCondtion = true) : removeConnInfo(removeConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean), maxOutOfOrderFragments(maxOutOfOrderFragments), enableBaseBufferClearCondtion(enableBaseBufferClearCondtion)
 	{
-		if(!enableBaseBufferClearCondtion && maxOutOfOrderFragments==0)
-		{
-			// set a default value to prevent indefinate filling of out of order buffer 
-			maxOutOfOrderFragments = 20;
-		}
 	}
 };
 

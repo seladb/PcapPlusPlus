@@ -113,6 +113,9 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	// calculate flow key for this packet
 	uint32_t flowKey = hash5Tuple(&tcpData);
 
+	// time stamp for this packet
+	timeval currTime = timespecToTimeval(tcpData.getRawPacket()->getPacketTimeStamp());
+
 	// find the connection in the connection map
 	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
 
@@ -126,8 +129,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		tcpReassemblyData->connData.srcPort = tcpLayer->getSrcPort();
 		tcpReassemblyData->connData.dstPort = tcpLayer->getDstPort();
 		tcpReassemblyData->connData.flowKey = flowKey;
-		timeval ts = timespecToTimeval(tcpData.getRawPacket()->getPacketTimeStamp());
-		tcpReassemblyData->connData.setStartTime(ts);
+		tcpReassemblyData->connData.setStartTime(currTime);
 
 		m_ConnectionInfo[flowKey] = tcpReassemblyData->connData;
 
@@ -145,7 +147,6 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 
 		tcpReassemblyData = &iter->second;
-		timeval currTime = timespecToTimeval(tcpData.getRawPacket()->getPacketTimeStamp());
 
 		if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
 		{
@@ -160,7 +161,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 	}
 
-	timeval timestampOfTheRecievedPacket = timespecToTimeval(tcpData.getRawPacket()->getPacketTimeStamp());
+	timeval timestampOfTheRecievedPacket = currTime;
 	int8_t sideIndex = -1;
 	bool first = false;
 
@@ -252,8 +253,8 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	// I'm aware that there are edge cases where the situation I described above is not true, but at some point we must clean the out-of-order packet list to avoid memory leak.
 	// I decided to do what Wireshark does and clean this list when starting to see a message from the other side
 
-	//Since there are instances where this buffer clear condition can lead to declaration of excessive missing packets. Hence user sjould have a config file paraameter 
-	// to disable this and purely rely on max buffer size condition. As none of them are perfect solutions this will givee a little more control over it. 
+	// Since there are instances where this buffer clear condition can lead to declaration of excessive missing packets. Hence user should have a config file parameter 
+	// to disable this and purely rely on max buffer size condition. As none of them are perfect solutions this will give user a little more control over it. 
 
 	if (m_EnableBaseBufferClearCondtion && !first && tcpPayloadSize > 0 && tcpReassemblyData->prevSide != -1 && tcpReassemblyData->prevSide != sideIndex &&
 		tcpReassemblyData->twoSides[tcpReassemblyData->prevSide].tcpFragmentList.size() > 0)
