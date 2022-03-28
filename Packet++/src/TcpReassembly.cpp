@@ -42,7 +42,7 @@ TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* use
 	m_MaxNumToClean = (config.removeConnInfo == true && config.maxNumToClean == 0) ? 30 : config.maxNumToClean;
 	m_MaxOutOfOrderFragments = config.maxOutOfOrderFragments;
 	m_PurgeTimepoint = time(NULL) + PURGE_FREQ_SECS;
-	m_EnableBaseBufferClearCondtion = config.enableBaseBufferClearCondtion;
+	m_EnableBaseBufferClearCondition = config.enableBaseBufferClearCondition;
 }
 
 
@@ -161,7 +161,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 	}
 
-	timeval timestampOfTheRecievedPacket = currTime;
+	timeval timestampOfTheReceivedPacket = currTime;
 	int8_t sideIndex = -1;
 	bool first = false;
 
@@ -253,10 +253,10 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	// I'm aware that there are edge cases where the situation I described above is not true, but at some point we must clean the out-of-order packet list to avoid memory leak.
 	// I decided to do what Wireshark does and clean this list when starting to see a message from the other side
 
-	// Since there are instances where this buffer clear condition can lead to declaration of excessive missing packets. Hence user should have a config file parameter 
-	// to disable this and purely rely on max buffer size condition. As none of them are perfect solutions this will give user a little more control over it. 
+	// Since there are instances where this buffer clear condition can lead to declaration of excessive missing packets. Hence user should have a config file parameter
+	// to disable this and purely rely on max buffer size condition. As none of them are perfect solutions this will give user a little more control over it.
 
-	if (m_EnableBaseBufferClearCondtion && !first && tcpPayloadSize > 0 && tcpReassemblyData->prevSide != -1 && tcpReassemblyData->prevSide != sideIndex &&
+	if (m_EnableBaseBufferClearCondition && !first && tcpPayloadSize > 0 && tcpReassemblyData->prevSide != -1 && tcpReassemblyData->prevSide != sideIndex &&
 		tcpReassemblyData->twoSides[tcpReassemblyData->prevSide].tcpFragmentList.size() > 0)
 	{
 		PCPP_LOG_DEBUG("Seeing a first data packet from a different side. Previous side was " << tcpReassemblyData->prevSide << ", current side is " << sideIndex);
@@ -280,7 +280,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// send data to the callback
 		if (tcpPayloadSize != 0 && m_OnMessageReadyCallback != NULL)
 		{
-			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData, timestampOfTheRecievedPacket);
+			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData, timestampOfTheReceivedPacket);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
 		status = TcpMessageHandled;
@@ -315,7 +315,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 			// send only the new data to the callback
 			if (m_OnMessageReadyCallback != NULL)
 			{
-				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, 0, tcpReassemblyData->connData, timestampOfTheRecievedPacket);
+				TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, 0, tcpReassemblyData->connData, timestampOfTheReceivedPacket);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
 			status = TcpMessageHandled;
@@ -367,7 +367,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// send the data to the callback
 		if (m_OnMessageReadyCallback != NULL)
 		{
-			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData,timestampOfTheRecievedPacket);
+			TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData,timestampOfTheReceivedPacket);
 			m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 		}
 		status = TcpMessageHandled;
@@ -411,7 +411,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		newTcpFrag->data = new uint8_t[tcpPayloadSize];
 		newTcpFrag->dataLength = tcpPayloadSize;
 		newTcpFrag->sequence = sequence;
-		newTcpFrag->timestamp = timestampOfTheRecievedPacket;
+		newTcpFrag->timestamp = timestampOfTheReceivedPacket;
 		memcpy(newTcpFrag->data, tcpLayer->getLayerPayload(), tcpPayloadSize);
 		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
