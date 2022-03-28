@@ -305,7 +305,12 @@ PTF_TEST_CASE(TestGetMacAddress)
 		if (result != pcpp::MacAddress::Zero)
 		{
 			PTF_ASSERT_GREATER_OR_EQUAL_THAN(time, 0);
-			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
+			for (int i = 0; i < 3; i++)
+			{
+				result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
+				if (result != pcpp::MacAddress::Zero)
+					break;
+			}
 			PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
 			break;
 		}
