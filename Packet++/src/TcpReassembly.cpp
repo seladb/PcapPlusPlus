@@ -151,12 +151,14 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
 		{
 			tcpReassemblyData->connData.setEndTime(currTime);
+			m_ConnectionInfo[flowKey].setEndTime(currTime);
 		}
 		else if (currTime.tv_sec == tcpReassemblyData->connData.endTime.tv_sec)
 		{
 			if (currTime.tv_usec > tcpReassemblyData->connData.endTime.tv_usec)
 			{
 				tcpReassemblyData->connData.setEndTime(currTime);
+				m_ConnectionInfo[flowKey].setEndTime(currTime);
 			}
 		}
 	}

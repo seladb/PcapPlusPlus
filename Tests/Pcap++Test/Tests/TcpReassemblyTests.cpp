@@ -712,6 +712,20 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0);
 
+	//test Connection Information data
+	pcpp::IPv4Address expectedSrcIP("172.16.133.132");
+	pcpp::IPv4Address expectedDstIP("98.139.161.29");
+	PTF_ASSERT_EQUAL(iterConn1->second.srcIP, expectedSrcIP);
+	PTF_ASSERT_EQUAL(iterConn1->second.dstIP, expectedDstIP);
+	PTF_ASSERT_EQUAL(iterConn1->second.srcPort, 54615);
+	PTF_ASSERT_EQUAL(iterConn1->second.dstPort, 80);
+	PTF_ASSERT_EQUAL(iterConn1->second.flowKey, results.flowKeysList[0]);
+	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_sec, 1361916156);
+	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_usec, 677488);
+	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_sec, 1361916156);
+	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_usec, 766111);
+
+	// test the return of invalid connection flowKey
 	pcpp::ConnectionData dummyConn;
 	dummyConn.flowKey = 0x12345678;
 	PTF_ASSERT_LOWER_THAN(tcpReassembly.isConnectionOpen(dummyConn), 0);
