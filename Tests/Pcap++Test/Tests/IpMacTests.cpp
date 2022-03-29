@@ -311,6 +311,10 @@ PTF_TEST_CASE(TestGetMacAddress)
 				if (result != pcpp::MacAddress::Zero)
 					break;
 			}
+			if (result == pcpp::MacAddress::Zero)
+			{
+				printf("IP addr: %s, live dev IP addr: %s, live dev MAC: %s\n", ipAddr.toString().c_str(), liveDev->getIPv4Address().toString().c_str(), liveDev->getMacAddress().toString().c_str());
+			}
 			PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
 			break;
 		}
