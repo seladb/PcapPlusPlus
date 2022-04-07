@@ -102,10 +102,7 @@ bool BpfFilterWrapper::matchPacketWithFilter(const uint8_t* packetData, uint32_t
 
 void BPFStringFilter::parseToString(std::string& result)
 {
-	if (verifyFilter())
-		result = m_FilterStr;
-	else
-		result.clear();
+	result = m_FilterStr;
 }
 
 bool BPFStringFilter::verifyFilter()
