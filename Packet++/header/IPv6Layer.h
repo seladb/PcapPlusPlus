@@ -6,17 +6,6 @@
 #include "IPv6Extensions.h"
 #include "IpAddress.h"
 
-#ifndef PCPP_DEPRECATED
-#if defined(__GNUC__) || defined(__clang__)
-#define PCPP_DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define PCPP_DEPRECATED __declspec(deprecated)
-#else
-#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
-#define PCPP_DEPRECATED
-#endif
-#endif
-
 /// @file
 
 /**
@@ -117,11 +106,6 @@ namespace pcpp
 		IPAddress getSrcIPAddress() const { return getSrcIPv6Address(); }
 
 		/**
-		 * @deprecated Please use getSrcIPv6Address() or getSrcIPAddress() instead
-		 */
-		PCPP_DEPRECATED IPv6Address getSrcIpAddress() const { return getSrcIPv6Address(); }
-
-		/**
 		 * Get the source IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the source address
 		 */
@@ -146,11 +130,6 @@ namespace pcpp
 		 * @return An IPAddress containing the destination address
 		 */
 		IPAddress getDstIPAddress() const { return getDstIPv6Address(); }
-
-		/**
-		 * @deprecated Please use getDstIPv6Address() or getDstIPAddress() instead
-		 */
-		PCPP_DEPRECATED IPv6Address getDstIpAddress() const { return getDstIPv6Address(); }
 
 		/**
 		 * Get the destination IP address in the form of IPv6Address
