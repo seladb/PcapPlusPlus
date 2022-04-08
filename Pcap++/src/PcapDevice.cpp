@@ -57,42 +57,6 @@ bool IPcapDevice::clearFilter()
 	return setFilter("");
 }
 
-bool IPcapDevice::verifyFilter(std::string filterAsString)
-{
-	struct bpf_program prog;
-	PCPP_LOG_DEBUG("Compiling the filter '" << filterAsString << "'");
-	if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, &prog, filterAsString.c_str(), 1, 0) < 0)
-	{
-		return false;
-	}
-	pcap_freecode(&prog);
-	return true;
-}
-
-bool IPcapDevice::matchPacketWithFilter(std::string filterAsString, RawPacket* rawPacket)
-{
-	static std::string curFilter = "";
-	static struct bpf_program prog;
-	if ( (curFilter != filterAsString) || (prog.bf_insns == NULL) )
-	{
-		PCPP_LOG_DEBUG("Compiling the filter '" << filterAsString << "'");
-		pcap_freecode(&prog);
-		if (pcap_compile_nopcap(9000, pcpp::LINKTYPE_ETHERNET, &prog, filterAsString.c_str(), 1, 0) < 0)
-		{
-			return false;
-		}
-		curFilter = filterAsString;
-	}
-
-	struct pcap_pkthdr pktHdr;
-	pktHdr.caplen = rawPacket->getRawDataLen();
-	pktHdr.len = rawPacket->getRawDataLen();
-	timespec ts = rawPacket->getPacketTimeStamp();
-	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &ts);
-
-	return (pcap_offline_filter(&prog, &pktHdr, rawPacket->getRawData()) != 0);
-}
-
 bool IPcapDevice::matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket)
 {
 	return filter.matchPacketWithFilter(rawPacket);

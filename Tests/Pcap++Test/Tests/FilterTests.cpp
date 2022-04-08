@@ -219,10 +219,6 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 	//Try to make an invalid filter
 	pcpp::BPFStringFilter badFilter("This is not a valid filter");
 	PTF_ASSERT_FALSE(badFilter.verifyFilter());
-	PTF_ASSERT_FALSE(pcpp::IPcapDevice::verifyFilter("This is not a valid filter"));
-
-	//Test on valid filter
-	PTF_ASSERT_TRUE(pcpp::IPcapDevice::verifyFilter("port 20"));
 
 	//Test stolen from MacAddress test below
 	pcpp::MacAddress macAddr("00:13:c3:df:ae:18");
@@ -238,9 +234,7 @@ PTF_TEST_CASE(TestPcapFilters_General_BPFStr)
 
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
-		//Check if match using static local variable is leaking?
-		//if (bpfStringFilter.matchPacketWithFilter(*iter) && IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter) && IPcapDevice::matchPacketWithFilter(filterAsString, *iter))
-		if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+		if (bpfStringFilter.matchPacketWithFilter(*iter))
 		{
 			++validCounter;
 			pcpp::Packet packet(*iter);
@@ -268,8 +262,10 @@ PTF_TEST_CASE(TestPcapFilters_MatchStatic)
 	//	Test empty BPFstring (the "ALL" filter) in combination with a "-" (example wrong filter)
 	for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
 	{
-		PTF_ASSERT_TRUE(pcpp::IPcapDevice::matchPacketWithFilter("", *iter));
-		PTF_ASSERT_FALSE(pcpp::IPcapDevice::matchPacketWithFilter("-", *iter));
+		pcpp::BPFStringFilter emptyFilter("");
+		PTF_ASSERT_TRUE(emptyFilter.matchPacketWithFilter(*iter));
+		pcpp::BPFStringFilter wrongFilter("-");
+		PTF_ASSERT_FALSE(wrongFilter.matchPacketWithFilter(*iter));
 	}
 
 	rawPacketVec.clear();
@@ -755,7 +751,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
-			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+			if (bpfStringFilter.matchPacketWithFilter(*iter))
 			{
 				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_DLT_RAW1)
 				{
@@ -781,7 +777,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
-			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+			if (bpfStringFilter.matchPacketWithFilter(*iter))
 			{
 				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_LINUX_SLL)
 				{
@@ -807,7 +803,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 		if(pcpp::IPv4Layer* ip4layer = packet.getLayerOfType<pcpp::IPv4Layer>())
 		{
 			pcpp::BPFStringFilter bpfStringFilter("host " + ip4layer->getDstIPAddress().toString()); // checking against real filter, not the "" filter
-			if (bpfStringFilter.matchPacketWithFilter(*iter) && pcpp::IPcapDevice::matchPacketWithFilter(bpfStringFilter, *iter))
+			if (bpfStringFilter.matchPacketWithFilter(*iter))
 			{
 				if((*iter)->getLinkLayerType() == pcpp::LINKTYPE_ETHERNET)
 				{
