@@ -17,25 +17,27 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 	for (size_t i = 0; i<vecSize; i++)
 	{
 		uint32_t localSum = 0;
-		size_t buffLen = vec[i].len;
-		while (buffLen > 1)
+
+		// vec len is in bytes
+		for (size_t j = 0; j < vec[i].len / 2; j++)
 		{
-			PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex << *(vec[i].buffer));
-			localSum += *(vec[i].buffer);
-			++(vec[i].buffer);
-			buffLen -= 2;
+			PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex << vec[i].buffer[j]);
+			localSum += vec[i].buffer[j];
 		}
 		PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 
-		if (buffLen == 1)
-		{
-			uint16_t lastByte = 0;
-			*((uint8_t*)(&lastByte)) = *((uint8_t*)(vec[i].buffer));
+		// check if there is one byte left
+		if (vec[i].len % 2) {
+			// access to the last byte using an uint8_t pointer
+			uint8_t *vecBytes = (uint8_t *)vec[i].buffer;
+			uint8_t lastByte = vecBytes[vec[i].len - 1];
 			PCPP_LOG_DEBUG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
-			localSum += lastByte;
+			// swap this in case we are on bigEndian arch
+			localSum += le16toh(lastByte);
 			PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		}
 
+		// carry count is added to the sum
 		while (localSum>>16)
 		{
 			localSum = (localSum & 0xffff) + (localSum >> 16);
