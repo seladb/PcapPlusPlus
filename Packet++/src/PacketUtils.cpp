@@ -1,4 +1,5 @@
 #include <string.h>
+
 #include "PacketUtils.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -32,7 +33,8 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 			uint8_t *vecBytes = (uint8_t *)vec[i].buffer;
 			uint8_t lastByte = vecBytes[vec[i].len - 1];
 			PCPP_LOG_DEBUG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
-			// swap this in case we are on bigEndian arch
+			// We have read the latest byte manually but this byte should be interpreted
+			// as a 0xFF on LE and a 0xFF00 on BE to have a proper checksum computation
 			localSum += le16toh(lastByte);
 			PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		}
@@ -42,7 +44,6 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 		{
 			localSum = (localSum & 0xffff) + (localSum >> 16);
 		}
-		localSum = be16toh(localSum);
 		PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		sum += localSum;
 	}
@@ -51,14 +52,16 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 	{
 		sum = (sum & 0xffff) + (sum >> 16);
 	}
-
 	PCPP_LOG_DEBUG("Sum before invert = " << sum << ", 0x" << std::uppercase << std::hex << sum);
 
-	sum = ~sum;
+	// To obtain the checksum we take the ones' complement of this result
+	uint16_t result = sum;
+	result = ~result;
 
-	PCPP_LOG_DEBUG("Calculated checksum = " << sum << ", 0x" << std::uppercase << std::hex << sum);
+	PCPP_LOG_DEBUG("Calculated checksum = " << sum << ", 0x" << std::uppercase << std::hex << result);
 
-	return ((uint16_t) sum);
+	// We return the result in Network byte order
+	return htons(result);
 }
 
 static const uint32_t FNV_PRIME = 16777619u;

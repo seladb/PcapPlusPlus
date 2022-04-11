@@ -304,3 +304,30 @@ PTF_TEST_CASE(TcpChecksumInvalidRead)
 
 	delete [] m;
 } // TcpChecksumInvalidRead
+
+PTF_TEST_CASE(TcpChecksumMultiBuffer)
+{
+	// Taken from https://en.wikipedia.org/wiki/IPv4_header_checksum#Calculating_the_IPv4_header_checksum
+	uint16_t m[4] = {0x4500, 0x0073, 0x0000, 0x4000};
+	uint16_t n[3] = {0x4011, 0xc0a8, 0x0001};
+	uint16_t o[2] = {0xc0a8, 0x00c7};
+	uint16_t checksum_expected = 0xb861;
+
+	pcpp::ScalarBuffer<uint16_t> vec[4];
+	vec[0].buffer = m;
+	vec[0].len = 8;
+	vec[1].buffer = n;
+	vec[1].len = 6;
+	vec[2].buffer = o;
+	vec[2].len = 4;
+	vec[3].buffer = &checksum_expected;
+	vec[3].len = 2;
+
+	uint16_t c = pcpp::computeChecksum(vec, 3);
+	// computeChecksum return in network byte order
+	PTF_ASSERT_EQUAL(c, htons(checksum_expected));
+
+	// Adding the checksum should be equal to 0x0
+	c = pcpp::computeChecksum(vec, 4);
+	PTF_ASSERT_EQUAL(c, 0);
+} // TcpChecksumInvalidRead
