@@ -33,9 +33,10 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 			uint8_t *vecBytes = (uint8_t *)vec[i].buffer;
 			uint8_t lastByte = vecBytes[vec[i].len - 1];
 			PCPP_LOG_DEBUG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
-			// We have read the latest byte manually but this byte should be interpreted
+			// We have read the latest byte manually but this byte should be properly interpreted
 			// as a 0xFF on LE and a 0xFF00 on BE to have a proper checksum computation
-			localSum += le16toh(lastByte);
+			localSum += be16toh(lastByte << 8);
+
 			PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		}
 
