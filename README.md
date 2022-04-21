@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 }
 ```
 
-You can find much more information in the [Getting Started](https://pcapplusplus.github.io/docs/) page in PcapPlusPlus web-site. This page will walk you through few easy steps to have an app up and running.
+You can find much more information in the [Getting Started](https://pcapplusplus.github.io/docs/quickstart) page in PcapPlusPlus web-site. This page will walk you through few easy steps to have an app up and running.
 
 ## API Documentation
 
@@ -146,7 +146,7 @@ PcapPlusPlus consists of 3 libraries:
 2. __Pcap++__ - a library for intercepting and sending packets, providing network and NIC info, stats, etc. It is actually a C++ wrapper for packet capturing engines such as libpcap, WinPcap, Npcap, DPDK and PF_RING
 3. __Common++__ - a library with some common code utilities used by both Packet++ and Pcap++
 
-You can find an extensive API documentation in the [API documentation section](https://pcapplusplus.github.io/api-docs/) in PcapPlusPlus web-site.
+You can find an extensive API documentation in the [API documentation section](https://pcapplusplus.github.io/docs/api) in PcapPlusPlus web-site.
 If you see any missing data please [contact us](#provide-feedback).
 
 ## Multi Platform Support
@@ -217,11 +217,11 @@ We'd be more than happy to get feedback, please feel free to reach out to us in 
 
 If you like this project please __Star us on GitHub — it helps!__ :star: :star:
 
-Please visit the [PcapPlusPlus web-site](https://pcapplusplus.github.io/docs/community) to learn more.
+Please visit the [PcapPlusPlus web-site](https://pcapplusplus.github.io/community) to learn more.
 
 ## Contributing
 
-We would very much appreciate any contribution to this project. If you're interested in contributing please visit the [contribution page](https://pcapplusplus.github.io/docs/community#contribute) in PcapPlusPlus web-site.
+We would very much appreciate any contribution to this project. If you're interested in contributing please visit the [contribution page](https://pcapplusplus.github.io/community#contribute) in PcapPlusPlus web-site.
 
 ## License
 
