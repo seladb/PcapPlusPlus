@@ -61,8 +61,8 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 
 	PCPP_LOG_DEBUG("Calculated checksum = " << sum << ", 0x" << std::uppercase << std::hex << result);
 
-	// We return the result in Network byte order
-	return htons(result);
+	// We return the result in BigEndian byte order
+	return htobe16(result);
 }
 
 static const uint32_t FNV_PRIME = 16777619u;

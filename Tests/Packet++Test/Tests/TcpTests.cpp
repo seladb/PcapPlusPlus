@@ -325,7 +325,7 @@ PTF_TEST_CASE(TcpChecksumMultiBuffer)
 
 	uint16_t c = pcpp::computeChecksum(vec, 3);
 	// computeChecksum return in network byte order
-	PTF_ASSERT_EQUAL(c, htons(checksum_expected));
+	PTF_ASSERT_EQUAL(c, htobe16(checksum_expected));
 
 	// Adding the checksum should be equal to 0x0
 	c = pcpp::computeChecksum(vec, 4);
