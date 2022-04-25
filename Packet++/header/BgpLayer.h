@@ -145,7 +145,7 @@ public:
 	 * BGP OPEN message structure
 	 */
 	#pragma pack(push, 1)
-	typedef struct : bgp_common_header
+	typedef struct bgp_open_message : bgp_common_header
 	{
 		/** BGP version number */
 		uint8_t version;
@@ -472,7 +472,7 @@ public:
 	 * BGP NOTIFICATION message structure
 	 */
 	#pragma pack(push, 1)
-	typedef struct : bgp_common_header
+	typedef struct bgp_notification_message : bgp_common_header
 	{
 		/** BGP notification error code */
 		uint8_t errorCode;
@@ -626,7 +626,7 @@ public:
 	 * BGP ROUTE-REFRESH message structure
 	 */
 	#pragma pack(push, 1)
-	typedef struct : bgp_common_header
+	typedef struct bgp_route_refresh_message : bgp_common_header
 	{
 		/** Address Family Identifier */
 		uint16_t afi;
