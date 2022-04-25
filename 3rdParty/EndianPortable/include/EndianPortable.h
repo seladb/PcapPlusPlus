@@ -61,25 +61,25 @@
    #define le32toh(x) (x)
   #endif
  #endif
-
 #elif defined __CYGWIN__
  #include <endian.h>
-#elif defined(_WIN32)
-#include <winsock2.h>
+#elif defined(_WIN32) && !defined(_MSC_VER)
+  // MinGW32
+ #include <winsock2.h>
  #if(BYTE_ORDER == LITTLE_ENDIAN)
-  #define htobe16(x) htons(x)
+  #define htobe16(x) __builtin_bswap16(x)
   #define htole16(x) (x)
-  #define be16toh(x) ntohs(x)
+  #define be16toh(x) __builtin_bswap16(x)
   #define le16toh(x) (x)
 
-  #define htobe32(x) htonl(x)
+  #define htobe32(x) __builtin_bswap32(x)
   #define htole32(x) (x)
-  #define be32toh(x) ntohl(x)
+  #define be32toh(x) __builtin_bswap32(x)
   #define le32toh(x) (x)
 
-  #define htobe64(x) htonll(x)
+  #define htobe64(x) __builtin_bswap64(x)
   #define htole64(x) (x)
-  #define be64toh(x) ntohll(x)
+  #define be64toh(x) __builtin_bswap64(x)
   #define le64toh(x) (x)
  #else
   #define htobe16(x) (x)
@@ -96,6 +96,40 @@
   #define htole64(x) __builtin_bswap64(x)
   #define be64toh(x) (x)
   #define le64toh(x) __builtin_bswap64(x)
+ #endif
+#elif defined(_WIN32) && defined(_MSC_VER)
+// Visual Studio
+ #include <winsock2.h>
+ #if(BYTE_ORDER == LITTLE_ENDIAN)
+  #define htobe16(x) _byteswap_ushort(x)
+  #define htole16(x) (x)
+  #define be16toh(x) _byteswap_ushort(x)
+  #define le16toh(x) (x)
+
+  #define htobe32(x) _byteswap_ulong(x)
+  #define htole32(x) (x)
+  #define be32toh(x) _byteswap_ulong(x)
+  #define le32toh(x) (x)
+
+  #define htobe64(x) _byteswap_uint64(x)
+  #define htole64(x) (x)
+  #define be64toh(x) _byteswap_uint64(x)
+  #define le64toh(x) (x)
+ #else
+  #define htobe16(x) (x)
+  #define htole16(x) _byteswap_ushort(x)
+  #define be16toh(x) (x)
+  #define le16toh(x) _byteswap_ushort(x)
+
+  #define htobe32(x) (x)
+  #define htole32(x) _byteswap_ulong(x)
+  #define be32toh(x) (x)
+  #define le32toh(x) _byteswap_ulong(x)
+
+  #define htobe64(x) (x)
+  #define htole64(x) _byteswap_uint64(x)
+  #define be64toh(x) (x)
+  #define le64toh(x) _byteswap_uint64(x)
  #endif
 #elif defined __BSD__
   #include <sys/endian.h>
@@ -206,12 +240,5 @@
 #ifndef htole32
 #define htole32(x) le32toh(x)
 #endif
-
-#ifndef htonll
-#define htonll(x) ((1==htonl(1)) ? (x) : (((uint64_t)htonl((x) & 0xFFFFFFFFUL)) << 32) | htonl((uint32_t)((x) >> 32)))
-#endif // htonll
-#ifndef ntohll
-#define ntohll(x) ((1==ntohl(1)) ? (x) : (((uint64_t)ntohl((x) & 0xFFFFFFFFUL)) << 32) | ntohl((uint32_t)((x) >> 32)))
-#endif // ntohll
 
 #endif /* _ENDIANPORTABLE_H_ */
