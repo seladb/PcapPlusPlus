@@ -137,6 +137,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TcpPacketCreation2, "tcp");
 	PTF_RUN_TEST(TcpMalformedPacketParsing, "tcp");
 	PTF_RUN_TEST(TcpChecksumInvalidRead, "tcp");
+	PTF_RUN_TEST(TcpChecksumMultiBuffer, "tcp");
 
 	PTF_RUN_TEST(PacketUtilsHash5TupleUdp, "udp");
 	PTF_RUN_TEST(PacketUtilsHash5TupleTcp, "tcp");
