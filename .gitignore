@@ -81,3 +81,7 @@ Examples/Tutorials/**/*.exe
 #venv
 .venv/**
 venv/**
+
+# editos
+.idea
+.vscode
