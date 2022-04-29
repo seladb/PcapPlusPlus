@@ -95,6 +95,35 @@ namespace pcpp
 	{
 	public:
 
+	  	class LogContext
+		{
+		private:
+			std::ostringstream* m_LogStream;
+
+		public:
+			LogContext()
+			{
+				m_LogStream = new std::ostringstream();
+			}
+
+			~LogContext()
+			{
+				delete m_LogStream;
+			}
+
+			std::string str() const
+			{
+				return m_LogStream->str();
+			}
+
+			template<class T>
+			LogContext& operator<<(const T& msg)
+			{
+				(*m_LogStream) << msg;
+				return *this;
+			}
+		};
+
 		/**
 		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the default log level
 		 */
@@ -189,12 +218,12 @@ namespace pcpp
 			return *this;
 		}
 
-		Logger& internalLog();
+		LogContext* internalCreateLogContext();
 
 		/**
 		 * An internal method to print log messages. Shouldn't be used externally.
 		 */
-		void internalPrintLogMessage(Logger::LogLevel logLevel, const char* file, const char* method, int line);
+		void internalPrintLogMessage(LogContext* context, Logger::LogLevel logLevel, const char* file, const char* method, int line);
 
 		/**
 		 * Get access to Logger singleton
@@ -223,15 +252,19 @@ namespace pcpp
 	{ \
 		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) \
 		{ \
-			pcpp::Logger::getInstance().internalLog() << message; \
-			pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Debug, __FILE__, __FUNCTION__, __LINE__); \
+			pcpp::Logger::LogContext* context = pcpp::Logger::getInstance().internalCreateLogContext(); \
+			(*context) << message; \
+			pcpp::Logger::getInstance().internalPrintLogMessage(context, pcpp::Logger::Debug, __FILE__, __FUNCTION__, __LINE__); \
+			delete context; \
 		} \
 	} while(0)
 
 #define PCPP_LOG_ERROR(message) do \
 	{ \
-		pcpp::Logger::getInstance().internalLog() << message; \
-		pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Error, __FILE__, __FUNCTION__, __LINE__); \
+        pcpp::Logger::LogContext* context = pcpp::Logger::getInstance().internalCreateLogContext(); \
+  		(*context) << message; \
+		pcpp::Logger::getInstance().internalPrintLogMessage(context, pcpp::Logger::Error, __FILE__, __FUNCTION__, __LINE__); \
+		delete context; \
 	} while (0)
 
 } // namespace pcpp
