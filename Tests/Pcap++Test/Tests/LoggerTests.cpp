@@ -78,7 +78,7 @@ class MultiThreadLogCounter
 		static int logMessageThreadCount[ThreadCount];
 		static void logPrinter(pcpp::Logger::LogLevel logLevel, const std::string& logMessage, const std::string& fileName, const std::string& method, const int line)
 		{
-			int threadId = logMessage.back() - '0';
+			int threadId = logMessage[logMessage.length() - 1] - '0';
 			MultiThreadLogCounter::logMessageThreadCount[threadId]++;
 		}
 };
@@ -192,7 +192,7 @@ PTF_TEST_CASE(TestLoggerMultiThread)
 	}
 
 	PTF_ASSERT_EQUAL(totalLogMessages, 5000);
-}
+} // TestLoggerMultiThread
 
 
 PTF_TEST_CASE(TestLogger)
