@@ -255,6 +255,13 @@ namespace pcpp
 	void multiPlatformSleep(uint32_t seconds);
 
 	/**
+	 * A multi-platform version of sleep in milliseconds resolution. This method simply runs the right sleep method, according to the platform
+	 * it is running on.
+	 * @param[in] milliseconds Number of milliseconds to sleep
+	 */
+	void multiPlatformMSleep(uint32_t milliseconds);
+
+	/**
 	 * A multi-platform version of `htons` which convert host to network byte order
 	 * @param[in] host Value in host byte order
 	 * @return Value in network byte order

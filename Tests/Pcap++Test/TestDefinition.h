@@ -11,6 +11,7 @@ PTF_TEST_CASE(TestGetMacAddress);
 
 // Implemented in LoggerTests.cpp
 PTF_TEST_CASE(TestLogger);
+PTF_TEST_CASE(TestLoggerMultiThread);
 
 // Implemented in FileTests.cpp
 PTF_TEST_CASE(TestPcapFileReadWrite);

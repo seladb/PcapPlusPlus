@@ -36,22 +36,15 @@ void Logger::defaultLogPrinter(LogLevel logLevel, const std::string& logMessage,
 		<< logMessage << std::endl;
 }
 
-Logger& Logger::internalLog()
+std::ostringstream * Logger::internalCreateLogStream()
 {
-	if (m_LogStream != NULL)
-	{
-		delete m_LogStream;
-		m_LogStream = NULL;
-	}
-	m_LogStream = new std::ostringstream();
-	return *this;
+	return new std::ostringstream ();
 }
 
-void Logger::internalPrintLogMessage(Logger::LogLevel logLevel, const char* file, const char* method, int line)
+void Logger::internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file, const char* method, int line)
 {
-	std::string logMessage = m_LogStream->str();
-	delete m_LogStream;
-	m_LogStream = NULL;
+	std::string logMessage = logStream->str();
+	delete logStream;
 	if (logLevel == Logger::Error)
 	{
 		m_LastError = logMessage;

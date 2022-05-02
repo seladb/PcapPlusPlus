@@ -27,7 +27,7 @@ PTF_TEST_CASE(TestRawSockets)
 		pcpp::Logger::getInstance().suppressLogs();
 		pcpp::RawPacket rawPacket;
 		PTF_ASSERT_FALSE(rawSock.open());
-		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 10), pcpp::RawSocketDevice::RecvError, enum);
+		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 20), pcpp::RawSocketDevice::RecvError, enum);
 		PTF_ASSERT_FALSE(rawSock.sendPacket(&rawPacket));
 		pcpp::Logger::getInstance().enableLogs();
 	}
@@ -42,7 +42,7 @@ PTF_TEST_CASE(TestRawSockets)
 	for (int i = 0; i < 4; i++)
 	{
 		pcpp::RawPacket rawPacket;
-		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 10), pcpp::RawSocketDevice::RecvSuccess, enum);
+		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 20), pcpp::RawSocketDevice::RecvSuccess, enum);
 		pcpp::Packet parsedPacket(&rawPacket);
 		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 	}
@@ -113,11 +113,11 @@ PTF_TEST_CASE(TestRawSockets)
 	for (int i = 0; i < 3; i++)
 	{
 		pcpp::RawPacket rawPacket;
-		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 5), pcpp::RawSocketDevice::RecvSuccess, enum);
+		PTF_ASSERT_EQUAL(rawSock.receivePacket(rawPacket, true, 20), pcpp::RawSocketDevice::RecvSuccess, enum);
 		pcpp::Packet parsedPacket(&rawPacket);
 		PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(protocol));
 		pcpp::RawPacket rawPacket2;
-		PTF_ASSERT_EQUAL(rawSock2.receivePacket(rawPacket2, true, 5), pcpp::RawSocketDevice::RecvSuccess, enum);
+		PTF_ASSERT_EQUAL(rawSock2.receivePacket(rawPacket2, true, 20), pcpp::RawSocketDevice::RecvSuccess, enum);
 		pcpp::Packet parsedPacket2(&rawPacket2);
 		PTF_ASSERT_TRUE(parsedPacket2.isPacketOfType(protocol));
 	}
