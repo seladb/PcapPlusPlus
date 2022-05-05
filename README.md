@@ -61,7 +61,7 @@ Vcpkg port: <https://github.com/microsoft/vcpkg/tree/master/ports/pcapplusplus>
 ### Conan
 
 ```text
-conan install pcapplusplus/21.11@
+conan install "pcapplusplus/[>0]@" -u
 ```
 
 The package in ConanCenter: <https://conan.io/center/pcapplusplus>
