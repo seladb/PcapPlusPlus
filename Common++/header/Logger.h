@@ -95,7 +95,6 @@ namespace pcpp
 	class Logger
 	{
 	public:
-
 		/**
 		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the default log level
 		 */
@@ -190,12 +189,12 @@ namespace pcpp
 			return *this;
 		}
 
-		Logger& internalLog();
+		std::ostringstream * internalCreateLogStream();
 
 		/**
 		 * An internal method to print log messages. Shouldn't be used externally.
 		 */
-		void internalPrintLogMessage(Logger::LogLevel logLevel, const char* file, const char* method, int line);
+		void internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file, const char* method, int line);
 
 		/**
 		 * Get access to Logger singleton
@@ -224,15 +223,17 @@ namespace pcpp
 	{ \
 		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) \
 		{ \
-			pcpp::Logger::getInstance().internalLog() << message; \
-			pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Debug, __FILE__, __FUNCTION__, __LINE__); \
+			std::ostringstream* sstream = pcpp::Logger::getInstance().internalCreateLogStream(); \
+			(*sstream) << message; \
+			pcpp::Logger::getInstance().internalPrintLogMessage(sstream, pcpp::Logger::Debug, __FILE__, __FUNCTION__, __LINE__); \
 		} \
 	} while(0)
 
 #define PCPP_LOG_ERROR(message) do \
 	{ \
-		pcpp::Logger::getInstance().internalLog() << message; \
-		pcpp::Logger::getInstance().internalPrintLogMessage(pcpp::Logger::Error, __FILE__, __FUNCTION__, __LINE__); \
+        std::ostringstream* sstream = pcpp::Logger::getInstance().internalCreateLogStream(); \
+  		(*sstream) << message; \
+		pcpp::Logger::getInstance().internalPrintLogMessage(sstream, pcpp::Logger::Error, __FILE__, __FUNCTION__, __LINE__); \
 	} while (0)
 
 } // namespace pcpp

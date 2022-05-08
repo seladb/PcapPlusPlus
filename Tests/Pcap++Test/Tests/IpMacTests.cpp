@@ -288,10 +288,17 @@ PTF_TEST_CASE(TestGetMacAddress)
 	std::stringstream sstream(ipsInArpTableAsString);
 	std::string ip;
 	double time = -1;
+	bool foundValidIpAddr = false;
 	while (std::getline(sstream, ip, '\n'))
 	{
 		pcpp::IPv4Address ipAddr(ip);
-		PTF_ASSERT_TRUE(ipAddr.isValid());
+		if (!ipAddr.isValid())
+			continue;
+
+		if (ipAddr == liveDev->getIPv4Address())
+			continue;
+
+		foundValidIpAddr = true;
 		pcpp::Logger::getInstance().suppressLogs();
 
 		for (int i = 0; i < 3; i++)
@@ -303,13 +310,11 @@ PTF_TEST_CASE(TestGetMacAddress)
 
 		pcpp::Logger::getInstance().enableLogs();
 		if (result != pcpp::MacAddress::Zero)
-		{
-			PTF_ASSERT_GREATER_OR_EQUAL_THAN(time, 0);
-			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time, liveDev->getMacAddress(), liveDev->getIPv4Address());
-			PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
 			break;
-		}
 	}
 
-	PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
+	if (foundValidIpAddr)
+	{
+		PTF_ASSERT_NOT_EQUAL(result, pcpp::MacAddress::Zero);
+	}
 } // TestGetMacAddress

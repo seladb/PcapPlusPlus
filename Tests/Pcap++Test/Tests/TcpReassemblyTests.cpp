@@ -46,6 +46,7 @@ struct TcpReassemblyMultipleConnStats
 	Stats stats;
 	FlowKeysList flowKeysList;
 
+	std::vector<timeval>timestamps;
 	void clear()
 	{
 		stats.clear();
@@ -113,6 +114,7 @@ static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStrea
 		iter->second.curSide = sideIndex;
 	}
 
+	((TcpReassemblyMultipleConnStats *)userCookie)->timestamps.push_back(tcpData.getTimeStamp());
 	iter->second.numOfDataPackets++;
 	iter->second.reassembledData += std::string((char*)tcpData.getData(), tcpData.getDataLength());
 }
@@ -710,6 +712,20 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0);
 
+	//test Connection Information data
+	pcpp::IPv4Address expectedSrcIP("172.16.133.132");
+	pcpp::IPv4Address expectedDstIP("98.139.161.29");
+	PTF_ASSERT_EQUAL(iterConn1->second.srcIP, expectedSrcIP);
+	PTF_ASSERT_EQUAL(iterConn1->second.dstIP, expectedDstIP);
+	PTF_ASSERT_EQUAL(iterConn1->second.srcPort, 54615);
+	PTF_ASSERT_EQUAL(iterConn1->second.dstPort, 80);
+	PTF_ASSERT_EQUAL(iterConn1->second.flowKey, results.flowKeysList[0]);
+	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_sec, 1361916156);
+	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_usec, 677488);
+	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_sec, 1361916156);
+	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_usec, 766111);
+
+	// test the return of invalid connection flowKey
 	pcpp::ConnectionData dummyConn;
 	dummyConn.flowKey = 0x12345678;
 	PTF_ASSERT_LOWER_THAN(tcpReassembly.isConnectionOpen(dummyConn), 0);
@@ -1054,3 +1070,69 @@ PTF_TEST_CASE(TestTcpReassemblyMaxSeq)
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
 } //TestTcpReassemblyMaxSeq
+
+PTF_TEST_CASE(TestTcpReassemblyDisableOOOCleanup) // TestTcpReassemblyDisableBaseOutOfOrderBufferCleanupCondition
+{
+	std::string errMsg;
+	std::vector<pcpp::RawPacket> packetStream;
+	TcpReassemblyMultipleConnStats results1;
+	TcpReassemblyMultipleConnStats results2;
+	pcpp::TcpReassemblyConfiguration config1(true, 5, 30, 20, true);
+	pcpp::TcpReassemblyConfiguration config2(true, 5, 30, 20, false);
+	pcpp::TcpReassembly tcpReassembly1(tcpReassemblyMsgReadyCallback, &results1, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config1);
+	pcpp::TcpReassembly tcpReassembly2(tcpReassemblyMsgReadyCallback, &results2, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback, config2);
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg));
+
+	// unserting a data packet from reverse direction b/w swap 2 consequent data packets
+	std::swap(packetStream[12], packetStream[13]);
+	std::swap(packetStream[13], packetStream[18]);
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	for (std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	{
+		pcpp::Packet packet(&(*iter));
+		tcpReassembly1.reassemblePacket(packet);
+		tcpReassembly2.reassemblePacket(packet);
+	}
+
+	tcpReassembly1.closeAllConnections();
+	tcpReassembly2.closeAllConnections();
+
+	TcpReassemblyMultipleConnStats::Stats &stats1 = results1.stats;
+	TcpReassemblyMultipleConnStats::Stats &stats2 = results2.stats;
+	PTF_ASSERT_EQUAL(stats1.size(), 1);
+	PTF_ASSERT_EQUAL(stats2.size(), 1);
+	PTF_ASSERT_EQUAL(stats1.begin()->second.numOfDataPackets, 18);
+	PTF_ASSERT_EQUAL(stats2.begin()->second.numOfDataPackets, 19);
+
+	packetStream.clear();
+	tcpReassemblyResults.clear();
+} // TestTcpReassemblyDisableOOOCleanup
+
+PTF_TEST_CASE(TestTcpReassemblyTimeStamps)
+{
+	std::string errMsg;
+	std::vector<pcpp::RawPacket> packetStream;
+
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/unidirectional_tcp_stream_with_missing_packet.pcap", packetStream, errMsg));
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, true);
+
+	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets,7);
+	std::ifstream expectedOutput("PcapExamples/timestamp_output.txt");
+	for(long unsigned int i = 0;i<tcpReassemblyResults.timestamps.size();i++){
+		timeval t = tcpReassemblyResults.timestamps[i];
+		std::string expected;
+		expectedOutput>>expected;
+		//TODO: Change to atoll to stoll after switching to C++11
+		int expUsec = atoll(expected.c_str())%1000000;
+		int expSec = atoll(expected.c_str())/1000000;
+		PTF_ASSERT_EQUAL(t.tv_usec,expUsec);
+		PTF_ASSERT_EQUAL(t.tv_sec, expSec);
+	}
+	expectedOutput.close();
+	packetStream.clear();
+	tcpReassemblyResults.clear();
+} // TestTcpReassemblyTimeStamps

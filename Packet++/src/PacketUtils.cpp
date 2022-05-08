@@ -1,4 +1,5 @@
 #include <string.h>
+
 #include "PacketUtils.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -17,30 +18,33 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 	for (size_t i = 0; i<vecSize; i++)
 	{
 		uint32_t localSum = 0;
-		size_t buffLen = vec[i].len;
-		while (buffLen > 1)
+
+		// vec len is in bytes
+		for (size_t j = 0; j < vec[i].len / 2; j++)
 		{
-			PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex << *(vec[i].buffer));
-			localSum += *(vec[i].buffer);
-			++(vec[i].buffer);
-			buffLen -= 2;
+			PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex << vec[i].buffer[j]);
+			localSum += vec[i].buffer[j];
 		}
 		PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 
-		if (buffLen == 1)
-		{
-			uint16_t lastByte = 0;
-			*((uint8_t*)(&lastByte)) = *((uint8_t*)(vec[i].buffer));
+		// check if there is one byte left
+		if (vec[i].len % 2) {
+			// access to the last byte using an uint8_t pointer
+			uint8_t *vecBytes = (uint8_t *)vec[i].buffer;
+			uint8_t lastByte = vecBytes[vec[i].len - 1];
 			PCPP_LOG_DEBUG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
-			localSum += lastByte;
+			// We have read the latest byte manually but this byte should be properly interpreted
+			// as a 0xFF on LE and a 0xFF00 on BE to have a proper checksum computation
+			localSum += be16toh(lastByte << 8);
+
 			PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		}
 
+		// carry count is added to the sum
 		while (localSum>>16)
 		{
 			localSum = (localSum & 0xffff) + (localSum >> 16);
 		}
-		localSum = be16toh(localSum);
 		PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 		sum += localSum;
 	}
@@ -49,14 +53,16 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 	{
 		sum = (sum & 0xffff) + (sum >> 16);
 	}
-
 	PCPP_LOG_DEBUG("Sum before invert = " << sum << ", 0x" << std::uppercase << std::hex << sum);
 
-	sum = ~sum;
+	// To obtain the checksum we take the ones' complement of this result
+	uint16_t result = sum;
+	result = ~result;
 
-	PCPP_LOG_DEBUG("Calculated checksum = " << sum << ", 0x" << std::uppercase << std::hex << sum);
+	PCPP_LOG_DEBUG("Calculated checksum = " << sum << ", 0x" << std::uppercase << std::hex << result);
 
-	return ((uint16_t) sum);
+	// We return the result in BigEndian byte order
+	return htobe16(result);
 }
 
 static const uint32_t FNV_PRIME = 16777619u;

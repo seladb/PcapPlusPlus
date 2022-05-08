@@ -11,6 +11,7 @@ PTF_TEST_CASE(TestGetMacAddress);
 
 // Implemented in LoggerTests.cpp
 PTF_TEST_CASE(TestLogger);
+PTF_TEST_CASE(TestLoggerMultiThread);
 
 // Implemented in FileTests.cpp
 PTF_TEST_CASE(TestPcapFileReadWrite);
@@ -65,6 +66,8 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO);
 PTF_TEST_CASE(TestTcpReassemblyCleanup);
 PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags);
 PTF_TEST_CASE(TestTcpReassemblyMaxSeq);
+PTF_TEST_CASE(TestTcpReassemblyDisableOOOCleanup);
+PTF_TEST_CASE(TestTcpReassemblyTimeStamps);
 
 // Implemented in IPFragmentationTests.cpp
 PTF_TEST_CASE(TestIPFragmentationSanity);

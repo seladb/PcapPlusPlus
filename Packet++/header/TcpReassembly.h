@@ -129,9 +129,10 @@ public:
 	 * @param[in] tcpDataLength The length of the buffer
 	 * @param[in] missingBytes The number of missing bytes due to packet loss.
 	 * @param[in] connData TCP connection information for this TCP data
+	 * @param[in] timestamp when this packet was received
 	 */
-	TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, size_t missingBytes, const ConnectionData& connData)
-		: m_Data(tcpData), m_DataLen(tcpDataLength), m_MissingBytes(missingBytes), m_Connection(connData)
+	TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, size_t missingBytes, const ConnectionData& connData, timeval timestamp)
+		: m_Data(tcpData), m_DataLen(tcpDataLength), m_MissingBytes(missingBytes), m_Connection(connData), m_Timestamp(timestamp)
 	{
 	}
 
@@ -165,11 +166,18 @@ public:
 	 */
 	const ConnectionData& getConnectionData() const { return m_Connection; }
 
+	/**
+	 * A getter for the timestamp of this packet
+	 * @return The const timeval object with timestamp of this packet
+	 */
+	timeval getTimeStamp() const { return m_Timestamp; }
+
 private:
 	const uint8_t* m_Data;
 	size_t m_DataLen;
 	size_t m_MissingBytes;
 	const ConnectionData& m_Connection;
+	timeval m_Timestamp;
 };
 
 
@@ -197,15 +205,20 @@ struct TcpReassemblyConfiguration
 	 */
 	uint32_t maxOutOfOrderFragments;
 
+	/**  To enable to clear buffer once packet contains data from a different side than the side seen before
+	 */
+	bool enableBaseBufferClearCondition;
+
 	/**
 	 * A c'tor for this struct
 	 * @param[in] removeConnInfo The flag indicating whether to remove the connection data after a connection is closed. The default is true
 	 * @param[in] closedConnectionDelay How long the closed connections will not be cleaned up. The value is expressed in seconds. If it's set to 0 the default value will be used. The default is 5.
 	 * @param[in] maxNumToClean The maximum number of items to be cleaned up per one call of purgeClosedConnections. If it's set to 0 the default value will be used. The default is 30.
 	 * @param[in] maxOutOfOrderFragments The maximum number of unmatched fragments to keep per flow before missed fragments are considered lost. The default is unlimited.
+	 * @param[in] enableBaseBufferClearCondition To enable to clear buffer once packet contains data from a different side than the side seen before
 	 */
-	TcpReassemblyConfiguration(bool removeConnInfo = true, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 30, uint32_t maxOutOfOrderFragments = 0) :
-		removeConnInfo(removeConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean), maxOutOfOrderFragments(maxOutOfOrderFragments)
+	TcpReassemblyConfiguration(bool removeConnInfo = true, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 30, uint32_t maxOutOfOrderFragments = 0,
+		bool enableBaseBufferClearCondition = true) : removeConnInfo(removeConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean), maxOutOfOrderFragments(maxOutOfOrderFragments), enableBaseBufferClearCondition(enableBaseBufferClearCondition)
 	{
 	}
 };
@@ -388,6 +401,7 @@ private:
 		uint32_t sequence;
 		size_t dataLength;
 		uint8_t* data;
+		timeval timestamp;
 
 		TcpFragment() : sequence(0), dataLength(0), data(NULL) {}
 		~TcpFragment() { delete [] data; }
@@ -430,6 +444,7 @@ private:
 	uint32_t m_MaxNumToClean;
 	size_t m_MaxOutOfOrderFragments;
 	time_t m_PurgeTimepoint;
+	bool m_EnableBaseBufferClearCondition;
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, bool cleanWholeFragList);
 

@@ -23,9 +23,9 @@
 
 // Both Visual C++ Compiler and MinGW-w64 define inet_ntop() and inet_pton()
 // Add compatibility functions for old MinGW (aka MinGW32)
-// We use "__MINGW64_MAJOR_VERSION" and not __MINGW64__ to detect MinGW-w64 compiler
+// We use "__MINGW64_VERSION_MAJOR" and not __MINGW64__ to detect MinGW-w64 compiler
 // because the second one is not defined for MinGW-w64 in 32bits mode
-#if defined(_WIN32) && !defined(_MSC_VER) && !defined(__MINGW64_MAJOR_VERSION)
+#if defined(_WIN32) && !defined(_MSC_VER) && (!defined(__MINGW64_VERSION_MAJOR) || (__MINGW64_VERSION_MAJOR < 8))
 /**
  * Convert a network format address to presentation format.
  * @param[in] af Address family, can be either AF_INET (IPv4) or AF_INET6 (IPv6)
