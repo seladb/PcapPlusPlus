@@ -258,7 +258,7 @@ namespace pcpp
 	const ProtocolType NTP = 0x4000000000;
 
 	/**
-	 * Telnet Protocol 
+	 * Telnet Protocol
 	 */
 	const ProtocolType Telnet = 0x8000000000;
 
