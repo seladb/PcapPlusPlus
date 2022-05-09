@@ -34,23 +34,24 @@ namespace pcpp
         };
 #pragma pack(pop)
 
-        struct telnet_field_data
-        {
-            // Header
-            struct telnet_header *hdr;
-            // Size of the header including data payload
-            uint16_t hdrSize;
-            // Offset of the current header
-            uint16_t currentOffset;
-        };
+        // Position variables (Iterators) for next command
+        uint8_t* lastPosition;
+        size_t lastPositionOffset;
 
-        bool isData;
-        std::vector<telnet_field_data> telnetCommandData;
-
-        /**
-         * Parse Telnet fields of the packet
-         */
-        void parseTelnetFields();
+        // Checks if position is a data field
+        bool isDataField(const uint8_t *pos);
+        // Checks if position is a command field
+        bool isCommandField(const uint8_t* pos);
+        // Returns length of provided field
+        size_t getFieldLen(const uint8_t *startPos, const size_t maxLength);     
+        // Get position of next data field
+        uint8_t *getNextDataField(uint8_t *pos, const size_t len);
+        // Get position of next command field
+        uint8_t *getNextCommandField(uint8_t *pos, const size_t len);
+        // Get options of provided field
+        int16_t getSubCommand(const uint8_t *pos, const size_t len);
+        // Get data of provided field
+        const uint8_t *getCommandData(const uint8_t *pos, size_t &slen);
 
     public:
         /**
@@ -58,8 +59,8 @@ namespace pcpp
          */
         enum TelnetCommands
         {
-            /// Internal error indicator for PcapPlusPlus
-            TelnetCommandInternalError = -1,
+            /// Indicator to parser reached end of packet
+            TelnetCommandEndOfPacket = -1,
 
             /// End of file
             EndOfFile = 236,
@@ -109,9 +110,7 @@ namespace pcpp
         enum TelnetOptions
         {
             /// Internal return for no option detected
-            TelnetOptionNoOption = -2,
-            /// Internal error indicator for PcapPlusPlus
-            TelnetOptionInternalError,
+            TelnetOptionNoOption = -1,
 
             /// Binary Transmission RFC856 https://www.iana.org/go/rfc856
             TransmitBinary = 0,
@@ -235,9 +234,9 @@ namespace pcpp
          */
         TelnetLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet)
         {
-            isData = false;
             m_Protocol = Telnet;
-            parseTelnetFields();
+            lastPosition = m_Data;
+            lastPositionOffset = 0;
         };
 
         /**
@@ -248,43 +247,54 @@ namespace pcpp
         std::string getDataAsString(bool removeEscapeCharacters = true);
 
         /// Return the number of detected Telnet Commands
-        uint16_t getNumberOfCommands();
+        size_t getTotalNumberOfCommands();
 
         /**
-         * Get the command of the given index
-         * @param[in] index Index to requested value
-         * @return Command of the given index, TelnetCommandInternalError if the requested index is larger than number of commands
+         * Returns the number of occurences of provided command
+         * @param[in] command Telnet command to count
+         * @return size_t Number of occurences of command
          */
-        TelnetCommands getCommand(size_t index);
+        size_t getNumberOfCommands(TelnetCommands command);
 
         /**
-         * Convert the Telnet Command to readable string
-         * @param[in] index Index to requested value
-         * @return The Telnet Command as readable string
+         * Returns the first command of packet
+         * @return TelnetCommands First detected command value, TelnetCommandEndOfPacket if there is no command field
          */
-        std::string getTelnetCommandAsString(size_t index);
+        TelnetCommands getFirstCommand();
 
         /**
-         * Get the command option of the given index
-         * @param[in] index Index to requested value
-         * @return Option of the given index, TelnetOptionInternalError if the requested index is larger than number of commands
+         * Returns the next command of packet. Uses an internal iterator. The iterator resets when reached end of packet.
+         * @return TelnetCommands Detected command value, TelnetCommandEndOfPacket if reached the end of packet.
          */
-        TelnetOptions getOption(size_t index);
+        TelnetCommands getNextCommand();
 
         /**
-         * Convert the Telnet option to readable string
-         * @param[in] index Index to requested value
-         * @return The Telnet Option as readable string
+         * Returns the option of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
+         * @return TelnetOptions Option of current command
          */
-        std::string getTelnetOptionAsString(size_t index);
+        TelnetOptions getOption();
 
         /**
-         * Get the data of the given index
-         * @param[in] index Index to requested value
-         * @param[out] length Length of the returned data, unchanged if there is no data or on error
-         * @return Pointer to requested data, NULL on error or there is no data
+         * Returns the option of provided command. It will return option of first occurence of the command
+         * @param[in] commandType Telnet command to search
+         * @return TelnetOptions Option of the command. Returns TelnetOptionNoOption if the provided command not found.
          */
-        const uint8_t *getOptionData(size_t index, size_t &length);
+        TelnetOptions getOption(TelnetCommands command);
+
+        /**
+         * Returns the data of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
+         * @param[out] length Length of the data of current command
+         * @return const uint8_t* Pointer to the data of current command. NULL if there is no data for this command.
+         */
+        const uint8_t *getOptionData(size_t &length);
+
+        /**
+         * Returns the data of provided command. It will return data of first occurence of the command
+         * @param[in] command Telnet command to search
+         * @param[out] length Length of the data of current command
+         * @return const uint8_t* Pointer to the data of current command. NULL if there is no data for this command or if can't find the command.
+         */
+        const uint8_t *getOptionData(TelnetCommands command, size_t &length);
 
         /**
          * Convert the Telnet Command to readable string
@@ -325,7 +335,7 @@ namespace pcpp
         size_t getHeaderLen() const { return m_DataLen; }
 
         /// Does nothing for this layer
-        void computeCalculateFields();
+        void computeCalculateFields() {}
 
         /**
          * @return The OSI layer level of Telnet (Application Layer).
@@ -335,7 +345,7 @@ namespace pcpp
         /**
          * @return Returns the protocol info as readable string
          */
-        std::string toString() const;
+        std::string toString();
     };
 
 } // namespace pcpp
