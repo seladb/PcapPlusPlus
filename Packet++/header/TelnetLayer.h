@@ -43,7 +43,7 @@ namespace pcpp
         // Checks if position is a command field
         bool isCommandField(const uint8_t* pos);
         // Returns length of provided field
-        size_t getFieldLen(const uint8_t *startPos, const size_t maxLength);     
+        size_t getFieldLen(const uint8_t *startPos, const size_t maxLength);
         // Get position of next data field
         uint8_t *getNextDataField(uint8_t *pos, const size_t len);
         // Get position of next command field
@@ -250,9 +250,9 @@ namespace pcpp
         size_t getTotalNumberOfCommands();
 
         /**
-         * Returns the number of occurences of provided command
+         * Returns the number of occurrences of provided command
          * @param[in] command Telnet command to count
-         * @return size_t Number of occurences of command
+         * @return size_t Number of occurrences of command
          */
         size_t getNumberOfCommands(TelnetCommands command);
 
@@ -275,7 +275,7 @@ namespace pcpp
         TelnetOptions getOption();
 
         /**
-         * Returns the option of provided command. It will return option of first occurence of the command
+         * Returns the option of provided command. It will return option of first occurrence of the command
          * @param[in] commandType Telnet command to search
          * @return TelnetOptions Option of the command. Returns TelnetOptionNoOption if the provided command not found.
          */
@@ -289,7 +289,7 @@ namespace pcpp
         const uint8_t *getOptionData(size_t &length);
 
         /**
-         * Returns the data of provided command. It will return data of first occurence of the command
+         * Returns the data of provided command. It will return data of first occurrence of the command
          * @param[in] command Telnet command to search
          * @param[out] length Length of the data of current command
          * @return const uint8_t* Pointer to the data of current command. NULL if there is no data for this command or if can't find the command.

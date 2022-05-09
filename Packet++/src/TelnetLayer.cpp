@@ -236,7 +236,7 @@ namespace pcpp
                 return static_cast<TelnetOptions>(getSubCommand(pos, getFieldLen(pos, m_DataLen - offset)));
         }
 
-        PCPP_LOG_DEBUG("Cant find requested command");
+        PCPP_LOG_DEBUG("Can't find requested command");
         return TelnetOptionNoOption;
     }
 
