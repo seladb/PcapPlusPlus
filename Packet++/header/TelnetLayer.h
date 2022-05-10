@@ -39,19 +39,19 @@ namespace pcpp
         size_t lastPositionOffset;
 
         // Checks if position is a data field
-        bool isDataField(const uint8_t *pos);
+        bool isDataField(uint8_t *pos);
         // Checks if position is a command field
-        bool isCommandField(const uint8_t* pos);
+        bool isCommandField(uint8_t* pos);
         // Returns length of provided field
-        size_t getFieldLen(const uint8_t *startPos, const size_t maxLength);
+        size_t getFieldLen(uint8_t *startPos, size_t maxLength);
         // Get position of next data field
-        uint8_t *getNextDataField(uint8_t *pos, const size_t len);
+        uint8_t *getNextDataField(uint8_t *pos, size_t len);
         // Get position of next command field
-        uint8_t *getNextCommandField(uint8_t *pos, const size_t len);
+        uint8_t *getNextCommandField(uint8_t *pos, size_t len);
         // Get options of provided field
-        int16_t getSubCommand(const uint8_t *pos, const size_t len);
+        int16_t getSubCommand(uint8_t *pos, size_t len);
         // Get data of provided field
-        const uint8_t *getCommandData(const uint8_t *pos, size_t &slen);
+        uint8_t *getCommandData(uint8_t *pos, size_t &slen);
 
     public:
         /**
@@ -235,7 +235,7 @@ namespace pcpp
         TelnetLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet)
         {
             m_Protocol = Telnet;
-            lastPosition = m_Data;
+            lastPosition = NULL;
             lastPositionOffset = 0;
         };
 
@@ -284,17 +284,17 @@ namespace pcpp
         /**
          * Returns the data of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
          * @param[out] length Length of the data of current command
-         * @return const uint8_t* Pointer to the data of current command. NULL if there is no data for this command.
+         * @return uint8_t* Pointer to the data of current command. NULL if there is no data for this command.
          */
-        const uint8_t *getOptionData(size_t &length);
+        uint8_t *getOptionData(size_t &length);
 
         /**
          * Returns the data of provided command. It will return data of first occurrence of the command
          * @param[in] command Telnet command to search
          * @param[out] length Length of the data of current command
-         * @return const uint8_t* Pointer to the data of current command. NULL if there is no data for this command or if can't find the command.
+         * @return uint8_t* Pointer to the data of current command. NULL if there is no data for this command or if can't find the command.
          */
-        const uint8_t *getOptionData(TelnetCommands command, size_t &length);
+        uint8_t *getOptionData(TelnetCommands command, size_t &length);
 
         /**
          * Convert the Telnet Command to readable string
@@ -345,7 +345,7 @@ namespace pcpp
         /**
          * @return Returns the protocol info as readable string
          */
-        std::string toString();
+        std::string toString() const;
     };
 
 } // namespace pcpp

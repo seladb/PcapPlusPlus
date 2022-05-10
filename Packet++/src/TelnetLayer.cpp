@@ -11,7 +11,7 @@
 namespace pcpp
 {
 
-    bool TelnetLayer::isDataField(const uint8_t *pos)
+    bool TelnetLayer::isDataField(uint8_t *pos)
     {
         // "FF FF" means data
         if (pos[0] != InterpretAsCommand || (pos[0] == InterpretAsCommand && pos[1] == InterpretAsCommand))
@@ -19,16 +19,16 @@ namespace pcpp
         return false;
     }
 
-    bool TelnetLayer::isCommandField(const uint8_t *pos)
+    bool TelnetLayer::isCommandField(uint8_t *pos)
     {
         if (pos[0] == InterpretAsCommand && pos[1] != InterpretAsCommand)
             return true;
         return false;
     }
 
-    size_t TelnetLayer::getFieldLen(const uint8_t *startPos, const size_t maxLength)
+    size_t TelnetLayer::getFieldLen(uint8_t *startPos, size_t maxLength)
     {
-        size_t ctr = 0;
+        // <--------------------------
         uint8_t *pos = NULL;
         size_t addition = 0;
         size_t currentOffset = 0;
@@ -37,12 +37,6 @@ namespace pcpp
             // If it is second turn position should be adjusted to after second FF
             if (addition)
                 addition += 2;
-            // If infinite loop is detected break
-            if (ctr > UINT16_MAX)
-            {
-                PCPP_LOG_ERROR("Infinite loop detected while parsing fields");
-                return 0;
-            }
 
             pos = (uint8_t *)memchr(startPos + currentOffset + 1, InterpretAsCommand, maxLength - currentOffset);
             if (pos)
@@ -50,14 +44,13 @@ namespace pcpp
             else
                 addition += maxLength - currentOffset;
             currentOffset = currentOffset + addition;
-            ++ctr;
             // "FF FF" means data continue
         } while (pos && (pos[1] == InterpretAsCommand) && (currentOffset < maxLength));
 
         return addition;
     }
 
-    uint8_t *TelnetLayer::getNextDataField(uint8_t *pos, const size_t len)
+    uint8_t *TelnetLayer::getNextDataField(uint8_t *pos, size_t len)
     {
         size_t offset = 0;
         while (offset < len)
@@ -74,7 +67,7 @@ namespace pcpp
         return NULL;
     }
 
-    uint8_t *TelnetLayer::getNextCommandField(uint8_t *pos, const size_t len)
+    uint8_t *TelnetLayer::getNextCommandField(uint8_t *pos, size_t len)
     {
         size_t offset = 0;
         while (offset < len)
@@ -91,26 +84,21 @@ namespace pcpp
         return NULL;
     }
 
-    int16_t TelnetLayer::getSubCommand(const uint8_t *pos, const size_t len)
+    int16_t TelnetLayer::getSubCommand(uint8_t *pos, size_t len)
     {
         if (len < 3 || pos[1] < Subnegotiation)
             return TelnetOptionNoOption;
         return pos[2];
     }
 
-    const uint8_t *TelnetLayer::getCommandData(const uint8_t *pos, size_t &len)
+    uint8_t *TelnetLayer::getCommandData(uint8_t *pos, size_t &len)
     {
-        if (pos[1] < Subnegotiation)
-        {
-            len -=2;
-            return &pos[2];
-        }
-        if (len > 3)
+        if(pos[1] == Subnegotiation && len > 3)
         {
             len -= 3;
             return &pos[3];
         }
-        len=0;
+        len = 0;
         return NULL;
     }
 
@@ -129,13 +117,14 @@ namespace pcpp
         }
 
         // Convert to string
-        size_t offset = dataPos - m_Data;
         if (removeEscapeCharacters)
         {
             std::stringstream ss;
-            for (size_t idx = 0; idx < m_DataLen; idx++)
-                if (dataPos[idx] < 127 && dataPos[idx] > 31) // From SPACE to ~
+            for (size_t idx = 0; idx < m_DataLen - (dataPos - m_Data) + 1; ++idx)
+            {
+                if (int(dataPos[idx]) < 127 && int(dataPos[idx]) > 31) // From SPACE to ~
                     ss << m_Data[idx];
+            }
             return ss.str();
         }
         return std::string((char *)m_Data, m_DataLen);
@@ -197,6 +186,13 @@ namespace pcpp
 
     TelnetLayer::TelnetCommands TelnetLayer::getNextCommand()
     {
+        if(!lastPosition && isCommandField(m_Data))
+        {
+            lastPosition = m_Data;
+            lastPositionOffset = 0;
+            return static_cast<TelnetLayer::TelnetCommands>(lastPosition[1]);
+        }
+
         uint8_t *pos = getNextCommandField(lastPosition, m_DataLen - lastPositionOffset);
         if (pos)
         {
@@ -204,7 +200,7 @@ namespace pcpp
             lastPositionOffset = pos - m_Data;
             return static_cast<TelnetLayer::TelnetCommands>(pos[1]);
         }
-        lastPosition = m_Data;
+        lastPosition = NULL;
         lastPositionOffset = 0;
         return TelnetCommandEndOfPacket;
     }
@@ -216,6 +212,7 @@ namespace pcpp
 
     TelnetLayer::TelnetOptions TelnetLayer::getOption(TelnetCommands command)
     {
+        // Check input
         if (command < 0)
         {
             PCPP_LOG_ERROR("Command type can't be negative");
@@ -240,18 +237,54 @@ namespace pcpp
         return TelnetOptionNoOption;
     }
 
-    const uint8_t *TelnetLayer::getOptionData(size_t &length)
+    uint8_t* TelnetLayer::getOptionData(size_t &length)
     {
         size_t lenBuffer = getFieldLen(lastPosition, m_DataLen - lastPositionOffset);
-        const uint8_t *posBuffer = getCommandData(lastPosition, lenBuffer);
+        uint8_t *posBuffer = getCommandData(lastPosition, lenBuffer);
 
         length = lenBuffer;
         return posBuffer;
     }
 
-    const uint8_t *TelnetLayer::getOptionData(TelnetCommands command, size_t &length)
+    uint8_t* TelnetLayer::getOptionData(TelnetCommands command, size_t &length)
     {
-        // <--------------------------------------------------------------------------------
+        // Check input
+        if (command < 0)
+        {
+            PCPP_LOG_ERROR("Command type can't be negative");
+            length = 0;
+            return NULL;
+        }
+
+        if (isCommandField(m_Data) && m_Data[1] == command)
+        {
+            size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
+            uint8_t *posBuffer = getCommandData(m_Data, lenBuffer);
+
+            length = lenBuffer;
+            return posBuffer;
+        }
+
+        uint8_t *pos = m_Data;
+        size_t offset = 0;
+        while (pos != NULL)
+        {
+            offset = pos - m_Data;
+            pos = getNextCommandField(pos, m_DataLen - offset);
+
+            if (pos && pos[1] == command)
+            {
+                size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
+                uint8_t *posBuffer = getCommandData(m_Data, lenBuffer);
+
+                length = lenBuffer;
+                return posBuffer;
+            }
+        }
+
+        PCPP_LOG_DEBUG("Can't find requested command");
+        length = 0;
+        return NULL;
     }
 
     std::string TelnetLayer::getTelnetCommandAsString(TelnetCommands val)
@@ -424,9 +457,9 @@ namespace pcpp
         }
     }
 
-    std::string TelnetLayer::toString()
+    std::string TelnetLayer::toString() const
     {
-        if (isDataField(m_Data))
+        if (m_Data[0] != InterpretAsCommand || (m_Data[0] == InterpretAsCommand && m_Data[1] == InterpretAsCommand))
             return "Telnet Data";
         return "Telnet Control";
     }
