@@ -3,8 +3,6 @@
 
 #include "Layer.h"
 
-#include <vector>
-
 /// @file
 
 /**
