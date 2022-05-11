@@ -201,11 +201,12 @@ namespace pcpp
 
     TelnetLayer::TelnetCommands TelnetLayer::getNextCommand()
     {
-        if (!lastPosition && isCommandField(m_Data))
+        if (!lastPosition)
         {
             lastPosition = m_Data;
             lastPositionOffset = 0;
-            return static_cast<TelnetLayer::TelnetCommands>(lastPosition[1]);
+            if (isCommandField(m_Data))
+                return static_cast<TelnetLayer::TelnetCommands>(lastPosition[1]);
         }
 
         uint8_t *pos = getNextCommandField(lastPosition, m_DataLen - lastPositionOffset);
@@ -222,8 +223,10 @@ namespace pcpp
 
     TelnetLayer::TelnetOptions TelnetLayer::getOption()
     {
-        return static_cast<TelnetOptions>(
-            getSubCommand(lastPosition, getFieldLen(lastPosition, m_DataLen - lastPositionOffset)));
+        if (lastPosition)
+            return static_cast<TelnetOptions>(
+                getSubCommand(lastPosition, getFieldLen(lastPosition, m_DataLen - lastPositionOffset)));
+        return TelnetOptionNoOption;
     }
 
     TelnetLayer::TelnetOptions TelnetLayer::getOption(TelnetCommands command)
@@ -255,11 +258,14 @@ namespace pcpp
 
     uint8_t *TelnetLayer::getOptionData(size_t &length)
     {
-        size_t lenBuffer = getFieldLen(lastPosition, m_DataLen - lastPositionOffset);
-        uint8_t *posBuffer = getCommandData(lastPosition, lenBuffer);
+        if (lastPosition)
+        {
+            size_t lenBuffer = getFieldLen(lastPosition, m_DataLen - lastPositionOffset);
+            uint8_t *posBuffer = getCommandData(lastPosition, lenBuffer);
 
-        length = lenBuffer;
-        return posBuffer;
+            length = lenBuffer;
+            return posBuffer;
+        }
     }
 
     uint8_t *TelnetLayer::getOptionData(TelnetCommands command, size_t &length)
