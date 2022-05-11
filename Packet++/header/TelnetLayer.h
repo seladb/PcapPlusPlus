@@ -264,7 +264,7 @@ namespace pcpp
 
         /**
          * Returns the option of provided command. It will return option of first occurrence of the command
-         * @param[in] commandType Telnet command to search
+         * @param[in] command Telnet command to search
          * @return TelnetOptions Option of the command. Returns TelnetOptionNoOption if the provided command not found.
          */
         TelnetOptions getOption(TelnetCommands command);
