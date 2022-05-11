@@ -201,31 +201,28 @@ namespace pcpp
 
     TelnetLayer::TelnetCommands TelnetLayer::getNextCommand()
     {
-        if (!lastPosition)
+        if (lastPositionOffset == UINT64_MAX)
         {
-            lastPosition = m_Data;
             lastPositionOffset = 0;
             if (isCommandField(m_Data))
-                return static_cast<TelnetLayer::TelnetCommands>(lastPosition[1]);
+                return static_cast<TelnetLayer::TelnetCommands>(m_Data[1]);
         }
 
-        uint8_t *pos = getNextCommandField(lastPosition, m_DataLen - lastPositionOffset);
+        uint8_t *pos = getNextCommandField(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset);
         if (pos)
         {
-            lastPosition = pos;
             lastPositionOffset = pos - m_Data;
             return static_cast<TelnetLayer::TelnetCommands>(pos[1]);
         }
-        lastPosition = NULL;
-        lastPositionOffset = 0;
+        lastPositionOffset = UINT64_MAX;
         return TelnetCommandEndOfPacket;
     }
 
     TelnetLayer::TelnetOptions TelnetLayer::getOption()
     {
-        if (lastPosition)
+        if (lastPositionOffset <= m_DataLen)
             return static_cast<TelnetOptions>(
-                getSubCommand(lastPosition, getFieldLen(lastPosition, m_DataLen - lastPositionOffset)));
+                getSubCommand(&m_Data[lastPositionOffset], getFieldLen(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset)));
         return TelnetOptionNoOption;
     }
 
@@ -258,14 +255,15 @@ namespace pcpp
 
     uint8_t *TelnetLayer::getOptionData(size_t &length)
     {
-        if (lastPosition)
+        if (lastPositionOffset < m_DataLen)
         {
-            size_t lenBuffer = getFieldLen(lastPosition, m_DataLen - lastPositionOffset);
-            uint8_t *posBuffer = getCommandData(lastPosition, lenBuffer);
+            size_t lenBuffer = getFieldLen(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset);
+            uint8_t *posBuffer = getCommandData(&m_Data[lastPositionOffset], lenBuffer);
 
             length = lenBuffer;
             return posBuffer;
         }
+        return NULL;
     }
 
     uint8_t *TelnetLayer::getOptionData(TelnetCommands command, size_t &length)

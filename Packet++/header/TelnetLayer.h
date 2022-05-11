@@ -20,8 +20,7 @@ namespace pcpp
     class TelnetLayer : public Layer
     {
     private:
-        // Position variables (Iterators) for next command
-        uint8_t* lastPosition;
+        // Position iterator for next command
         size_t lastPositionOffset;
 
         // Checks if position is a data field
@@ -223,8 +222,7 @@ namespace pcpp
         TelnetLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet)
         {
             m_Protocol = Telnet;
-            lastPosition = NULL;
-            lastPositionOffset = 0;
+            lastPositionOffset = UINT64_MAX;
         };
 
         /**
