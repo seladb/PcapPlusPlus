@@ -20,20 +20,6 @@ namespace pcpp
     class TelnetLayer : public Layer
     {
     private:
-#pragma pack(push, 1)
-        struct telnet_header
-        {
-            // "Interpret as Command" escape character (FF)
-            uint8_t interpretation,
-                // Command
-                command,
-                // Option of the command
-                subcommand,
-                // Data (Variable length)
-                data[];
-        };
-#pragma pack(pop)
-
         // Position variables (Iterators) for next command
         uint8_t* lastPosition;
         size_t lastPositionOffset;
@@ -42,6 +28,8 @@ namespace pcpp
         bool isDataField(uint8_t *pos);
         // Checks if position is a command field
         bool isCommandField(uint8_t* pos);
+        // Returns distance to next IAC
+        size_t distanceToNextIAC(uint8_t *startPos, size_t maxLength);
         // Returns length of provided field
         size_t getFieldLen(uint8_t *startPos, size_t maxLength);
         // Get position of next data field
