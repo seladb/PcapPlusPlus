@@ -8,7 +8,7 @@
 #include <unistd.h>
 #endif // ! _MSC_VER
 #include "pcap.h"
-#include <pthread.h>
+#include <thread>
 #include "Logger.h"
 #include "SystemUtils.h"
 #include <string.h>
@@ -48,11 +48,6 @@ static const int DEFAULT_SNAPLEN = 9000;
 
 namespace pcpp
 {
-
-struct PcapThread
-{
-	pthread_t pthread;
-};
 
 #ifdef HAS_SET_DIRECTION_ENABLED
 static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction)
@@ -110,10 +105,8 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	m_StatsThreadStarted = false;
 	m_IsLoopback = false;
 	m_StopThread = false;
-	m_CaptureThread = new PcapThread();
-	m_StatsThread = new PcapThread();
-	memset(m_CaptureThread, 0, sizeof(PcapThread));
-	memset(m_StatsThread, 0, sizeof(PcapThread));
+	m_CaptureThread = {};
+	m_StatsThread = {};
 	m_cbOnPacketArrives = NULL;
 	m_cbOnStatsUpdate = NULL;
 	m_cbOnPacketArrivesBlockingMode = NULL;
@@ -177,49 +170,33 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 			pThis->m_StopThread = true;
 }
 
-void* PcapLiveDevice::captureThreadMain(void* ptr)
+void PcapLiveDevice::captureThreadMain()
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)ptr;
-	if (pThis == NULL)
+	PCPP_LOG_DEBUG("Started capture thread for device '" << m_Name << "'");
+	if (m_CaptureCallbackMode)
 	{
-		PCPP_LOG_ERROR("Capture thread: Unable to extract PcapLiveDevice instance");
-		return 0;
-	}
-
-	PCPP_LOG_DEBUG("Started capture thread for device '" << pThis->m_Name << "'");
-	if (pThis->m_CaptureCallbackMode)
-	{
-		while (!pThis->m_StopThread)
-			pcap_dispatch(pThis->m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)pThis);
+		while (!m_StopThread)
+			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)this);
 	}
 	else
 	{
-		while (!pThis->m_StopThread)
-			pcap_dispatch(pThis->m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)pThis);
+		while (!m_StopThread)
+			pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)this);
 	}
-	PCPP_LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
-	return 0;
+	PCPP_LOG_DEBUG("Ended capture thread for device '" << m_Name << "'");
 }
 
-void* PcapLiveDevice::statsThreadMain(void* ptr)
+void PcapLiveDevice::statsThreadMain()
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)ptr;
-	if (pThis == NULL)
-	{
-		PCPP_LOG_ERROR("Stats thread: Unable to extract PcapLiveDevice instance");
-		return 0;
-	}
-
-	PCPP_LOG_DEBUG("Started stats thread for device '" << pThis->m_Name << "'");
-	while (!pThis->m_StopThread)
+	PCPP_LOG_DEBUG("Started stats thread for device '" << m_Name << "'");
+	while (!m_StopThread)
 	{
 		PcapStats stats;
-		pThis->getStatistics(stats);
-		pThis->m_cbOnStatsUpdate(stats, pThis->m_cbOnStatsUpdateUserCookie);
-		multiPlatformSleep(pThis->m_IntervalToUpdateStats);
+		getStatistics(stats);
+		m_cbOnStatsUpdate(stats, m_cbOnStatsUpdateUserCookie);
+		multiPlatformSleep(m_IntervalToUpdateStats);
 	}
-	PCPP_LOG_DEBUG("Ended stats thread for device '" << pThis->m_Name << "'");
-	return 0;
+	PCPP_LOG_DEBUG("Ended stats thread for device '" << m_Name << "'");
 }
 
 pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
@@ -429,27 +406,18 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	m_CaptureCallbackMode = true;
 	m_cbOnPacketArrives = onPacketArrives;
 	m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
-	int err = pthread_create(&(m_CaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
-	if (err != 0)
-	{
-		PCPP_LOG_ERROR("Cannot create LiveCapture thread for device '" << m_Name << "': [" << strerror(err) << "]");
-		return false;
-	}
+
+	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
 	m_CaptureThreadStarted = true;
-	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << printThreadId(m_CaptureThread));
+	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	if (onStatsUpdate != NULL && intervalInSecondsToUpdateStats > 0)
 	{
 		m_cbOnStatsUpdate = onStatsUpdate;
 		m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
-		int err = pthread_create(&(m_StatsThread->pthread), NULL, &statsThreadMain, (void*)this);
-		if (err != 0)
-		{
-			PCPP_LOG_ERROR("Cannot create LiveCapture Statistics thread for device '" << m_Name << "': [" << strerror(err) << "]");
-			return false;
-		}
+		m_StatsThread = std::thread(&pcpp::PcapLiveDevice::statsThreadMain, this);
 		m_StatsThreadStarted = true;
-		PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_Name << "'. Thread id: " << printThreadId(m_StatsThread));
+		PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_Name << "'. Thread id: " << m_StatsThread.get_id());
 	}
 
 	return true;
@@ -473,14 +441,9 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 	m_CapturedPackets->clear();
 
 	m_CaptureCallbackMode = false;
-	int err = pthread_create(&(m_CaptureThread->pthread), NULL, getCaptureThreadStart(), (void*)this);
-	if (err != 0)
-	{
-		PCPP_LOG_ERROR("Cannot create LiveCapture thread for device '" << m_Name << "': [" << strerror(err) << "]");
-		return false;
-	}
+	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
 	m_CaptureThreadStarted = true;
-	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << printThreadId(m_CaptureThread));
+	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	return true;
 }
@@ -556,14 +519,15 @@ void PcapLiveDevice::stopCapture()
 	{
 		pcap_breakloop(m_PcapDescriptor);
 		PCPP_LOG_DEBUG("Stopping capture thread, waiting for it to join...");
-		pthread_join(m_CaptureThread->pthread, NULL);
+		m_CaptureThread.join();
 		m_CaptureThreadStarted = false;
+		PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_Name << "'");
 	}
 	PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_Name << "'");
 	if (m_StatsThreadStarted)
 	{
 		PCPP_LOG_DEBUG("Stopping stats thread, waiting for it to join...");
-		pthread_join(m_StatsThread->pthread, NULL);
+		m_StatsThread.join();
 		m_StatsThreadStarted = false;
 		PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_Name << "'");
 	}
@@ -710,17 +674,6 @@ int PcapLiveDevice::sendPackets(const RawPacketVector& rawPackets, bool checkMtu
 
 	PCPP_LOG_DEBUG(packetsSent << " packets sent successfully. " << (rawPackets.size()-packetsSent) << " packets not sent");
 	return packetsSent;
-}
-
-std::string PcapLiveDevice::printThreadId(PcapThread* id)
-{
-	pthread_t pthread = id->pthread;
-	uint64_t threadId = 0;
-	size_t minSize = (sizeof(threadId) < sizeof(pthread) ? sizeof(threadId) : sizeof(pthread));
-	memcpy(&threadId, &pthread, minSize);
-	std::ostringstream result;
-	result << std::hex << threadId;
-	return result.str();
 }
 
 void PcapLiveDevice::setDeviceMtu()
@@ -997,15 +950,8 @@ const std::vector<IPv4Address>& PcapLiveDevice::getDnsServers() const
 	return PcapLiveDeviceList::getInstance().getDnsServers();
 }
 
-ThreadStart PcapLiveDevice::getCaptureThreadStart()
-{
-	return &captureThreadMain;
-}
-
 PcapLiveDevice::~PcapLiveDevice()
 {
-	delete m_CaptureThread;
-	delete m_StatsThread;
 }
 
 } // namespace pcpp

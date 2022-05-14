@@ -5,6 +5,7 @@
 #include "PcapDevice.h"
 #include <vector>
 #include <string.h>
+#include <thread>
 #include "IpAddress.h"
 #include "Packet.h"
 
@@ -93,9 +94,9 @@ namespace pcpp
 		std::vector<pcap_addr_t> m_Addresses;
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
-		PcapThread* m_CaptureThread;
+		std::thread m_CaptureThread;
 		bool m_CaptureThreadStarted;
-		PcapThread* m_StatsThread;
+		std::thread m_StatsThread;
 		bool m_StatsThreadStarted;
 		bool m_StopThread;
 		OnPacketArrivesCallback m_cbOnPacketArrives;
@@ -118,13 +119,14 @@ namespace pcpp
 		void setDeviceMtu();
 		void setDeviceMacAddress();
 		void setDefaultGateway();
-		static void* captureThreadMain(void* ptr);
-		static void* statsThreadMain(void* ptr);
+
+		// threads
+		void captureThreadMain();
+		void statsThreadMain();
+
 		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-		std::string printThreadId(PcapThread* id);
-		virtual ThreadStart getCaptureThreadStart();
 	public:
 
 		/**
