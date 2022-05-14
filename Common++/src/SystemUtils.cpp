@@ -1,14 +1,13 @@
 #include "SystemUtils.h"
 #include "EndianPortable.h"
-#if !defined(_WIN32)
-#include <pthread.h>
-#endif
+
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
-#include <stdio.h>
 #include <iostream>
+#include <mutex>
 #include <signal.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #if defined(__APPLE__)
@@ -325,7 +324,7 @@ int ApplicationEventHandler::handlerRoutine(unsigned long fdwCtrlType)
 }
 #else
 
-static pthread_mutex_t UnixLinuxHandlerRoutineMutex;
+static std::mutex UnixLinuxHandlerRoutineMutex;
 
 void ApplicationEventHandler::handlerRoutine(int signum)
 {
@@ -336,14 +335,13 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 		// Most calls are unsafe in a signal handler, and this includes printf(). In particular,
 		// if the signal is caught while inside printf() it may be called twice at the same time which might not be a good idea
 		// The way to make sure the signal is called only once is using this lock and putting NULL in m_ApplicationInterruptedHandler
-		pthread_mutex_lock(&UnixLinuxHandlerRoutineMutex);
+		const std::lock_guard<std::mutex> lock(UnixLinuxHandlerRoutineMutex);
 
 		if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
 			ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
 
 		ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler = NULL;
 
-		pthread_mutex_unlock(&UnixLinuxHandlerRoutineMutex);
 		return;
 	}
 	default:
@@ -358,9 +356,6 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 ApplicationEventHandler::ApplicationEventHandler() :
 		 m_ApplicationInterruptedHandler(NULL), m_ApplicationInterruptedCookie(NULL)
 {
-#if !defined(_WIN32)
-	pthread_mutex_init(&UnixLinuxHandlerRoutineMutex, 0);
-#endif
 }
 
 void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback handler, void* cookie)
