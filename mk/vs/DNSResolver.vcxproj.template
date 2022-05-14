@@ -109,9 +109,7 @@
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+      <Command>xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
 if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I</Command>
     </PostBuildEvent>
@@ -132,9 +130,7 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+      <Command>xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
 if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I</Command>
     </PostBuildEvent>
@@ -160,9 +156,7 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x86\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+      <Command>xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
 if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I</Command>
     </PostBuildEvent>
@@ -188,9 +182,7 @@ if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(Pc
       <AdditionalLibraryDirectories>$(PcapPlusPlusHome)\Dist\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
-xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
-xcopy "$(PThreadWin32Home)\Pre-built.2\dll\x64\pthreadVC2.dll" "$(PcapPlusPlusHome)\Dist\examples" /Y
+      <Command>xcopy "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin\*.exe" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I
 if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Examples\DNSResolver\Bin" /Y
 if exist "$(ZStdHome)\dll\libzstd.dll" xcopy "$(ZStdHome)\dll\libzstd.dll" "$(PcapPlusPlusHome)\Dist\examples" /F /R /Y /I</Command>
     </PostBuildEvent>
