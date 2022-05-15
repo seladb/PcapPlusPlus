@@ -190,6 +190,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\DnsResourceData.h" />
     <ClInclude Include="..\..\Packet++\header\EthDot3Layer.h" />
     <ClInclude Include="..\..\Packet++\header\EthLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\FtpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\GreLayer.h" />
     <ClInclude Include="..\..\Packet++\header\GtpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\HttpLayer.h" />

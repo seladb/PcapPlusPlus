@@ -14,7 +14,13 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
 
 ## Table Of Contents
 
+- [Table Of Contents](#table-of-contents)
 - [Download](#download)
+  - [GitHub Release Page](#github-release-page)
+  - [Homebrew](#homebrew)
+  - [Vcpkg](#vcpkg)
+  - [Conan](#conan)
+  - [Build It Yourself](#build-it-yourself)
 - [Feature Overview](#feature-overview)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
@@ -187,8 +193,9 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 28. HTTP headers (request & response)
 29. SSL/TLS - parsing only (no editing capabilities)
 30. NTP (v3, v4)
-31. Packet trailer (a.k.a footer or padding)
-32. Generic payload
+32. FTP
+33. Packet trailer (a.k.a footer or padding)
+34. Generic payload
 
 ## DPDK And PF_RING Support
 

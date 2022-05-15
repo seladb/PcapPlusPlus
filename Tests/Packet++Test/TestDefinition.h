@@ -168,3 +168,7 @@ PTF_TEST_CASE(NtpMethodsTests);
 PTF_TEST_CASE(NtpParsingV3Tests);
 PTF_TEST_CASE(NtpParsingV4Tests);
 PTF_TEST_CASE(NtpCraftingTests);
+
+// Implemented in FtpTests.cpp
+PTF_TEST_CASE(FtpParsingIpv4Tests);
+PTF_TEST_CASE(FtpParsingIpv6Tests);

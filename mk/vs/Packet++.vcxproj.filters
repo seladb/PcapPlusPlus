@@ -185,6 +185,9 @@
     <ClCompile Include="..\..\Packet++\src\EthLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\FtpLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Packet++\src\GreLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
