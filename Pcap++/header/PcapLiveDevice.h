@@ -57,8 +57,6 @@ namespace pcpp
 	// for internal use only
 	typedef void* (*ThreadStart)(void*);
 
-	struct PcapThread;
-
 	/**
 	 * @class PcapLiveDevice
 	 * A class that wraps a network interface (each of the interfaces listed in ifconfig/ipconfig).
