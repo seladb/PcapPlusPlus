@@ -4,6 +4,9 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <thread>
+#include <random>
+#include "SystemUtils.h"
 
 
 namespace pcpp
@@ -13,14 +16,9 @@ namespace pcpp
 		PCPP_LOG_DEBUG("debug log");
 	}
 
-	void invokeErrorLog()
+	void invokeErrorLog(const std::string& message = "")
 	{
-		PCPP_LOG_ERROR("error log" << 1);
-	}
-
-	void invokeErrorLog2()
-	{
-		PCPP_LOG_ERROR("error log" << 2);
+		PCPP_LOG_ERROR("error log" << message);
 	}
 }
 
@@ -72,6 +70,21 @@ std::string* LogPrinter::lastLogMessageSeen = NULL;
 std::string* LogPrinter::lastFilenameSeen = NULL;
 std::string* LogPrinter::lastMethodSeen = NULL;
 int LogPrinter::lastLineSeen = 99999;
+
+
+class MultiThreadLogCounter
+{
+	public:
+		static const int ThreadCount = 5;
+		static int logMessageThreadCount[ThreadCount];
+		static void logPrinter(pcpp::Logger::LogLevel logLevel, const std::string& logMessage, const std::string& fileName, const std::string& method, const int line)
+		{
+			int threadId = logMessage[logMessage.length() - 1] - '0';
+			MultiThreadLogCounter::logMessageThreadCount[threadId]++;
+		}
+};
+
+int MultiThreadLogCounter::logMessageThreadCount[MultiThreadLogCounter::ThreadCount] = {0, 0, 0, 0, 0};
 
 
 #if defined(_WIN32)
@@ -134,6 +147,50 @@ class LoggerCleaner
 };
 
 
+void printLogThread(int threadId)
+{
+	std::random_device rd;
+	std::mt19937 simpleRand(rd());
+	std::uniform_int_distribution<int> dist(1, 5);
+	std::ostringstream sstream;
+	sstream << threadId;
+	std::string threadIdAsString = sstream.str();
+	for (int i = 0; i < 1000; i++)
+	{
+		pcpp::invokeErrorLog(threadIdAsString);
+		int sleepTime =  dist(simpleRand);
+		pcpp::multiPlatformMSleep(sleepTime);
+	}
+}
+
+PTF_TEST_CASE(TestLoggerMultiThread)
+{
+	LoggerCleaner loggerCleaner;
+
+	std::thread threads[MultiThreadLogCounter::ThreadCount];
+
+	pcpp::Logger::getInstance().setLogPrinter(&MultiThreadLogCounter::logPrinter);
+
+	for (int i = 0; i < MultiThreadLogCounter::ThreadCount; i++)
+	{
+		threads[i] = std::thread(printLogThread, i);
+	}
+
+	for (auto & thread : threads)
+	{
+		thread.join();
+	}
+
+	int totalLogMessages = 0;
+	for (int logMessagesCount : MultiThreadLogCounter::logMessageThreadCount)
+	{
+		totalLogMessages += logMessagesCount;
+	}
+
+	PTF_ASSERT_EQUAL(totalLogMessages, 5000);
+} // TestLoggerMultiThread
+
+
 PTF_TEST_CASE(TestLogger)
 {
 	LoggerCleaner loggerCleaner;
@@ -155,10 +212,10 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_NULL(LogPrinter::lastMethodSeen);
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
-	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
+	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 21);
 
 	// change one module log level
 	pcpp::Logger::getInstance().setLogLevel(pcpp::PacketLogModuleArpLayer, pcpp::Logger::Debug);
@@ -171,17 +228,17 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeDebugLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 13);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 16);
 
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
-	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
+	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 21);
 
 	// verify the last error message
-	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log1");
+	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log");
 
 	// change all modules log level
 	pcpp::Logger::getInstance().setAllModlesToLogLevel(pcpp::Logger::Debug);
@@ -197,7 +254,7 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "debug log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeDebugLog");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 13);
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 16);
 
 	// suppress logs
 	PTF_ASSERT_TRUE(pcpp::Logger::getInstance().logsEnabled())
@@ -214,7 +271,7 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_NULL(LogPrinter::lastLogMessageSeen);
 
 	// invoke another error log - expect to see it as the last error message although logs are suppressed
-	pcpp::invokeErrorLog2();
+	pcpp::invokeErrorLog("2");
 	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log2");
 
 	// re-enable logs
@@ -224,11 +281,11 @@ PTF_TEST_CASE(TestLogger)
 	// invoke error log - expect to see it
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
-	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log1");
+	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log");
 	PTF_ASSERT_EQUAL(getLowerCaseFileName(*LogPrinter::lastFilenameSeen), "loggertests.cpp");
 	PTF_ASSERT_EQUAL(getMethodWithoutNamespace(*LogPrinter::lastMethodSeen), "invokeErrorLog");
-	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log1");
-	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 18);
+	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log");
+	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 21);
 
 	// reset LogPrinter
 	LogPrinter::clean();
