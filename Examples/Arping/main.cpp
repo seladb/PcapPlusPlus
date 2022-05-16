@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 				targetIpProvided = true;
 				break;
 			case 'c':
-				maxTries = atoi(optarg);;
+				maxTries = atoi(optarg);
 				break;
 			case 'h':
 				printUsage();

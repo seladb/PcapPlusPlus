@@ -281,6 +281,15 @@ void multiPlatformSleep(uint32_t seconds)
 #endif
 }
 
+void multiPlatformMSleep(uint32_t milliseconds)
+{
+#if defined(_WIN32)
+	Sleep(milliseconds);
+#else
+	usleep(milliseconds*1000);
+#endif
+}
+
 uint16_t hostToNet16(uint16_t host)
 {
 	return htobe16(host);
