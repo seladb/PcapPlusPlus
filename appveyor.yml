@@ -7,8 +7,6 @@ environment:
     secure: 8sWBrDudyutFv+4Eq6teJA==
   PYTHON: "C:\\Python38-x64"
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      compiler: mingw32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       compiler: vs2015
       platform: x86
@@ -41,29 +39,3 @@ test_script:
   - cmd: cd Tests\ExamplesTest
   - cmd: python -m pip install -r requirements.txt
   - cmd: python -m pytest --interface %NetworkIP%
-
-for:
--
-  matrix:
-    only:
-      - compiler: mingw32
-
-  install:
-    - cmd: ci\install_winpcap.bat
-    - cmd: python -m pip install --upgrade pip
-    - cmd: ci\install_tcpreplay.bat
-    - cmd: set PATH=%PATH%;C:\MinGW\bin
-
-  before_build:
-    - cmd: configure-windows-mingw.bat mingw32 -m C:\MinGW -w C:\WpdPack
-
-  build_script:
-    - cmd: mingw32-make all
-
-  test_script:
-    - cmd: python -m pip install -r ci\run_tests\requirements.txt
-    - cmd: python ci\run_tests\run_tests_windows.py -s TestRawSockets
-    - cmd: ci\find_ip.bat
-    - cmd: cd Tests\ExamplesTest
-    - cmd: python -m pip install -r requirements.txt
-    - cmd: python -m pytest --interface %NetworkIP%
