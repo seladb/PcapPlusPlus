@@ -52,6 +52,7 @@ for:
     - cmd: ci\install_winpcap.bat
     - cmd: python -m pip install --upgrade pip
     - cmd: ci\install_tcpreplay.bat
+    - cmd: set PATH=%PATH%;C:\MinGW\bin
 
   before_build:
     - cmd: configure-windows-mingw.bat mingw32 -m C:\MinGW -w C:\WpdPack
