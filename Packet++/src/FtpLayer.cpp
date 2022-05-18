@@ -3,6 +3,8 @@
 #include "FtpLayer.h"
 #include "Logger.h"
 
+#include <string.h>
+
 namespace pcpp
 {
 
@@ -29,12 +31,12 @@ namespace pcpp
     {
     }
 
-    void FtpMessage::setCommandField(std::string &value)
+    void FtpMessage::setCommandField(std::string value)
     {
 
     }
 
-    void FtpMessage::setOptionField(std::string &value)
+    void FtpMessage::setOptionField(std::string value)
     {
 
     }

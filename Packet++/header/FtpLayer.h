@@ -28,8 +28,8 @@ namespace pcpp
         FtpMessage(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) { optionLength = m_DataLen - getOptionOffset(); };
         FtpMessage() { optionLength = 0; };
 
-        void setCommandField(std::string &value);
-        void setOptionField(std::string &value);
+        void setCommandField(std::string value);
+        void setOptionField(std::string value);
 
         std::string getCommandField() const;
         std::string getOptionField() const;
