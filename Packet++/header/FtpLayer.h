@@ -13,208 +13,28 @@ namespace pcpp
 {
 
     /**
-     * Class for representing the request messages of FTP Layer
+     * Class for general FTP message 
      */
-    class FtpRequestLayer : public Layer
+    class FtpMessage : public Layer
     {
     private:
+        size_t optionLength;
+
+        size_t getOptionOffset();
+        void changeCommandFieldSize(size_t newSize);
+        void changeOptionFieldSize(size_t newSize);
+
+    protected:
+        FtpMessage(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) { optionLength = m_DataLen - getOptionOffset(); };
+        FtpMessage() { optionLength = 0; };
+
+        void setCommandField(std::string &value);
+        void setOptionField(std::string &value);
+
+        std::string getCommandField() const;
+        std::string getOptionField() const;
+
     public:
-
-        /**
-         * Enum for FTP command codes
-         */
-        enum FtpCommand
-        {
-            /// Abort an active file transfer.
-            ABOR,
-            /// Account information.
-            ACCT,
-            /// Authentication/Security Data
-            ADAT,
-            /// Allocate sufficient disk space to receive a file.
-            ALLO,
-            /// Append (with create)
-            APPE,
-            /// Authentication/Security Mechanism
-            AUTH,
-            /// Get the available space
-            AVBL,
-            /// Clear Command Channel
-            CCC,
-            /// Change to Parent Directory.
-            CDUP,
-            /// Confidentiality Protection Command
-            CONF,
-            /// Client / Server Identification
-            CSID,
-            /// Change working directory.
-            CWD,
-            /// Delete file.
-            DELE,
-            /// Get the directory size
-            DSIZ,
-            /// Privacy Protected Channel
-            ENC,
-            /// Specifies an extended address and port to which the server should connect.
-            EPRT,
-            /// Enter extended passive mode.
-            EPSV,
-            /// Get the feature list implemented by the server.
-            FEAT,
-            /// Returns usage documentation on a command if specified, else a general help document is returned.
-            HELP,
-            /// Identify desired virtual host on server, by name.
-            HOST,
-            /// Language Negotiation
-            LANG,
-            /// Returns information of a file or directory if specified, else information of the current working directory is returned.
-            LIST,
-            /// Specifies a long address and port to which the server should connect.
-            LPRT,
-            /// Enter long passive mode.
-            LPSV,
-            /// Return the last-modified time of a specified file.
-            MDTM,
-            /// Modify the creation time of a file.
-            MFCT,
-            /// Modify fact (the last modification time, creation time, UNIX group/owner/mode of a file).
-            MFF,
-            /// Modify the last modification time of a file.
-            MFMT,
-            /// Integrity Protected Command
-            MIC,
-            /// Make directory.
-            MKD,
-            /// Lists the contents of a directory in a standardized machine-readable format.
-            MLSD,
-            /// Provides data about exactly the object named on its command line in a standardized machine-readable format.
-            MLST,
-            /// Sets the transfer mode (Stream, Block, or Compressed).
-            MODE,
-            /// Returns a list of file names in a specified directory.
-            NLST,
-            /// No operation (dummy packet; used mostly on keepalives).
-            NOOP,
-            /// Select options for a feature (for example OPTS UTF8 ON).
-            OPTS,
-            /// Authentication password.
-            PASS,
-            /// Enter passive mode.
-            PASV,
-            /// Protection Buffer Size
-            PBSZ,
-            /// Specifies an address and port to which the server should connect.
-            PORT,
-            /// Data Channel Protection Level.
-            PROT,
-            /// Print working directory. Returns the current directory of the host.
-            PWD,
-            /// Disconnect.
-            QUIT,
-            /// Re initializes the connection.
-            REIN,
-            /// Restart transfer from the specified point.
-            REST,
-            /// Retrieve a copy of the file
-            RETR,
-            /// Remove a directory.
-            RMD,
-            /// Remove a directory tree
-            RMDA,
-            /// Rename from.
-            RNFR,
-            /// Rename to.
-            RNTO,
-            /// Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE HELP output for complete list of supported commands.
-            SITE,
-            /// Return the size of a file.
-            SIZE,
-            /// Mount file structure.
-            SMNT,
-            /// Use single port passive mode (only one TCP port number for both control connections and passive-mode data connections)
-            SPSV,
-            /// Returns information on the server status, including the status of the current connection
-            STAT,
-            /// Accept the data and to store the data as a file at the server site
-            STOR,
-            /// Store file uniquely.
-            STOU,
-            /// Set file transfer structure.
-            STRU,
-            /// Return system type.
-            SYST,
-            /// Get a thumbnail of a remote image file
-            THMB,
-            /// Sets the transfer mode (ASCII/Binary).
-            TYPE,
-            /// Authentication username.
-            USER,
-            /// Change to the parent of the current working directory
-            XCUP,
-            /// Make a directory
-            XMKD,
-            /// Print the current working directory
-            XPWD,
-            /// 
-            XRCP,
-            /// Remove the directory
-            XRMD,
-            /// 
-            XRSQ,
-            /// Send, mail if cannot
-            XSEM,
-            /// Send to terminal
-            XSEN
-        };
-
-		/** A constructor that creates the layer from an existing packet raw data
-         * @param[in] data A pointer to the raw data
-         * @param[in] dataLen Size of the data in bytes
-         * @param[in] prevLayer A pointer to the previous layer
-         * @param[in] packet A pointer to the Packet instance where layer will be stored in
-         */
-        FtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {}
-        
-        /**
-         * Empty c'tor
-         */
-        FtpRequestLayer();
-
-        /**
-         * D'ctor
-         */
-        ~FtpRequestLayer();
-
-        /**
-         * Set the command of request message
-         * @param[in] code Value to set command
-         */
-        void setCommand(FtpCommand code);
-
-        /**
-         * Get the command of request message
-         * @return FtpCommand Value of the command
-         */
-        FtpCommand getCommand() const;
-
-        /**
-         * Set the command argument of request message
-         * @param[in] value Value to set command argument
-         */
-        void setCommandOption(const std::string &value);
-
-        /**
-         * Get the command argument of request message
-         * @return std::string Value of command argument
-         */
-        std::string getCommandOption() const;
-
-        /**
-         * Convert the command to readable string
-         * @param[in] code Command code to convert
-         * @return std::string Returns the protocol info as readable string
-         */
-        static std::string getCommandAsString(FtpCommand code);
 
         // overridden methods
         
@@ -234,6 +54,221 @@ namespace pcpp
          */
         OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
+    };
+
+    /**
+     * Class for representing the request messages of FTP Layer
+     */
+    class FtpRequestLayer : public FtpMessage
+    {
+    public:
+
+        /**
+         * Enum for FTP command codes
+         */
+        enum FtpCommand
+        {
+            /// Abort an active file transfer.
+            ABOR = ('A') | ('B' << 8) | ('O' << 16) | ('R' << 24),
+            /// Account information.
+            ACCT = ('A') | ('C' << 8) | ('C' << 16) | ('T' << 24),
+            /// Authentication/Security Data
+            ADAT = ('A') | ('D' << 8) | ('A' << 16) | ('T' << 24),
+            /// Allocate sufficient disk space to receive a file.
+            ALLO = ('A') | ('L' << 8) | ('L' << 16) | ('O' << 24),
+            /// Append (with create)
+            APPE = ('A') | ('P' << 8) | ('P' << 16) | ('E' << 24),
+            /// Authentication/Security Mechanism
+            AUTH = ('A') | ('U' << 8) | ('T' << 16) | ('H' << 24),
+            /// Get the available space
+            AVBL = ('A') | ('V' << 8) | ('B' << 16) | ('L' << 24),
+            /// Clear Command Channel
+            CCC = ('C') | ('C' << 8) | ('C' << 16),
+            /// Change to Parent Directory.
+            CDUP = ('C') | ('D' << 8) | ('U' << 16) | ('P' << 24),
+            /// Confidentiality Protection Command
+            CONF = ('C') | ('O' << 8) | ('N' << 16) | ('F' << 24),  
+            /// Client / Server Identification
+            CSID = ('C') | ('S' << 8) | ('I' << 16) | ('D' << 24),  
+            /// Change working directory.
+            CWD  = ('C') | ('W' << 8) | ('D' << 16),
+            /// Delete file.
+            DELE = ('D') | ('E' << 8) | ('L' << 16) | ('E' << 24),  
+            /// Get the directory size
+            DSIZ = ('D') | ('S' << 8) | ('I' << 16) | ('Z' << 24),  
+            /// Privacy Protected Channel
+            ENC  = ('E') | ('N' << 8) | ('C' << 16),
+            /// Specifies an extended address and port to which the server should connect.
+            EPRT = ('E') | ('P' << 8) | ('R' << 16) | ('T' << 24),  
+            /// Enter extended passive mode.
+            EPSV = ('E') | ('P' << 8) | ('S' << 16) | ('V' << 24),  
+            /// Get the feature list implemented by the server.
+            FEAT = ('F') | ('E' << 8) | ('A' << 16) | ('T' << 24),  
+            /// Returns usage documentation on a command if specified, else a general help document is returned.
+            HELP = ('H') | ('E' << 8) | ('L' << 16) | ('P' << 24),  
+            /// Identify desired virtual host on server, by name.
+            HOST = ('H') | ('O' << 8) | ('S' << 16) | ('T' << 24),  
+            /// Language Negotiation
+            LANG = ('L') | ('A' << 8) | ('N' << 16) | ('G' << 24),  
+            /// Returns information of a file or directory if specified, else information of the current working directory is returned.
+            LIST = ('L') | ('I' << 8) | ('S' << 16) | ('T' << 24),  
+            /// Specifies a long address and port to which the server should connect.
+            LPRT = ('L') | ('P' << 8) | ('R' << 16) | ('T' << 24),  
+            /// Enter long passive mode.
+            LPSV = ('L') | ('P' << 8) | ('S' << 16) | ('V' << 24),  
+            /// Return the last-modified time of a specified file.
+            MDTM = ('M') | ('D' << 8) | ('T' << 16) | ('M' << 24),  
+            /// Modify the creation time of a file.
+            MFCT = ('M') | ('F' << 8) | ('C' << 16) | ('T' << 24),  
+            /// Modify fact (the last modification time, creation time, UNIX group/owner/mode of a file).
+            MFF  = ('M') | ('F' << 8) | ('F' << 16),
+            /// Modify the last modification time of a file.
+            MFMT = ('M') | ('F' << 8) | ('M' << 16) | ('T' << 24),  
+            /// Integrity Protected Command
+            MIC  = ('M') | ('I' << 8) | ('C' << 16),
+            /// Make directory.
+            MKD  = ('M') | ('K' << 8) | ('D' << 16), 
+            /// Lists the contents of a directory in a standardized machine-readable format.
+            MLSD = ('M') | ('L' << 8) | ('S' << 16) | ('D' << 24),  
+            /// Provides data about exactly the object named on its command line in a standardized machine-readable format.
+            MLST = ('M') | ('L' << 8) | ('S' << 16) | ('T' << 24),  
+            /// Sets the transfer mode (Stream, Block, or Compressed).
+            MODE = ('M') | ('O' << 8) | ('D' << 16) | ('E' << 24),  
+            /// Returns a list of file names in a specified directory.
+            NLST = ('N') | ('L' << 8) | ('S' << 16) | ('T' << 24),  
+            /// No operation (dummy packet; used mostly on keepalives).
+            NOOP = ('N') | ('O' << 8) | ('O' << 16) | ('P' << 24),  
+            /// Select options for a feature (for example OPTS UTF8 ON).
+            OPTS = ('O') | ('P' << 8) | ('T' << 16) | ('S' << 24),  
+            /// Authentication password.
+            PASS = ('P') | ('A' << 8) | ('S' << 16) | ('S' << 24),  
+            /// Enter passive mode.
+            PASV = ('P') | ('A' << 8) | ('S' << 16) | ('V' << 24),  
+            /// Protection Buffer Size
+            PBSZ = ('P') | ('B' << 8) | ('S' << 16) | ('Z' << 24),  
+            /// Specifies an address and port to which the server should connect.
+            PORT = ('P') | ('O' << 8) | ('R' << 16) | ('T' << 24),  
+            /// Data Channel Protection Level.
+            PROT = ('P') | ('R' << 8) | ('O' << 16) | ('T' << 24),  
+            /// Print working directory. Returns the current directory of the host.
+            PWD  = ('P') | ('W' << 8) | ('D' << 16),
+            /// Disconnect.
+            QUIT = ('Q') | ('U' << 8) | ('I' << 16) | ('T' << 24),  
+            /// Re initializes the connection.
+            REIN = ('R') | ('E' << 8) | ('I' << 16) | ('N' << 24),  
+            /// Restart transfer from the specified point.
+            REST = ('R') | ('E' << 8) | ('S' << 16) | ('T' << 24),  
+            /// Retrieve a copy of the file
+            RETR = ('R') | ('E' << 8) | ('T' << 16) | ('R' << 24),  
+            /// Remove a directory.
+            RMD  = ('R') | ('M' << 8) | ('D' << 16), 
+            /// Remove a directory tree
+            RMDA = ('R') | ('M' << 8) | ('D' << 16) | ('A' << 24),  
+            /// Rename from.
+            RNFR = ('R') | ('N' << 8) | ('F' << 16) | ('R' << 24),  
+            /// Rename to.
+            RNTO = ('R') | ('N' << 8) | ('T' << 16) | ('O' << 24),  
+            /// Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE HELP output for complete list of supported commands.
+            SITE = ('S') | ('I' << 8) | ('T' << 16) | ('E' << 24),  
+            /// Return the size of a file.
+            SIZE = ('S') | ('I' << 8) | ('Z' << 16) | ('E' << 24),  
+            /// Mount file structure.
+            SMNT = ('S') | ('M' << 8) | ('N' << 16) | ('T' << 24),  
+            /// Use single port passive mode (only one TCP port number for both control connections and passive-mode data connections)
+            SPSV = ('S') | ('P' << 8) | ('S' << 16) | ('V' << 24),  
+            /// Returns information on the server status, including the status of the current connection
+            STAT = ('S') | ('T' << 8) | ('A' << 16) | ('T' << 24),  
+            /// Accept the data and to store the data as a file at the server site
+            STOR = ('S') | ('T' << 8) | ('O' << 16) | ('R' << 24),  
+            /// Store file uniquely.
+            STOU = ('S') | ('T' << 8) | ('O' << 16) | ('U' << 24),  
+            /// Set file transfer structure.
+            STRU = ('S') | ('T' << 8) | ('R' << 16) | ('U' << 24),  
+            /// Return system type.
+            SYST = ('S') | ('Y' << 8) | ('S' << 16) | ('T' << 24),  
+            /// Get a thumbnail of a remote image file
+            THMB = ('T') | ('H' << 8) | ('M' << 16) | ('B' << 24),  
+            /// Sets the transfer mode (ASCII/Binary).
+            TYPE = ('T') | ('Y' << 8) | ('P' << 16) | ('E' << 24),  
+            /// Authentication username.
+            USER = ('U') | ('S' << 8) | ('E' << 16) | ('R' << 24),  
+            /// Change to the parent of the current working directory
+            XCUP = ('X') | ('C' << 8) | ('U' << 16) | ('P' << 24),  
+            /// Make a directory
+            XMKD = ('X') | ('M' << 8) | ('K' << 16) | ('D' << 24),  
+            /// Print the current working directory
+            XPWD = ('X') | ('P' << 8) | ('W' << 16) | ('D' << 24),  
+            /// 
+            XRCP = ('X') | ('R' << 8) | ('C' << 16) | ('P' << 24),  
+            /// Remove the directory
+            XRMD = ('X') | ('R' << 8) | ('M' << 16) | ('D' << 24),  
+            /// 
+            XRSQ = ('X') | ('R' << 8) | ('S' << 16) | ('Q' << 24),  
+            /// Send, mail if cannot
+            XSEM = ('X') | ('S' << 8) | ('E' << 16) | ('M' << 24),  
+            /// Send to terminal
+            XSEN = ('X') | ('S' << 8) | ('E' << 16) | ('N' << 24)
+        };
+
+		/** A constructor that creates the layer from an existing packet raw data
+         * @param[in] data A pointer to the raw data
+         * @param[in] dataLen Size of the data in bytes
+         * @param[in] prevLayer A pointer to the previous layer
+         * @param[in] packet A pointer to the Packet instance where layer will be stored in
+         */
+        FtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpMessage(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
+        
+        /**
+         * Empty c'tor
+         */
+        FtpRequestLayer();
+
+        /**
+         * Set the command of request message
+         * @param[in] code Value to set command
+         */
+        void setCommand(FtpCommand code);
+
+        /**
+         * Get the command of request message
+         * @return FtpCommand Value of the command
+         */
+        FtpCommand getCommand() const;
+
+        /**
+         * Get the command of request message as string
+         * @return std::string Value of the command as string
+         */
+        std::string getCommandString() const;
+
+        /**
+         * Set the command argument of request message
+         * @param[in] value Value to set command argument
+         */
+        void setCommandOption(std::string &value);
+
+        /**
+         * Get the command argument of request message
+         * @return std::string Value of command argument
+         */
+        std::string getCommandOption() const;
+
+        /**
+         * Convert the command info to readable string
+         * @param[in] code Command code to convert
+         * @return std::string Returns the command info as readable string
+         */
+        static std::string getCommandInfoAsString(FtpCommand code);
+
+        /**
+         * Convert the command to readable string
+         * @param[in] code Command code to convert
+         * @return std::string Returns the command as readable string
+         */
+        static std::string getCommandAsString(FtpCommand code);
+
+        // overridden methods
+
         /**
          * @return Returns the protocol info as readable string
          */
@@ -243,9 +278,8 @@ namespace pcpp
     /**
      * Class for representing the response messages of FTP Layer
      */
-    class FtpResponseLayer : public Layer
+    class FtpResponseLayer : public FtpMessage
     {
-    private:
     public:
         
         /**
@@ -373,17 +407,12 @@ namespace pcpp
          * @param[in] prevLayer A pointer to the previous layer
          * @param[in] packet A pointer to the Packet instance where layer will be stored in
          */
-        FtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {};
+        FtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpMessage(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
 
         /**
          * Empty c'tor
          */
         FtpResponseLayer();
-
-        /**
-         * D'ctor
-         */
-        ~FtpResponseLayer();
 
         /**
          * Set the status code of response message
@@ -398,10 +427,16 @@ namespace pcpp
         FtpStatusCode getStatusCode() const;
 
         /**
+         * Get the status code of response message as string
+         * @return std::string Value of the status code as string
+         */
+        std::string getStatusCodeString() const;
+
+        /**
          * Set the argument of response message
          * @param[in] value Value to set argument
          */
-        void setStatusOption(const std::string &value);
+        void setStatusOption(std::string &value);
 
         /**
          * Get the argument of response message
@@ -412,28 +447,12 @@ namespace pcpp
         /**
          * Convert the status code to readable string
          * @param[in] code Status code to convert
-         * @return std::string Returns the protocol info as readable string
+         * @return std::string Returns the status info as readable string
          */
         static std::string getStatusCodeAsString(FtpStatusCode code);
 
         // overridden methods
         
-        /// Parses the next layer. FTP is the always last so does nothing for this layer
-        void parseNextLayer() {}
-
-        /**
-         * @return Get the size of the layer
-         */
-        size_t getHeaderLen() const { return m_DataLen; }
-
-        /// Does nothing for this layer
-        void computeCalculateFields() {}
-
-        /**
-         * @return The OSI layer level of Telnet (Application Layer).
-         */
-        OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
-
         /**
          * @return Returns the protocol info as readable string
          */
