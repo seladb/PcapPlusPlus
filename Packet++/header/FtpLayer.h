@@ -249,7 +249,7 @@ namespace pcpp
          * Set the command argument of request message
          * @param[in] value Value to set command argument
          */
-        void setCommandOption(std::string &value);
+        void setCommandOption(std::string value);
 
         /**
          * Get the command argument of request message
@@ -441,7 +441,7 @@ namespace pcpp
          * Set the argument of response message
          * @param[in] value Value to set argument
          */
-        void setStatusOption(std::string &value);
+        void setStatusOption(std::string value);
 
         /**
          * Get the argument of response message

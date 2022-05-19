@@ -252,6 +252,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(FtpParsingIpv4Tests, "ftp");
 	PTF_RUN_TEST(FtpParsingIpv6Tests, "ftp");
+	PTF_RUN_TEST(FtpCraftingTests, "ftp");
 
 	PTF_END_RUNNING_TESTS;
 }

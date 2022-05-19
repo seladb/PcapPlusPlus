@@ -27,7 +27,7 @@ namespace pcpp
 		if (pos)
 			return pos - m_Data;
 
-		return 0;
+		return m_DataLen;
 	}
 
 	void FtpMessage::changeDelimiter(bool toHyphen)
@@ -45,7 +45,7 @@ namespace pcpp
 
 		if ((firstPos != std::string::npos) && (lastPos != std::string::npos))
 		{
-			if (firstPos == lastPos)
+			if (firstPos == lastPos - 1)
 				return false;
 			return true;
 		}
@@ -57,23 +57,39 @@ namespace pcpp
 	void FtpMessage::setCommandField(std::string value)
 	{
 		size_t currentOffset = getOptionOffset();
+		if(!currentOffset)
+			value += " \r\n";
 
 		if (value.size() < currentOffset)
 			shortenLayer(0, currentOffset - value.size());
-		else if (value.size() > currentOffset)
+		else if (m_Data && value.size() > currentOffset)
 			extendLayer(0, value.size() - currentOffset);
+		else if (!m_Data)
+		{
+			m_Data = new uint8_t[value.size()];
+			m_DataLen = value.size();
+		}
 
 		memcpy(m_Data, value.c_str(), value.size());
 	}
 
 	void FtpMessage::setOptionField(std::string value)
 	{
-		size_t currentOffset = getOptionOffset();
+		size_t lastPos = value.find_last_of("\r\n");
+		if(lastPos == std::string::npos || lastPos != value.size() - 2)
+			value += "\r\n";
+
+		size_t currentOffset = getOptionOffset() + 1;
 
 		if (value.size() < (m_DataLen - currentOffset))
 			shortenLayer(currentOffset, (m_DataLen - currentOffset) - value.size());
-		else if (value.size() > (m_DataLen - currentOffset))
+		else if (m_Data && value.size() > (m_DataLen - currentOffset))
 			extendLayer(currentOffset, value.size() - (m_DataLen - currentOffset));
+		else if (!m_Data)
+		{
+			m_Data = new uint8_t[value.size()];
+			m_DataLen = value.size();
+		}
 
 		memcpy(&m_Data[currentOffset], value.c_str(), value.size());
 
@@ -90,7 +106,9 @@ namespace pcpp
 
 	std::string FtpMessage::getOptionField() const
 	{
-		return std::string((char *)&m_Data[getOptionOffset() + 1], m_DataLen - getOptionOffset() - 3);
+		if(getOptionOffset() != m_DataLen)
+			return std::string((char *)&m_Data[getOptionOffset() + 1], m_DataLen - getOptionOffset() - 3);
+		return "";
 	}
 
 	// ----------------- Class FtpRequestLayer -----------------
@@ -122,9 +140,9 @@ namespace pcpp
 		return getCommandField();
 	}
 
-	void FtpRequestLayer::setCommandOption(std::string &value)
+	void FtpRequestLayer::setCommandOption(std::string value)
 	{
-		setCommandField(value);
+		setOptionField(value);
 	}
 
 	std::string FtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const
@@ -332,7 +350,7 @@ namespace pcpp
 		return getCommandField();
 	}
 
-	void FtpResponseLayer::setStatusOption(std::string &value)
+	void FtpResponseLayer::setStatusOption(std::string value)
 	{
 		setOptionField(value);
 	}
