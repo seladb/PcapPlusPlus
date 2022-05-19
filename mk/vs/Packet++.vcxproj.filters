@@ -156,6 +156,9 @@
     <ClInclude Include="..\..\Packet++\header\NtpLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\FtpLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Packet++\src\ArpLayer.cpp">

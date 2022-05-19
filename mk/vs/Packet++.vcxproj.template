@@ -273,6 +273,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\VlanLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\VxlanLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\NtpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\FtpLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\hash-library\md5.cpp" />
