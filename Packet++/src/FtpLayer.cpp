@@ -8,90 +8,143 @@
 namespace pcpp
 {
 
-    // ----------------- Class FtpMessage -----------------
-    size_t FtpMessage::getOptionOffset()
-    {
-        size_t maxLen;
-        if(m_DataLen < 5)
-            maxLen = m_DataLen;
-        else
-            maxLen = 5;
+	// ----------------- Class FtpMessage -----------------
+	size_t FtpMessage::getOptionOffset() const
+	{
+		size_t maxLen;
+		if (m_DataLen < 5)
+			maxLen = m_DataLen;
+		else
+			maxLen = 5;
 
-        uint8_t *pos = (uint8_t*)memchr(m_Data, 20, maxLen);
-        if(pos)
-            return pos - m_Data;
-        return 0;
-    }
+		// Find <SP> if exists
+		uint8_t *pos = (uint8_t *)memchr(m_Data, 0x20, maxLen);
+		if (pos)
+			return pos - m_Data;
 
-    void FtpMessage::changeCommandFieldSize(size_t newSize)
-    {
-    }
+		// Find Hyphen "-" if exists
+		pos = (uint8_t *)memchr(m_Data, 0x2d, maxLen);
+		if (pos)
+			return pos - m_Data;
 
-    void FtpMessage::changeOptionFieldSize(size_t newSize)
-    {
-    }
+		return 0;
+	}
 
-    void FtpMessage::setCommandField(std::string value)
-    {
+	void FtpMessage::changeDelimiter(bool toHyphen)
+	{
+		if(toHyphen)
+			memset(&m_Data[getOptionOffset()], 0x2d, 1);
+		else
+			memset(&m_Data[getOptionOffset()], 0x20, 1);
+	}
 
-    }
+	bool FtpMessage::hyphenRequired(std::string value)
+	{
+		size_t firstPos = value.find_first_of("\r\n");
+		size_t lastPos = value.find_last_of("\r\n");
 
-    void FtpMessage::setOptionField(std::string value)
-    {
+		if ((firstPos != std::string::npos) && (lastPos != std::string::npos))
+		{
+			if (firstPos == lastPos)
+				return false;
+			return true;
+		}
 
-    }
+		PCPP_LOG_ERROR("There should be at least one delimiter");
+		return false;
+	}
 
-    std::string FtpMessage::getCommandField() const
-    {
+	void FtpMessage::setCommandField(std::string value)
+	{
+		size_t currentOffset = getOptionOffset();
 
-    }
+		if (value.size() < currentOffset)
+			shortenLayer(0, currentOffset - value.size());
+		else if (value.size() > currentOffset)
+			extendLayer(0, value.size() - currentOffset);
 
-    std::string FtpMessage::getOptionField() const
-    {
+		memcpy(m_Data, value.c_str(), value.size());
+	}
 
-    }
+	void FtpMessage::setOptionField(std::string value)
+	{
+		size_t currentOffset = getOptionOffset();
 
-    // ----------------- Class FtpRequestLayer -----------------
-    FtpRequestLayer::FtpRequestLayer()
-    {
-        m_Protocol = FTP;
-        m_Data = NULL;
-        m_DataLen = 0;
-    }
+		if (value.size() < (m_DataLen - currentOffset))
+			shortenLayer(currentOffset, (m_DataLen - currentOffset) - value.size());
+		else if (value.size() > (m_DataLen - currentOffset))
+			extendLayer(currentOffset, value.size() - (m_DataLen - currentOffset));
 
-    void FtpRequestLayer::setCommand(FtpCommand code)
-    {
-        setCommandField(getCommandAsString(code));
-    }
+		memcpy(&m_Data[currentOffset], value.c_str(), value.size());
 
-    FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const
-    {
-        size_t val = 0;
-        std::string field = getCommandField();
+		if (hyphenRequired(value))
+			changeDelimiter(true);
+		else
+			changeDelimiter(false);
+	}
 
-        for(size_t idx = 0; idx < field.size(); ++idx)
-            val |= (field.c_str()[idx] << (idx * 8));
+	std::string FtpMessage::getCommandField() const
+	{
+		return std::string((char *)m_Data, getOptionOffset());
+	}
 
-        return static_cast<FtpCommand>(val);
-    }
+	std::string FtpMessage::getOptionField() const
+	{
+		return std::string((char *)&m_Data[getOptionOffset() + 1], m_DataLen - getOptionOffset() - 3);
+	}
 
-    std::string FtpRequestLayer::getCommandString() const
-    {
-        return getCommandField();
-    }
+	// ----------------- Class FtpRequestLayer -----------------
+	FtpRequestLayer::FtpRequestLayer()
+	{
+		m_Protocol = FTP;
+		m_Data = NULL;
+		m_DataLen = 0;
+	}
 
-    void FtpRequestLayer::setCommandOption(std::string &value)
-    {
-        setCommandField(value);
-    }
+	void FtpRequestLayer::setCommand(FtpCommand code)
+	{
+		setCommandField(getCommandAsString(code));
+	}
 
-    std::string FtpRequestLayer::getCommandOption() const
-    {
-        return getOptionField();
-    }
+	FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const
+	{
+		size_t val = 0;
+		std::string field = getCommandField();
 
-    std::string FtpRequestLayer::getCommandInfoAsString(FtpCommand code)
-    {
+		for (size_t idx = 0; idx < field.size(); ++idx)
+			val |= (field.c_str()[idx] << (idx * 8));
+
+		return static_cast<FtpCommand>(val);
+	}
+
+	std::string FtpRequestLayer::getCommandString() const
+	{
+		return getCommandField();
+	}
+
+	void FtpRequestLayer::setCommandOption(std::string &value)
+	{
+		setCommandField(value);
+	}
+
+	std::string FtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const
+	{
+		if (removeEscapeCharacters)
+        {
+            std::stringstream ss;
+			std::string field = getOptionField();
+            for (size_t idx = 0; idx < field.size(); ++idx)
+            {
+                if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
+                    ss << field.c_str()[idx];
+            }
+            return ss.str();
+        }
+		return getOptionField();
+	}
+
+	std::string FtpRequestLayer::getCommandInfoAsString(FtpCommand code)
+	{
 		switch (code)
 		{
 		case ABOR:
@@ -138,7 +191,7 @@ namespace pcpp
 			return "Language Negotiation";
 		case LIST:
 			return "Returns information of a file or directory if specified, else information of the current working "
-				   "directory is returned.";
+				"directory is returned.";
 		case LPRT:
 			return "Specifies a long address and port to which the server should connect.";
 		case LPSV:
@@ -159,7 +212,7 @@ namespace pcpp
 			return "Lists the contents of a directory in a standardized machine-readable format.";
 		case MLST:
 			return "Provides data about exactly the object named on its command line in a standardized "
-				   "machine-readable format.";
+				"machine-readable format.";
 		case MODE:
 			return "Sets the transfer mode (Stream, Block, or Compressed).";
 		case NLST:
@@ -198,14 +251,14 @@ namespace pcpp
 			return "Rename to.";
 		case SITE:
 			return "Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE "
-				   "HELP output for complete list of supported commands.";
+				"HELP output for complete list of supported commands.";
 		case SIZE:
 			return "Return the size of a file.";
 		case SMNT:
 			return "Mount file structure.";
 		case SPSV:
 			return "Use single port passive mode (only one TCP port number for both control connections and "
-				   "passive-mode data connections)";
+				"passive-mode data connections)";
 		case STAT:
 			return "Returns information on the server status, including the status of the current connection";
 		case STOR:
@@ -243,54 +296,65 @@ namespace pcpp
 		}
 	}
 
-    std::string FtpRequestLayer::getCommandAsString(FtpCommand code)
-    {
-        std::stringstream oss;
-        for(size_t idx=0;idx<4;++idx)
-            oss << ((code >> (8*idx)) & UINT8_MAX);
-        return oss.str();
-    }
+	std::string FtpRequestLayer::getCommandAsString(FtpCommand code)
+	{
+		std::stringstream oss;
+		for (size_t idx = 0; idx < 4; ++idx)
+			oss << char((code >> (8 * idx)) & UINT8_MAX);
+		return oss.str();
+	}
 
-    std::string FtpRequestLayer::toString() const
-    {
-        return "FTP Request: " + getCommandString();
-    }
+	std::string FtpRequestLayer::toString() const
+	{
+		return "FTP Request: " + getCommandString();
+	}
 
-    // ----------------- Class FtpResponseLayer -----------------
-    FtpResponseLayer::FtpResponseLayer()
-    {
-        m_Protocol = FTP;
-        m_Data = NULL;
-        m_DataLen = 0;
-    }
+	// ----------------- Class FtpResponseLayer -----------------
+	FtpResponseLayer::FtpResponseLayer()
+	{
+		m_Protocol = FTP;
+		m_Data = NULL;
+		m_DataLen = 0;
+	}
 
-    void FtpResponseLayer::setStatusCode(FtpStatusCode code)
-    {
-        setCommandField(std::to_string(code));
-    }
+	void FtpResponseLayer::setStatusCode(FtpStatusCode code)
+	{
+		setCommandField(std::to_string(code));
+	}
 
-    FtpResponseLayer::FtpStatusCode FtpResponseLayer::getStatusCode() const
-    {
-        return static_cast<FtpStatusCode>(std::stoi(getCommandField()));
-    }
+	FtpResponseLayer::FtpStatusCode FtpResponseLayer::getStatusCode() const
+	{
+		return static_cast<FtpStatusCode>(std::stoi(getCommandField()));
+	}
 
-    std::string FtpResponseLayer::getStatusCodeString() const
-    {
-        return getCommandField();
-    }
+	std::string FtpResponseLayer::getStatusCodeString() const
+	{
+		return getCommandField();
+	}
 
-    void FtpResponseLayer::setStatusOption(std::string &value)
-    {
-        setOptionField(value);
-    }
+	void FtpResponseLayer::setStatusOption(std::string &value)
+	{
+		setOptionField(value);
+	}
 
-    std::string FtpResponseLayer::getStatusOption() const
-    {
-        return getOptionField();
-    }
+	std::string FtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const
+	{
+		if (removeEscapeCharacters)
+        {
+            std::stringstream ss;
+			std::string field = getOptionField();
+            for (size_t idx = 0; idx < field.size(); ++idx)
+            {
+                if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
+                    ss << field.c_str()[idx];
+            }
+            return ss.str();
+        }
+		return getOptionField();
+	}
 
-    std::string FtpResponseLayer::getStatusCodeAsString(FtpStatusCode code)
-    {
+	std::string FtpResponseLayer::getStatusCodeAsString(FtpStatusCode code)
+	{
 		switch (code)
 		{
 		case RESTART_MARKER:
@@ -410,9 +474,9 @@ namespace pcpp
 		}
 	}
 
-    std::string FtpResponseLayer::toString() const
-    {
-        return "FTP Response: " + getStatusCodeString();
-    }
+	std::string FtpResponseLayer::toString() const
+	{
+		return "FTP Response: " + getStatusCodeString();
+	}
 
-}
+} // namespace pcpp
