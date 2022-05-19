@@ -337,12 +337,14 @@ namespace pcpp
 
 	void FtpResponseLayer::setStatusCode(FtpStatusCode code)
 	{
-		setCommandField(std::to_string(code));
+		std::ostringstream oss;
+		oss << code;
+		setCommandField(oss.str());
 	}
 
 	FtpResponseLayer::FtpStatusCode FtpResponseLayer::getStatusCode() const
 	{
-		return static_cast<FtpStatusCode>(std::stoi(getCommandField()));
+		return static_cast<FtpStatusCode>(atoi(getCommandField().c_str()));
 	}
 
 	std::string FtpResponseLayer::getStatusCodeString() const
