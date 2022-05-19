@@ -112,6 +112,14 @@ namespace pcpp
 		return "";
 	}
 
+	bool FtpMessage::isDataValid(const uint8_t *data, size_t dataSize)
+	{
+		std::string payload = std::string((char *)data, dataSize);
+		if (payload.find_last_of("\r\n") == dataSize - 1)
+			return true;
+		return false;
+	}
+
 	// ----------------- Class FtpRequestLayer -----------------
 	FtpRequestLayer::FtpRequestLayer()
 	{

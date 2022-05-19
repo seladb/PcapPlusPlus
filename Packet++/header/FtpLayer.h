@@ -40,6 +40,14 @@ namespace pcpp
          */
         static bool isFtpPort(uint16_t port) { return port == 21; }
 
+        /**
+		 * A static method that takes a byte array and detects whether it is a FTP message. All FTP message terminated with "\r\n".
+		 * @param[in] data A byte array
+		 * @param[in] dataSize The byte array size (in bytes)
+		 * @return True if the data is identified as FTP message
+		 */
+        static bool isDataValid(const uint8_t *data, size_t dataSize);
+
         // overridden methods
 
         /// Parses the next layer. FTP is the always last so does nothing for this layer
