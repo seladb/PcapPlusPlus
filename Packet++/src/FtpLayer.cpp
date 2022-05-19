@@ -3,6 +3,7 @@
 #include "FtpLayer.h"
 #include "Logger.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 namespace pcpp
