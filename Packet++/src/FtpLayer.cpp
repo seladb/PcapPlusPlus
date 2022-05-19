@@ -32,7 +32,7 @@ namespace pcpp
 
 	void FtpMessage::changeDelimiter(bool toHyphen)
 	{
-		if(toHyphen)
+		if (toHyphen)
 			memset(&m_Data[getOptionOffset()], 0x2d, 1);
 		else
 			memset(&m_Data[getOptionOffset()], 0x20, 1);
@@ -57,7 +57,7 @@ namespace pcpp
 	void FtpMessage::setCommandField(std::string value)
 	{
 		size_t currentOffset = getOptionOffset();
-		if(!currentOffset)
+		if (!currentOffset)
 			value += " \r\n";
 
 		if (value.size() < currentOffset)
@@ -76,7 +76,7 @@ namespace pcpp
 	void FtpMessage::setOptionField(std::string value)
 	{
 		size_t lastPos = value.find_last_of("\r\n");
-		if(lastPos == std::string::npos || lastPos != value.size() - 2)
+		if (lastPos == std::string::npos || lastPos != value.size() - 2)
 			value += "\r\n";
 
 		size_t currentOffset = getOptionOffset() + 1;
@@ -106,7 +106,7 @@ namespace pcpp
 
 	std::string FtpMessage::getOptionField() const
 	{
-		if(getOptionOffset() != m_DataLen)
+		if (getOptionOffset() != m_DataLen)
 			return std::string((char *)&m_Data[getOptionOffset() + 1], m_DataLen - getOptionOffset() - 3);
 		return "";
 	}
@@ -148,16 +148,16 @@ namespace pcpp
 	std::string FtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const
 	{
 		if (removeEscapeCharacters)
-        {
-            std::stringstream ss;
+		{
+			std::stringstream ss;
 			std::string field = getOptionField();
-            for (size_t idx = 0; idx < field.size(); ++idx)
-            {
-                if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
-                    ss << field.c_str()[idx];
-            }
-            return ss.str();
-        }
+			for (size_t idx = 0; idx < field.size(); ++idx)
+			{
+				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
+					ss << field.c_str()[idx];
+			}
+			return ss.str();
+		}
 		return getOptionField();
 	}
 
@@ -358,16 +358,16 @@ namespace pcpp
 	std::string FtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const
 	{
 		if (removeEscapeCharacters)
-        {
-            std::stringstream ss;
+		{
+			std::stringstream ss;
 			std::string field = getOptionField();
-            for (size_t idx = 0; idx < field.size(); ++idx)
-            {
-                if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
-                    ss << field.c_str()[idx];
-            }
-            return ss.str();
-        }
+			for (size_t idx = 0; idx < field.size(); ++idx)
+			{
+				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
+					ss << field.c_str()[idx];
+			}
+			return ss.str();
+		}
 		return getOptionField();
 	}
 
