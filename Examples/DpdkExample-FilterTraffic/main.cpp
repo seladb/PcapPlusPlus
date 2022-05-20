@@ -38,10 +38,12 @@
 #include <getopt.h>
 #include <string>
 #include <sstream>
+#include <algorithm>
 #include <unistd.h>
 
 
 #define DEFAULT_MBUF_POOL_SIZE 4095
+#define MAX_QUEUES 64
 
 
 static struct option FilterTrafficOptions[] =
@@ -53,9 +55,11 @@ static struct option FilterTrafficOptions[] =
 	{"match-dest-ip", optional_argument, 0, 'I'},
 	{"match-source-port", optional_argument, 0, 'p'},
 	{"match-dest-port", optional_argument, 0, 'P'},
-	{"match-protocol", optional_argument, 0, 'r'},
+	{"match-protocol", optional_argument, 0, 'o'},
 	{"core-mask",  optional_argument, 0, 'c'},
 	{"mbuf-pool-size",  optional_argument, 0, 'm'},
+	{"rx-queues",  optional_argument, 0, 'r'},
+	{"tx-queues",  optional_argument, 0, 't'},
 	{"help", optional_argument, 0, 'h'},
 	{"version", optional_argument, 0, 'v'},
 	{"list", optional_argument, 0, 'l'},
@@ -88,12 +92,16 @@ void printUsage()
 		<< "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
 		<< "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
 		<< "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-		<< "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'" << std::endl
+		<< "    -o|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'" << std::endl
 		<< "    -c|--core-mask            CORE_MASK        : Core mask of cores to use." << std::endl
 		<< "                                                 For example: use 7 (binary 0111) to use cores 0,1,2." << std::endl
 		<< "                                                 Default is using all cores except management core" << std::endl
 		<< "    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with." << std::endl
 		<< "                                                 Default value is 4095" << std::endl
+		<< "    -r|--rx-queues            NUM_QUEUES       : Number of RX queues to open. Cannot exceed the max allowed by the NIC or " << MAX_QUEUES << std::endl
+		<< "                                                 The default is 1" << std::endl
+		<< "    -t|--tx-queues            NUM_QUEUES       : Number of TX queues to open. Cannot exceed the max allowed by the NIC or " << MAX_QUEUES << std::endl
+		<< "                                                 The default is 1" << std::endl
 		<< std::endl;
 }
 
@@ -147,19 +155,19 @@ void listDpdkPorts()
  */
 void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, std::vector<pcpp::SystemCore>& coresToUse,
 		bool writePacketsToDisk, std::string packetFilePath, pcpp::DpdkDevice* sendPacketsTo,
-		AppWorkerConfig workerConfigArr[], int workerConfigArrLen)
+		AppWorkerConfig workerConfigArr[], int workerConfigArrLen, uint16_t rxQueues)
 {
 	// create a list of pairs of DpdkDevice and RX queues for all RX queues in all requested devices
 	int totalNumOfRxQueues = 0;
 	std::vector<std::pair<pcpp::DpdkDevice*, int> > deviceAndRxQVec;
 	for (std::vector<pcpp::DpdkDevice*>::iterator iter = dpdkDevicesToUse.begin(); iter != dpdkDevicesToUse.end(); iter++)
 	{
-		for (int rxQueueIndex = 0; rxQueueIndex < (*iter)->getTotalNumOfRxQueues(); rxQueueIndex++)
+		for (int rxQueueIndex = 0; rxQueueIndex < rxQueues; rxQueueIndex++)
 		{
 			std::pair<pcpp::DpdkDevice*, int> curPair(*iter, rxQueueIndex);
 			deviceAndRxQVec.push_back(curPair);
 		}
-		totalNumOfRxQueues += (*iter)->getTotalNumOfRxQueues();
+		totalNumOfRxQueues += rxQueues;
 	}
 
 	// calculate how many RX queues each core will read packets from. We divide the total number of RX queues with total number of core
@@ -215,12 +223,12 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 }
 
 
-struct FiltetTrafficArgs
+struct FilterTrafficArgs
 {
 	bool shouldStop;
 	std::vector<pcpp::DpdkWorkerThread*>* workerThreadsVector;
 
-	FiltetTrafficArgs() : shouldStop(false), workerThreadsVector(NULL) {}
+	FilterTrafficArgs() : shouldStop(false), workerThreadsVector(NULL) {}
 };
 
 /**
@@ -228,7 +236,7 @@ struct FiltetTrafficArgs
  */
 void onApplicationInterrupted(void* cookie)
 {
-	FiltetTrafficArgs* args = (FiltetTrafficArgs*)cookie;
+	FilterTrafficArgs* args = (FilterTrafficArgs*)cookie;
 
 	std::cout << std::endl << std::endl << "Application stopped" << std::endl;
 
@@ -288,7 +296,10 @@ int main(int argc, char* argv[])
 	uint16_t 			dstPortToMatch = 0;
 	pcpp::ProtocolType	protocolToMatch = pcpp::UnknownProtocol;
 
-	while((opt = getopt_long(argc, argv, "d:c:s:f:m:i:I:p:P:r:hvl", FilterTrafficOptions, &optionIndex)) != -1)
+	uint16_t rxQueues = 1;
+	uint16_t txQueues = 1;
+
+	while((opt = getopt_long(argc, argv, "d:c:s:f:m:i:I:p:P:o:r:t:hvl", FilterTrafficOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -384,7 +395,7 @@ int main(int argc, char* argv[])
 				}
 				break;
 			}
-			case 'r':
+			case 'o':
 			{
 				std::string protocol = std::string(optarg);
 				if (protocol == "TCP")
@@ -394,6 +405,32 @@ int main(int argc, char* argv[])
 				else
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");
+				}
+				break;
+			}
+			case 'r':
+			{
+				rxQueues = atoi(optarg);
+				if (rxQueues == 0)
+				{
+					EXIT_WITH_ERROR("Cannot open the device with 0 RX queues");
+				}
+				if (rxQueues > MAX_QUEUES)
+				{
+					EXIT_WITH_ERROR("The number of RX queues cannot exceed " << MAX_QUEUES);
+				}
+				break;
+			}
+			case 't':
+			{
+				txQueues = atoi(optarg);
+				if (txQueues == 0)
+				{
+					EXIT_WITH_ERROR("Cannot open the device with 0 TX queues");
+				}
+				if (txQueues > MAX_QUEUES)
+				{
+					EXIT_WITH_ERROR("The number of TX queues cannot exceed " << MAX_QUEUES);
 				}
 				break;
 			}
@@ -464,7 +501,15 @@ int main(int argc, char* argv[])
 	// go over all devices and open them
 	for (std::vector<pcpp::DpdkDevice*>::iterator iter = dpdkDevicesToUse.begin(); iter != dpdkDevicesToUse.end(); iter++)
 	{
-		if (!(*iter)->openMultiQueues((*iter)->getTotalNumOfRxQueues(), (*iter)->getTotalNumOfTxQueues()))
+		if (rxQueues > (*iter)->getTotalNumOfRxQueues())
+		{
+			EXIT_WITH_ERROR("Number of RX errors cannot exceed the max allowed by the device which is " << (*iter)->getTotalNumOfRxQueues());
+		}
+		if (txQueues > (*iter)->getTotalNumOfTxQueues())
+		{
+			EXIT_WITH_ERROR("Number of TX errors cannot exceed the max allowed by the device which is " << (*iter)->getTotalNumOfTxQueues());
+		}
+		if (!(*iter)->openMultiQueues(rxQueues, txQueues))
 		{
 			EXIT_WITH_ERROR("Couldn't open DPDK device #" << (*iter)->getDeviceId() << ", PMD '" << (*iter)->getPMDName() << "'");
 		}
@@ -479,7 +524,7 @@ int main(int argc, char* argv[])
 
 	// prepare configuration for every core
 	AppWorkerConfig workerConfigArr[coresToUse.size()];
-	prepareCoreConfiguration(dpdkDevicesToUse, coresToUse, writePacketsToDisk, packetFilePath, sendPacketsTo, workerConfigArr, coresToUse.size());
+	prepareCoreConfiguration(dpdkDevicesToUse, coresToUse, writePacketsToDisk, packetFilePath, sendPacketsTo, workerConfigArr, coresToUse.size(), rxQueues);
 
 	PacketMatchingEngine matchingEngine(srcIPToMatch, dstIPToMatch, srcPortToMatch, dstPortToMatch, protocolToMatch);
 
@@ -500,7 +545,7 @@ int main(int argc, char* argv[])
 	}
 
 	// register the on app close event to print summary stats on app termination
-	FiltetTrafficArgs args;
+	FilterTrafficArgs args;
 	args.workerThreadsVector = &workerThreadVec;
 	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &args);
 
