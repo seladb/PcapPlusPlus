@@ -48,7 +48,7 @@ namespace pcpp
 		 * @return True if the data is identified as line based protocol message
 		 */
         static bool isDataValid(const uint8_t *data, size_t dataSize);
-        
+
     };
 } // namespace pcpp
 
