@@ -8,6 +8,7 @@
 
 namespace pcpp
 {
+
     size_t LineBasedProtocolMessage::getOptionOffset() const
 	{
 		size_t maxLen;
