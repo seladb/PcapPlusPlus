@@ -216,15 +216,15 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	}
 
 	// if PMD doesn't support RSS, set RSS HF to 0
-	if (getSupportedRssHashFunctions() == 0 && m_Config.rssHashFunction != 0)
+	if (getSupportedRssHashFunctions() == 0 && m_Config.getRssHashFunction(m_PMDType) != 0)
 	{
 		PCPP_LOG_DEBUG("PMD '" << m_PMDName << "' doesn't support RSS, setting RSS hash functions to 0");
-		m_Config.rssHashFunction = 0;
+		m_Config.setRssHashFunction(0);
 	}
 
-	if (!isDeviceSupportRssHashFunction(m_Config.rssHashFunction))
+	if (!isDeviceSupportRssHashFunction(m_Config.getRssHashFunction(m_PMDType)))
 	{
-		PCPP_LOG_ERROR("PMD '" << m_PMDName << "' doesn't support the request RSS hash functions 0x" << std::hex << m_Config.rssHashFunction);
+		PCPP_LOG_ERROR("PMD '" << m_PMDName << "' doesn't support the request RSS hash functions 0x" << std::hex << m_Config.getRssHashFunction(m_PMDType));
 		return false;
 	}
 
@@ -249,7 +249,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	portConf.rxmode.mq_mode = DPDK_CONFIG_MQ_MODE;
 	portConf.rx_adv_conf.rss_conf.rss_key = m_Config.rssKey;
 	portConf.rx_adv_conf.rss_conf.rss_key_len = m_Config.rssKeyLength;
-	portConf.rx_adv_conf.rss_conf.rss_hf = convertRssHfToDpdkRssHf(m_Config.rssHashFunction);
+	portConf.rx_adv_conf.rss_conf.rss_hf = convertRssHfToDpdkRssHf(m_Config.getRssHashFunction(m_PMDType));
 
 	int res = rte_eth_dev_configure((uint8_t) m_Id, numOfRxQueues, numOfTxQueues, &portConf);
 	if (res < 0)
@@ -424,7 +424,7 @@ void DpdkDevice::setDeviceInfo()
 		m_PMDType = PMD_ENIC;
 	else if (m_PMDName == "rte_pmd_fm10k")
 		m_PMDType = PMD_FM10K;
-	else if (m_PMDName == "rte_i40e_pmd")
+	else if (m_PMDName == "rte_i40e_pmd" || m_PMDName == "net_i40e")
 		m_PMDType = PMD_I40E;
 	else if (m_PMDName == "rte_i40evf_pmd")
 		m_PMDType = PMD_I40EVF;

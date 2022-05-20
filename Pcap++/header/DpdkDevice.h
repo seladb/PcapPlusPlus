@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <time.h>
+#include <vector>
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Device.h"
@@ -67,6 +68,7 @@ namespace pcpp
 
 #define DPDK_MAX_RX_QUEUES 16
 #define DPDK_MAX_TX_QUEUES 16
+#define PCPP_RSS_HASH_MAGIC_NUMBER 0x123456
 
 	class DpdkDeviceList;
 	class DpdkDevice;
@@ -223,6 +225,10 @@ namespace pcpp
 		 */
 		struct DpdkDeviceConfiguration
 		{
+		private:
+			uint64_t rssHashFunction;
+
+		public:
 			/**
 			 * When configuring a DPDK RX queue, DPDK creates descriptors it will use for receiving packets from the network to this RX queue.
 			 * This parameter enables to configure the number of descriptors that will be created for each RX queue
@@ -256,13 +262,6 @@ namespace pcpp
 			uint8_t rssKeyLength;
 
 			/**
-			 * This parameter enables to configure the types of packets to which the RSS hashing must be applied. The value
-			 * is a mask composed of hash functions described in DpdkRssHashFunction enum. Supplying a value equal to zero
-			 * disables the RSS feature. Supplying a value equal to -1 enables all hash functions supported by this PMD
-			 */
-			uint64_t rssHashFunction;
-
-			/**
 			 * A c'tor for this struct
 			 * @param[in] receiveDescriptorsNumber An optional parameter for defining the number of RX descriptors that will be allocated for each RX queue.
 			 * Default value is 128
@@ -270,7 +269,8 @@ namespace pcpp
 			 * Default value is 512
 			 * @param[in] flushTxBufferTimeout An optional parameter for setting TX buffer timeout in usec. Default value is 100 usec
 			 * @param[in] rssHashFunction This parameter enable to configure the types of packets to which the RSS hashing must be applied.
-			 * The value provided here should be a mask composed of hash functions described in DpdkRssHashFunction enum. The default value is IPv4 and IPv6
+			 * The value provided here should be a mask composed of hash functions described in DpdkRssHashFunction enum.
+			 * The default value is determined by the device type.
 			 * @param[in] rssKey A pointer to an array holding the RSS key to use for hashing specific header of received packets. If not
 			 * specified, there is a default key defined inside DpdkDevice
 			 * @param[in] rssKeyLength The length in bytes of the array pointed by rssKey. Default value is the length of default rssKey
@@ -278,7 +278,7 @@ namespace pcpp
 			DpdkDeviceConfiguration(uint16_t receiveDescriptorsNumber = 128,
 					uint16_t transmitDescriptorsNumber = 512,
 					uint16_t flushTxBufferTimeout = 100,
-					uint64_t rssHashFunction = RSS_IPV4 | RSS_IPV6,
+					uint64_t rssHashFunction = PCPP_RSS_HASH_MAGIC_NUMBER,
 					uint8_t* rssKey = DpdkDevice::m_RSSKey,
 					uint8_t rssKeyLength = 40)
 			{
@@ -288,6 +288,27 @@ namespace pcpp
 				this->rssKey = rssKey;
 				this->rssKeyLength = rssKeyLength;
 				this->rssHashFunction = rssHashFunction;
+			}
+
+			uint64_t getRssHashFunction(DpdkPMDType pmdType)
+			{
+				if (rssHashFunction == PCPP_RSS_HASH_MAGIC_NUMBER)
+				{
+					if (pmdType == PMD_I40E || pmdType == PMD_I40EVF)
+					{
+						return RSS_NONFRAG_IPV4_OTHER | RSS_FRAG_IPV4 |  RSS_NONFRAG_IPV6_OTHER | RSS_FRAG_IPV6;
+					}
+					else
+					{
+						return RSS_IPV4 | RSS_IPV6;
+					}
+				}
+				return rssHashFunction;
+			}
+
+			void setRssHashFunction(uint64_t rssHF)
+			{
+				rssHashFunction = rssHF;
 			}
 		};
 
