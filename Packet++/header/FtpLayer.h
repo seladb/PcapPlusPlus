@@ -1,6 +1,7 @@
 #ifndef PACKETPP_FTP_LAYER
 #define PACKETPP_FTP_LAYER
 
+#include "LineBasedProtocol.h"
 #include "Layer.h"
 
 /// @file
@@ -15,45 +16,19 @@ namespace pcpp
     /**
      * Class for general FTP message
      */
-    class FtpMessage : public Layer
+    class FtpMessage : public LineBasedProtocolMessage
     {
-    private:
-        size_t getOptionOffset() const;
-        void changeDelimiter(bool toHyphen);
-        bool hyphenRequired(std::string value);
-
     protected:
-        FtpMessage(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {};
+        FtpMessage(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : LineBasedProtocolMessage(data, dataLen, prevLayer, packet) {};
         FtpMessage() {};
 
-        void setCommandField(std::string value);
-        void setOptionField(std::string value);
-
-        std::string getCommandField() const;
-        std::string getOptionField() const;
-
     public:
-
-        /**
-         * Checks if the current message is a multi-line reply. Multi-line messages are indicatied with a Hyphen (-) immediately after reply code.
-         * @return true If this is a multi-line reply
-         * @return false Otherwise
-         */
-        bool isMultiLine();
 
         /**
          * A static method that checks whether the port is considered as FTP
          * @param[in] port The port number to be checked
          */
         static bool isFtpPort(uint16_t port) { return port == 21; }
-
-        /**
-		 * A static method that takes a byte array and detects whether it is a FTP message. All FTP message terminated with "\r\n".
-		 * @param[in] data A byte array
-		 * @param[in] dataSize The byte array size (in bytes)
-		 * @return True if the data is identified as FTP message
-		 */
-        static bool isDataValid(const uint8_t *data, size_t dataSize);
 
         // overridden methods
 
