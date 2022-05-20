@@ -35,6 +35,13 @@ namespace pcpp
     public:
 
         /**
+         * Checks if the current message is a multi-line reply. Multi-line messages are indicatied with a Hyphen (-) immediately after reply code.
+         * @return true If this is a multi-line reply
+         * @return false Otherwise
+         */
+        bool isMultiLine();
+
+        /**
          * A static method that checks whether the port is considered as FTP
          * @param[in] port The port number to be checked
          */

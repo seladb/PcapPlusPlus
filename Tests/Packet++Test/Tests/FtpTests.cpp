@@ -25,6 +25,7 @@ PTF_TEST_CASE(FtpParsingIpv4Tests)
 	PTF_ASSERT_EQUAL(ftpLayer1->getCommandString(), "USER");
 	PTF_ASSERT_EQUAL(ftpLayer1->getCommandOption(), "csanders");
 	PTF_ASSERT_EQUAL(ftpLayer1->toString(), "FTP Request: USER");
+	PTF_ASSERT_FALSE(ftpLayer1->isMultiLine());
 
 	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandInfoAsString(pcpp::FtpRequestLayer::USER),
 					 "Authentication username.");
@@ -40,6 +41,7 @@ PTF_TEST_CASE(FtpParsingIpv4Tests)
 	PTF_ASSERT_EQUAL(ftpLayer2->getStatusCodeString(), "250");
 	PTF_ASSERT_EQUAL(ftpLayer2->getStatusOption(), "CWD command successful. \"/\" is current directory.");
 	PTF_ASSERT_EQUAL(ftpLayer2->toString(), "FTP Response: 250");
+	PTF_ASSERT_FALSE(ftpLayer2->isMultiLine());
 
 	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::REQ_FILE_OK_COMPLETE),
 					 "Requested file action okay, completed");
@@ -54,6 +56,7 @@ PTF_TEST_CASE(FtpParsingIpv4Tests)
 	PTF_ASSERT_EQUAL(ftpLayer3->getStatusCodeString(), "211");
 	PTF_ASSERT_EQUAL(ftpLayer3->getStatusOption(), "Extensions supported: CLNT MDTM PASV REST STREAM SIZE211 End.");
 	PTF_ASSERT_EQUAL(ftpLayer3->toString(), "FTP Response: 211");
+	PTF_ASSERT_TRUE(ftpLayer3->isMultiLine());
 
 	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::SYSTEM_STATUS),
 					 "System status, or system help reply");
@@ -74,6 +77,7 @@ PTF_TEST_CASE(FtpParsingIpv6Tests)
 	PTF_ASSERT_EQUAL(ftpLayer1->getCommandString(), "PASS");
 	PTF_ASSERT_EQUAL(ftpLayer1->getCommandOption(), "IEUser@");
 	PTF_ASSERT_EQUAL(ftpLayer1->toString(), "FTP Request: PASS");
+	PTF_ASSERT_FALSE(ftpLayer1->isMultiLine());
 
 	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandInfoAsString(pcpp::FtpRequestLayer::PASS),
 					 "Authentication password.");
@@ -89,6 +93,7 @@ PTF_TEST_CASE(FtpParsingIpv6Tests)
 	PTF_ASSERT_EQUAL(ftpLayer2->getStatusCodeString(), "502");
 	PTF_ASSERT_EQUAL(ftpLayer2->getStatusOption(), "Unknown command 'utf8'.");
 	PTF_ASSERT_EQUAL(ftpLayer2->toString(), "FTP Response: 502");
+	PTF_ASSERT_FALSE(ftpLayer2->isMultiLine());
 
 	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::COMMAND_NOT_IMPLEMENTED),
 					 "Command not implemented");

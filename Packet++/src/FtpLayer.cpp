@@ -112,6 +112,13 @@ namespace pcpp
 		return "";
 	}
 
+	bool FtpMessage::isMultiLine()
+	{
+		if(m_Data[getOptionOffset()] == 0x2d)
+			return true;
+		return false;
+	}
+
 	bool FtpMessage::isDataValid(const uint8_t *data, size_t dataSize)
 	{
 		std::string payload = std::string((char *)data, dataSize);
