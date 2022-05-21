@@ -513,6 +513,15 @@ int main(int argc, char* argv[])
 		{
 			EXIT_WITH_ERROR("Couldn't open DPDK device #" << (*iter)->getDeviceId() << ", PMD '" << (*iter)->getPMDName() << "'");
 		}
+		std::cout
+			<< "Opened device #" << (*iter)->getDeviceId()
+			<< " with " << rxQueues << " RX queues and " << txQueues << " TX queues."
+			<< " RSS hash functions:" << std::endl;
+		std::vector<std::string> rssHashFunctions = (*iter)->rssHashFunctionMaskToString((*iter)->getConfiguredRssHashFunction());
+		for(std::vector<std::string>::iterator it = rssHashFunctions.begin(); it != rssHashFunctions.end(); ++it)
+		{
+			std::cout << "   " << (*it) << std::endl;
+		}
 	}
 
 	// get DPDK device to send packets to (or NULL if doesn't exist)

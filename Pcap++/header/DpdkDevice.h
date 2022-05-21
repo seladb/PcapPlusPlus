@@ -176,6 +176,8 @@ namespace pcpp
 		 */
 		enum DpdkRssHashFunction
 		{
+			/** No RSS */
+			RSS_NONE                = 0,
 			/** IPv4 based flow */
 			RSS_IPV4				= 0x1,
 			/** Fragmented IPv4 based flow */
@@ -215,7 +217,11 @@ namespace pcpp
 			/** GENEVE protocol based flow */
 			RSS_GENEVE				= 0x40000,
 			/** NVGRE protocol based flow */
-			RSS_NVGRE				= 0x80000
+			RSS_NVGRE				= 0x80000,
+			/** All RSS functions supported by the device */
+			RSS_ALL_SUPPORTED       = -1,
+			/** A default set of RSS functions supported by the device */
+			RSS_DEFAULT             = PCPP_RSS_HASH_MAGIC_NUMBER
 		};
 
 		/**
@@ -225,10 +231,6 @@ namespace pcpp
 		 */
 		struct DpdkDeviceConfiguration
 		{
-		private:
-			uint64_t rssHashFunction;
-
-		public:
 			/**
 			 * When configuring a DPDK RX queue, DPDK creates descriptors it will use for receiving packets from the network to this RX queue.
 			 * This parameter enables to configure the number of descriptors that will be created for each RX queue
@@ -262,6 +264,13 @@ namespace pcpp
 			uint8_t rssKeyLength;
 
 			/**
+			 * This parameter enables to configure the types of packets to which the RSS hashing must be applied. The value
+			 * is a mask composed of hash functions described in DpdkRssHashFunction enum. Supplying a value equal to zero
+			 * disables the RSS feature. Supplying a value equal to -1 enables all hash functions supported by this PMD
+			 */
+			uint64_t rssHashFunction;
+
+			/**
 			 * A c'tor for this struct
 			 * @param[in] receiveDescriptorsNumber An optional parameter for defining the number of RX descriptors that will be allocated for each RX queue.
 			 * Default value is 128
@@ -270,7 +279,7 @@ namespace pcpp
 			 * @param[in] flushTxBufferTimeout An optional parameter for setting TX buffer timeout in usec. Default value is 100 usec
 			 * @param[in] rssHashFunction This parameter enable to configure the types of packets to which the RSS hashing must be applied.
 			 * The value provided here should be a mask composed of hash functions described in DpdkRssHashFunction enum.
-			 * The default value is determined by the device type.
+			 * The default value is RSS_DEFAULT.
 			 * @param[in] rssKey A pointer to an array holding the RSS key to use for hashing specific header of received packets. If not
 			 * specified, there is a default key defined inside DpdkDevice
 			 * @param[in] rssKeyLength The length in bytes of the array pointed by rssKey. Default value is the length of default rssKey
@@ -278,7 +287,7 @@ namespace pcpp
 			DpdkDeviceConfiguration(uint16_t receiveDescriptorsNumber = 128,
 					uint16_t transmitDescriptorsNumber = 512,
 					uint16_t flushTxBufferTimeout = 100,
-					uint64_t rssHashFunction = PCPP_RSS_HASH_MAGIC_NUMBER,
+					uint64_t rssHashFunction = RSS_DEFAULT,
 					uint8_t* rssKey = DpdkDevice::m_RSSKey,
 					uint8_t rssKeyLength = 40)
 			{
@@ -288,27 +297,6 @@ namespace pcpp
 				this->rssKey = rssKey;
 				this->rssKeyLength = rssKeyLength;
 				this->rssHashFunction = rssHashFunction;
-			}
-
-			uint64_t getRssHashFunction(DpdkPMDType pmdType)
-			{
-				if (rssHashFunction == PCPP_RSS_HASH_MAGIC_NUMBER)
-				{
-					if (pmdType == PMD_I40E || pmdType == PMD_I40EVF)
-					{
-						return RSS_NONFRAG_IPV4_TCP | RSS_NONFRAG_IPV4_UDP | RSS_NONFRAG_IPV4_OTHER | RSS_FRAG_IPV4 | RSS_NONFRAG_IPV6_TCP | RSS_NONFRAG_IPV6_UDP | RSS_NONFRAG_IPV6_OTHER | RSS_FRAG_IPV6;
-					}
-					else
-					{
-						return RSS_IPV4 | RSS_IPV6;
-					}
-				}
-				return rssHashFunction;
-			}
-
-			void setRssHashFunction(uint64_t rssHF)
-			{
-				rssHashFunction = rssHF;
 			}
 		};
 
@@ -745,6 +733,17 @@ namespace pcpp
 		 */
 		uint64_t getSupportedRssHashFunctions() const;
 
+		/**
+		 * @return A mask of configured RSS hash functions configured by this device (PMD)
+		 */
+		uint64_t getConfiguredRssHashFunction() const;
+
+		/**
+		 * Convert RSS hash function mask to a vector of strings
+		 * @param rssHFMask RSS hash function mask
+		 * @return RSS hash functions as strings
+		 */
+		std::vector<std::string> rssHashFunctionMaskToString(uint64_t rssHFMask) const;
 
 		//overridden methods
 
