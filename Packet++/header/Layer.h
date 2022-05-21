@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "ProtocolType.h"
+#include <sstream> // VS removed the iostreams stuff from string in VS2019
 #include <string>
 
 /// @file

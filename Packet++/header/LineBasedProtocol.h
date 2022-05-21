@@ -39,16 +39,16 @@ namespace pcpp
          * @return true If this is a multi-line reply
          * @return false Otherwise
          */
-        bool isMultiLine();
+        bool isMultiLine() const;
 
         /**
-		 * A static method that takes a byte array and detects whether it is a line based protocol message. All line based protocol message terminated with single "\r\n".
+		 * A static method that takes a byte array and detects whether it is a line based protocol message.
+         * All line based protocol message terminated with single "\r\n".
 		 * @param[in] data A byte array
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data is identified as line based protocol message
 		 */
         static bool isDataValid(const uint8_t *data, size_t dataSize);
-
     };
 } // namespace pcpp
 

@@ -1,8 +1,8 @@
 #ifndef PACKETPP_FTP_LAYER
 #define PACKETPP_FTP_LAYER
 
+#include "Logger.h"
 #include "LineBasedProtocol.h"
-#include "Layer.h"
 
 /// @file
 

@@ -1,9 +1,6 @@
-#define LOG_MODULE PacketLogModuleLineBasedProtocolLayer
-
-#include "LineBasedProtocol.h"
 #include "Logger.h"
+#include "LineBasedProtocol.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 namespace pcpp
@@ -111,7 +108,7 @@ namespace pcpp
 		return "";
 	}
 
-	bool LineBasedProtocolMessage::isMultiLine()
+	bool LineBasedProtocolMessage::isMultiLine() const
 	{
 		if(m_Data[getOptionOffset()] == 0x2d)
 			return true;

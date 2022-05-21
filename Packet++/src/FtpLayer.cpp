@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleFtpLayer
 
-#include "FtpLayer.h"
 #include "Logger.h"
+#include "FtpLayer.h"
 
 #include <stdlib.h>
 
