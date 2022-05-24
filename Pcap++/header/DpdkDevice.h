@@ -734,12 +734,12 @@ namespace pcpp
 		uint64_t getSupportedRssHashFunctions() const;
 
 		/**
-		 * @return A mask of configured RSS hash functions configured by this device (PMD)
+		 * @return The RSS hash function mask configured for this device (PMD)
 		 */
 		uint64_t getConfiguredRssHashFunction() const;
 
 		/**
-		 * Convert RSS hash function mask to a vector of strings
+		 * Translate RSS hash function mask to a list of their string representation
 		 * @param rssHFMask RSS hash function mask
 		 * @return RSS hash functions as strings
 		 */
