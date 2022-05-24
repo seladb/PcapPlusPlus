@@ -297,6 +297,20 @@ PTF_TEST_CASE(TestDpdkDevice)
 		PTF_ASSERT_EQUAL(dev->getSupportedRssHashFunctions(), rssHF);
 	}
 
+	uint64_t configuredRssHF = pcpp::DpdkDevice::RSS_IPV4 | pcpp::DpdkDevice::RSS_IPV6;
+	if (dev->getPMDType() == pcpp::PMD_I40E || dev->getPMDType() == pcpp::PMD_I40EVF)
+	{
+		configuredRssHF = pcpp::DpdkDevice::RSS_NONFRAG_IPV4_TCP | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV4_UDP | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV4_OTHER | \
+								   pcpp::DpdkDevice::RSS_FRAG_IPV4 | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV6_TCP | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV6_UDP | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV6_OTHER | \
+								   pcpp::DpdkDevice::RSS_FRAG_IPV6;
+	}
+	PTF_ASSERT_EQUAL(dev->getConfiguredRssHashFunction(), configuredRssHF);
+
 	PTF_ASSERT_TRUE(dev->open());
 	DeviceTeardown devTeardown(dev);
 	pcpp::Logger::getInstance().suppressLogs();
