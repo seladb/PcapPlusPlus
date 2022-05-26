@@ -4,8 +4,12 @@
 #include "GlobalTestArgs.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
+#ifdef USE_PF_RING
 #include "PfRingDeviceList.h"
+#endif
+#ifdef USE_DPDK
 #include "DpdkDeviceList.h"
+#endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
