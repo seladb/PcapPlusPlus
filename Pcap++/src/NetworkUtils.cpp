@@ -1,8 +1,9 @@
 #define LOG_MODULE NetworkUtils
 
-#include <stdlib.h>
-#include <pthread.h>
+#include <condition_variable>
 #include <errno.h>
+#include <mutex>
+#include <stdlib.h>
 #include "Logger.h"
 #include "Packet.h"
 #include "EthLayer.h"
@@ -31,8 +32,8 @@ const int NetworkUtils::DefaultTimeout = 5;
 
 struct ArpingReceivedData
 {
-	pthread_mutex_t* mutex;
-	pthread_cond_t* cond;
+	std::mutex &mutex;
+	std::condition_variable &cond;
 	IPv4Address ipAddr;
 	clock_t start;
 	MacAddress result;
@@ -77,9 +78,7 @@ static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice* device, void
 	data->result = arpReplyLayer->getSenderMacAddress();
 
 	// signal the main thread the ARP reply was received
-	pthread_mutex_lock(data->mutex);
-	pthread_cond_signal(data->cond);
-	pthread_mutex_unlock(data->mutex);
+	data->cond.notify_one();
 }
 
 
@@ -145,18 +144,14 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	// When the ARP response is captured the capture thread signals the main thread and the main thread stops capturing and continues
 	// to the next iteration. If a timeout passes and no ARP response is captured, the main thread stops capturing
 
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
-
-	// init the conditional mutex
-	pthread_mutex_init(&mutex, 0);
-	pthread_cond_init(&cond, 0);
+	std::mutex mutex;
+	std::condition_variable cond;
 
 	// this is the token that passes between the 2 threads. It contains pointers to the conditional mutex, the target IP for identifying
 	// the ARP response, the iteration index and a timestamp to calculate the response time
 	ArpingReceivedData data = {
-			&mutex,
-			&cond,
+			mutex,
+			cond,
 			ipAddr,
 			clock(),
 			MacAddress::Zero,
@@ -166,37 +161,25 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	struct timeval now;
 	gettimeofday(&now,NULL);
 
-	// create the timeout
-	timespec timeout = {
-			now.tv_sec + arpTimeout,
-			static_cast<long>(now.tv_usec * 1000)
-	};
-
 	// start capturing. The capture is done on another thread, hence "arpPacketReceived" is running on that thread
 	device->startCapture(arpPacketReceived, &data);
 
 	// send the ARP request
 	device->sendPacket(&arpRequest);
 
-	pthread_mutex_lock(&mutex);
-
 	// block on the conditional mutex until capture thread signals or until timeout expires
-	int res = pthread_cond_timedwait(&cond, &mutex, &timeout);
+	std::unique_lock<std::mutex> lock(mutex);
+	std::cv_status res = cond.wait_for(lock, std::chrono::seconds(arpTimeout));
 
 	// stop the capturing thread
 	device->stopCapture();
 
-	pthread_mutex_unlock(&mutex);
-
 	// check if timeout expired
-	if (res == ETIMEDOUT)
+	if (res == std::cv_status::timeout)
 	{
 		PCPP_LOG_ERROR("ARP request time out");
 		return result;
 	}
-
-	pthread_mutex_destroy(&mutex);
-	pthread_cond_destroy(&cond);
 
 	if (closeDeviceAtTheEnd)
 		device->close();
@@ -213,8 +196,8 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 
 struct DNSReceivedData
 {
-	pthread_mutex_t* mutex;
-	pthread_cond_t* cond;
+	std::mutex &mutex;
+	std::condition_variable &cond;
 	std::string hostname;
 	uint16_t transactionID;
 	clock_t start;
@@ -304,9 +287,7 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice* device, vo
 	data->ttl = dnsAnswer->getTTL();
 
 	// signal the main thread the ARP reply was received
-	pthread_mutex_lock(data->mutex);
-	pthread_cond_signal(data->cond);
-	pthread_mutex_unlock(data->mutex);
+	data->cond.notify_one();
 }
 
 
@@ -410,17 +391,13 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	// When the DNS response are captured the capture thread signals the main thread and the main thread stops capturing and continues
 	// to the next iteration. if a timeout passes and no DNS response is captured, the main thread stops capturing
 
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
-
-	// init the conditional mutex
-	pthread_mutex_init(&mutex, 0);
-	pthread_cond_init(&cond, 0);
+	std::mutex mutex;
+	std::condition_variable cond;
 
 	// this is the token that passes between the 2 threads
 	DNSReceivedData data = {
-			&mutex,
-			&cond,
+			mutex,
+			cond,
 			hostname,
 			transactionID,
 			clock(),
@@ -433,37 +410,25 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	struct timeval now;
 	gettimeofday(&now,NULL);
 
-	// create the timeout
-	timespec timeout = {
-			now.tv_sec + dnsTimeout,
-			static_cast<long>(now.tv_usec * 1000)
-	};
-
 	// start capturing. The capture is done on another thread, hence "dnsResponseReceived" is running on that thread
 	device->startCapture(dnsResponseReceived, &data);
 
 	// send the DNS request
 	device->sendPacket(&dnsRequest);
 
-	pthread_mutex_lock(&mutex);
-
 	// block on the conditional mutex until capture thread signals or until timeout expires
-	int res = pthread_cond_timedwait(&cond, &mutex, &timeout);
+	std::unique_lock<std::mutex> lock(mutex);
+	std::cv_status res = cond.wait_for(lock, std::chrono::seconds(dnsTimeout));
 
 	// stop the capturing thread
 	device->stopCapture();
 
-	pthread_mutex_unlock(&mutex);
-
 	// check if timeout expired
-	if (res == ETIMEDOUT)
+	if (res == std::cv_status::timeout)
 	{
 		PCPP_LOG_ERROR("DNS request time out");
 		return result;
 	}
-
-	pthread_mutex_destroy(&mutex);
-	pthread_cond_destroy(&cond);
 
 	if (closeDeviceAtTheEnd)
 		device->close();
