@@ -27,7 +27,7 @@ Using the utility
 -----------------
     DpdkTrafficFilter [-hvl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]
     [-c CORE_MASK] [-m POOL_SIZE] [-r NUM_QUEUES] [-t NUM_QUEUES] -d PORT_1,PORT_3,...,PORT_N
-    
+
     Options:
         -h|--help                                  : Displays this help message and exits
         -v|--version                               : Displays the current version and exits
