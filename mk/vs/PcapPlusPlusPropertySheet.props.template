@@ -3,7 +3,6 @@
   <PropertyGroup Label="UserMacros">
     <PcapPlusPlusHome>PUT_PCAPPLUSPLUS_HOME_HERE</PcapPlusPlusHome>
     <PcapSdkHome>PUT_PCAP_SDK_HOME_HERE</PcapSdkHome>
-    <PThreadWin32Home>PUT_PTHREAD_HOME_HERE</PThreadWin32Home>
     <ZStdHome>PUT_ZSTD_HOME_HERE</ZStdHome>
   </PropertyGroup>
   <ItemGroup>
@@ -13,9 +12,6 @@
     <BuildMacro Include="PcapSdkHome">
       <Value>$(PcapSdkHome)</Value>
     </BuildMacro>
-    <BuildMacro Include="PThreadWin32Home">
-      <Value>$(PThreadWin32Home)</Value>
-    </BuildMacro>
     <BuildMacro Include="ZStdHome">
       <Value>$(ZStdHome)</Value>
     </BuildMacro>
@@ -23,13 +19,10 @@
   <!-- pthreads-win32 project variables -->
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(PThreadWin32Home)\Pre-built.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_STRUCT_TIMESPEC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='Win32'">$(PThreadWin32Home)\Pre-built.2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(Platform)'=='x64'">$(PThreadWin32Home)\Pre-built.2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>pthreadVC2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <!-- winpcap project variables -->

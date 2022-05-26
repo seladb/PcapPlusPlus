@@ -98,6 +98,16 @@ void listInterfaces()
 
 
 /**
+ * The callback to be called when application is terminated by ctrl-c. Stops the endless while loop
+ */
+void onApplicationInterrupted(void* cookie)
+{
+	auto shouldStop = (bool*)cookie;
+	*shouldStop = true;
+}
+
+
+/**
  * main method of the application
  */
 int main(int argc, char* argv[])
@@ -210,7 +220,11 @@ int main(int argc, char* argv[])
 	// suppressing errors to avoid cluttering stdout
 	pcpp::Logger::getInstance().suppressLogs();
 
-	while (i <= maxTries)
+	// make sure the app closes the device upon termination
+	bool shouldStop = false;
+	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, &shouldStop);
+
+	while (i <= maxTries && !shouldStop)
 	{
 		// use the getMacAddress utility to send an ARP request and resolve the MAC address
 		pcpp::MacAddress result = pcpp::NetworkUtils::getInstance().getMacAddress(targetIP, dev, arpResponseTimeMS, sourceMac, sourceIP, timeoutSec);

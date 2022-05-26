@@ -7,9 +7,8 @@ echo PcapPlusPlus Visual Studio configuration script
 echo ***********************************************
 echo.
 
-:: initially set PCAP_SDK_HOME and PTHREAD_HOME and ZSTD variables to empty values
+:: initially set PCAP_SDK_HOME and ZSTD variables to empty values
 set PCAP_SDK_HOME=
-set PTHREAD_HOME=
 :: note ZSTD_HOME is set to a slash otherwise the remove trailing "\" code below will blow up
 set ZSTD_HOME=\
 set ZSTD_INCLUDE_PATH=
@@ -26,14 +25,11 @@ if "%1" NEQ "" (
 :: if one of the modes returned with an error, exit script
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
 
-:: verify that all variables: PTHREAD_HOME, PCAP_SDK_HOME, VS_VERSION are set
+:: verify that all variables: PCAP_SDK_HOME, VS_VERSION are set
 if "%VS_VERSION%"=="" echo Visual studio version was not provided. Exiting & exit /B 1
-if "%PTHREAD_HOME%"=="" echo pthread-win32 directory was not provided. Exiting & exit /B 1
 if "%PCAP_SDK_HOME%"=="" echo WinPcap/Npcap SDK directory was not provided. Exiting & exit /B 1
 if "%ZSTD_HOME%"=="" echo ZStd directory was not provided. ZSTD Support will be skipped!
 
-:: remove trailing "\" in PTHREAD_HOME if exists
-if "%PTHREAD_HOME:~-1%"=="\" set PTHREAD_HOME=%PTHREAD_HOME:~,-1%
 :: remove trailing "\" in PCAP_SDK_HOME if exists
 if "%PCAP_SDK_HOME:~-1%"=="\" set PCAP_SDK_HOME=%PCAP_SDK_HOME:~,-1%
 :: remove trailing "\" in ZSTD_HOME if exists
@@ -46,13 +42,12 @@ set VS_PROPERTY_SHEET_TEMPLATE=mk\vs\%VS_PROPERTY_SHEET%.template
 :: create VS project directory if doesn't exist already
 if not exist "%VS_PROJ_DIR%" mkdir %VS_PROJ_DIR%
 
-:: set PcapPlusPlus home, pthread-win32 and WinPcap/Npcap locations in %VS_PROPERTY_SHEET%
+:: set PcapPlusPlus home and WinPcap/Npcap locations in %VS_PROPERTY_SHEET%
 (for /F "tokens=* delims=" %%A in ('type "%VS_PROPERTY_SHEET_TEMPLATE%"') do (
     set "LINE=%%A"
     setlocal enabledelayedexpansion
     set "LINE=!LINE:PUT_PCAPPLUSPLUS_HOME_HERE=%cd%!"
     set "LINE=!LINE:PUT_PCAP_SDK_HOME_HERE=%PCAP_SDK_HOME%!"
-    set "LINE=!LINE:PUT_PTHREAD_HOME_HERE=%PTHREAD_HOME%!"
     set "LINE=!LINE:PUT_ZSTD_HOME_HERE=%ZSTD_HOME%!"
     echo !LINE!
     endlocal
@@ -171,20 +166,6 @@ goto GETOPT_START
     :: exit with error code 3, meaning ask the caller to exit the script
     exit /B 3
 
-:: handling -p or --pthread-home switches
-:CASE-p
-:CASE--pthreadS-home
-    :: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
-    if "%~2"=="" goto GETOPT_REQUIRED_PARAM %1
-    :: verify the MSYS dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
-    if not exist %2\ call :GETOPT_ERROR "pthreads-win32 directory '%2' does not exist" & exit /B 3
-    :: if all went well, set the PTHREAD_HOME variable with the directory given by the user
-    set PTHREAD_HOME=%~2
-    :: notify GETOPT this switch has a parameter
-    set HAS_PARAM=1
-    :: exit ok
-    exit /B 0
-
 :: handling -w or --pcap-sdk switches
 :CASE-w
 :CASE--pcap-sdk
@@ -281,16 +262,6 @@ if not exist "%PCAP_SDK_HOME%"\ (echo Directory does not exist!! && goto while1)
 echo.
 echo.
 
-:: get pthreads-win32 location from user and verify it exists
-echo pthreads-win32 is required for compiling PcapPlusPlus.
-echo If you didn't download it already, please download it from here: ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-9-1-release.zip
-echo.
-:while2
-:: ask the user to type pthreads-win32 dir
-set /p PTHREAD_HOME=    Please specify pthreads-win32 path: %=%
-:: if input dir doesn't exist print an error to the user and go back to previous line
-if not exist "%PTHREAD_HOME%"\ (echo Directory does not exist!! && goto while2)
-
 
 :: all directories were read correctly, return to the caller
 
@@ -306,11 +277,10 @@ echo This script has 2 modes of operation:
 echo   1) Without any switches. In this case the script will guide you through using wizards
 echo   2) With switches, as described below
 echo.
-echo Basic usage: %~nx0 [-h] -v VS_VERSION -p PTHREADS_WIN32_DIR -w PCAP_SDK_DIR
+echo Basic usage: %~nx0 [-h] -v VS_VERSION -w PCAP_SDK_DIR
 echo.
 echo The following switches are recognized:
 echo -v^|--vs-version      --Set Visual Studio version to configure. Must be one of: vs2015, vs2017, vs2019
-echo -p^|--pthreads-home   --Set pthreads-win32 home directory
 echo -w^|--pcap-sdk        --Set WinPcap/Npcap SDK directory
 echo -z^|--zstd-sdk        --Set ZStd SDK directory
 echo -h^|--help            --Display this help message and exits. No further actions are performed

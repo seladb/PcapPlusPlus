@@ -3,12 +3,15 @@
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
+
+#ifdef USE_PF_RING
 #include "Logger.h"
 #include "PacketUtils.h"
 #include "IPv4Layer.h"
 #include "PfRingDeviceList.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
+#endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
 

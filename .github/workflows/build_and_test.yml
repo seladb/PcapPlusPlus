@@ -316,12 +316,6 @@ jobs:
           echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
         if: matrix.pcap_lib == 'npcap'
 
-      - name: Download pthreads
-        run: |
-          git clone https://github.com/seladb/PcapPlusPlus-Deploy
-          cd PcapPlusPlus-Deploy\Packages
-          7z x pthreads-w32-2-9-1-release.zip -oC:\pthreads
-
       - name: Set Zstd
         run: |
           ci\install_zstd.bat
@@ -329,7 +323,7 @@ jobs:
         if: matrix.use_zstd == true
 
       - name: Configure PcapPlusPlus
-        run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w ${{ env.PCAP_SDK_DIR }} -p C:\pthreads ${{ env.ZSTD_HOME_PARAM }}
+        run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w ${{ env.PCAP_SDK_DIR }} ${{ env.ZSTD_HOME_PARAM }}
 
       - name: Build PcapPlusPlus
         run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}

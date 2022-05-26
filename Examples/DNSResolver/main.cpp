@@ -5,6 +5,7 @@
 #include "PcapLiveDeviceList.h"
 #include "NetworkUtils.h"
 #include "SystemUtils.h"
+#include "Logger.h"
 #include <getopt.h>
 
 
@@ -80,6 +81,16 @@ void listInterfaces()
 		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
+}
+
+
+/**
+ * The callback to be called when application is terminated by ctrl-c. Stops the endless while loop
+ */
+void onApplicationInterrupted(void* cookie)
+{
+	auto device = (pcpp::PcapLiveDevice*)cookie;
+	device->close();
 }
 
 
@@ -192,6 +203,12 @@ int main(int argc, char* argv[])
 	}
 
 	std::cout << "Using interface '" << dev->getIPv4Address() << "'" << std::endl;
+
+	// suppressing errors to avoid cluttering stdout
+	pcpp::Logger::getInstance().suppressLogs();
+
+	// make sure the app closes the device upon termination
+	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, dev);
 
 	// find the IPv4 address for provided hostname
 	double responseTime = 0;
