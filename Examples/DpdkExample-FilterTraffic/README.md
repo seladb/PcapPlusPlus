@@ -25,21 +25,29 @@ Important:
 
 Using the utility
 -----------------
-	Basic usage:
-		FilterTraffic [-hl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL] [-c CORE_MASK] [-m POOL_SIZE] -d PORT_1,PORT_3,...,PORT_N
+    DpdkTrafficFilter [-hvl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]
+    [-c CORE_MASK] [-m POOL_SIZE] [-r NUM_QUEUES] [-t NUM_QUEUES] -d PORT_1,PORT_3,...,PORT_N
 
-	Options:
-	    -h|--help                                  : Displays this help message and exits
-	    -l|--list                                  : Print the list of DPDK ports and exists
-	    -d|--dpdk-ports PORT_1,PORT_3,...,PORT_N   : A comma-separated list of DPDK port numbers to receive packets from.
-	                                                 To see all available DPDK ports use the -l switch
-	    -s|--send-matched-packets PORT             : DPDK port to send matched packets to
-	    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH. Packets matched by core X will be saved under 'FILEPATH/CoreX.pcap'
-	    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address
-	    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address
-	    -p|--match-source-port    PORT             : Match source TCP/UDP port
-	    -P|--match-dest-port      PORT             : Match destination TCP/UDP port
-	    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'
-	    -c|--core-mask            CORE_MASK        : Core mask of cores to use. For example: use 7 (binary 0111) to use cores 0,1,2.
-	                                                 Default is using all cores except management core
-	    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with. Default value is 4095);
+    Options:
+        -h|--help                                  : Displays this help message and exits
+        -v|--version                               : Displays the current version and exits
+        -l|--list                                  : Print the list of DPDK ports and exists
+        -d|--dpdk-ports PORT_1,PORT_3,...,PORT_N   : A comma-separated list of DPDK port numbers to receive
+                                                     packets from. To see all available DPDK ports use the -l switch
+        -s|--send-matched-packets PORT             : DPDK port to send matched packets to
+        -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH. Packets
+                                                     matched by core X will be saved under 'FILEPATH/CoreX.pcap'
+        -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address
+        -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address
+        -p|--match-source-port    PORT             : Match source TCP/UDP port
+        -P|--match-dest-port      PORT             : Match destination TCP/UDP port
+        -o|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'
+        -c|--core-mask            CORE_MASK        : Core mask of cores to use.
+                                                     For example: use 7 (binary 0111) to use cores 0,1,2.
+                                                     Default is using all cores except management core
+        -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with.
+                                                     Default value is 4095
+        -r|--rx-queues            NUM_QUEUES       : Number of RX queues to open. Cannot exceed the max allowed by the NIC or 64
+                                                     The default is 1
+        -t|--tx-queues            NUM_QUEUES       : Number of TX queues to open. Cannot exceed the max allowed by the NIC or 64
+                                                     The default is 1
