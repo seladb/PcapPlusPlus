@@ -76,7 +76,7 @@ void printUsage()
 		<< "Usage:" << std::endl
 		<< "------" << std::endl
 		<< pcpp::AppName::get() << " [-hvl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]" << std::endl
-		<< "                  [-c CORE_MASK] [-m POOL_SIZE] -d PORT_1,PORT_3,...,PORT_N" << std::endl
+		<< "                  [-c CORE_MASK] [-m POOL_SIZE] [-r NUM_QUEUES] [-t NUM_QUEUES] -d PORT_1,PORT_3,...,PORT_N" << std::endl
 		<< std::endl
 		<< "Options:" << std::endl
 		<< std::endl
