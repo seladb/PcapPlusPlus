@@ -97,8 +97,8 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer2->getDataAsString(), "@");
 	PTF_ASSERT_EQUAL(telnetLayer2->getTotalNumberOfCommands(), 3);
 
-	pcpp::TelnetLayer::TelnetCommands vCommand2[] = {
-		pcpp::TelnetLayer::DoPerform, pcpp::TelnetLayer::WillPerform, pcpp::TelnetLayer::EndOfRecordCommand};
+	pcpp::TelnetLayer::TelnetCommands vCommand2[] = {pcpp::TelnetLayer::DoPerform, pcpp::TelnetLayer::WillPerform,
+													 pcpp::TelnetLayer::EndOfRecordCommand};
 	pcpp::TelnetLayer::TelnetOptions vOptions2[] = {
 		pcpp::TelnetLayer::TransmitBinary, pcpp::TelnetLayer::TransmitBinary, pcpp::TelnetLayer::TelnetOptionNoOption};
 
