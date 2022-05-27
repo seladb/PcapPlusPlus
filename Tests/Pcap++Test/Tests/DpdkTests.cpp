@@ -297,6 +297,20 @@ PTF_TEST_CASE(TestDpdkDevice)
 		PTF_ASSERT_EQUAL(dev->getSupportedRssHashFunctions(), rssHF);
 	}
 
+	uint64_t configuredRssHF = pcpp::DpdkDevice::RSS_IPV4 | pcpp::DpdkDevice::RSS_IPV6;
+	if (dev->getPMDType() == pcpp::PMD_I40E || dev->getPMDType() == pcpp::PMD_I40EVF)
+	{
+		configuredRssHF = pcpp::DpdkDevice::RSS_NONFRAG_IPV4_TCP | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV4_UDP | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV4_OTHER | \
+								   pcpp::DpdkDevice::RSS_FRAG_IPV4 | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV6_TCP | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV6_UDP | \
+								   pcpp::DpdkDevice::RSS_NONFRAG_IPV6_OTHER | \
+								   pcpp::DpdkDevice::RSS_FRAG_IPV6;
+	}
+	PTF_ASSERT_EQUAL(dev->getConfiguredRssHashFunction(), configuredRssHF);
+
 	PTF_ASSERT_TRUE(dev->open());
 	DeviceTeardown devTeardown(dev);
 	pcpp::Logger::getInstance().suppressLogs();
@@ -531,8 +545,10 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 	PTF_ASSERT_FALSE(dev->openMultiQueues(1, 255));
 	pcpp::Logger::getInstance().enableLogs();
 
+	uint16_t txQueues = (dev->getTotalNumOfTxQueues() > 64 ? 64 : dev->getTotalNumOfTxQueues());
+
 	pcpp::DpdkDevice::DpdkDeviceConfiguration customConfig(128, 1024);
-	PTF_ASSERT_TRUE(dev->openMultiQueues(1, dev->getTotalNumOfTxQueues(), customConfig));
+	PTF_ASSERT_TRUE(dev->openMultiQueues(1, txQueues, customConfig));
 
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
@@ -564,16 +580,16 @@ PTF_TEST_CASE(TestDpdkDeviceSendPackets)
 	uint16_t packetsSentAsRawVector = dev->sendPackets(rawPacketVec);
 	PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead);
 
-	if (dev->getTotalNumOfTxQueues() > 1)
+	if (txQueues > 1)
 	{
-		packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead, dev->getTotalNumOfTxQueues()-1);
-		packetsSentAsRawVector = dev->sendPackets(rawPacketVec, dev->getTotalNumOfTxQueues()-1);
+		packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead, txQueues-1);
+		packetsSentAsRawVector = dev->sendPackets(rawPacketVec, txQueues-1);
 		PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead);
 		PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead);
 	}
 
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_EQUAL(dev->sendPackets(rawPacketVec, dev->getTotalNumOfTxQueues()+1), 0);
+	PTF_ASSERT_EQUAL(dev->sendPackets(rawPacketVec, txQueues+1), 0);
 	pcpp::Logger::getInstance().enableLogs();
 
 	PTF_ASSERT_TRUE(dev->sendPacket(*(rawPacketVec.at(packetsRead/3)), 0));
@@ -628,12 +644,13 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	dev->stopCapture();
 	dev->close();
 
-	PTF_ASSERT_TRUE(dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues()));
+	uint16_t numOfRxQueues = (dev->getTotalNumOfRxQueues() > 64 ? 64 : dev->getTotalNumOfRxQueues());
+	uint16_t numOfTxQueues = (dev->getTotalNumOfTxQueues() > 64 ? 64 : dev->getTotalNumOfTxQueues());
+	PTF_ASSERT_TRUE(dev->openMultiQueues(numOfTxQueues, numOfTxQueues));
 
 	// receive packets to packet vector
 	// --------------------------------
 	int numOfAttempts = 0;
-	int numOfRxQueues = dev->getTotalNumOfRxQueues();
 	int rxQueueId = 0;
 	bool isPacketRecvd = false;
 	while (numOfAttempts < 20)
@@ -823,7 +840,10 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 	pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(PcapTestGlobalArgs.dpdkPort);
 	PTF_ASSERT_NOT_NULL(dev);
 
-	PTF_ASSERT_TRUE(dev->openMultiQueues(dev->getTotalNumOfRxQueues(), dev->getTotalNumOfTxQueues()));
+	uint16_t numOfRxQueues = (dev->getTotalNumOfRxQueues() > 64 ? 64 : dev->getTotalNumOfRxQueues());
+	uint16_t numOfTxQueues = (dev->getTotalNumOfTxQueues() > 64 ? 64 : dev->getTotalNumOfTxQueues());
+
+	PTF_ASSERT_TRUE(dev->openMultiQueues(numOfRxQueues, numOfTxQueues));
 	DeviceTeardown devTeardown(dev);
 
 
