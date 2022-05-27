@@ -231,7 +231,7 @@ class TelnetLayer : public Layer
 		: Layer(data, dataLen, prevLayer, packet)
 	{
 		m_Protocol = Telnet;
-		lastPositionOffset = UINT64_MAX;
+		lastPositionOffset = UINT16_MAX;
 	};
 
 	/**

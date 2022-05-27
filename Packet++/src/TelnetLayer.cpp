@@ -201,7 +201,7 @@ TelnetLayer::TelnetCommands TelnetLayer::getFirstCommand()
 
 TelnetLayer::TelnetCommands TelnetLayer::getNextCommand()
 {
-	if (lastPositionOffset == UINT64_MAX)
+	if (lastPositionOffset == UINT16_MAX)
 	{
 		lastPositionOffset = 0;
 		if (isCommandField(m_Data))
@@ -214,7 +214,7 @@ TelnetLayer::TelnetCommands TelnetLayer::getNextCommand()
 		lastPositionOffset = pos - m_Data;
 		return static_cast<TelnetLayer::TelnetCommands>(pos[1]);
 	}
-	lastPositionOffset = UINT64_MAX;
+	lastPositionOffset = UINT16_MAX;
 	return TelnetCommandEndOfPacket;
 }
 
