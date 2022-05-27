@@ -1,14 +1,15 @@
 #include "../TestDefinition.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/PcapFileNamesDef.h"
+
+#ifdef USE_DPDK
 #include "KniDeviceList.h"
 #include "PcapFileDevice.h"
 #include "RawSocketDevice.h"
 #include "SystemUtils.h"
 
-
 extern PcapTestArgs PcapTestGlobalArgs;
-
+#endif
 
 #ifdef USE_DPDK
 #ifdef __linux__

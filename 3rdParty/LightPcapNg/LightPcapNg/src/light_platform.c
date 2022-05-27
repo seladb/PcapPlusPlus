@@ -178,7 +178,11 @@ size_t light_size(light_file fd)
 int light_close(light_file fd)
 {
 	light_close_compressed(fd);
-	return fclose(fd->file);
+	int rc = fclose(fd->file);
+
+	free(fd);
+
+	return rc;
 }
 
 int light_flush(light_file fd)

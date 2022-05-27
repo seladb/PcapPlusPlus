@@ -216,15 +216,15 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	}
 
 	// if PMD doesn't support RSS, set RSS HF to 0
-	if (getSupportedRssHashFunctions() == 0 && m_Config.rssHashFunction != 0)
+	if (getSupportedRssHashFunctions() == 0 && getConfiguredRssHashFunction() != 0)
 	{
 		PCPP_LOG_DEBUG("PMD '" << m_PMDName << "' doesn't support RSS, setting RSS hash functions to 0");
-		m_Config.rssHashFunction = 0;
+		m_Config.rssHashFunction = RSS_NONE;
 	}
 
-	if (!isDeviceSupportRssHashFunction(m_Config.rssHashFunction))
+	if (!isDeviceSupportRssHashFunction(getConfiguredRssHashFunction()))
 	{
-		PCPP_LOG_ERROR("PMD '" << m_PMDName << "' doesn't support the request RSS hash functions 0x" << std::hex << m_Config.rssHashFunction);
+		PCPP_LOG_ERROR("PMD '" << m_PMDName << "' doesn't support the request RSS hash functions 0x" << std::hex << getConfiguredRssHashFunction());
 		return false;
 	}
 
@@ -249,7 +249,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	portConf.rxmode.mq_mode = DPDK_CONFIG_MQ_MODE;
 	portConf.rx_adv_conf.rss_conf.rss_key = m_Config.rssKey;
 	portConf.rx_adv_conf.rss_conf.rss_key_len = m_Config.rssKeyLength;
-	portConf.rx_adv_conf.rss_conf.rss_hf = convertRssHfToDpdkRssHf(m_Config.rssHashFunction);
+	portConf.rx_adv_conf.rss_conf.rss_hf = convertRssHfToDpdkRssHf(getConfiguredRssHashFunction());
 
 	int res = rte_eth_dev_configure((uint8_t) m_Id, numOfRxQueues, numOfTxQueues, &portConf);
 	if (res < 0)
@@ -424,7 +424,7 @@ void DpdkDevice::setDeviceInfo()
 		m_PMDType = PMD_ENIC;
 	else if (m_PMDName == "rte_pmd_fm10k")
 		m_PMDType = PMD_FM10K;
-	else if (m_PMDName == "rte_i40e_pmd")
+	else if (m_PMDName == "rte_i40e_pmd" || m_PMDName == "net_i40e")
 		m_PMDType = PMD_I40E;
 	else if (m_PMDName == "rte_i40evf_pmd")
 		m_PMDType = PMD_I40EVF;
@@ -1325,6 +1325,102 @@ uint64_t DpdkDevice::getSupportedRssHashFunctions() const
 	rte_eth_dev_info_get(m_Id, &devInfo);
 
 	return convertDpdkRssHfToRssHf(devInfo.flow_type_rss_offloads);
+}
+
+uint64_t DpdkDevice::getConfiguredRssHashFunction() const
+{
+	if (m_Config.rssHashFunction == static_cast<uint64_t>(RSS_DEFAULT))
+	{
+		if (m_PMDType == PMD_I40E || m_PMDType == PMD_I40EVF)
+		{
+			return RSS_NONFRAG_IPV4_TCP | RSS_NONFRAG_IPV4_UDP | RSS_NONFRAG_IPV4_OTHER | RSS_FRAG_IPV4 | RSS_NONFRAG_IPV6_TCP | RSS_NONFRAG_IPV6_UDP | RSS_NONFRAG_IPV6_OTHER | RSS_FRAG_IPV6;
+		}
+		else
+		{
+			return RSS_IPV4 | RSS_IPV6;
+		}
+
+	}
+
+	if (m_Config.rssHashFunction == static_cast<uint64_t>(RSS_ALL_SUPPORTED))
+	{
+		return getSupportedRssHashFunctions();
+	}
+
+	return m_Config.rssHashFunction;
+}
+
+std::vector<std::string> DpdkDevice::rssHashFunctionMaskToString(uint64_t rssHFMask) const
+{
+	std::vector<std::string> result = std::vector<std::string>();
+
+	if (rssHFMask == RSS_NONE)
+	{
+		result.push_back("RSS_NONE");
+		return result;
+	}
+
+	if ((rssHFMask & RSS_IPV4) != 0)
+		result.push_back("RSS_IPV4");
+
+	if ((rssHFMask & RSS_FRAG_IPV4) != 0)
+		result.push_back("RSS_FRAG_IPV4");
+
+	if ((rssHFMask & RSS_NONFRAG_IPV4_TCP) != 0)
+		result.push_back("RSS_NONFRAG_IPV4_TCP");
+
+	if ((rssHFMask & RSS_NONFRAG_IPV4_UDP) != 0)
+		result.push_back("RSS_NONFRAG_IPV4_UDP");
+
+	if ((rssHFMask & RSS_NONFRAG_IPV4_SCTP) != 0)
+		result.push_back("RSS_NONFRAG_IPV4_SCTP");
+
+	if ((rssHFMask & RSS_NONFRAG_IPV4_OTHER) != 0)
+		result.push_back("RSS_NONFRAG_IPV4_OTHER");
+
+	if ((rssHFMask & RSS_IPV6) != 0)
+		result.push_back("RSS_IPV6");
+
+	if ((rssHFMask & RSS_FRAG_IPV6) != 0)
+		result.push_back("RSS_FRAG_IPV6");
+
+	if ((rssHFMask & RSS_NONFRAG_IPV6_TCP) != 0)
+		result.push_back("RSS_NONFRAG_IPV6_TCP");
+
+	if ((rssHFMask & RSS_NONFRAG_IPV6_UDP) != 0)
+		result.push_back("RSS_NONFRAG_IPV6_UDP");
+
+	if ((rssHFMask & RSS_NONFRAG_IPV6_SCTP) != 0)
+		result.push_back("RSS_NONFRAG_IPV6_SCTP");
+
+	if ((rssHFMask & RSS_NONFRAG_IPV6_OTHER) != 0)
+		result.push_back("RSS_NONFRAG_IPV6_OTHER");
+
+	if ((rssHFMask & RSS_L2_PAYLOAD) != 0)
+		result.push_back("RSS_L2_PAYLOAD");
+
+	if ((rssHFMask & RSS_IPV6_EX) != 0)
+		result.push_back("RSS_IPV6_EX");
+
+	if ((rssHFMask & RSS_IPV6_TCP_EX) != 0)
+		result.push_back("RSS_IPV6_TCP_EX");
+
+	if ((rssHFMask & RSS_IPV6_UDP_EX) != 0)
+		result.push_back("RSS_IPV6_UDP_EX");
+
+	if ((rssHFMask & RSS_PORT) != 0)
+		result.push_back("RSS_PORT");
+
+	if ((rssHFMask & RSS_VXLAN) != 0)
+		result.push_back("RSS_VXLAN");
+
+	if ((rssHFMask & RSS_GENEVE) != 0)
+		result.push_back("RSS_GENEVE");
+
+	if ((rssHFMask & RSS_NVGRE) != 0)
+		result.push_back("RSS_NVGRE");
+
+	return result;
 }
 
 
