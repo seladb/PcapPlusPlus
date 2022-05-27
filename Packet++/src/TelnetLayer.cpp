@@ -14,16 +14,12 @@ namespace pcpp
 bool TelnetLayer::isDataField(uint8_t *pos)
 {
 	// "FF FF" means data
-	if (pos[0] != InterpretAsCommand || (pos[0] == InterpretAsCommand && pos[1] == InterpretAsCommand))
-		return true;
-	return false;
+	return pos[0] != InterpretAsCommand || (pos[0] == InterpretAsCommand && pos[1] == InterpretAsCommand);
 }
 
 bool TelnetLayer::isCommandField(uint8_t *pos)
 {
-	if (pos[0] == InterpretAsCommand && pos[1] != InterpretAsCommand)
-		return true;
-	return false;
+	return pos[0] == InterpretAsCommand && pos[1] != InterpretAsCommand;
 }
 
 size_t TelnetLayer::distanceToNextIAC(uint8_t *startPos, size_t maxLength)
