@@ -42,7 +42,7 @@ class TelnetLayer : public Layer
 	/**
 	 * Telnet Command Indicator
 	 */
-	enum TelnetCommands
+	enum TelnetCommand
 	{
 		/// Indicator to parser reached end of packet
 		TelnetCommandEndOfPacket = -1,
@@ -103,7 +103,7 @@ class TelnetLayer : public Layer
 	/**
 	 * Telnet Options
 	 */
-	enum TelnetOptions
+	enum TelnetOption
 	{
 		/// Internal return for no option detected
 		TelnetOptionNoOption = -1,
@@ -227,8 +227,7 @@ class TelnetLayer : public Layer
 	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
-	TelnetLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: Layer(data, dataLen, prevLayer, packet)
+	TelnetLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet)
 	{
 		m_Protocol = Telnet;
 		lastPositionOffset = UINT16_MAX;
@@ -241,7 +240,10 @@ class TelnetLayer : public Layer
 	 */
 	std::string getDataAsString(bool removeEscapeCharacters = true);
 
-	/// Return the number of detected Telnet Commands
+	/**
+	 * Get the total number of detected Telnet commands
+	 * @return size_t The number of Telnet commands
+	 */
 	size_t getTotalNumberOfCommands();
 
 	/**
@@ -249,32 +251,32 @@ class TelnetLayer : public Layer
 	 * @param[in] command Telnet command to count
 	 * @return size_t Number of occurrences of command
 	 */
-	size_t getNumberOfCommands(TelnetCommands command);
+	size_t getNumberOfCommands(TelnetCommand command);
 
 	/**
 	 * Returns the first command of packet
-	 * @return TelnetCommands First detected command value, TelnetCommandEndOfPacket if there is no command field
+	 * @return TelnetCommand First detected command value, TelnetCommandEndOfPacket if there is no command field
 	 */
-	TelnetCommands getFirstCommand();
+	TelnetCommand getFirstCommand();
 
 	/**
 	 * Returns the next command of packet. Uses an internal iterator. The iterator resets when reached end of packet.
-	 * @return TelnetCommands Detected command value, TelnetCommandEndOfPacket if reached the end of packet.
+	 * @return TelnetCommand Detected command value, TelnetCommandEndOfPacket if reached the end of packet.
 	 */
-	TelnetCommands getNextCommand();
+	TelnetCommand getNextCommand();
 
 	/**
 	 * Returns the option of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
-	 * @return TelnetOptions Option of current command
+	 * @return TelnetOption Option of current command
 	 */
-	TelnetOptions getOption();
+	TelnetOption getOption();
 
 	/**
 	 * Returns the option of provided command. It will return option of first occurrence of the command
 	 * @param[in] command Telnet command to search
-	 * @return TelnetOptions Option of the command. Returns TelnetOptionNoOption if the provided command not found.
+	 * @return TelnetOption Option of the command. Returns TelnetOptionNoOption if the provided command not found.
 	 */
-	TelnetOptions getOption(TelnetCommands command);
+	TelnetOption getOption(TelnetCommand command);
 
 	/**
 	 * Returns the data of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
@@ -290,30 +292,27 @@ class TelnetLayer : public Layer
 	 * @return uint8_t* Pointer to the data of current command. NULL if there is no data for this command or if can't
 	 * find the command.
 	 */
-	uint8_t *getOptionData(TelnetCommands command, size_t &length);
+	uint8_t *getOptionData(TelnetCommand command, size_t &length);
 
 	/**
 	 * Convert the Telnet Command to readable string
 	 * @param[in] val Value of the command
 	 * @return The Telnet Command as readable string
 	 */
-	static std::string getTelnetCommandAsString(TelnetCommands val);
+	static std::string getTelnetCommandAsString(TelnetCommand val);
 
 	/**
 	 * Convert the Telnet option to readable string
 	 * @param[in] val Value of the option
 	 * @return The Telnet Option as readable string
 	 */
-	static std::string getTelnetOptionAsString(TelnetOptions val);
+	static std::string getTelnetOptionAsString(TelnetOption val);
 
 	/**
 	 * A static method that checks whether the port is considered as Telnet
 	 * @param[in] port The port number to be checked
 	 */
-	static bool isTelnetPort(uint16_t port)
-	{
-		return port == 23;
-	}
+	static bool isTelnetPort(uint16_t port)	{ return port == 23; }
 
 	/**
 	 * A static method that takes a byte array and detects whether it is a Telnet message
@@ -321,38 +320,25 @@ class TelnetLayer : public Layer
 	 * @param[in] dataSize The byte array size (in bytes)
 	 * @return True if the data is identified as Telnet message
 	 */
-	static bool isDataValid(const uint8_t *data, size_t dataSize)
-	{
-		return data && dataSize;
-	}
+	static bool isDataValid(const uint8_t *data, size_t dataSize) {	return data && dataSize; }
 
 	// overridden methods
 
 	/// Parses the next layer. Telnet is the always last so does nothing for this layer
-	void parseNextLayer()
-	{
-	}
+	void parseNextLayer() {}
 
 	/**
 	 * @return Get the size of the layer
 	 */
-	size_t getHeaderLen() const
-	{
-		return m_DataLen;
-	}
+	size_t getHeaderLen() const	{ return m_DataLen; }
 
 	/// Does nothing for this layer
-	void computeCalculateFields()
-	{
-	}
+	void computeCalculateFields() {}
 
 	/**
 	 * @return The OSI layer level of Telnet (Application Layer).
 	 */
-	OsiModelLayer getOsiModelLayer() const
-	{
-		return OsiModelApplicationLayer;
-	}
+	OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
 	/**
 	 * @return Returns the protocol info as readable string

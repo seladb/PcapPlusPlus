@@ -35,11 +35,11 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer->getOption(pcpp::TelnetLayer::AreYouThere), pcpp::TelnetLayer::TelnetOptionNoOption);
 
 	// Check iteration
-	pcpp::TelnetLayer::TelnetCommands vCommand[] = {
+	pcpp::TelnetLayer::TelnetCommand vCommand[] = {
 		pcpp::TelnetLayer::WillPerform,	   pcpp::TelnetLayer::DoPerform,		pcpp::TelnetLayer::DoPerform,
 		pcpp::TelnetLayer::DoPerform,	   pcpp::TelnetLayer::DoPerform,		pcpp::TelnetLayer::DoPerform,
 		pcpp::TelnetLayer::Subnegotiation, pcpp::TelnetLayer::SubnegotiationEnd};
-	pcpp::TelnetLayer::TelnetOptions vOptions[] = {pcpp::TelnetLayer::SuppressGoAhead,
+	pcpp::TelnetLayer::TelnetOption vOptions[] = {pcpp::TelnetLayer::SuppressGoAhead,
 												   pcpp::TelnetLayer::TerminalType,
 												   pcpp::TelnetLayer::NegotiateAboutWindowSize,
 												   pcpp::TelnetLayer::TerminalSpeed,
@@ -55,7 +55,7 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 
 	size_t ctr = 0;
 	size_t length = 0;
-	pcpp::TelnetLayer::TelnetCommands commandVal = telnetLayer->getNextCommand();
+	pcpp::TelnetLayer::TelnetCommand commandVal = telnetLayer->getNextCommand();
 	while (commandVal != pcpp::TelnetLayer::TelnetCommandEndOfPacket)
 	{
 		// Check command
@@ -63,7 +63,7 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 		PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(commandVal), vCommandString[ctr]);
 
 		// Check option
-		pcpp::TelnetLayer::TelnetOptions option = telnetLayer->getOption();
+		pcpp::TelnetLayer::TelnetOption option = telnetLayer->getOption();
 		PTF_ASSERT_EQUAL(option, vOptions[ctr]);
 		PTF_ASSERT_EQUAL(telnetLayer->getTelnetOptionAsString(option), vOptionString[ctr]);
 
@@ -97,14 +97,14 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer2->getDataAsString(), "@");
 	PTF_ASSERT_EQUAL(telnetLayer2->getTotalNumberOfCommands(), 3);
 
-	pcpp::TelnetLayer::TelnetCommands vCommand2[] = {pcpp::TelnetLayer::DoPerform, pcpp::TelnetLayer::WillPerform,
+	pcpp::TelnetLayer::TelnetCommand vCommand2[] = {pcpp::TelnetLayer::DoPerform, pcpp::TelnetLayer::WillPerform,
 													 pcpp::TelnetLayer::EndOfRecordCommand};
-	pcpp::TelnetLayer::TelnetOptions vOptions2[] = {
+	pcpp::TelnetLayer::TelnetOption vOptions2[] = {
 		pcpp::TelnetLayer::TransmitBinary, pcpp::TelnetLayer::TransmitBinary, pcpp::TelnetLayer::TelnetOptionNoOption};
 
 	size_t ctr2 = 0;
 	size_t length2 = 0;
-	pcpp::TelnetLayer::TelnetCommands commandVal2 = telnetLayer2->getNextCommand();
+	pcpp::TelnetLayer::TelnetCommand commandVal2 = telnetLayer2->getNextCommand();
 	while (commandVal2 != pcpp::TelnetLayer::TelnetCommandEndOfPacket)
 	{
 		PTF_ASSERT_EQUAL(commandVal2, vCommand2[ctr2]);
