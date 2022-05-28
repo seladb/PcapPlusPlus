@@ -257,13 +257,13 @@ namespace pcpp
 	 */
 	const ProtocolType NTP = 0x4000000000;
 
-  /** 
-   * Telnet Protocol
+	/**
+	 * Telnet Protocol
 	 */
 	const ProtocolType Telnet = 0x8000000000;
-	
-  /**
-   * File Transfer (FTP) Protocol
+
+  	/**
+   	 * File Transfer (FTP) Protocol
 	 */
 	const ProtocolType FTP = 0x10000000000;
 
