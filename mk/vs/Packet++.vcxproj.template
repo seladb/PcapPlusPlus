@@ -202,6 +202,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\IPv6Layer.h" />
     <ClInclude Include="..\..\Packet++\header\Layer.h" />
     <ClInclude Include="..\..\Packet++\header\MplsLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\NtpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\NullLoopbackLayer.h" />
     <ClInclude Include="..\..\Packet++\header\Packet.h" />
     <ClInclude Include="..\..\Packet++\header\PacketTrailerLayer.h" />
@@ -221,11 +222,11 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\TextBasedProtocol.h" />
     <ClInclude Include="..\..\Packet++\header\TcpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\TcpReassembly.h" />
+    <ClInclude Include="..\..\Packet++\header\TelnetLayer.h" />
     <ClInclude Include="..\..\Packet++\header\TLVData.h" />
     <ClInclude Include="..\..\Packet++\header\UdpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\VlanLayer.h" />
     <ClInclude Include="..\..\Packet++\header\VxlanLayer.h" />
-    <ClInclude Include="..\..\Packet++\header\NtpLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Packet++\src\ArpLayer.cpp" />
@@ -249,6 +250,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\IPv6Layer.cpp" />
     <ClCompile Include="..\..\Packet++\src\Layer.cpp" />
     <ClCompile Include="..\..\Packet++\src\MplsLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\NtpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\NullLoopbackLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\Packet.cpp" />
     <ClCompile Include="..\..\Packet++\src\PacketTrailerLayer.cpp" />
@@ -267,11 +269,11 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\TextBasedProtocol.cpp" />
     <ClCompile Include="..\..\Packet++\src\TcpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\TcpReassembly.cpp" />
+    <ClCompile Include="..\..\Packet++\src\TelnetLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\TLVData.cpp" />
     <ClCompile Include="..\..\Packet++\src\UdpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\VlanLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\VxlanLayer.cpp" />
-    <ClCompile Include="..\..\Packet++\src\NtpLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\hash-library\md5.cpp" />
