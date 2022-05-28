@@ -1,9 +1,6 @@
 #define LOG_MODULE PacketLogModuleFtpLayer
 
-#include "Logger.h"
 #include "FtpLayer.h"
-
-#include <stdlib.h>
 
 namespace pcpp
 {
