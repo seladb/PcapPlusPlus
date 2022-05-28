@@ -11,6 +11,7 @@
 #include "BgpLayer.h"
 #include "SSHLayer.h"
 #include "DnsLayer.h"
+#include "TelnetLayer.h"
 #include "FtpLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
@@ -374,6 +375,8 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = SSHLayer::createSSHMessage(payload, payloadLen, this, m_Packet);
 	else if (DnsLayer::isDataValid(payload, payloadLen, true) && (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
 		m_NextLayer = new DnsOverTcpLayer(payload, payloadLen, this, m_Packet);
+  else if (TelnetLayer::isDataValid(payload, payloadLen) && (TelnetLayer::isTelnetPort(portDst) || TelnetLayer::isTelnetPort(portSrc)))
+		m_NextLayer = new TelnetLayer(payload, payloadLen, this, m_Packet);
 	else if (FtpMessage::isFtpPort(portSrc) && FtpMessage::isDataValid(payload, payloadLen))
 		m_NextLayer = new FtpResponseLayer(payload, payloadLen, this, m_Packet);
 	else if (FtpMessage::isFtpPort(portDst) && FtpMessage::isDataValid(payload, payloadLen))

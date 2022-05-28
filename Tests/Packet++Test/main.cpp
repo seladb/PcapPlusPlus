@@ -250,6 +250,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NtpParsingV4Tests, "ntp");
 	PTF_RUN_TEST(NtpCraftingTests, "ntp");
 
+  PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
+	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
+  
 	PTF_RUN_TEST(FtpParsingIpv4Tests, "ftp");
 	PTF_RUN_TEST(FtpParsingIpv6Tests, "ftp");
 	PTF_RUN_TEST(FtpCraftingTests, "ftp");

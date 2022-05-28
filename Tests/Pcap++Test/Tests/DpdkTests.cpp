@@ -5,6 +5,8 @@
 #include <map>
 #include <stdlib.h>
 #include <sstream>
+
+#ifdef USE_DPDK
 #include "Logger.h"
 #include "PacketUtils.h"
 #include "IPv4Layer.h"
@@ -13,7 +15,7 @@
 #include "DnsLayer.h"
 #include "DpdkDeviceList.h"
 #include "PcapFileDevice.h"
-
+#endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
