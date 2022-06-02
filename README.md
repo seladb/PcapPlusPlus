@@ -170,6 +170,7 @@ PcapPlusPlus is currently supported on __Windows__, __Linux__, __MacOS__, __Andr
 PcapPlusPlus currently supports parsing, editing and creation of packets of the following protocols:
 
 ### Data Link Layer (L2)
+
 1. Ethernet II
 2. IEEE 802.3 Ethernet
 3. Null/Loopback
@@ -178,7 +179,9 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 6. SLL (Linux cooked capture)
 7. VLAN
 8. VXLAN
+
 ### Network Layer (L3)
+
 9. ARP
 10. GRE
 11. ICMP
@@ -187,17 +190,25 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 14. IPv6
 15. MPLS
 16. Raw IP (IPv4 & IPv6)
+
 ### Transport Layer (L4)
+
 17. GTP (v1)
 18. IPSec AH & ESP - parsing only (no editing capabilities)
 19. TCP
 20. UDP
+
 ### Session Layer (L5)
+
 21. SDP
 22. SIP
+
 ### Presentation Layer (L6)
+
 23. SSL/TLS - parsing only (no editing capabilities)
+
 ### Application Layer (L7)
+
 24. BGP (v4)
 25. DHCP
 26. DHCPv6
