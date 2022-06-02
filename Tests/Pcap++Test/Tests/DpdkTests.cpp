@@ -7,6 +7,7 @@
 #include <sstream>
 
 #ifdef USE_DPDK
+#include <mutex>
 #include "Logger.h"
 #include "PacketUtils.h"
 #include "IPv4Layer.h"
@@ -154,7 +155,7 @@ private:
 	uint32_t m_CoreId;
 	pcpp::DpdkDevice* m_DpdkDevice;
 	bool m_Stop;
-	pthread_mutex_t* m_QueueLock;
+	std::mutex* m_QueueLock;
 	uint16_t m_QueueId;
 	int m_PacketCount;
 	bool m_Initialized;
@@ -172,7 +173,7 @@ public:
 		m_RanAndStopped = false;
 	}
 
-	void init(pcpp::DpdkDevice* dpdkDevice, uint16_t queueId, pthread_mutex_t* queueLock)
+	void init(pcpp::DpdkDevice* dpdkDevice, uint16_t queueId, std::mutex* queueLock)
 	{
 		m_DpdkDevice = dpdkDevice;
 		m_QueueId = queueId;
@@ -201,19 +202,17 @@ public:
 
 		while (!m_Stop)
 		{
-			pthread_mutex_lock(m_QueueLock);
+			std::unique_lock<std::mutex> lock(*m_QueueLock);
 			uint16_t packetReceived = m_DpdkDevice->receivePackets(mBufArr, 32, m_QueueId);
-			pthread_mutex_unlock(m_QueueLock);
+			lock.unlock();
 			m_PacketCount += packetReceived;
-			pthread_mutex_lock(m_QueueLock);
+			lock.lock();
 			uint16_t packetsSent = m_DpdkDevice->sendPackets(mBufArr, packetReceived, m_QueueId);
 			if (packetsSent != packetReceived)
 			{
 				std::cout << "Error: Couldn't send all received packets on thread " << m_CoreId;
-				pthread_mutex_unlock(m_QueueLock);
 				return false;
 			}
-			pthread_mutex_unlock(m_QueueLock);
 		}
 
 		for (int i = 0; i < 32; i++)
@@ -653,10 +652,10 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// receive packets to packet vector
 	// --------------------------------
 	int numOfAttempts = 0;
-	int rxQueueId = 0;
 	bool isPacketRecvd = false;
 	while (numOfAttempts < 20)
 	{
+		int rxQueueId = 0;
 		while (rxQueueId < numOfRxQueues)
 		{
 			dev->receivePackets(rawPacketVec, rxQueueId);
@@ -681,9 +680,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// -----------------------------
 	numOfAttempts = 0;
 	isPacketRecvd = false;
-	rxQueueId = 0;
 	while (numOfAttempts < 20)
 	{
+		int rxQueueId = 0;
 		while (rxQueueId < numOfRxQueues)
 		{
 			mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, rxQueueId);
@@ -713,9 +712,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// -------------------------------
 	numOfAttempts = 0;
 	isPacketRecvd = false;
-	rxQueueId = 0;
 	while (numOfAttempts < 20)
 	{
+		int rxQueueId = 0;
 		while (rxQueueId < numOfRxQueues)
 		{
 			packetArrLen = dev->receivePackets(packetArr, 32, rxQueueId);
@@ -743,9 +742,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 
 	// test worker threads
 	// -------------------
-	pthread_mutex_t queueMutexArr[numOfRxQueues];
-	for (int i = 0; i < numOfRxQueues; i++)
-		pthread_mutex_init(&queueMutexArr[i], NULL);
+	std::mutex queueMutexArr[numOfRxQueues];
 
 	std::vector<pcpp::DpdkWorkerThread*> workerThreadVec;
 	pcpp::CoreMask workerThreadCoreMask = 0;
@@ -815,10 +812,6 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		PTF_PRINT_VERBOSE("Worker thread on core " << thread->getCoreId() << " captured " << thread->getPacketCount() << " packets");
 		delete thread;
 	}
-
-	for (int i = 0; i < numOfRxQueues; i++)
-		pthread_mutex_destroy(&queueMutexArr[i]);
-
 
 	PTF_PRINT_VERBOSE("Total packet count for all worker threads: " << packetCount);
 
