@@ -8,7 +8,7 @@
 
 #include <unistd.h>
 #include <time.h>
-#include <pthread.h>
+#include <thread>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <net/if_arp.h>
@@ -55,35 +55,26 @@ struct KniDevice::KniThread
 		DETACHED,
 		INVALID
 	};
-	typedef void*(*threadMain)(void*);
+	typedef void(*threadMain)(void*, std::atomic<bool>& );
 	KniThread(KniThreadCleanupState s, threadMain tm, void* data);
 	~KniThread();
 
-	bool cancel();
+	void cancel();
 
-	pthread_t m_Descriptor;
+	std::thread m_Descriptor;
 	KniThreadCleanupState m_CleanupState;
+	std::atomic<bool> m_StopThread;
 };
 
 KniDevice::KniThread::KniThread(KniThreadCleanupState s, threadMain tm, void* data) :
 	m_CleanupState(s)
 {
-	int err = pthread_create(&m_Descriptor, NULL, tm, data);
-	if (err != 0)
-	{
-		PCPP_LOG_ERROR("KNI can't start pthread. pthread_create returned an error: " << std::strerror(err));
-		m_CleanupState = INVALID;
-		return;
-	}
+	m_StopThread = false;
+	m_Descriptor = std::thread(tm, data, std::ref(m_StopThread));
+
 	if (m_CleanupState == DETACHED)
 	{
-		err = pthread_detach(m_Descriptor);
-		if (err != 0)
-		{
-			PCPP_LOG_ERROR("KNI can't detach pthread. pthread_detach returned an error: " << std::strerror(err));
-			m_CleanupState = INVALID;
-			return;
-		}
+		m_Descriptor.detach();
 	}
 }
 
@@ -91,19 +82,15 @@ KniDevice::KniThread::~KniThread()
 {
 	if (m_CleanupState == JOINABLE)
 	{
-		int err = pthread_join(m_Descriptor, NULL);
-		if (err != 0)
-		{
-			const char* errs = std::strerror(err);
-			PCPP_LOG_DEBUG("KNI failed to join pthread. pthread_join returned an error: " << errs);
-		}
+		m_Descriptor.join();
 	}
 }
 
-bool KniDevice::KniThread::cancel()
+void KniDevice::KniThread::cancel()
 {
-	return pthread_cancel(m_Descriptor);
+	m_StopThread = true;
 }
+
 
 /**
  * ===============
@@ -434,7 +421,7 @@ void KniDevice::KniRequests::cleanup()
 	sleepS = sleepNs = 0;
 }
 
-void* KniDevice::KniRequests::runRequests(void* devicePointer)
+void KniDevice::KniRequests::runRequests(void* devicePointer, std::atomic<bool>& stopThread)
 {
 	KniDevice* device = (KniDevice*)devicePointer;
 	struct timespec sleepTime;
@@ -445,8 +432,11 @@ void* KniDevice::KniRequests::runRequests(void* devicePointer)
 	{
 		nanosleep(&sleepTime, NULL);
 		rte_kni_handle_request(kni_dev);
+		if (stopThread)
+		{
+			return;
+		}
 	}
-	return NULL;
 }
 
 bool KniDevice::startRequestHandlerThread(long sleepSeconds, long sleepNanoSeconds)
@@ -813,7 +803,7 @@ bool KniDevice::sendPacket(Packet& packet)
 	return sendPacket(*packet.getRawPacket());
 }
 
-void* KniDevice::KniCapturing::runCapture(void* devicePointer)
+void KniDevice::KniCapturing::runCapture(void* devicePointer, std::atomic<bool>& stopThread)
 {
 	KniDevice* device = (KniDevice*)devicePointer;
 	OnKniPacketArriveCallback callback = device->m_Capturing.callback;
@@ -828,7 +818,10 @@ void* KniDevice::KniCapturing::runCapture(void* devicePointer)
 		uint32_t numOfPktsReceived = rte_kni_rx_burst(kni, mBufArray, MAX_BURST_SIZE);
 		if (unlikely(numOfPktsReceived == 0))
 		{
-			pthread_testcancel();
+			if (stopThread)
+			{
+				return;
+			}
 			continue;
 		}
 
@@ -846,9 +839,11 @@ void* KniDevice::KniCapturing::runCapture(void* devicePointer)
 			if (!callback(rawPackets, numOfPktsReceived, device, userCookie))
 				break;
 		}
-		pthread_testcancel();
+		if (stopThread)
+		{
+			return;
+		}
 	}
-	return NULL;
 }
 
 void KniDevice::KniCapturing::cleanup()
