@@ -156,8 +156,14 @@ namespace pcpp
         uint8_t version1Len;
         /// Version3 length.
         uint16_t version3Len;
-        /// Configuration id of MST
-        uint8_t mstConfigId[51];
+        /// Configuration id format selector
+        uint8_t mstConfigFormatSelector;
+        /// Configuration id name
+        uint8_t mstConfigName[32];
+        /// Configuration id revision
+        uint16_t mstConfigRevision;
+        /// Configuration id digest
+        uint8_t mstConfigDigest[16];
         /// CIST internal root path cost
         uint32_t irpc;
         /// CIST bridge id
@@ -174,8 +180,20 @@ namespace pcpp
 #pragma pack(push, 1)
     struct msti_conf_msg
     {
-
-    }
+        /// MSTI flags
+        uint8_t flags;
+        /// Regional root switching id
+        uint64_t regionalRootId;
+        /// Total path cost from local port to regional port
+        uint32_t pathCost;
+        /// Priority value of switching device
+        uint8_t bridgePriority;
+        /// Priority value of port
+        uint8_t portPriority;
+        /// Remaining hops of BPDU
+        uint8_t remainingHops; 
+    };
+#pragma pack(pop)
 
 //// <------------------------------- STP Uplink Fast
 
