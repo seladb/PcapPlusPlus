@@ -8,6 +8,8 @@
 #include "Logger.h"
 #include <errno.h>
 #include <pfring.h>
+#include <pthread.h>
+#include <chrono>
 
 
 #define DEFAULT_PF_RING_SNAPLEN 1600
@@ -441,6 +443,10 @@ bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacke
 		return false;
 	}
 
+	std::mutex mutex;
+	std::condition_variable cond;
+	int startThread = 0;
+
 	m_StopThread = false;
 	int rxChannel = 0;
 	for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
@@ -455,26 +461,24 @@ bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacke
 
 		// create a new thread
 		m_CoreConfiguration[coreId].Channel = m_PfRingDescriptors[rxChannel++];
-		int err = pthread_create(&(m_CoreConfiguration[coreId].RxThread), NULL, captureThreadMain, (void*)this);
-		if (err != 0)
-		{
-			PCPP_LOG_ERROR("Cannot create capture thread #" << coreId << " for device '" << m_DeviceName << "': [" << strerror(err) << "]");
-			m_CoreConfiguration[coreId].clear();
-			return false;
-		}
+		m_CoreConfiguration[coreId].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
 
 		// set affinity to cores
 		cpu_set_t cpuset;
 		CPU_ZERO(&cpuset);
 		CPU_SET(coreId, &cpuset);
-		if((err = pthread_setaffinity_np(m_CoreConfiguration[coreId].RxThread, sizeof(cpu_set_t), &cpuset)) != 0)
+		int err = pthread_setaffinity_np(m_CoreConfiguration[coreId].RxThread.native_handle(), sizeof(cpu_set_t), &cpuset);
+		if(err != 0)
 		{
 			PCPP_LOG_ERROR("Error while binding thread to core " << coreId << ": errno=" << err);
+			startThread = 1;
 			clearCoreConfiguration();
 			return false;
 		}
-
 	}
+
+	startThread = 2;
+	cond.notify_all();
 
 	return true;
 }
@@ -504,27 +508,27 @@ bool PfRingDevice::startCaptureSingleThread(OnPfRingPacketsArriveCallback onPack
 
 	m_ReentrantMode = false;
 
-	pthread_t newThread;
-	int err = pthread_create(&newThread, NULL, captureThreadMain, (void*)this);
-	if (err != 0)
-	{
-		PCPP_LOG_ERROR("Cannot create capture thread for device '" << m_DeviceName << "': [" << strerror(err) << "]");
-		return false;
-	}
+	std::mutex mutex;
+	std::condition_variable cond;
+	int startThread = 0;
 
 	cpu_set_t cpuset;
 	CPU_ZERO(&cpuset);
-	pthread_getaffinity_np(newThread, sizeof(cpu_set_t), &cpuset);
-	for (int i = 0; i < CPU_SETSIZE; i++)
+	CPU_SET(0, &cpuset);
+	m_CoreConfiguration[0].IsInUse = true;
+	m_CoreConfiguration[0].Channel = m_PfRingDescriptors[0];
+	m_CoreConfiguration[0].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
+	m_CoreConfiguration[0].IsAffinitySet = false;
+	int err = pthread_setaffinity_np(m_CoreConfiguration[0].RxThread.native_handle(), sizeof(cpu_set_t), &cpuset);
+	if(err != 0)
 	{
-		if (CPU_ISSET(i, &cpuset))
-		{
-			m_CoreConfiguration[i].IsInUse = true;
-			m_CoreConfiguration[i].Channel = m_PfRingDescriptors[0];
-			m_CoreConfiguration[i].RxThread = newThread;
-			m_CoreConfiguration[i].IsAffinitySet = false;
-		}
+		startThread = 1;
+		PCPP_LOG_ERROR("Error while binding thread to core 0: errno=" << err);
+		clearCoreConfiguration();
+		return false;
 	}
+	startThread = 2;
+	cond.notify_all();
 
 	PCPP_LOG_DEBUG("Capturing started for device [" << m_DeviceName << "]");
 	return true;
@@ -538,30 +542,39 @@ void PfRingDevice::stopCapture()
 	{
 		if (!m_CoreConfiguration[coreId].IsInUse)
 			continue;
-		pthread_join(m_CoreConfiguration[coreId].RxThread, NULL);
+		m_CoreConfiguration[coreId].RxThread.join();
 		PCPP_LOG_DEBUG("Thread on core [" << coreId << "] stopped");
 	}
 
 	PCPP_LOG_DEBUG("All capturing threads stopped");
 }
 
-void* PfRingDevice::captureThreadMain(void* ptr)
+void PfRingDevice::captureThreadMain(std::condition_variable* startCond, std::mutex* startMutex, const int* startState)
 {
-	PfRingDevice* device = (PfRingDevice*)ptr;
-	int coreId = device->getCurrentCoreId().Id;
+	while (*startState == 0)
+	{
+		std::unique_lock<std::mutex> lock(*startMutex);
+		startCond->wait_for(lock, std::chrono::milliseconds(100));
+	}
+	if (*startState == 1)
+	{
+		return;
+	}
+
+	int coreId = this->getCurrentCoreId().Id;
 	pfring* ring = NULL;
 
 	PCPP_LOG_DEBUG("Starting capture thread " << coreId);
 
-	ring = device->m_CoreConfiguration[coreId].Channel;
+	ring = this->m_CoreConfiguration[coreId].Channel;
 
 	if (ring == NULL)
 	{
 		PCPP_LOG_ERROR("Couldn't find ring for core " << coreId << ". Exiting capture thread");
-		return (void*)NULL;
+		return;
 	}
 
-	while (!device->m_StopThread)
+	while (!this->m_StopThread)
 	{
 		// if buffer is NULL PF_RING avoids copy of the data
 		uint8_t* buffer = NULL;
@@ -569,7 +582,7 @@ void* PfRingDevice::captureThreadMain(void* ptr)
 
 		// in multi-threaded mode flag PF_RING_REENTRANT is set, and this flag doesn't work with zero copy
 		// so I need to allocate a buffer and set buffer to point to it
-		if (device->m_ReentrantMode)
+		if (this->m_ReentrantMode)
 		{
 			uint8_t tempBuffer[PCPP_MAX_PACKET_SIZE];
 			buffer = tempBuffer;
@@ -589,7 +602,7 @@ void* PfRingDevice::captureThreadMain(void* ptr)
 //			}
 
 			RawPacket rawPacket(buffer, pktHdr.caplen, pktHdr.ts, false);
-			device->m_OnPacketsArriveCallback(&rawPacket, 1, coreId, device, device->m_OnPacketsArriveUserCookie);
+			this->m_OnPacketsArriveCallback(&rawPacket, 1, coreId, this, this->m_OnPacketsArriveUserCookie);
 		}
 		else if (recvRes < 0)
 		{
@@ -598,7 +611,6 @@ void* PfRingDevice::captureThreadMain(void* ptr)
 	}
 
 	PCPP_LOG_DEBUG("Exiting capture thread " << coreId);
-	return (void*)NULL;
 }
 
 void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats) const
@@ -857,13 +869,12 @@ int PfRingDevice::sendPackets(const RawPacketVector& rawPackets)
 }
 
 PfRingDevice::CoreConfiguration::CoreConfiguration()
-	: RxThread(0), Channel(NULL), IsInUse(false), IsAffinitySet(true)
+	: Channel(NULL), IsInUse(false), IsAffinitySet(true)
 {
 }
 
 void PfRingDevice::CoreConfiguration::clear()
 {
-	RxThread = 0;
 	Channel = NULL;
 	IsInUse = false;
 	IsAffinitySet = true;

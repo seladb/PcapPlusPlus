@@ -2,6 +2,7 @@
 #define PCAPPP_KNI_DEVICE
 
 #include <string>
+#include <atomic>
 
 #include "Device.h"
 #include "MacAddress.h"
@@ -632,7 +633,7 @@ namespace pcpp
 			void* userCookie;
 			KniThread* thread;
 
-			static void* runCapture(void* devicePointer);
+			static void runCapture(void* devicePointer, std::atomic<bool>& stopThread);
 			inline bool isRunning() const { return thread != NULL; }
 			void cleanup();
 		} m_Capturing;
@@ -642,7 +643,7 @@ namespace pcpp
 			long sleepNs;
 			KniThread* thread;
 
-			static void* runRequests(void* devicePointer);
+			static void runRequests(void* devicePointer, std::atomic<bool>& stopThread);
 			void cleanup();
 		} m_Requests;
 	};

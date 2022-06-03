@@ -5,7 +5,8 @@
 #include "MacAddress.h"
 #include "SystemUtils.h"
 #include "Packet.h"
-#include <pthread.h>
+#include <thread>
+#include <condition_variable>
 
 /// @file
 
@@ -36,7 +37,7 @@ namespace pcpp
 
 		struct CoreConfiguration
 		{
-			pthread_t RxThread;
+			std::thread RxThread;
 			pfring* Channel;
 			bool IsInUse;
 			bool IsAffinitySet;
@@ -62,7 +63,7 @@ namespace pcpp
 		PfRingDevice(const char* deviceName);
 
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
-		static void* captureThreadMain(void *ptr);
+		void captureThreadMain(std::condition_variable* startCond, std::mutex* startMutex, const int* startState);
 
 		int openSingleRxChannel(const char* deviceName, pfring** ring);
 

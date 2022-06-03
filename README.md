@@ -14,12 +14,24 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
 
 ## Table Of Contents
 
+- [Table Of Contents](#table-of-contents)
 - [Download](#download)
+  - [GitHub Release Page](#github-release-page)
+  - [Homebrew](#homebrew)
+  - [Vcpkg](#vcpkg)
+  - [Conan](#conan)
+  - [Build It Yourself](#build-it-yourself)
 - [Feature Overview](#feature-overview)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
 - [Multi Platform Support](#multi-platform-support)
 - [Supported Network Protocols](#supported-network-protocols)
+  - [Data Link Layer (L2)](#data-link-layer-l2)
+  - [Network Layer (L3)](#network-layer-l3)
+  - [Transport Layer (L4)](#transport-layer-l4)
+  - [Session Layer (L5)](#session-layer-l5)
+  - [Presentation Layer (L6)](#presentation-layer-l6)
+  - [Application Layer (L7)](#application-layer-l7)
 - [DPDK And PF_RING Support](#dpdk-and-pf_ring-support)
 - [Benchmarks](#benchmarks)
 - [Provide Feedback](#provide-feedback)
@@ -157,39 +169,56 @@ PcapPlusPlus is currently supported on __Windows__, __Linux__, __MacOS__, __Andr
 
 PcapPlusPlus currently supports parsing, editing and creation of packets of the following protocols:
 
+### Data Link Layer (L2)
+
 1. Ethernet II
 2. IEEE 802.3 Ethernet
-3. SLL (Linux cooked capture)
-4. Null/Loopback
-5. Raw IP (IPv4 & IPv6)
-6. IPv4
-7. IPv6
-8. ARP
-9. VLAN
-10. VXLAN
-11. MPLS
-12. PPPoE
-13. GRE
-14. TCP
-15. UDP
-16. GTP (v1)
-17. ICMP
-18. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-19. IPSec AH & ESP - parsing only (no editing capabilities)
-20. SIP
+3. Null/Loopback
+4. Packet trailer (a.k.a footer or padding)
+5. PPPoE
+6. SLL (Linux cooked capture)
+7. VLAN
+8. VXLAN
+
+### Network Layer (L3)
+
+9. ARP
+10. GRE
+11. ICMP
+12. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+13. IPv4
+14. IPv6
+15. MPLS
+16. Raw IP (IPv4 & IPv6)
+
+### Transport Layer (L4)
+
+17. GTP (v1)
+18. IPSec AH & ESP - parsing only (no editing capabilities)
+19. TCP
+20. UDP
+
+### Session Layer (L5)
+
 21. SDP
-22. Radius
-23. DNS
-24. DHCP
-25. DHCPv6
-26. BGP (v4)
-27. SSH - parsing only (no editing capabilities)
-28. HTTP headers (request & response)
-29. SSL/TLS - parsing only (no editing capabilities)
+22. SIP
+
+### Presentation Layer (L6)
+
+23. SSL/TLS - parsing only (no editing capabilities)
+
+### Application Layer (L7)
+
+24. BGP (v4)
+25. DHCP
+26. DHCPv6
+27. DNS
+28. FTP
+29. HTTP headers (request & response)
 30. NTP (v3, v4)
-31. Telnet - parsing only (no editing capabilities)
-32. FTP
-33. Packet trailer (a.k.a footer or padding)
+31. Radius
+32. SSH - parsing only (no editing capabilities)
+33. Telnet - parsing only (no editing capabilities)
 34. Generic payload
 
 ## DPDK And PF_RING Support
