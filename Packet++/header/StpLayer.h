@@ -197,7 +197,7 @@ namespace pcpp
 	class StpLayer : public Layer
 	{
 	protected:
-		StpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { }
+		StpLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { }
 
 	public:
 		/// STP protocol uses "01:80:C2:00:00:00" multicast address as destination MAC
@@ -252,13 +252,10 @@ namespace pcpp
 		 */
 		uint32_t getLLCHeader() const { return (uint32_t(getStpHeader()->llcHeader[0]) << 16) | (uint32_t(getStpHeader()->llcHeader[1]) << 8) | uint32_t(getStpHeader()->llcHeader[2]); }
 
+		// overridden methods
+
 		/// Parses the next layer. STP is the always last so does nothing for this layer
 		void parseNextLayer() {}
-
-		/**
-		 * @return Get the size of the STP header
-		 */
-		size_t getHeaderLen() const { return sizeof(stp_header); }
 
 		/// Does nothing for this layer
 		void computeCalculateFields() {}
@@ -293,6 +290,26 @@ namespace pcpp
 	{
 		private:
 		public:
+
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		StpConfigurationBPDULayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+	
+		// overridden methods
+		
+		/**
+		 * @return Get the size of the STP Configuration BPDU header
+		 */
+		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
+
+		/**
+         * @return Returns the protocol info as readable string
+         */
+        std::string toString() const;
 	};
 
 	/**
@@ -303,6 +320,26 @@ namespace pcpp
 	{
 		private:
 		public:
+
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		StpTopologyChangeBPDULayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+	
+		// overridden methods
+		
+		/**
+		 * @return Get the size of the STP network topology change BPDU header
+		 */
+		size_t getHeaderLen() const { return sizeof(stp_tcn_bpdu); }
+
+		/**
+         * @return Returns the protocol info as readable string
+         */
+        std::string toString() const;
 	};
 
 	/**
@@ -313,6 +350,26 @@ namespace pcpp
 	{
 		private:
 		public:
+		
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		RapidStpLayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+
+		// overridden methods
+		
+		/**
+		 * @return Get the size of the RSTP header
+		 */
+		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
+
+		/**
+         * @return Returns the protocol info as readable string
+         */
+        std::string toString() const;
 	};
 
 	/**
@@ -323,6 +380,26 @@ namespace pcpp
 	{
 		private:
 		public:
+
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		MultipleStpLayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+
+		// overridden methods
+		
+		/**
+		 * @return Get the size of the MSTP header
+		 */
+		size_t getHeaderLen() const { return sizeof(mstp_conf_bpdu); }
+
+		/**
+         * @return Returns the protocol info as readable string
+         */
+        std::string toString() const;
 	};
 } // namespace pcpp
 
