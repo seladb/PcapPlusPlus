@@ -227,7 +227,7 @@ namespace pcpp
 		 * @return stp_header* A pointer to STP header
 		 */
 		stp_header *getStpHeader() const { return (stp_header*)m_Data; }
-		
+
 		/**
 		 * Get the source MAC address
 		 * @return The source MAC address
@@ -306,7 +306,7 @@ namespace pcpp
 	};
 
 	/**
-	 * @class RapidStpLayer 
+	 * @class RapidStpLayer
 	 * Represents Rapid Spanning Tree Protocol (RSTP)
 	 */
 	class RapidStpLayer : public StpLayer
@@ -316,7 +316,7 @@ namespace pcpp
 	};
 
 	/**
-	 * @class MultipleStpLayer 
+	 * @class MultipleStpLayer
 	 * Represents Multiple Spanning Tree Protocol (MSTP)
 	 */
 	class MultipleStpLayer : public StpLayer
