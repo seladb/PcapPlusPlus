@@ -298,9 +298,9 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		StpConfigurationBPDULayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
-	
+
 		// overridden methods
-		
+
 		/**
 		 * @return Get the size of the STP Configuration BPDU header
 		 */
@@ -328,9 +328,9 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		StpTopologyChangeBPDULayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
-	
+
 		// overridden methods
-		
+
 		/**
 		 * @return Get the size of the STP network topology change BPDU header
 		 */
@@ -350,7 +350,7 @@ namespace pcpp
 	{
 		private:
 		public:
-		
+
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -360,7 +360,7 @@ namespace pcpp
 		RapidStpLayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
 
 		// overridden methods
-		
+
 		/**
 		 * @return Get the size of the RSTP header
 		 */
@@ -390,7 +390,7 @@ namespace pcpp
 		MultipleStpLayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
 
 		// overridden methods
-		
+
 		/**
 		 * @return Get the size of the MSTP header
 		 */
