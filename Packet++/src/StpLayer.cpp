@@ -81,11 +81,11 @@ namespace pcpp
 	}
 
 	// ---------------------- Class MultipleStp Layer ----------------------
-	
+
 	std::string MultipleStpLayer::toString() const
 	{
 		return "Multiple Spanning Tree";
 	}
-	
+
 
 } // namespace pcpp
