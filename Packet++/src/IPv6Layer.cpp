@@ -7,6 +7,7 @@
 #include "TcpLayer.h"
 #include "GreLayer.h"
 #include "IPSecLayer.h"
+#include "IcmpV6Layer.h"
 #include "Packet.h"
 #include "PacketUtils.h"
 #include <string.h>
@@ -258,6 +259,14 @@ void IPv6Layer::parseNextLayer()
 			? static_cast<Layer*>(new ESPLayer(payload, payloadLen, this, m_Packet))
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
+	case PACKETPP_IPPROTO_ICMPV6:
+	{
+		if(IcmpV6Layer::isDataValid(payload, payloadLen))
+			m_NextLayer = new IcmpV6Layer(payload, payloadLen, this, m_Packet);
+		else
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		break;
+	}
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;

@@ -172,3 +172,11 @@ PTF_TEST_CASE(NtpCraftingTests);
 // Implemented in TelnetTests.cpp
 PTF_TEST_CASE(TelnetCommandParsingTests);
 PTF_TEST_CASE(TelnetDataParsingTests);
+
+// Implemented in IcmpV6Tests.cpp
+PTF_TEST_CASE(IcmpV6Parsing);
+PTF_TEST_CASE(IcmpV6Crafting);
+PTF_TEST_CASE(IcmpV6SolicitationParsing);
+PTF_TEST_CASE(IcmpV6SolicitationCrafting);
+PTF_TEST_CASE(IcmpV6AdvertisementParsing);
+PTF_TEST_CASE(IcmpV6AdvertisementCrafting);

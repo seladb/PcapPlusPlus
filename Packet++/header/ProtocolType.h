@@ -263,6 +263,21 @@ namespace pcpp
 	const ProtocolType Telnet = 0x8000000000;
 
 	/**
+	 * ICMPv6 protocol
+	 */
+	const ProtocolType ICMPv6 = 0x010000000000;
+
+	/**
+	 * ICMPv6 protocol Neighbor Advertisement
+	 */
+	const ProtocolType NDPNeighborAdvertisement = 0x020000000000;
+
+	/**
+	 * ICMPv6 protocol Neighbor Solicitation
+	 */
+	const ProtocolType NDPNeighborSolicitation = 0x040000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer
