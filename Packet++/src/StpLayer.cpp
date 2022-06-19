@@ -61,21 +61,21 @@ namespace pcpp
 
 	// ---------------------- Class StpConfigurationBPDU Layer ----------------------
 
-	std::string MultipleStpLayer::toString() const
+	std::string StpConfigurationBPDULayer::toString() const
 	{
 		return "Spanning Tree Configuration";
 	}
 
 	// ---------------------- Class StpTopologyChangeBPDU Layer ----------------------
 
-	std::string MultipleStpLayer::toString() const
+	std::string StpTopologyChangeBPDULayer::toString() const
 	{
 		return "Spanning Tree Topology Change Notification";
 	}
 
 	// ---------------------- Class RapidStp Layer ----------------------
 
-	std::string MultipleStpLayer::toString() const
+	std::string RapidStpLayer::toString() const
 	{
 		return "Rapid Spanning Tree";
 	}
