@@ -672,10 +672,10 @@ namespace pcpp
 		uint8_t getMstConfigurationFormatSelector() const { return getMstpHeader()->mstConfigFormatSelector; }
 
 		/**
-		 * Returns the pointer to configuration name field. The field itself always 32 bytes long.
-		 * @return uint8_t* A pointer to configuration name
+		 * Returns the pointer to configuration name field.
+		 * @return std::string Configuration name
 		 */
-		uint8_t* getMstConfigurationName() const { return getMstpHeader()->mstConfigName; }
+		std::string getMstConfigurationName() const { return std::string((char*)(getMstpHeader()->mstConfigName), 32); }
 
 		/**
 		 * Returns the revision of configuration ID
@@ -707,7 +707,18 @@ namespace pcpp
 		 */
 		uint8_t getRemainingHopCount() const { return getMstpHeader()->remainId; }
 
-		// <------------------------------------------------ msti_conf_msg here!!!!!!
+		/**
+		 * Returns the total number of MSTI configuration messages
+		 * @return uint8_t Number of MSTI configuration messages. Can be between 0 and 64.
+		 */
+		uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - 2 - 64) / sizeof(msti_conf_msg); }
+
+		/**
+		 * Returns a reference to MSTI configuration messages. An MSTP packet can contain between 0 to 64 MSTI message.
+		 * The number of messages can be obtained by using getNumberOfMSTIConfMessages()
+		 * @return msti_conf_msg* An array pointer to MSTI configuration messages. Returns NULL if there is no MSTI message.
+		 */
+		msti_conf_msg* getMstiConfMessages() const;
 
 		// overridden methods
 
