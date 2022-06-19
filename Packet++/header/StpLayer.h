@@ -461,6 +461,90 @@ namespace pcpp
 		 */
 		RapidStpLayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
 
+		/**
+		 * Get a pointer to Rapid STP header
+		 * @return stp_conf_bpdu* A pointer to Rapid STP header
+		 */
+		rstp_conf_bpdu *getRstpConfHeader() const { return (rstp_conf_bpdu*)(m_Data + sizeof(stp_header)); }
+
+		/**
+		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
+		 * @return uint16_t ID of the protocol
+		 */
+		uint16_t getProtoId() const { return getRstpConfHeader()->protoId; }
+
+		/**
+		 * Returns the version. Fixed at 0x2 for Rapid STP messages
+		 * @return uint8_t Version number
+		 */
+		uint8_t getVersion() const { return getRstpConfHeader()->version; }
+
+		/**
+		 * Returns the type of configuration message. Fixed at 0x2 Rapid STP / Multicast STP
+		 * @return uint8_t Type of configuration message
+		 */
+		uint8_t getType() const { return getRstpConfHeader()->type; }
+
+		/**
+		 * Returns the flags of configuration message which indicates purpose of BPDU
+		 * @return uint8_t Flags of the configuration message
+		 */
+		uint8_t getFlag() const { return getRstpConfHeader()->flag; }
+
+		/**
+		 * Returns the Root bridge ID
+		 * @return uint64_t Root bridge ID
+		 */
+		uint64_t getRootId() const { return getRstpConfHeader()->rootId; }
+
+		/**
+		 * Returns the value of the cost of path
+		 * @return uint32_t Cost of path
+		 */
+		uint32_t getPathCost() const { return getRstpConfHeader()->pathCost; }
+
+		/**
+		 * Returns the bridge ID
+		 * @return uint64_t Bridge ID
+		 */
+		uint64_t getBridgeId() const { return getRstpConfHeader()->bridgeId; }
+
+		/**
+		 * Returns the port ID
+		 * @return uint16_t Port ID
+		 */
+		uint16_t getPortId() const { return getRstpConfHeader()->portId; }
+
+		/**
+		 * Returns age of the BPDU message
+		 * @return uint16_t Age of BPDU
+		 */
+		uint16_t getMessageAge() const { return getRstpConfHeader()->msgAge; }
+
+		/**
+		 * Returns maximum age of the BPDU message
+		 * @return uint16_t Maximum age of BPDU
+		 */
+		uint16_t getMaximumAge() const { return getRstpConfHeader()->maxAge; }
+
+		/**
+		 * Returns the BPDU transmission interval
+		 * @return uint16_t Value of the transmission interval
+		 */
+		uint16_t getTransmissionInterval() const { return getRstpConfHeader()->helloTime; }
+
+		/**
+		 * Returns the delay for STP message
+		 * @return uint16_t Value of the forward delay
+		 */
+		uint16_t getForwardDelay() const { return getRstpConfHeader()->forwardDelay; }
+
+		/**
+		 * Returns the length of version1 field. Fixed at 0x0 for Rapid STP
+		 * @return uint8_t 
+		 */
+		uint8_t getVersion1Len() const { return getRstpConfHeader()->version1Len; }
+		
 		// overridden methods
 
 		/**
