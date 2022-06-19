@@ -463,7 +463,7 @@ namespace pcpp
 
 		/**
 		 * Get a pointer to Rapid STP header
-		 * @return stp_conf_bpdu* A pointer to Rapid STP header
+		 * @return rstp_conf_bpdu* A pointer to Rapid STP header
 		 */
 		rstp_conf_bpdu *getRstpConfHeader() const { return (rstp_conf_bpdu*)(m_Data + sizeof(stp_header)); }
 
@@ -480,7 +480,7 @@ namespace pcpp
 		uint8_t getVersion() const { return getRstpConfHeader()->version; }
 
 		/**
-		 * Returns the type of configuration message. Fixed at 0x2 Rapid STP / Multicast STP
+		 * Returns the type of configuration message. Fixed at 0x2 Rapid STP / Multiple STP
 		 * @return uint8_t Type of configuration message
 		 */
 		uint8_t getType() const { return getRstpConfHeader()->type; }
@@ -541,10 +541,10 @@ namespace pcpp
 
 		/**
 		 * Returns the length of version1 field. Fixed at 0x0 for Rapid STP
-		 * @return uint8_t 
+		 * @return uint8_t
 		 */
 		uint8_t getVersion1Len() const { return getRstpConfHeader()->version1Len; }
-		
+
 		// overridden methods
 
 		/**
@@ -574,6 +574,140 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		MultipleStpLayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+
+		/**
+		 * Get a pointer to Multiple STP header
+		 * @return mstp_conf_bpdu* A pointer to Multiple STP header
+		 */
+		mstp_conf_bpdu* getMstpHeader() const { return (mstp_conf_bpdu*)(m_Data + sizeof(stp_header)); }
+
+		/**
+		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
+		 * @return uint16_t ID of the protocol
+		 */
+		uint16_t getProtoId() const { return getMstpHeader()->protoId; }
+
+		/**
+		 * Returns the version. Fixed at 0x3 for Multiple STP messages
+		 * @return uint8_t Version number
+		 */
+		uint8_t getVersion() const { return getMstpHeader()->version; }
+
+		/**
+		 * Returns the type of message. Fixed at 0x2 Rapid STP / Multiple STP
+		 * @return uint8_t Type of message
+		 */
+		uint8_t getType() const { return getMstpHeader()->type; }
+
+		/**
+		 * Returns the flags of message which indicates purpose of BPDU
+		 * @return uint8_t Flags of the message
+		 */
+		uint8_t getFlag() const { return getMstpHeader()->flag; }
+
+		/**
+		 * Returns the Root bridge ID
+		 * @return uint64_t Root bridge ID
+		 */
+		uint64_t getRootId() const { return getMstpHeader()->rootId; }
+
+		/**
+		 * Returns the value of the cost of path
+		 * @return uint32_t Cost of path
+		 */
+		uint32_t getPathCost() const { return getMstpHeader()->pathCost; }
+
+		/**
+		 * Returns the bridge ID
+		 * @return uint64_t Bridge ID
+		 */
+		uint64_t getBridgeId() const { return getMstpHeader()->bridgeId; }
+
+		/**
+		 * Returns the port ID
+		 * @return uint16_t Port ID
+		 */
+		uint16_t getPortId() const { return getMstpHeader()->portId; }
+
+		/**
+		 * Returns age of the BPDU message
+		 * @return uint16_t Age of BPDU
+		 */
+		uint16_t getMessageAge() const { return getMstpHeader()->msgAge; }
+
+		/**
+		 * Returns maximum age of the BPDU message
+		 * @return uint16_t Maximum age of BPDU
+		 */
+		uint16_t getMaximumAge() const { return getMstpHeader()->maxAge; }
+
+		/**
+		 * Returns the BPDU transmission interval
+		 * @return uint16_t Value of the transmission interval
+		 */
+		uint16_t getTransmissionInterval() const { return getMstpHeader()->helloTime; }
+
+		/**
+		 * Returns the delay for STP message
+		 * @return uint16_t Value of the forward delay
+		 */
+		uint16_t getForwardDelay() const { return getMstpHeader()->forwardDelay; }
+
+		/**
+		 * Returns the length of version1 field. Fixed at 0x0 for Rapid STP
+		 * @return uint8_t
+		 */
+		uint8_t getVersion1Len() const { return getMstpHeader()->version1Len; }
+
+		/**
+		 * Returns the length of version3 field.
+		 * @return uint16_t
+		 */
+		uint16_t getVersion3Len() const { return getMstpHeader()->version3Len; }
+
+		/**
+		 * Returns the configuration ID format selector
+		 * @return uint8_t Configuration ID of format selector
+		 */
+		uint8_t getMstConfigurationFormatSelector() const { return getMstpHeader()->mstConfigFormatSelector; }
+
+		/**
+		 * Returns the pointer to configuration name field. The field itself always 32 bytes long.
+		 * @return uint8_t* A pointer to configuration name
+		 */
+		uint8_t* getMstConfigurationName() const { return getMstpHeader()->mstConfigName; }
+
+		/**
+		 * Returns the revision of configuration ID
+		 * @return uint16_t Revision of configuration ID
+		 */
+		uint16_t getMstConfigRevision() const { return getMstpHeader()->mstConfigRevision; }
+
+		/**
+		 * Returns the pointer to configuration message digest. The field itself always 16 bytes long.
+		 * @return uint8_t* A pointer to configuration digest
+		 */
+		uint8_t* getMstConfigDigest() const { return getMstpHeader()->mstConfigDigest; }
+
+		/**
+		 * Returns CIST internal root path cost
+		 * @return uint32_t Value of the internal root path cost
+		 */
+		uint32_t getCISTIrpc() const { return getMstpHeader()->irpc; }
+
+		/**
+		 * Returns CIST bridge ID
+		 * @return uint64_t Value of the bridge ID
+		 */
+		uint64_t getCISTBridgeId() const { return getMstpHeader()->cistBridgeId; }
+
+		/**
+		 * Returns the remaining hop count
+		 * @return uint8_t Value of remaining hop count
+		 */
+		uint8_t getRemainingHopCount() const { return getMstpHeader()->remainId; }
+
+		// <------------------------------------------------ msti_conf_msg here!!!!!!
 
 		// overridden methods
 
