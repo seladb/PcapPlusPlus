@@ -385,9 +385,9 @@ namespace pcpp
 		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
 
 		/**
-         * @return Returns the protocol info as readable string
-         */
-        std::string toString() const;
+		 * @return Returns the protocol info as readable string
+		 */
+		std::string toString() const;
 	};
 
 	/**
@@ -407,6 +407,30 @@ namespace pcpp
 		 */
 		StpTopologyChangeBPDULayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
 
+		/**
+		 * Get a pointer to network topology change (TCN) BPDU message
+		 * @return stp_tcn_bpdu* A pointer to TCN BPDU message
+		 */
+		stp_tcn_bpdu* getStpTcnHeader() const { return (stp_tcn_bpdu*)(m_Data + sizeof(stp_header)); }
+
+		/**
+		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
+		 * @return uint16_t ID of the protocol
+		 */
+		uint16_t getProtoId() const { return getStpTcnHeader()->protoId; }
+
+		/**
+		 * Returns the version. Fixed at 0x0 for STP messages
+		 * @return uint8_t Version number
+		 */
+		uint8_t getVersion() const { return getStpTcnHeader()->version; }
+
+		/**
+		 * Returns the type of configuration message. Fixed at 0x80 for TCN
+		 * @return uint8_t Type of configuration message
+		 */
+		uint8_t getType() const { return getStpTcnHeader()->type; }
+
 		// overridden methods
 
 		/**
@@ -415,9 +439,9 @@ namespace pcpp
 		size_t getHeaderLen() const { return sizeof(stp_tcn_bpdu); }
 
 		/**
-         * @return Returns the protocol info as readable string
-         */
-        std::string toString() const;
+		 * @return Returns the protocol info as readable string
+		 */
+		std::string toString() const;
 	};
 
 	/**
@@ -445,9 +469,9 @@ namespace pcpp
 		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
 
 		/**
-         * @return Returns the protocol info as readable string
-         */
-        std::string toString() const;
+		 * @return Returns the protocol info as readable string
+		 */
+		std::string toString() const;
 	};
 
 	/**
@@ -475,9 +499,9 @@ namespace pcpp
 		size_t getHeaderLen() const { return sizeof(mstp_conf_bpdu); }
 
 		/**
-         * @return Returns the protocol info as readable string
-         */
-        std::string toString() const;
+		 * @return Returns the protocol info as readable string
+		 */
+		std::string toString() const;
 	};
 } // namespace pcpp
 
