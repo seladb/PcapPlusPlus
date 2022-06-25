@@ -12,7 +12,8 @@
 namespace pcpp
 {
 	/**
-	 * @struct llc_header Logical Link Control (LLC) header
+	 * @struct llc_header 
+	 * Logical Link Control (LLC) header
 	 */
 	#pragma pack(push, 1)
 	struct llc_header
@@ -27,7 +28,8 @@ namespace pcpp
 	#pragma pack(pop)
 
 	/**
-	 * @class Represents Logical Link Control layer messages
+	 * @class LLCLayer
+	 * Represents Logical Link Control layer messages
 	 */
 	class LLCLayer : public Layer
 	{
