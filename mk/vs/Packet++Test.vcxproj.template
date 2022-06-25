@@ -191,6 +191,7 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SllNullLoopbackTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SSHTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SSLTests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\StpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\TcpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\TelnetTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\VlanMplsTests.cpp" />
