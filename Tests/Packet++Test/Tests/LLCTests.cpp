@@ -21,5 +21,8 @@ PTF_TEST_CASE(LLCParsingTests)
     PTF_ASSERT_EQUAL(header->ssap, 0x42);
     PTF_ASSERT_EQUAL(header->control, 0x3);
 
+    PTF_ASSERT_NOT_NULL(llcLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(llcLayer->getNextLayer()->getProtocol(), pcpp::STP, enum);
+
     PTF_ASSERT_EQUAL(llcLayer->toString(), "Logical Link Control");
 }
