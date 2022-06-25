@@ -178,7 +178,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 5. Packet trailer (a.k.a footer or padding)
 6. PPPoE
 7. SLL (Linux cooked capture)
-8. Spanning Tree
+8. Spanning Tree - parsing only (no editing capabilities)
 9. VLAN
 10. VXLAN
 

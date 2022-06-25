@@ -12,7 +12,7 @@
 namespace pcpp
 {
 	/**
-	 * @struct llc_header Logical Link Control (LLC) header 
+	 * @struct llc_header Logical Link Control (LLC) header
 	 */
 	#pragma pack(push, 1)
 	struct llc_header
