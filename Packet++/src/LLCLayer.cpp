@@ -9,6 +9,9 @@ namespace pcpp
 
 void LLCLayer::parseNextLayer()
 {
+	if (m_DataLen <= sizeof(llc_header))
+		return;
+
 	llc_header *hdr = getLLCheader();
 	uint8_t *payload = m_Data + sizeof(llc_header);
 	size_t payloadLen = m_DataLen - sizeof(llc_header);
@@ -20,29 +23,27 @@ void LLCLayer::parseNextLayer()
 			switch (StpLayer::getStpType(payload, payloadLen))
 			{
 			case StpLayer::NotSTP:
-				break;
+				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+				return;
 			case StpLayer::ConfigurationBPDU:
 				m_NextLayer = new StpConfigurationBPDULayer((uint8_t *)payload, payloadLen, this, m_Packet);
-                break;
+				return;
 			case StpLayer::TopologyChangeBPDU:
 				m_NextLayer = new StpTopologyChangeBPDULayer((uint8_t *)payload, payloadLen, this, m_Packet);
-                break;
+				return;
 			case StpLayer::Rapid:
 				m_NextLayer = new RapidStpLayer((uint8_t *)payload, payloadLen, this, m_Packet);
-                break;
+				return;
 			case StpLayer::Multiple:
 				m_NextLayer = new MultipleStpLayer((uint8_t *)payload, payloadLen, this, m_Packet);
-                break;
+				return;
 			default:
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
-				break;
+				return;
 			}
 		}
-		else
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
-	else
-		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+	m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
 
 std::string LLCLayer::toString() const
