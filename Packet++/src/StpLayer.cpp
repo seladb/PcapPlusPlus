@@ -88,6 +88,13 @@ msti_conf_msg *MultipleStpLayer::getMstiConfMessages() const
 	return NULL;
 }
 
+std::string MultipleStpLayer::getMstConfigurationName() const
+{
+	std::string str = std::string((char *)(getMstpHeader()->mstConfigName), 32);
+	str.erase(std::find(str.begin(), str.end(), '\0'), str.end());
+	return str;
+}
+
 std::string MultipleStpLayer::toString() const
 {
 	return "Multiple Spanning Tree";

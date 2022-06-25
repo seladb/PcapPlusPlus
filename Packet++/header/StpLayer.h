@@ -247,7 +247,7 @@ namespace pcpp
 		 * Get the frame length
 		 * @return uint16_t The frame length
 		 */
-		inline uint16_t getFrameLength() const { return getStpHeader()->frameLength; }
+		inline uint16_t getFrameLength() const { return be16toh(getStpHeader()->frameLength); }
 
 		/**
 		 * Get the Logical Link Control (LLC) header
@@ -342,7 +342,7 @@ namespace pcpp
 		 * Returns the value of the cost of path
 		 * @return uint32_t Cost of path
 		 */
-		inline uint32_t getPathCost() const { return getStpConfHeader()->pathCost; }
+		inline uint32_t getPathCost() const { return be32toh(getStpConfHeader()->pathCost); }
 
 		/**
 		 * Returns the bridge ID
@@ -504,7 +504,7 @@ namespace pcpp
 		 * Returns the value of the cost of path
 		 * @return uint32_t Cost of path
 		 */
-		inline uint32_t getPathCost() const { return getRstpConfHeader()->pathCost; }
+		inline uint32_t getPathCost() const { return be32toh(getRstpConfHeader()->pathCost); }
 
 		/**
 		 * Returns the bridge ID
@@ -618,7 +618,7 @@ namespace pcpp
 		 * Returns the value of the cost of path
 		 * @return uint32_t Cost of path
 		 */
-		inline uint32_t getPathCost() const { return getMstpHeader()->pathCost; }
+		inline uint32_t getPathCost() const { return be32toh(getMstpHeader()->pathCost); }
 
 		/**
 		 * Returns the bridge ID
@@ -666,7 +666,7 @@ namespace pcpp
 		 * Returns the length of version3 field.
 		 * @return uint16_t
 		 */
-		inline uint16_t getVersion3Len() const { return getMstpHeader()->version3Len; }
+		inline uint16_t getVersion3Len() const { return be16toh(getMstpHeader()->version3Len); }
 
 		/**
 		 * Returns the configuration ID format selector
@@ -678,7 +678,7 @@ namespace pcpp
 		 * Returns the pointer to configuration name field.
 		 * @return std::string Configuration name
 		 */
-		inline std::string getMstConfigurationName() const { return std::string((char*)(getMstpHeader()->mstConfigName), 32); }
+		std::string getMstConfigurationName() const;
 
 		/**
 		 * Returns the revision of configuration ID
@@ -696,7 +696,7 @@ namespace pcpp
 		 * Returns CIST internal root path cost
 		 * @return uint32_t Value of the internal root path cost
 		 */
-		inline uint32_t getCISTIrpc() const { return getMstpHeader()->irpc; }
+		inline uint32_t getCISTIrpc() const { return be32toh(getMstpHeader()->irpc); }
 
 		/**
 		 * Returns CIST bridge ID
@@ -714,14 +714,14 @@ namespace pcpp
 		 * Returns the total number of MSTI configuration messages
 		 * @return uint8_t Number of MSTI configuration messages. Can be between 0 and 64.
 		 */
-		inline uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - 2 - 64) / sizeof(msti_conf_msg); }
+		inline uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - 64) / sizeof(msti_conf_msg); }
 
 		/**
 		 * Returns a reference to MSTI configuration messages. An MSTP packet can contain between 0 to 64 MSTI message.
 		 * The number of messages can be obtained by using getNumberOfMSTIConfMessages()
 		 * @return msti_conf_msg* An array pointer to MSTI configuration messages. Returns NULL if there is no MSTI message.
 		 */
-		inline msti_conf_msg* getMstiConfMessages() const;
+		msti_conf_msg* getMstiConfMessages() const;
 
 		// overridden methods
 
