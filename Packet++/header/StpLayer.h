@@ -64,7 +64,7 @@ namespace pcpp
 	#pragma pack(pop)
 
 	/**
-	 * @struct rstp_bpdu
+	 * @struct rstp_conf_bpdu
 	 * Represents payload configuration of BPDU for Rapid STP (RSTP)
 	 */
 	#pragma pack(push, 1)
