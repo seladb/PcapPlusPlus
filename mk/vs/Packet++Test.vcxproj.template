@@ -182,6 +182,7 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\IPSecTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\IPv4Tests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\IPv6Tests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\LLCTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\NtpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\PacketTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\PacketUtilsTests.cpp" />

@@ -16,12 +16,6 @@ PTF_TEST_CASE(StpConfigurationParsingTests)
 
 	PTF_ASSERT_NOT_NULL(stpConfLayer);
 
-	// Base StpLayer Tests
-	PTF_ASSERT_EQUAL(stpConfLayer->getSourceMac(), pcpp::MacAddress("00:1c:0e:87:85:04"));
-	PTF_ASSERT_EQUAL(stpConfLayer->getDestMac(), pcpp::StpLayer::StpMulticastDstMAC);
-	PTF_ASSERT_EQUAL(stpConfLayer->getFrameLength(), 38);
-	PTF_ASSERT_EQUAL(stpConfLayer->getLLCHeader(), 0x424203);
-
 	// Stp Configuration Layer Tests
 	PTF_ASSERT_EQUAL(stpConfLayer->getProtoId(), 0x0);
 	PTF_ASSERT_EQUAL(stpConfLayer->getVersion(), 0x0);
@@ -50,12 +44,6 @@ PTF_TEST_CASE(StpTopologyChangeParsingTests)
 
 	PTF_ASSERT_NOT_NULL(stpTopologyLayer);
 
-	// Base StpLayer Tests
-	PTF_ASSERT_EQUAL(stpTopologyLayer->getSourceMac(), pcpp::MacAddress("aa:bb:cc:00:02:00"));
-	PTF_ASSERT_EQUAL(stpTopologyLayer->getDestMac(), pcpp::StpLayer::StpMulticastDstMAC);
-	PTF_ASSERT_EQUAL(stpTopologyLayer->getFrameLength(), 7);
-	PTF_ASSERT_EQUAL(stpTopologyLayer->getLLCHeader(), 0x424203);
-
 	// Stp Topology Change Layer Tests
 	PTF_ASSERT_EQUAL(stpTopologyLayer->getProtoId(), 0x0);
 	PTF_ASSERT_EQUAL(stpTopologyLayer->getVersion(), 0x0);
@@ -75,12 +63,6 @@ PTF_TEST_CASE(RapidStpParsingTests)
 	pcpp::RapidStpLayer *stpRapidLayer = stpPacket.getLayerOfType<pcpp::RapidStpLayer>();
 
 	PTF_ASSERT_NOT_NULL(stpRapidLayer);
-
-	// Base StpLayer Tests
-	PTF_ASSERT_EQUAL(stpRapidLayer->getSourceMac(), pcpp::MacAddress("00:01:01:00:00:01"));
-	PTF_ASSERT_EQUAL(stpRapidLayer->getDestMac(), pcpp::StpLayer::StpMulticastDstMAC);
-	PTF_ASSERT_EQUAL(stpRapidLayer->getFrameLength(), 39);
-	PTF_ASSERT_EQUAL(stpRapidLayer->getLLCHeader(), 0x424203);
 
 	// Rapid Stp Layer Tests
 	PTF_ASSERT_EQUAL(stpRapidLayer->getProtoId(), 0x0);
@@ -110,12 +92,6 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 	pcpp::MultipleStpLayer *stpMultipleLayer = stpPacket.getLayerOfType<pcpp::MultipleStpLayer>();
 
 	PTF_ASSERT_NOT_NULL(stpMultipleLayer);
-
-	// Base StpLayer Tests
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getSourceMac(), pcpp::MacAddress("00:1a:a1:97:d1:85"));
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getDestMac(), pcpp::StpLayer::StpMulticastDstMAC);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getFrameLength(), 121);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getLLCHeader(), 0x424203);
 
 	// Multiple Stp Tests
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getProtoId(), 0x0);

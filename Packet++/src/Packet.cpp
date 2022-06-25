@@ -714,24 +714,6 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 
 	if (linkType == LINKTYPE_ETHERNET)
 	{
-		if (StpLayer::isDataValid(rawData, rawDataLen))
-		{
-			switch (StpLayer::getStpType(rawData, rawDataLen))
-			{
-				case StpLayer::NotSTP:
-					break;
-				case StpLayer::ConfigurationBPDU:
-					return new StpConfigurationBPDULayer((uint8_t*)rawData, rawDataLen, this);
-				case StpLayer::TopologyChangeBPDU:
-					return new StpTopologyChangeBPDULayer((uint8_t*)rawData, rawDataLen, this);
-				case StpLayer::Rapid:
-					return new RapidStpLayer((uint8_t*)rawData, rawDataLen, this);
-				case StpLayer::Multiple:
-					return new MultipleStpLayer((uint8_t*)rawData, rawDataLen, this);
-				default:
-					break;
-			}
-		}
 		if (EthLayer::isDataValid(rawData, rawDataLen))
 		{
 			return new EthLayer((uint8_t*)rawData, rawDataLen, this);

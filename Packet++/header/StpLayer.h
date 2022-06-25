@@ -13,24 +13,6 @@
 namespace pcpp
 {
 	/**
-	 * @struct stp_header
-	 * Represents an Spanning Tree Protocol header
-	 */
-	#pragma pack(push, 1)
-	struct stp_header
-	{
-		/// Destination MAC
-		uint8_t dstMac[6];
-		/// Source MAC
-		uint8_t srcMac[6];
-		/// Frame Length
-		uint16_t frameLength;
-		/// Logical Link Control (LLC) header
-		uint8_t llcHeader[3];
-	};
-	#pragma pack(pop)
-
-	/**
 	 * @struct stp_conf_bpdu
 	 * Represents payload configuration of BPDU for STP
 	 */
@@ -197,7 +179,7 @@ namespace pcpp
 	class StpLayer : public Layer
 	{
 	protected:
-		StpLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { }
+		StpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = STP; }
 
 	public:
 		/// STP protocol uses "01:80:C2:00:00:00" multicast address as destination MAC
@@ -224,36 +206,6 @@ namespace pcpp
 			// TODO: Rapid Per VLAN Spanning Tree+ (RPVST+)
 			// TODO: Cisco Uplink Fast
 		};
-
-		/**
-		 * Get a pointer to STP header
-		 * @return stp_header* A pointer to STP header
-		 */
-		inline stp_header *getStpHeader() const { return (stp_header*)m_Data; }
-
-		/**
-		 * Get the source MAC address
-		 * @return The source MAC address
-		 */
-		inline MacAddress getSourceMac() const { return MacAddress(getStpHeader()->srcMac); }
-
-		/**
-		 * Get the destination MAC address
-		 * @return The destination MAC address
-		 */
-		inline MacAddress getDestMac() const { return MacAddress(getStpHeader()->dstMac); }
-
-		/**
-		 * Get the frame length
-		 * @return uint16_t The frame length
-		 */
-		inline uint16_t getFrameLength() const { return be16toh(getStpHeader()->frameLength); }
-
-		/**
-		 * Get the Logical Link Control (LLC) header
-		 * @return uint32_t The LLC header
-		 */
-		inline uint32_t getLLCHeader() const { return (uint32_t(getStpHeader()->llcHeader[0]) << 16) | (uint32_t(getStpHeader()->llcHeader[1]) << 8) | uint32_t(getStpHeader()->llcHeader[2]); }
 
 		// overridden methods
 
@@ -298,15 +250,16 @@ namespace pcpp
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		StpConfigurationBPDULayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+		StpConfigurationBPDULayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : StpLayer(data, dataLen, prevLayer, packet) { }
 
 		/**
 		 * Get a pointer to configuration BPDU message
 		 * @return stp_conf_bpdu* A pointer to configuration BPDU message
 		 */
-		inline stp_conf_bpdu *getStpConfHeader() const { return (stp_conf_bpdu*)(m_Data + sizeof(stp_header)); }
+		inline stp_conf_bpdu *getStpConfHeader() const { return (stp_conf_bpdu*)(m_Data); }
 
 		/**
 		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
@@ -406,15 +359,16 @@ namespace pcpp
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		StpTopologyChangeBPDULayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+		StpTopologyChangeBPDULayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : StpLayer(data, dataLen, prevLayer, packet) { }
 
 		/**
 		 * Get a pointer to network topology change (TCN) BPDU message
 		 * @return stp_tcn_bpdu* A pointer to TCN BPDU message
 		 */
-		inline stp_tcn_bpdu* getStpTcnHeader() const { return (stp_tcn_bpdu*)(m_Data + sizeof(stp_header)); }
+		inline stp_tcn_bpdu* getStpTcnHeader() const { return (stp_tcn_bpdu*)(m_Data); }
 
 		/**
 		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
@@ -460,15 +414,16 @@ namespace pcpp
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		RapidStpLayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+		RapidStpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : StpLayer(data, dataLen, prevLayer, packet) { }
 
 		/**
 		 * Get a pointer to Rapid STP header
 		 * @return rstp_conf_bpdu* A pointer to Rapid STP header
 		 */
-		inline rstp_conf_bpdu *getRstpConfHeader() const { return (rstp_conf_bpdu*)(m_Data + sizeof(stp_header)); }
+		inline rstp_conf_bpdu *getRstpConfHeader() const { return (rstp_conf_bpdu*)(m_Data); }
 
 		/**
 		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
@@ -574,15 +529,16 @@ namespace pcpp
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		MultipleStpLayer(uint8_t* data, size_t dataLen, Packet* packet) : StpLayer(data, dataLen, packet) { }
+		MultipleStpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : StpLayer(data, dataLen, prevLayer, packet) { }
 
 		/**
 		 * Get a pointer to Multiple STP header
 		 * @return mstp_conf_bpdu* A pointer to Multiple STP header
 		 */
-		inline mstp_conf_bpdu* getMstpHeader() const { return (mstp_conf_bpdu*)(m_Data + sizeof(stp_header)); }
+		inline mstp_conf_bpdu* getMstpHeader() const { return (mstp_conf_bpdu*)(m_Data); }
 
 		/**
 		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
