@@ -253,5 +253,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
+	PTF_RUN_TEST(StpConfigurationParsingTests, "stp");
+	PTF_RUN_TEST(StpTopologyChangeParsingTests, "stp");
+	PTF_RUN_TEST(RapidStpParsingTests, "stp");
+	PTF_RUN_TEST(MultipleStpParsingTests, "stp");
+
 	PTF_END_RUNNING_TESTS;
 }
