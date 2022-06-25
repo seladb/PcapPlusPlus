@@ -201,6 +201,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\IPv6Extensions.h" />
     <ClInclude Include="..\..\Packet++\header\IPv6Layer.h" />
     <ClInclude Include="..\..\Packet++\header\Layer.h" />
+    <ClInclude Include="..\..\Packet++\header\LLCLayer.h" />
     <ClInclude Include="..\..\Packet++\header\MplsLayer.h" />
     <ClInclude Include="..\..\Packet++\header\NtpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\NullLoopbackLayer.h" />
@@ -250,6 +251,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\IPv6Extensions.cpp" />
     <ClCompile Include="..\..\Packet++\src\IPv6Layer.cpp" />
     <ClCompile Include="..\..\Packet++\src\Layer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\LLCLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\MplsLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\NtpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\NullLoopbackLayer.cpp" />

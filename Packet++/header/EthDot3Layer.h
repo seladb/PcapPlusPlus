@@ -3,6 +3,7 @@
 
 #include "Layer.h"
 #include "MacAddress.h"
+#include "LLCLayer.h"
 
 /// @file
 
