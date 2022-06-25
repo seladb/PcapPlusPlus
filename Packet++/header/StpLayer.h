@@ -100,7 +100,7 @@ namespace pcpp
 	#pragma pack(pop)
 
 	/**
-	 * @struct mstp_bpdu
+	 * @struct mstp_conf_bpdu
 	 * Represents payload configuration of BPDU for Multiple STP (MSTP)
 	 */
 	#pragma pack(push, 1)
