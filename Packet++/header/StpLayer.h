@@ -205,6 +205,9 @@ namespace pcpp
 		/// STP Uplink Fast protocol uses "01:00:0C:CD:CD:CD" as destination MAC
 		static pcpp::MacAddress StpUplinkFastMulticastDstMAC;
 
+		/**
+		 * Defines the type of Spanning Tree Protocol packet
+		 */
 		enum StpType
 		{
 			/// Not an STP packet
