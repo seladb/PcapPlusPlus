@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "MacAddress.h"
+#include "MacOUILookup.h"
 
 namespace pcpp
 {
@@ -41,6 +42,36 @@ void MacAddress::init(const char* addr)
 	}
 
 	m_IsValid = (i == addrLen && *addr == '\0');
+}
+
+std::string MacAddress::getVendorName()
+{
+	// First check long addresses
+	for (const auto &entry : MacVendorListLong)
+	{
+		// Get MAC address
+		uint64_t bufferAddr;
+		copyTo((uint8_t*)&bufferAddr);
+
+		// Align and mask
+		bufferAddr = bufferAddr >> 16;
+		uint64_t maskValue = ~((1 << (48 - entry.first)) - 1);
+		bufferAddr = bufferAddr & maskValue;
+		bufferAddr = bufferAddr << 16;
+
+		// Search
+		std::string searchStr = MacAddress((uint8_t*)&(bufferAddr)).toString();
+		auto itr = entry.second.find(searchStr);
+		if (itr != entry.second.end())
+			return itr->second;
+	}
+
+	// If not found search OUI list
+	std::string searchStr = toString().substr(0, 8);
+	auto itr = MacVendorListShort.find(searchStr);
+	if (itr != MacVendorListShort.end())
+		return itr->second;
+	return "Unknown Vendor";
 }
 
 } // namespace pcpp

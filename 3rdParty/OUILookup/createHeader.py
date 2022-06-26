@@ -5,7 +5,7 @@ print("Creating header from downloaded data ...")
 
 # Prepare files
 inFile = open('manuf', 'r')
-outFile = open("include/MacLookup.h", "w")
+outFile = open("include/MacOUILookup.h", "w")
 
 Lines = inFile.readlines()
 count = 0
@@ -13,8 +13,8 @@ count = 0
 # Write header definitions
 outFile.write( \
 "/***** THIS HEADER GENERATED AUTOMATICALLY PLEASE DO NOT MAKE MODIFICATIONS *****/\n\
-#ifndef PCPP_MACLOOKUP_HEADER\n\
-#define PCPP_MACLOOKUP_HEADER\n\
+#ifndef PCPP_MAC_OUI_LOOKUP_HEADER\n\
+#define PCPP_MAC_OUI_LOOKUP_HEADER\n\
 \n\
 #include <string>\n\
 #include <unordered_map>\n\
@@ -40,7 +40,7 @@ outFile.write( \
  * MAC addresses with only first three octets\n\
  * The first element is \"XX:XX:XX\" formatted MAC address and the second element is the Vendor\n\
  */\n")
-outFile.write("std::unordered_map<std::string, std::string> MacVendorListShort = {\n")
+outFile.write("static std::unordered_map<std::string, std::string> MacVendorListShort = {\n")
 
 alreadyWritten = False
 buffer = []
@@ -80,7 +80,7 @@ outFile.write( \
  * the first element will be 36, and the second element will be \"XX:XX:XX:XX:X0:00\" and vendor name. So the\n\
  * library will only search the required masks during runtime.\n\
  */\n")
-outFile.write("std::vector<std::pair<int, std::unordered_map<std::string, std::string>>> MacVendorListLong = {\n")
+outFile.write("static std::vector<std::pair<int, std::unordered_map<std::string, std::string>>> MacVendorListLong = {\n")
 
 outLines = []
 maskValues = []
@@ -122,8 +122,6 @@ indx = sorted(range(len(maskValues)), key=lambda k: maskValues[k], reverse=True)
 maskValues = [x for _, x in sorted(zip(indx, maskValues))]
 outLines = [x for _, x in sorted(zip(indx, outLines))]
 
-print(len(outLines[0]))
-print(len(outLines[1]))
 ctrIndx = 0
 for mask in maskValues:
     alreadyWritten = False
@@ -143,7 +141,7 @@ outFile.write("};\n")
 outFile.write("\n")
 
 outFile.write("} // namespace pcpp\n\n")
-outFile.write("#endif // /* PCPP_MACLOOKUP_HEADER */\n")
+outFile.write("#endif // /* PCPP_MAC_OUI_LOOKUP_HEADER */\n")
 
 inFile.close()
 outFile.close()

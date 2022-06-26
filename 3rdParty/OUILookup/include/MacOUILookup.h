@@ -1,13 +1,13 @@
 /***** THIS HEADER GENERATED AUTOMATICALLY PLEASE DO NOT MAKE MODIFICATIONS *****/
-#ifndef PCPP_MACLOOKUP_HEADER
-#define PCPP_MACLOOKUP_HEADER
+#ifndef PCPP_MAC_OUI_LOOKUP_HEADER
+#define PCPP_MAC_OUI_LOOKUP_HEADER
 
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 /// @file
-// Created at 06/26/2022, 14:54:00 UTC
+// Created at 06/26/2022, 15:15:09 UTC
 
 /**
  * \namespace pcpp
@@ -23,7 +23,7 @@ namespace pcpp
  * MAC addresses with only first three octets
  * The first element is "XX:XX:XX" formatted MAC address and the second element is the Vendor
  */
-std::unordered_map<std::string, std::string> MacVendorListShort = {
+static std::unordered_map<std::string, std::string> MacVendorListShort = {
 	{"00:00:00", "Officially Xerox, but 0:0:0:0:0:0 is more common"},
 	{"00:00:01", "Xerox Corporation"},
 	{"00:00:02", "Xerox Corporation"},
@@ -32383,7 +32383,7 @@ std::unordered_map<std::string, std::string> MacVendorListShort = {
  * the first element will be 36, and the second element will be "XX:XX:XX:XX:X0:00" and vendor name. So the
  * library will only search the required masks during runtime.
  */
-std::vector<std::pair<int, std::unordered_map<std::string, std::string>>> MacVendorListLong = {
+static std::vector<std::pair<int, std::unordered_map<std::string, std::string>>> MacVendorListLong = {
 	{
 		36,
 		{
@@ -46197,4 +46197,4 @@ std::vector<std::pair<int, std::unordered_map<std::string, std::string>>> MacVen
 
 } // namespace pcpp
 
-#endif // /* PCPP_MACLOOKUP_HEADER */
+#endif // /* PCPP_MAC_OUI_LOOKUP_HEADER */
