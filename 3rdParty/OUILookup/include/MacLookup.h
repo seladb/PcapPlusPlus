@@ -7,7 +7,7 @@
 #include <vector>
 
 /// @file
-// Created at 06/26/2022, 14:51:01 UTC
+// Created at 06/26/2022, 14:53:12 UTC
 
 /**
  * \namespace pcpp
@@ -16,7 +16,8 @@
 namespace pcpp
 {
 
-// Created from Wireshark Database at https://gitlab.com/wireshark/wireshark/-/raw/master/manuf. Many thanks to its contributors!
+// Created from Wireshark Database at https://gitlab.com/wireshark/wireshark/-/raw/master/manuf. Many thanks to its
+// contributors!
 
 /**
  * MAC addresses with only first three octets

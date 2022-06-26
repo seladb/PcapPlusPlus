@@ -30,7 +30,8 @@ outFile.write( \
 namespace pcpp\n\
 {\n\
 \n\
-// Created from Wireshark Database at https://gitlab.com/wireshark/wireshark/-/raw/master/manuf. Many thanks to its contributors!\n\
+// Created from Wireshark Database at https://gitlab.com/wireshark/wireshark/-/raw/master/manuf. Many thanks to its\n\
+// contributors!\n\
 \n")
 
 # Short MAC addresses
