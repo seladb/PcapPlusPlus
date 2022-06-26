@@ -751,6 +751,9 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 
 PTF_TEST_CASE(DnsNXDomainTest)
 {
+	timeval time;
+	gettimeofday(&time, NULL);
+	
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DNS_NXDomain.dat");
 	pcpp::Packet dnsPacket(&rawPacket1);
 	
