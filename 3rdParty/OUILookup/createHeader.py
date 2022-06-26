@@ -55,9 +55,9 @@ for line in Lines:
         line = line.replace('\"', '\\\"')
         splitted = line.split('\t')
         if len(splitted) >= 3 and len(splitted[0]) == 8:
-            buffer = "\t{\"" + splitted[0].strip() + "\", \"" + splitted[2].strip() + "\"}"
+            buffer = "\t{\"" + splitted[0].lower().strip() + "\", \"" + splitted[2].strip() + "\"}"
         elif len(splitted) == 2 and len(splitted[0]) == 8:
-            buffer = "\t{\"" + splitted[0].strip() + "\", \"" + splitted[1].strip() + "\"}"
+            buffer = "\t{\"" + splitted[0].lower().strip() + "\", \"" + splitted[1].strip() + "\"}"
         else:
             buffer = []
     except:
@@ -97,7 +97,7 @@ for line in Lines:
                     outLines.append([])
                 indx = maskValues.index(maskSplit[1])
                 # Format
-                outLines[indx].append("{\"" + maskSplit[0].strip() + "\", \"" + splitted[2].strip() + "\"}")
+                outLines[indx].append("{\"" + maskSplit[0].lower().strip() + "\", \"" + splitted[2].strip() + "\"}")
             else:
                 continue
         elif len(splitted) == 2 and len(splitted[0]) > 8 and len(splitted[0]) < 21:
@@ -109,7 +109,7 @@ for line in Lines:
                     outLines.append([])
                 indx = maskValues.index(maskSplit[1])
                 # Format
-                outLines[indx].append("{\"" + maskSplit[0].strip() + "\", \"" + splitted[1].strip() + "\"}")
+                outLines[indx].append("{\"" + maskSplit[0].lower().strip() + "\", \"" + splitted[1].strip() + "\"}")
             else:
                 continue
         else:

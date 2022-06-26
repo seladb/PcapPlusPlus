@@ -3,6 +3,7 @@
 #include "PcppTestFramework.h"
 
 // Implemented in EthAndArpTests.cpp
+PTF_TEST_CASE(MacAddressTest);
 PTF_TEST_CASE(EthPacketCreation);
 PTF_TEST_CASE(EthPacketPointerCreation);
 PTF_TEST_CASE(EthAndArpPacketParsing);

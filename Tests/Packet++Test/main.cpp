@@ -107,6 +107,7 @@ int main(int argc, char* argv[])
 
 	PTF_START_RUNNING_TESTS(userTagsInclude, userTagsExclude, configTags);
 
+	PTF_RUN_TEST(MacAddressTest, "eth2;eth");
 	PTF_RUN_TEST(EthPacketCreation, "eth2;eth");
 	PTF_RUN_TEST(EthPacketPointerCreation, "eth2;eth");
 	PTF_RUN_TEST(EthAndArpPacketParsing, "eth2;eth;arp");

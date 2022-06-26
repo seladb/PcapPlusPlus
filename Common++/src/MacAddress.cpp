@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "EndianPortable.h"
 #include "MacAddress.h"
 #include "MacOUILookup.h"
+
+#include <iostream>
 
 namespace pcpp
 {
@@ -54,13 +57,14 @@ std::string MacAddress::getVendorName()
 		copyTo((uint8_t*)&bufferAddr);
 
 		// Align and mask
-		bufferAddr = bufferAddr >> 16;
-		uint64_t maskValue = ~((1 << (48 - entry.first)) - 1);
+		bufferAddr = be64toh(bufferAddr) >> 16;
+		uint64_t maskValue = ((1 << (48 - entry.first)) - 1);
 		bufferAddr = bufferAddr & maskValue;
-		bufferAddr = bufferAddr << 16;
+		bufferAddr = htobe64(bufferAddr << 16);
 
 		// Search
 		std::string searchStr = MacAddress((uint8_t*)&(bufferAddr)).toString();
+		std::cout << searchStr << std::endl;
 		auto itr = entry.second.find(searchStr);
 		if (itr != entry.second.end())
 			return itr->second;
@@ -68,10 +72,11 @@ std::string MacAddress::getVendorName()
 
 	// If not found search OUI list
 	std::string searchStr = toString().substr(0, 8);
+	std::cout << searchStr << std::endl;
 	auto itr = MacVendorListShort.find(searchStr);
 	if (itr != MacVendorListShort.end())
 		return itr->second;
-	return "Unknown Vendor";
+	return "Unknown";
 }
 
 } // namespace pcpp

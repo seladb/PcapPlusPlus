@@ -9,6 +9,27 @@
 #include "Packet.h"
 #include "SystemUtils.h"
 
+PTF_TEST_CASE(MacAddressTest)
+{
+	pcpp::MacAddress addr1("aa:aa:aa:aa:aa:aa");
+	PTF_ASSERT_EQUAL(addr1.getVendorName(), "Unknown");
+
+	// CIDR 36
+	pcpp::MacAddress addr2("70:B3:D5:34:A0:00");
+	PTF_ASSERT_EQUAL(addr2.getVendorName(), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
+	pcpp::MacAddress addr3("70:B3:D5:34:AF:FF");
+	PTF_ASSERT_EQUAL(addr3.getVendorName(), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
+
+	// CIDR 28
+	pcpp::MacAddress addr4("f0:aC:d7:50:00:00");
+	PTF_ASSERT_EQUAL(addr4.getVendorName(), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
+	pcpp::MacAddress addr5("f0:aC:d7:5f:ff:ff");
+	PTF_ASSERT_EQUAL(addr5.getVendorName(), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
+
+	pcpp::MacAddress addr6("00:0A:35:01:01:01");
+	PTF_ASSERT_EQUAL(addr6.getVendorName(), "Xilinx");
+}
+
 PTF_TEST_CASE(EthPacketCreation)
 {
 	pcpp::MacAddress srcMac("aa:aa:aa:aa:aa:aa");
