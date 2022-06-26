@@ -1,5 +1,5 @@
-#include "Logger.h"
 #include "LineBasedProtocol.h"
+#include "Logger.h"
 
 #include <string.h>
 
@@ -9,7 +9,7 @@
 namespace pcpp
 {
 
-    size_t LineBasedProtocolMessage::getOptionOffset() const
+	size_t LineBasedProtocolMessage::getOptionOffset() const
 	{
 		size_t maxLen;
 		if (m_DataLen < 5)
@@ -118,7 +118,7 @@ namespace pcpp
 
 	bool LineBasedProtocolMessage::isMultiLine() const
 	{
-		if(m_Data[getOptionOffset()] == ASCII_HYPHEN)
+		if (m_Data[getOptionOffset()] == ASCII_HYPHEN)
 			return true;
 		return false;
 	}
