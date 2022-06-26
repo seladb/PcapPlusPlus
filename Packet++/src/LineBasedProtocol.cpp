@@ -101,7 +101,12 @@ namespace pcpp
 
 	std::string LineBasedProtocolMessage::getCommandField() const
 	{
-		return std::string((char *)m_Data, getOptionOffset());
+		size_t offset = getOptionOffset();
+
+		// If there is no option remove trailing newline characters
+		if (offset == m_DataLen && offset > 1)
+			return std::string((char *)m_Data, offset - 2);
+		return std::string((char *)m_Data, offset);
 	}
 
 	std::string LineBasedProtocolMessage::getOptionField() const
