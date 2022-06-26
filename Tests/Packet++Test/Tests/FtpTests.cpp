@@ -1,13 +1,13 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "Packet.h"
 #include "EthLayer.h"
-#include "IPv6Layer.h"
-#include "IPv4Layer.h"
-#include "TcpLayer.h"
 #include "FtpLayer.h"
+#include "IPv4Layer.h"
+#include "IPv6Layer.h"
+#include "Packet.h"
 #include "SystemUtils.h"
+#include "TcpLayer.h"
 
 PTF_TEST_CASE(FtpParsingTests)
 {
@@ -99,6 +99,7 @@ PTF_TEST_CASE(FtpCraftingTests)
 	timeval time;
 	gettimeofday(&time, NULL);
 
+	// Craft packets
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
 
 	pcpp::Packet ftpPacket1(&rawPacket1);
@@ -143,4 +144,34 @@ PTF_TEST_CASE(FtpCraftingTests)
 
 	PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(buffer2, craftedPacket2.getRawPacket()->getRawData(), bufferLength2);
+
+	// Modify existing packets
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ftpIpv4Req.dat");
+	pcpp::Packet ftpPacket3(&rawPacket3);
+	pcpp::FtpRequestLayer *ftpLayer3 = ftpPacket3.getLayerOfType<pcpp::FtpRequestLayer>();
+
+	PTF_ASSERT_NOT_NULL(ftpLayer3);
+	ftpLayer3->setCommand(pcpp::FtpRequestLayer::FEAT);
+	PTF_ASSERT_EQUAL(ftpLayer3->getCommand(), pcpp::FtpRequestLayer::FEAT);
+	PTF_ASSERT_EQUAL(ftpLayer3->getCommandOption(), "csanders");
+
+	ftpLayer3->setCommandOption(std::string("Test option"));
+	PTF_ASSERT_EQUAL(ftpLayer3->getCommand(), pcpp::FtpRequestLayer::FEAT);
+	PTF_ASSERT_EQUAL(ftpLayer3->getCommandOption(), "Test option");
+
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/ftpIpv4Resp.dat");
+
+	pcpp::Packet ftpPacket4(&rawPacket4);
+	pcpp::FtpResponseLayer *ftpLayer4 = ftpPacket4.getLayerOfType<pcpp::FtpResponseLayer>();
+
+	PTF_ASSERT_NOT_NULL(ftpLayer4);
+	ftpLayer4->setStatusCode(pcpp::FtpResponseLayer::CLOSING_DATA);
+	PTF_ASSERT_EQUAL(ftpLayer4->getStatusCode(), pcpp::FtpResponseLayer::CLOSING_DATA);
+	PTF_ASSERT_EQUAL(ftpLayer4->getStatusOption(), "CWD command successful. \"/\" is current directory.");
+	PTF_ASSERT_FALSE(ftpLayer4->isMultiLine());
+
+	ftpLayer4->setStatusOption("Test option");
+	PTF_ASSERT_EQUAL(ftpLayer4->getStatusCode(), pcpp::FtpResponseLayer::CLOSING_DATA);
+	PTF_ASSERT_EQUAL(ftpLayer4->getStatusOption(), "Test option");
+	PTF_ASSERT_FALSE(ftpLayer4->isMultiLine());
 }
