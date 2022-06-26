@@ -15,11 +15,11 @@ namespace pcpp
 	/**
 	 * Class for general FTP message
 	 */
-	class FtpMessage : public LineBasedProtocolMessage
+	class FtpLayer : public LineBasedProtocolMessage
 	{
 	protected:
-		FtpMessage(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : LineBasedProtocolMessage(data, dataLen, prevLayer, packet) {};
-		FtpMessage() {};
+		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : LineBasedProtocolMessage(data, dataLen, prevLayer, packet) {};
+		FtpLayer() {};
 
 	public:
 
@@ -31,7 +31,7 @@ namespace pcpp
 
 		// overridden methods
 
-		/// Parses the next layer. FTP is the always last so does nothing for this layer
+		/// FTP is the always last so does nothing for this layer
 		void parseNextLayer() {}
 
 		/**
@@ -43,7 +43,7 @@ namespace pcpp
 		void computeCalculateFields() {}
 
 		/**
-		 * @return The OSI layer level of Telnet (Application Layer).
+		 * @return The OSI layer level of FTP (Application Layer).
 		 */
 		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
@@ -52,7 +52,7 @@ namespace pcpp
 	/**
 	 * Class for representing the request messages of FTP Layer
 	 */
-	class FtpRequestLayer : public FtpMessage
+	class FtpRequestLayer : public FtpLayer
 	{
 	public:
 
@@ -209,7 +209,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		FtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpMessage(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
+		FtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
 
 		/**
 		 * Empty c'tor
@@ -272,7 +272,7 @@ namespace pcpp
 	/**
 	 * Class for representing the response messages of FTP Layer
 	 */
-	class FtpResponseLayer : public FtpMessage
+	class FtpResponseLayer : public FtpLayer
 	{
 	public:
 
@@ -401,7 +401,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		FtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpMessage(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
+		FtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
 
 		/**
 		 * Empty c'tor

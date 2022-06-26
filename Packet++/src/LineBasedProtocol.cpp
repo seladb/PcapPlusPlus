@@ -3,6 +3,9 @@
 
 #include <string.h>
 
+#define ASCII_HYPHEN 0x2d
+#define ASCII_SPACE 0x20
+
 namespace pcpp
 {
 
@@ -15,24 +18,24 @@ namespace pcpp
 			maxLen = 5;
 
 		// Find <SP> if exists
-		uint8_t *pos = (uint8_t *)memchr(m_Data, 0x20, maxLen);
+		uint8_t *pos = (uint8_t *)memchr(m_Data, ASCII_SPACE, maxLen);
 		if (pos)
 			return pos - m_Data;
 
 		// Find Hyphen "-" if exists
-		pos = (uint8_t *)memchr(m_Data, 0x2d, maxLen);
+		pos = (uint8_t *)memchr(m_Data, ASCII_HYPHEN, maxLen);
 		if (pos)
 			return pos - m_Data;
 
 		return m_DataLen;
 	}
 
-	void LineBasedProtocolMessage::changeDelimiter(bool toHyphen)
+	void LineBasedProtocolMessage::setDelimiter(bool hyphen)
 	{
-		if (toHyphen)
-			memset(&m_Data[getOptionOffset()], 0x2d, 1);
+		if (hyphen)
+			memset(&m_Data[getOptionOffset()], ASCII_HYPHEN, 1);
 		else
-			memset(&m_Data[getOptionOffset()], 0x20, 1);
+			memset(&m_Data[getOptionOffset()], ASCII_SPACE, 1);
 	}
 
 	bool LineBasedProtocolMessage::hyphenRequired(std::string value)
@@ -91,9 +94,9 @@ namespace pcpp
 		memcpy(&m_Data[currentOffset], value.c_str(), value.size());
 
 		if (hyphenRequired(value))
-			changeDelimiter(true);
+			setDelimiter(true);
 		else
-			changeDelimiter(false);
+			setDelimiter(false);
 	}
 
 	std::string LineBasedProtocolMessage::getCommandField() const
@@ -110,7 +113,7 @@ namespace pcpp
 
 	bool LineBasedProtocolMessage::isMultiLine() const
 	{
-		if(m_Data[getOptionOffset()] == 0x2d)
+		if(m_Data[getOptionOffset()] == ASCII_HYPHEN)
 			return true;
 		return false;
 	}

@@ -19,7 +19,7 @@ namespace pcpp
 	{
 	private:
 		size_t getOptionOffset() const;
-		void changeDelimiter(bool toHyphen);
+		void setDelimiter(bool hyphen);
 		bool hyphenRequired(std::string value);
 
 	protected:
@@ -35,7 +35,7 @@ namespace pcpp
 	public:
 
 		/**
-		 * Checks if the current message is a multi-line reply. Multi-line messages are indicatied with a Hyphen (-) immediately after reply code.
+		 * Checks if the current message is a multi-line reply. Multi-line messages are indicated with a Hyphen (-) immediately after reply code.
 		 * @return true If this is a multi-line reply
 		 * @return false Otherwise
 		 */
