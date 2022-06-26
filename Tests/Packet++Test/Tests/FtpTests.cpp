@@ -9,11 +9,12 @@
 #include "FtpLayer.h"
 #include "SystemUtils.h"
 
-PTF_TEST_CASE(FtpParsingIpv4Tests)
+PTF_TEST_CASE(FtpParsingTests)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
 
+	// Test IPv4 packets
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
 
 	pcpp::Packet ftpPacket1(&rawPacket1);
@@ -59,40 +60,35 @@ PTF_TEST_CASE(FtpParsingIpv4Tests)
 
 	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::SYSTEM_STATUS),
 					 "System status, or system help reply");
-}
 
-PTF_TEST_CASE(FtpParsingIpv6Tests)
-{
-	timeval time;
-	gettimeofday(&time, NULL);
+	// Test IPv6 packets
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/ftpIpv6Req.dat");
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv6Req.dat");
+	pcpp::Packet ftpPacket4(&rawPacket4);
+	pcpp::FtpRequestLayer *ftpLayer4 = ftpPacket4.getLayerOfType<pcpp::FtpRequestLayer>();
 
-	pcpp::Packet ftpPacket1(&rawPacket1);
-	pcpp::FtpRequestLayer *ftpLayer1 = ftpPacket1.getLayerOfType<pcpp::FtpRequestLayer>();
-
-	PTF_ASSERT_NOT_NULL(ftpLayer1);
-	PTF_ASSERT_EQUAL(ftpLayer1->getCommand(), pcpp::FtpRequestLayer::PASS);
-	PTF_ASSERT_EQUAL(ftpLayer1->getCommandString(), "PASS");
-	PTF_ASSERT_EQUAL(ftpLayer1->getCommandOption(), "IEUser@");
-	PTF_ASSERT_EQUAL(ftpLayer1->toString(), "FTP Request: PASS");
-	PTF_ASSERT_FALSE(ftpLayer1->isMultiLine());
+	PTF_ASSERT_NOT_NULL(ftpLayer4);
+	PTF_ASSERT_EQUAL(ftpLayer4->getCommand(), pcpp::FtpRequestLayer::PASS);
+	PTF_ASSERT_EQUAL(ftpLayer4->getCommandString(), "PASS");
+	PTF_ASSERT_EQUAL(ftpLayer4->getCommandOption(), "IEUser@");
+	PTF_ASSERT_EQUAL(ftpLayer4->toString(), "FTP Request: PASS");
+	PTF_ASSERT_FALSE(ftpLayer4->isMultiLine());
 
 	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandInfoAsString(pcpp::FtpRequestLayer::PASS),
 					 "Authentication password.");
 	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandAsString(pcpp::FtpRequestLayer::PASS), "PASS");
 
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ftpIpv6Resp.dat");
+	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/ftpIpv6Resp.dat");
 
-	pcpp::Packet ftpPacket2(&rawPacket2);
-	pcpp::FtpResponseLayer *ftpLayer2 = ftpPacket2.getLayerOfType<pcpp::FtpResponseLayer>();
+	pcpp::Packet ftpPacket5(&rawPacket5);
+	pcpp::FtpResponseLayer *ftpLayer5 = ftpPacket5.getLayerOfType<pcpp::FtpResponseLayer>();
 
-	PTF_ASSERT_NOT_NULL(ftpLayer2);
-	PTF_ASSERT_EQUAL(ftpLayer2->getStatusCode(), pcpp::FtpResponseLayer::COMMAND_NOT_IMPLEMENTED);
-	PTF_ASSERT_EQUAL(ftpLayer2->getStatusCodeString(), "502");
-	PTF_ASSERT_EQUAL(ftpLayer2->getStatusOption(), "Unknown command 'utf8'.");
-	PTF_ASSERT_EQUAL(ftpLayer2->toString(), "FTP Response: 502");
-	PTF_ASSERT_FALSE(ftpLayer2->isMultiLine());
+	PTF_ASSERT_NOT_NULL(ftpLayer5);
+	PTF_ASSERT_EQUAL(ftpLayer5->getStatusCode(), pcpp::FtpResponseLayer::COMMAND_NOT_IMPLEMENTED);
+	PTF_ASSERT_EQUAL(ftpLayer5->getStatusCodeString(), "502");
+	PTF_ASSERT_EQUAL(ftpLayer5->getStatusOption(), "Unknown command 'utf8'.");
+	PTF_ASSERT_EQUAL(ftpLayer5->toString(), "FTP Response: 502");
+	PTF_ASSERT_FALSE(ftpLayer5->isMultiLine());
 
 	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::COMMAND_NOT_IMPLEMENTED),
 					 "Command not implemented");
