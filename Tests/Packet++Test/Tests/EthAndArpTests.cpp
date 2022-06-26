@@ -22,9 +22,9 @@ PTF_TEST_CASE(MacAddressTest)
 
 	// CIDR 28
 	pcpp::MacAddress addr4("f0:aC:d7:50:00:00");
-	PTF_ASSERT_EQUAL(addr4.getVendorName(), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
+	PTF_ASSERT_EQUAL(addr4.getVendorName(), "Pavo Tasarim Uretim Ticaret A.S.");
 	pcpp::MacAddress addr5("f0:aC:d7:5f:ff:ff");
-	PTF_ASSERT_EQUAL(addr5.getVendorName(), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
+	PTF_ASSERT_EQUAL(addr5.getVendorName(), "Pavo Tasarim Uretim Ticaret A.S.");
 
 	pcpp::MacAddress addr6("00:0A:35:01:01:01");
 	PTF_ASSERT_EQUAL(addr6.getVendorName(), "Xilinx");
