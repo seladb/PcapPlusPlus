@@ -748,3 +748,13 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 	PTF_ASSERT_EQUAL(bufferLength1, dnsPacket.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(dnsPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
 } // DnsOverTcpCreationTest
+
+PTF_TEST_CASE(DnsNXDomainTest)
+{
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DNS_NXDomain.dat");
+	pcpp::Packet dnsPacket(&rawPacket1);
+	
+	pcpp::DnsLayer* dnsLayer = dnsPacket.getLayerOfType<pcpp::DnsLayer>();
+	
+	PTF_ASSERT_EQUAL(1, dnsLayer->getDnsHeader()->queryOrResponse);
+}
