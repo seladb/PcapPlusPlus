@@ -4,24 +4,21 @@ from datetime import timezone
 print("Creating header from downloaded data ...")
 
 # Prepare files
-inFile = open('manuf', 'r')
-outFile = open("include/MacOUILookup.h", "w")
+inFile = open("manuf.dat", "r")
+outFile = open("../../Common++/src/MacOUILookup.cpp", "w")
 
 Lines = inFile.readlines()
 count = 0
 
 # Write header definitions
-outFile.write( \
-"/***** THIS HEADER GENERATED AUTOMATICALLY PLEASE DO NOT MAKE MODIFICATIONS *****/\n\
-#ifndef PCPP_MAC_OUI_LOOKUP_HEADER\n\
-#define PCPP_MAC_OUI_LOOKUP_HEADER\n\
-\n\
-#include <string>\n\
-#include <unordered_map>\n\
-#include <vector>\n\
-\n\
+outFile.write(
+    '/***** THIS FILE GENERATED AUTOMATICALLY PLEASE DO NOT MAKE MODIFICATIONS *****/\n\
+#include "MacOUILookup.h"\
+\n\n\
 /// @file\n\
-// Created at " + datetime.now(timezone.utc).strftime("%m/%d/%Y, %H:%M:%S") + " UTC\n\
+// Created at '
+    + datetime.now(timezone.utc).strftime("%m/%d/%Y, %H:%M:%S")
+    + " UTC\n\
 \n\
 /**\n\
  * \\namespace pcpp\n\
@@ -32,15 +29,11 @@ namespace pcpp\n\
 \n\
 // Created from Wireshark Database at https://gitlab.com/wireshark/wireshark/-/raw/master/manuf. Many thanks to its\n\
 // contributors!\n\
-\n")
+\n"
+)
 
 # Short MAC addresses
-outFile.write( \
-"/**\n\
- * MAC addresses with only first three octets\n\
- * The first element is \"XX:XX:XX\" formatted MAC address and the second element is the Vendor\n\
- */\n")
-outFile.write("static std::unordered_map<std::string, std::string> MacVendorListShort = {\n")
+outFile.write("std::unordered_map<std::string, std::string> MacVendorListShort = {\n")
 
 alreadyWritten = False
 buffer = []
@@ -52,12 +45,24 @@ for line in Lines:
             outFile.write(buffer)
             alreadyWritten = True
             count += 1
-        line = line.replace('\"', '\\\"')
-        splitted = line.split('\t')
+        line = line.replace('"', '\\"')
+        splitted = line.split("\t")
         if len(splitted) >= 3 and len(splitted[0]) == 8:
-            buffer = "\t{\"" + splitted[0].lower().strip() + "\", \"" + splitted[2].strip() + "\"}"
+            buffer = (
+                '\t{"'
+                + splitted[0].lower().strip()
+                + '", "'
+                + splitted[2].strip()
+                + '"}'
+            )
         elif len(splitted) == 2 and len(splitted[0]) == 8:
-            buffer = "\t{\"" + splitted[0].lower().strip() + "\", \"" + splitted[1].strip() + "\"}"
+            buffer = (
+                '\t{"'
+                + splitted[0].lower().strip()
+                + '", "'
+                + splitted[1].strip()
+                + '"}'
+            )
         else:
             buffer = []
     except:
@@ -72,44 +77,50 @@ outFile.write("};\n")
 outFile.write("\n")
 
 # Long MAC addresses (with mask)
-outFile.write( \
-"/**\n\
- * Full MAC addresses (with mask)\n\
- * Every element of vector holds a different mask. The first element of the pair holds the value of mask and\n\
- * the second one is the MAC address list for this mask. For example for a MAC address \"XX:XX:XX:XX:X0:00/36\"\n\
- * the first element will be 36, and the second element will be \"XX:XX:XX:XX:X0:00\" and vendor name. So the\n\
- * library will only search the required masks during runtime.\n\
- */\n")
-outFile.write("static std::vector<std::pair<int, std::unordered_map<std::string, std::string>>> MacVendorListLong = {\n")
+outFile.write(
+    "std::vector<std::pair<int, std::unordered_map<std::string, std::string>>> MacVendorListLong = {\n"
+)
 
 outLines = []
 maskValues = []
 for line in Lines:
     try:
-        line = line.replace('\"', '\\\"')
-        splitted = line.split('\t')
+        line = line.replace('"', '\\"')
+        splitted = line.split("\t")
         if len(splitted) >= 3 and len(splitted[0]) > 8 and len(splitted[0]) < 21:
             # Process mask
-            maskSplit = splitted[0].split('/')
-            if (len(maskSplit) == 2):
+            maskSplit = splitted[0].split("/")
+            if len(maskSplit) == 2:
                 if maskSplit[1] not in maskValues:
                     maskValues.append(maskSplit[1])
                     outLines.append([])
                 indx = maskValues.index(maskSplit[1])
                 # Format
-                outLines[indx].append("{\"" + maskSplit[0].lower().strip() + "\", \"" + splitted[2].strip() + "\"}")
+                outLines[indx].append(
+                    '{"'
+                    + maskSplit[0].lower().strip()
+                    + '", "'
+                    + splitted[2].strip()
+                    + '"}'
+                )
             else:
                 continue
         elif len(splitted) == 2 and len(splitted[0]) > 8 and len(splitted[0]) < 21:
             # Process mask
-            maskSplit = splitted[0].split('/')
-            if (len(maskSplit) == 2):
+            maskSplit = splitted[0].split("/")
+            if len(maskSplit) == 2:
                 if maskSplit[1] not in maskValues:
                     maskValues.append(maskSplit[1])
                     outLines.append([])
                 indx = maskValues.index(maskSplit[1])
                 # Format
-                outLines[indx].append("{\"" + maskSplit[0].lower().strip() + "\", \"" + splitted[1].strip() + "\"}")
+                outLines[indx].append(
+                    '{"'
+                    + maskSplit[0].lower().strip()
+                    + '", "'
+                    + splitted[1].strip()
+                    + '"}'
+                )
             else:
                 continue
         else:
@@ -141,7 +152,6 @@ outFile.write("};\n")
 outFile.write("\n")
 
 outFile.write("} // namespace pcpp\n\n")
-outFile.write("#endif // /* PCPP_MAC_OUI_LOOKUP_HEADER */\n")
 
 inFile.close()
 outFile.close()
