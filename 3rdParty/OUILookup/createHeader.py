@@ -151,7 +151,7 @@ for mask in maskValues:
 outFile.write("};\n")
 outFile.write("\n")
 
-outFile.write("} // namespace pcpp\n\n")
+outFile.write("} // namespace pcpp\n")
 
 inFile.close()
 outFile.close()

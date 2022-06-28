@@ -5,6 +5,7 @@ extend-exclude = [  "*.toml",
                     "ci/",
                     "Dist/",
                     "mk/",
+                    "Common++/src/MacOUILookup.cpp"
                  ]
 
 [default.extend-identifiers]
