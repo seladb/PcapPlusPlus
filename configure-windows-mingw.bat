@@ -25,7 +25,7 @@ if "%1" NEQ "" (
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
 
 :: verify that both variables MINGW_HOME, PCAP_SDK_HOME, MSYS_HOME are set
-if "%MINGW_HOME%"=="" echo MinGW directory was not provided. Exiting & exit /B 1
+if "%MINGW_HOME%"=="" echo %MINGW_TYPE% directory was not provided. Exiting & exit /B 1
 if "%MSYS_HOME%"=="" echo MSYS2 directory was not provided. Exiting & exit /B 1
 if "%PCAP_SDK_HOME%"=="" echo WinPcap/Npcap SDK directory was not provided. Exiting & exit /B 1
 
@@ -135,7 +135,7 @@ goto GETOPT_START
 	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
 	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
 	:: verify the MinGW dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
-	if not exist %2\ call :GETOPT_ERROR "MinGW directory '%2' does not exist" & exit /B 3
+	if not exist %2\ call :GETOPT_ERROR "%MINGW_TYPE% directory '%2' does not exist" & exit /B 3
 	:: if all went well, set the MINGW_HOME variable with the directory given by the user
 	set MINGW_HOME=%2
 	:: notify GETOPT this switch has a parameter
