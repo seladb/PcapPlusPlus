@@ -390,7 +390,7 @@ std::string DnsLayer::toString() const
 	std::ostringstream additionalCount;
 	additionalCount << getAdditionalRecordCount();
 
-	if (getAnswerCount() > 0)
+	if (getDnsHeader()->queryOrResponse == 1)
 	{
 		return "DNS query response, ID: " + tidAsString.str() + ";" +
 				" queries: " + queryCount.str() +
@@ -398,7 +398,7 @@ std::string DnsLayer::toString() const
 				", authorities: " + authorityCount.str() +
 				", additional record: " + additionalCount.str();
 	}
-	else if (getQueryCount() > 0)
+	else if (getDnsHeader()->queryOrResponse == 0)
 	{
 		return "DNS query, ID: " + tidAsString.str() + ";" +
 				" queries: " + queryCount.str() +
