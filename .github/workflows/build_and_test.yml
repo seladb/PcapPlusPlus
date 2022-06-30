@@ -250,7 +250,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
-        run: ./configure-windows-mingw.bat mingw-w64 -m  /${{ matrix.sys }} -w ${{ env.PCAP_SDK_DIR }} -s .
+        run: ./configure-windows-mingw.bat -m /${{ matrix.sys }} -w ${{ env.PCAP_SDK_DIR }} -s .
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
