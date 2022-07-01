@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleSomeIpLayer
 
 #include "SomeIpLayer.h"
+#include "SomeIpSdLayer.h"
 #include "Packet.h"
 #include "PayloadLayer.h"
 #include "EndianPortable.h"
@@ -34,7 +35,7 @@ SomeIpLayer::SomeIpLayer(uint16_t serviceID, uint16_t methodID, uint16_t clientI
 
 	setServiceID(serviceID);
 	setMethodID(methodID);
-	setPayloadLength(dataLen);
+	setPayloadLength((uint32_t)dataLen);
 	setClientID(clientID);
 	setSessionID(sessionID);
 	setProtocolVersion(0x01);
@@ -78,9 +79,9 @@ Layer* SomeIpLayer::parseSomeIpLayer(uint8_t *data, size_t dataLen, Layer* prevL
 		return new PayloadLayer(data, dataLen, prevLayer, packet);
 	}
 
-	if (hdr->serviceID == 0xFFFF && hdr->methodID == 0x8100)
+	if (be16toh(hdr->serviceID) == 0xFFFF && be16toh(hdr->methodID) == 0x8100)
 	{
-		return new PayloadLayer(data, dataLen, prevLayer, packet); // TODO: impl SomeIpSdLayer()
+		return new SomeIpSdLayer(data, dataLen, prevLayer, packet);
 	}
 	else if ((hdr->msgType & (uint8_t)SomeIpLayer::MsgType::TP_REQUEST) != 0)
 	{
@@ -94,7 +95,8 @@ Layer* SomeIpLayer::parseSomeIpLayer(uint8_t *data, size_t dataLen, Layer* prevL
 
 bool SomeIpLayer::isSomeIpPort(uint16_t port)
 {
-	return std::any_of(m_SomeIpPorts.begin(), m_SomeIpPorts.end(),
+	return SomeIpSdLayer::isSomeIpSdPort(port) ||
+		   std::any_of(m_SomeIpPorts.begin(), m_SomeIpPorts.end(),
 					   [&](const uint16_t &someIpPort) { return someIpPort == port; });
 }
 
@@ -228,7 +230,7 @@ uint8_t SomeIpLayer::getMessageTypeAsInt() const
 
 void SomeIpLayer::setMessageType(MsgType type)
 {
-	setMessageType((uint8_t)type);
+	setMessageType(static_cast<uint8_t>(type));
 }
 
 void SomeIpLayer::setMessageType(uint8_t type)
@@ -295,7 +297,7 @@ SomeIpTpLayer::SomeIpTpLayer(uint16_t serviceID, uint16_t methodID, uint16_t cli
 
 	setServiceID(serviceID);
 	setMethodID(methodID);
-	setPayloadLength(dataLen + sizeof(uint32_t));
+	setPayloadLength((uint32_t)(dataLen + sizeof(uint32_t)));
 	setClientID(clientID);
 	setSessionID(sessionID);
 	setProtocolVersion(0x01);
