@@ -96,7 +96,7 @@ MacAddress NDPNeighborAdvertisementLayer::getTargetMac() const
 {
 	if (!hasTargetMacInfo())
 	{
-		return MacAddress();
+		return MacAddress::Zero;
 	}
 
 	ndpoptionlinklayer *option =
@@ -148,7 +148,7 @@ MacAddress NDPNeighborSolicitationLayer::getLinkLayerAddress() const
 {
 	if (!hasLinkLayerAddress())
 	{
-		return MacAddress();
+		return MacAddress::Zero;
 	}
 
 	ndpoptionlinklayer *option =
