@@ -35,44 +35,79 @@ struct icmpv6hdr
  */
 enum ICMPv6MessageTypes
 {
-	/* ICMPv6 Error Messages */
+	/** Destination Unreachable Message */
 	ICMPv6_DESTINATION_UNREACHABLE = 1,
+	/** Packet Too Big Message */
 	ICMPv6_PACKET_TOO_BIG = 2,
+	/** Time Exceeded Message */
 	ICMPv6_TIME_EXCEEDED = 3,
+	/** Parameter Problem Message */
 	ICMPv6_PARAMETER_PROBLEM = 4,
+	/** Private Experimentation Message */
 	ICMPv6_PRIVATE_EXPERIMENTATION1 = 100,
+	/** Private Experimentation Message */
 	ICMPv6_PRIVATE_EXPERIMENTATION2 = 101,
+	/** Reserved for expansion of ICMPv6 error messages */
 	ICMPv6_RESERVED_EXPANSION_ERROR = 127,
-
-	/* ICMPv6 Informational Messages */
+	/** Echo Request Message */
 	ICMPv6_ECHO_REQUEST = 128,
+	/** Echo Reply Message */
 	ICMPv6_ECHO_REPLY = 129,
+	/** Multicast Listener Query Message */
 	ICMPv6_MULTICAST_LISTENER_QUERY = 130,
+	/** Multicast Listener Report Message */
 	ICMPv6_MULTICAST_LISTENER_REPORT = 131,
+	/** Multicast Listener Done Message */
 	ICMPv6_MULTICAST_LISTENER_DONE = 132,
+	/** Router Solicitation Message */
 	ICMPv6_ROUTER_SOLICITATION = 133,
+	/** Router Advertisement Message */
 	ICMPv6_ROUTER_ADVERTISEMENT = 134,
+	/** Neighbor Solicitation Message */
 	ICMPv6_NEIGHBOR_SOLICITATION = 135,
+	/** Neighbor Advertisement Message */
 	ICMPv6_NEIGHBOR_ADVERTISEMENT = 136,
+	/** Redirect Message */
 	ICMPv6_REDIRECT_MESSAGE = 137,
+	/** Router Renumbering Message */
 	ICMPv6_ROUTER_RENUMBERING = 138,
+	/** Node Information Query Message */
 	ICMPv6_ICMP_NODE_INFORMATION_QUERY = 139,
+	/** Node Information Reply Message*/
 	ICMPv6_ICMP_NODE_INFORMATION_RESPONSE = 140,
+	/** Inverse Neighbor Discovery Solicitation Message */
 	ICMPv6_INVERSE_NEIGHBOR_DISCOVERY_SOLICITATION_MESSAGE = 141,
+	/** Inverse Neighbor Discovery Advertisement Message */
 	ICMPv6_INVERSE_NEIGHBOR_DISCOVERY_ADVERTISEMENT_MESSAGE = 142,
+	/** Multicast Listener Report Message */
 	ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS = 143,
+	/** Home Agent Address Discovery Request Message */
 	ICMPv6_HOME_AGENT_ADDRESS_DISCOVERY_REQUEST_MESSAGE = 144,
+	/** Home Agent Address Discovery Reply Message */
 	ICMPv6_HOME_AGENT_ADDRESS_DISCOVERY_REPLY_MESSAGE = 145,
+	/** Mobile Prefix Solicitation Message */
 	ICMPv6_MOBILE_PREFIX_SOLICITATION = 146,
+	/** Mobile Prefix Advertisement Message */
 	ICMPv6_MOBILE_PREFIX_ADVERTISEMENT = 147,
+	/** Certification Path Solicitation Message */
 	ICMPv6_CERTIFICATION_PATH_SOLICITATION = 148,
+	/** Certification Path Advertisement Message */
 	ICMPv6_CERTIFICATION_PATH_ADVERTISEMENT = 149,
+	/** ICMP Experimental Mobility Subtype Format and Registry Message */
+	ICMPv6_EXPERIMENTAL_MOBILITY = 150,
+	/** Multicast Router Advertisement Message */
 	ICMPv6_MULTICAST_ROUTER_ADVERTISEMENT = 151,
+	/** Multicast Router Solicitation Message */
 	ICMPv6_MULTICAST_ROUTER_SOLICITATION = 152,
+	/** Multicast Router Termination Message*/
 	ICMPv6_MULTICAST_ROUTER_TERMINATION = 153,
+	/** RPL Control Message */
 	ICMPv6_RPL_CONTROL_MESSAGE = 155,
+	/** Private Experimentation Message */
 	ICMPv6_PRIVATE_EXPERIMENTATION3 = 200,
+	/** Private Experimentation Message */
 	ICMPv6_PRIVATE_EXPERIMENTATION4 = 201,
+	/** Reserved for expansion of ICMPv6 informational messages */
 	ICMPv6_RESERVED_EXPANSION_INFORMATIONAL = 255
 };
 
