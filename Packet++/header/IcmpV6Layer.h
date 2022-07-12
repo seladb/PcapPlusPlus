@@ -19,8 +19,7 @@ namespace pcpp
 #pragma pack(push, 1)
 struct icmpv6hdr
 {
-	/** Type of the message
-	Values in the range from 0 to 127 (high-order bit is 0) indicate an error message,
+	/** Type of the message. Values in the range from 0 to 127 (high-order bit is 0) indicate an error message,
 	while values in the range from 128 to 255 (high-order bit is 1) indicate an information message. */
 	uint8_t type;
 	/** The code field value depends on the message type and provides an additional level of message granularity */
@@ -33,7 +32,7 @@ struct icmpv6hdr
 /**
  * An enum representing the available ICMPv6 message types
  */
-enum ICMPv6MessageTypes
+enum ICMPv6MessageType
 {
 	/** Destination Unreachable Message */
 	ICMPv6_DESTINATION_UNREACHABLE = 1,
@@ -112,6 +111,40 @@ enum ICMPv6MessageTypes
 };
 
 /**
+ * @struct icmpv6_echo_hdr
+ * ICMP echo request/reply message structure
+ */
+#pragma pack(push, 1)
+typedef struct icmpv6_echo_hdr : icmpv6hdr
+{
+	/** the echo request identifier */
+	uint16_t id;
+	/** the echo request sequence number */
+	uint16_t sequence;
+} icmpv6_echo_hdr;
+#pragma pack(pop)
+
+/**
+ * @struct icmpv6_echo_request
+ * ICMPv6 echo request/reply message structure
+ */
+typedef struct icmpv6_echo_request
+{
+	/** a pointer to the header data */
+	icmpv6_echo_hdr *header;
+	/** most echo requests/replies contain some payload data. This is the data length */
+	size_t dataLength;
+	/** most echo requests/replies contain some payload data. This is a pointer to this data */
+	uint8_t *data;
+} icmpv6_echo_request;
+
+/**
+ * @typedef icmpv6_echo_reply
+ * ICMPv6 echo reply message structure, same as icmpv6_echo_request
+ */
+typedef icmpv6_echo_request icmpv6_echo_reply;
+
+/**
  * @class IcmpV6Layer
  * Represents an ICMPv6 protocol layer
  */
@@ -132,43 +165,45 @@ class IcmpV6Layer : public Layer
 	}
 
 	/**
+	 * An empty constructor that creates a new layer with an empty ICMPv6 header without setting the ICMPv6 type or
+	 * ICMPv6 data. Call the set*Data() methods to set ICMPv6 type and data
+	 */
+	IcmpV6Layer();
+
+	/**
 	 * A constructor that allocates a new ICMPv6 header
 	 * @param[in] type Message type ICMPv6
 	 * @param[in] code Code field
 	 */
-	IcmpV6Layer(ICMPv6MessageTypes type, uint8_t code);
+	IcmpV6Layer(ICMPv6MessageType type, uint8_t code);
 
-	virtual ~IcmpV6Layer() {}
+	virtual ~IcmpV6Layer()
+	{
+	}
 
 	/**
 	 * Get a pointer to the basic ICMPv6 header. Notice this points directly to the data, so every change will change
 	 * the actual packet data
 	 * @return A pointer to the @ref icmpv6hdr
 	 */
-	icmpv6hdr *getIcmpv6Header() const { return (icmpv6hdr *)m_Data; }
-
-	/**
-	 * @return The length of the ICMPv6 header
-	 */
-	size_t getHeaderLen() const
+	icmpv6hdr *getIcmpv6Header() const
 	{
-		return sizeof(icmpv6hdr);
+		return (icmpv6hdr *)m_Data;
 	}
 
 	/**
-	 * Identifies next layer and tries to create it
+	 * @param[in] type Type to check
+	 * @return True if the layer if of the given type, false otherwise
 	 */
-	void parseNextLayer();
+	bool isMessageOfType(ICMPv6MessageType type) const
+	{
+		return getMessageType() == type;
+	}
 
 	/**
-	 * @return Get the Message Type
+	 * @return Get the ICMPv6 Message Type
 	 */
-	ICMPv6MessageTypes getMessageType() const;
-
-	/**
-	 * @return Get the checksum header field in host representation
-	 */
-	uint16_t getChecksum() const;
+	ICMPv6MessageType getMessageType() const;
 
 	/**
 	 * @return Get the code header field
@@ -176,13 +211,41 @@ class IcmpV6Layer : public Layer
 	uint8_t getCode() const;
 
 	/**
-	 * Calculate ICMPv6 checksum field
+	 * @return Get the checksum header field in host representation
 	 */
-	void computeCalculateFields();
+	uint16_t getChecksum() const;
 
-	std::string toString() const;
+	/**
+	 * @return ICMP echo request data. If the layer isn't of type ICMP echo request NULL is returned
+	 */
+	icmpv6_echo_request *getEchoRequestData();
 
-	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+	/**
+	 * Set echo request message data
+	 * @param[in] id Echo request identifier
+	 * @param[in] sequence Echo request sequence
+	 * @param[in] data A pointer to echo request payload to set
+	 * @param[in] dataLen The length of the echo request payload
+	 * @return A pointer to the echo request data that have been set or NULL if something went wrong
+	 * (an appropriate error log is printed in such cases)
+	 */
+	icmpv6_echo_request *setEchoRequestData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
+
+	/**
+	 * @return ICMPv6 echo reply data. If the layer isn't of type ICMPv6 echo reply NULL is returned
+	 */
+	icmpv6_echo_reply *getEchoReplyData();
+
+	/**
+	 * Set echo reply message data
+	 * @param[in] id Echo reply identifier
+	 * @param[in] sequence Echo reply sequence
+	 * @param[in] data A pointer to echo reply payload to set
+	 * @param[in] dataLen The length of the echo reply payload
+	 * @return A pointer to the echo reply data that have been set or NULL if something went wrong
+	 * (an appropriate error log is printed in such cases)
+	 */
+	icmpv6_echo_reply *setEchoReplyData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 
 	/**
 	 * A static method that validates the input data
@@ -192,7 +255,33 @@ class IcmpV6Layer : public Layer
 	 */
 	static bool isDataValid(const uint8_t *data, size_t dataLen);
 
+	/**
+	 * Identifies next layer and tries to create it
+	 */
+	void parseNextLayer();
+
+	/**
+	 * @return The length of the ICMPv6 header
+	 */
+	size_t getHeaderLen() const;
+
+	/**
+	 * Calculate ICMPv6 checksum field
+	 */
+	void computeCalculateFields();
+
+	std::string toString() const;
+
+	OsiModelLayer getOsiModelLayer() const
+	{
+		return OsiModelNetworkLayer;
+	}
+
   private:
+	icmpv6_echo_request m_EchoData;
+	bool cleanIcmpLayer();
+	bool setEchoData(ICMPv6MessageType echoType, uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
+
 	void calculateChecksum();
 };
 

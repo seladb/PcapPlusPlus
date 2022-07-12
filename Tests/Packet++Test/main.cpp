@@ -254,6 +254,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
 	PTF_RUN_TEST(IcmpV6Parsing, "icmpv6");
+	PTF_RUN_TEST(IcmpV6CreationTest, "icmpv6");
 	PTF_RUN_TEST(IcmpV6Crafting, "icmpv6");
 	PTF_RUN_TEST(IcmpV6SolicitationParsing, "icmpv6");
 	PTF_RUN_TEST(IcmpV6SolicitationCrafting, "icmpv6");
