@@ -6,15 +6,9 @@ namespace pcpp
 {
 
 	// ----------------- Class FtpRequestLayer -----------------
-	FtpRequestLayer::FtpRequestLayer()
+	bool FtpRequestLayer::setCommand(FtpCommand code)
 	{
-		m_Data = NULL;
-		m_DataLen = 0;
-	}
-
-	void FtpRequestLayer::setCommand(FtpCommand code)
-	{
-		setCommandInternal(getCommandAsString(code));
+		return setCommandInternal(getCommandAsString(code));
 	}
 
 	FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const
@@ -33,9 +27,9 @@ namespace pcpp
 		return getCommandInternal();
 	}
 
-	void FtpRequestLayer::setCommandOption(std::string value)
+	bool FtpRequestLayer::setCommandOption(std::string value)
 	{
-		setCommandOptionInternal(value);
+		return setCommandOptionInternal(value);
 	}
 
 	std::string FtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const
@@ -221,17 +215,11 @@ namespace pcpp
 	}
 
 	// ----------------- Class FtpResponseLayer -----------------
-	FtpResponseLayer::FtpResponseLayer()
-	{
-		m_Data = NULL;
-		m_DataLen = 0;
-	}
-
-	void FtpResponseLayer::setStatusCode(FtpStatusCode code)
+	bool FtpResponseLayer::setStatusCode(FtpStatusCode code)
 	{
 		std::ostringstream oss;
 		oss << code;
-		setCommandInternal(oss.str());
+		return setCommandInternal(oss.str());
 	}
 
 	FtpResponseLayer::FtpStatusCode FtpResponseLayer::getStatusCode() const
@@ -244,9 +232,9 @@ namespace pcpp
 		return getCommandInternal();
 	}
 
-	void FtpResponseLayer::setStatusOption(std::string value)
+	bool FtpResponseLayer::setStatusOption(std::string value)
 	{
-		setCommandOptionInternal(value);
+		return setCommandOptionInternal(value);
 	}
 
 	std::string FtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const

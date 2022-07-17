@@ -42,32 +42,43 @@ namespace pcpp
 	{
 		size_t firstPos = value.find_first_of("\r\n");
 		size_t lastPos = value.find_last_of("\r\n");
-
 		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos - 1);
 	}
 
-	void SingleCommandTextProtocol::setCommandInternal(std::string value)
+	SingleCommandTextProtocol::SingleCommandTextProtocol(std::string &command, std::string &option)
+	{
+		m_Data = new uint8_t[6];
+		m_DataLen = 6;
+		if (!command.empty())
+			setCommandInternal(command);
+		if (!option.empty())
+			setCommandOptionInternal(option);
+	}
+
+	bool SingleCommandTextProtocol::setCommandInternal(std::string value)
 	{
 		size_t currentOffset = getArgumentFieldOffset();
-		if (currentOffset == SIZE_MAX)
+		if (currentOffset == m_DataLen - 1)
 			currentOffset = 0;
 		if (!currentOffset)
 			value += " \r\n";
 
 		if (value.size() < currentOffset)
-			shortenLayer(0, currentOffset - value.size());
-		else if (m_Data && value.size() > currentOffset)
-			extendLayer(0, value.size() - currentOffset);
-		else if (!m_Data)
 		{
-			m_Data = new uint8_t[value.size()];
-			m_DataLen = value.size();
+			if (!shortenLayer(0, currentOffset - value.size()))
+				return false;
+		}
+		else if (m_Data && value.size() > currentOffset)
+		{
+			if (!extendLayer(0, value.size() - currentOffset))
+				return false;
 		}
 
 		memcpy(m_Data, value.c_str(), value.size());
+		return true;
 	}
 
-	void SingleCommandTextProtocol::setCommandOptionInternal(std::string value)
+	bool SingleCommandTextProtocol::setCommandOptionInternal(std::string value)
 	{
 		size_t lastPos = value.find_last_of("\r\n");
 		if (lastPos == std::string::npos || lastPos != value.size() - 2)
@@ -76,13 +87,14 @@ namespace pcpp
 		size_t currentOffset = getArgumentFieldOffset() + 1;
 
 		if (value.size() < (m_DataLen - currentOffset))
-			shortenLayer(currentOffset, (m_DataLen - currentOffset) - value.size());
-		else if (m_Data && value.size() > (m_DataLen - currentOffset))
-			extendLayer(currentOffset, value.size() - (m_DataLen - currentOffset));
-		else if (!m_Data)
 		{
-			m_Data = new uint8_t[value.size()];
-			m_DataLen = value.size();
+			if (!shortenLayer(currentOffset, (m_DataLen - currentOffset) - value.size()))
+				return false;
+		}
+		else if (m_Data && value.size() > (m_DataLen - currentOffset))
+		{
+			if (!extendLayer(currentOffset, value.size() - (m_DataLen - currentOffset)))
+				return false;
 		}
 
 		memcpy(&m_Data[currentOffset], value.c_str(), value.size());
@@ -91,6 +103,7 @@ namespace pcpp
 			setDelimiter(true);
 		else
 			setDelimiter(false);
+		return true;
 	}
 
 	std::string SingleCommandTextProtocol::getCommandInternal() const
@@ -121,9 +134,7 @@ namespace pcpp
 			return false;
 
 		std::string payload = std::string((char *)data, dataSize);
-		if (payload.find_last_of("\r\n") == dataSize - 1)
-			return true;
-		return false;
+		return payload.find_last_of("\r\n") == dataSize - 1;
 	}
 
 } // namespace pcpp

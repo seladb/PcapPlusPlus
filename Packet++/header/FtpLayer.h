@@ -19,7 +19,7 @@ namespace pcpp
 	{
 	protected:
 		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : SingleCommandTextProtocol(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
-		FtpLayer() = default;
+		FtpLayer(std::string command, std::string option) : SingleCommandTextProtocol(command, option) { m_Protocol = FTP; };
 
 	public:
 
@@ -212,15 +212,18 @@ namespace pcpp
 		FtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
-		 * Empty c'tor
+		 * A constructor that creates layer with provided input values
+		 * @param[in] command FTP command
+		 * @param[in] option Argument of the command
 		 */
-		FtpRequestLayer();
+		FtpRequestLayer(const FtpCommand &command, std::string option = "") : FtpLayer(getCommandAsString(command), option) {};
 
 		/**
 		 * Set the command of request message
 		 * @param[in] code Value to set command
+		 * @return True if the operation is successful, false otherwise
 		 */
-		void setCommand(FtpCommand code);
+		bool setCommand(FtpCommand code);
 
 		/**
 		 * Get the command of request message
@@ -237,8 +240,9 @@ namespace pcpp
 		/**
 		 * Set the command argument of request message
 		 * @param[in] value Value to set command argument
+		 * @return True if the operation is successful, false otherwise
 		 */
-		void setCommandOption(std::string value);
+		bool setCommandOption(std::string value);
 
 		/**
 		 * Get the command argument of request message
@@ -404,15 +408,18 @@ namespace pcpp
 		FtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
-		 * Empty c'tor
+		 * A constructor that creates layer with provided input values
+		 * @param[in] code Status code
+		 * @param[in] option Argument of the status code
 		 */
-		FtpResponseLayer();
+		FtpResponseLayer(const FtpStatusCode &code, std::string option = "") : FtpLayer(std::to_string(code), option) {};
 
 		/**
 		 * Set the status code of response message
 		 * @param[in] code Value to set status code
+		 * @return True if the operation is successful, false otherwise
 		 */
-		void setStatusCode(FtpStatusCode code);
+		bool setStatusCode(FtpStatusCode code);
 
 		/**
 		 * Get the status code of response message
@@ -429,8 +436,9 @@ namespace pcpp
 		/**
 		 * Set the argument of response message
 		 * @param[in] value Value to set argument
+		 * @return True if the operation is successful, false otherwise
 		 */
-		void setStatusOption(std::string value);
+		bool setStatusOption(std::string value);
 
 		/**
 		 * Get the argument of response message

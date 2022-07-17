@@ -114,9 +114,7 @@ PTF_TEST_CASE(FtpCreationTests)
 	pcpp::TcpLayer tcpLayer1(*ftpPacket1.getLayerOfType<pcpp::TcpLayer>());
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&tcpLayer1));
 
-	pcpp::FtpRequestLayer ftpReqLayer1;
-	ftpReqLayer1.setCommand(pcpp::FtpRequestLayer::USER);
-	ftpReqLayer1.setCommandOption("csanders");
+	pcpp::FtpRequestLayer ftpReqLayer1(pcpp::FtpRequestLayer::USER, "csanders");
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ftpReqLayer1));
 
 	PTF_ASSERT_EQUAL(bufferLength1, craftedPacket1.getRawPacket()->getRawDataLen());
@@ -136,9 +134,7 @@ PTF_TEST_CASE(FtpCreationTests)
 	pcpp::TcpLayer tcpLayer2(*ftpPacket2.getLayerOfType<pcpp::TcpLayer>());
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&tcpLayer2));
 
-	pcpp::FtpResponseLayer ftpRespLayer1;
-	ftpRespLayer1.setStatusCode(pcpp::FtpResponseLayer::SYSTEM_STATUS);
-	ftpRespLayer1.setStatusOption("Extensions supported:\r\n CLNT\r\n MDTM\r\n PASV\r\n REST STREAM\r\n SIZE\r\n211 End.");
+	pcpp::FtpResponseLayer ftpRespLayer1(pcpp::FtpResponseLayer::SYSTEM_STATUS, "Extensions supported:\r\n CLNT\r\n MDTM\r\n PASV\r\n REST STREAM\r\n SIZE\r\n211 End.");
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ftpRespLayer1));
 
 	PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
