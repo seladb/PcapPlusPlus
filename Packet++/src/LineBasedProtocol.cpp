@@ -112,9 +112,7 @@ namespace pcpp
 
 	bool LineBasedProtocolMessage::isMultiLine() const
 	{
-		if (m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN)
-			return true;
-		return false;
+		return m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN;
 	}
 
 	bool LineBasedProtocolMessage::isDataValid(const uint8_t *data, size_t dataSize)
