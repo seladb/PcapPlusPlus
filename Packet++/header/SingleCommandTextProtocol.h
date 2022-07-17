@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SINGLE_COMMAND_TEXT_PROTOCOL_LAYER
 #define PACKETPP_SINGLE_COMMAND_TEXT_PROTOCOL_LAYER
 
+#include <sstream>
 #include "Layer.h"
 
 /// @file
