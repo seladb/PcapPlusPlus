@@ -21,7 +21,7 @@ namespace pcpp
 	FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const
 	{
 		size_t val = 0;
-		std::string field = getCommandField();
+		std::string field = getCommandString();
 
 		for (size_t idx = 0; idx < field.size(); ++idx)
 			val |= (field.c_str()[idx] << (idx * 8));
@@ -55,7 +55,7 @@ namespace pcpp
 		return getOptionField();
 	}
 
-	std::string FtpRequestLayer::getCommandInfoAsString(FtpCommand code)
+	std::string FtpRequestLayer::getCommandInfo(FtpCommand code)
 	{
 		switch (code)
 		{

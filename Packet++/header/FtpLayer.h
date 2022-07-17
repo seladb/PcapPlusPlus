@@ -18,7 +18,7 @@ namespace pcpp
 	class FtpLayer : public LineBasedProtocolMessage
 	{
 	protected:
-		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : LineBasedProtocolMessage(data, dataLen, prevLayer, packet) {};
+		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : LineBasedProtocolMessage(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
 		FtpLayer() {};
 
 	public:
@@ -209,7 +209,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		FtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
+		FtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
 		 * Empty c'tor
@@ -252,7 +252,7 @@ namespace pcpp
 		 * @param[in] code Command code to convert
 		 * @return std::string Returns the command info as readable string
 		 */
-		static std::string getCommandInfoAsString(FtpCommand code);
+		static std::string getCommandInfo(FtpCommand code);
 
 		/**
 		 * Convert the command to readable string
@@ -401,7 +401,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		FtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
+		FtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
 		 * Empty c'tor
