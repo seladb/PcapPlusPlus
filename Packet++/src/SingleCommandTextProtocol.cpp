@@ -1,4 +1,4 @@
-#include "LineBasedProtocol.h"
+#include "SingleCommandTextProtocol.h"
 #include "Logger.h"
 
 #include <string.h>

@@ -84,7 +84,7 @@
     <ClInclude Include="..\..\Packet++\header\Layer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Packet++\header\LineBasedProtocol.h">
+    <ClInclude Include="..\..\Packet++\header\SingleCommandTextProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Packet++\header\MplsLayer.h">
@@ -230,7 +230,7 @@
     <ClCompile Include="..\..\Packet++\src\Layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Packet++\src\LineBasedProtocol.cpp">
+    <ClCompile Include="..\..\Packet++\src\SingleCommandTextProtocol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\MplsLayer.cpp">

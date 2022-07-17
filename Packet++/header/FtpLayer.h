@@ -1,7 +1,7 @@
 #ifndef PACKETPP_FTP_LAYER
 #define PACKETPP_FTP_LAYER
 
-#include "LineBasedProtocol.h"
+#include "SingleCommandTextProtocol.h"
 
 /// @file
 
