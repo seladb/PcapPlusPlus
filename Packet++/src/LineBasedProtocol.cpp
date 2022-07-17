@@ -9,7 +9,7 @@
 namespace pcpp
 {
 
-	size_t LineBasedProtocolMessage::getArgumentFieldOffset() const
+	size_t SingleCommandTextProtocol::getArgumentFieldOffset() const
 	{
 		size_t maxLen;
 		if (m_DataLen < 5)
@@ -30,7 +30,7 @@ namespace pcpp
 		return m_DataLen - 1;
 	}
 
-	void LineBasedProtocolMessage::setDelimiter(bool hyphen)
+	void SingleCommandTextProtocol::setDelimiter(bool hyphen)
 	{
 		if (hyphen)
 			memset(&m_Data[getArgumentFieldOffset()], ASCII_HYPHEN, 1);
@@ -38,7 +38,7 @@ namespace pcpp
 			memset(&m_Data[getArgumentFieldOffset()], ASCII_SPACE, 1);
 	}
 
-	bool LineBasedProtocolMessage::hyphenRequired(std::string value)
+	bool SingleCommandTextProtocol::hyphenRequired(std::string value)
 	{
 		size_t firstPos = value.find_first_of("\r\n");
 		size_t lastPos = value.find_last_of("\r\n");
@@ -46,7 +46,7 @@ namespace pcpp
 		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos - 1);
 	}
 
-	void LineBasedProtocolMessage::setCommandInternal(std::string value)
+	void SingleCommandTextProtocol::setCommandInternal(std::string value)
 	{
 		size_t currentOffset = getArgumentFieldOffset();
 		if (currentOffset == SIZE_MAX)
@@ -67,7 +67,7 @@ namespace pcpp
 		memcpy(m_Data, value.c_str(), value.size());
 	}
 
-	void LineBasedProtocolMessage::setCommandOptionInternal(std::string value)
+	void SingleCommandTextProtocol::setCommandOptionInternal(std::string value)
 	{
 		size_t lastPos = value.find_last_of("\r\n");
 		if (lastPos == std::string::npos || lastPos != value.size() - 2)
@@ -93,7 +93,7 @@ namespace pcpp
 			setDelimiter(false);
 	}
 
-	std::string LineBasedProtocolMessage::getCommandInternal() const
+	std::string SingleCommandTextProtocol::getCommandInternal() const
 	{
 		size_t offset = getArgumentFieldOffset();
 
@@ -103,19 +103,19 @@ namespace pcpp
 		return std::string((char *)m_Data, offset);
 	}
 
-	std::string LineBasedProtocolMessage::getCommandOptionInternal() const
+	std::string SingleCommandTextProtocol::getCommandOptionInternal() const
 	{
 		if (getArgumentFieldOffset() != (m_DataLen - 1))
 			return std::string((char *)&m_Data[getArgumentFieldOffset() + 1], m_DataLen - getArgumentFieldOffset() - 2);
 		return "";
 	}
 
-	bool LineBasedProtocolMessage::isMultiLine() const
+	bool SingleCommandTextProtocol::isMultiLine() const
 	{
 		return m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN;
 	}
 
-	bool LineBasedProtocolMessage::isDataValid(const uint8_t *data, size_t dataSize)
+	bool SingleCommandTextProtocol::isDataValid(const uint8_t *data, size_t dataSize)
 	{
 		if (data == nullptr || dataSize < 6)
 			return false;

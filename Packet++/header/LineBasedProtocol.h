@@ -13,9 +13,9 @@ namespace pcpp
 {
 
 	/**
-	 * Class for general line based protocol (FTP, SMTP) message
+	 * Class for single command text based protocol (FTP, SMTP) messages
 	 */
-	class LineBasedProtocolMessage : public Layer
+	class SingleCommandTextProtocol : public Layer
 	{
 	private:
 		size_t getArgumentFieldOffset() const;
@@ -23,8 +23,8 @@ namespace pcpp
 		bool hyphenRequired(std::string value);
 
 	protected:
-		LineBasedProtocolMessage(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {};
-		LineBasedProtocolMessage() = default;
+		SingleCommandTextProtocol(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {};
+		SingleCommandTextProtocol() = default;
 
 		void setCommandInternal(std::string value);
 		void setCommandOptionInternal(std::string value);
@@ -42,11 +42,11 @@ namespace pcpp
 		bool isMultiLine() const;
 
 		/**
-		 * A static method that takes a byte array and detects whether it is a line based protocol message.
-		 * All line based protocol message terminated with single "\r\n".
+		 * A static method that takes a byte array and detects whether it is a single command text based message.
+		 * All single command text based message terminated with single "\r\n".
 		 * @param[in] data A byte array
 		 * @param[in] dataSize The byte array size (in bytes)
-		 * @return True if the data is identified as line based protocol message
+		 * @return True if the data is identified as single command text based message
 		 */
 		static bool isDataValid(const uint8_t *data, size_t dataSize);
 	};

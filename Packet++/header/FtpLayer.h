@@ -15,11 +15,11 @@ namespace pcpp
 	/**
 	 * Class for general FTP message
 	 */
-	class FtpLayer : public LineBasedProtocolMessage
+	class FtpLayer : public SingleCommandTextProtocol
 	{
 	protected:
-		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : LineBasedProtocolMessage(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
-		FtpLayer() {};
+		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : SingleCommandTextProtocol(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
+		FtpLayer() = default;
 
 	public:
 
