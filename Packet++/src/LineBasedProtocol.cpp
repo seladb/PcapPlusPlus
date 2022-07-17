@@ -119,6 +119,9 @@ namespace pcpp
 
 	bool LineBasedProtocolMessage::isDataValid(const uint8_t *data, size_t dataSize)
 	{
+		if (data == nullptr || dataSize < 6)
+			return false;
+
 		std::string payload = std::string((char *)data, dataSize);
 		if (payload.find_last_of("\r\n") == dataSize - 1)
 			return true;
