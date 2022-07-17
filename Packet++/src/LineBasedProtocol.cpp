@@ -9,7 +9,7 @@
 namespace pcpp
 {
 
-	size_t LineBasedProtocolMessage::getOptionOffset() const
+	size_t LineBasedProtocolMessage::getArgumentFieldOffset() const
 	{
 		size_t maxLen;
 		if (m_DataLen < 5)
@@ -33,9 +33,9 @@ namespace pcpp
 	void LineBasedProtocolMessage::setDelimiter(bool hyphen)
 	{
 		if (hyphen)
-			memset(&m_Data[getOptionOffset()], ASCII_HYPHEN, 1);
+			memset(&m_Data[getArgumentFieldOffset()], ASCII_HYPHEN, 1);
 		else
-			memset(&m_Data[getOptionOffset()], ASCII_SPACE, 1);
+			memset(&m_Data[getArgumentFieldOffset()], ASCII_SPACE, 1);
 	}
 
 	bool LineBasedProtocolMessage::hyphenRequired(std::string value)
@@ -46,9 +46,9 @@ namespace pcpp
 		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos - 1);
 	}
 
-	void LineBasedProtocolMessage::setCommandField(std::string value)
+	void LineBasedProtocolMessage::setCommandInternal(std::string value)
 	{
-		size_t currentOffset = getOptionOffset();
+		size_t currentOffset = getArgumentFieldOffset();
 		if (currentOffset == SIZE_MAX)
 			currentOffset = 0;
 		if (!currentOffset)
@@ -67,13 +67,13 @@ namespace pcpp
 		memcpy(m_Data, value.c_str(), value.size());
 	}
 
-	void LineBasedProtocolMessage::setOptionField(std::string value)
+	void LineBasedProtocolMessage::setCommandOptionInternal(std::string value)
 	{
 		size_t lastPos = value.find_last_of("\r\n");
 		if (lastPos == std::string::npos || lastPos != value.size() - 2)
 			value += "\r\n";
 
-		size_t currentOffset = getOptionOffset() + 1;
+		size_t currentOffset = getArgumentFieldOffset() + 1;
 
 		if (value.size() < (m_DataLen - currentOffset))
 			shortenLayer(currentOffset, (m_DataLen - currentOffset) - value.size());
@@ -93,9 +93,9 @@ namespace pcpp
 			setDelimiter(false);
 	}
 
-	std::string LineBasedProtocolMessage::getCommandField() const
+	std::string LineBasedProtocolMessage::getCommandInternal() const
 	{
-		size_t offset = getOptionOffset();
+		size_t offset = getArgumentFieldOffset();
 
 		// If there is no option remove trailing newline characters
 		if (offset == (m_DataLen - 1) && offset > 1)
@@ -103,16 +103,16 @@ namespace pcpp
 		return std::string((char *)m_Data, offset);
 	}
 
-	std::string LineBasedProtocolMessage::getOptionField() const
+	std::string LineBasedProtocolMessage::getCommandOptionInternal() const
 	{
-		if (getOptionOffset() != (m_DataLen - 1))
-			return std::string((char *)&m_Data[getOptionOffset() + 1], m_DataLen - getOptionOffset() - 2);
+		if (getArgumentFieldOffset() != (m_DataLen - 1))
+			return std::string((char *)&m_Data[getArgumentFieldOffset() + 1], m_DataLen - getArgumentFieldOffset() - 2);
 		return "";
 	}
 
 	bool LineBasedProtocolMessage::isMultiLine() const
 	{
-		if (m_Data[getOptionOffset()] == ASCII_HYPHEN)
+		if (m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN)
 			return true;
 		return false;
 	}

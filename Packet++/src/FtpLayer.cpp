@@ -14,7 +14,7 @@ namespace pcpp
 
 	void FtpRequestLayer::setCommand(FtpCommand code)
 	{
-		setCommandField(getCommandAsString(code));
+		setCommandInternal(getCommandAsString(code));
 	}
 
 	FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const
@@ -30,12 +30,12 @@ namespace pcpp
 
 	std::string FtpRequestLayer::getCommandString() const
 	{
-		return getCommandField();
+		return getCommandInternal();
 	}
 
 	void FtpRequestLayer::setCommandOption(std::string value)
 	{
-		setOptionField(value);
+		setCommandOptionInternal(value);
 	}
 
 	std::string FtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const
@@ -43,7 +43,7 @@ namespace pcpp
 		if (removeEscapeCharacters)
 		{
 			std::stringstream ss;
-			std::string field = getOptionField();
+			std::string field = getCommandOptionInternal();
 			for (size_t idx = 0; idx < field.size(); ++idx)
 			{
 				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
@@ -51,7 +51,7 @@ namespace pcpp
 			}
 			return ss.str();
 		}
-		return getOptionField();
+		return getCommandOptionInternal();
 	}
 
 	std::string FtpRequestLayer::getCommandInfo(FtpCommand code)
@@ -231,22 +231,22 @@ namespace pcpp
 	{
 		std::ostringstream oss;
 		oss << code;
-		setCommandField(oss.str());
+		setCommandInternal(oss.str());
 	}
 
 	FtpResponseLayer::FtpStatusCode FtpResponseLayer::getStatusCode() const
 	{
-		return static_cast<FtpStatusCode>(atoi(getCommandField().c_str()));
+		return static_cast<FtpStatusCode>(atoi(getCommandInternal().c_str()));
 	}
 
 	std::string FtpResponseLayer::getStatusCodeString() const
 	{
-		return getCommandField();
+		return getCommandInternal();
 	}
 
 	void FtpResponseLayer::setStatusOption(std::string value)
 	{
-		setOptionField(value);
+		setCommandOptionInternal(value);
 	}
 
 	std::string FtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const
@@ -254,7 +254,7 @@ namespace pcpp
 		if (removeEscapeCharacters)
 		{
 			std::stringstream ss;
-			std::string field = getOptionField();
+			std::string field = getCommandOptionInternal();
 			for (size_t idx = 0; idx < field.size(); ++idx)
 			{
 				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
@@ -262,7 +262,7 @@ namespace pcpp
 			}
 			return ss.str();
 		}
-		return getOptionField();
+		return getCommandOptionInternal();
 	}
 
 	std::string FtpResponseLayer::getStatusCodeAsString(FtpStatusCode code)

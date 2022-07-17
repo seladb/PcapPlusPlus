@@ -18,7 +18,7 @@ namespace pcpp
 	class LineBasedProtocolMessage : public Layer
 	{
 	private:
-		size_t getOptionOffset() const;
+		size_t getArgumentFieldOffset() const;
 		void setDelimiter(bool hyphen);
 		bool hyphenRequired(std::string value);
 
@@ -26,11 +26,11 @@ namespace pcpp
 		LineBasedProtocolMessage(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {};
 		LineBasedProtocolMessage() {};
 
-		void setCommandField(std::string value);
-		void setOptionField(std::string value);
+		void setCommandInternal(std::string value);
+		void setCommandOptionInternal(std::string value);
 
-		std::string getCommandField() const;
-		std::string getOptionField() const;
+		std::string getCommandInternal() const;
+		std::string getCommandOptionInternal() const;
 
 	public:
 
