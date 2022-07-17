@@ -8,7 +8,6 @@ namespace pcpp
 	// ----------------- Class FtpRequestLayer -----------------
 	FtpRequestLayer::FtpRequestLayer()
 	{
-		m_Protocol = FTP;
 		m_Data = NULL;
 		m_DataLen = 0;
 	}
@@ -224,7 +223,6 @@ namespace pcpp
 	// ----------------- Class FtpResponseLayer -----------------
 	FtpResponseLayer::FtpResponseLayer()
 	{
-		m_Protocol = FTP;
 		m_Data = NULL;
 		m_DataLen = 0;
 	}

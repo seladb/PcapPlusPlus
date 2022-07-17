@@ -27,7 +27,7 @@ namespace pcpp
 		if (pos)
 			return pos - m_Data;
 
-		return m_DataLen;
+		return m_DataLen - 1;
 	}
 
 	void LineBasedProtocolMessage::setDelimiter(bool hyphen)
@@ -43,20 +43,14 @@ namespace pcpp
 		size_t firstPos = value.find_first_of("\r\n");
 		size_t lastPos = value.find_last_of("\r\n");
 
-		if ((firstPos != std::string::npos) && (lastPos != std::string::npos))
-		{
-			if (firstPos == lastPos - 1)
-				return false;
-			return true;
-		}
-
-		PCPP_LOG_ERROR("There should be at least one delimiter");
-		return false;
+		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos - 1);
 	}
 
 	void LineBasedProtocolMessage::setCommandField(std::string value)
 	{
 		size_t currentOffset = getOptionOffset();
+		if (currentOffset == SIZE_MAX)
+			currentOffset = 0;
 		if (!currentOffset)
 			value += " \r\n";
 
@@ -104,15 +98,15 @@ namespace pcpp
 		size_t offset = getOptionOffset();
 
 		// If there is no option remove trailing newline characters
-		if (offset == m_DataLen && offset > 1)
-			return std::string((char *)m_Data, offset - 2);
+		if (offset == (m_DataLen - 1) && offset > 1)
+			return std::string((char *)m_Data, offset - 1);
 		return std::string((char *)m_Data, offset);
 	}
 
 	std::string LineBasedProtocolMessage::getOptionField() const
 	{
-		if (getOptionOffset() != m_DataLen)
-			return std::string((char *)&m_Data[getOptionOffset() + 1], m_DataLen - getOptionOffset() - 3);
+		if (getOptionOffset() != (m_DataLen - 1))
+			return std::string((char *)&m_Data[getOptionOffset() + 1], m_DataLen - getOptionOffset() - 2);
 		return "";
 	}
 
