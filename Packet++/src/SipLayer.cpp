@@ -297,7 +297,7 @@ void SipRequestFirstLine::parseVersion()
 		m_VersionOffset = -1;
 		return;
 	}
-	
+
 	char* data = (char*)(m_SipRequest->m_Data + m_UriOffset);
 	char* verPos = (char*)cross_platform_memmem(data, m_SipRequest->getDataLen() - m_UriOffset, " SIP/", 5);
 	if (verPos == NULL)
