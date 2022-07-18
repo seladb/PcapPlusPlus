@@ -220,7 +220,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 
 } // NtpParsingV4Tests
 
-PTF_TEST_CASE(NtpCraftingTests)
+PTF_TEST_CASE(NtpCreationTests)
 {
 
     timeval time;
