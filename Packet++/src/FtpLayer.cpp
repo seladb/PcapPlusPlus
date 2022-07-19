@@ -27,7 +27,7 @@ namespace pcpp
 		return getCommandInternal();
 	}
 
-	bool FtpRequestLayer::setCommandOption(std::string value)
+	bool FtpRequestLayer::setCommandOption(const std::string &value)
 	{
 		return setCommandOptionInternal(value);
 	}
@@ -232,7 +232,7 @@ namespace pcpp
 		return getCommandInternal();
 	}
 
-	bool FtpResponseLayer::setStatusOption(std::string value)
+	bool FtpResponseLayer::setStatusOption(const std::string &value)
 	{
 		return setCommandOptionInternal(value);
 	}

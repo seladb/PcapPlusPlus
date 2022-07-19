@@ -216,7 +216,7 @@ namespace pcpp
 		 * @param[in] command FTP command
 		 * @param[in] option Argument of the command
 		 */
-		FtpRequestLayer(const FtpCommand &command, std::string option = "") : FtpLayer(getCommandAsString(command), option) {};
+		FtpRequestLayer(const FtpCommand &command, const std::string &option = "") : FtpLayer(getCommandAsString(command), option) {};
 
 		/**
 		 * Set the command of request message
@@ -242,7 +242,7 @@ namespace pcpp
 		 * @param[in] value Value to set command argument
 		 * @return True if the operation is successful, false otherwise
 		 */
-		bool setCommandOption(std::string value);
+		bool setCommandOption(const std::string &value);
 
 		/**
 		 * Get the command argument of request message
@@ -412,7 +412,7 @@ namespace pcpp
 		 * @param[in] code Status code
 		 * @param[in] option Argument of the status code
 		 */
-		FtpResponseLayer(const FtpStatusCode &code, std::string option = "") : FtpLayer(std::to_string(code), option) {};
+		FtpResponseLayer(const FtpStatusCode &code, const std::string &option = "") : FtpLayer(std::to_string(code), option) {};
 
 		/**
 		 * Set the status code of response message
@@ -438,7 +438,7 @@ namespace pcpp
 		 * @param[in] value Value to set argument
 		 * @return True if the operation is successful, false otherwise
 		 */
-		bool setStatusOption(std::string value);
+		bool setStatusOption(const std::string &value);
 
 		/**
 		 * Get the argument of response message
