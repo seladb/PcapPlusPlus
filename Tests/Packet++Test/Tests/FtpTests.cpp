@@ -21,15 +21,15 @@ PTF_TEST_CASE(FtpParsingTests)
 	pcpp::FtpRequestLayer *ftpLayer1 = ftpPacket1.getLayerOfType<pcpp::FtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer1);
-	PTF_ASSERT_EQUAL(ftpLayer1->getCommand(), pcpp::FtpRequestLayer::USER);
+	PTF_ASSERT_EQUAL(int(ftpLayer1->getCommand()), int(pcpp::FtpRequestLayer::FtpCommand::USER));
 	PTF_ASSERT_EQUAL(ftpLayer1->getCommandString(), "USER");
 	PTF_ASSERT_EQUAL(ftpLayer1->getCommandOption(), "csanders");
 	PTF_ASSERT_EQUAL(ftpLayer1->toString(), "FTP Request: USER");
 	PTF_ASSERT_FALSE(ftpLayer1->isMultiLine());
 
-	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandInfo(pcpp::FtpRequestLayer::USER),
+	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandInfo(pcpp::FtpRequestLayer::FtpCommand::USER),
 					 "Authentication username.");
-	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandAsString(pcpp::FtpRequestLayer::USER), "USER");
+	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandAsString(pcpp::FtpRequestLayer::FtpCommand::USER), "USER");
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ftpIpv4Resp.dat");
 
@@ -37,13 +37,13 @@ PTF_TEST_CASE(FtpParsingTests)
 	pcpp::FtpResponseLayer *ftpLayer2 = ftpPacket2.getLayerOfType<pcpp::FtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer2);
-	PTF_ASSERT_EQUAL(ftpLayer2->getStatusCode(), pcpp::FtpResponseLayer::REQ_FILE_OK_COMPLETE);
+	PTF_ASSERT_EQUAL(int(ftpLayer2->getStatusCode()), int(pcpp::FtpResponseLayer::FtpStatusCode::REQ_FILE_OK_COMPLETE));
 	PTF_ASSERT_EQUAL(ftpLayer2->getStatusCodeString(), "250");
 	PTF_ASSERT_EQUAL(ftpLayer2->getStatusOption(), "CWD command successful. \"/\" is current directory.");
 	PTF_ASSERT_EQUAL(ftpLayer2->toString(), "FTP Response: 250");
 	PTF_ASSERT_FALSE(ftpLayer2->isMultiLine());
 
-	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::REQ_FILE_OK_COMPLETE),
+	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::FtpStatusCode::REQ_FILE_OK_COMPLETE),
 					 "Requested file action okay, completed");
 
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/ftpIpv4RespHyphen.dat");
@@ -52,13 +52,13 @@ PTF_TEST_CASE(FtpParsingTests)
 	pcpp::FtpResponseLayer *ftpLayer3 = ftpPacket3.getLayerOfType<pcpp::FtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer3);
-	PTF_ASSERT_EQUAL(ftpLayer3->getStatusCode(), pcpp::FtpResponseLayer::SYSTEM_STATUS);
+	PTF_ASSERT_EQUAL(int(ftpLayer3->getStatusCode()), int(pcpp::FtpResponseLayer::FtpStatusCode::SYSTEM_STATUS));
 	PTF_ASSERT_EQUAL(ftpLayer3->getStatusCodeString(), "211");
 	PTF_ASSERT_EQUAL(ftpLayer3->getStatusOption(), "Extensions supported: CLNT MDTM PASV REST STREAM SIZE211 End.");
 	PTF_ASSERT_EQUAL(ftpLayer3->toString(), "FTP Response: 211");
 	PTF_ASSERT_TRUE(ftpLayer3->isMultiLine());
 
-	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::SYSTEM_STATUS),
+	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::FtpStatusCode::SYSTEM_STATUS),
 					 "System status, or system help reply");
 
 	// Test IPv6 packets
@@ -68,15 +68,15 @@ PTF_TEST_CASE(FtpParsingTests)
 	pcpp::FtpRequestLayer *ftpLayer4 = ftpPacket4.getLayerOfType<pcpp::FtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer4);
-	PTF_ASSERT_EQUAL(ftpLayer4->getCommand(), pcpp::FtpRequestLayer::PASS);
+	PTF_ASSERT_EQUAL(int(ftpLayer4->getCommand()), int(pcpp::FtpRequestLayer::FtpCommand::PASS));
 	PTF_ASSERT_EQUAL(ftpLayer4->getCommandString(), "PASS");
 	PTF_ASSERT_EQUAL(ftpLayer4->getCommandOption(), "IEUser@");
 	PTF_ASSERT_EQUAL(ftpLayer4->toString(), "FTP Request: PASS");
 	PTF_ASSERT_FALSE(ftpLayer4->isMultiLine());
 
-	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandInfo(pcpp::FtpRequestLayer::PASS),
+	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandInfo(pcpp::FtpRequestLayer::FtpCommand::PASS),
 					 "Authentication password.");
-	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandAsString(pcpp::FtpRequestLayer::PASS), "PASS");
+	PTF_ASSERT_EQUAL(pcpp::FtpRequestLayer::getCommandAsString(pcpp::FtpRequestLayer::FtpCommand::PASS), "PASS");
 
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/ftpIpv6Resp.dat");
 
@@ -84,13 +84,13 @@ PTF_TEST_CASE(FtpParsingTests)
 	pcpp::FtpResponseLayer *ftpLayer5 = ftpPacket5.getLayerOfType<pcpp::FtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer5);
-	PTF_ASSERT_EQUAL(ftpLayer5->getStatusCode(), pcpp::FtpResponseLayer::COMMAND_NOT_IMPLEMENTED);
+	PTF_ASSERT_EQUAL(int(ftpLayer5->getStatusCode()), int(pcpp::FtpResponseLayer::FtpStatusCode::COMMAND_NOT_IMPLEMENTED));
 	PTF_ASSERT_EQUAL(ftpLayer5->getStatusCodeString(), "502");
 	PTF_ASSERT_EQUAL(ftpLayer5->getStatusOption(), "Unknown command 'utf8'.");
 	PTF_ASSERT_EQUAL(ftpLayer5->toString(), "FTP Response: 502");
 	PTF_ASSERT_FALSE(ftpLayer5->isMultiLine());
 
-	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::COMMAND_NOT_IMPLEMENTED),
+	PTF_ASSERT_EQUAL(pcpp::FtpResponseLayer::getStatusCodeAsString(pcpp::FtpResponseLayer::FtpStatusCode::COMMAND_NOT_IMPLEMENTED),
 					 "Command not implemented");
 }
 
@@ -114,7 +114,7 @@ PTF_TEST_CASE(FtpCreationTests)
 	pcpp::TcpLayer tcpLayer1(*ftpPacket1.getLayerOfType<pcpp::TcpLayer>());
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&tcpLayer1));
 
-	pcpp::FtpRequestLayer ftpReqLayer1(pcpp::FtpRequestLayer::USER, "csanders");
+	pcpp::FtpRequestLayer ftpReqLayer1(pcpp::FtpRequestLayer::FtpCommand::USER, "csanders");
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ftpReqLayer1));
 
 	PTF_ASSERT_EQUAL(bufferLength1, craftedPacket1.getRawPacket()->getRawDataLen());
@@ -134,7 +134,7 @@ PTF_TEST_CASE(FtpCreationTests)
 	pcpp::TcpLayer tcpLayer2(*ftpPacket2.getLayerOfType<pcpp::TcpLayer>());
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&tcpLayer2));
 
-	pcpp::FtpResponseLayer ftpRespLayer1(pcpp::FtpResponseLayer::SYSTEM_STATUS, "Extensions supported:\r\n CLNT\r\n MDTM\r\n PASV\r\n REST STREAM\r\n SIZE\r\n211 End.");
+	pcpp::FtpResponseLayer ftpRespLayer1(pcpp::FtpResponseLayer::FtpStatusCode::SYSTEM_STATUS, "Extensions supported:\r\n CLNT\r\n MDTM\r\n PASV\r\n REST STREAM\r\n SIZE\r\n211 End.");
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ftpRespLayer1));
 
 	PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
@@ -152,12 +152,12 @@ PTF_TEST_CASE(FtpEditTests)
 	pcpp::FtpRequestLayer *ftpLayer1 = ftpPacket1.getLayerOfType<pcpp::FtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer1);
-	ftpLayer1->setCommand(pcpp::FtpRequestLayer::FEAT);
-	PTF_ASSERT_EQUAL(ftpLayer1->getCommand(), pcpp::FtpRequestLayer::FEAT);
+	ftpLayer1->setCommand(pcpp::FtpRequestLayer::FtpCommand::FEAT);
+	PTF_ASSERT_EQUAL(int(ftpLayer1->getCommand()), int(pcpp::FtpRequestLayer::FtpCommand::FEAT));
 	PTF_ASSERT_EQUAL(ftpLayer1->getCommandOption(), "csanders");
 
 	ftpLayer1->setCommandOption("Test option");
-	PTF_ASSERT_EQUAL(ftpLayer1->getCommand(), pcpp::FtpRequestLayer::FEAT);
+	PTF_ASSERT_EQUAL(int(ftpLayer1->getCommand()), int(pcpp::FtpRequestLayer::FtpCommand::FEAT));
 	PTF_ASSERT_EQUAL(ftpLayer1->getCommandOption(), "Test option");
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ftpIpv4Resp.dat");
@@ -166,13 +166,13 @@ PTF_TEST_CASE(FtpEditTests)
 	pcpp::FtpResponseLayer *ftpLayer2 = ftpPacket2.getLayerOfType<pcpp::FtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpLayer2);
-	ftpLayer2->setStatusCode(pcpp::FtpResponseLayer::CLOSING_DATA);
-	PTF_ASSERT_EQUAL(ftpLayer2->getStatusCode(), pcpp::FtpResponseLayer::CLOSING_DATA);
+	ftpLayer2->setStatusCode(pcpp::FtpResponseLayer::FtpStatusCode::CLOSING_DATA);
+	PTF_ASSERT_EQUAL(int(ftpLayer2->getStatusCode()), int(pcpp::FtpResponseLayer::FtpStatusCode::CLOSING_DATA));
 	PTF_ASSERT_EQUAL(ftpLayer2->getStatusOption(), "CWD command successful. \"/\" is current directory.");
 	PTF_ASSERT_FALSE(ftpLayer2->isMultiLine());
 
 	ftpLayer2->setStatusOption("Test option");
-	PTF_ASSERT_EQUAL(ftpLayer2->getStatusCode(), pcpp::FtpResponseLayer::CLOSING_DATA);
+	PTF_ASSERT_EQUAL(int(ftpLayer2->getStatusCode()), int(pcpp::FtpResponseLayer::FtpStatusCode::CLOSING_DATA));
 	PTF_ASSERT_EQUAL(ftpLayer2->getStatusOption(), "Test option");
 	PTF_ASSERT_FALSE(ftpLayer2->isMultiLine());
 }
