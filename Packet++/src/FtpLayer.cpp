@@ -52,149 +52,149 @@ namespace pcpp
 	{
 		switch (code)
 		{
-		case ABOR:
+		case FtpCommand::ABOR:
 			return "Abort an active file transfer.";
-		case ACCT:
+		case FtpCommand::ACCT:
 			return "Account information.";
-		case ADAT:
+		case FtpCommand::ADAT:
 			return "Authentication/Security Data";
-		case ALLO:
+		case FtpCommand::ALLO:
 			return "Allocate sufficient disk space to receive a file.";
-		case APPE:
+		case FtpCommand::APPE:
 			return "Append (with create)";
-		case AUTH:
+		case FtpCommand::AUTH:
 			return "Authentication/Security Mechanism";
-		case AVBL:
+		case FtpCommand::AVBL:
 			return "Get the available space";
-		case CCC:
+		case FtpCommand::CCC:
 			return "Clear Command Channel";
-		case CDUP:
+		case FtpCommand::CDUP:
 			return "Change to Parent Directory.";
-		case CONF:
+		case FtpCommand::CONF:
 			return "Confidentiality Protection Command";
-		case CSID:
+		case FtpCommand::CSID:
 			return "Client / Server Identification";
-		case CWD:
+		case FtpCommand::CWD:
 			return "Change working directory.";
-		case DELE:
+		case FtpCommand::DELE:
 			return "Delete file.";
-		case DSIZ:
+		case FtpCommand::DSIZ:
 			return "Get the directory size";
-		case ENC:
+		case FtpCommand::ENC:
 			return "Privacy Protected Channel";
-		case EPRT:
+		case FtpCommand::EPRT:
 			return "Specifies an extended address and port to which the server should connect.";
-		case EPSV:
+		case FtpCommand::EPSV:
 			return "Enter extended passive mode.";
-		case FEAT:
+		case FtpCommand::FEAT:
 			return "Get the feature list implemented by the server.";
-		case HELP:
+		case FtpCommand::HELP:
 			return "Returns usage documentation on a command if specified, else a general help document is returned.";
-		case HOST:
+		case FtpCommand::HOST:
 			return "Identify desired virtual host on server, by name.";
-		case LANG:
+		case FtpCommand::LANG:
 			return "Language Negotiation";
-		case LIST:
+		case FtpCommand::LIST:
 			return "Returns information of a file or directory if specified, else information of the current working "
 				"directory is returned.";
-		case LPRT:
+		case FtpCommand::LPRT:
 			return "Specifies a long address and port to which the server should connect.";
-		case LPSV:
+		case FtpCommand::LPSV:
 			return "Enter long passive mode.";
-		case MDTM:
+		case FtpCommand::MDTM:
 			return "Return the last-modified time of a specified file.";
-		case MFCT:
+		case FtpCommand::MFCT:
 			return "Modify the creation time of a file.";
-		case MFF:
+		case FtpCommand::MFF:
 			return "Modify fact (the last modification time, creation time, UNIX group/owner/mode of a file).";
-		case MFMT:
+		case FtpCommand::MFMT:
 			return "Modify the last modification time of a file.";
-		case MIC:
+		case FtpCommand::MIC:
 			return "Integrity Protected Command";
-		case MKD:
+		case FtpCommand::MKD:
 			return "Make directory.";
-		case MLSD:
+		case FtpCommand::MLSD:
 			return "Lists the contents of a directory in a standardized machine-readable format.";
-		case MLST:
+		case FtpCommand::MLST:
 			return "Provides data about exactly the object named on its command line in a standardized "
 				"machine-readable format.";
-		case MODE:
+		case FtpCommand::MODE:
 			return "Sets the transfer mode (Stream, Block, or Compressed).";
-		case NLST:
+		case FtpCommand::NLST:
 			return "Returns a list of file names in a specified directory.";
-		case NOOP:
+		case FtpCommand::NOOP:
 			return "No operation (dummy packet; used mostly on keepalives).";
-		case OPTS:
+		case FtpCommand::OPTS:
 			return "Select options for a feature (for example OPTS UTF8 ON).";
-		case PASS:
+		case FtpCommand::PASS:
 			return "Authentication password.";
-		case PASV:
+		case FtpCommand::PASV:
 			return "Enter passive mode.";
-		case PBSZ:
+		case FtpCommand::PBSZ:
 			return "Protection Buffer Size";
-		case PORT:
+		case FtpCommand::PORT:
 			return "Specifies an address and port to which the server should connect.";
-		case PROT:
+		case FtpCommand::PROT:
 			return "Data Channel Protection Level.";
-		case PWD:
+		case FtpCommand::PWD:
 			return "Print working directory. Returns the current directory of the host.";
-		case QUIT:
+		case FtpCommand::QUIT:
 			return "Disconnect.";
-		case REIN:
+		case FtpCommand::REIN:
 			return "Re initializes the connection.";
-		case REST:
+		case FtpCommand::REST:
 			return "Restart transfer from the specified point.";
-		case RETR:
+		case FtpCommand::RETR:
 			return "Retrieve a copy of the file";
-		case RMD:
+		case FtpCommand::RMD:
 			return "Remove a directory.";
-		case RMDA:
+		case FtpCommand::RMDA:
 			return "Remove a directory tree";
-		case RNFR:
+		case FtpCommand::RNFR:
 			return "Rename from.";
-		case RNTO:
+		case FtpCommand::RNTO:
 			return "Rename to.";
-		case SITE:
+		case FtpCommand::SITE:
 			return "Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE "
 				"HELP output for complete list of supported commands.";
-		case SIZE:
+		case FtpCommand::SIZE:
 			return "Return the size of a file.";
-		case SMNT:
+		case FtpCommand::SMNT:
 			return "Mount file structure.";
-		case SPSV:
+		case FtpCommand::SPSV:
 			return "Use single port passive mode (only one TCP port number for both control connections and "
 				"passive-mode data connections)";
-		case STAT:
+		case FtpCommand::STAT:
 			return "Returns information on the server status, including the status of the current connection";
-		case STOR:
+		case FtpCommand::STOR:
 			return "Accept the data and to store the data as a file at the server site";
-		case STOU:
+		case FtpCommand::STOU:
 			return "Store file uniquely.";
-		case STRU:
+		case FtpCommand::STRU:
 			return "Set file transfer structure.";
-		case SYST:
+		case FtpCommand::SYST:
 			return "Return system type.";
-		case THMB:
+		case FtpCommand::THMB:
 			return "Get a thumbnail of a remote image file";
-		case TYPE:
+		case FtpCommand::TYPE:
 			return "Sets the transfer mode (ASCII/Binary).";
-		case USER:
+		case FtpCommand::USER:
 			return "Authentication username.";
-		case XCUP:
+		case FtpCommand::XCUP:
 			return "Change to the parent of the current working directory";
-		case XMKD:
+		case FtpCommand::XMKD:
 			return "Make a directory";
-		case XPWD:
+		case FtpCommand::XPWD:
 			return "Print the current working directory";
-		case XRCP:
+		case FtpCommand::XRCP:
 			return "";
-		case XRMD:
+		case FtpCommand::XRMD:
 			return "Remove the directory";
-		case XRSQ:
+		case FtpCommand::XRSQ:
 			return "";
-		case XSEM:
+		case FtpCommand::XSEM:
 			return "Send, mail if cannot";
-		case XSEN:
+		case FtpCommand::XSEN:
 			return "Send to terminal";
 		default:
 			return "Unknown command";
@@ -205,7 +205,7 @@ namespace pcpp
 	{
 		std::stringstream oss;
 		for (size_t idx = 0; idx < 4; ++idx)
-			oss << char((code >> (8 * idx)) & UINT8_MAX);
+			oss << char((int(code) >> (8 * idx)) & UINT8_MAX);
 		return oss.str();
 	}
 
@@ -218,7 +218,7 @@ namespace pcpp
 	bool FtpResponseLayer::setStatusCode(FtpStatusCode code)
 	{
 		std::ostringstream oss;
-		oss << code;
+		oss << int(code);
 		return setCommandInternal(oss.str());
 	}
 
@@ -257,117 +257,117 @@ namespace pcpp
 	{
 		switch (code)
 		{
-		case RESTART_MARKER:
+		case FtpStatusCode::RESTART_MARKER:
 			return "Restart marker reply";
-		case SERVICE_READY_IN_MIN:
+		case FtpStatusCode::SERVICE_READY_IN_MIN:
 			return "Service ready in nnn minutes";
-		case DATA_ALREADY_OPEN_START_TRANSFER:
+		case FtpStatusCode::DATA_ALREADY_OPEN_START_TRANSFER:
 			return "Data connection already open; transfer starting";
-		case FILE_OK:
+		case FtpStatusCode::FILE_OK:
 			return "File status okay; about to open data connection";
-		case COMMAND_OK:
+		case FtpStatusCode::COMMAND_OK:
 			return "Command okay";
-		case COMMAND_NOT_IMPLEMENTED_SUPERFLUOUS:
+		case FtpStatusCode::COMMAND_NOT_IMPLEMENTED_SUPERFLUOUS:
 			return "Command not implemented, superfluous at this site";
-		case SYSTEM_STATUS:
+		case FtpStatusCode::SYSTEM_STATUS:
 			return "System status, or system help reply";
-		case DIR_STATUS:
+		case FtpStatusCode::DIR_STATUS:
 			return "Directory status";
-		case FILE_STATUS:
+		case FtpStatusCode::FILE_STATUS:
 			return "File status";
-		case HELP_MESSAGE:
+		case FtpStatusCode::HELP_MESSAGE:
 			return "Help message";
-		case NAME_SYSTEM_TYPE:
+		case FtpStatusCode::NAME_SYSTEM_TYPE:
 			return "NAME system type";
-		case SERVICE_READY_FOR_USER:
+		case FtpStatusCode::SERVICE_READY_FOR_USER:
 			return "Service ready for new user";
-		case SERVICE_CLOSING_CONTROL:
+		case FtpStatusCode::SERVICE_CLOSING_CONTROL:
 			return "Service closing control connection";
-		case DATA_OPEN_NO_TRANSFER:
+		case FtpStatusCode::DATA_OPEN_NO_TRANSFER:
 			return "Data connection open; no transfer in progress";
-		case CLOSING_DATA:
+		case FtpStatusCode::CLOSING_DATA:
 			return "Closing data connection";
-		case ENTERING_PASSIVE:
+		case FtpStatusCode::ENTERING_PASSIVE:
 			return "Entering Passive Mode";
-		case ENTERING_EXTENDED_PASSIVE:
+		case FtpStatusCode::ENTERING_EXTENDED_PASSIVE:
 			return "Entering Extended Passive Mode";
-		case USER_LOG_IN_PROCEED:
+		case FtpStatusCode::USER_LOG_IN_PROCEED:
 			return "User logged in, proceed";
-		case USER_LOG_IN_AUTHORIZED:
+		case FtpStatusCode::USER_LOG_IN_AUTHORIZED:
 			return "User logged in, authorized by security data exchange";
-		case SEC_DATA_EXCHANGE_COMPLETE:
+		case FtpStatusCode::SEC_DATA_EXCHANGE_COMPLETE:
 			return "Security data exchange complete";
-		case SEC_DATA_EXCHANGE_COMPLETE_SUCCESS:
+		case FtpStatusCode::SEC_DATA_EXCHANGE_COMPLETE_SUCCESS:
 			return "Security data exchange completed successfully";
-		case REQ_FILE_OK_COMPLETE:
+		case FtpStatusCode::REQ_FILE_OK_COMPLETE:
 			return "Requested file action okay, completed";
-		case PATHNAME_CREATED:
+		case FtpStatusCode::PATHNAME_CREATED:
 			return "PATHNAME created";
-		case USER_OK_NEED_PASSWORD:
+		case FtpStatusCode::USER_OK_NEED_PASSWORD:
 			return "User name okay, need password";
-		case NEED_ACCOUNT:
+		case FtpStatusCode::NEED_ACCOUNT:
 			return "Need account for login";
-		case REQ_SEC_MECHANISM_OK:
+		case FtpStatusCode::REQ_SEC_MECHANISM_OK:
 			return "Requested security mechanism is ok";
-		case SEC_IS_ACCEPTABLE:
+		case FtpStatusCode::SEC_IS_ACCEPTABLE:
 			return "Security data is acceptable, more is required";
-		case USER_OK_NEED_PASS_CHALLENGE:
+		case FtpStatusCode::USER_OK_NEED_PASS_CHALLENGE:
 			return "Username okay, need password. Challenge is ...";
-		case FILE_PENDING_ACTION:
+		case FtpStatusCode::FILE_PENDING_ACTION:
 			return "Requested file action pending further information";
-		case SERVICE_NOT_AVAILABLE:
+		case FtpStatusCode::SERVICE_NOT_AVAILABLE:
 			return "Service not available, closing control connection";
-		case CANT_OPEN_DATA_CONNECTION:
+		case FtpStatusCode::CANT_OPEN_DATA_CONNECTION:
 			return "Can't open data connection";
-		case CONNECTION_CLOSED:
+		case FtpStatusCode::CONNECTION_CLOSED:
 			return "Connection closed; transfer aborted";
-		case NEED_UNAVAILABLE_RESOURCE_TO_SEC:
+		case FtpStatusCode::NEED_UNAVAILABLE_RESOURCE_TO_SEC:
 			return "Need some unavailable resource to process security";
-		case REQ_FILE_ACTION_NOT_TAKEN:
+		case FtpStatusCode::REQ_FILE_ACTION_NOT_TAKEN:
 			return "Requested file action not taken";
-		case REQ_ACTION_ABORTED:
+		case FtpStatusCode::REQ_ACTION_ABORTED:
 			return "Requested action aborted: local error in processing";
-		case REQ_ACTION_NOT_TAKEN:
+		case FtpStatusCode::REQ_ACTION_NOT_TAKEN:
 			return "Requested action not taken. Insufficient storage space in system";
-		case SYNTAX_ERROR_COMMAND_UNRECOGNIZED:
+		case FtpStatusCode::SYNTAX_ERROR_COMMAND_UNRECOGNIZED:
 			return "Syntax error, command unrecognized";
-		case SYNTAX_ERROR_PARAMETER_OR_ARGUMENT:
+		case FtpStatusCode::SYNTAX_ERROR_PARAMETER_OR_ARGUMENT:
 			return "Syntax error in parameters or arguments";
-		case COMMAND_NOT_IMPLEMENTED:
+		case FtpStatusCode::COMMAND_NOT_IMPLEMENTED:
 			return "Command not implemented";
-		case BAD_SEQUENCE_COMMANDS:
+		case FtpStatusCode::BAD_SEQUENCE_COMMANDS:
 			return "Bad sequence of commands";
-		case COMMAND_NOT_IMPLEMENTED_FOR_PARAMETER:
+		case FtpStatusCode::COMMAND_NOT_IMPLEMENTED_FOR_PARAMETER:
 			return "Command not implemented for that parameter";
-		case NETWORK_PROTOCOL_NOT_SUPPORTED:
+		case FtpStatusCode::NETWORK_PROTOCOL_NOT_SUPPORTED:
 			return "Network protocol not supported";
-		case NOT_LOGGED_IN:
+		case FtpStatusCode::NOT_LOGGED_IN:
 			return "Not logged in";
-		case NEED_ACCOUNT_FOR_STORE_FILE:
+		case FtpStatusCode::NEED_ACCOUNT_FOR_STORE_FILE:
 			return "Need account for storing files";
-		case COMMAND_PROTECTION_DENIED:
+		case FtpStatusCode::COMMAND_PROTECTION_DENIED:
 			return "Command protection level denied for policy reasons";
-		case REQUEST_DENIED:
+		case FtpStatusCode::REQUEST_DENIED:
 			return "Request denied for policy reasons";
-		case FAILED_SEC_CHECK:
+		case FtpStatusCode::FAILED_SEC_CHECK:
 			return "Failed security check (hash, sequence, etc)";
-		case REQ_PROT_LEVEL_NOT_SUPPORTED:
+		case FtpStatusCode::REQ_PROT_LEVEL_NOT_SUPPORTED:
 			return "Requested PROT level not supported by mechanism";
-		case COMMAND_PROTECTION_LEVEL_NOT_SUPPORTED:
+		case FtpStatusCode::COMMAND_PROTECTION_LEVEL_NOT_SUPPORTED:
 			return "Command protection level not supported by security mechanism";
-		case FILE_UNAVAILABLE:
+		case FtpStatusCode::FILE_UNAVAILABLE:
 			return "Requested action not taken: File unavailable";
-		case PAGE_TYPE_UNKNOWN:
+		case FtpStatusCode::PAGE_TYPE_UNKNOWN:
 			return "Requested action aborted: page type unknown";
-		case EXCEED_STORAGE_ALLOCATION:
+		case FtpStatusCode::EXCEED_STORAGE_ALLOCATION:
 			return "Requested file action aborted: Exceeded storage allocation";
-		case FILENAME_NOT_ALLOWED:
+		case FtpStatusCode::FILENAME_NOT_ALLOWED:
 			return "Requested action not taken: File name not allowed";
-		case INTEGRITY_PROTECTED:
+		case FtpStatusCode::INTEGRITY_PROTECTED:
 			return "Integrity protected reply";
-		case CONFIDENTIALITY_AND_INTEGRITY_PROTECTED:
+		case FtpStatusCode::CONFIDENTIALITY_AND_INTEGRITY_PROTECTED:
 			return "Confidentiality and integrity protected reply";
-		case CONFIDENTIALITY_PROTECTED:
+		case FtpStatusCode::CONFIDENTIALITY_PROTECTED:
 			return "Confidentiality protected reply";
 		default:
 			return "Unknown Status Code";

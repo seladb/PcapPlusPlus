@@ -59,8 +59,10 @@ namespace pcpp
 		/**
 		 * Enum for FTP command codes
 		 */
-		enum FtpCommand
+		enum class FtpCommand : int
 		{
+			/// Unknown command
+			UNK,
 			/// Abort an active file transfer.
 			ABOR = ('A') | ('B' << 8) | ('O' << 16) | ('R' << 24),
 			/// Account information.
@@ -283,8 +285,10 @@ namespace pcpp
 		/**
 		 * Enum for FTP response codes
 		 */
-		enum FtpStatusCode
+		enum class FtpStatusCode : int
 		{
+			/// Unknown status code
+			UNKNOWN,
 			/// Restart marker reply
 			RESTART_MARKER = 110,
 			/// Service ready in nnn minutes
@@ -412,7 +416,7 @@ namespace pcpp
 		 * @param[in] code Status code
 		 * @param[in] option Argument of the status code
 		 */
-		FtpResponseLayer(const FtpStatusCode &code, const std::string &option = "") : FtpLayer(std::to_string(code), option) {};
+		FtpResponseLayer(const FtpStatusCode &code, const std::string &option = "") : FtpLayer(std::to_string(int(code)), option) {};
 
 		/**
 		 * Set the status code of response message
