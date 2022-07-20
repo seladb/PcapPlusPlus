@@ -253,5 +253,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
+	PTF_RUN_TEST(FtpParsingTests, "ftp");
+	PTF_RUN_TEST(FtpCreationTests, "ftp");
+	PTF_RUN_TEST(FtpEditTests, "ftp");
+
 	PTF_END_RUNNING_TESTS;
 }
