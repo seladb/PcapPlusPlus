@@ -56,7 +56,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		if ((wordLength & 0xc0) == 0xc0)
 		{
 			if (curOffsetInLayer + 2 > m_DnsLayer->m_DataLen || encodedNameLength > 255)
-				return encodedNameLength;
+				goto exit;
 
 			uint16_t offsetInLayer = (wordLength & 0x3f)*256 + (0xFF & encodedName[1]) + m_DnsLayer->m_OffsetAdjustment;
 			if (offsetInLayer < sizeof(dnshdr) || offsetInLayer >= m_DnsLayer->m_DataLen)
@@ -132,6 +132,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		}
 	}
 
+exit:
 	// remove the last "."
 	if (resultPtr > result)
 	{
