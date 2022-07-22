@@ -1,6 +1,10 @@
 #!/bin/bash
+if [ -z "$1" ]; then
+  echo "provide samples directory"
+  exit 1
+fi
 
-SAMPLES=regression_samples
+SAMPLES=$1
 BINARY=../Bin/FuzzTarget
 ERR_CODE=0
 
