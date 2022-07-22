@@ -74,6 +74,7 @@ task:
   test_script:
     - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh undefined
 
+task:
   name: Regression Tests Linux (Memory Sanitizer)
   container:
     image: seladb/ubuntu1804:latest
