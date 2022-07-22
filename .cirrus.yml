@@ -84,7 +84,7 @@ task:
   build_script:
     - make fuzzers
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh memory debug
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh memory
 
 task:
   name: Build Doxygen Documentation
