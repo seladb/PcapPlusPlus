@@ -74,6 +74,17 @@ task:
   test_script:
     - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh undefined
 
+  name: Regression Tests Linux (Memory Sanitizer)
+  container:
+    image: seladb/ubuntu1804:latest
+  configure_script:
+    - ./configure-fuzzing.sh --sanitizer memory
+    - ldconfig
+  build_script:
+    - make fuzzers
+  test_script:
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh memory
+
 task:
   name: Build Doxygen Documentation
   container:
