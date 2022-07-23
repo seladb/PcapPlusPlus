@@ -871,7 +871,7 @@ void HttpResponseFirstLine::setVersion(HttpVersion newVersion)
 
 HttpResponseLayer::HttpResponseStatusCode HttpResponseFirstLine::validateStatusCode(char* data, size_t dataLen, HttpResponseLayer::HttpResponseStatusCode potentialCode)
 {
-	if (data[0] != ' ')
+	if (dataLen < 1 || data[0] != ' ')
 		return HttpResponseLayer::HttpStatusCodeUnknown;
 
 	return potentialCode;
