@@ -1,10 +1,6 @@
 #!/bin/bash
-if [ -z "$1" ]; then
-  echo "provide samples directory"
-  exit 1
-fi
 
-SAMPLES=$1
+SAMPLES=regression_samples
 BINARY=../Bin/FuzzTarget
 ERR_CODE=0
 
@@ -14,7 +10,7 @@ NC='\033[0m'
 
 for sample in $(ls ${SAMPLES}); do
 	echo -n "Running sample $sample..."
-	if [ -z "$2" ]; then
+	if [ -z "$1" ]; then
 		$BINARY $SAMPLES/$sample &> /dev/null && echo -e "${GREEN}[OK]${NC}" || { FAILED=True && echo -e "${RED}[FAIL]${NC}"; }
 	else
 		$BINARY $SAMPLES/$sample && echo -e "${GREEN}[OK]${NC}" || { FAILED=True && echo -e "${RED}[FAIL]${NC}"; }

@@ -31,6 +31,24 @@ uint8_t* IDnsResource::getRawData() const
 	return m_DnsLayer->m_Data + m_OffsetInLayer;
 }
 
+static size_t cleanup(char* resultPtr, char* result, size_t encodedNameLength)
+{
+	// remove the last "."
+	if (resultPtr > result)
+	{
+		result[resultPtr - result - 1] = 0;
+	}
+
+	if (resultPtr - result < 256)
+	{
+		// add the last '\0' to encodedNameLength
+		resultPtr[0] = 0;
+		encodedNameLength++;
+	}
+
+	return encodedNameLength;
+}
+
 size_t IDnsResource::decodeName(const char* encodedName, char* result, int iteration)
 {
 	size_t encodedNameLength = 0;
@@ -56,7 +74,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		if ((wordLength & 0xc0) == 0xc0)
 		{
 			if (curOffsetInLayer + 2 > m_DnsLayer->m_DataLen || encodedNameLength > 255)
-				goto exit;
+				return cleanup(resultPtr, result, encodedNameLength);
 
 			uint16_t offsetInLayer = (wordLength & 0x3f)*256 + (0xFF & encodedName[1]) + m_DnsLayer->m_OffsetAdjustment;
 			if (offsetInLayer < sizeof(dnshdr) || offsetInLayer >= m_DnsLayer->m_DataLen)
@@ -132,21 +150,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 		}
 	}
 
-exit:
-	// remove the last "."
-	if (resultPtr > result)
-	{
-		result[resultPtr - result - 1] = 0;
-	}
-
-	if (resultPtr - result < 256)
-	{
-		// add the last '\0' to encodedNameLength
-		resultPtr[0] = 0;
-		encodedNameLength++;
-	}
-
-	return encodedNameLength;
+	return cleanup(resultPtr, result, encodedNameLength);
 }
 
 
