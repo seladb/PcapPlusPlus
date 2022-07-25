@@ -60,7 +60,7 @@ task:
   build_script:
     - make fuzzers
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh debug
 
 task:
   name: Regression Tests Linux (Undefined Behavior Sanitizer)
@@ -72,19 +72,7 @@ task:
   build_script:
     - make fuzzers
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh debug
-
-task:
-  name: Regression Tests Linux (Memory Sanitizer)
-  container:
-    image: seladb/ubuntu1804:latest
-  configure_script:
-    - ./configure-fuzzing.sh --sanitizer memory
-    - ldconfig
-  build_script:
-    - make fuzzers
-  test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh debug
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
 
 task:
   name: Build Doxygen Documentation
