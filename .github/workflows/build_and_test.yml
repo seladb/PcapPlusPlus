@@ -373,6 +373,15 @@ jobs:
         with:
           fetch-depth: "0"
 
+      - name: Configure and Cross-compile libpcap
+        run: |
+          NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
+          wget https://github.com/the-tcpdump-group/libpcap/archive/refs/tags/libpcap-1.10.1.zip
+          unzip libpcap-1.10.1.zip && cd libpcap-libpcap-1.10.1
+          cmake -DCMAKE_TOOLCHAIN_FILE="${NDK_ROOT}/build/cmake/android.toolchain.cmake" -S . -B build
+          cmake --build build -j
+          cmake --install build
+
       - name: Configure PcapPlusPlus
         run: |
           NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
