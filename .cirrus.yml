@@ -60,7 +60,7 @@ task:
   build_script:
     - make fuzzers
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh debug
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
 
 task:
   name: Regression Tests Linux (Undefined Behavior Sanitizer)
