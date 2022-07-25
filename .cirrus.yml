@@ -72,7 +72,7 @@ task:
   build_script:
     - make fuzzers
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh debug
 
 task:
   name: Regression Tests Linux (Memory Sanitizer)
@@ -84,7 +84,7 @@ task:
   build_script:
     - make fuzzers
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh debug
 
 task:
   name: Build Doxygen Documentation
