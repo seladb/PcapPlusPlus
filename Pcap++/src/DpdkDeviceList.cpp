@@ -40,6 +40,12 @@
 #include <algorithm>
 #include <unistd.h>
 
+#if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
+#define GET_MASTER_CORE rte_get_master_lcore
+#else
+#define GET_MASTER_CORE rte_get_main_lcore
+#endif
+
 namespace pcpp
 {
 
@@ -270,7 +276,7 @@ bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 
 SystemCore DpdkDeviceList::getDpdkMasterCore() const
 {
-	return SystemCores::IdToSystemCore[rte_get_master_lcore()];
+	return SystemCores::IdToSystemCore[GET_MASTER_CORE()];
 }
 
 void DpdkDeviceList::setDpdkLogLevel(Logger::LogLevel logLevel)
