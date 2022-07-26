@@ -379,7 +379,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
+          NDK_ROOT=$(ls -dr ${ANDROID_SDK_ROOT}/ndk/*/ | head -1)
           LIBPCAP_PATH=$(pwd)/libpcap-android
           ./configure-android.sh --ndk-path $NDK_ROOT --target ${{ matrix.target }} --api ${{ matrix.api-version }} --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/${{ matrix.target }}/${{ matrix.api-version }}
 
