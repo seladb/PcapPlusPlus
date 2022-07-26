@@ -26,6 +26,12 @@
 
 #define MEMPOOL_CACHE_SIZE 256
 
+#if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
+#define GET_MASTER_CORE rte_get_master_lcore
+#else
+#define GET_MASTER_CORE rte_get_main_lcore
+#endif
+
 namespace pcpp
 {
 
@@ -41,7 +47,12 @@ namespace pcpp
 #define DPDK_COFIG_HW_VLAN_FILTER		0 /**< VLAN filtering disabled */
 #define DPDK_COFIG_JUMBO_FRAME			0 /**< Jumbo Frame Support disabled */
 #define DPDK_COFIG_HW_STRIP_CRC			0 /**< CRC stripped by hardware disabled */
+#if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
 #define DPDK_CONFIG_MQ_MODE				ETH_RSS
+#else
+#define DPDK_CONFIG_MQ_MODE				RTE_ETH_MQ_RX_RSS
+#endif
+
 
 //RSS random key:
 uint8_t DpdkDevice::m_RSSKey[40] = {
@@ -563,7 +574,7 @@ bool DpdkDevice::startCaptureSingleThread(OnDpdkPacketsArriveCallback onPacketsA
 
 	for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 	{
-		if (coreId == (int)rte_get_master_lcore() || !rte_lcore_is_enabled(coreId))
+		if (coreId == (int)GET_MASTER_CORE() || !rte_lcore_is_enabled(coreId))
 			continue;
 
 		m_CoreConfiguration[coreId].IsCoreInUse = true;
