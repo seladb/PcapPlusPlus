@@ -15,11 +15,11 @@ jobs:
     strategy:
       matrix:
         include:
+          - image: ubuntu2204
+            python: python3
           - image: ubuntu2004
             python: python3
           - image: ubuntu1804
-            python: python3.8
-          - image: ubuntu1604
             python: python3.8
           - image: centos7
             python: python3.8
