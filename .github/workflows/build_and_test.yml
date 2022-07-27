@@ -92,7 +92,7 @@ jobs:
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
-        image: [ubuntu2004-dpdk2011, ubuntu2004-dpdk1911]
+        image: [ubuntu2004-dpdk2111, ubuntu2004-dpdk2011, ubuntu2004-dpdk1911]
 
     steps:
       - name: Checkout code
